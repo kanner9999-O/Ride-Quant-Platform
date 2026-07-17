@@ -1,0 +1,28 @@
+---
+id: team-assignments
+status: In Review
+owner: Product Owner
+created_at: "2026-07-16"
+---
+# Gán Người/AI ↔ Role. Constitution KHÔNG được tham chiếu trực tiếp file này bằng tên riêng —
+# chỉ tham chiếu qua Role. Đây là nơi DUY NHẤT lưu ai đang giữ role gì (Single Source of Truth — I-12).
+
+members:
+  - name: "Product Owner"          # tên thật điền khi cần, giữ placeholder trong bản public
+    roles: ["Product Owner", "Chief Architect"]
+    note: "Hiện tại 1 người giữ cả 2 role — có thể tách khi có Chief Architect riêng."
+
+  - name: "ChatGPT"
+    roles: ["AI Technical Architect"]
+    focus: "Discovery, consistency-check giữa các Phase, roadmap tracking"
+
+  - name: "Claude"
+    roles: ["AI Technical Architect"]
+    focus: "Documentation, thiết kế chi tiết, implementation, code review"
+
+  - name: "Thạch"
+    roles: ["Software Engineer"]
+    module_owner: []              # điền tên Engine khi được assign, ví dụ ["Structure Engine"]
+
+# Ghi chú: ChatGPT và Claude đều giữ role "AI Technical Architect" — NGANG HÀNG,
+# không có "Lead" hay hệ thống cấp bậc giữa 2 AI. Quyết định chính thức: xem ADR-006.
