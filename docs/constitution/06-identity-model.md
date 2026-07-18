@@ -15,7 +15,9 @@ depends_on: ["02-platform-invariants"]
 
 # 6. Identity Model
 
-Mọi entity miền đều có ID bất biến: `SwingID`, `StructureID`, `RegimeID`, `FeatureID`, `DecisionID`, `PositionID`, `OrderID`, `ExecutionID`, `StrategyInstanceID`...
+Mọi entity miền đều có ID bất biến: `AccountID`, `SwingID`, `StructureID`, `RegimeID`, `FeatureID`, `DecisionID`, `PositionID`, `OrderID`, `ExecutionID`, `StrategyInstanceID`...
+
+**`Account` là entity first-class ngay từ Phase 0.2** (xem [ADR-007](../adr/ADR-007.md)) — Position/Order/Execution phải scope theo `AccountID` ngay từ đầu, dù Phase 0-3 chỉ có đúng 1 Account tồn tại. Đây là cách chừa chỗ cho multi-tenant sau này (nhiều Account cùng tồn tại + cách ly quyền truy cập) mà không cần redesign Position Ledger.
 
 **Quy tắc:**
 - ID dạng sortable theo thời gian (ví dụ ULID), tránh đụng độ giữa các service phân tán.

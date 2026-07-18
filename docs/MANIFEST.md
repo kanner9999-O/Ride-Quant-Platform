@@ -1,11 +1,11 @@
 ---
-manifest_version: "1.7"
+manifest_version: "1.8"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.0.0"
 current_phase: "Phase 0 — Vision & Foundation"
-compatible_adr_range: "ADR-001 ~ ADR-006"
+compatible_adr_range: "ADR-001 ~ ADR-007"
 generated_at: "2026-07-16"
 ---
 
@@ -24,7 +24,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | File | Version | Status | Owner | Depends On |
 |---|---|---|---|---|
 | constitution/00-governance.md | 1.0 | **Locked** | Product Owner | — |
-| constitution/01-vision.md | 1.0 | In Review | Product Owner | 00-governance |
+| constitution/01-vision.md | 2.0 | In Review | Product Owner | 00-governance |
 | constitution/02-platform-invariants.md | 1.0 | In Review | Product Owner | 00-governance, 01-vision |
 | constitution/03-engineering-principles.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
 | constitution/04-domain-principles.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
@@ -49,6 +49,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | adr/ADR-004.md — Tri-party Confirmation (bản đầu) | Superseded | — | ADR-005 |
 | adr/ADR-005.md — Lean Governance Model | **Locked** | ADR-004 | — |
 | adr/ADR-006.md — ChatGPT/Claude ngang hàng (AI Technical Architect) | **Locked** | — | — |
+| adr/ADR-007.md — Vision Scope: nội bộ/crypto trước, chừa chỗ mở rộng | **Locked** | — | — |
 
 ## Domain
 
@@ -75,12 +76,13 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | ADR-004 | Superseded | 2026-07-16 | Tri-party Confirmation 3/3 (bản đầu, quá nặng) |
 | ADR-005 | Locked | 2026-07-16 | Governance Model — lean, bỏ 3/3, giữ Scale Check |
 | ADR-006 | Locked | 2026-07-16 | Product Owner quyết: ChatGPT/Claude ngang hàng, khác focus |
+| ADR-007 | Locked | 2026-07-17 | Vision Phase 0-3: nội bộ + crypto only, kiến trúc chừa chỗ multi-tenant/đa tài sản |
 
 ## Open Questions
 
 | # | Chủ đề | Trạng thái | Owner | Ghi chú |
 |---|---|---|---|---|
-| OQ-001 | Data Retention Policy & Access Control Model (single-operator hay multi-role RBAC) | Open | Product Owner | Nêu lần đầu khi Claude tự review Constitution lần 1; cần quyết trước khi mở Phase 1 (Security & Custody Baseline) |
+| OQ-001 | Data Retention Policy & Access Control Model chi tiết (RBAC cụ thể khi multi-tenant) | Partially Resolved | Product Owner | Hướng đã chốt qua ADR-007: single-operator NGAY BÂY GIỜ, kiến trúc chừa chỗ (Account first-class) cho multi-tenant sau. Thiết kế RBAC cụ thể vẫn mở, cần quyết trước khi thực sự mở multi-tenant (không phải trước Phase 1 nữa). |
 
 ## Backlog (Constitution v1.1 — Medium Priority, chưa làm ngay)
 
