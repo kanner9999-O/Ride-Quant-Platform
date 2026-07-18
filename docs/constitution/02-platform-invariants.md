@@ -1,7 +1,7 @@
 ---
 id: 02-platform-invariants
 title: Platform Invariants
-version: "2.4"
+version: "2.5"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -111,24 +111,25 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 ### I-6 — Fail-Safe by Scope
 
-**Statement:** Khi không thể xác định tính đúng đắn của dữ liệu, trạng thái, risk hoặc execution trong một scope, hệ thống phải chuyển scope đó về trạng thái an toàn và không phát sinh exposure mới.
+**Statement:** Khi không thể xác định tính đúng đắn của dữ liệu, trạng thái, risk hoặc execution trong một scope, hệ thống phải chuyển scope đó về trạng thái an toàn. Mặc định không được mở thêm risk-increasing exposure; chỉ các risk-reducing action được fail-safe policy cho phép mới được thực hiện.
 
-**Required guarantees:** Phạm vi dừng phải nhỏ nhất nhưng đủ để bảo toàn an toàn — có thể là symbol, strategy, account, exchange, hoặc toàn platform tùy mức độ ảnh hưởng. Safe state phải chặn action làm **tăng** exposure, nhưng vẫn cho phép risk-reducing action được policy cho phép: cancel, reduce-only, close, hedge, hoặc controlled unwind.
+**Required guarantees:** Phạm vi dừng phải nhỏ nhất nhưng đủ để bảo toàn an toàn — có thể là symbol, strategy, account, exchange, hoặc toàn platform tùy mức độ ảnh hưởng. Safe state phải chặn action làm **tăng risk** theo risk model authoritative, nhưng vẫn cho phép risk-reducing action được policy cho phép: cancel, reduce-only, close, hedge, hoặc controlled unwind. Hedge có thể làm tăng **gross exposure** (thêm vị thế ở venue khác) nhưng chỉ được phép khi risk policy xác định nó làm giảm **tổng risk** theo risk model authoritative — không phải mọi hành động "tạo position mới" đều bị cấm, chỉ hành động làm tăng risk mới bị cấm.
 
 **Prohibited behavior:**
 - Một lỗi ở thành phần read-only/projection không critical (ví dụ Explainability projection lag, dashboard chết) làm dừng toàn platform.
 - Một lỗi ảnh hưởng decision/risk/execution bị xử lý với phạm vi quá hẹp, để lan ra ngoài scope cần thiết.
 - Fail-safe chặn luôn risk-reducing action cần thiết, khiến exposure hiện tại không thể được giảm (liên kết trực tiếp với I-8).
+- Hiểu "không phát sinh exposure mới" theo nghĩa đen tuyệt đối đến mức cấm cả hedge hợp lệ (hedge luôn tăng gross exposure dù giảm net risk) — hoặc ngược lại, gắn nhãn "risk-reducing" cho mọi hedge mà không qua risk model authoritative xác nhận.
 
 **Scope:** Mọi Compute Engine, Projection, Runtime Service.
 
-**Verification:** Fault injection test theo từng scope (symbol/strategy/account/exchange) — xác nhận blast radius đúng thiết kế, không quá rộng cũng không quá hẹp.
+**Verification:** Fault injection test theo từng scope (symbol/strategy/account/exchange) — xác nhận blast radius đúng thiết kế, không quá rộng cũng không quá hẹp. Bổ sung assertion: action được fail-safe cho phép không làm tăng risk theo risk metric/policy authoritative, kể cả khi gross position danh nghĩa tăng do hedge.
 
 ---
 
 ### I-7 — Plugin Non-Bypass
 
-**Statement:** Mọi module mới (kể cả AI Assistant) mặc định là consumer của Event Bus. Nếu muốn tham gia Decision Pipeline, phải được xây dựng như Strategy Plugin/Decision Advisor.
+**Statement:** Module mở rộng (plugin/extension) không được mặc định trở thành thành phần nội bộ của Decision Pipeline. Plugin mới chỉ được tương tác qua published contracts; muốn tham gia Decision Pipeline phải được khai báo và kiểm soát như Strategy Plugin/Decision Advisor.
 
 **Required guarantees:** Plugin chỉ tương tác qua versioned event, query/read contract, và command contract đã công bố (không phải khái niệm "Core Engine" chung chung — xem [07-module-taxonomy.md](./07-module-taxonomy.md) cho 3 loại module thật: Compute Engine/Projection/Runtime Service).
 
