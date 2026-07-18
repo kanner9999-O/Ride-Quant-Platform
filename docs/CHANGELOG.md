@@ -136,3 +136,13 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với cả 3 f
 
 ### Changed
 - Bỏ nhãn "Identity" khỏi 1.3 (đã tuyên bố ở câu mở đầu chương) — 1.3 giờ chỉ còn "Core Capability", trỏ ngược lại Identity đã nêu, tránh lặp.
+
+## [Milestone] — 2026-07-17 — 🔒 Chapter 1 (Vision) LOCKED
+
+Product Owner chính thức Approve + Lock `constitution/01-vision.md` (v2.3), sau 3 vòng review (ChatGPT + Claude) qua Vision v2.0 → v2.1 → v2.2 → v2.3.
+
+Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `01-vision.md`: không sửa trực tiếp, mọi thay đổi phải qua ADR mới.
+
+**Đã Locked tới nay:** Chapter 0 (Governance), Chapter 1 (Vision), ADR-005, ADR-006, ADR-007.
+
+**Next Milestone:** Chapter 2 — Platform Invariants.
