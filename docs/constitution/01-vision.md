@@ -1,7 +1,7 @@
 ---
 id: 01-vision
 title: Vision
-version: "2.2"
+version: "2.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -36,9 +36,7 @@ Ride tồn tại để giải quyết vấn đề này — không phải bằng 
 
 ## 1.3 Product Positioning
 
-**Identity:** Ride là một Trading Operating System.
-
-**Core Capability:** một nền tảng Quant Trading chiến lược-bất-khả-tri (strategy-agnostic), Explainable — tích hợp research, validation, execution, risk, review và continuous improvement vào một quy trình chuyên nghiệp duy nhất.
+**Core Capability:** một nền tảng Quant Trading chiến lược-bất-khả-tri (strategy-agnostic), Explainable — tích hợp research, validation, execution, risk, review và continuous improvement vào một quy trình chuyên nghiệp duy nhất, đúng với Identity Trading Operating System đã nêu ở trên.
 
 ## 1.4 Mission
 

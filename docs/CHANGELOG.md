@@ -131,3 +131,8 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với cả 3 f
 
 ### Changed
 - 1.3 Product Positioning: tách "Quant Trading Platform" và "Trading Operating System" đang đứng ngang hàng (nối bằng "và") thành 2 tầng rõ ràng — **Identity** (Trading Operating System) và **Core Capability** (strategy-agnostic Quant Trading Platform) — khớp với cách câu mở đầu chương đã định danh Ride từ đầu.
+
+## [Unreleased] — Vision v2.3: bỏ lặp Identity ở 1.3
+
+### Changed
+- Bỏ nhãn "Identity" khỏi 1.3 (đã tuyên bố ở câu mở đầu chương) — 1.3 giờ chỉ còn "Core Capability", trỏ ngược lại Identity đã nêu, tránh lặp.
