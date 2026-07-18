@@ -1,7 +1,7 @@
 ---
 id: 02-platform-invariants
 title: Platform Invariants
-version: "2.1"
+version: "2.2"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -58,7 +58,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Scope:** Decision pipeline; cả 4 execution mode.
 
-**Verification:** Golden event-log test · **canonical semantic-decision hash comparison** (loại trừ runtime/transport metadata như `DecisionID`, `event_time`, trace ID, processing timestamp, node/instance ID — chỉ hash payload có ý nghĩa nghiệp vụ: strategy_instance, instrument, action, side, quantity_intent, price_policy, risk_context, reason_codes, input_versions) · configuration/version equality check.
+**Verification:** Golden event-log test · canonical semantic-decision hash comparison theo **Decision Contract authoritative** (danh sách field cụ thể sống trong Domain/Event Contract ở `/docs/domain/`, KHÔNG hardcode trong Constitution — tránh vi phạm I-12 khi Decision Contract thay đổi) · runtime identity, transport metadata, và processing metadata phải bị loại khỏi canonicalization · configuration/version equality check.
 
 ---
 
@@ -77,7 +77,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Scope:** Mọi Compute Engine phát sinh output theo thời gian (Structure, Regime, Feature, Strategy...).
 
-**Verification:** Look-ahead audit test — so sánh output tại Replay time T với đúng tập dữ liệu available tại T.
+**Verification:** Look-ahead audit test — so sánh output tại Replay time T với đúng tập dữ liệu available tại T, bao gồm cả trường hợp bitemporal (xem [05-time-model.md](./05-time-model.md)): dữ liệu có `effective/event time` khác với `knowledge/recorded time` (ví dụ candle thuộc 10:00 nhưng bị correction lúc 10:07) — Replay tại 10:03 không được thấy correction đó, dù event_time của candle là 10:00.
 
 ---
 
@@ -91,7 +91,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Scope:** Strategy Engine, Decision Engine, Risk Gateway, Execution Engine.
 
-**Verification:** Static dependency scan — Strategy/Decision module không có import/reference tới Exchange Adapter.
+**Verification:** Static dependency scan (Strategy/Decision module không import/reference Exchange Adapter) · Runtime architecture test — mọi `ExecutionIntentAccepted` phải truy vết được tới một `RiskApproved` ancestor, không có risk approval chain thì execution bị reject · Network-policy test — Strategy/Decision không có egress tới exchange endpoint · Credential audit — Strategy/Decision không sở hữu exchange credential.
 
 ---
 
@@ -99,13 +99,13 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Statement:** Mọi dependency không thể đảm bảo tái tạo nguyên trạng sau này — feature flags, risk limits, configuration, model artifact, venue metadata, exchange filters, clock/calendar/session definitions, funding rate, sentiment, LLM output... — khi được dùng để ra quyết định, phải được ghi thành event bất biến tại thời điểm capture.
 
-**Required guarantees:** Replay chỉ đọc lại event đã lưu, không bao giờ gọi lại nguồn ngoài/service khác lúc replay. Với dependency lớn (model artifact, calendar dataset, venue metadata đầy đủ), được phép capture bằng **immutable, content-addressed reference kèm checksum** thay vì inline toàn bộ binary vào event — miễn artifact vẫn truy cập được khi Replay.
+**Required guarantees:** Replay chỉ đọc lại event đã lưu, không bao giờ gọi lại nguồn ngoài/service khác lúc replay. Với dependency lớn (model artifact, calendar dataset, venue metadata đầy đủ), được phép capture bằng **immutable, content-addressed reference kèm checksum** thay vì inline toàn bộ binary vào event. **Trước khi Replay execution bắt đầu**, mọi referenced artifact phải được resolve và materialize vào một self-contained replay bundle hoặc local immutable cache — tách rõ 2 giai đoạn: *Replay preparation* (được phép resolve immutable artifact qua mạng) và *Replay execution* (không được phụ thuộc network).
 
-**Prohibited behavior:** Query lại nguồn ngoài hoặc config service lúc Replay thay vì đọc snapshot đã lưu tại decision time. Dùng reference dạng mutable (ví dụ "latest-model" hoặc URL có nội dung có thể đổi) thay vì immutable content-addressed reference.
+**Prohibited behavior:** Query lại nguồn ngoài hoặc config service lúc Replay execution thay vì đọc snapshot đã lưu tại decision time. Dùng reference dạng mutable (ví dụ "latest-model" hoặc URL có nội dung có thể đổi) thay vì immutable content-addressed reference. Coi content-addressed reference là đủ để đảm bảo offline — nếu artifact chưa materialize trước khi Replay execution, Replay vẫn có thể fail khi cắt mạng.
 
 **Scope:** Mọi input non-deterministic hoặc mutable-over-time dùng trong Decision Pipeline.
 
-**Verification:** Replay-without-network test — Replay phải chạy được hoàn toàn offline, không cần gọi network/API ngoài.
+**Verification:** Self-contained replay test — sau bước materialization (Replay preparation), ngắt toàn bộ network; Replay execution vẫn phải chạy thành công và checksum của mọi artifact phải khớp.
 
 ---
 
@@ -136,7 +136,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Scope:** Mọi Plugin (Strategy, AI Decision Advisor...).
 
-**Verification:** Contract compliance test — plugin chỉ gọi qua published interface, không import module nội bộ khác.
+**Verification:** Contract compliance test — plugin chỉ gọi qua published interface, không import module nội bộ khác. Trong hệ thống polyglot/distributed, bổ sung: network ACL check · API authorization scope check · event schema compatibility check · command authorization check · capability declaration check · kiểm tra plugin không truy cập trực tiếp storage thuộc module khác (ví dụ query thẳng database của Position Ledger) — bypass không nhất thiết xuất hiện dưới dạng import code.
 
 ---
 
@@ -144,7 +144,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Statement:** Hệ thống phải hỗ trợ kill switch ở cấp platform, account, strategy, và exchange.
 
-**Required guarantees:** Circuit breaker của một exchange KHÔNG mặc định làm dừng các exchange độc lập khác — NHƯNG Risk Gateway phải được phép **pause, cancel, hedge, reduce, hoặc controlled unwind theo risk policy đã định nghĩa** đối với mọi strategy, account, hay position có dependency/exposure liên quan đến exchange đang gặp sự cố (ví dụ: một chân hedge trên exchange lỗi phải được xử lý theo policy, dù exchange đó vẫn hoạt động bình thường — tránh naked exposure). Unwind KHÔNG phải nghĩa vụ tự động thực hiện mỗi khi có sự cố — quyết định pause/cancel/hedge/reduce/unwind tuân theo risk policy, vì unwind vội có thể khóa lỗ, mất hedge khi venue lỗi phục hồi, hoặc tạo market impact không cần thiết khi state chưa reconcile.
+**Required guarantees:** Circuit breaker của một exchange KHÔNG mặc định làm dừng các exchange độc lập khác — NHƯNG Risk Gateway phải được phép **pause, cancel, hedge, reduce, hoặc controlled unwind theo risk policy đã định nghĩa** đối với mọi strategy, account, hay position có dependency/exposure liên quan đến exchange đang gặp sự cố. Ví dụ: khi một chân hedge nằm trên exchange bị lỗi, chân còn lại nằm trên exchange vẫn hoạt động bình thường vẫn có thể phải bị pause, hedge, reduce hoặc unwind theo policy để tránh naked exposure. Unwind KHÔNG phải nghĩa vụ tự động thực hiện mỗi khi có sự cố — quyết định pause/cancel/hedge/reduce/unwind tuân theo risk policy, vì unwind vội có thể khóa lỗ, mất hedge khi venue lỗi phục hồi, hoặc tạo market impact không cần thiết khi state chưa reconcile.
 
 **Prohibited behavior:** Coi per-exchange isolation là tuyệt đối đến mức không cho phép Risk Gateway can thiệp cross-exchange khi có dependency thật (arbitrage, hedge).
 
@@ -158,13 +158,13 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Statement:** Giá trị tài chính authoritative — price, quantity, fee, balance, PnL, risk limit — phải dùng decimal/fixed-point với precision và rounding rule được định nghĩa theo instrument/venue.
 
-**Required guarantees:** Floating point được phép dùng cho phép tính phân tích không-authoritative (ML, entropy, indicator thống kê nội bộ) nhưng phải được chuyển đổi có kiểm soát tại financial boundary trước khi trở thành giá trị authoritative.
+**Required guarantees:** Financial values nhận từ authoritative source (exchange price, fill quantity, fee, balance, tick size, lot size) phải được **parse trực tiếp từ lossless representation** (decimal string hoặc scaled integer) sang decimal/fixed-point — **không được round-trip qua floating point ở bất kỳ bước nào** (chuyển float→decimal sau đó không phục hồi được precision đã mất). Analytical float (model confidence, volatility estimate, normalized score, indicator output) chỉ được trở thành financial intent thông qua một **explicit quantization boundary** — áp dụng instrument precision, tick size, lot size, rounding mode, và validation rule rõ ràng.
 
-**Prohibited behavior:** Dùng float trực tiếp để đại diện giá trị tài chính authoritative (không phải "cấm float toàn bộ hệ thống").
+**Prohibited behavior:** Dùng float trực tiếp để đại diện giá trị tài chính authoritative. Để giá trị từ nguồn authoritative (price/quantity/fee/balance) đi qua float tại bất kỳ bước trung gian nào trước khi thành decimal — kể cả khi bước cuối cùng convert đúng rule, vì precision đã mất từ bước float không thể phục hồi.
 
-**Scope:** Position Ledger, Execution Engine, Risk Gateway — và ranh giới (boundary) giữa Feature Engine (có thể float) và Execution/Ledger (bắt buộc decimal).
+**Scope:** Position Ledger, Execution Engine, Risk Gateway — ranh giới (boundary) giữa Feature Engine (analytical float được phép) và Execution/Ledger (bắt buộc lossless decimal từ đầu đến cuối).
 
-**Verification:** Boundary conversion test — mọi input float đi qua financial boundary phải convert đúng rule trước khi ghi vào Ledger.
+**Verification:** Lossless-ingestion test cho exchange price/quantity/fee/balance (xác nhận không có bước float trung gian) · Quantization-boundary test cho analytical output khi chuyển thành financial intent · Property-based test tại các giá trị sát tick/step boundary (ví dụ `0.1 + 0.2`, min quantity, fee rounding, partial fill aggregation).
 
 ---
 
@@ -192,7 +192,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Scope:** Toàn hệ thống, đặc biệt Execution Engine, Exchange Adapter.
 
-**Verification:** Access control audit — quét permission, xác nhận chỉ Execution/Exchange Adapter có quyền đọc secret store (least privilege).
+**Verification:** Access-control audit — xác nhận chỉ Exchange Adapter hoặc dedicated Custody/Signing Service được phép **sử dụng (use)** credential trực tiếp (không nhất thiết đọc raw secret — KMS/signing service có thể ký request mà không bao giờ trả secret cho caller). Execution Engine không có quyền đọc raw secret, trừ khi deployment manifest chứng minh nó nằm trong cùng trust boundary với Adapter và quyền đó đã được phê duyệt rõ ràng.
 
 ---
 

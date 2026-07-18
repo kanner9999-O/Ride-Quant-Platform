@@ -1,5 +1,5 @@
 ---
-manifest_version: "2.5"
+manifest_version: "2.6"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -25,7 +25,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 |---|---|---|---|---|
 | constitution/00-governance.md | 1.0 | **Locked** | Product Owner | — |
 | constitution/01-vision.md | 2.3 | **Locked** | Product Owner | 00-governance |
-| constitution/02-platform-invariants.md | 2.1 | In Review | Product Owner | 00-governance, 01-vision |
+| constitution/02-platform-invariants.md | 2.2 | In Review | Product Owner | 00-governance, 01-vision |
 | constitution/03-engineering-principles.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
 | constitution/04-domain-principles.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
 | constitution/05-time-model.md | 1.0 | In Review | Product Owner | 04-domain-principles |
@@ -84,6 +84,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 |---|---|---|---|---|
 | OQ-001 | Data Retention Policy & Access Control Model chi tiết (RBAC cụ thể khi multi-tenant) | Partially Resolved | Product Owner | Hướng đã chốt qua ADR-007: single-operator NGAY BÂY GIỜ, kiến trúc chừa chỗ (Account first-class) cho multi-tenant sau. Thiết kế RBAC cụ thể vẫn mở, cần quyết trước khi thực sự mở multi-tenant (không phải trước Phase 1 nữa). |
 | OQ-002 | Strategy Lifecycle Gate: Capability Matrix phải xác nhận Backtest=YES + Paper Trade=YES trước khi strategy chuyển Live | Open | Product Owner | Chuyển ra khỏi Vision (V2-02) — thuộc về Quality Gates/Strategy Lifecycle, cần ADR khi Phase 3 định nghĩa Strategy Lifecycle |
+| OQ-004 | Time Model (Chapter 5) cần bổ sung rõ bitemporal: effective/event time vs knowledge/recorded time (cho trường hợp data correction, vd candle bị sửa sau khi publish) | Open | Product Owner | Nêu khi review Chapter 2 (I-3 Minor 5) — cần xử lý khi Chapter 5 vào vòng review riêng, không sửa vội ở Chapter 2 |
 | OQ-003 | Product Metrics cụ thể cho nguyên tắc "Measurable" (vd: decision-rationale coverage rate, risk-policy violation rate, replay-to-live parity deviation, thời gian hypothesis→validated strategy...) | Open | Product Owner | Chuyển ra khỏi Vision (V2-05) — cần tài liệu Product Metrics riêng, không nhét KPI chi tiết vào Vision |
 
 ## Backlog (Constitution v1.1 — Medium Priority, chưa làm ngay)
@@ -91,6 +92,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | # | Nội dung | Nguồn đề xuất |
 |---|---|---|
 | BL-001 | `review_status` dạng machine-readable trong metadata (thay vì list `reviewers` dạng text) | ChatGPT review |
+| BL-003 | Invariant Conformance Matrix (Invariant → Architecture mechanism → Owning module → Enforcement → Automated test → Runtime metric/alert → Evidence location) — thuộc Architecture/Engineering Phase, KHÔNG phải Constitution. Chỉ làm khi module/contract thật đã tồn tại, không điền tên ADR/tài liệu chưa tạo (tránh tham chiếu giả) | ChatGPT review (Chapter 2 round 3) |
 | BL-002 | `Traceability` — thêm `related_constitution` / `related_domain` / `related_engine` vào frontmatter ADR để tool trace ảnh hưởng của 1 quyết định. **Mở rộng (Vision review round 2):** nên trace được cả chiều Principle → ADR → Architecture (vd: "Everything Must Be Explainable" → I-1 → Decision Log/Replay/Context Projection) | ChatGPT review |
 
 ---
