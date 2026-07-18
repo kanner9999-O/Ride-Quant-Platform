@@ -1,7 +1,7 @@
 ---
 id: 02-platform-invariants
 title: Platform Invariants
-version: "2.0"
+version: "2.1"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -40,7 +40,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Scope:** Toàn bộ Decision Pipeline (Structure/Regime/Feature → Strategy → Decision → Risk Gateway → Execution).
 
-**Verification:** Decision Trace replay test — tái dựng 1 decision ngẫu nhiên chỉ từ event log, không hỏi lại engine gốc.
+**Verification:** Mọi Decision/Risk Action production phải vượt trace-completeness validation (100%, không phải mẫu). CI thực hiện sample-based deep reconstruction trên volume lớn; audit định kỳ chọn mẫu sâu để xác nhận không có evidence bị thiếu.
 
 ---
 
@@ -58,7 +58,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Scope:** Decision pipeline; cả 4 execution mode.
 
-**Verification:** Golden event-log test · cross-mode decision hash comparison · configuration/version equality check.
+**Verification:** Golden event-log test · **canonical semantic-decision hash comparison** (loại trừ runtime/transport metadata như `DecisionID`, `event_time`, trace ID, processing timestamp, node/instance ID — chỉ hash payload có ý nghĩa nghiệp vụ: strategy_instance, instrument, action, side, quantity_intent, price_policy, risk_context, reason_codes, input_versions) · configuration/version equality check.
 
 ---
 
@@ -99,9 +99,9 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Statement:** Mọi dependency không thể đảm bảo tái tạo nguyên trạng sau này — feature flags, risk limits, configuration, model artifact, venue metadata, exchange filters, clock/calendar/session definitions, funding rate, sentiment, LLM output... — khi được dùng để ra quyết định, phải được ghi thành event bất biến tại thời điểm capture.
 
-**Required guarantees:** Replay chỉ đọc lại event đã lưu, không bao giờ gọi lại nguồn ngoài/service khác lúc replay.
+**Required guarantees:** Replay chỉ đọc lại event đã lưu, không bao giờ gọi lại nguồn ngoài/service khác lúc replay. Với dependency lớn (model artifact, calendar dataset, venue metadata đầy đủ), được phép capture bằng **immutable, content-addressed reference kèm checksum** thay vì inline toàn bộ binary vào event — miễn artifact vẫn truy cập được khi Replay.
 
-**Prohibited behavior:** Query lại nguồn ngoài hoặc config service lúc Replay thay vì đọc snapshot đã lưu tại decision time.
+**Prohibited behavior:** Query lại nguồn ngoài hoặc config service lúc Replay thay vì đọc snapshot đã lưu tại decision time. Dùng reference dạng mutable (ví dụ "latest-model" hoặc URL có nội dung có thể đổi) thay vì immutable content-addressed reference.
 
 **Scope:** Mọi input non-deterministic hoặc mutable-over-time dùng trong Decision Pipeline.
 
@@ -113,11 +113,12 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Statement:** Khi không thể xác định tính đúng đắn của dữ liệu, trạng thái, risk hoặc execution trong một scope, hệ thống phải chuyển scope đó về trạng thái an toàn và không phát sinh exposure mới.
 
-**Required guarantees:** Phạm vi dừng phải nhỏ nhất nhưng đủ để bảo toàn an toàn — có thể là symbol, strategy, account, exchange, hoặc toàn platform tùy mức độ ảnh hưởng.
+**Required guarantees:** Phạm vi dừng phải nhỏ nhất nhưng đủ để bảo toàn an toàn — có thể là symbol, strategy, account, exchange, hoặc toàn platform tùy mức độ ảnh hưởng. Safe state phải chặn action làm **tăng** exposure, nhưng vẫn cho phép risk-reducing action được policy cho phép: cancel, reduce-only, close, hedge, hoặc controlled unwind.
 
 **Prohibited behavior:**
 - Một lỗi ở thành phần read-only/projection không critical (ví dụ Explainability projection lag, dashboard chết) làm dừng toàn platform.
 - Một lỗi ảnh hưởng decision/risk/execution bị xử lý với phạm vi quá hẹp, để lan ra ngoài scope cần thiết.
+- Fail-safe chặn luôn risk-reducing action cần thiết, khiến exposure hiện tại không thể được giảm (liên kết trực tiếp với I-8).
 
 **Scope:** Mọi Compute Engine, Projection, Runtime Service.
 
@@ -143,7 +144,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Statement:** Hệ thống phải hỗ trợ kill switch ở cấp platform, account, strategy, và exchange.
 
-**Required guarantees:** Circuit breaker của một exchange KHÔNG mặc định làm dừng các exchange độc lập khác — NHƯNG Risk Gateway phải được phép pause hoặc unwind mọi strategy, account, hay position có dependency/exposure liên quan đến exchange đang gặp sự cố (ví dụ: một chân hedge trên exchange lỗi phải kéo theo pause chân còn lại, dù exchange đó vẫn hoạt động bình thường — tránh naked exposure).
+**Required guarantees:** Circuit breaker của một exchange KHÔNG mặc định làm dừng các exchange độc lập khác — NHƯNG Risk Gateway phải được phép **pause, cancel, hedge, reduce, hoặc controlled unwind theo risk policy đã định nghĩa** đối với mọi strategy, account, hay position có dependency/exposure liên quan đến exchange đang gặp sự cố (ví dụ: một chân hedge trên exchange lỗi phải được xử lý theo policy, dù exchange đó vẫn hoạt động bình thường — tránh naked exposure). Unwind KHÔNG phải nghĩa vụ tự động thực hiện mỗi khi có sự cố — quyết định pause/cancel/hedge/reduce/unwind tuân theo risk policy, vì unwind vội có thể khóa lỗ, mất hedge khi venue lỗi phục hồi, hoặc tạo market impact không cần thiết khi state chưa reconcile.
 
 **Prohibited behavior:** Coi per-exchange isolation là tuyệt đối đến mức không cho phép Risk Gateway can thiệp cross-exchange khi có dependency thật (arbitrage, hedge).
 
@@ -185,9 +186,9 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Statement:** API key, secret, private key không bao giờ được lưu dạng plaintext (bắt buộc qua Vault/KMS).
 
-**Required guarantees:** Chỉ Execution Engine/Exchange Adapter (Runtime Service) có quyền truy cập secret của sàn.
+**Required guarantees:** Chỉ Exchange Adapter hoặc dedicated Custody/Signing Service được phép sử dụng exchange credential trực tiếp. Execution Engine tương tác qua contract (gửi execution command), không cần đọc raw secret trừ khi được triển khai cùng trust boundary với Adapter.
 
-**Prohibited behavior:** Strategy/Decision Engine được cấp quyền truy cập trực tiếp secret của sàn.
+**Prohibited behavior:** Strategy/Decision Engine được cấp quyền truy cập trực tiếp secret của sàn. Execution Engine được cấp quyền đọc raw secret rộng hơn cần thiết khi không thuộc cùng trust boundary với Exchange Adapter.
 
 **Scope:** Toàn hệ thống, đặc biệt Execution Engine, Exchange Adapter.
 
@@ -199,12 +200,20 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Statement:** Mỗi concept và scope phải có một authoritative source được chỉ định rõ.
 
-**Required guarantees:** Runtime decision history lấy **durable append-only event log** làm authority — không phải transport mechanism cụ thể (Redpanda, Kafka, hay bất kỳ công nghệ nào thay thế sau này). Projection, cache, index, tài liệu dẫn xuất (Manifest, Decision Log, Domain Model/Glossary) chỉ là bản sao có thể tái tạo hoặc tham chiếu.
+**Required guarantees:** Mỗi loại concept khai báo đúng authoritative source tương ứng:
+- Runtime facts và decision history → durable append-only event log.
+- Document version/status/Decision Log/Open Questions → `MANIFEST.md`.
+- Architecture decisions → ADR tương ứng.
+- Platform rules → Constitution.
+- Domain concepts và ubiquitous language → Domain Contract trong `/docs/domain/`.
+
+Projection, cache, index, dashboard, và materialized view là **derived representation** — chúng phải tham chiếu hoặc rebuild được từ authoritative source tương ứng ở trên, KHÔNG tự thân là nguồn sự thật.
 
 **Prohibited behavior:**
-- Coi transport mechanism tự động là source of truth (nếu đổi Redpanda sang công nghệ khác, invariant này không được thay đổi theo).
-- Hiểu "một nguồn sự thật" thành "toàn platform chỉ 1 database duy nhất" — đúng ra là **một authoritative source per scope/concept**, có thể có nhiều store khác nhau miễn mỗi concept chỉ có đúng 1 nguồn.
+- Coi transport mechanism (Redpanda, Kafka, hay công nghệ thay thế sau này) tự động là source of truth — authority nằm ở durable append-only log, không phải công nghệ transport cụ thể.
+- Gọi tài liệu authoritative (MANIFEST.md, ADR, Domain Contract) là "bản sao dẫn xuất" của event log — chúng là nguồn sự thật cho concept riêng của chúng (document status, decision record, domain concept), không phải projection của runtime data.
+- Hiểu "một nguồn sự thật" thành "toàn platform chỉ 1 database duy nhất" — đúng ra là **một authoritative source per scope/concept**.
 
-**Scope:** Toàn hệ thống — cả runtime (Event Log) lẫn tài liệu (Manifest, Decision Log, Domain Model).
+**Scope:** Toàn hệ thống — cả runtime (Event Log) lẫn tài liệu (Manifest, ADR, Domain Model).
 
-**Verification:** Rebuild test — mọi projection/state phải rebuild lại đúng 100% chỉ từ authoritative source tương ứng, không cần dữ liệu nào khác.
+**Verification:** Mọi derived representation (projection, cache, dashboard...) phải có thể rebuild hoặc đối chiếu hoàn toàn từ authoritative source của đúng concept đó.
