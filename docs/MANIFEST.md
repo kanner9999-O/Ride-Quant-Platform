@@ -1,5 +1,5 @@
 ---
-manifest_version: "1.8"
+manifest_version: "1.9"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -89,7 +89,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | # | Nội dung | Nguồn đề xuất |
 |---|---|---|
 | BL-001 | `review_status` dạng machine-readable trong metadata (thay vì list `reviewers` dạng text) | ChatGPT review |
-| BL-002 | `Traceability` — thêm `related_constitution` / `related_domain` / `related_engine` vào frontmatter ADR để tool trace ảnh hưởng của 1 quyết định | ChatGPT review |
+| BL-002 | `Traceability` — thêm `related_constitution` / `related_domain` / `related_engine` vào frontmatter ADR để tool trace ảnh hưởng của 1 quyết định. **Mở rộng (Vision review round 2):** nên trace được cả chiều Principle → ADR → Architecture (vd: "Everything Must Be Explainable" → I-1 → Decision Log/Replay/Context Projection) | ChatGPT review |
 
 ---
 

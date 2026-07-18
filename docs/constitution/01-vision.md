@@ -41,15 +41,19 @@ Ride tồn tại để giải quyết vấn đề này — không phải bằng 
 
 Ride là một **Explainable Quant Trading Platform**, chiến lược-bất-khả-tri (strategy-agnostic) — hỗ trợ nhiều phương pháp giao dịch, thị trường và công nghệ tương lai mà không cần thay đổi nền tảng kiến trúc.
 
-## 1.4 Mission
+Ride ban đầu được thiết kế cho **cá nhân/1 team trader chuyên nghiệp** vận hành nhiều strategy trên vốn của chính mình — không phải sản phẩm SaaS đại chúng. Kiến trúc chủ đích được thiết kế để hỗ trợ multi-workspace/multi-tenant trong tương lai mà không cần redesign (xem [ADR-007](../adr/ADR-007.md)).
 
-Ride giúp trader: học nhanh hơn, giảm thua lỗ do quy trình kém, xây thói quen giao dịch chuyên nghiệp, ra quyết định giải thích được, quản lý rủi ro hệ thống, đo lường hiệu suất khách quan, cải thiện liên tục qua feedback có cấu trúc.
+Ride ban đầu được xây dựng cho **thị trường Crypto**. Kiến trúc giữ tính asset-agnostic để mở rộng sang thị trường khác sau này (xem [ADR-007](../adr/ADR-007.md)).
+
+## 1.4 Mission (What Ride does — khác với Vision ở trên là "Future State", và khác Long-term Vision ở Mục 1.11 là "Platform Evolution")
+
+Ride giúp trader: học nhanh hơn, giảm thua lỗ do quy trình kém, ra quyết định giải thích được, quản lý rủi ro hệ thống, đo lường hiệu suất khách quan, cải thiện liên tục qua feedback có cấu trúc.
 
 **Ride không hứa hẹn lợi nhuận.** Ride cung cấp hạ tầng cho phép cải thiện dài hạn.
 
-## 1.5 Target Users (trong phạm vi Current Scope ở Mục 1.1 — nội bộ)
+## 1.5 Target Users (vai trò, KHÔNG phải nhóm khách hàng độc lập — xem 1.3)
 
-Ride phục vụ những người xem trading là một nghề: Retail Trader, Professional Trader, Quant Researcher, Strategy Developer — trong Phase 0-3, đây là các **vai trò** mà 1 team nội bộ có thể đảm nhiệm cùng lúc, không phải các nhóm khách hàng độc lập riêng biệt (xem Mục 1.1).
+Ride phục vụ những người xem trading là một nghề: Retail Trader, Professional Trader, Quant Researcher, Strategy Developer. Đây là các **vai trò/persona** dùng để định hướng thiết kế tính năng ("tính năng này phục vụ persona nào"), không phải các tenant/khách hàng độc lập cần cách ly hạ tầng — Target Users và Deployment Model là 2 khái niệm tách biệt (giống VSCode phục vụ nhiều loại developer nhưng không phải multi-tenant SaaS).
 
 ## 1.6 Core Beliefs
 
@@ -66,6 +70,8 @@ Mọi tính năng thêm vào Ride phải phục vụ ít nhất 1 nguyên tắc 
 **Everything Must Be Explainable** — người dùng luôn hiểu được tại sao 1 vị thế tồn tại/đóng, context nào sinh ra quyết định, strategy/engine nào đóng góp. *(Đây là diễn giải giá trị/lý do của [I-1 Explainability](./02-platform-invariants.md) — định nghĩa kỹ thuật chính xác nằm ở Platform Invariants, không lặp lại ở đây theo I-12.)* Replay, Event Sourcing, Decision Log, Context Projection, Explainability Store tồn tại vì đúng 1 lý do: đảm bảo mọi quyết định quan trọng có thể tái dựng, review và hiểu được.
 
 **Everything Must Be Reproducible** — cùng 1 quyết định phải cho cùng 1 kết quả bất kể execution mode (Replay/Backtest/Paper/Live), tất cả chạy qua cùng 1 decision pipeline. *(Đây chính là [I-2 Parity Principle](./02-platform-invariants.md).)*
+
+**Everything Must Be Measurable** — mọi hành vi, quyết định, và kết quả trong Ride phải đo lường được khách quan (không chỉ mô tả định tính). Đây là nguyên tắc đối xứng với "Explainable" trong tagline mở đầu chương (Explainable, Measurable, Continuously Improving) — Replay, Journal, Risk, Review, Analytics, Backtest đều dựa trên khả năng đo lường được, không phải cảm nhận chủ quan.
 
 **Research Before Capital** — mọi strategy phải được validate trước khi triển khai vốn thật. *(Khuyến nghị: nên chính thức hóa thành điều kiện bắt buộc trong Quality Gates — Capability Matrix phải xác nhận Backtest=YES và Paper Trade=YES trước khi 1 strategy được phép chuyển trạng thái Live; xem [13-quality-gates.md](./13-quality-gates.md) — cần ADR riêng khi định nghĩa Strategy Lifecycle ở Phase 0.2/Phase 3.)*
 
