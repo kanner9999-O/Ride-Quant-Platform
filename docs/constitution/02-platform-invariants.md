@@ -1,7 +1,7 @@
 ---
 id: 02-platform-invariants
 title: Platform Invariants
-version: "2.2"
+version: "2.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -164,7 +164,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Scope:** Position Ledger, Execution Engine, Risk Gateway — ranh giới (boundary) giữa Feature Engine (analytical float được phép) và Execution/Ledger (bắt buộc lossless decimal từ đầu đến cuối).
 
-**Verification:** Lossless-ingestion test cho exchange price/quantity/fee/balance (xác nhận không có bước float trung gian) · Quantization-boundary test cho analytical output khi chuyển thành financial intent · Property-based test tại các giá trị sát tick/step boundary (ví dụ `0.1 + 0.2`, min quantity, fee rounding, partial fill aggregation).
+**Verification:** Lossless-ingestion test cho exchange price/quantity/fee/balance (xác nhận không có bước float trung gian, **kể cả ở tầng deserialization** — nhiều JSON parser mặc định (JS `JSON.parse`, Python `json.loads` với số thực) tự động convert số thành float64 ngay khi đọc response từ Exchange, trước khi logic nghiệp vụ kịp xử lý; phải dùng parser decimal-aware ngay từ tầng nhận dữ liệu, không chỉ ở tầng lưu Ledger) · Quantization-boundary test cho analytical output khi chuyển thành financial intent · Property-based test tại các giá trị sát tick/step boundary (ví dụ `0.1 + 0.2`, min quantity, fee rounding, partial fill aggregation).
 
 ---
 
