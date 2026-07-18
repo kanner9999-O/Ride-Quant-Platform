@@ -1,33 +1,210 @@
 ---
 id: 02-platform-invariants
 title: Platform Invariants
-version: "1.0"
+version: "2.0"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
 approved_by: null
 approved_at: null
 created_at: "2026-07-16"
-last_review: "2026-07-16"
+last_review: "2026-07-18"
 next_review: null
 depends_on: ["00-governance", "01-vision"]
 ---
 
 # 2. Platform Invariants (Bất biến — áp dụng cho MỌI chiến lược, không thương lượng)
 
-Đây là ranh giới quan trọng nhất của toàn bộ Constitution: **Platform Invariants khác với Strategy-level Philosophy.** Platform Invariants áp dụng cho toàn hệ thống, không phụ thuộc trường phái chiến lược nào. Triết lý của một chiến lược cụ thể (ví dụ "giữ vị thế đến khi bị vô hiệu hóa thay vì TP cố định" của Ride Negation Strategy) **không được** đưa vào đây — nó thuộc về `strategy.json`/metadata của riêng chiến lược đó, vì các chiến lược khác (market making, arbitrage) có thể mâu thuẫn với nó.
+Đây là ranh giới quan trọng nhất của toàn bộ Constitution: **Platform Invariants khác với Strategy-level Philosophy.** Platform Invariants áp dụng cho toàn hệ thống, không phụ thuộc trường phái chiến lược nào. Triết lý của một chiến lược cụ thể (ví dụ "giữ vị thế đến khi bị vô hiệu hóa thay vì TP cố định" của Ride Negation Strategy) **không được** đưa vào đây — nó thuộc về `strategy.json`/metadata của riêng chiến lược đó.
 
-| # | Invariant | Diễn giải |
-|---|---|---|
-| I-1 | **Explainability** | Mọi quyết định giao dịch phải truy vết được ngược lại đến: dữ liệu đầu vào, phiên bản model/strategy, feature snapshot — tại đúng thời điểm nó xảy ra, không phải suy luận lại sau. |
-| I-2 | **Parity Principle** | Live, Replay, và Backtest phải chạy qua **cùng một Event Pipeline** và cùng logic code. Không được có hai codebase logic khác nhau cho research và production. |
-| I-3 | **No Repaint** | Một sự kiện (Swing, Structure, Signal...) một khi đã publish thì bất biến. Thay đổi trạng thái phải thông qua một event mới (ví dụ `Invalidated`), không được sửa/ghi đè event cũ. |
-| I-4 | **Strategy Isolation** | Strategy/Decision Engine không bao giờ được gọi trực tiếp Exchange API. Mọi trade intent phải đi qua Risk Gateway trước khi tới Execution. |
-| I-5 | **External Decision Dependency phải Event-Sourced** | Bất kỳ dữ liệu bên ngoài nào mutable-theo-thời-gian và được dùng để ra quyết định (funding rate, sentiment, news score, output của LLM Decision Advisor...) đều phải được ghi thành một event bất biến tại thời điểm capture (`FundingSnapshotCaptured`, `LLMDecisionGenerated`...). Replay chỉ đọc lại event đã lưu, **không bao giờ** gọi lại nguồn dữ liệu bên ngoài. |
-| I-6 | **Fail-Safe Default** | Khi một engine gặp lỗi, hệ thống mặc định dừng an toàn (fail-safe), không tiếp tục chạy với dữ liệu/trạng thái không chắc chắn (fail-open). |
-| I-7 | **Plugin Non-Bypass** | Mọi module mới (kể cả AI Assistant tương lai) mặc định là một consumer của Event Bus. Nếu module đó muốn tham gia vào Decision Pipeline, nó phải được xây dựng như một Strategy Plugin / Decision Advisor — tuân theo Risk Gateway như mọi strategy khác, không được truy cập trực tiếp Core Engine hay Exchange. |
-| I-8 | **Kill Switch / Circuit Breaker** | Hệ thống phải luôn có khả năng dừng khẩn cấp — cả toàn platform lẫn theo từng sàn riêng lẻ (per-exchange), thủ công lẫn tự động. Circuit breaker của một sàn kích hoạt không được ảnh hưởng tới các sàn khác đang hoạt động bình thường. |
-| I-9 | **Numerical Precision** | Mọi giá trị tiền tệ và số lượng phải dùng biểu diễn fixed-point/decimal, **không bao giờ** dùng floating point. |
-| I-10 | **Idempotent Execution** | Mọi lệnh gửi tới Exchange phải mang một idempotency key duy nhất. Retry không bao giờ được phép tạo ra lệnh trùng lặp trên sàn thật. |
-| I-11 | **Secrets & Custody Isolation** | API key, secret, private key không bao giờ được lưu dạng plaintext (bắt buộc qua Vault/KMS). Strategy/Decision Engine **không bao giờ** được cấp quyền truy cập trực tiếp secret của sàn — chỉ Execution Engine/Exchange Adapter mới có quyền này (least privilege). |
-| I-12 | **Single Source of Truth** | Mỗi khái niệm (dữ liệu, trạng thái, quyết định, tài liệu) chỉ có đúng **một** nguồn sự thật. Mọi nơi khác chỉ tham chiếu, không duplicate. Áp dụng cả tầng runtime (Event Bus — I-2/Event Model) lẫn tầng tài liệu (Manifest, Decision Log, Domain Model/Glossary). |
+Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guarantees** (bắt buộc đảm bảo) · **Prohibited behavior** (hành vi bị cấm) · **Scope** (áp dụng ở đâu) · **Verification** (làm sao kiểm chứng tuân thủ).
+
+---
+
+### I-1 — Explainability
+
+**Statement:** Mọi decision và risk action phải tái dựng được từ immutable evidence đã capture tại decision time.
+
+**Required guarantees:**
+- Input data snapshot tại decision time.
+- Model/strategy version + strategy instance ID; configuration version; code/build version.
+- Risk policy/version áp dụng tại thời điểm đó.
+- Correlation/causation chain nối các event liên quan.
+- Decision time (Event Time, xem [05-time-model.md](./05-time-model.md)).
+- External dependency snapshot nếu có (xem I-5).
+- Execution intent và outcome liên quan.
+
+**Prohibited behavior:**
+- Suy luận lại lý do quyết định sau khi xảy ra, khi không có evidence lưu sẵn.
+- Xóa/ghi đè evidence đã capture.
+
+**Scope:** Toàn bộ Decision Pipeline (Structure/Regime/Feature → Strategy → Decision → Risk Gateway → Execution).
+
+**Verification:** Decision Trace replay test — tái dựng 1 decision ngẫu nhiên chỉ từ event log, không hỏi lại engine gốc.
+
+---
+
+### I-2 — Decision Parity
+
+**Statement:** Với cùng input event log, configuration, strategy/model version và deterministic state, Replay, Backtest, Paper Trading và Live phải tạo ra **cùng một Decision**.
+
+**Required guarantees:**
+- Cả 4 execution mode (Replay/Backtest/Paper/Live) dùng chung decision logic và event pipeline — không có 2 codebase logic khác nhau cho research và production.
+- Execution outcome được phép khác nhau (do liquidity, latency, slippage, partial fill, rejection, venue behavior) — nhưng mọi khác biệt phải được capture và giải thích được.
+
+**Prohibited behavior:**
+- Coi khác biệt ở execution outcome là "vi phạm Parity" — Parity nằm ở tầng **Decision**, không phải tầng **Execution Result**.
+- Dùng logic quyết định khác nhau giữa các mode.
+
+**Scope:** Decision pipeline; cả 4 execution mode.
+
+**Verification:** Golden event-log test · cross-mode decision hash comparison · configuration/version equality check.
+
+---
+
+### I-3 — No Repaint / No Look-Ahead
+
+**Statement:** Một output đã publish không được sửa hoặc xóa; thay đổi phải biểu diễn bằng event mới. Engine không được sử dụng dữ liệu chưa tồn tại tại decision time để tạo, xác nhận, hoặc backdate output.
+
+**Required guarantees:**
+- Append-only event history (event immutability).
+- Trạng thái `provisional/candidate` và `confirmed` có semantic riêng, phân biệt rõ.
+- Replay tại thời điểm T chỉ được quan sát thông tin đã biết và publish không muộn hơn T.
+
+**Prohibited behavior:**
+- Backdate một event mới như thể nó đã tồn tại trước đó.
+- Dùng dữ liệu tương lai (so với decision time) để sinh hoặc xác nhận output ở quá khứ — kể cả khi event log vẫn giữ tính append-only (event immutability KHÔNG tự động đảm bảo No Repaint).
+
+**Scope:** Mọi Compute Engine phát sinh output theo thời gian (Structure, Regime, Feature, Strategy...).
+
+**Verification:** Look-ahead audit test — so sánh output tại Replay time T với đúng tập dữ liệu available tại T.
+
+---
+
+### I-4 — Strategy Isolation
+
+**Statement:** Strategy/Decision Engine không bao giờ được gọi trực tiếp Exchange API.
+
+**Required guarantees:** Mọi trade intent phải đi qua Risk Gateway trước khi tới Execution Engine.
+
+**Prohibited behavior:** Strategy/Decision Engine tự thực thi lệnh hoặc truy cập Exchange Adapter trực tiếp.
+
+**Scope:** Strategy Engine, Decision Engine, Risk Gateway, Execution Engine.
+
+**Verification:** Static dependency scan — Strategy/Decision module không có import/reference tới Exchange Adapter.
+
+---
+
+### I-5 — Decision-Time Observable Dependency
+
+**Statement:** Mọi dependency không thể đảm bảo tái tạo nguyên trạng sau này — feature flags, risk limits, configuration, model artifact, venue metadata, exchange filters, clock/calendar/session definitions, funding rate, sentiment, LLM output... — khi được dùng để ra quyết định, phải được ghi thành event bất biến tại thời điểm capture.
+
+**Required guarantees:** Replay chỉ đọc lại event đã lưu, không bao giờ gọi lại nguồn ngoài/service khác lúc replay.
+
+**Prohibited behavior:** Query lại nguồn ngoài hoặc config service lúc Replay thay vì đọc snapshot đã lưu tại decision time.
+
+**Scope:** Mọi input non-deterministic hoặc mutable-over-time dùng trong Decision Pipeline.
+
+**Verification:** Replay-without-network test — Replay phải chạy được hoàn toàn offline, không cần gọi network/API ngoài.
+
+---
+
+### I-6 — Fail-Safe by Scope
+
+**Statement:** Khi không thể xác định tính đúng đắn của dữ liệu, trạng thái, risk hoặc execution trong một scope, hệ thống phải chuyển scope đó về trạng thái an toàn và không phát sinh exposure mới.
+
+**Required guarantees:** Phạm vi dừng phải nhỏ nhất nhưng đủ để bảo toàn an toàn — có thể là symbol, strategy, account, exchange, hoặc toàn platform tùy mức độ ảnh hưởng.
+
+**Prohibited behavior:**
+- Một lỗi ở thành phần read-only/projection không critical (ví dụ Explainability projection lag, dashboard chết) làm dừng toàn platform.
+- Một lỗi ảnh hưởng decision/risk/execution bị xử lý với phạm vi quá hẹp, để lan ra ngoài scope cần thiết.
+
+**Scope:** Mọi Compute Engine, Projection, Runtime Service.
+
+**Verification:** Fault injection test theo từng scope (symbol/strategy/account/exchange) — xác nhận blast radius đúng thiết kế, không quá rộng cũng không quá hẹp.
+
+---
+
+### I-7 — Plugin Non-Bypass
+
+**Statement:** Mọi module mới (kể cả AI Assistant) mặc định là consumer của Event Bus. Nếu muốn tham gia Decision Pipeline, phải được xây dựng như Strategy Plugin/Decision Advisor.
+
+**Required guarantees:** Plugin chỉ tương tác qua versioned event, query/read contract, và command contract đã công bố (không phải khái niệm "Core Engine" chung chung — xem [07-module-taxonomy.md](./07-module-taxonomy.md) cho 3 loại module thật: Compute Engine/Projection/Runtime Service).
+
+**Prohibited behavior:** Plugin gọi trực tiếp implementation nội bộ hoặc mutable state của module khác.
+
+**Scope:** Mọi Plugin (Strategy, AI Decision Advisor...).
+
+**Verification:** Contract compliance test — plugin chỉ gọi qua published interface, không import module nội bộ khác.
+
+---
+
+### I-8 — Kill Switch / Circuit Breaker
+
+**Statement:** Hệ thống phải hỗ trợ kill switch ở cấp platform, account, strategy, và exchange.
+
+**Required guarantees:** Circuit breaker của một exchange KHÔNG mặc định làm dừng các exchange độc lập khác — NHƯNG Risk Gateway phải được phép pause hoặc unwind mọi strategy, account, hay position có dependency/exposure liên quan đến exchange đang gặp sự cố (ví dụ: một chân hedge trên exchange lỗi phải kéo theo pause chân còn lại, dù exchange đó vẫn hoạt động bình thường — tránh naked exposure).
+
+**Prohibited behavior:** Coi per-exchange isolation là tuyệt đối đến mức không cho phép Risk Gateway can thiệp cross-exchange khi có dependency thật (arbitrage, hedge).
+
+**Scope:** Risk Gateway, Execution Engine, mọi Exchange Adapter.
+
+**Verification:** Cross-exchange dependency fault test — ví dụ kịch bản arbitrage 2 sàn, một sàn bị circuit breaker kích hoạt, xác nhận Risk Gateway pause đúng phần liên quan (không thừa, không thiếu).
+
+---
+
+### I-9 — Numerical Precision
+
+**Statement:** Giá trị tài chính authoritative — price, quantity, fee, balance, PnL, risk limit — phải dùng decimal/fixed-point với precision và rounding rule được định nghĩa theo instrument/venue.
+
+**Required guarantees:** Floating point được phép dùng cho phép tính phân tích không-authoritative (ML, entropy, indicator thống kê nội bộ) nhưng phải được chuyển đổi có kiểm soát tại financial boundary trước khi trở thành giá trị authoritative.
+
+**Prohibited behavior:** Dùng float trực tiếp để đại diện giá trị tài chính authoritative (không phải "cấm float toàn bộ hệ thống").
+
+**Scope:** Position Ledger, Execution Engine, Risk Gateway — và ranh giới (boundary) giữa Feature Engine (có thể float) và Execution/Ledger (bắt buộc decimal).
+
+**Verification:** Boundary conversion test — mọi input float đi qua financial boundary phải convert đúng rule trước khi ghi vào Ledger.
+
+---
+
+### I-10 — Idempotent Execution Effect
+
+**Statement:** Mỗi execution intent phải có identity bất biến, được ánh xạ deterministic sang client order identity của venue.
+
+**Required guarantees:** Trước khi retry ở trạng thái không xác định (timeout, response thất lạc...), Execution phải reconcile với venue bằng client order ID, order status, và execution history.
+
+**Prohibited behavior:** Retry, timeout, hoặc recovery tạo thêm economic effect ngoài intent ban đầu (idempotency key tự thân KHÔNG đủ đảm bảo điều này — key chỉ là một cơ chế thực hiện, không phải bản thân invariant).
+
+**Scope:** Execution Engine, Exchange Adapter.
+
+**Verification:** Chaos test — giả lập timeout/lost response, xác nhận reconciliation xảy ra trước khi retry, không tạo duplicate fill.
+
+---
+
+### I-11 — Secrets & Custody Isolation
+
+**Statement:** API key, secret, private key không bao giờ được lưu dạng plaintext (bắt buộc qua Vault/KMS).
+
+**Required guarantees:** Chỉ Execution Engine/Exchange Adapter (Runtime Service) có quyền truy cập secret của sàn.
+
+**Prohibited behavior:** Strategy/Decision Engine được cấp quyền truy cập trực tiếp secret của sàn.
+
+**Scope:** Toàn hệ thống, đặc biệt Execution Engine, Exchange Adapter.
+
+**Verification:** Access control audit — quét permission, xác nhận chỉ Execution/Exchange Adapter có quyền đọc secret store (least privilege).
+
+---
+
+### I-12 — Single Source of Truth
+
+**Statement:** Mỗi concept và scope phải có một authoritative source được chỉ định rõ.
+
+**Required guarantees:** Runtime decision history lấy **durable append-only event log** làm authority — không phải transport mechanism cụ thể (Redpanda, Kafka, hay bất kỳ công nghệ nào thay thế sau này). Projection, cache, index, tài liệu dẫn xuất (Manifest, Decision Log, Domain Model/Glossary) chỉ là bản sao có thể tái tạo hoặc tham chiếu.
+
+**Prohibited behavior:**
+- Coi transport mechanism tự động là source of truth (nếu đổi Redpanda sang công nghệ khác, invariant này không được thay đổi theo).
+- Hiểu "một nguồn sự thật" thành "toàn platform chỉ 1 database duy nhất" — đúng ra là **một authoritative source per scope/concept**, có thể có nhiều store khác nhau miễn mỗi concept chỉ có đúng 1 nguồn.
+
+**Scope:** Toàn hệ thống — cả runtime (Event Log) lẫn tài liệu (Manifest, Decision Log, Domain Model).
+
+**Verification:** Rebuild test — mọi projection/state phải rebuild lại đúng 100% chỉ từ authoritative source tương ứng, không cần dữ liệu nào khác.
