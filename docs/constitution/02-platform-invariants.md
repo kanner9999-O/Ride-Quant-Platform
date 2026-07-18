@@ -1,7 +1,7 @@
 ---
 id: 02-platform-invariants
 title: Platform Invariants
-version: "2.3"
+version: "2.4"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -23,7 +23,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 ### I-1 — Explainability
 
-**Statement:** Mọi decision và risk action phải tái dựng được từ immutable evidence đã capture tại decision time.
+**Statement:** Mọi Decision và Risk Action phải tái dựng được từ immutable evidence trong một causation trace duy nhất — decision inputs phải được frozen tại decision time, còn subsequent outcomes (execution intent, acknowledgment, fill, rejection...) phải được capture bất biến tại đúng thời điểm chúng được quan sát, nối vào cùng trace qua correlation/causation chain.
 
 **Required guarantees:**
 - Input data snapshot tại decision time.
@@ -105,7 +105,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Scope:** Mọi input non-deterministic hoặc mutable-over-time dùng trong Decision Pipeline.
 
-**Verification:** Self-contained replay test — sau bước materialization (Replay preparation), ngắt toàn bộ network; Replay execution vẫn phải chạy thành công và checksum của mọi artifact phải khớp.
+**Verification:** Self-contained replay test — Replay execution chỉ đọc event đã lưu và immutable artifact đã được materialize + xác thực checksum + tham chiếu từ event; không gọi lại mutable external source hoặc service. Sau bước materialization (Replay preparation), ngắt toàn bộ network; Replay execution vẫn phải chạy thành công và checksum của mọi artifact phải khớp.
 
 ---
 
@@ -150,7 +150,7 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 **Scope:** Risk Gateway, Execution Engine, mọi Exchange Adapter.
 
-**Verification:** Cross-exchange dependency fault test — ví dụ kịch bản arbitrage 2 sàn, một sàn bị circuit breaker kích hoạt, xác nhận Risk Gateway pause đúng phần liên quan (không thừa, không thiếu).
+**Verification:** Cross-exchange dependency fault test — ví dụ kịch bản arbitrage 2 sàn, một sàn bị circuit breaker kích hoạt, xác nhận Risk Gateway chọn đúng policy action (pause/cancel/hedge/reduce/controlled unwind), áp dụng đúng dependency scope, và không tác động tới phần độc lập.
 
 ---
 
@@ -170,15 +170,15 @@ Mỗi invariant có cấu trúc: **Statement** (phát biểu) · **Required guar
 
 ### I-10 — Idempotent Execution Effect
 
-**Statement:** Mỗi execution intent phải có identity bất biến, được ánh xạ deterministic sang client order identity của venue.
+**Statement:** Mỗi execution intent phải có identity bất biến. Mọi venue order, child order, và execution attempt phát sinh từ intent đó phải có identity deterministic, duy nhất trong scope của venue, và truy vết được về intent gốc.
 
-**Required guarantees:** Trước khi retry ở trạng thái không xác định (timeout, response thất lạc...), Execution phải reconcile với venue bằng client order ID, order status, và execution history.
+**Required guarantees:** Trước khi retry ở trạng thái không xác định (timeout, response thất lạc...), Execution phải reconcile với venue bằng client order ID, order status, và execution history. Một execution intent có thể sinh nhiều child order hoặc execution attempt theo Execution Policy (order slicing, TWAP/VWAP, cancel-replace, retry sau terminal rejection, route qua nhiều venue), nhưng tổng economic effect không được vượt quá intent đã được Risk Gateway phê duyệt. Retry của cùng attempt phải reconcile bằng cùng venue/client identity. Một child order mới chỉ được tạo khi state machine xác nhận đó là economic action mới được phép, không phải retry mù của action trước.
 
-**Prohibited behavior:** Retry, timeout, hoặc recovery tạo thêm economic effect ngoài intent ban đầu (idempotency key tự thân KHÔNG đủ đảm bảo điều này — key chỉ là một cơ chế thực hiện, không phải bản thân invariant).
+**Prohibited behavior:** Retry, timeout, hoặc recovery tạo thêm economic effect ngoài intent ban đầu (idempotency key tự thân KHÔNG đủ đảm bảo điều này). Hiểu sai quan hệ intent-order thành 1:1 cứng nhắc, cấm order slicing/multi-attempt hợp lệ.
 
 **Scope:** Execution Engine, Exchange Adapter.
 
-**Verification:** Chaos test — giả lập timeout/lost response, xác nhận reconciliation xảy ra trước khi retry, không tạo duplicate fill.
+**Verification:** Chaos test cho lost response/timeout · Cancel-replace test · Partial-fill remainder test · Multi-child execution test · Aggregate economic-effect assertion ở cấp intent (tổng effect của mọi child order không vượt approved intent).
 
 ---
 
@@ -214,6 +214,6 @@ Projection, cache, index, dashboard, và materialized view là **derived represe
 - Gọi tài liệu authoritative (MANIFEST.md, ADR, Domain Contract) là "bản sao dẫn xuất" của event log — chúng là nguồn sự thật cho concept riêng của chúng (document status, decision record, domain concept), không phải projection của runtime data.
 - Hiểu "một nguồn sự thật" thành "toàn platform chỉ 1 database duy nhất" — đúng ra là **một authoritative source per scope/concept**.
 
-**Scope:** Toàn hệ thống — cả runtime (Event Log) lẫn tài liệu (Manifest, ADR, Domain Model).
+**Scope:** Toàn hệ thống — cả runtime (Event Log) lẫn authoritative documentation như MANIFEST.md, ADR, Constitution, và Domain Contract.
 
 **Verification:** Mọi derived representation (projection, cache, dashboard...) phải có thể rebuild hoặc đối chiếu hoàn toàn từ authoritative source của đúng concept đó.
