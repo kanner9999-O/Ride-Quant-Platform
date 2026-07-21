@@ -241,3 +241,13 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `01-visi
 
 ### Version bump note
 - Bump lên 3.0 (không phải patch nhỏ) vì đây là thêm invariant mới, thay đổi số lượng nguyên tắc bất biến của Constitution — khác các lần sửa nội dung/wording trước (2.0→2.5).
+
+## [Unreleased] — Platform Invariants v3.1 (ChatGPT review I-13, round 1)
+
+### Fixed — Major
+- **I-13 "terminal state = zero outbound transition":** quá tuyệt đối — thực tế nhiều domain có correction/reconciliation/supersession hợp lệ sau terminal (Order REJECTED được supersede, Position CLOSED nhận late fill, Session CLOSED được reopen). Đây vẫn là một dạng hardcode state machine rule (dù không hardcode danh sách state) — lặp lại đúng loại lỗi đã sửa ở I-2. Sửa: Domain Contract tự khai báo state nào "strictly terminal" (zero outbound thật) vs state có correction/supersession path riêng.
+- **I-13 "không mutate trực tiếp field trạng thái":** mâu thuẫn với I-12 (Projection/materialized view được phép tồn tại và rebuild). Sửa: phân biệt rõ "Authoritative state transition" (phải qua event) vs "Derived state projection update" (được phép, miễn rebuild được từ event).
+
+### Fixed — Minor
+- Ví dụ Prohibited behavior đổi từ state cụ thể (`OPEN→CLOSED→PARTIAL`) sang trừu tượng (`StateA→StateC`) — tránh gây hiểu lầm đó là canonical Position state trong khi Constitution chủ trương không hardcode domain.
+- Scope: sửa "Domain Model" → "Domain Contract" cho nhất quán thuật ngữ (I-12 đã canonical hóa "Domain Contract").
