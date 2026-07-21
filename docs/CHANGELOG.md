@@ -251,3 +251,13 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `01-visi
 ### Fixed — Minor
 - Ví dụ Prohibited behavior đổi từ state cụ thể (`OPEN→CLOSED→PARTIAL`) sang trừu tượng (`StateA→StateC`) — tránh gây hiểu lầm đó là canonical Position state trong khi Constitution chủ trương không hardcode domain.
 - Scope: sửa "Domain Model" → "Domain Contract" cho nhất quán thuật ngữ (I-12 đã canonical hóa "Domain Contract").
+
+## [Milestone] — 2026-07-18 — 🔒 Chapter 2 (Platform Invariants) LOCKED
+
+Product Owner chính thức Approve + Lock `constitution/02-platform-invariants.md` (v3.1, 13 invariant: I-1 → I-13), sau **6 vòng review liên tiếp** giữa ChatGPT và Claude (v1.0 → v2.0 → v2.1 → v2.2 → v2.3 → v2.4 → v2.5 → v3.0 → v3.1). Đây là chapter trải qua nhiều vòng phản biện nhất từ đầu dự án — số vấn đề mới phát hiện mỗi vòng giảm dần rõ rệt, xác nhận hội tụ thật trước khi khóa.
+
+Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `02-platform-invariants.md`: không sửa trực tiếp, mọi thay đổi phải qua ADR mới.
+
+**Đã Locked tới nay:** Chapter 0 (Governance), Chapter 1 (Vision), Chapter 2 (Platform Invariants), ADR-005, ADR-006, ADR-007.
+
+**Next Milestone:** Chapter 3 — Engineering Principles.
