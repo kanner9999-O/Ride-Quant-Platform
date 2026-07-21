@@ -285,3 +285,16 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `02-plat
 ### Fixed — Minor
 - Naming example đổi từ domain-specific (`SWING_CREATED`, `REGIME_UPDATED`) sang trừu tượng (`ENTITY_CREATED`, `ORDER_FILLED`, `POSITION_CLOSED`) — Chapter 3 là engineering convention chung, không nên ví dụ bằng domain cụ thể.
 - Backlog 3.3 đổi từ nêu sẵn giải pháp (Polars/Ray/Dask) sang đúng thứ tự problem→benchmark→evaluate — tránh Constitution hint solution trước khi đo vấn đề thật.
+
+## [Unreleased] — Chapter 3 v1.3 (ChatGPT review round 2, fetch blob SHA `572f8bc`)
+
+### Fixed — Blocker
+- **Mâu thuẫn với Governance đã Locked:** Chapter 3 khẳng định "mọi convention change bắt buộc ADR" — nhưng Governance §4b (ADR Scope Rule, đã Locked) đã phân loại ADR Required/Optional/Not Required. Câu cũ vô tình tạo luật governance riêng, ghi đè Chapter 0 (vi phạm hierarchy Constitution). Đây là lỗi tồn tại từ bản thảo đầu tiên, không ai (kể cả Claude) nhận ra qua nhiều vòng review trước — chỉ lộ ra khi đối chiếu trực tiếp với Governance đã Locked. Sửa: Engineering Foundation tuân theo đúng phân loại ADR Scope Rule, không tự đặt luật cứng hơn.
+
+### Fixed — Major
+- **Risk Gateway "không được chứa business logic" tự mâu thuẫn:** ngay sau đó lại yêu cầu Risk Gateway có canonical Risk Policy implementation (exposure limit, approve/reject, risk-increasing detection...) — chính là business logic. Sửa: phân biệt Strategy/Decision domain logic (không được rò rỉ khỏi Decision Engine) với Risk Policy logic (Risk Gateway sở hữu hợp lệ, đây đúng là bounded context của nó).
+- **"Đúng một implementation duy nhất" quá tuyệt đối:** không cho phép shadow implementation, blue/green deployment, migration, experimental implementation — các pattern hợp lệ trong thực tế. Sửa: phân biệt "authoritative implementation" (được phép phát sinh Decision chính thức) với "implementation khác tồn tại song song" (được phép tồn tại, không phát sinh authoritative Decision cho tới khi qua parity validation + promote).
+
+### Fixed — Minor
+- Label "trừu tượng, không domain-specific" không khớp ví dụ thật (`ORDER_FILLED`, `IStructureEngine`, `SwingDTO` vẫn domain-specific) — sửa label thành "minh họa cụ thể cho Ride, không phải canonical domain vocabulary bắt buộc".
+- Bỏ cách gom "Research (Backtest/Replay/Paper) vs Production (Live)" — không khớp cách I-2 (Locked) liệt kê 4 mode ngang hàng, và Paper Trading về bản chất gần Production hơn Research (dùng live data/clock/execution simulator). Dùng liệt kê trung tính: Backtest, Replay, Paper Trading, Live.
