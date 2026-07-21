@@ -1,11 +1,11 @@
 ---
-manifest_version: "3.2"
+manifest_version: "3.3"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.0.0"
 current_phase: "Phase 0 — Vision & Foundation"
-compatible_adr_range: "ADR-001 ~ ADR-007"
+compatible_adr_range: "ADR-001 ~ ADR-008"
 generated_at: "2026-07-16"
 ---
 
@@ -26,7 +26,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/00-governance.md | 1.0 | **Locked** | Product Owner | — |
 | constitution/01-vision.md | 2.3 | **Locked** | Product Owner | 00-governance |
 | constitution/02-platform-invariants.md | 3.1 | **Locked** | Product Owner | 00-governance, 01-vision |
-| constitution/03-engineering-principles.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
+| constitution/03-engineering-principles.md | 1.1 | In Review | Product Owner | 02-platform-invariants |
 | constitution/04-domain-principles.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
 | constitution/05-time-model.md | 1.0 | In Review | Product Owner | 04-domain-principles |
 | constitution/06-identity-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
@@ -50,6 +50,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | adr/ADR-005.md — Lean Governance Model | **Locked** | ADR-004 | — |
 | adr/ADR-006.md — ChatGPT/Claude ngang hàng (AI Technical Architect) | **Locked** | — | — |
 | adr/ADR-007.md — Vision Scope: nội bộ/crypto trước, chừa chỗ mở rộng | **Locked** | — | — |
+| adr/ADR-008.md — Phân bổ ngôn ngữ Python/Go, Rust reserved | **Approved** | — | — |
 
 ## Domain
 
@@ -77,6 +78,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | ADR-005 | Locked | 2026-07-16 | Governance Model — lean, bỏ 3/3, giữ Scale Check |
 | ADR-006 | Locked | 2026-07-16 | Product Owner quyết: ChatGPT/Claude ngang hàng, khác focus |
 | ADR-007 | Locked | 2026-07-17 | Vision Phase 0-3: nội bộ + crypto only, kiến trúc chừa chỗ multi-tenant/đa tài sản |
+| ADR-008 | Approved | 2026-07-18 | Phân bổ ngôn ngữ Python (lõi logic)/Go (biên hệ thống), Rust reserved — ghi hồi tố khi Claude tự review Chapter 3 |
 
 ## Open Questions
 

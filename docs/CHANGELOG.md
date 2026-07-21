@@ -261,3 +261,17 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `02-plat
 **Đã Locked tới nay:** Chapter 0 (Governance), Chapter 1 (Vision), Chapter 2 (Platform Invariants), ADR-005, ADR-006, ADR-007.
 
 **Next Milestone:** Chapter 3 — Engineering Principles.
+
+## [Unreleased] — Chapter 3 (Engineering Principles) v1.1 — Claude tự review trước khi gửi ChatGPT
+
+### Added
+- **ADR-008** (Approved, hồi tố) — Phân bổ ngôn ngữ Python (lõi logic)/Go (biên hệ thống), Rust reserved cho tương lai. Quyết định này tồn tại từ Session 1 nhưng chưa từng thành ADR — cùng loại lỗi với ADR-001~003, phát hiện khi tự review Chapter 3.
+
+### Fixed
+- Tham chiếu "Parity Principle (I-2)" đã lỗi thời — I-2 đổi tên thành "Decision Parity" qua các vòng review Chapter 2. Cập nhật khớp tên hiện tại.
+- "Go/Rust không được chứa logic nghiệp vụ" gây hiểu lầm cả 2 đang active — làm rõ Rust chỉ reserved, chưa dùng.
+- **Phát hiện quan trọng:** thêm cảnh báo tường minh — Risk Gateway viết Go không vi phạm I-2 Decision Parity, MIỄN Backtest/Replay/Paper/Live gọi qua cùng 1 Risk Gateway service instance, không viết risk-check Python "rút gọn" riêng cho backtest (lỗi kinh điển trong lịch sử hệ thống trading thật).
+
+### Changed
+- Thêm cross-reference tránh trùng lặp (I-12): Testing Convention → trỏ Chapter 13 (coverage/tier); Versioning → trỏ Chapter 10 (SemVer engine schema); Documentation Convention → trỏ Governance §7-9 (metadata/lifecycle).
+- Thêm Mục 3.3 Backlog: hiệu năng Backtest Engine Python ở scale lớn (vectorization/Ray/Dask) — nêu từ Session 1, chưa từng được ghi lại chính thức ở đâu.
