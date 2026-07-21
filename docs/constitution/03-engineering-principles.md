@@ -1,7 +1,7 @@
 ---
 id: 03-engineering-principles
 title: Engineering Principles
-version: "1.1"
+version: "1.2"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -15,22 +15,20 @@ depends_on: ["02-platform-invariants"]
 
 # 3. Engineering Principles
 
-## 3.1 Phân bổ ngôn ngữ có kỷ luật
+## 3.1 One Canonical Business Logic Implementation
 
-Quyết định chi tiết và lý do xem [ADR-008](../adr/ADR-008.md). Tóm tắt:
+**Nguyên tắc (không đổi theo công nghệ):** Mọi decision logic (Strategy, Feature Engineering, Decision Engine) phải có đúng **một implementation duy nhất**, dùng chung cho cả Research (Backtest/Replay/Paper) và Production (Live) — đây là hệ quả trực tiếp của [I-2 Decision Parity](./02-platform-invariants.md). Biên hệ thống (Market Data Ingestion, Risk Gateway, Execution Engine) cần concurrency/I/O/độ tin cậy, nhưng **không được chứa logic nghiệp vụ** — nếu để lọt logic vào đây, Decision Parity sẽ bị phá vỡ ngầm.
 
-- **Python** = lõi logic nghiệp vụ (Feature Engineering, Strategy, Decision, Backtest) — vì cần giữ [I-2 Decision Parity](./02-platform-invariants.md): cùng một hàm chạy ở cả Research và Production.
-- **Go** = biên hệ thống (Market Data Ingestion, Risk Gateway, Execution Engine) — nơi cần concurrency, I/O, độ tin cậy. Go **không được chứa logic nghiệp vụ**; nếu để lọt logic vào đây, Decision Parity sẽ bị phá vỡ ngầm.
-- **Rust KHÔNG dùng ngay** — reserved cho critical path tương lai nếu latency profile thay đổi (hiện tại vài trăm ms không cần Rust). Đưa Rust vào là quyết định kiến trúc mới, cần ADR riêng.
+**Công nghệ/ngôn ngữ cụ thể hiện tại** (Python cho lõi logic, Go cho biên hệ thống, Rust reserved) được ghi đầy đủ tại [ADR-008](../adr/ADR-008.md) — **không lặp lại ở đây** (theo tinh thần I-12 Single Source of Truth: một quyết định công nghệ chỉ nên có 1 nơi ghi, tránh 2 tài liệu cùng nói 1 điều rồi lệch nhau khi đổi). Thay đổi công nghệ là một ADR mới, Principle ở mục này không cần đổi theo.
 
-**Lưu ý quan trọng — Parity không phụ thuộc ngôn ngữ, mà phụ thuộc code path:** Risk Gateway viết bằng Go (không phải Python) KHÔNG vi phạm I-2, **miễn** Backtest/Replay/Paper/Live đều gọi qua đúng **1 Risk Gateway service instance** — tuyệt đối không được viết một bản risk-check Python "rút gọn" riêng cho Backtest vì lý do tốc độ. Đây là lỗi kinh điển trong lịch sử hệ thống trading thật (risk model backtest lệch khỏi risk model production, dẫn đến kết quả backtest đẹp nhưng live thua lỗ vì risk check thật chặt hơn).
+**Lưu ý quan trọng — Parity phụ thuộc canonical implementation, không phụ thuộc số lượng instance chạy:** Risk Gateway phải dùng **cùng một canonical implementation (Risk Decision Contract)** cho Backtest/Replay/Paper/Live — tuyệt đối không được viết một bản risk-check "rút gọn" riêng cho Backtest vì lý do tốc độ (lỗi kinh điển trong lịch sử hệ thống trading thật: risk model backtest lệch khỏi risk model production). Điều này **không có nghĩa là chỉ được chạy đúng 1 process/instance** — canonical implementation hoàn toàn có thể chạy dưới nhiều replica (horizontal scaling, HA) miễn tất cả replica cùng chạy chung 1 codebase/contract, không phải 2 implementation khác nhau cùng "tự nhận" là tương thích.
 
 ## 3.2 Engineering Foundation (tài liệu SỐNG, không bất biến)
 
 Bao gồm: Monorepo structure, Coding Standard, Naming Convention, Logging Convention, Configuration Convention, Error Handling Convention, Versioning, Dependency Injection, Testing Convention, Documentation Convention, CI/CD Convention. Đây là danh sách khung — nội dung chi tiết từng mục được điền dần khi Phase 1.5 (Engineering Foundation) triển khai, không phải toàn bộ đã định nghĩa xong tại đây.
 
-Quy ước naming mẫu:
-- Event: `PAST_TENSE_UPPER_SNAKE` — ví dụ `SWING_CREATED`, `REGIME_UPDATED`, `DECISION_APPROVED`.
+Quy ước naming mẫu (trừu tượng, không domain-specific):
+- Event: `PAST_TENSE_UPPER_SNAKE` — ví dụ `ENTITY_CREATED`, `ORDER_FILLED`, `POSITION_CLOSED`.
 - Interface: `IStructureEngine`, `IRiskGateway`.
 - DTO: `SwingDTO`, `DecisionDTO`.
 
@@ -43,4 +41,4 @@ Quy ước naming mẫu:
 
 ## 3.3 Backlog
 
-- Hiệu năng Backtest Engine (Python) ở quy mô dữ liệu lớn (nhiều năm lịch sử, nhiều strategy song song) — cân nhắc vectorization (Polars), song song hóa (Ray/Dask) khi cần. Chưa quyết định cụ thể, để ngỏ tới khi Phase 3/Phase 6 (Simulation Platform) có nhu cầu thực tế đo lường được.
+- Hiệu năng Backtest Engine ở quy mô dữ liệu lớn (nhiều năm lịch sử, nhiều strategy song song): cần benchmark/profiling thực tế trước để xác định bottleneck cụ thể, sau đó mới đánh giá candidate technology phù hợp — chưa quyết định giải pháp, tránh chọn công nghệ trước khi đo vấn đề thật.

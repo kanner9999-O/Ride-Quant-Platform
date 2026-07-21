@@ -275,3 +275,13 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `02-plat
 ### Changed
 - Thêm cross-reference tránh trùng lặp (I-12): Testing Convention → trỏ Chapter 13 (coverage/tier); Versioning → trỏ Chapter 10 (SemVer engine schema); Documentation Convention → trỏ Governance §7-9 (metadata/lifecycle).
 - Thêm Mục 3.3 Backlog: hiệu năng Backtest Engine Python ở scale lớn (vectorization/Ray/Dask) — nêu từ Session 1, chưa từng được ghi lại chính thức ở đâu.
+
+## [Unreleased] — Chapter 3 v1.2 (ChatGPT review round 1, fetch blob SHA `87250fb`)
+
+### Fixed — Major
+- **Ngôn ngữ bị "đóng đinh" vào Principle:** Chapter 3 v1.1 lặp lại nguyên nội dung ADR-008 (Python=X, Go=Y, Rust=Z) — 2 nguồn cùng nói 1 quyết định công nghệ, sẽ lệch nhau khi công nghệ đổi. Sửa: Chapter 3 chỉ giữ nguyên tắc trừu tượng ("One Canonical Business Logic Implementation" — không đổi theo công nghệ), trỏ về ADR-008 cho quyết định cụ thể, không lặp lại.
+- **"1 Risk Gateway service instance" quá literal:** giống lỗi đã sửa ở I-10 (1 intent → nhiều child order) — "instance" ngầm cấm horizontal scaling/HA/replica. Sửa thành "cùng 1 canonical implementation (Risk Decision Contract)", có thể chạy dưới nhiều replica miễn cùng codebase.
+
+### Fixed — Minor
+- Naming example đổi từ domain-specific (`SWING_CREATED`, `REGIME_UPDATED`) sang trừu tượng (`ENTITY_CREATED`, `ORDER_FILLED`, `POSITION_CLOSED`) — Chapter 3 là engineering convention chung, không nên ví dụ bằng domain cụ thể.
+- Backlog 3.3 đổi từ nêu sẵn giải pháp (Polars/Ray/Dask) sang đúng thứ tự problem→benchmark→evaluate — tránh Constitution hint solution trước khi đo vấn đề thật.
