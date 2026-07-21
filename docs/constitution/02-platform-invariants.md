@@ -1,7 +1,7 @@
 ---
 id: 02-platform-invariants
 title: Platform Invariants
-version: "2.5"
+version: "3.0"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -218,3 +218,25 @@ Projection, cache, index, dashboard, và materialized view là **derived represe
 **Scope:** Toàn hệ thống — cả runtime (Event Log) lẫn authoritative documentation như MANIFEST.md, ADR, Constitution, và Domain Contract.
 
 **Verification:** Mọi derived representation (projection, cache, dashboard...) phải có thể rebuild hoặc đối chiếu hoàn toàn từ authoritative source của đúng concept đó.
+
+---
+
+### I-13 — State Transition Integrity
+
+**Statement:** Mọi entity có vòng đời trạng thái (Position, Order, Risk Decision, Strategy Instance, Portfolio, Session...) chỉ được chuyển trạng thái qua transition đã được định nghĩa tường minh trong state machine của entity đó. Không tồn tại illegal transition — kể cả khi trạng thái cuối cùng "trông có vẻ hợp lý".
+
+**Required guarantees:**
+- Mỗi entity type có state machine tường minh (tập state + tập transition hợp lệ), được định nghĩa trong Domain Contract tương ứng tại `/docs/domain/` — KHÔNG hardcode danh sách state/transition cụ thể trong Constitution (tránh lặp lại lỗi đã sửa ở I-2: hardcode chi tiết domain trong Platform Invariants tạo bản sao schema thứ hai, vi phạm I-12).
+- Transition được ghi nhận bằng append-only event (nhất quán với I-3), không mutate trực tiếp field trạng thái.
+- Terminal state (ví dụ CLOSED, FILLED, REJECTED) không chấp nhận bất kỳ transition nào tiếp theo.
+- Concurrent transition attempt trên cùng entity phải resolve deterministic (ví dụ optimistic concurrency/version check) — không cho phép race tạo ra 2 transition hợp lệ xung đột nhau.
+
+**Prohibited behavior:**
+- Thực hiện transition không có trong state machine đã khai báo (ví dụ minh họa: `OPEN → CLOSED → PARTIAL` khi state machine chỉ cho phép `OPEN → PARTIAL → CLOSED`).
+- Transition xuất phát từ terminal state.
+- Mutate trạng thái trực tiếp thay vì qua transition event tường minh.
+- Định nghĩa chi tiết state machine cụ thể (danh sách state/transition thật) ngay trong Platform Invariants thay vì Domain Contract.
+
+**Scope:** Mọi entity có vòng đời trạng thái — Position, Order, Risk Decision, Strategy Instance, Portfolio, Session, và các entity tương lai được thêm vào Domain Model.
+
+**Verification:** Property-based test cho toàn bộ transition graph của từng entity (mọi transition thử nghiệm phải nằm trong tập hợp lệ đã khai báo) · Illegal-transition test (cố tình thử transition sai thứ tự hoặc từ terminal state, xác nhận bị reject) · Replay state reconstruction test (rebuild state cuối từ chuỗi transition event, so khớp với state machine đã khai báo trong Domain Contract).
