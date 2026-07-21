@@ -298,3 +298,15 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `02-plat
 ### Fixed — Minor
 - Label "trừu tượng, không domain-specific" không khớp ví dụ thật (`ORDER_FILLED`, `IStructureEngine`, `SwingDTO` vẫn domain-specific) — sửa label thành "minh họa cụ thể cho Ride, không phải canonical domain vocabulary bắt buộc".
 - Bỏ cách gom "Research (Backtest/Replay/Paper) vs Production (Live)" — không khớp cách I-2 (Locked) liệt kê 4 mode ngang hàng, và Paper Trading về bản chất gần Production hơn Research (dùng live data/clock/execution simulator). Dùng liệt kê trung tính: Backtest, Replay, Paper Trading, Live.
+
+## [Unreleased] — Chapter 3 v1.4 (ChatGPT review round 3, fetch blob SHA `c1102e2`) + Chapter 12 addition
+
+### Fixed — Major
+- **"Bounded context" dùng trước khi Chapter 4 (Domain Principles) canonical hóa nó:** Chapter 3 chỉ khai báo `depends_on: [02-platform-invariants]` nhưng nội dung dựa vào khái niệm "bounded context" — thuộc quyền sở hữu của Chapter 4 chưa Locked. Tạo dependency ngầm không khai báo + rủi ro Chapter 4 định nghĩa khác giả định của Chapter 3. Sửa: đổi thành "business capability/responsibility ownership" — trung lập, không cần sửa lại kể cả sau khi Chapter 4 Lock.
+- **Risk parity bị gọi nhầm là "hệ quả trực tiếp của I-2":** I-2 (Locked) chỉ định nghĩa parity ở tầng Decision, không tự động bao gồm Risk Action. Gọi Risk parity là hệ quả của I-2 = âm thầm mở rộng phạm vi 1 invariant đã Locked mà không qua ADR. Sửa: tách rõ — Strategy/Decision tuân thủ I-2; Risk là yêu cầu bổ sung của Chapter 3 + I-1, không mở rộng định nghĩa I-2.
+
+### Fixed — Minor
+- "Cùng version/config cho mọi execution mode" quá tuyệt đối — không cho phép canary/experiment hợp lệ (Paper chạy canary version, Backtest thử config mới, Replay tái dựng version cũ). Sửa: chỉ bắt buộc đồng bộ version/config khi THỰC SỰ tuyên bố parity hoặc tái dựng cùng run identity; ngoài phạm vi đó được phép khác nhau, miễn không tuyên bố parity sai.
+
+### Added
+- **Chapter 12 §12.1 — Backward Consistency Check:** hệ thống hóa bài học "rà ngược chapter cũ khi có luật mới Locked" thành bước lặp lại được trong Approval Gate — đặt ở Chapter 12 (vẫn `In Review`, sửa trực tiếp được) thay vì Governance (đã `Locked`, cần ADR mới nếu sửa) theo đúng đề xuất ChatGPT.

@@ -1,5 +1,5 @@
 ---
-manifest_version: "3.5"
+manifest_version: "3.6"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26,7 +26,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/00-governance.md | 1.0 | **Locked** | Product Owner | — |
 | constitution/01-vision.md | 2.3 | **Locked** | Product Owner | 00-governance |
 | constitution/02-platform-invariants.md | 3.1 | **Locked** | Product Owner | 00-governance, 01-vision |
-| constitution/03-engineering-principles.md | 1.3 | In Review | Product Owner | 02-platform-invariants |
+| constitution/03-engineering-principles.md | 1.4 | In Review | Product Owner | 02-platform-invariants |
 | constitution/04-domain-principles.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
 | constitution/05-time-model.md | 1.0 | In Review | Product Owner | 04-domain-principles |
 | constitution/06-identity-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
@@ -35,7 +35,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/09-plugin-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/10-compatibility-capability-contract.md | 1.0 | In Review | Product Owner | 09-plugin-model |
 | constitution/11-adr-process.md | 1.1 | In Review | Product Owner | 00-governance |
-| constitution/12-approval-gates.md | 1.1 | In Review | Product Owner | 00-governance, 11-adr-process |
+| constitution/12-approval-gates.md | 1.2 | In Review | Product Owner | 00-governance, 11-adr-process |
 | constitution/13-quality-gates.md | 1.0 | In Review | Product Owner | 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.0 | In Review | Product Owner | ALL |
 

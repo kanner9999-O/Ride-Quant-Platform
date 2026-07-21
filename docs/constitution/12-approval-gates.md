@@ -1,7 +1,7 @@
 ---
 id: 12-approval-gates
 title: Approval Gates
-version: "1.1"
+version: "1.2"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -26,3 +26,9 @@ Mỗi Phase phải có **Definition of Done (DoD)** cụ thể, ví dụ:
 - Phase 3 (từng module) Done khi: Unit Test theo Tier + Benchmark + Documentation + Demo + Capability Matrix cập nhật + Approved
 
 **Quy tắc bắt buộc:** mọi Phase trong [Roadmap](./14-roadmap.md) phải có DoD cụ thể được viết ra và duyệt **trước khi** Phase đó mở Approval Gate.
+
+## 12.1 Backward Consistency Check
+
+Khi một chapter hoặc invariant mới được Approved/Locked, reviewer phải rà các tài liệu tồn tại (đặc biệt chapter đã viết trước đó nhưng chưa Locked) xem có bị ảnh hưởng không, và ghi kết quả rõ ràng: `No conflict` / `Revision required` / `ADR required`.
+
+*(Bài học rút ra khi Chapter 3 phát hiện mâu thuẫn với Governance đã Locked từ rất lâu mà không ai đối chiếu ngược — một câu tồn tại từ bản thảo đầu tiên, chỉ lộ ra khi tình cờ rà lại. Đặt quy tắc này ở đây, không phải ở Governance §4 vốn đã Locked, để không cần mở ADR chỉ để thêm 1 dòng process — Chapter 12 vẫn `In Review`, sửa trực tiếp được.)*

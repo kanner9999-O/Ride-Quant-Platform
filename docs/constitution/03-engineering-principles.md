@@ -1,7 +1,7 @@
 ---
 id: 03-engineering-principles
 title: Engineering Principles
-version: "1.3"
+version: "1.4"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -15,18 +15,21 @@ depends_on: ["02-platform-invariants"]
 
 # 3. Engineering Principles
 
-## 3.1 One Canonical Business Logic Implementation (theo từng bounded context)
+## 3.1 One Authoritative Implementation per Business Capability
 
-**Nguyên tắc:** Trong mỗi bounded context nghiệp vụ, tại mỗi capability/version phải có đúng **một authoritative implementation** được phép phát sinh Decision/Risk quyết định chính thức cho toàn bộ execution mode (Backtest, Replay, Paper Trading, Live) — hệ quả trực tiếp của [I-2 Decision Parity](./02-platform-invariants.md). Alternative, experimental, shadow, hoặc migration implementation được phép tồn tại song song nhưng KHÔNG được phát sinh authoritative Decision cho đến khi vượt parity validation và được promote qua đúng quy trình governance.
+**Nguyên tắc:** Tại mỗi business capability và capability version phải có đúng một **authoritative implementation** được phép phát sinh authoritative output cho toàn bộ execution mode (Backtest, Replay, Paper Trading, Live). Alternative, experimental, shadow, hoặc migration implementation được phép tồn tại song song nhưng KHÔNG được phát sinh authoritative output cho đến khi vượt parity validation và được promote qua đúng quy trình governance.
 
-**Phân chia trách nhiệm theo bounded context (không phải "business logic chỉ được ở 1 nơi"):**
-- Strategy/Decision domain logic → Decision Engine. Không được rò rỉ sang Market Data Ingestion, Risk Gateway, hay Execution Engine.
-- Risk Policy logic (exposure limit, approve/reject, risk-increasing detection, kill switch scope) → Risk Gateway **sở hữu và bắt buộc phải có** — đây LÀ business logic hợp lệ của đúng bounded context này, không phải loại "logic nghiệp vụ" bị cấm khỏi biên hệ thống. Risk Gateway không được tái triển khai Strategy/Decision logic.
+- Đối với **Strategy/Decision capability**, yêu cầu này thực thi trực tiếp [I-2 Decision Parity](./02-platform-invariants.md).
+- Đối với **Risk capability**, yêu cầu này bảo đảm Risk Policy authority, reproducibility, và explainability ([I-1](./02-platform-invariants.md)) — đây là yêu cầu **bổ sung của Chapter 3**, KHÔNG phải mở rộng phạm vi của I-2 (I-2 chỉ định nghĩa parity ở tầng Decision, không tự động bao gồm Risk Action — mở rộng phạm vi 1 invariant đã Locked cần ADR riêng, chưa làm ở đây).
+
+**Phân chia theo responsibility ownership** (chưa dùng thuật ngữ "bounded context" — khái niệm này sẽ được canonical hóa chính thức ở Chapter 4 Domain Principles, hiện chưa Locked; dùng "capability/responsibility ownership" ở đây để tránh tạo dependency ngầm vào một chapter chưa có nội dung chính thức):
+- Strategy/Decision logic → Decision Engine. Không được rò rỉ sang Market Data Ingestion, Risk Gateway, hay Execution Engine.
+- Risk Policy logic (exposure limit, approve/reject, risk-increasing detection, kill switch scope) → Risk Gateway sở hữu và bắt buộc phải có — đây LÀ business logic hợp lệ của đúng responsibility này, không phải loại "logic nghiệp vụ" bị cấm khỏi biên hệ thống. Risk Gateway không được tái triển khai Strategy/Decision logic.
 - Venue/execution behavior → Execution Engine/Adapter.
 
 **Công nghệ/ngôn ngữ cụ thể hiện tại** (Python cho Strategy/Decision, Go cho Market Data Ingestion/Risk Gateway/Execution, Rust reserved) được ghi đầy đủ tại [ADR-008](../adr/ADR-008.md) — **không lặp lại ở đây** (theo tinh thần I-12: một quyết định công nghệ chỉ nên có 1 nơi ghi). Thay đổi công nghệ là một ADR mới, Principle ở mục này không cần đổi theo.
 
-**Lưu ý quan trọng — Parity phụ thuộc authoritative implementation, không phụ thuộc số lượng instance:** Risk Gateway phải dùng cùng **authoritative implementation version + configuration + policy version + canonical contract**, đã qua parity validation, cho mọi execution mode — *codebase* và *contract* không đồng nghĩa (2 implementation có thể cùng contract nhưng khác semantic bên trong), nên cần ghim đủ cả version lẫn parity validation, không chỉ "cùng contract". Tuyệt đối không viết một bản risk-check "rút gọn" song song mà không qua parity validation trước (lỗi kinh điển trong lịch sử hệ thống trading thật). Điều này **không giới hạn số lượng instance/replica** chạy — canonical ở đây nói về logic/version, hoàn toàn có thể horizontal scaling/HA với nhiều replica cùng 1 authoritative implementation.
+**Lưu ý quan trọng — đồng bộ version/config chỉ bắt buộc khi tuyên bố parity hoặc tái dựng cùng run identity:** Khi các execution mode được dùng để so sánh parity hoặc tái dựng cùng một run identity (ví dụ kiểm tra Backtest có khớp Live không), chúng phải pin cùng authoritative implementation version, configuration, policy version, và canonical contract, đã qua parity validation. Ngoài phạm vi đó, các experiment độc lập (canary version ở Paper, policy configuration mới thử ở Backtest, historical version tái dựng ở Replay...) được phép dùng version/configuration khác — miễn **không tuyên bố parity với Live baseline** khi identity không trùng. *Codebase* và *contract* không đồng nghĩa (2 implementation có thể cùng contract nhưng khác semantic bên trong) — khi thực sự cần parity, phải ghim đủ version + config + policy version + contract + parity validation, không chỉ "cùng contract". Không giới hạn số lượng instance/replica chạy — canonical ở đây nói về logic/version, hoàn toàn có thể horizontal scaling/HA với nhiều replica cùng 1 authoritative implementation.
 
 ## 3.2 Engineering Foundation (tài liệu SỐNG, không bất biến)
 
