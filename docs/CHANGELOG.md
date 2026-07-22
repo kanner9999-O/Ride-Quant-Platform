@@ -457,3 +457,15 @@ Chapter 5 v2.3 vẫn hoàn tất review (self + 3 vòng ChatGPT, 0 Blocker/Major
 
 ### Status
 - Chapter 5 v2.4: cả 2 AI xác nhận sạch, CHỜ Product Owner quyết Lock.
+
+## [Milestone] — 2026-07-18 — 🔒 Chapter 5 (Time Model) LOCKED
+
+Product Owner chính thức Approve + Lock `constitution/05-time-model.md` (v2.4), sau self-review + 5 vòng ChatGPT (v1.0 → v2.0 → v2.1 → v2.2 → v2.3 → v2.4). Lần Lock này đúng quy trình — Product Owner xác nhận tường minh (sau sự cố Claude tự Lock v2.3 bị revert).
+
+Nội dung: bitemporal model (Effective/Recorded — OQ-004 resolved), canonical field names (`effective_time`/`recorded_time`/`decision_time`, loại bỏ `event_time` mập mờ), Replay Cursor (boundary + opaque ordering position), Ordering Authority 2 mức (intra-partition determinism + cross-context causal correctness).
+
+Open items chuyển tiếp: **OQ-005** (cơ chế ordering → Chapter 8), **OQ-006** (`decision_time` formal → Ch8/Ch9). Cả hai đã có ràng buộc cứng: Chapter 8 không Lock khi 2 OQ này còn Open.
+
+**Đã Locked tới nay:** Chapter 0, 1, 2, 3, 4, 5 + ADR-005, 006, 007, 008.
+
+**Next Milestone:** Chapter 6 — Identity Model.
