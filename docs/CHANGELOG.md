@@ -483,3 +483,14 @@ Open items chuyển tiếp: **OQ-005** (cơ chế ordering → Chapter 8), **OQ-
 ### Changed
 - Thêm dependency `04-domain-principles`, `05-time-model` vào frontmatter (chapter này tương tác trực tiếp với cả hai).
 - §6.5 làm rõ vai trò Identity với I-1 Explainability (ID reuse phá correlation/causation chain).
+
+## [Unreleased] — Chapter 6 v2.1 (ChatGPT review round 1: 3 Major + 2 Minor)
+
+### Fixed — Major
+- **"Distributed-safe, không cần khóa tập trung" cấm nhầm sequence-based ID:** yêu cầu này vô tình cấm loại ID cần nhất cho arbitrage đa sàn (broker/coordinator-assigned sequence cho total order). Sửa: tách Identity uniqueness (sinh phân tán OK) vs Ordering/sequence assignment (có thể cần single-writer/coordinator — hợp lệ, không cấm).
+- **Ép mọi domain concept có ID:** value object (Price, Money, TimeRange — `kind: value_object` ở Chapter 4) không có identity riêng (equality by value). Thêm loại thứ 3 vào §6.2: Event / Entity / Value Object.
+- **Thiếu Correlation/Causation Identity cho I-1:** entity ID một mình không đủ để reconstruct causation chain. Thêm §6.5: Correlation ID (nhóm event cùng luồng) + Causation ID (trỏ parent event) — hạ tầng bắt buộc cho Explainability, tách biệt entity ID.
+
+### Fixed — Minor
+- ID uniqueness scope phải khai báo tường minh trong Domain Contract (per-Account/per-Venue...), không mặc định global — venue-assigned order ID chỉ unique trong 1 venue.
+- Thêm quy tắc thời điểm cấp ID: trước/tại thời điểm entity đầu tiên tồn tại, không cấp muộn — bắt buộc cho I-10 (execution intent cần client-assigned ID trước khi gửi venue để chống duplicate).
