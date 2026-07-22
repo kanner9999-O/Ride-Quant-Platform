@@ -1,7 +1,7 @@
 ---
 id: 05-time-model
 title: Time Model
-version: "2.1"
+version: "2.2"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -48,7 +48,7 @@ Trên nền 2 trục ở trên, hệ thống ghi nhận các mốc cụ thể. B
 
 **Quy tắc:**
 - Mọi event tối thiểu mang cả `market_time` và `event_time` (Dual Timestamping) — bắt buộc để phát hiện dữ liệu trễ/stale khi arbitrage đa sàn.
-- Event ordering trong pipeline theo **Event Time** (recorded); **Market Time** dùng tính độ trễ và phát hiện stale data giữa các sàn.
+- Event ordering trong pipeline theo **ordering authority** (xem §5.4 — không dựa thuần physical `event_time`); **Market Time** dùng tính độ trễ và phát hiện stale data giữa các sàn.
 - Không mốc nào ở trên được lấy từ đồng hồ hệ thống lúc đọc lại — tất cả là giá trị đã ghi bất biến trong event.
 
 ## 5.3 Ngữ nghĩa Replay (định nghĩa vận hành, không chỉ tên gọi)
@@ -61,6 +61,14 @@ Replay dùng lại Event Time đã ghi trong log, không dùng đồng hồ hệ
 
 **Out-of-order arrival:** một event có thể đến và được ghi (recorded time muộn) trong khi effective time của nó nằm trước nhiều event đã ghi trước đó (ví dụ: fill từ sàn bị trễ mạng, đến sau nhưng mô tả thời điểm sớm hơn). Ordering và replay visibility luôn theo **recorded time (event_time)** — event đến sau thì replay chỉ thấy nó ở đúng thời điểm nó được ghi, không "chèn ngược" vào quá khứ theo effective time (chèn ngược = look-ahead bias, cấm bởi I-3). Việc diễn giải lại chuỗi sự kiện theo effective time (nếu nghiệp vụ cần) là trách nhiệm của consumer/projection tại tầng đọc, không phải của ordering trong event log.
 
-## 5.4 Clock authority
+## 5.4 Ordering Authority & Clock
 
-`event_time` do component ghi event log cấp phát, là authoritative cho thứ tự nội bộ. Đồng hồ máy chủ phải được đồng bộ (NTP hoặc tương đương); độ lệch clock giữa các node là vấn đề vận hành cần giám sát nhưng **không** thay đổi nguyên tắc: một khi event đã ghi với `event_time`, giá trị đó bất biến và là căn cứ duy nhất cho ordering/replay — không "sửa lại cho đúng giờ thật" về sau (I-3).
+**Vấn đề:** `event_time` được sinh ra từ một đồng hồ vật lý tại thời điểm ghi event. Ngay cả khi các node được đồng bộ NTP, sai số vài mili-giây vẫn tồn tại — nghĩa là hai event gần nhau từ hai node khác nhau có thể có `event_time` không phản ánh đúng thứ tự thật. Với arbitrage đa sàn (use case cốt lõi của Ride), thứ tự sự kiện giữa hai sàn quyết định trực tiếp lãi/lỗ, nên **không được dựa thuần vào physical clock để quyết định thứ tự authoritative**.
+
+**Nguyên tắc (contract — không chốt cơ chế):**
+- Ordering authoritative trong mỗi partition/stream phải là **total order deterministic** — replay cùng một log luôn cho cùng một thứ tự, không phụ thuộc physical clock lúc đọc lại.
+- Physical `event_time` dùng để đo latency, phát hiện stale/clock-skew, và hiển thị — nhưng **không phải một mình nó** quyết định thứ tự authoritative giữa các event.
+- Cross-partition/cross-node causal ordering (khi thứ tự giữa 2 stream thực sự quan trọng về nghiệp vụ, ví dụ 2 sàn trong 1 arbitrage decision) phải dựa trên cơ chế ordering deterministic, không phải so sánh trực tiếp 2 physical timestamp.
+- Clock skew giữa các node là vấn đề vận hành cần giám sát; một khi event đã ghi, giá trị `event_time` bất biến (I-3), không "sửa lại cho đúng giờ thật" về sau.
+
+**Cơ chế cụ thể** (sequence number per partition, logical/Lamport clock, hybrid logical clock, hay kết hợp) là **quyết định kiến trúc của [Event Model — Chapter 8](./08-event-model.md)**, không chốt tại Time Model — vì nó gắn với cấu trúc event log thật, không phải khái niệm thời gian. Xem OQ-005.

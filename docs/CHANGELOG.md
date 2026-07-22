@@ -404,3 +404,12 @@ Product Owner chính thức Approve + Lock `constitution/04-domain-principles.md
 ### Fixed — Minor
 - Market Time ngầm định luôn có và luôn đáng tin — thực tế có thể vắng mặt/lệch (derived data nội bộ, sàn không gửi timestamp, clock sàn lệch). Làm rõ: khi đó Effective Time theo policy khai báo trong Domain Contract của nguồn, không mặc định luôn có Market Time.
 - Thiếu xử lý out-of-order arrival (event đến trễ nhưng effective time cũ). Bổ sung: ordering/replay luôn theo recorded time, không chèn ngược theo effective time (chèn ngược = look-ahead, cấm bởi I-3); diễn giải lại theo effective time là việc của consumer/projection tầng đọc.
+
+## [Unreleased] — Chapter 5 v2.2 (Major do Claude tự phát hiện, ChatGPT xác nhận)
+
+### Fixed — Major (Claude tự soi ra, không có trong review ChatGPT trước đó)
+- **Physical clock không đủ tin cậy cho ordering authoritative:** §5.2 (v2.1) nói "ordering theo Event Time (recorded)" — nhưng event_time sinh từ physical clock, NTP vẫn lệch vài ms giữa các node. Với arbitrage đa sàn (thứ tự event 2 sàn = lãi/lỗ), dựa thuần physical clock có thể cho thứ tự sai. §5.4 viết lại: định nghĩa NGUYÊN TẮC ordering authority (total order deterministic per partition, physical clock không một mình quyết định thứ tự, cross-partition causal ordering không so sánh trực tiếp 2 timestamp).
+- **Ranh giới Claude giữ (phản biện lại đề xuất ChatGPT):** ChatGPT đề xuất giải quyết ngay trong Chapter 5; Claude giữ Chapter 5 chỉ định nghĩa *contract*, KHÔNG chốt *cơ chế* cụ thể (sequence number/logical/hybrid clock) — vì chọn cơ chế là quyết định của Event Model (Chapter 8), gắn với cấu trúc event log thật. Chốt cơ chế ở Time Model = đóng đinh implementation vào principle (lỗi đã bị bắt nhiều lần ở Chapter 3). Ghi **OQ-005** để Chapter 8 xử lý cơ chế.
+
+### Changed
+- §5.2 "ordering theo Event Time" → "theo ordering authority (§5.4)" cho nhất quán.

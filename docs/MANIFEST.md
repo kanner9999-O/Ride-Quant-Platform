@@ -1,5 +1,5 @@
 ---
-manifest_version: "4.5"
+manifest_version: "4.6"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -28,7 +28,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/02-platform-invariants.md | 3.1 | **Locked** | Product Owner | 00-governance, 01-vision |
 | constitution/03-engineering-principles.md | 1.4 | **Locked** | Product Owner | 02-platform-invariants |
 | constitution/04-domain-principles.md | 2.4 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles |
-| constitution/05-time-model.md | 2.1 | In Review | Product Owner | 04-domain-principles |
+| constitution/05-time-model.md | 2.2 | In Review | Product Owner | 04-domain-principles |
 | constitution/06-identity-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
 | constitution/07-module-taxonomy.md | 1.0 | In Review | Product Owner | 04-domain-principles, 05-time-model |
 | constitution/08-event-model.md | 1.0 | In Review | Product Owner | 05-time-model, 06-identity-model, 02-platform-invariants |
@@ -86,6 +86,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 |---|---|---|---|---|
 | OQ-001 | Data Retention Policy & Access Control Model chi tiết (RBAC cụ thể khi multi-tenant) | Partially Resolved | Product Owner | Hướng đã chốt qua ADR-007: single-operator NGAY BÂY GIỜ, kiến trúc chừa chỗ (Account first-class) cho multi-tenant sau. Thiết kế RBAC cụ thể vẫn mở, cần quyết trước khi thực sự mở multi-tenant (không phải trước Phase 1 nữa). |
 | OQ-002 | Strategy Lifecycle Gate: Capability Matrix phải xác nhận Backtest=YES + Paper Trade=YES trước khi strategy chuyển Live | Open | Product Owner | Chuyển ra khỏi Vision (V2-02) — thuộc về Quality Gates/Strategy Lifecycle, cần ADR khi Phase 3 định nghĩa Strategy Lifecycle |
+| OQ-005 | Cơ chế ordering authoritative cụ thể (sequence number per partition / logical clock / hybrid logical clock) cho cross-node/cross-exchange event ordering — Chapter 5 đã định nghĩa NGUYÊN TẮC (total order deterministic, không dựa thuần physical clock), cơ chế cụ thể quyết định ở Chapter 8 Event Model | Open | Product Owner | Phát hiện: Claude tự soi Chapter 5 v2.1, ChatGPT xác nhận Major. Quan trọng cho arbitrage đa sàn (thứ tự event = lãi/lỗ) |
 | OQ-004 | Time Model (Chapter 5) cần bổ sung rõ bitemporal: effective/event time vs knowledge/recorded time | Resolved (Chapter 5 v2.0) | Product Owner | Đã xử lý: §5.1 Bitemporal Model canonical hóa Effective/Recorded Time, hòa giải thuật ngữ với I-3 Locked, §5.3 định nghĩa vận hành Replay theo trục Recorded |
 | OQ-003 | Product Metrics cụ thể cho nguyên tắc "Measurable" (vd: decision-rationale coverage rate, risk-policy violation rate, replay-to-live parity deviation, thời gian hypothesis→validated strategy...) | Open | Product Owner | Chuyển ra khỏi Vision (V2-05) — cần tài liệu Product Metrics riêng, không nhét KPI chi tiết vào Vision |
 
