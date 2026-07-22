@@ -345,3 +345,15 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `03-engi
 
 ### Fixed — Chapter 14 (Backward Consistency Check phát hiện)
 - Roadmap chứa "ADR bắt buộc cho mọi định nghĩa Domain Concept / mọi quyết định kiến trúc" — mâu thuẫn Governance §4b (ADR Scope Rule: không phải mọi quyết định cần ADR). Sửa thành "ADR cho quyết định thuộc diện ADR Required". Đây đúng loại lỗi §12.1 Backward Consistency Check vừa thêm được sinh ra để bắt.
+
+## [Unreleased] — Chapter 4 v2.2 (ChatGPT review round 2, fetch blob SHA `3a3b2ea`)
+
+### Fixed — Major
+- **Context Map dùng như nghĩa vụ nhưng chưa được định nghĩa:** §4.1 yêu cầu term đa nghĩa phải mô tả trong "Context Map" — nhưng không nói Context Map là gì/ở đâu/ai sở hữu → nguy cơ mỗi người tạo 1 kiểu, vi phạm I-12 (cùng thứ giải quyết Blocker lại tạo nguồn rải rác). Thêm §4.2 canonical hóa: authoritative source `/docs/domain/context-map.yaml`, field bắt buộc, không dùng section rải trong từng Contract.
+
+### Fixed — Minor
+- `schema: {} # required` ép mọi kind (kể cả policy/domain_service không có data representation) → sinh tài liệu giả. Sửa: schema required khi CÓ data representation; policy/domain_service dùng inputs/outputs/pre/postconditions.
+- Cardinality `Domain Context 1─1..n Module` quá cứng (context ở giai đoạn modeling có thể chưa có module). Đổi `1..n` → `0..n`; thêm quy tắc shared technical module không sở hữu domain state của nhiều context.
+
+### Added (Suggestion — chi phí gần 0, làm luôn)
+- `capability_id`/`domain_context_id` là stable machine-readable ID (không phải display name) — display title đổi được mà không hỏng references/event metadata/dependency graph, tránh migration đau đớn sau này.
