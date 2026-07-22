@@ -1,5 +1,5 @@
 ---
-manifest_version: "5.0"
+manifest_version: "5.1"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -86,6 +86,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 |---|---|---|---|---|
 | OQ-001 | Data Retention Policy & Access Control Model chi tiết (RBAC cụ thể khi multi-tenant) | Partially Resolved | Product Owner | Hướng đã chốt qua ADR-007: single-operator NGAY BÂY GIỜ, kiến trúc chừa chỗ (Account first-class) cho multi-tenant sau. Thiết kế RBAC cụ thể vẫn mở, cần quyết trước khi thực sự mở multi-tenant (không phải trước Phase 1 nữa). |
 | OQ-002 | Strategy Lifecycle Gate: Capability Matrix phải xác nhận Backtest=YES + Paper Trade=YES trước khi strategy chuyển Live | Open | Product Owner | Chuyển ra khỏi Vision (V2-02) — thuộc về Quality Gates/Strategy Lifecycle, cần ADR khi Phase 3 định nghĩa Strategy Lifecycle |
+| OQ-006 | `decision_time` được Chapter 5 liệt kê là canonical field name nhưng CHƯA định nghĩa (đúng chỗ: thuộc chapter sở hữu Decision — Chapter 8 Event Model hoặc Chapter 9 Plugin/Decision). Phải định nghĩa formal + quan hệ với recorded_time trước khi chapter đó Lock | Open | Product Owner | ChatGPT Observation khi review Chapter 5 v2.4 — tránh decision_time rơi vào khoảng trống như OQ-005 |
 | OQ-005 | Cơ chế ordering authoritative cụ thể (sequence number per partition / logical clock / hybrid logical clock) cho cross-node/cross-exchange event ordering — Chapter 5 đã định nghĩa NGUYÊN TẮC (total order deterministic, không dựa thuần physical clock), cơ chế cụ thể quyết định ở Chapter 8 Event Model | Open | Product Owner | Phát hiện: Claude tự soi Chapter 5 v2.1, ChatGPT xác nhận Major. Quan trọng cho arbitrage đa sàn (thứ tự event = lãi/lỗ) |
 | OQ-004 | Time Model (Chapter 5) cần bổ sung rõ bitemporal: effective/event time vs knowledge/recorded time | Resolved (Chapter 5 v2.0) | Product Owner | Đã xử lý: §5.1 Bitemporal Model canonical hóa Effective/Recorded Time, hòa giải thuật ngữ với I-3 Locked, §5.3 định nghĩa vận hành Replay theo trục Recorded |
 | OQ-003 | Product Metrics cụ thể cho nguyên tắc "Measurable" (vd: decision-rationale coverage rate, risk-policy violation rate, replay-to-live parity deviation, thời gian hypothesis→validated strategy...) | Open | Product Owner | Chuyển ra khỏi Vision (V2-05) — cần tài liệu Product Metrics riêng, không nhét KPI chi tiết vào Vision |
@@ -95,6 +96,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | # | Nội dung | Nguồn đề xuất |
 |---|---|---|
 | BL-001 | `review_status` dạng machine-readable trong metadata (thay vì list `reviewers` dạng text) | ChatGPT review |
+| BL-005 | Processing Observation (Chapter 5 §5.2) cần schema đầy đủ + observability convention (processor/attempt/started_at/completed_at) — thuộc Engineering Foundation (Phase 1.5), không phải Constitution | ChatGPT Observation (Chapter 5 v2.4) |
 | BL-004 | context-map.yaml có thể tách file (capabilities/ contexts/ relationships riêng) KHI file quá lớn — chưa làm vì file chưa tồn tại, tránh giải quyết vấn đề chưa đo được. Xử lý ở Engineering Foundation/Phase 0.2 khi có dữ liệu thật | ChatGPT review (Chapter 4 round 4) |
 | BL-003 | Invariant Conformance Matrix (Invariant → Architecture mechanism → Owning module → Enforcement → Automated test → Runtime metric/alert → Evidence location) — thuộc Architecture/Engineering Phase, KHÔNG phải Constitution. Chỉ làm khi module/contract thật đã tồn tại, không điền tên ADR/tài liệu chưa tạo (tránh tham chiếu giả) | ChatGPT review (Chapter 2 round 3) |
 | BL-002 | `Traceability` — thêm `related_constitution` / `related_domain` / `related_engine` vào frontmatter ADR để tool trace ảnh hưởng của 1 quyết định. **Mở rộng (Vision review round 2):** nên trace được cả chiều Principle → ADR → Architecture (vd: "Everything Must Be Explainable" → I-1 → Decision Log/Replay/Context Projection) | ChatGPT review |

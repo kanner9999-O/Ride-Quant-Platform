@@ -447,3 +447,13 @@ Chapter 5 v2.3 vẫn hoàn tất review (self + 3 vòng ChatGPT, 0 Blocker/Major
 
 ### Note
 - §5.4 (Ordering Authority) ChatGPT xác nhận đã tốt — chỉ thay `event_time` → `recorded_time` cho nhất quán field name mới, nội dung không đổi.
+
+## [Unreleased] — Chapter 5 review round 5: sạch (0 Blocker/Major/Minor), ghi nhận 2 Observation cho chapter sau
+
+### Added
+- **OQ-006**: `decision_time` được Chapter 5 liệt kê canonical nhưng chưa định nghĩa — phải định nghĩa formal ở chapter sở hữu Decision (Ch8/Ch9) trước khi chapter đó Lock. Ghi lại để không rơi vào khoảng trống (bài học từ OQ-005).
+- **BL-005**: Processing Observation cần schema đầy đủ ở Engineering Foundation (Phase 1.5).
+- Cả hai KHÔNG sửa vào Chapter 5 (không thuộc phạm vi chapter này) — chỉ đặt mốc nhắc.
+
+### Status
+- Chapter 5 v2.4: cả 2 AI xác nhận sạch, CHỜ Product Owner quyết Lock.
