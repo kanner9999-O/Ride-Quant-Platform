@@ -1,7 +1,7 @@
 ---
 id: 04-domain-principles
 title: Domain Principles
-version: "2.3"
+version: "2.4"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -61,6 +61,7 @@ relationships:
     consumer_context_id: portfolio
     contract_id: ExecutionFill.v1
     relationship_type: published_language     # direction theo message/contract flow
+    status: active                            # active | deprecated | superseded — nhất quán với capability/context
     semantic_mappings:
       ExecutionPosition: PortfolioPosition
     translation_policy: anti_corruption_layer

@@ -365,3 +365,9 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `03-engi
 
 ### Fixed — Minor
 - `upstream_context/downstream_context` bắt buộc cho mọi relationship — nhưng message flow direction ≠ model influence direction (một context publish event nhưng consume command từ context kia). Sửa: direction theo từng contract edge (provider/consumer + relationship_type); model_influence (DDD upstream/downstream) khai báo riêng khi cần.
+
+## [Unreleased] — Chapter 4 v2.4 (ChatGPT review round 4 — chỉ Suggestion, không Blocker/Major/Minor)
+
+### Added
+- `status` cho relationship trong Context Map (Suggestion 1) — nhất quán với capabilities/contexts đã có status; cho phép deprecate 1 relationship mà không xóa lịch sử.
+- **BL-004** (backlog): tách context-map.yaml thành nhiều file khi quá lớn (Suggestion 2) — KHÔNG làm ngay vì file chưa tồn tại, tránh giải quyết vấn đề chưa đo được (đúng nguyên tắc Chapter 3 đã thiết lập). Xử lý khi có dữ liệu thật ở Engineering Foundation/Phase 0.2.

@@ -1,5 +1,5 @@
 ---
-manifest_version: "4.1"
+manifest_version: "4.2"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27,7 +27,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/01-vision.md | 2.3 | **Locked** | Product Owner | 00-governance |
 | constitution/02-platform-invariants.md | 3.1 | **Locked** | Product Owner | 00-governance, 01-vision |
 | constitution/03-engineering-principles.md | 1.4 | **Locked** | Product Owner | 02-platform-invariants |
-| constitution/04-domain-principles.md | 2.3 | In Review | Product Owner | 02-platform-invariants |
+| constitution/04-domain-principles.md | 2.4 | In Review | Product Owner | 02-platform-invariants |
 | constitution/05-time-model.md | 1.0 | In Review | Product Owner | 04-domain-principles |
 | constitution/06-identity-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
 | constitution/07-module-taxonomy.md | 1.0 | In Review | Product Owner | 04-domain-principles, 05-time-model |
@@ -94,6 +94,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | # | Nội dung | Nguồn đề xuất |
 |---|---|---|
 | BL-001 | `review_status` dạng machine-readable trong metadata (thay vì list `reviewers` dạng text) | ChatGPT review |
+| BL-004 | context-map.yaml có thể tách file (capabilities/ contexts/ relationships riêng) KHI file quá lớn — chưa làm vì file chưa tồn tại, tránh giải quyết vấn đề chưa đo được. Xử lý ở Engineering Foundation/Phase 0.2 khi có dữ liệu thật | ChatGPT review (Chapter 4 round 4) |
 | BL-003 | Invariant Conformance Matrix (Invariant → Architecture mechanism → Owning module → Enforcement → Automated test → Runtime metric/alert → Evidence location) — thuộc Architecture/Engineering Phase, KHÔNG phải Constitution. Chỉ làm khi module/contract thật đã tồn tại, không điền tên ADR/tài liệu chưa tạo (tránh tham chiếu giả) | ChatGPT review (Chapter 2 round 3) |
 | BL-002 | `Traceability` — thêm `related_constitution` / `related_domain` / `related_engine` vào frontmatter ADR để tool trace ảnh hưởng của 1 quyết định. **Mở rộng (Vision review round 2):** nên trace được cả chiều Principle → ADR → Architecture (vd: "Everything Must Be Explainable" → I-1 → Decision Log/Replay/Context Projection) | ChatGPT review |
 
