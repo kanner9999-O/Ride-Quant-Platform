@@ -395,3 +395,12 @@ Product Owner chính thức Approve + Lock `constitution/04-domain-principles.md
 ### Changed
 - Bảng 4 mốc thời gian gắn rõ mỗi mốc thuộc trục nào (Market→Effective, Event→Recorded, Processing→vận hành, Replay→Recorded); Market Time với dữ liệu dạng khoảng (candle) = thời điểm bắt đầu khoảng.
 - Thêm dependency `02-platform-invariants` vào frontmatter (chapter này tồn tại để phục vụ I-3/I-5 kiểm chứng được).
+
+## [Unreleased] — Chapter 5 v2.1 (ChatGPT review round 1)
+
+### Fixed — Major
+- **Processing Time mâu thuẫn phân loại ngay trong bảng:** §5.2 viết "Processing Time không thuộc 2 trục" nhưng vẫn để chung bảng với các mốc bitemporal → gây hiểu lầm nó cũng dùng cho ordering/replay. Tách thành 2 bảng riêng: mốc bitemporal (Market/Event/Replay — authoritative cho ordering/replay/decision) vs mốc vận hành (Processing Time — chỉ observability, CẤM dùng cho ordering/replay/decision vì phá determinism I-2/I-3).
+
+### Fixed — Minor
+- Market Time ngầm định luôn có và luôn đáng tin — thực tế có thể vắng mặt/lệch (derived data nội bộ, sàn không gửi timestamp, clock sàn lệch). Làm rõ: khi đó Effective Time theo policy khai báo trong Domain Contract của nguồn, không mặc định luôn có Market Time.
+- Thiếu xử lý out-of-order arrival (event đến trễ nhưng effective time cũ). Bổ sung: ordering/replay luôn theo recorded time, không chèn ngược theo effective time (chèn ngược = look-ahead, cấm bởi I-3); diễn giải lại theo effective time là việc của consumer/projection tầng đọc.

@@ -1,7 +1,7 @@
 ---
 id: 05-time-model
 title: Time Model
-version: "2.0"
+version: "2.1"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -30,14 +30,21 @@ Mọi dữ liệu thời gian trong hệ thống phân biệt hai trục độc 
 
 ## 5.2 Bốn mốc thời gian vận hành
 
-Trên nền 2 trục ở trên, hệ thống ghi nhận 4 mốc cụ thể:
+Trên nền 2 trục ở trên, hệ thống ghi nhận các mốc cụ thể. Ba mốc đầu thuộc bitemporal model (dùng cho ordering, replay, decision); Processing Time là **operational observability metadata** — tách riêng vì nó KHÔNG bao giờ được dùng cho ordering, replay visibility, hay decision logic (nếu dùng sẽ phá determinism của I-2/I-3, vì processing time thay đổi giữa các lần chạy lại).
+
+**Mốc bitemporal (authoritative cho ordering/replay/decision):**
 
 | Mốc | Định nghĩa | Thuộc trục |
 |---|---|---|
-| **Market Time** | Timestamp do sàn cung cấp — với dữ liệu có khoảng (candle), là thời điểm bắt đầu khoảng đó | Effective |
+| **Market Time** | Timestamp do sàn cung cấp — với dữ liệu có khoảng (candle), là thời điểm bắt đầu khoảng đó. Có thể vắng mặt hoặc không đáng tin với một số nguồn (derived data nội bộ, sàn không gửi timestamp, clock sàn lệch) — khi đó Effective Time được xác định theo policy khai báo trong Domain Contract của nguồn đó, không mặc định luôn có Market Time | Effective |
 | **Event Time** | Thời điểm event được ghi vào durable event log nội bộ | Recorded |
-| **Processing Time** | Thời điểm một engine xử lý xong event | Vận hành (không thuộc 2 trục, chỉ đo latency nội bộ) |
 | **Replay Time** | Con trỏ thời gian giả lập khi replay | Recorded (xem 5.3) |
+
+**Mốc vận hành (KHÔNG dùng cho ordering/replay/decision):**
+
+| Mốc | Định nghĩa | Mục đích |
+|---|---|---|
+| **Processing Time** | Thời điểm một engine xử lý xong event | Chỉ để đo latency/observability nội bộ. Cấm dùng cho ordering, replay visibility, hoặc bất kỳ decision logic nào. |
 
 **Quy tắc:**
 - Mọi event tối thiểu mang cả `market_time` và `event_time` (Dual Timestamping) — bắt buộc để phát hiện dữ liệu trễ/stale khi arbitrage đa sàn.
@@ -51,6 +58,8 @@ Replay tại thời điểm T nghĩa là: **chỉ quan sát được các event 
 Hệ quả trực tiếp (khớp ví dụ trong I-3): candle có effective time 10:00, correction được ghi lúc recorded time 10:07 → Replay tại 10:03 thấy candle gốc, KHÔNG thấy correction — dù correction "nói về" thời điểm 10:00 nằm trước con trỏ replay. Nhìn theo trục effective để quyết định visibility là look-ahead bias, bị cấm bởi I-3.
 
 Replay dùng lại Event Time đã ghi trong log, không dùng đồng hồ hệ thống hiện tại (nhất quán [I-5](./02-platform-invariants.md): Replay execution không phụ thuộc nguồn ngoài).
+
+**Out-of-order arrival:** một event có thể đến và được ghi (recorded time muộn) trong khi effective time của nó nằm trước nhiều event đã ghi trước đó (ví dụ: fill từ sàn bị trễ mạng, đến sau nhưng mô tả thời điểm sớm hơn). Ordering và replay visibility luôn theo **recorded time (event_time)** — event đến sau thì replay chỉ thấy nó ở đúng thời điểm nó được ghi, không "chèn ngược" vào quá khứ theo effective time (chèn ngược = look-ahead bias, cấm bởi I-3). Việc diễn giải lại chuỗi sự kiện theo effective time (nếu nghiệp vụ cần) là trách nhiệm của consumer/projection tại tầng đọc, không phải của ordering trong event log.
 
 ## 5.4 Clock authority
 
