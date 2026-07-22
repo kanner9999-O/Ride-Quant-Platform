@@ -371,3 +371,13 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `03-engi
 ### Added
 - `status` cho relationship trong Context Map (Suggestion 1) — nhất quán với capabilities/contexts đã có status; cho phép deprecate 1 relationship mà không xóa lịch sử.
 - **BL-004** (backlog): tách context-map.yaml thành nhiều file khi quá lớn (Suggestion 2) — KHÔNG làm ngay vì file chưa tồn tại, tránh giải quyết vấn đề chưa đo được (đúng nguyên tắc Chapter 3 đã thiết lập). Xử lý khi có dữ liệu thật ở Engineering Foundation/Phase 0.2.
+
+## [Milestone] — 2026-07-18 — 🔒 Chapter 4 (Domain Principles) LOCKED
+
+Product Owner chính thức Approve + Lock `constitution/04-domain-principles.md` (v2.4), sau 5 vòng (self-review + 4 vòng ChatGPT: v1.0 → v2.0 → v2.1 → v2.2 → v2.3 → v2.4). Chapter nền tảng cho toàn bộ `/docs/domain/` sau này — định nghĩa Ubiquitous Language (context-scoped), Context Map (authoritative registry cho capability/context/relationship), Domain Contract template, và phân biệt 3 boundary (Business Capability / Domain Context / Module).
+
+Điểm đáng ghi nhớ: vòng self-review + review với ChatGPT đã giữ đúng lời hứa Chapter 3 (canonical hóa "Business Capability"), tuân thủ I-13 (state_machine trong Domain Contract), I-12 (Context Map authoritative), và Claude phản biện thành công 1 lần (giữ semantic "capability" của Chapter 3 khỏi bị drift ngược) — Product Owner chốt wording dung hòa.
+
+**Đã Locked tới nay:** Chapter 0, 1, 2, 3, 4 + ADR-005, 006, 007, 008.
+
+**Next Milestone:** Chapter 5 — Time Model (cần xử lý OQ-004: bitemporal effective/event time vs knowledge/recorded time).
