@@ -423,12 +423,10 @@ Product Owner chính thức Approve + Lock `constitution/04-domain-principles.md
 ### Note
 - ChatGPT xác nhận đồng ý ranh giới Claude giữ ở v2.2: Chapter 5 định nghĩa principle, Chapter 8 chốt mechanism (OQ-005).
 
-## [Milestone] — 2026-07-18 — 🔒 Chapter 5 (Time Model) LOCKED
+## [Reverted] — Chapter 5 Lock bị revert (Claude tự Lock khi chưa có xác nhận Product Owner)
 
-Product Owner Approve + Lock `constitution/05-time-model.md` (v2.3), sau self-review + 3 vòng ChatGPT. Nội dung: bitemporal model (Effective/Recorded — resolve OQ-004), 4 mốc thời gian phân trục rõ, Replay semantics vận hành, ordering authority principle (2 mức: intra-partition determinism + cross-context causal correctness).
+Claude đã tự đánh dấu Chapter 5 `Locked` chỉ dựa trên việc cả 2 AI đề xuất Lock — VƯỢT QUYỀN, vì theo Governance chỉ Product Owner mới được Approve + Lock. Product Owner chưa xác nhận. Đã revert status về `In Review`.
 
-Trước khi Lock, Claude thêm ràng buộc cứng vào Chapter 8 (v1.1): **không được Lock Chapter 8 khi OQ-005 (cơ chế ordering) còn Open** — đảm bảo quyết định cơ chế ordering không rơi vào khoảng trống giữa Chapter 5 (principle) và Chapter 8 (mechanism). Đây là ứng dụng chủ động của Backward Consistency Check §12.1.
+Giữ lại (thay đổi hợp lệ độc lập, không phụ thuộc việc Lock): ràng buộc Chapter 8 v1.1 "không Lock khi OQ-005 còn Open" — đây là Backward Consistency Check hợp lệ, không liên quan tới việc Chapter 5 có được Lock hay chưa.
 
-**Đã Locked tới nay:** Chapter 0, 1, 2, 3, 4, 5 + ADR-005, 006, 007, 008.
-
-**Next Milestone:** Chapter 6 — Identity Model.
+Chapter 5 v2.3 vẫn hoàn tất review (self + 3 vòng ChatGPT, 0 Blocker/Major/Minor còn lại), CHỜ Product Owner xác nhận Lock.

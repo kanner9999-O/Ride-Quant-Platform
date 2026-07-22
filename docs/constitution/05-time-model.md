@@ -2,11 +2,11 @@
 id: 05-time-model
 title: Time Model
 version: "2.3"
-status: Locked
+status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: Product Owner
-approved_at: "2026-07-18"
+approved_by: null
+approved_at: null
 created_at: "2026-07-16"
 last_review: "2026-07-18"
 next_review: null
