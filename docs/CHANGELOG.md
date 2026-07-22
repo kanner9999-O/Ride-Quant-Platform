@@ -494,3 +494,9 @@ Open items chuyển tiếp: **OQ-005** (cơ chế ordering → Chapter 8), **OQ-
 ### Fixed — Minor
 - ID uniqueness scope phải khai báo tường minh trong Domain Contract (per-Account/per-Venue...), không mặc định global — venue-assigned order ID chỉ unique trong 1 venue.
 - Thêm quy tắc thời điểm cấp ID: trước/tại thời điểm entity đầu tiên tồn tại, không cấp muộn — bắt buộc cho I-10 (execution intent cần client-assigned ID trước khi gửi venue để chống duplicate).
+
+## [Unreleased] — Chapter 6 v2.2 (ChatGPT review round 2: 2 Minor)
+
+### Fixed — Minor
+- **§6.5 Internal Identity vs External Reference:** venue order ID / exchange trade ID không do Ride kiểm soát (có thể trùng giữa venue, format đổi) — không được dùng làm primary identity, chỉ lưu như attribute. Order có internal `OrderID` (cho I-10) + lưu kèm `venue_order_id`, reconcile theo cặp.
+- **§6.7 ID là opaque:** không nhúng business meaning để logic suy diễn ngược từ ID — nếu logic phụ thuộc cấu trúc ID thì đổi format ID (ULID→UUIDv7) sẽ phá logic ở nơi không ngờ. Thông tin nghiệp vụ phải là field tường minh. (Timestamp trong ID cho sortable/index §6.3 là tối ưu storage, không phải business meaning.)

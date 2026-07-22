@@ -1,7 +1,7 @@
 ---
 id: 06-identity-model
 title: Identity Model
-version: "2.1"
+version: "2.2"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -57,7 +57,15 @@ Vai trò của tính sortable trong ID: chỉ để tối ưu index/storage loca
 
 `Account` là entity first-class ngay từ Phase 0.2 (xem [ADR-007](../adr/ADR-007.md)) — Position/Order/Execution scope theo AccountID ngay từ đầu, dù Phase 0-3 chỉ có 1 Account. Chừa chỗ multi-tenant (nhiều Account + cách ly quyền truy cập) mà không redesign Position Ledger. Account thuộc loại Entity Identity (§6.2) — giữ nguyên ID suốt vòng đời.
 
-## 6.5 Correlation & Causation Identity (nối chuỗi cho Explainability)
+## 6.5 Internal Identity vs External Reference
+
+ID do hệ thống Ride cấp phát (**internal identity**) phải tách biệt với ID do bên ngoài cấp (**external reference** — venue order ID, exchange trade ID, broker account number...):
+
+- Internal identity tuân thủ mọi nguyên tắc ở §6.1 (Ride kiểm soát uniqueness/immutability/scope).
+- External reference được **lưu như một thuộc tính** của entity, KHÔNG dùng làm primary identity của entity đó — vì Ride không kiểm soát chúng: có thể trùng giữa các venue, format thay đổi theo venue, hoặc được venue tái sử dụng.
+- Ánh xạ internal ↔ external là dữ liệu, không phải identity. Ví dụ: một Order có `OrderID` internal (Ride cấp, dùng cho I-10 idempotency trước khi gửi lệnh) và lưu kèm `venue_order_id` (venue trả về sau) như attribute — reconcile dựa trên cặp này.
+
+## 6.6 Correlation & Causation Identity (nối chuỗi cho Explainability)
 
 Ngoài ID của bản thân entity/event, [I-1 Explainability](./02-platform-invariants.md) yêu cầu truy được **chuỗi nhân quả** giữa các event — nên cần thêm 2 loại identity liên kết, tách biệt với entity ID:
 
@@ -66,6 +74,10 @@ Ngoài ID của bản thân entity/event, [I-1 Explainability](./02-platform-inv
 
 Hai ID này là hạ tầng bắt buộc để reconstruct causation chain của I-1 — không được nhầm với entity ID (một entity có thể xuất hiện trong nhiều correlation khác nhau). Cấu trúc/format cụ thể do [Chapter 8 Event Model](./08-event-model.md) sở hữu; Chapter 6 chỉ quy định 2 loại identity này PHẢI tồn tại.
 
-## 6.6 Vai trò với Explainability
+## 6.7 ID là opaque — không mang business meaning
+
+ID phải là **opaque identifier** — không được nhúng business meaning mà hệ thống suy diễn ngược ra để dùng trong logic. Không parse ID để lấy thông tin (loại entity, account, thời gian, venue...) rồi ra quyết định dựa trên đó. Lý do: nếu logic phụ thuộc cấu trúc bên trong ID, thì đổi format ID (ví dụ ULID → UUIDv7, hay đổi scheme khi scale) sẽ phá vỡ business logic ở nơi không ngờ tới. Thông tin nghiệp vụ phải là field tường minh của entity, không giấu trong ID. (ID CÓ THỂ mang timestamp cho mục đích sortable/index theo §6.3 — nhưng đó là tối ưu storage, không phải business meaning để logic suy diễn.)
+
+## 6.8 Vai trò với Explainability
 
 Identity ổn định là nền tảng bắt buộc để [I-1 Explainability](./02-platform-invariants.md) khả thi: truy vết một quyết định 3 năm sau chỉ khả thi khi mọi entity/event liên quan có ID bất biến, không tái sử dụng — nếu ID bị reuse, correlation/causation chain sẽ trỏ nhầm.
