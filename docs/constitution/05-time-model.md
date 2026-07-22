@@ -1,7 +1,7 @@
 ---
 id: 05-time-model
 title: Time Model
-version: "2.2"
+version: "2.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -25,6 +25,8 @@ Mọi dữ liệu thời gian trong hệ thống phân biệt hai trục độc 
 | **Recorded Time** (knowledge time) | Thời điểm hệ thống BIẾT ĐẾN dữ liệu đó (ghi vào event log) | "Hệ thống biết điều này từ khi nào?" (candle 10:00 publish lúc 10:00:30 → recorded time = 10:00:30) |
 
 **Correction là event mới:** khi dữ liệu bị sửa (ví dụ sàn gửi correction cho candle 10:00 vào lúc 10:07), correction là một event mới với `effective_time = 10:00` nhưng `recorded_time = 10:07` — event gốc không bị sửa/xóa (nhất quán I-3 append-only).
+
+**Recorded time bất biến:** một khi event đã ghi với `recorded_time` (event_time), giá trị đó bất biến (I-3) — không "sửa lại cho đúng giờ thật" về sau, kể cả khi phát hiện clock lệch. Sửa nhận thức về thời gian = ghi event correction mới, không sửa recorded_time cũ.
 
 **Đối chiếu thuật ngữ với I-3 (Locked):** I-3 dùng cụm "`effective/event time`" và "`knowledge/recorded time`" — trong ngữ cảnh đó, "event time của candle là 10:00" nghĩa là **Effective Time** theo định nghĩa chương này. Chương này canonical hóa: dùng **Effective Time** và **Recorded Time** làm cặp thuật ngữ chính thức; các cách gọi trong I-3 là alias tương thích (effective/event → Effective; knowledge/recorded → Recorded), không mâu thuẫn.
 
@@ -65,10 +67,19 @@ Replay dùng lại Event Time đã ghi trong log, không dùng đồng hồ hệ
 
 **Vấn đề:** `event_time` được sinh ra từ một đồng hồ vật lý tại thời điểm ghi event. Ngay cả khi các node được đồng bộ NTP, sai số vài mili-giây vẫn tồn tại — nghĩa là hai event gần nhau từ hai node khác nhau có thể có `event_time` không phản ánh đúng thứ tự thật. Với arbitrage đa sàn (use case cốt lõi của Ride), thứ tự sự kiện giữa hai sàn quyết định trực tiếp lãi/lỗ, nên **không được dựa thuần vào physical clock để quyết định thứ tự authoritative**.
 
-**Nguyên tắc (contract — không chốt cơ chế):**
+**Nguyên tắc (contract — không chốt cơ chế). Phân biệt 2 mức bảo đảm khác nhau:**
+
+*Mức 1 — Intra-partition determinism (chống look-ahead, phục vụ I-3/Replay):*
 - Ordering authoritative trong mỗi partition/stream phải là **total order deterministic** — replay cùng một log luôn cho cùng một thứ tự, không phụ thuộc physical clock lúc đọc lại.
+- Đây là điều kiện đủ để Replay không bị look-ahead bias trong phạm vi 1 stream.
+
+*Mức 2 — Cross-context causal correctness (đúng nhân quả liên sàn/liên stream, phục vụ decision đa nguồn):*
+- Khi thứ tự giữa 2 stream thực sự quan trọng về nghiệp vụ (ví dụ 2 sàn trong 1 arbitrage decision), hệ thống phải bảo toàn quan hệ **nhân quả** (nếu event B được tạo ra do đã quan sát event A, thì mọi nơi phải thấy A trước B) — không phải chỉ cần "một thứ tự cố định nào đó" như Mức 1.
+- Total order deterministic (Mức 1) KHÔNG tự động cho ra causal correctness (Mức 2): có thể có một thứ tự cố định nhưng SAI về nhân quả nếu chỉ sắp theo physical timestamp giữa 2 node lệch clock.
+
+**Nguyên tắc chung cho cả 2 mức:**
 - Physical `event_time` dùng để đo latency, phát hiện stale/clock-skew, và hiển thị — nhưng **không phải một mình nó** quyết định thứ tự authoritative giữa các event.
-- Cross-partition/cross-node causal ordering (khi thứ tự giữa 2 stream thực sự quan trọng về nghiệp vụ, ví dụ 2 sàn trong 1 arbitrage decision) phải dựa trên cơ chế ordering deterministic, không phải so sánh trực tiếp 2 physical timestamp.
-- Clock skew giữa các node là vấn đề vận hành cần giám sát; một khi event đã ghi, giá trị `event_time` bất biến (I-3), không "sửa lại cho đúng giờ thật" về sau.
+- Cross-partition/cross-node causal ordering phải dựa trên cơ chế ordering deterministic bảo toàn nhân quả, không phải so sánh trực tiếp 2 physical timestamp.
+- Clock skew giữa các node là vấn đề vận hành cần giám sát.
 
 **Cơ chế cụ thể** (sequence number per partition, logical/Lamport clock, hybrid logical clock, hay kết hợp) là **quyết định kiến trúc của [Event Model — Chapter 8](./08-event-model.md)**, không chốt tại Time Model — vì nó gắn với cấu trúc event log thật, không phải khái niệm thời gian. Xem OQ-005.

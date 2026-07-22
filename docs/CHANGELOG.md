@@ -413,3 +413,12 @@ Product Owner chính thức Approve + Lock `constitution/04-domain-principles.md
 
 ### Changed
 - §5.2 "ordering theo Event Time" → "theo ordering authority (§5.4)" cho nhất quán.
+
+## [Unreleased] — Chapter 5 v2.3 (ChatGPT review round 3 — 2 Minor, đồng ý ranh giới principle/mechanism)
+
+### Fixed — Minor
+- Tách 2 mức bảo đảm ordering: Mức 1 intra-partition determinism (chống look-ahead, đủ cho I-3/Replay 1 stream) vs Mức 2 cross-context causal correctness (đúng nhân quả liên sàn) — làm rõ total order deterministic KHÔNG tự động cho causal correctness (thứ tự cố định vẫn có thể sai nhân quả nếu sắp theo physical timestamp lệch clock).
+- Dời nguyên tắc "recorded time bất biến" từ §5.4 (ordering) lên §5.1 (bitemporal — nơi sở hữu khái niệm) — đặt đúng nơi theo I-12, tránh nguyên tắc nền tảng nằm lạc trong mục cơ chế.
+
+### Note
+- ChatGPT xác nhận đồng ý ranh giới Claude giữ ở v2.2: Chapter 5 định nghĩa principle, Chapter 8 chốt mechanism (OQ-005).
