@@ -381,3 +381,17 @@ Product Owner chính thức Approve + Lock `constitution/04-domain-principles.md
 **Đã Locked tới nay:** Chapter 0, 1, 2, 3, 4 + ADR-005, 006, 007, 008.
 
 **Next Milestone:** Chapter 5 — Time Model (cần xử lý OQ-004: bitemporal effective/event time vs knowledge/recorded time).
+
+## [Unreleased] — Chapter 5 (Time Model) v2.0 — Claude tự review
+
+### Fixed — nghiêm trọng nhất
+- **Thuật ngữ "Event Time" va nhau giữa Chapter 5 và I-3 (Locked):** I-3 viết "event_time của candle là 10:00" theo nghĩa *thời điểm dữ liệu nói về* (effective), nhưng Chapter 5 cũ định nghĩa Event Time = *thời điểm publish vào bus* (recorded) — candle khung 10:00 publish lúc 10:00:30 sẽ có 2 cách hiểu không tương thích, khiến look-ahead test của I-3 không biết so theo trục nào. Vì I-3 đã Locked, Chapter 5 hòa giải: canonical hóa cặp **Effective Time / Recorded Time**, khai báo cách gọi trong I-3 là alias tương thích (effective/event → Effective; knowledge/recorded → Recorded), không mâu thuẫn với nguyên văn I-3.
+
+### Added
+- **§5.1 Bitemporal Model** — giải quyết **OQ-004** (treo từ vòng review Chapter 2): 2 trục Effective/Recorded, correction là event mới (effective giữ nguyên, recorded mới), nhất quán I-3 append-only.
+- **§5.3 Ngữ nghĩa Replay** — Replay Time trước đây chỉ có tên, không có định nghĩa vận hành. Nay định nghĩa rõ: Replay tại T = chỉ thấy event có recorded time ≤ T, bất kể effective time — nhìn theo trục effective để quyết visibility là look-ahead bias (khớp đúng ví dụ 10:00/10:03/10:07 trong I-3).
+- **§5.4 Clock authority** — event_time do event log cấp phát, bất biến sau khi ghi; clock skew là vấn đề vận hành cần giám sát nhưng không thay đổi nguyên tắc ordering.
+
+### Changed
+- Bảng 4 mốc thời gian gắn rõ mỗi mốc thuộc trục nào (Market→Effective, Event→Recorded, Processing→vận hành, Replay→Recorded); Market Time với dữ liệu dạng khoảng (candle) = thời điểm bắt đầu khoảng.
+- Thêm dependency `02-platform-invariants` vào frontmatter (chapter này tồn tại để phục vụ I-3/I-5 kiểm chứng được).
