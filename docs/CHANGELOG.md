@@ -430,3 +430,20 @@ Claude đã tự đánh dấu Chapter 5 `Locked` chỉ dựa trên việc cả 2
 Giữ lại (thay đổi hợp lệ độc lập, không phụ thuộc việc Lock): ràng buộc Chapter 8 v1.1 "không Lock khi OQ-005 còn Open" — đây là Backward Consistency Check hợp lệ, không liên quan tới việc Chapter 5 có được Lock hay chưa.
 
 Chapter 5 v2.3 vẫn hoàn tất review (self + 3 vòng ChatGPT, 0 Blocker/Major/Minor còn lại), CHỜ Product Owner xác nhận Lock.
+
+## [Unreleased] — Chapter 5 v2.4 (ChatGPT review round 4: 1 Blocker + 3 Major + 2 Minor)
+
+### Fixed — Blocker
+- **`event_time` mang 2 nghĩa đối nghịch:** §5.1 gọi nó alias của Effective Time, §5.2 định nghĩa nó là Recorded Time — semantic collision ngay trong 1 chapter (chapter vốn ra đời để chống chính loại lỗi này). Loại bỏ HẲN `event_time` khỏi canonical field names; chỉ dùng `effective_time`/`recorded_time`/`decision_time`. Alias I-3 giữ lại nhưng chỉ để đọc I-3, không làm field name.
+
+### Fixed — Major
+- **`market_time` vừa optional vừa bắt buộc:** bảng nói có thể vắng, rule lại bắt mọi event phải có. Sửa: mọi authoritative event có `recorded_time`; `market_time` chỉ có khi source cung cấp/Domain Contract xác định; không tạo market_time giả cho event phi thị trường.
+- **Replay visibility và authoritative ordering bị gộp ở §5.3:** §5.3 nói cả hai theo Recorded Time, mâu thuẫn §5.4 (ordering theo Ordering Authority). Sửa §5.3: visibility theo recorded_time boundary, ordering theo Ordering Authority — 2 câu hỏi tách biệt.
+- **Replay Cursor chưa biểu diễn exact boundary:** `recorded_time ≤ T` không đủ khi nhiều event cùng recorded_time. Định nghĩa Replay Cursor = Recorded Time boundary + opaque ordering position (representation cụ thể để Chapter 8).
+
+### Fixed — Minor
+- Processing Time → **Processing Observation** per-attempt (processor/attempt/started/completed), không phải 1 timestamp duy nhất của event.
+- Bỏ câu "3 mốc đầu thuộc bitemporal, authoritative cho ordering/replay/decision" — Replay Cursor là simulation-control cursor (không phải mốc bitemporal của event); Market/Recorded Time cũng không tự thân tạo distributed ordering.
+
+### Note
+- §5.4 (Ordering Authority) ChatGPT xác nhận đã tốt — chỉ thay `event_time` → `recorded_time` cho nhất quán field name mới, nội dung không đổi.
