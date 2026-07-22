@@ -320,3 +320,12 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `03-engi
 **Đã Locked tới nay:** Chapter 0 (Governance), Chapter 1 (Vision), Chapter 2 (Platform Invariants), Chapter 3 (Engineering Principles), ADR-005, ADR-006, ADR-007, ADR-008.
 
 **Next Milestone:** Chapter 4 — Domain Principles.
+
+## [Unreleased] — Chapter 4 (Domain Principles) v2.0 — Claude tự review trước khi gửi ChatGPT
+
+### Fixed
+- **Lời hứa chưa giữ:** Chapter 3 (Locked) nói "bounded context sẽ được canonical hóa ở Chapter 4" — nhưng Chapter 4 bản cũ hoàn toàn không nhắc tới khái niệm này. Thêm §4.3 **Business Capability** (tên canonical được chọn thay vì "bounded context" để nhất quán với ngôn ngữ Chapter 3 đã dùng): định nghĩa, ranh giới (single responsibility), quy tắc giao tiếp (chỉ qua published contract, nhất quán I-4/I-7).
+- **Domain Contract template thiếu state machine:** I-13 (Locked) yêu cầu Domain Contract sở hữu state machine của từng entity, nhưng ví dụ YAML cũ không có field này. Thêm `state_machine` (states/transitions/terminal_states) vào template.
+- **Thuật ngữ "Domain Model" vs "Domain Contract" tự mâu thuẫn:** I-12 (Locked) đã canonical hóa "Domain Contract" — nhưng chính Chapter 4 (chapter sở hữu khái niệm) vẫn viết "Domain Model = Domain Contract" và "Glossary hợp nhất với Domain Model". Chuẩn hóa toàn bộ về "Domain Contract".
+- Thêm khai báo type/precision cho giá trị tài chính trong `schema` (liên kết I-9).
+- "Domain Modeling trước UX Blueprint": bỏ tự khẳng định thứ tự độc lập, trỏ về Roadmap (Chapter 14) — nơi thứ tự này đã được liệt kê, tránh 2 nguồn cùng khẳng định 1 trình tự.

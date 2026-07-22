@@ -1,5 +1,5 @@
 ---
-manifest_version: "3.7"
+manifest_version: "3.8"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27,7 +27,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/01-vision.md | 2.3 | **Locked** | Product Owner | 00-governance |
 | constitution/02-platform-invariants.md | 3.1 | **Locked** | Product Owner | 00-governance, 01-vision |
 | constitution/03-engineering-principles.md | 1.4 | **Locked** | Product Owner | 02-platform-invariants |
-| constitution/04-domain-principles.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
+| constitution/04-domain-principles.md | 2.0 | In Review | Product Owner | 02-platform-invariants |
 | constitution/05-time-model.md | 1.0 | In Review | Product Owner | 04-domain-principles |
 | constitution/06-identity-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
 | constitution/07-module-taxonomy.md | 1.0 | In Review | Product Owner | 04-domain-principles, 05-time-model |
