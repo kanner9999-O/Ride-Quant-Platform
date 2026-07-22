@@ -1,7 +1,7 @@
 ---
 id: 04-domain-principles
 title: Domain Principles
-version: "2.2"
+version: "2.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -33,24 +33,55 @@ canonical_name: PortfolioPosition
 
 ## 4.2 Context Map (authoritative artifact)
 
-Context Map là authoritative record mô tả quan hệ semantic và contract giữa các Domain Context — nơi duy nhất giải quyết semantic collision (theo [I-12](./02-platform-invariants.md): một context relationship chỉ tồn tại ở 1 nơi, không rải rác).
+Context Map là authoritative record cho **cả identity/definition lẫn quan hệ** của Domain Context và Business Capability — nơi duy nhất giải quyết semantic collision (theo [I-12](./02-platform-invariants.md): identity và relationship của context/capability chỉ tồn tại ở 1 nơi, không rải rác trong từng Domain Contract).
 
-**Authoritative source:** `/docs/domain/context-map.yaml` (một file duy nhất, không phải section rải trong từng Domain Contract).
+**Authoritative source:** `/docs/domain/context-map.yaml` (một file duy nhất). Sở hữu 3 phần:
 
-Mỗi relationship khai báo tối thiểu: `upstream_context`, `downstream_context`, `published_contracts`, `semantic_mappings`, `translation_policy`, `ownership`, compatibility/version reference.
+1. **Capability registry** — định nghĩa mỗi Business Capability (id, title, responsibility, status).
+2. **Context registry** — định nghĩa mỗi Domain Context (id, title, capability_id nó thuộc về, responsibility, owned_contracts, status).
+3. **Relationship map** — quan hệ giữa các context, direction theo từng contract edge.
 
 ```yaml
+capabilities:
+  - id: market-structure
+    title: Market Structure
+    responsibility: "Produce authoritative market-structure interpretation."
+    status: active                # active | deprecated | superseded
+
+contexts:
+  - id: market-structure-analysis
+    title: Market Structure Analysis
+    capability_id: market-structure
+    responsibility: "Define Swing, BOS, CHoCH and related structure semantics."
+    owned_contracts: [swing, break-of-structure]
+    status: active
+
 relationships:
-  - upstream_context: execution
-    downstream_context: portfolio
-    published_contracts: [ExecutionFill.v1]
+  - provider_context_id: execution
+    consumer_context_id: portfolio
+    contract_id: ExecutionFill.v1
+    relationship_type: published_language     # direction theo message/contract flow
     semantic_mappings:
       ExecutionPosition: PortfolioPosition
     translation_policy: anti_corruption_layer
-    ownership: "..."
+    # model_influence (DDD upstream/downstream) khai báo RIÊNG khi cần —
+    # message flow direction ≠ model influence direction:
+    model_influence:
+      upstream_context_id: execution
+      downstream_context_id: portfolio
 ```
 
-Internal model của một context không tự động trở thành model của context khác — mọi semantic translation phải khai báo tại Context Map hoặc contract mà Context Map tham chiếu. (Chưa bắt buộc dùng đầy đủ jargon DDD như Customer/Supplier, Conformist, Shared Kernel ngay bây giờ — nhưng artifact và authority phải rõ trước khi bắt đầu tạo `/docs/domain/`.)
+**Nguyên tắc bắt buộc:** mọi `capability_id` và `domain_context_id` dùng trong bất kỳ Domain Contract nào phải **tồn tại sẵn trong registry** của Context Map. Domain Contract KHÔNG được tự định nghĩa capability/context mới chỉ bằng cách ghi một ID chưa đăng ký. Internal model của một context không tự động trở thành model của context khác — mọi semantic translation phải khai báo tại Context Map hoặc contract mà nó tham chiếu.
+
+Phân chia authority rõ ràng:
+```
+Capability/Context identity + boundary  → context-map.yaml (registry)
+Cross-context relationship              → context-map.yaml (relationships)
+Domain concept semantics                → Domain Contract (/docs/domain/<concept>.md)
+Runtime facts                           → event log
+```
+
+(Chưa bắt buộc dùng đầy đủ jargon DDD như Customer/Supplier, Conformist, Shared Kernel ngay bây giờ — nhưng artifact và authority phải rõ trước khi bắt đầu tạo `/docs/domain/`.)
 
 ## 4.3 Domain Contract (thuật ngữ canonical — không dùng "Domain Model" song song)
 

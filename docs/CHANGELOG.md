@@ -357,3 +357,11 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `03-engi
 
 ### Added (Suggestion — chi phí gần 0, làm luôn)
 - `capability_id`/`domain_context_id` là stable machine-readable ID (không phải display name) — display title đổi được mà không hỏng references/event metadata/dependency graph, tránh migration đau đớn sau này.
+
+## [Unreleased] — Chapter 4 v2.3 (ChatGPT review round 3, fetch blob SHA `ebf3b78`)
+
+### Fixed — Major
+- **Context Map authoritative cho relationship nhưng KHÔNG cho identity của capability/context:** hai Domain Contract có thể khai `capability_id` mâu thuẫn nhau mà không có registry phân xử ID nào đúng — cùng loại vấn đề I-12 mà Context Map sinh ra để giải quyết, nhưng ở tầng node (định nghĩa) thay vì edge (quan hệ). Sửa: mở rộng context-map.yaml sở hữu 3 phần — capability registry + context registry + relationship map; mọi ID dùng trong Domain Contract phải tồn tại sẵn trong registry, không được tự định nghĩa ID chưa đăng ký.
+
+### Fixed — Minor
+- `upstream_context/downstream_context` bắt buộc cho mọi relationship — nhưng message flow direction ≠ model influence direction (một context publish event nhưng consume command từ context kia). Sửa: direction theo từng contract edge (provider/consumer + relationship_type); model_influence (DDD upstream/downstream) khai báo riêng khi cần.
