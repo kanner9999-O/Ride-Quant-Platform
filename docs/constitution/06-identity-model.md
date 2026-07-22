@@ -1,7 +1,7 @@
 ---
 id: 06-identity-model
 title: Identity Model
-version: "2.2"
+version: "2.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -72,7 +72,9 @@ Ngoài ID của bản thân entity/event, [I-1 Explainability](./02-platform-inv
 - **Correlation ID** — nhóm tất cả event thuộc cùng một luồng xử lý logic (ví dụ: từ MarketData → Feature → Decision → RiskApproval → Execution của cùng 1 quyết định đều mang chung 1 correlation_id). Trả lời "những event nào thuộc cùng một câu chuyện".
 - **Causation ID** — trỏ tới ID của event trực tiếp gây ra event này (parent). Trả lời "event này sinh ra do event nào".
 
-Hai ID này là hạ tầng bắt buộc để reconstruct causation chain của I-1 — không được nhầm với entity ID (một entity có thể xuất hiện trong nhiều correlation khác nhau). Cấu trúc/format cụ thể do [Chapter 8 Event Model](./08-event-model.md) sở hữu; Chapter 6 chỉ quy định 2 loại identity này PHẢI tồn tại.
+Hai ID này là hạ tầng bắt buộc để reconstruct causation chain của I-1 — không được nhầm với entity ID (một entity có thể xuất hiện trong nhiều correlation khác nhau).
+
+**Ranh giới sở hữu (tránh trùng thẩm quyền với Chapter 8 — I-12):** Chapter 6 sở hữu *sự tồn tại và ngữ nghĩa* của correlation/causation identity (chúng PHẢI có, nghĩa của chúng là gì). [Chapter 8 Event Model](./08-event-model.md) sở hữu *cách chúng nằm trong event schema* (field name, format, vị trí trong envelope, cardinality). Hai chapter không định nghĩa chồng lấn — Chapter 8 tham chiếu §6.6 cho ngữ nghĩa, không định nghĩa lại ngữ nghĩa.
 
 ## 6.7 ID là opaque — không mang business meaning
 

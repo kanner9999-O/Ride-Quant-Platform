@@ -29,9 +29,9 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/03-engineering-principles.md | 1.4 | **Locked** | Product Owner | 02-platform-invariants |
 | constitution/04-domain-principles.md | 2.4 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles |
 | constitution/05-time-model.md | 2.4 | **Locked** | Product Owner | 04-domain-principles, 02-platform-invariants |
-| constitution/06-identity-model.md | 2.2 | In Review | Product Owner | 02-platform-invariants, 04-domain-principles, 05-time-model |
+| constitution/06-identity-model.md | 2.3 | In Review | Product Owner | 02-platform-invariants, 04-domain-principles, 05-time-model |
 | constitution/07-module-taxonomy.md | 1.0 | In Review | Product Owner | 04-domain-principles, 05-time-model |
-| constitution/08-event-model.md | 1.2 | In Review | Product Owner | 05-time-model, 06-identity-model, 02-platform-invariants |
+| constitution/08-event-model.md | 1.3 | In Review | Product Owner | 05-time-model, 06-identity-model, 02-platform-invariants |
 | constitution/09-plugin-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/10-compatibility-capability-contract.md | 1.0 | In Review | Product Owner | 09-plugin-model |
 | constitution/11-adr-process.md | 1.1 | In Review | Product Owner | 00-governance |

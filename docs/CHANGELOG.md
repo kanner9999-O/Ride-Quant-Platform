@@ -470,6 +470,15 @@ Open items chuyển tiếp: **OQ-005** (cơ chế ordering → Chapter 8), **OQ-
 
 **Next Milestone:** Chapter 6 — Identity Model.
 
+## [Unreleased] — Chapter 6 v2.3 (ChatGPT sạch, Claude tự soi thêm 1 ranh giới) + Chapter 8 v1.3
+
+### Fixed (Claude tự phát hiện, không có trong review ChatGPT)
+- **§6.6 correlation/causation identity giẫm ranh giới Chapter 8:** correlation/causation về bản chất là thuộc tính của event, mà Chapter 8 (Event Model) cũng sẽ định nghĩa event schema — nguy cơ trùng thẩm quyền, vi phạm I-12 khi 2 chapter lệch nhau. Làm rõ ranh giới: Chapter 6 sở hữu *sự tồn tại + ngữ nghĩa*; Chapter 8 sở hữu *cách nằm trong event schema* (field name/format/vị trí/cardinality), tham chiếu §6.6 không định nghĩa lại.
+- Chapter 8 v1.3: cập nhật theo ranh giới trên, đồng thời sửa `event_time` → `recorded_time` (Chapter 5 Locked đã loại bỏ `event_time` khỏi canonical field names) — Backward Consistency Check với Chapter 5 vừa Lock.
+
+### Status
+- Chapter 6 v2.3: ChatGPT xác nhận sạch; Claude thêm 1 ranh giới. CHỜ Product Owner quyết Lock.
+
 ## [Unreleased] — Chapter 6 (Identity Model) v2.0 — Claude tự review
 
 ### Fixed — mâu thuẫn với chapter đã Locked (Backward Consistency Check)
