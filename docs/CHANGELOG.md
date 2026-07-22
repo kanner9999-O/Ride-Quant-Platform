@@ -469,3 +469,17 @@ Open items chuyển tiếp: **OQ-005** (cơ chế ordering → Chapter 8), **OQ-
 **Đã Locked tới nay:** Chapter 0, 1, 2, 3, 4, 5 + ADR-005, 006, 007, 008.
 
 **Next Milestone:** Chapter 6 — Identity Model.
+
+## [Unreleased] — Chapter 6 (Identity Model) v2.0 — Claude tự review
+
+### Fixed — mâu thuẫn với chapter đã Locked (Backward Consistency Check)
+- **"Một phiên bản mới = một ID mới" mâu thuẫn I-13 (Locked):** áp cho mọi entity thì Position sau mỗi state transition (OPEN→CLOSED) sẽ thành ID mới — phá vỡ khái niệm stateful entity của I-13 (cùng Position giữ cùng ID qua vòng đời). §6.2 tách rõ Event Identity (mỗi event 1 ID, invalidate = record mới) vs Entity Identity (giữ 1 ID xuyên suốt state machine).
+- **ID sortable theo thời gian mâu thuẫn Ordering Authority (Chapter 5 §5.4 Locked):** dùng ID nhúng timestamp để sort = dựa gián tiếp physical clock, đúng lỗi cross-node ordering Chapter 5 cấm. §6.3 tách bạch: ID sortable chỉ để index/storage locality, KHÔNG phải nguồn business/causal ordering.
+
+### Fixed — hardcode (bài học I-2/I-13)
+- Danh sách ID cụ thể (SwingID/StructureID/RegimeID/DecisionID...) là domain-specific — Chapter 4 (Locked) đã quy định domain concept sống ở /docs/domain/. Bỏ liệt kê, chỉ giữ nguyên tắc ID (unique/immutable/distributed-safe).
+- ULID chốt cứng công nghệ trong Constitution → chuyển thành ADR (nguyên tắc: sortable/unique/distributed-safe; ULID/UUIDv7/Snowflake là cơ chế).
+
+### Changed
+- Thêm dependency `04-domain-principles`, `05-time-model` vào frontmatter (chapter này tương tác trực tiếp với cả hai).
+- §6.5 làm rõ vai trò Identity với I-1 Explainability (ID reuse phá correlation/causation chain).
