@@ -1,7 +1,7 @@
 ---
 id: 14-roadmap
 title: Roadmap
-version: "1.0"
+version: "1.1"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -18,12 +18,12 @@ depends_on: ["00-governance", "01-vision", "02-platform-invariants", "03-enginee
 ```
 Phase 0 — Vision & Foundation
   Product Requirement · Domain Model (/docs/domain/) · Use Case & Workflow · UX Blueprint
-  → ADR bắt buộc cho mọi định nghĩa Domain Concept
+  → ADR cho quyết định Domain thuộc diện ADR Required (theo Governance §4b, không phải mọi định nghĩa)
   → Approval Gate
 
 Phase 1 — System Architecture
   Software · UX Architecture · Security & Custody Baseline · API · Database · Engine
-  → ADR bắt buộc cho mọi quyết định kiến trúc
+  → ADR cho quyết định kiến trúc thuộc diện ADR Required (theo Governance §4b)
   → Approval Gate
 
 Phase 1.5 — Engineering Foundation (tài liệu SỐNG, sửa qua ADR)

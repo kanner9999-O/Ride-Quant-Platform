@@ -329,3 +329,19 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `03-engi
 - **Thuật ngữ "Domain Model" vs "Domain Contract" tự mâu thuẫn:** I-12 (Locked) đã canonical hóa "Domain Contract" — nhưng chính Chapter 4 (chapter sở hữu khái niệm) vẫn viết "Domain Model = Domain Contract" và "Glossary hợp nhất với Domain Model". Chuẩn hóa toàn bộ về "Domain Contract".
 - Thêm khai báo type/precision cho giá trị tài chính trong `schema` (liên kết I-9).
 - "Domain Modeling trước UX Blueprint": bỏ tự khẳng định thứ tự độc lập, trỏ về Roadmap (Chapter 14) — nơi thứ tự này đã được liệt kê, tránh 2 nguồn cùng khẳng định 1 trình tự.
+
+## [Unreleased] — Chapter 4 v2.1 (ChatGPT review round 1, fetch blob SHA `b1ac6db`) + Chapter 14 v1.1
+
+### Fixed — Blocker
+- **Ubiquitous Language áp dụng toàn cục làm mất context boundary:** "1 thuật ngữ = 1 nghĩa duy nhất TOÀN dự án" mâu thuẫn với việc canonical hóa bounded-context. Nếu giữ, hệ thống trượt dần thành global shared domain model (capability mất tính độc lập). Sửa: 1 thuật ngữ = 1 nghĩa canonical TRONG mỗi Domain Context; cùng từ được phép khác nghĩa giữa context, namespace rõ + Context Map (ví dụ Position ở Execution vs Portfolio).
+
+### Fixed — Major
+- **Business Capability ≠ Bounded Context ≠ Module bị đồng nhất:** §4.3 viết lại phân biệt 3 boundary với quan hệ 1..n (Capability 1─1..n Context 1─1..n Module), mapping 1:1 ở giai đoạn đầu nhưng không đóng đinh vĩnh viễn. Đặc biệt: giữ đúng cách Chapter 3 (Locked) đã dùng "Business Capability" — tránh semantic drift NGƯỢC lên chapter đã Locked (điểm Claude phản biện, Product Owner chốt wording dung hòa).
+- **Mở rộng vai trò Module Owner đã Locked:** Chapter 4 bản cũ nói capability "do Module Owner phụ trách" — nhưng Governance định nghĩa Module Owner cho module cụ thể, capability có thể gồm nhiều module. Sửa: không mặc định Module Owner = Capability Owner; Domain Contract ownership theo metadata tài liệu; role Capability Owner (nếu cần) phải qua ADR.
+- **Dependency thiếu + vòng tròn với Roadmap:** frontmatter thiếu `03-engineering-principles`; §4.4 lấy Roadmap (downstream, chưa Locked, đang có rule mâu thuẫn Governance) làm nguồn authoritative cho thứ tự. Sửa: thêm dependency, đưa nguyên tắc thứ tự vào chính Chapter 4, Roadmap chỉ tham chiếu (luồng 4→12→14 không ngược).
+
+### Fixed — Minor
+- Domain Contract template ép mọi concept cùng cấu trúc (schema/events/invariants/state_machine) — nhưng value object/policy/command... không phải cái nào cũng phát sinh event. Thêm field `kind` + phân biệt required/conditional; tách `events_emitted`/`events_consumed`.
+
+### Fixed — Chapter 14 (Backward Consistency Check phát hiện)
+- Roadmap chứa "ADR bắt buộc cho mọi định nghĩa Domain Concept / mọi quyết định kiến trúc" — mâu thuẫn Governance §4b (ADR Scope Rule: không phải mọi quyết định cần ADR). Sửa thành "ADR cho quyết định thuộc diện ADR Required". Đây đúng loại lỗi §12.1 Backward Consistency Check vừa thêm được sinh ra để bắt.

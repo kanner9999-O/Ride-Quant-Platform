@@ -1,7 +1,7 @@
 ---
 id: 04-domain-principles
 title: Domain Principles
-version: "2.0"
+version: "2.1"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -10,54 +10,84 @@ approved_at: null
 created_at: "2026-07-16"
 last_review: "2026-07-18"
 next_review: null
-depends_on: ["02-platform-invariants"]
+depends_on: ["02-platform-invariants", "03-engineering-principles"]
 ---
 
 # 4. Domain Principles
 
-## 4.1 Ubiquitous Language
+## 4.1 Ubiquitous Language (nhất quán trong context, không toàn cục)
 
-Một thuật ngữ = một nghĩa duy nhất trong toàn bộ dự án. Không có chuyện Structure Engine hiểu "Swing" khác Feature Engine.
+Trong mỗi **Domain Context**, một thuật ngữ phải có đúng một nghĩa canonical. Cùng một lexical term được phép mang semantic khác nhau giữa các Domain Context, nhưng phải được namespace rõ ràng và mô tả trong Context Map.
+
+Ví dụ hợp lệ (cùng từ, khác nghĩa theo context):
+- `Position` trong Execution Context = trạng thái venue/order-fill; `Position` trong Portfolio Context = exposure tổng hợp.
+- `Signal` trong Strategy Context = analytical recommendation; không được mặc định hiểu là executable order ở Execution Context.
+
+```yaml
+term: Position
+context: Portfolio
+canonical_name: PortfolioPosition
+```
+
+**Quy tắc contract giữa các context:** published contract phải dùng tên và semantic không mơ hồ; consumer không được mặc định coi internal model của provider là internal model của chính mình. Đây là điều ngăn hệ thống trượt dần thành một global shared domain model (khiến các capability mất tính độc lập, đổi 1 concept kéo theo toàn hệ thống).
 
 ## 4.2 Domain Contract (thuật ngữ canonical — không dùng "Domain Model" song song)
 
-Mỗi khái niệm miền phải có đầy đủ:
-- `description` — mô tả khái niệm.
-- `schema` — cấu trúc dữ liệu, kèm khai báo rõ **type/precision** cho giá trị tài chính authoritative (theo [I-9 Numerical Precision](./02-platform-invariants.md) — decimal/fixed-point, không phải float).
-- `events` — những event khái niệm này phát sinh.
-- `invariants` — quy tắc bất biến của riêng khái niệm đó.
-- `state_machine` — tập state hợp lệ + tập transition hợp lệ (bắt buộc theo [I-13 State Transition Integrity](./02-platform-invariants.md) nếu khái niệm có vòng đời trạng thái).
+Mỗi khái niệm miền có một Domain Contract. Vì domain concept có nhiều loại (entity, value object, policy, domain service, command, event, read model...), template dùng field `kind` và phân biệt required/conditional thay vì ép mọi concept cùng cấu trúc:
 
 ```yaml
-Swing:
-  description: "..."
-  schema: { ... }
-  events: [SwingCreated, SwingInvalidated]
-  invariants:
-    - "Một Swing không bao giờ bị sửa sau khi publish, chỉ có thể invalidate bằng event mới"
-  state_machine:
-    states: [CANDIDATE, CONFIRMED, INVALIDATED]
-    transitions:
-      - from: CANDIDATE
-        to: CONFIRMED
-      - from: CANDIDATE
-        to: INVALIDATED
-      - from: CONFIRMED
-        to: INVALIDATED
-    terminal_states: [INVALIDATED]
+id: swing
+kind: entity                # entity | value_object | policy | domain_service | command | event | read_model
+capability: market-structure
+domain_context: market-structure
+
+description: "..."
+schema: {}                  # required — khai báo type/precision cho giá trị tài chính authoritative (I-9: decimal/fixed-point, không float)
+invariants: []              # required
+
+state_machine: {}           # required KHI stateful (I-13), bỏ qua nếu không có vòng đời
+events_emitted: []          # khi có
+events_consumed: []         # khi có
+commands: []                # khi có
+queries: []                 # khi có
 ```
 
-**Glossary hợp nhất với Domain Contract** — không tách thành hai tài liệu riêng, vì tách ra dễ khiến chúng lệch nhau theo thời gian. Mỗi file trong `/docs/domain/` (ví dụ `swing.md`) là Domain Contract đầy đủ cho khái niệm đó — đây là authoritative source duy nhất cho khái niệm miền đó (theo [I-12](./02-platform-invariants.md)).
+`events_emitted` và `events_consumed` tách riêng (không gộp thành 1 field `events` chung) để rõ hướng phụ thuộc giữa các concept.
 
-## 4.3 Business Capability (canonical hóa thuật ngữ Chapter 3 đã hoãn)
+Ví dụ entity có state machine (theo [I-13](./02-platform-invariants.md)):
 
-Chapter 3 (Locked) chủ động tránh dùng "bounded context" trước khi chapter này canonical hóa nó. Đây là định nghĩa chính thức, dùng thuật ngữ **Business Capability** (tương đương khái niệm "bounded context" trong DDD cổ điển, nhưng chọn tên riêng để nhất quán với ngôn ngữ đã dùng ở Chapter 3, tránh tồn tại song song 2 thuật ngữ cho cùng 1 khái niệm):
+```yaml
+state_machine:
+  states: [CANDIDATE, CONFIRMED, INVALIDATED]
+  transitions:
+    - {from: CANDIDATE, to: CONFIRMED}
+    - {from: CANDIDATE, to: INVALIDATED}
+    - {from: CONFIRMED, to: INVALIDATED}
+  terminal_states: [INVALIDATED]
+```
 
-- **Định nghĩa:** một Business Capability là một phạm vi trách nhiệm nghiệp vụ rõ ràng, sở hữu một tập Domain Contract riêng, và (khi có nhân sự) do một Module Owner phụ trách (xem [Governance §2](./00-governance.md)).
-- **Ranh giới:** xác định bởi single responsibility — một capability chỉ nên trả lời một loại câu hỏi nghiệp vụ (ví dụ: Strategy/Decision capability trả lời "nên trade gì", Risk Policy capability trả lời "có được phép trade không", Execution capability trả lời "trade thế nào trên sàn").
-- **Giao tiếp giữa các capability:** chỉ qua published contract — event, query/read contract, hoặc command contract đã công bố (nhất quán với [I-4 Strategy Isolation](./02-platform-invariants.md) và [I-7 Plugin Non-Bypass](./02-platform-invariants.md)) — không truy cập trực tiếp state/implementation nội bộ của capability khác.
-- **Ví dụ capability đã xác định** (từ [03-engineering-principles.md](./03-engineering-principles.md) §3.1): Strategy/Decision, Risk Policy, Market Data, Execution/Venue.
+**Glossary hợp nhất với Domain Contract** — không tách hai tài liệu riêng (tránh lệch nhau theo thời gian). Mỗi file trong `/docs/domain/` (ví dụ `swing.md`) là Domain Contract đầy đủ, là authoritative source duy nhất cho khái niệm đó (theo [I-12](./02-platform-invariants.md)). Ownership của Domain Contract theo `owner` trong metadata của tài liệu — chưa tạo role "Capability Owner" riêng khi team chưa cần (xem 4.3).
+
+## 4.3 Ba loại boundary — không đồng nhất, không tách rời
+
+Domain architecture phân biệt ba boundary khác nhau, **không mặc định quan hệ 1:1 vĩnh viễn**:
+
+- **Business Capability** — ranh giới trách nhiệm nghiệp vụ có semantic tương đối nhất quán (trả lời "hệ thống phải có khả năng làm gì"). Đây đúng nghĩa mà [Chapter 3 §3.1](./03-engineering-principles.md) đã dùng (Strategy/Decision capability, Risk Policy capability...) — Chapter 4 giữ nguyên cách dùng đó, không tái định nghĩa gây lệch.
+- **Domain Context** — model/language boundary cụ thể, nằm trong hoặc tương ứng với một capability (nơi Ubiquitous Language ở 4.1 có nghĩa nhất quán).
+- **Module/Engine** — đơn vị implementation.
+
+Quan hệ:
+```
+Business Capability  1 ── 1..n  Domain Context
+Domain Context       1 ── 1..n  Module/Engine
+```
+
+Giai đoạn đầu (Phase 0-3), mapping có thể là 1:1 — ví dụ: Risk Policy Capability ↔ Risk Policy Context ↔ Risk Gateway. Nhưng Constitution **không đóng đinh 1:1 vĩnh viễn**: sau này một capability (ví dụ Execution) hoàn toàn có thể tách thành nhiều context (Order Lifecycle, Venue Routing, Fill Reconciliation) và nhiều module (Execution Engine, Binance Adapter, Bybit Adapter) mà không bị coi là thay đổi Constitution.
+
+**Giao tiếp giữa các context/capability:** chỉ qua published contract — event, query/read contract, command contract (nhất quán [I-4](./02-platform-invariants.md), [I-7](./02-platform-invariants.md)) — không truy cập trực tiếp state/implementation nội bộ của nhau.
+
+**Ownership:** mỗi Module có Module Owner theo [Governance §2](./00-governance.md). Ownership của Domain Context/Business Capability, nếu sau này cần một role riêng, phải định nghĩa qua ADR và cập nhật Governance — **không mặc định Module Owner đồng thời là Capability Owner** (một capability có thể gồm nhiều module của nhiều owner khác nhau).
 
 ## 4.4 Trình tự Domain Modeling
 
-Domain Modeling (Business Capability + Domain Contract) phải hoàn thành trước UX Blueprint — thứ tự này đã quy định tại [Roadmap, Phase 0](./14-roadmap.md), không lặp lại ở đây ngoài việc trỏ tham chiếu. Lý do: UX Blueprint giả định các khái niệm miền đã được định nghĩa rõ ràng.
+Domain Modeling (Business Capability + Domain Context + Domain Contract) phải đủ ổn định **trước khi** UX Blueprint được phê duyệt, vì UX workflow phụ thuộc vào concept, state, và capability đã xác định. Approval Gate cụ thể được định nghĩa tại [Chapter 12](./12-approval-gates.md); Roadmap (Chapter 14) chỉ thể hiện trình tự phase và tham chiếu quy tắc này, không phải nguồn authoritative của Domain Principle (luồng dependency: Chapter 4 → Chapter 12 → Chapter 14, không đi ngược).
