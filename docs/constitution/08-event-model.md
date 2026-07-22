@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "1.0"
+version: "1.1"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -14,6 +14,8 @@ depends_on: ["05-time-model", "06-identity-model", "02-platform-invariants"]
 ---
 
 # 8. Event Model
+
+> **Ràng buộc bắt buộc trước khi Lock (từ Chapter 5 §5.4):** Chapter này PHẢI giải quyết **OQ-005** — chốt cơ chế ordering authoritative cụ thể (sequence number per partition / logical clock / hybrid logical clock...) đảm bảo cả intra-partition determinism lẫn cross-context causal correctness. Chapter 5 đã định nghĩa *nguyên tắc*; Chapter 8 sở hữu *cơ chế*. Không Lock Chapter 8 khi OQ-005 còn Open.
 
 - **Event Bus là nguồn sự thật duy nhất** (Redpanda — Kafka-API compatible).
 - Mọi event: bất biến, có schema versioned, mang `market_time` + `event_time` + correlation ID (phục vụ truy vết quyết định — I-1).
