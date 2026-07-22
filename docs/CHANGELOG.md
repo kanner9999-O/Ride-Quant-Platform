@@ -310,3 +310,13 @@ Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `02-plat
 
 ### Added
 - **Chapter 12 §12.1 — Backward Consistency Check:** hệ thống hóa bài học "rà ngược chapter cũ khi có luật mới Locked" thành bước lặp lại được trong Approval Gate — đặt ở Chapter 12 (vẫn `In Review`, sửa trực tiếp được) thay vì Governance (đã `Locked`, cần ADR mới nếu sửa) theo đúng đề xuất ChatGPT.
+
+## [Milestone] — 2026-07-18 — 🔒 Chapter 3 (Engineering Principles) LOCKED
+
+Product Owner chính thức Approve + Lock `constitution/03-engineering-principles.md` (v1.4), sau 4 vòng review liên tiếp (v1.0 → v1.1 → v1.2 → v1.3 → v1.4). Vòng cuối đạt 0 Blocker/Major/Minor — chỉ còn 2 Suggestion không chặn Lock (giữ nguyên "authoritative output", chưa cần rút ví dụ ra Domain Contract vì Domain Contract chưa tồn tại).
+
+Từ thời điểm này, **ADR Immutable Rule có hiệu lực** với `03-engineering-principles.md`: không sửa trực tiếp, mọi thay đổi phải qua ADR mới.
+
+**Đã Locked tới nay:** Chapter 0 (Governance), Chapter 1 (Vision), Chapter 2 (Platform Invariants), Chapter 3 (Engineering Principles), ADR-005, ADR-006, ADR-007, ADR-008.
+
+**Next Milestone:** Chapter 4 — Domain Principles.

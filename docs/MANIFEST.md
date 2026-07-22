@@ -1,5 +1,5 @@
 ---
-manifest_version: "3.6"
+manifest_version: "3.7"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -17,7 +17,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 **Constitution Version:** 1.0.0 — độc lập với Project Version (Project có thể lên v0.8 trong khi Constitution vẫn 1.0.0, hoặc ngược lại)
 **Schema Version của Manifest:** 1 — đổi format Manifest sau này phải bump field này để tooling không vỡ ngầm.
 
-**Chapter 0 — Governance: `Locked`** (2026-07-16). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). Các chapter còn lại (03-14) vẫn `In Review`.
+**Chapter 0 — Governance: `Locked`** (2026-07-16). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). Các chapter còn lại (04-14) vẫn `In Review`.
 
 ## Constitution
 
@@ -26,7 +26,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/00-governance.md | 1.0 | **Locked** | Product Owner | — |
 | constitution/01-vision.md | 2.3 | **Locked** | Product Owner | 00-governance |
 | constitution/02-platform-invariants.md | 3.1 | **Locked** | Product Owner | 00-governance, 01-vision |
-| constitution/03-engineering-principles.md | 1.4 | In Review | Product Owner | 02-platform-invariants |
+| constitution/03-engineering-principles.md | 1.4 | **Locked** | Product Owner | 02-platform-invariants |
 | constitution/04-domain-principles.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
 | constitution/05-time-model.md | 1.0 | In Review | Product Owner | 04-domain-principles |
 | constitution/06-identity-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants |
@@ -99,4 +99,4 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 ---
 
-**Trạng thái tổng quát:** `In Review` cho Chapter 03-14, NHƯNG **Chapter 0, 1, 2 đã `Locked`** — cùng ADR-005, ADR-006, ADR-007. Từ giờ mọi thay đổi vào các file đã Locked bắt buộc qua ADR mới (ADR Immutable Rule). Chapter 3 — Engineering Principles là mục tiêu tiếp theo. Xem [CHANGELOG.md](./CHANGELOG.md) cho lịch sử thay đổi.
+**Trạng thái tổng quát:** `In Review` cho Chapter 04-14, NHƯNG **Chapter 0, 1, 2, 3 đã `Locked`** — cùng ADR-005, ADR-006, ADR-007, ADR-008. Từ giờ mọi thay đổi vào các file đã Locked bắt buộc qua ADR mới (ADR Immutable Rule). Chapter 4 — Domain Principles là mục tiêu tiếp theo. Xem [CHANGELOG.md](./CHANGELOG.md) cho lịch sử thay đổi.
