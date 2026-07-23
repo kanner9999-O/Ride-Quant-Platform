@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "2.7"
+version: "2.8"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -47,7 +47,7 @@ metadata:            # Chapter 8 sở hữu
   schema_version:
   subject_ref: {...}
   recorded_time:
-  stream_ref: {stream_id, registry_version}
+  stream_ref: {stream_id, definition_version}   # locator = (stream_id, sequence); definition_version KHÔNG thuộc identity
   sequence:
   ...
 payload:             # Event Contract của event_type sở hữu
@@ -64,7 +64,7 @@ payload:             # Event Contract của event_type sở hữu
 | `schema_version` | **Required** | Version của **payload schema** cho compatibility. Mọi authoritative event record (kể cả event nội bộ không qua public bus — vẫn cần cho replay/migration). Quy tắc tương thích do Chapter 10 sở hữu |
 | `recorded_time` | **Required** | Mọi authoritative event ([Chapter 5](./05-time-model.md)) |
 | `subject_ref` | **Required** | Polymorphic + qualified (xem 8.2.2) |
-| `stream_ref` | **Required** | Qualified `{stream_id, registry_version}` — event phải tự đủ để resolve stream definition đã áp dụng lúc append (§8.3.1) |
+| `stream_ref` | **Required** | `{stream_id, definition_version}` — `stream_id` **ổn định xuyên mọi registry version**; `definition_version` pin stream definition snapshot đã áp dụng lúc append, KHÔNG thuộc identity locator (§8.3.1) |
 | `sequence` | **Required** | Vị trí trong stream đó (§8.3.2) |
 | `producer_ref` | **Required** | Truy vết authoritative producer (xem 8.2.4) |
 | `correlation_id` | **Required** với event thuộc một luồng xử lý; **Optional** với event khởi phát độc lập | §6.7 |
@@ -119,12 +119,14 @@ Mỗi phần tử là **qualified reference** (vì [§6.1](./06-identity-model.m
 
 ```yaml
 causation_refs:
-  - stream_ref: {stream_id: binance-btc-book, registry_version: v3}
+  - stream_id: binance-btc-book    # canonical locator: (stream_id, sequence)
     sequence: 98123
-    event_id: evt_001        # verification field
+    event_id: evt_001              # verification field
 ```
 
-**Tuple consistency invariant:** ba thành phần là một tuple bất biến — `(stream_ref, sequence)` phải resolve đúng `event_id` đã khai báo. Mismatch là **integrity violation**; consumer KHÔNG được chọn một field làm fallback rồi tiếp tục. `(stream_ref, sequence)` là canonical locator; `event_id` là verification field.
+**Canonical locator là `(stream_id, sequence)`** — KHÔNG kèm definition version, vì `stream_id` ổn định xuyên mọi registry version và `sequence` liên tục xuyên writer handoff (§8.3.1). Đưa definition version vào locator sẽ khiến cùng một event có 2 locator khác nhau tùy registry version đang xét.
+
+**Tuple consistency invariant:** `(stream_id, sequence)` phải resolve đúng `event_id` đã khai báo. Mismatch là **integrity violation**; consumer KHÔNG được chọn một field làm fallback rồi tiếp tục. `event_id` là verification field.
 
 ### 8.2.4 `producer_ref` — truy vết implementation đã sinh event
 
@@ -192,7 +194,18 @@ Cursor                                                     → pin registry_vers
 
 **Stream Registry KHÔNG chứa `allowed_event_types`.** Quan hệ "event type X có được ghi vào stream Y không" chỉ được khai báo **một chiều** tại Event Contract (`allowed_streams`) — khai báo cả hai chiều tạo 2 danh sách có thể lệch nhau mà không có rule phân xử (vi phạm I-12).
 
-**Eligibility validation phải dùng registry version mà event pin, KHÔNG phải registry hiện tại.** Khi append hoặc validate một event, validator phải: (1) resolve `event.stream_ref.registry_version`; (2) xác nhận stream tồn tại và `active` **trong đúng version đó**; (3) kiểm tra `stream_id` nằm trong `allowed_streams` của đúng Event Contract version tương ứng.
+#### Stream Identity ổn định ≠ Stream Definition Version
+
+Phân biệt bắt buộc (nếu gộp sẽ tạo mâu thuẫn với sequence continuity xuyên writer handoff):
+
+| Khái niệm | Vai trò |
+|---|---|
+| **`stream_id`** — Logical Stream Identity | **Ổn định xuyên MỌI registry version**, không bao giờ tái sử dụng trong toàn platform. Là thành phần của canonical locator |
+| **`definition_version`** — Stream Definition Snapshot | Pin phiên bản registry chứa định nghĩa (writer authority, lifecycle, sequence policy, genesis) đã áp dụng lúc append. **KHÔNG thuộc identity** |
+
+**Canonical event locator = `(stream_id, sequence)`** — resolve duy nhất một event record, đúng xuyên mọi registry transition. Ví dụ: stream `btc-book` có sequence 1–500 dưới definition v3, tiếp tục 501–700 dưới v4 sau writer handoff; locator `(btc-book, 500)` vẫn resolve đúng dù cursor đang pin registry v4.
+
+**Eligibility validation phải dùng definition version mà event pin, KHÔNG phải registry hiện tại.** Khi append hoặc validate một event, validator phải: (1) resolve `event.stream_ref.definition_version`; (2) xác nhận stream tồn tại và `active` **trong đúng version đó**; (3) kiểm tra `stream_id` nằm trong `allowed_streams` của đúng Event Contract version tương ứng.
 
 Nếu validate bằng registry hiện tại, một event lịch sử hoàn toàn hợp lệ sẽ trở thành "không hợp lệ" chỉ vì stream đã bị retire sau này — phá vỡ khả năng replay/audit lịch sử.
 
@@ -273,7 +286,7 @@ merge_policy:
 
 **Input Contract là CROSS-MODE — không chỉ dành cho Replay.** Mọi Decision run ở **cả 4 execution mode** (Live, Backtest, Paper Trading, Replay) đều phải pin **cùng một** versioned Input Contract xác định input stream scope + deterministic interleave semantics + registry version. Đây là điều kiện cần để [I-2 Decision Parity](./02-platform-invariants.md) kiểm chứng được: Live không thể dùng input topology A rồi Replay dùng contract B mà vẫn tuyên bố parity. **Cấm gắn Input Contract hồi tố** — contract phải tồn tại và được pin **tại thời điểm Decision được tạo**, kể cả trong Live.
 
-*(Tên gọi: artifact này từng được gọi "Input Contract" ở các bản nháp trước. Đổi thành **Input Contract** vì nó không chỉ phục vụ replay — giữ tên cũ sẽ gây hiểu nhầm khi Live Decision phải pin nó. Vẫn là **một** artifact duy nhất, không thêm surface area; replay-run control cụ thể — cursor bắt đầu/kết thúc, tốc độ — là cấu hình của lần chạy, không thuộc contract này.)*
+*(Tên gọi: artifact này từng được gọi **`Replay Contract`** ở các bản nháp trước. Đổi thành **`Input Contract`** vì nó áp dụng cross-mode, không chỉ phục vụ replay — giữ tên cũ sẽ gây hiểu nhầm khi Live Decision phải pin nó. Vẫn là **một** artifact duy nhất, không thêm surface area; replay-run control cụ thể — cursor bắt đầu/kết thúc, tốc độ — là cấu hình của lần chạy, không thuộc contract này.)*
 
 **Tuân đầy đủ §8.1.1** — mọi thay đổi `included_streams`, `merge_policy`, hoặc constraint resolution đều tạo `contract_version` mới; version đã được cursor/Decision tham chiếu là bất biến. (Nếu contract cùng ID bị sửa nội dung, cùng một cursor lịch sử sẽ cho interleave khác — phá deterministic replay và Decision Parity.)
 
@@ -287,9 +300,28 @@ merge_constraints:
 
 Phân chia thẩm quyền:
 ```
-Event semantic + causal constraint        → Event Contract
-Replay stream set + interleave policy     → Input Contract
+Event semantic + causal constraint                              → Event Contract
+Cross-mode input stream scope + deterministic interleave policy → Input Contract
 ```
+
+#### Completeness / Frontier semantics (bắt buộc cho cross-mode)
+
+Merge policy sắp theo `recorded_time` dễ thực hiện khi replay một tập event hữu hạn, nhưng trong **Live** consumer không biết liệu một event có `recorded_time` sớm hơn còn đang đến trễ từ stream khác hay không:
+
+```
+10:00:01 — Live nhận Binance event (recorded_time 10:00:01) → apply
+10:00:03 — mới nhận Bybit event (recorded_time 10:00:00.900)
+Live interleave thực tế:  Binance → Bybit
+Replay sort recorded_time: Bybit → Binance     ← KHÁC NHAU, phá parity
+```
+
+**Invariant bắt buộc:** một cross-mode merge policy chỉ hợp lệ khi Input Contract định nghĩa **deterministic completeness/frontier semantics** — quy tắc cho biết khi nào một prefix đa stream đã đủ hoàn chỉnh để được authoritative-apply.
+
+- **Live KHÔNG được authoritative-apply một merged prefix mà Replay sau đó có thể chèn thêm event visible trước nó** theo cùng Input Contract.
+- Khi frontier chưa complete: processor phải **buffer/defer** hoặc **fail-safe** ([I-6](./02-platform-invariants.md)).
+- **CẤM suy luận completeness từ wall clock.**
+
+Cơ chế cụ thể (watermark, bounded lateness, per-stream committed frontier, coordinator checkpoint, barrier event, cursor cut...) do **ADR-009** quyết định; ADR-009 phải định nghĩa tối thiểu: per-stream committed frontier · multi-stream completeness rule · late-arrival behavior · buffer limit/fail-safe behavior · cách tạo `decision_context_cursor` tại frontier.
 
 Không có default ngầm (Chapter 5 đã khóa: ordering giữa event visible dựa trên Ordering Authority, không phải so `recorded_time` trực tiếp).
 
@@ -369,9 +401,10 @@ stream được Input Contract chọn (input_contract_ref)
 
 Lý do: nếu dùng wall clock, sẽ gặp tình huống "registry nói stream active từ 10:00:00 nhưng activation fact chỉ được recorded lúc 10:00:03" — replay tại 10:00:01 sẽ *nhìn thấy trước* một fact hệ thống chưa biết, vi phạm [I-3](./02-platform-invariants.md). Điều này cũng nhất quán với §8.3.1 (writer handoff cấm chọn authority theo wall clock).
 
-Stream Registry phải mang lifecycle metadata trỏ tới **authoritative boundary** (ví dụ `activated_by: {stream_ref, sequence, event_id}` hoặc `valid_from_cursor`) — representation cụ thể do ADR-009 quyết định; semantic bắt buộc là *activation visibility theo authoritative boundary*, không phải so timestamp thuần túy.
+Stream Registry phải mang lifecycle metadata trỏ tới **authoritative boundary** (ví dụ `activated_by: {stream_id, sequence, event_id}` hoặc `valid_from_cursor`) — representation cụ thể do ADR-009 quyết định; semantic bắt buộc là *activation visibility theo authoritative boundary*, không phải so timestamp thuần túy.
 
-- **`stream_registry_version`**: cursor gắn với đúng một phiên bản stream registry. Stream không thuộc registry version của cursor **không tham gia** boundary — replay cursor 2026 vẫn diễn giải được bằng registry 2026 dù registry hiện tại đã khác. *(Representation: `stream_registry_version` được **hoist lên cấp cursor** để không lặp trong từng entry; mỗi key `stream_id` trong `stream_positions` phải được hiểu là **qualified bởi registry version của chính cursor** — tương đương `stream_ref` ở event, chỉ khác cách chuẩn hóa.)*
+- **`stream_positions` dùng stable `stream_id`**: key là Logical Stream Identity (ổn định xuyên mọi registry version), giá trị là `sequence`. Cặp `(stream_id, sequence)` là canonical locator (§8.3.1) nên resolve đúng **xuyên qua mọi registry transition** — cursor pin registry v4 vẫn trỏ đúng tới event sequence 500 được append dưới definition v3.
+- **`stream_registry_version` ở cấp cursor** dùng để xác định **stream universe** (stream nào thuộc scope, lifecycle/activation của chúng), **KHÔNG** dùng để resolve vị trí event. Hai vai trò này tách biệt: universe resolution cần registry version; position resolution chỉ cần `(stream_id, sequence)`.
 - **Stream thuộc universe nhưng chưa có event visible**: phải biểu diễn tường minh bằng **`genesis_position` được định nghĩa trong đúng Stream Registry version mà cursor pin** (§8.3.1 — Registry sở hữu genesis position), **KHÔNG được để field vắng mặt** — vắng mặt là mơ hồ giữa "chưa có event" và "quên ghi".
 - **Consistency invariant:** mọi `stream_positions[s]` phải trỏ tới event có `recorded_time ≤ recorded_time` của cursor. Cursor vi phạm điều này là **invalid cursor** (không phải "cursor lạ") — phải bị từ chối, không được replay best-effort.
 
