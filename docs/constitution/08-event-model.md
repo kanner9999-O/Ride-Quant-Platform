@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "2.2"
+version: "2.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -34,7 +34,7 @@ metadata:            # Chapter 8 sở hữu
   schema_version:
   subject_ref: {...}
   recorded_time:
-  stream_id:
+  stream_ref: {stream_id, registry_version}
   sequence:
   ...
 payload:             # Event Contract của event_type sở hữu
@@ -50,8 +50,8 @@ payload:             # Event Contract của event_type sở hữu
 | `schema_version` | **Required** | Mọi authoritative event record (kể cả event nội bộ không đi qua public bus — vẫn cần cho replay/migration). Quy tắc tương thích do Chapter 10 sở hữu |
 | `recorded_time` | **Required** | Mọi authoritative event ([Chapter 5](./05-time-model.md)) |
 | `subject_ref` | **Required** | Polymorphic + qualified (xem 8.2.2) |
-| `stream_id` | **Required** | Mọi authoritative log event (§8.3) |
-| `sequence` | **Required** | Mọi authoritative log event (§8.3) |
+| `stream_ref` | **Required** | Qualified `{stream_id, registry_version}` — event phải tự đủ để resolve stream definition đã áp dụng lúc append (§8.3.1) |
+| `sequence` | **Required** | Vị trí trong stream đó (§8.3.2) |
 | `producer_ref` | **Required** | Truy vết authoritative producer (xem 8.2.4) |
 | `correlation_id` | **Required** với event thuộc một luồng xử lý; **Optional** với event khởi phát độc lập | §6.7 |
 | `causation_refs` | **Zero-to-many** | Root event có thể rỗng (`[]`); không absent (xem 8.2.3) |
@@ -105,10 +105,12 @@ Mỗi phần tử là **qualified reference** (vì [§6.1](./06-identity-model.m
 
 ```yaml
 causation_refs:
-  - stream_id: binance-btc-book
+  - stream_ref: {stream_id: binance-btc-book, registry_version: v3}
     sequence: 98123
-    event_id: evt_001
+    event_id: evt_001        # verification field
 ```
+
+**Tuple consistency invariant:** ba thành phần là một tuple bất biến — `(stream_ref, sequence)` phải resolve đúng `event_id` đã khai báo. Mismatch là **integrity violation**; consumer KHÔNG được chọn một field làm fallback rồi tiếp tục. `(stream_ref, sequence)` là canonical locator; `event_id` là verification field.
 
 ### 8.2.4 `producer_ref` — truy vết implementation đã sinh event
 
@@ -130,9 +132,37 @@ producer_ref:
 
 Một **stream** là một ordered log partition có đúng **một writer authority** cấp phát `sequence`. Mỗi authoritative event thuộc **đúng một** stream.
 
-- Danh sách stream và writer authority tương ứng được khai báo trong **Event Contract / stream registry**, không hardcode trong Constitution.
-- Tạo/xóa/tách stream là thay đổi Event Model → **ADR Required**.
-- Một module có thể ghi vào nhiều stream, nhưng mỗi stream chỉ có 1 writer authority (điều kiện để `sequence` monotonic).
+**Authoritative source duy nhất: `/docs/architecture/stream-registry.yaml`** — sở hữu stream identity, topology, writer authority, lifecycle, và sequence policy. Event Contract **chỉ được tham chiếu** stream, không định nghĩa stream (theo [I-12](./02-platform-invariants.md): một concept + scope = đúng một authoritative source).
+
+```yaml
+# stream-registry.yaml — authoritative
+registry_version: v3
+streams:
+  - stream_id: binance-btc-book
+    status: active                    # active | retired
+    writer_authority:
+      module_id: market-data-ingestion    # theo module-registry.yaml (Chapter 7 §7.5)
+      capability_version: v2
+    allowed_event_types: [MARKET_DATA_OBSERVED]
+    sequence_policy: contiguous
+    genesis_position: 0
+```
+
+```yaml
+# Event Contract — chỉ tham chiếu, không định nghĩa
+event_type: MARKET_DATA_OBSERVED
+allowed_streams: [binance-btc-book]
+```
+
+Phân chia thẩm quyền:
+```
+Stream identity / topology / writer authority / lifecycle  → stream-registry.yaml
+Event payload + event-specific stream eligibility          → Event Contract
+Cursor                                                     → pin registry_version
+```
+
+- Tạo/xóa/tách stream, hoặc đổi writer authority, là thay đổi Event Model → **ADR Required**, kèm bump `registry_version`.
+- Một module có thể ghi vào nhiều stream, nhưng mỗi stream chỉ có 1 writer authority (điều kiện để `sequence` contiguous).
 
 ### 8.3.2 Mức 1 — Per-stream contiguous sequence
 
@@ -146,7 +176,22 @@ Hệ quả bắt buộc với implementation:
 - Compaction/retention không được đổi `sequence` của record còn lại.
 - Restore/migration phải giữ nguyên `sequence` gốc.
 
-**Integrity:** gap, duplicate, hoặc regression của `sequence` là **integrity violation**, không phải sự cố vận hành bình thường. Khi phát hiện: scope liên quan phải fail-safe theo [I-6](./02-platform-invariants.md) (chặn action tăng risk, vẫn cho risk-reducing action), và không được tự động "vá" bằng cách cấp lại sequence hay bỏ qua gap.
+**Integrity:** duplicate hoặc regression của `sequence` là **integrity violation**. Về gap, phải phân biệt **logical stream** và **physical retained representation**:
+
+- **Authoritative logical stream: contiguous, không gap.** Mọi gap bên trong là integrity violation.
+- **Physical retained/archived representation:** được phép **bắt đầu sau genesis** do retention policy (prefix retention), nhưng **KHÔNG được bỏ record ở giữa** retained range.
+- **Key-based compaction làm mất authoritative event ở giữa stream bị CẤM** — compaction chỉ áp dụng cho projection/cache ([Chapter 7 §7.4](./07-module-taxonomy.md)), không áp cho authoritative event log.
+
+```yaml
+stream_segment:
+  retained_from_sequence: 100001   # boundary tường minh
+  first_sequence: 100001
+  last_sequence: 250000
+```
+
+Khoảng trước `retained_from_sequence` **không bị coi là gap**, nhưng replay vượt qua boundary đó phải dùng archive hoặc **bị từ chối tường minh** — không replay best-effort với dữ liệu thiếu. Retention/archive policy cụ thể (giữ bao lâu, archive ở đâu, có giữ vĩnh viễn không) là quyết định storage/cost lớn → **ADR riêng**, chưa chốt ở đây.
+
+Khi phát hiện integrity violation: scope liên quan phải fail-safe theo [I-6](./02-platform-invariants.md) (chặn action tăng risk, vẫn cho risk-reducing action), và không được tự động "vá" bằng cách cấp lại sequence hay bỏ qua gap.
 
 ### 8.3.3 Mức 2 — Explicit causation, KHÔNG global total order
 
@@ -166,6 +211,8 @@ Quy tắc bắt buộc cho processor:
 ## 8.4 Decision time fields — ĐỀ XUẤT (giải OQ-006, chờ Product Owner + ADR)
 
 Ba khái niệm khác nhau, **không được gộp**:
+
+**Thẩm quyền xác định "Decision event":** **Event Contract** khai báo tường minh (`event_class: decision` hoặc `semantic_roles: [decision]`) — **KHÔNG suy luận từ chuỗi `event_type`** (naming không phải semantic authority; một event tên chứa `DECISION` chưa chắc là Decision class, và ngược lại). Validator dựa vào khai báo này để áp đúng cardinality ở §8.2.1.
 
 | Field | Trục | Nghĩa |
 |---|---|---|
