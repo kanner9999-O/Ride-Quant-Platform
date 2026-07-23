@@ -21,6 +21,16 @@ Template chuẩn tại [`/docs/templates/adr-template.md`](../templates/adr-temp
 
 **Xem [4b. ADR Scope Rule](./00-governance.md) để biết khi nào cần viết ADR** — không phải mọi quyết định đều cần.
 
+**Metadata contract cho quan hệ ADR ↔ OQ ↔ ADR** (dùng chung Document Lifecycle ở [Chapter 0 §7](./00-governance.md)):
+
+| Field | Semantic |
+|---|---|
+| `addresses: [OQ-xxx]` | ADR đang **xử lý** OQ đó — **KHÔNG** làm OQ chuyển `Resolved`. Dùng khi ADR còn `Draft`/`In Review` |
+| `resolves: [OQ-xxx]` | ADR **đóng** OQ đó — **CHỈ có hiệu lực khi ADR đạt `Approved`/`Locked`**. ADR còn Draft không được dùng field này |
+| `depends_on: [ADR-yyy]` | ADR-yyy phải đạt `Approved`/`Locked` **trước** khi ADR hiện tại được rời `Draft`/`In Review` |
+
+Ba field này là **machine-readable acceptance gate** — validator dựa vào status lifecycle chuẩn, không dựa vào chữ "accept" trong prose.
+
 **Quy tắc bắt buộc:**
 - ADR phải được ghi khi: (a) có quyết định kiến trúc mới, (b) một phase sau muốn sửa quyết định của phase trước.
 - **Không phase nào được coi là Approved nếu có quyết định kỹ thuật quan trọng chưa được ghi thành ADR.**

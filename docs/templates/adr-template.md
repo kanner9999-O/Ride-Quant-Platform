@@ -9,6 +9,9 @@ approved_at: null
 created_at: "2026-07-16"
 last_review: null
 next_review: null
+depends_on: []      # ADR khác phải Approved/Locked TRƯỚC ADR này
+addresses: []       # OQ đang được xử lý — KHÔNG làm OQ Resolved
+resolves: []        # OQ được đóng — CHỈ có hiệu lực khi ADR đạt Approved/Locked
 supersedes: []
 superseded_by: null
 ---
