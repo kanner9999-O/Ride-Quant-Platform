@@ -1,5 +1,5 @@
 ---
-manifest_version: "7.0"
+manifest_version: "7.1"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31,7 +31,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/05-time-model.md | 2.4 | **Locked** | Product Owner | 04-domain-principles, 02-platform-invariants |
 | constitution/06-identity-model.md | 2.5 | **Locked** | Product Owner | 02-platform-invariants, 04-domain-principles, 05-time-model |
 | constitution/07-module-taxonomy.md | 2.2 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles |
-| constitution/08-event-model.md | 2.9 | In Review | Product Owner | 05-time-model, 06-identity-model, 02-platform-invariants |
+| constitution/08-event-model.md | 3.0 | In Review | Product Owner | 05-time-model, 06-identity-model, 02-platform-invariants |
 | constitution/09-plugin-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/10-compatibility-capability-contract.md | 1.0 | In Review | Product Owner | 09-plugin-model |
 | constitution/11-adr-process.md | 1.1 | In Review | Product Owner | 00-governance |

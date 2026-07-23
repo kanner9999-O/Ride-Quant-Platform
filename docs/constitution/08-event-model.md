@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "2.9"
+version: "3.0"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -313,7 +313,7 @@ causal-topological      → A trước B     ← ĐÚNG
 
 *(Tên gọi: artifact này từng được gọi **`Replay Contract`** ở các bản nháp trước. Đổi thành **`Input Contract`** vì nó áp dụng cross-mode, không chỉ phục vụ replay — giữ tên cũ sẽ gây hiểu nhầm khi Live Decision phải pin nó. Vẫn là **một** artifact duy nhất, không thêm surface area; replay-run control cụ thể — cursor bắt đầu/kết thúc, tốc độ — là cấu hình của lần chạy, không thuộc contract này.)*
 
-**Tuân đầy đủ §8.1.1** — mọi thay đổi `included_streams`, `merge_policy`, hoặc constraint resolution đều tạo `contract_version` mới; version đã được cursor/Decision tham chiếu là bất biến. (Nếu contract cùng ID bị sửa nội dung, cùng một cursor lịch sử sẽ cho interleave khác — phá deterministic replay và Decision Parity.)
+**Tuân đầy đủ §8.1.1** — mọi thay đổi `included_streams`, `merge_policy`, `frontier_policy`, hoặc constraint resolution đều **bắt buộc** tạo `contract_version` mới; version đã được cursor/Decision tham chiếu là bất biến. (Nếu contract cùng ID bị sửa nội dung, cùng một cursor lịch sử sẽ cho interleave khác — phá deterministic replay và Decision Parity.)
 
 ```yaml
 # Event Contract — chỉ constraint, không sở hữu policy
@@ -356,7 +356,18 @@ Cơ chế cụ thể (watermark, bounded lateness, per-stream committed frontier
 
 Không có default ngầm (Chapter 5 đã khóa: ordering giữa event visible dựa trên Ordering Authority, không phải so `recorded_time` trực tiếp).
 
-**Merge order chỉ quyết định delivery/interleave order — KHÔNG phải authoritative business order.**
+**Merge policy quyết định deterministic authoritative-application order** cho processor, và order này **phải giống nhau giữa mọi execution mode** (điều kiện cần cho [I-2 Parity](./02-platform-invariants.md) khi processor có state — hai thứ tự apply khác nhau trên cùng tập event có thể cho Decision khác nhau).
+
+Phân biệt 4 khái niệm, không gộp:
+
+| Khái niệm | Nghĩa |
+|---|---|
+| **Causal precedence** | Partial order authoritative của dependency (từ `causation_refs`) |
+| **Deterministic application order** | Thứ tự authoritative mà processor dùng để chuyển trạng thái — chính là merge policy, giống nhau mọi mode |
+| **Domain causation** | Quan hệ nhân quả nghiệp vụ — **KHÔNG được suy ra từ tie-break** |
+| **Presentation order** | Thứ tự hiển thị cho UI/report — không authoritative |
+
+**Tie-break giữa các event causally incomparable KHÔNG tạo thêm quan hệ nhân quả hay business precedence trong domain** — nó chỉ chọn một thứ tự ổn định để mọi mode xử lý giống nhau. Nói cách khác: `authoritative apply order ≠ domain causal meaning`. Processor **không được** tự ý apply theo thứ tự khác merge policy đã công bố.
 
 Quy tắc bắt buộc cho processor:
 - Trước khi authoritative-apply một event có causal prerequisites, processor phải xác nhận **mọi** prerequisite trong `causation_refs` đã visible và resolved tại cursor hiện tại.
@@ -432,7 +443,20 @@ stream được Input Contract chọn (input_contract_ref)
 
 Lý do: nếu dùng wall clock, sẽ gặp tình huống "registry nói stream active từ 10:00:00 nhưng activation fact chỉ được recorded lúc 10:00:03" — replay tại 10:00:01 sẽ *nhìn thấy trước* một fact hệ thống chưa biết, vi phạm [I-3](./02-platform-invariants.md). Điều này cũng nhất quán với §8.3.1 (writer handoff cấm chọn authority theo wall clock).
 
-Stream Registry phải mang lifecycle metadata trỏ tới **authoritative boundary** (ví dụ `activated_by: {stream_id, sequence, event_id}` hoặc `valid_from_cursor`) — representation cụ thể do ADR-009 quyết định; semantic bắt buộc là *activation visibility theo authoritative boundary*, không phải so timestamp thuần túy.
+Stream Registry phải mang lifecycle metadata trỏ tới **authoritative boundary**, dùng một **bootstrap-safe locator độc lập** — canonical locator `(stream_id, sequence)` trên một control stream:
+
+```yaml
+activation_boundary:
+  control_stream_id: platform-lifecycle
+  sequence: 812
+  event_id: evt_stream_activated       # verification field
+```
+
+**Cấm dependency cycle (bắt buộc):**
+- Lifecycle boundary của Stream Registry **KHÔNG được tham chiếu** một artifact mà chính nó trực tiếp hoặc gián tiếp phụ thuộc vào Stream Registry version đang được định nghĩa. Cụ thể: **không dùng full Replay Cursor** (hay bất kỳ thứ gì chứa `input_contract_ref`) làm activation boundary — sẽ tạo vòng `Stream Registry v4 → cursor → Input Contract → Stream Registry v4`, khiến không artifact nào hoàn chỉnh và không tính được content identity sạch (§8.1.1 điều 5).
+- **Activation event phải nằm trên một stream đã active TRƯỚC boundary đó** — cấm đặt activation event của stream X lên chính stream X (vòng bootstrap: X chỉ active sau event E, nhưng E lại phải append vào X → không thể khởi tạo).
+
+Representation cuối cùng do ADR-009 quyết định; semantic bắt buộc là *activation visibility theo authoritative boundary* (không so timestamp thuần túy) **và không có dependency cycle**.
 
 - **`stream_positions` dùng stable `stream_id`**: key là Logical Stream Identity (ổn định xuyên mọi registry version), giá trị là `sequence`. Cặp `(stream_id, sequence)` là canonical locator (§8.3.1) nên resolve đúng **xuyên qua mọi registry transition** — cursor pin registry v4 vẫn trỏ đúng tới event sequence 500 được append dưới definition v3.
 - **`stream_registry_version` ở cấp cursor** dùng để xác định **stream universe** (stream nào thuộc scope, lifecycle/activation của chúng), **KHÔNG** dùng để resolve vị trí event. Hai vai trò này tách biệt: universe resolution cần registry version; position resolution chỉ cần `(stream_id, sequence)`.
