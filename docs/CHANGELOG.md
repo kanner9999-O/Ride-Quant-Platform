@@ -505,6 +505,20 @@ Open items chuyển tiếp: **OQ-005** (cơ chế ordering → Chapter 8), **OQ-
 ### Fixed — Minor
 - **"Mỗi lần nhận cấp một event_id mới" ép mọi redelivery thành authoritative event:** có implementation hợp lệ khác (phát hiện duplicate rồi loại trước khi tạo domain event, chỉ ghi telemetry). Sửa: tách "delivery/ingestion record" khỏi "authoritative domain event"; Event Contract chọn 1 trong 2 chiến lược (lưu ingestion record rồi dedup, hoặc loại trước khi tạo domain event) — mọi trường hợp duplicate không được tạo business effect lần hai.
 
+## [Milestone] — 2026-07-18 — 🔒 Chapter 6 (Identity Model) LOCKED
+
+Product Owner chính thức Approve + Lock `constitution/06-identity-model.md` (v2.5), sau self-review + 5 vòng ChatGPT (v1.0 → v2.0 → v2.1 → v2.2 → v2.3 → v2.4 → v2.5). Vòng cuối đạt 0 Blocker/Major/Minor/Suggestion, kèm Backward Consistency Check với Chapter 2 (I-1/I-3/I-10/I-13), Chapter 4, Chapter 5 — không mâu thuẫn.
+
+**10 lớp identity đã khóa:** Event Record Identity · Entity Identity · Value Object Equality · Qualified Scoped Reference · Internal Identity · External Reference · Delivery/Ingestion Identity · Deduplication Identity · Correlation Identity · Causation Identity.
+
+**8 bất đẳng thức nền tảng:** Event ID ≠ Entity ID · Entity ID ≠ External Reference · Event ID ≠ Dedup Identity · Identity ≠ Ordering Position · Account ID ≠ Tenant ID · Value Object ≠ Entity · Correlation ≠ Causation · Causation không mặc định single-parent.
+
+Ghi nhận quy trình: vòng review v2.2 Claude đọc sót severity table (báo "sạch" khi thực tế còn 1 Blocker + 2 Major + 1 Minor), Product Owner phát hiện và yêu cầu đọc lại — nếu không, một chapter còn Blocker đã bị khóa. Từ vòng sau, Claude trích nguyên bảng severity khi báo cáo thay vì diễn đạt lại.
+
+**Đã Locked tới nay:** Chapter 0, 1, 2, 3, 4, 5, 6 + ADR-005, 006, 007, 008.
+
+**Next Milestone:** Chapter 7 — Module Taxonomy.
+
 ## [Unreleased] — Chapter 6 (Identity Model) v2.0 — Claude tự review
 
 ### Fixed — mâu thuẫn với chapter đã Locked (Backward Consistency Check)
