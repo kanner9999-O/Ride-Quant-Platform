@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "3.0"
+version: "3.1"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -270,7 +270,7 @@ Khi phát hiện integrity violation: scope liên quan phải fail-safe theo [I-
 
 Platform **không tuyên bố** có global total order giữa các stream độc lập. Causal correctness đến từ `causation_refs` tường minh (§8.2.3).
 
-### 8.3.4 Merge order ≠ authoritative causal order
+### 8.3.4 Deterministic Application Order và Causal Precedence
 
 Khi replay/consume nhiều stream, cần một **merge policy deterministic** để interleave. **Input Contract sở hữu duy nhất final merge policy** — Event Contract KHÔNG định nghĩa merge order (nếu một họ event có yêu cầu riêng, Event Contract chỉ khai báo **constraint**, và Input Contract phải chọn policy thỏa mọi constraint đó).
 
@@ -455,6 +455,14 @@ activation_boundary:
 **Cấm dependency cycle (bắt buộc):**
 - Lifecycle boundary của Stream Registry **KHÔNG được tham chiếu** một artifact mà chính nó trực tiếp hoặc gián tiếp phụ thuộc vào Stream Registry version đang được định nghĩa. Cụ thể: **không dùng full Replay Cursor** (hay bất kỳ thứ gì chứa `input_contract_ref`) làm activation boundary — sẽ tạo vòng `Stream Registry v4 → cursor → Input Contract → Stream Registry v4`, khiến không artifact nào hoàn chỉnh và không tính được content identity sạch (§8.1.1 điều 5).
 - **Activation event phải nằm trên một stream đã active TRƯỚC boundary đó** — cấm đặt activation event của stream X lên chính stream X (vòng bootstrap: X chỉ active sau event E, nhưng E lại phải append vào X → không thể khởi tạo).
+
+**Validation chain cho lifecycle boundary** (giữ đúng mô hình `locator = (stream_id, sequence)`, `definition evidence = resolved_event.stream_ref.registry_version`):
+1. Dùng `(control_stream_id, sequence)` làm canonical locator để resolve event; xác minh khớp `event_id` — mismatch là **integrity violation**.
+2. Dùng `event.stream_ref.registry_version` (của **event đã resolve**, KHÔNG phải registry hiện tại) để validate historical stream definition tại thời điểm append.
+3. Xác nhận control stream đã **active trước** boundary đó, theo đúng registry version ở bước 2.
+4. Xác nhận activation event **không nằm trên chính stream đang được activate**.
+
+Bỏ qua bước 2 và validate bằng registry hiện tại sẽ lặp lại đúng lỗi historical validation đã sửa ở §8.3.1.
 
 Representation cuối cùng do ADR-009 quyết định; semantic bắt buộc là *activation visibility theo authoritative boundary* (không so timestamp thuần túy) **và không có dependency cycle**.
 
