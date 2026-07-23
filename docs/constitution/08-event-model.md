@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "2.8"
+version: "2.9"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -47,7 +47,7 @@ metadata:            # Chapter 8 sở hữu
   schema_version:
   subject_ref: {...}
   recorded_time:
-  stream_ref: {stream_id, definition_version}   # locator = (stream_id, sequence); definition_version KHÔNG thuộc identity
+  stream_ref: {stream_id, registry_version}     # locator = (stream_id, sequence); registry_version chỉ là definition reference
   sequence:
   ...
 payload:             # Event Contract của event_type sở hữu
@@ -64,7 +64,7 @@ payload:             # Event Contract của event_type sở hữu
 | `schema_version` | **Required** | Version của **payload schema** cho compatibility. Mọi authoritative event record (kể cả event nội bộ không qua public bus — vẫn cần cho replay/migration). Quy tắc tương thích do Chapter 10 sở hữu |
 | `recorded_time` | **Required** | Mọi authoritative event ([Chapter 5](./05-time-model.md)) |
 | `subject_ref` | **Required** | Polymorphic + qualified (xem 8.2.2) |
-| `stream_ref` | **Required** | `{stream_id, definition_version}` — `stream_id` **ổn định xuyên mọi registry version**; `definition_version` pin stream definition snapshot đã áp dụng lúc append, KHÔNG thuộc identity locator (§8.3.1) |
+| `stream_ref` | **Required** | `{stream_id, registry_version}` — `stream_id` **ổn định xuyên mọi registry version**; `registry_version` pin stream definition snapshot đã áp dụng lúc append, **KHÔNG thuộc identity locator** (§8.3.1) |
 | `sequence` | **Required** | Vị trí trong stream đó (§8.3.2) |
 | `producer_ref` | **Required** | Truy vết authoritative producer (xem 8.2.4) |
 | `correlation_id` | **Required** với event thuộc một luồng xử lý; **Optional** với event khởi phát độc lập | §6.7 |
@@ -201,11 +201,13 @@ Phân biệt bắt buộc (nếu gộp sẽ tạo mâu thuẫn với sequence co
 | Khái niệm | Vai trò |
 |---|---|
 | **`stream_id`** — Logical Stream Identity | **Ổn định xuyên MỌI registry version**, không bao giờ tái sử dụng trong toàn platform. Là thành phần của canonical locator |
-| **`definition_version`** — Stream Definition Snapshot | Pin phiên bản registry chứa định nghĩa (writer authority, lifecycle, sequence policy, genesis) đã áp dụng lúc append. **KHÔNG thuộc identity** |
+| **`registry_version`** — Stream Definition Snapshot | Pin phiên bản `stream-registry.yaml` chứa định nghĩa (writer authority, lifecycle, sequence policy, genesis) đã áp dụng lúc append. **KHÔNG thuộc identity locator** |
 
-**Canonical event locator = `(stream_id, sequence)`** — resolve duy nhất một event record, đúng xuyên mọi registry transition. Ví dụ: stream `btc-book` có sequence 1–500 dưới definition v3, tiếp tục 501–700 dưới v4 sau writer handoff; locator `(btc-book, 500)` vẫn resolve đúng dù cursor đang pin registry v4.
+**Canonical event locator = `(stream_id, sequence)`** — resolve duy nhất một event record, đúng xuyên mọi registry transition. Ví dụ: stream `btc-book` có sequence 1–500 dưới registry v3, tiếp tục 501–700 dưới v4 sau writer handoff; locator `(btc-book, 500)` vẫn resolve đúng dù cursor đang pin registry v4.
 
-**Eligibility validation phải dùng definition version mà event pin, KHÔNG phải registry hiện tại.** Khi append hoặc validate một event, validator phải: (1) resolve `event.stream_ref.definition_version`; (2) xác nhận stream tồn tại và `active` **trong đúng version đó**; (3) kiểm tra `stream_id` nằm trong `allowed_streams` của đúng Event Contract version tương ứng.
+**Không có version namespace riêng cho từng stream:** `stream_ref.registry_version` chính là `stream-registry.yaml.registry_version` — một registry snapshot, không phải số version riêng của từng stream. Dùng thẳng tên `registry_version` để tránh tạo thêm một thuật ngữ version dễ gây suy diễn sai.
+
+**Eligibility validation phải dùng registry version mà event pin, KHÔNG phải registry hiện tại.** Khi append hoặc validate một event, validator phải: (1) resolve `event.stream_ref.registry_version`; (2) xác nhận stream tồn tại và `active` **trong đúng version đó**; (3) kiểm tra `stream_id` nằm trong `allowed_streams` của đúng Event Contract version tương ứng.
 
 Nếu validate bằng registry hiện tại, một event lịch sử hoàn toàn hợp lệ sẽ trở thành "không hợp lệ" chỉ vì stream đã bị retire sau này — phá vỡ khả năng replay/audit lịch sử.
 
@@ -273,16 +275,39 @@ Platform **không tuyên bố** có global total order giữa các stream độc
 Khi replay/consume nhiều stream, cần một **merge policy deterministic** để interleave. **Input Contract sở hữu duy nhất final merge policy** — Event Contract KHÔNG định nghĩa merge order (nếu một họ event có yêu cầu riêng, Event Contract chỉ khai báo **constraint**, và Input Contract phải chọn policy thỏa mọi constraint đó).
 
 ```yaml
-# Input Contract — authoritative cho input scope + merge policy. Versioned + immutable theo §8.1.1
+# Input Contract — authoritative cho input scope + merge + frontier. Versioned + immutable theo §8.1.1
 input_contract_ref:
   contract_id: btc-arbitrage-input
   contract_version: v1
 stream_registry_version: v3
 included_streams: [binance-btc-book, bybit-btc-book, risk-state]
+
 merge_policy:
-  id: deterministic-interleave-v1
-  ordering: [recorded_time, stream_id, sequence]
+  algorithm: deterministic-causal-topological-order   # causal precedence LUÔN đứng trước
+  concurrent_tie_break: [stream_id, sequence]         # chỉ áp cho event KHÔNG có quan hệ nhân quả
+
+frontier_policy:                                       # BẮT BUỘC (§8.3.4) — versioned cùng contract
+  mechanism:
+  completeness_rule:
+  late_arrival_behavior:
+  buffer_limit_policy:
+  incomplete_frontier_behavior:
 ```
+
+**Causal precedence đứng trên mọi ordering key khác:** nếu A nằm trong causal ancestry của B (`B.causation_refs` trỏ tới A, trực tiếp hoặc bắc cầu), **mọi execution mode phải authoritative-apply A trước B, bất kể `recorded_time`**. Merge policy chỉ được tie-break giữa các event **causally incomparable** (không bên nào là ancestry của bên kia).
+
+**`recorded_time` KHÔNG được làm primary authoritative ordering key giữa các stream** (nhất quán [Chapter 5 §5.4](./05-time-model.md) Locked). Nó được dùng cho: visibility boundary (§8.5) · đo latency · observability · chọn ứng viên *bên trong* một thuật toán đã bảo toàn causal precedence. Ví dụ hỏng nếu dùng làm primary key:
+
+```
+A: QUOTE_OBSERVED       recorded_time = 10:00:01.100
+B: DECISION_CREATED     recorded_time = 10:00:01.050, causation_refs = [A]
+sort theo recorded_time → B trước A     ← SAI nhân quả
+causal-topological      → A trước B     ← ĐÚNG
+```
+
+*(Nếu cần một thứ tự hiển thị theo thời gian cho UI/report, đó là **presentation order** — tách hoàn toàn khỏi **authoritative apply order**; Decision Engine KHÔNG được dùng presentation order làm state-transition order.)*
+
+**`frontier_policy` là thành phần BẮT BUỘC và versioned của Input Contract.** Thay đổi frontier/completeness, late-arrival, hoặc buffer/fail-safe semantics **bắt buộc tạo Input Contract version mới** — nếu để ngoài contract, hai run cùng pin `btc-arbitrage-input@v1` vẫn có thể dùng watermark 500ms vs committed frontier và cho ra input cut khác nhau.
 
 **Input Contract là CROSS-MODE — không chỉ dành cho Replay.** Mọi Decision run ở **cả 4 execution mode** (Live, Backtest, Paper Trading, Replay) đều phải pin **cùng một** versioned Input Contract xác định input stream scope + deterministic interleave semantics + registry version. Đây là điều kiện cần để [I-2 Decision Parity](./02-platform-invariants.md) kiểm chứng được: Live không thể dùng input topology A rồi Replay dùng contract B mà vẫn tuyên bố parity. **Cấm gắn Input Contract hồi tố** — contract phải tồn tại và được pin **tại thời điểm Decision được tạo**, kể cả trong Live.
 
@@ -309,11 +334,17 @@ Cross-mode input stream scope + deterministic interleave policy → Input Contra
 Merge policy sắp theo `recorded_time` dễ thực hiện khi replay một tập event hữu hạn, nhưng trong **Live** consumer không biết liệu một event có `recorded_time` sớm hơn còn đang đến trễ từ stream khác hay không:
 
 ```
-10:00:01 — Live nhận Binance event (recorded_time 10:00:01) → apply
-10:00:03 — mới nhận Bybit event (recorded_time 10:00:00.900)
-Live interleave thực tế:  Binance → Bybit
-Replay sort recorded_time: Bybit → Binance     ← KHÁC NHAU, phá parity
+Event X đã được append trên stream Bybit với recorded_time 10:00:00.900,
+nhưng cross-stream consumer chỉ NHẬN được nó lúc 10:00:03 do delivery delay.
+
+10:00:01 — Live nhận Binance event (recorded_time 10:00:01) → apply ngay
+10:00:03 — Live mới nhận event X (recorded_time 10:00:00.900, đã append từ trước)
+
+Live apply thực tế:        Binance → X
+Replay đọc từ log:          X → Binance      ← KHÁC NHAU, phá parity
 ```
+
+*(Lưu ý semantic: `recorded_time` là thời điểm event được ghi vào durable log — KHÔNG phải thời điểm consumer nhận được, cũng không phải timestamp của sàn. Chênh lệch ở đây đến từ **delivery delay** giữa append và nhận; một nguồn khác là **clock skew** giữa các append node khiến physical recorded_time không phản ánh đúng thứ tự nhân quả.)*
 
 **Invariant bắt buộc:** một cross-mode merge policy chỉ hợp lệ khi Input Contract định nghĩa **deterministic completeness/frontier semantics** — quy tắc cho biết khi nào một prefix đa stream đã đủ hoàn chỉnh để được authoritative-apply.
 
