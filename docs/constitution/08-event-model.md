@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "2.5"
+version: "2.6"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -22,6 +22,18 @@ depends_on: ["02-platform-invariants", "03-engineering-principles", "05-time-mod
 **Durable append-only event log** là authoritative source cho **runtime facts và decision history** ([I-12](./02-platform-invariants.md)). Transport/broker cụ thể (Redpanda, Kafka, hay công nghệ thay thế sau này) **KHÔNG** tự thân là source of truth — đổi transport không làm thay đổi authority.
 
 Event log KHÔNG phải "nguồn sự thật duy nhất của toàn platform": theo I-12, mỗi concept có authoritative source riêng (document status → `MANIFEST.md`; architecture decision → ADR; domain concept → Domain Contract; platform rule → Constitution).
+
+### 8.1.1 Quy tắc chung cho mọi Referenced Authoritative Artifact
+
+Chapter này giới thiệu nhiều artifact được **event hoặc cursor tham chiếu** (Stream Registry, Event Contract, Replay Contract, và bất kỳ artifact nào thêm sau này). **Mọi artifact thuộc loại đó — hiện tại và tương lai — bắt buộc thỏa 5 điều kiện sau**, không cần lặp lại ở từng mục:
+
+1. **Versioned** — mọi thay đổi tạo version mới, không sửa tại chỗ.
+2. **Immutable sau khi được tham chiếu** — một khi có authoritative event, Decision, replay run, hoặc cursor trỏ tới version nào, version đó bất biến vĩnh viễn.
+3. **Không tái sử dụng identifier** — version identifier đã dùng không được gán lại cho nội dung khác.
+4. **Permanently resolvable** — phải resolve được trong toàn bộ replay/audit horizon.
+5. **Verifiable content identity** — phải truy được tới immutable content identity (commit SHA, content hash, hoặc tương đương). Bắt buộc là *verifiability*, không phải một field cụ thể; identity có thể nằm ở run manifest thay vì lặp trên mọi event.
+
+*Lý do đặt thành quy tắc chung: pin một identifier nhưng nội dung sau identifier đó vẫn sửa được thì **không thực sự là pin** — historical meaning của mọi reference sẽ đổi ngầm, phá deterministic replay, Decision Parity, audit, và I-12. Quy tắc này áp dụng tự động cho artifact mới, không chờ phát hiện từng cái một.*
 
 ## 8.2 Event Envelope
 
@@ -235,14 +247,18 @@ Platform **không tuyên bố** có global total order giữa các stream độc
 Khi replay/consume nhiều stream, cần một **merge policy deterministic** để interleave. **Replay Contract sở hữu duy nhất final merge policy** — Event Contract KHÔNG định nghĩa merge order (nếu một họ event có yêu cầu riêng, Event Contract chỉ khai báo **constraint**, và Replay Contract phải chọn policy thỏa mọi constraint đó).
 
 ```yaml
-# Replay Contract — authoritative cho merge policy
-replay_contract_id: btc-arbitrage-replay-v1
+# Replay Contract — authoritative cho merge policy. Versioned + immutable theo §8.1.1
+replay_contract_ref:
+  contract_id: btc-arbitrage-replay
+  contract_version: v1
 stream_registry_version: v3
 included_streams: [binance-btc-book, bybit-btc-book, risk-state]
 merge_policy:
   id: deterministic-interleave-v1
   ordering: [recorded_time, stream_id, sequence]
 ```
+
+**Replay Contract tuân đầy đủ §8.1.1** — mọi thay đổi `included_streams`, `merge_policy`, hoặc constraint resolution đều tạo `contract_version` mới; version đã được cursor/Decision tham chiếu là bất biến vĩnh viễn. (Nếu contract cùng ID bị sửa nội dung, cùng một cursor lịch sử sẽ replay ra interleave khác — phá deterministic replay và Decision Parity.)
 
 ```yaml
 # Event Contract — chỉ constraint, không sở hữu policy
@@ -286,14 +302,17 @@ Ba khái niệm khác nhau, **không được gộp**:
 ```yaml
 decision_time:   2026-07-23T10:00:00Z        # effective axis — time value (thay effective_time)
 recorded_time:   2026-07-23T10:00:01.250Z    # recorded axis — time value
-decision_context_cursor:                      # KHÔNG phải time — knowledge boundary
+decision_context_cursor:                      # KHÔNG phải time — là một Replay Cursor hợp lệ
   recorded_time: 2026-07-23T10:00:01.100Z
+  replay_contract_ref: {contract_id: btc-arbitrage-replay, contract_version: v1}
   stream_registry_version: v3
   stream_positions:
     binance-btc: 18721
     bybit-btc:   9481
     risk-state:  443
 ```
+
+**`decision_context_cursor` LÀ một Replay Cursor hợp lệ** tại thời điểm Decision đọc xong input — dùng **cùng canonical schema §8.5**, không phải một schema gần giống nhưng khác field. Bắt buộc pin `replay_contract_ref` vì chỉ registry version là chưa đủ: cùng một registry có thể có nhiều Replay Contract với stream scope khác nhau (Contract A = Binance+Bybit+Risk, Contract B = Binance+OKX+Risk) — cùng một vector vị trí sẽ được diễn giải khác nhau.
 
 **Vì sao cần `decision_context_cursor` riêng:** replay tới đúng cursor này tái tạo **chính xác** tập input mà Decision đã thấy — điều kiện cần để [I-2 Decision Parity](./02-platform-invariants.md) kiểm chứng được và [I-3](./02-platform-invariants.md) đảm bảo không có input "từ tương lai".
 
@@ -306,11 +325,15 @@ decision_context_cursor:                      # KHÔNG phải time — knowledge
 ```yaml
 replay_cursor:
   recorded_time:                  # knowledge boundary
-  replay_contract_id:             # replay scope — tập stream được chọn
+  replay_contract_ref:            # replay scope — versioned, immutable (§8.1.1)
+    contract_id:
+    contract_version:
   stream_registry_version:        # stream universe mà cursor này gắn vào
   stream_positions:               # vị trí chính xác trong từng stream thuộc universe
     <stream_id>: <sequence>
 ```
+
+**Consistency invariant:** `cursor.stream_registry_version` phải **bằng** registry version mà Replay Contract đã pin (hoặc thỏa registry constraint của contract nếu contract khai báo dạng khoảng). Mismatch là **invalid cursor** — phải từ chối, không replay best-effort. Cursor lặp lại registry version để **tự đủ** (self-contained), nhưng không được mâu thuẫn với contract.
 
 Dùng **vector vị trí theo từng stream** (không phải một số duy nhất) vì §8.3 không tuyên bố global total order — cắt chính xác đòi hỏi biết vị trí trong mỗi stream, cho phép dừng đúng ranh giới giữa hai event cùng `recorded_time`.
 
@@ -320,12 +343,16 @@ Stream topology thay đổi được (tạo/tách/retire stream — §8.3.1, ADR
 
 **Định nghĩa stream universe của cursor** — giao của 3 tập:
 ```
-stream được Replay Contract chọn (replay_contract_id)
+stream được Replay Contract chọn (replay_contract_ref)
   ∩ tồn tại/đã activate tại cursor boundary
   ∩ resolve được trong stream_registry_version đã pin
 ```
 
-Hệ quả: một stream có mặt trong registry snapshot nhưng **chưa activate** tại `recorded_time` của cursor thì **KHÔNG** thuộc universe — không được đưa vào chỉ vì nó xuất hiện trong snapshot (registry snapshot có thể chứa stream được tạo sau boundary). Để resolve được điều này, Stream Registry phải mang đủ lifecycle metadata (ví dụ `status`, activation boundary) — representation cụ thể do ADR-009 quyết định.
+**Activation phải theo authoritative visible boundary, KHÔNG theo wall clock:** một stream thuộc universe khi **activation boundary authoritative của nó đã visible/resolved tại cursor**. Không suy luận activation chỉ từ physical timestamp hay từ trạng thái registry hiện tại.
+
+Lý do: nếu dùng wall clock, sẽ gặp tình huống "registry nói stream active từ 10:00:00 nhưng activation fact chỉ được recorded lúc 10:00:03" — replay tại 10:00:01 sẽ *nhìn thấy trước* một fact hệ thống chưa biết, vi phạm [I-3](./02-platform-invariants.md). Điều này cũng nhất quán với §8.3.1 (writer handoff cấm chọn authority theo wall clock).
+
+Stream Registry phải mang lifecycle metadata trỏ tới **authoritative boundary** (ví dụ `activated_by: {stream_ref, sequence, event_id}` hoặc `valid_from_cursor`) — representation cụ thể do ADR-009 quyết định; semantic bắt buộc là *activation visibility theo authoritative boundary*, không phải so timestamp thuần túy.
 
 - **`stream_registry_version`**: cursor gắn với đúng một phiên bản stream registry. Stream không thuộc registry version của cursor **không tham gia** boundary — replay cursor 2026 vẫn diễn giải được bằng registry 2026 dù registry hiện tại đã khác. *(Representation: `stream_registry_version` được **hoist lên cấp cursor** để không lặp trong từng entry; mỗi key `stream_id` trong `stream_positions` phải được hiểu là **qualified bởi registry version của chính cursor** — tương đương `stream_ref` ở event, chỉ khác cách chuẩn hóa.)*
 - **Stream thuộc universe nhưng chưa có event visible**: phải biểu diễn tường minh bằng **`genesis_position` được định nghĩa trong đúng Stream Registry version mà cursor pin** (§8.3.1 — Registry sở hữu genesis position), **KHÔNG được để field vắng mặt** — vắng mặt là mơ hồ giữa "chưa có event" và "quên ghi".
