@@ -1,7 +1,7 @@
 ---
 id: 06-identity-model
 title: Identity Model
-version: "2.4"
+version: "2.5"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -99,13 +99,18 @@ ID do hệ thống Ride cấp phát (**internal identity**) phải tách biệt 
 
 ## 6.6 Idempotency & Deduplication Identity
 
-**Event identity KHÔNG thay thế idempotency identity.** Cùng một business fact từ bên ngoài có thể đến nhiều lần qua nhiều đường: WebSocket push, REST reconciliation, reconnect replay, consumer retry. Mỗi lần nhận, Ride cấp một `event_id` mới hợp lệ — nhưng chúng mô tả **cùng một fill/order duy nhất**. Nếu chỉ dựa vào `event_id`, Position Ledger sẽ double-count.
+**Event identity KHÔNG thay thế idempotency identity.** Cùng một business fact từ bên ngoài có thể đến nhiều lần qua nhiều đường: WebSocket push, REST reconciliation, reconnect replay, consumer retry. Mỗi delivery có thể mang một **delivery/ingestion record identity** riêng — nhưng KHÔNG mặc định trở thành một authoritative domain event mới. Nếu coi mọi redelivery là domain event authoritative mà không dedup, Position Ledger sẽ double-count.
 
 Phân biệt:
-- `event_id` — bản ghi nào trong Ride (mỗi delivery một ID mới, luôn hợp lệ).
+- `event_id` — bản ghi nào trong Ride.
+- **Delivery/ingestion record** — lần nhận nào từ source (có thể nhiều lần cho cùng 1 fact).
 - **Source/dedup identity** — delivery này có phải cùng một authoritative source fact đã xử lý chưa.
 
-**Quy tắc:** với source có khả năng retry/redelivery, Integration/Event Contract PHẢI xác định deduplication identity kèm scope tương ứng. Hai delivery của cùng một authoritative source fact KHÔNG được tạo ra hai business effect chỉ vì chúng có hai `event_id` khác nhau.
+**Quy tắc:** với source có khả năng retry/redelivery, Integration/Event Contract PHẢI xác định deduplication identity kèm scope tương ứng, và xác định duplicate được xử lý theo cách nào:
+- lưu như ingestion/audit record riêng (không phải authoritative domain event), rồi dedup trước khi tạo business effect; **hoặc**
+- loại bỏ trước khi tạo authoritative domain event, chỉ ghi telemetry/audit observation.
+
+Trong mọi trường hợp: hai delivery của cùng một authoritative source fact KHÔNG được tạo ra hai business effect.
 
 ```yaml
 event_id: evt_internal_02      # record mới mỗi lần nhận
@@ -123,11 +128,23 @@ Lưu ý phân biệt với §6.1 (ID cấp trước side effect): §6.1 giải q
 Ngoài ID của bản thân entity/event, [I-1 Explainability](./02-platform-invariants.md) yêu cầu truy được **chuỗi nhân quả** giữa các event — nên cần thêm 2 loại identity liên kết, tách biệt với entity ID:
 
 - **Correlation ID** — nhóm tất cả event thuộc cùng một luồng xử lý logic (ví dụ: từ MarketData → Feature → Decision → RiskApproval → Execution của cùng 1 quyết định đều mang chung 1 correlation_id). Trả lời "những event nào thuộc cùng một câu chuyện".
-- **Causation ID** — trỏ tới ID của event trực tiếp gây ra event này (parent). Trả lời "event này sinh ra do event nào".
+- **Causation identity/reference** — liên kết event với **causal predecessor hoặc causal prerequisites trực tiếp** của nó theo Event Contract. Trả lời "event này được sinh ra do những event/fact nào?"
+
+**Cardinality KHÔNG mặc định là một:** một flow tuần tự đơn giản có thể có đúng 1 direct parent, nhưng một output hợp nhất nhiều nguồn có thể có **nhiều causal dependency** cùng lúc. Ví dụ thực tế của Ride:
+
+```
+BinanceQuoteObserved  ┐
+BybitQuoteObserved    ├──→ ArbitrageDecisionCreated
+RiskStateObserved     ┘
+```
+
+`ArbitrageDecisionCreated` không có một nguyên nhân trực tiếp duy nhất — chọn tùy ý một event làm parent sẽ **làm mất** các causal prerequisite còn lại, phá khả năng truy vết mà I-1 yêu cầu.
+
+*Nguyên tắc: Correlation tạo group; Causation tạo graph hoặc chain tùy contract. Không được làm mất causal prerequisite chỉ vì schema chỉ có chỗ cho một parent.*
 
 Hai ID này là hạ tầng bắt buộc để reconstruct causation chain của I-1 — không được nhầm với entity ID (một entity có thể xuất hiện trong nhiều correlation khác nhau).
 
-**Ranh giới sở hữu (tránh trùng thẩm quyền với Chapter 8 — I-12):** Chapter 6 sở hữu *sự tồn tại và ngữ nghĩa* của correlation/causation identity (chúng PHẢI có, nghĩa của chúng là gì). [Chapter 8 Event Model](./08-event-model.md) sở hữu *cách chúng nằm trong event schema* (field name, format, vị trí trong envelope, cardinality). Hai chapter không định nghĩa chồng lấn — Chapter 8 tham chiếu §6.7 cho ngữ nghĩa, không định nghĩa lại ngữ nghĩa.
+**Ranh giới sở hữu (tránh trùng thẩm quyền với Chapter 8 — I-12):** Chapter 6 sở hữu *sự tồn tại và ngữ nghĩa* của correlation/causation identity (chúng PHẢI có, nghĩa của chúng là gì, và causation KHÔNG mặc định single-parent). [Chapter 8 Event Model](./08-event-model.md) sở hữu *representation cụ thể* — field name, format, vị trí trong envelope, và **cách biểu diễn cardinality** (ví dụ: một `causation_id` chính kèm tập `causal_dependencies`, hay một tập causation reference, hay cấu trúc tương đương). Chapter 8 tham chiếu §6.7 cho ngữ nghĩa, không định nghĩa lại; và representation mà Chapter 8 chọn PHẢI đủ khả năng biểu diễn multi-source causality nêu trên.
 
 ## 6.8 ID là opaque — không mang business meaning
 

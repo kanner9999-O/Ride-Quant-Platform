@@ -497,6 +497,14 @@ Open items chuyển tiếp: **OQ-005** (cơ chế ordering → Chapter 8), **OQ-
 ### Changed
 - Đánh lại số hiệu §6.1→§6.9 sau khi chèn mục Idempotency; cập nhật cross-ref §6.6→§6.7 trong Chapter 8 v1.4.
 
+## [Unreleased] — Chapter 6 v2.5 (ChatGPT review round 3: **0 Blocker · 1 Major · 1 Minor**)
+
+### Fixed — Major
+- **Causation mặc định single-parent làm mất causal dependency của decision đa nguồn:** §6.7 viết "Causation ID trỏ tới event trực tiếp gây ra event này (parent)" ở số ít — nhưng `ArbitrageDecisionCreated` sinh ra từ nhiều nguồn (BinanceQuote + BybitQuote + RiskState); chọn tùy ý 1 làm parent sẽ mất các causal prerequisite còn lại, phá truy vết I-1. Sửa: causation = "causal predecessor HOẶC causal prerequisites", cardinality KHÔNG mặc định là một, kèm ví dụ multi-source. Ranh giới Chapter 8 cập nhật: representation Chapter 8 chọn PHẢI đủ khả năng biểu diễn multi-source causality.
+
+### Fixed — Minor
+- **"Mỗi lần nhận cấp một event_id mới" ép mọi redelivery thành authoritative event:** có implementation hợp lệ khác (phát hiện duplicate rồi loại trước khi tạo domain event, chỉ ghi telemetry). Sửa: tách "delivery/ingestion record" khỏi "authoritative domain event"; Event Contract chọn 1 trong 2 chiến lược (lưu ingestion record rồi dedup, hoặc loại trước khi tạo domain event) — mọi trường hợp duplicate không được tạo business effect lần hai.
+
 ## [Unreleased] — Chapter 6 (Identity Model) v2.0 — Claude tự review
 
 ### Fixed — mâu thuẫn với chapter đã Locked (Backward Consistency Check)
