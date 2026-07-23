@@ -519,6 +519,25 @@ Ghi nhận quy trình: vòng review v2.2 Claude đọc sót severity table (báo
 
 **Next Milestone:** Chapter 7 — Module Taxonomy.
 
+## [Unreleased] — Chapter 7 (Module Taxonomy) v2.0 — Claude tự review
+
+### Fixed — mâu thuẫn với chapter đã Locked (Backward Consistency Check)
+- **Risk Gateway bị mô tả sai bản chất:** Chapter 7 xếp Type 3 "Runtime Service — KHÔNG phải Engine tính toán, là dịch vụ vận hành" — nhưng Chapter 3 §3.1 (Locked) khẳng định Risk Gateway **sở hữu và bắt buộc có** authoritative Risk Policy Logic. Đây đúng là mâu thuẫn ChatGPT từng bắt ở Chapter 3 và đã sửa ở đó, nhưng Chapter 7 vẫn giữ cách hiểu cũ. Thêm §7.2: loại module (làm gì với dữ liệu) và quyền sở hữu business logic (Chapter 3) là 2 câu hỏi ĐỘC LẬP — không suy ra cái này từ cái kia.
+
+### Fixed — over-constraint bất khả thi
+- **"Projection tuyệt đối không chứa logic if/else":** mọi projection đều cần `if/switch` để fold theo event type — cấm theo nghĩa đen là không thể tuân thủ, khiến quy tắc mất hiệu lực. §7.3 sửa thành: cấm **ra quyết định nghiệp vụ** và **sinh fact mới** (liệt kê rõ được phép/không được phép), không cấm cú pháp điều khiển.
+
+### Fixed — hardcode implementation vào Constitution
+- **Sơ đồ pipeline cụ thể** (Structure/Regime/Feature/Context Projection) là thiết kế Phase 1, không phải nguyên tắc — nếu pipeline đổi phải sửa Constitution. Chuyển sang `/docs/architecture/README.md` (ghi rõ là bản nháp định hướng, chốt ở Phase 1), Chapter 7 chỉ trỏ tham chiếu.
+- **Danh sách module cụ thể trong bảng** (Structure Engine, Portfolio View, Plugin Loader...) — bỏ khỏi Constitution; bảng giờ mô tả trách nhiệm + ràng buộc của từng loại, không liệt kê module.
+
+### Fixed — thẩm quyền registry không rõ
+- Chapter 7 cũ nói phân loại module chốt ở `/docs/domain/` (chung chung), trong khi Chapter 4 (Locked) quy định `/docs/domain/context-map.yaml` là authoritative registry. §7.4 chỉ rõ: module classification registry sống cùng chỗ trong `context-map.yaml`, tránh 2 nguồn.
+
+### Changed
+- Frontmatter: thêm dependency `02-platform-invariants`, `03-engineering-principles` (chapter này bị I-7 tham chiếu trực tiếp và phải nhất quán với Chapter 3 §3.1); bỏ `05-time-model` (không còn phụ thuộc trực tiếp).
+- Gắn ràng buộc từng loại module với invariant tương ứng: Compute Engine → I-3; Projection → I-12 + I-6.
+
 ## [Unreleased] — Chapter 6 (Identity Model) v2.0 — Claude tự review
 
 ### Fixed — mâu thuẫn với chapter đã Locked (Backward Consistency Check)
