@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "3.1"
+version: "3.2"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -294,7 +294,18 @@ frontier_policy:                                       # BẮT BUỘC (§8.3.4) 
   incomplete_frontier_behavior:
 ```
 
-**Causal precedence đứng trên mọi ordering key khác:** nếu A nằm trong causal ancestry của B (`B.causation_refs` trỏ tới A, trực tiếp hoặc bắc cầu), **mọi execution mode phải authoritative-apply A trước B, bất kể `recorded_time`**. Merge policy chỉ được tie-break giữa các event **causally incomparable** (không bên nào là ancestry của bên kia).
+**Partial order authoritative = hợp của HAI hard constraint** (cả hai đều bất biến, không được version hóa qua tie-break):
+
+```
+P_authoritative = P_stream ∪ P_causation
+
+P_stream:     (stream_id, n) ≺ (stream_id, n+1)     — per-stream sequence precedence
+P_causation:  cause ≺ effect                         — từ causation_refs (kể cả bắc cầu)
+```
+
+Merge policy phải tạo **deterministic topological order trên hợp của hai partial order này**. `concurrent_tie_break` CHỈ được áp dụng cho các event **không bị ordered bởi cả hai** — tức không cùng stream VÀ không có quan hệ causal ancestry.
+
+*Vì sao per-stream precedence phải là hard constraint, không phải tie-break:* hai event `A100`, `A101` cùng stream nhưng không có `causation_refs` trực tiếp với nhau vẫn **đã được** sequence khóa thứ tự (§8.3.2). Nếu chỉ dựa vào tie-break `[stream_id, sequence]`, một Input Contract tương lai đổi thành `[event_type, stream_id, sequence]` sẽ **đảo ngược** thứ tự hai event cùng stream — phá authoritative intra-stream order.
 
 **`recorded_time` KHÔNG được làm primary authoritative ordering key giữa các stream** (nhất quán [Chapter 5 §5.4](./05-time-model.md) Locked). Nó được dùng cho: visibility boundary (§8.5) · đo latency · observability · chọn ứng viên *bên trong* một thuật toán đã bảo toàn causal precedence. Ví dụ hỏng nếu dùng làm primary key:
 
@@ -325,8 +336,10 @@ merge_constraints:
 
 Phân chia thẩm quyền:
 ```
-Event semantic + causal constraint                              → Event Contract
-Cross-mode input stream scope + deterministic interleave policy → Input Contract
+Event semantic + causal constraint          → Event Contract
+Cross-mode input scope
+  + deterministic application order
+  + completeness/frontier semantics         → Input Contract
 ```
 
 #### Completeness / Frontier semantics (bắt buộc cho cross-mode)
@@ -351,6 +364,8 @@ Replay đọc từ log:          X → Binance      ← KHÁC NHAU, phá parity
 - **Live KHÔNG được authoritative-apply một merged prefix mà Replay sau đó có thể chèn thêm event visible trước nó** theo cùng Input Contract.
 - Khi frontier chưa complete: processor phải **buffer/defer** hoặc **fail-safe** ([I-6](./02-platform-invariants.md)).
 - **CẤM suy luận completeness từ wall clock.**
+
+**Ràng buộc với watermark / bounded lateness:** hai cơ chế này chỉ hợp lệ nếu **clock/frontier source của chúng được pin, event hóa, và replay được** — ví dụ watermark do source phát ra dưới dạng event, hoặc timer được event hóa vào log. **Processing wall clock cục bộ KHÔNG được làm completeness authority** (nếu không, replay sẽ cho frontier khác Live). Điều này không mâu thuẫn với việc cấm suy completeness từ wall clock ở trên: cái bị cấm là *đồng hồ cục bộ lúc xử lý*, cái được phép là *frontier signal đã trở thành fact bất biến trong log*.
 
 Cơ chế cụ thể (watermark, bounded lateness, per-stream committed frontier, coordinator checkpoint, barrier event, cursor cut...) do **ADR-009** quyết định; ADR-009 phải định nghĩa tối thiểu: per-stream committed frontier · multi-stream completeness rule · late-arrival behavior · buffer limit/fail-safe behavior · cách tạo `decision_context_cursor` tại frontier.
 
@@ -439,6 +454,19 @@ stream được Input Contract chọn (input_contract_ref)
   ∩ resolve được trong stream_registry_version đã pin
 ```
 
+**Retirement và terminal frontier (Model B — đề xuất):** một stream bị retire **vẫn thuộc universe** nếu Input Contract chọn nó, nhưng vị trí bị đóng tại `terminal_position` và frontier của nó được coi là **terminal** (không chờ thêm). Chọn Model B thay vì Model A (loại stream retired khỏi universe) vì: loại khỏi universe sẽ làm **biến mất một phần input history** khỏi cursor, phá replay/audit của giai đoạn stream còn hoạt động.
+
+```yaml
+retirement_boundary:            # cùng dạng bootstrap-safe locator như activation
+  control_stream_id:
+  sequence:
+  event_id:
+terminal_position:
+  sequence:                     # sequence cuối cùng hợp lệ của stream
+```
+
+**Invariant bắt buộc (bất kể chọn model nào):** một stream retired **KHÔNG được khiến frontier chờ vô hạn**. Retirement phải có authoritative visible boundary **và** terminal position, hoặc một quy tắc loại khỏi universe được định nghĩa tường minh trong Input Contract.
+
 **Activation phải theo authoritative visible boundary, KHÔNG theo wall clock:** một stream thuộc universe khi **activation boundary authoritative của nó đã visible/resolved tại cursor**. Không suy luận activation chỉ từ physical timestamp hay từ trạng thái registry hiện tại.
 
 Lý do: nếu dùng wall clock, sẽ gặp tình huống "registry nói stream active từ 10:00:00 nhưng activation fact chỉ được recorded lúc 10:00:03" — replay tại 10:00:01 sẽ *nhìn thấy trước* một fact hệ thống chưa biết, vi phạm [I-3](./02-platform-invariants.md). Điều này cũng nhất quán với §8.3.1 (writer handoff cấm chọn authority theo wall clock).
@@ -455,6 +483,18 @@ activation_boundary:
 **Cấm dependency cycle (bắt buộc):**
 - Lifecycle boundary của Stream Registry **KHÔNG được tham chiếu** một artifact mà chính nó trực tiếp hoặc gián tiếp phụ thuộc vào Stream Registry version đang được định nghĩa. Cụ thể: **không dùng full Replay Cursor** (hay bất kỳ thứ gì chứa `input_contract_ref`) làm activation boundary — sẽ tạo vòng `Stream Registry v4 → cursor → Input Contract → Stream Registry v4`, khiến không artifact nào hoàn chỉnh và không tính được content identity sạch (§8.1.1 điều 5).
 - **Activation event phải nằm trên một stream đã active TRƯỚC boundary đó** — cấm đặt activation event của stream X lên chính stream X (vòng bootstrap: X chỉ active sau event E, nhưng E lại phải append vào X → không thể khởi tạo).
+
+#### Genesis Registry — ngoại lệ root DUY NHẤT
+
+Quy tắc trên tạo hồi quy vô hạn nếu không có điểm khởi đầu (stream A cần B active trước, B cần C...). Giải bằng **đúng một** ngoại lệ, phạm vi hẹp:
+
+**Genesis Registry** là root authoritative artifact, được tạo và phê duyệt theo [Governance](./00-governance.md) **trước khi** runtime event log hoạt động. Nó phải:
+- định nghĩa ít nhất một lifecycle/control stream;
+- định nghĩa writer authority ban đầu;
+- có immutable content identity (§8.1.1 điều 5);
+- **không cần** activation event đứng trước nó (đây chính là nội dung của ngoại lệ).
+
+**Sau Genesis Registry, mọi stream creation, activation, retirement, và writer handoff bắt buộc dùng lifecycle boundary bình thường. KHÔNG có ngoại lệ thứ hai** — implementation không được tự tạo bootstrap shortcut nào khác.
 
 **Validation chain cho lifecycle boundary** (giữ đúng mô hình `locator = (stream_id, sequence)`, `definition evidence = resolved_event.stream_ref.registry_version`):
 1. Dùng `(control_stream_id, sequence)` làm canonical locator để resolve event; xác minh khớp `event_id` — mismatch là **integrity violation**.
