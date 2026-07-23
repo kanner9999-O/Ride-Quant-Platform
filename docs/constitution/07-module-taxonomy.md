@@ -1,7 +1,7 @@
 ---
 id: 07-module-taxonomy
 title: Module Taxonomy
-version: "2.1"
+version: "2.2"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -15,15 +15,23 @@ depends_on: ["02-platform-invariants", "03-engineering-principles", "04-domain-p
 
 # 7. Module Taxonomy
 
-Hệ thống có **3 loại module khác nhau** — không phải mọi thứ đều là "Engine". Phân loại theo **bản chất trách nhiệm chính** của module, KHÔNG theo việc module có publish event hay không (xem 7.2), và KHÔNG theo việc module có business logic hay không (xem 7.3).
+## 7.0 Phạm vi áp dụng — "module" ở đây nghĩa là gì
+
+Trong Chapter này, **"module"** nghĩa là một **runtime application component**: thành phần có runtime responsibility và published boundary rõ ràng (deployable service, process, hoặc in-process component được vận hành độc lập).
+
+Taxonomy này **KHÔNG áp dụng** cho: shared library/package · schema/contract artifact · database, message broker, hoặc infrastructure resource · build/test/migration tooling · documentation artifact. Các đối tượng đó được quản lý bởi architecture/deployment registry tương ứng, **không bị ép gán** một trong ba type.
+
+*Ba type dưới đây là exhaustive trong phạm vi runtime application module — KHÔNG exhaustive cho mọi artifact trong repository/platform.* (Không có type nào là "database" hay "library"; nếu phải gắn nhãn giả cho chúng thì taxonomy đã bị dùng sai phạm vi.)
 
 ## 7.1 Ba loại module
+
+Phân loại theo **bản chất trách nhiệm chính**, KHÔNG theo việc module có publish event hay không (xem 7.2), và KHÔNG theo việc module có business logic hay không (xem 7.3).
 
 | Loại | Bản chất trách nhiệm chính | Ràng buộc |
 |---|---|---|
 | **Type 1 — Compute Engine** | Biến đổi/suy diễn domain information thành analytical hoặc domain output. **Không sở hữu external side effect** | Tuân [I-3 No Repaint/No Look-Ahead](./02-platform-invariants.md) — không dùng dữ liệu tương lai để sinh output quá khứ |
 | **Type 2 — Projection** | Materialize derived state/read-model từ authoritative source (CQRS). **Không sở hữu authoritative domain decision** | Deterministic và rebuild được từ authoritative source ([I-12](./02-platform-invariants.md)); ràng buộc chi tiết xem 7.4 |
-| **Type 3 — Runtime Service** | Sở hữu interaction, coordination, control, hoặc side-effect boundary với thế giới bên ngoài | Được phép phát sinh authoritative event thuộc đúng responsibility của nó |
+| **Type 3 — Runtime Service** | Sở hữu runtime interaction, orchestration, coordination, hoặc control; **và/hoặc** sở hữu side-effect boundary với hệ thống bên ngoài. (Internal scheduler, workflow coordinator, replay controller cũng là Runtime Service dù không chạm venue) | Được phép phát sinh authoritative event thuộc đúng responsibility của nó |
 
 ## 7.2 Publish event KHÔNG quyết định loại module
 
@@ -34,6 +42,20 @@ Hệ thống có **3 loại module khác nhau** — không phải mọi thứ đ
 - **Projection** (Type 2) phát sinh operational event về chính nó (xem 7.4).
 
 Mỗi module có **một primary taxonomy type** (phục vụ registry), nhưng có thể khai báo secondary responsibilities. Taxonomy KHÔNG thay thế responsibility ownership.
+
+**Guardrail chống god module (bắt buộc):** secondary responsibility KHÔNG được dùng để bypass responsibility ownership ([Chapter 3 §3.1](./03-engineering-principles.md), Locked) hoặc gom nhiều authoritative capability khác loại vào cùng một module. Khi một component đồng thời mang responsibility **cốt lõi** của nhiều taxonomy type, **mặc định phải tách thành các module riêng** với published contract giữa chúng.
+
+Chỉ được giữ dạng hybrid khi thỏa **cả 4** điều kiện:
+1. Các responsibility không thể tách hợp lý về semantic/transaction boundary;
+2. Ownership không vi phạm Chapter 3 §3.1 hay Context Map (Chapter 4);
+3. Primary type và secondary role được khai báo tường minh trong module-registry;
+4. Quyết định được ghi bằng **ADR** (thuộc diện ADR Required — thay đổi Module Taxonomy/dependency graph, theo [Governance §4b](./00-governance.md)).
+
+Ví dụ **hợp lệ**: Risk Gateway — primary `runtime_service`, secondary `risk_policy_evaluation` — vì risk evaluation và execution gating cùng nằm trong responsibility mà Chapter 3 đã khóa cho chính module này.
+
+Ví dụ **không hợp lệ**: Exchange Adapter — primary `runtime_service`, secondary `strategy_decision` — vi phạm Chapter 3 (Strategy/Decision logic thuộc Decision Engine, không được rò rỉ sang module biên).
+
+*Nguyên tắc: primary type KHÔNG phải giấy phép tạo god module.*
 
 ## 7.3 Loại module KHÔNG quyết định quyền sở hữu business logic
 

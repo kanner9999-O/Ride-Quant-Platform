@@ -550,6 +550,15 @@ Ghi nhận quy trình: vòng review v2.2 Claude đọc sót severity table (báo
 ### Fixed — Minor
 - **"Projection không tham gia decision/risk/execution" là suy luận sai:** derived ≠ luôn non-critical — exposure read-model có thể được Risk Gateway đọc, order-state projection dùng reconcile. Sửa: projection dùng làm dependency của decision/risk/execution phải khai báo criticality + failure policy tường minh; consumer fail-safe theo I-6 khi freshness/correctness không xác định — vẫn không biến projection thành authoritative source.
 
+## [Unreleased] — Chapter 7 v2.2 (ChatGPT review round 2: **0 Blocker · 2 Major · 1 Minor**)
+
+### Fixed — Major
+- **Chưa định nghĩa "module" nghĩa là gì (§7.0 mới):** nếu MỌI thứ đều phải mang 1 trong 3 type, đội triển khai buộc phải gắn nhãn giả cho shared library, database, broker, migration tooling, schema artifact. Sửa: taxonomy chỉ áp dụng cho **runtime application component** (có runtime responsibility + published boundary); liệt kê rõ những gì KHÔNG thuộc phạm vi. Ba type exhaustive trong phạm vi runtime application module, không phải cho mọi artifact.
+- **`secondary responsibilities` mở loophole god module:** thêm ở v2.1 để hợp thức hóa Risk Gateway, nhưng vô tình cho phép mọi module chọn 1 nhãn primary rồi nhét mọi thứ vào secondary — làm rỗng separation Chapter 3 đã Locked. Sửa: mặc định PHẢI tách module khi mang responsibility cốt lõi của nhiều type; hybrid chỉ hợp lệ khi thỏa cả 4 điều kiện (không tách được về semantic/transaction boundary + không vi phạm Chapter 3/Context Map + khai báo tường minh + có ADR). Kèm ví dụ hợp lệ (Risk Gateway) vs không hợp lệ (Exchange Adapter + strategy_decision).
+
+### Fixed — Minor
+- Định nghĩa Type 3 mơ hồ về "thế giới bên ngoài" — internal scheduler/workflow coordinator/replay controller cũng là Runtime Service dù không chạm venue. Sửa cấu trúc câu: "runtime interaction, orchestration, coordination, hoặc control; **và/hoặc** side-effect boundary với hệ thống bên ngoài".
+
 ## [Unreleased] — Chapter 6 (Identity Model) v2.0 — Claude tự review
 
 ### Fixed — mâu thuẫn với chapter đã Locked (Backward Consistency Check)
