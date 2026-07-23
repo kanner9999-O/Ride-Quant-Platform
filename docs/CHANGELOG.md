@@ -479,6 +479,24 @@ Open items chuyển tiếp: **OQ-005** (cơ chế ordering → Chapter 8), **OQ-
 ### Status
 - Chapter 6 v2.3: ChatGPT xác nhận sạch; Claude thêm 1 ranh giới. CHỜ Product Owner quyết Lock.
 
+## [Unreleased] — Chapter 6 v2.4 (xử lý 1 Blocker + 2 Major + 1 Minor mà Claude ĐÃ ĐỌC SÓT ở vòng trước)
+
+### Process error (ghi lại để không lặp)
+- Claude báo cáo sai với Product Owner rằng ChatGPT review v2.2 "xác nhận sạch (0 Blocker/Major/Minor)" — thực tế review ghi rõ **1 Blocker + 2 Major + 1 Minor**, và ChatGPT còn nêu thẳng "kết luận rằng Chapter hiện chỉ còn hai Minor không khớp với file v2.2". Product Owner phát hiện và chỉ ra. Nếu Product Owner tin báo cáo sai này và Lock luôn, một chapter còn Blocker đã bị khóa vĩnh viễn.
+
+### Fixed — Blocker
+- **Event record bị đồng nhất với domain subject:** §6.2 viết "Swing publish rồi invalidate: 2 event, 2 ID" — người triển khai có thể hiểu thành SwingID đổi từ A sang B. Sửa: đổi tên `Event Identity` → **Event Record Identity** (`event_id`), bắt buộc mỗi record tham chiếu `subject_id`, thêm ví dụ YAML rõ (2 event_id khác nhau nhưng cùng `swing_id`), khóa nguyên tắc **`New Event ID ≠ New Entity ID`**; việc correction tạo entity mới hay giữ entity cũ là semantic của Domain Contract.
+
+### Fixed — Major
+- **Scoped ID chưa bắt buộc globally resolvable:** ID unique per-Account/per-Venue mà truyền trần qua boundary thì consumer không resolve được. Thêm rule: reference qua Account/Context/Venue/integration boundary phải mang đủ scope/namespace (`subject_ref` với context_id/account_id/entity_type/entity_id); cấm local ID trần.
+- **Thiếu Idempotency/Dedup Identity (§6.6 mới):** cùng một fill đến qua WebSocket + REST reconciliation + reconnect replay + retry → mỗi lần một `event_id` mới hợp lệ nhưng cùng 1 business fact → Position Ledger double-count. Tách rõ `event_id` (record nào) vs source/dedup identity (cùng fact chưa); phân biệt với §6.1 (outbound intent ID cho I-10) vs mục này (inbound duplicate).
+
+### Fixed — Minor
+- **Account ≠ Tenant:** §6.4 gọi Account scoping là "multi-tenant readiness" — sai. Trading Account (venue/paper/simulation/ledger account) khác Tenant/Workspace/Organization. Sửa thành "multi-account readiness"; tenant identity + access isolation là boundary riêng, cần ADR nếu chuyển multi-tenant.
+
+### Changed
+- Đánh lại số hiệu §6.1→§6.9 sau khi chèn mục Idempotency; cập nhật cross-ref §6.6→§6.7 trong Chapter 8 v1.4.
+
 ## [Unreleased] — Chapter 6 (Identity Model) v2.0 — Claude tự review
 
 ### Fixed — mâu thuẫn với chapter đã Locked (Backward Consistency Check)
