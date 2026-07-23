@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "3.7"
+version: "3.8"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -251,9 +251,18 @@ Pin một registry version chưa được chứng minh là **đã authoritative 
 **Registry applicability interval — cursor phải dùng registry ĐANG active tại frontier của nó:**
 
 ```
-active_registry_at(frontier)
-  = registry có effective_from lớn nhất, nhưng KHÔNG vượt quá lifecycle frontier
+active_registry_at(frontier):
+  1. Nếu KHÔNG có post-Genesis registry nào có effective_from ≤ frontier
+     → trả về Genesis Registry.          # base case: bao gồm cả frontier kind=genesis
+  2. Ngược lại
+     → trả về registry DUY NHẤT có effective_from lớn nhất, ≤ frontier.
 ```
+
+**Invariant để hàm này total + unique** (nếu thiếu, hàm có thể trả về zero hoặc nhiều kết quả):
+- Mỗi post-Genesis registry version có **đúng một** `effective_from`.
+- **KHÔNG** hai registry version nào dùng chung một `effective_from.event_ref`.
+- Lifecycle activation event phải **định danh chính xác** registry version được activate.
+- Duplicate hoặc ambiguous activation là **integrity violation** → append bị từ chối; dữ liệu lịch sử phát hiện ambiguity phải fail-safe theo [I-6](./02-platform-invariants.md).
 
 Với mọi **authoritative** cursor (Live, Paper, Decision, replay có tính parity evidence):
 ```
@@ -379,7 +388,7 @@ causal-topological      → A trước B     ← ĐÚNG
 
 **`frontier_policy` là thành phần BẮT BUỘC và versioned của Input Contract.** Thay đổi frontier/completeness, late-arrival, hoặc buffer/fail-safe semantics **bắt buộc tạo Input Contract version mới** — nếu để ngoài contract, hai run cùng pin `btc-arbitrage-input@v1` vẫn có thể dùng watermark 500ms vs committed frontier và cho ra input cut khác nhau.
 
-**Input Contract là CROSS-MODE — không chỉ dành cho Replay.** Mọi Decision run ở **cả 4 execution mode** (Live, Backtest, Paper Trading, Replay) đều phải pin **cùng một** versioned Input Contract xác định input stream scope + deterministic interleave semantics + registry version. Đây là điều kiện cần để [I-2 Decision Parity](./02-platform-invariants.md) kiểm chứng được: Live không thể dùng input topology A rồi Replay dùng contract B mà vẫn tuyên bố parity. **Cấm gắn Input Contract hồi tố** — contract phải tồn tại và được pin **tại thời điểm Decision được tạo**, kể cả trong Live.
+**Input Contract là CROSS-MODE — không chỉ dành cho Replay.** Khi **so sánh hoặc tái tạo cùng một logical Decision/run** giữa **cả 4 execution mode** (Live, Backtest, Paper Trading, Replay), mọi mode phải pin **cùng một** versioned Input Contract xác định input stream scope + deterministic interleave semantics + registry version. Đây là điều kiện cần để [I-2 Decision Parity](./02-platform-invariants.md) kiểm chứng được: Live không thể dùng input topology A rồi Replay dùng contract B mà vẫn tuyên bố parity. **Cấm gắn Input Contract hồi tố** — contract phải tồn tại và được pin **tại thời điểm Decision được tạo**, kể cả trong Live.
 
 *(Tên gọi: artifact này từng được gọi **`Replay Contract`** ở các bản nháp trước. Đổi thành **`Input Contract`** vì nó áp dụng cross-mode, không chỉ phục vụ replay — giữ tên cũ sẽ gây hiểu nhầm khi Live Decision phải pin nó. Vẫn là **một** artifact duy nhất, không thêm surface area; replay-run control cụ thể — cursor bắt đầu/kết thúc, tốc độ — là cấu hình của lần chạy, không thuộc contract này.)*
 

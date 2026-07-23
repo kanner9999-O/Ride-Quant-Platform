@@ -1,5 +1,5 @@
 ---
-manifest_version: "7.9"
+manifest_version: "8.0"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31,10 +31,10 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/05-time-model.md | 2.4 | **Locked** | Product Owner | 04-domain-principles, 02-platform-invariants |
 | constitution/06-identity-model.md | 2.5 | **Locked** | Product Owner | 02-platform-invariants, 04-domain-principles, 05-time-model |
 | constitution/07-module-taxonomy.md | 2.2 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles |
-| constitution/08-event-model.md | 3.7 | In Review | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
+| constitution/08-event-model.md | 3.8 | In Review | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
 | constitution/09-plugin-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/10-compatibility-capability-contract.md | 1.0 | In Review | Product Owner | 09-plugin-model |
-| constitution/11-adr-process.md | 1.1 | In Review | Product Owner | 00-governance |
+| constitution/11-adr-process.md | 1.2 | In Review | Product Owner | 00-governance |
 | constitution/12-approval-gates.md | 1.2 | In Review | Product Owner | 00-governance, 11-adr-process |
 | constitution/13-quality-gates.md | 1.0 | In Review | Product Owner | 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.1 | In Review | Product Owner | ALL |
@@ -91,7 +91,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | OQ-001 | Data Retention Policy & Access Control Model chi tiết (RBAC cụ thể khi multi-tenant) | Partially Resolved | Product Owner | Hướng đã chốt qua ADR-007: single-operator NGAY BÂY GIỜ, kiến trúc chừa chỗ (Account first-class) cho multi-tenant sau. Thiết kế RBAC cụ thể vẫn mở, cần quyết trước khi thực sự mở multi-tenant (không phải trước Phase 1 nữa). |
 | OQ-002 | Strategy Lifecycle Gate: Capability Matrix phải xác nhận Backtest=YES + Paper Trade=YES trước khi strategy chuyển Live | Open | Product Owner | Chuyển ra khỏi Vision (V2-02) — thuộc về Quality Gates/Strategy Lifecycle, cần ADR khi Phase 3 định nghĩa Strategy Lifecycle |
 | OQ-006 | **[TRẠNG THÁI: (a) Product Owner ĐÃ duyệt HƯỚNG 2026-07-18 — nguồn: quyết định trực tiếp của PO trong phiên làm việc; (b) ADR-010 = Draft, CHƯA accept, có acceptance gate phụ thuộc ADR-009; (c) OQ vẫn `Open` cho tới khi ADR-010 được accept]** `decision_time` được Chapter 5 liệt kê là canonical field name nhưng CHƯA định nghĩa (đúng chỗ: thuộc chapter sở hữu Decision — Chapter 8 Event Model hoặc Chapter 9 Plugin/Decision). Phải định nghĩa formal + quan hệ với recorded_time trước khi chapter đó Lock | Open | Product Owner | ChatGPT Observation khi review Chapter 5 v2.4 — tránh decision_time rơi vào khoảng trống như OQ-005 |
-| OQ-005 | **[TRẠNG THÁI: (a) Product Owner ĐÃ duyệt HƯỚNG 2026-07-18 — nguồn: quyết định trực tiếp của PO trong phiên làm việc; (b) ADR-009 = Draft, CHƯA accept; (c) OQ vẫn `Open` cho tới khi ADR-009 được accept]** Cơ chế ordering authoritative cụ thể (sequence number per partition / logical clock / hybrid logical clock) cho cross-node/cross-exchange event ordering — Chapter 5 đã định nghĩa NGUYÊN TẮC (total order deterministic, không dựa thuần physical clock), cơ chế cụ thể quyết định ở Chapter 8 Event Model | Open | Product Owner | Phát hiện: Claude tự soi Chapter 5 v2.1, ChatGPT xác nhận Major. Quan trọng cho arbitrage đa sàn (thứ tự event = lãi/lỗ) |
+| OQ-005 | **[TRẠNG THÁI: (a) Product Owner ĐÃ duyệt HƯỚNG 2026-07-18 — nguồn: quyết định trực tiếp của PO trong phiên làm việc; (b) ADR-009 = Draft, CHƯA accept; (c) OQ vẫn `Open` cho tới khi ADR-009 được accept]** Cơ chế ordering authoritative cụ thể (sequence number per partition / logical clock / hybrid logical clock) cho cross-node/cross-exchange event ordering — Chapter 5 đã định nghĩa NGUYÊN TẮC (total order deterministic, không dựa thuần physical clock), phân tầng sau hybrid split: Chapter 8 = invariant · ADR-009 = architectural model · Phase 1 = mechanism/design specification | Open | Product Owner | Phát hiện: Claude tự soi Chapter 5 v2.1, ChatGPT xác nhận Major. Quan trọng cho arbitrage đa sàn (thứ tự event = lãi/lỗ) |
 | OQ-004 | Time Model (Chapter 5) cần bổ sung rõ bitemporal: effective/event time vs knowledge/recorded time | Resolved (Chapter 5 v2.0) | Product Owner | Đã xử lý: §5.1 Bitemporal Model canonical hóa Effective/Recorded Time, hòa giải thuật ngữ với I-3 Locked, §5.3 định nghĩa vận hành Replay theo trục Recorded |
 | OQ-003 | Product Metrics cụ thể cho nguyên tắc "Measurable" (vd: decision-rationale coverage rate, risk-policy violation rate, replay-to-live parity deviation, thời gian hypothesis→validated strategy...) | Open | Product Owner | Chuyển ra khỏi Vision (V2-05) — cần tài liệu Product Metrics riêng, không nhét KPI chi tiết vào Vision |
 
@@ -100,6 +100,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | # | Nội dung | Nguồn đề xuất |
 |---|---|---|
 | BL-001 | `review_status` dạng machine-readable trong metadata (thay vì list `reviewers` dạng text) | ChatGPT review |
+| BL-006 | Sau khi ADR-009/ADR-010 được **accept**: dọn decision history khỏi Chapter 8 (các đoạn "chọn Model A thay vì B", "vì sao chọn mô hình này") — rationale + alternatives đã nằm trong ADR; Constitution chỉ giữ normative rule. Giữ đúng ranh giới Constitution = rule, ADR = decision history | ChatGPT Suggestion (consolidation round) |
 | BL-005 | Processing Observation (Chapter 5 §5.2) cần schema đầy đủ + observability convention (processor/attempt/started_at/completed_at) — thuộc Engineering Foundation (Phase 1.5), không phải Constitution | ChatGPT Observation (Chapter 5 v2.4) |
 | BL-004 | context-map.yaml có thể tách file (capabilities/ contexts/ relationships riêng) KHI file quá lớn — chưa làm vì file chưa tồn tại, tránh giải quyết vấn đề chưa đo được. Xử lý ở Engineering Foundation/Phase 0.2 khi có dữ liệu thật | ChatGPT review (Chapter 4 round 4) |
 | BL-003 | Invariant Conformance Matrix (Invariant → Architecture mechanism → Owning module → Enforcement → Automated test → Runtime metric/alert → Evidence location) — thuộc Architecture/Engineering Phase, KHÔNG phải Constitution. Chỉ làm khi module/contract thật đã tồn tại, không điền tên ADR/tài liệu chưa tạo (tránh tham chiếu giả) | ChatGPT review (Chapter 2 round 3) |
