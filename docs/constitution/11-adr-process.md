@@ -1,7 +1,7 @@
 ---
 id: 11-adr-process
 title: ADR Process
-version: "1.2"
+version: "1.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -28,6 +28,16 @@ Template chuẩn tại [`/docs/templates/adr-template.md`](../templates/adr-temp
 | `addresses: [OQ-xxx]` | ADR đang **xử lý** OQ đó — **KHÔNG** làm OQ chuyển `Resolved`. Dùng khi ADR còn `Draft`/`In Review` |
 | `resolves: [OQ-xxx]` | ADR **đóng** OQ đó — **CHỈ có hiệu lực khi ADR đạt `Approved`/`Locked`**. ADR còn Draft không được dùng field này |
 | `depends_on: [ADR-yyy]` | ADR-yyy phải đạt `Approved`/`Locked` **trước** khi ADR hiện tại được rời `Draft`/`In Review` |
+
+**Transition khi Product Owner approve — phải ATOMIC (một documentation change duy nhất):**
+```
+status:      Draft/In Review  →  Approved
+addresses:   [OQ-x]           →  []
+resolves:    []               →  [OQ-x]
+approved_by / approved_at     →  set
+MANIFEST OQ-x                 →  Resolved
+```
+Nếu approve trước rồi mới đổi `addresses` → `resolves` ở lần sửa sau, lần sửa đó **vi phạm ADR Immutable Rule** (sửa ADR đã Approved). Vì vậy toàn bộ transition phải nằm trong cùng một thay đổi.
 
 Ba field này là **machine-readable acceptance gate** — validator dựa vào status lifecycle chuẩn, không dựa vào chữ "accept" trong prose.
 
