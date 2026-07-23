@@ -1,11 +1,11 @@
 ---
-manifest_version: "7.6"
+manifest_version: "7.7"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.0.0"
 current_phase: "Phase 0 — Vision & Foundation"
-compatible_adr_range: "ADR-001 ~ ADR-008"
+compatible_adr_range: "ADR-001 ~ ADR-010"
 generated_at: "2026-07-16"
 ---
 
@@ -51,6 +51,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | adr/ADR-006.md — ChatGPT/Claude ngang hàng (AI Technical Architect) | **Locked** | — | — |
 | adr/ADR-007.md — Vision Scope: nội bộ/crypto trước, chừa chỗ mở rộng | **Locked** | — | — |
 | adr/ADR-008.md — Phân bổ ngôn ngữ Python/Go, Rust reserved | **Approved** | — | — |
+| adr/ADR-009.md — Ordering Mechanism (giải OQ-005) | **Draft** | — | — |
+| adr/ADR-010.md — Decision Time Model, Model A (giải OQ-006) | **Draft** | — | — |
 
 ## Domain
 
@@ -79,6 +81,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | ADR-006 | Locked | 2026-07-16 | Product Owner quyết: ChatGPT/Claude ngang hàng, khác focus |
 | ADR-007 | Locked | 2026-07-17 | Vision Phase 0-3: nội bộ + crypto only, kiến trúc chừa chỗ multi-tenant/đa tài sản |
 | ADR-008 | Approved | 2026-07-18 | Phân bổ ngôn ngữ Python (lõi logic)/Go (biên hệ thống), Rust reserved — ghi hồi tố khi Claude tự review Chapter 3 |
+| ADR-009 | Draft | 2026-07-18 | Ordering: per-stream contiguous sequence + explicit causation + DAG, không global total order. Product Owner đã duyệt HƯỚNG (OQ-005); ADR chờ review + accept |
+| ADR-010 | Draft | 2026-07-18 | Decision Time Model A: decision_time thay effective_time, decision_context_cursor bắt buộc. Product Owner đã duyệt HƯỚNG (OQ-006); ADR chờ review + accept |
 
 ## Open Questions
 
@@ -86,8 +90,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 |---|---|---|---|---|
 | OQ-001 | Data Retention Policy & Access Control Model chi tiết (RBAC cụ thể khi multi-tenant) | Partially Resolved | Product Owner | Hướng đã chốt qua ADR-007: single-operator NGAY BÂY GIỜ, kiến trúc chừa chỗ (Account first-class) cho multi-tenant sau. Thiết kế RBAC cụ thể vẫn mở, cần quyết trước khi thực sự mở multi-tenant (không phải trước Phase 1 nữa). |
 | OQ-002 | Strategy Lifecycle Gate: Capability Matrix phải xác nhận Backtest=YES + Paper Trade=YES trước khi strategy chuyển Live | Open | Product Owner | Chuyển ra khỏi Vision (V2-02) — thuộc về Quality Gates/Strategy Lifecycle, cần ADR khi Phase 3 định nghĩa Strategy Lifecycle |
-| OQ-006 | **[Có đề xuất — chờ PO quyết + ADR]** `decision_time` được Chapter 5 liệt kê là canonical field name nhưng CHƯA định nghĩa (đúng chỗ: thuộc chapter sở hữu Decision — Chapter 8 Event Model hoặc Chapter 9 Plugin/Decision). Phải định nghĩa formal + quan hệ với recorded_time trước khi chapter đó Lock | Open | Product Owner | ChatGPT Observation khi review Chapter 5 v2.4 — tránh decision_time rơi vào khoảng trống như OQ-005 |
-| OQ-005 | **[Có đề xuất — chờ PO quyết + ADR]** Cơ chế ordering authoritative cụ thể (sequence number per partition / logical clock / hybrid logical clock) cho cross-node/cross-exchange event ordering — Chapter 5 đã định nghĩa NGUYÊN TẮC (total order deterministic, không dựa thuần physical clock), cơ chế cụ thể quyết định ở Chapter 8 Event Model | Open | Product Owner | Phát hiện: Claude tự soi Chapter 5 v2.1, ChatGPT xác nhận Major. Quan trọng cho arbitrage đa sàn (thứ tự event = lãi/lỗ) |
+| OQ-006 | **[Hướng ĐÃ ĐƯỢC PO DUYỆT 2026-07-18 → ADR-010 Draft, chờ review + accept]** `decision_time` được Chapter 5 liệt kê là canonical field name nhưng CHƯA định nghĩa (đúng chỗ: thuộc chapter sở hữu Decision — Chapter 8 Event Model hoặc Chapter 9 Plugin/Decision). Phải định nghĩa formal + quan hệ với recorded_time trước khi chapter đó Lock | Open | Product Owner | ChatGPT Observation khi review Chapter 5 v2.4 — tránh decision_time rơi vào khoảng trống như OQ-005 |
+| OQ-005 | **[Hướng ĐÃ ĐƯỢC PO DUYỆT 2026-07-18 → ADR-009 Draft, chờ review + accept]** Cơ chế ordering authoritative cụ thể (sequence number per partition / logical clock / hybrid logical clock) cho cross-node/cross-exchange event ordering — Chapter 5 đã định nghĩa NGUYÊN TẮC (total order deterministic, không dựa thuần physical clock), cơ chế cụ thể quyết định ở Chapter 8 Event Model | Open | Product Owner | Phát hiện: Claude tự soi Chapter 5 v2.1, ChatGPT xác nhận Major. Quan trọng cho arbitrage đa sàn (thứ tự event = lãi/lỗ) |
 | OQ-004 | Time Model (Chapter 5) cần bổ sung rõ bitemporal: effective/event time vs knowledge/recorded time | Resolved (Chapter 5 v2.0) | Product Owner | Đã xử lý: §5.1 Bitemporal Model canonical hóa Effective/Recorded Time, hòa giải thuật ngữ với I-3 Locked, §5.3 định nghĩa vận hành Replay theo trục Recorded |
 | OQ-003 | Product Metrics cụ thể cho nguyên tắc "Measurable" (vd: decision-rationale coverage rate, risk-policy violation rate, replay-to-live parity deviation, thời gian hypothesis→validated strategy...) | Open | Product Owner | Chuyển ra khỏi Vision (V2-05) — cần tài liệu Product Metrics riêng, không nhét KPI chi tiết vào Vision |
 
