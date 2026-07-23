@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "3.9"
+version: "4.0"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -19,11 +19,12 @@ depends_on: ["02-platform-invariants", "03-engineering-principles", "05-time-mod
 >
 > **OQ-005 và OQ-006: hướng ĐÃ ĐƯỢC Product Owner duyệt** (2026-07-18). [ADR-009](../adr/ADR-009.md) và [ADR-010](../adr/ADR-010.md) hiện là **`Draft`, CHƯA được accept**.
 >
-> OQ-005/OQ-006 vẫn `Open` và **Chapter 8 KHÔNG được Lock** cho tới khi **đủ cả 4** điều kiện:
+> OQ-005/OQ-006 vẫn `Open` và **Chapter 8 KHÔNG được Lock** cho tới khi **đủ cả 5** điều kiện:
 > 1. ADR-009 được Product Owner **accept**;
 > 2. ADR-010 được **accept** theo dependency gate (ADR-010 §7 — không accept trước ADR-009);
 > 3. OQ-005/OQ-006 chuyển sang `Resolved` trong MANIFEST;
-> 4. Consolidation review hoàn tất.
+> 4. **§8.4.1 (Decision in-flight qua registry transition) có quyết định của Product Owner**;
+> 5. Consolidation review hoàn tất.
 >
 > *("ADR đã được ghi" KHÔNG đủ — Draft là đã ghi nhưng chưa accept.)*
 
@@ -78,7 +79,8 @@ payload:             # Event Contract của event_type sở hữu
 | `sequence` | **Required** | Vị trí trong stream đó (§8.3.2) |
 | `producer_ref` | **Required** | Truy vết authoritative producer (xem 8.2.4) |
 | `correlation_id` | **Required** với event thuộc một luồng xử lý; **Optional** với event khởi phát độc lập | §6.7 |
-| `causation_refs` | **Zero-to-many** | Root event có thể rỗng (`[]`); không absent (xem 8.2.3) |
+| `causation_refs` | **Zero-to-many** | Authoritative prerequisite; root event có thể rỗng (`[]`), không absent. Stream phải thuộc Input Contract universe (§8.2.3) |
+| `related_event_refs` | **Zero-to-many** | Identity/audit relation ngoài scope; KHÔNG tham gia `P_causation` (§8.2.3) |
 | `effective_time` | **Conditional** | Khi domain fact có thời điểm/khoảng hiệu lực. Có thể là instant hoặc interval. **Prohibited với Decision event** — Decision dùng `decision_time` (xem §8.4) |
 | `decision_time` | **Required với Decision event · Prohibited với event khác** | Effective-axis time value của Decision; semantic do Decision Domain Contract sở hữu (§8.4) |
 | `decision_context_cursor` | **Required với authoritative Decision event** | Knowledge boundary mà Decision dựa vào — thiếu nó thì không chứng minh được input visibility cho parity/replay (§8.4) |
@@ -125,11 +127,16 @@ subject_ref: {subject_kind: value, subject_type: Price, subject_id: price_123}
 
 **Chỉ được tham chiếu authoritative event record.** Dependency không phải event (model artifact, configuration, policy version...) phải được **event hóa trước** theo [I-5](./02-platform-invariants.md), rồi causation trỏ tới event đó — cách này giữ causation graph đồng nhất một loại node.
 
-**Causation prerequisite nằm ngoài Input Contract scope — quy tắc bắt buộc:**
-- Nếu prerequisite là **payload/state dependency** (processor cần đọc nội dung A, hoặc A ảnh hưởng state transition): stream của A **BẮT BUỘC** thuộc `included_streams` của Input Contract **và** thuộc cursor universe. Nếu không, Input Contract không còn mô tả đúng toàn bộ input thật → phá parity vì có **hidden input**.
-- Nếu prerequisite nằm **ngoài** scope: `causation_ref` chỉ được dùng để **verify identity/existence** (chứng minh A tồn tại và B phụ thuộc A). **CẤM** đọc payload của A, **CẤM** dùng A làm state-transition input.
+**Hai loại reference — TÁCH SCHEMA, không gộp vào một field:**
 
-Vi phạm là integrity violation → fail-safe theo [I-6](./02-platform-invariants.md).
+| Field | Ngữ nghĩa | Tham gia `P_causation`? | Ràng buộc scope |
+|---|---|---|---|
+| `causation_refs` | **Authoritative payload/state prerequisite** — processor đọc nội dung hoặc dùng làm state-transition input | **CÓ** — tạo precedence edge, processor phải resolve trước khi apply | Stream **BẮT BUỘC** thuộc `included_streams` + cursor universe. Tập phải **causally closed** trong universe đó |
+| `related_event_refs` | **Identity/audit relation** ngoài input scope — chỉ chứng minh event tồn tại và có liên quan | **KHÔNG** — không tạo precedence edge, không phải merge prerequisite | Được phép ngoài universe. **CẤM** đọc payload, **CẤM** dùng làm state-transition input |
+
+*Vì sao phải tách schema thay vì thêm `dependency_role`:* nếu dùng chung một field, ba quy tắc không thể cùng thực thi — (1) external reference không thuộc cursor universe, (2) mọi causation phải visible tại cursor, (3) mọi causation tạo authoritative precedence edge. Cursor chỉ mang `stream_positions` cho stream trong universe, nên external reference **không chứng minh được exact visibility cut** (đặc biệt khi nhiều event cùng `recorded_time`). Tách field làm validator biết ngay reference nào phải cursor-visible.
+
+Cả hai field dùng chung schema `event_record_ref` (§8.2.3) và chịu **tuple consistency invariant**. Vi phạm scope là integrity violation → fail-safe theo [I-6](./02-platform-invariants.md).
 
 Mỗi phần tử là **qualified reference** (vì [§6.1](./06-identity-model.md) không đảm bảo `event_id` globally unique):
 
@@ -242,7 +249,18 @@ Phân biệt bắt buộc (nếu gộp sẽ tạo mâu thuẫn với sequence co
 **Registry applicability tại thời điểm append:** với mọi authoritative append,
 ```
 event.stream_ref.registry_version = active_registry_at(append_lifecycle_frontier)
+
+append_lifecycle_frontier = lifecycle frontier đã committed ngay TRƯỚC append transaction
+                            (pre-append, KHÔNG phải post-append)
 ```
+
+**Registry activation event KHÔNG được validate bằng chính registry mà nó kích hoạt** (chống vòng tự kích hoạt). Với activation event `E@n` của registry mới:
+```
+E.stream_ref.registry_version   = active_registry_at(pre_append_frontier)   # = registry CŨ
+new_registry.effective_from     = E
+active_registry_at(frontier ≥ n) = new_registry                             # registry mới active TỪ n
+```
+Tức E được **old registry / old writer** append; registry mới chỉ active *sau khi* E committed. Nhất quán với §8.3.5 (activation event phải nằm trên stream đã active trước boundary). Nếu E đồng thời chuyển lifecycle writer: old writer append `E@n`, new writer bắt đầu từ `n+1`.
 Không có invariant này, event có thể pin registry **tương lai chưa active** (ví dụ v4 active từ lifecycle sequence 900 nhưng append đang ở frontier 800 lại pin v4 → dùng future configuration knowledge), hoặc pin registry **cũ đã bị supersede**. Representation/evidence của `append_lifecycle_frontier` (ghi trực tiếp · append transaction manifest · coordinator checkpoint · tương đương) thuộc **Phase 1 design spec**; semantic "registry phải active tại append" khóa ở đây.
 
 **Eligibility validation phải dùng registry version mà event pin, KHÔNG phải registry hiện tại.** Khi append hoặc validate một event, validator phải: (1) resolve `event.stream_ref.registry_version`; (2) xác nhận stream tồn tại và `active` **trong đúng version đó**; (3) kiểm tra `stream_id` nằm trong `allowed_streams` của đúng Event Contract version tương ứng.
@@ -373,7 +391,8 @@ frontier_policy:                                       # BẮT BUỘC (§8.3.4) 
 P_authoritative = P_stream ∪ P_causation
 
 P_stream:     (stream_id, n) ≺ (stream_id, n+1)     — per-stream sequence precedence
-P_causation:  cause ≺ effect                         — từ causation_refs (kể cả bắc cầu)
+P_causation:  cause ≺ effect                         — CHỈ từ `causation_refs` (kể cả bắc cầu);
+                                                    `related_event_refs` KHÔNG tham gia
 ```
 
 **`P_authoritative` BẮT BUỘC là một DAG** — topological order chỉ tồn tại khi graph không có cycle. Một causation edge KHÔNG được:
@@ -582,6 +601,23 @@ decision_context_cursor:                      # KHÔNG phải time — là một
 
 **Cấm gọi Replay Cursor là `decision_time`:** Replay Cursor là cấu trúc vector, không so sánh trực tiếp được với timestamp; `decision_time` theo Chapter 5 (Locked) phải là time value trên trục effective. Đổi ngữ nghĩa `decision_time` sẽ là thay đổi field canonical đã Locked → cần ADR riêng, không được làm ngầm trong Chapter 8.
 
+## 8.4.1 Decision "in-flight" qua registry transition — ⚠️ CHỜ PRODUCT OWNER QUYẾT
+
+Hai knowledge cut độc lập có thể rơi vào hai bên của một registry transition:
+```
+frontier 899:  Decision đọc xong input      → cursor pin Registry v3
+frontier 900:  Registry v4 được activate
+frontier 901:  Decision event được append   → envelope pin Registry v4
+```
+Cả hai rule riêng lẻ đều đúng (§8.3.1 + §8.4), nhưng **chưa có policy** cho tình huống này. Cần Product Owner chọn **một** phương án — nó thay đổi authoritative Decision history nên không được để Phase 1 tự suy luận:
+
+| Phương án | Nội dung | Đánh đổi |
+|---|---|---|
+| **A — Append rồi revalidate** | Decision có cursor trước transition **vẫn được append** như immutable historical fact. Trước Risk/Execution phải **revalidate** theo registry đang active; nếu transition làm Decision stale/invalid thì ghi event **supersede/reject**, KHÔNG xóa Decision cũ | Giữ đủ lịch sử, phù hợp I-1/I-3. Thêm một bước revalidate trước Risk/Execution |
+| **B — Reject và recompute tại append** | Decision bị **reject ngay khi append** nếu registry đã đổi giữa cut và append; recompute lại với registry mới | Đơn giản hơn ở tầng Risk/Execution. Mất bản ghi Decision đã thực sự được tính toán; tăng latency khi transition xảy ra |
+
+*Reviewer (ChatGPT) nghiêng về **A**; đây là recommendation, không phải quyết định.* Cho tới khi Product Owner chọn, mục này giữ trạng thái **mở** — Chapter 8 không được Lock khi §8.4.1 chưa có quyết định.
+
 ## 8.5 Replay Cursor Representation
 
 [Chapter 5 §5.3](./05-time-model.md) (Locked): Replay Cursor = Recorded Time boundary + **opaque ordering position** khi cần. Chapter 8 sở hữu representation của ordering position:
@@ -630,7 +666,7 @@ Vi phạm bất kỳ điều nào → **invalid cursor**, cấm replay hoặc pr
 
 **Input Contract dùng EXACT PIN, KHÔNG dùng range/constraint** (chốt cho v1): `stream_registry_version: v4`, không phải `">=v3"`. Lý do: một range open-ended làm semantic của một immutable Input Contract **mở rộng trong tương lai mà không bump version** — trái chính yêu cầu versioned/immutable của contract; ngoài ra range chưa định nghĩa được registry tương lai vào range bằng authority nào, compatibility của `included_streams` chứng minh ra sao, và chọn version nào khi nhiều registry cùng match.
 
-*Concern đã chấp nhận:* registry activation có thể tạo **contract-version churn**, kể cả khi thay đổi registry không liên quan trực tiếp tới một strategy. Nếu churn trở thành vấn đề thật, mở **follow-up ADR** cho một trong các mô hình: immutable closed compatibility set · subset registry · capability-based registry constraint.
+*Concern được GHI NHẬN trong Draft (chưa phải đã chấp nhận):* registry activation có thể tạo **contract-version churn**, kể cả khi thay đổi registry không liên quan trực tiếp tới một strategy. Tradeoff này chỉ được coi là **accepted khi Product Owner approve ADR-009**. Nếu churn trở thành vấn đề thật, mở **follow-up ADR** cho một trong các mô hình: immutable closed compatibility set · subset registry · capability-based registry constraint.
 
 Dùng **vector vị trí theo từng stream** (không phải một số duy nhất) vì §8.3 không tuyên bố global total order — cắt chính xác đòi hỏi biết vị trí trong mỗi stream, cho phép dừng đúng ranh giới giữa hai event cùng `recorded_time`.
 
