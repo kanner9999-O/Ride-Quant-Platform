@@ -538,6 +538,18 @@ Ghi nhận quy trình: vòng review v2.2 Claude đọc sót severity table (báo
 - Frontmatter: thêm dependency `02-platform-invariants`, `03-engineering-principles` (chapter này bị I-7 tham chiếu trực tiếp và phải nhất quán với Chapter 3 §3.1); bỏ `05-time-model` (không còn phụ thuộc trực tiếp).
 - Gắn ràng buộc từng loại module với invariant tương ứng: Compute Engine → I-3; Projection → I-12 + I-6.
 
+## [Unreleased] — Chapter 7 v2.1 (ChatGPT review round 1: **1 Blocker · 2 Major · 1 Minor**)
+
+### Fixed — Blocker
+- **Chapter 7 tự mở rộng phạm vi `context-map.yaml` đã Locked:** §7.4 (v2.0) đặt module classification registry vào `context-map.yaml` — nhưng Chapter 4 §4.2 (Locked) định nghĩa artifact đó sở hữu ĐÚNG 3 phần (capability registry, context registry, relationship map). Đây là "âm thầm mở rộng phạm vi thứ đã Locked mà không qua ADR" — cùng loại lỗi từng mắc với I-2 ở Chapter 3, và trớ trêu là phát sinh khi Claude đang cố sửa chính vấn đề thẩm quyền registry. Sửa: tạo artifact riêng `/docs/architecture/module-registry.yaml`; bổ sung bảng phân chia thẩm quyền 4 tầng; ghi rõ Module boundary ≠ Domain Context boundary.
+
+### Fixed — Major
+- **Type 1 và Type 3 không loại trừ nhau:** "sinh fact mới" không thể là tiêu chí phân biệt — Risk Gateway (Type 3) phát sinh RiskApproved/RiskRejected, Execution Engine phát sinh OrderSubmitted. Sửa: phân loại theo BẢN CHẤT trách nhiệm (Compute = biến đổi/suy diễn information, không sở hữu side effect; Runtime = sở hữu interaction/control/side-effect boundary). Thêm §7.2 khóa nguyên tắc `"Produces an event" ≠ "Compute Engine"` + khái niệm primary taxonomy type vs secondary responsibilities.
+- **Projection "không sinh fact mới" quá tuyệt đối:** cấm luôn cả operational event hợp lệ (checkpoint advanced, rebuild started, lag detected, health). Sửa: cấm **authoritative domain fact/decision/state transition**; cho phép operational metadata event về chính projection. Đồng thời làm chặt "rebuild 100%" → phải pin cả projection implementation version/schema/configuration (event log một mình không đủ nếu projection logic đổi sau vài năm).
+
+### Fixed — Minor
+- **"Projection không tham gia decision/risk/execution" là suy luận sai:** derived ≠ luôn non-critical — exposure read-model có thể được Risk Gateway đọc, order-state projection dùng reconcile. Sửa: projection dùng làm dependency của decision/risk/execution phải khai báo criticality + failure policy tường minh; consumer fail-safe theo I-6 khi freshness/correctness không xác định — vẫn không biến projection thành authoritative source.
+
 ## [Unreleased] — Chapter 6 (Identity Model) v2.0 — Claude tự review
 
 ### Fixed — mâu thuẫn với chapter đã Locked (Backward Consistency Check)
