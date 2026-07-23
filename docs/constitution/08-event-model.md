@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "3.3"
+version: "3.4"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -455,10 +455,18 @@ activation_boundary:
 Quy tắc trên tạo hồi quy vô hạn nếu không có điểm khởi đầu (stream A cần B active trước, B cần C...). Giải bằng **đúng một** ngoại lệ, phạm vi hẹp:
 
 **Genesis Registry** là root authoritative artifact, được tạo và phê duyệt theo [Governance](./00-governance.md) **trước khi** runtime event log hoạt động. Nó phải:
-- định nghĩa ít nhất một lifecycle/control stream;
+- định nghĩa **đúng MỘT canonical Logical Lifecycle Stream** (xem ràng buộc bên dưới);
 - định nghĩa writer authority ban đầu;
 - có immutable content identity (§8.1.1 điều 5);
 - **không cần** activation event đứng trước nó (đây chính là nội dung của ngoại lệ).
+
+**Canonical Lifecycle Stream (Model A):** platform có **đúng một** Logical Lifecycle Stream với `stream_id` ổn định. **Mọi** activation, retirement, stream creation, và writer-authority transition boundary phải được ghi trên stream này. Lifecycle stream có thể handoff writer (§8.3.1) nhưng **không đổi logical stream identity**.
+
+Ràng buộc kéo theo:
+```
+boundary.event_ref.stream_id  =  cursor.lifecycle_frontier.stream_id  =  canonical lifecycle stream_id
+```
+*Vì sao Model A thay vì lifecycle frontier dạng vector (Model B):* so sánh `boundary.sequence ≤ frontier.sequence` chỉ có nghĩa khi hai bên **cùng logical stream** — với nhiều control stream, `100 ≤ 500` giữa `lifecycle-east` và `lifecycle-west` là phép so vô nghĩa (hai ordering authority khác nhau). Model B (vector `lifecycle_frontiers`) tổng quát hơn nhưng tạo partial order đa stream cho control plane, phức tạp không tương xứng nhu cầu.
 
 **Sau Genesis Registry, mọi stream creation, activation, retirement, và writer handoff bắt buộc dùng lifecycle boundary bình thường. KHÔNG có ngoại lệ thứ hai** — implementation không được tự tạo bootstrap shortcut nào khác.
 
@@ -495,11 +503,16 @@ decision_context_cursor:                      # KHÔNG phải time — là một
   recorded_time: 2026-07-23T10:00:01.100Z
   input_contract_ref: {contract_id: btc-arbitrage-input, contract_version: v1}
   stream_registry_version: v3
+  lifecycle_frontier:                         # BẮT BUỘC — như mọi Replay Cursor (§8.5)
+    stream_id: platform-lifecycle
+    sequence: 812
   stream_positions:
     binance-btc: 18721
     bybit-btc:   9481
     risk-state:  443
 ```
+
+**Authoritative Decision event thiếu BẤT KỲ field bắt buộc nào của canonical Replay Cursor — gồm `lifecycle_frontier` — là invalid Decision event và phải bị từ chối khi append.** Không có nó, replay không chứng minh được tại thời điểm Decision: stream nào đã active, stream nào đã retired, terminal frontier nào đã visible — đúng thứ `decision_context_cursor` sinh ra để bảo đảm cho [I-2](./02-platform-invariants.md)/[I-3](./02-platform-invariants.md).
 
 **`decision_context_cursor` LÀ một Replay Cursor hợp lệ** tại thời điểm Decision đọc xong input — dùng **cùng canonical schema §8.5**, không phải một schema gần giống nhưng khác field. Bắt buộc pin `input_contract_ref` vì chỉ registry version là chưa đủ: cùng một registry có thể có nhiều Input Contract với stream scope khác nhau (Contract A = Binance+Bybit+Risk, Contract B = Binance+OKX+Risk) — cùng một vector vị trí sẽ được diễn giải khác nhau.
 
@@ -527,7 +540,15 @@ replay_cursor:
 
 **`lifecycle_frontier` là thành phần bắt buộc của canonical knowledge boundary** (Model A). Lý do: stream universe được quyết định bởi activation/retirement boundary nằm trên **control stream**, nhưng control stream không thuộc `included_streams` của Input Contract (nó là platform-control fact, không phải strategy input). Không pin frontier của nó thì cursor **không tự chứng minh được** boundary sequence 812 đã visible tại chính cursor này — so `recorded_time` là không đủ (nhiều event cùng timestamp; vector cursor sinh ra chính để phân biệt các trường hợp đó).
 
-**Invariant:** mọi activation/retirement boundary dùng để xác định stream universe phải có `sequence ≤ lifecycle_frontier.sequence` của cursor. `lifecycle_frontier` phải được pin **giống nhau ở cả 4 execution mode** (Live, Backtest, Paper, Replay) — nếu không, universe có thể khác nhau giữa Live và Replay, phá [I-2](./02-platform-invariants.md) và làm `decision_context_cursor` không còn là exact knowledge boundary.
+**Validity invariant của `lifecycle_frontier`** (tương đương mức chặt của `stream_positions`): `lifecycle_frontier.(stream_id, sequence)` phải resolve tới một **committed authoritative event record trên canonical lifecycle stream**, và event đó phải thỏa:
+- `event.recorded_time ≤ cursor.recorded_time` — **cấm cursor nhìn thấy lifecycle fact từ tương lai** (nếu không, một future lifecycle event có thể activate stream chưa visible, retire stream quá sớm, hoặc đổi tập input mà Decision được phép đọc — đúng dạng lỗi [I-3](./02-platform-invariants.md) mà `decision_context_cursor` sinh ra để chặn);
+- `sequence` không vượt committed/complete frontier của lifecycle stream;
+- stream tồn tại và active trong historical registry version của chính event đó;
+- frontier không nằm ngoài retained/archive-resolvable range (§8.3.2).
+
+Vi phạm bất kỳ điều nào → **invalid cursor**, cấm replay hoặc process best-effort.
+
+**Invariant:** mọi activation/retirement boundary dùng để xác định stream universe phải có `sequence ≤ lifecycle_frontier.sequence` của cursor (hợp lệ vì cả hai cùng nằm trên canonical lifecycle stream — §8.3.5). Khi **so sánh hoặc tái tạo cùng một logical Decision/run** qua các execution mode, mọi mode phải pin **cùng** `lifecycle_frontier` — nếu không, universe có thể khác nhau giữa Live và Replay, phá [I-2](./02-platform-invariants.md) và làm `decision_context_cursor` không còn là exact knowledge boundary. *(Đây KHÔNG có nghĩa mọi run phải dùng chung một frontier cố định: Decision lúc 10:00 và Decision lúc 11:00 đương nhiên có frontier khác nhau.)*
 
 *(Chọn Model A thay vì Model B — bắt buộc control stream nằm trong mọi Input Contract — vì Model B trộn platform-control facts vào strategy input scope, làm bẩn domain boundary.)*
 
@@ -535,7 +556,21 @@ replay_cursor:
 
 Dùng **vector vị trí theo từng stream** (không phải một số duy nhất) vì §8.3 không tuyên bố global total order — cắt chính xác đòi hỏi biết vị trí trong mỗi stream, cho phép dừng đúng ranh giới giữa hai event cùng `recorded_time`.
 
-### 8.5.1 Cursor validity với dynamic stream set
+### 8.5.1 Cardinality của Replay Cursor
+
+Mọi cursor (kể cả `decision_context_cursor` ở §8.4) phải có **đủ** các field sau — validator kiểm bảng này, không phải ghép cardinality từ prose rải rác nhiều mục:
+
+| Cursor field | Cardinality | Ghi chú |
+|---|---|---|
+| `recorded_time` | **Required** | Knowledge boundary |
+| `input_contract_ref` | **Required** | `{contract_id, contract_version}` — versioned, immutable |
+| `stream_registry_version` | **Required** | Xác định stream universe; phải khớp registry version Input Contract pin |
+| `lifecycle_frontier` | **Required** | `{stream_id, sequence}` trên canonical lifecycle stream (§8.3.5) |
+| `stream_positions` | **Required** | Map `stream_id → sequence`; stream chưa có event dùng `genesis_position` tường minh |
+
+Cursor thiếu bất kỳ field nào ở trên là **invalid cursor** — cấm replay/process best-effort. Authoritative Decision event mang cursor invalid phải bị **từ chối khi append**.
+
+### 8.5.2 Cursor validity với dynamic stream set
 
 Stream topology thay đổi được (tạo/tách/retire stream — §8.3.1, ADR Required). Một cursor phải tự đủ để diễn giải lại sau nhiều năm, nên bắt buộc:
 
