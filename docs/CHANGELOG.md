@@ -559,6 +559,22 @@ Ghi nhận quy trình: vòng review v2.2 Claude đọc sót severity table (báo
 ### Fixed — Minor
 - Định nghĩa Type 3 mơ hồ về "thế giới bên ngoài" — internal scheduler/workflow coordinator/replay controller cũng là Runtime Service dù không chạm venue. Sửa cấu trúc câu: "runtime interaction, orchestration, coordination, hoặc control; **và/hoặc** side-effect boundary với hệ thống bên ngoài".
 
+## [Milestone] — 2026-07-18 — 🔒 Chapter 7 (Module Taxonomy) LOCKED
+
+Product Owner chính thức Approve + Lock `constitution/07-module-taxonomy.md` (v2.2), sau self-review + 3 vòng ChatGPT (v1.0 → v2.0 → v2.1 → v2.2). Vòng cuối đạt 0 Blocker/Major/Minor/Suggestion, kèm Backward Consistency Check với Chapter 2 (I-3/I-6/I-12), Chapter 3 (responsibility ownership), Chapter 4 (context-map.yaml không bị mở rộng) — không mâu thuẫn.
+
+**3 loại module đã khóa:** Compute Engine (biến đổi/suy diễn information, không sở hữu external side effect) · Projection (materialize derived read-model, không sở hữu authoritative domain decision) · Runtime Service (interaction/orchestration/control và/hoặc external side-effect boundary).
+
+**7 bất đẳng thức nền tảng:** Publishing event ≠ Compute Engine · Taxonomy ≠ Responsibility Ownership · Projection ≠ Authoritative Source · Derived ≠ Non-critical · Module ≠ Domain Context · Primary type ≠ giấy phép tạo god module · Runtime module ≠ mọi artifact trong repo.
+
+**Artifact mới được xác lập:** `/docs/architecture/module-registry.yaml` (module identity/taxonomy/mapping) — tách khỏi `context-map.yaml` để không mở rộng artifact đã Locked ở Chapter 4.
+
+Bài học quy trình lặp lại 3 lần trong Chapter 6-7: mỗi khi thêm một cơ chế linh hoạt (exception, secondary responsibility, optional field) để sửa một vấn đề, phải lập tức hỏi "cơ chế này bị lạm dụng thế nào?" và đóng guardrail ngay trong cùng lần sửa — nếu không sẽ tạo Major mới ở vòng sau.
+
+**Đã Locked tới nay:** Chapter 0, 1, 2, 3, 4, 5, 6, 7 + ADR-005, 006, 007, 008.
+
+**Next Milestone:** Chapter 8 — Event Model (KHÔNG được Lock khi OQ-005/OQ-006 còn Open).
+
 ## [Unreleased] — Chapter 6 (Identity Model) v2.0 — Claude tự review
 
 ### Fixed — mâu thuẫn với chapter đã Locked (Backward Consistency Check)

@@ -2,11 +2,11 @@
 id: 07-module-taxonomy
 title: Module Taxonomy
 version: "2.2"
-status: In Review
+status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-07-18"
 created_at: "2026-07-16"
 last_review: "2026-07-18"
 next_review: null
