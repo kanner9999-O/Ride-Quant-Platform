@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "2.6"
+version: "2.7"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -25,12 +25,12 @@ Event log KHÔNG phải "nguồn sự thật duy nhất của toàn platform": t
 
 ### 8.1.1 Quy tắc chung cho mọi Referenced Authoritative Artifact
 
-Chapter này giới thiệu nhiều artifact được **event hoặc cursor tham chiếu** (Stream Registry, Event Contract, Replay Contract, và bất kỳ artifact nào thêm sau này). **Mọi artifact thuộc loại đó — hiện tại và tương lai — bắt buộc thỏa 5 điều kiện sau**, không cần lặp lại ở từng mục:
+Chapter này giới thiệu nhiều artifact được **event hoặc cursor tham chiếu** (Stream Registry, Event Contract, Input Contract, và bất kỳ artifact nào thêm sau này). **Mọi artifact thuộc loại đó — hiện tại và tương lai — bắt buộc thỏa 5 điều kiện sau**, không cần lặp lại ở từng mục:
 
 1. **Versioned** — mọi thay đổi tạo version mới, không sửa tại chỗ.
 2. **Immutable sau khi được tham chiếu** — một khi có authoritative event, Decision, replay run, hoặc cursor trỏ tới version nào, version đó bất biến vĩnh viễn.
 3. **Không tái sử dụng identifier** — version identifier đã dùng không được gán lại cho nội dung khác.
-4. **Permanently resolvable** — phải resolve được trong toàn bộ replay/audit horizon.
+4. **Persistently resolvable** — phải resolve được trong toàn bộ **replay/audit horizon mà platform cam kết**. Hết horizon phải có **explicit retention/archive policy**; không được mất artifact ngoài ý muốn. *(Phân biệt với điều 2: nội dung **bất biến vĩnh viễn** — không bao giờ được sửa; nhưng khả năng **truy xuất** được cam kết theo horizon, không phải vô hạn vô điều kiện.)*
 5. **Verifiable content identity** — phải truy được tới immutable content identity (commit SHA, content hash, hoặc tương đương). Bắt buộc là *verifiability*, không phải một field cụ thể; identity có thể nằm ở run manifest thay vì lặp trên mọi event.
 
 *Lý do đặt thành quy tắc chung: pin một identifier nhưng nội dung sau identifier đó vẫn sửa được thì **không thực sự là pin** — historical meaning của mọi reference sẽ đổi ngầm, phá deterministic replay, Decision Parity, audit, và I-12. Quy tắc này áp dụng tự động cho artifact mới, không chờ phát hiện từng cái một.*
@@ -43,6 +43,7 @@ Chapter này giới thiệu nhiều artifact được **event hoặc cursor tham
 metadata:            # Chapter 8 sở hữu
   event_id:
   event_type:
+  event_contract_ref: {contract_id, contract_version}
   schema_version:
   subject_ref: {...}
   recorded_time:
@@ -59,7 +60,8 @@ payload:             # Event Contract của event_type sở hữu
 |---|---|---|
 | `event_id` | **Required** | Mọi event record (§6.2) |
 | `event_type` | **Required** | Naming theo [Chapter 3 §3.2](./03-engineering-principles.md) |
-| `schema_version` | **Required** | Mọi authoritative event record (kể cả event nội bộ không đi qua public bus — vẫn cần cho replay/migration). Quy tắc tương thích do Chapter 10 sở hữu |
+| `event_contract_ref` | **Required** | Qualified `{contract_id, contract_version}` — pin đúng immutable Event Contract snapshot đã áp dụng (§8.2.5) |
+| `schema_version` | **Required** | Version của **payload schema** cho compatibility. Mọi authoritative event record (kể cả event nội bộ không qua public bus — vẫn cần cho replay/migration). Quy tắc tương thích do Chapter 10 sở hữu |
 | `recorded_time` | **Required** | Mọi authoritative event ([Chapter 5](./05-time-model.md)) |
 | `subject_ref` | **Required** | Polymorphic + qualified (xem 8.2.2) |
 | `stream_ref` | **Required** | Qualified `{stream_id, registry_version}` — event phải tự đủ để resolve stream definition đã áp dụng lúc append (§8.3.1) |
@@ -134,6 +136,17 @@ producer_ref:
   implementation_version:
   run_id:
   # instance_id: operational metadata, KHÔNG phải domain identity — thuộc telemetry
+```
+
+### 8.2.5 `event_contract_ref` — pin Event Contract, tách khỏi `schema_version`
+
+Event Contract là **Referenced Authoritative Artifact** (§8.1.1) nên phải được pin bằng version tường minh. Dùng **Model A**: event pin trực tiếp `event_contract_ref: {contract_id, contract_version}`.
+
+**Vì sao KHÔNG dùng `schema_version` làm proxy cho Event Contract version:** Event Contract sở hữu nhiều thứ hơn payload schema — `event_class`, `allowed_streams`, `merge_constraints`, payload semantic. Hai contract version có thể có **cùng payload schema** nhưng khác `event_class` hoặc khác `allowed_streams`; khi đó `schema_version` không phân biệt được, và historical validator không biết dùng contract nào. Hai thứ này tiến hóa độc lập:
+
+```yaml
+event_contract_ref: {contract_id: arbitrage-decision-created, contract_version: v3}
+schema_version: 2      # payload schema có thể giữ nguyên qua nhiều contract version
 ```
 
 ## 8.3 Ordering Mechanism — ĐỀ XUẤT (giải OQ-005, chờ Product Owner + ADR)
@@ -244,12 +257,12 @@ Platform **không tuyên bố** có global total order giữa các stream độc
 
 ### 8.3.4 Merge order ≠ authoritative causal order
 
-Khi replay/consume nhiều stream, cần một **merge policy deterministic** để interleave. **Replay Contract sở hữu duy nhất final merge policy** — Event Contract KHÔNG định nghĩa merge order (nếu một họ event có yêu cầu riêng, Event Contract chỉ khai báo **constraint**, và Replay Contract phải chọn policy thỏa mọi constraint đó).
+Khi replay/consume nhiều stream, cần một **merge policy deterministic** để interleave. **Input Contract sở hữu duy nhất final merge policy** — Event Contract KHÔNG định nghĩa merge order (nếu một họ event có yêu cầu riêng, Event Contract chỉ khai báo **constraint**, và Input Contract phải chọn policy thỏa mọi constraint đó).
 
 ```yaml
-# Replay Contract — authoritative cho merge policy. Versioned + immutable theo §8.1.1
-replay_contract_ref:
-  contract_id: btc-arbitrage-replay
+# Input Contract — authoritative cho input scope + merge policy. Versioned + immutable theo §8.1.1
+input_contract_ref:
+  contract_id: btc-arbitrage-input
   contract_version: v1
 stream_registry_version: v3
 included_streams: [binance-btc-book, bybit-btc-book, risk-state]
@@ -258,7 +271,11 @@ merge_policy:
   ordering: [recorded_time, stream_id, sequence]
 ```
 
-**Replay Contract tuân đầy đủ §8.1.1** — mọi thay đổi `included_streams`, `merge_policy`, hoặc constraint resolution đều tạo `contract_version` mới; version đã được cursor/Decision tham chiếu là bất biến vĩnh viễn. (Nếu contract cùng ID bị sửa nội dung, cùng một cursor lịch sử sẽ replay ra interleave khác — phá deterministic replay và Decision Parity.)
+**Input Contract là CROSS-MODE — không chỉ dành cho Replay.** Mọi Decision run ở **cả 4 execution mode** (Live, Backtest, Paper Trading, Replay) đều phải pin **cùng một** versioned Input Contract xác định input stream scope + deterministic interleave semantics + registry version. Đây là điều kiện cần để [I-2 Decision Parity](./02-platform-invariants.md) kiểm chứng được: Live không thể dùng input topology A rồi Replay dùng contract B mà vẫn tuyên bố parity. **Cấm gắn Input Contract hồi tố** — contract phải tồn tại và được pin **tại thời điểm Decision được tạo**, kể cả trong Live.
+
+*(Tên gọi: artifact này từng được gọi "Input Contract" ở các bản nháp trước. Đổi thành **Input Contract** vì nó không chỉ phục vụ replay — giữ tên cũ sẽ gây hiểu nhầm khi Live Decision phải pin nó. Vẫn là **một** artifact duy nhất, không thêm surface area; replay-run control cụ thể — cursor bắt đầu/kết thúc, tốc độ — là cấu hình của lần chạy, không thuộc contract này.)*
+
+**Tuân đầy đủ §8.1.1** — mọi thay đổi `included_streams`, `merge_policy`, hoặc constraint resolution đều tạo `contract_version` mới; version đã được cursor/Decision tham chiếu là bất biến. (Nếu contract cùng ID bị sửa nội dung, cùng một cursor lịch sử sẽ cho interleave khác — phá deterministic replay và Decision Parity.)
 
 ```yaml
 # Event Contract — chỉ constraint, không sở hữu policy
@@ -271,7 +288,7 @@ merge_constraints:
 Phân chia thẩm quyền:
 ```
 Event semantic + causal constraint        → Event Contract
-Replay stream set + interleave policy     → Replay Contract
+Replay stream set + interleave policy     → Input Contract
 ```
 
 Không có default ngầm (Chapter 5 đã khóa: ordering giữa event visible dựa trên Ordering Authority, không phải so `recorded_time` trực tiếp).
@@ -304,7 +321,7 @@ decision_time:   2026-07-23T10:00:00Z        # effective axis — time value (th
 recorded_time:   2026-07-23T10:00:01.250Z    # recorded axis — time value
 decision_context_cursor:                      # KHÔNG phải time — là một Replay Cursor hợp lệ
   recorded_time: 2026-07-23T10:00:01.100Z
-  replay_contract_ref: {contract_id: btc-arbitrage-replay, contract_version: v1}
+  input_contract_ref: {contract_id: btc-arbitrage-input, contract_version: v1}
   stream_registry_version: v3
   stream_positions:
     binance-btc: 18721
@@ -312,7 +329,7 @@ decision_context_cursor:                      # KHÔNG phải time — là một
     risk-state:  443
 ```
 
-**`decision_context_cursor` LÀ một Replay Cursor hợp lệ** tại thời điểm Decision đọc xong input — dùng **cùng canonical schema §8.5**, không phải một schema gần giống nhưng khác field. Bắt buộc pin `replay_contract_ref` vì chỉ registry version là chưa đủ: cùng một registry có thể có nhiều Replay Contract với stream scope khác nhau (Contract A = Binance+Bybit+Risk, Contract B = Binance+OKX+Risk) — cùng một vector vị trí sẽ được diễn giải khác nhau.
+**`decision_context_cursor` LÀ một Replay Cursor hợp lệ** tại thời điểm Decision đọc xong input — dùng **cùng canonical schema §8.5**, không phải một schema gần giống nhưng khác field. Bắt buộc pin `input_contract_ref` vì chỉ registry version là chưa đủ: cùng một registry có thể có nhiều Input Contract với stream scope khác nhau (Contract A = Binance+Bybit+Risk, Contract B = Binance+OKX+Risk) — cùng một vector vị trí sẽ được diễn giải khác nhau.
 
 **Vì sao cần `decision_context_cursor` riêng:** replay tới đúng cursor này tái tạo **chính xác** tập input mà Decision đã thấy — điều kiện cần để [I-2 Decision Parity](./02-platform-invariants.md) kiểm chứng được và [I-3](./02-platform-invariants.md) đảm bảo không có input "từ tương lai".
 
@@ -325,7 +342,7 @@ decision_context_cursor:                      # KHÔNG phải time — là một
 ```yaml
 replay_cursor:
   recorded_time:                  # knowledge boundary
-  replay_contract_ref:            # replay scope — versioned, immutable (§8.1.1)
+  input_contract_ref:            # replay scope — versioned, immutable (§8.1.1)
     contract_id:
     contract_version:
   stream_registry_version:        # stream universe mà cursor này gắn vào
@@ -333,7 +350,7 @@ replay_cursor:
     <stream_id>: <sequence>
 ```
 
-**Consistency invariant:** `cursor.stream_registry_version` phải **bằng** registry version mà Replay Contract đã pin (hoặc thỏa registry constraint của contract nếu contract khai báo dạng khoảng). Mismatch là **invalid cursor** — phải từ chối, không replay best-effort. Cursor lặp lại registry version để **tự đủ** (self-contained), nhưng không được mâu thuẫn với contract.
+**Consistency invariant:** `cursor.stream_registry_version` phải **bằng** registry version mà Input Contract đã pin (hoặc thỏa registry constraint của contract nếu contract khai báo dạng khoảng). Mismatch là **invalid cursor** — phải từ chối, không replay best-effort. Cursor lặp lại registry version để **tự đủ** (self-contained), nhưng không được mâu thuẫn với contract.
 
 Dùng **vector vị trí theo từng stream** (không phải một số duy nhất) vì §8.3 không tuyên bố global total order — cắt chính xác đòi hỏi biết vị trí trong mỗi stream, cho phép dừng đúng ranh giới giữa hai event cùng `recorded_time`.
 
@@ -343,7 +360,7 @@ Stream topology thay đổi được (tạo/tách/retire stream — §8.3.1, ADR
 
 **Định nghĩa stream universe của cursor** — giao của 3 tập:
 ```
-stream được Replay Contract chọn (replay_contract_ref)
+stream được Input Contract chọn (input_contract_ref)
   ∩ tồn tại/đã activate tại cursor boundary
   ∩ resolve được trong stream_registry_version đã pin
 ```
