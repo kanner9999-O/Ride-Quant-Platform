@@ -2,6 +2,28 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 10 v2.5 (ChatGPT review round 5: **1 Blocker · 1 Major · 0 Minor · 0 Suggestion mới**)
+
+### Note — phản biện phần meta của review (finding kỹ thuật chấp nhận toàn bộ)
+Review round 5 mở đầu bằng nhận định *"repo chưa có version mới so với lượt review trước"* và *"review outcome giữ nguyên"*, cho rằng Claude dán lại phản hồi cũ. **Không khớp lịch sử repo:** round 3 review blob `88aadebea9d85cc51f58cb8a7a313b21148ed67d` = **v2.3** (reviewer tự ghi "Chapter 10 v2.3 · Revision Requested", 0 Blocker · 2 Major); hai Major đó đã được sửa trong commit `2d84f92` → **v2.4** = blob `a42dd9851d27a112935f08de7691f2421e6565bb`, hiện là remote HEAD. Blob reviewer đang cầm **chính là v2.4 mới**, không phải bản đã review. Hai finding của round 5 (**evaluator grant provenance** · **transition semantics**) chưa từng xuất hiện ở round 3 → đây là **review mới của v2.4**, không phải outcome cũ lặp lại. Đã đối chiếu bằng `git log` + `git rev-parse <commit>:<path>` + `git ls-remote` trước khi ghi note này.
+
+### Fixed — Blocker: Compatibility Result pin evaluator identity/artifact nhưng không pin authorization/grant
+- **Propagation gap lần thứ ba trong Chapter 10** (sau: exact artifact ở Ch9 vòng 8, authority designation ở Ch10 vòng 4). §10.4.1 đã khóa "quyền đánh giá là **grant**, registry membership là *identity* không phải *grant*", §10.4.3 mục 7 đã khóa "evaluator chỉ được dùng policy version đã được grant cho scope đó" — nhưng danh sách pin bắt buộc của result **không có grant reference**. Hệ quả: rule tồn tại nhưng **không kiểm chứng được từ chính result**; một evaluator ngoài phạm vi được cấp quyền vẫn phát hành được result trông hợp lệ và mở activation boundary.
+- **Sửa §10.4.1:** thêm **evaluator authorization/grant reference + version** vào danh sách pin bắt buộc, chứng minh evaluator thực sự được quyền (a) dùng đúng policy version đó · (b) đánh giá đúng subject scope đó · (c) phát hành eligibility result tại đúng boundary đó. Khóa nguyên tắc `module identity ≠ authorization`: pin identity/artifact chỉ trả lời *ai đã chạy phép đánh giá*, không trả lời *người đó có quyền không*. Grant phải là **versioned reference** (Ch9 §9.6 Grant layer, `granted ⊆ declared`), không phải khẳng định trong prose. Bổ sung grant version vào điều kiện invalid-result.
+
+### Fixed — Major: chưa khóa transition semantics khi subject đang active
+- §10.5 nói *khi nào* phải đánh giá nhưng không nói **điều gì xảy ra với subject đang active** khi nền tảng kết luận cũ thay đổi (evaluator grant đổi/revoke · policy applicability đổi · authority designation đổi). Không khóa thì mỗi implementation tự chọn giữa "kết luận cũ có hiệu lực vô hạn" và "chặn ngay".
+- **Sửa — thêm §10.5.1.** Bất biến chung cho cả ba loại transition: **historical result KHÔNG đổi**, vẫn diễn giải dưới đúng grant/policy/designation đã pin; transition không hồi tố. Với eligibility **hiện hành**, khóa mô hình **`revalidation-required`** (không phải `prospective-only`) — lý do: eligibility là tuyên bố về **trạng thái hiện tại**, không phải sự kiện quá khứ; prospective-only sẽ để một evaluator đã bị revoke tiếp tục "bảo lãnh" subject đang chạy, mâu thuẫn §10.4.1 và I-6. Bảng hiệu lực theo từng loại: **grant revoke → hiệu lực ngay**, result đó hết dùng được làm eligibility evidence, chờ revalidate thì fail-safe I-6 phạm vi nhỏ nhất đủ · **policy applicability đổi → revalidate chậm nhất tại activation boundary kế tiếp**, trừ khi policy phân loại là **safety-critical** thì hiệu lực ngay · **designation đổi → diễn giải lịch sử giữ nguyên**, đánh giá mới dùng designation mới, subject active revalidate chậm nhất tại boundary kế tiếp. **Phân loại safety-critical phải khai báo sẵn trong policy, versioned — cấm quyết ad hoc lúc sự cố** (nếu không sẽ thành lối thoát hoãn revalidation vô thời hạn). Trong cửa sổ chờ result mới: subject không được coi eligible để mở activation mới hay sinh authoritative Decision qua result cũ. Cơ chế (drain, grace window có bound, coordinator) defer Phase 1; **semantic khóa ở Chapter 10**.
+
+### Fixed — lỗi biên tập nội bộ (Claude tự phát hiện, lặp lại lỗi v2.2)
+- Khi chèn §10.5.1, thao tác `str_replace` **lại nuốt mất header §10.6** — đúng lỗi đã xảy ra ở v2.2 khi chèn §10.4.3. Lần này bắt được **ngay lập tức** vì đã đưa "grep header sau mỗi lần chèn" thành bước bắt buộc từ v2.2; header đã khôi phục, verify xác nhận `## 10.6` xuất hiện đúng 1 lần và 17 heading đúng thứ tự. **Bài học nâng cấp:** khi `old_str` là một heading, phải luôn đưa heading đó vào `new_str` — không dựa vào việc nhớ.
+
+### Checklist
+- Ch10 v2.5 · 17 heading đúng thứ tự §10.1→§10.9 (+ 10.3.1 · 10.4.1→10.4.4 · **10.5.1** · 10.8.1 · 10.8.2) · **0 heading bị nuốt/trùng** (`## 10.6` = 1) · **0 tham chiếu §10.x gãy** · 0 peer authority · version file ↔ MANIFEST đồng bộ.
+
+### Note
+- Không tự tuyên bố Approve. Chờ ChatGPT review round 6 và Product Owner Approve/Lock.
+
 ## [Unreleased] — Chapter 10 v2.4 (ChatGPT review round 4: **0 Blocker · 2 Major · 0 Minor · 0 Suggestion mới**)
 
 Không có phản biện; 2 finding chấp nhận toàn bộ. **0 Blocker lần đầu ở Chapter 10.**
