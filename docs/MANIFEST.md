@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.0"
+manifest_version: "9.1"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -17,7 +17,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 **Constitution Version:** 1.0.0 — độc lập với Project Version (Project có thể lên v0.8 trong khi Constitution vẫn 1.0.0, hoặc ngược lại)
 **Schema Version của Manifest:** 1 — đổi format Manifest sau này phải bump field này để tooling không vỡ ngầm.
 
-**Chapter 0 — Governance: `Locked`** (2026-07-16). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). Các chapter còn lại (08-14) vẫn `In Review`.
+**Chapter 0 — Governance: `Locked`** (2026-07-16). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). Các chapter còn lại (09-14) vẫn `In Review`.
 
 ## Constitution
 
@@ -31,7 +31,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/05-time-model.md | 2.4 | **Locked** | Product Owner | 04-domain-principles, 02-platform-invariants |
 | constitution/06-identity-model.md | 2.5 | **Locked** | Product Owner | 02-platform-invariants, 04-domain-principles, 05-time-model |
 | constitution/07-module-taxonomy.md | 2.2 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles |
-| constitution/08-event-model.md | 4.8 | In Review | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
+| constitution/08-event-model.md | 4.8 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
 | constitution/09-plugin-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/10-compatibility-capability-contract.md | 1.0 | In Review | Product Owner | 09-plugin-model |
 | constitution/11-adr-process.md | 1.3 | In Review | Product Owner | 00-governance |
@@ -51,8 +51,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | adr/ADR-006.md — ChatGPT/Claude ngang hàng (AI Technical Architect) | **Locked** | — | — |
 | adr/ADR-007.md — Vision Scope: nội bộ/crypto trước, chừa chỗ mở rộng | **Locked** | — | — |
 | adr/ADR-008.md — Phân bổ ngôn ngữ Python/Go, Rust reserved | **Approved** | — | — |
-| adr/ADR-009.md — Ordering Mechanism (giải OQ-005) | **Draft** | — | — |
-| adr/ADR-010.md — Decision Effective-Time Model + Append-and-Revalidate Policy (giải OQ-006) | **Draft** | — | — |
+| adr/ADR-009.md — Ordering Mechanism (resolves OQ-005) | **Approved** | — | — |
+| adr/ADR-010.md — Decision Effective-Time Model + Append-and-Revalidate Policy (resolves OQ-006) | **Approved** | — | — |
 
 ## Domain
 
@@ -81,8 +81,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | ADR-006 | Locked | 2026-07-16 | Product Owner quyết: ChatGPT/Claude ngang hàng, khác focus |
 | ADR-007 | Locked | 2026-07-17 | Vision Phase 0-3: nội bộ + crypto only, kiến trúc chừa chỗ multi-tenant/đa tài sản |
 | ADR-008 | Approved | 2026-07-18 | Phân bổ ngôn ngữ Python (lõi logic)/Go (biên hệ thống), Rust reserved — ghi hồi tố khi Claude tự review Chapter 3 |
-| ADR-009 | Draft | 2026-07-18 | Ordering: per-stream contiguous sequence + explicit causation + DAG, không global total order. Product Owner đã duyệt HƯỚNG (OQ-005); ADR chờ review + accept |
-| ADR-010 | Draft | 2026-07-18 | Decision Effective-Time Model + §2.6 Registry-Transition Policy = **Append-and-Revalidate** (PO quyết 2026-07-18: 4 guardrail + evidence chain + Scoped Policy/Audit Stream khi stream đích retire). ADR chờ review + accept |
+| ADR-009 | **Approved** | 2026-07-18 | Ordering: per-stream contiguous sequence + explicit causation + DAG, không global total order. Product Owner đã duyệt HƯỚNG (OQ-005); ADR chờ review + accept |
+| ADR-010 | **Approved** | 2026-07-18 | Decision Effective-Time Model + §2.6 Registry-Transition Policy = **Append-and-Revalidate** (PO quyết 2026-07-18: 4 guardrail + evidence chain + Scoped Policy/Audit Stream khi stream đích retire). ADR chờ review + accept |
 
 ## Open Questions
 
@@ -90,8 +90,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 |---|---|---|---|---|
 | OQ-001 | Data Retention Policy & Access Control Model chi tiết (RBAC cụ thể khi multi-tenant) | Partially Resolved | Product Owner | Hướng đã chốt qua ADR-007: single-operator NGAY BÂY GIỜ, kiến trúc chừa chỗ (Account first-class) cho multi-tenant sau. Thiết kế RBAC cụ thể vẫn mở, cần quyết trước khi thực sự mở multi-tenant (không phải trước Phase 1 nữa). |
 | OQ-002 | Strategy Lifecycle Gate: Capability Matrix phải xác nhận Backtest=YES + Paper Trade=YES trước khi strategy chuyển Live | Open | Product Owner | Chuyển ra khỏi Vision (V2-02) — thuộc về Quality Gates/Strategy Lifecycle, cần ADR khi Phase 3 định nghĩa Strategy Lifecycle |
-| OQ-006 | **[TRẠNG THÁI: (a) Product Owner ĐÃ duyệt HƯỚNG 2026-07-18 — nguồn: quyết định trực tiếp của PO trong phiên làm việc; (b) ADR-010 = Draft, CHƯA accept, có acceptance gate phụ thuộc ADR-009; (c) OQ vẫn `Open` cho tới khi ADR-010 được accept]** `decision_time` được Chapter 5 liệt kê là canonical field name nhưng CHƯA định nghĩa (đúng chỗ: thuộc chapter sở hữu Decision — Chapter 8 Event Model hoặc Chapter 9 Plugin/Decision). Phải định nghĩa formal + quan hệ với recorded_time trước khi chapter đó Lock | Open | Product Owner | ChatGPT Observation khi review Chapter 5 v2.4 — tránh decision_time rơi vào khoảng trống như OQ-005 |
-| OQ-005 | **[TRẠNG THÁI: (a) Product Owner ĐÃ duyệt HƯỚNG 2026-07-18 — nguồn: quyết định trực tiếp của PO trong phiên làm việc; (b) ADR-009 = Draft, CHƯA accept; (c) OQ vẫn `Open` cho tới khi ADR-009 được accept]** Cơ chế ordering authoritative cụ thể (sequence number per partition / logical clock / hybrid logical clock) cho cross-node/cross-exchange event ordering — Chapter 5 đã định nghĩa NGUYÊN TẮC (total order deterministic, không dựa thuần physical clock), phân tầng sau hybrid split: Chapter 8 = invariant · ADR-009 = architectural model · Phase 1 = mechanism/design specification | Open | Product Owner | Phát hiện: Claude tự soi Chapter 5 v2.1, ChatGPT xác nhận Major. Quan trọng cho arbitrage đa sàn (thứ tự event = lãi/lỗ) |
+| OQ-006 | **RESOLVED** (2026-07-18, ADR-010 Approved) — `decision_time` được Chapter 5 liệt kê là canonical field name nhưng CHƯA định nghĩa (đúng chỗ: thuộc chapter sở hữu Decision — Chapter 8 Event Model hoặc Chapter 9 Plugin/Decision). Phải định nghĩa formal + quan hệ với recorded_time trước khi chapter đó Lock | Open | Product Owner | ChatGPT Observation khi review Chapter 5 v2.4 — tránh decision_time rơi vào khoảng trống như OQ-005 |
+| OQ-005 | **RESOLVED** (2026-07-18, ADR-009 Approved) — Cơ chế ordering authoritative (sequence number per partition / logical clock / hybrid logical clock) cho cross-node/cross-exchange event ordering — Chapter 5 đã định nghĩa NGUYÊN TẮC (total order deterministic, không dựa thuần physical clock), phân tầng sau hybrid split: Chapter 8 = invariant · ADR-009 = architectural model · Phase 1 = mechanism/design specification | Open | Product Owner | Phát hiện: Claude tự soi Chapter 5 v2.1, ChatGPT xác nhận Major. Quan trọng cho arbitrage đa sàn (thứ tự event = lãi/lỗ) |
 | OQ-004 | Time Model (Chapter 5) cần bổ sung rõ bitemporal: effective/event time vs knowledge/recorded time | Resolved (Chapter 5 v2.0) | Product Owner | Đã xử lý: §5.1 Bitemporal Model canonical hóa Effective/Recorded Time, hòa giải thuật ngữ với I-3 Locked, §5.3 định nghĩa vận hành Replay theo trục Recorded |
 | OQ-003 | Product Metrics cụ thể cho nguyên tắc "Measurable" (vd: decision-rationale coverage rate, risk-policy violation rate, replay-to-live parity deviation, thời gian hypothesis→validated strategy...) | Open | Product Owner | Chuyển ra khỏi Vision (V2-05) — cần tài liệu Product Metrics riêng, không nhét KPI chi tiết vào Vision |
 
@@ -109,4 +109,4 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 ---
 
-**Trạng thái tổng quát:** `In Review` cho Chapter 08-14, NHƯNG **Chapter 0, 1, 2, 3, 4, 5, 6, 7 đã `Locked`** — cùng ADR-005, ADR-006, ADR-007, ADR-008. Từ giờ mọi thay đổi vào các file đã Locked bắt buộc qua ADR mới. Chapter 8 — Event Model là mục tiêu tiếp theo. Lưu ý: Chapter 8 (Event Model) KHÔNG được Lock khi OQ-005/OQ-006 còn Open. Xem [CHANGELOG.md](./CHANGELOG.md).
+**Trạng thái tổng quát:** `In Review` cho Chapter 09-14, NHƯNG **Chapter 0, 1, 2, 3, 4, 5, 6, 7, 8 đã `Locked`** — cùng ADR-005 → ADR-010 (ADR-009/010 Approved 2026-07-18). Từ giờ mọi thay đổi vào các file đã Locked bắt buộc qua ADR mới. Chapter 9 — Plugin Model là mục tiêu tiếp theo.  Xem [CHANGELOG.md](./CHANGELOG.md).

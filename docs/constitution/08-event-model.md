@@ -2,11 +2,11 @@
 id: 08-event-model
 title: Event Model
 version: "4.8"
-status: In Review
+status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-07-18"
 created_at: "2026-07-16"
 last_review: "2026-07-18"
 next_review: null
@@ -15,19 +15,15 @@ depends_on: ["02-platform-invariants", "03-engineering-principles", "05-time-mod
 
 # 8. Event Model
 
-> **⚠️ Trạng thái & ràng buộc trước khi Lock**
+> **🔒 Chapter 8 đã LOCKED** (2026-07-18) — đủ cả 6 điều kiện của lock gate:
+> 1. ✅ [ADR-009](../adr/ADR-009.md) **Approved** (2026-07-18) — resolves OQ-005;
+> 2. ✅ [ADR-010](../adr/ADR-010.md) **Approved** (2026-07-18) sau ADR-009 theo dependency gate (ADR-010 §7) — resolves OQ-006;
+> 3. ✅ OQ-005/OQ-006 → `Resolved` trong MANIFEST;
+> 4. ✅ §8.4.1 — Append-and-Revalidate Policy (PO quyết 2026-07-18);
+> 5. ✅ Decision output stream retire tại transition — Scoped Policy + canonical Audit Stream (PO quyết 2026-07-18);
+> 6. ✅ Consolidation review hoàn tất (33 vòng).
 >
-> **OQ-005 và OQ-006: hướng ĐÃ ĐƯỢC Product Owner duyệt** (2026-07-18). [ADR-009](../adr/ADR-009.md) và [ADR-010](../adr/ADR-010.md) hiện là **`Draft`, CHƯA được accept**.
->
-> OQ-005/OQ-006 vẫn `Open` và **Chapter 8 KHÔNG được Lock** cho tới khi **đủ cả 6** điều kiện:
-> 1. ADR-009 được Product Owner **accept**;
-> 2. ADR-010 được **accept** theo dependency gate (ADR-010 §7 — không accept trước ADR-009);
-> 3. OQ-005/OQ-006 chuyển sang `Resolved` trong MANIFEST;
-> 4. ~~§8.4.1 có quyết định của Product Owner~~ — **✅ ĐÃ XONG** (Append-and-Revalidate Policy, 2026-07-18; ghi tại ADR-010 §2.6);
-> 5. ~~Vấn đề Decision output stream retire tại transition~~ — **✅ ĐÃ XONG** (Scoped Policy + canonical Audit Stream, PO quyết 2026-07-18);
-> 6. Consolidation review hoàn tất.
->
-> *("ADR đã được ghi" KHÔNG đủ — Draft là đã ghi nhưng chưa accept.)*
+> Từ đây **ADR Immutable Rule** có hiệu lực: không sửa trực tiếp chapter này; mọi thay đổi phải qua ADR mới.
 
 ## 8.1 Authoritative source — event log, KHÔNG phải transport
 
