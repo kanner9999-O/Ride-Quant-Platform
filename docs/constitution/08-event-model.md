@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "4.5"
+version: "4.6"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -151,7 +151,7 @@ causal_closure_policy:
 ```
 
 - `mode: full` — **mọi** `causation_ref` (bắc cầu) phải thuộc input scope + cursor universe. Đơn giản nhất, scope rộng nhất.
-- `mode: declared-state-dependencies` — **Event Contract** (immutable, versioned) khai báo deterministic cause nào là state dependency; chỉ những cause đó bắt buộc trong scope. **Classification KHÔNG được nằm trong code processor** — nếu vậy, một Input Contract immutable sẽ đổi semantic sau mỗi lần deploy code mới.
+- `mode: declared-state-dependencies` — `dependency_authority: per_effect_event_contract`: **mỗi effect event dùng chính `event_contract_ref` đã pin của nó** để phân loại `causation_refs` nào là state dependency; chỉ những cause đó bắt buộc trong scope. Cách này xác định được authority ngay cả khi apply set gồm nhiều event type và nhiều Event Contract version (một `event_contract_ref` singular sẽ không trả lời được "của effect event nào"). **Classification KHÔNG được nằm trong code processor** — nếu vậy, một Input Contract immutable sẽ đổi semantic sau mỗi lần deploy code mới.
 
 **Hòa giải với yêu cầu "mọi causation phải visible tại cursor" (§8.3.4):** yêu cầu đó áp cho **cause thuộc apply set** (in-scope). Với **external non-state cause** (ngoài universe):
 - append của effect phải chứng minh cause **đã committed** (tuple consistency §8.2.3);
@@ -412,8 +412,7 @@ frontier_policy:                                       # BẮT BUỘC (§8.3.4) 
 
 causal_closure_policy:                                 # BẮT BUỘC (§8.2.3) — versioned cùng contract
   mode: full | declared-state-dependencies
-  dependency_authority:                                # bắt buộc khi mode = declared-state-dependencies
-    event_contract_ref: {contract_id, contract_version}
+  dependency_authority: per_effect_event_contract      # bắt buộc khi mode = declared-state-dependencies
 ```
 
 **Partial order authoritative = hợp của HAI hard constraint** (cả hai đều bất biến, không được version hóa qua tie-break):
@@ -534,10 +533,14 @@ Phân biệt 4 khái niệm, không gộp:
 
 **Tie-break giữa các event causally incomparable KHÔNG tạo thêm quan hệ nhân quả hay business precedence trong domain** — nó chỉ chọn một thứ tự ổn định để mọi mode xử lý giống nhau. Nói cách khác: `authoritative apply order ≠ domain causal meaning`. Processor **không được** tự ý apply theo thứ tự khác merge policy đã công bố.
 
-Quy tắc bắt buộc cho processor:
-- Trước khi authoritative-apply một event có causal prerequisites, processor phải xác nhận **mọi** prerequisite trong `causation_refs` đã visible và resolved tại cursor hiện tại.
-- Nếu prerequisite chưa available: event phải được **buffer/defer**, hoặc replay cursor/merge plan phải được điều chỉnh. **Cấm apply speculative.**
-- Nếu một prerequisite vẫn unresolved tại một cursor được coi là **complete**: đây là **integrity violation** → fail-safe theo I-6, không được bỏ qua.
+Quy tắc bắt buộc cho processor — **tách theo scope** (thay thế hoàn toàn rule "mọi causation_ref phải cursor-visible"):
+
+| Loại `causation_ref` | Yêu cầu trước khi authoritative-apply effect |
+|---|---|
+| **In-scope** (thuộc apply set / `P_run`) | Phải **cursor-visible** VÀ đã apply trước effect. Nếu chưa available → **buffer/defer** hoặc điều chỉnh cursor/merge plan; **cấm apply speculative**. Unresolved tại cursor được coi là **complete** → **integrity violation** → fail-safe [I-6](./02-platform-invariants.md) |
+| **External non-state** (ngoài apply set) | Chỉ cần **immutable committed/existence proof** tại append-time. **KHÔNG** áp rule cursor-visibility, **KHÔNG** cần `stream_position`, **KHÔNG** tham gia frontier completeness, **cấm** đọc payload |
+
+`P_run` **bảo toàn quan hệ bắc cầu** giữa các vertex in-scope — kể cả khi đường nhân quả giữa chúng đi **qua** một vertex external: nếu `A ≺ X ≺ B` trong `P_global` với A, B in-scope và X external, thì `A ≺ B` vẫn phải giữ trong `P_run`.
 
 ### 8.3.5 Stream Lifecycle and Bootstrap
 
@@ -627,9 +630,9 @@ Ba khái niệm khác nhau, **không được gộp**:
 | `recorded_time` | **Recorded** | Thời điểm event Decision được append vào authoritative log |
 | `decision_context_cursor` | **Knowledge boundary** (KHÔNG phải time value — là vector) | Ranh giới tri thức chính xác mà Decision dựa vào |
 
-**Quan hệ với `effective_time` — chọn Mô hình A (đề xuất):** với Decision event, `decision_time` **thay thế** `effective_time` (nó chính là time value trên trục effective, đặc thù hóa cho Decision). Decision event **không** mang cả hai field — tránh 2 field cùng nghĩa trên cùng một trục (tinh thần I-12) và tránh implementation phải đoán field nào authoritative.
+**Quan hệ với `effective_time` — Decision Effective-Time Model:** với Decision event, `decision_time` **thay thế** `effective_time` (nó chính là time value trên trục effective, đặc thù hóa cho Decision). Decision event **không** mang cả hai field — tránh 2 field cùng nghĩa trên cùng một trục (tinh thần I-12) và tránh implementation phải đoán field nào authoritative.
 
-*(Mô hình B đã cân nhắc: Decision mang cả `effective_time` lẫn `decision_time` với semantic khác nhau do Domain Contract định nghĩa. Loại bỏ vì chưa có nhu cầu thực tế nào cần phân biệt, và mở đường cho hai nguồn thời gian mâu thuẫn.)*
+*(Dual-field Effective Time đã cân nhắc: Decision mang cả `effective_time` lẫn `decision_time` với semantic khác nhau do Domain Contract định nghĩa. Loại bỏ vì chưa có nhu cầu thực tế nào cần phân biệt, và mở đường cho hai nguồn thời gian mâu thuẫn.)*
 
 ```yaml
 decision_time:   2026-07-23T10:00:00Z        # effective axis — time value (thay effective_time)
@@ -661,7 +664,7 @@ Tình huống: Decision đọc xong input ở frontier 899 (cursor pin Registry 
 
 Hai phương án đã được xem xét: **Append-and-Revalidate** (giữ Decision, revalidate trước Risk/Execution) và **Reject-and-Recompute** (từ chối tại append, tính lại). Phương án Reject-and-Recompute bị loại vì làm mất bản ghi một Decision đã thực sự được tính; muốn giữ Explainability vẫn phải ghi computation-attempt fact — khi đó gần như phương án còn lại nhưng không sạch bằng về semantic/audit.
 
-**✅ Product Owner đã quyết (2026-07-18): chọn phương án A.** Quyết định + rationale + 4 guardrail được ghi tại [ADR-010 §2.6](../adr/ADR-010.md) (chủ sở hữu Decision Time/Context); ADR-009 giữ registry/frontier boundary và cross-reference sang đó.
+**✅ Product Owner đã quyết (2026-07-18): Append-and-Revalidate Policy.** Quyết định + rationale + 4 guardrail được ghi tại [ADR-010 §2.6](../adr/ADR-010.md) (chủ sở hữu Decision Time/Context); ADR-009 giữ registry/frontier boundary và cross-reference sang đó.
 
 **Normative rule tại Chapter 8:** Decision có knowledge cut trước transition **vẫn được append** như immutable historical fact; **KHÔNG tự động có execution eligibility**; Risk/Execution **bị chặn** cho tới khi revalidation theo registry đang active thành công; kết quả revalidation (success/stale/reject) phải là **authoritative event**; **cấm sửa/xóa** Decision gốc. ### Decision output stream bị retire tại transition — Scoped Policy (PO quyết 2026-07-18)
 

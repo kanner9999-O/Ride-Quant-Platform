@@ -1,5 +1,5 @@
 ---
-manifest_version: "8.7"
+manifest_version: "8.8"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31,7 +31,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/05-time-model.md | 2.4 | **Locked** | Product Owner | 04-domain-principles, 02-platform-invariants |
 | constitution/06-identity-model.md | 2.5 | **Locked** | Product Owner | 02-platform-invariants, 04-domain-principles, 05-time-model |
 | constitution/07-module-taxonomy.md | 2.2 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles |
-| constitution/08-event-model.md | 4.5 | In Review | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
+| constitution/08-event-model.md | 4.6 | In Review | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
 | constitution/09-plugin-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/10-compatibility-capability-contract.md | 1.0 | In Review | Product Owner | 09-plugin-model |
 | constitution/11-adr-process.md | 1.3 | In Review | Product Owner | 00-governance |
@@ -100,6 +100,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | # | Nội dung | Nguồn đề xuất |
 |---|---|---|
 | BL-001 | `review_status` dạng machine-readable trong metadata (thay vì list `reviewers` dạng text) | ChatGPT review |
+| BL-007 | **Convergence/stop rule** cho review process (chỉ nhận finding mới nếu: mâu thuẫn Chapter Locked · tạo 2 authority cạnh tranh · làm invariant đã chọn không implementable · phá acceptance order). Hiện chỉ là **thỏa thuận của vòng review**, ghi ở CHANGELOG — **CHƯA binding governance**. Muốn binding phải đưa vào Chapter 11 hoặc 12 qua một vòng review riêng (cả hai chapter đang `In Review`) | ChatGPT + Claude (vòng 31) |
 | BL-006 | Sau khi ADR-009/ADR-010 được **accept**: dọn decision history khỏi Chapter 8 (các đoạn "vì sao chọn phương án này thay vì phương án kia") — rationale + alternatives đã nằm trong ADR; Constitution chỉ giữ normative rule. Giữ đúng ranh giới Constitution = rule, ADR = decision history | ChatGPT Suggestion (consolidation round) |
 | BL-005 | Processing Observation (Chapter 5 §5.2) cần schema đầy đủ + observability convention (processor/attempt/started_at/completed_at) — thuộc Engineering Foundation (Phase 1.5), không phải Constitution | ChatGPT Observation (Chapter 5 v2.4) |
 | BL-004 | context-map.yaml có thể tách file (capabilities/ contexts/ relationships riêng) KHI file quá lớn — chưa làm vì file chưa tồn tại, tránh giải quyết vấn đề chưa đo được. Xử lý ở Engineering Foundation/Phase 0.2 khi có dữ liệu thật | ChatGPT review (Chapter 4 round 4) |
