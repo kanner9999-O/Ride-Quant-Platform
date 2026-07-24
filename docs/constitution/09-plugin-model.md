@@ -1,7 +1,7 @@
 ---
 id: 09-plugin-model
 title: Plugin Model
-version: "2.4"
+version: "2.5"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -115,7 +115,7 @@ Decision-relevance phải là **thuộc tính authoritative được khai báo**
 
 **Quy tắc bắt buộc:**
 - **CẤM** dùng output của một plugin **chưa được khai báo decision-relevant** làm input cho authoritative Decision. Vi phạm là **integrity violation** → fail-safe [I-6](./02-platform-invariants.md), **không** tự động nâng cấp plugin.
-- Muốn tái sử dụng output đó cho Decision: phải **promote plugin thành decision-relevant** — đây là **contract change** (versioned), phải verify lại toàn bộ §9.5, và thuộc diện **ADR Required** nếu đổi Decision Pipeline topology (§9.10).
+- Muốn tái sử dụng output đó cho Decision: phải **promote plugin thành decision-relevant** — đây là **contract change** (versioned). Promote bắt buộc verify đủ 4 điều kiện của §9.5 trước khi có hiệu lực: (1) mọi input/query của plugin cursor-bounded hoặc snapshot-bounded; (2) không đọc ambient/current mutable state; (3) projection version/schema/config được pin khi đọc derived state; (4) evidence đủ để Replay tái tạo đúng snapshot đã đọc (I-5). Đồng thời thuộc diện **ADR Required** nếu đổi Decision Pipeline topology (§9.10).
 - **CẤM silent reclassification**: không có đường nào biến một plugin thành decision-relevant mà không qua contract change.
 
 *Cách hiểu đúng câu "đường dữ liệu thực tế": nó dùng để **phát hiện vi phạm** (một consumer đang kéo output ngoài phạm vi vào Decision), KHÔNG phải để **tự động hợp thức hóa** plugin đó.*
