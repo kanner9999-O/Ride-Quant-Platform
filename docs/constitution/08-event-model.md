@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "4.7"
+version: "4.8"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -688,7 +688,16 @@ Append-and-Revalidate yêu cầu Decision vẫn được append, nhưng nếu ch
 2. Phải ghi **lý do** không append được vào stream đích (stream retired / event ineligible) kèm `event_record_ref` của retirement boundary hoặc registry activation liên quan.
 3. Preservation fact **KHÔNG** cấp execution eligibility và **KHÔNG** thay thế Decision fact bình thường — nó là bản ghi *"Decision này đã được tính nhưng không thể vào stream đích"*.
 4. Cấm dùng preservation path để lách retirement: nếu stream đích còn active và event còn eligible, **bắt buộc** đi đường append bình thường.
-5. **Đủ evidence để tái dựng Decision đã tính (I-1):** preservation fact phải **chứa hoặc resolve được** immutable evidence đủ để tái dựng **semantic Decision output đã được tính** — bao gồm các version/reference mà [I-1](./02-platform-invariants.md) yêu cầu (model/strategy version, configuration version, risk policy version...). **Chỉ lưu cursor + lý do reject là CHƯA ĐỦ** để chứng minh Decision thực tế đã tính ra điều gì — nếu không, preservation path biến thành một "audit stub" rỗng nội dung. Payload cụ thể do Decision/Audit Domain Contract khóa; đây là conformance requirement của dedicated Event Contract.
+5. **Đủ evidence để tái dựng Decision đã tính (I-1)** — phân biệt **Decision computation evidence** với **Risk evaluation evidence**:
+
+| Nhóm evidence | Cardinality | Nội dung |
+|---|---|---|
+| **Decision computation** | **Required** | semantic Decision output · original `decision_context_cursor` · strategy/model version + strategy instance · configuration version · code/build version · **mọi policy/reference thực sự được Decision computation tiêu thụ** |
+| **Risk evaluation** (`risk_policy_ref`) | **Conditional** | CHỈ bắt buộc khi một Risk evaluation **đã thực sự xảy ra**, hoặc Risk policy đó **thực sự là input** của Decision computation |
+
+**CẤM gán một risk policy chưa từng được evaluate chỉ để thỏa schema.** Nhánh preservation có thể kết thúc **trước** bất kỳ Risk evaluation nào (Decision tính xong → stream retire → preservation fact → không có execution eligibility) — ép `risk_policy_ref` sẽ hoặc tạo **evidence giả**, hoặc làm **preservation path thất bại đúng lúc nó cần bảo toàn evidence**. Risk Action về sau **tự sở hữu** policy/version mà chính nó đã áp dụng ([I-4](./02-platform-invariants.md): Risk Gateway nằm sau Decision, trước Execution).
+
+**Chỉ lưu cursor + lý do reject là CHƯA ĐỦ** — preservation path khi đó thành "audit stub" rỗng nội dung. Payload cụ thể do Decision/Audit Domain Contract khóa; đây là conformance requirement của dedicated Event Contract.
 6. **Preservation fact là một authoritative event type RIÊNG**, KHÔNG phải original Decision event, và phải pin một **dedicated Event Contract** với: `event_class` phù hợp · `allowed_streams` **chỉ gồm canonical Audit Stream** · bắt buộc mang **full** original `decision_context_cursor` · bắt buộc tham chiếu transition/retirement boundary · **prohibited execution eligibility**. Cấm tái sử dụng Event Contract của Decision gốc để lách eligibility (ghi original Decision event vào Audit Stream sẽ vi phạm chính `allowed_streams` của nó). *(Tên event và payload cụ thể thuộc Decision/Audit Domain Contract — Constitution không hardcode.)*
 
 *Phương án thay thế đã cân nhắc và loại: **lifecycle drain invariant** — cấm retire Decision output stream cho tới khi mọi in-flight Decision đã đóng. Loại vì làm retirement protocol phức tạp và có thể phải chờ không giới hạn khi có Decision treo.*
