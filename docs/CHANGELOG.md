@@ -2,6 +2,37 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 10 (Compatibility & Capability Contract) v2.0 — Claude tự review (**2 Blocker · 5 Major · 2 Minor · 1 Suggestion**)
+
+Chapter 10 v1.0 viết 2026-07-16, **trước khi** Chapter 2-9 được Locked, dài 32 dòng — chưa hấp thụ bất kỳ model nào đã khóa từ đó. Self-review đối chiếu toàn bộ Chapter 2/3/4/7/8/9 Locked.
+
+### Fixed — Blocker
+- **`compatibility result` là thứ Chapter 9 (Locked) pin nhưng Chapter 10 chưa định nghĩa tồn tại:** Ch9 §9.5 khóa `required capability/compatibility result` là thành phần của validated compatibility set tại activation boundary, nhưng v1.0 chỉ nói "Plugin Loader kiểm tra lúc startup" — kết quả kiểm tra sống trong bộ nhớ, không pin được. Thêm **§10.4**: compatibility result phải bất biến · có content identity + resolvable trong replay/audit horizon (thỏa Referenced Authoritative Artifact rules Ch8 §8.1.1) · pin đủ input đã đánh giá (Plugin Version · exact artifact/manifest + target discriminator · contract refs · capability requirement set · version phía cung cấp) · kết luận nhị phân trong phạm vi đã khai báo, không có trạng thái "một phần" ngầm. Cấm suy lại từ trạng thái runtime; đánh giá lại sinh result mới, không hồi tố hợp thức hóa activation đã xảy ra.
+- **Hardcode module/capability name + schema format, tạo authority cạnh tranh với Ch4 và Ch7 (Locked):** khối JSON dùng `StructureEngine` (module identity → thuộc `module-registry.yaml`, Ch7 §7.5) và `SWING_STRENGTH/BOS/CHOCH` (capability/domain concept → Ch4 §4.2 khóa mọi `capability_id` phải tồn tại sẵn trong `context-map.yaml`; Domain Contract còn không được tự đặt). Đây đúng lớp lỗi Ch9 §9.3 đã khóa ("không hardcode tên file hay format trong Constitution" — bài học I-2 field list, I-13 state machine, ADR-008). Xóa toàn bộ khối JSON; thay bằng **§10.1 bảng ranh giới thẩm quyền** trỏ mọi identity về registry sở hữu nó.
+
+### Fixed — Major
+- **"capability" bị dùng cho 3 khái niệm khác nhau:** Business Capability (Ch4, có version theo Ch3 §3.1) · Required platform capability (Ch9 §9.6) · Provided contract capability. Gộp phẳng thì so khớp mất nghĩa. Thêm **§10.2** tách 3 loại + authority của từng loại; reference tới capability chưa đăng ký = invalid declaration.
+- **`schemaVersion` xung đột Ch8 §8.2.5 (Locked):** Ch8 khóa `schema_version` **không** phải proxy cho Event Contract version, hai trục tiến hóa độc lập; v1.0 gộp thành một trục và viết sai canonical field name. **§10.3** khóa 3 trục độc lập (Event Contract version · `schema_version` · Plugin Version), cấm dùng trục này làm proxy trục kia.
+- **SemVer không nói áp cho tầng identity nào:** Ch9 khóa 4 tầng Definition/Version/Artifact/Runtime. **§10.3** khóa SemVer áp cho **Plugin Version**, và định nghĩa breaking change theo **published contract surface** (không theo internal implementation); cấm bump major "cho an toàn" khi contract surface không đổi. Bỏ cách nói "mỗi Engine" (bỏ sót Projection + Runtime Service của Ch7).
+- **Dangling delegation — ba chapter Locked trỏ vào khoảng trống:** Ch3 §Engineering Foundation nói SemVer schema/capability "đã có **đầy đủ**" ở Ch10 · Ch8 §8.6 delegate schema versioning/compatibility · Ch9 §9.7 delegate SemVer, capability declaration, Capability Matrix, hành vi khi không khớp **và** downstream impact rules. v1.0 không có định nghĩa breaking change, không có dependency impact rule nào. **§10.1** liệt kê tường minh các delegation nhận được; **§10.6** (hành vi khi không khớp) và **§10.7** (downstream impact assessment) lấp đúng phần còn trống.
+- **"Plugin Loader" là authority mới đặt bằng prose:** không thuộc taxonomy nào của Ch7, không có trong registry, nhưng được giao quyền chặn — trái phân tầng Declaration/Grant/Enforcement/Verification đã khóa ở Ch9 §9.6. **§10.1** khóa: Chapter 10 KHÔNG tạo authority mới, Constitution không đặt tên component, enforcement đi qua đúng phân tầng Ch9.
+
+### Fixed — Minor
+- **Capability Matrix có nguy cơ đóng ngầm OQ-002:** v1.0 nói Matrix "dùng làm tiêu chí readiness cho production", trong khi Ch9 §9.10 khóa không đóng ngầm OQ-002 (vẫn `Open`, thuộc Quality Gates/Strategy Lifecycle). Danh sách của v1.0 (Replay/Live/Backtest/Multi-Exchange) cũng lệch OQ-002 (Backtest + Paper Trade) và lệch execution mode canonical Ch3 §3.1. **§10.8**: Ch10 sở hữu cấu trúc/semantic của Matrix, execution mode canonical thuộc Ch3 §3.1, Matrix là **input** cho lifecycle gate chứ không phải bản thân gate — "hỗ trợ Live" ≠ "được phép lên Live".
+- **`depends_on` thiếu:** chỉ khai `09-plugin-model` dù nội dung chạm trực tiếp Ch2 (I-6, I-7 verification), Ch3 (execution mode, authoritative implementation), Ch4 (capability registry), Ch7 (module registry/taxonomy), Ch8 (schema/contract version). Bổ sung đủ 6, đồng bộ MANIFEST.
+
+### Fixed — Suggestion
+- **"fail-fast lúc startup" chưa nối vào I-6:** I-6 (Locked) là fail-safe **theo scope**, phạm vi nhỏ nhất nhưng đủ. **§10.6** diễn đạt lại theo I-6, ghi rõ không mặc định dừng toàn platform vì một plugin không critical, cũng không thu hẹp scope tới mức để ảnh hưởng lan ra ngoài. Thêm: cấm degrade ngầm (tự bỏ capability/hạ version/chạy với subset = mixed-state activation) · mọi từ chối phải để lại evidence resolvable (I-1) · không khớp không tự động là việc cần ADR.
+
+### Added — §10.5 điểm đánh giá bắt buộc
+Startup-only là không đủ. Bắt buộc đánh giá tại tối thiểu: đăng ký Plugin Version/artifact mới · **activation boundary** của decision-relevance promotion (Ch9 §9.5) · runtime deployment đổi artifact/target **kể cả rebuild cùng Plugin Version** (nếu không, mixed-build activation mà Ch9 vừa khóa là integrity violation sẽ không có điểm phát hiện) · provider đổi contract/capability mà consumer đang pin · startup.
+
+### Checklist
+- Ch10 v2.0 · §10.1→§10.9 liên tục · **0 tham chiếu §10.x gãy** · grep xác nhận 0 hardcode (`StructureEngine` · `SWING_STRENGTH/BOS/CHOCH` · `Plugin Loader` · `schemaVersion`) · mọi link target tồn tại · 0 authority mới được tạo · OQ-002 không bị đóng ngầm.
+
+### Note
+- Đây là **self-review của Claude**, chưa qua ChatGPT. Không tự tuyên bố Approve. Chờ ChatGPT review round 1 và Product Owner Approve/Lock.
+
 ## [Milestone] — 2026-07-24 — 🔒 Chapter 9 (Plugin Model) LOCKED
 
 **Product Owner (Kanner) xác nhận Approve & Lock** Chapter 9 v2.9, theo khuyến nghị reviewer (ChatGPT round 9: 0 Blocker · 0 Major · 0 Minor · 0 Suggestion, Consolidation Review + Backward Consistency Check toàn bộ Chapter 0-8 đạt).
