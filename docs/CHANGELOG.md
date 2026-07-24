@@ -2,6 +2,22 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 10 v2.7 (ChatGPT review round 7: **0 Blocker · 1 Major · 0 Minor · 0 Suggestion mới**)
+
+Không có phản biện; finding chấp nhận toàn bộ.
+
+### Fixed — Major: bounded revalidation deadline chưa có authority/policy/bound
+- v2.6 khóa "result cũ còn hiệu lực tới một **explicit, bounded, đã pin** deadline" — loại được mâu thuẫn cũ, nhưng **không nói ai có quyền chọn deadline, theo policy nào, bound tối đa bao nhiêu, gia hạn có được phép không**. Trong khi đó safety-critical classification đã bắt buộc nằm trong policy và version hóa; nhánh non-safety-critical thì chưa.
+- **Lỗ hổng cụ thể:** cùng một transition tại T1, coordinator A đặt `T1+5 phút`, coordinator B đặt `T1+24 giờ` — cả hai đều explicit/bounded/pinned, nhưng sau phút thứ 5 A đã fail-safe còn B vẫn sinh Decision, **cả hai đều tuyên bố được là tuân thủ**. Nghiêm trọng hơn: đặt deadline rất xa, hoặc thay deadline mới trước khi deadline cũ hết hạn → **bounded revalidation thoái hóa thành prospective-only trên thực tế**, đúng thứ chính mục đó tuyên bố cấm.
+- **Sửa — thêm tiểu mục "Deadline của lớp bounded" trong §10.5.1:** deadline phải được tạo theo **versioned revalidation policy** áp cho scope đó, bởi **authority đã được designate** (cùng quy tắc exactly-one authority của §10.4.3). Deadline fact phải resolve tới tối thiểu: policy/rule version quy định cách xác định deadline · transition class + subject scope · authority phát hành deadline + designation version · immutable deadline/boundary fact · **maximum bound hoặc computation rule** do policy quy định · quy tắc gia hạn nếu được phép · **bằng chứng deadline không vượt bound cho phép**. **Gia hạn:** cấm mutate deadline cũ, phải tạo transition/deadline fact mới, phải được policy cho phép rõ, và **policy phải quy định giới hạn tổng cộng chứ không chỉ giới hạn từng lần** (nếu không, gia hạn nhiều lần vẫn né được fail-safe vô thời hạn). **Không resolve được policy/authority/bound, hoặc deadline vượt bound → transition không đủ điều kiện thuộc lớp bounded → rơi về immediate suspension** — cùng cơ chế khép kín với rule "không có deadline pin được thì không thuộc lớp bounded".
+- Mechanism (timer, drain, coordinator, cách hiện thực grace window) vẫn defer Phase 1; **authority và semantic của deadline khóa tại Constitution**, ngang cấp với policy applicability và evaluator grant.
+
+### Checklist
+- Ch10 v2.7 · 18 heading đúng thứ tự · **0 heading bị nuốt/trùng** (`## 10.6` = 1) · **0 tham chiếu §10.x gãy** · version file ↔ MANIFEST đồng bộ.
+
+### Note
+- Không tự tuyên bố Approve. Chờ ChatGPT review round 8 và Product Owner Approve/Lock.
+
 ## [Unreleased] — Chapter 10 v2.6 (ChatGPT review round 6: **1 Blocker · 1 Major · 0 Minor · 0 Suggestion mới**)
 
 Reviewer đã rút lại nhận định "outcome giữ nguyên" ở vòng trước và xác nhận phản biện meta của Claude là đúng. Vòng này không có phản biện; 2 finding chấp nhận toàn bộ.

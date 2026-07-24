@@ -1,7 +1,7 @@
 ---
 id: 10-compatibility-capability-contract
 title: Compatibility & Capability Contract
-version: "2.6"
+version: "2.7"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -253,7 +253,24 @@ Ba loại transition thuộc phạm vi mục này: **(1)** evaluator grant thay 
 
 **Phân loại safety-critical phải được khai báo trong chính policy**, versioned — **không** được quyết định ad hoc lúc xảy ra sự cố, nếu không nó thành lối thoát để hoãn revalidation vô thời hạn.
 
-Cơ chế thực thi (drain, cách hiện thực deadline/grace window, coordinator) thuộc **Phase 1** (§10.9); **semantic transition khóa ở đây**.
+#### Deadline của lớp bounded — authority và bound, không phải giá trị vận hành tự chọn
+
+**Một deadline "explicit, bounded và được pin" là CHƯA ĐỦ.** Nếu deadline do người vận hành tự chọn, cùng một transition tại T1 có thể được coordinator A đặt `T1 + 5 phút` và coordinator B đặt `T1 + 24 giờ` — cả hai đều explicit, bounded, pinned, nhưng sau phút thứ 5 A đã fail-safe còn B vẫn sinh Decision, và **cả hai đều tuyên bố được là tuân thủ**. Tệ hơn: đặt deadline rất xa, hoặc thay deadline mới trước khi deadline cũ hết hạn, sẽ biến **bounded revalidation thành prospective-only trên thực tế** — đúng thứ mục này đã cấm.
+
+**Deadline phải được tạo theo một versioned revalidation policy áp cho scope đó, bởi authority đã được designate** (cùng quy tắc exactly-one authority của §10.4.3, áp cho deadline authority). Deadline fact phải resolve tới, tối thiểu:
+- **policy/rule version** quy định cách xác định deadline;
+- **transition class + subject scope** mà deadline áp dụng;
+- **authority có quyền phát hành deadline** + designation version của authority đó;
+- **immutable deadline/boundary fact**;
+- **maximum bound hoặc computation rule** do policy quy định;
+- **quy tắc gia hạn**, nếu policy cho phép;
+- **bằng chứng deadline không vượt bound** mà policy cho phép.
+
+**Gia hạn:** không được **mutate** deadline cũ; phải tạo **transition/deadline fact mới**; phải được policy **cho phép rõ**; và không được dùng để né fail-safe vô thời hạn — policy phải quy định giới hạn tổng cộng, không chỉ giới hạn từng lần.
+
+**Không resolve được policy/authority/bound, hoặc deadline vượt bound cho phép → transition KHÔNG đủ điều kiện thuộc lớp bounded → rơi về immediate suspension.** Đây là cùng cơ chế khép kín với rule "không có deadline pin được thì không thuộc lớp bounded" ở trên.
+
+Cơ chế thực thi (drain, timer, cách hiện thực deadline/grace window, coordinator) thuộc **Phase 1** (§10.9); **authority và semantic của deadline khóa tại đây**, ngang cấp với policy applicability và evaluator grant.
 
 ## 10.6 Hành vi khi không khớp
 
