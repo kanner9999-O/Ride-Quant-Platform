@@ -1,7 +1,7 @@
 ---
 id: 09-plugin-model
 title: Plugin Model
-version: "2.2"
+version: "2.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -72,6 +72,11 @@ Vì Strategy Instance nằm ngoài `module-registry` (§9.1), nó vẫn phải c
 3. **Decision evidence phải resolve chính xác**: `strategy_instance` · `configuration version` · `plugin implementation version` đã dùng lúc tính Decision (ba thứ ADR-010 đã tách riêng).
 4. **State transition của instance** (created · activated · paused · stopped · retired) là **authoritative event** trong event log (§9.8), không phải trạng thái ngầm suy từ registry hay config file.
 
+5. **Lifecycle transition KHÔNG được hủy hoặc vô hiệu hóa evidence của Decision đã tính.** Pause/stop/retire một instance là **operational state change**, không phải xóa lịch sử:
+   - Decision đã tính vẫn phải **tái dựng được đầy đủ** với đúng instance identity + plugin version + configuration đã dùng ([I-1](./02-platform-invariants.md)).
+   - Instance identity **không được tái sử dụng** cho một instance khác sau khi retire ([Chapter 6 §6.1](./06-identity-model.md): ID không tái dùng).
+   - Nếu retire/stop khiến một Decision đang in-flight không thể hoàn tất đường bình thường, áp **cùng nguyên tắc** với [ADR-010 §2.6](../adr/ADR-010.md) (Approved): ghi immutable preservation/rejection fact mang đủ evidence, **không** xóa hay ghi đè Decision gốc, và **không** cấp execution eligibility.
+
 Schema/representation cụ thể thuộc **Strategy Domain Contract**; Constitution khóa yêu cầu.
 
 **Strategy-level philosophy KHÔNG được nâng thành Platform Invariant** — ranh giới đã khóa ở [Chapter 2](./02-platform-invariants.md): triết lý của một chiến lược cụ thể thuộc metadata của chính nó.
@@ -90,12 +95,17 @@ Một plugin (kể cả AI module) muốn **tham gia Decision Pipeline** phải 
 | Bắt buộc mang `decision_context_cursor` hợp lệ (đủ 5 field canonical) | [Ch8 §8.5.1](./08-event-model.md) |
 | Tuân relational invariants, gồm `cursor.recorded_time ≤ DecisionEvent.recorded_time` | [Ch8 §8.5.2](./08-event-model.md) |
 | Append-and-Revalidate khi có registry transition | [ADR-010 §2.6](../adr/ADR-010.md) |
+| **Decision-time visibility** — mọi input/query phải cursor-bounded, cấm đọc ambient/current state | **§9.5 (bắt buộc, không tùy chọn)** |
 
-**Không có ngoại lệ cho AI module.** Việc một plugin dùng mô hình học máy không thay đổi bất kỳ ràng buộc nào ở trên — [I-1](./02-platform-invariants.md) vẫn yêu cầu decision tái dựng được từ immutable evidence (gồm model/strategy version, configuration version).
+**Bảng trên là điều kiện CẦN, chưa ĐỦ:** một Decision Advisor thỏa hết 6 dòng trên nhưng vi phạm §9.5 vẫn phá [I-2](./02-platform-invariants.md)/[I-3](./02-platform-invariants.md) — schema hợp lệ, cursor hợp lệ, nhưng đọc state từ tương lai so với chính cursor nó khai. **§9.5 là ràng buộc bắt buộc của mục này**, không phải khuyến nghị đặt ở nơi khác.
 
-## 9.5 Decision-time visibility — áp cho MỌI plugin sinh authoritative output
+**Không có ngoại lệ cho AI module** — dùng ML/LLM không nới bất kỳ dòng nào ở trên. [I-1](./02-platform-invariants.md) vẫn đòi model/strategy version + configuration version trong evidence.
 
-*Mục này KHÔNG chỉ áp cho Decision Advisor.* Bất kỳ plugin nào sinh ra authoritative output tham gia decision-relevant path — Strategy Plugin · Feature/Signal plugin · Risk-context plugin · plugin sinh input cho Decision — đều phải tuân, vì [I-3](./02-platform-invariants.md) chống look-ahead ở **mọi** compute path, không riêng bước cuối.
+## 9.5 Decision-time visibility — áp cho plugin trong decision-relevant path
+
+**Phạm vi chính xác:** mục này áp cho **mọi plugin sinh authoritative output nằm trong decision-relevant path** — Strategy Plugin · Feature/Signal plugin · Risk-context plugin · bất kỳ plugin nào sinh input cho Decision. Lý do: [I-3](./02-platform-invariants.md) chống look-ahead ở **mọi** compute path, không riêng bước cuối.
+
+**Ngoài phạm vi:** plugin chỉ sinh output **không** tham gia decision-relevant path (ví dụ reporting/notification thuần túy, observability projection) không chịu ràng buộc cursor-bounded ở mục này. **Nhưng:** nếu output của một plugin về sau được dùng làm input cho Decision, plugin đó **trở thành** decision-relevant và phải tuân đầy đủ — phân loại theo *đường dữ liệu thực tế*, không theo ý định ban đầu.
 
 `Published contract compliance ≠ Decision-time visibility compliance`. Một query hoàn toàn hợp lệ theo I-7 vẫn có thể phá [I-2](./02-platform-invariants.md)/[I-3](./02-platform-invariants.md)/[I-5](./02-platform-invariants.md) nếu nó trả về "current state" không bị giới hạn bởi cursor:
 
@@ -165,17 +175,19 @@ Mỗi plugin có version độc lập với platform version; cập nhật một
 
 ## 9.9 Forbidden patterns — bảng đối chiếu nhanh
 
-| Pattern | Vi phạm |
-|---|---|
-| Plugin gọi trực tiếp Exchange API | [I-4](./02-platform-invariants.md) |
-| Plugin đọc trực tiếp database/storage của module khác | [I-7](./02-platform-invariants.md) |
-| Plugin đọc "current/latest state" không bị cursor ràng buộc khi tạo authoritative output | [I-2](./02-platform-invariants.md)/[I-3](./02-platform-invariants.md)/[I-5](./02-platform-invariants.md) (§9.5) |
-| Plugin được cấp quyền dùng exchange credential trực tiếp | [I-11](./02-platform-invariants.md) (§9.6) |
-| Tạo `module-registry` entry mới cho mỗi Strategy Instance | §9.1, §9.3 |
-| Mutate ngầm plugin version/config của một instance đang chạy | §9.3 (phải tạo binding/version mới) |
-| Suy trạng thái runtime của plugin từ `module-registry` status | [I-12](./02-platform-invariants.md) (§9.8) |
-| Bắt mở ADR cho mọi activate/pause instance | §9.10 (operational action, không phải architecture change) |
-| Nâng strategy-level philosophy thành Platform Invariant | [Chapter 2](./02-platform-invariants.md), §9.3 |
+Bảng này **không tạo authority mới** — mỗi dòng trỏ về enforcement/verification đã tồn tại. Pattern nào chưa có cột phải này thì là *khuyến nghị*, không phải rule thi hành được.
+
+| Pattern | Vi phạm | Phát hiện / chặn bởi |
+|---|---|---|
+| Plugin gọi trực tiếp Exchange API | [I-4](./02-platform-invariants.md) | I-7 Verification: static dependency scan · network ACL · credential audit; runtime: Risk Gateway (mọi intent phải qua) |
+| Plugin đọc trực tiếp database/storage của module khác | [I-7](./02-platform-invariants.md) | I-7 Verification: kiểm truy cập storage module khác · network ACL |
+| Plugin đọc "current/latest state" không cursor-bounded khi tạo authoritative output | [I-2](./02-platform-invariants.md)/[I-3](./02-platform-invariants.md)/[I-5](./02-platform-invariants.md) | §9.5: query/read contract phải cursor/snapshot-bounded — query không chứng minh được knowledge boundary bị **từ chối**; I-5 self-contained replay test |
+| Plugin được cấp quyền dùng exchange credential trực tiếp | [I-11](./02-platform-invariants.md) | §9.6 Grant layer (`granted ⊆ declared`) · I-11 access-control audit · Exchange Adapter/Signing Service là boundary duy nhất |
+| Tạo `module-registry` entry mới cho mỗi Strategy Instance | §9.1, §9.3 | Registry review khi thay đổi `module-registry.yaml` (thuộc diện ADR Required — §9.10) |
+| Mutate ngầm plugin version/config của instance đang chạy | §9.3 | §9.3: đổi version/config bắt buộc tạo binding/instance version mới; Decision evidence phải resolve đúng version đã dùng |
+| Suy trạng thái runtime của plugin từ `module-registry` status | [I-12](./02-platform-invariants.md) | §9.8: runtime lifecycle facts chỉ authoritative trong event log |
+| Bắt mở ADR cho mọi activate/pause instance | §9.10 | §9.10 phân loại architecture change vs operational action |
+| Nâng strategy-level philosophy thành Platform Invariant | [Chapter 2](./02-platform-invariants.md) | Chapter 2 mở đầu: ranh giới Platform Invariant vs Strategy-level Philosophy |
 
 ## 9.10 Khi nào cần ADR — tách architecture change khỏi operational action
 
