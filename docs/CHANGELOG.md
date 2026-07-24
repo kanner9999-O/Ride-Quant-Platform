@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Milestone] — 2026-07-24 — 🔒 Chapter 10 (Compatibility & Capability Contract) LOCKED
+
+**Product Owner (Kanner) xác nhận Approve & Lock** Chapter 10 v2.7, theo khuyến nghị reviewer (ChatGPT round 8: 0 Blocker · 0 Major · 0 Minor · 0 Suggestion, Consolidation Review 9 mục + Backward Consistency Check toàn bộ Chapter 0-9 đạt).
+
+`status: In Review → Locked` · `approved_by: null → Kanner` · `approved_at: null → 2026-07-24`.
+
+### Quy mô công việc
+Chapter 10 trải qua **8 revision** (v1.0 gốc → self-review v2.0 Claude → v2.7), tương ứng **7 vòng review ChatGPT** (round 1-7) sau self-review ban đầu. v1.0 chỉ 32 dòng, viết trước khi Chapter 2-9 Locked; v2.7 khóa đầy đủ:
+
+- **Authority boundary:** Chapter 10 không tự chiếm authority của Business Capability (Ch4), module identity (Ch7), Event Contract (Ch8), Plugin Contract (Ch9) — mọi capability/schema reference resolve về registry sở hữu nó, không hardcode tên/schema trong Constitution.
+- **Ba loại capability tách biệt:** Business Capability · Required platform capability · Provided contract capability — reference chưa đăng ký là invalid declaration.
+- **Ba trục version độc lập:** Event Contract version · `schema_version` · Plugin Version — cấm dùng trục này làm proxy trục kia; breaking change định nghĩa theo published contract surface; schema compatibility có semantic backward/forward độc lập format, thiếu direction declaration = invalid.
+- **Compatibility Result** là artifact bất biến, không phải một lần kiểm tra thoáng qua: pin subject + input · policy artifact/version + policy authority designation + policy applicability fact/frontier · evaluator identity/artifact + **evaluator grant** (identity/content/scope/authority designation/applicability frontier) · evaluation boundary · result + reason classification (phân biệt proved-incompatible với insufficient-evidence). Chống self-certification hai lớp: `module identity ≠ authorization` và `grant artifact tồn tại ≠ grant đang có hiệu lực`.
+- **Compatibility Policy** là versioned immutable authoritative artifact với exactly-one canonical authority cho mỗi loại fact/scope (định nghĩa/version vs runtime applicability) — không còn cấu trúc peer authority "A hoặc B".
+- **Transition semantics khép kín:** mỗi transition thuộc đúng một trong hai lớp — Immediate suspension (grant revoke · safety-critical) hoặc Bounded revalidation (policy applicability đổi · designation đổi) với deadline phải do **versioned revalidation policy + designated authority** quyết định, có maximum bound, quy tắc gia hạn giới hạn tổng cộng; thiếu điều kiện nào → rơi về immediate suspension. Historical result luôn immutable, không hồi tố.
+- **Capability Matrix** hai chiều (capability assertions + execution-mode readiness, mode readiness là projection dẫn xuất) · tách Declared support khỏi Validated readiness · versioned/resolvable, gate phải pin đúng snapshot đã dùng — không đóng ngầm OQ-002.
+
+### Deferred sang Phase 1 design spec
+Matching algorithm cụ thể · storage schema của Compatibility Result/Policy · deployment coordinator · fencing/transaction mechanism tại activation boundary · timer/drain implementation cho bounded revalidation · archive protocol · tooling/CI gate.
+
+**Đã Locked tới nay:** Chapter 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, **10** + ADR-005 → ADR-010.
+
+**Next Milestone:** Chapter 11 — ADR Process.
+
 ## [Unreleased] — Chapter 10 v2.7 (ChatGPT review round 7: **0 Blocker · 1 Major · 0 Minor · 0 Suggestion mới**)
 
 Không có phản biện; finding chấp nhận toàn bộ.

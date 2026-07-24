@@ -2,11 +2,11 @@
 id: 10-compatibility-capability-contract
 title: Compatibility & Capability Contract
 version: "2.7"
-status: In Review
+status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+approved_by: Kanner
+approved_at: "2026-07-24"
 created_at: "2026-07-16"
 last_review: "2026-07-24"
 next_review: null

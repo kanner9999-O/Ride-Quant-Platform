@@ -17,7 +17,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 **Constitution Version:** 1.0.0 — độc lập với Project Version (Project có thể lên v0.8 trong khi Constitution vẫn 1.0.0, hoặc ngược lại)
 **Schema Version của Manifest:** 1 — đổi format Manifest sau này phải bump field này để tooling không vỡ ngầm.
 
-**Chapter 0 — Governance: `Locked`** (2026-07-16). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). Các chapter còn lại (10-14) vẫn `In Review`.
+**Chapter 0 — Governance: `Locked`** (2026-07-16). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). **Chapter 10 — Compatibility & Capability Contract: `Locked`** (2026-07-24, v2.7, approved by Kanner). Các chapter còn lại (11-14) vẫn `In Review`.
 
 ## Constitution
 
@@ -33,7 +33,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/07-module-taxonomy.md | 2.2 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles |
 | constitution/08-event-model.md | 4.8 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
 | constitution/09-plugin-model.md | 2.9 | **Locked** | Product Owner | 02-platform-invariants, 07-module-taxonomy, 08-event-model |
-| constitution/10-compatibility-capability-contract.md | 2.7 | In Review | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
+| constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
 | constitution/11-adr-process.md | 1.3 | In Review | Product Owner | 00-governance |
 | constitution/12-approval-gates.md | 1.2 | In Review | Product Owner | 00-governance, 11-adr-process |
 | constitution/13-quality-gates.md | 1.0 | In Review | Product Owner | 07-module-taxonomy |
@@ -109,4 +109,4 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 ---
 
-**Trạng thái tổng quát:** `In Review` cho Chapter 10-14, NHƯNG **Chapter 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 đã `Locked`** — cùng ADR-005 → ADR-010 (ADR-009/010 Approved 2026-07-18; Chapter 9 v2.9 Approved & Locked 2026-07-24 bởi Product Owner Kanner, sau 9 vòng review ChatGPT/Claude, 10 commit v2.0→v2.9). Từ giờ mọi thay đổi vào các file đã Locked bắt buộc qua ADR mới. **Chapter 10 — Compatibility & Capability Contract là mục tiêu tiếp theo.** Xem [CHANGELOG.md](./CHANGELOG.md).
+**Trạng thái tổng quát:** `In Review` cho Chapter 11-14, NHƯNG **Chapter 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 đã `Locked`** — cùng ADR-005 → ADR-010 (ADR-009/010 Approved 2026-07-18; Chapter 9 v2.9 Approved & Locked 2026-07-24 bởi Product Owner Kanner, sau 9 vòng review, 10 commit v2.0→v2.9; Chapter 10 v2.7 Approved & Locked 2026-07-24 bởi Product Owner Kanner, sau 7 vòng review, 8 commit v2.0→v2.7). Từ giờ mọi thay đổi vào các file đã Locked bắt buộc qua ADR mới. **Chapter 11 — ADR Process là mục tiêu tiếp theo.** Xem [CHANGELOG.md](./CHANGELOG.md).
