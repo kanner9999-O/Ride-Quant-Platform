@@ -2,6 +2,27 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 10 v2.3 (ChatGPT review round 3: **1 Blocker · 1 Major · 0 Minor · 0 Suggestion mới**)
+
+Không có phản biện; 2 finding chấp nhận toàn bộ.
+
+### Fixed — Blocker: Compatibility Policy vẫn có competing authority qua cấu trúc "A hoặc B"
+- **Đây là lặp lại đúng lớp lỗi peer authority mà Chapter 9 đã mất hai vòng để loại bỏ** (`Input Contract HOẶC decision-dependency contract`), lần này ở tầng policy. v2.2 ghi identity authority là "Policy Contract **hoặc** registry", và runtime activation thuộc "**event/configuration** authority" — cả hai đều cho phép hai nguồn cùng trả lời một loại sự thật. Hệ quả: `Policy Contract: v3 active` vs `registry: v2 active`, hoặc `event log: POLICY_V3_ACTIVATED` vs `config: active_policy = v2` — evaluator chọn được nguồn thuận lợi, cùng một subject cho ra hai kết luận eligibility trái ngược, phá I-12 và phá chính evaluation provenance vừa khóa ở §10.4.1.
+- **Sửa §10.4.3 mục 3-4:** khóa **cardinality**, không chọn technology — mỗi loại policy fact, trong mỗi declared scope, **đúng một canonical authority**. Identity/definition/version: **cấm** tồn tại Contract và registry như hai peer source. Runtime applicability: configuration **có thể** là desired-state input, event log **có thể** là recorded transition, nhưng **chỉ một nguồn là canonical current/historical truth**; nguồn còn lại không được tự tạo competing activation fact. **Designation phải version hóa + governance phê duyệt**; thiếu designation hoặc có nhiều peer authority → **policy reference invalid** → `eligible = false` (I-6), reason ghi *invalid*/*không resolve được*. Mô hình cụ thể defer Phase 1. Cập nhật dòng authority tương ứng ở §10.1.
+- **Siết thêm (Claude chủ động, cùng lớp lỗi):** hai chỗ còn dùng "Domain Contract / registry" cho tên capability/schema đã đổi thành "registry/Contract được designate cho **chính loại khai báo đó** — mỗi loại đúng một, không phải lựa chọn giữa nhiều nguồn", để pattern này không tái phát ở vòng sau.
+
+### Fixed — Major: Capability Matrix là input authoritative nhưng chưa có authority, version, provenance
+- §10.8 đã pin subject scope tốt, nhưng chưa nói ai sở hữu Matrix, entry là declaration hay validated result, ai được ghi "supports Live", Matrix có version/content identity không, update ghi đè hay tạo version mới, gate pin được snapshot nào. Rule chống self-certification đã áp rất chặt cho Compatibility Result **nhưng chưa áp cho Capability Matrix** — một plugin tự khai `Live = YES` đi thẳng vào input của lifecycle gate mà chưa có evaluator, policy, evidence hay approval.
+- **Sửa — thêm §10.8.1:** tách **Declared support** (component tuyên bố thiết kế hỗ trợ mode nào — **không tự tạo eligibility**) khỏi **Validated capability/readiness** (đã đánh giá bằng policy/evidence, mới được dùng làm căn cứ readiness); hai lớp không được gộp trong cùng một ô "supports: yes". Validated entry phải pin: subject identity/version/artifact/config · evaluation policy/result hoặc evidence reference · evaluator/verification authority (quyền đánh giá là **grant**, không tự nhận) · validation boundary/time · immutable matrix version hoặc source frontier.
+- **Thêm §10.8.2:** Matrix phải là **versioned resolvable artifact** hoặc **projection của authoritative source đã designate** (nếu projection thì phải chỉ ra source frontier/version như mọi projection dùng cho quyết định — Ch7 §7.4). Update **không được ghi đè lịch sử**; **gate phải pin đúng snapshot đã dùng tại thời điểm đánh giá**, không đọc "matrix hiện tại" (nếu không, kết luận của gate đổi hồi tố theo trạng thái sau này); reference không resolve được về version/frontier cụ thể → không dùng làm input cho gate, xử lý theo §10.4.2.
+- **Không đóng OQ-002:** ghi rõ §10.8.1/§10.8.2 chỉ bảo đảm thứ đưa sang lifecycle gate không phải một bảng mutable tự khai; *khi nào* được lên Live vẫn thuộc OQ-002/Quality Gates.
+
+### Checklist (áp bài học v2.2 — grep toàn bộ heading, không chỉ phần vừa thêm)
+- Ch10 v2.3 · 16 heading đúng thứ tự §10.1→§10.9 (+ 10.3.1 · 10.4.1→10.4.4 · 10.8.1 · 10.8.2), không mục nào bị nuốt/trùng · **0 tham chiếu §10.x gãy** (10 ref đều tồn tại) · **0 cấu trúc peer authority "A hoặc B"** còn lại · 0 hardcode technology/tên file.
+
+### Note
+- Không tự tuyên bố Approve. Chờ ChatGPT review round 4 và Product Owner Approve/Lock.
+
 ## [Unreleased] — Chapter 10 v2.2 (ChatGPT review round 2: **1 Blocker · 2 Major · 1 Minor · 0 Suggestion mới**)
 
 Reviewer đã rút lại nhận định sai về metadata Chapter 9 ở vòng trước — repo đã đồng bộ đầy đủ quyết định Lock của Kanner. Không có phản biện nào ở vòng này; 4 finding chấp nhận toàn bộ.

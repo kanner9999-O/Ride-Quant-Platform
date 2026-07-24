@@ -1,7 +1,7 @@
 ---
 id: 10-compatibility-capability-contract
 title: Compatibility & Capability Contract
-version: "2.2"
+version: "2.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -30,8 +30,8 @@ depends_on: ["02-platform-invariants", "03-engineering-principles", "04-domain-p
 | Event Contract version · payload semantic · `schema_version` | Event Contract + [Chapter 8 §8.2.5](./08-event-model.md) |
 | Plugin identity 4 tầng · Plugin Contract declaration groups · promotion/activation boundary | [Chapter 9](./09-plugin-model.md) |
 | Authoritative implementation per capability · execution mode canonical | [Chapter 3 §3.1](./03-engineering-principles.md) |
-| **Compatibility Policy identity · version · activation state** | **Compatibility Policy Contract / registry được governance phê duyệt** (§10.4.3) — Constitution khóa yêu cầu, không tự làm registry |
-| Tên capability cụ thể · schema/format khai báo | Domain Contract / registry tương ứng |
+| **Compatibility Policy identity · version · activation state** | **Đúng một canonical authority được designate cho mỗi loại fact/scope** (§10.4.3) — Constitution khóa cardinality và yêu cầu, không chọn technology và không tự làm registry |
+| Tên capability cụ thể · schema/format khai báo | Registry/Contract được designate là authority cho **chính loại khai báo đó** — mỗi loại đúng một, không phải lựa chọn giữa nhiều nguồn |
 
 **Delegation Chapter 10 nhận từ các chapter Locked** (phải được đáp ứng ở đây, không được để trống):
 - [Chapter 3](./03-engineering-principles.md) §Engineering Foundation — SemVer cho schema/capability;
@@ -159,8 +159,10 @@ Quyết định eligibility là nhị phân, nhưng **lý do phải phân biệt
 
 1. **Stable logical identity** + **immutable version/content identity** cho từng version — pin bằng nhãn version tự do là **không hợp lệ**; result phải **exact-pin** artifact/content identity (cùng nguyên tắc Referenced Authoritative Artifact, [Chapter 8 §8.1.1](./08-event-model.md));
 2. **Declared scope** — policy áp cho phạm vi nào (execution mode · account · plugin class · contract class...); result nằm ngoài scope của policy nó viện dẫn là **invalid**;
-3. **Identity/definition authority** — thuộc **Compatibility Policy Contract hoặc registry được governance phê duyệt**; Constitution khóa yêu cầu, **không** tự tạo registry và **không** hardcode tên file. Chapter 10 là luật cấp cao, **không tự động trở thành runtime policy artifact**;
-4. **Runtime activation/applicability** — "policy version nào đang active cho scope nào" là **runtime fact**, thuộc authoritative event/configuration authority theo [I-12](./02-platform-invariants.md), **không** suy từ tài liệu Constitution;
+3. **Identity/definition/version authority — đúng MỘT canonical authority.** Constitution không hardcode tên file hay technology, nhưng architecture **phải designate chính xác một** authority sở hữu identity + version của policy. **KHÔNG được tồn tại "Policy Contract" và "registry" như hai peer source** cho cùng sự thật này — đó là cấu trúc `A hoặc B` mà [Chapter 9](./09-plugin-model.md) đã phải loại bỏ ở quan hệ Input Contract / decision-dependency contract. Chapter 10 là luật cấp cao, **không tự động trở thành runtime policy artifact**;
+4. **Runtime applicability/activation — đúng MỘT canonical authority cho mỗi scope.** "Policy version nào đang active cho scope nào" là **runtime fact** ([I-12](./02-platform-invariants.md)), không suy từ tài liệu Constitution. Configuration **có thể** là desired-state input và event log **có thể** là recorded transition, nhưng **chỉ một nguồn là canonical current/historical truth** cho scope đó; nguồn còn lại **không được tự tạo competing activation fact**. Nếu hai nguồn cùng trả lời được câu hỏi này, evaluator sẽ chọn được nguồn thuận lợi và cùng một subject cho ra hai kết luận eligibility trái ngược;
+
+   **Designation của cả hai authority trên phải được version hóa và governance phê duyệt.** Thiếu designation, hoặc tồn tại nhiều peer authority cho cùng một loại policy fact trong cùng scope → **policy reference invalid** → `eligible = false` ([I-6](./02-platform-invariants.md)), reason ghi *khai báo invalid*/*reference không resolve được* (§10.4.2). Mô hình cụ thể (ví dụ: registry giữ identity + immutable definition · authoritative event log giữ activation/retirement fact · configuration chỉ là desired input) thuộc **thiết kế Phase 1**; Chapter 10 chỉ khóa **cardinality**: mỗi loại policy fact, trong mỗi declared scope, đúng một canonical authority;
 5. **Lifecycle transition authoritative** — tạo/approve/activate/retire một policy version phải để lại authoritative record; **cấm mutate nội dung dưới cùng một version identity**;
 6. **Historical content** immutable và resolvable theo đúng horizon cam kết (§10.4.4);
 7. **Evaluator chỉ được dùng policy version đã được grant cho scope đó** — nối tiếp rule chống self-certification ở §10.4.1: quyền dùng policy là **grant**, không suy từ việc evaluator biết tên policy.
@@ -239,7 +241,28 @@ Nhận trực tiếp từ [Chapter 9 §9.7](./09-plugin-model.md): **`Independen
 
 **CẤM suy capability của mọi version/artifact chỉ từ logical Plugin Definition** — đó là declaration quá rộng, và sẽ mâu thuẫn với chính yêu cầu exact-artifact eligibility mà [Chapter 9 §9.5](./09-plugin-model.md) đã khóa.
 
-**Chapter 10 KHÔNG sở hữu lifecycle gate.** Việc *khi nào* một strategy được phép chuyển sang Live là **OQ-002**, hiện vẫn `Open`, thuộc **Quality Gates / Strategy Lifecycle** — [Chapter 9 §9.10](./09-plugin-model.md) đã khóa rằng không chapter nào được đóng ngầm nó. Capability Matrix là **input** cho gate đó, không phải bản thân gate; khai báo "hỗ trợ Live" không đồng nghĩa "được phép lên Live".
+### 10.8.1 Declared support ≠ Validated capability
+
+Rule chống self-certification ở §10.4.1 áp cho Compatibility Result **cũng phải áp cho Capability Matrix**. Nếu không, một plugin tự khai `Live = YES` sẽ đi thẳng vào input của lifecycle gate mà chưa có evaluator, policy, evidence hay approval nào.
+
+| Lớp | Ý nghĩa | Hệ quả |
+|---|---|---|
+| **Declared support** | Component **tuyên bố** nó được thiết kế để hỗ trợ mode nào | **KHÔNG tự tạo eligibility**; là input để đánh giá, không phải kết luận |
+| **Validated capability / readiness** | Đã được đánh giá bằng policy/evidence nào, đủ điều kiện làm input cho gate | Chỉ lớp này mới được dùng làm căn cứ readiness |
+
+**Hai lớp này không được gộp** trong cùng một ô "supports: yes".
+
+**Mỗi validated entry phải pin tối thiểu:** subject identity/version/artifact/config (§10.8) · evaluation policy/result hoặc evidence reference · evaluator/verification authority ([Chapter 9 §9.6](./09-plugin-model.md) — quyền đánh giá là **grant**, không phải tự nhận) · validation boundary/time · **immutable matrix version hoặc source frontier**.
+
+### 10.8.2 Authority và versioning của Capability Matrix
+
+Capability Matrix phải là **versioned, resolvable artifact** — hoặc **projection của một authoritative source đã được designate**, theo đúng cardinality "một canonical authority cho mỗi loại fact" ở §10.4.3. Nếu là projection, kết quả phải chỉ ra source frontier/version như mọi projection dùng cho quyết định ([Chapter 7 §7.4](./07-module-taxonomy.md)).
+
+- **Cập nhật Matrix KHÔNG được ghi đè lịch sử** — tạo version mới, giữ nguyên version cũ (cùng nguyên tắc immutability + horizon ở §10.4.4);
+- **Gate phải pin đúng Matrix snapshot** (hoặc authoritative evidence set) **đã dùng tại thời điểm đánh giá** — không đọc "matrix hiện tại", vì như vậy kết luận của gate sẽ đổi hồi tố theo trạng thái sau này;
+- Matrix reference không resolve được về một version/frontier cụ thể → không dùng được làm input cho gate → xử lý theo §10.4.2 (*reference không resolve được*), không phải bỏ qua.
+
+**Chapter 10 KHÔNG sở hữu lifecycle gate.** Việc *khi nào* một strategy được phép chuyển sang Live là **OQ-002**, hiện vẫn `Open`, thuộc **Quality Gates / Strategy Lifecycle** — [Chapter 9 §9.10](./09-plugin-model.md) đã khóa rằng không chapter nào được đóng ngầm nó. Capability Matrix là **input** cho gate đó, không phải bản thân gate; khai báo "hỗ trợ Live" không đồng nghĩa "được phép lên Live". Các rule ở §10.8.1/§10.8.2 **không** giải quyết OQ-002 — chúng chỉ bảo đảm thứ đưa sang gate đó không phải một bảng mutable tự khai.
 
 ## 10.9 Ngoài phạm vi Chapter 10 — defer Phase 1
 
@@ -249,4 +272,4 @@ Constitution khóa *yêu cầu*, không khóa *cơ chế*:
 - retention/archive protocol cụ thể cho compatibility result và artifact;
 - tooling, CI gate, báo cáo.
 
-Tên capability cụ thể và schema khai báo thuộc **Domain Contract / registry**, không thuộc Constitution.
+Tên capability cụ thể và schema khai báo thuộc **registry/Contract được designate cho từng loại khai báo** (§10.1), không thuộc Constitution.
