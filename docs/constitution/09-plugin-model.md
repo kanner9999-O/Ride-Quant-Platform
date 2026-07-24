@@ -1,7 +1,7 @@
 ---
 id: 09-plugin-model
 title: Plugin Model
-version: "2.8"
+version: "2.9"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -151,9 +151,12 @@ Decision-relevance phải là **thuộc tính authoritative được khai báo**
   - published contract references liên quan;
   - permission grant version tương ứng ([§9.6](#96-plugin-contract--nhóm-thông-tin-bắt-buộc-khai-báo));
   - required capability/compatibility result ([Chapter 10](./10-compatibility-capability-contract.md));
-  - runtime implementation/deployment version.
+  - runtime implementation/deployment version;
+  - **exact Package/Build Artifact content identity đã qua parity/compatibility validation** — hoặc, nếu dùng immutable release manifest, **manifest version/content identity + target platform/runtime discriminator** đủ để resolve duy nhất tới artifact đó ([§9.1](#91-plugin-là-gì--và-thuộc-phạm-vi-module-taxonomy): Plugin Version một mình không đủ để xác định exact artifact).
 
-  **Trước boundary:** output KHÔNG được dùng cho authoritative Decision, dù Plugin Contract đã tuyên bố decision-relevant. **Sau boundary:** mọi Decision phải pin đúng promoted snapshot ở trên — không được lẫn phần cũ/phần mới. **Partial promotion hoặc mixed-version activation** (ví dụ: Plugin Contract đã decision-relevant nhưng Input Contract chưa pin dependency mới; hoặc ngược lại, consumer đã đọc output trong khi Plugin Contract vẫn khai `decision_participation: false`) → **integrity violation, fail-safe** [I-6](./02-platform-invariants.md).
+  **Chỉ trùng Plugin Version là không đủ để activation eligible** — runtime implementation thực tế đang chạy tại boundary phải resolve duy nhất tới đúng artifact đã nằm trong compatibility set được validate; artifact khác (kể cả rebuild cùng Plugin Version) là **mixed-build activation**, không phải cùng một validated snapshot.
+
+  **Trước boundary:** output KHÔNG được dùng cho authoritative Decision, dù Plugin Contract đã tuyên bố decision-relevant. **Sau boundary:** mọi Decision phải pin đúng promoted snapshot ở trên — không được lẫn phần cũ/phần mới, và **exact artifact hash ghi trong Decision evidence phải khớp artifact đã có trong compatibility set được validate** (evidence đúng sau khi chạy không tự chứng minh artifact đó từng được phép hoạt động tại activation — hai việc khác nhau). **Partial promotion hoặc mixed-version/mixed-build activation** (ví dụ: Plugin Contract đã decision-relevant nhưng Input Contract chưa pin dependency mới; consumer đã đọc output trong khi Plugin Contract vẫn khai `decision_participation: false`; hoặc runtime đang chạy artifact khác artifact đã parity-validate dù cùng Plugin Version) → **integrity violation, fail-safe** [I-6](./02-platform-invariants.md).
 
   Cơ chế fencing/transaction/deployment-coordinator cụ thể cho boundary này có thể **defer sang Phase 1 design spec**; **atomic semantic của boundary phải khóa ngay ở Chapter 9**, không defer.
 
