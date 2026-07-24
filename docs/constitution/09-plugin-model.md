@@ -1,7 +1,7 @@
 ---
 id: 09-plugin-model
 title: Plugin Model
-version: "2.7"
+version: "2.8"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -35,7 +35,7 @@ depends_on: ["02-platform-invariants", "07-module-taxonomy", "08-event-model"]
 
 **Nguyên tắc phân loại:** `Strategy Instance identity ≠ Module identity` trong **mọi** trường hợp, kể cả khi instance được vận hành độc lập. Registry chỉ sở hữu **registered module type/definition** — **không bao giờ** sở hữu runtime instance fact ([I-12](./02-platform-invariants.md), [§9.8](#98-lifecycle--tách-architecture-identity-khỏi-runtime-state)). Một module type có thể host/deploy **nhiều** Strategy Instance độc lập với nhau; tạo thêm hoặc retire instance là **operational action** ghi nhận trong event log, **không** phải architecture registry change và **không** cần sửa `module-registry.yaml`. Chỉ khi kiến trúc thật sự tạo ra một **module type mới** có published boundary/responsibility riêng (không chỉ một deployment/instance mới của module type đã có) mới cần thêm entry `module-registry` — đó là architecture change, thuộc diện **ADR Required** nếu là type/capability mới (§9.10).
 
-**Plugin Definition KHÔNG phải artifact riêng nằm ngoài taxonomy.** Mỗi plugin (ở tầng Definition/Package):
+**Plugin Definition KHÔNG phải artifact riêng nằm ngoài taxonomy.** Mỗi **Plugin Definition**:
 - phải có **một primary taxonomy type** trong 3 loại của Chapter 7 (Compute Engine / Projection / Runtime Service) — Strategy Plugin điển hình là **Compute Engine** (suy diễn domain information thành output, không sở hữu external side effect);
 - được đăng ký trong **`/docs/architecture/module-registry.yaml`** cùng mọi module khác ([Chapter 7 §7.5](./07-module-taxonomy.md)).
 
@@ -54,6 +54,14 @@ depends_on: ["02-platform-invariants", "07-module-taxonomy", "08-event-model"]
 
 `module-registry.yaml` đăng ký **Plugin Definition** (logical identity, taxonomy type) — không đăng ký binary hay replica. **Decision evidence phải pin rõ Plugin Version** dùng để tạo Decision; không được lẫn với content hash của Package/Build Artifact hay với Plugin Runtime replica cụ thể đã xử lý request. Promote/rollback ([§9.8](#98-lifecycle--tách-architecture-identity-khỏi-runtime-state), [§9.10](#910-khi-nào-cần-adr--tách-architecture-change-khỏi-operational-action)) phải nói rõ tác động ở tầng nào: đổi **Plugin Version** là contract-relevant (có thể ADR Required nếu đổi published contract); chuyển **Plugin Runtime** sang replica khác là operational (không ADR).
 
+**Pin Plugin Version là CẦN, chưa ĐỦ để tái dựng exact implementation đã chạy.** Một Plugin Version có thể có nhiều Package/Build Artifact (theo target platform, hoặc do rebuild), mỗi artifact có content hash riêng. Nếu Decision evidence chỉ biết Plugin Version, Replay không trả lời được: artifact nào thực sự xử lý Decision, platform nào, build nào, checksum nào phải materialize để verify. **Plugin Version ≠ Build Artifact, nhưng reference một mình Plugin Version không đủ nếu nó không resolve duy nhất tới exact artifact đã chạy.**
+
+**Bắt buộc:** Decision evidence phải pin Plugin Version **đồng thời** truy được một cách bất biến tới exact Package/Build Artifact hoặc immutable release manifest đã exact-pin — gồm artifact content identity/checksum, target platform/runtime, build identity, và dependency/runtime environment cần thiết cho deterministic replay ([Chapter 8 §8.1.1](./08-event-model.md): referenced authoritative artifact phải có immutable content identity và persistently resolvable). Hai mô hình hợp lệ, không hardcode schema:
+- **Mô hình A — Decision pin trực tiếp artifact:** `plugin_definition_id` · `plugin_version` · `artifact_content_hash`.
+- **Mô hình B — Version manifest bất biến:** `plugin_version` trỏ tới một **immutable release manifest** exact-pin artifact theo từng target platform; Decision/run evidence phải pin đủ target/runtime discriminator để resolve duy nhất qua manifest đó.
+
+Schema cụ thể thuộc registry/Domain Contract; Chapter 9 chỉ khóa yêu cầu resolvability.
+
 ## 9.2 Plugin tương tác qua published contract
 
 Plugin **chỉ** được tương tác qua **published contract**: versioned event · query/read contract · command contract ([I-7](./02-platform-invariants.md)). Cấm gọi trực tiếp implementation nội bộ hoặc mutable state của module khác; cấm truy cập storage thuộc module khác.
@@ -69,7 +77,7 @@ Plugin **chỉ** được tương tác qua **published contract**: versioned eve
 | Identity | Bản chất | Thuộc về |
 |---|---|---|
 | **Plugin Definition** | Logical extension identity, taxonomy type + trách nhiệm (4 tầng đầy đủ ở [§9.1](#91-plugin-là-gì--và-thuộc-phạm-vi-module-taxonomy)) | Architecture — đăng ký `module-registry.yaml`, có primary taxonomy type (§9.1) |
-| **Strategy Definition** | Domain-level strategy semantics/philosophy; tham chiếu plugin implementation version | Domain Contract ([Chapter 4](./04-domain-principles.md)) |
+| **Strategy Definition** | Domain-level strategy semantics/philosophy; tham chiếu **Plugin Version** (§9.1) của implementation nó dùng | Domain Contract ([Chapter 4](./04-domain-principles.md)) |
 | **Strategy Instance** | Runtime instance đã cấu hình của một Strategy Definition: instance identity · parameters · Input Contract · configuration · lifecycle riêng | Strategy Domain Contract |
 
 *`Package/Build Artifact` và `Plugin Runtime` không nằm trong bảng ba-identity này — chúng đã được định nghĩa đầy đủ ở 4 tầng của §9.1 và không phải cấp domain/runtime instance mà bảng này mô tả.*
@@ -89,7 +97,7 @@ Plugin **chỉ** được tương tác qua **published contract**: versioned eve
 
 1. **Instance identity ổn định** qua restart/redeploy — không được sinh lại ID mới khi process khởi động lại.
 2. **Đổi plugin version hoặc configuration** phải tạo **binding mới hoặc instance version mới** — KHÔNG mutate ngầm một identity đang chạy.
-3. **Decision evidence phải resolve chính xác**: `strategy_instance` · `configuration version` · `plugin implementation version` đã dùng lúc tính Decision (ba thứ ADR-010 đã tách riêng).
+3. **Decision evidence phải resolve chính xác**: `strategy_instance` · `configuration version` · **`Plugin Version`** đã dùng lúc tính Decision (ba thứ ADR-010 đã tách riêng) — **và** đủ để resolve tới exact Package/Build Artifact đã chạy theo yêu cầu ở §9.1.
 4. **State transition của instance** (created · activated · paused · stopped · retired) là **authoritative event** trong event log (§9.8), không phải trạng thái ngầm suy từ registry hay config file.
 
 5. **Lifecycle transition KHÔNG được hủy hoặc vô hiệu hóa evidence của Decision đã tính.** Pause/stop/retire một instance là **operational state change**, không phải xóa lịch sử:
