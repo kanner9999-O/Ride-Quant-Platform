@@ -2,6 +2,27 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 10 v2.6 (ChatGPT review round 6: **1 Blocker · 1 Major · 0 Minor · 0 Suggestion mới**)
+
+Reviewer đã rút lại nhận định "outcome giữ nguyên" ở vòng trước và xác nhận phản biện meta của Claude là đúng. Vòng này không có phản biện; 2 finding chấp nhận toàn bộ.
+
+### Fixed — Blocker: §10.5.1 tự mâu thuẫn về policy transition
+- **Mâu thuẫn do chính Claude tạo ra ở v2.5.** Bảng transition ghi *"activation hiện hành tiếp tục dưới snapshot đã pin **cho tới activation boundary kế tiếp**"*, nhưng đoạn ngay sau lại khóa *"trong cửa sổ... subject không được coi là eligible để mở activation mới **hay để sinh authoritative Decision qua result cũ**"*. Hai câu không thể cùng đúng: cách hiểu A (chạy tiếp tới boundary kế tiếp, vẫn sinh Decision trong T1→T2) và cách hiểu B (mất eligibility ngay tại T1, tức immediate fail-safe) đều viện dẫn được đúng một mục Constitution → hai runtime hành xử ngược nhau mà cùng "tuân thủ".
+- **Sửa — thay bằng mô hình hai lớp duy nhất, không có lớp thứ ba:**
+  - **Immediate suspension** — evaluator grant bị revoke/phát hiện không có quyền · transition được policy phân loại safety-critical → result cũ **hết hiệu lực làm current eligibility evidence NGAY**, subject **dừng sinh authoritative Decision**, resume sau khi có result hợp lệ mới, fail-safe I-6 phạm vi nhỏ nhất đủ.
+  - **Bounded revalidation** — policy applicability đổi **không** safety-critical · authority designation đổi → result cũ **VẪN là current eligibility evidence** tới một **explicit, bounded revalidation deadline đã pin**; trong cửa sổ đó subject **ĐƯỢC PHÉP** tiếp tục sinh authoritative Decision; **quá deadline chưa có result mới → fail-safe I-6**.
+- **Hai rule khép kín áp cho cả hai lớp:** (a) **mở activation MỚI luôn cần result hợp lệ dưới policy/designation đang áp dụng** — "tiếp tục" ở lớp bounded chỉ nghĩa là duy trì activation đang tồn tại, không phải mở activation mới (Ch9 §9.5 phải validate tại chính boundary đó); (b) **không có deadline explicit + bounded + pin được thì KHÔNG thuộc lớp bounded**, mặc định rơi về immediate suspension — nếu không, "bounded revalidation" thành cửa hoãn vô thời hạn.
+
+### Fixed — Major: grant reference/version chưa đủ chứng minh grant có hiệu lực tại boundary
+- v2.5 mới pin `evaluator authorization/grant reference + version`. Nhưng **grant artifact tồn tại ≠ grant đang có hiệu lực**: reference không chứng minh grant là authoritative, đúng scope, đã active, chưa bị revoke tại boundary. Ví dụ hỏng: grant `G7` cấp cho evaluator `E` scope `Paper`, revoke tại T1; result tại T2 pin đúng `G7` + version nhưng cho scope `Live` vẫn trông hợp lệ. So với policy — vốn đã được pin **cả artifact lẫn applicability fact/frontier** (§10.4.3) — grant đang ở cấp chứng cứ thấp hơn.
+- **Sửa §10.4.1:** grant phải pin **cùng cấp độ chứng cứ với policy** — grant identity + immutable version/content identity · declared grant scope · **canonical grant-authority designation version** (áp cùng quy tắc exactly-one authority của §10.4.3) · **authoritative grant activation/applicability fact hoặc frontier tại evaluation boundary** · bằng chứng grant chưa bị revoke và bao phủ đủ `policy version × subject scope × quyền phát hành result × boundary`. Khóa thêm nguyên tắc song song: `module identity ≠ authorization` **và** `grant artifact tồn tại ≠ grant đang có hiệu lực`. Grant không resolve được authority/applicability, sai scope, chưa active hoặc đã revoke → **Result INVALID**, không vào validated compatibility set. Revoke **sau đó** không sửa result lịch sử (§10.4.4); §10.5.1 mới quyết định result còn dùng được cho current eligibility hay không. Cập nhật điều kiện invalid-result tương ứng.
+
+### Checklist
+- Ch10 v2.6 · 17 heading đúng thứ tự · **0 heading bị nuốt/trùng** (`## 10.6` = 1 — áp bài học v2.2/v2.5, đưa heading vào `new_str`) · **0 tham chiếu §10.x gãy** · grep xác nhận **0 occurrence** của cả hai câu gây mâu thuẫn ("cho tới activation boundary kế tiếp" · "hay để sinh authoritative Decision qua đường phụ thuộc result cũ") · version file ↔ MANIFEST đồng bộ.
+
+### Note
+- Không tự tuyên bố Approve. Chờ ChatGPT review round 7 và Product Owner Approve/Lock.
+
 ## [Unreleased] — Chapter 10 v2.5 (ChatGPT review round 5: **1 Blocker · 1 Major · 0 Minor · 0 Suggestion mới**)
 
 ### Note — phản biện phần meta của review (finding kỹ thuật chấp nhận toàn bộ)
