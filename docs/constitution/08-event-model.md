@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "4.4"
+version: "4.5"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -23,7 +23,7 @@ depends_on: ["02-platform-invariants", "03-engineering-principles", "05-time-mod
 > 1. ADR-009 được Product Owner **accept**;
 > 2. ADR-010 được **accept** theo dependency gate (ADR-010 §7 — không accept trước ADR-009);
 > 3. OQ-005/OQ-006 chuyển sang `Resolved` trong MANIFEST;
-> 4. ~~§8.4.1 có quyết định của Product Owner~~ — **✅ ĐÃ XONG** (Model A, 2026-07-18; ghi tại ADR-010 §2.6);
+> 4. ~~§8.4.1 có quyết định của Product Owner~~ — **✅ ĐÃ XONG** (Append-and-Revalidate Policy, 2026-07-18; ghi tại ADR-010 §2.6);
 > 5. ~~Vấn đề Decision output stream retire tại transition~~ — **✅ ĐÃ XONG** (Scoped Policy + canonical Audit Stream, PO quyết 2026-07-18);
 > 6. Consolidation review hoàn tất.
 >
@@ -202,7 +202,7 @@ producer_ref:
 
 ### 8.2.5 `event_contract_ref` — pin Event Contract, tách khỏi `schema_version`
 
-Event Contract là **Referenced Authoritative Artifact** (§8.1.1) nên phải được pin bằng version tường minh. Dùng **Model A**: event pin trực tiếp `event_contract_ref: {contract_id, contract_version}`.
+Event Contract là **Referenced Authoritative Artifact** (§8.1.1) nên phải được pin bằng version tường minh. Dùng **Direct Contract Pin**: event pin trực tiếp `event_contract_ref: {contract_id, contract_version}`.
 
 **Vì sao KHÔNG dùng `schema_version` làm proxy cho Event Contract version:** Event Contract sở hữu nhiều thứ hơn payload schema — `event_class`, `allowed_streams`, `merge_constraints`, payload semantic. Hai contract version có thể có **cùng payload schema** nhưng khác `event_class` hoặc khác `allowed_streams`; khi đó `schema_version` không phân biệt được, và historical validator không biết dùng contract nào. Hai thứ này tiến hóa độc lập:
 
@@ -409,6 +409,11 @@ frontier_policy:                                       # BẮT BUỘC (§8.3.4) 
   late_arrival_behavior:
   buffer_limit_policy:
   incomplete_frontier_behavior:
+
+causal_closure_policy:                                 # BẮT BUỘC (§8.2.3) — versioned cùng contract
+  mode: full | declared-state-dependencies
+  dependency_authority:                                # bắt buộc khi mode = declared-state-dependencies
+    event_contract_ref: {contract_id, contract_version}
 ```
 
 **Partial order authoritative = hợp của HAI hard constraint** (cả hai đều bất biến, không được version hóa qua tie-break):
@@ -421,7 +426,27 @@ P_causation:  cause ≺ effect                         — từ `causation_refs`
                                                     `related_event_refs` KHÔNG tham gia
 ```
 
-**`P_authoritative` BẮT BUỘC là một DAG** — topological order chỉ tồn tại khi graph không có cycle. Một causation edge KHÔNG được:
+**Tách hai đồ thị — global causation vs run-local apply:**
+
+```
+P_global = P_stream ∪ P_causation   trên TOÀN BỘ authoritative event graph   → BẮT BUỘC là DAG
+P_run    = induced order trên các event thuộc apply set của một Input Contract
+```
+
+`P_global` là sự thật bất biến cấp platform. `P_run` là thứ processor thực sự sắp xếp và apply. Một **external non-state cause** (ngoài Input Contract universe):
+- **KHÔNG** phải vertex của `P_run` — không nằm trong topological apply order của run đó;
+- được coi là **external satisfied prerequisite**: phải có **append-time committed/existence proof** (tuple consistency §8.2.3);
+- **KHÔNG** yêu cầu `stream_position` trong cursor, **KHÔNG** ảnh hưởng frontier completeness của run;
+- **cấm** đọc payload.
+
+Quy tắc cho processor (thay cho "mọi causation_ref phải cursor-visible"):
+```
+causation_ref IN-SCOPE      → phải cursor-visible VÀ apply trước effect
+causation_ref EXTERNAL      → chỉ cần immutable committed/existence proof;
+                              KHÔNG áp rule cursor visibility như in-scope event
+```
+
+**`P_global` BẮT BUỘC là một DAG** — topological order chỉ tồn tại khi graph không có cycle. Một causation edge KHÔNG được:
 - tạo cycle trực tiếp hoặc bắc cầu (ví dụ A causes B, B causes A);
 - mâu thuẫn per-stream sequence precedence (ví dụ `A@100.causation_refs = [A@101]` → `A ≺ B ≺ A`, không có thứ tự hợp lệ);
 - khiến effect đứng trước cause trong cùng logical stream.
@@ -449,7 +474,7 @@ causal-topological      → A trước B     ← ĐÚNG
 
 *(Tên gọi: artifact này từng được gọi **`Replay Contract`** ở các bản nháp trước. Đổi thành **`Input Contract`** vì nó áp dụng cross-mode, không chỉ phục vụ replay — giữ tên cũ sẽ gây hiểu nhầm khi Live Decision phải pin nó. Vẫn là **một** artifact duy nhất, không thêm surface area; replay-run control cụ thể — cursor bắt đầu/kết thúc, tốc độ — là cấu hình của lần chạy, không thuộc contract này.)*
 
-**Tuân đầy đủ §8.1.1** — mọi thay đổi `included_streams`, `merge_policy`, `frontier_policy`, hoặc constraint resolution đều **bắt buộc** tạo `contract_version` mới; version đã được cursor/Decision tham chiếu là bất biến. (Nếu contract cùng ID bị sửa nội dung, cùng một cursor lịch sử sẽ cho interleave khác — phá deterministic replay và Decision Parity.)
+**Tuân đầy đủ §8.1.1** — mọi thay đổi `included_streams`, `merge_policy`, `frontier_policy`, `causal_closure_policy`, hoặc constraint resolution đều **bắt buộc** tạo `contract_version` mới; version đã được cursor/Decision tham chiếu là bất biến. (Nếu contract cùng ID bị sửa nội dung, cùng một cursor lịch sử sẽ cho interleave khác — phá deterministic replay và Decision Parity.)
 
 ```yaml
 # Event Contract — chỉ constraint, không sở hữu policy
@@ -516,7 +541,7 @@ Quy tắc bắt buộc cho processor:
 
 ### 8.3.5 Stream Lifecycle and Bootstrap
 
-**Retirement và terminal frontier (Model B — đề xuất):** một stream bị retire **vẫn thuộc universe** nếu Input Contract chọn nó, nhưng vị trí bị đóng tại `terminal_position` và frontier của nó được coi là **terminal** (không chờ thêm). Chọn Model B thay vì Model A (loại stream retired khỏi universe) vì: loại khỏi universe sẽ làm **biến mất một phần input history** khỏi cursor, phá replay/audit của giai đoạn stream còn hoạt động.
+**Retirement và terminal frontier (Retained-in-Universe):** một stream bị retire **vẫn thuộc universe** nếu Input Contract chọn nó, nhưng vị trí bị đóng tại `terminal_position` và frontier của nó được coi là **terminal** (không chờ thêm). Chọn Retained-in-Universe thay vì Excluded-from-Universe (loại stream retired khỏi universe) vì: loại khỏi universe sẽ làm **biến mất một phần input history** khỏi cursor, phá replay/audit của giai đoạn stream còn hoạt động.
 
 ```yaml
 retirement_boundary:
@@ -570,13 +595,13 @@ Quy tắc trên tạo hồi quy vô hạn nếu không có điểm khởi đầu
 
 **Protected streams — KHÔNG được retire:** canonical Lifecycle Stream và canonical Audit Stream là **protected**; retirement invariant (§8.3.5) **không áp dụng** cho chúng. Lý do: cả hai phải tồn tại xuyên mọi registry transition — lifecycle stream để ghi chính các boundary, audit stream để bảo toàn fact khi stream khác mất eligibility. Retire chúng sẽ tạo lại đúng vòng bootstrap mà Genesis Registry sinh ra để chặn.
 
-**Canonical Lifecycle Stream (Model A):** platform có **đúng một** Logical Lifecycle Stream với `stream_id` ổn định. **Mọi** activation, retirement, stream creation, và writer-authority transition boundary phải được ghi trên stream này. Lifecycle stream có thể handoff writer (§8.3.1) nhưng **không đổi logical stream identity**.
+**Canonical Lifecycle Stream (Single Lifecycle Stream):** platform có **đúng một** Logical Lifecycle Stream với `stream_id` ổn định. **Mọi** activation, retirement, stream creation, và writer-authority transition boundary phải được ghi trên stream này. Lifecycle stream có thể handoff writer (§8.3.1) nhưng **không đổi logical stream identity**.
 
 Ràng buộc kéo theo:
 ```
 boundary.event_ref.stream_id  =  cursor.lifecycle_frontier.stream_id  =  canonical lifecycle stream_id
 ```
-*Vì sao Model A thay vì lifecycle frontier dạng vector (Model B):* so sánh `boundary.sequence ≤ frontier.sequence` chỉ có nghĩa khi hai bên **cùng logical stream** — với nhiều control stream, `100 ≤ 500` giữa `lifecycle-east` và `lifecycle-west` là phép so vô nghĩa (hai ordering authority khác nhau). Model B (vector `lifecycle_frontiers`) tổng quát hơn nhưng tạo partial order đa stream cho control plane, phức tạp không tương xứng nhu cầu.
+*Vì sao Single Lifecycle Stream thay vì Lifecycle Frontier Vector:* so sánh `boundary.sequence ≤ frontier.sequence` chỉ có nghĩa khi hai bên **cùng logical stream** — với nhiều control stream, `100 ≤ 500` giữa `lifecycle-east` và `lifecycle-west` là phép so vô nghĩa (hai ordering authority khác nhau). Lifecycle Frontier Vector (`lifecycle_frontiers`) tổng quát hơn nhưng tạo partial order đa stream cho control plane, phức tạp không tương xứng nhu cầu.
 
 **Sau Genesis Registry, mọi stream creation, activation, retirement, và writer handoff bắt buộc dùng lifecycle boundary bình thường. KHÔNG có ngoại lệ thứ hai** — implementation không được tự tạo bootstrap shortcut nào khác.
 
@@ -654,6 +679,7 @@ Append-and-Revalidate yêu cầu Decision vẫn được append, nhưng nếu ch
 2. Phải ghi **lý do** không append được vào stream đích (stream retired / event ineligible) kèm `event_record_ref` của retirement boundary hoặc registry activation liên quan.
 3. Preservation fact **KHÔNG** cấp execution eligibility và **KHÔNG** thay thế Decision fact bình thường — nó là bản ghi *"Decision này đã được tính nhưng không thể vào stream đích"*.
 4. Cấm dùng preservation path để lách retirement: nếu stream đích còn active và event còn eligible, **bắt buộc** đi đường append bình thường.
+5. **Preservation fact là một authoritative event type RIÊNG**, KHÔNG phải original Decision event, và phải pin một **dedicated Event Contract** với: `event_class` phù hợp · `allowed_streams` **chỉ gồm canonical Audit Stream** · bắt buộc mang **full** original `decision_context_cursor` · bắt buộc tham chiếu transition/retirement boundary · **prohibited execution eligibility**. Cấm tái sử dụng Event Contract của Decision gốc để lách eligibility (ghi original Decision event vào Audit Stream sẽ vi phạm chính `allowed_streams` của nó). *(Tên event và payload cụ thể thuộc Decision/Audit Domain Contract — Constitution không hardcode.)*
 
 *Phương án thay thế đã cân nhắc và loại: **lifecycle drain invariant** — cấm retire Decision output stream cho tới khi mọi in-flight Decision đã đóng. Loại vì làm retirement protocol phức tạp và có thể phải chờ không giới hạn khi có Decision treo.*
 
@@ -691,7 +717,7 @@ replay_cursor:
     <stream_id>: <sequence>
 ```
 
-**`lifecycle_frontier` là thành phần bắt buộc của canonical knowledge boundary** (Model A). Lý do: stream universe được quyết định bởi activation/retirement boundary nằm trên **control stream**, nhưng control stream không thuộc `included_streams` của Input Contract (nó là platform-control fact, không phải strategy input). Không pin frontier của nó thì cursor **không tự chứng minh được** boundary sequence 812 đã visible tại chính cursor này — so `recorded_time` là không đủ (nhiều event cùng timestamp; vector cursor sinh ra chính để phân biệt các trường hợp đó).
+**`lifecycle_frontier` là thành phần bắt buộc của canonical knowledge boundary** (Dedicated Lifecycle Frontier). Lý do: stream universe được quyết định bởi activation/retirement boundary nằm trên **control stream**, nhưng control stream không thuộc `included_streams` của Input Contract (nó là platform-control fact, không phải strategy input). Không pin frontier của nó thì cursor **không tự chứng minh được** boundary sequence 812 đã visible tại chính cursor này — so `recorded_time` là không đủ (nhiều event cùng timestamp; vector cursor sinh ra chính để phân biệt các trường hợp đó).
 
 **Trạng thái genesis (chưa có lifecycle event nào):** ngay sau Genesis Registry, lifecycle stream tồn tại nhưng chưa có event nào được append — cursor đầu tiên vẫn phải hợp lệ. Dùng `position.kind: genesis`:
 
@@ -713,7 +739,7 @@ Vi phạm bất kỳ điều nào → **invalid cursor**, cấm replay hoặc pr
 
 **Invariant:** mọi activation/retirement boundary dùng để xác định stream universe phải có `sequence ≤ lifecycle_frontier.position.sequence` của cursor (hợp lệ vì cả hai cùng nằm trên canonical lifecycle stream — §8.3.5). Nếu `kind: genesis`, chưa có lifecycle event nào visible nên **không** activation/retirement boundary nào thuộc universe. Khi **so sánh hoặc tái tạo cùng một logical Decision/run** qua các execution mode, mọi mode phải pin **cùng** `lifecycle_frontier` — nếu không, universe có thể khác nhau giữa Live và Replay, phá [I-2](./02-platform-invariants.md) và làm `decision_context_cursor` không còn là exact knowledge boundary. *(Đây KHÔNG có nghĩa mọi run phải dùng chung một frontier cố định: Decision lúc 10:00 và Decision lúc 11:00 đương nhiên có frontier khác nhau.)*
 
-*(Chọn Model A thay vì Model B — bắt buộc control stream nằm trong mọi Input Contract — vì Model B trộn platform-control facts vào strategy input scope, làm bẩn domain boundary.)*
+*(Chọn Dedicated Lifecycle Frontier thay vì Control-Stream-In-Contract — bắt buộc control stream nằm trong mọi Input Contract — vì phương án sau trộn platform-control facts vào strategy input scope, làm bẩn domain boundary.)*
 
 **Consistency invariant:** `cursor.stream_registry_version` phải **bằng** registry version mà Input Contract đã pin. Mismatch là **invalid cursor** — phải từ chối, không replay best-effort. Cursor lặp lại registry version để **tự đủ** (self-contained), nhưng không được mâu thuẫn với contract.
 

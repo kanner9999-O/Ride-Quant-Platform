@@ -1,5 +1,5 @@
 ---
-manifest_version: "8.6"
+manifest_version: "8.7"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31,7 +31,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/05-time-model.md | 2.4 | **Locked** | Product Owner | 04-domain-principles, 02-platform-invariants |
 | constitution/06-identity-model.md | 2.5 | **Locked** | Product Owner | 02-platform-invariants, 04-domain-principles, 05-time-model |
 | constitution/07-module-taxonomy.md | 2.2 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles |
-| constitution/08-event-model.md | 4.4 | In Review | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
+| constitution/08-event-model.md | 4.5 | In Review | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
 | constitution/09-plugin-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/10-compatibility-capability-contract.md | 1.0 | In Review | Product Owner | 09-plugin-model |
 | constitution/11-adr-process.md | 1.3 | In Review | Product Owner | 00-governance |
@@ -52,7 +52,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | adr/ADR-007.md — Vision Scope: nội bộ/crypto trước, chừa chỗ mở rộng | **Locked** | — | — |
 | adr/ADR-008.md — Phân bổ ngôn ngữ Python/Go, Rust reserved | **Approved** | — | — |
 | adr/ADR-009.md — Ordering Mechanism (giải OQ-005) | **Draft** | — | — |
-| adr/ADR-010.md — Decision Time Model, Model A (giải OQ-006) | **Draft** | — | — |
+| adr/ADR-010.md — Decision Effective-Time Model + Append-and-Revalidate Policy (giải OQ-006) | **Draft** | — | — |
 
 ## Domain
 
@@ -82,7 +82,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | ADR-007 | Locked | 2026-07-17 | Vision Phase 0-3: nội bộ + crypto only, kiến trúc chừa chỗ multi-tenant/đa tài sản |
 | ADR-008 | Approved | 2026-07-18 | Phân bổ ngôn ngữ Python (lõi logic)/Go (biên hệ thống), Rust reserved — ghi hồi tố khi Claude tự review Chapter 3 |
 | ADR-009 | Draft | 2026-07-18 | Ordering: per-stream contiguous sequence + explicit causation + DAG, không global total order. Product Owner đã duyệt HƯỚNG (OQ-005); ADR chờ review + accept |
-| ADR-010 | Draft | 2026-07-18 | Decision Time Model A + §2.6 Registry-Transition Policy = **Append-and-Revalidate** (PO quyết 2026-07-18: 4 guardrail + evidence chain + Scoped Policy/Audit Stream khi stream đích retire). ADR chờ review + accept |
+| ADR-010 | Draft | 2026-07-18 | Decision Effective-Time Model + §2.6 Registry-Transition Policy = **Append-and-Revalidate** (PO quyết 2026-07-18: 4 guardrail + evidence chain + Scoped Policy/Audit Stream khi stream đích retire). ADR chờ review + accept |
 
 ## Open Questions
 
@@ -100,7 +100,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | # | Nội dung | Nguồn đề xuất |
 |---|---|---|
 | BL-001 | `review_status` dạng machine-readable trong metadata (thay vì list `reviewers` dạng text) | ChatGPT review |
-| BL-006 | Sau khi ADR-009/ADR-010 được **accept**: dọn decision history khỏi Chapter 8 (các đoạn "chọn Model A thay vì B", "vì sao chọn mô hình này") — rationale + alternatives đã nằm trong ADR; Constitution chỉ giữ normative rule. Giữ đúng ranh giới Constitution = rule, ADR = decision history | ChatGPT Suggestion (consolidation round) |
+| BL-006 | Sau khi ADR-009/ADR-010 được **accept**: dọn decision history khỏi Chapter 8 (các đoạn "vì sao chọn phương án này thay vì phương án kia") — rationale + alternatives đã nằm trong ADR; Constitution chỉ giữ normative rule. Giữ đúng ranh giới Constitution = rule, ADR = decision history | ChatGPT Suggestion (consolidation round) |
 | BL-005 | Processing Observation (Chapter 5 §5.2) cần schema đầy đủ + observability convention (processor/attempt/started_at/completed_at) — thuộc Engineering Foundation (Phase 1.5), không phải Constitution | ChatGPT Observation (Chapter 5 v2.4) |
 | BL-004 | context-map.yaml có thể tách file (capabilities/ contexts/ relationships riêng) KHI file quá lớn — chưa làm vì file chưa tồn tại, tránh giải quyết vấn đề chưa đo được. Xử lý ở Engineering Foundation/Phase 0.2 khi có dữ liệu thật | ChatGPT review (Chapter 4 round 4) |
 | BL-003 | Invariant Conformance Matrix (Invariant → Architecture mechanism → Owning module → Enforcement → Automated test → Runtime metric/alert → Evidence location) — thuộc Architecture/Engineering Phase, KHÔNG phải Constitution. Chỉ làm khi module/contract thật đã tồn tại, không điền tên ADR/tài liệu chưa tạo (tránh tham chiếu giả) | ChatGPT review (Chapter 2 round 3) |
