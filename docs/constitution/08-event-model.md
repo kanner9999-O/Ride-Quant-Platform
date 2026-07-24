@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "4.6"
+version: "4.7"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -146,8 +146,14 @@ subject_ref: {subject_kind: value, subject_type: Price, subject_id: price_123}
 ```yaml
 causal_closure_policy:
   mode: full | declared-state-dependencies
-  dependency_authority:            # BẮT BUỘC khi mode = declared-state-dependencies
-    event_contract_ref: {contract_id, contract_version}
+  dependency_authority: per_effect_event_contract   # scalar enum — KHÔNG phải object
+```
+
+**Cardinality của `dependency_authority`:**
+```
+mode = full                        → dependency_authority PROHIBITED (omitted)
+mode = declared-state-dependencies → dependency_authority REQUIRED
+                                     giá trị duy nhất hiện hỗ trợ: per_effect_event_contract
 ```
 
 - `mode: full` — **mọi** `causation_ref` (bắc cầu) phải thuộc input scope + cursor universe. Đơn giản nhất, scope rộng nhất.
@@ -418,14 +424,14 @@ causal_closure_policy:                                 # BẮT BUỘC (§8.2.3) 
 **Partial order authoritative = hợp của HAI hard constraint** (cả hai đều bất biến, không được version hóa qua tie-break):
 
 ```
-P_authoritative = P_stream ∪ P_causation
+P_global = P_stream ∪ P_causation
 
 P_stream:     (stream_id, n) ≺ (stream_id, n+1)     — per-stream sequence precedence
 P_causation:  cause ≺ effect                         — từ `causation_refs` (domain causation, kể cả bắc cầu);
                                                     `related_event_refs` KHÔNG tham gia
 ```
 
-**Tách hai đồ thị — global causation vs run-local apply:**
+**Tách hai đồ thị — global causation vs run-local apply** *(tên `P_authoritative` ở các bản trước ≡ `P_global`; dùng thống nhất `P_global` để merge target không bị hiểu nhầm)*:
 
 ```
 P_global = P_stream ∪ P_causation   trên TOÀN BỘ authoritative event graph   → BẮT BUỘC là DAG
@@ -445,14 +451,14 @@ causation_ref EXTERNAL      → chỉ cần immutable committed/existence proof;
                               KHÔNG áp rule cursor visibility như in-scope event
 ```
 
-**`P_global` BẮT BUỘC là một DAG** — topological order chỉ tồn tại khi graph không có cycle. Một causation edge KHÔNG được:
+**`P_global` (≡ tên cũ `P_authoritative`) BẮT BUỘC là một DAG** — topological order chỉ tồn tại khi graph không có cycle. Một causation edge KHÔNG được:
 - tạo cycle trực tiếp hoặc bắc cầu (ví dụ A causes B, B causes A);
 - mâu thuẫn per-stream sequence precedence (ví dụ `A@100.causation_refs = [A@101]` → `A ≺ B ≺ A`, không có thứ tự hợp lệ);
 - khiến effect đứng trước cause trong cùng logical stream.
 
 **Cycle hoặc precedence contradiction là integrity violation:** event append/import phải **bị từ chối**; dữ liệu lịch sử phát hiện cycle phải **fail-safe** theo [I-6](./02-platform-invariants.md) — **cấm** tự bỏ một edge để tiếp tục. Thuật toán phát hiện và phạm vi kiểm tra thuộc **Phase 1 design spec** (ADR-009 khóa yêu cầu, không khóa thuật toán); **acyclicity là constitutional invariant**, không để implementation tự suy luận.
 
-Merge policy phải tạo **deterministic topological order trên hợp của hai partial order này**. `concurrent_tie_break` CHỈ được áp dụng cho các event **không bị ordered bởi cả hai** — tức không cùng stream VÀ không có quan hệ causal ancestry.
+**Merge policy phải tạo deterministic topological order trên `P_run`** — KHÔNG phải trên `P_global`. `P_global` chỉ là authority để: (a) kiểm causal integrity · (b) phát hiện cycle/precedence contradiction · (c) suy ra quan hệ bắc cầu phải được bảo toàn trong `P_run`. `concurrent_tie_break` CHỈ được áp dụng cho các event **không bị ordered bởi cả hai** — tức không cùng stream VÀ không có quan hệ causal ancestry.
 
 *Vì sao per-stream precedence phải là hard constraint, không phải tie-break:* hai event `A100`, `A101` cùng stream nhưng không có `causation_refs` trực tiếp với nhau vẫn **đã được** sequence khóa thứ tự (§8.3.2). Nếu chỉ dựa vào tie-break `[stream_id, sequence]`, một Input Contract tương lai đổi thành `[event_type, stream_id, sequence]` sẽ **đảo ngược** thứ tự hai event cùng stream — phá authoritative intra-stream order.
 
@@ -682,7 +688,8 @@ Append-and-Revalidate yêu cầu Decision vẫn được append, nhưng nếu ch
 2. Phải ghi **lý do** không append được vào stream đích (stream retired / event ineligible) kèm `event_record_ref` của retirement boundary hoặc registry activation liên quan.
 3. Preservation fact **KHÔNG** cấp execution eligibility và **KHÔNG** thay thế Decision fact bình thường — nó là bản ghi *"Decision này đã được tính nhưng không thể vào stream đích"*.
 4. Cấm dùng preservation path để lách retirement: nếu stream đích còn active và event còn eligible, **bắt buộc** đi đường append bình thường.
-5. **Preservation fact là một authoritative event type RIÊNG**, KHÔNG phải original Decision event, và phải pin một **dedicated Event Contract** với: `event_class` phù hợp · `allowed_streams` **chỉ gồm canonical Audit Stream** · bắt buộc mang **full** original `decision_context_cursor` · bắt buộc tham chiếu transition/retirement boundary · **prohibited execution eligibility**. Cấm tái sử dụng Event Contract của Decision gốc để lách eligibility (ghi original Decision event vào Audit Stream sẽ vi phạm chính `allowed_streams` của nó). *(Tên event và payload cụ thể thuộc Decision/Audit Domain Contract — Constitution không hardcode.)*
+5. **Đủ evidence để tái dựng Decision đã tính (I-1):** preservation fact phải **chứa hoặc resolve được** immutable evidence đủ để tái dựng **semantic Decision output đã được tính** — bao gồm các version/reference mà [I-1](./02-platform-invariants.md) yêu cầu (model/strategy version, configuration version, risk policy version...). **Chỉ lưu cursor + lý do reject là CHƯA ĐỦ** để chứng minh Decision thực tế đã tính ra điều gì — nếu không, preservation path biến thành một "audit stub" rỗng nội dung. Payload cụ thể do Decision/Audit Domain Contract khóa; đây là conformance requirement của dedicated Event Contract.
+6. **Preservation fact là một authoritative event type RIÊNG**, KHÔNG phải original Decision event, và phải pin một **dedicated Event Contract** với: `event_class` phù hợp · `allowed_streams` **chỉ gồm canonical Audit Stream** · bắt buộc mang **full** original `decision_context_cursor` · bắt buộc tham chiếu transition/retirement boundary · **prohibited execution eligibility**. Cấm tái sử dụng Event Contract của Decision gốc để lách eligibility (ghi original Decision event vào Audit Stream sẽ vi phạm chính `allowed_streams` của nó). *(Tên event và payload cụ thể thuộc Decision/Audit Domain Contract — Constitution không hardcode.)*
 
 *Phương án thay thế đã cân nhắc và loại: **lifecycle drain invariant** — cấm retire Decision output stream cho tới khi mọi in-flight Decision đã đóng. Loại vì làm retirement protocol phức tạp và có thể phải chờ không giới hạn khi có Decision treo.*
 
@@ -694,7 +701,15 @@ OriginalDecision  ←causation—  RevalidationSucceeded  ←causation—  RiskA
 2. Revalidation result phải ghi **evidence của registry/knowledge boundary** đã dùng để revalidate (không dùng success dưới registry khác).
 3. Risk Approval muốn cho phép tiếp tục phải **causally depend** vào successful revalidation result đó.
 4. Execution Intent phải **truy vết được** tới Risk Approval và successful revalidation tương ứng.
-5. **Validity interval:** successful revalidation chỉ cấp execution eligibility **trong registry applicability interval của chính nó**. Tại Risk Approval boundary phải thỏa `revalidation.registry_version = active_registry_at(risk_approval_lifecycle_frontier)`. Nếu có registry transition xảy ra **sau** revalidation nhưng **trước** Risk/Execution → eligibility **quay lại blocked**, bắt buộc revalidate lần nữa. Execution Intent phải chứng minh Risk Approval còn valid dưới boundary hiện tại (hoặc Risk Gateway thực hiện final current-registry check trước khi emit intent). *(Evidence chain không đứt ≠ evidence còn hiệu lực.)*
+5. **Validity interval — eligibility KHÔNG được đóng băng tại thời điểm tạo Execution Intent.** Successful revalidation chỉ cấp execution eligibility **trong registry applicability interval của chính nó**. Authorization chain phải còn valid tại **cả 3 boundary**:
+
+```
+1. Risk Approval boundary          → revalidation.registry_version = active_registry_at(risk_approval_frontier)
+2. Execution Intent boundary       → authorization chain còn valid
+3. NGAY TRƯỚC external side effect → authorization chain còn valid tại chính thời điểm gửi lệnh
+```
+
+Registry transition xảy ra ở **bất kỳ khoảng nào trước side effect** → eligibility **quay lại blocked**, bắt buộc revalidate/re-authorize. *Kiểm lúc tạo Execution Intent là **CHƯA ĐỦ**: nếu registry đổi giữa intent creation và lúc Execution Engine thực sự gửi lệnh ra sàn, lệnh đó đang chạy dưới authorization đã stale.* Cơ chế cụ thể (atomic check, fencing token, transaction) thuộc **Phase 1**; **boundary semantic** khóa tại đây. *(Evidence chain không đứt ≠ evidence còn hiệu lực.)*
 
 Yêu cầu *"trace không được đứt"* là **platform-level invariant** ([I-1](./02-platform-invariants.md) cần immutable causation evidence; [I-4](./02-platform-invariants.md) cần mọi execution đi qua Risk Gateway) — không phải test fixture.
 
