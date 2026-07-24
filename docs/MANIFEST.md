@@ -1,5 +1,5 @@
 ---
-manifest_version: "8.2"
+manifest_version: "8.3"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -31,7 +31,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/05-time-model.md | 2.4 | **Locked** | Product Owner | 04-domain-principles, 02-platform-invariants |
 | constitution/06-identity-model.md | 2.5 | **Locked** | Product Owner | 02-platform-invariants, 04-domain-principles, 05-time-model |
 | constitution/07-module-taxonomy.md | 2.2 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles |
-| constitution/08-event-model.md | 4.0 | In Review | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
+| constitution/08-event-model.md | 4.1 | In Review | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
 | constitution/09-plugin-model.md | 1.0 | In Review | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/10-compatibility-capability-contract.md | 1.0 | In Review | Product Owner | 09-plugin-model |
 | constitution/11-adr-process.md | 1.3 | In Review | Product Owner | 00-governance |
@@ -82,7 +82,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | ADR-007 | Locked | 2026-07-17 | Vision Phase 0-3: nội bộ + crypto only, kiến trúc chừa chỗ multi-tenant/đa tài sản |
 | ADR-008 | Approved | 2026-07-18 | Phân bổ ngôn ngữ Python (lõi logic)/Go (biên hệ thống), Rust reserved — ghi hồi tố khi Claude tự review Chapter 3 |
 | ADR-009 | Draft | 2026-07-18 | Ordering: per-stream contiguous sequence + explicit causation + DAG, không global total order. Product Owner đã duyệt HƯỚNG (OQ-005); ADR chờ review + accept |
-| ADR-010 | Draft | 2026-07-18 | Decision Time Model A: decision_time thay effective_time, decision_context_cursor bắt buộc. Product Owner đã duyệt HƯỚNG (OQ-006); ADR chờ review + accept |
+| ADR-010 | Draft | 2026-07-18 | Decision Time Model A + §2.6 Decision in-flight qua registry transition = **Model A** (PO quyết 2026-07-18: append rồi revalidate, 4 guardrail). ADR chờ review + accept |
 
 ## Open Questions
 

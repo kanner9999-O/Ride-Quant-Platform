@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "4.0"
+version: "4.1"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -23,7 +23,7 @@ depends_on: ["02-platform-invariants", "03-engineering-principles", "05-time-mod
 > 1. ADR-009 được Product Owner **accept**;
 > 2. ADR-010 được **accept** theo dependency gate (ADR-010 §7 — không accept trước ADR-009);
 > 3. OQ-005/OQ-006 chuyển sang `Resolved` trong MANIFEST;
-> 4. **§8.4.1 (Decision in-flight qua registry transition) có quyết định của Product Owner**;
+> 4. ~~§8.4.1 có quyết định của Product Owner~~ — **✅ ĐÃ XONG** (Model A, 2026-07-18; ghi tại ADR-010 §2.6);
 > 5. Consolidation review hoàn tất.
 >
 > *("ADR đã được ghi" KHÔNG đủ — Draft là đã ghi nhưng chưa accept.)*
@@ -601,7 +601,7 @@ decision_context_cursor:                      # KHÔNG phải time — là một
 
 **Cấm gọi Replay Cursor là `decision_time`:** Replay Cursor là cấu trúc vector, không so sánh trực tiếp được với timestamp; `decision_time` theo Chapter 5 (Locked) phải là time value trên trục effective. Đổi ngữ nghĩa `decision_time` sẽ là thay đổi field canonical đã Locked → cần ADR riêng, không được làm ngầm trong Chapter 8.
 
-## 8.4.1 Decision "in-flight" qua registry transition — ⚠️ CHỜ PRODUCT OWNER QUYẾT
+## 8.4.1 Decision "in-flight" qua registry transition — Model A (PO quyết 2026-07-18)
 
 Hai knowledge cut độc lập có thể rơi vào hai bên của một registry transition:
 ```
@@ -616,7 +616,9 @@ Cả hai rule riêng lẻ đều đúng (§8.3.1 + §8.4), nhưng **chưa có po
 | **A — Append rồi revalidate** | Decision có cursor trước transition **vẫn được append** như immutable historical fact. Trước Risk/Execution phải **revalidate** theo registry đang active; nếu transition làm Decision stale/invalid thì ghi event **supersede/reject**, KHÔNG xóa Decision cũ | Giữ đủ lịch sử, phù hợp I-1/I-3. Thêm một bước revalidate trước Risk/Execution |
 | **B — Reject và recompute tại append** | Decision bị **reject ngay khi append** nếu registry đã đổi giữa cut và append; recompute lại với registry mới | Đơn giản hơn ở tầng Risk/Execution. Mất bản ghi Decision đã thực sự được tính toán; tăng latency khi transition xảy ra |
 
-*Reviewer (ChatGPT) nghiêng về **A**; đây là recommendation, không phải quyết định.* Cho tới khi Product Owner chọn, mục này giữ trạng thái **mở** — Chapter 8 không được Lock khi §8.4.1 chưa có quyết định.
+**✅ Product Owner đã quyết (2026-07-18): chọn phương án A.** Quyết định + rationale + 4 guardrail được ghi tại [ADR-010 §2.6](../adr/ADR-010.md) (chủ sở hữu Decision Time/Context); ADR-009 giữ registry/frontier boundary và cross-reference sang đó.
+
+**Normative rule tại Chapter 8:** Decision có knowledge cut trước transition **vẫn được append** như immutable historical fact; **KHÔNG tự động có execution eligibility**; Risk/Execution **bị chặn** cho tới khi revalidation theo registry đang active thành công; kết quả revalidation (success/stale/reject) phải là **authoritative event**; **cấm sửa/xóa** Decision gốc. *(State machine cụ thể `computed → revalidated → rejected/superseded` thuộc **Decision Domain Contract**, không hardcode ở đây — theo I-13.)*
 
 ## 8.5 Replay Cursor Representation
 
