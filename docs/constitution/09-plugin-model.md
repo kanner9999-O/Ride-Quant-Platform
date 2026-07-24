@@ -1,14 +1,14 @@
 ---
 id: 09-plugin-model
 title: Plugin Model
-version: "2.5"
+version: "2.6"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
 approved_by: null
 approved_at: null
 created_at: "2026-07-16"
-last_review: "2026-07-18"
+last_review: "2026-07-24"
 next_review: null
 depends_on: ["02-platform-invariants", "07-module-taxonomy", "08-event-model"]
 ---
@@ -28,15 +28,31 @@ depends_on: ["02-platform-invariants", "07-module-taxonomy", "08-event-model"]
 | Đối tượng | Có thuộc Module Taxonomy? |
 |---|---|
 | **Plugin Definition / Package** — deployable/executable implementation unit | **CÓ** — có primary taxonomy type + entry trong `module-registry.yaml` |
-| **Strategy Instance** — cấu hình runtime bound vào một deployable unit, KHÔNG được vận hành độc lập | **KHÔNG** — là runtime configuration/execution identity, không phải architecture module |
+| **Strategy Instance (hosted)** — cấu hình runtime bound vào một deployable unit, chạy **bên trong** Strategy Engine, không có deploy/restart/scale/published-boundary riêng | **KHÔNG** — là runtime configuration/execution identity, không phải architecture module |
+| **Strategy Instance (independently operated)** — có process/pod riêng, deploy/restart/scale riêng, health/failure boundary riêng, published contract riêng | **CÓ** — thỏa định nghĩa module của Ch7 §7.0; có `module-registry` entry cho **runtime component**, nhưng `strategy_instance_id` vẫn khác `module_id` |
 
 *Đây là **làm rõ trong phạm vi wording sẵn có** của Ch7 §7.0 (chữ "deployable" và "được vận hành độc lập"), KHÔNG phải định nghĩa lại Chapter 7 đã Locked. Nếu reviewer đánh giá đây là redefinition chứ không phải clarification, thì bắt buộc mở **ADR** sửa Chapter 7 — Chapter 9 không được tự làm.*
+
+**Nguyên tắc phân loại:** `Strategy Instance identity ≠ Module identity` trong mọi trường hợp. Strategy Instance **không tự động** là module — classification phụ thuộc **operational boundary thật** (có vận hành độc lập hay không), **không** phụ thuộc chỉ vào domain identity class. Nếu một instance chuyển từ hosted sang independently-operated (hoặc ngược lại), đó là thay đổi taxonomy classification cần cập nhật `module-registry.yaml` tương ứng — **không** phải thay đổi `strategy_instance_id`.
 
 **Plugin Definition KHÔNG phải artifact riêng nằm ngoài taxonomy.** Mỗi plugin (ở tầng Definition/Package):
 - phải có **một primary taxonomy type** trong 3 loại của Chapter 7 (Compute Engine / Projection / Runtime Service) — Strategy Plugin điển hình là **Compute Engine** (suy diễn domain information thành output, không sở hữu external side effect);
 - được đăng ký trong **`/docs/architecture/module-registry.yaml`** cùng mọi module khác ([Chapter 7 §7.5](./07-module-taxonomy.md)).
 
 **KHÔNG tạo plugin registry riêng** — làm vậy sẽ có hai nguồn cho cùng một sự thật "component nào tồn tại và thuộc loại gì" (vi phạm [I-12](./02-platform-invariants.md)).
+
+### Bốn tầng identity trong "Plugin" — không được gộp
+
+"Plugin" không phải một identity phẳng. Bốn tầng sau phải tách rõ, kể cả khi cùng nằm dưới một taxonomy entry:
+
+| Tầng | Bản chất | Ổn định qua |
+|---|---|---|
+| **Plugin Definition** | Stable logical identity + taxonomy type + trách nhiệm (bảng trên) | Toàn bộ vòng đời plugin |
+| **Plugin Version** | Immutable semantic implementation release (SemVer) | Một release |
+| **Package / Build Artifact** | Immutable executable bytes + content identity (content hash); có thể **nhiều** artifact/platform cho cùng một Plugin Version | Một build |
+| **Plugin Runtime** | Deployment/process/replica identity đang chạy | Một deployment instance |
+
+`module-registry.yaml` đăng ký **Plugin Definition** (logical identity, taxonomy type) — không đăng ký binary hay replica. **Decision evidence phải pin rõ Plugin Version** dùng để tạo Decision; không được lẫn với content hash của Package/Build Artifact hay với Plugin Runtime replica cụ thể đã xử lý request. Promote/rollback ([§9.8](#98-lifecycle--tách-architecture-identity-khỏi-runtime-state), [§9.10](#910-khi-nào-cần-adr--tách-architecture-change-khỏi-operational-action)) phải nói rõ tác động ở tầng nào: đổi **Plugin Version** là contract-relevant (có thể ADR Required nếu đổi published contract); chuyển **Plugin Runtime** sang replica khác là operational (không ADR).
 
 ## 9.2 Plugin tương tác qua published contract
 
@@ -57,9 +73,11 @@ Plugin **chỉ** được tương tác qua **published contract**: versioned eve
 | **Strategy Instance** | Runtime instance đã cấu hình của một Strategy Definition: instance identity · parameters · Input Contract · configuration · lifecycle riêng | Strategy Domain Contract |
 
 **Quy tắc:**
-- Một Strategy Definition được thực thi qua **một** Strategy Plugin / canonical implementation đã đăng ký.
-- **Một Strategy Plugin phục vụ được NHIỀU Strategy Instance.**
-- **Strategy Instance KHÔNG phải module mới** và **KHÔNG tạo `module-registry` entry mới** chỉ vì khác parameters.
+- Một Strategy Definition **có thể** có **nhiều** implementation/Plugin Version cùng tồn tại — authoritative · shadow · experimental · migration ([Chapter 3](./03-engineering-principles.md) Locked cho phép các lớp này song song).
+- Trong một **authoritative execution/parity scope**, đúng **một** implementation version là authoritative; mỗi Strategy Instance **pin** implementation version cụ thể của nó.
+- Shadow/experimental/migration implementation **KHÔNG được** phát sinh authoritative Decision trước khi qua parity validation và promotion. "Canonical" là **authority status trong scope**, không phải cardinality "chỉ được tồn tại một implementation".
+- **Một Strategy Plugin (Plugin Version) phục vụ được NHIỀU Strategy Instance.**
+- **Strategy Instance KHÔNG phải module mới** và **KHÔNG tạo `module-registry` entry mới** chỉ vì khác parameters (trừ trường hợp independently-operated instance — xem §9.1).
 
 *Vì sao bắt buộc tách:* nếu "mỗi strategy = một plugin", thì `BTC-15m-conservative`, `BTC-1h-aggressive`, `ETH-15m-paper` — cùng dùng `ride-strategy-negation v2.1` nhưng khác tham số — sẽ thành 3 module riêng, 3 registry entry, 3 plugin version. Architecture registry phình theo runtime instance, và mất khả năng trả lời câu hỏi cơ bản: *"hai instance này có đang dùng cùng một implementation không?"*
 
@@ -87,7 +105,7 @@ Schema/representation cụ thể thuộc **Strategy Domain Contract**; Constitut
 
 ## 9.4 Decision Advisor — plugin tham gia Decision Pipeline
 
-Một plugin (kể cả AI module) muốn **tham gia Decision Pipeline** phải được khai báo và kiểm soát như **Strategy Plugin hoặc Decision Advisor** (I-7), và khi đó chịu **toàn bộ** ràng buộc đã Locked ở Chapter 8 + ADR-010:
+Một plugin (kể cả AI module) muốn **tham gia Decision Pipeline** phải được khai báo và kiểm soát như **Strategy Plugin hoặc Decision Advisor** (I-7). Bảng dưới đây **tóm tắt các ràng buộc trực tiếp quan trọng nhất** đã Locked ở Chapter 8 + ADR-010; **không thay thế toàn bộ Chapter 8 và ADR-010**:
 
 | Ràng buộc | Nguồn |
 |---|---|
@@ -117,6 +135,17 @@ Decision-relevance phải là **thuộc tính authoritative được khai báo**
 - **CẤM** dùng output của một plugin **chưa được khai báo decision-relevant** làm input cho authoritative Decision. Vi phạm là **integrity violation** → fail-safe [I-6](./02-platform-invariants.md), **không** tự động nâng cấp plugin.
 - Muốn tái sử dụng output đó cho Decision: phải **promote plugin thành decision-relevant** — đây là **contract change** (versioned). Promote bắt buộc verify đủ 4 điều kiện của §9.5 trước khi có hiệu lực: (1) mọi input/query của plugin cursor-bounded hoặc snapshot-bounded; (2) không đọc ambient/current mutable state; (3) projection version/schema/config được pin khi đọc derived state; (4) evidence đủ để Replay tái tạo đúng snapshot đã đọc (I-5). Đồng thời thuộc diện **ADR Required** nếu đổi Decision Pipeline topology (§9.10).
 - **CẤM silent reclassification**: không có đường nào biến một plugin thành decision-relevant mà không qua contract change.
+- **Promotion chỉ có hiệu lực tại một explicit, authoritative activation boundary** — không phải ngay khi contract change được ghi. Verify đủ 4 điều kiện ở trên là **precondition**, không phải activation tự thân. Tại boundary đó, một **validated compatibility set** phải đồng bộ atomic, gồm:
+  - Plugin Contract version (đã khai báo decision-relevant);
+  - Input Contract version (đã pin dependency/output contract mới theo quy tắc subordinate artifact ở trên);
+  - published contract references liên quan;
+  - permission grant version tương ứng ([§9.6](#96-plugin-contract--nhóm-thông-tin-bắt-buộc-khai-báo));
+  - required capability/compatibility result ([Chapter 10](./10-compatibility-capability-contract.md));
+  - runtime implementation/deployment version.
+
+  **Trước boundary:** output KHÔNG được dùng cho authoritative Decision, dù Plugin Contract đã tuyên bố decision-relevant. **Sau boundary:** mọi Decision phải pin đúng promoted snapshot ở trên — không được lẫn phần cũ/phần mới. **Partial promotion hoặc mixed-version activation** (ví dụ: Plugin Contract đã decision-relevant nhưng Input Contract chưa pin dependency mới; hoặc ngược lại, consumer đã đọc output trong khi Plugin Contract vẫn khai `decision_participation: false`) → **integrity violation, fail-safe** [I-6](./02-platform-invariants.md).
+
+  Cơ chế fencing/transaction/deployment-coordinator cụ thể cho boundary này có thể **defer sang Phase 1 design spec**; **atomic semantic của boundary phải khóa ngay ở Chapter 9**, không defer.
 
 *Cách hiểu đúng câu "đường dữ liệu thực tế": nó dùng để **phát hiện vi phạm** (một consumer đang kéo output ngoài phạm vi vào Decision), KHÔNG phải để **tự động hợp thức hóa** plugin đó.*
 
@@ -130,11 +159,13 @@ Decision-relevance phải là **thuộc tính authoritative được khai báo**
 → schema hợp lệ, nhưng Decision đã đọc state TỪ TƯƠNG LAI so với cursor
 ```
 
-**Decision Advisor KHÔNG được đọc ambient/current mutable state.** Mọi event/query/read dependency dùng để tạo Decision phải:
-1. được khai báo trong **Input Contract** hoặc một immutable decision-dependency contract;
-2. được resolve **tại hoặc trước** `decision_context_cursor`;
+**Decision Advisor KHÔNG được đọc ambient/current mutable state.** Mọi event/query/read dependency dùng để tạo Decision phải nằm dưới authority của **Input Contract** mà `decision_context_cursor` pin — **không có authority ngang hàng nào khác**:
+1. được khai báo trong **Input Contract**, hoặc trong một **subordinate immutable artifact được chính Input Contract exact-pin** (query/read dependency contract · projection snapshot contract · model/config reference set). Subordinate artifact **không được tự mở rộng input scope**; đổi reference của nó **bắt buộc bump version của Input Contract**;
+2. được resolve **tại hoặc trước** `decision_context_cursor`, kể cả khi resolve gián tiếp qua subordinate artifact;
 3. **pin projection implementation version/schema/configuration** khi đọc derived state ([Chapter 7 §7.4](./07-module-taxonomy.md) — projection rebuild cần pin đủ);
 4. có evidence đủ để **Replay tái tạo đúng snapshot đã đọc** (I-5: Replay không gọi lại mutable source).
+
+**Không tồn tại quan hệ "Input Contract HOẶC decision-dependency contract".** Một dependency contract chỉ có authority nếu nó nằm dưới, và được exact-pin bởi, Input Contract mà cursor pin. Nếu không, nó là **hidden input**: replay từ `decision_context_cursor` chỉ có nghĩa vụ resolve tới Input Contract, dependency contract nằm ngoài exact input scope sẽ không có root path bắt buộc để tái dựng — bất kể nó có immutable hay không. Nếu có nhu cầu thật sự cho nhiều peer input authority, đó là thay đổi mô hình canonical cursor của Chapter 8 và phải qua **ADR** — Chapter 9 không được tự tạo mô hình đó bằng prose.
 
 **Query/read contract tham gia Decision Pipeline phải hỗ trợ cursor-bounded hoặc snapshot-bounded semantics.** Query không chứng minh được knowledge boundary → **cấm dùng để tạo authoritative Decision**.
 
@@ -169,7 +200,9 @@ Schema/format cụ thể thuộc registry/Domain Contract, không hardcode ở C
 
 ## 9.7 Versioning & compatibility — thuộc Chapter 10
 
-Mỗi plugin có version độc lập với platform version; cập nhật một plugin không ảnh hưởng plugin khác.
+Mỗi plugin có version identity và release lifecycle độc lập với platform version và với plugin khác.
+
+**Independent versioning ≠ zero downstream impact.** Một update vẫn có thể ảnh hưởng dependent consumers qua: event/query/command contract · output semantics · capability · permission · freshness/latency · dependency graph · resource contention. Downstream impact **phải** được đánh giá bằng compatibility/capability/dependency rules của [Chapter 10](./10-compatibility-capability-contract.md) — không được giả định an toàn ngầm chỉ vì versioning độc lập.
 
 **Quy tắc versioning/compatibility cụ thể** (SemVer, `schemaVersion`, capability declaration, Capability Matrix, hành vi khi không khớp) **thuộc [Chapter 10](./10-compatibility-capability-contract.md)** — Chapter 9 chỉ tuyên bố *tính độc lập*, không định nghĩa lại cơ chế. *(Lưu ý dependency: Chapter 10 khai báo `depends_on: [09-plugin-model]`, nên Chapter 9 KHÔNG được tham chiếu ngược vào chi tiết của Chapter 10 để tránh vòng.)*
 
