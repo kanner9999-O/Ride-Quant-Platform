@@ -1,7 +1,7 @@
 ---
 id: 09-plugin-model
 title: Plugin Model
-version: "2.6"
+version: "2.7"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -27,13 +27,13 @@ depends_on: ["02-platform-invariants", "07-module-taxonomy", "08-event-model"]
 
 | Đối tượng | Có thuộc Module Taxonomy? |
 |---|---|
-| **Plugin Definition / Package** — deployable/executable implementation unit | **CÓ** — có primary taxonomy type + entry trong `module-registry.yaml` |
-| **Strategy Instance (hosted)** — cấu hình runtime bound vào một deployable unit, chạy **bên trong** Strategy Engine, không có deploy/restart/scale/published-boundary riêng | **KHÔNG** — là runtime configuration/execution identity, không phải architecture module |
-| **Strategy Instance (independently operated)** — có process/pod riêng, deploy/restart/scale riêng, health/failure boundary riêng, published contract riêng | **CÓ** — thỏa định nghĩa module của Ch7 §7.0; có `module-registry` entry cho **runtime component**, nhưng `strategy_instance_id` vẫn khác `module_id` |
+| **Plugin Definition** — logical extension identity, taxonomy type + trách nhiệm (xem 4 tầng bên dưới) | **CÓ** — có primary taxonomy type + entry trong `module-registry.yaml` |
+| **Strategy Instance (hosted)** — cấu hình runtime bound vào một deployable unit, chạy **bên trong** Strategy Engine, không có deploy/restart/scale/published-boundary riêng | **KHÔNG** — là runtime configuration/execution identity, không phải architecture module; không tạo `module-registry` entry |
+| **Strategy Instance (independently operated)** — có process/pod riêng, deploy/restart/scale riêng, health/failure boundary riêng | **Bản thân instance: KHÔNG.** Instance, dù được deploy độc lập, **không tự tạo `module-registry` entry** chỉ vì có deployment/scale riêng. Nếu việc deploy độc lập đó tạo ra một **runtime module type/definition mới** với published responsibility riêng (ví dụ `strategy-plugin-runtime`), thì **module type đó** — không phải từng instance — có entry trong `module-registry.yaml`. `strategy_instance_id` luôn khác `module_id`; identity/lifecycle của instance luôn authoritative trong **event log** (§9.8), bất kể hosted hay independently operated |
 
 *Đây là **làm rõ trong phạm vi wording sẵn có** của Ch7 §7.0 (chữ "deployable" và "được vận hành độc lập"), KHÔNG phải định nghĩa lại Chapter 7 đã Locked. Nếu reviewer đánh giá đây là redefinition chứ không phải clarification, thì bắt buộc mở **ADR** sửa Chapter 7 — Chapter 9 không được tự làm.*
 
-**Nguyên tắc phân loại:** `Strategy Instance identity ≠ Module identity` trong mọi trường hợp. Strategy Instance **không tự động** là module — classification phụ thuộc **operational boundary thật** (có vận hành độc lập hay không), **không** phụ thuộc chỉ vào domain identity class. Nếu một instance chuyển từ hosted sang independently-operated (hoặc ngược lại), đó là thay đổi taxonomy classification cần cập nhật `module-registry.yaml` tương ứng — **không** phải thay đổi `strategy_instance_id`.
+**Nguyên tắc phân loại:** `Strategy Instance identity ≠ Module identity` trong **mọi** trường hợp, kể cả khi instance được vận hành độc lập. Registry chỉ sở hữu **registered module type/definition** — **không bao giờ** sở hữu runtime instance fact ([I-12](./02-platform-invariants.md), [§9.8](#98-lifecycle--tách-architecture-identity-khỏi-runtime-state)). Một module type có thể host/deploy **nhiều** Strategy Instance độc lập với nhau; tạo thêm hoặc retire instance là **operational action** ghi nhận trong event log, **không** phải architecture registry change và **không** cần sửa `module-registry.yaml`. Chỉ khi kiến trúc thật sự tạo ra một **module type mới** có published boundary/responsibility riêng (không chỉ một deployment/instance mới của module type đã có) mới cần thêm entry `module-registry` — đó là architecture change, thuộc diện **ADR Required** nếu là type/capability mới (§9.10).
 
 **Plugin Definition KHÔNG phải artifact riêng nằm ngoài taxonomy.** Mỗi plugin (ở tầng Definition/Package):
 - phải có **một primary taxonomy type** trong 3 loại của Chapter 7 (Compute Engine / Projection / Runtime Service) — Strategy Plugin điển hình là **Compute Engine** (suy diễn domain information thành output, không sở hữu external side effect);
@@ -68,22 +68,24 @@ Plugin **chỉ** được tương tác qua **published contract**: versioned eve
 
 | Identity | Bản chất | Thuộc về |
 |---|---|---|
-| **Plugin Definition / Package** | Implementation extension đã version hóa | Architecture — đăng ký `module-registry.yaml`, có primary taxonomy type (§9.1) |
+| **Plugin Definition** | Logical extension identity, taxonomy type + trách nhiệm (4 tầng đầy đủ ở [§9.1](#91-plugin-là-gì--và-thuộc-phạm-vi-module-taxonomy)) | Architecture — đăng ký `module-registry.yaml`, có primary taxonomy type (§9.1) |
 | **Strategy Definition** | Domain-level strategy semantics/philosophy; tham chiếu plugin implementation version | Domain Contract ([Chapter 4](./04-domain-principles.md)) |
 | **Strategy Instance** | Runtime instance đã cấu hình của một Strategy Definition: instance identity · parameters · Input Contract · configuration · lifecycle riêng | Strategy Domain Contract |
+
+*`Package/Build Artifact` và `Plugin Runtime` không nằm trong bảng ba-identity này — chúng đã được định nghĩa đầy đủ ở 4 tầng của §9.1 và không phải cấp domain/runtime instance mà bảng này mô tả.*
 
 **Quy tắc:**
 - Một Strategy Definition **có thể** có **nhiều** implementation/Plugin Version cùng tồn tại — authoritative · shadow · experimental · migration ([Chapter 3](./03-engineering-principles.md) Locked cho phép các lớp này song song).
 - Trong một **authoritative execution/parity scope**, đúng **một** implementation version là authoritative; mỗi Strategy Instance **pin** implementation version cụ thể của nó.
 - Shadow/experimental/migration implementation **KHÔNG được** phát sinh authoritative Decision trước khi qua parity validation và promotion. "Canonical" là **authority status trong scope**, không phải cardinality "chỉ được tồn tại một implementation".
-- **Một Strategy Plugin (Plugin Version) phục vụ được NHIỀU Strategy Instance.**
-- **Strategy Instance KHÔNG phải module mới** và **KHÔNG tạo `module-registry` entry mới** chỉ vì khác parameters (trừ trường hợp independently-operated instance — xem §9.1).
+- **Một Plugin Version của một Plugin Definition có thể phục vụ nhiều Strategy Instance.**
+- **Strategy Instance KHÔNG phải module mới** và **KHÔNG tạo `module-registry` entry mới** — kể cả khi được vận hành độc lập (§9.1: registry sở hữu module type/definition, không bao giờ sở hữu instance fact).
 
 *Vì sao bắt buộc tách:* nếu "mỗi strategy = một plugin", thì `BTC-15m-conservative`, `BTC-1h-aggressive`, `ETH-15m-paper` — cùng dùng `ride-strategy-negation v2.1` nhưng khác tham số — sẽ thành 3 module riêng, 3 registry entry, 3 plugin version. Architecture registry phình theo runtime instance, và mất khả năng trả lời câu hỏi cơ bản: *"hai instance này có đang dùng cùng một implementation không?"*
 
 ### Runtime identity & evidence — Strategy Instance
 
-Vì Strategy Instance nằm ngoài `module-registry` (§9.1), nó vẫn phải có identity/state authority riêng, nếu không [I-1](./02-platform-invariants.md) và [ADR-010](../adr/ADR-010.md) không tái dựng được Decision:
+**Strategy Instance identity không được lấy từ `module-registry`** ([§9.1](#91-plugin-là-gì--và-thuộc-phạm-vi-module-taxonomy): registry sở hữu module type/definition — kể cả khi instance được vận hành bởi một module type độc lập, registry **không bao giờ** sở hữu `strategy_instance_id` hay state của instance đó). Vì vậy Strategy Instance vẫn phải có identity/state authority riêng, nếu không [I-1](./02-platform-invariants.md) và [ADR-010](../adr/ADR-010.md) không tái dựng được Decision:
 
 1. **Instance identity ổn định** qua restart/redeploy — không được sinh lại ID mới khi process khởi động lại.
 2. **Đổi plugin version hoặc configuration** phải tạo **binding mới hoặc instance version mới** — KHÔNG mutate ngầm một identity đang chạy.
