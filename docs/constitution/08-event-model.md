@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "4.3"
+version: "4.4"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -24,7 +24,7 @@ depends_on: ["02-platform-invariants", "03-engineering-principles", "05-time-mod
 > 2. ADR-010 được **accept** theo dependency gate (ADR-010 §7 — không accept trước ADR-009);
 > 3. OQ-005/OQ-006 chuyển sang `Resolved` trong MANIFEST;
 > 4. ~~§8.4.1 có quyết định của Product Owner~~ — **✅ ĐÃ XONG** (Model A, 2026-07-18; ghi tại ADR-010 §2.6);
-> 5. **Vấn đề Decision output stream retire tại transition (§8.4.1) có quyết định của Product Owner**;
+> 5. ~~Vấn đề Decision output stream retire tại transition~~ — **✅ ĐÃ XONG** (Scoped Policy + canonical Audit Stream, PO quyết 2026-07-18);
 > 6. Consolidation review hoàn tất.
 >
 > *("ADR đã được ghi" KHÔNG đủ — Draft là đã ghi nhưng chưa accept.)*
@@ -563,9 +563,12 @@ Quy tắc trên tạo hồi quy vô hạn nếu không có điểm khởi đầu
 
 **Genesis Registry** là root authoritative artifact, được tạo và phê duyệt theo [Governance](./00-governance.md) **trước khi** runtime event log hoạt động. Nó phải:
 - định nghĩa **đúng MỘT canonical Logical Lifecycle Stream** (xem ràng buộc bên dưới);
+- định nghĩa **đúng MỘT canonical Audit Stream** — stream bảo toàn immutable fact khi stream đích thông thường không còn append-eligible (§8.4.1);
 - định nghĩa writer authority ban đầu;
 - có immutable content identity (§8.1.1 điều 5);
 - **không cần** activation event đứng trước nó (đây chính là nội dung của ngoại lệ).
+
+**Protected streams — KHÔNG được retire:** canonical Lifecycle Stream và canonical Audit Stream là **protected**; retirement invariant (§8.3.5) **không áp dụng** cho chúng. Lý do: cả hai phải tồn tại xuyên mọi registry transition — lifecycle stream để ghi chính các boundary, audit stream để bảo toàn fact khi stream khác mất eligibility. Retire chúng sẽ tạo lại đúng vòng bootstrap mà Genesis Registry sinh ra để chặn.
 
 **Canonical Lifecycle Stream (Model A):** platform có **đúng một** Logical Lifecycle Stream với `stream_id` ổn định. **Mọi** activation, retirement, stream creation, và writer-authority transition boundary phải được ghi trên stream này. Lifecycle stream có thể handoff writer (§8.3.1) nhưng **không đổi logical stream identity**.
 
@@ -635,29 +638,24 @@ Hai phương án đã được xem xét: **Append-and-Revalidate** (giữ Decisi
 
 **✅ Product Owner đã quyết (2026-07-18): chọn phương án A.** Quyết định + rationale + 4 guardrail được ghi tại [ADR-010 §2.6](../adr/ADR-010.md) (chủ sở hữu Decision Time/Context); ADR-009 giữ registry/frontier boundary và cross-reference sang đó.
 
-**Normative rule tại Chapter 8:** Decision có knowledge cut trước transition **vẫn được append** như immutable historical fact; **KHÔNG tự động có execution eligibility**; Risk/Execution **bị chặn** cho tới khi revalidation theo registry đang active thành công; kết quả revalidation (success/stale/reject) phải là **authoritative event**; **cấm sửa/xóa** Decision gốc. ### ⚠️ Vấn đề mở — Decision output stream bị retire tại chính transition (CHỜ PRODUCT OWNER QUYẾT)
+**Normative rule tại Chapter 8:** Decision có knowledge cut trước transition **vẫn được append** như immutable historical fact; **KHÔNG tự động có execution eligibility**; Risk/Execution **bị chặn** cho tới khi revalidation theo registry đang active thành công; kết quả revalidation (success/stale/reject) phải là **authoritative event**; **cấm sửa/xóa** Decision gốc. ### Decision output stream bị retire tại transition — Scoped Policy (PO quyết 2026-07-18)
 
-Append-and-Revalidate yêu cầu Decision **vẫn được append**. Nhưng nếu transition đó **retire chính stream đích** của Decision thì không có đường append hợp lệ:
+Append-and-Revalidate yêu cầu Decision vẫn được append, nhưng nếu chính transition đó **retire stream đích** thì không có đường append hợp lệ (append vào stream A phá `terminal_position`; append stream khác đổi subject/stream authority; không append phá chính policy).
 
-```
-frontier 899:  Decision được tính, dự định append vào decision-stream-A
-frontier 900:  registry v4 RETIRE decision-stream-A
-frontier 901:  policy yêu cầu vẫn append Decision
-```
-| Lựa chọn | Vi phạm |
+**Quyết định — thu hẹp phạm vi policy:**
+
+| Điều kiện tại post-transition registry | Đường xử lý |
 |---|---|
-| Append vào stream A | retirement invariant (`terminal_position`, cấm append sau terminal) |
-| Append vào stream khác | đổi subject/stream authority — chưa có rule |
-| Không append | chính normative rule "Decision vẫn được append" |
+| Stream đích **vẫn active** VÀ event **vẫn eligible** | **Append-and-Revalidate bình thường**: append vào stream đích → chặn Risk/Execution → revalidate |
+| Stream đích **đã retire** HOẶC event **không còn eligible** | Ghi **immutable computation/rejection fact vào canonical Audit Stream** (§8.3.5 — protected, tồn tại xuyên mọi transition). Decision **KHÔNG** có execution eligibility trong mọi trường hợp |
 
-**Hai hướng để Product Owner chọn:**
+**Ràng buộc với preservation fact trên Audit Stream:**
+1. Phải tham chiếu **chính xác** `decision_context_cursor` gốc của Decision (đầy đủ, không rút gọn) — để I-1 vẫn tái dựng được input cut đã dùng.
+2. Phải ghi **lý do** không append được vào stream đích (stream retired / event ineligible) kèm `event_record_ref` của retirement boundary hoặc registry activation liên quan.
+3. Preservation fact **KHÔNG** cấp execution eligibility và **KHÔNG** thay thế Decision fact bình thường — nó là bản ghi *"Decision này đã được tính nhưng không thể vào stream đích"*.
+4. Cấm dùng preservation path để lách retirement: nếu stream đích còn active và event còn eligible, **bắt buộc** đi đường append bình thường.
 
-| Hướng | Nội dung | Đánh đổi |
-|---|---|---|
-| **1 — Thu hẹp phạm vi policy** | Append-and-Revalidate chỉ áp khi Decision target stream **vẫn active + event vẫn eligible** dưới post-transition registry. Nếu stream đã retire/không eligible → ghi immutable computation/rejection fact vào một **stable audit stream** được bảo đảm tồn tại xuyên mọi registry transition | Linh hoạt, retirement không bị chặn. Cần định nghĩa thêm stable audit stream |
-| **2 — Lifecycle drain invariant** | Decision output stream **không được retire** cho tới khi mọi in-flight Decision đã append xong hoặc bị đóng bằng authoritative rejection fact | Không cần audit stream mới. Retirement protocol phức tạp hơn, có thể phải chờ lâu |
-
-*Reviewer (ChatGPT) nghiêng về **Hướng 1**; đây là recommendation, không phải quyết định.* Chapter 8 **không được Lock** khi mục này còn mở.
+*Phương án thay thế đã cân nhắc và loại: **lifecycle drain invariant** — cấm retire Decision output stream cho tới khi mọi in-flight Decision đã đóng. Loại vì làm retirement protocol phức tạp và có thể phải chờ không giới hạn khi có Decision treo.*
 
 **Revalidation evidence chain (relational invariant, KHÔNG được đứt):**
 ```
