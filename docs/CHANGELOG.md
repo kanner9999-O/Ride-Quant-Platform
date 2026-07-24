@@ -2,6 +2,30 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 10 v2.2 (ChatGPT review round 2: **1 Blocker · 2 Major · 1 Minor · 0 Suggestion mới**)
+
+Reviewer đã rút lại nhận định sai về metadata Chapter 9 ở vòng trước — repo đã đồng bộ đầy đủ quyết định Lock của Kanner. Không có phản biện nào ở vòng này; 4 finding chấp nhận toàn bộ.
+
+### Fixed — Blocker: Compatibility policy/rule-set được pin nhưng chưa có authority/identity/lifecycle
+- v2.1 bắt Compatibility Result pin `compatibility policy/rule-set version` (§10.4.1) nhưng toàn chapter không định nghĩa policy đó là artifact gì, ai sở hữu identity, ai được tạo version, nằm registry nào, có immutable content identity không, version transition thành authoritative bằng cách nào, rule-set nào active cho scope nào. Provenance có **field** nhưng chưa có **gốc**: hai result cùng ghi nhãn `compat-v2` vẫn có thể chạy hai bộ luật khác nhau, và một result có thể tự khai `policy_version` không tồn tại rồi thành vé activation. **Đúng cùng lớp lỗi "pin một thứ chưa được định nghĩa đầy đủ" đã gặp ở v1.0** — lần này ở tầng policy thay vì tầng result.
+- **Sửa — thêm §10.4.3:** Compatibility Policy là **versioned immutable authoritative artifact** với 7 yêu cầu: stable logical identity + immutable version/content identity (**exact-pin**, cấm nhãn version tự do) · declared scope (result ngoài scope policy nó viện dẫn = invalid) · identity/definition authority thuộc **Compatibility Policy Contract/registry được governance phê duyệt** (Constitution khóa yêu cầu, không tự tạo registry, không hardcode tên file; ghi rõ **Chapter 10 là luật cấp cao, không tự động trở thành runtime policy artifact**) · runtime activation/applicability là **runtime fact** thuộc event/configuration authority theo I-12 · lifecycle transition authoritative, **cấm mutate nội dung dưới cùng version identity** · historical content immutable + resolvable theo horizon · **evaluator chỉ được dùng policy version đã được grant cho scope đó** (nối tiếp rule chống self-certification). Thêm dòng authority tương ứng vào bảng §10.1. Nêu **phương án thay thế** được chấp nhận: exact-pin version của Chapter 10 + tập format-specific rules, miễn có root path authoritative và machine-resolvable.
+
+### Fixed — Major
+- **"Historical Compatibility Result giữ nguyên vĩnh viễn" lệch retention horizon model:** §10.4 chỉ yêu cầu resolvable trong horizon cam kết, còn Chapter 8 dùng mô hình "persistently resolvable trong committed horizon, hết horizon → explicit retention/archive policy". "Không mutate lịch sử" và "giữ object online vô hạn" là hai việc khác nhau; Constitution không nên cam kết infinite retention. **Sửa:** bỏ từ "vĩnh viễn"; thêm **§10.4.4** — result và policy version là immutable (không sửa/ghi đè/hồi tố) · phải resolve trong toàn bộ replay/audit horizon cam kết · sau horizon tuân explicit retention/archive policy · nếu archive thì reference lịch sử vẫn phải có cách xử lý đúng theo policy đã công bố, không được thành dangling reference im lặng.
+- **Thiếu compatibility direction chưa được khóa thành hành vi:** §10.3.1 nói "contract phải khai báo chiều bắt buộc; không khai báo thì không suy diễn mặc định" — đúng nguyên tắc nhưng chưa khóa hệ quả, nên mỗi team vẫn tự chọn mặc định riêng (backward / unknown-nhưng-vẫn-cho-minor / invalid). **Sửa:** contract trong phạm vi compatibility evaluation mà không khai báo chiều bắt buộc → **invalid declaration** → không được chứng nhận compatible → `eligible = false` theo I-6, reason ghi *khai báo invalid*/*không đủ policy*, **không** ghi *đã chứng minh không tương thích*. Cho phép contract tuyên bố **tường minh** là không cam kết chiều nào — nhưng phải là declaration, không phải field vắng mặt.
+
+### Fixed — Minor
+- **Capability Matrix pin `configuration/profile` nhưng profile name có thể trỏ tới mutable config:** `live-default` hôm nay bật Live, tuần sau cùng profile đó có thể đã đổi → entry không còn resolve đúng snapshot đã đánh giá. **Sửa §10.8:** phải pin **configuration/profile identity + immutable configuration version hoặc content identity**, không chỉ tên profile.
+
+### Fixed — lỗi biên tập nội bộ (Claude tự phát hiện khi verify)
+- Khi chèn §10.4.3, thao tác `str_replace` đã **nuốt mất header §10.4.2**, làm phần Reason classification dangling dưới §10.4.4 và sai thứ tự. Phát hiện qua grep header sau khi sửa; đã khôi phục header đúng vị trí (sau §10.4.1, trước §10.4.3) và xóa khối bị nhân đôi. **Bài học quy trình:** sau mỗi lần chèn tiểu mục mới, phải grep lại toàn bộ heading để xác nhận thứ tự và không mất mục — không chỉ kiểm nội dung vừa thêm.
+
+### Checklist
+- Ch10 v2.2 · §10.1→§10.9 liên tục · §10.4.1→§10.4.4 đủ 4 tiểu mục, đúng thứ tự, không trùng lặp · **0 tham chiếu §10.x gãy** (§10.4 · 10.4.1 · 10.4.2 · 10.4.3 · 10.4.4 · 10.7 · 10.9 đều tồn tại) · 0 occurrence "vĩnh viễn" · 0 hardcode tên file/registry · Compatibility Policy có authority row trong §10.1.
+
+### Note
+- Không tự tuyên bố Approve. Chờ ChatGPT review round 3 và Product Owner Approve/Lock.
+
 ## [Unreleased] — Chapter 10 v2.1 (ChatGPT review round 1: **1 Blocker · 3 Major · 1 Minor · 0 Suggestion mới**)
 
 ### Note — phản biện một điểm phi kỹ thuật trong review
