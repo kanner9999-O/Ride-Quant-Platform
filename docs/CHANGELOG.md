@@ -2,6 +2,33 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 11 (ADR Process) v2.0 — Claude tự review (**2 Blocker · 4 Major · 2 Minor · 1 Suggestion**)
+
+Chapter 11 v1.3 dài 49 dòng, `last_review: 2026-07-18`. Self-review đối chiếu Chapter 0 (Locked) và trạng thái thực tế của `/docs/adr/`.
+
+### Fixed — Blocker
+- **Cơ chế supersede mâu thuẫn trực tiếp với ADR Immutable Rule, và Ch11 không định nghĩa `supersedes`/`superseded_by`:** Ch0 §5 khóa *"sau khi Locked TUYỆT ĐỐI không sửa lại"* nhưng đồng thời bảo liên kết qua `supersedes`/`superseded_by`; Ch0 §7 lại có nhánh lifecycle `Approved`/`Locked → Deprecated`/`Superseded` (tức `status` **phải** đổi sau khi Locked). Ba điều này không thể cùng đúng nếu immutability nghĩa là "không field nào được đổi". **Mâu thuẫn đã materialize thật trong repo:** `ADR-004.md` có `status: Superseded` + `superseded_by: ADR-005` — tức đã bị ghi thêm field sau khi Locked. Ch11 — chương sở hữu ADR metadata contract — không có một dòng nào về hai field này. **Sửa — thêm §11.3 Immutability boundary:** tách **decision content** (Context · Decision · Alternatives · Concerns/Risks · Scale check · Consequences → **bất biến tuyệt đối**) khỏi **lifecycle/link metadata** (`status` · `superseded_by` · `deprecated_at` → được chuyển trạng thái, **chỉ** theo transition mà Ch0 §7 cho phép) và **approval metadata** (`approved_by`/`approved_at` → bất biến sau khi set). Ghi rõ cập nhật lifecycle metadata **không phải một "lần sửa ADR" độc lập** — chỉ hợp lệ khi nằm trong transition atomic §11.5. Kèm disclaimer: đây là clarification trong phạm vi wording sẵn có của Ch0, nếu reviewer đánh giá là redefinition thì bắt buộc mở ADR sửa Ch0 — Ch11 không tự làm. Bổ sung `supersedes`/`superseded_by` vào metadata contract §11.4 với **rule hai chiều bắt buộc**: `B.supersedes ∋ A` ⟺ `A.superseded_by = B` ∧ `A.status = Superseded`; một chiều thiếu chiều kia là **trạng thái không hợp lệ**, không phải "chưa cập nhật xong".
+- **Hardcode tên AI cụ thể vào rule bắt buộc, trái nguyên tắc Locked của Ch0 §2:** v1.3 ghi *"ChatGPT Review + Claude Review là bắt buộc"*, trong khi Ch0 §2 khóa *"Constitution chỉ định nghĩa **Role**, không bao giờ ghi tên người/AI cụ thể"* và cảnh báo rõ nếu có thêm AI khác (Codex, Gemini) thì cách ghi này vô nghĩa; gán Người/AI ↔ Role phải sống ở `/team/team.yaml`. **Sửa §11.8:** đổi thành *"review từ các role đang giữ `AI Technical Architect` là input bắt buộc"*, ghi rõ số lượng và danh tính có thể thay đổi mà không cần sửa chương này. Giữ nguyên phân biệt "bắt buộc **có**" ≠ "điều kiện **approve**".
+
+### Fixed — Major
+- **ADR identity không có authority cấp số:** v1.3 chỉ có quy ước path `/docs/adr/ADR-XXX.md`, không nói ai cấp số, uniqueness scope, có được tái sử dụng số của ADR bị hủy không — trong khi Ch6 đã khóa identity/non-reuse rất chặt cho mọi thứ khác, và mọi tài liệu Locked đều tham chiếu ADR **bằng số**. **Thêm §11.2:** đúng một authority cấp số cho toàn repo (không phải quy ước ngầm giữa contributor) · uniqueness vĩnh viễn trên toàn `/docs/adr/` · **không tái sử dụng** số của ADR bị hủy · **không renumber** sau khi rời `Draft` · authority của identity là **số ADR**, không phải đường dẫn file.
+- **Transition `Approved → Locked` không được định nghĩa:** Ch0 §7 có hai trạng thái riêng biệt nhưng Ch11 chỉ khóa atomic cho bước approve. **Thêm vào §11.5:** Approved và Locked **cùng** chịu Freeze Policy — cả hai đều không sửa được decision content; Locked là xác nhận ổn định + được MANIFEST ghim; chuyển `Approved → Locked` là thay đổi lifecycle metadata, atomic với MANIFEST, và **không** mở lại cơ hội chỉnh sửa nội dung. Thêm luôn transition **Deprecate** (không có ADR thay thế → `status → Deprecated`, không có `superseded_by`) và transition **Supersede atomic gồm cả hai file** — cấm approve ADR mới trước rồi mới quay lại đánh dấu ADR cũ ở commit sau, vì khoảng giữa hai bước là trạng thái hai ADR cùng có hiệu lực cho một quyết định.
+- **Authority của OQ status chưa khóa:** v1.3 bảo cập nhật `MANIFEST OQ-x → Resolved` cùng lúc với `resolves` trong ADR, nhưng không nói nơi nào canonical — đúng lớp lỗi peer authority đã phải sửa ở Ch9 (`Input Contract HOẶC dependency contract`) và Ch10 (`Policy Contract HOẶC registry`). **Thêm §11.6:** **ADR là authority**, MANIFEST là **projection**; lệch nhau thì ADR thắng và MANIFEST là lỗi cần sửa; **không tồn tại quan hệ "ADR HOẶC MANIFEST"** cho cùng sự thật OQ status.
+- **"Machine-readable acceptance gate" nhắc validator nhưng không có owner/hệ quả:** **Thêm §11.7:** validator **không phải authority phê duyệt** (quyền approve/reject vẫn chỉ thuộc Product Owner) · kết quả validator là **điều kiện chặn, không phải cảnh báo** — metadata không nhất quán (supersede một chiều · `resolves` trên ADR chưa Approved · `depends_on` trỏ ADR chưa Approved hoặc tạo vòng · MANIFEST lệch ADR) thì ADR **không đủ điều kiện** chuyển `Approved` · ai vận hành và bằng công cụ gì thuộc Phase 1.
+
+### Fixed — Minor
+- **Không cấm `depends_on` vòng giữa các ADR:** thêm rule đồ thị **acyclic** vào §11.4 — A↔B là deadlock (không ADR nào rời được Draft/In Review), phải xử lý bằng tách/gộp quyết định, **không** bằng ngoại lệ thủ công.
+- **`depends_on` thiếu `02-platform-invariants`** dù chương viện dẫn I-12 ở hai chỗ (Single Source of Truth cho lifecycle và cho OQ authority). Bổ sung, đồng bộ MANIFEST.
+
+### Fixed — Suggestion
+- **OQ `Resolved` bởi ADR sau đó bị Superseded thì sao:** thêm vào §11.6 — OQ **không tự động mở lại**; ADR thay thế phải khai báo tường minh: tiếp tục đóng (`resolves`) hay mở lại (OQ về `Open`, ghi rõ trong ADR mới). **Im lặng không phải một lựa chọn** — không nói gì về OQ mà ADR cũ đã đóng là **khai báo thiếu**, phải bổ sung trước khi approve.
+
+### Checklist
+- Ch11 v2.0 · 9 heading §11.1→§11.9 đúng thứ tự · **0 tham chiếu §11.x gãy** (§11.3 · 11.4 · 11.5 · 11.6 đều tồn tại) · **0 tên AI cụ thể trong rule** · mọi link target tồn tại (`00-governance` · `02-platform-invariants` · `adr-template.md` · `../team/team.yaml`) · không định nghĩa lại Ch0 §4b/§5/§7 · 0 authority mới được tạo.
+
+### Note
+- Đây là **self-review của Claude**, chưa qua ChatGPT. Không tự tuyên bố Approve. Chờ ChatGPT review round 1 và Product Owner Approve/Lock.
+
 ## [Milestone] — 2026-07-24 — 🔒 Chapter 10 (Compatibility & Capability Contract) LOCKED
 
 **Product Owner (Kanner) xác nhận Approve & Lock** Chapter 10 v2.7, theo khuyến nghị reviewer (ChatGPT round 8: 0 Blocker · 0 Major · 0 Minor · 0 Suggestion, Consolidation Review 9 mục + Backward Consistency Check toàn bộ Chapter 0-9 đạt).
