@@ -2,6 +2,25 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 10 v2.4 (ChatGPT review round 4: **0 Blocker · 2 Major · 0 Minor · 0 Suggestion mới**)
+
+Không có phản biện; 2 finding chấp nhận toàn bộ. **0 Blocker lần đầu ở Chapter 10.**
+
+### Fixed — Major 1: authority designation đã version hóa nhưng Compatibility Result chưa pin designation đã dùng
+- **Lại là propagation gap** — cùng lớp lỗi với vòng 8 của Chapter 9 (§9.1 khóa exact artifact nhưng §9.5 activation set không pin). v2.3 khóa ở §10.4.3 rằng designation của canonical authority phải version hóa + governance phê duyệt, nhưng §10.4.1 provenance không bắt result pin designation nào đã được dùng. Hệ quả: `T1: designation D1 → authority X trả lời "policy nào active"` · result ghi `policy=compat-v3 · boundary=T1 · eligible=true` · sau đó đổi sang `D2 → authority Y` → audit có thể dùng D2 **tái diễn giải** applicability tại T1, kết luận đổi hồi tố.
+- **Sửa §10.4.1:** thêm vào danh sách pin bắt buộc — **canonical authority designation version cho policy identity/version** · **canonical authority designation version cho runtime applicability trong subject scope** · **authoritative applicability/activation fact hoặc frontier đã resolve tại evaluation boundary** (bằng chứng policy thực sự active trong scope lúc đánh giá). Ghi rõ vì sao exact-pin policy artifact là chưa đủ: *"policy content là gì"* và *"policy đó có authority + đang active trong scope lúc đánh giá không"* là **hai fact khác nhau**. Khóa thêm: **designation đổi về sau KHÔNG được làm thay đổi cách diễn giải một Compatibility Result lịch sử**. Bổ sung designation version vào điều kiện invalid-result.
+
+### Fixed — Major 2: Capability Matrix mới là execution-mode readiness matrix, chưa bao phủ capability semantics của chính Chapter 10
+- §10.2 đã tách 3 loại capability (Business · Required platform · Provided contract) nhưng §10.8 chỉ ghi execution mode → Matrix không trả lời được subject có năng lực cụ thể nào, năng lực nào declared, năng lực nào validated, requirement nào đang được đáp ứng. Một component có thể `Live = validated` trong khi thiếu `cursor-bounded historical projection` hoặc `multi-venue routing`; provider bỏ một provided capability mà ô `Live = validated` vẫn đứng nguyên — snapshot dù bất biến vẫn quá thô để giải thích readiness.
+- **Sửa §10.8:** Matrix có **hai chiều** — **capability assertions** (required platform capability · provided contract capability · business-capability implementation mapping khi liên quan) và **execution-mode readiness** (Backtest · Replay · Paper Trading · Live). **Execution-mode readiness là projection/kết luận dẫn xuất từ capability assertion**, không phải cờ độc lập. Mỗi validated mode readiness phải exact-pin hoặc resolve tới capability requirement set · provider capability set · Compatibility Result/evidence · policy/evaluator/boundary. **`Live = validated` là invalid nếu không resolve được tập capability requirement/provider evidence làm căn cứ.** Mở rộng §10.8.1: rule declared ≠ validated áp cho **cả capability assertion lẫn execution-mode readiness**, không chỉ mode.
+- **Vẫn không đóng OQ-002** — chỉ bảo đảm "Live readiness" có nghĩa kỹ thuật đầy đủ trước khi Quality Gate dùng nó.
+
+### Checklist
+- Ch10 v2.4 · 16 heading đúng thứ tự §10.1→§10.9 (+ 10.3.1 · 10.4.1→10.4.4 · 10.8.1 · 10.8.2), không mục nào bị nuốt/trùng · **0 tham chiếu §10.x gãy** · **0 cấu trúc peer authority** · version file ↔ MANIFEST đồng bộ.
+
+### Note
+- Không tự tuyên bố Approve. Chờ ChatGPT review round 5 và Product Owner Approve/Lock.
+
 ## [Unreleased] — Chapter 10 v2.3 (ChatGPT review round 3: **1 Blocker · 1 Major · 0 Minor · 0 Suggestion mới**)
 
 Không có phản biện; 2 finding chấp nhận toàn bộ.
