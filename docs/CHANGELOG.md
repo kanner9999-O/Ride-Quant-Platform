@@ -2,6 +2,33 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 10 v2.1 (ChatGPT review round 1: **1 Blocker · 3 Major · 1 Minor · 0 Suggestion mới**)
+
+### Note — phản biện một điểm phi kỹ thuật trong review
+Review kết luận *"GitHub metadata Chapter 9: vẫn cần atomic transition phản ánh quyết định"*. **Điểm này không đúng với trạng thái repo:** commit `cec4f1e` (trước commit Chapter 10 v2.0) đã thực hiện atomic transition — `09-plugin-model.md` trên `main` hiện là `version: 2.9 · status: Locked · approved_by: Kanner · approved_at: 2026-07-24`, MANIFEST ghi `**Locked**`, CHANGELOG có entry `[Milestone]`. Đã fetch lại remote `main` để xác minh trước khi ghi note này. Reviewer có thể đã đọc snapshot Ch9 cũ hơn `cec4f1e`. Không có hành động nào cần thực hiện thêm cho Chapter 9. **5 finding kỹ thuật còn lại: chấp nhận toàn bộ, không phản biện.**
+
+### Fixed — Blocker: Compatibility Result pin subject nhưng không pin evaluation provenance
+- v2.0 yêu cầu result immutable + pin input + kết luận nhị phân, nhưng **không** yêu cầu pin rule-set/evaluator. Cùng một bộ input có thể cho kết luận ngược nhau dưới hai compatibility rule-set khác nhau — result chỉ ghi `inputs + eligible=true` không trả lời được luật nào đã áp, ai đánh giá, người đánh giá có thẩm quyền không, result sinh trước hay sau rule transition. Vì Ch9 §9.5 dùng result này để **mở activation boundary**, thiếu provenance biến nó thành **"vé eligible" tự chứng nhận**.
+- **Sửa — thêm §10.4.1:** result phải pin bất biến subject scope · input references · **compatibility policy/rule-set version** · **evaluator module identity** · **evaluator implementation version + exact artifact/manifest** · evaluation time/boundary · result + reason + evidence refs. Result không resolve được evaluator identity/artifact/rule-set/scope thì **không hợp lệ và không được đưa vào validated compatibility set**. Ghi rõ đây cùng nguyên tắc Ch3 §3.1 (Locked): parity phải pin implementation version + configuration + **policy version** + contract, không chỉ pin dữ liệu vào.
+- **Chống self-certification:** component đang được đánh giá không mặc định tự cấp eligibility cho chính nó; **registry membership là identity, KHÔNG phải grant** — quyền đánh giá phải qua đúng phân tầng Declaration → Grant → Enforcement → Verification của Ch9 §9.6 với `granted ⊆ declared`. Self-evaluation chỉ hợp lệ khi authorization model cho phép tường minh + có independent verification.
+
+### Fixed — Major
+- **Trigger "provider đổi contract/capability mà consumer đang pin" gây revalidation hồi tố:** wording cũ có thể bị đọc thành "provider publish version mới → activation lịch sử phải xét lại", phá immutable reference và independent versioning. **Sửa §10.5:** trigger đúng là **transition của binding/resolution**, không phải sự tồn tại của version mới — consumer đổi pinned reference · active binding resolve sang version/artifact khác · artifact/contract đã pin bị explicit revoke hoặc mất resolvability · permission/capability grant đổi · compatibility policy đổi · runtime đổi exact artifact · startup. Ghi rõ: provider publish version mới **KHÔNG** phải trigger; **historical Compatibility Result giữ nguyên vĩnh viễn**, đánh giá mới sinh result mới cho boundary mới, không hồi tố.
+- **Schema compatibility delegation từ Ch8 §8.6 chưa đủ semantic để triển khai nhất quán:** v2.0 chỉ định nghĩa breaking change theo contract surface chung, chưa khóa các trường hợp schema evolution phổ biến — hai team cùng nói "SemVer nghiêm ngặt" vẫn phân loại ngược nhau (thêm required field không default: minor hay major?). **Thêm §10.3.1** semantic độc lập format: định nghĩa backward/forward compatibility và breaking theo **chiều mà contract yêu cầu** · nguyên tắc tối thiểu cho optional/required element, remove/rename/type/nullability/default/đổi ý nghĩa, enum expansion/contraction theo từng chiều, deprecated-rồi-gỡ · hai điều cấm suy diễn: `schema_version` bump không tự chứng minh compatibility, major bump không tự làm thay đổi trở nên an toàn. Rules theo format cụ thể (JSON Schema/Avro/Protobuf) defer Domain Contract/Phase 1.
+- **Unknown impact bị ghi thành proved incompatibility:** §10.7 nói không resolve được tập consumer thì "kết quả là incompatible" — đúng về hành vi chặn, sai về semantic, và mâu thuẫn nhẹ với kết luận nhị phân ở §10.4. **Thêm §10.4.2:** eligibility vẫn nhị phân, nhưng **reason classification bắt buộc phân biệt** *đã chứng minh tương thích* · *đã chứng minh không tương thích* · *không đủ evidence* · *khai báo invalid* · *reference không resolve được* · *policy mismatch*. Quy tắc: không chứng minh được tương thích → `eligible = false` (fail-safe I-6) **nhưng không được ghi thành "đã chứng minh không tương thích"** — chặn đúng mà ghi sai lý do là mất explainability (I-1). Sửa §10.7 tương ứng.
+
+### Fixed — Minor
+- **Capability Matrix chưa pin version/artifact scope:** v2.0 nói Matrix ghi nhận "với mỗi module/plugin", nhưng capability đổi theo Plugin Version, artifact/target platform và configuration/profile — gắn ở logical level tạo declaration quá rộng. **Sửa §10.8:** mỗi entry phải pin subject identity đủ cụ thể (Definition · **Plugin Version** · artifact/target discriminator khi capability phụ thuộc build/platform · configuration/profile khi phụ thuộc config); **cấm suy capability của mọi version/artifact chỉ từ Plugin Definition** — trái yêu cầu exact-artifact eligibility Ch9 §9.5.
+
+### Đánh giá của reviewer về §10.4/§10.5
+Claude nêu lo ngại hai section này có thể lấn Phase 1. Reviewer kết luận §10.4 là **semantic invariant**, đúng chỗ ở Constitution; §10.5 đúng ý tưởng nhưng cần khóa theo **state transition ảnh hưởng binding**, không theo hành động "provider đổi" nói chung — đã sửa đúng hướng đó.
+
+### Checklist
+- Ch10 v2.1 · §10.1→§10.9 liên tục (+ §10.3.1 · §10.4.1 · §10.4.2) · **0 tham chiếu §10.x gãy** (§10.4 · §10.4.1 · §10.4.2 · §10.7 đều tồn tại) · 0 hardcode tên/schema · 0 authority mới · historical result bất biến, không hồi tố.
+
+### Note
+- Không tự tuyên bố Approve. Chờ ChatGPT review round 2 và Product Owner Approve/Lock.
+
 ## [Unreleased] — Chapter 10 (Compatibility & Capability Contract) v2.0 — Claude tự review (**2 Blocker · 5 Major · 2 Minor · 1 Suggestion**)
 
 Chapter 10 v1.0 viết 2026-07-16, **trước khi** Chapter 2-9 được Locked, dài 32 dòng — chưa hấp thụ bất kỳ model nào đã khóa từ đó. Self-review đối chiếu toàn bộ Chapter 2/3/4/7/8/9 Locked.
