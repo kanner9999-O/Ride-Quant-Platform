@@ -2,6 +2,31 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Milestone] — 2026-07-24 — 🔒 Chapter 9 (Plugin Model) LOCKED
+
+**Product Owner (Kanner) xác nhận Approve & Lock** Chapter 9 v2.9, theo khuyến nghị reviewer (ChatGPT round 9: 0 Blocker · 0 Major · 0 Minor · 0 Suggestion, Consolidation Review + Backward Consistency Check toàn bộ Chapter 0-8 đạt).
+
+`status: In Review → Locked` · `approved_by: null → Kanner` · `approved_at: null → 2026-07-24`.
+
+### Quy mô công việc
+Chapter 9 trải qua **10 revision** (v2.0 Claude tự review → v2.9), tương ứng **9 vòng review ChatGPT** (round 1-9) sau vòng self-review ban đầu. Các model đã khóa:
+
+- **Identity — 4 tầng tách biệt:** Plugin Definition (logical/taxonomy) ≠ Plugin Version (immutable release) ≠ Package/Build Artifact (immutable bytes + content hash) ≠ Plugin Runtime (deployment/replica); Strategy Definition ≠ Strategy Instance, khớp ba-thứ-tách-riêng của ADR-010 (strategy/model version · instance · configuration version).
+- **Module Taxonomy:** registry chỉ sở hữu module type/definition, không bao giờ sở hữu Strategy Instance runtime fact (hosted hay independently operated); `strategy_instance_id ≠ module_id`; lifecycle instance authoritative trong event log (I-12).
+- **Strategy cardinality:** một Strategy Definition có thể có nhiều implementation (authoritative/shadow/experimental/migration), đúng một authoritative trong mỗi execution/parity scope — khớp Chapter 3 Locked.
+- **Decision input authority:** Input Contract là root authority duy nhất mà `decision_context_cursor` pin; dependency contract chỉ có hiệu lực như subordinate immutable artifact exact-pinned, không còn peer authority/hidden-input path.
+- **Decision-relevance promotion:** contract declaration (không suy runtime) · cấm silent reclassification · 4 điều kiện visibility precondition · authoritative atomic activation boundary với validated compatibility set (Plugin Contract version · Input Contract version · published refs · permission grant version · capability result · runtime deployment version · **exact Package/Build Artifact hoặc immutable manifest + target discriminator**) · mixed-version/mixed-build activation = integrity violation, fail-safe I-6.
+- **Permission boundary 4 tầng:** Declaration · Grant · Enforcement (runtime) · Verification; `granted ⊆ declared`; plugin không bao giờ được cấp exchange credential trực tiếp (I-11).
+- **Versioning:** độc lập với platform/plugin khác nhưng "independent versioning ≠ zero downstream impact" — impact đánh giá qua Chapter 10.
+- **Governance/runtime split:** forbidden-pattern table tách rõ phần runtime-enforceable (có cột phát hiện/chặn) khỏi phần thuộc governance/process; ADR Required giới hạn đúng architecture change, không chặn operational action (§9.10).
+
+### Deferred sang Phase 1 design spec
+Fencing/transaction mechanism cho activation boundary · deployment coordinator · artifact retention/archive protocol cụ thể · Capability Matrix/compatibility algorithm chi tiết (Chapter 10 sở hữu).
+
+**Đã Locked tới nay:** Chapter 0, 1, 2, 3, 4, 5, 6, 7, 8, **9** + ADR-005 → ADR-010.
+
+**Next Milestone:** Chapter 10 — Compatibility & Capability Contract.
+
 ## [v0.1] — 2026-07-16 (Phase 0, đang tiến hành, chưa release chính thức)
 
 ### Added
