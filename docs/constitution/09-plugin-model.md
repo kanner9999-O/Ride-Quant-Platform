@@ -1,7 +1,7 @@
 ---
 id: 09-plugin-model
 title: Plugin Model
-version: "2.3"
+version: "2.4"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -74,7 +74,9 @@ Vì Strategy Instance nằm ngoài `module-registry` (§9.1), nó vẫn phải c
 
 5. **Lifecycle transition KHÔNG được hủy hoặc vô hiệu hóa evidence của Decision đã tính.** Pause/stop/retire một instance là **operational state change**, không phải xóa lịch sử:
    - Decision đã tính vẫn phải **tái dựng được đầy đủ** với đúng instance identity + plugin version + configuration đã dùng ([I-1](./02-platform-invariants.md)).
-   - Instance identity **không được tái sử dụng** cho một instance khác sau khi retire ([Chapter 6 §6.1](./06-identity-model.md): ID không tái dùng).
+   - Instance identity **không được tái sử dụng** cho một instance khác sau khi retire ([Chapter 6 §6.1](./06-identity-model.md): ID không tái dùng). Hai điều kiện bắt buộc để rule này thi hành được:
+     - **Uniqueness scope phải khai báo tường minh** trong Strategy Domain Contract (global · per-Account · per-Strategy-Definition...) — Ch6 §6.1 cấm mặc định global. Nếu scope hẹp hơn global, mọi reference đi qua boundary phải **qualified** đủ để resolve duy nhất.
+     - **Retention/resolvability horizon phải khai báo:** identity đã retire phải resolve được **trong toàn bộ replay/audit horizon platform cam kết** ([Chapter 8 §8.1.1](./08-event-model.md) — persistently resolvable, hết horizon phải có explicit retention/archive policy). Không có horizon thì "không tái dùng" không kiểm chứng được sau vài năm.
    - Nếu retire/stop khiến một Decision đang in-flight không thể hoàn tất đường bình thường, áp **cùng nguyên tắc** với [ADR-010 §2.6](../adr/ADR-010.md) (Approved): ghi immutable preservation/rejection fact mang đủ evidence, **không** xóa hay ghi đè Decision gốc, và **không** cấp execution eligibility.
 
 Schema/representation cụ thể thuộc **Strategy Domain Contract**; Constitution khóa yêu cầu.
@@ -105,7 +107,18 @@ Một plugin (kể cả AI module) muốn **tham gia Decision Pipeline** phải 
 
 **Phạm vi chính xác:** mục này áp cho **mọi plugin sinh authoritative output nằm trong decision-relevant path** — Strategy Plugin · Feature/Signal plugin · Risk-context plugin · bất kỳ plugin nào sinh input cho Decision. Lý do: [I-3](./02-platform-invariants.md) chống look-ahead ở **mọi** compute path, không riêng bước cuối.
 
-**Ngoài phạm vi:** plugin chỉ sinh output **không** tham gia decision-relevant path (ví dụ reporting/notification thuần túy, observability projection) không chịu ràng buộc cursor-bounded ở mục này. **Nhưng:** nếu output của một plugin về sau được dùng làm input cho Decision, plugin đó **trở thành** decision-relevant và phải tuân đầy đủ — phân loại theo *đường dữ liệu thực tế*, không theo ý định ban đầu.
+**Ngoài phạm vi:** plugin chỉ sinh output **không** tham gia decision-relevant path (ví dụ reporting/notification thuần túy, observability projection) không chịu ràng buộc cursor-bounded ở mục này.
+
+### Decision-relevance là thuộc tính CONTRACT, không suy ra lúc runtime
+
+Decision-relevance phải là **thuộc tính authoritative được khai báo** trong Plugin Contract (`Decision participation`, §9.6), **KHÔNG** phải thứ suy ra từ việc ai đó tình cờ tiêu thụ output. Nếu để phân loại "theo đường dữ liệu thực tế" thì cùng một plugin, cùng một version, cùng một output sẽ **đổi ràng buộc theo hành vi của consumer** — evidence yêu cầu thay đổi hồi tố, không audit được, và consumer có thể lặng lẽ kéo một plugin chưa đủ điều kiện vào Decision Pipeline.
+
+**Quy tắc bắt buộc:**
+- **CẤM** dùng output của một plugin **chưa được khai báo decision-relevant** làm input cho authoritative Decision. Vi phạm là **integrity violation** → fail-safe [I-6](./02-platform-invariants.md), **không** tự động nâng cấp plugin.
+- Muốn tái sử dụng output đó cho Decision: phải **promote plugin thành decision-relevant** — đây là **contract change** (versioned), phải verify lại toàn bộ §9.5, và thuộc diện **ADR Required** nếu đổi Decision Pipeline topology (§9.10).
+- **CẤM silent reclassification**: không có đường nào biến một plugin thành decision-relevant mà không qua contract change.
+
+*Cách hiểu đúng câu "đường dữ liệu thực tế": nó dùng để **phát hiện vi phạm** (một consumer đang kéo output ngoài phạm vi vào Decision), KHÔNG phải để **tự động hợp thức hóa** plugin đó.*
 
 `Published contract compliance ≠ Decision-time visibility compliance`. Một query hoàn toàn hợp lệ theo I-7 vẫn có thể phá [I-2](./02-platform-invariants.md)/[I-3](./02-platform-invariants.md)/[I-5](./02-platform-invariants.md) nếu nó trả về "current state" không bị giới hạn bởi cursor:
 
@@ -186,8 +199,15 @@ Bảng này **không tạo authority mới** — mỗi dòng trỏ về enforcem
 | Tạo `module-registry` entry mới cho mỗi Strategy Instance | §9.1, §9.3 | Registry review khi thay đổi `module-registry.yaml` (thuộc diện ADR Required — §9.10) |
 | Mutate ngầm plugin version/config của instance đang chạy | §9.3 | §9.3: đổi version/config bắt buộc tạo binding/instance version mới; Decision evidence phải resolve đúng version đã dùng |
 | Suy trạng thái runtime của plugin từ `module-registry` status | [I-12](./02-platform-invariants.md) | §9.8: runtime lifecycle facts chỉ authoritative trong event log |
-| Bắt mở ADR cho mọi activate/pause instance | §9.10 | §9.10 phân loại architecture change vs operational action |
+
 | Nâng strategy-level philosophy thành Platform Invariant | [Chapter 2](./02-platform-invariants.md) | Chapter 2 mở đầu: ranh giới Platform Invariant vs Strategy-level Philosophy |
+| Dùng output của plugin **chưa khai báo decision-relevant** làm input cho Decision | §9.5 | §9.6 Decision participation declaration · §9.5: consumer phải kiểm khai báo trước khi dùng làm Decision input |
+
+**Anti-pattern thuộc phạm vi GOVERNANCE (không phải runtime enforcement):**
+
+| Pattern | Vấn đề | Phát hiện bởi |
+|---|---|---|
+| Bắt mở ADR cho mọi activate/pause instance | Biến operational action thành architecture decision → không vận hành được | **Governance/process review** theo §9.10 + [Governance §4b](./00-governance.md) — đây là lỗi **quy trình**, không có cơ chế runtime nào phát hiện được |
 
 ## 9.10 Khi nào cần ADR — tách architecture change khỏi operational action
 
