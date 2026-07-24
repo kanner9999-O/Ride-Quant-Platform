@@ -1,7 +1,7 @@
 ---
 id: 08-event-model
 title: Event Model
-version: "4.2"
+version: "4.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -19,12 +19,13 @@ depends_on: ["02-platform-invariants", "03-engineering-principles", "05-time-mod
 >
 > **OQ-005 và OQ-006: hướng ĐÃ ĐƯỢC Product Owner duyệt** (2026-07-18). [ADR-009](../adr/ADR-009.md) và [ADR-010](../adr/ADR-010.md) hiện là **`Draft`, CHƯA được accept**.
 >
-> OQ-005/OQ-006 vẫn `Open` và **Chapter 8 KHÔNG được Lock** cho tới khi **đủ cả 5** điều kiện:
+> OQ-005/OQ-006 vẫn `Open` và **Chapter 8 KHÔNG được Lock** cho tới khi **đủ cả 6** điều kiện:
 > 1. ADR-009 được Product Owner **accept**;
 > 2. ADR-010 được **accept** theo dependency gate (ADR-010 §7 — không accept trước ADR-009);
 > 3. OQ-005/OQ-006 chuyển sang `Resolved` trong MANIFEST;
 > 4. ~~§8.4.1 có quyết định của Product Owner~~ — **✅ ĐÃ XONG** (Model A, 2026-07-18; ghi tại ADR-010 §2.6);
-> 5. Consolidation review hoàn tất.
+> 5. **Vấn đề Decision output stream retire tại transition (§8.4.1) có quyết định của Product Owner**;
+> 6. Consolidation review hoàn tất.
 >
 > *("ADR đã được ghi" KHÔNG đủ — Draft là đã ghi nhưng chưa accept.)*
 
@@ -134,11 +135,29 @@ subject_ref: {subject_kind: value, subject_type: Price, subject_id: price_123}
 | `causation_refs` | **Direct domain causal predecessor/prerequisite** — event/fact đã sinh ra event này. KHÔNG bị thu hẹp thành "chỉ state input": `DECISION_CREATED → RISK_REJECTED` là nhân quả nghiệp vụ thật kể cả khi consumer không đọc payload | **CÓ** |
 | `related_event_refs` | Quan hệ **KHÔNG mang causal meaning** (identity/audit reference) | **KHÔNG** |
 
-*Chapter 8 chỉ sở hữu **representation và cardinality** của hai field này; **semantic thuộc Chapter 6 §6.7 + Event Contract**. Chapter 8 KHÔNG được định nghĩa lại nghĩa của causation.*
+*Phân chia authority chính xác:*
+- `causation_refs` — **semantic thuộc [Chapter 6 §6.7](./06-identity-model.md) + Event Contract**; Chapter 8 chỉ sở hữu representation/cardinality. Chapter 8 KHÔNG được định nghĩa lại nghĩa của causation.
+- `related_event_refs` — Chapter 6 §6.7 chỉ định nghĩa correlation và causation, **không** định nghĩa quan hệ non-causal này. Vì vậy: **Chapter 8 sở hữu base representation + invariant "non-causal, không tham gia `P_causation`"**; **Event Contract sở hữu ý nghĩa cụ thể** của từng loại relation.
 
 **Causal closure là ràng buộc ở tầng Input Contract / run validation, KHÔNG phải semantic của event:**
 - `causation_refs` là metadata **bất biến cấp event**; Input Contract là scope **cấp run/consumer**. Cùng một event được nhiều Input Contract dùng → **không tồn tại** "Input Contract universe của event" để append-validator kiểm. Vì vậy không được đặt ràng buộc scope vào semantic của event.
-- Mỗi **Input Contract phải khai báo `causal_closure_policy`**. Với mọi event B mà contract authoritative-apply, nếu processor **cần payload/state** của một `causation_ref` A thì stream của A **BẮT BUỘC** thuộc input scope + cursor universe của contract đó. Causal predecessor **không phải state-input** của consumer hiện tại thì không bị ép vào scope — chỉ cần xác minh identity/existence.
+- Mỗi **Input Contract phải khai báo `causal_closure_policy`** (là thành phần bắt buộc + versioned của contract, §8.3.4):
+
+```yaml
+causal_closure_policy:
+  mode: full | declared-state-dependencies
+  dependency_authority:            # BẮT BUỘC khi mode = declared-state-dependencies
+    event_contract_ref: {contract_id, contract_version}
+```
+
+- `mode: full` — **mọi** `causation_ref` (bắc cầu) phải thuộc input scope + cursor universe. Đơn giản nhất, scope rộng nhất.
+- `mode: declared-state-dependencies` — **Event Contract** (immutable, versioned) khai báo deterministic cause nào là state dependency; chỉ những cause đó bắt buộc trong scope. **Classification KHÔNG được nằm trong code processor** — nếu vậy, một Input Contract immutable sẽ đổi semantic sau mỗi lần deploy code mới.
+
+**Hòa giải với yêu cầu "mọi causation phải visible tại cursor" (§8.3.4):** yêu cầu đó áp cho **cause thuộc apply set** (in-scope). Với **external non-state cause** (ngoài universe):
+- append của effect phải chứng minh cause **đã committed** (tuple consistency §8.2.3);
+- run chỉ verify **identity/existence**, KHÔNG đọc payload;
+- external cause **KHÔNG thuộc merged apply set** → không cần `stream_position`, không tham gia frontier/completeness;
+- cấm giả lập một `stream_position` cho nó. Với mọi event B mà contract authoritative-apply, nếu processor **cần payload/state** của một `causation_ref` A thì stream của A **BẮT BUỘC** thuộc input scope + cursor universe của contract đó. Causal predecessor **không phải state-input** của consumer hiện tại thì không bị ép vào scope — chỉ cần xác minh identity/existence.
 - Vi phạm closure policy đã khai báo → **Input Contract invalid**, không phải event invalid.
 
 *(Phương án thay thế đã cân nhắc: bắt **mọi** Input Contract causally closed hoàn toàn dưới `causation_refs`. Loại vì quá rộng — một portfolio-view contract sẽ buộc phải include mọi decision/risk stream chỉ để thỏa closure, dù không đọc payload nào.)*
@@ -616,7 +635,31 @@ Hai phương án đã được xem xét: **Append-and-Revalidate** (giữ Decisi
 
 **✅ Product Owner đã quyết (2026-07-18): chọn phương án A.** Quyết định + rationale + 4 guardrail được ghi tại [ADR-010 §2.6](../adr/ADR-010.md) (chủ sở hữu Decision Time/Context); ADR-009 giữ registry/frontier boundary và cross-reference sang đó.
 
-**Normative rule tại Chapter 8:** Decision có knowledge cut trước transition **vẫn được append** như immutable historical fact; **KHÔNG tự động có execution eligibility**; Risk/Execution **bị chặn** cho tới khi revalidation theo registry đang active thành công; kết quả revalidation (success/stale/reject) phải là **authoritative event**; **cấm sửa/xóa** Decision gốc. **Revalidation evidence chain (relational invariant, KHÔNG được đứt):**
+**Normative rule tại Chapter 8:** Decision có knowledge cut trước transition **vẫn được append** như immutable historical fact; **KHÔNG tự động có execution eligibility**; Risk/Execution **bị chặn** cho tới khi revalidation theo registry đang active thành công; kết quả revalidation (success/stale/reject) phải là **authoritative event**; **cấm sửa/xóa** Decision gốc. ### ⚠️ Vấn đề mở — Decision output stream bị retire tại chính transition (CHỜ PRODUCT OWNER QUYẾT)
+
+Append-and-Revalidate yêu cầu Decision **vẫn được append**. Nhưng nếu transition đó **retire chính stream đích** của Decision thì không có đường append hợp lệ:
+
+```
+frontier 899:  Decision được tính, dự định append vào decision-stream-A
+frontier 900:  registry v4 RETIRE decision-stream-A
+frontier 901:  policy yêu cầu vẫn append Decision
+```
+| Lựa chọn | Vi phạm |
+|---|---|
+| Append vào stream A | retirement invariant (`terminal_position`, cấm append sau terminal) |
+| Append vào stream khác | đổi subject/stream authority — chưa có rule |
+| Không append | chính normative rule "Decision vẫn được append" |
+
+**Hai hướng để Product Owner chọn:**
+
+| Hướng | Nội dung | Đánh đổi |
+|---|---|---|
+| **1 — Thu hẹp phạm vi policy** | Append-and-Revalidate chỉ áp khi Decision target stream **vẫn active + event vẫn eligible** dưới post-transition registry. Nếu stream đã retire/không eligible → ghi immutable computation/rejection fact vào một **stable audit stream** được bảo đảm tồn tại xuyên mọi registry transition | Linh hoạt, retirement không bị chặn. Cần định nghĩa thêm stable audit stream |
+| **2 — Lifecycle drain invariant** | Decision output stream **không được retire** cho tới khi mọi in-flight Decision đã append xong hoặc bị đóng bằng authoritative rejection fact | Không cần audit stream mới. Retirement protocol phức tạp hơn, có thể phải chờ lâu |
+
+*Reviewer (ChatGPT) nghiêng về **Hướng 1**; đây là recommendation, không phải quyết định.* Chapter 8 **không được Lock** khi mục này còn mở.
+
+**Revalidation evidence chain (relational invariant, KHÔNG được đứt):**
 ```
 OriginalDecision  ←causation—  RevalidationSucceeded  ←causation—  RiskApproved  ←causation—  ExecutionIntentCreated
 ```
@@ -624,6 +667,7 @@ OriginalDecision  ←causation—  RevalidationSucceeded  ←causation—  RiskA
 2. Revalidation result phải ghi **evidence của registry/knowledge boundary** đã dùng để revalidate (không dùng success dưới registry khác).
 3. Risk Approval muốn cho phép tiếp tục phải **causally depend** vào successful revalidation result đó.
 4. Execution Intent phải **truy vết được** tới Risk Approval và successful revalidation tương ứng.
+5. **Validity interval:** successful revalidation chỉ cấp execution eligibility **trong registry applicability interval của chính nó**. Tại Risk Approval boundary phải thỏa `revalidation.registry_version = active_registry_at(risk_approval_lifecycle_frontier)`. Nếu có registry transition xảy ra **sau** revalidation nhưng **trước** Risk/Execution → eligibility **quay lại blocked**, bắt buộc revalidate lần nữa. Execution Intent phải chứng minh Risk Approval còn valid dưới boundary hiện tại (hoặc Risk Gateway thực hiện final current-registry check trước khi emit intent). *(Evidence chain không đứt ≠ evidence còn hiệu lực.)*
 
 Yêu cầu *"trace không được đứt"* là **platform-level invariant** ([I-1](./02-platform-invariants.md) cần immutable causation evidence; [I-4](./02-platform-invariants.md) cần mọi execution đi qua Risk Gateway) — không phải test fixture.
 
