@@ -2,6 +2,35 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.4 → v1.5 — tier-resolution evidence provenance
+
+**Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **author/self-reviewer** (`AI Technical Architect`); **không** pre-assert future independent review, **không** pre-assert PO approval.
+
+### Review provenance
+
+- **ChatGPT Review A + internal Review B + consolidation = một ChatGPT review package** (một actor identity `ChatGPT`).
+- **Verdict:** `Revision Requested`.
+- **Severity count:** **0 Blocker · 1 Major · 0 Minor · 0 Suggestion**.
+
+### Đã sửa (1 Major) — thiếu tier-resolution provenance trong immutable quality-gate evidence (§13.9, §13.4, §13.14)
+
+- **Immutable gate evidence giờ pin `tier_resolution_branch`** (runtime module · owned executable artifact · standalone executable artifact) khi tier ảnh hưởng gate applicability/coverage floor.
+- **Ownership declaration/reference được pin** (exact reference + version/content identity + canonical owning-module identity + authority owner) khi dùng inheritance.
+- **`module-registry` hoặc standalone tier declaration được pin** exact version/content identity + entry/declaration reference.
+- **Resolved tier + applicable coverage floor + criteria/policy version được pin**; evaluation boundary chứng minh reference là authoritative tại thời điểm gate, không resolve lại từ mutable state.
+- **Historical result không bị reinterpret** bởi metadata hiện tại; đổi ownership/tier → sinh evaluation mới, evidence cũ giữ nguyên chain.
+- **Validator chỉ verify pinned provenance**; không reconstruct bằng current/mutable metadata, không infer/default tier, không thành policy authority.
+- Áp exact-pin pattern tương đương Chapter 10 §10.8 cho quality-tier — **không** duplicate Chapter 10; không tạo state store cạnh tranh MANIFEST (I-12).
+
+### Metadata / state
+
+- `constitution/13-quality-gates.md`: **v1.4 → v1.5**, status `In Review`. `depends_on` giữ `["02-platform-invariants", "07-module-taxonomy"]` (không thêm dependency mới).
+- `MANIFEST.md`: row Chapter 13 → **v1.5**; `manifest_version` **9.16 → 9.17**; `constitution_version` giữ **1.1.0**; Chapter 0–12 giữ `Locked`, Chapter 14 giữ `In Review`; OQ-002/OQ-003 vẫn `Open`; không close backlog khác.
+
+### ADR
+
+**Không cần ADR** — chapter còn `In Review`, không Locked rule/invariant nào bị thay đổi; không mở rộng authority Chapter 7/10/12.
+
 ## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.3 → v1.4 — authoritative tier resolution clarification
 
 **Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **author/self-reviewer** (`AI Technical Architect`); **không** pre-assert future independent review, **không** pre-assert PO approval.

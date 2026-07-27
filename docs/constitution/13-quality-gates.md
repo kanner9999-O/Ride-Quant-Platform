@@ -1,7 +1,7 @@
 ---
 id: 13-quality-gates
 title: Quality Gates
-version: "1.4"
+version: "1.5"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -109,6 +109,8 @@ Coverage yêu cầu phân theo **mức độ nguy hiểm (criticality)**, không
 4. **Multiple/ambiguous ownership hoặc tier không resolve** — nhiều possible owning module · ownership không resolve duy nhất · tier declarations conflict · tier không resolve được → **undefined tier applicability → fail-closed → eligibility incomplete** (§13.8). **Không** tự chọn tier cao nhất hay thấp nhất trừ khi Constitution định nghĩa explicit rule (hiện **chưa** có).
 5. **Validator boundary:** validator **không** suy diễn tier, **không** default tier, **không** tạo ownership; chỉ **kiểm tra** authoritative declaration/inheritance đã resolve. Validator **không** phải quality-policy authority ([Chapter 11 §11.9](./11-adr-process.md)).
 
+> Tier-resolution provenance (branch, ownership, tier source, resolved tier + coverage floor) phải được **pin vào immutable gate evidence** theo **§13.9** — historical result không bị reinterpret khi metadata đổi về sau.
+
 ## 13.5 Invariant conformance gate
 
 Với mỗi artifact trong scope, **các Platform Invariant áp dụng phải pass đúng Verification mà [Chapter 2](./02-platform-invariants.md) đã định nghĩa**. Chapter 13 **không định nghĩa lại** verification của invariant — nó **gom chúng làm required evidence**.
@@ -180,6 +182,18 @@ Quality-gate evidence là **immutable, resolvable artifact** (cùng tinh thần 
 - **evaluator/authority** đã đánh giá (quyền đánh giá là grant, không tự nhận — [Chapter 9 §9.6](./09-plugin-model.md));
 - **measurement boundary/time**;
 - **input data/config identity** đủ để reproduce.
+
+**Tier-resolution provenance — bắt buộc khi tier ảnh hưởng gate applicability hoặc coverage floor.** Khi applicable tier quyết định gate có áp hay không, hoặc quyết định coverage floor (§13.4, §13.12 nhóm B), evidence entry phải pin đầy đủ **authoritative tier-resolution provenance tại evaluation boundary** — áp **exact-pin pattern tương đương** [Chapter 10 §10.8](./10-compatibility-capability-contract.md) cho quality-tier (**không** duplicate Chapter 10):
+
+- **`tier_resolution_branch`** — đúng một trong: `runtime module` · `owned executable artifact` · `standalone executable artifact` (§13.4).
+- **Ownership provenance** (nếu dùng inheritance): exact ownership declaration/reference · ownership declaration **version/content identity** · canonical owning-module identity · authority owner/designation của ownership declaration.
+- **Tier source (exact):**
+  - runtime module / owned artifact → exact `module-registry` **version/content identity** + exact module entry/reference đã dùng;
+  - standalone executable artifact → exact authoritative quality-tier declaration identity + declaration **version/content identity** + authority owner/designation.
+- **Resolved tier result:** resolved tier value · applicable coverage floor **derive từ tier đó** · criteria/policy version định nghĩa floor.
+- **Evaluation boundary:** evidence phải chứng minh các reference trên là **authoritative tại thời điểm gate evaluation**, **không** resolve lại từ mutable/current state về sau.
+
+**Historical immutability.** Ownership hoặc tier metadata thay đổi về sau **không** được reinterpret historical `PASS`/`FAIL`; nếu cần đánh giá lại thì **sinh gate evaluation mới**, còn evidence cũ **giữ nguyên** resolution chain đã pin. **Validator** chỉ **verify pinned provenance**, **không** reconstruct bằng current/mutable metadata khi historical evidence đã pin, **không** infer/default tier, **không** trở thành policy authority ([Chapter 11 §11.9](./11-adr-process.md)).
 
 **Result semantics** phân biệt (theo [Chapter 10 §10.4.2](./10-compatibility-capability-contract.md)):
 
@@ -284,4 +298,5 @@ Chương này khóa **contract**, không chốt **mechanism**. Defer sang Engine
 - benchmark harness và perf threshold cụ thể;
 - test framework/style (Testing Convention — [Chapter 3 §3.2](./03-engineering-principles.md) đã park ở đây, không định nghĩa lại);
 - quarantine mechanism (§13.10) và waiver storage format (§13.11);
-- **storage/schema và filename cụ thể** của **authoritative artifact/quality-tier metadata** (§13.4 nhánh 3) — Constitution chỉ khóa *tồn tại + property* của declaration (explicit, versioned, pinned, có owner, tồn tại trước gate), **không** khóa filename/YAML schema/CI/vendor.
+- **storage/schema và filename cụ thể** của **authoritative artifact/quality-tier metadata** (§13.4 nhánh 3) — Constitution chỉ khóa *tồn tại + property* của declaration (explicit, versioned, pinned, có owner, tồn tại trước gate), **không** khóa filename/YAML schema/CI/vendor;
+- **field encoding / storage format** của **tier-resolution provenance** (§13.9) — Constitution khóa *phải pin những gì*, không khóa cách lưu/serialize.
