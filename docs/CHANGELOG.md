@@ -2,6 +2,34 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 12 (Approval Gates) v1.2 → v1.3 — Claude self-review (**1 Blocker · 1 Major · 0 Minor · 3 Suggestion**)
+
+Self-review đối chiếu Chapter 0 v1.1 (Locked) §2–§3 và Chapter 11 v2.1 (Locked) §11.5. Đóng nợ kỹ thuật **BL-008**. Không mở ADR mới: ADR-011 đã authorize hướng role-based, Chapter 12 vẫn `In Review` nên sửa trực tiếp. `status` giữ `In Review`; không tự Approve/Lock.
+
+### Severity table
+
+| # | Severity | Finding | Xử lý |
+|---|---|---|---|
+| F1 | **Blocker** | Body dùng identity-specific `ChatGPT Review + Claude Review` như governance rule — mâu thuẫn Chapter 0 §2 (Constitution chỉ định nghĩa Role, không hardcode tên AI) và §3 (role-based minimum-two independent gate). Đây là BL-008. | **Fixed** — generalize sang "tối thiểu hai independent review từ actor giữ role `AI Technical Architect`", danh tính chỉ là evidence. |
+| F2 | **Major** | Wording cũ `là bước bắt buộc… không phải điều kiện approve` yếu hơn Chapter 0 §3: đọc theo nghĩa đen có thể hiểu là review không phải precondition, trong khi §3 khóa "thiếu ≥2 reviewer đủ điều kiện ⇒ decision chưa đủ điều kiện tới approval gate". Rủi ro tạo tension với chương Locked. | **Fixed** — tách rõ **tồn tại review = eligibility precondition bắt buộc** vs **kết luận review = không veto**, đúng mô hình §3. |
+| F3 | Suggestion | Nguy cơ tạo authority cạnh tranh nếu Chapter 12 tự định nghĩa lại review gate. | **Fixed** — thêm blockquote "tham chiếu, không định nghĩa lại", trỏ authority về Chapter 0 §3 + Chapter 11 §11.5. |
+| F4 | Suggestion | §12.1 note trỏ "Governance §4" (§4 = ADR Workflow) không sát với review process. | **Fixed nhẹ** — đổi thành "một chương Governance đã Locked" để không trỏ sai section-number của chương Locked. |
+| F5 | Suggestion | DoD liệt kê Phase 0/1/3, thiếu Phase 2; enumeration nên khớp Roadmap. | **Deferred** — Chapter 14 (Roadmap) vẫn `In Review`; không tạo dependency vào nội dung chưa Locked. Danh sách là "ví dụ", không phải enumeration đóng. |
+
+### Không phải finding (đã đối chiếu, giữ nguyên có chủ đích)
+
+- Frontmatter `reviewers: [ChatGPT, Claude]`: giữ nguyên. Theo Chapter 11 §11.4, `reviewers` là **historical evidence**, không phải governance rule; Chapter 0 và Chapter 11 (đều Locked) cũng mang đúng field này. Đổi sẽ sai model, không đổi.
+- Tham chiếu ADR-004/ADR-005/ADR-011: là **decision evidence/history**, không assert current lifecycle state ⇒ không đụng model "MANIFEST là authority" của ADR-011. Chapter 12 **không** tham chiếu current OQ status hay current ADR lifecycle state ở đâu — không có authority cạnh tranh với MANIFEST.
+
+### Sync
+
+- `constitution/12-approval-gates.md`: v1.2 → v1.3, `last_review` 2026-07-16 → 2026-07-27, `status` giữ `In Review`, `approved_by`/`approved_at` giữ `null`.
+- MANIFEST: manifest_version 9.9 → 9.10; row Chapter 12 → 1.3; `generated_at` → 2026-07-27; BL-008 note cập nhật "addressed pending review".
+
+### Note
+
+- Đây là **self-review của Claude**, chưa qua vòng review độc lập thứ hai. **Không** tự tuyên bố "đã sạch" hay Approve. Chờ ChatGPT review + Product Owner Approve/Lock. BL-008 chỉ close khi Chapter 12 Locked.
+
 ## [Milestone] — 2026-07-25 — 🔒 ADR-011 Atomic Governance Migration ACTIVATED
 
 **Product Owner Kanner approved and activated** the governance migration authorized by ADR-011 v1.1 as one atomic documentation boundary after independent Review B and Claude review returned zero blocking findings.

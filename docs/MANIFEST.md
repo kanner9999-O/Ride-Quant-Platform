@@ -1,12 +1,12 @@
 ---
-manifest_version: "9.9"
+manifest_version: "9.10"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.1.0"
 current_phase: "Phase 0 — Vision & Foundation"
 compatible_adr_range: "ADR-001 ~ ADR-011"
-generated_at: "2026-07-25"
+generated_at: "2026-07-27"
 ---
 
 # Documentation Manifest (Lockfile)
@@ -35,7 +35,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/09-plugin-model.md | 2.9 | **Locked** | Product Owner | 02-platform-invariants, 07-module-taxonomy, 08-event-model |
 | constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
 | constitution/11-adr-process.md | 2.1 | **Locked** | Product Owner | 00-governance, 02-platform-invariants |
-| constitution/12-approval-gates.md | 1.2 | In Review | Product Owner | 00-governance, 11-adr-process |
+| constitution/12-approval-gates.md | 1.3 | In Review | Product Owner | 00-governance, 11-adr-process |
 | constitution/13-quality-gates.md | 1.0 | In Review | Product Owner | 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.1 | In Review | Product Owner | ALL |
 
@@ -103,7 +103,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 |---|---|---|
 | BL-001 | `review_status` dạng machine-readable trong metadata (thay vì list `reviewers` dạng text). Partial progress at ADR-011 activation: reviewer identities are pinned as evidence in ADR metadata/template, but a dedicated machine-readable review_status schema remains deferred. | ChatGPT review |
 | BL-007 | **Convergence/stop rule** cho review process (chỉ nhận finding mới nếu: mâu thuẫn Chapter Locked · tạo 2 authority cạnh tranh · làm invariant đã chọn không implementable · phá acceptance order). Hiện chỉ là **thỏa thuận của vòng review**, ghi ở CHANGELOG — **CHƯA binding governance**. Muốn binding phải đưa vào Chapter 11 hoặc 12 qua một vòng review riêng (cả hai chapter đang `In Review`) | ChatGPT + Claude (vòng 31) |
-| BL-008 | Chapter 12 `approval-gates.md` remains In Review and contains identity-specific `ChatGPT Review + Claude Review`; generalize it to Chapter 0 v1.1 role-based minimum-two gate before Chapter 12 can be approved/locked | ADR-011 activation review (Claude) |
+| BL-008 | Chapter 12 `approval-gates.md` identity-specific `ChatGPT Review + Claude Review` → **addressed in Chapter 12 v1.3 (2026-07-27)**: generalized to Chapter 0 §3 / Chapter 11 §11.5 role-based minimum-two independent gate, referencing (không định nghĩa lại) the authority. Still `In Review` — closes when Chapter 12 passes independent review + PO Approve/Lock. | ADR-011 activation review (Claude) |
 | BL-006 | Sau khi ADR-009/ADR-010 được **accept**: dọn decision history khỏi Chapter 8 (các đoạn "vì sao chọn phương án này thay vì phương án kia") — rationale + alternatives đã nằm trong ADR; Constitution chỉ giữ normative rule. Giữ đúng ranh giới Constitution = rule, ADR = decision history | ChatGPT Suggestion (consolidation round) |
 | BL-005 | Processing Observation (Chapter 5 §5.2) cần schema đầy đủ + observability convention (processor/attempt/started_at/completed_at) — thuộc Engineering Foundation (Phase 1.5), không phải Constitution | ChatGPT Observation (Chapter 5 v2.4) |
 | BL-004 | context-map.yaml có thể tách file (capabilities/ contexts/ relationships riêng) KHI file quá lớn — chưa làm vì file chưa tồn tại, tránh giải quyết vấn đề chưa đo được. Xử lý ở Engineering Foundation/Phase 0.2 khi có dữ liệu thật | ChatGPT review (Chapter 4 round 4) |
