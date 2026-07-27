@@ -2,6 +2,20 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) draft v1.0 → v1.1 (In Review)
+
+**Không phải approval.** Đây là authoring revision của một chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Không AI nào approve — Claude (`AI Technical Architect`) chỉ cung cấp self-review + draft; review package độc lập (ChatGPT) và Product Owner decision vẫn chưa diễn ra.
+
+### Thay đổi
+
+- `constitution/13-quality-gates.md`: **v1.0 → v1.1**. Từ một coverage-tier table mở rộng thành Quality Gate contract đầy đủ (13.1–13.14): Quality Gate vs Approval Gate + fail-closed semantics; coverage semantics + anti-gaming + test-effectiveness (Tier 0/1); invariant-conformance gate gom Verification của I-1…I-13 (tham chiếu Ch2, không định nghĩa lại); risk-based test categories; performance gate có baseline/budget/owner/reproducibility; evidence contract (pinning + result classification); flaky-test policy; exception/waiver process; gate-applicability table; authority-boundary table. **Không** đóng OQ-002/OQ-003.
+- `depends_on`: đề xuất thêm `02-platform-invariants` (invariant-conformance gate gom Verification của Ch2 làm evidence cốt lõi; đã kiểm tra acyclic) bên cạnh `07-module-taxonomy`. Open cho reviewer disagreement.
+- `MANIFEST.md`: row Chapter 13 → **v1.1** + depends_on cập nhật; `manifest_version` **9.12 → 9.13**; overview line ghi nhận draft v1.1. `constitution_version` giữ **1.1.0** (không bump khi chapter còn In Review).
+
+### ADR
+
+**Không cần ADR** — chapter còn `In Review`, chưa có Locked rule/invariant nào bị thay đổi.
+
 ## [Milestone] — 2026-07-27 — 🔒 Chapter 12 (Approval Gates) v1.4 ACTIVATED & LOCKED
 
 **Product Owner decision** (sole approval authority): *"I, Product Owner, decide to Approve & Lock Chapter 12 v1.4. Atomic activation commit and closure of BL-008 are authorized."* — quyết định ngày **2026-07-27**.
