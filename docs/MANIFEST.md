@@ -14,7 +14,7 @@ generated_at: "2026-07-25"
 Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ tài liệu tại một thời điểm — tương tự `package-lock.json` cho code. Mỗi khi một file trong `/docs` đổi version/status, Manifest phải cập nhật cùng lúc, nếu không bị coi là stale.
 
 **Project Version:** Ride Quant Platform v0.1 (Phase 0)
-**Constitution Version:** 1.0.0 — độc lập với Project Version (Project có thể lên v0.8 trong khi Constitution vẫn 1.0.0, hoặc ngược lại)
+**Constitution Version:** 1.1.0 — độc lập với Project Version (Project có thể lên v0.8 trong khi Constitution vẫn 1.1.0, hoặc ngược lại)
 **Schema Version của Manifest:** 1 — đổi format Manifest sau này phải bump field này để tooling không vỡ ngầm.
 
 **Chapter 0 — Governance: `Locked`** (2026-07-25, v1.1, ADR-011 activation). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). **Chapter 10 — Compatibility & Capability Contract: `Locked`** (2026-07-24, v2.7, approved by Kanner). **Chapter 11 — ADR Process: `Locked`** (2026-07-25, v2.1, ADR-011 activation). Chapters 12–14 remain `In Review`.
