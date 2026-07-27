@@ -1,19 +1,19 @@
 ---
 id: ADR-XXX
 title: ""
+version: "0.1"
 status: Draft
 owner: Product Owner
-reviewers: [ChatGPT, Claude]
+reviewers: []
 approved_by: null
 approved_at: null
-created_at: "2026-07-16"
+created_at: "YYYY-MM-DD"
 last_review: null
 next_review: null
-depends_on: []      # ADR khác phải Approved/Locked TRƯỚC ADR này
-addresses: []       # OQ đang được xử lý — KHÔNG làm OQ Resolved
-resolves: []        # OQ được đóng — CHỈ có hiệu lực khi ADR đạt Approved/Locked
+depends_on: []
+addresses: []
+resolves: []
 supersedes: []
-superseded_by: null
 ---
 
 # ADR-XXX: [Tên quyết định]
@@ -24,19 +24,31 @@ superseded_by: null
 
 **Alternatives considered:** Đã cân nhắc phương án nào khác, vì sao loại bỏ?
 
-**Concerns / Risks noted (từ ChatGPT/Claude review):** Ghi lại dù không chặn approve — nếu Product Owner quyết định tiến hành dù có risk, phải ghi rõ "chấp nhận rủi ro X".
+**Independent reviews / Concerns / Risks noted:**
+
+| Reviewer identity | Role at review boundary | Concern | Risk | Recommendation |
+|---|---|---|---|---|
+| | AI Technical Architect | | | |
+| | AI Technical Architect | | | |
+
+> Trước approval phải có tối thiểu hai reviewer identity khác nhau đủ điều kiện. Reviewer evidence là historical attribution, không phải permanent governance rule.
 
 **Scale check:**
+
 ```yaml
 scale_check:
-  current_scale: ""        # ví dụ: 1 Strategy, 1 Exchange
+  current_scale: ""
   expected_scale:
-    strategy: 0            # ví dụ: 100
-    exchange: 0             # ví dụ: 20
-    plugin: 0               # ví dụ: 500
-  decision_still_valid: null   # YES / NO
+    strategy: 0
+    exchange: 0
+    plugin: 0
+  decision_still_valid: null
   reason: ""
-  reason_if_no: ""             # BẮT BUỘC điền nếu decision_still_valid = NO nhưng vẫn quyết định tiến hành
+  reason_if_no: ""
 ```
 
 **Consequences:** Đánh đổi nào phải chấp nhận?
+
+**Accepted risks:** Chỉ điền khi Product Owner tiến hành dù có Risk cao liên quan Platform Invariant.
+
+> Sau Product Owner approval, toàn bộ ADR file bất biến byte-for-byte. Không thêm `superseded_by`, không đổi status, không bump version. Current lifecycle state và reverse relation sống trong MANIFEST.

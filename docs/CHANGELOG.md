@@ -2,7 +2,55 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
-## [Unreleased] — Chapter 11 (ADR Process) v2.0 — Claude tự review (**2 Blocker · 4 Major · 2 Minor · 1 Suggestion**)
+## [Milestone] — 2026-07-25 — 🔒 ADR-011 Atomic Governance Migration ACTIVATED
+
+**Product Owner Kanner approved and activated** the governance migration authorized by ADR-011 v1.1 as one atomic documentation boundary after independent Review B and Claude review returned zero blocking findings.
+
+### Activated together
+
+- Chapter 0 — Governance: v1.0 → v1.1, `Locked`
+- Chapter 11 — ADR Process: v2.0 `In Review` → v2.1 `Locked`
+- Canonical ADR template aligned with role-based reviewer evidence and immutable ADR files
+- MANIFEST v9.8 → v9.9; Constitution version 1.0.0 → 1.1.0
+- CHANGELOG records this activation
+
+### Governance changes
+
+1. ADR files are immutable byte-for-byte after Product Owner approval.
+2. Current ADR lifecycle state and reverse supersession relation are authoritative in MANIFEST.
+3. Approval gates require at least two independent actors holding `AI Technical Architect` at the review boundary.
+4. Reviewer identities are pinned as evidence, not hardcoded as permanent Constitution rules.
+5. MANIFEST is authoritative for current OQ status; ADR metadata is decision evidence and transition cause.
+6. ADR approval, OQ and supersession transitions must be atomic with MANIFEST.
+7. No partial activation occurred; all five governed artifacts changed in this single boundary.
+
+### Authority and compatibility
+
+- ADR-011 remains `Approved` and unchanged.
+- ADR-006 remains in force; ADR-011 generalizes reviewer selection without superseding peer equality/non-hierarchy.
+- ADR-005 remains in force; its identity-specific `ChatGPT + Claude` wording was the then-current instantiation of Governance §3, now generalized to a role-based minimum-two gate. Its normative core — lean governance, no reviewer veto and Product Owner sole authority — is preserved.
+- Chapter 2 I-12 is preserved.
+- ADR-001 through ADR-010 decision content is unchanged.
+- Legacy ADR-004 → ADR-005 supersession remains represented in MANIFEST; no history rewrite.
+
+### Known follow-up
+
+- Chapter 12 (`approval-gates.md`) remains `In Review` and still contains identity-specific review wording. It must be aligned with Chapter 0 v1.1 before Chapter 12 is approved/locked.
+
+### Integrity
+
+Baseline commit: `805643702d2ed49c38d9f36aa98580df444a808c`
+
+Baseline blobs:
+
+- Chapter 0: `a317762e217d7f013d9fa5536569575435187ba1`
+- Chapter 11: `1dbdfdb8d39a3f1d950b9167356945da4e7a5b2f`
+- ADR template: `536aa4234deda206fef601481fafefac39c35eb4`
+- MANIFEST: `6215aaf9075c1e29e0fa138d7ede6d9b8ee17b73`
+- CHANGELOG: `ce583cfc1a5f0f9baf3b254c7d2d1d46a7a574fe`
+- ADR-011 evidence unchanged: `023147d2039d698d33ac1d60d463e42a1db27342`
+
+## [Historical Review] — Chapter 11 (ADR Process) v2.0 — pre-ADR-011 self-review (**2 Blocker · 4 Major · 2 Minor · 1 Suggestion**)
 
 Chapter 11 v1.3 dài 49 dòng, `last_review: 2026-07-18`. Self-review đối chiếu Chapter 0 (Locked) và trạng thái thực tế của `/docs/adr/`.
 

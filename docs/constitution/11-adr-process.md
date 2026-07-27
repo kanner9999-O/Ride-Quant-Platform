@@ -1,123 +1,145 @@
 ---
 id: 11-adr-process
 title: ADR Process
-version: "2.0"
-status: In Review
+version: "2.1"
+status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+approved_by: Kanner
+approved_at: "2026-07-25"
 created_at: "2026-07-16"
-last_review: "2026-07-24"
+last_review: "2026-07-25"
 next_review: null
 depends_on: ["00-governance", "02-platform-invariants"]
 ---
 
 # 11. ADR Process
 
-Chapter 11 khóa **quy trình và metadata contract** của ADR. Nó **không** định nghĩa lại Document Lifecycle, Freeze Policy hay ADR Scope Rule — những thứ đó thuộc [Chapter 0](./00-governance.md) và Chapter 11 chỉ tham chiếu ([I-12](./02-platform-invariants.md)).
+Chapter 11 khóa quy trình và metadata contract của ADR. Document Lifecycle, Freeze Policy và ADR Scope Rule thuộc [Chapter 0](./00-governance.md); authority mapping thuộc [I-12](./02-platform-invariants.md).
 
 ## 11.1 Template và phạm vi
 
-Template chuẩn tại [`/docs/templates/adr-template.md`](../templates/adr-template.md) — mỗi ADR là một file riêng trong `/docs/adr/`, gồm: Context, Decision, Alternatives considered, Concerns/Risks noted, **Scale check**, Consequences.
+Canonical template: [`/docs/templates/adr-template.md`](../templates/adr-template.md).
 
-**Khi nào cần ADR:** xem [Chapter 0 §4b — ADR Scope Rule](./00-governance.md) — không phải mọi quyết định đều cần. Chapter 11 không định nghĩa lại tiêu chí này.
+Mỗi ADR là một file riêng trong `/docs/adr/`, gồm tối thiểu: Context, Decision, Alternatives considered, Concerns/Risks, Scale check và Consequences.
 
-**Status của ADR dùng chung Document Lifecycle** tại [Chapter 0 §7](./00-governance.md) (`Not Started → Draft → In Review → Revision Requested → Approved → Locked`, rẽ nhánh `Deprecated`/`Superseded`) — không có "ADR Lifecycle" riêng.
+## 11.2 ADR identity
 
-## 11.2 ADR identity — cấp số, uniqueness, không tái sử dụng
+- Một authority cấp số ADR cho toàn repo.
+- ADR number là identity duy nhất, vĩnh viễn.
+- Số đã cấp không được tái sử dụng.
+- ADR đã rời `Draft` không được renumber.
+- Path là file convention; authority của identity là số ADR.
 
-M��t ADR number là **identity**, không phải số thứ tự thuận tiện. Vì mọi tài liệu Locked đều tham chiếu ADR bằng số, số bị trùng hoặc bị dùng lại sẽ phá khả năng resolve của toàn bộ tham chiếu lịch sử.
+## 11.3 Immutability boundary
 
-- **Đúng một authority cấp số ADR** cho toàn repo — designation của authority này thuộc governance, không phải quy ước ngầm giữa các contributor. Hai contributor soạn song song **không** được tự chọn số.
-- **Uniqueness scope:** số ADR là duy nhất trên toàn `/docs/adr/`, vĩnh viễn.
-- **Không tái sử dụng:** số của một ADR bị hủy/bỏ dở (không bao giờ đạt `Approved`) **KHÔNG** được cấp lại cho quyết định khác. Nếu cần ghi nhận việc hủy, dùng đúng lifecycle của Chapter 0 §7, không "trả số về kho".
-- **Không đổi số:** một ADR đã rời `Draft` không được renumber. Sai số phải xử lý bằng ADR mới, không bằng đổi tên file.
-- Path convention `/docs/adr/ADR-XXX.md` là quy ước tổ chức file; **authority của identity là số ADR**, không phải đường dẫn.
+Tại Product Owner approval boundary, toàn bộ ADR file immutable byte-for-byte:
 
-## 11.3 Immutability boundary — decision content vs lifecycle metadata
+- decision content bất biến;
+- frontmatter bất biến;
+- approval metadata bất biến;
+- `status` trong file là approval snapshot;
+- không thêm `superseded_by`, `deprecated_at` hoặc metadata khác vào ADR cũ.
 
-[Chapter 0 §5](./00-governance.md) khóa: ADR đã `Approved`/`Locked` **không được sửa**, muốn đổi quyết định thì tạo ADR mới và liên kết qua `supersedes`/`superseded_by`. Đồng thời [Chapter 0 §7](./00-governance.md) khóa lifecycle có nhánh `Approved`/`Locked → Deprecated`/`Superseded`. Hai điều này chỉ cùng đúng khi phân biệt rõ **cái gì bị đóng băng**:
-
-| Nhóm field | Sau khi Approved/Locked | Lý do |
-|---|---|---|
-| **Decision content** — Context · Decision · Alternatives considered · Concerns/Risks · Scale check · Consequences | **Bất biến tuyệt đối.** Không sửa, không "rev2/rev3". Muốn đổi → ADR mới | Đây là bản ghi quyết định tại thời điểm đó; sửa nó là viết lại lịch sử |
-| **Lifecycle/link metadata** — `status` · `superseded_by` · `deprecated_at` và tương đương | **Được phép chuyển trạng thái theo đúng lifecycle Chapter 0 §7**, và **chỉ** theo các transition mà lifecycle đó cho phép | Chính Chapter 0 §7 yêu cầu `status` đổi sau khi Locked (nhánh Deprecated/Superseded); nếu mọi field đều đóng băng thì nhánh này không thể tồn tại |
-| **Approval metadata** — `approved_by` · `approved_at` | Bất biến sau khi set | Là bằng chứng ai quyết định và khi nào |
-
-*Đây là **làm rõ trong phạm vi wording sẵn có** của Chapter 0 (§5 nói về nội dung quyết định, §7 yêu cầu status chuyển tiếp), KHÔNG phải định nghĩa lại Chapter 0 đã Locked. Nếu reviewer đánh giá đây là redefinition chứ không phải clarification, bắt buộc mở **ADR** sửa Chapter 0 — Chapter 11 không được tự làm.*
-
-**Cập nhật lifecycle metadata không phải một "lần sửa ADR" độc lập:** nó chỉ hợp lệ khi là **một phần của transition atomic** ở §11.5, không bao giờ là một thay đổi rời rạc do ai đó tự ghi vào file.
+Current lifecycle state và reverse supersession relation thuộc MANIFEST.
 
 ## 11.4 Metadata contract
 
-Dùng chung Document Lifecycle ở [Chapter 0 §7](./00-governance.md):
-
 | Field | Semantic |
 |---|---|
-| `addresses: [OQ-xxx]` | ADR đang **xử lý** OQ đó — **KHÔNG** làm OQ chuyển `Resolved`. Dùng khi ADR còn `Draft`/`In Review` |
-| `resolves: [OQ-xxx]` | ADR **đóng** OQ đó — **CHỈ có hiệu lực khi ADR đạt `Approved`/`Locked`**. ADR còn Draft không được dùng field này |
-| `depends_on: [ADR-yyy]` | ADR-yyy phải đạt `Approved`/`Locked` **trước** khi ADR hiện tại được rời `Draft`/`In Review` |
-| `supersedes: [ADR-yyy]` | ADR hiện tại **thay thế** quyết định của ADR-yyy. Chỉ có hiệu lực khi ADR hiện tại đạt `Approved`/`Locked` |
-| `superseded_by: ADR-zzz` | Ghi trên ADR **bị thay thế**, trỏ tới ADR thay thế nó. Là **lifecycle metadata** (§11.3), chỉ được set trong transition atomic ở §11.5 |
+| `version` | Draft revision được review; bất biến sau approval |
+| `status` | Authoring/approval snapshot; tại approval phải là `Approved` |
+| `reviewers` | Actor identities đã review boundary; historical evidence |
+| `addresses` | OQ ADR đang xử lý; không đổi current OQ state |
+| `resolves` | Evidence rằng ADR approval là transition cause đóng OQ |
+| `depends_on` | Dependency phải Approved trước approval boundary hiện tại |
+| `supersedes` | Forward relation từ ADR mới tới ADR cũ |
 
-**Quan hệ supersede phải hai chiều và nhất quán:** `ADR-B.supersedes` chứa `ADR-A` **khi và chỉ khi** `ADR-A.superseded_by = ADR-B` và `ADR-A.status = Superseded`. Một chiều mà thiếu chiều kia là **trạng thái không hợp lệ**, không phải "chưa cập nhật xong".
+`superseded_by` không thuộc canonical ADR schema. Reverse lookup nằm tại MANIFEST hoặc derived index.
 
-**Cấm phụ thuộc vòng:** `depends_on` giữa các ADR phải là đồ thị **acyclic**. Nếu A `depends_on` B và B `depends_on` A thì không ADR nào rời được `Draft`/`In Review` — đây là deadlock, phải xử lý bằng cách tách/gộp quyết định, không bằng ngoại lệ thủ công.
+`depends_on` phải acyclic.
 
-## 11.5 Transition phải ATOMIC
+## 11.5 Review and acceptance gate
 
-**Approve một ADR** — một documentation change duy nhất:
+Trước Product Owner decision:
 
-```
-status:      Draft/In Review  →  Approved
-addresses:   [OQ-x]           →  []
-resolves:    []               →  [OQ-x]
-approved_by / approved_at     →  set
-MANIFEST OQ-x                 →  Resolved   (projection, §11.6)
-```
+- tối thiểu hai independent reviews;
+- reviewer giữ role `AI Technical Architect` tại review boundary;
+- hai actor identity khác nhau;
+- reviewer identities được pin;
+- reviewer ngang hàng, không veto;
+- Product Owner là authority duy nhất approve/reject.
 
-Nếu approve trước rồi mới đổi `addresses` → `resolves` ở lần sửa sau, lần sửa đó **vi phạm ADR Immutable Rule**. Toàn bộ transition phải nằm trong cùng một thay đổi.
+Validator kiểm tra eligibility và consistency, không phải approval authority.
 
-**Supersede một ADR đã Approved/Locked** — cũng là một thay đổi duy nhất, gồm cả hai file:
+## 11.6 Approval transition phải atomic
 
-```
-ADR mới:  status → Approved · supersedes: [ADR-cũ] · approved_by/approved_at set
-ADR cũ:   status → Superseded · superseded_by: ADR-mới
-MANIFEST: cập nhật status/version của cả hai
-```
+Approve một ADR là một documentation change duy nhất:
 
-Không được approve ADR mới trước rồi mới quay lại đánh dấu ADR cũ ở commit sau — khoảng giữa hai bước đó là trạng thái mà hai ADR cùng có hiệu lực cho một quyết định.
+- ADR final draft → `status: Approved`;
+- set `approved_by` / `approved_at`;
+- pin reviewer evidence;
+- `addresses` / `resolves` phản ánh đúng evidence;
+- MANIFEST cập nhật current ADR state;
+- nếu có OQ transition, MANIFEST cập nhật cùng change;
+- nếu supersede ADR cũ, MANIFEST cập nhật old-state và reverse relation cùng change.
 
-**`Approved → Locked`:** Approved và Locked **cùng** chịu Freeze Policy ([Chapter 0 §5](./00-governance.md)) — cả hai đều không được sửa decision content. Locked là xác nhận ADR đã ổn định và được MANIFEST ghim; chuyển `Approved → Locked` là thay đổi **lifecycle metadata**, đồng bộ atomic với MANIFEST. Vì Approved đã bất biến, transition này **không** mở lại cơ hội chỉnh sửa nội dung.
+Không được approve ADR trước rồi cập nhật MANIFEST/OQ ở change sau. Sau approval, ADR file không được sửa lại.
 
-**Deprecate** (quyết định không còn áp dụng nhưng **không** có ADR thay thế): `status → Deprecated`, lifecycle metadata cập nhật atomic với MANIFEST; decision content giữ nguyên. Khác `Superseded` ở chỗ không có `superseded_by`.
+## 11.7 Authority của OQ status
 
-## 11.6 Authority của OQ status
+Theo I-12:
 
-**ADR là authority của việc một OQ đã được đóng hay chưa** — cụ thể là field `resolves` trên một ADR đạt `Approved`/`Locked` (§11.4). **MANIFEST là projection**, không phải nguồn sự thật song song ([I-12](./02-platform-invariants.md)).
+- MANIFEST là authority cho current OQ state;
+- ADR là authority cho architecture decision và evidence/transition cause;
+- `ADR.resolves` không tự ghi đè MANIFEST;
+- lệch nhau là integrity violation; tooling không âm thầm ghi đè;
+- dashboard/index rebuild current OQ state từ MANIFEST.
 
-- MANIFEST phải được cập nhật **atomic** trong cùng transition (§11.5), không bao giờ cập nhật rời.
-- Khi MANIFEST và ADR lệch nhau → **ADR thắng**, và sai lệch đó là lỗi cần sửa MANIFEST, không phải hai nguồn "cùng hợp lệ".
-- **Không tồn tại quan hệ "ADR HOẶC MANIFEST"** cho cùng một sự thật OQ status.
+ADR supersede không tự động mở lại OQ; ADR thay thế và MANIFEST phải khai báo rõ OQ tiếp tục `Resolved` hay trở lại `Open`.
 
-**OQ được `Resolved` bởi một ADR sau đó bị `Superseded`:** OQ **không tự động mở lại**. ADR thay thế phải khai báo tường minh nó xử lý OQ đó thế nào — tiếp tục đóng (`resolves`), hay mở lại (OQ trở về `Open`, ghi rõ trong ADR mới). **Im lặng không phải một lựa chọn**: nếu ADR thay thế không nói gì về OQ mà ADR cũ đã đóng, đó là **khai báo thiếu**, phải bổ sung trước khi approve.
+## 11.8 Supersede và deprecate
 
-## 11.7 Acceptance gate và validator
+### Supersede
 
-Ba field `addresses` · `resolves` · `depends_on` (cùng `supersedes`/`superseded_by`) là **machine-readable acceptance gate** — kiểm tra dựa vào status lifecycle chuẩn, **không** dựa vào chữ "accept" trong prose.
+Atomic change gồm:
 
-- **Validator không phải authority phê duyệt.** Nó kiểm tra tính nhất quán của metadata; quyền approve/reject vẫn **chỉ** thuộc Product Owner ([Chapter 0 §2](./00-governance.md)).
-- **Kết quả validator là điều kiện chặn, không phải cảnh báo:** metadata không nhất quán (supersede một chiều · `resolves` trên ADR chưa Approved · `depends_on` trỏ ADR chưa Approved hoặc tạo vòng · MANIFEST lệch ADR) → ADR **không đủ điều kiện** chuyển sang `Approved`.
-- **Ai vận hành validator và bằng công cụ gì thuộc Phase 1** — Constitution khóa *điều kiện phải thỏa*, không khóa cơ chế kiểm tra.
+- ADR mới Approved với `supersedes: [ADR-cũ]`;
+- MANIFEST ghi ADR cũ `Superseded`;
+- MANIFEST ghi reverse relation;
+- MANIFEST ghi ADR mới current state;
+- OQ transition, nếu có, cập nhật cùng change.
 
-## 11.8 Quy tắc bắt buộc
+ADR cũ không bị mutate.
 
-- ADR phải được ghi khi: (a) có quyết định kiến trúc mới, (b) một phase sau muốn sửa quyết định của phase trước.
-- **Không phase nào được coi là Approved nếu có quyết định kỹ thuật quan trọng chưa được ghi thành ADR.**
-- **Không phase nào được tự ý sửa phase trước** mà không qua quy trình ở [Chapter 0](./00-governance.md).
-- **Review từ các role đang giữ `AI Technical Architect` là input bắt buộc phải có trước khi Product Owner quyết** — bắt buộc *có*, không phải điều kiện *approve*; Product Owner vẫn là người quyết định cuối cùng. Việc gán Người/AI ↔ Role sống ở [`/team/team.yaml`](../team/team.yaml), **không** ghi tên cụ thể trong Constitution ([Chapter 0 §2](./00-governance.md)): số lượng và danh tính các AI Technical Architect có thể thay đổi mà không cần sửa chương này.
+### Deprecate không có ADR thay thế
 
-## 11.9 Ngoài phạm vi Chapter 11 — defer Phase 1
+MANIFEST đổi current state ADR cũ thành `Deprecated`, kèm rationale/evidence reference. ADR file cũ không bị mutate.
 
-Tooling/CI cho validator · cơ chế cấp số ADR cụ thể · format lưu trữ và index của `/docs/adr/` · quy trình review nội bộ chi tiết. Tiêu chí *khi nào cần ADR* thuộc [Chapter 0 §4b](./00-governance.md); Freeze Policy và Document Lifecycle thuộc [Chapter 0 §5, §7](./00-governance.md).
+## 11.9 Validator contract
+
+Validator là blocking consistency gate, không phải approval authority.
+
+Tối thiểu kiểm tra:
+
+- ADR number unique, không reuse;
+- minimum-two eligible independent reviewers;
+- identities khác nhau và resolve được role;
+- `depends_on` tồn tại, Approved, acyclic;
+- `resolves` khớp MANIFEST OQ transition;
+- `supersedes` khớp MANIFEST current state/reverse relation;
+- Approved ADR file không bị mutate;
+- MANIFEST không stale.
+
+Tooling/operator cụ thể defer Phase 1.
+
+## 11.10 Quy tắc bắt buộc
+
+- Quyết định kiến trúc mới hoặc thay đổi quyết định phase trước phải có ADR theo Chapter 0 §4b.
+- Không phase nào Approved nếu còn quyết định kỹ thuật quan trọng chưa thành ADR.
+- Không phase nào tự sửa quyết định phase trước ngoài governance workflow.
+- Không partial activation.
+
+## 11.11 Ngoài phạm vi
+
+Implementation validator/CI, storage/index format và workflow automation chi tiết thuộc Phase 1.
