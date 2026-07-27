@@ -1,7 +1,7 @@
 ---
 id: 13-quality-gates
 title: Quality Gates
-version: "1.3"
+version: "1.4"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -100,6 +100,14 @@ Coverage yêu cầu phân theo **mức độ nguy hiểm (criticality)**, không
 | Tier 3 — UI | Frontend | ≥ 60% | Ưu tiên E2E test hơn unit test |
 
 **Thẩm quyền ánh xạ tier:** Chapter 13 sở hữu **định nghĩa tier và gate requirement per tier**. Việc **module cụ thể nào thuộc tier nào** là **criticality classification** — được pin tại `module-registry.yaml` ([Chapter 7 §7.5](./07-module-taxonomy.md)) khi registry tồn tại (Phase 1), nhất quán criticality declaration của [Chapter 7 §7.4](./07-module-taxonomy.md) và [I-6](./02-platform-invariants.md). Cột "initial assignment" ở trên là ánh xạ hiện hành cho các module đã biết, **không** phải competing authority với registry; khi registry active, mapping resolve từ registry.
+
+**Tier resolution — bắt buộc trước gate evaluation.** Mọi **coverage-applicable artifact** (§13.12 nhóm B) phải resolve được **đúng một** authoritative quality tier **trước khi** gate chạy. Chain resolution:
+
+1. **Runtime module** → resolve tier từ `module-registry.yaml` ([Chapter 7 §7.5](./07-module-taxonomy.md)). **Không** thay đổi authority của Chapter 7.
+2. **Executable artifact thuộc đúng một canonical owning module** → **inherit** tier của owning module. Ownership relationship phải **explicit · resolvable · versioned/pinned**, và **không do validator tự suy diễn**. *Ví dụ:* executable migration thuộc Position Ledger → inherit Tier 0 của Position Ledger.
+3. **Standalone executable artifact** (không có canonical owning module) → phải có **authoritative quality-tier declaration**: **explicit · versioned · pinned** vào exact artifact/version · có **authority owner** · **tồn tại trước** gate evaluation. Gọi chung là **authoritative artifact/quality metadata** (storage/schema defer §13.14). Đây **không** phải mở rộng `module-registry.yaml` thành registry cho mọi artifact.
+4. **Multiple/ambiguous ownership hoặc tier không resolve** — nhiều possible owning module · ownership không resolve duy nhất · tier declarations conflict · tier không resolve được → **undefined tier applicability → fail-closed → eligibility incomplete** (§13.8). **Không** tự chọn tier cao nhất hay thấp nhất trừ khi Constitution định nghĩa explicit rule (hiện **chưa** có).
+5. **Validator boundary:** validator **không** suy diễn tier, **không** default tier, **không** tạo ownership; chỉ **kiểm tra** authoritative declaration/inheritance đã resolve. Validator **không** phải quality-policy authority ([Chapter 11 §11.9](./11-adr-process.md)).
 
 ## 13.5 Invariant conformance gate
 
@@ -213,7 +221,7 @@ Applicability phải **khai báo được và resolvable**. Gate được phân 
 
 **B. Executable-implementation-triggered — coverage:**
 - **line coverage**, **branch coverage** (theo rule deterministic §13.3), và **test-effectiveness evidence** (§13.3).
-- **Trigger** (phải thỏa **cả ba**): artifact có **authoritative executable implementation** + **resolvable coverage boundary** + **resolvable applicable tier**.
+- **Trigger** (phải thỏa **cả ba**): artifact có **authoritative executable implementation** + **resolvable coverage boundary** + **resolvable applicable tier** (resolve theo **tier-resolution chain §13.4** — áp cho cả module lẫn executable non-module artifact).
 - **Coverage KHÔNG universal.** Artifact **không có executable implementation** → coverage **không applicable** → artifact đó **không bị bắt** tạo line/branch coverage hay test-effectiveness evidence.
 
   Phân biệt bắt buộc:
@@ -244,8 +252,8 @@ Applicability phải **khai báo được và resolvable**. Gate được phân 
 **Artifact-class rollup** (mọi class đều chịu A; các trigger B–E áp khi thỏa):
 - **Runtime module** → A + **B executable coverage** (module có executable implementation) + C tier-triggered + các boundary-trigger (D) *thỏa* cho module đó (một Type 1 Compute Engine thuần không có custody boundary sẽ **không** gánh security gate chỉ vì nó là module);
 - **Published contract / schema** → A + E compatibility. **Không inherit coverage (B)** chỉ vì thuộc scope — contract/schema không phải executable implementation;
-- **Release / build** → **rollup** hợp gate set của các constituent artifact + performance (nếu có budget) + operational readiness (nếu vào production path); bản thân release không tự sinh coverage ngoài coverage của constituent;
-- **Migration** → A + E migration/rollback + data-quality (nếu chạm authoritative data) + compatibility (nếu đổi schema). Coverage (B) **chỉ** áp khi **chính migration có executable implementation** thỏa trigger B;
+- **Release / build** → **chỉ roll up** gate results của các constituent artifact + performance (nếu có budget) + operational readiness (nếu vào production path); release/build **không tự tạo một quality tier riêng** chỉ vì là release/build — trừ khi bản thân release có **standalone executable subject được khai báo riêng** (khi đó subject đó resolve tier theo §13.4);
+- **Migration** → A + E migration/rollback + data-quality (nếu chạm authoritative data) + compatibility (nếu đổi schema). Coverage (B) **chỉ** áp khi **chính migration có executable implementation** thỏa trigger B; tier resolve theo §13.4 (executable migration có canonical owning module → inherit tier module; standalone executable migration → cần authoritative tier declaration; **non-executable** migration → coverage **không applicable**; tier không resolve → **fail-closed**);
 - **Phase deliverable** → gate set mà **approved phase plan/roadmap** ([Chapter 14](./14-roadmap.md)) khai báo áp dụng.
 
 **Determinism + fail-closed:** cùng một artifact, giải theo cùng bộ trigger A–E, phải cho ra **cùng một gate set**. Nếu một trigger condition **không resolve được** (không xác định được artifact có executable implementation / boundary / tier / budget / path / publish / migration liên quan hay không) → **fail-closed** theo §13.8: applicability chưa xác định = eligibility incomplete, **không** được mặc định "gate không áp dụng" để bỏ qua.
@@ -275,4 +283,5 @@ Chương này khóa **contract**, không chốt **mechanism**. Defer sang Engine
 - concrete tooling, CI operator, coverage/mutation **ngưỡng số** vượt tier floor;
 - benchmark harness và perf threshold cụ thể;
 - test framework/style (Testing Convention — [Chapter 3 §3.2](./03-engineering-principles.md) đã park ở đây, không định nghĩa lại);
-- quarantine mechanism (§13.10) và waiver storage format (§13.11).
+- quarantine mechanism (§13.10) và waiver storage format (§13.11);
+- **storage/schema và filename cụ thể** của **authoritative artifact/quality-tier metadata** (§13.4 nhánh 3) — Constitution chỉ khóa *tồn tại + property* của declaration (explicit, versioned, pinned, có owner, tồn tại trước gate), **không** khóa filename/YAML schema/CI/vendor.

@@ -2,6 +2,34 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.3 → v1.4 — authoritative tier resolution clarification
+
+**Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **author/self-reviewer** (`AI Technical Architect`); **không** pre-assert future independent review, **không** pre-assert PO approval.
+
+### Review provenance
+
+- **ChatGPT Review A + internal Review B + consolidation = một ChatGPT review package** (một actor identity `ChatGPT`).
+- **Verdict:** `Revision Requested`.
+- **Severity count:** **0 Blocker · 1 Major · 0 Minor · 0 Suggestion**.
+
+### Đã sửa (1 Major) — thiếu authoritative tier source cho executable non-module artifact (§13.4, §13.12, §13.14)
+
+- **Runtime module** → tier resolve từ `module-registry.yaml` (authority Chapter 7 không đổi).
+- **Owned executable artifact** → **inherit** tier của đúng một canonical owning module; ownership phải explicit · resolvable · versioned/pinned; **validator không suy diễn**.
+- **Standalone executable artifact** → cần **authoritative quality-tier metadata** (explicit · versioned · pinned · có owner · tồn tại trước gate); storage/schema/filename defer §13.14; **không** mở rộng `module-registry.yaml` thành registry cho mọi artifact.
+- **Multiple/ambiguous ownership hoặc tier không resolve** → **undefined tier applicability → fail-closed**; không tự chọn tier cao/thấp nhất khi Constitution chưa có explicit rule.
+- **Validator boundary:** không infer/default tier, không tạo ownership; chỉ kiểm tra declaration/inheritance đã resolve.
+- **Release/build** chỉ roll up constituent gate results; không tự tạo tier riêng trừ khi có standalone executable subject khai báo riêng.
+
+### Metadata / state
+
+- `constitution/13-quality-gates.md`: **v1.3 → v1.4**, status `In Review`. `depends_on` giữ `["02-platform-invariants", "07-module-taxonomy"]` (không thêm dependency mới).
+- `MANIFEST.md`: row Chapter 13 → **v1.4**; `manifest_version` **9.15 → 9.16**; `constitution_version` giữ **1.1.0**; Chapter 0–12 giữ `Locked`, Chapter 14 giữ `In Review`; OQ-002/OQ-003 vẫn `Open`; không close backlog khác.
+
+### ADR
+
+**Không cần ADR** — chapter còn `In Review`, không Locked rule/invariant nào bị thay đổi; không mở rộng authority Chapter 7.
+
 ## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.2 → v1.3 — coverage applicability clarification
 
 **Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **author/self-reviewer** (`AI Technical Architect`); **không** pre-assert future independent review, **không** pre-assert PO approval.
