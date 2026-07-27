@@ -1,7 +1,7 @@
 ---
 id: 13-quality-gates
 title: Quality Gates
-version: "1.5"
+version: "1.6"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -105,11 +105,80 @@ Coverage yêu cầu phân theo **mức độ nguy hiểm (criticality)**, không
 
 1. **Runtime module** → resolve tier từ `module-registry.yaml` ([Chapter 7 §7.5](./07-module-taxonomy.md)). **Không** thay đổi authority của Chapter 7.
 2. **Executable artifact thuộc đúng một canonical owning module** → **inherit** tier của owning module. Ownership relationship phải **explicit · resolvable · versioned/pinned**, và **không do validator tự suy diễn**. *Ví dụ:* executable migration thuộc Position Ledger → inherit Tier 0 của Position Ledger.
-3. **Standalone executable artifact** (không có canonical owning module) → phải có **authoritative quality-tier declaration**: **explicit · versioned · pinned** vào exact artifact/version · có **authority owner** · **tồn tại trước** gate evaluation. Gọi chung là **authoritative artifact/quality metadata** (storage/schema defer §13.14). Đây **không** phải mở rộng `module-registry.yaml` thành registry cho mọi artifact.
+3. **Standalone executable artifact** (không có canonical owning module) → phải có **authoritative quality-tier declaration**: **explicit · versioned · pinned** vào exact artifact/version · có **authority owner** · **tồn tại trước** gate evaluation. Gọi chung là **authoritative artifact/quality metadata** (storage/schema defer §13.14). Đây **không** phải mở rộng `module-registry.yaml` thành registry cho mọi artifact. **Authority contract đứng sau "authority owner"** — canonical designation, anti-self-certification, authority chain — khóa tại [§13.4.1](#1341-canonical-tier-designation-authority--standalone-executable-artifact).
 4. **Multiple/ambiguous ownership hoặc tier không resolve** — nhiều possible owning module · ownership không resolve duy nhất · tier declarations conflict · tier không resolve được → **undefined tier applicability → fail-closed → eligibility incomplete** (§13.8). **Không** tự chọn tier cao nhất hay thấp nhất trừ khi Constitution định nghĩa explicit rule (hiện **chưa** có).
 5. **Validator boundary:** validator **không** suy diễn tier, **không** default tier, **không** tạo ownership; chỉ **kiểm tra** authoritative declaration/inheritance đã resolve. Validator **không** phải quality-policy authority ([Chapter 11 §11.9](./11-adr-process.md)).
 
 > Tier-resolution provenance (branch, ownership, tier source, resolved tier + coverage floor) phải được **pin vào immutable gate evidence** theo **§13.9** — historical result không bị reinterpret khi metadata đổi về sau.
+
+### 13.4.1 Canonical tier-designation authority — standalone executable artifact
+
+Nhánh 3 của tier-resolution chain (§13.4) yêu cầu standalone executable artifact có **authoritative quality-tier declaration** với **authority owner**. Mục này khóa **authority contract** đứng sau field đó — nếu không, "authority owner" chỉ là một field tự khai, và validator không có authority root để phân biệt declaration hợp lệ với self-certified declaration:
+
+```text
+standalone artifact producer
+→ tự tạo tier declaration của chính nó
+→ khai Tier 3, dùng floor 60%
+→ declaration explicit/versioned/pinned
+→ không có declaration nào khác để xung đột
+→ validator không có authority root để reject
+```
+
+**Canonical tier-designation authority — bắt buộc trước gate evaluation.** Với mọi artifact/scope mà quality tier là bắt buộc (nhánh 3, §13.4):
+
+- phải resolve được **đúng một** canonical quality-tier designation authority cho scope đó;
+- authority đó phải **tồn tại trước** gate evaluation;
+- authority identity/designation phải **explicit · versioned · immutable/pinned**;
+- **scope của authority** phải khai báo tường minh;
+- authority **không resolve được** hoặc **có nhiều authority cạnh tranh cho cùng scope** → **fail-closed** (§13.8), không tự chọn một trong số đó.
+
+Không khóa filename, vendor, CI implementation hay serialization format cụ thể — cùng nguyên tắc §13.14.
+
+**Declaration không phải authority.** Tách bắt buộc:
+
+```text
+tier declaration
+≠
+authority to classify
+≠
+validated quality-gate eligibility
+```
+
+Một artifact, module, producer, author, hay declaration owner **không** có quyền phân loại tier chỉ vì nó là bên **publish** declaration đó.
+
+**Anti-self-certification:**
+
+- Subject artifact **không** được tự tạo eligibility cho chính nó.
+- Producer/owner của artifact **không** trở thành tier authority chỉ bằng việc tự publish declaration.
+- Self-classification **invalid**, trừ khi được **backing** bởi một canonical designation resolve độc lập, **explicitly authorize** đúng actor đó cho đúng scope đó.
+- Declaration ownership (ai publish declaration) và classification authority (ai có quyền quyết tier) là **hai concern tách biệt** — không suy cái này từ cái kia.
+
+*Không yêu cầu declaration owner và authority phải khác nhau về nhân sự/human identity khi Constitution không đòi hỏi điều đó — rule này nhắm vào **tách authority**, không phải cơ chế định danh cá nhân. Một actor có thể vừa publish declaration vừa là authority **chỉ khi** chính actor đó được canonical designation cấp quyền tường minh cho scope đó — không được suy quyền đó từ việc actor có khả năng publish.*
+
+**Authority chain:**
+
+```text
+Canonical authority designation
+→ authorized tier classification/declaration
+→ exact resolved tier
+→ applicable floor/gates
+→ evaluation
+→ immutable evidence
+```
+
+Declaration **không được tự tạo ra upstream designation của chính nó** — nếu declaration là bằng chứng duy nhất cho cả nội dung tier lẫn quyền tạo ra nội dung đó, chain sụp về đúng failure scenario ở đầu mục này.
+
+**Evidence và validator:** provenance của canonical authority phải được pin vào immutable gate evidence và validator phải verify đúng chain này — xem **§13.9 (refined)**. Mục này không lặp lại field list, tránh duplicate.
+
+**Authority boundary.** Mục này chỉ khóa **authority contract cho quality-tier designation**, nằm trong phạm vi Chapter 13 đã có ở §13.13 (quality dimensions, gate categories, evidence contract, tier-resolution authority requirement). Nó **không**:
+- định nghĩa lại module identity/taxonomy ([Chapter 7](./07-module-taxonomy.md));
+- định nghĩa lại plugin permission grant ([Chapter 9 §9.6](./09-plugin-model.md));
+- định nghĩa lại compatibility policy authority ([Chapter 10 §10.4.3](./10-compatibility-capability-contract.md));
+- định nghĩa lại phase approval ([Chapter 12](./12-approval-gates.md));
+- tạo competing current-state authority với [MANIFEST](../MANIFEST.md) ([I-12](./02-platform-invariants.md));
+- sửa governance review eligibility ([Chapter 0 §3](./00-governance.md), [Chapter 11 §11.5](./11-adr-process.md)).
+
+Phân tầng **Declaration → Grant/Designation → Enforcement → Verification** ở [Chapter 9 §9.6](./09-plugin-model.md)/[Chapter 10 §10.4.3](./10-compatibility-capability-contract.md) chỉ được dùng ở đây như **pattern tham khảo cho tính nhất quán** — authority contract của mục này **tự đứng độc lập** (self-contained) trong Chapter 13, không tạo dependency mới và không mượn authority của hai chapter đó.
 
 ## 13.5 Invariant conformance gate
 
@@ -189,11 +258,20 @@ Quality-gate evidence là **immutable, resolvable artifact** (cùng tinh thần 
 - **Ownership provenance** (nếu dùng inheritance): exact ownership declaration/reference · ownership declaration **version/content identity** · canonical owning-module identity · authority owner/designation của ownership declaration.
 - **Tier source (exact):**
   - runtime module / owned artifact → exact `module-registry` **version/content identity** + exact module entry/reference đã dùng;
-  - standalone executable artifact → exact authoritative quality-tier declaration identity + declaration **version/content identity** + authority owner/designation.
+  - standalone executable artifact → phải pin đủ **canonical authority-chain evidence** ([§13.4.1](#1341-canonical-tier-designation-authority--standalone-executable-artifact)), tối thiểu:
+    - **canonical designation identity** — authority nào được designate cho scope này;
+    - **designation version/content identity** — immutable, không dùng nhãn mutable;
+    - **designation scope** — phạm vi mà designation đó áp dụng;
+    - **designation authority owner** — ai đứng sau canonical designation đó;
+    - **exact tier declaration identity/content** — nội dung declaration đã dùng;
+    - **identity của actor được authorize để classify/declare** — actor này phải resolve **từ chính canonical designation**, không suy từ việc actor là bên publish declaration;
+    - **bằng chứng designation và declaration đều applicable tại evaluation boundary** — không resolve lại từ mutable/current state về sau.
 - **Resolved tier result:** resolved tier value · applicable coverage floor **derive từ tier đó** · criteria/policy version định nghĩa floor.
 - **Evaluation boundary:** evidence phải chứng minh các reference trên là **authoritative tại thời điểm gate evaluation**, **không** resolve lại từ mutable/current state về sau.
 
-**Historical immutability.** Ownership hoặc tier metadata thay đổi về sau **không** được reinterpret historical `PASS`/`FAIL`; nếu cần đánh giá lại thì **sinh gate evaluation mới**, còn evidence cũ **giữ nguyên** resolution chain đã pin. **Validator** chỉ **verify pinned provenance**, **không** reconstruct bằng current/mutable metadata khi historical evidence đã pin, **không** infer/default tier, **không** trở thành policy authority ([Chapter 11 §11.9](./11-adr-process.md)).
+**Historical immutability.** Thay đổi về sau đối với **designation, classifier authority, tier declaration, registry, hoặc policy** **không** được reinterpret historical `PASS`/`FAIL`; nếu cần đánh giá lại thì **sinh gate evaluation mới**, còn evidence cũ **giữ nguyên** resolution chain (kể cả canonical authority chain, [§13.4.1](#1341-canonical-tier-designation-authority--standalone-executable-artifact)) đã pin.
+
+**Validator** phải verify **canonical authority chain đã pin** ([§13.4.1](#1341-canonical-tier-designation-authority--standalone-executable-artifact)) — reject **unresolved authority**, reject **unauthorized self-declaration** (actor không resolve được từ canonical designation), reject **conflicting designation** (nhiều canonical authority cạnh tranh cùng scope), reject **designation/declaration hết hạn hoặc không applicable tại boundary**. Validator chỉ **verify pinned provenance**, **không** reconstruct bằng current/mutable metadata khi historical evidence đã pin, **không** infer/default/tạo authority, **không** trở thành policy authority ([Chapter 11 §11.9](./11-adr-process.md)). Authority không verify được → `FAIL — evidence`, không phải pass mặc định.
 
 **Result semantics** phân biệt (theo [Chapter 10 §10.4.2](./10-compatibility-capability-contract.md)):
 
@@ -298,5 +376,5 @@ Chương này khóa **contract**, không chốt **mechanism**. Defer sang Engine
 - benchmark harness và perf threshold cụ thể;
 - test framework/style (Testing Convention — [Chapter 3 §3.2](./03-engineering-principles.md) đã park ở đây, không định nghĩa lại);
 - quarantine mechanism (§13.10) và waiver storage format (§13.11);
-- **storage/schema và filename cụ thể** của **authoritative artifact/quality-tier metadata** (§13.4 nhánh 3) — Constitution chỉ khóa *tồn tại + property* của declaration (explicit, versioned, pinned, có owner, tồn tại trước gate), **không** khóa filename/YAML schema/CI/vendor;
+- **storage/schema và filename cụ thể** của **authoritative artifact/quality-tier metadata** và của **canonical tier-designation authority** (§13.4 nhánh 3, [§13.4.1](#1341-canonical-tier-designation-authority--standalone-executable-artifact)) — Constitution chỉ khóa *tồn tại + property* của declaration và của authority (explicit, versioned, pinned, có scope/owner, tồn tại trước gate), **không** khóa filename/YAML schema/CI/vendor/technology chọn làm authority;
 - **field encoding / storage format** của **tier-resolution provenance** (§13.9) — Constitution khóa *phải pin những gì*, không khóa cách lưu/serialize.

@@ -2,6 +2,40 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.5 → v1.6 — tier-designation authority root (M-01)
+
+**Không phải approval.** Revision của chapter đang `In Review`, thực hiện theo yêu cầu Product Owner dựa trên consolidated review evidence cho boundary v1.5. **Không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **revision author** (`AI Technical Architect`) trong nhịp này — **không** phải Product Owner, **không** tự tuyên bố revision v1.6 đã pass review, **không** tự đóng review eligibility cho v1.6.
+
+### Review provenance (boundary v1.5 — consolidated trước khi revision này bắt đầu)
+
+- Consolidated source: **ChatGPT review package + Claude independent review (phiên độc lập) + ChatGPT consolidation**.
+- **Product Owner interpretation:** Claude review trong session độc lập được tính là **independent-review evidence hợp lệ** cho boundary v1.5 — ghi nhận theo quyết định PO, không phải Claude tự tuyên bố.
+- **Final consolidated finding count:** **0 Blocker · 1 Major (M-01) · 0 Minor · 0 Suggestion.**
+- **M-02 — rejected**, không mở lại/xử lý trong revision này (Product Owner quyết).
+
+### Đã sửa (1 Major — M-01) — thiếu canonical tier-designation authority contract cho standalone executable artifact (§13.4 nhánh 3, §13.9)
+
+- Thêm **§13.4.1 — Canonical tier-designation authority**: mọi scope yêu cầu quality tier phải resolve đúng **một** canonical designation authority, tồn tại trước gate evaluation, explicit/versioned/immutable-pinned, scope tường minh; không resolve được hoặc nhiều authority cạnh tranh cùng scope → fail-closed. Không khóa filename/vendor/CI/format.
+- Khóa tách bạch **tier declaration ≠ authority to classify ≠ validated quality-gate eligibility**.
+- Khóa **anti-self-certification**: subject artifact/producer/owner không tự tạo eligibility hay trở thành authority chỉ bằng publish declaration; self-classification chỉ hợp lệ khi có canonical designation resolve độc lập, explicitly authorize đúng actor cho đúng scope; **không** đòi hỏi khác nhân sự/human identity khi Constitution không yêu cầu — rule nhắm vào tách authority, không phải cơ chế định danh cá nhân.
+- Khóa **authority chain**: canonical designation → authorized tier classification/declaration → resolved tier → applicable floor/gates → evaluation → immutable evidence; declaration không được tự tạo upstream designation của chính nó.
+- **§13.9 refined** (không duplicate Chapter 10): nhánh standalone của tier-resolution provenance giờ pin đủ canonical designation identity/version/scope/owner, exact declaration identity, identity actor được authorize để classify, và bằng chứng designation+declaration applicable tại evaluation boundary. Validator sentence refined: reject unresolved authority · unauthorized self-declaration · conflicting designation · designation/declaration hết hạn hoặc không applicable; không infer/default/tạo authority; authority không verify được → `FAIL — evidence`. Historical-immutability sentence mở rộng gồm designation/classifier authority (không chỉ ownership/tier metadata).
+- **§13.14 refined:** defer list bổ sung storage/technology cụ thể của canonical tier-designation authority — cùng nguyên tắc không khóa mechanism đã áp cho declaration.
+- **Authority boundary:** §13.4.1 tự đứng độc lập (self-contained) trong Chapter 13; không định nghĩa lại Chapter 7 module identity, Chapter 9 plugin grant, Chapter 10 compatibility authority, Chapter 12 phase approval; không tạo competing current-state authority với MANIFEST (I-12); không sửa governance review eligibility (Chapter 0 §3/Chapter 11 §11.5). Phân tầng Declaration→Grant/Designation→Enforcement→Verification của Chapter 9 §9.6/Chapter 10 §10.4.3 chỉ dùng như pattern tham khảo, không tạo dependency mới.
+
+### Metadata / state
+
+- `constitution/13-quality-gates.md`: **v1.5 → v1.6**, status giữ `In Review`, `approved_by`/`approved_at` giữ `null`. `depends_on` giữ nguyên `["02-platform-invariants", "07-module-taxonomy"]` (không thêm dependency mới).
+- `MANIFEST.md`: row Chapter 13 → **v1.6**; `manifest_version` **9.17 → 9.18**; `constitution_version` giữ **1.1.0**; Chapter 0–12 giữ `Locked`, Chapter 14 giữ `In Review`; OQ-002/OQ-003 vẫn `Open`; không close backlog khác.
+
+### ADR
+
+**Không cần ADR** — M-01 xử lý trong authority sẵn có của Chapter 13 (quality-tier authority requirement, §13.13); không sửa Locked chapter; không mở rộng authority Chapter 7/9/10/12.
+
+### Next
+
+`Chapter 13 v1.6 — In Review — ready for exact-baseline re-review.` Revision này **chưa** qua review — không pre-assert kết quả review v1.6 hay Product Owner approval.
+
 ## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.4 → v1.5 — tier-resolution evidence provenance
 
 **Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **author/self-reviewer** (`AI Technical Architect`); **không** pre-assert future independent review, **không** pre-assert PO approval.
