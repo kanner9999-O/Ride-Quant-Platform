@@ -1,7 +1,7 @@
 ---
 id: 13-quality-gates
 title: Quality Gates
-version: "1.2"
+version: "1.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -85,7 +85,7 @@ Cả hai phải đạt **độc lập** — chỉ cần một metric dưới flo
 
 - Chỉ tính coverage từ test có **assertion có nghĩa**; test chạy-mà-không-assert (execution-only), snapshot thuần không kiểm semantic → **không tính**.
 - Coverage phải đo trên authoritative implementation, **không** trên mock/generated/shadow code (I-2: research và production dùng chung logic).
-- Coverage percentage **là điều kiện cần, không đủ**: một artifact chỉ pass khi coverage đạt tier floor **và** các dimension gate áp dụng (§13.5–§13.7) pass.
+- Coverage percentage **là điều kiện cần, không đủ**: với artifact **mà coverage applicable** (§13.12 nhóm B), artifact chỉ pass khi coverage đạt tier floor **và** các dimension gate áp dụng (§13.5–§13.7) pass.
 - **Test-effectiveness cho Tier 0/1:** coverage number không thể chứng minh test *bắt được lỗi*. Tier 0 và Tier 1 phải có **evidence về test effectiveness** (mechanism được chấp nhận: mutation testing hoặc tương đương). Chapter 13 khóa **yêu cầu có evidence**; **ngưỡng cụ thể + tooling** defer Engineering Foundation (§13.14).
 
 ## 13.4 Coverage tiers
@@ -208,33 +208,47 @@ Waiver là một **exception được ghi lại**, **không** phải một cách
 
 Applicability phải **khai báo được và resolvable**. Gate được phân theo **điều kiện kích hoạt**, **không** phải "mọi runtime module gánh mọi gate" — cụ thể, performance / security / observability **không** mặc định áp cho mọi runtime module, mà chỉ khi trigger tương ứng thỏa.
 
-**A. Unconditional — mọi artifact trong scope:**
-- **coverage** (§13.4);
+**A. Universal — mọi artifact trong scope:**
 - **invariant conformance** cho các invariant **áp dụng** theo `Scope` do chính invariant khai báo (§13.5).
 
-**B. Tier-triggered — theo criticality tier (§13.4):**
+**B. Executable-implementation-triggered — coverage:**
+- **line coverage**, **branch coverage** (theo rule deterministic §13.3), và **test-effectiveness evidence** (§13.3).
+- **Trigger** (phải thỏa **cả ba**): artifact có **authoritative executable implementation** + **resolvable coverage boundary** + **resolvable applicable tier**.
+- **Coverage KHÔNG universal.** Artifact **không có executable implementation** → coverage **không applicable** → artifact đó **không bị bắt** tạo line/branch coverage hay test-effectiveness evidence.
+
+  Phân biệt bắt buộc:
+
+  ```text
+  coverage not applicable            ≠   coverage applicable but evidence missing
+  (không executable implementation)      (đã thỏa trigger B mà thiếu metric/evidence)
+        → coverage gate không áp             → FAIL — evidence (§13.8–§13.9)
+  ```
+
+  - **Không silently skip:** artifact **có** executable implementation nhưng **coverage boundary hoặc tier chưa resolve** → **không** được bỏ qua coverage; đây là **undefined applicability → fail-closed** (§13.8), không phải "not applicable".
+
+**C. Tier-triggered — theo criticality tier (§13.4):**
 - **Chaos Test** → Tier 0;
 - **Parity Test** → Tier 1 (decision-pipeline responsibility);
-- tier cũng đặt coverage floor.
+- tier cũng đặt coverage floor (chỉ áp khi coverage đã trigger theo B).
 
-**C. Responsibility / boundary-triggered — theo bản chất trách nhiệm của artifact:**
+**D. Responsibility / boundary-triggered — theo bản chất trách nhiệm của artifact:**
 - **Security** → khi artifact có **isolation / custody / authorization boundary** (I-4, I-7, I-11);
 - **Data quality / numerical precision** → khi artifact **xử lý authoritative hoặc financial data** (I-9, I-13);
 - **Performance** → khi có **authoritative performance budget** áp dụng cho artifact (§13.7);
 - **Observability** → khi artifact nằm trên **production / operational path**.
 
-**D. Lifecycle-triggered — theo loại thao tác/vòng đời:**
+**E. Lifecycle-triggered — theo loại thao tác/vòng đời:**
 - **Schema / contract compatibility** → khi artifact **publish** contract/schema ([Chapter 10 §10.3](./10-compatibility-capability-contract.md));
 - **Migration / rollback validation** → khi artifact là **migration** (I-13; Chapter 10).
 
-**Artifact-class rollup** (áp các trigger A–D theo thành phần):
-- **Runtime module** → A + tier-triggered (B) + các boundary-trigger (C) *thỏa* cho module đó (một Type 1 Compute Engine thuần không có custody boundary sẽ **không** gánh security gate chỉ vì nó là module);
-- **Published contract / schema** → A (áp dụng) + D compatibility;
-- **Release / build** → hợp gate set của các constituent artifact + performance (nếu có budget) + operational readiness (nếu vào production path);
-- **Migration** → A + D migration/rollback + data-quality (nếu chạm authoritative data) + compatibility (nếu đổi schema);
-- **Phase deliverable** → gate set mà phase plan/roadmap ([Chapter 14](./14-roadmap.md)) khai báo áp dụng.
+**Artifact-class rollup** (mọi class đều chịu A; các trigger B–E áp khi thỏa):
+- **Runtime module** → A + **B executable coverage** (module có executable implementation) + C tier-triggered + các boundary-trigger (D) *thỏa* cho module đó (một Type 1 Compute Engine thuần không có custody boundary sẽ **không** gánh security gate chỉ vì nó là module);
+- **Published contract / schema** → A + E compatibility. **Không inherit coverage (B)** chỉ vì thuộc scope — contract/schema không phải executable implementation;
+- **Release / build** → **rollup** hợp gate set của các constituent artifact + performance (nếu có budget) + operational readiness (nếu vào production path); bản thân release không tự sinh coverage ngoài coverage của constituent;
+- **Migration** → A + E migration/rollback + data-quality (nếu chạm authoritative data) + compatibility (nếu đổi schema). Coverage (B) **chỉ** áp khi **chính migration có executable implementation** thỏa trigger B;
+- **Phase deliverable** → gate set mà **approved phase plan/roadmap** ([Chapter 14](./14-roadmap.md)) khai báo áp dụng.
 
-**Determinism + fail-closed:** cùng một artifact, giải theo cùng bộ trigger A–D, phải cho ra **cùng một gate set**. Nếu một trigger condition **không resolve được** (không xác định được artifact có boundary / budget / path / publish / migration liên quan hay không) → **fail-closed** theo §13.8: applicability chưa xác định = eligibility incomplete, **không** được mặc định "gate không áp dụng" để bỏ qua.
+**Determinism + fail-closed:** cùng một artifact, giải theo cùng bộ trigger A–E, phải cho ra **cùng một gate set**. Nếu một trigger condition **không resolve được** (không xác định được artifact có executable implementation / boundary / tier / budget / path / publish / migration liên quan hay không) → **fail-closed** theo §13.8: applicability chưa xác định = eligibility incomplete, **không** được mặc định "gate không áp dụng" để bỏ qua.
 
 ## 13.13 Authority boundary
 

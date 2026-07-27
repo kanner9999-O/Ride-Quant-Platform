@@ -2,6 +2,33 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.2 → v1.3 — coverage applicability clarification
+
+**Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **author/self-reviewer** (`AI Technical Architect`); **không** pre-assert future independent review, **không** pre-assert PO approval.
+
+### Review provenance
+
+- **ChatGPT Review A + internal Review B + consolidation = một ChatGPT review package** (một actor identity `ChatGPT`).
+- **Verdict:** `Revision Requested`.
+- **Severity count:** **0 Blocker · 1 Major · 0 Minor · 0 Suggestion**.
+
+### Đã sửa (1 Major) — coverage applicability quá rộng (§13.12)
+
+- **Coverage moved out of universal artifact gate:** nhóm "Unconditional/Universal" giờ chỉ còn **invariant conformance** (theo Scope). Coverage chuyển sang nhóm mới **Executable-implementation-triggered**.
+- **Coverage chỉ áp** khi artifact có **authoritative executable implementation + resolvable coverage boundary + resolvable applicable tier**.
+- **Not-applicable ≠ missing evidence:** artifact không có executable implementation → coverage **không applicable** (không bị bắt tạo line/branch/test-effectiveness); chỉ khi coverage **đã applicable** mà thiếu metric/evidence → `FAIL — evidence`.
+- **Rollup cập nhật:** runtime module inherit executable coverage; contract/schema **không** inherit coverage chỉ vì thuộc scope; migration chỉ có coverage nếu chính migration có executable implementation; release dùng constituent rollup; phase deliverable dùng declared gate set.
+- **Fail-closed giữ nguyên:** artifact có executable implementation nhưng boundary/tier chưa resolve → không silently skip → undefined applicability → fail-closed. Runtime-module coverage vẫn giữ deterministic line + branch floors (§13.3). Consistency touch §13.3 để câu "coverage là điều kiện cần" scoped theo coverage-applicable.
+
+### Metadata / state
+
+- `constitution/13-quality-gates.md`: **v1.2 → v1.3**, status `In Review`. `depends_on` giữ `["02-platform-invariants", "07-module-taxonomy"]`.
+- `MANIFEST.md`: row Chapter 13 → **v1.3**; `manifest_version` **9.14 → 9.15**; `constitution_version` giữ **1.1.0**; Chapter 0–12 giữ `Locked`, Chapter 14 giữ `In Review`; OQ-002/OQ-003 vẫn `Open`; không close backlog khác.
+
+### ADR
+
+**Không cần ADR** — chapter còn `In Review`, không Locked rule/invariant nào bị thay đổi.
+
 ## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.1 → v1.2 — revision per consolidated review
 
 **Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **author/self-reviewer** (`AI Technical Architect`), **không** pre-assert future independent review, **không** pre-assert PO approval.

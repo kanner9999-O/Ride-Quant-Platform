@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.14"
+manifest_version: "9.15"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -36,7 +36,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
 | constitution/11-adr-process.md | 2.1 | **Locked** | Product Owner | 00-governance, 02-platform-invariants |
 | constitution/12-approval-gates.md | 1.4 | Locked | Product Owner | 00-governance, 11-adr-process |
-| constitution/13-quality-gates.md | 1.2 | In Review | Product Owner | 02-platform-invariants, 07-module-taxonomy |
+| constitution/13-quality-gates.md | 1.3 | In Review | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.1 | In Review | Product Owner | ALL |
 
 ## ADR
@@ -112,4 +112,4 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 ---
 
-**Trạng thái tổng quát:** Chapter 0–12 đã `Locked` (Chapter 12 v1.4 approved & locked by Product Owner 2026-07-27); Chapter 13–14 vẫn `In Review` (Chapter 13 draft revised to **v1.2** per consolidated review, chưa Approved/Locked). ADR-011 v1.1 đã `Approved` và governance migration đã được activate atomically ngày 2026-07-25. ADR-001–ADR-010 decision content không đổi; current ADR lifecycle/OQ state và reverse supersession relation resolve từ MANIFEST theo I-12.
+**Trạng thái tổng quát:** Chapter 0–12 đã `Locked` (Chapter 12 v1.4 approved & locked by Product Owner 2026-07-27); Chapter 13–14 vẫn `In Review` (Chapter 13 draft revised to **v1.3** per consolidated review, chưa Approved/Locked). ADR-011 v1.1 đã `Approved` và governance migration đã được activate atomically ngày 2026-07-25. ADR-001–ADR-010 decision content không đổi; current ADR lifecycle/OQ state và reverse supersession relation resolve từ MANIFEST theo I-12.
