@@ -2,6 +2,38 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Milestone] — 2026-07-27 — 🔒 Chapter 12 (Approval Gates) v1.4 ACTIVATED & LOCKED
+
+**Product Owner decision** (sole approval authority): *"I, Product Owner, decide to Approve & Lock Chapter 12 v1.4. Atomic activation commit and closure of BL-008 are authorized."* — quyết định ngày **2026-07-27**.
+
+Đây là **activation** theo quyết định của Product Owner, **không phải** một AI approval. Không AI nào (Claude/ChatGPT) approve hoặc lock chương này; các actor `AI Technical Architect` chỉ cung cấp review evidence, không có veto, và Product Owner là authority duy nhất.
+
+### Review eligibility (đã thỏa minimum-two distinct identity)
+
+- **Actor `ChatGPT`** (`AI Technical Architect`): consolidated review package (Review A + internal second-pass Review B + consolidation) — verdict Revision Requested.
+- **Actor `Claude`** (`AI Technical Architect`): independent final review (clean session) — verdict accepted with corrections.
+- Minimum-two distinct actor identity **satisfied** (`ChatGPT` + `Claude`); reviewer **không có veto**; **Product Owner** là sole authority.
+
+### Final review result
+
+- **0 Blocker · 0 Major · 0 Minor** còn mở.
+- **Backward Consistency Check: `No conflict`** (đối chiếu Chapter 0 v1.1, Chapter 11 v2.1, I-12, ADR-011).
+
+### Activated state (atomic — trong một commit)
+
+- `constitution/12-approval-gates.md`: `status` **In Review → Locked**; `approved_by: Product Owner`; `approved_at: "2026-07-27"`; `last_review: "2026-07-27"`. **Version giữ 1.4** — normative body **không đổi** (byte-identical với bản đã review, blob `1126eaea…`); chỉ lifecycle metadata thay đổi. Sau approval boundary, Chapter 12 v1.4 là **Locked** và bất biến ở cùng version.
+- MANIFEST: `manifest_version` **9.11 → 9.12**; row Chapter 12 → **v1.4 Locked**; status ledger + tổng quát cập nhật (Chapter 0–12 Locked, 13–14 In Review); `constitution_version` **giữ 1.1.0** (không có rule buộc bump khi lock chapter — Constitution Version độc lập, MANIFEST §Constitution Version).
+- **BL-008: Closed/Resolved** — wording identity-specific đã generalize ở v1.3, approval-gate contract refined ở v1.4, review identities resolved = ChatGPT + Claude, PO approved & locked v1.4 ngày 2026-07-27.
+
+### Atomicity
+
+Chapter 12 lifecycle metadata + MANIFEST current state + BL-008 transition + CHANGELOG activation record **landed trong một commit duy nhất**. Không partial activation.
+
+### ADR
+
+**Không cần ADR** — Product Owner approve một v1.4 contract đã được review; **không** Locked governance rule hay selected invariant nào bị thay đổi.
+
+
 ## [Unreleased] — Chapter 12 review provenance — corrective note (forward-only, không rewrite history)
 
 **Corrective, không phải Chapter 12 normative change.** Chỉ đính chính review-provenance evidence; Chapter 12 v1.4 normative body **không đổi**. Historical commit `5e42cd7540561a820d42e609ecfc0865fb184c81` **không bị rewrite** — sửa được ghi *forward*.

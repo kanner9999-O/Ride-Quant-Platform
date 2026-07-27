@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.11"
+manifest_version: "9.12"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -17,7 +17,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 **Constitution Version:** 1.1.0 — độc lập với Project Version (Project có thể lên v0.8 trong khi Constitution vẫn 1.1.0, hoặc ngược lại)
 **Schema Version của Manifest:** 1 — đổi format Manifest sau này phải bump field này để tooling không vỡ ngầm.
 
-**Chapter 0 — Governance: `Locked`** (2026-07-25, v1.1, ADR-011 activation). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). **Chapter 10 — Compatibility & Capability Contract: `Locked`** (2026-07-24, v2.7, approved by Kanner). **Chapter 11 — ADR Process: `Locked`** (2026-07-25, v2.1, ADR-011 activation). Chapters 12–14 remain `In Review`.
+**Chapter 0 — Governance: `Locked`** (2026-07-25, v1.1, ADR-011 activation). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). **Chapter 10 — Compatibility & Capability Contract: `Locked`** (2026-07-24, v2.7, approved by Kanner). **Chapter 11 — ADR Process: `Locked`** (2026-07-25, v2.1, ADR-011 activation). **Chapter 12 — Approval Gates: `Locked`** (2026-07-27, v1.4, approved by Product Owner). Chapters 13–14 remain `In Review`.
 
 ## Constitution
 
@@ -35,7 +35,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/09-plugin-model.md | 2.9 | **Locked** | Product Owner | 02-platform-invariants, 07-module-taxonomy, 08-event-model |
 | constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
 | constitution/11-adr-process.md | 2.1 | **Locked** | Product Owner | 00-governance, 02-platform-invariants |
-| constitution/12-approval-gates.md | 1.4 | In Review | Product Owner | 00-governance, 11-adr-process |
+| constitution/12-approval-gates.md | 1.4 | Locked | Product Owner | 00-governance, 11-adr-process |
 | constitution/13-quality-gates.md | 1.0 | In Review | Product Owner | 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.1 | In Review | Product Owner | ALL |
 
@@ -103,7 +103,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 |---|---|---|
 | BL-001 | `review_status` dạng machine-readable trong metadata (thay vì list `reviewers` dạng text). Partial progress at ADR-011 activation: reviewer identities are pinned as evidence in ADR metadata/template, but a dedicated machine-readable review_status schema remains deferred. | ChatGPT review |
 | BL-007 | **Convergence/stop rule** cho review process (chỉ nhận finding mới nếu: mâu thuẫn Chapter Locked · tạo 2 authority cạnh tranh · làm invariant đã chọn không implementable · phá acceptance order). Hiện chỉ là **thỏa thuận của vòng review**, ghi ở CHANGELOG — **CHƯA binding governance**. Muốn binding phải đưa vào Chapter 11 hoặc 12 qua một vòng review riêng (cả hai chapter đang `In Review`) | ChatGPT + Claude (vòng 31) |
-| BL-008 | Chapter 12 `approval-gates.md` identity-specific `ChatGPT Review + Claude Review` → **addressed, pending review** (generalized in v1.3, refined in v1.4, 2026-07-27): role-based minimum-two independent gate referencing Chapter 0 §3 / Chapter 11 §11.5 (không định nghĩa lại). Still `In Review` — **not closed**; closes only when Chapter 12 passes independent review + PO Approve/Lock. | ADR-011 activation review (Claude) |
+| BL-008 | Chapter 12 `approval-gates.md` identity-specific `ChatGPT Review + Claude Review` → **Closed/Resolved (2026-07-27)**: identity-specific wording generalized in v1.3; approval-gate contract refined in v1.4; independent review identities resolved as **ChatGPT + Claude** (two distinct `AI Technical Architect`); Product Owner approved & locked Chapter 12 v1.4 on 2026-07-27 → BL-008 closed at this activation boundary. | ADR-011 activation review (Claude) |
 | BL-006 | Sau khi ADR-009/ADR-010 được **accept**: dọn decision history khỏi Chapter 8 (các đoạn "vì sao chọn phương án này thay vì phương án kia") — rationale + alternatives đã nằm trong ADR; Constitution chỉ giữ normative rule. Giữ đúng ranh giới Constitution = rule, ADR = decision history | ChatGPT Suggestion (consolidation round) |
 | BL-005 | Processing Observation (Chapter 5 §5.2) cần schema đầy đủ + observability convention (processor/attempt/started_at/completed_at) — thuộc Engineering Foundation (Phase 1.5), không phải Constitution | ChatGPT Observation (Chapter 5 v2.4) |
 | BL-004 | context-map.yaml có thể tách file (capabilities/ contexts/ relationships riêng) KHI file quá lớn — chưa làm vì file chưa tồn tại, tránh giải quyết vấn đề chưa đo được. Xử lý ở Engineering Foundation/Phase 0.2 khi có dữ liệu thật | ChatGPT review (Chapter 4 round 4) |
@@ -112,4 +112,4 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 ---
 
-**Trạng thái tổng quát:** Chapter 0–11 đã `Locked`; Chapter 12–14 vẫn `In Review`. ADR-011 v1.1 đã `Approved` và governance migration đã được activate atomically ngày 2026-07-25. ADR-001–ADR-010 decision content không đổi; current ADR lifecycle/OQ state và reverse supersession relation resolve từ MANIFEST theo I-12.
+**Trạng thái tổng quát:** Chapter 0–12 đã `Locked` (Chapter 12 v1.4 approved & locked by Product Owner 2026-07-27); Chapter 13–14 vẫn `In Review`. ADR-011 v1.1 đã `Approved` và governance migration đã được activate atomically ngày 2026-07-25. ADR-001–ADR-010 decision content không đổi; current ADR lifecycle/OQ state và reverse supersession relation resolve từ MANIFEST theo I-12.
