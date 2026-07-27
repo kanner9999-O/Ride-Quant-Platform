@@ -2,6 +2,53 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.6 → v1.7 — close tier authority bypasses (M-01-R, M-03)
+
+**Không phải approval/lock.** Revision của chapter đang `In Review`, thực hiện theo yêu cầu Product Owner dựa trên consolidated finding v1.6. **Không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **revision author** (`AI Technical Architect`) trong nhịp này — **không** phải Product Owner, **không** tự tuyên bố revision v1.7 đã pass review.
+
+### Review provenance (boundary v1.6 — consolidated trước khi revision này bắt đầu)
+
+- **Final consolidated finding count:** **0 Blocker · 2 Major (M-01-R, M-03) · 0 Minor · 0 Suggestion.**
+- **Verdict:** `Revision required`.
+- **m-01** (overlapping/nested scopes) — **rejected as separate finding**, không mở lại/không xử lý riêng trong revision này.
+
+### Đã sửa (Major — M-01-R) — canonical tier-designation authority thiếu establishment predicate (§13.4.1)
+
+- Thêm **Canonical establishment predicate** (dùng chung §13.4.1/§13.4.2): một designation/authority chỉ **canonical** khi (1) established qua **Decision Workflow** ([Chapter 0 §3](./constitution/00-governance.md)) đúng ADR Scope Rule khi thuộc diện đó, **và** (2) recorded tại một authoritative project state resolvable độc lập với chính declaration chain của subject — không phải artifact do chính producer tự publish cùng lúc.
+- Predicate **terminating**: bottom-out tại Product Owner decision (Chapter 0 §3, primitive authority đã Locked) — không tạo "designation của designation" mới, không infinite regress. Cùng anchor pattern mà [Chapter 10 §10.4.3(4)](./constitution/10-compatibility-capability-contract.md) (Locked) đã dùng cho Compatibility Policy authority — tham chiếu, không định nghĩa lại.
+- Đóng đúng failure scenario: producer tự tạo designation D rồi tự cho D quyền authorize chính mình → D không thỏa cả 2 điều kiện → không canonical → `FAIL — evidence`.
+
+### Đã sửa (Major — M-03) — nhánh 2 (owned executable artifact) thiếu authority contract cho ownership binding (§13.4.2 mới)
+
+- Thêm **§13.4.2 — Canonical ownership-binding authority**: ownership relationship (artifact → owning module) là **authority-bearing fact**; đúng một canonical ownership-binding authority phải resolve cho scope áp dụng; ownership declaration **không** tự tạo ownership authority; producer/owner không tự chọn module có lợi chỉ bằng publish declaration.
+- Canonical status của ownership-binding authority dùng **chung Canonical establishment predicate** ở §13.4.1 — không duplicate.
+- Ownership-binding chain: canonical authority designation → authorized declaration/binding → exact owning-module identity → inherited tier → floor/gates → evaluation → immutable evidence.
+- Authority boundary: layered on top of Chapter 7 module identity/taxonomy, **không** định nghĩa lại `module-registry.yaml` hay Chapter 7.
+
+### Cross-branch consistency
+
+- Thêm đoạn **Cross-branch authority parity** (§13.4): cả 3 nhánh (runtime module / owned artifact / standalone artifact) giờ có bảo vệ tương đương — mỗi nhánh có authoritative identity + mapping/binding riêng, đều fail-closed khi unresolved. Xác nhận **không** có quy tắc "most-specific-wins" hay ưu tiên ngầm giữa các nhánh — giữ nguyên hành vi cũ (đúng một authority áp dụng, zero/multiple đều fail-closed).
+
+### §13.9 refined (không duplicate Chapter 10)
+
+- **Ownership provenance** (nhánh 2) mở rộng đủ field: canonical ownership-authority identity/version/scope/owner-basis · exact ownership declaration identity · identity actor được authorize bind · exact artifact identity/version · canonical owning-module identity · exact `module-registry` entry/version · applicable-tại-boundary evidence.
+- **Standalone bullet** (nhánh 3) thêm field **canonical-establishment evidence** — reference chứng minh designation thỏa establishment predicate.
+- **Validator sentence** hợp nhất reject-list cho cả hai authority: self-established designation/ownership authority · unauthorized classifier/binder · zero/multiple applicable authority · expired/future/out-of-scope · mutable/unresolved reference · authority chain phụ thuộc current state khi validate historical evidence → tất cả `FAIL — evidence`.
+- **Historical-immutability sentence** mở rộng gồm ownership authority/binding (không chỉ designation/tier/registry/policy như v1.6).
+
+### Metadata / state
+
+- `constitution/13-quality-gates.md`: **v1.6 → v1.7**, status giữ `In Review`, `approved_by`/`approved_at` giữ `null`. `depends_on` giữ nguyên `["02-platform-invariants", "07-module-taxonomy"]`.
+- `MANIFEST.md`: row Chapter 13 → **v1.7**; `manifest_version` **9.18 → 9.19**; `constitution_version` giữ **1.1.0**; Chapter 0–12 giữ `Locked`, Chapter 14 giữ `In Review`; OQ-002/OQ-003 vẫn `Open`; không close backlog khác.
+
+### ADR
+
+**Không cần ADR** — cả hai finding đóng trong authority sẵn có của Chapter 13, chỉ **tham chiếu** (không định nghĩa lại) Chapter 0 §3 Decision Workflow và Chapter 10 §10.4.3(4) pattern; không sửa Locked chapter; không mở rộng authority Chapter 7/9/10/12; MANIFEST không trở thành runtime tier/ownership registry mới.
+
+### Next
+
+`Chapter 13 v1.7 — In Review — ready for exact-baseline Review A`. Revision này **chưa** qua review — không pre-assert kết quả review v1.7 hay Product Owner approval.
+
 ## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.5 → v1.6 — tier-designation authority root (M-01)
 
 **Không phải approval.** Revision của chapter đang `In Review`, thực hiện theo yêu cầu Product Owner dựa trên consolidated review evidence cho boundary v1.5. **Không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **revision author** (`AI Technical Architect`) trong nhịp này — **không** phải Product Owner, **không** tự tuyên bố revision v1.6 đã pass review, **không** tự đóng review eligibility cho v1.6.
