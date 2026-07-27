@@ -2,6 +2,31 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.1 → v1.2 — revision per consolidated review
+
+**Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **author/self-reviewer** (`AI Technical Architect`), **không** pre-assert future independent review, **không** pre-assert PO approval.
+
+### Review provenance
+
+- **ChatGPT Review A + internal Review B + consolidation = một ChatGPT review package** (một actor identity `ChatGPT`).
+- **Verdict:** `Revision Requested`.
+- **Severity count:** **0 Blocker · 3 Major · 0 Minor · 0 Suggestion**.
+
+### Đã sửa (3 Major)
+
+- **Waiver semantics (§13.11):** khóa rõ waiver **không** thay đổi gate result, **không** biến `FAIL`/`BLOCKED` thành `PASS`, **không** thỏa prerequisite yêu cầu `PASS`; artifact có open waiver **không đủ eligibility** cho Chapter 12 Approval Gate; "proceed" chỉ cho bounded artifact-level activity; **phase approval/transition vẫn bị chặn** tới khi gate thực sự `PASS`; PO là sole risk-acceptance/approval authority; waiver không bypass Locked invariant.
+- **Coverage semantics (§13.3):** thay wording mơ hồ `line + branch` bằng rule deterministic — `line coverage >= tier floor AND branch coverage >= tier floor`, hai metric đạt **độc lập**; thiếu metric/evidence không resolve → `FAIL — evidence`. Giữ thresholds (Tier 0 ≥95% · 1 ≥90% · 2 ≥80% · 3 ≥60%), anti-gaming và test-effectiveness rule. Không khóa tool/vendor.
+- **Applicability semantics (§13.12):** tách gate thành **unconditional · tier-triggered · responsibility/boundary-triggered · lifecycle-triggered**; performance/security/observability **không** còn mặc định áp cho mọi runtime module; undefined applicability vẫn **fail-closed**; cùng artifact → cùng gate set.
+
+### Metadata / state
+
+- `constitution/13-quality-gates.md`: **v1.1 → v1.2**, status `In Review`. `depends_on` giữ `["02-platform-invariants", "07-module-taxonomy"]` (không thêm Chapter 12/14).
+- `MANIFEST.md`: row Chapter 13 → **v1.2**; `manifest_version` **9.13 → 9.14**; `constitution_version` giữ **1.1.0**; Chapter 0–12 giữ `Locked`, Chapter 14 giữ `In Review`; OQ-002/OQ-003 vẫn `Open`; không close backlog khác.
+
+### ADR
+
+**Không cần ADR** — chapter còn `In Review`, không Locked rule/invariant nào bị thay đổi.
+
 ## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) draft v1.0 → v1.1 (In Review)
 
 **Không phải approval.** Đây là authoring revision của một chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Không AI nào approve — Claude (`AI Technical Architect`) chỉ cung cấp self-review + draft; review package độc lập (ChatGPT) và Product Owner decision vẫn chưa diễn ra.

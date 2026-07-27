@@ -1,7 +1,7 @@
 ---
 id: 13-quality-gates
 title: Quality Gates
-version: "1.1"
+version: "1.2"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -69,7 +69,17 @@ Coverage (§13.3–§13.4) là **một tín hiệu**, không phải toàn bộ c
 
 ## 13.3 Coverage — semantics và anti-gaming
 
-**Định nghĩa coverage (mặc định):** `coverage = line coverage + branch coverage`, đo trên **authoritative implementation** của capability ([Chapter 3 §3.1](./03-engineering-principles.md)). Condition/MC-DC coverage là **tùy chọn theo tier** (khuyến nghị cho Tier 0), không mặc định. Coverage là **floor signal về sự hiện diện của test**, **không** phải bằng chứng chất lượng test.
+**Coverage PASS rule (deterministic):** coverage của một artifact đạt yêu cầu **khi và chỉ khi cả hai** metric độc lập đều đạt floor của tier áp dụng:
+
+```text
+line coverage   >= applicable tier floor
+AND
+branch coverage >= applicable tier floor
+```
+
+Cả hai phải đạt **độc lập** — chỉ cần một metric dưới floor thì coverage **không** đạt (không bù trừ giữa hai metric, không dùng con số tổng hợp). Floor theo tier (§13.4): **Tier 0 ≥ 95% · Tier 1 ≥ 90% · Tier 2 ≥ 80% · Tier 3 ≥ 60%**, áp cho **từng** metric. Đo trên **authoritative implementation** của capability ([Chapter 3 §3.1](./03-engineering-principles.md)). Condition/MC-DC coverage là **tùy chọn theo tier** (khuyến nghị Tier 0), **không** tính vào floor bắt buộc.
+
+**Thiếu một trong hai metric, hoặc evidence không resolve được → `FAIL — evidence`** (§13.8–§13.9), **không** phải pass mặc định. Coverage là **floor signal về sự hiện diện của test**, **không** phải bằng chứng chất lượng test. Không khóa tool/vendor cụ thể (defer §13.14).
 
 **Anti-gaming (bắt buộc):**
 
@@ -184,25 +194,47 @@ Một test cho kết quả **không ổn định trên cùng input đã pin** l�
 
 ## 13.11 Exception / waiver process
 
-Khi một gate chưa pass được nhưng Product Owner quyết định tiến hành:
+Waiver là một **exception được ghi lại**, **không** phải một cách để pass gate. Nó không thay đổi kết quả kỹ thuật của gate.
 
-- Waiver **không** biến gate result thành `PASS`; nó ghi một **exception tường minh, bounded theo scope + expiry**, kèm rationale và owner, và được **pin làm evidence**.
-- **Product Owner là authority duy nhất** chấp nhận rủi ro (mô hình `Chấp nhận rủi ro` của [Chapter 0 §3](./00-governance.md)); reviewer/validator **không** cấp waiver.
-- Downstream phải thấy artifact đang mang **open waiver** (không bị ẩn thành pass).
-- Waiver **không** cấp quyền bypass một Locked invariant: nếu required verification của một invariant fail, đây là **governance matter** ([Chapter 0](./00-governance.md)) — Chapter 13 chỉ ghi lại việc PO chấp nhận rủi ro có tài liệu, **không** tự cho phép vi phạm invariant.
-- Waiver storage format defer Phase 1.5.
+- **Waiver không thay đổi gate result.** Một gate `FAIL`/`BLOCKED` **vẫn là** `FAIL`/`BLOCKED` sau khi có waiver — waiver **không** biến `FAIL`/`BLOCKED` thành `PASS`.
+- **Waiver không thỏa một prerequisite yêu cầu `PASS`.** Vì [Chapter 12 §12.2(5)](./12-approval-gates.md) yêu cầu applicable quality gates **thực sự PASS**, artifact đang mang **open waiver không đủ eligibility** cho Chapter 12 Approval Gate.
+- **Phạm vi của "proceed":** chỉ áp dụng cho **bounded artifact-level activity không yêu cầu gate PASS** (ví dụ tiếp tục development/experiment trong scope của artifact). Waiver **không** mở đường cho **phase approval** hay **phase transition** — cả hai **vẫn bị chặn** cho tới khi applicable Quality Gate **thực sự PASS**.
+- **Waiver phải bounded:** scope + expiry + rationale + owner, và được **pin làm evidence** (§13.9). Downstream phải thấy artifact đang mang **open waiver**, không bị ẩn thành pass.
+- **Product Owner là sole risk-acceptance và approval authority** (mô hình `Chấp nhận rủi ro` của [Chapter 0 §3](./00-governance.md)); reviewer/validator **không** cấp waiver và **không** có quyền approve.
+- **Waiver không bypass Locked invariant:** nếu required verification của một invariant fail, đây là **governance matter** ([Chapter 0](./00-governance.md)) — waiver chỉ ghi lại rủi ro có tài liệu được PO chấp nhận, **không** tự cho phép vi phạm invariant.
+- Không thiết kế chi tiết deployment/environment policy ở đây; waiver storage format defer Phase 1.5.
 
 ## 13.12 Gate applicability — gate nào áp cho artifact nào
 
-Applicability phải **khai báo được và resolvable**; không xác định được → fail-closed (§13.8).
+Applicability phải **khai báo được và resolvable**. Gate được phân theo **điều kiện kích hoạt**, **không** phải "mọi runtime module gánh mọi gate" — cụ thể, performance / security / observability **không** mặc định áp cho mọi runtime module, mà chỉ khi trigger tương ứng thỏa.
 
-| Artifact class | Applicable gates |
-|---|---|
-| Runtime module (theo tier) | coverage (§13.4) + invariant conformance áp dụng (§13.5) + tier-specific (Chaos/Parity) + performance (§13.7) + security + observability |
-| Published contract / schema | schema/contract compatibility ([Chapter 10 §10.3](./10-compatibility-capability-contract.md)) |
-| Release / build | tổng hợp gate của constituent artifact + performance regression + operational readiness |
-| Migration | migration/rollback validation + data-quality + compatibility + I-13 |
-| Phase deliverable | các gate mà phase plan/roadmap ([Chapter 14](./14-roadmap.md)) khai báo áp dụng |
+**A. Unconditional — mọi artifact trong scope:**
+- **coverage** (§13.4);
+- **invariant conformance** cho các invariant **áp dụng** theo `Scope` do chính invariant khai báo (§13.5).
+
+**B. Tier-triggered — theo criticality tier (§13.4):**
+- **Chaos Test** → Tier 0;
+- **Parity Test** → Tier 1 (decision-pipeline responsibility);
+- tier cũng đặt coverage floor.
+
+**C. Responsibility / boundary-triggered — theo bản chất trách nhiệm của artifact:**
+- **Security** → khi artifact có **isolation / custody / authorization boundary** (I-4, I-7, I-11);
+- **Data quality / numerical precision** → khi artifact **xử lý authoritative hoặc financial data** (I-9, I-13);
+- **Performance** → khi có **authoritative performance budget** áp dụng cho artifact (§13.7);
+- **Observability** → khi artifact nằm trên **production / operational path**.
+
+**D. Lifecycle-triggered — theo loại thao tác/vòng đời:**
+- **Schema / contract compatibility** → khi artifact **publish** contract/schema ([Chapter 10 §10.3](./10-compatibility-capability-contract.md));
+- **Migration / rollback validation** → khi artifact là **migration** (I-13; Chapter 10).
+
+**Artifact-class rollup** (áp các trigger A–D theo thành phần):
+- **Runtime module** → A + tier-triggered (B) + các boundary-trigger (C) *thỏa* cho module đó (một Type 1 Compute Engine thuần không có custody boundary sẽ **không** gánh security gate chỉ vì nó là module);
+- **Published contract / schema** → A (áp dụng) + D compatibility;
+- **Release / build** → hợp gate set của các constituent artifact + performance (nếu có budget) + operational readiness (nếu vào production path);
+- **Migration** → A + D migration/rollback + data-quality (nếu chạm authoritative data) + compatibility (nếu đổi schema);
+- **Phase deliverable** → gate set mà phase plan/roadmap ([Chapter 14](./14-roadmap.md)) khai báo áp dụng.
+
+**Determinism + fail-closed:** cùng một artifact, giải theo cùng bộ trigger A–D, phải cho ra **cùng một gate set**. Nếu một trigger condition **không resolve được** (không xác định được artifact có boundary / budget / path / publish / migration liên quan hay không) → **fail-closed** theo §13.8: applicability chưa xác định = eligibility incomplete, **không** được mặc định "gate không áp dụng" để bỏ qua.
 
 ## 13.13 Authority boundary
 
