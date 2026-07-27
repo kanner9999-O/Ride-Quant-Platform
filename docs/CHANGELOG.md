@@ -2,6 +2,38 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 12 review provenance — corrective note (forward-only, không rewrite history)
+
+**Corrective, không phải Chapter 12 normative change.** Chỉ đính chính review-provenance evidence; Chapter 12 v1.4 normative body **không đổi**. Historical commit `5e42cd7540561a820d42e609ecfc0865fb184c81` **không bị rewrite** — sửa được ghi *forward*.
+
+### 1. Điều đã ghi sai
+
+Entry của commit `5e42cd7` mô tả `**ChatGPT Review A** + **Review B**` như **hai actor identity độc lập**. Đó là sai, và còn pre-assert `Review B` như completed evidence trước khi vòng review thực tế được chốt.
+
+### 2. Semantics đúng (identity model — authoritative per Product Owner)
+
+- `Review A` và internal `Review B` **đều do cùng một actor identity `ChatGPT`** thực hiện. `Review B` là **internal second-pass review** để tăng recall và hỗ trợ consolidation — **không** được tính là một distinct governance reviewer.
+- A + B được consolidate thành **một** ChatGPT review package = review của actor `ChatGPT`.
+- Một **Claude session sạch** thực hiện **independent final review**, tính là review của actor `Claude`.
+- **Session count không tạo actor identity mới** (nhiều session ChatGPT vẫn là `ChatGPT`; nhiều session Claude vẫn là `Claude`).
+- Claude **author/self-review** (v1.2 → v1.3) **không** được nhầm với independent final review; independent final review là vòng Claude session sạch diễn ra **sau** ChatGPT consolidation.
+- Không áp rule "author permanently cannot review" (rule này không tồn tại trong Chapter 0 v1.1 / Chapter 11 v2.1); Claude final review ở session sạch là independent review của actor `Claude` trong workflow này.
+
+### 3. Corrected review provenance (Chapter 12 v1.4 cycle)
+
+- **Actor `ChatGPT`** — role: `AI Technical Architect` — evidence: Review A + internal Review B + consolidated review package — verdict (trước Claude challenge): **Revision Requested** (0 Blocker · 1 Major · 2 Minor · 1 Suggestion).
+- **Actor `Claude`** — role: `AI Technical Architect` — evidence: independent final review/challenge của Chapter 12 review cycle culminating in v1.4 — verdict: **consolidated finding accepted with corrections**.
+
+### 4. Minimum-two distinct identity
+
+Requirement được hiểu đúng là **`ChatGPT` + `Claude`** (hai distinct actor identity, cùng giữ role `AI Technical Architect`, không veto), **không phải** `ChatGPT Review A + ChatGPT Review B`. Product Owner vẫn là **sole approval authority**.
+
+### 5. Không thay đổi state
+
+- Chapter 12: giữ **v1.4 · `In Review` · `approved_by: null` · `approved_at: null`** — entry này **không** Approve/Lock.
+- MANIFEST, team.yaml: **không đổi**; không bump Chapter/MANIFEST/Constitution version.
+- **BL-008** vẫn `addressed pending review`, **chưa close** — chỉ close sau khi Product Owner Approve/Lock Chapter 12.
+
 ## [Unreleased] — Chapter 12 (Approval Gates) v1.3 → v1.4 — Revision per Final Consolidated Decision (**0 Blocker · 1 Major · 2 Minor · 1 Suggestion → Revision Requested**)
 
 Revision thực hiện theo Final Consolidated Decision của vòng review độc lập. Không mở ADR mới (Ch12 vẫn `In Review`, nằm trong hướng ADR-011 đã authorize; toàn bộ là reference/clarity trong model hiện hành). `status` giữ `In Review`; **không** tự Approve/Lock. Không đụng byte của Chapter 0 / Chapter 11 (Locked).
