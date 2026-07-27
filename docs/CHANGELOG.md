@@ -2,6 +2,37 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — Chapter 12 (Approval Gates) v1.3 → v1.4 — Revision per Final Consolidated Decision (**0 Blocker · 1 Major · 2 Minor · 1 Suggestion → Revision Requested**)
+
+Revision thực hiện theo Final Consolidated Decision của vòng review độc lập. Không mở ADR mới (Ch12 vẫn `In Review`, nằm trong hướng ADR-011 đã authorize; toàn bộ là reference/clarity trong model hiện hành). `status` giữ `In Review`; **không** tự Approve/Lock. Không đụng byte của Chapter 0 / Chapter 11 (Locked).
+
+### Review provenance (không phải governance rule — chỉ evidence)
+
+- Minimum-two independent review evidence của vòng này: **ChatGPT Review A** + **Review B** (hai actor identity độc lập giữ role `AI Technical Architect`).
+- **Claude independent challenge** là *additional review/challenge*, **không phải** một distinct third identity; Claude author/self-review và Claude challenge session là **cùng một actor identity Claude**.
+- Claude challenge: **accepted with corrections** (hạ 4 Major của consolidated draft xuống 1 Major + 2 Minor + 1 Suggestion; sửa 2 misread; thu hẹp remedy để tránh tự tạo competing authority).
+
+### Fixed — R1 (Backward Consistency Check, §12.4)
+
+Tách rõ hai chiều: **(A) Pre-decision vs Locked authority** — reviewer đối chiếu candidate với authority đã Approved/Locked, pin evidence tại boundary; `No conflict` → tiếp tục, `Revision required`/`ADR required` → gate **vẫn đóng** (eligibility condition, không phải veto). **(B) Post-approval propagation** — ảnh hưởng tới living docs `Draft`/`In Review` khác ghi thành explicit follow-up ở MANIFEST backlog/OQ; **không** tự invalidate artifact vừa approve; conflict-với-Locked lọt lưới A = integrity violation xử lý theo Chapter 0. Chỉ reference Chapter 0 Freeze Policy §5 + ADR workflow, không tự đặt rule mutate Locked doc.
+
+### Fixed — R2 (DoD semantics, §12.1)
+
+Bỏ `+ Approved` khỏi mọi list deliverable. Viết lại thành "Phase X evidence: ...". Tách rõ: DoD criteria = *substantive completion evidence* đánh giá **trước** decision; `Approved` = **outcome** của gate, không nằm trong DoD (loại vòng lặp định nghĩa). Ghi rõ DoD phải được viết + PO chấp nhận (định nghĩa tiêu chí, không phải đạt tiêu chí) trước khi gate dùng chúng.
+
+### Fixed — R3 (Phase Approval Gate prerequisite aggregation, §12.2) + Authority boundary (§12.3)
+
+Thêm §12.2 **reference-based**: 8 eligibility prerequisite (DoD defined+accepted · deliverables complete · dependencies ready · required ADR Approved · applicable quality gate passed · Backward Consistency = No conflict · validator/MANIFEST freshness · minimum-two independent reviews pinned) → sau đó Product Owner là authority duy nhất (Approve/Reject/Revision Requested). Ghi rõ: fail closed = eligibility incomplete (không phải veto) · reviewer recommendation ≠ PO decision · validator ≠ approval authority · không bắt đầu phase sau trước khi ghi current phase state vào MANIFEST. Thêm §12.3 authority map: Ch12 chỉ own phase orchestration; review eligibility → Ch0/Ch11, ADR lifecycle → Ch11, quality → Approved/Locked quality contract (intended owner Ch13, **hiện In Review, không binding**), phase sequence/DoD → Approved roadmap/phase plan (intended owner Ch14, **hiện In Review, không binding**), activation → governing ADR (ADR-011 §4), current ADR/OQ state → MANIFEST (I-12).
+
+### Sync
+
+- `constitution/12-approval-gates.md`: v1.3 → **v1.4**, `last_review` 2026-07-27, `status` giữ `In Review`, `approved_by`/`approved_at` giữ `null`, `depends_on` **giữ nguyên** `["00-governance","11-adr-process"]` (không thêm 14-roadmap → tránh cycle; không thêm 13-quality-gates vì Ch13 chưa Locked).
+- MANIFEST: manifest_version 9.10 → **9.11**; row Ch12 → 1.4; `constitution_version` giữ 1.1.0; **BL-008 giữ `addressed pending review`, KHÔNG close**.
+
+### Note
+
+- **Không** tự tuyên bố Approve/Lock. Chờ Product Owner quyết. BL-008 chỉ close khi Chapter 12 Locked.
+
 ## [Unreleased] — Chapter 12 (Approval Gates) v1.2 → v1.3 — Claude self-review (**1 Blocker · 1 Major · 0 Minor · 3 Suggestion**)
 
 Self-review đối chiếu Chapter 0 v1.1 (Locked) §2–§3 và Chapter 11 v2.1 (Locked) §11.5. Đóng nợ kỹ thuật **BL-008**. Không mở ADR mới: ADR-011 đã authorize hướng role-based, Chapter 12 vẫn `In Review` nên sửa trực tiếp. `status` giữ `In Review`; không tự Approve/Lock.
