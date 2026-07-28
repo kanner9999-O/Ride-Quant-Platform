@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — ADR-012 v0.2 → v0.3 — broker multi-Venue Position authority
+
+**Không phải approval.** `status` giữ `Draft`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A re-review + Independent Review B delta review: **1 Major (F-ADR12-MAJ-01)**. Product Owner direction gốc **không đổi** qua cả hai vòng review.
+
+### Đã sửa (Major — F-ADR12-MAJ-01) — Position scope dưới broker-bound Account
+
+- Thêm §2.5 "Position scope dưới Account Boundary": venue-bound Account — Position có thể inherit execution Venue, xung đột tường minh thì reject; broker-bound Account — **mọi transactional Position bắt buộc mang `execution_venue_id` tường minh**, authority scope theo tổ hợp Account + execution Venue + instrument (+ settlement/margin scope nếu Position Domain Contract cần), balance/collateral/margin/liquidation/settlement/fill-attribution venue-native **không được gộp** xuyên-Venue vào một transactional Position.
+- **Broker-level exposure** khóa là `kind: read_model`/projection — tổng hợp, không thay thế transactional Position authority; phải truy vết được về Account+Venue Position gốc; chỉ dùng cho Portfolio/Risk view theo rule mà Domain Contract tương lai định nghĩa.
+- Thêm nghĩa vụ reject #9 (§2.6, cũ §2.5 đổi số): broker-bound transactional Position thiếu `execution_venue_id` tường minh → reject.
+- Sửa §2.4 để không còn ngụ ý Account một mình đủ scope một transactional Position dưới broker_account boundary; cập nhật §6 Consequences phản ánh rule mới.
+
+### Metadata / state
+
+- `ADR-012.md`: **v0.2 → v0.3**, `status` giữ `Draft`. `depends_on: [ADR-007]` không đổi; ADR-007 không bị sửa.
+- Reviewer table (§4) vẫn để trống — ghi nhận cả hai vòng review (baseline v0.1 và v0.2) đã diễn ra; pin evidence chờ approval boundary (Chapter 11 §11.6).
+
+**Không đóng OQ nào.** Không authorize Live.
+
 ## [Unreleased] — 2026-07-28 — Package 0.2-A consolidated revision (context-map v0.2, candle v0.3)
 
 **Không phải approval.** Cả hai artifact vẫn `status: Draft`. Sửa theo ChatGPT Review A + Independent Review B (consolidated) trên baseline `context-map.yaml` v0.1 / `candle.md` v0.2: **2 Major cho context-map (C-CM-MAJ-01, C-CM-MAJ-02), 2 Major + 2 Minor cho candle (C-CND-MAJ-01, C-CND-MAJ-02, C-CND-MIN-03, C-CND-MIN-04)**. Revision này **chưa qua review** — không tuyên bố re-review đã xảy ra.
