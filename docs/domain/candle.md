@@ -1,7 +1,7 @@
 ---
 id: candle
 title: Candle
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,7 +14,7 @@ next_review: null
 
 # Candle
 
-> **Vai trò của tài liệu này:** Domain Contract đầu tiên của Phase 0.2 — worked conformance example chứng minh `context-map.yaml` resolve đúng đầu cuối theo [Chapter 4 §4.2](../constitution/04-domain-principles.md). Đây vẫn là `Draft`, chưa Approved/Locked. **v0.3** xử lý ChatGPT Review A + Independent Review B (consolidated) trên baseline v0.2: 2 Major (C-CND-MAJ-01, C-CND-MAJ-02), 2 Minor (C-CND-MIN-03, C-CND-MIN-04).
+> **Vai trò của tài liệu này:** Domain Contract đầu tiên của Phase 0.2 — worked conformance example chứng minh `context-map.yaml` resolve đúng đầu cuối theo [Chapter 4 §4.2](../constitution/04-domain-principles.md). Đây vẫn là `Draft`, chưa Approved/Locked. **v0.3** xử lý ChatGPT Review A + Independent Review B (consolidated) trên baseline v0.2: 2 Major (C-CND-MAJ-01, C-CND-MAJ-02), 2 Minor (C-CND-MIN-03, C-CND-MIN-04). **v0.4** xử lý ChatGPT Review A re-review + Independent Review B delta review trên baseline v0.3 (F-CND-MAJ-01): thay wording mơ hồ ở §11 bằng một **precedence algorithm nghiêm ngặt, 5 bước** cho duplicate/correction/fail-closed.
 
 Candle bao gồm **năm concept riêng biệt**, cùng thuộc capability `market-data` / context `market-data-observation` (đăng ký tại [`context-map.yaml`](./context-map.yaml)):
 
@@ -175,7 +175,7 @@ invariants:
   - "envelope.effective_time giống hệt mọi CandleObserved cùng subject, nếu có."
   - "payload.data_quality PHẢI khai báo tường minh — không mặc định 'complete' khi không xác nhận được."
   - "payload.data_quality = complete_zero_volume CHỈ hợp lệ khi thỏa đủ điều kiện provenance ở §12 — không được suy diễn chỉ từ việc vắng mặt trade/message."
-  - "Một CandleClosed thứ hai cho cùng subject phải xử lý theo §11 (dedupe hoặc CandleCorrected) — không được tồn tại như CandleClosed độc lập thứ hai."
+  - "Một second closed/correction source fact cho cùng subject phải xử lý theo đúng 5-bước precedence ở §11 (dedupe zero-effect · fail-closed do provenance hỏng · CandleCorrected · quarantine chờ reconciliation) — không được tồn tại như CandleClosed độc lập thứ hai trong bất kỳ nhánh nào."
 payload:
   state: {type: enum, value: CLOSED, required: true}
   open: {type: decimal, required: true}
@@ -200,7 +200,7 @@ description: >
   correction muộn — đúng ví dụ Chapter 5 §5.1 đã dùng (candle 10:00 bị sửa lúc 10:07). Là
   event MỚI, KHÔNG mutate record gốc (I-3 append-only). KHÔNG đưa Logical Candle Subject ra
   khỏi CLOSED — self-transition CLOSED → CLOSED (§1). Cũng là cách biểu diễn bắt buộc cho một
-  CandleClosed thứ hai không-identical cho cùng subject (§11).
+  CandleClosed thứ hai không-identical cho cùng subject, đúng Bước 4 của precedence algorithm ở §11.
 invariants:
   - "envelope.effective_time KHÔNG đổi so với fact gốc — correction mô tả lại cùng cửa sổ, không tạo cửa sổ mới, subject_id không đổi."
   - "envelope.recorded_time PHẢI mới hơn recorded_time của fact đang được sửa."
@@ -295,17 +295,70 @@ Mọi `CandleObserved` trong lúc PROVISIONAL **giữ nguyên trong log** kể c
 
 **Nghĩa vụ consumer khi nhận `CandleCorrected`:** một consumer nhận `CandleCorrected` **PHẢI invalidate hoặc recompute mọi derived fact có causal ancestry bao gồm Candle fact bị sửa** — không được giữ nguyên kết luận đã tính trên giá trị Candle cũ. Ví dụ: nếu Structure Engine đã publish một Swing dựa trên `CandleClosed` gốc, và `CandleClosed` đó sau bị `CandleCorrected`, Structure Engine phải recompute (hoặc invalidate) Swing đó — không được để Swing cũ đứng yên như thể Candle chưa từng bị sửa. Nghĩa vụ này được khai báo tường minh tại từng relationship `candle-corrected → market-structure-analysis` / `→ raw-regime-analysis` trong [`context-map.yaml`](./context-map.yaml) (field `consumer_obligation`) — cơ chế cụ thể (invalidate vs recompute, đồng bộ hay lazy) thuộc Domain Contract của Swing/Regime (Package 0.2-B, chưa author), không khóa ở đây.
 
-## 11. Duplicate `CandleClosed` handling
+## 11. Duplicate / correction / fail-closed precedence (đóng F-CND-MAJ-01)
 
-Khi ingestion nhận được **một `CandleClosed` thứ hai** cho cùng Logical Candle Subject (cùng `candle_subject_id`, §1), áp dụng đúng một trong hai đường — không có đường thứ ba:
+Khi ingestion nhận một **closed hoặc correction source fact** cho một Logical Candle Subject (cùng `candle_subject_id`, §1), áp dụng đúng **5 bước theo thứ tự** dưới đây — không có đường tắt, không rẽ nhánh nào ngoài các bước này. Đây là **algorithm nghiêm ngặt** thay cho wording mơ hồ trước đó (v0.3), đóng đúng ambiguity ChatGPT Review A re-review + Independent Review B delta review đã bắt.
 
-- **Cùng `envelope.source_identity`** (§13) → đây là **duplicate delivery của cùng một fact** — dedupe, **zero additional business effect**. Không tạo event mới, không tạo hai bản ghi cho cùng fact.
-- **Khác nội dung, hoặc không xác định được cùng `source_identity`** → **KHÔNG được là một `CandleClosed` thứ hai.** Phải biểu diễn bằng `CandleCorrected` (§5), tham chiếu đúng `CandleClosed` gốc qua `causation_refs`.
+### Bước 1 — Xác lập idempotency identity
 
-**Fallback idempotency key khi source thiếu native stable ID:**
+Với mọi source fact đến, phải resolve đúng một trong hai:
 
-- Nếu source không cung cấp một ID ổn định tự nhiên (native stable ID) cho fact đó, một **fallback idempotency key được phép CHỈ KHI** chính source/adapter contract khai báo tường minh cách suy ra fallback key đó (ví dụ: hash của một tổ hợp field do adapter contract định nghĩa rõ).
-- **Không có cả native ID lẫn fallback được khai báo tường minh → fail closed** — ingestion phải từ chối/quarantine record đó, **không** được tự chọn một fallback ngẫu nhiên hay im lặng coi record đó là fact mới.
+1. `envelope.source_identity` tự nhiên (native), theo [Chapter 6 §6.6](../constitution/06-identity-model.md); hoặc
+2. **fallback idempotency identity**, chỉ hợp lệ khi được khai báo tường minh bởi source/adapter contract.
+
+Fallback (nếu dùng) bắt buộc:
+
+- **deterministic** — cùng input luôn cho cùng fallback identity;
+- **versioned cùng contract khai báo nó** — đổi cách tính fallback là đổi version của chính source/adapter contract đó;
+- **KHÔNG được implementation tự bịa ra ad hoc** — phải truy được về đúng một declaration tường minh;
+- **bảo toàn replay parity** — cùng input, mọi execution mode (Live/Backtest/Paper/Replay) phải tính ra cùng fallback identity ([I-2](../constitution/02-platform-invariants.md)).
+
+### Bước 2 — Không resolve được identity → fail closed
+
+Nếu **không có cả native `source_identity` lẫn fallback đã khai báo tường minh**:
+
+```text
+→ fail closed / quarantine
+→ KHÔNG append thêm một CandleClosed
+→ KHÔNG dedupe
+→ KHÔNG phát CandleCorrected
+```
+
+**Thiếu provenance KHÔNG phải bằng chứng cho correction** — im lặng về nguồn gốc không được diễn giải thành "đây là bản sửa hợp lệ" hay "đây chắc là duplicate".
+
+### Bước 3 — Cùng identity
+
+Nếu identity đã resolve (Bước 1) trùng với một source fact **đã xử lý trước đó**:
+
+- **Payload giống hệt** → **duplicate delivery**, **zero additional business effect**. Không tạo event mới, không tạo hai bản ghi cho cùng fact.
+- **Payload khác, dù cùng identity** → **provenance integrity violation** → **fail closed / quarantine**. **Cấm** âm thầm coi đây là correction hợp lệ chỉ vì "identity trùng nhưng nội dung đổi" — cùng identity mà nội dung khác là dấu hiệu **hỏng provenance**, không phải tín hiệu sửa hợp lệ.
+
+### Bước 4 — Identity khác nhau, cùng Candle subject, payload authoritative đổi
+
+Nếu identity (Bước 1) **khác biệt** với mọi fact đã xử lý, cùng `candle_subject_id`, và giá trị closed authoritative **thay đổi** so với fact hiện đang hiệu lực:
+
+```text
+→ phát CandleCorrected (§5)
+→ causation_refs trỏ đúng CandleClosed hoặc CandleCorrected ĐANG authoritative hiện tại
+```
+
+Yêu cầu **provenance riêng cho correction** — ít nhất một trong hai:
+
+- identity nguồn **khác biệt và resolve được** (Bước 1); hoặc
+- một **correction identity** được source contract khai báo tường minh (ví dụ mã sửa đổi riêng do venue phát hành).
+
+**Một second non-identical authoritative source fact KHÔNG BAO GIỜ được append như một `CandleClosed` thứ hai** — luôn luôn đi qua `CandleCorrected`.
+
+### Bước 5 — Identity khác nhau, cùng payload
+
+```text
+either → source contract khai báo TƯỜNG MINH equivalence semantics
+          → coi là duplicate tương đương, zero additional business effect
+or      → không có khai báo equivalence semantics
+          → quarantine / fail closed, chờ reconciliation
+```
+
+Không có nhánh thứ ba. Cả hai nhánh đều **không** tạo ra một second authoritative close — nhánh đầu coi là cùng một fact (dù identity khác), nhánh sau treo lại chờ xử lý thủ công/ngoài băng thay vì đoán.
 
 ## 12. Missing data — ba trường hợp tách bạch, không tự tổng hợp
 
@@ -329,7 +382,7 @@ Khi ingestion nhận được **một `CandleClosed` thứ hai** cho cùng Logic
 
 ## 13. Deduplication
 
-`envelope.source_identity` theo [Chapter 6 §6.6](../constitution/06-identity-model.md) — hai delivery của cùng một authoritative source fact (ví dụ WS reconnect replay gửi lại cùng candle, hoặc cùng một zero-volume confirmation) **không được** tạo hai business effect (xem thêm §11 cho quy tắc khi delivery thứ hai là một `CandleClosed`). Schema **venue-neutral**, cùng pattern §6.6 đã minh họa:
+`envelope.source_identity` theo [Chapter 6 §6.6](../constitution/06-identity-model.md) — hai delivery của cùng một authoritative source fact (ví dụ WS reconnect replay gửi lại cùng candle, hoặc cùng một zero-volume confirmation) **không được** tạo hai business effect (xem §11 cho precedence algorithm đầy đủ khi delivery thứ hai là một closed/correction source fact — bao gồm cả nhánh fail-closed khi identity không resolve được hoặc provenance mâu thuẫn). Schema **venue-neutral**, cùng pattern §6.6 đã minh họa:
 
 ```yaml
 source_identity:

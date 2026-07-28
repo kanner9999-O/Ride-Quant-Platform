@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.3"
+version: "0.4"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -28,7 +28,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 
 | Package | Nội dung | Trạng thái |
 |---|---|---|
-| **0.2-A — Domain foundation** | `context-map.yaml` (v0.2 — 4 relationship, contract_id chuẩn hóa) + `candle.md` (v0.3 — ChatGPT Review A + Independent Review B consolidated: 2 Major, 2 Minor đã xử lý) | Draft — ChatGPT Review A + Independent Review B đã xử lý, **chưa** Consolidated Stable (xem dưới) |
+| **0.2-A — Domain foundation** | `context-map.yaml` (v0.2 — không đổi ở vòng này) + `candle.md` (v0.4 — ChatGPT Review A re-review + Independent Review B delta review: F-CND-MAJ-01 đã xử lý) | Draft — 2 vòng review đã xử lý, **chưa** Consolidated Stable (xem dưới) |
 | **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | Chưa bắt đầu |
 | **0.2-C — Decision & execution chain** | `strategy.md` (Strategy Definition + Strategy Instance), `decision.md`, `risk.md`, `position.md`, `replay-event.md`, cộng các concept chưa có trong danh sách gốc: account, venue, instrument, order, fill, trade-intent, execution-intent | Chưa bắt đầu — chặn bởi [ADR-012](../adr/ADR-012.md) và [ADR-013](../adr/ADR-013.md) (cả hai đang `Draft`, chưa Approved) |
 
@@ -44,7 +44,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 - consolidation hoàn tất;
 - không còn qualifying finding nào chưa xử lý so với baseline của package.
 
-Trạng thái hiện tại của Package 0.2-A: **author self-review hoàn tất**, **ChatGPT Review A + Independent Review B đã diễn ra và được consolidation**, **author đã xử lý toàn bộ consolidated finding** trong một revision — `context-map.yaml` v0.1 → v0.2 (2 Major: canonical `contract_id`, correction-propagation relationships), `candle.md` v0.2 → v0.3 (2 Major: 5-field deterministic subject key, `UNSEEN` state; 2 Minor: duplicate-`CandleClosed` handling, venue-neutral `source_identity` example). **Revision này CHƯA qua vòng review nào** — chưa có ChatGPT Review A re-review cho baseline mới, `Consolidated Stable` vẫn chưa đạt. Package 0.2-A **không** được coi là Product Owner approve/lock, và Phase 0.2 **không** được coi là hoàn tất chỉ vì Package 0.2-A tồn tại.
+Trạng thái hiện tại của Package 0.2-A: **author self-review hoàn tất**; **hai vòng review đã diễn ra và được xử lý** — (1) ChatGPT Review A + Independent Review B trên baseline gốc, consolidated thành `context-map.yaml` v0.1 → v0.2 và `candle.md` v0.2 → v0.3; (2) ChatGPT Review A re-review + Independent Review B delta review trên baseline đó, consolidated thành `candle.md` v0.3 → v0.4 (F-CND-MAJ-01 — precedence algorithm 5-bước cho duplicate/correction/fail-closed; `context-map.yaml` không đổi ở vòng này). **Revision v0.4 CHƯA qua vòng review nào** — chưa có ChatGPT Review A cho baseline mới nhất, `Consolidated Stable` vẫn chưa đạt. Package 0.2-A **không** được coi là Product Owner approve/lock, và Phase 0.2 **không** được coi là hoàn tất chỉ vì Package 0.2-A tồn tại.
 
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 

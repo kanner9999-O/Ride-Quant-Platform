@@ -2,6 +2,35 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — candle.md v0.3 → v0.4 — strict duplicate/correction/fail-closed precedence
+
+**Không phải approval.** `status` giữ `Draft`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A re-review + Independent Review B delta review: **1 Major (F-CND-MAJ-01)**. `context-map.yaml` **không đổi** ở vòng này (clean, không cần sửa).
+
+### Đã sửa (Major — F-CND-MAJ-01) — precedence algorithm 5 bước thay wording mơ hồ
+
+Viết lại toàn bộ §11 thành algorithm nghiêm ngặt, đúng thứ tự, không rẽ nhánh ngoài 5 bước:
+
+1. **Xác lập idempotency identity** — native `source_identity` hoặc fallback do source/adapter contract khai báo tường minh (deterministic, versioned cùng contract, không bịa ad hoc, bảo toàn replay parity).
+2. **Không resolve được identity → fail closed/quarantine** — không append CandleClosed, không dedupe, không phát CandleCorrected. Thiếu provenance không phải bằng chứng cho correction.
+3. **Cùng identity:** payload giống hệt → duplicate, zero effect; **payload khác dù cùng identity → provenance integrity violation → fail closed** (cấm âm thầm coi là correction hợp lệ).
+4. **Identity khác, cùng subject, payload authoritative đổi → CandleCorrected**, `causation_refs` trỏ đúng fact đang authoritative; yêu cầu provenance riêng cho correction (identity nguồn khác biệt resolve được, hoặc correction identity do source contract khai báo). Một second non-identical authoritative fact không bao giờ là `CandleClosed` thứ hai.
+5. **Identity khác, cùng payload:** chỉ coi duplicate tương đương khi source contract khai báo tường minh equivalence semantics; ngược lại quarantine/fail closed chờ reconciliation.
+
+Cập nhật cross-reference liên quan tại §4 (invariant), §5 (description), §13 (Deduplication) để khớp đúng 5-bước mới, không còn chỉ nói "dedupe hoặc CandleCorrected".
+
+### Hành vi đã chấp nhận — giữ nguyên, không suy yếu
+
+5-field Candle subject identity · `UNSEEN` state + closed-only ingestion · canonical event envelope · qualified `subject_ref` · append-only history · correction self-transition · bitemporal replay · 5-điều-kiện zero-volume provenance · missing-data semantics · venue neutrality · correction-propagation relationships (context-map.yaml, không đổi) · Replay/Backtest/Paper/Live parity.
+
+### Metadata / state
+
+- `candle.md`: **v0.3 → v0.4**, `status` giữ `Draft`.
+- `context-map.yaml`: **không đổi** — xác nhận clean, không cần sửa.
+- `README.md`: cập nhật version/lifecycle wording — ghi nhận 2 vòng review đã xử lý, `Consolidated Stable` vẫn chưa đạt.
+- `MANIFEST.md`: `manifest_version` **9.28 → 9.29**; dòng `domain/` cập nhật phản ánh `candle.md` v0.4 + cross-reference ADR-012 v0.3/ADR-013 v0.3.
+
+**Package 0.2-B vẫn chưa bắt đầu.** Không đóng OQ nào; không authorize Live.
+
 ## [Unreleased] — 2026-07-28 — ADR-013 v0.2 → v0.3 — authority-table wording cleanup
 
 **Không phải approval.** `status` giữ `Draft`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A re-review + Independent Review B delta review: **1 Minor (F-ADR13-MIN-01)**. Product Owner direction gốc **không đổi** qua cả hai vòng review.
