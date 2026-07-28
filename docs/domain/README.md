@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.6"
+version: "0.7"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -29,7 +29,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 | Package | Nội dung | Trạng thái |
 |---|---|---|
 | **0.2-A — Domain foundation** | `context-map.yaml` (v0.3 — non-blocking documentation-reference fix) + `candle.md` (v0.4, không đổi ở vòng consolidation này) | Draft — **`Consolidated Stable`** (xem dưới) |
-| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Authorized to begin authoring** sau khi Package 0.2-A đạt `Consolidated Stable`. **Chưa có artifact nào được author** trong transaction này hay bất kỳ transaction trước đó — chỉ mới được mở khóa, chưa bắt đầu viết. |
+| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Đã bắt đầu — B1 candidate Draft.** `swing.md` v0.1 Draft + `structure.md` v0.1 Draft author (author self-review hoàn tất; ChatGPT Review A và Independent Review B **chưa diễn ra**). `regime.md`, `feature.md`, `context.md` (B2/B3/B4) **chưa bắt đầu**. Package 0.2-B **chưa `Consolidated Stable`** (xem dưới). |
 | **0.2-C — Decision & execution chain** | `strategy.md` (Strategy Definition + Strategy Instance), `decision.md`, `risk.md`, `position.md`, `replay-event.md`, cộng các concept chưa có trong danh sách gốc: account, venue, instrument, order, fill, trade-intent, execution-intent | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 nay **`Approved`** (Product Owner, 2026-07-28) — **ADR dependency gate is now open.** Package 0.2-C is authorized to begin planning and authoring, subject to its normal package scope authorization and review workflow. **No Package 0.2-C artifact is authored in this transaction.** |
 
 **Thứ tự dự kiến trong từng package không đổi** so với kế hoạch gốc (theo dependency đã chốt ở [ADR-003](../adr/ADR-003.md) và [07-module-taxonomy.md](../constitution/07-module-taxonomy.md)); Package 0.2-C được liệt kê đầy đủ hơn danh sách gốc vì danh sách gốc thiếu Account/Order/Execution/Venue/Instrument.
@@ -54,7 +54,22 @@ Suggestion không-blocking đã được incorporate trong chính transaction n�
 
 **`Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval status.** Mọi artifact cấu thành (`context-map.yaml`, `candle.md`, chính README này) **vẫn giữ `status: Draft`**. Package 0.2-A **không** được Product Owner Approve, **không** Lock. Phase 0.2 **không** được coi là hoàn tất chỉ vì Package 0.2-A đạt Consolidated Stable — Package 0.2-B và 0.2-C vẫn chưa có artifact nào.
 
-Package 0.2-B **được authorize để bắt đầu authoring** kể từ transaction này — nhưng **chưa có artifact 0.2-B nào được author**, ở đây hay ở bất kỳ transaction trước đó. Authoring thực tế (candle-tương-tự cho swing/structure/regime/feature/context) là một action riêng, chưa xảy ra.
+Package 0.2-B **được authorize để bắt đầu authoring** kể từ transaction trước — Package 0.2-B1 (swing.md + structure.md) là artifact đầu tiên thực sự được author (xem mục dưới).
+
+## Package 0.2-B1 — `swing.md` + `structure.md` đã author, Draft, chưa qua review nào
+
+**Phạm vi B1:** hoàn thiện chuỗi `Candle → Swing → Structure` — [`swing.md`](./swing.md) v0.1 và [`structure.md`](./structure.md) v0.1, cả hai `capability_id: market-structure` / `domain_context_id: market-structure-analysis` (đã đăng ký sẵn tại [`context-map.yaml`](./context-map.yaml), không tạo capability/context mới).
+
+**Trạng thái review — chỉ mới ở bước đầu tiên của quy trình:**
+
+- Author self-review: **hoàn tất** (author report riêng, kèm tại commit authoring B1).
+- ChatGPT Review A: **chưa diễn ra.**
+- Independent Review B: **chưa diễn ra.**
+- Consolidation: **chưa diễn ra** (không có gì để consolidate — chưa có review nào).
+
+**Package 0.2-B (và do đó B1) CHƯA đạt `Consolidated Stable`** — điều kiện đó đòi hỏi cả hai vòng review độc lập hoàn tất, đúng định nghĩa đã khóa ở mục Package 0.2-A phía trên. `swing.md` và `structure.md` sẵn sàng để chuyển sang ChatGPT Review A tiếp theo.
+
+**Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào:** `swing.md`/`structure.md` `status: Draft`; không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B2/B3/B4 (`regime.md`, `feature.md`, `context.md`) **chưa bắt đầu**. Package 0.2-C **vẫn chưa có artifact nào được author** trong transaction này. Phase 0.2 vẫn active và chưa hoàn tất.
 
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 

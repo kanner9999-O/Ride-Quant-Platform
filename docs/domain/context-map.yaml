@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -15,9 +15,9 @@ next_review: null
 # "capability/context nào tồn tại và quan hệ với nhau ra sao" — KHÔNG phải nguồn cho
 # domain concept semantics (thuộc từng Domain Contract, ví dụ candle.md).
 #
-# Phạm vi commit này: chỉ đăng ký 6 capability/context cần cho Package 0.2-A + 0.2-B.
-# Package 0.2-C (Account, Strategy, Decision, Risk, Execution, Position...) CHƯA đăng ký —
-# chờ ADR-012/ADR-013 (Draft) hoàn tất trước khi finalize.
+# Phạm vi ban đầu: 6 capability/context cho Package 0.2-A + 0.2-B. ADR-012/ADR-013 nay đã
+# `Approved` (Product Owner, 2026-07-28) — Package 0.2-C (Account, Strategy, Decision, Risk,
+# Execution, Position...) vẫn CHƯA đăng ký, chờ authoring thực tế (gate đã mở, chưa dùng).
 
 capabilities:
   - id: market-reference
@@ -69,7 +69,7 @@ contexts:
     title: Market Structure Analysis
     capability_id: market-structure
     responsibility: "Define Swing, BOS, CHoCH and related structure semantics."
-    owned_contracts: [swing, structure]   # forward-declared — Package 0.2-B, chưa authored
+    owned_contracts: [swing, structure]   # authored — Package 0.2-B1: swing.md v0.1 Draft, structure.md v0.1 Draft (author self-review only, chưa qua Review A/B)
     status: active
 
   - id: raw-regime-analysis
@@ -104,6 +104,15 @@ contexts:
 # concept id ("candle-closed") là contract identity canonical; display name là văn xuôi mô tả;
 # event_type là chuỗi PAST_TENSE_UPPER_SNAKE cho envelope (Chapter 3 §3.2). candle.md §2
 # khai báo chính xác cả ba cho từng event, tách bạch tường minh (đóng C-CM-MAJ-01).
+#
+# Package 0.2-B1 (swing.md + structure.md, cả hai thuộc context market-structure-analysis):
+# KHÔNG thêm self-edge (provider_context_id == consumer_context_id == market-structure-analysis)
+# cho quan hệ Swing → Structure. Chapter 4 §4.2 định nghĩa relationships map là "quan hệ GIỮA
+# CÁC context" — mọi ví dụ minh họa (execution → portfolio) lẫn mọi relationship đã đăng ký ở
+# đây (market-data-observation → market-structure-analysis/raw-regime-analysis) đều cross-context.
+# Swing → Structure là published contract nội bộ MỘT context — thuộc phạm vi chính hai Domain
+# Contract đó (swing.md/structure.md), không phải Context Map. Không tự tạo self-edge chỉ để
+# biểu diễn sequencing.
 relationships:
   - provider_context_id: market-data-observation
     consumer_context_id: market-structure-analysis
