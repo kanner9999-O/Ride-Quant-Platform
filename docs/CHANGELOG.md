@@ -2,6 +2,55 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — Chapter 14 (Roadmap) v1.3 → v1.4 — complete recording authority
+
+**Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **revision author + self-reviewer** (`AI Technical Architect`) — **không** phải Product Owner. **Không phải independent-review evidence**: v1.4 **chưa** qua ChatGPT Review A, Independent Review B, hay Claude Independent Final Challenge.
+
+### Consolidated input đã nhận (baseline v1.3, HEAD `c4f3364802062385407109207c1a22255387e21d`)
+
+- ChatGPT Review A: 0/1/0/0. Independent GPT Review B: 0/2/0/0. Consolidation: **2 Major (C3-01, C3-02)**, Backward Consistency Check `Revision required`.
+
+### Author challenge
+
+| Finding | Disposition | Ghi chú |
+|---|---|---|
+| C3-01 | **Confirm** | §14.3.1 v1.3 nói DoD "incorporate bằng exact immutable reference" nhưng không khóa **ai** được tạo record đó — một actor bất kỳ có thể tự publish một immutable-reference record tuyên bố incorporate, không có authority root để validator reject |
+| C3-02 | **Confirm** | §14.4.1 v1.3 nói rõ ràng bundle không resolve được **"không tự tạo gate/veto mới chặn phase transition đã xảy ra"** — đọc đúng nghĩa đen cho phép decision → MANIFEST transition → Phase kế tiếp bắt đầu dù bundle chưa complete |
+
+Cả hai Major sống → tiến hành revision v1.4.
+
+### Đã sửa — Author self-assessment: addressed; pending independent review
+
+- **C3-01 → §14.3.1 (sửa):** thêm **canonical incorporation establishment** — incorporation **không phải registry riêng**, mà là **một phần của chính Product Owner acceptance evidence** (§14.3): cùng evidence phải xác định Phase identity + Roadmap phase-section version + DoD version/content + explicit incorporation decision, tồn tại trước gate, đúng một resolve. Không có con đường nào khác tạo incorporation hợp lệ; validator chỉ kiểm tra record có nằm trong đúng PO acceptance evidence hay không, không tự suy diễn/tạo. Dùng nguyên tắc *identity + authority + prior establishment + independent resolvability* — **không** copy nguyên khối canonical establishment predicate của Chapter 13 §13.4.1, vì Chapter 14 đã có sẵn authority đơn giản hơn (Product Owner, Chapter 0) không cần một chain designation riêng.
+- **C3-02 → §14.4.1 (sửa 1 câu) + §14.4.2 (mới):** bỏ câu gây hiểu nhầm "không chặn phase transition đã xảy ra"; thêm **Authoritative recording boundary** khóa trình tự: `eligibility complete (Ch12, không đổi) → PO decision (fact) → bundle complete/pinned (= recording boundary) → MANIFEST transition → Phase kế tiếp được phép bắt đầu`. MANIFEST transition **không được ghi** trước khi bundle complete; failure trước boundary = `recording incomplete` (khác họ với PO rejection/reviewer veto, current Phase giữ nguyên, retry, PO không phải quyết lại); mất evidence **sau** khi đã ghi hợp lệ = `integrity violation` (không tự đảo ngược quyết định, không thay lịch sử bằng current state). Không tạo Approval Gate thứ hai, không tạo veto mới, không đổi prerequisite list của Chapter 12 §12.2.
+- §14.5 (bảng authority) và §14.6 (defer list) cập nhật để liệt kê 2 concern mới (incorporation establishment, recording boundary/persistence mechanism).
+
+### Author self-review (7 attacks + Locked-authority consistency)
+
+- **Attack A (self-certified incorporation):** invalid — record không nằm trong PO acceptance evidence (§14.3.1).
+- **Attack B (accept nhưng không incorporation tường minh):** không canonical, fail-closed (§14.3.1 điều kiện 2).
+- **Attack C (hai PO-incorporation record xung đột):** multiple/conflicting → fail-closed, không precedence (§14.3.1).
+- **Attack D (PO quyết nhưng persistence fail):** không MANIFEST transition, Phase kế tiếp không bắt đầu, decision không tự thành rejection, retry recording (§14.4.2).
+- **Attack E (MANIFEST ghi trước bundle complete):** partial recording, không phải authoritative transition, không kích hoạt Phase kế tiếp (§14.4.2).
+- **Attack F (evidence hỏng sau khi đã ghi hợp lệ):** integrity violation, không tự đảo ngược, không thay bằng current state (§14.4.2).
+- **Attack G (hai validator, cùng pinned evidence):** rule deterministic ở mọi bước → cùng kết luận (incorporation, gate set, recording completion, next-phase permission).
+- **Locked-authority consistency:** đối chiếu Chapter 0 (PO authority), I-12, Chapter 11 (validator), Chapter 12 (orchestration/prerequisite list §12.2 giữ nguyên, không thêm điều kiện), Chapter 13 (evidence semantics §13.9 chỉ reference), ADR-011, MANIFEST (current-state authority) — không phát hiện redefinition.
+
+**Author self-assessment: addressed; pending independent review.**
+
+### Metadata / state
+
+- `constitution/14-roadmap.md`: **v1.3 → v1.4**, status giữ `In Review`, `approved_by`/`approved_at` giữ `null`, `last_review` giữ `2026-07-28`. `depends_on` giữ nguyên.
+- `MANIFEST.md`: row Chapter 14 → **v1.4**; `manifest_version` **9.22 → 9.23**; Chapter 0–13 giữ `Locked` (Chapter 13 vẫn `1.7 · Locked`, blob không đổi); OQ-002/OQ-003 vẫn `Open`.
+
+### ADR
+
+**Không cần ADR** — cả hai fix nằm trong authority Chapter 14 đã tự nhận (§14.1/§14.5); không sửa Chapter 0–13; không thêm prerequisite mới vào Chapter 12 §12.2; không tạo Approval Gate hay veto mới.
+
+### Next
+
+`Chapter 14 v1.4 — In Review — ready for ChatGPT Review A`. Không pre-assert kết quả review hay Product Owner approval.
+
 ## [Unreleased] — 2026-07-28 — Chapter 14 (Roadmap) v1.2 → v1.3 — resolve phase-plan authority
 
 **Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **revision author + self-reviewer** (`AI Technical Architect`) trong nhịp này — **không** phải Product Owner. Đây **không phải independent-review evidence**: v1.3 **chưa** qua bất kỳ independent review nào (ChatGPT Review A / Independent Review B / Claude Independent Final Challenge đều **chưa xảy ra** cho baseline v1.3).
