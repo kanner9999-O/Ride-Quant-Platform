@@ -2,6 +2,53 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — Chapter 14 (Roadmap) v1.1 → v1.2 — close Chapter 12/13 delegation gaps
+
+**Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **author/self-reviewer** (`AI Technical Architect`) trong nhịp này — **không** phải Product Owner, **không** pre-assert independent review, **không** pre-assert Product Owner approval. Chapter 14 v1.2 **chưa** qua review độc lập nào.
+
+### Review provenance
+
+- **Nguồn:** Claude authoring review trên baseline `fa71156606a6c274d2415ce6ac124a321c137bde` (Chapter 14 v1.1, blob `70b4955f8f562d69b5b6dd4d4d534ff4d68faea9`), thực hiện **sau khi** Chapter 13 v1.7 Locked — đây là lần đối chiếu đầu tiên của Chapter 14 với Chapter 13 ở trạng thái Locked.
+- **Backward Consistency Check ([Chapter 12 §12.4-A](./constitution/12-approval-gates.md)):** phát hiện **conflict với Locked authority** → `Revision required`.
+- **Severity count:** **1 Blocker · 4 Major · 3 Minor · 0 Suggestion.**
+- Đây là **một** review từ **một** actor identity (`Claude`). [Chapter 0 §3](./constitution/00-governance.md) yêu cầu tối thiểu **hai** independent review từ hai actor identity khác nhau trước Product Owner decision — điều kiện đó **chưa** thỏa.
+
+### Đã sửa (1 Blocker) — B-01: Phase 5–9 không có Approval Gate, mâu thuẫn Chapter 12 (Locked)
+
+- Chapter 12 (Locked) mở đầu: *"Mọi Phase kết thúc bằng một cổng phê duyệt trước khi Phase kế tiếp bắt đầu — không được nhảy phase."* Chapter 14 v1.1 chỉ đánh dấu Approval Gate ở Phase 0, 1, 1.5, 2, 3, 4 — **Phase 5 (Integration), 6 (Simulation Platform), 7 (Deployment), 8 (Research Platform), 9 (Observability) hoàn toàn không có gate**.
+- Sửa: §14.2 khai báo Approval Gate cho **mọi** Phase, không ngoại lệ; thêm câu dẫn tham chiếu Chapter 12 (tham chiếu, **không** định nghĩa lại).
+
+### Đã sửa (4 Major)
+
+- **M-01 — Phase 0.2 được Locked authority tham chiếu nhưng Roadmap không định nghĩa.** `Phase 0.2` xuất hiện ở [Chapter 6 §6.4](./constitution/06-identity-model.md) (Account first-class scope), [Chapter 7 §7.5](./constitution/07-module-taxonomy.md) (module-registry placement), `MANIFEST` (domain/ status, BL-004) và `domain/README.md` — nhưng Chapter 14 v1.1 không có sub-phase nào. Roadmap là owner của phase sequence → sub-phase load-bearing phải được định nghĩa tại đây. Sửa: §14.2 định nghĩa Phase 0.1/0.2/0.3; §14.1 khóa rõ **sub-phase không tự mở Approval Gate**, `Phase 1.5` là Phase đầy đủ (giữ nguyên gate như v1.1) — tránh nhân bản gate ngoài ý Chapter 12.
+- **M-02 — delegation DoD từ Chapter 12 bị bỏ trống.** [Chapter 12 §12.3](./constitution/12-approval-gates.md) chỉ định Chapter 14 là intended owner của *"Phase-specific sequence & DoD content"*, và §12.2(1) yêu cầu DoD đã định nghĩa/chấp nhận làm prerequisite. Chapter 14 v1.1 **không có một dòng nào** về DoD → prerequisite không có nguồn resolve. Sửa: thêm **§14.3** — cardinality (đúng một authoritative DoD artifact mỗi Phase), tồn tại trước gate, resolvable + versioned/pinned, fail-closed khi thiếu, không tạo state store cạnh tranh MANIFEST. Chapter 14 **không** định nghĩa lại DoD rule của §12.1.
+- **M-03 — delegation quality-gate từ Chapter 13 bị bỏ trống.** [Chapter 13 §13.12](./constitution/13-quality-gates.md) (vừa Locked) khai báo *"Phase deliverable → gate set mà approved phase plan/roadmap (Chapter 14) khai báo áp dụng"* — Chapter 14 v1.1 không khai báo gì. Sửa: thêm **§14.4** — gate set cho phase deliverable khai báo trong DoD artifact của chính Phase đó, resolvable trước gate, fail-closed khi không khai báo được; trigger A–E cấp artifact vẫn thuộc Chapter 13.
+- **M-04 — Quality Gate hiển thị như chỉ tồn tại ở Phase 3.** v1.1 đặt `Quality Gate theo Tier` duy nhất dưới Phase 3, đọc thành "các Phase khác không có quality gate" — mâu thuẫn [Chapter 12 §12.2(5)](./constitution/12-approval-gates.md) (applicable quality gates phải PASS ở **mọi** phase approval). Sửa: §14.4 khóa rõ dòng đó là **nhấn mạnh giai đoạn build module**, không phải giới hạn phạm vi; nhắc lại `Quality Gate ≠ Approval Gate`.
+
+### Đã sửa (3 Minor)
+
+- **m-01 — parity ở Phase 6 mơ hồ với parity gate cấp module.** *"Kiểm chứng Parity Principle (I-2) tại đây"* đọc thành parity chỉ được verify ở Phase 6, trong khi [Chapter 13 §13.4/§13.6](./constitution/13-quality-gates.md) bắt buộc Parity Test cho Tier 1 ngay tại Phase 3. Sửa: ghi rõ Phase 6 là parity **cấp platform**, **không** thay thế parity test cấp module ở Phase 3.
+- **m-02 — mô tả AI Layer dùng thuật ngữ transport.** Ghi chú cuối v1.1 nói AI Layer là *"consumer mới của Event Bus"*, trong khi [Chapter 9 §9.2](./constitution/09-plugin-model.md) (Locked) cấm mô tả plugin theo transport và khóa rằng authority nằm ở published contract, không phải broker. Sửa: đổi thành *"consumer mới của published contract"*; giữ nguyên phần còn lại của ghi chú.
+- **m-03 — `last_review` stale.** v1.1 giữ `2026-07-16`, viết trước khi Chapter 8–13 đạt version Locked hiện tại. Sửa: `last_review: 2026-07-28`.
+
+### Thêm mới (structural)
+
+- **§14.1 Phạm vi và thẩm quyền** + **§14.5 Authority boundary table** — khóa rõ Chapter 14 sở hữu gì và tham chiếu gì, tránh competing authority với Chapter 7/12/13 và MANIFEST.
+- **§14.6 Ngoài phạm vi** — defer storage/format của DoD artifact và gate-set declaration; ghi rõ **không** đóng OQ-002/OQ-003 (Phase 6 có Paper Trade và Phase 7 có Deployment **không** đồng nghĩa "được phép lên Live").
+
+### Metadata / state
+
+- `constitution/14-roadmap.md`: **v1.1 → v1.2**, status giữ `In Review`, `approved_by`/`approved_at` giữ `null`, `last_review` → `2026-07-28`. `depends_on` **giữ nguyên** danh sách 00→13 (không thêm/bớt; không chapter nào depends_on 14 → không tạo cycle).
+- `MANIFEST.md`: row Chapter 14 → **v1.2**; `manifest_version` **9.20 → 9.21**; `constitution_version` giữ **1.1.0**; Chapter 0–13 giữ `Locked`; OQ-002/OQ-003 vẫn `Open`; không close backlog nào.
+
+### ADR
+
+**Không cần ADR** — mọi thay đổi nằm trong authority sẵn có của Chapter 14 (phase sequence, phase content, DoD content/location, gate-set declaration). Không sửa Locked chapter nào; các fix **căn chỉnh Chapter 14 về đúng** Chapter 12/13 đã Locked chứ không thay đổi chúng. Không mở rộng authority Chapter 6/7/9/12/13; MANIFEST không trở thành registry mới.
+
+### Next
+
+`Chapter 14 v1.2 — In Review — cần tối thiểu hai independent review (Chapter 0 §3) trước Product Owner decision.` Không pre-assert kết quả review hay approval.
+
 ## [Unreleased] — 2026-07-28 — Chapter 13 v1.7 approved and locked
 
 ### Decision
