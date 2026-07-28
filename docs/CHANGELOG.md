@@ -2,6 +2,59 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — Chapter 14 (Roadmap) v1.4 → v1.5 — make recording boundary atomic
+
+**Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **revision author + self-reviewer** (`AI Technical Architect`) — **không** phải Product Owner. **Không phải independent-review evidence**: v1.5 **chưa** qua ChatGPT Review A, Independent Review B, hay Claude Independent Final Challenge.
+
+### Consolidated input đã nhận (baseline v1.4, HEAD `716624a1bd6caa7beea2f1f2772487386b3b006c`)
+
+- ChatGPT Review A: 0/0/0/0, verdict `Ready for Independent Review B`. Independent GPT Review B (không thấy Review A): 0/1/0/0. Consolidation: **1 Major (C4-01)**, Backward Consistency Check `Revision required`.
+
+### Finding challenge
+
+| Finding | Disposition | Evidence |
+|---|---|---|
+| C4-01 | **Confirm** | v1.4 §14.4.1 liệt `resulting MANIFEST transition identity/version` là field bundle phải pin để "complete"; §14.4.2 lại bắt bundle complete **rồi mới** ghi MANIFEST transition. Vòng tròn: transition identity chưa tồn tại trước khi transition được ghi, nên bundle không bao giờ complete được theo đúng nghĩa đen — hai validator conforming có thể diverge (một validator suy ra phải precompute/guess transition identity, một validator suy ra bundle vĩnh viễn incomplete) |
+
+Major sống → tiến hành revision v1.5.
+
+### Recording model đã chọn: atomic boundary (không phải sequential)
+
+Thay mô hình sequential `bundle complete → rồi ghi MANIFEST transition` bằng **atomic boundary**: `resulting MANIFEST transition identity` bị tách khỏi **prepared bundle content** — nó **không** phải thứ cần resolve trước, mà là thứ **được sinh ra chính tại** atomic recording boundary, đồng thời với chính bundle. Trước boundary: mọi field khác (Phase/Roadmap/DoD/gate-set identity, PO acceptance, deliverable evidence, Quality Gate result, BCC, validator/freshness, review evidence, PO decision fact) đã "prepared" nhưng **chưa authoritative**. Tại boundary: bundle (giờ pin cả transition identity) và MANIFEST transition **cùng** trở thành authoritative — không cái nào authoritative một mình, không có "trước/sau" giữa hai cái. Cấm mọi convention "đoán trước" transition identity.
+
+### Đã sửa
+
+- **§14.4.1:** tách bundle thành 3 lớp: prepared content thuộc Chapter 14, prepared content chỉ reference chapter khác, và **resulting MANIFEST transition identity — không thuộc prepared content**, chỉ authoritative tại boundary.
+- **§14.4.2 (viết lại):** sequencing cũ (`bundle complete → ghi MANIFEST`) thay bằng atomic model: `eligibility complete (Ch12, không đổi) → PO decision (fact) → prepared content sẵn sàng (trừ transition identity) → ATOMIC BOUNDARY (bundle + MANIFEST transition activate cùng lúc) → Phase kế tiếp được phép bắt đầu`. Thêm: partial success (chỉ 1 trong 2 ghi được) → non-authoritative, current Phase giữ nguyên, remediation/retry; retry sau uncertain failure phải cho đúng một authoritative completion (semantic requirement, không kê đơn transaction/database/lock/2PC); post-boundary corruption vẫn là integrity violation (không đổi so với v1.4).
+- §14.5 (bảng authority): "authoritative recording boundary (sequencing)" → "(atomic sequencing)".
+
+### Author self-review (8 attacks + Locked-authority consistency)
+
+- **Attack A (circular transition reference):** không còn — transition identity không phải prepared content, không cần resolve trước (§14.4.1, §14.4.2).
+- **Attack B (đoán trước future identity):** cấm tường minh; guess không tự thiết lập authority (§14.4.2).
+- **Attack C (bundle ghi được, MANIFEST fail):** non-authoritative, current Phase giữ nguyên, remediation (§14.4.2).
+- **Attack D (MANIFEST ghi được, bundle fail):** non-authoritative, không next-Phase, remediation (§14.4.2).
+- **Attack E (duplicate retry):** yêu cầu đúng một authoritative completion, semantic-only, không kê đơn cơ chế (§14.4.2).
+- **Attack F (hai validator):** cùng đồng ý prepared-state, boundary completion, current Phase, next-Phase permission — rule deterministic ở mọi bước.
+- **Attack G (historical audit sau khi Roadmap/DoD đổi):** vẫn deterministic — bundle giữ nguyên đúng version đã pin tại boundary cũ (§14.1.1, §14.3.1, §14.4.1).
+- **Attack H (post-recording corruption):** integrity violation, không tự đảo ngược, không thay bằng current state (không đổi từ v1.4).
+- **Locked-authority consistency:** đối chiếu Chapter 0, I-12, Chapter 11, Chapter 12 (§12.2 prerequisite list không đổi), Chapter 13 (§13.9 chỉ reference), ADR-011, MANIFEST — không phát hiện redefinition; không tạo Approval Gate/veto mới; không kê đơn database/transaction/CI vendor cụ thể.
+
+**Author self-assessment: addressed; pending independent review.**
+
+### Metadata / state
+
+- `constitution/14-roadmap.md`: **v1.4 → v1.5**, status giữ `In Review`, `approved_by`/`approved_at` giữ `null`, `last_review` giữ `2026-07-28`. `depends_on` giữ nguyên.
+- `MANIFEST.md`: row Chapter 14 → **v1.5**; `manifest_version` **9.23 → 9.24**; Chapter 0–13 giữ `Locked` (Chapter 13 vẫn `1.7 · Locked`, blob không đổi); Domain README không đổi; OQ-002/OQ-003 vẫn `Open`.
+
+### ADR
+
+**Không cần ADR** — fix nằm trong authority Chapter 14 đã tự nhận; không sửa Chapter 0–13; không thêm prerequisite mới vào Chapter 12 §12.2; không tạo Approval Gate hay veto mới; không kê đơn implementation.
+
+### Next
+
+`Chapter 14 v1.5 — In Review — ready for ChatGPT Review A`. Không pre-assert kết quả review hay Product Owner approval.
+
 ## [Unreleased] — 2026-07-28 — Chapter 14 (Roadmap) v1.3 → v1.4 — complete recording authority
 
 **Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **revision author + self-reviewer** (`AI Technical Architect`) — **không** phải Product Owner. **Không phải independent-review evidence**: v1.4 **chưa** qua ChatGPT Review A, Independent Review B, hay Claude Independent Final Challenge.

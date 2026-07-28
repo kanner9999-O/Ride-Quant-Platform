@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.23"
+manifest_version: "9.24"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -37,7 +37,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/11-adr-process.md | 2.1 | **Locked** | Product Owner | 00-governance, 02-platform-invariants |
 | constitution/12-approval-gates.md | 1.4 | Locked | Product Owner | 00-governance, 11-adr-process |
 | constitution/13-quality-gates.md | 1.7 | Locked | Product Owner | 02-platform-invariants, 07-module-taxonomy |
-| constitution/14-roadmap.md | 1.4 | In Review | Product Owner | ALL |
+| constitution/14-roadmap.md | 1.5 | In Review | Product Owner | ALL |
 
 ## ADR
 
@@ -112,4 +112,4 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 ---
 
-**Trạng thái tổng quát:** Chapter 0–13 đã `Locked` (Chapter 12 v1.4 approved & locked by Product Owner 2026-07-27; Chapter 13 v1.7 approved & locked by Kanner 2026-07-28 — M-01-R canonical establishment predicate + M-03 ownership-binding authority); Chapter 14 vẫn `In Review` (draft revised to **v1.4** — DoD incorporation establishment authority + authoritative recording boundary sequencing, author self-review trên ChatGPT consolidated package (2 Major), chưa qua independent review, chưa Approved/Locked). ADR-011 v1.1 đã `Approved` và governance migration đã được activate atomically ngày 2026-07-25. ADR-001–ADR-010 decision content không đổi; current ADR lifecycle/OQ state và reverse supersession relation resolve từ MANIFEST theo I-12.
+**Trạng thái tổng quát:** Chapter 0–13 đã `Locked` (Chapter 12 v1.4 approved & locked by Product Owner 2026-07-27; Chapter 13 v1.7 approved & locked by Kanner 2026-07-28 — M-01-R canonical establishment predicate + M-03 ownership-binding authority); Chapter 14 vẫn `In Review` (draft revised to **v1.5** — atomic recording boundary, đóng circular reference giữa Phase-decision bundle và MANIFEST transition, author self-review trên ChatGPT consolidated package (1 Major), chưa qua independent review, chưa Approved/Locked). ADR-011 v1.1 đã `Approved` và governance migration đã được activate atomically ngày 2026-07-25. ADR-001–ADR-010 decision content không đổi; current ADR lifecycle/OQ state và reverse supersession relation resolve từ MANIFEST theo I-12.
