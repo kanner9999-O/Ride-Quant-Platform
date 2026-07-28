@@ -2,6 +2,25 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — ADR-013 v0.2 → v0.3 — authority-table wording cleanup
+
+**Không phải approval.** `status` giữ `Draft`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A re-review + Independent Review B delta review: **1 Minor (F-ADR13-MIN-01)**. Product Owner direction gốc **không đổi** qua cả hai vòng review.
+
+### Đã sửa (Minor — F-ADR13-MIN-01) — stale authority table wording
+
+Bảng 4 trục (§2.1) cột Authority của "Strategy Definition Version" từng ghi "Domain Contract (mới, thuộc ADR này)" — đọc được thành ADR sở hữu luôn nội dung, mâu thuẫn với khối "Authority clarification" ngay bên dưới (vốn đã tách đúng: ADR sở hữu *yêu cầu trục tồn tại*, Domain Contract sở hữu *schema/lifecycle/nội dung*). Sửa cột Authority khớp đúng câu chữ với Authority clarification — một rule, không còn hai cách đọc khác nhau ở hai chỗ trong cùng file.
+
+### Không đổi
+
+Bốn trục evidence độc lập; no-proxy rule; rebuilt artifact identity (§2.5); OQ-002 state (vẫn không quyết, §9).
+
+### Metadata / state
+
+- `ADR-013.md`: **v0.2 → v0.3**, `status` giữ `Draft`. `depends_on: [ADR-010]` không đổi; ADR-010 không bị sửa.
+- Reviewer table (§4) vẫn để trống — ghi nhận cả hai vòng review (baseline v0.1 và v0.2) đã diễn ra.
+
+**Không đóng OQ-002.** Không authorize Live.
+
 ## [Unreleased] — 2026-07-28 — ADR-012 v0.2 → v0.3 — broker multi-Venue Position authority
 
 **Không phải approval.** `status` giữ `Draft`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A re-review + Independent Review B delta review: **1 Major (F-ADR12-MAJ-01)**. Product Owner direction gốc **không đổi** qua cả hai vòng review.
