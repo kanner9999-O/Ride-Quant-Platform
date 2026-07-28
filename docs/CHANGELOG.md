@@ -2,6 +2,15 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — ADR-013 Draft — Strategy Definition Version Authority
+
+**Không phải approval.** ADR mới, `status: Draft` (v0.1), `approved_by`/`approved_at` giữ `null`, `reviewers: []`. Ghi lại nguyên văn Product Owner direction (Kanner, 2026-07-28): Strategy Definition Version là trục evidence bất biến độc lập với Plugin Version/Configuration Version/Package-Build Artifact; Definition Version sở hữu business/decision semantics, Plugin Version sở hữu implementation-release identity; không trục nào proxy trục kia.
+
+- `docs/adr/ADR-013.md` (mới): 4 trục độc lập (Strategy Definition Version · Plugin Version · Configuration Version · Package/Build Artifact), mỗi trục bump riêng; Definition Version sở hữu supported capability/instrument-**class**, KHÔNG sở hữu lựa chọn instrument cụ thể (thuộc Configuration/Instance) — đổi instrument cùng class không bắt buộc version mới, đổi scope/decision-rule/required-input/explanation-contract thì bắt buộc; exact-pin, cấm mutable "latest"; Strategy Instance phải pin đủ cả 4 trục. `depends_on: [ADR-010]` — làm rõ/cấu trúc hóa evidence field "strategy/model version" mà ADR-010 §75 đã yêu cầu nhưng chưa định nghĩa cấu trúc; không supersede, ADR-010 không bị sửa.
+- **Không cần review table điền sẵn** — Draft này chưa qua review nào.
+- **Không đóng OQ nào** (`addresses: []`, `resolves: []`); §9 ghi rõ chạm nhưng không quyết OQ-002.
+- Chặn hoàn thiện Package 0.2-C (Strategy Definition/Instance/Decision Domain Contract); không chặn Package 0.2-A/0.2-B.
+
 ## [Unreleased] — 2026-07-28 — ADR-012 Draft — Account-to-Venue Boundary
 
 **Không phải approval.** ADR mới, `status: Draft` (v0.1), `approved_by`/`approved_at` giữ `null`, `reviewers: []`. Ghi lại nguyên văn Product Owner direction (Kanner, 2026-07-28): Account thuộc đúng một Venue/broker boundary; Venue có thể chứa nhiều Account; vốn/exposure liên-venue là Portfolio/Capital Allocation Group projection, không phải multi-venue Account.
