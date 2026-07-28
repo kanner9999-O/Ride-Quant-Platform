@@ -2,6 +2,37 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Milestone] — 2026-07-28 — 🔒 Chapter 14 v1.5 — Product Owner Approve and Lock
+
+**Product Owner decision** (sole approval authority): `Kanner` — *"Approve and Lock Chapter 14 v1.5."* Decision date **2026-07-28**. Claude thực thi đúng quyết định này bằng một atomic governance commit — **không** đưa ra quyết định approval mới, **không** sửa nội dung normative của Chapter 14.
+
+### Pre-lock baseline
+
+- HEAD: `4c5f9592c9c646f505ff828975db6c90e5d2f7fe`
+- Chapter 14 candidate blob: `2dc6a0bfd1357700158ad5a9877dc345ca95c517` (v1.5, `In Review`)
+
+### Review evidence hoàn tất trên baseline v1.5
+
+- ChatGPT Review A: `0 / 0 / 0 / 0`, Backward Consistency Check `No conflict`.
+- Independent GPT Review B (actor riêng): `0 / 0 / 0 / 0`, Backward Consistency Check `No conflict`, verdict `Ready for consolidation`.
+- ChatGPT consolidation: clean, không có finding nào qualify.
+- Claude Independent Final Challenge (session riêng biệt với revision author): `0 / 0 / 0 / 0`, Backward Consistency Check `No conflict`, verdict `Consolidated clean result confirmed with non-blocking observations`.
+- ChatGPT Final Disposition: `No qualifying findings` · `No conflict` · `No ADR required` · `Ready for Product Owner Decision`.
+
+### Content disposition
+
+- Chapter 14 version **giữ nguyên v1.5** — Lock không bump version.
+- **Không cần ADR.**
+- **Không** sửa Chapter 0–13 (Chapter 13 blob không đổi: `4bb697f3b43b0874a080015ef0ce6ca53de729f4`).
+- **Không** đóng OQ-002/OQ-003 — cả hai vẫn `Open`.
+- **Không** authorize Live ở bất kỳ hình thức nào.
+- **Chapter 14 Lock không tự động hoàn tất Phase 0 Approval Gate** — Phase 0 còn sub-phase 0.2 (Domain Model & Domain Contract) và 0.3 (Product Requirement/Use Case/UX Blueprint) chưa thực hiện.
+
+### State changes
+
+- `constitution/14-roadmap.md`: `status: In Review → Locked`, `approved_by: Kanner`, `approved_at: "2026-07-28"`. Version giữ **1.5**; toàn bộ normative body byte-identical, chỉ frontmatter lifecycle field đổi.
+- `MANIFEST.md`: `manifest_version` **9.24 → 9.25**; Chapter 14 row → `1.5 · Locked`; overview line cập nhật **Chapter 0–14 Locked** (Constitution full-locked); Chapter 0–13 rows, ADR lifecycle, OQ state, project version không đổi.
+
 ## [Unreleased] — 2026-07-28 — Chapter 14 (Roadmap) v1.4 → v1.5 — make recording boundary atomic
 
 **Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **revision author + self-reviewer** (`AI Technical Architect`) — **không** phải Product Owner. **Không phải independent-review evidence**: v1.5 **chưa** qua ChatGPT Review A, Independent Review B, hay Claude Independent Final Challenge.

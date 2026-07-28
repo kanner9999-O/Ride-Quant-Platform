@@ -2,11 +2,11 @@
 id: 14-roadmap
 title: Roadmap
 version: "1.5"
-status: In Review
+status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+approved_by: Kanner
+approved_at: "2026-07-28"
 created_at: "2026-07-16"
 last_review: "2026-07-28"
 next_review: null
