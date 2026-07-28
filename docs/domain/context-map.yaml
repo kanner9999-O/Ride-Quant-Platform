@@ -1,0 +1,119 @@
+id: context-map
+title: Context Map — Ride Quant Platform
+version: "0.1"
+status: Draft
+owner: Product Owner
+reviewers: []
+approved_by: null
+approved_at: null
+created_at: "2026-07-28"
+last_review: null
+next_review: null
+
+# Authoritative registry cho Business Capability + Domain Context identity/relationship,
+# theo Chapter 4 §4.2 (Locked). File này là single source of truth cho câu hỏi
+# "capability/context nào tồn tại và quan hệ với nhau ra sao" — KHÔNG phải nguồn cho
+# domain concept semantics (thuộc từng Domain Contract, ví dụ candle.md).
+#
+# Phạm vi commit này: chỉ đăng ký 6 capability/context cần cho Package 0.2-A + 0.2-B.
+# Package 0.2-C (Account, Strategy, Decision, Risk, Execution, Position...) CHƯA đăng ký —
+# chờ ADR-012/ADR-013 (Draft) hoàn tất trước khi finalize.
+
+capabilities:
+  - id: market-reference
+    title: Market Reference Data
+    responsibility: "Sở hữu identity và metadata tham chiếu của Instrument và Venue — precision, tick/lot size, trading calendar/session. Venue-neutral theo ADR-007."
+    status: active
+
+  - id: market-data
+    title: Market Data
+    responsibility: "Sản xuất market-data fact bitemporal (Candle, và về sau Trade/Quote) từ nguồn venue, chuẩn hóa venue-specific schema về canonical domain language."
+    status: active
+
+  - id: market-structure
+    title: Market Structure
+    responsibility: "Produce authoritative market-structure interpretation."
+    status: active
+
+  - id: market-regime
+    title: Market Regime
+    responsibility: "Sản xuất Regime (trending/ranging/volatile) chỉ từ raw market data, độc lập hoàn toàn với Market Structure (ADR-003)."
+    status: active
+
+  - id: feature-engineering
+    title: Feature Engineering
+    responsibility: "Fan-in có chọn lọc từ Market Structure và Market Regime thành Feature/Signal dùng cho Strategy (ADR-003)."
+    status: active
+
+  - id: context-aggregation
+    title: Context Aggregation
+    responsibility: "Tổng hợp CQRS các projection (Structure/Regime/Feature/market state) thành một Context snapshot cho Strategy tiêu thụ — KHÔNG sở hữu business decision (Chapter 7 §7.4)."
+    status: active
+
+contexts:
+  - id: instrument-venue-reference
+    title: Instrument & Venue Reference
+    capability_id: market-reference
+    responsibility: "Định nghĩa Instrument và Venue identity, precision/tick/lot metadata, và trading calendar/session — venue-neutral, không giả định 24/7 (ADR-007)."
+    owned_contracts: [instrument, venue]   # forward-declared — chưa authored trong commit này
+    status: active
+
+  - id: market-data-observation
+    title: Market Data Observation
+    capability_id: market-data
+    responsibility: "Quan sát và ghi nhận market-data fact (Candle observed/closed/corrected) theo bitemporal semantics (Chapter 5)."
+    owned_contracts: [candle]
+    status: active
+
+  - id: market-structure-analysis
+    title: Market Structure Analysis
+    capability_id: market-structure
+    responsibility: "Define Swing, BOS, CHoCH and related structure semantics."
+    owned_contracts: [swing, structure]   # forward-declared — Package 0.2-B, chưa authored
+    status: active
+
+  - id: raw-regime-analysis
+    title: Raw Regime Analysis
+    capability_id: market-regime
+    responsibility: "Định nghĩa Regime semantics tính trực tiếp từ raw market data (volatility, ADX, volume profile...), độc lập Structure Engine."
+    owned_contracts: [regime]   # forward-declared — Package 0.2-B, chưa authored
+    status: active
+
+  - id: feature-engineering
+    title: Feature Engineering
+    capability_id: feature-engineering
+    responsibility: "Định nghĩa Feature/Signal — fan-in có chọn lọc từ Structure và Regime, xử lý đồng bộ hóa (join) hai luồng khi cần."
+    owned_contracts: [feature]   # forward-declared — Package 0.2-B, chưa authored
+    status: active
+
+  - id: context-projection
+    title: Context Projection
+    capability_id: context-aggregation
+    responsibility: "CQRS read-model tổng hợp Structure+Regime+Feature+market state cho Strategy — Type 2 Projection (Chapter 7 §7.4), không phát sinh business decision."
+    owned_contracts: [context]   # forward-declared — Package 0.2-B, chưa authored
+    status: active
+
+# Chỉ khai báo relationship có provider contract ĐÃ tồn tại thật trong repository
+# (candle.md, commit này). Relationship liên quan instrument/venue/swing/structure/regime/
+# feature/context sẽ được thêm khi đúng Domain Contract phía provider được author —
+# tránh trích dẫn contract_id cho một artifact chưa tồn tại.
+relationships:
+  - provider_context_id: market-data-observation
+    consumer_context_id: market-structure-analysis
+    contract_id: CandleClosed
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-data-observation
+      downstream_context_id: market-structure-analysis
+    translation_policy: conformist   # Structure tiêu thụ trực tiếp canonical Candle language, không cần anti-corruption layer
+
+  - provider_context_id: market-data-observation
+    consumer_context_id: raw-regime-analysis
+    contract_id: CandleClosed
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-data-observation
+      downstream_context_id: raw-regime-analysis
+    translation_policy: conformist

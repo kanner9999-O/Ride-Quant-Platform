@@ -2,6 +2,17 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — Package 0.2-A Draft — Domain foundation (context-map + candle)
+
+**Không phải approval, không phải Phase 0.2 completion.** Tất cả artifact `status: Draft`. Author self-review hoàn tất; ChatGPT Review A / Independent Review B / consolidation **chưa diễn ra** — chưa đạt `Consolidated Stable`.
+
+- **`docs/domain/context-map.yaml` (mới, v0.1 Draft):** authoritative registry theo [Chapter 4 §4.2](./constitution/04-domain-principles.md) — 6 capability/context: `market-reference/instrument-venue-reference`, `market-data/market-data-observation`, `market-structure/market-structure-analysis` (tên lấy verbatim từ ví dụ Chapter 4 §4.2), `market-regime/raw-regime-analysis`, `feature-engineering/feature-engineering`, `context-aggregation/context-projection` (đổi từ đề xuất `decision-context` để tránh ngụ ý sở hữu Decision semantics). Package 0.2-C (Account/Strategy/Decision/Risk/Execution) **chưa đăng ký** — chờ ADR-012/ADR-013. Chỉ 2 relationship được khai báo (market-data-observation → market-structure-analysis, → raw-regime-analysis), cả hai trích dẫn `CandleClosed` — không khai báo relationship nào trỏ tới contract chưa tồn tại.
+- **`docs/domain/candle.md` (mới, v0.1 Draft):** Domain Contract đầu tiên — conformance example. 5 concept: Logical Candle Subject (`kind: entity`, identity = tổ hợp tường minh instrument/venue/timeframe/effective_time, KHÔNG phải opaque ID bị parse) · `CandleObserved`/`CandleClosed`/`CandleCorrected` (`kind: event`, append-only, correction qua `causation_refs` không mutate) · `CandleDataGapObserved` (`kind: event`, optional, không mang OHLC) · `CandleCurrentView` (`kind: read_model`, không authoritative, I-12). Time fields đúng Chapter 5 (`effective_time` interval, `recorded_time`, `market_time` — không dùng `event_time`). Missing-data tách 3 case tường minh (session đóng hợp lệ / session mở không trade / thiếu-trễ-không khả dụng), cấm tự tổng hợp OHLC giả. Dedup qua `source_identity` (Chapter 6 §6.6). Venue-neutral, không hardcode 24/7 (ADR-007); không leak raw exchange field. Cả 4 execution mode dùng chung contract (I-2).
+- **`docs/domain/README.md` (cập nhật, v0.2 Draft):** `context-map.yaml` là prerequisite bắt buộc; `candle.md` là conformance example đầu tiên; tách rõ Package 0.2-A/0.2-B/0.2-C; bổ sung Account/Order/Execution/Venue/Instrument/Trade-Intent/Execution-Intent vào 0.2-C (danh sách gốc thiếu); khóa rõ Package 0.2-B **không** được dựa vào authority của 0.2-A cho tới khi 0.2-A đạt `Consolidated Stable` (định nghĩa: author self-review + Review A + Independent Review B + consolidation đều hoàn tất, không còn finding treo); không tuyên bố approval/Lock/Phase-0.2-completion.
+- `MANIFEST.md`: `manifest_version` **9.25 → 9.26**; dòng `domain/` cập nhật phản ánh đúng trạng thái Draft hiện tại (không còn "Not Started").
+
+**Package 0.2-B chưa bắt đầu.** Không đóng OQ nào; không authorize Live.
+
 ## [Unreleased] — 2026-07-28 — ADR-013 Draft — Strategy Definition Version Authority
 
 **Không phải approval.** ADR mới, `status: Draft` (v0.1), `approved_by`/`approved_at` giữ `null`, `reviewers: []`. Ghi lại nguyên văn Product Owner direction (Kanner, 2026-07-28): Strategy Definition Version là trục evidence bất biến độc lập với Plugin Version/Configuration Version/Package-Build Artifact; Definition Version sở hữu business/decision semantics, Plugin Version sở hữu implementation-release identity; không trục nào proxy trục kia.
