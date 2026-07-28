@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -94,13 +94,20 @@ contexts:
     status: active
 
 # Chỉ khai báo relationship có provider contract ĐÃ tồn tại thật trong repository
-# (candle.md, commit này). Relationship liên quan instrument/venue/swing/structure/regime/
-# feature/context sẽ được thêm khi đúng Domain Contract phía provider được author —
-# tránh trích dẫn contract_id cho một artifact chưa tồn tại.
+# (candle.md). Relationship liên quan instrument/venue/swing/structure/regime/feature/context
+# sẽ được thêm khi đúng Domain Contract phía provider được author — tránh trích dẫn contract_id
+# cho một artifact chưa tồn tại.
+#
+# contract_id dùng SCALAR concept-id (khớp Chapter 4 §4.2 — ví dụ chính chương đó dùng
+# "ExecutionFill.v1", một chuỗi scalar) — KHÔNG dùng display name (ví dụ "CandleClosed") hay
+# event_type (ví dụ "CANDLE_CLOSED"). Ba đại lượng này KHÔNG được cạnh tranh làm identity:
+# concept id ("candle-closed") là contract identity canonical; display name là văn xuôi mô tả;
+# event_type là chuỗi PAST_TENSE_UPPER_SNAKE cho envelope (Chapter 3 §3.2). candle.md §2
+# khai báo chính xác cả ba cho từng event, tách bạch tường minh (đóng C-CM-MAJ-01).
 relationships:
   - provider_context_id: market-data-observation
     consumer_context_id: market-structure-analysis
-    contract_id: CandleClosed
+    contract_id: candle-closed
     relationship_type: published_language
     status: active
     model_influence:
@@ -109,11 +116,39 @@ relationships:
     translation_policy: conformist   # Structure tiêu thụ trực tiếp canonical Candle language, không cần anti-corruption layer
 
   - provider_context_id: market-data-observation
+    consumer_context_id: market-structure-analysis
+    contract_id: candle-corrected
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-data-observation
+      downstream_context_id: market-structure-analysis
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer nhận CandleCorrected PHẢI invalidate hoặc recompute mọi derived fact có
+      causal ancestry bao gồm Candle fact bị sửa — không được giữ nguyên kết luận Structure
+      đã tính trên giá trị Candle cũ (đóng C-CM-MAJ-02; chi tiết semantic tại candle.md §11).
+
+  - provider_context_id: market-data-observation
     consumer_context_id: raw-regime-analysis
-    contract_id: CandleClosed
+    contract_id: candle-closed
     relationship_type: published_language
     status: active
     model_influence:
       upstream_context_id: market-data-observation
       downstream_context_id: raw-regime-analysis
     translation_policy: conformist
+
+  - provider_context_id: market-data-observation
+    consumer_context_id: raw-regime-analysis
+    contract_id: candle-corrected
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-data-observation
+      downstream_context_id: raw-regime-analysis
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer nhận CandleCorrected PHẢI invalidate hoặc recompute mọi derived fact có
+      causal ancestry bao gồm Candle fact bị sửa — không được giữ nguyên kết luận Regime
+      đã tính trên giá trị Candle cũ (đóng C-CM-MAJ-02; chi tiết semantic tại candle.md §11).

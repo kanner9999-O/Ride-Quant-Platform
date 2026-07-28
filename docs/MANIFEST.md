@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.27"
+manifest_version: "9.28"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -59,7 +59,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 | File | Status |
 |---|---|
-| domain/ | Phase 0.2 started (Draft) — Package 0.2-A: `context-map.yaml` v0.1 Draft (6 capability/context, Package 0.2-C chưa đăng ký) + `candle.md` **v0.2** Draft (first conformance example; ChatGPT Review A M-01/m-01/m-02 đã xử lý — event envelope conformance, correction/state-machine semantic duy nhất, zero-volume provenance). Independent Review B / consolidation **chưa** diễn ra — chưa `Consolidated Stable`, chưa Approved/Locked. Package 0.2-B chưa bắt đầu. |
+| domain/ | Phase 0.2 started (Draft) — Package 0.2-A: `context-map.yaml` **v0.2** Draft (6 capability/context, Package 0.2-C chưa đăng ký; canonical scalar `contract_id` + correction-propagation relationships) + `candle.md` **v0.3** Draft (first conformance example; ChatGPT Review A + Independent Review B consolidated đã xử lý — 5-field deterministic subject key, `UNSEEN` state, duplicate-`CandleClosed` handling, venue-neutral `source_identity`). Revision này **chưa qua review nào** — chưa `Consolidated Stable`, chưa Approved/Locked. Package 0.2-B chưa bắt đầu. |
 
 ## Team (tách biệt khỏi Constitution — Role vs Person)
 

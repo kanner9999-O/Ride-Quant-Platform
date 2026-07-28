@@ -2,6 +2,37 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — Package 0.2-A consolidated revision (context-map v0.2, candle v0.3)
+
+**Không phải approval.** Cả hai artifact vẫn `status: Draft`. Sửa theo ChatGPT Review A + Independent Review B (consolidated) trên baseline `context-map.yaml` v0.1 / `candle.md` v0.2: **2 Major cho context-map (C-CM-MAJ-01, C-CM-MAJ-02), 2 Major + 2 Minor cho candle (C-CND-MAJ-01, C-CND-MAJ-02, C-CND-MIN-03, C-CND-MIN-04)**. Revision này **chưa qua review** — không tuyên bố re-review đã xảy ra.
+
+### `context-map.yaml` v0.1 → v0.2
+
+- **(Major C-CM-MAJ-01)** Thay `contract_id: CandleClosed` (display name, ambiguous) bằng scalar concept-id đúng schema Chapter 4 §4.2 (ví dụ chính chương dùng `ExecutionFill.v1`): `contract_id: candle-closed` / `contract_id: candle-corrected` — khớp đúng `id:` khai báo trong `candle.md`. Thêm comment khối giải thích 3 đại lượng tách biệt (concept id / display name / `event_type`) không được cạnh tranh làm identity.
+- **(Major C-CM-MAJ-02)** Thêm 2 relationship mới cho correction propagation: `candle-corrected → market-structure-analysis` và `candle-corrected → raw-regime-analysis` (trước đó chỉ có `candle-closed`). Mỗi relationship correction mang field mở rộng `consumer_obligation`: consumer phải invalidate/recompute derived fact có causal ancestry từ Candle fact bị sửa.
+
+### `candle.md` v0.2 → v0.3
+
+- **(Major C-CND-MAJ-01)** Candle subject key giờ tường minh **đúng năm field**: `instrument_id, venue_id, timeframe, window_start, window_end` (trước đó invariant chỉ liệt 4 field, bỏ sót `window_end`). Cùng năm-field-scope → cùng `candle_subject_id`; khác bất kỳ field nào → khác `candle_subject_id`.
+- **(Major C-CND-MAJ-02)** Thêm state `UNSEEN` (notional initial state) vào `state_machine`: `UNSEEN → PROVISIONAL` (CandleObserved), `UNSEEN → CLOSED` (CandleClosed) — cho phép historical/closed-only ingestion (Backtest nạp candle đã đóng sẵn) đi thẳng mà **không fabricate** một CandleObserved giả.
+- **(Minor C-CND-MIN-03)** Thêm §11 "Duplicate CandleClosed handling": cùng `source_identity` → dedupe zero-effect; khác nội dung → phải là `CandleCorrected`, không phải `CandleClosed` thứ hai; fallback idempotency key chỉ hợp lệ khi source/adapter contract khai báo tường minh, thiếu cả native lẫn fallback → fail closed.
+- **(Minor C-CND-MIN-04)** `source_identity` example (§13) đổi từ giá trị cụ thể (`binance`, `BTCUSDT`) sang placeholder venue-neutral (`<canonical_venue_id>`, `<canonical_instrument_id>`...); raw exchange symbol chỉ được tồn tại trong provenance do ingestion adapter sở hữu.
+- **Sửa thêm (self-review, ngoài consolidated findings):** 3 cross-reference nội bộ bị lệch số mục từ vòng v0.1→v0.2 (khi chèn §2 Canonical envelope làm dịch số các mục sau) — đã rà và sửa lại đúng (`§9`→`§13` cho dedup, `§10`→`§12` cho missing-data provenance, ở 3 vị trí).
+
+### Hành vi đã chấp nhận — giữ nguyên, không suy yếu
+
+Canonical event envelope · qualified `subject_ref` · append-only provisional history · no-repaint · correction self-transition · 5-điều-kiện zero-volume provenance · phân biệt 3 case missing-data (+ phân biệt UNSEEN mới) · Chapter 5 time model · read-model non-authority · venue/session neutrality · Replay/Backtest/Paper/Live parity.
+
+### Metadata / state
+
+- `context-map.yaml`: **v0.1 → v0.2**, `status` giữ `Draft`.
+- `candle.md`: **v0.2 → v0.3**, `status` giữ `Draft`.
+- `README.md`: Package 0.2-A row cập nhật version mới + disposition "đã xử lý consolidated finding, chưa qua re-review"; `Consolidated Stable` vẫn chưa đạt.
+- `MANIFEST.md`: `manifest_version` **9.27 → 9.28**; dòng `domain/` cập nhật.
+- ADR-012, ADR-013: **không đổi trong commit này** (đã revise ở 2 commit riêng trước đó).
+
+**Package 0.2-B vẫn chưa bắt đầu.** Không đóng OQ nào; không authorize Live.
+
 ## [Unreleased] — 2026-07-28 — ADR-013 v0.1 → v0.2 — authority clarification + rebuilt artifact identity
 
 **Không phải approval.** `status` giữ `Draft`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A + Independent Review B (consolidated): **2 Suggestion (C-ADR13-SUG-01, C-ADR13-SUG-02)**. Product Owner direction gốc (4 trục evidence độc lập, không proxy) **không đổi**.

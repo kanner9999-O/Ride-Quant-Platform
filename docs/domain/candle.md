@@ -1,7 +1,7 @@
 ---
 id: candle
 title: Candle
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,7 +14,7 @@ next_review: null
 
 # Candle
 
-> **Vai trò của tài liệu này:** Domain Contract đầu tiên của Phase 0.2 — worked conformance example chứng minh `context-map.yaml` resolve đúng đầu cuối theo [Chapter 4 §4.2](../constitution/04-domain-principles.md). Đây vẫn là `Draft`, chưa qua Independent Review B / consolidation. **v0.2** xử lý ChatGPT Review A (M-01, m-01, m-02) trên baseline v0.1.
+> **Vai trò của tài liệu này:** Domain Contract đầu tiên của Phase 0.2 — worked conformance example chứng minh `context-map.yaml` resolve đúng đầu cuối theo [Chapter 4 §4.2](../constitution/04-domain-principles.md). Đây vẫn là `Draft`, chưa Approved/Locked. **v0.3** xử lý ChatGPT Review A + Independent Review B (consolidated) trên baseline v0.2: 2 Major (C-CND-MAJ-01, C-CND-MAJ-02), 2 Minor (C-CND-MIN-03, C-CND-MIN-04).
 
 Candle bao gồm **năm concept riêng biệt**, cùng thuộc capability `market-data` / context `market-data-observation` (đăng ký tại [`context-map.yaml`](./context-map.yaml)):
 
@@ -28,6 +28,8 @@ Cộng một **read model** (`CandleCurrentView`) — projection tiện dụng, 
 
 Không mô hình hóa Candle như **một bản ghi mutable** mà lịch sử provisional bị ghi đè — mọi observation là event append-only riêng biệt (I-3), theo đúng pattern `state_machine` mà [Chapter 4 §4.3](../constitution/04-domain-principles.md) đã minh họa cho Swing.
 
+**`candle-observed` / `candle-closed` / `candle-corrected` / `candle-data-gap-observed` / `candle-current-view` là canonical contract concept ID** — đúng giá trị `id:` khai báo trong từng khối YAML bên dưới, và đúng giá trị `contract_id` mà [`context-map.yaml`](./context-map.yaml) trích dẫn ở các relationship. Display name (ví dụ "CandleClosed", văn xuôi mô tả) và `event_type` (ví dụ `CANDLE_CLOSED`, chuỗi envelope theo Chapter 3 §3.2) là hai đại lượng **khác**, phục vụ mục đích khác — **không được coi là identity cạnh tranh** với concept ID.
+
 ## 1. Logical Candle Subject — `kind: entity`
 
 ```yaml
@@ -39,13 +41,13 @@ description: >
   Trạng thái tổng hợp OHLCV của một instrument, tại một venue, theo một timeframe, trong
   một cửa sổ effective_time xác định. Subject CÓ một identity opaque, ổn định
   (`candle_subject_id`) — KHÔNG phải một Entity không-identity — cộng một qualifying scope
-  tường minh (instrument_id, venue_id, timeframe, window_start, window_end). Hai đại lượng
-  này KHÔNG trùng nhau và KHÔNG cạnh tranh nhau: `candle_subject_id` là handle opaque dùng để
-  so khớp identity (Chapter 6 §6.1/§6.8 — domain logic cấm parse nó); `scope` là dữ liệu tường
-  minh dùng để lọc/truy vấn theo nghiệp vụ. Cả hai cùng có mặt trong `subject_ref` của mọi
-  event mô tả subject này (§2).
+  tường minh gồm ĐÚNG NĂM field: instrument_id, venue_id, timeframe, window_start, window_end.
+  Hai đại lượng này KHÔNG trùng nhau và KHÔNG cạnh tranh nhau: `candle_subject_id` là handle
+  opaque dùng để so khớp identity (Chapter 6 §6.1/§6.8 — domain logic cấm parse nó); `scope`
+  là dữ liệu tường minh dùng để lọc/truy vấn theo nghiệp vụ. Cả hai cùng có mặt trong
+  `subject_ref` của mọi event mô tả subject này (§2).
 invariants:
-  - "candle_subject_id bất biến, KHÔNG tái sử dụng cho một subject khác, và resolve deterministic từ đúng một qualifying scope (instrument_id, venue_id, timeframe, window_start) — cùng scope luôn cho cùng candle_subject_id, khác scope không bao giờ trùng candle_subject_id (Chapter 6 §6.1)."
+  - "candle_subject_id resolve deterministic từ ĐÚNG NĂM field qualifying scope: instrument_id, venue_id, timeframe, window_start, window_end — cùng năm-field-scope luôn cho cùng candle_subject_id; khác bất kỳ field nào trong năm field đó cho candle_subject_id KHÁC. candle_subject_id bất biến, KHÔNG tái sử dụng cho một subject khác (Chapter 6 §6.1)."
   - "candle_subject_id là opaque — domain logic KHÔNG được parse nó để suy diễn instrument/venue/timeframe/window (Chapter 6 §6.8); mọi quyết định nghiệp vụ phải dùng field tường minh trong scope, không phải giải mã ID."
   - "effective_time là interval [window_start, window_end) xác định bởi timeframe — không đổi qua mọi observation/correction của cùng subject."
   - "instrument_id, venue_id, timeframe, effective_time bất biến sau khi subject được quan sát lần đầu — đổi bất kỳ field nào tạo ra một subject KHÁC (candle_subject_id khác), không phải mutate subject cũ."
@@ -59,8 +61,11 @@ schema:
     window_start: {type: timestamp, required: true}
     window_end: {type: timestamp, required: true}
 state_machine:
-  states: [PROVISIONAL, CLOSED]
+  initial_state: UNSEEN
+  states: [UNSEEN, PROVISIONAL, CLOSED]
   transitions:
+    - {from: UNSEEN, to: PROVISIONAL, caused_by: CandleObserved}
+    - {from: UNSEEN, to: CLOSED, caused_by: CandleClosed}
     - {from: PROVISIONAL, to: PROVISIONAL, caused_by: CandleObserved}
     - {from: PROVISIONAL, to: CLOSED, caused_by: CandleClosed}
     - {from: CLOSED, to: CLOSED, caused_by: CandleCorrected}
@@ -71,7 +76,11 @@ commands: []
 queries: []
 ```
 
-**Một semantic duy nhất cho correction — không mơ hồ (đóng m-01):** `CandleCorrected` **KHÔNG** đưa subject ra khỏi `CLOSED`. Subject **giữ nguyên `CLOSED`**; correction là một **self-transition `CLOSED → CLOSED`** tường minh trong `state_machine` ở trên, và thay thế fact-đang-hiệu-lực trong `CandleCurrentView` (§7) — **không** phải một entity-state transition đưa subject sang trạng thái khác. `terminal_states: []` chỉ phản ánh đúng một sự kiện: subject không bao giờ **rời khỏi** `CLOSED` để quay lại `PROVISIONAL`, nhưng vẫn tiếp tục nhận `CandleCorrected` dưới dạng self-transition. Đây là ví dụ hợp lệ của [Chapter 2 I-13](../constitution/02-platform-invariants.md): *"Constitution không tự áp đặt 'mọi terminal state = zero outbound transition' cho mọi entity — đó là quyết định của từng Domain Contract."*
+**`UNSEEN` là notional initial state (đóng C-CND-MAJ-02)** — không event nào khẳng định "subject đang UNSEEN"; đây chỉ là điểm khởi đầu ngầm định trước khi có bất kỳ event nào cho subject đó, cùng cách `CANDIDATE` của Swing ([Chapter 4 §4.3](../constitution/04-domain-principles.md)) ngầm định là initial state vì không có inbound transition — ở đây ta khai báo tường minh bằng `initial_state` để tránh mơ hồ.
+
+**`UNSEEN → CLOSED` là đường hợp lệ cho historical/closed-only ingestion:** khi nạp dữ liệu lịch sử đã đóng sẵn (ví dụ Backtest đọc file candle đã CLOSED từ data vendor, không có luồng WS provisional nào từng tồn tại), subject đi thẳng `UNSEEN → CLOSED` qua `CandleClosed` — **không được fabricate một `CandleObserved` giả** chỉ để "đi đúng qua PROVISIONAL trước". `CandleClosed` không bắt buộc phải có `CandleObserved` đứng trước nó cho cùng subject.
+
+**Một semantic duy nhất cho correction — không mơ hồ:** `CandleCorrected` **KHÔNG** đưa subject ra khỏi `CLOSED`. Subject **giữ nguyên `CLOSED`**; correction là một **self-transition `CLOSED → CLOSED`** tường minh trong `state_machine` ở trên, và thay thế fact-đang-hiệu-lực trong `CandleCurrentView` (§7) — **không** phải một entity-state transition đưa subject sang trạng thái khác. `terminal_states: []` chỉ phản ánh đúng một sự kiện: subject không bao giờ **rời khỏi** `CLOSED` để quay lại `PROVISIONAL`, nhưng vẫn tiếp tục nhận `CandleCorrected` dưới dạng self-transition. Đây là ví dụ hợp lệ của [Chapter 2 I-13](../constitution/02-platform-invariants.md): *"Constitution không tự áp đặt 'mọi terminal state = zero outbound transition' cho mọi entity — đó là quyết định của từng Domain Contract."*
 
 ## 2. Canonical event envelope — áp dụng cho mọi Candle event (§3–§6)
 
@@ -93,7 +102,7 @@ envelope:                                          # Chapter 8 §8.2.1 — cardi
   related_event_refs: {cardinality: "zero-to-many, non-causal — Chapter 8 §8.2.3"}
   effective_time: {cardinality: "required cho Candle — đây là fact có effective time (khác Decision event, nơi effective_time bị cấm và decision_time thay thế — Chapter 8 §8.4). Giá trị = interval [window_start, window_end) của Logical Candle Subject (§1)."}
   market_time: {cardinality: "conditional — chỉ khi venue cung cấp (Chapter 5 §5.2)"}
-  source_identity: {cardinality: "conditional — bắt buộc khi source có khả năng retry/redelivery (Chapter 6 §6.6) — xem §9"}
+  source_identity: {cardinality: "conditional — bắt buộc khi source có khả năng retry/redelivery (Chapter 6 §6.6) — xem §13"}
 
 subject_ref:                                       # shape canonical — Chapter 8 §8.2.2
   context_id: market-data-observation
@@ -116,7 +125,7 @@ event_types:                                       # Chapter 3 §3.2 naming — 
 
 `stream_ref`/`producer_ref` resolve từ `stream-registry.yaml`/`module-registry.yaml` — cả hai thuộc Phase 1, chưa tồn tại tại Phase 0.2. Domain Contract chỉ khóa **field phải có mặt**, không chốt giá trị cụ thể trước khi các registry đó được author — cùng nguyên tắc defer mechanism mà toàn bộ Chapter 8 đã áp dụng.
 
-**`subject_id` luôn giống nhau cho cùng cửa sổ logic:** mọi `CandleObserved`/`CandleClosed`/`CandleCorrected`/`CandleDataGapObserved` mô tả cùng một `(instrument_id, venue_id, timeframe, window_start)` PHẢI mang cùng `subject_ref.subject_id`. Event record vẫn có `event_id` riêng, bất biến, cho từng bản ghi (Chapter 6 §6.2: New Event ID ≠ New Entity ID) — `subject_id` KHÔNG thay thế `event_id`.
+**`subject_id` luôn giống nhau cho cùng cửa sổ logic:** mọi `CandleObserved`/`CandleClosed`/`CandleCorrected`/`CandleDataGapObserved` mô tả cùng một `(instrument_id, venue_id, timeframe, window_start, window_end)` PHẢI mang cùng `subject_ref.subject_id`. Event record vẫn có `event_id` riêng, bất biến, cho từng bản ghi (Chapter 6 §6.2: New Event ID ≠ New Entity ID) — `subject_id` KHÔNG thay thế `event_id`.
 
 ## 3. `CandleObserved` — `kind: event`
 
@@ -156,14 +165,17 @@ capability_id: market-data
 domain_context_id: market-data-observation
 description: >
   Quan sát OHLCV cuối cùng, authoritative, khi cửa sổ effective_time đã đóng. Đánh dấu
-  Logical Candle Subject chuyển PROVISIONAL → CLOSED (§1). KHÔNG xóa hay ghi đè các
-  CandleObserved trước đó. Envelope đầy đủ theo §2; `causation_refs: []` (root event —
-  không sửa một fact nào trước; correction dùng CandleCorrected, §5).
+  Logical Candle Subject chuyển sang CLOSED — từ PROVISIONAL (đường thường gặp) hoặc trực
+  tiếp từ UNSEEN (historical/closed-only ingestion — §1, hợp lệ, không cần CandleObserved
+  đứng trước). KHÔNG xóa hay ghi đè các CandleObserved trước đó (nếu có). Envelope đầy đủ
+  theo §2; `causation_refs: []` (root event — không sửa một fact nào trước; correction dùng
+  CandleCorrected, §5).
 invariants:
   - "Đúng một CandleClosed authoritative cho mỗi Logical Candle Subject, trước khi có correction."
-  - "envelope.effective_time giống hệt mọi CandleObserved cùng subject."
+  - "envelope.effective_time giống hệt mọi CandleObserved cùng subject, nếu có."
   - "payload.data_quality PHẢI khai báo tường minh — không mặc định 'complete' khi không xác nhận được."
-  - "payload.data_quality = complete_zero_volume CHỈ hợp lệ khi thỏa đủ điều kiện provenance ở §10 — không được suy diễn chỉ từ việc vắng mặt trade/message."
+  - "payload.data_quality = complete_zero_volume CHỈ hợp lệ khi thỏa đủ điều kiện provenance ở §12 — không được suy diễn chỉ từ việc vắng mặt trade/message."
+  - "Một CandleClosed thứ hai cho cùng subject phải xử lý theo §11 (dedupe hoặc CandleCorrected) — không được tồn tại như CandleClosed độc lập thứ hai."
 payload:
   state: {type: enum, value: CLOSED, required: true}
   open: {type: decimal, required: true}
@@ -187,7 +199,8 @@ description: >
   Sửa một CandleClosed (hoặc một CandleCorrected trước đó) đã publish, khi venue gửi
   correction muộn — đúng ví dụ Chapter 5 §5.1 đã dùng (candle 10:00 bị sửa lúc 10:07). Là
   event MỚI, KHÔNG mutate record gốc (I-3 append-only). KHÔNG đưa Logical Candle Subject ra
-  khỏi CLOSED — self-transition CLOSED → CLOSED (§1).
+  khỏi CLOSED — self-transition CLOSED → CLOSED (§1). Cũng là cách biểu diễn bắt buộc cho một
+  CandleClosed thứ hai không-identical cho cùng subject (§11).
 invariants:
   - "envelope.effective_time KHÔNG đổi so với fact gốc — correction mô tả lại cùng cửa sổ, không tạo cửa sổ mới, subject_id không đổi."
   - "envelope.recorded_time PHẢI mới hơn recorded_time của fact đang được sửa."
@@ -218,10 +231,10 @@ description: >
   ingestion adapter khi phiên đang mở nhưng dữ liệu bị thiếu/trễ/không khả dụng. Envelope đầy
   đủ theo §2; `causation_refs: []` (root event). Tồn tại để downstream (Structure/Regime/
   Feature) phân biệt "im lặng vì chưa ai gửi gì" khỏi "im lặng vì đã xác nhận thiếu dữ liệu"
-  — xem §10.
+  — xem §12.
 invariants:
   - "payload KHÔNG chứa field OHLC — cấm dùng event này để tổng hợp giá trị Candle."
-  - "KHÔNG tự phát sinh khi phiên (session) đã đóng theo Venue/session authority — đó là case hợp lệ, không phải gap (§10)."
+  - "KHÔNG tự phát sinh khi phiên (session) đã đóng theo Venue/session authority — đó là case hợp lệ, không phải gap (§12)."
   - "Là optional/best-effort signal — vắng mặt CandleDataGapObserved KHÔNG chứng minh dữ liệu đầy đủ."
 payload:
   reason: {type: enum, values: [source_unavailable, delayed_beyond_threshold, unknown], required: true}
@@ -244,6 +257,7 @@ description: >
 invariants:
   - "Phải rebuild được hoàn toàn từ authoritative event stream (I-12) — không có state độc lập ngoài event log."
   - "Không được dùng làm input cho Decision khi chưa qua cursor-bounded query (Chapter 9 §9.5, một khi Candle trở thành decision-relevant)."
+  - "Không có view row nào tồn tại khi subject còn UNSEEN (§1) — đây là kỳ vọng bình thường (chưa có event nào), KHÔNG phải missing-data condition (§12)."
 schema:
   candle_subject_id: {type: string, required: true}
   scope: {instrument_id: string, venue_id: string, timeframe: string, effective_time: interval, required: true}
@@ -279,7 +293,23 @@ Mọi `CandleObserved` trong lúc PROVISIONAL **giữ nguyên trong log** kể c
 
 `CandleCorrected` là event mới, `envelope.causation_refs` trỏ đúng fact bị sửa, `envelope.effective_time` không đổi, `envelope.recorded_time` mới hơn. Không có đường nào mutate `CandleClosed`/`CandleObserved` gốc. State machine semantics: xem §1 (self-transition `CLOSED → CLOSED`, không phải rời `CLOSED`).
 
-## 11. Missing data — ba trường hợp tách bạch, không tự tổng hợp
+**Nghĩa vụ consumer khi nhận `CandleCorrected`:** một consumer nhận `CandleCorrected` **PHẢI invalidate hoặc recompute mọi derived fact có causal ancestry bao gồm Candle fact bị sửa** — không được giữ nguyên kết luận đã tính trên giá trị Candle cũ. Ví dụ: nếu Structure Engine đã publish một Swing dựa trên `CandleClosed` gốc, và `CandleClosed` đó sau bị `CandleCorrected`, Structure Engine phải recompute (hoặc invalidate) Swing đó — không được để Swing cũ đứng yên như thể Candle chưa từng bị sửa. Nghĩa vụ này được khai báo tường minh tại từng relationship `candle-corrected → market-structure-analysis` / `→ raw-regime-analysis` trong [`context-map.yaml`](./context-map.yaml) (field `consumer_obligation`) — cơ chế cụ thể (invalidate vs recompute, đồng bộ hay lazy) thuộc Domain Contract của Swing/Regime (Package 0.2-B, chưa author), không khóa ở đây.
+
+## 11. Duplicate `CandleClosed` handling
+
+Khi ingestion nhận được **một `CandleClosed` thứ hai** cho cùng Logical Candle Subject (cùng `candle_subject_id`, §1), áp dụng đúng một trong hai đường — không có đường thứ ba:
+
+- **Cùng `envelope.source_identity`** (§13) → đây là **duplicate delivery của cùng một fact** — dedupe, **zero additional business effect**. Không tạo event mới, không tạo hai bản ghi cho cùng fact.
+- **Khác nội dung, hoặc không xác định được cùng `source_identity`** → **KHÔNG được là một `CandleClosed` thứ hai.** Phải biểu diễn bằng `CandleCorrected` (§5), tham chiếu đúng `CandleClosed` gốc qua `causation_refs`.
+
+**Fallback idempotency key khi source thiếu native stable ID:**
+
+- Nếu source không cung cấp một ID ổn định tự nhiên (native stable ID) cho fact đó, một **fallback idempotency key được phép CHỈ KHI** chính source/adapter contract khai báo tường minh cách suy ra fallback key đó (ví dụ: hash của một tổ hợp field do adapter contract định nghĩa rõ).
+- **Không có cả native ID lẫn fallback được khai báo tường minh → fail closed** — ingestion phải từ chối/quarantine record đó, **không** được tự chọn một fallback ngẫu nhiên hay im lặng coi record đó là fact mới.
+
+## 12. Missing data — ba trường hợp tách bạch, không tự tổng hợp
+
+**`UNSEEN` khác với gap:** một subject còn `UNSEEN` (§1, chưa có event nào) vì cửa sổ **chưa tới hạn đóng** không phải là gap — gap chỉ áp dụng cho cửa sổ **đã tới hạn** (`window_end` đã qua) mà vẫn không có `CandleClosed` hợp lệ. Đừng lẫn "chưa đến lúc" với "lẽ ra phải có mà không có".
 
 | Trường hợp | Xử lý |
 |---|---|
@@ -287,7 +317,7 @@ Mọi `CandleObserved` trong lúc PROVISIONAL **giữ nguyên trong log** kể c
 | **Session mở, không có trade** | `CandleClosed` với `payload.data_quality: complete_zero_volume` — chỉ hợp lệ khi thỏa **đủ cả năm điều kiện provenance** dưới đây. |
 | **Thiếu/trễ/không khả dụng** | **Cấm tự tổng hợp OHLC giả.** Không có `CandleClosed` cho cửa sổ đó; ingestion adapter **có thể** phát `CandleDataGapObserved` như tín hiệu tường minh, nhưng vắng mặt event này **không chứng minh** dữ liệu đầy đủ — downstream phải coi window thiếu là data-quality condition tường minh, không phải "coi như flat". |
 
-**Điều kiện provenance bắt buộc cho `data_quality: complete_zero_volume` (đóng m-02) — thiếu bất kỳ điều kiện nào thì KHÔNG hợp lệ, phải xử lý như case thứ ba (gap):**
+**Điều kiện provenance bắt buộc cho `data_quality: complete_zero_volume` — thiếu bất kỳ điều kiện nào thì KHÔNG hợp lệ, phải xử lý như case thứ ba (gap):**
 
 1. Authoritative source/producer **xác nhận tường minh** một candle zero-volume đã hoàn tất (venue thực sự publish "đã đóng, không có trade"), không phải suy diễn từ im lặng.
 2. `envelope.producer_ref` resolve đúng tới producer đã xác nhận điều đó ở (1).
@@ -297,30 +327,32 @@ Mọi `CandleObserved` trong lúc PROVISIONAL **giữ nguyên trong log** kể c
 
 **Không có source assertion → không phát sinh `CandleClosed` tổng hợp → biểu diễn bằng gap/data-quality condition** (case thứ ba, `CandleDataGapObserved` nếu ingestion adapter phát hiện được).
 
-## 12. Deduplication
+## 13. Deduplication
 
-`envelope.source_identity` theo [Chapter 6 §6.6](../constitution/06-identity-model.md) — hai delivery của cùng một authoritative source fact (ví dụ WS reconnect replay gửi lại cùng candle, hoặc cùng một zero-volume confirmation) **không được** tạo hai business effect. Schema ví dụ, cùng pattern §6.6 đã minh họa:
+`envelope.source_identity` theo [Chapter 6 §6.6](../constitution/06-identity-model.md) — hai delivery của cùng một authoritative source fact (ví dụ WS reconnect replay gửi lại cùng candle, hoặc cùng một zero-volume confirmation) **không được** tạo hai business effect (xem thêm §11 cho quy tắc khi delivery thứ hai là một `CandleClosed`). Schema **venue-neutral**, cùng pattern §6.6 đã minh họa:
 
 ```yaml
 source_identity:
-  venue: binance
-  instrument_id: BTCUSDT
-  type: kline_update_id     # hoặc tương đương do venue cung cấp
-  value: "..."
+  venue_id: <canonical_venue_id>
+  instrument_id: <canonical_instrument_id>
+  type: <source_fact_type>          # ví dụ tương đương "kline update id" do venue cung cấp
+  value: <opaque_source_fact_id>
 ```
 
-## 13. Venue & session neutrality (ADR-007)
+Raw exchange symbol/ID cụ thể (ví dụ tên sàn thật, mã instrument riêng của một venue) chỉ được tồn tại trong provenance do chính **ingestion adapter sở hữu**, nơi được phép tường minh hóa — **không** lộ vào schema canonical này (§14).
+
+## 14. Venue & session neutrality (ADR-007)
 
 Cửa sổ `[window_start, window_end)` phải suy ra từ **trading calendar/session của Venue** (context `instrument-venue-reference`), **không hardcode** giả định "00:00–24:00 UTC liên tục" như một quy tắc phổ quát — kể cả khi crypto hiện tại luôn 24/7. Không leak raw field venue-specific (ví dụ cờ "is-closed" riêng của một venue) vào schema canonical ở trên — normalize tại ranh giới ingestion adapter, trước khi tạo event.
 
-## 14. Replay/Backtest/Paper/Live parity
+## 15. Replay/Backtest/Paper/Live parity
 
-Cả bốn execution mode tiêu thụ **đúng cùng** envelope (§2) và payload (§3–§6) của `CandleObserved`/`CandleClosed`/`CandleCorrected` ([I-2](../constitution/02-platform-invariants.md)) — adapter nạp dữ liệu có thể khác theo mode (WS stream cho Live, historical file cho Backtest), nhưng domain semantic không đổi theo mode.
+Cả bốn execution mode tiêu thụ **đúng cùng** envelope (§2) và payload (§3–§6) của `CandleObserved`/`CandleClosed`/`CandleCorrected` ([I-2](../constitution/02-platform-invariants.md)) — adapter nạp dữ liệu có thể khác theo mode (WS stream cho Live, historical file cho Backtest — đi qua `UNSEEN → CLOSED` trực tiếp, §1), nhưng domain semantic không đổi theo mode.
 
-## 15. Authority boundary
+## 16. Authority boundary
 
-Contract này sở hữu: Candle observation/closure/correction semantics, `CandleCurrentView` projection shape. **Áp dụng, không định nghĩa lại:** event envelope (thuộc [Chapter 8 §8.2](../constitution/08-event-model.md)); ordering/replay cursor mechanics (thuộc [Chapter 5](../constitution/05-time-model.md)/[Chapter 8](../constitution/08-event-model.md)); dedup mechanism (thuộc [Chapter 6 §6.6](../constitution/06-identity-model.md)); ID opaque rule (thuộc [Chapter 6 §6.8](../constitution/06-identity-model.md)). **Không sở hữu:** Instrument/Venue identity (thuộc `instrument-venue-reference`, chưa author); stream/module registry content (Phase 1, chưa tồn tại).
+Contract này sở hữu: Candle observation/closure/correction semantics, `CandleCurrentView` projection shape. **Áp dụng, không định nghĩa lại:** event envelope (thuộc [Chapter 8 §8.2](../constitution/08-event-model.md)); ordering/replay cursor mechanics (thuộc [Chapter 5](../constitution/05-time-model.md)/[Chapter 8](../constitution/08-event-model.md)); dedup mechanism (thuộc [Chapter 6 §6.6](../constitution/06-identity-model.md)); ID opaque rule (thuộc [Chapter 6 §6.8](../constitution/06-identity-model.md)). **Không sở hữu:** Instrument/Venue identity (thuộc `instrument-venue-reference`, chưa author); stream/module registry content (Phase 1, chưa tồn tại); cơ chế invalidate/recompute cụ thể của Swing/Regime khi nhận `CandleCorrected` (thuộc Domain Contract của chúng, Package 0.2-B).
 
-## 16. Ngoài phạm vi — defer
+## 17. Ngoài phạm vi — defer
 
-Enum cụ thể cho `timeframe`; storage/schema/serialization format; ngưỡng `delayed_beyond_threshold` của `CandleDataGapObserved`; cơ chế chuẩn hóa venue-specific field tại ingestion adapter; cơ chế tính `candle_subject_id` deterministic cụ thể (content hash, hay tương đương — chỉ khóa tính chất *opaque + stable + deterministic từ scope*, không khóa thuật toán). Tất cả thuộc Engineering Foundation/Phase 1, không khóa ở Domain Contract này.
+Enum cụ thể cho `timeframe`; storage/schema/serialization format; ngưỡng `delayed_beyond_threshold` của `CandleDataGapObserved`; cơ chế chuẩn hóa venue-specific field tại ingestion adapter; cơ chế tính `candle_subject_id` deterministic cụ thể (content hash, hay tương đương — chỉ khóa tính chất *opaque + stable + deterministic từ đúng năm field scope*, không khóa thuật toán); cú pháp cụ thể của fallback idempotency key (§11). Tất cả thuộc Engineering Foundation/Phase 1, không khóa ở Domain Contract này.
