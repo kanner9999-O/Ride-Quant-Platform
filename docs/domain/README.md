@@ -28,7 +28,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 
 | Package | Nội dung | Trạng thái |
 |---|---|---|
-| **0.2-A — Domain foundation** | `context-map.yaml` (6 capability/context: Instrument/Venue Reference, Market Data, Market Structure, Market Regime, Feature Engineering, Context Aggregation) + `candle.md` | Draft — author self-review xong, **chưa** Consolidated Stable (xem dưới) |
+| **0.2-A — Domain foundation** | `context-map.yaml` (6 capability/context: Instrument/Venue Reference, Market Data, Market Structure, Market Regime, Feature Engineering, Context Aggregation) + `candle.md` (v0.2 — ChatGPT Review A M-01/m-01/m-02 đã xử lý) | Draft — ChatGPT Review A đã xử lý, **chưa** Consolidated Stable (xem dưới) |
 | **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | Chưa bắt đầu |
 | **0.2-C — Decision & execution chain** | `strategy.md` (Strategy Definition + Strategy Instance), `decision.md`, `risk.md`, `position.md`, `replay-event.md`, cộng các concept chưa có trong danh sách gốc: account, venue, instrument, order, fill, trade-intent, execution-intent | Chưa bắt đầu — chặn bởi [ADR-012](../adr/ADR-012.md) và [ADR-013](../adr/ADR-013.md) (cả hai đang `Draft`, chưa Approved) |
 
@@ -44,7 +44,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 - consolidation hoàn tất;
 - không còn qualifying finding nào chưa xử lý so với baseline của package.
 
-Trạng thái hiện tại của Package 0.2-A: **author self-review hoàn tất**, ba review còn lại **chưa diễn ra**. Package 0.2-A **không** được coi là Product Owner approve/lock, và Phase 0.2 **không** được coi là hoàn tất chỉ vì Package 0.2-A tồn tại.
+Trạng thái hiện tại của Package 0.2-A: **author self-review hoàn tất**, **ChatGPT Review A hoàn tất và đã được xử lý** (`candle.md` v0.1 → v0.2, đóng M-01/m-01/m-02), **Independent Review B và consolidation chưa diễn ra**. Package 0.2-A **không** được coi là Product Owner approve/lock, và Phase 0.2 **không** được coi là hoàn tất chỉ vì Package 0.2-A tồn tại.
 
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 

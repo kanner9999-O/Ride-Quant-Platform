@@ -2,6 +2,37 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — candle.md v0.1 → v0.2 — ChatGPT Review A conformance fixes
+
+**Không phải approval.** `candle.md` vẫn `status: Draft`, `reviewers: []`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A trên baseline v0.1 (1 Major, 2 Minor). Independent Review B / consolidation **chưa diễn ra** — không tuyên bố review evidence hoàn tất ngoài Review A.
+
+### Đã sửa (1 Major) — M-01: canonical event-envelope và subject_ref conformance
+
+- Thêm **§2 Canonical event envelope** — định nghĩa một lần, dùng chung cho `CandleObserved`/`CandleClosed`/`CandleCorrected`/`CandleDataGapObserved`: đủ field bắt buộc theo [Chapter 8 §8.2](./constitution/08-event-model.md) (`event_id`, `event_type`, `event_contract_ref`, `schema_version`, `recorded_time`, `subject_ref`, `stream_ref`, `sequence`, `producer_ref`, `correlation_id` theo điều kiện, `causation_refs`, `related_event_refs`, `effective_time`, `market_time` khi có, `source_identity` khi cần dedup). Mỗi event section giờ tách rõ **envelope inheritance** (câu dẫn) khỏi **`payload:`** (chỉ field đặc thù) — không còn lặp lại field envelope trong từng event.
+- Sửa `subject_ref` sang đúng shape canonical Chapter 8 §8.2.2: `{context_id, subject_kind, subject_type, subject_id, scope}` — thay vì tuple trực tiếp trước đó. `subject_id` (`candle_subject_id`) là **opaque, ổn định, deterministic** từ scope, domain logic cấm parse (Chapter 6 §6.8); `scope` giữ field tường minh (instrument/venue/timeframe/window). Không còn tuyên bố "Entity không có identity" — Logical Candle Subject giờ có identity opaque rõ ràng, tách biệt khỏi scope tường minh.
+- `causation_refs`: root event (`CandleObserved`/`CandleClosed`/`CandleDataGapObserved`) khai `[]` tường minh; `CandleCorrected` là ngoại lệ duy nhất, bắt buộc không rỗng.
+
+### Đã sửa (Minor m-01) — state-machine/correction consistency
+
+- Chốt đúng **một** semantic: `CandleCorrected` **không** đưa subject ra khỏi `CLOSED` — thêm transition tường minh `CLOSED → CLOSED, caused_by: CandleCorrected` vào `state_machine`. Loại bỏ khả năng đọc "CLOSED không terminal" thành "correction đưa subject sang trạng thái khác".
+
+### Đã sửa (Minor m-02) — authoritative zero-volume provenance
+
+- Thêm 5 điều kiện bắt buộc cho `data_quality: complete_zero_volume` (§11): source/producer xác nhận tường minh · `producer_ref` resolve đúng producer đó · `event_contract_ref` resolve tới contract cho phép semantic này · `source_identity` có mặt khi cần dedup · ingestion adapter không được suy diễn chỉ từ im lặng. Thiếu điều kiện nào → xử lý như gap (`CandleDataGapObserved`), không phát `CandleClosed` tổng hợp.
+
+### Hành vi đã chấp nhận — giữ nguyên, không suy yếu
+
+Append-only provisional history · no-repaint (I-3) · correction là fact mới · phân biệt 3 trường hợp missing-data · không leak exchange-specific field · không giả định 24/7 phổ quát (ADR-007) · canonical Chapter 5 time field (`effective_time`/`recorded_time`/`market_time`, không dùng `event_time`) · `CandleCurrentView` không authoritative (I-12) · Replay/Backtest/Paper/Live parity (I-2).
+
+### Metadata / state
+
+- `candle.md`: **v0.1 → v0.2**, `status` giữ `Draft`, `reviewers: []`, `approved_by`/`approved_at`/`last_review` giữ `null`.
+- `README.md`: cập nhật Package 0.2-A ghi nhận `candle.md` v0.2 và ChatGPT Review A đã xử lý; vẫn chưa `Consolidated Stable` (Independent Review B + consolidation còn thiếu); không tuyên bố approve/lock/Phase-0.2-completion.
+- `MANIFEST.md`: `manifest_version` **9.26 → 9.27**; dòng `domain/` cập nhật phản ánh v0.2 + Review A đã xử lý.
+- `context-map.yaml`, ADR-012, ADR-013: **không đổi**.
+
+**Package 0.2-B vẫn chưa bắt đầu.** Không đóng OQ nào; không authorize Live.
+
 ## [Unreleased] — 2026-07-28 — Package 0.2-A Draft — Domain foundation (context-map + candle)
 
 **Không phải approval, không phải Phase 0.2 completion.** Tất cả artifact `status: Draft`. Author self-review hoàn tất; ChatGPT Review A / Independent Review B / consolidation **chưa diễn ra** — chưa đạt `Consolidated Stable`.
