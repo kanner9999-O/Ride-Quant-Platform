@@ -2,6 +2,44 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — approve ADR-012 and ADR-013 (Product Owner)
+
+**Product Owner decision — final, không phải đề xuất AI reviewer:**
+
+```text
+Approve ADR-012 v0.3
+Approve ADR-013 v0.3
+```
+
+### Review completion ghi nhận tại approval boundary
+
+- **ADR-012 v0.3:** ChatGPT Review A final re-review — Clean. Independent Review B final delta — Clean. Backward Consistency Check — `No conflict`. **0 qualifying finding.**
+- **ADR-013 v0.3:** ChatGPT Review A final re-review — Clean. Independent Review B final delta — Clean. Backward Consistency Check — `No conflict`. **0 qualifying finding.**
+
+### Approval metadata (atomic, theo Chapter 11 §11.6)
+
+- **ADR-012:** `status: Draft → Approved`, `approved_by: Product Owner`, `approved_at: "2026-07-28"`, `last_review: "2026-07-28"`, `version` giữ `"0.3"`. Reviewer table (§4) pin: ChatGPT (`AI Technical Architect`), Independent Review B (`AI Technical Architect`) — evidence Clean/0 qualifying finding, khớp đúng nội dung đã ghi tại CHANGELOG/MANIFEST trước đó, không thêm concern/risk/recommendation mới. Không có OQ nào resolve.
+- **ADR-013:** `status: Draft → Approved`, `approved_by: Product Owner`, `approved_at: "2026-07-28"`, `last_review: "2026-07-28"`, `version` giữ `"0.3"`. Reviewer table (§4) pin tương tự ADR-012. **OQ-002 KHÔNG resolve** — ADR-013 approval không quyết Strategy Lifecycle Live-gate (đã nêu rõ ở §9 Open questions ngoài phạm vi, và tường minh lại trong khối Product Owner decision của ADR).
+- Kiến trúc/nội dung quyết định của cả hai ADR **không đổi** — chỉ metadata + reviewer evidence pin thay đổi. Theo Chapter 11 §11.6, sau approval, ADR file không được sửa lại nữa.
+- `Approved` **≠** `Locked` — hai state khác nhau trong repository governance (xem `adr/ADR-005.md`, `ADR-006.md`, `ADR-007.md` = `Locked`; `ADR-008/009/010/011` = `Approved`, không `Locked`). ADR-012/ADR-013 dùng đúng `Approved`, không dùng `Locked`.
+
+### Package 0.2-C — ADR dependency gate effect
+
+ADR-012 và ADR-013 Approved → **ADR dependency gate cho Package 0.2-C nay mở.** Package 0.2-C **authorized to begin planning and authoring, subject to its normal package scope authorization and review workflow.** **Không có Package 0.2-C artifact nào được author trong transaction này.** `docs/domain/README.md` cập nhật dòng Package 0.2-C phản ánh đúng gate effect này; `version: "0.5" → "0.6"`, `status` giữ `Draft`.
+
+### Không đổi
+
+Package 0.2-A vẫn `Consolidated Stable` (package lifecycle/readiness state, không phải document approval status); `context-map.yaml`, `candle.md` không đổi. Package 0.2-B vẫn "authorized to begin authoring, chưa có artifact nào được author". OQ-002, OQ-003 vẫn `Open`.
+
+### Metadata / state
+
+- `ADR-012.md`: **v0.3, `status: Approved`**, `approved_by: Product Owner`, `approved_at: "2026-07-28"`.
+- `ADR-013.md`: **v0.3, `status: Approved`**, `approved_by: Product Owner`, `approved_at: "2026-07-28"`.
+- `README.md` (domain index): **v0.5 → v0.6**, `status` giữ `Draft` — Package 0.2-C row cập nhật.
+- `MANIFEST.md`: `manifest_version` **9.30 → 9.31**; `compatible_adr_range` **"ADR-001 ~ ADR-011" → "ADR-001 ~ ADR-013"**; ADR table + Decision Log ghi ADR-012/ADR-013 `Approved`; dòng `domain/` cập nhật phản ánh ADR approval + Package 0.2-C gate effect.
+
+**ADR-012 và ADR-013 đã Approved. Không Lock artifact nào (governance không yêu cầu Lock tại approval boundary này). Không đóng OQ-002/OQ-003 — cả hai vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.**
+
 ## [Unreleased] — 2026-07-28 — consolidate Package 0.2-A stable baseline (ADR-012, ADR-013, Package 0.2-A)
 
 **Không phải approval, không phải Lock.** `status` của mọi artifact liên quan giữ `Draft`; `approved_by`/`approved_at` giữ `null`. Transaction này **ghi nhận** kết quả review/consolidation cuối cùng đã hoàn tất cho ADR-012, ADR-013 và Package 0.2-A — không tạo finding mới, không thay đổi nội dung ADR-012/ADR-013/candle.md.

@@ -1,12 +1,12 @@
 ---
-manifest_version: "9.30"
+manifest_version: "9.31"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.1.0"
 current_phase: "Phase 0 — Vision & Foundation"
-compatible_adr_range: "ADR-001 ~ ADR-011"
-generated_at: "2026-07-27"
+compatible_adr_range: "ADR-001 ~ ADR-013"
+generated_at: "2026-07-28"
 ---
 
 # Documentation Manifest (Lockfile)
@@ -54,12 +54,14 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | adr/ADR-009.md — Ordering Mechanism (resolves OQ-005) | **Approved** | — | — |
 | adr/ADR-010.md — Decision Effective-Time Model + Append-and-Revalidate Policy (resolves OQ-006) | **Approved** | — | — |
 | adr/ADR-011.md — Governance refinement for ADR lifecycle, review gate, and OQ authority | **Approved** | — | — |
+| adr/ADR-012.md — Account-to-Boundary Cardinality — Exactly-One-Boundary Trading Account | **Approved** | — | — |
+| adr/ADR-013.md — Strategy Definition Version — Independent Evidence Axis | **Approved** | — | — |
 
 ## Domain
 
 | File | Status |
 |---|---|
-| domain/ | Phase 0.2 started (Draft) — **Package 0.2-A: `Consolidated Stable`** — `context-map.yaml` **v0.3** Draft (non-blocking documentation-reference fix: cross-reference candle.md §11 → §§10–11 cho hai `candle-corrected` relationship) + `candle.md` **v0.4** Draft (không đổi ở vòng consolidation này). ChatGPT Review A final re-review: Clean. Independent Review B final delta: Clean với đúng 1 Suggestion không-blocking (đã incorporate). Backward Consistency Check: `No conflict`. 0 qualifying finding chưa xử lý. `Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval status; mọi artifact cấu thành vẫn `Draft`. [ADR-012](adr/ADR-012.md) v0.3 Draft và [ADR-013](adr/ADR-013.md) v0.3 Draft — cả hai review complete, sẵn sàng cho Product Owner approval boundary, nhưng **vẫn `Draft`** — chưa Approved/Locked. **Package 0.2-B: authorized to begin authoring, nhưng chưa có artifact nào được author.** Package 0.2-C vẫn chưa bắt đầu. Phase 0.2 vẫn active và chưa hoàn tất. |
+| domain/ | Phase 0.2 started (Draft) — **Package 0.2-A: `Consolidated Stable`** — `context-map.yaml` **v0.3** Draft + `candle.md` **v0.4** Draft; mọi artifact cấu thành vẫn `status: Draft` (`Consolidated Stable` là package lifecycle/readiness state, KHÔNG phải document approval status). [ADR-012](adr/ADR-012.md) v0.3 và [ADR-013](adr/ADR-013.md) v0.3 nay **`Approved`** (Product Owner, 2026-07-28) — ChatGPT Review A final re-review Clean, Independent Review B final delta Clean, Backward Consistency Check `No conflict`, 0 qualifying finding. **Package 0.2-C: ADR dependency gate is now open** — authorized to begin planning and authoring, subject to its normal package scope authorization and review workflow; **no Package 0.2-C artifact is authored in this transaction.** **Package 0.2-B: authorized to begin authoring, nhưng chưa có artifact nào được author.** OQ-002/OQ-003 vẫn `Open` — ADR-012/ADR-013 approval không đóng OQ nào. Phase 0.2 vẫn active và chưa hoàn tất. Không authorize Live ở bất kỳ hình thức nào. |
 
 ## Team (tách biệt khỏi Constitution — Role vs Person)
 
@@ -85,6 +87,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | ADR-009 | **Approved** | 2026-07-18 | Ordering: per-stream contiguous sequence + explicit causation + DAG, không global total order. Approved 2026-07-18, resolves OQ-005 |
 | ADR-010 | **Approved** | 2026-07-18 | Decision Effective-Time Model + §2.6 Registry-Transition Policy = **Append-and-Revalidate** (PO quyết 2026-07-18: 4 guardrail + evidence chain + Scoped Policy/Audit Stream khi stream đích retire). Approved 2026-07-18, resolves OQ-006 |
 | ADR-011 | **Approved** | 2026-07-25 | ADR file immutable after approval; role-based minimum-two independent review gate; MANIFEST authoritative for current ADR/OQ status; authorizes atomic governance migration |
+| ADR-012 | **Approved** | 2026-07-28 | Account-to-Boundary Cardinality: một Trading Account thuộc đúng một `account_boundary_ref` (venue hoặc broker_account), Position scope dưới broker-bound Account (§2.5). Product Owner approved 2026-07-28. Không resolve OQ nào. |
+| ADR-013 | **Approved** | 2026-07-28 | Strategy Definition Version là trục evidence bất biến, độc lập với Plugin/Configuration Version và Package/Build Artifact. Product Owner approved 2026-07-28. Không resolve OQ-002 (vẫn `Open`). |
 
 ## Open Questions
 
@@ -112,4 +116,4 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 ---
 
-**Trạng thái tổng quát:** Chapter 0–14 đã `Locked` (Chapter 12 v1.4 approved & locked by Product Owner 2026-07-27; Chapter 13 v1.7 approved & locked by Kanner 2026-07-28 — M-01-R canonical establishment predicate + M-03 ownership-binding authority; **Chapter 14 v1.5 approved & locked by Kanner 2026-07-28** — atomic recording boundary, đóng circular reference giữa Phase-decision bundle và MANIFEST transition). Chapter 14 v1.5 hoàn tất đủ chuỗi review: ChatGPT Review A (0/0/0/0) · Independent GPT Review B (actor riêng, 0/0/0/0) · ChatGPT consolidation (clean) · Claude Independent Final Challenge (session riêng biệt với revision author, 0/0/0/0) · ChatGPT Final Disposition (`Ready for Product Owner Decision`) — Backward Consistency Check `No conflict` ở mọi vòng; **không cần ADR**. **Chapter 14 Lock KHÔNG tự động hoàn tất Phase 0 Approval Gate** (Phase 0 còn 0.2 Domain Model và 0.3 Product Requirement/Use Case/UX Blueprint chưa làm) và **không** authorize Live ở bất kỳ hình thức nào — OQ-002/OQ-003 vẫn `Open`. Constitution (Chapter 0–14) nay full-locked. ADR-011 v1.1 đã `Approved` và governance migration đã được activate atomically ngày 2026-07-25. ADR-001–ADR-010 decision content không đổi; current ADR lifecycle/OQ state và reverse supersession relation resolve từ MANIFEST theo I-12.
+**Trạng thái tổng quát:** Chapter 0–14 đã `Locked` (Chapter 12 v1.4 approved & locked by Product Owner 2026-07-27; Chapter 13 v1.7 approved & locked by Kanner 2026-07-28 — M-01-R canonical establishment predicate + M-03 ownership-binding authority; **Chapter 14 v1.5 approved & locked by Kanner 2026-07-28** — atomic recording boundary, đóng circular reference giữa Phase-decision bundle và MANIFEST transition). Chapter 14 v1.5 hoàn tất đủ chuỗi review: ChatGPT Review A (0/0/0/0) · Independent GPT Review B (actor riêng, 0/0/0/0) · ChatGPT consolidation (clean) · Claude Independent Final Challenge (session riêng biệt với revision author, 0/0/0/0) · ChatGPT Final Disposition (`Ready for Product Owner Decision`) — Backward Consistency Check `No conflict` ở mọi vòng; **không cần ADR**. **Chapter 14 Lock KHÔNG tự động hoàn tất Phase 0 Approval Gate** (Phase 0 còn 0.2 Domain Model và 0.3 Product Requirement/Use Case/UX Blueprint chưa làm) và **không** authorize Live ở bất kỳ hình thức nào — OQ-002/OQ-003 vẫn `Open`. Constitution (Chapter 0–14) nay full-locked. ADR-011 v1.1 đã `Approved` và governance migration đã được activate atomically ngày 2026-07-25. **ADR-012 v0.3 và ADR-013 v0.3 đã `Approved` bởi Product Owner ngày 2026-07-28** (review complete: ChatGPT Review A final re-review Clean, Independent Review B final delta Clean, BCC `No conflict`, 0 qualifying finding cho cả hai) — mở **ADR dependency gate cho Package 0.2-C** (authorized để planning/authoring, subject to normal package scope authorization và review workflow; chưa có artifact 0.2-C nào được author). ADR-012/ADR-013 approval **không** đóng OQ nào và **không** authorize Live — OQ-002/OQ-003 vẫn `Open`. ADR-001–ADR-010 decision content không đổi; current ADR lifecycle/OQ state và reverse supersession relation resolve từ MANIFEST theo I-12.
