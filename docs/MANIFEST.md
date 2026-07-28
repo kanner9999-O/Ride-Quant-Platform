@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.29"
+manifest_version: "9.30"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -59,7 +59,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 | File | Status |
 |---|---|
-| domain/ | Phase 0.2 started (Draft) — Package 0.2-A: `context-map.yaml` **v0.2** Draft (không đổi ở vòng này) + `candle.md` **v0.4** Draft (first conformance example; ChatGPT Review A re-review + Independent Review B delta review đã xử lý F-CND-MAJ-01 — precedence algorithm 5-bước cho duplicate/correction/fail-closed, thay wording mơ hồ trước đó). Cả hai ADR liên quan cũng vừa hoàn tất vòng review thứ hai: [ADR-012](adr/ADR-012.md) v0.3 (Position scope dưới broker-bound Account), [ADR-013](adr/ADR-013.md) v0.3 (authority-table wording). Revision này **chưa qua review nào** — chưa `Consolidated Stable`, chưa Approved/Locked. Package 0.2-B chưa bắt đầu. |
+| domain/ | Phase 0.2 started (Draft) — **Package 0.2-A: `Consolidated Stable`** — `context-map.yaml` **v0.3** Draft (non-blocking documentation-reference fix: cross-reference candle.md §11 → §§10–11 cho hai `candle-corrected` relationship) + `candle.md` **v0.4** Draft (không đổi ở vòng consolidation này). ChatGPT Review A final re-review: Clean. Independent Review B final delta: Clean với đúng 1 Suggestion không-blocking (đã incorporate). Backward Consistency Check: `No conflict`. 0 qualifying finding chưa xử lý. `Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval status; mọi artifact cấu thành vẫn `Draft`. [ADR-012](adr/ADR-012.md) v0.3 Draft và [ADR-013](adr/ADR-013.md) v0.3 Draft — cả hai review complete, sẵn sàng cho Product Owner approval boundary, nhưng **vẫn `Draft`** — chưa Approved/Locked. **Package 0.2-B: authorized to begin authoring, nhưng chưa có artifact nào được author.** Package 0.2-C vẫn chưa bắt đầu. Phase 0.2 vẫn active và chưa hoàn tất. |
 
 ## Team (tách biệt khỏi Constitution — Role vs Person)
 

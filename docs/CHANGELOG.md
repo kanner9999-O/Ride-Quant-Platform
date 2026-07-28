@@ -2,6 +2,41 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — consolidate Package 0.2-A stable baseline (ADR-012, ADR-013, Package 0.2-A)
+
+**Không phải approval, không phải Lock.** `status` của mọi artifact liên quan giữ `Draft`; `approved_by`/`approved_at` giữ `null`. Transaction này **ghi nhận** kết quả review/consolidation cuối cùng đã hoàn tất cho ADR-012, ADR-013 và Package 0.2-A — không tạo finding mới, không thay đổi nội dung ADR-012/ADR-013/candle.md.
+
+### Kết quả review cuối cùng được ghi nhận
+
+- **ADR-012 v0.3:** ChatGPT Review A final re-review — Clean. Independent Review B final delta — Clean. Backward Consistency Check — `No conflict`. **0 qualifying finding.** Disposition: `Ready for Product Owner approval boundary`. `status` giữ `Draft`.
+- **ADR-013 v0.3:** ChatGPT Review A final re-review — Clean. Independent Review B final delta — Clean. Backward Consistency Check — `No conflict`. **0 qualifying finding.** Disposition: `Ready for Product Owner approval boundary`. `status` giữ `Draft`.
+- **Package 0.2-A** (`context-map.yaml` + `candle.md`): ChatGPT Review A final re-review — Clean. Independent Review B final delta — **Clean với đúng 1 Suggestion không-blocking.** Backward Consistency Check — `No conflict`. **0 qualifying finding.** Final disposition: **`Consolidated Stable`**.
+
+### Suggestion không-blocking — đã incorporate
+
+`context-map.yaml`: cho cả hai relationship `candle-corrected` (provider `market-data-observation` → consumer `market-structure-analysis`, và → `raw-regime-analysis`), sửa cross-reference thiếu chính xác "chi tiết semantic tại candle.md §11" thành "chi tiết correction/recompute và classification semantics tại candle.md §§10–11". **Thuần túy sửa tài liệu tham chiếu, không đổi semantic** — provider/consumer/`contract_id`/`relationship_type`/`model_influence`/`translation_policy`/`consumer_obligation` giữ nguyên nội dung nghĩa. `version: "0.2" → "0.3"`, `status` giữ `Draft`.
+
+### Consolidation recording — README.md
+
+- Package 0.2-A: trạng thái lifecycle cập nhật thành `Consolidated Stable` — định nghĩa tường minh là **package lifecycle/readiness state, KHÔNG phải document approval status**; mọi artifact cấu thành (`context-map.yaml`, `candle.md`, `README.md`) **vẫn giữ `status: Draft`**.
+- Package 0.2-B: cập nhật từ "Chưa bắt đầu" thành "Authorized to begin authoring sau khi Package 0.2-A đạt `Consolidated Stable`" — **chưa có artifact 0.2-B nào được author** trong transaction này hay bất kỳ transaction trước đó.
+- `README.md`: `version: "0.4" → "0.5"`, `status` giữ `Draft`.
+
+### Không đổi trong transaction này
+
+`ADR-012.md` nội dung, `ADR-013.md` nội dung, `candle.md` (v0.4), Constitution, mọi Approved ADR, trạng thái OQ-002/OQ-003 (vẫn `Open`). Reviewer table của ADR-012/ADR-013 (§4) giữ nguyên trống — theo Chapter 11, việc pin reviewer evidence chỉ xảy ra tại atomic approval transaction; readiness được ghi nhận ở CHANGELOG/MANIFEST thay vì bịa reviewer name/timestamp/concern text.
+
+### Metadata / state
+
+- `context-map.yaml`: **v0.2 → v0.3**, `status` giữ `Draft`.
+- `README.md` (domain index): **v0.4 → v0.5**, `status` giữ `Draft`.
+- `candle.md`: **không đổi** — vẫn v0.4, `status` giữ `Draft`.
+- `ADR-012.md`: **không đổi** — vẫn v0.3, `status` giữ `Draft`.
+- `ADR-013.md`: **không đổi** — vẫn v0.3, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.29 → 9.30**; dòng `domain/` cập nhật ghi nhận `Consolidated Stable`, ADR-012/ADR-013 review-complete-nhưng-Draft, Package 0.2-B authorized-nhưng-chưa-author.
+
+**Package 0.2-A đạt `Consolidated Stable`; Package 0.2-B được authorize để bắt đầu authoring nhưng chưa có artifact nào được author; Package 0.2-C vẫn chưa bắt đầu.** Không Product Owner Approve artifact nào; không Lock artifact nào; không đóng OQ-002/OQ-003; không authorize Live ở bất kỳ hình thức nào; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-28 — candle.md v0.3 → v0.4 — strict duplicate/correction/fail-closed precedence
 
 **Không phải approval.** `status` giữ `Draft`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A re-review + Independent Review B delta review: **1 Major (F-CND-MAJ-01)**. `context-map.yaml` **không đổi** ở vòng này (clean, không cần sửa).

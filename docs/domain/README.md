@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.4"
+version: "0.5"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -28,13 +28,13 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 
 | Package | Nội dung | Trạng thái |
 |---|---|---|
-| **0.2-A — Domain foundation** | `context-map.yaml` (v0.2 — không đổi ở vòng này) + `candle.md` (v0.4 — ChatGPT Review A re-review + Independent Review B delta review: F-CND-MAJ-01 đã xử lý) | Draft — 2 vòng review đã xử lý, **chưa** Consolidated Stable (xem dưới) |
-| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | Chưa bắt đầu |
-| **0.2-C — Decision & execution chain** | `strategy.md` (Strategy Definition + Strategy Instance), `decision.md`, `risk.md`, `position.md`, `replay-event.md`, cộng các concept chưa có trong danh sách gốc: account, venue, instrument, order, fill, trade-intent, execution-intent | Chưa bắt đầu — chặn bởi [ADR-012](../adr/ADR-012.md) và [ADR-013](../adr/ADR-013.md) (cả hai đang `Draft`, chưa Approved) |
+| **0.2-A — Domain foundation** | `context-map.yaml` (v0.3 — non-blocking documentation-reference fix) + `candle.md` (v0.4, không đổi ở vòng consolidation này) | Draft — **`Consolidated Stable`** (xem dưới) |
+| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Authorized to begin authoring** sau khi Package 0.2-A đạt `Consolidated Stable`. **Chưa có artifact nào được author** trong transaction này hay bất kỳ transaction trước đó — chỉ mới được mở khóa, chưa bắt đầu viết. |
+| **0.2-C — Decision & execution chain** | `strategy.md` (Strategy Definition + Strategy Instance), `decision.md`, `risk.md`, `position.md`, `replay-event.md`, cộng các concept chưa có trong danh sách gốc: account, venue, instrument, order, fill, trade-intent, execution-intent | Chưa bắt đầu — chặn bởi [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 (cả hai review-complete, sẵn sàng cho Product Owner approval boundary, nhưng **vẫn `Draft`** — chưa Approved/Locked) |
 
 **Thứ tự dự kiến trong từng package không đổi** so với kế hoạch gốc (theo dependency đã chốt ở [ADR-003](../adr/ADR-003.md) và [07-module-taxonomy.md](../constitution/07-module-taxonomy.md)); Package 0.2-C được liệt kê đầy đủ hơn danh sách gốc vì danh sách gốc thiếu Account/Order/Execution/Venue/Instrument.
 
-## Package 0.2-B không được bắt đầu dựa trên authority của 0.2-A cho tới khi 0.2-A đạt `Consolidated Stable`
+## Package 0.2-A đã đạt `Consolidated Stable` — Package 0.2-B được mở khóa để bắt đầu authoring
 
 **`Consolidated Stable` nghĩa là:**
 
@@ -44,7 +44,17 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 - consolidation hoàn tất;
 - không còn qualifying finding nào chưa xử lý so với baseline của package.
 
-Trạng thái hiện tại của Package 0.2-A: **author self-review hoàn tất**; **hai vòng review đã diễn ra và được xử lý** — (1) ChatGPT Review A + Independent Review B trên baseline gốc, consolidated thành `context-map.yaml` v0.1 → v0.2 và `candle.md` v0.2 → v0.3; (2) ChatGPT Review A re-review + Independent Review B delta review trên baseline đó, consolidated thành `candle.md` v0.3 → v0.4 (F-CND-MAJ-01 — precedence algorithm 5-bước cho duplicate/correction/fail-closed; `context-map.yaml` không đổi ở vòng này). **Revision v0.4 CHƯA qua vòng review nào** — chưa có ChatGPT Review A cho baseline mới nhất, `Consolidated Stable` vẫn chưa đạt. Package 0.2-A **không** được coi là Product Owner approve/lock, và Phase 0.2 **không** được coi là hoàn tất chỉ vì Package 0.2-A tồn tại.
+**Package 0.2-A đã đạt đủ cả năm điều kiện trên**, qua hai vòng review đầy đủ:
+
+1. ChatGPT Review A + Independent Review B (baseline gốc) → consolidated thành `context-map.yaml` v0.1→v0.2, `candle.md` v0.2→v0.3.
+2. ChatGPT Review A re-review + Independent Review B delta review (baseline v0.2/v0.3) → consolidated thành `candle.md` v0.3→v0.4 (F-CND-MAJ-01).
+3. **ChatGPT Review A final re-review: Clean. Independent Review B final delta: Clean với đúng 1 Suggestion không-blocking.** Backward Consistency Check: `No conflict`. **0 qualifying finding chưa xử lý.**
+
+Suggestion không-blocking đã được incorporate trong chính transaction này: `context-map.yaml` v0.2→v0.3 — sửa cross-reference "chi tiết semantic tại candle.md §11" (không chính xác) thành "chi tiết correction/recompute và classification semantics tại candle.md §§10–11" — **thuần túy sửa tài liệu tham chiếu, không đổi semantic** (provider/consumer/contract_id/relationship_type/model_influence/translation_policy/consumer_obligation giữ nguyên).
+
+**`Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval status.** Mọi artifact cấu thành (`context-map.yaml`, `candle.md`, chính README này) **vẫn giữ `status: Draft`**. Package 0.2-A **không** được Product Owner Approve, **không** Lock. Phase 0.2 **không** được coi là hoàn tất chỉ vì Package 0.2-A đạt Consolidated Stable — Package 0.2-B và 0.2-C vẫn chưa có artifact nào.
+
+Package 0.2-B **được authorize để bắt đầu authoring** kể từ transaction này — nhưng **chưa có artifact 0.2-B nào được author**, ở đây hay ở bất kỳ transaction trước đó. Authoring thực tế (candle-tương-tự cho swing/structure/regime/feature/context) là một action riêng, chưa xảy ra.
 
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 

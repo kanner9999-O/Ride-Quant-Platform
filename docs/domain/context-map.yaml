@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -127,7 +127,8 @@ relationships:
     consumer_obligation: >
       Consumer nhận CandleCorrected PHẢI invalidate hoặc recompute mọi derived fact có
       causal ancestry bao gồm Candle fact bị sửa — không được giữ nguyên kết luận Structure
-      đã tính trên giá trị Candle cũ (đóng C-CM-MAJ-02; chi tiết semantic tại candle.md §11).
+      đã tính trên giá trị Candle cũ (đóng C-CM-MAJ-02; chi tiết correction/recompute và
+      classification semantics tại candle.md §§10–11).
 
   - provider_context_id: market-data-observation
     consumer_context_id: raw-regime-analysis
@@ -151,4 +152,5 @@ relationships:
     consumer_obligation: >
       Consumer nhận CandleCorrected PHẢI invalidate hoặc recompute mọi derived fact có
       causal ancestry bao gồm Candle fact bị sửa — không được giữ nguyên kết luận Regime
-      đã tính trên giá trị Candle cũ (đóng C-CM-MAJ-02; chi tiết semantic tại candle.md §11).
+      đã tính trên giá trị Candle cũ (đóng C-CM-MAJ-02; chi tiết correction/recompute và
+      classification semantics tại candle.md §§10–11).
