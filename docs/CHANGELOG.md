@@ -2,6 +2,47 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — Chapter 13 v1.7 approved and locked
+
+### Decision
+
+- **Product Owner:** `Kanner`.
+- **Decision:** `APPROVED AND LOCKED`.
+- Chapter 13 version giữ **v1.7** (không bump); `status`: `In Review → Locked`.
+- **Approval timestamp:** `2026-07-28T10:14:34+07:00`.
+- Đây **không** phải quyết định của ChatGPT hoặc Claude — Claude chỉ ghi nhận quyết định Product Owner đã có vào repository.
+
+### Exact decision baseline
+
+- HEAD trước decision: `993d796e1850429771b92e80dc47699b13a1ef75`
+- Chapter 13 blob trước decision: `be3052c792e56c2beb69bc655291ee4173a77805`
+- MANIFEST trước decision: `9.19`
+
+### Review evidence accepted
+
+- ChatGPT Review A: `0 / 0 / 0 / 0`.
+- Independent GPT Review B: `Confirm Review A` — `0 / 0 / 0 / 0`.
+- ChatGPT consolidation: no surviving findings — `0 / 0 / 0 / 0`.
+- Claude Independent Final Challenge: `Consolidated result confirmed` — `0 / 0 / 0 / 0`.
+- Backward Consistency Check ([Chapter 12 §12.4](./constitution/12-approval-gates.md)): `No conflict`.
+
+### Content disposition
+
+- **M-01-R** — closed (v1.7).
+- **M-03** — closed (v1.7).
+- Không còn finding nào tồn đọng.
+- **Không cần ADR.**
+- Không có Locked chapter nào khác bị sửa.
+- Không có dependency cycle mới.
+- Không có lifecycle drift.
+- **Không** đóng OQ-002 hoặc OQ-003.
+- Chapter 14 **giữ nguyên** `In Review` — không chạm.
+
+### State changes
+
+- `constitution/13-quality-gates.md`: **v1.7**, `status: In Review → Locked`, `approved_by: Kanner`, `approved_at: "2026-07-28T10:14:34+07:00"`. Normative body không đổi; chỉ đồng bộ status prose đầu chương.
+- `MANIFEST.md`: `manifest_version` **9.19 → 9.20**; Chapter 13 row → `1.7 · Locked`; overview line cập nhật **Chapter 0–13 Locked, Chapter 14 In Review**. `constitution_version` giữ **1.1.0**; Chapter 0–12 entries, Chapter 14 version/status, ADR states, OQ-002/OQ-003, dependency graph — tất cả giữ nguyên.
+
 ## [Unreleased] — 2026-07-27 — Chapter 13 (Quality Gates) v1.6 → v1.7 — close tier authority bypasses (M-01-R, M-03)
 
 **Không phải approval/lock.** Revision của chapter đang `In Review`, thực hiện theo yêu cầu Product Owner dựa trên consolidated finding v1.6. **Không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **revision author** (`AI Technical Architect`) trong nhịp này — **không** phải Product Owner, **không** tự tuyên bố revision v1.7 đã pass review.

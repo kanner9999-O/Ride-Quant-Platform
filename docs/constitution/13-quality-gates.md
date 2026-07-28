@@ -2,11 +2,11 @@
 id: 13-quality-gates
 title: Quality Gates
 version: "1.7"
-status: In Review
+status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+approved_by: Kanner
+approved_at: "2026-07-28T10:14:34+07:00"
 created_at: "2026-07-16"
 last_review: "2026-07-27"
 next_review: null
@@ -15,7 +15,7 @@ depends_on: ["02-platform-invariants", "07-module-taxonomy"]
 
 # 13. Quality Gates
 
-> **Trạng thái:** `In Review`. Theo [Chapter 12 §12.3](./12-approval-gates.md) (Locked), khi còn `In Review` chương này được prose-reference như **intended owner** của quality criteria/gate, nhưng nội dung draft **chưa phải binding Locked authority**. Các gate requirement dưới đây chỉ trở thành authoritative quality contract mà [Chapter 12 §12.2(5)](./12-approval-gates.md) yêu cầu **sau khi** Product Owner Approve/Lock.
+> **Trạng thái:** `Locked`. Product Owner đã **Approve and Lock** Chapter 13 v1.7. Theo [Chapter 12 §12.3](./12-approval-gates.md), chương này từ nay là **binding authoritative Quality Gates contract** — đúng contract mà [Chapter 12 §12.2(5)](./12-approval-gates.md) yêu cầu cho applicable quality gates. Quality Gate vẫn khác Product Owner Approval Gate (§13.1) — trạng thái Locked không đổi phân biệt đó.
 
 ## 13.1 Purpose and scope
 
