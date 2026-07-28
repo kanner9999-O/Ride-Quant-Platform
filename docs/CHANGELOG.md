@@ -2,6 +2,15 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — ADR-012 Draft — Account-to-Venue Boundary
+
+**Không phải approval.** ADR mới, `status: Draft` (v0.1), `approved_by`/`approved_at` giữ `null`, `reviewers: []`. Ghi lại nguyên văn Product Owner direction (Kanner, 2026-07-28): Account thuộc đúng một Venue/broker boundary; Venue có thể chứa nhiều Account; vốn/exposure liên-venue là Portfolio/Capital Allocation Group projection, không phải multi-venue Account.
+
+- `docs/adr/ADR-012.md` (mới): Account:Venue = N:1; `account_id` vẫn opaque (Ch6 §6.8), `venue_id` là field tường minh riêng, immutable, gán tại tạo Account; đổi venue = tạo Account identity khác; Portfolio/Capital Allocation Group = `read_model`, không phải Account; Order/Fill/Position resolve qua đúng một Account; credential reference scoped 1 venue; simulated Account giữ nguyên shape. `depends_on: [ADR-007]` — mở rộng, không supersede, ADR-007 không bị sửa.
+- **Không cần review table điền sẵn** — Draft này chưa qua review nào; bảng Independent reviews để trống theo đúng template.
+- **Không đóng OQ nào** (`addresses: []`, `resolves: []`).
+- Chặn hoàn thiện Package 0.2-C (Account/Order/Position/Risk Domain Contract); không chặn Package 0.2-A/0.2-B.
+
 ## [Milestone] — 2026-07-28 — 🔒 Chapter 14 v1.5 — Product Owner Approve and Lock
 
 **Product Owner decision** (sole approval authority): `Kanner` — *"Approve and Lock Chapter 14 v1.5."* Decision date **2026-07-28**. Claude thực thi đúng quyết định này bằng một atomic governance commit — **không** đưa ra quyết định approval mới, **không** sửa nội dung normative của Chapter 14.
