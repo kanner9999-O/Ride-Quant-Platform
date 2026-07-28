@@ -23,4 +23,4 @@ Thư mục này sẽ chứa Domain Contract cho từng khái niệm miền, mỗ
 
 candle.md → swing.md → structure.md → regime.md → feature.md → context.md → strategy.md → decision.md → risk.md → position.md → replay-event.md
 
-Chưa có file nào được tạo — đây là việc tiếp theo sau khi Constitution (bao gồm Chapter 0 Governance) được Approve 3/3.
+Chưa có file nào được tạo — đây là việc tiếp theo sau khi Constitution (bao gồm Chapter 0 Governance) hoàn tất Approval Gate theo governance hiện hành ([Chapter 0 §3](../constitution/00-governance.md): tối thiểu hai independent review từ AI Technical Architect, Product Owner là authority duy nhất quyết định — không còn mô hình `3/3` cũ, xem [ADR-011](../adr/ADR-011.md)).

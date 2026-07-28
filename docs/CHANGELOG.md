@@ -2,6 +2,60 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — Chapter 14 (Roadmap) v1.2 → v1.3 — resolve phase-plan authority
+
+**Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **revision author + self-reviewer** (`AI Technical Architect`) trong nhịp này — **không** phải Product Owner. Đây **không phải independent-review evidence**: v1.3 **chưa** qua bất kỳ independent review nào (ChatGPT Review A / Independent Review B / Claude Independent Final Challenge đều **chưa xảy ra** cho baseline v1.3).
+
+### Consolidated input đã nhận (baseline v1.2, HEAD `242c566a2160b853babe5f10117d08e985a5c85c`)
+
+- ChatGPT Review A: 0/1/0/0. Independent GPT Review B: 0/3/1/0. ChatGPT consolidation: **3 Major (C-01, C-02, C-03) · 1 Minor (C-04)**, Backward Consistency Check `Revision required`.
+
+### Author challenge (trước khi sửa)
+
+| Finding | Disposition | Ghi chú |
+|---|---|---|
+| C-01 | **Confirm** | Locked Chapter 12/13 dùng cụm "approved phase plan/roadmap" — v1.2 không khóa "phase plan" là gì so với "roadmap", không có exactly-one resolution rule |
+| C-02 | **Confirm** | v1.2 §14.4 để DoD khai gate set trực tiếp nhưng không khóa **incorporation** — bridge nối DoD → canonical Phase-plan declaration còn thiếu |
+| C-03 | **Partially confirm, reclassify (thu hẹp scope)** | Gap về audit trail là thật, nhưng danh sách field gốc (BCC result, validator result, review evidence, PO decision boundary) thuộc authority Chapter 12/13/11/0 — Chapter 14 chỉ pin phần thuộc chính nó (Phase/Roadmap/DoD/gate-set identity) và **reference** (không redefine) phần còn lại, tránh đè lên "Phase approval orchestration" mà chính §14.5 đã giao cho Chapter 12 |
+| C-04 | **Confirm** | `docs/domain/README.md` dòng cuối còn "Approve 3/3" — stale so với governance hiện hành (ADR-011) |
+
+Có Major sống (C-01, C-02) → tiến hành revision v1.3.
+
+### Đã sửa — Author self-assessment: addressed; pending independent review
+
+- **C-01 → §14.1.1 (mới):** khóa **canonical Phase-plan model** — không tồn tại "Phase plan" như artifact type riêng cạnh Roadmap; canonical Phase plan = phần Phase tương ứng trong Roadmap + accepted DoD đã incorporate; exactly-one resolution, fail-closed khi zero/multiple, không precedence ngầm, historical decision không resolve lại từ bản hiện tại. Chấm dứt đệ quy tại chính Roadmap + Product Owner DoD-acceptance (Decision Workflow, Chapter 0 §3) — không tạo authority registry mới.
+- **C-02 → §14.3.1 (mới):** khóa **DoD incorporation** — DoD không phải Phase-plan cạnh tranh; incorporation là hành vi tường minh (exact immutable reference); gate-set declaration của DoD đã incorporate = declaration của canonical Phase plan (đúng authority bridge mà Ch12 §12.2(5)/Ch13 §13.12 cần); PO acceptance cần evidence boundary tường minh, không suy từ publish; zero/multiple/conflicting declaration → fail-closed; historical immutability khi DoD version đổi.
+- **C-03 (thu hẹp) → §14.4.1 (mới):** khóa **Immutable Phase-decision bundle** — tách rõ field Chapter 14 pin trực tiếp (Phase identity, Roadmap version, DoD version, gate-set declaration) khỏi field chỉ **reference** tới evidence contract đã có sẵn ở Chapter 0/11/12/13 (không redefine nội dung/format của chúng); phân biệt `current state → MANIFEST` vs `historical decision → immutable bundle`.
+- **C-04 → `docs/domain/README.md`:** thay "Approve 3/3" bằng tham chiếu Chapter 0 §3 hiện hành (hai independent review, Product Owner quyết) + ADR-011; không thêm rule mới, không rewrite phần còn lại.
+- §14.5 (authority boundary table) và §14.6 (defer list) cập nhật để liệt kê 3 concern mới là authority của Chapter 14 và defer đúng storage/format của bundle.
+
+### Author self-review (6 attack scenarios + 2 consistency checks)
+
+- **Attack 1 (competing Phase plans):** không còn khả năng — "Phase plan" không phải artifact type có authority ngoài Roadmap+DoD (§14.1.1).
+- **Attack 2 (accepted DoD chưa incorporate):** gate declaration bên trong **invalid** cho tới khi incorporate (§14.3.1).
+- **Attack 3 (Phase plan khai G1, DoD khai G2):** không thể phát sinh — chỉ DoD là nguồn declare gate set (§14.4); §14.3.1 vẫn khóa fail-closed cho multiple/conflicting declaration làm defense-in-depth.
+- **Attack 4 (DoD v2 thành current):** historical decision vẫn resolve đúng DoD v1 đã pin tại boundary (§14.3.1, §14.4.1).
+- **Attack 5 (thiếu PO-acceptance evidence):** DoD không canonical, eligibility incomplete (§14.3.1, §14.3).
+- **Attack 6 (hai validator, cùng pinned evidence):** rule deterministic, không có lựa chọn ngầm ở bất kỳ bước nào → cùng kết quả.
+- **Locked-authority consistency:** đối chiếu Chapter 0, I-12, Chapter 7, Chapter 11, Chapter 12, Chapter 13, ADR-011, MANIFEST — không phát hiện redefinition; mọi authority ngoài Chapter 14 chỉ được **tham chiếu**.
+- **Scope:** chỉ 4 file được sửa; không Locked chapter nào bị đổi; không ADR (không chapter Locked nào bị chạm, không đổi governance/approval process — chỉ hoàn thiện delegation Chapter 14 đã được giao); không dependency cycle; không đóng OQ; Phase sequence/gate/0.1–0.3/Phase 1.5 giữ nguyên.
+
+**Author self-assessment: addressed; pending independent review.** Đây là đánh giá của chính revision author, **không** phải kết luận đã được xác nhận độc lập.
+
+### Metadata / state
+
+- `constitution/14-roadmap.md`: **v1.2 → v1.3**, status giữ `In Review`, `approved_by`/`approved_at` giữ `null`, `last_review` giữ `2026-07-28`. `depends_on` giữ nguyên (00→13, không cycle).
+- `docs/domain/README.md`: sửa 1 câu (C-04), không đổi frontmatter/status (`Not Started`).
+- `MANIFEST.md`: row Chapter 14 → **v1.3**; `manifest_version` **9.21 → 9.22**; Chapter 0–13 giữ `Locked` (Chapter 13 vẫn `1.7 · Locked`); OQ-002/OQ-003 vẫn `Open`; không close backlog nào.
+
+### ADR
+
+**Không cần ADR** — mọi fix nằm trong authority Chapter 14 đã tự nhận ở §14.1/§14.5 (phase sequence, DoD, gate-set declaration) cộng phần defer sang reference-only cho C-03; không sửa Locked chapter; không đổi governance/approval process.
+
+### Next
+
+`Chapter 14 v1.3 — In Review — ready for ChatGPT Review A`. Không pre-assert kết quả review hay Product Owner approval.
+
 ## [Unreleased] — 2026-07-28 — Chapter 14 (Roadmap) v1.1 → v1.2 — close Chapter 12/13 delegation gaps
 
 **Không phải approval.** Revision của chapter đang `In Review`; **không** Approve/Lock, `approved_by`/`approved_at` giữ `null`. Claude là **author/self-reviewer** (`AI Technical Architect`) trong nhịp này — **không** phải Product Owner, **không** pre-assert independent review, **không** pre-assert Product Owner approval. Chapter 14 v1.2 **chưa** qua review độc lập nào.

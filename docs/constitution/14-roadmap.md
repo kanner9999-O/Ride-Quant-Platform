@@ -1,7 +1,7 @@
 ---
 id: 14-roadmap
 title: Roadmap
-version: "1.2"
+version: "1.3"
 status: In Review
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
@@ -30,6 +30,19 @@ Chapter 14 **không** sở hữu và **không định nghĩa lại**:
 - **current version/status/state của tài liệu** — thuộc [MANIFEST](../MANIFEST.md) theo [I-12](./02-platform-invariants.md).
 
 **Đơn vị chịu Approval Gate là `Phase`.** Sub-phase (ví dụ 0.1/0.2/0.3) là **work unit bên trong** một Phase — sub-phase **không** tự mở Approval Gate riêng. `Phase 1.5` là một **Phase** đầy đủ (không phải sub-phase) và có Approval Gate riêng.
+
+### 14.1.1 Canonical Phase-plan model
+
+Nhiều Locked chapter (ví dụ [Chapter 12 §12.3](./12-approval-gates.md), [Chapter 13 §13.12](./13-quality-gates.md)) dùng cụm **"approved phase plan/roadmap"** — cụm này có thể đọc thành hai artifact khác nhau (một "Phase plan" tách biệt, cạnh Roadmap). Mục này khóa dứt điểm: **không tồn tại "Phase plan" như một artifact type riêng, cạnh tranh với Roadmap.**
+
+- **Chapter 14 (chính chương này) là canonical Roadmap duy nhất** của project.
+- **Canonical Phase plan của một Phase = đúng phần Phase tương ứng trong Roadmap (§14.2) cộng exact accepted DoD của Phase đó, đã incorporated** ([§14.3.1](#1431-dod-incorporation-vào-canonical-phase-plan)). Đây **không** phải hai nguồn ngang hàng — DoD là **thành phần được incorporate**, không phải một Phase-plan cạnh tranh.
+- Cụm "phase plan/roadmap" ở các chapter khác **resolve về đúng một thực thể này** — không phải lựa chọn giữa hai nguồn.
+- **Mỗi Phase phải resolve được đúng một canonical Phase-plan content tại evaluation boundary** (Roadmap phase-section version + accepted DoD version). Zero hoặc multiple accepted DoD cạnh tranh cho cùng Phase → **fail-closed** ([§14.3](#143-definition-of-done--cardinality-và-nơi-ở)).
+- **Không có implicit precedence** (không "bản mới nhất thắng", không "bản cụ thể hơn thắng") — resolve thất bại thì fail-closed, không tự chọn.
+- **Historical Phase decision không được resolve lại từ Roadmap/DoD hiện tại.** Quyết định đã đưa ra tại một boundary vẫn phải tái dựng được với đúng Roadmap-phase-section version + DoD version đã pin tại boundary đó ([§14.4.1](#1441-immutable-phase-decision-bundle)) — thay đổi Roadmap/DoD về sau **không** reinterpret quyết định cũ.
+
+Mô hình này **chấm dứt đệ quy** tại chính Roadmap này (Locked artifact duy nhất mà Chapter 12/13 tham chiếu) cộng DoD acceptance (fact do Product Owner tạo ra qua Decision Workflow, [Chapter 0 §3](./00-governance.md)) — không cần một "Phase-plan-của-Phase-plan" nào khác để tự hợp thức hóa.
 
 ## 14.2 Phase sequence
 
@@ -106,6 +119,17 @@ Ghi chú:
 
 **Storage/format/filename cụ thể của DoD artifact defer** — Constitution khóa *tồn tại + property*, không khóa cơ chế (§14.6).
 
+### 14.3.1 DoD incorporation vào canonical Phase plan
+
+DoD **không phải một Phase-plan authority cạnh tranh** ([§14.1.1](#1411-canonical-phase-plan-model)) — nó là **thành phần được incorporate** vào canonical Phase plan của đúng Phase đó.
+
+- **Incorporation là hành vi bắt buộc, không ngầm định.** Một DoD được Product Owner accept (§14.3) chỉ trở thành thành phần của canonical Phase plan khi được **incorporate bằng exact immutable reference** — trỏ đúng Phase identity + đúng DoD version/content identity. DoD đã accept nhưng **chưa incorporate** → **không** phải một phần canonical Phase plan → mọi declaration bên trong nó (kể cả gate-set declaration, §14.4) → **invalid** cho mục đích Chapter 12/13 dùng.
+- **Gate-set declaration của DoD đã incorporate = gate-set declaration của canonical Phase plan.** Đây là authority bridge mà [Chapter 12 §12.2(5)](./12-approval-gates.md) ("Approved/Locked authoritative quality contract **hoặc phase plan**") và [Chapter 13 §13.12](./13-quality-gates.md) ("approved phase plan/roadmap") tham chiếu tới.
+- **Product Owner acceptance phải có evidence boundary tường minh** — không suy từ việc DoD tồn tại hay được publish; acceptance là fact riêng, resolve qua Decision Workflow ([Chapter 0 §3](./00-governance.md)), cùng nguyên tắc anti-self-certification mà [Chapter 13 §13.4.1](./13-quality-gates.md) đã khóa cho quality-tier authority (tham chiếu, không định nghĩa lại).
+- **Zero declaration → fail-closed** (không mặc định "không gate nào áp dụng", §14.4). **Multiple/conflicting declaration** (ví dụ hai incorporation khác nhau của cùng Phase khai gate set khác nhau) **→ fail-closed** — không có precedence ngầm giữa các nguồn.
+- **Chapter 14 không định nghĩa lại gate semantics** — trigger A–E cấp artifact vẫn thuộc [Chapter 13 §13.12](./13-quality-gates.md) nguyên vẹn; mục này chỉ khóa **con đường** một declaration cấp-Phase trở thành authoritative input cho Chapter 12/13, không khóa **nội dung** gate.
+- **Historical immutability:** DoD version thay đổi về sau (DoD v2 trở thành current) **không** reinterpret gate evaluation hay Phase decision đã dùng DoD v1 đã incorporate tại boundary — evidence cũ giữ nguyên đúng version đã pin ([§14.4.1](#1441-immutable-phase-decision-bundle)).
+
 ## 14.4 Quality gate declaration cho phase deliverable
 
 [Chapter 13 §13.12](./13-quality-gates.md) (Locked) khai báo: **Phase deliverable → gate set mà approved phase plan/roadmap ([Chapter 14](./14-roadmap.md)) khai báo áp dụng.** Đây là delegation Chapter 14 phải đáp ứng — nếu để trống, prerequisite [Chapter 12 §12.2(5)](./12-approval-gates.md) không có nguồn resolve.
@@ -116,11 +140,32 @@ Ghi chú:
 - **Quality Gate KHÔNG chỉ tồn tại ở Phase 3.** Dòng `Quality Gate theo Tier` trong sequence Phase 3 (§14.2) là **nhấn mạnh** giai đoạn build module, **không** phải giới hạn phạm vi. Mọi Phase Approval Gate đều chịu [Chapter 12 §12.2(5)](./12-approval-gates.md): applicable quality gates phải **thực sự PASS**.
 - **Quality Gate ≠ Approval Gate** ([Chapter 13 §13.1](./13-quality-gates.md)): gate pass chỉ sinh eligibility evidence; Product Owner vẫn là authority duy nhất quyết định phase transition.
 
+### 14.4.1 Immutable Phase-decision bundle
+
+§14.1.1–§14.4 định nghĩa canonical Phase plan và gate-set declaration tại **evaluation boundary**, nhưng chưa bắt buộc bundle đó **resolvable được sau này** mà không phải tái dựng từ repository archaeology. Mục này khóa yêu cầu **pin** — **không** định nghĩa lại orchestration ([Chapter 12](./12-approval-gates.md)) hay evidence semantics của Quality Gate ([Chapter 13 §13.9](./13-quality-gates.md)).
+
+**Với mỗi Phase Approval Gate decision, phải resolve được một immutable bundle pin tối thiểu:**
+
+- **Thuộc authority của Chapter 14 (pin trực tiếp tại đây):** canonical Phase identity · exact Roadmap version/content identity đã dùng (§14.2) · exact accepted-DoD identity/content version đã incorporate ([§14.3.1](#1431-dod-incorporation-vào-canonical-phase-plan)) · exact gate-set declaration identity/content resolve từ đó (§14.4).
+- **Thuộc authority của chapter khác (bundle chỉ REFERENCE, không redefine nội dung/format của chúng):** Product Owner DoD-acceptance evidence ([Chapter 0 §3](./00-governance.md)) · required/submitted deliverable evidence ([Chapter 12 §12.1](./12-approval-gates.md)) · applicable Quality Gate result/evidence ([Chapter 13 §13.9](./13-quality-gates.md), evidence contract nguyên vẹn) · Backward Consistency Check result ([Chapter 12 §12.4](./12-approval-gates.md)) · validator/freshness result ([Chapter 11 §11.9](./11-adr-process.md)) · independent review evidence ([Chapter 0 §3](./00-governance.md)) · Product Owner decision boundary · resulting MANIFEST transition identity/version ([I-12](./02-platform-invariants.md)).
+- **Reference không resolve được → bundle không hợp lệ → decision đó không có complete audit trail** — đây là yêu cầu pin bổ sung, **không** tự tạo một gate/veto mới chặn phase transition đã xảy ra, và **không** hồi tố vô hiệu hóa quyết định đã ra.
+
+**Phân biệt bắt buộc:**
+
+```text
+current state          → resolve từ MANIFEST (I-12)
+historical decision     → resolve từ immutable pinned Phase-decision bundle, KHÔNG từ current state
+```
+
+Git history có thể hỗ trợ audit nhưng **không** phải cách duy nhất để tái dựng bundle — cùng nguyên tắc [Chapter 0 §5b](./00-governance.md) đã khóa cho Decision Log.
+
+Storage/format cụ thể của bundle defer (§14.6); mục này chỉ khóa **phải resolve được gì**, không khóa cách lưu.
+
 ## 14.5 Authority boundary
 
 | Concern | Authority |
 |---|---|
-| Phase sequence · phase deliverable · DoD cardinality/nơi ở · gate-set declaration cho phase deliverable | **Chapter 14 (chương này)** |
+| Phase sequence · phase deliverable · DoD cardinality/nơi ở · gate-set declaration cho phase deliverable · canonical Phase-plan model · DoD incorporation · Phase-decision bundle pinning | **Chapter 14 (chương này)** |
 | Phase approval orchestration · DoD rule · prerequisite aggregation | [Chapter 12](./12-approval-gates.md) |
 | Quality criteria · gate semantics · gate applicability cấp artifact · evidence contract | [Chapter 13](./13-quality-gates.md) |
 | Review eligibility (số lượng, role, no-veto) | [Chapter 0 §3](./00-governance.md) / [Chapter 11 §11.5](./11-adr-process.md) |
@@ -133,6 +178,6 @@ Chapter 14 **không** tạo competing authority; **không** tự mở phase tran
 
 ## 14.6 Ngoài phạm vi — defer
 
-- **Storage/format/filename cụ thể** của DoD artifact và của gate-set declaration (§14.3–§14.4) — Constitution khóa *tồn tại + property*, không khóa filename/schema/tooling.
+- **Storage/format/filename cụ thể** của DoD artifact, của gate-set declaration, và của Phase-decision bundle (§14.3–§14.4.1) — Constitution khóa *tồn tại + property*, không khóa filename/schema/tooling.
 - **Nội dung DoD cụ thể của từng Phase** — viết khi Phase đó chuẩn bị mở gate, theo đúng §14.3.
 - **Không đóng open question:** chương này **không** giải quyết **OQ-002** (Strategy Lifecycle Live-gate) hay **OQ-003** (Product Metrics). Việc Phase 6 có Paper Trade và Phase 7 có Deployment **không** đồng nghĩa "được phép lên Live" — điều kiện đó vẫn thuộc OQ-002, nhất quán [Chapter 9 §9.10](./09-plugin-model.md), [Chapter 10 §10.8.2](./10-compatibility-capability-contract.md) và [Chapter 13 §13.1](./13-quality-gates.md) (không chapter nào được đóng ngầm OQ-002).
