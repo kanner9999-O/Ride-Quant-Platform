@@ -2,6 +2,27 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — ADR-012 v0.1 → v0.2 — canonical Account Boundary model
+
+**Không phải approval.** `status` giữ `Draft`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A + Independent Review B (consolidated): **1 Major (C-ADR12-MAJ-01), 1 Minor (C-ADR12-MIN-02)**. Product Owner direction gốc (Account thuộc đúng một Venue/broker-account boundary) **không đổi** — chỉ chính xác hóa executable representation.
+
+### Đã sửa (Major — C-ADR12-MAJ-01) — canonical Account Boundary model thay wording mơ hồ
+
+- Thay "`venue_id` hoặc broker-account-boundary reference tương đương" bằng một schema duy nhất: `account_boundary_ref: {boundary_type: venue | broker_account, boundary_id}`. Mỗi Account có đúng một, required, immutable; `account_id` vẫn opaque, không nhúng/parse boundary.
+- Tách rõ 2 nhánh: **venue boundary** (Account thuộc trực tiếp 1 Venue, execution venue có thể inherit) và **broker_account boundary** (Account thuộc 1 broker relationship có thể route đa-venue; **mỗi Order/Fill bắt buộc `execution_venue_id` tường minh**; **không** Domain Contract nào được giả định resolve về đúng 1 Venue trong nhánh này).
+- Title đổi từ "Exactly-One-Venue Trading Account" sang **"Account-to-Boundary Cardinality — Exactly-One-Boundary Trading Account"** — khớp đúng nghĩa đen "Venue hoặc broker-account boundary" mà chính PO direction đã dùng.
+
+### Đã sửa (Minor — C-ADR12-MIN-02) — executable validation obligations
+
+Thêm §2.5, 8 nghĩa vụ reject bắt buộc: zero boundary · nhiều hơn một boundary · rebind tại chỗ · Order/Fill/Position không resolve đúng 1 Account · venue-bound Account xung đột execution venue khác · broker-bound thiếu `execution_venue_id` · external order ID trùng chỉ phân biệt được khi khác Account/execution-Venue scope · simulated Account phải validate cùng structural contract với live Account.
+
+### Metadata / state
+
+- `ADR-012.md`: **v0.1 → v0.2**, `status` giữ `Draft`. `depends_on: [ADR-007]` không đổi; ADR-007 không bị sửa.
+- Reviewer table (§4) vẫn để trống — reviewer identity/concern/risk/recommendation pin tại approval boundary (Chapter 11 §11.6), không bắt buộc trước đó; provenance round review này ghi tại đây.
+
+**Không đóng OQ nào.** Không authorize Live.
+
 ## [Unreleased] — 2026-07-28 — candle.md v0.1 → v0.2 — ChatGPT Review A conformance fixes
 
 **Không phải approval.** `candle.md` vẫn `status: Draft`, `reviewers: []`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A trên baseline v0.1 (1 Major, 2 Minor). Independent Review B / consolidation **chưa diễn ra** — không tuyên bố review evidence hoàn tất ngoài Review A.
