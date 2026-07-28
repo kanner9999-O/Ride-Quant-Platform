@@ -2,6 +2,25 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-28 — ADR-013 v0.1 → v0.2 — authority clarification + rebuilt artifact identity
+
+**Không phải approval.** `status` giữ `Draft`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A + Independent Review B (consolidated): **2 Suggestion (C-ADR13-SUG-01, C-ADR13-SUG-02)**. Product Owner direction gốc (4 trục evidence độc lập, không proxy) **không đổi**.
+
+### Đã sửa (Suggestion — C-ADR13-SUG-01) — Authority clarification
+
+Thêm khối "Authority clarification" ngay dưới bảng 4 trục (§2.1): ADR-013 chỉ sở hữu **yêu cầu kiến trúc** rằng Strategy Definition Version là trục độc lập; `strategy-definition.md` (Package 0.2-C, chưa author) sở hữu schema/lifecycle/nội dung version/field ngữ nghĩa cụ thể; Plugin Version giữ nguyên authority implementation-release identity (Chapter 9 §9.1, không đổi).
+
+### Đã sửa (Suggestion — C-ADR13-SUG-02) — Rebuilt artifact identity
+
+Thêm §2.5 mới: hai executable artifact khác biệt vật chất (compiler, dependency, build flags, base image, packaging, hoặc bytes cuối cùng khác — kể cả non-reproducible rebuild) **phải** có Package/Build Artifact identity khác nhau, **kể cả khi Plugin Version/source commit không đổi**; artifact identity phải resolve tới exact bytes hoặc provenance record bất biến tương đương, không dùng Plugin Version/commit hash làm proxy. Nối vào §2.4: "resolvable Package/Build Artifact" nghĩa là artifact **thực sự đang chạy**, không phải artifact lẽ ra phải giống.
+
+### Metadata / state
+
+- `ADR-013.md`: **v0.1 → v0.2**, `status` giữ `Draft`. `depends_on: [ADR-010]` không đổi; ADR-010 không bị sửa.
+- Reviewer table (§4) vẫn để trống — cùng lý do như ADR-012 (pin evidence tại approval boundary, Chapter 11 §11.6); provenance round review này ghi tại đây.
+
+**Không đóng OQ-002.** Không authorize Live.
+
 ## [Unreleased] — 2026-07-28 — ADR-012 v0.1 → v0.2 — canonical Account Boundary model
 
 **Không phải approval.** `status` giữ `Draft`, `approved_by`/`approved_at`/`last_review` giữ `null`. Sửa theo ChatGPT Review A + Independent Review B (consolidated): **1 Major (C-ADR12-MAJ-01), 1 Minor (C-ADR12-MIN-02)**. Product Owner direction gốc (Account thuộc đúng một Venue/broker-account boundary) **không đổi** — chỉ chính xác hóa executable representation.
