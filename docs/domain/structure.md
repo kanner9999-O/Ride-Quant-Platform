@@ -1,7 +1,7 @@
 ---
 id: structure
 title: Market Structure
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,7 +14,7 @@ next_review: null
 
 # Market Structure
 
-> **Vai trò của tài liệu này:** Domain Contract thứ hai của Package 0.2-B1 — hoàn thiện chuỗi `Candle → Swing → Structure`. Draft, chưa Approved/Locked. Thuộc capability `market-structure` / context `market-structure-analysis` (đã đăng ký tại [`context-map.yaml`](./context-map.yaml)), **cùng context với `swing.md`** — Swing → Structure là quan hệ intra-context, không phải cross-context edge (§9). **v0.2** xử lý ChatGPT Review A + Independent Review B (consolidated) trên baseline v0.1 — 3 Major: **C-B1-STR-MAJ-01** (tách `StructureInvalidated` thành `StructureFactInvalidated` — phủ định MỘT historical fact, KHÔNG tự động chuyển orientation — và `StructureRecomputed` — event DUY NHẤT xác lập orientation mới sau cascade, §5/§5a), **C-B1-STR-MAJ-02** (định nghĩa executable, total-order cho "Swing level nào đang relevant" — §6a, mới), **C-B1-STR-MAJ-03** (bỏ wording "most-recent-first", thay bằng dependency-forward invalidation tường minh — §10). **v0.3** là **narrow delta revision** xử lý 2 Major còn lại từ ChatGPT Review A delta + Independent Review B delta (clean-room) trên baseline v0.2 — **D-B1-STR-MAJ-01** (`broken_swing_ref` v0.2 mất chính xác Swing lifecycle generation — thay bằng canonical reference revision-qualified `{swing_id, swing_revision, swing_confirmed_event_ref, direction}`, §6a), **D-B1-STR-MAJ-02** (total order v0.2 không định nghĩa so sánh cross-stream — thay bằng 8-tiêu-chí tường minh, mỗi tiêu chí có hướng ASC/DESC rõ ràng, §6a). `swing.md` v0.2 và `context-map.yaml` v0.5 **không đổi** ở revision này (cả hai delta verdict: Clean).
+> **Vai trò của tài liệu này:** Domain Contract thứ hai của Package 0.2-B1 — hoàn thiện chuỗi `Candle → Swing → Structure`. Draft, chưa Approved/Locked. Thuộc capability `market-structure` / context `market-structure-analysis` (đã đăng ký tại [`context-map.yaml`](./context-map.yaml)), **cùng context với `swing.md`** — Swing → Structure là quan hệ intra-context, không phải cross-context edge (§9). **v0.2** xử lý ChatGPT Review A + Independent Review B (consolidated) trên baseline v0.1 — 3 Major: **C-B1-STR-MAJ-01** (tách `StructureInvalidated` thành `StructureFactInvalidated` — phủ định MỘT historical fact, KHÔNG tự động chuyển orientation — và `StructureRecomputed` — event DUY NHẤT xác lập orientation mới sau cascade, §5/§5a), **C-B1-STR-MAJ-02** (định nghĩa executable, total-order cho "Swing level nào đang relevant" — §6a, mới), **C-B1-STR-MAJ-03** (bỏ wording "most-recent-first", thay bằng dependency-forward invalidation tường minh — §10). **v0.3** là **narrow delta revision** xử lý 2 Major còn lại từ ChatGPT Review A delta + Independent Review B delta (clean-room) trên baseline v0.2 — **D-B1-STR-MAJ-01** (`broken_swing_ref` v0.2 mất chính xác Swing lifecycle generation — thay bằng canonical reference revision-qualified `{swing_id, swing_revision, swing_confirmed_event_ref, direction}`, §6a), **D-B1-STR-MAJ-02** (total order v0.2 không định nghĩa so sánh cross-stream — thay bằng 8-tiêu-chí tường minh, mỗi tiêu chí có hướng ASC/DESC rõ ràng, §6a). **v0.4** là **final narrow correction** xử lý 2 finding cuối từ Independent Review B final delta trên baseline v0.3 — **IRB-FD-STR-MAJ-01** (một câu trong §6a mâu thuẫn với chính lexicographic rule đã khai — nói "bỏ qua tiêu chí 5, chuyển thẳng tiêu chí 6" khi tiêu chí 3/4 lệch, thay vì dừng lại đúng tại 3/4; thay bằng thuật toán chuẩn tường minh + 3 ví dụ minh họa, §6a), **IRB-FD-STR-MIN-01** (§9 còn sót identifier `relevant_swing_selection_policy` lỗi thời của 4-tier order v0.2; xóa, thay bằng tham chiếu normative duy nhất tới §6a — chỉ một canonical identifier tồn tại). `swing.md` v0.2 và `context-map.yaml` v0.5 **không đổi** ở revision này (cả hai vẫn Clean).
 
 Market Structure bao gồm **năm concept riêng biệt**:
 
@@ -353,7 +353,53 @@ Eligible (swing_id, swing_revision) =
 | 7 | `swing_id` | **ASC**, lexical — tie-break kỹ thuật thuần túy |
 | 8 | `SwingConfirmed.event_id` | **ASC**, lexical — tie-break kỹ thuật cuối cùng |
 
-**Ràng buộc bắt buộc cho tiêu chí (5):** `sequence` chỉ được so sánh **trong cùng một stream identity** — tức chỉ khi (3) VÀ (4) đã hòa (cùng `stream_id`, cùng `registry_version`). **Cấm** so sánh `sequence` thô giữa hai stream khác nhau như thể chúng tạo thành một global order — đúng nguyên tắc [Chapter 8 §8.3.3](../constitution/08-event-model.md) (platform không tuyên bố global total order giữa các stream độc lập) và [ADR-009](../adr/ADR-009.md) (per-stream contiguous sequence, không global sequence). Nếu (3) hoặc (4) chưa hòa, tiêu chí (5) không so sánh được và bị BỎ QUA, chuyển thẳng sang (6).
+**Thuật toán chuẩn (normative, đóng IRB-FD-STR-MAJ-01 — loại bỏ mâu thuẫn giữa "dừng ở tiêu chí đầu tiên phân biệt được" và cách diễn đạt cũ về tiêu chí 5):**
+
+```text
+So sánh tiêu chí 1 đến 8 theo đúng thứ tự.
+Tiêu chí ĐẦU TIÊN có giá trị khác nhau quyết định ứng viên thắng.
+Các tiêu chí sau đó KHÔNG được đánh giá.
+```
+
+Đây là **lexicographic comparison nghiêm ngặt** — không có nhánh "bỏ qua tiêu chí X, chuyển thẳng tiêu chí Y" nào khác ngoài việc dừng lại đúng tại tiêu chí đầu tiên phân biệt được.
+
+**Ràng buộc bắt buộc cho tiêu chí (5) — điều kiện tiên quyết để tiêu chí này có nghĩa:** `sequence` **chỉ được diễn giải nghiệp vụ khi VÀ CHỈ KHI** `stream_ref.stream_id` bằng nhau **VÀ** `stream_ref.registry_version` bằng nhau (tức (3) VÀ (4) đã hòa) — đây là điều kiện tiên quyết để tiêu chí (5) **có thể được đánh giá**, không phải một ngoại lệ cho phép "nhảy" qua tiêu chí (5):
+
+- **Nếu tiêu chí (3) khác nhau** → tiêu chí (3) quyết định ứng viên thắng → **dừng so sánh tại đây** — tiêu chí (4)-(8) KHÔNG được đánh giá.
+- **Nếu tiêu chí (3) hòa nhưng tiêu chí (4) khác nhau** → tiêu chí (4) quyết định ứng viên thắng → **dừng so sánh tại đây** — tiêu chí (5)-(8) KHÔNG được đánh giá.
+- **CHỈ khi cả (3) VÀ (4) đều hòa**, tiêu chí (5) mới được đánh giá.
+
+**Cấm tuyệt đối:** so sánh `sequence` thô giữa hai stream khác nhau như thể chúng tạo thành một global order — đúng nguyên tắc [Chapter 8 §8.3.3](../constitution/08-event-model.md) (platform không tuyên bố global total order giữa các stream độc lập) và [ADR-009](../adr/ADR-009.md) (per-stream contiguous sequence, không global sequence). **Prohibition này KHÔNG làm suy yếu vai trò ordering criterion của (3)/(4)** — ngược lại, chính (3)/(4) là lý do duy nhất khiến (5) không bao giờ được dùng để so hai stream khác nhau: khi (3) hoặc (4) khác nhau, việc dừng lại ngay tại (3)/(4) (chứ không "nhảy" tới (5) rồi mới nhận ra không so được) chính là cơ chế ngăn so sánh `sequence` xuyên stream.
+
+**Ví dụ minh họa (đóng IRB-FD-STR-MAJ-01):**
+
+```text
+# Ví dụ 1 — khác stream_id
+A.stream_id = alpha
+B.stream_id = beta
+
+alpha < beta
+→ A thắng tại tiêu chí 3
+→ tiêu chí 4–8 KHÔNG được đánh giá
+
+# Ví dụ 2 — cùng stream_id, khác registry_version
+A.stream_id = alpha
+B.stream_id = alpha
+A.registry_version = v1
+B.registry_version = v2
+
+v1 < v2
+→ A thắng tại tiêu chí 4
+→ tiêu chí 5–8 KHÔNG được đánh giá
+
+# Ví dụ 3 — cùng stream identity, khác sequence
+A.stream_id = alpha, A.registry_version = v1, A.sequence = 100
+B.stream_id = alpha, B.registry_version = v1, B.sequence = 105
+
+cùng stream_id, cùng registry_version → tiêu chí 5 được phép đánh giá
+100 < 105
+→ A thắng tại tiêu chí 5 (sequence nhỏ hơn thắng)
+```
 
 **`swing_revision DESC` (tiêu chí 6)** đảm bảo: khi hai `SwingConfirmed` hòa cả năm tiêu chí business-time/stream đầu tiên (trường hợp cực hiếm, ví dụ hai revision cùng pivot, cùng recorded_time, cùng stream) — revision hợp lệ MỚI NHẤT (số lớn hơn) thắng, đúng tinh thần "recompute luôn ưu tiên interpretation mới nhất" của swing.md §1a.
 
@@ -361,11 +407,13 @@ Eligible (swing_id, swing_revision) =
 
 **Nếu cả 8 giá trị đều khớp, hai bản ghi là duplicate của cùng một authoritative fact** (§11 dedup) — không có tiêu chí thứ chín.
 
-**Pin trong `structure_definition_version` (§9):**
+**Canonical policy identifier — nguồn duy nhất, pin trong `structure_definition_version` (§9, đóng IRB-FD-STR-MIN-01):**
 
 ```yaml
 relevant_swing_selection_policy: pivot_effective_time_window_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_swing_revision_desc_then_swing_id_asc_then_event_id_asc
 ```
+
+Đây là **giá trị canonical duy nhất** cho `relevant_swing_selection_policy` của Structure v0.3/v0.4 — §9 chỉ tham chiếu tới mục này theo tên field, KHÔNG lặp lại chuỗi, để không thể có hai bản identifier lệch nhau.
 
 Một `structure_definition_version` tương lai có thể chọn thứ tự khác, nhưng PHẢI vẫn total + deterministic + tương thích [ADR-009](../adr/ADR-009.md) (không dùng physical wall clock; không suy ordering từ ID nhúng timestamp, [Chapter 6 §6.3](../constitution/06-identity-model.md); không so `sequence` xuyên stream như một global order).
 
@@ -403,8 +451,10 @@ structure_definition:                  # schema tối thiểu — KHÔNG khóa g
   break_price_basis: <wick | close>
   comparison_policy: <strict | inclusive>
   equal_level_policy: <first_occurrence | last_occurrence>   # kế thừa/áp dụng nhất quán với swing_definition (swing.md §9) khi cả hai cùng liên quan một level
-  relevant_swing_selection_policy: <string>   # total-order policy identifier cho Eligible Swing — mặc định "pivot_effective_time_desc_then_recorded_time_then_stream_then_swing_id" (§6a, đóng C-B1-STR-MAJ-02)
+  relevant_swing_selection_policy: <string>   # total-order policy identifier cho Eligible Swing — PHẢI khớp NGUYÊN VĂN identifier canonical đã khai báo tại §6a (đóng IRB-FD-STR-MIN-01 — không lặp lại chuỗi ở đây để tránh hai bản có thể lệch nhau theo thời gian; §6a là authoritative duy nhất cho giá trị chính xác)
 ```
+
+**`relevant_swing_selection_policy` chỉ có ĐÚNG MỘT canonical identifier cho Structure v0.3/v0.4** — giá trị chính xác được khai báo tại §6a; mục này KHÔNG lặp lại chuỗi để tránh drift giữa hai bản sao (đóng IRB-FD-STR-MIN-01, thay thế identifier v0.2 đã lỗi thời `pivot_effective_time_desc_then_recorded_time_then_stream_then_swing_id` — identifier đó chỉ phản ánh 4-tier order cũ, không còn hợp lệ từ v0.3).
 
 **`depends_on_swing_definition_version` bắt buộc** — Structure không tự định nghĩa lại policy nhận diện Swing; nó chỉ tiêu thụ Swing fact đã CONFIRMED theo policy Swing đã pin sẵn (§1 invariant: đổi dependency bắt buộc bump `structure_definition_version`).
 

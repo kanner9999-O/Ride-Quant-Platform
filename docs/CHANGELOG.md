@@ -2,6 +2,40 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — final narrow correction: clarify Structure stream ordering
+
+**Không phải approval, không phải Consolidate Stable.** Vai trò: `Domain Contract Final Delta Revision Author · AI Technical Architect`. Revision này chỉ xử lý 2 finding cuối — `IRB-FD-STR-MAJ-01`, `IRB-FD-STR-MIN-01` — trên `structure.md` v0.3, phát hiện bởi Independent Review B final delta. `structure.md` `status: Draft`.
+
+### Findings resolved (chỉ `structure.md`, v0.3 → v0.4)
+
+- **IRB-FD-STR-MAJ-01 — Loại bỏ mâu thuẫn comparator:** §6a v0.3 khai đúng lexicographic tuple ("dừng ở tiêu chí đầu tiên phân biệt được") nhưng một câu riêng lại nói: khi tiêu chí 3 hoặc 4 khác nhau, tiêu chí 5 "không so sánh được và bị BỎ QUA, chuyển thẳng sang (6)" — mâu thuẫn trực tiếp với chính rule đã khai (nếu 3/4 đã phân biệt được, so sánh phải DỪNG ở đó, không "nhảy" tới 6). Thay bằng thuật toán chuẩn tường minh:
+  ```text
+  So sánh tiêu chí 1 đến 8 theo đúng thứ tự.
+  Tiêu chí ĐẦU TIÊN có giá trị khác nhau quyết định ứng viên thắng.
+  Các tiêu chí sau đó KHÔNG được đánh giá.
+  ```
+  Cộng ba nhánh tường minh (tiêu chí 3 khác → dừng tại 3; tiêu chí 3 hòa nhưng 4 khác → dừng tại 4; chỉ khi cả 3 VÀ 4 hòa thì 5 mới được đánh giá) và ba ví dụ minh họa cụ thể (khác `stream_id`; cùng `stream_id` khác `registry_version`; cùng stream identity khác `sequence`) — đúng theo yêu cầu. Prohibition "không so `sequence` thô xuyên stream" được giữ nguyên và làm rõ: chính việc dừng lại ở tiêu chí 3/4 (thay vì "nhảy" tới 5) là cơ chế thực thi prohibition đó — không làm suy yếu vai trò ordering của tiêu chí 3/4.
+- **IRB-FD-STR-MIN-01 — Một canonical policy identifier duy nhất:** §9 còn sót comment tham chiếu identifier lỗi thời của 4-tier order v0.2 (`pivot_effective_time_desc_then_recorded_time_then_stream_then_swing_id`) dù §6a đã có identifier 8-tiêu-chí đúng từ v0.3. Xóa identifier lặp lại ở §9; §9 nay chỉ tham chiếu **normative** tới §6a theo tên field — không còn hai bản chuỗi có thể lệch nhau theo thời gian. Đúng MỘT canonical identifier tồn tại cho Structure v0.3/v0.4, khai báo tại §6a.
+
+### Self-review — 20 scenario (yêu cầu final correction task)
+
+Chạy đủ 20 scenario: từng tiêu chí (1–8) là điểm phân biệt duy nhất giữa hai ứng viên; raw sequence không bao giờ so xuyên stream; khác `stream_id` dừng so sánh; khác `registry_version` dừng so sánh; cùng stream identity cho phép so `sequence`; cả 8 giá trị khớp = duplicate; Live/Backtest/Replay chọn cùng Swing; `broken_swing_ref` revision-qualified không đổi; `StructureFactInvalidated`/`StructureRecomputed`/dependency-forward cascade không đổi; không Regime dependency; `swing.md` v0.2 byte-identical. **20/20 scenario pass** — không phát hiện gap bổ sung ngoài phạm vi 2 finding đã cho.
+
+### Preserve accepted behavior — không regress
+
+`structure.md`: continuous Structure subject, BOS/CHoCH distinction, initial orientation qua BOS, CHoCH chỉ từ Bullish/Bearish, `StructureFactInvalidated`, `StructureRecomputed`, dependency-forward cascade, cursor-pinned recomputation, direct Candle input, Swing revision eligibility + revision-qualified `broken_swing_ref` (v0.3, không đổi ở v0.4), no Regime dependency, wick/close + strict/inclusive policy, venue/timeframe scope, no repaint, non-authoritative `StructureCurrentView` — **tất cả không đổi**, chỉ §6a comparator wording và §9 identifier reference được sửa. `swing.md` v0.2 và `context-map.yaml` v0.5: **không đổi, giữ nguyên byte-for-byte.**
+
+### Metadata / state
+
+- `structure.md`: **v0.3 → v0.4**, `status` giữ `Draft`.
+- `swing.md`: **không đổi** — vẫn v0.2, `status` giữ `Draft` (verdict: Clean).
+- `context-map.yaml`: **không đổi** — vẫn v0.5, `status` giữ `Draft` (verdict: Clean).
+- `README.md` (domain index): **v0.9 → v0.10**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.34 → 9.35**; dòng `domain/` cập nhật ghi nhận final correction + review readiness.
+- `candle.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
+
+**Sẵn sàng cho ChatGPT Review A final re-review + Independent Review B final re-review (chỉ `structure.md` v0.4).** Không Product Owner Approve; không Lock; không Consolidated Stable; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1 vẫn active và chưa hoàn tất; Package 0.2-B2/B3/B4 chưa bắt đầu; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-29 — narrow delta revision: qualify Structure Swing references
 
 **Không phải approval, không phải Consolidate Stable.** Vai trò: `Domain Contract Delta Revision Author · AI Technical Architect`. Revision này chỉ xử lý 2 Major finding còn lại, đã được cả ChatGPT Review A delta VÀ Independent Review B delta xác nhận trên baseline v0.2: `structure.md` **Revision required**; `swing.md` **Clean**; `context-map.yaml` **Clean**. `structure.md` `status: Draft`.
