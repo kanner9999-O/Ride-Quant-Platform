@@ -2,6 +2,50 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — author Raw Regime contract (Package 0.2-B2)
+
+**Không phải approval, không phải review-complete, không phải Consolidated Stable.** Vai trò: `Domain Contract Author · AI Technical Architect`. Author trực tiếp `regime.md` v0.1 Draft theo scope đã Product Owner chấp thuận qua hai vòng planning (analysis-only, không commit, không sửa GitHub).
+
+### Phạm vi authoring
+
+`docs/domain/regime.md` (mới, v0.1) — bắt đầu chuỗi `Candle → Raw Regime → Feature`, độc lập hoàn toàn với `Candle → Swing → Structure` ([ADR-003](adr/ADR-003.md), Approved). Hai dimension: **Volatility**, **Directional Persistence**. Không author `feature.md`/`context.md` (B3/B4) hay bất kỳ Package 0.2-C artifact.
+
+### Quyết định thiết kế chính
+
+- **Subject identity — năm field, không gồm window:** `regime_subject_id` deterministic từ `(instrument_id, venue_id, timeframe, regime_dimension, regime_definition_version)`. Analysis window là thuộc tính của TỪNG fact, không phải trục identity — sửa đúng lỗi đếm nhầm "4-field" ở vòng planning đầu (nội dung field set đã đúng, chỉ nhãn số đếm sai).
+- **Classification frequency — một fact cho MỌI completed valid window, không suppress theo class:** đảo ngược quyết định ban đầu của Round 1 planning ("same class → no event"); `RegimeClassified` phát sinh cho mọi window hoàn chỉnh hợp lệ kể cả class trùng window liền trước — bảo toàn evidence đầy đủ, correction targeting chính xác, và visibility đúng cursor cho Feature/Replay.
+- **Hai event type, không ba:** `RegimeClassified` (dùng cho CẢ original computation lẫn correction replacement, phân biệt qua `supersedes_fact_ref`) + `RegimeFactInvalidated`. **Không** có `RegimeRecomputed` riêng như `structure.md` — so sánh tường minh trong tài liệu: Structure cần `RegimeRecomputed`-tương-đương vì các fact CHAIN vào nhau qua `prior_orientation`; Regime's per-window fact hoàn toàn độc lập (không có chain tương tự), nên một correction chỉ cần thay thế đúng fact của window bị ảnh hưởng — cùng pattern `CandleCorrected` của chính `candle.md`, không phải pattern cascade của `structure.md`.
+- **Correction lineage — 10 invariant tường minh** (nguyên bản/replacement, không nhảy cóc, không fork, không "sống lại" trước invalidation, append-only, không tái sử dụng ngầm) — pin tại `supersedes_fact_ref` trên `RegimeClassified`.
+- **Overlapping-window correction — độc lập, không cascade:** một `CandleCorrected` ảnh hưởng nhiều window chỉ cần invalidate+replace TỪNG window độc lập — không cần dependency-forward traversal như `structure.md` §10, vì các window không phụ thuộc lẫn nhau.
+- **Current View total order — 7 tiêu chí, lexicographic nghiêm ngặt ngay từ v0.1** (`window_end DESC → window_start DESC → recorded_time ASC → stream_id ASC → registry_version ASC → sequence ASC (chỉ khi stream_id+registry_version hòa) → event_id ASC`) — áp dụng ngay bài học từ `structure.md`'s IRB-FD-STR-MAJ-01 (không lặp lại wording mâu thuẫn "bỏ qua tiêu chí, nhảy tới tiêu chí khác").
+- **`directional_persistence` không mã hóa Bullish/Bearish** — tường minh phân biệt khỏi `structure.md`'s `current_orientation`: đo lường thống kê liên tục, độc lập hoàn toàn Swing/Structure, được phép mâu thuẫn với Structure tại cùng thời điểm.
+- **Không `classification_origin` enum riêng** — invariant trên `supersedes_fact_ref` (có mặt/vắng mặt) đã đủ executable, tránh field dư thừa.
+- **Không `invalidation_cause` enum trên `RegimeFactInvalidated`** — Regime chỉ có đúng MỘT nguyên nhân invalidation (CandleCorrected, không có Swing/Structure/chained như `structure.md`), nên enum một-giá-trị là dư thừa.
+
+### Self-review — 25 attack scenario, 2 defect phát hiện và xử lý
+
+Chạy đủ 25 scenario theo yêu cầu authoring task. **23/25 covered đúng bởi thiết kế ban đầu.** Phát hiện **hai defect thực sự** trước khi commit:
+
+1. **Copy-paste leftover:** bảng total order §11 sót một dòng tham chiếu `SwingConfirmed` (leftover từ soạn thảo) thay vì `RegimeClassified.event_id` — sửa ngay.
+2. **Lỗi thuật toán Current View selection (attack scenario "latest window pending while previous window remains valid"):** thiết kế ban đầu xác định "window hiệu lực mới nhất" SAU KHI đã loại trừ fact invalidate — nếu window mới nhất đang chờ correction, thuật toán sẽ âm thầm lùi về báo cáo một window CŨ HƠN như thể đang "hiện tại", che giấu việc window mới nhất đang pending. **Sửa:** xác định target window (theo `window_end` lớn nhất) TRƯỚC khi loại trừ, sau đó mới resolve trạng thái của ĐÚNG target window đó (VALID / PENDING_CORRECTION / UNAVAILABLE) — không bao giờ fallback về window cũ hơn chỉ vì window mới nhất đang pending.
+3. **Thiếu tường minh "no shortcut khi class không đổi" (attack scenario 14):** thêm câu tường minh tại §10 — correction PHẢI luôn phát `RegimeFactInvalidated` + replacement, kể cả khi `computed_metric`/`class` cuối cùng không đổi, để bảo toàn evidence honesty (I-1).
+
+Cả ba thay đổi được áp dụng **trước** commit, phản ánh trực tiếp trong `regime.md` v0.1 (không phải revision riêng).
+
+### Attack scenario khác đã pass không cần sửa
+
+Independent-dimension isolation trên cùng window; warm-up/gap valid absence; dedup trên literal duplicate (không trên class trùng); lineage rule 1-10 đầy đủ (original/replacement/no-skip/no-fork/no-early-visibility/append-only/no-silent-reuse); cross-stream total order (khác stream_id/registry_version/sequence từng tiêu chí một, không so sequence xuyên stream); definition-version-change tạo subject mới; Backtest historical sequential computation; không Structure/Swing dependency; RegimeCurrentView không tự tham chiếu làm authoritative input.
+
+### Metadata / state
+
+- `regime.md`: **mới, v0.1**, `status: Draft`.
+- `context-map.yaml`: **v0.5 → v0.6**, `status` giữ `Draft` — `raw-regime-analysis.owned_contracts` chuyển forward-declared → authored; không relationship nào thay đổi (Candle→Raw Regime relationships đã đăng ký sẵn từ Package 0.2-A).
+- `README.md` (domain index): **v0.11 → v0.12**, `status` giữ `Draft` — Package 0.2-B row + mục Package 0.2-B2 mới.
+- `MANIFEST.md`: `manifest_version` **9.36 → 9.37**; dòng `domain/` cập nhật ghi nhận B2 Draft, review-chưa-diễn-ra.
+- `swing.md`, `structure.md`, `candle.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
+
+**Sẵn sàng chuyển ChatGPT Review A.** Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1 vẫn `Consolidated Stable`; Package 0.2-B2 active, Draft, chưa `Consolidated Stable`; Package 0.2-B3/B4 chưa bắt đầu; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-29 — consolidate Package 0.2-B1 stable baseline
 
 **Không phải approval, không phải Lock.** Vai trò: `Domain Package Consolidation Author · AI Technical Architect`. Transaction này **ghi nhận** kết quả review đã hoàn tất — không sửa semantic của `swing.md`, `structure.md`, hay `context-map.yaml`.

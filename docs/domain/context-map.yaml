@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.5"
+version: "0.6"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -76,7 +76,7 @@ contexts:
     title: Raw Regime Analysis
     capability_id: market-regime
     responsibility: "Định nghĩa Regime semantics tính trực tiếp từ raw market data (volatility, ADX, volume profile...), độc lập Structure Engine."
-    owned_contracts: [regime]   # forward-declared — Package 0.2-B, chưa authored
+    owned_contracts: [regime]   # authored — Package 0.2-B2: regime.md v0.1 Draft (author self-review only, chưa qua Review A/B)
     status: active
 
   - id: feature-engineering
