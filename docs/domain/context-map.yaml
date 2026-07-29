@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.6"
+version: "0.7"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -83,7 +83,7 @@ contexts:
     title: Feature Engineering
     capability_id: feature-engineering
     responsibility: "Định nghĩa Feature/Signal — fan-in có chọn lọc từ Structure và Regime, xử lý đồng bộ hóa (join) hai luồng khi cần."
-    owned_contracts: [feature]   # forward-declared — Package 0.2-B, chưa authored
+    owned_contracts: [feature]   # authored — Package 0.2-B3: feature.md v0.1 Draft (author self-review only, chưa qua Review A/B)
     status: active
 
   - id: context-projection
@@ -169,3 +169,80 @@ relationships:
       causal ancestry bao gồm Candle fact bị sửa — không được giữ nguyên kết luận Regime
       đã tính trên giá trị Candle cũ (đóng C-CM-MAJ-02; chi tiết correction/recompute và
       classification semantics tại candle.md §§10–11).
+
+  # Package 0.2-B3 (feature.md v0.1) — Feature là điểm fan-in có kiểm soát từ Candle/Swing/
+  # Raw Regime (ADR-003). Ba founding feature type tiêu thụ chính xác các contract dưới đây —
+  # không thêm quan hệ nào ngoài những gì feature.md thực sự dùng (§14 feature.md).
+  - provider_context_id: market-data-observation
+    consumer_context_id: feature-engineering
+    contract_id: candle-closed
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-data-observation
+      downstream_context_id: feature-engineering
+    translation_policy: conformist
+
+  - provider_context_id: market-data-observation
+    consumer_context_id: feature-engineering
+    contract_id: candle-corrected
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-data-observation
+      downstream_context_id: feature-engineering
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer nhận CandleCorrected PHẢI invalidate hoặc recompute mọi FeatureComputed fact có
+      causal ancestry bao gồm Candle fact bị sửa — không được giữ nguyên kết luận Feature đã
+      tính trên giá trị Candle cũ (chi tiết correction lineage tại feature.md §9).
+
+  - provider_context_id: market-structure-analysis
+    consumer_context_id: feature-engineering
+    contract_id: swing-confirmed
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-structure-analysis
+      downstream_context_id: feature-engineering
+    translation_policy: conformist
+
+  - provider_context_id: market-structure-analysis
+    consumer_context_id: feature-engineering
+    contract_id: swing-invalidated
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-structure-analysis
+      downstream_context_id: feature-engineering
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer nhận SwingInvalidated PHẢI invalidate hoặc recompute mọi FeatureComputed fact
+      (distance_to_last_confirmed_swing) có causal ancestry bao gồm Swing fact bị invalidate
+      — không được giữ nguyên khoảng cách đã tính trên Swing đã invalidate (chi tiết correction
+      lineage tại feature.md §9, eligible-Swing re-selection tại feature.md §9a).
+
+  - provider_context_id: raw-regime-analysis
+    consumer_context_id: feature-engineering
+    contract_id: regime-classified
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: raw-regime-analysis
+      downstream_context_id: feature-engineering
+    translation_policy: conformist
+
+  - provider_context_id: raw-regime-analysis
+    consumer_context_id: feature-engineering
+    contract_id: regime-fact-invalidated
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: raw-regime-analysis
+      downstream_context_id: feature-engineering
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer nhận RegimeFactInvalidated PHẢI invalidate hoặc recompute mọi FeatureComputed
+      fact (upstream_source: regime) có causal ancestry bao gồm RegimeClassified fact bị
+      invalidate — không được giữ nguyên giá trị đã tính trên fact Regime cũ (chi tiết
+      correction lineage tại feature.md §9).

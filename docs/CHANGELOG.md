@@ -2,6 +2,49 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — author minimal Feature contract (Package 0.2-B3)
+
+**Không phải approval, không phải review-complete, không phải Consolidated Stable.** Vai trò: `Domain Contract Author · AI Technical Architect`. Authorization gate: Product Owner xác nhận tường minh "Authorize Package 0.2-B3 minimal Feature scope." trước khi authoring bắt đầu.
+
+### Phạm vi authoring — scope tối thiểu, không mở rộng framework
+
+`docs/domain/feature.md` (mới, v0.1) — điểm fan-in có kiểm soát `Candle/Swing/Raw Regime → Feature`, đúng [ADR-003](adr/ADR-003.md). Đúng **ba founding feature type**: `volatility_metric`, `directional_persistence_metric`, `distance_to_last_confirmed_swing`. Không author `context.md` (B4) hay bất kỳ Package 0.2-C artifact.
+
+### Quyết định thiết kế chính
+
+- **Subject identity — năm field, giống `regime.md`:** `feature_subject_id` deterministic từ `(instrument_id, venue_id, timeframe, feature_type, feature_definition_version)`. Tham số riêng của một feature type (ví dụ `swing_direction` cho `distance_to_last_confirmed_swing`) PIN trong Feature Definition, KHÔNG mở rộng subject identity — vì `feature_definition_version` bất biến, hai tham số khác nhau tự động là hai definition version khác nhau, tự động là hai subject khác nhau.
+- **Dual-path upstream cho `volatility_metric`/`directional_persistence_metric`:** mỗi `feature_definition_version` PIN đúng MỘT `upstream_source` (`candle` hoặc `regime`) — cấm hai path ambiguous cho cùng một definition version.
+- **`distance_to_last_confirmed_swing` KHÔNG tiêu thụ Structure event** — chỉ tái sử dụng **methodology** total-order của `structure.md` §6a (8 tiêu chí lexicographic) cho Eligible Swing selection, KHÔNG tiêu thụ `BreakOfStructureDetected`/`ChangeOfCharacterDetected`/`StructureFactInvalidated`/`StructureRecomputed`, và KHÔNG loại trừ Swing "đã dùng làm broken_swing_ref" (khác Structure — Feature không "tiêu thụ" Swing theo nghĩa break level, chỉ đo khoảng cách). Feature pin policy identifier riêng, độc lập registry nội bộ của Structure.
+- **Hai event type, không ba** — `FeatureComputed` (original + correction replacement qua `supersedes_fact_ref`) + `FeatureFactInvalidated`, đúng bài học `regime.md`: không cần một `FeatureRecomputed` riêng vì các computation point độc lập nhau (không chain như Structure).
+- **Feature-to-Feature dependency deferred tường minh (§10)** — không FeatureComputed nào tiêu thụ FeatureComputed khác ở B3; cả ba founding feature type tính trực tiếp từ authoritative upstream domain fact.
+- **Áp dụng ngay từ v0.1 mọi bài học đã trả giá ở `structure.md`/`regime.md`:** envelope binding cho `FeatureFactInvalidated` (`subject_ref`/`effective_time` kế thừa từ fact bị invalidate, không tự khai báo độc lập); canonical input evidence normalization tổng quát hóa cho input đa dạng loại event (không giả định tất cả input đều là Candle như `regime.md` §8a); `FeatureCurrentView` no-row semantics trước fact đầu tiên, `view_state` chỉ có `VALID`/`PENDING_CORRECTION`; mọi canonical policy identifier khai báo ĐÚNG MỘT NƠI.
+
+### Self-review — 27 attack scenario, 1 gap phát hiện và xử lý
+
+Chạy đủ 27 scenario theo yêu cầu authoring task. **26/27 covered đúng bởi thiết kế ban đầu.** Phát hiện **một gap** trước khi commit: ba canonical policy identifier (`input_normalization_policy`, `current_view_selection_policy`, `eligible_swing_selection_policy`) được mô tả như schema field placeholder ("canonical identifier") nhưng KHÔNG có giá trị literal cụ thể nào được pin — không nhất quán với tiền lệ `swing.md`/`structure.md`/`regime.md` (cả ba đều pin một chuỗi cụ thể). **Sửa:** thêm khối "Giá trị canonical mặc định (v0.1)" tại §6, pin ba chuỗi cụ thể — mỗi chuỗi khai báo ĐÚNG MỘT LẦN, các nơi khác chỉ tham chiếu theo tên field (đóng trước lớp lỗi IRB-B2-MIN-01-style ngay từ v0.1, thay vì phải sửa ở một vòng revision sau).
+
+### Attack scenario khác đã pass không cần sửa
+
+Value-equality không phải duplicate (ví dụ `W1→0.025, W2→0.025` vẫn hai fact); correction lineage 10 invariant đầy đủ; envelope binding sai subject/window đều bị từ chối; cross-stream sequence không bao giờ so trực tiếp; Eligible Swing "không có" → valid absence; Current View "latest pending, older valid" không fallback; Backtest/Replay/Paper/Live cùng ancestry; không tiêu thụ bất kỳ `*-current-view` nào; không author Context/Strategy conclusion.
+
+### Context Map changes
+
+`context-map.yaml` v0.6 → v0.7 — thuần túy additive: `feature-engineering.owned_contracts` forward-declared → authored; 6 relationship mới (`candle-closed`/`candle-corrected` từ `market-data-observation`; `swing-confirmed`/`swing-invalidated` từ `market-structure-analysis`; `regime-classified`/`regime-fact-invalidated` từ `raw-regime-analysis`, tất cả → `feature-engineering`) — đúng những gì ba founding feature type thực sự tiêu thụ, không hơn. **Không đổi** bất kỳ relationship hiện có nào. Không thêm Context/Strategy/Decision/Risk relationship.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, ADR-003 (trực tiếp controlling, thỏa mãn đầy đủ), ADR-007 (venue-neutrality), ADR-009 (tái sử dụng causal precedence/ordering hiện có), ADR-010 (không áp dụng — Feature không phải Decision event), `candle.md`/`swing.md`/`structure.md`/`regime.md` (không sửa semantic, chỉ tiêu thụ contract đã tồn tại), `context-map.yaml` (chỉ additive). **Không cần ADR mới.**
+
+### Metadata / state
+
+- `feature.md`: **mới, v0.1**, `status: Draft`.
+- `context-map.yaml`: **v0.6 → v0.7**, `status` giữ `Draft`.
+- `README.md` (domain index): **v0.14 → v0.15**, `status` giữ `Draft` — Package 0.2-B row + mục Package 0.2-B3 mới.
+- `MANIFEST.md`: `manifest_version` **9.39 → 9.40**; dòng `domain/` cập nhật ghi nhận B3 Draft, review-chưa-diễn-ra.
+- `candle.md`, `swing.md`, `structure.md`, `regime.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
+
+**Sẵn sàng chuyển ChatGPT Review A.** Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1/B2 vẫn `Consolidated Stable`; Package 0.2-B3 active, Draft, chưa `Consolidated Stable`; Package 0.2-B4 chưa bắt đầu; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-29 — consolidate Package 0.2-B2 stable baseline
 
 **Không phải approval, không phải Lock.** Vai trò: `Domain Package Consolidation Author · AI Technical Architect`. Transaction này **ghi nhận** kết quả review đã hoàn tất — không sửa semantic của `regime.md`.
