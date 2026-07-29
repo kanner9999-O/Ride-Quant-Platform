@@ -2,6 +2,47 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — consolidated revision: Swing and Structure correction semantics
+
+**Không phải approval, không phải Consolidated Stable.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Revision này xử lý findings hợp nhất từ ChatGPT Review A + Independent Review B clean-room trên baseline v0.1 (`swing.md`, `structure.md`) — 3 Major mỗi file + 1 Minor (`context-map.yaml`). `swing.md`/`structure.md`/`context-map.yaml` `status: Draft`.
+
+### Findings resolved
+
+**`swing.md` (v0.1 → v0.2):**
+
+- **C-B1-SWG-MAJ-01 — Explicit Swing revision lifecycle:** thay prose "UNSEEN-tương-đương" (v0.1) bằng mô hình tường minh `swing_revision`/`supersedes_revision` (§1a mới). `swing_id` vẫn là logical identity bất biến (sáu field, KHÔNG gồm `swing_revision`); `(swing_id, swing_revision)` định danh một lifecycle generation, mỗi generation có state machine RIÊNG (`UNSEEN → CANDIDATE → CONFIRMED/INVALIDATED`), `INVALIDATED` terminal cho ĐÚNG revision đó. Revision mới bắt buộc causation tới `SwingInvalidated` của revision liền trước.
+- **C-B1-SWG-MAJ-02 — Canonical subject scope đầy đủ:** `subject_ref.scope` (§2) trước đây THIẾU `pivot_candle_subject_id` (chỉ có 5/6 field). Bổ sung đủ sáu field + `revision_ref.swing_revision` lồng bên trong (generation identity, KHÔNG tham gia derive `subject_id`). `SwingCurrentView.scope` (§6) cập nhật tương ứng, cộng `current_revision` field.
+- **C-B1-SWG-MAJ-03 — Full confirmation evidence:** `SwingConfirmed` (§4) trước đây chỉ có `pivot_price` + `right_evidence_refs` (thiếu `pivot_candle_ref`, `left_evidence_refs`). Thay bằng `confirmation_evidence: {pivot_candle_ref, left_evidence_refs, right_evidence_refs}` bắt buộc, đầy đủ trên MỌI đường dẫn tới CONFIRMED (CANDIDATE→CONFIRMED, historical UNSEEN→CONFIRMED, re-confirmation revision > 1) — candidate tiền nhiệm không còn được coi là bằng chứng đủ tự thân.
+
+**`structure.md` (v0.1 → v0.2):**
+
+- **C-B1-STR-MAJ-01 — Tách historical fact invalidation khỏi orientation transition:** `StructureInvalidated` (v0.1, gộp cả hai mối quan tâm) **không còn tồn tại** — thay bằng `StructureFactInvalidated` (§5 — phủ định MỘT fact lịch sử cụ thể, KHÔNG tự động tuyên bố orientation transition, hợp lệ ngay cả khi current_orientation đã là NEUTRAL) và `StructureRecomputed` (§5a — event DUY NHẤT xác lập current_orientation mới sau cascade, `resulting_orientation ∈ {NEUTRAL, BULLISH, BEARISH}`, `justifying_fact_ref` bắt buộc khi khác NEUTRAL). State machine (§1) cập nhật: normal flow (BOS/CHoCH) transition trực tiếp; correction flow chỉ qua `StructureRecomputed` — đủ 9 tổ hợp `{NEUTRAL,BULLISH,BEARISH}²`, không chỉ thêm `NEUTRAL → NEUTRAL`.
+- **C-B1-STR-MAJ-02 — Deterministic relevant Swing total order:** thêm §6a mới — định nghĩa "Eligible Swing" executable đầy đủ + total order 4 tiêu chí (`pivot_effective_time` → `SwingConfirmed.recorded_time` → `stream_ref`/`sequence` → `swing_id` tie-break), pin qua `structure_definition_version.relevant_swing_selection_policy` (§9). Làm rõ chỉ revision hợp lệ mới nhất của một `swing_id` (swing.md §1a) mới eligible. `StructureCurrentView.current_relevant_swing_ref` (§14) cập nhật theo total order này — đóng OQ tác giả cũ về "Swing nào đó gần đây."
+- **C-B1-STR-MAJ-03 — Dependency-forward cascade, bỏ "most-recent-first":** viết lại §10 — cascade traverse theo chuỗi orientation GỐC (`E(k+1).prior_orientation = E(k).new_orientation`), không theo recorded_time phát sinh invalidation. Thêm worked example đúng theo yêu cầu (`E1→E2→E3`, `I1/I2/I3`, `R1`) minh họa causation chain đầy đủ và cách `resulting_orientation` của `R1` được xác định deterministic qua refold.
+
+**`context-map.yaml` (v0.4 → v0.5):**
+
+- **C-B1-CM-MIN-01:** sửa comment gây hiểu nhầm "candle.md là provider contract DUY NHẤT tồn tại trong repository" thành chính xác: candle.md là provider contract DUY NHẤT hiện **cần một cross-context relationship entry tại file này** — swing.md/structure.md cũng là provider contract đã tồn tại, nhưng quan hệ Swing → Structure là intra-context (quyết định đã ghi ở transaction B1 authoring, không đổi). Không đổi relationship semantics nào.
+
+### Self-review — 12 Swing + 16 Structure attack scenarios (yêu cầu revision task)
+
+Chạy đầy đủ 12 scenario Swing (candidate→confirmed revision 1; candidate invalidated; confirmed invalidated by correction; same pivot → revision 2; different pivot → new swing_id; revision 2 replayed after revision 1 invalidation; historical confirmation với đủ left+right evidence; hai pivot khác nhau chỉ ở pivot Candle; canonical scope verify logical ID; cùng pivot hai definition version; out-of-order correction; cùng Candle qua HIGH và LOW) và 16 scenario Structure (initial BOS; continuation BOS; CHoCH; direct breaking Candle correction; broken Swing invalidation; E1→E2→E3 cascade; multiple invalidation khi đã NEUTRAL; recompute → NEUTRAL/BULLISH/BEARISH; hai Eligible Swing cần tie-break; revision 1 invalid + revision 2 valid; replay từng bước cascade; StructureCurrentView non-authoritative; no Regime; same level không phá hai lần). **Tất cả 28/28 scenario pass** với thiết kế v0.2 — không phát hiện gap bổ sung ngoài phạm vi 6 finding đã cho.
+
+### Preserve accepted behavior — không regress
+
+Xác nhận giữ nguyên: Swing — six-field logical identity, opaque `swing_id`, HIGH/LOW separation, multiple definition versions, historical direct confirmation, no-look-ahead, candidate vs authoritative, market-evolution invalidation chỉ trước confirmation, upstream correction invalidation, missing-data distinctions, four-mode parity, non-authoritative current view. Structure — continuous logical subject, BOS vs CHoCH distinction, initial orientation qua BOS, CHoCH chỉ từ Bullish/Bearish, direct Candle input, Swing input, no Regime dependency, wick/close + strict/inclusive policy pinning, same-level break rule, venue/timeframe scope, no repaint, non-authoritative current view. `candle.md` và mọi Context Map relationship hiện có: **không đổi.**
+
+### Metadata / state
+
+- `swing.md`: **v0.1 → v0.2**, `status` giữ `Draft`.
+- `structure.md`: **v0.1 → v0.2**, `status` giữ `Draft`.
+- `context-map.yaml`: **v0.4 → v0.5**, `status` giữ `Draft`.
+- `README.md` (domain index): **v0.7 → v0.8**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.32 → 9.33**; dòng `domain/` cập nhật ghi nhận revision + review readiness.
+- `candle.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
+
+**Sẵn sàng cho ChatGPT Review A delta + Independent Review B delta.** Không Product Owner Approve; không Lock; không Consolidated Stable; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B vẫn active và chưa hoàn tất; Package 0.2-B2/B3/B4 chưa bắt đầu; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-28 — author Package 0.2-B1: Swing and Structure contracts
 
 **Không phải approval, không phải review-complete, không phải Consolidated Stable.** Vai trò: `Domain Contract Author · AI Technical Architect`. Chỉ author self-review đã thực hiện — ChatGPT Review A và Independent Review B **chưa diễn ra**. `swing.md`/`structure.md` `status: Draft`.

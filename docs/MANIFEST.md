@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.32"
+manifest_version: "9.33"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -61,7 +61,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 | File | Status |
 |---|---|
-| domain/ | Phase 0.2 started (Draft) — **Package 0.2-A: `Consolidated Stable`** (không đổi) — `context-map.yaml` **v0.4** Draft (bump: đăng ký swing/structure đã authored, không self-edge — xem context-map.yaml comment) + `candle.md` **v0.4** Draft (không đổi). [ADR-012](adr/ADR-012.md) v0.3 và [ADR-013](adr/ADR-013.md) v0.3 vẫn **`Approved`** (không đổi). **Package 0.2-B: đã bắt đầu — B1 candidate Draft.** `swing.md` **v0.1** Draft + `structure.md` **v0.1** Draft, cả hai `capability_id: market-structure` / `domain_context_id: market-structure-analysis` (đã đăng ký sẵn, không tạo context/capability mới). Author self-review hoàn tất; **ChatGPT Review A và Independent Review B CHƯA diễn ra** — Package 0.2-B **chưa `Consolidated Stable`**. Package 0.2-B2/B3/B4 (`regime.md`, `feature.md`, `context.md`) chưa bắt đầu. **Package 0.2-C: gate open, vẫn chưa có artifact nào được author.** OQ-002/OQ-003 vẫn `Open`. Phase 0.2 vẫn active và chưa hoàn tất. Không authorize Live ở bất kỳ hình thức nào. |
+| domain/ | Phase 0.2 started (Draft) — **Package 0.2-A: `Consolidated Stable`** (không đổi) — `context-map.yaml` **v0.5** Draft (bump: đóng C-B1-CM-MIN-01 — sửa comment gây hiểu nhầm về provider contract, không đổi relationship semantics) + `candle.md` **v0.4** Draft (không đổi). [ADR-012](adr/ADR-012.md) v0.3 và [ADR-013](adr/ADR-013.md) v0.3 vẫn **`Approved`** (không đổi). **Package 0.2-B: đã bắt đầu — B1 candidate Draft, consolidated revision.** `swing.md` **v0.2** Draft (đóng C-B1-SWG-MAJ-01/02/03: explicit revision lifecycle, đủ sáu-field subject scope, full confirmation evidence) + `structure.md` **v0.2** Draft (đóng C-B1-STR-MAJ-01/02/03: tách StructureFactInvalidated/StructureRecomputed, Eligible Swing total order, dependency-forward cascade) — xử lý findings hợp nhất từ ChatGPT Review A + Independent Review B trên baseline v0.1. Author self-review (v0.2) hoàn tất; **ChatGPT Review A delta và Independent Review B delta CHƯA diễn ra** — Package 0.2-B **chưa `Consolidated Stable`**. Package 0.2-B2/B3/B4 (`regime.md`, `feature.md`, `context.md`) chưa bắt đầu. **Package 0.2-C: gate open, vẫn chưa có artifact nào được author.** OQ-002/OQ-003 vẫn `Open`. Phase 0.2 vẫn active và chưa hoàn tất. Không authorize Live ở bất kỳ hình thức nào. |
 
 ## Team (tách biệt khỏi Constitution — Role vs Person)
 

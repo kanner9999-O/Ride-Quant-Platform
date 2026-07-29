@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.4"
+version: "0.5"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -69,7 +69,7 @@ contexts:
     title: Market Structure Analysis
     capability_id: market-structure
     responsibility: "Define Swing, BOS, CHoCH and related structure semantics."
-    owned_contracts: [swing, structure]   # authored — Package 0.2-B1: swing.md v0.1 Draft, structure.md v0.1 Draft (author self-review only, chưa qua Review A/B)
+    owned_contracts: [swing, structure]   # authored — Package 0.2-B1: swing.md v0.2 Draft, structure.md v0.2 Draft (consolidated revision xử lý ChatGPT Review A + Independent Review B findings; Package 0.2-B chưa Consolidated Stable)
     status: active
 
   - id: raw-regime-analysis
@@ -93,10 +93,16 @@ contexts:
     owned_contracts: [context]   # forward-declared — Package 0.2-B, chưa authored
     status: active
 
-# Chỉ khai báo relationship có provider contract ĐÃ tồn tại thật trong repository
-# (candle.md). Relationship liên quan instrument/venue/swing/structure/regime/feature/context
-# sẽ được thêm khi đúng Domain Contract phía provider được author — tránh trích dẫn contract_id
-# cho một artifact chưa tồn tại.
+# Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship
+# tại chính file này — hiện tại là các contract của candle.md (market-data-observation →
+# market-structure-analysis/raw-regime-analysis). Sửa lại cho chính xác (đóng C-B1-CM-MIN-01):
+# KHÔNG có nghĩa candle.md là provider contract DUY NHẤT tồn tại trong repository — swing.md và
+# structure.md (Package 0.2-B1) cũng đã author và cũng là provider contract, nhưng quan hệ
+# Swing → Structure là intra-context (cả hai cùng market-structure-analysis), nên KHÔNG cần một
+# cross-context relationship ở đây (xem ghi chú dưới). Relationship liên quan instrument/venue/
+# regime/feature/context sẽ được thêm khi đúng Domain Contract phía provider được author VÀ
+# thực sự cần một cross-context edge — tránh trích dẫn contract_id cho một artifact chưa tồn
+# tại, hoặc thêm self-edge không cần thiết cho quan hệ nội bộ một context.
 #
 # contract_id dùng SCALAR concept-id (khớp Chapter 4 §4.2 — ví dụ chính chương đó dùng
 # "ExecutionFill.v1", một chuỗi scalar) — KHÔNG dùng display name (ví dụ "CandleClosed") hay
