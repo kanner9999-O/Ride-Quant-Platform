@@ -2,6 +2,62 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — consolidate Package 0.2-B3 stable baseline
+
+**Không phải approval, không phải Lock.** Vai trò: `Domain Package Consolidation Author · AI Technical Architect`. Transaction này **ghi nhận** kết quả review đã hoàn tất — không sửa semantic của `feature.md`.
+
+### Exact baseline
+
+Reviewed HEAD: `ed8813030203cd9e5f779f54be752a3e94c4f68b` (parent: authoring B3 `e53d2ead2a0f5cdc34b6f8803d4105511cf5597a` → narrow revision `ed8813030203cd9e5f779f54be752a3e94c4f68b`).
+
+### Package scope
+
+`feature.md` — điểm fan-in có kiểm soát `Candle/Swing/Raw Regime → Feature` ([ADR-003](adr/ADR-003.md)). Đúng ba founding feature type: `volatility_metric`, `directional_persistence_metric`, `distance_to_last_confirmed_swing`.
+
+### Final artifact blobs
+
+```text
+feature.md        v0.2   blob 2262adf9253ea20c8d817d1066f50c4353d2d35d
+context-map.yaml  v0.7   blob 3a93845abcf6efb7214939f8dc2e36d02bb39b65
+```
+
+### Review evidence — final delta
+
+**ChatGPT Review A:** `RA-B3-MAJ-01` resolved; `feature.md` v0.2: Clean — Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+**Independent Review B (narrow delta):** `IRB-B3-MAJ-01` resolved; `feature.md` v0.2: Clean; Package 0.2-B3 integration: Clean — Blocker 0, Major 0, Minor 0, Suggestion 0; Consolidation readiness: **Ready**.
+
+**Cả hai finding (`RA-B3-MAJ-01`/`IRB-B3-MAJ-01`) đều đã xử lý trong narrow revision trước đó (v0.1 → v0.2, effective-time cutoff cho eligible-Swing selection). 0 qualifying finding còn lại.**
+
+### Lifecycle transition
+
+```text
+Before: Package 0.2-B3 = Draft, review-clean, consolidation-ready
+After:  Package 0.2-B3 = Consolidated Stable
+```
+
+`Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval, KHÔNG phải `status: Approved`, KHÔNG phải Lock, KHÔNG phải Live authorization. `feature.md` giữ nguyên `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### B4 gate effect
+
+Package 0.2-B4 (Context) — baseline dependency đã thỏa, eligible cho Product Owner scope authorization. **Chưa bắt đầu, chưa author, KHÔNG được authorize bởi transaction này.** Package 0.2-B (tổng thể) vẫn chưa hoàn tất cho tới khi B4 hoàn thành.
+
+### Context Map wording concern — deferred, non-blocking
+
+`context-map.yaml` mô tả `feature-engineering` bằng cụm "Feature/Signal" — documentation concern đã ghi nhận tại `feature.md` §20, không phải executable finding, không chặn consolidation. **Không tạo OQ mới. `context-map.yaml` không đổi trong transaction này.**
+
+### Governance boundaries
+
+Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-C vẫn chưa có artifact nào được author.
+
+### Metadata / state
+
+- `feature.md`, `context-map.yaml`, `candle.md`, `swing.md`, `structure.md`, `regime.md`: **không đổi** (bookkeeping-only transaction).
+- `README.md` (domain index): **v0.16 → v0.17**, `status` giữ `Draft` — Package 0.2-B3 section chuyển sang `Consolidated Stable` baseline record.
+- `MANIFEST.md`: `manifest_version` **9.41 → 9.42**; dòng `domain/` cập nhật ghi nhận Package 0.2-B3 `Consolidated Stable`.
+
+**Package 0.2-B1/B2/B3 nay đều `Consolidated Stable`.** Package 0.2-B4 chưa bắt đầu. Package 0.2-C vẫn chưa có artifact nào được author. OQ-002/OQ-003 vẫn `Open`. Phase 0.2 vẫn active và chưa hoàn tất. Không authorize Live ở bất kỳ hình thức nào.
+
 ## [Unreleased] — 2026-07-29 — fix Feature swing effective-time cutoff (Package 0.2-B3 narrow revision)
 
 **Không phải approval, không phải review-complete, không phải Consolidated Stable, không phải re-planning.** Vai trò: `Domain Contract Author · AI Technical Architect`. Narrow revision — xử lý ĐÚNG hai finding, không mở rộng phạm vi Feature, không sửa artifact ngoài phạm vi được cho phép.
