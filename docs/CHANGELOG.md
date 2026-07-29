@@ -2,6 +2,62 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — consolidate Package 0.2-B2 stable baseline
+
+**Không phải approval, không phải Lock.** Vai trò: `Domain Package Consolidation Author · AI Technical Architect`. Transaction này **ghi nhận** kết quả review đã hoàn tất — không sửa semantic của `regime.md`.
+
+### Exact baseline
+
+Reviewed HEAD: `78479ab088b1a32c580c9a729a53333896b952b3` (parent: authoring B2 `32aadc9cc075ce272b2c85bef8836c77417a5566` → narrow revision `78479ab088b1a32c580c9a729a53333896b952b3`).
+
+### Package scope
+
+`regime.md` — Raw Regime, hai dimension: **Volatility**, **Directional Persistence**. Độc lập hoàn toàn Structure ([ADR-003](adr/ADR-003.md)).
+
+### Final artifact blobs
+
+```text
+regime.md         v0.2   blob edd1584377f1db84269e7b1dfdd4926d0ce01c70
+context-map.yaml  v0.6   blob 5447f91435b5ffdc01424988f29e0d9d5ad76f99  (không đổi)
+```
+
+Dependency không đổi trong suốt B2: `candle.md` v0.4, `swing.md` v0.2, `structure.md` v0.4.
+
+### ChatGPT Review A — final
+
+`regime.md` v0.2: **Clean** — Blocker 0, Major 0, Minor 0.
+
+### Independent Review B — narrow delta, final
+
+`IRB-B2-MAJ-01` resolved, `IRB-B2-MAJ-02` resolved, `IRB-B2-MIN-03` resolved. Blocker 0, Major 0, Minor 0, Suggestion 0. `regime.md` v0.2: Clean. Package 0.2-B2 integration: Clean. **Package 0.2-B2: consolidation-ready.**
+
+### Zero qualifying findings
+
+Cả hai track (ChatGPT Review A, Independent Review B) đều Clean, 0 finding chưa xử lý.
+
+### Package lifecycle transition
+
+```text
+Trước: Package 0.2-B2 = Draft, review-clean, consolidation-ready
+Sau:   Package 0.2-B2 = Consolidated Stable
+```
+
+`Consolidated Stable` là package lifecycle/readiness state — **KHÔNG** phải document approval, **KHÔNG** phải `Approved`, **KHÔNG** phải Lock, **KHÔNG** phải Live authorization. `regime.md` giữ nguyên `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### Package 0.2-B3 gate effect
+
+Baseline dependency (B2 Consolidated Stable) đã thỏa — Package 0.2-B3 (`feature.md`) trở nên **eligible cho Product Owner scope authorization và planning**. Transaction này **không** tự author hay tự authorize B3. Package 0.2-B4 (`context.md`) tương tự chưa bắt đầu.
+
+### Governance boundaries
+
+Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003 (vẫn `Open`); không authorize Live. Package 0.2-B3/B4 chưa bắt đầu. Package 0.2-C vẫn chưa có artifact nào được author. Phase 0.2 vẫn active và chưa hoàn tất.
+
+### Metadata / state
+
+- `regime.md`, `context-map.yaml`, `swing.md`, `structure.md`, `candle.md`, `ADR-012.md`, `ADR-013.md`: **không đổi** — không nằm trong scope commit này.
+- `README.md` (domain index): **v0.13 → v0.14**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.38 → 9.39**; dòng `domain/` cập nhật ghi nhận Package 0.2-B2 `Consolidated Stable` + exact blob pin.
+
 ## [Unreleased] — 2026-07-29 — resolve Raw Regime review findings (narrow revision)
 
 **Không phải approval, không phải review-complete, không phải Consolidated Stable.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Narrow revision — không planning lại, không mở rộng scope Raw Regime, chỉ xử lý đúng bốn finding từ ChatGPT Review A + Independent Review B trên baseline v0.1.
