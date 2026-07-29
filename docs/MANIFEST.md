@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.35"
+manifest_version: "9.36"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -61,7 +61,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 | File | Status |
 |---|---|
-| domain/ | Phase 0.2 started (Draft) — **Package 0.2-A: `Consolidated Stable`** (không đổi) — `context-map.yaml` **v0.5** Draft (không đổi, verdict: Clean) + `candle.md` **v0.4** Draft (không đổi). [ADR-012](adr/ADR-012.md) v0.3 và [ADR-013](adr/ADR-013.md) v0.3 vẫn **`Approved`** (không đổi). **Package 0.2-B: đã bắt đầu — B1 candidate Draft, final narrow correction.** `swing.md` **v0.2** Draft (không đổi, verdict: Clean) + `structure.md` **v0.4** Draft (đóng IRB-FD-STR-MAJ-01: §6a comparator contradiction — thay câu "bỏ qua tiêu chí 5, chuyển tiêu chí 6" bằng thuật toán lexicographic chuẩn + 3 ví dụ; đóng IRB-FD-STR-MIN-01: §9 identifier lỗi thời của 4-tier order — xóa, thay bằng tham chiếu normative duy nhất tới §6a) — xử lý 2 finding cuối từ Independent Review B final delta trên baseline v0.3. Author self-review (v0.4) hoàn tất — 20 scenario pass; **ChatGPT Review A final re-review và Independent Review B final re-review CHƯA diễn ra** — Package 0.2-B **chưa `Consolidated Stable`**. Package 0.2-B2/B3/B4 (`regime.md`, `feature.md`, `context.md`) chưa bắt đầu. **Package 0.2-C: gate open, vẫn chưa có artifact nào được author.** OQ-002/OQ-003 vẫn `Open`. Phase 0.2 vẫn active và chưa hoàn tất. Không authorize Live ở bất kỳ hình thức nào. |
+| domain/ | Phase 0.2 started (Draft) — **Package 0.2-A: `Consolidated Stable`** (không đổi) — `context-map.yaml` **v0.5** Draft (không đổi, blob `0d87744e2a1ffdd592b05bdfbb0ef5dab85b5920`) + `candle.md` **v0.4** Draft (không đổi). [ADR-012](adr/ADR-012.md) v0.3 và [ADR-013](adr/ADR-013.md) v0.3 vẫn **`Approved`** (không đổi). **Package 0.2-B1: `Consolidated Stable`** — `swing.md` **v0.2** Draft (blob `5bbe666ff404209876a721b1e01cb9ac62011062`) + `structure.md` **v0.4** Draft (blob `78964dfb6852bbac3fa1e034d64b4fc8031c3fef`), reviewed HEAD `d6545de3fcc767e03f74fd0712ada792372d1c33`. ChatGPT Review A final re-review: Clean, 0 finding. Independent Review B final re-review: Clean, Package integration Clean, Backward Consistency `No conflict`, 0 qualifying finding. Package lifecycle state — KHÔNG phải document approval; artifact `status: Draft`, `approved_by: null` không đổi. **Package 0.2-B2/B3/B4** (`regime.md`, `feature.md`, `context.md`): baseline dependency (B1) đã thỏa, eligible cho Product Owner scope authorization, **chưa bắt đầu authoring**. **Package 0.2-C: gate open, vẫn chưa có artifact nào được author.** OQ-002/OQ-003 vẫn `Open`. Phase 0.2 vẫn active và chưa hoàn tất. Không authorize Live ở bất kỳ hình thức nào. |
 
 ## Team (tách biệt khỏi Constitution — Role vs Person)
 

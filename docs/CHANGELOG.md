@@ -2,6 +2,71 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — consolidate Package 0.2-B1 stable baseline
+
+**Không phải approval, không phải Lock.** Vai trò: `Domain Package Consolidation Author · AI Technical Architect`. Transaction này **ghi nhận** kết quả review đã hoàn tất — không sửa semantic của `swing.md`, `structure.md`, hay `context-map.yaml`.
+
+### Exact baseline
+
+Reviewed HEAD: `d6545de3fcc767e03f74fd0712ada792372d1c33`. Lịch sử parent đầy đủ: authoring B1 (`5d46bacc8beafb4ba7087347f0af7c5b10e6e4d0`) → consolidated revision (`3813c600129efe0a6676c1cd0301913f6d2fc3e8`) → revision-qualified Structure reference (`7c789b6dbb395832e87f9b11fdce3da4997000a6`) → final ordering correction (`d6545de3fcc767e03f74fd0712ada792372d1c33`).
+
+### Package scope
+
+`swing.md` (Swing pivot/confirmation/invalidation, revision lifecycle §1a); `structure.md` (BOS/CHoCH, `StructureFactInvalidated`/`StructureRecomputed`, Eligible Swing total order §6a, dependency-forward cascade §10); `context-map.yaml` integration (`market-structure-analysis` context registration, Candle relationships — không self-edge Swing→Structure).
+
+### Final artifact versions/blobs
+
+```text
+swing.md         v0.2   blob 5bbe666ff404209876a721b1e01cb9ac62011062
+structure.md     v0.4   blob 78964dfb6852bbac3fa1e034d64b4fc8031c3fef
+context-map.yaml v0.5   blob 0d87744e2a1ffdd592b05bdfbb0ef5dab85b5920
+```
+
+### ChatGPT Review A — kết quả đầy đủ 4 vòng
+
+| Vòng | Baseline | Swing | Structure | Context Map | Package B1 |
+|---|---|---|---|---|---|
+| Initial | `5d46bacc8b...` | Revision required | Revision required | Clean | Revision required |
+| Delta | `3813c60012...` | v0.2 Clean với minor correction | v0.2 Revision required | v0.5 Clean | — |
+| Final delta | `7c789b6dbb...` | v0.2 Clean | v0.3 Clean | v0.5 Clean | — |
+| **Final re-review** | `d6545de3fc...` | v0.2 Clean | v0.4 Clean | v0.5 Clean | **Clean, 0 finding** |
+
+### Independent Review B — kết quả đầy đủ 4 vòng
+
+| Vòng | Baseline | Swing | Structure | Context Map | Package B1 |
+|---|---|---|---|---|---|
+| Initial | `5d46bacc8b...` | Revision required | Revision required | Clean với 1 minor documentation correction | Revision required |
+| Delta | `3813c60012...` | v0.2 Clean | v0.2 Revision required | v0.5 Clean | — |
+| Final delta | `7c789b6dbb...` | v0.2 Clean | v0.3 Revision required | v0.5 Clean | — |
+| **Final re-review** | `d6545de3fc...` | v0.2 Clean | v0.4 Clean | v0.5 Clean | **Package integration Clean, consolidation-ready** |
+
+### Unresolved qualifying findings và backward consistency
+
+**0 qualifying finding chưa xử lý** (cả hai track, vòng final re-review). **Backward Consistency Check: `No conflict`** (Independent Review B final re-review).
+
+### Package lifecycle transition
+
+```text
+Trước: Draft candidate, review-complete (chờ final re-review)
+Sau:   Package 0.2-B1 = Consolidated Stable
+```
+
+`Consolidated Stable` là package lifecycle/readiness state — **KHÔNG** phải document approval status, đúng định nghĩa đã khóa tại consolidation Package 0.2-A. Điều kiện đủ: authoring hoàn tất; ChatGPT Review A hoàn tất; Independent Review B hoàn tất; 0 qualifying finding; exact reviewed artifact đã pin; package đủ ổn định cho package kế tiếp (B2) planning — không ngụ ý Product Owner Approval, không ngụ ý Lock.
+
+### Governance boundaries
+
+- `swing.md`, `structure.md`, `context-map.yaml`: **`status: Draft`, `approved_by: null`, `approved_at: null` — không đổi.**
+- Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003 (vẫn `Open`); không authorize Live.
+- **Package 0.2-B2 chưa bắt đầu** — baseline dependency (B1 Consolidated Stable) đã thỏa, B2 trở nên eligible cho Product Owner scope authorization, nhưng authoring thực tế là một action riêng, chưa xảy ra trong transaction này.
+- Package 0.2-B3/B4: chưa bắt đầu. Package 0.2-C: gate open (ADR-012/013 Approved), vẫn chưa có artifact nào được author.
+- Phase 0.2 vẫn **active và chưa hoàn tất**.
+
+### Metadata / state
+
+- `swing.md`, `structure.md`, `context-map.yaml`, `candle.md`, `ADR-012.md`, `ADR-013.md`: **không đổi** — không nằm trong scope commit này.
+- `README.md` (domain index): **v0.10 → v0.11**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.35 → 9.36**; dòng `domain/` cập nhật ghi nhận Package 0.2-B1 `Consolidated Stable` + exact blob pin.
+
 ## [Unreleased] — 2026-07-29 — final narrow correction: clarify Structure stream ordering
 
 **Không phải approval, không phải Consolidate Stable.** Vai trò: `Domain Contract Final Delta Revision Author · AI Technical Architect`. Revision này chỉ xử lý 2 finding cuối — `IRB-FD-STR-MAJ-01`, `IRB-FD-STR-MIN-01` — trên `structure.md` v0.3, phát hiện bởi Independent Review B final delta. `structure.md` `status: Draft`.
