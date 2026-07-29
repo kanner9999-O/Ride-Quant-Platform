@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.15"
+version: "0.16"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -29,7 +29,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 | Package | Nội dung | Trạng thái |
 |---|---|---|
 | **0.2-A — Domain foundation** | `context-map.yaml` (v0.3 — non-blocking documentation-reference fix) + `candle.md` (v0.4, không đổi ở vòng consolidation này) | Draft — **`Consolidated Stable`** (xem dưới) |
-| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: `Consolidated Stable`** (xem dưới) — `regime.md` v0.2 Draft, Clean qua đầy đủ review, 0 finding. **Package 0.2-B3: đã bắt đầu** — `feature.md` v0.1 Draft authored, phạm vi tối thiểu 3 founding feature type (author self-review hoàn tất; ChatGPT Review A và Independent Review B **chưa diễn ra**). **Package 0.2-B4** (`context.md`): **chưa bắt đầu**. Package 0.2-B (tổng thể) **chưa `Consolidated Stable`** — B1/B2 đạt, B3 mới ở Draft đầu, B4 chưa có artifact nào. |
+| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: `Consolidated Stable`** (xem dưới) — `regime.md` v0.2 Draft, Clean qua đầy đủ review, 0 finding. **Package 0.2-B3: đã bắt đầu, revision đang tiếp diễn** — `feature.md` v0.2 Draft, đã xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01` (effective-time look-ahead trong eligible-Swing selection), phạm vi tối thiểu 3 founding feature type (author self-review hoàn tất cho v0.1 lẫn revision v0.2; ChatGPT Review A và Independent Review B **chưa diễn ra**). **Package 0.2-B4** (`context.md`): **chưa bắt đầu**. Package 0.2-B (tổng thể) **chưa `Consolidated Stable`** — B1/B2 đạt, B3 mới ở Draft, đã qua một vòng narrow revision trước Review A/B, B4 chưa có artifact nào. |
 | **0.2-C — Decision & execution chain** | `strategy.md` (Strategy Definition + Strategy Instance), `decision.md`, `risk.md`, `position.md`, `replay-event.md`, cộng các concept chưa có trong danh sách gốc: account, venue, instrument, order, fill, trade-intent, execution-intent | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 nay **`Approved`** (Product Owner, 2026-07-28) — **ADR dependency gate is now open.** Package 0.2-C is authorized to begin planning and authoring, subject to its normal package scope authorization and review workflow. **No Package 0.2-C artifact is authored in this transaction.** |
 
 **Thứ tự dự kiến trong từng package không đổi** so với kế hoạch gốc (theo dependency đã chốt ở [ADR-003](../adr/ADR-003.md) và [07-module-taxonomy.md](../constitution/07-module-taxonomy.md)); Package 0.2-C được liệt kê đầy đủ hơn danh sách gốc vì danh sách gốc thiếu Account/Order/Execution/Venue/Instrument.
@@ -115,9 +115,11 @@ reviewed HEAD:    78479ab088b1a32c580c9a729a53333896b952b3
 
 **Package 0.2-B3 (Feature) — baseline dependency đã thỏa, sau đó Product Owner xác nhận scope authorization tường minh** ("Authorize Package 0.2-B3 minimal Feature scope.") — B3 authoring đã bắt đầu (xem mục dưới). **Package 0.2-B4** (`context.md`) tương tự **chưa bắt đầu**.
 
-## Package 0.2-B3 — `feature.md` v0.1 Draft authored, chưa qua review nào
+## Package 0.2-B3 — `feature.md` v0.2 Draft, narrow revision đã áp dụng, chưa qua review nào
 
-**Phạm vi B3 (scope tối thiểu, đã Product Owner authorize):** điểm fan-in có kiểm soát `Candle/Swing/Raw Regime → Feature`, đúng [ADR-003](../adr/ADR-003.md) — [`feature.md`](./feature.md) v0.1, `capability_id: feature-engineering` / `domain_context_id: feature-engineering` (đã đăng ký sẵn từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml), nay chuyển forward-declared → authored, bump lên v0.7 kèm 6 relationship mới cho đúng input mà ba founding feature type cần).
+**Phạm vi B3 (scope tối thiểu, đã Product Owner authorize):** điểm fan-in có kiểm soát `Candle/Swing/Raw Regime → Feature`, đúng [ADR-003](../adr/ADR-003.md) — [`feature.md`](./feature.md) v0.2, `capability_id: feature-engineering` / `domain_context_id: feature-engineering` (đã đăng ký sẵn từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml), chuyển forward-declared → authored ở v0.1, bump lên v0.7 kèm 6 relationship mới cho đúng input mà ba founding feature type cần — `context-map.yaml` giữ nguyên v0.7 qua revision v0.2 này, không đổi).
+
+**Narrow revision v0.1 → v0.2 (`RA-B3-MAJ-01`/`IRB-B3-MAJ-01` — cùng một defect, một correction):** eligible-Swing selection cho `distance_to_last_confirmed_swing` (§9a) thiếu một effective-time cutoff filter độc lập — một Swing effective MUỘN HƠN reference Candle có thể bị chọn nhầm chỉ vì recorded-time visible sớm. v0.2 pin `eligible_swing_effective_cutoff_policy: REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE` (§6) và viết lại §9a thành ordered filter pipeline 5 bước — effective-time eligibility LUÔN là filter chạy TRƯỚC candidate ordering. Chi tiết đầy đủ tại CHANGELOG.
 
 **Ba founding feature type — không mở rộng thành framework tổng quát:**
 
@@ -129,8 +131,9 @@ Hai event type authoritative (`FeatureComputed`, `FeatureFactInvalidated`) + opt
 
 **Trạng thái review — bước đầu tiên của quy trình:**
 
-- Author self-review: **hoàn tất** (27 attack scenario, 1 gap tự phát hiện và tự sửa trước commit — thiếu concrete canonical policy value, xem CHANGELOG).
-- ChatGPT Review A: **chưa diễn ra.**
+- Author self-review v0.1: **hoàn tất** (27 attack scenario, 1 gap tự phát hiện và tự sửa trước commit — thiếu concrete canonical policy value, xem CHANGELOG).
+- Author self-review revision v0.2 (`RA-B3-MAJ-01`/`IRB-B3-MAJ-01`): **hoàn tất** (16 attack scenario theo yêu cầu revision, 10-item checklist, xem CHANGELOG).
+- ChatGPT Review A: **chưa diễn ra** (sẽ chạy trên `feature.md` v0.2, sau revision này).
 - Independent Review B: **chưa diễn ra.**
 - Consolidation: **chưa diễn ra.**
 

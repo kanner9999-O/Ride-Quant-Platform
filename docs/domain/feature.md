@@ -1,7 +1,7 @@
 ---
 id: feature
 title: Feature
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -29,6 +29,8 @@ Cộng một **read model tùy chọn** (`FeatureCurrentView`) — projection ti
 **`feature-computed` / `feature-fact-invalidated` / `feature-current-view` là canonical contract concept ID** — đúng giá trị `id:` trong từng khối YAML dưới đây, và đúng giá trị `contract_id` mà [`context-map.yaml`](./context-map.yaml) sẽ trích dẫn. Display name, concept ID, và `event_type` là ba đại lượng khác nhau, không cạnh tranh identity — cùng nguyên tắc `candle.md`/`swing.md`/`structure.md`/`regime.md` đã khóa.
 
 **Ba concept lặp lại, học trực tiếp từ `regime.md` v0.2 (đã qua review đầy đủ)** — tài liệu này áp dụng ngay từ v0.1 các bài học đã trả giá ở Package 0.2-B2, không lặp lại lỗi: (a) `FeatureFactInvalidated` PHẢI kế thừa `subject_ref`/`effective_time` từ fact bị invalidate, không tự khai báo độc lập (đóng trước IRB-B2-MAJ-02-style defect); (b) `input_fact_refs` là tập toán học, normalize theo lexicographic order trước khi tính identity/hash/dedup (đóng trước IRB-B2-MAJ-01-style defect); (c) `FeatureCurrentView` dùng no-row semantics trước fact đầu tiên, `view_state` chỉ có `VALID`/`PENDING_CORRECTION`, không có `UNAVAILABLE` (đóng trước RA-B2-MIN-01-style defect); (d) mọi canonical policy identifier chỉ khai báo ĐÚNG MỘT NƠI trong tài liệu (đóng trước IRB-B2-MIN-01-style defect).
+
+**v0.2 xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`** (cùng một defect, một correction): eligible-Swing selection cho `distance_to_last_confirmed_swing` (§9a v0.1) thiếu một **effective-time cutoff filter** tường minh — một Swing có `pivot_effective_time.window_start` xảy ra CÙNG LÚC hoặc SAU reference Candle's `effective_time.window_end` có thể bị chọn nhầm chỉ vì nó recorded-time visible tại cursor, vi phạm bitemporal correctness ([Chapter 5](../constitution/05-time-model.md)) — "recorded-time visible" KHÔNG tương đương "effective-time eligible". v0.2 pin canonical cutoff decision `eligible_swing_effective_cutoff_policy: REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE` (§6) và viết lại §9a thành một **ordered filter pipeline 5 bước tường minh** — effective-time eligibility LUÔN là một filter chạy TRƯỚC candidate ordering, không bao giờ để total order hợp thức hóa một Swing effective muộn hơn (§9a, §12, §13).
 
 ## 1. Logical Feature Subject — `kind: entity`
 
@@ -270,7 +272,8 @@ feature_definition:                      # schema tối thiểu — KHÔNG khóa
   swing_direction: {type: enum, values: [HIGH, LOW], description: "HIGH hoặc LOW — pin trong definition, KHÔNG thuộc subject identity (§1)"}
   distance_representation: {type: enum, values: [signed, absolute]}
   reference_price_field: {type: string, description: "ví dụ candle.close — trường giá dùng làm điểm tham chiếu"}
-  eligible_swing_selection_policy: {type: string, description: "canonical identifier — tái sử dụng methodology structure.md §6a total order, xem §9a. Feature pin giá trị RIÊNG của mình, không phụ thuộc registry 'đã tiêu thụ' của Structure."}
+  eligible_swing_selection_policy: {type: string, description: "canonical identifier — tái sử dụng methodology structure.md §6a total order, xem §9a. Feature pin giá trị RIÊNG của mình, không phụ thuộc registry 'đã tiêu thụ' của Structure. CHỈ áp dụng cho các ứng viên ĐÃ vượt qua eligible_swing_effective_cutoff_policy — total order không bao giờ chạy trước filter đó (§9a)."}
+  eligible_swing_effective_cutoff_policy: {type: enum, values: [REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE], required: true, description: "canonical cutoff quyết định một SwingConfirmed có effective-time eligible hay không, TÁCH BIỆT với recorded-time visibility — xem §9a bước 3. v0.2: đúng một giá trị hợp lệ, xem 'Giá trị canonical mặc định' dưới đây."}
   required_swing_definition_version: {type: string, description: "swing_definition_version PHẢI pin — swing.md §9"}
   normalization_policy: {type: string, required: false}
 
@@ -280,18 +283,19 @@ feature_definition:                      # schema tối thiểu — KHÔNG khóa
   warm_up_policy: {type: string, required: true}
   missing_input_policy: {type: string, required: true}
   correction_policy: {type: string, value: "always_invalidate_and_replace_no_shortcut", description: "đúng §3 invariant — không shortcut khi value không đổi"}
-  effective_window_policy: {type: string, required: true, description: "định nghĩa effective_window cho feature_type này — xem §7"}
+  effective_window_policy: {type: string, required: true, description: "định nghĩa effective_window cho feature_type này — xem §7. Với distance_to_last_confirmed_swing: PHẢI dùng CHÍNH reference Candle làm mốc — effective_window của Feature fact KHÔNG được vượt quá effective_window của reference Candle đó (window_end trùng nhau); Eligible Swing được chọn (§9a) PHẢI effective strictly trước window_end này, đúng eligible_swing_effective_cutoff_policy."}
   output_schema: {value: decimal, unit: string}
   current_view_selection_policy: {type: string, required: true, description: "canonical identifier — xem §11, khai báo DUY NHẤT tại đây"}
   input_normalization_policy: {type: string, required: true, description: "canonical identifier — xem §8, khai báo DUY NHẤT tại đây"}
 ```
 
-**Giá trị canonical mặc định (v0.1) — nguồn duy nhất cho ba policy identifier, mọi nơi khác trong tài liệu chỉ tham chiếu theo tên field, không lặp lại chuỗi (đóng trước lớp lỗi IRB-B2-MIN-01-style ngay từ v0.1):**
+**Giá trị canonical mặc định (v0.2) — nguồn duy nhất cho bốn policy identifier, mọi nơi khác trong tài liệu chỉ tham chiếu theo tên field, không lặp lại chuỗi (đóng trước lớp lỗi IRB-B2-MIN-01-style ngay từ v0.1; `eligible_swing_effective_cutoff_policy` bổ sung tại v0.2, đóng `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`):**
 
 ```yaml
 input_normalization_policy: effective_time_window_start_asc_then_window_end_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc   # §8a
 current_view_selection_policy: effective_window_end_desc_then_window_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc   # §11
-eligible_swing_selection_policy: pivot_effective_time_window_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_swing_revision_desc_then_swing_id_asc_then_event_id_asc   # §9a — CHỈ áp dụng cho distance_to_last_confirmed_swing, cùng methodology structure.md §6a
+eligible_swing_selection_policy: pivot_effective_time_window_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_swing_revision_desc_then_swing_id_asc_then_event_id_asc   # §9a — CHỈ áp dụng CHO các ứng viên đã qua eligible_swing_effective_cutoff_policy, cùng methodology structure.md §6a
+eligible_swing_effective_cutoff_policy: REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE   # §9a bước 3 — reference_cutoff = reference Candle effective_time.window_end; điều kiện S.pivot_effective_time.window_start < reference_cutoff (strict, half-open, KHÔNG bao gồm biên)
 ```
 
 Một `feature_definition_version` tương lai có thể chọn identifier khác cho từng policy, nhưng PHẢI vẫn total + deterministic + tương thích [ADR-009](../adr/ADR-009.md) — không dùng physical wall clock, không so `sequence` xuyên stream.
@@ -326,7 +330,9 @@ Một `feature_definition_version` PHẢI pin đúng MỘT trong hai path trên 
 - **KHÔNG** tiêu thụ `SwingCurrentView`/`StructureCurrentView`/`RegimeCurrentView` hay bất kỳ non-authoritative projection nào.
 - **KHÔNG** tiêu thụ Structure event nào (`BreakOfStructureDetected`/`ChangeOfCharacterDetected`/`StructureFactInvalidated`/`StructureRecomputed`) — chỉ tái sử dụng **methodology** total-order của `structure.md` §6a (xem §9a), không tiêu thụ event hay registry "đã consume" của Structure.
 
-**Feature Definition PHẢI pin:** `swing_direction` (HIGH/LOW); `distance_representation` (signed/absolute); `reference_price_field`; `unit`; `normalization_policy` (nếu có); `eligible_swing_selection_policy` (§9a); `required_swing_definition_version`.
+**Feature Definition PHẢI pin:** `swing_direction` (HIGH/LOW); `distance_representation` (signed/absolute); `reference_price_field`; `unit`; `normalization_policy` (nếu có); `eligible_swing_effective_cutoff_policy` (§9a bước 3 — v0.2, đóng `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`); `eligible_swing_selection_policy` (§9a total order, CHỈ áp dụng SAU khi cutoff filter đã chạy); `required_swing_definition_version`.
+
+**Canonical effective-time cutoff decision:** `reference_cutoff = reference Candle effective_time.window_end` (chính Candle dùng làm `reference_price_field`, §6 `effective_window_policy`). Một Swing chỉ eligible khi `SwingConfirmed.pivot_effective_time.window_start < reference_cutoff` — **strict, half-open**; một Swing có pivot bắt đầu ĐÚNG bằng `window_end` KHÔNG eligible cho computation point đó. **KHÔNG được dùng:** batch completion time; wall clock hiện tại; Swing được ghi nhận (recorded) mới nhất bất kể effective time; cutoff tự chọn ở tầng implementation; `FeatureCurrentView`'s time. Chi tiết thuật toán và ví dụ bắt buộc tại §9a.
 
 ## 8. Fact identity và input normalization
 
@@ -442,20 +448,75 @@ F2
 
 **Tái sử dụng methodology của `structure.md` §6a — KHÔNG tiêu thụ event hay registry "đã consume" của Structure.** Feature pin giá trị policy RIÊNG của mình (`eligible_swing_selection_policy`, §6), độc lập với `structure_definition_version`'s registry state — tránh coupling correctness của Feature vào trạng thái nội bộ của Structure.
 
-**Eligible Swing** (đúng `swing_direction` đã pin) tại một cursor recorded-time:
+**v0.2 — `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`:** v0.1 chỉ lọc theo recorded-time visibility rồi chạy thẳng total order — **thiếu một effective-time cutoff filter độc lập**, cho phép một Swing effective MUỘN HƠN reference Candle bị chọn nhầm chỉ vì nó recorded-time visible sớm. **Recorded-time visible KHÔNG tương đương effective-time eligible** — đây là hai trục bitemporal tách biệt ([Chapter 5](../constitution/05-time-model.md)). v0.2 tách Eligible-Swing selection thành **hai giai đoạn tường minh, không được gộp lại**: (1) một **ordered filter pipeline** (5 bước, AND — một ứng viên phải qua CẢ NĂM mới eligible) quyết định TẬP ứng viên; (2) total order 8 tiêu chí (không đổi so với v0.1) chỉ dùng để phá vỡ hòa (tie-break) TRONG tập đã qua bước (1). **Effective-time eligibility LÀ MỘT FILTER chạy TRƯỚC candidate ordering — total order không bao giờ được dùng để hợp thức hóa một Swing ineligible về effective time.**
+
+**Bước 0 — canonical cutoff decision (bắt buộc, pin đúng một lần tại §6):**
 
 ```text
-Eligible Swing =
-  latest valid SwingConfirmed (swing.md §4) đúng swing_direction đã pin
-  visible tại cursor recorded_time hiện tại (swing.md §7 — không look-ahead)
-  matching instrument_id/venue_id/timeframe/required_swing_definition_version (§6)
-  KHÔNG có SwingInvalidated visible cho ĐÚNG cặp (swing_id, swing_revision) đó tại cursor (swing.md §5)
-  = revision hợp lệ MỚI NHẤT của swing_id đó tại cursor (swing.md §1a)
+reference_cutoff = reference Candle C (§7.3 — Candle dùng làm reference_price_field).effective_time.window_end
+
+eligible_swing_effective_cutoff_policy = REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE (§6)
+  → điều kiện: S.pivot_effective_time.window_start < reference_cutoff   (strict "<", half-open, KHÔNG "<=")
 ```
 
-**Không loại trừ Swing "đã dùng làm broken_swing_ref"** — đây là khác biệt tường minh so với `structure.md` §6a (nơi một Swing đã consume thì không đủ điều kiện lần nữa cho BOS/CHoCH); Feature chỉ đo khoảng cách, không "tiêu thụ" Swing theo nghĩa Structure — cùng một Swing có thể là Eligible Swing cho Feature bất kể Structure đã dùng nó làm break level hay chưa.
+KHÔNG dùng: batch completion time; wall clock hiện tại; Swing recorded mới nhất bất kể effective time; cutoff tự chọn ở tầng implementation; `FeatureCurrentView`'s time.
 
-**Total order khi nhiều Eligible Swing thỏa cùng điều kiện — 8 tiêu chí, lexicographic nghiêm ngặt (giống hệt bảng `structure.md` §6a):**
+**Eligible-Swing filter pipeline — cho một computation tại reference Candle `C`, cursor recorded-time `R`, một `SwingConfirmed S` là ứng viên hợp lệ CHỈ KHI cả 5 điều kiện dưới đây đều đúng, đánh giá THEO ĐÚNG THỨ TỰ này:**
+
+```text
+1. Identity/scope match
+   S.instrument_id                    == Feature subject instrument_id
+   S.venue_id                         == Feature subject venue_id
+   S.timeframe                        == Feature subject timeframe
+   S.swing_definition_version         == required_swing_definition_version (§6)
+   S.swing_direction                  == swing_direction đã pin (§6)
+
+2. Recorded-time visibility (swing.md §7 — không look-ahead)
+   S.recorded_time <= R
+
+3. Effective-time cutoff (MỚI — v0.2, đóng RA-B3-MAJ-01/IRB-B3-MAJ-01)
+   S.pivot_effective_time.window_start < C.effective_time.window_end
+   (đúng eligible_swing_effective_cutoff_policy = REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE, Bước 0)
+
+4. Latest valid revision
+   S = revision hợp lệ MỚI NHẤT của swing_id đó, visible tại R (swing.md §1a)
+
+5. Not invalidated
+   KHÔNG có SwingInvalidated visible tại R cho ĐÚNG cặp (swing_id, swing_revision) của S (swing.md §5)
+```
+
+Một ứng viên KHÔNG qua được bước nào thì bị loại NGAY — không đánh giá các bước sau, không đưa vào total order. Bước 3 áp dụng ĐỘC LẬP với bước 2 — một Swing qua được bước 2 (recorded-time visible) vẫn có thể bị loại ở bước 3 (effective-time ineligible), và ngược lại đây là lý do bước 3 phải tồn tại như một bước riêng chứ không gộp vào bước 2.
+
+**Không loại trừ Swing "đã dùng làm broken_swing_ref"** — đây là khác biệt tường minh so với `structure.md` §6a (nơi một Swing đã consume thì không đủ điều kiện lần nữa cho BOS/CHoCH); Feature chỉ đo khoảng cách, không "tiêu thụ" Swing theo nghĩa Structure — cùng một Swing có thể là Eligible Swing cho Feature bất kể Structure đã dùng nó làm break level hay chưa. (Điều kiện này không liên quan và không thay đổi bởi effective-time cutoff ở trên.)
+
+**Ví dụ bắt buộc (normative, đóng `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`):**
+
+```text
+Reference Candle C:
+  effective_time.window_end = T10
+
+Swing A:
+  pivot_effective_time.window_start = T8
+  recorded_time = R20
+
+Swing B:
+  pivot_effective_time.window_start = T15
+  recorded_time = R30
+
+Historical batch cursor: R100
+
+Kết quả bắt buộc:
+  Swing A → ELIGIBLE   (bước 2: R20 <= R100 OK; bước 3: T8 < T10 OK)
+  Swing B → REJECTED   (bước 2: R30 <= R100 OK; bước 3: T15 < T10 FAIL — T15 >= T10)
+
+→ CẢ HAI đều recorded-time visible tại cursor R100 (bước 2 pass), nhưng Swing B vẫn bị loại
+  vì effective-time ineligible (bước 3 fail). Total order (dưới đây) KHÔNG BAO GIỜ chạy tới
+  Swing B vì nó đã bị loại từ bước 3 — total order chỉ thấy tập {Swing A}.
+```
+
+**Correction-recorded-old-pivot — "recorded muộn hơn không có nghĩa effective muộn hơn":** một Swing revision được recorded SAU (correction) vẫn có thể eligible nếu chính revision đó thỏa cả 5 bước — cụ thể: `revised S.recorded_time <= R` VÀ `revised S.pivot_effective_time.window_start < reference_cutoff` VÀ đây là revision hợp lệ hiện tại (bước 4) VÀ không bị invalidate (bước 5). Ví dụ: một correction tới Swing A phát sinh recorded_time = R50 (sau R20 gốc) nhưng pivot vẫn `window_start = T8` (không đổi effective time) — revision mới này vẫn eligible tại cursor R100, thay thế revision cũ theo đúng correction lineage (swing.md). Ngược lại, một correction dời pivot tới `T15` (>= T10) sẽ khiến chính Swing đó chuyển từ eligible sang ineligible tại bước 3 — bất kể recorded_time của correction là gì. **"Recorded muộn hơn" và "effective muộn hơn" là hai trục độc lập** — bitemporal correctness đòi hỏi đánh giá riêng biệt, không suy luận trục này từ trục kia.
+
+**Total order khi nhiều ứng viên ĐÃ QUA CẢ 5 BƯỚC LỌC trên vẫn thỏa cùng điều kiện — 8 tiêu chí, lexicographic nghiêm ngặt (không đổi so với v0.1, giống hệt bảng `structure.md` §6a):**
 
 ```text
 1. pivot_effective_time.window_start   DESC
@@ -468,9 +529,9 @@ Eligible Swing =
 8. SwingConfirmed.event_id             ASC (lexical)
 ```
 
-So sánh tiêu chí 1 đến 8 theo đúng thứ tự; tiêu chí đầu tiên khác nhau quyết định; các tiêu chí sau KHÔNG được đánh giá; `sequence` chỉ so trong cùng stream identity — cấm so sánh xuyên stream.
+So sánh tiêu chí 1 đến 8 theo đúng thứ tự; tiêu chí đầu tiên khác nhau quyết định; các tiêu chí sau KHÔNG được đánh giá; `sequence` chỉ so trong cùng stream identity — cấm so sánh xuyên stream. **Total order này CHỈ chạy trên tập đã qua filter pipeline ở trên — không bao giờ được áp dụng cho một ứng viên chưa qua bước 3 (effective-time cutoff), dù ứng viên đó thắng theo tiêu chí 1 (`pivot_effective_time.window_start DESC`).**
 
-**Không có Eligible Swing nào tồn tại (chưa có Swing nào đúng direction được CONFIRMED):** `distance_to_last_confirmed_swing` KHÔNG được compute — valid absence, không phát `FeatureComputed` (§7 warm-up/missing-input).
+**Không có Eligible Swing nào tồn tại** (chưa có Swing nào qua được cả 5 bước lọc — kể cả trường hợp có Swing recorded-time visible nhưng effective-time ineligible như Swing B ở ví dụ trên): `distance_to_last_confirmed_swing` KHÔNG được compute — valid absence, không phát `FeatureComputed` (§7 warm-up/missing-input).
 
 ## 10. Feature-to-Feature dependency — deferred (B3 KHÔNG author)
 
@@ -526,7 +587,14 @@ market_time                    — PROHIBITED (§2)
 
 **Correction visibility:** `FeatureFactInvalidated` và replacement `FeatureComputed` đều có `recorded_time` mới; replay tại cursor trước đó chỉ thấy fact gốc — không backfill giả vờ đã biết sớm hơn thực tế.
 
-**Không có input nào vượt quá `effective_window.window_end` hoặc replay cursor được dùng làm evidence.**
+**Input eligibility — v0.2, đóng `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`: hai điều kiện ĐỘC LẬP, cả hai PHẢI đúng cho MỌI Feature input, không điều kiện nào thay thế được điều kiện kia:**
+
+```text
+(a) input.recorded_time <= computation cursor      — recorded-time visibility (đã có từ v0.1)
+(b) input effective time thỏa cutoff riêng của feature_type đó, pin tại Feature Definition (§6)
+```
+
+`(a)` một mình KHÔNG đủ — một input recorded-time visible vẫn có thể effective-time ineligible (§9a ví dụ bắt buộc: Swing B). Với `distance_to_last_confirmed_swing`, `(b)` cụ thể là: `Eligible Swing.pivot_effective_time.window_start < reference Candle.effective_time.window_end` (§9a bước 3, `eligible_swing_effective_cutoff_policy`). Quy tắc chung **"không có input nào vượt quá `effective_window.window_end` hoặc replay cursor được dùng làm evidence"** PHẢI được đọc CÙNG với `(b)` — đây không phải một rule đứng riêng mơ hồ, mà tham chiếu đúng cutoff cụ thể mà Feature Definition của feature_type đó đã pin (§6/§9a cho `distance_to_last_confirmed_swing`; §7.1/§7.2 cho `volatility_metric`/`directional_persistence_metric` — evidence window chỉ dùng Candle/Regime fact có effective time không vượt quá `window_candle_count`/`upstream_source` đã pin).
 
 ## 13. No repaint và mode parity
 
@@ -536,6 +604,7 @@ market_time                    — PROHIBITED (§2)
 - **Cursor-correct pending correction** — replay giữa invalidation và replacement thấy đúng `PENDING_CORRECTION` (§11), không âm thầm dùng giá trị cũ.
 - **Cùng một chuỗi computation xuyên Backtest/Replay/Paper/Live** — deterministic given `(feature_definition_version, upstream causal ancestry)` — bắt buộc SINH RA đủ MỌI computation point giống nhau ở mọi mode.
 - **Warm-up/missing-input deterministic** — áp dụng đồng nhất mọi mode.
+- **No look-ahead qua batch recomputation — v0.2, đóng `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`:** historical Backtest/Replay tại một recorded cursor MUỘN (ví dụ nạp lại toàn bộ lịch sử tại cursor R100) PHẢI reconstruct MỖI Feature fact chỉ dùng input thỏa **CẢ HAI** điều kiện tại đúng computation cursor của CHÍNH fact đó (§12): recorded-time visible VÀ effective-time eligible. Việc một Swing/Candle/Regime fact được nhìn thấy trong batch tại cursor muộn (recorded-time visible) **KHÔNG BAO GIỜ** cho phép nó "nhảy vào" một computation point SỚM HƠN mà nó effective-time ineligible tại điểm đó (§9a — Swing B trong ví dụ bắt buộc vẫn bị loại dù cursor batch là R100). Bảo đảm này ĐỘC LẬP với mode — Live/Paper/Replay/Backtest đều PHẢI cho cùng một tập Eligible Swing tại cùng một computation point, không có "batch mode advantage" nhìn thấy trước.
 - **Rounding/threshold boundary deterministic** — `decimal_precision_policy` (§6) pin cùng definition version, cùng kết quả mọi mode; `value` luôn kiểu `decimal` (I-9, không float).
 
 ## 14. Input contracts — chỉ authoritative facts thực sự cần
@@ -581,3 +650,4 @@ Cả bốn execution mode tiêu thụ đúng cùng envelope (§2) và payload (�
 
 - Khi `upstream_source: regime` cho `volatility_metric`/`directional_persistence_metric`, Feature Definition có cần cho phép một `unit`/`decimal_precision_policy` KHÁC với Regime's own `computed_metric` (yêu cầu convert), hay bắt buộc giữ nguyên? Chưa quyết ở đây — author-level ambiguity note, không phải governance-level OQ, không đóng OQ-002/OQ-003.
 - `feature_definition_version` registry/lifecycle chưa có authoritative source riêng — tạm coi là Referenced Authoritative Artifact theo Chapter 8 §8.1.1 (§6), nhưng **chưa** có file/registry cụ thể nào author nó trong Package 0.2-B3. Cần quyết định khi có nhu cầu thực tế đầu tiên (đối xứng ghi chú `swing.md`/`structure.md`/`regime.md`).
+- **Deferred, non-blocking (ghi chú tài liệu, không phải executable finding):** [`context-map.yaml`](./context-map.yaml) hiện mô tả `feature-engineering` (cả capability lẫn context) bằng cụm từ "Feature/Signal" (ví dụ: "...thành Feature/Signal dùng cho Strategy"). Cụm này có thể gây hiểu lầm cạnh definition tường minh ở đầu tài liệu này — **Feature KHÔNG phải trade signal** (§ mở đầu). Đây KHÔNG phải một finding cần sửa ở B3 narrow revision này (`context-map.yaml` không nằm trong phạm vi file được phép đổi của revision này) — chỉ ghi nhận như một documentation cleanup item hoãn lại cho lần cập nhật `context-map.yaml` kế tiếp.

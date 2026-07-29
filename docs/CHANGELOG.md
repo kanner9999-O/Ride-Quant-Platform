@@ -2,6 +2,77 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — fix Feature swing effective-time cutoff (Package 0.2-B3 narrow revision)
+
+**Không phải approval, không phải review-complete, không phải Consolidated Stable, không phải re-planning.** Vai trò: `Domain Contract Author · AI Technical Architect`. Narrow revision — xử lý ĐÚNG hai finding, không mở rộng phạm vi Feature, không sửa artifact ngoài phạm vi được cho phép.
+
+### Findings xử lý
+
+`RA-B3-MAJ-01` (ChatGPT Review A) và `IRB-B3-MAJ-01` (Independent Review B) — **cùng một defect, một correction**: eligible-Swing selection cho `distance_to_last_confirmed_swing` (`feature.md` v0.1 §9a) thiếu một **effective-time cutoff filter** độc lập. v0.1 chỉ lọc theo recorded-time visibility (`SwingConfirmed.recorded_time <= cursor`) rồi chạy thẳng total order 8 tiêu chí — điều này cho phép một Swing có `pivot_effective_time.window_start` xảy ra CÙNG LÚC hoặc SAU reference Candle's `effective_time.window_end` bị chọn, chỉ vì nó recorded-time visible sớm hơn cursor. **Recorded-time visible KHÔNG tương đương effective-time eligible** — vi phạm bitemporal correctness ([Chapter 5](constitution/05-time-model.md)), một dạng look-ahead bug.
+
+### Canonical effective-time cutoff decision (pin đúng một lần, §6)
+
+```text
+reference_cutoff = reference Candle effective_time.window_end
+eligible_swing_effective_cutoff_policy = REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE
+điều kiện: SwingConfirmed.pivot_effective_time.window_start < reference_cutoff   (strict "<", half-open)
+```
+
+Một Swing có pivot bắt đầu ĐÚNG bằng `window_end` KHÔNG eligible. KHÔNG dùng: batch completion time; wall clock hiện tại; Swing recorded mới nhất bất kể effective time; cutoff tự chọn ở implementation; `FeatureCurrentView`'s time.
+
+### Feature Definition changes (§6, §7.3)
+
+Thêm field bắt buộc mới `eligible_swing_effective_cutoff_policy` (enum, v0.2 đúng một giá trị hợp lệ `REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE`), pin canonical value trong khối "Giá trị canonical mặc định" cùng ba policy identifier hiện có (nay bốn). `effective_window_policy` clarify: với `distance_to_last_confirmed_swing`, PHẢI dùng CHÍNH reference Candle làm mốc — effective_window của Feature fact KHÔNG vượt quá effective_window của Candle đó; Eligible Swing được chọn PHẢI effective strictly trước window_end này.
+
+### Eligible-Swing algorithm changes (§9a — structural rewrite)
+
+Tách Eligible-Swing selection thành **hai giai đoạn tường minh, không được gộp**: (1) ordered filter pipeline 5 bước (AND) quyết định tập ứng viên; (2) total order 8 tiêu chí (không đổi so với v0.1) chỉ tie-break TRONG tập đã qua (1). **Effective-time eligibility LÀ MỘT FILTER chạy TRƯỚC candidate ordering** — total order không bao giờ hợp thức hóa một Swing ineligible về effective time, kể cả khi Swing đó thắng theo tiêu chí 1 (`pivot_effective_time.window_start DESC`).
+
+```text
+1. Identity/scope match (instrument_id, venue_id, timeframe, swing_definition_version, swing_direction)
+2. Recorded-time visibility: S.recorded_time <= R
+3. Effective-time cutoff (MỚI): S.pivot_effective_time.window_start < C.effective_time.window_end
+4. Latest valid revision của swing_id tại R
+5. Not invalidated: không có SwingInvalidated visible cho đúng (swing_id, swing_revision) tại R
+```
+
+**Ví dụ bắt buộc, embedded normative (đóng finding):** reference Candle `effective_time.window_end = T10`; Swing A `pivot_effective_time.window_start = T8`, `recorded_time = R20`; Swing B `pivot_effective_time.window_start = T15`, `recorded_time = R30`; historical batch cursor `R100`. Kết quả bắt buộc: **Swing A eligible; Swing B rejected** (`T15 >= T10`) — dù CẢ HAI đều recorded-time visible tại `R100`.
+
+**Correction-recorded-old-pivot clarification:** "recorded muộn hơn không có nghĩa effective muộn hơn" — một Swing revision recorded SAU (correction) vẫn eligible nếu chính revision đó thỏa cả 5 bước, cụ thể pivot của nó vẫn `< reference_cutoff`. Ngược lại một correction dời pivot tới `>= cutoff` khiến Swing chuyển từ eligible sang ineligible, bất kể `recorded_time` của correction là gì — bảo toàn bitemporal correctness.
+
+### Time-semantics changes (§12)
+
+Strengthen: mọi Feature input PHẢI thỏa CẢ HAI điều kiện độc lập — `(a) input.recorded_time <= computation cursor` VÀ `(b) input effective time thỏa cutoff riêng của feature_type đó (pin tại §6)`. `(a)` một mình KHÔNG đủ. Quy tắc chung "không có input nào vượt quá `effective_window.window_end`" nay tham chiếu tường minh đúng cutoff cụ thể của từng feature_type (§6/§9a cho `distance_to_last_confirmed_swing`) thay vì đứng riêng mơ hồ.
+
+### No-repaint/parity changes (§13)
+
+Thêm bảo đảm tường minh: historical Backtest/Replay tại cursor muộn PHẢI reconstruct mỗi Feature fact chỉ dùng input recorded-time visible VÀ effective-time eligible tại đúng computation cursor của CHÍNH fact đó — một Swing recorded-time visible trong batch KHÔNG BAO GIỜ được "nhảy vào" một computation point sớm hơn mà nó effective-time ineligible. Bảo đảm độc lập mode — Live/Paper/Replay/Backtest PHẢI cho cùng tập Eligible Swing tại cùng computation point.
+
+### Attack-scenario results — 16/16 pass
+
+Reference Candle T10/Swing A T8/Swing B T15/cursor R100 (A eligible, B rejected); pivot đúng bằng T10 (rejected, strict `<`); pivot ngay trước T10 (eligible); correction recorded muộn hơn với pivot T8 (eligible); correction recorded muộn hơn với pivot T15 (rejected); revision được chọn bị invalidate (loại, bước 5); replacement revision valid và trước cutoff (eligible); replacement revision valid nhưng sau cutoff (không eligible qua swing_id đó); HIGH/LOW direction mismatch (loại, bước 1); sai `swing_definition_version` (loại, bước 1); cùng pivot effective time xuyên nhiều stream (total order tie-break không đổi); không có Eligible Swing nào (valid absence, không đổi); historical Backtest vs Live parity (§13, cùng tập Eligible Swing mọi mode); không regression input normalization (§8a không đổi); không regression correction lineage (§9 10-invariant không đổi); không regression Current View (§11 không đổi).
+
+### Preserved semantics — không đổi
+
+Đúng ba founding feature type; subject identity năm field; Candle/Regime dual-path rule (§7.1/§7.2); correction lineage 10 invariant (§9); input normalization (§8a); `FeatureCurrentView` semantics + no-row (§5); Current View total order 7 tiêu chí (§11); Feature-to-Feature dependency deferred (§10); Context boundary (§15); Context Map relationships; không ADR mới; OQ-002/OQ-003 state không đổi.
+
+### Context Map wording concern — deferred, non-blocking
+
+`context-map.yaml` mô tả `feature-engineering` bằng cụm "Feature/Signal" — có thể gây hiểu lầm cạnh định nghĩa "Feature KHÔNG phải trade signal" ở đầu `feature.md`. **KHÔNG phải executable finding của revision này** — `context-map.yaml` KHÔNG nằm trong phạm vi file được sửa. Ghi nhận documentation-only tại `feature.md` §20 (Open questions), hoãn cho lần cập nhật `context-map.yaml` kế tiếp. **`context-map.yaml` giữ nguyên byte-for-byte, không có diff trong commit này.**
+
+### Self-review checklist — 10/10 pass
+
+Later-effective Swing bị reject; recorded-time-visible nhưng effective-ineligible Swing bị reject; old-effective corrected revision được accept; cutoff boundary dùng `<` strict (không `<=`); total order chỉ chạy sau effective filter; `effective_window_policy` và cutoff policy nhất quán; không look-ahead trong historical batch; Live/Backtest/Replay/Paper parity giữ nguyên; không sửa semantic ngoài phạm vi finding; `context-map.yaml` không đổi.
+
+### Metadata / state
+
+- `feature.md`: **v0.1 → v0.2**, `status` giữ `Draft`.
+- `README.md` (domain index): **v0.15 → v0.16**, `status` giữ `Draft` — Package 0.2-B row + mục Package 0.2-B3 cập nhật ghi nhận revision.
+- `MANIFEST.md`: `manifest_version` **9.40 → 9.41**; dòng `domain/` cập nhật ghi nhận `feature.md` v0.2, `RA-B3-MAJ-01`/`IRB-B3-MAJ-01` resolved.
+- `context-map.yaml`, `candle.md`, `swing.md`, `structure.md`, `regime.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
+
+**Sẵn sàng chuyển ChatGPT Review A (trên `feature.md` v0.2).** Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1/B2 vẫn `Consolidated Stable`; Package 0.2-B3 vẫn active, Draft, chưa `Consolidated Stable` (đã qua narrow revision trước Review A/B); Package 0.2-B4 chưa bắt đầu; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-29 — author minimal Feature contract (Package 0.2-B3)
 
 **Không phải approval, không phải review-complete, không phải Consolidated Stable.** Vai trò: `Domain Contract Author · AI Technical Architect`. Authorization gate: Product Owner xác nhận tường minh "Authorize Package 0.2-B3 minimal Feature scope." trước khi authoring bắt đầu.
