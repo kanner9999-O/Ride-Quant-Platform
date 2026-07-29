@@ -2,6 +2,37 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — resolve Raw Regime review findings (narrow revision)
+
+**Không phải approval, không phải review-complete, không phải Consolidated Stable.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Narrow revision — không planning lại, không mở rộng scope Raw Regime, chỉ xử lý đúng bốn finding từ ChatGPT Review A + Independent Review B trên baseline v0.1.
+
+### Findings resolved (chỉ `regime.md`, v0.1 → v0.2)
+
+- **`RA-B2-MIN-01` + `IRB-B2-MIN-03` (cùng một ambiguity, một correction):** mâu thuẫn giữa "no row while UNCLASSIFIED" (§5) và "view_state = UNAVAILABLE khi chưa có completed valid window" (§11 cũ) — không rõ trước fact đầu tiên là "row không tồn tại" hay "row tồn tại với state UNAVAILABLE". Quyết định canonical: **trước `RegimeClassified` đầu tiên → không có row nào tồn tại** (`GetCurrentRegime` trả `NOT_FOUND`/`ABSENT` theo quy ước tầng query, không materialize placeholder). `view_state` rút còn đúng hai giá trị — `VALID`, `PENDING_CORRECTION` — loại bỏ hoàn toàn `UNAVAILABLE` khỏi schema/invariants/thuật toán/prose (§5, §11). Thêm Bước 0 (row existence precondition) vào thuật toán selection.
+- **`IRB-B2-MAJ-01` — Canonical Candle evidence normalization:** `candle_evidence_refs` trước đây là array không normalize — cùng tập evidence, khác thứ tự đến, có thể sinh hai computation identity khác nhau. Thêm §8a: `candle_evidence_refs` là tập toán học, unique, đúng `window_candle_count` phần tử, normalize theo 6-tiêu-chí lexicographic order (`window_start ASC → window_end ASC → stream_id ASC → registry_version ASC → sequence ASC (chỉ khi stream_id+registry_version hòa) → event_id ASC`) TRƯỚC khi tính identity/hash/so sánh/dedup/serialize. `candle_evidence_refs` field trong payload PHẢI serialize theo đúng normalized order này (§3 invariant mới). Computation identity (§8b) dùng normalized list.
+- **`IRB-B2-MAJ-02` — Invalidation envelope binding:** `RegimeFactInvalidated.invalidated_fact_ref` có thể trỏ một fact nhưng envelope (`subject_ref`/`effective_time`) khai báo subject/window khác — không có ràng buộc nào ngăn "nhắm nhầm". Thêm invariant bắt buộc: `envelope.subject_ref` PHẢI BẰNG HỆT `subject_ref` của fact bị invalidate (toàn bộ scope, không chỉ `subject_id`); `envelope.effective_time` PHẢI BẰNG HỆT `analysis_window` của fact bị invalidate — cả hai KẾ THỪA, không tự khai báo độc lập (§2, §4). Cấm tường minh: sai subject, sai window, sai `regime_definition_version` (= khác subject), sai `regime_dimension` (= khác subject).
+
+### Self-review — 20 scenario + 1 defect bổ sung tự phát hiện
+
+Chạy đủ 20 scenario theo yêu cầu revision task (evidence normalization theo cả hai chiều thứ tự, duplicate ref, cross-stream sequence, invalidation đúng/sai subject/window/dimension/definition-version, no-row → VALID → PENDING_CORRECTION → replacement visible, replay trước/sau revision event). **20/20 pass.**
+
+**Phát hiện thêm một defect ngoài phạm vi 4 finding đã cho, tự sửa trước commit:** hai canonical policy identifier (`candle_evidence_normalization_policy`, `current_view_selection_policy`) bị khai báo **lặp lại hai lần** trong tài liệu — một lần tại §6 (Regime Definition, nguồn canonical) và một lần tại chính §8a/§11 (nơi thuật toán được mô tả) — đúng anti-pattern mà `structure.md`'s `IRB-FD-STR-MIN-01` đã dạy phải tránh (một canonical string chỉ tồn tại ĐÚNG MỘT NƠI). **Sửa:** §8a và §11 nay chỉ tham chiếu §6 theo tên field, không lặp lại chuỗi — đúng MỘT bản canonical cho mỗi identifier, xuyên suốt tài liệu.
+
+**Nhân tiện sửa 4 cross-reference lỗi tiền tồn từ v0.1** (không thuộc 4 finding chính thức, nhưng phát hiện trong lúc revision khu vực liên quan): bốn chỗ trong §1/§4/§5 tham chiếu "§10" khi ý định thực sự là "§11" (`RegimeCurrentView` — validity rules và total order). §10 của tài liệu là Correction Lineage, §11 là `RegimeCurrentView` — bốn cross-reference đó viết nhầm §10 khi đang nói về §11. Sửa cả bốn về đúng §11.
+
+### Preserved semantics — không đổi
+
+Raw Regime độc lập Structure; five-field subject identity; one subject per dimension; per-window classification frequency; Volatility + Directional Persistence scope; hai event type (`RegimeClassified`/`RegimeFactInvalidated`, không `RegimeRecomputed`); correction lineage model (10 invariant); total order cho `RegimeCurrentView` (7 tiêu chí, không đổi thứ tự/hướng); Candle-only authoritative input; Feature/Context boundary; context-map relationships; không ADR mới; không đổi OQ nào.
+
+### Metadata / state
+
+- `regime.md`: **v0.1 → v0.2**, `status` giữ `Draft`.
+- `context-map.yaml`, `swing.md`, `structure.md`, `candle.md`, `ADR-012.md`, `ADR-013.md`: **không đổi** — không nằm trong scope commit này.
+- `README.md` (domain index): **v0.12 → v0.13**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.37 → 9.38**; dòng `domain/` cập nhật ghi nhận revision + review readiness.
+
+**Sẵn sàng cho ChatGPT Review A và Independent Review B re-review (chỉ `regime.md` v0.2).** Không Product Owner Approve; không Lock; không Consolidated Stable; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1 vẫn `Consolidated Stable`; Package 0.2-B2 active, Draft, chưa `Consolidated Stable`; Package 0.2-B3/B4 chưa bắt đầu; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-29 — author Raw Regime contract (Package 0.2-B2)
 
 **Không phải approval, không phải review-complete, không phải Consolidated Stable.** Vai trò: `Domain Contract Author · AI Technical Architect`. Author trực tiếp `regime.md` v0.1 Draft theo scope đã Product Owner chấp thuận qua hai vòng planning (analysis-only, không commit, không sửa GitHub).

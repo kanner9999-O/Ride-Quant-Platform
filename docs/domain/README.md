@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.12"
+version: "0.13"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -29,7 +29,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 | Package | Nội dung | Trạng thái |
 |---|---|---|
 | **0.2-A — Domain foundation** | `context-map.yaml` (v0.3 — non-blocking documentation-reference fix) + `candle.md` (v0.4, không đổi ở vòng consolidation này) | Draft — **`Consolidated Stable`** (xem dưới) |
-| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: đã bắt đầu** — `regime.md` v0.1 Draft authored (author self-review hoàn tất; ChatGPT Review A và Independent Review B **chưa diễn ra**). **Package 0.2-B3/B4** (`feature.md`, `context.md`) **chưa bắt đầu**. Package 0.2-B (tổng thể) **chưa `Consolidated Stable`** — B1 đạt, B2 mới ở Draft đầu, B3/B4 chưa có artifact nào. |
+| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: active, revision required** — `regime.md` v0.2 Draft (đóng RA-B2-MIN-01/IRB-B2-MIN-03, IRB-B2-MAJ-01, IRB-B2-MAJ-02; author self-review hoàn tất; ChatGPT Review A và Independent Review B **chưa re-review**). **Package 0.2-B3/B4** (`feature.md`, `context.md`) **chưa bắt đầu**. Package 0.2-B (tổng thể) **chưa `Consolidated Stable`** — B1 đạt, B2 đang revision, B3/B4 chưa có artifact nào. |
 | **0.2-C — Decision & execution chain** | `strategy.md` (Strategy Definition + Strategy Instance), `decision.md`, `risk.md`, `position.md`, `replay-event.md`, cộng các concept chưa có trong danh sách gốc: account, venue, instrument, order, fill, trade-intent, execution-intent | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 nay **`Approved`** (Product Owner, 2026-07-28) — **ADR dependency gate is now open.** Package 0.2-C is authorized to begin planning and authoring, subject to its normal package scope authorization and review workflow. **No Package 0.2-C artifact is authored in this transaction.** |
 
 **Thứ tự dự kiến trong từng package không đổi** so với kế hoạch gốc (theo dependency đã chốt ở [ADR-003](../adr/ADR-003.md) và [07-module-taxonomy.md](../constitution/07-module-taxonomy.md)); Package 0.2-C được liệt kê đầy đủ hơn danh sách gốc vì danh sách gốc thiếu Account/Order/Execution/Venue/Instrument.
@@ -86,20 +86,24 @@ reviewed HEAD:   d6545de3fcc767e03f74fd0712ada792372d1c33
 
 **`Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval status**, đúng định nghĩa đã khóa ở mục Package 0.2-A phía trên: authoring hoàn tất cho phạm vi B1; ChatGPT Review A hoàn tất; Independent Review B hoàn tất; mọi qualifying finding đã xử lý; artifact đã review được pin chính xác; package đủ ổn định để package kế tiếp (B2) bắt đầu planning — **không** ngụ ý Product Owner Approval, **không** ngụ ý Lock. `swing.md`, `structure.md`, `context-map.yaml` **vẫn giữ `status: Draft`**, `approved_by: null`, `approved_at: null` — artifact lifecycle và package lifecycle là hai trục tách biệt.
 
-## Package 0.2-B2 — `regime.md` v0.1 Draft authored, chưa qua review nào
+## Package 0.2-B2 — `regime.md` v0.2, narrow revision xử lý toàn bộ findings vòng đầu
 
-**Phạm vi B2:** bắt đầu chuỗi `Candle → Raw Regime → Feature`, song song và độc lập hoàn toàn với `Candle → Swing → Structure` ([ADR-003](../adr/ADR-003.md)) — [`regime.md`](./regime.md) v0.1, `capability_id: market-regime` / `domain_context_id: raw-regime-analysis` (đã đăng ký sẵn từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml) v0.6, không tạo capability/context mới — chỉ chuyển `owned_contracts: [regime]` từ forward-declared sang authored).
+**Phạm vi B2:** bắt đầu chuỗi `Candle → Raw Regime → Feature`, song song và độc lập hoàn toàn với `Candle → Swing → Structure` ([ADR-003](../adr/ADR-003.md)) — [`regime.md`](./regime.md) v0.2, `capability_id: market-regime` / `domain_context_id: raw-regime-analysis` (đã đăng ký sẵn từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml) v0.6, không đổi ở revision này — Independent Review B đánh giá Clean, không cần sửa integration).
 
-**Scope đã Product Owner chấp thuận qua hai vòng planning (analysis-only, không commit):** hai dimension nền tảng — Volatility, Directional Persistence — model theo continuous subject 5-field identity (`instrument_id`, `venue_id`, `timeframe`, `regime_dimension`, `regime_definition_version`; analysis window KHÔNG thuộc identity), một `RegimeClassified` fact cho MỌI completed valid analysis window (kể cả class không đổi), correction qua `RegimeFactInvalidated` + replacement `RegimeClassified` (`supersedes_fact_ref`, không có event `RegimeRecomputed` riêng — khác `structure.md`, vì Regime không có chuỗi orientation phụ thuộc lẫn nhau như Structure). Activity/Volume và Liquidity **deferred** (Liquidity blocked cấu trúc — chưa có Trade/Quote/Order-book contract); Data Quality, Structure-aware Regime, strategy signal, market prediction, trade recommendation **out of scope**. Không có ADR mới; [ADR-003](../adr/ADR-003.md) đã đủ controlling authority.
+**Scope không đổi** (đúng Product Owner chấp thuận qua hai vòng planning): hai dimension nền tảng — Volatility, Directional Persistence — continuous subject 5-field identity, một `RegimeClassified` fact cho MỌI completed valid analysis window, correction qua `RegimeFactInvalidated` + replacement `RegimeClassified` (không có `RegimeRecomputed` riêng). Activity/Volume, Liquidity, Data Quality, Structure-aware Regime vẫn deferred/out of scope. Không có ADR mới.
 
-**Trạng thái review — bước đầu tiên của quy trình:**
+**Lịch sử review:**
 
-- Author self-review: **hoàn tất** (25 attack scenario, 2 defect tự phát hiện và tự sửa trước commit — xem CHANGELOG).
-- ChatGPT Review A: **chưa diễn ra.**
-- Independent Review B: **chưa diễn ra.**
-- Consolidation: **chưa diễn ra** (không có gì để consolidate — chưa có review nào).
+1. ChatGPT Review A + Independent Review B (baseline v0.1) → 4 finding: `RA-B2-MIN-01` (Current View ambiguity: no-row vs `UNAVAILABLE`), `IRB-B2-MAJ-01` (candle evidence normalization thiếu), `IRB-B2-MAJ-02` (invalidation envelope binding thiếu), `IRB-B2-MIN-03` (cùng ambiguity với `RA-B2-MIN-01`, xử lý chung một correction).
+2. **Narrow revision này** xử lý đúng 4 finding trên — chỉ sửa `regime.md` (v0.1→v0.2): (a) `candle_evidence_refs` định nghĩa lại là tập toán học, chuẩn hóa qua 6-tiêu-chí lexicographic order trước khi tính identity/hash/dedup (§8a); (b) `RegimeFactInvalidated.subject_ref`/`effective_time` PHẢI kế thừa nguyên vẹn từ fact bị invalidate, cấm khai báo độc lập (§2/§4); (c) `RegimeCurrentView` bỏ `UNAVAILABLE`, dùng no-row semantics trước fact đầu tiên, `view_state` chỉ còn `VALID`/`PENDING_CORRECTION` (§5/§11). `context-map.yaml`, `swing.md`, `structure.md` **không đổi**.
 
-**Package 0.2-B2 CHƯA đạt `Consolidated Stable`** — điều kiện đó đòi hỏi cả hai vòng review độc lập hoàn tất, đúng định nghĩa đã khóa ở mục Package 0.2-A. `regime.md` sẵn sàng để chuyển sang ChatGPT Review A.
+**Trạng thái review:**
+
+- Author self-review (baseline v0.2, sau revision): **hoàn tất** — 20 scenario theo yêu cầu revision task, cộng 1 defect bổ sung tự phát hiện (duplicate canonical policy string — cùng bài học `structure.md`'s IRB-FD-STR-MIN-01) — xem CHANGELOG.
+- ChatGPT Review A và Independent Review B re-review (trên `regime.md` v0.2): **CHƯA diễn ra.**
+- Consolidation: **chưa diễn ra** ở vòng này (chờ re-review).
+
+**Package 0.2-B2 CHƯA đạt `Consolidated Stable`** — điều kiện đó đòi hỏi cả hai vòng review độc lập hoàn tất và 0 qualifying finding, đúng định nghĩa đã khóa ở mục Package 0.2-A. `regime.md` v0.2 sẵn sàng để chuyển sang ChatGPT Review A/Independent Review B re-review.
 
 **Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào:** `regime.md`/`swing.md`/`structure.md`/`context-map.yaml` `status: Draft`; không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B3/B4 (`feature.md`, `context.md`) **chưa bắt đầu**. Package 0.2-C **vẫn chưa có artifact nào được author**. Phase 0.2 vẫn active và chưa hoàn tất.
 

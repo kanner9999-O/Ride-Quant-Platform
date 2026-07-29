@@ -1,7 +1,7 @@
 ---
 id: regime
 title: Raw Regime
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,7 +14,7 @@ next_review: null
 
 # Raw Regime
 
-> **Vai trò của tài liệu này:** Domain Contract của Package 0.2-B2 — bắt đầu chuỗi `Candle → Raw Regime → Feature`, song song và **độc lập hoàn toàn** với chuỗi `Candle → Swing → Structure` (Package 0.2-B1), đúng [ADR-003](../adr/ADR-003.md) (Approved). Draft, chưa qua review nào (author self-review only), chưa Approved/Locked. Thuộc capability `market-regime` / context `raw-regime-analysis` — **đã đăng ký sẵn** tại [`context-map.yaml`](./context-map.yaml) từ Package 0.2-A (forward-declared), nay chuyển thành authored.
+> **Vai trò của tài liệu này:** Domain Contract của Package 0.2-B2 — bắt đầu chuỗi `Candle → Raw Regime → Feature`, song song và **độc lập hoàn toàn** với chuỗi `Candle → Swing → Structure` (Package 0.2-B1), đúng [ADR-003](../adr/ADR-003.md) (Approved). Draft, chưa Approved/Locked. Thuộc capability `market-regime` / context `raw-regime-analysis` — **đã đăng ký sẵn** tại [`context-map.yaml`](./context-map.yaml) từ Package 0.2-A (forward-declared), nay authored. **v0.2** là **narrow revision** xử lý toàn bộ findings từ ChatGPT Review A + Independent Review B trên baseline v0.1 — `RA-B2-MIN-01`/`IRB-B2-MIN-03` (cùng một Current View ambiguity, xử lý bằng một correction duy nhất — no-row semantics trước fact đầu tiên, loại bỏ `UNAVAILABLE`, §5/§11), `IRB-B2-MAJ-01` (canonical Candle evidence normalization — `candle_evidence_refs` là tập toán học, không phải array thứ tự tùy ý, §8a), `IRB-B2-MAJ-02` (invalidation envelope binding — `RegimeFactInvalidated.subject_ref`/`effective_time` PHẢI kế thừa nguyên vẹn từ fact bị invalidate, không tự khai báo độc lập, §2/§4).
 
 Raw Regime **KHÔNG phải** Structure, Feature, Context, strategy signal, market prediction, hay trade recommendation. Nó là một **phân loại thống kê, deterministic, authoritative** về điều kiện thị trường quan sát được, tính trực tiếp từ raw market-data fact (hiện tại: Candle) — không phụ thuộc diễn giải Structure (Swing/BOS/CHoCH), không tiêu thụ Feature/Context/Strategy/Account/Risk, không khuyến nghị hành động, không dự đoán giá tương lai.
 
@@ -47,7 +47,7 @@ description: >
   (subject mới cho mỗi pivot) và giống `structure.md` (một subject liên tục theo scope) — trừ
   việc, khác Structure, Regime KHÔNG theo dõi "current classification" như một state cần
   transition: mỗi completed valid window sinh MỘT fact độc lập, current view chỉ là một QUERY
-  (§10) trên chuỗi fact đó, không phải state lưu trữ riêng.
+  (§11) trên chuỗi fact đó, không phải state lưu trữ riêng.
 invariants:
   - "regime_subject_id resolve deterministic từ ĐÚNG NĂM field qualifying scope: instrument_id, venue_id, timeframe, regime_dimension, regime_definition_version — cùng năm-field-scope luôn cho cùng regime_subject_id; khác bất kỳ field nào trong năm field đó cho regime_subject_id KHÁC. regime_subject_id bất biến, KHÔNG tái sử dụng cho một subject khác (Chapter 6 §6.1)."
   - "regime_subject_id là opaque — domain logic KHÔNG được parse nó để suy diễn instrument/venue/timeframe/dimension/definition (Chapter 6 §6.8); mọi quyết định nghiệp vụ phải dùng field tường minh trong scope."
@@ -76,7 +76,7 @@ queries: []
 
 **`UNCLASSIFIED` là notional initial state** — cùng convention `UNSEEN`/`UNDETERMINED` mà `candle.md`/`swing.md`/`structure.md` đã khóa: không event nào khẳng định "subject đang UNCLASSIFIED"; đây là điểm khởi đầu ngầm định trước khi có window nào đủ điều kiện classify (§7 warm-up).
 
-**`CLASSIFIED → CLASSIFIED` là self-transition cho MỌI `RegimeClassified` kế tiếp** — kể cả khi class không đổi, kể cả khi đây là một correction replacement (§9). State machine ở đây chỉ mô tả "subject đã từng classify hay chưa" (existence lifecycle) — **KHÔNG** mã hóa class hiện tại là gì; class hiện tại của một window cụ thể chỉ đọc được từ chính fact đó, và "current view" tổng hợp là một **query** (§10), không phải một trường state lưu trữ. Đây là khác biệt thiết kế cố ý so với `structure.md` (nơi `current_orientation` LÀ một trường state có transition tường minh theo từng class) — Regime không có khái niệm "current_orientation" tương đương, vì mỗi window là một fact độc lập, không phải một chuỗi diễn giải phụ thuộc lẫn nhau (không có `prior_orientation`-style chain).
+**`CLASSIFIED → CLASSIFIED` là self-transition cho MỌI `RegimeClassified` kế tiếp** — kể cả khi class không đổi, kể cả khi đây là một correction replacement (§9). State machine ở đây chỉ mô tả "subject đã từng classify hay chưa" (existence lifecycle) — **KHÔNG** mã hóa class hiện tại là gì; class hiện tại của một window cụ thể chỉ đọc được từ chính fact đó, và "current view" tổng hợp là một **query** (§11), không phải một trường state lưu trữ. Đây là khác biệt thiết kế cố ý so với `structure.md` (nơi `current_orientation` LÀ một trường state có transition tường minh theo từng class) — Regime không có khái niệm "current_orientation" tương đương, vì mỗi window là một fact độc lập, không phải một chuỗi diễn giải phụ thuộc lẫn nhau (không có `prior_orientation`-style chain).
 
 ## 2. Canonical event envelope — áp dụng cho mọi Regime event (§3–§4)
 
@@ -89,14 +89,14 @@ envelope:                                          # Chapter 8 §8.2.1 — cardi
   event_contract_ref: {cardinality: required}        # {contract_id, contract_version}
   schema_version: {cardinality: required}
   recorded_time: {cardinality: required}             # Chapter 5 — khi Ride tính/ghi nhận fact này, KHÔNG phải effective window time
-  subject_ref: {cardinality: required}               # shape canonical — xem dưới
+  subject_ref: {cardinality: required}               # shape canonical — xem dưới. Trên RegimeFactInvalidated (§4), PHẢI kế thừa nguyên vẹn từ fact đang bị invalidate — không tự khai báo độc lập (đóng IRB-B2-MAJ-02).
   stream_ref: {cardinality: required}                # {stream_id, registry_version} — Phase 1, chưa author
   sequence: {cardinality: required}
   producer_ref: {cardinality: required}              # {module_id, implementation_version, run_id} — Phase 1, chưa author
   correlation_id: {cardinality: "required khi computation thuộc một correlation flow tường minh (ví dụ một lần backfill/replay cụ thể); optional khi computation độc lập"}
   causation_refs: {cardinality: "KHÔNG BAO GIỜ rỗng cho bất kỳ Regime event nào — Regime LUÔN là derived fact từ Candle fact (+ khi là correction replacement, RegimeFactInvalidated liền trước). Xem §3–§4 cho nội dung cụ thể."}
   related_event_refs: {cardinality: "zero-to-many, non-causal — Chapter 8 §8.2.3"}
-  effective_time: {cardinality: "required — = analysis_window (interval [window_start, window_end)) của CHÍNH fact đó (§3) — KHÁC theo từng fact, KHÔNG bất biến xuyên chuỗi fact của subject (khác structure.md, nơi effective_time bất biến xuyên revision). Mỗi window có effective_time riêng."}
+  effective_time: {cardinality: "required — semantic KHÁC NHAU theo event type (đóng IRB-B2-MAJ-02): trên RegimeClassified (§3), = analysis_window CỦA CHÍNH fact đó, KHÁC theo từng fact, KHÔNG bất biến xuyên chuỗi fact của subject (khác structure.md, nơi effective_time bất biến xuyên revision). Trên RegimeFactInvalidated (§4), = analysis_window CỦA FACT ĐANG BỊ INVALIDATE (F) — KẾ THỪA nguyên vẹn từ F, KHÔNG tự khai báo/tính toán độc lập."}
   market_time: {cardinality: "PROHIBITED — Regime là derived/computed fact, không phải quan sát trực tiếp venue; market_time chỉ hợp lệ trên event mà venue cung cấp timestamp trực tiếp (candle.md §2)."}
   source_identity: {cardinality: "PROHIBITED — Regime không có external source retry/redelivery risk (Chapter 6 §6.6 áp cho inbound external fact); dedup của Regime dùng computation identity, xem §8."}
 
@@ -144,7 +144,8 @@ invariants:
   - "envelope.recorded_time PHẢI muộn hơn recorded_time của Candle fact mới nhất trong candle_evidence_refs — KHÔNG được classify trước khi đủ evidence tồn tại (§7, chống look-ahead)."
   - "payload.regime_subject_id VÀ payload.regime_dimension PHẢI khớp đúng subject_ref.subject_id VÀ subject_ref.scope.regime_dimension — trường lặp lại có chủ đích cho query tiện dụng, không phải trục identity thứ hai (cùng nguyên tắc candle.md/swing.md)."
   - "payload.regime_definition_version PHẢI khớp đúng subject_ref.scope.regime_definition_version."
-  - "candle_evidence_refs PHẢI thỏa mãn CHÍNH XÁC window_candle_count đã pin ở regime_definition_version (§6) cho analysis_window đã khai — không thiếu, không thừa; mọi ref PHẢI là candle-closed hoặc candle-corrected đang authoritative, KHÔNG dùng CandleObserved provisional."
+  - "candle_evidence_refs PHẢI thỏa mãn CHÍNH XÁC window_candle_count đã pin ở regime_definition_version (§6) cho analysis_window đã khai — không thiếu, không thừa, không trùng lặp; mọi ref PHẢI là candle-closed hoặc candle-corrected đang authoritative, KHÔNG dùng CandleObserved provisional."
+  - "candle_evidence_refs PHẢI được serialize theo đúng canonical normalized order đã định nghĩa ở §8 (đóng RA-B2-MIN-01) — KHÔNG phải thứ tự phát sinh tùy ý của computation. Hai tập evidence fact giống hệt nhau nhưng đến theo thứ tự khác nhau PHẢI cho ra cùng một `candle_evidence_refs` đã serialize, cùng một computation identity."
   - "supersedes_fact_ref VẮNG MẶT khi và chỉ khi đây là original computation cho (regime_subject_id, analysis_window) đó — CHƯA từng có RegimeClassified nào khác cho đúng cặp subject+window này (đóng correction-lineage rule 1)."
   - "supersedes_fact_ref BẮT BUỘC có mặt khi (regime_subject_id, analysis_window) đó đã có một RegimeClassified trước đó — đây là correction replacement (đóng rule 2)."
   - "supersedes_fact_ref, khi có mặt, PHẢI trỏ đúng lineage head HIỆN TẠI của (regime_subject_id, analysis_window) đó — fact CHƯA từng là supersedes_fact_ref của bất kỳ RegimeClassified nào khác (cấm fork, đóng rule 6), VÀ đã nhận đúng một RegimeFactInvalidated visible (§4) — không được trỏ tới một fact đã bị supersede trước đó (cấm nhảy cóc qua lineage, đóng rule 4/5)."
@@ -176,13 +177,21 @@ capability_id: market-regime
 domain_context_id: raw-regime-analysis
 description: >
   Phủ định MỘT RegimeClassified lịch sử cụ thể — thuần túy ghi nhận "fact này không còn hợp
-  lệ", KHÔNG tự nó tuyên bố classification mới và KHÔNG tự nó mutate RegimeCurrentView (§10 tự
+  lệ", KHÔNG tự nó tuyên bố classification mới và KHÔNG tự nó mutate RegimeCurrentView (§11 tự
   resolve trạng thái PENDING_CORRECTION khi thấy event này mà chưa có replacement). Nguyên
   nhân DUY NHẤT trong B2 (khác structure.md — Regime không tiêu thụ Swing nên không có nhánh
   swing_invalidated/chained_invalidation): một CandleCorrected ảnh hưởng tới candle_evidence_refs
   của fact bị invalidate. Là event MỚI, append-only (I-3) — không mutate record gốc.
+  **Envelope binding bắt buộc (đóng IRB-B2-MAJ-02):** `subject_ref` và `effective_time` của
+  chính event này KHÔNG được khai báo độc lập — chúng PHẢI kế thừa nguyên vẹn từ
+  `invalidated_fact_ref` (fact F đang bị invalidate), không tính toán/suy diễn riêng. Đây là
+  cơ chế duy nhất ngăn một invalidation "nhắm nhầm" subject hoặc window khác với fact nó tuyên
+  bố đang phủ định.
 invariants:
-  - "causation_refs PHẢI trỏ: invalidated_fact_ref (RegimeClassified đang bị invalidate — bắt buộc, đúng một); VÀ CandleCorrected là nguyên nhân trực tiếp."
+  - "envelope.subject_ref PHẢI BẰNG HỆT subject_ref của invalidated_fact_ref (F) — cùng context_id, subject_kind, subject_type, subject_id, VÀ toàn bộ scope (instrument_id, venue_id, timeframe, regime_dimension, regime_definition_version). KHÔNG được khai báo subject_ref độc lập/khác biệt. Cấm target một fact thuộc subject KHÁC — kể cả khi mọi field khác đúng nhưng regime_definition_version sai (khác subject theo §1) hoặc regime_dimension sai (khác subject theo §1)."
+  - "envelope.effective_time PHẢI BẰNG HỆT analysis_window của invalidated_fact_ref (F) — [window_start, window_end) giống hệt, không sai lệch dù chỉ một trong hai biên. Cấm target một fact đúng subject nhưng SAI window."
+  - "payload.invalidated_fact_ref PHẢI resolve đúng CHÍNH XÁC bản ghi event F — dùng event_record_ref (Chapter 8 §8.2.3: canonical locator + event_id verification field), không phải một mô tả gần đúng."
+  - "causation_refs PHẢI trỏ: invalidated_fact_ref (RegimeClassified đang bị invalidate — bắt buộc, đúng một, PHẢI trùng chính xác payload.invalidated_fact_ref); VÀ CandleCorrected là nguyên nhân trực tiếp."
   - "invalidated_fact_ref PHẢI trỏ một RegimeClassified CHƯA từng nhận RegimeFactInvalidated khác — một fact chỉ bị invalidate đúng một lần (không invalidate trùng lặp)."
   - "Đúng một RegimeClassified có thể trỏ supersedes_fact_ref về invalidated_fact_ref này (§3 rule 6 — cấm fork) — invariant này thuộc về fact thay thế, không phải chính event này, nhưng RegimeFactInvalidated là điều kiện TIÊN QUYẾT cho một replacement hợp lệ (§3 rule 2)."
   - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_fact_ref VÀ muộn hơn recorded_time của CandleCorrected gây ra nó."
@@ -196,6 +205,17 @@ payload:
 
 **Không phải authoritative event — không chịu envelope §2** (§2 áp dụng cho event record; read model là derived projection — Chapter 7 §7.4 Type 2 Projection). Rebuild được từ §3–§4. Một row cho mỗi `regime_subject_id` — tức mỗi dimension có view riêng (Volatility và Directional Persistence KHÔNG gộp vào một row, đúng §1 — mỗi dimension là một subject độc lập).
 
+**Canonical decision — no-row trước khi có fact đầu tiên (đóng RA-B2-MIN-01/IRB-B2-MIN-03):**
+
+```text
+Trước khi RegimeClassified ĐẦU TIÊN tồn tại cho một regime_subject_id:
+  → KHÔNG có RegimeCurrentView row nào tồn tại
+  → GetCurrentRegime trả về NOT_FOUND / ABSENT theo quy ước tầng query
+  → KHÔNG materialize một row placeholder, KHÔNG có view_state giả định
+```
+
+`view_state` ở v0.2 chỉ còn **hai** giá trị — **`UNAVAILABLE` đã bị loại bỏ hoàn toàn** khỏi schema/invariants/thuật toán/prose (không còn mơ hồ giữa "row không tồn tại" và "row tồn tại với state UNAVAILABLE"): một khi subject đã CLASSIFIED (§1 — tức đã có RegimeClassified đầu tiên), luôn resolve được đúng một trong hai state dưới đây — không có nhánh thứ ba.
+
 ```yaml
 id: regime-current-view
 kind: read_model
@@ -207,20 +227,22 @@ description: >
   — mọi audit/replay/parity, và mọi input cho Feature (khi được author), phải dùng
   authoritative event stream, KHÔNG dùng view này làm nguồn sự thật (I-12, Chapter 7 §7.4).
   Cursor-bounded — không có "current" ngoài một cursor cụ thể khi dùng cho bất kỳ mục đích
-  decision-relevant. Selection algorithm và deterministic total order — xem §10.
+  decision-relevant. Selection algorithm và deterministic total order — xem §11. Row chỉ tồn
+  tại SAU khi RegimeClassified đầu tiên đã visible — trước đó, không có row (không phải row
+  với state đặc biệt).
 invariants:
   - "Phải rebuild được hoàn toàn từ authoritative event stream cùng regime_definition_version đã pin, cùng implementation version (Chapter 7 §7.4 rebuild determinism) — không có state độc lập ngoài event log."
   - "KHÔNG được dùng làm input cho bất kỳ Domain Contract khác (kể cả chính regime.md) hay Decision — chỉ query/UI (Chapter 7 §7.4, Chapter 9 §9.5)."
-  - "Không có view row nào tồn tại khi subject còn UNCLASSIFIED (§1) — kỳ vọng bình thường, KHÔNG phải missing-data condition."
-  - "view_state PHẢI đúng theo §10: VALID chỉ khi có lineage head hợp lệ cho window mới nhất; PENDING_CORRECTION khi head window mới nhất đã invalidate nhưng chưa có replacement visible; UNAVAILABLE khi chưa có completed valid window nào. KHÔNG BAO GIỜ fallback về một fact đã invalidate."
+  - "Không có view row nào tồn tại khi subject còn UNCLASSIFIED (§1) — kỳ vọng bình thường, KHÔNG phải missing-data condition. Đây KHÔNG phải view_state = UNAVAILABLE (giá trị đó không tồn tại ở v0.2) — đây là sự VẮNG MẶT của chính row đó."
+  - "view_state PHẢI đúng theo §11: VALID khi lineage head của target window (window_end lớn nhất đã từng có fact) hợp lệ, không có invalidation visible; PENDING_CORRECTION khi lineage head của target window có invalidation visible nhưng replacement CHƯA visible. KHÔNG có giá trị thứ ba. KHÔNG BAO GIỜ fallback về một fact đã invalidate, và KHÔNG BAO GIỜ fallback về một window cũ hơn target window."
 schema:
   regime_subject_id: {type: string, required: true}
   scope: {instrument_id: string, venue_id: string, timeframe: string, regime_dimension: string, regime_definition_version: string, required: true}
-  view_state: {type: enum, values: [VALID, PENDING_CORRECTION, UNAVAILABLE], required: true}
+  view_state: {type: enum, values: [VALID, PENDING_CORRECTION], required: true}
   class: {type: enum, required: false, description: "chỉ có mặt khi view_state = VALID"}
   computed_metric: {type: decimal, required: false, description: "chỉ có mặt khi view_state = VALID"}
   analysis_window: {kind: interval, required: false, description: "chỉ có mặt khi view_state = VALID"}
-  lineage_head_fact_ref: {type: event_record_ref, required: false, description: "chỉ có mặt khi view_state = VALID — xem §10"}
+  lineage_head_fact_ref: {type: event_record_ref, required: false, description: "chỉ có mặt khi view_state = VALID — xem §11"}
   last_recorded_time: timestamp
 queries: [GetCurrentRegime, GetRegimeHistory]
 ```
@@ -249,7 +271,8 @@ regime_definition:                     # schema tối thiểu — KHÔNG khóa g
       warm_up_policy: <...>
       gap_policy: <...>
       decimal_precision_policy: <...>
-  current_view_selection_policy: analysis_window_end_desc_then_window_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc   # §10, canonical duy nhất
+  current_view_selection_policy: analysis_window_end_desc_then_window_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc   # §11, canonical duy nhất
+  candle_evidence_normalization_policy: window_start_asc_then_window_end_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc   # §8a, canonical duy nhất (đóng RA-B2-MIN-01)
 ```
 
 **Candidate class enum (v0.1, đóng dưới `class_thresholds` của từng dimension — không hardcode giá trị ngưỡng, chỉ khóa tập nhãn):**
@@ -287,6 +310,51 @@ market_time                    — PROHIBITED (§2) — Regime không phải qua
 
 ## 8. Fact identity và deduplication
 
+### 8a. Canonical Candle evidence normalization (đóng RA-B2-MIN-01)
+
+**Vấn đề:** `candle_evidence_refs` biểu diễn như một array, nhưng computation identity coi nó như một **tập hợp toán học** (mathematical set). Không normalize, `[C1, C2, C3]` và `[C3, C1, C2]` — cùng một tập evidence facts, khác thứ tự đến — có thể sinh ra hai serialized identity khác nhau hoặc hai kết quả dedup khác nhau. Đây là lỗi.
+
+**Định nghĩa bắt buộc:** `candle_evidence_refs` PHẢI:
+
+- chứa các authoritative Candle event reference **duy nhất** (không trùng lặp — hai reference cùng resolve một Candle fact chỉ giữ đúng một);
+- chứa **CHÍNH XÁC** `window_candle_count` phần tử (đã pin ở §6);
+- được **normalize vào một canonical order duy nhất, deterministic** TRƯỚC khi: xây dựng computation identity; hashing; so sánh bằng nhau (equality); dedup; serialize event (bất kỳ đâu cần canonical serialization).
+
+**Canonical order (6 tiêu chí):**
+
+| # | Tiêu chí | Hướng |
+|---|---|---|
+| 1 | Candle `effective_time.window_start` | **ASC** |
+| 2 | Candle `effective_time.window_end` | **ASC** |
+| 3 | `stream_ref.stream_id` | **ASC**, lexical |
+| 4 | `stream_ref.registry_version` | **ASC**, lexical |
+| 5 | `sequence` | **ASC** — CHỈ khi (3) VÀ (4) đã hòa |
+| 6 | `event_id` | **ASC**, lexical |
+
+**Thuật toán chuẩn (normative, cùng nguyên tắc lexicographic đã khóa ở §11 — không lặp lại lỗi "bỏ qua tiêu chí, nhảy tới tiêu chí khác" của `structure.md`'s IRB-FD-STR-MAJ-01):**
+
+```text
+So sánh tiêu chí 1 đến 6 theo đúng thứ tự.
+Tiêu chí ĐẦU TIÊN có giá trị khác nhau quyết định thứ tự.
+Các tiêu chí sau đó KHÔNG được đánh giá.
+```
+
+`sequence` (tiêu chí 5) chỉ được đánh giá khi CẢ `stream_ref.stream_id` (3) VÀ `stream_ref.registry_version` (4) đều bằng nhau — **cấm tuyệt đối** so sánh `sequence` thô giữa hai stream identity khác nhau như một global order ([Chapter 8 §8.3.3](../constitution/08-event-model.md)).
+
+**Nếu cả sáu giá trị đều khớp giữa hai reference, chúng là duplicate representation của cùng một authoritative Candle fact — chỉ giữ đúng MỘT canonical reference** (loại bỏ trùng lặp trước khi đếm `window_candle_count`).
+
+**Danh sách đã normalize LÀ tập evidence toán học:**
+
+```text
+same evidence facts, khác thứ tự đến (incoming order)
+→ same normalized evidence list
+→ same computation identity
+```
+
+**Canonical policy identifier — nguồn duy nhất tại §6, đóng RA-B2-MIN-01 (không lặp lại chuỗi ở đây — cùng bài học `structure.md`'s IRB-FD-STR-MIN-01: một canonical string chỉ được khai báo ĐÚNG MỘT NƠI, mọi chỗ khác chỉ tham chiếu theo tên field `candle_evidence_normalization_policy`, tránh hai bản có thể lệch nhau theo thời gian).**
+
+### 8b. Computation identity và dedup
+
 Computation identity cho một `RegimeClassified`:
 
 ```text
@@ -294,10 +362,10 @@ Computation identity cho một `RegimeClassified`:
  analysis_window.window_start,
  analysis_window.window_end,
  regime_definition_version,
- authoritative Candle event-reference set — candle_evidence_refs)
+ candle_evidence_refs ĐÃ NORMALIZE theo §8a)
 ```
 
-**`class` và `computed_metric` là KẾT QUẢ, KHÔNG phải một phần identity** — hai computation với cùng input tuple trên PHẢI cho cùng kết quả (determinism), nhưng identity được xác lập bởi input tuple, không phải output.
+**`class` và `computed_metric` là KẾT QUẢ, KHÔNG phải một phần identity** — hai computation với cùng input tuple trên PHẢI cho cùng kết quả (determinism), nhưng identity được xác lập bởi input tuple (đã normalize), không phải output.
 
 **Dedup rule:**
 
@@ -305,17 +373,17 @@ Computation identity cho một `RegimeClassified`:
 same regime_subject_id
 same analysis window (window_start, window_end)
 same regime_definition_version
-same authoritative Candle ancestry (candle_evidence_refs)
+same normalized candle_evidence_refs (§8a)
 → duplicate delivery → KHÔNG append event authoritative thứ hai
 ```
 
 **Một window khác KHÔNG BAO GIỜ là duplicate chỉ vì class giống window trước** — khác `window_start`/`window_end` (và do đó khác `candle_evidence_refs`) đã đủ để là một fact riêng biệt, bất kể `class` bằng nhau (đóng quyết định classification-frequency, §9 dưới).
 
-**Same window computation delivered twice** (re-run sau restart, hoặc Live/Backtest/Replay tính độc lập trên cùng input): với cùng `regime_definition_version` và cùng Candle causal ancestry, computation PHẢI cho ra cùng `regime_subject_id`, cùng `analysis_window`, và cùng kết quả — đây là điều kiện dedup; recomputation là **idempotent**, không phải nguồn tạo duplicate.
+**Same window computation delivered twice** (re-run sau restart, hoặc Live/Backtest/Replay tính độc lập trên cùng input, có thể trả evidence theo thứ tự khác nhau): với cùng `regime_definition_version` và cùng Candle causal ancestry, computation PHẢI cho ra cùng `regime_subject_id`, cùng `analysis_window`, cùng `candle_evidence_refs` normalized, và cùng kết quả — đây là điều kiện dedup; recomputation là **idempotent**, không phải nguồn tạo duplicate, **bất kể thứ tự evidence đến ban đầu**.
 
 **Out-of-order Candle correction:** không được xử lý một `CandleCorrected` trước khi `CandleClosed` (hoặc `CandleCorrected` trước) mà nó sửa đã được apply — đúng causal precedence bắt buộc của [Chapter 8 §8.3.4](../constitution/08-event-model.md).
 
-**Deterministic replay (mode parity):** với cùng `regime_definition_version` và cùng input Candle causal ancestry, Live/Backtest/Paper Trading/Replay PHẢI cho ra cùng tập fact — nền tảng bắt buộc để downstream Feature/Decision (khi trở thành decision-relevant) thỏa [I-2 Decision Parity](../constitution/02-platform-invariants.md).
+**Deterministic replay (mode parity):** với cùng `regime_definition_version` và cùng input Candle causal ancestry, Live/Backtest/Paper Trading/Replay PHẢI cho ra cùng tập fact, **cùng `candle_evidence_refs` normalized** — nền tảng bắt buộc để downstream Feature/Decision (khi trở thành decision-relevant) thỏa [I-2 Decision Parity](../constitution/02-platform-invariants.md).
 
 ## 9. Classification frequency — một fact cho MỖI completed valid window (đóng quyết định planning revision)
 
@@ -379,6 +447,8 @@ invalidate đúng fact đó → phát replacement ĐỘC LẬP cho đúng window
 
 ## 11. `RegimeCurrentView` — validity rules và deterministic total order
 
+**Bước 0 — row existence precondition (đóng RA-B2-MIN-01/IRB-B2-MIN-03, thay thế hoàn toàn `UNAVAILABLE`):** nếu `regime_subject_id` CHƯA từng có `RegimeClassified` visible tại cursor → **KHÔNG có row nào tồn tại** — không phải "row với `view_state = UNAVAILABLE`". `GetCurrentRegime` trả về `NOT_FOUND`/`ABSENT` theo quy ước tầng query. **Không materialize một row placeholder, không phát sinh một classification giả định.** Chỉ khi Bước 0 đã xác nhận có ít nhất một fact tồn tại, các bước dưới đây mới chạy — sau điểm này, `view_state` LUÔN resolve được (VALID hoặc PENDING_CORRECTION), không có nhánh "không xác định" nào còn sót lại.
+
 **Bước 1 — xác định TARGET WINDOW trước khi loại trừ bất cứ điều gì:** target window = window có `analysis_window.window_end` lớn nhất trong TOÀN BỘ tập window mà subject này đã từng có ít nhất một `RegimeClassified` visible tại cursor (KỂ CẢ nếu lineage head của window đó hiện đang invalidate). **Không được xác định target window SAU KHI đã loại trừ fact invalidate** — làm vậy sẽ khiến một window mới nhất đang chờ correction bị bỏ qua âm thầm, và view lùi về báo cáo một window CŨ HƠN như thể nó là "hiện tại" (đóng attack scenario "latest window pending while previous window remains valid" — window cũ hơn valid không bao giờ được dùng để che giấu việc window mới nhất đang pending).
 
 **Bước 2 — trong lineage của TARGET WINDOW đó, loại trừ:**
@@ -387,12 +457,11 @@ invalidate đúng fact đó → phát replacement ĐỘC LẬP cho đúng window
 - mọi replacement mà `RegimeFactInvalidated` tương ứng của nó CHƯA visible tại cursor (integrity — không có replacement "mồ côi");
 - mọi classification dùng Candle ancestry chưa resolve hoặc không authoritative.
 
-**Bước 3 — resolve view_state cho TARGET WINDOW (không phải cho một window cũ hơn):**
+**Bước 3 — resolve view_state cho TARGET WINDOW (không phải cho một window cũ hơn; chỉ hai giá trị khả dĩ, vì Bước 0 đã đảm bảo tồn tại ít nhất một fact):**
 
 ```text
 lineage head của target window tồn tại VÀ KHÔNG có RegimeFactInvalidated visible  → trả về nó (view_state: VALID)
 lineage head của target window có RegimeFactInvalidated visible, replacement CHƯA visible → view_state: PENDING_CORRECTION (KHÔNG lùi về window cũ hơn dù window đó vẫn VALID)
-không có window nào từng có fact hợp lệ (kể cả target window rỗng)          → view_state: UNAVAILABLE
 KHÔNG BAO GIỜ fallback về một giá trị đã invalidate, và KHÔNG BAO GIỜ fallback về một window cũ hơn target window chỉ vì target window đang pending
 ```
 
@@ -422,13 +491,7 @@ Các tiêu chí sau đó KHÔNG được đánh giá.
 - **Cấm tuyệt đối** so sánh `sequence` thô giữa hai stream khác nhau như một global order ([Chapter 8 §8.3.3](../constitution/08-event-model.md), [ADR-009](../adr/ADR-009.md)).
 - Nếu cả bảy giá trị đều khớp, hai bản ghi là **duplicate representation của cùng một authoritative fact** (§8) — không có tiêu chí thứ tám.
 
-**Pin canonical duy nhất trong `regime_definition_version` (§6):**
-
-```yaml
-current_view_selection_policy: analysis_window_end_desc_then_window_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc
-```
-
-Đúng MỘT canonical identifier tồn tại — không lặp lại chuỗi ở nơi khác trong tài liệu này.
+**Canonical policy identifier — nguồn duy nhất tại §6 (không lặp lại chuỗi ở đây — tham chiếu theo tên field `current_view_selection_policy`).** Đúng MỘT canonical identifier tồn tại xuyên suốt tài liệu này.
 
 ## 12. No repaint và mode parity
 
