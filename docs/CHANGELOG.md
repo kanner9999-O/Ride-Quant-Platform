@@ -2,6 +2,54 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — narrow delta revision: qualify Structure Swing references
+
+**Không phải approval, không phải Consolidate Stable.** Vai trò: `Domain Contract Delta Revision Author · AI Technical Architect`. Revision này chỉ xử lý 2 Major finding còn lại, đã được cả ChatGPT Review A delta VÀ Independent Review B delta xác nhận trên baseline v0.2: `structure.md` **Revision required**; `swing.md` **Clean**; `context-map.yaml` **Clean**. `structure.md` `status: Draft`.
+
+### Findings resolved (chỉ `structure.md`, v0.2 → v0.3)
+
+- **D-B1-STR-MAJ-01 — Preserve exact Swing revision identity:** `broken_swing_ref` v0.2 (`{swing_id, direction}`) mất chính xác Swing lifecycle generation nào đã được Structure tiêu thụ. Thay bằng canonical reference revision-qualified, định nghĩa một lần tại §6a, dùng chung bởi BOS (§3) và CHoCH (§4):
+  ```yaml
+  broken_swing_ref:
+    swing_id: {type: string, required: true}
+    swing_revision: {type: integer, required: true}
+    swing_confirmed_event_ref: {type: event_record_ref, required: true}
+    direction: {type: enum, values: [HIGH, LOW], required: true}
+  ```
+  Cập nhật đầy đủ 7 vị trí: BOS payload/invariants (§3); CHoCH payload/invariants (§4); Eligible Swing definition — hoạt động trên đúng cặp `(swing_id, swing_revision)` thay vì `swing_id` một mình (§6a); same-level rule (§6, §6a, §11) — consumed semantics áp dụng cho đúng cặp, một revision khác của cùng `swing_id` đủ điều kiện độc lập; `StructureFactInvalidated` matching cho `swing_invalidated` — khớp đúng cả `swing_id` VÀ `swing_revision` (§5, ngăn `SwingInvalidated` của revision 1 invalidate nhầm fact đã tiêu thụ revision 2); worked example §10 (annotate revision cụ thể); `StructureCurrentView.current_relevant_swing_ref` (§14).
+
+- **D-B1-STR-MAJ-02 — Cross-stream total order:** thứ tự 4-tier v0.2 (`pivot_effective_time → recorded_time → stream_ref/sequence → swing_id`) không định nghĩa cách so sánh hai stream khác nhau. Thay bằng 8-tiêu-chí tường minh, mỗi tiêu chí có hướng ASC/DESC rõ ràng (§6a):
+  ```text
+  1. pivot_effective_time.window_start   DESC
+  2. SwingConfirmed.recorded_time        ASC
+  3. stream_ref.stream_id                ASC (lexical)
+  4. stream_ref.registry_version         ASC (lexical)
+  5. sequence                            ASC (CHỈ trong cùng stream identity đã xác lập bởi 3+4 — cấm so sánh sequence xuyên stream)
+  6. swing_revision                      DESC (revision mới nhất thắng khi mọi tiêu chí business-time/stream hòa)
+  7. swing_id                            ASC (lexical, tie-break kỹ thuật thuần túy)
+  8. SwingConfirmed.event_id             ASC (lexical, tie-break kỹ thuật cuối cùng)
+  ```
+  Nếu cả 8 giá trị khớp → duplicate của cùng một authoritative fact. Cập nhật `relevant_swing_selection_policy` (§9) thành policy identifier mới phản ánh đủ 8 tiêu chí; cập nhật `StructureCurrentView.current_relevant_swing_ref` (§14) dùng cùng tuple; xóa mọi wording "4-tier"/"no fifth criterion".
+
+### Self-review — 20 scenario (yêu cầu delta task)
+
+Chạy đủ 20 scenario: BOS/CHoCH consume revision 1; revision 1 invalidated; revision 2 confirmed và eligible độc lập; invalidation revision 1 không target fact dùng revision 2; same revision không phá hai lần khi fact cũ còn hiệu lực; revision 2 có thể phá sau khi fact của revision 1 bị invalidate; tie trên pivot_effective_time/recorded_time/stream_id/registry_version/sequence/swing_revision/event_id (7 tầng tie riêng biệt); Live/Backtest/Replay chọn cùng Swing; cascade vẫn dependency-forward; StructureRecomputed vẫn deterministic; StructureCurrentView vẫn non-authoritative; không Regime dependency. **20/20 scenario pass** — không phát hiện gap bổ sung ngoài phạm vi 2 finding đã cho.
+
+### Preserve accepted behavior — không regress
+
+Xác nhận giữ nguyên trên `structure.md`: continuous Structure subject, BOS/CHoCH distinction, initial orientation qua BOS, CHoCH chỉ từ Bullish/Bearish, `StructureFactInvalidated`, `StructureRecomputed`, dependency-forward cascade (§10, không đổi), cursor-pinned recomputation, direct Candle input, Swing revision eligibility, no Regime dependency, wick/close + strict/inclusive policy, venue/timeframe scope, no repaint, non-authoritative `StructureCurrentView`. `swing.md` v0.2 semantics: **không đổi** (Clean, giữ nguyên byte-for-byte).
+
+### Metadata / state
+
+- `structure.md`: **v0.2 → v0.3**, `status` giữ `Draft`.
+- `swing.md`: **không đổi** — vẫn v0.2, `status` giữ `Draft` (delta verdict: Clean).
+- `context-map.yaml`: **không đổi** — vẫn v0.5, `status` giữ `Draft` (delta verdict: Clean).
+- `README.md` (domain index): **v0.8 → v0.9**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.33 → 9.34**; dòng `domain/` cập nhật ghi nhận delta revision + review readiness.
+- `candle.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
+
+**Sẵn sàng cho ChatGPT Review A final delta + Independent Review B final delta (chỉ `structure.md` v0.3).** Không Product Owner Approve; không Lock; không Consolidated Stable; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1 vẫn active và chưa hoàn tất; Package 0.2-B2/B3/B4 chưa bắt đầu; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-29 — consolidated revision: Swing and Structure correction semantics
 
 **Không phải approval, không phải Consolidated Stable.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Revision này xử lý findings hợp nhất từ ChatGPT Review A + Independent Review B clean-room trên baseline v0.1 (`swing.md`, `structure.md`) — 3 Major mỗi file + 1 Minor (`context-map.yaml`). `swing.md`/`structure.md`/`context-map.yaml` `status: Draft`.

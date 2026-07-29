@@ -1,7 +1,7 @@
 ---
 id: structure
 title: Market Structure
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,7 +14,7 @@ next_review: null
 
 # Market Structure
 
-> **Vai trò của tài liệu này:** Domain Contract thứ hai của Package 0.2-B1 — hoàn thiện chuỗi `Candle → Swing → Structure`. Draft, chưa Approved/Locked. Thuộc capability `market-structure` / context `market-structure-analysis` (đã đăng ký tại [`context-map.yaml`](./context-map.yaml)), **cùng context với `swing.md`** — Swing → Structure là quan hệ intra-context, không phải cross-context edge (§9). **v0.2** xử lý ChatGPT Review A + Independent Review B (consolidated) trên baseline v0.1 — 3 Major: **C-B1-STR-MAJ-01** (tách `StructureInvalidated` thành `StructureFactInvalidated` — phủ định MỘT historical fact, KHÔNG tự động chuyển orientation — và `StructureRecomputed` — event DUY NHẤT xác lập orientation mới sau cascade, §5/§5a), **C-B1-STR-MAJ-02** (định nghĩa executable, total-order cho "Swing level nào đang relevant" — §6a, mới), **C-B1-STR-MAJ-03** (bỏ wording "most-recent-first", thay bằng dependency-forward invalidation tường minh — §10).
+> **Vai trò của tài liệu này:** Domain Contract thứ hai của Package 0.2-B1 — hoàn thiện chuỗi `Candle → Swing → Structure`. Draft, chưa Approved/Locked. Thuộc capability `market-structure` / context `market-structure-analysis` (đã đăng ký tại [`context-map.yaml`](./context-map.yaml)), **cùng context với `swing.md`** — Swing → Structure là quan hệ intra-context, không phải cross-context edge (§9). **v0.2** xử lý ChatGPT Review A + Independent Review B (consolidated) trên baseline v0.1 — 3 Major: **C-B1-STR-MAJ-01** (tách `StructureInvalidated` thành `StructureFactInvalidated` — phủ định MỘT historical fact, KHÔNG tự động chuyển orientation — và `StructureRecomputed` — event DUY NHẤT xác lập orientation mới sau cascade, §5/§5a), **C-B1-STR-MAJ-02** (định nghĩa executable, total-order cho "Swing level nào đang relevant" — §6a, mới), **C-B1-STR-MAJ-03** (bỏ wording "most-recent-first", thay bằng dependency-forward invalidation tường minh — §10). **v0.3** là **narrow delta revision** xử lý 2 Major còn lại từ ChatGPT Review A delta + Independent Review B delta (clean-room) trên baseline v0.2 — **D-B1-STR-MAJ-01** (`broken_swing_ref` v0.2 mất chính xác Swing lifecycle generation — thay bằng canonical reference revision-qualified `{swing_id, swing_revision, swing_confirmed_event_ref, direction}`, §6a), **D-B1-STR-MAJ-02** (total order v0.2 không định nghĩa so sánh cross-stream — thay bằng 8-tiêu-chí tường minh, mỗi tiêu chí có hướng ASC/DESC rõ ràng, §6a). `swing.md` v0.2 và `context-map.yaml` v0.5 **không đổi** ở revision này (cả hai delta verdict: Clean).
 
 Market Structure bao gồm **năm concept riêng biệt**:
 
@@ -157,15 +157,16 @@ description: >
   (thiết lập lần đầu vs tiếp diễn) khác nhau, đó là lý do không cần một event riêng cho "lần
   đầu thiết lập" (§2).
 invariants:
-  - "broken_swing_ref PHẢI là Eligible Swing theo total order §6a — Swing fact CONFIRMED, chưa từng là broken_swing_ref của một BreakOfStructureDetected/ChangeOfCharacterDetected trước đó CHƯA nhận StructureFactInvalidated — cấm cùng một Swing level được báo 'phá' hai lần độc lập (§11 same-level-broken-twice)."
+  - "broken_swing_ref PHẢI là Eligible Swing theo total order §6a — Swing fact CONFIRMED, đúng cặp (swing_id, swing_revision) đó CHƯA từng là broken_swing_ref của một BreakOfStructureDetected/ChangeOfCharacterDetected trước đó còn hiệu lực (chưa nhận StructureFactInvalidated) — cấm cùng một (swing_id, swing_revision) được báo 'phá' hai lần độc lập; MỘT revision khác của cùng swing_id (ví dụ sau correction) là một cặp khác, đủ điều kiện độc lập (§6a, §11 same-level-broken-twice, đóng D-B1-STR-MAJ-01)."
   - "broken_swing_ref.direction PHẢI khớp bảng quyết định ở §6 theo new_orientation."
-  - "causation_refs PHẢI chứa: SwingConfirmed của broken_swing_ref; VÀ breaking_candle_refs (một hoặc nhiều candle-closed/candle-corrected) cung cấp bằng chứng break theo break_price_basis đã pin (§9)."
+  - "broken_swing_ref.swing_confirmed_event_ref PHẢI trỏ đúng SwingConfirmed cho chính xác swing_id, swing_revision, direction, và instrument/venue/timeframe/swing_definition_version yêu cầu (§6a)."
+  - "causation_refs PHẢI chứa: broken_swing_ref.swing_confirmed_event_ref; VÀ breaking_candle_refs (một hoặc nhiều candle-closed/candle-corrected) cung cấp bằng chứng break theo break_price_basis đã pin (§9)."
   - "envelope.effective_time = effective_time của Candle cuối cùng trong breaking_candle_refs (§7)."
   - "new_orientation != prior_orientation KHI prior_orientation là BULLISH hoặc BEARISH và new_orientation khác — TRƯỜNG HỢP ĐÓ KHÔNG HỢP LỆ trên event này (đó là ChangeOfCharacterDetected, §4), không phải BreakOfStructureDetected."
 payload:
   prior_orientation: {type: enum, values: [UNDETERMINED, NEUTRAL, BULLISH, BEARISH], required: true}
   new_orientation: {type: enum, values: [BULLISH, BEARISH], required: true}
-  broken_swing_ref: {type: object, required: true, description: "{swing_id, direction} — Swing level bị phá, xem §6"}
+  broken_swing_ref: {type: broken_swing_ref, required: true, description: "revision-qualified reference — schema canonical tại §6a, đóng D-B1-STR-MAJ-01"}
   breaking_candle_refs: {type: array, items: event_record_ref, required: true}
 ```
 
@@ -191,13 +192,14 @@ invariants:
   - "prior_orientation PHẢI là BULLISH hoặc BEARISH — không hợp lệ trên UNDETERMINED/NEUTRAL."
   - "new_orientation PHẢI là orientation đối lập chính xác với prior_orientation (BULLISH↔BEARISH) — không có giá trị thứ ba."
   - "broken_swing_ref.direction PHẢI khớp bảng quyết định ở §7 (đối lập với direction mà một continuation BOS cùng prior_orientation sẽ dùng)."
-  - "broken_swing_ref PHẢI là Eligible Swing theo total order §6a — Swing fact CONFIRMED, chưa từng là broken_swing_ref của một event trước đó chưa nhận StructureFactInvalidated."
-  - "causation_refs PHẢI chứa: SwingConfirmed của broken_swing_ref; VÀ breaking_candle_refs cung cấp bằng chứng break."
+  - "broken_swing_ref PHẢI là Eligible Swing theo total order §6a — Swing fact CONFIRMED, đúng cặp (swing_id, swing_revision) đó chưa từng là broken_swing_ref của một event trước đó còn hiệu lực (chưa nhận StructureFactInvalidated); một revision khác của cùng swing_id đủ điều kiện độc lập (§6a, đóng D-B1-STR-MAJ-01)."
+  - "broken_swing_ref.swing_confirmed_event_ref PHẢI trỏ đúng SwingConfirmed cho chính xác swing_id, swing_revision, direction, và instrument/venue/timeframe/swing_definition_version yêu cầu (§6a)."
+  - "causation_refs PHẢI chứa: broken_swing_ref.swing_confirmed_event_ref; VÀ breaking_candle_refs cung cấp bằng chứng break."
   - "envelope.effective_time = effective_time của Candle cuối cùng trong breaking_candle_refs."
 payload:
   prior_orientation: {type: enum, values: [BULLISH, BEARISH], required: true}
   new_orientation: {type: enum, values: [BULLISH, BEARISH], required: true}
-  broken_swing_ref: {type: object, required: true, description: "{swing_id, direction} — xem §7"}
+  broken_swing_ref: {type: broken_swing_ref, required: true, description: "revision-qualified reference — schema canonical tại §6a, đóng D-B1-STR-MAJ-01"}
   breaking_candle_refs: {type: array, items: event_record_ref, required: true}
 ```
 
@@ -232,7 +234,7 @@ description: >
   thúc bằng đúng MỘT StructureRecomputed (§5a).
 invariants:
   - "causation_refs PHẢI trỏ: event BOS/CHoCH đang bị invalidate (bắt buộc, đúng một); VÀ nguyên nhân — SwingInvalidated (a), CandleCorrected (b), hoặc StructureFactInvalidated của fact mà nó phụ thuộc trong cascade (c)."
-  - "invalidation_cause = swing_invalidated CHỈ hợp lệ khi broken_swing_ref của fact bị invalidate khớp đúng subject của SwingInvalidated được trỏ tới."
+  - "invalidation_cause = swing_invalidated CHỈ hợp lệ khi SwingInvalidated được trỏ tới khớp ĐÚNG CẢ: swing_id VÀ swing_revision của broken_swing_ref của fact bị invalidate (không chỉ swing_id) — và, khi có, khớp đúng swing_confirmed_event_ref đã tham chiếu (đóng D-B1-STR-MAJ-01, rule 5). Một SwingInvalidated cho revision N KHÔNG được dùng làm nguyên nhân invalidate một Structure fact có broken_swing_ref.swing_revision = M ≠ N trên cùng swing_id — dù cùng swing_id, hai revision là hai pair (swing_id, swing_revision) độc lập (rule 6: 'SwingInvalidated cho revision 1 không được invalidate một Structure fact đã dùng revision 2')."
   - "invalidation_cause = breaking_candle_corrected CHỈ hợp lệ khi Candle bị sửa nằm trong breaking_candle_refs của fact bị invalidate VÀ payload đã sửa không còn thỏa break criterion (§9)."
   - "invalidation_cause = chained_invalidation CHỈ hợp lệ khi payload.prior_orientation của fact bị invalidate bằng đúng new_orientation của fact NGAY TRƯỚC nó trong chuỗi orientation gốc (§6/§7 decision table) — xác định bằng dependency graph, KHÔNG bằng recorded_time phát sinh của invalidation (§10)."
   - "Một BreakOfStructureDetected/ChangeOfCharacterDetected chỉ nhận ĐÚNG MỘT StructureFactInvalidated authoritative — không invalidate trùng lặp cùng một fact hai lần (§11)."
@@ -288,7 +290,7 @@ payload:
 | `BULLISH` | `BULLISH` (continuation) | `HIGH` |
 | `BEARISH` | `BEARISH` (continuation) | `LOW` |
 
-**`broken_swing_ref` PHẢI là Eligible Swing theo total order §6a** — không phải "Swing gần nhất" mơ hồ. §6a định nghĩa executable, deterministic selection rule đầy đủ (đóng C-B1-STR-MAJ-02), bao gồm rule ngăn "same level broken twice": một khi một Swing đã là `broken_swing_ref` của một fact còn hiệu lực, nó không đủ điều kiện làm căn cứ cho một BOS/CHoCH thứ hai.
+**`broken_swing_ref` PHẢI là Eligible `(swing_id, swing_revision)` theo total order §6a** — không phải "Swing gần nhất" mơ hồ, và không phải `swing_id` một mình. §6a định nghĩa executable, deterministic selection rule đầy đủ (đóng C-B1-STR-MAJ-02, delta D-B1-STR-MAJ-01/02), bao gồm rule ngăn "same level broken twice": một khi một `(swing_id, swing_revision)` cụ thể đã là `broken_swing_ref` của một fact còn hiệu lực, ĐÚNG CẶP đó không đủ điều kiện làm căn cứ cho một BOS/CHoCH thứ hai — nhưng một revision KHÁC của cùng `swing_id` là một cặp riêng, đủ điều kiện độc lập.
 
 **Break criterion (price basis + comparison):** pin qua `structure_definition_version.break_price_basis` (`wick` hoặc `close`, §9) và `comparison_policy` (`strict` hoặc `inclusive`, §9) — **không hardcode một trường phái**:
 
@@ -309,40 +311,65 @@ close + inclusive:   candle.close ≥ broken_swing.pivot_price  (HIGH break)  | 
 
 **Duplicate detection / same level broken multiple times:** xem §11.
 
-## 6a. Deterministic relevant Swing selection — total order (đóng C-B1-STR-MAJ-02)
+## 6a. Deterministic relevant Swing selection — total order (đóng C-B1-STR-MAJ-02, delta D-B1-STR-MAJ-01/02)
 
-**Eligible Swing** cho một `broken_swing_ref` (dùng chung bởi BOS §6 và CHoCH §7) tại một cursor recorded-time:
+**Canonical `broken_swing_ref` schema** — dùng thống nhất bởi §3 (BOS) và §4 (CHoCH), thay thế shorthand `{swing_id, direction}` v0.2 (đóng D-B1-STR-MAJ-01 — reference trước đây mất chính xác lifecycle generation nào của Swing đã được tiêu thụ):
+
+```yaml
+broken_swing_ref:
+  swing_id: {type: string, required: true}                        # logical identity — swing.md §1
+  swing_revision: {type: integer, required: true}                 # generation identity — swing.md §1a
+  swing_confirmed_event_ref: {type: event_record_ref, required: true}   # trỏ đúng SwingConfirmed của (swing_id, swing_revision) này
+  direction: {type: enum, values: [HIGH, LOW], required: true}
+```
+
+Cả bốn field BẮT BUỘC tường minh — không field nào được omit hay suy diễn ngầm từ field khác. `swing_confirmed_event_ref` là **verification field**, cùng nguyên tắc `event_record_ref` (Chapter 8 §8.2.3): `(swing_id, swing_revision, direction)` là logical locator, `swing_confirmed_event_ref` xác minh đúng bản ghi vật lý.
+
+**Eligible Swing** cho một `broken_swing_ref` (dùng chung bởi BOS §6 và CHoCH §7) tại một cursor recorded-time — hoạt động trên ĐÚNG CẶP `(swing_id, swing_revision)`, không phải `swing_id` một mình:
 
 ```text
-Eligible Swing =
-  latest valid SwingConfirmed (swing.md §4)
+Eligible (swing_id, swing_revision) =
+  SwingConfirmed cho ĐÚNG cặp (swing_id, swing_revision) đó (swing.md §4)
   visible tại cursor recorded_time hiện tại (swing.md §7 — không look-ahead)
   matching instrument_id/venue_id/timeframe/direction theo bảng quyết định §6/§7
   matching structure_definition_version.depends_on_swing_definition_version (§9)
-  KHÔNG invalidated tại cursor (swing.md §5 — không có SwingInvalidated visible cho revision đó)
-  KHÔNG đã được dùng làm broken_swing_ref của một BOS/CHoCH còn hiệu lực (chưa StructureFactInvalidated, §3/§4 invariant)
+  KHÔNG có SwingInvalidated visible cho ĐÚNG cặp (swing_id, swing_revision) đó tại cursor (swing.md §5)
+  KHÔNG đã được dùng làm broken_swing_ref của một BOS/CHoCH còn hiệu lực cho ĐÚNG cặp đó (chưa StructureFactInvalidated, §3/§4 invariant)
+  = revision hợp lệ MỚI NHẤT của swing_id đó tại cursor (swing.md §1a — không có revision nào mới hơn còn hiệu lực đứng trước nó bị bỏ qua)
 ```
 
-**Chỉ revision hợp lệ mới nhất của một `swing_id` được tính (swing.md §1a):** nếu một `swing_id` có nhiều `swing_revision`, chỉ revision còn hiệu lực (chưa `INVALIDATED`) mới nhất tại cursor đủ điều kiện làm Eligible Swing; một revision đã `INVALIDATED` KHÔNG eligible dù revision kế tiếp cùng `swing_id` còn hiệu lực. Một revision thay thế (sau correction) được order theo đúng total-order rule dưới đây, dùng chính `pivot_effective_time`/`recorded_time`/`stream_ref`/`swing_id` của revision đó — KHÔNG "kế thừa" thứ tự của revision trước.
+**Consumed semantics áp dụng CHO ĐÚNG CẶP, không cho `swing_id` toàn cục (đóng D-B1-STR-MAJ-01, rule 3):** một `(swing_id, swing_revision)` đã là `broken_swing_ref` của một fact còn hiệu lực thì cặp đó — và chỉ cặp đó — không đủ điều kiện làm `broken_swing_ref` lần nữa. Một revision KHÁC của cùng `swing_id` (ví dụ revision N+1 sau khi revision N bị `SwingInvalidated`) là một cặp khác, **đủ điều kiện độc lập** ngay khi nó CONFIRMED — không bị "khóa" bởi việc revision N từng được tiêu thụ (rule 4). Đối xứng: một `SwingInvalidated` cho revision N **không được** dùng làm nguyên nhân invalidate một Structure fact đã tiêu thụ revision M ≠ N của cùng `swing_id` (rule 6, §5 invariant).
 
-**Total order khi nhiều Eligible Swing thỏa cùng điều kiện** — áp dụng tuần tự, dừng ở tiêu chí đầu tiên phân biệt được hai ứng viên:
+**Total order khi nhiều Eligible Swing thỏa cùng điều kiện** — 8 tiêu chí, áp dụng tuần tự, dừng ở tiêu chí đầu tiên phân biệt được hai ứng viên (đóng D-B1-STR-MAJ-02, thay hoàn toàn 4-tier v0.2):
 
-1. **`pivot_effective_time`** — Swing có pivot **gần recorded-time cursor nhất** (`pivot_effective_time` lớn nhất) được ưu tiên — đây là "level gần nhất chưa bị phá."
-2. **`SwingConfirmed.recorded_time`** — nếu (1) hòa, Swing có `recorded_time` sớm hơn được ưu tiên (đã biết trước, theo cùng nguyên tắc T vs T+n của `swing.md` §7).
-3. **Authoritative stream ordering** (`stream_ref`, `sequence` của chính `SwingConfirmed`, [Chapter 8 §8.3.2](../constitution/08-event-model.md), tương thích [ADR-009](../adr/ADR-009.md)) — nếu (1)+(2) vẫn hòa.
-4. **`swing_id`** — tie-break cuối cùng, deterministic theo string ordering của opaque ID. Đây là tie-break kỹ thuật thuần túy để đảm bảo total order, KHÔNG suy diễn nghiệp vụ từ nội dung ID ([Chapter 6 §6.8](../constitution/06-identity-model.md) không bị vi phạm).
+| # | Tiêu chí | Hướng |
+|---|---|---|
+| 1 | `pivot_effective_time.window_start` | **DESC** — pivot gần cursor nhất ưu tiên ("level gần nhất chưa bị phá") |
+| 2 | `SwingConfirmed.recorded_time` | **ASC** — biết sớm hơn ưu tiên (T vs T+n, `swing.md` §7) |
+| 3 | `stream_ref.stream_id` | **ASC**, lexical — xác lập **stream identity** làm cơ sở so `sequence` ở (5) |
+| 4 | `stream_ref.registry_version` | **ASC**, lexical — cùng `stream_id` nhưng khác registry snapshot vẫn phân biệt được (Chapter 8 §8.3.1) |
+| 5 | `sequence` | **ASC** — CHỈ có nghĩa **trong cùng stream identity** đã xác lập bởi (3)+(4); xem ràng buộc dưới |
+| 6 | `swing_revision` | **DESC** — khi mọi tiêu chí business-time ở trên hòa, revision hợp lệ MỚI NHẤT thắng |
+| 7 | `swing_id` | **ASC**, lexical — tie-break kỹ thuật thuần túy |
+| 8 | `SwingConfirmed.event_id` | **ASC**, lexical — tie-break kỹ thuật cuối cùng |
 
-Không có tiêu chí thứ năm; nếu (1)-(4) đều hòa, hai fact là cùng một Eligible Swing (§11 dedup).
+**Ràng buộc bắt buộc cho tiêu chí (5):** `sequence` chỉ được so sánh **trong cùng một stream identity** — tức chỉ khi (3) VÀ (4) đã hòa (cùng `stream_id`, cùng `registry_version`). **Cấm** so sánh `sequence` thô giữa hai stream khác nhau như thể chúng tạo thành một global order — đúng nguyên tắc [Chapter 8 §8.3.3](../constitution/08-event-model.md) (platform không tuyên bố global total order giữa các stream độc lập) và [ADR-009](../adr/ADR-009.md) (per-stream contiguous sequence, không global sequence). Nếu (3) hoặc (4) chưa hòa, tiêu chí (5) không so sánh được và bị BỎ QUA, chuyển thẳng sang (6).
+
+**`swing_revision DESC` (tiêu chí 6)** đảm bảo: khi hai `SwingConfirmed` hòa cả năm tiêu chí business-time/stream đầu tiên (trường hợp cực hiếm, ví dụ hai revision cùng pivot, cùng recorded_time, cùng stream) — revision hợp lệ MỚI NHẤT (số lớn hơn) thắng, đúng tinh thần "recompute luôn ưu tiên interpretation mới nhất" của swing.md §1a.
+
+**`swing_id` (7) và `event_id` (8) là tie-break kỹ thuật thuần túy** — deterministic theo string ordering của opaque ID, KHÔNG mang ý nghĩa nghiệp vụ. **Opaque identifier (bao gồm mọi ID dùng trong bảng trên) KHÔNG được parse để suy ra timestamp hay business semantics** ([Chapter 6 §6.8](../constitution/06-identity-model.md)) — string ordering chỉ dùng để đảm bảo total order, không diễn giải nội dung ID.
+
+**Nếu cả 8 giá trị đều khớp, hai bản ghi là duplicate của cùng một authoritative fact** (§11 dedup) — không có tiêu chí thứ chín.
 
 **Pin trong `structure_definition_version` (§9):**
 
 ```yaml
-relevant_swing_selection_policy: pivot_effective_time_desc_then_recorded_time_then_stream_then_swing_id
+relevant_swing_selection_policy: pivot_effective_time_window_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_swing_revision_desc_then_swing_id_asc_then_event_id_asc
 ```
 
-Một `structure_definition_version` tương lai có thể chọn thứ tự khác, nhưng PHẢI vẫn total + deterministic + tương thích [ADR-009](../adr/ADR-009.md) (không dùng physical wall clock; không suy ordering từ ID nhúng timestamp, [Chapter 6 §6.3](../constitution/06-identity-model.md)).
+Một `structure_definition_version` tương lai có thể chọn thứ tự khác, nhưng PHẢI vẫn total + deterministic + tương thích [ADR-009](../adr/ADR-009.md) (không dùng physical wall clock; không suy ordering từ ID nhúng timestamp, [Chapter 6 §6.3](../constitution/06-identity-model.md); không so `sequence` xuyên stream như một global order).
 
-**`StructureCurrentView.current_relevant_swing_ref` (§14) resolve theo đúng total order này** — luôn trỏ Eligible Swing hiện tại theo bốn tiêu chí trên, không còn mơ hồ "Swing nào đó gần đây."
+**`StructureCurrentView.current_relevant_swing_ref` (§14) resolve theo đúng total order 8-tiêu-chí này** — luôn trỏ Eligible `(swing_id, swing_revision)` hiện tại, không còn mơ hồ "Swing nào đó gần đây" (đóng D-B1-STR-MAJ-02, rule 10).
 
 ## 7. CHoCH semantics — đảo chiều, thay đổi ngay lập tức
 
@@ -404,16 +431,23 @@ Cả hai nhánh **đều** trigger cascade — đây là lý do Structure tiêu 
 7. KHÔNG descendant invalidation nào được causation tới một invalidation CHƯA commit — mỗi `StructureFactInvalidated` trong chuỗi chỉ được phát SAU KHI fact nó phụ thuộc (bước 4.ii) đã committed.
 8. Replay trước `recorded_time` của TỪNG event KHÔNG được thấy event đó (đối xứng §8) — áp dụng độc lập cho mỗi `StructureFactInvalidated` và cho `StructureRecomputed`.
 
-**Worked example (dependency-forward, thay hoàn toàn "most-recent-first"):**
+**Worked example (dependency-forward, thay hoàn toàn "most-recent-first"; broken_swing_ref revision-qualified — đóng D-B1-STR-MAJ-01):**
 
 ```text
-E1 → E2 → E3   (chuỗi orientation gốc: E1.new_orientation = E2.prior_orientation; E2.new_orientation = E3.prior_orientation)
-correction invalidates E1 (nguyên nhân trực tiếp — nhánh (a) hoặc (b))
+E1 (broken_swing_ref = swing_id S-A, revision 1) → E2 (broken_swing_ref = swing_id S-B, revision 1) → E3 (broken_swing_ref = swing_id S-C, revision 1)
+  chuỗi orientation gốc: E1.new_orientation = E2.prior_orientation; E2.new_orientation = E3.prior_orientation
 
-I1 invalidates E1                    — cause: swing_invalidated (hoặc breaking_candle_corrected); causation = [E1, nguyên nhân gốc]
+correction invalidates SwingInvalidated(S-A, revision 1) — CHỈ khớp broken_swing_ref có ĐÚNG (swing_id: S-A, swing_revision: 1);
+  KHÔNG ảnh hưởng bất kỳ fact nào tiêu thụ (S-A, revision 2) nếu revision đó tồn tại (§6a, đóng D-B1-STR-MAJ-01 rule 6)
+
+I1 invalidates E1                    — cause: swing_invalidated (SwingInvalidated của đúng S-A revision 1); causation = [E1, SwingInvalidated(S-A, rev 1)]
 I2 invalidates E2, cause I1          — invalidation_cause: chained_invalidation; causation = [E2, I1]
 I3 invalidates E3, cause I2          — invalidation_cause: chained_invalidation; causation = [E3, I2]
 R1 recomputes orientation, cause [I1, I2, I3]   — StructureRecomputed; causation = [I1, I2, I3]
+
+# Nếu sau đó Swing Engine confirm (S-A, revision 2) — cùng swing_id, pivot Candle không đổi (swing.md §10) —
+# (S-A, revision 2) là MỘT cặp Eligible ĐỘC LẬP theo §6a, có thể trở thành broken_swing_ref của một
+# BreakOfStructureDetected MỚI ngay khi đủ điều kiện — không bị "khóa" bởi việc revision 1 từng bị tiêu thụ.
 ```
 
 **Orientation sau R1 — deterministic:** `R1.payload.resulting_orientation` xác định bằng cách refold TOÀN BỘ Swing/Candle fact còn hiệu lực tại `R1.payload.input_cursor_ref` theo đúng §6/§6a/§7 — KHÔNG suy luận cô lập từ việc "E1/E2/E3 đã mất". Hai kết quả khả dĩ:
@@ -434,7 +468,8 @@ R1 recomputes orientation, cause [I1, I2, I3]   — StructureRecomputed; causati
 Đối xứng `swing.md` §12, áp dụng lại nguyên tắc **không copy mù các rule đặc thù của Candle**:
 
 - **Computation identity thay `source_identity`:** Structure là fact tự tính, không có external retry/redelivery — dedup dựa trên `(subject_id, event_type, causation_refs-set, payload)` giống hệt; recompute trên input không đổi phải idempotent, không tạo bản ghi thứ hai.
-- **Same level broken multiple times:** ngăn ở nguồn bằng invariant §3/§4 (`broken_swing_ref` chưa từng dùng, còn hiệu lực) — không dựa vào dedup hậu kiểm.
+- **Same level broken multiple times:** ngăn ở nguồn bằng invariant §3/§4 — đúng cặp `(swing_id, swing_revision)` chưa từng dùng làm `broken_swing_ref` còn hiệu lực (§6a) — không dựa vào dedup hậu kiểm. Một revision khác của cùng `swing_id` không bị chặn bởi rule này (§6a).
+- **Eligible Swing tie theo total order §6a:** nếu cả 8 tiêu chí đều khớp giữa hai `SwingConfirmed` ứng viên, chúng là duplicate của cùng một authoritative fact — không có nhánh thứ chín.
 - **Out-of-order Candle correction / Swing invalidation:** phải tôn trọng causal precedence [Chapter 8 §8.3.4](../constitution/08-event-model.md) — không xử lý `SwingInvalidated`/`CandleCorrected` trước khi fact mà nó sửa đã được apply.
 - **Deterministic replay (mode parity):** cùng `structure_definition_version` + cùng input Swing/Candle causal ancestry → cùng tập Structure fact, mọi execution mode ([I-2](../constitution/02-platform-invariants.md) khi downstream Decision tiêu thụ Structure).
 
@@ -482,12 +517,12 @@ invariants:
   - "Phải rebuild được hoàn toàn từ authoritative event stream cùng structure_definition_version đã pin, cùng implementation version (Chapter 7 §7.4 rebuild determinism)."
   - "KHÔNG được dùng làm input cho bất kỳ Decision hay Domain Contract khác — chỉ query/UI (Chapter 7 §7.4)."
   - "Không có view row nào tồn tại khi subject còn UNDETERMINED (§1) — kỳ vọng bình thường, KHÔNG phải missing-data condition."
-  - "current_relevant_swing_ref PHẢI resolve đúng Eligible Swing theo total order §6a — không phải 'Swing gần đây' mơ hồ (đóng C-B1-STR-MAJ-02)."
+  - "current_relevant_swing_ref PHẢI resolve đúng Eligible (swing_id, swing_revision) theo total order 8-tiêu-chí §6a — không phải 'Swing gần đây' mơ hồ, và không phải swing_id một mình (đóng C-B1-STR-MAJ-02, delta D-B1-STR-MAJ-01/02)."
 schema:
   structure_subject_id: {type: string, required: true}
   scope: {instrument_id: string, venue_id: string, timeframe: string, structure_definition_version: string, required: true}
   current_orientation: {type: enum, values: [UNDETERMINED, NEUTRAL, BULLISH, BEARISH], required: true}
-  current_relevant_swing_ref: {type: object, description: "Eligible Swing theo total order §6a — {swing_id, swing_revision, direction} — derived, không authoritative"}
+  current_relevant_swing_ref: {type: broken_swing_ref, description: "Eligible (swing_id, swing_revision) theo total order §6a — schema canonical {swing_id, swing_revision, swing_confirmed_event_ref, direction} — derived, không authoritative"}
   last_recorded_time: timestamp
 queries: [GetCurrentStructure, GetStructureHistory]
 ```
@@ -506,3 +541,5 @@ Cơ chế tính `structure_subject_id` deterministic cụ thể; giá trị cụ
 - `relevant_swing_selection_policy` (§6a, §9) hiện chỉ định nghĩa MỘT policy identifier mặc định; nếu tương lai cần nhiều policy khả dụng song song trong cùng platform (không chỉ tuần tự thay thế qua version), cơ chế lựa chọn giữa nhiều policy cùng lúc chưa được định nghĩa — chưa có nhu cầu thực tế ở Package 0.2-B1.
 
 **Đã đóng ở v0.2 (không còn là Open Question):** `StructureCurrentView.current_relevant_swing_ref` semantics khi nhiều Swing cùng direction đủ điều kiện đồng thời — resolve đầy đủ bởi total order §6a (đóng C-B1-STR-MAJ-02).
+
+**Đã đóng ở v0.3 (không còn là Open Question):** revision generation nào của một `swing_id` bị `broken_swing_ref` tiêu thụ — resolve đầy đủ bởi canonical reference revision-qualified (đóng D-B1-STR-MAJ-01); so sánh Eligible Swing xuyên nhiều stream — resolve đầy đủ bởi total order 8-tiêu-chí, mỗi tiêu chí có hướng tường minh (đóng D-B1-STR-MAJ-02).
