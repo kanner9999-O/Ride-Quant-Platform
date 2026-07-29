@@ -2,6 +2,70 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — resolve Context review and fan-in boundary (Package 0.2-B4 narrow architecture revision)
+
+**Không phải approval, không phải Lock, không phải Consolidated Stable, không phải re-planning toàn package.** Vai trò: `Architecture Decision Revision Author + Domain Contract Revision Author · AI Technical Architect`. Authorization gate: Product Owner xác nhận tường minh "Authorize narrow amendment of ADR-003 to distinguish Feature computation fan-in from Context snapshot aggregation." trước khi bắt đầu.
+
+### Findings resolved
+
+`RA-B4-MAJ-01` / `IRB-B4-MAJ-01` (cùng một algorithmic defect), `IRB-B4-MAJ-02`, `IRB-B4-MAJ-03`.
+
+### ADR-003 conflict analysis
+
+Văn bản gốc [ADR-003](adr/ADR-003.md) (Approved 2026-07-16): "Feature Engine... là điểm fan-in duy nhất" giữa Structure và Regime. Package 0.2-B4 author Context aggregation layer tiêu thụ trực tiếp authoritative Structure/Regime/Feature fact — đọc theo nghĩa đen, văn bản gốc không phân biệt "Feature computation fan-in" (Feature tự tính giá trị) với "Context snapshot aggregation" (Context chỉ as-of select + sao chép). Đây là root cause `IRB-B4-MAJ-02`.
+
+### ADR lifecycle decision
+
+[Chapter 11 §11.3](constitution/11-adr-process.md): ADR đã `Approved` bất biến byte-for-byte — **không sửa trực tiếp `ADR-003.md`**. Author **`docs/adr/ADR-014.md`** (mới) — narrow amendment qua cơ chế supersede có kiểm soát ([Chapter 11 §11.8](constitution/11-adr-process.md)): `status: Draft`, `reviewers: []`, `approved_by: null`, `supersedes: [ADR-003]` (forward relation ĐỀ XUẤT, chưa có hiệu lực cho tới khi Approved). **Không fabricate review evidence** — bảng "Independent reviews" để trống đúng template, không claim đã approve ngày 2026-07-16 hay bất kỳ ngày nào khác cho văn bản amend. ADR-003 giữ nguyên `Approved`, không mutate. **Package 0.2-B4 blocked khỏi `Consolidated Stable` cho tới khi ADR-014 được Product Owner approve** theo đúng quy trình (tối thiểu hai independent review).
+
+### Revised Feature/Context boundary (ADR-014 nội dung)
+
+Giữ nguyên: Raw Regime độc lập Structure; Structure độc lập Raw Regime; Regime Engine không tiêu thụ Structure; Structure Engine không tiêu thụ Regime; Regime tái sử dụng được cho non-price-action strategy. Amend: phân biệt tường minh **Feature computation fan-in** (Feature Engine sở hữu: tính atomic engineered value, công thức/transformation, selective cross-domain synthesis khi một Feature Definition cần) với **Context snapshot aggregation** (Context sở hữu: as-of selection, cutoff/window alignment, sao chép giá trị, assemble snapshot) — Context KHÔNG tính lại Feature, KHÔNG tái sản xuất công thức, KHÔNG derive signal.
+
+### Structure algorithm correction (§8, `context.md`)
+
+`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`: v0.1 bước 4 (Currency) của role Structure tham chiếu NGƯỢC bước 5 (Not-invalidated) — "*fact có recorded_time LỚN NHẤT trong tập đã qua bước 1–3 VÀ bước 5*". Sửa thành hai phase: **Phase 1 — eligibility filtering** (per-candidate độc lập: identity/scope, recorded-time, effective boundary, role-specific validity-tại-cursor) → **Phase 2 — role-specific current selection** (CHỈ chạy trên survivor Phase 1: Structure chọn recorded_time DESC; Regime/Feature chọn lineage head hiện tại; Candle chọn lineage head hiện tại). Required verdict embedded: Structure A (R10, valid) vs Structure B (R20, invalidated tại R30), cursor R40 → **A được chọn** (B bị loại tại Phase 1, không bao giờ tới Phase 2).
+
+### Missing-input policy correction (§6/§9, `context.md`)
+
+`IRB-B4-MAJ-03`: `missing_input_policy` từ `{type: string}` tự do → `{type: enum, values: [NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING]}`, pin canonical value đúng một lần. Normative behavior: absent/invalidated-không-replacement/pending-correction/definition-version-mismatch/effective-time-ineligible → no snapshot. Cấm tường minh: null filling; stale fallback; partial snapshot; implementation-selected behavior; copy snapshot cũ.
+
+### Context contract changes (`context.md` v0.1 → v0.2)
+
+Intro blockquote: thêm khối "Quan hệ với ADR-003" (giải thích conflict + ADR-014 pending) và version-history note. §6: `missing_input_policy` enum + canonical value. §8: viết lại hoàn toàn thành Phase 1/Phase 2 + required Structure verdict + invalidation↔StructureRecomputed behavior. §9: normative behavior list + cấm tường minh 5 hành vi. §13: target-window tie-break tường minh (`window_end DESC` rồi `window_start DESC`). §17: thêm khối "Context KHÔNG tính toán lại" phân biệt Feature fan-in vs Context fan-in. §20: cập nhật Authority boundary tham chiếu ADR-014 + "KHÔNG sở hữu Feature computation/formula/transformation". §21: xóa `missing_input_policy` khỏi deferred list (nay đã pin canonical). §22: cập nhật OQ về Structure Phase 2 + thêm OQ mới về ADR-014 approval gate. **Không sửa** `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md`.
+
+### Context Map changes (`context-map.yaml` v0.8 → v0.9)
+
+Preserve nguyên vẹn 10 relationship B4 hiện có (provider/consumer/contract_id/status/model_influence/translation_policy/consumer_obligation không đổi) — chỉ **bổ sung field `purpose`** cho cả 10, phân biệt tường minh "authoritative as-of snapshot aggregation — không phải Feature computation, xem ADR-014". Comment block trước 10 relationship cập nhật tham chiếu ADR-014 pending. `owned_contracts` comment cho `context-projection` cập nhật ghi nhận v0.2. **Không thêm** Strategy/Decision/Risk/Account/Position/Execution relationship nào. **Không tái tạo** Signal wording/artifact (verified — 0 occurrence "Signal" ngoài prohibition context).
+
+### Current View clarification (§13, non-blocking cleanup)
+
+Target-window selection làm rõ tường minh 2 tiêu chí tie-break (`effective_window.window_end DESC` rồi `effective_window.window_start DESC`) trước khi đánh giá lineage validity — hành vi không đổi so với v0.1 (tiêu chí 2 vốn ngầm định), chỉ loại bỏ ambiguity.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, [Chapter 11](constitution/11-adr-process.md) (ADR immutability/supersede process — tuân thủ đúng, không mutate ADR-003), ADR-007, ADR-009, ADR-010 (không áp dụng, Context không phải Decision). ADR-003 decision content về Regime/Structure độc lập **không đổi**, chỉ narrow amendment (đề xuất, chưa hiệu lực) cho phần fan-in boundary. `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md` **không sửa semantic**. `context-map.yaml` chỉ additive (field `purpose`) + không relationship nào bị xóa/đổi provider-consumer-contract.
+
+### Attack-scenario results — 20/20 pass
+
+Structure A valid/B invalidated → A selected; B invalidated không có survivor → role missing; invalidation visible trước StructureRecomputed; StructureRecomputed visible và eligible; Regime head invalidated không replacement; Regime replacement visible; Feature head invalidated không replacement; Feature replacement visible; missing role dưới canonical policy; `fill_null` bị cấm tường minh; stale fallback bị cấm tường minh; later-effective candidate visible tại batch cursor (loại ở Phase 1, không tới Phase 2); Context aggregation không recompute Feature (§17); Structure/Regime edge tuân thủ ADR amended boundary; Feature/Context responsibility không overlap; equal window_end dùng window_start tie-break; không tiêu thụ Current View nào; không phát Strategy signal; Backtest/Replay/Paper/Live parity; không regression correction lineage/normalization.
+
+### Preserved semantics
+
+Đúng một Context type; subject identity năm field; Candle-driven cadence; bảy input ref; effective/recorded-time guard; role definition-version pin; normalized input identity; correction lineage (10 invariant); no-row/VALID/PENDING_CORRECTION; Context/Strategy boundary; không Feature-to-Feature change; 10 upstream relationship consolidated (chỉ bổ sung `purpose`, không đổi cấu trúc).
+
+### Metadata / state
+
+- `docs/adr/ADR-014.md`: **mới, v0.1**, `status: Draft`, `supersedes: [ADR-003]` (đề xuất, chưa hiệu lực).
+- `docs/adr/ADR-003.md`: **không đổi** — `status: Approved`, bất biến byte-for-byte, blob không đổi.
+- `context.md`: **v0.1 → v0.2**, `status` giữ `Draft`.
+- `context-map.yaml`: **v0.8 → v0.9**, `status` giữ `Draft`.
+- `README.md` (domain index): **v0.18 → v0.19**, `status` giữ `Draft` — Package 0.2-B row + mục Package 0.2-B4 cập nhật ghi nhận revision + ADR-014 blocker.
+- `MANIFEST.md`: `manifest_version` **9.43 → 9.44**; thêm dòng ADR-014 (Draft) vào cả hai bảng ADR; dòng `domain/` cập nhật ghi nhận context.md v0.2, ADR-014 blocker.
+- `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
+
+**KHÔNG sẵn sàng chuyển ChatGPT Review A delta cho tới khi có xác nhận tiếp theo** — findings kỹ thuật (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-03`) đã resolved, nhưng `IRB-B4-MAJ-02` chỉ resolved về mặt PROPOSAL (ADR-014 Draft) — chưa resolved về mặt GOVERNANCE cho tới khi Product Owner approve ADR-014. Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1/B2/B3 vẫn `Consolidated Stable`; Package 0.2-B4 active, Draft, chưa `Consolidated Stable`, blocked chờ ADR-014; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-29 — author minimal Context contract (Package 0.2-B4)
 
 **Không phải approval, không phải review-complete, không phải Consolidated Stable.** Vai trò: `Domain Contract Author · AI Technical Architect`. Authorization gate: Product Owner xác nhận tường minh "Authorize Package 0.2-B4 minimal Context scope." trước khi authoring bắt đầu.

@@ -1,7 +1,7 @@
 ---
 id: context
 title: Market Context
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,7 +14,9 @@ next_review: null
 
 # Market Context
 
-> **Vai trò của tài liệu này:** Domain Contract của Package 0.2-B4 — điểm hội tụ **deterministic, có kiểm soát** của `Structure + Raw Regime + Feature` thành một market-state snapshot duy nhất, theo [ADR-003](../adr/ADR-003.md) và đúng ranh giới `context-projection` đã forward-declare từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml) (nay chuyển forward-declared → authored). Draft, chưa Approved/Locked. Thuộc capability `context-aggregation` / context `context-projection`. **Phạm vi B4 là scope tối thiểu** — đúng một Context type (`market_context`), không phải một rule engine tổng quát.
+> **Vai trò của tài liệu này:** Domain Contract của Package 0.2-B4 — điểm hội tụ **deterministic, có kiểm soát** của `Structure + Raw Regime + Feature` thành một market-state snapshot duy nhất, đúng ranh giới `context-projection` đã forward-declare từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml) (nay chuyển forward-declared → authored). Draft, chưa Approved/Locked. Thuộc capability `context-aggregation` / context `context-projection`. **Phạm vi B4 là scope tối thiểu** — đúng một Context type (`market_context`), không phải một rule engine tổng quát.
+>
+> **Quan hệ với [ADR-003](../adr/ADR-003.md):** ADR-003 (Approved, 2026-07-16) khóa Raw Regime độc lập hoàn toàn với Structure, và nguyên văn mô tả Feature Engine là "điểm fan-in duy nhất" giữa Structure và Regime. Văn bản đó, đọc theo nghĩa đen, KHÔNG tường minh phân biệt "Feature computation fan-in" (Feature Engine tự tính giá trị) với "Context snapshot aggregation" (Context chỉ chọn as-of và sao chép fact có sẵn) — đây là gốc rễ `RA-B4-MAJ-01`/`IRB-B4-MAJ-01` (§ xem CHANGELOG). ADR-003 **Approved và immutable byte-for-byte** ([Chapter 11 §11.3](../constitution/11-adr-process.md)) — không được sửa trực tiếp. [ADR-014](../adr/ADR-014.md) (**Draft, CHƯA được Product Owner approve**) đề xuất narrow amendment (supersede có kiểm soát) phân biệt tường minh hai fan-in operation này, giữ nguyên toàn bộ quyết định độc lập Regime/Structure của ADR-003. **Cho tới khi ADR-014 được approve, Package 0.2-B4 KHÔNG được coi là có authority kiến trúc đầy đủ, không đủ điều kiện `Consolidated Stable`** — `context.md` v0.2 vẫn author đúng theo thiết kế Context snapshot aggregation (khác biệt với Feature computation fan-in, xem §17), nhưng authority cuối cùng chờ ADR-014 approval.
 
 Market Context **KHÔNG phải** trade signal, entry/exit recommendation, setup score, strategy selection, Risk/Account/Position/Execution state, hay bất kỳ business decision nào. Nó là một **snapshot authoritative, deterministic, atomic** của các fact phân tích đã tồn tại (Structure orientation, hai Regime dimension, ba Feature value), theo một Context Definition đã pin — không tự diễn giải thêm ý nghĩa nào ngoài những gì upstream fact đã tuyên bố.
 
@@ -29,6 +31,8 @@ Cộng một **read model tùy chọn** (`MarketContextCurrentView`) — project
 **`market-context-snapshot` / `market-context-fact-invalidated` / `market-context-current-view` là canonical contract concept ID** — đúng giá trị `id:` trong từng khối YAML dưới đây, và đúng giá trị `contract_id` mà [`context-map.yaml`](./context-map.yaml) sẽ trích dẫn. Display name, concept ID, và `event_type` là ba đại lượng khác nhau, không cạnh tranh identity — cùng nguyên tắc `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md` đã khóa.
 
 **Áp dụng ngay từ v0.1 mọi bài học đã trả giá ở `structure.md`/`regime.md`/`feature.md`:** envelope binding cho `MarketContextFactInvalidated` (`subject_ref`/`effective_time` kế thừa từ fact bị invalidate, không tự khai báo độc lập); `normalized_input_fact_refs` là tập toán học, normalize theo lexicographic order trước khi tính identity/hash/dedup; `MarketContextCurrentView` no-row semantics trước fact đầu tiên, `view_state` chỉ có `VALID`/`PENDING_CORRECTION`, không có `UNAVAILABLE`; mọi canonical policy identifier chỉ khai báo ĐÚNG MỘT NƠI; **effective-time eligibility là một filter độc lập chạy TRƯỚC candidate ordering** (bài học `feature.md` v0.2, `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`) — áp dụng cho cả sáu upstream role của Context, không chỉ một.
+
+**v0.2 xử lý `RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-02`/`IRB-B4-MAJ-03`:** (a) `RA-B4-MAJ-01`/`IRB-B4-MAJ-01` — cùng một algorithmic defect: Eligible Upstream Fact selection v0.1 (§8) có một bước filter (Currency) tham chiếu NGƯỢC tới một bước sau nó (Not-invalidated) — vi phạm nguyên tắc "không bước nào được tham chiếu kết quả của bước sau"; viết lại thành hai phase tách bạch: Phase 1 (eligibility filtering, mỗi candidate tự đủ điều kiện độc lập) rồi Phase 2 (role-specific current selection, CHỈ chạy trên tập survivor của Phase 1) — không còn tham chiếu ngược (§8). (b) `IRB-B4-MAJ-02` — xung đột kiến trúc với văn bản gốc ADR-003 ("Feature Engine là điểm fan-in duy nhất"); xử lý qua [ADR-014](../adr/ADR-014.md) narrow amendment proposal (Draft, chờ Product Owner approve — xem khối trên). (c) `IRB-B4-MAJ-03` — `missing_input_policy` (§6) là một chuỗi tự do, không pin giá trị canonical; đổi thành enum đóng, đúng một giá trị hợp lệ `NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING` (§6, §9). Đồng thời làm rõ tường minh target-window tie-break tại `MarketContextCurrentView` (§13, non-blocking cleanup).
 
 ## 1. Logical Market Context Subject — `kind: entity`
 
@@ -276,10 +280,10 @@ context_definition:                      # schema tối thiểu — KHÔNG khóa
   computation_cadence_policy: {type: enum, values: [DRIVEN_BY_CANDLE_CLOSE], required: true, description: "mỗi candle-closed/candle-corrected authoritative tại đúng (instrument_id, venue_id, timeframe) của subject định nghĩa đúng MỘT computation point mới — xem §11"}
   context_cutoff_policy: {type: enum, values: [CONTEXT_EFFECTIVE_WINDOW_END_INCLUSIVE], required: true, description: "context_cutoff = effective_window.window_end của computation point này = context_cutoff_source_ref.effective_time.window_end — xem §11"}
   window_alignment_policy: {type: enum, values: [LATEST_VALID_AT_OR_BEFORE_CONTEXT_CUTOFF], required: true, description: "mỗi role chọn fact hợp lệ MỚI NHẤT tại-hoặc-trước context_cutoff — xem §8"}
-  eligible_upstream_fact_selection_policy: {type: string, required: true, description: "canonical identifier — total-order tie-break DÙNG CHUNG shape cho cả sáu role, CHỈ áp dụng cho ứng viên ĐÃ vượt qua 5-bước filter pipeline (§8) — xem 'Giá trị canonical mặc định' dưới đây"}
+  eligible_upstream_fact_selection_policy: {type: string, required: true, description: "canonical identifier — total-order tie-break DÙNG CHUNG shape cho cả sáu role, CHỈ áp dụng trong Phase 2 để phá vỡ hòa giữa các survivor của Phase 1 (§8) — xem 'Giá trị canonical mặc định' dưới đây"}
 
   # === Missing-input / correction ===
-  missing_input_policy: {type: string, required: true, description: "role nào thiếu/invalidated-không-replacement/chưa-eligible → no MarketContextSnapshot (§9)"}
+  missing_input_policy: {type: enum, values: [NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING], required: true, description: "v0.2: enum đóng, đúng MỘT giá trị hợp lệ (đóng IRB-B4-MAJ-03) — pin canonical value tại 'Giá trị canonical mặc định' dưới đây, chi tiết behavior tại §9"}
   correction_policy: {type: string, value: "always_invalidate_and_replace_no_shortcut", description: "đúng §3 invariant — không shortcut khi context_values không đổi"}
 
   # === Output / normalization / current view ===
@@ -288,12 +292,13 @@ context_definition:                      # schema tối thiểu — KHÔNG khóa
   current_view_selection_policy: {type: string, required: true, description: "canonical identifier — xem §13, khai báo DUY NHẤT tại đây"}
 ```
 
-**Giá trị canonical mặc định (v0.1) — nguồn duy nhất cho ba policy identifier dạng chuỗi, mọi nơi khác trong tài liệu chỉ tham chiếu theo tên field, không lặp lại chuỗi (đóng trước lớp lỗi IRB-B2-MIN-01-style ngay từ v0.1):**
+**Giá trị canonical mặc định (v0.2) — nguồn duy nhất cho ba policy identifier dạng chuỗi cộng một enum value, mọi nơi khác trong tài liệu chỉ tham chiếu theo tên field, không lặp lại chuỗi (đóng trước lớp lỗi IRB-B2-MIN-01-style ngay từ v0.1; `missing_input_policy` bổ sung tại v0.2, đóng `IRB-B4-MAJ-03`):**
 
 ```yaml
 input_normalization_policy: effective_time_window_start_asc_then_window_end_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc   # §10
 current_view_selection_policy: effective_window_end_desc_then_window_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc   # §13
-eligible_upstream_fact_selection_policy: effective_time_end_desc_then_effective_time_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc   # §8 — dùng chung cho cả sáu role, CHỈ sau khi 5-bước filter pipeline đã lọc
+eligible_upstream_fact_selection_policy: effective_time_end_desc_then_effective_time_start_desc_then_recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc   # §8 — dùng chung cho cả sáu role, CHỈ sau khi Phase 1 (eligibility filtering) đã lọc, dùng để phá vỡ hòa trong Phase 2
+missing_input_policy: NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING   # §9 — enum đóng, đúng một giá trị hợp lệ ở v0.2
 ```
 
 Một `context_definition_version` tương lai có thể chọn identifier khác cho từng policy, nhưng PHẢI vẫn total + deterministic + tương thích [ADR-009](../adr/ADR-009.md) — không dùng physical wall clock, không so `sequence` xuyên stream.
@@ -320,9 +325,15 @@ Context tiêu thụ **đúng bảy** authoritative ref cho mỗi computation poi
 
 **Đúng một** `feature-computed` fact cho MỖI feature type: `volatility_metric`, `directional_persistence_metric`, `distance_to_last_confirmed_swing` — ba role độc lập, mỗi role Eligible theo §8. Pin: `required_volatility_metric_feature_definition_version`, `required_directional_persistence_metric_feature_definition_version`, `required_distance_to_last_confirmed_swing_feature_definition_version`. **KHÔNG** tiêu thụ `FeatureCurrentView`.
 
-## 8. Eligible Upstream Fact selection — ordered filter pipeline (dùng chung cho cả sáu role)
+## 8. Eligible Upstream Fact selection — two-phase pipeline (dùng chung cho cả sáu role)
 
-**Áp dụng bài học `feature.md` v0.2 (`RA-B3-MAJ-01`/`IRB-B3-MAJ-01`) ngay từ v0.1 — effective-time eligibility là một filter ĐỘC LẬP, chạy TRƯỚC candidate ordering, cho MỌI role, không chỉ một.** Với một computation point tại `context_cutoff` (§11), cursor recorded-time `R`, và một role cụ thể (Candle cutoff source, Structure, hai Regime, ba Feature — mỗi role có tập candidate event type riêng, §7), một fact `U` là ứng viên hợp lệ CHỈ KHI cả 5 bước dưới đây đều đúng, đánh giá THEO ĐÚNG THỨ TỰ:
+**v0.2 — `RA-B4-MAJ-01`/`IRB-B4-MAJ-01` (cùng một algorithmic defect):** v0.1 định nghĩa 5 bước "filter" tuần tự, nhưng bước 4 (Currency) của role Structure tham chiếu NGƯỢC tới kết quả của bước 5 (Not-invalidated) — "*U là fact có recorded_time LỚN NHẤT trong tập đã qua bước 1–3 VÀ bước 5*" — vi phạm nguyên tắc cơ bản: **không bước filter nào được tham chiếu kết quả của một bước SAU nó**. v0.2 tách rời hoàn toàn thành **hai phase độc lập, tuần tự, không tham chiếu ngược**: **Phase 1 — eligibility filtering** (mỗi candidate tự đủ điều kiện, hoàn toàn không phụ thuộc candidate khác hay phase sau) rồi **Phase 2 — role-specific current selection** (chỉ chạy trên tập SURVIVOR của Phase 1, không bao giờ quay lại Phase 1).
+
+**Áp dụng bài học `feature.md` v0.2 (`RA-B3-MAJ-01`/`IRB-B3-MAJ-01`) — effective-time eligibility là một filter ĐỘC LẬP trong Phase 1, luôn chạy TRƯỚC Phase 2 (candidate selection/ordering), cho MỌI role, không chỉ một.**
+
+### Phase 1 — Eligibility filtering (per-candidate, độc lập hoàn toàn với mọi candidate khác và với Phase 2)
+
+Với một computation point tại `context_cutoff` (§11), cursor recorded-time `R`, và một role cụ thể (Candle cutoff source, Structure, hai Regime, ba Feature — mỗi role có tập candidate event type riêng, §7), một fact `U` **survive Phase 1** CHỈ KHI cả 4 bước dưới đây đều đúng, đánh giá THEO ĐÚNG THỨ TỰ, đánh giá ĐỘC LẬP cho từng `U` (không so sánh `U` với candidate khác ở Phase 1):
 
 ```text
 1. Identity/scope match
@@ -343,21 +354,30 @@ Context tiêu thụ **đúng bảy** authoritative ref cho mỗi computation poi
      Feature    → U.effective_window.window_end            <= context_cutoff
      Candle     → U.effective_time.window_end              <= context_cutoff  (= chính bằng nhau khi U là chính context_cutoff_source_ref)
 
-4. Currency (không dùng fact đã bị thay thế)
-   Regime/Feature role → U là lineage head HIỆN TẠI (không có ref supersedes_fact_ref nào của cùng role trỏ tới U) tại R
-   Structure role       → U là fact có recorded_time LỚN NHẤT trong tập đã qua bước 1–3 và bước 5 — Structure KHÔNG có supersedes_fact_ref chain (khác Regime/Feature); mỗi BOS/CHoCH/StructureRecomputed TỰ NÓ set toàn bộ orientation (không tích lũy), nên "mới nhất theo recorded_time còn hiệu lực" tương đương chính xác với fold tuần tự của structure.md §1
-   Candle role           → U là candle-corrected MỚI NHẤT (nếu có) cho đúng cửa sổ đó, hoặc candle-closed nếu chưa từng correct — đúng lineage của chính candle.md
-
-5. Not invalidated
-   Regime role  → KHÔNG có RegimeFactInvalidated visible tại R cho đúng U
-   Feature role → KHÔNG có FeatureFactInvalidated visible tại R cho đúng U
-   Structure role → KHÔNG có StructureFactInvalidated visible tại R cho đúng U (chỉ áp dụng khi U là BreakOfStructureDetected/ChangeOfCharacterDetected — StructureRecomputed không phải target hợp lệ của StructureFactInvalidated, structure.md §5)
-   Candle role  → N/A (Candle không có invalidation event riêng — CandleCorrected LÀ chính bản thay thế, không phải invalidation, candle.md §10)
+4. Role-specific validity tại cursor (CHỈ xét CHÍNH candidate U — KHÔNG tham chiếu bất kỳ candidate nào khác, KHÔNG tham chiếu Phase 2)
+   Structure → KHÔNG có StructureFactInvalidated visible tại R nhắm CHÍNH XÁC U (chỉ áp dụng khi U là BreakOfStructureDetected/ChangeOfCharacterDetected — StructureRecomputed không phải target hợp lệ của StructureFactInvalidated, structure.md §5; StructureRecomputed luôn survive bước này)
+   Regime    → KHÔNG có RegimeFactInvalidated visible tại R nhắm CHÍNH XÁC U
+   Feature   → KHÔNG có FeatureFactInvalidated visible tại R nhắm CHÍNH XÁC U
+   Candle    → resolve correction lineage cho ĐÚNG cửa sổ Candle đó tại R (candle.md §10) — nếu một candle-corrected KHÁC, cùng cửa sổ, visible tại R VÀ supersede U, U KHÔNG survive bước này (chỉ current lineage head của cửa sổ mới survive)
 ```
 
-Một ứng viên KHÔNG qua được bước nào thì bị loại NGAY — không đánh giá các bước sau. **Bước 3 áp dụng ĐỘC LẬP với bước 2** — một fact recorded-time visible vẫn có thể bị loại vì effective-time không đủ điều kiện (giống hệt nguyên tắc `feature.md` §9a).
+Một candidate KHÔNG qua được bước nào thì bị loại NGAY khỏi tập survivor — không đánh giá các bước sau CHO CHÍNH candidate đó. **Bước 3 áp dụng ĐỘC LẬP với bước 2.** Kết thúc Phase 1: mỗi role có một **tập survivor** (có thể rỗng, một phần tử, hoặc nhiều phần tử).
 
-**Total order tie-break** (chỉ chạy trên tập ĐÃ qua cả 5 bước, dùng `eligible_upstream_fact_selection_policy` §6):
+### Phase 2 — Role-specific current selection (CHỈ chạy trên tập survivor của Phase 1, không bao giờ tham chiếu ngược Phase 1 hay loại thêm candidate theo tiêu chí Phase 1)
+
+```text
+Structure → trong tập survivor role Structure, chọn candidate có recorded_time LỚN NHẤT (DESC) — mỗi BOS/CHoCH/StructureRecomputed TỰ NÓ set toàn bộ orientation (không tích lũy), nên "mới nhất theo recorded_time trong tập survivor" tương đương chính xác với fold tuần tự của structure.md §1, ĐÚNG vì Phase 1 đã loại hết fact invalidated trước đó rồi. Hòa recorded_time → total order (dưới đây) phá vỡ hòa.
+
+Regime    → trong tập survivor role Regime (đúng dimension), chọn lineage head HIỆN TẠI: candidate mà KHÔNG survivor nào khác của cùng role có supersedes_fact_ref trỏ tới nó. KHÔNG fallback về một survivor đã bị supersede bởi survivor khác.
+
+Feature   → tương tự Regime, đúng feature_type của role.
+
+Candle    → trong tập survivor role Candle (Phase 1 bước 4 thường đã thu về đúng một current lineage head cho cửa sổ đó), chọn lineage head hiện tại; nếu edge case còn nhiều, total order phá vỡ hòa.
+```
+
+Winner của Phase 2 (đúng một candidate mỗi role, nếu tập survivor không rỗng) = Eligible Upstream Fact cho role đó.
+
+**Total order tie-break** (CHỈ dùng trong Phase 2 để phá vỡ hòa giữa các survivor còn lại sau khi đã áp dụng tiêu chí role-specific ở trên — KHÔNG phải một bước filter riêng, dùng `eligible_upstream_fact_selection_policy` §6):
 
 ```text
 1. role-specific effective boundary (analysis_window.window_end / effective_window.window_end / effective_time.window_end)   DESC
@@ -369,9 +389,29 @@ Một ứng viên KHÔNG qua được bước nào thì bị loại NGAY — kh�
 7. U.event_id                 ASC (lexical)
 ```
 
-So sánh tiêu chí 1 đến 7 theo đúng thứ tự; tiêu chí đầu tiên khác nhau quyết định; các tiêu chí sau KHÔNG được đánh giá; `sequence` chỉ so trong cùng stream identity — cấm so sánh xuyên stream. **Total order này CHỈ chạy trên tập đã qua filter pipeline — không bao giờ được áp dụng cho một ứng viên chưa qua bước 3 (effective-time cutoff), dù ứng viên đó thắng theo tiêu chí 1.**
+So sánh tiêu chí 1 đến 7 theo đúng thứ tự; tiêu chí đầu tiên khác nhau quyết định; các tiêu chí sau KHÔNG được đánh giá; `sequence` chỉ so trong cùng stream identity — cấm so sánh xuyên stream. **Total order này CHỈ dùng để phá vỡ hòa TRONG Phase 2 — không bao giờ được áp dụng cho một candidate chưa survive Phase 1, dù candidate đó thắng theo tiêu chí 1.**
 
-**Không có ứng viên nào qua được cả 5 bước cho một role:** role đó **missing** — xem §9 (role cardinality/missing-input).
+**Tập survivor Phase 1 rỗng cho một role (Phase 2 không có ứng viên nào để chọn):** role đó **missing** — xem §9 (role cardinality/missing-input).
+
+### Required Structure verdict (normative, đóng `RA-B4-MAJ-01`/`IRB-B4-MAJ-01`)
+
+```text
+Structure A:
+  recorded_time = R10
+  valid (không có StructureFactInvalidated nào nhắm A)
+
+Structure B:
+  recorded_time = R20
+  invalidated tại R30 (có StructureFactInvalidated nhắm B, visible từ R30)
+
+Context cursor: R40
+
+Kết quả bắt buộc: Structure A ĐƯỢC CHỌN.
+```
+
+Lý do: tại Phase 1 bước 4, B bị loại (StructureFactInvalidated nhắm B visible tại R40 >= R30) — B KHÔNG BAO GIỜ vào tập survivor, do đó KHÔNG BAO GIỜ được Phase 2 xem xét, bất kể `recorded_time` của B (R20) lớn hơn A (R10). Phase 2 chỉ thấy tập survivor `{A}`, chọn A.
+
+**Hành vi giữa thời điểm invalidation và `StructureRecomputed`:** rebuild selection từ tập survivor Phase 1 (mọi authoritative orientation-setting event — BOS/CHoCH/StructureRecomputed — còn sống sót, visible tại cursor); Phase 2 chọn candidate MỚI NHẤT trong tập đó; KHÔNG BAO GIỜ dùng event đã invalidate (đã bị loại từ Phase 1); nếu tập survivor rỗng (không còn orientation-setting event nào sống sót), Structure role **missing** — không phát `MarketContextSnapshot` (§9).
 
 ## 9. Role cardinality và missing-input policy
 
@@ -387,13 +427,37 @@ Với MỖI computation point, yêu cầu **đúng**:
 1 distance_to_last_confirmed_swing Feature fact
 ```
 
-**Nếu MỘT role bất kỳ (kể cả Candle cutoff source) đang absent, invalidated-không-có-replacement, hoặc chưa eligible tại `context_cutoff`:**
+**Canonical `missing_input_policy` (v0.2, đóng `IRB-B4-MAJ-03`) — enum đóng, đúng một giá trị hợp lệ:**
+
+```yaml
+missing_input_policy: NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING   # §6
+```
+
+**Normative behavior — nếu MỘT role bất kỳ (kể cả Candle cutoff source) rơi vào bất kỳ trạng thái nào dưới đây:**
+
+```text
+absent (không có candidate nào survive Phase 1, §8)
+invalidated without eligible replacement (survivor tồn tại nhưng không có lineage head hợp lệ — Regime/Feature)
+pending correction (lineage head hiện tại đang chờ replacement, chưa visible)
+definition-version mismatch (không candidate nào khớp required_*_definition_version đã pin, §6)
+effective-time ineligible (mọi candidate đều bị loại ở Phase 1 bước 3)
+```
 
 ```text
 → KHÔNG có MarketContextSnapshot nào được phát cho computation point đó
 ```
 
-Đây là **valid absence hoặc pending correction** theo lifecycle state của role đang thiếu — **không phải speculative null filling**. **KHÔNG BAO GIỜ fallback về một MarketContextSnapshot cũ hơn** như thể nó đại diện cho computation point hiện đang thiếu.
+**Cấm tuyệt đối:**
+
+```text
+null filling
+stale fallback trình bày như đang current
+partial snapshot (thiếu một hoặc nhiều trong bảy ref)
+implementation-selected behavior (engine tự quyết định làm gì khi role thiếu)
+copy một MarketContextSnapshot cũ hơn như thể nó đại diện cho computation point hiện đang thiếu
+```
+
+Đây là **valid absence hoặc pending correction** theo lifecycle state của role đang thiếu — **không phải speculative null filling**.
 
 ## 10. Fact identity và input normalization
 
@@ -471,7 +535,14 @@ C2
 
 **Bước 0 — row existence precondition:** nếu `context_subject_id` CHƯA từng có `MarketContextSnapshot` visible tại cursor → **KHÔNG có row nào tồn tại** — `GetCurrentContext` trả `NOT_FOUND`/`ABSENT`. Không materialize placeholder.
 
-**Bước 1 — xác định TARGET WINDOW trước khi loại trừ bất cứ điều gì:** target window = window có `effective_window.window_end` lớn nhất trong TOÀN BỘ tập window mà subject này đã từng có ít nhất một `MarketContextSnapshot` visible tại cursor (KỂ CẢ nếu lineage head của window đó hiện đang invalidate).
+**Bước 1 — xác định TARGET WINDOW trước khi loại trừ bất cứ điều gì (v0.2 — làm rõ tie-break, non-blocking cleanup):** target window = window thắng theo đúng 2 tiêu chí dưới đây, đánh giá THEO ĐÚNG THỨ TỰ, trong TOÀN BỘ tập window mà subject này đã từng có ít nhất một `MarketContextSnapshot` visible tại cursor (KỂ CẢ nếu lineage head của window đó hiện đang invalidate):
+
+```text
+1. effective_window.window_end   DESC
+2. effective_window.window_start DESC   (tie-break khi hai window khác nhau cùng window_end)
+```
+
+Quyết định target window xảy ra TRƯỚC khi đánh giá bất kỳ lineage validity nào (Bước 2/3 dưới đây) — thứ tự này không đổi so với v0.1, chỉ làm tường minh tiêu chí tie-break thứ hai vốn đã ngầm định.
 
 **Bước 2 — trong lineage của TARGET WINDOW đó, loại trừ:** mọi `MarketContextSnapshot` đã bị supersede; mọi replacement mà `MarketContextFactInvalidated` tương ứng CHƯA visible; mọi computation dùng ancestry chưa resolve hoặc không authoritative.
 
@@ -552,11 +623,31 @@ feature-computed                    — ba Feature role (§7.3), feature_type kh
 feature-fact-invalidated            — như trên, correction
 ```
 
-**Không tiêu thụ:** `CandleObserved`; bất kỳ `*-current-view` nào (`CandleCurrentView`/`StructureCurrentView`/`RegimeCurrentView`/`FeatureCurrentView`/chính `MarketContextCurrentView`); provisional/candidate fact (`SwingCandidateDetected`); `Swing` event trực tiếp (Structure đã tự tiêu thụ Swing — Context không cần đi vòng qua Structure để lấy lại Swing, đúng ranh giới ADR-003); Strategy/Decision/Risk/Account/Position/Execution/Order/Fill — tất cả chưa tồn tại hoặc không thuộc phạm vi input authority của Context ở B4.
+**Không tiêu thụ:** `CandleObserved`; bất kỳ `*-current-view` nào (`CandleCurrentView`/`StructureCurrentView`/`RegimeCurrentView`/`FeatureCurrentView`/chính `MarketContextCurrentView`); provisional/candidate fact (`SwingCandidateDetected`); `Swing` event trực tiếp (Structure đã tự tiêu thụ Swing — Context không cần đi vòng qua Structure để lấy lại Swing); Strategy/Decision/Risk/Account/Position/Execution/Order/Fill — tất cả chưa tồn tại hoặc không thuộc phạm vi input authority của Context ở B4.
 
 ## 17. Context và Strategy boundary
 
 Context là một **authoritative market-state snapshot, không phải một decision**.
+
+**Context KHÔNG tính toán lại — chỉ as-of select và sao chép (v0.2, làm rõ theo [ADR-014](../adr/ADR-014.md) narrow amendment, Draft — xem khối đầu tài liệu):**
+
+```text
+Context THỰC HIỆN:
+  as-of selection của authoritative Structure/Regime/Feature fact (§8)
+  deterministic cutoff/window alignment (§11, §14)
+  sao chép NGUYÊN VẸN giá trị đã có sẵn vào context_values (§3 invariant)
+  assemble bảy fact ref thành một version-pinned market-state snapshot
+
+Context KHÔNG BAO GIỜ:
+  tự tính một engineered Feature mới
+  tái sản xuất (reproduce) công thức/transformation của Feature Engine
+  tự derive trade signal
+  tự chấm điểm (score) setup
+  đưa ra kết luận Strategy hay Decision
+  thay thế Feature Engine cho bất kỳ mục đích computation nào
+```
+
+Đây là **ranh giới phân biệt Feature computation fan-in (Feature Engine sở hữu) với Context snapshot aggregation (Context sở hữu)** — hai operation khác nhau, không cạnh tranh authority, không operation nào là "chủ sở hữu thứ hai" của Feature computation semantics.
 
 **Cho phép trong `context_values`:**
 
@@ -590,11 +681,11 @@ Cả bốn execution mode tiêu thụ đúng cùng envelope (§2) và payload (�
 
 ## 20. Authority boundary
 
-**Contract này sở hữu:** semantic tổng hợp cho `market_context`, `MarketContextCurrentView` projection shape, `context_definition_version` policy schema tối thiểu (§6), Eligible Upstream Fact selection policy (§8), Current View total-order policy (§13). **Áp dụng, không định nghĩa lại:** event envelope ([Chapter 8 §8.2](../constitution/08-event-model.md)); ordering/replay cursor mechanics ([Chapter 5](../constitution/05-time-model.md)/[Chapter 8](../constitution/08-event-model.md)); ID opaque rule ([Chapter 6 §6.8](../constitution/06-identity-model.md)); Structure orientation semantics (`structure.md`); Regime independence từ Structure ([ADR-003](../adr/ADR-003.md)); Feature semantics (`feature.md`); Candle observation semantics (`candle.md`). **Không sở hữu:** Strategy/Decision/Risk/Account/Execution/Position semantics (Package 0.2-C, chưa author); giá trị cụ thể của `context_definition_version` policy (configuration/Phase 1); Context type nào ngoài `market_context` (§21).
+**Contract này sở hữu:** semantic aggregation (as-of selection + snapshot assembly, KHÔNG phải computation) cho `market_context`, `MarketContextCurrentView` projection shape, `context_definition_version` policy schema tối thiểu (§6), Eligible Upstream Fact selection policy hai-phase (§8), Current View total-order policy (§13). **Áp dụng, không định nghĩa lại:** event envelope ([Chapter 8 §8.2](../constitution/08-event-model.md)); ordering/replay cursor mechanics ([Chapter 5](../constitution/05-time-model.md)/[Chapter 8](../constitution/08-event-model.md)); ID opaque rule ([Chapter 6 §6.8](../constitution/06-identity-model.md)); Structure orientation semantics (`structure.md`); Regime independence từ Structure ([ADR-003](../adr/ADR-003.md), narrow amendment [ADR-014](../adr/ADR-014.md) Draft — xem khối đầu tài liệu); Feature computation semantics (`feature.md`) — Context KHÔNG sở hữu, KHÔNG tái sản xuất công thức/transformation của Feature Engine (§17); Candle observation semantics (`candle.md`). **Không sở hữu:** Strategy/Decision/Risk/Account/Execution/Position semantics (Package 0.2-C, chưa author); giá trị cụ thể của `context_definition_version` policy (configuration/Phase 1); Context type nào ngoài `market_context` (§21); bất kỳ Feature computation/formula/transformation nào (`feature.md` sở hữu duy nhất, §17).
 
 ## 21. Ngoài phạm vi — defer
 
-**Deferred tường minh, không author ở B4:** nhiều Context type (ngoài `market_context`); nested Context composition; arbitrary rule expression; scoring/confidence model; ML Context; strategy-specific Context; account-aware Context; portfolio Context; Context-to-Context dependency; storage architecture; caching; materialized feature-store infrastructure; distributed computation; user-defined schema. Cơ chế tính `context_subject_id` deterministic cụ thể; giá trị cụ thể cho `missing_input_policy` (thuộc configuration instance, §6); cơ chế lưu trữ/versioning cụ thể của `context_definition_version` registry (Phase 1, cùng ghi chú `swing.md`/`structure.md`/`regime.md`/`feature.md`). Quan hệ Context → Strategy (contract Strategy chưa author, §17).
+**Deferred tường minh, không author ở B4:** nhiều Context type (ngoài `market_context`); nested Context composition; arbitrary rule expression; scoring/confidence model; ML Context; strategy-specific Context; account-aware Context; portfolio Context; Context-to-Context dependency; storage architecture; caching; materialized feature-store infrastructure; distributed computation; user-defined schema. Cơ chế tính `context_subject_id` deterministic cụ thể; cơ chế lưu trữ/versioning cụ thể của `context_definition_version` registry (Phase 1, cùng ghi chú `swing.md`/`structure.md`/`regime.md`/`feature.md`). Quan hệ Context → Strategy (contract Strategy chưa author, §17). **`missing_input_policy` (v0.2) KHÔNG còn là configuration instance để ngỏ** — đã pin canonical enum đóng tại §6/§9 (đóng `IRB-B4-MAJ-03`), không cần liệt kê ở đây nữa.
 
 **Out of scope theo ranh giới domain (không phải "chưa làm"):** trade signal, entry/exit setup, risk recommendation — vi phạm trực tiếp định nghĩa Context nếu thêm vào (§17).
 
@@ -602,4 +693,5 @@ Cả bốn execution mode tiêu thụ đúng cùng envelope (§2) và payload (�
 
 - `structure_orientation` chỉ có ba giá trị (`NEUTRAL`/`BULLISH`/`BEARISH`) trong `context_values` — khi Structure subject còn `UNDETERMINED` (chưa từng có BOS/CHoCH/StructureRecomputed nào), role Structure absent → không có `MarketContextSnapshot` theo §9. Liệu tương lai có cần một `context_type` biến thể chấp nhận Structure-absent (ví dụ cho instrument mới listing, chưa đủ lịch sử) hay B4's "no snapshot" behavior là đủ vĩnh viễn? Chưa quyết ở đây — author-level ambiguity note, không phải governance-level OQ, không đóng OQ-002/OQ-003.
 - `context_definition_version` registry/lifecycle chưa có authoritative source riêng — tạm coi là Referenced Authoritative Artifact theo Chapter 8 §8.1.1 (§6), nhưng **chưa** có file/registry cụ thể nào author nó trong Package 0.2-B4. Cần quyết định khi có nhu cầu thực tế đầu tiên (đối xứng ghi chú `swing.md`/`structure.md`/`regime.md`/`feature.md`).
-- Eligible Structure fact selection (§8, role Structure, bước 4 "Currency") dựa trên tiền đề mỗi BOS/CHoCH/StructureRecomputed tự set toàn bộ `orientation` (không tích lũy) nên "mới nhất theo recorded_time còn hiệu lực" = đúng fold `structure.md` §1. `structure.md` không pin tường minh `effective_time` cho `StructureRecomputed` (không có `breaking_candle_refs` để suy ra, chỉ có `input_cursor_ref`) — Context áp dụng nguyên văn bất kỳ `effective_time` nào `structure.md` §2 thực sự gán cho event đó (không tự định nghĩa lại), nhưng đây là một ambiguity đã tồn tại sẵn trong `structure.md`, không phải do `context.md` tạo ra. Ghi nhận author-level, không chặn B4.
+- Eligible Structure fact selection (§8, Phase 2, role Structure) dựa trên tiền đề mỗi BOS/CHoCH/StructureRecomputed tự set toàn bộ `orientation` (không tích lũy) nên "mới nhất theo recorded_time trong tập survivor" = đúng fold `structure.md` §1. `structure.md` không pin tường minh `effective_time` cho `StructureRecomputed` (không có `breaking_candle_refs` để suy ra, chỉ có `input_cursor_ref`) — Context áp dụng nguyên văn bất kỳ `effective_time` nào `structure.md` §2 thực sự gán cho event đó (không tự định nghĩa lại), nhưng đây là một ambiguity đã tồn tại sẵn trong `structure.md`, không phải do `context.md` tạo ra. Ghi nhận author-level, không chặn B4.
+- **[ADR-014](../adr/ADR-014.md) (narrow amendment ADR-003, Draft) CHƯA được Product Owner approve** — đây KHÔNG phải governance-level OQ (không đóng OQ-002/OQ-003), nhưng là một **approval gate thực sự** cho architecture authority của toàn bộ `context.md`: cho tới khi ADR-014 approved, Package 0.2-B4 KHÔNG đủ điều kiện `Consolidated Stable` (dù review findings kỹ thuật khác — `RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-03` — đã resolved ở v0.2). Cần Product Owner quyết định approve/reject ADR-014 theo đúng quy trình [Chapter 11](../constitution/11-adr-process.md) (tối thiểu hai independent review) trước khi B4 có thể tiến tới consolidation.

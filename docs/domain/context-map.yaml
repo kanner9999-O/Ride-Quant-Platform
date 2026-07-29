@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.8"
+version: "0.9"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -90,7 +90,7 @@ contexts:
     title: Context Projection
     capability_id: context-aggregation
     responsibility: "CQRS read-model tổng hợp Structure+Regime+Feature+market state cho Strategy — Type 2 Projection (Chapter 7 §7.4), không phát sinh business decision."
-    owned_contracts: [context]   # authored — Package 0.2-B4: context.md v0.1 Draft (author self-review only, chưa qua Review A/B)
+    owned_contracts: [context]   # authored — Package 0.2-B4: context.md v0.2 Draft (narrow architecture revision, RA-B4-MAJ-01/IRB-B4-MAJ-01/IRB-B4-MAJ-02/IRB-B4-MAJ-03 addressed; IRB-B4-MAJ-02 blocked pending ADR-014 approval)
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship
@@ -247,11 +247,20 @@ relationships:
       invalidate — không được giữ nguyên giá trị đã tính trên fact Regime cũ (chi tiết
       correction lineage tại feature.md §9).
 
-  # Package 0.2-B4 (context.md v0.1) — Context là điểm hội tụ có kiểm soát duy nhất của
-  # Structure + Raw Regime + Feature (ADR-003), fan-in trực tiếp từ cả ba context nguồn cộng
-  # market-data-observation (cadence/cutoff driver, context.md §7.0/§11) — không đi vòng qua
-  # feature-engineering để lấy lại Structure/Regime. Chỉ những contract mà context.md thực sự
-  # dùng (context.md §16), không thêm quan hệ nào khác.
+  # Package 0.2-B4 (context.md v0.2) — Context là điểm hội tụ có kiểm soát của Structure +
+  # Raw Regime + Feature, fan-in trực tiếp từ cả ba context nguồn cộng market-data-observation
+  # (cadence/cutoff driver, context.md §7.0/§11) — không đi vòng qua feature-engineering để lấy
+  # lại Structure/Regime. Chỉ những contract mà context.md thực sự dùng (context.md §16), không
+  # thêm quan hệ nào khác.
+  #
+  # Mười quan hệ dưới đây có `purpose: authoritative as-of snapshot aggregation` — PHÂN BIỆT
+  # tường minh với Feature computation fan-in (feature-engineering → feature-computed/
+  # feature-fact-invalidated tiêu thụ candle/swing/regime để TÍNH một atomic engineered value).
+  # Context chỉ as-of select và sao chép fact có sẵn, KHÔNG tái sản xuất công thức Feature
+  # (context.md §17). Ranh giới này được khóa tường minh bởi [ADR-014](../adr/ADR-014.md) —
+  # narrow amendment của ADR-003 — hiện `status: Draft`, CHƯA được Product Owner approve. Cho
+  # tới khi ADR-014 Approved, mười quan hệ này về mặt kỹ thuật đã đúng thiết kế nhưng authority
+  # kiến trúc cuối cùng của chúng vẫn chờ ADR-014 approval (context.md §ADR-003 boundary).
   - provider_context_id: market-data-observation
     consumer_context_id: context-projection
     contract_id: candle-closed
@@ -261,6 +270,7 @@ relationships:
       upstream_context_id: market-data-observation
       downstream_context_id: context-projection
     translation_policy: conformist
+    purpose: "authoritative as-of snapshot aggregation (cadence/cutoff source) — không phải Feature computation, xem ADR-014"
 
   - provider_context_id: market-data-observation
     consumer_context_id: context-projection
@@ -271,6 +281,7 @@ relationships:
       upstream_context_id: market-data-observation
       downstream_context_id: context-projection
     translation_policy: conformist
+    purpose: "authoritative as-of snapshot aggregation (cadence/cutoff source, correction) — không phải Feature computation, xem ADR-014"
     consumer_obligation: >
       Consumer nhận CandleCorrected PHẢI invalidate hoặc recompute mọi MarketContextSnapshot
       fact có causal ancestry bao gồm Candle fact bị sửa (kể cả khi Candle đó chỉ là
@@ -286,6 +297,7 @@ relationships:
       upstream_context_id: market-structure-analysis
       downstream_context_id: context-projection
     translation_policy: conformist
+    purpose: "authoritative as-of snapshot aggregation (Structure orientation, §8 Phase 2) — không phải Feature computation, xem ADR-014"
 
   - provider_context_id: market-structure-analysis
     consumer_context_id: context-projection
@@ -296,6 +308,7 @@ relationships:
       upstream_context_id: market-structure-analysis
       downstream_context_id: context-projection
     translation_policy: conformist
+    purpose: "authoritative as-of snapshot aggregation (Structure orientation, §8 Phase 2) — không phải Feature computation, xem ADR-014"
 
   - provider_context_id: market-structure-analysis
     consumer_context_id: context-projection
@@ -306,6 +319,7 @@ relationships:
       upstream_context_id: market-structure-analysis
       downstream_context_id: context-projection
     translation_policy: conformist
+    purpose: "authoritative as-of snapshot aggregation (Structure eligibility filtering, §8 Phase 1) — không phải Feature computation, xem ADR-014"
     consumer_obligation: >
       Consumer nhận StructureFactInvalidated targeting fact đang là structure_fact_ref của một
       MarketContextSnapshot PHẢI invalidate hoặc recompute snapshot đó — không được giữ nguyên
@@ -321,6 +335,7 @@ relationships:
       upstream_context_id: market-structure-analysis
       downstream_context_id: context-projection
     translation_policy: conformist
+    purpose: "authoritative as-of snapshot aggregation (Structure orientation, §8 Phase 2) — không phải Feature computation, xem ADR-014"
 
   - provider_context_id: raw-regime-analysis
     consumer_context_id: context-projection
@@ -331,6 +346,7 @@ relationships:
       upstream_context_id: raw-regime-analysis
       downstream_context_id: context-projection
     translation_policy: conformist
+    purpose: "authoritative as-of snapshot aggregation (Regime class, hai dimension) — không phải Feature computation, xem ADR-014"
 
   - provider_context_id: raw-regime-analysis
     consumer_context_id: context-projection
@@ -341,6 +357,7 @@ relationships:
       upstream_context_id: raw-regime-analysis
       downstream_context_id: context-projection
     translation_policy: conformist
+    purpose: "authoritative as-of snapshot aggregation (Regime eligibility filtering, §8 Phase 1) — không phải Feature computation, xem ADR-014"
     consumer_obligation: >
       Consumer nhận RegimeFactInvalidated PHẢI invalidate hoặc recompute mọi MarketContextSnapshot
       fact có causal ancestry bao gồm RegimeClassified fact bị invalidate (volatility hoặc
@@ -356,6 +373,7 @@ relationships:
       upstream_context_id: feature-engineering
       downstream_context_id: context-projection
     translation_policy: conformist
+    purpose: "authoritative as-of snapshot aggregation (atomic Feature value, sao chép nguyên vẹn) — Context KHÔNG tái sản xuất công thức Feature, xem ADR-014"
 
   - provider_context_id: feature-engineering
     consumer_context_id: context-projection
@@ -366,6 +384,7 @@ relationships:
       upstream_context_id: feature-engineering
       downstream_context_id: context-projection
     translation_policy: conformist
+    purpose: "authoritative as-of snapshot aggregation (Feature eligibility filtering, §8 Phase 1) — không phải Feature computation, xem ADR-014"
     consumer_obligation: >
       Consumer nhận FeatureFactInvalidated PHẢI invalidate hoặc recompute mọi MarketContextSnapshot
       fact có causal ancestry bao gồm FeatureComputed fact bị invalidate (bất kỳ trong ba founding
