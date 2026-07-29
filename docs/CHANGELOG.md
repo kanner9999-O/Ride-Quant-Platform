@@ -2,6 +2,48 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-29 — author minimal Context contract (Package 0.2-B4)
+
+**Không phải approval, không phải review-complete, không phải Consolidated Stable.** Vai trò: `Domain Contract Author · AI Technical Architect`. Authorization gate: Product Owner xác nhận tường minh "Authorize Package 0.2-B4 minimal Context scope." trước khi authoring bắt đầu.
+
+### Phạm vi authoring — scope tối thiểu, không mở rộng framework
+
+`docs/domain/context.md` (mới, v0.1) — điểm hội tụ có kiểm soát `Structure + Raw Regime + Feature → Market Context`, đúng [ADR-003](adr/ADR-003.md). Đúng **một Context type**: `market_context`. Không author Strategy/Decision/Risk/Account/Execution (Package 0.2-C).
+
+### Quyết định thiết kế chính
+
+- **Subject identity — năm field, giống `regime.md`/`feature.md`:** `context_subject_id` deterministic từ `(instrument_id, venue_id, timeframe, context_type, context_definition_version)`.
+- **Bảy role bắt buộc mỗi computation point:** một Candle (`context_cutoff_source_ref` — cadence/cutoff driver, KHÔNG phải một `context_values` role) + Structure + hai Regime dimension (Volatility, Directional Persistence) + ba founding Feature type (`volatility_metric`, `directional_persistence_metric`, `distance_to_last_confirmed_swing`). Thiếu bất kỳ role nào → không `MarketContextSnapshot` (valid absence).
+- **Computation cadence — `DRIVEN_BY_CANDLE_CLOSE`:** mỗi `candle-closed`/`candle-corrected` tại đúng scope định nghĩa đúng một computation point; `effective_window` = `effective_time` của chính Candle đó; `context_cutoff = effective_window.window_end` (inclusive).
+- **Eligible Upstream Fact selection — ordered filter pipeline 5 bước, dùng chung cho cả sáu role, áp dụng ngay từ v0.1 bài học `feature.md` v0.2 (`RA-B3-MAJ-01`/`IRB-B3-MAJ-01`):** identity/scope match → recorded-time visibility → **effective-time cutoff (độc lập, luôn chạy TRƯỚC total order)** → currency (lineage head cho Regime/Feature; "latest recorded_time còn hiệu lực" cho Structure — vì Structure không có `supersedes_fact_ref` chain, mỗi BOS/CHoCH/StructureRecomputed tự set toàn bộ orientation) → not invalidated. Total order tie-break (7 tiêu chí) CHỈ chạy trên tập đã qua cả 5 bước.
+- **Structure role không tiêu thụ `StructureCurrentView`** — tự derive "current orientation" từ authoritative `BreakOfStructureDetected`/`ChangeOfCharacterDetected`/`StructureRecomputed`, tái sử dụng methodology fold của `structure.md` §1 (không tích lũy — mỗi event tự set toàn bộ orientation, nên "mới nhất còn hiệu lực" = đúng kết quả fold).
+- **`MarketContextFactInvalidated` hỗ trợ nhiều role bị ảnh hưởng đồng thời** (`affected_upstream_roles`, array) — đúng một event cho một fact bị invalidate dù nhiều role cùng bị ảnh hưởng bởi cùng một correction gốc, đóng dedup cascade đúng nguyên tắc `structure.md` §10.
+- **`context_values` là bản sao trực tiếp, không tự tính toán lại** — `structure_orientation`/regime class/feature value đều sao chép nguyên vẹn từ đúng fact ref tương ứng, giữ I-1 Explainability qua bảy fact ref tường minh.
+- **Không tiêu thụ bất kỳ `*-current-view` nào** (Candle/Structure/Regime/Feature/chính Context) — chỉ authoritative fact.
+- **Áp dụng ngay từ v0.1 mọi bài học đã trả giá ở `structure.md`/`regime.md`/`feature.md`:** envelope binding cho `MarketContextFactInvalidated`; input normalization tập toán học; `MarketContextCurrentView` no-row semantics; canonical policy identifier khai báo ĐÚNG MỘT NƠI (ba identifier: `input_normalization_policy`, `current_view_selection_policy`, `eligible_upstream_fact_selection_policy`).
+
+### Self-review — 35 attack scenario
+
+Chạy đủ 35 scenario theo yêu cầu authoring task — bao gồm: first snapshot; identical values hai window liên tiếp; thiếu từng role trong bảy role; Structure/Regime/Feature correction; correction không đổi context_values; nhiều correction ảnh hưởng một snapshot (dedup, `affected_upstream_roles`); một correction ảnh hưởng nhiều snapshot (independent replacement, không dependency-forward); later-effective fact visible tại batch cursor (bị loại ở bước 3, dù recorded-time visible); replacement trước/sau cutoff; duplicate delivery; thứ tự input khác nhau (normalize); duplicate ref; sai role cardinality; cross-stream sequence; invalidation sai subject/window; replacement trước invalidation; lineage fork/skip; latest window pending trong khi window cũ vẫn valid; context_definition_version đổi → subject mới; Backtest/Replay/Paper/Live parity; không tiêu thụ Current View nào; không phát Strategy signal; Context Map wording cleanup không tạo Signal contract; chỉ đúng quan hệ upstream thực sự dùng. Không phát hiện gap cần sửa trước commit.
+
+### Context Map changes
+
+`context-map.yaml` v0.7 → v0.8: `context-projection.owned_contracts` forward-declared → authored; 10 relationship mới (`candle-closed`/`candle-corrected` từ `market-data-observation`; `break-of-structure-detected`/`change-of-character-detected`/`structure-fact-invalidated`/`structure-recomputed` từ `market-structure-analysis`; `regime-classified`/`regime-fact-invalidated` từ `raw-regime-analysis`; `feature-computed`/`feature-fact-invalidated` từ `feature-engineering`, tất cả → `context-projection`) — đúng bảy role mà `market_context` thực sự tiêu thụ, không hơn. **Đồng thời xử lý wording concern deferred từ Package 0.2-B3:** `feature-engineering` (capability và context) responsibility text đổi "Feature/Signal" → "Feature" thuần túy — không tạo Signal capability/contract/relationship nào (đóng ghi chú `feature.md` §20). **Không đổi** bất kỳ relationship hiện có nào khác.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, ADR-003 (trực tiếp controlling, thỏa mãn đầy đủ), ADR-007 (venue-neutrality), ADR-009 (tái sử dụng causal precedence/ordering hiện có), ADR-010 (Decision Time Model — không áp dụng, Context không phải Decision, dùng `effective_time`/`recorded_time` chuẩn Chapter 5, §17 tường minh "Context không phải decision"), `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md` (không sửa semantic, chỉ tiêu thụ contract đã tồn tại), `context-map.yaml` (chỉ additive + một wording fix không ảnh hưởng structure). **Không cần ADR mới.**
+
+### Metadata / state
+
+- `context.md`: **mới, v0.1**, `status: Draft`.
+- `context-map.yaml`: **v0.7 → v0.8**, `status` giữ `Draft`.
+- `README.md` (domain index): **v0.17 → v0.18**, `status` giữ `Draft` — Package 0.2-B row + mục Package 0.2-B4 mới.
+- `MANIFEST.md`: `manifest_version` **9.42 → 9.43**; dòng `domain/` cập nhật ghi nhận B4 Draft, review-chưa-diễn-ra.
+- `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
+
+**Sẵn sàng chuyển ChatGPT Review A.** Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1/B2/B3 vẫn `Consolidated Stable`; Package 0.2-B4 active, Draft, chưa `Consolidated Stable`; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-29 — consolidate Package 0.2-B3 stable baseline
 
 **Không phải approval, không phải Lock.** Vai trò: `Domain Package Consolidation Author · AI Technical Architect`. Transaction này **ghi nhận** kết quả review đã hoàn tất — không sửa semantic của `feature.md`.

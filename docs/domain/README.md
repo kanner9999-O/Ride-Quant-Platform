@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.17"
+version: "0.18"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -29,7 +29,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 | Package | Nội dung | Trạng thái |
 |---|---|---|
 | **0.2-A — Domain foundation** | `context-map.yaml` (v0.3 — non-blocking documentation-reference fix) + `candle.md` (v0.4, không đổi ở vòng consolidation này) | Draft — **`Consolidated Stable`** (xem dưới) |
-| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: `Consolidated Stable`** (xem dưới) — `regime.md` v0.2 Draft, Clean qua đầy đủ review, 0 finding. **Package 0.2-B3: `Consolidated Stable`** (xem dưới) — `feature.md` v0.2 Draft, Clean qua đầy đủ review (bao gồm narrow revision xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`), 0 finding còn lại. **Package 0.2-B4** (`context.md`): baseline dependency đã thỏa, eligible cho Product Owner scope authorization, **chưa bắt đầu**. Package 0.2-B (tổng thể) **chưa `Consolidated Stable`** — B1/B2/B3 đạt, B4 chưa có artifact nào. |
+| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: `Consolidated Stable`** (xem dưới) — `regime.md` v0.2 Draft, Clean qua đầy đủ review, 0 finding. **Package 0.2-B3: `Consolidated Stable`** (xem dưới) — `feature.md` v0.2 Draft, Clean qua đầy đủ review (bao gồm narrow revision xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`), 0 finding còn lại. **Package 0.2-B4: đã bắt đầu** (xem dưới) — `context.md` v0.1 Draft authored, phạm vi tối thiểu một Context type (`market_context`), fan-in `Structure + Raw Regime + Feature` (author self-review hoàn tất; ChatGPT Review A và Independent Review B **chưa diễn ra**). Package 0.2-B (tổng thể) **chưa `Consolidated Stable`** — B1/B2/B3 đạt, B4 mới ở Draft đầu. |
 | **0.2-C — Decision & execution chain** | `strategy.md` (Strategy Definition + Strategy Instance), `decision.md`, `risk.md`, `position.md`, `replay-event.md`, cộng các concept chưa có trong danh sách gốc: account, venue, instrument, order, fill, trade-intent, execution-intent | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 nay **`Approved`** (Product Owner, 2026-07-28) — **ADR dependency gate is now open.** Package 0.2-C is authorized to begin planning and authoring, subject to its normal package scope authorization and review workflow. **No Package 0.2-C artifact is authored in this transaction.** |
 
 **Thứ tự dự kiến trong từng package không đổi** so với kế hoạch gốc (theo dependency đã chốt ở [ADR-003](../adr/ADR-003.md) và [07-module-taxonomy.md](../constitution/07-module-taxonomy.md)); Package 0.2-C được liệt kê đầy đủ hơn danh sách gốc vì danh sách gốc thiếu Account/Order/Execution/Venue/Instrument.
@@ -145,11 +145,28 @@ reviewed HEAD:    ed8813030203cd9e5f779f54be752a3e94c4f68b
 
 **`Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval status**, đúng định nghĩa đã khóa ở mục Package 0.2-A: authoring hoàn tất cho phạm vi B3; ChatGPT Review A hoàn tất; Independent Review B hoàn tất; mọi qualifying finding đã xử lý; artifact đã review được pin chính xác; package đủ ổn định để package kế tiếp (B4) bắt đầu planning — **không** ngụ ý Product Owner Approval, **không** ngụ ý Lock, **không** đóng OQ nào, **không** authorize Live. `feature.md` **vẫn giữ `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`** — artifact lifecycle và package lifecycle là hai trục tách biệt.
 
-**Package 0.2-B4 (Context) — baseline dependency đã thỏa** — eligible cho Product Owner scope authorization tường minh, tương tự cơ chế đã áp dụng cho B3 ("Authorize Package 0.2-B3 minimal Feature scope."). **Chưa bắt đầu, chưa author, và KHÔNG được authorize bởi transaction này.** Package 0.2-B (tổng thể) vẫn **chưa hoàn tất** cho tới khi B4 hoàn thành.
+**Package 0.2-B4 (Context) — baseline dependency đã thỏa, sau đó Product Owner xác nhận scope authorization tường minh** ("Authorize Package 0.2-B4 minimal Context scope.") — B4 authoring đã bắt đầu (xem mục dưới).
 
-**Context Map wording concern — deferred, non-blocking:** `context-map.yaml` mô tả `feature-engineering` (capability và context) bằng cụm "Feature/Signal" — ghi chú documentation-only đã ghi nhận tại `feature.md` §20, cạnh định nghĩa "Feature KHÔNG phải trade signal" ở đầu tài liệu. **Không phải executable finding**, không chặn consolidation này. `context-map.yaml` **không đổi** trong transaction này — không tạo OQ mới cho việc này (không thuộc phạm vi governance-level OQ).
+**Context Map wording concern — đã xử lý ở Package 0.2-B4:** `context-map.yaml` từng mô tả `feature-engineering` (capability và context) bằng cụm "Feature/Signal" — ghi chú documentation-only đã ghi nhận tại `feature.md` §20. Vì `context-map.yaml` PHẢI đổi ở B4 (đăng ký quan hệ mới cho `context-projection`), wording đã được sửa thành "Feature" thuần túy (loại bỏ "/Signal"), đúng định nghĩa "Feature KHÔNG phải trade signal" — không tạo Signal capability/contract/relationship nào. Xem chi tiết tại mục Package 0.2-B4 dưới đây.
 
 **Package 0.2-C vẫn chưa có artifact nào được author.** OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn **active và chưa hoàn tất**.
+
+## Package 0.2-B4 — `context.md` v0.1 Draft authored, chưa qua review nào
+
+**Phạm vi B4 (scope tối thiểu, đã Product Owner authorize):** điểm hội tụ có kiểm soát `Structure + Raw Regime + Feature → Market Context`, đúng [ADR-003](../adr/ADR-003.md) — [`context.md`](./context.md) v0.1, `capability_id: context-aggregation` / `domain_context_id: context-projection` (đã đăng ký sẵn từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml), chuyển forward-declared → authored, bump lên v0.8 kèm 10 relationship mới cho đúng bảy role mà `market_context` cần: Candle cadence/cutoff driver, Structure, hai Regime dimension, ba Feature type).
+
+**Đúng một Context type — không mở rộng thành framework tổng quát:** `market_context` — aggregate `structure_orientation`; `volatility_regime_class`/`directional_persistence_regime_class`; `volatility_metric`/`directional_persistence_metric`/`distance_to_last_confirmed_swing`. Hai event type authoritative (`MarketContextSnapshot`, `MarketContextFactInvalidated`) + optional `MarketContextCurrentView` — áp dụng ngay từ v0.1 mọi bài học đã trả giá ở `structure.md`/`regime.md`/`feature.md` (envelope binding, input normalization, no-row Current View semantics, canonical policy identifier duy nhất một nơi, **effective-time-eligibility-là-filter-trước-ordering** — bài học trực tiếp từ `feature.md` v0.2 `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`, áp dụng cho cả sáu upstream role thay vì một).
+
+**Trạng thái review — bước đầu tiên của quy trình:**
+
+- Author self-review: **hoàn tất** (35 attack scenario theo yêu cầu authoring task).
+- ChatGPT Review A: **chưa diễn ra.**
+- Independent Review B: **chưa diễn ra.**
+- Consolidation: **chưa diễn ra.**
+
+**Package 0.2-B4 CHƯA đạt `Consolidated Stable`** — điều kiện đó đòi hỏi cả hai vòng review độc lập hoàn tất, đúng định nghĩa đã khóa ở mục Package 0.2-A. `context.md` sẵn sàng để chuyển sang ChatGPT Review A.
+
+**Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào:** `context.md`/`feature.md`/`regime.md`/`swing.md`/`structure.md`/`context-map.yaml` `status: Draft`; không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-C **vẫn chưa có artifact nào được author**. Phase 0.2 vẫn **active và chưa hoàn tất**.
 
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 

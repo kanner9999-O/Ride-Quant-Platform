@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.7"
+version: "0.8"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -42,7 +42,7 @@ capabilities:
 
   - id: feature-engineering
     title: Feature Engineering
-    responsibility: "Fan-in có chọn lọc từ Market Structure và Market Regime thành Feature/Signal dùng cho Strategy (ADR-003)."
+    responsibility: "Fan-in có chọn lọc từ Market Structure và Market Regime thành Feature dùng cho Context/Strategy (ADR-003)."
     status: active
 
   - id: context-aggregation
@@ -82,15 +82,15 @@ contexts:
   - id: feature-engineering
     title: Feature Engineering
     capability_id: feature-engineering
-    responsibility: "Định nghĩa Feature/Signal — fan-in có chọn lọc từ Structure và Regime, xử lý đồng bộ hóa (join) hai luồng khi cần."
-    owned_contracts: [feature]   # authored — Package 0.2-B3: feature.md v0.1 Draft (author self-review only, chưa qua Review A/B)
+    responsibility: "Định nghĩa Feature — fan-in có chọn lọc từ Structure và Regime, xử lý đồng bộ hóa (join) hai luồng khi cần."
+    owned_contracts: [feature]   # authored — Package 0.2-B3: feature.md v0.2 Draft (Consolidated Stable — ChatGPT Review A + Independent Review B Clean, 0 finding)
     status: active
 
   - id: context-projection
     title: Context Projection
     capability_id: context-aggregation
     responsibility: "CQRS read-model tổng hợp Structure+Regime+Feature+market state cho Strategy — Type 2 Projection (Chapter 7 §7.4), không phát sinh business decision."
-    owned_contracts: [context]   # forward-declared — Package 0.2-B, chưa authored
+    owned_contracts: [context]   # authored — Package 0.2-B4: context.md v0.1 Draft (author self-review only, chưa qua Review A/B)
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship
@@ -246,3 +246,128 @@ relationships:
       fact (upstream_source: regime) có causal ancestry bao gồm RegimeClassified fact bị
       invalidate — không được giữ nguyên giá trị đã tính trên fact Regime cũ (chi tiết
       correction lineage tại feature.md §9).
+
+  # Package 0.2-B4 (context.md v0.1) — Context là điểm hội tụ có kiểm soát duy nhất của
+  # Structure + Raw Regime + Feature (ADR-003), fan-in trực tiếp từ cả ba context nguồn cộng
+  # market-data-observation (cadence/cutoff driver, context.md §7.0/§11) — không đi vòng qua
+  # feature-engineering để lấy lại Structure/Regime. Chỉ những contract mà context.md thực sự
+  # dùng (context.md §16), không thêm quan hệ nào khác.
+  - provider_context_id: market-data-observation
+    consumer_context_id: context-projection
+    contract_id: candle-closed
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-data-observation
+      downstream_context_id: context-projection
+    translation_policy: conformist
+
+  - provider_context_id: market-data-observation
+    consumer_context_id: context-projection
+    contract_id: candle-corrected
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-data-observation
+      downstream_context_id: context-projection
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer nhận CandleCorrected PHẢI invalidate hoặc recompute mọi MarketContextSnapshot
+      fact có causal ancestry bao gồm Candle fact bị sửa (kể cả khi Candle đó chỉ là
+      context_cutoff_source_ref) — không được giữ nguyên kết luận Context đã tính trên giá trị
+      Candle cũ (chi tiết correction lineage tại context.md §12).
+
+  - provider_context_id: market-structure-analysis
+    consumer_context_id: context-projection
+    contract_id: break-of-structure-detected
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-structure-analysis
+      downstream_context_id: context-projection
+    translation_policy: conformist
+
+  - provider_context_id: market-structure-analysis
+    consumer_context_id: context-projection
+    contract_id: change-of-character-detected
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-structure-analysis
+      downstream_context_id: context-projection
+    translation_policy: conformist
+
+  - provider_context_id: market-structure-analysis
+    consumer_context_id: context-projection
+    contract_id: structure-fact-invalidated
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-structure-analysis
+      downstream_context_id: context-projection
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer nhận StructureFactInvalidated targeting fact đang là structure_fact_ref của một
+      MarketContextSnapshot PHẢI invalidate hoặc recompute snapshot đó — không được giữ nguyên
+      structure_orientation đã tính trên fact Structure đã invalidate (chi tiết correction
+      lineage tại context.md §12, Eligible Structure fact selection tại context.md §8).
+
+  - provider_context_id: market-structure-analysis
+    consumer_context_id: context-projection
+    contract_id: structure-recomputed
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: market-structure-analysis
+      downstream_context_id: context-projection
+    translation_policy: conformist
+
+  - provider_context_id: raw-regime-analysis
+    consumer_context_id: context-projection
+    contract_id: regime-classified
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: raw-regime-analysis
+      downstream_context_id: context-projection
+    translation_policy: conformist
+
+  - provider_context_id: raw-regime-analysis
+    consumer_context_id: context-projection
+    contract_id: regime-fact-invalidated
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: raw-regime-analysis
+      downstream_context_id: context-projection
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer nhận RegimeFactInvalidated PHẢI invalidate hoặc recompute mọi MarketContextSnapshot
+      fact có causal ancestry bao gồm RegimeClassified fact bị invalidate (volatility hoặc
+      directional_persistence) — không được giữ nguyên regime class đã tính trên fact Regime cũ
+      (chi tiết correction lineage tại context.md §12).
+
+  - provider_context_id: feature-engineering
+    consumer_context_id: context-projection
+    contract_id: feature-computed
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: feature-engineering
+      downstream_context_id: context-projection
+    translation_policy: conformist
+
+  - provider_context_id: feature-engineering
+    consumer_context_id: context-projection
+    contract_id: feature-fact-invalidated
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: feature-engineering
+      downstream_context_id: context-projection
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer nhận FeatureFactInvalidated PHẢI invalidate hoặc recompute mọi MarketContextSnapshot
+      fact có causal ancestry bao gồm FeatureComputed fact bị invalidate (bất kỳ trong ba founding
+      feature type) — không được giữ nguyên giá trị đã tính trên fact Feature cũ (chi tiết
+      correction lineage tại context.md §12).
