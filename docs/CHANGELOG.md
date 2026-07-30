@@ -2,6 +2,68 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — consolidate Package 0.2-C1
+
+**Package 0.2-C1 Reference Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C1 consolidation transaction" (2026-07-30). Authorization này cho phép ghi Package 0.2-C1 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `instrument.md` hay `venue.md`, không sửa ADR, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C2–C7, không redesign request/reservation behavior, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.
+
+### Reviewed baseline pinned
+
+```text
+Package 0.2-C1 reviewed HEAD:  ddc790864b3ee50a1ad402dc26146970e2791ed4
+
+Primary artifact:      instrument.md v0.6 Draft, blob 81651f6a19a3f22fa7a924173f14b02e6467c8e0
+Secondary artifact:    venue.md v0.3 Draft, blob 0ffb9e64bcb7dec108edea0bc9c3af3a162b40d9
+Integration artifact:  context-map.yaml v0.10 Draft, blob 05bd2ba5bd72888d8ef206eb2ea088d03c1f50f3
+Registry baseline:     MANIFEST v9.55, blob 381010a8c47ece07fdd1be8820129a8953ef33c3
+```
+
+### Review evidence
+
+```text
+ChatGPT Review A:        Clean — 0 blocking finding
+Independent Review B:    Clean with deferred limitations — 0 blocking finding
+```
+
+Deferred limitations (Phase 1 implementation concern, non-blocking cho walking-skeleton readiness): runtime worker ownership; transaction boundaries; retry/backoff; monitoring và escalation; operational recovery orchestration. Đây KHÔNG phải Domain Contract semantic gap — Package 0.2-C1 pin RULE (identity, correction lineage, bitemporal fold, arbitration authority boundary), không pin MECHANISM triển khai, đúng nguyên tắc defer đã nhất quán xuyên suốt `instrument.md` §23/§24. Có thể evolve từ implementation evidence khi Phase 1 bắt đầu.
+
+### Complete finding ledger — all resolved (năm vòng narrow correction, v0.2–v0.6)
+
+```text
+RA-C1-MAJ-01:        Resolved (instrument_identity_ref/venue_identity_ref, v0.2)
+RA-C1-MAJ-02:        Resolved (revision_policy: EXPLICIT_PATCH_WITH_CLEAR_SET, v0.2)
+RA-C1-MAJ-03:        Resolved (initial_fact_correction_policy, v0.2)
+IRB-C1-MAJ-01:       Resolved (pending_correction_class, v0.3)
+IRB-C1-MAJ-02:       Resolved (TradableListing eligibility đối xứng, v0.3)
+IRB-C1-MAJ-03:       Resolved (ActiveListingReservation pair-scoped authority, v0.3)
+IRB-C1-MAJ-04:       Resolved (status_fold_order_policy 5-phase, v0.3)
+IRB-C1-V03-MAJ-01:   Resolved (ActiveListingActivationRequested phá vỡ chu trình causal, v0.4)
+IRB-C1-V03-MAJ-02:   Resolved (authoritative parent reconstruction, v0.4)
+IRB-C1-V03-MAJ-03:   Resolved (ActiveListingReservationFactInvalidated correction lineage, v0.4)
+IRB-C1-V03-MAJ-04:   Resolved (reservation_fold_order_policy 5-phase, v0.4)
+IRB-C1-V04-MAJ-01:   Resolved (activation_request_id logical identity/idempotency, v0.5)
+IRB-C1-V05-MAJ-01:   Resolved (ActiveListingActivationRequestFactInvalidated, canonical semantic payload, v0.6)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Package lifecycle meaning
+
+`Consolidated Stable` là package lifecycle/readiness state — nghĩa là: reviewed package baseline nội bộ coherent; mọi qualifying finding đã resolved; deferred limitations được ghi nhận tường minh là non-blocking Phase 1 concern; package integration đủ ổn định để làm dependency baseline cho package kế tiếp (0.2-C2). Nó KHÔNG có nghĩa: artifact Approved; artifact Locked; Domain Contract bất biến; OQ closure; Phase completion; implementation authorization; Live authorization.
+
+### Unchanged artifact statuses
+
+`instrument.md`: **giữ nguyên** `version: "0.6"`, `status: Draft`, `approved_by: null`, `approved_at: null` — không sửa Domain Contract semantic trong transaction này. `venue.md`: **giữ nguyên** `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null` — không sửa.
+
+### Metadata / state
+
+- `instrument.md`, `venue.md`: **không đổi** (semantic và version) — package lifecycle metadata only.
+- `context-map.yaml`: **v0.10 không đổi** — chỉ sửa comment ghi nhận Consolidated Stable.
+- `README.md` (domain index): **v0.29 → v0.30**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.55 → 9.56**; dòng `domain/` cập nhật ghi nhận Package 0.2-C1 `Consolidated Stable`.
+- Mọi Domain Contract khác (`candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md`), mọi ADR file, Constitution: **không đổi.**
+
+**Package 0.2-C2 baseline dependency đã thỏa, eligible cho Product Owner scope authorization — CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.** Package 0.2-C3–C7 gate chưa mở. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — finalize Package 0.2-C1 request correction semantics
 
 **Package 0.2-C1 narrow correction — authoritative activation-request invalidation và canonical semantic payload.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C1 narrow correction — authoritative activation-request invalidation và canonical semantic payload." Đóng đúng một finding còn mở: `IRB-C1-V05-MAJ-01` (`ActiveListingActivationRequested` fact có thể pass ingress validation, được ghi nhận authoritative, rồi sau đó phát hiện SAI thực tế — contract v0.5 không có append-only invalidation/disposition, không có replay exclusion/classification, canonical semantic payload chưa liệt kê đầy đủ). Authorization này **không** cho phép redesign activation arbitration, không đổi reservation authority structure, không đổi reservation correction lineage ngoài reference bắt buộc, không đổi parent reconstruction, không đổi status/reservation fold policy, không author C2–C7, không sửa ADR, không Approve/Lock/Consolidate/đóng OQ/authorize Live.
