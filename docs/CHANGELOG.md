@@ -2,6 +2,65 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — author Package 0.2-C2 trading account foundation
+
+**Package 0.2-C2 — Trading Account Foundation.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C2 — Trading Account Foundation" — cho phép author `docs/domain/account.md`, cập nhật metadata tích hợp (`context-map.yaml`, `README.md`, `MANIFEST.md`, `CHANGELOG.md`). Authorization này KHÔNG cho phép author Strategy/Decision/Trade Intent/Risk/Execution Intent/Order/Fill/Position/Replay Event, exchange API adapter, Live execution workflow, billing, multi-tenant IAM, custody implementation; KHÔNG sửa semantic Package C1/B/Constitution/OQ-002/OQ-003; Package 0.2-C3–C7 vẫn unauthorized.
+
+### Baseline conflict phát hiện và giải quyết
+
+Authorization ban đầu yêu cầu author cả `docs/domain/account.md` VÀ `docs/adr/ADR-012.md` (kỳ vọng "next repository-consistent Draft version" — ngụ ý ADR-012 chưa tồn tại). Kiểm tra baseline trước khi sửa bất kỳ file nào phát hiện `docs/adr/ADR-012.md` **đã tồn tại**: `version: "0.3"`, `status: Approved`, `approved_by: Product Owner`, `approved_at: "2026-07-28"`, blob `59eec21774478fc862e120d8a0f9285dc24eb720` — đã quyết định đúng lãnh thổ "Account-to-Boundary Cardinality — Exactly-One-Boundary Trading Account" mà task yêu cầu (account identity, venue/broker boundary, credential/secret separation, paper/live structural parity), qua ba vòng review (ChatGPT + Independent Review B), 0 finding còn lại, Approved 2026-07-28. Theo đúng kỷ luật baseline-verification-trước-mọi-edit đã áp dụng xuyên suốt session này: **STOP**, KHÔNG sửa file nào, báo cáo conflict đầy đủ (expected vs actual) cho Product Owner, chờ quyết định.
+
+**Product Owner decision (turn tiếp theo):** treat `ADR-012.md` v0.3 Approved làm controlling architecture — KHÔNG modify/re-author/bump/replace/reinterpret ADR-012; không cần ADR mới; author `account.md` alone, constrained by ADR-012's existing decision (đặc biệt §2.1 canonical `account_boundary_ref` model, §2.2/§2.3 venue/broker_account boundary behavior, §2.4 scope rules, §2.6 executable validation obligations liên quan Account).
+
+### `account.md` v0.1 Draft (mới)
+
+**Trading Account Subject** (`kind: entity`) — `account_id` opaque, stable, KHÔNG encode venue/owner/environment/credential/account type (đúng yêu cầu task, Chapter 6 §6.8). Scope identity bất biến: `account_boundary_ref` (`{boundary_type: venue | broker_account, boundary_id}` — canonical model ĐÚNG NGUYÊN VĂN ADR-012 §2.1, required, immutable, không rebinding) và `environment` (enum đóng `PAPER`/`LIVE`, required, immutable — `LIVE` CHỈ là domain value phân biệt account environment, KHÔNG authorize Live execution của platform). PAPER và LIVE Account dùng chung structural contract (ADR-012 §2.4, I-2 Decision Parity) — không nhánh schema riêng.
+
+Bốn event: `AccountRegistered` (original hoặc same-scope correction replacement — thiết lập scope bất biến + mutable metadata ban đầu `credential_reference`/`display_name`); `AccountMetadataRevised` (forward-looking, PATCH semantics `EXPLICIT_PATCH_WITH_CLEAR_SET`, whitelist `credential_reference`/`display_name`, cả hai optional/clearable); `AccountStatusChanged` (lifecycle tối thiểu — state_machine `UNSEEN→ACTIVE↔SUSPENDED→CLOSED`, ba state thực, CLOSED terminal, không onboarding/KYC/pending-approval state); `AccountFactInvalidated` (correction lineage, có thể target `AccountRegistered` — `account_fact_correction_class` ∈ {METADATA_ERROR, SCOPE_ERROR}, đúng ADR-012 §2.1 "rebinding nghĩa là tạo một Account identity khác"). Cộng `AccountCurrentView` (optional read model, non-authoritative, `view_state`/`pending_correction_class` áp dụng ngay từ v0.1).
+
+**Venue binding:** khi `boundary_type: venue`, `boundary_id` PHẢI resolve tới một `venue_id` đã `VenueRegistered` (`venue.md` §3, `ref: venue`) — `account.md` KHÔNG định nghĩa lại Venue semantics, chỉ tham chiếu. Khi `boundary_type: broker_account`, `boundary_id` là opaque reference tới Broker Account Boundary — concept CHƯA author như Domain Contract riêng (deferred).
+
+**Credential và secret boundary (I-11):** Account CHỈ giữ `credential_reference` — opaque reference tới external secure credential binding (Vault/KMS, Phase 1). TUYỆT ĐỐI KHÔNG raw secret (API key, private key, token, password, exchange credential) trong payload, `AccountCurrentView` snapshot, log, hay replay artifact nào. Chỉ Exchange Adapter/Custody-Signing Service dùng credential trực tiếp (I-11) — Strategy/Decision/Risk/Execution Engine (chưa author) chỉ tương tác qua `credential_reference` opaque.
+
+**Downstream reference contract (Package 0.2-C3–C7, chưa author):** đúng bốn field — `account_id` (`ref: account`), `venue_id` (khi boundary_type=venue), `environment`, `account_status`. Downstream PHẢI resolve qua authoritative Account event stream hoặc reconstruction tương đương TẠI cùng cursor — KHÔNG dùng `AccountCurrentView` làm input bình thường (I-12, Chapter 7 §7.4, pin ngay từ v0.1). `account.md` KHÔNG author semantics của Strategy/Decision/Risk/Execution Intent/Order/Fill/Position.
+
+### Học từ Package 0.2-C1, đóng trước — không chờ review round phát hiện
+
+Ba pattern đã proven qua 5 vòng correction của C1, apply trực tiếp ngay từ `account.md` v0.1 thay vì chờ Review A/B phát hiện lại:
+
+1. `pending_correction_class` (`AWAITING_SAME_SUBJECT_REPLACEMENT`/`TERMINAL_SCOPE_INVALIDATION`) — bắt buộc khi `view_state = PENDING_CORRECTION`, cấm khi `VALID` — pin ngay tại `AccountCurrentView` (§7), tránh lặp lại `IRB-C1-MAJ-01`-style finding.
+2. `revision_policy: EXPLICIT_PATCH_WITH_CLEAR_SET` cho `AccountMetadataRevised` (`changed_fields`/`clear_fields`, disjoint, ít nhất một effective change) — pin ngay, tránh lặp lại `RA-C1-MAJ-02`-style finding.
+3. `AccountCurrentView` pin "KHÔNG BAO GIỜ là authority cho Domain Contract khác" ngay từ v0.1 — tránh lặp lại `IRB-C1-V03-MAJ-02`-style finding.
+
+**Bounded tường minh — KHÔNG mang theo:** `ActiveListingReservation`-style multi-party arbitration (Account không có bài toán "nhiều subject tranh một slot" trong chính nó); `ActiveListingActivationRequested`-style activation-request-identity/idempotency machinery (không applicable); 5-phase bitemporal fold policy riêng (chỉ cần total-order tie-break đơn giản effective_time/recorded_time/event_id ASC, mô tả trực tiếp không cần policy identifier riêng vì chỉ có một fold concern).
+
+### `context-map.yaml` v0.10 → v0.11
+
+Đăng ký capability `account-management` (title: Account Management) và context `account-reference` (title: Trading Account Reference, `capability_id: account-management`, `owned_contracts: [account]`) — **MỚI**, không thuộc phạm vi `market-reference`/`instrument-venue-reference` của Package 0.2-C1. KHÔNG thêm cross-context relationship edge — Account chỉ dùng `ref:` lookup tới `venue_id` (giống mọi Domain Contract Package 0.2-B tham chiếu `instrument_id`/`venue_id`), không publish/consume event stream qua context boundary theo nghĩa CQRS published-language, tránh speculative relationship (cùng nguyên tắc đã áp dụng cho C1 khi đăng ký `instrument-venue-reference`).
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10 (đặc biệt Chapter 6 §6.4 "Account ≠ Tenant", §6.8 opaque ID; I-2 Decision Parity; I-3 No Repaint; I-11 Secrets & Custody Isolation), ADR-007 (multi-account readiness), ADR-012 v0.3 Approved (byte-for-byte unchanged, mọi field/invariant account.md implement đúng những gì ADR-012 §2/§6 yêu cầu, không tự quyết thêm), Package 0.2-C1 (`instrument.md`/`venue.md` không đổi, `venue_id` reference đúng shape hiện có), Package B (không đổi). Không B-package schema change. Không C3–C7 semantics. Không OQ-002/OQ-003 closure.
+
+### Attack-scenario/self-review kết quả
+
+Author self-review xác nhận: account_id không encode venue/owner/environment/credential/account type; account_boundary_ref/environment bất biến, rebinding dùng SCOPE_ERROR path đúng ADR-012 §2.1; boundary_type đóng đúng hai giá trị ADR-012; venue boundary reference đúng `venue.md §3`, không định nghĩa lại Venue; broker_account boundary_id deferred tường minh; PAPER/LIVE dùng chung structural contract, LIVE domain value không tự authorize Live execution; lifecycle ba state tối thiểu, CLOSED terminal, không onboarding/KYC; credential_reference opaque, không raw secret ở bất kỳ đâu (payload/view/log/replay); PATCH semantics đầy đủ (changed_fields/clear_fields, disjoint, ít nhất một effective change); correction lineage đầy đủ 10 invariant + METADATA_ERROR/SCOPE_ERROR classification + pending_correction_class mapping; downstream reference contract đúng bốn field, Current View không phải authority; không multi-tenant/billing/custody/onboarding semantics; ADR-012.md không bị chạm (verified byte-identical); Package C1/B/Constitution/OQ không bị chạm (verified zero diff).
+
+### Changed-file scope
+
+`docs/domain/account.md` (mới), `docs/domain/context-map.yaml`, `docs/domain/README.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`. `docs/adr/ADR-012.md` (và mọi ADR khác), `instrument.md`, `venue.md`, `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md`/`context.md`, Constitution, OQ files, Package 0.2-C3–C7 artifacts: **không đổi.**
+
+### Metadata / state
+
+- `account.md`: **mới, v0.1**, `status: Draft`.
+- `docs/adr/ADR-012.md`: **không đổi** — `version: "0.3"`, `status: Approved`, byte-for-byte.
+- `context-map.yaml`: **v0.10 → v0.11** — capability/context mới, `status` giữ `Draft`.
+- `README.md` (domain index): **v0.30 → v0.31**, `status` giữ `Draft` — mục "Package 0.2-C2" mới.
+- `MANIFEST.md`: `manifest_version` **9.56 → 9.57**; dòng `domain/` cập nhật ghi nhận Package 0.2-C2 authored.
+- `instrument.md`, `venue.md`, `context.md`, `feature.md`, `regime.md`, `structure.md`, `swing.md`, `candle.md`, mọi ADR file khác: **không đổi.**
+
+**Chỉ Package 0.2-C2 được author.** Không author Strategy/Decision/Trade Intent/Risk/Execution Intent/Order/Fill/Position/Replay Event. Không sửa ADR nào (kể cả ADR-012). Không Approve/Lock artifact. Không Consolidate Package 0.2-C2. Không đóng OQ-002/OQ-003. Không authorize Live. Package 0.2-C1 vẫn `Consolidated Stable`, không sửa semantic. Package 0.2-C3–C7 vẫn chưa authorize, chưa author. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — consolidate Package 0.2-C1
 
 **Package 0.2-C1 Reference Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C1 consolidation transaction" (2026-07-30). Authorization này cho phép ghi Package 0.2-C1 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `instrument.md` hay `venue.md`, không sửa ADR, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C2–C7, không redesign request/reservation behavior, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.

@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.10"
+version: "0.11"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -19,10 +19,14 @@ next_review: null
 # `Approved` (Product Owner, 2026-07-28) — Package 0.2-C gate đã mở. Package 0.2-C1 (Reference
 # Foundation — instrument.md/venue.md) nay authored dưới capability/context ĐÃ đăng ký sẵn từ
 # Package 0.2-A (`market-reference`/`instrument-venue-reference`, forward-declared → authored,
-# không tạo capability/context mới). Package 0.2-C2–C7 (Account, Strategy, Decision, Risk,
-# Execution, Position, Order/Fill, Replay...) vẫn CHƯA đăng ký, chờ authoring thực tế theo
-# decomposition đã pin tại `docs/domain/README.md` — mỗi slice cần Product Owner authorization
-# riêng.
+# không tạo capability/context mới); Package 0.2-C1 nay `Consolidated Stable` (2026-07-30).
+# Package 0.2-C2 (Trading Account Foundation — account.md) đăng ký capability/context MỚI
+# (`account-management`/`account-reference`) tại v0.11 — Account KHÔNG thuộc phạm vi
+# `market-reference`/`instrument-venue-reference` đã có, cần capability/context riêng, controlling
+# architecture [ADR-012](../adr/ADR-012.md) v0.3 Approved (Account-to-Boundary Cardinality).
+# Package 0.2-C3–C7 (Strategy, Decision, Risk, Execution, Position, Order/Fill, Replay...) vẫn
+# CHƯA đăng ký, chờ authoring thực tế theo decomposition đã pin tại `docs/domain/README.md` — mỗi
+# slice cần Product Owner authorization riêng.
 
 capabilities:
   - id: market-reference
@@ -53,6 +57,11 @@ capabilities:
   - id: context-aggregation
     title: Context Aggregation
     responsibility: "Tổng hợp CQRS các projection (Structure/Regime/Feature/market state) thành một Context snapshot cho Strategy tiêu thụ — KHÔNG sở hữu business decision (Chapter 7 §7.4)."
+    status: active
+
+  - id: account-management
+    title: Account Management
+    responsibility: "Sở hữu Trading Account identity, account boundary binding (venue hoặc broker_account, theo ADR-012), environment distinction (PAPER/LIVE), và lifecycle tối thiểu — KHÔNG sở hữu credential/secret material (I-11), KHÔNG sở hữu Strategy/Risk/Execution/Order/Fill/Position semantics."
     status: active
 
 contexts:
@@ -96,6 +105,13 @@ contexts:
     capability_id: context-aggregation
     responsibility: "CQRS read-model tổng hợp Structure+Regime+Feature+market state cho Strategy — Type 2 Projection (Chapter 7 §7.4), không phát sinh business decision."
     owned_contracts: [context]   # authored — Package 0.2-B4: context.md v0.2 Draft (narrow architecture revision, RA-B4-MAJ-01/IRB-B4-MAJ-01/IRB-B4-MAJ-02/IRB-B4-MAJ-03 addressed; IRB-B4-MAJ-03 (ADR-003 conflict) governance-resolved by ADR-014 Approved 2026-07-30, architecture blocker cleared; B4 still Draft, pending its own package delta review/consolidation transaction; corrected traceability RA-B4-MIN-02)
+    status: active
+
+  - id: account-reference
+    title: Trading Account Reference
+    capability_id: account-management
+    responsibility: "Định nghĩa Trading Account identity, account boundary (venue | broker_account, ADR-012 §2.1), environment (PAPER/LIVE), lifecycle tối thiểu, và credential-reference boundary (I-11) — KHÔNG raw secret, KHÔNG Strategy/Risk/Execution/Order/Fill/Position semantics."
+    owned_contracts: [account]   # authored — Package 0.2-C2: account.md v0.1 Draft (author self-review only, chưa qua Review A/B), controlling architecture ADR-012 v0.3 Approved
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship
