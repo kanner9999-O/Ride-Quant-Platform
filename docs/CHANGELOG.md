@@ -2,6 +2,59 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — consolidate Package 0.2-C2
+
+**Package 0.2-C2 Trading Account Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C2 consolidation transaction" (2026-07-30). Authorization này cho phép ghi Package 0.2-C2 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `account.md`, không sửa ADR-012 hay bất kỳ ADR nào, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C3–C7, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.
+
+### Reviewed baseline pinned
+
+```text
+Package 0.2-C2 reviewed HEAD:  730c07c26c2917b6599e5faf213bdaf6f96b703d
+
+Primary artifact:        account.md v0.2 Draft, blob 9fd2d0fb3235343d52c3435df3f1c7e08dd22781
+Controlling architecture: ADR-012.md v0.3 Approved, blob 59eec21774478fc862e120d8a0f9285dc24eb720 (unchanged)
+Integration artifact:    context-map.yaml v0.11 Draft, blob 51c5ea73e012b0b87061375046567cc2eedc8f95
+Registry baseline:       MANIFEST v9.58, blob c4c1357f66f4d0521988bf29f4c8511dac8fe8fd
+```
+
+### Review evidence
+
+```text
+ChatGPT bounded delta Review A:  Clean — 0 blocking finding
+Independent Review B:            Clean with deferred limitations — 0 blocking finding
+```
+
+Deferred limitations (Phase 1 implementation concern, non-blocking): credential binding implementation; runtime worker ownership; transaction boundaries; retry/backoff; monitoring and recovery; Broker Account Boundary details; onboarding/KYC; PAPER→LIVE promotion; custody, IAM and billing. Đây KHÔNG phải Domain Contract semantic gap — `account.md` pin RULE (identity, boundary, environment, lifecycle, correction lineage, downstream authority), không pin MECHANISM triển khai, đúng nguyên tắc defer đã nhất quán xuyên suốt `account.md` §14/§16. Không mở rộng thành Domain Contract semantic mới.
+
+### Complete finding ledger — all resolved (bounded correction, v0.1 → v0.2)
+
+```text
+C2-MAJ-01:  Resolved (account_id opaque/globally unique, không derive từ boundary+environment)
+C2-MAJ-02:  Resolved (CLOSED terminal chỉ forward transition, correction append-only vẫn hợp lệ)
+C2-MAJ-03:  Resolved (fold algorithm "visible-valid-head per slice", dùng chung metadata/status)
+C2-MAJ-04:  Resolved (một quy tắc downstream authority duy nhất, AccountCurrentView không bao giờ là input)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Package lifecycle meaning
+
+`Consolidated Stable` là package lifecycle/readiness state — nghĩa là: reviewed package baseline nội bộ coherent; mọi qualifying finding đã resolved; deferred limitations được ghi nhận tường minh là non-blocking Phase 1 concern; package integration đủ ổn định để làm dependency baseline cho package kế tiếp (0.2-C3). Nó KHÔNG có nghĩa: artifact Approved; artifact Locked; ADR-012 thay đổi; Domain Contract bất biến; OQ closure; Phase completion; implementation authorization; Live authorization.
+
+### Unchanged artifact statuses
+
+`account.md`: **giữ nguyên** `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte — không sửa Domain Contract semantic trong transaction này. `ADR-012.md`: **giữ nguyên** `version: "0.3"`, `status: Approved`, byte-for-byte — không sửa.
+
+### Metadata / state
+
+- `account.md`, `ADR-012.md`: **không đổi** (semantic và version) — package lifecycle metadata only.
+- `context-map.yaml`: **v0.11 không đổi** — chỉ sửa comment ghi nhận Consolidated Stable.
+- `README.md` (domain index): **v0.32 → v0.33**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.58 → 9.59**; dòng `domain/` cập nhật ghi nhận Package 0.2-C2 `Consolidated Stable`.
+- Mọi Domain Contract khác (`instrument.md`, `venue.md`, `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md`), mọi ADR file, Constitution: **không đổi.**
+
+**Package 0.2-C3 baseline dependency đã thỏa, eligible cho Product Owner scope authorization — CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.** Package 0.2-C4–C7 gate chưa mở. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — correct Package 0.2-C2 account semantics
 
 **Package 0.2-C2 bounded correction — consolidated Review A + Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C2 bounded correction — consolidated Review A + Review B findings." Đóng đúng bốn finding Major: `C2-MAJ-01` (account identity cardinality), `C2-MAJ-02` (CLOSED terminality versus correction), `C2-MAJ-03` (metadata/status correction fold), `C2-MAJ-04` (downstream Current View authority). Authorization này **không** cho phép sửa ADR-012 hay bất kỳ ADR nào, thêm owner/tenant/IAM/billing semantics, định nghĩa Broker Account Boundary implementation, thêm external account-number taxonomy, thêm reopening/PAPER→LIVE promotion workflow, author C3–C7, sửa C1/Package B/Constitution/OQ, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.
