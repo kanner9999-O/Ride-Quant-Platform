@@ -60,7 +60,7 @@ contexts:
     title: Instrument & Venue Reference
     capability_id: market-reference
     responsibility: "Định nghĩa Instrument và Venue identity, precision/tick/lot metadata, và trading calendar/session — venue-neutral, không giả định 24/7 (ADR-007)."
-    owned_contracts: [instrument, venue]   # authored — Package 0.2-C1: instrument.md v0.3 Draft + venue.md v0.3 Draft (second narrow correction — IRB-C1-MAJ-01/02/03/04 đã đóng; chưa Consolidated Stable)
+    owned_contracts: [instrument, venue]   # authored — Package 0.2-C1: instrument.md v0.4 Draft (final narrow correction — IRB-C1-V03-MAJ-01/02/03/04 đã đóng) + venue.md v0.3 Draft (không đổi transaction này); chưa Consolidated Stable
     status: active
 
   - id: market-data-observation
