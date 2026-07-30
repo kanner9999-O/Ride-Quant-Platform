@@ -1,7 +1,7 @@
 ---
 id: instrument
 title: Instrument
-version: "0.5"
+version: "0.6"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -40,6 +40,8 @@ Cộng **`ActiveListingReservation`** (`kind: entity`, pair-scoped, §16) — au
 **v0.4 — Independent Review B (v0.3 round) narrow correction cuối cùng, đóng `IRB-C1-V03-MAJ-01`/`IRB-C1-V03-MAJ-02`/`IRB-C1-V03-MAJ-03`/`IRB-C1-V03-MAJ-04`:** (a) `IRB-C1-V03-MAJ-01` — v0.3 `ActiveListingReserved` causation_refs trỏ tới activation event (`TradableListingCreated`/`StatusChanged`), ĐỒNG THỜI activation event đó causation_refs trỏ ngược tới `ActiveListingReserved` — chu trình causal. Thêm `ActiveListingActivationRequested` (§16) làm pre-arbitration request tường minh: request → grant/reject (causal tới request, KHÔNG tới activation event) → activation event (causal tới grant) — chuỗi causal tuyến tính, không chu trình. (b) `IRB-C1-V03-MAJ-02` — `TradableListingCurrentView` Bước 4–5 v0.3 dùng `InstrumentCurrentView`/`VenueCurrentView` (read model, đã tự khóa "KHÔNG được dùng làm input") làm input — mâu thuẫn nội tại. v0.4 Bước 4–5 nay reconstruct TRỰC TIẾP từ authoritative Instrument/Venue event stream, dùng đúng fold algorithm §7 — Current View CHỈ còn là cache tùy chọn, provably equivalent, KHÔNG BAO GIỜ là authority. (c) `IRB-C1-V03-MAJ-03` — reservation fact (`ActiveListingReserved`/`Released`/`ActivationRejected`) v0.3 không có correction lineage; thêm `ActiveListingReservationFactInvalidated` (§16) + `supersedes_fact_ref` trên cả ba event, đóng `RESERVATION_METADATA_ERROR`/`RESERVATION_PAIR_SCOPE_ERROR`. (d) `IRB-C1-V03-MAJ-04` — reservation fold v0.3 không có effective-time eligibility tường minh; pin `reservation_fold_order_policy: RECORDED_VISIBILITY_THEN_EFFECTIVE_ORDER` (§17), thuật toán 5-phase đầy đủ (§16) đối xứng `status_fold_order_policy`. Narrow correction cuối cùng — không redesign, `instrument_id`/`venue_id`/`listing_id` không đổi tên/shape; `venue.md` KHÔNG cần sửa transaction này (không có nội dung normative nào của venue.md bị chạm bởi bốn finding trên — mọi cross-reference `instrument.md §N` từ venue.md vẫn đúng số vì KHÔNG có section mới được chèn ở tầng top-level, chỉ nội dung bên trong §2/§7/§10/§11/§13/§15/§16/§17/§18/§24 thay đổi).
 
 **v0.5 — Independent Review B (v0.4 round) bounded final correction, đóng `IRB-C1-V04-MAJ-01`:** v0.4 `ActiveListingActivationRequested` KHÔNG có stable logical request identity — chỉ có `event_id` (đổi mỗi physical record) và `subject_ref`/scope (không đủ phân biệt request khác nhau cho cùng listing). Dưới ingress retry/redelivery (Phase 1, at-least-once), không dedup được, không idempotent được, exactly-one-outcome (§16) không executable. v0.5 thêm `activation_request_id` — logical identity ổn định, opaque, KHÔNG bằng `event_id`, KHÔNG regenerate khi retry, vĩnh viễn bind đúng một (instrument_id, venue_id, listing_id, requested_target_status). Pin `activation_request_idempotency_policy: STABLE_ID_SAME_PAYLOAD_IS_IDEMPOTENT` (§17): exact retry idempotent (không tạo request/outcome thứ hai); changed-payload replay reject (deterministic conflict). `ActiveListingActivationRequested` không có correction lineage riêng — request sai KHÔNG sửa, chỉ dùng `activation_request_id` MỚI cho intent đã sửa. `ActiveListingReserved`/`ActiveListingActivationRejected` thêm `activation_request_id` (required, phải khớp request được `activation_request_ref` trỏ tới) — exactly-one-outcome nay keyed theo `activation_request_id` (logical), không chỉ theo event ref. `TradableListingCreated`/`TradableListingStatusChanged(ACTIVE)` thêm `activation_request_id` (required khi ACTIVE) — grant phải cùng request ID VÀ cùng scope, cấm dùng grant của request khác, cấm hai activation event consume cùng một grant (trừ idempotent duplicate). Outcome type (grant/reject) bất biến — correction KHÔNG BAO GIỜ flip type; đảo type cần invalidate + activation_request_id MỚI. Thêm "Request dedup và replay algorithm" (7 bước) tại §16. Bounded correction — không redesign activation arbitration, không đổi reservation correction lineage/parent reconstruction/bitemporal folding hiện có; `venue.md` KHÔNG cần sửa (không nội dung normative nào bị chạm; không cross-reference nào tới instrument.md bị lệch số vì KHÔNG chèn section top-level mới).
+
+**v0.6 — Independent Review B (v0.5 round) narrow correction, đóng `IRB-C1-V05-MAJ-01`:** v0.5 pin `ActiveListingActivationRequested` immutable, không có correction lineage riêng — nhưng KHÔNG định nghĩa điều gì xảy ra khi một request ĐÃ pass ingress validation, ĐÃ ghi nhận authoritative, rồi SAU ĐÓ phát hiện SAI thực tế (factual error) — không có invalidation append-only, không có replay exclusion/classification, canonical semantic payload chưa liệt kê đầy đủ. v0.6 thêm `ActiveListingActivationRequestFactInvalidated` (§16) — CHỈ target `ActiveListingActivationRequested`, KHÔNG replacement dưới cùng `activation_request_id` (giữ nguyên quyết định bounded "immutable, không metadata-patchable" của v0.5). Pin canonical request validity: `VALID`/`TERMINALLY_INVALID` — invalidation visible tại cursor ⟹ TERMINALLY_INVALID vĩnh viễn, KHÔNG BAO GIỜ quay lại VALID. Định nghĩa hệ quả deterministic lên arbitration outcome theo ba trường hợp thời điểm (chưa có outcome; có rejection; có grant chưa activation; có grant VÀ activation đã ghi nhận) — case cuối tái dùng cơ chế `TradableListingFactInvalidated` (§14) VÀ `ActiveListingReservationReleased` (§16) đã có sẵn, KHÔNG phát minh cơ chế thứ hai. `ActiveListingReserved`/`ActiveListingActivationRejected`/`TradableListingCreated`/`TradableListingStatusChanged(ACTIVE)` thêm invariant: request tham chiếu PHẢI visible VÀ VALID (không TERMINALLY_INVALID) tại cursor liên quan — không rewrite causation lịch sử. Cập nhật "Request dedup và replay algorithm" thành 10 bước (thêm resolve/classify request validity). Liệt kê đầy đủ canonical semantic payload cho `ActiveListingActivationRequested` — thêm `request_reason` (non-authoritative, loại khỏi idempotency equality); `requested_by_ref` pin là semantic (phải khớp chính xác khi redelivery cùng ID); làm rõ `source_identity`/`causation_refs`/`related_event_refs` không phải business request scope. Narrow correction — không redesign activation arbitration, không đổi reservation authority structure, không đổi parent reconstruction, không đổi status/reservation fold policy.
 
 ## 1. Logical Instrument Subject — `kind: entity`
 
@@ -102,7 +104,7 @@ envelope:
   event_contract_ref: {cardinality: required}
   schema_version: {cardinality: required}
   recorded_time: {cardinality: required}             # khi Ride ghi nhận fact này
-  subject_ref: {cardinality: "required — shape canonical, xem dưới. Trên mọi *FactInvalidated (§6, §14), PHẢI kế thừa nguyên vẹn từ fact đang bị invalidate."}
+  subject_ref: {cardinality: "required — shape canonical, xem dưới. Trên mọi *FactInvalidated (§6, §14, §16), PHẢI kế thừa nguyên vẹn từ fact đang bị invalidate."}
   stream_ref: {cardinality: required}                # Phase 1, chưa author
   sequence: {cardinality: required}
   producer_ref: {cardinality: required}              # Phase 1, chưa author
@@ -154,6 +156,7 @@ event_types:
   TradableListingStatusChanged: TRADABLE_LISTING_STATUS_CHANGED
   TradableListingFactInvalidated: TRADABLE_LISTING_FACT_INVALIDATED
   ActiveListingActivationRequested: ACTIVE_LISTING_ACTIVATION_REQUESTED
+  ActiveListingActivationRequestFactInvalidated: ACTIVE_LISTING_ACTIVATION_REQUEST_FACT_INVALIDATED
   ActiveListingReserved: ACTIVE_LISTING_RESERVED
   ActiveListingReservationReleased: ACTIVE_LISTING_RESERVATION_RELEASED
   ActiveListingActivationRejected: ACTIVE_LISTING_ACTIVATION_REJECTED
@@ -488,6 +491,7 @@ invariants:
   - "**v0.5 (đóng IRB-C1-V04-MAJ-01):** payload.activation_request_id BẮT BUỘC — PHẢI khớp CHÍNH XÁC payload.activation_request_id của ActiveListingReserved mà reservation_grant_ref trỏ tới. reservation_grant_ref PHẢI trỏ ActiveListingReserved với CÙNG activation_request_id VÀ CÙNG (instrument_id, venue_id, listing_id) scope — CẤM dùng grant của request khác (đóng attack scenario 'activation uses grant from another request', 'grant for listing A activating listing B')."
   - "reservation_grant_ref PHẢI là VALID lineage head của ActiveListingReserved tại recorded cursor của TradableListingCreated này (đúng §16 reservation correction lineage) — CẤM dùng một grant đã bị ActiveListingReservationFactInvalidated mà chưa có replacement visible (đóng attack scenario 'activation uses invalidated grant')."
   - "Một ActiveListingReserved chỉ được consume bởi ĐÚNG MỘT activation event (TradableListingCreated HOẶC TradableListingStatusChanged) — CẤM hai activation event cùng trỏ một reservation_grant_ref, TRỪ KHI một trong hai là idempotent duplicate theo §16 dedup algorithm (đóng attack scenario 'two activation events consume one grant')."
+  - "**v0.6 (Part E, đóng `IRB-C1-V05-MAJ-01`):** activation_request_id được trỏ tới (qua ActiveListingReserved mà reservation_grant_ref chỉ tới) PHẢI visible VÀ `request_validity_state = VALID` (KHÔNG `TERMINALLY_INVALID`, §16 Terminal request disposition) TẠI recorded cursor của chính TradableListingCreated này — một request invalidation visible tại cursor replay vô hiệu hóa quyền dùng grant đó cho activation MỚI, NGAY CẢ KHI bản thân ActiveListingReserved chưa bị invalidate riêng (đóng attack scenario 'activation consumes grant from terminally invalid request'). KHÔNG rewrite causation lịch sử — invariant này chỉ ràng buộc việc TẠO activation event mới, không sửa causation_refs đã ghi."
 payload:
   listing_id: {type: string, required: true}
   instrument_id: {type: string, required: true}
@@ -554,6 +558,7 @@ invariants:
   - "**v0.5 (đóng IRB-C1-V04-MAJ-01):** new_status = ACTIVE: payload.activation_request_id BẮT BUỘC — PHẢI khớp CHÍNH XÁC payload.activation_request_id của ActiveListingReserved mà reservation_grant_ref trỏ tới; VẮNG MẶT khi new_status ∈ {SUSPENDED, DELISTED}. reservation_grant_ref PHẢI trỏ ActiveListingReserved CÙNG activation_request_id VÀ CÙNG (instrument_id, venue_id, listing_id) scope — CẤM dùng grant của request khác."
   - "new_status = ACTIVE: reservation_grant_ref PHẢI là VALID lineage head của ActiveListingReserved tại recorded cursor của TradableListingStatusChanged này — CẤM dùng grant đã ActiveListingReservationFactInvalidated mà chưa có replacement visible."
   - "Một ActiveListingReserved chỉ được consume bởi ĐÚNG MỘT activation event — CẤM hai activation event cùng trỏ một reservation_grant_ref, TRỪ KHI idempotent duplicate theo §16 dedup algorithm."
+  - "**v0.6 (Part E, đóng `IRB-C1-V05-MAJ-01`):** new_status = ACTIVE: activation_request_id được trỏ tới (qua ActiveListingReserved mà reservation_grant_ref chỉ tới) PHẢI visible VÀ `request_validity_state = VALID` (KHÔNG `TERMINALLY_INVALID`) TẠI recorded cursor của chính TradableListingStatusChanged này — cùng nguyên tắc §11, không rewrite causation lịch sử."
   - "new_status ∈ {SUSPENDED, DELISTED} khi listing đang held reservation (§16): PHẢI có một ActiveListingReservationReleased tương ứng, causation_refs của event đó trỏ tới chính TradableListingStatusChanged này, reason = VOLUNTARY_STATUS_CHANGE — giải phóng cặp (instrument_id, venue_id) (đóng IRB-C1-MAJ-03)."
 payload:
   listing_id: {type: string, required: true}
@@ -748,17 +753,123 @@ invariants:
   - "Một request KHÔNG BAO GIỜ tự nó là causal ancestor của chính nó, trực tiếp hoặc gián tiếp qua bất kỳ chuỗi causation_refs nào (đóng IRB-C1-V03-MAJ-01, attack scenario 'causal cycle attempted')."
   - "`activation_request_id` là opaque, KHÔNG parse (Chapter 6 §6.8), KHÔNG BẰNG `event_id`, KHÔNG regenerate mỗi lần retry/redelivery — CÙNG một business request PHẢI mang CÙNG `activation_request_id` xuyên mọi physical event record của nó (đóng IRB-C1-V04-MAJ-01)."
   - "**Permanent scope binding (Part B):** MỘT KHI `activation_request_id` lần đầu được ghi nhận authoritative (first delivery, xem policy dưới), nó vĩnh viễn gắn CHÍNH XÁC MỘT bộ (instrument_id, venue_id, listing_id, requested_target_status = ACTIVE) — KHÔNG BAO GIỜ đổi. Cùng `activation_request_id` xuất hiện lại với instrument_id/venue_id/listing_id/requested_target_status KHÁC → REJECT tường minh, KHÔNG được diễn giải là correction, request mới, retry, hay superseding request — một activation intent thực sự khác PHẢI dùng `activation_request_id` MỚI."
-  - "`activation_request_idempotency_policy: STABLE_ID_SAME_PAYLOAD_IS_IDEMPOTENT` (§17): first delivery (activation_request_id mới + scope hợp lệ) → ghi nhận MỘT authoritative record. Exact retry/redelivery (CÙNG activation_request_id, CÙNG scope bất biến, CÙNG canonical semantic payload) → idempotent duplicate — KHÔNG tạo logical request thứ hai, KHÔNG tạo arbitration outcome thứ hai; physical duplicate record PHẢI bị reject trước authoritative append, hoặc normalize về tham chiếu record đã ghi nhận — KHÔNG BAO GIỜ tồn tại HAI original request fact authoritative cùng logical ID. Changed-payload replay (CÙNG activation_request_id, KHÁC listing/pair/target status/request semantics) → deterministic conflict → reject; KHÔNG được tự chọn bản mới nhất hay cũ nhất."
-  - "**Không metadata-patchable, không có correction lineage riêng cho request fact (Part D, quyết định bounded):** `ActiveListingActivationRequested` KHÔNG có `*FactInvalidated`/`supersedes_fact_ref` riêng — một request scope sai là INVALID, không phải 'cần sửa'; xử lý theo event-ingress validation hiện có (không ghi nhận authoritative, không emit grant/reject cho request chưa từng valid). Activation intent đã sửa PHẢI dùng `activation_request_id` MỚI hoàn toàn — không tái sử dụng ID cũ, không tạo replacement record cho ID cũ."
+  - "`activation_request_idempotency_policy: STABLE_ID_SAME_PAYLOAD_IS_IDEMPOTENT` (§17): first delivery (activation_request_id mới + scope hợp lệ) → ghi nhận MỘT authoritative record. Exact retry/redelivery (CÙNG activation_request_id, CÙNG scope bất biến, CÙNG canonical semantic payload — xem định nghĩa đầy đủ dưới) → idempotent duplicate — KHÔNG tạo logical request thứ hai, KHÔNG tạo arbitration outcome thứ hai; physical duplicate record PHẢI bị reject trước authoritative append, hoặc normalize về tham chiếu record đã ghi nhận — KHÔNG BAO GIỜ tồn tại HAI original request fact authoritative cùng logical ID. Changed-payload replay (CÙNG activation_request_id, KHÁC canonical semantic payload) → deterministic conflict → reject; KHÔNG được tự chọn bản mới nhất hay cũ nhất."
+  - "**v0.6 (Part I, đóng `IRB-C1-V05-MAJ-01`) — Idempotency sau invalidation:** redelivery CHÍNH XÁC (cùng activation_request_id, cùng canonical semantic payload) cho một request ĐÃ `TERMINALLY_INVALID` (xem Terminal request disposition dưới) KHÔNG tái tạo, KHÔNG kích hoạt lại request — normalize về record `TERMINALLY_INVALID` đã ghi nhận, KHÔNG tạo request mới, KHÔNG tạo arbitration outcome mới (đóng attack scenario 'invalidated request redelivered with same payload'). Redelivery với canonical semantic payload THAY ĐỔI cho một `activation_request_id` đã `TERMINALLY_INVALID` VẪN LÀ deterministic conflict/reject — cùng quy tắc changed-payload chung, KHÔNG có ngoại lệ vì đã invalid (đóng attack scenario 'invalidated request redelivered with changed payload')."
+  - "**Không metadata-patchable, không có replacement dưới cùng activation_request_id (Part D v0.5, tái khẳng định Part H v0.6):** `ActiveListingActivationRequested` KHÔNG có `supersedes_fact_ref` — payload bất biến, KHÔNG có 'sửa tại chỗ' dưới cùng activation_request_id trong BẤT KỲ trường hợp nào. Ba trường hợp tách bạch tường minh (v0.6, đóng IRB-C1-V05-MAJ-01, Part H): (1) **ingress-invalid** — request KHÔNG pass validation, bị reject TRƯỚC authoritative append, KHÔNG BAO GIỜ trở thành fact authoritative, KHÔNG cần invalidation (chưa từng tồn tại authoritative); (2) **valid request, business intent sau đó đổi** — request gốc VẪN valid lịch sử cho effective_time của nó, KHÔNG invalidate; intent mới dùng `activation_request_id` MỚI hoàn toàn; (3) **request authoritative SAU ĐÓ phát hiện SAI thực tế** (đã pass validation, đã ghi nhận, factual error phát hiện sau — v0.6, đóng IRB-C1-V05-MAJ-01) — emit `ActiveListingActivationRequestFactInvalidated` (dưới đây), corrected intent dùng `activation_request_id` MỚI. KHÔNG được lẫn lộn ba trường hợp này."
   - "Với mỗi `activation_request_id` hợp lệ: đúng MỘT valid original `ActiveListingActivationRequested` lineage head (đóng Part D) — dedup key là `payload.activation_request_id`, KHÔNG phải `event_id`, KHÔNG phải `subject_ref`."
   - "`activation_request_id` KHÔNG được tái sử dụng xuyên nhiều pair authority stream khác nhau — một ID đã bind với pair (instrument_id, venue_id) nào thì vĩnh viễn thuộc về CHÍNH pair đó (đóng attack scenario 'request ID reused in another pair authority stream')."
+  - "**v0.6 (Part G, đóng `IRB-C1-V05-MAJ-01`) — Canonical semantic payload, liệt kê đầy đủ:** identity/scope field (`activation_request_id`, `instrument_id`, `venue_id`, `listing_id`, `requested_target_status`) LUÔN semantic (Part B). `requested_by_ref` LÀ semantic — PHẢI khớp CHÍNH XÁC giữa các physical record cùng `activation_request_id` (bao gồm trường hợp field này chuyển từ absent sang có giá trị hoặc ngược lại); khác nhau → changed-payload replay, deterministic conflict, reject (đóng attack scenario 'requested_by_ref changed under same ID'). `request_reason` LÀ non-authoritative descriptive field — LOẠI KHỎI idempotency equality: hai physical record cùng `activation_request_id`/scope/`requested_by_ref` nhưng khác `request_reason` VẪN LÀ idempotent duplicate, KHÔNG phải conflict (đóng attack scenario 'request_reason changed under same ID') — cùng nguyên tắc field mô tả `reason`/`invalidation_reason` non-canonical xuyên suốt tài liệu này."
+  - "**v0.6 — Envelope delivery metadata KHÔNG phải business request scope:** `event_id`/`recorded_time`/transport retry metadata KHÔNG BAO GIỜ tạo logical request mới (dedup key luôn là `payload.activation_request_id`). `source_identity` là delivery/dedup evidence (Chapter 6 §6.6), KHÔNG phải business request scope — thay đổi giữa các physical record cùng `activation_request_id` KHÔNG tạo conflict (đóng attack scenario 'source_identity changed on retry'). `causation_refs` là semantic lineage — PHẢI KHÔNG mâu thuẫn với request gốc (ví dụ không được rỗng ở lần đầu rồi có giá trị ở lần redelivery theo cách ngụ ý một nguồn gốc khác — nếu causation thực sự khác, đây là dấu hiệu business intent khác, xử lý theo changed-payload path) (đóng attack scenario 'causation_refs contradict original request'). `related_event_refs` non-causal, LOẠI KHỎI logical request identity — thay đổi giữa các physical record KHÔNG tạo conflict (đóng attack scenario 'related_event_refs change on retry')."
 payload:
   activation_request_id: {type: string, required: true, description: "logical identity ổn định của request — opaque, KHÔNG parse, KHÔNG bằng event_id, KHÔNG regenerate khi retry/redelivery, gắn vĩnh viễn với đúng một (instrument_id, venue_id, listing_id, requested_target_status) — đóng IRB-C1-V04-MAJ-01, xem invariants"}
   instrument_id: {type: string, required: true}
   venue_id: {type: string, required: true}
   listing_id: {type: string, required: true, description: "listing_id đang request activation — opaque, chọn trước bởi requester"}
   requested_target_status: {type: enum, values: [ACTIVE], required: true, description: "phần của permanent scope binding (Part B) — đóng ở v0.5, chỉ ACTIVE; mở rộng giá trị tương lai là Domain Contract revision tường minh"}
-  requested_by_ref: {type: string, required: false, description: "opaque reference tới nguồn request (operator/strategy/risk workflow) — KHÔNG author Account/Strategy/Risk ở C1, chỉ opaque reference, deferred §23"}
+  requested_by_ref: {type: string, required: false, description: "opaque reference tới nguồn request (operator/strategy/risk workflow) — KHÔNG author Account/Strategy/Risk ở C1, chỉ opaque reference, deferred §23. SEMANTIC — phần của canonical semantic payload (v0.6, đóng IRB-C1-V05-MAJ-01), PHẢI khớp chính xác cho cùng activation_request_id."}
+  request_reason: {type: string, required: false, description: "mô tả tiện dụng cho lý do request — non-authoritative, LOẠI KHỎI idempotency equality (v0.6, đóng IRB-C1-V05-MAJ-01); khác giá trị giữa các physical record cùng activation_request_id KHÔNG tạo conflict."}
+```
+
+### `ActiveListingActivationRequestFactInvalidated` — `kind: event` (v0.6, đóng `IRB-C1-V05-MAJ-01`)
+
+Kế thừa nguyên vẹn envelope §2 — `causation_refs` không rỗng. Payload đặc thù:
+
+```yaml
+id: active-listing-activation-request-fact-invalidated
+kind: event
+capability_id: market-reference
+domain_context_id: instrument-venue-reference
+description: >
+  Phủ định MỘT ActiveListingActivationRequested fact ĐÃ pass ingress validation, ĐÃ ghi nhận
+  authoritative, rồi SAU ĐÓ phát hiện SAI thực tế (factual error) — đóng gap IRB-C1-V05-MAJ-01
+  (v0.5 pin request immutable nhưng không có cơ chế append-only invalidation cho trường hợp
+  này). CHỈ target ActiveListingActivationRequested — KHÔNG target ActiveListingReserved,
+  ActiveListingActivationRejected, activation event (TradableListingCreated/
+  TradableListingStatusChanged), một invalidation khác, hay một request KHÔNG LIÊN QUAN. KHÔNG có
+  `supersedes_fact_ref`, KHÔNG có replacement dưới cùng activation_request_id — giữ nguyên quyết
+  định bounded "request immutable, không metadata-patchable" (§16, invariant "Không
+  metadata-patchable" ở trên); corrected intent PHẢI dùng activation_request_id MỚI.
+invariants:
+  - "envelope.subject_ref PHẢI BẰNG HỆT subject_ref của invalidated_request_fact_ref (TradableListing subject, cùng scope, §10/§16)."
+  - "envelope.effective_time PHẢI BẰNG HỆT effective_time của invalidated_request_fact_ref."
+  - "invalidated_request_fact_ref PHẢI trỏ một ActiveListingActivationRequested, CHƯA từng nhận invalidation khác — một request fact chỉ bị invalidate đúng một lần (cấm double invalidation)."
+  - "invalidated_request_fact_ref KHÔNG BAO GIỜ trỏ ActiveListingReserved/ActiveListingActivationRejected/TradableListingCreated/TradableListingStatusChanged/một ActiveListingActivationRequestFactInvalidated khác/một request KHÔNG LIÊN QUAN — CẤM invalidation-of-invalidation, CẤM target ngoài phạm vi request fact, CẤM invalidation subject mismatch."
+  - "payload.activation_request_id PHẢI khớp CHÍNH XÁC activation_request_id của invalidated_request_fact_ref (đóng attack scenario 'invalidation targets another request ID')."
+  - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_request_fact_ref (đóng rule 1: invalidation recorded sau target)."
+  - "Replay tại cursor trước recorded_time của invalidation này thấy request VALID nguyên trạng (rule 7); replay tại cursor >= recorded_time này thấy request TERMINALLY_INVALID (rule 8, chống look-ahead)."
+  - "KHÔNG thay đổi identity/scope của request — invalidated_request_fact_ref giữ nguyên nội dung gốc, chỉ bị đánh dấu invalid; append-only, KHÔNG xóa/mutate fact gốc (rule 4, rule 10); request đã invalidate vẫn queryable làm historical evidence (rule 9)."
+  - "KHÔNG có supersedes_fact_ref, KHÔNG có replacement request dưới cùng activation_request_id (rule 5) — corrected intent PHẢI dùng activation_request_id MỚI (rule 6, §16 Part H)."
+payload:
+  invalidated_request_fact_ref: {type: event_record_ref, required: true}
+  activation_request_id: {type: string, required: true, description: "PHẢI khớp activation_request_id của invalidated_request_fact_ref — đóng IRB-C1-V05-MAJ-01"}
+  request_invalidation_class: {type: enum, values: [FACTUAL_REQUEST_ERROR], required: true}
+  invalidation_reason: {type: string, required: false}
+```
+
+`ActiveListingActivationRequestFactInvalidated` KHÔNG nằm trong `events_emitted` của `ActiveListingReservation` hay `TradableListing` (§10) — cùng nguyên tắc `ActiveListingActivationRequested` đã pin ở trên, subject là `TradableListing`, không phải reservation subject.
+
+### Terminal request disposition (Part C, v0.6, đóng `IRB-C1-V05-MAJ-01`)
+
+Canonical request validity — đóng, hai giá trị:
+
+```text
+request_validity_state ∈ {VALID, TERMINALLY_INVALID}
+
+ActiveListingActivationRequested visible tại cursor VÀ KHÔNG có
+ActiveListingActivationRequestFactInvalidated visible tại cùng cursor:
+  → request_validity_state = VALID
+
+ActiveListingActivationRequestFactInvalidated visible tại cursor:
+  → request_validity_state = TERMINALLY_INVALID
+```
+
+**`TERMINALLY_INVALID` KHÔNG BAO GIỜ quay lại `VALID`** — không có cursor, không có replacement, không có sự kiện tương lai nào thay đổi kết quả này cho `activation_request_id` đó (cùng nguyên tắc `TERMINAL_SCOPE_INVALIDATION` đã pin cho Instrument/Venue/TradableListing/Reservation, §19 — nhưng đây là một discriminator RIÊNG, `request_validity_state`, KHÔNG tái sử dụng `pending_correction_class`/`view_state`, vì request family KHÔNG có khái niệm "chờ same-subject replacement": Part B đã cấm tuyệt đối replacement dưới cùng ID, nên KHÔNG có trạng thái tạm thời tương tự `AWAITING_SAME_SUBJECT_REPLACEMENT` — mọi invalidation của request đều vĩnh viễn ngay lập tức).
+
+Một `activation_request_id` MỚI (corrected intent, business intent khác) có validity/outcome lineage ĐỘC LẬP HOÀN TOÀN — không kế thừa `TERMINALLY_INVALID` từ ID cũ, không "làm sống lại" request cũ. Request cũ (`TERMINALLY_INVALID`) vẫn queryable làm historical evidence. **Không retry worker nào được diễn giải một request `TERMINALLY_INVALID` là "đang chờ sửa tạm thời"** — đây là tín hiệu đóng, dừng polling/retry cho `activation_request_id` đó.
+
+### Effect on arbitration outcomes khi request bị invalidate (Part D, v0.6, đóng `IRB-C1-V05-MAJ-01`)
+
+**Invalidation TRƯỚC khi có outcome:** một khi `ActiveListingActivationRequestFactInvalidated` visible tại cursor, KHÔNG một `ActiveListingReserved` hay `ActiveListingActivationRejected` nào được emit SAU đó cho `activation_request_id` này — mọi grant/reject emit sau invalidation là INVALID (vi phạm Part E invariant tại `ActiveListingReserved`/`ActiveListingActivationRejected`, xem dưới).
+
+**Outcome đã tồn tại TRƯỚC khi request invalidate — invalidation KHÔNG xóa ngầm outcome, hệ quả deterministic theo từng trường hợp:**
+
+```text
+Trường hợp 1 — đã có ActiveListingActivationRejected:
+  request → TERMINALLY_INVALID
+  rejection VẪN LÀ historical audit evidence, không bị sửa/xóa
+  KHÔNG activation nào được phép xảy ra (đã đúng theo quy tắc reject hiện có, không đổi)
+
+Trường hợp 2 — đã có ActiveListingReserved, activation event CHƯA ghi nhận:
+  grant KHÔNG CÒN authorize activation nào nữa (Part E, xem dưới)
+  reservation PHẢI được giải phóng qua ActiveListingReservationReleased tường minh,
+    reason = REQUEST_INVALIDATION (giá trị MỚI, thêm vào enum reason — xem định nghĩa
+    ActiveListingReservationReleased dưới), causation_refs PHẢI chứa chính
+    ActiveListingActivationRequestFactInvalidated này
+  cho tới khi release VISIBLE VÀ EFFECTIVE: reservation LỊCH SỬ vẫn HELD (reservation state
+    history KHÔNG đổi hồi tố) NHƯNG grant KHÔNG eligible cho activation consumption mới —
+    đây là HAI khái niệm tách bạch: reservation state (§16 Phase 5 fold — vẫn HELD cho tới
+    release) khác với activation authorization eligibility (Part E — mất ngay khi invalidation
+    visible, không chờ release)
+
+Trường hợp 3 — đã có ActiveListingReserved VÀ activation event (TradableListingCreated/
+  TradableListingStatusChanged ACTIVE) ĐÃ ghi nhận:
+  KHÔNG silently mutate activation history — activation event VẪN LÀ historical authoritative
+    evidence, causation_refs KHÔNG bị viết lại.
+  Request invalidation ĐÁNH DẤU causal request lineage invalid nhưng KHÔNG tự động cascade —
+    đây là tín hiệu, KHÔNG phải trigger tự động (tránh vi phạm append-only/no-fabrication khi
+    tự động phát sinh một correction event).
+  HÀNH ĐỘNG DOWNSTREAM BẮT BUỘC (tái dùng cơ chế đã có, KHÔNG phát minh cơ chế thứ hai):
+    operator/hệ thống PHẢI emit TradableListingFactInvalidated (§14) target chính activation
+    event đó, đúng initial_fact_correction_class hiện có (METADATA_ERROR hoặc SCOPE_ERROR, §19)
+    — việc này TỰ ĐỘNG kích hoạt ActiveListingReservationReleased (reason =
+    CORRECTION_INVALIDATION, §16, cơ chế đã pin từ v0.4) theo đúng quy trình hiện hành.
+  Cho tới khi TradableListingFactInvalidated đó visible: TradableListing/reservation state giữ
+    nguyên "pending correction" ở mức package (không phải view_state mới) — activation event và
+    TradableListingCurrentView của nó VẪN eligible/hiển thị bình thường theo mọi quy tắc hiện
+    có (§15) cho tới khi correction downstream đó thực sự visible; đây là quyết định có chủ đích
+    (không tự động suy đoán) — người vận hành chịu trách nhiệm phát hiện và kích hoạt correction
+    downstream, đúng cùng nguyên tắc "invalidation là tín hiệu, không phải tự động hóa" xuyên
+    suốt tài liệu này.
 ```
 
 ### `ActiveListingReservation` — `kind: entity` (pair-scoped authority subject)
@@ -822,7 +933,7 @@ invariants:
   - "**v0.5 (đóng IRB-C1-V04-MAJ-01):** payload.activation_request_id BẮT BUỘC, PHẢI khớp CHÍNH XÁC payload.activation_request_id của event mà activation_request_ref trỏ tới — `activation_request_ref` trỏ event, `activation_request_id` là logical key; hai giá trị PHẢI đồng thuận (đóng attack scenario 'outcome request ref and request ID disagree')."
   - "**v0.5 — Exactly-one-outcome keyed theo activation_request_id (đóng IRB-C1-V04-MAJ-01, thay thế cách keying chỉ theo event ref của v0.4):** Với mỗi activation_request_id hợp lệ, đúng MỘT valid ORIGINAL arbitration outcome lineage — ActiveListingReserved XOR ActiveListingActivationRejected, KHÔNG BAO GIỜ cả hai cùng activation_request_id (kể cả khi activation_request_ref trỏ tới các physical event record khác nhau do redelivery — dedup PHẢI xảy ra ở tầng activation_request_id trước khi outcome được ghi nhận). CẤM: hai ActiveListingReserved gốc cùng activation_request_id; outcome quyết định bởi ingestion order."
   - "Outcome instrument_id/venue_id/listing_id PHẢI khớp CHÍNH XÁC scope bất biến của activation_request_id tương ứng (Part B) — CẤM grant cho listing/pair khác với request gốc."
-payload:
+  - "**v0.6 (Part E, đóng `IRB-C1-V05-MAJ-01`):** activation_request_id được trỏ tới PHẢI visible VÀ `request_validity_state = VALID` (KHÔNG `TERMINALLY_INVALID`, §16 Terminal request disposition) TẠI recorded cursor của chính ActiveListingReserved này — CẤM emit grant sau khi ActiveListingActivationRequestFactInvalidated của request đó đã visible."
   activation_request_id: {type: string, required: true, description: "PHẢI khớp payload.activation_request_id của request được activation_request_ref trỏ tới — logical outcome key, đóng IRB-C1-V04-MAJ-01"}
   instrument_id: {type: string, required: true}
   venue_id: {type: string, required: true}
@@ -851,18 +962,22 @@ description: >
   reservation VẪN held; replay trước release tiếp tục thấy held; replay sau release thấy
   available. Nếu bản thân grant gốc SAI (không phải activation event sai) thì dùng reservation
   correction lineage (RESERVATION_METADATA_ERROR/RESERVATION_PAIR_SCOPE_ERROR dưới), KHÔNG dùng
-  release đơn thuần.
+  release đơn thuần. **v0.6 (đóng IRB-C1-V05-MAJ-01):** reason thêm giá trị REQUEST_INVALIDATION
+  — dùng khi grant đã cấp nhưng activation event CHƯA ghi nhận, VÀ activation request gốc bị
+  ActiveListingActivationRequestFactInvalidated (§16 Part D) — cùng nguyên tắc tách bạch reservation
+  state history khỏi activation authorization eligibility như CORRECTION_INVALIDATION.
 invariants:
   - "CHỈ hợp lệ khi reservation subject đang ở state HELD bởi đúng listing_id trong payload (tại effective_time của chính release này, theo reservation fold §16)."
   - "reason = VOLUNTARY_STATUS_CHANGE: causation_refs PHẢI chứa chính TradableListingStatusChanged (new_status ∈ {SUSPENDED, DELISTED}) gây ra release này."
   - "reason = CORRECTION_INVALIDATION: causation_refs PHẢI chứa chính TradableListingFactInvalidated (§14) đang invalidate activation event (TradableListingCreated hoặc TradableListingStatusChanged mang new_status=ACTIVE) đang held reservation này — đóng rule 7 'correction/invalidation of the winning activation or reservation causes deterministic re-evaluation'. Bản thân invalidation đó KHÔNG tự động đổi reservation state — CHÍNH release event này (khi visible và effective) mới đổi."
+  - "**v0.6 (đóng IRB-C1-V05-MAJ-01):** reason = REQUEST_INVALIDATION: causation_refs PHẢI chứa chính ActiveListingActivationRequestFactInvalidated (§16 Part D) đang invalidate activation request gốc của grant đang HELD này — CHỈ hợp lệ khi activation event (TradableListingCreated/TradableListingStatusChanged mang new_status=ACTIVE) CHƯA ghi nhận cho grant này (nếu ĐÃ ghi nhận, dùng reason = CORRECTION_INVALIDATION qua TradableListingFactInvalidated, §16 Part D Trường hợp 3, KHÔNG dùng REQUEST_INVALIDATION). Bản thân request invalidation KHÔNG tự động đổi reservation state — CHÍNH release event này (khi visible và effective) mới đổi; cho tới đó, reservation LỊCH SỬ vẫn HELD nhưng grant KHÔNG eligible activation consumption mới (Part E)."
   - "Sau release VISIBLE VÀ EFFECTIVE, reservation subject = AVAILABLE — một listing_id KHÁC (kể cả một listing từng bị ActiveListingActivationRejected trước đó cho pair này) KHÔNG tự động trở thành holder mới; CẦN một ActiveListingActivationRequested + ActiveListingReserved MỚI, PHẢI xảy ra SAU khi release này visible (recorded_time) — cấm automatic promotion (đóng rule 8, 'preferred rule': không có candidate 'chờ sẵn')."
   - "supersedes_fact_ref VẮNG MẶT cho original release; BẮT BUỘC cho same-subject correction replacement (ví dụ reason ghi sai) — khi có mặt, scope (instrument_id, venue_id) PHẢI GIỐNG HỆT fact bị supersede."
 payload:
   instrument_id: {type: string, required: true}
   venue_id: {type: string, required: true}
   listing_id: {type: string, required: true}
-  reason: {type: enum, values: [VOLUNTARY_STATUS_CHANGE, CORRECTION_INVALIDATION], required: true}
+  reason: {type: enum, values: [VOLUNTARY_STATUS_CHANGE, CORRECTION_INVALIDATION, REQUEST_INVALIDATION], required: true}
   supersedes_fact_ref: {type: event_record_ref, required: false, description: "VẮNG MẶT cho original release; BẮT BUỘC cho same-subject correction replacement — đóng IRB-C1-V03-MAJ-03"}
 ```
 
@@ -891,6 +1006,7 @@ invariants:
   - "**v0.5 (đóng IRB-C1-V04-MAJ-01):** payload.activation_request_id BẮT BUỘC, PHẢI khớp CHÍNH XÁC payload.activation_request_id của event mà activation_request_ref trỏ tới (đóng attack scenario 'outcome request ref and request ID disagree')."
   - "**v0.5 — Exactly-one-outcome keyed theo activation_request_id:** Với mỗi activation_request_id hợp lệ, đúng MỘT valid ORIGINAL arbitration outcome lineage — ActiveListingReserved XOR ActiveListingActivationRejected, KHÔNG BAO GIỜ cả hai cùng activation_request_id. CẤM: hai ActiveListingActivationRejected gốc cùng activation_request_id; outcome quyết định bởi ingestion order."
   - "rejected_listing_id PHẢI khớp CHÍNH XÁC listing_id bất biến của activation_request_id tương ứng (Part B) — CẤM rejection nêu tên listing/pair khác với request gốc."
+  - "**v0.6 (Part E, đóng `IRB-C1-V05-MAJ-01`):** activation_request_id được trỏ tới PHẢI visible VÀ `request_validity_state = VALID` (KHÔNG `TERMINALLY_INVALID`, §16 Terminal request disposition) TẠI recorded cursor của chính ActiveListingActivationRejected này — CẤM emit rejection sau khi ActiveListingActivationRequestFactInvalidated của request đó đã visible."
   - "supersedes_fact_ref VẮNG MẶT cho original rejection; BẮT BUỘC cho same-subject correction replacement (ví dụ held_by_listing_id ghi sai) — khi có mặt, scope (instrument_id, venue_id) PHẢI GIỐNG HỆT fact bị supersede, VÀ activation_request_id PHẢI giữ NGUYÊN — correction KHÔNG BAO GIỜ đổi request nào đang bị reject (đóng IRB-C1-V04-MAJ-01, Part F)."
 payload:
   activation_request_id: {type: string, required: true, description: "PHẢI khớp payload.activation_request_id của request được activation_request_ref trỏ tới — logical outcome key, đóng IRB-C1-V04-MAJ-01"}
@@ -1017,47 +1133,67 @@ Phase 5 — fold reservation state:
 
 Đây là thuật toán DUY NHẤT hợp lệ để §15 Bước 6 tiêu thụ — không dùng `ActiveListingActivationRejected` để xác định holder (đó chỉ là audit record, không authoritative cho state, per Phase 5). KHÔNG có read model/Current View top-level riêng cho `ActiveListingReservation` ở C1 — `TradableListingCurrentView` (§15 Bước 6) là điểm consume DUY NHẤT của reservation fold result cho mục đích derived eligibility; không Domain Contract nào khác được query reservation event stream trực tiếp làm input cho Decision/Risk/Execution (đối xứng I-12, Chapter 7 §7.4).
 
-### Request dedup và replay algorithm (Part H, v0.5, đóng `IRB-C1-V04-MAJ-01`)
+### Request dedup và replay algorithm (Part H v0.5 → Part F v0.6, đóng `IRB-C1-V04-MAJ-01`/`IRB-C1-V05-MAJ-01`)
 
-Thuật toán lookup deterministic DUY NHẤT hợp lệ cho việc resolve một `activation_request_id` — dùng bởi implementation khi xử lý ingress redelivery, và bởi mọi historical replay/correction replay liên quan tới request/outcome:
+Thuật toán lookup deterministic DUY NHẤT hợp lệ cho việc resolve một `activation_request_id` — dùng bởi implementation khi xử lý ingress redelivery, và bởi mọi historical replay/correction replay liên quan tới request/outcome. **v0.6 mở rộng từ 7 bước (v0.5) thành 10 bước — thêm resolve/classify request validity (Bước 3–4), đóng `IRB-C1-V05-MAJ-01`:**
 
 ```text
 Bước 1 — group ActiveListingActivationRequested visible tại recorded cursor theo
   payload.activation_request_id.
 
-Bước 2 — với mỗi activation_request_id, yêu cầu ĐÚNG MỘT valid original authoritative request
-  (Part D — không có correction lineage riêng cho request fact; nếu ingress nhận nhiều physical
-  record cùng activation_request_id, chỉ MỘT được ghi nhận authoritative, phần còn lại là
-  idempotent duplicate — reject trước append hoặc normalize về record đã ghi nhận, Part C).
+Bước 2 — với mỗi activation_request_id, resolve ĐÚNG MỘT valid original authoritative request
+  fact (Part D v0.5 — request KHÔNG có correction lineage dạng supersedes_fact_ref; nếu ingress
+  nhận nhiều physical record cùng activation_request_id, chỉ MỘT được ghi nhận authoritative,
+  phần còn lại là idempotent duplicate — reject trước append hoặc normalize về record đã ghi
+  nhận, Part C v0.5).
 
-Bước 3 — verify permanent scope binding (Part B): (instrument_id, venue_id, listing_id,
-  requested_target_status) của mọi physical record cùng activation_request_id PHẢI khớp chính
-  xác record authoritative — record nào không khớp là changed-payload replay, reject, KHÔNG dùng
-  làm input cho Bước 4 trở đi.
+Bước 3 — (v0.6) resolve ActiveListingActivationRequestFactInvalidated visibility cho request fact
+  đó tại CÙNG recorded cursor — có visible invalidation hay không (§16 Part A/Terminal request
+  disposition).
 
-Bước 4 — resolve đúng MỘT valid arbitration outcome lineage cho activation_request_id đó (Part E,
-  Part F) — ActiveListingReserved-lineage XOR ActiveListingActivationRejected-lineage, theo
-  reservation correction lineage (trên) VÀ `reservation_fold_order_policy` visible tại CÙNG
-  recorded cursor.
+Bước 4 — (v0.6) classify request theo Bước 3:
+    KHÔNG có invalidation visible → request_validity_state = VALID
+    CÓ invalidation visible      → request_validity_state = TERMINALLY_INVALID (vĩnh viễn,
+                                     §16 Terminal request disposition — KHÔNG BAO GIỜ quay lại VALID)
 
-Bước 5 — NẾU outcome = grant (ActiveListingReserved lineage head VALID):
+Bước 5 — verify permanent scope binding VÀ canonical semantic payload (Part B, Part G): với MỌI
+  physical record cùng activation_request_id (kể cả record đến sau khi đã TERMINALLY_INVALID,
+  Part I) — (instrument_id, venue_id, listing_id, requested_target_status, requested_by_ref)
+  PHẢI khớp chính xác record authoritative; `request_reason` LOẠI KHỎI so sánh này (non-semantic).
+  Record nào không khớp là changed-payload replay, reject — KHÔNG BAO GIỜ tự chọn bản mới nhất/
+  cũ nhất, KHÔNG BAO GIỜ tái tạo/kích hoạt lại một request TERMINALLY_INVALID (đóng
+  IRB-C1-V05-MAJ-01, attack scenario 'invalidated request redelivered with same/changed payload').
+
+Bước 6 — CHỈ NẾU request_validity_state = VALID (Bước 4): resolve đúng MỘT valid arbitration
+  outcome lineage cho activation_request_id đó (Part E v0.5) — ActiveListingReserved-lineage XOR
+  ActiveListingActivationRejected-lineage, theo reservation correction lineage (trên) VÀ
+  `reservation_fold_order_policy` visible tại CÙNG recorded cursor.
+
+Bước 7 — NẾU outcome = grant (ActiveListingReserved lineage head VALID) VÀ request VALID (Bước 4):
     cho phép ĐÚNG MỘT activation lifecycle event (TradableListingCreated hoặc
     TradableListingStatusChanged mang new_status=ACTIVE) tham chiếu reservation_grant_ref/
     activation_request_id này — event thứ hai tham chiếu cùng cặp (activation_request_id,
     reservation_grant_ref) là idempotent duplicate của event thứ nhất, KHÔNG phải activation hợp
     lệ thứ hai (đóng attack scenario 'two activation events consume one grant').
 
-Bước 6 — NẾU outcome = rejection (ActiveListingActivationRejected lineage head VALID):
+Bước 8 — NẾU outcome = rejection (ActiveListingActivationRejected lineage head VALID):
     CẤM tuyệt đối mọi activation lifecycle event tham chiếu activation_request_id này.
 
-Bước 7 — NẾU không có outcome nào visible tại cursor (Bước 4 trả về rỗng):
-    KHÔNG có hiệu lực gì lên listing lifecycle hay reservation state (§16 "abandoned request",
-    Part B) — KHÔNG suy đoán, KHÔNG chờ với timeout ngầm định.
+Bước 9 — (v0.6) NẾU request_validity_state = TERMINALLY_INVALID (Bước 4), BẤT KỂ outcome resolve
+  được ở Bước 6 là gì: CẤM tuyệt đối mọi arbitration outcome MỚI (ActiveListingReserved/
+  ActiveListingActivationRejected emit sau invalidation là INVALID, §16 Part D/E) VÀ CẤM mọi
+  activation lifecycle event MỚI tham chiếu activation_request_id này — outcome/activation event
+  ĐÃ tồn tại TRƯỚC invalidation vẫn là historical evidence (§16 Part D, xử lý theo ba trường hợp
+  đã pin), nhưng KHÔNG được dùng làm căn cứ cho hành động MỚI.
+
+Bước 10 — NẾU không có outcome nào visible tại cursor VÀ request VALID (Bước 6 trả về rỗng, Bước 4
+  = VALID): KHÔNG có hiệu lực gì lên listing lifecycle hay reservation state (§16 "abandoned
+  request", Part B) — KHÔNG suy đoán, KHÔNG chờ với timeout ngầm định.
 ```
 
-Mọi bước dùng CÙNG recorded-time cursor (visibility), effective-time cursor (khi áp dụng, ví dụ Phase 3 của reservation fold cho Bước 4), correction lineage hợp lệ của outcome, VÀ CÙNG contract version/configuration — logical `activation_request_id` PHẢI sống sót nguyên vẹn qua mọi replay/redelivery (đóng attack scenario "historical replay before/after request/outcome").
+Mọi bước dùng CÙNG recorded-time cursor (visibility), effective-time cursor (khi áp dụng, ví dụ Phase 3 của reservation fold cho Bước 6), correction lineage hợp lệ của outcome VÀ của request invalidation (Bước 3), VÀ CÙNG contract version/configuration — logical `activation_request_id` PHẢI sống sót nguyên vẹn qua mọi replay/redelivery (đóng attack scenario "historical replay before/after request/outcome/invalidation").
 
-**Optional implementation cache (Part I, quyết định KHÔNG thêm read model chính thức):** thuật toán trên đã mô tả đầy đủ deterministic lookup — KHÔNG cần một `read_model` artifact riêng cho request status ở C1. Một implementation CÓ THỂ tổ chức cache nội bộ non-authoritative, subordinate, keyed theo `activation_request_id`, với state minh họa `REQUESTED`/`GRANTED`/`REJECTED` (rebuild được từ Bước 1–7 trên) — đây CHỈ là gợi ý hình dạng cache, KHÔNG phải một Domain Contract concept mới, KHÔNG bắt buộc author, và KHÔNG BAO GIỜ là authority (đúng nguyên tắc I-12/Chapter 7 §7.4 xuyên suốt tài liệu).
+**Optional implementation cache (Part I v0.5, quyết định KHÔNG thêm read model chính thức):** thuật toán trên đã mô tả đầy đủ deterministic lookup — KHÔNG cần một `read_model` artifact riêng cho request status ở C1. Một implementation CÓ THỂ tổ chức cache nội bộ non-authoritative, subordinate, keyed theo `activation_request_id`, với state minh họa `REQUESTED`/`GRANTED`/`REJECTED`/`TERMINALLY_INVALID` (rebuild được từ Bước 1–10 trên) — đây CHỈ là gợi ý hình dạng cache, KHÔNG phải một Domain Contract concept mới, KHÔNG bắt buộc author, và KHÔNG BAO GIỜ là authority (đúng nguyên tắc I-12/Chapter 7 §7.4 xuyên suốt tài liệu).
 
 ## 17. Canonical policy identifiers — nguồn duy nhất
 
@@ -1130,6 +1266,8 @@ F2
 10. **Forward-looking revision KHÔNG BAO GIỜ dùng cơ chế invalidation** — chỉ correction (sửa sai sót thực sự trong quá khứ) mới dùng `*FactInvalidated` + replacement.
 
 `ActiveListingReserved`/`ActiveListingReservationReleased`/`ActiveListingActivationRejected` (§16) **NAY CÓ correction lineage riêng qua `ActiveListingReservationFactInvalidated`** (v0.4, đóng `IRB-C1-V03-MAJ-03` — v0.3 KHÔNG có cơ chế này, đây là gap đã đóng). Hai kênh correction tách bạch, KHÔNG nhầm lẫn: (a) sửa reservation FACT tự nó ghi sai (grant sai listing_id, release sai reason, reject sai holder) → dùng `ActiveListingReservationFactInvalidated` + replacement, đúng mười invariant trên; (b) activation event ĐANG HELD reservation bị invalidate vì lý do khác (ví dụ TradableListing scope sai) → dùng `ActiveListingReservationReleased` (reason: `CORRECTION_INVALIDATION`) causally-linked tới `TradableListingFactInvalidated`, KHÔNG phải sửa reservation fact — reservation grant tự nó vẫn ĐÚNG tại thời điểm nó được cấp, chỉ là listing đang giữ nó không còn hợp lệ (§16 Part G).
+
+**`ActiveListingActivationRequested` (§16) là một MẪU HÌNH THỨ BA, tách bạch với cả hai mẫu hình trên** (v0.6, đóng `IRB-C1-V05-MAJ-01`): dùng `ActiveListingActivationRequestFactInvalidated` — invalidation-ONLY, KHÔNG BAO GIỜ có replacement/`supersedes_fact_ref` dưới cùng `activation_request_id` (khác mười invariant trên, vốn LUÔN đi kèm một replacement bắt buộc). Đây là quyết định bounded tường minh (§16 Part D/H): request là pre-arbitration intent, KHÔNG phải reference data mutable — một request sai KHÔNG được "sửa", chỉ được đánh dấu vĩnh viễn invalid; intent đã sửa PHẢI mang danh tính hoàn toàn mới (`activation_request_id` mới). Bảy trong số mười invariant chung vẫn áp dụng (recorded-sau-target, tối đa một invalidation, cấm invalidation-of-invalidation, append-only, loại trừ khỏi validity resolution, không mutate); ba invariant về replacement (2, 3 phần "replacement", 4, 5) KHÔNG áp dụng vì không có replacement.
 
 ## 19. Initial-fact correction policy
 
@@ -1263,3 +1401,4 @@ market_time       — PROHIBITED (§2)
 - Cơ chế phát hiện/khởi tạo timeout cho một `ActiveListingActivationRequested` không nhận được grant/reject (request "bị bỏ rơi") chưa được quyết — v0.4 chỉ pin rằng request không có outcome KHÔNG có hiệu lực gì (§16 Part B), không pin cơ chế phát hiện/dọn dẹp runtime.
 - Cơ chế cụ thể generate `activation_request_id` (§16, v0.5) — UUID, idempotency key do requester tự sinh, hay derive từ correlation_id — chưa được quyết; Domain Contract chỉ pin RULE (opaque, stable, không bằng event_id, permanent scope binding), không pin cơ chế sinh giá trị cụ thể, đây là Phase 1/requester-side concern.
 - Cơ chế ingress dedup vật lý (nơi physical duplicate event record bị reject trước append hay normalize) — v0.5 chỉ pin RULE tại Domain Contract layer (§16 Part C), không pin cơ chế queue/ingress implementation cụ thể (Phase 1, deferred).
+- Cơ chế phát hiện tự động (monitoring/alerting) cho trường hợp "grant VÀ activation event đã ghi nhận, request sau đó phát hiện sai" (§16 Part D Trường hợp 3, v0.6) chưa được quyết — Domain Contract chỉ pin HÀNH ĐỘNG DOWNSTREAM bắt buộc (emit TradableListingFactInvalidated đúng cơ chế hiện có) khi operator/hệ thống phát hiện, không pin cơ chế TỰ ĐỘNG phát hiện hay bắt buộc thời hạn thực hiện — đây là Phase 1/operational concern, không phải Domain Contract semantic.
