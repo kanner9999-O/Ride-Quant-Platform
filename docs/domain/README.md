@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.25"
+version: "0.26"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -30,7 +30,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 |---|---|---|
 | **0.2-A — Domain foundation** | `context-map.yaml` (v0.3 — non-blocking documentation-reference fix) + `candle.md` (v0.4, không đổi ở vòng consolidation này) | Draft — **`Consolidated Stable`** (xem dưới) |
 | **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: `Consolidated Stable`** (xem dưới) — `regime.md` v0.2 Draft, Clean qua đầy đủ review, 0 finding. **Package 0.2-B3: `Consolidated Stable`** (xem dưới) — `feature.md` v0.2 Draft, Clean qua đầy đủ review (bao gồm narrow revision xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`), 0 finding còn lại. **Package 0.2-B4: `Consolidated Stable`** (xem dưới) — `context.md` v0.2 Draft, tất cả finding resolved (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-02`/`IRB-B4-MAJ-03`/`RA-B4-MIN-02`/`IRB-ADR014-MAJ-01`/`IRB-ADR014-MAJ-02`/`IRB-ADR014-MIN-01`/`IRB-ADR014-MIN-02`/`IRB-B4-FINAL-MIN-01`), [ADR-014](../adr/ADR-014.md) **Approved** (Product Owner, 2026-07-30) là controlling authority. **Package 0.2-B (tổng thể) nay `Consolidated Stable`** — B1/B2/B3/B4 đều đạt. |
-| **0.2-C — Decision & execution chain** | `instrument.md`, `venue.md`, `account.md`, `strategy.md` (Strategy Definition + Strategy Instance), `trade-intent.md`, `decision.md`, `risk.md`, `execution-intent.md`, `order.md`, `fill.md`, `position.md`, `replay-event.md` — decomposed thành 7 slice phụ thuộc (C1–C7, xem mục "Package 0.2-C decomposition" dưới đây) | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 vẫn **`Approved`** (không đổi). **Package 0.2-C1 (Reference Foundation): authored, narrow correction đã áp dụng** (xem dưới) — `instrument.md` v0.2 Draft + `venue.md` v0.2 Draft. **Package 0.2-C2–C7: chưa authorize, chưa author** — mỗi slice cần Product Owner scope authorization riêng. |
+| **0.2-C — Decision & execution chain** | `instrument.md`, `venue.md`, `account.md`, `strategy.md` (Strategy Definition + Strategy Instance), `trade-intent.md`, `decision.md`, `risk.md`, `execution-intent.md`, `order.md`, `fill.md`, `position.md`, `replay-event.md` — decomposed thành 7 slice phụ thuộc (C1–C7, xem mục "Package 0.2-C decomposition" dưới đây) | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 vẫn **`Approved`** (không đổi). **Package 0.2-C1 (Reference Foundation): authored, hai vòng narrow correction đã áp dụng** (xem dưới) — `instrument.md` v0.3 Draft + `venue.md` v0.3 Draft. **Package 0.2-C2–C7: chưa authorize, chưa author** — mỗi slice cần Product Owner scope authorization riêng. |
 
 **Thứ tự dự kiến trong từng package không đổi** so với kế hoạch gốc (theo dependency đã chốt ở [ADR-003](../adr/ADR-003.md) và [07-module-taxonomy.md](../constitution/07-module-taxonomy.md)); Package 0.2-C được liệt kê đầy đủ hơn danh sách gốc vì danh sách gốc thiếu Account/Order/Execution/Venue/Instrument.
 
@@ -295,9 +295,9 @@ Instrument + Venue
 
 Mỗi slice phụ thuộc slice trước nó theo đúng thứ tự trên — C2 (Account) cần Instrument/Venue (C1) đã tồn tại (Position/Order sau này scope theo Account, đúng [ADR-007](../adr/ADR-007.md)); C3 (Strategy) cần Account (C2, [ADR-012](../adr/ADR-012.md) integration) và [ADR-013](../adr/ADR-013.md) (Strategy Definition Version); v.v.
 
-## Package 0.2-C1 — `instrument.md` v0.2 Draft + `venue.md` v0.2 Draft, narrow correction đã áp dụng
+## Package 0.2-C1 — `instrument.md` v0.3 Draft + `venue.md` v0.3 Draft, hai vòng narrow correction đã áp dụng
 
-**Phạm vi C1 (scope tối thiểu, đã Product Owner authorize):** hai Domain Contract nền tảng — [`instrument.md`](./instrument.md) v0.2 (Logical Instrument + TradableListing subordinate concept) và [`venue.md`](./venue.md) v0.2 (Logical Venue) — `capability_id: market-reference` / `domain_context_id: instrument-venue-reference` (đã đăng ký sẵn từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml) v0.10, forward-declared → authored; **không tạo capability/context mới**).
+**Phạm vi C1 (scope tối thiểu, đã Product Owner authorize):** hai Domain Contract nền tảng — [`instrument.md`](./instrument.md) v0.3 (Logical Instrument + TradableListing subordinate concept + `ActiveListingReservation` pair-scoped authority subject) và [`venue.md`](./venue.md) v0.3 (Logical Venue) — `capability_id: market-reference` / `domain_context_id: instrument-venue-reference` (đã đăng ký sẵn từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml) v0.10, forward-declared → authored; **không tạo capability/context mới**).
 
 **Không author ở C1 (đúng authorization boundary):** Account; Strategy; Decision; Risk; Position; Order; Fill; Trade Intent; Execution Intent; Replay Event — tất cả thuộc Package 0.2-C2–C7, chưa authorize.
 
@@ -312,14 +312,16 @@ Mỗi slice phụ thuộc slice trước nó theo đúng thứ tự trên — C2
 **Trạng thái review:**
 
 - Author self-review (authoring, v0.1): **hoàn tất** (20 attack scenario).
-- ChatGPT Review A: **hoàn tất** — 3 finding Major (`RA-C1-MAJ-01`, `RA-C1-MAJ-02`, `RA-C1-MAJ-03`), 0 Minor.
-- Narrow correction (v0.2, transaction này): **hoàn tất** — cả 3 finding Major đã đóng, 24 attack scenario, author self-review lần hai hoàn tất.
-- Independent Review B: **chưa diễn ra.**
-- Consolidation: **chưa diễn ra.**
+- ChatGPT Review A: **hoàn tất** — 3 finding Major (`RA-C1-MAJ-01`, `RA-C1-MAJ-02`, `RA-C1-MAJ-03`), 0 Minor. Đóng qua narrow correction v0.2.
+- Independent Review B: **hoàn tất** — 4 finding Major (`IRB-C1-MAJ-01`, `IRB-C1-MAJ-02`, `IRB-C1-MAJ-03`, `IRB-C1-MAJ-04`), 0 Minor. Đóng qua narrow correction v0.3 (transaction này).
+- Narrow correction thứ hai (v0.3, transaction này): **hoàn tất** — cả 4 finding Major đã đóng, 26 attack scenario, author self-review lần ba hoàn tất.
+- Consolidation: **chưa diễn ra** (cần vòng review tiếp theo xác nhận v0.3 Clean trước khi Consolidated Stable).
 
-**Package 0.2-C1 narrow correction — tóm tắt (2026-07-30):** đóng `RA-C1-MAJ-01` (thêm `instrument_identity_ref`/`venue_identity_ref` — opaque discriminator bắt buộc, đóng gap identity uniqueness khi field mô tả trùng nhau); đóng `RA-C1-MAJ-02` (pin canonical `revision_policy: EXPLICIT_PATCH_WITH_CLEAR_SET` cho `InstrumentMetadataRevised`/`TradableListingMetadataRevised`/`VenueMetadataRevised` — `changed_fields`/`clear_fields` map/array tường minh, whitelist theo event, thay thế optional-field-rời-rạc); đóng `RA-C1-MAJ-03` (pin canonical `initial_fact_correction_policy: INVALIDATE_INITIAL_FACT_AND_REGISTER_NEW_SUBJECT_WHEN_SCOPE_CHANGES` — `InstrumentRegistered`/`TradableListingCreated`/`VenueRegistered` nay correctable qua `initial_fact_correction_class` = `METADATA_ERROR` (same-scope replacement) hoặc `SCOPE_ERROR` (register subject mới, subject cũ `PENDING_CORRECTION` vĩnh viễn); loại bỏ hoàn toàn khung "đúng một event record duy nhất mãi mãi", thay bằng "đúng một VALID lineage head"). `OPTION` bị loại khỏi `instrument_type` active enum, reserved-not-authored (deferred tới khi strike/option-side/exercise-style/settlement-identity được author đầy đủ). `instrument_id`/`venue_id` **không đổi tên, không đổi shape** (`opaque string`).
+**Package 0.2-C1 narrow correction thứ nhất — tóm tắt (v0.2, 2026-07-30):** đóng `RA-C1-MAJ-01` (thêm `instrument_identity_ref`/`venue_identity_ref` — opaque discriminator bắt buộc); đóng `RA-C1-MAJ-02` (pin canonical `revision_policy: EXPLICIT_PATCH_WITH_CLEAR_SET`); đóng `RA-C1-MAJ-03` (pin canonical `initial_fact_correction_policy: INVALIDATE_INITIAL_FACT_AND_REGISTER_NEW_SUBJECT_WHEN_SCOPE_CHANGES`). `OPTION` bị loại khỏi `instrument_type` active enum, reserved-not-authored.
 
-**Package 0.2-C1 CHƯA đạt `Consolidated Stable`** — điều kiện đó đòi hỏi cả hai vòng review độc lập hoàn tất, đúng định nghĩa đã khóa ở mục Package 0.2-A.
+**Package 0.2-C1 narrow correction thứ hai — tóm tắt (v0.3, 2026-07-30):** đóng `IRB-C1-MAJ-01` (`PENDING_CORRECTION` v0.2 không phân biệt tạm thời/vĩnh viễn; thêm `pending_correction_class` đóng — `AWAITING_SAME_SUBJECT_REPLACEMENT`/`TERMINAL_SCOPE_INVALIDATION` — áp dụng thống nhất `InstrumentCurrentView`/`TradableListingCurrentView`/`VenueCurrentView`); đóng `IRB-C1-MAJ-02` (TradableListing eligibility v0.2 chỉ cấm ACTIVE khi Instrument RETIRED, không đối xứng Venue; v0.3 thêm invariant đối xứng thật sự tại `TradableListingCreated`/`TradableListingStatusChanged`, cộng derived `eligibility_state` tại `TradableListingCurrentView` — KHÔNG fabricate authoritative status event); đóng `IRB-C1-MAJ-03` (thêm `ActiveListingReservation` pair-scoped authority subject + `ActiveListingReserved`/`ActiveListingReservationReleased`/`ActiveListingActivationRejected`, pin `active_listing_arbitration_policy: PAIR_SCOPED_AUTHORITATIVE_RESERVATION`, không automatic promotion, không dùng raw cross-stream sequence); đóng `IRB-C1-MAJ-04` (pin `status_fold_order_policy: RECORDED_VISIBILITY_THEN_EFFECTIVE_ORDER`, thuật toán 5-phase tường minh thay thế mô tả mơ hồ "derived bằng fold recorded_time"). `instrument_id`/`venue_id`/`listing_id` **không đổi tên, không đổi shape** (`opaque string`) ở cả hai vòng correction.
+
+**Package 0.2-C1 CHƯA đạt `Consolidated Stable`** — điều kiện đó đòi hỏi cả hai vòng review độc lập hoàn tất VÀ Clean (0 finding còn lại) trên artifact hiện hành, đúng định nghĩa đã khóa ở mục Package 0.2-A. v0.3 vừa đóng Review B; cần một vòng xác nhận tiếp theo trước khi Consolidate.
 
 **Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào:** `instrument.md`/`venue.md`/`context.md`/`feature.md`/`regime.md`/`swing.md`/`structure.md`/`context-map.yaml` `status: Draft`; không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live; không sửa ADR nào. Package 0.2-C2–C7 **vẫn chưa được authorize, chưa author**. Phase 0.2 vẫn **active và chưa hoàn tất**.
 

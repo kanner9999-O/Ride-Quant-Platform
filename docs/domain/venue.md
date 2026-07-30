@@ -1,7 +1,7 @@
 ---
 id: venue
 title: Venue
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -31,9 +31,11 @@ Cộng **`VenueFactInvalidated`** (correction lineage, có thể target initial 
 
 **`venue-registered`/`venue-metadata-revised`/`venue-operational-status-changed`/`venue-fact-invalidated`/`venue-current-view` là canonical contract concept ID** — đúng giá trị `id:` trong từng khối YAML dưới đây. Display name, concept ID, và `event_type` là ba đại lượng khác nhau, không cạnh tranh identity — cùng nguyên tắc mọi Domain Contract trước.
 
-**Áp dụng ngay từ v0.1 mọi bài học đã trả giá xuyên suốt Package 0.2-B/instrument.md:** envelope binding cho `VenueFactInvalidated`; tách bạch forward-looking revision khỏi correction (đúng `instrument.md` §4/§17); no-row Current View semantics; canonical policy identifier khai báo ĐÚNG MỘT NƠI; opaque identity — không parse `venue_id` (Chapter 6 §6.8).
+**Áp dụng ngay từ v0.1 mọi bài học đã trả giá xuyên suốt Package 0.2-B/instrument.md:** envelope binding cho `VenueFactInvalidated`; tách bạch forward-looking revision khỏi correction (đúng `instrument.md` §4/§18); no-row Current View semantics; canonical policy identifier khai báo ĐÚNG MỘT NƠI; opaque identity — không parse `venue_id` (Chapter 6 §6.8).
 
-**v0.2 — ChatGPT Review A narrow correction, đóng `RA-C1-MAJ-01`/`RA-C1-MAJ-02`/`RA-C1-MAJ-03`:** (a) `RA-C1-MAJ-01` — `venue_type`/`jurisdiction_ref` là classification, không phải unique identity; thêm `venue_identity_ref` — discriminator opaque bất biến, bắt buộc, tham gia đầy đủ scope/subject_ref/VenueRegistered/Current View; hai Logical Venue phân biệt PHẢI có `venue_identity_ref` khác nhau dù `venue_type`/`jurisdiction_ref` trùng. (b) `RA-C1-MAJ-02` — `VenueMetadataRevised` v0.1 dùng optional field rời rạc; pin canonical `revision_policy: EXPLICIT_PATCH_WITH_CLEAR_SET` (định nghĩa đầy đủ tại `instrument.md` §16, tham chiếu tại đây, không lặp lại). (c) `RA-C1-MAJ-03` — `VenueRegistered` v0.1 không bao giờ correctable; pin `initial_fact_correction_policy: INVALIDATE_INITIAL_FACT_AND_REGISTER_NEW_SUBJECT_WHEN_SCOPE_CHANGES` (định nghĩa đầy đủ tại `instrument.md` §18, áp dụng nguyên văn cho Venue tại đây). Narrow correction — `venue_id` không đổi tên/shape.
+**v0.2 — ChatGPT Review A narrow correction, đóng `RA-C1-MAJ-01`/`RA-C1-MAJ-02`/`RA-C1-MAJ-03`:** (a) `RA-C1-MAJ-01` — thêm `venue_identity_ref` — discriminator opaque bất biến, bắt buộc, tham gia đầy đủ scope/subject_ref/VenueRegistered/Current View. (b) `RA-C1-MAJ-02` — pin canonical `revision_policy: EXPLICIT_PATCH_WITH_CLEAR_SET` (định nghĩa đầy đủ tại `instrument.md` §17, tham chiếu tại đây, không lặp lại). (c) `RA-C1-MAJ-03` — pin `initial_fact_correction_policy: INVALIDATE_INITIAL_FACT_AND_REGISTER_NEW_SUBJECT_WHEN_SCOPE_CHANGES` (định nghĩa đầy đủ tại `instrument.md` §19, áp dụng nguyên văn cho Venue tại đây).
+
+**v0.3 — Independent Review B narrow correction, đóng `IRB-C1-MAJ-01`/`IRB-C1-MAJ-02`/`IRB-C1-MAJ-04`:** (a) `IRB-C1-MAJ-01` — `VenueCurrentView` nay mang `pending_correction_class` bắt buộc khi `PENDING_CORRECTION` (`AWAITING_SAME_SUBJECT_REPLACEMENT`/`TERMINAL_SCOPE_INVALIDATION`), mapping đóng tại `instrument.md` §19, áp dụng nguyên văn (§7). (b) `IRB-C1-MAJ-02` — v0.2 CLAIM "TradableListing ACTIVE khi Venue RETIRED bị cấm, đối xứng" nhưng `instrument.md` v0.2 KHÔNG thực sự enforce phía Venue; v0.3 `instrument.md` §10/§11/§13 nay enforce đối xứng thật sự (đóng finding "Venue text claiming symmetric behavior not enforced by Instrument") — venue.md không cần sửa cơ chế (TradableListing thuộc `instrument.md`), chỉ cập nhật wording xác nhận đối xứng đã ĐƯỢC enforce, không còn là claim suông. (c) `IRB-C1-MAJ-04` — `status_fold_order_policy: RECORDED_VISIBILITY_THEN_EFFECTIVE_ORDER` (định nghĩa đầy đủ tại `instrument.md` §7 Bước 3/§17) áp dụng nguyên văn cho `VenueOperationalStatusChanged` fold. `IRB-C1-MAJ-03` (pair-scoped active-listing arbitration) thuộc phạm vi TradableListing — không định nghĩa lại ở đây, xem `instrument.md` §16. Narrow correction — `venue_id` không đổi tên/shape.
 
 ## 1. Logical Venue Subject — `kind: entity`
 
@@ -77,7 +79,7 @@ commands: []
 queries: []
 ```
 
-**`UNSEEN` là notional initial state**, cùng convention xuyên suốt. **`RETIRED` là terminal** — cùng nguyên tắc `instrument.md` §1. **Khi một Venue `RETIRED`, mọi TradableListing của nó KHÔNG được ở trạng thái `ACTIVE`** (`instrument.md` §10 cross-subject invariant, đối xứng).
+**`UNSEEN` là notional initial state**, cùng convention xuyên suốt. **`RETIRED` là terminal** — cùng nguyên tắc `instrument.md` §1. **Khi một Venue `RETIRED`, mọi TradableListing của nó KHÔNG được ở trạng thái `ACTIVE`** (`instrument.md` §10/§11/§13 cross-subject invariant, ĐỐI XỨNG với Instrument RETIRED — v0.3: đây nay là quy tắc THỰC SỰ được enforce tại `TradableListingCreated`/`TradableListingStatusChanged` invariant, KHÔNG chỉ là claim mô tả; v0.2 chỉ enforce phía Instrument, đóng `IRB-C1-MAJ-02`). Cơ chế TradableListing thuộc `instrument.md`, không định nghĩa lại ở đây — venue.md chỉ xác nhận vai trò Venue là một trong hai parent điều kiện eligibility (`instrument.md` §15 Bước 5).
 
 ## 2. Canonical event envelope — áp dụng cho mọi Venue event (§3–§6)
 
@@ -118,12 +120,12 @@ description: >
   đầu (timezone, default session/calendar policy, default precision policy). Dùng cho CẢ HAI
   trường hợp (v0.2, đóng RA-C1-MAJ-03): (a) original registration, KHÔNG có supersedes_fact_ref;
   (b) same-scope correction replacement sau VenueFactInvalidated target chính registration này,
-  CÙNG scope, CÓ supersedes_fact_ref — xem `instrument.md` §18 cho policy đầy đủ, áp dụng nguyên
+  CÙNG scope, CÓ supersedes_fact_ref — xem `instrument.md` §19 cho policy đầy đủ, áp dụng nguyên
   văn cho Venue.
 invariants:
-  - "Tại một thời điểm, đúng MỘT VALID registration lineage head cho mỗi venue_id — KHÔNG phải 'đúng một event record duy nhất mãi mãi' (đóng RA-C1-MAJ-03, xem `instrument.md` §18)."
+  - "Tại một thời điểm, đúng MỘT VALID registration lineage head cho mỗi venue_id — KHÔNG phải 'đúng một event record duy nhất mãi mãi' (đóng RA-C1-MAJ-03, xem `instrument.md` §19)."
   - "payload.venue_id PHẢI khớp đúng subject_ref.subject_id VÀ toàn bộ scope field."
-  - "supersedes_fact_ref VẮNG MẶT cho original registration; BẮT BUỘC cho same-scope correction replacement — khi có mặt, TOÀN BỘ scope field (venue_identity_ref, venue_type, jurisdiction_ref) PHẢI GIỐNG HỆT fact bị supersede (nếu scope khác, đăng ký venue_id MỚI theo `instrument.md` §18 SCOPE_ERROR path, không dùng supersedes_fact_ref)."
+  - "supersedes_fact_ref VẮNG MẶT cho original registration; BẮT BUỘC cho same-scope correction replacement — khi có mặt, TOÀN BỘ scope field (venue_identity_ref, venue_type, jurisdiction_ref) PHẢI GIỐNG HỆT fact bị supersede (nếu scope khác, đăng ký venue_id MỚI theo `instrument.md` §19 SCOPE_ERROR path, không dùng supersedes_fact_ref)."
   - "Khi supersedes_fact_ref có mặt: causation_refs PHẢI chứa chính VenueFactInvalidated đang được supersede; envelope.recorded_time PHẢI muộn hơn recorded_time của VenueFactInvalidated đó."
   - "envelope.effective_time = thời điểm registration record này có hiệu lực làm reference data."
 payload:
@@ -135,7 +137,7 @@ payload:
   timezone_ref: {type: string, required: true, description: "opaque reference tới timezone của venue (ví dụ IANA tz identifier hoặc registry reference) — KHÔNG hardcode UTC/24-7 (§8)"}
   default_session_calendar_ref: {type: string, required: true, description: "reference tới trading calendar/session policy mặc định của venue (§8) — TradableListing (instrument.md §11) có thể override per-listing"}
   default_precision_policy_ref: {type: string, required: false, description: "reference tới quy tắc precision/increment mặc định (§9) — TradableListing pin giá trị cụ thể per-listing, đây chỉ là default tham chiếu"}
-  supersedes_fact_ref: {type: event_record_ref, required: false, description: "VẮNG MẶT cho original registration; BẮT BUỘC cho same-scope correction replacement — xem invariants và `instrument.md` §18"}
+  supersedes_fact_ref: {type: event_record_ref, required: false, description: "VẮNG MẶT cho original registration; BẮT BUỘC cho same-scope correction replacement — xem invariants và `instrument.md` §19"}
 ```
 
 ## 4. `VenueMetadataRevised` — `kind: event`
@@ -153,11 +155,11 @@ description: >
   **Forward-looking theo mặc định** — cùng nguyên tắc `instrument.md` §4: fact liền trước vẫn
   hợp lệ cho window lịch sử của nó. Correction dùng VenueFactInvalidated (§6). **v0.2 (đóng
   RA-C1-MAJ-02):** payload dùng canonical PATCH policy `revision_policy:
-  EXPLICIT_PATCH_WITH_CLEAR_SET` (định nghĩa đầy đủ tại `instrument.md` §16).
+  EXPLICIT_PATCH_WITH_CLEAR_SET` (định nghĩa đầy đủ tại `instrument.md` §17).
 invariants:
   - "envelope.effective_time = thời điểm metadata mới bắt đầu có hiệu lực (forward-looking)."
   - "supersedes_fact_ref VẮNG MẶT cho forward-looking revision bình thường; BẮT BUỘC CHỈ KHI là correction replacement sau VenueFactInvalidated (§6, §11)."
-  - "changed_fields và clear_fields PHẢI tuân thủ đầy đủ `revision_policy: EXPLICIT_PATCH_WITH_CLEAR_SET` (`instrument.md` §16) — whitelist patchable field: display_name (optional, clearable), timezone_ref (REQUIRED, KHÔNG clearable), default_session_calendar_ref (REQUIRED, KHÔNG clearable), default_precision_policy_ref (optional, clearable). Field scope/identity (venue_id, venue_identity_ref, venue_type, jurisdiction_ref) TUYỆT ĐỐI CẤM xuất hiện trong changed_fields hoặc clear_fields."
+  - "changed_fields và clear_fields PHẢI tuân thủ đầy đủ `revision_policy: EXPLICIT_PATCH_WITH_CLEAR_SET` (`instrument.md` §17) — whitelist patchable field: display_name (optional, clearable), timezone_ref (REQUIRED, KHÔNG clearable), default_session_calendar_ref (REQUIRED, KHÔNG clearable), default_precision_policy_ref (optional, clearable). Field scope/identity (venue_id, venue_identity_ref, venue_type, jurisdiction_ref) TUYỆT ĐỐI CẤM xuất hiện trong changed_fields hoặc clear_fields."
 payload:
   venue_id: {type: string, required: true}
   changed_fields: {type: map, required: true, description: "field→value PHẢI set — key CHỈ trong whitelist {display_name, timezone_ref, default_session_calendar_ref, default_precision_policy_ref}; map CÓ THỂ rỗng NẾU clear_fields không rỗng"}
@@ -181,7 +183,7 @@ description: >
   là khả dụng để tham chiếu/list hay không) — KHÔNG phải trạng thái kết nối API runtime
   (Phase 1, §10).
 invariants:
-  - "new_status PHẢI là transition hợp lệ theo state_machine §1."
+  - "new_status PHẢI là transition hợp lệ theo state_machine §1 từ current_status hiện tại — current_status resolve theo `status_fold_order_policy: RECORDED_VISIBILITY_THEN_EFFECTIVE_ORDER` (`instrument.md` §7 Bước 3/§17, áp dụng nguyên văn — v0.3 đóng `IRB-C1-MAJ-04`), KHÔNG đơn thuần theo recorded_time fold."
   - "new_status = RETIRED KHÔNG được có transition tiếp theo cho cùng venue_id."
 payload:
   venue_id: {type: string, required: true}
@@ -200,13 +202,13 @@ capability_id: market-reference
 domain_context_id: instrument-venue-reference
 description: >
   Phủ định MỘT fact lịch sử cụ thể ĐÃ SAI của Venue — cùng nguyên tắc `instrument.md` §6. **v0.2
-  (đóng RA-C1-MAJ-03):** VenueRegistered NAY LÀ target hợp lệ — xem `instrument.md` §18 cho
+  (đóng RA-C1-MAJ-03):** VenueRegistered NAY LÀ target hợp lệ — xem `instrument.md` §19 cho
   policy đầy đủ, áp dụng nguyên văn cho Venue.
 invariants:
   - "envelope.subject_ref PHẢI BẰNG HỆT subject_ref của invalidated_fact_ref."
   - "envelope.effective_time PHẢI BẰNG HỆT effective_time của invalidated_fact_ref."
   - "invalidated_fact_ref PHẢI trỏ một VenueRegistered, VenueMetadataRevised, hoặc VenueOperationalStatusChanged, CHƯA từng nhận invalidation khác."
-  - "initial_fact_correction_class BẮT BUỘC có mặt CHỈ KHI invalidated_fact_ref là VenueRegistered; CẤM có mặt khi invalidated_fact_ref là VenueMetadataRevised/VenueOperationalStatusChanged. Semantic METADATA_ERROR (chờ replacement cùng subject) / SCOPE_ERROR (subject vĩnh viễn không replacement, venue_id mới thay thế) — đúng `instrument.md` §18."
+  - "initial_fact_correction_class BẮT BUỘC có mặt CHỈ KHI invalidated_fact_ref là VenueRegistered; CẤM có mặt khi invalidated_fact_ref là VenueMetadataRevised/VenueOperationalStatusChanged. Semantic METADATA_ERROR (chờ replacement cùng subject) / SCOPE_ERROR (subject vĩnh viễn không replacement, venue_id mới thay thế) — đúng `instrument.md` §19."
   - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_fact_ref. Replay tại cursor trước recorded_time của invalidation KHÔNG được thấy invalidation này."
 payload:
   invalidated_fact_ref: {type: event_record_ref, required: true}
@@ -216,7 +218,7 @@ payload:
 
 ## 7. `VenueCurrentView` — `kind: read_model` (optional, recommended)
 
-**Không phải authoritative event.** Rebuild được từ §3–§6, cùng fold algorithm shape đã pin ở `instrument.md` §7 (registration lineage head trước — quyết định `view_state`, vĩnh viễn `PENDING_CORRECTION` nếu `SCOPE_ERROR`; rồi fold metadata patch theo `metadata_fold_order_policy`; rồi fold status độc lập).
+**Không phải authoritative event.** Rebuild được từ §3–§6, cùng fold algorithm shape đã pin ở `instrument.md` §7 (registration lineage head trước — quyết định `view_state`, vĩnh viễn `PENDING_CORRECTION` nếu `SCOPE_ERROR`; rồi fold metadata patch theo `metadata_fold_order_policy`; rồi fold status theo `status_fold_order_policy` 5-phase, `instrument.md` §7 Bước 3, v0.3 đóng `IRB-C1-MAJ-04`).
 
 **Canonical decision — no-row trước khi có fact đầu tiên:**
 
@@ -226,7 +228,17 @@ Trước khi VenueRegistered tồn tại cho một venue_id:
   → GetCurrentVenue trả về NOT_FOUND / ABSENT
 ```
 
-`view_state` chỉ có **hai** giá trị — `VALID`, `PENDING_CORRECTION`.
+`view_state` chỉ có **hai** giá trị — `VALID`, `PENDING_CORRECTION`. Khi `PENDING_CORRECTION`, `pending_correction_class` BẮT BUỘC có mặt (v0.3, đóng `IRB-C1-MAJ-01` — mapping đóng tại `instrument.md` §19, áp dụng nguyên văn cho Venue, không định nghĩa lại):
+
+```text
+view_state = VALID              → pending_correction_class: CẤM (phải absent)
+view_state = PENDING_CORRECTION → pending_correction_class: BẮT BUỘC
+
+initial_fact_correction_class = METADATA_ERROR → pending_correction_class = AWAITING_SAME_SUBJECT_REPLACEMENT
+initial_fact_correction_class = SCOPE_ERROR    → pending_correction_class = TERMINAL_SCOPE_INVALIDATION
+```
+
+`TERMINAL_SCOPE_INVALIDATION` KHÔNG BAO GIỜ transition về `VALID`; subject cũ vẫn queryable qua `GetVenueHistory` làm historical invalid evidence; consumer KHÔNG được coi đây là "chờ và thử lại sau" (đúng `instrument.md` §19, áp dụng nguyên văn).
 
 ```yaml
 id: venue-current-view
@@ -239,13 +251,15 @@ description: >
   Contract khác PHẢI dùng authoritative event stream (`ref: venue`), KHÔNG BAO GIỜ dùng view này
   (I-12, Chapter 7 §7.4).
 invariants:
-  - "Phải rebuild được hoàn toàn từ authoritative event stream (Chapter 7 §7.4 rebuild determinism) — mọi implementation dùng cùng fold algorithm PHẢI cho cùng kết quả (đóng RA-C1-MAJ-02)."
+  - "Phải rebuild được hoàn toàn từ authoritative event stream (Chapter 7 §7.4 rebuild determinism) — mọi implementation dùng cùng fold algorithm PHẢI cho cùng kết quả (đóng RA-C1-MAJ-02, IRB-C1-MAJ-04)."
   - "KHÔNG được dùng làm input cho bất kỳ Domain Contract khác hay Decision — chỉ query/UI."
   - "view_state PHẢI đúng theo fold algorithm `instrument.md` §7 Bước 1 — registration lineage head quyết định; PENDING_CORRECTION vĩnh viễn nếu initial_fact_correction_class = SCOPE_ERROR."
+  - "pending_correction_class BẮT BUỘC có mặt khi view_state = PENDING_CORRECTION; CẤM có mặt khi view_state = VALID (đóng IRB-C1-MAJ-01)."
 schema:
   venue_id: {type: string, required: true}
   scope: {venue_identity_ref: string, venue_type: string, jurisdiction_ref: string, required: true, description: "chỉ có mặt khi view_state = VALID"}
   view_state: {type: enum, values: [VALID, PENDING_CORRECTION], required: true}
+  pending_correction_class: {type: enum, values: [AWAITING_SAME_SUBJECT_REPLACEMENT, TERMINAL_SCOPE_INVALIDATION], required: false, description: "BẮT BUỘC khi view_state = PENDING_CORRECTION, CẤM khi VALID — đóng IRB-C1-MAJ-01, mapping instrument.md §19"}
   current_status: {type: enum, values: [REGISTERED, ACTIVE, SUSPENDED, RETIRED], required: false}
   display_name: {type: string, required: false}
   timezone_ref: {type: string, required: false}
@@ -269,13 +283,13 @@ Venue sở hữu `default_precision_policy_ref` — reference opaque tới quy t
 
 ## 11. Correction lineage và initial-fact correction policy
 
-Correction lineage scoped chính xác theo `(venue_id, effective_time)` — mỗi effective_time-slice có chuỗi lineage RIÊNG. Mười invariant — **áp dụng nguyên văn theo `instrument.md` §17**, không định nghĩa lại: original fact không supersedes_fact_ref; replacement bắt buộc có; cùng subject/effective_time; supersede đúng lineage head; cấm nhảy cóc; cấm fork; replacement không visible trước invalidation; append-only; Current View loại trừ fact đã invalidate; forward-looking revision KHÔNG BAO GIỜ dùng invalidation.
+Correction lineage scoped chính xác theo `(venue_id, effective_time)` — mỗi effective_time-slice có chuỗi lineage RIÊNG. Mười invariant — **áp dụng nguyên văn theo `instrument.md` §18**, không định nghĩa lại: original fact không supersedes_fact_ref; replacement bắt buộc có; cùng subject/effective_time; supersede đúng lineage head; cấm nhảy cóc; cấm fork; replacement không visible trước invalidation; append-only; Current View loại trừ fact đã invalidate; forward-looking revision KHÔNG BAO GIỜ dùng invalidation.
 
-**`initial_fact_correction_policy: INVALIDATE_INITIAL_FACT_AND_REGISTER_NEW_SUBJECT_WHEN_SCOPE_CHANGES`** (v0.2, đóng `RA-C1-MAJ-03`) — **áp dụng nguyên văn theo `instrument.md` §18**, không định nghĩa lại: same-scope metadata error → invalidate + replacement `VenueRegistered` CÙNG `venue_id`, `supersedes_fact_ref` trỏ về fact bị invalidate, TOÀN BỘ scope giống hệt; scope/identity error → invalidate, KHÔNG replace dưới `venue_id` cũ, đăng ký `venue_id` MỚI với scope đúng, subject cũ Current View `PENDING_CORRECTION` **vĩnh viễn**.
+**`initial_fact_correction_policy: INVALIDATE_INITIAL_FACT_AND_REGISTER_NEW_SUBJECT_WHEN_SCOPE_CHANGES`** (v0.2, đóng `RA-C1-MAJ-03`) — **áp dụng nguyên văn theo `instrument.md` §19**, không định nghĩa lại: same-scope metadata error → invalidate + replacement `VenueRegistered` CÙNG `venue_id`, `supersedes_fact_ref` trỏ về fact bị invalidate, TOÀN BỘ scope giống hệt; scope/identity error → invalidate, KHÔNG replace dưới `venue_id` cũ, đăng ký `venue_id` MỚI với scope đúng, subject cũ Current View `PENDING_CORRECTION` **vĩnh viễn** (`pending_correction_class: TERMINAL_SCOPE_INVALIDATION`, §7).
 
 ## 12. Time semantics và bitemporal correctness
 
-Áp dụng nguyên văn theo `instrument.md` §19 — `effective_time`/`recorded_time`, không dùng `event_time`, `market_time: PROHIBITED`. **Historical Replay PHẢI dùng đúng metadata (timezone/calendar/precision default) có hiệu lực TẠI computation cursor** — không phải giá trị hiện tại (đóng attack scenario tương tự "current metadata accidentally used for historical replay", áp dụng cho Venue). Correction visibility: `VenueFactInvalidated` và replacement đều có `recorded_time` mới; replay tại cursor trước đó chỉ thấy fact gốc.
+Áp dụng nguyên văn theo `instrument.md` §20 — `effective_time`/`recorded_time`, không dùng `event_time`, `market_time: PROHIBITED`. **Historical Replay PHẢI dùng đúng metadata (timezone/calendar/precision default) có hiệu lực TẠI computation cursor** — không phải giá trị hiện tại (đóng attack scenario tương tự "current metadata accidentally used for historical replay", áp dụng cho Venue). Correction visibility: `VenueFactInvalidated` và replacement đều có `recorded_time` mới; replay tại cursor trước đó chỉ thấy fact gốc.
 
 ## 13. No repaint và mode parity
 
