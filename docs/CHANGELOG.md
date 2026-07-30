@@ -2,6 +2,89 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — correct Package 0.2-C3 strategy eligibility
+
+**Package 0.2-C3 bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C3 bounded correction — consolidated Review A + Independent Review B findings." Đóng đúng bốn finding Major: `C3-MAJ-01` (concrete instrument selection), `C3-MAJ-02` (Definition Version validity), `C3-MAJ-03` (Account eligibility), `C3-MAJ-04` (evidence-reference resolvability); cộng hai finding Minor: `C3-MIN-01` (Strategy Definition family identity), `C3-MIN-02` (unified computation-eligibility rule). Authorization này **không** cho phép sửa ADR-013 hay bất kỳ ADR nào, sửa C1/C2 semantics, tạo Strategy family aggregate, tạo Selection/universe aggregate, author C4–C7, định nghĩa strategy DSL/executable code, thiết kế registry/retention infrastructure, thêm capital allocation/multi-strategy arbitration, thêm Live activation workflow, sửa Constitution, đóng OQ-002/OQ-003, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.
+
+### Baseline verification
+
+```text
+Expected HEAD:  a4346ca6df54c74b70438488c676171b8eebac55
+Actual HEAD:    a4346ca6df54c74b70438488c676171b8eebac55  — match
+
+strategy.md:       v0.1 Draft, blob 66b9b8226f18ff3e39506d22df68e5940b91746d  — match
+ADR-013.md:        v0.3 Approved, blob 02df931143f8408c61d19ee2c91d2d355d5deb1d  — match
+context-map.yaml:  v0.12 Draft, blob fc237c51a23c8b46a0bb4b4997fcaa851edae4ac  — match
+README.md:         v0.34 Draft, blob 5f1a9616c95d85917bc6551e6e9453f685100956  — match
+MANIFEST.md:       manifest_version 9.60, blob f2b0dd084a640c7e8c01a8de76f9738fbdd5d8d4  — match
+```
+
+### C3-MAJ-01 — Concrete instrument selection
+
+`instrument_selection_ref` v0.1 là opaque string, shape deferred — C4 sẽ phải tự phát minh format. v0.2 pin shape cụ thể `{instrument_id, venue_id, listing_id}` (`strategy.md` §5 schema + §2 envelope subject_ref.scope + §6 payload), đối xứng ba field scope của `TradableListing` (`instrument.md` §10). Pin: đúng MỘT listing per Strategy Instance (bất biến cùng toàn bộ scope, không multi-instrument); cả ba field bắt buộc; resolve từ authoritative C1 event stream (`InstrumentRegistered`/`VenueRegistered`/`TradableListingCreated`) TẠI cùng cursor, KHÔNG dùng `InstrumentCurrentView`/`VenueCurrentView`/`TradableListingCurrentView` latest-state làm input; Instrument/Venue/TradableListing phải ELIGIBLE (`instrument.md` §15 `eligibility_state`) tại computation cursor (§9a). `StrategyInstanceRegistered` (§6) thêm invariant causation_refs phải trỏ `TradableListingCreated` của `listing_id`, đối xứng invariant Account đã có. Multi-instrument set/universe/dynamic selection vẫn deferred (§14). KHÔNG tạo Selection aggregate — `instrument_selection_ref` vẫn là compound scope field trên chính Strategy Instance.
+
+### C3-MAJ-02 — Definition Version validity
+
+Thêm vào §9a (mới): computation MỚI chỉ eligible khi `strategy_definition_version_ref` `VALID` (`GetStrategyDefinitionVersionValidity`, §4) tại computation cursor. Khi invalidation trở nên visible: cấm computation mới; Strategy Instance's `current_status`/state_machine (§5) KHÔNG tự động pause/retire (không cascade tự động); computation lịch sử trước invalidation cursor giữ nguyên authoritative (đúng Chapter 9 §9.3 "lifecycle transitions must never invalidate already-computed Decision evidence"); Definition Version đã sửa PHẢI dùng cho một `strategy_instance_id` MỚI (`strategy_definition_version_ref` là scope bất biến trên Instance, không rebind tại chỗ — giữ nguyên "immutable Instance binding").
+
+### C3-MAJ-03 — Account eligibility
+
+Thêm vào §9a: computation MỚI chỉ eligible khi Account (`account_id`, reconstruct authoritative TẠI cùng cursor) `current_status = ACTIVE`. Khi SUSPENDED/CLOSED: cấm computation mới; Strategy Instance lifecycle KHÔNG tự động mutate (không cascade tự động); historical evidence giữ nguyên; `strategy.md` KHÔNG author Order/Position/recovery behavior nào (thuộc phạm vi C4–C7, chưa author). `environment` vẫn LUÔN resolve từ Account tại cùng cursor bất kể Account ACTIVE/SUSPENDED/CLOSED (bất biến, không phải điều kiện có thể fail độc lập).
+
+### C3-MAJ-04 — Evidence-reference resolvability
+
+Thêm vào §9a/§11: cả bốn trục evidence (`strategy_definition_version_ref`/`plugin_version_ref`/`configuration_version_ref`/`package_build_artifact_ref`) PHẢI persistently resolvable tại computation cursor (Chapter 8 §8.1.1 mục 4). Nếu bất kỳ trục nào không resolvable: computation mới deterministically ineligible; KHÔNG mutable-latest, KHÔNG inferred fallback, KHÔNG proxy reference; Strategy Instance KHÔNG bị mutate; historical evidence giữ nguyên. KHÔNG thiết kế registry/retention infrastructure hay recovery mechanism (Phase 1, §14) — chỉ pin RULE hệ quả.
+
+### C3-MIN-01 — Strategy Definition family identity
+
+`strategy_definition_id` (§1) thắt chặt: opaque, globally unique, stable — gán tại Version ĐẦU TIÊN của một gia đình Strategy logic; KHÔNG BAO GIỜ tái sử dụng cho gia đình khác; Version sau chỉ được mang lại cùng ID khi thuộc CÙNG gia đình logic (kỷ luật tác giả/operator, Phase 1). KHÔNG tạo family aggregate, family registration event, version graph, hay approval workflow — vẫn thuần là scope field.
+
+### C3-MIN-02 — Unified computation-eligibility rule
+
+Section MỚI `### 9a. Computation eligibility — unified rule` (giữa §9 và §10, cùng convention `feature.md` §9a — không renumbering section nào khác). Pin MỘT normative derived rule `eligible_for_new_computation`, AND-conjunction sáu điều kiện cùng computation cursor C: Strategy Instance `current_status == ACTIVE`; `strategy_definition_version_ref` `VALID`; Account `current_status == ACTIVE`; Account `environment` resolve nhất quán; cả bốn trục evidence resolvable; `instrument_selection_ref` resolve đúng một TradableListing `ELIGIBLE`. Canonical policy identifier mới tại §12: `computation_eligibility_policy: ALL_CONDITIONS_TRUE_AT_SAME_CURSOR`. Rule thuộc Strategy eligibility ONLY — `strategy.md` KHÔNG author Trade Intent/Decision/Risk/Execution behavior, KHÔNG tự enforce (chưa có consumer). Convenience query non-authoritative `GetStrategyInstanceComputationEligibility` thêm cho tiện query/UI, cùng nguyên tắc Current-View-never-authority.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10 (đặc biệt Chapter 8 §8.1.1, Chapter 9 §9.3), ADR-010 §75, ADR-013 v0.3 Approved (byte-for-byte unchanged — verified), Package 0.2-C1 (`instrument.md`/`venue.md` không đổi — verified byte-for-byte), Package 0.2-C2 (`account.md` không đổi — verified byte-for-byte). Preserve nguyên vẹn: Strategy Definition Version/Strategy Instance separation; bốn trục evidence độc lập; immutable Instance binding; lifecycle ACTIVE/PAUSED/RETIRED; RETIRED forward terminality; status correction lineage; no-mutable-latest; same-cursor authoritative reconstruction; Current View non-authority; một file `strategy.md` duy nhất. Không owner/tenant/IAM/billing semantics mới. Không Strategy DSL/executable code. Không optimizer/backtest engine. Không capital allocation/multi-strategy arbitration. Không Live activation workflow. Không Strategy family aggregate. Không Selection/universe aggregate.
+
+### Complete finding ledger — all resolved (bounded correction, v0.1 → v0.2)
+
+```text
+C3-MAJ-01:  Resolved (instrument_selection_ref pin {instrument_id, venue_id, listing_id}, resolve same-cursor C1 history, không Selection aggregate)
+C3-MAJ-02:  Resolved (Definition Version VALID required cho computation mới, không auto-cascade Instance lifecycle, §9a)
+C3-MAJ-03:  Resolved (Account ACTIVE required cho computation mới, không auto-cascade Instance lifecycle, §9a)
+C3-MAJ-04:  Resolved (bốn trục evidence phải resolvable tại cursor, unresolvable ⟹ ineligible, không proxy, §9a/§11)
+C3-MIN-01:  Resolved (strategy_definition_id gán tại Version đầu gia đình, không tái sử dụng cross-family, §1)
+C3-MIN-02:  Resolved (unified rule eligible_for_new_computation, sáu điều kiện AND cùng cursor, §9a/§12)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Author self-review
+
+Không tìm thấy finding blocking nào khác trong self-review. Xác nhận: §9a chèn dạng sub-heading (`### 9a.`) đúng precedent `feature.md` §9a — KHÔNG renumbering §10–§16, mọi `§N` citation nội bộ đã rescan và khớp đúng heading thực tế. Xác nhận YAML fenced block (11 block, bao gồm hai schema nested mới `instrument_selection_ref`) parse sạch, đúng style `account_boundary_ref` precedent (`account.md` §1). Xác nhận `instrument_selection_ref` shape đối xứng đúng ba field scope `TradableListing` (`instrument.md` §10), không tự phát minh shape khác.
+
+### Changed-file scope
+
+```text
+docs/domain/strategy.md        MODIFIED v0.1 → v0.2    blob eaedbc63411501262cebd3e16fe1c9b5c0062ac3
+docs/domain/context-map.yaml   MODIFIED v0.12 → v0.13  (comment-only, không relationship edge mới)
+docs/domain/README.md          MODIFIED v0.34 → v0.35
+docs/MANIFEST.md               MODIFIED manifest_version 9.60 → 9.61
+docs/CHANGELOG.md              MODIFIED (this entry)
+```
+
+### Metadata / state
+
+- `strategy.md`: **v0.1 → v0.2**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `context-map.yaml`: **v0.12 → v0.13** — chỉ sửa comment ghi nhận finding closure, không thêm relationship edge.
+- `README.md` (domain index): **v0.34 → v0.35**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.60 → 9.61**; dòng `domain/` cập nhật ghi nhận Package 0.2-C3 bounded correction.
+- `ADR-013.md`, `ADR-012.md`, `instrument.md`, `venue.md`, `account.md`: **không đổi** (byte-for-byte, verified).
+- Mọi ADR khác, Constitution, mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C3 CHƯA đạt `Consolidated Stable` — chờ ChatGPT delta Review A + Independent Review B trên cùng exact baseline correction này.** Mandatory sequence tiếp tục: delta review hai vòng → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. Package 0.2-C1/C2 vẫn `Consolidated Stable`, không đổi. Package 0.2-C4–C7 vẫn chưa authorize, chưa author. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — author Package 0.2-C3 strategy foundation
 
 **Package 0.2-C3 — Strategy Foundation v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C3 — Strategy Foundation v0.1". Authorized artifact: `docs/domain/strategy.md` (tạo mới, v0.1 Draft). Authorization này **không** cho phép author Package 0.2-C4–C7, định nghĩa strategy DSL/executable code, optimizer/backtest engine, capital allocation/multi-strategy arbitration, Live activation workflow, sửa C1/C2 semantic, sửa ADR-013 hay bất kỳ ADR/Constitution nào, đóng OQ-002/OQ-003, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.

@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.12"
+version: "0.13"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -132,7 +132,7 @@ contexts:
     title: Strategy Definition & Instance
     capability_id: strategy-management
     responsibility: "Định nghĩa Strategy Definition Version (thesis, supported_scope, required input contracts, decision-rule ref, explanation contract ref — bất biến) và Strategy Instance (pin bốn trục evidence độc lập: strategy_definition_version_ref/plugin_version_ref/configuration_version_ref/package_build_artifact_ref, cộng account_id và instrument_selection_ref) — theo ADR-013 §2."
-    owned_contracts: [strategy]   # authored — Package 0.2-C3: strategy.md v0.1 Draft, chưa qua Review A/B; controlling architecture ADR-013 v0.3 Approved
+    owned_contracts: [strategy]   # bounded correction — Package 0.2-C3: strategy.md v0.2 Draft (đóng C3-MAJ-01/02/03/04, C3-MIN-01/02 — consolidated Review A + Independent Review B findings), chưa qua delta review; controlling architecture ADR-013 v0.3 Approved (không đổi)
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship

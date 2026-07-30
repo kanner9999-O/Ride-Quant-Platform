@@ -1,7 +1,7 @@
 ---
 id: strategy
 title: Strategy
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -33,6 +33,8 @@ Strategy bao gồm **hai concept riêng biệt, không gộp làm một aggregat
 
 **Phạm vi bounded tường minh (v0.1):** KHÔNG author Trade Intent/Decision semantics (Package 0.2-C4). KHÔNG author strategy DSL/executable code. KHÔNG author optimizer/backtest engine. KHÔNG author capital allocation/multi-strategy arbitration. KHÔNG author Live activation workflow — `environment: LIVE` (kế thừa qua `account_id`, §6) chỉ là domain value phân biệt, KHÔNG authorize Live execution của platform. Đây là minimum executable specification, không phải perfect document — dễ revise từ implementation evidence (Phase 1).
 
+**v0.2 — bounded correction, đóng `C3-MAJ-01`/`C3-MAJ-02`/`C3-MAJ-03`/`C3-MAJ-04`/`C3-MIN-01`/`C3-MIN-02` (consolidated Review A + Independent Review B findings):** (a) `C3-MAJ-01` — `instrument_selection_ref` v0.1 là opaque string, shape chưa pin, khiến C4 phải tự phát minh; v0.2 pin shape cụ thể `{instrument_id, venue_id, listing_id}` — đúng MỘT TradableListing cụ thể, cả ba field bắt buộc, resolve từ authoritative C1 history (`instrument.md`/`venue.md`) TẠI cùng cursor, KHÔNG tạo Selection aggregate (§5). (b) `C3-MAJ-02` — pin Strategy Instance chỉ eligible cho computation MỚI khi `strategy_definition_version_ref` VALID tại computation cursor; invalidation KHÔNG tự động pause/retire Instance, lịch sử computation trước cursor giữ nguyên, Definition Version đã sửa cần Strategy Instance MỚI (§9a). (c) `C3-MAJ-03` — pin Strategy Instance chỉ eligible cho computation MỚI khi Account `ACTIVE` tại cùng cursor; SUSPENDED/CLOSED KHÔNG tự động mutate Instance lifecycle, historical evidence giữ nguyên, KHÔNG author Order/Position/recovery behavior (§9a). (d) `C3-MAJ-04` — pin cả bốn trục evidence phải persistently resolvable tại computation cursor; không resolvable ⟹ computation mới deterministically ineligible, KHÔNG mutable-latest/inferred fallback/proxy nào được chấp nhận, Instance KHÔNG bị mutate (§9a, §11). (e) `C3-MIN-01` — thắt chặt `strategy_definition_id`: gán tại Version ĐẦU TIÊN của gia đình, KHÔNG BAO GIỜ tái sử dụng cho gia đình Strategy khác, KHÔNG tạo family aggregate/registration event/version graph/approval workflow (§1). (f) `C3-MIN-02` — thêm MỘT normative derived rule `eligible_for_new_computation`, hợp nhất sáu điều kiện (Instance ACTIVE, Definition Version VALID, Account ACTIVE, environment resolve nhất quán, bốn trục evidence resolvable, instrument selection eligible), cùng cursor (§9a) — thuộc Strategy eligibility ONLY, KHÔNG author Trade Intent/Decision/Risk/Execution behavior. Bounded — không đổi Strategy Definition Version/Strategy Instance separation, bốn trục độc lập, immutable Instance binding, lifecycle ACTIVE/PAUSED/RETIRED, RETIRED forward terminality, status correction lineage, no-mutable-latest, same-cursor authoritative reconstruction, Current View non-authority, một file `strategy.md` duy nhất, ADR-013.
+
 ## 1. Strategy Definition Version — `kind: entity`
 
 **Strategy Definition thực hiện HOÀN TOÀN qua Version — không có registration event riêng cho family.** `strategy_definition_id` là một SCOPE field nhóm nhiều Version bất biến lại với nhau (family identity), tương tự cách `instrument_id`/`venue_id` là scope field của TradableListing — KHÔNG phải một subject/entity được đăng ký độc lập. Điều này tránh phát minh một cơ chế "family registration" không cần thiết: family identity đơn giản là giá trị `strategy_definition_id` nhất quán xuyên suốt mọi Version thuộc cùng chiến lược.
@@ -50,7 +52,8 @@ description: >
   semantics tạo MỘT Version MỚI, KHÔNG sửa Version đang có (ADR-013 §2.3, cấm tường minh).
 invariants:
   - "strategy_definition_version_id là opaque, globally unique trong toàn Ride, gán tại thời điểm StrategyDefinitionVersionRegistered — KHÔNG derive/resolve từ strategy_definition_id hay bất kỳ field nội dung nào (đóng trước lớp lỗi C2-MAJ-01-style). Bất biến, KHÔNG tái sử dụng cho nội dung khác (Chapter 6 §6.1, Chapter 8 §8.1.1 mục 3)."
-  - "strategy_definition_id là opaque, stable, KHÔNG tự có registration event riêng — chỉ là scope field nhóm nhiều Version. Một strategy_definition_id có thể gắn với NHIỀU strategy_definition_version_id (một Definition có nhiều Version bất biến, đúng yêu cầu 'One Definition may have multiple immutable versions')."
+  - "**v0.2 (đóng C3-MIN-01):** strategy_definition_id là opaque, globally unique, stable — gán tại thời điểm Version ĐẦU TIÊN của một gia đình Strategy logic được đăng ký (StrategyDefinitionVersionRegistered đầu tiên mang giá trị strategy_definition_id đó), KHÔNG BAO GIỜ tái sử dụng cho một gia đình Strategy logic KHÁC. Một Version SAU CÓ THỂ mang lại ĐÚNG strategy_definition_id này CHỈ KHI nó thuộc CÙNG gia đình Strategy logic (business continuity — cùng chiến lược, phiên bản mới); việc gán đúng gia đình là kỷ luật tác giả/operator workflow (Phase 1, §14), KHÔNG tự động verify bởi Domain Contract này."
+  - "strategy_definition_id KHÔNG tự có registration event riêng — chỉ là scope field nhóm nhiều Version (KHÔNG tạo family aggregate, KHÔNG family registration event, KHÔNG version graph, KHÔNG approval workflow). Một strategy_definition_id có thể gắn với NHIỀU strategy_definition_version_id (một Definition có nhiều Version bất biến, đúng yêu cầu 'One Definition may have multiple immutable versions')."
   - "TOÀN BỘ payload của một Version (thesis, supported_scope, required_input_contracts, decision_rule_ref, explanation_contract_ref, downstream_output_capability) là NỘI DUNG BẤT BIẾN — không có field nào 'mutable metadata' tách biệt như Account/Venue. KHÔNG có AccountMetadataRevised-style PATCH event cho subject này — bất kỳ thay đổi nội dung nào, dù nhỏ, đều nghĩa là MỘT strategy_definition_version_id MỚI (đúng ADR-013 §2.2/§2.3)."
   - "strategy_definition_id, một khi gán cho một strategy_definition_version_id, KHÔNG được đổi cho chính record đó — nhưng KHÔNG cấm một Version MỚI (ID khác) thuộc một strategy_definition_id khác, kể cả khi nó là bản 'sửa' của một Version trước — xem §3 correction lineage (KHÔNG có same-ID replacement path cho subject này, chỉ có 'invalidate + đăng ký Version MỚI')."
   - "account_id KHÔNG xuất hiện trong Strategy Definition Version — Definition Version là business/decision semantics độc lập Account (nhiều Strategy Instance, thuộc nhiều Account khác nhau, có thể cùng pin một Definition Version, §5)."
@@ -112,7 +115,7 @@ subject_ref (Strategy Instance, §5):
     configuration_version_ref: <string>
     package_build_artifact_ref: <string>
     account_id: <string>
-    instrument_selection_ref: <string>
+    instrument_selection_ref: {instrument_id: <string>, venue_id: <string>, listing_id: <string>}   # v0.2, đóng C3-MAJ-01
 
 event_types:
   StrategyDefinitionVersionRegistered: STRATEGY_DEFINITION_VERSION_REGISTERED
@@ -209,7 +212,9 @@ invariants:
   - "account_id PHẢI trỏ một Account đã AccountRegistered (account.md §3) — Instance KHÔNG hợp lệ nếu account_id chưa tồn tại. MỘT Instance bind ĐÚNG MỘT Account — không có multi-account Instance."
   - "environment KHÔNG PHẢI field riêng của Strategy Instance — resolve TRỰC TIẾP từ Account (account.md §1, immutable) qua account_id, TẠI cùng cursor mà computation đang dùng (đóng yêu cầu 'Account and environment must resolve from authoritative same-cursor history') — tránh duplicate source of truth (I-12). KHÔNG lưu bản sao environment trên Instance."
   - "**Instrument selection ownership — MỘT quy tắc duy nhất (đóng yêu cầu 'pin one authoritative ownership rule'):** `instrument_selection_ref` thuộc Strategy Instance (field bắt buộc, dưới đây) — KHÔNG thuộc Configuration Version. Configuration Version (Chapter 9 §9.1 concept, chưa author ở C3) có thể mang thêm tham số tinh chỉnh khác, nhưng KHÔNG sở hữu instrument selection — Instance là authoritative pin DUY NHẤT cho việc instrument/TradableListing nào Instance này target."
+  - "**v0.2 (đóng C3-MAJ-01):** `instrument_selection_ref` pin ĐÚNG MỘT TradableListing cụ thể — `{instrument_id, venue_id, listing_id}`, cả BA field bắt buộc (KHÔNG phải object rỗng/partial). `instrument_id` PHẢI trỏ một Logical Instrument đã `InstrumentRegistered` (`instrument.md` §3); `venue_id` PHẢI trỏ một Venue đã `VenueRegistered` (`venue.md` §3); `listing_id` PHẢI trỏ một `TradableListing` đã `TradableListingCreated` cho ĐÚNG cặp (`instrument_id`, `venue_id`) đó (`instrument.md` §10) — cùng scope ba field đối xứng `instrument.md` §10, KHÔNG tự phát minh shape khác. Resolvability PHẢI kiểm tra tại authoritative C1 event stream (Instrument/Venue/TradableListing) TẠI CÙNG cursor mà `StrategyInstanceRegistered` (hoặc computation liên quan, §9a) đang dùng — KHÔNG dùng `InstrumentCurrentView`/`VenueCurrentView`/`TradableListingCurrentView` latest-state làm input (cùng nguyên tắc Current-View-never-authority đã khóa xuyên suốt `instrument.md` §7/§15)."
   - "instrument_selection_ref PHẢI nằm trong supported_scope của strategy_definition_version_ref tương ứng (§1) — Instance KHÔNG được chọn instrument ngoài class mà Definition Version hỗ trợ; xác minh cụ thể (parsing supported_scope) là Phase 1/C4 concern, ở đây chỉ pin RULE."
+  - "Multi-instrument set, universe, và dynamic selection (nhiều listing cho một Instance, hoặc selection thay đổi theo thời gian) KHÔNG được hỗ trợ ở v0.1/v0.2 — MỘT Instance pin ĐÚNG MỘT listing, bất biến cùng toàn bộ scope (đúng invariant đầu tiên §5); mở rộng multi-instrument vẫn deferred (§14), KHÔNG tạo Selection aggregate."
   - "`environment: LIVE` (resolve qua account_id) KHÔNG tự động authorize Live execution của platform — đây thuần túy là domain value phân biệt account environment (đúng nguyên tắc account.md §8), Live execution authorization là quyết định governance riêng, tách bạch hoàn toàn."
 schema:
   strategy_instance_id: {type: string, required: true, description: "opaque, stable — xem invariants"}
@@ -218,7 +223,14 @@ schema:
   configuration_version_ref: {type: string, required: true, description: "trục 3/4 — exact parameter values cho instance này (Chapter 9 §9.1)"}
   package_build_artifact_ref: {type: string, required: true, description: "trục 4/4 — exact executable/deployable artifact identity đang chạy (Chapter 9 §9.1/§9.5, ADR-013 §2.5)"}
   account_id: {type: string, required: true, ref: account, description: "đúng MỘT Account — environment resolve qua đây, KHÔNG lưu riêng"}
-  instrument_selection_ref: {type: string, required: true, description: "opaque reference tới concrete Instrument/TradableListing selection — thuộc Instance, KHÔNG thuộc Configuration Version (xem invariants); shape cụ thể (một instrument hay tập instrument) deferred §14"}
+  instrument_selection_ref:
+    type: object
+    required: true
+    description: "concrete single-TradableListing selection — thuộc Instance, KHÔNG thuộc Configuration Version (xem invariants); v0.2 pin shape, đóng C3-MAJ-01"
+    fields:
+      instrument_id: {type: string, required: true, description: "opaque, trỏ Logical Instrument đã InstrumentRegistered (instrument.md §3)"}
+      venue_id: {type: string, required: true, description: "opaque, trỏ Venue đã VenueRegistered (venue.md §3)"}
+      listing_id: {type: string, required: true, description: "opaque, trỏ TradableListing đã TradableListingCreated cho đúng cặp (instrument_id, venue_id) — instrument.md §10"}
   display_name: {type: string, required: false, description: "mô tả tiện dụng, KHÔNG phải identity, gán một lần tại registration — KHÔNG có revision mechanism ở v0.1 (minimal, deferred §14)"}
 state_machine:
   initial_state: UNSEEN
@@ -256,6 +268,7 @@ description: >
 invariants:
   - "payload.strategy_instance_id PHẢI khớp đúng subject_ref.subject_id VÀ toàn bộ scope field PHẢI khớp subject_ref.scope."
   - "causation_refs PHẢI trỏ AccountRegistered (account.md §3) của account_id tương ứng — chứng minh Account đã tồn tại trước khi Instance đăng ký."
+  - "**v0.2 (đóng C3-MAJ-01):** causation_refs PHẢI (cộng thêm) trỏ TradableListingCreated (instrument.md §10) của listing_id trong instrument_selection_ref — chứng minh TradableListing đã tồn tại trước khi Instance đăng ký, đối xứng invariant Account ở trên."
   - "envelope.effective_time = thời điểm Instance này thực sự bắt đầu hiệu lực (có thể khác recorded_time nếu backfill/future-dated activation)."
   - "KHÔNG có field supersedes_fact_ref trong payload — subject này KHÔNG hỗ trợ same-ID correction replacement (§8: correction luôn đăng ký strategy_instance_id MỚI)."
 payload:
@@ -265,7 +278,10 @@ payload:
   configuration_version_ref: {type: string, required: true}
   package_build_artifact_ref: {type: string, required: true}
   account_id: {type: string, required: true}
-  instrument_selection_ref: {type: string, required: true}
+  instrument_selection_ref:
+    instrument_id: {type: string, required: true}
+    venue_id: {type: string, required: true}
+    listing_id: {type: string, required: true}
   display_name: {type: string, required: false}
 ```
 
@@ -288,7 +304,7 @@ invariants:
   - "new_status = RETIRED trên valid lineage hiện hành KHÔNG được có StrategyInstanceStatusChanged forward transition tiếp theo cho cùng strategy_instance_id (§5 terminal_states) — đây là ràng buộc FORWARD LIFECYCLE, không áp dụng cho correction record."
   - "Một RETIRED fact (hoặc bất kỳ StrategyInstanceStatusChanged nào khác) ghi SAI vẫn correctable qua StrategyInstanceFactInvalidated + same-slice StrategyInstanceStatusChanged replacement (§8, cùng (strategy_instance_id, effective_time) slice, supersedes_fact_ref trỏ đúng fact bị invalidate) — correction KHÔNG bị chặn bởi RETIRED terminality. Fold algorithm (§9) PHẢI recompute current_status từ valid corrected lineage sau khi replacement visible. KHÔNG thêm state/enum mới, KHÔNG thêm reactivation command ngoài cơ chế correction đã có."
   - "envelope.effective_time = thời điểm status transition này thực sự có hiệu lực (có thể khác recorded_time nếu biết trước lịch pause/retire)."
-  - "Strategy Instance CHỈ hợp lệ cho computation MỚI (Trade Intent/Decision mới ở Package 0.2-C4+) khi current_status = ACTIVE tại effective_time liên quan — PAUSED/RETIRED CẤM computation mới; đây là RÀNG BUỘC lên Domain Contract tương lai (Decision, chưa author), strategy.md chỉ PIN quy tắc, không tự enforce vì chưa có consumer nào tồn tại (§10)."
+  - "**v0.2 (đóng C3-MIN-02):** current_status = ACTIVE là MỘT trong sáu điều kiện bắt buộc của unified computation-eligibility rule `eligible_for_new_computation` (§9a) — PAUSED/RETIRED CẤM computation mới, nhưng ĐƠN LẺ current_status = ACTIVE KHÔNG đủ điều kiện; xem §9a cho định nghĩa đầy đủ (Definition Version validity, Account lifecycle, evidence-reference resolvability, instrument selection eligibility). Đây là RÀNG BUỘC lên Domain Contract tương lai (Decision, Package 0.2-C4+, chưa author) — strategy.md chỉ PIN quy tắc, không tự enforce vì chưa có consumer nào tồn tại."
   - "supersedes_fact_ref VẮNG MẶT cho forward transition bình thường; BẮT BUỘC cho same-slice correction replacement — khi có mặt, PHẢI trỏ đúng StrategyInstanceStatusChanged (kể cả RETIRED) bị StrategyInstanceFactInvalidated target, cùng subject/effective_time (§8)."
 payload:
   strategy_instance_id: {type: string, required: true}
@@ -406,6 +422,51 @@ schema:
 queries: [GetCurrentStrategyInstance, GetStrategyInstanceHistory]
 ```
 
+### 9a. Computation eligibility — unified rule (v0.2, đóng `C3-MAJ-02`/`C3-MAJ-03`/`C3-MAJ-04`/`C3-MIN-02`)
+
+**Vai trò:** MỘT rule normative, derived, deterministic, đánh giá TẠI cùng computation cursor mà Package 0.2-C4 (Trade Intent/Decision, chưa author) đang dùng — trả lời câu hỏi "Strategy Instance này có đủ điều kiện sinh computation MỚI hay không". Rule này thuộc **Strategy eligibility ONLY** — strategy.md KHÔNG author Trade Intent/Decision/Risk/Execution behavior; strategy.md chỉ PIN định nghĩa deterministic, KHÔNG tự enforce (chưa có consumer nào tồn tại, đúng nguyên tắc §7).
+
+**Definition Version validity (đóng `C3-MAJ-02`):** computation MỚI chỉ eligible khi `GetStrategyDefinitionVersionValidity(strategy_definition_version_ref, cursor)` (§4) trả về `VALID` — KHÔNG `TERMINALLY_INVALID`. Khi invalidation của Definition Version trở nên visible tại một cursor sau này:
+- computation MỚI bị cấm từ cursor đó trở đi;
+- Strategy Instance's `current_status`/state_machine (§5) **KHÔNG tự động** chuyển PAUSED/RETIRED — không có cascade tự động nào giữa `StrategyDefinitionVersionFactInvalidated` và Instance lifecycle;
+- computation lịch sử đã tính TRƯỚC invalidation cursor giữ nguyên authoritative, không bị ảnh hưởng (append-only, đúng nguyên tắc "lifecycle transitions must never invalidate already-computed Decision evidence", Chapter 9 §9.3);
+- Definition Version đã sửa (Version mới đăng ký qua `StrategyDefinitionVersionRegistered`, §3) **PHẢI** dùng cho một `strategy_instance_id` MỚI — `strategy_definition_version_ref` là scope bất biến trên Instance (§5), KHÔNG thể rebind tại chỗ, đúng "immutable Instance binding" đã preserve.
+
+**Account eligibility (đóng `C3-MAJ-03`):** computation MỚI chỉ eligible khi Account (resolve qua `account_id`, `account.md` §3–§6, reconstruct authoritative TẠI cùng cursor) có `current_status = ACTIVE`. Khi Account là `SUSPENDED` hoặc `CLOSED` tại cursor:
+- computation MỚI bị cấm;
+- Strategy Instance lifecycle (§5 state_machine) **KHÔNG tự động** mutate — không có cascade tự động nào giữa Account status và Instance status;
+- historical evidence (computation đã tính trước đó) giữ nguyên, không bị ảnh hưởng;
+- **strategy.md KHÔNG author** Order/Position/recovery behavior nào cho tình huống này — đây thuộc phạm vi Package 0.2-C4–C7 (chưa author) hoàn toàn.
+
+`environment` (§10) **VẪN LUÔN** resolve từ Account (`account.md` §1, bất biến) TẠI cùng cursor — bất kể Account `ACTIVE`/`SUSPENDED`/`CLOSED`; đây KHÔNG phải một điều kiện có thể "fail" độc lập (environment luôn resolve được vì bất biến), liệt kê trong rule dưới đây chỉ để tường minh đầy đủ chuỗi resolve.
+
+**Evidence-reference resolvability (đóng `C3-MAJ-04`):** cả bốn trục evidence (`strategy_definition_version_ref`/`plugin_version_ref`/`configuration_version_ref`/`package_build_artifact_ref`, §5/§11) PHẢI persistently resolvable TẠI computation cursor (Chapter 8 §8.1.1 mục 4). Nếu BẤT KỲ trục nào KHÔNG resolvable tại cursor đó:
+- computation MỚI deterministically ineligible;
+- KHÔNG mutable-latest, KHÔNG inferred fallback, KHÔNG proxy reference nào được dùng để "vá" một tham chiếu không resolve được (tái khẳng định §11 no-proxy);
+- Strategy Instance **KHÔNG bị mutate**;
+- historical evidence đã tính trước đó giữ nguyên authoritative, không bị ảnh hưởng.
+
+`strategy.md` KHÔNG thiết kế registry/retention infrastructure, artifact registry implementation, hay recovery mechanism cho tình huống unresolvable này — Phase 1/Chapter 9 registry concern (§14), ở đây chỉ pin RULE.
+
+**Instrument selection eligibility:** `instrument_selection_ref` (§5) PHẢI resolve đúng MỘT TradableListing hợp lệ VÀ eligible TẠI cursor — "eligible" tái sử dụng đúng khái niệm `eligibility_state` đã pin tại `instrument.md` §15 (`ELIGIBLE` khi Instrument VÀ Venue của listing đó CHƯA `RETIRED`; `INELIGIBLE_PARENT_STATE` khi ngược lại), KHÔNG fabricate một authoritative event mới.
+
+**Unified rule (đóng `C3-MIN-02`) — đánh giá tại computation cursor C, sáu điều kiện, AND-conjunction:**
+
+```text
+eligible_for_new_computation(strategy_instance_id, C) =
+      StrategyInstance.current_status(C)  ==  ACTIVE                                    (§5/§7, visible-valid-head fold TẠI C)
+  AND GetStrategyDefinitionVersionValidity(strategy_definition_version_ref, C)  ==  VALID  (§4)
+  AND Account.current_status(C)  ==  ACTIVE                                              (account.md §3–§7, reconstruct TẠI C)
+  AND Account.environment resolve nhất quán TẠI C                                        (account.md §1, bất biến — luôn true khi Account tồn tại)
+  AND plugin_version_ref, configuration_version_ref, package_build_artifact_ref,
+      strategy_definition_version_ref  ĐỀU persistently resolvable TẠI C                 (Chapter 8 §8.1.1 mục 4)
+  AND instrument_selection_ref resolve đúng MỘT TradableListing eligibility_state == ELIGIBLE TẠI C   (instrument.md §15)
+```
+
+Mọi thành phần bên phải PHẢI reconstruct từ authoritative event stream tương ứng TẠI CÙNG cursor C — KHÔNG dùng bất kỳ Current View latest-state nào (`StrategyInstanceCurrentView` §9, `AccountCurrentView` account.md §7, `InstrumentCurrentView`/`VenueCurrentView`/`TradableListingCurrentView` instrument.md §7/§15) làm input trực tiếp cho quyết định eligibility, trừ khi cursor-addressable VÀ provably equivalent (cùng ngoại lệ cache đã pin tại §9/§10/account.md §13). **Convenience query non-authoritative** (nếu implementation cần): `GetStrategyInstanceComputationEligibility(strategy_instance_id, cursor) → ELIGIBLE | INELIGIBLE` — CHỈ query/UI, KHÔNG BAO GIỜ là input cho computation khác, cùng nguyên tắc §9.
+
+**Rule này thuộc Strategy eligibility ONLY** — canonical policy identifier `computation_eligibility_policy: ALL_CONDITIONS_TRUE_AT_SAME_CURSOR` (§12). C4 (Trade Intent/Decision, chưa author) chịu trách nhiệm CONSUME rule này khi quyết định có tạo Trade Intent/Decision mới hay không; `strategy.md` KHÔNG author Trade Intent/Decision/Risk/Execution behavior nào, KHÔNG tự enforce rule (chưa có consumer tồn tại).
+
 ## 10. Downstream reference contract (cho Package 0.2-C4)
 
 Package sau (Trade Intent, Decision — Package 0.2-C4, chưa author) tham chiếu Strategy qua ĐÚNG chín field, KHÔNG hơn:
@@ -424,7 +485,7 @@ instrument_selection_ref: {type: string, description: "thuộc Instance (§5), T
 
 **Downstream authority rule — MỘT quy tắc duy nhất, không ngoại lệ (đúng pattern account.md §13, đóng trước lớp lỗi `C2-MAJ-04`-style):** downstream package PHẢI resolve mọi field trên TRỰC TIẾP từ authoritative event stream (Strategy Instance §6–§8; Strategy Definition Version §3; Account, `account.md` §3–§6) TẠI ĐÚNG recorded/effective cursor mà chính computation đó đang dùng. `StrategyInstanceCurrentView` latest-state (§9) KHÔNG BAO GIỜ được dùng làm input. Vi phạm điển hình cần tránh: dùng row "mới nhất" cho một historical replay ở cursor cũ hơn (look-ahead, CẤM tuyệt đối). KHÔNG package nào được tự phát minh identity/version semantics khác — chín field trên là nguồn định nghĩa DUY NHẤT tại đây.
 
-**strategy.md KHÔNG author** bất kỳ semantic nào của Trade Intent/Decision — Package 0.2-C4 (chưa authorize) tự định nghĩa cách nó dùng chín field trên; strategy.md chỉ đảm bảo chín field này tồn tại, ổn định, và resolve được đúng.
+**strategy.md KHÔNG author** bất kỳ semantic nào của Trade Intent/Decision — Package 0.2-C4 (chưa authorize) tự định nghĩa cách nó dùng chín field trên; strategy.md chỉ đảm bảo chín field này tồn tại, ổn định, và resolve được đúng. **C4 PHẢI áp dụng unified computation-eligibility rule (§9a, v0.2) trước khi tạo Trade Intent/Decision mới** dựa trên chín field này — `strategy.md` chỉ định nghĩa rule, KHÔNG tự enforce.
 
 ## 11. Bốn-trục độc lập (ADR-013 conformance)
 
@@ -441,18 +502,23 @@ instrument_selection_ref: {type: string, description: "thuộc Instance (§5), T
 
 **Referenced Authoritative Artifact (Chapter 8 §8.1.1):** cả bốn trục PHẢI thỏa 5 điều kiện chung — versioned; immutable sau khi tham chiếu; không tái dùng identifier; persistently resolvable trong replay/audit horizon; verifiable content identity. `strategy.md` chỉ pin field/reference — Plugin Version/Configuration Version/Package-Build-Artifact's chính schema/lifecycle thuộc Chapter 9/registry tương ứng (deferred, §14), `strategy_definition_version_ref` thuộc chính Domain Contract này (§1).
 
+**Hệ quả computation eligibility (v0.2, đóng `C3-MAJ-04`):** nếu bất kỳ trục nào trong bốn trục KHÔNG persistently resolvable tại computation cursor (vi phạm Chapter 8 §8.1.1 mục 4) → computation MỚI deterministically **INELIGIBLE** (§9a) — KHÔNG mutable-latest, KHÔNG inferred fallback, KHÔNG proxy reference nào được dùng để "vá" một tham chiếu không resolve được. Strategy Instance KHÔNG bị mutate; historical evidence đã tính trước đó giữ nguyên authoritative, không bị ảnh hưởng. `strategy.md` KHÔNG thiết kế registry/retention infrastructure hay recovery mechanism cho tình huống này (Phase 1, §14) — ở đây chỉ pin RULE.
+
 ## 12. Canonical policy identifiers — nguồn duy nhất (context `strategy-definition`)
 
-**Hai canonical policy identifier, khai báo ĐÚNG MỘT LẦN tại đây cho context `strategy-definition`** — cùng pattern đã proven tại `instrument.md`/`venue.md`/`account.md`, khai báo ĐỘC LẬP vì đây là context khác, tránh cross-context coupling không cần thiết:
+**Ba canonical policy identifier, khai báo ĐÚNG MỘT LẦN tại đây cho context `strategy-definition`** — cùng pattern đã proven tại `instrument.md`/`venue.md`/`account.md`, khai báo ĐỘC LẬP vì đây là context khác, tránh cross-context coupling không cần thiết:
 
 ```yaml
 initial_fact_correction_policy: INVALIDATE_ONLY_NO_SAME_ID_REPLACEMENT_FOR_IMMUTABLE_SCOPE_SUBJECTS
 strategy_evidence_axis_policy: FOUR_INDEPENDENT_AXES_NO_PROXY
+computation_eligibility_policy: ALL_CONDITIONS_TRUE_AT_SAME_CURSOR   # v0.2, đóng C3-MIN-02
 ```
 
 **`initial_fact_correction_policy: INVALIDATE_ONLY_NO_SAME_ID_REPLACEMENT_FOR_IMMUTABLE_SCOPE_SUBJECTS`** — áp dụng cho `StrategyDefinitionVersionRegistered` (§3/§4) và `StrategyInstanceRegistered` (§6/§8): TOÀN BỘ payload của hai event này là scope bất biến (không có "mutable metadata" tách biệt như Account/Venue/Instrument) — correction LUÔN LUÔN nghĩa là đăng ký một ID MỚI hoàn toàn, KHÔNG BAO GIỜ same-ID replacement (khác `initial_fact_correction_policy: INVALIDATE_INITIAL_FACT_AND_REGISTER_NEW_SUBJECT_WHEN_SCOPE_CHANGES` của `instrument.md`/`account.md`, vốn có METADATA_ERROR same-subject path vì các subject đó có mutable metadata riêng). `StrategyInstanceStatusChanged` (§7/§8) KHÔNG thuộc policy này — nó dùng correction lineage chuẩn (same-slice replacement, §9), đúng pattern đã proven.
 
 **`strategy_evidence_axis_policy: FOUR_INDEPENDENT_AXES_NO_PROXY`** — xem §11 cho định nghĩa đầy đủ.
+
+**`computation_eligibility_policy: ALL_CONDITIONS_TRUE_AT_SAME_CURSOR`** (v0.2, đóng `C3-MIN-02`) — sáu điều kiện của `eligible_for_new_computation` (§9a) PHẢI ĐỀU true, đánh giá TẠI CÙNG MỘT computation cursor — không có điều kiện nào đánh giá tại cursor khác cursor còn lại (cấm "mix cursor"); xem §9a cho định nghĩa đầy đủ.
 
 ## 13. Correction lineage (cả hai subject)
 
@@ -498,8 +564,9 @@ F2
 **Deferred tường minh, không author ở C3 (Phase 1 implementation concern, non-blocking):**
 
 - Schema/versioning scheme cụ thể (SemVer, monotonic, content-hash) cho Plugin Version/Configuration Version/Package-Build-Artifact — đúng ADR-013 §6 "Thuộc Domain Contract, KHÔNG thuộc ADR này."
-- `instrument_selection_ref` cơ chế resolve cụ thể (một instrument hay tập instrument, format tham chiếu chính xác) — chưa có Domain Contract hay registry cụ thể nào định nghĩa; C4/Configuration Domain Contract tương lai quyết.
+- Multi-instrument set, universe, và dynamic selection (nhiều listing cho một Instance, hoặc selection thay đổi theo thời gian) — v0.2 chỉ pin single-listing cardinality, shape `{instrument_id, venue_id, listing_id}` (§5, đóng `C3-MAJ-01`); mở rộng multi-instrument vẫn deferred, C4/Configuration Domain Contract tương lai quyết. KHÔNG tạo Selection aggregate.
 - Xác minh tự động `instrument_selection_ref` nằm trong `supported_scope` của Definition Version — Phase 1/C4 concern, ở đây chỉ pin RULE.
+- Registry/retention infrastructure cụ thể đảm bảo persistent resolvability của bốn trục evidence (artifact store, retention/archive policy, registry implementation) — Phase 1/Chapter 9 registry concern; `strategy.md` chỉ pin RULE hệ quả khi unresolvable (§9a/§11, đóng `C3-MAJ-04`), KHÔNG thiết kế MECHANISM.
 - Runtime worker ownership, transaction boundaries, retry/backoff, monitoring/escalation, operational recovery orchestration (Phase 1, cùng nguyên tắc defer đã áp dụng cho `instrument.md`/`account.md`).
 - Broker/parity-validation gate trước khi một Strategy Definition Version hay Instance được dùng cho Live — chạm nhưng KHÔNG quyết OQ-002 (Strategy Lifecycle Live-gate), để ngỏ đúng tinh thần Chapter 9 §9.10 (không đóng ngầm OQ-002).
 - `display_name` revision mechanism cho Strategy Instance (§5) — minimal ở v0.1, không có PATCH event riêng.

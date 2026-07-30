@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.34"
+version: "0.35"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -438,9 +438,9 @@ C2-MAJ-04   — Resolved (một quy tắc downstream authority duy nhất, Accou
 
 **Package 0.2-C4–C7 vẫn chưa có artifact nào được author.** OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn **active và chưa hoàn tất** — Package 0.2-A/B (tổng thể)/C1/C2 nay đều `Consolidated Stable`, nhưng Phase 0.2 chỉ hoàn tất khi toàn bộ 0.2-C (C1–C7) cũng đạt tương đương, đúng roadmap Chapter 14.
 
-## Package 0.2-C3 — Strategy Foundation v0.1 authored (chưa `Consolidated Stable`, chờ Review A + Independent Review B)
+## Package 0.2-C3 — Strategy Foundation v0.2 (bounded correction applied, chưa `Consolidated Stable`, chờ delta Review A + Independent Review B)
 
-**Phạm vi C3 (scope tối thiểu, đã Product Owner authorize):** một Domain Contract — [`strategy.md`](./strategy.md) v0.1 Draft (Strategy Definition Version + Strategy Instance, MỘT file định nghĩa cả hai concept theo quyết định tổ chức tài liệu của Product Owner — KHÔNG tạo `strategy-definition.md`/`strategy-instance.md` riêng) — `capability_id: strategy-management` / `domain_context_id: strategy-definition` (capability/context **MỚI**, đăng ký lần đầu tại [`context-map.yaml`](./context-map.yaml) v0.12 — Strategy KHÔNG thuộc phạm vi `account-management`/`account-reference` của Package 0.2-C2).
+**Phạm vi C3 (scope tối thiểu, đã Product Owner authorize):** một Domain Contract — [`strategy.md`](./strategy.md) v0.2 Draft (Strategy Definition Version + Strategy Instance, MỘT file định nghĩa cả hai concept theo quyết định tổ chức tài liệu của Product Owner — KHÔNG tạo `strategy-definition.md`/`strategy-instance.md` riêng) — `capability_id: strategy-management` / `domain_context_id: strategy-definition` (capability/context **MỚI**, đăng ký lần đầu tại [`context-map.yaml`](./context-map.yaml) v0.13 — Strategy KHÔNG thuộc phạm vi `account-management`/`account-reference` của Package 0.2-C2).
 
 **Controlling architecture — [ADR-013](../adr/ADR-013.md) v0.3 `Approved`** (đã có sẵn từ trước, KHÔNG sửa/re-author/bump trong transaction này): Strategy Definition Version — Independent Evidence Axis. `strategy.md` CHỈ implement field/invariant mà ADR-013 §2 yêu cầu (bốn trục evidence độc lập §2.1, capability/instrument-class vs. concrete instrument §2.2, immutable-pin không mutable-latest §2.3, Strategy Instance pin đủ bốn trục §2.4, rebuilt-artifact-identity §2.5), KHÔNG lặp lại toàn văn ADR, KHÔNG tự quyết architecture mới ngoài phạm vi đã khóa. Không có baseline conflict — `strategy.md` chưa tồn tại trước transaction này, đúng expected state.
 
@@ -452,15 +452,19 @@ C2-MAJ-04   — Resolved (một quy tắc downstream authority duy nhất, Accou
 
 **Học từ Package 0.2-C2, đóng trước (không chờ review round phát hiện):** opaque identity không derive từ scope/nội dung (`C2-MAJ-01`-style); `supersedes_fact_ref` có mặt ngay từ v0.1 trên mọi event correctable, correction lineage cho phép sửa cả terminal-state fact (`C2-MAJ-02`-style); fold algorithm "visible-valid-head per slice" pin ngay từ v0.1 (`C2-MAJ-03`-style); một quy tắc downstream authority duy nhất — Current View không bao giờ authority, cache chỉ chấp nhận khi cursor-addressable + provably equivalent (`C2-MAJ-04`-style). Khác biệt so với Account: Strategy Definition Version/Strategy Instance registration KHÔNG có mutable metadata tách biệt — TOÀN BỘ scope bất biến, nên correction chỉ có MỘT hình thức (invalidate + ID mới), đơn giản hơn model METADATA_ERROR/SCOPE_ERROR hai lớp của Account.
 
-**Deferred limitations (Phase 1 implementation concern, non-blocking):** schema/versioning scheme cụ thể cho Plugin Version/Configuration Version/Package-Build-Artifact; cơ chế resolve `instrument_selection_ref` cụ thể; xác minh tự động instrument nằm trong `supported_scope`; runtime worker ownership; transaction boundaries; retry/backoff; monitoring/escalation; operational recovery orchestration; broker/parity-validation gate trước Live (chạm nhưng không đóng OQ-002); retention/resolvability horizon cụ thể cho Instance đã RETIRED; `display_name` revision mechanism.
+**Package 0.2-C3 bounded correction — tóm tắt (v0.2, 2026-07-30):** đóng đúng bốn finding Major và hai finding Minor consolidated từ ChatGPT Review A + Independent Review B trên baseline v0.1: `C3-MAJ-01` (`instrument_selection_ref` v0.1 là opaque string chưa pin shape; v0.2 pin `{instrument_id, venue_id, listing_id}` — đúng một TradableListing cụ thể, resolve từ authoritative C1 history tại cùng cursor, không tạo Selection aggregate); `C3-MAJ-02` (thêm Definition Version validity vào computation eligibility — invalidation không tự động pause/retire Instance, lịch sử giữ nguyên, cần Instance mới cho Version đã sửa); `C3-MAJ-03` (thêm Account eligibility ACTIVE vào computation eligibility — SUSPENDED/CLOSED không tự động mutate Instance, không author Order/Position/recovery behavior); `C3-MAJ-04` (pin bốn trục evidence phải persistently resolvable tại cursor — không resolvable ⟹ ineligible, không mutable-latest/fallback/proxy); `C3-MIN-01` (thắt chặt `strategy_definition_id` — gán tại Version đầu tiên của gia đình, không tái sử dụng cho gia đình khác, không family aggregate/registration event/version graph/approval workflow); `C3-MIN-02` (thêm MỘT normative derived rule `eligible_for_new_computation`, hợp nhất sáu điều kiện cùng cursor, tại `strategy.md` §9a — thuộc Strategy eligibility ONLY). ADR-013 không đổi, byte-for-byte.
+
+**Deferred limitations (Phase 1 implementation concern, non-blocking):** schema/versioning scheme cụ thể cho Plugin Version/Configuration Version/Package-Build-Artifact; multi-instrument set/universe/dynamic selection (v0.2 chỉ pin single-listing); xác minh tự động instrument nằm trong `supported_scope`; registry/retention infrastructure cụ thể đảm bảo persistent resolvability bốn trục evidence; runtime worker ownership; transaction boundaries; retry/backoff; monitoring/escalation; operational recovery orchestration; broker/parity-validation gate trước Live (chạm nhưng không đóng OQ-002); retention/resolvability horizon cụ thể cho Instance đã RETIRED; `display_name` revision mechanism.
 
 **Trạng thái review:**
 
 - Author self-review (authoring, v0.1): **hoàn tất.**
-- ChatGPT Review A + Independent Review B: **chưa chạy** — báo cáo baseline transaction này gửi đi làm điểm khởi đầu review, đúng mandatory sequence: Author baseline → ChatGPT Review A → Independent Review B (cùng exact baseline) → merge finding → một correction commit được Product Owner authorize → ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. **KHÔNG correction dựa trên một review đơn lẻ.**
+- ChatGPT Review A + Independent Review B (v0.1): 4 finding Major (`C3-MAJ-01`–`C3-MAJ-04`) + 2 finding Minor (`C3-MIN-01`/`C3-MIN-02`), đóng qua bounded correction v0.2.
+- Bounded correction (v0.2): **hoàn tất** — cả 6 finding đã đóng, author self-review lần hai hoàn tất.
+- ChatGPT delta Review A + Independent Review B (trên `strategy.md` v0.2): **chưa chạy** — báo cáo correction transaction này gửi đi cho vòng delta review, đúng mandatory sequence đã theo từ baseline.
 - Consolidation: **chưa bắt đầu** — Package 0.2-C3 **CHƯA** đạt `Consolidated Stable`.
 
-**Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào (mục C3):** `strategy.md` `status: Draft`, `version: "0.1"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng OQ-002/OQ-003; không authorize Live; không sửa ADR-013 hay Constitution; Package 0.2-C1/C2 vẫn `Consolidated Stable` và không đổi (`instrument.md`/`venue.md`/`account.md` byte-for-byte không đổi); Package 0.2-C4–C7 vẫn chưa authorize, chưa author.
+**Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào (mục C3):** `strategy.md` `status: Draft`, `version: "0.2"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng OQ-002/OQ-003; không authorize Live; không sửa ADR-013 hay Constitution; Package 0.2-C1/C2 vẫn `Consolidated Stable` và không đổi (`instrument.md`/`venue.md`/`account.md` byte-for-byte không đổi); Package 0.2-C4–C7 vẫn chưa authorize, chưa author.
 
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 
