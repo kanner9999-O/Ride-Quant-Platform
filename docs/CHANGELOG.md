@@ -2,6 +2,49 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — correct Package 0.2-C2 account semantics
+
+**Package 0.2-C2 bounded correction — consolidated Review A + Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C2 bounded correction — consolidated Review A + Review B findings." Đóng đúng bốn finding Major: `C2-MAJ-01` (account identity cardinality), `C2-MAJ-02` (CLOSED terminality versus correction), `C2-MAJ-03` (metadata/status correction fold), `C2-MAJ-04` (downstream Current View authority). Authorization này **không** cho phép sửa ADR-012 hay bất kỳ ADR nào, thêm owner/tenant/IAM/billing semantics, định nghĩa Broker Account Boundary implementation, thêm external account-number taxonomy, thêm reopening/PAPER→LIVE promotion workflow, author C3–C7, sửa C1/Package B/Constitution/OQ, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.
+
+### C2-MAJ-01 — Account identity cardinality
+
+v0.1 mô tả `account_id` "resolve deterministic từ TOÀN BỘ scope identity bất biến (`account_boundary_ref` + `environment`)" — SAI, vì điều này ngụ ý collapse nhiều Account hợp lệ dùng chung boundary/environment thành một. v0.2 pin: `account_id` là opaque identifier, globally unique trong toàn Ride, gán tại thời điểm `AccountRegistered`, KHÔNG derive/resolve/uniquify từ scope. Một `account_id` → đúng MỘT `account_boundary_ref` bất biến VÀ đúng MỘT `environment` bất biến (giữ nguyên); nhưng một cặp `(account_boundary_ref, environment)` CÓ THỂ chứa NHIỀU `account_id` phân biệt (sửa). SCOPE_ERROR correction path (§11) xác nhận identity mới là opaque, gán mới, KHÔNG có công thức suy từ account_id cũ hay từ scope.
+
+### C2-MAJ-02 — CLOSED terminality versus correction
+
+Làm rõ: CLOSED là terminal CHO FORWARD TRANSITION trên valid lineage hiện hành — không có `AccountStatusChanged` forward nào được phép sau một CLOSED fact VALID. Điều này KHÔNG chặn correction: một CLOSED fact ghi SAI vẫn correctable append-only qua `AccountFactInvalidated` + same-slice `AccountStatusChanged` replacement (§11, mười invariant chung áp dụng nguyên vẹn) — correction record khác forward transition, KHÔNG vi phạm terminality. Fold algorithm (§7) PHẢI recompute `current_status` từ valid corrected lineage sau khi replacement visible — có thể khác CLOSED nếu correction đổi kết luận. Phát hiện kèm theo: payload `AccountStatusChanged` v0.1 THIẾU field `supersedes_fact_ref` — về mặt kỹ thuật không thể emit một correction replacement hợp lệ dù §11 mô tả cơ chế này áp dụng cho cả ba họ event. v0.2 thêm field còn thiếu. KHÔNG thêm state/enum mới, KHÔNG thêm reopening command — tái dùng nguyên vẹn cơ chế correction lineage đã có.
+
+### C2-MAJ-03 — Metadata/status correction fold
+
+Thay fold algorithm (§7 Bước 2/Bước 3) bằng một quy tắc chung "visible-valid-head per slice", dùng thống nhất cho `AccountRegistered`/`AccountMetadataRevised`/`AccountStatusChanged`: (1) group fact theo correction lineage/effective-time slice; (2) resolve invalidation visibility tại cursor; (3) loại trừ fact đã invalidate visible khỏi lineage; (4) chọn head hợp lệ (visible valid head) cho mỗi slice; (5) slice bị invalidate mà chưa có replacement visible KHÔNG đóng góp fact nào (không "giữ giá trị cũ", không "coi như rỗng") — chỉ đóng góp CỦA SLICE ĐÓ bị bỏ, slice khác không ảnh hưởng; (6) total-order mọi head còn lại: `effective_time` ASC, `recorded_time` ASC, `event_id` ASC; (7) áp dụng PATCH (`AccountMetadataRevised`) hoặc lifecycle fold (`AccountStatusChanged`) theo thứ tự đó. Kết quả: một `AccountMetadataRevised` bị invalidate không để lại residual field nào; một `AccountStatusChanged` bị invalidate (kể cả CLOSED) không ảnh hưởng `current_status`.
+
+### C2-MAJ-04 — Downstream Current View authority
+
+v0.1 §13 mô tả `venue_id`/`environment` "resolve qua AccountCurrentView/reconstruction" — đọc được như hai lựa chọn ngang hàng, cho phép downstream package dùng `AccountCurrentView` làm input bình thường. v0.2 pin MỘT quy tắc duy nhất, không ngoại lệ: downstream field PHẢI resolve TRỰC TIẾP từ authoritative Account event stream TẠI cursor mà computation đó đang dùng. `AccountCurrentView` latest-state thông thường (`GetCurrentAccount`) KHÔNG BAO GIỜ là input hợp lệ — nó không cursor-addressable, chỉ query/UI. Một materialized projection CHỈ được chấp nhận làm cache tính toán khi ĐỒNG THỜI cursor-addressable (hỗ trợ resolve tại cursor cụ thể, không chỉ "mới nhất") VÀ provably equivalent với authoritative reconstruction tại đúng cursor/contract version/configuration. `venue_id` xác nhận TUYỆT ĐỐI ABSENT (không phải optional-nhưng-present, không phải null-placeholder) khi `boundary_type: broker_account`.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, ADR-007, ADR-012 v0.3 Approved (byte-for-byte unchanged — verified), Package 0.2-C1 (`instrument.md`/`venue.md` không đổi), Package B (không đổi). Preserve nguyên vẹn: exactly-one immutable Account boundary; venue/broker boundary distinction; immutable environment; PAPER/LIVE structural parity; ACTIVE/SUSPENDED/CLOSED lifecycle value set; credential-reference/raw-secret prohibition; metadata PATCH field whitelist; METADATA_ERROR/SCOPE_ERROR distinction; same-scope registration correction. Không owner/tenant/IAM/billing semantics mới. Không Broker Account Boundary implementation. Không external account-number taxonomy. Không reopening/PAPER→LIVE promotion workflow.
+
+### Acceptance criteria — verified
+
+1. Nhiều Account có thể chung boundary/environment (§1, account_id không derive từ scope). 2. `account_id` opaque, không scope-derived (§1). 3. Valid CLOSED vẫn terminal cho forward transition (§5). 4. CLOSED sai correctable append-only (§5/§11, `supersedes_fact_ref` thêm vào payload). 5. Invalidated metadata/status fact không bao giờ đóng góp vào fold (§7 Bước 5 quy tắc chung). 6. Mỗi correction slice chỉ đóng góp visible valid head của nó (§7). 7. Downstream replay không đọc được future latest-state Current View — chỉ resolve tại cursor từ authoritative stream (§13). 8. ADR-012 không đổi — verified byte-identical. 9. Không semantic không liên quan bị đổi — verified qua diff scope.
+
+### Changed-file scope
+
+`docs/domain/account.md`, `docs/domain/context-map.yaml` (comment-only), `docs/domain/README.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`. `docs/adr/ADR-012.md` (và mọi ADR khác), `instrument.md`, `venue.md`, Package B, Constitution, OQ files, Package 0.2-C3–C7 artifacts: **không đổi.**
+
+### Metadata / state
+
+- `account.md`: **v0.1 → v0.2**, `status: Draft`.
+- `docs/adr/ADR-012.md`: **không đổi** — `version: "0.3"`, `status: Approved`, byte-for-byte.
+- `context-map.yaml`: **v0.11 không đổi** — chỉ sửa comment (finding metadata tại `owned_contracts`).
+- `README.md` (domain index): **v0.31 → v0.32**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.57 → 9.58**; dòng `domain/` cập nhật ghi nhận bounded correction, 4 finding Major đã đóng.
+- `instrument.md`, `venue.md`, mọi ADR file khác, Package B: **không đổi.**
+
+**Chỉ Package 0.2-C2 được correct.** Không sửa ADR-012 hay bất kỳ ADR nào. Không author C3–C7. Không Approve/Lock/Consolidate artifact/package nào. Không đóng OQ-002/OQ-003. Không authorize Live. Package 0.2-C1 vẫn `Consolidated Stable`, không sửa semantic. Package 0.2-C3–C7 vẫn chưa authorize, chưa author. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — author Package 0.2-C2 trading account foundation
 
 **Package 0.2-C2 — Trading Account Foundation.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C2 — Trading Account Foundation" — cho phép author `docs/domain/account.md`, cập nhật metadata tích hợp (`context-map.yaml`, `README.md`, `MANIFEST.md`, `CHANGELOG.md`). Authorization này KHÔNG cho phép author Strategy/Decision/Trade Intent/Risk/Execution Intent/Order/Fill/Position/Replay Event, exchange API adapter, Live execution workflow, billing, multi-tenant IAM, custody implementation; KHÔNG sửa semantic Package C1/B/Constitution/OQ-002/OQ-003; Package 0.2-C3–C7 vẫn unauthorized.

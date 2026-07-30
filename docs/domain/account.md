@@ -1,7 +1,7 @@
 ---
 id: account
 title: Account
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -34,6 +34,8 @@ Cộng **`AccountStatusChanged`** (lifecycle transition), **`AccountFactInvalida
 
 **Phạm vi bounded tường minh (v0.1):** KHÔNG có multi-party arbitration nào trong Account (khác `instrument.md` §16 `ActiveListingReservation` — đó là bài toán "nhiều TradableListing tranh một pair slot", Account không có bài toán tương tự trong chính nó). KHÔNG onboarding/KYC/broker workflow. KHÔNG billing/multi-tenant IAM. KHÔNG custody/secret-manager implementation. Đây là minimum executable specification, không phải perfect document — dễ revise từ implementation evidence (Phase 1).
 
+**v0.2 — bounded correction, đóng `C2-MAJ-01`/`C2-MAJ-02`/`C2-MAJ-03`/`C2-MAJ-04` (consolidated Review A + Review B findings):** (a) `C2-MAJ-01` — v0.1 SAI khi mô tả `account_id` "resolve deterministic từ scope" (`account_boundary_ref` + `environment`), ngụ ý collapse nhiều Account hợp lệ chung boundary/environment thành một; v0.2 pin `account_id` là opaque, globally unique, gán tại `AccountRegistered`, KHÔNG derive từ scope — một `account_id` có đúng một boundary/environment bất biến, nhưng một cặp boundary/environment CÓ THỂ chứa nhiều `account_id` (§1). (b) `C2-MAJ-02` — làm rõ CLOSED chỉ terminal cho FORWARD transition trên valid lineage; correction (`AccountFactInvalidated` + same-slice `AccountStatusChanged` replacement) vẫn hợp lệ ngay cả khi fact bị sửa là CLOSED — không thêm reopening workflow, chỉ tái khẳng định cơ chế correction lineage đã có (§5, §11); thêm `supersedes_fact_ref` còn thiếu vào payload `AccountStatusChanged`. (c) `C2-MAJ-03` — thay fold algorithm (§7) bằng quy tắc chung "visible-valid-head per slice": group theo correction lineage/effective-time slice, loại fact đã invalidate visible, chọn head hợp lệ per slice, slice invalidate chưa có replacement KHÔNG đóng góp fact nào (không "giữ giá trị cũ"), total-order effective_time/recorded_time/event_id ASC, rồi mới PATCH hoặc lifecycle fold — dùng chung cho AccountMetadataRevised và AccountStatusChanged. (d) `C2-MAJ-04` — pin MỘT quy tắc downstream authority duy nhất: field PHẢI resolve từ authoritative Account stream TẠI cursor, `AccountCurrentView` latest-state KHÔNG BAO GIỜ là input hợp lệ (không cursor-addressable); một cache chỉ được chấp nhận khi VỪA cursor-addressable VỪA provably equivalent tại đúng cursor (§7, §13); `venue_id` xác nhận ABSENT (không chỉ optional) khi `boundary_type: broker_account`. Bounded correction — không đổi exactly-one-boundary/venue-broker distinction/immutable environment/PAPER-LIVE parity/lifecycle value set/credential boundary/PATCH whitelist/METADATA_ERROR-SCOPE_ERROR distinction/same-scope registration correction/C1 semantics/ADR-012.
+
 ## 1. Trading Account Subject — `kind: entity`
 
 ```yaml
@@ -47,7 +49,8 @@ description: >
   subject liên tục theo scope — không có subject mới per metadata change; rebinding boundary
   (§2, ADR-012 §2.1) tạo một Account KHÁC, không phải mutate subject hiện có.
 invariants:
-  - "account_id resolve deterministic từ TOÀN BỘ scope identity bất biến: account_boundary_ref (boundary_type + boundary_id), environment — cùng scope luôn cho cùng account_id; khác bất kỳ field scope nào cho account_id KHÁC. account_id bất biến, KHÔNG tái sử dụng cho một subject khác (Chapter 6 §6.1)."
+  - "**v0.2 (đóng C2-MAJ-01):** account_id là opaque identifier, globally unique trong toàn Ride, gán tại thời điểm AccountRegistered — KHÔNG derive/resolve/uniquify từ account_boundary_ref hay environment, KHÔNG có công thức tất định nào từ scope. account_id bất biến, KHÔNG tái sử dụng cho một subject khác (Chapter 6 §6.1)."
+  - "Một account_id → đúng MỘT account_boundary_ref bất biến VÀ đúng MỘT environment bất biến (một Account luôn có scope cố định, không đổi sau đăng ký) — nhưng chiều ngược lại KHÔNG đúng: một cặp (account_boundary_ref, environment) CÓ THỂ chứa NHIỀU account_id phân biệt (ví dụ nhiều Account PAPER khác nhau cùng trỏ một Venue) — v0.1 sai khi ngụ ý boundary+environment tự nó uniquify account_id, gây collapse nhiều Account hợp lệ thành một; v0.2 sửa triệt để."
   - "account_id là opaque — domain logic KHÔNG được parse nó để suy diễn venue, owner, environment, credential, hay account type (Chapter 6 §6.8, đóng yêu cầu 'Không encode: venue; owner; environment; credential; account type'). Mọi quyết định nghiệp vụ phải dùng field tường minh trong scope, không suy diễn từ cấu trúc ID."
   - "account_boundary_ref BẮT BUỘC, BẤT BIẾN — gán tại thời điểm AccountRegistered, KHÔNG được tái gán sau đó (ADR-012 §2.1). Rebinding (đổi boundary_type hoặc boundary_id) nghĩa là tạo một Account identity MỚI — dùng correction lineage §11 SCOPE_ERROR path, KHÔNG mutate subject hiện có."
   - "account_boundary_ref.boundary_type ∈ {venue, broker_account}, đóng theo ADR-012 §2.1 — không mở rộng giá trị nào khác ở v0.1."
@@ -205,17 +208,26 @@ capability_id: account-management
 domain_context_id: account-reference
 description: >
   Fact AUTHORITATIVE cho một operational status transition của Trading Account (§1
-  state_machine) — ACTIVE↔SUSPENDED, (ACTIVE|SUSPENDED)→CLOSED. CLOSED là terminal — không
-  transition nào rời khỏi CLOSED.
+  state_machine) — ACTIVE↔SUSPENDED, (ACTIVE|SUSPENDED)→CLOSED. **v0.2 (đóng C2-MAJ-02):**
+  CLOSED là terminal CHO FORWARD TRANSITION trên valid lineage hiện hành — không có
+  `AccountStatusChanged` forward nào (ACTIVE/SUSPENDED/CLOSED) được phép sau một CLOSED fact
+  VALID. Điều này KHÔNG ngăn correction: một CLOSED fact ghi SAI (ví dụ đóng nhầm account) vẫn
+  correctable append-only qua `AccountFactInvalidated` + same-slice replacement (§11) — đây là
+  correction record, KHÔNG PHẢI forward lifecycle transition, nên KHÔNG vi phạm terminality.
+  KHÔNG có reopening workflow nào được thêm — chỉ đúng cơ chế correction lineage đã có sẵn cho
+  mọi event type khác trong tài liệu này.
 invariants:
-  - "new_status PHẢI là một transition hợp lệ theo state_machine §1 từ current_status hiện tại — current_status resolve theo fold order deterministic: effective_time ASC, recorded_time ASC, event_id ASC (đúng nguyên tắc total-order tie-break đã proven xuyên suốt tài liệu Package 0.2, không dùng raw recorded_time đơn thuần, không dùng sequence xuyên stream)."
-  - "new_status = CLOSED KHÔNG được có transition tiếp theo nào cho cùng account_id."
+  - "new_status PHẢI là một transition hợp lệ theo state_machine §1 từ current_status hiện tại — current_status resolve theo fold algorithm §7 (visible-valid-head per effective-time slice, total-order effective_time ASC/recorded_time ASC/event_id ASC), KHÔNG dùng raw recorded_time đơn thuần, KHÔNG dùng sequence xuyên stream, KHÔNG dùng một CLOSED fact đã bị invalidate mà chưa có replacement visible."
+  - "new_status = CLOSED trên valid lineage hiện hành KHÔNG được có `AccountStatusChanged` forward transition tiếp theo cho cùng account_id (§1 terminal_states) — đây là ràng buộc FORWARD LIFECYCLE, không áp dụng cho correction record."
+  - "**v0.2 (đóng C2-MAJ-02):** Một CLOSED fact (hoặc bất kỳ `AccountStatusChanged` nào khác) ghi SAI vẫn correctable qua `AccountFactInvalidated` + same-slice `AccountStatusChanged` replacement (§11, cùng `(account_id, effective_time)` slice, `supersedes_fact_ref` trỏ đúng fact bị invalidate) — correction KHÔNG bị chặn bởi CLOSED terminality, vì correction không phải một forward transition mới; fold algorithm (§7) PHẢI recompute current_status từ valid corrected lineage sau khi replacement visible. KHÔNG thêm state/enum mới, KHÔNG thêm reopening command — cơ chế correction đã có sẵn (§11) áp dụng nguyên vẹn cho AccountStatusChanged, kể cả khi giá trị bị invalidate là CLOSED."
   - "envelope.effective_time = thời điểm status transition này thực sự có hiệu lực (có thể khác recorded_time nếu biết trước lịch đóng account)."
   - "Account CHỈ hợp lệ cho action mới (ví dụ Order/Execution mới ở Package 0.2-C3+) khi current_status = ACTIVE tại effective_time liên quan — SUSPENDED/CLOSED CẤM action mới; đây là RÀNG BUỘC lên Domain Contract tương lai (Order/Execution, chưa author), account.md chỉ PIN quy tắc, không tự enforce vì chưa có consumer nào tồn tại (§13)."
+  - "**v0.2:** supersedes_fact_ref VẮNG MẶT cho forward transition bình thường; BẮT BUỘC cho same-slice correction replacement — khi có mặt, PHẢI trỏ đúng `AccountStatusChanged` (kể cả CLOSED) bị `AccountFactInvalidated` target, cùng subject/effective_time (§11)."
 payload:
   account_id: {type: string, required: true}
   new_status: {type: enum, values: [ACTIVE, SUSPENDED, CLOSED], required: true}
   reason: {type: string, required: false}
+  supersedes_fact_ref: {type: event_record_ref, required: false, description: "VẮNG MẶT cho forward transition bình thường; BẮT BUỘC cho same-slice correction replacement (v0.2, đóng C2-MAJ-02) — xem invariants và §11"}
 ```
 
 ## 6. `AccountFactInvalidated` — `kind: event`
@@ -275,19 +287,53 @@ account_fact_correction_class = SCOPE_ERROR    → pending_correction_class = TE
 
 `TERMINAL_SCOPE_INVALIDATION` KHÔNG BAO GIỜ transition về `VALID`; subject cũ vẫn queryable qua `GetAccountHistory` làm historical evidence; consumer/retry worker KHÔNG được coi đây là "chờ và thử lại sau" (đúng nguyên tắc đã khóa tại `instrument.md` §19, áp dụng độc lập tại đây cho context `account-reference`).
 
-**Fold algorithm (rút gọn, không cần 5-phase như Instrument/TradableListing vì Account không có multi-party arbitration):**
+**Fold algorithm (v0.2, đóng C2-MAJ-02/C2-MAJ-03 — visible-valid-head per slice, MỘT quy tắc chung dùng cho cả ba họ fact, không cần 5-phase như Instrument/TradableListing vì Account không có multi-party arbitration):**
+
+**Quy tắc chung — visible-valid-head per slice** (áp dụng CHO CẢ BA họ fact — `AccountRegistered`, `AccountMetadataRevised`, `AccountStatusChanged` — tại một recorded-time cursor cho trước; mỗi `(account_id, effective_time)` là một slice riêng theo §11):
 
 ```text
-Bước 1 — resolve REGISTRATION lineage head tại cursor: walk chuỗi AccountRegistered (original →
-  replacement → replacement...) qua supersedes_fact_ref, visible tại cursor (recorded_time <=
-  cursor). NẾU lineage head có AccountFactInvalidated visible VÀ replacement CHƯA visible →
-  view_state = PENDING_CORRECTION, pending_correction_class theo mapping trên. NẾU KHÔNG →
-  scope field (account_boundary_ref, environment) = từ lineage head đó, tiếp tục Bước 2.
+1. Group mọi fact của họ event đó theo correction lineage/effective-time slice — trong một
+   slice, fact gốc + mọi replacement liên tiếp (chuỗi supersedes_fact_ref) là MỘT lineage.
+2. Với mỗi slice, resolve AccountFactInvalidated visibility tại cursor (recorded_time <=
+   cursor).
+3. Loại trừ khỏi lineage bất kỳ fact nào đã có AccountFactInvalidated visible tại cursor — fact
+   đó KHÔNG BAO GIỜ được coi là head, dù trước đây từng là head.
+4. Chọn head hợp lệ (visible valid head) của slice: fact CHƯA bị invalidate visible, hoặc
+   replacement mới nhất (theo chuỗi supersedes_fact_ref) CHƯA bị invalidate visible — VÀ chính
+   head đó PHẢI visible tại cursor (recorded_time <= cursor).
+5. NẾU slice đó bị invalidate visible VÀ replacement CHƯA visible tại cursor → slice này KHÔNG
+   ĐÓNG GÓP fact nào cho fold (không "giữ giá trị cũ", không "coi như rỗng dùng default" — đơn
+   giản bị loại khỏi tập input của bước 6–7). Riêng slice registration: toàn `AccountCurrentView`
+   chuyển `PENDING_CORRECTION` (Bước 1 dưới). Riêng một slice metadata/status không phải slice
+   mới nhất: CHỈ đóng góp của slice đó bị bỏ, KHÔNG ảnh hưởng slice khác (đóng yêu cầu "invalidated
+   PATCH must contribute no residual fields", "invalidated status fact must not affect current
+   status").
+6. Tổng hợp mọi visible-valid-head còn lại (sau bước 3–5) xuyên các slice, total-order:
+   (a) `effective_time` ASC, (b) `recorded_time` ASC, (c) `event_id` ASC — KHÔNG dùng raw
+   sequence xuyên stream.
+7. Áp dụng PATCH (`AccountMetadataRevised`) hoặc lifecycle fold (`AccountStatusChanged`) trên
+   tập head đã sắp, theo đúng thứ tự Bước 6.
+```
 
-Bước 2 — fold AccountMetadataRevised (changed_fields/clear_fields, tuần tự theo effective_time
-  ASC rồi recorded_time ASC rồi event_id ASC) → credential_reference/display_name hiện tại.
+```text
+Bước 1 — REGISTRATION: áp dụng Quy tắc chung cho họ AccountRegistered. NẾU slice registration
+  hiện hành KHÔNG có visible-valid-head (bước 5 của quy tắc chung áp dụng cho chính registration)
+  → view_state = PENDING_CORRECTION, pending_correction_class theo mapping trên, KHÔNG resolve
+  field nào khác — DỪNG tại đây. NẾU CÓ → scope field (account_boundary_ref, environment) = từ
+  head đó, tiếp tục Bước 2.
 
-Bước 3 — fold AccountStatusChanged (cùng total-order tie-break) → current_status.
+Bước 2 — METADATA: áp dụng Quy tắc chung cho họ AccountMetadataRevised. Một slice bị invalidate
+  chưa có replacement visible ĐÓNG GÓP KHÔNG GÌ — KHÔNG residual field nào từ patch của nó lọt
+  vào kết quả; fold tiếp tục với head hợp lệ của các slice khác theo thứ tự Bước 6. Áp dụng
+  `changed_fields`/`clear_fields` của mọi visible-valid-head còn lại, tuần tự theo thứ tự Bước 6
+  → `credential_reference`/`display_name` hiện tại.
+
+Bước 3 — STATUS: áp dụng Quy tắc chung cho họ AccountStatusChanged. Một `AccountStatusChanged`
+  bị invalidate (kể cả mang `new_status: CLOSED`, §5/§11, đóng C2-MAJ-02) mà chưa có replacement
+  visible KHÔNG ảnh hưởng `current_status` — slice đó bị loại (bước 5), fold dùng head hợp lệ của
+  slice effective_time gần nhất trước đó. Sau khi replacement (nếu có) visible, `current_status`
+  recompute từ lineage đã sửa — CÓ THỂ khác giá trị CLOSED cũ nếu correction đổi kết luận (đóng
+  yêu cầu "fold must recompute lifecycle state from the valid corrected lineage").
 ```
 
 ```yaml
@@ -296,17 +342,26 @@ kind: read_model
 capability_id: account-management
 domain_context_id: account-reference
 description: >
-  Projection tiện dụng: metadata/status "hiện tại" của một Trading Account, rebuild được từ
-  §3–§6 theo fold algorithm ở trên. KHÔNG authoritative — mọi input cho Domain Contract khác
-  (Strategy/Risk/Execution, Package 0.2-C3+) PHẢI dùng authoritative event stream (`ref: account`)
-  hoặc reconstruct trực tiếp, KHÔNG BAO GIỜ dùng view này làm input bình thường (I-12,
-  Chapter 7 §7.4 — pin ngay từ v0.1, đóng trước lớp lỗi `IRB-C1-V03-MAJ-02`-style). View này CHỈ
-  dùng cho query/UI.
+  Projection tiện dụng: metadata/status "hiện tại" (latest-state, KHÔNG cursor-addressable theo
+  mặc định) của một Trading Account, rebuild được từ §3–§6 theo fold algorithm ở trên. KHÔNG
+  authoritative — **v0.2 (đóng C2-MAJ-04):** `GetCurrentAccount`/`GetAccountHistory` (schema
+  dưới) CHỈ dùng cho query/UI, KHÔNG BAO GIỜ là input hợp lệ cho Domain Contract khác
+  (Strategy/Risk/Execution, Package 0.2-C3+) hay Decision dưới BẤT KỲ hình thức nào — kể cả khi
+  "trông giống" cùng giá trị. Downstream field PHẢI resolve qua authoritative Account event
+  stream (`ref: account`) TẠI CÙNG recorded/effective cursor mà computation đó đang dùng (§13).
+  Một implementation CHỈ được dùng một MATERIALIZED PROJECTION làm input tính toán khi projection
+  đó đồng thời: (a) **cursor-addressable** — hỗ trợ query "as-of cursor X" cụ thể, KHÔNG PHẢI
+  chỉ một row latest-state duy nhất; VÀ (b) **provably equivalent** với authoritative
+  reconstruction tại ĐÚNG cursor, contract version, và configuration đó. `AccountCurrentView`
+  như định nghĩa dưới đây (`GetCurrentAccount`) KHÔNG thỏa điều kiện (a) — nó là latest-state
+  duy nhất, không tham số hóa theo cursor — nên KHÔNG BAO GIỜ được downstream dùng làm input,
+  kể cả như cache (I-12, Chapter 7 §7.4).
 invariants:
   - "Phải rebuild được hoàn toàn từ authoritative event stream (Chapter 7 §7.4 rebuild determinism) — mọi implementation dùng cùng fold algorithm PHẢI cho cùng kết quả."
-  - "KHÔNG được dùng làm input cho bất kỳ Domain Contract khác hay Decision — chỉ query/UI. Một implementation CÓ THỂ dùng row đã materialize làm cache nội bộ CHỈ KHI provably equivalent với reconstruction trực tiếp tại cùng cursor/contract version/configuration."
+  - "**v0.2 (đóng C2-MAJ-04):** KHÔNG được dùng làm input cho bất kỳ Domain Contract khác, Decision, hay computation nào — CHỈ query/UI, không có ngoại lệ cho artifact CỤ THỂ này (latest-state, không cursor-addressable). Một cursor-addressable materialization RIÊNG (khác `GetCurrentAccount`, hỗ trợ resolve tại cursor tùy ý) CÓ THỂ dùng làm cache tính toán CHỈ KHI provably equivalent với authoritative reconstruction tại đúng cursor/contract version/configuration đang dùng — xem §13."
   - "view_state PHẢI đúng theo Bước 1 của fold algorithm — registration lineage head quyết định, KHÔNG BAO GIỜ fallback về một registration đã invalidate."
   - "pending_correction_class BẮT BUỘC có mặt khi view_state = PENDING_CORRECTION; CẤM có mặt khi view_state = VALID."
+  - "current_status PHẢI recompute đúng theo Bước 3 (visible-valid-head per slice) — một CLOSED fact đã invalidate mà chưa có replacement visible KHÔNG được góp phần vào current_status (đóng C2-MAJ-02/C2-MAJ-03)."
 schema:
   account_id: {type: string, required: true}
   scope: {account_boundary_ref: object, environment: string, required: true, description: "chỉ có mặt khi view_state = VALID (Bước 1 fold)"}
@@ -392,6 +447,8 @@ F2
 9. Một fact đã invalidate **không bao giờ** bị tái sử dụng ngầm — Current View (§7) phải loại trừ nó tường minh.
 10. **Forward-looking revision KHÔNG BAO GIỜ dùng cơ chế invalidation** — chỉ correction (sửa sai sót thực sự trong quá khứ) mới dùng `AccountFactInvalidated` + replacement.
 
+**`AccountStatusChanged` correction, kể cả CLOSED (v0.2, đóng C2-MAJ-02):** mười invariant trên áp dụng NGUYÊN VẸN cho `AccountStatusChanged` — bao gồm khi fact bị invalidate mang `new_status: CLOSED`. Terminal state (§1/§5) chỉ chặn FORWARD transition trên valid lineage (`caused_by: AccountStatusChanged` mới với `supersedes_fact_ref` vắng mặt) — nó KHÔNG chặn correction record (`supersedes_fact_ref` có mặt, cùng `(account_id, effective_time)` slice, đúng invariant 1–10). Sau khi replacement visible, fold algorithm (§7) recompute `current_status` từ lineage head hợp lệ mới — có thể KHÁC CLOSED nếu correction đó là "CLOSED ghi sai, đúng ra vẫn ACTIVE/SUSPENDED". KHÔNG có command "reopen" nào được thêm — đây thuần túy là sửa một fact lịch sử sai, không phải một hành động nghiệp vụ mới.
+
 **`initial_fact_correction_policy: INVALIDATE_INITIAL_FACT_AND_REGISTER_NEW_SUBJECT_WHEN_SCOPE_CHANGES`** (§9) — phân biệt hai trường hợp, đúng ADR-012 §2.1:
 
 ### Same-scope metadata error
@@ -415,10 +472,11 @@ Khi registration gốc có **scope identity SAI** (`account_boundary_ref` hoặc
 invalidate initial fact SAI (AccountFactInvalidated, account_fact_correction_class = SCOPE_ERROR)
 → KHÔNG replace dưới subject cũ — CẤM tuyệt đối một replacement registration
   với supersedes_fact_ref trỏ về đây
-→ đăng ký một subject MỚI: account_id MỚI, với scope ĐÚNG
+→ đăng ký một subject MỚI: account_id MỚI (opaque, globally unique, KHÔNG derive từ scope
+  đúng — đóng C2-MAJ-01, xem §1), với scope ĐÚNG
 ```
 
-**Subject cũ KHÔNG được tiếp tục authoritative** — sau invalidation, subject cũ vĩnh viễn không có lineage head VALID nào khác. Đây chính là "rebinding" mà ADR-012 §2.1 đã cấm thực hiện tại chỗ — account.md implement quy tắc này bằng correction lineage đóng, không phát minh cơ chế khác.
+**Subject cũ KHÔNG được tiếp tục authoritative** — sau invalidation, subject cũ vĩnh viễn không có lineage head VALID nào khác. Đây chính là "rebinding" mà ADR-012 §2.1 đã cấm thực hiện tại chỗ — account.md implement quy tắc này bằng correction lineage đóng, không phát minh cơ chế khác. **account_id MỚI này KHÔNG liên quan gì tới scope cũ hay mới về mặt cấu trúc** — nó là một opaque identifier độc lập, gán mới, chỉ TÌNH CỜ mang scope đúng trong invariant của nó (§1) — không có công thức nào suy account_id mới từ account_id cũ hay từ scope (đóng C2-MAJ-01).
 
 ## 12. Time semantics và bitemporal correctness
 
@@ -440,12 +498,12 @@ Package sau (Strategy, Risk, Execution Intent, Order, Fill, Position — chưa a
 
 ```yaml
 account_id: {type: string, required: true, ref: account}
-venue_id: {type: string, required: false, description: "CHỈ suy diễn được khi boundary_type=venue (§1) — resolve qua AccountCurrentView/reconstruction, KHÔNG parse từ account_id"}
-environment: {type: enum, values: [PAPER, LIVE], description: "resolve qua AccountCurrentView/reconstruction — bất biến theo Account"}
-account_status: {type: enum, values: [ACTIVE, SUSPENDED, CLOSED], description: "resolve TẠI cursor liên quan — CHỈ ACTIVE mới eligible cho action mới, §5"}
+venue_id: {type: string, required: false, description: "CHỈ có mặt khi boundary_type=venue (§1) — TUYỆT ĐỐI ABSENT (không phải empty string, không phải null-placeholder) khi boundary_type=broker_account (v0.2, đóng C2-MAJ-04); KHÔNG parse từ account_id"}
+environment: {type: enum, values: [PAPER, LIVE], description: "bất biến theo Account — resolve theo quy tắc downstream authority dưới"}
+account_status: {type: enum, values: [ACTIVE, SUSPENDED, CLOSED], description: "resolve TẠI cursor liên quan theo quy tắc downstream authority dưới — CHỈ ACTIVE mới eligible cho action mới, §5"}
 ```
 
-**Bắt buộc:** downstream package PHẢI tự resolve `venue_id`/`environment`/`account_status` qua authoritative Account event stream (§3–§6) hoặc reconstruction tương đương TẠI cùng cursor mà chính computation đó đang dùng — KHÔNG dùng `AccountCurrentView` (§7) làm input bình thường (chỉ cache tùy chọn provably-equivalent, cùng nguyên tắc I-12 đã pin §7). KHÔNG package nào được tự phát minh identity/boundary semantics khác — `account_id`/`account_boundary_ref`/`environment` là nguồn định nghĩa DUY NHẤT tại đây.
+**Downstream authority rule — MỘT quy tắc duy nhất, không ngoại lệ (v0.2, đóng C2-MAJ-04):** downstream package PHẢI resolve `venue_id`/`environment`/`account_status` TRỰC TIẾP từ authoritative Account event stream (§3–§6) TẠI ĐÚNG recorded/effective cursor mà chính computation đó đang dùng. `AccountCurrentView` latest-state thông thường (§7, `GetCurrentAccount`) KHÔNG BAO GIỜ được dùng làm input — nó không cursor-addressable, chỉ query/UI. Một materialized projection CHỈ được chấp nhận làm cache tính toán khi ĐỒNG THỜI: (a) cursor-addressable (hỗ trợ resolve tại một cursor cụ thể, không chỉ "mới nhất"); VÀ (b) provably equivalent với authoritative reconstruction tại đúng cursor, contract version, configuration đang dùng (§7). Vi phạm điển hình cần tránh: dùng row `GetCurrentAccount` "mới nhất" cho một historical replay ở cursor cũ hơn — đây là look-ahead, CẤM tuyệt đối. KHÔNG package nào được tự phát minh identity/boundary semantics khác — `account_id`/`account_boundary_ref`/`environment` là nguồn định nghĩa DUY NHẤT tại đây.
 
 **account.md KHÔNG author** bất kỳ semantic nào của Strategy/Decision/Risk/Execution Intent/Order/Fill/Position — các Domain Contract đó (Package 0.2-C3–C7, chưa authorize) tự định nghĩa cách chúng dùng bốn field trên, account.md chỉ đảm bảo bốn field này tồn tại, ổn định, và resolve được đúng.
 

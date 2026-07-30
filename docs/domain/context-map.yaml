@@ -111,7 +111,7 @@ contexts:
     title: Trading Account Reference
     capability_id: account-management
     responsibility: "Định nghĩa Trading Account identity, account boundary (venue | broker_account, ADR-012 §2.1), environment (PAPER/LIVE), lifecycle tối thiểu, và credential-reference boundary (I-11) — KHÔNG raw secret, KHÔNG Strategy/Risk/Execution/Order/Fill/Position semantics."
-    owned_contracts: [account]   # authored — Package 0.2-C2: account.md v0.1 Draft (author self-review only, chưa qua Review A/B), controlling architecture ADR-012 v0.3 Approved
+    owned_contracts: [account]   # authored — Package 0.2-C2: account.md v0.2 Draft (bounded correction — C2-MAJ-01/02/03/04 đã đóng), controlling architecture ADR-012 v0.3 Approved (không đổi)
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship
