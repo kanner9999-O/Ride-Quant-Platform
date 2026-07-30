@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.11"
+version: "0.12"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -24,7 +24,16 @@ next_review: null
 # (`account-management`/`account-reference`) tại v0.11 — Account KHÔNG thuộc phạm vi
 # `market-reference`/`instrument-venue-reference` đã có, cần capability/context riêng, controlling
 # architecture [ADR-012](../adr/ADR-012.md) v0.3 Approved (Account-to-Boundary Cardinality).
-# Package 0.2-C3–C7 (Strategy, Decision, Risk, Execution, Position, Order/Fill, Replay...) vẫn
+# Package 0.2-C3 (Strategy Foundation — strategy.md) đăng ký capability/context MỚI
+# (`strategy-management`/`strategy-definition`) tại v0.12 — Strategy Definition Version/Strategy
+# Instance KHÔNG thuộc phạm vi `account-management`/`account-reference` đã có, cần capability/
+# context riêng, controlling architecture [ADR-013](../adr/ADR-013.md) v0.3 Approved (Strategy
+# Definition Version — Independent Evidence Axis). KHÔNG thêm relationship edge cho
+# strategy-definition: strategy.md chỉ dùng simple `ref:` lookup tới account (account_id) và tới
+# chính nó (strategy_definition_version_ref) — không có published-language event-stream flow
+# cross-context nào strategy.md thực sự tiêu thụ ở v0.1 (cùng precedent account.md §13's venue_id
+# ref không cần edge).
+# Package 0.2-C4–C7 (Decision/Trade Intent, Risk, Execution, Position, Order/Fill, Replay...) vẫn
 # CHƯA đăng ký, chờ authoring thực tế theo decomposition đã pin tại `docs/domain/README.md` — mỗi
 # slice cần Product Owner authorization riêng.
 
@@ -62,6 +71,11 @@ capabilities:
   - id: account-management
     title: Account Management
     responsibility: "Sở hữu Trading Account identity, account boundary binding (venue hoặc broker_account, theo ADR-012), environment distinction (PAPER/LIVE), và lifecycle tối thiểu — KHÔNG sở hữu credential/secret material (I-11), KHÔNG sở hữu Strategy/Risk/Execution/Order/Fill/Position semantics."
+    status: active
+
+  - id: strategy-management
+    title: Strategy Management
+    responsibility: "Sở hữu Strategy Definition Version identity (business/decision semantics bất biến, theo ADR-013) và Strategy Instance identity (runtime binding pin bốn trục evidence độc lập + Account + instrument selection) — KHÔNG sở hữu Plugin Definition/Plugin Version/Package-Build-Artifact schema (Chapter 9), KHÔNG sở hữu Trade Intent/Decision/Risk/Execution/Order/Fill/Position semantics."
     status: active
 
 contexts:
@@ -112,6 +126,13 @@ contexts:
     capability_id: account-management
     responsibility: "Định nghĩa Trading Account identity, account boundary (venue | broker_account, ADR-012 §2.1), environment (PAPER/LIVE), lifecycle tối thiểu, và credential-reference boundary (I-11) — KHÔNG raw secret, KHÔNG Strategy/Risk/Execution/Order/Fill/Position semantics."
     owned_contracts: [account]   # authored — Package 0.2-C2: account.md v0.2 Draft — Package 0.2-C2 `Consolidated Stable` (2026-07-30), artifact status vẫn Draft (package readiness ≠ document approval); controlling architecture ADR-012 v0.3 Approved (không đổi)
+    status: active
+
+  - id: strategy-definition
+    title: Strategy Definition & Instance
+    capability_id: strategy-management
+    responsibility: "Định nghĩa Strategy Definition Version (thesis, supported_scope, required input contracts, decision-rule ref, explanation contract ref — bất biến) và Strategy Instance (pin bốn trục evidence độc lập: strategy_definition_version_ref/plugin_version_ref/configuration_version_ref/package_build_artifact_ref, cộng account_id và instrument_selection_ref) — theo ADR-013 §2."
+    owned_contracts: [strategy]   # authored — Package 0.2-C3: strategy.md v0.1 Draft, chưa qua Review A/B; controlling architecture ADR-013 v0.3 Approved
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship

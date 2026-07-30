@@ -2,6 +2,83 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — author Package 0.2-C3 strategy foundation
+
+**Package 0.2-C3 — Strategy Foundation v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C3 — Strategy Foundation v0.1". Authorized artifact: `docs/domain/strategy.md` (tạo mới, v0.1 Draft). Authorization này **không** cho phép author Package 0.2-C4–C7, định nghĩa strategy DSL/executable code, optimizer/backtest engine, capital allocation/multi-strategy arbitration, Live activation workflow, sửa C1/C2 semantic, sửa ADR-013 hay bất kỳ ADR/Constitution nào, đóng OQ-002/OQ-003, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.
+
+### Baseline verification
+
+```text
+Expected HEAD:  05ff2d4fd8afea3825378aee2d286434df17b410
+Actual HEAD:    05ff2d4fd8afea3825378aee2d286434df17b410  — match
+
+Package 0.2-C1:  Consolidated Stable (không đổi)
+Package 0.2-C2:  Consolidated Stable (không đổi)
+Controlling architecture: ADR-013.md v0.3 Approved, blob 02df931143f8408c61d19ee2c91d2d355d5deb1d
+strategy.md: absent trước transaction — đúng expected state, KHÔNG có baseline conflict (khác tình huống ADR-012 tại Package 0.2-C2)
+```
+
+### Strategy Definition Version model
+
+`strategy_definition_version_id` — opaque, globally unique, immutable, gán tại `StrategyDefinitionVersionRegistered`, KHÔNG derive từ nội dung hay từ `strategy_definition_id` (áp dụng chủ động bài học `C2-MAJ-01`, không chờ review round phát hiện). `strategy_definition_id` là scope field nhóm nhiều Version cùng một gia đình chiến lược — KHÔNG có registration event riêng cho family (khác Account/Instrument, tránh phát minh cơ chế không cần thiết). TOÀN BỘ payload một Version (`thesis`, `supported_scope`, `required_input_contracts`, `decision_rule_ref`, `explanation_contract_ref`, `downstream_output_capability`) là nội dung BẤT BIẾN — KHÔNG có PATCH/metadata-revision event, đúng ADR-013 §2.3 cấm mutable-latest tường minh. Correction (`StrategyDefinitionVersionFactInvalidated`) LUÔN LUÔN đăng ký một `strategy_definition_version_id` MỚI — KHÔNG có same-ID replacement path (đơn giản hơn model METADATA_ERROR/SCOPE_ERROR hai lớp của `account.md`, vì subject này không có mutable metadata để phân biệt). KHÔNG có "current/latest Definition" read model — chỉ một validity-check non-authoritative (`GetStrategyDefinitionVersionValidity`) cho một ID cụ thể đã biết, tránh vi phạm ADR-013 §2.3 dù chỉ về mặt read-model semantics.
+
+### Strategy Instance model
+
+`strategy_instance_id` — opaque, globally unique, immutable. Pin ĐỦ bốn trục evidence độc lập (`strategy_definition_version_ref`/`plugin_version_ref`/`configuration_version_ref`/`package_build_artifact_ref`), cộng `account_id` (đúng một Account) và `instrument_selection_ref`. Toàn bộ scope bất biến một khi đăng ký — đổi bất kỳ trục nào tạo Instance khác, KHÔNG mutate tại chỗ (đúng Chapter 9 §9.3 mục 2). Lifecycle tối thiểu ba state `ACTIVE`/`PAUSED`/`RETIRED` — RETIRED terminal CHO FORWARD TRANSITION nhưng correctable append-only qua `StrategyInstanceFactInvalidated` + same-slice replacement; `supersedes_fact_ref` có mặt ngay từ v0.1 trên `StrategyInstanceStatusChanged` (áp dụng chủ động bài học `C2-MAJ-02`). `StrategyInstanceCurrentView` (optional, non-authoritative) dùng fold algorithm "visible-valid-head per slice" và pin "Current View không bao giờ authority" ngay từ v0.1 (áp dụng chủ động bài học `C2-MAJ-03`/`C2-MAJ-04`).
+
+### ADR-013 four-axis conformance
+
+Bốn trục evidence — Strategy Definition Version (`strategy.md`, §1) · Plugin Version (Chapter 9 §9.1) · Configuration Version (Chapter 9 §9.1) · Package/Build Artifact (Chapter 9 §9.1, ADR-013 §2.5) — pin độc lập tường minh tại `strategy.md` §5/§11: không trục nào derive/proxy trục khác; mỗi trục bump độc lập (refactor Plugin không bắt buộc Definition Version mới; đổi thesis không bắt buộc Plugin Version mới). Rebuilt-artifact-identity rule (ADR-013 §2.5) pin nguyên văn: hai executable artifact khác bytes vì bất kỳ lý do gì (kể cả non-reproducible build) PHẢI có `package_build_artifact_ref` khác. Capability/instrument-class vs. concrete-instrument (ADR-013 §2.2) pin qua `supported_scope` (Definition Version, class) vs. `instrument_selection_ref` (Instance, concrete). Immutable-pin/no-mutable-latest (ADR-013 §2.3) pin qua việc KHÔNG có PATCH event và KHÔNG có "current definition" read model. `ADR-013.md` **byte-for-byte unchanged, verified** — không sửa/re-author/bump.
+
+### Account/environment/instrument binding
+
+Một quy tắc ownership duy nhất (đúng yêu cầu task): `instrument_selection_ref` thuộc Strategy Instance — KHÔNG thuộc Configuration Version. `environment` KHÔNG lưu riêng trên Instance — luôn resolve qua `account_id` → Account event stream (`account.md` §1) TẠI cùng cursor, tránh duplicate source of truth (I-12), đồng thời thỏa yêu cầu "Account và environment phải resolve từ authoritative same-cursor history" bằng derivation thay vì lưu trữ dư thừa. `environment: LIVE` (kế thừa) KHÔNG tự động authorize Live execution — domain value phân biệt thuần túy, đúng nguyên tắc `account.md` §8.
+
+### Lifecycle and correction model
+
+`StrategyDefinitionVersionRegistered`/`StrategyInstanceRegistered`: TOÀN BỘ payload bất biến — correction (`*FactInvalidated`) LUÔN đăng ký ID mới, KHÔNG same-ID replacement, KHÔNG cần `pending_correction_class` phân biệt cho registration lineage (chỉ một outcome: `TERMINAL_SCOPE_INVALIDATION`). `StrategyInstanceStatusChanged`: correction lineage chuẩn — same-slice replacement qua `supersedes_fact_ref`, mười invariant chuẩn (đúng pattern đã proven `instrument.md`/`account.md`) áp dụng nguyên vẹn, RETIRED correctable không cần reactivation command riêng. Canonical policy identifier mới khai báo tại `strategy.md` §12 (context `strategy-definition`, độc lập, không cross-reference context khác): `initial_fact_correction_policy: INVALIDATE_ONLY_NO_SAME_ID_REPLACEMENT_FOR_IMMUTABLE_SCOPE_SUBJECTS`, `strategy_evidence_axis_policy: FOUR_INDEPENDENT_AXES_NO_PROXY`.
+
+### C4 downstream reference boundary
+
+Chín field pin tại `strategy.md` §10: `strategy_instance_id`/`strategy_definition_id`/`strategy_definition_version_id`/`plugin_version_ref`/`configuration_version_ref`/`package_build_artifact_ref`/`account_id`/`environment` (derived)/`instrument_selection_ref` — resolve TRỰC TIẾP từ authoritative event stream TẠI cùng cursor, `StrategyInstanceCurrentView` latest-state KHÔNG BAO GIỜ là input hợp lệ (đúng "một quy tắc downstream authority duy nhất" đã proven tại `account.md` §13, áp dụng chủ động ngay từ v0.1). `strategy.md` KHÔNG author Trade Intent/Decision semantics (Package 0.2-C4, chưa authorize).
+
+### Context Map integration
+
+Đăng ký capability `strategy-management` + context `strategy-definition` (`owned_contracts: [strategy]`) tại `context-map.yaml` **v0.11 → v0.12**. KHÔNG thêm relationship edge nào — `strategy.md` chỉ dùng simple `ref:` lookup (`account_id` → Account, `strategy_definition_version_ref` → chính nó), không có published-language event-stream flow cross-context nào thực sự cần thiết ở v0.1, đúng precedent `account.md`'s `venue_id` ref không cần edge.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10 (đặc biệt Chapter 8 §8.1.1/§8.2, Chapter 9 §9.1/§9.3/§9.6/§9.8), ADR-010 §75, ADR-013 v0.3 Approved (byte-for-byte unchanged — verified), Package 0.2-C1 (`instrument.md`/`venue.md` không đổi — verified byte-for-byte), Package 0.2-C2 (`account.md` không đổi — verified byte-for-byte), ADR-012 (byte-for-byte unchanged — verified). Preserve nguyên vẹn: opaque non-derived identity pattern; `EXPLICIT_PATCH_WITH_CLEAR_SET`-style thinking áp dụng đúng chỗ (ở đây: KHÔNG áp dụng, vì subject bất biến — quyết định tường minh, không phải bỏ sót); correction lineage mười invariant; fold algorithm "visible-valid-head per slice"; Current View never-authority. Không owner/tenant/IAM/billing semantics mới. Không Strategy DSL/executable code. Không optimizer/backtest engine. Không capital allocation/multi-strategy arbitration. Không Live activation workflow.
+
+### Attack-scenario kết quả
+
+Look-ahead injection (invalidation visible trước recorded_time gốc): chặn bởi envelope invariant §2/§4/§8. Invalidation-of-invalidation: chặn tường minh (§4/§8 invariant "không bao giờ trỏ một `*FactInvalidated` khác"). Same-ID mutation giả danh correction cho Definition Version/Instance registration: chặn — chỉ `*FactInvalidated` + ID mới được chấp nhận, không có `supersedes_fact_ref` trên hai event registration. Axis proxy injection (suy `plugin_version_ref` từ `configuration_version_ref` hay ngược lại): chặn tường minh bởi invariant §5/§11. Instrument-selection ownership ambiguity (Configuration Version tự nhận sở hữu `instrument_selection_ref`): chặn — một quy tắc ownership duy nhất pin tại §5. Environment duplication/drift (Instance tự lưu `environment` khác Account): chặn — `environment` không phải field lưu trữ trên Instance, chỉ derived. Current View dùng làm input tính toán: chặn tường minh §9/§10 (cùng cơ chế đã proven `account.md` §13).
+
+### Author self-review findings
+
+Phát hiện và disclosure tường minh (không phải finding cần sửa, chỉ là judgment call cần minh bạch): ADR-013 §2.1 mô tả `strategy-definition.md`/`strategy-instance.md` như hai tên file giả định tại thời điểm ADR được author — quyết định tổ chức file KHÔNG thuộc phạm vi ADR-013 (ADR chỉ khóa kiến trúc bốn-trục độc lập, không khóa Domain Contract file boundary). Product Owner đã xác nhận tường minh cho transaction này dùng MỘT file `strategy.md` duy nhất — không vi phạm ADR-013, chỉ là quyết định tổ chức tài liệu, ghi nhận công khai tại `strategy.md` phần mở đầu ("Ghi chú tổ chức file"). Không tìm thấy finding blocking nào khác trong self-review.
+
+### Changed-file scope
+
+```text
+docs/domain/strategy.md        NEW      v0.1  Draft   blob 66b9b8226f18ff3e39506d22df68e5940b91746d
+docs/domain/context-map.yaml   MODIFIED v0.11 → v0.12  (capability/context registration + comment)
+docs/domain/README.md          MODIFIED v0.33 → v0.34
+docs/MANIFEST.md               MODIFIED manifest_version 9.59 → 9.60
+docs/CHANGELOG.md              MODIFIED (this entry)
+```
+
+### Metadata / state
+
+- `strategy.md`: **tạo mới**, `version: "0.1"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+- `context-map.yaml`: **v0.11 → v0.12** — thêm capability `strategy-management` + context `strategy-definition`, KHÔNG thêm relationship edge.
+- `README.md` (domain index): **v0.33 → v0.34**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.59 → 9.60**; dòng `domain/` cập nhật ghi nhận Package 0.2-C3 authoring transaction.
+- `ADR-013.md`, `ADR-012.md`, `instrument.md`, `venue.md`, `account.md`: **không đổi** (byte-for-byte, verified).
+- Mọi ADR khác, Constitution, mọi Domain Contract khác (`candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md`): **không đổi.**
+
+**Package 0.2-C3 CHƯA đạt `Consolidated Stable` — chờ ChatGPT Review A + Independent Review B trên cùng exact baseline này.** Mandatory sequence: Author baseline → ChatGPT Review A → Independent Review B → merge finding → một correction commit (Product Owner authorize) → delta review hai vòng → Product Owner consolidation decision. KHÔNG correction dựa trên một review đơn lẻ. Package 0.2-C1/C2 vẫn `Consolidated Stable`, không đổi. Package 0.2-C4–C7 vẫn chưa authorize, chưa author. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — consolidate Package 0.2-C2
 
 **Package 0.2-C2 Trading Account Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C2 consolidation transaction" (2026-07-30). Authorization này cho phép ghi Package 0.2-C2 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `account.md`, không sửa ADR-012 hay bất kỳ ADR nào, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C3–C7, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.
