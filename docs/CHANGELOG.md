@@ -2,6 +2,65 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — tighten ADR-014 authority boundaries
+
+**Narrow ADR revision correction — không phải approval, không phải Lock, không Consolidate, không đóng OQ, không authorize Live, không redesign Feature/Regime/Context.** Vai trò: `ADR Revision Author · AI Technical Architect`.
+
+### Findings resolved
+
+`IRB-ADR014-MAJ-01`, `IRB-ADR014-MAJ-02`, `IRB-ADR014-MIN-01`, `IRB-ADR014-MIN-02` — toàn bộ từ Independent Review B, trên `ADR-014.md` v0.1.
+
+### Part A — Definition-pinned direct fan-in correction (`IRB-ADR014-MAJ-01`)
+
+ADR-014 v0.1 mô tả quyền fan-in ở cấp LAYER (Feature Engine/Context Engine) — có thể bị đọc thành quyền chung, không giới hạn. Thêm quy tắc bắt buộc: fan-in trực tiếp CHỈ hợp lệ cho role/contract ID/contract version được chính Feature Definition hoặc Context Definition khai báo và pin tường minh; contract chưa khai báo, dependency tự chọn ở tầng implementation, và input fallback ngầm định đều bị cấm. Feature: chỉ tiêu thụ Structure/Regime khi `feature_definition_version` cụ thể khai báo role, pin contract ID + version, khai báo role cardinality, và input thực sự cần cho đúng một atomic Feature value — không có quyền chung đọc mọi Structure/Regime event. Context: tương tự, cần `context_definition_version` khai báo role + contract ID + version + cardinality + cutoff/alignment policy — không có quyền chung tự thêm upstream dimension mới (đòi hỏi definition version mới + Domain Contract revision). Canonical rule: "Layer capability does not authorize an input. The consuming Definition authorizes and pins the input."
+
+### Part B — Complete Context authority prohibition (`IRB-ADR014-MAJ-02`)
+
+Context prohibition list v0.1 chỉ có 5 mục, thiếu Risk/Account/Position/Execution và execution/order authority. Mở rộng thành 12 mục đầy đủ: compute new engineered Feature; reproduce Feature formulas; derive trade signal; score/grade setup; make Strategy/Decision/Risk/Account/Position/Execution conclusion; determine execution eligibility; authorize/reject/size/route order. Làm rõ: Context chỉ được copy upstream value khi value đó thuộc authorized input role (Definition-pinned); cấm rename một conclusion thành "context value" để lách domain ownership. Ví dụ payload cấm tuyệt đối: `risk_state`, `execution_allowed`, `position_size`, `order_eligible`.
+
+### Part C — Traceability correction (`IRB-ADR014-MIN-01`)
+
+`docs/domain/context.md`'s "Quan hệ với ADR-003" intro paragraph gán stale finding `RA-B4-MAJ-01`/`IRB-B4-MAJ-01` cho xung đột ADR-003 — sai. Sửa thành `IRB-B4-MAJ-03` (đúng mapping đã pin từ correction trước). Traceability-only, không đổi semantic.
+
+### Part D — Architecture concerns and risks recorded (`IRB-ADR014-MIN-02`)
+
+Ghi nhận đầy đủ trong ADR-014: Risk 1 Coupling increase; Risk 2 Correction cascade; Risk 3 Definition-version mismatch; Risk 4 Duplicate temporal-alignment implementation; Risk 5 Context scope creep; Risk 6 Feature scope creep — mỗi risk kèm mitigation cụ thể. Risk acceptance state ghi rõ: "These are reviewer-identified concerns and risks. They are not Product Owner accepted risks while ADR-014 is Draft." Không populate `Accepted risks` với approval evidence.
+
+### Reviewer-evidence handling
+
+Bốn finding trên đến từ một vòng Independent Review B đã thực sự diễn ra trên `ADR-014.md` v0.1 — ghi nhận HISTORICAL evidence của vòng review đã xảy ra (bảng "Independent reviews" điền identity "Independent Review B" cho cả 4 dòng Concern/Risk/Recommendation), KHÔNG tuyên bố bản v0.2 (transaction này) đã được re-review/delta-review. Không có bằng chứng actor identity thứ hai (ví dụ ChatGPT Review A) đã review riêng `ADR-014.md` — KHÔNG fabricate một identity thứ hai. `frontmatter.reviewers` giữ nguyên `[]` — một tập hai-reviewer hợp lệ theo Chapter 11 §11.5 CHƯA được xác lập cho chính `ADR-014.md`. Tác giả của revision này không được tính là reviewer.
+
+### Preserved decisions
+
+Raw Regime độc lập Structure; Structure độc lập Raw Regime; Feature computation vs Context aggregation distinction; Context direct authoritative input design (bảy role); B4 input cardinality; Context selection algorithm (Phase 1/Phase 2); missing-input policy (enum đóng); correction lineage; current-view semantics; Strategy boundary; ADR-003 nội dung bất biến — **không đổi bất kỳ mục nào trong danh sách này.**
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–11, ADR-003 (nội dung không đổi, chỉ narrow amendment proposal siết chặt hơn), ADR-007, ADR-009, ADR-010 (không áp dụng). `structure.md`/`regime.md`/`feature.md`/`context.md`/`context-map.yaml` — chỉ 1 sửa traceability trong `context.md`, không sửa semantic nào khác. Kết quả: không còn architecture conflict nào phát sinh MỚI; ADR-014 vẫn Draft và non-effective; B4 vẫn blocked chờ clean delta review và Product Owner decision.
+
+### Attack-scenario results — 16/16 pass
+
+Feature đọc Regime event chưa khai báo → vi phạm rule mới, bị cấm tường minh; Feature đọc Structure role đã khai báo + pin version → hợp lệ theo rule mới; Context thêm liquidity role chưa khai báo → vi phạm rule mới; Context tiêu thụ đúng bảy role đã pin → hợp lệ; Context emit `risk_state`/`execution_allowed`/`position_size` → cấm tường minh (Part B); Context tự tính metric mới → cấm (prohibition list mục 1); Context copy Feature value hiện có thuộc authorized role → hợp lệ (đúng §17 context.md, đúng ADR-014 "copy khi thuộc authorized input role"); Feature publish toàn bộ Context snapshot → cấm (`feature.md` §15, ADR-014 "Feature KHÔNG được sản xuất multi-domain Context snapshot"); Structure correction invalidate nhiều Context snapshot → Risk 2 mitigation (independent correction, append-only); definition-version mismatch → Risk 3 mitigation (ineligible, no snapshot); Feature/Context share temporal utility không share semantic authority → Risk 4 mitigation; không ngụ ý Product Owner risk acceptance → Risk acceptance state tường minh; stale finding reference đã xóa (Part C); ADR-003 không đổi (verified blob).
+
+### Semantic change summary
+
+**Không đổi:** thuật toán Context selection; Feature/Regime/Structure semantics; missing-input policy; correction lineage; current-view semantics; ADR-003 nội dung. **Thay đổi:** ADR-014's Decision text — mở rộng/siết chặt boundary (Definition-pinned fan-in rule mới; Context prohibition list đầy đủ hơn) + risk documentation + 1 traceability fix trong `context.md`. Đây là governance/boundary tightening, không phải redesign.
+
+### Changed-file scope
+
+`docs/adr/ADR-014.md`, `docs/domain/context.md` (1 câu traceability), `docs/domain/README.md`, `docs/MANIFEST.md`. `docs/domain/context-map.yaml` **không đổi** — không có semantic/structural change nào cần thiết (đã kiểm tra, mọi `purpose` field hiện có vẫn chính xác).
+
+### Metadata / state
+
+- `ADR-014.md`: **v0.1 → v0.2**, `status` giữ `Draft`, `reviewers: []` không đổi, `approved_by`/`approved_at` giữ `null`.
+- `context.md`: **giữ `version: "0.2"`** (reference-only correction, không phải semantic revision).
+- `context-map.yaml`: **giữ `version: "0.9"`**, không đổi.
+- `README.md` (domain index): **v0.20 → v0.21**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.45 → 9.46**.
+- `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `ADR-003.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
+
+Không Product Owner Approve; không Lock; không Consolidate; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1/B2/B3 vẫn `Consolidated Stable`; Package 0.2-B4 vẫn Draft, blocked chờ ADR-014 (`IRB-B4-MAJ-03` governance-open, cùng bốn finding ADR-014-level mới resolved technically nhưng CHƯA delta-reviewed); Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — correct B4 review finding traceability
 
 **Metadata/reference-only correction — không phải approval, không phải Lock, không phải Consolidate, không đóng OQ, không authorize Live, không đổi executable domain semantic nào.** Vai trò: `Governance Traceability Correction Author · AI Technical Architect`.

@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.20"
+version: "0.21"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -176,7 +176,16 @@ reviewed HEAD:    ed8813030203cd9e5f779f54be752a3e94c4f68b
 
 **Narrow traceability correction (`RA-B4-MIN-02`):** phiên bản trước của mục này (commit `f1ea03b`) gán nhầm `IRB-B4-MAJ-02` cho xung đột ADR-003 và `IRB-B4-MAJ-03` cho `missing_input_policy` — NGƯỢC với mapping authoritative của Independent Review B report. Đã sửa: `IRB-B4-MAJ-02` = `missing_input_policy` (resolved); `IRB-B4-MAJ-03` = ADR-003 fan-in conflict (governance-open, chờ ADR-014). Metadata/reference-only — không đổi semantic/algorithm/version nào.
 
-**Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào:** `context.md`/`feature.md`/`regime.md`/`swing.md`/`structure.md`/`context-map.yaml` `status: Draft`; `ADR-003` vẫn `Approved`, bất biến, không sửa; `ADR-014` `status: Draft`, không tự approve, không fabricate review evidence. Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-C **vẫn chưa có artifact nào được author**. Phase 0.2 vẫn **active và chưa hoàn tất**.
+**ADR-014 narrow review correction (v0.1 → v0.2) — đóng `IRB-ADR014-MAJ-01`/`IRB-ADR014-MAJ-02`/`IRB-ADR014-MIN-01`/`IRB-ADR014-MIN-02` (Independent Review B, trên `ADR-014.md` v0.1):**
+
+1. **`IRB-ADR014-MAJ-01`:** ADR-014 v0.1 cấp quyền fan-in ở cấp LAYER (Feature Engine/Context Engine), không tường minh giới hạn theo Definition — có thể đọc rộng thành quyền chung không giới hạn. **Sửa:** thêm quy tắc "Definition-pinned direct fan-in" — fan-in trực tiếp CHỈ hợp lệ cho role/contract ID/contract version được chính Feature Definition hoặc Context Definition khai báo tường minh; canonical rule: "Layer capability does not authorize an input. The consuming Definition authorizes and pins the input."
+2. **`IRB-ADR014-MAJ-02`:** Context prohibition list v0.1 chưa đủ. **Sửa:** mở rộng đầy đủ — cấm Risk/Account/Position/Execution conclusion, execution eligibility, order authority; cấm rename-conclusion-as-context-value; ví dụ payload cấm tuyệt đối (`risk_state`, `execution_allowed`, `position_size`, `order_eligible`).
+3. **`IRB-ADR014-MIN-01`:** `context.md`'s "Quan hệ với ADR-003" gán stale finding ID (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`) cho xung đột ADR-003. **Sửa:** đúng phải là `IRB-B4-MAJ-03` — traceability-only, không đổi semantic.
+4. **`IRB-ADR014-MIN-02`:** ghi nhận đầy đủ 6 risk (Coupling increase; Correction cascade; Definition-version mismatch; Duplicate temporal-alignment; Context scope creep; Feature scope creep) + mitigation, tường minh KHÔNG ngụ ý Product Owner đã accept ("reviewer-identified concerns... not Product Owner accepted risks while ADR-014 is Draft").
+
+**KHÔNG đổi bất kỳ quyết định kiến trúc nào** — Feature computation vs Context aggregation, Regime/Structure độc lập không đổi. **Reviewer evidence:** ghi nhận Independent Review B (identity đã dùng nhất quán xuyên session) là actor đã tìm ra 4 finding trên `ADR-014.md` v0.1; KHÔNG fabricate một actor thứ hai; `ADR-014.md`'s `frontmatter.reviewers` giữ nguyên `[]` — một tập hai-reviewer hợp lệ theo Chapter 11 §11.5 CHƯA được xác lập cho chính ADR-014; bản sửa v0.2 này CHƯA qua delta review.
+
+**Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào:** `context.md`/`feature.md`/`regime.md`/`swing.md`/`structure.md`/`context-map.yaml` `status: Draft`; `ADR-003` vẫn `Approved`, bất biến, không sửa; `ADR-014` v0.2 `status: Draft`, không tự approve, không fabricate review evidence. Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-C **vẫn chưa có artifact nào được author**. Phase 0.2 vẫn **active và chưa hoàn tất**.
 
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 
