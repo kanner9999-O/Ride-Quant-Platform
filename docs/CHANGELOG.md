@@ -2,6 +2,43 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — include controlling ADR-014 (MANIFEST metadata correction)
+
+**Narrow lockfile/registry metadata correction — không phải approval, không phải Lock, không phải Consolidate, không đóng OQ, không authorize Live, không sửa Domain Contract hay ADR decision.** Vai trò: `Documentation Registry Correction Author · AI Technical Architect`.
+
+### Finding resolved
+
+`IRB-B4-FINAL-MIN-01` — `docs/MANIFEST.md` frontmatter `compatible_adr_range: "ADR-001 ~ ADR-013"` mâu thuẫn nội bộ với chính repository state: ADR-014 đã `Approved`/effective/controlling (transaction trước, commit `bb65ec2`), nhưng ADR-014 không nằm trong compatible range đã khai báo. `generated_at: "2026-07-28"` cũng stale so với lifecycle change committed ngày 2026-07-30.
+
+### MANIFEST correction
+
+```yaml
+manifest_version: "9.47" → "9.48"
+compatible_adr_range: "ADR-001 ~ ADR-013" → "ADR-001 ~ ADR-014"
+generated_at: "2026-07-28" → "2026-07-30"
+```
+
+Chỉ ba field frontmatter trên thay đổi. **Không đổi:** ADR lifecycle table semantics; ADR-003 `Superseded` state; ADR-014 `Approved` state; domain package state (Package 0.2-A/B1/B2/B3/B4/C); Constitution metadata; `project_version`; `current_phase`; `schema_version`.
+
+### Metadata-only correction — xác nhận tường minh
+
+Đây là metadata-only correction — **không đổi domain semantic nào; không đổi ADR content nào; không phải approval; không Lock; không Consolidate Package 0.2-B4; không đóng OQ-002/OQ-003; không authorize Live.**
+
+### Semantic no-change verification
+
+`docs/adr/ADR-014.md`, `docs/adr/ADR-003.md`, `docs/domain/context.md`, `docs/domain/context-map.yaml`, `docs/domain/README.md` — **không chạm, không đổi.** `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md`/Constitution/OQ files/Package 0.2-C artifacts — không đổi.
+
+### Metadata / state
+
+- `MANIFEST.md`: `manifest_version` **9.47 → 9.48**; `compatible_adr_range` **ADR-001 ~ ADR-013 → ADR-001 ~ ADR-014**; `generated_at` **2026-07-28 → 2026-07-30**.
+- `ADR-014.md`: **không đổi** — vẫn `version: "0.2"`, `status: Approved`, controlling authority, `approved_at: "2026-07-30"`.
+- `ADR-003.md`: **không đổi** — byte-for-byte, embedded `status: Approved`, current authoritative lifecycle `Superseded by ADR-014`.
+- `context.md`: **không đổi** — `version: "0.2"`, `status: Draft`.
+- `context-map.yaml`: **không đổi** — `version: "0.9"`, `status: Draft`.
+- `README.md`, `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, other ADR: **không đổi.**
+
+MANIFEST registry nay internally coherent — ADR compatibility range phản ánh đúng ADR-001 through ADR-014. Package 0.2-B4 vẫn `Draft`, architecture/semantic review clean, **chưa `Consolidated Stable`**. Không Product Owner Approve; không Lock; không Consolidate; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-C vẫn chưa có artifact nào được author. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — approve ADR-014 and supersede ADR-003
 
 **ADR lifecycle transaction — Product Owner approval + atomic supersession recording.** Vai trò: `ADR Lifecycle Transaction Author · AI Technical Architect`. Product Owner decision: "Approve ADR-014." (2026-07-30). Product Owner là authority duy nhất approve ADR ([Chapter 11 §11.5](constitution/11-adr-process.md)) — quyết định này KHÔNG được diễn giải thành approval cho Package 0.2-B4, artifact Lock, consolidation, OQ closure, hay Live authorization.

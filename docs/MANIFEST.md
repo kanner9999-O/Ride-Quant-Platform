@@ -1,12 +1,12 @@
 ---
-manifest_version: "9.47"
+manifest_version: "9.48"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.1.0"
 current_phase: "Phase 0 — Vision & Foundation"
-compatible_adr_range: "ADR-001 ~ ADR-013"
-generated_at: "2026-07-28"
+compatible_adr_range: "ADR-001 ~ ADR-014"
+generated_at: "2026-07-30"
 ---
 
 # Documentation Manifest (Lockfile)
