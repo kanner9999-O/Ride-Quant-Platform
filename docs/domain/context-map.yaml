@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.9"
+version: "0.10"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -16,8 +16,13 @@ next_review: null
 # domain concept semantics (thuộc từng Domain Contract, ví dụ candle.md).
 #
 # Phạm vi ban đầu: 6 capability/context cho Package 0.2-A + 0.2-B. ADR-012/ADR-013 nay đã
-# `Approved` (Product Owner, 2026-07-28) — Package 0.2-C (Account, Strategy, Decision, Risk,
-# Execution, Position...) vẫn CHƯA đăng ký, chờ authoring thực tế (gate đã mở, chưa dùng).
+# `Approved` (Product Owner, 2026-07-28) — Package 0.2-C gate đã mở. Package 0.2-C1 (Reference
+# Foundation — instrument.md/venue.md) nay authored dưới capability/context ĐÃ đăng ký sẵn từ
+# Package 0.2-A (`market-reference`/`instrument-venue-reference`, forward-declared → authored,
+# không tạo capability/context mới). Package 0.2-C2–C7 (Account, Strategy, Decision, Risk,
+# Execution, Position, Order/Fill, Replay...) vẫn CHƯA đăng ký, chờ authoring thực tế theo
+# decomposition đã pin tại `docs/domain/README.md` — mỗi slice cần Product Owner authorization
+# riêng.
 
 capabilities:
   - id: market-reference
@@ -55,7 +60,7 @@ contexts:
     title: Instrument & Venue Reference
     capability_id: market-reference
     responsibility: "Định nghĩa Instrument và Venue identity, precision/tick/lot metadata, và trading calendar/session — venue-neutral, không giả định 24/7 (ADR-007)."
-    owned_contracts: [instrument, venue]   # forward-declared — chưa authored trong commit này
+    owned_contracts: [instrument, venue]   # authored — Package 0.2-C1: instrument.md v0.1 Draft + venue.md v0.1 Draft (author self-review only, chưa qua Review A/B)
     status: active
 
   - id: market-data-observation

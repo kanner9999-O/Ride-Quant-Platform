@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.23"
+version: "0.24"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -30,7 +30,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 |---|---|---|
 | **0.2-A — Domain foundation** | `context-map.yaml` (v0.3 — non-blocking documentation-reference fix) + `candle.md` (v0.4, không đổi ở vòng consolidation này) | Draft — **`Consolidated Stable`** (xem dưới) |
 | **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: `Consolidated Stable`** (xem dưới) — `regime.md` v0.2 Draft, Clean qua đầy đủ review, 0 finding. **Package 0.2-B3: `Consolidated Stable`** (xem dưới) — `feature.md` v0.2 Draft, Clean qua đầy đủ review (bao gồm narrow revision xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`), 0 finding còn lại. **Package 0.2-B4: `Consolidated Stable`** (xem dưới) — `context.md` v0.2 Draft, tất cả finding resolved (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-02`/`IRB-B4-MAJ-03`/`RA-B4-MIN-02`/`IRB-ADR014-MAJ-01`/`IRB-ADR014-MAJ-02`/`IRB-ADR014-MIN-01`/`IRB-ADR014-MIN-02`/`IRB-B4-FINAL-MIN-01`), [ADR-014](../adr/ADR-014.md) **Approved** (Product Owner, 2026-07-30) là controlling authority. **Package 0.2-B (tổng thể) nay `Consolidated Stable`** — B1/B2/B3/B4 đều đạt. |
-| **0.2-C — Decision & execution chain** | `strategy.md` (Strategy Definition + Strategy Instance), `decision.md`, `risk.md`, `position.md`, `replay-event.md`, cộng các concept chưa có trong danh sách gốc: account, venue, instrument, order, fill, trade-intent, execution-intent | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 nay **`Approved`** (Product Owner, 2026-07-28) — **ADR dependency gate is now open.** Package 0.2-C is authorized to begin planning and authoring, subject to its normal package scope authorization and review workflow. **No Package 0.2-C artifact is authored in this transaction.** |
+| **0.2-C — Decision & execution chain** | `instrument.md`, `venue.md`, `account.md`, `strategy.md` (Strategy Definition + Strategy Instance), `trade-intent.md`, `decision.md`, `risk.md`, `execution-intent.md`, `order.md`, `fill.md`, `position.md`, `replay-event.md` — decomposed thành 7 slice phụ thuộc (C1–C7, xem mục "Package 0.2-C decomposition" dưới đây) | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 vẫn **`Approved`** (không đổi). **Package 0.2-C1 (Reference Foundation): authored** (xem dưới) — `instrument.md` v0.1 Draft + `venue.md` v0.1 Draft. **Package 0.2-C2–C7: chưa authorize, chưa author** — mỗi slice cần Product Owner scope authorization riêng. |
 
 **Thứ tự dự kiến trong từng package không đổi** so với kế hoạch gốc (theo dependency đã chốt ở [ADR-003](../adr/ADR-003.md) và [07-module-taxonomy.md](../constitution/07-module-taxonomy.md)); Package 0.2-C được liệt kê đầy đủ hơn danh sách gốc vì danh sách gốc thiếu Account/Order/Execution/Venue/Instrument.
 
@@ -245,6 +245,84 @@ Bốn finding lịch sử `IRB-ADR014-MAJ-01`/`MAJ-02`/`MIN-01`/`MIN-02` (Indepe
 
 **Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào ngoài phạm vi ADR-014:** `context.md`/`feature.md`/`regime.md`/`swing.md`/`structure.md`/`context-map.yaml` vẫn `status: Draft`. Không Approve/Lock/Consolidate Package 0.2-B4; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-C **vẫn chưa có artifact nào được author**. Phase 0.2 vẫn **active và chưa hoàn tất**.
 
+## Package 0.2-C decomposition (2026-07-30)
+
+**Product Owner authorized:** "Authorize Package 0.2-C scope definition and minimal authoring." — cho phép khóa decomposition dự kiến cho Package 0.2-C, và mở + author minimal slice đầu tiên (C1). Decomposition dưới đây là **planning baseline**, KHÔNG phải thiết kế runtime-module cuối cùng cho Phase 0.2 — một review sau này có thể xác định các điều chỉnh narrow cần thiết. **Chỉ C1 được author trong transaction này** — C2–C7 đòi hỏi Product Owner authorization RIÊNG, từng slice một, không tự động mở khi C1 hoàn tất.
+
+```text
+0.2-C1 — Reference Foundation
+  instrument.md
+  venue.md
+
+0.2-C2 — Trading Account Foundation
+  account.md
+  ADR-012 integration
+
+0.2-C3 — Strategy Foundation
+  strategy.md
+  Strategy Definition
+  Strategy Instance
+  ADR-013 integration
+
+0.2-C4 — Decision Contract
+  trade-intent.md
+  decision.md
+
+0.2-C5 — Risk Gateway Contract
+  risk.md
+  execution-intent.md
+
+0.2-C6 — Order & Execution Contract
+  order.md
+  fill.md
+
+0.2-C7 — Position & Replay Contract
+  position.md
+  replay-event.md
+```
+
+**Dependency direction đã pin:**
+
+```text
+Instrument + Venue
+  → Account
+  → Strategy
+  → Trade Intent / Decision
+  → Risk / Execution Intent
+  → Order / Fill
+  → Position / Replay
+```
+
+Mỗi slice phụ thuộc slice trước nó theo đúng thứ tự trên — C2 (Account) cần Instrument/Venue (C1) đã tồn tại (Position/Order sau này scope theo Account, đúng [ADR-007](../adr/ADR-007.md)); C3 (Strategy) cần Account (C2, [ADR-012](../adr/ADR-012.md) integration) và [ADR-013](../adr/ADR-013.md) (Strategy Definition Version); v.v.
+
+## Package 0.2-C1 — `instrument.md` v0.1 Draft + `venue.md` v0.1 Draft authored, chưa qua review nào
+
+**Phạm vi C1 (scope tối thiểu, đã Product Owner authorize):** hai Domain Contract nền tảng — [`instrument.md`](./instrument.md) v0.1 (Logical Instrument + TradableListing subordinate concept) và [`venue.md`](./venue.md) v0.1 (Logical Venue) — `capability_id: market-reference` / `domain_context_id: instrument-venue-reference` (đã đăng ký sẵn từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml) v0.10, forward-declared → authored; **không tạo capability/context mới**).
+
+**Không author ở C1 (đúng authorization boundary):** Account; Strategy; Decision; Risk; Position; Order; Fill; Trade Intent; Execution Intent; Replay Event — tất cả thuộc Package 0.2-C2–C7, chưa authorize.
+
+**Instrument — tóm tắt:** identity venue-neutral (`instrument_id`, opaque) cho một sản phẩm giao dịch, tách bạch KHỎI raw venue symbol. Scope identity bất biến: `base_asset_ref`/`quote_asset_ref` (opaque reference, KHÔNG author Asset như Domain Contract riêng)/`instrument_type` (enum đóng `SPOT`/`PERPETUAL`/`FUTURE`/`OPTION`)/`contract_expiry_ref` (khi FUTURE/OPTION). Bốn event: `InstrumentRegistered`, `InstrumentMetadataRevised` (forward-looking), `InstrumentStatusChanged` (REGISTERED→ACTIVE↔SUSPENDED→RETIRED), `InstrumentFactInvalidated` (correction). Cộng **TradableListing** — subordinate concept (không phải file riêng), gắn MỘT Logical Instrument với MỘT Venue, identity `(instrument_id, venue_id, listing_id)`, mang venue symbol/tick/lot/min-notional/session reference/listing status, bốn event riêng (`TradableListingCreated`/`MetadataRevised`/`StatusChanged`/`FactInvalidated`).
+
+**Venue — tóm tắt:** identity ổn định (`venue_id`, opaque) cho một địa điểm giao dịch, tách bạch KHỎI production/sandbox endpoint, API credential, adapter instance (deferred, Phase 1). Scope identity: `venue_type` (enum đóng `CENTRALIZED_EXCHANGE`/`DECENTRALIZED_EXCHANGE`/`BROKER`), `jurisdiction_ref` (optional). Sở hữu reference concept: timezone, default trading calendar/session policy, default precision policy — venue-neutral, không giả định 24/7 (đúng [ADR-007](../adr/ADR-007.md)). Bốn event: `VenueRegistered`, `VenueMetadataRevised`, `VenueOperationalStatusChanged`, `VenueFactInvalidated`.
+
+**TradableListing ownership decision:** subordinate concept trong `instrument.md` (không phải file C1 riêng) — venue-neutral Instrument sở hữu product semantics; venue-specific TradableListing sở hữu trading constraints (symbol/increment/session). Quyết định tường minh, không để ambiguous.
+
+**Bitemporal/correction rules (cả `instrument.md` và `venue.md`):** mọi metadata mang `effective_time`/`recorded_time`; **forward-looking revision** (thay đổi thật theo thời gian, fact cũ vẫn hợp lệ lịch sử) tách bạch tường minh khỏi **correction** (`*FactInvalidated` + replacement, sửa sai sót quá khứ) — không gộp hai khái niệm; Historical Replay dùng đúng metadata có hiệu lực TẠI cursor, không dùng giá trị hiện tại; no look-ahead; Current View (`InstrumentCurrentView`/`TradableListingCurrentView`/`VenueCurrentView`) no-row trước fact đầu tiên, `view_state` chỉ `VALID`/`PENDING_CORRECTION`, non-authoritative.
+
+**Trạng thái review:**
+
+- Author self-review: **hoàn tất** (20 attack scenario theo yêu cầu authoring task).
+- ChatGPT Review A / Independent Review B: **chưa diễn ra.**
+- Consolidation: **chưa diễn ra.**
+
+**Package 0.2-C1 CHƯA đạt `Consolidated Stable`** — điều kiện đó đòi hỏi cả hai vòng review độc lập hoàn tất, đúng định nghĩa đã khóa ở mục Package 0.2-A.
+
+**Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào:** `instrument.md`/`venue.md`/`context.md`/`feature.md`/`regime.md`/`swing.md`/`structure.md`/`context-map.yaml` `status: Draft`; không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live; không sửa ADR nào. Package 0.2-C2–C7 **vẫn chưa được authorize, chưa author**. Phase 0.2 vẫn **active và chưa hoàn tất**.
+
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 
 candle.md → swing.md → structure.md → regime.md → feature.md → context.md
+
+## Danh sách dự kiến (Package 0.2-C)
+
+instrument.md → venue.md → account.md → strategy.md → trade-intent.md → decision.md → risk.md → execution-intent.md → order.md → fill.md → position.md → replay-event.md
