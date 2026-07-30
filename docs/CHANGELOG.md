@@ -2,6 +2,91 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — consolidate Package 0.2-B4
+
+**Package 0.2-B4 Minimal Context consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · AI Technical Architect`. Product Owner authorized: "Authorize Package 0.2-B4 consolidation as Consolidated Stable." (2026-07-30). Authorization này cho phép ghi Package 0.2-B4 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `context.md` hay `context-map.yaml`, không sửa ADR, không đóng OQ, không authorize Live, không author Package 0.2-C, không tuyên bố Phase 0.2 hoàn thành.
+
+### Reviewed baseline pinned
+
+```text
+Package 0.2-B4 reviewed HEAD:  cae2b4b115db93ba5f76bcbf28b41c03362789eb
+
+Primary artifact:      context.md v0.2 Draft, blob f9274d5749768151748b9dfa2713118a4fd77791
+Integration artifact:  context-map.yaml v0.9 Draft, blob 8ac18383b6ec378f6ef2664e2141f033370277d2
+Controlling architecture: ADR-014 v0.2 Approved, blob b2e5757102c360756f1649c93fa8cb61bf931f69
+Registry baseline:     MANIFEST v9.48, blob e5000a290698cb3d990d8a0835e3c2e077ddcd90
+```
+
+Dependency preserved: `candle.md` v0.4 Draft (unchanged); `swing.md` v0.2 Draft, blob `5bbe666ff404209876a721b1e01cb9ac62011062`; `structure.md` v0.4 Draft, blob `78964dfb6852bbac3fa1e034d64b4fc8031c3fef`; `regime.md` v0.2 Draft, blob `edd1584377f1db84269e7b1dfdd4926d0ce01c70`; `feature.md` v0.2 Draft, blob `2262adf9253ea20c8d817d1066f50c4353d2d35d`.
+
+### Review evidence
+
+```text
+ChatGPT final package delta:              Clean — Blocker 0, Major 0, Minor 0, Suggestion 0
+Independent Review B final package review: semantic/architecture integration clean — IRB-B4-FINAL-MIN-01 identified
+ChatGPT narrow MANIFEST delta:             Clean — Blocker 0, Major 0, Minor 0, Suggestion 0
+Independent Review B narrow MANIFEST delta: Clean — IRB-B4-FINAL-MIN-01 Resolved, Blocker 0, Major 0, Minor 0, Suggestion 0 — ready to record Consolidated Stable
+```
+
+### Complete finding ledger — all resolved
+
+```text
+RA-B4-MAJ-01 / IRB-B4-MAJ-01:  Resolved
+IRB-B4-MAJ-02:                 Resolved
+IRB-B4-MAJ-03:                 Resolved technically and through ADR-014 governance approval
+RA-B4-MIN-02:                  Resolved
+IRB-ADR014-MAJ-01:             Resolved
+IRB-ADR014-MAJ-02:             Resolved
+IRB-ADR014-MIN-01:             Resolved
+IRB-ADR014-MIN-02:             Resolved
+IRB-B4-FINAL-MIN-01:           Resolved
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Package lifecycle meaning
+
+`Consolidated Stable` là package lifecycle/readiness state — nghĩa là: reviewed package baseline nội bộ coherent; mọi qualifying finding đã resolved; package integration đủ ổn định để làm dependency baseline cho package kế tiếp. Nó KHÔNG có nghĩa: artifact Approved; artifact Locked; Domain Contract bất biến; OQ closure; Phase completion; implementation authorization; Live authorization.
+
+### Unchanged artifact statuses
+
+`context.md`: **giữ nguyên** `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null` — không sửa file này trong transaction. `context-map.yaml`: **giữ nguyên** `version: "0.9"`, `status: Draft` — không sửa. `ADR-014.md`: **giữ nguyên** `version: "0.2"`, `status: Approved`, controlling authority — không sửa. `ADR-003.md`: **giữ nguyên byte-for-byte**, embedded `status: Approved`, authoritative lifecycle `Superseded by ADR-014` — không sửa.
+
+### Unchanged OQ/Live/Phase states
+
+OQ-002/OQ-003 vẫn `Open` — không đóng. Live vẫn KHÔNG authorize. Package 0.2-C vẫn chưa có artifact nào được author. Phase 0.2 vẫn active và chưa hoàn tất.
+
+### Package states after transaction
+
+```text
+Package 0.2-A:   Consolidated Stable
+Package 0.2-B1:  Consolidated Stable
+Package 0.2-B2:  Consolidated Stable
+Package 0.2-B3:  Consolidated Stable
+Package 0.2-B4:  Consolidated Stable
+Package 0.2-C:   unauthored
+```
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–14, ADR-014 (controlling), ADR-003 (historical lifecycle Superseded), Package 0.2-A/B1/B2/B3, `context.md`, `context-map.yaml`, MANIFEST compatibility range (`ADR-001 ~ ADR-014`). Kết quả: không semantic change; không architecture change; không ADR lifecycle change; package lifecycle record only.
+
+### Attack-scenario results — 15/15 pass
+
+B4 marked `Consolidated Stable` CÓ Product Owner authorization tường minh (quote, 2026-07-30); `context.md` KHÔNG marked Approved; `context.md` KHÔNG marked Locked; `context-map.yaml` KHÔNG marked Approved/Locked; reviewed HEAD ghi đúng `cae2b4b...`; artifact blob ghi đúng (verified via `git ls-tree`); ADR-014 KHÔNG bị đổi/mark Draft (file untouched, verified byte-for-byte); `ADR-003.md` KHÔNG sửa (verified byte-for-byte); không finding nào bị omit (9-item ledger đầy đủ); final totals đúng 0/0/0/0; OQ-002/OQ-003 KHÔNG đóng; Live KHÔNG authorize; Package 0.2-C KHÔNG author; Phase 0.2 KHÔNG mark complete; local/origin HEAD khớp sau push (verify post-commit).
+
+### Changed-file scope
+
+`docs/domain/README.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`. `docs/domain/context.md`, `docs/domain/context-map.yaml`, `docs/adr/ADR-014.md`, `docs/adr/ADR-003.md`, `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md`/Constitution/OQ files/Package 0.2-C artifacts: **không đổi.**
+
+### Metadata / state
+
+- `README.md` (domain index): **v0.22 → v0.23**, `status` giữ `Draft` — Package 0.2-B4 section rewritten thành `Consolidated Stable` + baseline section mới.
+- `MANIFEST.md`: `manifest_version` **9.48 → 9.49**; `generated_at` giữ `"2026-07-30"`; `compatible_adr_range` giữ `"ADR-001 ~ ADR-014"`; dòng `domain/` cập nhật ghi nhận Package 0.2-B4 `Consolidated Stable`.
+- `context.md`, `context-map.yaml`, `ADR-014.md`, `ADR-003.md`, `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`: **không đổi.**
+
+**Package 0.2-B4 nay `Consolidated Stable` — Package 0.2-B (tổng thể) nay đều `Consolidated Stable`.** Không Approve/Lock `context.md` hay `context-map.yaml`; không sửa ADR; không đóng OQ-002/OQ-003; không authorize Live; không author Package 0.2-C; không tuyên bố Phase 0.2 hoàn thành. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — include controlling ADR-014 (MANIFEST metadata correction)
 
 **Narrow lockfile/registry metadata correction — không phải approval, không phải Lock, không phải Consolidate, không đóng OQ, không authorize Live, không sửa Domain Contract hay ADR decision.** Vai trò: `Documentation Registry Correction Author · AI Technical Architect`.

@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.22"
+version: "0.23"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -29,7 +29,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 | Package | Nội dung | Trạng thái |
 |---|---|---|
 | **0.2-A — Domain foundation** | `context-map.yaml` (v0.3 — non-blocking documentation-reference fix) + `candle.md` (v0.4, không đổi ở vòng consolidation này) | Draft — **`Consolidated Stable`** (xem dưới) |
-| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: `Consolidated Stable`** (xem dưới) — `regime.md` v0.2 Draft, Clean qua đầy đủ review, 0 finding. **Package 0.2-B3: `Consolidated Stable`** (xem dưới) — `feature.md` v0.2 Draft, Clean qua đầy đủ review (bao gồm narrow revision xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`), 0 finding còn lại. **Package 0.2-B4: architecture blocker cleared** (xem dưới) — `context.md` v0.2 Draft, xử lý `RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-02`/`IRB-B4-MAJ-03`; [ADR-014](../adr/ADR-014.md) nay **Approved** (Product Owner, 2026-07-30) — `IRB-B4-MAJ-03` governance-resolved. B4 vẫn `Draft`, kỹ thuật clean, còn cần package delta review/consolidation transaction riêng trước `Consolidated Stable`. Package 0.2-B (tổng thể) **chưa `Consolidated Stable`** — B1/B2/B3 đạt, B4 architecture blocker cleared nhưng chưa qua consolidation của chính nó. |
+| **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: `Consolidated Stable`** (xem dưới) — `regime.md` v0.2 Draft, Clean qua đầy đủ review, 0 finding. **Package 0.2-B3: `Consolidated Stable`** (xem dưới) — `feature.md` v0.2 Draft, Clean qua đầy đủ review (bao gồm narrow revision xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`), 0 finding còn lại. **Package 0.2-B4: `Consolidated Stable`** (xem dưới) — `context.md` v0.2 Draft, tất cả finding resolved (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-02`/`IRB-B4-MAJ-03`/`RA-B4-MIN-02`/`IRB-ADR014-MAJ-01`/`IRB-ADR014-MAJ-02`/`IRB-ADR014-MIN-01`/`IRB-ADR014-MIN-02`/`IRB-B4-FINAL-MIN-01`), [ADR-014](../adr/ADR-014.md) **Approved** (Product Owner, 2026-07-30) là controlling authority. **Package 0.2-B (tổng thể) nay `Consolidated Stable`** — B1/B2/B3/B4 đều đạt. |
 | **0.2-C — Decision & execution chain** | `strategy.md` (Strategy Definition + Strategy Instance), `decision.md`, `risk.md`, `position.md`, `replay-event.md`, cộng các concept chưa có trong danh sách gốc: account, venue, instrument, order, fill, trade-intent, execution-intent | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 nay **`Approved`** (Product Owner, 2026-07-28) — **ADR dependency gate is now open.** Package 0.2-C is authorized to begin planning and authoring, subject to its normal package scope authorization and review workflow. **No Package 0.2-C artifact is authored in this transaction.** |
 
 **Thứ tự dự kiến trong từng package không đổi** so với kế hoạch gốc (theo dependency đã chốt ở [ADR-003](../adr/ADR-003.md) và [07-module-taxonomy.md](../constitution/07-module-taxonomy.md)); Package 0.2-C được liệt kê đầy đủ hơn danh sách gốc vì danh sách gốc thiếu Account/Order/Execution/Venue/Instrument.
@@ -151,7 +151,7 @@ reviewed HEAD:    ed8813030203cd9e5f779f54be752a3e94c4f68b
 
 **Package 0.2-C vẫn chưa có artifact nào được author.** OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn **active và chưa hoàn tất**.
 
-## Package 0.2-B4 — `context.md` v0.2 Draft, architecture blocker cleared (ADR-014 Approved)
+## Package 0.2-B4 đã đạt `Consolidated Stable`
 
 **Phạm vi B4 (scope tối thiểu, đã Product Owner authorize):** điểm hội tụ có kiểm soát `Structure + Raw Regime + Feature → Market Context` — [`context.md`](./context.md) v0.2, `capability_id: context-aggregation` / `domain_context_id: context-projection` (đã đăng ký sẵn từ Package 0.2-A tại [`context-map.yaml`](./context-map.yaml) v0.9, forward-declared → authored ở v0.1, 10 relationship cho đúng bảy role mà `market_context` cần: Candle cadence/cutoff driver, Structure, hai Regime dimension, ba Feature type).
 
@@ -164,15 +164,18 @@ reviewed HEAD:    ed8813030203cd9e5f779f54be752a3e94c4f68b
 3. **`IRB-B4-MAJ-03`:** văn bản gốc [ADR-003](../adr/ADR-003.md) ("Feature Engine là điểm fan-in duy nhất") xung đột với thiết kế Context fan-in trực tiếp. **Sửa:** author [ADR-014](../adr/ADR-014.md) — narrow amendment (supersede có kiểm soát), phân biệt tường minh Feature computation fan-in vs Context snapshot aggregation, giữ nguyên toàn bộ quyết định Regime/Structure độc lập của ADR-003. **ADR-014 nay `status: Approved`** (Product Owner, 2026-07-30, sau ChatGPT + Claude narrow delta review Clean) — đúng [Chapter 11 §11.3](../constitution/11-adr-process.md), ADR-003 Approved vẫn bất biến byte-for-byte, không sửa trực tiếp; ADR-014 đã qua tối thiểu hai independent review trước khi Product Owner quyết định. **`IRB-B4-MAJ-03` governance-resolved kể từ 2026-07-30.**
 4. **Non-blocking cleanup (bundled):** `MarketContextCurrentView` target-window selection (§13) làm rõ tường minh tiêu chí tie-break thứ hai (`window_start DESC`) khi hai window khác nhau cùng `window_end`.
 
-**Trạng thái review:**
+**Lịch sử review đầy đủ:**
 
-- Author self-review v0.1: **hoàn tất** (35 attack scenario).
-- ChatGPT Review A + Independent Review B (baseline v0.1): 4 finding trên.
-- Author self-review revision v0.2: **hoàn tất** (20 attack scenario theo yêu cầu revision task).
-- ChatGPT Review A / Independent Review B delta (trên v0.2): **chưa diễn ra.**
-- Consolidation: **chưa diễn ra — architecture blocker (ADR-014) đã cleared 2026-07-30; B4 vẫn cần package delta review/consolidation transaction riêng.**
+1. Author self-review v0.1: **hoàn tất** (35 attack scenario).
+2. ChatGPT Review A + Independent Review B (baseline v0.1) → 4 finding: `RA-B4-MAJ-01`/`IRB-B4-MAJ-01` (cùng một algorithmic defect — Structure selection circular dependency), `IRB-B4-MAJ-02` (`missing_input_policy` chưa machine-pinned), `IRB-B4-MAJ-03` (ADR-003 fan-in conflict).
+3. Narrow architecture revision (v0.1 → v0.2) xử lý đúng 4 finding trên — chỉ sửa `context.md`.
+4. **ChatGPT Review A final package delta (trên `context.md` v0.2):** Clean — Blocker 0, Major 0, Minor 0, Suggestion 0.
+5. **Independent Review B final package review (trên `context.md` v0.2):** semantic/architecture integration clean; phát hiện `IRB-B4-FINAL-MIN-01` (MANIFEST `compatible_adr_range` mâu thuẫn nội bộ với ADR-014 Approved/effective).
+6. Narrow MANIFEST metadata correction xử lý đúng `IRB-B4-FINAL-MIN-01`.
+7. **ChatGPT narrow MANIFEST delta:** Clean — Blocker 0, Major 0, Minor 0, Suggestion 0.
+8. **Independent Review B narrow MANIFEST delta:** Clean — `IRB-B4-FINAL-MIN-01` Resolved, Blocker 0, Major 0, Minor 0, Suggestion 0 — **ready to record Consolidated Stable.**
 
-**Package 0.2-B4 CHƯA đạt `Consolidated Stable`** — điều kiện đó đòi hỏi cả hai vòng review độc lập hoàn tất (mục Package 0.2-A) VÀ một transaction package delta review/consolidation riêng cho `context.md` v0.2. **Architecture gate (ADR-014) đã cleared 2026-07-30** — Product Owner approve ADR-014, `IRB-B4-MAJ-03` governance-resolved, mọi finding kỹ thuật khác (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-02`) đã resolved ở v0.2 — nhưng ADR approval KHÔNG tự nó là package consolidation; B4 vẫn `Draft`, chưa `Consolidated Stable`.
+**Kết luận consolidation:** toàn bộ chuỗi review trên, kết thúc bằng ChatGPT + Independent Review B narrow MANIFEST delta, cả hai **Clean**. **0 qualifying finding chưa xử lý** (finding ledger đầy đủ tại mục baseline dưới đây). Product Owner authorized: "Authorize Package 0.2-B4 consolidation as Consolidated Stable." (2026-07-30).
 
 **Narrow traceability correction (`RA-B4-MIN-02`):** phiên bản trước của mục này (commit `f1ea03b`) gán nhầm `IRB-B4-MAJ-02` cho xung đột ADR-003 và `IRB-B4-MAJ-03` cho `missing_input_policy` — NGƯỢC với mapping authoritative của Independent Review B report. Đã sửa: `IRB-B4-MAJ-02` = `missing_input_policy` (resolved); `IRB-B4-MAJ-03` = ADR-003 fan-in conflict (**governance-resolved** — ADR-014 Approved 2026-07-30). Metadata/reference-only — không đổi semantic/algorithm/version nào.
 
@@ -184,6 +187,44 @@ reviewed HEAD:    ed8813030203cd9e5f779f54be752a3e94c4f68b
 4. **`IRB-ADR014-MIN-02`:** ghi nhận đầy đủ 6 risk (Coupling increase; Correction cascade; Definition-version mismatch; Duplicate temporal-alignment; Context scope creep; Feature scope creep) + mitigation, tường minh KHÔNG ngụ ý Product Owner đã accept ("reviewer-identified concerns... not Product Owner accepted risks while ADR-014 is Draft").
 
 **KHÔNG đổi bất kỳ quyết định kiến trúc nào** — Feature computation vs Context aggregation, Regime/Structure độc lập không đổi. **Reviewer evidence (tại thời điểm v0.2 pre-approval):** ghi nhận Independent Review B là actor đã tìm ra 4 finding trên `ADR-014.md` v0.1; KHÔNG fabricate một actor thứ hai; `ADR-014.md`'s `frontmatter.reviewers` giữ nguyên `[]` tại thời điểm đó — một tập hai-reviewer hợp lệ theo Chapter 11 §11.5 CHƯA được xác lập; bản sửa v0.2 CHƯA qua delta review (xem mục "ADR-014 atomic approval" dưới đây cho trạng thái hiện tại).
+
+## `Consolidated Stable` baseline — Package 0.2-B4
+
+**Exact reviewed artifact baseline (pinned):**
+
+```text
+context.md         v0.2   Draft   blob f9274d5749768151748b9dfa2713118a4fd77791
+context-map.yaml    v0.9   Draft   blob 8ac18383b6ec378f6ef2664e2141f033370277d2
+ADR-014 (controlling architecture)   v0.2   Approved   blob b2e5757102c360756f1649c93fa8cb61bf931f69
+MANIFEST (registry baseline reviewed)   v9.48   blob e5000a290698cb3d990d8a0835e3c2e077ddcd90
+reviewed HEAD:    cae2b4b115db93ba5f76bcbf28b41c03362789eb
+```
+
+**ADR-003 (historical, immutable):** embedded document `status: Approved`, blob `d40182eb336a6d9e70644f2c17fb36ddaa347e55`, byte-for-byte unchanged; current authoritative lifecycle state `Superseded by ADR-014` (MANIFEST).
+
+**Dependency không đổi trong suốt B4:** `candle.md` v0.4 Draft, `swing.md` v0.2 Draft (blob `5bbe666ff404209876a721b1e01cb9ac62011062`), `structure.md` v0.4 Draft (blob `78964dfb6852bbac3fa1e034d64b4fc8031c3fef`), `regime.md` v0.2 Draft (blob `edd1584377f1db84269e7b1dfdd4926d0ce01c70`), `feature.md` v0.2 Draft (blob `2262adf9253ea20c8d817d1066f50c4353d2d35d`) — tất cả giữ nguyên byte-for-byte từ baseline trước.
+
+**Finding ledger — tất cả resolved:**
+
+```text
+RA-B4-MAJ-01 / IRB-B4-MAJ-01   — Resolved (Structure selection two-phase pipeline, context.md v0.2 §8)
+IRB-B4-MAJ-02                  — Resolved (missing_input_policy closed enum, context.md v0.2 §6/§9)
+IRB-B4-MAJ-03                  — Resolved technically and through ADR-014 governance approval (2026-07-30)
+RA-B4-MIN-02                   — Resolved (traceability correction, commit f1ea03b delta)
+IRB-ADR014-MAJ-01              — Resolved (Definition-pinned direct fan-in rule, ADR-014 v0.2)
+IRB-ADR014-MAJ-02              — Resolved (Context prohibition list đầy đủ, ADR-014 v0.2)
+IRB-ADR014-MIN-01              — Resolved (traceability correction trong context.md)
+IRB-ADR014-MIN-02              — Resolved (6 risk + mitigation ghi nhận, Product Owner accepted 2026-07-30)
+IRB-B4-FINAL-MIN-01             — Resolved (MANIFEST compatible_adr_range/generated_at correction)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+**`Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval status**, đúng định nghĩa đã khóa ở mục Package 0.2-A: authoring hoàn tất cho phạm vi B4; ChatGPT Review A hoàn tất; Independent Review B hoàn tất; mọi qualifying finding đã xử lý; artifact đã review được pin chính xác; package đủ ổn định để package kế tiếp (0.2-C) bắt đầu planning — **không** ngụ ý Product Owner Approval cho `context.md`/`context-map.yaml`, **không** ngụ ý Lock, **không** đóng OQ nào, **không** authorize Live. `context.md` **vẫn giữ `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`**; `context-map.yaml` **vẫn giữ `version: "0.9"`, `status: Draft`** — artifact lifecycle và package lifecycle là hai trục tách biệt.
+
+**Package 0.2-C — baseline dependency đã thỏa** (ADR-012/ADR-013 Approved, ADR dependency gate open từ trước) — eligible cho Product Owner scope authorization tường minh, tương tự cơ chế đã áp dụng cho B1–B4. **Chưa bắt đầu, chưa author, KHÔNG được authorize bởi transaction này.**
+
+**Package 0.2-C vẫn chưa có artifact nào được author.** OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn **active và chưa hoàn tất** — Package 0.2-B (tổng thể: A + B1 + B2 + B3 + B4) nay đều `Consolidated Stable`, nhưng Phase 0.2 chỉ hoàn tất khi 0.2-C cũng đạt tương đương, đúng roadmap Chapter 14.
 
 ## ADR-014 atomic approval and ADR-003 supersession (2026-07-30)
 
@@ -200,7 +241,7 @@ Bốn finding lịch sử `IRB-ADR014-MAJ-01`/`MAJ-02`/`MIN-01`/`MIN-02` (Indepe
 
 **ADR-003 supersession:** `docs/adr/ADR-003.md` **giữ nguyên byte-for-byte** (Chapter 11 §11.3) — không sửa, embedded `status: Approved` vĩnh viễn. Current authoritative lifecycle state (sống tại MANIFEST theo I-12) chuyển `Superseded` bởi ADR-014. Hai trục tách biệt, không mâu thuẫn: embedded document status = `Approved` (immutable); current authoritative lifecycle state = `Superseded`. **ADR-014 nay là controlling authority.**
 
-**B4 blocker transition:** `IRB-B4-MAJ-03` (ADR-003 fan-in conflict) **governance-resolved** kể từ 2026-07-30. Package 0.2-B4 chuyển: `Draft`, architecture blocker cleared, technical review clean — **KHÔNG** `Approved`/`Locked`/`Consolidated Stable`/`completed`. B4 vẫn cần một transaction package delta review/consolidation riêng trước khi đạt `Consolidated Stable`.
+**B4 blocker transition:** `IRB-B4-MAJ-03` (ADR-003 fan-in conflict) **governance-resolved** kể từ 2026-07-30. Package 0.2-B4 chuyển: `Draft`, architecture blocker cleared, technical review clean — tại thời điểm transaction này, **KHÔNG** `Approved`/`Locked`/`Consolidated Stable`/`completed`; B4 vẫn cần một transaction package delta review/consolidation riêng trước khi đạt `Consolidated Stable`. **Cập nhật:** transaction consolidation riêng đó đã diễn ra cùng ngày 2026-07-30 — xem mục "Package 0.2-B4 đã đạt `Consolidated Stable`" ở trên.
 
 **Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào ngoài phạm vi ADR-014:** `context.md`/`feature.md`/`regime.md`/`swing.md`/`structure.md`/`context-map.yaml` vẫn `status: Draft`. Không Approve/Lock/Consolidate Package 0.2-B4; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-C **vẫn chưa có artifact nào được author**. Phase 0.2 vẫn **active và chưa hoàn tất**.
 
