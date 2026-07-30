@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.19"
+version: "0.20"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -160,8 +160,8 @@ reviewed HEAD:    ed8813030203cd9e5f779f54be752a3e94c4f68b
 **Narrow architecture revision v0.1 → v0.2 — bốn finding:**
 
 1. **`RA-B4-MAJ-01`/`IRB-B4-MAJ-01` (cùng một algorithmic defect):** Eligible Upstream Fact selection v0.1 (§8) có một bước filter (Currency) tham chiếu NGƯỢC kết quả của một bước SAU nó (Not-invalidated). **Sửa:** tách thành hai phase tuần tự, không tham chiếu ngược — Phase 1 (eligibility filtering, per-candidate độc lập) → Phase 2 (role-specific current selection, chỉ chạy trên tập survivor Phase 1).
-2. **`IRB-B4-MAJ-02`:** văn bản gốc [ADR-003](../adr/ADR-003.md) ("Feature Engine là điểm fan-in duy nhất") xung đột với thiết kế Context fan-in trực tiếp. **Sửa:** author [ADR-014](../adr/ADR-014.md) — narrow amendment (supersede có kiểm soát), phân biệt tường minh Feature computation fan-in vs Context snapshot aggregation, giữ nguyên toàn bộ quyết định Regime/Structure độc lập của ADR-003. **ADR-014 hiện `status: Draft`, CHƯA được Product Owner approve** — đúng [Chapter 11 §11.3](../constitution/11-adr-process.md), ADR-003 Approved là bất biến byte-for-byte, không thể sửa trực tiếp; ADR-014 cần tối thiểu hai independent review trước khi Product Owner quyết định.
-3. **`IRB-B4-MAJ-03`:** `missing_input_policy` (§6) là chuỗi tự do, không pin giá trị canonical. **Sửa:** enum đóng, đúng một giá trị `NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING`, cấm tường minh null filling/stale fallback/partial snapshot/implementation-selected behavior.
+2. **`IRB-B4-MAJ-02`:** `missing_input_policy` (§6) là chuỗi tự do, không pin giá trị canonical. **Sửa:** enum đóng, đúng một giá trị `NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING`, cấm tường minh null filling/stale fallback/partial snapshot/implementation-selected behavior. **Resolved technically — đóng.**
+3. **`IRB-B4-MAJ-03`:** văn bản gốc [ADR-003](../adr/ADR-003.md) ("Feature Engine là điểm fan-in duy nhất") xung đột với thiết kế Context fan-in trực tiếp. **Sửa:** author [ADR-014](../adr/ADR-014.md) — narrow amendment (supersede có kiểm soát), phân biệt tường minh Feature computation fan-in vs Context snapshot aggregation, giữ nguyên toàn bộ quyết định Regime/Structure độc lập của ADR-003. **ADR-014 hiện `status: Draft`, CHƯA được Product Owner approve** — đúng [Chapter 11 §11.3](../constitution/11-adr-process.md), ADR-003 Approved là bất biến byte-for-byte, không thể sửa trực tiếp; ADR-014 cần tối thiểu hai independent review trước khi Product Owner quyết định. **Addressed technically qua ADR-014 Draft proposal — remains governance-open until ADR-014 Approved.**
 4. **Non-blocking cleanup (bundled):** `MarketContextCurrentView` target-window selection (§13) làm rõ tường minh tiêu chí tie-break thứ hai (`window_start DESC`) khi hai window khác nhau cùng `window_end`.
 
 **Trạng thái review:**
@@ -172,7 +172,9 @@ reviewed HEAD:    ed8813030203cd9e5f779f54be752a3e94c4f68b
 - ChatGPT Review A / Independent Review B delta (trên v0.2): **chưa diễn ra.**
 - Consolidation: **chưa diễn ra — blocked chờ ADR-014 approval.**
 
-**Package 0.2-B4 CHƯA đạt `Consolidated Stable`** — ngoài điều kiện review độc lập hoàn tất (mục Package 0.2-A), B4 còn một **approval gate kiến trúc riêng**: ADR-014 phải được Product Owner approve trước khi B4 có thể tiến tới consolidation, dù mọi finding kỹ thuật khác (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-03`) đã resolved ở v0.2.
+**Package 0.2-B4 CHƯA đạt `Consolidated Stable`** — ngoài điều kiện review độc lập hoàn tất (mục Package 0.2-A), B4 còn một **approval gate kiến trúc riêng**: ADR-014 phải được Product Owner approve trước khi B4 có thể tiến tới consolidation, dù mọi finding kỹ thuật khác (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-02`) đã resolved ở v0.2.
+
+**Narrow traceability correction (`RA-B4-MIN-02`):** phiên bản trước của mục này (commit `f1ea03b`) gán nhầm `IRB-B4-MAJ-02` cho xung đột ADR-003 và `IRB-B4-MAJ-03` cho `missing_input_policy` — NGƯỢC với mapping authoritative của Independent Review B report. Đã sửa: `IRB-B4-MAJ-02` = `missing_input_policy` (resolved); `IRB-B4-MAJ-03` = ADR-003 fan-in conflict (governance-open, chờ ADR-014). Metadata/reference-only — không đổi semantic/algorithm/version nào.
 
 **Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào:** `context.md`/`feature.md`/`regime.md`/`swing.md`/`structure.md`/`context-map.yaml` `status: Draft`; `ADR-003` vẫn `Approved`, bất biến, không sửa; `ADR-014` `status: Draft`, không tự approve, không fabricate review evidence. Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-C **vẫn chưa có artifact nào được author**. Phase 0.2 vẫn **active và chưa hoàn tất**.
 

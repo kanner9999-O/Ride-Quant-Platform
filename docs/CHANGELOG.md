@@ -2,6 +2,54 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — correct B4 review finding traceability
+
+**Metadata/reference-only correction — không phải approval, không phải Lock, không phải Consolidate, không đóng OQ, không authorize Live, không đổi executable domain semantic nào.** Vai trò: `Governance Traceability Correction Author · AI Technical Architect`.
+
+### Finding resolved
+
+`RA-B4-MIN-02` — Review finding IDs bị hoán đổi (swapped) trong commit `f1ea03b`.
+
+### Traceability defect
+
+Commit `f1ea03b` ("docs(domain): resolve Context review and fan-in boundary") gán SAI hai finding ID: gán `IRB-B4-MAJ-02` cho xung đột kiến trúc ADR-003, và `IRB-B4-MAJ-03` cho `missing_input_policy` chưa machine-pinned — NGƯỢC với mapping authoritative của Independent Review B report.
+
+### Authoritative mapping (giữ nguyên chính xác)
+
+```text
+IRB-B4-MAJ-01: Structure selection circular dependency (= RA-B4-MAJ-01, cùng defect)
+IRB-B4-MAJ-02: missing_input_policy is not machine-pinned
+IRB-B4-MAJ-03: ADR-003 Feature-only fan-in conflict
+```
+
+### References corrected
+
+- `docs/adr/ADR-014.md`: Context section (root-cause citation), Alternatives considered (citation), Consequences (resolved-findings list) — sửa `IRB-B4-MAJ-02`↔`IRB-B4-MAJ-03` cho đúng nghĩa; thêm tường minh câu "`IRB-B4-MAJ-03` is the ADR-003 architecture conflict" và "Final governance statement: `IRB-B4-MAJ-03` remains governance-open until ADR-014 is Approved"; thêm blockquote ghi nhận correction (`RA-B4-MIN-02`).
+- `docs/domain/context.md`: intro block (mapping a/b/c), §6 (2 chỗ enum + canonical value), §9 (canonical policy), §21 (deferred-list note), §22 (resolved-findings list trong OQ ADR-014) — sửa toàn bộ 7 occurrence sai; thêm câu tường minh "missing_input_policy correction closes `IRB-B4-MAJ-02`"; thêm đoạn "Narrow traceability correction" ghi nhận sửa lỗi, `version` giữ nguyên `"0.2"`.
+- `docs/domain/README.md`: mục "Narrow architecture revision" item 2/3 hoán đổi nội dung (giữ thứ tự trình bày 2→02, 3→03); dòng "Package 0.2-B4 CHƯA đạt Consolidated Stable" sửa danh sách resolved; thêm đoạn traceability-correction note.
+- `docs/MANIFEST.md`: dòng `domain/` sửa 2 citation + thêm ghi chú correction.
+- `docs/domain/context-map.yaml`: MỘT occurrence sai tìm thấy tại comment `context-projection.owned_contracts` (gán `IRB-B4-MAJ-02` cho "blocked pending ADR-014" — sai, đúng phải là `IRB-B4-MAJ-03`) — đã sửa. Không có occurrence sai nào khác trong file này (10 relationship `purpose` field không cite finding ID cụ thể).
+- `docs/CHANGELOG.md`: entry trước (`f1ea03b`) sửa 3 occurrence sai tại chỗ (Findings/ADR conflict analysis/Missing-input policy correction/governance closing statement) để giữ historical record chính xác.
+
+### Semantic no-change verification
+
+Không sửa: `missing_input_policy` enum value/type; Eligible Upstream Fact selection algorithm (Phase 1/Phase 2); `MarketContextSnapshot`/`MarketContextFactInvalidated` event schema; subject identity; correction lineage invariant; `context-map.yaml` relationship (provider/consumer/contract_id/translation_policy/consumer_obligation) — chỉ 1 comment string sửa. ADR-014's architecture decision (Feature computation fan-in vs Context snapshot aggregation) không đổi — chỉ sửa citation.
+
+### ADR lifecycle verification
+
+`ADR-003.md`: không chạm, `status: Approved`, blob không đổi. `ADR-014.md`: vẫn `status: Draft`, `reviewers: []`, `approved_by: null`, `version` giữ `"0.1"` (correction pre-review, không cần bump theo governance — chưa từng có review nào để "revise" theo nghĩa Chapter 11 §11.4). Không fabricate review evidence.
+
+### Metadata / state
+
+- `context.md`: **giữ `version: "0.2"`**, `status: Draft` (reference-only correction, không phải semantic revision).
+- `ADR-014.md`: **giữ `version: "0.1"`**, `status: Draft`, unreviewed, unapproved.
+- `context-map.yaml`: **giữ `version: "0.9"`** (chỉ 1 comment string sửa, không phải structural change).
+- `README.md`: **v0.19 → v0.20**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.44 → 9.45**.
+- `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `ADR-003.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
+
+Không Product Owner Approve; không Lock; không Consolidate; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1/B2/B3 vẫn `Consolidated Stable`; Package 0.2-B4 vẫn Draft, blocked chờ ADR-014 (`IRB-B4-MAJ-03` governance-open); Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-29 — resolve Context review and fan-in boundary (Package 0.2-B4 narrow architecture revision)
 
 **Không phải approval, không phải Lock, không phải Consolidated Stable, không phải re-planning toàn package.** Vai trò: `Architecture Decision Revision Author + Domain Contract Revision Author · AI Technical Architect`. Authorization gate: Product Owner xác nhận tường minh "Authorize narrow amendment of ADR-003 to distinguish Feature computation fan-in from Context snapshot aggregation." trước khi bắt đầu.
@@ -12,7 +60,7 @@ Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng ch
 
 ### ADR-003 conflict analysis
 
-Văn bản gốc [ADR-003](adr/ADR-003.md) (Approved 2026-07-16): "Feature Engine... là điểm fan-in duy nhất" giữa Structure và Regime. Package 0.2-B4 author Context aggregation layer tiêu thụ trực tiếp authoritative Structure/Regime/Feature fact — đọc theo nghĩa đen, văn bản gốc không phân biệt "Feature computation fan-in" (Feature tự tính giá trị) với "Context snapshot aggregation" (Context chỉ as-of select + sao chép). Đây là root cause `IRB-B4-MAJ-02`.
+Văn bản gốc [ADR-003](adr/ADR-003.md) (Approved 2026-07-16): "Feature Engine... là điểm fan-in duy nhất" giữa Structure và Regime. Package 0.2-B4 author Context aggregation layer tiêu thụ trực tiếp authoritative Structure/Regime/Feature fact — đọc theo nghĩa đen, văn bản gốc không phân biệt "Feature computation fan-in" (Feature tự tính giá trị) với "Context snapshot aggregation" (Context chỉ as-of select + sao chép). Đây là root cause `IRB-B4-MAJ-03`.
 
 ### ADR lifecycle decision
 
@@ -28,7 +76,7 @@ Giữ nguyên: Raw Regime độc lập Structure; Structure độc lập Raw Reg
 
 ### Missing-input policy correction (§6/§9, `context.md`)
 
-`IRB-B4-MAJ-03`: `missing_input_policy` từ `{type: string}` tự do → `{type: enum, values: [NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING]}`, pin canonical value đúng một lần. Normative behavior: absent/invalidated-không-replacement/pending-correction/definition-version-mismatch/effective-time-ineligible → no snapshot. Cấm tường minh: null filling; stale fallback; partial snapshot; implementation-selected behavior; copy snapshot cũ.
+`IRB-B4-MAJ-02`: `missing_input_policy` từ `{type: string}` tự do → `{type: enum, values: [NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_MISSING_OR_PENDING]}`, pin canonical value đúng một lần. Normative behavior: absent/invalidated-không-replacement/pending-correction/definition-version-mismatch/effective-time-ineligible → no snapshot. Cấm tường minh: null filling; stale fallback; partial snapshot; implementation-selected behavior; copy snapshot cũ.
 
 ### Context contract changes (`context.md` v0.1 → v0.2)
 
@@ -64,7 +112,7 @@ Structure A valid/B invalidated → A selected; B invalidated không có survivo
 - `MANIFEST.md`: `manifest_version` **9.43 → 9.44**; thêm dòng ADR-014 (Draft) vào cả hai bảng ADR; dòng `domain/` cập nhật ghi nhận context.md v0.2, ADR-014 blocker.
 - `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `ADR-012.md`, `ADR-013.md`: **không đổi.**
 
-**KHÔNG sẵn sàng chuyển ChatGPT Review A delta cho tới khi có xác nhận tiếp theo** — findings kỹ thuật (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-03`) đã resolved, nhưng `IRB-B4-MAJ-02` chỉ resolved về mặt PROPOSAL (ADR-014 Draft) — chưa resolved về mặt GOVERNANCE cho tới khi Product Owner approve ADR-014. Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1/B2/B3 vẫn `Consolidated Stable`; Package 0.2-B4 active, Draft, chưa `Consolidated Stable`, blocked chờ ADR-014; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+**KHÔNG sẵn sàng chuyển ChatGPT Review A delta cho tới khi có xác nhận tiếp theo** — findings kỹ thuật (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-02`) đã resolved, nhưng `IRB-B4-MAJ-03` chỉ resolved về mặt PROPOSAL (ADR-014 Draft) — chưa resolved về mặt GOVERNANCE cho tới khi Product Owner approve ADR-014. Không Product Owner Approve; không Lock; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1/B2/B3 vẫn `Consolidated Stable`; Package 0.2-B4 active, Draft, chưa `Consolidated Stable`, blocked chờ ADR-014; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
 
 ## [Unreleased] — 2026-07-29 — author minimal Context contract (Package 0.2-B4)
 

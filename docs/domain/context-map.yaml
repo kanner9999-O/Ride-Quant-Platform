@@ -90,7 +90,7 @@ contexts:
     title: Context Projection
     capability_id: context-aggregation
     responsibility: "CQRS read-model tổng hợp Structure+Regime+Feature+market state cho Strategy — Type 2 Projection (Chapter 7 §7.4), không phát sinh business decision."
-    owned_contracts: [context]   # authored — Package 0.2-B4: context.md v0.2 Draft (narrow architecture revision, RA-B4-MAJ-01/IRB-B4-MAJ-01/IRB-B4-MAJ-02/IRB-B4-MAJ-03 addressed; IRB-B4-MAJ-02 blocked pending ADR-014 approval)
+    owned_contracts: [context]   # authored — Package 0.2-B4: context.md v0.2 Draft (narrow architecture revision, RA-B4-MAJ-01/IRB-B4-MAJ-01/IRB-B4-MAJ-02/IRB-B4-MAJ-03 addressed; IRB-B4-MAJ-03 (ADR-003 conflict) governance-open, blocked pending ADR-014 approval; corrected traceability RA-B4-MIN-02)
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship
