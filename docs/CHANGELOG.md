@@ -2,6 +2,64 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — align Package 0.2-C3 instrument selection shape
+
+**Package 0.2-C3 micro-correction — C3-DELTA-MAJ-01 only.** Vai trò: `Domain Contract Micro-Correction Author`. Product Owner authorized: "Package 0.2-C3 micro-correction — C3-DELTA-MAJ-01 only." Đóng đúng một finding Major: `C3-DELTA-MAJ-01` (repository-wide `instrument_selection_ref` shape consistency). Authorization này **không** cho phép đổi eligibility semantics, identity, lifecycle, correction/replay semantics, bốn trục evidence, sửa ADR-013 hay bất kỳ ADR nào, sửa C1/C2 artifacts, author C4–C7, tạo Selection aggregate, thêm multi-instrument support, Approve/Lock/Consolidate C3, đóng OQ-002/OQ-003, hay authorize Live.
+
+### Baseline verification
+
+```text
+Expected HEAD:  cc6df3bfa1d6be5716e48c75056c1b9209acd4d2
+Actual HEAD:    cc6df3bfa1d6be5716e48c75056c1b9209acd4d2  — match
+
+strategy.md:  v0.2 Draft, blob eaedbc63411501262cebd3e16fe1c9b5c0062ac3  — match
+```
+
+### C3-DELTA-MAJ-01 — repository-wide shape consistency
+
+`strategy.md` §5 (entity schema), §2 (envelope `subject_ref.scope`), và §6 (`StrategyInstanceRegistered` payload) đã pin `instrument_selection_ref` là object `{instrument_id, venue_id, listing_id}` từ v0.2 (đóng `C3-MAJ-01`) — nhưng HAI vị trí còn sót lại vẫn khai báo scalar `string`: (1) §9 `StrategyInstanceCurrentView.scope` — compact inline flow-mapping field `instrument_selection_ref: string`; (2) §10 C4 downstream reference contract — `instrument_selection_ref: {type: string, ...}`. Cả hai thay bằng đúng object shape `{instrument_id, venue_id, listing_id}`, mỗi sub-field `string`/`required: true`. §9's `scope` giữ nguyên compact inline flow-mapping style (chỉ nest thêm object cho đúng một field, không reformat năm field còn lại), đúng precedent `account.md`'s `account_boundary_ref` compact reference. §10 mở rộng thành multi-line `type: object / required: true / fields: {...}` block, đúng style §5, cộng pin tường minh "C4 PHẢI tiêu thụ object này TRỰC TIẾP — KHÔNG serialize thành string, KHÔNG dùng opaque proxy ID, KHÔNG dùng tagged reference thay thế, KHÔNG mở rộng thành Selection aggregate hay multi-instrument cardinality." Rule `scope` chỉ tồn tại khi `view_state = VALID` (§9) giữ nguyên, không đổi.
+
+### Repository-wide `instrument_selection_ref` consistency check (trong `strategy.md`)
+
+```text
+§2  subject_ref.scope (envelope)              — object {instrument_id, venue_id, listing_id}  ✓ (v0.2, không đổi)
+§5  Strategy Instance entity schema           — object {instrument_id, venue_id, listing_id}  ✓ (v0.2, không đổi)
+§6  StrategyInstanceRegistered payload        — object {instrument_id, venue_id, listing_id}  ✓ (v0.2, không đổi)
+§9  StrategyInstanceCurrentView.scope         — object {instrument_id, venue_id, listing_id}  ✓ (v0.3, đóng C3-DELTA-MAJ-01)
+§9a unified eligibility rule (prose ref)      — tham chiếu instrument_selection_ref generic, không declare type — không cần sửa
+§10 C4 downstream reference contract          — object {instrument_id, venue_id, listing_id}  ✓ (v0.3, đóng C3-DELTA-MAJ-01)
+
+grep "instrument_selection_ref: string" strategy.md   → 0 match
+grep "instrument_selection_ref: {type: string"        → 0 match
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Confirmation of no unrelated semantic changes
+
+Không đổi: eligibility semantics (§9a sáu điều kiện giữ nguyên); identity (`strategy_instance_id`/`strategy_definition_id`/`strategy_definition_version_id` không chạm); lifecycle (`ACTIVE`/`PAUSED`/`RETIRED`, transition table không đổi); correction/replay semantics (correction lineage §13, fold algorithm §9 không đổi); bốn trục evidence (§11 không đổi); ADR-013 (byte-for-byte unchanged — verified); C1/C2 artifacts (`instrument.md`/`venue.md`/`account.md` byte-for-byte unchanged — verified). Cardinality vẫn đúng MỘT TradableListing — không Selection aggregate, không multi-instrument. Diff duy nhất: 2 vị trí `instrument_selection_ref` scalar → object, cộng một đoạn version-history prose ghi nhận v0.3.
+
+### Changed-file scope
+
+```text
+docs/domain/strategy.md   MODIFIED v0.2 → v0.3   blob c2cadc464bc8baecff41ff8079461ec0d5dfaccc
+docs/domain/README.md     MODIFIED v0.35 → v0.36
+docs/MANIFEST.md          MODIFIED manifest_version 9.61 → 9.62
+docs/CHANGELOG.md         MODIFIED (this entry)
+docs/domain/context-map.yaml   KHÔNG ĐỔI (không semantic Context Map change được authorize)
+```
+
+### Metadata / state
+
+- `strategy.md`: **v0.2 → v0.3**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `context-map.yaml`: **không đổi** — không có version-only metadata convention nào strictly require bump cho một shape-only fix không chạm capability/context/relationship.
+- `README.md` (domain index): **v0.35 → v0.36**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.61 → 9.62**; dòng `domain/` cập nhật ghi nhận micro-correction.
+- `ADR-013.md`, `ADR-012.md`, `instrument.md`, `venue.md`, `account.md`: **không đổi** (byte-for-byte, verified).
+- Mọi ADR khác, Constitution, mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C3 CHƯA đạt `Consolidated Stable` — chờ focused delta re-review (ChatGPT + Independent Review B) trên cùng exact baseline micro-correction này.** Mandatory sequence tiếp tục: focused delta re-review → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. Package 0.2-C1/C2 vẫn `Consolidated Stable`, không đổi. Package 0.2-C4–C7 vẫn chưa authorize, chưa author. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — correct Package 0.2-C3 strategy eligibility
 
 **Package 0.2-C3 bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C3 bounded correction — consolidated Review A + Independent Review B findings." Đóng đúng bốn finding Major: `C3-MAJ-01` (concrete instrument selection), `C3-MAJ-02` (Definition Version validity), `C3-MAJ-03` (Account eligibility), `C3-MAJ-04` (evidence-reference resolvability); cộng hai finding Minor: `C3-MIN-01` (Strategy Definition family identity), `C3-MIN-02` (unified computation-eligibility rule). Authorization này **không** cho phép sửa ADR-013 hay bất kỳ ADR nào, sửa C1/C2 semantics, tạo Strategy family aggregate, tạo Selection/universe aggregate, author C4–C7, định nghĩa strategy DSL/executable code, thiết kế registry/retention infrastructure, thêm capital allocation/multi-strategy arbitration, thêm Live activation workflow, sửa Constitution, đóng OQ-002/OQ-003, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.

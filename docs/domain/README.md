@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.35"
+version: "0.36"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -438,9 +438,11 @@ C2-MAJ-04   — Resolved (một quy tắc downstream authority duy nhất, Accou
 
 **Package 0.2-C4–C7 vẫn chưa có artifact nào được author.** OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn **active và chưa hoàn tất** — Package 0.2-A/B (tổng thể)/C1/C2 nay đều `Consolidated Stable`, nhưng Phase 0.2 chỉ hoàn tất khi toàn bộ 0.2-C (C1–C7) cũng đạt tương đương, đúng roadmap Chapter 14.
 
-## Package 0.2-C3 — Strategy Foundation v0.2 (bounded correction applied, chưa `Consolidated Stable`, chờ delta Review A + Independent Review B)
+## Package 0.2-C3 — Strategy Foundation v0.3 (micro-correction applied, chưa `Consolidated Stable`, chờ focused delta re-review)
 
-**Phạm vi C3 (scope tối thiểu, đã Product Owner authorize):** một Domain Contract — [`strategy.md`](./strategy.md) v0.2 Draft (Strategy Definition Version + Strategy Instance, MỘT file định nghĩa cả hai concept theo quyết định tổ chức tài liệu của Product Owner — KHÔNG tạo `strategy-definition.md`/`strategy-instance.md` riêng) — `capability_id: strategy-management` / `domain_context_id: strategy-definition` (capability/context **MỚI**, đăng ký lần đầu tại [`context-map.yaml`](./context-map.yaml) v0.13 — Strategy KHÔNG thuộc phạm vi `account-management`/`account-reference` của Package 0.2-C2).
+**Phạm vi C3 (scope tối thiểu, đã Product Owner authorize):** một Domain Contract — [`strategy.md`](./strategy.md) v0.3 Draft (Strategy Definition Version + Strategy Instance, MỘT file định nghĩa cả hai concept theo quyết định tổ chức tài liệu của Product Owner — KHÔNG tạo `strategy-definition.md`/`strategy-instance.md` riêng) — `capability_id: strategy-management` / `domain_context_id: strategy-definition` (capability/context **MỚI**, đăng ký lần đầu tại [`context-map.yaml`](./context-map.yaml) v0.13 — Strategy KHÔNG thuộc phạm vi `account-management`/`account-reference` của Package 0.2-C2; **không đổi trong micro-correction này**).
+
+**Package 0.2-C3 micro-correction — tóm tắt (v0.3, 2026-07-30):** đóng đúng một finding Major `C3-DELTA-MAJ-01` (repository-wide shape consistency) — hai vị trí còn sót lại trong `strategy.md` khai báo `instrument_selection_ref` là scalar `string` sau khi v0.2 đã pin shape object (`StrategyInstanceCurrentView.scope` §9, C4 downstream reference contract §10) — cả hai thay bằng đúng object `{instrument_id, venue_id, listing_id}` đã pin tại §5/§6. Shape nay nhất quán tại tất cả sáu vị trí trong tài liệu. Thuần shape-consistency — không đổi eligibility semantics, identity, lifecycle, correction/replay semantics, hay bốn trục evidence. `context-map.yaml` **không đổi** — không có capability/context/relationship semantic nào bị chạm.
 
 **Controlling architecture — [ADR-013](../adr/ADR-013.md) v0.3 `Approved`** (đã có sẵn từ trước, KHÔNG sửa/re-author/bump trong transaction này): Strategy Definition Version — Independent Evidence Axis. `strategy.md` CHỈ implement field/invariant mà ADR-013 §2 yêu cầu (bốn trục evidence độc lập §2.1, capability/instrument-class vs. concrete instrument §2.2, immutable-pin không mutable-latest §2.3, Strategy Instance pin đủ bốn trục §2.4, rebuilt-artifact-identity §2.5), KHÔNG lặp lại toàn văn ADR, KHÔNG tự quyết architecture mới ngoài phạm vi đã khóa. Không có baseline conflict — `strategy.md` chưa tồn tại trước transaction này, đúng expected state.
 
@@ -461,10 +463,12 @@ C2-MAJ-04   — Resolved (một quy tắc downstream authority duy nhất, Accou
 - Author self-review (authoring, v0.1): **hoàn tất.**
 - ChatGPT Review A + Independent Review B (v0.1): 4 finding Major (`C3-MAJ-01`–`C3-MAJ-04`) + 2 finding Minor (`C3-MIN-01`/`C3-MIN-02`), đóng qua bounded correction v0.2.
 - Bounded correction (v0.2): **hoàn tất** — cả 6 finding đã đóng, author self-review lần hai hoàn tất.
-- ChatGPT delta Review A + Independent Review B (trên `strategy.md` v0.2): **chưa chạy** — báo cáo correction transaction này gửi đi cho vòng delta review, đúng mandatory sequence đã theo từ baseline.
+- ChatGPT delta Review A + Independent Review B (trên `strategy.md` v0.2): tìm thấy `C3-DELTA-MAJ-01` (shape consistency), đóng qua micro-correction v0.3.
+- Micro-correction (v0.3): **hoàn tất** — finding đã đóng, author self-review lần ba hoàn tất.
+- Focused delta re-review (trên `strategy.md` v0.3): **chưa chạy** — báo cáo micro-correction transaction này gửi đi cho vòng re-review, đúng mandatory sequence đã theo từ baseline.
 - Consolidation: **chưa bắt đầu** — Package 0.2-C3 **CHƯA** đạt `Consolidated Stable`.
 
-**Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào (mục C3):** `strategy.md` `status: Draft`, `version: "0.2"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng OQ-002/OQ-003; không authorize Live; không sửa ADR-013 hay Constitution; Package 0.2-C1/C2 vẫn `Consolidated Stable` và không đổi (`instrument.md`/`venue.md`/`account.md` byte-for-byte không đổi); Package 0.2-C4–C7 vẫn chưa authorize, chưa author.
+**Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào (mục C3):** `strategy.md` `status: Draft`, `version: "0.3"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng OQ-002/OQ-003; không authorize Live; không sửa ADR-013 hay Constitution; Package 0.2-C1/C2 vẫn `Consolidated Stable` và không đổi (`instrument.md`/`venue.md`/`account.md` byte-for-byte không đổi); Package 0.2-C4–C7 vẫn chưa authorize, chưa author.
 
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 
