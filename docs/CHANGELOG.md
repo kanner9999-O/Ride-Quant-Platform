@@ -2,6 +2,98 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — consolidate Package 0.2-C3
+
+**Package 0.2-C3 Strategy Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C3 consolidation transaction" (2026-07-30). Authorization này cho phép ghi Package 0.2-C3 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `strategy.md`, không sửa ADR-013 hay bất kỳ ADR nào, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C4–C7, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.
+
+### Baseline verification
+
+```text
+Expected HEAD:  922723e459ea6418d66d9cacbd83d849844c6958
+Actual HEAD:    922723e459ea6418d66d9cacbd83d849844c6958  — match
+
+strategy.md:       v0.3 Draft, blob c2cadc464bc8baecff41ff8079461ec0d5dfaccc  — match
+context-map.yaml:  v0.13 Draft, blob 5f32edd625f4b66e179dff752d45b301642d76fd  — match
+README.md:         v0.36 Draft, blob 76ba42693efb69a63a503e45d1115eed436eccd5  — match
+MANIFEST.md:       manifest_version 9.62, blob fa585d2f0aee1274b6bd308f0519f409efe20fce  — match
+ADR-013.md:        v0.3 Approved, blob 02df931143f8408c61d19ee2c91d2d355d5deb1d  — match
+```
+
+### Reviewed baseline pinned
+
+```text
+Package 0.2-C3 reviewed HEAD:  922723e459ea6418d66d9cacbd83d849844c6958
+
+Primary artifact:        strategy.md v0.3 Draft, blob c2cadc464bc8baecff41ff8079461ec0d5dfaccc
+Controlling architecture: ADR-013.md v0.3 Approved, blob 02df931143f8408c61d19ee2c91d2d355d5deb1d (unchanged)
+Integration artifact:    context-map.yaml v0.13 Draft, blob 5f32edd625f4b66e179dff752d45b301642d76fd (unchanged)
+Registry baseline:       MANIFEST v9.62, blob fa585d2f0aee1274b6bd308f0519f409efe20fce
+```
+
+### Review evidence
+
+```text
+ChatGPT final focused delta re-review:        Clean — 0 blocking finding
+Independent Review B final focused delta re-review:  Clean — 0 blocking finding
+```
+
+### Complete finding ledger — all resolved (v0.1 → v0.2 bounded correction, v0.2 → v0.3 micro-correction)
+
+```text
+C3-MAJ-01:        Resolved (instrument_selection_ref pin {instrument_id, venue_id, listing_id}, resolve same-cursor C1 history, không Selection aggregate)
+C3-MAJ-02:        Resolved (Definition Version VALID required cho computation mới, không auto-cascade Instance lifecycle, §9a)
+C3-MAJ-03:        Resolved (Account ACTIVE required cho computation mới, không auto-cascade Instance lifecycle, §9a)
+C3-MAJ-04:        Resolved (bốn trục evidence phải resolvable tại cursor, unresolvable ⟹ ineligible, không proxy, §9a/§11)
+C3-MIN-01:        Resolved (strategy_definition_id gán tại Version đầu gia đình, không tái sử dụng cross-family, §1)
+C3-MIN-02:        Resolved (unified rule eligible_for_new_computation, sáu điều kiện AND cùng cursor, §9a/§12)
+C3-DELTA-MAJ-01:   Resolved (instrument_selection_ref shape consistency — §9/§10 sửa object, đồng nhất sáu vị trí)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Package lifecycle meaning
+
+`Consolidated Stable` là package lifecycle/readiness state — nghĩa là: reviewed package baseline nội bộ coherent; mọi qualifying finding đã resolved; deferred limitations được ghi nhận tường minh là non-blocking Phase 1 concern; package integration đủ ổn định để làm dependency baseline cho package kế tiếp (0.2-C4). Nó KHÔNG có nghĩa: artifact Approved; artifact Locked; ADR-013 thay đổi; Domain Contract bất biến; OQ closure; Phase completion; implementation authorization; Live authorization.
+
+### Unchanged artifact statuses
+
+`strategy.md`: **giữ nguyên** `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte — không sửa Domain Contract semantic trong transaction này. `context-map.yaml`: **giữ nguyên** `version: "0.13"`, `status: Draft`, byte-for-byte — không sửa. `ADR-013.md`: **giữ nguyên** `version: "0.3"`, `status: Approved`, byte-for-byte — không sửa. `instrument.md`/`venue.md`/`account.md`/`ADR-012.md`: **giữ nguyên**, byte-for-byte — không sửa.
+
+### Package lifecycle states pinned
+
+```text
+Package 0.2-C1:     Consolidated Stable
+Package 0.2-C2:     Consolidated Stable
+Package 0.2-C3:     Consolidated Stable
+Package 0.2-C4–C7:  unauthorized, unauthored
+```
+
+### Artifact lifecycle states pinned
+
+```text
+strategy.md:  Draft, version "0.3", approved_by: null, approved_at: null, not Locked
+```
+
+### Changed-file scope
+
+```text
+docs/domain/README.md          MODIFIED v0.36 → v0.37
+docs/MANIFEST.md               MODIFIED manifest_version 9.62 → 9.63
+docs/CHANGELOG.md              MODIFIED (this entry)
+docs/domain/strategy.md        KHÔNG ĐỔI — blob c2cadc464bc8baecff41ff8079461ec0d5dfaccc, verified byte-identical
+docs/domain/context-map.yaml   KHÔNG ĐỔI — blob 5f32edd625f4b66e179dff752d45b301642d76fd, verified byte-identical
+docs/adr/ADR-013.md            KHÔNG ĐỔI — blob 02df931143f8408c61d19ee2c91d2d355d5deb1d, verified byte-identical
+```
+
+### Metadata / state
+
+- `strategy.md`, `context-map.yaml`, `ADR-013.md`: **không đổi** (semantic và version) — package lifecycle metadata only.
+- `README.md` (domain index): **v0.36 → v0.37**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.62 → 9.63**; dòng `domain/` cập nhật ghi nhận Package 0.2-C3 `Consolidated Stable`.
+- Mọi Domain Contract khác (`instrument.md`, `venue.md`, `account.md`, `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md`), mọi ADR file, Constitution: **không đổi.**
+
+**Package 0.2-C4 baseline dependency đã thỏa, eligible cho Product Owner scope authorization — CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.** Package 0.2-C5–C7 gate chưa mở. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — align Package 0.2-C3 instrument selection shape
 
 **Package 0.2-C3 micro-correction — C3-DELTA-MAJ-01 only.** Vai trò: `Domain Contract Micro-Correction Author`. Product Owner authorized: "Package 0.2-C3 micro-correction — C3-DELTA-MAJ-01 only." Đóng đúng một finding Major: `C3-DELTA-MAJ-01` (repository-wide `instrument_selection_ref` shape consistency). Authorization này **không** cho phép đổi eligibility semantics, identity, lifecycle, correction/replay semantics, bốn trục evidence, sửa ADR-013 hay bất kỳ ADR nào, sửa C1/C2 artifacts, author C4–C7, tạo Selection aggregate, thêm multi-instrument support, Approve/Lock/Consolidate C3, đóng OQ-002/OQ-003, hay authorize Live.
