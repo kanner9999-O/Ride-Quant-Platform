@@ -2,6 +2,68 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-30 — approve ADR-014 and supersede ADR-003
+
+**ADR lifecycle transaction — Product Owner approval + atomic supersession recording.** Vai trò: `ADR Lifecycle Transaction Author · AI Technical Architect`. Product Owner decision: "Approve ADR-014." (2026-07-30). Product Owner là authority duy nhất approve ADR ([Chapter 11 §11.5](constitution/11-adr-process.md)) — quyết định này KHÔNG được diễn giải thành approval cho Package 0.2-B4, artifact Lock, consolidation, OQ closure, hay Live authorization.
+
+### Governance objective — atomic transaction thực hiện
+
+1. Approve `ADR-014.md` (v0.2, `Draft → Approved`).
+2. Làm ADR-014 có hiệu lực (`supersedes: [ADR-003]` nay effective).
+3. Ghi nhận review evidence hợp lệ (ChatGPT + Claude, narrow delta, Clean 0/0/0/0 mỗi bên).
+4. Ghi nhận ADR-003 `Superseded` tại authoritative registry (MANIFEST).
+5. Ghi nhận reverse supersession relation (`superseded_by: ADR-014`).
+6. Clear `IRB-B4-MAJ-03` như một governance blocker.
+7. Bảo toàn Package 0.2-B4 ở `Draft`, không `Consolidated Stable`.
+
+### ADR-014 lifecycle transition
+
+`docs/adr/ADR-014.md`: `version: "0.2"` (không đổi), `status: Draft → Approved`, `owner: Product Owner`, `approved_by: null → Product Owner`, `approved_at: null → "2026-07-30"`, `reviewers: [] → [ChatGPT, Claude]`, `last_review: null → "2026-07-30"`, `next_review: null` (giữ nguyên, đúng convention `ADR-012`/`ADR-013`), `supersedes: [ADR-003]` (không đổi, nay effective). Không sửa Decision content (Definition-pinned fan-in rule, Context prohibition list, canonical rule, Alternatives considered) — chỉ lifecycle wording thay đổi để phản ánh approval đã xảy ra.
+
+### Review evidence
+
+Bảng "Independent reviews" thêm 2 dòng mới: **ChatGPT** (AI Technical Architect) — Clean narrow delta, 0 Blocker/Major/Minor/Suggestion; **Claude** (AI Technical Architect) — Clean narrow delta, độc lập, 0 Blocker/Major/Minor/Suggestion. Bốn dòng lịch sử (Independent Review B, v0.1 findings) được BẢO TOÀN nguyên vẹn — không xóa "con đường" ADR-014 đạt v0.2. Không tính Product Owner, không tính tác giả revision, không đếm trùng một actor, không phát minh identity thứ ba. Reviewer REVIEW — không APPROVE; Product Owner là authority duy nhất approve/reject.
+
+### Accepted risks
+
+Product Owner chấp nhận đúng sáu residual risk đã ghi nhận trong ADR-014 (Coupling increase; Correction cascade; Definition-version mismatch; Duplicate temporal-alignment implementation; Context scope creep; Feature scope creep), có điều kiện theo đúng mitigation đã pin cho từng risk (không mitigation nào bị suy yếu/xóa; không risk nào ngoài sáu risk này được ghi nhận accepted).
+
+### ADR-003 supersession
+
+`docs/adr/ADR-003.md` **KHÔNG sửa** — byte-for-byte unchanged, blob không đổi, embedded `status: Approved` vĩnh viễn (Chapter 11 §11.3). `docs/MANIFEST.md` — cả hai bảng ADR (file-listing table với cột Supersedes/Superseded By, và ADR-lifecycle narrative table) cập nhật: ADR-003 → current authoritative lifecycle state **Superseded** (2026-07-30), `Superseded By: ADR-014`; ADR-014 → **Approved**, `Supersedes: ADR-003` (nay hiệu lực). Ghi rõ tường minh phân biệt: embedded ADR-003 document status = `Approved` và immutable; current authoritative lifecycle state = `Superseded by ADR-014`. Không tạo tuyên bố mâu thuẫn rằng ADR-003 vẫn "controlling" — **ADR-014 là controlling authority**, ADR-003 là historical immutable evidence.
+
+### B4 blocker transition
+
+`IRB-B4-MAJ-03` (ADR-003 fan-in authority conflict trên Package 0.2-B4) **governance-resolved bởi ADR-014 approval**. Package 0.2-B4 chuyển: `Draft`, architecture blocker cleared, technical review clean (20 attack scenario B4 v0.2 + 16 attack scenario ADR-014 v0.2, cả hai đã pass ở transaction trước) — **KHÔNG** `Approved`/`Locked`/`Consolidated Stable`/`completed`. B4 vẫn cần một transaction package delta review/consolidation riêng của chính nó.
+
+### Context references
+
+`docs/domain/context.md`: sửa lifecycle wording tại intro blockquote, §9a (v0.2 note), traceability-correction note, §17 (Context không tính toán lại), §20 (Authority boundary), §22 (Open questions) — tất cả từ "ADR-014 Draft/pending/governance-open" → "ADR-014 Approved/controlling authority/governance-resolved". **Không đổi:** algorithm, input role, cardinality, event schema, identity, bitemporal rule, missing-input policy, correction lineage, Current View, Feature/Context boundary. `context.md` giữ nguyên `version: "0.2"`, `status: Draft` (lifecycle reference-only). `docs/domain/context-map.yaml`: 2 comment block sửa (owned_contracts note + intro comment trước 10 relationship) — KHÔNG đổi relationship structure/provider/consumer/contract_id/purpose field nào; `version` giữ nguyên `"0.9"` (comment-only, đúng precedent transaction trước).
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapter 11 (approval transition + supersede thực hiện đúng §11.6/§11.8), ADR-003 (nội dung Regime/Structure độc lập không đổi, chỉ boundary "Feature Engine fan-in duy nhất" được ADR-014 amend), ADR-007, ADR-009, ADR-010. `context.md`/`context-map.yaml` — không domain-semantic regression. Kết quả: ADR-014 Approved và effective; ADR-003 immutable document không đổi, authoritative lifecycle Superseded; không semantic regression nào.
+
+### Attack-scenario results — 15/15 pass
+
+ADR-014 marked Approved CÓ Product Owner evidence tường minh (quote "Approve ADR-014.", ngày 2026-07-30); reviewer (ChatGPT/Claude) không được diễn giải thành approver — Product Owner mới approve; không actor nào đếm trùng (ChatGPT ≠ Claude ≠ Product Owner ≠ author); `ADR-003.md` content KHÔNG sửa (blob verified identical); MANIFEST KHÔNG tuyên bố cả hai ADR đều controlling — chỉ ADR-014 controlling, ADR-003 historical; ADR-014 approved VÀ reverse supersession (`superseded_by: ADR-014` trên dòng ADR-003) ghi nhận cùng lúc, không thiếu; không risk nào ngoài 6 risk đã document được mark accepted; không mitigation nào bị xóa trong lúc accept; B4 KHÔNG bị mark `Consolidated Stable`; Context semantic contract KHÔNG đổi trong transaction này (chỉ lifecycle wording); OQ-002/OQ-003 KHÔNG đóng; Live KHÔNG authorize; Package 0.2-C KHÔNG được author; ADR-014 chỉ trở thành controlling SAU atomic transaction (không có trạng thái trung gian nửa-hiệu-lực); local và origin HEAD khớp sau push (verify post-commit).
+
+### Changed-file scope
+
+`docs/adr/ADR-014.md`, `docs/domain/context.md` (lifecycle wording only), `docs/domain/context-map.yaml` (2 comment block), `docs/domain/README.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`. `docs/adr/ADR-003.md` **KHÔNG sửa** — verified byte-for-byte unchanged. `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md`/other ADR: không đổi.
+
+### Metadata / state
+
+- `ADR-014.md`: `version` giữ `"0.2"`, `status: Draft → Approved`, `reviewers: [] → [ChatGPT, Claude]`, `approved_by/approved_at` set.
+- `ADR-003.md`: **byte-for-byte unchanged.**
+- `context.md`: giữ `version: "0.2"`, `status: Draft` — lifecycle reference-only correction.
+- `context-map.yaml`: giữ `version: "0.9"` — comment-only.
+- `README.md` (domain index): **v0.21 → v0.22**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.46 → 9.47**; ADR file-listing table + ADR-lifecycle table cập nhật ADR-003/ADR-014; dòng `domain/` cập nhật B4 blocker transition.
+- `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, other ADR: **không đổi.**
+
+**ADR-014 nay Approved và effective — controlling authority cho ranh giới Feature computation fan-in vs Context snapshot aggregation.** Không Lock; không Consolidate Package 0.2-B4; không đóng OQ-002/OQ-003; không authorize Live. Package 0.2-B1/B2/B3 vẫn `Consolidated Stable`; Package 0.2-B4 vẫn `Draft`, architecture blocker cleared nhưng chưa `Consolidated Stable`; Package 0.2-C vẫn chưa có artifact nào được author; Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — tighten ADR-014 authority boundaries
 
 **Narrow ADR revision correction — không phải approval, không phải Lock, không Consolidate, không đóng OQ, không authorize Live, không redesign Feature/Regime/Context.** Vai trò: `ADR Revision Author · AI Technical Architect`.
