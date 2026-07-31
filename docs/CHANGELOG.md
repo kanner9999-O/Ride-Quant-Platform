@@ -2,6 +2,67 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — author Package 0.3-A product requirement baseline
+
+**Package 0.3-A — Product Requirement v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Authorized artifacts: `docs/product/README.md` (new, v0.1 Draft — Phase 0.3 product-artifact index), `docs/product/product-requirement.md` (new, v0.1 Draft). Authorization này **không** cho phép author screen layout/wireframe/component hierarchy/UX architecture, backend/frontend/API/database/security/custody/deployment architecture, exchange adapter design, concrete KPI/Product Metrics (`OQ-003`), Live-gate criteria (`OQ-002`), multi-tenant/multi-asset design, Domain Contract semantic mới, sửa C1–C7/ADR/Constitution, Approve/Lock bất kỳ artifact nào, hay mark Package 0.3-A Consolidated Stable.
+
+### Baseline verification
+
+```text
+Expected HEAD:  bf91cae2685e4f14dda358fff6fee92b4b6cf8a7
+Actual HEAD:    bf91cae2685e4f14dda358fff6fee92b4b6cf8a7  — match
+```
+
+### Controlling sources
+
+Chapter 1 (Vision, Locked v2.3); Chapter 2 (Platform Invariants, Locked v3.1, I-1..I-13); Chapter 4 §4.5 (Domain Principles, Locked — Domain Modeling stable before UX Blueprint approved); ADR-007 (Locked — nội bộ, single-workspace, crypto-only, 2-3 sàn); toàn bộ 19 Domain Contract `Consolidated Stable` (Package 0.2-A/B/C, `/docs/domain/`); MANIFEST Open Questions (`OQ-002`/`OQ-003`).
+
+### PRD structure
+
+15 mục bắt buộc: (1) document purpose/authority boundary, (2) product problem, (3) target users, (4) user outcomes, (5) product principles kế thừa Vision, (6) product scope, (7) functional requirements (`PR-001`–`PR-008`), (8) non-functional requirements — restating existing Constitution/Domain Contract guarantee only (`PR-009`–`PR-014`), (9) lifecycle requirements theo sáu giai đoạn Research/Replay/Backtest/Paper/Review/Improve (`PR-015`–`PR-032`), (10) traceability table, (11) Non-Goals, (12) Out-of-Scope, (13) deferred questions (`OQ-002`/`OQ-003`), (14) acceptance criteria Package 0.3-A, (15) handoff requirements Package 0.3-B.
+
+### Requirement count and ID range
+
+32 requirement, `PR-001`–`PR-032`, liên tục, duy nhất, mỗi requirement có đủ bốn trường `Statement`/`Rationale`/`Source`/`Acceptance evidence` tách biệt.
+
+### Traceability approach
+
+Mỗi `PR-XXX` resolve về ĐÚNG MỘT hoặc nhiều trong ba nguồn: Vision section, Platform Invariant, hoặc Domain Contract `Consolidated Stable` — không có requirement không truy vết được. Non-functional requirements (`PR-009`–`PR-014`) restate guarantee ĐÃ Locked (I-1/I-2/I-3/I-5/I-9/I-13), không thêm yêu cầu mới.
+
+### Deferred-question handling
+
+`OQ-002` (Strategy Lifecycle Live-gate) và `OQ-003` (Product Metrics) giữ nguyên `Open` — PRD yêu cầu evidence đo lường được tồn tại (đúng nguyên tắc "Measurable") nhưng KHÔNG định nghĩa KPI threshold/target hay Live-gate criteria cụ thể. Ghi nhận thêm: chưa có Domain Contract riêng cho Backtest/Research — lifecycle requirement tại §9.1/§9.3 mô tả hành vi product-level, không giả định entity chưa tồn tại.
+
+### Explicit scope exclusions
+
+Screen layout/wireframe/component hierarchy/UX architecture; backend/frontend/API/database/security/custody/deployment architecture; exchange adapter design; concrete KPI/Product Metrics; Live-gate criteria; multi-tenant/multi-asset design; Domain Contract semantic mới.
+
+### Author self-review
+
+Kiểm tra tự động: 32 `PR-ID` duy nhất/liên tục (`PR-001`–`PR-032`); mọi block có đủ bốn trường tách biệt (phát hiện + sửa 6 block NFR ban đầu dùng nhãn gộp `Rationale/Source:` — tách thành hai dòng riêng để tuân thủ đúng format bắt buộc); quét thuật ngữ mơ hồ (easy to use/fast/scalable/secure/professional/user-friendly) — 0 xuất hiện ngoài chính đoạn liệt kê cấm dùng; quét thuật ngữ kiến trúc cấm (wireframe/component hierarchy/API contract/database schema/screen layout) — 0 xuất hiện ngoài out-of-scope section; YAML frontmatter cả hai file re-validated qua `yaml.safe_load`, 0 lỗi.
+
+### Changed-file scope
+
+```text
+docs/product/README.md                MỚI    v0.1 Draft   blob af4ab4d65c5d470f4947c25a9fcc5bed00bc75ec
+docs/product/product-requirement.md   MỚI    v0.1 Draft   blob 985c942668b85d0e5ecb6f735ea30d570636d0c9
+docs/MANIFEST.md                      MODIFIED manifest_version 9.79 → 9.80 (thêm mục `## Product`)
+docs/CHANGELOG.md                     MODIFIED (this entry)
+docs/domain/                          KHÔNG ĐỔI — mọi Domain Contract byte-for-byte không đổi
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+docs/team/                            KHÔNG ĐỔI
+```
+
+### Metadata / state
+
+- `product/README.md`/`product-requirement.md`: **MỚI**, `version: "0.1"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+- `MANIFEST.md`: `manifest_version` **9.79 → 9.80**; mục `## Product` mới thêm.
+- Mọi Domain Contract, ADR, Constitution chapter, Team/Architecture/Research artifact: **không đổi.**
+
+**Package 0.3-A CHƯA đạt `Consolidated Stable` — chờ ChatGPT Review A + Independent Review B trên cùng exact baseline này.** Mandatory sequence: Author baseline → ChatGPT Review A → Independent Review B (cùng exact baseline) → merge finding → correction commit nếu cần → delta review → Product Owner consolidation decision. Package 0.3-B/0.3-C **chưa author, chưa authorize** — phụ thuộc 0.3-A `Consolidated Stable`. Package 0.2-A/B/C vẫn `Consolidated Stable`, không đổi. `OQ-002`/`OQ-003` vẫn `Open`. Không authorize Live. Không artifact nào Approved/Locked. Phase 0.3 vẫn active — Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-07-31 — complete Phase 0.2
 
 **Product Owner decision recorded.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Metadata-only transaction — no domain semantics changed.

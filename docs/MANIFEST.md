@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.79"
+manifest_version: "9.80"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -69,6 +69,13 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 **Package 0.2-C7 consolidation (2026-07-31, Product Owner authorized: "Package 0.2-C7: Consolidated Stable"):** metadata-only transaction. ChatGPT second bounded delta Review A: Clean, Blocker 0, Major 0, Minor 0. Independent second bounded delta Review B: Clean, Blocker 0, Major 0, Minor 0. Reviewed baseline (byte-identical, không đổi bởi transaction này): `execution-result.md` **v0.3** Draft blob `e5cbb0ee3e3b9083920c03318e3f0dd726247304`, `fill.md` **v0.3** Draft blob `a4a2c473086ef8495c4106b75d632a7af09ae3fc`, `position.md` **v0.3** Draft blob `808a3e6041af7a5521094318924fa3682be9cefa`, `replay-event.md` **v0.3** Draft blob `f429d31c0f8ec42e2859f5658edd8a3dedf58b64`, reviewed HEAD `c671b987aedc1f4ac9d74597a1c111ae0c98683e`. `context-map.yaml` **KHÔNG đổi**. `README.md` **v0.51 → v0.52** Draft. **Package 0.2-C7 nay `Consolidated Stable`** — package lifecycle/readiness state, KHÔNG document approval status: tất cả bốn artifact VẪN `status: Draft`, `approved_by: null`, `approved_at: null`, KHÔNG Locked. **Package 0.2-C1/C2/C3/C4/C5/C6/C7 nay đều `Consolidated Stable` — Package 0.2-C (tổng thể) nay `Consolidated Stable`.** Package 0.2-A/B/C tất cả `Consolidated Stable`.
 
 **Product Owner decision (2026-07-31): Phase 0.2 — Domain Model & Domain Contract: `Complete`.** Completed baseline HEAD `95fdb01ea662e741fa08f4c2d79727cc13c1a54a`. Next active sub-phase: Phase 0.3. Phase 0: `not Approved`. Phase 1: `not Authorized`. Domain artifacts remain `Draft`, not Approved, not Locked. OQ-002/OQ-003 remain `Open`. Live remains `Unauthorized`. Không Phase 0 DoD nào được author, không Phase 0 Approval Gate work nào được thực hiện bởi transaction này.   |
+
+## Product
+
+| File | Version | Status | Owner | Ghi chú |
+|---|---|---|---|---|
+| product/README.md | 0.1 | Draft | Product Owner | Phase 0.3 product-artifact index — Package 0.3-A/B/C decomposition, blob `af4ab4d65c5d470f4947c25a9fcc5bed00bc75ec` |
+| product/product-requirement.md | 0.1 | Draft | Product Owner | **Package 0.3-A (Product Requirement) — authoring baseline, chưa `Consolidated Stable`.** 32 requirement (`PR-001`–`PR-032`) truy vết Vision/Platform Invariant/Domain Contract `Consolidated Stable` (Package 0.2-A/B/C). Controlling: Chapter 1 (Vision), Chapter 2 (Platform Invariants), Chapter 4 §4.5 (Domain Modeling ordering), ADR-007 (nội bộ/single-workspace/crypto-only/2-3 sàn). KHÔNG author screen/wireframe/UX architecture, backend/frontend/API/database/security/custody/deployment architecture, concrete Product Metrics/KPI (`OQ-003`), Live-gate criteria (`OQ-002`), multi-tenant/multi-asset design, Domain Contract semantic mới. `approved_by: null`, `approved_at: null`. Blob `985c942668b85d0e5ecb6f735ea30d570636d0c9`. ChatGPT Review A/Independent Review B: **chưa chạy** — baseline gửi đi làm điểm khởi đầu. Package 0.3-B (Use Case & Workflow)/0.3-C (UX Blueprint): **chưa author, chưa authorize**, phụ thuộc 0.3-A `Consolidated Stable`. Package 0.2-A/B/C vẫn `Consolidated Stable`, byte-for-byte không đổi. OQ-002/OQ-003 vẫn `Open`. Không authorize Live. |
 
 ## Team (tách biệt khỏi Constitution — Role vs Person)
 
