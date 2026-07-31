@@ -2,6 +2,123 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — correct Package 0.2-C6 order lineage
+
+**Package 0.2-C6 bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C6 bounded correction — consolidated Review A + Independent Review B findings." Đóng đúng ba finding Major: `C6-MAJ-01` (serializable Order replacement lineage), `C6-MAJ-02` (submission request invalidation), `C6-MAJ-03` (complete future C7 authority chain). Authorization này **không** cho phép sửa C1–C5 artifacts, `execution-intent.md`/`risk.md`/`decision.md`/`trade-intent.md`, ADR/Constitution, author Fill/Position, venue acknowledgement/external order ID/routing/adapters, Limit/Stop/TIF/IOC/FOK, submission retry worker/queue/general workflow engine, thay đổi Risk-approved quantity, Live, authorize C7, Approve/Lock artifact, mark C6 Consolidated Stable, đóng OQ-002/OQ-003, hay declare Phase 0.2 complete.
+
+### Baseline verification
+
+```text
+Expected HEAD:  77364ca4440557cdc083a5eed34b505a727c1a7a
+Actual HEAD:    77364ca4440557cdc083a5eed34b505a727c1a7a  — match
+
+order.md:          v0.1 Draft, blob 912d9b6a779187f287803f2a70c1cc642bb04a4e  — match
+context-map.yaml:  v0.18 Draft, blob d87428e9919005a2cd7f7b282c92f710e5aed382  — match
+README.md:         v0.46 Draft, blob 31b26991a6ef3adae4af1fe558b2d2214e0e61a4  — match
+MANIFEST.md:        manifest_version 9.72  — match
+```
+
+### Three-finding resolution matrix
+
+| Finding | Resolution |
+|---|---|
+| `C6-MAJ-01` | Added `supersedes_fact_ref` to `OrderCreated.payload` (§4) — absent in v0.1 despite correction prose requiring it. Pinned the exact pointer convention as **direct predecessor-fact targeting** (order.md §4/§9), matching the controlling `risk.md` §10 pattern (`RiskEvaluationRecorded.supersedes_fact_ref = predecessor fact`, NOT the invalidation event) — `causation_refs` is the field that carries the `OrderFactInvalidated` reference, kept separate from `supersedes_fact_ref`. Added ten explicit correction-lineage invariants (§9). Rewrote the Current View fold algorithm (§8 Tầng 1) to resolve the head via an **explicit `supersedes_fact_ref` chain** (`O1 → O2 → O3`, cấm nhảy cóc/fork) instead of "newest uninvalidated fact." |
+| `C6-MAJ-02` | `OrderFactInvalidated.invalidated_fact_ref` (§7) can now target `OrderSubmissionRequested` in addition to `OrderCreated`/`OrderStatusChanged` — invalidate-only, no same-ID replacement required. Rewrote the Current View fold algorithm (§8 Tầng 2) to exclude an invalidated request from lifecycle fold, duplicate-suppression (§8a), and C7 readiness (§8b) with no compensating event — lifecycle recomputes directly from remaining valid history. A new request (different `submission_request_id`, same `order_id`) may be appended afterward if `eligible_for_new_submission_request` becomes true again. |
+| `C6-MAJ-03` | `eligible_for_execution_result_processing` (§8b) now uses the **complete** `eligible_for_new_order_creation` rule (execution-intent.md §6a, all five conditions — including condition 1, `ExecutionIntent.current_status(C) == ISSUED`, previously omitted) instead of only conditions 2–5. Also tightened the lifecycle condition from "not WITHDRAWN/EXPIRED" (which incorrectly allowed `CREATED` — never submitted — to pass) to exactly `current_status == SUBMISSION_REQUESTED`, derived only from a visible valid `OrderSubmissionRequested`. |
+
+### Corrected `OrderCreated` schema
+
+```yaml
+payload:
+  order_id: {type: string, required: true}
+  # ... (unchanged fields)
+  supersedes_fact_ref: {type: event_record_ref, required: false, description: "VẮNG MẶT cho Order gốc; BẮT BUỘC cho correction replacement — trỏ TRỰC TIẾP predecessor OrderCreated fact (KHÔNG trỏ OrderFactInvalidated)"}
+```
+
+Initial `OrderCreated`: `supersedes_fact_ref` absent. Correction replacement: `supersedes_fact_ref` required, `order_id != predecessor.order_id`, `originating_execution_intent_id == predecessor.originating_execution_intent_id`, `causation_refs` additionally contains the `OrderFactInvalidated` targeting predecessor (predecessor invalidation visible before replacement is recorded).
+
+### Explicit Order correction lineage
+
+Ten invariants added (order.md §9), mirroring `risk.md` §10 exactly: original has no `supersedes_fact_ref`; replacement's `supersedes_fact_ref` points directly to the predecessor fact; same `originating_execution_intent_id` across the chain; replacement's `causation_refs` must contain the predecessor's `OrderFactInvalidated`; replacement must supersede the *current* lineage head (no skipping intermediate heads); at most one direct replacement per invalidated fact (fork forbidden); replacement cannot be visible before its invalidation; historical members remain append-only and forever resolvable; an invalidated fact is never implicitly reused by the fold; retry with a different payload while the predecessor is still valid remains a conflict, not an implicit correction. Prior `OrderSubmissionRequested` facts are explicitly NOT inherited by a replacement Order — they remain historical under the predecessor, which becomes ineligible for new submission requests; the replacement starts at `CREATED` and must receive its own submission request.
+
+### Submission request invalidation model
+
+`OrderSubmissionRequested` (order.md §6) can now be invalidated via `OrderFactInvalidated` (§7) — invalidate-only, no `supersedes_fact_ref` required on the subject itself (deferred general-replacement semantics not needed for v0.2). Standard `OrderFactInvalidated` invariants already cover: `invalidated_fact_ref` must reference a valid, not-yet-invalidated request; `subject_ref`/`effective_time` must match the target exactly; `recorded_time` strictly later; at most one invalidation per fact; no invalidation-of-invalidation.
+
+### Corrected lifecycle fold
+
+Current View fold algorithm (order.md §8) rewritten into two tiers: **Tầng 1** resolves the visible-valid-head `order_id` for a logical creation key by walking the *explicit* `supersedes_fact_ref` chain (O1 → O2 → ...), stopping at the first link not invalidated at cursor C — never selecting a head purely by "newest uninvalidated fact." **Tầng 2** collects `OrderStatusChanged` (sliced by effective_time) and `OrderSubmissionRequested` (each fact independent) belonging to the current head, excludes any fact with a visible `OrderFactInvalidated`, then applies the remaining valid facts in deterministic total order (`effective_time ASC, recorded_time ASC, event_id ASC`) — each fact validated against the state already folded from earlier valid facts in the *same* total order, not against a stale snapshot. Default state after `OrderCreated` is `CREATED`; a valid submission request yields `SUBMISSION_REQUESTED`; a valid forward `OrderStatusChanged` yields the terminal state; an invalidated request contributes nothing.
+
+### Corrected submission eligibility
+
+```text
+eligible_for_new_submission_request(order_id, C) =
+  Order is visible valid head at C
+  AND Order.current_status(C) == CREATED
+  AND eligible_for_new_order_creation(originating_execution_intent_id, C) == true
+  AND no visible valid OrderSubmissionRequested exists for order_id at C
+```
+
+An invalidated request no longer counts toward the fourth condition — it does not block a later valid request (order.md §8a).
+
+### Corrected future C7 readiness
+
+```text
+eligible_for_execution_result_processing(order_id, C) =
+  Order is the visible valid head for originating_execution_intent_id at C
+  AND eligible_for_new_order_creation(originating_execution_intent_id, C) == true
+  AND exactly one valid OrderSubmissionRequested exists for order_id at C
+  AND Order.current_status(C) == SUBMISSION_REQUESTED
+```
+
+Now transitively requires Execution Intent ISSUED, valid APPROVED Risk Evaluation head, valid Trade Intent, valid Decision, valid Order head, valid Submission Request, and lifecycle exactly `SUBMISSION_REQUESTED` (order.md §8b). If Execution Intent becomes WITHDRAWN/EXPIRED, `eligible_for_execution_result_processing = false` — historical Order/request remain resolvable. No Fill semantics authored.
+
+### Replay-before/replay-after behavior
+
+Cursor before an `OrderFactInvalidated` targeting a submission request: request visible and valid, lifecycle may read `SUBMISSION_REQUESTED`. Cursor at/after: request excluded from the fold, lifecycle recomputes (typically back to `CREATED`), and C7 readiness becomes false (order.md §7/§8 invariants).
+
+### Acceptance-scenario results (order.md §17, 24 scenarios renumbered 1–24)
+
+Scenarios 1–11 (renumbered from v0.1's A–K, unchanged semantics) — pass. Scenario 12 (initial Order, `supersedes_fact_ref` absent) — pass. Scenario 13 (corrected Order, direct `supersedes_fact_ref`, expanded from v0.1's L) — pass. Scenario 14 (time ordering, renumbered from N) — pass. Scenario 15 (Execution Intent withdrawn → C7 false) — pass. Scenario 16 (Execution Intent expired → C7 false) — pass. Scenario 17 (direct fork rejected) — pass. Scenario 18 (false submission request correction, recompute to CREATED, no compensating event) — pass. Scenario 19 (reissue after invalidation) — pass. Scenario 20 (complete valid chain → C7 true, replaces v0.1's O) — pass. Scenario 21 (Order replacement does not inherit submission, expanded from v0.1's M) — pass. Scenario 22 (invalidated request and C7 → false) — pass. Scenario 23 (replay before request invalidation) — pass. Scenario 24 (replay after request invalidation) — pass.
+
+### Regression check
+
+Opaque `order_id`, logical creation key, per-attempt identity, truthful Attempt ordering, retry after `FAILED_BEFORE_CREATION`, zero-or-one valid Order head, exact origin preservation, strictly positive quantity, no resize/clamp/round, PAPER/OPEN_EXPOSURE/MARKET boundary, no cross-stream atomicity, time/cursor/no-look-ahead, non-authoritative Current View, C1–C5 semantics, Context Map ownership and dependency edge, C6/C7 boundary — **tất cả không đổi, verified**. `context-map.yaml` byte-for-byte unchanged (no capability/context/relationship semantic touched by this correction).
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, Chapter 8 §8.1.1/§8.2/§8.5 (Locked, byte-for-byte unchanged), `execution-intent.md` v0.2 Draft §6a (byte-for-byte unchanged, verified), `risk.md` v0.3 Draft (byte-for-byte unchanged, verified), `decision.md` v0.3 Draft (byte-for-byte unchanged, verified), `trade-intent.md` v0.2 Draft (byte-for-byte unchanged, verified), Package 0.2-C1/C2/C3/C4/C5 (all `Consolidated Stable`, byte-for-byte unchanged, verified).
+
+### Author self-review
+
+While correcting §6 (`OrderSubmissionRequested`) invariants for `C6-MAJ-02`, noticed and fixed a pre-existing dangling citation (`§6a`, which does not exist in `order.md` — the actual submission-eligibility rule lives at `§8a`) on the `OrderStatusChanged` invariant list (§5) — a v0.1 authoring bug adjacent to text already being touched by this correction, fixed as a minimal citation correction (not new semantics). All lettered scenario cross-references (A–O) renumbered to 1–24 and re-verified via grep — no stale letter reference remains. All 11 YAML fenced blocks re-validated via `yaml.safe_load`. No finding blocking khác found.
+
+### Changed-file scope
+
+```text
+docs/domain/order.md          MODIFIED v0.1 → v0.2   blob 94ec87593834362292dc3379068e99ef12d86412
+docs/domain/README.md         MODIFIED v0.46 → v0.47   blob 6e53f725c749cb9bfff2473afcd2c5af76b29481
+docs/MANIFEST.md              MODIFIED manifest_version 9.72 → 9.73
+docs/CHANGELOG.md             MODIFIED (this entry)
+docs/domain/context-map.yaml     KHÔNG ĐỔI — blob d87428e9919005a2cd7f7b282c92f710e5aed382, verified byte-identical
+docs/domain/risk.md              KHÔNG ĐỔI — blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab, verified byte-identical
+docs/domain/execution-intent.md  KHÔNG ĐỔI — blob afc0c1fe7bdd2f285403dff29c71849ab66af70c, verified byte-identical
+docs/domain/decision.md          KHÔNG ĐỔI — blob e2a26320200d350ace3da0247235bb14cef12509, verified byte-identical
+docs/domain/trade-intent.md      KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+```
+
+### Metadata / state
+
+- `order.md`: **v0.1 → v0.2**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `context-map.yaml`: **không đổi** — version giữ `0.18`, blob giữ nguyên.
+- `README.md` (domain index): **v0.46 → v0.47**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.72 → 9.73**.
+- `risk.md`, `execution-intent.md`, `decision.md`, `trade-intent.md`: **không đổi** (byte-for-byte, verified) — forbidden scope, không sửa.
+- `ADR-010.md`, `ADR-012.md`, `ADR-013.md`, `instrument.md`, `venue.md`, `account.md`, `strategy.md`: **không đổi** (byte-for-byte, verified).
+- Mọi ADR khác, Constitution, mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C6 VẪN CHƯA đạt `Consolidated Stable` — chờ bounded delta review (ChatGPT + Independent Review B) trên cùng exact baseline correction này.** Mandatory sequence tiếp tục: ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. Package 0.2-C1/C2/C3/C4/C5 vẫn `Consolidated Stable`, không đổi. Package 0.2-C7 vẫn chưa authorize, chưa author, chưa authored. KHÔNG Fill/Position semantics nào được author. Không artifact nào Approved hay Locked. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-31 — author Package 0.2-C6 order foundation
 
 **Package 0.2-C6 — Order Foundation v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C6: Order Foundation v0.1". Authorized artifact: `docs/domain/order.md` (tạo mới, v0.1 Draft). Authorization này **không** cho phép author Fill/Position/Replay Event (Package 0.2-C7), định nghĩa partial fill/venue acceptance/rejection/external order ID/exchange API payload/routing/adapter behavior, Limit/Stop/advanced order type, TIF/IOC/FOK/post_only/reduce_only, fees/slippage/accounting, margin/leverage/liquidation model, resize/clamp/round Risk-approved quantity, Live behavior, sửa `execution-intent.md`/`risk.md`/`decision.md`/`trade-intent.md`/C1–C5/bất kỳ ADR nào/Constitution, đóng OQ-002/OQ-003, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.

@@ -1,7 +1,7 @@
 ---
 id: order
 title: Order
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -18,13 +18,15 @@ next_review: null
 
 Order **KHÔNG phải** Execution Intent (`execution-intent.md`, file riêng — Order KHÔNG redefine Risk authorization semantics), exchange payload, venue acceptance, execution confirmation, Fill hay Position (Package 0.2-C7, chưa author), hay bằng chứng execution đã xảy ra. Nó là **bản ghi authoritative, bất biến, tự-giải-thích được** của một internal execution instruction đã được Risk Gateway (qua Execution Intent) authorize — trả lời chính xác bảy câu hỏi: Execution Intent nào được xem xét? Có eligible cho Order creation không? Lần thử tạo cụ thể nào đã xảy ra? Order bất biến chính xác nào được tạo? Ride có yêu cầu gửi tới PAPER execution boundary không? Pre-Fill lifecycle state hiện tại là gì? Order có eligible cho C7 processing trong tương lai không?
 
-**Ví dụ walking-skeleton duy nhất dùng để validate thiết kế (KHÔNG phải yêu cầu xây dựng general order-management engine):** một Execution Intent `OPEN_EXPOSURE` eligible, một Account, một TradableListing, environment PAPER, một strictly positive approved quantity, một Order `MARKET` duy nhất, zero hoặc một Order từ Execution Intent đó, một `OrderSubmissionRequested` tùy chọn. Mười lăm Scenario chấp nhận (A–O, xem §17) đều dựa trên ví dụ này.
+**Ví dụ walking-skeleton duy nhất dùng để validate thiết kế (KHÔNG phải yêu cầu xây dựng general order-management engine):** một Execution Intent `OPEN_EXPOSURE` eligible, một Account, một TradableListing, environment PAPER, một strictly positive approved quantity, một Order `MARKET` duy nhất, zero hoặc một Order từ Execution Intent đó, một `OrderSubmissionRequested` tùy chọn. Hai mươi bốn Scenario chấp nhận (1–24, xem §17) đều dựa trên ví dụ này.
 
 **`order-creation-attempt-recorded`/`order-created`/`order-status-changed`/`order-submission-requested`/`order-fact-invalidated`/`order-current-view` là canonical contract concept ID** — đúng giá trị `id:` trong từng khối YAML dưới đây, tách biệt display name/`event_type`, cùng nguyên tắc mọi Domain Contract trước.
 
 **Áp dụng ngay từ v0.1 mọi bài học đã trả giá xuyên suốt Package 0.2-B/C1–C5** (đóng trước, không chờ review round phát hiện): opaque identity không derive từ scope; envelope binding cho `*FactInvalidated`; fold algorithm "visible-valid-head per logical key" cho Current View; Current View KHÔNG BAO GIỜ authority; canonical policy identifier khai báo ĐÚNG MỘT NƠI, độc lập theo context; **ba bài học riêng từ C4/C5 correction (áp dụng NGAY TỪ v0.1, KHÔNG lặp lại lỗi đã trả giá):** (1) KHÔNG circular reference giữa Attempt và Order — Attempt KHÔNG mang field trỏ tới Order, chỉ Order trỏ ngược lại Attempt qua `causation_refs` (one-way sequence, đóng trước lớp lỗi `C4-DELTA-MAJ-01`-style); (2) `order_creation_attempt_id` (identity cá nhân một lần thử) TÁCH BIỆT khỏi logical creation key (`originating_execution_intent_id`) — idempotency scoped theo `order_creation_attempt_id`, KHÔNG theo logical key, cho phép nhiều attempt (kể cả outcome khác nhau) cùng key (đóng trước lớp lỗi `C4-DELTA-MAJ-02`-style); (3) `attempt_outcome = CREATED` CHỈ ghi SAU KHI bounded Order payload computation đã hoàn tất trọn vẹn — KHÔNG BAO GIỜ ghi TRƯỚC (đóng trước lớp lỗi `C5-MAJ-01`-style); (4) `FAILED_BEFORE_CREATION` tường minh RETRYABLE, KHÔNG permanently block same-origin recovery.
 
-**Phạm vi bounded tường minh:** KHÔNG author Fill/Position/Replay Event (Package 0.2-C7). KHÔNG định nghĩa partial fill/venue acceptance/rejection/external order ID/exchange API payload/order routing/exchange adapter behavior. KHÔNG Limit/Stop/advanced order type — v0.1 CHỈ `MARKET`. KHÔNG TIF/IOC/FOK/post_only/reduce_only. KHÔNG fee/slippage/accounting. KHÔNG margin/leverage/liquidation model. KHÔNG resize/clamp/round lại Risk-approved quantity — quantity LUÔN copy nguyên vẹn từ Execution Intent. KHÔNG redefine Execution Intent/Risk contract — mọi evidence tham chiếu qua `ref:` trực tiếp hoặc `event_record_ref` opaque. KHÔNG Live behavior. KHÔNG sửa `execution-intent.md`/`risk.md`/`decision.md`/`trade-intent.md`/C1–C5/ADR/Constitution.
+**Phạm vi bounded tường minh:** KHÔNG author Fill/Position/Replay Event (Package 0.2-C7). KHÔNG định nghĩa partial fill/venue acceptance/rejection/external order ID/exchange API payload/order routing/exchange adapter behavior. KHÔNG Limit/Stop/advanced order type — v0.1 CHỈ `MARKET`. KHÔNG TIF/IOC/FOK/post_only/reduce_only. KHÔNG fee/slippage/accounting. KHÔNG margin/leverage/liquidation model. KHÔNG resize/clamp/round lại Risk-approved quantity — quantity LUÔN copy nguyên vẹn từ Execution Intent. KHÔNG redefine Execution Intent/Risk contract — mọi evidence tham chiếu qua `ref:` trực tiếp hoặc `event_record_ref` opaque. KHÔNG Live behavior. KHÔNG submission retry worker/queue. KHÔNG general workflow engine. KHÔNG sửa `execution-intent.md`/`risk.md`/`decision.md`/`trade-intent.md`/C1–C5/ADR/Constitution.
+
+**v0.2 — bounded correction, đóng `C6-MAJ-01`/`C6-MAJ-02`/`C6-MAJ-03` (consolidated Review A + Independent Review B findings):** (a) `C6-MAJ-01` — thêm `supersedes_fact_ref` vào `OrderCreated.payload` (thiếu trong v0.1 dù correction prose đã yêu cầu); pin CHÍNH XÁC convention direct-predecessor-fact-targeting (đối xứng `risk.md` §10 — `supersedes_fact_ref` trỏ TRỰC TIẾP predecessor `OrderCreated` fact, KHÔNG trỏ `OrderFactInvalidated`; `causation_refs` mới là nơi trỏ event invalidation đó); thêm mười invariant correction lineage tường minh; cập nhật fold algorithm Tầng 1 dựng EXPLICIT chain theo `supersedes_fact_ref` (KHÔNG chọn head chỉ bằng "newest uninvalidated fact"). (b) `C6-MAJ-02` — cho phép `OrderFactInvalidated` target `OrderSubmissionRequested` (invalidate-only, KHÔNG same-ID replacement bắt buộc); cập nhật fold algorithm Tầng 2 loại trừ request đã invalidate khỏi lifecycle/duplicate-suppression/C7 readiness (KHÔNG compensating event); một request MỚI CÓ THỂ append sau nếu `eligible_for_new_submission_request` true lại. (c) `C6-MAJ-03` — `eligible_for_execution_result_processing` (§8b) nay dùng TRỌN VẸN `eligible_for_new_order_creation` (bao gồm điều kiện 1, `ExecutionIntent.current_status(C) == ISSUED`, trước đây bị bỏ sót) VÀ pin CHÍNH XÁC `current_status == SUBMISSION_REQUESTED` (trước đây chỉ "khác WITHDRAWN/EXPIRED", sai cho phép `CREATED` pass). Bounded — không đổi opaque `order_id`, logical creation key, per-attempt identity, truthful Attempt ordering, retry sau `FAILED_BEFORE_CREATION`, zero-or-one valid Order head, exact origin preservation, strictly positive quantity, no resize/clamp/round, PAPER/OPEN_EXPOSURE/MARKET boundary, no cross-stream atomicity, time/cursor/no-look-ahead, non-authoritative Current View, C1–C5 semantics, Context Map ownership/dependency edge, C6/C7 boundary.
 
 ## 1. Order — `kind: entity`
 
@@ -44,7 +46,7 @@ invariants:
   - "order_id là opaque, globally unique trong toàn Ride, gán tại OrderCreated — KHÔNG derive/resolve từ originating_execution_intent_id hay bất kỳ field scope nào. Bất biến, KHÔNG tái sử dụng cho subject khác (Chapter 6 §6.1)."
   - "MỘT Order originate từ ĐÚNG MỘT Execution Intent (originating_execution_intent_id, ref: execution-intent), eligible_for_new_order_creation == true TẠI order_context_cursor — không multi-intent aggregation, đúng §9 cardinality."
   - "`originating_execution_intent_id` là logical creation key — tại một cursor cho trước, tối đa MỘT Order VALID (visible-valid-head) cho mỗi `originating_execution_intent_id` (§11 `order_creation_derivation_idempotency_policy: ONE_VALID_ORDER_PER_ORIGINATING_EXECUTION_INTENT`). Retry cùng origin + cùng payload → idempotent, trả về `order_id` đã tồn tại; retry cùng origin + payload KHÁC (predecessor chưa invalidate) → deterministic conflict, reject."
-  - "originating_risk_evaluation_id/trade_intent_id/account_id/instrument_selection_ref/direction/quantity/quantity_unit PHẢI BẰNG HỆT origin chain tương ứng của originating_execution_intent_id (execution-intent.md §1) — Order KHÔNG được tự chọn Account/instrument/direction/quantity khác Execution Intent gốc đã pin (Scenario F, §17)."
+  - "originating_risk_evaluation_id/trade_intent_id/account_id/instrument_selection_ref/direction/quantity/quantity_unit PHẢI BẰNG HỆT origin chain tương ứng của originating_execution_intent_id (execution-intent.md §1) — Order KHÔNG được tự chọn Account/instrument/direction/quantity khác Execution Intent gốc đã pin (Scenario 6, §17)."
   - "quantity PHẢI finite, STRICTLY POSITIVE (> 0), VÀ CHÍNH XÁC BẰNG `approved_quantity` của originating_execution_intent_id (execution-intent.md §1) — Order KHÔNG BAO GIỜ resize/clamp/round lại Risk-approved quantity. quantity_unit PHẢI CHÍNH XÁC BẰNG `quantity_unit` gốc."
   - "Order KHÔNG BAO GIỜ mutate Execution Intent scope — mọi field liên quan chỉ COPY từ Execution Intent gốc để tiện truy vấn, KHÔNG phải nguồn authoritative thứ hai; nguồn authoritative luôn là chính Execution Intent (execution-intent.md §1/§3)."
   - "Order KHÔNG tự chứng minh đã submit/đã venue-accept/đã execute dưới bất kỳ hình thức nào — `OrderCreated` chỉ thiết lập instruction bất biến; submission request (§6) là một fact RIÊNG, execution/Fill hoàn toàn thuộc Package 0.2-C7 (chưa author)."
@@ -215,13 +217,15 @@ invariants:
   - "Nếu logical creation key (originating_execution_intent_id) ĐÃ CÓ một Order VALID (visible-valid-head, §8) tại thời điểm ghi, OrderCreated MỚI PHẢI resolve/reuse order_id đã tồn tại (payload giống hệt — §1 idempotency) HOẶC bị reject (payload khác, chưa invalidate predecessor) — TUYỆT ĐỐI KHÔNG tạo order_id thứ hai cho CÙNG key trừ khi predecessor ĐÃ invalidate VÀ correction lineage (§9) cho phép."
   - "quantity/quantity_unit/direction/account_id/instrument_selection_ref PHẢI khớp CHÍNH XÁC origin chain của originating_execution_intent_id (execution-intent.md §1) TẠI order_context_cursor — KHÔNG dùng bất kỳ latest-state Current View nào (ExecutionIntentCurrentView, RiskEvaluationCurrentView, TradeIntentCurrentView) làm input."
   - "quantity PHẢI finite, strictly positive (> 0) — KHÔNG resize/clamp/round lại approved_quantity gốc."
+  - "**v0.2 (đóng C6-MAJ-01):** `supersedes_fact_ref` TUYỆT ĐỐI ABSENT cho Order gốc (KHÔNG có predecessor). BẮT BUỘC có mặt cho correction replacement, trỏ TRỰC TIẾP predecessor `OrderCreated` fact (KHÔNG trỏ `OrderFactInvalidated`, đúng convention `risk.md` §10 — phân biệt tường minh với `causation_refs`, xem invariant dưới). Khi có mặt: `payload.order_id` PHẢI KHÁC `supersedes_fact_ref`-target's `order_id`; `payload.originating_execution_intent_id` PHẢI BẰNG HỆT `supersedes_fact_ref`-target's `originating_execution_intent_id` (logical creation key bất biến xuyên chain); replacement PHẢI supersede đúng lineage head hiện tại — KHÔNG nhảy cóc qua một head trung gian (§9 invariant 5)."
+  - "**v0.2 (đóng C6-MAJ-01):** khi `supersedes_fact_ref` có mặt, `causation_refs` PHẢI CỘNG THÊM chứa chính `OrderFactInvalidated` targeting predecessor (bên cạnh `OrderCreationAttemptRecorded` đã bắt buộc ở invariant trên) — predecessor PHẢI đã invalidate VÀ visible TRƯỚC khi replacement này được ghi (đối xứng `risk.md` §10 invariant 4)."
 ```
 
 **§4a — Precondition: OrderCreationAttempt CREATED, đúng thứ tự.** OrderCreated CHỈ được phát SAU KHI một `OrderCreationAttemptRecorded` (§3) đã ghi nhận `attempt_outcome = CREATED` cho cùng logical creation key — VÀ `CREATED` CHỈ ghi SAU KHI bounded Order payload computation đã hoàn tất trọn vẹn:
 
 ```text
 1. eligible_for_new_order_creation(originating_execution_intent_id, order_context_cursor) == true   (execution-intent.md §6a)
-→ NẾU false: OrderCreationAttemptRecorded(attempt_outcome=INELIGIBLE, reason_code=EXECUTION_INTENT_INELIGIBLE) ghi — KHÔNG OrderCreated nào phát (Scenario B, §17). Không cần chạy Order payload computation.
+→ NẾU false: OrderCreationAttemptRecorded(attempt_outcome=INELIGIBLE, reason_code=EXECUTION_INTENT_INELIGIBLE) ghi — KHÔNG OrderCreated nào phát (Scenario 2, §17). Không cần chạy Order payload computation.
 
 2. NẾU (1) thỏa: Order Engine CHẠY TRỌN VẸN bounded computation TRƯỚC — copy nguyên vẹn scope từ
    Execution Intent (originating_risk_evaluation_id/trade_intent_id/account_id/environment/
@@ -229,15 +233,15 @@ invariants:
    order_type=MARKET — toàn bộ Order payload đã xác định XONG.
    → NẾU lỗi kỹ thuật/domain boundary xảy ra TRONG lúc computation (TRƯỚC khi hoàn tất):
      OrderCreationAttemptRecorded(attempt_outcome=FAILED_BEFORE_CREATION) ghi — KHÔNG OrderCreated
-     nào phát, KHÔNG CREATED attempt nào để lại (Scenario C, §17).
+     nào phát, KHÔNG CREATED attempt nào để lại (Scenario 3, §17).
    → NẾU computation hoàn tất trọn vẹn: OrderCreationAttemptRecorded(attempt_outcome=CREATED) ghi
-     NGAY SAU, RỒI OrderCreated phát (causation_refs trỏ attempt vừa ghi) (Scenario A, §17).
+     NGAY SAU, RỒI OrderCreated phát (causation_refs trỏ attempt vừa ghi) (Scenario 1, §17).
 
 Thứ tự bắt buộc: computation hoàn tất → Attempt CREATED ghi → OrderCreated ghi. KHÔNG BAO GIỜ đảo
 ngược, KHÔNG atomic transaction giữa ba bước (mỗi bước là một append riêng, recoverable độc lập).
 ```
 
-**Recoverable append gap (đối xứng nguyên tắc "no unstated cross-stream atomicity" đã proven, risk.md §2):** khoảng trống giữa Attempt CREATED đã ghi VÀ OrderCreated chưa ghi (ví dụ crash ngay sau khi Attempt CREATED append) là một RECOVERABLE APPEND GAP — KHÔNG phải data-integrity violation. Recovery logic (Phase 1) PHẢI resolve deterministic bằng cách re-run CÙNG computation TẠI CÙNG `originating_execution_intent_id`, VÀ append OrderCreated với `causation_refs` trỏ ĐÚNG attempt CREATED đã tồn tại đó (KHÔNG tạo `order_creation_attempt_id` MỚI) (Scenario D, §17).
+**Recoverable append gap (đối xứng nguyên tắc "no unstated cross-stream atomicity" đã proven, risk.md §2):** khoảng trống giữa Attempt CREATED đã ghi VÀ OrderCreated chưa ghi (ví dụ crash ngay sau khi Attempt CREATED append) là một RECOVERABLE APPEND GAP — KHÔNG phải data-integrity violation. Recovery logic (Phase 1) PHẢI resolve deterministic bằng cách re-run CÙNG computation TẠI CÙNG `originating_execution_intent_id`, VÀ append OrderCreated với `causation_refs` trỏ ĐÚNG attempt CREATED đã tồn tại đó (KHÔNG tạo `order_creation_attempt_id` MỚI) (Scenario 4, §17).
 
 ```yaml
 payload:
@@ -257,6 +261,7 @@ payload:
   quantity: {type: decimal, required: true}
   quantity_unit: {type: string, required: true}
   order_context_cursor: {type: object, required: true, description: "cùng shape §2 — payload field"}
+  supersedes_fact_ref: {type: event_record_ref, required: false, description: "VẮNG MẶT cho Order gốc; BẮT BUỘC cho correction replacement — trỏ TRỰC TIẾP predecessor OrderCreated fact (KHÔNG trỏ OrderFactInvalidated) — xem invariants và §9 (v0.2, đóng C6-MAJ-01)"}
 ```
 
 ## 5. `OrderStatusChanged` — `kind: event`
@@ -278,7 +283,7 @@ invariants:
   - "new_status = WITHDRAWN hoặc EXPIRED trên valid lineage hiện hành KHÔNG được có OrderStatusChanged forward transition tiếp theo cho cùng order_id (§1 terminal_states) — ràng buộc FORWARD LIFECYCLE, không áp dụng cho correction record."
   - "Một WITHDRAWN/EXPIRED fact ghi SAI vẫn correctable qua OrderFactInvalidated + same-slice OrderStatusChanged replacement (§7, cùng (order_id, effective_time) slice, supersedes_fact_ref trỏ đúng fact bị invalidate) — correction KHÔNG bị chặn bởi terminality. Fold algorithm (§8) PHẢI recompute current_status từ valid corrected lineage."
   - "envelope.effective_time = thời điểm status transition này thực sự có hiệu lực."
-  - "Order CHỈ eligible cho submission request MỚI (§6a) khi current_status = CREATED tại effective_time liên quan — WITHDRAWN/EXPIRED CẤM submission request mới (Scenario J, §17)."
+  - "Order CHỈ eligible cho submission request MỚI (§8a) khi current_status = CREATED tại effective_time liên quan — WITHDRAWN/EXPIRED CẤM submission request mới (Scenario 10, §17)."
   - "supersedes_fact_ref VẮNG MẶT cho forward transition bình thường; BẮT BUỘC cho same-slice correction replacement — khi có mặt, PHẢI trỏ đúng OrderStatusChanged bị OrderFactInvalidated target, cùng subject/effective_time (§7)."
 payload:
   order_id: {type: string, required: true}
@@ -299,15 +304,17 @@ domain_context_id: order-management
 description: >
   Fact AUTHORITATIVE cho việc Ride yêu cầu gửi MỘT Order hợp lệ tới bounded PAPER execution
   boundary. KHÔNG chứng minh boundary đã accept, venue đã acknowledge, external order ID tồn tại,
-  execution đã xảy ra, hay Fill tồn tại — thuần túy là internal handoff fact.
+  execution đã xảy ra, hay Fill tồn tại — thuần túy là internal handoff fact. **v0.2 (đóng
+  C6-MAJ-02):** CÓ THỂ bị invalidate qua `OrderFactInvalidated` (§7) — invalidate-only, KHÔNG same-ID
+  replacement (một request MỚI, khác `submission_request_id`, CÓ THỂ append sau nếu eligible, §9).
 invariants:
   - "payload.submission_request_id PHẢI khớp đúng subject_ref.subject_id VÀ payload.order_id PHẢI khớp đúng subject_ref.scope.order_id."
   - "envelope.effective_time (submission_effective_time) = mặc định bằng submission_context_cursor.recorded_time trừ khi backfill lịch sử tường minh pin giá trị khác."
-  - "CHỈ hợp lệ khi eligible_for_new_submission_request(order_id, submission_context_cursor) == true (§8a) TẠI thời điểm ghi — false thì reject khi append (Scenario J/K, §17)."
+  - "CHỈ hợp lệ khi eligible_for_new_submission_request(order_id, submission_context_cursor) == true (§8a) TẠI thời điểm ghi — false thì reject khi append (Scenario 10/11 §17)."
   - "target_environment PHẢI = PAPER (v0.1 CHỈ PAPER, đối xứng environment trên Order §1) — KHÔNG Live routing dưới bất kỳ hình thức nào."
   - "envelope.effective_time PHẢI thỏa `effective_time >= OrderCreated.order_effective_time` — một submission request KHÔNG BAO GIỜ effective TRƯỚC Order gốc của nó."
-  - "envelope.recorded_time PHẢI `> OrderCreated.recorded_time` (strict causal ordering — Scenario N, §17)."
-  - "Idempotency scoped theo `order_id` (§11 `order_submission_idempotency_policy`) — trước khi ghi, PHẢI kiểm tra order_id chưa có OrderSubmissionRequested VALID nào khác; nếu đã có VÀ payload giống hệt, đây là idempotent retry (KHÔNG ghi bản ghi mới, trả về submission_request_id đã tồn tại); nếu đã có VÀ payload khác, đây là deterministic conflict (reject, KHÔNG ghi) (Scenario I, §17)."
+  - "envelope.recorded_time PHẢI `> OrderCreated.recorded_time` (strict causal ordering — Scenario 14, §17)."
+  - "Idempotency scoped theo `order_id` (§11 `order_submission_idempotency_policy`) — trước khi ghi, PHẢI kiểm tra order_id chưa có OrderSubmissionRequested VALID (visible, chưa invalidate) nào khác; nếu đã có VÀ payload giống hệt, đây là idempotent retry (KHÔNG ghi bản ghi mới, trả về submission_request_id đã tồn tại); nếu đã có VÀ payload khác, đây là deterministic conflict (reject, KHÔNG ghi) (Scenario 9, §17). Một request ĐÃ invalidate KHÔNG tính vào check này — KHÔNG chặn một request MỚI hợp lệ (Scenario 19, §17)."
   - "causation_refs PHẢI chứa OrderCreated (§4) tương ứng — chứng minh Order đã tồn tại VÀ hợp lệ trước khi submission request phát."
 payload:
   submission_request_id: {type: string, required: true, description: "opaque, stable, gán tại event này — identity riêng cho fact này, KHÔNG phải derivation key (derivation key = order_id, §11)"}
@@ -326,20 +333,26 @@ kind: event
 capability_id: execution-management
 domain_context_id: order-management
 description: >
-  Phủ định MỘT fact lịch sử cụ thể ĐÃ SAI của Order. Hai hành vi khác nhau theo target: (a) target
+  Phủ định MỘT fact lịch sử cụ thể ĐÃ SAI của Order. Ba hành vi khác nhau theo target: (a) target
   = OrderCreated → correction lineage CHUẨN (đối xứng RiskEvaluationRecorded, risk.md §10) — replacement
-  NHẬN order_id MỚI, CÙNG logical creation key (originating_execution_intent_id), supersedes_fact_ref
-  trỏ invalidation của predecessor, một visible-valid-head duy nhất; (b) target = OrderStatusChanged
-  → same-slice replacement HỢP LỆ, đúng correction lineage chuẩn (§8), kể cả khi giá trị bị
-  invalidate là WITHDRAWN/EXPIRED.
+  NHẬN order_id MỚI, CÙNG logical creation key (originating_execution_intent_id), replacement's
+  `supersedes_fact_ref` trỏ TRỰC TIẾP predecessor OrderCreated fact (KHÔNG trỏ event này —
+  `causation_refs` của replacement mới là nơi trỏ event này, §4), một visible-valid-head duy nhất;
+  (b) target = OrderStatusChanged → same-slice replacement HỢP LỆ, đúng correction lineage chuẩn
+  (§8), kể cả khi giá trị bị invalidate là WITHDRAWN/EXPIRED; (c) **v0.2 (đóng C6-MAJ-02)** target =
+  OrderSubmissionRequested → invalidate-only, KHÔNG bắt buộc replacement — một submission request
+  ghi sai chỉ cần bị loại khỏi lifecycle fold/duplicate-suppression/C7 readiness (§8), một request
+  MỚI (submission_request_id khác, CÙNG order_id) CÓ THỂ append sau đó nếu `eligible_for_new_submission_request`
+  (§8a) true, KHÔNG cần `supersedes_fact_ref` trên OrderSubmissionRequested (§9).
 invariants:
   - "envelope.subject_ref PHẢI BẰNG HỆT subject_ref của invalidated_fact_ref."
   - "envelope.effective_time PHẢI BẰNG HỆT effective_time của invalidated_fact_ref."
-  - "invalidated_fact_ref PHẢI trỏ một OrderCreated hoặc OrderStatusChanged, CHƯA từng nhận invalidation khác — một fact chỉ bị invalidate đúng một lần. KHÔNG BAO GIỜ trỏ một OrderFactInvalidated khác (cấm invalidation-of-invalidation)."
-  - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_fact_ref."
-  - "Replay tại cursor trước recorded_time của invalidation KHÔNG được thấy invalidation này (chống look-ahead)."
-  - "Target = OrderCreated: mong đợi (không bắt buộc ngay lập tức) một OrderCreated replacement CÙNG originating_execution_intent_id (logical creation key), order_id MỚI, supersedes_fact_ref = event này (§9)."
-  - "Target = OrderStatusChanged: mong đợi (không bắt buộc ngay lập tức) một OrderStatusChanged replacement CÙNG order_id VÀ cùng effective_time slice, supersedes_fact_ref = event này (§9)."
+  - "invalidated_fact_ref PHẢI trỏ một OrderCreated, OrderStatusChanged, hoặc **(v0.2, đóng C6-MAJ-02)** OrderSubmissionRequested, CHƯA từng nhận invalidation khác — một fact chỉ bị invalidate đúng một lần. KHÔNG BAO GIỜ trỏ một OrderFactInvalidated khác (cấm invalidation-of-invalidation)."
+  - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_fact_ref (strict — invalidation KHÔNG BAO GIỜ đồng thời hay trước predecessor)."
+  - "Replay tại cursor trước recorded_time của invalidation KHÔNG được thấy invalidation này (chống look-ahead) — thấy fact gốc VALID (Scenario 23, §17); replay TẠI/SAU recorded_time của invalidation thấy fact đó EXCLUDED khỏi mọi fold (lifecycle/duplicate-suppression/C7 readiness) (Scenario 24, §17)."
+  - "Target = OrderCreated: mong đợi (không bắt buộc ngay lập tức) một OrderCreated replacement CÙNG originating_execution_intent_id (logical creation key), order_id MỚI, replacement's supersedes_fact_ref TRỎ TRỰC TIẾP predecessor OrderCreated fact (KHÔNG trỏ event này) — xem §4/§9 cho đầy đủ mười invariant."
+  - "Target = OrderStatusChanged: mong đợi (không bắt buộc ngay lập tức) một OrderStatusChanged replacement CÙNG order_id VÀ cùng effective_time slice, supersedes_fact_ref = fact bị target (KHÔNG trỏ event này) (§9)."
+  - "**v0.2 (đóng C6-MAJ-02)** Target = OrderSubmissionRequested: KHÔNG mong đợi replacement bắt buộc — invalidate-only đủ cho v0.2. `eligible_for_new_submission_request` (§8a) CÓ THỂ trở lại true ngay sau invalidation (nếu mọi điều kiện khác vẫn thỏa), cho phép một `OrderSubmissionRequested` MỚI (submission_request_id KHÁC, CÙNG order_id) được append sau đó — KHÔNG cần supersedes_fact_ref trên fact mới đó (§9)."
 payload:
   invalidated_fact_ref: {type: event_record_ref, required: true}
   invalidation_reason: {type: string, required: false}
@@ -363,30 +376,46 @@ view_state = PENDING_CORRECTION → pending_correction_class: BẮT BUỘC
 
 target = OrderCreated (invalidate, chờ same-key replacement với order_id MỚI) → pending_correction_class = AWAITING_SAME_SUBJECT_REPLACEMENT
 target = OrderStatusChanged (invalidate, chờ same-slice replacement) → pending_correction_class = AWAITING_SAME_SUBJECT_REPLACEMENT
+
+**v0.2 (đóng C6-MAJ-02):** target = OrderSubmissionRequested (invalidate) KHÔNG BAO GIỜ đưa view_state
+sang PENDING_CORRECTION — invalidate-only, KHÔNG replacement bắt buộc (§7/§9); request bị invalidate
+chỉ đơn giản bị loại khỏi Tầng 2 fold dưới đây, view vẫn VALID nếu Tầng 1 head hợp lệ.
 ```
 
-**Fold algorithm (v0.1, hai tầng — MỘT quy tắc chung, đúng pattern đã proven tại `risk.md` §7 kết hợp `execution-intent.md` §6):**
+**Fold algorithm (v0.2, hai tầng — đóng `C6-MAJ-01`/`C6-MAJ-02`, MỘT quy tắc chung, đúng pattern đã proven tại `risk.md` §7 kết hợp `execution-intent.md` §6):**
 
 ```text
-Tầng 1 — xác định visible-valid-head order_id cho logical creation key (originating_execution_intent_id):
+Tầng 1 — xác định visible-valid-head order_id cho logical creation key (originating_execution_intent_id)
+bằng EXPLICIT REPLACEMENT LINEAGE CHAIN (v0.2, đóng C6-MAJ-01 — KHÔNG chọn head chỉ bằng "newest
+uninvalidated fact"):
 1. Group mọi OrderCreated theo logical creation key = originating_execution_intent_id.
-2. Với mỗi key, resolve OrderFactInvalidated visibility tại cursor (recorded_time <= cursor) target
-   OrderCreated.
-3. Loại trừ khỏi lineage bất kỳ OrderCreated nào đã có invalidation visible tại cursor.
-4. Chọn head hợp lệ: OrderCreated CHƯA bị invalidate visible (chuỗi supersedes_fact_ref, mới nhất
-   trước) — đây là current_order_id.
-5. NẾU key chưa có OrderCreated hợp lệ nào (toàn bộ đã invalidate, chưa replacement) → view_state
+2. Trong một key, dựng chain TƯỜNG MINH theo supersedes_fact_ref: O1 (gốc, KHÔNG supersedes_fact_ref)
+   → O2 (supersedes_fact_ref = O1, TRỰC TIẾP) → ... (cấm fork/nhảy cóc — §9 invariant 5/6, Scenario
+   17, §17).
+3. Với mỗi Oi trong chain, resolve OrderFactInvalidated visibility tại cursor (recorded_time <=
+   cursor) target Oi.
+4. Duyệt chain từ O1: dừng tại link ĐẦU TIÊN chưa bị invalidate visible tại cursor — đó là
+   visible-valid-head. current_order_id = head đó.
+5. NẾU link cuối cùng đã duyệt bị invalidate visible VÀ KHÔNG CÓ link kế tiếp visible → view_state
    = PENDING_CORRECTION, pending_correction_class = AWAITING_SAME_SUBJECT_REPLACEMENT, DỪNG.
 
-Tầng 2 — với current_order_id đã xác định ở Tầng 1, fold lifecycle (đúng pattern trade-intent.md §6):
-6. Group OrderStatusChanged/OrderSubmissionRequested thuộc current_order_id theo (order_id,
-   effective_time) slice.
-7. Với mỗi slice, resolve OrderFactInvalidated visibility (target OrderStatusChanged) — loại trừ
-   fact đã invalidate chưa có replacement visible (không "giữ giá trị cũ").
-8. Tổng hợp mọi visible-valid-head còn lại, total-order: effective_time ASC, recorded_time ASC,
-   event_id ASC — rồi mới lifecycle fold → current_status (CREATED mặc định sau OrderCreated;
-   SUBMISSION_REQUESTED nếu có OrderSubmissionRequested valid; WITHDRAWN/EXPIRED nếu forward
-   transition valid gần nhất).
+Tầng 2 — với current_order_id đã xác định ở Tầng 1, fold lifecycle (v0.2, đóng C6-MAJ-02 — cộng thêm
+xử lý OrderFactInvalidated targeting OrderSubmissionRequested):
+6. Thu thập, cho current_order_id: mọi OrderStatusChanged (group theo (order_id, effective_time)
+   slice) VÀ mọi OrderSubmissionRequested (KHÔNG slice theo effective_time — mỗi fact độc lập, §9).
+7. Loại trừ bất kỳ fact nào có OrderFactInvalidated visible tại cursor C: với OrderStatusChanged,
+   loại trừ slice head chưa có replacement visible (không "giữ giá trị cũ"); với
+   OrderSubmissionRequested, loại trừ fact đó HOÀN TOÀN — invalidate-only, KHÔNG cần replacement
+   (§7/§9) — fact bị invalidate đóng góp KHÔNG GÌ vào lifecycle, KHÔNG compensating event nào được
+   emit (Scenario 18, §17).
+8. Áp dụng mọi fact valid còn lại theo total-order XÁC ĐỊNH: effective_time ASC, recorded_time ASC,
+   event_id ASC.
+9. Lifecycle fold: state mặc định NGAY SAU OrderCreated là CREATED. Duyệt total-order ở bước 8 theo
+   thứ tự — MỖI fact valid kế tiếp PHẢI được validate/áp dụng LÊN state ĐÃ FOLD từ mọi fact valid XẾP
+   TRƯỚC nó trong CÙNG total-order (v0.2, đóng C6-MAJ-02 — same-effective-time transition KHÔNG được
+   validate đối với một snapshot cũ, PHẢI đối với state đã fold thật sự): OrderSubmissionRequested
+   valid → SUBMISSION_REQUESTED; OrderStatusChanged valid (WITHDRAWN/EXPIRED) → terminal state đó.
+   `current_status` = state đạt được SAU KHI fold hết toàn bộ total-order.
 ```
 
 ```yaml
@@ -406,7 +435,7 @@ invariants:
   - "KHÔNG được dùng làm input cho Order creation/submission/C7 processing hay bất kỳ computation nào khác — CHỈ query/UI."
   - "view_state PHẢI đúng theo fold algorithm §8 Tầng 1 — creation lineage head quyết định."
   - "pending_correction_class BẮT BUỘC có mặt khi view_state = PENDING_CORRECTION; CẤM có mặt khi view_state = VALID."
-  - "current_status PHẢI recompute đúng theo fold algorithm §8 Tầng 2 — một WITHDRAWN/EXPIRED fact đã invalidate mà chưa có replacement visible KHÔNG được góp phần vào current_status."
+  - "current_status PHẢI recompute đúng theo fold algorithm §8 Tầng 2 — một WITHDRAWN/EXPIRED fact đã invalidate mà chưa có replacement visible KHÔNG được góp phần vào current_status. **v0.2 (đóng C6-MAJ-02):** một OrderSubmissionRequested đã invalidate KHÔNG được góp phần vào current_status dưới bất kỳ hình thức nào (KHÔNG compensating event, KHÔNG 'giữ giá trị cũ') — recompute trực tiếp từ mọi fact valid còn lại."
 schema:
   originating_execution_intent_id: {type: string, required: true, description: "logical creation key"}
   current_order_id: {type: string, required: false, description: "order_id của visible valid head — chỉ có mặt khi view_state = VALID"}
@@ -418,7 +447,7 @@ schema:
 queries: [GetOrderForExecutionIntent, GetOrderById, GetOrderHistory]
 ```
 
-### 8a. Submission eligibility — `eligible_for_new_submission_request`
+### 8a. Submission eligibility — `eligible_for_new_submission_request` (v0.2)
 
 **Vai trò:** một rule normative, derived, deterministic — trả lời "Order này còn đủ điều kiện cho một submission request MỚI hay không." Đánh giá TẠI cùng cursor C:
 
@@ -426,25 +455,27 @@ queries: [GetOrderForExecutionIntent, GetOrderById, GetOrderHistory]
 eligible_for_new_submission_request(order_id, C) =
       Order là visible-valid-head cho logical creation key của nó TẠI C                          (§8 Tầng 1)
   AND Order.current_status(C) == CREATED                                                          (§8 Tầng 2 — SUBMISSION_REQUESTED/WITHDRAWN/EXPIRED đều KHÔNG eligible)
-  AND originating Execution Intent vẫn eligible_for_new_order_creation TẠI C                       (execution-intent.md §6a)
-  AND KHÔNG có OrderSubmissionRequested VALID nào đã tồn tại cho order_id này TẠI C                 (§6 idempotency)
+  AND eligible_for_new_order_creation(originating_execution_intent_id, C) == true                  (execution-intent.md §6a, đầy đủ NĂM điều kiện)
+  AND KHÔNG có OrderSubmissionRequested VALID (visible, CHƯA invalidate) nào tồn tại cho order_id này TẠI C   (§6 idempotency)
 ```
 
-Một Order `WITHDRAWN` hoặc `EXPIRED` là **ineligible** cho submission request mới (Scenario J, §17). Khi Execution Intent gốc (hoặc origin chain xa hơn — Risk/Trade Intent/Decision) trở nên invalid, Order **vẫn giữ nguyên `current_status`** (KHÔNG tự động chuyển WITHDRAWN) nhưng trở **ineligible cho submission request mới** — điều kiện thứ ba ở trên fail (Scenario K, §17).
+Một Order `WITHDRAWN` hoặc `EXPIRED` là **ineligible** cho submission request mới (Scenario 10, §17). Khi Execution Intent gốc (hoặc origin chain xa hơn — Risk/Trade Intent/Decision) trở nên invalid, Order **vẫn giữ nguyên `current_status`** (KHÔNG tự động chuyển WITHDRAWN) nhưng trở **ineligible cho submission request mới** — điều kiện thứ ba ở trên fail (Scenario 11, §17). **v0.2 (đóng C6-MAJ-02):** một request ĐÃ invalidate KHÔNG tính vào điều kiện thứ tư — KHÔNG chặn một request MỚI hợp lệ; điều kiện thứ tư đánh giá LẠI TẠI cursor C, chỉ xét fact còn VALID (visible, chưa invalidate) tại đúng cursor đó (Scenario 19, §17).
 
-### 8b. Future C7 boundary — `eligible_for_execution_result_processing`
+### 8b. Future C7 boundary — `eligible_for_execution_result_processing` (v0.2, đóng `C6-MAJ-03`)
 
 **Vai trò:** một rule derived, xác định "Order này có đủ điều kiện để Package 0.2-C7 (chưa author) xử lý một execution result trong tương lai hay không" — KHÔNG author Fill semantics, CHỈ pin readiness boundary.
 
 ```text
 eligible_for_execution_result_processing(order_id, C) =
-      Order là visible-valid-head cho logical creation key của nó TẠI C                          (§8 Tầng 1)
-  AND originating Execution Intent vẫn valid xuyên suốt origin chain của nó TẠI C                  (execution-intent.md §6a điều kiện 2–5)
-  AND một OrderSubmissionRequested VALID tồn tại cho order_id này TẠI C                             (§6)
-  AND Order.current_status(C) KHÔNG phải WITHDRAWN hay EXPIRED                                     (§8 Tầng 2)
+      Order là visible-valid-head cho logical creation key originating_execution_intent_id của nó TẠI C   (§8 Tầng 1)
+  AND eligible_for_new_order_creation(originating_execution_intent_id, C) == true                          (execution-intent.md §6a, đầy đủ NĂM điều kiện — BAO GỒM ExecutionIntent.current_status(C) == ISSUED)
+  AND ĐÚNG MỘT OrderSubmissionRequested VALID (visible, chưa invalidate) tồn tại cho order_id này TẠI C     (§6)
+  AND Order.current_status(C) == SUBMISSION_REQUESTED                                                       (§8 Tầng 2 — KHÔNG chỉ "khác WITHDRAWN/EXPIRED")
 ```
 
-**Điều này CHỈ có nghĩa** C7 (chưa author) CÓ THỂ xử lý một execution result tương lai cho Order này. Nó **KHÔNG có nghĩa**: một Fill tồn tại; execution đã thành công; quantity đã filled; venue đã accept request. `order.md` KHÔNG author Order behavior nào cho C7 — C7 (chưa author) chịu trách nhiệm CONSUME rule này (Scenario O, §17).
+**v0.2 (đóng `C6-MAJ-03`):** điều kiện thứ hai nay dùng TRỌN VẸN `eligible_for_new_order_creation` (execution-intent.md §6a) — bao gồm điều kiện 1 (`ExecutionIntent.current_status(C) == ISSUED`), KHÔNG CHỈ điều kiện 2–5 như trước (thiếu điều kiện 1 khiến rule bỏ sót trường hợp Execution Intent tự nó đã `WITHDRAWN`/`EXPIRED`). Điều kiện thứ tư nay pin CHÍNH XÁC `current_status == SUBMISSION_REQUESTED` (§8 Tầng 2) — SUBMISSION_REQUESTED CHỈ derive từ một `OrderSubmissionRequested` VALID hiện hữu (theo fold algorithm §8 Tầng 2 bước 9); KHÔNG còn đủ nếu chỉ "khác WITHDRAWN/EXPIRED" (trước đây cho phép sai `CREATED` — chưa từng request — cũng pass). Quy tắc đầy đủ này đảm bảo transitively: Execution Intent ISSUED, Risk Evaluation valid APPROVED head, Trade Intent valid, Decision valid, Order valid head, Submission Request valid, Order lifecycle SUBMISSION_REQUESTED (Scenario 20, §17).
+
+**Điều này CHỈ có nghĩa** C7 (chưa author) CÓ THỂ xử lý một execution result tương lai cho Order này. Nó **KHÔNG có nghĩa**: một Fill tồn tại; execution đã thành công; quantity đã filled; venue đã accept request. Khi Execution Intent trở `WITHDRAWN`/`EXPIRED`, `eligible_for_execution_result_processing = false` — Order và submission request lịch sử VẪN historically resolvable (Scenario 15/16, §17). `order.md` KHÔNG author Order behavior nào cho C7 — C7 (chưa author) chịu trách nhiệm CONSUME rule này.
 
 ## 9. Correction lineage
 
@@ -453,27 +484,55 @@ Correction lineage scoped theo hai loại subject, đúng nguyên tắc đã kh�
 **`OrderCreated` — correction lineage CHUẨN, same-key replacement với `order_id` MỚI (đối xứng `risk.md` §10 RiskEvaluationRecorded, KHÔNG đối xứng `execution-intent.md` §5 ExecutionIntentIssued invalidate-only):**
 
 ```text
-O1 (OrderCreated, originating_execution_intent_id = E1)
+O1 (OrderCreated, originating_execution_intent_id = E1, KHÔNG supersedes_fact_ref)
   → OrderFactInvalidated targeting O1
   → O2 (OrderCreated MỚI), order_id KHÁC O1, CÙNG originating_execution_intent_id = E1,
-    supersedes_fact_ref (payload OrderFactInvalidated targeting O1) → một visible-valid-head duy nhất
-  → predecessor PHẢI invalidate TRƯỚC — KHÔNG direct fork (hai OrderCreated VALID cùng key)
-  → replay TRƯỚC correction thấy O1; replay SAU correction thấy O2 (§8)
-  → O1 vẫn historically resolvable (GetOrderById) — KHÔNG bị xóa/rewrite
-  → prior OrderSubmissionRequested (nếu có) gắn O1 vẫn historical, KHÔNG cascade-delete — O1 trở
-    ineligible cho submission request MỚI (§8a); O2 CÓ THỂ nhận submission request RIÊNG của nó
-    (Scenario M, §17)
+    O2.supersedes_fact_ref = O1 TRỰC TIẾP (KHÔNG trỏ OrderFactInvalidated — event đó nằm trong
+    O2.causation_refs, §4), O2.causation_refs CHỨA CẢ OrderCreationAttemptRecorded(CREATED) LẪN
+    OrderFactInvalidated targeting O1 → một visible-valid-head duy nhất
+
+Correction tiếp theo:
+O2 → OrderFactInvalidated targeting O2 → O3, O3.supersedes_fact_ref = O2 TRỰC TIẾP
+  (KHÔNG được O3.supersedes_fact_ref = O1 — cấm nhảy cóc)
 ```
+
+**Mười invariant bắt buộc (v0.2, đóng `C6-MAJ-01` — đối xứng `risk.md` §10, `decision.md` §11):**
+
+1. Order gốc (O1, KHÔNG có predecessor) KHÔNG có `supersedes_fact_ref`.
+2. Replacement (correction) BẮT BUỘC có `supersedes_fact_ref`, trỏ TRỰC TIẾP predecessor `OrderCreated` fact bị invalidate (KHÔNG trỏ `OrderFactInvalidated`).
+3. Replacement PHẢI CÙNG `originating_execution_intent_id` với fact bị supersede (logical creation key bất biến xuyên chain, dù `order_id` đổi).
+4. `causation_refs` của replacement PHẢI chứa chính `OrderFactInvalidated` targeting predecessor (CỘNG `OrderCreationAttemptRecorded` tương ứng, §4) — predecessor PHẢI đã invalidate VÀ visible TRƯỚC khi replacement được ghi.
+5. Replacement PHẢI supersede đúng lineage head HIỆN TẠI — KHÔNG nhảy cóc qua một head trung gian (§8 Tầng 1 bước 2/4).
+6. Một fact bị invalidate có **tối đa một** replacement authoritative trực tiếp — cấm fork (Scenario 17, §17: O2 KHÔNG được append khi O1 vẫn VALID, chưa invalidate).
+7. Replacement không được "visible" (`recorded_time`) trước invalidation tương ứng.
+8. Mọi lineage member lịch sử giữ nguyên trong log — append-only, KHÔNG mutate; `order_id` cũ (O1) vẫn resolvable mãi mãi qua `GetOrderById`.
+9. Một fact đã invalidate **không bao giờ** bị tái sử dụng ngầm — `OrderCurrentView` (§8) phải loại trừ nó tường minh khỏi Tầng 1 chain traversal.
+10. Retry của cùng logical creation key với payload KHÁC, KHI predecessor CHƯA invalidate, VẪN LÀ conflict (KHÔNG tự động trở thành correction) — correction CHỈ hợp lệ qua chuỗi tường minh invalidate-rồi-replace ở trên (§1 idempotency invariant).
+
+**Prior `OrderSubmissionRequested` KHÔNG được O2 kế thừa:** submission request (nếu có) gắn O1 vẫn historical dưới O1, KHÔNG cascade-delete, KHÔNG tự động chuyển sang O2 — O1 trở ineligible cho submission request MỚI (§8a); O2 khởi đầu `current_status = CREATED` VÀ PHẢI nhận submission request RIÊNG của chính nó nếu cần (Scenario 21, §17). Replay TRƯỚC correction thấy O1 (VALID); replay SAU correction thấy O2 (VALID), O1 EXCLUDED khỏi head resolution nhưng vẫn historically resolvable (§8).
 
 **`OrderStatusChanged` — correction lineage chuẩn, same-slice replacement (§5/§7, đối xứng `execution-intent.md` §8, mười invariant chuẩn, KHÔNG lặp lại toàn văn):**
 
 ```text
 F1 (OrderStatusChanged)
   → OrderFactInvalidated targeting F1
-  → replacement (cùng event type OrderStatusChanged), supersedes_fact_ref = F1
+  → replacement (cùng event type OrderStatusChanged), supersedes_fact_ref = F1 TRỰC TIẾP
 ```
 
-**`OrderSubmissionRequested` — KHÔNG correction lineage riêng ở v0.1 (edge case hiếm, deferred §15)** — một submission request ghi sai thực chất là edge case ngoài walking skeleton; append-only đủ cho v0.1.
+**`OrderSubmissionRequested` — v0.2 (đóng `C6-MAJ-02`), invalidate-only, KHÔNG same-ID/same-slot replacement bắt buộc:**
+
+```text
+S1 (OrderSubmissionRequested, order_id = O)
+  → OrderFactInvalidated targeting S1
+  → S1 EXCLUDED khỏi lifecycle fold (§8 Tầng 2)/duplicate-suppression (§8a)/C7 readiness (§8b) TỪ
+    cursor invalidation trở đi — KHÔNG compensating status event
+  → eligible_for_new_submission_request(O, C) CÓ THỂ trở lại true (§8a, nếu mọi điều kiện khác
+    vẫn thỏa) — CHO PHÉP một request MỚI:
+S2 (OrderSubmissionRequested, submission_request_id KHÁC S1, CÙNG order_id = O)
+  → KHÔNG supersedes_fact_ref trên S2 — v0.2 KHÔNG cần replacement lineage cho subject này (edge
+    case hiếm hơn OrderCreated/OrderStatusChanged, invalidate-only đủ; general workflow semantics
+    KHÔNG cần thêm)
+```
 
 ## 10. Time semantics và bitemporal correctness
 
@@ -481,7 +540,7 @@ F1 (OrderStatusChanged)
 - `recorded_time` — recorded axis, universal.
 - `ExecutionIntentIssued.effective_time <= OrderCreated.order_effective_time` — Order KHÔNG BAO GIỜ effective trước Execution Intent gốc.
 - `ExecutionIntentIssued.recorded_time < OrderCreated.recorded_time` — strict causal ordering.
-- `OrderCreated.recorded_time < OrderSubmissionRequested.recorded_time` — strict causal ordering (§6, Scenario N §17).
+- `OrderCreated.recorded_time < OrderSubmissionRequested.recorded_time` — strict causal ordering (§6, Scenario 14 §17).
 - Mọi authoritative fact dùng cho creation PHẢI thỏa `fact.recorded_time <= order_context_cursor.recorded_time <= OrderCreated.recorded_time`.
 - Mọi authoritative fact dùng cho submission readiness PHẢI visible TẠI `submission_context_cursor`.
 - Replay tại cursor T chỉ thấy fact có `recorded_time ≤ T` — invalidation ghi SAU T KHÔNG visible tại T.
@@ -505,7 +564,7 @@ order_correction_lineage_policy: SAME_LOGICAL_KEY_NEW_ID_INVALIDATE_THEN_REPLACE
 
 **`order_creation_attempt_idempotency_policy: STABLE_ATTEMPT_ID_SAME_PAYLOAD_IS_IDEMPOTENT`** — idempotency scoped theo TỪNG `order_creation_attempt_id` cá nhân, KHÔNG theo logical creation key: retry CÙNG `order_creation_attempt_id` + CÙNG payload → idempotent no-op; CÙNG `order_creation_attempt_id` + payload KHÁC → deterministic conflict. Logical creation key KHÔNG BẮT BUỘC unique — nhiều attempt (kể cả outcome khác nhau) CÓ THỂ tồn tại cùng key.
 
-**`order_submission_idempotency_policy: STABLE_ORDER_ID_SAME_PAYLOAD_IS_IDEMPOTENT`** — derivation/idempotency key cho `OrderSubmissionRequested` là `order_id` (§6), KHÔNG một `submission_request_id`-scoped identity riêng (task không yêu cầu individual submission-attempt identity cho walking skeleton v0.1) — same `order_id` + same submission payload → idempotent no-op/reuse `submission_request_id` đã tồn tại; same `order_id` + changed payload → deterministic conflict, reject (Scenario I, §17). Missing submission request sau Order creation là recoverable gap — KHÔNG data-integrity violation.
+**`order_submission_idempotency_policy: STABLE_ORDER_ID_SAME_PAYLOAD_IS_IDEMPOTENT`** — derivation/idempotency key cho `OrderSubmissionRequested` là `order_id` (§6), KHÔNG một `submission_request_id`-scoped identity riêng (task không yêu cầu individual submission-attempt identity cho walking skeleton v0.1) — same `order_id` + same submission payload → idempotent no-op/reuse `submission_request_id` đã tồn tại; same `order_id` + changed payload → deterministic conflict, reject (Scenario 9, §17). Missing submission request sau Order creation là recoverable gap — KHÔNG data-integrity violation.
 
 **`order_correction_lineage_policy: SAME_LOGICAL_KEY_NEW_ID_INVALIDATE_THEN_REPLACE`** — correction `OrderCreated` KHÔNG same-ID replacement (`order_id` vẫn bất biến/không tái sử dụng per-fact), NHƯNG logical creation key CÓ THỂ nhận `OrderCreated` MỚI (`order_id` khác) sau khi predecessor invalidate — xem §9 cho đầy đủ.
 
@@ -567,34 +626,52 @@ lookup, KHÔNG dùng bất kỳ giá trị nào không có mặt trong §1/§3�
 - Retention/resolvability horizon cụ thể cho Order/OrderCreationAttempt/OrderSubmissionRequest đã lâu.
 - Không đóng OQ-002/OQ-003.
 
-## 17. Acceptance scenarios (validation, không phải executable test tại C6)
+## 17. Acceptance scenarios (v0.2: hai mươi bốn scenario — mười một kế thừa v0.1 + ba mở rộng đóng `C6-MAJ-01`/`C6-MAJ-02`/`C6-MAJ-03` + mười bổ sung — validation, không phải executable test tại C6)
 
-**Scenario A — Eligible Order creation:** Execution Intent ISSUED, `eligible_for_new_order_creation=true`, PAPER, `OPEN_EXPOSURE`, `quantity>0` → Order payload computation hoàn tất → Attempt CREATED ghi → một `OrderCreated`.
+**Scenario 1 — Eligible Order creation:** Execution Intent ISSUED, `eligible_for_new_order_creation=true`, PAPER, `OPEN_EXPOSURE`, `quantity>0` → Order payload computation hoàn tất → Attempt CREATED ghi → một `OrderCreated`.
 
-**Scenario B — Ineligible Execution Intent:** `eligible_for_new_order_creation=false` → `OrderCreationAttemptRecorded(attempt_outcome=INELIGIBLE, reason_code=EXECUTION_INTENT_INELIGIBLE)` — KHÔNG `OrderCreated`.
+**Scenario 2 — Ineligible Execution Intent:** `eligible_for_new_order_creation=false` → `OrderCreationAttemptRecorded(attempt_outcome=INELIGIBLE, reason_code=EXECUTION_INTENT_INELIGIBLE)` — KHÔNG `OrderCreated`.
 
-**Scenario C — Failure and retry:** Attempt A1 (`FAILED_BEFORE_CREATION`) ghi; Attempt A2 (CÙNG `originating_execution_intent_id`, `CREATED`) ghi sau đó — HỢP LỆ, KHÔNG mâu thuẫn với A1.
+**Scenario 3 — Failure and retry:** Attempt A1 (`FAILED_BEFORE_CREATION`) ghi; Attempt A2 (CÙNG `originating_execution_intent_id`, `CREATED`) ghi sau đó — HỢP LỆ, KHÔNG mâu thuẫn với A1.
 
-**Scenario D — Crash after successful Attempt:** Order payload computed → Attempt CREATED appended → crash TRƯỚC `OrderCreated` → recovery: re-run CÙNG computation, tái sử dụng attempt CREATED đã tồn tại (KHÔNG tạo attempt mới), append/reuse ĐÚNG MỘT `OrderCreated`.
+**Scenario 4 — Crash after successful Attempt:** Order payload computed → Attempt CREATED appended → crash TRƯỚC `OrderCreated` → recovery: re-run CÙNG computation, tái sử dụng attempt CREATED đã tồn tại (KHÔNG tạo attempt mới), append/reuse ĐÚNG MỘT `OrderCreated`.
 
-**Scenario E — Creation idempotency:** cùng Execution Intent + cùng payload → cùng `order_id`, KHÔNG duplicate; cùng Execution Intent + payload KHÁC (chưa invalidate predecessor) → deterministic conflict.
+**Scenario 5 — Creation idempotency:** cùng Execution Intent + cùng payload → cùng `order_id`, KHÔNG duplicate; cùng Execution Intent + payload KHÁC (chưa invalidate predecessor) → deterministic conflict.
 
-**Scenario F — Scope mismatch:** reject bất kỳ Order nào thay đổi `direction`/`account_id`/`instrument_selection_ref`/`quantity`/`quantity_unit`/origin IDs so với Execution Intent gốc.
+**Scenario 6 — Scope mismatch:** reject bất kỳ Order nào thay đổi `direction`/`account_id`/`instrument_selection_ref`/`quantity`/`quantity_unit`/origin IDs so với Execution Intent gốc.
 
-**Scenario G — Zero quantity:** `quantity <= 0` → invalid Order — KHÔNG Order nào được tạo (giá trị này KHÔNG BAO GIỜ xảy ra hợp lệ vì Execution Intent gốc đã pin `approved_quantity > 0`, execution-intent.md §1 — pin tường minh làm safety invariant).
+**Scenario 7 — Zero quantity:** `quantity <= 0` → invalid Order — KHÔNG Order nào được tạo (giá trị này KHÔNG BAO GIỜ xảy ra hợp lệ vì Execution Intent gốc đã pin `approved_quantity > 0`, execution-intent.md §1 — pin tường minh làm safety invariant).
 
-**Scenario H — Submission request:** một `OrderCreated` VALID → `OrderSubmissionRequested` → lifecycle chuyển `SUBMISSION_REQUESTED` — KHÔNG ngụ ý acknowledgement hay execution.
+**Scenario 8 — Submission request:** một `OrderCreated` VALID → `OrderSubmissionRequested` → lifecycle chuyển `SUBMISSION_REQUESTED` — KHÔNG ngụ ý acknowledgement hay execution.
 
-**Scenario I — Duplicate submission request:** cùng Order + cùng request payload → idempotent; cùng Order + payload KHÁC → deterministic conflict.
+**Scenario 9 — Duplicate submission request:** cùng Order + cùng request payload → idempotent; cùng Order + payload KHÁC → deterministic conflict.
 
-**Scenario J — Withdrawn or expired Order:** `current_status ∈ {WITHDRAWN, EXPIRED}` → KHÔNG submission request mới (`eligible_for_new_submission_request=false`) → KHÔNG eligible cho future C7 execution-result processing.
+**Scenario 10 — Withdrawn or expired Order:** `current_status ∈ {WITHDRAWN, EXPIRED}` → KHÔNG submission request mới (`eligible_for_new_submission_request=false`) → KHÔNG eligible cho future C7 execution-result processing.
 
-**Scenario K — Origin invalidated:** Execution Intent trở nên ineligible, hoặc origin chain xa hơn (Risk/Trade Intent/Decision) trở nên invalid → Order vẫn historical, KHÔNG submission request mới, KHÔNG eligible cho C7 processing tương lai.
+**Scenario 11 — Origin invalidated:** Execution Intent trở nên ineligible, hoặc origin chain xa hơn (Risk/Trade Intent/Decision) trở nên invalid → Order vẫn historical, KHÔNG submission request mới, KHÔNG eligible cho C7 processing tương lai.
 
-**Scenario L — Order correction:** O1 ghi sai → invalidate O1 → O2 `order_id` MỚI, CÙNG `originating_execution_intent_id`, `supersedes_fact_ref` → một visible-valid-head. Replay TRƯỚC correction thấy O1; replay SAU correction thấy O2.
+**Scenario 12 — Initial Order (v0.2, đóng `C6-MAJ-01`):** O1 tạo → `O1.supersedes_fact_ref` TUYỆT ĐỐI ABSENT (Order gốc, KHÔNG predecessor).
 
-**Scenario M — Invalidated Order with prior submission:** O1 → `OrderSubmissionRequested` S1 → O1 invalidate → O1/S1 vẫn historical, O1 KHÔNG nhận request mới, replacement O2 CÓ THỂ nhận request RIÊNG của nó.
+**Scenario 13 — Corrected Order (v0.2, đóng `C6-MAJ-01`, mở rộng scenario correction cũ):** O1 → invalidate O1 → O2 `order_id` MỚI, CÙNG `originating_execution_intent_id`, `O2.supersedes_fact_ref` TRỰC TIẾP trỏ O1 (KHÔNG trỏ `OrderFactInvalidated`), `O2.causation_refs` chứa CẢ `OrderCreationAttemptRecorded(CREATED)` LẪN `OrderFactInvalidated` targeting O1 → một visible-valid-head. Replay TRƯỚC correction thấy O1; replay SAU correction thấy O2.
 
-**Scenario N — Time ordering:** reject `OrderCreated.recorded_time <= ExecutionIntentIssued.recorded_time`; reject `OrderSubmissionRequested.recorded_time <= OrderCreated.recorded_time`.
+**Scenario 14 — Time ordering:** reject `OrderCreated.recorded_time <= ExecutionIntentIssued.recorded_time`; reject `OrderSubmissionRequested.recorded_time <= OrderCreated.recorded_time`.
 
-**Scenario O — C7 boundary:** Order valid, submission request valid, origin chain valid, `current_status` KHÔNG withdrawn/expired → `eligible_for_execution_result_processing=true`. KHÔNG Fill nào được author ở đây.
+**Scenario 15 — Execution Intent withdrawn (v0.2, đóng `C6-MAJ-03`):** Order valid, Submission Request valid, Execution Intent `WITHDRAWN` → `eligible_for_new_order_creation` điều kiện 1 fail → `eligible_for_execution_result_processing=false`. Order/request lịch sử vẫn resolvable.
+
+**Scenario 16 — Execution Intent expired (v0.2, đóng `C6-MAJ-03`):** đồng dạng Scenario 15, Execution Intent `EXPIRED` thay vì `WITHDRAWN` → `eligible_for_execution_result_processing=false`.
+
+**Scenario 17 — Direct fork rejected (v0.2, đóng `C6-MAJ-01`):** O1 VALID (chưa invalidate) → thử append O2 CÙNG logical creation key MÀ KHÔNG có `OrderFactInvalidated` visible targeting O1 → reject (§9 invariant 6, cấm fork).
+
+**Scenario 18 — False submission request correction (v0.2, đóng `C6-MAJ-02`):** O1 CREATED → S1 (`OrderSubmissionRequested`) → lifecycle `SUBMISSION_REQUESTED` → invalidate S1 → S1 historical, KHÔNG còn valid, lifecycle RECOMPUTE trực tiếp từ history còn lại → `CREATED` (KHÔNG compensating `CREATED` status event nào được emit — §8 Tầng 2 bước 7).
+
+**Scenario 19 — Reissue after invalidation (v0.2, đóng `C6-MAJ-02`):** tiếp Scenario 18 — `eligible_for_new_submission_request` trở lại true → S2 (`submission_request_id` KHÁC S1, CÙNG `order_id`) append hợp lệ → lifecycle `SUBMISSION_REQUESTED` trở lại.
+
+**Scenario 20 — Complete valid chain (v0.2, đóng `C6-MAJ-03`, thay thế C7-boundary scenario cũ):** Execution Intent ISSUED, origin chain (Risk Evaluation APPROVED head/Trade Intent/Decision) valid, Order visible-valid-head, ĐÚNG MỘT Submission Request valid, `current_status == SUBMISSION_REQUESTED` → `eligible_for_execution_result_processing=true`. KHÔNG Fill nào được author ở đây.
+
+**Scenario 21 — Order replacement does not inherit submission (v0.2, đóng `C6-MAJ-01`, mở rộng scenario cũ):** O1 + S1 (`SUBMISSION_REQUESTED`) → invalidate O1 → O2 replacement → S1 vẫn historical DƯỚI O1 (KHÔNG cascade/inherit sang O2) → O2 khởi đầu `current_status = CREATED` → O2 PHẢI nhận submission request RIÊNG của chính nó nếu cần.
+
+**Scenario 22 — Invalidated request and C7 (v0.2, đóng `C6-MAJ-02`/`C6-MAJ-03`):** S1 (`OrderSubmissionRequested`, VALID trước đó) bị invalidate → `current_status` recompute (§8 Tầng 2) KHÔNG còn `SUBMISSION_REQUESTED` → `eligible_for_execution_result_processing=false` (điều kiện thứ tư §8b fail).
+
+**Scenario 23 — Replay before request invalidation (v0.2, đóng `C6-MAJ-02`):** cursor TRƯỚC `recorded_time` của `OrderFactInvalidated` targeting S1 → S1 visible VÀ valid → `current_status = SUBMISSION_REQUESTED`.
+
+**Scenario 24 — Replay after request invalidation (v0.2, đóng `C6-MAJ-02`):** cursor TẠI/SAU `recorded_time` của invalidation → S1 EXCLUDED khỏi lifecycle fold/duplicate-suppression/C7 readiness → `current_status` recompute (Scenario 18) → C7 readiness false (Scenario 22).
