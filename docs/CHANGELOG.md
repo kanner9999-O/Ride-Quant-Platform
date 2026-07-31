@@ -2,6 +2,120 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — consolidate Package 0.2-C5
+
+**Package 0.2-C5 Risk Gateway and Execution Intent Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C5: Consolidated Stable" (2026-07-31). Authorization này cho phép ghi Package 0.2-C5 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `risk.md`/`execution-intent.md`, không sửa `decision.md`/`trade-intent.md`/`context-map.yaml`/bất kỳ ADR nào, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C6–C7, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.
+
+### Baseline verification
+
+```text
+Expected HEAD:  55b9cb842de91825a7335a6563c35a690c926fe4
+Actual HEAD:    55b9cb842de91825a7335a6563c35a690c926fe4  — match
+
+risk.md:              v0.3 Draft, blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab  — match
+execution-intent.md:  v0.2 Draft, blob afc0c1fe7bdd2f285403dff29c71849ab66af70c  — match
+context-map.yaml:     v0.17 Draft, blob 59f11a2cee142c533280a33060c21f69f3fc50cf  — match
+README.md:            v0.44 Draft, blob b6a52f819241c00554e9f334ad296441f8b4c7be  — match
+MANIFEST.md:           manifest_version 9.70  — match
+```
+
+### Product Owner authorization recorded
+
+```text
+Package 0.2-C5:
+  Consolidated Stable
+```
+
+Meaning: the exact reviewed C5 baseline is stable enough to serve as the dependency baseline for Package 0.2-C6. It does not mean any artifact is Approved or Locked.
+
+### Exact reviewed baseline pinned
+
+```text
+Package 0.2-C5 reviewed HEAD:  55b9cb842de91825a7335a6563c35a690c926fe4
+
+Primary artifacts:       risk.md v0.3 Draft, blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab
+                          execution-intent.md v0.2 Draft, blob afc0c1fe7bdd2f285403dff29c71849ab66af70c
+Integration artifact:    context-map.yaml v0.17 Draft, blob 59f11a2cee142c533280a33060c21f69f3fc50cf (unchanged)
+Registry baseline:       MANIFEST v9.70
+```
+
+### Review evidence
+
+```text
+ChatGPT final focused delta review:        Clean — Blocker 0, Major 0, Minor 0
+Independent Focused Delta Review B:        Clean — Blocker 0, Major 0, Minor 0
+```
+
+### Complete finding ledger — all resolved (v0.1 → v0.2 bounded correction, v0.2 → v0.3 micro-correction)
+
+```text
+C5-MAJ-01:        Resolved (truthful Attempt EVALUATED ordering — computation completes before Attempt EVALUATED, recoverable append gap)
+C5-MAJ-02:        Resolved (evidence_availability seven fixed keys, all ref/scalar evidence fields conditional)
+C5-MAJ-03:        Resolved (bounded v0.1 unit model, currency/unit mismatch → NON_EVALUABLE/INCOMPATIBLE_EVIDENCE_UNIT)
+C5-MAJ-04:        Resolved (approved_quantity strictly positive after floor-rounding, QUANTITY_ROUNDS_TO_ZERO)
+C5-MAJ-05:        Resolved (numeric domain constraints pinned, quantity_precision maximum = 18 disclosed)
+C5-MAJ-06:        Resolved (eligible_for_new_order_creation expanded to five transitive AND-conditions)
+C5-DELTA-MAJ-01:   Resolved (evidence availability separated from unit compatibility, two mutually exclusive NON_EVALUABLE branches)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Package lifecycle meaning
+
+`Consolidated Stable` là package lifecycle/readiness state — nghĩa là: reviewed package baseline nội bộ coherent; mọi qualifying finding đã resolved; deferred limitations được ghi nhận tường minh là non-blocking Phase 1 concern; package integration đủ ổn định để làm dependency baseline cho package kế tiếp (0.2-C6). Nó KHÔNG có nghĩa: artifact Approved; artifact Locked; ADR thay đổi; Domain Contract bất biến; OQ closure; Phase completion; implementation authorization; Live authorization.
+
+### Confirmation — `risk.md`, `execution-intent.md`, `context-map.yaml` byte-identical
+
+```text
+docs/domain/risk.md              blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab — verified byte-identical to reviewed baseline
+docs/domain/execution-intent.md  blob afc0c1fe7bdd2f285403dff29c71849ab66af70c — verified byte-identical to reviewed baseline
+docs/domain/context-map.yaml     blob 59f11a2cee142c533280a33060c21f69f3fc50cf — verified byte-identical to reviewed baseline
+```
+
+### Unchanged artifact statuses
+
+`risk.md`: **giữ nguyên** `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte — không sửa Domain Contract semantic trong transaction này. `execution-intent.md`: **giữ nguyên** `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte. `context-map.yaml`: **giữ nguyên** `version: "0.17"`, `status: Draft`, byte-for-byte — không sửa. `decision.md`/`trade-intent.md`: **giữ nguyên**, byte-for-byte — không sửa. Mọi C1–C4 Domain Contract (`instrument.md`/`venue.md`/`account.md`/`strategy.md`) và mọi ADR: **giữ nguyên**, byte-for-byte — không sửa.
+
+### Package lifecycle states pinned
+
+```text
+Package 0.2-C1:     Consolidated Stable
+Package 0.2-C2:     Consolidated Stable
+Package 0.2-C3:     Consolidated Stable
+Package 0.2-C4:     Consolidated Stable
+Package 0.2-C5:     Consolidated Stable
+Package 0.2-C6–C7:  unauthorized, unauthored
+```
+
+### Artifact lifecycle states pinned
+
+```text
+risk.md:              Draft, version "0.3", approved_by: null, approved_at: null, not Locked
+execution-intent.md:  Draft, version "0.2", approved_by: null, approved_at: null, not Locked
+```
+
+### Changed-file scope
+
+```text
+docs/domain/README.md            MODIFIED v0.44 → v0.45
+docs/MANIFEST.md                 MODIFIED manifest_version 9.70 → 9.71
+docs/CHANGELOG.md                MODIFIED (this entry)
+docs/domain/risk.md              KHÔNG ĐỔI — blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab, verified byte-identical
+docs/domain/execution-intent.md  KHÔNG ĐỔI — blob afc0c1fe7bdd2f285403dff29c71849ab66af70c, verified byte-identical
+docs/domain/context-map.yaml     KHÔNG ĐỔI — blob 59f11a2cee142c533280a33060c21f69f3fc50cf, verified byte-identical
+docs/domain/decision.md          KHÔNG ĐỔI — blob e2a26320200d350ace3da0247235bb14cef12509, verified byte-identical
+docs/domain/trade-intent.md      KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+```
+
+### Metadata / state
+
+- `risk.md`, `execution-intent.md`, `context-map.yaml`, `decision.md`, `trade-intent.md`: **không đổi** (semantic và version) — package lifecycle metadata only.
+- `README.md` (domain index): **v0.44 → v0.45**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.70 → 9.71**; dòng `domain/` cập nhật ghi nhận Package 0.2-C5 `Consolidated Stable`.
+- Mọi Domain Contract khác (`instrument.md`, `venue.md`, `account.md`, `strategy.md`, `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md`), mọi ADR file, Constitution: **không đổi.**
+
+**Package 0.2-C6 baseline dependency đã thỏa, eligible cho Product Owner scope authorization — CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.** Package 0.2-C7 gate chưa mở. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-31 — separate C5 evidence compatibility
 
 **Package 0.2-C5 micro-correction — evidence availability versus unit compatibility only.** Vai trò: `Domain Contract Micro-Correction Author`. Product Owner authorized: "Package 0.2-C5 micro-correction — evidence availability versus unit compatibility only." Đóng đúng một finding Major: `C5-DELTA-MAJ-01` (evidence availability and unit compatibility were conflated into a single enum, making `INCOMPATIBLE_UNIT` unreachable by the actual algorithm and contradicting the NON_EVALUABLE result invariant). Authorization này **không** cho phép reopen bất kỳ C5 design area nào khác, thêm general unit framework, FX conversion, signed/net exposure, thay đổi sizing semantics, numeric bounds, positive quantity rules, C6 eligibility, sửa C1–C4/ADR/Constitution, author Order/Fill/Position, authorize C6–C7, Approve/Lock/Consolidate C5, đóng OQ-002/OQ-003, hay authorize Live.
