@@ -2,6 +2,105 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — consolidate Package 0.2-C4
+
+**Package 0.2-C4 Trade Intent and Decision Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C4 consolidation transaction" (2026-07-31). Authorization này cho phép ghi Package 0.2-C4 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `decision.md`/`trade-intent.md`, không sửa ADR-010/ADR-013 hay bất kỳ ADR nào, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C5–C7, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.
+
+### Baseline verification
+
+```text
+Expected HEAD:  2f338f54d19a1eaaf1280061e418793337de7a5e
+Actual HEAD:    2f338f54d19a1eaaf1280061e418793337de7a5e  — match
+
+decision.md:       v0.3 Draft, blob e2a26320200d350ace3da0247235bb14cef12509  — match
+trade-intent.md:    v0.2 Draft, blob e7a306abc53ba482ff1249af1dda2829c4c82fa7  — match
+context-map.yaml:   v0.14 Draft, blob e7ad311419f54a60625ce05f37b0c0c8e982fafb  — match
+README.md:          v0.40 Draft, blob 35e87b078c2ca8c21090a0e54f1f51589f1201b8  — match
+MANIFEST.md:        manifest_version 9.66, blob ace9979897f793c1f2c52b543294e0a07d665835  — match
+```
+
+### Reviewed baseline pinned
+
+```text
+Package 0.2-C4 reviewed HEAD:  2f338f54d19a1eaaf1280061e418793337de7a5e
+
+Primary artifacts:       decision.md v0.3 Draft, blob e2a26320200d350ace3da0247235bb14cef12509
+                          trade-intent.md v0.2 Draft, blob e7a306abc53ba482ff1249af1dda2829c4c82fa7
+Controlling architecture: ADR-010.md Approved, blob 80b1807f9b99f2a83bfbdbdbd90672bd9ff06759 (unchanged)
+                          ADR-013.md v0.3 Approved, blob 02df931143f8408c61d19ee2c91d2d355d5deb1d (unchanged, qua strategy.md)
+Integration artifact:    context-map.yaml v0.14 Draft, blob e7ad311419f54a60625ce05f37b0c0c8e982fafb (unchanged)
+Registry baseline:       MANIFEST v9.66, blob ace9979897f793c1f2c52b543294e0a07d665835
+```
+
+### Review evidence
+
+```text
+ChatGPT final focused delta re-review:        Clean — 0 blocking finding
+Independent Review B final focused delta re-review:  Clean — 0 blocking finding
+```
+
+### Complete finding ledger — all resolved (v0.1 → v0.2 bounded correction, v0.2 → v0.3 micro-correction)
+
+```text
+C4-MAJ-01:        Resolved (bỏ trade_intent_outcome/SUPPRESSED_DUPLICATE khỏi Decision, duplicate handling nay là idempotency behavior)
+C4-MAJ-02:        Resolved (derivation Decision→Trade Intent idempotent qua originating_decision_id unique key)
+C4-MAJ-03:        Resolved (correction lineage cho DecisionRecorded, decision_id mới + supersedes_fact_ref, visible-valid-head per logical key)
+C4-MAJ-04:        Resolved (thêm DecisionEvaluationAttempt/DecisionEvaluationAttemptRecorded, mọi lần thử là authoritative fact)
+C4-MAJ-05:        Resolved (invariant thứ tự effective/recorded-time giữa Trade Intent và Decision gốc)
+C4-MAJ-06:        Resolved (thêm eligible_for_new_risk_evaluation origin-validity rule)
+C4-DELTA-MAJ-01:   Resolved (loại bỏ resulting_decision_id, Attempt→Decision liên hệ một chiều qua causation_refs)
+C4-DELTA-MAJ-02:   Resolved (tách evaluation_attempt_id khỏi logical computation key, idempotency per-attempt-identity)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Package lifecycle meaning
+
+`Consolidated Stable` là package lifecycle/readiness state — nghĩa là: reviewed package baseline nội bộ coherent; mọi qualifying finding đã resolved; deferred limitations được ghi nhận tường minh là non-blocking Phase 1 concern; package integration đủ ổn định để làm dependency baseline cho package kế tiếp (0.2-C5). Nó KHÔNG có nghĩa: artifact Approved; artifact Locked; ADR-010/ADR-013 thay đổi; Domain Contract bất biến; OQ closure; Phase completion; implementation authorization; Live authorization.
+
+### Unchanged artifact statuses
+
+`decision.md`: **giữ nguyên** `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte — không sửa Domain Contract semantic trong transaction này. `trade-intent.md`: **giữ nguyên** `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte. `context-map.yaml`: **giữ nguyên** `version: "0.14"`, `status: Draft`, byte-for-byte — không sửa. `ADR-010.md`/`ADR-013.md`: **giữ nguyên** trạng thái Approved, byte-for-byte — không sửa. `instrument.md`/`venue.md`/`account.md`/`strategy.md`/`ADR-012.md`: **giữ nguyên**, byte-for-byte — không sửa.
+
+### Package lifecycle states pinned
+
+```text
+Package 0.2-C1:     Consolidated Stable
+Package 0.2-C2:     Consolidated Stable
+Package 0.2-C3:     Consolidated Stable
+Package 0.2-C4:     Consolidated Stable
+Package 0.2-C5–C7:  unauthorized, unauthored
+```
+
+### Artifact lifecycle states pinned
+
+```text
+decision.md:      Draft, version "0.3", approved_by: null, approved_at: null, not Locked
+trade-intent.md:  Draft, version "0.2", approved_by: null, approved_at: null, not Locked
+```
+
+### Changed-file scope
+
+```text
+docs/domain/README.md          MODIFIED v0.40 → v0.41
+docs/MANIFEST.md               MODIFIED manifest_version 9.66 → 9.67
+docs/CHANGELOG.md              MODIFIED (this entry)
+docs/domain/decision.md        KHÔNG ĐỔI — blob e2a26320200d350ace3da0247235bb14cef12509, verified byte-identical
+docs/domain/trade-intent.md    KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+docs/domain/context-map.yaml   KHÔNG ĐỔI — blob e7ad311419f54a60625ce05f37b0c0c8e982fafb, verified byte-identical
+docs/adr/ADR-010.md            KHÔNG ĐỔI — blob 80b1807f9b99f2a83bfbdbdbd90672bd9ff06759, verified byte-identical
+docs/adr/ADR-013.md            KHÔNG ĐỔI — blob 02df931143f8408c61d19ee2c91d2d355d5deb1d, verified byte-identical
+```
+
+### Metadata / state
+
+- `decision.md`, `trade-intent.md`, `context-map.yaml`, `ADR-010.md`, `ADR-013.md`: **không đổi** (semantic và version) — package lifecycle metadata only.
+- `README.md` (domain index): **v0.40 → v0.41**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.66 → 9.67**; dòng `domain/` cập nhật ghi nhận Package 0.2-C4 `Consolidated Stable`.
+- Mọi Domain Contract khác (`instrument.md`, `venue.md`, `account.md`, `strategy.md`, `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md`), mọi ADR file, Constitution: **không đổi.**
+
+**Package 0.2-C5 baseline dependency đã thỏa, eligible cho Product Owner scope authorization — CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.** Package 0.2-C6–C7 gate chưa mở. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-31 — correct C4 evaluation attempt causality
 
 **Package 0.2-C4 micro-correction — DecisionEvaluationAttempt only.** Vai trò: `Domain Contract Micro-Correction Author`. Product Owner authorized: "Package 0.2-C4 micro-correction — DecisionEvaluationAttempt only." Đóng đúng hai finding Major: `C4-DELTA-MAJ-01` (remove Attempt/Decision circular dependency), `C4-DELTA-MAJ-02` (separate individual attempt identity from computation key). Authorization này **không** cho phép reopen bất kỳ C4 design area nào khác, thêm general attempt workflow/retry scheduling/exception telemetry taxonomy/atomic batch semantics, sửa ADR-010/ADR-013/bất kỳ ADR nào/Constitution/C1–C3, author C5–C7, Approve/Lock/Consolidate C4, đóng OQ-002/OQ-003, hay authorize Live.
