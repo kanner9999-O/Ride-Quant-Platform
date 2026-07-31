@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.13"
+version: "0.14"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -33,9 +33,23 @@ next_review: null
 # chính nó (strategy_definition_version_ref) — không có published-language event-stream flow
 # cross-context nào strategy.md thực sự tiêu thụ ở v0.1 (cùng precedent account.md §13's venue_id
 # ref không cần edge).
-# Package 0.2-C4–C7 (Decision/Trade Intent, Risk, Execution, Position, Order/Fill, Replay...) vẫn
-# CHƯA đăng ký, chờ authoring thực tế theo decomposition đã pin tại `docs/domain/README.md` — mỗi
-# slice cần Product Owner authorization riêng.
+# Package 0.2-C4 (Trade Intent and Decision Foundation — decision.md + trade-intent.md) đăng ký
+# capability/context MỚI (`decision-management`/`strategy-decision`) tại v0.14 — Decision/Trade
+# Intent KHÔNG thuộc phạm vi `strategy-management`/`strategy-definition` đã có, cần capability/
+# context riêng, controlling architecture [ADR-010](../adr/ADR-010.md) Approved (Decision Time
+# Model) + Chapter 8 §8.4/§8.5 (Locked) + [ADR-013](../adr/ADR-013.md) v0.3 Approved (qua
+# strategy.md). Hai file (decision.md/trade-intent.md) CÙNG một context — hai concept riêng biệt,
+# KHÔNG gộp một file, nhưng cùng thuộc phạm vi ra-quyết-định, KHÔNG cần hai context riêng.
+# KHÔNG thêm relationship edge cho strategy-decision: decision.md/trade-intent.md chỉ dùng simple
+# `ref:` lookup tới strategy (strategy_instance_id), account (account_id), và opaque
+# `event_record_ref` chưa resolve/redefine (candle/reference-series input evidence, deferred
+# §14 decision.md) — KHÔNG có published-language event-stream flow cross-context nào thực sự
+# implemented ở v0.1 (cùng precedent strategy.md's account_id/instrument_selection_ref ref không
+# cần edge; input evidence là opaque reference chưa gắn provider context cụ thể, thêm edge lúc
+# này sẽ là speculative).
+# Package 0.2-C5–C7 (Risk, Execution, Position, Order/Fill, Replay...) vẫn CHƯA đăng ký, chờ
+# authoring thực tế theo decomposition đã pin tại `docs/domain/README.md` — mỗi slice cần Product
+# Owner authorization riêng.
 
 capabilities:
   - id: market-reference
@@ -76,6 +90,11 @@ capabilities:
   - id: strategy-management
     title: Strategy Management
     responsibility: "Sở hữu Strategy Definition Version identity (business/decision semantics bất biến, theo ADR-013) và Strategy Instance identity (runtime binding pin bốn trục evidence độc lập + Account + instrument selection) — KHÔNG sở hữu Plugin Definition/Plugin Version/Package-Build-Artifact schema (Chapter 9), KHÔNG sở hữu Trade Intent/Decision/Risk/Execution/Order/Fill/Position semantics."
+    status: active
+
+  - id: decision-management
+    title: Decision Management
+    responsibility: "Sở hữu Decision identity (bản ghi authoritative của một lần Strategy Instance đánh giá deterministic tại một decision_context_cursor, theo ADR-010/Chapter 8 §8.4/§8.5) và Trade Intent identity (request Strategy-originated trước Risk Gateway/Execution) — KHÔNG sở hữu Risk approval/rejection, Execution Intent/Order/Fill/Position semantics, KHÔNG sở hữu Strategy/Strategy Instance identity (thuộc strategy-management)."
     status: active
 
 contexts:
@@ -133,6 +152,13 @@ contexts:
     capability_id: strategy-management
     responsibility: "Định nghĩa Strategy Definition Version (thesis, supported_scope, required input contracts, decision-rule ref, explanation contract ref — bất biến) và Strategy Instance (pin bốn trục evidence độc lập: strategy_definition_version_ref/plugin_version_ref/configuration_version_ref/package_build_artifact_ref, cộng account_id và instrument_selection_ref) — theo ADR-013 §2."
     owned_contracts: [strategy]   # bounded correction — Package 0.2-C3: strategy.md v0.2 Draft (đóng C3-MAJ-01/02/03/04, C3-MIN-01/02 — consolidated Review A + Independent Review B findings), chưa qua delta review; controlling architecture ADR-013 v0.3 Approved (không đổi)
+    status: active
+
+  - id: strategy-decision
+    title: Decision & Trade Intent
+    capability_id: decision-management
+    responsibility: "Định nghĩa Decision (bản ghi authoritative của một lần Strategy Instance đánh giá deterministic, pin decision_time/decision_context_cursor theo ADR-010/Chapter 8 §8.4/§8.5, chín-field Strategy evidence tại cursor, bounded typed rule evidence, input evidence, result LONG/SHORT/NO_ACTION) và Trade Intent (request Strategy-originated trước Risk Gateway/Execution, originate từ đúng một Decision) — theo ADR-010, Chapter 8, ADR-013 (qua strategy.md)."
+    owned_contracts: [decision, trade-intent]   # authored — Package 0.2-C4: decision.md v0.1 Draft + trade-intent.md v0.1 Draft, chưa qua Review A/B; controlling architecture ADR-010 Approved (Decision Time Model) + Chapter 8 §8.4/§8.5 (Locked) + ADR-013 v0.3 Approved (qua strategy.md)
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship

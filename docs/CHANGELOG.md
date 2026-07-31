@@ -2,6 +2,105 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — author Package 0.2-C4 decision foundation
+
+**Package 0.2-C4 — Trade Intent and Decision Foundation v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C4 — Trade Intent and Decision Foundation v0.1". Authorized artifacts: `docs/domain/decision.md`, `docs/domain/trade-intent.md` (cả hai tạo mới, v0.1 Draft). Authorization này **không** cho phép author Package 0.2-C5–C7, định nghĩa order type/limit price/stop price/exchange payload, position sizing/capital allocation/portfolio arbitration, DSL/executable strategy code, optimizer/backtest infrastructure, sửa C1–C3 semantic, sửa `strategy.md`/ADR-010/ADR-013/bất kỳ ADR nào/Constitution, đóng OQ-002/OQ-003, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.
+
+### Baseline verification
+
+```text
+Expected HEAD:  3819f43aa4cd8c76c3d0feda087222390cce5812
+Actual HEAD:    3819f43aa4cd8c76c3d0feda087222390cce5812  — match
+
+Package 0.2-C1:  Consolidated Stable (không đổi)
+Package 0.2-C2:  Consolidated Stable (không đổi)
+Package 0.2-C3:  Consolidated Stable (không đổi)
+strategy.md:      v0.3 Draft, blob c2cadc464bc8baecff41ff8079461ec0d5dfaccc
+ADR-013.md:       v0.3 Approved, blob 02df931143f8408c61d19ee2c91d2d355d5deb1d
+context-map.yaml: v0.13 Draft, blob 5f32edd625f4b66e179dff752d45b301642d76fd
+decision.md/trade-intent.md: absent trước transaction — đúng expected state, KHÔNG có baseline conflict
+```
+
+### Decision identity and evidence model
+
+`decision_id` — opaque, globally unique, immutable, gán tại `DecisionRecorded`. Logical computation key = `(strategy_instance_id, decision_context_cursor)` — retry cùng key idempotent (evidence giống hệt) hoặc reject deterministic (evidence khác), tái sử dụng đối xứng `activation_request_idempotency_policy` (`instrument.md` §17) dưới tên `decision_computation_idempotency_policy: STABLE_KEY_SAME_EVIDENCE_IS_IDEMPOTENT` (decision.md §11). Decision hoàn toàn bất biến — KHÔNG PATCH event, correction chỉ qua invalidate-only (`DecisionFactInvalidated`, §4), KHÔNG same-ID replacement (cùng `initial_fact_correction_policy` đã proven tại `strategy.md` §12). Historical Decision resolvable độc lập Strategy Instance lifecycle hiện tại (Chapter 9 §9.3).
+
+**Envelope — controlling architecture [ADR-010](../adr/ADR-010.md) Approved + [Chapter 8 §8.2.1/§8.4/§8.5](../constitution/08-event-model.md) Locked:** `DecisionRecorded` (CHỈ event này, `event_class: decision`) mang `decision_time` (BẮT BUỘC, thay `effective_time` — PROHIBITED trên chính event này) và `decision_context_cursor` (BẮT BUỘC, canonical Replay Cursor — `recorded_time`/`input_contract_ref{contract_id, contract_version}`/`stream_registry_version`/`lifecycle_frontier{stream_id, position{kind, sequence}}`/`stream_positions{stream_id: sequence}`, Chapter 8 §8.5.1). Relational invariant bắc cầu (§2 decision.md): `input_event.recorded_time ≤ decision_context_cursor.recorded_time ≤ DecisionRecorded.recorded_time` — cơ chế thực thi no-look-ahead (I-3) cho Decision. Field SHAPE pin ngay v0.1 (ADR-010/Chapter 8 Locked, không thể defer); MECHANISM resolve (Stream Registry/Input Contract cụ thể) là Phase 1, cùng nguyên tắc defer `stream_ref`/`producer_ref` xuyên suốt repository.
+
+### Rule/configuration separation
+
+`decision_rule_ref` (semantic identity) thuộc Strategy Definition Version (`strategy.md` §1, KHÔNG đổi). Decision's `rule_evidence` (decision.md §3c) là bounded typed shape — KHÔNG DSL/parser/rule graph/compiler tổng quát: `rule_family: PRICE_CROSSES_REFERENCE_SERIES` (v0.1, đúng một giá trị, mở rộng sau bằng enum value mới); `price_source`/`reference_series_type`/`reference_series_period`/`crossing_policy`/`evaluation_timing` — TẤT CẢ copied scalar, nguồn authoritative = `configuration_version_ref` (KHÔNG hardcode trên Strategy Definition Version, đúng bảng phân tách task: Strategy Definition Version sở hữu semantic rule identity, Configuration Version sở hữu parameter values). Năm dimension bắt buộc phân biệt (đều đóng): close vs high (`price_source`); EMA50 vs EMA100 (`reference_series_period`); strict cross vs simply above (`crossing_policy`); candle-close vs intrabar (`evaluation_timing`, v0.1 CHỈ CANDLE_CLOSE, INTRABAR reserved/prohibited); LONG vs SHORT vs NO_ACTION (`result`, decision.md §3e, tách biệt khỏi rule_evidence).
+
+### Input-evidence model
+
+`input_evidence` (decision.md §3d) — `previous_price_fact_ref`/`current_price_fact_ref`/`previous_reference_fact_ref`/`current_reference_fact_ref` (tất cả `event_record_ref`, opaque — KHÔNG redefine Candle/Feature/Context contract schema) cộng copied scalar (`previous_price_value`/`previous_reference_value`/`current_price_value`/`current_reference_value`/`timeframe`). No-look-ahead invariant: mọi `*_fact_ref` PHẢI `recorded_time ≤ decision_context_cursor.recorded_time` (Scenario D). Nguồn cụ thể của reference-series fact (EMA hay Feature type khác) deferred (§14 decision.md) — không thuộc phạm vi C4.
+
+### Evaluation-result model
+
+`result: LONG | SHORT | NO_ACTION` (closed enum, đúng style `structure.md`/`context.md`). Ba trường hợp phân biệt tường minh, KHÔNG collapse (đúng yêu cầu task): **rule evaluated false** = `DecisionRecorded` với `result=NO_ACTION` (fact THẬT, evidence đầy đủ); **rule could not be evaluated** (input missing/pending) = KHÔNG `DecisionRecorded` nào phát, deterministic qua kiểm tra trực tiếp upstream input stream tại cursor; **Strategy was ineligible** = KHÔNG `DecisionRecorded` nào phát, deterministic qua kiểm tra trực tiếp `strategy.md` §9a tại cursor. Canonical `decision_non_creation_policy: NO_DECISION_WHEN_INELIGIBLE_OR_REQUIRED_INPUT_MISSING_OR_PENDING` (decision.md §11, tái sử dụng STYLE — đúng một giá trị đóng-enum — của `missing_input_policy` context.md §6/§9, khai báo độc lập tên/giá trị cho context `strategy-decision`).
+
+### Explanation model
+
+Explanation (decision.md §7) là derived, non-authoritative rendering — thuần hàm của `rule_evidence`/`input_evidence`/`result` đã có, KHÔNG BAO GIỜ introduce fact vắng mặt khỏi Decision evidence, KHÔNG UI copy/NLG infrastructure. Hai Decision cùng evidence PHẢI cho cùng explanation render (deterministic).
+
+### Trade Intent identity and lifecycle
+
+`trade_intent_id` (opaque, globally unique, immutable), origin từ ĐÚNG MỘT `originating_decision_id` (`ref: decision`, causally trỏ `DecisionRecorded` result ∈ {LONG, SHORT}). `account_id`/`instrument_selection_ref` PHẢI khớp CHÍNH XÁC Decision gốc (Trade Intent KHÔNG tự chọn Account/instrument khác) — Trade Intent KHÔNG mutate Strategy evidence, KHÔNG tự authorize execution. `direction: LONG | SHORT` khớp `result`; `intent_type: OPEN` (v0.1, EXIT/FLAT/CLOSE/REDUCE deferred — walking skeleton không cần). Lifecycle tối thiểu ba state `ISSUED`/`WITHDRAWN`/`EXPIRED` — terminal cho forward transition nhưng correctable append-only, `supersedes_fact_ref` có mặt ngay từ v0.1 trên `TradeIntentStatusChanged` (áp dụng chủ động bài học `C2-MAJ-02`/`C3-MAJ-02`).
+
+### Decision-to-Trade-Intent cardinality
+
+```text
+result = LONG | SHORT  → trade_intent_outcome bắt buộc: ISSUED (một TradeIntentIssued) hoặc SUPPRESSED_DUPLICATE (idempotent retry, zero Trade Intent)
+result = NO_ACTION     → trade_intent_outcome tuyệt đối absent, zero Trade Intent luôn luôn
+```
+Một Decision → tối đa MỘT Trade Intent (v0.1, không multi-intent portfolio decomposition). Lý do suppress duy nhất hợp lệ ở v0.1: `SUPPRESSED_DUPLICATE` — KHÔNG import Risk semantics (risk limit/capital là C5, chưa author).
+
+### Correction/replay model
+
+`DecisionRecorded`/`TradeIntentIssued`: invalidate-only qua `*FactInvalidated`, KHÔNG same-ID replacement — TOÀN BỘ payload là scope bất biến (canonical `initial_fact_correction_policy: INVALIDATE_ONLY_NO_SAME_ID_REPLACEMENT_FOR_IMMUTABLE_SCOPE_SUBJECTS`, tái sử dụng đúng giá trị `strategy.md` §12, khai báo độc lập). `TradeIntentStatusChanged`: correction lineage chuẩn same-slice replacement, mười invariant đối xứng `strategy.md` §13. `DecisionRevalidated` (decision.md §5) KHÔNG phải correction — fact vận hành riêng cho Append-and-Revalidate policy (ADR-010 §2.6/Chapter 8 §8.4.1), causally trỏ `DecisionRecorded` gốc, ghi outcome SUCCEEDED/STALE/REJECTED cùng registry/frontier evidence đã dùng. Preservation fact trên canonical Audit Stream (Chapter 8 §8.4.1 mục 6, khi target stream retired tại registry transition) — RULE pin, event type cụ thể deferred (Phase 1, cần Stream Registry/Audit Stream infrastructure chưa tồn tại).
+
+### C3 eligibility integration
+
+`DecisionRecorded` CHỈ phát khi `eligible_for_new_computation(strategy_instance_id, decision_context_cursor) == true` (`strategy.md` §9a, sáu điều kiện) TẠI ĐÚNG `decision_context_cursor` — kiểm tra TRƯỚC khi đánh giá rule. Chín-field Strategy evidence (`strategy.md` §10) copy làm scalar bất biến trên Decision, resolve từ authoritative event stream TẠI cursor (KHÔNG Current View latest-state nào).
+
+### Context Map integration
+
+Đăng ký capability `decision-management` + context `strategy-decision` (`owned_contracts: [decision, trade-intent]`, HAI file CÙNG một context) tại `context-map.yaml` **v0.13 → v0.14**. KHÔNG thêm relationship edge nào — `decision.md`/`trade-intent.md` chỉ dùng simple `ref:` lookup (`strategy_instance_id`, `account_id`) và `event_record_ref` opaque chưa gắn provider context cụ thể (input evidence, deferred).
+
+### Acceptance-scenario results (validation, decision.md §16)
+
+Scenario A (EMA strict cross LONG): `result=LONG`, `trade_intent_outcome=ISSUED` — pass theo thiết kế. Scenario B (already above, no cross): `previous_condition_met=false` → `result=NO_ACTION`, zero Trade Intent — pass. Scenario C (configuration difference EMA50 vs EMA100): hai `DecisionRecorded` riêng biệt, `reference_series_period` làm rõ khác biệt — pass. Scenario D (future correction hidden): chặn bởi relational invariant `input_event.recorded_time ≤ cursor.recorded_time` — pass. Scenario E (Strategy ineligible): `eligible_for_new_computation=false` → KHÔNG DecisionRecorded, KHÔNG event riêng cần thiết (deterministic qua strategy.md §9a) — pass. Scenario F (exact executable difference): `package_build_artifact_ref` khác trên hai DecisionRecorded dù mọi field khác giống hệt — distinguishable tường minh trong evidence — pass. Scenario G (correction): `DecisionFactInvalidated`/`TradeIntentFactInvalidated` append-only, KHÔNG rewrite gốc, KHÔNG same-ID replacement, KHÔNG leak-forward — pass.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10 (đặc biệt Chapter 5 §5.2/§5.3, Chapter 8 §8.1.1/§8.2/§8.4/§8.4.1/§8.5, I-1/I-2/I-3/I-4), ADR-010 Approved (byte-for-byte unchanged — verified), ADR-013 v0.3 Approved (byte-for-byte unchanged — verified, qua strategy.md), Package 0.2-C1 (`instrument.md`/`venue.md` không đổi — verified byte-for-byte), Package 0.2-C2 (`account.md` không đổi), Package 0.2-C3 (`strategy.md` không đổi). Preserve nguyên vẹn: opaque non-derived identity pattern; invalidate-only-no-replacement cho immutable-scope subject; correction lineage mười invariant cho status-change event; fold algorithm "visible-valid-head per slice"; Current View never-authority. Không order type/limit price/stop price/exchange payload. Không position sizing/capital allocation/portfolio arbitration. Không DSL/executable strategy code. Không optimizer/backtest infrastructure. Không Risk approval/rejection semantics.
+
+### Author self-review
+
+Phát hiện và disclosure tường minh: task gốc dùng tên field "computation_cursor"/"evaluation_time" như placeholder — self-review xác nhận ADR-010 (Approved) + Chapter 8 §8.4 (Locked) đã khóa sẵn tên field chính xác là `decision_context_cursor`/`decision_time` cho MỌI Decision event, không thể tự đặt tên khác mà không vi phạm controlling architecture đã Approved; đã dùng đúng tên ADR-010/Chapter 8 quy định, ghi nhận công khai tại `decision.md` §2/§10 phần mở đầu và tại đây. Không tìm thấy finding blocking nào khác trong self-review.
+
+### Changed-file scope
+
+```text
+docs/domain/decision.md        NEW      v0.1  Draft   blob c5b6226dcf46adf2a184ddefef6eca6a222f10da
+docs/domain/trade-intent.md    NEW      v0.1  Draft   blob 27647dfd3538fd563ae332f6edaecd1c6eb59d97
+docs/domain/context-map.yaml   MODIFIED v0.13 → v0.14  (capability/context registration + comment)
+docs/domain/README.md          MODIFIED v0.37 → v0.38
+docs/MANIFEST.md               MODIFIED manifest_version 9.63 → 9.64
+docs/CHANGELOG.md              MODIFIED (this entry)
+```
+
+### Metadata / state
+
+- `decision.md`/`trade-intent.md`: **tạo mới**, `version: "0.1"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+- `context-map.yaml`: **v0.13 → v0.14** — thêm capability `decision-management` + context `strategy-decision`, KHÔNG thêm relationship edge.
+- `README.md` (domain index): **v0.37 → v0.38**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.63 → 9.64**; dòng `domain/` cập nhật ghi nhận Package 0.2-C4 authoring transaction.
+- `ADR-010.md`, `ADR-013.md`, `ADR-012.md`, `instrument.md`, `venue.md`, `account.md`, `strategy.md`: **không đổi** (byte-for-byte, verified).
+- Mọi ADR khác, Constitution, mọi Domain Contract khác (`candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md`): **không đổi.**
+
+**Package 0.2-C4 CHƯA đạt `Consolidated Stable` — chờ ChatGPT Review A + Independent Review B trên cùng exact baseline này.** Mandatory sequence: Author baseline → ChatGPT Review A → Independent Review B → merge finding → một correction commit (Product Owner authorize) → delta review hai vòng → Product Owner consolidation decision. KHÔNG correction dựa trên một review đơn lẻ. Package 0.2-C1/C2/C3 vẫn `Consolidated Stable`, không đổi. Package 0.2-C5–C7 vẫn chưa authorize, chưa author. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-30 — consolidate Package 0.2-C3
 
 **Package 0.2-C3 Strategy Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C3 consolidation transaction" (2026-07-30). Authorization này cho phép ghi Package 0.2-C3 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `strategy.md`, không sửa ADR-013 hay bất kỳ ADR nào, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C4–C7, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.
