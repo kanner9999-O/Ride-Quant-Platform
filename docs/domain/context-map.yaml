@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.17"
+version: "0.18"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -58,7 +58,17 @@ next_review: null
 # current_instrument_exposure_ref/reference_price_fact_ref, deferred §15 risk.md) — KHÔNG có
 # published-language event-stream flow cross-context nào thực sự implemented ở v0.1 (cùng
 # precedent strategy-decision's account_id/instrument_selection_ref ref không cần edge).
-# Package 0.2-C6–C7 (Order/Fill, Position/Replay...) vẫn CHƯA đăng ký, chờ authoring thực tế theo
+# Package 0.2-C6 (Order Foundation — order.md) đăng ký capability/context MỚI
+# (`execution-management`/`order-management`) tại v0.18 — Order KHÔNG thuộc phạm vi
+# `risk-management`/`risk-gateway` đã có (Execution Intent KHÔNG phải Order), cần capability/
+# context riêng, controlling architecture execution-intent.md §6a (eligible_for_new_order_creation).
+# MỘT relationship edge MỚI: risk-gateway (execution-intent) → order-management (order) —
+# order.md thực sự tiêu thụ published-language `execution-intent-issued` (subject_ref/scope copy +
+# causation_refs trace-back, §4 order.md) VÀ eligibility rule `eligible_for_new_order_creation`
+# (execution-intent.md §6a) — khác precedent risk-gateway/strategy-decision (KHÔNG edge, chỉ simple
+# `ref:` lookup) vì đây là published-language fact CONSUME thực tế cho Order creation, không phải
+# opaque reference chưa gắn provider context.
+# Package 0.2-C7 (Fill, Position/Replay...) vẫn CHƯA đăng ký, chờ authoring thực tế theo
 # decomposition đã pin tại `docs/domain/README.md` — mỗi slice cần Product Owner authorization
 # riêng.
 
@@ -111,6 +121,11 @@ capabilities:
   - id: risk-management
     title: Risk Management
     responsibility: "Sở hữu RiskEvaluation identity (bản ghi authoritative của một lần Risk Gateway đánh giá deterministic một Trade Intent eligible, pin bốn trục risk evidence độc lập + sizing/policy evidence) và Execution Intent identity (request nội bộ sau khi Risk Gateway approve, trước Order/Execution) — KHÔNG sở hữu Order/Fill/Position/Replay Event semantics (Package 0.2-C6–C7), KHÔNG sở hữu Decision/Trade Intent identity (thuộc decision-management)."
+    status: active
+
+  - id: execution-management
+    title: Execution Management
+    responsibility: "Sở hữu Order identity (bản ghi authoritative, bất biến, của một internal execution instruction tạo từ đúng một Execution Intent eligible), OrderCreationAttempt (mọi lần thử tạo Order), và OrderSubmissionRequest (yêu cầu nội bộ gửi Order tới bounded PAPER execution boundary) — KHÔNG sở hữu Fill/Position/Replay Event semantics (Package 0.2-C7), KHÔNG sở hữu Risk/Execution Intent identity (thuộc risk-management)."
     status: active
 
 contexts:
@@ -182,6 +197,13 @@ contexts:
     capability_id: risk-management
     responsibility: "Định nghĩa RiskEvaluation (bản ghi authoritative của một lần Risk Gateway đánh giá deterministic một Trade Intent eligible, pin risk_context_cursor — Chapter 8 §8.5.1 tái sử dụng — bốn trục risk evidence độc lập, bounded sizing/policy evidence, result APPROVED/REJECTED/NON_EVALUABLE) và Execution Intent (request nội bộ sau khi Risk Gateway approve, originate từ đúng một RiskEvaluation) — theo Chapter 8, Chapter 9 §9.1 (qua bốn trục risk evidence, đối xứng strategy.md)."
     owned_contracts: [risk, execution-intent]   # authored — Package 0.2-C5: risk.md v0.3 Draft + execution-intent.md v0.2 Draft (unchanged, blob preserved), micro-correction đóng C5-DELTA-MAJ-01 (evidence availability vs unit compatibility separation) trên baseline v0.2 (đóng consolidated Review A + Independent Review B findings C5-MAJ-01..06), chưa qua focused delta re-review; controlling architecture: trade-intent.md §6a (eligible_for_new_risk_evaluation), Chapter 8 §8.1.1/§8.2/§8.5 (Locked), Chapter 9 §9.1 (Locked)
+    status: active
+
+  - id: order-management
+    title: Order Management
+    capability_id: execution-management
+    responsibility: "Định nghĩa Order (bản ghi authoritative, bất biến, của một internal execution instruction tạo từ đúng một Execution Intent eligible, pin order_context_cursor — Chapter 8 §8.5.1 tái sử dụng — order_action OPEN_EXPOSURE, order_type MARKET, quantity bất biến copy từ Execution Intent), OrderCreationAttempt (mọi lần thử tạo Order), và OrderSubmissionRequest (yêu cầu nội bộ gửi tới bounded PAPER execution boundary, chưa chứng minh venue acceptance/execution) — theo Chapter 8, execution-intent.md §6a."
+    owned_contracts: [order]   # authored — Package 0.2-C6: order.md v0.1 Draft, chưa qua Review A/B; controlling architecture: execution-intent.md §6a (eligible_for_new_order_creation), Chapter 8 §8.1.1/§8.2/§8.5 (Locked)
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship
@@ -483,3 +505,22 @@ relationships:
       fact có causal ancestry bao gồm FeatureComputed fact bị invalidate (bất kỳ trong ba founding
       feature type) — không được giữ nguyên giá trị đã tính trên fact Feature cũ (chi tiết
       correction lineage tại context.md §12).
+
+  # Package 0.2-C6 (order.md v0.1) — Order originate từ đúng một Execution Intent eligible, tiêu
+  # thụ published-language ExecutionIntentIssued (subject_ref/scope copy nguyên vẹn + causation_refs
+  # trace-back, order.md §4) VÀ eligibility rule eligible_for_new_order_creation (execution-intent.md
+  # §6a) — quan hệ cross-context THỰC SỰ tồn tại (khác precedent risk-gateway/strategy-decision:
+  # KHÔNG edge, chỉ opaque ref: lookup), nên relationship edge MỚI cần đăng ký.
+  - provider_context_id: risk-gateway
+    consumer_context_id: order-management
+    contract_id: execution-intent-issued
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: risk-gateway
+      downstream_context_id: order-management
+    translation_policy: conformist   # Order tiêu thụ trực tiếp canonical Execution Intent language, không cần anti-corruption layer
+    consumer_obligation: >
+      Consumer (Order) PHẢI resolve eligible_for_new_order_creation (execution-intent.md §6a) TRỰC
+      TIẾP từ authoritative Execution Intent event stream TẠI order_context_cursor TRƯỚC khi Order
+      creation mới — KHÔNG dùng ExecutionIntentCurrentView latest-state làm input (order.md §4a).

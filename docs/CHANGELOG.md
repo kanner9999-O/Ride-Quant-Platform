@@ -2,6 +2,113 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — author Package 0.2-C6 order foundation
+
+**Package 0.2-C6 — Order Foundation v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C6: Order Foundation v0.1". Authorized artifact: `docs/domain/order.md` (tạo mới, v0.1 Draft). Authorization này **không** cho phép author Fill/Position/Replay Event (Package 0.2-C7), định nghĩa partial fill/venue acceptance/rejection/external order ID/exchange API payload/routing/adapter behavior, Limit/Stop/advanced order type, TIF/IOC/FOK/post_only/reduce_only, fees/slippage/accounting, margin/leverage/liquidation model, resize/clamp/round Risk-approved quantity, Live behavior, sửa `execution-intent.md`/`risk.md`/`decision.md`/`trade-intent.md`/C1–C5/bất kỳ ADR nào/Constitution, đóng OQ-002/OQ-003, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.
+
+### Baseline verification
+
+```text
+Expected HEAD:  042024f7ad22f6032d9f9d5d9370da60ae08e889
+Actual HEAD:    042024f7ad22f6032d9f9d5d9370da60ae08e889  — match
+
+Package 0.2-C1:  Consolidated Stable (không đổi)
+Package 0.2-C2:  Consolidated Stable (không đổi)
+Package 0.2-C3:  Consolidated Stable (không đổi)
+Package 0.2-C4:  Consolidated Stable (không đổi)
+Package 0.2-C5:  Consolidated Stable (không đổi)
+risk.md:              v0.3 Draft, blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab
+execution-intent.md:  v0.2 Draft, blob afc0c1fe7bdd2f285403dff29c71849ab66af70c
+context-map.yaml:     v0.17 Draft, blob 59f11a2cee142c533280a33060c21f69f3fc50cf
+order.md: absent trước transaction — đúng expected state, KHÔNG có baseline conflict
+```
+
+### Order identity and logical creation key
+
+`order_id` — opaque, globally unique, immutable, gán tại `OrderCreated`. Logical creation key = `originating_execution_intent_id` (order.md §1) — KHÔNG cursor component (khác pattern `(trade_intent_id, risk_context_cursor)` của RiskEvaluation), vì `eligible_for_new_order_creation` (execution-intent.md §6a) tự nó đã pin đúng một Execution Intent tại một thời điểm — một Execution Intent eligible → zero hoặc một Order (visible-valid-head). `OrderCreationAttempt` (kind: entity, order.md §3) — subject RIÊNG, `order_creation_attempt_id` (identity cá nhân) TÁCH BIỆT khỏi logical creation key — ÁP DỤNG CHỦ ĐỘNG (KHÔNG chờ review round phát hiện) bốn bài học đã trả giá qua C4/C5's các vòng correction: (1) KHÔNG circular reference giữa Attempt và Order — Attempt KHÔNG mang field trỏ tới Order, chỉ `OrderCreated.causation_refs` trỏ ngược lại attempt (one-way sequence); (2) idempotency scoped theo `order_creation_attempt_id`, KHÔNG theo logical creation key — nhiều attempt (kể cả outcome khác nhau) CÓ THỂ chia sẻ cùng key; (3) `attempt_outcome = CREATED` CHỈ ghi SAU KHI bounded Order payload computation đã hoàn tất trọn vẹn — đóng trước lớp lỗi `C5-MAJ-01`-style, ngay từ v0.1; (4) `FAILED_BEFORE_CREATION` tường minh RETRYABLE, không permanently block same-origin recovery.
+
+### Order creation Attempt model
+
+`attempt_outcome ∈ {CREATED, INELIGIBLE, FAILED_BEFORE_CREATION}` (order.md §3) — mọi lần thử ĐỀU ghi nhận (`OrderCreationAttemptRecorded`), KHÔNG absence-based. `CREATED`: reason_code/checked_evidence_refs tuyệt đối absent, evidence đầy đủ sống trên `OrderCreated`. `INELIGIBLE`: reason_code = `EXECUTION_INTENT_INELIGIBLE`. `FAILED_BEFORE_CREATION`: reason_code = `ORDER_ENGINE_COMPUTATION_BOUNDARY_ERROR`, retryable. Recoverable append gap (đối xứng "no unstated cross-stream atomicity" đã proven, risk.md §2): crash sau Attempt CREATED nhưng trước `OrderCreated` là trạng thái BÌNH THƯỜNG — recovery re-run cùng computation, tái sử dụng attempt CREATED đã tồn tại (KHÔNG tạo attempt mới), append/reuse đúng một `OrderCreated` (order.md §4a).
+
+### Execution Intent eligibility integration
+
+`OrderCreated` CHỈ được phát khi `eligible_for_new_order_creation(originating_execution_intent_id, order_context_cursor) == true` (execution-intent.md §6a, KHÔNG sửa, KHÔNG duplicate/weaken) — false → `OrderCreationAttemptRecorded(attempt_outcome=INELIGIBLE, reason_code=EXECUTION_INTENT_INELIGIBLE)`, KHÔNG Order nào phát (Scenario B, order.md §17). Rule đầy đủ năm điều kiện transitive (execution-intent.md §6a, C5-MAJ-06) resolve TRỰC TIẾP từ authoritative event stream TẠI `order_context_cursor` — KHÔNG dùng `ExecutionIntentCurrentView` latest-state làm input.
+
+### Order scope and origin preservation
+
+`account_id`/`instrument_selection_ref`/`direction`/`quantity`/`quantity_unit`/origin ID (order.md §1) PHẢI khớp CHÍNH XÁC origin chain của Execution Intent gốc — Order KHÔNG được tự chọn khác. `quantity` PHẢI finite, strictly positive, CHÍNH XÁC bằng `approved_quantity` gốc — KHÔNG resize/clamp/round lại Risk-approved quantity dưới bất kỳ hình thức nào (Scenario F/G, §17).
+
+### Order type boundary
+
+v0.1 pin ba giá trị đơn, KHÔNG mở rộng: `order_action = OPEN_EXPOSURE`, `order_type = MARKET`, `environment = PAPER`. Order KHÔNG chứa `limit_price`/`stop_price`/`time_in_force`/`post_only`/`reduce_only`/IOC/FOK/venue-specific flags/exchange payload. Reference price CHỦ ĐỘNG OMIT ở v0.1 (order.md §15, disclosed judgment call) — Order không tự tính toán gì nên không cần một reference price để deterministic; nếu Phase 1 cần, thêm qua correction riêng.
+
+### Lifecycle model
+
+Năm state tối thiểu: `UNSEEN → CREATED → SUBMISSION_REQUESTED`; `CREATED → WITHDRAWN/EXPIRED`; `SUBMISSION_REQUESTED → WITHDRAWN/EXPIRED` (order.md §1 state_machine). `WITHDRAWN`/`EXPIRED` terminal CHO FORWARD TRANSITION nhưng correctable append-only — `supersedes_fact_ref` có mặt ngay từ v0.1 trên `OrderStatusChanged` (đóng trước lớp lỗi `C2-MAJ-02`/`C3-MAJ-02`-style). KHÔNG author `SUBMITTED`/`ACCEPTED`/`REJECTED_BY_VENUE`/`PARTIALLY_FILLED`/`FILLED`/`CANCELLED_BY_VENUE`.
+
+### Submission-request model
+
+`OrderSubmissionRequested` (order.md §6) — `submission_request_id` opaque per-fact identity, gán tại event này; derivation/idempotency key = `order_id` (KHÔNG một individual submission-attempt identity riêng — walking skeleton v0.1 không cần). `target_environment = PAPER` bắt buộc. Semantics: Ride yêu cầu gửi một Order hợp lệ tới bounded PAPER execution boundary — KHÔNG chứng minh boundary đã accept, venue đã acknowledge, external order ID tồn tại, execution đã xảy ra, hay Fill tồn tại.
+
+### Creation and submission idempotency
+
+Creation: `order_creation_derivation_idempotency_policy: ONE_VALID_ORDER_PER_ORIGINATING_EXECUTION_INTENT` (order.md §11) — same origin + same payload → idempotent reuse; same origin + changed payload (chưa invalidate predecessor) → deterministic conflict. Submission: `order_submission_idempotency_policy: STABLE_ORDER_ID_SAME_PAYLOAD_IS_IDEMPOTENT` — same `order_id` + same submission payload → idempotent reuse; same `order_id` + changed payload → deterministic conflict (Scenario E/I, §17). KHÔNG cross-stream atomicity yêu cầu ở cả hai layer.
+
+### Correction/replay model
+
+`OrderCreated` — correction lineage CHUẨN, đối xứng `RiskEvaluationRecorded` (risk.md §10, KHÔNG đối xứng `ExecutionIntentIssued`'s invalidate-only): `order_id` bất biến per-fact, logical creation key CÓ THỂ nhận `OrderCreated` MỚI (`order_id` khác) sau khi predecessor invalidate, `supersedes_fact_ref`, một visible-valid-head, replay trước thấy O1/replay sau thấy O2, O1 vẫn historically resolvable, prior submission requests remain historical, O1 ineligible cho submission mới, O2 có thể nhận submission riêng (order.md §9, Scenario L/M, §17). `OrderStatusChanged` — correction lineage chuẩn, same-slice replacement, đối xứng `execution-intent.md` §8.
+
+### Future C7 eligibility boundary
+
+`eligible_for_execution_result_processing(order_id, C)` (order.md §8b) — visible-valid-head + origin chain vẫn valid + `OrderSubmissionRequested` VALID tồn tại + `current_status` KHÔNG withdrawn/expired. Nghĩa CHỈ là: C7 (chưa author) CÓ THỂ xử lý một execution result tương lai — KHÔNG có nghĩa Fill tồn tại, execution thành công, quantity filled, hay venue đã accept (Scenario O, §17).
+
+### Time/cursor semantics
+
+`order_context_cursor`/`submission_context_cursor` TÁI SỬ DỤNG nguyên vẹn Chapter 8 §8.5.1 Replay Cursor shape như PAYLOAD field. `ExecutionIntentIssued.effective_time <= OrderCreated.order_effective_time`; `ExecutionIntentIssued.recorded_time < OrderCreated.recorded_time`; `OrderCreated.recorded_time < OrderSubmissionRequested.recorded_time` — strict causal ordering (Scenario N, §17). Mọi authoritative fact PHẢI thỏa `fact.recorded_time <= cursor.recorded_time <= event.recorded_time`.
+
+### Context Map integration
+
+Đăng ký capability `execution-management` / context `order-management` MỚI (`owned_contracts: [order]`) tại `context-map.yaml` **v0.17 → v0.18**. MỘT relationship edge MỚI: `risk-gateway` (execution-intent) → `order-management` (order), `relationship_type: published_language`, `contract_id: execution-intent-issued` — Order thực sự tiêu thụ published-language fact này (subject_ref/scope copy + causation_refs trace-back) VÀ `eligible_for_new_order_creation` rule, khác precedent `risk-gateway`/`strategy-decision` (KHÔNG edge, chỉ opaque `ref:` lookup).
+
+### Acceptance-scenario results (order.md §17, Scenario A–O)
+
+Scenario A (eligible creation) — pass. Scenario B (ineligible Execution Intent) — pass. Scenario C (failure and retry) — pass. Scenario D (crash after successful Attempt) — pass. Scenario E (creation idempotency) — pass. Scenario F (scope mismatch, reject) — pass. Scenario G (zero quantity, invalid) — pass. Scenario H (submission request) — pass. Scenario I (duplicate submission request) — pass. Scenario J (withdrawn/expired, no new submission) — pass. Scenario K (origin invalidated) — pass. Scenario L (Order correction) — pass. Scenario M (invalidated Order with prior submission) — pass. Scenario N (time ordering) — pass. Scenario O (C7 boundary, no Fill authored) — pass.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, Chapter 8 §8.1.1/§8.2/§8.5 (Locked, byte-for-byte unchanged), `execution-intent.md` v0.2 Draft §6a (byte-for-byte unchanged, verified), `risk.md` v0.3 Draft (byte-for-byte unchanged, verified), `decision.md` v0.3 Draft (byte-for-byte unchanged, verified), `trade-intent.md` v0.2 Draft (byte-for-byte unchanged, verified), Package 0.2-C1/C2/C3/C4/C5 (all `Consolidated Stable`, byte-for-byte unchanged, verified).
+
+### Author self-review
+
+Reference price cho PAPER simulation evidence CHỦ ĐỘNG OMIT (order.md §15, disclosed judgment call) — task cho phép pin CHỈ khi "strictly necessary"; Order không tự tính toán gì (quantity copy nguyên vẹn từ Execution Intent, không có sizing computation), nên không cần. Individual submission-attempt identity riêng (tách biệt `submission_request_id` khỏi `order_id` derivation key) CHỦ ĐỘNG KHÔNG thêm — `order_id` đủ làm derivation key cho walking skeleton v0.1, `submission_request_id` chỉ là per-fact identity. Tất cả 11 YAML fenced block trong `order.md` parse qua `yaml.safe_load` — verified. Tất cả `§N` citation cross-reference verified qua grep — không có tham chiếu treo. Không tìm thấy finding blocking nào khác (author self-review — chưa qua Review A/B).
+
+### Changed-file scope
+
+```text
+docs/domain/order.md          NEW v0.1 Draft   blob 912d9b6a779187f287803f2a70c1cc642bb04a4e
+docs/domain/context-map.yaml  MODIFIED v0.17 → v0.18   blob d87428e9919005a2cd7f7b282c92f710e5aed382
+docs/domain/README.md         MODIFIED v0.45 → v0.46   blob 31b26991a6ef3adae4af1fe558b2d2214e0e61a4
+docs/MANIFEST.md              MODIFIED manifest_version 9.71 → 9.72
+docs/CHANGELOG.md             MODIFIED (this entry)
+docs/domain/risk.md              KHÔNG ĐỔI — blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab, verified byte-identical
+docs/domain/execution-intent.md  KHÔNG ĐỔI — blob afc0c1fe7bdd2f285403dff29c71849ab66af70c, verified byte-identical
+docs/domain/decision.md          KHÔNG ĐỔI — blob e2a26320200d350ace3da0247235bb14cef12509, verified byte-identical
+docs/domain/trade-intent.md      KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+```
+
+### Metadata / state
+
+- `order.md`: **NEW**, `version: "0.1"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+- `context-map.yaml`: **v0.17 → v0.18** — capability `execution-management`/context `order-management` MỚI, một relationship edge MỚI.
+- `README.md` (domain index): **v0.45 → v0.46**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.71 → 9.72**.
+- `risk.md`, `execution-intent.md`, `decision.md`, `trade-intent.md`: **không đổi** (byte-for-byte, verified).
+- `ADR-010.md`, `ADR-012.md`, `ADR-013.md`, `instrument.md`, `venue.md`, `account.md`, `strategy.md`: **không đổi** (byte-for-byte, verified).
+- Mọi ADR khác, Constitution, mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C6 CHƯA đạt `Consolidated Stable` — chờ Review A + Independent Review B trên cùng exact baseline này.** Mandatory sequence: Author baseline → ChatGPT Review A → Independent Review B (cùng exact baseline) → merge finding → một correction commit được Product Owner authorize → ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. **KHÔNG correction dựa trên một review đơn lẻ.** Package 0.2-C1/C2/C3/C4/C5 vẫn `Consolidated Stable`, không đổi. Package 0.2-C7 vẫn chưa authorize, chưa author. KHÔNG Fill/Position semantics nào được author. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-31 — consolidate Package 0.2-C5
 
 **Package 0.2-C5 Risk Gateway and Execution Intent Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C5: Consolidated Stable" (2026-07-31). Authorization này cho phép ghi Package 0.2-C5 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `risk.md`/`execution-intent.md`, không sửa `decision.md`/`trade-intent.md`/`context-map.yaml`/bất kỳ ADR nào, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C6–C7, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.
