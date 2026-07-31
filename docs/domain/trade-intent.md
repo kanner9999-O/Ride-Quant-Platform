@@ -1,7 +1,7 @@
 ---
 id: trade-intent
 title: Trade Intent
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,7 +14,9 @@ next_review: null
 
 # Trade Intent
 
-> **Vai trò của tài liệu này:** Domain Contract thứ hai của Package 0.2-C4 (Trade Intent and Decision Foundation) — định nghĩa **Trade Intent**, một request Strategy-originated biểu thị mong muốn market exposure/hành động, PHÁT SINH từ một [`decision.md`](./decision.md) `result ∈ {LONG, SHORT}` (§8 decision.md), TRƯỚC Risk Gateway và Execution. Draft, chưa Approved/Locked. Thuộc capability `decision-management` / context `strategy-decision` (đăng ký cùng `decision.md` tại [`context-map.yaml`](./context-map.yaml) trong transaction này — hai file, MỘT context, đúng quyết định tổ chức "hai concept riêng biệt, KHÔNG gộp làm một file" nhưng cùng thuộc phạm vi ra-quyết-định). Kiến trúc controlling: [`decision.md`](./decision.md) v0.1 Draft §8 (Decision-to-Trade-Intent cardinality), [ADR-013](../adr/ADR-013.md) v0.3 Approved (qua `strategy.md`), Chapter 8 (Locked, envelope tiêu chuẩn — Trade Intent KHÔNG phải `event_class: decision`).
+> **Vai trò của tài liệu này:** Domain Contract thứ hai của Package 0.2-C4 (Trade Intent and Decision Foundation) — định nghĩa **Trade Intent**, một request Strategy-originated biểu thị mong muốn market exposure/hành động, PHÁT SINH từ một [`decision.md`](./decision.md) `result ∈ {LONG, SHORT}` (§10 decision.md), TRƯỚC Risk Gateway và Execution. Draft, chưa Approved/Locked. Thuộc capability `decision-management` / context `strategy-decision` (đăng ký cùng `decision.md` tại [`context-map.yaml`](./context-map.yaml) trong transaction gốc — hai file, MỘT context, đúng quyết định tổ chức "hai concept riêng biệt, KHÔNG gộp làm một file" nhưng cùng thuộc phạm vi ra-quyết-định). Kiến trúc controlling: [`decision.md`](./decision.md) v0.2 Draft §10 (Decision-to-Trade-Intent cardinality), [ADR-013](../adr/ADR-013.md) v0.3 Approved (qua `strategy.md`), Chapter 8 (Locked, envelope tiêu chuẩn — Trade Intent KHÔNG phải `event_class: decision`).
+
+**v0.2 — bounded correction, đóng `C4-MAJ-01`/`C4-MAJ-02`/`C4-MAJ-05`/`C4-MAJ-06` (consolidated Review A + Independent Review B findings, phần liên quan Trade Intent):** (a) `C4-MAJ-01`/`C4-MAJ-02` — Decision KHÔNG còn tự tuyên bố "đã issue Trade Intent" (`trade_intent_outcome` đã bị loại khỏi `decision.md`); uniqueness/idempotency của TradeIntentIssued nay pin TẠI ĐÂY qua `originating_decision_id` là unique key trên toàn bộ VALID TradeIntentIssued (§1 invariant, canonical `trade_intent_derivation_idempotency_policy`, §10). (b) `C4-MAJ-05` — thêm invariant thứ tự effective/recorded-time giữa TradeIntentIssued và Decision gốc (§3/§9). (c) `C4-MAJ-06` — thêm `eligible_for_new_risk_evaluation` origin-validity rule (§6a, mới) — khi Decision gốc bị invalidate/supersede, Trade Intent liên quan mất eligibility cho Risk evaluation MỚI mà KHÔNG bị tự động xóa/rewrite. Bounded — không đổi Trade Intent Account/TradableListing equivalence, lifecycle ISSUED/WITHDRAWN/EXPIRED, correction lineage TradeIntentStatusChanged, Current View non-authority.
 
 Trade Intent **KHÔNG phải**: một Order (không order type/limit price/stop price/exchange payload); một Execution Intent; một Fill; một Position; một risk approval; một exchange instruction; bằng chứng execution đã xảy ra. Nó thuần túy là **request** — biểu thị "Strategy muốn exposure X," CHƯA được Risk Gateway duyệt, CHƯA gửi tới Execution.
 
@@ -22,7 +24,7 @@ Trade Intent **KHÔNG phải**: một Order (không order type/limit price/stop 
 
 **Áp dụng ngay từ v0.1 mọi bài học đã trả giá xuyên suốt Package 0.2-B/C1/C2/C3** (đóng trước, không chờ review round phát hiện): opaque identity không derive từ scope; `supersedes_fact_ref` có mặt ngay từ v0.1 trên `TradeIntentStatusChanged`; fold algorithm "visible-valid-head per slice"; Current View KHÔNG BAO GIỜ authority; canonical policy identifier khai báo ĐÚNG MỘT NƠI, độc lập theo context (dùng CHUNG context `strategy-decision` với `decision.md`, nhưng canonical identifier khai báo riêng, KHÔNG trùng lặp).
 
-**Phạm vi bounded tường minh (v0.1):** KHÔNG author risk approval/rejection (Package 0.2-C5). KHÔNG author execution acceptance/order submission/fill status/position state (Package 0.2-C5–C7). KHÔNG định nghĩa order type/limit price/stop price/exchange payload. KHÔNG multi-instrument portfolio decomposition. Vocabulary hướng/action tối thiểu: `LONG`/`SHORT` — EXIT/FLAT KHÔNG author vì walking skeleton (§16 decision.md) không cần (§14).
+**Phạm vi bounded tường minh:** KHÔNG author risk approval/rejection (Package 0.2-C5). KHÔNG author execution acceptance/order submission/fill status/position state (Package 0.2-C5–C7). KHÔNG định nghĩa order type/limit price/stop price/exchange payload. KHÔNG multi-instrument portfolio decomposition. Vocabulary hướng/action tối thiểu: `LONG`/`SHORT` — EXIT/FLAT KHÔNG author vì walking skeleton (decision.md §18) không cần (§13).
 
 ## 1. Trade Intent — `kind: entity`
 
@@ -39,9 +41,10 @@ description: >
   thiểu (ISSUED/WITHDRAWN/EXPIRED, §4) là phần DUY NHẤT thay đổi qua thời gian.
 invariants:
   - "trade_intent_id là opaque, globally unique trong toàn Ride, gán tại TradeIntentIssued — KHÔNG derive/resolve từ originating_decision_id hay bất kỳ field scope nào. Bất biến, KHÔNG tái sử dụng cho subject khác (Chapter 6 §6.1)."
-  - "MỘT Trade Intent originate từ ĐÚNG MỘT Decision (originating_decision_id, ref: decision) — không multi-Decision aggregation, đúng decision.md §8 cardinality (LONG/SHORT → tối đa một Trade Intent)."
-  - "account_id/instrument_selection_ref PHẢI BẰNG HỆT strategy_evidence.account_id/instrument_selection_ref của originating_decision_id tương ứng (decision.md §3b) — Trade Intent KHÔNG được tự chọn Account/instrument khác Decision gốc đã pin."
-  - "Trade Intent KHÔNG BAO GIỜ mutate Strategy evidence — mọi field strategy-evidence-liên-quan chỉ COPY từ Decision gốc để tiện truy vấn, KHÔNG phải nguồn authoritative thứ hai; nguồn authoritative luôn là chính Decision (decision.md §3b)."
+  - "MỘT Trade Intent originate từ ĐÚNG MỘT Decision (originating_decision_id, ref: decision) — không multi-Decision aggregation, đúng decision.md §10 cardinality (LONG/SHORT → tối đa một Trade Intent)."
+  - "**v0.2 (đóng C4-MAJ-02):** `originating_decision_id` là UNIQUE KEY trên toàn bộ TradeIntentIssued VALID — tại một cursor cho trước, tối đa MỘT TradeIntentIssued VALID cho mỗi `originating_decision_id` (§10 `trade_intent_derivation_idempotency_policy: ONE_VALID_INTENT_PER_ORIGINATING_DECISION`). Retry cùng origin + cùng payload → idempotent, trả về `trade_intent_id` đã tồn tại; retry cùng origin + payload KHÁC → deterministic conflict, reject."
+  - "account_id/instrument_selection_ref PHẢI BẰNG HỆT strategy_evidence.account_id/instrument_selection_ref của originating_decision_id tương ứng (decision.md §5b) — Trade Intent KHÔNG được tự chọn Account/instrument khác Decision gốc đã pin."
+  - "Trade Intent KHÔNG BAO GIỜ mutate Strategy evidence — mọi field strategy-evidence-liên-quan chỉ COPY từ Decision gốc để tiện truy vấn, KHÔNG phải nguồn authoritative thứ hai; nguồn authoritative luôn là chính Decision (decision.md §5b)."
   - "Trade Intent KHÔNG tự authorize execution dưới bất kỳ hình thức nào — `intent_type`/`direction` chỉ là request, KHÔNG phải quyết định thực thi; execution eligibility hoàn toàn thuộc Risk Gateway/Execution (Package 0.2-C5, chưa author)."
 schema:
   trade_intent_id: {type: string, required: true, description: "opaque, stable — xem invariants"}
@@ -90,7 +93,7 @@ envelope:
   sequence: {cardinality: required}
   producer_ref: {cardinality: required}              # Phase 1, chưa author
   correlation_id: {cardinality: "required — Trade Intent LUÔN thuộc một correlation flow tường minh (originating Decision, xem §3)"}
-  causation_refs: {cardinality: "TradeIntentIssued: KHÔNG BAO GIỜ rỗng, PHẢI chứa chính DecisionRecorded (decision.md §3) gốc. TradeIntentStatusChanged/TradeIntentFactInvalidated: KHÔNG BAO GIỜ rỗng."}
+  causation_refs: {cardinality: "TradeIntentIssued: KHÔNG BAO GIỜ rỗng, PHẢI chứa chính DecisionRecorded (decision.md §5) gốc. TradeIntentStatusChanged/TradeIntentFactInvalidated: KHÔNG BAO GIỜ rỗng."}
   related_event_refs: {cardinality: "zero-to-many, non-causal — Chapter 8 §8.2.3."}
   effective_time: {cardinality: "required — semantic khác theo event type, xem §3–§4 cho nội dung cụ thể."}
   market_time: {cardinality: "PROHIBITED — Trade Intent là request nội bộ authoritative, không phải quan sát trực tiếp venue (Chapter 5 §5.2)."}
@@ -126,16 +129,19 @@ domain_context_id: strategy-decision
 description: >
   Fact AUTHORITATIVE cho việc phát MỘT Trade Intent — thiết lập TOÀN BỘ scope (originating_decision_id,
   strategy_instance_id, account_id, instrument_selection_ref, direction, intent_type) cùng lúc,
-  BẤT BIẾN. CHỈ được phát khi `decision.md` §3e `trade_intent_outcome = ISSUED` (đúng MỘT
-  TradeIntentIssued per Decision, decision.md §8). KHÔNG có supersedes_fact_ref — subject này KHÔNG
-  BAO GIỜ có same-ID replacement (§5 giải thích lý do, đối xứng TradeIntentRegistered-style pattern
-  của strategy.md §6).
+  BẤT BIẾN. v0.2 (đóng C4-MAJ-01/02): `decision.md` KHÔNG còn field `trade_intent_outcome` — việc
+  phát TradeIntentIssued được quyết định bởi Decision Engine (Phase 1, chưa author) dựa trên
+  `result ∈ {LONG, SHORT}` (decision.md §5e) VÀ derivation idempotency check (§10 dưới), KHÔNG bởi
+  một field trên chính Decision. KHÔNG có supersedes_fact_ref — subject này KHÔNG BAO GIỜ có
+  same-ID replacement (§5 giải thích lý do).
 invariants:
   - "payload.trade_intent_id PHẢI khớp đúng subject_ref.subject_id VÀ toàn bộ scope field PHẢI khớp subject_ref.scope."
-  - "causation_refs PHẢI trỏ chính xác DecisionRecorded (decision.md §3) của originating_decision_id — chứng minh Decision đã tồn tại VÀ result ∈ {LONG, SHORT} trước khi Trade Intent phát."
+  - "causation_refs PHẢI trỏ chính xác DecisionRecorded (decision.md §5) của originating_decision_id — chứng minh Decision đã tồn tại VÀ result ∈ {LONG, SHORT} trước khi Trade Intent phát."
   - "direction PHẢI khớp CHÍNH XÁC result của originating_decision_id (LONG→LONG, SHORT→SHORT) — KHÔNG được đảo/tự chọn direction khác Decision gốc."
-  - "account_id/instrument_selection_ref PHẢI khớp CHÍNH XÁC strategy_evidence tương ứng của originating_decision_id (decision.md §3b) — không lệch."
-  - "envelope.effective_time = thời điểm Trade Intent này thực sự có hiệu lực làm request — mặc định bằng recorded_time trừ khi backfill lịch sử tường minh pin effective_time sớm hơn (§9)."
+  - "account_id/instrument_selection_ref PHẢI khớp CHÍNH XÁC strategy_evidence tương ứng của originating_decision_id (decision.md §5b) — không lệch."
+  - "**v0.2 (đóng C4-MAJ-05):** envelope.effective_time PHẢI thỏa `effective_time >= originating DecisionRecorded.decision_time` — một Trade Intent KHÔNG BAO GIỜ effective TRƯỚC Decision gốc của nó. Mặc định `effective_time = originating DecisionRecorded.decision_time` trừ khi backfill lịch sử tường minh pin giá trị MUỘN HƠN (KHÔNG BAO GIỜ sớm hơn) — vi phạm là invalid TradeIntentIssued, PHẢI bị từ chối khi append."
+  - "**v0.2 (đóng C4-MAJ-05):** envelope.recorded_time PHẢI `> originating DecisionRecorded.recorded_time` (strict causal ordering — Trade Intent PHẢI được ghi nhận SAU Decision gốc của nó, KHÔNG BAO GIỜ đồng thời hay trước)."
+  - "**v0.2 (đóng C4-MAJ-02):** trước khi ghi, PHẢI kiểm tra `originating_decision_id` chưa có TradeIntentIssued VALID nào khác (§1 uniqueness invariant) — nếu đã có VÀ payload giống hệt, đây là idempotent retry (KHÔNG ghi bản ghi mới, trả về `trade_intent_id` đã tồn tại thay vì phát event mới); nếu đã có VÀ payload khác, đây là deterministic conflict (reject, KHÔNG ghi)."
   - "KHÔNG có field supersedes_fact_ref trong payload — subject này KHÔNG hỗ trợ same-ID correction replacement (§5: correction luôn invalidate, KHÔNG replacement — vì originating_decision_id KHÔNG BAO GIỜ đổi sau khi issue)."
 payload:
   trade_intent_id: {type: string, required: true}
@@ -193,8 +199,8 @@ description: >
   toàn bất biến — cùng lý do §3: originating_decision_id không đổi, một Trade Intent sai thực chất
   nghĩa là "Decision này không nên tạo Trade Intent," KHÔNG phải "Trade Intent sai cần sửa nội
   dung") — correction thực tế là invalidate, KHÔNG đăng ký trade_intent_id mới cho cùng Decision
-  (một Decision LONG/SHORT tối đa một Trade Intent, decision.md §8 — nếu Trade Intent gốc sai, Decision
-  gốc thường cũng cần xem lại qua decision.md §4, KHÔNG tự động ở đây); (b) target =
+  (một Decision LONG/SHORT tối đa một Trade Intent, decision.md §10 — nếu Trade Intent gốc sai, Decision
+  gốc thường cũng cần xem lại qua decision.md §6/§11, KHÔNG tự động ở đây); (b) target =
   TradeIntentStatusChanged → same-slice replacement HỢP LỆ, đúng correction lineage chuẩn (§6), kể
   cả khi giá trị bị invalidate là WITHDRAWN/EXPIRED.
 invariants:
@@ -277,9 +283,31 @@ schema:
 queries: [GetCurrentTradeIntent, GetTradeIntentHistory]
 ```
 
-## 7. Decision-to-Trade-Intent cardinality — xem `decision.md` §8
+### 6a. Origin-validity — `eligible_for_new_risk_evaluation` (v0.2, đóng `C4-MAJ-06`)
 
-Định nghĩa authoritative đầy đủ tại [`decision.md`](./decision.md) §8 — trade-intent.md KHÔNG lặp lại, chỉ tái khẳng định ràng buộc chiều ngược: **mọi TradeIntentIssued PHẢI causally trace về đúng MỘT DecisionRecorded với `result ∈ {LONG, SHORT}` VÀ `trade_intent_outcome = ISSUED`** (§3 invariant) — KHÔNG có TradeIntentIssued "mồ côi" không originating Decision, KHÔNG có TradeIntentIssued nào từ một Decision `result = NO_ACTION`.
+**Vai trò:** một rule normative, derived, deterministic — trả lời "Trade Intent này còn đủ điều kiện cho Risk evaluation MỚI (Package 0.2-C5, chưa author) hay không," xét CẢ tình trạng lifecycle của chính Trade Intent LẪN tình trạng correction lineage của Decision gốc (decision.md §11). Đánh giá TẠI cùng cursor C:
+
+```text
+eligible_for_new_risk_evaluation(trade_intent_id, C) =
+      TradeIntent.current_status(C) == ISSUED                                          (§6, visible-valid-head fold TẠI C)
+  AND originating Decision resolve đúng visible-valid-head cho logical computation key của nó TẠI C   (decision.md §8 GetDecisionForComputation)
+  AND visible-valid-head đó CHÍNH LÀ decision_id mà Trade Intent này tham chiếu (originating_decision_id) — KHÔNG phải một decision_id KHÁC đã supersede nó
+```
+
+**Khi Decision gốc bị invalidate hoặc supersede (decision.md §11):**
+- Trade Intent liên quan trở nên **ineligible cho Risk evaluation MỚI** (điều kiện thứ ba ở trên fail — `originating_decision_id` không còn là visible-valid-head);
+- Trade Intent **KHÔNG tự động bị xóa/rewrite** — vẫn là historical fact, `TradeIntentCurrentView` (§6) vẫn resolve `current_status` bình thường (KHÔNG bị ảnh hưởng bởi việc Decision gốc đổi trạng thái correction lineage);
+- Historical replay TRƯỚC thời điểm Decision gốc invalidate KHÔNG bị ảnh hưởng — tại cursor đó, Decision gốc vẫn là visible-valid-head, Trade Intent vẫn eligible tại cursor lịch sử đó;
+- Rút/expire tường minh (`TradeIntentStatusChanged`, §4) VẪN là một hành động RIÊNG, tùy chọn — `eligible_for_new_risk_evaluation` KHÔNG tự động chuyển `current_status` sang `WITHDRAWN`, chỉ ảnh hưởng derived eligibility;
+- `trade-intent.md` KHÔNG author Risk approval/rejection hay Execution behavior nào cho tình huống này — C5 (chưa author) chịu trách nhiệm CONSUME rule này.
+
+**Một Decision correction replacement (D2, decision.md §11) CÓ THỂ derive Trade Intent RIÊNG của nó** (`trade_intent_id` MỚI, `originating_decision_id = D2`) — Trade Intent cũ (gắn D1) và Trade Intent mới (gắn D2) là hai historical fact hoàn toàn PHÂN BIỆT, KHÔNG gộp/ghi đè lẫn nhau (Scenario 9, decision.md §18).
+
+`trade-intent.md` KHÔNG tự enforce rule này (chưa có consumer — C5 chưa author); CHỈ pin định nghĩa deterministic.
+
+## 7. Decision-to-Trade-Intent cardinality — xem `decision.md` §10
+
+Định nghĩa authoritative đầy đủ tại [`decision.md`](./decision.md) §10 — trade-intent.md KHÔNG lặp lại, chỉ tái khẳng định ràng buộc chiều ngược: **mọi TradeIntentIssued PHẢI causally trace về đúng MỘT DecisionRecorded với `result ∈ {LONG, SHORT}`** (§3 invariant) — KHÔNG có TradeIntentIssued "mồ côi" không originating Decision, KHÔNG có TradeIntentIssued nào từ một Decision `result = NO_ACTION`, KHÔNG có HAI TradeIntentIssued VALID cùng `originating_decision_id` (§1 uniqueness invariant, §10 dưới).
 
 ## 8. Correction lineage
 
@@ -306,12 +334,22 @@ F1 (TradeIntentStatusChanged)
 
 - `effective_time` — required trên mọi event trong tài liệu này (KHÔNG `decision_time`/`decision_context_cursor` — những field đó CHỈ thuộc `decision.md`'s `DecisionRecorded`, `event_class: decision`).
 - `recorded_time` — recorded axis, universal.
+- **v0.2 (đóng `C4-MAJ-05`):** `TradeIntentIssued.effective_time >= originating DecisionRecorded.decision_time` — Trade Intent KHÔNG BAO GIỜ effective trước Decision gốc; mặc định bằng nhau. `TradeIntentIssued.recorded_time > originating DecisionRecorded.recorded_time` — strict causal ordering (§3).
 - Replay tại cursor T chỉ thấy fact có `recorded_time ≤ T` — invalidation ghi SAU T KHÔNG visible tại T.
 - `market_time` PROHIBITED xuyên suốt tài liệu này.
 
 ## 10. Canonical policy identifiers — nguồn duy nhất (context `strategy-decision`, riêng cho Trade Intent)
 
-**Một canonical policy identifier bổ sung, khai báo tại đây** — context `strategy-decision` đã có `initial_fact_correction_policy`/`decision_computation_idempotency_policy`/`decision_non_creation_policy` khai báo tại `decision.md` §11 (áp dụng cho Decision subject); Trade Intent tái sử dụng CHÍNH `initial_fact_correction_policy: INVALIDATE_ONLY_NO_SAME_ID_REPLACEMENT_FOR_IMMUTABLE_SCOPE_SUBJECTS` (đúng giá trị, KHÔNG khai báo trùng lặp — cùng context, một lần duy nhất tại `decision.md` §11 là đủ, áp dụng cho CẢ `TradeIntentIssued`) cho phần registration bất biến; `TradeIntentStatusChanged` dùng correction lineage chuẩn (§8), KHÔNG cần policy identifier riêng (đối xứng cách `strategy.md` §12 xử lý `StrategyInstanceStatusChanged`).
+**Hai canonical policy identifier bổ sung, khai báo tại đây** — context `strategy-decision` đã có `initial_fact_correction_policy`/`decision_computation_idempotency_policy`/`decision_evaluation_attempt_idempotency_policy`/`decision_correction_lineage_policy` khai báo tại `decision.md` §13 (áp dụng cho Decision/DecisionEvaluationAttempt subject); Trade Intent tái sử dụng CHÍNH `initial_fact_correction_policy: INVALIDATE_ONLY_NO_SAME_ID_REPLACEMENT_FOR_IMMUTABLE_SCOPE_SUBJECTS` (đúng giá trị, KHÔNG khai báo trùng lặp) cho phần registration bất biến; `TradeIntentStatusChanged` dùng correction lineage chuẩn (§8), KHÔNG cần policy identifier riêng.
+
+```yaml
+trade_intent_derivation_idempotency_policy: ONE_VALID_INTENT_PER_ORIGINATING_DECISION
+trade_intent_origin_validity_policy: ORIGIN_MUST_BE_VISIBLE_VALID_HEAD_AT_SAME_CURSOR
+```
+
+**`trade_intent_derivation_idempotency_policy: ONE_VALID_INTENT_PER_ORIGINATING_DECISION`** (v0.2, mới, đóng `C4-MAJ-02`) — `originating_decision_id` là UNIQUE KEY trên toàn bộ TradeIntentIssued VALID (§1). Same origin + same payload → idempotent, trả về `trade_intent_id` đã tồn tại; same origin + changed payload → deterministic conflict, reject. **KHÔNG unstated cross-stream atomicity** — Decision và Trade Intent là hai authoritative stream RIÊNG, KHÔNG có transaction ngầm định đảm bảo cả hai append cùng lúc; một khoảng trống tạm thời (Decision LONG/SHORT tồn tại, TradeIntentIssued CHƯA append) là trạng thái BÌNH THƯỜNG, KHÔNG phải data-integrity violation. Phase 1 recovery: cho một Decision LONG/SHORT VALID bất kỳ KHÔNG có TradeIntentIssued VALID tương ứng, recovery logic PHẢI resolve deterministic (idempotent derivation ở trên) và (re)thử issuance — implementation technology (retry queue, outbox, message-broker) hoàn toàn deferred (Phase 1, KHÔNG định nghĩa ở đây — forbidden scope).
+
+**`trade_intent_origin_validity_policy: ORIGIN_MUST_BE_VISIBLE_VALID_HEAD_AT_SAME_CURSOR`** (v0.2, mới, đóng `C4-MAJ-06`) — xem §6a cho định nghĩa `eligible_for_new_risk_evaluation` đầy đủ.
 
 ## 11. Downstream reference contract (cho Package 0.2-C5 Risk, chưa author)
 
@@ -326,9 +364,10 @@ instrument_selection_ref: {type: object, description: "= §1 — {instrument_id,
 direction: {type: enum, values: [LONG, SHORT], description: "= §1"}
 intent_type: {type: enum, values: [OPEN], description: "= §1"}
 current_status: {type: enum, values: [ISSUED, WITHDRAWN, EXPIRED], description: "PHẢI resolve từ authoritative event stream TẠI cursor, KHÔNG TradeIntentCurrentView latest-state — xem invariant dưới"}
+eligible_for_new_risk_evaluation: {type: boolean, description: "derived, xem §6a — C5 PHẢI kiểm tra rule này TRƯỚC khi Risk evaluation mới, KHÔNG chỉ dựa current_status = ISSUED"}
 ```
 
-**Downstream authority rule — MỘT quy tắc duy nhất, không ngoại lệ (đúng pattern đã proven `account.md` §13/`strategy.md` §10/`decision.md` §12):** downstream package PHẢI resolve mọi field trên TRỰC TIẾP từ authoritative Trade Intent event stream (§3–§5) TẠI ĐÚNG cursor mà chính computation đó đang dùng. `TradeIntentCurrentView` latest-state (§6) KHÔNG BAO GIỜ được dùng làm input. `trade-intent.md` KHÔNG author semantics của Risk approval/rejection/execution (Package 0.2-C5, chưa author).
+**Downstream authority rule — MỘT quy tắc duy nhất, không ngoại lệ (đúng pattern đã proven `account.md` §13/`strategy.md` §10/`decision.md` §14):** downstream package PHẢI resolve mọi field trên TRỰC TIẾP từ authoritative Trade Intent event stream (§3–§5) TẠI ĐÚNG cursor mà chính computation đó đang dùng. `TradeIntentCurrentView` latest-state (§6) KHÔNG BAO GIỜ được dùng làm input. C5 (chưa author) PHẢI áp dụng `eligible_for_new_risk_evaluation` (§6a) TRƯỚC khi Risk evaluation mới. `trade-intent.md` KHÔNG author semantics của Risk approval/rejection/execution (Package 0.2-C5, chưa author).
 
 ## 12. Prohibitions
 
@@ -340,9 +379,10 @@ current_status: {type: enum, values: [ISSUED, WITHDRAWN, EXPIRED], description: 
 
 - Chính sách hết hạn cụ thể (`EXPIRED` trigger timing/mechanism) — Phase 1.
 - Lý do `WITHDRAWN` cụ thể (operator action, Strategy Instance pause cascade hay không) — Phase 1/C5 concern, deferred.
-- `EXIT`/`FLAT`/`CLOSE`/`REDUCE` intent_type — walking skeleton (decision.md §16) không cần, tránh premature action taxonomy (đúng yêu cầu "avoid prematurely designing advanced order types").
-- Multi-instrument/portfolio-level Trade Intent — v0.1 tối đa một instrument selection per Trade Intent (§1), đúng cardinality decision.md §8.
+- `EXIT`/`FLAT`/`CLOSE`/`REDUCE` intent_type — walking skeleton (decision.md §18) không cần, tránh premature action taxonomy (đúng yêu cầu "avoid prematurely designing advanced order types").
+- Multi-instrument/portfolio-level Trade Intent — v0.1 tối đa một instrument selection per Trade Intent (§1), đúng cardinality decision.md §10.
 - Runtime worker ownership, transaction boundaries, retry/backoff, monitoring/escalation (Phase 1, cùng nguyên tắc defer đã áp dụng xuyên suốt Package 0.2).
+- Implementation technology cho Decision→Trade Intent recovery (retry queue/outbox/message-broker, §10) — boundary semantic pin, KHÔNG chọn công nghệ (v0.2, đóng `C4-MAJ-02`).
 
 ## 14. Open questions ngoài phạm vi
 
