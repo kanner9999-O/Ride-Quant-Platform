@@ -2,6 +2,104 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — separate C5 evidence compatibility
+
+**Package 0.2-C5 micro-correction — evidence availability versus unit compatibility only.** Vai trò: `Domain Contract Micro-Correction Author`. Product Owner authorized: "Package 0.2-C5 micro-correction — evidence availability versus unit compatibility only." Đóng đúng một finding Major: `C5-DELTA-MAJ-01` (evidence availability and unit compatibility were conflated into a single enum, making `INCOMPATIBLE_UNIT` unreachable by the actual algorithm and contradicting the NON_EVALUABLE result invariant). Authorization này **không** cho phép reopen bất kỳ C5 design area nào khác, thêm general unit framework, FX conversion, signed/net exposure, thay đổi sizing semantics, numeric bounds, positive quantity rules, C6 eligibility, sửa C1–C4/ADR/Constitution, author Order/Fill/Position, authorize C6–C7, Approve/Lock/Consolidate C5, đóng OQ-002/OQ-003, hay authorize Live.
+
+### Baseline verification
+
+```text
+Expected HEAD:  303c2a0c682892034bba6bc386d7d0512b91aa29
+Actual HEAD:    303c2a0c682892034bba6bc386d7d0512b91aa29  — match
+
+risk.md:              v0.2 Draft, blob a08f94851014bce5da51d98781fd9253d026fc34  — match
+execution-intent.md:  v0.2 Draft, blob afc0c1fe7bdd2f285403dff29c71849ab66af70c  — match
+context-map.yaml:     v0.16 Draft, blob 87e0411d1270ceacd4eb20e76340911900dedaad  — match
+```
+
+### Finding-resolution statement
+
+`C5-DELTA-MAJ-01` — resolved. The v0.2 `evidence_availability` enum (§5b2) carried five values (`AVAILABLE`/`MISSING`/`INVALID`/`UNRESOLVABLE`/`INCOMPATIBLE_UNIT`), conflating evidence *existence* with evidence *compatibility*. The actual v0.2 algorithm never legally produced `INCOMPATIBLE_UNIT`: unit comparison (§5c step 5) only ran after all seven keys were confirmed `AVAILABLE` (step 4 already stopped otherwise), so a unit mismatch always occurred while every key was `AVAILABLE` — directly contradicting the pinned invariant "`result = NON_EVALUABLE` ⟺ at least one key != `AVAILABLE`". `evidence_availability` and unit/currency compatibility are now two separate concepts: availability lives in `evidence_availability` (§5b2, four values), compatibility lives in the existing `unit_evidence` invariant (§5b1).
+
+### Corrected availability enum
+
+```yaml
+evidence_availability:
+  <all seven keys>: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE], required: true}
+```
+
+`INCOMPATIBLE_UNIT` removed from all seven keys. Conditional-presence rule unchanged: `AVAILABLE` → corresponding ref/value required; not `AVAILABLE` → ref/value absent, no placeholder/null/sentinel.
+
+### Corrected NON_EVALUABLE branches
+
+```text
+result = NON_EVALUABLE ⟺ exactly one of two mutually exclusive branches:
+
+Branch A — Availability failure: at least one required evidence key != AVAILABLE
+  → reason ∈ {REQUIRED_EVIDENCE_UNAVAILABLE, RISK_POLICY_EVIDENCE_UNAVAILABLE}
+  → unit comparison does not run
+  → unavailable field's ref/value absent; other AVAILABLE keys' evidence may remain present
+
+Branch B — Compatibility failure: ALL evidence required for unit comparison is AVAILABLE
+  → exact refs, values, and unit metadata present
+  → unit equality invariant (§5b1) fails
+  → reason = INCOMPATIBLE_EVIDENCE_UNIT (only value valid for this branch)
+  → all resolved refs/values/unit metadata remain present (evidence exists, was used to detect
+    incompatibility)
+```
+
+No reason code crosses branches.
+
+### Corrected unit-mismatch serialization
+
+When Branch B fires, `evidence_availability` for every one of the seven keys reads `AVAILABLE` — there is no availability key that reads anything else. `unit_evidence` (§5b1), `risk_evidence` (§5b3), and `evidence_facts` (§5d) all carry their normal, fully-resolved refs/values; only `result = NON_EVALUABLE` and `rejection_reason = INCOMPATIBLE_EVIDENCE_UNIT` distinguish this from a would-be `APPROVED`/`REJECTED` outcome.
+
+### Deterministic precedence
+
+Algorithm ordering (risk.md §5c) unchanged — it was already correct: (1) Trade Intent eligibility; (2)–(3) resolve risk evidence axes + evidence facts + unit evidence, writing `evidence_availability`; (4) **Branch A gate** — any key != `AVAILABLE` → `NON_EVALUABLE`, availability-specific reason, STOP (unit comparison never runs); (5) **Branch B gate** — reached only when all seven keys are `AVAILABLE`; unit compatibility check → `NON_EVALUABLE`/`INCOMPATIBLE_EVIDENCE_UNIT`, STOP; (6) numeric-domain validation; (7)–(13) unchanged threshold/sizing steps. Branch A always precedes Branch B and the two are mutually exclusive by construction — no reordering was needed, only the enum and the result invariant text.
+
+### Acceptance-scenario results (risk.md §17, nineteen scenarios — Scenario 19 new)
+
+Scenario 1 (missing equity, Branch A) — pass. Scenario 2 (unresolved policy configuration, Branch A) — pass. Scenario 3 (unit mismatch, equity USD vs listing USDT, Branch B, all seven keys AVAILABLE) — pass. Scenario 4 (price base mismatch, reference price ETH vs quantity_unit BTC, Branch B, all seven keys AVAILABLE) — pass, new Scenario 19. Scenario 5 (fully compatible, all currencies USDT, quantity_unit BTC) — pass, continues to numeric-domain and policy checks unchanged.
+
+### Regression check
+
+Truthful Attempt ordering (§2/§4/§5a), Attempt identity/idempotency (§2/§12), Risk Evaluation identity (§1), logical computation key, correction lineage (§10), replay semantics, numeric-domain constraints (§5c step 6), quantity precision 0–18, positive quantity rule (§5c step 12–13/§5e), sizing formula, Risk-to-Execution-Intent derivation (§9), Execution Intent lifecycle, C6 eligibility chain (execution-intent.md §6a), no-look-ahead (§5d), C1–C4 semantics, C5/C6 boundary — **tất cả không đổi, verified**. `execution-intent.md` blob giữ nguyên byte-for-byte — không có cross-reference nào cần sửa (verified qua grep, không tham chiếu `evidence_availability`/`INCOMPATIBLE_UNIT` nào trong file).
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, Chapter 8 §8.1.1/§8.2/§8.5 (Locked, byte-for-byte unchanged), Chapter 9 §9.1 (Locked, byte-for-byte unchanged), `trade-intent.md` v0.2 Draft (byte-for-byte unchanged, verified), `decision.md` v0.3 Draft (byte-for-byte unchanged, verified), Package 0.2-C1/C2/C3/C4 (all `Consolidated Stable`, byte-for-byte unchanged, verified). `context-map.yaml` metadata-only bump (owned-contract version comment).
+
+### Changed-file scope
+
+```text
+docs/domain/risk.md              MODIFIED v0.2 → v0.3   blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab
+docs/domain/context-map.yaml     MODIFIED v0.16 → v0.17 blob 59f11a2cee142c533280a33060c21f69f3fc50cf
+docs/domain/README.md            MODIFIED v0.43 → v0.44 blob b6a52f819241c00554e9f334ad296441f8b4c7be
+docs/MANIFEST.md                 MODIFIED manifest_version 9.69 → 9.70
+docs/CHANGELOG.md                MODIFIED (this entry)
+docs/domain/execution-intent.md  KHÔNG ĐỔI — blob afc0c1fe7bdd2f285403dff29c71849ab66af70c, verified byte-identical
+docs/domain/decision.md          KHÔNG ĐỔI — blob e2a26320200d350ace3da0247235bb14cef12509, verified byte-identical
+docs/domain/trade-intent.md      KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+```
+
+### Author self-review
+
+Grepped every remaining occurrence of `INCOMPATIBLE_UNIT` after the edit — only two survive, both intentional: the explanatory v0.3 micro-correction prose paragraph (describing what was removed and why) and the historical v0.2 bounded-correction summary paragraph (left byte-for-byte as a record of that transaction, matching the precedent set by `decision.md`'s C4-DELTA micro-correction, which likewise preserved its v0.2 paragraph unedited and appended a new v0.3 paragraph rather than rewriting history). `INCOMPATIBLE_EVIDENCE_UNIT` (the `rejection_reason` value, a distinct token) is untouched and remains the sole reason for Branch B. All sixteen YAML fenced blocks in `risk.md` re-validated via `yaml.safe_load` after the edit. Confirmed `execution-intent.md` contains zero references to `evidence_availability`/`INCOMPATIBLE_UNIT`, so its blob was correctly left untouched per the task's "prefer preserving its blob" instruction. No finding blocking khác found.
+
+### Metadata / state
+
+- `risk.md`: **v0.2 → v0.3**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `execution-intent.md`: **không đổi** — version giữ `0.2`, blob giữ nguyên.
+- `context-map.yaml`: **v0.16 → v0.17**, metadata-only (owned-contract version comment).
+- `README.md` (domain index): **v0.43 → v0.44**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.69 → 9.70**.
+- `decision.md`, `trade-intent.md`: **không đổi** (byte-for-byte, verified) — forbidden scope, không sửa.
+- `ADR-010.md`, `ADR-012.md`, `ADR-013.md`, `instrument.md`, `venue.md`, `account.md`, `strategy.md`: **không đổi** (byte-for-byte, verified).
+- Mọi ADR khác, Constitution, mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C5 VẪN CHƯA đạt `Consolidated Stable` — chờ focused delta re-review (ChatGPT + Independent Review B) trên cùng exact baseline micro-correction này.** Mandatory sequence tiếp tục: focused delta re-review → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. Risk và Execution Intent vẫn là HAI concept riêng biệt, KHÔNG gộp. Package 0.2-C1/C2/C3/C4 vẫn `Consolidated Stable`, không đổi. Package 0.2-C6–C7 vẫn chưa authorize, chưa author. Không artifact nào Approved hay Locked. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-31 — correct Package 0.2-C5 risk evidence
 
 **Package 0.2-C5 bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C5 bounded correction — consolidated Review A + Independent Review B findings." Đóng đúng sáu finding Major: `C5-MAJ-01` (truthful Risk Attempt completion order), `C5-MAJ-02` (executable NON_EVALUABLE payload via `evidence_availability`), `C5-MAJ-03` (currency and unit compatibility), `C5-MAJ-04` (strictly positive approved quantity), `C5-MAJ-05` (numeric input domains and precision bounds), `C5-MAJ-06` (complete future C6 origin-chain eligibility). Authorization này **không** cho phép author Package 0.2-C6–C7, định nghĩa order type/limit price/stop price/exchange payload/routing/adapter behavior, thêm FX conversion/signed exposure arithmetic/portfolio optimization/leverage/liquidation/margin model, author Order/Fill/Position, thêm exchange precision table/general unit framework/general Risk DSL, authorize C6–C7, Approve/Lock/Consolidate C5, đóng OQ-002/OQ-003, hay authorize Live. Sửa `decision.md`/`trade-intent.md`/bất kỳ ADR nào/Constitution cũng KHÔNG được phép.

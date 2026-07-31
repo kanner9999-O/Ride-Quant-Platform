@@ -1,7 +1,7 @@
 ---
 id: risk
 title: Risk
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -18,7 +18,7 @@ next_review: null
 
 RiskEvaluation **KHÔNG phải** Strategy Decision (`decision.md`), Trade Intent (`trade-intent.md`), Execution Intent (`execution-intent.md`, file riêng), Order/Fill/Position (Package 0.2-C6–C7, chưa author), exchange acknowledgement, portfolio rebalance, hay một mutable approval flag. Nó là **bản ghi authoritative, bitemporal, deterministic, tự-giải-thích được** của một lần Risk Gateway đánh giá MỘT Trade Intent eligible — trả lời chính xác bảy câu hỏi: Trade Intent nào được đánh giá? Có eligible cho Risk evaluation mới không? Risk policy/configuration chính xác nào được áp dụng? Account/environment/TradableListing nào được đánh giá? Capital/exposure evidence nào visible? Kết quả Risk gì? Tại sao? Có tạo Execution Intent không?
 
-**Ví dụ walking-skeleton duy nhất dùng để validate thiết kế (KHÔNG phải yêu cầu xây dựng general portfolio-risk engine):** một Trade Intent LONG/OPEN hợp lệ, một Account, một TradableListing, environment PAPER, một risk policy bounded (risk budget cố định + notional cap), một quantity calculation deterministic. Mười tám Scenario chấp nhận (1–18, xem §17) đều dựa trên ví dụ này.
+**Ví dụ walking-skeleton duy nhất dùng để validate thiết kế (KHÔNG phải yêu cầu xây dựng general portfolio-risk engine):** một Trade Intent LONG/OPEN hợp lệ, một Account, một TradableListing, environment PAPER, một risk policy bounded (risk budget cố định + notional cap), một quantity calculation deterministic. Mười chín Scenario chấp nhận (1–19, xem §17) đều dựa trên ví dụ này.
 
 **`risk-evaluation-attempt-recorded`/`risk-evaluation-recorded`/`risk-evaluation-fact-invalidated`/`risk-evaluation-current-view` là canonical contract concept ID** — đúng giá trị `id:` trong từng khối YAML dưới đây, tách biệt display name/`event_type`, cùng nguyên tắc mọi Domain Contract trước.
 
@@ -27,6 +27,8 @@ RiskEvaluation **KHÔNG phải** Strategy Decision (`decision.md`), Trade Intent
 **Phạm vi bounded tường minh:** KHÔNG author Order/Fill/Position/Replay Event (Package 0.2-C6–C7). KHÔNG định nghĩa order type/limit price/stop price/exchange payload/order routing/exchange adapter behavior. KHÔNG portfolio-level arbitration/multi-account netting/advanced margin/liquidation model. KHÔNG xây dựng Risk DSL tổng quát — chỉ MỘT bounded sizing method đủ cho walking skeleton (§5c). KHÔNG redefine Account/Candle/Feature/Decision/Trade Intent contract — mọi evidence tham chiếu qua `event_record_ref` opaque hoặc `ref:` trực tiếp. KHÔNG backtest/optimizer infrastructure. KHÔNG FX conversion. KHÔNG signed/netted exposure arithmetic. KHÔNG general unit framework — chỉ bounded v0.1 unit model (§5b1). KHÔNG sửa `decision.md`/`trade-intent.md`/C1–C4/ADR-010/ADR-012/ADR-013/Constitution.
 
 **v0.2 — bounded correction, đóng `C5-MAJ-01`/`C5-MAJ-02`/`C5-MAJ-03`/`C5-MAJ-04`/`C5-MAJ-05`/`C5-MAJ-06` (consolidated Review A + Independent Review B findings):** (a) `C5-MAJ-01` — sửa thứ tự Attempt EVALUATED: bounded policy computation PHẢI hoàn tất TRƯỚC KHI `RiskEvaluationAttemptRecorded(EVALUATED)` ghi (KHÔNG còn "Attempt ghi trước rồi engine chạy") — crash trước khi computation hoàn tất KHÔNG được để lại một EVALUATED attempt; crash SAU Attempt nhưng TRƯỚC RiskEvaluation là recoverable append gap (đối xứng nguyên tắc "no unstated cross-stream atomicity" đã proven, §9). (b) `C5-MAJ-02` — thêm `evidence_availability` (bảy khóa đóng, năm giá trị đóng) — mọi ref/scalar field trở thành conditional (required: false), field CHỈ present khi khóa tương ứng = AVAILABLE; KHÔNG còn required field không tồn tại được trong NON_EVALUABLE bundle. (c) `C5-MAJ-03` — thêm bounded v0.1 unit model (§5b1) — mọi Risk arithmetic PHẢI cùng currency với TradableListing quote asset; mismatch → NON_EVALUABLE/INCOMPATIBLE_EVIDENCE_UNIT; KHÔNG FX conversion, KHÔNG signed exposure. (d) `C5-MAJ-04` — `approved_quantity` PHẢI strictly positive sau floor-rounding — bằng 0 → REJECTED/QUANTITY_ROUNDS_TO_ZERO, zero Execution Intent; Execution Intent PHẢI pin `approved_quantity > 0`. (e) `C5-MAJ-05` — pin domain số học chính xác cho mọi scalar input, disclose bounded `quantity_precision` maximum = 18 (không tìm thấy repository-wide bound sẵn có, chọn tường minh v0.1, xem self-review); exposure âm → REJECTED/INVALID_SIZING_INPUT, KHÔNG bypass cap. (f) `C5-MAJ-06` — `eligible_for_new_order_creation` (execution-intent.md §6a) mở rộng đủ NĂM điều kiện, transitively đảm bảo Decision→Trade Intent→RiskEvaluation→Execution Intent đều valid. Bounded — không đổi opaque identity, per-attempt identity, multiple attempts per key, retry sau FAILED_BEFORE_EVALUATION, one visible valid head, invalidate-first correction lineage, replay semantics, bốn trục risk evidence separation, no-look-ahead, Decision/Trade Intent causality, Risk-to-Execution-Intent idempotency, no cross-stream atomicity, Execution Intent lifecycle, C1–C4 semantics, C5/C6 boundary.
+
+**v0.3 — micro-correction, đóng `C5-DELTA-MAJ-01` (consolidated Review A + Independent Review B findings trên baseline v0.2):** `evidence availability` (tồn tại/không tồn tại của evidence) và `resolved evidence compatibility` (currency/unit của evidence đã tồn tại có khớp nhau không) là HAI khái niệm TÁCH BIỆT, KHÔNG được gộp vào cùng một enum. `evidence_availability` (§5b2) nay CHỈ còn bốn giá trị đóng: `AVAILABLE`, `MISSING`, `INVALID`, `UNRESOLVABLE` — loại bỏ `INCOMPATIBLE_UNIT` (giá trị này trước đây KHÔNG BAO GIỜ có thể hợp lệ được set bởi thuật toán: hoặc ref/value đã absent nên không có gì để so sánh unit, hoặc tất cả evidence AVAILABLE nên invariant "NON_EVALUABLE ⟺ ít nhất một khóa != AVAILABLE" mâu thuẫn trực tiếp với trường hợp unit mismatch xảy ra trong khi mọi khóa vẫn AVAILABLE). `result = NON_EVALUABLE` nay pin đúng HAI nhánh loại trừ lẫn nhau (§5b2): **Branch A — Availability failure** (ít nhất một khóa evidence bắt buộc != AVAILABLE → `REQUIRED_EVIDENCE_UNAVAILABLE`/`RISK_POLICY_EVIDENCE_UNAVAILABLE`, unit comparison KHÔNG chạy); **Branch B — Compatibility failure** (TẤT CẢ evidence cần cho unit comparison đều AVAILABLE, ref/value/unit metadata đầy đủ, nhưng unit equality invariant §5b1 fail → `INCOMPATIBLE_EVIDENCE_UNIT`, mọi resolved ref/value/unit metadata VẪN có mặt vì evidence tồn tại và đã được dùng để phát hiện incompatibility). Thuật toán deterministic (§5c) KHÔNG đổi thứ tự (đã đúng: resolve availability → availability-gate → unit-gate → domain-gate → threshold checks), chỉ pin lại rõ ràng tính loại-trừ-lẫn-nhau giữa hai nhánh. Bounded — không đổi truthful Attempt ordering, Attempt identity/idempotency, Risk Evaluation identity, logical computation key, correction lineage, replay semantics, numeric-domain constraints, quantity precision 0–18, positive quantity rule, sizing formula, Risk-to-Execution-Intent derivation, Execution Intent lifecycle, C6 eligibility chain, no-look-ahead, C1–C4 semantics, C5/C6 boundary.
 
 ## 1. RiskEvaluation — `kind: entity`
 
@@ -275,11 +277,12 @@ unit_evidence:
 ```text
 budget_currency = equity_currency = exposure_notional_currency = reference_price_quote_currency
   = approved_notional_currency = listing_quote_currency
-  → mismatch bất kỳ (khi các field liên quan đều AVAILABLE, §5b2) → result = NON_EVALUABLE,
-    rejection_reason = INCOMPATIBLE_EVIDENCE_UNIT (Scenario 6, §17)
+  → mismatch bất kỳ (Branch B, §5b2 — CHỈ đánh giá khi TẤT CẢ bảy khóa evidence_availability đều
+    AVAILABLE) → result = NON_EVALUABLE, rejection_reason = INCOMPATIBLE_EVIDENCE_UNIT (Scenario 6, §17)
 
 reference_price_base_unit = quantity_unit
-  → mismatch → result = NON_EVALUABLE, rejection_reason = INCOMPATIBLE_EVIDENCE_UNIT
+  → mismatch (Branch B, §5b2 — cùng điều kiện precondition trên) → result = NON_EVALUABLE,
+    rejection_reason = INCOMPATIBLE_EVIDENCE_UNIT (Scenario 19, §17)
 
 current_instrument_exposure_value PHẢI được diễn giải là GROSS quote-notional exposure,
 KHÔNG signed, KHÔNG netted — dấu âm KHÔNG BAO GIỜ được phép làm giảm projected exposure hay
@@ -287,30 +290,44 @@ bypass max_requested_notional cap (§5c bước 10; giá trị âm resolved là 
 §5c bước 6, Scenario 9 §17) — v0.1 KHÔNG hỗ trợ short-exposure netting/portfolio hedging.
 ```
 
-**§5b2 — Evidence availability (bảy khóa đóng, năm giá trị đóng, đóng `C5-MAJ-02`) — bounded representation, KHÔNG fabricate placeholder/null ref/sentinel scalar khi evidence không AVAILABLE:**
+**§5b2 — Evidence availability (bảy khóa đóng, bốn giá trị đóng, đóng `C5-MAJ-02`; v0.3 tách biệt khỏi compatibility, đóng `C5-DELTA-MAJ-01`) — bounded representation, KHÔNG fabricate placeholder/null ref/sentinel scalar khi evidence không AVAILABLE:**
 
 ```yaml
 evidence_availability:
-  available_account_equity: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE, INCOMPATIBLE_UNIT], required: true}
-  current_instrument_exposure: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE, INCOMPATIBLE_UNIT], required: true}
-  reference_price: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE, INCOMPATIBLE_UNIT], required: true}
-  risk_policy_definition_version: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE, INCOMPATIBLE_UNIT], required: true}
-  risk_policy_configuration_version: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE, INCOMPATIBLE_UNIT], required: true}
-  risk_plugin_version: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE, INCOMPATIBLE_UNIT], required: true}
-  package_build_artifact: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE, INCOMPATIBLE_UNIT], required: true}
+  available_account_equity: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE], required: true}
+  current_instrument_exposure: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE], required: true}
+  reference_price: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE], required: true}
+  risk_policy_definition_version: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE], required: true}
+  risk_policy_configuration_version: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE], required: true}
+  risk_plugin_version: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE], required: true}
+  package_build_artifact: {type: enum, values: [AVAILABLE, MISSING, INVALID, UNRESOLVABLE], required: true}
 ```
 
-**`evidence_availability` LUÔN LUÔN có mặt đầy đủ bảy khóa, BẤT KỂ `result` cuối cùng** — đây là bằng chứng tường minh policy engine ĐÃ KIỂM TRA từng khóa (KHÔNG phải absence). Invariant:
+**v0.3 (đóng `C5-DELTA-MAJ-01`) — `evidence_availability` diễn tả CHỈ sự tồn tại/không tồn tại của evidence, KHÔNG BAO GIỜ diễn tả unit/currency compatibility của evidence ĐÃ tồn tại** — hai khái niệm tách biệt hoàn toàn (§5b1 sở hữu compatibility, §5b2 sở hữu availability). `evidence_availability` LUÔN LUÔN có mặt đầy đủ bảy khóa, BẤT KỂ `result` cuối cùng — đây là bằng chứng tường minh policy engine ĐÃ KIỂM TRA từng khóa (KHÔNG phải absence). Invariant:
 
 ```text
 result ∈ {APPROVED, REJECTED} → TẤT CẢ bảy khóa evidence_availability = AVAILABLE (mọi evidence cần
   cho các check ĐÃ thực hiện đều sẵn sàng; risk_evidence §5b3/evidence_facts §5d field tương ứng
-  BẮT BUỘC có mặt với exact ref + copied value)
+  BẮT BUỘC có mặt với exact ref + copied value; unit_evidence §5b1 compatibility invariant PASS)
 
-result = NON_EVALUABLE → ÍT NHẤT MỘT khóa evidence_availability != AVAILABLE (reason xác định class
-  lỗi, §5e); field ref/scalar TƯƠNG ỨNG khóa đó TUYỆT ĐỐI ABSENT (KHÔNG fabricate); các khóa VẪN
-  AVAILABLE khác CÓ THỂ giữ nguyên ref/scalar (resolved evidence không bị xóa chỉ vì evidence khác
-  thiếu — Scenario 4/5, §17)
+result = NON_EVALUABLE ⟺ ĐÚNG MỘT trong hai nhánh loại trừ lẫn nhau dưới đây (v0.3, đóng
+`C5-DELTA-MAJ-01` — không nhánh nào cross reason sang nhánh kia):
+
+Branch A — Availability failure:
+  ÍT NHẤT MỘT khóa evidence_availability != AVAILABLE
+  → reason ∈ {REQUIRED_EVIDENCE_UNAVAILABLE, RISK_POLICY_EVIDENCE_UNAVAILABLE} (§5e)
+  → field ref/scalar TƯƠNG ỨNG khóa đó TUYỆT ĐỐI ABSENT (KHÔNG fabricate); các khóa VẪN AVAILABLE
+    khác CÓ THỂ giữ nguyên ref/scalar (resolved evidence không bị xóa chỉ vì evidence khác thiếu —
+    Scenario 4/5, §17)
+  → unit comparison (§5b1) KHÔNG chạy — không đủ evidence để so sánh (§5c bước 4, DỪNG trước bước 5)
+
+Branch B — Compatibility failure:
+  TẤT CẢ bảy khóa evidence_availability = AVAILABLE (KHÔNG yêu cầu bất kỳ khóa nào != AVAILABLE)
+  → mọi ref/value/unit metadata liên quan đều có mặt chính xác (§5b1/§5b3/§5d)
+  → unit equality invariant (§5b1) FAIL
+  → reason = INCOMPATIBLE_EVIDENCE_UNIT (§5e) — CHỈ giá trị này hợp lệ cho nhánh B
+  → mọi resolved ref/value/unit metadata VẪN có mặt (evidence tồn tại, đã dùng để phát hiện
+    incompatibility — Scenario 6/19, §17)
 ```
 
 **§5b3 — Risk evidence axes (bốn trục, CONDITIONAL theo `evidence_availability`, đóng `C5-MAJ-02`):**
@@ -348,15 +365,22 @@ sizing_evidence:
 3. Resolve evidence_facts (§5d: available_account_equity/current_instrument_exposure/
    reference_price) VÀ unit_evidence (§5b1) — ghi evidence_availability tương ứng.
 
-4. NẾU BẤT KỲ khóa nào trong {available_account_equity, current_instrument_exposure,
-   reference_price} != AVAILABLE:
-   → NON_EVALUABLE, rejection_reason = REQUIRED_EVIDENCE_UNAVAILABLE. DỪNG.
+4. **Branch A — Availability failure (§5b2, v0.3 đóng `C5-DELTA-MAJ-01`).** NẾU BẤT KỲ khóa nào trong
+   {available_account_equity, current_instrument_exposure, reference_price} != AVAILABLE:
+   → NON_EVALUABLE, rejection_reason = REQUIRED_EVIDENCE_UNAVAILABLE. DỪNG — bước 5 (unit compare)
+     KHÔNG chạy.
    NẾU BẤT KỲ khóa nào trong {risk_policy_definition_version, risk_policy_configuration_version,
    risk_plugin_version, package_build_artifact} != AVAILABLE:
-   → NON_EVALUABLE, rejection_reason = RISK_POLICY_EVIDENCE_UNAVAILABLE. DỪNG.
+   → NON_EVALUABLE, rejection_reason = RISK_POLICY_EVIDENCE_UNAVAILABLE. DỪNG — bước 5 KHÔNG chạy.
 
-5. NẾU unit_evidence KHÔNG thỏa invariant §5b1 (currency/base-unit mismatch):
-   → NON_EVALUABLE, rejection_reason = INCOMPATIBLE_EVIDENCE_UNIT. DỪNG.
+5. **Branch B — Compatibility failure (§5b1/§5b2, v0.3 đóng `C5-DELTA-MAJ-01`).** Tại điểm này TẤT
+   CẢ bảy khóa evidence_availability ĐÃ = AVAILABLE (bước 4 đã DỪNG nếu không) — mọi ref/value/unit
+   metadata liên quan đều có mặt. NẾU unit_evidence KHÔNG thỏa invariant §5b1 (currency/base-unit
+   mismatch):
+   → NON_EVALUABLE, rejection_reason = INCOMPATIBLE_EVIDENCE_UNIT. DỪNG. Branch A và Branch B loại
+     trừ lẫn nhau — INCOMPATIBLE_EVIDENCE_UNIT KHÔNG BAO GIỜ đi kèm bất kỳ khóa evidence_availability
+     != AVAILABLE nào, và REQUIRED_EVIDENCE_UNAVAILABLE/RISK_POLICY_EVIDENCE_UNAVAILABLE KHÔNG BAO
+     GIỜ đi kèm INCOMPATIBLE_EVIDENCE_UNIT.
 
 6. Validate numeric domain cho MỌI scalar đã resolved (§5c domain — configured_risk_budget finite>0,
    max_requested_notional finite>0, available_account_equity_value finite>=0,
@@ -635,7 +659,7 @@ risk_evaluation_time: {type: timestamp, description: "= §3/§5"}
 - Portfolio-level risk/multi-strategy capital allocation/dynamic leverage/liquidation model — hoàn toàn ngoài phạm vi.
 - Order/Execution/Fill/Position semantics — hoàn toàn ngoài phạm vi Domain Contract này (Package 0.2-C6–C7).
 - **`quantity_precision` maximum = 18 (v0.2, đóng `C5-MAJ-05`, disclosed judgment call):** tại thời điểm author, KHÔNG tìm thấy một repository-wide decimal precision bound sẵn có/authoritative nào trong Constitution hay Domain Contract khác đã Consolidated Stable/Locked. `18` được chọn tường minh làm bounded v0.1 maximum (theo quy ước phổ biến crypto base-asset decimal precision), KHÔNG phải giá trị đã được platform pin từ trước — nếu về sau có một bound authoritative chung được thiết lập (ví dụ tại Chapter 9 hay một ADR mới), giá trị này PHẢI được rà soát lại và có thể cần một correction riêng.
-- Cơ chế cụ thể resolve `evidence_availability` (§5b2) — v0.2 CHỈ pin SHAPE (bảy khóa, năm giá trị) và invariant kết quả, KHÔNG pin cơ chế/thuật toán cụ thể engine dùng để xác định MISSING/INVALID/UNRESOLVABLE/INCOMPATIBLE_UNIT — deferred Phase 1.
+- Cơ chế cụ thể resolve `evidence_availability` (§5b2) — pin SHAPE (bảy khóa, bốn giá trị) và invariant kết quả (v0.3: hai nhánh loại trừ lẫn nhau, §5b2), KHÔNG pin cơ chế/thuật toán cụ thể engine dùng để xác định MISSING/INVALID/UNRESOLVABLE — deferred Phase 1.
 - Cơ chế cụ thể resolve `unit_evidence` (§5b1, ví dụ tra cứu TradableListing quote asset) — deferred Phase 1, KHÔNG redefine instrument.md tại đây.
 
 ## 16. Open questions ngoài phạm vi
@@ -644,7 +668,7 @@ risk_evaluation_time: {type: timestamp, description: "= §3/§5"}
 - Retention/resolvability horizon cụ thể cho RiskEvaluation/RiskEvaluationAttempt đã lâu.
 - Không đóng OQ-002/OQ-003.
 
-## 17. Acceptance scenarios (v0.2, mười hai scenario đóng bounded correction + sáu scenario nền tảng kế thừa — validation, không phải executable test tại C5)
+## 17. Acceptance scenarios (v0.2: mười hai scenario đóng bounded correction + sáu scenario nền tảng kế thừa; v0.3: thêm Scenario 19 đóng `C5-DELTA-MAJ-01` — validation, không phải executable test tại C5)
 
 **Scenario 1 — Truthful successful attempt:** Trade Intent valid, ISSUED, LONG/OPEN, PAPER. Bounded policy computation (§5c, 13 bước) chạy TRỌN VẸN tới bước 13 → `RiskEvaluationAttemptRecorded(attempt_outcome=EVALUATED)` ghi NGAY SAU KHI computation hoàn tất (§5a) → `RiskEvaluationRecorded` ghi ngay sau, `causation_refs` trỏ ĐÚNG attempt đó, `result=APPROVED`, `approved_quantity` strictly positive. KHÔNG fact nào tuyên bố "hoàn tất" trước khi computation thực sự hoàn tất.
 
@@ -652,11 +676,11 @@ risk_evaluation_time: {type: timestamp, description: "= §3/§5"}
 
 **Scenario 3 — Crash after completed Attempt (recoverable append gap):** Computation đã hoàn tất trọn vẹn, `RiskEvaluationAttemptRecorded(EVALUATED)` đã ghi thành công, NHƯNG engine crash TRƯỚC KHI `RiskEvaluationRecorded` kịp append → recovery logic (Phase 1) resolve deterministic: re-run CÙNG computation tại CÙNG `(trade_intent_id, risk_context_cursor)`, tái sử dụng CHÍNH `evaluation_attempt_id` đã `EVALUATED` đó (KHÔNG tạo attempt mới), append/reuse ĐÚNG MỘT `RiskEvaluationRecorded` referencing attempt đó (§2 invariant, đóng `C5-MAJ-01`).
 
-**Scenario 4 — Missing equity evidence:** `evidence_availability.available_account_equity = MISSING` (hoặc `UNRESOLVABLE`/`INVALID`) → `result=NON_EVALUABLE`, `rejection_reason=REQUIRED_EVIDENCE_UNAVAILABLE`, `available_account_equity_ref`/`available_account_equity_value` TUYỆT ĐỐI ABSENT (KHÔNG fabricate placeholder ref/null/sentinel scalar) — zero Execution Intent (§5b2/§5d/§5e).
+**Scenario 4 — Missing equity evidence (Branch A):** `evidence_availability.available_account_equity = MISSING` (hoặc `UNRESOLVABLE`/`INVALID`) → `result=NON_EVALUABLE`, `rejection_reason=REQUIRED_EVIDENCE_UNAVAILABLE`, `available_account_equity_ref`/`available_account_equity_value` TUYỆT ĐỐI ABSENT (KHÔNG fabricate placeholder ref/null/sentinel scalar) — zero Execution Intent (§5b2/§5d/§5e).
 
-**Scenario 5 — Unresolved policy configuration:** `evidence_availability.risk_policy_configuration_version = UNRESOLVABLE` → `risk_policy_configuration_version_ref` TUYỆT ĐỐI ABSENT, VÀ mọi scalar phụ thuộc (`configured_risk_budget`/`max_requested_notional`/`quantity_precision`/`budget_currency`) CŨNG TUYỆT ĐỐI ABSENT → `result=NON_EVALUABLE`, `rejection_reason=RISK_POLICY_EVIDENCE_UNAVAILABLE` (§5b3/§5c).
+**Scenario 5 — Unresolved policy configuration (Branch A):** `evidence_availability.risk_policy_configuration_version = UNRESOLVABLE` → `risk_policy_configuration_version_ref` TUYỆT ĐỐI ABSENT, VÀ mọi scalar phụ thuộc (`configured_risk_budget`/`max_requested_notional`/`quantity_precision`/`budget_currency`) CŨNG TUYỆT ĐỐI ABSENT → `result=NON_EVALUABLE`, `rejection_reason=RISK_POLICY_EVIDENCE_UNAVAILABLE` (§5b3/§5c) — unit comparison (§5b1) KHÔNG chạy.
 
-**Scenario 6 — Unit mismatch:** `equity_currency=USD`, `listing_quote_currency=USDT` (mismatch phát hiện dù cả hai `evidence_availability` liên quan đều `AVAILABLE`) → `result=NON_EVALUABLE`, `rejection_reason=INCOMPATIBLE_EVIDENCE_UNIT` (§5b1 invariant, §5c bước 5) — KHÔNG FX-convert để "sửa".
+**Scenario 6 — Unit mismatch (Branch B):** TẤT CẢ bảy khóa `evidence_availability` = `AVAILABLE`; `equity_currency=USD`, `listing_quote_currency=USDT` — mismatch phát hiện; `equity_ref`/`equity_value`/`equity_currency` VẪN có mặt (evidence tồn tại, dùng để phát hiện incompatibility) → `result=NON_EVALUABLE`, `rejection_reason=INCOMPATIBLE_EVIDENCE_UNIT` (§5b1 invariant, §5c bước 5) — KHÔNG FX-convert để "sửa". KHÔNG khóa `evidence_availability` nào != `AVAILABLE` trong scenario này (v0.3, đóng `C5-DELTA-MAJ-01`).
 
 **Scenario 7 — Valid unit chain:** mọi currency liên quan (`budget`/`equity`/`exposure`/`reference_price` quote/`approved_notional`) đều `USDT`, `quantity_unit=BTC`, `reference_price_base_unit=BTC`, `reference_price_quote_currency=USDT` → §5b1 invariant thỏa mãn hoàn toàn → computation tiếp tục bình thường qua §5c bước 6 trở đi (arithmetic hợp lệ).
 
@@ -681,3 +705,5 @@ risk_evaluation_time: {type: timestamp, description: "= §3/§5"}
 **Scenario 17 — Time ordering:** `ExecutionIntentIssued.effective_time < risk_evaluation_time` → reject (`execution-intent.md` §3/§9).
 
 **Scenario 18 — Direction and scope preservation:** Execution Intent KHÔNG được thay đổi `direction` (LONG→SHORT), `account_id`, hay `instrument_selection_ref` so với RiskEvaluation gốc — mismatch bất kỳ PHẢI reject (`execution-intent.md` §3).
+
+**Scenario 19 — Price base mismatch (Branch B, v0.3, mới đóng `C5-DELTA-MAJ-01`):** TẤT CẢ bảy khóa `evidence_availability` = `AVAILABLE`; `reference_price_value` = giá USDT trên mỗi ETH (`reference_price_base_unit=ETH`, `reference_price_quote_currency=USDT`), nhưng `quantity_unit=BTC` (instrument_selection_ref trỏ một TradableListing BTC) → `reference_price_base_unit != quantity_unit` → `result=NON_EVALUABLE`, `rejection_reason=INCOMPATIBLE_EVIDENCE_UNIT` (§5b1 invariant, §5c bước 5) — mọi ref/value liên quan VẪN có mặt. KHÔNG khóa `evidence_availability` nào != `AVAILABLE`.
