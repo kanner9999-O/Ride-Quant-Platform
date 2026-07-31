@@ -2,6 +2,118 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-01 — author Package 0.2-C5 risk foundation
+
+**Package 0.2-C5 — Risk Gateway and Execution Intent Foundation v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C5 — Risk Gateway and Execution Intent Foundation v0.1". Authorized artifacts: `docs/domain/risk.md`, `docs/domain/execution-intent.md` (cả hai tạo mới, v0.1 Draft). Authorization này **không** cho phép author Package 0.2-C6–C7, định nghĩa order type/limit price/stop price/exchange payload/routing/adapter behavior, portfolio-level arbitration/multi-account netting/advanced margin/liquidation model, general Risk DSL, backtest/optimizer infrastructure, sửa `decision.md`/`trade-intent.md`/C1–C4 semantic/ADR-010/ADR-012/ADR-013/bất kỳ ADR nào/Constitution, đóng OQ-002/OQ-003, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.
+
+### Baseline verification
+
+```text
+Expected HEAD:  b6525ae181322152bef8f9f282fcc376c13e43b3
+Actual HEAD:    b6525ae181322152bef8f9f282fcc376c13e43b3  — match
+
+Package 0.2-C1:  Consolidated Stable (không đổi)
+Package 0.2-C2:  Consolidated Stable (không đổi)
+Package 0.2-C3:  Consolidated Stable (không đổi)
+Package 0.2-C4:  Consolidated Stable (không đổi)
+decision.md:       v0.3 Draft, blob e2a26320200d350ace3da0247235bb14cef12509
+trade-intent.md:    v0.2 Draft, blob e7a306abc53ba482ff1249af1dda2829c4c82fa7
+context-map.yaml:   v0.14 Draft, blob e7ad311419f54a60625ce05f37b0c0c8e982fafb
+risk.md/execution-intent.md: absent trước transaction — đúng expected state, KHÔNG có baseline conflict
+```
+
+### Risk Evaluation identity and attempt model
+
+`risk_evaluation_id` — opaque, globally unique, immutable, gán tại `RiskEvaluationRecorded`. Logical computation key `(trade_intent_id, risk_context_cursor)`. `RiskEvaluationAttempt` (kind: entity, §2 risk.md) — subject RIÊNG, `evaluation_attempt_id` (identity cá nhân) TÁCH BIỆT khỏi logical computation key — ÁP DỤNG CHỦ ĐỘNG (KHÔNG chờ review round phát hiện) ba bài học đã trả giá qua C4's hai vòng correction: (1) KHÔNG circular reference giữa Attempt và RiskEvaluation — Attempt KHÔNG mang field trỏ tới RiskEvaluation, chỉ RiskEvaluationRecorded.causation_refs trỏ ngược lại attempt (one-way sequence, đóng trước lớp lỗi `C4-DELTA-MAJ-01`-style); (2) idempotency scoped theo `evaluation_attempt_id`, KHÔNG theo logical key — nhiều attempt (kể cả outcome khác nhau) CÓ THỂ chia sẻ cùng key (đóng trước lớp lỗi `C4-DELTA-MAJ-02`-style); (3) `FAILED_BEFORE_EVALUATION` tường minh RETRYABLE, không permanently block same-cursor recovery. `attempt_outcome ∈ {EVALUATED, INELIGIBLE, FAILED_BEFORE_EVALUATION}` — mọi lần thử ĐỀU ghi nhận (`RiskEvaluationAttemptRecorded`), KHÔNG absence-based.
+
+### Trade Intent/C4 eligibility integration
+
+RiskEvaluation CHỈ được phát khi `eligible_for_new_risk_evaluation(trade_intent_id, risk_context_cursor) == true` (trade-intent.md §6a, KHÔNG sửa, KHÔNG duplicate/weaken) — false → `RiskEvaluationAttemptRecorded(attempt_outcome=INELIGIBLE, reason_code=TRADE_INTENT_INELIGIBLE)`, KHÔNG RiskEvaluation nào phát (Scenario C, risk.md §17).
+
+### Risk policy/configuration/evidence axes
+
+Bốn trục risk evidence (risk.md §5b), đối xứng Strategy's bốn trục (strategy.md, ADR-013): `risk_policy_definition_version_ref` (semantic policy meaning), `risk_policy_configuration_version_ref` (configured parameter values), `risk_plugin_version_ref` (implementation release — Chapter 9 §9.1, áp dụng platform-wide, KHÔNG phải trục phát minh riêng cho C5), `package_build_artifact_ref` (exact executable identity). Thay đổi configured value KHÔNG tự động require policy definition version mới; thay đổi policy meaning yêu cầu version mới — đúng bảng phân tách task. Evidence facts (risk.md §5d): `available_account_equity_ref`/`current_instrument_exposure_ref`/`reference_price_fact_ref` — opaque `event_record_ref`, KHÔNG redefine Account/Candle contract; no-look-ahead `evidence_fact.recorded_time ≤ risk_context_cursor.recorded_time ≤ RiskEvaluationRecorded.recorded_time`.
+
+### Sizing and quantity model
+
+`sizing_method: FIXED_RISK_BUDGET_NOTIONAL` (v0.1, đúng một giá trị bounded). Năm check tuần tự, dừng tại fail đầu tiên: (1) account active; (2) environment = PAPER; (3) reference_price hợp lệ; (4) equity >= configured_risk_budget; (5) projected_instrument_notional <= max_requested_notional. Pass cả năm → `approved_notional = configured_risk_budget`, `approved_quantity = FLOOR(approved_notional / reference_price_value, quantity_precision)` — deterministic floor-rounding, non-negative, finite. KHÔNG liquidation model, KHÔNG leverage/stop-distance concept, KHÔNG portfolio optimization.
+
+### Outcome/reason model
+
+`result: APPROVED | REJECTED | NON_EVALUABLE` (risk.md §5e) — ba trường hợp phân biệt tường minh, KHÔNG collapse: APPROVED (policy evaluated, mọi check pass); REJECTED (policy evaluated, MỘT check fail — reason ∈ {ACCOUNT_NOT_ACTIVE, ENVIRONMENT_NOT_ALLOWED, INVALID_SIZING_INPUT, RISK_BUDGET_EXCEEDED, REQUESTED_EXPOSURE_EXCEEDED}); NON_EVALUABLE (evidence bắt buộc thiếu/invalid/unresolved — reason=REQUIRED_EVIDENCE_UNAVAILABLE). Tách biệt khỏi attempt-level INELIGIBLE (TRADE_INTENT_INELIGIBLE)/FAILED_BEFORE_EVALUATION (RISK_ENGINE_COMPUTATION_BOUNDARY_ERROR) — bảy reason code đóng tổng cộng, đúng bounded vocabulary task yêu cầu, không thêm reason nào ngoài các check thực sự tồn tại.
+
+### Explanation model
+
+Explanation (risk.md §8) là derived, non-authoritative rendering — thuần hàm của evidence đã có (§5b–§5e), KHÔNG BAO GIỜ introduce fact vắng mặt. Hai RiskEvaluation cùng evidence PHẢI cho cùng explanation render.
+
+### Correction/replay model
+
+`risk_evaluation_id` bất biến/globally-unique per-fact — correction lineage (risk.md §10, mười invariant, đối xứng decision.md §11): logical computation key CÓ THỂ nhận RiskEvaluationRecorded MỚI (risk_evaluation_id khác, `supersedes_fact_ref`) sau khi predecessor invalidate; cấm fork; append-only; replay trước correction thấy R1, replay sau thấy R2. Execution Intent derived từ RiskEvaluation bị invalidate KHÔNG tự động rewrite/xóa — ineligible cho Order creation mới qua `eligible_for_new_order_creation` (execution-intent.md §6a).
+
+### Execution Intent identity and lifecycle
+
+`execution_intent_id` — opaque, globally unique, immutable. Origin từ ĐÚNG MỘT RiskEvaluation APPROVED (`originating_risk_evaluation_id`). `account_id`/`instrument_selection_ref`/`direction`/`approved_quantity`/`quantity_unit` PHẢI khớp CHÍNH XÁC RiskEvaluation gốc — KHÔNG tự tính lại (Scenario K, risk.md §17). `execution_action: OPEN_EXPOSURE` (v0.1, duy nhất — CLOSE/REDUCE deferred). Lifecycle tối thiểu ba state ISSUED/WITHDRAWN/EXPIRED, `supersedes_fact_ref` từ v0.1 (áp dụng chủ động bài học C2/C3/C4).
+
+### Risk-to-Execution-Intent derivation/idempotency
+
+```text
+result = APPROVED               → zero HOẶC MỘT ExecutionIntentIssued, keyed unique bởi originating_risk_evaluation_id
+result = REJECTED | NON_EVALUABLE → ZERO Execution Intent luôn luôn
+```
+RiskEvaluation KHÔNG có field nào tuyên bố "đã issue Execution Intent" (áp dụng chủ động bài học `C4-MAJ-01`/`C4-MAJ-02`, ngay từ v0.1) — câu hỏi resolve trực tiếp qua query stream lọc `originating_risk_evaluation_id` (canonical `execution_intent_derivation_idempotency_policy: ONE_VALID_INTENT_PER_ORIGINATING_RISK_EVALUATION`, execution-intent.md §10). Gap tạm thời là trạng thái BÌNH THƯỜNG, KHÔNG data-integrity violation — KHÔNG unstated cross-stream atomicity. Implementation technology deferred (Phase 1).
+
+### Time and cursor semantics
+
+`risk_context_cursor` TÁI SỬ DỤNG nguyên vẹn Chapter 8 §8.5.1 Replay Cursor shape (`recorded_time`/`input_contract_ref`/`stream_registry_version`/`lifecycle_frontier`/`stream_positions`) — KHÔNG tạo schema gần giống, KHÔNG envelope-level ADR-010 field (chỉ riêng `decision.md`'s `DecisionRecorded`, `event_class: decision`). `ExecutionIntentIssued.effective_time >= risk_evaluation_time`; `ExecutionIntentIssued.recorded_time > RiskEvaluationRecorded.recorded_time` — strict causal (Scenario J, risk.md §17).
+
+### Future C6 eligibility rule
+
+```text
+eligible_for_new_order_creation(execution_intent_id, C) =
+      ExecutionIntent.current_status(C) == ISSUED
+  AND originating RiskEvaluation resolve đúng visible-valid-head cho logical Risk computation key TẠI C
+  AND visible-valid-head đó CHÍNH LÀ risk_evaluation_id mà Execution Intent này tham chiếu
+```
+Khi RiskEvaluation gốc invalidate/supersede: Execution Intent liên quan mất eligibility Order creation mới, KHÔNG tự động xóa/rewrite; replacement approved RiskEvaluation CÓ THỂ derive Execution Intent riêng (execution-intent.md §6a).
+
+### Context Map integration
+
+Đăng ký capability `risk-management` + context `risk-gateway` (`owned_contracts: [risk, execution-intent]`, HAI file CÙNG một context) tại `context-map.yaml` **v0.14 → v0.15**. KHÔNG thêm relationship edge nào — `risk.md`/`execution-intent.md` chỉ dùng simple `ref:` lookup (`trade_intent_id`, `account_id`) và `event_record_ref` opaque chưa gắn provider context cụ thể (evidence facts, deferred).
+
+### Acceptance-scenario results (risk.md §17)
+
+Scenario A (Approved PAPER): APPROVED, approved_quantity deterministic — pass. Scenario B (Risk budget exceeded): REJECTED/RISK_BUDGET_EXCEEDED — pass. Scenario C (Trade Intent ineligible): attempt INELIGIBLE, không RiskEvaluation — pass. Scenario D (Evidence unavailable): NON_EVALUABLE/REQUIRED_EVIDENCE_UNAVAILABLE — pass. Scenario E (Same evaluation retry): idempotent/conflict — pass. Scenario F (Operational failure/retry): FAILED_BEFORE_EVALUATION rồi EVALUATED cùng key — pass. Scenario G (Risk correction): R1→R2 same-key replacement — pass. Scenario H (Cross-stream recovery): retry bằng originating_risk_evaluation_id → đúng một E1 — pass. Scenario I (Risk invalidation): E1 historical, ineligible Order creation mới — pass. Scenario J (Time ordering): effective_time < risk_evaluation_time reject — pass. Scenario K (Direction/scope preservation): mismatch reject — pass.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10 (đặc biệt Chapter 8 §8.1.1/§8.2/§8.5, Chapter 9 §9.1), Package 0.2-C1/C2/C3/C4 (`instrument.md`/`venue.md`/`account.md`/`strategy.md`/`decision.md`/`trade-intent.md` byte-for-byte unchanged — verified). Preserve nguyên vẹn: opaque non-derived identity pattern; invalidate-only-no-replacement cho immutable-scope subject; correction lineage mười invariant; fold algorithm "visible-valid-head per logical key"; Current View never-authority; `eligible_for_new_risk_evaluation` (trade-intent.md §6a, không sửa/duplicate/weaken). Không order type/limit price/stop price/exchange payload/routing/adapter behavior. Không portfolio-level arbitration/multi-account netting/advanced margin/liquidation model. Không general Risk DSL. Không backtest/optimizer infrastructure.
+
+### Author self-review
+
+Phát hiện và disclosure tường minh: task gốc liệt kê `risk_plugin_version_ref` là "chỉ nếu repository architecture genuinely require" — self-review xác nhận Chapter 9 §9.1 (Locked) định nghĩa bốn lớp Plugin identity ÁP DỤNG PLATFORM-WIDE cho MỌI Plugin Definition (không riêng Strategy) — Risk Gateway, nếu là một Plugin Definition trong model này, GENUINELY cần trục này để phân biệt implementation-release khỏi package/build-artifact identity (đúng lý do Strategy cần nó, ADR-013 §2.5) — đã bao gồm trục này với citation rõ ràng, KHÔNG phải thêm "cho đối xứng." Không tìm thấy finding blocking nào khác trong self-review.
+
+### Changed-file scope
+
+```text
+docs/domain/risk.md             NEW      v0.1  Draft   blob fa8070b0c6a710f39bdb9dd27915076d4b36d0c2
+docs/domain/execution-intent.md NEW      v0.1  Draft   blob c5cb23012a4bec7517803d9f47ac0df6b0955801
+docs/domain/context-map.yaml    MODIFIED v0.14 → v0.15  (capability/context registration + comment)
+docs/domain/README.md           MODIFIED v0.41 → v0.42
+docs/MANIFEST.md                MODIFIED manifest_version 9.67 → 9.68
+docs/CHANGELOG.md               MODIFIED (this entry)
+```
+
+### Metadata / state
+
+- `risk.md`/`execution-intent.md`: **tạo mới**, `version: "0.1"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+- `context-map.yaml`: **v0.14 → v0.15** — thêm capability `risk-management` + context `risk-gateway`, KHÔNG thêm relationship edge.
+- `README.md` (domain index): **v0.41 → v0.42**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.67 → 9.68**; dòng `domain/` cập nhật ghi nhận Package 0.2-C5 authoring transaction.
+- `decision.md`, `trade-intent.md`, `strategy.md`, `account.md`, `venue.md`, `instrument.md`, mọi ADR: **không đổi** (byte-for-byte, verified).
+- Mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C5 CHƯA đạt `Consolidated Stable` — chờ ChatGPT Review A + Independent Review B trên cùng exact baseline này.** Mandatory sequence: Author baseline → ChatGPT Review A → Independent Review B → merge finding → một correction commit (Product Owner authorize) → delta review hai vòng → Product Owner consolidation decision. KHÔNG correction dựa trên một review đơn lẻ. Package 0.2-C1/C2/C3/C4 vẫn `Consolidated Stable`, không đổi. Package 0.2-C6–C7 vẫn chưa authorize, chưa author. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-31 — consolidate Package 0.2-C4
 
 **Package 0.2-C4 Trade Intent and Decision Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C4 consolidation transaction" (2026-07-31). Authorization này cho phép ghi Package 0.2-C4 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `decision.md`/`trade-intent.md`, không sửa ADR-010/ADR-013 hay bất kỳ ADR nào, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C5–C7, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.

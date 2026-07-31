@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.14"
+version: "0.15"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -47,9 +47,20 @@ next_review: null
 # implemented ở v0.1 (cùng precedent strategy.md's account_id/instrument_selection_ref ref không
 # cần edge; input evidence là opaque reference chưa gắn provider context cụ thể, thêm edge lúc
 # này sẽ là speculative).
-# Package 0.2-C5–C7 (Risk, Execution, Position, Order/Fill, Replay...) vẫn CHƯA đăng ký, chờ
-# authoring thực tế theo decomposition đã pin tại `docs/domain/README.md` — mỗi slice cần Product
-# Owner authorization riêng.
+# Package 0.2-C5 (Risk Gateway and Execution Intent Foundation — risk.md + execution-intent.md)
+# đăng ký capability/context MỚI (`risk-management`/`risk-gateway`) tại v0.15 — Risk/Execution
+# Intent KHÔNG thuộc phạm vi `decision-management`/`strategy-decision` đã có, cần capability/
+# context riêng. Hai file (risk.md/execution-intent.md) CÙNG một context — hai concept riêng
+# biệt, KHÔNG gộp một file, nhưng cùng thuộc phạm vi risk-gateway, KHÔNG cần hai context riêng.
+# KHÔNG thêm relationship edge cho risk-gateway: risk.md/execution-intent.md chỉ dùng simple
+# `ref:` lookup tới trade-intent (trade_intent_id), account (account_id), và opaque
+# `event_record_ref` chưa resolve/redefine (available_account_equity_ref/
+# current_instrument_exposure_ref/reference_price_fact_ref, deferred §15 risk.md) — KHÔNG có
+# published-language event-stream flow cross-context nào thực sự implemented ở v0.1 (cùng
+# precedent strategy-decision's account_id/instrument_selection_ref ref không cần edge).
+# Package 0.2-C6–C7 (Order/Fill, Position/Replay...) vẫn CHƯA đăng ký, chờ authoring thực tế theo
+# decomposition đã pin tại `docs/domain/README.md` — mỗi slice cần Product Owner authorization
+# riêng.
 
 capabilities:
   - id: market-reference
@@ -95,6 +106,11 @@ capabilities:
   - id: decision-management
     title: Decision Management
     responsibility: "Sở hữu Decision identity (bản ghi authoritative của một lần Strategy Instance đánh giá deterministic tại một decision_context_cursor, theo ADR-010/Chapter 8 §8.4/§8.5) và Trade Intent identity (request Strategy-originated trước Risk Gateway/Execution) — KHÔNG sở hữu Risk approval/rejection, Execution Intent/Order/Fill/Position semantics, KHÔNG sở hữu Strategy/Strategy Instance identity (thuộc strategy-management)."
+    status: active
+
+  - id: risk-management
+    title: Risk Management
+    responsibility: "Sở hữu RiskEvaluation identity (bản ghi authoritative của một lần Risk Gateway đánh giá deterministic một Trade Intent eligible, pin bốn trục risk evidence độc lập + sizing/policy evidence) và Execution Intent identity (request nội bộ sau khi Risk Gateway approve, trước Order/Execution) — KHÔNG sở hữu Order/Fill/Position/Replay Event semantics (Package 0.2-C6–C7), KHÔNG sở hữu Decision/Trade Intent identity (thuộc decision-management)."
     status: active
 
 contexts:
@@ -159,6 +175,13 @@ contexts:
     capability_id: decision-management
     responsibility: "Định nghĩa Decision (bản ghi authoritative của một lần Strategy Instance đánh giá deterministic, pin decision_time/decision_context_cursor theo ADR-010/Chapter 8 §8.4/§8.5, chín-field Strategy evidence tại cursor, bounded typed rule evidence, input evidence, result LONG/SHORT/NO_ACTION) và Trade Intent (request Strategy-originated trước Risk Gateway/Execution, originate từ đúng một Decision) — theo ADR-010, Chapter 8, ADR-013 (qua strategy.md)."
     owned_contracts: [decision, trade-intent]   # authored — Package 0.2-C4: decision.md v0.1 Draft + trade-intent.md v0.1 Draft, chưa qua Review A/B; controlling architecture ADR-010 Approved (Decision Time Model) + Chapter 8 §8.4/§8.5 (Locked) + ADR-013 v0.3 Approved (qua strategy.md)
+    status: active
+
+  - id: risk-gateway
+    title: Risk Gateway & Execution Intent
+    capability_id: risk-management
+    responsibility: "Định nghĩa RiskEvaluation (bản ghi authoritative của một lần Risk Gateway đánh giá deterministic một Trade Intent eligible, pin risk_context_cursor — Chapter 8 §8.5.1 tái sử dụng — bốn trục risk evidence độc lập, bounded sizing/policy evidence, result APPROVED/REJECTED/NON_EVALUABLE) và Execution Intent (request nội bộ sau khi Risk Gateway approve, originate từ đúng một RiskEvaluation) — theo Chapter 8, Chapter 9 §9.1 (qua bốn trục risk evidence, đối xứng strategy.md)."
+    owned_contracts: [risk, execution-intent]   # authored — Package 0.2-C5: risk.md v0.1 Draft + execution-intent.md v0.1 Draft, chưa qua Review A/B; controlling architecture: trade-intent.md §6a (eligible_for_new_risk_evaluation), Chapter 8 §8.1.1/§8.2/§8.5 (Locked), Chapter 9 §9.1 (Locked)
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship
