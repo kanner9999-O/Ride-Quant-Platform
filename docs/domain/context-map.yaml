@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.15"
+version: "0.16"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -181,7 +181,7 @@ contexts:
     title: Risk Gateway & Execution Intent
     capability_id: risk-management
     responsibility: "Định nghĩa RiskEvaluation (bản ghi authoritative của một lần Risk Gateway đánh giá deterministic một Trade Intent eligible, pin risk_context_cursor — Chapter 8 §8.5.1 tái sử dụng — bốn trục risk evidence độc lập, bounded sizing/policy evidence, result APPROVED/REJECTED/NON_EVALUABLE) và Execution Intent (request nội bộ sau khi Risk Gateway approve, originate từ đúng một RiskEvaluation) — theo Chapter 8, Chapter 9 §9.1 (qua bốn trục risk evidence, đối xứng strategy.md)."
-    owned_contracts: [risk, execution-intent]   # authored — Package 0.2-C5: risk.md v0.1 Draft + execution-intent.md v0.1 Draft, chưa qua Review A/B; controlling architecture: trade-intent.md §6a (eligible_for_new_risk_evaluation), Chapter 8 §8.1.1/§8.2/§8.5 (Locked), Chapter 9 §9.1 (Locked)
+    owned_contracts: [risk, execution-intent]   # authored — Package 0.2-C5: risk.md v0.2 Draft + execution-intent.md v0.2 Draft, bounded correction đóng consolidated Review A + Independent Review B findings (C5-MAJ-01..06), chưa qua delta Review A/B; controlling architecture: trade-intent.md §6a (eligible_for_new_risk_evaluation), Chapter 8 §8.1.1/§8.2/§8.5 (Locked), Chapter 9 §9.1 (Locked)
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship

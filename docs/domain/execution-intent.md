@@ -1,7 +1,7 @@
 ---
 id: execution-intent
 title: Execution Intent
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -24,6 +24,8 @@ Execution Intent **KHÔNG phải**: một Order (không order type/limit price/s
 
 **Phạm vi bounded tường minh:** KHÔNG author Order acceptance/submission/routing (Package 0.2-C6). KHÔNG author Fill status/Position state (Package 0.2-C6–C7). KHÔNG định nghĩa order type/limit price/stop price/exchange payload. KHÔNG multi-instrument portfolio decomposition. Vocabulary action tối thiểu: `OPEN_EXPOSURE` — CLOSE/REDUCE KHÔNG author vì walking skeleton không cần (§13).
 
+**v0.2 — bounded correction, đóng `C5-MAJ-04`/`C5-MAJ-06` (consolidated Review A + Independent Review B findings):** (a) `C5-MAJ-04` — `approved_quantity` PHẢI strictly positive (`> 0`) trên cả entity (§1) VÀ `ExecutionIntentIssued` precondition (§3) — vì nguồn duy nhất luôn là một RiskEvaluation `APPROVED` (risk.md §5c/§5e đã pin `approved_quantity > 0` cho v0.2), KHÔNG `OPEN_EXPOSURE` Execution Intent nào được phép mang zero quantity. (b) `C5-MAJ-06` — `eligible_for_new_order_creation` (§6a) mở rộng đủ NĂM điều kiện transitive (Execution Intent ISSUED, RiskEvaluation gốc visible-valid-head VÀ APPROVED, đúng risk_evaluation_id được tham chiếu, cùng trade_intent_id, VÀ `eligible_for_new_risk_evaluation` true) — đảm bảo transitively Decision→Trade Intent→RiskEvaluation→Execution Intent đều valid, KHÔNG chỉ kiểm tra cục bộ RiskEvaluation head. Bounded — không đổi lifecycle tối thiểu, idempotency, cross-stream atomicity boundary, hay C5/C6 boundary đã pin.
+
 ## 1. Execution Intent — `kind: entity`
 
 ```yaml
@@ -42,8 +44,9 @@ invariants:
   - "execution_intent_id là opaque, globally unique trong toàn Ride, gán tại ExecutionIntentIssued — KHÔNG derive/resolve từ originating_risk_evaluation_id hay bất kỳ field scope nào. Bất biến, KHÔNG tái sử dụng cho subject khác (Chapter 6 §6.1)."
   - "MỘT Execution Intent originate từ ĐÚNG MỘT RiskEvaluation (originating_risk_evaluation_id, ref: risk), `result = APPROVED` — không multi-evaluation aggregation, đúng risk.md §9 cardinality."
   - "`originating_risk_evaluation_id` là UNIQUE KEY trên toàn bộ ExecutionIntentIssued VALID — tại một cursor cho trước, tối đa MỘT ExecutionIntentIssued VALID cho mỗi `originating_risk_evaluation_id` (§10 `execution_intent_derivation_idempotency_policy: ONE_VALID_INTENT_PER_ORIGINATING_RISK_EVALUATION`). Retry cùng origin + cùng payload → idempotent, trả về `execution_intent_id` đã tồn tại; retry cùng origin + payload KHÁC → deterministic conflict, reject."
-  - "trade_intent_id/account_id/instrument_selection_ref/direction PHẢI BẰNG HỆT trade_evidence tương ứng của originating_risk_evaluation_id (risk.md §5b) — Execution Intent KHÔNG được tự chọn Trade Intent/Account/instrument/direction khác RiskEvaluation gốc đã pin (Scenario K, risk.md §17)."
+  - "trade_intent_id/account_id/instrument_selection_ref/direction PHẢI BẰNG HỆT trade_evidence tương ứng của originating_risk_evaluation_id (risk.md §5b) — Execution Intent KHÔNG được tự chọn Trade Intent/Account/instrument/direction khác RiskEvaluation gốc đã pin (Scenario 18, risk.md §17)."
   - "approved_quantity/quantity_unit PHẢI BẰNG HỆT §5e của originating_risk_evaluation_id (risk.md §5e) — Execution Intent KHÔNG BAO GIỜ tự tính lại/thay đổi quantity."
+  - "**v0.2 (đóng C5-MAJ-04):** `approved_quantity` PHẢI STRICTLY POSITIVE (`> 0`) — KHÔNG BAO GIỜ bằng 0 hay âm. Vì `originating_risk_evaluation_id` bắt buộc `result = APPROVED` (invariant trên), VÀ RiskEvaluation `APPROVED` bắt buộc `approved_quantity > 0` (risk.md §5c bước 12–13/§5e), một Execution Intent với `approved_quantity == 0` KHÔNG BAO GIỜ có thể tồn tại hợp lệ — KHÔNG `OPEN_EXPOSURE` Execution Intent nào được phép mang zero quantity."
   - "Execution Intent KHÔNG BAO GIỜ mutate Risk evidence — mọi field liên quan chỉ COPY từ RiskEvaluation gốc để tiện truy vấn, KHÔNG phải nguồn authoritative thứ hai; nguồn authoritative luôn là chính RiskEvaluation (risk.md §5)."
   - "Execution Intent KHÔNG tự authorize submission/routing dưới bất kỳ hình thức nào — `execution_action` chỉ là request nội bộ, KHÔNG phải quyết định gửi lệnh; order submission/routing hoàn toàn thuộc Package 0.2-C6 (chưa author)."
 schema:
@@ -61,7 +64,7 @@ schema:
       listing_id: {type: string, required: true}
   direction: {type: enum, values: [LONG, SHORT], required: true, description: "= risk.md §5b trade_evidence.direction — PHẢI khớp chính xác"}
   execution_action: {type: enum, values: [OPEN_EXPOSURE], required: true, description: "v0.1: chỉ OPEN_EXPOSURE — CLOSE/REDUCE deferred (§13), walking skeleton không cần"}
-  approved_quantity: {type: decimal, required: true, description: "= risk.md §5e — non-negative, finite, KHÔNG tự tính lại"}
+  approved_quantity: {type: decimal, required: true, description: "= risk.md §5e — STRICTLY POSITIVE (> 0), finite, KHÔNG tự tính lại (v0.2, đóng C5-MAJ-04)"}
   quantity_unit: {type: string, required: true, description: "= risk.md §5e"}
 state_machine:
   initial_state: UNSEEN
@@ -139,9 +142,10 @@ description: >
 invariants:
   - "payload.execution_intent_id PHẢI khớp đúng subject_ref.subject_id VÀ toàn bộ scope field PHẢI khớp subject_ref.scope."
   - "causation_refs PHẢI trỏ chính xác RiskEvaluationRecorded (risk.md §5) của originating_risk_evaluation_id — chứng minh RiskEvaluation đã tồn tại VÀ `result = APPROVED` trước khi Execution Intent phát."
-  - "direction/account_id/instrument_selection_ref PHẢI khớp CHÍNH XÁC trade_evidence tương ứng của originating_risk_evaluation_id (risk.md §5b) — KHÔNG được đảo/tự chọn khác RiskEvaluation gốc (Scenario K, risk.md §17)."
+  - "direction/account_id/instrument_selection_ref PHẢI khớp CHÍNH XÁC trade_evidence tương ứng của originating_risk_evaluation_id (risk.md §5b) — KHÔNG được đảo/tự chọn khác RiskEvaluation gốc (Scenario 18, risk.md §17)."
   - "approved_quantity/quantity_unit PHẢI khớp CHÍNH XÁC §5e của originating_risk_evaluation_id (risk.md §5e) — KHÔNG tự tính lại."
-  - "envelope.effective_time PHẢI thỏa `effective_time >= originating RiskEvaluationRecorded.risk_evaluation_time` — một Execution Intent KHÔNG BAO GIỜ effective TRƯỚC RiskEvaluation gốc của nó. Mặc định bằng nhau trừ khi backfill lịch sử tường minh pin giá trị MUỘN HƠN (KHÔNG BAO GIỜ sớm hơn) — vi phạm là invalid ExecutionIntentIssued, PHẢI bị từ chối khi append (Scenario J, risk.md §17)."
+  - "**v0.2 (đóng C5-MAJ-04):** `payload.approved_quantity` PHẢI STRICTLY POSITIVE (`> 0`) — precondition bắt buộc TRƯỚC khi ghi. RiskEvaluation `result = REJECTED`/`QUANTITY_ROUNDS_TO_ZERO` (risk.md §5c bước 12) KHÔNG BAO GIỜ có `approved_quantity`, do đó KHÔNG BAO GIỜ có thể làm `causation_refs` hợp lệ cho ExecutionIntentIssued — chỉ `result = APPROVED` (đảm bảo `approved_quantity > 0`, risk.md §5c bước 13) mới hợp lệ làm nguồn. Vi phạm (approved_quantity == 0 hoặc âm) là invalid ExecutionIntentIssued, PHẢI bị từ chối khi append — KHÔNG `OPEN_EXPOSURE` Execution Intent nào được phép mang zero quantity."
+  - "envelope.effective_time PHẢI thỏa `effective_time >= originating RiskEvaluationRecorded.risk_evaluation_time` — một Execution Intent KHÔNG BAO GIỜ effective TRƯỚC RiskEvaluation gốc của nó. Mặc định bằng nhau trừ khi backfill lịch sử tường minh pin giá trị MUỘN HƠN (KHÔNG BAO GIỜ sớm hơn) — vi phạm là invalid ExecutionIntentIssued, PHẢI bị từ chối khi append (Scenario 17, risk.md §17)."
   - "envelope.recorded_time PHẢI `> originating RiskEvaluationRecorded.recorded_time` (strict causal ordering — Execution Intent PHẢI được ghi nhận SAU RiskEvaluation gốc của nó, KHÔNG BAO GIỜ đồng thời hay trước)."
   - "trước khi ghi, PHẢI kiểm tra `originating_risk_evaluation_id` chưa có ExecutionIntentIssued VALID nào khác (§1 uniqueness invariant) — nếu đã có VÀ payload giống hệt, đây là idempotent retry (KHÔNG ghi bản ghi mới, trả về `execution_intent_id` đã tồn tại thay vì phát event mới); nếu đã có VÀ payload khác, đây là deterministic conflict (reject, KHÔNG ghi)."
   - "KHÔNG có field supersedes_fact_ref trong payload — subject này KHÔNG hỗ trợ same-ID correction replacement (§5: correction luôn invalidate, KHÔNG replacement — vì originating_risk_evaluation_id KHÔNG BAO GIỜ đổi sau khi issue)."
@@ -287,27 +291,33 @@ schema:
 queries: [GetCurrentExecutionIntent, GetExecutionIntentHistory]
 ```
 
-### 6a. Origin-validity — `eligible_for_new_order_creation` (đóng yêu cầu tương đương `C4-MAJ-06`, ngay từ v0.1)
+### 6a. Origin-validity — `eligible_for_new_order_creation` (v0.2, đóng `C5-MAJ-06` — complete transitive origin-chain, mở rộng yêu cầu tương đương `C4-MAJ-06`)
 
-**Vai trò:** một rule normative, derived, deterministic — trả lời "Execution Intent này còn đủ điều kiện cho Order creation MỚI (Package 0.2-C6, chưa author) hay không," xét CẢ tình trạng lifecycle của chính Execution Intent LẪN tình trạng correction lineage của RiskEvaluation gốc (risk.md §10). Đánh giá TẠI cùng cursor C:
+**Vai trò:** một rule normative, derived, deterministic — trả lời "Execution Intent này còn đủ điều kiện cho Order creation MỚI (Package 0.2-C6, chưa author) hay không," xét TRỌN VẸN chuỗi transitive validity từ Decision → Trade Intent → RiskEvaluation → Execution Intent, KHÔNG CHỈ tình trạng lifecycle cục bộ của chính Execution Intent. Đánh giá TẠI cùng cursor C:
 
 ```text
 eligible_for_new_order_creation(execution_intent_id, C) =
       ExecutionIntent.current_status(C) == ISSUED                                              (§6, visible-valid-head fold TẠI C)
   AND originating RiskEvaluation resolve đúng visible-valid-head cho logical Risk computation key
-      của nó TẠI C                                                                              (risk.md §7 GetRiskEvaluationForComputation)
+      của nó TẠI C, VÀ head đó có result = APPROVED                                             (risk.md §7 GetRiskEvaluationForComputation)
   AND visible-valid-head đó CHÍNH LÀ risk_evaluation_id mà Execution Intent này tham chiếu
       (originating_risk_evaluation_id) — KHÔNG phải một risk_evaluation_id KHÁC đã supersede nó
+  AND RiskEvaluation đó tham chiếu ĐÚNG CÙNG trade_intent_id với Execution Intent này
+      (risk.md §1 trade_intent_id — KHÔNG derivation mismatch)
+  AND eligible_for_new_risk_evaluation(trade_intent_id, C) == true                              (trade-intent.md §6a)
 ```
 
-**Khi RiskEvaluation gốc bị invalidate hoặc supersede (risk.md §10):**
-- Execution Intent liên quan trở nên **ineligible cho Order creation MỚI** (điều kiện thứ ba ở trên fail);
-- Execution Intent **KHÔNG tự động bị xóa/rewrite** — vẫn là historical fact, `ExecutionIntentCurrentView` (§6) vẫn resolve `current_status` bình thường;
-- Historical replay TRƯỚC thời điểm RiskEvaluation gốc invalidate KHÔNG bị ảnh hưởng;
-- Rút/expire tường minh (`ExecutionIntentStatusChanged`, §4) VẪN là một hành động RIÊNG, tùy chọn — `eligible_for_new_order_creation` KHÔNG tự động chuyển `current_status` sang `WITHDRAWN`;
-- `execution-intent.md` KHÔNG author Order behavior nào cho tình huống này — C6 (chưa author) chịu trách nhiệm CONSUME rule này.
+**Năm điều kiện — KHÔNG rút gọn, KHÔNG collapse — cùng nhau đảm bảo transitively:** originating Decision vẫn valid (qua `eligible_for_new_risk_evaluation` → `trade-intent.md` §6a → `decision.md` invalidate-chain); Trade Intent vẫn valid VÀ ISSUED (điều kiện 5); RiskEvaluation vẫn valid VÀ APPROVED (điều kiện 2+3); Execution Intent vẫn ISSUED (điều kiện 1). `execution-intent.md` KHÔNG tự author Order semantics — rule này CHỈ pin definition, KHÔNG chọn C6 CÓ dùng nó ra sao.
 
-**Một RiskEvaluation correction replacement (R2, risk.md §10) CÓ THỂ derive Execution Intent RIÊNG của nó** — Execution Intent cũ (gắn R1) và Execution Intent mới (gắn R2) là hai historical fact hoàn toàn PHÂN BIỆT, KHÔNG gộp/ghi đè lẫn nhau (risk.md Scenario I, §17).
+**Khi Trade Intent hoặc RiskEvaluation gốc trở nên invalid (bị invalidate/supersede, `trade-intent.md` §10/`risk.md` §10):**
+- Execution Intent liên quan trở nên **ineligible cho Order creation MỚI** (điều kiện 2/3/5 fail tùy trường hợp);
+- Execution Intent **KHÔNG tự động bị xóa/rewrite** — vẫn là historical fact, `ExecutionIntentCurrentView` (§6) vẫn resolve `current_status` bình thường;
+- Historical replay TRƯỚC thời điểm invalidate KHÔNG bị ảnh hưởng;
+- Rút/expire tường minh (`ExecutionIntentStatusChanged`, §4) VẪN là một hành động RIÊNG, tùy chọn — `eligible_for_new_order_creation` KHÔNG tự động chuyển `current_status` sang `WITHDRAWN`;
+- `execution-intent.md` KHÔNG author Order behavior nào cho tình huống này — C6 (chưa author) chịu trách nhiệm CONSUME rule này;
+- Một **replacement chain** (Trade Intent MỚI, hoặc RiskEvaluation MỚI cùng logical key) CÓ THỂ derive một Execution Intent MỚI RIÊNG BIỆT — KHÔNG rewrite lịch sử (risk.md Scenario 11/12, §17).
+
+**Một RiskEvaluation correction replacement (R2, risk.md §10) CÓ THỂ derive Execution Intent RIÊNG của nó** — Execution Intent cũ (gắn R1) và Execution Intent mới (gắn R2) là hai historical fact hoàn toàn PHÂN BIỆT, KHÔNG gộp/ghi đè lẫn nhau (risk.md Scenario 12, §17).
 
 `execution-intent.md` KHÔNG tự enforce rule này (chưa có consumer — C6 chưa author); CHỈ pin định nghĩa deterministic.
 
@@ -354,7 +364,7 @@ execution_intent_derivation_idempotency_policy: ONE_VALID_INTENT_PER_ORIGINATING
 execution_intent_origin_validity_policy: ORIGIN_MUST_BE_VISIBLE_VALID_HEAD_AT_SAME_CURSOR
 ```
 
-**`execution_intent_derivation_idempotency_policy: ONE_VALID_INTENT_PER_ORIGINATING_RISK_EVALUATION`** (đóng yêu cầu tương đương `C4-MAJ-02`, ngay từ v0.1) — `originating_risk_evaluation_id` là UNIQUE KEY trên toàn bộ ExecutionIntentIssued VALID (§1). Same origin + same payload → idempotent, trả về `execution_intent_id` đã tồn tại; same origin + changed payload → deterministic conflict, reject. **KHÔNG unstated cross-stream atomicity** — RiskEvaluation và Execution Intent là hai authoritative stream RIÊNG, KHÔNG có transaction ngầm định đảm bảo cả hai append cùng lúc; một khoảng trống tạm thời (RiskEvaluation APPROVED tồn tại, ExecutionIntentIssued CHƯA append) là trạng thái BÌNH THƯỜNG, KHÔNG phải data-integrity violation (Scenario H, risk.md §17). Phase 1 recovery: cho một RiskEvaluation APPROVED VALID bất kỳ KHÔNG có ExecutionIntentIssued VALID tương ứng, recovery logic PHẢI resolve deterministic (idempotent derivation ở trên) và (re)thử issuance — implementation technology (retry queue, outbox, message-broker) hoàn toàn deferred (Phase 1, KHÔNG định nghĩa ở đây — forbidden scope).
+**`execution_intent_derivation_idempotency_policy: ONE_VALID_INTENT_PER_ORIGINATING_RISK_EVALUATION`** (đóng yêu cầu tương đương `C4-MAJ-02`, ngay từ v0.1) — `originating_risk_evaluation_id` là UNIQUE KEY trên toàn bộ ExecutionIntentIssued VALID (§1). Same origin + same payload → idempotent, trả về `execution_intent_id` đã tồn tại; same origin + changed payload → deterministic conflict, reject. **KHÔNG unstated cross-stream atomicity** — RiskEvaluation và Execution Intent là hai authoritative stream RIÊNG, KHÔNG có transaction ngầm định đảm bảo cả hai append cùng lúc; một khoảng trống tạm thời (RiskEvaluation APPROVED tồn tại, ExecutionIntentIssued CHƯA append) là trạng thái BÌNH THƯỜNG, KHÔNG phải data-integrity violation (Scenario 16, risk.md §17). Phase 1 recovery: cho một RiskEvaluation APPROVED VALID bất kỳ KHÔNG có ExecutionIntentIssued VALID tương ứng, recovery logic PHẢI resolve deterministic (idempotent derivation ở trên) và (re)thử issuance — implementation technology (retry queue, outbox, message-broker) hoàn toàn deferred (Phase 1, KHÔNG định nghĩa ở đây — forbidden scope).
 
 **`execution_intent_origin_validity_policy: ORIGIN_MUST_BE_VISIBLE_VALID_HEAD_AT_SAME_CURSOR`** (đóng yêu cầu tương đương `C4-MAJ-06`, ngay từ v0.1) — xem §6a cho định nghĩa `eligible_for_new_order_creation` đầy đủ.
 
@@ -370,7 +380,7 @@ account_id: {type: string, ref: account, description: "= §1"}
 instrument_selection_ref: {type: object, description: "= §1 — {instrument_id, venue_id, listing_id}"}
 direction: {type: enum, values: [LONG, SHORT], description: "= §1"}
 execution_action: {type: enum, values: [OPEN_EXPOSURE], description: "= §1"}
-approved_quantity: {type: decimal, description: "= §1"}
+approved_quantity: {type: decimal, description: "= §1 — GUARANTEE (v0.2, đóng C5-MAJ-04): LUÔN strictly positive (> 0), KHÔNG BAO GIỜ 0"}
 quantity_unit: {type: string, description: "= §1"}
 current_status: {type: enum, values: [ISSUED, WITHDRAWN, EXPIRED], description: "PHẢI resolve từ authoritative event stream TẠI cursor, KHÔNG ExecutionIntentCurrentView latest-state"}
 eligible_for_new_order_creation: {type: boolean, description: "derived, xem §6a — C6 PHẢI kiểm tra rule này TRƯỚC khi Order creation mới, KHÔNG chỉ dựa current_status = ISSUED"}

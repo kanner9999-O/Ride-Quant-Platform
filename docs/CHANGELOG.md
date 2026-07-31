@@ -2,6 +2,110 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — correct Package 0.2-C5 risk evidence
+
+**Package 0.2-C5 bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C5 bounded correction — consolidated Review A + Independent Review B findings." Đóng đúng sáu finding Major: `C5-MAJ-01` (truthful Risk Attempt completion order), `C5-MAJ-02` (executable NON_EVALUABLE payload via `evidence_availability`), `C5-MAJ-03` (currency and unit compatibility), `C5-MAJ-04` (strictly positive approved quantity), `C5-MAJ-05` (numeric input domains and precision bounds), `C5-MAJ-06` (complete future C6 origin-chain eligibility). Authorization này **không** cho phép author Package 0.2-C6–C7, định nghĩa order type/limit price/stop price/exchange payload/routing/adapter behavior, thêm FX conversion/signed exposure arithmetic/portfolio optimization/leverage/liquidation/margin model, author Order/Fill/Position, thêm exchange precision table/general unit framework/general Risk DSL, authorize C6–C7, Approve/Lock/Consolidate C5, đóng OQ-002/OQ-003, hay authorize Live. Sửa `decision.md`/`trade-intent.md`/bất kỳ ADR nào/Constitution cũng KHÔNG được phép.
+
+### Baseline verification
+
+```text
+Expected HEAD:  9e838483ae6db3fe28f5c55154b35075e22922dd
+Actual HEAD:    9e838483ae6db3fe28f5c55154b35075e22922dd  — match
+
+risk.md:              v0.1 Draft, blob fa8070b0c6a710f39bdb9dd27915076d4b36d0c2  — match
+execution-intent.md:  v0.1 Draft, blob c5cb23012a4bec7517803d9f47ac0df6b0955801  — match
+context-map.yaml:     v0.15 Draft, blob ac69487f929756cd913d6e8c1df5c9712b3768ae  — match
+README.md:            v0.42 Draft, blob 8bcd1841624d556be762741059560061406070f8  — match
+MANIFEST.md:           manifest_version "9.68", blob 47a32d641f33afe0f0548a1022f41724b1df94d7  — match
+decision.md:          v0.3 Draft, blob e2a26320200d350ace3da0247235bb14cef12509  — unchanged, forbidden scope
+trade-intent.md:      v0.2 Draft, blob e7a306abc53ba482ff1249af1dda2829c4c82fa7  — unchanged, forbidden scope
+```
+
+### Six-finding resolution matrix
+
+| Finding | Resolution |
+|---|---|
+| `C5-MAJ-01` | `RiskEvaluationAttemptRecorded(EVALUATED)` now written ONLY after bounded policy computation (§5c) completes in full — corrected order: computation completes → Attempt EVALUATED appended → `RiskEvaluationRecorded` appended referencing Attempt via `causation_refs`. Crash before completion leaves no EVALUATED attempt (either nothing recorded, retry gets a new `evaluation_attempt_id`, or `FAILED_BEFORE_EVALUATION` recorded). Crash after Attempt but before RiskEvaluation is a recoverable append gap — recovery re-runs the same deterministic computation and reuses the existing attempt id (risk.md §2/§4/§5a) |
+| `C5-MAJ-02` | New `evidence_availability` block (risk.md §5b2) — seven fixed keys (`AVAILABLE_ACCOUNT_EQUITY`/`CURRENT_INSTRUMENT_EXPOSURE`/`REFERENCE_PRICE`/`RISK_POLICY_DEFINITION_VERSION`/`RISK_POLICY_CONFIGURATION_VERSION`/`RISK_PLUGIN_VERSION`/`PACKAGE_BUILD_ARTIFACT`), five fixed values (`AVAILABLE`/`MISSING`/`INVALID`/`UNRESOLVABLE`/`INCOMPATIBLE_UNIT`), always present. Risk evidence axes (§5b3) and evidence facts (§5d) become `required: false`, gated by the corresponding key — no fabricated ref/null/sentinel scalar when not AVAILABLE. Two new reason codes: `REQUIRED_EVIDENCE_UNAVAILABLE` (market/account evidence), `RISK_POLICY_EVIDENCE_UNAVAILABLE` (policy evidence axes) |
+| `C5-MAJ-03` | New bounded v0.1 unit model (risk.md §5b1, `unit_evidence`) — `listing_quote_currency`/`budget_currency`/`equity_currency`/`exposure_notional_currency`/`reference_price_base_unit`/`reference_price_quote_currency`/`approved_notional_currency`/`quantity_unit`. Invariant: budget/equity/exposure-notional/reference-price-quote/approved-notional currencies all equal the TradableListing quote asset (string equality, no FX conversion); `reference_price_base_unit = quantity_unit`; `current_instrument_exposure_value` is non-negative gross quote-notional. Mismatch → `NON_EVALUABLE`/`INCOMPATIBLE_EVIDENCE_UNIT` (third new reason code) |
+| `C5-MAJ-04` | `approved_quantity` now strictly positive (`> 0`) after floor-rounding on both `risk.md` (§5c step 12–13/§5e) and `execution-intent.md` (§1/§3 new invariants). `approved_quantity == 0` → `REJECTED`/`QUANTITY_ROUNDS_TO_ZERO`, `approved_quantity`/`approved_notional` absent, zero Execution Intent. No `OPEN_EXPOSURE` Execution Intent can carry zero quantity — enforced transitively because only `APPROVED` RiskEvaluation can be a valid `causation_refs` source |
+| `C5-MAJ-05` | Exact numeric domains pinned per scalar (risk.md §5c/§6 step 6): `configured_risk_budget`/`max_requested_notional`/`reference_price_value` finite `> 0`; `available_account_equity_value`/`current_instrument_exposure_value` finite `>= 0`; `quantity_precision` integer `>= 0`, bounded maximum disclosed as `18` (no existing repository-wide precision bound found — v0.1 judgment call, §15 self-review). Out-of-domain scalar → `REJECTED`/`INVALID_SIZING_INPUT`, checked BEFORE the exposure cap so negative exposure can never bypass it |
+| `C5-MAJ-06` | `eligible_for_new_order_creation` (execution-intent.md §6a) expanded from three to five AND-conditions: Execution Intent ISSUED; originating RiskEvaluation resolves to the visible-valid-head APPROVED for its logical key; that head is exactly the referenced `risk_evaluation_id`; RiskEvaluation references the same `trade_intent_id`; `eligible_for_new_risk_evaluation(trade_intent_id, C) == true`. Transitively chains Decision→Trade Intent→RiskEvaluation→Execution Intent validity — no Order semantics authored |
+
+### Corrected Attempt ordering
+
+`RiskEvaluationAttemptRecorded(attempt_outcome=EVALUATED)` is written ONLY after the full bounded policy computation (§5c, 13 steps) has completed — the resulting bundle (`trade_evidence`, `unit_evidence`, `evidence_availability`, `risk_evidence`, `sizing_evidence`, `evidence_facts`, `result`) is fully determined before EVALUATED is recorded. `RiskEvaluationRecorded` is appended immediately after, with `causation_refs` pointing to that exact attempt — one-way sequence, no atomic multi-event transaction across the three appends (risk.md §2/§4/§5a). Any result — `APPROVED`/`REJECTED`/`NON_EVALUABLE` — counts as "completed"; only a genuine crash/technical failure during computation yields `FAILED_BEFORE_EVALUATION` or no attempt at all.
+
+### Corrected NON_EVALUABLE evidence model
+
+`evidence_availability` (risk.md §5b2) is always present with all seven keys, regardless of `result`. When `result ∈ {APPROVED, REJECTED}`, every key is `AVAILABLE` and every corresponding ref/scalar is present with exact values. When `result = NON_EVALUABLE`, at least one key is not `AVAILABLE`; the corresponding field is absent (never a fabricated placeholder/null ref/sentinel scalar); resolved evidence for OTHER, still-available keys may remain present. `REQUIRED_EVIDENCE_UNAVAILABLE` maps to `evidence_facts` keys; `RISK_POLICY_EVIDENCE_UNAVAILABLE` maps to `risk_evidence` axis keys; `INCOMPATIBLE_EVIDENCE_UNIT` maps to `unit_evidence` mismatch.
+
+### Currency and unit model
+
+Bounded v0.1 model (risk.md §5b1) — no FX conversion, no signed/netted exposure, no general unit framework. `budget_currency = equity_currency = exposure_notional_currency = reference_price_quote_currency = approved_notional_currency = TradableListing quote asset` (strict string equality); `reference_price_base_unit = quantity_unit`; `current_instrument_exposure_value` is non-negative gross quote-notional. Any mismatch (when the relevant fields are AVAILABLE) → `NON_EVALUABLE`/`INCOMPATIBLE_EVIDENCE_UNIT`.
+
+### Numeric-domain constraints
+
+`configured_risk_budget`/`max_requested_notional`/`reference_price_value`: finite, `> 0`. `available_account_equity_value`/`current_instrument_exposure_value`: finite, `>= 0`, gross quote-notional. `quantity_precision`: integer, `>= 0`, `<= 18` (disclosed bounded v0.1 maximum — no existing repository-wide bound found). Missing/unresolvable evidence → `NON_EVALUABLE`; incompatible unit → `NON_EVALUABLE`; resolved scalar outside domain → `REJECTED`/`INVALID_SIZING_INPUT`. Negative exposure is rejected at domain-validation (step 6), strictly before the exposure-cap check (step 10) — it can never reduce projected exposure or bypass the cap. Projected exposure remains `current gross quote-notional exposure + configured risk budget`.
+
+### Corrected sizing algorithm
+
+Thirteen deterministic steps (risk.md §5c), evaluated in order, stopping at the first failing check: (1) Trade Intent eligibility (already validated at §5a); (2) resolve risk evidence axes; (3) resolve evidence facts + unit evidence; (4) required-evidence availability check → `NON_EVALUABLE`/`REQUIRED_EVIDENCE_UNAVAILABLE` or `RISK_POLICY_EVIDENCE_UNAVAILABLE`; (5) unit-compatibility check → `NON_EVALUABLE`/`INCOMPATIBLE_EVIDENCE_UNIT`; (6) numeric-domain validation → `REJECTED`/`INVALID_SIZING_INPUT`; (7) account ACTIVE; (8) environment PAPER; (9) equity >= budget; (10) projected gross quote-notional <= max requested notional; (11) floor-rounded quantity; (12) zero-quantity check → `REJECTED`/`QUANTITY_ROUNDS_TO_ZERO`; (13) otherwise `APPROVED` with strictly positive quantity. Result/reason precedence is fully deterministic — exactly one terminal branch fires.
+
+### Positive-quantity rule
+
+`approved_quantity` is strictly positive (`> 0`) whenever present — pinned on `RiskEvaluationRecorded` (risk.md §5c step 12–13, §5e) and on `ExecutionIntent`/`ExecutionIntentIssued` (execution-intent.md §1/§3). A value of exactly `0` after floor-rounding is `REJECTED`/`QUANTITY_ROUNDS_TO_ZERO`, never `APPROVED` — `approved_quantity`/`approved_notional` absent in that case, zero Execution Intent.
+
+### Execution Intent quantity invariant
+
+Because an Execution Intent can only originate from a RiskEvaluation with `result = APPROVED` (execution-intent.md §1 invariant, unchanged), and `APPROVED` now guarantees `approved_quantity > 0` (risk.md §5c/§5e, v0.2), an `ExecutionIntentIssued` with zero or negative `approved_quantity` cannot exist validly — pinned as an explicit precondition invariant on `ExecutionIntentIssued` (§3) in addition to the entity-level invariant (§1), so no `OPEN_EXPOSURE` Execution Intent can carry zero quantity.
+
+### Complete C6 eligibility chain
+
+`eligible_for_new_order_creation(execution_intent_id, C)` (execution-intent.md §6a) now requires five AND-conditions: (1) `ExecutionIntent.current_status(C) == ISSUED`; (2) originating RiskEvaluation resolves to the visible-valid-head `APPROVED` for its logical Risk computation key at C; (3) that head is exactly the `originating_risk_evaluation_id` referenced; (4) that RiskEvaluation references the same `trade_intent_id`; (5) `eligible_for_new_risk_evaluation(trade_intent_id, C) == true`. Transitively ensures originating Decision, Trade Intent, and RiskEvaluation all remain valid, in addition to Execution Intent remaining ISSUED. When Trade Intent or RiskEvaluation becomes invalid, the old Execution Intent remains historical and ineligible for new Order creation, with no automatic history rewrite; a replacement chain may derive a new Execution Intent. No Order semantics authored.
+
+### Correction/replay preservation
+
+Unchanged, verified: opaque `risk_evaluation_id`/`evaluation_attempt_id`/`execution_intent_id` identity; per-attempt identity separate from logical computation key; multiple attempts per key; retry after `FAILED_BEFORE_EVALUATION`; one visible-valid-head per logical key; invalidate-first correction lineage (risk.md §10, ten invariants); replay-before/replay-after semantics; risk policy definition/configuration/plugin/build-artifact separation (four axes); no-look-ahead; Decision and Trade Intent causality; Risk-to-Execution-Intent idempotency (`execution_intent_derivation_idempotency_policy`); no cross-stream atomicity between RiskEvaluation↔Execution Intent AND now explicitly between Attempt↔RiskEvaluation; Execution Intent lifecycle (ISSUED/WITHDRAWN/EXPIRED); C1–C4 semantics; C5/C6 boundary.
+
+### Acceptance-scenario results (risk.md §17, eighteen scenarios — twelve required + six inherited)
+
+Scenario 1 (truthful successful attempt) — pass. Scenario 2 (crash before completion, retry) — pass. Scenario 3 (crash after completed Attempt, recoverable append gap) — pass. Scenario 4 (missing equity evidence, no fabrication) — pass. Scenario 5 (unresolved policy configuration, dependent scalars absent) — pass. Scenario 6 (unit mismatch, no FX-convert) — pass. Scenario 7 (valid unit chain) — pass. Scenario 8 (zero quantity rounds to zero) — pass. Scenario 9 (negative exposure rejected, cap not bypassed) — pass. Scenario 10 (valid approval) — pass. Scenario 11 (Trade Intent invalidated after approval, E1 historical) — pass. Scenario 12 (Risk replacement chain, E1 ineligible, R2 may derive E2) — pass. Scenario 13 (risk budget exceeded) — pass. Scenario 14 (Trade Intent ineligible) — pass. Scenario 15 (same evaluation retry, idempotent) — pass. Scenario 16 (cross-stream recovery) — pass. Scenario 17 (time ordering) — pass. Scenario 18 (direction/scope preservation) — pass.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, Chapter 8 §8.1.1/§8.2/§8.5 (Locked, byte-for-byte unchanged), Chapter 9 §9.1 (Locked, byte-for-byte unchanged), `trade-intent.md` v0.2 Draft §6a (byte-for-byte unchanged, verified), `decision.md` v0.3 Draft (byte-for-byte unchanged, verified), Package 0.2-C1/C2/C3/C4 (all `Consolidated Stable`, byte-for-byte unchanged, verified). `context-map.yaml` metadata-only bump (owned-contract version comment), no relationship edge added/removed.
+
+### Author self-review
+
+`quantity_precision` maximum `18` is a disclosed v0.1 judgment call (risk.md §15) — no existing repository-wide decimal precision bound was found in Constitution Chapters or other Consolidated Stable/Locked Domain Contracts at authoring time; if a repository-wide bound is established later, this value should be revisited. All lettered scenario cross-references (A–K) renumbered to 1–18 and re-verified via grep across both files — no stale letter reference remains. All sixteen (`risk.md`) + eight (`execution-intent.md`) YAML fenced blocks parse via `yaml.safe_load` — verified. `§5b` retained for `trade_evidence` (unconditional); new `§5b1`/`§5b2`/`§5b3` added for unit model/evidence-availability/risk-evidence-axes respectively — internal `§5b` cross-references audited and updated where they meant the axes (now `§5b3`) versus trade evidence (still `§5b`). No finding blocking khác found.
+
+### Changed-file scope
+
+```text
+docs/domain/risk.md              MODIFIED v0.1 → v0.2   blob a08f94851014bce5da51d98781fd9253d026fc34
+docs/domain/execution-intent.md  MODIFIED v0.1 → v0.2   blob afc0c1fe7bdd2f285403dff29c71849ab66af70c
+docs/domain/context-map.yaml     MODIFIED v0.15 → v0.16 blob 87e0411d1270ceacd4eb20e76340911900dedaad
+docs/domain/README.md            MODIFIED v0.42 → v0.43 blob f4732d7867fdbaac50012991d67841d6cc0ca3d9
+docs/MANIFEST.md                 MODIFIED manifest_version 9.68 → 9.69
+docs/CHANGELOG.md                MODIFIED (this entry)
+docs/domain/decision.md          KHÔNG ĐỔI — blob e2a26320200d350ace3da0247235bb14cef12509, verified byte-identical
+docs/domain/trade-intent.md      KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+```
+
+### Metadata / state
+
+- `risk.md`: **v0.1 → v0.2**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `execution-intent.md`: **v0.1 → v0.2**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `context-map.yaml`: **v0.15 → v0.16**, metadata-only (owned-contract version comment).
+- `README.md` (domain index): **v0.42 → v0.43**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.68 → 9.69**.
+- `decision.md`, `trade-intent.md`: **không đổi** (byte-for-byte, verified) — forbidden scope, không sửa.
+- `ADR-010.md`, `ADR-012.md`, `ADR-013.md`, `instrument.md`, `venue.md`, `account.md`, `strategy.md`: **không đổi** (byte-for-byte, verified).
+- Mọi ADR khác, Constitution, mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C5 VẪN CHƯA đạt `Consolidated Stable` — chờ bounded delta review (ChatGPT + Independent Review B) trên cùng exact baseline correction này.** Mandatory sequence tiếp tục: ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. Risk và Execution Intent vẫn là HAI concept riêng biệt, KHÔNG gộp. Package 0.2-C1/C2/C3/C4 vẫn `Consolidated Stable`, không đổi. Package 0.2-C6–C7 vẫn chưa authorize, chưa author, chưa authored. Không artifact nào Approved hay Locked. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-08-01 — author Package 0.2-C5 risk foundation
 
 **Package 0.2-C5 — Risk Gateway and Execution Intent Foundation v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C5 — Risk Gateway and Execution Intent Foundation v0.1". Authorized artifacts: `docs/domain/risk.md`, `docs/domain/execution-intent.md` (cả hai tạo mới, v0.1 Draft). Authorization này **không** cho phép author Package 0.2-C6–C7, định nghĩa order type/limit price/stop price/exchange payload/routing/adapter behavior, portfolio-level arbitration/multi-account netting/advanced margin/liquidation model, general Risk DSL, backtest/optimizer infrastructure, sửa `decision.md`/`trade-intent.md`/C1–C4 semantic/ADR-010/ADR-012/ADR-013/bất kỳ ADR nào/Constitution, đóng OQ-002/OQ-003, Approve/Lock/Consolidate bất kỳ artifact/package nào, hay authorize Live.
