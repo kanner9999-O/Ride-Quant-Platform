@@ -1,7 +1,7 @@
 ---
 id: position
 title: Position
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -23,6 +23,8 @@ Position **KHÔNG phải** một authoritative fact độc lập, KHÔNG có eve
 **Áp dụng ngay từ v0.1 mọi bài học đã trả giá xuyên suốt Package 0.2-B/C1–C7:** Position Current View (nếu có) KHÔNG BAO GIỜ authority; rebuild deterministic hoàn toàn từ `eligible_as_position_contributing_fill`; KHÔNG compensating Position event khi Fill invalidate — recompute trực tiếp.
 
 **v0.2 — bounded correction, đóng `C7-MAJ-04` (consolidated Review A + Independent Review B findings):** thêm `projection_status ∈ {EVALUABLE, NON_EVALUABLE}` VÀ `projection_reason_code = UNSUPPORTED_MULTIPLE_FILL_LINEAGES` (§1/§2) — khi > 1 eligible Fill lineage đóng góp cho CÙNG Position key, projection PHẢI trả về `NON_EVALUABLE` (KHÔNG `FLAT`, KHÔNG chọn một Fill, KHÔNG aggregate, KHÔNG weighted average) VÀ expose `contributing_fill_refs` (danh sách đầy đủ Fill xung đột). Position projection nay consume `eligible_as_position_contributing_fill` (fill.md §6, MỚI) THAY VÌ trực tiếp fold `FillCurrentView`/Fill stream — đảm bảo Position tự động loại trừ Fill orphan (ExecutionResult không còn EXECUTED head) NGAY LẬP TỨC, KHÔNG phụ thuộc thời điểm `FillFactInvalidated` được append (đóng liên đới `C7-MAJ-03`, xem `fill.md` §6). Bounded — không đổi Position structural key, non-negative magnitude representation, Position non-authority, C1–C6 semantics, PAPER-only boundary.
+
+**v0.3 (reference-consistency-only, KHÔNG semantic change, KHÔNG reopen `C7-MAJ-04`):** `execution-result.md` được cấu trúc lại tại second bounded correction đóng `C7-DELTA-MAJ-01` (thêm `ExecutionResultComputation` §2 + `ExecutionResultComputationAuthorized` §5, dịch chuyển mọi section phía sau) — trích dẫn `execution-result.md §7` (invalidation) trong tài liệu này được cập nhật thành `execution-result.md §9` ĐÚNG theo numbering MỚI. KHÔNG field/invariant/schema/fold algorithm nào của Position bị thay đổi.
 
 **Phạm vi bounded tường minh:** KHÔNG author close/reduce/reversal arithmetic. KHÔNG portfolio aggregation/cross-account/cross-listing netting. KHÔNG realized/unrealized PnL. KHÔNG margin/leverage/liquidation. KHÔNG accounting ledger. KHÔNG FX conversion. KHÔNG mutable Position command trực tiếp. KHÔNG weighted-average/netting arithmetic cho nhiều Fill — khi xảy ra, projection trả `NON_EVALUABLE` tường minh (§2), KHÔNG tự ý tính toán. KHÔNG redefine Fill contract. KHÔNG sửa `fill.md`/`execution-result.md`/`order.md`/`execution-intent.md`/`risk.md`/`decision.md`/`trade-intent.md`/C1–C6/ADR/Constitution.
 
@@ -126,7 +128,7 @@ Direction và magnitude là HAI trường tách biệt tường minh, KHÔNG g�
 ```text
 Fill F1 eligible → Position LONG hoặc SHORT (§2 bước 4)
 
-invalidate ExecutionResult mà F1 tham chiếu (execution-result.md §7) — v0.2, đóng C7-MAJ-03:
+invalidate ExecutionResult mà F1 tham chiếu (execution-result.md §9) — v0.2, đóng C7-MAJ-03:
   → eligible_as_position_contributing_fill(F1, C) chuyển false NGAY LẬP TỨC tại cursor invalidate đó
   → Position projection (§2) EXCLUDES F1 khỏi eligible_fills — KHÔNG chờ FillFactInvalidated
   → NẾU không còn Fill eligible nào khác → Position recompute FLAT (§2 bước 3)

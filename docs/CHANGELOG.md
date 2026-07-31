@@ -2,7 +2,126 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
-## [Unreleased] — 2026-07-31 — correct Package 0.2-C7 execution evidence and projection
+## [Unreleased] — 2026-07-31 — bind C7 observations to authorized computations
+
+**Package 0.2-C7 second bounded correction — đúng một consolidated delta finding.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C7 second bounded correction — C7-DELTA-MAJ-01." Đóng đúng một finding: `C7-DELTA-MAJ-01` (logical computation key `(submission_request_id, observation_cursor)` không authoritatively phân biệt initial computation / authorized correction computation / illegal rerun tại cursor mới / orphan Observation chờ Attempt). Authorization này **không** cho phép sửa C1–C6 semantic artifacts, `order.md`, ADR/Constitution, author simulation algorithm thực tế, Live behavior, exchange adapter/API payload, partial Fill, fees/PnL/accounting, close/reduce/reversal, aggregation/netting, margin/leverage/liquidation, cross-stream transaction, workflow/saga infrastructure, reopen `C7-MAJ-02`/`C7-MAJ-03`/`C7-MAJ-04`, Approve/Lock artifact, mark C7 Consolidated Stable, đóng OQ-002/OQ-003, hay declare Phase 0.2 complete.
+
+### Baseline verification
+
+```text
+Expected HEAD:  11dd3c0e5b1091f21e79ee5e1ba42e6e72d15026
+Actual HEAD:    11dd3c0e5b1091f21e79ee5e1ba42e6e72d15026  — match
+
+execution-result.md:  v0.2 Draft, blob 72011d38ca0e7ad78c09eed496242a164682abaf  — match
+fill.md:               v0.2 Draft, blob d001e0371f02145e0973c6f3b808f62f3d6465f7  — match
+position.md:            v0.2 Draft, blob 4eeb40603804c7baa4f4bc8b7a9f13cb94db6597  — match
+replay-event.md:        v0.2 Draft, blob 36cf46b69be70f4238ded433ce3eda33a3a2e99e  — match
+context-map.yaml:      v0.19 Draft  — match
+```
+
+### Finding resolution summary
+
+`C7-DELTA-MAJ-01`: introduced `ExecutionResultComputation` (execution-result.md §2, new entity) as the authoritative identity for exactly one authorized Execution Result computation lifecycle. Computation identity — not cursor — now determines authorization and idempotency. `computation_purpose ∈ {INITIAL, CORRECTION}`. Cursor remains immutable computation context/replay evidence but no longer silently authorizes a new computation.
+
+### ExecutionResultComputation model
+
+New entity (execution-result.md §2). `execution_result_computation_id` — opaque, globally unique, immutable, assigned at `ExecutionResultComputationAuthorized` (execution-result.md §5, new event), never derived from `submission_request_id`/`order_id`/`computation_cursor`/predecessor Result. Minimum schema: `execution_result_computation_id`, `computation_purpose`, `order_id`, `submission_request_id`, `computation_cursor`, `predecessor_execution_result_ref` (CORRECTION-only), `correction_authorization_ref` (CORRECTION-only). Append-only, no correction lineage of its own — a correction uses a brand-new computation identity, never mutates an existing one.
+
+### Initial computation cardinality
+
+For `computation_purpose = INITIAL`: `submission_request_id` required; `predecessor_execution_result_ref`/`correction_authorization_ref` absent. At most **one** `ExecutionResultComputation(INITIAL)` per `submission_request_id`, ever — regardless of `computation_cursor`, simulation evidence, or process invocation. A retry for the same Submission Request reuses the existing initial computation identity; a different cursor never creates a second INITIAL computation — deterministic conflict (Scenario 32).
+
+### Correction computation authorization
+
+For `computation_purpose = CORRECTION`: `predecessor_execution_result_ref` and `correction_authorization_ref` both required. `correction_authorization_ref` must resolve to an `ExecutionResultFactInvalidated` targeting exactly `predecessor_execution_result_ref`, visible before the correction computation is recorded. Predecessor's `submission_request_id` must equal the computation's `submission_request_id`. At most **one** direct `ExecutionResultComputation(CORRECTION)` per invalidated predecessor `ExecutionResult` — a second correction targeting the same predecessor conflicts (fork prohibited, Scenario 36). Five explicit reject conditions (execution-result.md §11): missing/invalid invalidation reference, wrong target, changed `submission_request_id`, fork, non-current-lineage predecessor (Scenario 35).
+
+### Computation event ordering and schema
+
+Corrected sequence (execution-result.md §8a): `ExecutionResultComputationAuthorized` → bounded simulation computation completes → `PaperExecutionObservationRecorded` → `ExecutionResultProcessingAttemptRecorded`(PROCESSED) → `ExecutionResultRecorded`. "Authorized" means domain eligibility (INITIAL, `order.md` §8b) or correction lineage (CORRECTION) permitted the computation — not manual Product Owner authorization of each runtime computation. No workflow/saga/command infrastructure introduced — `ExecutionResultComputationAuthorized` is a domain authorization fact only.
+
+### Observation binding and idempotency
+
+`PaperExecutionObservation` (execution-result.md §1) gained required `execution_result_computation_id`. Logical/idempotency identity changed from `(submission_request_id, observation_cursor)` to `execution_result_computation_id` alone — one computation → zero or one Observation. Same computation + same cursor + same evidence/output → idempotent reuse; same computation + changed cursor → deterministic conflict (Scenario 33); same computation + changed evidence/output → deterministic conflict (Scenario 25/D). `Observation.order_id`/`submission_request_id`/`observation_cursor` must equal `Computation`'s corresponding fields. `PaperExecutionObservationRecorded`'s `causation_refs` must now contain the exact `ExecutionResultComputationAuthorized` fact (execution-result.md §6).
+
+### Attempt binding
+
+`ExecutionResultProcessingAttemptRecorded` (execution-result.md §7) gained conditional `execution_result_computation_id` (`execution_observation_id` unchanged, still conditional). Bounded three-way rule: `INELIGIBLE` — no computation, no observation (eligibility check failed before authorization ever happened); `FAILED_BEFORE_RESULT` — computation present (was authorized), observation absent (simulation failed before durable output); `PROCESSED` — both present, exact Observation already persisted.
+
+### Result binding
+
+`ExecutionResultRecorded` (execution-result.md §8) gained required `execution_result_computation_id`, required equal to Attempt's and Observation's — three-way equality. `result_type` continues to copy exactly from the referenced Observation (`C7-MAJ-01`, unchanged). Result logical lineage key **remains `submission_request_id`** — computation identity explains which authorized computation produced the fact, it does not replace the Result's own lineage key. Correction replacement's `execution_result_computation_id` must be a CORRECTION-purpose computation whose `predecessor_execution_result_ref` points to the exact predecessor being superseded.
+
+### Corrected ordering (Gap A / Gap B recovery)
+
+Gap A (computation authorized, Observation persisted, Attempt absent): recovery resolves the computation (`GetExecutionResultComputationById`), resolves its exactly-one Observation (`GetObservationForComputation`), appends/reuses Attempt, appends/reuses Result — never searches Observations by `submission_request_id` alone, never picks the newest Observation, never selects a different cursor, never reruns simulation, never creates a second Observation or a second INITIAL computation for the Submission Request (Scenario B, §19 execution-result.md).
+
+### Gap A recovery
+
+Test: K1 authorized → O1 persisted → crash before Attempt. Recovery resolves K1 → resolves exactly one O1 for K1 → appends/reuses Attempt for K1/O1 → appends/reuses exactly one Result for K1/O1 — verified against every prohibited shortcut listed in the task (search-by-submission-request-id-only, newest-Observation selection, cursor substitution, simulation rerun, duplicate Observation/computation creation).
+
+### Gap B recovery
+
+Test: K1 → O1 → A1 PROCESSED → crash before E1. Recovery reuses K1/O1/A1, appends/reuses exactly one E1 — no simulation rerun, no new Attempt identity (Scenario E, execution-result.md §19).
+
+### Illegal rerun behavior
+
+Test: INITIAL K1 exists (S1, C1); another process requests INITIAL computation (S1, C2). Rejected as duplicate INITIAL computation — no K2/O2/A2/E2 created even though C2/simulation refs/deterministic inputs/output all differ (Scenario 32/A, execution-result.md §19).
+
+### Authorized correction behavior
+
+E1 exists from K1 → `ExecutionResultFactInvalidated` I1 targets E1 → CORRECTION computation K2 (`submission_request_id = E1.submission_request_id`, `predecessor_execution_result_ref = E1`, `correction_authorization_ref = I1`, `computation_cursor = C2`) → Observation O2 for K2 → Attempt A2 PROCESSED → replacement Result E2. Verified: `E2.execution_result_computation_id = K2`; `E2.supersedes_fact_ref = E1`; `E2.execution_result_id != E1.execution_result_id`; `E2.submission_request_id = E1.submission_request_id` (Scenario 34/F, execution-result.md §19).
+
+### Replay integration
+
+`replay-event.md` v0.2 → v0.3: `ReplayState(C)` (§2) folds an additional `execution_result_computation_lineage` component (execution-result.md §2, append-only). Twelve cursor milestones (C0–C11, replacing ten) — inserted "sau computation authorization" (C1, before Observation) and "sau correction computation authorized" (C8, predecessor invalidated, K2 authorized, before O2) — proving `C7-DELTA-MAJ-01` directly (Scenario 37). Observation-only gap milestone (C2) shows K1 authorized, O1 persisted, Attempt/Result absent — sufficient to deterministically resume K1. No duplicate replay authority introduced — `replay-event.md` still authors zero `event_types:`.
+
+### Time/cursor semantics
+
+`OrderSubmissionRequested.recorded_time < ExecutionResultComputationAuthorized.recorded_time < PaperExecutionObservationRecorded.recorded_time < ExecutionResultProcessingAttemptRecorded(PROCESSED).recorded_time < ExecutionResultRecorded.recorded_time` (execution-result.md §12). For correction: `ExecutionResultFactInvalidated.recorded_time < (correction) ExecutionResultComputationAuthorized.recorded_time`. Computation evidence: `fact.recorded_time <= computation_cursor.recorded_time <= ExecutionResultComputationAuthorized.recorded_time`. Canonical Replay Cursor and no-look-ahead preserved unchanged.
+
+### Regression check for C7-MAJ-02/03/04
+
+`C7-MAJ-02` (Fill copies exact persisted Observation economics — fill.md §1/§3 unchanged), `C7-MAJ-03` (`eligible_as_position_contributing_fill`, continuing cursor-bound rule — fill.md §6 unchanged), `C7-MAJ-04` (`projection_status ∈ {EVALUABLE, NON_EVALUABLE}` — position.md §1/§2 unchanged) — **none reopened, verified unchanged**. `fill.md`/`position.md` required only reference-consistency edits (remapped `execution-result.md §N` citations to the new section numbering caused by inserting §2/§5 into execution-result.md — zero field/invariant/schema/economics/idempotency change), disclosed transparently below rather than silently preserving stale blobs under an unchanged version.
+
+### Changed-file scope
+
+```text
+docs/domain/execution-result.md  MODIFIED v0.2 → v0.3   blob e5cbb0ee3e3b9083920c03318e3f0dd726247304
+docs/domain/replay-event.md      MODIFIED v0.2 → v0.3   blob f429d31c0f8ec42e2859f5658edd8a3dedf58b64
+docs/domain/fill.md              MODIFIED v0.2 → v0.3   blob a4a2c473086ef8495c4106b75d632a7af09ae3fc  (reference-consistency-only, xem trên)
+docs/domain/position.md          MODIFIED v0.2 → v0.3   blob 808a3e6041af7a5521094318924fa3682be9cefa  (reference-consistency-only, xem trên)
+docs/domain/README.md            MODIFIED v0.50 → v0.51   blob 9ffcb33e7e43012b06179224a1344d4a55ac9a5c
+docs/MANIFEST.md                 MODIFIED manifest_version 9.76 → 9.77
+docs/CHANGELOG.md                MODIFIED (this entry)
+docs/domain/context-map.yaml     KHÔNG ĐỔI — computation concept sống trong execution-result-management đã đăng ký, không cần registration mới
+docs/domain/order.md              KHÔNG ĐỔI — blob 94ec87593834362292dc3379068e99ef12d86412, verified byte-identical
+docs/domain/execution-intent.md   KHÔNG ĐỔI — blob afc0c1fe7bdd2f285403dff29c71849ab66af70c, verified byte-identical
+docs/domain/risk.md               KHÔNG ĐỔI — blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab, verified byte-identical
+docs/domain/decision.md           KHÔNG ĐỔI — blob e2a26320200d350ace3da0247235bb14cef12509, verified byte-identical
+docs/domain/trade-intent.md       KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+```
+
+### Author self-review
+
+Adding `ExecutionResultComputation` (§2) and `ExecutionResultComputationAuthorized` (§5) shifted every subsequent execution-result.md section by 2 (old §1→§1, §2→§3, §3→§4, §4→§6, §5→§7, §6→§8, §7→§9, §8→§10, §9→§11, §10→§12, §11→§13, §12→§14, §13→§15, §14→§16, §15→§17, §16→§18, §17→§19). Applying the lesson from the immediately-prior correction's scenario-numbering collisions, a full pre-write numbering plan was drafted before editing, then a Python cross-file verification script (mapping every `**Scenario N —**` definition to its home file/section and checking every citation resolves correctly) was run against all four C7 files — result: 37 distinct scenario numbers (1–37), zero collisions, zero mismatches. A second script pass caught a real, distinct bug class: `fill.md` and `position.md` (both otherwise semantically unchanged) contained six stale `execution-result.md §N` cross-file citations pointing at the OLD section numbering (e.g. `execution-result.md §6` for `ExecutionResultRecorded`, now §8; `execution-result.md §15` for the "Ngoài phạm vi" section, now §17) — these were mechanically remapped per the exact old→new section table, and both files' versions bumped to v0.3 with an explicit "reference-consistency-only, no semantic change" disclosure rather than silently modifying content under an unchanged version number or leaving the citations stale. All YAML fenced blocks across all four files re-validated via `yaml.safe_load` — 0 errors.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, Chapter 7 §7.4 (Locked, unchanged), Chapter 8 (Locked, unchanged), `order.md` v0.2 Draft §8b (byte-for-byte unchanged, verified), Package 0.2-C1–C6 (all `Consolidated Stable`, byte-for-byte unchanged, verified).
+
+### Metadata / state
+
+- `execution-result.md`/`replay-event.md`: **v0.2 → v0.3**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `fill.md`/`position.md`: **v0.2 → v0.3** (reference-consistency-only, KHÔNG semantic), `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `context-map.yaml`: **không đổi.**
+- `README.md` (domain index): **v0.50 → v0.51**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.76 → 9.77**.
+- `order.md`, `execution-intent.md`, `risk.md`, `decision.md`, `trade-intent.md`: **không đổi** (byte-for-byte, verified) — forbidden scope, không sửa.
+- Mọi ADR khác, Constitution, mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C7 VẪN CHƯA đạt `Consolidated Stable` — chờ second bounded delta review (ChatGPT + Independent Review B) trên cùng exact baseline correction này.** Mandatory sequence tiếp tục: ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. Package 0.2-C1/C2/C3/C4/C5/C6 vẫn `Consolidated Stable`, không đổi. `C7-MAJ-02`/`C7-MAJ-03`/`C7-MAJ-04` KHÔNG reopen. KHÔNG Live behavior, exchange adapter/API payload, fee/PnL/margin/leverage/liquidation semantics nào được author. KHÔNG cross-stream atomic transaction hay workflow/saga infrastructure nào được introduce. Không artifact nào Approved hay Locked. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
+
 
 **Package 0.2-C7 bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C7 bounded correction — C7-MAJ-01/02/03/04." Đóng đúng bốn finding Major: `C7-MAJ-01` (durable Result simulation evidence), `C7-MAJ-02` (durable Fill-price derivation evidence), `C7-MAJ-03` (non-atomic Result–Fill correction semantics), `C7-MAJ-04` (deterministic multiple-Fill Position behavior). Authorization này **không** cho phép sửa C1–C6 semantic artifacts, `order.md`, ADR/Constitution, author simulation algorithm thực tế, exchange adapter/API payload, Live behavior, partial fills, fees/PnL/accounting, close/reduce/reversal, weighted-average aggregation, portfolio netting, margin/leverage/liquidation, cross-stream transactions, workflow/saga infrastructure, Approve/Lock artifact, mark C7 Consolidated Stable, đóng OQ-002/OQ-003, hay declare Phase 0.2 complete.
 

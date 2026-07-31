@@ -1,7 +1,7 @@
 ---
 id: fill
 title: Fill
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -16,7 +16,7 @@ next_review: null
 
 > **Vai trò của tài liệu này:** Domain Contract thứ hai của Package 0.2-C7 (Execution Result, Fill, Position and Replay Integration Foundation) — định nghĩa **Fill**, bản ghi authoritative, bất biến, của quantity/price ĐÃ THỰC SỰ executed cho một [`execution-result.md`](./execution-result.md) `result_type = EXECUTED`. Draft, chưa Approved/Locked. Thuộc capability `execution-management` / context `fill-management` (đăng ký tại [`context-map.yaml`](./context-map.yaml), không đổi trong bounded correction này). Kiến trúc controlling: [`execution-result.md`](./execution-result.md) v0.2 Draft §1/§6 (PaperExecutionObservation + ExecutionResult, KHÔNG sửa), [`order.md`](./order.md) v0.2 Draft (origin chain, KHÔNG sửa), [Chapter 8 §8.1.1/§8.2/§8.5](../constitution/08-event-model.md) (Locked). Tài liệu này CHỈ implement field/invariant mà các nguồn trên yêu cầu.
 
-Fill **KHÔNG phải** một ExecutionResult, một PaperExecutionObservation (cả hai `execution-result.md`, file riêng), một Position (`position.md`, file riêng), venue acknowledgement, hay bằng chứng price-guarantee/limit price. Nó là **bản ghi authoritative, bất biến, tự-giải-thích được** của quantity/price ĐÃ THỰC SỰ executed. **v0.2 (đóng `C7-MAJ-02`):** Fill KHÔNG BAO GIỜ độc lập quan sát/tính toán lại `fill_quantity`/`fill_price`/`price_currency` — TOÀN BỘ economics PHẢI copy CHÍNH XÁC từ `PaperExecutionObservation` (execution-result.md §1) visible-valid mà ExecutionResult (execution-result.md §6) tham chiếu, qua chuỗi `fill.execution_result_id → ExecutionResult.execution_observation_id → PaperExecutionObservation`.
+Fill **KHÔNG phải** một ExecutionResult, một PaperExecutionObservation (cả hai `execution-result.md`, file riêng), một Position (`position.md`, file riêng), venue acknowledgement, hay bằng chứng price-guarantee/limit price. Nó là **bản ghi authoritative, bất biến, tự-giải-thích được** của quantity/price ĐÃ THỰC SỰ executed. **v0.2 (đóng `C7-MAJ-02`):** Fill KHÔNG BAO GIỜ độc lập quan sát/tính toán lại `fill_quantity`/`fill_price`/`price_currency` — TOÀN BỘ economics PHẢI copy CHÍNH XÁC từ `PaperExecutionObservation` (execution-result.md §1) visible-valid mà ExecutionResult (execution-result.md §8) tham chiếu, qua chuỗi `fill.execution_result_id → ExecutionResult.execution_observation_id → PaperExecutionObservation`.
 
 **Ví dụ walking-skeleton (tiếp `execution-result.md`):** một ExecutionResult `EXECUTED` (tham chiếu một Observation cụ thể) → đúng một full Fill, `fill_quantity == Observation.executed_quantity == Order.quantity`, `fill_price == Observation.execution_price` — v0.1/v0.2 KHÔNG partial-fill semantics (disclosed bounded rule, §12).
 
@@ -25,6 +25,8 @@ Fill **KHÔNG phải** một ExecutionResult, một PaperExecutionObservation (c
 **Áp dụng ngay từ v0.1 mọi bài học đã trả giá xuyên suốt Package 0.2-B/C1–C7:** opaque identity không derive từ scope; direct-predecessor-fact-targeting cho `supersedes_fact_ref`; fold algorithm "visible-valid-head per logical key" cho Current View; Current View KHÔNG BAO GIỜ authority. **Fill KHÔNG có processing Attempt riêng** — derivation từ `ExecutionResultRecorded(EXECUTED)` là deterministic trực tiếp.
 
 **v0.2 — bounded correction, đóng `C7-MAJ-02`/`C7-MAJ-03` (consolidated Review A + Independent Review B findings — `C7-MAJ-01` đóng tại `execution-result.md`, `C7-MAJ-04` đóng tại `position.md`):** (a) `C7-MAJ-02` — Fill economics (`fill_quantity`/`fill_price`/`price_currency`/`quantity_unit`) nay BẮT BUỘC copy CHÍNH XÁC từ `PaperExecutionObservation` (execution-result.md §1) visible-valid, qua `execution_observation_id` (field MỚI trên Fill payload, §1/§3) — Fill KHÔNG BAO GIỜ độc lập quan sát/recompute; Fill recovery (Result→Fill append gap, §3a) KHÔNG BAO GIỜ recompute giá — CHỈ copy persisted economics. (b) `C7-MAJ-03` — loại bỏ hoàn toàn ngôn ngữ "cặp bắt buộc"/"atomic-adjacent" giữa `FillFactInvalidated` và ExecutionResult correction (§4/§6) — thay bằng continuing eligibility rule `eligible_as_position_contributing_fill(fill_id, C)` (§6, MỚI) đánh giá LIÊN TỤC tại mọi cursor C — một Fill trở derived-ineligible cho Position NGAY LẬP TỨC khi ExecutionResult nó tham chiếu không còn là visible-valid EXECUTED head, ĐỘC LẬP hoàn toàn với việc/thời điểm `FillFactInvalidated` được append. Bounded — không đổi logical Fill key, full-Fill boundary, opaque Fill identity, Fill correction lineage (mười invariant), Position structural key, non-negative magnitude representation, C1–C6 semantics, PAPER-only boundary.
+
+**v0.3 (reference-consistency-only, KHÔNG semantic change, KHÔNG reopen `C7-MAJ-02`/`C7-MAJ-03`):** `execution-result.md` được cấu trúc lại tại second bounded correction đóng `C7-DELTA-MAJ-01` (thêm `ExecutionResultComputation` §2 + `ExecutionResultComputationAuthorized` §5, dịch chuyển mọi section phía sau) — mọi trích dẫn `execution-result.md §N` trong tài liệu này được cập nhật lại ĐÚNG theo numbering MỚI (ví dụ: `ExecutionResultRecorded` nay ở §8 thay vì §6, `ExecutionResultCurrentView` nay ở §10 thay vì §8). KHÔNG field/invariant/schema/economics/idempotency nào của Fill bị thay đổi.
 
 **Phạm vi bounded tường minh:** KHÔNG author Position semantics (`position.md`, file riêng). KHÔNG partial fill. KHÔNG slippage/price-guarantee semantics. KHÔNG fee/commission/funding. KHÔNG FX conversion. KHÔNG Live behavior. KHÔNG cross-stream atomic transaction. KHÔNG redefine ExecutionResult/PaperExecutionObservation/Order contract. KHÔNG sửa `execution-result.md`/`order.md`/`execution-intent.md`/`risk.md`/`decision.md`/`trade-intent.md`/C1–C6/ADR/Constitution.
 
@@ -44,8 +46,8 @@ description: >
 invariants:
   - "fill_id là opaque, globally unique, gán tại FillRecorded — KHÔNG derive từ execution_result_id hay bất kỳ field scope nào. Bất biến."
   - "MỘT Fill originate từ ĐÚNG MỘT ExecutionResult (execution_result_id, ref: execution-result), result_type = EXECUTED — logical Fill key = execution_result_id, tại một cursor cho trước tối đa MỘT Fill VALID cho mỗi execution_result_id (§7 `fill_derivation_idempotency_policy: ONE_VALID_FILL_PER_EXECUTION_RESULT`)."
-  - "order_id/submission_request_id/originating_execution_intent_id/originating_risk_evaluation_id/trade_intent_id/account_id/environment/instrument_selection_ref/direction PHẢI BẰNG HỆT origin chain tương ứng của execution_result_id (execution-result.md §6) — Fill KHÔNG được tự chọn Account/instrument/direction khác ExecutionResult gốc đã pin (Scenario 9, §14)."
-  - "**v0.2 (đóng C7-MAJ-02):** `execution_observation_id` PHẢI BẰNG HỆT `execution_result_id`'s ExecutionResult.execution_observation_id (execution-result.md §6). `fill_quantity` PHẢI BẰNG HỆT Observation.executed_quantity; `quantity_unit` PHẢI BẰNG HỆT Observation.quantity_unit; `fill_price` PHẢI BẰNG HỆT Observation.execution_price; `price_currency` PHẢI BẰNG HỆT Observation.price_currency — KHÔNG BAO GIỜ độc lập quan sát/tính toán lại (đóng đúng yêu cầu 'Fill must derive all execution economics from the immutable Observation')."
+  - "order_id/submission_request_id/originating_execution_intent_id/originating_risk_evaluation_id/trade_intent_id/account_id/environment/instrument_selection_ref/direction PHẢI BẰNG HỆT origin chain tương ứng của execution_result_id (execution-result.md §8) — Fill KHÔNG được tự chọn Account/instrument/direction khác ExecutionResult gốc đã pin (Scenario 9, §14)."
+  - "**v0.2 (đóng C7-MAJ-02):** `execution_observation_id` PHẢI BẰNG HỆT `execution_result_id`'s ExecutionResult.execution_observation_id (execution-result.md §8). `fill_quantity` PHẢI BẰNG HỆT Observation.executed_quantity; `quantity_unit` PHẢI BẰNG HỆT Observation.quantity_unit; `fill_price` PHẢI BẰNG HỆT Observation.execution_price; `price_currency` PHẢI BẰNG HỆT Observation.price_currency — KHÔNG BAO GIỜ độc lập quan sát/tính toán lại (đóng đúng yêu cầu 'Fill must derive all execution economics from the immutable Observation')."
   - "fill_quantity PHẢI finite, STRICTLY POSITIVE (> 0) — v0.1/v0.2 executed result sản sinh CHÍNH XÁC một full Fill, KHÔNG partial-fill semantics (§12, disclosed bounded rule)."
   - "fill_price PHẢI finite, STRICTLY POSITIVE (> 0)."
   - "price_currency PHẢI CHÍNH XÁC BẰNG TradableListing quote currency (qua Observation, resolve từ instrument_selection_ref — KHÔNG redefine tại đây) — KHÔNG FX conversion."
@@ -98,7 +100,7 @@ envelope:
   sequence: {cardinality: required}
   producer_ref: {cardinality: required}              # Phase 1, chưa author
   correlation_id: {cardinality: "required — luôn thuộc correlation flow tường minh (originating ExecutionResultRecorded)"}
-  causation_refs: {cardinality: "FillRecorded: KHÔNG BAO GIỜ rỗng — PHẢI chứa ExecutionResultRecorded (EXECUTED) tương ứng (execution-result.md §6), CỘNG FillFactInvalidated của predecessor nếu là correction replacement (§6). FillFactInvalidated: KHÔNG BAO GIỜ rỗng."}
+  causation_refs: {cardinality: "FillRecorded: KHÔNG BAO GIỜ rỗng — PHẢI chứa ExecutionResultRecorded (EXECUTED) tương ứng (execution-result.md §8), CỘNG FillFactInvalidated của predecessor nếu là correction replacement (§6). FillFactInvalidated: KHÔNG BAO GIỜ rỗng."}
   related_event_refs: {cardinality: "zero-to-many, non-causal — Chapter 8 §8.2.3."}
   effective_time: {cardinality: "required — semantic = fill_effective_time trên FillRecorded (§3)."}
   decision_time: {cardinality: "PROHIBITED."}
@@ -143,17 +145,17 @@ capability_id: execution-management
 domain_context_id: fill-management
 description: >
   Fact AUTHORITATIVE cho MỘT Fill — thiết lập TOÀN BỘ scope cùng lúc, BẤT BIẾN. CHỈ được phát khi
-  ExecutionResultRecorded (execution-result.md §6) tương ứng có result_type = EXECUTED (§3a). **v0.2
+  ExecutionResultRecorded (execution-result.md §8) tương ứng có result_type = EXECUTED (§3a). **v0.2
   (đóng C7-MAJ-02):** mọi economics field PHẢI copy CHÍNH XÁC từ PaperExecutionObservation tham
   chiếu qua ExecutionResult.execution_observation_id.
 invariants:
   - "payload.fill_id PHẢI khớp đúng subject_ref.subject_id VÀ payload.execution_result_id PHẢI khớp đúng subject_ref.scope.execution_result_id."
   - "envelope.effective_time (fill_effective_time) = mặc định bằng fill_context_cursor.recorded_time."
-  - "causation_refs PHẢI chứa ExecutionResultRecorded tương ứng (execution-result.md §6), result_type = EXECUTED, cùng execution_result_id."
+  - "causation_refs PHẢI chứa ExecutionResultRecorded tương ứng (execution-result.md §8), result_type = EXECUTED, cùng execution_result_id."
   - "Logical Fill key = execution_result_id. Nếu key ĐÃ CÓ một Fill VALID tại thời điểm ghi, FillRecorded MỚI PHẢI resolve/reuse fill_id đã tồn tại (payload giống hệt) HOẶC bị reject (payload khác, chưa invalidate predecessor)."
-  - "Mọi field origin (order_id/submission_request_id/originating_execution_intent_id/originating_risk_evaluation_id/trade_intent_id/account_id/environment/instrument_selection_ref/direction) PHẢI khớp CHÍNH XÁC ExecutionResult tương ứng (execution-result.md §6) TẠI fill_context_cursor."
+  - "Mọi field origin (order_id/submission_request_id/originating_execution_intent_id/originating_risk_evaluation_id/trade_intent_id/account_id/environment/instrument_selection_ref/direction) PHẢI khớp CHÍNH XÁC ExecutionResult tương ứng (execution-result.md §8) TẠI fill_context_cursor."
   - "**v0.2 (đóng C7-MAJ-02):** `payload.execution_observation_id` PHẢI BẰNG HỆT ExecutionResult.execution_observation_id. `fill_quantity` PHẢI BẰNG HỆT Observation.executed_quantity; `quantity_unit` PHẢI BẰNG HỆT Observation.quantity_unit; `fill_price` PHẢI BẰNG HỆT Observation.execution_price; `price_currency` PHẢI BẰNG HỆT Observation.price_currency — TUYỆT ĐỐI KHÔNG được là một giá trị độc lập quan sát/tính toán khác."
-  - "reject khi: fill_quantity <= 0; fill_price <= 0; fill_quantity != Observation.executed_quantity; quantity_unit != Observation.quantity_unit; fill_price != Observation.execution_price; price_currency != Observation.price_currency; environment != PAPER; origin IDs mismatch; execution_result.result_type != EXECUTED; execution_result_id không phải visible-valid-head (execution-result.md §8); submission request/Order không hợp lệ."
+  - "reject khi: fill_quantity <= 0; fill_price <= 0; fill_quantity != Observation.executed_quantity; quantity_unit != Observation.quantity_unit; fill_price != Observation.execution_price; price_currency != Observation.price_currency; environment != PAPER; origin IDs mismatch; execution_result.result_type != EXECUTED; execution_result_id không phải visible-valid-head (execution-result.md §10); submission request/Order không hợp lệ."
   - "`supersedes_fact_ref` TUYỆT ĐỐI ABSENT cho Fill gốc. BẮT BUỘC có mặt cho correction replacement, trỏ TRỰC TIẾP predecessor FillRecorded fact."
   - "Khi `supersedes_fact_ref` có mặt, `causation_refs` PHẢI CỘNG THÊM chứa chính FillFactInvalidated targeting predecessor."
 ```
@@ -287,7 +289,7 @@ queries: [GetFillForExecutionResult, GetFillById, GetFillHistory]
 eligible_as_position_contributing_fill(fill_id, C) =
       Fill là visible-valid-head cho execution_result_id của nó TẠI C                              (§5 fold, stream riêng Fill)
   AND ExecutionResult được reference (fill.execution_result_id) là visible-valid-head cho
-      submission_request_id của nó TẠI C                                                            (execution-result.md §8 fold)
+      submission_request_id của nó TẠI C                                                            (execution-result.md §10 fold)
   AND ExecutionResult đó có result_type == EXECUTED TẠI C
   AND PaperExecutionObservation được ExecutionResult đó reference là visible tại C
       (execution-result.md §1 — append-only, luôn visible một khi recorded_time ≤ C)
@@ -300,7 +302,7 @@ eligible_as_position_contributing_fill(fill_id, C) =
 **Hành vi khi ExecutionResult bị invalidate (v0.2, đóng `C7-MAJ-03` — KHÔNG cross-stream atomicity):**
 
 ```text
-Ngay tại cursor ExecutionResult E1 bị invalidate (execution-result.md §7):
+Ngay tại cursor ExecutionResult E1 bị invalidate (execution-result.md §9):
   → điều kiện thứ hai/ba của eligible_as_position_contributing_fill fail NGAY LẬP TỨC cho F1
   → F1 remains historical trong stream riêng của nó (fill.md §5 view_state có thể vẫn VALID)
   → F1 MAY remain non-invalidated (FillFactInvalidated KHÔNG bắt buộc append cùng lúc)
@@ -323,7 +325,7 @@ E1 EXECUTED → F1 tồn tại
   → E2 (NOT_EXECUTED, Observation MỚI) ghi
   → SAU E2: F1 VẪN ineligible (E1 KHÔNG còn là head; ngay cả nếu E1 VẪN được resolve theo cách nào
     đó, result_type của head hiện tại là NOT_EXECUTED)
-  → KHÔNG Fill mới nào được phép cho submission_request_id này (execution-result.md §6: result_type
+  → KHÔNG Fill mới nào được phép cho submission_request_id này (execution-result.md §8: result_type
     NOT_EXECUTED → KHÔNG Fill nào được phép tồn tại VALID cho ExecutionResult ĐÓ)
   → FillFactInvalidated (khi/nếu append) là explicit cleanup/correction fact CHO F1's OWN stream —
     KHÔNG có replacement Fill nào được kỳ vọng (§4 invariant cuối)
@@ -359,7 +361,7 @@ fill_correction_lineage_policy: SAME_LOGICAL_KEY_NEW_ID_INVALIDATE_THEN_REPLACE
 
 ## 9. Time semantics và bitemporal correctness
 
-- **v0.2, chuỗi causal đầy đủ:** `ExecutionResultRecorded.recorded_time < FillRecorded.recorded_time` (strict, kế thừa chuỗi đầy đủ từ execution-result.md §10: `OrderSubmissionRequested < PaperExecutionObservationRecorded < ExecutionResultProcessingAttemptRecorded(PROCESSED) < ExecutionResultRecorded < FillRecorded`).
+- **v0.2, chuỗi causal đầy đủ:** `ExecutionResultRecorded.recorded_time < FillRecorded.recorded_time` (strict, kế thừa chuỗi đầy đủ từ execution-result.md §12: `OrderSubmissionRequested < PaperExecutionObservationRecorded < ExecutionResultProcessingAttemptRecorded(PROCESSED) < ExecutionResultRecorded < FillRecorded`).
 - Effective-time: `ExecutionResultRecorded.result_effective_time <= FillRecorded.fill_effective_time`.
 - Mọi authoritative fact dùng cho Fill payload PHẢI thỏa `fact.recorded_time <= fill_context_cursor.recorded_time <= FillRecorded.recorded_time`.
 - Replay tại cursor T chỉ thấy fact có `recorded_time ≤ T` — invalidation ghi SAU T KHÔNG visible tại T.
@@ -401,7 +403,7 @@ kết quả TẠI cursor hiện hành} — KHÔNG computation mới, KHÔNG exte
 ## 13. Ngoài phạm vi — defer
 
 - **Full-Fill boundary (disclosed v0.1 judgment call, không đổi v0.2):** `result_type = EXECUTED` LUÔN sản sinh CHÍNH XÁC MỘT full Fill — v0.1/v0.2 KHÔNG partial-fill semantics.
-- Cơ chế/thuật toán PAPER simulation cụ thể — deferred, xem execution-result.md §15.
+- Cơ chế/thuật toán PAPER simulation cụ thể — deferred, xem execution-result.md §17.
 - Stream Registry/Input Contract implementation cụ thể.
 - Implementation technology cho ExecutionResult→Fill recovery.
 - Position semantics — hoàn toàn ngoài phạm vi Domain Contract này.
