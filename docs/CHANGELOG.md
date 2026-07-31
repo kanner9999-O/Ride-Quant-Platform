@@ -2,6 +2,133 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — author Package 0.2-C7 execution result fill position replay
+
+**Package 0.2-C7 — Execution Result, Fill, Position and Replay Integration Foundation v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C7: Execution Result, Fill, Position and Replay Integration Foundation v0.1". Authorized artifacts: `docs/domain/execution-result.md`, `docs/domain/fill.md`, `docs/domain/position.md`, `docs/domain/replay-event.md` (tất cả tạo mới, v0.1 Draft). Authorization này **không** cho phép author Live behavior, exchange API payload, external order ID, routing/adapter, cancellation/replacement protocol, partial fill (trừ khi bounded rule disclosed), fees/commissions/funding, slippage model, realized/unrealized PnL, portfolio aggregation, cross-account/cross-listing netting, margin/leverage/liquidation, settlement/tax/accounting ledger, FX conversion, general workflow engine, sửa C1–C6 artifacts, sửa ADR/Constitution, đóng OQ-002/OQ-003, Approve/Lock bất kỳ artifact nào, hay mark C7 Consolidated Stable.
+
+### Baseline verification
+
+```text
+Expected HEAD:  45f9053487e36e2f7680ae71433422cd1c4f3ad3
+Actual HEAD:    45f9053487e36e2f7680ae71433422cd1c4f3ad3  — match
+
+Package 0.2-C1:  Consolidated Stable (không đổi)
+Package 0.2-C2:  Consolidated Stable (không đổi)
+Package 0.2-C3:  Consolidated Stable (không đổi)
+Package 0.2-C4:  Consolidated Stable (không đổi)
+Package 0.2-C5:  Consolidated Stable (không đổi)
+Package 0.2-C6:  Consolidated Stable (không đổi)
+order.md:          v0.2 Draft, blob 94ec87593834362292dc3379068e99ef12d86412
+context-map.yaml:  v0.18 Draft, blob d87428e9919005a2cd7f7b282c92f710e5aed382
+execution-result.md/fill.md/position.md/replay-event.md: absent trước transaction — đúng expected state, KHÔNG có baseline conflict
+```
+
+### Physical artifact decomposition
+
+Bốn file riêng biệt (task's preferred decomposition, chọn để tách bạch observation khỏi execution fact): `execution-result.md` sở hữu ExecutionResult observation + processing Attempt; `fill.md` sở hữu Fill fact + Fill correction; `position.md` sở hữu deterministic Position projection (KHÔNG authoritative); `replay-event.md` sở hữu CHỈ integration/reference semantics, KHÔNG duplicate authority.
+
+### Changed-file scope
+
+```text
+docs/domain/execution-result.md  NEW v0.1 Draft   blob fe19a5c66088a854ade1b294598004a04a5f4e4f
+docs/domain/fill.md              NEW v0.1 Draft   blob f43c9e58464f783ae34f7b1df6bb9bd036a0484c
+docs/domain/position.md          NEW v0.1 Draft   blob b7b6b64e6e0388c00aad416540b90e1705509af0
+docs/domain/replay-event.md      NEW v0.1 Draft   blob de956e6d9ab0a0fd5abdc567657e06b6e3813d81
+docs/domain/context-map.yaml     MODIFIED v0.18 → v0.19   blob d2813e774093eb9c7510f9e41955612240726f89
+docs/domain/README.md            MODIFIED v0.48 → v0.49   blob dcd2dca46c0d1711ab87e644c04ca86983c505da
+docs/MANIFEST.md                 MODIFIED manifest_version 9.74 → 9.75
+docs/CHANGELOG.md                MODIFIED (this entry)
+docs/domain/order.md              KHÔNG ĐỔI — blob 94ec87593834362292dc3379068e99ef12d86412, verified byte-identical
+docs/domain/execution-intent.md   KHÔNG ĐỔI — blob afc0c1fe7bdd2f285403dff29c71849ab66af70c, verified byte-identical
+docs/domain/risk.md               KHÔNG ĐỔI — blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab, verified byte-identical
+docs/domain/decision.md           KHÔNG ĐỔI — blob e2a26320200d350ace3da0247235bb14cef12509, verified byte-identical
+docs/domain/trade-intent.md       KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+```
+
+### Execution-result processing Attempt model
+
+`execution_result_processing_attempt_id` — opaque, individual attempt identity, TÁCH BIỆT khỏi logical result key (`submission_request_id`). `attempt_outcome ∈ {PROCESSED, INELIGIBLE, FAILED_BEFORE_RESULT}` (execution-result.md §1/§3) — mọi lần thử ĐỀU ghi nhận. `PROCESSED` chỉ ghi SAU KHI bounded result payload computation hoàn tất trọn vẹn (§4a) — one-way sequence, `ExecutionResultRecorded.causation_refs` trỏ ngược lại attempt. `INELIGIBLE`: `eligible_for_execution_result_processing == false` (order.md §8b). `FAILED_BEFORE_RESULT`: retryable, không permanently block recovery. KHÔNG broad operational error taxonomy — v0.1 chỉ một reason_code cho mỗi outcome cần reason.
+
+### Execution Result identity and logical key
+
+`execution_result_id` — opaque, globally unique, immutable. **Logical result key = `submission_request_id` (KHÔNG `order_id`)** — đóng đúng yêu cầu task "Do not use order_id alone if one Order may receive a corrected/reissued Submission Request after invalidation." Nếu S1 invalidate và S2 thay thế (order.md §9), ExecutionResult của S1 TUYỆT ĐỐI KHÔNG trở thành ExecutionResult của S2 — mỗi `submission_request_id` sở hữu lineage riêng. Cardinality: một visible-valid OrderSubmissionRequested → zero hoặc một visible-valid Execution Result head (execution-result.md §1 invariant). Idempotency: same submission request + same payload → reuse; same + changed → conflict.
+
+### C6 readiness integration
+
+`ExecutionResultRecorded` (§4a) precondition dùng CHÍNH XÁC `eligible_for_execution_result_processing(order_id, C)` (order.md §8b) KHÔNG rút gọn/duplicate/bypass — bao gồm cả năm điều kiện của rule đó (Order visible-valid-head, `eligible_for_new_order_creation` trọn vẹn, đúng một Submission Request valid, `current_status == SUBMISSION_REQUESTED`).
+
+### Result origin binding
+
+Mọi field origin (order_id/submission_request_id/originating_execution_intent_id/originating_risk_evaluation_id/trade_intent_id/account_id/environment/instrument_selection_ref/direction/order_quantity/quantity_unit) PHẢI khớp CHÍNH XÁC chuỗi visible-valid TẠI execution_result_cursor (execution-result.md §4 invariant) — reject predecessor Order, invalidated Order, invalidated Submission Request, request thuộc Order khác, Order WITHDRAWN/EXPIRED, Execution Intent không ISSUED, Risk/Trade Intent/Decision chain invalid, hay bất kỳ field origin nào đổi.
+
+### Result idempotency and correction
+
+`execution_result_derivation_idempotency_policy: ONE_VALID_RESULT_PER_SUBMISSION_REQUEST` (§9). Correction: append-only, `supersedes_fact_ref` trỏ TRỰC TIẾP predecessor `ExecutionResultRecorded` (KHÔNG trỏ `ExecutionResultFactInvalidated` — event đó nằm trong `causation_refs`), mười invariant đối xứng `risk.md` §10/`order.md` §9 (§7). Một visible-valid-head duy nhất per `submission_request_id`.
+
+### Fill identity and derivation
+
+`fill_id` — opaque, globally unique, immutable. Logical Fill key = `execution_result_id`. Cardinality: `EXECUTED` → đúng MỘT visible-valid Fill head; `NOT_EXECUTED` → zero Fill. Idempotency: same `execution_result_id` + same payload → reuse; same + changed → conflict, KHÔNG duplicate Fill cho một result.
+
+### Fill validation and full-fill boundary
+
+**Disclosed v0.1 bounded rule (task yêu cầu explicit disclosure):** executed result LUÔN sản sinh CHÍNH XÁC một full Fill — `fill_quantity == Order.quantity`, KHÔNG partial-fill semantics. Reject: `fill_quantity <= 0`; `fill_price <= 0`; `fill_quantity != Order.quantity`; `quantity_unit` mismatch; `price_currency` mismatch; `environment != PAPER`; origin IDs mismatch; `execution_result.result_type != EXECUTED`; execution_result không phải visible-valid-head; submission request/Order invalid. `fill_price` là giá PAPER execution quan sát được — KHÔNG limit price/price-guarantee/slippage semantics nào được author.
+
+### Result-to-Fill append-gap recovery
+
+Thứ tự bắt buộc: result payload computed → Attempt PROCESSED → `ExecutionResultRecorded` → Fill payload computed → `FillRecorded` (fill.md §3a). Crash sau `ExecutionResultRecorded(EXECUTED)` nhưng TRƯỚC `FillRecorded` là recoverable append gap — recovery PHẢI tái sử dụng CHÍNH `execution_result_id`, regenerate CÙNG deterministic Fill payload, append/reuse ĐÚNG MỘT Fill, TUYỆT ĐỐI KHÔNG duplicate. KHÔNG atomic result→Fill transaction assumption.
+
+### Fill correction and replay
+
+Append-only, `supersedes_fact_ref` trỏ TRỰC TIẾP predecessor `FillRecorded`, mười invariant đối xứng (fill.md §6). **Ràng buộc bắt buộc, ĐÓNG ĐÚNG YÊU CẦU Scenario 17:** khi ExecutionResult gốc chuyển visible-valid-head sang `result_type != EXECUTED` (hoặc invalidate không thay thế), MỌI Fill visible-valid tham chiếu `execution_result_id` cũ PHẢI invalidate qua `FillFactInvalidated` — trạng thái corrected cuối cùng KHÔNG BAO GIỜ chứa Fill visible-valid dưới một non-executed result (execution-result.md §7/fill.md §4/§6 coupling rule, KHÔNG "silently leave a valid Fill under a non-executed result" — đúng nguyên văn yêu cầu task).
+
+### Position key and representation
+
+Position key = (account_id, environment, instrument_selection_ref) — structural, KHÔNG opaque identity riêng. Representation: `net_quantity` LUÔN non-negative magnitude, `position_direction` (LONG/SHORT) TÁCH BIỆT tường minh khỏi magnitude — KHÔNG combine signed quantity với direction (position.md §3). `FLAT ⟺ net_quantity == 0`; `LONG/SHORT ⟺ net_quantity > 0`.
+
+### Position fold
+
+Deterministic projection từ visible-valid Fill history (fill.md §5 fold, KHÔNG `FillCurrentView`). Vì v0.1 CHỈ authorize `OPEN_EXPOSURE`, Position KHÔNG cần close/reduce/reversal arithmetic. **Disclosed bounded rule (task yêu cầu chọn một trong hai lựa chọn):** v0.1 walking skeleton bound tới ĐÚNG MỘT visible-valid Fill lineage đóng góp per Position key — tránh silently author portfolio netting/same-direction weighted aggregation (position.md §7, lý do đầy đủ disclosed).
+
+### Position recomputation after Fill correction
+
+Position KHÔNG correct bằng mutation — KHÔNG compensating Position event/command. Invalidate F1 → Position projection EXCLUDES F1 → recompute (thường FLAT nếu không còn Fill khác) → replacement F2 xuất hiện → Position recompute lại từ F2 (position.md §4).
+
+### Replay integration model
+
+`ReplayStateProjection` (replay-event.md §1) — integration contract thuần túy, `ReplayState(C)` (§2) fold TÁM thành phần (Decision/Trade Intent/RiskEvaluation/Execution Intent/Order/Submission Request/ExecutionResult/Fill lineage, cộng derived Position) tại MỘT canonical Replay Cursor duy nhất — mỗi thành phần dùng ĐÚNG fold algorithm đã pin tại Domain Contract sở hữu nó, KHÔNG tự định nghĩa lại. KHÔNG author event mới nào — KHÔNG "ReplayDecision"/"ReplayOrder"/"ReplayFill" (§3, đóng đúng yêu cầu "must not duplicate Decision, Risk, Order or Fill authority in a second event stream"). Tám cursor mốc bắt buộc C0–C7 (§4) chứng minh trước/sau Submission Request/Execution Result/Fill/Fill invalidation/replacement Fill/Execution Result invalidation/replacement Execution Result.
+
+### Time/cursor semantics
+
+`OrderSubmissionRequested.recorded_time < ExecutionResultRecorded.recorded_time < FillRecorded.recorded_time` — strict causal chain. `OrderSubmissionRequested.effective_time <= ExecutionResultRecorded.result_effective_time <= FillRecorded.fill_effective_time`. Mọi evidence: `fact.recorded_time <= computation_cursor.recorded_time <= resulting_event.recorded_time`. Correction invalidation strict SAU target fact. `execution_result_cursor`/`fill_context_cursor` TÁI SỬ DỤNG nguyên vẹn canonical Replay Cursor (Chapter 8 §8.5.1) — KHÔNG schema gần giống nào được tạo.
+
+### Context Map integration
+
+Bốn context MỚI CÙNG capability `execution-management` (đã có từ C6, KHÔNG capability mới): `execution-result-management`/`fill-management`/`position-management`/`replay-integration` tại `context-map.yaml` **v0.18 → v0.19**. Mười relationship edge MỚI — ba edge nội bộ chuỗi C7 (order-management→execution-result-management, execution-result-management→fill-management, fill-management→position-management) cộng bảy edge authoritative-context→replay-integration (strategy-decision×2: decision-recorded/trade-intent-issued; risk-gateway×2: risk-evaluation-recorded/execution-intent-issued; order-management: order-created; execution-result-management: execution-result-recorded; fill-management: fill-recorded). KHÔNG edge cho position-management→replay-integration (Position không có authoritative event stream, derived projection thuần túy).
+
+### Acceptance-scenario results (24 scenarios, phân bổ across bốn file — execution-result.md §15/fill.md §13/position.md §9/replay-event.md §9)
+
+Scenario 1 (eligible result processing) — pass. Scenario 2 (ineligible) — pass. Scenario 3 (failure and retry) — pass. Scenario 4 (result append gap) — pass. Scenario 5 (executed full Fill) — pass. Scenario 6 (not executed, zero Fill) — pass. Scenario 7 (result-to-Fill append gap) — pass. Scenario 8 (duplicate Fill) — pass. Scenario 9 (Fill origin mismatch) — pass. Scenario 10 (invalid Fill quantity) — pass. Scenario 11 (invalid Fill price) — pass. Scenario 12 (Fill correction) — pass. Scenario 13 (Position from LONG Fill) — pass. Scenario 14 (Position from SHORT Fill) — pass. Scenario 15 (Fill invalidation → Position FLAT) — pass. Scenario 16 (Fill replacement → Position recompute) — pass. Scenario 17 (result correction EXECUTED→NOT_EXECUTED, Fill mandatory invalidation) — pass. Scenario 18 (invalidated Submission Request) — pass. Scenario 19 (Order replacement) — pass. Scenario 20 (Execution Intent withdrawn) — pass. Scenario 21 (replay before Fill correction) — pass. Scenario 22 (replay after Fill invalidation) — pass. Scenario 23 (replay after replacement Fill) — pass. Scenario 24 (no duplicate replay authority) — pass.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, Chapter 7 §7.4 (Locked, Type 2 Projection — byte-for-byte unchanged), Chapter 8 §8.1.1/§8.2/§8.5 (Locked, byte-for-byte unchanged), `order.md` v0.2 Draft §8b (byte-for-byte unchanged, verified), `execution-intent.md`/`risk.md`/`decision.md`/`trade-intent.md` (byte-for-byte unchanged, verified), Package 0.2-C1/C2/C3/C4/C5/C6 (all `Consolidated Stable`, byte-for-byte unchanged, verified).
+
+### Author self-review
+
+Hai bounded judgment call disclosed tường minh theo yêu cầu task: (1) full-Fill boundary — executed result sản sinh chính xác một full Fill, partial-fill deferred hoàn toàn (fill.md §12); (2) one-Fill-per-Position-key bound — v0.1 walking skeleton KHÔNG author weighted aggregation cho nhiều Fill lineage cùng key, tránh silently author portfolio netting (position.md §7). `replay-event.md` verified KHÔNG chứa bất kỳ `event_types:` block nào — xác nhận không duplicate authority. Tất cả 20 YAML fenced block (9+8+2+1) trong bốn file parse qua `yaml.safe_load` — verified. Tất cả `§N` citation cross-reference verified qua grep trong cả bốn file — không có tham chiếu treo (chỉ cross-file reference hợp lệ tới order.md §8a/§8b, risk.md §5b1). Không tìm thấy finding blocking nào khác (author self-review — chưa qua Review A/B).
+
+### Metadata / state
+
+- `execution-result.md`/`fill.md`/`position.md`/`replay-event.md`: **NEW**, `version: "0.1"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+- `context-map.yaml`: **v0.18 → v0.19** — capability `execution-management` (không mới) với bốn context MỚI, mười relationship edge MỚI.
+- `README.md` (domain index): **v0.48 → v0.49**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.74 → 9.75**.
+- `order.md`, `execution-intent.md`, `risk.md`, `decision.md`, `trade-intent.md`: **không đổi** (byte-for-byte, verified).
+- `ADR-010.md`, `ADR-012.md`, `ADR-013.md`, `instrument.md`, `venue.md`, `account.md`, `strategy.md`: **không đổi** (byte-for-byte, verified).
+- Mọi ADR khác, Constitution, mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C7 CHƯA đạt `Consolidated Stable` — chờ Review A + Independent Review B trên cùng exact baseline này.** Mandatory sequence: Author baseline → ChatGPT Review A → Independent Review B (cùng exact baseline) → merge finding → một correction commit được Product Owner authorize → ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. **KHÔNG correction dựa trên một review đơn lẻ.** Package 0.2-C1/C2/C3/C4/C5/C6 vẫn `Consolidated Stable`, không đổi. KHÔNG Live behavior, exchange adapter/API payload, fee/PnL/margin/leverage/liquidation semantics nào được author. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-31 — consolidate Package 0.2-C6
 
 **Package 0.2-C6 Order Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C6: Consolidated Stable" (2026-07-31). Authorization này cho phép ghi Package 0.2-C6 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `order.md`, không sửa `context-map.yaml`/bất kỳ C1–C5 artifact/ADR nào, không sửa Constitution, không đóng OQ, không authorize Live, không author/authorize Package 0.2-C7, không author Fill/Position, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.

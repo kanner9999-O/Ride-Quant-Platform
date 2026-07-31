@@ -1,6 +1,6 @@
 id: context-map
 title: Context Map — Ride Quant Platform
-version: "0.18"
+version: "0.19"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -68,9 +68,26 @@ next_review: null
 # (execution-intent.md §6a) — khác precedent risk-gateway/strategy-decision (KHÔNG edge, chỉ simple
 # `ref:` lookup) vì đây là published-language fact CONSUME thực tế cho Order creation, không phải
 # opaque reference chưa gắn provider context.
-# Package 0.2-C7 (Fill, Position/Replay...) vẫn CHƯA đăng ký, chờ authoring thực tế theo
-# decomposition đã pin tại `docs/domain/README.md` — mỗi slice cần Product Owner authorization
-# riêng.
+# Package 0.2-C7 (Execution Result, Fill, Position and Replay Integration Foundation —
+# execution-result.md + fill.md + position.md + replay-event.md) đăng ký BỐN context MỚI CÙNG
+# capability `execution-management` đã có từ C6 (`execution-result-management`/`fill-management`/
+# `position-management`/`replay-integration` — KHÔNG capability mới, bốn concept này cùng thuộc
+# execution management) tại v0.19. `position.md` là derived projection (KHÔNG authoritative event
+# stream) nhưng vẫn cần context riêng để đăng ký `owned_contracts: [position]` theo đúng convention.
+# Mười relationship edge MỚI, đúng nguyên tắc "chỉ đăng ký khi thực sự có published-language flow
+# CONSUME" (không phải opaque ref: lookup): (1) order-management → execution-result-management
+# (order-submission-requested — ExecutionResult eligibility genuinely consume Order/Submission
+# Request lineage, execution-result.md §4a); (2) execution-result-management → fill-management
+# (execution-result-recorded — Fill causation_refs bắt buộc); (3) fill-management →
+# position-management (fill-recorded — Position fold trực tiếp từ Fill stream, position.md §2);
+# (4)-(10) authoritative domain contexts → replay-integration (strategy-decision × 2:
+# decision-recorded + trade-intent-issued; risk-gateway × 2: risk-evaluation-recorded +
+# execution-intent-issued; order-management: order-created; execution-result-management:
+# execution-result-recorded; fill-management: fill-recorded — ReplayStateProjection genuinely folds
+# TỪNG stream này, KHÔNG chỉ opaque ref:, replay-event.md §2). KHÔNG edge cho position-management →
+# replay-integration vì Position KHÔNG có authoritative event/published-language contract (chỉ
+# `ref: position` trực tiếp, derived projection — đúng nguyên tắc "Current View KHÔNG BAO GIỜ
+# authority" áp dụng luôn cho derived projection không-event-stream).
 
 capabilities:
   - id: market-reference
@@ -204,6 +221,34 @@ contexts:
     capability_id: execution-management
     responsibility: "Định nghĩa Order (bản ghi authoritative, bất biến, của một internal execution instruction tạo từ đúng một Execution Intent eligible, pin order_context_cursor — Chapter 8 §8.5.1 tái sử dụng — order_action OPEN_EXPOSURE, order_type MARKET, quantity bất biến copy từ Execution Intent), OrderCreationAttempt (mọi lần thử tạo Order), và OrderSubmissionRequest (yêu cầu nội bộ gửi tới bounded PAPER execution boundary, chưa chứng minh venue acceptance/execution) — theo Chapter 8, execution-intent.md §6a."
     owned_contracts: [order]   # authored — Package 0.2-C6: order.md v0.1 Draft, chưa qua Review A/B; controlling architecture: execution-intent.md §6a (eligible_for_new_order_creation), Chapter 8 §8.1.1/§8.2/§8.5 (Locked)
+    status: active
+
+  - id: execution-result-management
+    title: Execution Result Management
+    capability_id: execution-management
+    responsibility: "Định nghĩa ExecutionResult (bản ghi authoritative, bất biến, của một observation trả về từ bounded PAPER execution boundary cho một Order Submission Request — result_type EXECUTED/NOT_EXECUTED, logical result key = submission_request_id) và ExecutionResultProcessingAttempt (mọi lần thử xử lý execution result) — theo Chapter 8, order.md §8b."
+    owned_contracts: [execution-result]   # authored — Package 0.2-C7: execution-result.md v0.1 Draft, chưa qua Review A/B; controlling architecture: order.md §8b (eligible_for_execution_result_processing), Chapter 8 §8.1.1/§8.2/§8.5 (Locked)
+    status: active
+
+  - id: fill-management
+    title: Fill Management
+    capability_id: execution-management
+    responsibility: "Định nghĩa Fill (bản ghi authoritative, bất biến, của quantity/price đã thực sự executed cho một ExecutionResult result_type = EXECUTED — v0.1 full Fill duy nhất, KHÔNG partial fill) — theo Chapter 8, execution-result.md §4."
+    owned_contracts: [fill]   # authored — Package 0.2-C7: fill.md v0.1 Draft, chưa qua Review A/B; controlling architecture: execution-result.md §4 (ExecutionResult), Chapter 8 §8.1.1/§8.2/§8.5 (Locked)
+    status: active
+
+  - id: position-management
+    title: Position Management
+    capability_id: execution-management
+    responsibility: "Định nghĩa Position (deterministic, non-authoritative PROJECTION dẫn xuất từ visible-valid Fill history — position_key = account_id/environment/instrument_selection_ref, net_quantity non-negative magnitude tách biệt khỏi position_direction) — theo Chapter 7 §7.4 (Type 2 Projection), fill.md §5."
+    owned_contracts: [position]   # authored — Package 0.2-C7: position.md v0.1 Draft, chưa qua Review A/B; controlling architecture: fill.md §5 (visible-valid Fill fold), Chapter 7 §7.4 (Locked)
+    status: active
+
+  - id: replay-integration
+    title: Replay Integration
+    capability_id: execution-management
+    responsibility: "Định nghĩa ReplayStateProjection — integration contract thuần túy mô tả cách select + fold TOÀN BỘ authoritative fact đã tồn tại (Decision/Trade Intent/RiskEvaluation/Execution Intent/Order/Submission Request/ExecutionResult/Fill) tại một canonical Replay Cursor, cộng derived Position projection — KHÔNG author fact mới, KHÔNG duplicate authority — theo Chapter 8 §8.5."
+    owned_contracts: [replay-event]   # authored — Package 0.2-C7: replay-event.md v0.1 Draft, chưa qua Review A/B; controlling architecture: Chapter 8 §8.5 (canonical Replay Cursor, Locked), toàn bộ Domain Contract authoritative đã author
     status: active
 
 # Chỉ khai báo relationship mà provider contract hiện đang CẦN một cross-context relationship
@@ -524,3 +569,128 @@ relationships:
       Consumer (Order) PHẢI resolve eligible_for_new_order_creation (execution-intent.md §6a) TRỰC
       TIẾP từ authoritative Execution Intent event stream TẠI order_context_cursor TRƯỚC khi Order
       creation mới — KHÔNG dùng ExecutionIntentCurrentView latest-state làm input (order.md §4a).
+
+  # Package 0.2-C7 (execution-result.md/fill.md/position.md/replay-event.md v0.1) — ba edge nội bộ
+  # chuỗi C7 (Order→ExecutionResult→Fill→Position) VÀ bảy edge cho replay-integration (mỗi
+  # authoritative context mà ReplayStateProjection thực sự fold, replay-event.md §2) — TẤT CẢ đều
+  # là published-language consumption THỰC SỰ (eligibility rule/causation_refs/direct fold), KHÔNG
+  # phải opaque ref: lookup.
+  - provider_context_id: order-management
+    consumer_context_id: execution-result-management
+    contract_id: order-submission-requested
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: order-management
+      downstream_context_id: execution-result-management
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer (ExecutionResult) PHẢI resolve eligible_for_execution_result_processing (order.md
+      §8b) TRỰC TIẾP từ authoritative Order/Submission Request event stream TẠI
+      execution_result_cursor TRƯỚC khi result processing — KHÔNG dùng OrderCurrentView latest-state
+      làm input (execution-result.md §4a).
+
+  - provider_context_id: execution-result-management
+    consumer_context_id: fill-management
+    contract_id: execution-result-recorded
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: execution-result-management
+      downstream_context_id: fill-management
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer (Fill) PHẢI resolve result_type = EXECUTED TRỰC TIẾP từ authoritative ExecutionResult
+      event stream TẠI fill_context_cursor TRƯỚC khi Fill derivation — KHÔNG dùng
+      ExecutionResultCurrentView latest-state làm input (fill.md §3a).
+
+  - provider_context_id: fill-management
+    consumer_context_id: position-management
+    contract_id: fill-recorded
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: fill-management
+      downstream_context_id: position-management
+    translation_policy: conformist
+    consumer_obligation: >
+      Consumer (Position) PHẢI fold TRỰC TIẾP từ authoritative Fill event stream (visible-valid-head
+      per execution_result_id lineage, fill.md §5) TẠI cursor mà computation đó đang dùng — KHÔNG
+      dùng FillCurrentView latest-state làm input (position.md §2).
+
+  - provider_context_id: strategy-decision
+    consumer_context_id: replay-integration
+    contract_id: decision-recorded
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: strategy-decision
+      downstream_context_id: replay-integration
+    translation_policy: conformist
+    purpose: "ReplayStateProjection genuinely folds visible-valid Decision lineage — replay-event.md §2"
+
+  - provider_context_id: strategy-decision
+    consumer_context_id: replay-integration
+    contract_id: trade-intent-issued
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: strategy-decision
+      downstream_context_id: replay-integration
+    translation_policy: conformist
+    purpose: "ReplayStateProjection genuinely folds visible-valid Trade Intent lineage — replay-event.md §2"
+
+  - provider_context_id: risk-gateway
+    consumer_context_id: replay-integration
+    contract_id: risk-evaluation-recorded
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: risk-gateway
+      downstream_context_id: replay-integration
+    translation_policy: conformist
+    purpose: "ReplayStateProjection genuinely folds visible-valid Risk Evaluation lineage — replay-event.md §2"
+
+  - provider_context_id: risk-gateway
+    consumer_context_id: replay-integration
+    contract_id: execution-intent-issued
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: risk-gateway
+      downstream_context_id: replay-integration
+    translation_policy: conformist
+    purpose: "ReplayStateProjection genuinely folds visible-valid Execution Intent — replay-event.md §2"
+
+  - provider_context_id: order-management
+    consumer_context_id: replay-integration
+    contract_id: order-created
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: order-management
+      downstream_context_id: replay-integration
+    translation_policy: conformist
+    purpose: "ReplayStateProjection genuinely folds visible-valid Order lineage — replay-event.md §2"
+
+  - provider_context_id: execution-result-management
+    consumer_context_id: replay-integration
+    contract_id: execution-result-recorded
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: execution-result-management
+      downstream_context_id: replay-integration
+    translation_policy: conformist
+    purpose: "ReplayStateProjection genuinely folds visible-valid Execution Result lineage — replay-event.md §2"
+
+  - provider_context_id: fill-management
+    consumer_context_id: replay-integration
+    contract_id: fill-recorded
+    relationship_type: published_language
+    status: active
+    model_influence:
+      upstream_context_id: fill-management
+      downstream_context_id: replay-integration
+    translation_policy: conformist
+    purpose: "ReplayStateProjection genuinely folds visible-valid Fill lineage — replay-event.md §2. KHÔNG edge cho position-management → replay-integration vì Position KHÔNG có authoritative event/published-language contract (derived projection, ref: position trực tiếp)."
