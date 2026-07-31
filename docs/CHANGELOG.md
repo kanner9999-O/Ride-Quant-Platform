@@ -2,6 +2,146 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — correct Package 0.2-C7 execution evidence and projection
+
+**Package 0.2-C7 bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C7 bounded correction — C7-MAJ-01/02/03/04." Đóng đúng bốn finding Major: `C7-MAJ-01` (durable Result simulation evidence), `C7-MAJ-02` (durable Fill-price derivation evidence), `C7-MAJ-03` (non-atomic Result–Fill correction semantics), `C7-MAJ-04` (deterministic multiple-Fill Position behavior). Authorization này **không** cho phép sửa C1–C6 semantic artifacts, `order.md`, ADR/Constitution, author simulation algorithm thực tế, exchange adapter/API payload, Live behavior, partial fills, fees/PnL/accounting, close/reduce/reversal, weighted-average aggregation, portfolio netting, margin/leverage/liquidation, cross-stream transactions, workflow/saga infrastructure, Approve/Lock artifact, mark C7 Consolidated Stable, đóng OQ-002/OQ-003, hay declare Phase 0.2 complete.
+
+### Baseline verification
+
+```text
+Expected HEAD:  1bcc079d16ccfc61cba45f751bd486adaeb0ef86
+Actual HEAD:    1bcc079d16ccfc61cba45f751bd486adaeb0ef86  — match
+
+execution-result.md:  v0.1 Draft, blob fe19a5c66088a854ade1b294598004a04a5f4e4f  — match
+fill.md:               v0.1 Draft, blob f43c9e58464f783ae34f7b1df6bb9bd036a0484c  — match
+position.md:            v0.1 Draft, blob b7b6b64e6e0388c00aad416540b90e1705509af0  — match
+replay-event.md:        v0.1 Draft, blob de956e6d9ab0a0fd5abdc567657e06b6e3813d81  — match
+context-map.yaml:      v0.19 Draft  — match
+```
+
+### Four-finding resolution matrix
+
+| Finding | Resolution |
+|---|---|
+| `C7-MAJ-01` | Added `PaperExecutionObservation` (execution-result.md §1, new entity) — durable, immutable record of simulation evidence (`simulation_policy_ref`/`simulation_configuration_ref`/`simulation_build_ref`/`deterministic_input_ref`, four opaque versioned artifact refs) and output (`result_type`, `executed_quantity`, `execution_price`), logical computation key `(submission_request_id, observation_cursor)` — mirroring `risk.md`'s `(trade_intent_id, risk_context_cursor)` pattern. `ExecutionResult` now only copies `result_type` from the visible-valid Observation it references (`execution_observation_id`, new required field) — never independently computes/reinterprets. Corrected ordering: computation completes → Observation recorded → Attempt PROCESSED → Result recorded (§6a), with two explicit recoverable gaps (Observation-without-Attempt; Observation+Attempt-without-Result), both resolved by reusing the existing Observation — never rerunning simulation. Correction that flips `EXECUTED ↔ NOT_EXECUTED` uses a brand-new Observation at a new cursor, never invalidating the old one (avoids excessive correction machinery per task's own guidance). |
+| `C7-MAJ-02` | Fill (`fill.md` §1/§3) now requires `execution_observation_id` (new field) matching the referenced ExecutionResult's own `execution_observation_id`, and `fill_quantity`/`quantity_unit`/`fill_price`/`price_currency` must copy exactly from that Observation's economics — Fill never independently observes or recomputes. Result→Fill recovery (§3a) explicitly never recomputes price — only copies persisted Observation economics. |
+| `C7-MAJ-03` | Removed all "mandatory pairing"/"atomic-adjacent" language between `ExecutionResultFactInvalidated` and `FillFactInvalidated` (execution-result.md §7/§9, fill.md §4/§7). Replaced with a new continuing eligibility rule, `eligible_as_position_contributing_fill(fill_id, C)` (fill.md §6) — a cursor-bound validity check re-evaluated at every cursor, independent of whether/when `FillFactInvalidated` is ever appended. Position (position.md §2) now consumes this rule directly instead of Fill stream state, so an orphaned Fill is excluded from Position the moment its ExecutionResult stops being the visible-valid EXECUTED head — no cross-stream transaction required. |
+| `C7-MAJ-04` | Position (`position.md` §1/§2) gained `projection_status ∈ {EVALUABLE, NON_EVALUABLE}` and `projection_reason_code = UNSUPPORTED_MULTIPLE_FILL_LINEAGES`. Zero eligible Fill → `EVALUABLE`/FLAT; exactly one → `EVALUABLE`/LONG or SHORT; more than one → `NON_EVALUABLE` with `contributing_fill_refs` listing every conflicting eligible Fill — never silently picking one, aggregating, or reporting FLAT. |
+
+### PaperExecutionObservation model
+
+New entity (execution-result.md §1), immutable and append-only (no correction lineage of its own — correction uses a new Observation at a new cursor instead, per task's explicit preference to avoid excessive machinery). Logical computation key `(submission_request_id, observation_cursor)`; same key + same evidence → idempotent reuse; same key + changed evidence/output → deterministic conflict (Scenario 25). `EXECUTED` requires `executed_quantity`/`execution_price`/`price_currency` present, finite, strictly positive, matching Order quantity/TradableListing currency; `NOT_EXECUTED` requires them absent.
+
+### Corrected Attempt/Observation/Result ordering
+
+```text
+1. eligible_for_execution_result_processing == true
+2. bounded PAPER simulation computation completes
+3. PaperExecutionObservationRecorded appended
+4. ExecutionResultProcessingAttemptRecorded(PROCESSED) appended, referencing the Observation
+5. ExecutionResultRecorded appended, causation_refs → Attempt PROCESSED + Observation
+```
+
+No Attempt→Result forward reference; no cross-stream transaction assumption.
+
+### Result recovery model
+
+Gap A (Observation recorded, Attempt absent): reuse `execution_observation_id`, append/reuse Attempt, append/reuse Result. Gap B (Observation + Attempt recorded, Result absent): reuse both, append/reuse exactly one Result. Simulation is never rerun once an Observation exists for a logical computation key.
+
+### Corrected ExecutionResult schema
+
+Added `execution_observation_id` (required). `result_type` invariant: must equal the referenced Observation's `result_type` exactly — no independent computation. Correction replacement: new `execution_result_id`, same `submission_request_id`, `execution_observation_id` may point to a brand-new Observation if `result_type` changes.
+
+### Deterministic Fill derivation
+
+`fill.execution_result_id → ExecutionResult.execution_observation_id → PaperExecutionObservation` — `fill_quantity`/`quantity_unit`/`fill_price`/`price_currency` all required to equal the Observation's economics exactly (fill.md §1 invariant, §3 invariant).
+
+### Result→Fill recovery
+
+Recovery resolves the immutable Observation via the persisted `execution_result_id → execution_observation_id` chain and copies its economics verbatim — price is never recomputed during recovery (Scenario 7).
+
+### Continuing Fill eligibility
+
+```text
+eligible_as_position_contributing_fill(fill_id, C) =
+  Fill is visible-valid head for execution_result_id at C
+  AND referenced ExecutionResult is visible-valid head for submission_request_id at C
+  AND that ExecutionResult.result_type == EXECUTED
+  AND referenced PaperExecutionObservation is visible at C
+  AND Fill payload exactly matches the Observation's economics
+```
+
+A continuing, cursor-bound rule — not merely an append-time check. Its result can flip from `true` to `false` between two cursors with zero change in the Fill's own stream.
+
+### Non-atomic Result–Fill correction behavior
+
+At the cursor immediately after Result invalidation but before any Fill invalidation: the Fill remains historical in its own stream (may still read `VALID` in `FillCurrentView`), yet is immediately excluded from Position via the continuing eligibility rule. `FillFactInvalidated` remains the eventual correctness-marking fact for the Fill's own stream, but Position correctness never depends on when that cleanup happens (Scenario 26).
+
+### Corrected Position projection states
+
+`projection_status = EVALUABLE` (0 or 1 eligible Fill) vs `NON_EVALUABLE` (>1). When `NON_EVALUABLE`: all economics fields (`position_direction`/`net_quantity`/`quantity_unit`/`average_entry_price`/`price_currency`) absent; `projection_reason_code` and `contributing_fill_refs` required.
+
+### Multiple-Fill behavior
+
+No aggregation, no netting, no weighted average, no arbitrary selection — deterministic `NON_EVALUABLE` with full disclosure of the conflicting Fill set (Scenario 29).
+
+### Replay updates
+
+`ReplayState(C)` (replay-event.md §2) now folds `paper_execution_observation_lineage` and `fill_continuing_eligibility` (distinct from Fill stream state) in addition to `derived_position` (now reflecting `projection_status`). Ten cursor milestones (C0–C9, replacing eight) — including "after Result invalidation, before Fill invalidation" (proves `C7-MAJ-03`) and "multiple eligible Fill lineages" (proves `C7-MAJ-04`).
+
+### Time/cursor semantics
+
+`OrderSubmissionRequested.recorded_time < PaperExecutionObservationRecorded.recorded_time < ExecutionResultProcessingAttemptRecorded(PROCESSED).recorded_time < ExecutionResultRecorded.recorded_time < FillRecorded.recorded_time` — full corrected causal chain, pinned exactly as required. Canonical Replay Cursor reused verbatim throughout, no near-duplicate schema.
+
+### Context Map changes
+
+None. `context-map.yaml` unchanged — `PaperExecutionObservation` lives inside `execution-result.md`, already registered under the existing `execution-result-management` context; no new registration required, consistent with the task's "prefer no new context" instruction.
+
+### Acceptance-scenario results (31 scenarios total across four files, renumbering collisions found and fixed during self-review — see below)
+
+Scenarios 1–4, 6, 17, 18–20, 25, 27 (execution-result.md) — pass. Scenarios 5–12, 21–23, 26 (fill.md) — pass. Scenarios 13–17, 28–29 (position.md) — pass. Scenarios 24, 30–31 (replay-event.md) — pass.
+
+### Regression check
+
+Logical Result key (`submission_request_id`), Attempt identity separation, C6 eligibility rule, Result correction direct-predecessor lineage, logical Fill key (`execution_result_id`), full-Fill boundary, opaque Fill identity, Fill correction lineage (ten invariants), Position structural key, non-negative magnitude representation, Position non-authority, canonical Replay Cursor, C1–C6 semantics, PAPER-only boundary — **tất cả không đổi, verified**. `context-map.yaml`/`order.md`/`execution-intent.md`/`risk.md`/`decision.md`/`trade-intent.md` byte-for-byte unchanged.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, Chapter 7 §7.4 (Locked, unchanged), Chapter 8 (Locked, unchanged), `order.md` v0.2 Draft §8b (byte-for-byte unchanged, verified), Package 0.2-C1–C6 (all `Consolidated Stable`, byte-for-byte unchanged, verified).
+
+### Author self-review
+
+During the rewrite, an initial pass introduced several scenario-number collisions (e.g. `fill.md`'s new "Deterministic Fill recovery" reused number 3, already assigned to "Failure and retry" in `execution-result.md`; `position.md`'s new "Zero/Multiple Fill Position" reused numbers 9/11, already assigned to `fill.md`'s "Fill origin mismatch"/"Invalid Fill price"; `fill.md`'s original "Duplicate Fill" (Scenario 8) and "Executed full Fill" (Scenario 5) were accidentally overwritten during the edit). Caught via an automated cross-file citation-consistency script (mapping every `**Scenario N —**` definition to its home file/section and verifying every `(Scenario N, §X)` citation resolves correctly) and corrected: restored Scenarios 5 and 8 in `fill.md`; renumbered the new task scenarios to unique numbers 25–29; moved "Result correction EXECUTED→NOT_EXECUTED" to the pre-existing Scenario 17 (already reserved for exactly this topic in `position.md`) instead of colliding with the original Scenario 6; fixed several off-by-one section citations left over from `fill.md`'s Prohibitions/defer section renumbering (§13→§14 for Acceptance scenarios). Final state: 31 distinct scenario numbers, zero collisions, all citations verified consistent via the same script. All 22 YAML fenced blocks (11+8+2+1) re-validated via `yaml.safe_load`.
+
+### Changed-file scope
+
+```text
+docs/domain/execution-result.md  MODIFIED v0.1 → v0.2   blob 72011d38ca0e7ad78c09eed496242a164682abaf
+docs/domain/fill.md              MODIFIED v0.1 → v0.2   blob d001e0371f02145e0973c6f3b808f62f3d6465f7
+docs/domain/position.md          MODIFIED v0.1 → v0.2   blob 4eeb40603804c7baa4f4bc8b7a9f13cb94db6597
+docs/domain/replay-event.md      MODIFIED v0.1 → v0.2   blob 36cf46b69be70f4238ded433ce3eda33a3a2e99e
+docs/domain/README.md            MODIFIED v0.49 → v0.50   blob edabbab751c7df1bd74dbea6f17629af153dd92e
+docs/MANIFEST.md                 MODIFIED manifest_version 9.75 → 9.76
+docs/CHANGELOG.md                MODIFIED (this entry)
+docs/domain/context-map.yaml     KHÔNG ĐỔI — không cần registration mới
+docs/domain/order.md              KHÔNG ĐỔI — blob 94ec87593834362292dc3379068e99ef12d86412, verified byte-identical
+docs/domain/execution-intent.md   KHÔNG ĐỔI — blob afc0c1fe7bdd2f285403dff29c71849ab66af70c, verified byte-identical
+docs/domain/risk.md               KHÔNG ĐỔI — blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab, verified byte-identical
+docs/domain/decision.md           KHÔNG ĐỔI — blob e2a26320200d350ace3da0247235bb14cef12509, verified byte-identical
+docs/domain/trade-intent.md       KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+```
+
+### Metadata / state
+
+- `execution-result.md`/`fill.md`/`position.md`/`replay-event.md`: **v0.1 → v0.2**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `context-map.yaml`: **không đổi.**
+- `README.md` (domain index): **v0.49 → v0.50**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.75 → 9.76**.
+- `order.md`, `execution-intent.md`, `risk.md`, `decision.md`, `trade-intent.md`: **không đổi** (byte-for-byte, verified) — forbidden scope, không sửa.
+- Mọi ADR khác, Constitution, mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C7 VẪN CHƯA đạt `Consolidated Stable` — chờ bounded delta review (ChatGPT + Independent Review B) trên cùng exact baseline correction này.** Mandatory sequence tiếp tục: ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. Package 0.2-C1/C2/C3/C4/C5/C6 vẫn `Consolidated Stable`, không đổi. KHÔNG Live behavior, exchange adapter/API payload, fee/PnL/margin/leverage/liquidation semantics nào được author. KHÔNG cross-stream atomic transaction nào được introduce. Không artifact nào Approved hay Locked. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-31 — author Package 0.2-C7 execution result fill position replay
 
 **Package 0.2-C7 — Execution Result, Fill, Position and Replay Integration Foundation v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C7: Execution Result, Fill, Position and Replay Integration Foundation v0.1". Authorized artifacts: `docs/domain/execution-result.md`, `docs/domain/fill.md`, `docs/domain/position.md`, `docs/domain/replay-event.md` (tất cả tạo mới, v0.1 Draft). Authorization này **không** cho phép author Live behavior, exchange API payload, external order ID, routing/adapter, cancellation/replacement protocol, partial fill (trừ khi bounded rule disclosed), fees/commissions/funding, slippage model, realized/unrealized PnL, portfolio aggregation, cross-account/cross-listing netting, margin/leverage/liquidation, settlement/tax/accounting ledger, FX conversion, general workflow engine, sửa C1–C6 artifacts, sửa ADR/Constitution, đóng OQ-002/OQ-003, Approve/Lock bất kỳ artifact nào, hay mark C7 Consolidated Stable.
