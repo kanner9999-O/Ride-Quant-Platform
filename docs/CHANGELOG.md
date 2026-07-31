@@ -2,6 +2,83 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — correct C4 evaluation attempt causality
+
+**Package 0.2-C4 micro-correction — DecisionEvaluationAttempt only.** Vai trò: `Domain Contract Micro-Correction Author`. Product Owner authorized: "Package 0.2-C4 micro-correction — DecisionEvaluationAttempt only." Đóng đúng hai finding Major: `C4-DELTA-MAJ-01` (remove Attempt/Decision circular dependency), `C4-DELTA-MAJ-02` (separate individual attempt identity from computation key). Authorization này **không** cho phép reopen bất kỳ C4 design area nào khác, thêm general attempt workflow/retry scheduling/exception telemetry taxonomy/atomic batch semantics, sửa ADR-010/ADR-013/bất kỳ ADR nào/Constitution/C1–C3, author C5–C7, Approve/Lock/Consolidate C4, đóng OQ-002/OQ-003, hay authorize Live.
+
+### Baseline verification
+
+```text
+Expected HEAD:  8b99dc3be8feab0b0054bf513596f950e9529027
+Actual HEAD:    8b99dc3be8feab0b0054bf513596f950e9529027  — match
+
+decision.md:       v0.2 Draft, blob 94dfd863818a2bfff139a78c3399011430e31ef9  — match
+trade-intent.md:    v0.2 Draft, blob e7a306abc53ba482ff1249af1dda2829c4c82fa7  — match
+context-map.yaml:   v0.14 Draft, blob e7ad311419f54a60625ce05f37b0c0c8e982fafb  — match
+```
+
+### Two-finding resolution matrix
+
+| Finding | Resolution |
+|---|---|
+| `C4-DELTA-MAJ-01` | `resulting_decision_id` removed entirely from `DecisionEvaluationAttempt` schema, `DecisionEvaluationAttemptRecorded` payload/invariants, canonical policy, and scenarios; Attempt→Decision link is now strictly one-way via `DecisionRecorded.causation_refs`; reverse lookup uses existing `GetDecisionForComputation` (§8) or reverse causation_refs search — no new linking event |
+| `C4-DELTA-MAJ-02` | `evaluation_attempt_id` (per-attempt identity) separated from logical computation key `(strategy_instance_id, decision_context_cursor)`; idempotency rescoped to per-`evaluation_attempt_id`; multiple attempts (including different outcomes) may now share a logical key; multiple DECIDED attempts must resolve/reuse the same Decision via Decision-layer idempotency |
+
+### Corrected Attempt identity model
+
+`evaluation_attempt_id` — opaque, globally unique, identifies ONE individual attempt. Logical computation key `(strategy_instance_id, decision_context_cursor)` — groups MULTIPLE attempts, no longer required unique. Idempotency (decision.md §2/§13, canonical `decision_evaluation_attempt_idempotency_policy: STABLE_ATTEMPT_ID_SAME_PAYLOAD_IS_IDEMPOTENT`, đối xứng `instrument.md` §17 `activation_request_idempotency_policy`) applies per `evaluation_attempt_id`: same ID + same payload → idempotent no-op; same ID + changed payload → deterministic conflict. Multiple `DecisionEvaluationAttemptRecorded` facts (distinct `evaluation_attempt_id`) sharing the same logical key — including different `attempt_outcome` values (e.g. `FAILED_BEFORE_EVALUATION` followed by `DECIDED`) — is now explicitly allowed, not a data-integrity violation.
+
+### Corrected Attempt-to-Decision causality
+
+`attempt_outcome = DECIDED` no longer carries or requires `resulting_decision_id`. One-way sequence pinned: `DecisionEvaluationAttemptRecorded(DECIDED)` ghi TRƯỚC → `DecisionRecorded` ghi SAU và tham chiếu attempt qua `causation_refs` (decision.md §4/§5) — loại bỏ hoàn toàn circular append-order dependency (Attempt cần Decision đã VALID để tham chiếu, trong khi Decision cần Attempt đã tồn tại trong causation_refs — không có thứ tự append hợp lệ nào ở v0.2). Query chiều ngược (Decision nào ứng với một attempt) dùng CƠ CHẾ ĐÃ CÓ: `GetDecisionForComputation(strategy_instance_id, decision_context_cursor, cursor)` (§8) hoặc reverse-lookup DecisionRecorded có `causation_refs` chứa event_record_ref của attempt — KHÔNG event/field liên kết mới (đúng yêu cầu "Do not create a new linking event unless strictly necessary. It should not be necessary for v0.3").
+
+### Retry and recovery behavior
+
+`FAILED_BEFORE_EVALUATION` tường minh RETRYABLE — một `DecisionEvaluationAttemptRecorded` MỚI (evaluation_attempt_id khác) tại CÙNG logical key sau đó hợp lệ (Scenario 13). `INELIGIBLE`/`INPUT_UNAVAILABLE` cùng logical key: later attempt allowed, kỳ vọng cùng kết quả nếu cursor/evidence không đổi (deterministic — cursor cố định). Same-attempt-identity retry (evaluation_attempt_id giống hệt): idempotent-same-payload hoặc conflict-changed-payload (Scenario 14). Multiple DECIDED attempts cùng key: PHẢI resolve/reuse Decision đã tồn tại (decision.md §1/§5 invariant mới, Scenario 15) — TUYỆT ĐỐI KHÔNG tạo Decision head thứ hai trừ khi predecessor đã invalidate.
+
+### Interaction with Decision correction lineage
+
+Controlling invariant giữ nguyên KHÔNG đổi: **một visible-valid-head Decision per logical computation key** (decision.md §8/§11, không sửa trong micro-correction này). Multiple attempts (kể cả nhiều DECIDED) tại cùng key KHÔNG BAO GIỜ tạo hai Decision head song song — chỉ correction lineage tường minh (invalidate D1 rồi ghi D2 với `supersedes_fact_ref`) mới hợp lệ tạo Decision thứ hai cho cùng key (Scenario 2 cập nhật thêm attempt-context A1/A2, Scenario 5 đúng nghĩa task).
+
+### Acceptance-scenario results (decision.md §18, Scenario 1/1a/2/13–16 mới hoặc cập nhật)
+
+Scenario 1 (Valid append order): A1 DECIDED không mang resulting_decision_id, D1 causation_refs→A1 — pass. Scenario 1a (same evaluation_attempt_id retry): idempotent — pass. Scenario 2 (Decision correction, attempt context): A1→D1 invalidate→A2→D2 supersedes D1 — pass. Scenario 13 (retry after engine failure): A1 FAILED_BEFORE_EVALUATION → A2 DECIDED cùng key → D1 — pass. Scenario 14 (same attempt retry): idempotent-hoặc-conflict — pass. Scenario 15 (multiple successful attempts): A2 resolve/reuse D1, không tạo D2 — pass. Scenario 16 (no attempt): phân biệt tường minh với mọi attempt đã ghi nhận — pass.
+
+### Regression check
+
+Decision correction lineage (§11), `decision_id` semantics (§1), `decision_time`/`decision_context_cursor` (ADR-010, §3), no-look-ahead (§3/§5d), bốn trục evidence (§5b), bounded EMA rule evidence (§5c), explanation (§9), Decision-to-Trade-Intent derivation (§10), Trade Intent time ordering (trade-intent.md §3/§9), `eligible_for_new_risk_evaluation` (trade-intent.md §6a), Trade Intent lifecycle (trade-intent.md §1) — **tất cả không đổi, verified**. `trade-intent.md` blob giữ nguyên byte-for-byte (không có cross-reference nào cần sửa, verified qua grep). C1–C3 semantics không đổi. C4/C5 boundary không đổi — không author Risk/Execution/Order/Fill/Position, không database transaction/outbox/message-broker technology, không general workflow/saga engine.
+
+### Backward Consistency Check
+
+No conflict với Constitution Chapters 2–10, ADR-010 Approved (byte-for-byte unchanged — verified), ADR-013 v0.3 Approved (byte-for-byte unchanged — verified), Package 0.2-C1/C2/C3 (byte-for-byte unchanged — verified). `context-map.yaml` byte-for-byte unchanged — verified (DecisionEvaluationAttempt sống trong decision.md, không cần capability/context/relationship change).
+
+### Author self-review
+
+Xác nhận: mọi tham chiếu `resulting_decision_id` còn lại trong file (3 chỗ) đều là prose giải thích "field đã bị loại bỏ", KHÔNG phải khai báo schema — verified qua grep. Headings/section numbering KHÔNG đổi (bounded, minimal diff — chỉ nội dung bên trong §2/§4/§5/§13/§18 thay đổi). `trade-intent.md` xác nhận KHÔNG chứa bất kỳ tham chiếu nào tới `resulting_decision_id` hay decision.md §2/§4 — blob giữ nguyên đúng yêu cầu "Prefer leaving its blob unchanged." Không tìm thấy finding blocking nào khác.
+
+### Changed-file scope
+
+```text
+docs/domain/decision.md   MODIFIED v0.2 → v0.3   blob e2a26320200d350ace3da0247235bb14cef12509
+docs/domain/README.md     MODIFIED v0.39 → v0.40
+docs/MANIFEST.md          MODIFIED manifest_version 9.65 → 9.66
+docs/CHANGELOG.md         MODIFIED (this entry)
+docs/domain/trade-intent.md    KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+docs/domain/context-map.yaml   KHÔNG ĐỔI — blob e7ad311419f54a60625ce05f37b0c0c8e982fafb, verified byte-identical
+```
+
+### Metadata / state
+
+- `decision.md`: **v0.2 → v0.3**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `trade-intent.md`: **không đổi** — version giữ `0.2`, blob giữ nguyên.
+- `context-map.yaml`: **không đổi**.
+- `README.md` (domain index): **v0.39 → v0.40**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.65 → 9.66**.
+- `ADR-010.md`, `ADR-013.md`, `ADR-012.md`, `instrument.md`, `venue.md`, `account.md`, `strategy.md`: **không đổi** (byte-for-byte, verified).
+- Mọi ADR khác, Constitution, mọi Domain Contract khác: **không đổi.**
+
+**Package 0.2-C4 CHƯA đạt `Consolidated Stable` — chờ focused delta re-review (ChatGPT + Independent Review B) trên cùng exact baseline micro-correction này.** Mandatory sequence tiếp tục: focused delta re-review → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. Package 0.2-C1/C2/C3 vẫn `Consolidated Stable`, không đổi. Package 0.2-C5–C7 vẫn chưa authorize, chưa author. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
+
 ## [Unreleased] — 2026-07-31 — correct Package 0.2-C4 decision causality
 
 **Package 0.2-C4 bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C4 bounded correction — consolidated Review A + Independent Review B findings." Đóng đúng sáu finding Major: `C4-MAJ-01` (remove duplicate suppression from Decision evidence), `C4-MAJ-02` (idempotent Decision-to-Trade-Intent derivation), `C4-MAJ-03` (corrected Decision at same logical computation key), `C4-MAJ-04` (evaluation-attempt disposition), `C4-MAJ-05` (Trade Intent causal effective-time ordering), `C4-MAJ-06` (origin-validity eligibility for C5). Authorization này **không** cho phép sửa C1–C3 artifacts, `strategy.md`, ADR-010/ADR-013/bất kỳ ADR nào, author Risk approval/rejection, Execution Intent/Order/Fill/Position/Replay Event, định nghĩa database transaction/outbox/message-broker technology, tạo general workflow engine/strategy DSL, thêm portfolio/multi-intent decomposition, thêm EXIT/FLAT/CLOSE ngoài yêu cầu, authorize C5–C7, Approve/Lock/Consolidate C4, đóng OQ-002/OQ-003, hay authorize Live.

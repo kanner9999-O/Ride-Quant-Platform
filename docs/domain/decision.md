@@ -1,7 +1,7 @@
 ---
 id: decision
 title: Decision
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -27,6 +27,8 @@ Decision **KHÔNG phải** Strategy/Strategy Instance (`strategy.md`, đã autho
 **Phạm vi bounded tường minh:** KHÔNG author Risk/Execution Intent/Order/Fill/Position/Replay Event (Package 0.2-C5–C7). KHÔNG định nghĩa order type/limit price/stop price/exchange payload. KHÔNG định nghĩa position sizing/capital allocation/portfolio arbitration. KHÔNG xây dựng DSL/expression language/parser/rule graph/strategy compiler tổng quát — chỉ một **bounded typed rule-evidence shape** đủ cho walking skeleton (§5c). KHÔNG redefine Candle/Feature/Context contract — mọi input authoritative tham chiếu qua `event_record_ref` opaque. KHÔNG author UI copy/natural-language generation. KHÔNG sửa `strategy.md`/ADR-013/ADR-010/Constitution/C1-C3 semantics. KHÔNG author Risk rejection semantics. KHÔNG định nghĩa database transaction/outbox/message-broker technology (§16). KHÔNG general workflow/saga engine.
 
 **v0.2 — bounded correction, đóng `C4-MAJ-01`/`C4-MAJ-02`/`C4-MAJ-03`/`C4-MAJ-04`/`C4-MAJ-05`/`C4-MAJ-06` (consolidated Review A + Independent Review B findings):** (a) `C4-MAJ-01` — bỏ `trade_intent_outcome`/`SUPPRESSED_DUPLICATE` khỏi Decision evidence; duplicate handling nay là hành vi idempotency (§13 `decision_computation_idempotency_policy`), KHÔNG phải Decision result. (b) `C4-MAJ-02` — Decision KHÔNG còn tự tuyên bố "đã issue Trade Intent"; derivation Decision→Trade Intent idempotent qua `originating_decision_id` là unique key, canonical `trade_intent_derivation_idempotency_policy` (trade-intent.md §10). (c) `C4-MAJ-03` — thêm correction lineage cho `DecisionRecorded`: `decision_id` vẫn bất biến/globally-unique/KHÔNG tái sử dụng cho fact khác, nhưng một logical computation key (`strategy_instance_id`, `decision_context_cursor`) nay CÓ THỂ có nhiều `DecisionRecorded` theo thời gian qua invalidate + same-key replacement (decision_id MỚI, `supersedes_fact_ref` trỏ fact bị invalidate) — visible-valid-head per logical key (§8 fold algorithm mới). (d) `C4-MAJ-04` — thêm `DecisionEvaluationAttempt`/`DecisionEvaluationAttemptRecorded` (§2/§4) — MỌI lần thử đánh giá (kể cả ineligible/missing-input/failed) nay là một authoritative fact, KHÔNG còn represented bằng absence. (e) `C4-MAJ-05` — thêm invariant thứ tự effective/recorded-time giữa Trade Intent và Decision gốc (trade-intent.md §3/§9). (f) `C4-MAJ-06` — thêm `eligible_for_new_risk_evaluation` origin-validity rule (trade-intent.md §6a). Bounded — không đổi bốn trục evidence độc lập, bounded EMA rule evidence, Configuration Version ownership của rule parameter, structured explanation, `decision_time`/`decision_context_cursor` (ADR-010), input visibility/no-look-ahead, Trade Intent Account/TradableListing equivalence, Trade Intent lifecycle ISSUED/WITHDRAWN/EXPIRED, Current View non-authority, C1–C3 semantics, C4/C5 boundary.
+
+**v0.3 — micro-correction, đóng `C4-DELTA-MAJ-01`/`C4-DELTA-MAJ-02` (consolidated Review A + Independent Review B findings trên baseline v0.2):** (a) `C4-DELTA-MAJ-01` — loại bỏ `resulting_decision_id` khỏi `DecisionEvaluationAttempt` entity schema/`DecisionEvaluationAttemptRecorded` payload/invariants/canonical policy/scenario — attempt DECIDED và DecisionRecorded nay liên hệ MỘT CHIỀU DUY NHẤT (Attempt ghi trước, `DecisionRecorded.causation_refs` trỏ ngược lại attempt), loại bỏ circular append-order dependency; query chiều ngược (Decision nào ứng với một attempt) resolve qua cơ chế ĐÃ CÓ (`GetDecisionForComputation` §8, hoặc reverse `causation_refs` lookup) — KHÔNG event/field liên kết mới. (b) `C4-DELTA-MAJ-02` — tách `evaluation_attempt_id` (identity cá nhân MỘT lần thử) khỏi logical computation key (`strategy_instance_id`, `decision_context_cursor` — nhóm NHIỀU attempt); idempotency nay scoped theo `evaluation_attempt_id` (canonical `decision_evaluation_attempt_idempotency_policy: STABLE_ATTEMPT_ID_SAME_PAYLOAD_IS_IDEMPOTENT`, đối xứng `instrument.md` §17), KHÔNG còn theo logical key — nhiều attempt (outcome khác nhau, ví dụ FAILED_BEFORE_EVALUATION rồi DECIDED) CÙNG một logical key nay hợp lệ; nhiều attempt DECIDED cùng key PHẢI resolve/reuse cùng một Decision qua `decision_computation_idempotency_policy` (tầng Decision, không phải tầng Attempt) — không tạo hai Decision head trừ khi correction lineage (§11) cho phép. Bounded — không đổi Decision correction lineage, `decision_id` semantics, `decision_time`, `decision_context_cursor`, no-look-ahead, bốn trục evidence, bounded EMA rule evidence, explanation, Decision-to-Trade-Intent derivation, Trade Intent time ordering, `eligible_for_new_risk_evaluation`, Trade Intent lifecycle, C1–C3 semantics, C4/C5 boundary. KHÔNG thêm attempt lifecycle/scheduler/retry workflow.
 
 ## 1. Decision — `kind: entity`
 
@@ -68,9 +70,19 @@ commands: []
 queries: []
 ```
 
-## 2. DecisionEvaluationAttempt — `kind: entity` (v0.2, đóng `C4-MAJ-04`)
+## 2. DecisionEvaluationAttempt — `kind: entity` (v0.2, đóng `C4-MAJ-04`; v0.3 corrected `C4-DELTA-MAJ-01`/`C4-DELTA-MAJ-02`)
 
-**Vai trò:** bản ghi authoritative của MỘT LẦN THỬ Strategy Instance đánh giá tại một logical computation key — KHÔNG PHÂN BIỆT kết quả có dẫn tới Decision hay không. **Mọi lần thử ĐỀU được ghi nhận — KHÔNG BAO GIỜ represented bằng event absence** (v0.2, đóng chính xác yêu cầu "no evaluation attempt remains represented by event absence"). Đây là subject MỚI, RIÊNG BIỆT khỏi Decision — một attempt outcome `DECIDED` dẫn tới đúng một Decision (§1); ba outcome còn lại (`INELIGIBLE`/`INPUT_UNAVAILABLE`/`FAILED_BEFORE_EVALUATION`) KHÔNG dẫn tới Decision nào.
+**Vai trò:** bản ghi authoritative của MỘT LẦN THỬ Strategy Instance đánh giá — KHÔNG PHÂN BIỆT kết quả có dẫn tới Decision hay không. **Mọi lần thử ĐỀU được ghi nhận — KHÔNG BAO GIỜ represented bằng event absence.** Đây là subject MỚI, RIÊNG BIỆT khỏi Decision — một attempt outcome `DECIDED` chứng minh rule đã đánh giá thành công VÀ một Decision append được kỳ vọng theo sau (§4 §5 — one-way sequence, KHÔNG forward reference); ba outcome còn lại (`INELIGIBLE`/`INPUT_UNAVAILABLE`/`FAILED_BEFORE_EVALUATION`) KHÔNG dẫn tới Decision nào.
+
+**v0.3 (đóng `C4-DELTA-MAJ-02`) — hai identity KHÁC NHAU, KHÔNG gộp:**
+
+```text
+evaluation_attempt_id:      định danh MỘT LẦN THỬ cá nhân — opaque, globally unique, per attempt
+logical computation key:    (strategy_instance_id, decision_context_cursor) — nhóm NHIỀU attempt
+                             CÓ THỂ chia sẻ CÙNG key, mỗi attempt có evaluation_attempt_id RIÊNG
+```
+
+MỘT logical computation key CÓ THỂ có NHIỀU `DecisionEvaluationAttemptRecorded` theo thời gian, KỂ CẢ với `attempt_outcome` KHÁC NHAU (ví dụ `FAILED_BEFORE_EVALUATION` rồi sau đó retry thành công `DECIDED` tại CÙNG cursor) — điều này KHÔNG phải data-integrity violation.
 
 ```yaml
 id: decision-evaluation-attempt
@@ -78,25 +90,27 @@ kind: entity
 capability_id: decision-management
 domain_context_id: strategy-decision
 description: >
-  Bản ghi authoritative, BẤT BIẾN, của MỘT lần thử đánh giá tại logical computation key
-  (strategy_instance_id, decision_context_cursor) — độc lập việc lần thử đó có dẫn tới Decision hay
-  không. Thay thế hoàn toàn cơ chế "no event when ineligible/missing-input" của v0.1 — mọi outcome
-  (DECIDED/INELIGIBLE/INPUT_UNAVAILABLE/FAILED_BEFORE_EVALUATION) đều là một
-  DecisionEvaluationAttemptRecorded fact tường minh (§4).
+  Bản ghi authoritative, BẤT BIẾN, của MỘT lần thử đánh giá — độc lập việc lần thử đó có dẫn tới
+  Decision hay không. Thay thế hoàn toàn cơ chế "no event when ineligible/missing-input" của v0.1 —
+  mọi outcome (DECIDED/INELIGIBLE/INPUT_UNAVAILABLE/FAILED_BEFORE_EVALUATION) đều là một
+  DecisionEvaluationAttemptRecorded fact tường minh (§4). v0.3: evaluation_attempt_id (identity cá
+  nhân) và logical computation key (strategy_instance_id, decision_context_cursor — nhóm nhiều
+  attempt) là HAI khái niệm tách biệt (đóng C4-DELTA-MAJ-02).
 invariants:
   - "evaluation_attempt_id là opaque, globally unique trong toàn Ride, gán tại DecisionEvaluationAttemptRecorded — KHÔNG derive từ strategy_instance_id/decision_context_cursor. Bất biến, KHÔNG tái sử dụng."
-  - "Logical attempt key = (strategy_instance_id, decision_context_cursor) — cursor là knowledge boundary CỐ ĐỊNH, nên retry của CÙNG key PHẢI cho CÙNG attempt_outcome/evidence một cách deterministic (§13 `decision_evaluation_attempt_idempotency_policy`). Retry cùng key + cùng outcome/evidence → idempotent no-op (trả evaluation_attempt_id đã tồn tại). Outcome khác nhau cho CÙNG key là data-integrity violation, PHẢI reject/flag — KHÔNG BAO GIỜ hai DecisionEvaluationAttemptRecorded VALID cùng key với outcome mâu thuẫn."
-  - "attempt_outcome = DECIDED PHẢI có resulting_decision_id, trỏ đúng một DecisionRecorded (§5) CÙNG strategy_instance_id VÀ decision_context_cursor với chính attempt này."
-  - "attempt_outcome ∈ {INELIGIBLE, INPUT_UNAVAILABLE, FAILED_BEFORE_EVALUATION} PHẢI KHÔNG có resulting_decision_id — TUYỆT ĐỐI KHÔNG Decision nào được tạo cho lần thử này."
-  - "DecisionEvaluationAttempt KHÔNG có correction lineage riêng ở v0.2 — một attempt ghi sai là edge case hiếm, deferred §16 (immutable append-only evidence là đủ cho v0.2; KHÔNG tự phát minh cơ chế correction thứ hai song song với Decision's)."
+  - "**v0.3 (đóng C4-DELTA-MAJ-02):** Idempotency áp dụng theo TỪNG evaluation_attempt_id — retry CÙNG evaluation_attempt_id + CÙNG payload → idempotent no-op (trả evaluation_attempt_id đã tồn tại); CÙNG evaluation_attempt_id + payload KHÁC → deterministic conflict, reject (§13 `decision_evaluation_attempt_idempotency_policy`, đối xứng `instrument.md` §17 `activation_request_idempotency_policy`)."
+  - "**v0.3 (đóng C4-DELTA-MAJ-02):** Logical computation key (strategy_instance_id, decision_context_cursor) KHÔNG BẮT BUỘC unique — nhiều DecisionEvaluationAttemptRecorded (evaluation_attempt_id RIÊNG cho mỗi cái) CÓ THỂ tồn tại cùng key, KỂ CẢ với attempt_outcome khác nhau (ví dụ FAILED_BEFORE_EVALUATION rồi DECIDED). Đây KHÔNG phải data-integrity violation — cursor cố định chỉ đảm bảo tính deterministic của MỖI evaluation_attempt_id riêng lẻ khi retry đúng ID đó, KHÔNG áp đặt 'một outcome duy nhất cho cả key.'"
+  - "**v0.3 (đóng C4-DELTA-MAJ-01):** attempt_outcome = DECIDED KHÔNG mang, KHÔNG yêu cầu resulting_decision_id — trường này ĐÃ BỊ LOẠI BỎ. Attempt DECIDED CHỈ chứng minh rule đã đánh giá thành công VÀ một DecisionRecorded append được kỳ vọng NGAY SAU (§4/§5, one-way sequence). Muốn biết Decision nào tương ứng một attempt DECIDED, PHẢI resolve TỪ authoritative Decision history — qua `GetDecisionForComputation(strategy_instance_id, decision_context_cursor, cursor)` (§8) HOẶC reverse-lookup DecisionRecorded có `causation_refs` chứa chính attempt event này — KHÔNG BAO GIỜ qua một field lưu sẵn trên Attempt."
+  - "attempt_outcome ∈ {INELIGIBLE, INPUT_UNAVAILABLE, FAILED_BEFORE_EVALUATION}: KHÔNG Decision nào được tạo cho lần thử này. FAILED_BEFORE_EVALUATION tường minh RETRYABLE — một attempt DECIDED sau đó tại CÙNG logical key hoàn toàn hợp lệ (v0.3, đóng C4-DELTA-MAJ-02)."
+  - "**v0.3 (đóng C4-DELTA-MAJ-02, Scenario 4):** khi một attempt_outcome = DECIDED được ghi tại một logical key ĐÃ CÓ một DecisionRecorded VALID (visible-valid-head, §8), attempt MỚI PHẢI resolve/reuse decision_id đã tồn tại đó (nếu evidence giống hệt — Decision-layer idempotency, §1/§13 `decision_computation_idempotency_policy`) hoặc deterministic conflict (nếu evidence khác) — TUYỆT ĐỐI KHÔNG được tạo decision_id thứ hai cho CÙNG key trừ khi decision_id đầu tiên ĐÃ invalidate VÀ correction lineage (§11) cho phép replacement. Nhiều attempt DECIDED (evaluation_attempt_id khác nhau) CÓ THỂ cùng trỏ về đúng MỘT Decision qua cơ chế idempotency này — KHÔNG BAO GIỜ tạo hai Decision head cho cùng logical key."
+  - "DecisionEvaluationAttempt KHÔNG có correction lineage riêng, KHÔNG có lifecycle/state machine, KHÔNG có scheduler/retry workflow — retry đơn thuần là ghi một DecisionEvaluationAttemptRecorded MỚI (evaluation_attempt_id mới) tại cùng logical key, deferred §16."
 schema:
-  evaluation_attempt_id: {type: string, required: true, description: "opaque, stable — xem invariants"}
+  evaluation_attempt_id: {type: string, required: true, description: "opaque, stable, per-attempt identity — xem invariants"}
   strategy_instance_id: {type: string, required: true, ref: strategy}
-  decision_context_cursor: {type: object, required: true, description: "cùng shape Decision (§3)"}
+  decision_context_cursor: {type: object, required: true, description: "cùng shape Decision (§3) — một phần logical computation key, KHÔNG phải unique key riêng của attempt"}
   attempt_outcome: {type: enum, values: [DECIDED, INELIGIBLE, INPUT_UNAVAILABLE, FAILED_BEFORE_EVALUATION], required: true}
   reason_code: {type: string, required: false, description: "BẮT BUỘC khi attempt_outcome != DECIDED; TUYỆT ĐỐI ABSENT khi DECIDED — xem §4 cho enum đóng"}
   checked_evidence_refs: {type: array, items: event_record_ref, required: false, description: "authoritative fact đã kiểm tra để xác định outcome — CÓ THỂ RỖNG khi outcome liên quan absence hoàn toàn của input, xem §4"}
-  resulting_decision_id: {type: string, required: false, description: "BẮT BUỘC khi DECIDED; TUYỆT ĐỐI ABSENT khi outcome khác"}
 events_emitted: [DecisionEvaluationAttemptRecorded]
 events_consumed: []
 commands: []
@@ -181,15 +195,18 @@ capability_id: decision-management
 domain_context_id: strategy-decision
 description: >
   Fact AUTHORITATIVE DUY NHẤT ghi nhận MỘT lần thử đánh giá — LUÔN LUÔN phát, bất kể outcome. Thay
-  thế hoàn toàn precondition-absence policy của v0.1 (§5a).
+  thế hoàn toàn precondition-absence policy của v0.1 (§5a). v0.3 (đóng C4-DELTA-MAJ-01): KHÔNG
+  còn payload field `resulting_decision_id` — attempt DECIDED và DecisionRecorded liên hệ MỘT
+  CHIỀU qua `causation_refs` của chính DecisionRecorded (§5), KHÔNG qua forward reference trên
+  Attempt (tránh circular append-order dependency).
 invariants:
   - "payload.evaluation_attempt_id PHẢI khớp đúng subject_ref.subject_id."
   - "envelope.effective_time = decision_context_cursor.recorded_time (payload) — mặc định, trừ khi backfill lịch sử tường minh pin giá trị khác."
-  - "attempt_outcome = DECIDED: reason_code/checked_evidence_refs TUYỆT ĐỐI ABSENT (evidence đầy đủ đã sống trên DecisionRecorded, §5); resulting_decision_id BẮT BUỘC, PHẢI trỏ một DecisionRecorded VALID cùng strategy_instance_id/decision_context_cursor."
-  - "attempt_outcome = INELIGIBLE: resulting_decision_id TUYỆT ĐỐI ABSENT; reason_code BẮT BUỘC, MỘT trong {STRATEGY_INSTANCE_NOT_ACTIVE, DEFINITION_VERSION_NOT_VALID, ACCOUNT_NOT_ACTIVE, EVIDENCE_AXIS_UNRESOLVABLE, INSTRUMENT_SELECTION_INELIGIBLE} (map trực tiếp năm điều kiện có thể fail của strategy.md §9a — điều kiện 'environment resolve nhất quán' không có reason_code riêng vì strategy.md tự nhận nó 'luôn true khi Account tồn tại', không phải failure mode độc lập); checked_evidence_refs khuyến nghị trỏ fact strategy.md/account.md xác nhận điều kiện fail."
-  - "attempt_outcome = INPUT_UNAVAILABLE: resulting_decision_id TUYỆT ĐỐI ABSENT; reason_code BẮT BUỘC, MỘT trong {REQUIRED_PRICE_INPUT_MISSING_OR_PENDING, REQUIRED_REFERENCE_INPUT_MISSING_OR_PENDING}; checked_evidence_refs CÓ THỂ RỖNG khi input hoàn toàn absent (không có fact nào để reference)."
-  - "attempt_outcome = FAILED_BEFORE_EVALUATION: resulting_decision_id TUYỆT ĐỐI ABSENT; reason_code = ENGINE_COMPUTATION_BOUNDARY_ERROR (v0.1 CHỈ một giá trị — KHÔNG model broad runtime exception taxonomy/observability infrastructure, deferred §16); checked_evidence_refs thường rỗng (chưa kịp kiểm evidence nào)."
-  - "Logical attempt key (strategy_instance_id, decision_context_cursor) — cùng key, retry PHẢI cho CÙNG attempt_outcome/reason_code/resulting_decision_id một cách deterministic (§13 `decision_evaluation_attempt_idempotency_policy`) — cursor là knowledge boundary cố định, KHÔNG có lý do hợp lệ nào để cùng key cho hai outcome khác nhau."
+  - "attempt_outcome = DECIDED: reason_code/checked_evidence_refs TUYỆT ĐỐI ABSENT (evidence đầy đủ sống trên DecisionRecorded, §5). **v0.3 (đóng C4-DELTA-MAJ-01):** KHÔNG payload field nào trỏ tới Decision — attempt này CHỈ chứng minh 'rule đã đánh giá thành công, một Decision append được kỳ vọng ngay sau'; DecisionRecorded (§5) chịu trách nhiệm trỏ NGƯỢC LẠI attempt này qua `causation_refs` (one-way sequence: Attempt DECIDED ghi TRƯỚC, DecisionRecorded ghi SAU và tham chiếu attempt qua causation_refs — KHÔNG BAO GIỜ ngược lại)."
+  - "attempt_outcome = INELIGIBLE: reason_code BẮT BUỘC, MỘT trong {STRATEGY_INSTANCE_NOT_ACTIVE, DEFINITION_VERSION_NOT_VALID, ACCOUNT_NOT_ACTIVE, EVIDENCE_AXIS_UNRESOLVABLE, INSTRUMENT_SELECTION_INELIGIBLE} (map trực tiếp năm điều kiện có thể fail của strategy.md §9a); checked_evidence_refs khuyến nghị trỏ fact strategy.md/account.md xác nhận điều kiện fail."
+  - "attempt_outcome = INPUT_UNAVAILABLE: reason_code BẮT BUỘC, MỘT trong {REQUIRED_PRICE_INPUT_MISSING_OR_PENDING, REQUIRED_REFERENCE_INPUT_MISSING_OR_PENDING}; checked_evidence_refs CÓ THỂ RỖNG khi input hoàn toàn absent (không có fact nào để reference)."
+  - "attempt_outcome = FAILED_BEFORE_EVALUATION: reason_code = ENGINE_COMPUTATION_BOUNDARY_ERROR (v0.1 CHỈ một giá trị — KHÔNG model broad runtime exception taxonomy/observability infrastructure, deferred §16); checked_evidence_refs thường rỗng. **v0.3 (đóng C4-DELTA-MAJ-02):** tường minh RETRYABLE — một DecisionEvaluationAttemptRecorded MỚI (evaluation_attempt_id khác) tại CÙNG logical computation key sau đó là hợp lệ, KHÔNG bị coi là mâu thuẫn với attempt này."
+  - "**v0.3 (đóng C4-DELTA-MAJ-02):** Idempotency scoped theo TỪNG evaluation_attempt_id (§2, §13 `decision_evaluation_attempt_idempotency_policy`) — KHÔNG theo logical computation key. Nhiều DecisionEvaluationAttemptRecorded (evaluation_attempt_id RIÊNG) CÓ THỂ tồn tại cùng (strategy_instance_id, decision_context_cursor), KỂ CẢ với attempt_outcome khác nhau — KHÔNG phải data-integrity violation."
   - "No-look-ahead: mọi checked_evidence_refs PHẢI thỏa fact.recorded_time ≤ decision_context_cursor.recorded_time (đối xứng §5d)."
 payload:
   evaluation_attempt_id: {type: string, required: true}
@@ -198,8 +215,9 @@ payload:
   attempt_outcome: {type: enum, values: [DECIDED, INELIGIBLE, INPUT_UNAVAILABLE, FAILED_BEFORE_EVALUATION], required: true}
   reason_code: {type: enum, values: [STRATEGY_INSTANCE_NOT_ACTIVE, DEFINITION_VERSION_NOT_VALID, ACCOUNT_NOT_ACTIVE, EVIDENCE_AXIS_UNRESOLVABLE, INSTRUMENT_SELECTION_INELIGIBLE, REQUIRED_PRICE_INPUT_MISSING_OR_PENDING, REQUIRED_REFERENCE_INPUT_MISSING_OR_PENDING, ENGINE_COMPUTATION_BOUNDARY_ERROR], required: false}
   checked_evidence_refs: {type: array, items: event_record_ref, required: false}
-  resulting_decision_id: {type: string, required: false}
 ```
+
+**Attempt→Decision query (non-authoritative convenience, KHÔNG cần linking event mới, đóng `C4-DELTA-MAJ-01`):** cho một attempt DECIDED, resolve Decision tương ứng qua HAI cách tương đương — (a) `GetDecisionForComputation(strategy_instance_id, decision_context_cursor, cursor)` (§8), cùng `strategy_instance_id`/`decision_context_cursor` với attempt; hoặc (b) reverse-lookup trực tiếp trên authoritative DecisionRecorded stream cho fact có `causation_refs` chứa chính `event_record_ref` của attempt này. Cả hai đều dùng field/cơ chế ĐÃ CÓ SẴN (`causation_refs`, logical computation key) — KHÔNG tạo event/field liên kết mới.
 
 ## 5. `DecisionRecorded` — `kind: event` (`event_class: decision`)
 
@@ -219,7 +237,8 @@ description: >
 invariants:
   - "payload.decision_id PHẢI khớp đúng subject_ref.subject_id VÀ payload.strategy_instance_id PHẢI khớp đúng subject_ref.scope.strategy_instance_id."
   - "envelope.decision_time = thời điểm domain Decision có hiệu lực — mặc định bằng decision_context_cursor.recorded_time trừ khi backfill lịch sử tường minh pin giá trị khác."
-  - "causation_refs PHẢI chứa DecisionEvaluationAttemptRecorded (§4) tương ứng, attempt_outcome = DECIDED, cùng strategy_instance_id/decision_context_cursor — chứng minh attempt đã ghi nhận DECIDED trước khi Decision này được tạo (§4 invariant chiều ngược)."
+  - "causation_refs PHẢI chứa DecisionEvaluationAttemptRecorded (§4) tương ứng, attempt_outcome = DECIDED, cùng strategy_instance_id/decision_context_cursor — chứng minh attempt đã ghi nhận DECIDED TRƯỚC khi Decision này được tạo. Đây là quan hệ MỘT CHIỀU (v0.3, đóng C4-DELTA-MAJ-01): attempt KHÔNG mang bất kỳ tham chiếu nào tới Decision (không resulting_decision_id) — chỉ Decision mới trỏ ngược lại attempt, loại bỏ hoàn toàn phụ thuộc vòng (circular append-order dependency) giữa hai event."
+  - "**v0.3 (đóng C4-DELTA-MAJ-02, Scenario 4):** nếu logical computation key (strategy_instance_id, decision_context_cursor) ĐÃ CÓ một DecisionRecorded VALID (visible-valid-head, §8) tại thời điểm ghi, DecisionRecorded MỚI PHẢI resolve/reuse decision_id đã tồn tại (evidence giống hệt — §1 idempotency) HOẶC bị reject (evidence khác, chưa invalidate predecessor) — TUYỆT ĐỐI KHÔNG tạo decision_id thứ hai cho CÙNG key trừ khi predecessor ĐÃ invalidate VÀ correction lineage (§11) cho phép. Nhiều attempt DECIDED (evaluation_attempt_id khác nhau, §2) tại cùng key CÓ THỂ cùng dẫn tới đúng MỘT Decision qua cơ chế này."
   - "TẤT CẢ chín field strategy evidence (§5b) PHẢI resolve deterministic từ authoritative Strategy/Account/Instrument/Venue event stream TẠI ĐÚNG decision_context_cursor — KHÔNG dùng StrategyInstanceCurrentView/AccountCurrentView/InstrumentCurrentView/VenueCurrentView/TradableListingCurrentView latest-state (strategy.md §9a/§10, account.md §13, instrument.md §7/§15)."
 ```
 
@@ -498,15 +517,15 @@ D2 → DecisionFactInvalidated targeting D2 → D3, supersedes_fact_ref = D2
 ```yaml
 initial_fact_correction_policy: INVALIDATE_ONLY_NO_SAME_ID_REPLACEMENT_FOR_IMMUTABLE_SCOPE_SUBJECTS
 decision_computation_idempotency_policy: STABLE_KEY_SAME_EVIDENCE_IS_IDEMPOTENT
-decision_evaluation_attempt_idempotency_policy: STABLE_KEY_SAME_OUTCOME_IS_IDEMPOTENT
+decision_evaluation_attempt_idempotency_policy: STABLE_ATTEMPT_ID_SAME_PAYLOAD_IS_IDEMPOTENT
 decision_correction_lineage_policy: SAME_LOGICAL_KEY_NEW_ID_INVALIDATE_THEN_REPLACE
 ```
 
 **`initial_fact_correction_policy`** — v0.2: áp dụng CHỈ cho `DecisionEvaluationAttemptRecorded` (§4, KHÔNG có same-ID replacement — attempt sai thực tế deferred §16). `DecisionRecorded` KHÔNG còn dùng policy này thuần túy — xem `decision_correction_lineage_policy` dưới.
 
-**`decision_computation_idempotency_policy: STABLE_KEY_SAME_EVIDENCE_IS_IDEMPOTENT`** — logical computation key = `(strategy_instance_id, decision_context_cursor)`; retry cùng key + cùng evidence (chưa invalidate) → idempotent no-op; retry cùng key + evidence KHÁC (chưa invalidate predecessor) → reject tường minh (§1, §11 invariant 10).
+**`decision_computation_idempotency_policy: STABLE_KEY_SAME_EVIDENCE_IS_IDEMPOTENT`** — logical computation key = `(strategy_instance_id, decision_context_cursor)`; retry cùng key + cùng evidence (chưa invalidate) → idempotent no-op; retry cùng key + evidence KHÁC (chưa invalidate predecessor) → reject tường minh (§1, §11 invariant 10). **Đây là policy CỦA DECISION** — áp dụng khi ghi `DecisionRecorded`, KHÔNG phải của Attempt (xem policy dưới).
 
-**`decision_evaluation_attempt_idempotency_policy: STABLE_KEY_SAME_OUTCOME_IS_IDEMPOTENT`** (v0.2, mới) — xem §2/§4: logical attempt key deterministic (cursor cố định) → cùng key PHẢI cùng outcome; khác outcome cùng key là data-integrity violation.
+**`decision_evaluation_attempt_idempotency_policy: STABLE_ATTEMPT_ID_SAME_PAYLOAD_IS_IDEMPOTENT`** (v0.3, sửa, đóng `C4-DELTA-MAJ-02` — đối xứng `instrument.md` §17 `activation_request_idempotency_policy: STABLE_ID_SAME_PAYLOAD_IS_IDEMPOTENT`) — idempotency scoped theo TỪNG `evaluation_attempt_id` cá nhân, KHÔNG theo logical computation key: retry CÙNG `evaluation_attempt_id` + CÙNG payload → idempotent no-op; CÙNG `evaluation_attempt_id` + payload KHÁC → deterministic conflict. **Logical computation key KHÔNG BẮT BUỘC unique** — nhiều `DecisionEvaluationAttemptRecorded` (mỗi cái một `evaluation_attempt_id` riêng) CÓ THỂ tồn tại cùng key, KỂ CẢ với `attempt_outcome` khác nhau (ví dụ `FAILED_BEFORE_EVALUATION` rồi `DECIDED` — retry hợp lệ, KHÔNG data-integrity violation). Việc nhiều attempt DECIDED tại cùng key phải resolve về đúng MỘT Decision là trách nhiệm của `decision_computation_idempotency_policy` ở TẦNG DECISION (§1/§5), KHÔNG phải của policy này.
 
 **`decision_correction_lineage_policy: SAME_LOGICAL_KEY_NEW_ID_INVALIDATE_THEN_REPLACE`** (v0.2, mới, đóng `C4-MAJ-03`) — correction DecisionRecorded KHÔNG same-ID replacement (decision_id vẫn bất biến/không tái sử dụng per-fact), NHƯNG logical computation key CÓ THỂ nhận DecisionRecorded MỚI (decision_id khác) sau khi predecessor invalidate — mười invariant đầy đủ tại §11. Đây là pattern MỚI, khác biệt cả `INVALIDATE_ONLY_NO_SAME_ID_REPLACEMENT...` (không có replacement nào) lẫn correction lineage chuẩn kiểu `StrategyInstanceStatusChanged` (subject_id/decision_id bất biến xuyên chain) — Decision cần decision_id per-fact bất biến (immutability yêu cầu tường minh) VÀ khả năng correction (C4-MAJ-03), nên kết hợp: chain theo logical key, KHÔNG theo subject_id.
 
@@ -552,9 +571,11 @@ decision_time: {type: timestamp, description: "= §3"}
 
 ## 18. Acceptance scenarios (validation, không phải executable test tại C4)
 
-**Scenario 1 — Same-key retry (đóng `C4-MAJ-01`/`C4-MAJ-02`):** Attempt A → Decision D1 LONG → Trade Intent T1. Retry cùng logical key + cùng evidence → trả về D1 (idempotent, KHÔNG DecisionEvaluationAttemptRecorded/DecisionRecorded thứ hai) → trả về T1 đã tồn tại (trade-intent.md §10 idempotent derivation) → KHÔNG Decision mới, KHÔNG Trade Intent mới.
+**Scenario 1 — Valid append order (đóng `C4-DELTA-MAJ-01`):** Attempt A1 (evaluation_attempt_id=A1, `attempt_outcome=DECIDED`, KHÔNG resulting_decision_id) ghi TRƯỚC → Decision D1 (`causation_refs` chứa A1) ghi SAU → thứ tự append hợp lệ, KHÔNG circular dependency (A1 không tham chiếu D1 trước khi D1 tồn tại). D1 → Trade Intent T1.
 
-**Scenario 2 — Decision correction (đóng `C4-MAJ-03`):** D1 tại cursor C ghi sai → invalidate D1 → D2 tại CÙNG cursor C, `supersedes_fact_ref = D1` → đúng một visible valid head (D2) tại cursor sau correction. Replay TRƯỚC correction thấy D1; replay SAU correction thấy D2 (§8 fold algorithm, §12).
+**Scenario 1a — Same-key retry, evaluation_attempt_id giống hệt (đóng `C4-MAJ-01`/`C4-MAJ-02`):** Retry CÙNG `evaluation_attempt_id=A1` + cùng payload → idempotent no-op, trả về A1 đã tồn tại (KHÔNG DecisionEvaluationAttemptRecorded thứ hai) → D1/T1 không đổi.
+
+**Scenario 2 — Decision correction (đóng `C4-MAJ-03`; attempt context đóng `C4-DELTA-MAJ-02` Scenario 5):** A1 DECIDED → D1 tại cursor C ghi sai → invalidate D1 → A2 DECIDED tại CÙNG cursor C (evaluation_attempt_id KHÁC A1) → D2, `supersedes_fact_ref = D1` → đúng một visible valid head (D2) tại cursor sau correction. Replay TRƯỚC correction thấy D1; replay SAU correction thấy D2 (§8 fold algorithm, §12). Đây LÀ trường hợp hợp lệ DUY NHẤT một logical key có hai Decision head khác nhau theo thời gian — vì D1 ĐÃ invalidate trước khi D2 ghi (§11).
 
 **Scenario 3 — Ineligible attempt (đóng `C4-MAJ-04`):** `DecisionEvaluationAttemptRecorded(attempt_outcome=INELIGIBLE)` ghi nhận — KHÔNG Decision, KHÔNG Trade Intent — phân biệt tường minh với "không có attempt nào" (§4, một fact THẬT tồn tại, không phải absence).
 
@@ -562,7 +583,7 @@ decision_time: {type: timestamp, description: "= §3"}
 
 **Scenario 5 — Engine failure before evaluation (đóng `C4-MAJ-04`):** `DecisionEvaluationAttemptRecorded(attempt_outcome=FAILED_BEFORE_EVALUATION, reason_code=ENGINE_COMPUTATION_BOUNDARY_ERROR)` — KHÔNG model broad exception telemetry, một reason_code bounded duy nhất (§4/§16).
 
-**Scenario 6 — Cross-stream recovery (đóng `C4-MAJ-01`/`C4-MAJ-02`):** D1 LONG tồn tại; TradeIntentIssued append ban đầu bị miss; retry/recovery bằng `originating_decision_id` (trade-intent.md §10) → đúng MỘT T1 (idempotent derivation, KHÔNG duplicate). Decision KHÔNG BAO GIỜ tự tuyên bố "đã issue" sai sự thật — vì nó KHÔNG còn field nào tuyên bố điều đó (§5e/§10).
+**Scenario 6 — Cross-stream recovery (đóng `C4-MAJ-01`/`C4-MAJ-02`):** D1 LONG tồn tại (từ attempt A1 DECIDED); TradeIntentIssued append ban đầu bị miss; retry/recovery bằng `originating_decision_id` (trade-intent.md §10) → đúng MỘT T1 (idempotent derivation, KHÔNG duplicate). Decision KHÔNG BAO GIỜ tự tuyên bố "đã issue" sai sự thật — vì nó KHÔNG còn field nào tuyên bố điều đó (§5e/§10).
 
 **Scenario 7 — Time ordering (đóng `C4-MAJ-05`, xem trade-intent.md §3/§9):** `Decision.decision_time = 10:00`; `TradeIntent.effective_time = 09:59` → reject (vi phạm invariant `effective_time >= decision_time`); `TradeIntent.effective_time >= 10:00` → allowed.
 
@@ -575,3 +596,11 @@ decision_time: {type: timestamp, description: "= §3"}
 **Scenario 11 — Future correction hidden (kế thừa Scenario D cũ):** một candle/EMA value CORRECT (recorded SAU `decision_context_cursor` gốc) KHÔNG visible khi replay tại cursor gốc — invariant §3 (`input_event.recorded_time ≤ cursor.recorded_time`) chặn tường minh.
 
 **Scenario 12 — Exact executable difference (kế thừa Scenario F cũ):** cùng Strategy Definition Version + Configuration Version, `package_build_artifact_ref` khác (rebuild non-reproducible, ADR-013 §2.5) → hai `strategy_evidence.package_build_artifact_ref` khác giá trị trên hai DecisionRecorded riêng biệt.
+
+**Scenario 13 — Retry after engine failure (đóng `C4-DELTA-MAJ-02`):** A1 (evaluation_attempt_id=A1, key=(S,C), `attempt_outcome=FAILED_BEFORE_EVALUATION`) ghi nhận; A2 (evaluation_attempt_id=A2, CÙNG key (S,C), `attempt_outcome=DECIDED`) ghi nhận sau đó — HỢP LỆ, KHÔNG mâu thuẫn với A1 (§2/§4, FAILED_BEFORE_EVALUATION tường minh retryable); D1 (`causation_refs` chứa A2, cùng key) ghi theo sau A2.
+
+**Scenario 14 — Same attempt retry (đóng `C4-DELTA-MAJ-02`):** Retry `evaluation_attempt_id=A1` với payload giống hệt → trả về A1 đã tồn tại (idempotent no-op). Retry `evaluation_attempt_id=A1` với payload KHÁC → deterministic conflict, reject (§2/§13 `decision_evaluation_attempt_idempotency_policy`).
+
+**Scenario 15 — Multiple successful attempts (đóng `C4-DELTA-MAJ-02`, Scenario 4):** A1 DECIDED → D1 (key S,C). A2 DECIDED tại CÙNG key (evaluation_attempt_id KHÁC A1) — PHẢI resolve/reuse D1 nếu evidence giống hệt (Decision-layer idempotency, §1/§13 `decision_computation_idempotency_policy`), hoặc deterministic conflict nếu evidence khác. A2 TUYỆT ĐỐI KHÔNG được tạo D2 trừ khi D1 ĐÃ invalidate VÀ correction lineage (§11) cho phép (Scenario 5 dưới).
+
+**Scenario 16 — No attempt (đóng `C4-MAJ-04`, tái xác nhận):** KHÔNG có `DecisionEvaluationAttemptRecorded` nào tồn tại cho một logical key — trạng thái này PHẢI phân biệt được tường minh với BẤT KỲ attempt đã ghi nhận nào (kể cả `INELIGIBLE`/`INPUT_UNAVAILABLE`/`FAILED_BEFORE_EVALUATION`) — absence hoàn toàn (chưa từng thử) ≠ một attempt fact THẬT với outcome không dẫn tới Decision (§2/§4, Scenario 3–5).
