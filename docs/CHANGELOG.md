@@ -2,6 +2,147 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — consolidate Package 0.2-C7
+
+**Package 0.2-C7 Execution Result, Fill, Position and Replay Integration Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C7: Consolidated Stable" (2026-07-31). Authorization này cho phép ghi Package 0.2-C7 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `execution-result.md`/`fill.md`/`position.md`/`replay-event.md`, không sửa `context-map.yaml`/bất kỳ C1–C6 artifact/ADR nào, không sửa Constitution, không đóng OQ-002/OQ-003, không authorize Live, không author/authorize package mới, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.
+
+### Baseline verification
+
+```text
+Expected HEAD:  c671b987aedc1f4ac9d74597a1c111ae0c98683e
+Actual HEAD:    c671b987aedc1f4ac9d74597a1c111ae0c98683e  — match
+
+execution-result.md:  v0.3 Draft, blob e5cbb0ee3e3b9083920c03318e3f0dd726247304  — match
+fill.md:               v0.3 Draft, blob a4a2c473086ef8495c4106b75d632a7af09ae3fc  — match
+position.md:            v0.3 Draft, blob 808a3e6041af7a5521094318924fa3682be9cefa  — match
+replay-event.md:        v0.3 Draft, blob f429d31c0f8ec42e2859f5658edd8a3dedf58b64  — match
+context-map.yaml:      v0.19 Draft  — match
+```
+
+### Product Owner authorization recorded
+
+```text
+Package 0.2-C7:
+  Consolidated Stable
+```
+
+Meaning: the exact reviewed C7 baseline (all four artifacts, second bounded correction v0.3) is stable enough to be recorded as the completed dependency baseline for Package 0.2-C as a whole. It does not mean any artifact is Approved or Locked.
+
+### Exact reviewed baseline pinned
+
+```text
+Package 0.2-C7 reviewed HEAD:  c671b987aedc1f4ac9d74597a1c111ae0c98683e
+
+execution-result.md:  v0.3 Draft, blob e5cbb0ee3e3b9083920c03318e3f0dd726247304
+fill.md:               v0.3 Draft, blob a4a2c473086ef8495c4106b75d632a7af09ae3fc
+position.md:            v0.3 Draft, blob 808a3e6041af7a5521094318924fa3682be9cefa
+replay-event.md:        v0.3 Draft, blob f429d31c0f8ec42e2859f5658edd8a3dedf58b64
+Integration artifact:  context-map.yaml v0.19 Draft (unchanged)
+Registry baseline:     MANIFEST v9.77
+```
+
+### Review evidence
+
+```text
+ChatGPT second bounded delta Review A:        Clean — Blocker 0, Major 0, Minor 0
+Independent second bounded delta Review B:    Clean — Blocker 0, Major 0, Minor 0
+```
+
+### Complete finding ledger — all resolved (v0.1 → v0.2 bounded correction, v0.2 → v0.3 second bounded correction)
+
+```text
+C7-MAJ-01:        Resolved (PaperExecutionObservation entity, durable simulation evidence + output, corrected ordering, v0.2)
+C7-MAJ-02:        Resolved (Fill economics required to copy exactly from Observation, v0.2)
+C7-MAJ-03:        Resolved (eligible_as_position_contributing_fill continuing eligibility rule replaces "mandatory pairing" language, v0.2)
+C7-MAJ-04:        Resolved (Position projection_status EVALUABLE/NON_EVALUABLE, UNSUPPORTED_MULTIPLE_FILL_LINEAGES, v0.2)
+C7-DELTA-MAJ-01:  Resolved (ExecutionResultComputation entity, computation identity replaces cursor as authorization/idempotency anchor, v0.3)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Package lifecycle meaning
+
+`Consolidated Stable` là package lifecycle/readiness state — nghĩa là: reviewed package baseline nội bộ coherent qua hai vòng correction; mọi qualifying finding đã resolved; deferred limitations được ghi nhận tường minh là non-blocking Phase 1 concern; package integration đủ ổn định để coi toàn bộ Package 0.2-C (C1–C7) hoàn tất tương đương. Nó KHÔNG có nghĩa: artifact Approved; artifact Locked; ADR thay đổi; Domain Contract bất biến; OQ closure; Phase completion; implementation authorization; Live authorization.
+
+### Confirmation — C7 semantic artifacts byte-identical
+
+```text
+docs/domain/execution-result.md  blob e5cbb0ee3e3b9083920c03318e3f0dd726247304 — verified byte-identical to reviewed baseline
+docs/domain/fill.md              blob a4a2c473086ef8495c4106b75d632a7af09ae3fc — verified byte-identical to reviewed baseline
+docs/domain/position.md          blob 808a3e6041af7a5521094318924fa3682be9cefa — verified byte-identical to reviewed baseline
+docs/domain/replay-event.md      blob f429d31c0f8ec42e2859f5658edd8a3dedf58b64 — verified byte-identical to reviewed baseline
+docs/domain/context-map.yaml     unchanged — verified byte-identical to reviewed baseline
+```
+
+### Confirmation — C1–C6 semantic artifacts byte-identical
+
+```text
+docs/domain/order.md             blob 94ec87593834362292dc3379068e99ef12d86412 — verified byte-identical
+docs/domain/risk.md              blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab — verified byte-identical
+docs/domain/execution-intent.md  blob afc0c1fe7bdd2f285403dff29c71849ab66af70c — verified byte-identical
+docs/domain/decision.md          blob e2a26320200d350ace3da0247235bb14cef12509 — verified byte-identical
+docs/domain/trade-intent.md      blob e7a306abc53ba482ff1249af1dda2829c4c82fa7 — verified byte-identical
+docs/domain/instrument.md        blob 81651f6a19a3f22fa7a924173f14b02e6467c8e0 — verified byte-identical
+docs/domain/venue.md             blob 0ffb9e64bcb7dec108edea0bc9c3af3a162b40d9 — verified byte-identical
+docs/domain/account.md           blob 9fd2d0fb3235343d52c3435df3f1c7e08dd22781 — verified byte-identical
+docs/domain/strategy.md          blob c2cadc464bc8baecff41ff8079461ec0d5dfaccc — verified byte-identical
+```
+
+### Unchanged artifact statuses
+
+`execution-result.md`/`fill.md`/`position.md`/`replay-event.md`: **giữ nguyên** `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte — không sửa Domain Contract semantic trong transaction này. `context-map.yaml`: **giữ nguyên** `version: "0.19"`, `status: Draft`, byte-for-byte — không sửa. `order.md`/`risk.md`/`execution-intent.md`/`decision.md`/`trade-intent.md`: **giữ nguyên**, byte-for-byte — không sửa. Mọi C1–C3 Domain Contract (`instrument.md`/`venue.md`/`account.md`/`strategy.md`) và mọi ADR: **giữ nguyên**, byte-for-byte — không sửa.
+
+### Package lifecycle states pinned
+
+```text
+Package 0.2-C1:     Consolidated Stable
+Package 0.2-C2:     Consolidated Stable
+Package 0.2-C3:     Consolidated Stable
+Package 0.2-C4:     Consolidated Stable
+Package 0.2-C5:     Consolidated Stable
+Package 0.2-C6:     Consolidated Stable
+Package 0.2-C7:     Consolidated Stable
+```
+
+**Package 0.2-C (C1–C7, tổng thể) nay `Consolidated Stable`.**
+
+### Artifact lifecycle states pinned
+
+```text
+execution-result.md:  Draft, version "0.3", approved_by: null, approved_at: null, not Locked
+fill.md:               Draft, version "0.3", approved_by: null, approved_at: null, not Locked
+position.md:            Draft, version "0.3", approved_by: null, approved_at: null, not Locked
+replay-event.md:        Draft, version "0.3", approved_by: null, approved_at: null, not Locked
+context-map.yaml:      Draft, version "0.19"
+```
+
+### Changed-file scope
+
+```text
+docs/domain/README.md            MODIFIED v0.51 → v0.52
+docs/MANIFEST.md                 MODIFIED manifest_version 9.77 → 9.78
+docs/CHANGELOG.md                MODIFIED (this entry)
+docs/domain/execution-result.md  KHÔNG ĐỔI — blob e5cbb0ee3e3b9083920c03318e3f0dd726247304, verified byte-identical
+docs/domain/fill.md              KHÔNG ĐỔI — blob a4a2c473086ef8495c4106b75d632a7af09ae3fc, verified byte-identical
+docs/domain/position.md          KHÔNG ĐỔI — blob 808a3e6041af7a5521094318924fa3682be9cefa, verified byte-identical
+docs/domain/replay-event.md      KHÔNG ĐỔI — blob f429d31c0f8ec42e2859f5658edd8a3dedf58b64, verified byte-identical
+docs/domain/context-map.yaml     KHÔNG ĐỔI — verified byte-identical
+docs/domain/order.md             KHÔNG ĐỔI — blob 94ec87593834362292dc3379068e99ef12d86412, verified byte-identical
+docs/domain/risk.md              KHÔNG ĐỔI — blob 1deb39f49c82f8b138c0dc3f65250b876c1839ab, verified byte-identical
+docs/domain/execution-intent.md  KHÔNG ĐỔI — blob afc0c1fe7bdd2f285403dff29c71849ab66af70c, verified byte-identical
+docs/domain/decision.md          KHÔNG ĐỔI — blob e2a26320200d350ace3da0247235bb14cef12509, verified byte-identical
+docs/domain/trade-intent.md      KHÔNG ĐỔI — blob e7a306abc53ba482ff1249af1dda2829c4c82fa7, verified byte-identical
+```
+
+### Metadata / state
+
+- `execution-result.md`, `fill.md`, `position.md`, `replay-event.md`, `context-map.yaml`, `order.md`, `risk.md`, `execution-intent.md`, `decision.md`, `trade-intent.md`: **không đổi** (semantic và version) — package lifecycle metadata only.
+- `README.md` (domain index): **v0.51 → v0.52**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.77 → 9.78**; dòng `domain/` cập nhật ghi nhận Package 0.2-C7 `Consolidated Stable`.
+- Mọi Domain Contract khác (`instrument.md`, `venue.md`, `account.md`, `strategy.md`, `candle.md`, `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md`), mọi ADR file, Constitution: **không đổi.**
+
+**Package 0.2-C (C1–C7) nay hoàn tất `Consolidated Stable` toàn bộ.** OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Không artifact nào Approved/Locked. Phase 0.2 vẫn active và chưa hoàn tất — hoàn tất Phase 0.2 là một quyết định Product Owner riêng, tách biệt khỏi `Consolidated Stable`, chưa được đưa ra trong transaction này.
+
 ## [Unreleased] — 2026-07-31 — bind C7 observations to authorized computations
 
 **Package 0.2-C7 second bounded correction — đúng một consolidated delta finding.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.2-C7 second bounded correction — C7-DELTA-MAJ-01." Đóng đúng một finding: `C7-DELTA-MAJ-01` (logical computation key `(submission_request_id, observation_cursor)` không authoritatively phân biệt initial computation / authorized correction computation / illegal rerun tại cursor mới / orphan Observation chờ Attempt). Authorization này **không** cho phép sửa C1–C6 semantic artifacts, `order.md`, ADR/Constitution, author simulation algorithm thực tế, Live behavior, exchange adapter/API payload, partial Fill, fees/PnL/accounting, close/reduce/reversal, aggregation/netting, margin/leverage/liquidation, cross-stream transaction, workflow/saga infrastructure, reopen `C7-MAJ-02`/`C7-MAJ-03`/`C7-MAJ-04`, Approve/Lock artifact, mark C7 Consolidated Stable, đóng OQ-002/OQ-003, hay declare Phase 0.2 complete.
