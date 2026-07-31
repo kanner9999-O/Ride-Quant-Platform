@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.47"
+version: "0.48"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -30,7 +30,7 @@ Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi fil
 |---|---|---|
 | **0.2-A — Domain foundation** | `context-map.yaml` (v0.3 — non-blocking documentation-reference fix) + `candle.md` (v0.4, không đổi ở vòng consolidation này) | Draft — **`Consolidated Stable`** (xem dưới) |
 | **0.2-B — Data & analysis chain** | `swing.md`, `structure.md`, `regime.md`, `feature.md`, `context.md` | **Package 0.2-B1: `Consolidated Stable`** (xem dưới) — `swing.md` v0.2 Draft + `structure.md` v0.4 Draft, cả hai Clean qua đầy đủ hai vòng review độc lập. **Package 0.2-B2: `Consolidated Stable`** (xem dưới) — `regime.md` v0.2 Draft, Clean qua đầy đủ review, 0 finding. **Package 0.2-B3: `Consolidated Stable`** (xem dưới) — `feature.md` v0.2 Draft, Clean qua đầy đủ review (bao gồm narrow revision xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`), 0 finding còn lại. **Package 0.2-B4: `Consolidated Stable`** (xem dưới) — `context.md` v0.2 Draft, tất cả finding resolved (`RA-B4-MAJ-01`/`IRB-B4-MAJ-01`/`IRB-B4-MAJ-02`/`IRB-B4-MAJ-03`/`RA-B4-MIN-02`/`IRB-ADR014-MAJ-01`/`IRB-ADR014-MAJ-02`/`IRB-ADR014-MIN-01`/`IRB-ADR014-MIN-02`/`IRB-B4-FINAL-MIN-01`), [ADR-014](../adr/ADR-014.md) **Approved** (Product Owner, 2026-07-30) là controlling authority. **Package 0.2-B (tổng thể) nay `Consolidated Stable`** — B1/B2/B3/B4 đều đạt. |
-| **0.2-C — Decision & execution chain** | `instrument.md`, `venue.md`, `account.md`, `strategy.md` (Strategy Definition + Strategy Instance), `trade-intent.md`, `decision.md`, `risk.md`, `execution-intent.md`, `order.md`, `fill.md`, `position.md`, `replay-event.md` — decomposed thành 7 slice phụ thuộc (C1–C7, xem mục "Package 0.2-C decomposition" dưới đây) | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 vẫn **`Approved`** (không đổi). **Package 0.2-C1 (Reference Foundation): `Consolidated Stable`** (xem dưới) — `instrument.md` v0.6 Draft + `venue.md` v0.3 Draft, ChatGPT Review A Clean, Independent Review B Clean with deferred limitations (Phase 1 implementation concerns, non-blocking), 0 blocking finding. **Package 0.2-C2 (Trading Account Foundation): `Consolidated Stable`** (xem dưới) — `account.md` v0.2 Draft, controlling architecture [ADR-012](../adr/ADR-012.md) v0.3 Approved (không sửa), ChatGPT bounded delta Review A Clean, Independent Review B Clean with deferred limitations (Phase 1 implementation concerns, non-blocking), 0 blocking finding. **Package 0.2-C3 (Strategy Foundation): `Consolidated Stable`** (xem dưới) — `strategy.md` v0.3 Draft, controlling architecture [ADR-013](../adr/ADR-013.md) v0.3 Approved (không sửa), ChatGPT final focused delta re-review Clean, Independent Review B final focused delta re-review Clean, 0 blocking finding. **Package 0.2-C4 (Trade Intent and Decision Foundation): `Consolidated Stable`** (xem dưới) — `decision.md` v0.3 Draft + `trade-intent.md` v0.2 Draft, controlling architecture [ADR-010](../adr/ADR-010.md) Approved (Decision Time Model) + Chapter 8 §8.4/§8.5 (Locked) + [ADR-013](../adr/ADR-013.md) v0.3 Approved (không sửa), ChatGPT final focused delta re-review Clean, Independent Review B final focused delta re-review Clean, 0 blocking finding. **Package 0.2-C5 (Risk Gateway and Execution Intent Foundation): `Consolidated Stable`** (xem dưới) — `risk.md` v0.3 Draft + `execution-intent.md` v0.2 Draft (không đổi), controlling architecture Chapter 8 §8.1.1/§8.2/§8.5 (Locked) + Chapter 9 §9.1 (Locked), ChatGPT final focused delta re-review Clean, Independent Review B final focused delta re-review Clean, 0 blocking finding. **Package 0.2-C6 (Order Foundation): bounded correction applied, chưa `Consolidated Stable`** (xem dưới) — `order.md` v0.2 Draft, controlling architecture `execution-intent.md` §6a (`eligible_for_new_order_creation`, không sửa) + Chapter 8 §8.1.1/§8.2/§8.5 (Locked), Review A/B (baseline v0.1) hoàn tất, bounded correction đóng ba Major finding, chờ bounded delta Review A/B. **Package 0.2-C7: chưa authorize, chưa author** — mỗi slice cần Product Owner scope authorization riêng. |
+| **0.2-C — Decision & execution chain** | `instrument.md`, `venue.md`, `account.md`, `strategy.md` (Strategy Definition + Strategy Instance), `trade-intent.md`, `decision.md`, `risk.md`, `execution-intent.md`, `order.md`, `fill.md`, `position.md`, `replay-event.md` — decomposed thành 7 slice phụ thuộc (C1–C7, xem mục "Package 0.2-C decomposition" dưới đây) | [ADR-012](../adr/ADR-012.md) v0.3 và [ADR-013](../adr/ADR-013.md) v0.3 vẫn **`Approved`** (không đổi). **Package 0.2-C1 (Reference Foundation): `Consolidated Stable`** (xem dưới) — `instrument.md` v0.6 Draft + `venue.md` v0.3 Draft, ChatGPT Review A Clean, Independent Review B Clean with deferred limitations (Phase 1 implementation concerns, non-blocking), 0 blocking finding. **Package 0.2-C2 (Trading Account Foundation): `Consolidated Stable`** (xem dưới) — `account.md` v0.2 Draft, controlling architecture [ADR-012](../adr/ADR-012.md) v0.3 Approved (không sửa), ChatGPT bounded delta Review A Clean, Independent Review B Clean with deferred limitations (Phase 1 implementation concerns, non-blocking), 0 blocking finding. **Package 0.2-C3 (Strategy Foundation): `Consolidated Stable`** (xem dưới) — `strategy.md` v0.3 Draft, controlling architecture [ADR-013](../adr/ADR-013.md) v0.3 Approved (không sửa), ChatGPT final focused delta re-review Clean, Independent Review B final focused delta re-review Clean, 0 blocking finding. **Package 0.2-C4 (Trade Intent and Decision Foundation): `Consolidated Stable`** (xem dưới) — `decision.md` v0.3 Draft + `trade-intent.md` v0.2 Draft, controlling architecture [ADR-010](../adr/ADR-010.md) Approved (Decision Time Model) + Chapter 8 §8.4/§8.5 (Locked) + [ADR-013](../adr/ADR-013.md) v0.3 Approved (không sửa), ChatGPT final focused delta re-review Clean, Independent Review B final focused delta re-review Clean, 0 blocking finding. **Package 0.2-C5 (Risk Gateway and Execution Intent Foundation): `Consolidated Stable`** (xem dưới) — `risk.md` v0.3 Draft + `execution-intent.md` v0.2 Draft (không đổi), controlling architecture Chapter 8 §8.1.1/§8.2/§8.5 (Locked) + Chapter 9 §9.1 (Locked), ChatGPT final focused delta re-review Clean, Independent Review B final focused delta re-review Clean, 0 blocking finding. **Package 0.2-C6 (Order Foundation): `Consolidated Stable`** (xem dưới) — `order.md` v0.2 Draft, controlling architecture `execution-intent.md` §6a (`eligible_for_new_order_creation`, không sửa) + Chapter 8 §8.1.1/§8.2/§8.5 (Locked), ChatGPT bounded delta Review A Clean, Independent Delta Review B Clean, 0 blocking finding. **Package 0.2-C7: chưa authorize, chưa author** — mỗi slice cần Product Owner scope authorization riêng. |
 
 **Thứ tự dự kiến trong từng package không đổi** so với kế hoạch gốc (theo dependency đã chốt ở [ADR-003](../adr/ADR-003.md) và [07-module-taxonomy.md](../constitution/07-module-taxonomy.md)); Package 0.2-C được liệt kê đầy đủ hơn danh sách gốc vì danh sách gốc thiếu Account/Order/Execution/Venue/Instrument.
 
@@ -584,7 +584,7 @@ Package 0.2-C5–C7: unauthorized, unauthored
 
 **Package 0.2-C5 nay `Consolidated Stable`** — Product Owner đã authorize scope tối thiểu ("Package 0.2-C5 — Risk Gateway and Execution Intent Foundation v0.1"), sau đó một bounded correction (v0.2, đóng consolidated Review A + Independent Review B findings C5-MAJ-01..06), một micro-correction (v0.3, đóng `C5-DELTA-MAJ-01` — evidence availability versus unit compatibility separation), và cuối cùng một consolidation transaction (Product Owner authorized: "Package 0.2-C5: Consolidated Stable") — xem mục "Package 0.2-C5" dưới đây cho chi tiết.
 
-**Package 0.2-C6 nay authored (chưa `Consolidated Stable`), xem mục "Package 0.2-C6" dưới đây.** Package 0.2-C7 vẫn chưa có artifact nào được author. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn **active và chưa hoàn tất** — Package 0.2-A/B (tổng thể)/C1/C2/C3/C4/C5 nay đều `Consolidated Stable`, nhưng Phase 0.2 chỉ hoàn tất khi toàn bộ 0.2-C (C1–C7) cũng đạt tương đương, đúng roadmap Chapter 14.
+**Package 0.2-C6 nay `Consolidated Stable`, xem mục "Package 0.2-C6" dưới đây.** Package 0.2-C7 vẫn chưa có artifact nào được author. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn **active và chưa hoàn tất** — Package 0.2-A/B (tổng thể)/C1/C2/C3/C4/C5/C6 nay đều `Consolidated Stable`, nhưng Phase 0.2 chỉ hoàn tất khi toàn bộ 0.2-C (C1–C7) cũng đạt tương đương, đúng roadmap Chapter 14.
 
 ## Package 0.2-C5 — Risk Gateway and Execution Intent Foundation `Consolidated Stable`
 
@@ -660,7 +660,7 @@ Package 0.2-C6–C7: unauthorized, unauthored
 
 **Package 0.2-C6 baseline dependency đã thỏa, eligible cho Product Owner scope authorization — CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.** Package 0.2-C7 gate chưa mở. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất.
 
-## Package 0.2-C6 — Order Foundation v0.2 bounded correction applied (chưa `Consolidated Stable`, chờ bounded delta Review A + Independent Review B)
+## Package 0.2-C6 — Order Foundation `Consolidated Stable`
 
 **Phạm vi C6 (scope tối thiểu, đã Product Owner authorize):** một Domain Contract — [`order.md`](./order.md) v0.2 Draft (Order + OrderCreationAttempt + OrderSubmissionRequest) — ba concept trong MỘT file, đúng quyết định tổ chức "prefer một bounded contract chứa cả creation và submission-request semantics" — `capability_id: execution-management` / `domain_context_id: order-management` (capability/context **MỚI**, đăng ký lần đầu tại [`context-map.yaml`](./context-map.yaml) v0.18, không đổi trong bounded correction này — Order KHÔNG thuộc phạm vi `risk-management`/`risk-gateway` của Package 0.2-C5). MỘT relationship edge đã đăng ký (không đổi): `risk-gateway` (execution-intent) → `order-management` (order), `published_language`, contract `execution-intent-issued`.
 
@@ -682,11 +682,50 @@ Package 0.2-C6–C7: unauthorized, unauthored
 
 - Author self-review (authoring, v0.1): **hoàn tất.**
 - ChatGPT Review A + Independent Review B (baseline v0.1): **hoàn tất** — ba Major finding (`C6-MAJ-01`/`C6-MAJ-02`/`C6-MAJ-03`) consolidated.
-- Bounded correction commit (v0.1 → v0.2), Product Owner authorized: **hoàn tất** — đóng toàn bộ ba finding, xem chi tiết trên.
-- ChatGPT bounded delta Review A + Independent Review B delta review (trên v0.2): **chưa chạy** — báo cáo correction transaction này gửi đi làm điểm khởi đầu delta review, đúng mandatory sequence: Author baseline → ChatGPT Review A → Independent Review B (cùng exact baseline) → merge finding → một correction commit được Product Owner authorize → ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. **KHÔNG correction dựa trên một review đơn lẻ.**
-- Consolidation: **chưa bắt đầu** — Package 0.2-C6 **CHƯA** đạt `Consolidated Stable`.
+- Bounded correction commit (v0.1 → v0.2), Product Owner authorized: **hoàn tất** — đóng toàn bộ ba finding.
+- ChatGPT bounded delta Review A (trên v0.2): **Clean** — 0 blocking finding.
+- Independent Delta Review B (trên v0.2): **Clean** — 0 blocking finding.
+- Consolidation: **hoàn tất (transaction này)** — Product Owner authorized: "Package 0.2-C6: Consolidated Stable". **Package 0.2-C6 nay `Consolidated Stable`.**
 
-**Không tuyên bố hoàn thành hay approval ở bất kỳ mức nào (mục C6):** `order.md` `status: Draft`, `version: "0.2"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng OQ-002/OQ-003; không authorize Live; không sửa `execution-intent.md`/`risk.md`/`decision.md`/`trade-intent.md`/C1–C5/ADR/Constitution; Package 0.2-C1/C2/C3/C4/C5 vẫn `Consolidated Stable` và không đổi; Package 0.2-C7 vẫn chưa authorize, chưa author. KHÔNG Fill/Position semantics nào được author.
+**Kết luận consolidation:** ChatGPT bounded delta Review A (Clean) và Independent Delta Review B (Clean) trên `order.md` v0.2, **0 finding còn lại chưa xử lý** (finding ledger đầy đủ — ba finding qua bounded correction v0.1→v0.2, tại mục baseline dưới đây). Product Owner authorized: "Package 0.2-C6: Consolidated Stable".
+
+## `Consolidated Stable` baseline — Package 0.2-C6
+
+**Exact reviewed artifact baseline (pinned):**
+
+```text
+order.md                 v0.2   Draft      blob 94ec87593834362292dc3379068e99ef12d86412
+context-map.yaml         v0.18  Draft      blob d87428e9919005a2cd7f7b282c92f710e5aed382
+reviewed HEAD:    2c655c18aa976278c9b4f75cbe0b6aae202e5223
+```
+
+**Finding ledger — tất cả resolved qua bounded correction (v0.1 → v0.2):**
+
+```text
+C6-MAJ-01  — Resolved (thêm supersedes_fact_ref vào OrderCreated.payload, pin direct-predecessor-fact-targeting đối xứng risk.md §10, mười invariant correction lineage, fold algorithm dựng explicit chain)
+C6-MAJ-02  — Resolved (OrderFactInvalidated cho phép target OrderSubmissionRequested, invalidate-only, fold algorithm loại trừ request đã invalidate khỏi mọi fold)
+C6-MAJ-03  — Resolved (eligible_for_execution_result_processing dùng trọn vẹn eligible_for_new_order_creation, pin chính xác current_status == SUBMISSION_REQUESTED)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+**Deferred limitations (Phase 1 implementation concern, non-blocking):** Stream Registry/Input Contract implementation cụ thể; chính sách hết hạn Order cụ thể; lý do WITHDRAWN cụ thể; reference price cho PAPER simulation evidence (chủ động omit — Order không tự tính toán gì); granular exception sub-taxonomy cho `FAILED_BEFORE_CREATION`; individual submission-attempt identity riêng; correction lineage riêng cho `OrderCreationAttempt`; implementation technology cho Execution Intent→Order và Order→Submission recovery. Đây là các mối quan tâm triển khai runtime (Phase 1), KHÔNG phải Domain Contract semantic gap — không mở rộng thành Domain Contract semantic mới.
+
+**`Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval status**, đúng định nghĩa đã khóa ở mục Package 0.2-A: authoring + bounded correction hoàn tất cho phạm vi C6; ChatGPT bounded delta Review A hoàn tất (Clean); Independent Delta Review B hoàn tất (Clean); mọi qualifying finding đã xử lý; artifact đã review được pin chính xác; package đủ ổn định để package kế tiếp (0.2-C7) bắt đầu planning — **không** ngụ ý Product Owner Approval cho `order.md`, **không** ngụ ý Lock, **không** sửa ADR nào, **không** đóng OQ nào, **không** authorize Live, **không** thay đổi Constitution. `order.md` **vẫn giữ `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte không đổi**; `context-map.yaml` **vẫn giữ `version: "0.18"`, `status: Draft`, byte-for-byte không đổi** — artifact lifecycle và package lifecycle là hai trục tách biệt.
+
+**Package lifecycle states (pinned tại transaction này):**
+
+```text
+Package 0.2-C1:    Consolidated Stable
+Package 0.2-C2:    Consolidated Stable
+Package 0.2-C3:    Consolidated Stable
+Package 0.2-C4:    Consolidated Stable
+Package 0.2-C5:    Consolidated Stable
+Package 0.2-C6:    Consolidated Stable
+Package 0.2-C7:    unauthorized, unauthored
+```
+
+**Package 0.2-C7 baseline dependency đã thỏa, eligible cho Product Owner scope authorization — CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.** OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.2 vẫn active và chưa hoàn tất. KHÔNG Fill/Position semantics nào được author.
 
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 
