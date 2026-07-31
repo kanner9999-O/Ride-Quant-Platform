@@ -2,6 +2,42 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-07-31 — complete Phase 0.2
+
+**Product Owner decision recorded.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Metadata-only transaction — no domain semantics changed.
+
+```text
+Baseline verification:
+  Expected HEAD:  95fdb01ea662e741fa08f4c2d79727cc13c1a54a
+  Actual HEAD:    95fdb01ea662e741fa08f4c2d79727cc13c1a54a  — match
+
+Phase 0.2 — Domain Model & Domain Contract:
+  Complete
+
+Completed baseline:
+  95fdb01ea662e741fa08f4c2d79727cc13c1a54a
+
+Next active sub-phase:
+  Phase 0.3
+
+Phase 0:
+  not Approved
+
+Phase 1:
+  not Authorized
+
+Domain artifacts:
+  remain Draft, not Approved, not Locked
+
+OQ-002/OQ-003:
+  remain Open
+
+Live:
+  remains Unauthorized
+```
+
+**Changed:** `docs/domain/README.md` (v0.52 → v0.53), `docs/MANIFEST.md` (manifest_version 9.78 → 9.79), `docs/CHANGELOG.md` (this entry). **Unchanged, byte-identical:** all 19 domain-concept files + `context-map.yaml`, all ADRs, all Constitution chapters, all governance artifacts. No artifact Approved or Locked; `approved_by`/`approved_at` not populated; OQ-002/OQ-003 not closed; Live not authorized; Phase 0 not declared complete; Phase 1 not authorized; no Phase 0.3 deliverable authored; no Phase 0 DoD created; no Phase 0 Approval Gate work performed.
+
 ## [Unreleased] — 2026-07-31 — consolidate Package 0.2-C7
 
 **Package 0.2-C7 Execution Result, Fill, Position and Replay Integration Foundation consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.2-C7: Consolidated Stable" (2026-07-31). Authorization này cho phép ghi Package 0.2-C7 vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `execution-result.md`/`fill.md`/`position.md`/`replay-event.md`, không sửa `context-map.yaml`/bất kỳ C1–C6 artifact/ADR nào, không sửa Constitution, không đóng OQ-002/OQ-003, không authorize Live, không author/authorize package mới, không thêm speculative edge case, không tuyên bố Phase 0.2 hoàn thành.

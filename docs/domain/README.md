@@ -2,7 +2,7 @@
 id: domain-index
 title: Domain Contract Index
 status: Draft
-version: "0.52"
+version: "0.53"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -12,7 +12,7 @@ last_review: "2026-07-28"
 next_review: null
 ---
 
-# Domain Contract & Glossary — Phase 0.2 (đang tiến hành, chưa hoàn tất)
+# Domain Contract & Glossary — Phase 0.2 (Complete — Phase 0.3 là sub-phase kế tiếp)
 
 Thư mục này chứa Domain Contract cho từng khái niệm miền, mỗi file = 1 khái niệm, theo format quy định tại [04-domain-principles.md §4.3](../constitution/04-domain-principles.md). Glossary **hợp nhất vào** mỗi Domain Contract — không có file glossary riêng ([Chapter 4 §4.3](../constitution/04-domain-principles.md)).
 
@@ -801,7 +801,22 @@ Package 0.2-C6:    Consolidated Stable
 Package 0.2-C7:    Consolidated Stable
 ```
 
-**Package 0.2-C (C1–C7, tổng thể) nay `Consolidated Stable`.** OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Không artifact nào Approved/Locked. Phase 0.2 vẫn **active và chưa hoàn tất** — Package 0.2-A/B (tổng thể)/C (tổng thể) nay đều `Consolidated Stable`, nhưng Phase 0.2 chỉ hoàn tất khi Product Owner tường minh xác nhận roadmap Chapter 14 đầy đủ (Approval/Lock/Live authorization là các trục hoàn toàn tách biệt, chưa mở).
+**Package 0.2-C (C1–C7, tổng thể) nay `Consolidated Stable`.** Package 0.2-A/B/C tất cả `Consolidated Stable`.
+
+## Phase 0.2 — Complete (Product Owner decision, 2026-07-31)
+
+```text
+Phase 0.2:
+  Complete
+
+Completed baseline:
+  95fdb01ea662e741fa08f4c2d79727cc13c1a54a
+
+Next active sub-phase:
+  Phase 0.3
+```
+
+Phase 0: `not Approved`. Phase 1: `not Authorized`. Domain artifacts: remain `Draft`, not Approved, not Locked. OQ-002/OQ-003: remain `Open`. Live: remains `Unauthorized`. `Consolidated Stable`/`Complete` là package/sub-phase lifecycle state — KHÔNG document approval, KHÔNG Phase 0 Approval Gate, KHÔNG Phase 1 authorization.
 
 ## Danh sách dự kiến (Package 0.2-A + 0.2-B)
 
