@@ -1,7 +1,7 @@
 ---
 id: product-requirement
 title: Product Requirement
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -16,7 +16,24 @@ next_review: null
 
 > **Vai trò của tài liệu này:** Artifact đầu tiên của Package 0.3-A (Phase 0.3 — Product Requirement · Use Case & Workflow · UX Blueprint). Draft, chưa Approved/Locked, **chưa `Consolidated Stable`**. Dịch [Chapter 1 Vision](../constitution/01-vision.md) (Locked v2.3) thành các requirement cụ thể, testable, bounded — KHÔNG lặp lại nguyên văn Vision, KHÔNG tự quyết architecture. Controlling sources: [Chapter 1](../constitution/01-vision.md) (Vision), [Chapter 2](../constitution/02-platform-invariants.md) (Platform Invariants, Locked), [Chapter 4](../constitution/04-domain-principles.md) (Domain Principles, Locked), [ADR-007](../adr/ADR-007.md) (Locked — nội bộ/single-workspace/crypto-only/2-3 sàn), và toàn bộ Domain Contract `Consolidated Stable` tại [`/docs/domain/`](../domain/README.md) (Package 0.2-A/B/C). Tài liệu này CHỈ dùng vocabulary ĐÃ tồn tại trong Domain Contract — KHÔNG định nghĩa concept domain mới.
 
-**Authority boundary:** tài liệu này sở hữu **product requirement content** cho Phase 0.3 — KHÔNG sở hữu domain semantics (thuộc `/docs/domain/`, không sửa), KHÔNG sở hữu architecture quyết định (thuộc Phase 1, `/docs/architecture/`), KHÔNG sở hữu UX screen/flow design chi tiết (thuộc Package 0.3-C `ux-blueprint.md`, chưa author), KHÔNG đóng Open Question nào (`OQ-002`/`OQ-003` vẫn `Open`, xem §13), KHÔNG authorize Live, KHÔNG tuyên bố Phase 0.3/Phase 0 hoàn thành. Mọi requirement dưới đây PHẢI resolve được về đúng MỘT trong ba nguồn: Vision, Platform Invariant, hoặc Domain Contract đã `Consolidated Stable` — không có requirement "tự phát minh" không truy vết được.
+**v0.2 — bounded correction (đóng consolidated Review A + Independent Review B findings, `P03A-MAJ-01`/`P03A-MIN-01`/`P03A-MIN-02`/`P03A-B-MIN-03`):** (1) `P03A-MAJ-01` — Backtest (§9.3) nay yêu cầu simulated economic evidence VÀ exposure/position progression quan sát/evaluate được (`PR-033`, MỚI) VÀ strategy-level evaluable result so sánh được cross-run/cross-version (`PR-034`, MỚI), gắn stable run identity (`PR-021` cập nhật) — CỘNG một **Backtest authority boundary** tường minh (KHÔNG tái sử dụng PAPER Order/ExecutionResult/Fill/Position, KHÔNG author entity/event Backtest, KHÔNG định nghĩa simulation/fee/slippage/accounting/PnL). (2) `P03A-MIN-01` — thay thuật ngữ chung chung "Decision hash" bằng `canonical semantic-decision hash` (`PR-010`/`PR-019`), định nghĩa rõ theo Decision Contract authoritative, loại trừ runtime identity/envelope/transport/processing metadata — KHÔNG hardcode danh sách field canonical. (3) `P03A-MIN-02` — bỏ quy tắc "resolve về đúng một nguồn" — thay bằng "một hoặc nhiều applicable authoritative source, có thể kết hợp, mọi nguồn phải material" (Authority boundary, §14 item 3). (4) `P03A-B-MIN-03` — `PR-019` viết lại tách bạch historical reconstruction (mặc định) và parity recomputation (tuỳ chọn, non-authoritative) — CỘNG một **Replay authority boundary** tường minh (không append Decision trùng lặp, không tạo Replay authority stream, không mutate Decision đã ghi nhận, không `ReplayDecision`). Bounded — không đổi 32 requirement gốc ngoài các sửa đổi tường minh trên, không đổi sáu-giai-đoạn lifecycle, không đóng OQ-002/OQ-003, không Approve/Lock/Consolidate.
+
+**Authority boundary:** tài liệu này sở hữu **product requirement content** cho Phase 0.3 — KHÔNG sở hữu domain semantics (thuộc `/docs/domain/`, không sửa), KHÔNG sở hữu architecture quyết định (thuộc Phase 1, `/docs/architecture/`), KHÔNG sở hữu UX screen/flow design chi tiết (thuộc Package 0.3-C `ux-blueprint.md`, chưa author), KHÔNG đóng Open Question nào (`OQ-002`/`OQ-003` vẫn `Open`, xem §13), KHÔNG authorize Live, KHÔNG tuyên bố Phase 0.3/Phase 0 hoàn thành.
+
+**v0.2 (đóng `P03A-MIN-02`) — quy tắc traceability nguồn, KHÔNG còn "đúng một":**
+```text
+Every PR must have one or more applicable authoritative sources.
+
+A PR may combine:
+  Vision product intent
+  Platform Invariant guarantees
+  Consolidated Stable Domain Contract semantics or vocabulary
+
+Every cited source must materially support the requirement.
+
+No PR may be orphaned or supported only by non-authoritative material.
+```
+Một requirement CÓ THỂ đồng thời truy vết Vision, Platform Invariant, VÀ Domain Contract — không bị ép resolve về đúng một nguồn duy nhất; điều kiện bắt buộc DUY NHẤT là mọi nguồn được trích dẫn phải material (đóng góp thực chất), và không PR nào được phép mồ côi nguồn hoặc chỉ dựa vào tài liệu non-authoritative.
 
 ## 1. Document purpose and authority boundary
 
@@ -173,13 +190,16 @@ Acceptance evidence: 100% Decision/Risk Action hiển thị vượt qua trace-co
 **PR-010 — Decision Parity guarantee (product-facing)**
 ```text
 Statement:          Với cùng input/config/version, Replay, Backtest và Paper PHẢI tạo cùng một Decision
-                     — execution outcome được phép khác nhau nhưng phải giải thích được.
+                     theo canonical semantic-decision hash — execution outcome được phép khác nhau nhưng
+                     phải giải thích được.
 Rationale:           Guarantee đã tồn tại ở tầng platform; đây là restatement product-facing, không phải
                      yêu cầu mới.
 Source:              I-2 (Locked).
 Acceptance evidence: Golden event-log comparison giữa Replay/Backtest/Paper cho cùng input trả về cùng
-                     Decision hash (I-2 Verification).
+                     canonical semantic-decision hash (I-2 Verification).
 ```
+
+**Định nghĩa `canonical semantic-decision hash` (v0.2, đóng `P03A-MIN-01`, dùng xuyên suốt PR-010/PR-019):** hash so sánh semantic Decision, định nghĩa BỞI Decision Contract authoritative (`decision.md`, tại `/docs/domain/`) — **KHÔNG hardcode danh sách field canonical tại PRD này** (đúng I-2 Verification: "danh sách field cụ thể sống trong Domain/Event Contract... KHÔNG hardcode trong Constitution"). So sánh semantic này PHẢI **loại trừ**: runtime identity, event-envelope field, transport metadata, và processing metadata — chỉ so sánh nội dung quyết định (Decision content) thực chất. Execution outcome (fill price, timing, venue behavior...) VẪN được phép khác nhau giữa Replay/Backtest/Paper — canonical semantic-decision hash chỉ áp dụng ở tầng Decision, KHÔNG áp dụng ở tầng Execution Result (đúng I-2 "Parity nằm ở tầng Decision, không phải tầng Execution Result").
 
 **PR-011 — No silent rewrite guarantee**
 ```text
@@ -271,13 +291,47 @@ Source:              Chapter 8 §8.5 (Locked); replay-event.md.
 Acceptance evidence: ReplayState hiển thị tại cursor C chỉ chứa fact có recorded_time ≤ C (no-look-ahead).
 ```
 
-**PR-019 — Replay tái tạo đúng Decision đã ghi nhận**
+**PR-019 — Historical reconstruction (mặc định) và parity recomputation (tuỳ chọn) — Replay KHÔNG tạo Decision mới**
 ```text
-Statement:          Với cùng input/config/version đã ghi nhận, Replay PHẢI tạo lại đúng Decision đã có —
-                     không có Decision khác biệt xuất hiện.
-Rationale:           Diễn giải trực tiếp I-2 cho stage Replay.
-Source:              I-2.
-Acceptance evidence: Decision hash tái tạo qua Replay khớp Decision hash gốc đã ghi nhận.
+Statement:          Replay tại một cursor, THEO MẶC ĐỊNH, thực hiện historical reconstruction — resolve
+                     và hiển thị CHÍNH XÁC các authoritative fact (bao gồm Decision) ĐÃ TỒN TẠI tại cursor
+                     đó, KHÔNG tạo Decision mới. Người dùng CÓ THỂ tuỳ chọn kích hoạt một parity
+                     recomputation — một bước semantic verification deterministic, non-authoritative, so
+                     sánh Decision tái tính toán với Decision đã ghi nhận qua canonical semantic-decision
+                     hash (PR-010) — kết quả recomputation đó KHÔNG BAO GIỜ tự động trở thành, thay thế,
+                     hay ghi đè Decision authoritative.
+Rationale:           Tách bạch tường minh "xem lại state đã có" (historical reconstruction, mặc định) và
+                     "kiểm chứng lại logic có khớp không" (parity recomputation, tuỳ chọn) — tránh Replay
+                     bị hiểu ngầm là tự động tạo ra một Decision Pipeline/authority thứ hai chạy song
+                     song.
+Source:              I-2; I-3; I-12; decision.md; replay-event.md (ReplayStateProjection — KHÔNG
+                     authoritative, §3 "Không duplicate authority").
+Acceptance evidence: Chạy Replay tại một cursor (historical reconstruction) KHÔNG làm tăng số lượng
+                     Decision fact trong event log. Khi người dùng kích hoạt parity recomputation, kết
+                     quả so sánh dùng canonical semantic-decision hash (PR-010) và hiển thị match/mismatch
+                     — mismatch KHÔNG tự động ghi đè hay tạo Decision mới, chỉ hiển thị như một finding
+                     cần xem xét.
+```
+
+**Replay authority boundary (v0.2, đóng `P03A-B-MIN-03`):**
+```text
+Replay:
+  KHÔNG append một authoritative Decision fact trùng lặp
+  KHÔNG tạo một Replay authority stream song song
+  KHÔNG thay thế hay mutate Decision đã ghi nhận
+  vẫn tuân thủ no-look-ahead và visibility-at-cursor rules (I-3; replay-event.md §2)
+
+Historical reconstruction (mặc định): resolve và hiển thị fact authoritative ĐÃ TỒN TẠI tại canonical
+Replay Cursor — KHÔNG computation mới, KHÔNG authoritative fact mới.
+
+Parity recomputation (tuỳ chọn): semantic verification deterministic, non-authoritative — mọi so sánh
+PHẢI dùng canonical semantic-decision hash (PR-010) — kết quả KHÔNG BAO GIỜ tự động trở thành fact
+authoritative.
+
+Authoritative Decision creation KHÔNG bao giờ bị gây ra ngầm chỉ bằng việc chạy Replay.
+
+KHÔNG tạo, KHÔNG đặt tên một domain fact "ReplayDecision" hay tương đương — Replay KHÔNG sở hữu authority
+của Decision Pipeline (đúng replay-event.md §3).
 ```
 
 **PR-020 — Replay không phụ thuộc network sau bước chuẩn bị**
@@ -291,16 +345,18 @@ Acceptance evidence: Self-contained Replay test (I-5 Verification) pass cho phi�
 
 ### 9.3 Backtest
 
-**PR-021 — Chạy Decision logic qua một khoảng lịch sử bounded**
+**PR-021 — Chạy Decision logic qua một khoảng lịch sử bounded, gắn stable run identity**
 ```text
 Statement:          Người dùng PHẢI chạy được Decision logic của Strategy Instance đã chọn qua một
-                     khoảng thời gian lịch sử có giới hạn rõ ràng (start/end), và xem toàn bộ chuỗi
-                     Decision/RiskEvaluation sinh ra — KHÔNG tạo Order/ExecutionResult PAPER hay Live.
+                     khoảng thời gian lịch sử có giới hạn rõ ràng (start/end), dưới MỘT stable Backtest
+                     run identity/context duy nhất, và xem toàn bộ chuỗi Decision/RiskEvaluation sinh ra
+                     — KHÔNG tạo Order/ExecutionResult PAPER hay Live.
 Rationale:           Backtest dùng chung decision logic/pipeline với Replay/Paper/Live (I-2) nhưng KHÔNG
-                     chạm execution layer.
+                     chạm execution layer. Một run identity ổn định là điều kiện tiên quyết để mọi
+                     evidence khác của run đó (PR-022–PR-034) truy vết được về đúng một context.
 Source:              I-2; I-4; decision.md; risk.md.
 Acceptance evidence: Sau một phiên Backtest, KHÔNG có Order/ExecutionResult/Fill mới nào xuất hiện —
-                     chỉ Decision/RiskEvaluation.
+                     chỉ Decision/RiskEvaluation, mọi fact đó trace về ĐÚNG MỘT run identity/context.
 ```
 
 **PR-022 — Kết quả Backtest gắn với version tuple tường minh**
@@ -320,6 +376,66 @@ Rationale:           Diễn giải I-5 cho stage Backtest; giữ Backtest tách 
 Source:              I-5.
 Acceptance evidence: Một phiên Backtest hoàn tất thành công trong môi trường không có route mạng tới bất
                      kỳ exchange endpoint nào.
+```
+
+**PR-033 — Backtest sinh simulated economic evidence và exposure/position progression (v0.2, MỚI, đóng `P03A-MAJ-01`)**
+```text
+Statement:          Với mỗi Backtest run (stable run identity, PR-021), người dùng PHẢI xem được (a)
+                     deterministic simulated economic evidence cho mỗi điểm trong chuỗi Decision/
+                     RiskEvaluation của run đó dẫn tới một simulated exposure change, VÀ (b) exposure/
+                     position progression theo thời gian xuyên suốt khoảng interval đã chạy — HOÀN TOÀN
+                     TÁCH BIỆT khỏi PAPER/Live authority (§ Backtest authority boundary, dưới).
+Rationale:           Nếu Backtest chỉ dừng ở chuỗi Decision/RiskEvaluation (PR-021) mà không cho thấy kết
+                     quả kinh tế mô phỏng, người dùng không thể evaluate Strategy trước khi dùng vốn thật
+                     — vi phạm trực tiếp "Research Before Capital" (Vision §1.6).
+Source:              I-1; I-2; Vision §1.6 (Research Before Capital); decision.md; risk.md
+                     (nguồn Decision/RiskEvaluation evidence); execution-result.md/fill.md/position.md
+                     (tham chiếu CHỈ để định nghĩa ranh giới PAPER authority mà Backtest KHÔNG được tái sử
+                     dụng — xem Backtest authority boundary).
+Acceptance evidence: Với mọi Backtest run, người dùng xem được (i) simulated economic evidence
+                     deterministic gắn với mỗi Decision dẫn tới exposure change, (ii) exposure/position
+                     progression theo thời gian trong khoảng interval, VÀ (iii) audit event log xác nhận
+                     KHÔNG có PAPER Order/ExecutionResult/Fill/Position nào được tạo/tái sử dụng bởi run
+                     đó.
+```
+
+**PR-034 — Backtest sinh strategy-level evaluable result, so sánh được cross-run/cross-version (v0.2, MỚI, đóng `P03A-MAJ-01`)**
+```text
+Statement:          Với mỗi Backtest run đã hoàn tất, người dùng PHẢI xem được một strategy-level
+                     evaluable result (dẫn xuất từ chuỗi Decision/RiskEvaluation + exposure progression
+                     của run đó, PR-033), gắn CHÍNH XÁC với Strategy Instance/Strategy Definition
+                     Version/configuration context đã dùng (PR-022), VÀ so sánh được kết quả đó với kết
+                     quả của Backtest run KHÁC (khoảng interval khác, hoặc Strategy Definition Version
+                     khác) — KHÔNG định nghĩa threshold/target cụ thể nào tại đây.
+Rationale:           "Continuous Improvement Over Prediction" (Vision §1.6) và nguyên tắc Measurable (§5)
+                     đòi hỏi Backtest sinh một kết quả SO SÁNH ĐƯỢC — không chỉ một chuỗi sự kiện thô —
+                     nhưng KHÔNG được định nghĩa concrete KPI (`OQ-003`, §13).
+Source:              Vision §1.6/§1.8; §5 (nguyên tắc Measurable); strategy.md (Strategy Definition
+                     Version); I-12 (durable append-only log — cho phép truy vấn xuyên version).
+Acceptance evidence: Hai Backtest run (Strategy Definition Version khác nhau, HOẶC cùng version nhưng
+                     interval khác nhau) đều resolve được một strategy-level evaluable result RIÊNG, gắn
+                     đúng run identity/version context (PR-021/PR-022) — người dùng so sánh được hai kết
+                     quả đó cạnh nhau mà không cần công cụ ngoài hệ thống.
+```
+
+**Backtest authority boundary (v0.2, đóng `P03A-MAJ-01`):**
+```text
+Backtest output KHÔNG BAO GIỜ được đại diện như authoritative PAPER hay Live fact.
+
+Backtest KHÔNG được tạo hoặc tái sử dụng, làm Backtest authority:
+  PAPER Order            (order.md)
+  PAPER ExecutionResult  (execution-result.md)
+  PAPER Fill             (fill.md)
+  PAPER Position         (position.md)
+  Live execution fact    (chưa author, deferred)
+
+PRD này yêu cầu simulated economic result quan sát được (PR-033/PR-034) NHƯNG hoãn lại (defer) Backtest
+Domain Contract/event schema chính xác — chưa quyết cơ chế/entity cụ thể.
+
+KHÔNG author tại đây, và KHÔNG được suy diễn từ PR-033/PR-034: một entity/event "BacktestOrder",
+"BacktestFill", "BacktestPosition", "BacktestExecutionResult", hay tương đương. KHÔNG định nghĩa execution
+algorithm, fee model, slippage model, accounting ledger, hay PnL formula — những nội dung đó ngoài phạm
+vi Package 0.3-A (xem §13 Deferred questions).
 ```
 
 ### 9.4 Paper
@@ -446,6 +562,7 @@ Acceptance evidence: Một Strategy Definition Version không còn active vẫn 
 | PR-015–PR-017 | §1.6 | I-2, I-3 | candle.md…context.md, strategy.md |
 | PR-018–PR-020 | — | I-2, I-3, I-5 | replay-event.md |
 | PR-021–PR-023 | §1.6 | I-2, I-4, I-5, I-1 | decision.md, risk.md, strategy.md |
+| PR-033–PR-034 (v0.2, MỚI) | §1.6/§1.8 | I-1, I-2, I-12 | decision.md, risk.md, strategy.md (evidence nguồn); execution-result.md/fill.md/position.md (tham chiếu CHỈ để định nghĩa PAPER authority boundary Backtest không được tái sử dụng — Backtest tự thân chưa có Domain Contract, §13) |
 | PR-024–PR-027 | §1.9/§1.10 | — | order.md, execution-result.md, fill.md, position.md |
 | PR-028–PR-030 | §1.7 | I-1, I-2, I-3 | decision.md…position.md (full chain) |
 | PR-031–PR-032 | §1.6 | I-12 | strategy.md, decision.md |
@@ -485,29 +602,44 @@ OQ-003:
 
 Backtest/Research Domain Contract modeling:
   Chưa tồn tại — không có backtest.md/research.md nào được author tại Package 0.2-A/B/C. Requirement
-  tại §9.1/§9.3 mô tả hành vi product-level, truy vết về Platform Invariant + Domain Contract hiện có
-  (decision.md, risk.md, replay-event.md) — KHÔNG giả định một Domain Contract "Backtest"/"Research"
-  đã tồn tại. Việc có cần author Domain Contract riêng cho Backtest/Research hay không là quyết định
-  Product Owner, ngoài phạm vi Package 0.3-A.
+  tại §9.1/§9.3 (bao gồm PR-033/PR-034, v0.2, đóng P03A-MAJ-01) mô tả hành vi product-level — Backtest
+  PHẢI sinh simulated economic evidence/exposure progression/strategy-level result quan sát được — truy
+  vết về Platform Invariant + Domain Contract hiện có (decision.md, risk.md, strategy.md), và tham chiếu
+  execution-result.md/fill.md/position.md CHỈ để định nghĩa ranh giới PAPER authority mà Backtest KHÔNG
+  được tái sử dụng (xem Backtest authority boundary, §9.3). KHÔNG giả định một Domain Contract
+  "Backtest"/"Research" đã tồn tại; KHÔNG author entity/event/schema Backtest tại đây. Việc có cần author
+  Domain Contract riêng cho Backtest/Research hay không là quyết định Product Owner, ngoài phạm vi Package
+  0.3-A.
 ```
 
 ## 14. Acceptance criteria for Package 0.3-A
 
 ```text
 1. Toàn bộ 15 mục nội dung bắt buộc (§1–§15) có mặt và đầy đủ.
-2. Mọi PR-ID duy nhất, liên tục (PR-001–PR-032), mỗi PR có đủ Statement/Rationale/Source/Acceptance
-   evidence.
-3. Mọi PR-ID truy vết được về ĐÚNG MỘT trong: Vision section, Platform Invariant, hoặc Domain Contract
-   Consolidated Stable — không có PR "mồ côi" nguồn.
+2. Mọi PR-ID duy nhất, liên tục theo global sequence (PR-001–PR-034, không đánh số lại bất kỳ PR-ID ổn
+   định nào đã tồn tại — PR-033/PR-034 là ID mới, append cuối), mỗi PR có đủ Statement/Rationale/Source/
+   Acceptance evidence.
+3. Mọi PR-ID có MỘT HOẶC NHIỀU applicable authoritative source (Vision/Platform Invariant/Domain Contract
+   Consolidated Stable) — CÓ THỂ kết hợp nhiều nguồn; mọi nguồn trích dẫn phải material; không PR nào mồ
+   côi nguồn hay chỉ dựa vào tài liệu non-authoritative (đúng quy tắc §"Authority boundary", KHÔNG còn
+   "đúng một").
 4. Không thuật ngữ mơ hồ (easy to use/fast/scalable/secure/professional/user-friendly) xuất hiện mà
    không kèm observable evidence cụ thể.
 5. Không nội dung nào thuộc danh sách "Explicit constraints" (screen layout, wireframe, backend/frontend/
    API/database/security/custody/deployment architecture, exchange adapter design, concrete KPI, Product
-   Metrics, Live-gate criteria, multi-tenant/multi-asset design, Domain Contract semantics mới).
+   Metrics, Live-gate criteria, multi-tenant/multi-asset design, Domain Contract semantics mới, Backtest
+   entity/event/schema, execution/fee/slippage/accounting/PnL model, `ReplayDecision` hay Replay authority
+   stream mới).
 6. Không sửa bất kỳ Domain Contract/ADR/Constitution nào — vocabulary dùng lại nguyên vẹn.
 7. `OQ-002`/`OQ-003` giữ nguyên `Open`, không bị đóng ngầm.
-8. YAML frontmatter hợp lệ, `version: "0.1"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
-9. Baseline sẵn sàng cho ChatGPT Review A + Independent Review B trên CÙNG một commit/blob.
+8. YAML frontmatter hợp lệ, `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+9. Baseline sẵn sàng cho ChatGPT Delta Review A + Independent Delta Review B trên CÙNG một commit/blob.
+10. Backtest (PR-021–PR-023, PR-033–PR-034) sinh simulated economic outcome quan sát/evaluate được mà
+    KHÔNG tái sử dụng PAPER Order/ExecutionResult/Fill/Position làm Backtest authority.
+11. Replay (PR-018–PR-020) không thể bị diễn giải là ngầm tạo authoritative Decision mới — historical
+    reconstruction vs parity recomputation tách bạch tường minh, không `ReplayDecision` nào được đặt tên.
+12. `Decision hash` (thuật ngữ chung chung) đã được thay bằng `canonical semantic-decision hash` xuyên
+    suốt PR-010/PR-019 và acceptance evidence liên quan.
 ```
 
 ## 15. Handoff requirements for Package 0.3-B
@@ -520,3 +652,5 @@ Package 0.3-B (`use-case-workflow.md`) PHẢI:
 4. KHÔNG đóng `OQ-002`/`OQ-003` — kế thừa nguyên trạng `Open` từ §13.
 5. KHÔNG author screen layout/wireframe/component hierarchy — đó là phạm vi Package 0.3-C.
 6. KHÔNG định nghĩa Domain Contract semantic mới — mọi state/transition tham chiếu phải resolve về Domain Contract đã `Consolidated Stable`.
+7. (v0.2, MỚI) Kế thừa nguyên vẹn **Backtest authority boundary** (§9.3) và **Replay authority boundary** (§9.2) — KHÔNG mô tả Backtest workflow như thể nó tạo/tái sử dụng PAPER fact; KHÔNG mô tả Replay workflow như thể nó tạo Decision mới hay một `ReplayDecision`.
+8. (v0.2, MỚI) Mọi so sánh Decision semantic trong workflow PHẢI dùng đúng thuật ngữ `canonical semantic-decision hash` (PR-010) — KHÔNG dùng lại thuật ngữ chung chung "Decision hash".

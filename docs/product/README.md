@@ -2,7 +2,7 @@
 id: product-index
 title: Product Requirement & UX Index
 status: Draft
-version: "0.1"
+version: "0.2"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -26,26 +26,29 @@ Toàn bộ artifact tại đây PHẢI dùng lại nguyên vẹn vocabulary đã
 
 | Package | Nội dung | Trạng thái |
 |---|---|---|
-| **0.3-A — Product Requirement** | [`product-requirement.md`](./product-requirement.md) v0.1 Draft — 32 requirement (`PR-001`–`PR-032`), truy vết Vision/Platform Invariant/Domain Contract | Draft — **Authoring baseline, chưa `Consolidated Stable`** — chờ ChatGPT Review A + Independent Review B |
+| **0.3-A — Product Requirement** | [`product-requirement.md`](./product-requirement.md) v0.2 Draft — 34 requirement (`PR-001`–`PR-034`), truy vết Vision/Platform Invariant/Domain Contract | Draft — **Bounded correction applied, chưa `Consolidated Stable`** — chờ ChatGPT Delta Review A + Independent Delta Review B |
 | **0.3-B — Use Case & Workflow** | chưa author — phụ thuộc 0.3-A `Consolidated Stable` | Chưa bắt đầu, chưa authorize |
 | **0.3-C — UX Blueprint** | chưa author — phụ thuộc 0.3-B `Consolidated Stable` | Chưa bắt đầu, chưa authorize |
 
 **Thứ tự authoring bắt buộc:** 0.3-A → 0.3-B → 0.3-C, tuần tự — mỗi package phụ thuộc trực tiếp package trước (đúng [Chapter 4 §4.5](../constitution/04-domain-principles.md) và dependency logic: không thể viết use case cho requirement chưa tồn tại, không thể thiết kế UX cho use case chưa tồn tại).
 
-## Package 0.3-A — Product Requirement (authoring baseline)
+## Package 0.3-A — Product Requirement (bounded correction applied)
 
-**Phạm vi (scope tối thiểu, walking-skeleton):** dịch [Vision](../constitution/01-vision.md) thành 32 requirement cụ thể, testable, bounded (`PR-001`–`PR-032`) — 8 functional, 6 non-functional (restating existing Constitution/Domain Contract guarantee, không thêm yêu cầu mới), 18 lifecycle (Research/Replay/Backtest/Paper/Review/Improve, 3 tới 4 mỗi giai đoạn). Bounded theo [ADR-007](../adr/ADR-007.md): nội bộ, single-workspace, crypto-only, 2-3 sàn. Live được nhắc tới DUY NHẤT như một lifecycle boundary bị hoãn (`OQ-002`).
+**Phạm vi (scope tối thiểu, walking-skeleton):** dịch [Vision](../constitution/01-vision.md) thành 34 requirement cụ thể, testable, bounded (`PR-001`–`PR-034`) — 8 functional, 6 non-functional (restating existing Constitution/Domain Contract guarantee, không thêm yêu cầu mới), 20 lifecycle (Research/Replay/Backtest/Paper/Review/Improve). Bounded theo [ADR-007](../adr/ADR-007.md): nội bộ, single-workspace, crypto-only, 2-3 sàn. Live được nhắc tới DUY NHẤT như một lifecycle boundary bị hoãn (`OQ-002`).
 
-**KHÔNG author:** screen layout/wireframe/component hierarchy/UX architecture; backend/frontend/API/database/security/custody/deployment architecture; exchange adapter design; concrete KPI/Product Metrics (`OQ-003`); Live-gate criteria (`OQ-002`); multi-tenant/multi-asset design; Domain Contract semantic mới.
+**v0.2 — bounded correction (đóng consolidated Review A + Independent Review B findings, một Major + ba Minor):** (1) `P03A-MAJ-01` — Backtest nay yêu cầu simulated economic evidence/exposure progression (`PR-033`, MỚI) VÀ strategy-level evaluable result so sánh cross-run/cross-version (`PR-034`, MỚI), cộng một Backtest authority boundary tường minh (KHÔNG tái sử dụng PAPER fact làm Backtest authority). (2) `P03A-MIN-01` — thay "Decision hash" bằng `canonical semantic-decision hash` (`PR-010`/`PR-019`), định nghĩa theo Decision Contract authoritative. (3) `P03A-MIN-02` — bỏ quy tắc "resolve về đúng một nguồn," thay bằng "một hoặc nhiều applicable authoritative source, có thể kết hợp." (4) `P03A-B-MIN-03` — `PR-019` viết lại tách bạch historical reconstruction (mặc định) vs parity recomputation (tuỳ chọn), cộng một Replay authority boundary (không `ReplayDecision`, không Decision trùng lặp).
+
+**KHÔNG author:** screen layout/wireframe/component hierarchy/UX architecture; backend/frontend/API/database/security/custody/deployment architecture; exchange adapter design; concrete KPI/Product Metrics (`OQ-003`); Live-gate criteria (`OQ-002`); multi-tenant/multi-asset design; Domain Contract semantic mới; Backtest entity/event/schema; simulation/fee/slippage/accounting/PnL model; `ReplayDecision`/Replay authority stream mới.
 
 **Trạng thái review:**
 
 - Author self-review (authoring, v0.1): **hoàn tất.**
-- ChatGPT Review A: **chưa chạy** — baseline này gửi đi làm điểm khởi đầu.
-- Independent Review B: **chưa chạy.**
+- ChatGPT Review A + Independent Review B (baseline v0.1): **hoàn tất** — một Major + ba Minor finding (`P03A-MAJ-01`/`P03A-MIN-01`/`P03A-MIN-02`/`P03A-B-MIN-03`) consolidated.
+- Bounded correction commit (v0.1 → v0.2), Product Owner authorized: **hoàn tất** — đóng toàn bộ bốn finding, xem chi tiết trên.
+- ChatGPT Delta Review A + Independent Delta Review B (trên v0.2): **chưa chạy** — báo cáo correction transaction này gửi đi làm điểm khởi đầu delta review.
 - Consolidation: **chưa bắt đầu** — Package 0.3-A **CHƯA** đạt `Consolidated Stable`.
 
-**Không tuyên bố hoàn thành hay approval nào (mục 0.3-A):** `product-requirement.md` `status: Draft`, `version: "0.1"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng `OQ-002`/`OQ-003`; không authorize Live; không sửa bất kỳ Domain Contract/ADR/Constitution nào; Package 0.2-A/B/C vẫn `Consolidated Stable`, không đổi.
+**Không tuyên bố hoàn thành hay approval nào (mục 0.3-A):** `product-requirement.md` `status: Draft`, `version: "0.2"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng `OQ-002`/`OQ-003`; không authorize Live; không sửa bất kỳ Domain Contract/ADR/Constitution nào; Package 0.2-A/B/C vẫn `Consolidated Stable`, không đổi.
 
 ## Ngoài phạm vi Phase 0.3 — defer
 

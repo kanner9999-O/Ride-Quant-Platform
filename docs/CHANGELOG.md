@@ -2,6 +2,94 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-01 — correct Package 0.3-A review findings
+
+**Package 0.3-A bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.3-A bounded correction — P03A-MAJ-01/P03A-MIN-01/P03A-MIN-02/P03A-B-MIN-03." Đóng đúng một finding Major và ba finding Minor. Authorization này **không** cho phép author Backtest Domain Contract/entity/event/state machine/schema, tái sử dụng PAPER fact làm Backtest authority, định nghĩa simulation/fee/slippage/latency/liquidity/partial-fill semantics, accounting/PnL/ledger/settlement/performance-attribution, sửa Decision canonical field/hashing rule, sửa Domain Contract, tạo Replay authority stream hay `ReplayDecision`, author Package 0.3-B/0.3-C, định nghĩa architecture/API/database/deployment, đóng OQ-002/OQ-003, authorize Live, mark Package 0.3-A Consolidated Stable, hay Approve/Lock bất kỳ artifact nào.
+
+### Baseline verification
+
+```text
+Expected HEAD:  e2f9b24d47d2e4b2457d984c0b73ee7ff421887d
+Actual HEAD:    e2f9b24d47d2e4b2457d984c0b73ee7ff421887d  — match
+
+product-requirement.md:  v0.1 Draft, blob 985c942668b85d0e5ecb6f735ea30d570636d0c9  — match
+README.md (product):     v0.1 Draft, blob af4ab4d65c5d470f4947c25a9fcc5bed00bc75ec  — match
+```
+
+### Finding-by-finding resolution
+
+| Finding | Resolution |
+|---|---|
+| `P03A-MAJ-01` | Added `PR-033` (Backtest simulated economic evidence + exposure/position progression) and `PR-034` (strategy-level evaluable result, cross-run/cross-version comparison) — new IDs, appended after `PR-023`, no renumbering. `PR-021` updated to require stable Backtest run identity/context. Added explicit **Backtest authority boundary** (§9.3): Backtest must not create/reuse PAPER Order/ExecutionResult/Fill/Position or Live execution facts as Backtest authority; defers exact Backtest Domain Contract/event schema; explicitly prohibits inventing `BacktestOrder`/`BacktestFill`/`BacktestPosition`/`BacktestExecutionResult` or equivalents; explicitly prohibits defining execution/fee/slippage/accounting/PnL models. |
+| `P03A-MIN-01` | Replaced generic "Decision hash" with `canonical semantic-decision hash` in `PR-010`/`PR-019` and their acceptance evidence. Added a defining note (after `PR-010`) clarifying the hash is defined by the authoritative Decision Contract, excludes runtime identity/event-envelope/transport/processing metadata — without hardcoding the canonical field list in the PRD. |
+| `P03A-MIN-02` | Replaced the "resolve to exactly one source" rule (intro Authority boundary + §14 acceptance criterion 3) with: a PR must have one or more applicable authoritative sources, may combine Vision/Platform Invariant/Domain Contract, every cited source must materially support the requirement, no PR may be orphaned. Traceability table (§10) preserved, with one new row added for `PR-033`–`PR-034`. |
+| `P03A-B-MIN-03` | Rewrote `PR-019` to distinguish historical reconstruction (default, resolves/displays existing authoritative facts at a canonical Replay Cursor) from parity recomputation (optional, deterministic, non-authoritative semantic verification using the canonical semantic-decision hash) from authoritative Decision creation (never implicitly caused by running Replay). Added explicit **Replay authority boundary** (§9.2): no duplicate authoritative Decision fact, no parallel Replay authority stream, no mutation of the recorded Decision, no-look-ahead/visibility-at-cursor preserved, no `ReplayDecision` created or named. |
+
+### Exact changed-file scope
+
+```text
+docs/product/product-requirement.md  MODIFIED v0.1 → v0.2   blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8
+docs/product/README.md               MODIFIED v0.1 → v0.2   blob 0426407cebbf2ef13497da4a45746984d5697dd4
+docs/MANIFEST.md                     MODIFIED manifest_version 9.80 → 9.81
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Corrected PRD version and status
+
+`product-requirement.md`: `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### Requirement count and ID range
+
+34 requirements, `PR-001`–`PR-034` — all pre-existing IDs preserved unchanged in place; `PR-033`/`PR-034` are the only new IDs, appended at the end of the global sequence (discussed within §9.3 Backtest); no unrelated requirement renumbered.
+
+### Backtest outcome model at product level
+
+Backtest must produce, per stable run identity: deterministic simulated economic evidence tied to each Decision-driven exposure change, exposure/position progression across the bounded interval, and a strategy-level evaluable result comparable across runs/Strategy Definition Versions — all without defining a concrete KPI target and without any Backtest Domain Contract/schema being authored here.
+
+### Backtest/PAPER authority separation
+
+Explicit boundary text states Backtest must not create or reuse PAPER Order/ExecutionResult/Fill/Position or Live execution facts as Backtest authority — Backtest evidence is a distinct, not-yet-modeled concept, referenced against the PAPER boundary only to state what it must NOT reuse.
+
+### Canonical semantic-decision wording
+
+"Decision hash" replaced with `canonical semantic-decision hash` throughout operative requirement text (`PR-010`, `PR-019`); defined as excluding runtime identity, event-envelope fields, transport metadata, and processing metadata, per the authoritative Decision Contract — field list not hardcoded in the PRD, mirroring I-2 Verification wording exactly.
+
+### Replay authority clarification
+
+`PR-019` and the new Replay authority boundary jointly state: historical reconstruction is the default (no computation, no new authoritative fact); parity recomputation is optional and non-authoritative; Replay never implicitly causes authoritative Decision creation; no duplicate Decision fact, no parallel authority stream, no mutation of the recorded Decision, no `ReplayDecision` created or named.
+
+### Traceability correction
+
+Intro Authority boundary and §14 acceptance criterion 3 rewritten per `P03A-MIN-02`. Traceability table (§10) preserved with one new row (`PR-033`–`PR-034`) added; no other row content changed.
+
+### Preserved behavior
+
+Internal team, single workspace, one Account currently operated (Account first-class/extensible), crypto-only, 2–3 exchanges; six-stage lifecycle (Research→Replay→Backtest→Paper→Review→Improve) unchanged; `OQ-002`/`OQ-003` remain `Open`; Live remains `Unauthorized`; Package 0.3-B/0.3-C remain `Unauthorized`; all C7 Paper execution/Fill/Position semantics (`PR-024`–`PR-027`) unchanged.
+
+### Forbidden-scope verification
+
+No Backtest Domain Contract/entity/event/schema authored; no PAPER-fact reuse as Backtest authority; no simulation/fee/slippage/accounting/PnL model defined; no Decision canonical field/hashing rule modified; zero Domain Contract/ADR/Constitution/architecture file touched (verified via `git diff --stat`); no Replay authority stream or `ReplayDecision` created; no Package 0.3-B/0.3-C content authored; `OQ-002`/`OQ-003` not closed; Live not authorized; Package 0.3-A not marked Consolidated Stable; no artifact Approved or Locked.
+
+### Author self-review
+
+Automated re-verification after edits: 34 unique/sequential-by-presence PR-IDs (`PR-001`–`PR-034`, `PR-033`/`PR-034` positioned within §9.3 text but numbered as the next available global IDs, per the "append at the end of the relevant range, do not renumber unrelated requirements" instruction); all 34 blocks retain all four fields; zero bare "Decision hash" occurrences inside operative requirement text (3 remaining occurrences are meta-commentary explicitly describing/prohibiting the old term, in the v0.2 correction summary and acceptance-criteria/handoff notes); zero "resolve to exactly one source" wording remaining; forbidden Backtest entity names and `ReplayDecision` appear only inside their respective prohibition/boundary text, never as if real; both YAML frontmatters re-validated via `yaml.safe_load`.
+
+### Backward Consistency Check
+
+No conflict with Constitution Chapters 1/2/4 (unchanged, byte-identical), ADR-007 (unchanged, byte-identical), Package 0.2-A/B/C Domain Contracts (unchanged, byte-identical, all `Consolidated Stable`).
+
+### Metadata / state
+
+- `product-requirement.md`/`README.md` (product): **v0.1 → v0.2**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `MANIFEST.md`: `manifest_version` **9.80 → 9.81**.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-A VẪN CHƯA đạt `Consolidated Stable` — chờ ChatGPT Delta Review A + Independent Delta Review B trên cùng exact baseline correction này.** Mandatory sequence tiếp tục: ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. Package 0.3-B/0.3-C vẫn `Unauthorized`. `OQ-002`/`OQ-003` vẫn `Open`. Không authorize Live. Không artifact nào Approved hay Locked. Phase 0.3 vẫn active — Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-07-31 — author Package 0.3-A product requirement baseline
 
 **Package 0.3-A — Product Requirement v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Authorized artifacts: `docs/product/README.md` (new, v0.1 Draft — Phase 0.3 product-artifact index), `docs/product/product-requirement.md` (new, v0.1 Draft). Authorization này **không** cho phép author screen layout/wireframe/component hierarchy/UX architecture, backend/frontend/API/database/security/custody/deployment architecture, exchange adapter design, concrete KPI/Product Metrics (`OQ-003`), Live-gate criteria (`OQ-002`), multi-tenant/multi-asset design, Domain Contract semantic mới, sửa C1–C7/ADR/Constitution, Approve/Lock bất kỳ artifact nào, hay mark Package 0.3-A Consolidated Stable.
