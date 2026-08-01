@@ -2,6 +2,115 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-01 — consolidate Package 0.3-A
+
+**Package 0.3-A Product Requirement consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.3-A — Product Requirement: Consolidated Stable" (2026-08-01). Authorization này cho phép ghi Package 0.3-A vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `product-requirement.md`, không đổi status khỏi Draft, không populate `approved_by`/`approved_at`, không authorize Package 0.3-B, không tuyên bố Phase 0.3 hoàn thành, không đóng OQ-002/OQ-003, không authorize Live, không sửa product semantics/Domain Contract/ADR/Constitution/architecture nào.
+
+### Baseline verification
+
+```text
+Expected HEAD:  a8e39c92a73ba05b9f9a196bd75e4ea4037cb285
+Actual HEAD:    a8e39c92a73ba05b9f9a196bd75e4ea4037cb285  — match
+
+product-requirement.md:  v0.2 Draft, blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8  — match
+```
+
+### Product Owner authorization recorded
+
+```text
+Package 0.3-A — Product Requirement:
+  Consolidated Stable
+```
+
+Meaning: the exact reviewed 0.3-A baseline is stable enough to serve as the dependency baseline for Package 0.3-B (Use Case & Workflow). It does not mean the artifact is Approved or Locked.
+
+### Exact reviewed baseline pinned
+
+```text
+Consolidated baseline HEAD:  a8e39c92a73ba05b9f9a196bd75e4ea4037cb285
+
+product-requirement.md:  v0.2 Draft, blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8
+```
+
+### Review evidence
+
+```text
+ChatGPT Delta Review A:        Clean — Blocker 0, Major 0, Minor 0
+Independent Delta Review B:    Clean — Blocker 0, Major 0, Minor 0
+```
+
+### Complete finding ledger — all resolved (v0.1 → v0.2 bounded correction)
+
+```text
+P03A-MAJ-01:      Resolved (PR-033/PR-034 — Backtest simulated economic evidence/exposure progression/
+                   strategy-level evaluable result, Backtest authority boundary)
+P03A-MIN-01:      Resolved ("Decision hash" replaced with canonical semantic-decision hash, PR-010/PR-019)
+P03A-MIN-02:      Resolved ("exactly one source" rule replaced with "one or more applicable sources")
+P03A-B-MIN-03:    Resolved (PR-019 splits historical reconstruction / parity recomputation, Replay
+                   authority boundary)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Package lifecycle meaning
+
+`Consolidated Stable` là package lifecycle/readiness state — nghĩa là: reviewed package baseline nội bộ coherent; mọi qualifying finding đã resolved; package đủ ổn định để làm dependency baseline cho Package 0.3-B. Nó KHÔNG có nghĩa: artifact Approved; artifact Locked; status đổi khỏi Draft; Package 0.3-B tự động authorize; OQ closure; Phase 0.3 completion; Live authorization.
+
+### Confirmation — `product-requirement.md` byte-identical
+
+```text
+docs/product/product-requirement.md   blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8 — verified byte-identical to reviewed baseline
+```
+
+### Confirmation — Domain Contract/ADR/Constitution/architecture unchanged
+
+```text
+docs/domain/           KHÔNG ĐỔI — verified via git diff --stat, empty
+docs/adr/               KHÔNG ĐỔI — verified via git diff --stat, empty
+docs/constitution/      KHÔNG ĐỔI — verified via git diff --stat, empty
+docs/architecture/      KHÔNG ĐỔI — verified via git diff --stat, empty
+```
+
+### Unchanged artifact statuses
+
+`product-requirement.md`: **giữ nguyên** `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte — không sửa product semantic trong transaction này.
+
+### Package lifecycle states pinned
+
+```text
+Package 0.3-A:    Consolidated Stable
+Package 0.3-B:    Unauthorized
+Package 0.3-C:    Unauthorized
+```
+
+### Artifact lifecycle states pinned
+
+```text
+product-requirement.md:  Draft, version "0.2", approved_by: null, approved_at: null, not Locked
+```
+
+### Changed-file scope
+
+```text
+docs/product/README.md               MODIFIED v0.2 → v0.3   blob 4b2b1df9fcb5bf684acf0eb1e0bfbbfefd0dbadc
+docs/MANIFEST.md                     MODIFIED manifest_version 9.81 → 9.82
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/product-requirement.md  KHÔNG ĐỔI — blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8, verified byte-identical
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Metadata / state
+
+- `product-requirement.md`: **không đổi** (semantic và version) — package lifecycle metadata only.
+- `product/README.md`: **v0.2 → v0.3**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.81 → 9.82**; dòng `product/` cập nhật ghi nhận Package 0.3-A `Consolidated Stable`.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-B baseline dependency đã thỏa (0.3-A `Consolidated Stable`), eligible cho Product Owner scope authorization — CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.** OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.3 vẫn active. Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-08-01 — correct Package 0.3-A review findings
 
 **Package 0.3-A bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.3-A bounded correction — P03A-MAJ-01/P03A-MIN-01/P03A-MIN-02/P03A-B-MIN-03." Đóng đúng một finding Major và ba finding Minor. Authorization này **không** cho phép author Backtest Domain Contract/entity/event/state machine/schema, tái sử dụng PAPER fact làm Backtest authority, định nghĩa simulation/fee/slippage/latency/liquidity/partial-fill semantics, accounting/PnL/ledger/settlement/performance-attribution, sửa Decision canonical field/hashing rule, sửa Domain Contract, tạo Replay authority stream hay `ReplayDecision`, author Package 0.3-B/0.3-C, định nghĩa architecture/API/database/deployment, đóng OQ-002/OQ-003, authorize Live, mark Package 0.3-A Consolidated Stable, hay Approve/Lock bất kỳ artifact nào.
