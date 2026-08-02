@@ -2,7 +2,7 @@
 id: product-index
 title: Product Requirement & UX Index
 status: Draft
-version: "0.5"
+version: "0.6"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -27,7 +27,7 @@ Toàn bộ artifact tại đây PHẢI dùng lại nguyên vẹn vocabulary đã
 | Package | Nội dung | Trạng thái |
 |---|---|---|
 | **0.3-A — Product Requirement** | [`product-requirement.md`](./product-requirement.md) v0.2 Draft — 34 requirement (`PR-001`–`PR-034`), truy vết Vision/Platform Invariant/Domain Contract | Draft — **`Consolidated Stable`** (xem dưới) |
-| **0.3-B — Use Case & Workflow** | [`use-case-workflow.md`](./use-case-workflow.md) v0.2 Draft — 21 Use Case (`UC-001`–`UC-021`), truy vết `PR-001`–`PR-034` | Draft — **Bounded correction applied, chưa `Consolidated Stable`** — chờ ChatGPT Delta Review A + Independent Delta Review B |
+| **0.3-B — Use Case & Workflow** | [`use-case-workflow.md`](./use-case-workflow.md) v0.3 Draft — 21 Use Case (`UC-001`–`UC-021`), truy vết `PR-001`–`PR-034` | Draft — **Narrow delta correction applied, chưa `Consolidated Stable`** — chờ ChatGPT Delta Review A + Independent Delta Review B |
 | **0.3-C — UX Blueprint** | chưa author — phụ thuộc 0.3-B `Consolidated Stable` | Chưa bắt đầu, **Unauthorized** |
 
 **Thứ tự authoring bắt buộc:** 0.3-A → 0.3-B → 0.3-C, tuần tự — mỗi package phụ thuộc trực tiếp package trước (đúng [Chapter 4 §4.5](../constitution/04-domain-principles.md) và dependency logic: không thể viết use case cho requirement chưa tồn tại, không thể thiết kế UX cho use case chưa tồn tại).
@@ -84,23 +84,27 @@ Package 0.3-B:    Unauthorized
 Package 0.3-C:    Unauthorized
 ```
 
-## Package 0.3-B — Use Case & Workflow (bounded correction applied)
+## Package 0.3-B — Use Case & Workflow (narrow delta correction applied)
 
 **Phạm vi (scope tối thiểu, walking-skeleton):** dịch 34 requirement (`PR-001`–`PR-034`, Package 0.3-A `Consolidated Stable`) thành 21 Use Case cụ thể, testable, bounded (`UC-001`–`UC-021`) — 3 Research, 2 Replay, 5 Backtest, 5 Paper, 3 Review, 3 Improve — sở hữu user journey/use-case behavior/precondition/trigger/main flow/alternate flow/observable outcome/handoff cho sáu-giai-đoạn lifecycle. KHÔNG tạo product requirement mới — mọi Use Case truy vết `PR-XXX` đã tồn tại. Preserve nguyên vẹn Replay authority boundary (historical reconstruction vs parity recomputation, không `ReplayDecision`) và Backtest authority boundary (không tái sử dụng PAPER fact, không entity Backtest mới) từ `product-requirement.md` v0.2.
 
 **v0.2 — bounded correction (đóng consolidated Review A + Independent Review B findings, hai Major + năm Minor):** (1) `P03B-MAJ-01` — Backtest→Paper handoff + UC-011 viết lại: Backtest/Research Decision identity KHÔNG BAO GIỜ carry-forward/promote/reuse làm PAPER Decision ancestor; PAPER entry đòi hỏi PAPER-context authoritative Decision lineage RIÊNG BIỆT; cơ chế thiết lập chính xác là deferred dependency (§9d); workflow dừng TRƯỚC PAPER execution khi thiếu lineage eligible. (2) `P03B-MAJ-02` — UC-020 viết lại tách bạch Backtest comparison (non-PAPER authority) khỏi PAPER comparison (authoritative); cross-mode CHỈ juxtaposition, KHÔNG unified outcome fact/normalization/scoring chung. (3) `P03B-MIN-01` — UC-011 reframe "Initiate PAPER execution" thay vì "Submit Order." (4) `P03B-MIN-02` — UC-021 thêm bounded alternate/failure khi evidence không khả dụng, bỏ overclaim "luôn khả dụng." (5) `P03B-MIN-03` — UC-007 bỏ ngôn ngữ "đã bị loại bỏ," thay bằng "run identity không resolve được" + bốn nguyên tắc fallback. (6) `P03B-MIN-04` — UC-020 khôi phục traceability đầy đủ `PR-031`/`PR-032`. (7) `P03B-MIN-05` — UC-003 thêm observable outcome PASSED/FAILED/INDETERMINATE, không tạo entity "ResearchVerification."
 
-**KHÔNG author:** screen layout/wireframe/component hierarchy (Package 0.3-C, chưa author); Domain Contract semantic/state machine mới; Backtest/Replay domain fact mới; API/database/backend/frontend/infrastructure architecture; security/custody/deployment; Product Metric threshold (`OQ-003`); Live-gate criteria (`OQ-002`); mở rộng multi-tenant/đa tài sản; unified Backtest/PAPER outcome model; PAPER Decision-generation semantics mới; retention/archival/retrieval/storage architecture; Research verification domain entity/event.
+**v0.3 — narrow delta correction (đóng `P03B-DELTA-MIN-01`):** UC-021 trước đây CHỈ operationalize Decision fact lịch sử dù Goal/UC-020 dependency đòi hỏi phạm vi rộng hơn. Viết lại đầy đủ: UC-021 nay resolve ĐỘC LẬP, tách bạch, CẢ HAI họ evidence lịch sử cho một Strategy Definition Version cũ — **Backtest evidence family** (Decision/RiskEvaluation trace, simulated economic evidence, exposure/position progression, strategy-level evaluable result, run identity/version/configuration context, non-PAPER authority) VÀ **PAPER evidence family** (Decision, Trade Intent, RiskEvaluation, Execution Intent, Order, OrderSubmissionRequest, ExecutionResult, Fill, Position, authoritative, với ExecutionResultComputation/PaperExecutionObservation làm supporting evidence khi cần). Danh tính version LUÔN hiển thị; missing evidence identify theo TỪNG họ/loại, KHÔNG ngụ ý toàn bộ lịch sử mất khi một phần thiếu. UC-020 cập nhật tương ứng — KHÔNG ngụ ý UC-021 trả về một cross-mode evidence object chung.
+
+**KHÔNG author:** screen layout/wireframe/component hierarchy (Package 0.3-C, chưa author); Domain Contract semantic/state machine mới; Backtest/Replay domain fact mới; API/database/backend/frontend/infrastructure architecture; security/custody/deployment; Product Metric threshold (`OQ-003`); Live-gate criteria (`OQ-002`); mở rộng multi-tenant/đa tài sản; unified Backtest/PAPER outcome model; PAPER Decision-generation semantics mới; retention/archival/retrieval/storage architecture; Research verification domain entity/event; unified old-version evidence aggregate; evidence availability SLA.
 
 **Trạng thái review:**
 
 - Author self-review (authoring, v0.1): **hoàn tất.**
 - ChatGPT Review A + Independent Review B (baseline v0.1): **hoàn tất** — hai Major + năm Minor finding (`P03B-MAJ-01`/`P03B-MAJ-02`/`P03B-MIN-01`–`P03B-MIN-05`) consolidated.
-- Bounded correction commit (v0.1 → v0.2), Product Owner authorized: **hoàn tất** — đóng toàn bộ bảy finding, xem chi tiết trên.
-- ChatGPT Delta Review A + Independent Delta Review B (trên v0.2): **chưa chạy** — báo cáo correction transaction này gửi đi làm điểm khởi đầu delta review.
+- Bounded correction commit (v0.1 → v0.2), Product Owner authorized: **hoàn tất** — đóng toàn bộ bảy finding.
+- ChatGPT Delta Review A + Independent Delta Review B (trên v0.2): **hoàn tất** — một Minor finding delta (`P03B-DELTA-MIN-01`, UC-021 scope mismatch) consolidated.
+- Narrow delta correction commit (v0.2 → v0.3), Product Owner authorized: **hoàn tất** — đóng `P03B-DELTA-MIN-01`, xem chi tiết trên.
+- ChatGPT second Delta Review A + Independent second Delta Review B (trên v0.3): **chưa chạy** — báo cáo correction transaction này gửi đi làm điểm khởi đầu.
 - Consolidation: **chưa bắt đầu** — Package 0.3-B **CHƯA** đạt `Consolidated Stable`.
 
-**Không tuyên bố hoàn thành hay approval nào (mục 0.3-B):** `use-case-workflow.md` `status: Draft`, `version: "0.2"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng `OQ-002`/`OQ-003`; không authorize Live; không sửa `product-requirement.md`/Domain Contract/ADR/Constitution/architecture nào; Package 0.3-A vẫn `Consolidated Stable`, không đổi; Package 0.3-C vẫn `Unauthorized`.
+**Không tuyên bố hoàn thành hay approval nào (mục 0.3-B):** `use-case-workflow.md` `status: Draft`, `version: "0.3"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng `OQ-002`/`OQ-003`; không authorize Live; không sửa `product-requirement.md`/Domain Contract/ADR/Constitution/architecture nào; Package 0.3-A vẫn `Consolidated Stable`, không đổi; Package 0.3-C vẫn `Unauthorized`.
 
 ## Ngoài phạm vi Phase 0.3 — defer
 

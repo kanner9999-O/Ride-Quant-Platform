@@ -2,6 +2,97 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-02 — complete old-version evidence workflow
+
+**Package 0.3-B narrow delta correction — one consolidated finding.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.3-B narrow delta correction — P03B-DELTA-MIN-01." Đóng đúng một finding Minor. Authorization này **không** cho phép thêm/renumber Use Case, sửa Product Requirement/Domain Contract/Constitution/ADR, tạo unified Backtest/PAPER evidence entity/schema, tạo old-version evidence aggregate, tạo `BacktestOrder`/`BacktestExecutionResult`/`BacktestFill`/`BacktestPosition`, coi Backtest output là PAPER authority, redefine PAPER C7 entities/transitions, định nghĩa retention/archive/retrieval/restoration/storage architecture, định nghĩa evidence availability SLA, định nghĩa API/database/backend/frontend/infrastructure, author Package 0.3-C screens/components, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.
+
+### Baseline and blob verification
+
+```text
+Expected HEAD:  243c966991052cbe3efc5acabb62626a3ad0b1b0
+Actual HEAD:    243c966991052cbe3efc5acabb62626a3ad0b1b0  — match
+
+use-case-workflow.md:    v0.2 Draft, blob 9c855f03a49b887e3ad9825ca65ee76b2884efef  — match
+product/README.md:       v0.5 Draft, blob 097518c680f36704e7b1dca1655214991bfbdc60  — match
+product-requirement.md:  v0.2 Draft, blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8  — match
+```
+
+### `P03B-DELTA-MIN-01` resolution
+
+UC-021 previously operationalized only historical Decision facts, despite its broader Goal and UC-020's dependency on it for both Backtest and PAPER old-version evidence. Rewrote UC-021 in full to resolve, independently and mode-separated, both evidence families for an inactive Strategy Definition Version: the Backtest family (Decision/RiskEvaluation trace, simulated economic evidence, exposure/position progression, strategy-level evaluable result, run identity/version/configuration context — non-PAPER authority) and the PAPER family (Decision, Trade Intent, RiskEvaluation, Execution Intent, Order, OrderSubmissionRequest, ExecutionResult, Fill, Position — authoritative, with ExecutionResultComputation/PaperExecutionObservation as supporting evidence only, semantics unchanged). Version identity always remains visible; missing evidence is identified per family/type rather than implying the entire history is unavailable; available evidence is marked incomplete rather than presented as complete. UC-020 updated to consume this mode-separated scope without implying UC-021 produces a common cross-mode evidence object.
+
+### Exact changed-file scope
+
+```text
+docs/product/use-case-workflow.md    MODIFIED v0.2 → v0.3   blob affbb723b577cde4c8627dd689550e3bfbffb5d1
+docs/product/README.md               MODIFIED v0.5 → v0.6   blob 9e69e5fa98afda60592c376fe1a341007d267c0b
+docs/MANIFEST.md                     MODIFIED manifest_version 9.84 → 9.85
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/product-requirement.md  KHÔNG ĐỔI — blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8, verified byte-identical
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Corrected artifact version/status
+
+`use-case-workflow.md`: `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### Use Case count and ID range
+
+21, `UC-001`–`UC-021` — unchanged, no Use Case added or renumbered; the finding expressed entirely as bounded edits to UC-021 (full rewrite) and UC-020 (consistency edits), plus the failure table, vocabulary mapping, acceptance criteria, and Package 0.3-C handoff wording.
+
+### UC-021 common identity behavior
+
+Strategy Definition Version identity always remains visible, even when inactive and even when part of the evidence is unavailable — stated explicitly in Goal, Main flow step 1, and Alternate/failure.
+
+### UC-021 Backtest evidence coverage
+
+Decision/RiskEvaluation trace, simulated economic evidence, exposure/position progression, strategy-level evaluable result, run identity/version/configuration context — explicitly non-PAPER authority; explicitly never called an authoritative ExecutionResult/Fill/Position/PAPER execution outcome.
+
+### UC-021 PAPER evidence coverage
+
+Decision, Trade Intent, RiskEvaluation, Execution Intent, Order, OrderSubmissionRequest, ExecutionResult, Fill, Position — authoritative, preserving PAPER authority, causation lineage, Fill economics from PaperExecutionObservation, Position from eligible Fill lineage, and NON_EVALUABLE visibility; ExecutionResultComputation/PaperExecutionObservation included only as supporting evidence, semantics unchanged.
+
+### Unavailable/partial evidence behavior
+
+When any requested evidence cannot be resolved, the workflow stops only for the affected request; version identity, mode, and authority remain visible; other available evidence remains visible but is marked incomplete; the missing family/type is identified; reason is disclosed; nothing is fabricated or silently omitted; no partial conclusion is presented as complete; explicitly does not imply the entire Strategy history is unavailable from one missing family/type.
+
+### UC-020 consistency
+
+Main flow step 5, Evidence consumed, and Out-of-scope boundary updated to state UC-021 resolves each mode/family independently and does not return a common cross-mode evidence object; all three comparison modes (Backtest-vs-Backtest, PAPER-vs-PAPER, cross-mode side-by-side) and all mode/authority/evidence-type labeling requirements preserved unchanged.
+
+### PR and Domain-vocabulary traceability
+
+UC-021 now materially traces `PR-032` (unchanged ID, expanded material coverage). Domain vocabulary mapping (§9c) gives UC-021 its own row: `strategy.md`, `decision.md`, `risk.md` (Backtest family, evidence-source vocabulary only) plus `trade-intent.md`, `execution-intent.md`, `order.md`, `execution-result.md`, `fill.md`, `position.md` (PAPER family, authoritative) — two families kept explicitly separate.
+
+### Preservation of all prior corrections
+
+All seven v0.2 findings (`P03B-MAJ-01`, `P03B-MAJ-02`, `P03B-MIN-01`–`P03B-MIN-05`) remain resolved and unchanged: Backtest/Research Decision identity never enters PAPER ancestry; PAPER entry requires a distinct eligible PAPER-context Decision lineage; UC-011 frames user intent with system-owned Order/OrderSubmissionRequest; UC-020's Backtest/PAPER evidence families remain separate; UC-003 retains PASSED/FAILED/INDETERMINATE; UC-007 retains no deletion-lifecycle implication; Replay/Backtest/Paper authority boundaries unchanged.
+
+### Forbidden-scope verification
+
+No Use Case added or renumbered; no Product Requirement/Domain Contract/Constitution/ADR modified (verified via `git diff --stat`); no unified Backtest/PAPER evidence entity or old-version evidence aggregate created; no `BacktestOrder`/`BacktestExecutionResult`/`BacktestFill`/`BacktestPosition`; Backtest output never treated as PAPER authority; no PAPER C7 entity/transition redefined; no retention/archive/retrieval/restoration/storage architecture; no evidence availability SLA; no API/database/infrastructure defined; no Package 0.3-C content authored; OQ-002/OQ-003 not closed; Live not authorized; no artifact Approved/Locked; Package 0.3-B not marked Consolidated Stable.
+
+### Author self-review
+
+Automated re-verification: 21 unique/sequential UC-IDs unchanged (`UC-001`–`UC-021`); all 21 blocks retain all 13 required fields; all PR references resolve within `PR-001`–`PR-034`; UC-021 confirmed containing both "Backtest evidence family"/"họ evidence Backtest" and "PAPER evidence family"/"họ evidence PAPER" markers; forbidden Backtest entity names and `ReplayDecision` confirmed appearing only inside prohibition/boundary text across all occurrences; both YAML frontmatters re-validated via `yaml.safe_load`; `git diff --stat` confirms `product-requirement.md`, all Domain Contracts, ADRs, Constitution chapters, and architecture artifacts remain byte-identical.
+
+### Backward Consistency Check
+
+No conflict with `product-requirement.md` v0.2 (`Consolidated Stable`, unchanged), Package 0.2-A/B/C Domain Contracts (unchanged, all `Consolidated Stable`), Constitution Chapters 1/2/4, ADR-007 (all unchanged, byte-identical).
+
+### Metadata / state
+
+- `use-case-workflow.md`: **v0.2 → v0.3**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `product-requirement.md`: **không đổi** — byte-for-byte, `Consolidated Stable` package state unchanged.
+- `product/README.md`: **v0.5 → v0.6**.
+- `MANIFEST.md`: `manifest_version` **9.84 → 9.85**.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-B VẪN CHƯA đạt `Consolidated Stable` — chờ ChatGPT Delta Review A + Independent Delta Review B trên cùng exact baseline correction này.** Mandatory sequence tiếp tục: ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. Package 0.3-C vẫn `Unauthorized`. `OQ-002`/`OQ-003` vẫn `Open`. Không authorize Live. Không artifact nào Approved hay Locked. Phase 0.3 vẫn active — Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-08-02 — correct Package 0.3-B review findings
 
 **Package 0.3-B bounded correction — consolidated Review A + Independent Review B findings.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.3-B bounded correction — P03B-MAJ-01/P03B-MAJ-02/P03B-MIN-01..05." Đóng đúng hai finding Major và năm finding Minor. Authorization này **không** cho phép sửa Product Requirement/Domain Contract/Constitution/ADR, invent PAPER Decision-generation semantics, clone/promote Backtest Decision vào PAPER authority, invent unified Backtest/PAPER outcome entity, invent cross-mode normalization/scoring, tạo `BacktestOrder`/`BacktestExecutionResult`/`BacktestFill`/`BacktestPosition`, tạo `ReplayDecision`/Replay authority stream, định nghĩa retention/archival/retrieval/storage architecture, định nghĩa Research verification domain entity/event, author Package 0.3-C, định nghĩa architecture/fee/PnL semantics, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.

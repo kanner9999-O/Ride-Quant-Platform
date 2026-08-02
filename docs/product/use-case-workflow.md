@@ -1,7 +1,7 @@
 ---
 id: use-case-workflow
 title: Use Case & Workflow
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -21,6 +21,8 @@ next_review: null
 **Quy tắc traceability nguồn (kế thừa nguyên vẹn `product-requirement.md` §"Authority boundary", đóng `P03A-MIN-02`):** mọi Use Case/workflow step PHẢI có một hoặc nhiều `PR-XXX` áp dụng — CÓ THỂ kết hợp nhiều PR; mọi PR trích dẫn phải material (đóng góp thực chất cho behavior mô tả); không Use Case nào được phép mồ côi PR traceability.
 
 **v0.2 — bounded correction (đóng consolidated Review A + Independent Review B findings, hai Major + năm Minor):** (1) `P03B-MAJ-01` — Backtest → Paper handoff và UC-011 viết lại: Backtest/Research Decision identity KHÔNG BAO GIỜ được carry forward/promote/reuse làm authoritative PAPER Decision ancestor; PAPER entry đòi hỏi một PAPER-context authoritative Decision lineage RIÊNG BIỆT; cơ chế thiết lập chính xác PAPER-context Decision là deferred dependency (§9d); workflow có thể dừng TRƯỚC PAPER execution khi không có PAPER-context Decision lineage eligible. (2) `P03B-MAJ-02` — UC-020 viết lại: tách bạch tường minh Backtest comparison (non-PAPER authority) khỏi PAPER comparison (authoritative); cross-mode viewing CHỈ là juxtaposition hiển thị, KHÔNG merge identity/authority, KHÔNG unified execution-outcome fact, KHÔNG normalization/scoring chung. (3) `P03B-MIN-01` — UC-011 reframe: "Initiate/request PAPER execution" thay vì "Submit a PAPER Order" — user cung cấp intent, KHÔNG authoritative Order payload. (4) `P03B-MIN-02` — UC-021 thêm bounded alternate/failure path khi historical evidence không khả dụng — bỏ overclaim "luôn khả dụng." (5) `P03B-MIN-03` — UC-007 bỏ ngôn ngữ "đã bị loại bỏ" (implied deletion lifecycle), thay bằng "run identity không resolve được/evidence không khả dụng" + bốn nguyên tắc fallback. (6) `P03B-MIN-04` — UC-020 khôi phục traceability đầy đủ `PR-031`/`PR-032`, phản ánh yêu cầu historical old-version evidence của `PR-032` trong Main flow/Evidence consumed. (7) `P03B-MIN-05` — UC-003 thêm observable verification outcome PASSED/FAILED/INDETERMINATE — KHÔNG tạo entity/event "ResearchVerification" mới. Bounded — không đổi 21 Use Case ID, không đổi sáu-giai-đoạn lifecycle, không đóng OQ-002/OQ-003, không Approve/Lock/Consolidate.
+
+**v0.3 — narrow delta correction (đóng `P03B-DELTA-MIN-01`):** UC-021 viết lại đầy đủ — trước đây CHỈ operationalize Decision fact lịch sử, dù Goal/UC-020 dependency đòi hỏi phạm vi rộng hơn. Nay UC-021 resolve ĐỘC LẬP, tách bạch, hai họ evidence lịch sử cho một Strategy Definition Version cũ: **Backtest evidence family** (Decision/RiskEvaluation trace, simulated economic evidence, exposure/position progression, strategy-level evaluable result, run identity/version/configuration context — non-PAPER authority) VÀ **PAPER evidence family** (Decision, Trade Intent, RiskEvaluation, Execution Intent, Order, OrderSubmissionRequest, ExecutionResult, Fill, Position — authoritative, với ExecutionResultComputation/PaperExecutionObservation làm supporting evidence khi cần, KHÔNG redefine semantics). Danh tính Strategy Definition Version LUÔN hiển thị. Missing evidence được identify theo TỪNG họ/loại — KHÔNG ngụ ý toàn bộ lịch sử mất khi chỉ một phần thiếu; evidence khả dụng khác vẫn hiển thị nhưng đánh dấu incomplete. UC-020 cập nhật tương ứng để tiêu thụ đúng mode-separated scope này, KHÔNG ngụ ý UC-021 trả về một cross-mode evidence object chung. Bounded — không thêm/renumber Use Case, không domain entity/schema/unified outcome model/retention policy/architecture mới, giữ nguyên toàn bộ bảy finding đã đóng ở v0.2.
 
 ## 1. Purpose and authority boundary
 
@@ -699,11 +701,14 @@ Main flow:              1. Người dùng chọn các Strategy Instance cần so
                            outcome fact, KHÔNG tự động normalize, KHÔNG công thức scoring chung giữa
                            hai họ.
                         5. Với Strategy Instance gắn version KHÔNG còn active: hệ thống resolve evidence
-                           lịch sử của nó (UC-021) — danh tính version LUÔN hiển thị, evidence hiển thị
-                           khi resolve được (PR-032).
+                           lịch sử của nó theo TỪNG mode/họ ĐỘC LẬP qua UC-021 (Backtest và/hoặc PAPER,
+                           KHÔNG gộp) — danh tính version LUÔN hiển thị, mỗi họ evidence hiển thị khi
+                           resolve được, đánh dấu "incomplete" nếu một phần thiếu (PR-032). UC-021
+                           KHÔNG trả về một cross-mode evidence object chung cho UC-020 tiêu thụ.
 Alternate/failure:      Một Strategy Instance chưa có outcome nào (chưa Backtest/Paper) → hiển thị rỗng
                         cho Instance đó, KHÔNG lỗi cho toàn bộ so sánh. Evidence của version cũ không
-                        resolve được → áp dụng UC-021 Alternate/failure cho phần đó.
+                        resolve được (một họ/loại evidence cụ thể) → áp dụng UC-021 Alternate/failure
+                        cho ĐÚNG phần đó — KHÔNG toàn bộ so sánh, KHÔNG toàn bộ version đó.
 Observable outcome:     Người dùng so sánh được outcome giữa các version — CÙNG mode HOẶC cross-mode
                         với nhãn mode/authority/evidence-type rõ ràng — KHÔNG BAO GIỜ thấy một "unified
                         execution outcome" gộp Backtest và PAPER làm một.
@@ -711,7 +716,8 @@ Evidence consumed:      Decision/RiskEvaluation/simulated economic evidence/expo
                         strategy-level result (Backtest, non-PAPER authority, UC-007–UC-009) VÀ/HOẶC
                         authoritative Decision/RiskEvaluation/Order/ExecutionResult/Fill/Position
                         (PAPER, UC-011–UC-014) của từng Strategy Instance — BAO GỒM evidence của
-                        version không còn active (PR-032, qua UC-021).
+                        version không còn active, resolve theo TỪNG họ độc lập qua UC-021 (PR-032) —
+                        UC-021 KHÔNG trả về một cross-mode evidence object chung.
 Evidence produced:      KHÔNG — so sánh hiển thị thuần túy, KHÔNG tạo fact mới, KHÔNG tạo unified
                         outcome entity.
 PR traceability:        PR-031, PR-032.
@@ -722,41 +728,86 @@ Out-of-scope boundary:  KHÔNG gọi Backtest material là `ExecutionResult`/`Fi
                         outcome authoritative dưới bất kỳ hình thức nào; KHÔNG định nghĩa một unified
                         Backtest/PAPER outcome entity/schema; KHÔNG công thức so sánh/scoring/
                         normalization tổng hợp cross-mode (`OQ-003`); KHÔNG yêu cầu Package 0.3-C phát
-                        minh một unified outcome model.
+                        minh một unified outcome model; KHÔNG ngụ ý UC-021 trả về một cross-mode
+                        evidence object chung cho hai họ evidence (đóng `P03B-DELTA-MIN-01`).
 ```
 
 **UC-021 — Preserve access to old-version evidence**
 ```text
 Primary actor:         Ride user (§2).
-Goal:                   Truy vấn được Decision/Execution outcome của một Strategy Definition Version
-                        không còn active — danh tính version LUÔN hiển thị; evidence lịch sử PHẢI
-                        resolve được KHI CÓ THỂ, KHÔNG fabricate và KHÔNG silently omit khi không thể.
-Trigger:                Người dùng, sau khi chuyển sang version mới, cần xem lại evidence version cũ.
-Preconditions:          Strategy Definition Version cũ đã từng chạy (có Decision/Execution outcome).
-Inputs:                 Strategy Definition Version cũ (identity).
+Goal:                   Với một Strategy Definition Version không còn active: (a) danh tính version
+                        LUÔN hiển thị, kể cả khi một phần evidence không khả dụng; (b) resolve, ĐỘC
+                        LẬP theo TỪNG họ evidence áp dụng được (Backtest, non-PAPER authority / PAPER,
+                        authoritative), evidence lịch sử KHI CÓ THỂ — KHÔNG fabricate, KHÔNG silently
+                        omit, KHÔNG gộp hai họ thành một representation chung (mirror tách bạch đã pin
+                        tại UC-020, đóng `P03B-DELTA-MIN-01`).
+Trigger:                Người dùng, sau khi chuyển sang version mới (UC-019) hoặc từ một so sánh
+                        (UC-020), cần xem lại evidence lịch sử của version cũ — cho một hoặc cả hai
+                        mode (Backtest và/hoặc PAPER).
+Preconditions:          Strategy Definition Version cũ đã từng chạy trong Backtest (§9.3, UC-006–
+                        UC-010) VÀ/HOẶC Paper (§9.4, UC-011–UC-015) — CÓ THỂ chỉ một trong hai mode,
+                        hoặc cả hai.
+Inputs:                 Strategy Definition Version cũ (identity); lựa chọn mode cần resolve (Backtest,
+                        PAPER, hoặc cả hai — mirror lựa chọn mode tại UC-020).
 Main flow:              1. Người dùng chọn một Strategy Definition Version cũ — danh tính version đó
-                           LUÔN hiển thị, kể cả khi không còn active.
-                        2. Hệ thống resolve Decision lịch sử gắn với version đó qua đúng authoritative
-                           event stream (I-12, durable append-only log).
-Alternate/failure:      NẾU evidence lịch sử hiện KHÔNG khả dụng hoặc KHÔNG resolve được:
-                          workflow dừng
+                           LUÔN hiển thị, kể cả khi không còn active VÀ kể cả khi một phần evidence bên
+                           dưới không khả dụng.
+                        2. NẾU Backtest evidence được yêu cầu: hệ thống resolve, ĐỘC LẬP, họ evidence
+                           Backtest gắn version đó — Decision/RiskEvaluation trace, simulated economic
+                           evidence, exposure/position progression, strategy-level evaluable result,
+                           run identity/version/configuration context (UC-007–UC-009) — non-PAPER
+                           authority. KHÔNG gọi material này là authoritative `ExecutionResult`/`Fill`/
+                           `Position`/PAPER execution outcome dưới bất kỳ hình thức nào.
+                        3. NẾU PAPER evidence được yêu cầu: hệ thống resolve, ĐỘC LẬP, authoritative
+                           lineage PAPER gắn version đó — Decision, Trade Intent, RiskEvaluation,
+                           Execution Intent, Order, OrderSubmissionRequest, ExecutionResult, Fill,
+                           Position (UC-011–UC-014), CÓ THỂ bao gồm ExecutionResultComputation/
+                           PaperExecutionObservation làm supporting evidence khi cần (KHÔNG redefine
+                           semantics của chúng) — Fill economics từ PaperExecutionObservation, Position
+                           từ eligible Fill lineage, `NON_EVALUABLE` vẫn quan sát được khi áp dụng.
+                        4. NẾU cả hai họ được yêu cầu: hiển thị TÁCH BIỆT hoàn toàn — KHÔNG merge
+                           thành một representation/entity chung, giữ nguyên identity/authority riêng
+                           của từng họ (đúng nguyên tắc UC-020).
+Alternate/failure:      NẾU MỘT PHẦN evidence được yêu cầu (một họ, hoặc một loại evidence trong một
+                        họ) KHÔNG khả dụng/KHÔNG resolve được:
+                          workflow dừng CHO ĐÚNG phần evidence request bị ảnh hưởng (KHÔNG toàn bộ)
                           danh tính Strategy Definition Version VẪN hiển thị
-                          phần evidence không khả dụng được identify rõ (cái gì thiếu)
+                          mode (Backtest/PAPER) VẪN hiển thị
+                          authority (non-PAPER simulated/authoritative PAPER) VẪN hiển thị
+                          evidence khả dụng khác (nếu có) VẪN hiển thị NHƯNG đánh dấu "incomplete"
+                          họ/loại evidence bị thiếu được identify rõ (cái gì thiếu, thuộc họ nào)
                           reason được disclosed
                           KHÔNG evidence nào bị fabricate
-                          KHÔNG lịch sử thiếu nào bị ẩn/silently omit
-                          KHÔNG kết luận downstream nào được trình bày như đã hoàn chỉnh
-Observable outcome:     Người dùng truy vấn được evidence lịch sử của version cũ khi resolve được,
-                        HOẶC thấy rõ phần nào không khả dụng kèm lý do — KHÔNG BAO GIỜ một kết luận
-                        fabricated/ẩn thiếu sót.
-Evidence consumed:      Toàn bộ Decision fact gắn Strategy Definition Version cũ (khi resolve được).
-Evidence produced:      KHÔNG.
+                          KHÔNG phần thiếu nào bị ẩn/silently omit
+                          KHÔNG kết luận (kể cả một phần) được trình bày như đã hoàn chỉnh
+                          KHÔNG downstream authoritative action nào xảy ra
+                        TUYỆT ĐỐI KHÔNG ngụ ý TOÀN BỘ lịch sử Strategy không khả dụng chỉ vì MỘT họ/
+                        loại evidence thiếu.
+Observable outcome:     Người dùng thấy danh tính version LUÔN hiển thị; evidence family/type nào
+                        resolve được hiển thị đầy đủ, tách biệt theo mode/authority; evidence family/
+                        type nào không resolve được thì bị đánh dấu rõ kèm lý do — KHÔNG BAO GIỜ một
+                        kết luận fabricated/ẩn thiếu sót, KHÔNG BAO GIỜ suy diễn "toàn bộ lịch sử mất"
+                        từ một phần thiếu.
+Evidence consumed:      Backtest evidence family (Decision/RiskEvaluation trace, simulated economic
+                        evidence, exposure/position progression, strategy-level evaluable result, run
+                        identity/version/configuration context — non-PAPER authority, khi áp dụng);
+                        PAPER evidence family (Decision, Trade Intent, RiskEvaluation, Execution
+                        Intent, Order, OrderSubmissionRequest, ExecutionResult, Fill, Position —
+                        authoritative, khi áp dụng, kèm ExecutionResultComputation/
+                        PaperExecutionObservation làm supporting evidence khi cần).
+Evidence produced:      KHÔNG — resolve/quan sát thuần túy, KHÔNG tạo fact mới, KHÔNG tạo một unified
+                        old-version evidence entity/aggregate gộp hai họ.
 PR traceability:        PR-032.
-Domain vocabulary used: strategy.md, decision.md.
+Domain vocabulary used: strategy.md, decision.md, risk.md (họ evidence Backtest — evidence-source
+                        vocabulary only, non-PAPER, khi áp dụng); trade-intent.md, execution-intent.md,
+                        order.md, execution-result.md, fill.md, position.md (họ evidence PAPER —
+                        authoritative, khi áp dụng) — HAI HỌ TÁCH BIỆT, KHÔNG gộp.
 Out-of-scope boundary:  KHÔNG định nghĩa retention duration, archive tiering, retrieval latency,
-                        restoration process, hay storage architecture cụ thể (Phase 1) — tài liệu này
-                        CHỈ pin product outcome (danh tính hiển thị + evidence resolve-when-possible),
-                        KHÔNG cơ chế lưu trữ.
+                        restoration process, storage architecture, hay evidence availability SLA cụ
+                        thể (Phase 1); KHÔNG tạo một unified old-version evidence aggregate/entity gộp
+                        hai họ; KHÔNG gọi Backtest material là `ExecutionResult`/`Fill`/`Position`/
+                        PAPER execution outcome; KHÔNG redefine semantics của `ExecutionResultComputation`/
+                        `PaperExecutionObservation`; KHÔNG tạo entity/event Backtest mới.
 ```
 
 ## 7. Cross-stage handoffs
@@ -864,7 +915,7 @@ no downstream authoritative action occurs
 | Attempt to use Live behavior | Workflow dừng NGAY LẬP TỨC; state hiển thị "Live is Unauthorized, OQ-002 Open"; reason disclosed; KHÔNG downstream authoritative action, KHÔNG route mạng tới exchange thật. | PR-027, `OQ-002` (có controlling rule tường minh). |
 | No eligible PAPER-context Decision lineage (v0.2, MỚI, đóng `P03B-MAJ-01`) | Workflow dừng TRƯỚC PAPER execution (UC-011 bước 2); state (Strategy Instance đang dùng) vẫn observable; reason "no eligible PAPER-context Decision lineage" disclosed; KHÔNG Trade Intent/RiskEvaluation/Execution Intent/Order nào được tạo; KHÔNG Backtest/Research Decision nào được clone/promote để lấp khoảng trống. | PR-024 (có controlling rule — Backtest→Paper handoff, §7). |
 | Backtest run identity does not resolve (v0.2, MỚI, đóng `P03B-MIN-03`) | Workflow dừng tại UC-007; state (run identity, nếu đã biết) vẫn observable; reason disclosed; KHÔNG downstream authoritative action; KHÔNG ngụ ý run state machine/deletion event/archival lifecycle nào. | PR-021 (fallback bốn nguyên tắc — chưa có controlling resolution cụ thể). |
-| Historical evidence for old Strategy Definition Version unavailable (v0.2, MỚI, đóng `P03B-MIN-02`) | Workflow dừng tại UC-021/UC-020; danh tính Strategy Definition Version vẫn hiển thị; phần evidence không khả dụng được identify; reason disclosed; KHÔNG fabricate, KHÔNG silently omit, KHÔNG kết luận downstream nào trình bày như hoàn chỉnh. | PR-032 (có controlling rule — UC-021 Alternate/failure). |
+| Historical evidence for old Strategy Definition Version unavailable — một họ/loại evidence cụ thể (v0.3, cập nhật, đóng `P03B-MIN-02`/`P03B-DELTA-MIN-01`) | Workflow dừng CHO ĐÚNG phần evidence request bị ảnh hưởng tại UC-021/UC-020 (KHÔNG toàn bộ); danh tính Strategy Definition Version + mode + authority vẫn hiển thị; evidence khả dụng khác vẫn hiển thị nhưng đánh dấu incomplete; họ/loại evidence thiếu được identify rõ; reason disclosed; KHÔNG fabricate, KHÔNG silently omit, KHÔNG kết luận (kể cả một phần) trình bày như hoàn chỉnh; KHÔNG ngụ ý toàn bộ lịch sử Strategy không khả dụng. | PR-032 (có controlling rule — UC-021 Alternate/failure). |
 | Research verification FAILED/INDETERMINATE (v0.2, MỚI, đóng `P03B-MIN-05`) | Workflow KHÔNG tiến hành như đã verify thành công (UC-003); status vẫn observable; reason + evidence bị ảnh hưởng disclosed; KHÔNG downstream authoritative action; KHÔNG entity/event "ResearchVerification" nào được tạo. | PR-017 (có controlling rule — UC-003 tri-state outcome). |
 
 ## 9. Evidence and traceability requirements
@@ -902,10 +953,14 @@ UC-016            decision.md, trade-intent.md, risk.md, execution-intent.md, or
                    execution-result.md, fill.md, position.md
 UC-017            replay-event.md
 UC-018            decision.md, risk.md, execution-result.md, fill.md
-UC-019, UC-021    strategy.md, decision.md, ADR-013
+UC-019            strategy.md, decision.md, ADR-013
 UC-020 (v0.2)     strategy.md, decision.md, risk.md (họ evidence Backtest, non-PAPER authority);
                    execution-result.md, fill.md, position.md (họ evidence PAPER, authoritative) — hai
                    họ TÁCH BIỆT, KHÔNG gộp (đóng P03B-MAJ-02)
+UC-021 (v0.3)     strategy.md, decision.md, risk.md (họ evidence Backtest — evidence-source vocabulary
+                   only, non-PAPER, khi áp dụng); trade-intent.md, execution-intent.md, order.md,
+                   execution-result.md, fill.md, position.md (họ evidence PAPER — authoritative, khi
+                   áp dụng) — hai họ TÁCH BIỆT, KHÔNG gộp (đóng P03B-DELTA-MIN-01)
 ```
 
 ### 9d. Explicit deferred-domain dependency list
@@ -997,7 +1052,7 @@ Kế thừa nguyên vẹn [`product-requirement.md`](./product-requirement.md) �
    tường minh — KHÔNG tự phát minh resolution semantics.
 9. KHÔNG sửa `product-requirement.md`/Domain Contract/ADR/Constitution/architecture nào.
 10. `OQ-002`/`OQ-003` giữ nguyên `Open`, không bị đóng ngầm; Live vẫn `Unauthorized`.
-11. YAML frontmatter hợp lệ, `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+11. YAML frontmatter hợp lệ, `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
 12. Baseline sẵn sàng cho ChatGPT Delta Review A + Independent Delta Review B trên CÙNG một commit/blob.
 13. (v0.2) UC-011 KHÔNG BAO GIỜ carry-forward/promote/reuse Backtest/Research Decision identity làm
     authoritative PAPER Decision ancestor — PAPER entry đòi hỏi PAPER-context authoritative Decision
@@ -1012,6 +1067,13 @@ Kế thừa nguyên vẹn [`product-requirement.md`](./product-requirement.md) �
 17. (v0.2) KHÔNG entity/event Backtest mới (`BacktestOrder`/`BacktestFill`/`BacktestPosition`/
     `BacktestExecutionResult`) được invent; KHÔNG `ReplayDecision`/Replay authority stream mới; KHÔNG
     unified Backtest/PAPER outcome model nào được yêu cầu hay author.
+18. (v0.3, MỚI) UC-021 resolve ĐỘC LẬP, tách bạch, CẢ HAI họ evidence lịch sử (Backtest non-PAPER
+    authority VÀ PAPER authoritative) cho một Strategy Definition Version cũ — KHÔNG chỉ Decision fact
+    đơn lẻ; danh tính version LUÔN hiển thị; missing evidence được identify theo TỪNG họ/loại, KHÔNG
+    ngụ ý toàn bộ lịch sử mất khi chỉ một phần thiếu; KHÔNG tạo unified old-version evidence aggregate.
+19. (v0.3, MỚI) UC-020 tiêu thụ đúng mode-separated scope của UC-021 — KHÔNG ngụ ý UC-021 trả về một
+    cross-mode evidence object chung; ba comparison mode (Backtest-vs-Backtest, PAPER-vs-PAPER,
+    cross-mode side-by-side) và toàn bộ nhãn mode/authority/evidence-type giữ nguyên.
 ```
 
 ## 13. Handoff requirements for Package 0.3-C
@@ -1030,3 +1092,4 @@ Package 0.3-C (`ux-blueprint.md`) PHẢI:
 10. (v0.2, MỚI) KHÔNG thiết kế screen/flow cho UC-020 gộp Backtest và PAPER evidence thành một "kết quả" duy nhất — mọi hiển thị cross-mode PHẢI giữ nhãn mode/authority/evidence-type tách biệt tường minh.
 11. (v0.2, MỚI) KHÔNG thiết kế screen/flow cho UC-003 ngụ ý một trạng thái nhị phân (pass/fail) đơn giản hoá — PHẢI thể hiện đủ ba outcome PASSED/FAILED/INDETERMINATE.
 12. (v0.2, MỚI) KHÔNG thiết kế screen/flow cho UC-021/UC-007 ngụ ý evidence/run identity luôn khả dụng tuyệt đối — PHẢI thể hiện rõ trạng thái "không khả dụng, lý do disclosed" khi áp dụng.
+13. (v0.3, MỚI) KHÔNG thiết kế screen/flow cho UC-021 gộp Backtest evidence family và PAPER evidence family thành một representation/entity chung — mỗi họ PHẢI hiển thị tách biệt với nhãn mode/authority riêng, kể cả khi cả hai họ được yêu cầu cùng lúc; khi một phần evidence thiếu, PHẢI thể hiện rõ "incomplete" cho đúng phần đó — KHÔNG ngụ ý toàn bộ lịch sử Strategy Definition Version không khả dụng.
