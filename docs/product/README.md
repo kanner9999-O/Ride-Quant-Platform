@@ -2,7 +2,7 @@
 id: product-index
 title: Product Requirement & UX Index
 status: Draft
-version: "0.6"
+version: "0.7"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -27,8 +27,8 @@ Toàn bộ artifact tại đây PHẢI dùng lại nguyên vẹn vocabulary đã
 | Package | Nội dung | Trạng thái |
 |---|---|---|
 | **0.3-A — Product Requirement** | [`product-requirement.md`](./product-requirement.md) v0.2 Draft — 34 requirement (`PR-001`–`PR-034`), truy vết Vision/Platform Invariant/Domain Contract | Draft — **`Consolidated Stable`** (xem dưới) |
-| **0.3-B — Use Case & Workflow** | [`use-case-workflow.md`](./use-case-workflow.md) v0.3 Draft — 21 Use Case (`UC-001`–`UC-021`), truy vết `PR-001`–`PR-034` | Draft — **Narrow delta correction applied, chưa `Consolidated Stable`** — chờ ChatGPT Delta Review A + Independent Delta Review B |
-| **0.3-C — UX Blueprint** | chưa author — phụ thuộc 0.3-B `Consolidated Stable` | Chưa bắt đầu, **Unauthorized** |
+| **0.3-B — Use Case & Workflow** | [`use-case-workflow.md`](./use-case-workflow.md) v0.3 Draft — 21 Use Case (`UC-001`–`UC-021`), truy vết `PR-001`–`PR-034` | Draft — **`Consolidated Stable`** (xem dưới) |
+| **0.3-C — UX Blueprint** | chưa author — phụ thuộc 0.3-B `Consolidated Stable` (đã thỏa) | Chưa bắt đầu, **Unauthorized** |
 
 **Thứ tự authoring bắt buộc:** 0.3-A → 0.3-B → 0.3-C, tuần tự — mỗi package phụ thuộc trực tiếp package trước (đúng [Chapter 4 §4.5](../constitution/04-domain-principles.md) và dependency logic: không thể viết use case cho requirement chưa tồn tại, không thể thiết kế UX cho use case chưa tồn tại).
 
@@ -84,7 +84,7 @@ Package 0.3-B:    Unauthorized
 Package 0.3-C:    Unauthorized
 ```
 
-## Package 0.3-B — Use Case & Workflow (narrow delta correction applied)
+## Package 0.3-B — Use Case & Workflow `Consolidated Stable`
 
 **Phạm vi (scope tối thiểu, walking-skeleton):** dịch 34 requirement (`PR-001`–`PR-034`, Package 0.3-A `Consolidated Stable`) thành 21 Use Case cụ thể, testable, bounded (`UC-001`–`UC-021`) — 3 Research, 2 Replay, 5 Backtest, 5 Paper, 3 Review, 3 Improve — sở hữu user journey/use-case behavior/precondition/trigger/main flow/alternate flow/observable outcome/handoff cho sáu-giai-đoạn lifecycle. KHÔNG tạo product requirement mới — mọi Use Case truy vết `PR-XXX` đã tồn tại. Preserve nguyên vẹn Replay authority boundary (historical reconstruction vs parity recomputation, không `ReplayDecision`) và Backtest authority boundary (không tái sử dụng PAPER fact, không entity Backtest mới) từ `product-requirement.md` v0.2.
 
@@ -100,17 +100,56 @@ Package 0.3-C:    Unauthorized
 - ChatGPT Review A + Independent Review B (baseline v0.1): **hoàn tất** — hai Major + năm Minor finding (`P03B-MAJ-01`/`P03B-MAJ-02`/`P03B-MIN-01`–`P03B-MIN-05`) consolidated.
 - Bounded correction commit (v0.1 → v0.2), Product Owner authorized: **hoàn tất** — đóng toàn bộ bảy finding.
 - ChatGPT Delta Review A + Independent Delta Review B (trên v0.2): **hoàn tất** — một Minor finding delta (`P03B-DELTA-MIN-01`, UC-021 scope mismatch) consolidated.
-- Narrow delta correction commit (v0.2 → v0.3), Product Owner authorized: **hoàn tất** — đóng `P03B-DELTA-MIN-01`, xem chi tiết trên.
-- ChatGPT second Delta Review A + Independent second Delta Review B (trên v0.3): **chưa chạy** — báo cáo correction transaction này gửi đi làm điểm khởi đầu.
-- Consolidation: **chưa bắt đầu** — Package 0.3-B **CHƯA** đạt `Consolidated Stable`.
+- Narrow delta correction commit (v0.2 → v0.3), Product Owner authorized: **hoàn tất** — đóng `P03B-DELTA-MIN-01`.
+- ChatGPT second Delta Review A (trên v0.3): **Clean** — 0 blocking finding.
+- Independent second Delta Review B (trên v0.3): **Clean** — 0 blocking finding.
+- Consolidation: **hoàn tất (transaction này)** — Product Owner authorized: "Package 0.3-B — Use Case & Workflow: Consolidated Stable". **Package 0.3-B nay `Consolidated Stable`.**
 
-**Không tuyên bố hoàn thành hay approval nào (mục 0.3-B):** `use-case-workflow.md` `status: Draft`, `version: "0.3"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng `OQ-002`/`OQ-003`; không authorize Live; không sửa `product-requirement.md`/Domain Contract/ADR/Constitution/architecture nào; Package 0.3-A vẫn `Consolidated Stable`, không đổi; Package 0.3-C vẫn `Unauthorized`.
+**Kết luận consolidation:** ChatGPT second Delta Review A (Clean) và Independent second Delta Review B (Clean) trên `use-case-workflow.md` v0.3, **0 finding còn lại chưa xử lý** (finding ledger đầy đủ — hai Major + năm Minor qua bounded correction v0.1→v0.2, một Minor qua narrow delta correction v0.2→v0.3, tại mục baseline dưới đây). Product Owner authorized: "Package 0.3-B — Use Case & Workflow: Consolidated Stable".
+
+## `Consolidated Stable` baseline — Package 0.3-B
+
+**Exact reviewed artifact baseline (pinned):**
+
+```text
+use-case-workflow.md   v0.3   Draft   blob affbb723b577cde4c8627dd689550e3bfbffb5d1
+product/README.md      v0.6   Draft   blob 9e69e5fa98afda60592c376fe1a341007d267c0b (pre-consolidation)
+consolidated baseline HEAD:  73b100f9854864f53bc7c4f86261db9c2aab8e0c
+```
+
+**Finding ledger — tất cả resolved qua bounded correction (v0.1 → v0.2) và narrow delta correction (v0.2 → v0.3):**
+
+```text
+P03B-MAJ-01        — Resolved (Backtest→Paper handoff + UC-011 — PAPER-context authoritative Decision
+                      lineage riêng biệt bắt buộc, Backtest/Research Decision không carry-forward)
+P03B-MAJ-02        — Resolved (UC-020 tách bạch Backtest comparison non-PAPER authority khỏi PAPER
+                      comparison authoritative, cross-mode chỉ juxtaposition)
+P03B-MIN-01        — Resolved (UC-011 reframe "Initiate PAPER execution")
+P03B-MIN-02        — Resolved (UC-021 bounded alternate/failure khi evidence không khả dụng)
+P03B-MIN-03        — Resolved (UC-007 bỏ ngôn ngữ deletion lifecycle)
+P03B-MIN-04        — Resolved (UC-020 khôi phục traceability PR-031/PR-032)
+P03B-MIN-05        — Resolved (UC-003 observable outcome PASSED/FAILED/INDETERMINATE)
+P03B-DELTA-MIN-01  — Resolved (UC-021 viết lại đầy đủ, resolve độc lập cả Backtest VÀ PAPER evidence
+                      family cho old-version evidence, UC-020 cập nhật tương ứng)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+**`Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval status**, đúng định nghĩa đã khóa cho mọi package trước đó: authoring + bounded correction + narrow delta correction hoàn tất cho phạm vi 0.3-B; ChatGPT second Delta Review A hoàn tất (Clean); Independent second Delta Review B hoàn tất (Clean); mọi qualifying finding đã xử lý; artifact đã review được pin chính xác; package đủ ổn định để Package 0.3-C (UX Blueprint) bắt đầu planning — **không** ngụ ý Product Owner Approval cho `use-case-workflow.md`, **không** ngụ ý Lock, **không** authorize Package 0.3-C tự động, **không** đóng OQ-002/OQ-003, **không** authorize Live, **không** tuyên bố Phase 0.3 hoàn thành. `use-case-workflow.md` **vẫn giữ `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte không đổi** — artifact lifecycle và package lifecycle là hai trục tách biệt.
+
+**Package lifecycle states (pinned tại transaction này):**
+
+```text
+Package 0.3-A:    Consolidated Stable
+Package 0.3-B:    Consolidated Stable
+Package 0.3-C:    Unauthorized
+```
 
 ## Ngoài phạm vi Phase 0.3 — defer
 
-- Package 0.3-C (UX Blueprint) — dependency (0.3-B `Consolidated Stable`) CHƯA thỏa (0.3-B mới ở authoring baseline) — **CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.**
+- Package 0.3-C (UX Blueprint) — dependency (0.3-B `Consolidated Stable`) ĐÃ thỏa — **CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này** — cần Product Owner scope authorization riêng.
 - Phase 0 DoD, Phase 0 Approval Gate work (thuộc [Chapter 12](../constitution/12-approval-gates.md), một transaction riêng, lớn hơn, sau khi 0.3-A/B/C đều `Consolidated Stable`).
 - Phase 1 System/UX Architecture, API/Database/Engine design (`/docs/architecture/`, chưa bắt đầu).
 - Concrete Product Metrics (`OQ-003`), Strategy Lifecycle Live-gate (`OQ-002`).
 
-**Package 0.2-A/B/C vẫn `Consolidated Stable`, byte-for-byte không đổi. Package 0.3-A vẫn `Consolidated Stable`, byte-for-byte không đổi.** Package 0.3-B: authoring baseline, chưa `Consolidated Stable`. Package 0.3-C vẫn `Unauthorized`. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.3 là sub-phase đang active; Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+**Package 0.2-A/B/C vẫn `Consolidated Stable`, byte-for-byte không đổi. Package 0.3-A/0.3-B vẫn `Consolidated Stable`, byte-for-byte không đổi.** Package 0.3-C vẫn `Unauthorized`. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.3 là sub-phase đang active; Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.

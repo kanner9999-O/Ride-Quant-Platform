@@ -2,6 +2,120 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-02 — consolidate Package 0.3-B
+
+**Package 0.3-B Use Case & Workflow consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.3-B — Use Case & Workflow: Consolidated Stable" (2026-08-02). Authorization này cho phép ghi Package 0.3-B vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `use-case-workflow.md`, không đổi status khỏi Draft, không populate `approved_by`/`approved_at`, không authorize Package 0.3-C, không tuyên bố Phase 0.3 hoàn thành, không đóng OQ-002/OQ-003, không authorize Live, không sửa product semantics/Domain Contract/ADR/Constitution/architecture nào.
+
+### Baseline verification
+
+```text
+Expected HEAD:  73b100f9854864f53bc7c4f86261db9c2aab8e0c
+Actual HEAD:    73b100f9854864f53bc7c4f86261db9c2aab8e0c  — match
+
+use-case-workflow.md:  v0.3 Draft, blob affbb723b577cde4c8627dd689550e3bfbffb5d1  — match
+```
+
+### Product Owner authorization recorded
+
+```text
+Package 0.3-B — Use Case & Workflow:
+  Consolidated Stable
+```
+
+Meaning: the exact reviewed 0.3-B baseline is stable enough to serve as the dependency baseline for Package 0.3-C (UX Blueprint). It does not mean the artifact is Approved or Locked.
+
+### Exact reviewed baseline pinned
+
+```text
+Consolidated baseline HEAD:  73b100f9854864f53bc7c4f86261db9c2aab8e0c
+
+use-case-workflow.md:  v0.3 Draft, blob affbb723b577cde4c8627dd689550e3bfbffb5d1
+```
+
+### Review evidence
+
+```text
+ChatGPT second Delta Review A:        Clean — Blocker 0, Major 0, Minor 0
+Independent second Delta Review B:    Clean — Blocker 0, Major 0, Minor 0
+```
+
+### Complete finding ledger — all resolved (v0.1 → v0.2 bounded correction, v0.2 → v0.3 narrow delta correction)
+
+```text
+P03B-MAJ-01:        Resolved (Backtest→Paper handoff + UC-011 — distinct PAPER-context Decision lineage)
+P03B-MAJ-02:        Resolved (UC-020 separates Backtest non-PAPER authority from PAPER authoritative)
+P03B-MIN-01:        Resolved (UC-011 reframed "Initiate PAPER execution")
+P03B-MIN-02:        Resolved (UC-021 bounded alternate/failure for unavailable evidence)
+P03B-MIN-03:        Resolved (UC-007 removed deletion-lifecycle language)
+P03B-MIN-04:        Resolved (UC-020 restored PR-031/PR-032 traceability)
+P03B-MIN-05:        Resolved (UC-003 observable PASSED/FAILED/INDETERMINATE outcomes)
+P03B-DELTA-MIN-01:  Resolved (UC-021 rewritten to independently resolve both Backtest and PAPER
+                     old-version evidence families; UC-020 updated to match)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0, Suggestion 0.
+
+### Package lifecycle meaning
+
+`Consolidated Stable` là package lifecycle/readiness state — nghĩa là: reviewed package baseline nội bộ coherent qua ba vòng correction; mọi qualifying finding đã resolved; package đủ ổn định để làm dependency baseline cho Package 0.3-C. Nó KHÔNG có nghĩa: artifact Approved; artifact Locked; status đổi khỏi Draft; Package 0.3-C tự động authorize; OQ closure; Phase 0.3 completion; Live authorization.
+
+### Confirmation — `use-case-workflow.md` byte-identical
+
+```text
+docs/product/use-case-workflow.md   blob affbb723b577cde4c8627dd689550e3bfbffb5d1 — verified byte-identical to reviewed baseline
+```
+
+### Confirmation — Product Requirement/Domain Contract/ADR/Constitution/architecture unchanged
+
+```text
+docs/product/product-requirement.md   KHÔNG ĐỔI — verified via git diff --stat, empty
+docs/domain/                           KHÔNG ĐỔI — verified via git diff --stat, empty
+docs/adr/                              KHÔNG ĐỔI — verified via git diff --stat, empty
+docs/constitution/                     KHÔNG ĐỔI — verified via git diff --stat, empty
+docs/architecture/                     KHÔNG ĐỔI — verified via git diff --stat, empty
+```
+
+### Unchanged artifact statuses
+
+`use-case-workflow.md`: **giữ nguyên** `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte — không sửa product semantic trong transaction này.
+
+### Package lifecycle states pinned
+
+```text
+Package 0.3-A:    Consolidated Stable
+Package 0.3-B:    Consolidated Stable
+Package 0.3-C:    Unauthorized
+```
+
+### Artifact lifecycle states pinned
+
+```text
+use-case-workflow.md:  Draft, version "0.3", approved_by: null, approved_at: null, not Locked
+```
+
+### Changed-file scope
+
+```text
+docs/product/README.md               MODIFIED v0.6 → v0.7   blob 1b82af211f7bdd2df6142a030229a5efe16be769
+docs/MANIFEST.md                     MODIFIED manifest_version 9.85 → 9.86
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/use-case-workflow.md    KHÔNG ĐỔI — blob affbb723b577cde4c8627dd689550e3bfbffb5d1, verified byte-identical
+docs/product/product-requirement.md  KHÔNG ĐỔI
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Metadata / state
+
+- `use-case-workflow.md`: **không đổi** (semantic và version) — package lifecycle metadata only.
+- `product/README.md`: **v0.6 → v0.7**, `status` giữ `Draft`.
+- `MANIFEST.md`: `manifest_version` **9.85 → 9.86**; dòng `product/` cập nhật ghi nhận Package 0.3-B `Consolidated Stable`.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-C baseline dependency đã thỏa (0.3-B `Consolidated Stable`), eligible cho Product Owner scope authorization — CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.** OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.3 vẫn active. Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-08-02 — complete old-version evidence workflow
 
 **Package 0.3-B narrow delta correction — one consolidated finding.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.3-B narrow delta correction — P03B-DELTA-MIN-01." Đóng đúng một finding Minor. Authorization này **không** cho phép thêm/renumber Use Case, sửa Product Requirement/Domain Contract/Constitution/ADR, tạo unified Backtest/PAPER evidence entity/schema, tạo old-version evidence aggregate, tạo `BacktestOrder`/`BacktestExecutionResult`/`BacktestFill`/`BacktestPosition`, coi Backtest output là PAPER authority, redefine PAPER C7 entities/transitions, định nghĩa retention/archive/retrieval/restoration/storage architecture, định nghĩa evidence availability SLA, định nghĩa API/database/backend/frontend/infrastructure, author Package 0.3-C screens/components, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.
