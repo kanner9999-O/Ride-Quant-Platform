@@ -2,7 +2,7 @@
 id: product-index
 title: Product Requirement & UX Index
 status: Draft
-version: "0.3"
+version: "0.4"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -27,7 +27,7 @@ Toàn bộ artifact tại đây PHẢI dùng lại nguyên vẹn vocabulary đã
 | Package | Nội dung | Trạng thái |
 |---|---|---|
 | **0.3-A — Product Requirement** | [`product-requirement.md`](./product-requirement.md) v0.2 Draft — 34 requirement (`PR-001`–`PR-034`), truy vết Vision/Platform Invariant/Domain Contract | Draft — **`Consolidated Stable`** (xem dưới) |
-| **0.3-B — Use Case & Workflow** | chưa author — phụ thuộc 0.3-A `Consolidated Stable` (đã thỏa) | Chưa bắt đầu, **Unauthorized** |
+| **0.3-B — Use Case & Workflow** | [`use-case-workflow.md`](./use-case-workflow.md) v0.1 Draft — 21 Use Case (`UC-001`–`UC-021`), truy vết `PR-001`–`PR-034` | Draft — **Authoring baseline, chưa `Consolidated Stable`** — chờ ChatGPT Review A + Independent Review B |
 | **0.3-C — UX Blueprint** | chưa author — phụ thuộc 0.3-B `Consolidated Stable` | Chưa bắt đầu, **Unauthorized** |
 
 **Thứ tự authoring bắt buộc:** 0.3-A → 0.3-B → 0.3-C, tuần tự — mỗi package phụ thuộc trực tiếp package trước (đúng [Chapter 4 §4.5](../constitution/04-domain-principles.md) và dependency logic: không thể viết use case cho requirement chưa tồn tại, không thể thiết kế UX cho use case chưa tồn tại).
@@ -84,11 +84,26 @@ Package 0.3-B:    Unauthorized
 Package 0.3-C:    Unauthorized
 ```
 
+## Package 0.3-B — Use Case & Workflow (authoring baseline)
+
+**Phạm vi (scope tối thiểu, walking-skeleton):** dịch 34 requirement (`PR-001`–`PR-034`, Package 0.3-A `Consolidated Stable`) thành 21 Use Case cụ thể, testable, bounded (`UC-001`–`UC-021`) — 3 Research, 2 Replay, 5 Backtest, 5 Paper, 3 Review, 3 Improve — sở hữu user journey/use-case behavior/precondition/trigger/main flow/alternate flow/observable outcome/handoff cho sáu-giai-đoạn lifecycle. KHÔNG tạo product requirement mới — mọi Use Case truy vết `PR-XXX` đã tồn tại. Preserve nguyên vẹn Replay authority boundary (historical reconstruction vs parity recomputation, không `ReplayDecision`) và Backtest authority boundary (không tái sử dụng PAPER fact, không entity Backtest mới) từ `product-requirement.md` v0.2.
+
+**KHÔNG author:** screen layout/wireframe/component hierarchy (Package 0.3-C, chưa author); Domain Contract semantic/state machine mới; Backtest/Replay domain fact mới; API/database/backend/frontend/infrastructure architecture; security/custody/deployment; Product Metric threshold (`OQ-003`); Live-gate criteria (`OQ-002`); mở rộng multi-tenant/đa tài sản.
+
+**Trạng thái review:**
+
+- Author self-review (authoring, v0.1): **hoàn tất.**
+- ChatGPT Review A: **chưa chạy** — baseline này gửi đi làm điểm khởi đầu.
+- Independent Review B: **chưa chạy.**
+- Consolidation: **chưa bắt đầu** — Package 0.3-B **CHƯA** đạt `Consolidated Stable`.
+
+**Không tuyên bố hoàn thành hay approval nào (mục 0.3-B):** `use-case-workflow.md` `status: Draft`, `version: "0.1"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng `OQ-002`/`OQ-003`; không authorize Live; không sửa `product-requirement.md`/Domain Contract/ADR/Constitution/architecture nào; Package 0.3-A vẫn `Consolidated Stable`, không đổi; Package 0.3-C vẫn `Unauthorized`.
+
 ## Ngoài phạm vi Phase 0.3 — defer
 
-- Package 0.3-B (Use Case & Workflow) — dependency đã thỏa (0.3-A `Consolidated Stable`), nhưng **CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này** — cần Product Owner scope authorization riêng, tương tự cơ chế đã áp dụng cho mọi package Phase 0.2.
+- Package 0.3-C (UX Blueprint) — dependency (0.3-B `Consolidated Stable`) CHƯA thỏa (0.3-B mới ở authoring baseline) — **CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này.**
 - Phase 0 DoD, Phase 0 Approval Gate work (thuộc [Chapter 12](../constitution/12-approval-gates.md), một transaction riêng, lớn hơn, sau khi 0.3-A/B/C đều `Consolidated Stable`).
 - Phase 1 System/UX Architecture, API/Database/Engine design (`/docs/architecture/`, chưa bắt đầu).
 - Concrete Product Metrics (`OQ-003`), Strategy Lifecycle Live-gate (`OQ-002`).
 
-**Package 0.2-A/B/C vẫn `Consolidated Stable`, byte-for-byte không đổi.** Package 0.3-B/0.3-C vẫn `Unauthorized`. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.3 là sub-phase đang active; Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+**Package 0.2-A/B/C vẫn `Consolidated Stable`, byte-for-byte không đổi. Package 0.3-A vẫn `Consolidated Stable`, byte-for-byte không đổi.** Package 0.3-B: authoring baseline, chưa `Consolidated Stable`. Package 0.3-C vẫn `Unauthorized`. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.3 là sub-phase đang active; Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.

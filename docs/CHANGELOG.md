@@ -2,6 +2,96 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-02 — author Package 0.3-B use-case workflow baseline
+
+**Package 0.3-B — Use Case & Workflow v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Authorized artifacts: `docs/product/use-case-workflow.md` (new, v0.1 Draft), `docs/product/README.md` (updated). Authorization này **không** cho phép tạo/sửa product requirement, sửa Package 0.3-A (`product-requirement.md`), author Package 0.3-C screen flows/layouts/wireframes, tạo Domain Contract mới, redefine Domain Contract states/transitions, invent Backtest/Replay domain facts, tái sử dụng PAPER fact làm Backtest authority, định nghĩa UX component/API/database/backend/frontend/infrastructure/security/custody/deployment architecture, định nghĩa Product Metric threshold, định nghĩa Live-gate criteria, mở rộng multi-tenant/multi-asset scope, Approve/Lock bất kỳ artifact nào, hay mark Package 0.3-B Consolidated Stable.
+
+### Baseline and upstream-blob verification
+
+```text
+Expected HEAD:  08bbc397dafa5f34ea7dec89dbb17a297f7c7502
+Actual HEAD:    08bbc397dafa5f34ea7dec89dbb17a297f7c7502  — match
+
+product-requirement.md:  v0.2 Draft, blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8  — match
+Package 0.3-A: Consolidated Stable — match
+```
+
+### Controlling sources
+
+`product-requirement.md` v0.2 Draft (Package 0.3-A, `Consolidated Stable`, 34 requirements `PR-001`–`PR-034`) — sole authoritative source for all workflow behavior; no Domain Contract, Constitution chapter, or ADR consulted beyond what `product-requirement.md` already cites (vocabulary reused verbatim, not re-derived).
+
+### Document structure
+
+13 mandatory sections present: (1) purpose/authority boundary, (2) actors/operating context, (3) workflow-wide invariants, (4) primary end-to-end journey, (5) Use Case catalogue, (6) detailed Use Cases, (7) cross-stage handoffs, (8) failure/non-evaluable paths, (9) evidence/traceability requirements (four sub-mappings), (10) deferred questions, (11) Non-Goals/Out-of-Scope, (12) acceptance criteria Package 0.3-B, (13) handoff requirements Package 0.3-C.
+
+### Use Case count and ID range
+
+21 Use Cases, `UC-001`–`UC-021`, unique and sequential — 3 Research, 2 Replay, 5 Backtest, 5 Paper, 3 Review, 3 Improve, covering every bullet in the task's minimum coverage list.
+
+### Primary journey summary
+
+Research (select Strategy Instance, inspect market state, no side-effect) → Replay (canonical cursor, historical reconstruction, optional parity recomputation) → Backtest (bounded run, Decision/RiskEvaluation trace, simulated economic evidence/exposure progression, strategy-level evaluable result, cross-run comparison) → Paper (full C7 chain to ExecutionResult/Fill/Position, PAPER-only) → Review (causation trace, reconstructed-vs-recorded comparison, correction inspection) → Improve (new Strategy Definition Version, cross-version comparison, old-version evidence preserved) → loops back to Research.
+
+### PR traceability approach
+
+Every Use Case's "PR traceability" field cites one or more existing `PR-XXX`; §9a/§9b provide a full Use Case→PR and Stage→PR mapping; no new product requirement created; every workflow step in every Main flow is grounded in an already-`Consolidated Stable` requirement.
+
+### Domain vocabulary mapping approach
+
+§9c maps every Use Case to the exact Domain Contract file(s) it consumes (candle.md…replay-event.md, strategy.md, account.md, instrument.md, venue.md) — vocabulary reused verbatim from `product-requirement.md`, no redefinition.
+
+### Replay authority handling
+
+UC-004/UC-005 and the inherited Replay authority boundary (product-requirement.md §9.2) preserved verbatim: historical reconstruction (default, no computation) distinct from parity recomputation (optional, non-authoritative, uses `canonical semantic-decision hash`); no duplicate Decision fact; no parallel Replay authority stream; no mutation of recorded Decisions; no `ReplayDecision` created or named.
+
+### Backtest authority handling
+
+UC-006–UC-010 and the inherited Backtest authority boundary (product-requirement.md §9.3) preserved verbatim: Backtest must not create or reuse PAPER Order/ExecutionResult/Fill/Position or Live facts as Backtest authority; no `BacktestOrder`/`BacktestFill`/`BacktestPosition`/`BacktestExecutionResult` invented; no simulation/fee/slippage/accounting/PnL model defined; steps lacking domain representation (UC-008/UC-009) explicitly labeled "product-required, domain-representation deferred."
+
+### Paper/C7 consistency
+
+UC-011–UC-015 use the exact chain: Decision → Trade Intent → RiskEvaluation → Execution Intent → Order → OrderSubmissionRequest → ExecutionResultComputation → PaperExecutionObservation → ExecutionResult → Fill → Position. Fill economics sourced from PaperExecutionObservation (UC-013); Position derived from eligible Fill lineage with explicit NON_EVALUABLE disclosure (UC-014); Paper never places a real exchange order (UC-015).
+
+### Failure and non-evaluable handling
+
+§8 covers all 13 required scenarios (missing Strategy Instance, invalid Instrument/Venue, missing historical evidence, unavailable Replay cursor references, parity mismatch, insufficient Backtest evidence, RiskEvaluation REJECTED/NON_EVALUABLE, Order NOT_EXECUTED, Fill absent, Position NON_EVALUABLE, correction visible after historical cursor, attempted Live use). Where no controlling behavior exists in the PRD, applies exactly the four-line fallback (workflow stops / state remains observable / reason is disclosed / no downstream authoritative action) rather than inventing resolution semantics.
+
+### Deferred-domain dependencies
+
+§9d states explicitly: no Backtest or Research Domain Contract exists; UC-006–UC-010 (Backtest) and UC-001–UC-003 (Research) describe product-required behavior without assuming any such Domain Contract or entity exists.
+
+### Explicit scope exclusions
+
+Screen layout/wireframe/component hierarchy (deferred to Package 0.3-C); Domain Contract semantics/state machines; Backtest/Replay domain facts; PAPER-fact reuse as Backtest authority; API/database/backend/frontend/infrastructure/security/custody/deployment architecture; Product Metric thresholds; Live-gate criteria; multi-tenant/multi-asset expansion; new product requirements.
+
+### Author self-review
+
+Automated checks: 21 unique/sequential UC-IDs (`UC-001`–`UC-021`); all 21 blocks retain all 13 required fields (Title/Primary actor/Goal/Trigger/Preconditions/Inputs/Main flow/Alternate-or-failure/Observable outcome/Evidence produced-or-consumed/PR traceability/Domain vocabulary used/Out-of-scope boundary); all PR-XXX references resolve within the existing `PR-001`–`PR-034` range; forbidden Backtest entity names and `ReplayDecision` appear only inside prohibition/boundary text; bare "Decision hash" appears only inside the explicit prohibition sentence (WF-INV-5); zero vague terms outside citation; both YAML frontmatters re-validated via `yaml.safe_load`; `git diff --stat` confirms `product-requirement.md`, all Domain Contracts, ADRs, Constitution chapters, and architecture artifacts remain byte-identical.
+
+### Changed-file scope
+
+```text
+docs/product/use-case-workflow.md    MỚI    v0.1 Draft   blob e2a66f7aff521801fbd6f9e0dfed6f59cb517493
+docs/product/README.md               MODIFIED v0.3 → v0.4   blob 3b6f5e6d42ac27e8c8159bacfe20c015a601f6cd
+docs/MANIFEST.md                     MODIFIED manifest_version 9.82 → 9.83
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/product-requirement.md  KHÔNG ĐỔI — blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8, verified byte-identical
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Metadata / state
+
+- `use-case-workflow.md`: **MỚI**, `version: "0.1"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+- `product-requirement.md`: **không đổi** — byte-for-byte, `Consolidated Stable` package state unchanged.
+- `product/README.md`: **v0.3 → v0.4**.
+- `MANIFEST.md`: `manifest_version` **9.82 → 9.83**.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-B CHƯA đạt `Consolidated Stable` — chờ ChatGPT Review A + Independent Review B trên cùng exact baseline này.** Mandatory sequence: Author baseline → ChatGPT Review A → Independent Review B (cùng exact baseline) → merge finding → correction commit nếu cần → delta review → Product Owner consolidation decision. Package 0.3-C **chưa author, chưa authorize** — phụ thuộc 0.3-B `Consolidated Stable` (chưa thỏa). Package 0.2-A/B/C và 0.3-A vẫn `Consolidated Stable`, không đổi. `OQ-002`/`OQ-003` vẫn `Open`. Không authorize Live. Không artifact nào Approved/Locked. Phase 0.3 vẫn active — Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-08-01 — consolidate Package 0.3-A
 
 **Package 0.3-A Product Requirement consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.3-A — Product Requirement: Consolidated Stable" (2026-08-01). Authorization này cho phép ghi Package 0.3-A vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `product-requirement.md`, không đổi status khỏi Draft, không populate `approved_by`/`approved_at`, không authorize Package 0.3-B, không tuyên bố Phase 0.3 hoàn thành, không đóng OQ-002/OQ-003, không authorize Live, không sửa product semantics/Domain Contract/ADR/Constitution/architecture nào.
