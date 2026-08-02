@@ -2,7 +2,7 @@
 id: product-index
 title: Product Requirement & UX Index
 status: Draft
-version: "0.7"
+version: "0.8"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -28,7 +28,7 @@ Toàn bộ artifact tại đây PHẢI dùng lại nguyên vẹn vocabulary đã
 |---|---|---|
 | **0.3-A — Product Requirement** | [`product-requirement.md`](./product-requirement.md) v0.2 Draft — 34 requirement (`PR-001`–`PR-034`), truy vết Vision/Platform Invariant/Domain Contract | Draft — **`Consolidated Stable`** (xem dưới) |
 | **0.3-B — Use Case & Workflow** | [`use-case-workflow.md`](./use-case-workflow.md) v0.3 Draft — 21 Use Case (`UC-001`–`UC-021`), truy vết `PR-001`–`PR-034` | Draft — **`Consolidated Stable`** (xem dưới) |
-| **0.3-C — UX Blueprint** | chưa author — phụ thuộc 0.3-B `Consolidated Stable` (đã thỏa) | Chưa bắt đầu, **Unauthorized** |
+| **0.3-C — UX Blueprint** | [`ux-blueprint.md`](./ux-blueprint.md) v0.1 Draft — 16 screen/view (`SCR-001`–`SCR-011`, `VIEW-001`–`VIEW-005`), truy vết `UC-001`–`UC-021`/`PR-001`–`PR-034` | Draft — **Authoring baseline, chưa `Consolidated Stable`** — chờ ChatGPT Review A + Independent Review B |
 
 **Thứ tự authoring bắt buộc:** 0.3-A → 0.3-B → 0.3-C, tuần tự — mỗi package phụ thuộc trực tiếp package trước (đúng [Chapter 4 §4.5](../constitution/04-domain-principles.md) và dependency logic: không thể viết use case cho requirement chưa tồn tại, không thể thiết kế UX cho use case chưa tồn tại).
 
@@ -145,11 +145,27 @@ Package 0.3-B:    Consolidated Stable
 Package 0.3-C:    Unauthorized
 ```
 
+## Package 0.3-C — UX Blueprint (authoring baseline)
+
+**Phạm vi (scope tối thiểu, walking-skeleton):** dịch 21 Use Case (`UC-001`–`UC-021`, Package 0.3-B `Consolidated Stable`) thành 16 screen/view (11 `SCR`, 5 `VIEW`), 1 workspace shell (`WS-001`), 6 navigation destination (`NAV-001`–`NAV-006`), 6 interaction flow (`FLOW-001`–`FLOW-006`), 27 presentation state (`STATE-001`–`STATE-027`) — bao trùm đầy đủ sáu-giai-đoạn lifecycle. KHÔNG tạo product requirement/use case mới — mọi UX element truy vết `UC-XXX` VÀ `PR-XXX` đã tồn tại. Đủ chi tiết cho Figma-level prototype VÀ Phase 1 architecture, KHÔNG pixel/branding/component code/API/database.
+
+**Preserve nguyên vẹn:** Replay authority (historical reconstruction mặc định vs parity recomputation tuỳ chọn, `canonical semantic-decision hash`, không `ReplayDecision`); Backtest authority (non-PAPER simulated, không tái sử dụng PAPER fact, không entity Backtest mới); Paper user/system authority (user initiate intent, system sở hữu Trade Intent→...→Position); cross-mode comparison tách biệt (không unified outcome); Research verification tri-state (PASSED/FAILED/INDETERMINATE); old-version evidence hai họ độc lập — tất cả từ `use-case-workflow.md` v0.3.
+
+**KHÔNG author:** pixel dimension/visual branding/exact color/font/production component code/CSS/frontend framework; API contract/database query/backend service/event transport/deployment topology; security/custody/deployment; retention/archive/storage architecture; multi-tenant administration/organization switching/public profile/community/signal marketplace/multi-asset UX/Live execution UX; Domain Contract state/authority/cardinality/transition mới; Backtest/Replay/Research domain fact mới; unified Backtest/PAPER outcome model; automatic normalization/scoring/ranking; product requirement hay Use Case mới.
+
+**Trạng thái review:**
+
+- Author self-review (authoring, v0.1): **hoàn tất.**
+- ChatGPT Review A: **chưa chạy** — baseline này gửi đi làm điểm khởi đầu.
+- Independent Review B: **chưa chạy.**
+- Consolidation: **chưa bắt đầu** — Package 0.3-C **CHƯA** đạt `Consolidated Stable`.
+
+**Không tuyên bố hoàn thành hay approval nào (mục 0.3-C):** `ux-blueprint.md` `status: Draft`, `version: "0.1"`, `approved_by: null`, `approved_at: null`; không Product Owner Approve; không Lock; không Consolidate; không đóng `OQ-002`/`OQ-003`; không authorize Live; không sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/ADR/Constitution/architecture nào; Package 0.3-A/0.3-B vẫn `Consolidated Stable`, không đổi.
+
 ## Ngoài phạm vi Phase 0.3 — defer
 
-- Package 0.3-C (UX Blueprint) — dependency (0.3-B `Consolidated Stable`) ĐÃ thỏa — **CHƯA bắt đầu, CHƯA author, KHÔNG được authorize bởi transaction này** — cần Product Owner scope authorization riêng.
 - Phase 0 DoD, Phase 0 Approval Gate work (thuộc [Chapter 12](../constitution/12-approval-gates.md), một transaction riêng, lớn hơn, sau khi 0.3-A/B/C đều `Consolidated Stable`).
-- Phase 1 System/UX Architecture, API/Database/Engine design (`/docs/architecture/`, chưa bắt đầu).
+- Phase 1 System/UX Architecture, API/Database/Engine design (`/docs/architecture/`, chưa bắt đầu) — `ux-blueprint.md` §18 pin handoff requirement cho Phase 1, KHÔNG tự author architecture.
 - Concrete Product Metrics (`OQ-003`), Strategy Lifecycle Live-gate (`OQ-002`).
 
-**Package 0.2-A/B/C vẫn `Consolidated Stable`, byte-for-byte không đổi. Package 0.3-A/0.3-B vẫn `Consolidated Stable`, byte-for-byte không đổi.** Package 0.3-C vẫn `Unauthorized`. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.3 là sub-phase đang active; Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+**Package 0.2-A/B/C vẫn `Consolidated Stable`, byte-for-byte không đổi. Package 0.3-A/0.3-B vẫn `Consolidated Stable`, byte-for-byte không đổi.** Package 0.3-C: authoring baseline, chưa `Consolidated Stable`. OQ-002/OQ-003 vẫn `Open`. Không authorize Live ở bất kỳ hình thức nào. Phase 0.3 là sub-phase đang active; Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.

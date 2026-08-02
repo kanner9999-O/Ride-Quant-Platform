@@ -2,6 +2,125 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-02 — author Package 0.3-C UX Blueprint baseline
+
+**Package 0.3-C — UX Blueprint v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Authorized artifacts: `docs/product/ux-blueprint.md` (new, v0.1 Draft), `docs/product/README.md` (updated). Authorization này **không** cho phép tạo `PR-XXX`/`UC-XXX` mới, sửa Package 0.3-A/0.3-B, redefine Domain Contract states/authority/cardinality/transitions, invent Backtest/Replay/Research domain entities/events, invent PAPER Decision establishment semantics, create unified Backtest/PAPER outcome model, define automatic normalization/scoring/ranking, define production API/database/software/security/custody/deployment architecture, define retention/archive/storage architecture, define visual branding/pixel styling, author implementation code, close OQ-002/OQ-003, authorize Live, Approve/Lock any artifact, mark Package 0.3-C Consolidated Stable, or declare Phase 0.3/Phase 0/Phase 1 complete or authorized.
+
+### Baseline and upstream-blob verification
+
+```text
+Expected HEAD:  97f85dcdc5366060fdbc2e8b8bfda79482bbcb5d
+Actual HEAD:    97f85dcdc5366060fdbc2e8b8bfda79482bbcb5d  — match
+
+product-requirement.md:  v0.2 Draft, blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8  — match, Consolidated Stable
+use-case-workflow.md:    v0.3 Draft, blob affbb723b577cde4c8627dd689550e3bfbffb5d1  — match, Consolidated Stable
+```
+
+### Controlling sources
+
+`product-requirement.md` v0.2 (Package 0.3-A, `Consolidated Stable`, 34 requirements `PR-001`–`PR-034`) and `use-case-workflow.md` v0.3 (Package 0.3-B, `Consolidated Stable`, 21 Use Cases `UC-001`–`UC-021`) — sole authoritative sources; no Domain Contract, Constitution, or ADR consulted beyond what these two already cite.
+
+### Document structure
+
+18 mandatory sections present: (1) purpose/authority boundary, (2) actor/operating context, (3) UX principles/invariants, (4) information architecture, (5) global workspace/navigation model, (6) screen/view catalogue, (7) detailed screen/view specifications, (8) lifecycle stage flows, (9) cross-screen/cross-stage handoffs, (10) evidence/authority presentation model, (11) loading/empty/unavailable/blocked/failed/NON_EVALUABLE states, (12) historical cursor/correction UX, (13) strategy-version comparison UX, (14) traceability matrices, (15) deferred dependencies/Open Questions, (16) Non-Goals/Out-of-Scope, (17) acceptance criteria, (18) Phase 1 handoff requirements.
+
+### Stable ID counts and ranges
+
+`WS-001` (1); `NAV-001`–`NAV-006` (6); `SCR-001`–`SCR-011` (11); `VIEW-001`–`VIEW-005` (5); `FLOW-001`–`FLOW-006` (6); `STATE-001`–`STATE-027` (27) — all unique, sequential, contiguous within namespace. 16 total screen/view artifacts (11 `SCR` + 5 `VIEW`) cover all 21 Use Cases with no excessive decorative IDs.
+
+### Screen/view catalogue summary
+
+Research: SCR-001, VIEW-001, VIEW-002. Replay: SCR-002, VIEW-003. Backtest: SCR-003, SCR-004, SCR-005. Paper: SCR-006, SCR-007. Review: SCR-008, SCR-009, VIEW-004. Improve: SCR-010, SCR-011, VIEW-005.
+
+### Coverage of UC-001–UC-021
+
+Confirmed via §14a/§14c traceability matrices — every UC maps to exactly one primary UX artifact; UCs sharing a screen (SCR-004: UC-007/008/009; SCR-007: UC-012–015) each retain materially visible, separately described behavior within that screen's specification.
+
+### Information architecture
+
+Single workspace shell (WS-001) containing a global context bar (Account/Instrument-Venue/Strategy Instance/historical cursor) plus six lifecycle-stage navigation destinations (NAV-001–006), each containing its stage's screens/views — directly mirrors the six-stage lifecycle already Consolidated Stable, no additional stage introduced.
+
+### Navigation/workspace model
+
+Global navigation, current Account context (read-only, no switching UI), Instrument/Venue context, Strategy Instance context (pinned read-only per WF-INV-3/UX-INV-3), lifecycle-stage navigation, evidence/authority labels, historical cursor context, blocked/unavailable-state presentation — all defined at §5, matching the task's required minimum global workspace model exactly.
+
+### Lifecycle-flow summary
+
+Six FLOW artifacts: FLOW-001 (primary end-to-end journey), FLOW-002 (Strategy Instance selection/pin), FLOW-003 (Backtest→Paper handoff, judgment gate), FLOW-004 (Paper execution initiation, system-owned chain), FLOW-005 (old-version evidence access), FLOW-006 (Improve→Research loop-back).
+
+### Replay authority UX
+
+SCR-002 (historical reconstruction, default, authoritative recorded facts, no new Decision created) and VIEW-003 (parity recomputation, optional, deterministic, non-authoritative, canonical semantic-decision hash) kept visibly distinct throughout §7.2/§10; no `ReplayDecision`, no "Save recomputed Decision as authoritative"/"Replace recorded Decision"/"Promote parity result" action designed.
+
+### Backtest authority UX
+
+SCR-003/004/005 and VIEW-005's Backtest family visibly label mode=Backtest, authority=non-PAPER simulated, representation=product-required/domain-representation-deferred-where-applicable throughout; Backtest material never displayed as authoritative PAPER ExecutionResult/Fill/Position/submitted Order/exchange execution; no `BacktestOrder`/`BacktestFill`/`BacktestPosition`/`BacktestExecutionResult` invented.
+
+### Paper user/system authority UX
+
+SCR-006 frames the user action as "initiate/request PAPER execution" (intent only, no quantity/sizing/order-type/fee/slippage input); the full system-owned chain (PAPER-context Decision → Trade Intent → RiskEvaluation → Execution Intent → Order → OrderSubmissionRequest → ExecutionResultComputation → PaperExecutionObservation → ExecutionResult → Fill → Position) is explicitly system-owned; Risk APPROVED/REJECTED/NON_EVALUABLE outcomes represented per the required behavior.
+
+### Cross-mode comparison UX
+
+SCR-011 supports Backtest-vs-Backtest, PAPER-vs-PAPER, and cross-mode side-by-side (UC-020) with mode/authority/evidence-type/Strategy-Instance-identity/Strategy-Definition-Version-identity labels retained per evidence family; explicitly no unified outcome card, single normalized score, common execution result, authority-equivalent comparison, or automatic cross-mode ranking; OQ-003 remains Open.
+
+### Research verification UX
+
+VIEW-002 represents exactly three workflow-visible outcomes (PASSED/FAILED/INDETERMINATE, STATE-022/023/024); FAILED/INDETERMINATE never presented as successfully verified, reason and affected evidence disclosed, no downstream authoritative action; no `ResearchVerification` entity/event, no rollback/incident workflow invented.
+
+### Old-version evidence UX
+
+VIEW-005 resolves the Backtest family and PAPER family independently for an inactive Strategy Definition Version; identity always visible; partial unavailability marks only the affected family/type incomplete (STATE-026) without implying the entire history is unavailable; no retention/archival/retrieval/storage behavior defined.
+
+### Unavailable/NON_EVALUABLE state handling
+
+27 `STATE-XXX` entries (§11) cover every required minimum state including Position NON_EVALUABLE (STATE-021), Risk REJECTED/NON_EVALUABLE (STATE-013/014), and all Research/Backtest/PAPER/old-version unavailable states — all explicitly presentation-only (UX-INV-9), applying the four-principle fallback (workflow stops/state observable/reason disclosed/no downstream authoritative action) inherited from `use-case-workflow.md` §8.
+
+### Historical cursor/correction UX
+
+§12 represents canonical Replay Cursor, effective historical context, recorded-facts-available boundary, no-look-ahead boundary, and corrections-recorded-after-the-cursor distinctly; VIEW-004 always shows the original fact alongside any replacement fact with explicit `supersedes_fact_ref` lineage — never a silent replacement.
+
+### Traceability matrices
+
+§14 includes all seven required matrices: Workspace/Screen/View→UC, →PR, UC→Workspace/Screen/View, Lifecycle Stage→Screens/Views, State→UC/PR, Screen/View→Domain vocabulary, Deferred dependency→affected screens/views. Every `UC-001`–`UC-021` confirmed appearing in exactly one primary UX artifact.
+
+### Deferred dependencies
+
+§15 preserves, without solving: Backtest domain representation (deferred), Research domain representation (no standalone entity required), PAPER-context authoritative Decision establishment mechanism (deferred), OQ-002 (Open), OQ-003 (Open) — each with affected screens, what UX may display now, what UX must not invent, and what blocks later implementation.
+
+### Forbidden-scope verification
+
+No new `PR-XXX`/`UC-XXX` created; Package 0.3-A/0.3-B untouched (verified via `git diff --stat`); no Domain Contract state/authority/cardinality/transition redefined; no Backtest/Replay/Research domain entities invented; no unified Backtest/PAPER outcome model; no automatic normalization/scoring/ranking; no production API/database/software/security/custody/deployment architecture; no retention/archive/storage architecture; no visual branding/pixel styling/implementation code; OQ-002/OQ-003 not closed; Live not authorized; no artifact Approved/Locked; Package 0.3-C not marked Consolidated Stable; Phase 0.3/Phase 0/Phase 1 not declared complete or authorized.
+
+### Author self-review
+
+Automated checks: `WS`(1)/`NAV`(6)/`SCR`(11)/`VIEW`(5)/`FLOW`(6)/`STATE`(27) all unique and sequentially contiguous within namespace (caught and fixed one stray `SCR-015` reference in §11/§15 that had no corresponding screen definition — corrected to reference only defined IDs); all `UC-001`–`UC-021` referenced (21 distinct, full range); all `PR-XXX` references resolve within `PR-001`–`PR-034`; forbidden domain-entity names (`BacktestOrder`/`BacktestFill`/`BacktestPosition`/`BacktestExecutionResult`/`ReplayDecision`/`ResearchVerification`) confirmed appearing only inside prohibition/boundary text; no forbidden pixel/branding/API/database/CSS terms found outside prohibition context; YAML frontmatter re-validated via `yaml.safe_load`; `git diff --stat` confirms `product-requirement.md`, `use-case-workflow.md`, all Domain Contracts, ADRs, Constitution chapters, and architecture artifacts remain byte-identical.
+
+### Changed-file scope
+
+```text
+docs/product/ux-blueprint.md         MỚI    v0.1 Draft   blob ebe052c397a64b670791cc21c3f446050588e6f0
+docs/product/README.md               MODIFIED v0.7 → v0.8   blob 1d8861c58b09d5da0c18be567d5cc525644421c0
+docs/MANIFEST.md                     MODIFIED manifest_version 9.86 → 9.87
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/product-requirement.md  KHÔNG ĐỔI — blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8, verified byte-identical
+docs/product/use-case-workflow.md    KHÔNG ĐỔI — blob affbb723b577cde4c8627dd689550e3bfbffb5d1, verified byte-identical
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Metadata / state
+
+- `ux-blueprint.md`: **MỚI**, `version: "0.1"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+- `product-requirement.md`/`use-case-workflow.md`: **không đổi** — byte-for-byte, `Consolidated Stable` package states unchanged.
+- `product/README.md`: **v0.7 → v0.8**.
+- `MANIFEST.md`: `manifest_version` **9.86 → 9.87**.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-C CHƯA đạt `Consolidated Stable` — chờ ChatGPT Review A + Independent Review B trên cùng exact baseline này.** Mandatory sequence: Author baseline → ChatGPT Review A → Independent Review B (cùng exact baseline) → merge finding → correction commit nếu cần → delta review → Product Owner consolidation decision. Package 0.2-A/B/C và 0.3-A/0.3-B vẫn `Consolidated Stable`, không đổi. `OQ-002`/`OQ-003` vẫn `Open`. Không authorize Live. Không artifact nào Approved/Locked. Phase 0.3 vẫn active — Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-08-02 — consolidate Package 0.3-B
 
 **Package 0.3-B Use Case & Workflow consolidated as `Consolidated Stable`.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.3-B — Use Case & Workflow: Consolidated Stable" (2026-08-02). Authorization này cho phép ghi Package 0.3-B vào lifecycle state `Consolidated Stable` — nó KHÔNG cho phép Approve/Lock `use-case-workflow.md`, không đổi status khỏi Draft, không populate `approved_by`/`approved_at`, không authorize Package 0.3-C, không tuyên bố Phase 0.3 hoàn thành, không đóng OQ-002/OQ-003, không authorize Live, không sửa product semantics/Domain Contract/ADR/Constitution/architecture nào.
