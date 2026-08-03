@@ -2,6 +2,81 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — fix UC-007 causal-direction error (NOT yet accepted)
+
+**Final consolidated correction to Package 0.3-B — addresses `P03B-V05-B-MAJ-01` (frozen finding).** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single bounded correction.
+
+**This correction is NOT accepted and NOT claimed clean.** Per the Fast-Track bounded-delta-verification proposal, Review A and Independent Review B will verify only the scope below, on the same exact commit, in parallel, without correction occurring between the two reviews:
+
+```text
+Review A:  ChatGPT Review A (bounded scope)
+Review B:  Independent Review B (bounded scope)
+
+Bounded verification scope:
+  the UC-007 causal-direction correction
+  preservation of UC-011 and UC-016
+  direct regressions introduced by this correction
+
+Prohibited:  reopening the full Package 0.3-B review.
+
+Parent:        e612ec72e18b1c28ed3281d5f2164c60ce581c0d
+Reviewed HEAD: (this commit — see final HEAD in author report)
+```
+
+### P03B-V05-B-MAJ-01 — RiskEvaluation described as evidence used to create the Decision
+
+`use-case-workflow.md` v0.5 (`P03B-V04-A-MAJ-01` correction) rewrote `UC-007` Main flow to list Decision-creation evidence as "recorded input snapshot/reference, recorded causation reference, VÀ RiskEvaluation liên quan" — this conflates upstream evidence with downstream causation. Per domain vocabulary:
+
+```text
+decision.md §9:   Trade Intent only exists AFTER a Decision resolves to result = LONG/SHORT.
+risk.md §1:       RiskEvaluation is the authoritative record of Risk Gateway evaluating ONE
+                  Trade Intent — it evaluates a fact produced downstream of the Decision, it
+                  is never an input consumed to create the Decision.
+```
+
+RiskEvaluation is therefore always causally downstream of the Decision it traces back to — never evidence used to create it.
+
+Fixed — `UC-007` Main flow step 2 rewritten to separate three explicit groups (Observable outcome/Evidence consumed/PR traceability updated to match):
+
+```text
+A. Decision outcome:            LONG / SHORT / NO_ACTION (decision.md `result` enum).
+B. Upstream Decision origin/    Strategy Instance (exact), Strategy Definition Version/
+   explainability:              configuration context, recorded input snapshot/reference,
+                                 recorded evaluation/configuration evidence. RiskEvaluation
+                                 is explicitly NOT part of this group.
+C. Downstream lineage,          Trade Intent, RiskEvaluation, Execution Intent, related
+   when present:                downstream facts — explicitly stated as "causally derived
+                                 from or related to the Decision," not evidence used to
+                                 create it.
+```
+
+`§12` acceptance criterion 21 (the v0.5 record) corrected in place to remove the RiskEvaluation-as-upstream-evidence claim and use `NO_ACTION` (existing `decision.md` vocabulary); a new criterion 22 documents this v0.6 correction. `§9b` Backtest-stage annotation updated to note the causal-direction fix.
+
+### Preserved (unchanged)
+
+```text
+UC-011, UC-016, UC-008, UC-009 — byte-unchanged (verified via git diff — no hunk touches
+  any of their block headers or bodies).
+UC-001–UC-021 identity/count, six-stage workflow, Replay authority boundary, Backtest
+  non-PAPER authority boundary, PAPER authority boundary, PAPER-context Decision
+  separation, OQ-002 Open, OQ-003 Open, Live Unauthorized, Phase 1 Unauthorized.
+```
+
+### Exact changed-file scope
+
+```text
+docs/product/use-case-workflow.md   MODIFIED version 0.5 → 0.6
+                                     blob 88328cd9bf3b4606ee92922d2d9fe093b1c93cd9
+                                       → 8ce1a37ed733b6aa954476d2544a7cc3d1ec2add
+docs/MANIFEST.md                    MODIFIED manifest_version 10.00 → 10.01
+                                     (product/use-case-workflow.md row only)
+docs/CHANGELOG.md                   MODIFIED (this entry, prepended)
+```
+
+### Forbidden-scope verification
+
+KHÔNG Package 0.3-B full review reopened. KHÔNG `product-requirement.md`/`ux-blueprint.md`/Domain Contract/ADR/Constitution/architecture/team governance/`phase-0-dod.md` touched. KHÔNG governance proposal/ADR created or modified. KHÔNG new `PR-XXX`/`UC-XXX`/domain entity introduced. KHÔNG `UC-011`/`UC-016`/`UC-008`/`UC-009` content changed. KHÔNG artifact hay Package 0.3-B marked `Consolidated Stable` at this transaction — historical v0.3 (blob `affbb723b577cde4c8627dd689550e3bfbffb5d1`) remains the reviewed Consolidated Stable baseline. `status: Draft`, `approved_by: null`, `approved_at: null` unchanged. `OQ-002`/`OQ-003` remain `Open`. Live remains `Unauthorized`. Phase 0 not declared complete. Phase 1 remains `Unauthorized`.
+
 ## [Unreleased] — 2026-08-03 — complete PR-004/PR-005 UC behavior (NOT yet accepted)
 
 **Bounded semantic correction to Package 0.3-B — addresses `P03B-V04-A-MAJ-01`.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single bounded semantic correction.
