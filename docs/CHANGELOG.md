@@ -2,6 +2,62 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — restore PR-004/PR-005 UC lineage (F-03)
+
+**Package 0.3-B post-consolidation bounded correction — Phase 0 Exit Readiness Audit finding `F-03` (MAJOR).** Vai trò: `Product Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this correction as part of the frozen Phase 0 remediation finding set (F-01–F-08).
+
+### Gap identified
+
+`product-requirement.md` v0.2 defines `PR-004` (Xem Decision với outcome tường minh) và `PR-005` (Xem evidence trace đầy đủ cho một Decision) — nhưng trước v0.4, không Use Case nào tại `use-case-workflow.md` trích dẫn hai PR này, dù Package 0.3-C `ux-blueprint.md` v0.4 đã gán chúng vào `SCR-004`/`SCR-006`/`SCR-008`. PR→UC→UX lineage bị đứt tại tầng UC.
+
+### Inspection and resolution
+
+```text
+UC-007 (Inspect Decision/RiskEvaluation trace, Backtest)  → +PR-004, +PR-005
+  Main flow bước 2 tường minh: "mỗi Decision hiển thị outcome + evidence trace" — khớp trực tiếp.
+
+UC-011 (Initiate PAPER execution)                          → +PR-004, +PR-005
+  Preconditions/Main flow bước 3: Decision outcome LONG/SHORT tường minh; Observable outcome hiển thị
+  toàn bộ chuỗi C7 evidence.
+
+UC-016 (Trace Decision → Position lineage)                 → +PR-004, +PR-005
+  Main flow bước 2 CHÍNH LÀ causation trace đầy đủ về "Decision gốc" — bao gồm outcome + Strategy
+  Instance nguồn gốc.
+
+UC-008, UC-009                                              → KHÔNG thêm
+  Chỉ tiêu thụ evidence phái sinh từ UC-007 (economic evidence/evaluable result) — KHÔNG tự hiển thị
+  lại Decision outcome/evidence trace gốc.
+```
+
+### Exact changed-file scope
+
+```text
+docs/product/use-case-workflow.md    MODIFIED v0.3 → v0.4   blob 167836436376421936447cf579de3b1dd05201a4
+docs/product/README.md               MODIFIED (Package 0.3-B section content only)   blob 0e696142fce20c9b2a55df1431c7e81ecb858a57
+docs/MANIFEST.md                     MODIFIED manifest_version 9.93 → 9.94
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/product-requirement.md  KHÔNG ĐỔI — blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8, verified byte-identical
+docs/product/ux-blueprint.md         KHÔNG ĐỔI — revalidated only, SCR-004/SCR-006/SCR-008 already
+                                       cited UC-007/UC-011/UC-016 respectively; lineage now resolves
+                                       without content edit
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Updated matrices/tables
+
+§5 Use Case catalogue (UC-007/UC-011/UC-016 rows); §6 detailed UC blocks (PR traceability field, three UCs); §9b workflow-stage → PR mapping (Backtest/Paper/Review rows); §12 acceptance criteria (new item 20); revision-summary paragraph (v0.4).
+
+### Package lifecycle note
+
+Package 0.3-B **remains `Consolidated Stable`** — this correction is NOT auto-withdrawing that state. The reviewed/consolidated baseline blob (`affbb723b577cde4c8627dd689550e3bfbffb5d1`) pinned at the original consolidation transaction is now stale relative to v0.4 content. Final lifecycle revalidation (whether a delta review + re-consolidation against the new baseline is required) is deferred to a separate review, per repository package-revision governance.
+
+### Preservation verification
+
+`UC-001`–`UC-021`: 21 unique, contiguous, unchanged identity — no renumbering, no new UC. All `PR-001`–`PR-034` still resolve. Replay/Backtest/Paper authority boundaries, `canonical semantic-decision hash`, no `ReplayDecision`, no PAPER-fact reuse by Backtest — all unchanged (verified via `git diff` — only PR-traceability fields and the stage-mapping table changed). `product-requirement.md` byte-identical. `OQ-002`/`OQ-003` remain `Open`. Live remains `Unauthorized`.
+
 ## [Unreleased] — 2026-08-03 — correct stale Constitution authority statements (F-02)
 
 **Locked Constitution factual-state correction — Phase 0 Exit Readiness Audit finding `F-02` (MAJOR).** Vai trò: `Constitution Revision Author · Repository Transaction Executor`. Product Owner authorized this correction as part of the frozen Phase 0 remediation finding set (F-01–F-08). Scope strictly bounded to the two verified stale present-tense claims identified by the audit — no gate semantics, quality-gate semantics, or roadmap sequencing changed.
