@@ -2,6 +2,83 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — finalize Package 0.3-C UX authority boundaries
+
+**Package 0.3-C final narrowly bounded correction — đóng đúng ba finding từ delta review trên baseline v0.2.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Perform exactly one final narrowly bounded correction for: P03C-MAJ-01/P03C-B-MAJ-01/P03C-B-MAJ-02." Đã resolved Minor findings (`P03C-MIN-01`/`P03C-MIN-02`/`P03C-MIN-03`) KHÔNG bị revisit/broaden, trừ collateral consistency edit bắt buộc. Authorization này **không** cho phép sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/Constitution/ADR/architecture, tạo `PR-XXX`/`UC-XXX` mới, invent `PaperSession` entity/session persistence/timeout/backend lifecycle, invent Strategy Instance schema/field/validation/API/database/command/event implementation, invent permission/authorization/route-guard architecture, invent PAPER-context Decision establishment mechanism, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.
+
+### Baseline and blob verification
+
+```text
+Expected HEAD:  0b890ca4ee13be5feb0971afd2aee39dcc3b6032
+Actual HEAD:    0b890ca4ee13be5feb0971afd2aee39dcc3b6032  — match
+
+ux-blueprint.md:          v0.2 Draft, blob 1d5fd9d2e2bd7b6e9c88353e193cd1230b6cd6a3  — match
+product/README.md:        blob 20f407773d6a4db08a51f36067844ea1f5d8a4ae  — match
+product-requirement.md:   v0.2 Draft, blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8  — match, Consolidated Stable
+use-case-workflow.md:     v0.3 Draft, blob affbb723b577cde4c8627dd689550e3bfbffb5d1  — match, Consolidated Stable
+```
+
+### Finding-by-finding resolution
+
+| Finding | Resolution |
+|---|---|
+| `P03C-MAJ-01` | v0.2 traceability syntactically exhaustive nhưng materially overbroad — thu hẹp toàn bộ theo nguyên tắc "presence trong destination/transient-state/parent-journey KHÔNG tự tạo material ownership". `WS-001` (§5): thu hẹp từ union gần-toàn-bộ UC-001–021/PR-001–034 xuống ĐÚNG 5 item shell thực sự sở hữu (Account context, Instrument/Venue context, Strategy Instance context, historical cursor context, Live Unauthorized label) — bỏ "Lifecycle-stage navigation bar" (thuộc NAV-XXX), "Evidence/authority labels" (thuộc từng SCR/VIEW), "Blocked/unavailable-state presentation" (thuộc từng STATE-XXX) khỏi bảng trace của WS-001. `STATE-001` loading: thu hẹp còn ĐÚNG SCR-001/SCR-002/SCR-003 — ba screen duy nhất tường minh ghi "STATE-001 loading" tại field Primary states (§7), KHÔNG còn 16. `STATE-002` empty: thu hẹp còn ĐÚNG bốn genuine empty-collection screen (SCR-004/SCR-005/SCR-007/SCR-011) — loại SCR-003/SCR-009 (unfilled form, KHÔNG phải empty collection) và SCR-008 (spec riêng tường minh "KHÔNG áp dụng" cho blocked/empty). `FLOW-001` PR traceability: thu hẹp từ ~25 PR xuống ĐÚNG 7 PR biểu diễn stage-ordering/selection-gate/Research-verification-guard/Backtest→Paper-handoff/Paper→Review-handoff/Review→Improve-handoff/Improve→Research-loop-back (PR-001/003/015/016/017/024/028/031/034) — giữ nguyên UC-001–021 toàn bộ vì FLOW-001 CHÍNH LÀ primary end-to-end journey, không phải fallback coverage. §14 rebuilt lại hoàn toàn theo union đã thu hẹp; thêm traceability-quality rule tường minh; xác nhận PR-004/PR-005/PR-014 KHÔNG có UX acceptance surface riêng (platform-level guarantee restatement, upstream invariant — thay đổi có chủ đích, không phải thiếu sót). |
+| `P03C-B-MAJ-01` | Định nghĩa Paper Strategy Instance binding contract đầy đủ, KHÔNG invent `PaperSession` domain entity/architecture. Mở rộng `UX-INV-3` (§3): pin áp dụng cho Replay/Backtest/Paper (trước chỉ ngụ ý Research/Replay/Backtest); Research quan sát vẫn KHÔNG cần pin. Thêm "Paper Strategy Instance binding contract" (§3) định nghĩa ranh giới UX-visible start (ngay sau VIEW-001 pin, TRƯỚC SCR-006 resolve Decision lineage) / active (xuyên suốt SCR-006/SCR-007) / end (khi thoát bounded Paper interaction) / sau-end (Instance khác có thể pin lần sau) — KHÔNG session identifier/storage/timeout/persistence mechanism/backend lifecycle nào định nghĩa. `VIEW-001` (§7.1) mở rộng hỗ trợ pin cho Paper (entry từ NAV-004/SCR-006 khi STATE-028), giữ nguyên KHÔNG tạo Instance mới. `SCR-006` (§7.4) hiển thị tường minh danh tính Strategy Instance/Strategy Definition Version/Account/Instrument/Venue pin TRƯỚC khi resolve PAPER Decision lineage; mọi fact trong chuỗi system-owned resolve về đúng pin đó. `SCR-007` (§7.4) hiển thị liên tục cùng danh tính pin từ SCR-006 xuyên suốt C7 inspection. Bốn nguyên nhân Paper blocked phân biệt tường minh, KHÔNG BAO GIỜ gộp: `STATE-003` (invalid Instrument/Venue), `STATE-028` (Paper Strategy Instance not selected, MỚI), `STATE-029` (Paper Strategy Instance selected but not pinned, MỚI), `STATE-011` (PAPER Decision lineage unavailable, CHỈ sau khi đã pin). `NAV-004` (§5a) cập nhật Required context/Blocked behavior tương ứng theo đúng thứ tự ba điều kiện. |
+| `P03C-B-MAJ-02` | Thêm `VIEW-006` — Strategy Instance Creation/Binding (§7.6, mới, first-class, đủ 20 field theo cùng format mọi SCR/VIEW khác) — bounded product handoff giữa "tạo Strategy Definition Version" (SCR-010/UC-019) và "chọn/pin Instance để dùng" (VIEW-001/UC-002); KHÔNG định nghĩa schema/field/validation/API/database/command/event implementation. Stable-ID range cập nhật: `VIEW-001`–`VIEW-006` (6 VIEW, trước 5), 17 screen/view tổng (trước 16). §4 Information Architecture cập nhật vị trí VIEW-006 dưới NAV-006. `VIEW-001` xác nhận tường minh KHÔNG BAO GIỜ tự tạo Strategy Instance — CHỈ chọn/pin Instance đã đăng ký. `SCR-010` exits sửa: VIEW-006 (đăng ký) thay vì "VIEW-001 tạo Instance"; thêm SCR-001 read-only tuỳ chọn. `FLOW-006` viết lại: SCR-010 → SCR-001 (tuỳ chọn, KHÔNG pin) → [khi cần commit] VIEW-006 (đăng ký) → VIEW-001 (chọn/pin) → VIEW-002 (verification) → SCR-002/SCR-003; lối tắt SCR-010→VIEW-006 trực tiếp vẫn khả dụng — KHÔNG hai thứ tự mandatory mâu thuẫn. §9 cross-stage handoff "Improve → Research" đồng nhất với FLOW-006. `NAV-006` (§5a) cập nhật Destination/Required context/UC/PR traceability thêm VIEW-006. |
+
+### Exact changed-file scope
+
+```text
+docs/product/ux-blueprint.md         MODIFIED v0.2 → v0.3   blob a432782a9c74ccd971757271707c71c3f00bf4f9
+docs/product/README.md               MODIFIED v0.9 → v1.0   blob b3105a873c69db22172e30842e28ef9b845d25ab
+docs/MANIFEST.md                     MODIFIED manifest_version 9.88 → 9.89
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/product-requirement.md  KHÔNG ĐỔI — blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8, verified byte-identical
+docs/product/use-case-workflow.md    KHÔNG ĐỔI — blob affbb723b577cde4c8627dd689550e3bfbffb5d1, verified byte-identical
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Corrected artifact version and status
+
+`ux-blueprint.md`: `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### Stable ID counts and ranges
+
+`WS-001` (1); `NAV-001`–`NAV-006` (6); `SCR-001`–`SCR-011` (11); `VIEW-001`–`VIEW-006` (6, +1 từ v0.2 — `VIEW-006` mới); `FLOW-001`–`FLOW-006` (6); `STATE-001`–`STATE-029` (29, +2 từ v0.2 — `STATE-028`/`STATE-029` mới) — tất cả unique, sequential, contiguous within namespace. 17 total screen/view artifacts (11 `SCR` + 6 `VIEW`) cover all 21 Use Cases.
+
+### Traceability materiality (script-verified)
+
+Regex/set-comparison script xác nhận sau khi thu hẹp: mọi `UC-001`–`UC-021` (21/21) và `PR-001`–`PR-034` (34/34, trừ PR-004/PR-005/PR-014 — xác nhận có chủ đích KHÔNG có UX acceptance surface) vẫn xuất hiện tại ít nhất một artifact mapping direct/bounded; không artifact nào còn dùng full-range UC/PR union làm fallback coverage NGOẠI TRỪ `FLOW-001` (được task cho phép tường minh vì là primary journey) và các trường hợp STATE-001/STATE-002 đã liệt kê đầy đủ+chính xác theo đúng exception clause của task.
+
+### Paper Strategy Instance binding boundary
+
+Ranh giới UX-visible start/active/end/sau-end được định nghĩa đầy đủ tại §3 "Paper Strategy Instance binding contract" — KHÔNG `PaperSession` entity, session identifier, session storage, timeout, hay persistence mechanism nào được invent; SCR-006/SCR-007 hiển thị danh tính pin liên tục xuyên suốt; bốn nguyên nhân blocked (STATE-003/028/029/011) luôn phân biệt tường minh.
+
+### Strategy Instance creation UX boundary
+
+`VIEW-006` sở hữu duy nhất hành vi đăng ký Strategy Instance gắn Strategy Definition Version mới — `VIEW-001` xác nhận KHÔNG BAO GIỜ tự tạo Instance. Không schema/field/validation/API/database/command/event implementation nào được định nghĩa cho VIEW-006.
+
+### Forbidden-scope verification
+
+Không `PR-XXX`/`UC-XXX` mới tạo; `product-requirement.md`/`use-case-workflow.md` không đổi (verified `git diff --stat` + `git hash-object`, byte-identical); không Domain Contract/Constitution/ADR/architecture nào sửa; không `PaperSession` entity/session persistence/timeout/backend lifecycle invented; không Strategy Instance schema/field/validation/API/database/command/event implementation invented; không permission/authorization/route-guard architecture invented; không cơ chế PAPER-context Decision establishment nào invented (vẫn deferred, §15); resolved Minor findings (`P03C-MIN-01`/`P03C-MIN-02`/`P03C-MIN-03`) không bị regress; OQ-002/OQ-003 không đóng; Live không authorize; không artifact nào Approved/Locked; Package 0.3-C không mark `Consolidated Stable`.
+
+### Author self-review
+
+Automated re-verification: `WS`(1)/`NAV`(6)/`SCR`(11)/`VIEW`(6)/`FLOW`(6)/`STATE`(29) unique/sequential/contiguous; script-based extraction xác nhận toàn bộ `UC-001`–`UC-021` và `PR-001`–`PR-034` (trừ PR-004/005/014, chủ đích) xuất hiện tại ít nhất một artifact direct mapping; markdown table column-count consistency re-verified across toàn bộ file (không malformed row); forbidden domain-entity names (bao gồm `PaperSession` mới) confirmed appearing only inside prohibition/boundary text; YAML frontmatter re-validated via `yaml.safe_load` (`version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`); `git status --porcelain`/`git diff --stat` xác nhận CHỈ bốn file được phép thay đổi, `product-requirement.md`/`use-case-workflow.md`/toàn bộ Domain Contract/ADR/Constitution chapter/architecture artifact byte-identical.
+
+### Metadata / state
+
+- `ux-blueprint.md`: **v0.2 → v0.3**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `product-requirement.md`/`use-case-workflow.md`: **không đổi** — byte-for-byte, `Consolidated Stable` package states unchanged.
+- `product/README.md`: **v0.9 → v1.0**.
+- `MANIFEST.md`: `manifest_version` **9.88 → 9.89**.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-C: final narrowly bounded correction đã author, status Draft, chưa `Consolidated Stable`, đang chờ ChatGPT Final Delta Review A.** Mandatory sequence tiếp tục: ChatGPT Final Delta Review A → Independent Review B → Product Owner consolidation decision. `OQ-002`/`OQ-003` vẫn `Open`. Không authorize Live. Không artifact nào Approved hay Locked. Phase 0.3 vẫn active — Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-08-03 — correct Package 0.3-C review findings
 
 **Package 0.3-C bounded correction — consolidated ChatGPT Review A + Independent Review B findings trên baseline v0.1.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.3-C bounded correction — P03C-MAJ-01/P03C-B-MAJ-01/P03C-B-MAJ-02/P03C-MIN-01/P03C-MIN-02/P03C-MIN-03." Đóng đúng một finding Major (ChatGPT) + hai finding Major (Independent Review B, subsumed vào cùng traceability overhaul) + ba finding Minor. Authorization này **không** cho phép sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/Constitution/ADR/architecture, tạo `PR-XXX`/`UC-XXX` mới, invent routing implementation/permission architecture/route guard/authorization middleware/session token, invent organization/strategy-administration behavior, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.
