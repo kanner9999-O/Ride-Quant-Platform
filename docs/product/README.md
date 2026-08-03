@@ -2,7 +2,7 @@
 id: product-index
 title: Product Requirement & UX Index
 status: Draft
-version: "0.8"
+version: "1.4"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -15,6 +15,8 @@ next_review: null
 # Product — Phase 0.3 (Product Requirement · Use Case & Workflow · UX Blueprint)
 
 Thư mục này chứa artifact của **Phase 0.3** ([Chapter 14 §14.2](../constitution/14-roadmap.md), Locked) — sub-phase kế tiếp sau [Phase 0.2 — Domain Model & Domain Contract](../domain/README.md) (`Complete`, Product Owner decision 2026-07-31, baseline `95fdb01ea662e741fa08f4c2d79727cc13c1a54a`). Mỗi artifact = 1 deliverable, decompose thành ba package theo đúng danh sách Roadmap.
+
+**F-05 version-drift correction (2026-08-03, Phase 0 Exit Readiness Audit MINOR finding):** frontmatter `version` của chính file này bị bỏ sót không bump qua nhiều transaction trước đó — MANIFEST đã tuần tự claim `0.9`/`1.0`/`1.1`/`1.2`/`1.3` cho current version của file này tại các round trước, nhưng frontmatter thực tế vẫn giữ nguyên `"0.8"` suốt — các số `0.9`–`1.3` CHƯA BAO GIỜ thực sự populate vào frontmatter (metadata bug, KHÔNG phải fabricated content — nội dung file THỰC SỰ đổi ở mỗi round đó, chỉ field `version` không theo kịp). Sửa: `version` nay bump thẳng lên `"1.4"` (bắt kịp `1.3` đã claim + một round nội dung bổ sung tại chính transaction F-05 này) — internally consistent với MANIFEST/CHANGELOG kể từ đây.
 
 ## Dependency prerequisite
 

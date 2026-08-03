@@ -5,8 +5,8 @@ version: "0.5"
 status: Draft
 owner: Product Owner
 reviewers: []
-approved_by: Product Owner
-approved_at: "2026-08-03"
+approved_by: null
+approved_at: null
 created_at: "2026-08-02"
 last_review: null
 next_review: null
@@ -19,6 +19,8 @@ next_review: null
 **Authority boundary:** tài liệu này sở hữu **UX representation content** cho Phase 0.3 — KHÔNG sở hữu product requirement content (thuộc `product-requirement.md`, Package 0.3-A, không sửa), KHÔNG sở hữu use-case/workflow content (thuộc `use-case-workflow.md`, Package 0.3-B, không sửa), KHÔNG sở hữu domain semantics/state machine/authority/cardinality/transition (thuộc `/docs/domain/`, không sửa/redefine), KHÔNG sở hữu architecture quyết định (Phase 1, `/docs/architecture/`), KHÔNG đóng Open Question nào (`OQ-002`/`OQ-003` vẫn `Open`, xem §15), KHÔNG authorize Live, KHÔNG tuyên bố Phase 0.3/Phase 0 hoàn thành, KHÔNG mark chính nó `Consolidated Stable`.
 
 **Quy tắc traceability nguồn (kế thừa nguyên vẹn `product-requirement.md`/`use-case-workflow.md`):** mọi UX element PHẢI có một hoặc nhiều `UC-XXX` VÀ một hoặc nhiều `PR-XXX` áp dụng. Không nơi nào một UX element tồn tại chỉ vì "seems useful." Nơi KHÔNG có `UC`/`PR` nào authorize hành vi: (a) KHÔNG thêm nó, HOẶC (b) đánh dấu tường minh như một deferred dependency (§15) — KHÔNG BAO GIỜ tự phát minh. KHÔNG `UC-XXX`/`PR-XXX` ID mới nào được tạo tại đây.
+
+**F-06 lifecycle-axis correction (2026-08-03, Phase 0 Exit Readiness Audit MAJOR finding):** một transaction trước đó (Package 0.3-C stabilization) đã populate `approved_by: Product Owner`/`approved_at: "2026-08-03"` trong khi `status` vẫn `Draft` — tổ hợp KHÔNG được định nghĩa tại Chapter 0 Document Lifecycle (§7.1: `approved_by`/`approved_at` populate tại `Approved`, KHÔNG phải `Draft`). Đây là **lỗi conflate hai trục lifecycle tách biệt** (package lifecycle `Consolidated Stable` vs. artifact lifecycle `Draft`/`Approved`/`Locked`) — KHÔNG phải một withdrawal của Package 0.3-C consolidation. Sửa: `approved_by`/`approved_at` reset về `null` (khớp `status: Draft`); `version`/`status`/UX semantics/traceability/stable ID **KHÔNG đổi**. Package 0.3-C **vẫn `Consolidated Stable`** (package lifecycle, không đổi) — hai trục nay tách biệt tường minh trở lại, đúng pattern đã dùng nhất quán cho `product-requirement.md`/`use-case-workflow.md` (`approved_by: null` dù package đã `Consolidated Stable`).
 
 **v0.2 — bounded correction, đóng `P03C-MAJ-01`/`P03C-B-MAJ-01`/`P03C-B-MAJ-02`/`P03C-MIN-01`/`P03C-MIN-02`/`P03C-MIN-03` (2026-08-03):** (1) mọi `WS-XXX`/`NAV-XXX`/`SCR-XXX`/`VIEW-XXX`/`FLOW-XXX`/`STATE-XXX` ID nay truy vết TRỰC TIẾP một hoặc nhiều `UC-XXX` VÀ một hoặc nhiều `PR-XXX` tường minh (KHÔNG còn "cross-cutting"/"mọi UC" không liệt kê) — §5, §5a, §7 (SCR-006/SCR-007 bổ sung `PR-001`/`PR-006`/`PR-013`), §8 (mọi `FLOW-XXX` thêm field `UC traceability`/`PR traceability` riêng), §11 (mọi `STATE-XXX` thêm cột `UC traceability`), §14 (bảy ma trận trực tiếp bắt buộc); (2) thêm §5a — sáu đặc tả `NAV-001`–`NAV-006` first-class; (3) sửa `FLOW-001`/§4: quan sát market-analysis (`SCR-001`) KHÔNG còn phụ thuộc chọn Strategy Instance trước — `VIEW-001`/`VIEW-002` chỉ là commit-gate TRƯỚC `SCR-002`/`SCR-003`, KHÔNG phải entry-prerequisite của `SCR-001`; (4) thêm `UX-P-5` (§3) — phân tách read-only inspection navigation vs. authoritative progression/action, áp dụng tường minh cho outcome PASSED/FAILED/INDETERMINATE của Research verification (`VIEW-002`). KHÔNG PR/UC mới nào được tạo; KHÔNG behavior domain nào đổi; Package 0.3-C vẫn `Draft`, chưa `Consolidated Stable`.
 

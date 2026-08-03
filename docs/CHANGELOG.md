@@ -2,6 +2,48 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — MANIFEST/README/lifecycle/freshness reconciliation (F-05, F-06, F-07)
+
+**MANIFEST/README/lifecycle/freshness reconciliation — Phase 0 Exit Readiness Audit findings `F-05` (MAJOR), `F-06` (MAJOR), `F-07` (MINOR).** Vai trò: `Repository Metadata Integrity Author · Repository Transaction Executor`. Product Owner authorized all three as part of the frozen Phase 0 remediation finding set (F-01–F-08).
+
+### F-05 — Product README / Domain README version drift
+
+```text
+docs/product/README.md frontmatter version:  "0.8" (never bumped across 5+ content
+                                              revisions) → "1.4"
+```
+
+MANIFEST had claimed `0.9`/`1.0`/`1.1`/`1.2`/`1.3` as the "current version" of `product/README.md` across successive transactions, but the file's own frontmatter `version` field was never actually populated past `"0.8"` — a metadata bug (the content genuinely changed each time; only the version field lagged). Per "do not fabricate historical artifact versions," the fix does NOT retroactively claim `0.9`–`1.3` ever existed in frontmatter — it documents the gap explicitly (in both `README.md`'s own body and this entry) and bumps directly to `"1.4"` (catching up to the last-claimed `1.3` plus the one additional content edit made during this Phase 0 remediation program's F-03 commit, which also went unbumped). MANIFEST's `product/README.md` row updated to `1.4` with the correction note and new blob — now internally consistent across frontmatter/MANIFEST/CHANGELOG.
+
+`docs/domain/README.md` (actual frontmatter `version: "0.53"`) previously had no explicit version pointer in MANIFEST's `domain/` row at all (an omission, not a stale claim). Added an explicit `domain/README.md v0.53 Draft (index, current)` pointer at the start of that row. Domain README semantics untouched (not required by any other frozen finding).
+
+### F-06 — UX Blueprint undefined lifecycle combination
+
+```text
+Before:  version: "0.5", status: Draft, approved_by: Product Owner, approved_at: "2026-08-03"
+After:   version: "0.5", status: Draft, approved_by: null,          approved_at: null
+```
+
+The prior Package 0.3-C stabilization transaction populated `approved_by`/`approved_at` while `status` remained `Draft` — a combination Chapter 0 §7.1 Document Lifecycle does not define (approval metadata populates at `Approved`, not `Draft`). This was a lifecycle-axis conflation error (package lifecycle `Consolidated Stable` vs. artifact lifecycle `Draft`/`Approved`/`Locked`), NOT a withdrawal of Package 0.3-C consolidation. Fixed by resetting `approved_by`/`approved_at` to `null`, restoring the same pattern already used consistently for `product-requirement.md` and `use-case-workflow.md` (both `Consolidated Stable` at the package level while `approved_by: null` at the artifact level). `version`/`status`/UX semantics/traceability/stable IDs unchanged. Package 0.3-C **remains `Consolidated Stable`**.
+
+### F-07 — Package 0.2-C5 current-state contradiction
+
+Three MANIFEST fragments narrating intermediate Package 0.2-C5 correction stages ("Package 0.2-C5 VẪN CHƯA `Consolidated Stable`" / "CHƯA `Consolidated Stable`") were accurate AT THE TIME they were written (mid-transaction next-step reminders) but, left unmarked, read as contradicting the SAME paragraph's later "Package 0.2-C5 nay `Consolidated Stable`" consolidation record. Marked all three explicitly as dated historical transaction context (with the date of that specific transaction and an explicit "SUPERSEDED ... current state: `Consolidated Stable`" pointer) rather than deleting them — preserving the historical narrative while making the current authoritative state unambiguous. No CHANGELOG historical record rewritten.
+
+### Exact changed-file scope
+
+```text
+docs/product/README.md         MODIFIED frontmatter version "0.8" → "1.4" + F-05 note   blob f73507c7183c0b9ac1516f6cdd9316152b245dbd
+docs/product/ux-blueprint.md    MODIFIED frontmatter approved_by/approved_at reset to null + F-06 note   blob bc8b3ab7e26aed3d74aabb0e4e37aa7ef4da4fc7
+docs/MANIFEST.md                MODIFIED manifest_version 9.96 → 9.97 (product/README.md row, domain/
+                                  row, ux-blueprint.md row, three Package 0.2-C5 fragments)
+docs/CHANGELOG.md               MODIFIED (this entry)
+```
+
+### Forbidden-scope verification
+
+KHÔNG UX semantics/version/traceability/stable ID nào đổi (ux-blueprint.md `version` giữ nguyên `"0.5"`, chỉ frontmatter approval-metadata field đổi). KHÔNG Domain README semantics đổi. KHÔNG historical CHANGELOG record nào bị rewrite. `OQ-002`/`OQ-003` vẫn `Open`. Live vẫn `Unauthorized`. Phase 0 vẫn active, chưa Complete. Phase 1 vẫn `Unauthorized`.
+
 ## [Unreleased] — 2026-08-03 — author Phase 0 DoD and deferred-decision register (F-01, F-08)
 
 **Phase 0 Definition of Done authoring + product-chain deferred-decision register — Phase 0 Exit Readiness Audit findings `F-01` (BLOCKER) và `F-08` (MINOR).** Vai trò: `Governance Artifact Author · Repository Transaction Executor`. Product Owner authorized both as part of the frozen Phase 0 remediation finding set (F-01–F-08).
