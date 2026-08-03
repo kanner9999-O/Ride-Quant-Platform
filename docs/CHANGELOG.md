@@ -2,6 +2,71 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — consolidate Phase 1 planning baseline
+
+**Mechanical lifecycle-recording transaction — records Product Owner consolidation of Phase 1 Planning Baseline v0.2.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Planning semantics not modified — `docs/architecture/phase-1-plan.md` itself was not touched.
+
+### Product Owner decision
+
+```text
+Phase 1 Planning Baseline v0.2:  APPROVED FOR CONSOLIDATION
+Lifecycle:                        Consolidated Stable
+Reviewed version:                 0.2
+Reviewed source HEAD:             d66847f4b5388636ea5383f3c2cac51fa3bb73f8
+Reviewed blob:                    ccc5d0b213f5d6fe04fcecd54ce3d5d6cf9b2f3b (unchanged)
+```
+
+### Review evidence recorded
+
+```text
+Initial Review A:                  REVISE
+Initial Independent Review B:      REVISE
+Confirmed findings:                P1-PLAN-A-MAJ-01, P1-PLAN-A-MAJ-02
+Bounded correction commit:         d66847f4b5388636ea5383f3c2cac51fa3bb73f8
+Bounded Review A:                  CLEAN
+Independent bounded Review B:      CLEAN
+P1-PLAN-A-MAJ-01:                  Resolved
+P1-PLAN-A-MAJ-02:                  Resolved
+Backward Consistency Check:        NO CONFLICT
+Blocker / Major / Minor:           0 / 0 / 0
+```
+
+### Recorded lifecycle state
+
+`docs/architecture/phase-1-plan.md` package lifecycle: `Consolidated Stable`, current reviewed version `0.2`, current reviewed blob `ccc5d0b213f5d6fe04fcecd54ce3d5d6cf9b2f3b`. **Package 1.1 (System Decomposition & Module Registry) authoring: Authorized to Begin** — this does not approve Package 1.1 itself, and no Package 1.1 artifact (`module-registry.yaml`, `system-decomposition.md`) was authored by this transaction.
+
+Artifact lifecycle unchanged: `status: Draft`, `approved_by: null`, `approved_at: null` — the plan document itself was not modified, matching the package-lifecycle/artifact-lifecycle separation used consistently for every other package in this repository (Product packages, Phase 0 DoD's package-level precedent, etc.). `docs/architecture/README.md` updated only to mechanically align its lifecycle pointer (Consolidated Stable + Package 1.1 authorization note) — no other content changed.
+
+### Governing rule
+
+Package-lifecycle consolidation (`Consolidated Stable`) as a state distinct from artifact-lifecycle (`Draft`/`Approved`/`Locked`, Chapter 0 §7.1) — same pattern established for Product packages (0.3-A/B/C) and confirmed applicable here since this transaction is a package-level Product Owner decision, not a document-level Approval Gate action. MANIFEST remains the authoritative current-state source per I-12.
+
+### Decision boundaries (explicit, not performed by this transaction)
+
+```text
+No Package 1.1 approved. No architecture decision approved. No ADR approved or created.
+Phase 1 not declared Complete. Phase 2 not authorized/opened. No implementation/
+deployment/Live authorized. OQ-001/OQ-002/OQ-003 not closed. DD-001/DD-003 not
+resolved. No Product/Domain/Constitution/ADR semantics changed.
+```
+
+### Exact changed-file scope
+
+```text
+docs/MANIFEST.md              MODIFIED manifest_version 10.08 → 10.09
+                               (Architecture section rows only)
+docs/architecture/README.md   MODIFIED (lifecycle pointer alignment only)
+                               blob 1dd2dd67749ea971d0c3e416283bdb092df89117
+                                 → c9065c498a211ef99e2238a2e7291ae38ddafe0e
+docs/CHANGELOG.md             MODIFIED (this entry, prepended)
+```
+
+`docs/architecture/phase-1-plan.md` **NOT modified** — blob confirmed unchanged at `ccc5d0b213f5d6fe04fcecd54ce3d5d6cf9b2f3b`.
+
+### Forbidden-scope verification
+
+KHÔNG `docs/product/`/`docs/domain/`/`docs/adr/`/`docs/constitution/`/`docs/team/`/`docs/phase-dod/` touched. KHÔNG Package 1.1 artifact/`module-registry.yaml`/`system-decomposition.md`/new ADR/architecture decision/implementation design/source code/Phase 1 DoD authored.
+
 ## [Unreleased] — 2026-08-03 — correct Phase 1 authority coverage (NOT yet verified)
 
 **Bounded remediation to `docs/architecture/phase-1-plan.md` — addresses `P1-PLAN-A-MAJ-01` and `P1-PLAN-A-MAJ-02`.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single bounded correction package. The complete Phase 1 planning design is NOT reopened.
