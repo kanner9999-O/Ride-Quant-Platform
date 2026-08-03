@@ -2,6 +2,60 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — defer Decision Engine taxonomy decision (NOT yet verified)
+
+**Final bounded correction to ADR-016 — addresses `ADR016-A-MAJ-02`.** Vai trò: `ADR-016 Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. ADR-015 not modified. Package 1.1 not reopened. ADR-016 not approved.
+
+**This correction is NOT verified.** Review A + Independent Review B on v0.2 confirmed ADR-015's three prior findings RESOLVED and identified one new confirmed Major finding on ADR-016 (Blocker 0, Major 1, Minor 0); this transaction corrects it and awaits a fresh bounded Review A + independent bounded Review B.
+
+### ADR016-A-MAJ-02 — invalid inference from absence of evidence to inseparability
+
+ADR-016 v0.2 correctly established that the split is technically feasible, Chapter 8 does not prohibit cross-module evaluation, a non-authoritative proposal is distinct from an authoritative Decision, and Alternative B improves idempotency/testability/least-privilege — but then incorrectly inferred that because the exact split boundary with `strategy-plugin-host` is not currently defined, Chapter 7 §7.1 condition 1 ("responsibilities cannot reasonably be separated") is satisfied. This is a fallacy: lack of authority/detail supports uncertainty, not inseparability.
+
+### Corrected disposition: DEFERRED
+
+ADR-016 now records: Chapter 7 §7.1 condition 1 = **NOT ESTABLISHED** (no positive evidence either way), condition 2 = potentially satisfiable pending chosen boundary, condition 3 = satisfied only for the current candidate representation (which is itself unapproved), condition 4 = **not satisfied** (ADR existence alone does not satisfy it — only an Approved ADR containing an actual supported decision does). Neither Alternative A (hybrid) nor Alternative B (split) is selected. Alternative C remains rejected (Plugin Host must not own authoritative Decision evaluation — unchanged). Alternative D (defer) is now the selected current governance disposition — not because deferral is ideal, but because neither A nor B meets the evidence threshold without inventing Decision semantics outside this ADR's scope.
+
+### Required deferral trigger (five conditions to resume)
+
+```text
+1. An authoritative responsibility definition distinguishing plugin advisory output,
+   platform Decision evaluation (if any), and Decision authority/append.
+2. A Package 1.3-C architecture candidate showing either a non-overlapping bounded hybrid
+   or a non-overlapping Evaluation Engine + Authority Service split.
+3. Explicit validation of that candidate against all four Chapter 7 SS7.1 conditions.
+4. Review A + Independent Review B on the candidate.
+5. Product Owner decision via Decision Workflow, recorded in an Approved ADR.
+```
+
+### Package 1.1 consequence and parallel-work boundary
+
+Package 1.1's `decision-engine` hybrid remains proposed, unresolved, not governance-valid under Chapter 7 §7.1, and not usable as an approved downstream architecture boundary. Package 1.1 cannot become Consolidated Stable. `phase-1-plan.md` §6 does not currently contain any provision permitting bounded exploratory architecture work while a package it depends on is unresolved — this ADR does **not** self-authorize Package 1.3-C exploratory work; it is recorded only as a possible future Product Owner decision (which may require a narrow amendment to `phase-1-plan.md` §6).
+
+### Exact changed-file scope
+
+```text
+docs/adr/ADR-016.md   MODIFIED version 0.2 -> 0.3
+                       blob 03d872a511fc32bfaffd41259a779e65a6c80958
+                         -> 6d623c9fa966bfb90666397020863d3bcdae6ff0
+docs/MANIFEST.md      MODIFIED manifest_version 10.13 -> 10.14 (ADR-016 row only)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended)
+```
+
+`docs/adr/ADR-015.md` **NOT modified** — blob confirmed unchanged at `8940e14258ee331e7f2a38ffb0de49f5d01723e6`, both before and after this commit.
+
+### Exact Package 1.1 pins (unchanged, verified)
+
+```text
+docs/architecture/module-registry.yaml       v0.2   blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md    v0.2   blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+Reviewed source HEAD:                               46a1246b2a2c32cf78fb98c0104e3d46981e2c42
+```
+
+### Forbidden-scope verification
+
+KHÔNG `docs/adr/ADR-015.md`/`docs/architecture/module-registry.yaml`/`docs/architecture/system-decomposition.md`/`docs/product/`/`docs/domain/`/`docs/constitution/`/`docs/team/`/`docs/phase-dod/` touched. KHÔNG Decision algorithm, new Product/Domain semantics, field-level schema, API schema, database schema, deployment topology, source code, Package 1.3-C architecture, or new ADR authored. KHÔNG ADR-015 or ADR-016 approved. KHÔNG Package 1.1 approved or consolidated. KHÔNG Phase 1 declared Complete. KHÔNG Phase 2 opened. KHÔNG Live authorized. `DD-001`/`DD-003`/Structure-aware Regime authority gap/`OQ-001`/`OQ-002`/`OQ-003` all unchanged.
+
 ## [Unreleased] — 2026-08-03 — correct Package 1.1 ADR alternatives (NOT yet verified)
 
 **Bounded correction to ADR-015 and ADR-016 — addresses `ADR015-A-MAJ-01`, `ADR015-B-MAJ-02`, `ADR016-A-MAJ-01`, `ADR015-A-MIN-01`.** Vai trò: `ADR Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. Package 1.1 is not reopened; neither ADR is approved.
