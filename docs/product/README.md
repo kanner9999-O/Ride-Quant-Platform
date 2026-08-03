@@ -2,7 +2,7 @@
 id: product-index
 title: Product Requirement & UX Index
 status: Draft
-version: "1.4"
+version: "1.5"
 owner: Product Owner
 reviewers: []
 approved_by: null
@@ -18,6 +18,8 @@ Thư mục này chứa artifact của **Phase 0.3** ([Chapter 14 §14.2](../cons
 
 **F-05 version-drift correction (2026-08-03, Phase 0 Exit Readiness Audit MINOR finding):** frontmatter `version` của chính file này bị bỏ sót không bump qua nhiều transaction trước đó — MANIFEST đã tuần tự claim `0.9`/`1.0`/`1.1`/`1.2`/`1.3` cho current version của file này tại các round trước, nhưng frontmatter thực tế vẫn giữ nguyên `"0.8"` suốt — các số `0.9`–`1.3` CHƯA BAO GIỜ thực sự populate vào frontmatter (metadata bug, KHÔNG phải fabricated content — nội dung file THỰC SỰ đổi ở mỗi round đó, chỉ field `version` không theo kịp). Sửa: `version` nay bump thẳng lên `"1.4"` (bắt kịp `1.3` đã claim + một round nội dung bổ sung tại chính transaction F-05 này) — internally consistent với MANIFEST/CHANGELOG kể từ đây.
 
+**`v1.5` — bounded remediation delta (2026-08-03), đóng `P0-REM-MAJ-04`** (finding từ Phase 0 Bounded Remediation Delta Review — CHƯA accepted, chờ ChatGPT Delta Review A + Independent Delta Review B trên parent `1f9e9ecf019fb9821a05dc6c0670ac8ef85e0a94`): Package 0.3-B representation trước đây gắn nhãn `Consolidated Stable` nổi bật cạnh `v0.4` mà không đủ tường minh rằng `v0.4` CHƯA qua review nào — sửa: mọi chỗ hiển thị Package 0.3-B (bảng tóm tắt + section header + review-status bullet) nay nói rõ **`v0.3` VẪN LÀ historical `Consolidated Stable` baseline** (blob đã review/pin), **`v0.4` CHƯA reviewed — awaiting bounded delta review + package revalidation** trước khi tự nó được coi là `Consolidated Stable`. Bounded — KHÔNG đổi nội dung UC-XXX/PR-XXX nào, KHÔNG review lại semantic correctness của v0.4 tại đây.
+
 ## Dependency prerequisite
 
 Toàn bộ artifact tại đây PHẢI dùng lại nguyên vẹn vocabulary đã đăng ký tại [`/docs/domain/`](../domain/README.md) (Package 0.2-A/B/C, tất cả `Consolidated Stable`) — KHÔNG định nghĩa domain concept mới. Controlling Constitution sources: [Chapter 1](../constitution/01-vision.md) (Vision, Locked), [Chapter 2](../constitution/02-platform-invariants.md) (Platform Invariants, Locked), [Chapter 4 §4.5](../constitution/04-domain-principles.md) (Domain Modeling phải ổn định trước khi UX Blueprint được phê duyệt — Locked). [ADR-007](../adr/ADR-007.md) (Locked) khóa ranh giới sản phẩm: nội bộ, single-workspace, crypto-only, 2-3 sàn.
@@ -29,7 +31,7 @@ Toàn bộ artifact tại đây PHẢI dùng lại nguyên vẹn vocabulary đã
 | Package | Nội dung | Trạng thái |
 |---|---|---|
 | **0.3-A — Product Requirement** | [`product-requirement.md`](./product-requirement.md) v0.2 Draft — 34 requirement (`PR-001`–`PR-034`), truy vết Vision/Platform Invariant/Domain Contract | Draft — **`Consolidated Stable`** (xem dưới) |
-| **0.3-B — Use Case & Workflow** | [`use-case-workflow.md`](./use-case-workflow.md) v0.4 Draft — 21 Use Case (`UC-001`–`UC-021`), truy vết `PR-001`–`PR-034` (`PR-004`/`PR-005` material-trace tại `UC-007`/`UC-011`/`UC-016`, đóng `F-03`) | Draft — **`Consolidated Stable`** (baseline blob stale sau F-03, chờ delta re-review — xem dưới) |
+| **0.3-B — Use Case & Workflow** | [`use-case-workflow.md`](./use-case-workflow.md) current content **v0.4** Draft — 21 Use Case (`UC-001`–`UC-021`), truy vết `PR-001`–`PR-034` (`PR-004`/`PR-005` material-trace tại `UC-007`/`UC-011`/`UC-016`, đóng `F-03`) | Draft — **historical `Consolidated Stable` baseline = v0.3** (reviewed/pinned blob, xem dưới); **v0.4 CHƯA được review/consolidate — awaiting bounded delta review + package revalidation** trước khi v0.4 tự nó có thể coi là `Consolidated Stable` |
 | **0.3-C — UX Blueprint** | [`ux-blueprint.md`](./ux-blueprint.md) v0.5 Draft — 17 screen/view (`SCR-001`–`SCR-011`, `VIEW-001`–`VIEW-006`), 1 `WS-001`, 6 `NAV-001`–`NAV-006`, truy vết TRỰC TIẾP, materially bounded `UC-001`–`UC-021`/`PR-001`–`PR-034` (tất cả 34 PR có acceptance surface) | Draft — **`Consolidated Stable`** (Product Owner approved 2026-08-03) |
 
 **Thứ tự authoring bắt buộc:** 0.3-A → 0.3-B → 0.3-C, tuần tự — mỗi package phụ thuộc trực tiếp package trước (đúng [Chapter 4 §4.5](../constitution/04-domain-principles.md) và dependency logic: không thể viết use case cho requirement chưa tồn tại, không thể thiết kế UX cho use case chưa tồn tại).
@@ -86,7 +88,7 @@ Package 0.3-B:    Unauthorized
 Package 0.3-C:    Unauthorized
 ```
 
-## Package 0.3-B — Use Case & Workflow `Consolidated Stable`
+## Package 0.3-B — Use Case & Workflow (historical `Consolidated Stable` baseline: v0.3 — current content: v0.4, awaiting bounded delta review)
 
 **Phạm vi (scope tối thiểu, walking-skeleton):** dịch 34 requirement (`PR-001`–`PR-034`, Package 0.3-A `Consolidated Stable`) thành 21 Use Case cụ thể, testable, bounded (`UC-001`–`UC-021`) — 3 Research, 2 Replay, 5 Backtest, 5 Paper, 3 Review, 3 Improve — sở hữu user journey/use-case behavior/precondition/trigger/main flow/alternate flow/observable outcome/handoff cho sáu-giai-đoạn lifecycle. KHÔNG tạo product requirement mới — mọi Use Case truy vết `PR-XXX` đã tồn tại. Preserve nguyên vẹn Replay authority boundary (historical reconstruction vs parity recomputation, không `ReplayDecision`) và Backtest authority boundary (không tái sử dụng PAPER fact, không entity Backtest mới) từ `product-requirement.md` v0.2.
 
@@ -108,7 +110,7 @@ Package 0.3-C:    Unauthorized
 - ChatGPT second Delta Review A (trên v0.3): **Clean** — 0 blocking finding.
 - Independent second Delta Review B (trên v0.3): **Clean** — 0 blocking finding.
 - Consolidation: **hoàn tất (transaction này)** — Product Owner authorized: "Package 0.3-B — Use Case & Workflow: Consolidated Stable". **Package 0.3-B nay `Consolidated Stable`.**
-- Post-consolidation bounded correction (v0.3 → v0.4, đóng `F-03`): **hoàn tất** — package lifecycle state GIỮ NGUYÊN `Consolidated Stable` (KHÔNG tự động rút lại); reviewed baseline blob pinned tại consolidation transaction nay STALE so với v0.4 content; final lifecycle revalidation để lại cho review riêng.
+- Post-consolidation bounded correction (v0.3 → v0.4, đóng `F-03`): **hoàn tất, CHƯA reviewed.** **`v0.3` VẪN LÀ historical `Consolidated Stable` baseline** — đó là exact blob đã qua ChatGPT second Delta Review A (Clean) + Independent second Delta Review B (Clean) + Product Owner consolidation decision (dòng phía trên). **`v0.4` (current content) CHƯA qua bất kỳ review round nào** — package lifecycle label `Consolidated Stable` giữ nguyên tại MANIFEST theo package-revision governance (KHÔNG tự động rút lại), nhưng label đó phản ánh v0.3, KHÔNG phải v0.4. `v0.4` **awaiting bounded delta review + package revalidation** trước khi tự nó được coi là reviewed/consolidated.
 
 **Kết luận consolidation:** ChatGPT second Delta Review A (Clean) và Independent second Delta Review B (Clean) trên `use-case-workflow.md` v0.3, **0 finding còn lại chưa xử lý** (finding ledger đầy đủ — hai Major + năm Minor qua bounded correction v0.1→v0.2, một Minor qua narrow delta correction v0.2→v0.3, tại mục baseline dưới đây). Product Owner authorized: "Package 0.3-B — Use Case & Workflow: Consolidated Stable".
 

@@ -2,6 +2,61 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — Phase 0 bounded remediation delta (authored, NOT yet accepted)
+
+**Phase 0 Bounded Remediation Delta — addresses `P0-REM-MAJ-01`, `P0-REM-MAJ-02`, `P0-REM-MAJ-04` from the Phase 0 Bounded Remediation Delta Review.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this bounded delta correction.
+
+**This correction is NOT accepted and NOT claimed clean.** It requires two separate read-only reviews before acceptance:
+
+```text
+Review A:  ChatGPT / RiDe — Phase 0 Bounded Remediation Delta Review
+Review B:  Independent Review B — Phase 0 Independent Bounded Remediation Delta Review
+
+Parent:        1f9e9ecf019fb9821a05dc6c0670ac8ef85e0a94
+Reviewed HEAD: (this commit — see final HEAD in author report)
+```
+
+Both reviews are restricted to `P0-REM-MAJ-01`/`P0-REM-MAJ-02`/`P0-REM-MAJ-04` plus direct regressions caused by this patch — they do not reopen the comprehensive Phase 0 audit, do not review Package 0.3-B v0.4 semantic correctness, do not approve team governance, do not accept the Phase 0 DoD, do not declare Phase 0 complete, and do not authorize Phase 1.
+
+### P0-REM-MAJ-01 — Phase 0 DoD omitted Package 0.2-B4
+
+`docs/phase-dod/phase-0-dod.md` §3 (Substantive completion criteria) and §4 (Evidence requirements) listed Domain Contract packages as "0.2-A, B1–B3, C1–C7" — omitting Package 0.2-B4 (`context.md`) entirely. Fixed: both lists now name B4 explicitly, with an inline caveat recording B4's current authoritative state per MANIFEST (the ADR-014 entry states B4 remains `Draft`, not auto-consolidated, pending its own package delta review/consolidation transaction — this is a pre-existing MANIFEST fact, not something this delta resolves or changes).
+
+### P0-REM-MAJ-02 — Blocker/Major waiver ambiguity
+
+`docs/phase-dod/phase-0-dod.md` §7 (Finding-closure requirements) previously had a bullet reading "Finding 'chưa đóng' KHÔNG tự động chặn gate NẾU Product Owner tường minh accept residual risk" without scoping it to Minor findings — readable as contradicting the preceding bullet requiring Blocker/Major to be resolved with no exception. Fixed: rewrote §7 to state unambiguously that Blocker/Major findings can **never** be waived through residual-risk acceptance or any other mechanism (resolution is the only path); only Minor findings are eligible for explicit Product Owner residual-risk acceptance.
+
+### P0-REM-MAJ-04 — Package 0.3-B v0.3/v0.4 representation
+
+`docs/product/README.md` and `docs/MANIFEST.md` previously displayed `Consolidated Stable` prominently next to Package 0.3-B's current content (`v0.4`) with the "baseline stale" caveat easy to miss. Fixed: every representation of Package 0.3-B (README top-summary table row, section header, review-status bullet; MANIFEST's `use-case-workflow.md` row) now states unambiguously that **`v0.3`** (blob `affbb723b577cde4c8627dd689550e3bfbffb5d1`) remains the historical `Consolidated Stable` baseline (the reviewed/pinned blob), and **`v0.4`** (blob `167836436376421936447cf579de3b1dd05201a4`) has not been reviewed and is awaiting bounded delta review + package revalidation before it can itself be considered `Consolidated Stable`.
+
+### Direct-regression self-check (for reviewer convenience — not a substitute for either review)
+
+```text
+- phase-0-dod.md frontmatter: version 0.1 → 0.2, status/approved_by/approved_at unchanged (Draft/null/null).
+- No DoD section other than §3/§4/§7 touched (§1/§2/§5/§6/§8/§9/§10/§11 byte-unchanged).
+- product/README.md: only Package 0.3-B representation + frontmatter version (1.4 → 1.5) touched;
+  Package 0.3-A/0.3-C sections byte-unchanged.
+- MANIFEST.md: only phase-dod row, product/README.md row, use-case-workflow.md row's "Package 0.3-B
+  lifecycle" sentence touched; manifest_version 9.97 → 9.98.
+- No UC-XXX/PR-XXX/stable-ID content changed. No Constitution/Domain Contract/ADR/architecture touched.
+- OQ-002/OQ-003 remain Open. Live remains Unauthorized. Phase 0 not declared complete. Phase 1 not
+  authorized.
+```
+
+### Exact changed-file scope
+
+```text
+docs/phase-dod/phase-0-dod.md   MODIFIED v0.1 → v0.2   blob 60596e9b0c94017dc9842f5d57c2126c09d4ac72
+docs/product/README.md          MODIFIED v1.4 → v1.5   blob 0780d657681b3b97beb4ee24b97b3bc514e09155
+docs/MANIFEST.md                MODIFIED manifest_version 9.97 → 9.98
+docs/CHANGELOG.md               MODIFIED (this entry)
+```
+
+### Forbidden-scope verification
+
+KHÔNG comprehensive Phase 0 audit nào reopened. KHÔNG optional-improvement finding nào introduced. KHÔNG Package 0.3-B v0.4 semantic correctness reviewed tại đây. KHÔNG team governance approved. KHÔNG Phase 0 DoD accepted. KHÔNG Phase 0 declared complete. KHÔNG Phase 1 authorized. KHÔNG PR/UC/stable-ID/Constitution/Domain Contract/ADR/architecture nào đổi.
+
 ## [Unreleased] — 2026-08-03 — MANIFEST/README/lifecycle/freshness reconciliation (F-05, F-06, F-07)
 
 **MANIFEST/README/lifecycle/freshness reconciliation — Phase 0 Exit Readiness Audit findings `F-05` (MAJOR), `F-06` (MAJOR), `F-07` (MINOR).** Vai trò: `Repository Metadata Integrity Author · Repository Transaction Executor`. Product Owner authorized all three as part of the frozen Phase 0 remediation finding set (F-01–F-08).

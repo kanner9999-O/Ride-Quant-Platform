@@ -1,7 +1,7 @@
 ---
 id: phase-0-dod
 title: "Phase 0 — Vision & Foundation: Definition of Done"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -18,6 +18,8 @@ depends_on: ["00-governance", "12-approval-gates", "14-roadmap"]
 **Vai trò của tài liệu này:** đây là **DoD artifact** mà [Chapter 12 §12.1](../constitution/12-approval-gates.md) (Locked) khóa rule ("mỗi Phase phải có DoD cụ thể, viết ra và Product Owner chấp nhận TRƯỚC KHI phase/gate mở"), và [Chapter 14 §14.3](../constitution/14-roadmap.md) (Locked) khóa cardinality/nơi ở ("mỗi Phase phải resolve được đúng một authoritative DoD artifact"). Tài liệu này **định nghĩa tiêu chí** — nó **KHÔNG** phải bằng chứng "đã đạt tiêu chí", và nó **KHÔNG** tự nó là Product Owner acceptance. `Approved` là outcome của Approval Gate ([Chapter 12 §12.1](../constitution/12-approval-gates.md)) — **KHÔNG** phải một mục trong DoD này, và mục này **KHÔNG chứa** chính outcome đó (tránh vòng lặp định nghĩa đã bị Chapter 12 cấm tường minh).
 
 **Authority boundary:** tài liệu này sở hữu **substantive DoD content của Phase 0** (criteria/evidence/validator/review/finding-closure/repository-consistency/phase-decision-bundle requirements áp cho chính Phase 0) — theo delegation từ [Chapter 14 §14.3](../constitution/14-roadmap.md). Nó **KHÔNG** định nghĩa lại: phase approval orchestration ([Chapter 12](../constitution/12-approval-gates.md)); review eligibility/cardinality ([Chapter 0 §3](../constitution/00-governance.md), [Chapter 11 §11.5](../constitution/11-adr-process.md)); quality-gate semantics/trigger A–E ([Chapter 13](../constitution/13-quality-gates.md)); ADR Scope Rule ([Chapter 0 §4b](../constitution/00-governance.md)); phase sequence/canonical Phase-plan model ([Chapter 14 §14.1–§14.2](../constitution/14-roadmap.md)); current version/status/state của bất kỳ tài liệu nào ([MANIFEST](../MANIFEST.md) theo [I-12](../constitution/02-platform-invariants.md)).
+
+**v0.2 — bounded remediation delta (2026-08-03), đóng `P0-REM-MAJ-01`/`P0-REM-MAJ-02` (findings từ Phase 0 Bounded Remediation Delta Review, chưa accepted):** (1) `P0-REM-MAJ-01` — §3/§4 trước đây liệt kê Domain Contract package cần `Consolidated Stable` là "0.2-A, B1–B3, C1–C7", bỏ sót Package 0.2-B4 (`context.md`) — sửa thành liệt kê B4 tường minh ở mọi nơi, kèm caveat current-state (B4 hiện KHÔNG `Consolidated Stable` theo entry ADR-014 mới nhất tại MANIFEST, dù một entry cũ hơn từng ghi consolidated). (2) `P0-REM-MAJ-02` — §7 trước đây có một bullet đọc được như cho phép BẤT KỲ finding "chưa đóng" nào (không chỉ Minor) thôi chặn gate qua residual-risk acceptance, mâu thuẫn ngầm với bullet đầu (Blocker/Major phải resolved). Sửa: tường minh khóa Blocker/Major KHÔNG BAO GIỜ waive được — CHỈ Minor mới đủ điều kiện residual-risk acceptance. Bounded — KHÔNG mở lại comprehensive Phase 0 audit, KHÔNG thêm finding mới ngoài hai finding trên, KHÔNG đổi §1/§2/§5/§6/§8/§9/§10 nào khác. Delta này CHƯA được ChatGPT/Independent Review B accept — xem MANIFEST cho trạng thái review hiện tại.
 
 **Lifecycle state của chính DoD artifact này:** `status: Draft`, `approved_by: null`, `approved_at: null`. Đây là **DoD mới được author lần đầu** — theo Chapter 0 §7.1 Document Lifecycle (`Not Started → Draft → In Review → Revision Requested → Approved → Locked`), nó bắt đầu tại `Draft`. **Product Owner acceptance/incorporation của DoD này CHƯA được ghi nhận tại đây** — [Chapter 14 §14.3.1](../constitution/14-roadmap.md) khóa: canonical incorporation chỉ tồn tại khi Product Owner acceptance evidence resolve được VÀ xác định tường minh Phase identity/Roadmap-phase-section version/DoD version/explicit incorporation decision, tại một transaction RIÊNG do chính Product Owner tạo ra qua Decision Workflow ([Chapter 0 §3](../constitution/00-governance.md)). Tài liệu này **không tự claim** acceptance đó.
 
@@ -85,8 +87,18 @@ E. Lifecycle-triggered (Schema/contract compatibility):
     xem ADR-011.
 
 0.2 Domain Model & Domain Contract:
-  - Toàn bộ Domain Contract package đã author (Package 0.2-A, B1–B3, C1–C7) đạt
-    `Consolidated Stable` tại MANIFEST.
+  - Toàn bộ Domain Contract package đã author (Package 0.2-A, B1, B2, B3, B4, C1–C7)
+    đạt `Consolidated Stable` tại MANIFEST — KHÔNG package nào được bỏ sót khỏi danh
+    sách này dù trạng thái hiện tại là gì.
+  - Package 0.2-B4 (`context.md`): theo MANIFEST hiện tại, B4 đã từng được ghi
+    `Consolidated Stable` (2026-07-30) nhưng ADR-014 approval sau đó tường minh ghi
+    "KHÔNG tự động Approve/Lock/Consolidate Package 0.2-B4 — B4 vẫn `Draft`... còn
+    cần package delta review/consolidation transaction riêng trước khi
+    `Consolidated Stable`" (đóng `IRB-B4-MAJ-03`, ADR-003 fan-in conflict). Current
+    authoritative state resolve từ MANIFEST tại thời điểm gate evaluation — DoD này
+    KHÔNG tự quyết B4 hiện đang ở trạng thái nào, CHỈ khóa: B4 PHẢI resolve đúng một
+    current state tại MANIFEST VÀ state đó PHẢI là `Consolidated Stable` để tiêu chí
+    0.2 thỏa — nếu chưa, đây là outstanding item chặn gate, KHÔNG được bỏ qua.
   - context-map.yaml resolve đầy đủ owned_contracts cho mọi context đã đăng ký.
   - Không Domain Contract nào còn finding Major/Blocker chưa resolved.
 
@@ -118,8 +130,8 @@ Required deliverable evidence (Chapter 12 §12.1):
   - Constitution: 15 chapter file, mỗi chapter version/status/approved_by/approved_at
     resolve tại MANIFEST.
   - Domain Model: toàn bộ file dưới /docs/domain/ + context-map.yaml, mỗi package
-    (0.2-A/B1-B3/C1-C7) có review evidence (ChatGPT Review A + Independent Review B)
-    pinned.
+    (0.2-A/B1/B2/B3/B4/C1–C7) có review evidence (ChatGPT Review A + Independent
+    Review B) pinned — B4 KHÔNG được bỏ sót (xem §3 cho current-state caveat).
   - Product Requirement/Use Case & Workflow/UX Blueprint: mỗi package (0.3-A/B/C) có
     review evidence pinned, đúng exact baseline blob per Consolidated Stable
     transaction.
@@ -164,10 +176,14 @@ Theo Chapter 0 §3 / Chapter 11 §11.5 (tham chiếu, KHÔNG định nghĩa lạ
   Review A, Independent Review B, delta review, audit — bao gồm Phase 0 Exit
   Readiness Audit F-01–F-08) phải resolved (đóng) tại MANIFEST/CHANGELOG evidence
   TRƯỚC khi Phase 0 Approval Gate mở.
-- Finding Minor có thể remain open nếu Product Owner tường minh chấp nhận rủi ro tồn
-  đọng (ghi rõ tại decision evidence) — KHÔNG ngầm định.
-- Finding "chưa đóng" KHÔNG tự động chặn gate NẾU Product Owner tường minh accept
-  residual risk — nhưng phải ghi nhận tường minh, không suy diễn.
+- Blocker/Major finding KHÔNG BAO GIỜ được waive qua residual-risk acceptance hay
+  bất kỳ cơ chế nào khác — con đường DUY NHẤT để một Blocker/Major thôi chặn gate là
+  RESOLVED (đóng), KHÔNG phải "chấp nhận rủi ro." Đây là quy tắc tuyệt đối, KHÔNG có
+  ngoại lệ.
+- CHỈ finding Minor mới được phép remain open qua Product Owner residual-risk
+  acceptance — VÀ CHỈ khi Product Owner tường minh chấp nhận rủi ro tồn đọng (ghi rõ
+  tại decision evidence, theo đúng [Chapter 0 §3](../constitution/00-governance.md)
+  "Chấp nhận rủi ro: ...") — KHÔNG ngầm định, KHÔNG suy diễn từ im lặng.
 ```
 
 ## 8. Repository-consistency requirements
