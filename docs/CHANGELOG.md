@@ -2,6 +2,58 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — align Package 0.3-B current index state (NOT yet verified)
+
+**Bounded correction to `docs/product/README.md` — addresses `P0-GATE-A-MAJ-01`.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single bounded correction. Package 0.3-B semantics and the full Phase 0 Approval Gate review are NOT reopened.
+
+**This correction is NOT verified.** It awaits bounded Review A and independent bounded Review B.
+
+### P0-GATE-A-MAJ-01 — contradictory current-state pointers for Package 0.3-B
+
+`docs/product/README.md`'s top-level `Drafting packages` summary table still stated `use-case-workflow.md` current content as `v0.4`, historical `Consolidated Stable` baseline `v0.3`, and `v0.4` as "CHƯA được review/consolidate" — while the same file's later Package 0.3-B section and `docs/MANIFEST.md` correctly recorded `v0.6` as the current reviewed baseline (Product Owner revalidation, blob `8ce1a37ed733b6aa954476d2544a7cc3d1ec2add`). The later correct section did not neutralize the stale operative summary table — the Product index provided two competing current-state pointers.
+
+Fixed — the `Drafting packages` table row for Package 0.3-B now reads:
+
+```text
+current content version:    0.6
+current reviewed baseline:  0.6
+current reviewed blob:      8ce1a37ed733b6aa954476d2544a7cc3d1ec2add
+lifecycle:                  Consolidated Stable
+revalidated:                2026-08-03
+```
+
+A new `v1.6` revision-history paragraph documents this correction; the prior `v1.5` paragraph (which correctly described the state at the time it was written, before the v0.4→v0.5→v0.6 corrections and revalidation) is preserved byte-for-byte with a short clarifying historical marker appended, per "do not rewrite or delete valid review history."
+
+### Historical preservation (unchanged)
+
+```text
+v0.3 first consolidation — pinned block, blob affbb723b577cde4c8627dd689550e3bfbffb5d1,
+  explicitly labeled historical.
+v0.4 F-03 correction — revision-history paragraph preserved.
+v0.5 semantic correction (P03B-V04-A-MAJ-01) — revision-history paragraph preserved.
+v0.6 causal-direction correction (P03B-V05-B-MAJ-01) and revalidation — "Current
+  reviewed baseline" block preserved.
+```
+
+### Unchanged accepted artifact proof
+
+`docs/product/use-case-workflow.md` NOT modified — `git diff --stat` on it is empty; blob confirmed unchanged at `8ce1a37ed733b6aa954476d2544a7cc3d1ec2add`.
+
+### Exact changed-file scope
+
+```text
+docs/product/README.md   MODIFIED version 1.5 → 1.6
+                          blob 36b809a50e67bd7b025df545ce1d89c562a59814
+                            → d7e31d7cc809f8e844b4a559f3ea28b91e479162
+docs/MANIFEST.md         MODIFIED manifest_version 10.04 → 10.05
+                          (product/README.md row only)
+docs/CHANGELOG.md        MODIFIED (this entry, prepended)
+```
+
+### Forbidden-scope verification
+
+KHÔNG `use-case-workflow.md`/`product-requirement.md`/`ux-blueprint.md`/`/docs/domain/`/`/docs/adr/`/`/docs/constitution/`/`/docs/architecture/`/`/docs/team/`/`/docs/phase-dod/` touched. KHÔNG PR/UC/UX behavior changed. KHÔNG Package 0.3-B reopened. KHÔNG its reviewed v0.6 blob changed. KHÔNG ADR created. KHÔNG DoD criteria changed. KHÔNG Phase 0 declared Complete. KHÔNG Phase 1 authorized. KHÔNG Live authorized. `OQ-001`/`OQ-002`/`OQ-003` unaffected, remain `Open`.
+
 ## [Unreleased] — 2026-08-03 — accept and incorporate Phase 0 DoD v0.4
 
 **Mechanical lifecycle-recording transaction — records Product Owner acceptance and canonical incorporation of the Phase 0 Definition of Done.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. No substantive DoD criteria modified; no other project semantics touched.
