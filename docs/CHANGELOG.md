@@ -2,6 +2,86 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — close Phase 0 and authorize Phase 1
+
+**Mechanical gate-closing transaction — records the Product Owner's Phase 0 Approval Gate decision.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. No Product, Domain, ADR, Constitution or architecture semantics modified. No Phase 1 artifact authored.
+
+### Product Owner decision
+
+```text
+Phase 0 Approval Gate:              APPROVED
+Phase 0 — Vision & Foundation:      COMPLETE
+Phase 1 — System Architecture:      AUTHORIZED TO BEGIN
+
+(canonical Phase names per Chapter 14 §14.2: "Phase 0 — Vision & Foundation",
+"Phase 1 — System Architecture" — used verbatim, not the task's loose
+"Phase 1 — Architecture" shorthand)
+```
+
+### Gate decision bundle (Chapter 14 §14.4.1 immutable Phase-decision bundle)
+
+```text
+Gate decision source HEAD:  6a2dc18fbf2f7a6c9e578a65c48e0f1cf40a5ed6
+
+Phase identity:              Phase 0 — Vision & Foundation
+Roadmap identity:            Chapter 14 — Roadmap, v1.6, Locked
+DoD identity/version:        phase-0-dod.md v0.4, accepted substantive blob
+                              ddf2d465904b785ab8f712f9d37dca4d45c1f49b,
+                              post-acceptance blob
+                              095d0eb1db9ccd6b41a7e53c8081b67b3037b9b2,
+                              status Approved
+Gate-set declaration:        Trigger A (universal) + Trigger E (schema/contract
+                              compatibility, Domain Contract only)
+
+Phase 0 Approval Gate Review A:      completed
+Frozen finding:                       P0-GATE-A-MAJ-01
+Correction commit:                    6a2dc18fbf2f7a6c9e578a65c48e0f1cf40a5ed6
+Bounded Review A:                     CLEAN
+Independent bounded Review B:         CLEAN
+P0-GATE-A-MAJ-01:                     RESOLVED
+Backward Consistency Check:           NO CONFLICT
+Blocker: 0   Major: 0   Minor: 0
+```
+
+Recorded per Chapter 14 §14.4.1 (prepared bundle content: Phase identity, Roadmap version/content identity, accepted-DoD identity/content, gate-set declaration — Chapter 14 authority, pinned directly in MANIFEST; reference-only content — PO acceptance evidence, deliverable evidence, Quality Gate result, BCC result, validator/freshness result, independent review evidence, PO decision fact — referenced, not redefined) and §14.4.2 (atomic recording boundary: the bundle and the resulting MANIFEST transition — `manifest_version` and `current_phase` — become authoritative simultaneously, at this single commit).
+
+### Recorded lifecycle state
+
+`docs/MANIFEST.md` frontmatter `current_phase`: `"Phase 0 — Vision & Foundation" → "Phase 1 — System Architecture"`. New `## Phase 0 Approval Gate — Decision` section added, immediately after the Phase DoD table, pinning the full bundle above plus the explicit state transition and decision-boundary list.
+
+`docs/phase-dod/phase-0-dod.md` and `docs/constitution/14-roadmap.md` **NOT modified** — §10 of the DoD explicitly prohibits the DoD document itself from containing the phase-decision outcome ("`Approved` (phase decision outcome) KHÔNG phải một mục DoD tại đây... nó là outcome của Approval Gate"), and Chapter 14 (Locked, structural) does not require a per-Phase current-state entry — MANIFEST is the authoritative current-state source per I-12 and Chapter 14 §14.4.1's own "current state → MANIFEST" rule.
+
+### "Authorized to Begin" scope
+
+Planning/authoring under existing Phase 1 governance (Chapter 14 §14.2: Software · UX Architecture · Security & Custody Baseline · API · Database · Engine, each ADR-Scope-Rule decision requiring its own ADR, ending in its own Approval Gate) may now start. This does **not** pre-approve any Phase 1 deliverable or architecture decision — each still requires its own review/ADR/DoD/Approval Gate cycle.
+
+### Decision boundaries (explicit, not performed by this transaction)
+
+```text
+Live NOT authorized.
+OQ-001/OQ-002/OQ-003 NOT closed (table unchanged — OQ-001 Partially Resolved,
+  OQ-002/OQ-003 Open).
+No Phase 1 artifact approved or authored.
+No implementation approved.
+No deployment/production operation authorized.
+No Product/Domain/ADR/Constitution semantics changed.
+Phase 0 DoD criteria (phase-0-dod.md §1-§10) not changed — byte-unchanged.
+No Phase 0 package reopened — 0.2-A/B1-B4/C1-C7 and 0.3-A/B/C all byte-unchanged.
+```
+
+### Exact changed-file scope
+
+```text
+docs/MANIFEST.md    MODIFIED manifest_version 10.05 → 10.06, current_phase updated,
+                     new "Phase 0 Approval Gate — Decision" section added (Phase
+                     DoD table row itself unchanged)
+docs/CHANGELOG.md   MODIFIED (this entry, prepended)
+```
+
+### Forbidden-scope verification
+
+KHÔNG `docs/product/`/`docs/domain/`/`docs/adr/`/`docs/architecture/`/`docs/team/`/any locked Constitution chapter (`00`–`13`) touched. KHÔNG ADR created. KHÔNG Phase 1 artifact authored or approved. KHÔNG Live authorized. KHÔNG OQ closed.
+
 ## [Unreleased] — 2026-08-03 — align Package 0.3-B current index state (NOT yet verified)
 
 **Bounded correction to `docs/product/README.md` — addresses `P0-GATE-A-MAJ-01`.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single bounded correction. Package 0.3-B semantics and the full Phase 0 Approval Gate review are NOT reopened.

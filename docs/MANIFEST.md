@@ -1,10 +1,10 @@
 ---
-manifest_version: "10.05"
+manifest_version: "10.06"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.1.0"
-current_phase: "Phase 0 — Vision & Foundation"
+current_phase: "Phase 1 — System Architecture"
 compatible_adr_range: "ADR-001 ~ ADR-014"
 generated_at: "2026-08-03"
 ---
@@ -95,6 +95,104 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | Phase | File | Version | Status | Approved by | Approved at | Note |
 |---|---|---|---|---|---|---|
 | Phase 0 — Vision & Foundation | [`phase-dod/phase-0-dod.md`](phase-dod/phase-0-dod.md) | 0.4 | Approved | Product Owner | 2026-08-03 | **v0.4 acceptance/incorporation — mechanical lifecycle-recording transaction (2026-08-03, Product Owner decision):** Product Owner accepted and incorporated `phase-0-dod.md` v0.4 as the authoritative Definition of Done for Phase 0 — Vision & Foundation. Accepted blob (substantive content, §1–§10, unchanged) `ddf2d465904b785ab8f712f9d37dca4d45c1f49b`, reviewed source HEAD `59a9b071749e38fc2522477504ccd177e60ae046`. Review evidence: ChatGPT bounded Delta Review A CLEAN, Independent bounded Delta Review B CLEAN, Blocker 0, Major 0, Minor 0. Resolved findings: `P0-REM-MAJ-01`/`P0-REM-MAJ-02`/`P0-DELTA-A-MAJ-01`/`P0-DOD-V03-A-MAJ-01` all Resolved. Canonical incorporation (Chapter 14 §14.3.1) established — Phase identity "Phase 0 — Vision & Foundation", Roadmap phase-section identity Chapter 14 v1.6 Locked, DoD identity/version `phase-0-dod.md` v0.4/blob `ddf2d465904b785ab8f712f9d37dca4d45c1f49b`, explicit incorporation decision recorded — all four §14.3.1 conditions satisfied by this single, non-conflicting acceptance evidence. Lifecycle state: `status: Approved` (NOT `Locked` — Chapter 12 §12.2 điểm 5 công nhận `Approved` một mình đã authoritative; Lock is a separate, not-yet-decided state), `approved_by: Product Owner`, `approved_at: "2026-08-03"`. Post-transaction file blob (frontmatter + §11 acceptance record updated, §1–§10 substantive criteria byte-unchanged) `095d0eb1db9ccd6b41a7e53c8081b67b3037b9b2`. This transaction does NOT declare Phase 0 DoD criteria passed, does NOT declare Phase 0 Complete, does NOT open/perform the Phase 0 Approval Gate, does NOT claim a full-scope Backward Consistency Check result, does NOT close `OQ-001`/`OQ-002`/`OQ-003`, does NOT authorize Live, does NOT modify Product/Domain/ADR/Constitution semantics, creates NO ADR. Next action: consolidated Phase 0 Approval Gate review (ChatGPT Review A + Independent Review B on full Phase 0 evidence, including full-scope BCC) before Product Owner Phase 0 Approval Gate decision. **v0.4 — narrow bounded correction (2026-08-03), đóng `P0-DOD-V03-A-MAJ-01`:** §9 Phase-decision bundle requirements phát biểu stale "current candidate hiện v0.1" (đã lỗi thời — artifact đã ở v0.3) — sửa thành "current candidate hiện v0.4, CHƯA accepted, CHƯA incorporated" (v0.4 vì chính correction này tăng version tại đúng transaction sửa). Bounded — KHÔNG đổi §2/§3/§4/§7/§8/§10/§11; `P0-REM-MAJ-01`/`P0-REM-MAJ-02`/`P0-DELTA-A-MAJ-01` giữ nguyên đã resolved. `status: Draft`, `approved_by: null`, `approved_at: null` không đổi — CHƯA accepted, CHƯA incorporated. Blob `ddf2d465904b785ab8f712f9d37dca4d45c1f49b`. **v0.3 — factual lifecycle correction (2026-08-03), đóng `P0-DELTA-A-MAJ-01`** (finding từ Phase 0 Bounded Remediation Delta Review trên v0.2 — CHƯA accepted, chờ ChatGPT Delta Review A + Independent Delta Review B trên parent `a358027f3e6b897bff2791ac1a12fa1f1d40b11e`): v0.2 tuyên bố sai "B4 KHÔNG `Consolidated Stable`" — conflate package/artifact lifecycle. Authoritative MANIFEST state: **Package 0.2-B4 = `Consolidated Stable`** (Product Owner authorized 2026-07-30, reviewed HEAD `cae2b4b115db93ba5f76bcbf28b41c03362789eb`); artifact `context.md` tự nó vẫn `status: Draft` (package/artifact lifecycle tách biệt, KHÔNG mâu thuẫn). §3/§4 sửa để phát biểu current-state chính xác; B4 vẫn liệt kê tường minh là required deliverable (không đổi từ `P0-REM-MAJ-01`). Blob `05546dd454393f346f4da40730d877bcc1e387d4`. **v0.2 — bounded remediation delta (2026-08-03), đóng `P0-REM-MAJ-01`/`P0-REM-MAJ-02`** (findings từ Phase 0 Bounded Remediation Delta Review trên v0.1): `P0-REM-MAJ-01`: §3/§4 bổ sung Package 0.2-B4 (trước đây bỏ sót khỏi danh sách B1–B3) — current-state statement gốc tại v0.2 sau đó xác định là sai, sửa tại v0.3 (xem trên). `P0-REM-MAJ-02`: §7 sửa ambiguity — Blocker/Major KHÔNG BAO GIỜ waive được qua residual-risk acceptance, CHỈ Minor mới đủ điều kiện (KHÔNG đổi tại v0.3). Bounded — KHÔNG mở lại comprehensive audit, KHÔNG finding mới ngoài finding đã liệt kê. `Approved` vẫn KHÔNG phải một DoD item. Product Owner acceptance/incorporation vẫn **CHƯA ghi nhận**. **F-01 gốc (v0.1, 2026-08-03):** declares gate set (Trigger A universal + Trigger E conditional per Chapter 13 §13.12), substantive completion criteria, evidence/validator/review/finding-closure/repository-consistency/phase-decision-bundle requirements per Chapter 12 §12.1–§12.2 và Chapter 14 §14.3/§14.3.1/§14.4/§14.4.1/§14.4.2. KHÔNG tuyên bố Phase 0 hoàn thành, KHÔNG mở Approval Gate, KHÔNG authorize Phase 1. |
+
+## Phase 0 Approval Gate — Decision (immutable Phase-decision bundle, Chapter 14 §14.4.1–§14.4.2)
+
+**Gate decision source HEAD:** `6a2dc18fbf2f7a6c9e578a65c48e0f1cf40a5ed6`.
+
+**Prepared content — Chapter 14 authority (pinned directly here, §14.4.1):**
+
+```text
+Canonical Phase identity:                Phase 0 — Vision & Foundation
+Exact Roadmap version/content identity:  Chapter 14 — Roadmap, v1.6, Locked
+Exact accepted-DoD identity/content
+  version incorporated (§14.3.1):        docs/phase-dod/phase-0-dod.md v0.4
+                                          accepted substantive blob
+                                          ddf2d465904b785ab8f712f9d37dca4d45c1f49b
+                                          post-acceptance blob
+                                          095d0eb1db9ccd6b41a7e53c8081b67b3037b9b2
+                                          status Approved, approved_by Product Owner,
+                                          approved_at 2026-08-03
+Exact gate-set declaration resolved
+  (§14.4, from the incorporated DoD §2):  Trigger A (universal invariant conformance,
+                                          toàn bộ Phase 0 deliverable) + Trigger E
+                                          (schema/contract compatibility, CHỈ Domain
+                                          Contract publish schema) — Trigger B/C/D
+                                          not applicable (no executable
+                                          implementation/tier/boundary tại Phase 0)
+```
+
+**Prepared content — reference-only, authority của chapter khác (bundle chỉ REFERENCE, không redefine):**
+
+```text
+Product Owner DoD-acceptance evidence (Chapter 0 §3):     Phase 0 DoD v0.4 acceptance
+                                                            transaction, HEAD
+                                                            47f7671c4019ebd09923e7811d4cf5676b2e1953
+Required/submitted deliverable evidence (Chapter 12 §12.1): DoD §3 substantive completion
+                                                            criteria — 0.1 Constitution
+                                                            (Chapter 0–14 all Locked,
+                                                            xem section Constitution
+                                                            dưới đây), 0.2 Domain Model
+                                                            (Package 0.2-A/B1-B4/C1-C7
+                                                            all Consolidated Stable), 0.3
+                                                            Product (Package 0.3-A/B/C
+                                                            all Consolidated Stable, PR→
+                                                            UC→UX lineage complete) — mỗi
+                                                            mục resolve từ section tương
+                                                            ứng phía trên trong MANIFEST
+                                                            này
+Applicable Quality Gate result (Chapter 13 §13.9):         Trigger A/E only (§2 trên) —
+                                                            không executable
+                                                            implementation/tier tại Phase
+                                                            0, không Quality Gate theo
+                                                            Tier áp dụng
+Backward Consistency Check result (Chapter 12 §12.4):      NO CONFLICT
+Validator/freshness result (Chapter 11 §11.9):             pass (xem forbidden-scope
+                                                            verification tại commit
+                                                            report)
+Independent review evidence (Chapter 0 §3):
+  Phase 0 Approval Gate Review A:                          completed
+  Frozen finding:                                          P0-GATE-A-MAJ-01
+  Correction commit:                                       6a2dc18fbf2f7a6c9e578a65c48e0f1cf40a5ed6
+  Bounded Review A:                                         CLEAN
+  Independent bounded Review B:                             CLEAN
+  P0-GATE-A-MAJ-01:                                         RESOLVED
+  Blocker:                                                  0
+  Major:                                                    0
+  Minor:                                                    0
+Product Owner decision fact:                                "Phase 0 Approval Gate:
+                                                            APPROVED. Phase 0 — Vision &
+                                                            Foundation: COMPLETE. Phase 1
+                                                            — System Architecture:
+                                                            AUTHORIZED TO BEGIN."
+```
+
+**Resulting MANIFEST transition (authoritative TẠI atomic recording boundary — commit này, cùng lúc với bundle phía trên, §14.4.2):** `manifest_version` `10.05` → `10.06`; `current_phase` `"Phase 0 — Vision & Foundation"` → `"Phase 1 — System Architecture"`.
+
+**Recorded state transition:**
+
+```text
+Phase 0 Approval Gate:              Approved
+Phase 0 — Vision & Foundation:      Complete
+Phase 1 — System Architecture:      Authorized to Begin
+```
+
+**"Authorized to Begin" nghĩa là gì:** planning/authoring dưới Phase 1 governance hiện có (Chapter 14 §14.2: Software · UX Architecture · Security & Custody Baseline · API · Database · Engine, mỗi quyết định thuộc ADR Scope Rule cần ADR riêng, kết thúc bằng Approval Gate riêng) ĐƯỢC PHÉP bắt đầu. Nó **KHÔNG** pre-approve bất kỳ Phase 1 deliverable/architecture decision nào — mỗi deliverable Phase 1 vẫn phải qua đúng quy trình review/ADR/DoD/Approval Gate riêng của chính nó.
+
+**Transaction này KHÔNG:**
+
+```text
+authorize Live
+đóng OQ-001, OQ-002, hay OQ-003 (xem bảng Open Questions — trạng thái không đổi)
+approve bất kỳ Phase 1 artifact nào
+approve implementation
+authorize deployment hay production operation
+sửa Product/Domain/ADR/Constitution semantics nào
+sửa Phase 0 DoD criteria đã accept (phase-0-dod.md §1–§10 byte-unchanged)
+reopen bất kỳ Phase 0 package nào (0.2-A/B1-B4/C1-C7, 0.3-A/B/C đều byte-unchanged)
+```
+
+**Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state. Sau atomic boundary này, evidence bị mất/hỏng là integrity violation, KHÔNG tự động đảo ngược quyết định (§14.4.2).
 
 ## Decision Log
 
