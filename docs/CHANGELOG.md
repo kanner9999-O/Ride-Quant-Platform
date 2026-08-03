@@ -2,6 +2,74 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — approve bounded exploratory-work amendment
+
+**`docs/architecture/phase-1-plan.md` v0.3 Approved by Product Owner.** Vai trò: `Planning Baseline Approval Recorder & Repository Transaction Executor`. Product Owner decision: **"Tao Approve phase-1-plan.md v0.3."** (2026-08-04). Đây là mechanical approval transaction — Package 1.3-C exploratory work KHÔNG mở, ADR-015/ADR-016 KHÔNG sửa.
+
+### Approved artifact
+
+```text
+docs/architecture/phase-1-plan.md   version 0.3 -> 0.4
+                                     status Draft -> Approved
+                                     approved_by: null -> Product Owner
+                                     approved_at: null -> "2026-08-04"
+                                     last_review: null -> "2026-08-04"
+                                     reviewers: [] -> [ChatGPT, Claude]
+                                     blob eb675914050a5ebcabe073b1e4dc312b671c2571
+                                       -> fe272215a28563cf68c4eb28feb525c547240c6d
+```
+
+Thay đổi CHỈ ở lifecycle wording: frontmatter, một paragraph mới `v0.4 — Product Owner approval` tại §0, và hai dòng trong khối `#### Lifecycle` của §6.1 (ghi nhận amendment Approved + Điều kiện (a) đã thỏa cho Gate 1, Điều kiện (b) vẫn cần mechanical opening transaction riêng). Toàn bộ nội dung substantive của §6.1 (Gate 1/Gate 2 definitions, Permitted exploratory purpose, Allowed/Forbidden outputs, Eligibility requirements, Stop conditions, Relationship to ADR-016 resume trigger) và mọi section khác (§4/§5/§7/§8/§9/§10/§13): **không đổi** (verified qua diff hunk inspection — 5 hunks tổng cộng).
+
+### Review evidence
+
+```text
+Phase 1 Plan §6.1 bounded amendment:
+  Review A:                     CLEAN
+  Independent Review B:         CLEAN
+  Backward Consistency Check:   NO CONFLICT
+  Blocker 0, Major 0, Minor 0
+```
+
+### Approval effect — Gate 1 eligible, Gate 2 unchanged
+
+```text
+Gate 1 (exploratory authoring authorization): eligible to be opened through a separate
+  mechanical opening transaction (Product Owner decision fact + MANIFEST record) — this
+  approval does NOT itself open Gate 1. Package 1.3-C exploratory work: not yet opened.
+Gate 2 (normal Package 1.3-C authorization): remains blocked — unchanged. Still requires
+  1.3-B Consolidated Stable, Package 1.1 Consolidated Stable (transitively), and ADR-016
+  Approved (if it affects 1.3-C content).
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/phase-1-plan.md   MODIFIED (approval transition, xem trên)
+docs/MANIFEST.md                    MODIFIED (manifest_version 10.17 -> 10.18,
+                                     architecture/phase-1-plan.md row updated)
+docs/CHANGELOG.md                   MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/adr/ADR-015.md                             unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/adr/ADR-016.md                             unchanged, v0.4, Draft, Decision Deferred, blob 5385ff81e6da480a7bee8c71279d82a16c1913cd
+docs/architecture/module-registry.yaml          unchanged, v0.2, blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md       unchanged, v0.2, blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                     unchanged
+```
+
+### Package/Phase lifecycle after approval — explicit, unaffected states
+
+`phase-1-plan.md`: `Approved` — bounded exploratory exception (§6.1) now established as governed. `Package 1.3-C exploratory work`: **not yet opened**, requires a separate mechanical opening transaction. `Normal Package 1.3-C authoring`: blocked under Gate 2, unchanged. `ADR-016`: **giữ nguyên** `Draft`, `Decision Deferred`, `approved_by: null` — không Approved, không bị sửa bởi transaction này. `Package 1.1`: **giữ nguyên** `Draft`/`candidate`/`blocked` cho tới khi ADR-016 resolve — không `Consolidated Stable`, không `Approved`. `Phase 1`: `Active`, `not Complete`. `Phase 2`: `Not Opened`. `Live`: `Unauthorized`.
+
+### Forbidden-scope verification
+
+KHÔNG Package 1.3-C exploratory work opened. KHÔNG Package 1.3-C evidence authored. KHÔNG Gate 2 passed. KHÔNG hybrid selected. KHÔNG split selected. KHÔNG ADR-016 approved. KHÔNG Decision Engine taxonomy resolved. KHÔNG Package 1.1 modified. KHÔNG Package 1.1 consolidated or approved. KHÔNG Decision semantics/algorithm authored. KHÔNG implementation authorized. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — add bounded exploratory-work exception (ADR-016 evidence path)
 
 **Narrow amendment to `docs/architecture/phase-1-plan.md` §6.** Vai trò: `Planning Amendment Author & Repository Transaction Executor`. Product Owner authorized: `"Tao authorize narrow amendment cho phase-1-plan.md §6 để sau đó mở bounded Package 1.3-C exploratory work."` (2026-08-04). Authorization này cho phép amendment AUTHORING ONLY — nó KHÔNG pre-approve amendment và KHÔNG mở Package 1.3-C.

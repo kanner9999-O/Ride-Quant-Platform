@@ -1,14 +1,14 @@
 ---
 id: phase-1-plan
 title: "Phase 1 — System Architecture: Planning Baseline"
-version: "0.3"
-status: Draft
+version: "0.4"
+status: Approved
 owner: Product Owner
-reviewers: []
-approved_by: null
-approved_at: null
+reviewers: [ChatGPT, Claude]
+approved_by: Product Owner
+approved_at: "2026-08-04"
 created_at: "2026-08-03"
-last_review: null
+last_review: "2026-08-04"
 next_review: null
 depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principles", "04-domain-principles", "07-module-taxonomy", "08-event-model", "09-plugin-model", "10-compatibility-capability-contract", "11-adr-process", "12-approval-gates", "13-quality-gates", "14-roadmap"]
 ---
@@ -28,6 +28,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 **v0.2 — bounded remediation (2026-08-03), đóng `P1-PLAN-A-MAJ-01`/`P1-PLAN-A-MAJ-02`:** (1) `P1-PLAN-A-MAJ-01` — Package 1.1 trước đây chỉ grounding trên Chapter 7/`context-map.yaml`/domain registry, chưa tường minh consume toàn bộ Phase 0 Product authority (`product-requirement.md`/`use-case-workflow.md`/`ux-blueprint.md`) để chứng minh technical-realization completeness. Sửa: §5.3, §8 Package 1.1 (Purpose/Inputs/Bounded coverage requirement/Review A scope/Independent Review B scope/Consolidation condition) nay tường minh consume cả ba Product artifact làm coverage-completeness input — KHÔNG làm module-taxonomy authority, KHÔNG redefine Product/UX semantics, KHÔNG one-module-per-PR/UC/screen rule. (2) `P1-PLAN-A-MAJ-02` — §5.3 authority map chứa placeholder mơ hồ ("PR liên quan Live-gate", "PR-XXX liên quan Backtest/Replay", "SCR liên quan Backtest", "Screen liên quan Paper") VÀ lỗi đặt nhầm `UC-XXX` identifier vào cột Product Requirement (1.3-C, 1.3-D). Sửa: cả chín row §5.3 nay chỉ chứa `PR-XXX`/`UC-XXX`/`SCR-`/`VIEW-`/`WS-` identifier chính xác hoặc dấu gạch ngang tường minh khi genuinely không có — derive từ `use-case-workflow.md` §5 catalogue (Primary PR(s)) và `ux-blueprint.md` §6 catalogue (Screen/UC mapping), xem footnote `[^cov]`–`[^f]` cho methodology đầy đủ. Bounded — KHÔNG đổi số lượng workstream, chín-package decomposition, package dependency graph, parallelism model, engine pipeline ordering, quality-gate trigger model, package lifecycle/review model, candidate Phase 1 completion criteria, hay `DD-001`/`DD-003` lifecycle. KHÔNG author module interface/API schema/database schema/deployment design/security implementation/custody implementation/Engine algorithm/source code/ADR decision/Phase 1 DoD. `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
 
 **v0.3 — narrow amendment (2026-08-04):** Product Owner authorized ("Tao authorize narrow amendment cho phase-1-plan.md §6 để sau đó mở bounded Package 1.3-C exploratory work.") một amendment hẹp tại §6 (mục `### 6.1 Bounded exploratory-work exception — ADR-016 evidence path`) — thiết lập một governed exception CHO PHÉP bounded Package 1.3-C exploratory architecture work, DUY NHẤT để sản xuất evidence cần thiết để resume ADR-016 (Decision Engine taxonomy, hiện `Decision Deferred`). Exception tách bạch tường minh hai gate: Gate 1 (exploratory authoring authorization) và Gate 2 (normal package authorization, vẫn blocked) — pass Gate 1 KHÔNG BAO GIỜ ngụ ý Gate 2 đã pass. **Amendment này CHỈ authoring — KHÔNG mở Package 1.3-C exploratory work, KHÔNG sửa ADR-015/ADR-016, KHÔNG resolve Decision Engine taxonomy, KHÔNG chọn hybrid/split.** Narrow, bounded — KHÔNG đổi workstream/package decomposition (§4), dependency graph (§5), package definitions khác (§8), ADR-scope anticipation map (§7), quality-gate trigger map (§9), hay candidate completion criteria (§10). `status: Draft`, `approved_by: null`, `approved_at: null` không đổi — amendment tự nó vẫn Draft candidate, chưa Approved.
+
+**v0.4 — Product Owner approval (2026-08-04):** Product Owner đã quyết định: **"Tao Approve phase-1-plan.md v0.3."** — sau khi §6.1 bounded amendment (v0.3) hoàn tất review: Review A CLEAN, Independent Review B CLEAN, Backward Consistency Check NO CONFLICT, Blocker 0/Major 0/Minor 0. `status: Draft → Approved`, `version: 0.3 → 0.4`, `approved_by: Product Owner`, `approved_at: "2026-08-04"`, `last_review: "2026-08-04"`, `reviewers: [ChatGPT, Claude]`. Approval này thiết lập §6.1 bounded exploratory exception làm governed, **established**: **Gate 1** (exploratory authoring authorization) nay eligible để mở qua một mechanical opening transaction riêng — approval NÀY TỰ NÓ KHÔNG mở Gate 1, Package 1.3-C exploratory work **not yet opened**. **Gate 2** (normal Package 1.3-C authoring) vẫn `blocked` — không đổi. **Approval này KHÔNG mở Package 1.3-C exploratory work, KHÔNG author Package 1.3-C evidence, KHÔNG pass Gate 2, KHÔNG chọn hybrid, KHÔNG chọn split, KHÔNG approve ADR-016, KHÔNG resolve Decision Engine taxonomy, KHÔNG sửa Package 1.1, KHÔNG consolidate/approve Package 1.1, KHÔNG author Decision semantics/algorithm, KHÔNG authorize implementation, KHÔNG tuyên bố Phase 1 hoàn thành, KHÔNG mở Phase 2, KHÔNG authorize Live.** [ADR-016](../adr/ADR-016.md) vẫn `Draft`/`Decision Deferred`/không Approved (không sửa bởi transaction này); Package 1.1 vẫn `blocked` cho tới khi ADR-016 resolve, không `Consolidated Stable`, không `Approved`. Phase 1 vẫn `Active`/`not Complete`; Phase 2 `Not Opened`; Live `Unauthorized`.
 
 ## 1. Canonical project state (kế thừa, không đổi)
 
@@ -328,14 +330,20 @@ Exploratory work phải dừng ngay khi bất kỳ điều nào sau xảy ra:
 #### Lifecycle
 
 ```text
-Planning amendment (subsection này):     Draft cho tới khi reviewed và Product Owner
-                                          Approved (transaction riêng, chưa xảy ra ở
-                                          đây).
-Package 1.3-C exploratory work:          CHỈ được bắt đầu SAU KHI (a) amendment này
-                                          Approved VÀ (b) một mechanical opening
-                                          transaction riêng được ghi nhận (Product Owner
-                                          decision fact + MANIFEST record) — KHÔNG tự
-                                          động mở khi amendment Approved.
+Planning amendment (subsection này):     Approved (Product Owner, 2026-08-04 — "Tao
+                                          Approve phase-1-plan.md v0.3.") — Review A
+                                          CLEAN, Independent Review B CLEAN, Backward
+                                          Consistency Check NO CONFLICT, Blocker 0/
+                                          Major 0/Minor 0. Bounded exploratory exception
+                                          nay established.
+Package 1.3-C exploratory work:          Điều kiện (a) — amendment Approved — nay ĐÃ
+                                          thỏa; điều kiện (b) — một mechanical opening
+                                          transaction riêng — vẫn CẦN được ghi nhận
+                                          (Product Owner decision fact + MANIFEST
+                                          record) trước khi Gate 1 thực sự mở. KHÔNG tự
+                                          động mở bởi approval này — vẫn "not yet
+                                          opened". Gate 2 (normal Package 1.3-C
+                                          authorization) vẫn blocked, không đổi.
 Exploratory artifact (khi được author):  Draft, non-authoritative, evidence-only.
 ADR-016:                                 giữ nguyên Draft, Decision Deferred, cho tới
                                           khi năm resume trigger (dưới) thỏa đầy đủ.
