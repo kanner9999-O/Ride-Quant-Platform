@@ -2,6 +2,88 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — remove final invalid STATE-002 trace links
+
+**Package 0.3-C final mechanical traceability correction — đóng đúng một finding từ delta review trên baseline v0.4.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Apply exactly one final mechanical traceability correction to Package 0.3-C... Remove exactly these two invalid mappings: PR-007 → STATE-002, PR-032 → STATE-002." KHÔNG behavior/UX/navigation/flow/state/authority/lifecycle semantics change — CHỈ hai traceability link tại `STATE-002`. Authorization này **không** cho phép sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/Constitution/ADR/architecture, tạo `PR-XXX`/`UC-XXX` mới, thêm/bớt/đổi tên stable UX ID, thay đổi STATE-002 UC traceability hay applicable screens, sửa bất kỳ mapping nào khác, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.
+
+### Baseline and blob verification
+
+```text
+Expected HEAD:  6bede763ee3cf56a64da1a9193568390cdfaedf3
+Actual HEAD:    6bede763ee3cf56a64da1a9193568390cdfaedf3  — match
+
+ux-blueprint.md:          v0.4 Draft, blob 47e57a9d9f8e35c3ce66643a2666a83181d10e84  — match
+product/README.md:        blob 7d4ad68b177974cc1f102fe6144005ea7ebeb999  — match
+product-requirement.md:   v0.2 Draft, blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8  — match
+use-case-workflow.md:     v0.3 Draft, blob affbb723b577cde4c8627dd689550e3bfbffb5d1  — match
+```
+
+### Exact removed links
+
+```text
+PR-007 → STATE-002   REMOVED (retained: FLOW-004, NAV-004, SCR-006, SCR-007, STATE-015, STATE-016)
+PR-032 → STATE-002   REMOVED (retained: FLOW-005, FLOW-006, NAV-006, SCR-011, STATE-025, STATE-026, VIEW-005)
+```
+
+**Rationale:** `PR-007`'s acceptance evidence ("với NOT_EXECUTED, người dùng thấy rõ zero Fill") describes the NOT_EXECUTED outcome of an Order that already exists — already owned by `STATE-016`/`STATE-017` — not the "no Order/Fill exists yet" condition that `STATE-002` at SCR-007 represents. `PR-032` governs querying outcome across an inactive/old Strategy Definition Version — already owned by `VIEW-005`/`STATE-025`/`STATE-026`/`NAV-006`/`FLOW-005`/`FLOW-006` — not the minimum-record-count-for-comparison condition at SCR-011.
+
+### Final STATE-002 mapping
+
+```text
+UC traceability:   UC-007, UC-008, UC-009, UC-010, UC-012, UC-013, UC-014, UC-015, UC-020  (unchanged)
+PR traceability:   PR-021, PR-034
+Applicable screens: SCR-004, SCR-005, SCR-007, SCR-011  (unchanged)
+```
+
+### Exact changed-file scope
+
+```text
+docs/product/ux-blueprint.md         MODIFIED v0.4 → v0.5   blob 2c27af9e1d813b2afd761c6a69fa01d97f737cef
+docs/product/README.md               MODIFIED v1.1 → v1.2   blob 9b38dfa146ae72fe77088204a7ca5e51a8f50f40
+docs/MANIFEST.md                     MODIFIED manifest_version 9.90 → 9.91
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/product-requirement.md  KHÔNG ĐỔI — blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8, verified byte-identical
+docs/product/use-case-workflow.md    KHÔNG ĐỔI — blob affbb723b577cde4c8627dd689550e3bfbffb5d1, verified byte-identical
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Corrected artifact version and status
+
+`ux-blueprint.md`: `version: "0.5"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### Stable ID counts and ranges (unchanged — mechanical correction)
+
+`WS-001` (1); `NAV-001`–`NAV-006` (6); `SCR-001`–`SCR-011` (11); `VIEW-001`–`VIEW-006` (6); `FLOW-001`–`FLOW-006` (6); `STATE-001`–`STATE-029` (29) — no ID added, removed, renamed or reordered.
+
+### Proof no other mapping or behavior changed
+
+`git diff` reviewed line-by-line: every changed line is (a) frontmatter `version`, (b) the new v0.5 summary paragraph (v0.3/v0.4 paragraphs unchanged), (c) the `STATE-XXX` table header note, (d) the `STATE-002` table row's PR-traceability cell and label (UC/screen columns byte-identical), (e) the STATE-001/STATE-002 rationale prose block, (f) `§14e` STATE-002 line, (g) `§14g` PR-007/PR-032 lines, (h) `§17` criterion 18 version string. No other `STATE-XXX` row, no `SCR`/`VIEW`/`NAV`/`FLOW`/`WS` block, and no behavioral field (Purpose/Entry-Exit/Required context/Information displayed/Actions/Authority labels/Domain vocabulary/Out-of-scope) was touched.
+
+### Retained legitimate mappings (verified)
+
+`PR-007` → `FLOW-004`, `NAV-004`, `SCR-006`, `SCR-007`, `STATE-015`, `STATE-016` — all present, unchanged. `PR-032` → `FLOW-005`, `FLOW-006`, `NAV-006`, `SCR-011`, `VIEW-005`, `STATE-025`, `STATE-026` — all present, unchanged.
+
+### Upstream-integrity verification
+
+All `UC-001`–`UC-021` (21/21) and all `PR-001`–`PR-034` (34/34) confirmed present in at least one direct artifact mapping (script-verified regex extraction); `product-requirement.md`/`use-case-workflow.md` confirmed byte-identical via `git diff --stat` and `git hash-object`; no Domain Contract/ADR/Constitution/architecture artifact touched.
+
+### Author self-review
+
+Automated re-verification: `WS`(1)/`NAV`(6)/`SCR`(11)/`VIEW`(6)/`FLOW`(6)/`STATE`(29) unchanged, unique/sequential/contiguous; `STATE-002 → PR-007` and `STATE-002 → PR-032` confirmed absent everywhere in the document; `PR-007`/`PR-032` confirmed retaining all listed legitimate surfaces; markdown table column-count consistency re-verified; YAML frontmatter re-validated via `yaml.safe_load` (`version: "0.5"`, `status: Draft`, `approved_by: null`, `approved_at: null`); `git status --porcelain`/`git diff --stat` confirm only the four allowed files changed, forbidden files byte-identical.
+
+### Metadata / state
+
+- `ux-blueprint.md`: **v0.4 → v0.5**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `product-requirement.md`/`use-case-workflow.md`: **không đổi** — byte-for-byte.
+- `product/README.md`: **v1.1 → v1.2**.
+- `MANIFEST.md`: `manifest_version` **9.90 → 9.91**.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-C: final mechanical traceability correction đã author, status Draft, chưa `Consolidated Stable`, đang chờ ChatGPT mechanical final review.** `OQ-002`/`OQ-003` vẫn `Open`. Không authorize Live. Không artifact nào Approved hay Locked. Phase 0.3 vẫn active — Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-08-03 — finalize Package 0.3-C traceability mappings
 
 **Package 0.3-C final traceability-only correction — đóng đúng một finding từ delta review trên baseline v0.3.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Perform exactly one final traceability-only correction for: P03C-MAJ-01. This is a metadata and traceability correction only." KHÔNG thay đổi product behavior, UX behavior, navigation, flows, states, authority semantics hay lifecycle semantics — CHỈ traceability metadata (PR/UC mapping references) tại §6/§7/§11/§14. Authorization này **không** cho phép sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/Constitution/ADR/architecture, tạo `PR-XXX`/`UC-XXX` mới, thêm/bớt/đổi tên stable UX ID, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.
