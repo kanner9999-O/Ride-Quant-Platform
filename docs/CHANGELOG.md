@@ -2,6 +2,66 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — correct stale Constitution authority statements (F-02)
+
+**Locked Constitution factual-state correction — Phase 0 Exit Readiness Audit finding `F-02` (MAJOR).** Vai trò: `Constitution Revision Author · Repository Transaction Executor`. Product Owner authorized this correction as part of the frozen Phase 0 remediation finding set (F-01–F-08). Scope strictly bounded to the two verified stale present-tense claims identified by the audit — no gate semantics, quality-gate semantics, or roadmap sequencing changed.
+
+### Chapter 0 §5.1 assessment (required before editing a Locked artifact)
+
+```text
+Does the correction alter constitutional meaning?     NO — gate/quality-gate semantics and roadmap
+                                                        sequencing unchanged byte-for-byte; only a
+                                                        cross-reference to another chapter's lifecycle
+                                                        state is corrected.
+Does it require an ADR?                                NO — not a Platform Invariant/Event Schema/
+                                                        Module Taxonomy/Governance-process change; does
+                                                        not affect >1 module; does not modify/supersede
+                                                        any ADR (Chapter 0 §4b ADR Scope Rule).
+Is it a factual lifecycle-status correction only?      YES — Chapter 13 (frontmatter status: Locked,
+                                                        v1.7, approved 2026-07-28) and Chapter 14
+                                                        (frontmatter status: Locked, v1.5, approved
+                                                        2026-07-28) were already Locked per their own
+                                                        frontmatter AND per MANIFEST's Constitution
+                                                        table — the stale prose in Chapter 12 §12.3 and
+                                                        Chapter 14's own opening banner never caught up.
+```
+
+Conclusion: version bump required (Chapter 0 §5.1, same-version edits to Locked artifacts forbidden); ADR NOT required.
+
+### Corrected stale claims
+
+```text
+docs/constitution/12-approval-gates.md §12.3:
+  - table row "Quality criteria/gate" / "Phase-specific sequence & DoD content" — removed "hiện `In
+    Review`" for Chapter 13/Chapter 14, replaced with actual `Locked`/version/date.
+  - prose sentence "Chapter 13 và Chapter 14 hiện `In Review` ... không phải binding Locked authority"
+    — replaced with accurate current-state statement, both LÀ binding Locked authority.
+  version: "1.4" → "1.5"
+
+docs/constitution/14-roadmap.md opening banner (line 18):
+  - "> **Trạng thái:** `In Review`. ... nội dung draft **chưa phải binding Locked authority**." —
+    replaced with accurate `Locked` (v1.5, approved 2026-07-28) status statement.
+  version: "1.5" → "1.6"
+```
+
+### Forbidden-scope verification
+
+KHÔNG gate semantics/quality-gate semantics/roadmap sequencing nào đổi — §12.1/§12.2/§12.4 (Chapter 12) và §14.1–§14.4.2/§14.2 phase sequence (Chapter 14) giữ nguyên byte-for-byte (verified via `git diff` — chỉ frontmatter + hai đoạn factual-status text thay đổi). KHÔNG ADR mới/sửa. KHÔNG Platform Invariant/Event Schema/Module Taxonomy nào đổi.
+
+### Metadata / state
+
+```text
+docs/constitution/12-approval-gates.md:  v1.4 → v1.5, status Locked (unchanged), approved_by: Product
+                                           Owner, approved_at: 2026-08-03, blob
+                                           5fbdc7bf252b463b2217c7ce3c7dcdaf62e68c19
+docs/constitution/14-roadmap.md:          v1.5 → v1.6, status Locked (unchanged), approved_by: Product
+                                           Owner, approved_at: 2026-08-03, blob
+                                           f2cd722218bd80b40241e26530a1919811fedad9
+docs/MANIFEST.md:                         manifest_version 9.92 → 9.93, generated_at → 2026-08-03
+```
+
+Package 0.2-A/B/C, Package 0.3-A/B/C lifecycle states unchanged. `OQ-002`/`OQ-003` vẫn `Open`. Live vẫn `Unauthorized`. Phase 0 vẫn active, chưa Complete. Phase 1 vẫn `Unauthorized`.
+
 ## [Unreleased] — 2026-08-03 — stabilize Package 0.3-C
 
 **Package 0.3-C metadata-only lifecycle stabilization.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.3-C: Consolidated Stable" (2026-08-03), approved semantic baseline `bf6d4c99d5967785b3acf3d536b8d3ef5078fa79`. Authorization này cho phép ghi Package 0.3-C vào lifecycle state `Consolidated Stable` VÀ populate `ux-blueprint.md` `approved_by`/`approved_at` — nó KHÔNG cho phép đổi semantic version, KHÔNG Lock trạng thái `status`, KHÔNG sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/ADR/Constitution/architecture nào, KHÔNG đóng OQ-002/OQ-003, KHÔNG authorize Live, KHÔNG tuyên bố Phase 0 hoàn thành, KHÔNG authorize Phase 1.

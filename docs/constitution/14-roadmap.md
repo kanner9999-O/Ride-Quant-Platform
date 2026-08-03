@@ -1,21 +1,21 @@
 ---
 id: 14-roadmap
 title: Roadmap
-version: "1.5"
+version: "1.6"
 status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: Kanner
-approved_at: "2026-07-28"
+approved_by: Product Owner
+approved_at: "2026-08-03"
 created_at: "2026-07-16"
-last_review: "2026-07-28"
+last_review: "2026-08-03"
 next_review: null
 depends_on: ["00-governance", "01-vision", "02-platform-invariants", "03-engineering-principles", "04-domain-principles", "05-time-model", "06-identity-model", "07-module-taxonomy", "08-event-model", "09-plugin-model", "10-compatibility-capability-contract", "11-adr-process", "12-approval-gates", "13-quality-gates"]
 ---
 
 # 14. Roadmap
 
-> **Trạng thái:** `In Review`. Theo [Chapter 12 §12.3](./12-approval-gates.md) (Locked), khi còn `In Review` chương này được prose-reference như **intended owner** của phase sequence và DoD content, nhưng nội dung draft **chưa phải binding Locked authority**. Các yêu cầu dưới đây chỉ trở thành authoritative phase plan mà [Chapter 12 §12.1–§12.2](./12-approval-gates.md) và [Chapter 13 §13.12](./13-quality-gates.md) tham chiếu **sau khi** Product Owner Approve/Lock.
+> **Trạng thái:** `Locked` (v1.5, Product Owner Approve/Lock 2026-07-28 — xem [MANIFEST](../MANIFEST.md) cho current version/status authoritative). **v1.6 factual correction (2026-08-03, đóng `F-02`):** banner này trước đây còn khai `In Review`/"chưa phải binding Locked authority" — stale kể từ boundary Lock 2026-07-28. Chapter 0 §5.1 assessment: correction KHÔNG đổi constitutional meaning (phase sequence/DoD cardinality/gate-set declaration rule giữ nguyên byte-for-byte), KHÔNG thuộc ADR Scope Rule ([Chapter 0 §4b](./00-governance.md)), CHỈ là factual lifecycle-status correction — KHÔNG cần ADR. Theo [Chapter 12 §12.3](./12-approval-gates.md) (Locked), chương này là **intended owner** của phase sequence và DoD content, và nội dung **LÀ binding Locked authority** kể từ boundary Lock. Các yêu cầu dưới đây là authoritative phase plan mà [Chapter 12 §12.1–§12.2](./12-approval-gates.md) và [Chapter 13 §13.12](./13-quality-gates.md) tham chiếu.
 
 ## 14.1 Phạm vi và thẩm quyền
 

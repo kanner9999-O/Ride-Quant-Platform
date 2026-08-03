@@ -1,14 +1,14 @@
 ---
 id: 12-approval-gates
 title: Approval Gates
-version: "1.4"
+version: "1.5"
 status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
 approved_by: Product Owner
-approved_at: "2026-07-27"
+approved_at: "2026-08-03"
 created_at: "2026-07-16"
-last_review: "2026-07-27"
+last_review: "2026-08-03"
 next_review: null
 depends_on: ["00-governance", "11-adr-process"]
 ---
@@ -74,12 +74,14 @@ Chapter 12 sở hữu **phase approval orchestration**. Các gate/authority khá
 | Review eligibility (số lượng, role, no-veto) | [Chapter 0 §3](./00-governance.md) / [Chapter 11 §11.5](./11-adr-process.md) |
 | ADR approval & lifecycle | [Chapter 11](./11-adr-process.md) |
 | Phase approval orchestration | **Chapter 12 (chương này)** |
-| Quality criteria/gate | Approved/Locked quality contract — intended owner: Chapter 13 (Quality Gates, hiện `In Review`) |
-| Phase-specific sequence & DoD content | Approved roadmap hoặc phase plan — intended owner: Chapter 14 (Roadmap, hiện `In Review`) |
+| Quality criteria/gate | Approved/Locked quality contract — owner: Chapter 13 (Quality Gates, `Locked`, v1.7, 2026-07-28) |
+| Phase-specific sequence & DoD content | Approved roadmap hoặc phase plan — owner: Chapter 14 (Roadmap, `Locked`, v1.5, 2026-07-28) |
 | Governance activation | governing ADR + atomic authoritative state transition ([ADR-011 §4](../adr/ADR-011.md)) |
 | Current ADR/OQ state · document version/status | [MANIFEST](../MANIFEST.md) theo [I-12](./02-platform-invariants.md) |
 
-Chapter 13 và Chapter 14 hiện `In Review`: được prose-reference như **intended owner**, nhưng nội dung draft hiện tại **không phải binding Locked authority**. Chapter 12 **không** thêm Chapter 14 vào `depends_on` vì Chapter 14 đã `depends_on` Chapter 12 (tránh dependency cycle).
+**v1.5 factual correction (2026-08-03, đóng `F-02`):** bảng trên và đoạn dưới đây trước đây khai Chapter 13/Chapter 14 `In Review`/"không phải binding Locked authority" — stale kể từ khi cả hai Lock (Chapter 13 v1.7, 2026-07-28; Chapter 14 v1.5, 2026-07-28, xem [MANIFEST](../MANIFEST.md)). Chapter 0 §5.1 assessment: correction KHÔNG đổi constitutional meaning (gate/quality-gate semantics và roadmap sequencing giữ nguyên byte-for-byte), KHÔNG thuộc ADR Scope Rule ([Chapter 0 §4b](./00-governance.md) — không phải Platform Invariant/Event Schema/Module Taxonomy/Governance-process change, không sửa/supersede ADR nào), CHỈ là factual lifecycle-status correction — KHÔNG cần ADR.
+
+Chapter 13 và Chapter 14 nay đều `Locked` (xem [MANIFEST](../MANIFEST.md) cho current version/status authoritative): được prose-reference như **intended owner** của quality criteria/gate semantics (Chapter 13) và phase sequence/DoD content (Chapter 14) — nội dung của cả hai chương **LÀ binding Locked authority** kể từ boundary Lock tương ứng. Chapter 12 **không** thêm Chapter 14 vào `depends_on` vì Chapter 14 đã `depends_on` Chapter 12 (tránh dependency cycle).
 
 ## 12.4 Backward Consistency Check
 

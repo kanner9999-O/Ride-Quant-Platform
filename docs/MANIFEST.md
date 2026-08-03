@@ -1,12 +1,12 @@
 ---
-manifest_version: "9.92"
+manifest_version: "9.93"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.1.0"
 current_phase: "Phase 0 — Vision & Foundation"
 compatible_adr_range: "ADR-001 ~ ADR-014"
-generated_at: "2026-07-31"
+generated_at: "2026-08-03"
 ---
 
 # Documentation Manifest (Lockfile)
@@ -17,7 +17,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 **Constitution Version:** 1.1.0 — độc lập với Project Version (Project có thể lên v0.8 trong khi Constitution vẫn 1.1.0, hoặc ngược lại)
 **Schema Version của Manifest:** 1 — đổi format Manifest sau này phải bump field này để tooling không vỡ ngầm.
 
-**Chapter 0 — Governance: `Locked`** (2026-07-25, v1.1, ADR-011 activation). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). **Chapter 10 — Compatibility & Capability Contract: `Locked`** (2026-07-24, v2.7, approved by Kanner). **Chapter 11 — ADR Process: `Locked`** (2026-07-25, v2.1, ADR-011 activation). **Chapter 12 — Approval Gates: `Locked`** (2026-07-27, v1.4, approved by Product Owner). **Chapter 13 — Quality Gates: `Locked`** (2026-07-28, v1.7, approved by Kanner). **Chapter 14 — Roadmap: `Locked`** (2026-07-28, v1.5, approved by Kanner).
+**Chapter 0 — Governance: `Locked`** (2026-07-25, v1.1, ADR-011 activation). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). **Chapter 10 — Compatibility & Capability Contract: `Locked`** (2026-07-24, v2.7, approved by Kanner). **Chapter 11 — ADR Process: `Locked`** (2026-07-25, v2.1, ADR-011 activation). **Chapter 12 — Approval Gates: `Locked`** (2026-08-03, v1.5, approved by Product Owner — F-02 factual correction: removed stale "Chapter 13/14 In Review" claim, closes `F-02`). **Chapter 13 — Quality Gates: `Locked`** (2026-07-28, v1.7, approved by Kanner). **Chapter 14 — Roadmap: `Locked`** (2026-08-03, v1.6, approved by Product Owner — F-02 factual correction: opening banner now reflects actual `Locked` status, closes `F-02`).
 
 ## Constitution
 
@@ -35,9 +35,9 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/09-plugin-model.md | 2.9 | **Locked** | Product Owner | 02-platform-invariants, 07-module-taxonomy, 08-event-model |
 | constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
 | constitution/11-adr-process.md | 2.1 | **Locked** | Product Owner | 00-governance, 02-platform-invariants |
-| constitution/12-approval-gates.md | 1.4 | Locked | Product Owner | 00-governance, 11-adr-process |
+| constitution/12-approval-gates.md | 1.5 | Locked | Product Owner | 00-governance, 11-adr-process |
 | constitution/13-quality-gates.md | 1.7 | Locked | Product Owner | 02-platform-invariants, 07-module-taxonomy |
-| constitution/14-roadmap.md | 1.5 | Locked | Product Owner | ALL |
+| constitution/14-roadmap.md | 1.6 | Locked | Product Owner | ALL |
 
 ## ADR
 
