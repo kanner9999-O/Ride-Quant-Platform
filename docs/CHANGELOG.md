@@ -2,6 +2,61 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — correct Phase 1 authority coverage (NOT yet verified)
+
+**Bounded remediation to `docs/architecture/phase-1-plan.md` — addresses `P1-PLAN-A-MAJ-01` and `P1-PLAN-A-MAJ-02`.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single bounded correction package. The complete Phase 1 planning design is NOT reopened.
+
+**This correction is NOT verified.** It awaits bounded Review A and independent bounded Review B.
+
+### P1-PLAN-A-MAJ-01 — Package 1.1 missing explicit Product authority coverage
+
+Package 1.1 (System Decomposition & Module Registry) grounded itself only on Chapter 7, `context-map.yaml`, and the domain registry — it did not explicitly consume `product-requirement.md`/`use-case-workflow.md`/`ux-blueprint.md` to validate technical-realization completeness. Fixed — §5.3, and §8 Package 1.1 (Purpose, Inputs, new "Bounded coverage requirement", Review A scope, Independent Review B scope, Consolidation condition) now explicitly consume all three Consolidated Stable Product artifacts as coverage-completeness input:
+
+```text
+Bounded requirement added: every architectural responsibility required to realize the
+Consolidated Stable Product Requirement, Use Case & Workflow, and UX Blueprint must be
+mapped to a module/responsibility, or explicitly deferred with an authoritative reason.
+
+Preserved: no one-module-per-PR rule, no one-module-per-UC rule, no one-module-per-screen
+rule, no Product/UX semantic redefinition, no concrete interface/deployment design.
+```
+
+### P1-PLAN-A-MAJ-02 — invalid/vague §5.3 authority-map entries
+
+§5.3 contained vague placeholder phrases ("PR liên quan Live-gate", "PR-XXX liên quan Backtest/Replay", "SCR liên quan Backtest", "Screen liên quan Paper") and a column-swap error — `UC-XXX` identifiers placed in the Product Requirement column for Package 1.3-C ("UC-001–UC-003, UC-007") and Package 1.3-D ("UC-011–UC-015"). Fixed — all nine rows now contain only exact `PR-XXX`/`UC-XXX`/`SCR-`/`VIEW-`/`WS-` identifiers or an explicit em dash where genuinely none exists, derived from `use-case-workflow.md` §5 (Use Case catalogue, Primary PR(s)) and `ux-blueprint.md` §6 (Screen and view catalogue) — methodology recorded as footnotes `[^cov]`–`[^f]` in the plan itself. Package 1.2 (PR-002/UC-011/WS-001) and Package 1.3-B (explicit em dash, no PR/UC/screen cites `feature.md`/`context.md` as primary domain vocabulary independently) were derived from genuine authoritative traceability, not guessed from wording similarity.
+
+### Preserved (unchanged)
+
+```text
+Six workstreams / nine-package decomposition, package dependency graph, parallelism
+model, engine pipeline ordering, quality-gate trigger model, package lifecycle/review
+model, candidate Phase 1 completion criteria, DD-001/DD-003 lifecycle — all byte-
+unchanged (verified via diff hunk inspection — only §5.3 table and §8 Package 1.1
+fields touched).
+```
+
+### Unchanged Product-artifact proof
+
+`product-requirement.md`, `use-case-workflow.md`, `ux-blueprint.md` were read as sources but NOT modified — `git diff --stat` on `docs/product/` is empty.
+
+### Exact changed-file scope
+
+```text
+docs/architecture/phase-1-plan.md   MODIFIED version 0.1 → 0.2
+                                     blob 42cd290466c43e971c34aa048c40a1cf9e8beb09
+                                       → ccc5d0b213f5d6fe04fcecd54ce3d5d6cf9b2f3b
+docs/architecture/README.md         MODIFIED (plan-version pointer v0.1 → v0.2 only)
+                                     blob 06e06c0a863a17c34933016e92c6539d7a5170be
+                                       → 1dd2dd67749ea971d0c3e416283bdb092df89117
+docs/MANIFEST.md                    MODIFIED manifest_version 10.07 → 10.08
+                                     (Architecture section rows only)
+docs/CHANGELOG.md                   MODIFIED (this entry, prepended)
+```
+
+### Forbidden-scope verification
+
+KHÔNG `docs/product/`/`docs/domain/`/`docs/adr/`/`docs/team/`/`docs/phase-dod/`/any Constitution chapter touched. KHÔNG module interface/API schema/database schema/deployment design/security implementation/custody implementation/Engine algorithm/source code authored. KHÔNG ADR created or pre-decided. KHÔNG Phase 1 package approved. KHÔNG Phase 1 declared Complete. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-03 — add Phase 1 planning baseline
 
 **First Phase 1 planning artifact — bounded work breakdown, dependency order, authority map, review/gate structure.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this planning transaction. No Software/UX/API/Database/Engine/Security & Custody design authored. No ADR created. No Phase 1 package approved.

@@ -1,7 +1,7 @@
 ---
 id: phase-1-plan
 title: "Phase 1 — System Architecture: Planning Baseline"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -24,6 +24,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 **KHÔNG tạo ADR nào.** §7 chỉ **phân loại khả năng** (ADR LIKELY REQUIRED / CONDITIONALLY REQUIRED / NO NEW ADR EXPECTED) cho các decision class dự kiến — **không quyết định** bất kỳ decision nào trong số đó. ADR determination thực tế xảy ra khi decision cụ thể được đề xuất, đúng [Chapter 0 §4b](../constitution/00-governance.md) (ADR Scope Rule).
 
 **KHÔNG approve bất kỳ Phase 1 package nào**, **KHÔNG tuyên bố Phase 1 hoàn thành**, **KHÔNG authorize Live**. Phase 1 hiện `Active`, `not Complete` (xem [MANIFEST](../MANIFEST.md)).
+
+**v0.2 — bounded remediation (2026-08-03), đóng `P1-PLAN-A-MAJ-01`/`P1-PLAN-A-MAJ-02`:** (1) `P1-PLAN-A-MAJ-01` — Package 1.1 trước đây chỉ grounding trên Chapter 7/`context-map.yaml`/domain registry, chưa tường minh consume toàn bộ Phase 0 Product authority (`product-requirement.md`/`use-case-workflow.md`/`ux-blueprint.md`) để chứng minh technical-realization completeness. Sửa: §5.3, §8 Package 1.1 (Purpose/Inputs/Bounded coverage requirement/Review A scope/Independent Review B scope/Consolidation condition) nay tường minh consume cả ba Product artifact làm coverage-completeness input — KHÔNG làm module-taxonomy authority, KHÔNG redefine Product/UX semantics, KHÔNG one-module-per-PR/UC/screen rule. (2) `P1-PLAN-A-MAJ-02` — §5.3 authority map chứa placeholder mơ hồ ("PR liên quan Live-gate", "PR-XXX liên quan Backtest/Replay", "SCR liên quan Backtest", "Screen liên quan Paper") VÀ lỗi đặt nhầm `UC-XXX` identifier vào cột Product Requirement (1.3-C, 1.3-D). Sửa: cả chín row §5.3 nay chỉ chứa `PR-XXX`/`UC-XXX`/`SCR-`/`VIEW-`/`WS-` identifier chính xác hoặc dấu gạch ngang tường minh khi genuinely không có — derive từ `use-case-workflow.md` §5 catalogue (Primary PR(s)) và `ux-blueprint.md` §6 catalogue (Screen/UC mapping), xem footnote `[^cov]`–`[^f]` cho methodology đầy đủ. Bounded — KHÔNG đổi số lượng workstream, chín-package decomposition, package dependency graph, parallelism model, engine pipeline ordering, quality-gate trigger model, package lifecycle/review model, candidate Phase 1 completion criteria, hay `DD-001`/`DD-003` lifecycle. KHÔNG author module interface/API schema/database schema/deployment design/security implementation/custody implementation/Engine algorithm/source code/ADR decision/Phase 1 DoD. `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
 
 ## 1. Canonical project state (kế thừa, không đổi)
 
@@ -144,15 +146,36 @@ Bảo toàn tường minh (theo yêu cầu task):
 
 | Package | Domain Contract | Product Requirement | Use Case & Workflow | UX Blueprint | ADR hiện có |
 |---|---|---|---|---|---|
-| 1.1 | `context-map.yaml`, `/docs/domain/README.md` (capability/context registry) | — | — | — | ADR-011 (governance) |
-| 1.2 | `account.md` (I-11 adjacent) | PR liên quan Live-gate | — | — | ADR-012 (Account-to-Boundary Cardinality) |
-| 1.3-A | `candle.md`, `structure.md`, `swing.md`, `regime.md` | `PR-XXX` liên quan Backtest/Replay | UC-004–UC-010 (Replay/Backtest) | SCR liên quan Backtest | ADR-003 (superseded), ADR-014, ADR-009 (ordering) |
-| 1.3-B | `feature.md`, `context.md` | — | — | — | ADR-014 (Feature/Context fan-in boundary) |
-| 1.3-C | `strategy.md`, `decision.md` | UC-001–UC-003, UC-007 | UC-007, UC-011, UC-016 | SCR-004/006/008 | ADR-009, ADR-010, ADR-013 (Strategy Definition Version axis) |
-| 1.3-D | `risk.md`, `execution-intent.md`, `order.md`, `execution-result.md`, `fill.md`, `position.md` | UC-011–UC-015 | UC-011–UC-015 | Screen liên quan Paper | ADR-012 |
-| 1.4 | mọi Domain Contract (published contract surface) | toàn bộ 34 `PR-XXX` | toàn bộ 21 `UC-XXX` | toàn bộ acceptance surface | Chapter 10 (Locked, không phải ADR) |
-| 1.5 | mọi Domain Contract (persistence boundary) | — | UC-016–UC-018 (Review/trace) | — | Chapter 8 §8.1 (Locked) |
-| 1.6 | — | toàn bộ | toàn bộ | toàn bộ 17 screen/view | — |
+| 1.1 | `context-map.yaml`, `/docs/domain/README.md` (capability/context registry) | toàn bộ 34 `PR-XXX` [^cov] | toàn bộ 21 `UC-XXX` [^cov] | toàn bộ 17 screen/view [^cov] | ADR-011 (governance) |
+| 1.2 | `account.md` (I-11 adjacent) | `PR-002` [^a] | `UC-011` [^a] | `WS-001` | ADR-012 (Account-to-Boundary Cardinality), ADR-007 (Account first-class boundary) |
+| 1.3-A | `candle.md`, `structure.md`, `swing.md`, `regime.md` | `PR-004`, `PR-005`, `PR-008`, `PR-009`, `PR-010`, `PR-018`, `PR-019`, `PR-020`, `PR-021`, `PR-022`, `PR-023`, `PR-033`, `PR-034` [^b] | UC-004–UC-010 (Replay/Backtest) | `SCR-002`, `VIEW-003`, `SCR-003`, `SCR-004`, `SCR-005` | ADR-003 (superseded), ADR-014, ADR-009 (ordering) |
+| 1.3-B | `feature.md`, `context.md` | — [^c] | — [^c] | — [^c] | ADR-014 (Feature/Context fan-in boundary) |
+| 1.3-C | `strategy.md`, `decision.md` | `PR-004`, `PR-005`, `PR-007`, `PR-009`, `PR-021`, `PR-024`, `PR-028` [^d] | UC-007, UC-011, UC-016 | `SCR-004`, `SCR-006`, `SCR-008` | ADR-009, ADR-010, ADR-013 (Strategy Definition Version axis) |
+| 1.3-D | `risk.md`, `execution-intent.md`, `order.md`, `execution-result.md`, `fill.md`, `position.md` | `PR-004`, `PR-005`, `PR-007`, `PR-024`, `PR-025`, `PR-026`, `PR-027` [^e] | UC-011–UC-015 | `SCR-006`, `SCR-007` | ADR-012 |
+| 1.4 | mọi Domain Contract (published contract surface) | toàn bộ 34 `PR-XXX` | toàn bộ 21 `UC-XXX` | toàn bộ acceptance surface (17 screen/view) | Chapter 10 (Locked, không phải ADR) |
+| 1.5 | mọi Domain Contract (persistence boundary) | `PR-004`, `PR-005`, `PR-011`, `PR-028`, `PR-029`, `PR-030` [^f] | UC-016–UC-018 (Review/trace) | `SCR-008`, `SCR-009`, `VIEW-004` | Chapter 8 §8.1 (Locked) |
+| 1.6 | — | toàn bộ 34 `PR-XXX` | toàn bộ 21 `UC-XXX` | toàn bộ 17 screen/view | — |
+
+**Ghi chú derivation (footnote, KHÔNG phải phần identifier của cell — mọi cell ở trên CHỈ chứa `PR-XXX`/`UC-XXX`/`SCR-`/`VIEW-`/`WS-` identifier hoặc dấu gạch ngang):**
+
+```text
+[^cov] Coverage-completeness input cho Package 1.1 (§8 Bounded coverage requirement) — 1.1
+       tiêu thụ toàn bộ Product artifact để chứng minh mọi PR/UC/screen resolve về module
+       hoặc deferred item, KHÔNG tự author behavior nào trong số đó.
+[^a]   PR-002/UC-011 derive từ ux-blueprint.md §5 (WS-001 table): "Current Account context
+       ... UC-011 (duy nhất UC có 'Account context hợp lệ' tường minh là required context
+       tại §7 — SCR-006) | PR-002".
+[^b]   Union của catalogue Primary PR(s) (use-case-workflow.md §5) cho UC-004, UC-005,
+       UC-006, UC-007, UC-008, UC-009, UC-010.
+[^c]   Không PR-XXX/UC-XXX/screen nào cite `feature.md`/`context.md` làm primary Domain
+       vocabulary độc lập trong use-case-workflow.md (Feature/Context là internal
+       derivation layer, tiêu thụ bởi UC-001 CHUNG với candle/structure/regime — không
+       tách riêng được cho một mình 1.3-B mà không suy diễn) — em dash là giá trị chính
+       xác, KHÔNG phải ô trống bỏ sót.
+[^d]   Union của catalogue Primary PR(s) cho UC-007, UC-011, UC-016.
+[^e]   Union của catalogue Primary PR(s) cho UC-011, UC-012, UC-013, UC-014, UC-015.
+[^f]   Union của catalogue Primary PR(s) cho UC-016, UC-017, UC-018.
+```
 
 ## 6. Authoring sequence & parallelism
 
@@ -227,10 +250,28 @@ Package ID:              1.1
 Name:                     System Decomposition & Module Registry
 Purpose:                  Thiết lập module dependency graph chính thức + khởi tạo
                           module-registry.yaml (Chapter 7 §7.5) — nền tảng cho mọi
-                          package Phase 1 khác.
+                          package Phase 1 khác; đồng thời chứng minh technical-
+                          realization completeness cho toàn bộ Domain-owned capability
+                          VÀ toàn bộ Consolidated Stable Product authority (Product
+                          Requirement/Use Case & Workflow/UX Blueprint).
 Inputs:                   Chapter 7 (Module Taxonomy, Locked), context-map.yaml
                           (Chapter 4, capability/context registry), reference pipeline
-                          bản nháp tại docs/architecture/README.md.
+                          bản nháp tại docs/architecture/README.md, VÀ toàn bộ ba Package
+                          0.3 Product artifact `Consolidated Stable` — docs/product/
+                          product-requirement.md (34 `PR-XXX`), docs/product/use-case-
+                          workflow.md (21 `UC-XXX`), docs/product/ux-blueprint.md (17
+                          screen/view) — tiêu thụ làm coverage-completeness input, KHÔNG
+                          làm module-taxonomy authority (§2).
+Bounded coverage
+  requirement:              Mọi architectural responsibility cần thiết để realize
+                          Consolidated Stable Product Requirement, Use Case & Workflow
+                          VÀ UX Blueprint phải được map vào một module/responsibility
+                          trong module-registry.yaml, HOẶC explicitly deferred kèm lý do
+                          authoritative (ví dụ DD-001/DD-003, §11). KHÔNG one-module-
+                          per-PR, KHÔNG one-module-per-UC, KHÔNG one-module-per-screen
+                          rule — mapping là many-to-many, một module có thể phục vụ
+                          nhiều PR/UC/screen VÀ một PR/UC/screen có thể cần nhiều module
+                          phối hợp.
 Outputs:                  docs/architecture/module-registry.yaml (mỗi module: id,
                           module_type, responsibilities, implements_capabilities,
                           serves_contexts, emits, status); docs/architecture/system-
@@ -251,17 +292,25 @@ Applicable quality-gate
                           ÁP DỤNG CÓ ĐIỀU KIỆN nếu module-registry.yaml được coi là
                           published schema cho downstream tooling.
 Review A scope:            Coherence với Chapter 7 taxonomy; dependency graph không mâu
-                          thuẫn Chapter 8/I-12; không god-module (Chapter 7 §7.1).
+                          thuẫn Chapter 8/I-12; không god-module (Chapter 7 §7.1); MỖI
+                          `PR-XXX`/`UC-XXX`/screen `Consolidated Stable` resolve được về
+                          ít nhất một module HOẶC một explicit deferred item có lý do
+                          authoritative — không mồ côi technical-realization coverage.
 Independent Review B
   scope:                   Độc lập xác nhận cùng phạm vi trên + kiểm tra không có module
                           nào bỏ sót so với domain contract đã author (Package 0.2-B1–B4/
-                          C1–C7).
+                          C1–C7) + độc lập xác nhận Product/UX coverage-completeness
+                          check không tự redefine Product/Domain semantics (chỉ MAP,
+                          không REINTERPRET).
 Product Owner decision
   point:                   Sau khi Review A + Review B CLEAN (hoặc finding resolved) —
                           Product Owner quyết Consolidated Stable cho 1.1.
 Consolidation condition:  Zero unresolved Blocker/Major; mọi module đã author ở Phase
                           0.2 có entry tương ứng; không ADR LIKELY REQUIRED nào còn treo
-                          chưa Approved nếu ADR đó ảnh hưởng trực tiếp nội dung đã pin.
+                          chưa Approved nếu ADR đó ảnh hưởng trực tiếp nội dung đã pin;
+                          Bounded coverage requirement (trên) thỏa đầy đủ — mọi `PR-XXX`/
+                          `UC-XXX`/screen `Consolidated Stable` resolve về module hoặc
+                          deferred item, không mồ côi.
 ```
 
 ### Package 1.2 — Security & Custody Baseline (cross-cutting)
