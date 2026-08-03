@@ -2,6 +2,86 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — correct Package 0.3-C review findings
+
+**Package 0.3-C bounded correction — consolidated ChatGPT Review A + Independent Review B findings trên baseline v0.1.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Package 0.3-C bounded correction — P03C-MAJ-01/P03C-B-MAJ-01/P03C-B-MAJ-02/P03C-MIN-01/P03C-MIN-02/P03C-MIN-03." Đóng đúng một finding Major (ChatGPT) + hai finding Major (Independent Review B, subsumed vào cùng traceability overhaul) + ba finding Minor. Authorization này **không** cho phép sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/Constitution/ADR/architecture, tạo `PR-XXX`/`UC-XXX` mới, invent routing implementation/permission architecture/route guard/authorization middleware/session token, invent organization/strategy-administration behavior, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.
+
+### Baseline and blob verification
+
+```text
+Expected HEAD:  acca42fe78f890f3b4b22d4c20f67e07d3f0c883
+Actual HEAD:    acca42fe78f890f3b4b22d4c20f67e07d3f0c883  — match
+
+ux-blueprint.md:          v0.1 Draft, blob ebe052c397a64b670791cc21c3f446050588e6f0  — match
+product/README.md:        blob 1d8861c58b09d5da0c18be567d5cc525644421c0  — match
+product-requirement.md:   v0.2 Draft, blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8  — match, Consolidated Stable
+use-case-workflow.md:     v0.3 Draft, blob affbb723b577cde4c8627dd689550e3bfbffb5d1  — match, Consolidated Stable
+```
+
+### Finding-by-finding resolution
+
+| Finding | Resolution |
+|---|---|
+| `P03C-MAJ-01` | Mọi `WS`/`NAV`/`SCR`/`VIEW`/`FLOW`/`STATE` stable ID nay trace TRỰC TIẾP một hoặc nhiều `UC-XXX` VÀ một hoặc nhiều `PR-XXX` tường minh — KHÔNG còn "cross-cutting"/"mọi UC"/"inferred through the applicable screen"/"see child screen mapping" không liệt kê ID. WS-001 (§5) viết lại thành bảng bounded per-item (Account/Instrument-Venue/Strategy Instance context, lifecycle-stage nav bar, evidence/authority labels, historical cursor, blocked-state presentation, Live Unauthorized) — mỗi item cite UC/PR riêng, KHÔNG "sở hữu toàn bộ workflow behavior". Mọi `FLOW-001`–`FLOW-006` (§8) thêm field `UC traceability`/`PR traceability` riêng biệt, phủ mọi transition/guard vật chất. Mọi `STATE-001`–`STATE-027` (§11) thêm cột `UC traceability` trực tiếp; hai state presentation-generic (`STATE-001` loading/`STATE-002` empty) liệt kê ĐẦY ĐỦ UC/screen/PR áp dụng thay vì wording "cross-cutting". SCR-006 bổ sung `PR-001`(Strategy Instance precondition)/`PR-006`(Risk Gateway reason) — trước chỉ `PR-007`/`PR-024`. SCR-007 bổ sung `PR-013`(lossless financial precision, khớp panel Fill economics byte-for-byte) — trước chỉ `PR-007`/`PR-024`/`PR-025`/`PR-026`/`PR-027`. §14 rebuilt hoàn toàn thành bảy ma trận direct bắt buộc: WS→UC/PR, NAV→UC/PR, SCR/VIEW→UC/PR, FLOW→UC/PR, STATE→UC/PR, UC→UX artifacts, PR→UX artifacts — mọi `UC-001`–`UC-021` và `PR-001`–`PR-034` xác nhận xuất hiện trực tiếp (script-verified, không ID nào thiếu). |
+| `P03C-B-MAJ-01` | Subsumed vào cùng traceability overhaul của `P03C-MAJ-01` — Independent Review B's finding trùng lặp yêu cầu direct UC/PR traceability cho mọi WS/NAV/FLOW/STATE artifact; resolve đầy đủ bởi cùng bộ thay đổi §5/§8/§11/§14 nêu trên. |
+| `P03C-B-MAJ-02` | Subsumed vào cùng traceability overhaul của `P03C-MAJ-01` — Independent Review B's finding thứ hai (thiếu ma trận PR→UX artifact hoàn chỉnh và thiếu bounded WS-001 mapping) resolve bởi §14g (PR → UX artifacts, mới) và §5 WS-001 bounded per-item table. |
+| `P03C-MIN-03` | Thêm §5a — sáu đặc tả `NAV-001`–`NAV-006` first-class, mỗi đặc tả đủ 11 field bắt buộc (Stable ID/Name/Purpose/Destination/Required context/Available navigation behavior/Read-only inspection behavior/Blocked behavior/UC traceability/PR traceability/Out-of-scope boundary). Research (NAV-001): quan sát market-analysis KHÔNG cần Strategy Instance trước. Replay/Backtest (NAV-002/003): Strategy Instance bắt buộc trước khi reconstruction/run bắt đầu; khi thiếu, hai khả năng UX hợp lệ (blocked/prompt HOẶC redirect tới VIEW-001) — KHÔNG invent routing implementation. Paper (NAV-004): read-only inspection luôn khả dụng; initiation chặn khi thiếu MỘT trong ba điều kiện (Strategy Instance pinned, PAPER-context Decision lineage eligible, Account/Instrument/Venue hợp lệ). Review (NAV-005): empty destination hiển thị được mà KHÔNG bịa evidence. Improve (NAV-006): KHÔNG organization/strategy-administration behavior nào được giới thiệu. |
+| `P03C-MIN-01` | Sửa `FLOW-001` (§8) và §4 Information Architecture: quan sát market-analysis tại `SCR-001` KHÔNG còn phụ thuộc `VIEW-001` (chọn Strategy Instance) — `SCR-001` là entry-first của `NAV-001`. `VIEW-001` → `VIEW-002` (Research Verification, trước đây HOÀN TOÀN THIẾU khỏi FLOW-001) nay là commit-gate tường minh, CHỈ bắt buộc TRƯỚC khi chuyển sang `SCR-002`(Replay)/`SCR-003`(Backtest), khớp đúng UC-001 (quan sát)/UC-002 (chọn khi chuẩn bị Replay/Backtest)/UC-003 (verify khi kết thúc/chuyển tiếp). `FLOW-006` (Improve→Research loop-back) viết lại đồng nhất cùng nguyên tắc. Early optional Strategy selection vẫn khả dụng, KHÔNG còn represented như mandatory default entry path. |
+| `P03C-MIN-02` | Thêm `UX-P-5` (§3) — phân tách tường minh read-only inspection navigation (luôn khả dụng để xem evidence/context/empty/blocked state đã tồn tại, kể cả khi upstream guard chưa thoả) vs. authoritative progression/action (luôn bị chặn khi upstream verification/required-authority guard chưa thoả). Áp dụng tường minh cho Research verification (VIEW-002, UC-003): PASSED cho phép tiến; FAILED/INDETERMINATE KHÔNG coi verified thành công, reason/evidence vẫn hiển thị, downstream authoritative action (tạo Backtest run, khởi tạo PAPER execution) bị chặn, nhưng navigation read-only vẫn khả dụng. Tường minh KHÔNG định nghĩa permission architecture/route guard/authorization middleware/session token. |
+
+### Exact changed-file scope
+
+```text
+docs/product/ux-blueprint.md         MODIFIED v0.1 → v0.2   blob 1d5fd9d2e2bd7b6e9c88353e193cd1230b6cd6a3
+docs/product/README.md               MODIFIED v0.8 → v0.9   blob 20f407773d6a4db08a51f36067844ea1f5d8a4ae
+docs/MANIFEST.md                     MODIFIED manifest_version 9.87 → 9.88
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/product-requirement.md  KHÔNG ĐỔI — blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8, verified byte-identical
+docs/product/use-case-workflow.md    KHÔNG ĐỔI — blob affbb723b577cde4c8627dd689550e3bfbffb5d1, verified byte-identical
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Corrected artifact version and status
+
+`ux-blueprint.md`: `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### Stable ID counts and ranges (unchanged)
+
+`WS-001` (1); `NAV-001`–`NAV-006` (6); `SCR-001`–`SCR-011` (11); `VIEW-001`–`VIEW-005` (5); `FLOW-001`–`FLOW-006` (6); `STATE-001`–`STATE-027` (27) — no ID renumbered, added, or removed; correction is bounded to content within existing IDs plus new §5a NAV specifications (reusing existing NAV-001–006 IDs already declared at §4/§6).
+
+### Traceability completeness (script-verified)
+
+Regex/set-comparison script confirmed: every `WS`/`NAV`/`SCR`/`VIEW`/`FLOW`/`STATE` ID has a non-empty direct `UC traceability` and `PR traceability`; `UC-001`–`UC-021` (all 21) and `PR-001`–`PR-034` (all 34) each appear in at least one direct artifact mapping; no forbidden indirect wording ("cross-cutting" alone/"mọi UC" without ID list/"see child screen mapping") remains outside the two explicitly-bounded generic states (`STATE-001`/`STATE-002`, which enumerate full ID sets directly per the task's own exception clause).
+
+### Research journey ordering fix
+
+`FLOW-001`/`FLOW-006`/§4 diagram: `SCR-001` (market-analysis observation) no longer requires `VIEW-001` (Strategy Instance selection) as an entry precondition — `VIEW-001 → VIEW-002` is a commit-gate positioned only before `SCR-002`/`SCR-003`, consistent with `UC-001` (no precondition) / `UC-002` (selection required only when preparing Replay/Backtest) / `UC-003` (verification at session end or before onward transition). `VIEW-002`, previously entirely absent from `FLOW-001`, is now explicit.
+
+### Read-only inspection vs. authoritative progression
+
+New `UX-P-5` (§3) pins the global distinction and ties it explicitly to Research verification's three outcomes (`VIEW-002`/`STATE-022`/`STATE-023`/`STATE-024`) — no permission architecture, route guard, authorization middleware, or session token defined; both are UX-only presentation/behavior distinctions.
+
+### Forbidden-scope verification
+
+No `PR-XXX`/`UC-XXX` created; `product-requirement.md`/`use-case-workflow.md` untouched (verified via `git diff --stat` and `git hash-object`, byte-identical); no Domain Contract/Constitution/ADR/architecture artifact modified; no routing implementation/permission architecture/route guard/authorization middleware/session token invented; no organization/strategy-administration behavior invented; no `BacktestOrder`/`BacktestFill`/`BacktestPosition`/`BacktestExecutionResult`/`ReplayDecision`/`ResearchVerification` invented (confirmed appearing only inside prohibition/boundary text); OQ-002/OQ-003 not closed; Live not authorized; no artifact Approved/Locked; Package 0.3-C not marked `Consolidated Stable`.
+
+### Author self-review
+
+Automated checks: `WS`(1)/`NAV`(6)/`SCR`(11)/`VIEW`(5)/`FLOW`(6)/`STATE`(27) all unique and sequentially contiguous within namespace, unchanged; all `UC-001`–`UC-021` and `PR-001`–`PR-034` present (full range, script-verified via regex extraction + range expansion); markdown table column-count consistency verified across all tables (no malformed row); forbidden domain-entity names confirmed appearing only inside prohibition/boundary text; YAML frontmatter re-validated via `yaml.safe_load` (`version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`); `git status --porcelain`/`git diff --stat` confirm only `docs/product/ux-blueprint.md` changed in the working tree prior to staging README/MANIFEST/CHANGELOG, and `product-requirement.md`/`use-case-workflow.md`/all Domain Contracts/ADRs/Constitution chapters/architecture artifacts remain byte-identical.
+
+### Metadata / state
+
+- `ux-blueprint.md`: **v0.1 → v0.2**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `product-requirement.md`/`use-case-workflow.md`: **không đổi** — byte-for-byte, `Consolidated Stable` package states unchanged.
+- `product/README.md`: **v0.8 → v0.9**.
+- `MANIFEST.md`: `manifest_version` **9.87 → 9.88**.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-C VẪN CHƯA đạt `Consolidated Stable` — chờ ChatGPT Delta Review A + Independent Delta Review B trên cùng exact baseline correction này.** Mandatory sequence tiếp tục: ChatGPT delta review → Independent Review B delta review → Product Owner consolidation decision. KHÔNG correction thêm dựa trên một review đơn lẻ. `OQ-002`/`OQ-003` vẫn `Open`. Không authorize Live. Không artifact nào Approved hay Locked. Phase 0.3 vẫn active — Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-08-02 — author Package 0.3-C UX Blueprint baseline
 
 **Package 0.3-C — UX Blueprint v0.1 authored.** Vai trò: `Domain Contract Author · AI Technical Architect`. Authorized artifacts: `docs/product/ux-blueprint.md` (new, v0.1 Draft), `docs/product/README.md` (updated). Authorization này **không** cho phép tạo `PR-XXX`/`UC-XXX` mới, sửa Package 0.3-A/0.3-B, redefine Domain Contract states/authority/cardinality/transitions, invent Backtest/Replay/Research domain entities/events, invent PAPER Decision establishment semantics, create unified Backtest/PAPER outcome model, define automatic normalization/scoring/ranking, define production API/database/software/security/custody/deployment architecture, define retention/archive/storage architecture, define visual branding/pixel styling, author implementation code, close OQ-002/OQ-003, authorize Live, Approve/Lock any artifact, mark Package 0.3-C Consolidated Stable, or declare Phase 0.3/Phase 0/Phase 1 complete or authorized.

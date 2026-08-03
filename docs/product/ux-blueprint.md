@@ -1,7 +1,7 @@
 ---
 id: ux-blueprint
 title: UX Blueprint
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -19,6 +19,8 @@ next_review: null
 **Authority boundary:** tài liệu này sở hữu **UX representation content** cho Phase 0.3 — KHÔNG sở hữu product requirement content (thuộc `product-requirement.md`, Package 0.3-A, không sửa), KHÔNG sở hữu use-case/workflow content (thuộc `use-case-workflow.md`, Package 0.3-B, không sửa), KHÔNG sở hữu domain semantics/state machine/authority/cardinality/transition (thuộc `/docs/domain/`, không sửa/redefine), KHÔNG sở hữu architecture quyết định (Phase 1, `/docs/architecture/`), KHÔNG đóng Open Question nào (`OQ-002`/`OQ-003` vẫn `Open`, xem §15), KHÔNG authorize Live, KHÔNG tuyên bố Phase 0.3/Phase 0 hoàn thành, KHÔNG mark chính nó `Consolidated Stable`.
 
 **Quy tắc traceability nguồn (kế thừa nguyên vẹn `product-requirement.md`/`use-case-workflow.md`):** mọi UX element PHẢI có một hoặc nhiều `UC-XXX` VÀ một hoặc nhiều `PR-XXX` áp dụng. Không nơi nào một UX element tồn tại chỉ vì "seems useful." Nơi KHÔNG có `UC`/`PR` nào authorize hành vi: (a) KHÔNG thêm nó, HOẶC (b) đánh dấu tường minh như một deferred dependency (§15) — KHÔNG BAO GIỜ tự phát minh. KHÔNG `UC-XXX`/`PR-XXX` ID mới nào được tạo tại đây.
+
+**v0.2 — bounded correction, đóng `P03C-MAJ-01`/`P03C-B-MAJ-01`/`P03C-B-MAJ-02`/`P03C-MIN-01`/`P03C-MIN-02`/`P03C-MIN-03` (2026-08-03):** (1) mọi `WS-XXX`/`NAV-XXX`/`SCR-XXX`/`VIEW-XXX`/`FLOW-XXX`/`STATE-XXX` ID nay truy vết TRỰC TIẾP một hoặc nhiều `UC-XXX` VÀ một hoặc nhiều `PR-XXX` tường minh (KHÔNG còn "cross-cutting"/"mọi UC" không liệt kê) — §5, §5a, §7 (SCR-006/SCR-007 bổ sung `PR-001`/`PR-006`/`PR-013`), §8 (mọi `FLOW-XXX` thêm field `UC traceability`/`PR traceability` riêng), §11 (mọi `STATE-XXX` thêm cột `UC traceability`), §14 (bảy ma trận trực tiếp bắt buộc); (2) thêm §5a — sáu đặc tả `NAV-001`–`NAV-006` first-class; (3) sửa `FLOW-001`/§4: quan sát market-analysis (`SCR-001`) KHÔNG còn phụ thuộc chọn Strategy Instance trước — `VIEW-001`/`VIEW-002` chỉ là commit-gate TRƯỚC `SCR-002`/`SCR-003`, KHÔNG phải entry-prerequisite của `SCR-001`; (4) thêm `UX-P-5` (§3) — phân tách read-only inspection navigation vs. authoritative progression/action, áp dụng tường minh cho outcome PASSED/FAILED/INDETERMINATE của Research verification (`VIEW-002`). KHÔNG PR/UC mới nào được tạo; KHÔNG behavior domain nào đổi; Package 0.3-C vẫn `Draft`, chưa `Consolidated Stable`.
 
 ## 1. Purpose and authority boundary
 
@@ -78,19 +80,52 @@ UX-P-3  Mọi trạng thái "không khả dụng"/"blocked"/"insufficient" PHẢ
 UX-P-4  Không UI nào ngụ ý một domain entity/event chưa tồn tại (BacktestOrder, ReplayDecision,
         ResearchVerification, unified outcome, v.v.) — mọi wording dùng thuật ngữ mô tả
         (descriptive), KHÔNG thuật ngữ domain đã đóng đinh chưa được authorize.
+UX-P-5  Read-only inspection navigation LUÔN được phân tách tường minh khỏi authoritative
+        progression/action (v0.2, đóng `P03C-MIN-02`):
+          Read-only inspection navigation:  điều hướng tới một destination CHỈ để xem evidence/
+                                             context/empty state/blocked reason đã tồn tại — LUÔN
+                                             khả dụng khi destination có thể hiển thị an toàn thứ đó,
+                                             KỂ CẢ khi một upstream verification/guard chưa PASSED.
+          Authoritative progression/action: hành động tạo/khởi tạo authoritative fact mới (tạo
+                                             Backtest run, khởi tạo PAPER execution, v.v.) — LUÔN bị
+                                             chặn khi upstream verification/required-authority guard
+                                             chưa thoả (STATE-XXX blocked/failed liên quan).
+        "Global navigation luôn hiển thị" KHÔNG có nghĩa: bypass verification; tạo Backtest run; khởi
+        tạo PAPER execution; hoặc bất kỳ authoritative action nào khác. Người dùng có thể điều hướng
+        tới một destination downstream để xem read-only hoặc thấy blocked state, nhưng KHÔNG hành
+        động authoritative nào được phép cho tới khi guard thoả. Nguyên tắc này KHÔNG định nghĩa
+        permission architecture/route guard/authorization middleware/session token — đó là Phase 1
+        architecture concern, KHÔNG phải UX Blueprint.
+
+        Áp dụng tường minh cho Research verification (VIEW-002, UC-003):
+          PASSED:        cho phép tiến tới authoritative progression khác theo precondition riêng của
+                          destination đó (VIEW-001 → VIEW-002 → SCR-002/SCR-003, §8 FLOW-001).
+          FAILED:        Research KHÔNG coi là verified thành công — reason + fact bị ảnh hưởng vẫn
+                          hiển thị (STATE-023); authoritative progression downstream (khởi tạo Backtest
+                          run tại SCR-003, khởi tạo PAPER execution tại SCR-006) bị CHẶN. Người dùng
+                          vẫn có thể điều hướng read-only tới SCR-002/SCR-003/SCR-006 để xem blocked
+                          state.
+          INDETERMINATE: Research KHÔNG coi là verified thành công — evidence thiếu/chưa resolve vẫn
+                          hiển thị (STATE-024); authoritative progression downstream bị CHẶN tương tự
+                          FAILED.
 ```
 
 ## 4. Information architecture
 
+**Thứ tự entry của Research (v0.2, đóng `P03C-MIN-01`):** `SCR-001` là entry-first screen của `NAV-001` — quan sát market-analysis (UC-001) KHÔNG phụ thuộc Strategy Instance đã pin. `VIEW-001`/`VIEW-002` là commit-gate, CHỈ bắt buộc khi người dùng chuẩn bị chuyển sang `SCR-002`(Replay)/`SCR-003`(Backtest) — KHÔNG phải entry-prerequisite của `SCR-001` (xem FLOW-001, §8).
+
 ```text
 Ride Workspace (WS-001)
 │
-├── Global context bar (Account · Instrument/Venue · Strategy Instance · historical cursor khi áp dụng)
+├── Global context bar (Account · Instrument/Venue · Strategy Instance khi đã pin · historical cursor
+│                        khi áp dụng)
 │
 ├── NAV-001 Research
-│     SCR-001 Market Analysis Workspace          (UC-001)
-│     VIEW-001 Strategy Instance Selector         (UC-002, global panel, truy cập được từ mọi stage)
-│     VIEW-002 Research Verification Result       (UC-003)
+│     SCR-001 Market Analysis Workspace          (UC-001, entry-first — KHÔNG cần Strategy Instance)
+│     VIEW-001 Strategy Instance Selector         (UC-002, commit-gate TRƯỚC Replay/Backtest, global
+│                                                   panel truy cập được từ mọi stage)
+│     VIEW-002 Research Verification Result       (UC-003, commit-gate, SAU VIEW-001, TRƯỚC SCR-002/
+│                                                   SCR-003)
 │
 ├── NAV-002 Replay
 │     SCR-002 Replay Cursor & Historical Reconstruction   (UC-004)
@@ -120,27 +155,184 @@ Thông tin kiến trúc này TRỰC TIẾP ánh xạ sáu-giai-đoạn (`use-cas
 
 ## 5. Global workspace/navigation model
 
-**WS-001 — Ride Workspace Shell**
-```text
-Global navigation:            NAV-001..006 — sáu lifecycle stage, thứ tự cố định
-                               Research → Replay → Backtest → Paper → Review → Improve.
-Current Account context:       Hiển thị READ-ONLY (một Account duy nhất, UX-INV-1). KHÔNG
-                               Account-switching UI — chưa có UC/PR nào authorize hành vi đó.
-Instrument/Venue context:      Selector, giới hạn TradableListing đã đăng ký (UX-INV-2, UC-001/
-                               UC-011).
-Strategy Instance context:     Selector/pin (VIEW-001, UC-002) — READ-ONLY một khi phiên Research/
-                               Replay/Backtest đã bắt đầu (UX-INV-3).
-Lifecycle-stage navigation:    NAV-001..006, luôn hiển thị, cho phép chuyển giữa các giai đoạn (KHÔNG
-                               ép buộc thứ tự kỹ thuật — Replay/Backtest độc lập, §9).
-Evidence/authority labels:     Nhãn mode + authority nhất quán trên MỌI evidence hiển thị (UX-P-1) —
-                               xem §10 cho mô hình đầy đủ.
-Historical cursor context:     Hiển thị khi đang ở Replay (SCR-002)/Review (SCR-009) — canonical
-                               Replay Cursor value + effective historical context (§12).
-Blocked/unavailable-state
-presentation:                  Nhất quán xuyên suốt mọi STATE-XXX (§11) — reason luôn disclosed.
-```
+**WS-001 — Ride Workspace Shell (v0.2 — bounded direct mapping, đóng `P03C-MAJ-01`/`P03C-B-MAJ-01`)**
+
+WS-001 CHỈ sở hữu behavior thực sự thuộc về SHELL (container luôn hiển thị) — KHÔNG sở hữu behavior riêng của từng destination (đó thuộc `NAV-XXX`, §5a, và `SCR-XXX`/`VIEW-XXX`, §7). Mỗi dòng dưới đây trace TRỰC TIẾP UC/PR — KHÔNG dòng nào dùng "cross-cutting"/"mọi UC" không liệt kê.
+
+| Item sở hữu bởi WS-001 | UC traceability | PR traceability |
+|---|---|---|
+| Current Account context (hiển thị READ-ONLY, một Account duy nhất, UX-INV-1; KHÔNG switcher — chưa UC/PR nào authorize) | UC-001–UC-021 (toàn bộ — mọi thao tác scoped theo đúng một Account, không có UC nào vận hành ngoài Account context) | PR-002 |
+| Instrument/Venue context (selector, giới hạn TradableListing đã đăng ký, UX-INV-2) | UC-001 (Research chọn Instrument/Venue), UC-011 (Paper dùng lại context đã chọn) | PR-003 |
+| Strategy Instance context (hiển thị pin READ-ONLY một khi đã chọn qua VIEW-001, UX-INV-3 — WS-001 CHỈ hiển thị, KHÔNG sở hữu hành vi chọn) | UC-002 | PR-001, PR-016 |
+| Lifecycle-stage navigation bar (NAV-001..006 luôn hiển thị, thứ tự cố định Research→Replay→Backtest→Paper→Review→Improve — WS-001 CHỈ sở hữu SỰ TỒN TẠI/thứ tự của thanh nav; hành vi điều hướng/blocked/read-only riêng của từng destination thuộc `NAV-XXX`, §5a) | UC-001–UC-021 (toàn bộ — mỗi UC thuộc đúng một trong sáu giai đoạn, §14h) | PR-001, PR-003, PR-006, PR-007, PR-008–PR-011, PR-013, PR-015–PR-034 (toàn bộ PR đã gắn trực tiếp một `NAV-XXX`/`SCR-XXX`/`VIEW-XXX` tại §5a/§6 — TRỪ PR-002/PR-004/PR-005/PR-012/PR-014, các PR nền tảng/guarantee không gắn riêng một destination cụ thể) |
+| Evidence/authority labels (nhãn mode + authority nhất quán trên MỌI evidence hiển thị, UX-P-1, mô hình đầy đủ tại §10) | UC-003, UC-005, UC-007, UC-008, UC-009, UC-012, UC-013, UC-014, UC-015, UC-016, UC-020, UC-021 (các UC hiển thị evidence cần nhãn mode/authority phân biệt) | PR-009, PR-010, PR-011, PR-014 |
+| Historical cursor context (hiển thị khi đang ở SCR-002/SCR-009 — canonical Replay Cursor value + effective historical context, §12) | UC-004, UC-017 | PR-008, PR-012, PR-029 |
+| Blocked/unavailable-state presentation (nhất quán xuyên suốt STATE-XXX, §11 — reason luôn disclosed, UX-P-3) | UC-001–UC-021 (toàn bộ — mỗi STATE-XXX gắn đúng một hoặc nhiều UC cụ thể tại §11, không STATE nào thuộc WS-001 riêng ngoài STATE-027) | (không PR riêng của WS-001 — mỗi STATE-XXX cite PR riêng tại §11) |
+| Live Unauthorized label (STATE-027, tĩnh, toàn cục) | UC-011, UC-015 | PR-027 |
 
 **Account-switching — tường minh KHÔNG thêm:** đúng chỉ dẫn "Do not add Account-switching behavior unless directly authorized" — chưa `UC-XXX`/`PR-XXX` nào authorize multi-Account UX; Account context tại đây CHỈ hiển thị (first-class, read-only), KHÔNG switcher.
+
+**Giới hạn tường minh (v0.2):** WS-001 KHÔNG "sở hữu toàn bộ workflow behavior" — bảng trên CHỈ liệt kê phần tử thực sự render bởi shell container. Behavior điều hướng/blocked/read-only cụ thể của từng destination (Research/Replay/Backtest/Paper/Review/Improve) sở hữu bởi `NAV-001`–`NAV-006` (§5a); behavior chi tiết của từng screen/view sở hữu bởi `SCR-XXX`/`VIEW-XXX` (§7).
+
+## 5a. Navigation destination specifications
+
+Sáu đặc tả `NAV-001`–`NAV-006` dưới đây (v0.2, đóng `P03C-MIN-03`) là first-class specification cho từng destination top-level — KHÔNG phải routing architecture/permission model (đó là Phase 1 concern). Mỗi đặc tả tuân thủ UX-P-5 (§3): read-only inspection navigation luôn khả dụng khi destination có thể hiển thị an toàn evidence/context/empty/blocked state; authoritative progression/action bị chặn riêng khi guard chưa thoả.
+
+**NAV-001 — Research**
+```text
+Stable ID:                   NAV-001
+Name:                        Research
+Purpose:                     Điều hướng tới quan sát market-analysis state thuần tuý, không side-effect.
+Destination:                 SCR-001 (Market Analysis Workspace).
+Required context:            Instrument/Venue đã chọn (TradableListing đã đăng ký, UX-INV-2). KHÔNG
+                              yêu cầu Strategy Instance — quan sát market-analysis bắt đầu ĐƯỢC mà
+                              KHÔNG cần pin Strategy Instance trước (v0.2, đóng `P03C-MIN-01`).
+Available navigation
+behavior:                     Luôn khả dụng từ mọi stage khác (global nav bar, WS-001). Vào thẳng
+                              SCR-001. Strategy Instance chỉ trở nên cần thiết khi người dùng chuyển
+                              sang hành vi yêu cầu nó (commit vào VIEW-001 → VIEW-002 trước Replay/
+                              Backtest, §4/§8 FLOW-001).
+Read-only inspection
+behavior:                     SCR-001 luôn hiển thị market-analysis hiện có cho Instrument/Venue đã
+                              chọn, kể cả khi Strategy Instance chưa pin.
+Blocked behavior:             STATE-003 (invalid Instrument/Venue) khi Instrument/Venue chưa hợp lệ;
+                              STATE-005 (missing historical evidence) khi thiếu dữ liệu.
+UC traceability:              UC-001.
+PR traceability:              PR-003, PR-015, PR-017.
+Out-of-scope boundary:        KHÔNG routing implementation; KHÔNG bắt buộc Strategy Instance làm entry
+                              precondition.
+```
+
+**NAV-002 — Replay**
+```text
+Stable ID:                   NAV-002
+Name:                        Replay
+Purpose:                     Điều hướng tới historical reconstruction tại một canonical Replay Cursor.
+Destination:                 SCR-002 (Replay Cursor & Historical Reconstruction).
+Required context:            Strategy Instance đã pin (VIEW-001 → VIEW-002 PASSED, commit-gate, §4).
+                              KHÔNG reconstruction nào bắt đầu khi thiếu context này.
+Available navigation
+behavior:                     Khả dụng từ global nav bar tại mọi stage. Khi CHƯA có Strategy Instance
+                              pin: điều hướng có thể mở SCR-002 ở trạng thái blocked/prompt (STATE-004),
+                              HOẶC redirect trong UX tới VIEW-001 đã tồn tại — KHÔNG tự phát minh cơ chế
+                              routing kỹ thuật cụ thể nào ngoài hai khả năng UX này (Phase 1 quyết định
+                              triển khai chính xác).
+Read-only inspection
+behavior:                     Khi Strategy Instance đã pin nhưng verification (VIEW-002) chưa PASSED
+                              (FAILED/INDETERMINATE, UX-P-5): người dùng vẫn có thể điều hướng tới
+                              SCR-002 để xem blocked reason — KHÔNG historical reconstruction nào chạy.
+Blocked behavior:             STATE-004 (missing Strategy Instance) TRƯỚC khi pin; STATE-006 (Replay
+                              reference unavailable) khi cursor không resolve được.
+UC traceability:              UC-002 (Strategy Instance precondition), UC-004.
+PR traceability:              PR-001, PR-016, PR-008, PR-018, PR-020.
+Out-of-scope boundary:        KHÔNG thiết kế cơ chế redirect kỹ thuật (route guard/middleware) — CHỈ mô
+                              tả hai khả năng UX-level hợp lệ.
+```
+
+**NAV-003 — Backtest**
+```text
+Stable ID:                   NAV-003
+Name:                        Backtest
+Purpose:                     Điều hướng tới khởi động/xem một Backtest run bounded.
+Destination:                 SCR-003 (Backtest Run Setup); SCR-004/SCR-005 (danh sách run đã có).
+Required context:            Strategy Instance đã pin (VIEW-001 → VIEW-002 PASSED, commit-gate, §4) —
+                              cùng ràng buộc bounded như NAV-002 Replay. KHÔNG run nào khởi động khi
+                              thiếu context này.
+Available navigation
+behavior:                     Khả dụng từ global nav bar tại mọi stage. Khi CHƯA có Strategy Instance
+                              pin: cùng hai khả năng UX như NAV-002 (blocked/prompt tại SCR-003 HOẶC
+                              redirect tới VIEW-001) — KHÔNG invent routing implementation.
+Read-only inspection
+behavior:                     Danh sách Backtest run đã có (SCR-004/SCR-005) vẫn xem được read-only kể
+                              cả khi Strategy Instance hiện tại khác với Instance đã tạo run đó.
+Blocked behavior:             STATE-004 (missing Strategy Instance) TRƯỚC khi pin; STATE-005 (missing
+                              historical evidence); STATE-010 (Backtest run identity unresolved).
+UC traceability:              UC-002 (Strategy Instance precondition), UC-006.
+PR traceability:              PR-001, PR-016, PR-021, PR-022, PR-023.
+Out-of-scope boundary:        KHÔNG thiết kế cơ chế redirect kỹ thuật; KHÔNG simulation
+                              algorithm/scheduling (deferred, §15).
+```
+
+**NAV-004 — Paper**
+```text
+Stable ID:                   NAV-004
+Name:                        Paper
+Purpose:                     Điều hướng tới khởi tạo/xem PAPER execution.
+Destination:                 SCR-006 (Paper Execution Initiation); SCR-007 (Paper Order/Execution
+                              Detail).
+Required context:            Để INITIATE (SCR-006 action, KHÔNG phải để inspect): một Strategy Instance
+                              đã chọn/pin cho Paper; một eligible PAPER-context Decision lineage RIÊNG
+                              BIỆT resolve được (KHÔNG carry-forward/promote từ Backtest/Research); Account/
+                              Instrument/Venue context hợp lệ (UX-INV-1/UX-INV-2).
+Available navigation
+behavior:                     Khả dụng từ global nav bar tại mọi stage — điều hướng tới SCR-006/SCR-007
+                              KHÔNG bị chặn bởi việc thiếu ba điều kiện trên (UX-P-5): navigation LUÔN
+                              mở được để xem trạng thái hiện tại.
+Read-only inspection
+behavior:                     SCR-006/SCR-007 luôn hiển thị read-only (Order/ExecutionResult/Fill/
+                              Position đã có, hoặc trạng thái "chưa có") — KHÔNG bị vô hiệu hoá trừ khi
+                              chính upstream behavior (ví dụ chưa có Order nào) yêu cầu STATE-002 empty.
+Blocked behavior:             Khởi tạo PAPER execution (authoritative action tại SCR-006) bị CHẶN khi
+                              thiếu MỘT trong ba điều kiện ở "Required context" — STATE-011 (PAPER
+                              Decision lineage unavailable); STATE-003 (invalid Instrument/Venue).
+UC traceability:              UC-002, UC-011.
+PR traceability:              PR-001, PR-006, PR-007, PR-016, PR-024.
+Out-of-scope boundary:        KHÔNG order type/sizing/execution-model UI; KHÔNG cơ chế chính xác thiết
+                              lập PAPER-context Decision (deferred, §15).
+```
+
+**NAV-005 — Review**
+```text
+Stable ID:                   NAV-005
+Name:                        Review
+Purpose:                     Điều hướng tới trace causation Decision→Position hoặc so sánh historical
+                              state.
+Destination:                 SCR-008 (Decision → Position Lineage Trace); SCR-009 (Historical State
+                              Comparison); VIEW-004 (Correction Inspection).
+Required context:             Để mở một trace/comparison CỤ THỂ: một Fill/Position contribution (SCR-008)
+                              hoặc một Replay Cursor đã chạy tại SCR-002 (SCR-009) phải tồn tại. KHÔNG
+                              evidence review nào bị bịa đặt khi thiếu.
+Available navigation
+behavior:                     Khả dụng từ global nav bar tại mọi stage. Khi chưa có Fill/Position/cursor
+                              cụ thể để trace/so sánh: destination hiển thị STATE-002 (empty) — KHÔNG
+                              bịa evidence để lấp chỗ trống.
+Read-only inspection
+behavior:                     Toàn bộ SCR-008/SCR-009/VIEW-004 là read-only thuần tuý (§7.5) — KHÔNG
+                              authoritative action nào tồn tại tại Review.
+Blocked behavior:             KHÔNG áp dụng theo nghĩa "blocked" (Review không tạo authoritative fact,
+                              §7.5) — chỉ có STATE-002 empty khi thiếu evidence nguồn.
+UC traceability:              UC-016, UC-017, UC-018.
+PR traceability:              PR-028, PR-029, PR-011, PR-030.
+Out-of-scope boundary:        KHÔNG tự phát minh review evidence khi trace/so sánh trống; KHÔNG snapshot
+                              storage mechanism (Phase 1).
+```
+
+**NAV-006 — Improve**
+```text
+Stable ID:                   NAV-006
+Name:                        Improve
+Purpose:                     Điều hướng tới tạo Strategy Definition Version mới hoặc so sánh outcome
+                              giữa các version.
+Destination:                 SCR-010 (Strategy Definition Version Creation); SCR-011 (Strategy Version
+                              Comparison); VIEW-005 (Old-Version Evidence Access).
+Required context:             Để tạo version mới (SCR-010): một Strategy Definition (identity) đã tồn
+                              tại. Để so sánh (SCR-011): ít nhất hai Strategy Instance gắn hai Strategy
+                              Definition Version khác nhau.
+Available navigation
+behavior:                     Khả dụng từ global nav bar tại mọi stage. KHÔNG tổ chức/quản trị Strategy
+                              (organization/strategy-administration) nào được giới thiệu tại đây —
+                              Improve CHỈ sở hữu version creation + comparison đã UC/PR authorize.
+Read-only inspection
+behavior:                     SCR-011/VIEW-005 luôn xem được read-only outcome/evidence đã có, kể cả
+                              version không active (VIEW-005, §7.6).
+Blocked behavior:             KHÔNG áp dụng tại tầng UX cho SCR-010 (validation nội dung thuộc
+                              strategy.md, §7.6); STATE-026 (old-version evidence partially unavailable)
+                              cho VIEW-005 khi một họ evidence thiếu.
+UC traceability:              UC-019, UC-020, UC-021.
+PR traceability:              PR-031, PR-032.
+Out-of-scope boundary:        KHÔNG organization/strategy-administration behavior; KHÔNG định nghĩa
+                              nội dung/schema Strategy Definition cụ thể (thuộc strategy.md).
+```
 
 ## 6. Screen and view catalogue
 
@@ -154,8 +346,8 @@ presentation:                  Nhất quán xuyên suốt mọi STATE-XXX (§11)
 | SCR-003 | Backtest Run Setup | Backtest | UC-006 | PR-021, PR-022, PR-023 |
 | SCR-004 | Backtest Run Detail | Backtest | UC-007, UC-008, UC-009 | PR-009, PR-021, PR-022, PR-033, PR-034 |
 | SCR-005 | Backtest Run Comparison | Backtest | UC-010 | PR-034 |
-| SCR-006 | Paper Execution Initiation | Paper | UC-011 | PR-007, PR-024 |
-| SCR-007 | Paper Order/Execution Detail | Paper | UC-012, UC-013, UC-014, UC-015 | PR-007, PR-024, PR-025, PR-026, PR-027 |
+| SCR-006 | Paper Execution Initiation | Paper | UC-011 | PR-001, PR-006, PR-007, PR-024 |
+| SCR-007 | Paper Order/Execution Detail | Paper | UC-012, UC-013, UC-014, UC-015 | PR-007, PR-013, PR-024, PR-025, PR-026, PR-027 |
 | SCR-008 | Decision → Position Lineage Trace | Review | UC-016 | PR-028 |
 | SCR-009 | Historical State Comparison | Review | UC-017 | PR-029 |
 | VIEW-004 | Correction Inspection | Review | UC-018 | PR-011, PR-030 |
@@ -446,9 +638,10 @@ Entry points:            NAV-004 (Paper); người dùng TỰ QUYẾT ĐỊNH sa
                          judgment gate — KHÔNG hard handoff kỹ thuật).
 Exit points:             SCR-007 (Paper Order/Execution Detail) — hoặc dừng tại chính screen này nếu
                          không có PAPER-context Decision lineage eligible.
-Required context:        Một PAPER-context authoritative Decision lineage (LONG/SHORT) ELIGIBLE tồn
-                         tại cho Strategy Instance đang dùng — Decision này TUYỆT ĐỐI KHÔNG phải
-                         Decision từ Backtest/Research được carry-forward/promote/reuse.
+Required context:        Một Strategy Instance đã chọn/pin cho Paper (PR-001); một PAPER-context
+                         authoritative Decision lineage (LONG/SHORT) ELIGIBLE tồn tại cho Strategy
+                         Instance đó — Decision này TUYỆT ĐỐI KHÔNG phải Decision từ Backtest/Research
+                         được carry-forward/promote/reuse; Account/Instrument/Venue context hợp lệ.
 Information displayed:   Xác nhận PAPER-context Decision lineage eligible (nếu có) — KHÔNG form nhập
                          quantity/order type/sizing/fee/slippage/execution model (chưa UC/PR nào
                          authorize input đó).
@@ -472,8 +665,8 @@ Empty/unavailable/
 blocked states:          STATE-011 PAPER Decision lineage unavailable (blocked TRƯỚC PAPER execution);
                          STATE-013 Risk REJECTED; STATE-014 Risk NON_EVALUABLE (cả hai dừng TRƯỚC
                          Execution Intent/Order).
-UC traceability:         UC-011.
-PR traceability:         PR-007, PR-024.
+UC traceability:         UC-002 (Strategy Instance precondition), UC-011.
+PR traceability:         PR-001, PR-006, PR-007, PR-024.
 Domain vocabulary
 referenced:              decision.md, trade-intent.md, risk.md, execution-intent.md, order.md,
                          execution-result.md, fill.md, position.md.
@@ -512,7 +705,7 @@ Empty/unavailable/
 blocked states:          STATE-016 ExecutionResult NOT_EXECUTED; STATE-017 Fill absent; STATE-021
                          Position NON_EVALUABLE.
 UC traceability:         UC-012, UC-013, UC-014, UC-015.
-PR traceability:         PR-007, PR-024, PR-025, PR-026, PR-027.
+PR traceability:         PR-007, PR-013, PR-024, PR-025, PR-026, PR-027.
 Domain vocabulary
 referenced:              order.md, execution-result.md, fill.md, position.md.
 Out-of-scope boundary:   KHÔNG chi tiết computation/observation nội bộ ngoài PR-007 yêu cầu; KHÔNG
@@ -735,18 +928,36 @@ Out-of-scope boundary:   KHÔNG retention duration/archive tiering/retrieval lat
 
 ## 8. Lifecycle stage flows
 
-**FLOW-001 — Primary end-to-end journey (walking skeleton)**
+**FLOW-001 — Primary end-to-end journey (walking skeleton) (v0.2 — sửa thứ tự Research, đóng `P03C-MIN-01`)**
 ```text
-WS-001 → VIEW-001 (chọn Strategy Instance) → SCR-001 (Research, UC-001/UC-003) →
+WS-001 → NAV-001 → SCR-001 (Research, quan sát market-analysis, UC-001 — KHÔNG cần Strategy Instance
+                    đã pin, §4) →
+
+  [commit gate — khi người dùng chuẩn bị chuyển sang Replay/Backtest, KHÔNG phải entry-prerequisite của
+  SCR-001]:
+  VIEW-001 (chọn Strategy Instance, UC-002) → VIEW-002 (Research Verification Result, UC-003) →
+    [PASSED] → SCR-002 (Replay, UC-004) hoặc SCR-003 (Backtest, UC-006)
+    [FAILED/INDETERMINATE] → authoritative progression bị CHẶN (UX-P-5) — read-only vẫn khả dụng →
+
 SCR-002 (Replay, UC-004) → [tuỳ chọn VIEW-003, UC-005] →
 SCR-003 → SCR-004 → [tuỳ chọn SCR-005] (Backtest, UC-006–UC-010) →
 [judgment gate, §9] → SCR-006 → SCR-007 (Paper, UC-011–UC-015) →
 SCR-008 → SCR-009 → [tuỳ chọn VIEW-004] (Review, UC-016–UC-018) →
 SCR-010 → SCR-011 → [tuỳ chọn VIEW-005] (Improve, UC-019–UC-021) →
-VÒNG LẶP về VIEW-001 với Strategy Instance MỚI.
+VÒNG LẶP về SCR-001 (Research, Strategy Instance MỚI qua VIEW-001 tại commit gate kế tiếp).
 
 Live KHÔNG phải một bước — chỉ nhắc như lifecycle boundary bị hoãn (§15, `OQ-002`), KHÔNG NAV/SCR nào
 dẫn tới Live.
+
+UC traceability:  UC-001 (SCR-001 entry, KHÔNG precondition), UC-002 (commit-gate selection), UC-003
+                  (commit-gate verification, tri-state), UC-004, UC-006, UC-005, UC-007, UC-008, UC-009,
+                  UC-010, UC-011, UC-012, UC-013, UC-014, UC-015, UC-016, UC-017, UC-018, UC-019,
+                  UC-020, UC-021.
+PR traceability:  PR-003, PR-015, PR-017 (SCR-001); PR-001, PR-016 (VIEW-001); PR-017 (VIEW-002, guard);
+                  PR-008, PR-018, PR-020 (SCR-002); PR-021, PR-022, PR-023 (SCR-003); PR-009, PR-021,
+                  PR-022, PR-033, PR-034 (SCR-004); PR-034 (SCR-005); PR-001, PR-006, PR-007, PR-024
+                  (SCR-006); PR-007, PR-013, PR-024, PR-025, PR-026, PR-027 (SCR-007); PR-028 (SCR-008);
+                  PR-029 (SCR-009); PR-031 (SCR-010); PR-031, PR-032 (SCR-011).
 ```
 
 **FLOW-002 — Strategy Instance selection/pin (global)**
@@ -754,7 +965,8 @@ dẫn tới Live.
 Trigger: người dùng chuẩn bị cam kết Replay/Backtest, hoặc bắt đầu phiên mới.
 VIEW-001 → chọn Strategy Instance → hệ thống pin (read-only, UX-INV-3) → context hiển thị trên toàn
 bộ global context bar (§5) cho tới khi phiên kết thúc.
-UC/PR: UC-002, PR-001/PR-016.
+UC traceability:  UC-002.
+PR traceability:  PR-001, PR-016.
 ```
 
 **FLOW-003 — Backtest → Paper handoff (judgment gate, KHÔNG hard handoff)**
@@ -763,7 +975,9 @@ SCR-004/SCR-005 (Backtest evidence, non-PAPER, INFORM judgment) → người dù
 (Paper). KHÔNG action nào tự động chuyển Backtest Decision thành PAPER Decision. SCR-006 resolve một
 PAPER-context Decision lineage RIÊNG BIỆT — nếu không eligible, workflow dừng NGAY tại SCR-006
 (STATE-011).
-UC/PR: UC-009/UC-010 → UC-011; PR-034 (evidence), PR-024 (Paper độc lập).
+UC traceability:  UC-009 (Backtest evaluable result, INFORM), UC-010 (Backtest comparison, INFORM
+                  tuỳ chọn), UC-011 (Paper initiation, guard).
+PR traceability:  PR-034 (Backtest evaluable evidence), PR-024 (PAPER Decision lineage riêng biệt).
 ```
 
 **FLOW-004 — Paper execution initiation (system-owned chain)**
@@ -772,21 +986,29 @@ SCR-006: người dùng yêu cầu khởi tạo → hệ thống resolve PAPER-c
 RiskEvaluation → [APPROVED] → Execution Intent → Order → OrderSubmissionRequest →
 ExecutionResultComputation → PaperExecutionObservation → ExecutionResult → [EXECUTED] → Fill →
 Position → SCR-007 hiển thị kết quả.
-UC/PR: UC-011, PR-007/PR-024.
+UC traceability:  UC-011 (khởi tạo), UC-012, UC-013, UC-014 (SCR-007 hiển thị kết quả chuỗi).
+PR traceability:  PR-006 (RiskEvaluation), PR-007 (chuỗi PAPER), PR-024 (Order/ExecutionResult), PR-025
+                  (Fill), PR-026 (Position).
 ```
 
 **FLOW-005 — Old-version evidence access (từ so sánh)**
 ```text
 SCR-011 (phát hiện Strategy Instance gắn version không active) → VIEW-005 → resolve Backtest family
 và/hoặc PAPER family ĐỘC LẬP → trở lại SCR-011 với evidence (đầy đủ hoặc đánh dấu incomplete).
-UC/PR: UC-020 → UC-021, PR-031/PR-032.
+UC traceability:  UC-020 (phát hiện tại so sánh), UC-021 (resolve old-version evidence).
+PR traceability:  PR-031, PR-032.
 ```
 
-**FLOW-006 — Improve → Research loop-back**
+**FLOW-006 — Improve → Research loop-back (v0.2 — sửa thứ tự nhất quán FLOW-001, đóng `P03C-MIN-01`)**
 ```text
-SCR-010 (Strategy Definition Version mới) → VIEW-001 (tạo Strategy Instance mới gắn version mới) →
-SCR-001 (Research, vòng lặp) — evidence version cũ vẫn truy cập qua VIEW-005 bất kỳ lúc nào.
-UC/PR: UC-019 → UC-002; PR-031, PR-001.
+SCR-010 (Strategy Definition Version mới) → SCR-001 (Research, vòng lặp, quan sát market-analysis
+KHÔNG cần Strategy Instance mới đã pin) → [commit gate, khi chuẩn bị Replay/Backtest] VIEW-001 (tạo/
+chọn Strategy Instance mới gắn version mới) → VIEW-002 (verification) — evidence version cũ vẫn truy
+cập qua VIEW-005 bất kỳ lúc nào.
+UC traceability:  UC-019 (tạo version mới), UC-001 (Research loop-back entry), UC-002 (commit-gate
+                  selection), UC-021 (old-version evidence vẫn truy cập).
+PR traceability:  PR-031 (version mới), PR-003, PR-015, PR-017 (SCR-001 loop-back), PR-001, PR-016
+                  (VIEW-001), PR-032 (VIEW-005 old-version access).
 ```
 
 ## 9. Cross-screen and cross-stage handoffs
@@ -851,37 +1073,37 @@ Representation label (CHỈ khi authority=non-PAPER simulated):
 
 ## 11. Loading, empty, unavailable, blocked, failed and NON_EVALUABLE states
 
-**Bảng `STATE-XXX` — 27 trạng thái presentation-only (UX state, KHÔNG domain state mới, UX-INV-9):**
+**Bảng `STATE-XXX` — 27 trạng thái presentation-only (UX state, KHÔNG domain state mới, UX-INV-9) — v0.2 thêm cột `UC traceability` trực tiếp, đóng `P03C-MAJ-01`. Hai trạng thái presentation-generic (`STATE-001`/`STATE-002`) liệt kê ĐẦY ĐỦ UC/screen/PR áp dụng — KHÔNG dùng wording "cross-cutting"/"mọi UC" không liệt kê:**
 
-| ID | State | UC/PR traceability | Applicable screen/view |
-|---|---|---|---|
-| STATE-001 | loading | (cross-cutting, mọi UC) | Mọi SCR/VIEW |
-| STATE-002 | empty | (cross-cutting) | Mọi SCR/VIEW (ví dụ SCR-005/SCR-011 khi chưa chọn run/Instance) |
-| STATE-003 | invalid Instrument/Venue | PR-003 | SCR-001, SCR-006 |
-| STATE-004 | missing Strategy Instance | PR-001 | VIEW-001 |
-| STATE-005 | missing historical evidence | PR-015, PR-021 | SCR-001, SCR-003 |
-| STATE-006 | Replay reference unavailable | PR-020 | SCR-002 |
-| STATE-007 | parity match | PR-010, PR-019 | VIEW-003 |
-| STATE-008 | parity mismatch | PR-010, PR-019 | VIEW-003 |
-| STATE-009 | Backtest evidence insufficient | PR-033, PR-034 | SCR-004, SCR-005 |
-| STATE-010 | Backtest run identity unresolved | PR-021 | SCR-004 |
-| STATE-011 | PAPER Decision lineage unavailable | PR-024 | SCR-006 |
-| STATE-012 | Risk APPROVED | PR-006 | SCR-006 |
-| STATE-013 | Risk REJECTED | PR-006 | SCR-006 |
-| STATE-014 | Risk NON_EVALUABLE | PR-006 | SCR-006 |
-| STATE-015 | ExecutionResult EXECUTED | PR-007, PR-024 | SCR-007 |
-| STATE-016 | ExecutionResult NOT_EXECUTED | PR-007, PR-024 | SCR-007 |
-| STATE-017 | Fill absent | PR-025 | SCR-007 |
-| STATE-018 | Position FLAT | PR-026 | SCR-007 |
-| STATE-019 | Position LONG | PR-026 | SCR-007 |
-| STATE-020 | Position SHORT | PR-026 | SCR-007 |
-| STATE-021 | Position NON_EVALUABLE | PR-026 | SCR-007 |
-| STATE-022 | Research verification PASSED | PR-017 | VIEW-002 |
-| STATE-023 | Research verification FAILED | PR-017 | VIEW-002 |
-| STATE-024 | Research verification INDETERMINATE | PR-017 | VIEW-002 |
-| STATE-025 | old-version evidence complete | PR-032 | VIEW-005 |
-| STATE-026 | old-version evidence partially unavailable | PR-032 | VIEW-005 |
-| STATE-027 | Live unauthorized | PR-027, `OQ-002` | WS-001 (global), SCR-006 |
+| ID | State | UC traceability | PR traceability | Applicable screen/view |
+|---|---|---|---|---|
+| STATE-001 | loading | UC-001–UC-021 (toàn bộ — mỗi SCR/VIEW dưới đây thuộc đúng một UC, §14c) | PR-001, PR-003, PR-006–PR-011, PR-013, PR-015–PR-034 (PR gắn trực tiếp một destination tại §6 — TRỪ PR-002/PR-004/PR-005/PR-012/PR-014, guarantee nền tảng không gắn riêng một destination) | SCR-001, VIEW-001, VIEW-002, SCR-002, VIEW-003, SCR-003, SCR-004, SCR-005, SCR-006, SCR-007, SCR-008, SCR-009, VIEW-004, SCR-010, SCR-011, VIEW-005 (toàn bộ 16) |
+| STATE-002 | empty (list/collection chưa có phần tử, chờ chọn) | UC-006, UC-007, UC-008, UC-009, UC-010, UC-012, UC-013, UC-014, UC-015, UC-016, UC-017, UC-020 | PR-007, PR-009, PR-013, PR-021, PR-022, PR-023, PR-024, PR-025, PR-026, PR-027, PR-028, PR-029, PR-031, PR-032, PR-033, PR-034 | SCR-003 (chưa nhập khoảng thời gian), SCR-004 (danh sách run trống), SCR-005 (chưa chọn ≥2 run), SCR-007 (chưa có Order/Fill), SCR-008 (chưa chọn Fill để trace), SCR-009 (chưa chọn cursor so sánh), SCR-011 (chưa chọn Instance so sánh) |
+| STATE-003 | invalid Instrument/Venue | UC-001, UC-011 | PR-003 | SCR-001, SCR-006 |
+| STATE-004 | missing Strategy Instance | UC-002 | PR-001 | VIEW-001 |
+| STATE-005 | missing historical evidence | UC-001, UC-006 | PR-015, PR-021 | SCR-001, SCR-003 |
+| STATE-006 | Replay reference unavailable | UC-004 | PR-020 | SCR-002 |
+| STATE-007 | parity match | UC-005 | PR-010, PR-019 | VIEW-003 |
+| STATE-008 | parity mismatch | UC-005 | PR-010, PR-019 | VIEW-003 |
+| STATE-009 | Backtest evidence insufficient | UC-007, UC-008, UC-009, UC-010 | PR-033, PR-034 | SCR-004, SCR-005 |
+| STATE-010 | Backtest run identity unresolved | UC-007, UC-008, UC-009 | PR-021 | SCR-004 |
+| STATE-011 | PAPER Decision lineage unavailable | UC-011 | PR-024 | SCR-006 |
+| STATE-012 | Risk APPROVED | UC-011 | PR-006 | SCR-006 |
+| STATE-013 | Risk REJECTED | UC-011 | PR-006 | SCR-006 |
+| STATE-014 | Risk NON_EVALUABLE | UC-011 | PR-006 | SCR-006 |
+| STATE-015 | ExecutionResult EXECUTED | UC-012 | PR-007, PR-024 | SCR-007 |
+| STATE-016 | ExecutionResult NOT_EXECUTED | UC-012 | PR-007, PR-024 | SCR-007 |
+| STATE-017 | Fill absent | UC-013 | PR-025 | SCR-007 |
+| STATE-018 | Position FLAT | UC-014 | PR-026 | SCR-007 |
+| STATE-019 | Position LONG | UC-014 | PR-026 | SCR-007 |
+| STATE-020 | Position SHORT | UC-014 | PR-026 | SCR-007 |
+| STATE-021 | Position NON_EVALUABLE | UC-014 | PR-026 | SCR-007 |
+| STATE-022 | Research verification PASSED | UC-003 | PR-017 | VIEW-002 |
+| STATE-023 | Research verification FAILED | UC-003 | PR-017 | VIEW-002 |
+| STATE-024 | Research verification INDETERMINATE | UC-003 | PR-017 | VIEW-002 |
+| STATE-025 | old-version evidence complete | UC-021 | PR-032 | VIEW-005 |
+| STATE-026 | old-version evidence partially unavailable | UC-021 | PR-032 | VIEW-005 |
+| STATE-027 | Live unauthorized | UC-011, UC-015 | PR-027 (`OQ-002` open) | WS-001 (global), SCR-006 |
 
 **Nguyên tắc bắt buộc cho MỌI `STATE-XXX` "unavailable/blocked/failed":** đúng bốn nguyên tắc fallback đã pin tại `use-case-workflow.md` §8 — `workflow stops` / `state remains observable` / `reason is disclosed` / `no downstream authoritative action occurs`. KHÔNG UX state nào tự phát minh domain lifecycle transition để hỗ trợ hiển thị — `STATE-XXX` là presentation state, KHÔNG BAO GIỜ authoritative domain state (UX-INV-9).
 
@@ -931,45 +1153,152 @@ OQ-003:                     Vẫn `Open` — KHÔNG threshold/target/scoring for
 
 ## 14. Traceability matrices
 
-**14a. Workspace/Screen/View → UC**
+**v0.2 — rebuilt thành bảy ma trận direct bắt buộc (đóng `P03C-MAJ-01`/`P03C-B-MAJ-01`/`P03C-B-MAJ-02`).** Mọi ma trận dưới đây liệt kê ID trực tiếp — KHÔNG "see child screen mapping"/wording gián tiếp. Mọi stable ID (`WS`/`NAV`/`SCR`/`VIEW`/`FLOW`/`STATE`) xuất hiện trong ít nhất một ma trận direct.
 
-| ID | UC(s) |
-|---|---|
-| WS-001 | (shell, không map UC trực tiếp — chứa NAV-001..006) |
-| SCR-001 | UC-001 |
-| VIEW-001 | UC-002 |
-| VIEW-002 | UC-003 |
-| SCR-002 | UC-004 |
-| VIEW-003 | UC-005 |
-| SCR-003 | UC-006 |
-| SCR-004 | UC-007, UC-008, UC-009 |
-| SCR-005 | UC-010 |
-| SCR-006 | UC-011 |
-| SCR-007 | UC-012, UC-013, UC-014, UC-015 |
-| SCR-008 | UC-016 |
-| SCR-009 | UC-017 |
-| VIEW-004 | UC-018 |
-| SCR-010 | UC-019 |
-| SCR-011 | UC-020 |
-| VIEW-005 | UC-021 |
+**14a. WS → UC/PR**
 
-**14b. Workspace/Screen/View → PR** — xem cột "Primary PR(s)" tại §6 (bảng đầy đủ, không lặp lại).
+| ID | UC traceability | PR traceability |
+|---|---|---|
+| WS-001 | UC-001–UC-021 (toàn bộ, xem bảng theo-item tại §5) | PR-001–PR-034 (toàn bộ, hợp union các item tại §5 — chi tiết per-item UC/PR trực tiếp tại bảng §5, KHÔNG một PR nào gán cho WS-001 mà không thuộc union đó) |
 
-**14c. UC → Workspace/Screen/View** (nghịch đảo của 14a, xác nhận đầy đủ `UC-001`–`UC-021`)
+**14b. NAV → UC/PR**
+
+| ID | UC traceability | PR traceability |
+|---|---|---|
+| NAV-001 | UC-001 | PR-003, PR-015, PR-017 |
+| NAV-002 | UC-002, UC-004 | PR-001, PR-008, PR-016, PR-018, PR-020 |
+| NAV-003 | UC-002, UC-006 | PR-001, PR-016, PR-021, PR-022, PR-023 |
+| NAV-004 | UC-002, UC-011 | PR-001, PR-006, PR-007, PR-016, PR-024 |
+| NAV-005 | UC-016, UC-017, UC-018 | PR-011, PR-028, PR-029, PR-030 |
+| NAV-006 | UC-019, UC-020, UC-021 | PR-031, PR-032 |
+
+**14c. SCR/VIEW → UC/PR**
+
+| ID | UC traceability | PR traceability |
+|---|---|---|
+| SCR-001 | UC-001 | PR-003, PR-015, PR-017 |
+| VIEW-001 | UC-002 | PR-001, PR-016 |
+| VIEW-002 | UC-003 | PR-017 |
+| SCR-002 | UC-004 | PR-008, PR-018, PR-020 |
+| VIEW-003 | UC-005 | PR-010, PR-019 |
+| SCR-003 | UC-006 | PR-021, PR-022, PR-023 |
+| SCR-004 | UC-007, UC-008, UC-009 | PR-009, PR-021, PR-022, PR-033, PR-034 |
+| SCR-005 | UC-010 | PR-034 |
+| SCR-006 | UC-002, UC-011 | PR-001, PR-006, PR-007, PR-024 |
+| SCR-007 | UC-012, UC-013, UC-014, UC-015 | PR-007, PR-013, PR-024, PR-025, PR-026, PR-027 |
+| SCR-008 | UC-016 | PR-028 |
+| SCR-009 | UC-017 | PR-029 |
+| VIEW-004 | UC-018 | PR-011, PR-030 |
+| SCR-010 | UC-019 | PR-031 |
+| SCR-011 | UC-020 | PR-031, PR-032 |
+| VIEW-005 | UC-021 | PR-032 |
+
+Mọi `UC-001`–`UC-021` xuất hiện trong ít nhất một SCR/VIEW primary (SCR-006/VIEW-001 chia sẻ UC-002 vì SCR-006 kế thừa Strategy Instance precondition, v0.2; SCR-004: UC-007/008/009; SCR-007: UC-012–015 — mỗi UC vẫn có behavior quan sát được RIÊNG, đúng field "Information displayed"/"Primary states" tại §7).
+
+**14d. FLOW → UC/PR**
+
+| ID | UC traceability | PR traceability |
+|---|---|---|
+| FLOW-001 | UC-001–UC-021 (toàn bộ, primary end-to-end journey) | PR-001, PR-003, PR-006–PR-009, PR-013, PR-015–PR-018, PR-020–PR-029, PR-031–PR-034 |
+| FLOW-002 | UC-002 | PR-001, PR-016 |
+| FLOW-003 | UC-009, UC-010, UC-011 | PR-024, PR-034 |
+| FLOW-004 | UC-011, UC-012, UC-013, UC-014 | PR-006, PR-007, PR-024, PR-025, PR-026 |
+| FLOW-005 | UC-020, UC-021 | PR-031, PR-032 |
+| FLOW-006 | UC-001, UC-002, UC-019, UC-021 | PR-001, PR-003, PR-015, PR-016, PR-017, PR-031, PR-032 |
+
+**14e. STATE → UC/PR** (condensed direct duplicate của bảng đầy đủ §11 — KHÔNG "see" reference)
 
 ```text
-UC-001 → SCR-001         UC-008 → SCR-004         UC-015 → SCR-007
-UC-002 → VIEW-001        UC-009 → SCR-004          UC-016 → SCR-008
-UC-003 → VIEW-002        UC-010 → SCR-005          UC-017 → SCR-009
-UC-004 → SCR-002         UC-011 → SCR-006          UC-018 → VIEW-004
-UC-005 → VIEW-003        UC-012 → SCR-007          UC-019 → SCR-010
-UC-006 → SCR-003         UC-013 → SCR-007          UC-020 → SCR-011
-UC-007 → SCR-004         UC-014 → SCR-007          UC-021 → VIEW-005
+STATE-001 → UC-001–UC-021 (toàn bộ) / PR-001,003,006–011,013,015–034
+STATE-002 → UC-006,007,008,009,010,012,013,014,015,016,017,020 / PR-007,009,013,021–029,031–034
+STATE-003 → UC-001,011 / PR-003              STATE-016 → UC-012 / PR-007,024
+STATE-004 → UC-002 / PR-001                  STATE-017 → UC-013 / PR-025
+STATE-005 → UC-001,006 / PR-015,021          STATE-018 → UC-014 / PR-026
+STATE-006 → UC-004 / PR-020                  STATE-019 → UC-014 / PR-026
+STATE-007 → UC-005 / PR-010,019              STATE-020 → UC-014 / PR-026
+STATE-008 → UC-005 / PR-010,019              STATE-021 → UC-014 / PR-026
+STATE-009 → UC-007,008,009,010 / PR-033,034  STATE-022 → UC-003 / PR-017
+STATE-010 → UC-007,008,009 / PR-021          STATE-023 → UC-003 / PR-017
+STATE-011 → UC-011 / PR-024                  STATE-024 → UC-003 / PR-017
+STATE-012 → UC-011 / PR-006                  STATE-025 → UC-021 / PR-032
+STATE-013 → UC-011 / PR-006                  STATE-026 → UC-021 / PR-032
+STATE-014 → UC-011 / PR-006                  STATE-027 → UC-011,015 / PR-027
+STATE-015 → UC-012 / PR-007,024
 ```
 
-Mọi `UC-001`–`UC-021` xuất hiện trong ĐÚNG MỘT primary UX artifact (một số UC chia sẻ một SCR khi tightly-related — SCR-004: UC-007/008/009; SCR-007: UC-012–015 — mỗi UC vẫn có behavior quan sát được RIÊNG trong screen đó, đúng field "Information displayed"/"Primary states" tại §7).
+**14f. UC → UX artifacts** (nghịch đảo 14b/14c/14d/14e, xác nhận đầy đủ `UC-001`–`UC-021`)
 
-**14d. Lifecycle Stage → Screens/Views**
+```text
+UC-001 → NAV-001, SCR-001, FLOW-001, FLOW-006, STATE-001, STATE-003, STATE-005, WS-001
+UC-002 → VIEW-001, SCR-006, NAV-002, NAV-003, NAV-004, FLOW-001, FLOW-002, FLOW-006, STATE-001,
+          STATE-004, WS-001
+UC-003 → VIEW-002, FLOW-001, STATE-001, STATE-022, STATE-023, STATE-024, WS-001
+UC-004 → SCR-002, NAV-002, FLOW-001, STATE-001, STATE-006, WS-001
+UC-005 → VIEW-003, FLOW-001, STATE-001, STATE-007, STATE-008, WS-001
+UC-006 → SCR-003, NAV-003, FLOW-001, STATE-001, STATE-002, STATE-005, WS-001
+UC-007 → SCR-004, FLOW-001, STATE-001, STATE-002, STATE-009, STATE-010, WS-001
+UC-008 → SCR-004, FLOW-001, STATE-001, STATE-002, STATE-009, STATE-010, WS-001
+UC-009 → SCR-004, FLOW-001, FLOW-003, STATE-001, STATE-002, STATE-009, STATE-010, WS-001
+UC-010 → SCR-005, FLOW-001, FLOW-003, STATE-001, STATE-002, STATE-009, WS-001
+UC-011 → SCR-006, NAV-004, FLOW-001, FLOW-003, FLOW-004, STATE-001, STATE-003, STATE-011–STATE-014,
+          STATE-027, WS-001
+UC-012 → SCR-007, FLOW-001, FLOW-004, STATE-001, STATE-002, STATE-015, STATE-016, WS-001
+UC-013 → SCR-007, FLOW-001, FLOW-004, STATE-001, STATE-002, STATE-017, WS-001
+UC-014 → SCR-007, FLOW-001, FLOW-004, STATE-001, STATE-002, STATE-018–STATE-021, WS-001
+UC-015 → SCR-007, FLOW-001, STATE-001, STATE-002, STATE-027, WS-001
+UC-016 → SCR-008, NAV-005, FLOW-001, STATE-001, STATE-002, WS-001
+UC-017 → SCR-009, NAV-005, FLOW-001, STATE-001, STATE-002, WS-001
+UC-018 → VIEW-004, NAV-005, FLOW-001, STATE-001, WS-001
+UC-019 → SCR-010, NAV-006, FLOW-001, FLOW-006, STATE-001, WS-001
+UC-020 → SCR-011, NAV-006, FLOW-001, FLOW-005, STATE-001, STATE-002, WS-001
+UC-021 → VIEW-005, NAV-006, FLOW-001, FLOW-005, FLOW-006, STATE-001, STATE-025, STATE-026, WS-001
+```
+
+**14g. PR → UX artifacts** (nghịch đảo 14a–14e, xác nhận đầy đủ `PR-001`–`PR-034`; PR-004/PR-005/PR-012/PR-014 CHỈ xuất hiện tại STATE-001/WS-001 — guarantee nền tảng, KHÔNG gắn riêng một destination cụ thể, không đổi từ v0.1)
+
+```text
+PR-001 → VIEW-001, SCR-006, NAV-002, NAV-003, NAV-004, FLOW-001, FLOW-002, FLOW-006, STATE-001,
+          STATE-004, WS-001
+PR-002 → STATE-001, WS-001 (Account scoping, nền tảng toàn cục)
+PR-003 → SCR-001, NAV-001, FLOW-001, FLOW-006, STATE-001, STATE-003, WS-001
+PR-004 → STATE-001, WS-001 (Decision outcome display, nền tảng — không gắn riêng một SCR/VIEW cụ thể,
+          không đổi từ v0.1)
+PR-005 → STATE-001, WS-001 (evidence trace, nền tảng — như PR-004)
+PR-006 → SCR-006, NAV-004, FLOW-001, FLOW-004, STATE-001, STATE-012, STATE-013, STATE-014, WS-001
+PR-007 → SCR-006, SCR-007, NAV-004, FLOW-001, FLOW-004, STATE-001, STATE-002, STATE-015, STATE-016,
+          WS-001
+PR-008 → SCR-002, NAV-002, FLOW-001, STATE-001, WS-001
+PR-009 → SCR-004, FLOW-001, STATE-001, STATE-002, WS-001
+PR-010 → VIEW-003, STATE-001, STATE-007, STATE-008, WS-001
+PR-011 → VIEW-004, NAV-005, STATE-001, WS-001
+PR-012 → STATE-001, WS-001 (historical cursor determinism, nền tảng)
+PR-013 → SCR-007, FLOW-001, STATE-001, STATE-002, WS-001
+PR-014 → STATE-001, WS-001 (state-machine transition guarantee, nền tảng)
+PR-015 → SCR-001, NAV-001, FLOW-001, FLOW-006, STATE-001, STATE-005, WS-001
+PR-016 → VIEW-001, NAV-002, NAV-003, NAV-004, FLOW-001, FLOW-002, FLOW-006, STATE-001, WS-001
+PR-017 → SCR-001, VIEW-002, NAV-001, FLOW-001, FLOW-006, STATE-001, STATE-022–STATE-024, WS-001
+PR-018 → SCR-002, NAV-002, FLOW-001, STATE-001, WS-001
+PR-019 → VIEW-003, STATE-001, STATE-007, STATE-008, WS-001
+PR-020 → SCR-002, NAV-002, FLOW-001, STATE-001, STATE-006, WS-001
+PR-021 → SCR-003, SCR-004, NAV-003, FLOW-001, STATE-001, STATE-002, STATE-005, STATE-010, WS-001
+PR-022 → SCR-003, SCR-004, NAV-003, FLOW-001, STATE-001, STATE-002, WS-001
+PR-023 → SCR-003, NAV-003, FLOW-001, STATE-001, STATE-002, WS-001
+PR-024 → SCR-006, SCR-007, NAV-004, FLOW-001, FLOW-003, FLOW-004, STATE-001, STATE-002, STATE-011,
+          STATE-015, STATE-016, WS-001
+PR-025 → SCR-007, FLOW-001, FLOW-004, STATE-001, STATE-002, STATE-017, WS-001
+PR-026 → SCR-007, FLOW-001, FLOW-004, STATE-001, STATE-002, STATE-018–STATE-021, WS-001
+PR-027 → SCR-007, FLOW-001, STATE-001, STATE-002, STATE-027, WS-001
+PR-028 → SCR-008, NAV-005, FLOW-001, STATE-001, STATE-002, WS-001
+PR-029 → SCR-009, NAV-005, FLOW-001, STATE-001, STATE-002, WS-001
+PR-030 → VIEW-004, NAV-005, STATE-001, WS-001
+PR-031 → SCR-010, SCR-011, NAV-006, FLOW-001, FLOW-005, FLOW-006, STATE-001, STATE-002, WS-001
+PR-032 → SCR-011, VIEW-005, NAV-006, FLOW-001, FLOW-005, FLOW-006, STATE-001, STATE-002, STATE-025,
+          STATE-026, WS-001
+PR-033 → SCR-004, FLOW-001, STATE-001, STATE-002, STATE-009, WS-001
+PR-034 → SCR-004, SCR-005, FLOW-001, FLOW-003, STATE-001, STATE-002, STATE-009, WS-001
+```
+
+**14h. Lifecycle Stage → Screens/Views** (bổ sung, không phải một trong bảy ma trận bắt buộc)
 
 ```text
 Research  → SCR-001, VIEW-001, VIEW-002
@@ -980,11 +1309,9 @@ Review    → SCR-008, SCR-009, VIEW-004
 Improve   → SCR-010, SCR-011, VIEW-005
 ```
 
-**14e. State → UC/PR** — xem bảng đầy đủ tại §11 (cột "UC/PR traceability" — mỗi `STATE-XXX` cite đúng PR; UC suy ra từ cột "Applicable screen/view" đối chiếu §14a).
+**14i. Screen/View → Domain vocabulary** — xem field "Domain vocabulary referenced" trong từng khối tại §7 (đầy đủ, không lặp lại).
 
-**14f. Screen/View → Domain vocabulary** — xem field "Domain vocabulary referenced" trong từng khối tại §7 (đầy đủ, không lặp lại).
-
-**14g. Deferred dependency → affected screens/views** — xem §15.
+**14j. Deferred dependency → affected screens/views** — xem §15.
 
 ## 15. Deferred dependencies and Open Questions
 
@@ -1064,10 +1391,12 @@ Kế thừa nguyên vẹn [`product-requirement.md`](./product-requirement.md) �
 ## 17. Package 0.3-C acceptance criteria
 
 ```text
-1. Toàn bộ 18 mục nội dung bắt buộc (§1–§18) có mặt và đầy đủ.
-2. Tất cả 21 Use Case (UC-001–UC-021) có UX coverage — xác nhận tại §14a/§14c.
-3. Mọi UX artifact (WS/NAV/SCR/VIEW/FLOW/STATE) truy vết một hoặc nhiều UC-XXX VÀ một hoặc nhiều
-   PR-XXX — không phần tử nào tồn tại chỉ vì "seems useful."
+1. Toàn bộ 18 mục nội dung bắt buộc (§1–§18, bao gồm §5a — sáu đặc tả NAV first-class, v0.2) có mặt và
+   đầy đủ.
+2. Tất cả 21 Use Case (UC-001–UC-021) có UX coverage — xác nhận tại §14f (UC → UX artifacts).
+3. Mọi UX artifact (WS/NAV/SCR/VIEW/FLOW/STATE) truy vết TRỰC TIẾP một hoặc nhiều UC-XXX VÀ một hoặc
+   nhiều PR-XXX (v0.2 — không còn "cross-cutting"/wording gián tiếp) — không phần tử nào tồn tại chỉ vì
+   "seems useful."
 4. KHÔNG product requirement hay Use Case behavior mới nào tồn tại — không PR-XXX/UC-XXX mới được tạo.
 5. Replay authority (historical reconstruction, SCR-002) và parity (non-authoritative recomputation,
    VIEW-003) hiển thị tách biệt tường minh — nhãn mode/authority riêng.
@@ -1090,7 +1419,7 @@ Kế thừa nguyên vẹn [`product-requirement.md`](./product-requirement.md) �
 16. `OQ-002`/`OQ-003` giữ nguyên `Open` — không bị đóng ngầm bởi bất kỳ UX label/flow nào.
 17. KHÔNG API/database/backend/frontend/infrastructure semantics nào được giới thiệu — §7 CHỈ mô tả
     behavior, KHÔNG component code/pixel/branding.
-18. YAML frontmatter hợp lệ, `version: "0.1"`, `status: Draft`, `approved_by: null`, `approved_at: null`
+18. YAML frontmatter hợp lệ, `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`
     — Package 0.3-C vẫn Draft, KHÔNG `Consolidated Stable`.
 19. Baseline sẵn sàng cho ChatGPT Review A + Independent Review B trên CÙNG một commit/blob.
 ```
