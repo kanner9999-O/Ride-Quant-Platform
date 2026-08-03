@@ -2,6 +2,102 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — stabilize Package 0.3-C
+
+**Package 0.3-C metadata-only lifecycle stabilization.** Vai trò: `Package Lifecycle Consolidation Author · Repository Transaction Executor`. Product Owner authorized: "Package 0.3-C: Consolidated Stable" (2026-08-03), approved semantic baseline `bf6d4c99d5967785b3acf3d536b8d3ef5078fa79`. Authorization này cho phép ghi Package 0.3-C vào lifecycle state `Consolidated Stable` VÀ populate `ux-blueprint.md` `approved_by`/`approved_at` — nó KHÔNG cho phép đổi semantic version, KHÔNG Lock trạng thái `status`, KHÔNG sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/ADR/Constitution/architecture nào, KHÔNG đóng OQ-002/OQ-003, KHÔNG authorize Live, KHÔNG tuyên bố Phase 0 hoàn thành, KHÔNG authorize Phase 1.
+
+### Baseline verification
+
+```text
+Expected HEAD:  bf6d4c99d5967785b3acf3d536b8d3ef5078fa79
+Actual HEAD:    bf6d4c99d5967785b3acf3d536b8d3ef5078fa79  — match
+
+ux-blueprint.md:          v0.5 Draft, blob 2c27af9e1d813b2afd761c6a69fa01d97f737cef  — match
+product/README.md:        blob 9b38dfa146ae72fe77088204a7ca5e51a8f50f40  — match
+product-requirement.md:   v0.2 Draft, blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8  — match, Consolidated Stable
+use-case-workflow.md:     v0.3 Draft, blob affbb723b577cde4c8627dd689550e3bfbffb5d1  — match, Consolidated Stable
+```
+
+### Stabilization record
+
+```text
+Package 0.3-C v0.5:
+  Product Owner approved lifecycle stabilization
+  final semantic baseline passed both required mechanical reviews
+  package marked Consolidated Stable
+
+Approved semantic baseline:  bf6d4c99d5967785b3acf3d536b8d3ef5078fa79
+Approval date:                2026-08-03
+Approver:                     Product Owner
+
+No semantic change
+No behavior change
+No traceability change
+No stable-ID change
+No authority change
+No PR/UC change
+```
+
+### Exact changed-file scope
+
+```text
+docs/product/ux-blueprint.md         MODIFIED (frontmatter + one lifecycle-status phrase only)   blob 615e838be63155abed92e306244579c305b03d37
+docs/product/README.md               MODIFIED (Package 0.3-C lifecycle metadata only)             blob a24be5343f0ce8926b427116fd43d482b75d1eeb
+docs/MANIFEST.md                     MODIFIED manifest_version 9.91 → 9.92
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/product-requirement.md  KHÔNG ĐỔI — blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8, verified byte-identical
+docs/product/use-case-workflow.md    KHÔNG ĐỔI — blob affbb723b577cde4c8627dd689550e3bfbffb5d1, verified byte-identical
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### UX Blueprint metadata: before → after
+
+```text
+version:      "0.5"  → "0.5"   (unchanged)
+status:       Draft  → Draft   (unchanged)
+approved_by:  null   → Product Owner
+approved_at:  null   → "2026-08-03"
+```
+
+Content below frontmatter: one existing lifecycle-status phrase in the document's own role statement changed from "chưa `Consolidated Stable`" to "`Consolidated Stable`" — no other text below the frontmatter was touched (verified via `git diff` line review). All four historical version-summary paragraphs (v0.2/v0.3/v0.4/v0.5) preserved unchanged as accurate point-in-time records.
+
+### Proof of zero semantic diff
+
+`git diff` reviewed line-by-line: only the two frontmatter fields and the single lifecycle-status phrase changed in `ux-blueprint.md`. No `SCR`/`VIEW`/`NAV`/`FLOW`/`WS`/`STATE` definition, no traceability matrix (§14), no §11 STATE table, no §7 spec block field, and no acceptance criterion text was touched.
+
+### Proof of zero traceability/stable-ID diff
+
+Stable-ID ranges unchanged: `WS-001`; `NAV-001`–`NAV-006`; `SCR-001`–`SCR-011`; `VIEW-001`–`VIEW-006`; `FLOW-001`–`FLOW-006`; `STATE-001`–`STATE-029`. All `UC-001`–`UC-021` and `PR-001`–`PR-034` traceability mappings (§14a–g) byte-identical to the approved baseline.
+
+### Upstream-integrity verification
+
+`product-requirement.md`/`use-case-workflow.md` confirmed byte-identical via `git diff --stat` and `git hash-object`; no Domain Contract/ADR/Constitution/architecture artifact touched.
+
+### Package lifecycle states
+
+```text
+Package 0.3-A:  Consolidated Stable   (unchanged)
+Package 0.3-B:  Consolidated Stable   (unchanged)
+Package 0.3-C:  Consolidated Stable   (NEW — this transaction)
+```
+
+### Open Questions / Live / Phase authorization
+
+`OQ-002`: `Open` (unchanged). `OQ-003`: `Open` (unchanged). Live: `Unauthorized` (unchanged). Phase 0: not declared complete by this commit. Phase 1: `Unauthorized`, pending a separate explicit Product Owner phase decision.
+
+### Metadata / state
+
+- `ux-blueprint.md`: `version: "0.5"` (unchanged), `status: Draft` (unchanged), **`approved_by: null → Product Owner`, `approved_at: null → "2026-08-03"`.**
+- `product-requirement.md`/`use-case-workflow.md`: **không đổi** — byte-for-byte.
+- `product/README.md`: **v1.2 → v1.3**.
+- `MANIFEST.md`: `manifest_version` **9.91 → 9.92**.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-C: `Consolidated Stable`.** Package 0.3-C gate passed. Phase 0.3 sub-phase completion is NOT declared by this transaction. Phase 0 remains active, not complete. Phase 1 remains unauthorized, pending a separate explicit Product Owner phase decision.
+
 ## [Unreleased] — 2026-08-03 — remove final invalid STATE-002 trace links
 
 **Package 0.3-C final mechanical traceability correction — đóng đúng một finding từ delta review trên baseline v0.4.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Apply exactly one final mechanical traceability correction to Package 0.3-C... Remove exactly these two invalid mappings: PR-007 → STATE-002, PR-032 → STATE-002." KHÔNG behavior/UX/navigation/flow/state/authority/lifecycle semantics change — CHỈ hai traceability link tại `STATE-002`. Authorization này **không** cho phép sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/Constitution/ADR/architecture, tạo `PR-XXX`/`UC-XXX` mới, thêm/bớt/đổi tên stable UX ID, thay đổi STATE-002 UC traceability hay applicable screens, sửa bất kỳ mapping nào khác, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.

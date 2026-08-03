@@ -5,8 +5,8 @@ version: "0.5"
 status: Draft
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-03"
 created_at: "2026-08-02"
 last_review: null
 next_review: null
@@ -14,7 +14,7 @@ next_review: null
 
 # UX Blueprint
 
-> **Vai trò của tài liệu này:** Artifact thứ ba và cuối cùng của Package 0.3-C (Phase 0.3 — Product Requirement · Use Case & Workflow · UX Blueprint), phụ thuộc trực tiếp [`product-requirement.md`](./product-requirement.md) v0.2 Draft (Package 0.3-A, `Consolidated Stable`) VÀ [`use-case-workflow.md`](./use-case-workflow.md) v0.3 Draft (Package 0.3-B, `Consolidated Stable`). Dịch 21 Use Case (`UC-001`–`UC-021`) thành UX representation — workspace, navigation, screen, view, panel, flow, action, state, handoff — cho hành vi ĐÃ được `product-requirement.md`/`use-case-workflow.md` kiểm soát. Draft, chưa Approved/Locked, **chưa `Consolidated Stable`**. Tài liệu này KHÔNG tạo product behavior/requirement/domain semantics mới — MỌI workspace/navigation item/screen/view/panel/flow/action/state/handoff PHẢI truy vết về một hoặc nhiều `UC-XXX` VÀ một hoặc nhiều `PR-XXX` đã tồn tại. KHÔNG sở hữu pixel dimension/visual branding/production component code (Phase 1 Figma-level prototype); KHÔNG sở hữu domain semantics (thuộc `/docs/domain/`, không sửa); KHÔNG sở hữu architecture (Phase 1, `/docs/architecture/`).
+> **Vai trò của tài liệu này:** Artifact thứ ba và cuối cùng của Package 0.3-C (Phase 0.3 — Product Requirement · Use Case & Workflow · UX Blueprint), phụ thuộc trực tiếp [`product-requirement.md`](./product-requirement.md) v0.2 Draft (Package 0.3-A, `Consolidated Stable`) VÀ [`use-case-workflow.md`](./use-case-workflow.md) v0.3 Draft (Package 0.3-B, `Consolidated Stable`). Dịch 21 Use Case (`UC-001`–`UC-021`) thành UX representation — workspace, navigation, screen, view, panel, flow, action, state, handoff — cho hành vi ĐÃ được `product-requirement.md`/`use-case-workflow.md` kiểm soát. Draft, chưa Approved/Locked, **`Consolidated Stable`**. Tài liệu này KHÔNG tạo product behavior/requirement/domain semantics mới — MỌI workspace/navigation item/screen/view/panel/flow/action/state/handoff PHẢI truy vết về một hoặc nhiều `UC-XXX` VÀ một hoặc nhiều `PR-XXX` đã tồn tại. KHÔNG sở hữu pixel dimension/visual branding/production component code (Phase 1 Figma-level prototype); KHÔNG sở hữu domain semantics (thuộc `/docs/domain/`, không sửa); KHÔNG sở hữu architecture (Phase 1, `/docs/architecture/`).
 
 **Authority boundary:** tài liệu này sở hữu **UX representation content** cho Phase 0.3 — KHÔNG sở hữu product requirement content (thuộc `product-requirement.md`, Package 0.3-A, không sửa), KHÔNG sở hữu use-case/workflow content (thuộc `use-case-workflow.md`, Package 0.3-B, không sửa), KHÔNG sở hữu domain semantics/state machine/authority/cardinality/transition (thuộc `/docs/domain/`, không sửa/redefine), KHÔNG sở hữu architecture quyết định (Phase 1, `/docs/architecture/`), KHÔNG đóng Open Question nào (`OQ-002`/`OQ-003` vẫn `Open`, xem §15), KHÔNG authorize Live, KHÔNG tuyên bố Phase 0.3/Phase 0 hoàn thành, KHÔNG mark chính nó `Consolidated Stable`.
 
