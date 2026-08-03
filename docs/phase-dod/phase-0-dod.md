@@ -1,7 +1,7 @@
 ---
 id: phase-0-dod
 title: "Phase 0 — Vision & Foundation: Definition of Done"
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -19,7 +19,9 @@ depends_on: ["00-governance", "12-approval-gates", "14-roadmap"]
 
 **Authority boundary:** tài liệu này sở hữu **substantive DoD content của Phase 0** (criteria/evidence/validator/review/finding-closure/repository-consistency/phase-decision-bundle requirements áp cho chính Phase 0) — theo delegation từ [Chapter 14 §14.3](../constitution/14-roadmap.md). Nó **KHÔNG** định nghĩa lại: phase approval orchestration ([Chapter 12](../constitution/12-approval-gates.md)); review eligibility/cardinality ([Chapter 0 §3](../constitution/00-governance.md), [Chapter 11 §11.5](../constitution/11-adr-process.md)); quality-gate semantics/trigger A–E ([Chapter 13](../constitution/13-quality-gates.md)); ADR Scope Rule ([Chapter 0 §4b](../constitution/00-governance.md)); phase sequence/canonical Phase-plan model ([Chapter 14 §14.1–§14.2](../constitution/14-roadmap.md)); current version/status/state của bất kỳ tài liệu nào ([MANIFEST](../MANIFEST.md) theo [I-12](../constitution/02-platform-invariants.md)).
 
-**v0.2 — bounded remediation delta (2026-08-03), đóng `P0-REM-MAJ-01`/`P0-REM-MAJ-02` (findings từ Phase 0 Bounded Remediation Delta Review, chưa accepted):** (1) `P0-REM-MAJ-01` — §3/§4 trước đây liệt kê Domain Contract package cần `Consolidated Stable` là "0.2-A, B1–B3, C1–C7", bỏ sót Package 0.2-B4 (`context.md`) — sửa thành liệt kê B4 tường minh ở mọi nơi, kèm caveat current-state (B4 hiện KHÔNG `Consolidated Stable` theo entry ADR-014 mới nhất tại MANIFEST, dù một entry cũ hơn từng ghi consolidated). (2) `P0-REM-MAJ-02` — §7 trước đây có một bullet đọc được như cho phép BẤT KỲ finding "chưa đóng" nào (không chỉ Minor) thôi chặn gate qua residual-risk acceptance, mâu thuẫn ngầm với bullet đầu (Blocker/Major phải resolved). Sửa: tường minh khóa Blocker/Major KHÔNG BAO GIỜ waive được — CHỈ Minor mới đủ điều kiện residual-risk acceptance. Bounded — KHÔNG mở lại comprehensive Phase 0 audit, KHÔNG thêm finding mới ngoài hai finding trên, KHÔNG đổi §1/§2/§5/§6/§8/§9/§10 nào khác. Delta này CHƯA được ChatGPT/Independent Review B accept — xem MANIFEST cho trạng thái review hiện tại.
+**v0.2 — bounded remediation delta (2026-08-03), đóng `P0-REM-MAJ-01`/`P0-REM-MAJ-02` (findings từ Phase 0 Bounded Remediation Delta Review, chưa accepted):** (1) `P0-REM-MAJ-01` — §3/§4 trước đây liệt kê Domain Contract package cần `Consolidated Stable` là "0.2-A, B1–B3, C1–C7", bỏ sót Package 0.2-B4 (`context.md`) — sửa thành liệt kê B4 tường minh ở mọi nơi (xem `v0.3` bên dưới cho current-state statement chính xác — statement gốc tại v0.2 này bị `P0-DELTA-A-MAJ-01` xác định là sai, đã sửa). (2) `P0-REM-MAJ-02` — §7 trước đây có một bullet đọc được như cho phép BẤT KỲ finding "chưa đóng" nào (không chỉ Minor) thôi chặn gate qua residual-risk acceptance, mâu thuẫn ngầm với bullet đầu (Blocker/Major phải resolved). Sửa: tường minh khóa Blocker/Major KHÔNG BAO GIỜ waive được — CHỈ Minor mới đủ điều kiện residual-risk acceptance. Bounded — KHÔNG mở lại comprehensive Phase 0 audit, KHÔNG thêm finding mới ngoài hai finding trên, KHÔNG đổi §1/§2/§5/§6/§8/§9/§10 nào khác. Delta này CHƯA được ChatGPT/Independent Review B accept — xem MANIFEST cho trạng thái review hiện tại.
+
+**v0.3 — factual lifecycle correction (2026-08-03), đóng `P0-DELTA-A-MAJ-01` (finding từ Phase 0 Bounded Remediation Delta Review trên v0.2, chưa accepted):** v0.2 (§3/§4, xem paragraph phía trên) tuyên bố sai rằng Package 0.2-B4 "hiện KHÔNG `Consolidated Stable`"/"vẫn `Draft`"/"còn cần package delta review/consolidation transaction riêng" — đây là conflation giữa package lifecycle và artifact lifecycle. Authoritative MANIFEST state: **Package 0.2-B4 = `Consolidated Stable`** (Product Owner authorized 2026-07-30, reviewed HEAD `cae2b4b115db93ba5f76bcbf28b41c03362789eb`) — tiêu chí này ĐÃ thỏa; artifact `context.md` tự nó vẫn `status: Draft`, đúng pattern package-lifecycle/artifact-lifecycle tách biệt đã dùng nhất quán cho mọi package Phase 0 khác. Sửa: §3/§4 nay phát biểu chính xác — B4 vẫn là required deliverable liệt kê tường minh (KHÔNG đổi yêu cầu `P0-REM-MAJ-01` đã đóng), nhưng current-state statement nay đúng: `Consolidated Stable`, KHÔNG còn "pending"/"Draft ở tầng package". Bounded — KHÔNG mở lại comprehensive Phase 0 audit, KHÔNG đổi `P0-REM-MAJ-02` (§7 Blocker/Major waiver rule, không đổi) hay bất kỳ nội dung nào khác ngoài statement current-state của B4 tại §3/§4 và paragraph v0.2 này. Delta này CHƯA được ChatGPT/Independent Review B accept.
 
 **Lifecycle state của chính DoD artifact này:** `status: Draft`, `approved_by: null`, `approved_at: null`. Đây là **DoD mới được author lần đầu** — theo Chapter 0 §7.1 Document Lifecycle (`Not Started → Draft → In Review → Revision Requested → Approved → Locked`), nó bắt đầu tại `Draft`. **Product Owner acceptance/incorporation của DoD này CHƯA được ghi nhận tại đây** — [Chapter 14 §14.3.1](../constitution/14-roadmap.md) khóa: canonical incorporation chỉ tồn tại khi Product Owner acceptance evidence resolve được VÀ xác định tường minh Phase identity/Roadmap-phase-section version/DoD version/explicit incorporation decision, tại một transaction RIÊNG do chính Product Owner tạo ra qua Decision Workflow ([Chapter 0 §3](../constitution/00-governance.md)). Tài liệu này **không tự claim** acceptance đó.
 
@@ -90,15 +92,17 @@ E. Lifecycle-triggered (Schema/contract compatibility):
   - Toàn bộ Domain Contract package đã author (Package 0.2-A, B1, B2, B3, B4, C1–C7)
     đạt `Consolidated Stable` tại MANIFEST — KHÔNG package nào được bỏ sót khỏi danh
     sách này dù trạng thái hiện tại là gì.
-  - Package 0.2-B4 (`context.md`): theo MANIFEST hiện tại, B4 đã từng được ghi
-    `Consolidated Stable` (2026-07-30) nhưng ADR-014 approval sau đó tường minh ghi
-    "KHÔNG tự động Approve/Lock/Consolidate Package 0.2-B4 — B4 vẫn `Draft`... còn
-    cần package delta review/consolidation transaction riêng trước khi
-    `Consolidated Stable`" (đóng `IRB-B4-MAJ-03`, ADR-003 fan-in conflict). Current
-    authoritative state resolve từ MANIFEST tại thời điểm gate evaluation — DoD này
-    KHÔNG tự quyết B4 hiện đang ở trạng thái nào, CHỈ khóa: B4 PHẢI resolve đúng một
-    current state tại MANIFEST VÀ state đó PHẢI là `Consolidated Stable` để tiêu chí
-    0.2 thỏa — nếu chưa, đây là outstanding item chặn gate, KHÔNG được bỏ qua.
+  - Package 0.2-B4 (`context.md`): là một **required Phase 0 Domain deliverable**,
+    package lifecycle PHẢI resolve về `Consolidated Stable` để tiêu chí 0.2 thỏa —
+    KHÔNG được bỏ sót khỏi gate evaluation. Authoritative MANIFEST state hiện tại:
+    **Package 0.2-B4 = `Consolidated Stable`** (Product Owner authorized 2026-07-30,
+    reviewed HEAD `cae2b4b115db93ba5f76bcbf28b41c03362789eb`) — tiêu chí này ĐÃ thỏa.
+    Artifact `context.md` tự nó vẫn `status: Draft` — đây là **package lifecycle
+    (`Consolidated Stable`) tách biệt khỏi artifact lifecycle (`Draft`)**, đúng
+    pattern đã dùng nhất quán cho mọi package khác trong Phase 0 (ví dụ
+    `product-requirement.md`/`use-case-workflow.md`: package `Consolidated Stable`,
+    `approved_by: null`) — `context.md` `status: Draft` KHÔNG mâu thuẫn với package
+    state `Consolidated Stable`, KHÔNG cần resolve thêm.
   - context-map.yaml resolve đầy đủ owned_contracts cho mọi context đã đăng ký.
   - Không Domain Contract nào còn finding Major/Blocker chưa resolved.
 
@@ -131,7 +135,8 @@ Required deliverable evidence (Chapter 12 §12.1):
     resolve tại MANIFEST.
   - Domain Model: toàn bộ file dưới /docs/domain/ + context-map.yaml, mỗi package
     (0.2-A/B1/B2/B3/B4/C1–C7) có review evidence (ChatGPT Review A + Independent
-    Review B) pinned — B4 KHÔNG được bỏ sót (xem §3 cho current-state caveat).
+    Review B) pinned — B4 KHÔNG được bỏ sót (xem §3 cho current-state confirmation:
+    `Consolidated Stable`, reviewed HEAD `cae2b4b115db93ba5f76bcbf28b41c03362789eb`).
   - Product Requirement/Use Case & Workflow/UX Blueprint: mỗi package (0.3-A/B/C) có
     review evidence pinned, đúng exact baseline blob per Consolidated Stable
     transaction.

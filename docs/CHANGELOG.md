@@ -2,6 +2,58 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — correct Package 0.2-B4 lifecycle statement (NOT yet accepted)
+
+**Factual lifecycle correction to the Phase 0 bounded remediation delta — addresses `P0-DELTA-A-MAJ-01`.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single factual correction.
+
+**This correction is NOT accepted and NOT claimed clean.** It requires the same two read-only reviews as the delta it corrects:
+
+```text
+Review A:  ChatGPT / RiDe — Phase 0 Bounded Remediation Delta Review
+Review B:  Independent Review B — Phase 0 Independent Bounded Remediation Delta Review
+
+Parent:        a358027f3e6b897bff2791ac1a12fa1f1d40b11e
+Reviewed HEAD: (this commit — see final HEAD in author report)
+```
+
+### P0-DELTA-A-MAJ-01 — false Package 0.2-B4 lifecycle statement
+
+The prior delta (`phase-0-dod.md` v0.2, `MANIFEST.md`'s Phase DoD row, and this CHANGELOG's own prior entry) stated or implied Package 0.2-B4 was still `Draft`/pending package delta review/pending consolidation — conflating package lifecycle with artifact lifecycle. The authoritative MANIFEST state is:
+
+```text
+Package 0.2-B4:    Consolidated Stable
+Authorized:         2026-07-30
+Reviewed HEAD:       cae2b4b115db93ba5f76bcbf28b41c03362789eb
+
+context.md (artifact): status Draft — this does NOT conflict with the package state.
+```
+
+Fixed: `phase-0-dod.md` §3/§4 now state accurately that Package 0.2-B4 is a required Phase 0 Domain deliverable whose package lifecycle must resolve to (and currently does resolve to) `Consolidated Stable`, while its `context.md` artifact may remain `status: Draft` — the same package/artifact-lifecycle separation already used consistently elsewhere in Phase 0 (`product-requirement.md`, `use-case-workflow.md`). `MANIFEST.md`'s Phase DoD row corrected to match. `docs/product/README.md` was checked and contains no Package 0.2-B4 statement — no change needed there.
+
+Package 0.2-B4 **remains explicitly listed** in both §3 and §4 (the `P0-REM-MAJ-01` requirement that it not be omitted is unchanged) — only the current-state characterization was wrong, not the requirement to include it.
+
+### Preserved from the prior delta (unchanged)
+
+```text
+P0-REM-MAJ-02:  §7 — Blocker/Major can never be waived; only Minor may use explicit
+                Product Owner residual-risk acceptance. Byte-unchanged.
+P0-REM-MAJ-04:  Package 0.3-B v0.3 remains the historical Consolidated Stable
+                baseline; v0.4 is awaiting bounded delta review and package
+                revalidation. Byte-unchanged in README.md and MANIFEST.md.
+```
+
+### Exact changed-file scope
+
+```text
+docs/phase-dod/phase-0-dod.md   MODIFIED v0.2 → v0.3   blob 05546dd454393f346f4da40730d877bcc1e387d4
+docs/MANIFEST.md                MODIFIED manifest_version 9.98 → 9.99 (Phase DoD row only)
+docs/CHANGELOG.md               MODIFIED (correction note appended to prior F-01 entry + this entry)
+```
+
+### Forbidden-scope verification
+
+KHÔNG comprehensive audit reopened. KHÔNG DoD semantics changed beyond the B4 current-state statement. KHÔNG `use-case-workflow.md`/UX Blueprint/Constitution/Domain Contract/ADR/team artifact/architecture touched. KHÔNG stable ID changed. KHÔNG OQ closed (`OQ-002`/`OQ-003` remain `Open`). Live remains `Unauthorized`. Phase 0 not declared complete. Phase 1 not authorized. DoD not accepted.
+
 ## [Unreleased] — 2026-08-03 — Phase 0 bounded remediation delta (authored, NOT yet accepted)
 
 **Phase 0 Bounded Remediation Delta — addresses `P0-REM-MAJ-01`, `P0-REM-MAJ-02`, `P0-REM-MAJ-04` from the Phase 0 Bounded Remediation Delta Review.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this bounded delta correction.
@@ -20,7 +72,9 @@ Both reviews are restricted to `P0-REM-MAJ-01`/`P0-REM-MAJ-02`/`P0-REM-MAJ-04` p
 
 ### P0-REM-MAJ-01 — Phase 0 DoD omitted Package 0.2-B4
 
-`docs/phase-dod/phase-0-dod.md` §3 (Substantive completion criteria) and §4 (Evidence requirements) listed Domain Contract packages as "0.2-A, B1–B3, C1–C7" — omitting Package 0.2-B4 (`context.md`) entirely. Fixed: both lists now name B4 explicitly, with an inline caveat recording B4's current authoritative state per MANIFEST (the ADR-014 entry states B4 remains `Draft`, not auto-consolidated, pending its own package delta review/consolidation transaction — this is a pre-existing MANIFEST fact, not something this delta resolves or changes).
+`docs/phase-dod/phase-0-dod.md` §3 (Substantive completion criteria) and §4 (Evidence requirements) listed Domain Contract packages as "0.2-A, B1–B3, C1–C7" — omitting Package 0.2-B4 (`context.md`) entirely. Fixed: both lists now name B4 explicitly.
+
+> **Correction (2026-08-03, `P0-DELTA-A-MAJ-01`):** the original text of this entry stated B4's "current authoritative state" as remaining `Draft`/pending package delta review, citing an ADR-014 passage. That was incorrect — the authoritative MANIFEST state is **Package 0.2-B4 = `Consolidated Stable`** (Product Owner authorized 2026-07-30, reviewed HEAD `cae2b4b115db93ba5f76bcbf28b41c03362789eb`); only the `context.md` *artifact* remains `status: Draft` (package lifecycle vs. artifact lifecycle, not a conflict). See the `P0-DELTA-A-MAJ-01` CHANGELOG entry below for the correction record.
 
 ### P0-REM-MAJ-02 — Blocker/Major waiver ambiguity
 
