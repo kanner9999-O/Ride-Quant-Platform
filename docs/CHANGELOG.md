@@ -2,6 +2,91 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — finalize Package 0.3-C traceability mappings
+
+**Package 0.3-C final traceability-only correction — đóng đúng một finding từ delta review trên baseline v0.3.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Perform exactly one final traceability-only correction for: P03C-MAJ-01. This is a metadata and traceability correction only." KHÔNG thay đổi product behavior, UX behavior, navigation, flows, states, authority semantics hay lifecycle semantics — CHỈ traceability metadata (PR/UC mapping references) tại §6/§7/§11/§14. Authorization này **không** cho phép sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/Constitution/ADR/architecture, tạo `PR-XXX`/`UC-XXX` mới, thêm/bớt/đổi tên stable UX ID, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.
+
+### Baseline and blob verification
+
+```text
+Expected HEAD:  5fbe4604678decf6cb3fdff15edfca1c885a89ed
+Actual HEAD:    5fbe4604678decf6cb3fdff15edfca1c885a89ed  — match
+
+ux-blueprint.md:          v0.3 Draft, blob a432782a9c74ccd971757271707c71c3f00bf4f9  — match
+product/README.md:        blob b3105a873c69db22172e30842e28ef9b845d25ab  — match
+product-requirement.md:   v0.2 Draft, blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8  — match, Consolidated Stable
+use-case-workflow.md:     v0.3 Draft, blob affbb723b577cde4c8627dd689550e3bfbffb5d1  — match, Consolidated Stable
+```
+
+### Resolution of P03C-MAJ-01
+
+v0.3 đã thu hẹp union gần-toàn-bộ của v0.2 nhưng vẫn giữ lại một số mapping tại `STATE-001`/`STATE-002` chỉ vì "parent screen sở hữu PR đó" thay vì vì chính state materially kiểm soát/hiển thị requirement đó; đồng thời `PR-004`/`PR-005`/`PR-014` bị coi là "không có UX acceptance surface" dù UX blueprint thực sự hiển thị nội dung mà ba PR này yêu cầu. v0.4 sửa cả hai:
+
+1. **`STATE-001` (loading) — thu hẹp từ 9 PR xuống 2.** Review độc lập từng PR: `PR-003` (Instrument/Venue required context, retained trong lúc pending tại SCR-001/SCR-002) và `PR-018` (canonical Replay Cursor required context, retained trong lúc pending tại SCR-002, §12) là hai PR duy nhất materially về context RETAINED trong lúc loading. Loại `PR-008`/`PR-015`/`PR-017`/`PR-020`/`PR-021`/`PR-022`/`PR-023` — tất cả về nội dung/guarantee CUỐI CÙNG hiển thị SAU khi load xong (no-look-ahead, no-side-effect, network-independence, run identity, version tuple), KHÔNG phải thứ mà chính trạng thái loading hiển thị/kiểm soát.
+2. **`STATE-002` (empty) — thu hẹp từ 13 PR xuống 4.** `PR-021` (SCR-004 — absence của "stable Backtest run identity" mà chính PR-021 định nghĩa), `PR-034` (SCR-005 — "so sánh được với run KHÁC" đòi hỏi minimum-record-count trực tiếp), `PR-007` (SCR-007 — acceptance evidence tường minh ghi "với NOT_EXECUTED, người dùng thấy rõ zero Fill"), `PR-032` (SCR-011 — "truy vấn outcome xuyên suốt version" là comparison-availability governing PR gần nhất). Loại `PR-009`/`PR-013`/`PR-022`/`PR-024`/`PR-025`/`PR-026`/`PR-027`/`PR-031`/`PR-033` — nội dung/outcome chi tiết CỦA record MỘT KHI nó tồn tại, KHÔNG phải sự vắng mặt/minimum-count của chính record đó.
+3. **`PR-004` (Decision outcome tường minh) → `SCR-004`/`SCR-006`/`SCR-008`.** SCR-004 "mỗi Decision kèm outcome + evidence trace" (Information displayed); SCR-006 "PAPER-context Decision lineage (LONG/SHORT) ELIGIBLE" (Required context); SCR-008 causation trace về "Decision gốc" (nguồn gốc + outcome).
+4. **`PR-005` (evidence trace đầy đủ) → `SCR-004`/`SCR-006`/`SCR-008`.** SCR-004 "evidence trace" tường minh (Information displayed); SCR-006 Evidence consumed/System-owned actions thể hiện toàn bộ causation chain PAPER lineage; SCR-008 CHÍNH LÀ causation trace đầy đủ Decision→Position.
+5. **`PR-014` (explicit state-machine transition guarantee) → `SCR-006`/`SCR-007`/`STATE-012`–`STATE-021`.** SCR-006 Risk APPROVED/REJECTED/NON_EVALUABLE (Primary/blocked states); SCR-007 ExecutionResult EXECUTED/NOT_EXECUTED, Fill absent, Position FLAT/LONG/SHORT/NON_EVALUABLE (Primary/blocked states) — mười `STATE-XXX` (012–021) là chính xác các explicit lifecycle-transition presentation mà PR-014 yêu cầu. KHÔNG map vào `STATE-022`–`024` (Research verification — workflow-visible, KHÔNG domain state machine) hay bất kỳ generic artifact nào khác.
+
+Sau v0.4, **tất cả 34 PR có ít nhất một acceptance surface direct** — không còn PR nào "upstream invariant without surface".
+
+### Exact changed-file scope
+
+```text
+docs/product/ux-blueprint.md         MODIFIED v0.3 → v0.4   blob 47e57a9d9f8e35c3ce66643a2666a83181d10e84
+docs/product/README.md               MODIFIED v1.0 → v1.1   blob 7d4ad68b177974cc1f102fe6144005ea7ebeb999
+docs/MANIFEST.md                     MODIFIED manifest_version 9.89 → 9.90
+docs/CHANGELOG.md                    MODIFIED (this entry)
+docs/product/product-requirement.md  KHÔNG ĐỔI — blob fce5cd55f4cd71decfd59afcf2ab109cecf3c3f8, verified byte-identical
+docs/product/use-case-workflow.md    KHÔNG ĐỔI — blob affbb723b577cde4c8627dd689550e3bfbffb5d1, verified byte-identical
+docs/domain/                          KHÔNG ĐỔI
+docs/adr/                             KHÔNG ĐỔI
+docs/constitution/                    KHÔNG ĐỔI
+docs/architecture/                    KHÔNG ĐỔI
+```
+
+### Corrected artifact version and status
+
+`ux-blueprint.md`: `version: "0.4"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### Stable ID counts and ranges (unchanged — traceability-only correction)
+
+`WS-001` (1); `NAV-001`–`NAV-006` (6); `SCR-001`–`SCR-011` (11); `VIEW-001`–`VIEW-006` (6); `FLOW-001`–`FLOW-006` (6); `STATE-001`–`STATE-029` (29) — no ID added, removed, renamed or reordered.
+
+### Matrices updated
+
+`§6` catalogue (SCR-004/006/007/008 Primary PR(s) columns); `§7` PR traceability lines (SCR-004/006/007/008, with brief inline rationale); `§11` STATE-001/STATE-002 rows narrowed + STATE-012–021 add PR-014 + new "Rationale PR traceability STATE-001/STATE-002" prose block; `§14a`–`§14g` (all seven matrices rebuilt from final source text via script-based extraction); `§17` acceptance criterion 18 (version).
+
+### Proof that no behavior changed
+
+`git diff` reviewed hunk-by-hunk: every changed line is either (a) frontmatter `version`, (b) the two intro summary paragraphs (v0.3 unchanged, new v0.4 paragraph appended), (c) a "PR traceability" line within an existing `§7` spec block (Purpose/Entry points/Exit points/Required context/Information displayed/Available user actions/System-owned actions/Evidence consumed/Evidence produced/Authority labels/Primary states/Empty-blocked states/Domain vocabulary/Out-of-scope boundary fields — all byte-identical, zero changes), (d) `§6` catalogue "Primary PR(s)" column, (e) `§11` STATE table PR column + new rationale prose (State name/Applicable screen/view columns unchanged for STATE-001/STATE-002; STATE-012–021 State name/UC/Applicable screen columns unchanged), (f) `§14` matrices, (g) `§17` criterion 18 version string. No NAV/SCR/VIEW/FLOW/STATE purpose, interaction, navigation, flow ordering, authority label, or lifecycle semantics text was touched.
+
+### Traceability coverage (script-verified)
+
+Regex/set-comparison script confirms: all `UC-001`–`UC-021` (21/21) and all `PR-001`–`PR-034` (34/34) appear in at least one direct artifact mapping; `STATE-001` no longer inherits detailed parent-screen PRs (PR-008/015/017/020/021/022/023 removed); `STATE-002` no longer inherits detailed parent-screen PRs (PR-009/013/022/024/025/026/027/031/033 removed); `PR-023` not mapped to loading; `PR-013`/`PR-027`/`PR-031` not mapped to empty; `PR-004` maps to actual Decision-outcome surfaces (SCR-004/006/008); `PR-005` maps to actual evidence-trace surfaces (SCR-004/006/008); `PR-014` maps to actual explicit lifecycle surfaces (SCR-006/007, STATE-012–021); no generic artifact used as fallback PR coverage (except FLOW-001's UC-001–021, explicitly permitted since it is the primary journey itself).
+
+### Preservation of previously resolved findings
+
+`P03C-B-MAJ-01` (Paper Strategy Instance pin lifecycle — UX-INV-3, VIEW-001, SCR-006/007 identity display, STATE-028/029) unchanged; `P03C-B-MAJ-02` (VIEW-006 creation/registration ownership, VIEW-001/SCR-010/FLOW-006/§9 corrections) unchanged; `P03C-MIN-01` (Research entry-first ordering, FLOW-001/FLOW-006) unchanged; `P03C-MIN-02` (UX-P-5 read-only vs authoritative progression) unchanged; `P03C-MIN-03` (NAV-001–006 first-class specs) unchanged. All preserved behavior boundaries (Replay/Backtest/Paper authority separation, cross-mode comparison, Research tri-state, old-version evidence-family separation, historical cursor/no-repaint) re-verified untouched via diff review.
+
+### Forbidden-scope verification
+
+Không `PR-XXX`/`UC-XXX` mới tạo; không stable UX ID nào thêm/bớt/đổi tên; `product-requirement.md`/`use-case-workflow.md` không đổi (verified `git diff --stat` + `git hash-object`, byte-identical); không Domain Contract/Constitution/ADR/architecture nào sửa; không UX behavior/navigation/flow/state/authority/lifecycle semantics nào đổi; không Paper/Replay/Backtest behavior nào invented; không Strategy Instance pinning/registration nào đổi; không API/database/event/permission/routing/session architecture nào invented; OQ-002/OQ-003 không đóng; Live không authorize; không artifact nào Approved/Locked; Package 0.3-C không mark `Consolidated Stable`.
+
+### Author self-review
+
+Automated re-verification: `WS`(1)/`NAV`(6)/`SCR`(11)/`VIEW`(6)/`FLOW`(6)/`STATE`(29) unchanged, unique/sequential/contiguous; script-based extraction xác nhận toàn bộ `UC-001`–`UC-021` và `PR-001`–`PR-034` (34/34, không còn ngoại lệ) xuất hiện tại ít nhất một artifact direct mapping; markdown table column-count consistency re-verified across toàn bộ file; STATE-001/STATE-002 table cells re-verified clean (rationale moved to prose block below table to avoid parser/reviewer confusion from PR-XXX tokens mentioned only as "excluded"); YAML frontmatter re-validated via `yaml.safe_load` (`version: "0.4"`, `status: Draft`, `approved_by: null`, `approved_at: null`); `git diff` reviewed hunk-by-hunk confirming zero behavioral-field changes; `git status --porcelain`/`git diff --stat` xác nhận CHỈ bốn file được phép thay đổi, `product-requirement.md`/`use-case-workflow.md`/toàn bộ Domain Contract/ADR/Constitution chapter/architecture artifact byte-identical.
+
+### Metadata / state
+
+- `ux-blueprint.md`: **v0.3 → v0.4**, `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+- `product-requirement.md`/`use-case-workflow.md`: **không đổi** — byte-for-byte, `Consolidated Stable` package states unchanged.
+- `product/README.md`: **v1.0 → v1.1**.
+- `MANIFEST.md`: `manifest_version` **9.89 → 9.90**.
+- Mọi Domain Contract, ADR, Constitution chapter, architecture artifact: **không đổi.**
+
+**Package 0.3-C: final traceability-only correction đã author, status Draft, chưa `Consolidated Stable`, đang chờ ChatGPT Traceability Delta Review A.** Mandatory sequence tiếp tục: ChatGPT Traceability Delta Review A → Independent Review B → Product Owner consolidation decision. `OQ-002`/`OQ-003` vẫn `Open`. Không authorize Live. Không artifact nào Approved hay Locked. Phase 0.3 vẫn active — Phase 0 vẫn active và chưa hoàn tất; Phase 1 vẫn unauthorized.
+
 ## [Unreleased] — 2026-08-03 — finalize Package 0.3-C UX authority boundaries
 
 **Package 0.3-C final narrowly bounded correction — đóng đúng ba finding từ delta review trên baseline v0.2.** Vai trò: `Domain Contract Revision Author · AI Technical Architect`. Product Owner authorized: "Perform exactly one final narrowly bounded correction for: P03C-MAJ-01/P03C-B-MAJ-01/P03C-B-MAJ-02." Đã resolved Minor findings (`P03C-MIN-01`/`P03C-MIN-02`/`P03C-MIN-03`) KHÔNG bị revisit/broaden, trừ collateral consistency edit bắt buộc. Authorization này **không** cho phép sửa `product-requirement.md`/`use-case-workflow.md`/Domain Contract/Constitution/ADR/architecture, tạo `PR-XXX`/`UC-XXX` mới, invent `PaperSession` entity/session persistence/timeout/backend lifecycle, invent Strategy Instance schema/field/validation/API/database/command/event implementation, invent permission/authorization/route-guard architecture, invent PAPER-context Decision establishment mechanism, đóng OQ-002/OQ-003, authorize Live, hay Approve/Lock/Consolidate bất kỳ artifact nào.
