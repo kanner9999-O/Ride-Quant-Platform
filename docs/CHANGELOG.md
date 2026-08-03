@@ -2,6 +2,41 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — propose Package 1.1 architecture decisions (Draft, NOT Approved)
+
+**Author two ADR candidates required by Package 1.1 v0.2 (bounded-correction-verified CLEAN).** Vai trò: `ADR Author & Repository Transaction Executor`. Product Owner authorized this authoring transaction. Neither ADR is approved. Package 1.1 is not consolidated.
+
+### ADR-015 — Official Phase 1 Module Decomposition and Dependency Graph
+
+Proposes approving Package 1.1 v0.2's 22-module inventory and dependency graph (`module-registry.yaml` blob `2dd1e1fae8f886b605896864b432f3f79a3726d1`, `system-decomposition.md` blob `45d745315ba36ea4ca53b5bb4bcd2aa6ca076293`, reviewed source HEAD `46a1246b2a2c32cf78fb98c0104e3d46981e2c42`) as the official Phase 1 baseline — exact-artifact pinned, a future update requires a superseding ADR or a scoped correction depending on what actually changes. Four alternatives evaluated (A: approve as proposed [recommended]; B: coarser decomposition — rejected, violates already-registered Domain Context boundaries; C: finer decomposition — rejected, violates module-boundary-≠-domain-entity-boundary; D: defer official graph — rejected, blocks every downstream package indefinitely and creates competing module identity risk). Does not resolve DD-001, DD-003, or the Structure-aware Regime authority gap.
+
+### ADR-016 — Decision Engine Taxonomy — Hybrid Retention vs Decomposition
+
+Proposes retaining `decision-engine` as one hybrid module (`runtime_service` primary, `decision_evaluation` secondary), evaluated against all four Chapter 7 §7.1 hybrid conditions. Four alternatives evaluated (A: retain hybrid [recommended] — atomicity of Decision creation per Chapter 8 §8.4 requires evaluation and record to be one atomic action; B: split into Decision Evaluation Engine + Decision Authority Service — rejected, creates a cross-module transaction boundary for a fact that must be atomic; C: place evaluation inside Strategy Plugin Host — rejected, assessed against I-4/I-7/Decision authority/no-hidden-Decision-ownership-in-plugins and fails all four; D: defer to Package 1.3-C — rejected, Governance §4b does not permit indefinite deferral of an already-proposed ADR-required decision). `depends_on: [ADR-015]` — Decision Engine's existence as a module is established by ADR-015; ADR-016 only decides its internal taxonomy classification. Authors no Decision algorithm, schema, or implementation.
+
+### Lifecycle
+
+Both ADRs use this repository's actual convention (`status: Draft`, per `docs/templates/adr-template.md` and Chapter 0 §7.2) rather than the literal word "Proposed" used in the originating task description — Draft is the correct pre-approval state name in this repository's schema. `approved_by: null`, `approved_at: null` on both. Neither ADR's "Independent reviews" table is filled — no review has occurred yet.
+
+### Exact changed-file scope
+
+```text
+docs/adr/ADR-015.md   NEW, version 0.1, status Draft
+                       blob 443093ede9b9572bd91708304e770c5d6979b0c8
+docs/adr/ADR-016.md   NEW, version 0.1, status Draft
+                       blob a415cc043bf4b1ce1da8fea7711dc069a711c167
+docs/MANIFEST.md      MODIFIED manifest_version 10.11 -> 10.12, two new rows in
+                       "## ADR" section (compatible_adr_range left at ADR-001~ADR-014
+                       since neither new ADR is approved)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended)
+```
+
+`docs/architecture/module-registry.yaml` and `docs/architecture/system-decomposition.md` **NOT modified** — blobs confirmed unchanged at `2dd1e1fae8f886b605896864b432f3f79a3726d1` and `45d745315ba36ea4ca53b5bb4bcd2aa6ca076293` respectively. No `docs/adr/README.md` created — no such file exists in this repository and the existing "## ADR" table in MANIFEST already serves as the index.
+
+### Forbidden-scope verification
+
+KHÔNG `docs/product/`/`docs/domain/`/`docs/constitution/`/`docs/team/`/`docs/phase-dod/` touched. KHÔNG Package 1.2–1.6 detailed architecture, API schema, database schema, security/custody implementation, Engine algorithm, or source code authored. KHÔNG either ADR approved. KHÔNG Package 1.1 approved or declared Consolidated Stable. KHÔNG Phase 1 declared Complete. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-03 — correct Package 1.1 authority boundaries (NOT yet verified)
 
 **Bounded correction to Package 1.1 candidate — addresses `P11-A-MAJ-01`, `P11-A-MAJ-02`, `P11-A-MIN-01`.** Vai trò: `Package 1.1 Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. The complete Package 1.1 design is NOT reopened.

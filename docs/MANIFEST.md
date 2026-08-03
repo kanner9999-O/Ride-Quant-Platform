@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.11"
+manifest_version: "10.12"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -57,6 +57,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | adr/ADR-012.md — Account-to-Boundary Cardinality — Exactly-One-Boundary Trading Account | **Approved** | — | — |
 | adr/ADR-013.md — Strategy Definition Version — Independent Evidence Axis | **Approved** | — | — |
 | adr/ADR-014.md — Feature Computation Fan-in vs Context Snapshot Aggregation — Narrow Amendment of ADR-003 | **Approved** (Product Owner, 2026-07-30 — "Approve ADR-014."; v0.2, sau ChatGPT + Claude narrow delta review Clean 0/0/0/0; đóng `IRB-ADR014-MAJ-01`/`MAJ-02`/`MIN-01`/`MIN-02`) | ADR-003 (hiệu lực từ 2026-07-30) | — |
+| adr/ADR-015.md — Official Phase 1 Module Decomposition and Dependency Graph (Package 1.1) | **Draft** (2026-08-03, authored candidate — required bởi `system-decomposition.md` §12 Decision 1, ADR REQUIRED; CHƯA reviewed/approved) | — | — |
+| adr/ADR-016.md — Decision Engine Taxonomy — Hybrid Retention vs Decomposition | **Draft** (2026-08-03, authored candidate — required bởi `system-decomposition.md` §12 Decision 2, ADR REQUIRED; `depends_on: [ADR-015]`; CHƯA reviewed/approved) | — | — |
 
 ## Domain
 
