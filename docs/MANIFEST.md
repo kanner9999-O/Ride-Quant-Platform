@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.14"
+manifest_version: "10.15"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -58,7 +58,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | adr/ADR-013.md — Strategy Definition Version — Independent Evidence Axis | **Approved** | — | — |
 | adr/ADR-014.md — Feature Computation Fan-in vs Context Snapshot Aggregation — Narrow Amendment of ADR-003 | **Approved** (Product Owner, 2026-07-30 — "Approve ADR-014."; v0.2, sau ChatGPT + Claude narrow delta review Clean 0/0/0/0; đóng `IRB-ADR014-MAJ-01`/`MAJ-02`/`MIN-01`/`MIN-02`) | ADR-003 (hiệu lực từ 2026-07-30) | — |
 | adr/ADR-015.md — Official Phase 1 Module Decomposition and Dependency Graph (Package 1.1) | **Draft** (v0.2, 2026-08-03, bounded correction đóng `ADR015-A-MAJ-01`/`ADR015-B-MAJ-02`/`ADR015-A-MIN-01` — Review A REVISE + Independent Review B REVISE trên v0.1, CHƯA verified sau correction; blob `8940e14258ee331e7f2a38ffb0de49f5d01723e6`) | — | — |
-| adr/ADR-016.md — Decision Engine Taxonomy — Hybrid Retention vs Decomposition | **Draft** (v0.3, 2026-08-03, final bounded correction đóng `ADR016-A-MAJ-02` — Review A + Independent Review B trên v0.2: ADR015 findings RESOLVED, `ADR016-A-MAJ-02` CONFIRMED MAJOR mới; CHƯA verified sau correction; `depends_on: [ADR-015]`. **Disposition đổi từ "Alternative A" sang DEFERRED** — v0.2 suy luận sai "ranh giới chưa xác định ⟹ điều kiện 1 thỏa" (ngụy biện); sửa: Chapter 7 §7.1 điều kiện 1 = NOT ESTABLISHED, điều kiện 4 = not satisfied (chưa ADR nào chứa quyết định Approved). `decision-engine` hybrid tại Package 1.1 vẫn proposed/unresolved/NOT governance-valid. §"Required deferral trigger" định nghĩa 5 điều kiện resume; §"Parallel-work boundary" xác nhận Package 1.3-C exploratory work KHÔNG tự động authorize bởi ADR này — chỉ ghi nhận làm Product Owner decision khả dĩ. Blob `6d623c9fa966bfb90666397020863d3bcdae6ff0`.) | — | — |
+| adr/ADR-016.md — Decision Engine Taxonomy — Hybrid Retention vs Decomposition | **Draft** (v0.4, 2026-08-03, narrow residual wording correction đóng `ADR016-A-MAJ-02` (hoàn tất) VÀ `ADR016-B-MAJ-01` — Review A + Independent Review B trên v0.3: `ADR016-A-MAJ-02` re-evaluated UNRESOLVED tại vòng này do đúng residual contradiction; `ADR016-B-MAJ-01` CONFIRMED MAJOR mới ghi nhận cụ thể câu văn còn sót; CHƯA verified sau correction; `depends_on: [ADR-015]`. **Disposition VẪN DEFERRED** — v0.3's Alternative A block giữ câu "Ưu điểm: đúng bốn điều kiện Chapter 7 §7.1" ở current tense, mâu thuẫn trực tiếp với chính điều kiện 1 NOT ESTABLISHED/điều kiện 4 not satisfied v0.3 vừa thiết lập — sửa: câu đó điều kiện hóa hoàn toàn thành "Lợi thế TIỀM NĂNG NẾU... một authoritative responsibility boundary xác lập đủ cả bốn điều kiện... VÀ một ADR chứa quyết định đó được Approved." KHÔNG mở lại architectural analysis, KHÔNG đổi DEFERRED disposition/Chapter 7 condition table/resume trigger/Package 1.1 consequence/parallel-work boundary — chỉ narrow wording fix. Blob `5385ff81e6da480a7bee8c71279d82a16c1913cd`.) | — | — |
 
 ## Domain
 

@@ -2,6 +2,58 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — remove residual hybrid validity claim (NOT yet verified)
+
+**Narrow textual correction to ADR-016 — addresses `ADR016-A-MAJ-02` (final closure) and `ADR016-B-MAJ-01`.** Vai trò: `ADR-016 Residual Correction Author & Repository Transaction Executor`. Product Owner authorized this narrow correction. Architectural analysis not reopened. ADR-015 and Package 1.1 not modified. ADR-016 not approved.
+
+**This correction is NOT verified.** Review A + Independent Review B on v0.3 re-evaluated `ADR016-A-MAJ-02` as unresolved at this round (due to the exact residual contradiction below) and confirmed a new Major finding `ADR016-B-MAJ-01`; this transaction corrects both and awaits a fresh, narrowly-scoped Review A + independent bounded Review B.
+
+### The contradiction
+
+ADR-016 v0.3 correctly established Chapter 7 §7.1 condition 1 = NOT ESTABLISHED, condition 4 = NOT satisfied, and disposition = DEFERRED. However, the retained Alternative A analysis still stated, in the current tense: "Ưu điểm: đúng bốn điều kiện Chapter 7 §7.1" ("satisfies all four Chapter 7 §7.1 conditions") — directly contradicting the disposition established one section earlier.
+
+### The fix
+
+That sentence is replaced with explicitly conditional language: the listed advantages (simpler deterministic replay, higher explainability, no new governance overhead) are now framed as "potential advantages IF a future authoritative responsibility boundary establishes all four Chapter 7 §7.1 conditions AND an ADR containing that supported decision is Approved." No other wording in the document made an equivalent current-tense validity claim — this was the sole instance.
+
+### Unchanged (verified via diff hunk inspection — only 3 hunks: frontmatter version, intro banner, this one sentence)
+
+```text
+Disposition: DEFERRED (unchanged).
+Chapter 7 condition table (all four conditions): unchanged.
+Required deferral trigger (five resume conditions): unchanged.
+Package 1.1 consequence section: unchanged.
+Parallel-work boundary section: unchanged.
+Alternative B analysis (technically credible, not selected, not approved, not invalid):
+  unchanged.
+Alternative C rejection (Plugin authority/non-ownership grounds): unchanged.
+Alternative D (selected as current governance disposition): unchanged.
+```
+
+### Exact changed-file scope
+
+```text
+docs/adr/ADR-016.md   MODIFIED version 0.3 -> 0.4
+                       blob 6d623c9fa966bfb90666397020863d3bcdae6ff0
+                         -> 5385ff81e6da480a7bee8c71279d82a16c1913cd
+docs/MANIFEST.md      MODIFIED manifest_version 10.14 -> 10.15 (ADR-016 row only)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended)
+```
+
+`docs/adr/ADR-015.md` **NOT modified** — blob confirmed unchanged at `8940e14258ee331e7f2a38ffb0de49f5d01723e6`, both before and after this commit.
+
+### Exact Package 1.1 pins (unchanged, verified)
+
+```text
+docs/architecture/module-registry.yaml       v0.2   blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md    v0.2   blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+Reviewed source HEAD:                               46a1246b2a2c32cf78fb98c0104e3d46981e2c42
+```
+
+### Forbidden-scope verification
+
+KHÔNG `docs/adr/ADR-015.md`/`docs/architecture/module-registry.yaml`/`docs/architecture/system-decomposition.md`/`docs/product/`/`docs/domain/`/`docs/constitution/`/`docs/team/`/`docs/phase-dod/` touched. KHÔNG DEFERRED disposition, Chapter 7 condition table, resume triggers, Package 1.1 consequences, or parallel-work boundary changed. KHÔNG Alternative A or B selected. KHÔNG Decision semantics/algorithm authored. KHÔNG new ADR created. KHÔNG any artifact approved. KHÔNG Package 1.3-C authorized. KHÔNG Phase 1 declared Complete. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-03 — defer Decision Engine taxonomy decision (NOT yet verified)
 
 **Final bounded correction to ADR-016 — addresses `ADR016-A-MAJ-02`.** Vai trò: `ADR-016 Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. ADR-015 not modified. Package 1.1 not reopened. ADR-016 not approved.
