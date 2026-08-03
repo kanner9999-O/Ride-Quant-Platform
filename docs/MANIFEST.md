@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.95"
+manifest_version: "9.96"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -90,6 +90,12 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 **F-04 correction (2026-08-03, Phase 0 Exit Readiness Audit MAJOR finding):** `"Independent Review B"` — reviewer identity pinned tại `reviewers:` frontmatter và review-evidence table của [ADR-012](adr/ADR-012.md)/[ADR-013](adr/ADR-013.md) (byte-frozen sau approval, KHÔNG sửa) — nay resolve tường minh qua `team.yaml` member `"Claude"` field `aliases: ["Independent Review B"]`. Đây là stable governance alias cho actor "Claude" tại review-boundary capacity, phân biệt với actor "ChatGPT" — thoả `Chapter 0 §3`/`Chapter 11 §11.5` "hai actor identity khác nhau". KHÔNG phải Product Owner; KHÔNG collapse vào "ChatGPT"; KHÔNG một nhân vật có thật được phát minh. `roles.md`/`responsibility-matrix.md`/`onboarding.md` cập nhật cross-reference tương ứng. Bốn file team vẫn `In Review` — chưa Product Owner Approve/Lock; sẵn sàng cho review, KHÔNG tự claim approval tại transaction này.
 
+## Phase DoD (Definition of Done artifacts, Chapter 12 §12.1 / Chapter 14 §14.3)
+
+| Phase | File | Version | Status | Approved by | Approved at | Note |
+|---|---|---|---|---|---|---|
+| Phase 0 — Vision & Foundation | [`phase-dod/phase-0-dod.md`](phase-dod/phase-0-dod.md) | 0.1 | Draft | null | null | **F-01 (Phase 0 Exit Readiness Audit).** Authored 2026-08-03 — declares gate set (Trigger A universal + Trigger E conditional per Chapter 13 §13.12), substantive completion criteria, evidence/validator/review/finding-closure/repository-consistency/phase-decision-bundle requirements per Chapter 12 §12.1–§12.2 và Chapter 14 §14.3/§14.3.1/§14.4/§14.4.1/§14.4.2. `Approved` KHÔNG phải một DoD item (Chapter 12 §12.1). Product Owner acceptance/incorporation (Chapter 14 §14.3.1) **CHƯA ghi nhận** — chờ acceptance statement riêng từ Product Owner tại task tương lai. KHÔNG tuyên bố Phase 0 hoàn thành, KHÔNG mở Approval Gate, KHÔNG authorize Phase 1. |
+
 ## Decision Log
 
 | ADR | Status | Ngày | Tóm tắt |
@@ -119,6 +125,18 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | OQ-005 | Cơ chế ordering authoritative cho cross-node/cross-exchange event ordering — phân tầng sau hybrid split: Chapter 8 = invariant · ADR-009 = architectural model · Phase 1 = mechanism/design specification | **RESOLVED** (2026-07-18, ADR-009 Approved) | Product Owner | Phát hiện: Claude tự soi Chapter 5 v2.1, ChatGPT xác nhận Major. Quan trọng cho arbitrage đa sàn (thứ tự event = lãi/lỗ) |
 | OQ-004 | Time Model (Chapter 5) cần bổ sung rõ bitemporal: effective/event time vs knowledge/recorded time | Resolved (Chapter 5 v2.0) | Product Owner | Đã xử lý: §5.1 Bitemporal Model canonical hóa Effective/Recorded Time, hòa giải thuật ngữ với I-3 Locked, §5.3 định nghĩa vận hành Replay theo trục Recorded |
 | OQ-003 | Product Metrics cụ thể cho nguyên tắc "Measurable" (vd: decision-rationale coverage rate, risk-policy violation rate, replay-to-live parity deviation, thời gian hypothesis→validated strategy...) | Open | Product Owner | Chuyển ra khỏi Vision (V2-05) — cần tài liệu Product Metrics riêng, không nhét KPI chi tiết vào Vision |
+
+## Deferred Decisions (F-08, Phase 0 Exit Readiness Audit, 2026-08-03 — single authoritative register)
+
+Đây là **authoritative tracking source DUY NHẤT** cho product-chain deferred dependency đã pin rải rác tại các Product artifact — register này **cross-reference**, KHÔNG duplicate/redefine semantics đã pin tại nguồn gốc. KHÔNG renumber/alter `OQ-001`–`OQ-006` (bảng riêng, phía trên) — `DD-XXX` là namespace tách biệt cho deferred **domain/mechanism** dependency, khác `OQ-XXX` (Open Question cấp product/policy).
+
+| # | Chủ đề | Trạng thái | Nguồn gốc (authoritative, không duplicate) | Ghi chú |
+|---|---|---|---|---|
+| DD-001 | Backtest Domain Contract/entity/event/schema | Deferred | [`use-case-workflow.md` §9d](product/use-case-workflow.md), [`ux-blueprint.md` §15](product/ux-blueprint.md) | Đích: Phase 1 architecture/domain design. Constraint: KHÔNG được suy diễn từ PAPER entity (`BacktestOrder`/`BacktestFill`/`BacktestPosition`/`BacktestExecutionResult` hay tương đương KHÔNG được invent). Quyết định author Domain Contract riêng cho Backtest là Product Owner decision tương lai, ngoài phạm vi Package 0.2/0.3 hiện tại. |
+| DD-002 | Research Domain Contract | Resolved — KHÔNG cần standalone Research entity | [`use-case-workflow.md` §9d](product/use-case-workflow.md), [`ux-blueprint.md` §15](product/ux-blueprint.md) | Classification: non-blocking informational decision — Research quan sát thuần túy trên Domain Contract đã có (candle.md…context.md, strategy.md), KHÔNG cần entity `Research`/`ResearchVerification` riêng. Đã resolved, không cần theo dõi thêm. |
+| DD-003 | PAPER-context authoritative Decision establishment mechanism | Deferred | [`use-case-workflow.md` §9d](product/use-case-workflow.md), [`ux-blueprint.md` §15](product/ux-blueprint.md) | Đích: Phase 1. Constraint: **mandatory TRƯỚC KHI UC-011 runtime design** — cơ chế CHÍNH XÁC (trigger, ai/cái gì ghi nhận PAPER-context Decision) KHÔNG được tự phát minh ở tầng downstream (UX/architecture) — chỉ YÊU CẦU (PAPER entry cần PAPER-context Decision lineage riêng) và BOUNDARY (Backtest/Research Decision KHÔNG BAO GIỜ carry-forward/promote/reuse làm ancestor) đã pin, cơ chế cụ thể là Product Owner decision/Domain Contract correction tương lai. |
+
+**Không đóng OQ nào, không đóng DD nào tại transaction này** — register này CHỈ tổng hợp tham chiếu, KHÔNG tự resolve/quyết định thêm bất kỳ deferred item nào ngoài những gì nguồn gốc đã pin.
 
 ## Backlog (Constitution v1.1 — Medium Priority, chưa làm ngay)
 

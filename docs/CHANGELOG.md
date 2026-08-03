@@ -2,6 +2,49 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — author Phase 0 DoD and deferred-decision register (F-01, F-08)
+
+**Phase 0 Definition of Done authoring + product-chain deferred-decision register — Phase 0 Exit Readiness Audit findings `F-01` (BLOCKER) và `F-08` (MINOR).** Vai trò: `Governance Artifact Author · Repository Transaction Executor`. Product Owner authorized both as part of the frozen Phase 0 remediation finding set (F-01–F-08).
+
+### F-01 — Phase 0 DoD artifact
+
+New file `docs/phase-dod/phase-0-dod.md` — canonical path chosen per [Chapter 14 §14.6](constitution/14-roadmap.md) ("Storage/format/filename cụ thể của DoD artifact defer — Constitution khóa tồn tại + property, không khóa cơ chế"); no pre-existing path convention found in-repo, so a new top-level `docs/phase-dod/` directory was created, extensible to future Phases (`phase-1-dod.md`, etc.).
+
+```text
+Identity:      Phase 0 — Vision & Foundation
+Version:       0.1
+Status:        Draft
+approved_by:   null
+approved_at:   null
+```
+
+Complies with [Chapter 12 §12.1](constitution/12-approval-gates.md)/[§12.2](constitution/12-approval-gates.md) and [Chapter 14 §14.3](constitution/14-roadmap.md)/[§14.3.1](constitution/14-roadmap.md)/[§14.4](constitution/14-roadmap.md)/[§14.4.1](constitution/14-roadmap.md)/[§14.4.2](constitution/14-roadmap.md) — declares gate set (Trigger A universal invariant conformance for all Phase 0 deliverables + Trigger E schema/contract compatibility conditional on Domain Contracts that publish event schema, per [Chapter 13 §13.12](constitution/13-quality-gates.md) trigger analysis recorded inline), substantive completion criteria per sub-phase (0.1 Constitution, 0.2 Domain Model, 0.3 Product Requirement/Use Case/UX Blueprint), evidence/validator/review/finding-closure/repository-consistency/phase-decision-bundle requirements. `Approved` explicitly NOT included as a DoD item (Chapter 12 §12.1 anti-circularity rule). Product Owner acceptance/incorporation (Chapter 14 §14.3.1) explicitly NOT recorded — §11 of the DoD states this outright, deferring to a future, separate task carrying the exact required Product Owner acceptance statement.
+
+### F-08 — Deferred-decision register
+
+New `## Deferred Decisions` section in `MANIFEST.md`, positioned between `## Open Questions` and `## Backlog` — single authoritative register, cross-referencing existing product-artifact sections rather than duplicating semantics:
+
+```text
+DD-001  Backtest Domain Contract/entity/event/schema           Deferred
+DD-002  Research Domain Contract                                Resolved (no standalone entity)
+DD-003  PAPER-context authoritative Decision establishment      Deferred
+```
+
+Sources cross-referenced: `use-case-workflow.md` §9d, `ux-blueprint.md` §15 — content NOT duplicated/redefined, only tabulated with a pointer. `OQ-001`–`OQ-006` untouched, unrenumbered — `DD-XXX` is a separate namespace (deferred domain/mechanism dependency vs. Open Question).
+
+### Exact changed-file scope
+
+```text
+docs/phase-dod/phase-0-dod.md   NEW   v0.1 Draft   blob 140688a60d6dbca509b8e9dd8d9c4249e02985c3
+docs/MANIFEST.md                MODIFIED manifest_version 9.95 → 9.96 (new "Phase DoD" section + new
+                                  "Deferred Decisions" section)
+docs/CHANGELOG.md               MODIFIED (this entry)
+```
+
+### Forbidden-scope verification
+
+KHÔNG Phase 0 declared complete. KHÔNG Phase 1 authorized. KHÔNG OQ nào đóng (OQ-002/OQ-003 vẫn `Open`). KHÔNG architecture work bắt đầu. KHÔNG Product Owner acceptance của DoD claimed. `OQ-001`–`OQ-006` không renumber/alter.
+
 ## [Unreleased] — 2026-08-03 — resolve Independent Review B reviewer identity (F-04)
 
 **Team governance reviewer-identity resolution — Phase 0 Exit Readiness Audit finding `F-04` (MAJOR).** Vai trò: `Governance Artifact Author · Repository Transaction Executor`. Product Owner authorized this correction as part of the frozen Phase 0 remediation finding set (F-01–F-08).
