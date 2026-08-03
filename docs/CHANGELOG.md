@@ -2,6 +2,39 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — resolve Independent Review B reviewer identity (F-04)
+
+**Team governance reviewer-identity resolution — Phase 0 Exit Readiness Audit finding `F-04` (MAJOR).** Vai trò: `Governance Artifact Author · Repository Transaction Executor`. Product Owner authorized this correction as part of the frozen Phase 0 remediation finding set (F-01–F-08).
+
+### Gap identified
+
+`ADR-012.md`/`ADR-013.md` (both `Approved`, byte-frozen since approval boundary per Chapter 0 §5.2) pin `reviewers: [ChatGPT, "Independent Review B"]` in frontmatter and cite `"Independent Review B"` as a reviewer identity in their review-evidence table — but `team.yaml` had no member resolving that identity, leaving it unresolvable against the authoritative actor↔role source (Chapter 0 §2: "Việc gán Người/AI ↔ Role sống trong `/team/team.yaml`").
+
+### Resolution
+
+Did NOT edit ADR-012/ADR-013 (Locked/frozen). Added `aliases: ["Independent Review B"]` to the existing `"Claude"` member entry in `team.yaml`, with an explicit `alias_note` documenting: this is a stable governance alias for actor "Claude" at the independent-review-boundary capacity — distinct from Claude's general authoring/execution capacity, and distinct from (not collapsing into) "ChatGPT" — satisfying Chapter 0 §3 / Chapter 11 §11.5's "two different actor identities" requirement (ChatGPT = actor 1, Claude/"Independent Review B" = actor 2). Not Product Owner. Not a fabricated real-world personal identity. `roles.md`, `responsibility-matrix.md`, `onboarding.md` each received a short cross-reference note pointing to `team.yaml` as the single alias↔actor resolution source (I-12).
+
+### Lifecycle state
+
+All four team artifacts remain `status: In Review` (unchanged) — prepared for review, not claimed as Product Owner approved. Per Chapter 0 §5.1, `In Review` documents may be edited in place (not Approved/Locked), so this correction required no version bump/ADR.
+
+### Exact changed-file scope
+
+```text
+docs/team/team.yaml                   MODIFIED   blob 7e2e1895042c96ef02f46cc845f12f8deb59a536
+docs/team/roles.md                    MODIFIED   blob 8be926939bd33eee40a7d8fa276daf3816c6e645
+docs/team/responsibility-matrix.md    MODIFIED   blob 21a037a40e645cbf0fce336194fe98f3248088c4
+docs/team/onboarding.md               MODIFIED   blob 51b781f6f65c8e7253b8153ceaaa78b76d972b72
+docs/MANIFEST.md                      MODIFIED manifest_version 9.94 → 9.95
+docs/CHANGELOG.md                     MODIFIED (this entry)
+docs/adr/ADR-012.md                   KHÔNG ĐỔI — byte-frozen, verified via git diff --stat
+docs/adr/ADR-013.md                   KHÔNG ĐỔI — byte-frozen, verified via git diff --stat
+```
+
+### Forbidden-scope verification
+
+KHÔNG sửa ADR-012/ADR-013 (byte-identical, verified). KHÔNG Product Owner approval claimed cho bất kỳ team artifact nào. KHÔNG fabricated real-world identity. KHÔNG Constitution/Domain Contract/architecture nào đổi.
+
 ## [Unreleased] — 2026-08-03 — restore PR-004/PR-005 UC lineage (F-03)
 
 **Package 0.3-B post-consolidation bounded correction — Phase 0 Exit Readiness Audit finding `F-03` (MAJOR).** Vai trò: `Product Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this correction as part of the frozen Phase 0 remediation finding set (F-01–F-08).

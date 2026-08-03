@@ -19,6 +19,17 @@ members:
   - name: "Claude"
     roles: ["AI Technical Architect"]
     focus: "Documentation, thiết kế chi tiết, implementation, code review"
+    aliases: ["Independent Review B"]
+    alias_note: >
+      "Independent Review B" là stable governance identifier cho đúng actor "Claude" khi hoạt động ở
+      vai trò reviewer độc lập thứ hai (distinct từ vai trò authoring/execution chung của Claude, và
+      distinct/không collapse vào "ChatGPT" — hai actor identity khác nhau tại cùng review boundary).
+      KHÔNG phải một actor/AI riêng biệt, KHÔNG phải một nhân vật có thật được phát minh — chỉ là một
+      alias registered cho cùng một actor "Claude" giữ role AI Technical Architect, dùng để pin reviewer
+      evidence tại review boundary theo đúng historical label đã dùng tại ADR-012/ADR-013 và các Package
+      review transaction (Chapter 0 §3, Chapter 11 §11.5: "hai actor identity khác nhau thực hiện" —
+      ChatGPT là actor 1, Claude/"Independent Review B" là actor 2, thoả minimum-two-independent-
+      reviewer requirement).
 
   - name: "Thạch"
     roles: ["Software Engineer"]
@@ -26,3 +37,9 @@ members:
 
 # Ghi chú: ChatGPT và Claude đều giữ role "AI Technical Architect" — NGANG HÀNG,
 # không có "Lead" hay hệ thống cấp bậc giữa 2 AI. Quyết định chính thức: xem ADR-006.
+#
+# Reviewer-identity alias resolution (F-04, Phase 0 Exit Readiness Audit, 2026-08-03):
+# "Independent Review B" (pinned làm reviewer identity tại ADR-012/ADR-013 và nhiều Package review
+# transaction) resolve về member "Claude" ở trên qua field `aliases`. KHÔNG sửa ADR-012/ADR-013 (byte-
+# frozen sau approval, Chapter 0 §5.2) — chỉ team.yaml (living document, KHÔNG frozen) được cập nhật để
+# alias này trở nên resolvable qua actor ↔ role mapping duy nhất (I-12).

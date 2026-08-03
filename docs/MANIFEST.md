@@ -1,5 +1,5 @@
 ---
-manifest_version: "9.94"
+manifest_version: "9.95"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -87,6 +87,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | team/roles.md | In Review |
 | team/responsibility-matrix.md | In Review |
 | team/onboarding.md | In Review |
+
+**F-04 correction (2026-08-03, Phase 0 Exit Readiness Audit MAJOR finding):** `"Independent Review B"` — reviewer identity pinned tại `reviewers:` frontmatter và review-evidence table của [ADR-012](adr/ADR-012.md)/[ADR-013](adr/ADR-013.md) (byte-frozen sau approval, KHÔNG sửa) — nay resolve tường minh qua `team.yaml` member `"Claude"` field `aliases: ["Independent Review B"]`. Đây là stable governance alias cho actor "Claude" tại review-boundary capacity, phân biệt với actor "ChatGPT" — thoả `Chapter 0 §3`/`Chapter 11 §11.5` "hai actor identity khác nhau". KHÔNG phải Product Owner; KHÔNG collapse vào "ChatGPT"; KHÔNG một nhân vật có thật được phát minh. `roles.md`/`responsibility-matrix.md`/`onboarding.md` cập nhật cross-reference tương ứng. Bốn file team vẫn `In Review` — chưa Product Owner Approve/Lock; sẵn sàng cho review, KHÔNG tự claim approval tại transaction này.
 
 ## Decision Log
 
