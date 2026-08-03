@@ -2,6 +2,154 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — add bounded exploratory-work exception (ADR-016 evidence path)
+
+**Narrow amendment to `docs/architecture/phase-1-plan.md` §6.** Vai trò: `Planning Amendment Author & Repository Transaction Executor`. Product Owner authorized: `"Tao authorize narrow amendment cho phase-1-plan.md §6 để sau đó mở bounded Package 1.3-C exploratory work."` (2026-08-04). Authorization này cho phép amendment AUTHORING ONLY — nó KHÔNG pre-approve amendment và KHÔNG mở Package 1.3-C.
+
+### The deadlock this amendment addresses
+
+ADR-016 (Decision Engine taxonomy) is `Draft`, disposition `DEFERRED` — its resume trigger #2 requires a Package 1.3-C architecture candidate as evidence. But §6's `BẮT BUỘC TUẦN TỰ` ordering blocks Package 1.3-C until 1.3-B is `Consolidated Stable`, and Package 1.1 (the root of that dependency chain) is itself `blocked` by ADR-016. This is a circular evidence deadlock, not a general planning gap.
+
+### New §6.1 — Bounded exploratory-work exception
+
+Adds `### 6.1 Bounded exploratory-work exception — ADR-016 evidence path` immediately after the existing §6 content, before §7. Defines:
+
+```text
+Gate 1 — Exploratory authoring authorization: permits creation of bounded architecture
+  evidence only, scoped to the ADR-016 resume path. Does NOT open Package 1.3-C under
+  §4/§8, does NOT let 1.3-C progress toward Consolidated Stable.
+Gate 2 — Normal package authorization: remains blocked — 1.3-B Consolidated Stable,
+  Package 1.1 Consolidated Stable (transitively), and ADR-016 Approved (if it affects
+  1.3-C content) are all still required. Passing Gate 1 never implies Gate 2 has passed.
+```
+
+Permitted exploratory purpose (distinguish Strategy Plugin advisory output / platform-owned
+deterministic Decision evaluation if it exists / authoritative Decision validation and
+append), allowed outputs (taxonomy-level responsibility definitions, module-boundary
+alternatives, one bounded-hybrid candidate, one non-overlapping split candidate,
+authority/source-of-truth analysis, semantic/transactional boundary analysis,
+contract-category descriptions without field-level schemas, Chapter 7 §7.1 four-condition
+evaluation, effects on the ADR-015 baseline, risks/reversibility/downstream consequences,
+evidence package for ADR-016 Review A/Independent Review B/Product Owner decision), and a
+long forbidden-outputs list (selecting/approving hybrid or split, treating any candidate as
+official, modifying Package 1.1 as if ADR-016 were resolved, changing the ADR-015 baseline,
+Decision algorithm, strategy/trading logic, field-level schemas, API/database schema,
+security/deployment/framework/source-code/runtime/test implementation, implementation
+authorization, Package 1.3-C completion, Package 1.1 consolidation/approval, Phase 1
+completion, Phase 2 opening, Live authorization) are all documented in full.
+
+Seven eligibility requirements (specific unresolved ADR blocking an upstream package;
+ADR explicitly identifies required downstream evidence; explicit Product Owner
+authorization; documented scope/outputs/forbidden-areas/stop-conditions; exploratory
+artifacts labeled non-authoritative/exploratory/not approved/not implementation-ready;
+existing Approved ADRs and artifact pins remain controlling; Review A + Independent
+Review B required before use at the ADR decision gate) and six stop conditions (evidence
+complete; forbidden scope entered; conflict with ADR-015 or another Approved ADR
+discovered; unauthorized Product/Domain/Constitution semantics required; Product Owner
+withdraws/narrows authorization; repository baseline changes invalidate the evidence) are
+recorded — with an explicit statement that **a stop condition must not silently select a
+taxonomy.**
+
+The exception is scoped explicitly to this one ADR-016 ↔ Package 1.3-C deadlock — the
+subsection states it creates no standing permission any other package author can invoke
+independently; a future analogous deadlock would require its own amendment.
+
+### Lifecycle recorded
+
+```text
+Planning amendment (this subsection):  Draft until reviewed and Product Owner Approved
+                                        (a separate transaction — not this one).
+Package 1.3-C exploratory work:        may begin only after (a) this amendment is
+                                        Approved AND (b) a separate mechanical opening
+                                        transaction is recorded — not automatic on
+                                        amendment approval.
+Exploratory artifacts (when authored): Draft, non-authoritative, evidence-only.
+ADR-016:                               remains Draft, Decision Deferred, until its five
+                                        resume triggers are satisfied (reproduced
+                                        unchanged in §6.1).
+Package 1.1:                           remains blocked until ADR-016 resolves.
+```
+
+### Self-review
+
+```text
+Concern:        Could §6.1 be read as a general dependency-graph bypass rather than a
+                 narrow exception?
+Risk:            If broadly worded, any future package author could invoke it to skip
+                 §6's BẮT BUỘC TUẦN TỰ ordering for unrelated ADRs.
+Recommendation:  Scoped §6.1 explicitly to the ADR-016 ↔ Package 1.3-C deadlock only,
+                 with an explicit statement that it is not a standing permission and that
+                 a future analogous case needs its own amendment. Applied.
+
+Concern:        Does Gate 1 risk being conflated with Gate 2 (normal package
+                 authorization) in later transactions?
+Risk:            A future mechanical-opening transaction could cite Gate 1 authoring
+                 permission as if it also satisfied Gate 2's dependency/ADR conditions.
+Recommendation:  Stated the invariant explicitly and separately: "pass Gate 1 KHÔNG BAO
+                 GIỜ ngụ ý Gate 2 đã pass" — two independent gates, no automatic
+                 transition. Applied.
+
+Concern:        Does the allowed-outputs list implicitly favor hybrid or split by
+                 permitting "one bounded-hybrid candidate" and "one non-overlapping split
+                 candidate" as if pre-selecting a shape?
+Risk:            Symmetric treatment could still be read as pre-committing to exactly
+                 those two shapes as the only acceptable outcomes.
+Recommendation:  Both candidates are listed strictly as allowed evidence-production
+                 outputs (feeding Chapter 7 §7.1 four-condition evaluation), not as a
+                 pre-selected outcome — neither is marked selected, approved, or
+                 preferred; the forbidden-outputs list explicitly bars selecting or
+                 approving either. No further change needed; flagged for Review A
+                 scrutiny.
+
+Concern:        Do Package 1.1 and ADR-016 remain blocked after this transaction?
+Risk:            None found — §6.1's Lifecycle block and the forbidden-outputs list both
+                 explicitly state Package 1.1 remains blocked and ADR-016 remains Draft/
+                 Decision Deferred; verified no other section of phase-1-plan.md was
+                 touched (diff scoped to 3 hunks: version bump, §0 paragraph, §6.1 block).
+Recommendation:  No change needed.
+
+Concern:        Does implementation scope leak into the allowed-outputs list?
+Risk:            "Contract-category descriptions" or "authority/source-of-truth analysis"
+                 could be read broadly enough to include schema-level detail.
+Recommendation:  Allowed outputs explicitly qualified ("contract-category descriptions
+                 KHÔNG field-level schema"); forbidden-outputs list separately and
+                 explicitly bars field-level Decision/proposal schema, API schema,
+                 database schema, and all implementation categories. No further change
+                 needed.
+```
+
+Không self-approve — amendment vẫn `Draft`, `approved_by: null`, `approved_at: null`, chờ Review A + Independent Review B + Product Owner decision riêng.
+
+### Exact changed-file scope
+
+```text
+docs/architecture/phase-1-plan.md   MODIFIED version 0.2 -> 0.3
+                                     blob ccc5d0b213f5d6fe04fcecd54ce3d5d6cf9b2f3b
+                                       -> eb675914050a5ebcabe073b1e4dc312b671c2571
+                                     status Draft (unchanged), approved_by null
+                                       (unchanged), approved_at null (unchanged)
+docs/MANIFEST.md                    MODIFIED (manifest_version 10.16 -> 10.17,
+                                     architecture/phase-1-plan.md row updated)
+docs/CHANGELOG.md                   MODIFIED (this entry, prepended)
+```
+
+Diff scoped to exactly 3 hunks in `phase-1-plan.md`: frontmatter `version`, a new §0 paragraph, and the new `### 6.1` block inserted between §6 and §7. §4 (workstream decomposition), §5 (dependency graph), §7 (ADR-scope anticipation map), §8 (package definitions, all nine including 1.3-C's own definition), §9 (quality-gate trigger map), §10 (candidate completion criteria), and §13 (scope restrictions) are **unchanged.**
+
+### Frozen files — verified byte-identical
+
+```text
+docs/adr/ADR-015.md                             unchanged, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/adr/ADR-016.md                             unchanged, blob 5385ff81e6da480a7bee8c71279d82a16c1913cd
+docs/architecture/module-registry.yaml          unchanged, v0.2, blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md       unchanged, v0.2, blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                     unchanged
+```
+
+### Forbidden-scope verification
+
+KHÔNG amendment approved (vẫn Draft). KHÔNG Package 1.3-C exploratory work opened. KHÔNG Package 1.3-C evidence authored. KHÔNG ADR-016 resolved. KHÔNG hybrid or split selected. KHÔNG Package 1.1 modified. KHÔNG Package 1.1 consolidated or approved. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-03 — approve ADR-015 module decomposition
 
 **ADR-015 v0.2 Approved by Product Owner.** Vai trò: `ADR Approval Recorder & Repository Transaction Executor`. Product Owner decision: **"Tôi approve ADR-015 v0.2."** (2026-08-03). Đây là mechanical approval transaction — ADR-015 architecture analysis KHÔNG reopen, ADR-016 KHÔNG sửa, Package 1.1 KHÔNG consolidate/approve.

@@ -1,7 +1,7 @@
 ---
 id: phase-1-plan
 title: "Phase 1 — System Architecture: Planning Baseline"
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -26,6 +26,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 **KHÔNG approve bất kỳ Phase 1 package nào**, **KHÔNG tuyên bố Phase 1 hoàn thành**, **KHÔNG authorize Live**. Phase 1 hiện `Active`, `not Complete` (xem [MANIFEST](../MANIFEST.md)).
 
 **v0.2 — bounded remediation (2026-08-03), đóng `P1-PLAN-A-MAJ-01`/`P1-PLAN-A-MAJ-02`:** (1) `P1-PLAN-A-MAJ-01` — Package 1.1 trước đây chỉ grounding trên Chapter 7/`context-map.yaml`/domain registry, chưa tường minh consume toàn bộ Phase 0 Product authority (`product-requirement.md`/`use-case-workflow.md`/`ux-blueprint.md`) để chứng minh technical-realization completeness. Sửa: §5.3, §8 Package 1.1 (Purpose/Inputs/Bounded coverage requirement/Review A scope/Independent Review B scope/Consolidation condition) nay tường minh consume cả ba Product artifact làm coverage-completeness input — KHÔNG làm module-taxonomy authority, KHÔNG redefine Product/UX semantics, KHÔNG one-module-per-PR/UC/screen rule. (2) `P1-PLAN-A-MAJ-02` — §5.3 authority map chứa placeholder mơ hồ ("PR liên quan Live-gate", "PR-XXX liên quan Backtest/Replay", "SCR liên quan Backtest", "Screen liên quan Paper") VÀ lỗi đặt nhầm `UC-XXX` identifier vào cột Product Requirement (1.3-C, 1.3-D). Sửa: cả chín row §5.3 nay chỉ chứa `PR-XXX`/`UC-XXX`/`SCR-`/`VIEW-`/`WS-` identifier chính xác hoặc dấu gạch ngang tường minh khi genuinely không có — derive từ `use-case-workflow.md` §5 catalogue (Primary PR(s)) và `ux-blueprint.md` §6 catalogue (Screen/UC mapping), xem footnote `[^cov]`–`[^f]` cho methodology đầy đủ. Bounded — KHÔNG đổi số lượng workstream, chín-package decomposition, package dependency graph, parallelism model, engine pipeline ordering, quality-gate trigger model, package lifecycle/review model, candidate Phase 1 completion criteria, hay `DD-001`/`DD-003` lifecycle. KHÔNG author module interface/API schema/database schema/deployment design/security implementation/custody implementation/Engine algorithm/source code/ADR decision/Phase 1 DoD. `status: Draft`, `approved_by: null`, `approved_at: null` không đổi.
+
+**v0.3 — narrow amendment (2026-08-04):** Product Owner authorized ("Tao authorize narrow amendment cho phase-1-plan.md §6 để sau đó mở bounded Package 1.3-C exploratory work.") một amendment hẹp tại §6 (mục `### 6.1 Bounded exploratory-work exception — ADR-016 evidence path`) — thiết lập một governed exception CHO PHÉP bounded Package 1.3-C exploratory architecture work, DUY NHẤT để sản xuất evidence cần thiết để resume ADR-016 (Decision Engine taxonomy, hiện `Decision Deferred`). Exception tách bạch tường minh hai gate: Gate 1 (exploratory authoring authorization) và Gate 2 (normal package authorization, vẫn blocked) — pass Gate 1 KHÔNG BAO GIỜ ngụ ý Gate 2 đã pass. **Amendment này CHỈ authoring — KHÔNG mở Package 1.3-C exploratory work, KHÔNG sửa ADR-015/ADR-016, KHÔNG resolve Decision Engine taxonomy, KHÔNG chọn hybrid/split.** Narrow, bounded — KHÔNG đổi workstream/package decomposition (§4), dependency graph (§5), package definitions khác (§8), ADR-scope anticipation map (§7), quality-gate trigger map (§9), hay candidate completion criteria (§10). `status: Draft`, `approved_by: null`, `approved_at: null` không đổi — amendment tự nó vẫn Draft candidate, chưa Approved.
 
 ## 1. Canonical project state (kế thừa, không đổi)
 
@@ -213,6 +215,146 @@ PHẢI CHỜ PACKAGE KHÁC `CONSOLIDATED STABLE`:
 ```
 
 **Tường minh theo yêu cầu task:** KHÔNG claim cả sáu workstream có thể bắt đầu độc lập. Chỉ 1.1 là điểm khởi đầu KHÔNG phụ thuộc; mọi package khác có ít nhất một dependency (bảng §5.2/§5.3) trước khi tự nó có thể authoring đầy đủ hoặc Consolidated Stable.
+
+### 6.1 Bounded exploratory-work exception — ADR-016 evidence path (v0.3, 2026-08-04)
+
+**Mục đích:** [ADR-016](../adr/ADR-016.md) (Decision Engine taxonomy — hybrid retention vs decomposition) hiện `Draft`, disposition `DEFERRED` — resume trigger #2 của nó đòi hỏi một Package 1.3-C architecture candidate cụ thể LÀM EVIDENCE, nhưng §6 (trên) khóa Package 1.3-C ở vị trí BẮT BUỘC TUẦN TỰ sau 1.3-B `Consolidated Stable`, và Package 1.1 (§5.2, điểm khởi đầu của toàn bộ dependency graph) vẫn `blocked` bởi chính ADR-016 — một deadlock: ADR-016 cần evidence từ 1.3-C, nhưng con đường bình thường tới 1.3-C bị khóa bởi chính ADR-016 chưa resolve. Subsection này thiết lập một **governed, narrow exception** — KHÔNG phải một general bypass của dependency graph §5.2/§6 — cho phép SẢN XUẤT bounded exploratory evidence phục vụ riêng ADR-016 resume path, tách bạch khỏi normal Package 1.3-C authorization.
+
+#### Gate 1 — Exploratory authoring authorization
+
+Permits việc tạo bounded architecture evidence CHỈ để phục vụ ADR-016 resume path (xem "Permitted exploratory purpose" dưới). Gate 1 KHÔNG phải Package 1.3-C authorization, KHÔNG mở Package 1.3-C theo nghĩa §4/§8 (Package definitions), KHÔNG cho phép Package 1.3-C tự tiến tới `Consolidated Stable`, KHÔNG bắt đầu tính dependency §6 BẮT BUỘC TUẦN TỰ đã pin (`1.3-B → 1.3-C`).
+
+#### Gate 2 — Normal package authorization
+
+Vẫn `blocked` — không đổi bởi Gate 1. Package 1.3-C (theo nghĩa đầy đủ, Package definitions §8) vẫn chờ: 1.3-B `Consolidated Stable` (dependency graph §5.2, §6 BẮT BUỘC TUẦN TỰ), Package 1.1 `Consolidated Stable` (transitively, qua §5.2), VÀ ADR-016 `Approved` cho decision class "Module hybrid declaration" (§7, ADR LIKELY REQUIRED) nếu ảnh hưởng trực tiếp nội dung 1.3-C đã pin.
+
+**Bất biến bắt buộc: pass Gate 1 KHÔNG BAO GIỜ ngụ ý Gate 2 đã pass.** Hai gate độc lập — không có cơ chế tự động chuyển từ Gate 1 sang Gate 2.
+
+#### Permitted exploratory purpose
+
+Package 1.3-C exploratory work (SAU KHI mở qua mechanical opening transaction riêng, xem "Lifecycle" dưới) chỉ được mở để phân biệt tường minh ba khái niệm:
+
+```text
+1. Strategy Plugin advisory output (Chapter 9 §9.2, non-authoritative candidate signal);
+2. platform-owned deterministic Decision evaluation, NẾU responsibility này thực sự tồn
+   tại như một concern riêng biệt (chưa xác nhận);
+3. authoritative Decision validation và append (decision.md, Package 0.2-C4,
+   Consolidated Stable — authority không đổi).
+```
+
+Công việc phải sản xuất evidence cần thiết để resume ADR-016 (xem "Relationship to ADR-016 resume trigger" dưới) — KHÔNG mục đích nào khác.
+
+#### Allowed exploratory outputs
+
+```text
+- taxonomy-level responsibility definitions;
+- module-boundary alternatives;
+- một bounded-hybrid candidate (tối đa một);
+- một non-overlapping split candidate (tối đa một);
+- authority/source-of-truth analysis;
+- semantic và transactional boundary analysis;
+- contract-category descriptions KHÔNG field-level schema;
+- Chapter 7 §7.1 four-condition evaluation (đầy đủ bốn điều kiện);
+- effects trên ADR-015 approved module baseline (đánh giá, KHÔNG sửa);
+- risks, reversibility, downstream consequences;
+- evidence package cho ADR-016 Review A, Independent Review B, và Product Owner
+  decision.
+```
+
+#### Forbidden exploratory outputs
+
+```text
+- selecting hoặc approving hybrid;
+- selecting hoặc approving split;
+- coi bất kỳ candidate nào là official architecture;
+- sửa Package 1.1 artifact như thể ADR-016 đã resolve;
+- đổi ADR-015 approved baseline;
+- author Decision algorithm;
+- author strategy/trading logic;
+- field-level Decision/proposal schema;
+- API schema;
+- database schema;
+- security implementation;
+- deployment topology;
+- framework selection;
+- source code;
+- runtime implementation;
+- test implementation;
+- implementation authorization;
+- Package 1.3-C completion (Consolidation condition §8);
+- Package 1.1 consolidation hoặc approval;
+- Phase 1 completion;
+- Phase 2 opening;
+- Live authorization.
+```
+
+#### Eligibility requirements (bắt buộc cả bảy, mỗi lần exception được invoke)
+
+```text
+1. Một ADR cụ thể, chưa resolve, đang block một upstream package (ở đây: ADR-016 block
+   Package 1.1, transitively Package 1.3-C full authorization).
+2. ADR đó tường minh identify downstream architecture evidence cần thiết để resolve
+   (ADR-016 resume trigger #2 — Package 1.3-C architecture candidate).
+3. Product Owner explicitly authorize exploratory exception (không tự động, không suy
+   diễn từ authorization khác).
+4. Scope, allowed outputs, forbidden outputs, và stop conditions đã document tường minh
+   (subsection này).
+5. Exploratory artifact phải label rõ ngay tại artifact: `non-authoritative`,
+   `exploratory`, `not approved`, `not implementation-ready`.
+6. ADR-015 (Approved) và mọi Approved ADR/artifact pin khác vẫn controlling — exploratory
+   work KHÔNG được contradict hoặc silently override.
+7. Exploratory work PHẢI qua Review A và Independent Review B trước khi được dùng tại
+   ADR-016 decision gate (không self-certify).
+```
+
+Exception này áp dụng DUY NHẤT cho deadlock cụ thể ADR-016 ↔ Package 1.3-C mô tả ở trên — KHÔNG tạo một standing permission chung mà bất kỳ package author nào có thể tự invoke cho một ADR/package khác. Một deadlock tương tự ở package khác trong tương lai đòi hỏi amendment riêng, tường minh, qua đúng bảy điều kiện trên.
+
+#### Stop conditions
+
+Exploratory work phải dừng ngay khi bất kỳ điều nào sau xảy ra:
+
+```text
+- required responsibility evidence đã đầy đủ (đủ cho ADR-016 Review A);
+- công việc chạm forbidden implementation/schema scope (trên);
+- phát hiện conflict với ADR-015 hoặc một Approved ADR khác;
+- candidate đòi hỏi Product/Domain/Constitution semantics chưa được authorize;
+- Product Owner withdraw hoặc narrow authorization;
+- repository baseline đổi theo cách invalidate exploratory evidence (ví dụ ADR-015 pin
+  đổi, Package 1.1 artifact đổi ngoài dự kiến).
+```
+
+**Một stop condition không được tự động chọn taxonomy.** Dừng công việc (ví dụ do conflict phát hiện) KHÔNG BAO GIỜ ngụ ý hybrid hay split thắng theo default — trạng thái sau stop là "chưa quyết định", đúng nguyên tắc DEFERRED đã pin ở ADR-016.
+
+#### Lifecycle
+
+```text
+Planning amendment (subsection này):     Draft cho tới khi reviewed và Product Owner
+                                          Approved (transaction riêng, chưa xảy ra ở
+                                          đây).
+Package 1.3-C exploratory work:          CHỈ được bắt đầu SAU KHI (a) amendment này
+                                          Approved VÀ (b) một mechanical opening
+                                          transaction riêng được ghi nhận (Product Owner
+                                          decision fact + MANIFEST record) — KHÔNG tự
+                                          động mở khi amendment Approved.
+Exploratory artifact (khi được author):  Draft, non-authoritative, evidence-only.
+ADR-016:                                 giữ nguyên Draft, Decision Deferred, cho tới
+                                          khi năm resume trigger (dưới) thỏa đầy đủ.
+Package 1.1:                             giữ nguyên blocked cho tới khi ADR-016 resolve.
+```
+
+#### Relationship to ADR-016 resume trigger (bảo toàn nguyên vẹn, không đổi)
+
+```text
+1. Authoritative responsibility definition phân biệt plugin advisory output, platform
+   Decision evaluation (nếu có), và Decision authority/append.
+2. Một Package 1.3-C architecture candidate cho thấy HOẶC một non-overlapping bounded
+   hybrid, HOẶC một non-overlapping Evaluation Engine + Authority Service split.
+3. Explicit validation của candidate đó đối chiếu đầy đủ bốn điều kiện Chapter 7 §7.1.
+4. Review A + Independent Review B trên candidate.
+5. Product Owner decision qua Decision Workflow, ghi nhận trong một Approved ADR.
+```
+
+Exception ở subsection này CHỈ authorize việc SẢN XUẤT evidence phục vụ năm trigger trên (chủ yếu trigger #2) — KHÔNG tuyên bố bất kỳ trigger nào trong số đó đã thỏa. Amendment này tự nó KHÔNG PHẢI evidence, KHÔNG PHẢI candidate, KHÔNG PHẢI Review, KHÔNG PHẢI Product Owner decision trên ADR-016.
 
 ## 7. ADR-scope anticipation map (planning guidance — KHÔNG quyết định)
 
