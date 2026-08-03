@@ -1,12 +1,15 @@
 ---
 id: architecture-index
-status: Not Started
+status: Draft
 owner: Product Owner
 created_at: "2026-07-16"
+last_review: "2026-08-03"
 ---
-# Architecture — Phase 1 (chưa bắt đầu)
+# Architecture — Phase 1 (Active — planning baseline authored, chưa Complete)
 
-Sẽ chứa System Architecture, UX Architecture, Security & Custody Baseline, API/Database/Engine design chi tiết khi vào Phase 1.
+Phase 0 Approval Gate `Approved` (2026-08-03, xem [MANIFEST](../MANIFEST.md) "Phase 0 Approval Gate — Decision") — Phase 1 `Active`. Sẽ chứa System Architecture, UX Architecture, Security & Custody Baseline, API/Database/Engine design chi tiết.
+
+**Planning baseline:** [`phase-1-plan.md`](./phase-1-plan.md) (v0.1, Draft) — work breakdown, dependency order, authority map, review/gate structure cho chín package Phase 1 (1.1, 1.2, 1.3-A/B/C/D, 1.4, 1.5, 1.6). Đây là planning artifact, KHÔNG phải architecture decision — architecture design cụ thể chưa author (chờ package tương ứng).
 
 ## Reference Pipeline (bản nháp — chuyển từ Chapter 7, CHƯA phải quyết định kiến trúc chính thức)
 

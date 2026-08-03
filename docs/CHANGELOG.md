@@ -2,6 +2,74 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — add Phase 1 planning baseline
+
+**First Phase 1 planning artifact — bounded work breakdown, dependency order, authority map, review/gate structure.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this planning transaction. No Software/UX/API/Database/Engine/Security & Custody design authored. No ADR created. No Phase 1 package approved.
+
+### Artifact created
+
+```text
+docs/architecture/phase-1-plan.md   NEW, version 0.1, status Draft
+                                     blob 42cd290466c43e971c34aa048c40a1cf9e8beb09
+```
+
+`docs/architecture/README.md` — the repository's existing canonical Phase 1 planning location (already held the pre-Phase-0.2 reference-pipeline draft, `status: Not Started`) — used as the home directory rather than inventing a new location; bumped `status: Not Started → Draft` and linked to the new plan. The existing Reference Pipeline diagram preserved byte-for-byte (verified via diff — only frontmatter/intro paragraph changed).
+
+### Workstream decomposition (Chapter 14 §14.2 scope, 6/6 covered)
+
+```text
+1.1    System Decomposition & Module Registry     (one foundational package)
+1.2    Security & Custody Baseline                (cross-cutting gate/evidence set)
+1.3-A  Data/Structure/Regime Engine Architecture   (Engine, subpackage 1/4)
+1.3-B  Feature/Context Engine Architecture         (Engine, subpackage 2/4)
+1.3-C  Strategy/Decision Engine Architecture       (Engine, subpackage 3/4)
+1.3-D  Risk Gateway/Execution Engine Architecture  (Engine, subpackage 4/4)
+1.4    API Architecture                            (one package)
+1.5    Database Architecture                       (one package)
+1.6    UX Architecture                             (one package)
+```
+
+Dependency spine: `1.1 → 1.3-A → 1.3-B → 1.3-C → 1.3-D → {1.4, 1.5} → 1.6`, with `1.2` cross-cutting throughout. Not all six workstreams may start independently — only 1.1 has no Phase-1 dependency.
+
+### ADR-scope anticipation (planning guidance only)
+
+Classified each anticipated decision class per workstream as `ADR LIKELY REQUIRED` / `ADR CONDITIONALLY REQUIRED` / `NO NEW ADR EXPECTED`, grounded in Chapter 0 §4b, Chapter 9 §9.10, and Chapter 7 §7.1's hybrid-module condition — no ADR outcome pre-decided.
+
+### Package lifecycle/review model
+
+All 9 packages defined with: Package ID, Name, Purpose, Inputs, Outputs, Explicit non-goals, Dependencies, Expected artifact paths, ADR dependencies, Applicable quality-gate triggers, Review A scope, Independent Review B scope, Product Owner decision point, Consolidation condition — no Governance/reviewer-eligibility/finding-severity/PO-authority rule redefined.
+
+### Quality-gate trigger map
+
+Trigger A (universal invariant conformance) applies to every package. Trigger B (coverage) and C (tier/chaos/parity) explicitly deferred to implementation for every package — Phase 1 produces architecture artifacts, not executable code. Trigger D (security/custody boundary) applies conditionally only where a package defines a concrete boundary. Trigger E (schema/contract compatibility) applies to Package 1.4 (API Architecture publishes contract) and conditionally elsewhere.
+
+### Candidate Phase 1 completion criteria (planning input only)
+
+§10 of the plan lists candidate completion criteria, required evidence classes, required package lifecycle states, ADR closure expectation, cross-package consistency expectation, full-scope BCC requirement, and anticipated final Approval Gate inputs — explicitly marked as input for a future dedicated Phase 1 DoD artifact, not the DoD itself.
+
+### Authority boundary preserved
+
+Constitution (highest), Approved/Locked ADR (decision authority), Domain Contract (domain semantics), Product Requirement/Use Case & Workflow/UX Blueprint (product/behavior/acceptance-surface authority) all explicitly preserved — Phase 1 architecture artifacts hold technical-realization authority only, no Product/Domain semantic redefinition.
+
+### Deferred items referenced (not resolved)
+
+`DD-001` (Backtest Domain Contract, deferred to Phase 1) and `DD-003` (PAPER-context Decision establishment mechanism, mandatory before UC-011 runtime design) mapped to Package 1.3-A and 1.3-C respectively as inputs the packages must escalate, not invent. `OQ-001`/`OQ-002`/`OQ-003` referenced with unchanged lifecycle state.
+
+### Exact changed-file scope
+
+```text
+docs/architecture/phase-1-plan.md   NEW (see above)
+docs/architecture/README.md         MODIFIED (status, intro paragraph, plan link only —
+                                     Reference Pipeline diagram byte-unchanged)
+docs/MANIFEST.md                    MODIFIED manifest_version 10.06 → 10.07, new
+                                     "## Architecture" section added
+docs/CHANGELOG.md                   MODIFIED (this entry, prepended)
+```
+
+### Forbidden-scope verification
+
+KHÔNG `docs/product/`/`docs/domain/`/`docs/adr/`/`docs/team/`/`docs/phase-dod/`/any Constitution chapter touched. KHÔNG ADR created. KHÔNG Phase 1 package approved. KHÔNG Phase 1 declared Complete. KHÔNG Live authorized. `OQ-001`/`OQ-002`/`OQ-003` unchanged.
+
 ## [Unreleased] — 2026-08-03 — close Phase 0 and authorize Phase 1
 
 **Mechanical gate-closing transaction — records the Product Owner's Phase 0 Approval Gate decision.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. No Product, Domain, ADR, Constitution or architecture semantics modified. No Phase 1 artifact authored.
