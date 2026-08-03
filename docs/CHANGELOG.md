@@ -2,6 +2,91 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — complete PR-004/PR-005 UC behavior (NOT yet accepted)
+
+**Bounded semantic correction to Package 0.3-B — addresses `P03B-V04-A-MAJ-01`.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single bounded semantic correction.
+
+**This correction is NOT accepted and NOT claimed clean.** It requires new review:
+
+```text
+Review A:  ChatGPT Semantic Delta Review A
+Review B:  Independent Semantic Delta Review B
+Then:      Product Owner package revalidation
+
+Parent:        d34ffd951f2c2a8ad6ff76cbc6c07e4ed73a60ca
+Reviewed HEAD: (this commit — see final HEAD in author report)
+```
+
+### P03B-V04-A-MAJ-01 — PR-004/PR-005 mechanically cited but not materially operationalized
+
+`use-case-workflow.md` v0.4 (`F-03` correction) added `PR-004`/`PR-005` to the "PR traceability" field of `UC-007`/`UC-011`/`UC-016`, but the Use Case behavior itself (Main flow/Observable outcome/Evidence consumed) did not fully operationalize their acceptance evidence:
+
+```text
+PR-004:  for every displayed Decision, user can see its outcome (LONG, SHORT, or no
+         new exposure) and its originating Strategy Instance.
+PR-005:  for any Decision, user can inspect the complete recorded evidence trace used
+         to create it — input snapshot, Strategy Definition Version/configuration
+         context, causation chain, and related downstream facts when they exist.
+         Every trace element must resolve directly from recorded facts — no
+         after-the-fact inference or recomputation.
+```
+
+Fixed — `UC-007`, `UC-011`, `UC-016` Main flow/Observable outcome/Evidence consumed/PR traceability rewritten (Goal/Preconditions also updated where required):
+
+```text
+UC-007 (Backtest):  Main flow bước 2 nay liệt kê tường minh, với MỖI Decision: (a)
+                     outcome — đúng một trong LONG/SHORT/không có exposure mới; (b)
+                     origin — Strategy Instance chính xác + Strategy Definition
+                     Version/configuration context; (c) evidence đã dùng để tạo ra
+                     Decision đó — recorded input snapshot/reference, causation
+                     reference, RiskEvaluation liên quan — resolve trực tiếp từ
+                     recorded fact, không suy diễn. Backtest vẫn non-PAPER simulated;
+                     không entity Backtest mới; domain representation vẫn deferred.
+
+UC-011 (Paper):      Preconditions/Main flow bước 2/Observable outcome nay tách bạch
+                     tường minh hai loại evidence: upstream Decision evidence (outcome,
+                     Strategy Instance/Definition Version nguồn gốc, input snapshot/
+                     evidence reference — hiển thị TRƯỚC khi khởi tạo) khỏi downstream
+                     C7 causation (fact do CHÍNH hành động khởi tạo sinh ra). Downstream
+                     chain không còn được ngụ ý là tự thỏa PR-005. PAPER-context
+                     Decision identity separation, no-clone/no-carry-forward/no-promote/
+                     no-reuse, user-intent-only, workflow-stops-when-ineligible — tất cả
+                     giữ nguyên.
+
+UC-016 (Review):     Main flow thêm bước 3 mới — khi đạt tới Decision gốc, hiển thị
+                     tường minh Decision explainability evidence (input snapshot/
+                     configuration → Decision), tách biệt khỏi downstream lineage ở
+                     bước 2 (Position/Fill → ... → Decision). Không suy diễn/tính lại
+                     evidence, không fact mới nào được tạo.
+```
+
+`UC-008`/`UC-009` **không đổi** — cả hai vẫn không nhận `PR-004`/`PR-005` (chỉ tiêu thụ evidence phái sinh của `UC-007`). §5 catalogue giữ nguyên (đã đúng từ v0.4) — chỉ §6 detailed block của ba UC, §9b workflow-stage mapping annotation, và §12 acceptance criteria (item 20 annotation cập nhật + item 21 mới) cập nhật đồng bộ.
+
+### Preserved (unchanged)
+
+```text
+UC-001–UC-021 identity/count, six-stage workflow, Replay authority boundary,
+Backtest non-PAPER authority boundary, PAPER authority boundary, canonical
+semantic-decision hash, no ReplayDecision, no PAPER fact reuse by Backtest,
+PAPER-context Decision separation, OQ-002 Open, OQ-003 Open, Live Unauthorized,
+Phase 1 Unauthorized.
+```
+
+### Exact changed-file scope
+
+```text
+docs/product/use-case-workflow.md   MODIFIED version 0.4 → 0.5
+                                     blob 167836436376421936447cf579de3b1dd05201a4
+                                       → 88328cd9bf3b4606ee92922d2d9fe093b1c93cd9
+docs/MANIFEST.md                    MODIFIED manifest_version 9.99 → 10.00
+                                     (product/use-case-workflow.md row only)
+docs/CHANGELOG.md                   MODIFIED (this entry, prepended)
+```
+
+### Forbidden-scope verification
+
+KHÔNG Package 0.3-B full review reopened. KHÔNG `product-requirement.md`/`ux-blueprint.md`/Domain Contract/ADR/Constitution/architecture/team governance/`phase-0-dod.md` touched. KHÔNG new `PR-XXX`/`UC-XXX` introduced; no renumbering. KHÔNG `UC-008`/`UC-009` content changed. KHÔNG artifact hay Package 0.3-B marked `Consolidated Stable` at this transaction — historical v0.3 (blob `affbb723b577cde4c8627dd689550e3bfbffb5d1`) remains the reviewed Consolidated Stable baseline. `status: Draft`, `approved_by: null`, `approved_at: null` unchanged. `OQ-002`/`OQ-003` remain `Open`. Live remains `Unauthorized`. Phase 0 not declared complete. Phase 1 remains `Unauthorized`.
+
 ## [Unreleased] — 2026-08-03 — correct Package 0.2-B4 lifecycle statement (NOT yet accepted)
 
 **Factual lifecycle correction to the Phase 0 bounded remediation delta — addresses `P0-DELTA-A-MAJ-01`.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single factual correction.

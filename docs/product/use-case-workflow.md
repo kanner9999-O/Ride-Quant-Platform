@@ -1,7 +1,7 @@
 ---
 id: use-case-workflow
 title: Use Case & Workflow
-version: "0.4"
+version: "0.5"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -25,6 +25,8 @@ next_review: null
 **v0.3 — narrow delta correction (đóng `P03B-DELTA-MIN-01`):** UC-021 viết lại đầy đủ — trước đây CHỈ operationalize Decision fact lịch sử, dù Goal/UC-020 dependency đòi hỏi phạm vi rộng hơn. Nay UC-021 resolve ĐỘC LẬP, tách bạch, hai họ evidence lịch sử cho một Strategy Definition Version cũ: **Backtest evidence family** (Decision/RiskEvaluation trace, simulated economic evidence, exposure/position progression, strategy-level evaluable result, run identity/version/configuration context — non-PAPER authority) VÀ **PAPER evidence family** (Decision, Trade Intent, RiskEvaluation, Execution Intent, Order, OrderSubmissionRequest, ExecutionResult, Fill, Position — authoritative, với ExecutionResultComputation/PaperExecutionObservation làm supporting evidence khi cần, KHÔNG redefine semantics). Danh tính Strategy Definition Version LUÔN hiển thị. Missing evidence được identify theo TỪNG họ/loại — KHÔNG ngụ ý toàn bộ lịch sử mất khi chỉ một phần thiếu; evidence khả dụng khác vẫn hiển thị nhưng đánh dấu incomplete. UC-020 cập nhật tương ứng để tiêu thụ đúng mode-separated scope này, KHÔNG ngụ ý UC-021 trả về một cross-mode evidence object chung. Bounded — không thêm/renumber Use Case, không domain entity/schema/unified outcome model/retention policy/architecture mới, giữ nguyên toàn bộ bảy finding đã đóng ở v0.2.
 
 **v0.4 — bounded correction (đóng `F-03`, Phase 0 Exit Readiness Audit MAJOR finding — restore complete PR→UC→UX lineage cho `PR-004`/`PR-005`):** `product-requirement.md` v0.2 định nghĩa `PR-004` (Xem Decision với outcome tường minh — LONG/SHORT + Strategy Instance nguồn gốc) và `PR-005` (Xem evidence trace đầy đủ cho một Decision — input snapshot, causation chain) nhưng trước v0.4 không Use Case nào trích dẫn hai PR này, dù Package 0.3-C UX Blueprint v0.4 đã gán chúng vào `SCR-004`/`SCR-006`/`SCR-008` — tạo khoảng trống PR→UC→UX lineage. Inspect `UC-007`/`UC-008`/`UC-009`/`UC-011`/`UC-016` (ứng viên hợp lý nhất theo behavior mô tả): `UC-007` Main flow bước 2 đã tường minh ghi "mỗi Decision hiển thị outcome + evidence trace" — khớp trực tiếp CẢ HAI PR, thêm `PR-004`/`PR-005`. `UC-011` Preconditions/Main flow yêu cầu tường minh Decision outcome LONG/SHORT của PAPER-context Decision lineage VÀ Observable outcome hiển thị toàn bộ chuỗi C7 evidence — thêm `PR-004`/`PR-005`. `UC-016` Goal/Main flow CHÍNH LÀ truy vết evidence trace/causation chain đầy đủ về Decision gốc (bao gồm outcome + Strategy Instance nguồn gốc của Decision đó) — thêm `PR-004`/`PR-005`. `UC-008`/`UC-009` KHÔNG thêm — cả hai tiêu thụ evidence đã có của UC-007 (economic evidence/evaluable result phái sinh), KHÔNG tự mình hiển thị lại Decision outcome/evidence trace gốc. KHÔNG Use Case mới tạo; không renumber; `UC-001`–`UC-021` giữ nguyên identity. §5 catalogue VÀ §6 detailed block của ba UC cập nhật đồng bộ (§9a: "mỗi Use Case tại §6 lặp lại chính xác mapping đó"). `SCR-004`/`SCR-006`/`SCR-008` (Package 0.3-C, KHÔNG sửa) đã trace đúng `UC-007`/`UC-011`/`UC-016` từ trước — lineage nay resolve đầy đủ, revalidated KHÔNG cần sửa nội dung `ux-blueprint.md`.
+
+**v0.5 — bounded semantic correction (đóng `P03B-V04-A-MAJ-01`):** v0.4 chỉ MECHANICALLY gán `PR-004`/`PR-005` vào trường "PR traceability" của `UC-007`/`UC-011`/`UC-016`, nhưng chưa operationalize đầy đủ acceptance evidence của hai PR đó trong behavior thực tế (Main flow/Observable outcome/Evidence consumed). Nay: `UC-007` Main flow bước 2 viết lại — mỗi Decision hiển thị tường minh đúng một outcome (LONG/SHORT/không có exposure mới), Strategy Instance CHÍNH XÁC + Strategy Definition Version/configuration context nguồn gốc, VÀ evidence đã dùng để tạo ra Decision đó (recorded input snapshot/causation reference/RiskEvaluation liên quan) — resolve TRỰC TIẾP từ recorded fact, KHÔNG suy diễn/tính lại sau sự kiện. `UC-011` Preconditions/Main flow/Observable outcome viết lại — tách bạch tường minh **upstream Decision evidence** (outcome + Strategy Instance/Definition Version nguồn gốc + input snapshot/evidence reference, hiển thị TRƯỚC khi khởi tạo PAPER execution) khỏi **downstream C7 causation** (fact do CHÍNH hành động khởi tạo sinh ra) — downstream chain KHÔNG tự nó ngụ ý thỏa evidence trace của Decision. `UC-016` thêm Main flow bước 3 mới — khi đạt tới Decision gốc, hiển thị tường minh **Decision explainability evidence** (input snapshot/configuration → Decision), tách biệt khỏi **downstream lineage** ở bước 2 (Position/Fill → ... → Decision). `UC-008`/`UC-009` KHÔNG đổi, KHÔNG nhận `PR-004`/`PR-005`. §5 catalogue giữ nguyên (đã đúng từ v0.4); chỉ §6 detailed block của ba UC, §9b annotation, và §12 acceptance criteria cập nhật. Backtest vẫn non-PAPER simulated (KHÔNG entity Backtest mới, KHÔNG gọi material này authoritative PAPER Order/ExecutionResult/Fill/Position, domain representation vẫn deferred); PAPER-context Decision separation, no-clone/no-carry-forward/no-promote/no-reuse, canonical semantic-decision hash, `OQ-002`/`OQ-003` `Open`, Live `Unauthorized` giữ nguyên vẹn. Bounded — không đổi 21 Use Case ID, không đổi sáu-giai-đoạn lifecycle, không thêm PR/UC mới.
 
 ## 1. Purpose and authority boundary
 
@@ -312,26 +314,47 @@ Out-of-scope boundary:  KHÔNG author entity/event "BacktestOrder"/"BacktestExec
 **UC-007 — Inspect Decision/RiskEvaluation trace for a Backtest run**
 ```text
 Primary actor:         Ride user (§2).
-Goal:                   Xem toàn bộ chuỗi Decision/RiskEvaluation sinh ra bởi một Backtest run (UC-006).
+Goal:                   Xem toàn bộ chuỗi Decision/RiskEvaluation sinh ra bởi một Backtest run
+                        (UC-006) — với MỖI Decision hiển thị đầy đủ outcome, Strategy Instance/
+                        Definition Version nguồn gốc, VÀ evidence trace đã dùng để tạo ra nó.
 Trigger:                Người dùng chọn xem chi tiết một Backtest run đã/đang chạy.
 Preconditions:          Một Backtest run identity tồn tại (UC-006).
 Inputs:                 Backtest run identity.
 Main flow:              1. Người dùng chọn một Backtest run.
-                        2. Hệ thống hiển thị chuỗi Decision/RiskEvaluation đầy đủ của run đó, mỗi
-                           Decision hiển thị outcome + evidence trace (WF-INV-4).
+                        2. Hệ thống hiển thị chuỗi Decision/RiskEvaluation đầy đủ của run đó. Với MỖI
+                           Decision, hệ thống hiển thị tường minh:
+                             (a) outcome — đúng một trong LONG/SHORT/không có exposure mới;
+                             (b) origin — Strategy Instance CHÍNH XÁC đã tạo ra Decision đó VÀ Strategy
+                                 Definition Version/configuration context đã dùng (UC-006);
+                             (c) evidence đã dùng để tạo ra Decision đó — recorded input snapshot/
+                                 reference, recorded causation reference, VÀ RiskEvaluation liên quan
+                                 (kèm downstream fact liên quan nếu có) — tất cả resolve TRỰC TIẾP từ
+                                 recorded fact, KHÔNG suy diễn/tính lại sau sự kiện.
 Alternate/failure:      Backtest run identity không resolve được, hoặc run evidence hiện không khả
                         dụng → workflow dừng; state (run identity, nếu đã biết) vẫn quan sát được;
                         reason được disclosed; KHÔNG downstream authoritative action nào xảy ra (§8
                         "Backtest run identity does not resolve" — bốn nguyên tắc fallback, KHÔNG
                         ngụ ý một run state machine/deletion event/archival lifecycle nào).
-Observable outcome:     Người dùng thấy trình tự Decision/RiskEvaluation đầy đủ của run.
-Evidence consumed:      Decision/RiskEvaluation fact gắn run identity.
-Evidence produced:      KHÔNG — quan sát thuần túy.
-PR traceability:        PR-021, PR-009, PR-004, PR-005 (v0.4, đóng `F-03` — Main flow bước 2 tường minh
-                        "mỗi Decision hiển thị outcome + evidence trace", khớp trực tiếp PR-004 Decision
-                        outcome/Strategy Instance nguồn gốc VÀ PR-005 evidence trace đầy đủ).
+Observable outcome:     Người dùng thấy trình tự Decision/RiskEvaluation đầy đủ của run — MỖI Decision
+                        kèm outcome tường minh (LONG/SHORT/không có exposure mới), Strategy Instance/
+                        Definition Version nguồn gốc, VÀ evidence trace đầy đủ (input snapshot/
+                        causation reference/RiskEvaluation liên quan) đã dùng để tạo ra nó.
+Evidence consumed:      Decision/RiskEvaluation fact gắn run identity; recorded input snapshot/
+                        causation reference của mỗi Decision; Strategy Instance/Definition Version
+                        context (UC-006).
+Evidence produced:      KHÔNG — quan sát thuần túy, KHÔNG suy diễn/tính lại evidence sau sự kiện.
+PR traceability:        PR-021, PR-009, PR-004, PR-005 (v0.4 → v0.5, đóng `P03B-V04-A-MAJ-01` — Main
+                        flow bước 2 nay operationalize đầy đủ CẢ HAI PR thay vì chỉ nhắc chung chung:
+                        PR-004 qua outcome LONG/SHORT/không-exposure-mới + Strategy Instance/Definition
+                        Version nguồn gốc tường minh; PR-005 qua recorded input snapshot/causation
+                        reference/RiskEvaluation liên quan, resolve trực tiếp từ recorded fact, KHÔNG
+                        suy diễn. Backtest vẫn non-PAPER simulated — KHÔNG gọi material này là
+                        authoritative PAPER Order/ExecutionResult/Fill/Position, KHÔNG entity Backtest
+                        mới, domain representation vẫn deferred (§9d)).
 Domain vocabulary used: decision.md, risk.md.
-Out-of-scope boundary:  KHÔNG hiển thị chi tiết UI/chart (Package 0.3-C).
+Out-of-scope boundary:  KHÔNG hiển thị chi tiết UI/chart (Package 0.3-C); KHÔNG entity/event Backtest
+                        mới (`BacktestOrder`/`BacktestExecutionResult` hay tương đương); KHÔNG gọi
+                        Backtest material này authoritative PAPER Order/ExecutionResult/Fill/Position.
 ```
 
 **UC-008 — Inspect simulated economic evidence and exposure/position progression**
@@ -436,19 +459,29 @@ Trigger:                Người dùng yêu cầu khởi tạo PAPER execution �
                         thống, xem §7 Backtest → Paper handoff).
 Preconditions:          Một PAPER-context authoritative Decision lineage (LONG/SHORT) ELIGIBLE tồn tại
                         cho Strategy Instance đang dùng; Account/Instrument/Venue hợp lệ (WF-INV-1/
-                        WF-INV-2). Decision này TUYỆT ĐỐI KHÔNG phải Decision phát sinh từ Backtest
-                        (UC-006–UC-010) hay Research (UC-001–UC-003) được carry-forward/promote/reuse
-                        — nó là một authoritative Decision fact RIÊNG BIỆT trong PAPER context. Cơ chế
-                        CHÍNH XÁC thiết lập PAPER-context Decision này (điều gì trigger nó, ai/cái gì
-                        ghi nhận nó) là một **deferred domain/workflow dependency** (§9d) — KHÔNG được
-                        định nghĩa tại đây.
+                        WF-INV-2). TRƯỚC khi khởi tạo, người dùng PHẢI thấy tường minh: outcome
+                        LONG/SHORT của Decision đó; Strategy Instance CHÍNH XÁC đang dùng; Strategy
+                        Definition Version/configuration context gắn Strategy Instance đó; VÀ recorded
+                        input snapshot/evidence reference đã dùng để tạo ra Decision đó — tất cả
+                        resolve TRỰC TIẾP từ recorded fact, KHÔNG suy diễn/tính lại sau sự kiện. Decision
+                        này TUYỆT ĐỐI KHÔNG phải Decision phát sinh từ Backtest (UC-006–UC-010) hay
+                        Research (UC-001–UC-003) được carry-forward/promote/reuse — nó là một
+                        authoritative Decision fact RIÊNG BIỆT trong PAPER context. Cơ chế CHÍNH XÁC
+                        thiết lập PAPER-context Decision này (điều gì trigger nó, ai/cái gì ghi nhận nó)
+                        là một **deferred domain/workflow dependency** (§9d) — KHÔNG được định nghĩa
+                        tại đây.
 Inputs:                 Yêu cầu/intent khởi tạo PAPER execution từ người dùng — KHÔNG quantity/order
                         type/sizing do người dùng cung cấp (những field đó, nếu cần, thuộc execution
                         semantics hệ thống sở hữu, ngoài phạm vi tài liệu này).
 Main flow:              1. Người dùng yêu cầu khởi tạo PAPER execution.
                         2. Hệ thống resolve PAPER-context authoritative Decision lineage eligible cho
                            Strategy Instance đang dùng — NẾU không tồn tại, workflow dừng TRƯỚC PAPER
-                           execution (xem Alternate/failure).
+                           execution (xem Alternate/failure). NẾU eligible: hệ thống hiển thị tường
+                           minh **upstream Decision evidence** — outcome LONG/SHORT của Decision đó,
+                           Strategy Instance/Definition Version nguồn gốc, VÀ recorded input snapshot/
+                           evidence reference đã dùng để tạo ra Decision đó — TÁCH BIỆT tường minh khỏi
+                           **downstream causation** (bước 3–9 dưới đây, fact do CHÍNH hành động khởi
+                           tạo PAPER execution sinh ra).
                         3. PAPER-context Decision (LONG/SHORT) phát sinh Trade Intent (hệ thống sở
                            hữu).
                         4. Trade Intent đi qua Risk Gateway → RiskEvaluation (APPROVED/REJECTED/
@@ -469,20 +502,33 @@ Alternate/failure:      KHÔNG có PAPER-context Decision lineage eligible → w
                         RiskEvaluation/Execution Intent/Order nào được tạo (§8). RiskEvaluation
                         REJECTED/NON_EVALUABLE → §8, dừng chuỗi tại đó, KHÔNG Execution Intent/Order
                         nào được tạo. ExecutionResult NOT_EXECUTED → §8, zero Fill.
-Observable outcome:     Người dùng thấy toàn bộ chuỗi C7 tiến triển tới đúng một ExecutionResult
-                        (EXECUTED hoặc NOT_EXECUTED), HOẶC thấy workflow dừng trước PAPER execution vì
-                        thiếu PAPER-context Decision eligible.
+Observable outcome:     Người dùng thấy HAI loại evidence tách biệt tường minh: (1) **upstream Decision
+                        evidence** — outcome LONG/SHORT, Strategy Instance/Definition Version nguồn
+                        gốc, recorded input snapshot/evidence reference đã dùng để tạo ra Decision —
+                        hiển thị TRƯỚC khi khởi tạo (bước 2); (2) **downstream causation** — toàn bộ
+                        chuỗi C7 tiến triển tới đúng một ExecutionResult (EXECUTED hoặc NOT_EXECUTED),
+                        fact SINH RA BỞI hành động khởi tạo (bước 3–9). HOẶC người dùng thấy workflow
+                        dừng trước PAPER execution vì thiếu PAPER-context Decision eligible. Downstream
+                        causation KHÔNG tự nó ngụ ý đã thỏa evidence trace của Decision (loại 1) — hai
+                        loại PHẢI hiển thị tách biệt, KHÔNG gộp.
 Evidence consumed:      PAPER-context authoritative Decision lineage (RIÊNG BIỆT, KHÔNG phải Backtest/
-                        Research Decision), Account/Instrument/Venue context. Backtest/Research
+                        Research Decision) — bao gồm recorded input snapshot/evidence reference đã dùng
+                        để tạo ra Decision đó; Account/Instrument/Venue context. Backtest/Research
                         evidence (nếu người dùng đã xem) CHỈ inform judgment của người dùng — KHÔNG
                         phải input authoritative cho chuỗi hệ thống này.
 Evidence produced:      Trade Intent, RiskEvaluation, Execution Intent (nếu APPROVED), Order
                         (system-owned), OrderSubmissionRequest (system-owned), ExecutionResultComputation,
                         PaperExecutionObservation, ExecutionResult, Fill (nếu EXECUTED).
-PR traceability:        PR-007, PR-024, PR-004, PR-005 (v0.4, đóng `F-03` — Preconditions/Main flow bước
-                        3 tường minh Decision outcome LONG/SHORT của PAPER-context Decision lineage
-                        [PR-004]; Observable outcome hiển thị toàn bộ chuỗi C7 evidence tiến triển tới
-                        ExecutionResult [PR-005]).
+PR traceability:        PR-007, PR-024, PR-004, PR-005 (v0.4 → v0.5, đóng `P03B-V04-A-MAJ-01` —
+                        Preconditions/Main flow bước 2 nay operationalize đầy đủ CẢ HAI PR TRƯỚC khi
+                        khởi tạo: PR-004 qua outcome LONG/SHORT + Strategy Instance/Definition Version
+                        nguồn gốc tường minh; PR-005 qua recorded input snapshot/evidence reference đã
+                        dùng tạo Decision, TÁCH BIỆT tường minh khỏi downstream C7 causation — downstream
+                        chain KHÔNG còn được ngụ ý là tự thỏa PR-005 cho upstream Decision evidence.
+                        Preserve nguyên vẹn: PAPER-context Decision identity riêng biệt, KHÔNG clone/
+                        carry-forward/promote/reuse, user chỉ cung cấp initiation intent KHÔNG
+                        authoritative Order payload, workflow dừng TRƯỚC PAPER execution khi thiếu
+                        eligible lineage).
 Domain vocabulary used: decision.md, trade-intent.md, risk.md, execution-intent.md, order.md,
                         execution-result.md, fill.md, position.md.
 Out-of-scope boundary:  KHÔNG định nghĩa order type/sizing UI do người dùng cung cấp; KHÔNG author
@@ -585,22 +631,42 @@ Out-of-scope boundary:  KHÔNG định nghĩa cơ chế audit network kỹ thu�
 ```text
 Primary actor:         Ride user (§2).
 Goal:                   Với một Position contribution bất kỳ, truy vết ngược toàn bộ causation trace
-                        về Decision gốc đã sinh ra nó.
+                        về Decision gốc đã sinh ra nó — khi đạt tới Decision gốc, hiển thị đầy đủ
+                        outcome, Strategy Instance/Definition Version nguồn gốc, VÀ recorded input
+                        snapshot/evidence đã dùng để tạo ra Decision đó.
 Trigger:                Người dùng chọn một Fill/Position contribution để review.
 Preconditions:          Fill/Position contribution tồn tại (UC-013/UC-014).
 Inputs:                 Fill/Position identity.
 Main flow:              1. Người dùng chọn một Fill đóng góp Position.
-                        2. Hệ thống hiển thị causation trace ngược: Fill→ExecutionResult→Order→
-                           Execution Intent→RiskEvaluation→Trade Intent→Decision gốc — KHÔNG mắt xích
-                           thiếu.
+                        2. Hệ thống hiển thị **downstream lineage** (causation trace ngược): Fill→
+                           ExecutionResult→Order→Execution Intent→RiskEvaluation→Trade Intent→Decision
+                           gốc — KHÔNG mắt xích thiếu.
+                        3. Khi đạt tới Decision gốc, hệ thống hiển thị tường minh **Decision
+                           explainability evidence** (input snapshot/configuration → Decision) — TÁCH
+                           BIỆT khỏi downstream lineage tại bước 2: outcome (LONG/SHORT/không có
+                           exposure mới); Strategy Instance CHÍNH XÁC đã tạo ra Decision đó VÀ Strategy
+                           Definition Version/configuration context đã dùng; recorded input snapshot/
+                           evidence reference đã dùng để tạo ra Decision đó — resolve TRỰC TIẾP từ
+                           recorded fact, KHÔNG suy diễn/tính lại sau sự kiện, KHÔNG fact mới nào được
+                           tạo.
 Alternate/failure:      Mắt xích thiếu (KHÔNG dự kiến theo Domain Contract đã Consolidated Stable) →
                         ngoài phạm vi tài liệu này (governance/data-integrity concern).
-Observable outcome:     Người dùng truy vết được trọn vẹn từ Position ngược về Decision gốc.
-Evidence consumed:      Toàn bộ causation_refs/correlation_id chain Decision→...→Position.
-Evidence produced:      KHÔNG.
-PR traceability:        PR-028, PR-004, PR-005 (v0.4, đóng `F-03` — Main flow bước 2 CHÍNH LÀ truy vết
-                        causation chain đầy đủ về "Decision gốc" [PR-005 evidence trace], bao gồm outcome
-                        + Strategy Instance nguồn gốc của Decision đó [PR-004]).
+Observable outcome:     Người dùng truy vết được trọn vẹn từ Position ngược về Decision gốc — thấy rõ
+                        hai chiều tách biệt: **downstream lineage** (Decision → Position, bước 2) VÀ
+                        **Decision explainability evidence** (input snapshot/configuration → Decision,
+                        bước 3) — outcome, Strategy Instance/Definition Version nguồn gốc, và evidence
+                        đã dùng tạo Decision đều hiển thị tường minh tại đầu trace ngược, KHÔNG suy
+                        diễn/tính lại.
+Evidence consumed:      Toàn bộ causation_refs/correlation_id chain Decision→...→Position; recorded
+                        input snapshot/evidence reference của chính Decision gốc; Strategy Instance/
+                        Definition Version context gắn Decision đó.
+Evidence produced:      KHÔNG — quan sát thuần túy, KHÔNG suy diễn/tính lại evidence.
+PR traceability:        PR-028, PR-004, PR-005 (v0.4 → v0.5, đóng `P03B-V04-A-MAJ-01` — Main flow nay
+                        tách bạch tường minh downstream lineage [Position → Decision, bước 2, PR-028]
+                        khỏi Decision explainability evidence [outcome + Strategy Instance/Definition
+                        Version nguồn gốc + recorded input snapshot, bước 3 MỚI, đóng PR-004/PR-005] —
+                        bước 3 KHÔNG suy diễn/tính lại, resolve trực tiếp từ recorded fact, KHÔNG fact
+                        mới).
 Domain vocabulary used: decision.md, trade-intent.md, risk.md, execution-intent.md, order.md,
                         execution-result.md, fill.md, position.md.
 Out-of-scope boundary:  KHÔNG hiển thị chi tiết UI trace visualization (Package 0.3-C).
@@ -938,10 +1004,13 @@ Xem bảng đầy đủ tại §5 (cột "Primary PR(s)") — mỗi Use Case t�
 ```text
 Research  → PR-001, PR-002, PR-003, PR-015, PR-016, PR-017
 Replay    → PR-008, PR-009, PR-010, PR-012, PR-018, PR-019, PR-020
-Backtest  → PR-021, PR-022, PR-023, PR-033, PR-034, PR-004, PR-005 (v0.4, UC-007, đóng `F-03`)
+Backtest  → PR-021, PR-022, PR-023, PR-033, PR-034, PR-004, PR-005 (UC-007, mapping từ `F-03` v0.4,
+             behavior operationalize đầy đủ tại `P03B-V04-A-MAJ-01` v0.5)
 Paper     → PR-002, PR-003, PR-007, PR-013, PR-014, PR-024, PR-025, PR-026, PR-027, PR-004, PR-005
-             (v0.4, UC-011, đóng `F-03`)
-Review    → PR-009, PR-011, PR-028, PR-029, PR-030, PR-004, PR-005 (v0.4, UC-016, đóng `F-03`)
+             (UC-011, mapping từ `F-03` v0.4, behavior operationalize đầy đủ tại `P03B-V04-A-MAJ-01`
+             v0.5)
+Review    → PR-009, PR-011, PR-028, PR-029, PR-030, PR-004, PR-005 (UC-016, mapping từ `F-03` v0.4,
+             behavior operationalize đầy đủ tại `P03B-V04-A-MAJ-01` v0.5)
 Improve   → PR-031, PR-032
 ```
 
@@ -1062,7 +1131,7 @@ Kế thừa nguyên vẹn [`product-requirement.md`](./product-requirement.md) �
    tường minh — KHÔNG tự phát minh resolution semantics.
 9. KHÔNG sửa `product-requirement.md`/Domain Contract/ADR/Constitution/architecture nào.
 10. `OQ-002`/`OQ-003` giữ nguyên `Open`, không bị đóng ngầm; Live vẫn `Unauthorized`.
-11. YAML frontmatter hợp lệ, `version: "0.4"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+11. YAML frontmatter hợp lệ, `version: "0.5"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
 12. Baseline sẵn sàng cho ChatGPT Delta Review A + Independent Delta Review B trên CÙNG một commit/blob.
 13. (v0.2) UC-011 KHÔNG BAO GIỜ carry-forward/promote/reuse Backtest/Research Decision identity làm
     authoritative PAPER Decision ancestor — PAPER entry đòi hỏi PAPER-context authoritative Decision
@@ -1084,10 +1153,21 @@ Kế thừa nguyên vẹn [`product-requirement.md`](./product-requirement.md) �
 19. (v0.3, MỚI) UC-020 tiêu thụ đúng mode-separated scope của UC-021 — KHÔNG ngụ ý UC-021 trả về một
     cross-mode evidence object chung; ba comparison mode (Backtest-vs-Backtest, PAPER-vs-PAPER,
     cross-mode side-by-side) và toàn bộ nhãn mode/authority/evidence-type giữ nguyên.
-20. (v0.4, MỚI, đóng `F-03`) `PR-004`/`PR-005` material-trace tại `UC-007`/`UC-011`/`UC-016` — mỗi UC
+20. (v0.4, đóng `F-03`) `PR-004`/`PR-005` material-trace tại `UC-007`/`UC-011`/`UC-016` — mỗi UC
     hiển thị tường minh Decision outcome/Strategy Instance nguồn gốc (PR-004) và/hoặc evidence trace
     đầy đủ/causation chain (PR-005) tại chính field Main flow/Observable outcome/Goal của nó, KHÔNG
     gán mồ côi; `UC-008`/`UC-009` KHÔNG nhận hai PR này vì chỉ tiêu thụ evidence phái sinh từ UC-007.
+21. (v0.5, MỚI, đóng `P03B-V04-A-MAJ-01`) `UC-007`/`UC-011`/`UC-016` operationalize đầy đủ acceptance
+    evidence của `PR-004`/`PR-005` (v0.4 chỉ mechanically gán ID, chưa hiện thực hoá behavior): mỗi
+    Decision hiển thị đúng một outcome (LONG/SHORT/không có exposure mới), Strategy Instance CHÍNH XÁC
+    + Strategy Definition Version/configuration context nguồn gốc, VÀ recorded input snapshot/
+    causation reference/RiskEvaluation liên quan — resolve TRỰC TIẾP từ recorded fact, KHÔNG suy diễn/
+    tính lại sau sự kiện. `UC-011` tách bạch tường minh upstream Decision evidence (hiển thị TRƯỚC khi
+    khởi tạo) khỏi downstream C7 causation (fact do hành động khởi tạo sinh ra) — downstream chain
+    KHÔNG tự nó ngụ ý thỏa PR-005. `UC-016` thêm bước 3 mới (Decision explainability evidence) tách
+    biệt khỏi bước 2 downstream lineage. `UC-008`/`UC-009` KHÔNG đổi, KHÔNG nhận `PR-004`/`PR-005`.
+    Backtest vẫn non-PAPER simulated, domain representation vẫn deferred; PAPER-context Decision
+    separation, no-clone/no-carry-forward/no-promote/no-reuse giữ nguyên.
 ```
 
 ## 13. Handoff requirements for Package 0.3-C
