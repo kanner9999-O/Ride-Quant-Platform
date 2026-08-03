@@ -2,6 +2,88 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — author Package 1.1 candidate (NOT Consolidated Stable)
+
+**First authored candidate for Package 1.1 — System Decomposition & Module Registry.** Vai trò: `Package 1.1 Artifact Author & Repository Transaction Executor`. Product Owner authorized this authoring transaction. This candidate is **NOT** approved or consolidated.
+
+### Artifacts created
+
+```text
+docs/architecture/module-registry.yaml    NEW, version 0.1, status Draft
+                                           blob 487a0df6c207753f5a1c7afbed5b4da84d482ff1
+docs/architecture/system-decomposition.md NEW, version 0.1, status Draft
+                                           blob 701e005f2a2a7cb3209c5a3de238f5574f844cab
+```
+
+### Module inventory
+
+22 modules spanning the full established pipeline (Data Layer → Structure/Raw Regime → Feature → Context → Strategy/Plugin → Decision → Risk Gateway → Execution → ExecutionResult/Fill/Position), plus Replay Integration, Backtest Orchestrator, Paper Execution Boundary, Command/Query/API Surface, Review Evidence Service, and UX Application Shell. Taxonomy: 4 `compute_engine`, 5 `projection`, 13 `runtime_service` — no invented fourth type.
+
+### Coverage evidence
+
+```text
+34/34 Product Requirements  — covered, zero orphan
+21/21 Use Cases             — covered, zero orphan
+17/17 UX screens/views      — covered, zero orphan
+11/11 Domain capabilities   — covered (context-map.yaml)
+15/15 Domain contexts       — covered (context-map.yaml)
+```
+
+Many-to-many mapping — no one-module-per-PR/UC/screen rule. Coverage matrix in `system-decomposition.md` §10, derived from `use-case-workflow.md` §5/§6 ("Domain vocabulary used" field) and `ux-blueprint.md` §6.
+
+### Preserved architectural constraints
+
+Raw Regime independence from Structure (`forbidden_dependencies` on `raw-regime-engine`), Strategy Plugin cannot bypass Decision/Risk Gateway (`forbidden_dependencies` on `strategy-plugin-host`), Execution cannot accept unapproved Trade Intent directly (`forbidden_dependencies` on `execution-engine`), Backtest non-PAPER authority boundary (`forbidden_dependencies` on `backtest-orchestrator`), Context/Position/Replay/Review-evidence remain non-authoritative Projections (`owns_authoritative_state: false`), Projection never becomes authoritative source (I-12).
+
+### Deferred coverage (explicit, not invented)
+
+```text
+DD-001  Backtest Domain Contract — backtest-orchestrator.owns_authoritative_state: deferred.
+DD-003  PAPER-context Decision establishment mechanism — paper-execution-boundary blocked.
+Structure-aware Regime — no capability_id/domain_context_id registered in context-map.yaml
+  yet (Chapter 4 §4.2 authority gap) — raw-regime-engine covers ONLY the already-registered
+  raw-regime-analysis context; no module bound to Structure-aware Regime at this candidate.
+```
+
+### ADR Scope Rule evaluation — two ADR REQUIRED findings
+
+```text
+Decision 1:  Official Phase 1 module dependency graph (first formal establishment) —
+             ADR REQUIRED (Governance §4b, "Module Taxonomy/dependency graph").
+Decision 2:  decision-engine hybrid taxonomy (secondary: decision_evaluation) —
+             ADR REQUIRED (Chapter 7 §7.1 condition 4). Distinct from risk-gateway's
+             hybrid, which Chapter 7 §7.1 itself already validates as the canonical
+             worked example — no new ADR needed to reuse that one.
+```
+
+Per the task's explicit "Important boundary": this candidate is authored in full and the ADR-required decisions are surfaced, but **Package 1.1 is NOT marked Consolidated Stable** until the relevant ADR(s) are Approved. No ADR was created or approved by this transaction.
+
+### Machine-validation (script-checked before commit)
+
+```text
+module-registry.yaml parses as valid YAML.
+22/22 module_id unique.
+Every depends_on/forbidden_dependencies reference resolves to an existing module_id.
+Zero cycles in the depends_on graph.
+Zero module has the same ID in both depends_on and forbidden_dependencies.
+All 11 capabilities and 15 contexts (context-map.yaml) covered by at least one module.
+```
+
+### Exact changed-file scope
+
+```text
+docs/architecture/module-registry.yaml     NEW
+docs/architecture/system-decomposition.md  NEW
+docs/architecture/README.md                MODIFIED (Package 1.1 candidate pointer added)
+docs/MANIFEST.md                           MODIFIED manifest_version 10.09 → 10.10,
+                                            two new Architecture section rows
+docs/CHANGELOG.md                          MODIFIED (this entry, prepended)
+```
+
+### Forbidden-scope verification
+
+KHÔNG `docs/product/`/`docs/domain/`/`docs/adr/`/`docs/constitution/`/`docs/team/`/`docs/phase-dod/` touched. KHÔNG Package 1.2–1.6 detailed architecture authored. KHÔNG source code, cloud provider, programming language/framework, database technology, event broker, authentication/authorization/custody implementation, field-level API schema, database DDL, or UX component tree authored. KHÔNG ADR created or approved. KHÔNG Phase 1 declared Complete. KHÔNG Phase 2 opened. KHÔNG Live authorized. `OQ-001`/`OQ-002`/`OQ-003` unchanged.
+
 ## [Unreleased] — 2026-08-03 — consolidate Phase 1 planning baseline
 
 **Mechanical lifecycle-recording transaction — records Product Owner consolidation of Phase 1 Planning Baseline v0.2.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Planning semantics not modified — `docs/architecture/phase-1-plan.md` itself was not touched.

@@ -1,0 +1,531 @@
+# Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
+#
+# CANDIDATE — status: Draft, NOT Consolidated Stable, NOT Approved.
+# Authority: Chapter 7 §7.5 (Locked) — module identity/taxonomy/mapping ONLY.
+# This registry does NOT own: Business Capability/Domain Context identity (context-map.yaml,
+# Chapter 4), domain concept semantics (Domain Contract, /docs/domain/), Product/UC/UX
+# semantics (docs/product/), or runtime facts (event log).
+#
+# schema_version: 1 (Constitution does not mandate a filename/schema — this repository's
+# own convention, storage/format deferred per Chapter 13 §13.14 / Chapter 7 §7.5).
+#
+# Field reference:
+#   module_id                  stable machine-readable ID, snake/kebab-case, never reused
+#   name                       display name
+#   module_type                exactly one of: compute_engine | projection | runtime_service
+#                               (Chapter 7 §7.1 — exhaustive, no invented fourth type)
+#   hybrid                     null, or {secondary_responsibility, condition, adr_status}
+#                               when module carries a secondary core responsibility of
+#                               another taxonomy type (Chapter 7 §7.1, requires ALL 4
+#                               conditions incl. ADR)
+#   responsibilities           bounded list of what this module owns/does
+#   implements_capabilities    capability_id(s) from context-map.yaml (must already exist there)
+#   serves_contexts            domain_context_id(s) from context-map.yaml (must already exist there)
+#   owns_authoritative_state   true | false | deferred — per I-12, only true if this module
+#                               is the sole authoritative source for the state it emits
+#   consumes                   contract categories consumed (event | query | command), not
+#                               field-level schema
+#   emits                      contract categories emitted (event | query | command), not
+#                               field-level schema
+#   depends_on                 module_id(s) this module requires (dependency direction)
+#   forbidden_dependencies     module_id(s) this module MUST NOT depend on (boundary enforcement)
+#   plugin_relation            none | hosts | is_plugin_definition | registry_for
+#   security_classification    none | trust_boundary_candidate | custody_adjacent |
+#                               secret_consuming — IDENTIFICATION ONLY, no implementation
+#                               design (Package 1.2 scope)
+#   phase                      Phase 1 sub-package this module is identified under (1.1)
+#                               and which later package (1.2-1.6) elaborates its detailed
+#                               architecture
+#   status                     candidate (this document authors no module beyond `candidate`)
+#   notes                      deferred items / authority gaps / rationale, when applicable
+
+schema_version: 1
+registry_id: phase-1-module-registry
+version: "0.1"
+status: Draft
+package: "1.1"
+package_lifecycle: candidate
+generated_at: "2026-08-03"
+
+modules:
+
+  # ---------------------------------------------------------------------
+  # Data Layer
+  # ---------------------------------------------------------------------
+
+  - module_id: market-reference-service
+    name: Market Reference Service
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Sở hữu authoritative Instrument/Venue identity, precision/tick/lot metadata, trading calendar/session."
+    implements_capabilities: [market-reference]
+    serves_contexts: [instrument-venue-reference]
+    owns_authoritative_state: true
+    consumes: [command]
+    emits: [event, query]
+    depends_on: []
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-A" }
+    status: candidate
+    notes: "Root module — no Phase 1 dependency."
+
+  - module_id: market-data-ingestion
+    name: Market Data Ingestion
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Quan sát và ghi nhận Candle observed/closed/corrected từ venue theo bitemporal semantics (Chapter 5)."
+      - "Chuẩn hóa venue-specific schema về canonical domain language."
+    implements_capabilities: [market-data]
+    serves_contexts: [market-data-observation]
+    owns_authoritative_state: true
+    consumes: [query]
+    emits: [event]
+    depends_on: [market-reference-service]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: trust_boundary_candidate
+    phase: { identified_in: "1.1", elaborated_by: "1.3-A" }
+    status: candidate
+    notes: "External venue connection boundary — security classification identification only, no auth/isolation design (Package 1.2)."
+
+  # ---------------------------------------------------------------------
+  # Structure / Regime (independent, per ADR-003/ADR-014)
+  # ---------------------------------------------------------------------
+
+  - module_id: structure-engine
+    name: Structure Engine
+    module_type: compute_engine
+    hybrid: null
+    responsibilities:
+      - "Suy diễn Swing/BOS/CHoCH và structure semantics từ Candle — analytical output, không external side effect."
+    implements_capabilities: [market-structure]
+    serves_contexts: [market-structure-analysis]
+    owns_authoritative_state: true
+    consumes: [event]
+    emits: [event]
+    depends_on: [market-data-ingestion]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-A" }
+    status: candidate
+    notes: null
+
+  - module_id: raw-regime-engine
+    name: Raw Regime Engine
+    module_type: compute_engine
+    hybrid: null
+    responsibilities:
+      - "Suy diễn Regime (trending/ranging/volatile) trực tiếp từ raw market data, ĐỘC LẬP HOÀN TOÀN với Structure Engine (ADR-003, hiệu lực qua ADR-014)."
+    implements_capabilities: [market-regime]
+    serves_contexts: [raw-regime-analysis]
+    owns_authoritative_state: true
+    consumes: [event]
+    emits: [event]
+    depends_on: [market-data-ingestion]
+    forbidden_dependencies: [structure-engine]
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-A" }
+    status: candidate
+    notes: >
+      DEFERRED COVERAGE — "Structure-aware Regime" (phase-1-plan.md §5.1, docs/architecture/README.md
+      reference pipeline): no capability_id/domain_context_id for this responsibility exists in
+      context-map.yaml today (Chapter 4 §4.2 authority — Domain Context identity is NOT
+      module-registry's to invent). Package 1.1 CANNOT bind a module to this responsibility without
+      first registering the missing Domain Context/Capability. Blocked on: Domain Context/Capability
+      registration (Chapter 4 §4.2, Product Owner + Domain Contract authoring decision), out of
+      Package 1.1 scope. Raw Regime Engine module above covers ONLY the already-registered
+      raw-regime-analysis context.
+
+  - module_id: feature-engine
+    name: Feature Engine
+    module_type: compute_engine
+    hybrid: null
+    responsibilities:
+      - "Fan-in CÓ CHỌN LỌC (Definition-pinned direct fan-in, ADR-014) từ Structure và Regime output thành Feature."
+    implements_capabilities: [feature-engineering]
+    serves_contexts: [feature-engineering]
+    owns_authoritative_state: true
+    consumes: [event]
+    emits: [event]
+    depends_on: [structure-engine, raw-regime-engine]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-B" }
+    status: candidate
+    notes: null
+
+  - module_id: context-aggregator
+    name: Context Aggregator
+    module_type: projection
+    hybrid: null
+    responsibilities:
+      - "CQRS read-model tổng hợp Structure+Regime+Feature+market state cho Strategy tiêu thụ."
+    implements_capabilities: [context-aggregation]
+    serves_contexts: [context-projection]
+    owns_authoritative_state: false
+    consumes: [event]
+    emits: [query]
+    depends_on: [structure-engine, raw-regime-engine, feature-engine]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-B" }
+    status: candidate
+    notes: "Type 2 Projection (Chapter 7 §7.4) — KHÔNG BAO GIỜ sở hữu business decision; cấm phát sinh authoritative domain fact."
+
+  # ---------------------------------------------------------------------
+  # Account
+  # ---------------------------------------------------------------------
+
+  - module_id: account-service
+    name: Account Service
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Sở hữu Trading Account identity, account boundary binding (ADR-012), environment distinction (PAPER/LIVE), lifecycle tối thiểu."
+      - "KHÔNG sở hữu credential/secret material (I-11)."
+    implements_capabilities: [account-management]
+    serves_contexts: [account-reference]
+    owns_authoritative_state: true
+    consumes: [command]
+    emits: [event, query]
+    depends_on: []
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: custody_adjacent
+    phase: { identified_in: "1.1", elaborated_by: "1.2" }
+    status: candidate
+    notes: "Custody-adjacent identification only — no credential/key-management design (Package 1.2)."
+
+  # ---------------------------------------------------------------------
+  # Strategy / Plugin
+  # ---------------------------------------------------------------------
+
+  - module_id: strategy-engine
+    name: Strategy Engine
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Sở hữu Strategy Definition Version identity (ADR-013) và Strategy Instance identity (bốn trục evidence độc lập + account_id + instrument_selection)."
+    implements_capabilities: [strategy-management]
+    serves_contexts: [strategy-definition]
+    owns_authoritative_state: true
+    consumes: [command, query]
+    emits: [event, query]
+    depends_on: [account-service]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-C" }
+    status: candidate
+    notes: null
+
+  - module_id: plugin-registry-service
+    name: Plugin Registry Service
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Sở hữu Plugin Definition identity, taxonomy type, và bốn-tầng identity (Definition/Version/Package-Build-Artifact/Runtime, Chapter 9 §9.1)."
+      - "KHÔNG tạo plugin registry riêng ngoài module-registry.yaml — bảng này CHÍNH LÀ registry đó."
+    implements_capabilities: [strategy-management]
+    serves_contexts: [strategy-definition]
+    owns_authoritative_state: true
+    consumes: [command]
+    emits: [event, query]
+    depends_on: []
+    forbidden_dependencies: []
+    plugin_relation: registry_for
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-C" }
+    status: candidate
+    notes: "Registry authority — distinct from strategy-plugin-host (which EXECUTES plugin logic)."
+
+  - module_id: strategy-plugin-host
+    name: Strategy Plugin Host
+    module_type: compute_engine
+    hybrid: null
+    responsibilities:
+      - "Host/execute Strategy Plugin (Decision Advisor) logic — Compute Engine điển hình theo Chapter 9 §9.1."
+      - "Tuân Decision-time visibility (Chapter 9 §9.5) — mọi input cursor-bounded, cấm đọc ambient/current state."
+    implements_capabilities: [strategy-management]
+    serves_contexts: [strategy-definition]
+    owns_authoritative_state: false
+    consumes: [query]
+    emits: [event]
+    depends_on: [strategy-engine, context-aggregator, plugin-registry-service]
+    forbidden_dependencies: [execution-engine, risk-gateway, paper-execution-boundary]
+    plugin_relation: hosts
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-C" }
+    status: candidate
+    notes: >
+      Strategy Plugin cannot bypass Decision or Risk Gateway (I-4, I-7) — forbidden_dependencies
+      enforces this at module-boundary level. Output is candidate analytical signal, NOT the
+      authoritative Decision fact — decision-engine owns the authoritative record.
+
+  # ---------------------------------------------------------------------
+  # Decision / Risk / Execution (C7 chain)
+  # ---------------------------------------------------------------------
+
+  - module_id: decision-engine
+    name: Decision Engine
+    module_type: runtime_service
+    hybrid:
+      secondary_responsibility: "decision_evaluation (deterministic evaluation of Strategy Instance at decision_context_cursor, ADR-010/Chapter 8 §8.4-§8.5)"
+      condition: "Decision Engine sở hữu CẢ authoritative Decision/Trade Intent record (runtime_service core) LẪN deterministic evaluation logic (compute-like core) — potential hybrid theo Chapter 7 §7.1."
+      adr_status: "ADR REQUIRED trước khi hybrid status này được coi là hợp lệ — Chapter 7 §7.1 điều kiện 4. KHÔNG tự động approve tại đây. Xem system-decomposition.md §12 (ADR Scope Rule evaluation)."
+    responsibilities:
+      - "Sở hữu Decision identity (ADR-010, Chapter 8 §8.4/§8.5) và Trade Intent identity."
+    implements_capabilities: [decision-management]
+    serves_contexts: [strategy-decision]
+    owns_authoritative_state: true
+    consumes: [event, query]
+    emits: [event]
+    depends_on: [strategy-engine, strategy-plugin-host, context-aggregator]
+    forbidden_dependencies: [execution-engine, paper-execution-boundary]
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-C" }
+    status: candidate
+    notes: "Decision TRƯỚC Trade Intent (preserved). Forbidden dependency enforces Decision cannot bypass Risk Gateway downstream."
+
+  - module_id: risk-gateway
+    name: Risk Gateway
+    module_type: runtime_service
+    hybrid:
+      secondary_responsibility: "risk_policy_evaluation (exposure limit, approve/reject, risk-increasing detection, kill switch scope)"
+      condition: "Chapter 7 §7.1's OWN worked example — 'Risk Gateway — primary runtime_service, secondary risk_policy_evaluation' — explicitly named as VALID hybrid."
+      adr_status: "ADR NOT REQUIRED for this specific hybrid classification — already validated by Chapter 7 §7.1's own text as the canonical valid example. No new ADR needed to reuse it."
+    responsibilities:
+      - "Sở hữu RiskEvaluation identity (bốn trục risk evidence độc lập) và Execution Intent identity."
+      - "Risk Policy logic (exposure limit, approve/reject, risk-increasing detection, kill switch) — Chapter 3 §3.1."
+    implements_capabilities: [risk-management]
+    serves_contexts: [risk-gateway]
+    owns_authoritative_state: true
+    consumes: [event]
+    emits: [event]
+    depends_on: [decision-engine, account-service]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: trust_boundary_candidate
+    phase: { identified_in: "1.1", elaborated_by: "1.3-D" }
+    status: candidate
+    notes: "Trade Intent TRƯỚC RiskEvaluation TRƯỚC Execution Intent (preserved)."
+
+  - module_id: execution-engine
+    name: Execution Engine
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Sở hữu Order identity (bất biến), OrderCreationAttempt, OrderSubmissionRequest."
+    implements_capabilities: [execution-management]
+    serves_contexts: [order-management]
+    owns_authoritative_state: true
+    consumes: [event]
+    emits: [event, command]
+    depends_on: [risk-gateway, paper-execution-boundary]
+    forbidden_dependencies: [strategy-engine, strategy-plugin-host, context-aggregator]
+    plugin_relation: none
+    security_classification: trust_boundary_candidate
+    phase: { identified_in: "1.1", elaborated_by: "1.3-D" }
+    status: candidate
+    notes: "Execution cannot accept unapproved Trade Intent directly (preserved) — forbidden_dependencies blocks any path bypassing Risk Gateway."
+
+  - module_id: execution-result-processor
+    name: Execution Result Processor
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Sở hữu ExecutionResult identity — observation trả về từ bounded PAPER execution boundary."
+      - "ExecutionResultProcessingAttempt."
+    implements_capabilities: [execution-management]
+    serves_contexts: [execution-result-management]
+    owns_authoritative_state: true
+    consumes: [event]
+    emits: [event]
+    depends_on: [execution-engine, paper-execution-boundary]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-D" }
+    status: candidate
+    notes: null
+
+  - module_id: fill-processor
+    name: Fill Processor
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Sở hữu Fill identity (bất biến) — quantity/price đã executed cho ExecutionResult result_type=EXECUTED."
+    implements_capabilities: [execution-management]
+    serves_contexts: [fill-management]
+    owns_authoritative_state: true
+    consumes: [event]
+    emits: [event]
+    depends_on: [execution-result-processor]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-D" }
+    status: candidate
+    notes: null
+
+  - module_id: position-projection
+    name: Position Projection
+    module_type: projection
+    hybrid: null
+    responsibilities:
+      - "Deterministic, NON-authoritative projection dẫn xuất từ visible-valid Fill history (Chapter 7 §7.4 Type 2)."
+    implements_capabilities: [execution-management]
+    serves_contexts: [position-management]
+    owns_authoritative_state: false
+    consumes: [event]
+    emits: [query]
+    depends_on: [fill-processor]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-D" }
+    status: candidate
+    notes: "Projection/read model KHÔNG BAO GIỜ authoritative source (preserved, I-12)."
+
+  - module_id: replay-integration-service
+    name: Replay Integration Service
+    module_type: projection
+    hybrid: null
+    responsibilities:
+      - "ReplayStateProjection — select + fold TOÀN BỘ authoritative fact (Decision→Position) tại canonical Replay Cursor. KHÔNG author fact mới."
+    implements_capabilities: [execution-management]
+    serves_contexts: [replay-integration]
+    owns_authoritative_state: false
+    consumes: [event]
+    emits: [query]
+    depends_on: [decision-engine, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-A" }
+    status: candidate
+    notes: "Chapter 8 §8.5 canonical Replay Cursor authority — no ReplayDecision (preserved)."
+
+  # ---------------------------------------------------------------------
+  # Backtest / Paper orchestration boundaries
+  # ---------------------------------------------------------------------
+
+  - module_id: backtest-orchestrator
+    name: Backtest Orchestrator
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Điều phối một bounded Backtest run gắn Strategy/version/configuration + stable run identity."
+      - "Non-PAPER simulated authority — KHÔNG tái sử dụng PAPER Order/ExecutionResult/Fill/Position."
+    implements_capabilities: [decision-management, risk-management]
+    serves_contexts: [strategy-decision, risk-gateway]
+    owns_authoritative_state: deferred
+    consumes: [event]
+    emits: [event]
+    depends_on: [strategy-engine, decision-engine, risk-gateway]
+    forbidden_dependencies: [execution-engine, paper-execution-boundary, execution-result-processor, fill-processor, position-projection]
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-A" }
+    status: candidate
+    notes: >
+      DEFERRED COVERAGE — DD-001 (Backtest Domain Contract/entity/event/schema): no Domain
+      Contract exists yet for Backtest-specific facts. owns_authoritative_state cannot be
+      resolved to true/false until DD-001 is addressed (Product Owner decision, out of
+      Package 1.1 scope). This module identifies the ORCHESTRATION boundary only — does NOT
+      invent Backtest entities (BacktestOrder/BacktestFill/BacktestPosition/
+      BacktestExecutionResult or equivalent remain forbidden per DD-001's own constraint).
+
+  - module_id: paper-execution-boundary
+    name: Paper Execution Boundary
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Bounded PAPER execution boundary mà OrderSubmissionRequest/ExecutionResult tham chiếu — chưa chứng minh venue acceptance/execution thật."
+    implements_capabilities: [execution-management]
+    serves_contexts: [order-management, execution-result-management]
+    owns_authoritative_state: false
+    consumes: [command]
+    emits: [event]
+    depends_on: []
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-D" }
+    status: candidate
+    notes: >
+      DEFERRED COVERAGE — DD-003 (PAPER-context authoritative Decision establishment
+      mechanism): the exact trigger/mechanism for establishing an eligible PAPER-context
+      Decision lineage is NOT decided (mandatory before UC-011 runtime design, per MANIFEST
+      Deferred Decisions register). This module identifies the BOUNDARY only, does not invent
+      the establishment mechanism.
+
+  # ---------------------------------------------------------------------
+  # Cross-cutting: API surface, Review evidence, UX shell
+  # ---------------------------------------------------------------------
+
+  - module_id: command-query-api-surface
+    name: Command/Query/Event API Surface
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Expose command/query/event contract surface cho mọi module authoritative/projection — routing/exposure, KHÔNG business logic riêng."
+    implements_capabilities: []
+    serves_contexts: []
+    owns_authoritative_state: false
+    consumes: [event, query, command]
+    emits: [query, command]
+    depends_on: [market-reference-service, market-data-ingestion, structure-engine, raw-regime-engine, feature-engine, context-aggregator, account-service, strategy-engine, decision-engine, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service, review-evidence-service]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: trust_boundary_candidate
+    phase: { identified_in: "1.1", elaborated_by: "1.4" }
+    status: candidate
+    notes: "implements_capabilities/serves_contexts intentionally empty — this module is a routing/exposure layer, not a capability owner (avoids inventing a competing capability identity outside context-map.yaml)."
+
+  - module_id: review-evidence-service
+    name: Review Evidence Service
+    module_type: projection
+    hybrid: null
+    responsibilities:
+      - "Read-only aggregation/trace query surface phục vụ Decision→Position lineage trace, historical-state comparison, correction inspection (UC-016–UC-018)."
+    implements_capabilities: []
+    serves_contexts: []
+    owns_authoritative_state: false
+    consumes: [event]
+    emits: [query]
+    depends_on: [decision-engine, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service]
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.5" }
+    status: candidate
+    notes: "Cross-cutting read/evidence layer — no new authoritative fact, no recomputation (PR-030 no-recompute preserved)."
+
+  - module_id: ux-application-shell
+    name: UX Application Shell
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Frontend application shell hosting workspace/navigation/research/replay/backtest/paper/review surfaces — command orchestration for user-initiated action."
+    implements_capabilities: []
+    serves_contexts: []
+    owns_authoritative_state: false
+    consumes: [query]
+    emits: [command]
+    depends_on: [command-query-api-surface]
+    forbidden_dependencies: [structure-engine, raw-regime-engine, feature-engine, context-aggregator, strategy-engine, decision-engine, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service, review-evidence-service]
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.6" }
+    status: candidate
+    notes: "Forbidden direct-engine dependencies enforce UX must go through command-query-api-surface, not bypass it (same non-bypass principle applied to UI as to plugins)."

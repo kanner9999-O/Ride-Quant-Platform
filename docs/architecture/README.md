@@ -9,7 +9,9 @@ last_review: "2026-08-03"
 
 Phase 0 Approval Gate `Approved` (2026-08-03, xem [MANIFEST](../MANIFEST.md) "Phase 0 Approval Gate — Decision") — Phase 1 `Active`. Sẽ chứa System Architecture, UX Architecture, Security & Custody Baseline, API/Database/Engine design chi tiết.
 
-**Planning baseline:** [`phase-1-plan.md`](./phase-1-plan.md) (v0.2, Draft — package lifecycle `Consolidated Stable`, xem [MANIFEST](../MANIFEST.md) cho review evidence đầy đủ) — work breakdown, dependency order, authority map, review/gate structure cho chín package Phase 1 (1.1, 1.2, 1.3-A/B/C/D, 1.4, 1.5, 1.6). Đây là planning artifact, KHÔNG phải architecture decision — architecture design cụ thể chưa author (chờ package tương ứng). **Package 1.1 authoring: Authorized to Begin** (2026-08-03) — KHÔNG ngụ ý Package 1.1 đã approve, KHÔNG author module-registry.yaml/system-decomposition.md tại transaction này.
+**Planning baseline:** [`phase-1-plan.md`](./phase-1-plan.md) (v0.2, Draft — package lifecycle `Consolidated Stable`, xem [MANIFEST](../MANIFEST.md) cho review evidence đầy đủ) — work breakdown, dependency order, authority map, review/gate structure cho chín package Phase 1 (1.1, 1.2, 1.3-A/B/C/D, 1.4, 1.5, 1.6). Đây là planning artifact, KHÔNG phải architecture decision — architecture design cụ thể chưa author (chờ package tương ứng).
+
+**Package 1.1 — System Decomposition & Module Registry (candidate, 2026-08-03):** [`module-registry.yaml`](./module-registry.yaml) + [`system-decomposition.md`](./system-decomposition.md) (cả hai v0.1, Draft) — 22 module, dependency graph, Product/UC/UX/Domain coverage (34 PR/21 UC/17 screen/11 capability/15 context, zero orphan). **CANDIDATE — KHÔNG Consolidated Stable, KHÔNG Approved.** `system-decomposition.md` §12 phát hiện HAI quyết định `ADR REQUIRED` (module dependency graph chính thức; `decision-engine` hybrid taxonomy) — Package 1.1 KHÔNG thể Consolidated Stable cho tới khi ADR liên quan `Approved`. KHÔNG ADR nào được tạo/approve tại transaction này.
 
 ## Reference Pipeline (bản nháp — chuyển từ Chapter 7, CHƯA phải quyết định kiến trúc chính thức)
 
