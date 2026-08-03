@@ -2,13 +2,13 @@
 id: phase-0-dod
 title: "Phase 0 — Vision & Foundation: Definition of Done"
 version: "0.4"
-status: Draft
+status: Approved
 owner: Product Owner
-reviewers: []
-approved_by: null
-approved_at: null
+reviewers: [ChatGPT, Claude]
+approved_by: Product Owner
+approved_at: "2026-08-03"
 created_at: "2026-08-03"
-last_review: null
+last_review: "2026-08-03"
 next_review: null
 depends_on: ["00-governance", "12-approval-gates", "14-roadmap"]
 ---
@@ -25,7 +25,7 @@ depends_on: ["00-governance", "12-approval-gates", "14-roadmap"]
 
 **v0.4 — narrow bounded correction (2026-08-03), đóng `P0-DOD-V03-A-MAJ-01`:** §9 Phase-decision bundle requirements trước đây phát biểu "exact accepted-DoD identity/content version đã incorporate ... hiện v0.1, CHƯA accepted" — stale reference, vì artifact đã ở v0.3 tại thời điểm đó (đã qua `v0.2`/`v0.3` bounded correction). Reference sai này có thể khiến transaction tương lai pin nhầm phiên bản DoD tại phase-decision bundle. Sửa: §9 nay phát biểu đúng "current candidate hiện v0.4, CHƯA accepted, CHƯA incorporated" — v0.4 vì paragraph correction-history này TỰ NÓ tăng version tài liệu lên v0.4 tại đúng transaction sửa reference (tránh việc §9 lại trỏ vào một version đã stale ngay khi vừa sửa). Bounded — KHÔNG mở lại comprehensive Phase 0 DoD review, KHÔNG đổi §2 applicable gate set/§3 substantive completion criteria/§4 evidence requirements/§7 finding closure và waiver rule/§8 Backward Consistency Check requirements/§10/§11 lifecycle/acceptance rule nào khác. `P0-REM-MAJ-01`, `P0-REM-MAJ-02`, `P0-DELTA-A-MAJ-01` giữ nguyên đã resolved (không đổi). `status: Draft`, `approved_by: null`, `approved_at: null` không đổi — CHƯA accepted, CHƯA incorporated. Delta này CHƯA được ChatGPT/Independent Review B accept.
 
-**Lifecycle state của chính DoD artifact này:** `status: Draft`, `approved_by: null`, `approved_at: null`. Đây là **DoD mới được author lần đầu** — theo Chapter 0 §7.1 Document Lifecycle (`Not Started → Draft → In Review → Revision Requested → Approved → Locked`), nó bắt đầu tại `Draft`. **Product Owner acceptance/incorporation của DoD này CHƯA được ghi nhận tại đây** — [Chapter 14 §14.3.1](../constitution/14-roadmap.md) khóa: canonical incorporation chỉ tồn tại khi Product Owner acceptance evidence resolve được VÀ xác định tường minh Phase identity/Roadmap-phase-section version/DoD version/explicit incorporation decision, tại một transaction RIÊNG do chính Product Owner tạo ra qua Decision Workflow ([Chapter 0 §3](../constitution/00-governance.md)). Tài liệu này **không tự claim** acceptance đó.
+**Lifecycle state của chính DoD artifact này (cập nhật 2026-08-03, mechanical lifecycle-recording transaction):** `status: Approved`, `approved_by: Product Owner`, `approved_at: "2026-08-03"`. Theo Chapter 0 §7.1 Document Lifecycle (`Not Started → Draft → In Review → Revision Requested → Approved → Locked`), tài liệu chuyển từ `Draft` sang `Approved` tại đúng version đã accept (`v0.4`, KHÔNG bump version cho transaction lifecycle-recording thuần túy này). `Approved` — KHÔNG `Locked` — vì: (a) Product Owner decision evidence tại transaction này KHÔNG tuyên bố Lock tường minh; (b) [Chapter 12 §12.2 điểm 5](../constitution/12-approval-gates.md) công nhận **"Approved/Locked authoritative quality contract hoặc phase plan"** — `Approved` một mình đã đủ điều kiện authoritative cho mục đích Chapter 12/13 sử dụng, KHÔNG bắt buộc `Locked` bổ sung; (c) `Locked` là state riêng, chỉ áp dụng khi Product Owner tường minh quyết định freeze byte-for-byte (Chapter 0 §5.1/§5.2 pattern dùng cho Constitution chapter) — KHÔNG suy diễn ngầm từ acceptance. **Product Owner acceptance/incorporation của DoD này ĐÃ được ghi nhận** — xem §11 "Acceptance status" phía dưới cho incorporation record đầy đủ theo bốn điều kiện [Chapter 14 §14.3.1](../constitution/14-roadmap.md).
 
 ## 1. Phase identity
 
@@ -228,18 +228,65 @@ Tại đúng atomic recording boundary (Chapter 14 §14.4.2), bundle phải pin 
 ## 11. Acceptance status
 
 ```text
-Product Owner acceptance của DoD này:  CHƯA ghi nhận.
+Product Owner acceptance của DoD này:   ĐÃ ghi nhận (2026-08-03, mechanical lifecycle-
+                                        recording transaction, Decision Workflow —
+                                        Chapter 0 §3).
+
+Review evidence trước acceptance:
+  ChatGPT bounded Delta Review A:       CLEAN
+  Independent bounded Delta Review B:   CLEAN
+  Blocker:                              0
+  Major:                                0
+  Minor:                                0
+
+Resolved findings:
+  P0-REM-MAJ-01:                        resolved
+  P0-REM-MAJ-02:                        resolved
+  P0-DELTA-A-MAJ-01:                    resolved
+  P0-DOD-V03-A-MAJ-01:                  resolved
+
 Canonical incorporation (Chapter 14
-  §14.3.1) vào Phase-plan của Phase 0:  CHƯA tồn tại — bốn điều kiện §14.3.1 (evidence
-                                        resolve, Phase/Roadmap-version/DoD-version/
-                                        explicit-incorporation-decision xác định, tồn
-                                        tại trước gate, đúng một incorporation) CHƯA
-                                        thỏa.
-Hệ quả:                                Mọi gate-set declaration tại §2 KHÔNG hợp lệ
-                                        cho mục đích Chapter 12/13 sử dụng cho tới khi
-                                        Product Owner cung cấp acceptance evidence
-                                        đúng định dạng yêu cầu, tại một task/transaction
-                                        RIÊNG.
+  §14.3.1) vào Phase-plan của Phase 0:  ĐÃ tồn tại — bốn điều kiện §14.3.1 thỏa đầy đủ,
+                                        cùng một evidence:
+
+  1. Product Owner acceptance evidence resolve được:      CÓ (transaction này).
+  2. Cùng evidence đó xác định tường minh:
+       Phase identity:                  Phase 0 — Vision & Foundation
+       Roadmap phase-section version/
+         content identity:              Chapter 14 — Roadmap, v1.6, Locked (current
+                                         version resolve từ MANIFEST theo I-12)
+       DoD version/content identity:    docs/phase-dod/phase-0-dod.md, v0.4,
+                                         accepted blob
+                                         ddf2d465904b785ab8f712f9d37dca4d45c1f49b,
+                                         reviewed source HEAD
+                                         59a9b071749e38fc2522477504ccd177e60ae046
+       Explicit incorporation decision: "Phase 0 DoD v0.4: accepted, incorporated as
+                                         the authoritative Definition of Done for
+                                         Phase 0 — Vision & Foundation" (Product Owner)
+  3. Evidence tồn tại TRƯỚC Phase 0 gate evaluation:       CÓ — Phase 0 Approval Gate
+                                                            CHƯA mở (§10, §12 phía trên).
+  4. Đúng MỘT incorporation, KHÔNG xung đột:                CÓ — đây là acceptance
+                                                            evidence DUY NHẤT cho
+                                                            Phase 0 DoD tại boundary này.
+
+Hệ quả:                                Gate-set declaration tại §2 nay hợp lệ cho mục
+                                        đích Chapter 12/13 sử dụng — LÀ authoritative
+                                        Phase 0 DoD kể từ transaction này (Chapter 12
+                                        §12.2 điểm 5: "Approved/Locked authoritative
+                                        quality contract hoặc phase plan").
 ```
 
-**Tài liệu này KHÔNG tuyên bố Phase 0 hoàn thành, KHÔNG mở Approval Gate, KHÔNG authorize Phase 1.**
+**Transaction này CHỈ ghi nhận DoD acceptance/incorporation. Nó KHÔNG:**
+
+```text
+tuyên bố Phase 0 DoD criteria đã pass (§3–§9 vẫn là tiêu chí CẦN đạt, KHÔNG phải ĐÃ đạt)
+tuyên bố Phase 0 hoàn thành
+mở/thực hiện Phase 0 Approval Gate
+tuyên bố một full-scope Backward Consistency Check result nào (§8)
+đóng OQ-001, OQ-002, hay OQ-003
+authorize Live
+sửa Product/Domain/ADR/Constitution semantics nào
+tạo ADR
+```
+
+**Việc tiếp theo:** Phase 0 Approval Gate consolidated review — ChatGPT Review A + Independent Review B trên toàn bộ Phase 0 evidence (§4), bao gồm full-scope Backward Consistency Check (§8) — trước khi Product Owner đưa ra Phase 0 Approval Gate decision (Chapter 12 §12.2).

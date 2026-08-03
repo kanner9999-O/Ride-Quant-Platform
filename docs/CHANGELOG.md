@@ -2,6 +2,72 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — accept and incorporate Phase 0 DoD v0.4
+
+**Mechanical lifecycle-recording transaction — records Product Owner acceptance and canonical incorporation of the Phase 0 Definition of Done.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. No substantive DoD criteria modified; no other project semantics touched.
+
+### Product Owner decision
+
+```text
+Phase 0 DoD v0.4:  accepted
+                    incorporated as the authoritative Definition of Done
+                    for Phase 0 — Vision & Foundation
+
+Accepted artifact:  docs/phase-dod/phase-0-dod.md
+Accepted version:   0.4
+Accepted blob (substantive content, unchanged):  ddf2d465904b785ab8f712f9d37dca4d45c1f49b
+Reviewed source HEAD:                            59a9b071749e38fc2522477504ccd177e60ae046
+
+Review evidence:
+  ChatGPT bounded Delta Review A:      CLEAN
+  Independent bounded Delta Review B:  CLEAN
+  Blocker: 0   Major: 0   Minor: 0
+
+Resolved findings:
+  P0-REM-MAJ-01, P0-REM-MAJ-02, P0-DELTA-A-MAJ-01, P0-DOD-V03-A-MAJ-01 — all resolved
+```
+
+### Canonical incorporation (Chapter 14 §14.3.1) — all four conditions satisfied by one evidence
+
+```text
+1. Product Owner acceptance evidence resolves:        this transaction.
+2. Same evidence identifies:
+     Phase identity:                    Phase 0 — Vision & Foundation
+     Roadmap phase-section identity:    Chapter 14 — Roadmap, v1.6, Locked
+     DoD version/content identity:      phase-0-dod.md v0.4, blob ddf2d465...49b
+     Explicit incorporation decision:   recorded verbatim (see above)
+3. Evidence exists before Phase 0 gate evaluation:     Approval Gate not yet opened.
+4. Exactly one, non-conflicting incorporation:         sole Phase 0 DoD acceptance to date.
+```
+
+### Recorded artifact lifecycle state
+
+`docs/phase-dod/phase-0-dod.md` frontmatter: `status: Draft → Approved`, `reviewers: [] → [ChatGPT, Claude]`, `approved_by: null → Product Owner`, `approved_at: null → "2026-08-03"`, `last_review: null → "2026-08-03"`. `version` unchanged at `"0.4"` (this transaction records acceptance of the already-existing v0.4 content, it does not bump version). `status: Approved`, not `Locked` — governing rule: Chapter 0 §7.1 (Document Lifecycle: `Draft → In Review → Revision Requested → Approved → Locked`, Approved and Locked are distinct sequential states) together with Chapter 12 §12.2 point 5, which recognizes "**Approved/Locked** authoritative quality contract hoặc phase plan" — `Approved` alone is sufficient for Chapter 12/13 authority purposes; `Locked` was not explicitly decided by the Product Owner in this transaction, so it is not applied.
+
+§11 "Acceptance status" rewritten from "CHƯA ghi nhận / CHƯA tồn tại" to record the acceptance/incorporation evidence above in full, plus an explicit decision-boundary list (does not declare DoD criteria passed, does not declare Phase 0 Complete, does not open/perform the Approval Gate, does not claim a BCC result, does not close any OQ, does not authorize Live, no ADR).
+
+**§1–§10 substantive content verified byte-identical** to the accepted blob (`diff` on the extracted body confirms no difference) — only frontmatter and §11 changed. Post-transaction file blob: `095d0eb1db9ccd6b41a7e53c8081b67b3037b9b2`.
+
+### Exact changed-file scope
+
+```text
+docs/phase-dod/phase-0-dod.md   MODIFIED (frontmatter + §11 acceptance record only)
+                                 blob ddf2d465904b785ab8f712f9d37dca4d45c1f49b
+                                   → 095d0eb1db9ccd6b41a7e53c8081b67b3037b9b2
+docs/MANIFEST.md                MODIFIED manifest_version 10.03 → 10.04
+                                 (Phase 0 DoD row: Version/Status/Approved by/Approved
+                                 at columns + acceptance note)
+docs/CHANGELOG.md               MODIFIED (this entry, prepended)
+```
+
+### Forbidden-scope verification
+
+KHÔNG `docs/product/`/`docs/domain/`/`docs/adr/`/`docs/constitution/`/`docs/architecture/`/`docs/team/` touched. KHÔNG ADR created. KHÔNG new finding introduced. KHÔNG DoD criteria declared passed. KHÔNG Phase 0 declared Complete. KHÔNG Phase 0 Approval Gate opened or performed. KHÔNG full-scope BCC result claimed. `OQ-001`/`OQ-002`/`OQ-003` remain `Open`. Live remains `Unauthorized`.
+
+### Next action
+
+Consolidated Phase 0 Approval Gate review — ChatGPT Review A + Independent Review B on the full Phase 0 evidence set (§4), including a full-scope Backward Consistency Check (§8) — before the Product Owner makes the Phase 0 Approval Gate decision (Chapter 12 §12.2).
+
 ## [Unreleased] — 2026-08-03 — fix stale DoD version reference in §9 (NOT yet accepted)
 
 **Narrowly bounded correction to `phase-0-dod.md` — addresses `P0-DOD-V03-A-MAJ-01`.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single bounded correction. Full Phase 0 DoD review NOT reopened.
