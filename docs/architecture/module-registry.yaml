@@ -6,6 +6,14 @@
 # Chapter 4), domain concept semantics (Domain Contract, /docs/domain/), Product/UC/UX
 # semantics (docs/product/), or runtime facts (event log).
 #
+# P11-A-MAJ-02 correction (canonical authority boundary, Chapter 9 §9.1 / I-12): THIS FILE
+# is the SOLE authority for Plugin Definition identity, module existence, primary taxonomy,
+# and architecture responsibility of every module including plugin-hosting modules. No
+# runtime module (e.g. `plugin-release-manager` below) may own or mutate these architecture
+# facts — a runtime module may only own OPERATIONAL facts (Plugin Version -> exact artifact
+# resolution, runtime compatibility/availability status, activation coordination) that do
+# not overlap Plugin Definition identity/taxonomy. There is no second plugin registry.
+#
 # schema_version: 1 (Constitution does not mandate a filename/schema — this repository's
 # own convention, storage/format deferred per Chapter 13 §13.14 / Chapter 7 §7.5).
 #
@@ -29,7 +37,10 @@
 #                               field-level schema
 #   depends_on                 module_id(s) this module requires (dependency direction)
 #   forbidden_dependencies     module_id(s) this module MUST NOT depend on (boundary enforcement)
-#   plugin_relation            none | hosts | is_plugin_definition | registry_for
+#   plugin_relation            none | hosts | is_plugin_definition | manages_release
+#                               ("manages_release" = operational Plugin Version/artifact/
+#                               runtime-compatibility/activation tracking ONLY — never
+#                               Plugin Definition identity/taxonomy ownership, P11-A-MAJ-02)
 #   security_classification    none | trust_boundary_candidate | custody_adjacent |
 #                               secret_consuming — IDENTIFICATION ONLY, no implementation
 #                               design (Package 1.2 scope)
@@ -41,7 +52,7 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "0.1"
+version: "0.2"
 status: Draft
 package: "1.1"
 package_lifecycle: candidate
@@ -227,13 +238,15 @@ modules:
     status: candidate
     notes: null
 
-  - module_id: plugin-registry-service
-    name: Plugin Registry Service
+  - module_id: plugin-release-manager
+    name: Plugin Release Manager
     module_type: runtime_service
     hybrid: null
     responsibilities:
-      - "Sở hữu Plugin Definition identity, taxonomy type, và bốn-tầng identity (Definition/Version/Package-Build-Artifact/Runtime, Chapter 9 §9.1)."
-      - "KHÔNG tạo plugin registry riêng ngoài module-registry.yaml — bảng này CHÍNH LÀ registry đó."
+      - "Resolve Plugin Version → exact Package/Build Artifact content identity (content hash, target platform, build identity) HOẶC immutable release manifest (Chapter 9 §9.1, mô hình A/B) — operational resolution, KHÔNG architecture identity."
+      - "Theo dõi runtime compatibility/availability status của Plugin Runtime replica đã deploy."
+      - "Điều phối activation/deactivation boundary (Chapter 9 §9.5 — validated compatibility set, atomic activation) — operational coordination fact, KHÔNG Plugin Definition identity."
+      - "KHÔNG sở hữu Plugin Definition identity, taxonomy type, hay bất kỳ architecture responsibility nào — authority đó thuộc DUY NHẤT `module-registry.yaml` (Chapter 7 §7.5, Chapter 9 §9.1). Module này KHÔNG phải, và KHÔNG tạo, một plugin registry thứ hai."
     implements_capabilities: [strategy-management]
     serves_contexts: [strategy-definition]
     owns_authoritative_state: true
@@ -241,11 +254,19 @@ modules:
     emits: [event, query]
     depends_on: []
     forbidden_dependencies: []
-    plugin_relation: registry_for
+    plugin_relation: manages_release
     security_classification: none
     phase: { identified_in: "1.1", elaborated_by: "1.3-C" }
     status: candidate
-    notes: "Registry authority — distinct from strategy-plugin-host (which EXECUTES plugin logic)."
+    notes: >
+      P11-A-MAJ-02 correction — renamed từ "Plugin Registry Service" (đóng, xem
+      system-decomposition.md §12b). Runtime service này CHỈ owns_authoritative_state
+      cho operational fact (Package/Build Artifact resolution record, runtime
+      compatibility/availability status, activation coordination record) KHÔNG overlap
+      với architecture identity (Plugin Definition/taxonomy) — architecture identity đó
+      resolve DUY NHẤT từ chính entry `strategy-plugin-host` (và mọi entry khác) trong
+      `module-registry.yaml` này. Distinct khỏi `strategy-plugin-host` (EXECUTES plugin
+      logic).
 
   - module_id: strategy-plugin-host
     name: Strategy Plugin Host
@@ -259,7 +280,7 @@ modules:
     owns_authoritative_state: false
     consumes: [query]
     emits: [event]
-    depends_on: [strategy-engine, context-aggregator, plugin-registry-service]
+    depends_on: [strategy-engine, context-aggregator, plugin-release-manager]
     forbidden_dependencies: [execution-engine, risk-gateway, paper-execution-boundary]
     plugin_relation: hosts
     security_classification: none
@@ -299,13 +320,10 @@ modules:
   - module_id: risk-gateway
     name: Risk Gateway
     module_type: runtime_service
-    hybrid:
-      secondary_responsibility: "risk_policy_evaluation (exposure limit, approve/reject, risk-increasing detection, kill switch scope)"
-      condition: "Chapter 7 §7.1's OWN worked example — 'Risk Gateway — primary runtime_service, secondary risk_policy_evaluation' — explicitly named as VALID hybrid."
-      adr_status: "ADR NOT REQUIRED for this specific hybrid classification — already validated by Chapter 7 §7.1's own text as the canonical valid example. No new ADR needed to reuse it."
+    hybrid: null
     responsibilities:
       - "Sở hữu RiskEvaluation identity (bốn trục risk evidence độc lập) và Execution Intent identity."
-      - "Risk Policy logic (exposure limit, approve/reject, risk-increasing detection, kill switch) — Chapter 3 §3.1."
+      - "Risk Policy logic (exposure limit, approve/reject, risk-increasing detection, kill switch) — Chapter 3 §3.1 — LÀ business logic hợp lệ của đúng responsibility này (Chapter 7 §7.3: Type 3 Runtime Service KHÔNG có nghĩa chỉ làm I/O thuần túy), KHÔNG phải secondary taxonomy type/hybrid. Runtime Service taxonomy CHO PHÉP authoritative business policy/control logic như một phần bình thường của primary responsibility — không cần khai báo hybrid, không cần ADR."
     implements_capabilities: [risk-management]
     serves_contexts: [risk-gateway]
     owns_authoritative_state: true

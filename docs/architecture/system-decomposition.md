@@ -1,7 +1,7 @@
 ---
 id: system-decomposition
 title: "Package 1.1 — System Decomposition & Module Registry"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -18,6 +18,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 **CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Đây là first authored candidate cho Package 1.1, theo `docs/architecture/phase-1-plan.md` v0.2 (`Consolidated Stable`) §5.3/§7/§8. Tài liệu này KHÔNG tự approve/consolidate chính nó — Product Owner decision riêng, sau Review A + Independent Review B, mới có thẩm quyền đó (§15).
 
 **Ghi chú tường minh bắt buộc (§12):** Package này phát hiện MỘT quyết định thuộc diện **ADR REQUIRED** — chính module dependency graph chính thức đề xuất tại §5/`module-registry.yaml`. Theo đúng "Important boundary" của task gốc: candidate này ĐƯỢC author đầy đủ, quyết định ADR-required được ghi lại tường minh, nhưng Package 1.1 **KHÔNG được đánh dấu `Consolidated Stable`** cho tới khi ADR đó `Approved` (hoặc Product Owner quyết định khác qua Decision Workflow). KHÔNG ADR nào được tạo/approve tại transaction này.
+
+**v0.2 — bounded correction (2026-08-03), đóng `P11-A-MAJ-01`/`P11-A-MAJ-02`/`P11-A-MIN-01`** (Review A REVISE + Independent Review B REVISE trên v0.1, findings CONFIRMED — Blocker 0, Major 2, Minor 1): (1) `P11-A-MAJ-01` — `risk-gateway` trước đây khai `hybrid` với `adr_status: "ADR NOT REQUIRED"`, sai vì Chapter 7 §7.1 điều kiện 4 đòi ADR cho MỌI hybrid retained, kể cả worked example — sửa: `risk-gateway` nay `hybrid: null`, `runtime_service` thuần, risk policy logic là primary responsibility hợp lệ theo Chapter 7 §7.3 (KHÔNG phải secondary taxonomy) — KHÔNG tạo ADR. (2) `P11-A-MAJ-02` — `plugin-registry-service` trước đây claim sở hữu Plugin Definition identity/taxonomy, xung đột authority với chính `module-registry.yaml` (I-12/Chapter 9 §9.1) — sửa: đổi tên thành `plugin-release-manager`, thu hẹp về operational fact ONLY (Plugin Version→artifact resolution, runtime compatibility, activation coordination); `module-registry.yaml` tường minh là authority DUY NHẤT cho Plugin Definition identity/taxonomy/architecture responsibility. (3) `P11-A-MIN-01` — taxonomy tally và state-authority tally trước đây sai số (đếm nhầm, category chồng lấn "cross-cutting no state") — sửa: hai tally tách biệt, script-verified, exhaustive/mutually-exclusive (§4). Bounded — KHÔNG reopen module boundary khác (Market/Data, Structure/Regime/Feature/Context, Strategy Engine, Decision→Risk→Execution ordering, ExecutionResult/Fill/Position, Replay, Backtest, Paper boundary, API Surface, Review Evidence, UX Shell), KHÔNG đổi PR/UC/UX/Domain coverage, KHÔNG đổi DD-001/DD-003/Structure-aware-Regime deferral/OQ-001/OQ-002/OQ-003. `decision-engine` hybrid vẫn `ADR REQUIRED` (§12 Decision 2, không đổi). Module count vẫn 22 (đổi tên, không thêm/bớt). `status: Draft`, `approved_by: null`, `approved_at: null`, `package lifecycle: candidate` không đổi. Findings corrected nhưng CHƯA verified — chờ bounded Review A + independent bounded Review B mới.
 
 ## 1. Purpose and scope
 
@@ -77,10 +79,10 @@ Package 1.1 KHÔNG redefine domain entities, domain invariants, product behavior
 | `context-aggregator` | projection | No | 1.3-B |
 | `account-service` | runtime_service | Yes | 1.2 |
 | `strategy-engine` | runtime_service | Yes | 1.3-C |
-| `plugin-registry-service` | runtime_service | Yes | 1.3-C |
+| `plugin-release-manager` | runtime_service | Yes (operational fact only, §12 Decision 5b) | 1.3-C |
 | `strategy-plugin-host` | compute_engine | No | 1.3-C |
-| `decision-engine` | runtime_service (potential hybrid, §12) | Yes | 1.3-C |
-| `risk-gateway` | runtime_service (hybrid, pre-validated Chapter 7 §7.1) | Yes | 1.3-D |
+| `decision-engine` | runtime_service (potential hybrid, ADR REQUIRED, §12 Decision 2) | Yes | 1.3-C |
+| `risk-gateway` | runtime_service (no hybrid — §12 Decision 2b) | Yes | 1.3-D |
 | `execution-engine` | runtime_service | Yes | 1.3-D |
 | `execution-result-processor` | runtime_service | Yes | 1.3-D |
 | `fill-processor` | runtime_service | Yes | 1.3-D |
@@ -92,7 +94,38 @@ Package 1.1 KHÔNG redefine domain entities, domain invariants, product behavior
 | `review-evidence-service` | projection | No | 1.5 |
 | `ux-application-shell` | runtime_service | No | 1.6 |
 
-**Taxonomy tally:** 9 `compute_engine`/`runtime_service` core-analytical, 11 `runtime_service`, 5 `projection` — cụ thể: `compute_engine` = 4 (`structure-engine`, `raw-regime-engine`, `feature-engine`, `strategy-plugin-host`); `projection` = 5 (`context-aggregator`, `position-projection`, `replay-integration-service`, `review-evidence-service`); `runtime_service` = 13 (còn lại).
+**Taxonomy tally (P11-A-MIN-01 correction — script-verified against `module-registry.yaml`, exhaustive/mutually-exclusive, sums to 22):**
+
+```text
+compute_engine   4   structure-engine, raw-regime-engine, feature-engine, strategy-plugin-host
+projection       4   context-aggregator, position-projection, replay-integration-service,
+                      review-evidence-service
+runtime_service  14  market-reference-service, market-data-ingestion, account-service,
+                      strategy-engine, plugin-release-manager, decision-engine, risk-gateway,
+                      execution-engine, execution-result-processor, fill-processor,
+                      backtest-orchestrator, paper-execution-boundary,
+                      command-query-api-surface, ux-application-shell
+total            22
+```
+
+**State-authority tally (separate dimension — DO NOT overlap with taxonomy tally above; script-verified, exhaustive/mutually-exclusive, sums to 22):**
+
+```text
+owns_authoritative_state: true      13  market-reference-service, market-data-ingestion,
+                                         structure-engine, raw-regime-engine, feature-engine,
+                                         account-service, strategy-engine,
+                                         plugin-release-manager, decision-engine, risk-gateway,
+                                         execution-engine, execution-result-processor,
+                                         fill-processor
+owns_authoritative_state: false     8   context-aggregator, strategy-plugin-host,
+                                         position-projection, replay-integration-service,
+                                         paper-execution-boundary, command-query-api-surface,
+                                         review-evidence-service, ux-application-shell
+owns_authoritative_state: deferred  1   backtest-orchestrator
+total                                22
+```
+
+Ghi chú bắt buộc (đóng `P11-A-MIN-01`): "false" KHÔNG đồng nghĩa "Projection" — 4/8 module `false` là `runtime_service`/`compute_engine` (`strategy-plugin-host`, `paper-execution-boundary`, `command-query-api-surface`, `ux-application-shell`), KHÔNG chỉ bốn `projection` type. Hai chiều (taxonomy, state-authority) tách biệt hoàn toàn, KHÔNG dùng chung một bảng/tally.
 
 ## 5. Dependency graph
 
@@ -110,9 +143,9 @@ context-aggregator               → depends_on: structure-engine, raw-regime-en
 account-service (root)
 
 strategy-engine                  → depends_on: account-service
-plugin-registry-service (root)
+plugin-release-manager (root)
 strategy-plugin-host             → depends_on: strategy-engine, context-aggregator,
-                                    plugin-registry-service
+                                    plugin-release-manager
                                     (forbidden_dependencies: execution-engine, risk-gateway,
                                     paper-execution-boundary)
 
@@ -181,7 +214,7 @@ Structure Engine   Raw Regime Engine        (độc lập)
                                                     ▼
                                            Position Projection
 
-(Account Service, Plugin Registry Service: independent roots referenced by Strategy/Risk.)
+(Account Service, Plugin Release Manager: independent roots referenced by Strategy/Risk.)
 (Replay Integration Service, Review Evidence Service: cross-cutting read layers over the chain.)
 (Backtest Orchestrator: parallel non-PAPER path — explicitly forbidden from touching
  Execution/Paper/ExecutionResult/Fill/Position modules.)
@@ -197,34 +230,29 @@ Mỗi module trong `module-registry.yaml` khai báo tường minh `responsibilit
 
 ## 7. Authority/source-of-truth map
 
+Dùng ĐÚNG state-authority tally đã pin tại §4 (P11-A-MIN-01 correction) — KHÔNG lặp lại con số riêng ở đây (tránh hai nguồn lệch nhau, I-12):
+
 ```text
-Authoritative state (owns_authoritative_state: true) — 12 module:
-  market-reference-service, market-data-ingestion, structure-engine, raw-regime-engine,
-  feature-engine, account-service, strategy-engine, plugin-registry-service,
-  decision-engine, risk-gateway, execution-engine, execution-result-processor,
-  fill-processor
-
-Non-authoritative (Projection, owns_authoritative_state: false) — 5 module:
-  context-aggregator, position-projection, replay-integration-service,
-  review-evidence-service, (paper-execution-boundary — boundary marker, not projection
-  taxonomy, nhưng cũng owns_authoritative_state: false)
-
-Deferred (owns_authoritative_state: deferred, blocked on authority gap) — 1 module:
-  backtest-orchestrator (DD-001)
-
-Cross-cutting, no owned state — 2 module:
-  command-query-api-surface, ux-application-shell
+owns_authoritative_state: true      13  (xem §4 cho danh sách đầy đủ)
+owns_authoritative_state: false     8   (xem §4 — KHÔNG chỉ bốn Projection; gồm cả
+                                         strategy-plugin-host/paper-execution-boundary/
+                                         command-query-api-surface/ux-application-shell)
+owns_authoritative_state: deferred  1   backtest-orchestrator (DD-001)
 ```
 
-I-12 conformance: mỗi domain concept resolve đúng MỘT authoritative module — không hai module nào cùng claim `owns_authoritative_state: true` cho cùng một `serves_contexts` entry (script-checked, §13). Projection (`context-aggregator`, `position-projection`, `replay-integration-service`, `review-evidence-service`) KHÔNG BAO GIỜ trở thành authoritative source thay module gốc (Chapter 7 §7.4 — preserved).
+I-12 conformance: mỗi domain concept resolve đúng MỘT authoritative module — không hai module nào cùng claim `owns_authoritative_state: true` cho cùng một `serves_contexts` entry (script-checked, §13). Bốn module taxonomy `projection` (`context-aggregator`, `position-projection`, `replay-integration-service`, `review-evidence-service`) KHÔNG BAO GIỜ trở thành authoritative source thay module gốc (Chapter 7 §7.4 — preserved) — đây là tập con của nhóm `owns_authoritative_state: false` (8 module), KHÔNG đồng nhất với toàn bộ nhóm đó.
 
 ## 8. Event/command/query interaction categories
 
-`module-registry.yaml` field `consumes`/`emits` khai báo CATEGORY (`event` | `query` | `command`), KHÔNG field-level schema (đó là Package 1.4). Event log là authoritative source cho runtime fact/decision history (Chapter 8 §8.1) — transport/broker cụ thể KHÔNG authoritative (không quyết định tại Package 1.1). Mọi module authoritative emit `event`; Projection emit `query` (read contract); orchestration/boundary module (`account-service`, `strategy-engine`, `plugin-registry-service`) consume `command`.
+`module-registry.yaml` field `consumes`/`emits` khai báo CATEGORY (`event` | `query` | `command`), KHÔNG field-level schema (đó là Package 1.4). Event log là authoritative source cho runtime fact/decision history (Chapter 8 §8.1) — transport/broker cụ thể KHÔNG authoritative (không quyết định tại Package 1.1). Mọi module authoritative emit `event`; Projection emit `query` (read contract); orchestration/boundary module (`account-service`, `strategy-engine`, `plugin-release-manager`) consume `command`.
 
 ## 9. Plugin boundaries
 
-`plugin_relation` field: `none` (mặc định), `hosts` (`strategy-plugin-host`), `registry_for` (`plugin-registry-service`). Theo Chapter 9 §9.1: Plugin Definition đăng ký trong CHÍNH `module-registry.yaml` này (KHÔNG registry riêng — `plugin-registry-service` là runtime owner của registry đó, không phải một artifact thứ hai). Strategy Plugin (`strategy-plugin-host`) KHÔNG được bypass Decision/Risk Gateway — `forbidden_dependencies: [execution-engine, risk-gateway, paper-execution-boundary]` enforce tại module-boundary level, đúng I-4/I-7. Decision-time visibility (Chapter 9 §9.5) là ràng buộc của chính `strategy-plugin-host`'s runtime behavior, elaborated đầy đủ tại Package 1.3-C — Package 1.1 chỉ pin boundary, KHÔNG thiết kế cơ chế cursor-bounded cụ thể.
+`plugin_relation` field: `none` (mặc định), `hosts` (`strategy-plugin-host`), `manages_release` (`plugin-release-manager`).
+
+**Authority boundary tường minh (P11-A-MAJ-02 correction, đóng finding):** `module-registry.yaml` — CHÍNH tài liệu YAML này — là **authority DUY NHẤT** cho Plugin Definition identity, module existence, primary taxonomy, và architecture responsibility của MỌI module, kể cả module liên quan plugin (Chapter 7 §7.5, Chapter 9 §9.1). KHÔNG runtime module nào — kể cả `plugin-release-manager` — được sở hữu hay mutate các architecture fact đó. `plugin-release-manager` (đổi tên từ "Plugin Registry Service", đóng `P11-A-MAJ-02`) CHỈ sở hữu OPERATIONAL fact: Plugin Version → exact Package/Build Artifact content identity resolution, immutable release-manifest resolution (Chapter 9 §9.1, mô hình A/B), runtime compatibility/availability status của Plugin Runtime replica, và activation/deactivation coordination (Chapter 9 §9.5, validated compatibility set) — KHÔNG Plugin Definition identity/taxonomy, KHÔNG một registry thứ hai. `strategy-plugin-host` (Plugin Definition, taxonomy `compute_engine`) tự nó vẫn đăng ký DUY NHẤT tại `module-registry.yaml`, không đổi.
+
+Strategy Plugin (`strategy-plugin-host`) KHÔNG được bypass Decision/Risk Gateway — `forbidden_dependencies: [execution-engine, risk-gateway, paper-execution-boundary]` enforce tại module-boundary level, đúng I-4/I-7. Decision-time visibility (Chapter 9 §9.5) là ràng buộc của chính `strategy-plugin-host`'s runtime behavior, elaborated đầy đủ tại Package 1.3-C — Package 1.1 chỉ pin boundary, KHÔNG thiết kế cơ chế cursor-bounded cụ thể.
 
 ## 10. Product/UC/UX coverage evidence
 
@@ -324,10 +352,35 @@ Decision 1 — Official Phase 1 module dependency graph (§5, module-registry.ya
 Decision 2 — decision-engine hybrid taxonomy (primary runtime_service, secondary
              decision_evaluation):
   Classification:  ADR REQUIRED.
-  Rule applied:    Chapter 7 §7.1 điều kiện 4 — hybrid declaration bắt buộc ADR. KHÁC với
-                   risk-gateway's hybrid (đã được chính Chapter 7 §7.1 nêu làm worked
-                   example hợp lệ — KHÔNG cần ADR mới để tái sử dụng ví dụ đó), decision-
-                   engine's hybrid CHƯA từng được Constitution pre-validate.
+  Rule applied:    Chapter 7 §7.1 điều kiện 4 — hybrid declaration bắt buộc ADR. Decision
+                   Engine sở hữu CẢ authoritative Decision/Trade Intent record (runtime_
+                   service core) LẪN deterministic evaluation logic mà điều kiện 1 của
+                   §7.1 (responsibility không thể tách hợp lý) chưa được chứng minh —
+                   candidate này KHÔNG tự chứng minh đủ 4 điều kiện, do đó hybrid status
+                   CHƯA hợp lệ cho tới khi ADR resolve đúng bốn điều kiện đó.
+
+Decision 2b — risk-gateway taxonomy (P11-A-MAJ-01 correction, đóng finding):
+  Classification:  ADR NOT REQUIRED — KHÔNG phải vì "Chapter 7 §7.1 worked example waive
+                   ADR" (phát biểu SAI đã sửa, xem module-registry.yaml), mà vì Risk
+                   Gateway KHÔNG CÒN được khai báo `hybrid` — nó là `runtime_service`
+                   THUẦN, một primary taxonomy type duy nhất.
+  Rule applied:    Chapter 7 §7.3 tường minh: "Việc một module thuộc Type 3 (Runtime
+                   Service) KHÔNG có nghĩa nó chỉ làm I/O thuần túy" — Risk Policy logic
+                   (exposure limit, approve/reject, risk-increasing detection, kill
+                   switch) LÀ business logic hợp lệ CỦA CHÍNH primary responsibility Risk
+                   Gateway (Chapter 3 §3.1: "Risk Policy logic... Risk Gateway sở hữu và
+                   bắt buộc phải có — đây LÀ business logic hợp lệ của đúng responsibility
+                   này"), KHÔNG phải một secondary taxonomy type cạnh tranh với runtime_
+                   service. Runtime Service taxonomy tự nó CHO PHÉP authoritative business
+                   policy/control logic — không cần khai báo hybrid, không cần ADR-7.1-
+                   điều-kiện-4 cho trường hợp này. Chapter 7 §7.1's worked example (dòng
+                   54, "Risk Gateway — primary runtime_service, secondary risk_policy_
+                   evaluation") minh họa RẰNG risk policy CÓ THỂ được framed như secondary
+                   responsibility hợp lệ NẾU một candidate chọn khai báo hybrid — nhưng
+                   KHÔNG BẮT BUỘC candidate đó phải khai báo hybrid; §7.3 xác nhận cách
+                   đọc thay thế (risk policy là primary-responsibility-nội-tại) hợp lệ
+                   tương đương và KHÔNG kích hoạt điều kiện 4 (ADR) vì KHÔNG có hybrid nào
+                   được khai báo. Correction này chọn cách đọc §7.3 — không tạo ADR.
 
 Decision 3 — Process/runtime boundary cụ thể (module nào deploy độc lập, module nào
              in-process):
@@ -347,6 +400,17 @@ Decision 5 — strategy-plugin-host là Compute Engine (Strategy Plugin taxonomy
   Rule applied:    Chapter 9 §9.1 đã pre-classify tường minh: "Strategy Plugin điển hình
                    là Compute Engine" — Package 1.1 chỉ áp dụng phân loại đã có, KHÔNG tạo
                    plugin type/capability mới (Chapter 9 §9.10).
+
+Decision 5b — plugin-release-manager là module operational riêng biệt khỏi Plugin
+              Definition identity (P11-A-MAJ-02 correction, đóng finding):
+  Classification:  ADR NOT REQUIRED.
+  Rule applied:    Module này KHÔNG sở hữu architecture identity (Plugin Definition/
+                   taxonomy — authority đó DUY NHẤT ở module-registry.yaml, không đổi) —
+                   chỉ operational fact (Plugin Version→artifact resolution, runtime
+                   compatibility, activation coordination, Chapter 9 §9.1/§9.5). KHÔNG
+                   plugin type/capability mới, KHÔNG authority/permission model mới
+                   (Chapter 9 §9.10) — chỉ đổi tên + thu hẹp responsibility của một module
+                   đã candidate, chưa Consolidated Stable.
 
 Decision 6 — market-reference-service / market-data-ingestion là hai module riêng biệt
              (thay vì một "Data Layer" gộp):

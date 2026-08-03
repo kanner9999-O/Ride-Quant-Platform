@@ -2,6 +2,74 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — correct Package 1.1 authority boundaries (NOT yet verified)
+
+**Bounded correction to Package 1.1 candidate — addresses `P11-A-MAJ-01`, `P11-A-MAJ-02`, `P11-A-MIN-01`.** Vai trò: `Package 1.1 Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. The complete Package 1.1 design is NOT reopened.
+
+**This correction is NOT verified.** Review A REVISE + Independent Review B REVISE on v0.1 confirmed all three findings (Blocker 0, Major 2, Minor 1); this transaction corrects them and awaits a fresh bounded Review A + independent bounded Review B.
+
+### P11-A-MAJ-01 — Risk Gateway falsely declared a pre-approved hybrid
+
+`risk-gateway` declared `hybrid` with `adr_status: "ADR NOT REQUIRED"`, reasoning that Chapter 7 §7.1's own worked example waived the ADR condition — wrong, since §7.1 condition 4 requires an ADR for every retained hybrid, including the worked example itself. Fixed: `risk-gateway` now `hybrid: null`, pure `runtime_service`. Risk Policy logic (exposure limit, approve/reject, risk-increasing detection, kill switch) is retained as a normal primary responsibility under Chapter 3 §3.1/Chapter 7 §7.3 — "Runtime Service taxonomy... KHÔNG có nghĩa nó chỉ làm I/O thuần túy" — not a secondary taxonomy type. No ADR created for Risk Gateway. `decision-engine`'s hybrid remains `ADR REQUIRED`, unchanged.
+
+### P11-A-MAJ-02 — Plugin Definition authority split across two owners
+
+`plugin-registry-service` claimed ownership of Plugin Definition identity/taxonomy, competing with `module-registry.yaml`'s own authority (I-12, Chapter 9 §9.1). Fixed: `module-registry.yaml` is now explicitly stated as the sole authority for Plugin Definition identity, module existence, primary taxonomy, and architecture responsibility. The module was renamed `plugin-release-manager` and its scope narrowed to operational facts only: Plugin Version → exact Package/Build Artifact resolution, immutable release-manifest resolution, runtime compatibility/availability status, activation/deactivation coordination. `owns_authoritative_state: true` retained, scoped only to these operational facts — no overlap with architecture identity. No second plugin registry created.
+
+### P11-A-MIN-01 — taxonomy and state-authority tallies incorrect/overlapping
+
+The original tallies undercounted (claimed 5 `projection` while listing only 4) and mixed a non-exclusive "cross-cutting, no owned state" bucket into the state-authority breakdown. Fixed — two separate, script-verified, mutually-exclusive tallies:
+
+```text
+Taxonomy:        compute_engine 4, projection 4, runtime_service 14, total 22
+State-authority:  true 13, false 8, deferred 1, total 22
+```
+
+Explicit note added: "false" does not mean "Projection" — 4 of the 8 `false` modules are `runtime_service`/`compute_engine` (`strategy-plugin-host`, `paper-execution-boundary`, `command-query-api-surface`, `ux-application-shell`).
+
+### Preserved (frozen areas, unchanged)
+
+```text
+Market/Data module boundaries, Structure Engine, Raw Regime independence, Feature Engine
+selective fan-in, Context Aggregator projection boundary, Strategy Engine, Strategy Plugin
+Host non-bypass rules, Decision -> Risk -> Execution ordering, ExecutionResult/Fill/Position
+boundaries, Replay Integration, Backtest separation from PAPER, Paper Execution Boundary,
+Command/Query/API Surface, Review Evidence Service, UX Application Shell, PR/UC/UX/Domain
+coverage totals (34/21/17/11/15, zero orphan), DD-001, DD-003, Structure-aware Regime
+deferral, OQ-001/OQ-002/OQ-003 — verified via diff hunk inspection, only plugin-related
+module block, risk-gateway's hybrid field, and the two tally sections changed.
+```
+
+### Exact changed-file scope
+
+```text
+docs/architecture/module-registry.yaml     MODIFIED version 0.1 -> 0.2
+                                            blob 487a0df6c207753f5a1c7afbed5b4da84d482ff1
+                                              -> 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md  MODIFIED version 0.1 -> 0.2
+                                            blob 701e005f2a2a7cb3209c5a3de238f5574f844cab
+                                              -> 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/architecture/README.md                MODIFIED (pointer text updated)
+                                            blob 3d783217baa1ad9f897a1f7c0282c593d51d5827
+                                              -> b8aa2169429c3ba09bb21ffc23f71f02240e3fea
+docs/MANIFEST.md                           MODIFIED manifest_version 10.10 -> 10.11
+                                            (Architecture section rows only)
+docs/CHANGELOG.md                          MODIFIED (this entry, prepended)
+```
+
+### Machine-validation (script-checked before commit)
+
+```text
+Both artifacts version 0.2. module-registry.yaml parses as valid YAML. 22/22 module_id
+unique (unchanged -- renamed, not added/removed). Every depends_on/forbidden_dependencies
+reference resolves. Zero cycles. Zero depends_on/forbidden_dependencies contradictions.
+Full 11/15 capability/context coverage unchanged.
+```
+
+### Forbidden-scope verification
+
+KHÔNG `docs/product/`/`docs/domain/`/`docs/adr/`/`docs/constitution/`/`docs/team/`/`docs/phase-dod/` touched. KHÔNG new ADR created or approved. KHÔNG Package 1.2–1.6 detailed architecture, API schema, database schema, security/custody implementation, engine algorithm, or source code authored. KHÔNG Package 1.1, any architecture decision, Phase 1, Phase 2, or Live approved/authorized.
+
 ## [Unreleased] — 2026-08-03 — author Package 1.1 candidate (NOT Consolidated Stable)
 
 **First authored candidate for Package 1.1 — System Decomposition & Module Registry.** Vai trò: `Package 1.1 Artifact Author & Repository Transaction Executor`. Product Owner authorized this authoring transaction. This candidate is **NOT** approved or consolidated.
