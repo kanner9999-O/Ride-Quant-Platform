@@ -2,6 +2,69 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — approve ADR-015 module decomposition
+
+**ADR-015 v0.2 Approved by Product Owner.** Vai trò: `ADR Approval Recorder & Repository Transaction Executor`. Product Owner decision: **"Tôi approve ADR-015 v0.2."** (2026-08-03). Đây là mechanical approval transaction — ADR-015 architecture analysis KHÔNG reopen, ADR-016 KHÔNG sửa, Package 1.1 KHÔNG consolidate/approve.
+
+### Approved artifact
+
+```text
+docs/adr/ADR-015.md   version 0.2 -> 0.3
+                       status Draft -> Approved
+                       approved_by: null -> Product Owner
+                       approved_at: null -> "2026-08-03"
+                       last_review: null -> "2026-08-03"
+                       reviewers: [] -> [ChatGPT, Claude]
+                       blob 8940e14258ee331e7f2a38ffb0de49f5d01723e6
+                         -> 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+```
+
+Thay đổi CHỈ ở lifecycle wording: frontmatter, intro banner, Decision lead-in, tag Alternative A, bảng Independent reviews (populate), Accepted risks/Final governance statement. Toàn bộ Preserved constraints, full Alternative B/C analysis, Scale check, Consequences body: **không đổi** (verified qua diff hunk inspection).
+
+### Review evidence — all three prior findings RESOLVED, final round CLEAN
+
+```text
+ADR015-A-MAJ-01: Resolved (v0.1 -> v0.2 correction, Alternative B rewritten với concrete merge candidates)
+ADR015-B-MAJ-02: Resolved (v0.1 -> v0.2 correction, Alternative C rewritten với realistic finer-decomposition candidates)
+ADR015-A-MIN-01: Resolved (v0.1 -> v0.2 correction, "snake/kebab-case" normalized thành "kebab-case")
+
+Final review round (trên v0.2):
+  Review A:                     CLEAN
+  Independent Review B:         CLEAN
+  Backward Consistency Check:   NO CONFLICT
+  Blocker 0, Major 0, Minor 0
+```
+
+### Official Phase 1 module decomposition baseline — established, pin bất biến
+
+```text
+docs/architecture/module-registry.yaml       v0.2   blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md    v0.2   blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+Reviewed source HEAD:                               46a1246b2a2c32cf78fb98c0104e3d46981e2c42
+```
+
+Cả hai file **không đổi** trong transaction này — verified byte-identical trước/sau (blob giữ nguyên).
+
+### Changed-file scope
+
+```text
+docs/adr/ADR-015.md   MODIFIED (approval transition, xem trên)
+docs/MANIFEST.md      MODIFIED (manifest_version 10.15 -> 10.16, compatible_adr_range
+                       ADR-001~ADR-014 -> ADR-001~ADR-015, "## ADR" index row ADR-015,
+                       new "## Decision Log" row ADR-015)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended)
+```
+
+`docs/adr/ADR-016.md`, `docs/architecture/module-registry.yaml`, `docs/architecture/system-decomposition.md`, `docs/product/`, `docs/domain/`, `docs/constitution/`, `docs/team/`, `docs/phase-dod/`: **không đổi, byte-identical.**
+
+### Package/Phase lifecycle after approval — explicit, unaffected states
+
+`ADR-015`: `Approved` — official Phase 1 module decomposition/dependency-graph baseline, controlling authority, bất biến byte-for-byte từ thời điểm này (Chapter 11 §11.3). `ADR-016`: **giữ nguyên** `Draft`, disposition `Decision Deferred`, `approved_by: null` — không Approved, không bị sửa bởi transaction này. `Package 1.1`: **giữ nguyên** `Draft`/`candidate`/`blocked` — approval này KHÔNG tự động Consolidate/Approve; Package 1.1 vẫn cần consolidation transaction riêng VÀ ADR-016 resolve trước khi `Consolidated Stable`. Package 1.3-C: KHÔNG authorize. Phase 1: `Active`, KHÔNG tuyên bố hoàn thành. Phase 2: KHÔNG mở. Live: KHÔNG authorize.
+
+### Forbidden-scope verification
+
+KHÔNG ADR-015's approved decision content sửa (chỉ lifecycle wording). KHÔNG ADR-016 approve/sửa. KHÔNG Decision Engine taxonomy resolve. KHÔNG Package 1.3-C authorize. KHÔNG Package 1.1 artifact sửa. KHÔNG Package 1.1 tuyên bố Consolidated Stable/Approved. KHÔNG Phase 1 tuyên bố hoàn thành. KHÔNG Phase 2 mở. KHÔNG Live authorize. KHÔNG implementation/source code author.
+
 ## [Unreleased] — 2026-08-03 — remove residual hybrid validity claim (NOT yet verified)
 
 **Narrow textual correction to ADR-016 — addresses `ADR016-A-MAJ-02` (final closure) and `ADR016-B-MAJ-01`.** Vai trò: `ADR-016 Residual Correction Author & Repository Transaction Executor`. Product Owner authorized this narrow correction. Architectural analysis not reopened. ADR-015 and Package 1.1 not modified. ADR-016 not approved.
