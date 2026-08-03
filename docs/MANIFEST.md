@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.12"
+manifest_version: "10.13"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -57,8 +57,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | adr/ADR-012.md — Account-to-Boundary Cardinality — Exactly-One-Boundary Trading Account | **Approved** | — | — |
 | adr/ADR-013.md — Strategy Definition Version — Independent Evidence Axis | **Approved** | — | — |
 | adr/ADR-014.md — Feature Computation Fan-in vs Context Snapshot Aggregation — Narrow Amendment of ADR-003 | **Approved** (Product Owner, 2026-07-30 — "Approve ADR-014."; v0.2, sau ChatGPT + Claude narrow delta review Clean 0/0/0/0; đóng `IRB-ADR014-MAJ-01`/`MAJ-02`/`MIN-01`/`MIN-02`) | ADR-003 (hiệu lực từ 2026-07-30) | — |
-| adr/ADR-015.md — Official Phase 1 Module Decomposition and Dependency Graph (Package 1.1) | **Draft** (2026-08-03, authored candidate — required bởi `system-decomposition.md` §12 Decision 1, ADR REQUIRED; CHƯA reviewed/approved) | — | — |
-| adr/ADR-016.md — Decision Engine Taxonomy — Hybrid Retention vs Decomposition | **Draft** (2026-08-03, authored candidate — required bởi `system-decomposition.md` §12 Decision 2, ADR REQUIRED; `depends_on: [ADR-015]`; CHƯA reviewed/approved) | — | — |
+| adr/ADR-015.md — Official Phase 1 Module Decomposition and Dependency Graph (Package 1.1) | **Draft** (v0.2, 2026-08-03, bounded correction đóng `ADR015-A-MAJ-01`/`ADR015-B-MAJ-02`/`ADR015-A-MIN-01` — Review A REVISE + Independent Review B REVISE trên v0.1, CHƯA verified sau correction; blob `8940e14258ee331e7f2a38ffb0de49f5d01723e6`) | — | — |
+| adr/ADR-016.md — Decision Engine Taxonomy — Hybrid Retention vs Decomposition | **Draft** (v0.2, 2026-08-03, bounded correction đóng `ADR016-A-MAJ-01` — Review A REVISE + Independent Review B REVISE trên v0.1, CHƯA verified sau correction; `depends_on: [ADR-015]`; kết luận vẫn Alternative A nhưng lý do đã sửa đầy đủ — xem body cho re-evaluation; blob `03d872a511fc32bfaffd41259a779e65a6c80958`) | — | — |
 
 ## Domain
 

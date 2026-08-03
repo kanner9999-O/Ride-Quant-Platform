@@ -2,6 +2,60 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — correct Package 1.1 ADR alternatives (NOT yet verified)
+
+**Bounded correction to ADR-015 and ADR-016 — addresses `ADR015-A-MAJ-01`, `ADR015-B-MAJ-02`, `ADR016-A-MAJ-01`, `ADR015-A-MIN-01`.** Vai trò: `ADR Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. Package 1.1 is not reopened; neither ADR is approved.
+
+**This correction is NOT verified.** Review A REVISE + Independent Review B REVISE on both v0.1 ADRs confirmed all four findings (Blocker 0, Major 3, Minor 1); this transaction corrects them and awaits a fresh bounded Review A + independent bounded Review B.
+
+### ADR-015 corrections
+
+`ADR015-A-MAJ-01`: Alternative B previously treated multiple-Domain-Context coverage as automatic evidence of invalidity, contradicting Chapter 4 §4.4's explicit "module boundary ≠ Domain Context boundary." Rewritten with four concrete merge candidates (Execution Engine+Execution Result Processor; Execution Result Processor+Fill Processor; API Surface distributed into domain modules; Strategy Engine+Plugin Release Manager), each assessed against ten architecture criteria. Conclusion unchanged (no merge for the Package 1.1 baseline) but now for specific architectural reasons — the Execution-Result/Fill pairing and the API-surface-distribution question are flagged as genuinely close calls forwarded to Package 1.3-D/1.4 for reconsideration, not dismissed by context-count alone.
+
+`ADR015-B-MAJ-02`: Alternative C previously used only pathological examples (one-module-per-sub-entity). Rewritten with four realistic finer-decomposition candidates (market-data-ingestion venue-adapter split; decision-engine split, cross-referenced to ADR-016 rather than re-litigated; execution-engine venue-adapter split; command-query-api-surface CQRS split). Conclusion unchanged (keep the 22-module baseline) but now because each candidate is premature at Package 1.1's current scope (depends on venue/protocol choices, Live authorization, or API technology choices not yet made in Phase 1) — not because "module boundary ≠ domain entity boundary" applies mechanically to every finer split.
+
+`ADR015-A-MIN-01`: normative "snake/kebab-case" wording replaced with "kebab-case" (all 22 actual module IDs already use kebab-case; only the schema comment wording was ambiguous). `module-registry.yaml` itself not modified — the matching wording fix there is recorded as a required follow-up alignment for the ADR approval transaction or a future Package 1.1 lifecycle correction.
+
+### ADR-016 correction
+
+`ADR016-A-MAJ-01`: v0.1 incorrectly asserted that Chapter 8 §8.4 requires Decision evaluation and recording to occur in one module — Chapter 8 imposes no such module-level requirement, and the existence of the "Append-and-Revalidate" pattern (ADR-010 §2.6) is evidence Chapter 8 anticipates and accepts a gap between evaluation and append when handled correctly. Corrected comprehensively:
+
+- Alternative B rewritten as a fully credible split: `Decision Evaluation Engine` (compute_engine, deterministic, produces a non-authoritative evaluation proposal) + `Decision Authority Service` (runtime_service, validates and performs the single atomic authoritative append).
+- Chapter 7 condition 1 re-evaluated against all fourteen required criteria (semantic/transactional cohesion, idempotency, failure recovery, proposal identity/retention, latency, replay determinism, version pinning, audit/explainability, testability, operational/dependency complexity, security/isolation, god-module risk, future elaboration) rather than asserted from atomicity alone.
+- The ADR-010 Append-and-Revalidate analogy relabeled as an operational-complexity concern, explicitly not a governance or semantic prohibition.
+- Alternative C's conclusion (Strategy Plugin Host must not own authoritative Decision evaluation) preserved, now with an explicit distinction between a swappable "plugin candidate/advisory signal" and non-swappable "platform deterministic Decision evaluation."
+- Alternative D's "Governance absolutely forbids deferral" wording softened to a schedule/dependency-based rejection.
+
+**Final recommendation remains Alternative A (hybrid retained)** — but for a substantively different reason than v0.1: separation is technically feasible (the atomicity blocker is removed), but Alternative B leaves an unresolved boundary question between the proposed `Decision Evaluation Engine` and the already-existing `strategy-plugin-host` (both compute_engine, both producing non-authoritative candidate signals) that cannot be resolved without authoring the Decision algorithm itself — out of this ADR's scope. This is recorded as a close call, not a settled one, flagged for extra Review A/B scrutiny and explicitly reversible via a future narrow ADR (ADR-014-style) if Package 1.3-C's elaboration later clarifies the boundary.
+
+### Exact changed-file scope
+
+```text
+docs/adr/ADR-015.md   MODIFIED version 0.1 -> 0.2
+                       blob 443093ede9b9572bd91708304e770c5d6979b0c8
+                         -> 8940e14258ee331e7f2a38ffb0de49f5d01723e6
+docs/adr/ADR-016.md   MODIFIED version 0.1 -> 0.2
+                       blob a415cc043bf4b1ce1da8fea7711dc069a711c167
+                         -> 03d872a511fc32bfaffd41259a779e65a6c80958
+docs/MANIFEST.md      MODIFIED manifest_version 10.12 -> 10.13
+                       (ADR section rows only)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended)
+```
+
+### Exact Package 1.1 pins (unchanged, verified)
+
+```text
+docs/architecture/module-registry.yaml       v0.2   blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md    v0.2   blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+Reviewed source HEAD:                               46a1246b2a2c32cf78fb98c0104e3d46981e2c42
+```
+
+Neither Package 1.1 artifact was modified — both blobs confirmed unchanged before and after this commit.
+
+### Forbidden-scope verification
+
+KHÔNG `docs/architecture/module-registry.yaml`/`docs/architecture/system-decomposition.md`/`docs/product/`/`docs/domain/`/`docs/constitution/`/`docs/team/`/`docs/phase-dod/` touched. KHÔNG new ADR beyond ADR-015/ADR-016 revisions. KHÔNG Package 1.2–1.6 detailed architecture, Decision algorithm, field-level contract/schema, API schema, database schema, security/custody implementation, deployment topology, or source code authored. KHÔNG either ADR approved. KHÔNG Package 1.1 approved or consolidated. KHÔNG Phase 1 declared Complete. KHÔNG Phase 2 opened. KHÔNG Live authorized. `DD-001`/`DD-003`/Structure-aware Regime authority gap/`OQ-001`/`OQ-002`/`OQ-003` all unchanged.
+
 ## [Unreleased] — 2026-08-03 — propose Package 1.1 architecture decisions (Draft, NOT Approved)
 
 **Author two ADR candidates required by Package 1.1 v0.2 (bounded-correction-verified CLEAN).** Vai trò: `ADR Author & Repository Transaction Executor`. Product Owner authorized this authoring transaction. Neither ADR is approved. Package 1.1 is not consolidated.
