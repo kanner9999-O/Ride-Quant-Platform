@@ -2,6 +2,44 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — fix stale DoD version reference in §9 (NOT yet accepted)
+
+**Narrowly bounded correction to `phase-0-dod.md` — addresses `P0-DOD-V03-A-MAJ-01`.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single bounded correction. Full Phase 0 DoD review NOT reopened.
+
+**This correction is NOT accepted.** `phase-0-dod.md` itself was already, and remains, `CHƯA accepted`/`CHƯA incorporated`.
+
+### P0-DOD-V03-A-MAJ-01 — stale current-version reference in §9
+
+§9 Phase-decision bundle requirements stated the bundle must pin "exact accepted-DoD identity/content version đã incorporate (tài liệu này, khi được accept — hiện v0.1, CHƯA accepted)". The artifact had already progressed to `v0.3` (via the `v0.2`/`v0.3` bounded corrections) by the time this was read — the `v0.1` reference was stale. Left uncorrected, a future Product Owner phase-decision bundle transaction (Chapter 14 §14.4.2) could pin the wrong DoD version.
+
+Fixed — §9's operative statement now reads: current candidate is `v0.4` (this correction itself bumps the version at the exact transaction that fixes the reference, so the statement does not go stale again immediately), `CHƯA accepted`, `CHƯA incorporated`.
+
+### Preserved (unchanged)
+
+```text
+P0-REM-MAJ-01, P0-REM-MAJ-02 (v0.2), P0-DELTA-A-MAJ-01 (v0.3) — all remain resolved,
+byte-unchanged.
+§2 applicable gate set, §3 substantive completion criteria, §4 evidence requirements,
+§7 finding closure and waiver rules, §8 Backward Consistency Check requirements,
+§10/§11 lifecycle/acceptance rules — unchanged.
+status: Draft, approved_by: null, approved_at: null — unchanged.
+```
+
+### Exact changed-file scope
+
+```text
+docs/phase-dod/phase-0-dod.md   MODIFIED version 0.3 → 0.4
+                                 blob 05546dd454393f346f4da40730d877bcc1e387d4
+                                   → ddf2d465904b785ab8f712f9d37dca4d45c1f49b
+docs/MANIFEST.md                MODIFIED manifest_version 10.02 → 10.03
+                                 (Phase 0 DoD row only)
+docs/CHANGELOG.md               MODIFIED (this entry, prepended)
+```
+
+### Forbidden-scope verification
+
+KHÔNG comprehensive Phase 0 DoD review reopened. KHÔNG `product-requirement.md`/`ux-blueprint.md`/`use-case-workflow.md`/Domain Contract/ADR/Constitution/architecture/team touched. KHÔNG new finding introduced. KHÔNG Phase 0 declared Complete. KHÔNG Phase 1 authorized. `status: Draft`, `approved_by: null`, `approved_at: null` unchanged — DoD remains not accepted, not incorporated.
+
 ## [Unreleased] — 2026-08-03 — revalidate Package 0.3-B v0.6 (mechanical lifecycle transaction)
 
 **Mechanical lifecycle-recording transaction — records Product Owner revalidation of Package 0.3-B.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. This is a lifecycle-recording transaction only — no product semantics modified, no artifact content changed.

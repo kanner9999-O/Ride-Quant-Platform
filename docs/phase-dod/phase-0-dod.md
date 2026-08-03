@@ -1,7 +1,7 @@
 ---
 id: phase-0-dod
 title: "Phase 0 — Vision & Foundation: Definition of Done"
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -22,6 +22,8 @@ depends_on: ["00-governance", "12-approval-gates", "14-roadmap"]
 **v0.2 — bounded remediation delta (2026-08-03), đóng `P0-REM-MAJ-01`/`P0-REM-MAJ-02` (findings từ Phase 0 Bounded Remediation Delta Review, chưa accepted):** (1) `P0-REM-MAJ-01` — §3/§4 trước đây liệt kê Domain Contract package cần `Consolidated Stable` là "0.2-A, B1–B3, C1–C7", bỏ sót Package 0.2-B4 (`context.md`) — sửa thành liệt kê B4 tường minh ở mọi nơi (xem `v0.3` bên dưới cho current-state statement chính xác — statement gốc tại v0.2 này bị `P0-DELTA-A-MAJ-01` xác định là sai, đã sửa). (2) `P0-REM-MAJ-02` — §7 trước đây có một bullet đọc được như cho phép BẤT KỲ finding "chưa đóng" nào (không chỉ Minor) thôi chặn gate qua residual-risk acceptance, mâu thuẫn ngầm với bullet đầu (Blocker/Major phải resolved). Sửa: tường minh khóa Blocker/Major KHÔNG BAO GIỜ waive được — CHỈ Minor mới đủ điều kiện residual-risk acceptance. Bounded — KHÔNG mở lại comprehensive Phase 0 audit, KHÔNG thêm finding mới ngoài hai finding trên, KHÔNG đổi §1/§2/§5/§6/§8/§9/§10 nào khác. Delta này CHƯA được ChatGPT/Independent Review B accept — xem MANIFEST cho trạng thái review hiện tại.
 
 **v0.3 — factual lifecycle correction (2026-08-03), đóng `P0-DELTA-A-MAJ-01` (finding từ Phase 0 Bounded Remediation Delta Review trên v0.2, chưa accepted):** v0.2 (§3/§4, xem paragraph phía trên) tuyên bố sai rằng Package 0.2-B4 "hiện KHÔNG `Consolidated Stable`"/"vẫn `Draft`"/"còn cần package delta review/consolidation transaction riêng" — đây là conflation giữa package lifecycle và artifact lifecycle. Authoritative MANIFEST state: **Package 0.2-B4 = `Consolidated Stable`** (Product Owner authorized 2026-07-30, reviewed HEAD `cae2b4b115db93ba5f76bcbf28b41c03362789eb`) — tiêu chí này ĐÃ thỏa; artifact `context.md` tự nó vẫn `status: Draft`, đúng pattern package-lifecycle/artifact-lifecycle tách biệt đã dùng nhất quán cho mọi package Phase 0 khác. Sửa: §3/§4 nay phát biểu chính xác — B4 vẫn là required deliverable liệt kê tường minh (KHÔNG đổi yêu cầu `P0-REM-MAJ-01` đã đóng), nhưng current-state statement nay đúng: `Consolidated Stable`, KHÔNG còn "pending"/"Draft ở tầng package". Bounded — KHÔNG mở lại comprehensive Phase 0 audit, KHÔNG đổi `P0-REM-MAJ-02` (§7 Blocker/Major waiver rule, không đổi) hay bất kỳ nội dung nào khác ngoài statement current-state của B4 tại §3/§4 và paragraph v0.2 này. Delta này CHƯA được ChatGPT/Independent Review B accept.
+
+**v0.4 — narrow bounded correction (2026-08-03), đóng `P0-DOD-V03-A-MAJ-01`:** §9 Phase-decision bundle requirements trước đây phát biểu "exact accepted-DoD identity/content version đã incorporate ... hiện v0.1, CHƯA accepted" — stale reference, vì artifact đã ở v0.3 tại thời điểm đó (đã qua `v0.2`/`v0.3` bounded correction). Reference sai này có thể khiến transaction tương lai pin nhầm phiên bản DoD tại phase-decision bundle. Sửa: §9 nay phát biểu đúng "current candidate hiện v0.4, CHƯA accepted, CHƯA incorporated" — v0.4 vì paragraph correction-history này TỰ NÓ tăng version tài liệu lên v0.4 tại đúng transaction sửa reference (tránh việc §9 lại trỏ vào một version đã stale ngay khi vừa sửa). Bounded — KHÔNG mở lại comprehensive Phase 0 DoD review, KHÔNG đổi §2 applicable gate set/§3 substantive completion criteria/§4 evidence requirements/§7 finding closure và waiver rule/§8 Backward Consistency Check requirements/§10/§11 lifecycle/acceptance rule nào khác. `P0-REM-MAJ-01`, `P0-REM-MAJ-02`, `P0-DELTA-A-MAJ-01` giữ nguyên đã resolved (không đổi). `status: Draft`, `approved_by: null`, `approved_at: null` không đổi — CHƯA accepted, CHƯA incorporated. Delta này CHƯA được ChatGPT/Independent Review B accept.
 
 **Lifecycle state của chính DoD artifact này:** `status: Draft`, `approved_by: null`, `approved_at: null`. Đây là **DoD mới được author lần đầu** — theo Chapter 0 §7.1 Document Lifecycle (`Not Started → Draft → In Review → Revision Requested → Approved → Locked`), nó bắt đầu tại `Draft`. **Product Owner acceptance/incorporation của DoD này CHƯA được ghi nhận tại đây** — [Chapter 14 §14.3.1](../constitution/14-roadmap.md) khóa: canonical incorporation chỉ tồn tại khi Product Owner acceptance evidence resolve được VÀ xác định tường minh Phase identity/Roadmap-phase-section version/DoD version/explicit incorporation decision, tại một transaction RIÊNG do chính Product Owner tạo ra qua Decision Workflow ([Chapter 0 §3](../constitution/00-governance.md)). Tài liệu này **không tự claim** acceptance đó.
 
@@ -211,7 +213,7 @@ Tại đúng atomic recording boundary (Chapter 14 §14.4.2), bundle phải pin 
 - canonical Phase identity (= "Phase 0 — Vision & Foundation")
 - exact Roadmap version/content identity đã dùng (Chapter 14 §14.2, hiện v1.6)
 - exact accepted-DoD identity/content version đã incorporate (tài liệu này, khi được
-  accept — hiện v0.1, CHƯA accepted)
+  accept — current candidate hiện v0.4, CHƯA accepted, CHƯA incorporated)
 - exact gate-set declaration identity/content resolve từ đó (§2 phía trên)
 ```
 
