@@ -2,6 +2,59 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-03 — revalidate Package 0.3-B v0.6 (mechanical lifecycle transaction)
+
+**Mechanical lifecycle-recording transaction — records Product Owner revalidation of Package 0.3-B.** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. This is a lifecycle-recording transaction only — no product semantics modified, no artifact content changed.
+
+### Product Owner decision
+
+```text
+Artifact:          docs/product/use-case-workflow.md
+Version:            0.6
+Accepted blob:       8ce1a37ed733b6aa954476d2544a7cc3d1ec2add
+Accepted HEAD:       b7e1f7e2552bf5ae2af277c4a5b224cabc7d8de0
+
+Review evidence:
+  ChatGPT bounded Review A:      CLEAN
+  Independent bounded Review B:  CLEAN
+  Blocker:  0
+  Major:    0
+  Minor:    0
+
+Resolved findings:
+  P03B-V04-A-MAJ-01:  resolved
+  P03B-V05-B-MAJ-01:  resolved
+```
+
+### Recorded lifecycle state
+
+`use-case-workflow.md` v0.6 (blob `8ce1a37ed733b6aa954476d2544a7cc3d1ec2add`) is recorded as the **current reviewed** `Consolidated Stable` baseline for Package 0.3-B, superseding v0.3 as the *current* reviewed baseline. **Historical v0.3 baseline (blob `affbb723b577cde4c8627dd689550e3bfbffb5d1`) remains preserved unchanged** — the first-consolidation record (ChatGPT second Delta Review A Clean + Independent second Delta Review B Clean + Product Owner consolidation decision, 2026-08-02) is not overwritten, only superseded as the *current* pointer. `docs/MANIFEST.md` and `docs/product/README.md` (the repository's existing authoritative Phase 0.3 package-index location) both updated to reflect this — README's Package 0.3-B header/status/baseline sections advanced from "v0.3 historical / v0.4 awaiting review" wording to "v0.6 current reviewed baseline" wording, with the original v0.3 pinned block kept intact and explicitly labeled historical.
+
+### Artifact byte-identity proof
+
+```text
+use-case-workflow.md NOT modified by this transaction.
+git hash-object docs/product/use-case-workflow.md → 8ce1a37ed733b6aa954476d2544a7cc3d1ec2add
+(matches accepted blob exactly — confirmed before and after this commit)
+```
+
+### Exact changed-file scope
+
+```text
+docs/MANIFEST.md            MODIFIED manifest_version 10.01 → 10.02
+                             (product/use-case-workflow.md row only — append-only note)
+docs/product/README.md      MODIFIED Package 0.3-B section only (header, revision-history
+                             paragraphs, review-status list, new "Current reviewed baseline
+                             — v0.6" block appended; historical v0.3 pinned block untouched)
+docs/CHANGELOG.md           MODIFIED (this entry, prepended)
+```
+
+`docs/product/use-case-workflow.md` **NOT modified** — accepted blob unchanged.
+
+### Forbidden-scope verification
+
+KHÔNG `product-requirement.md`/`ux-blueprint.md`/Domain Contract/ADR/Constitution/architecture/team governance/`phase-0-dod.md` touched. KHÔNG ADR created. KHÔNG PR/UC/UX semantics changed. KHÔNG new review finding introduced. KHÔNG Phase 0 declared Complete. KHÔNG Phase 1 authorized. `OQ-002`/`OQ-003` remain `Open`. Live remains `Unauthorized`. Artifact lifecycle unchanged: `status: Draft`, `approved_by: null`, `approved_at: null`.
+
 ## [Unreleased] — 2026-08-03 — fix UC-007 causal-direction error (NOT yet accepted)
 
 **Final consolidated correction to Package 0.3-B — addresses `P03B-V05-B-MAJ-01` (frozen finding).** Vai trò: `Governance Artifact Revision Author · Repository Transaction Executor`. Product Owner authorized this single bounded correction.

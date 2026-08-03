@@ -88,7 +88,7 @@ Package 0.3-B:    Unauthorized
 Package 0.3-C:    Unauthorized
 ```
 
-## Package 0.3-B — Use Case & Workflow (historical `Consolidated Stable` baseline: v0.3 — current content: v0.4, awaiting bounded delta review)
+## Package 0.3-B — Use Case & Workflow (`Consolidated Stable` — current reviewed baseline: v0.6, revalidated 2026-08-03; historical first-consolidation baseline: v0.3)
 
 **Phạm vi (scope tối thiểu, walking-skeleton):** dịch 34 requirement (`PR-001`–`PR-034`, Package 0.3-A `Consolidated Stable`) thành 21 Use Case cụ thể, testable, bounded (`UC-001`–`UC-021`) — 3 Research, 2 Replay, 5 Backtest, 5 Paper, 3 Review, 3 Improve — sở hữu user journey/use-case behavior/precondition/trigger/main flow/alternate flow/observable outcome/handoff cho sáu-giai-đoạn lifecycle. KHÔNG tạo product requirement mới — mọi Use Case truy vết `PR-XXX` đã tồn tại. Preserve nguyên vẹn Replay authority boundary (historical reconstruction vs parity recomputation, không `ReplayDecision`) và Backtest authority boundary (không tái sử dụng PAPER fact, không entity Backtest mới) từ `product-requirement.md` v0.2.
 
@@ -97,6 +97,10 @@ Package 0.3-C:    Unauthorized
 **v0.3 — narrow delta correction (đóng `P03B-DELTA-MIN-01`):** UC-021 trước đây CHỈ operationalize Decision fact lịch sử dù Goal/UC-020 dependency đòi hỏi phạm vi rộng hơn. Viết lại đầy đủ: UC-021 nay resolve ĐỘC LẬP, tách bạch, CẢ HAI họ evidence lịch sử cho một Strategy Definition Version cũ — **Backtest evidence family** (Decision/RiskEvaluation trace, simulated economic evidence, exposure/position progression, strategy-level evaluable result, run identity/version/configuration context, non-PAPER authority) VÀ **PAPER evidence family** (Decision, Trade Intent, RiskEvaluation, Execution Intent, Order, OrderSubmissionRequest, ExecutionResult, Fill, Position, authoritative, với ExecutionResultComputation/PaperExecutionObservation làm supporting evidence khi cần). Danh tính version LUÔN hiển thị; missing evidence identify theo TỪNG họ/loại, KHÔNG ngụ ý toàn bộ lịch sử mất khi một phần thiếu. UC-020 cập nhật tương ứng — KHÔNG ngụ ý UC-021 trả về một cross-mode evidence object chung.
 
 **v0.4 — post-consolidation bounded correction (2026-08-03, đóng Phase 0 Exit Readiness Audit `F-03`, MAJOR):** `PR-004`/`PR-005` trước đây KHÔNG Use Case nào trích dẫn dù đã được `product-requirement.md` v0.2 định nghĩa VÀ Package 0.3-C UX Blueprint đã gán vào `SCR-004`/`SCR-006`/`SCR-008` — khoảng trống PR→UC→UX lineage. Thêm `PR-004`/`PR-005` vào `UC-007`/`UC-011`/`UC-016` (mỗi UC hiển thị tường minh Decision outcome/Strategy Instance nguồn gốc và/hoặc evidence trace đầy đủ tại chính field mô tả của nó). KHÔNG UC mới, KHÔNG renumber, KHÔNG sửa `product-requirement.md`. Đây là substantive content correction xảy ra SAU khi package đã `Consolidated Stable` — xem [MANIFEST](../MANIFEST.md) cho baseline-staleness note và trạng thái chờ delta re-review.
+
+**v0.5 — bounded semantic correction (2026-08-03, đóng `P03B-V04-A-MAJ-01`):** v0.4 chỉ mechanically gán `PR-004`/`PR-005` vào trường PR traceability của `UC-007`/`UC-011`/`UC-016` mà chưa operationalize acceptance evidence thực tế. Main flow/Observable outcome/Evidence consumed của cả ba UC viết lại — mỗi Decision hiển thị đúng một outcome, Strategy Instance/Definition Version nguồn gốc, và evidence trace đã dùng để tạo ra nó, resolve trực tiếp từ recorded fact.
+
+**v0.6 — final consolidated correction (2026-08-03, đóng `P03B-V05-B-MAJ-01`, frozen finding):** v0.5 tự mắc causal-direction error tại `UC-007` — liệt kê RiskEvaluation như evidence dùng để TẠO RA Decision, sai vì RiskEvaluation luôn causally downstream (đánh giá Trade Intent sinh ra SAU Decision). `UC-007` Main flow viết lại tách bạch tường minh Decision outcome / upstream Decision explainability (Strategy Instance, Strategy Definition Version/configuration, recorded input snapshot/evaluation evidence) / downstream lineage khi tồn tại (Trade Intent, RiskEvaluation, Execution Intent, related fact) — downstream fact phát biểu tường minh là causally derived from/related to Decision, KHÔNG phải evidence tạo ra nó. `UC-011`/`UC-016`/`UC-008`/`UC-009` không đổi. Xem [MANIFEST](../MANIFEST.md) cho blob/HEAD chính xác của v0.5/v0.6.
 
 **KHÔNG author:** screen layout/wireframe/component hierarchy (Package 0.3-C, chưa author); Domain Contract semantic/state machine mới; Backtest/Replay domain fact mới; API/database/backend/frontend/infrastructure architecture; security/custody/deployment; Product Metric threshold (`OQ-003`); Live-gate criteria (`OQ-002`); mở rộng multi-tenant/đa tài sản; unified Backtest/PAPER outcome model; PAPER Decision-generation semantics mới; retention/archival/retrieval/storage architecture; Research verification domain entity/event; unified old-version evidence aggregate; evidence availability SLA.
 
@@ -110,13 +114,18 @@ Package 0.3-C:    Unauthorized
 - ChatGPT second Delta Review A (trên v0.3): **Clean** — 0 blocking finding.
 - Independent second Delta Review B (trên v0.3): **Clean** — 0 blocking finding.
 - Consolidation: **hoàn tất (transaction này)** — Product Owner authorized: "Package 0.3-B — Use Case & Workflow: Consolidated Stable". **Package 0.3-B nay `Consolidated Stable`.**
-- Post-consolidation bounded correction (v0.3 → v0.4, đóng `F-03`): **hoàn tất, CHƯA reviewed.** **`v0.3` VẪN LÀ historical `Consolidated Stable` baseline** — đó là exact blob đã qua ChatGPT second Delta Review A (Clean) + Independent second Delta Review B (Clean) + Product Owner consolidation decision (dòng phía trên). **`v0.4` (current content) CHƯA qua bất kỳ review round nào** — package lifecycle label `Consolidated Stable` giữ nguyên tại MANIFEST theo package-revision governance (KHÔNG tự động rút lại), nhưng label đó phản ánh v0.3, KHÔNG phải v0.4. `v0.4` **awaiting bounded delta review + package revalidation** trước khi tự nó được coi là reviewed/consolidated.
+- Post-consolidation bounded correction (v0.3 → v0.4, đóng `F-03`): **hoàn tất.** Substantive content correction xảy ra SAU khi v0.3 đã `Consolidated Stable`.
+- Post-consolidation bounded semantic correction (v0.4 → v0.5, đóng `P03B-V04-A-MAJ-01`): **hoàn tất.**
+- Post-consolidation final consolidated correction (v0.5 → v0.6, đóng `P03B-V05-B-MAJ-01`, frozen finding): **hoàn tất.**
+- ChatGPT bounded Review A (trên v0.6, phạm vi: UC-007 causal-direction correction + preservation UC-011/UC-016): **CLEAN** — Blocker 0, Major 0, Minor 0.
+- Independent bounded Review B (trên v0.6, cùng phạm vi): **CLEAN** — Blocker 0, Major 0, Minor 0.
+- Product Owner revalidation: **hoàn tất (transaction này)** — Product Owner authorized: "Package 0.3-B v0.6: Consolidated Stable, current reviewed baseline." `P03B-V04-A-MAJ-01` và `P03B-V05-B-MAJ-01` **Resolved**. **`v0.6` nay là current reviewed `Consolidated Stable` baseline** (blob/HEAD chính xác — xem block "Current reviewed baseline" phía dưới); `v0.3` vẫn preserved làm historical first-consolidation baseline (block "`Consolidated Stable` baseline — Package 0.3-B" ngay dưới đây, KHÔNG sửa).
 
 **Kết luận consolidation:** ChatGPT second Delta Review A (Clean) và Independent second Delta Review B (Clean) trên `use-case-workflow.md` v0.3, **0 finding còn lại chưa xử lý** (finding ledger đầy đủ — hai Major + năm Minor qua bounded correction v0.1→v0.2, một Minor qua narrow delta correction v0.2→v0.3, tại mục baseline dưới đây). Product Owner authorized: "Package 0.3-B — Use Case & Workflow: Consolidated Stable".
 
-## `Consolidated Stable` baseline — Package 0.3-B
+## `Consolidated Stable` baseline — Package 0.3-B (historical, first consolidation — v0.3 pinned; superseded làm current reviewed baseline bởi v0.6, xem block phía dưới)
 
-**Exact reviewed artifact baseline (pinned):**
+**Exact reviewed artifact baseline (pinned, historical — không sửa):**
 
 ```text
 use-case-workflow.md   v0.3   Draft   blob affbb723b577cde4c8627dd689550e3bfbffb5d1
@@ -144,11 +153,53 @@ P03B-DELTA-MIN-01  — Resolved (UC-021 viết lại đầy đủ, resolve độ
 
 **`Consolidated Stable` là package lifecycle/readiness state — KHÔNG phải document approval status**, đúng định nghĩa đã khóa cho mọi package trước đó: authoring + bounded correction + narrow delta correction hoàn tất cho phạm vi 0.3-B; ChatGPT second Delta Review A hoàn tất (Clean); Independent second Delta Review B hoàn tất (Clean); mọi qualifying finding đã xử lý; artifact đã review được pin chính xác; package đủ ổn định để Package 0.3-C (UX Blueprint) bắt đầu planning — **không** ngụ ý Product Owner Approval cho `use-case-workflow.md`, **không** ngụ ý Lock, **không** authorize Package 0.3-C tự động, **không** đóng OQ-002/OQ-003, **không** authorize Live, **không** tuyên bố Phase 0.3 hoàn thành. `use-case-workflow.md` **vẫn giữ `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte không đổi** — artifact lifecycle và package lifecycle là hai trục tách biệt.
 
-**Package lifecycle states (pinned tại transaction này):**
+**Package lifecycle states (pinned tại transaction này — historical, xem transaction v0.6 revalidation phía dưới cho current state):**
 
 ```text
 Package 0.3-A:    Consolidated Stable
 Package 0.3-B:    Consolidated Stable
+Package 0.3-C:    Unauthorized
+```
+
+## Current reviewed baseline — Package 0.3-B (v0.6, revalidated 2026-08-03)
+
+**Exact accepted artifact baseline (pinned, current):**
+
+```text
+use-case-workflow.md   v0.6   Draft   blob 8ce1a37ed733b6aa954476d2544a7cc3d1ec2add
+accepted/reviewed source HEAD:  b7e1f7e2552bf5ae2af277c4a5b224cabc7d8de0
+```
+
+**Review evidence:**
+
+```text
+ChatGPT bounded Review A:       CLEAN
+Independent bounded Review B:   CLEAN
+Blocker:                        0
+Major:                          0
+Minor:                          0
+```
+
+**Resolved findings (kể từ historical v0.3 baseline):**
+
+```text
+P03B-V04-A-MAJ-01  — Resolved (UC-007/UC-011/UC-016 operationalize đầy đủ acceptance evidence của
+                      PR-004/PR-005, thay vì chỉ mechanically gán ID — v0.4 → v0.5)
+P03B-V05-B-MAJ-01  — Resolved (UC-007 causal-direction error sửa — RiskEvaluation nay đúng downstream
+                      lineage, KHÔNG còn liệt kê như upstream evidence tạo ra Decision — v0.5 → v0.6)
+```
+
+**Final totals:** Blocker 0, Major 0, Minor 0.
+
+Product Owner authorized: "Package 0.3-B v0.6: Consolidated Stable, current reviewed baseline." `use-case-workflow.md` **vẫn giữ `status: Draft`, `approved_by: null`, `approved_at: null`, byte-for-byte không đổi so với commit `b7e1f7e2552bf5ae2af277c4a5b224cabc7d8de0`** — artifact lifecycle và package lifecycle là hai trục tách biệt, không đổi bởi transaction này. Revalidation **không** ngụ ý Product Owner Approval cho `use-case-workflow.md`, **không** ngụ ý Lock, **không** đóng `OQ-002`/`OQ-003`, **không** authorize Live, **không** tuyên bố Phase 0.3/Phase 0 hoàn thành, **không** authorize Phase 1.
+
+Lịch sử consolidation trước đó (v0.1→v0.2→v0.3, ChatGPT second Delta Review A Clean + Independent second Delta Review B Clean, Product Owner consolidation decision 2026-08-02) **vẫn preserved nguyên vẹn** tại block "`Consolidated Stable` baseline — Package 0.3-B (historical...)" phía trên — v0.3 pinned blob `affbb723b577cde4c8627dd689550e3bfbffb5d1` KHÔNG bị ghi đè, chỉ không còn là *current* reviewed baseline kể từ transaction này.
+
+**Package lifecycle states (pinned tại transaction này — current):**
+
+```text
+Package 0.3-A:    Consolidated Stable
+Package 0.3-B:    Consolidated Stable (current reviewed baseline: v0.6)
 Package 0.3-C:    Unauthorized
 ```
 
