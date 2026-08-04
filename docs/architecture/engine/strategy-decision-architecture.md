@@ -15,7 +15,7 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 
 # Package 1.3-C — Strategy & Decision Engine Architecture
 
-**CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.3-C v0.1 là candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.4), Package 1.3-A `Consolidated Stable`, và Package 1.3-B `Consolidated Stable` (xem §1), theo [`phase-1-plan.md`](../phase-1-plan.md) v0.4 (`Approved`) §8 Package 1.3-C block. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
+**CONSOLIDATED STABLE (package lifecycle, 2026-08-04, Product Owner decision) — artifact status: Draft, KHÔNG Approved/Locked.** Package 1.3-C v0.2 đạt `Consolidated Stable` SAU Review A CLEAN (Blocker 0/Major 0/Minor 1) + Independent Review B REVISE (Blocker 0/Major 1/Minor 1) trên v0.1 → bounded correction tại HEAD `a11c04a1389deb5ad24e7d4c7e16559696050c3d` (đóng `P13C-IRB-MAJ-01`/`P13C-A-MIN-01`/`P13C-IRB-MIN-01`) → final bounded verification CLEAN (mọi finding đóng, không Minor nào còn cần correction) + Product Owner consolidation decision (2026-08-04, §15). `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi, đúng package-lifecycle/artifact-lifecycle separation đã dùng nhất quán trong toàn bộ session này (cùng pattern Package 0.2-B4/Package 1.1/Package 1.3-A/Package 1.3-B). **Chín gap bảo lưu tường minh, KHÔNG blocking, KHÔNG resolve bởi consolidation này:** Plugin Host vs Decision Evaluation exact boundary; evaluation-proposal Domain Contract absence; authority rejection → `attempt_outcome` mapping; DD-003 (PAPER-context Decision establishment); `context.md` authority-terminology tension; ADR-009 concrete ordering protocol implementation; Definition Version registry mechanism; Candidate B operational/replay complexity; Plugin Release Manager activation mechanics (Model A vs B, fencing/transaction mechanism, capability-matching algorithm) — xem §13. Consolidation quyết định này KHÔNG authorize implementation cho bất kỳ gap nào trong số này.
 
 **v0.2 — bounded correction (2026-08-04), đóng `P13C-IRB-MAJ-01`/`P13C-A-MIN-01`/`P13C-IRB-MIN-01`** (findings confirmed từ Review A/Independent Review B trên v0.1). `P13C-IRB-MAJ-01`: `module-registry.yaml` v0.4 gán `plugin-release-manager.phase.elaborated_by: "1.3-C"` từ trước (Package 1.1 assignment KHÔNG sai, KHÔNG cần sửa) nhưng v0.1 của tài liệu này KHÔNG elaborate module đó — sửa: mở rộng scope bốn → **năm module**, thêm §5a "Module boundary — Plugin Release Manager". `P13C-A-MIN-01`/`P13C-IRB-MIN-01`: §7.3 (v0.1) gộp nhầm "Feature Engine/Context Aggregator" chung một nhóm "authoritative source DUY NHẤT" — SAI vì `feature-engine.owns_authoritative_state: true` nhưng `context-aggregator.owns_authoritative_state: false` (projection); sửa tách bạch tường minh tại §7.3 + thêm terminology block tại §9. KHÔNG đổi Decision authority model đã Approved (ADR-016 v0.8), KHÔNG đổi mandatory non-bypass sequence, KHÔNG đổi Context fail-closed conditions, KHÔNG resolve context.md terminology gap, KHÔNG tạo ADR.
 
@@ -761,6 +761,8 @@ Chapter 9 Plugin Model (Locked):  KHÔNG đổi — bốn tầng identity (Plugi
    trên tại v0.2 này.
 ```
 
+**Cập nhật (2026-08-04, Product Owner consolidation decision):** Package 1.3-C v0.2 nay `Consolidated Stable` VỚI ĐÚNG chín gap trên bảo lưu tường minh, KHÔNG resolve — Product Owner quote: "...with all documented unresolved Domain, ordering, plugin-release activation, PAPER-context, and authority-terminology gaps preserved explicitly and without implementation authorization." Consolidation KHÔNG đóng/thu hẹp/diễn giải lại bất kỳ gap nào trong chín gap trên, KHÔNG authorize implementation cho bất kỳ gap nào.
+
 ## 14. Explicit non-goals
 
 ```text
@@ -830,8 +832,35 @@ Independent Review B
                                `forbidden_dependencies` (rỗng cả hai, §5a.1) khớp CHÍNH
                                XÁC module-registry.yaml v0.4, KHÔNG bị diễn giải thêm.
 Product Owner decision
-  point:                      Sau Review A/B CLEAN.
-Consolidation condition:      Zero unresolved Blocker/Major; ADR Decision-Pipeline-
-                               topology (nếu có — KHÔNG phát sinh tại v0.1 này) Approved;
-                               DD-003 vẫn explicit Deferred, không bị đóng ngầm.
+  point:                      Sau Review A/B CLEAN. **Cập nhật (2026-08-04, Product Owner
+                               consolidation decision):** Review A CLEAN (Blocker 0/Major
+                               0/Minor 1) trên v0.1; Independent Review B REVISE (Blocker
+                               0/Major 1/Minor 1) trên v0.1 — Major xác nhận là
+                               `P13C-IRB-MAJ-01`, Minor xác nhận là
+                               `P13C-A-MIN-01`/`P13C-IRB-MIN-01`. Bounded correction hoàn
+                               tất tại HEAD `a11c04a1389deb5ad24e7d4c7e16559696050c3d`
+                               (v0.1 → v0.2). Final bounded verification: CLEAN — mọi
+                               finding đóng, không Minor nào còn cần correction. Product
+                               Owner đã quyết định: "I approve consolidation of Package
+                               1.3-C v0.2 as the current Consolidated Stable architecture
+                               baseline, with all documented unresolved Domain, ordering,
+                               plugin-release activation, PAPER-context, and authority-
+                               terminology gaps preserved explicitly and without
+                               implementation authorization." — Package 1.3-C nay
+                               **`Consolidated Stable`**.
+Consolidation condition:      Zero unresolved Blocker/Major (**THỎA** — Major đóng qua
+                               bounded correction, final verification CLEAN); ADR
+                               Decision-Pipeline-topology (nếu có — KHÔNG phát sinh tại
+                               v0.1/v0.2 này) Approved (**N/A, THỎA**); DD-003 vẫn explicit
+                               Deferred, không bị đóng ngầm (**THỎA**). Toàn bộ chín gap đã
+                               liệt kê tại §13 (Plugin Host vs Decision Evaluation
+                               boundary; evaluation-proposal Domain Contract absence;
+                               attempt_outcome rejection-mapping; DD-003; context.md
+                               terminology tension; ADR-009 ordering protocol; Definition
+                               Version registry mechanism; Candidate B complexity; Plugin
+                               Release Manager activation mechanics) bảo lưu tường minh,
+                               KHÔNG bị đóng/thu hẹp/diễn giải lại bởi consolidation này
+                               (**THỎA, theo đúng Product Owner decision quote**). **Mọi
+                               điều kiện consolidation ĐÃ thỏa — Package 1.3-C v0.2 nay
+                               `Consolidated Stable`.**
 ```

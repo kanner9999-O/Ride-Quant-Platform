@@ -2,6 +2,141 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — consolidate Package 1.3-C v0.2
+
+**Package 1.3-C v0.2 consolidated as `Consolidated Stable`.** Vai trò: `Package 1.3-C Consolidation Transaction Executor`. Product Owner decision: **"I approve consolidation of Package 1.3-C v0.2 as the current Consolidated Stable architecture baseline, with all documented unresolved Domain, ordering, plugin-release activation, PAPER-context, and authority-terminology gaps preserved explicitly and without implementation authorization."** (2026-08-04). Đây là mechanical lifecycle transaction — architecture semantics KHÔNG đổi.
+
+### Review evidence
+
+```text
+Review A:               CLEAN
+  Blocker 0, Major 0, Minor 1
+
+Independent Review B:   REVISE
+  Blocker 0, Major 1, Minor 1
+  Major finding: P13C-IRB-MAJ-01
+  Minor finding: P13C-A-MIN-01 / P13C-IRB-MIN-01
+
+Bounded correction:      completed at HEAD a11c04a1389deb5ad24e7d4c7e16559696050c3d
+                         (v0.1 -> v0.2)
+
+Final bounded verification:  CLEAN
+  all findings closed
+  no correction-requiring Minor remains
+```
+
+### Baseline
+
+```text
+Baseline HEAD:                                a11c04a1389deb5ad24e7d4c7e16559696050c3d
+docs/architecture/engine/strategy-decision-architecture.md v0.2 blob:  3687e84d0e4b07a699a1389f600d9447c0f5be21
+docs/architecture/module-registry.yaml v0.4 blob:                      6c4daa3eda3ef560b201de516dd019564d264c08
+docs/architecture/system-decomposition.md v0.4 blob:                   8e60b9e6051956cfbe83f33e1c82f404bc082e37
+```
+
+### Lifecycle transition
+
+```text
+package_lifecycle:  candidate -> Consolidated Stable
+version:             "0.2" (unchanged — no bump for a pure lifecycle transaction, same
+                     pattern as Package 0.2-B4 / Package 1.1 / Package 1.3-A / Package 1.3-B)
+status:              Draft (unchanged)
+approved_by:         null (unchanged)
+approved_at:         null (unchanged)
+```
+
+### Preserved gaps (mandatory, non-blocking, NOT resolved by this transaction)
+
+```text
+1. Plugin Host versus Decision Evaluation exact responsibility boundary.
+2. Evaluation-proposal Domain Contract absence.
+3. Authority rejection to attempt_outcome mapping.
+4. DD-003 PAPER-context authoritative Decision establishment mechanism.
+5. context.md authority-terminology tension.
+6. ADR-009 concrete ordering protocol implementation.
+7. Definition Version registry mechanism.
+8. Candidate B operational/replay complexity.
+9. Plugin Release Manager activation mechanics (Model A vs Model B selection,
+   fencing/transaction mechanism, capability-matching algorithm).
+```
+
+None narrowed, reinterpreted, resolved, or removed — all nine carried forward exactly as recorded at v0.2, per the Product Owner's decision quote above.
+
+### Architecture semantics unchanged (confirmed)
+
+```text
+Five-module Package 1.3-C scope                          unchanged
+Strategy Engine authority                                 unchanged
+Plugin Release Manager operational-release authority      unchanged
+  boundary
+Strategy Plugin Host mandatory execution boundary          unchanged
+Decision Evaluation Engine non-authority                   unchanged
+Decision Authority Service sole Decision/Trade Intent      unchanged
+  authority
+Strategy -> Plugin Host -> Decision Evaluation ->           unchanged
+  Decision Authority -> Risk non-bypass sequence
+Context fail-closed conditions                              unchanged
+Determinism/replay/no-repaint semantics                     unchanged
+Decision append/revalidation semantics                      unchanged
+Package 1.1, 1.3-A, 1.3-B semantics                          unchanged (not touched)
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/engine/strategy-decision-architecture.md   banner + §13 gap note + §15
+                                                               lifecycle record updated;
+                                                               blob 3687e84d0e4b07a699a1389f600d9447c0f5be21
+                                                               -> 432e728ea774b3f521a19d7f230fc82889f433e9
+docs/MANIFEST.md                                              manifest_version 10.35 -> 10.36
+docs/CHANGELOG.md                                              this entry prepended
+```
+
+Exactly 3 diff hunks on the artifact (`git diff -U0`): banner text, §13 gap note, §15 review/consolidation block. Frontmatter unchanged: `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/engine/structure-regime-architecture.md
+docs/architecture/engine/feature-context-architecture.md
+docs/architecture/phase-1-plan.md
+docs/adr/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
+### Resulting lifecycle state
+
+```text
+Package 1.3-C:  Consolidated Stable
+                not implementation authorization
+Package 1.3-B:  Consolidated Stable (unchanged)
+Package 1.3-A:  Consolidated Stable (unchanged)
+Package 1.1:    Consolidated Stable (unchanged, v0.4)
+Phase 1:        Active, not Complete
+Phase 2:        Not Opened
+Live:           Unauthorized
+```
+
+### Non-effects (confirmed)
+
+```text
+Does NOT author Package 1.3-D.
+Does NOT resolve DD-003.
+Does NOT resolve evaluation-proposal or attempt_outcome gaps.
+Does NOT select Plugin Release activation mechanics.
+Does NOT authorize implementation.
+Does NOT pass Gate 2.
+Does NOT complete Phase 1.
+Does NOT open Phase 2.
+Does NOT authorize Live.
+```
+
 ## [Unreleased] — 2026-08-04 — bounded correction: Package 1.3-C v0.2 (add Plugin Release Manager, fix Context terminology)
 
 **Bounded correction transaction — đóng `P13C-IRB-MAJ-01`/`P13C-A-MIN-01`/`P13C-IRB-MIN-01`.** Vai trò: `Package 1.3-C Bounded Correction Executor`. Root cause finding #1: `module-registry.yaml` v0.4 đã gán `plugin-release-manager.phase.elaborated_by: "1.3-C"` từ trước (Package 1.1 assignment KHÔNG sai), nhưng Package 1.3-C v0.1 chỉ elaborate bốn trong năm module được gán cho package này — bỏ sót `plugin-release-manager`. Root cause finding #2/#3: §7.3 (v0.1) gộp nhầm "Feature Engine/Context Aggregator" chung một nhóm "authoritative source DUY NHẤT" — SAI vì hai module có `owns_authoritative_state` khác nhau. Đây là scoped completeness + terminology correction áp dụng semantics ĐÃ pin sẵn tại Package 1.1/Chapter 9 — KHÔNG một kiến trúc option mới, KHÔNG đổi Decision authority model, KHÔNG đổi mandatory non-bypass sequence, KHÔNG ADR required.
