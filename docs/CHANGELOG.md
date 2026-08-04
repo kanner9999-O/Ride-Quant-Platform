@@ -2,6 +2,127 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — align Package 1.1 with ADR-016 (NOT yet verified)
+
+**Bounded Package 1.1 correction aligning the architecture candidate with Approved ADR-016 v0.8.** Vai trò: `Package 1.1 Architecture Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. Package 1.1 KHÔNG consolidate/approve, KHÔNG implementation/schema/API/Domain Contract content authored.
+
+### The correction
+
+`decision-engine` (hybrid, superseded — ADR-016 v0.8 rejected Candidate A) tách thành hai module theo đúng Candidate B (split) đã Approved:
+
+```text
+decision-evaluation-engine   compute_engine, owns_authoritative_state: false
+                              — platform-owned deterministic Decision evaluation only;
+                              non-authoritative evaluation output/proposal; no Decision
+                              identity/append authority, no Trade Intent identity, no Risk
+                              approval, no Execution authority.
+
+decision-authority-service    runtime_service, owns_authoritative_state: true
+                              — sole invariant-validation authority; sole authoritative
+                              Decision append authority; sole Decision + Trade Intent
+                              identity authority; final acceptance/rejection at the
+                              authority boundary.
+```
+
+### Module inventory and tallies
+
+```text
+Module count:              22 -> 23
+Taxonomy tally:             compute_engine 4 -> 5; projection 4 (unchanged);
+                             runtime_service 14 (unchanged)
+State-authority tally:      true 13 (unchanged); false 8 -> 9; deferred 1 (unchanged)
+Hybrid classifications:     1 -> 0 (zero Decision module remains Chapter 7 hybrid)
+```
+
+### Dependency-edge corrections (scoped exactly to ADR-016's affected relationships)
+
+```text
+risk-gateway                 depends_on decision-engine -> decision-authority-service
+replay-integration-service   depends_on decision-engine -> decision-authority-service
+review-evidence-service      depends_on decision-engine -> decision-authority-service
+command-query-api-surface    depends_on decision-engine -> decision-authority-service
+                              (decision-evaluation-engine intentionally excluded — same
+                              exclusion pattern already used for strategy-plugin-host)
+backtest-orchestrator         depends_on decision-engine -> decision-evaluation-engine +
+                              decision-authority-service (a bounded Backtest run needs
+                              both evaluation and authority append)
+strategy-plugin-host          forbidden_dependencies gains decision-authority-service
+                              (explicit non-bypass guarantee — Plugin must never reach
+                              authority append directly)
+decision-evaluation-engine    forbidden_dependencies: [execution-engine, risk-gateway,
+                              paper-execution-boundary] (same non-bypass principle as
+                              strategy-plugin-host)
+```
+
+### Decision-to-Risk authority flow (unchanged ordering, corrected module identity)
+
+```text
+Strategy Plugin advisory output → Decision Evaluation Engine (non-authoritative) →
+Decision Authority Service (sole authority, append) → Risk Gateway (mandatory,
+non-bypassable) → Execution (cannot consume unapproved Trade Intent directly)
+```
+
+This is a responsibility/dependency view, not authorization to implement a synchronous pipeline or specific runtime topology.
+
+### Registry/decomposition parity — verified
+
+`module-registry.yaml` and `system-decomposition.md` dependency edges, module inventory, taxonomy tally, and state-authority tally all cross-checked and confirmed to agree exactly (script-verified via YAML parse + cross-reference against the markdown tables).
+
+### Accepted residual gaps — carried forward, NOT resolved
+
+```text
+1. Redundancy/boundary risk between Decision Evaluation Engine and Strategy Plugin Host —
+   exact boundary requires further detailed contract work.
+2. Evaluation-proposal artifact lacks an authoritative Domain Contract.
+3. Authority-level proposal rejection lacks a confirmed attempt_outcome mapping.
+4. The split adds operational, dependency, replay, and version-pinning complexity.
+```
+
+No `evaluation-proposal` fields, new Domain entities, new `attempt_outcome` values, APIs, events, database schemas, or algorithms were created.
+
+### ADR references updated (ADRs themselves not modified)
+
+```text
+ADR-015:  Approved, controlling outside the scoped ADR-016 amendment.
+ADR-016:  Approved, Candidate B selected, Mechanism A exercised, controlling for the
+          affected Decision taxonomy and dependency scope.
+```
+
+### §12 ADR Scope Rule / §15 consolidation gate — updated
+
+Decision 1 (module dependency graph) and Decision 2 (`decision-engine` hybrid taxonomy) are both now **RESOLVED** via their respective Approved ADRs. The ADR gate condition for Consolidated Stable is therefore satisfied — but Package 1.1 **remains not Consolidated Stable**: Review A + Independent Review B on this corrected v0.3 candidate, plus a separate Product Owner consolidation decision, have not yet occurred.
+
+### Exact changed-file scope
+
+```text
+docs/architecture/module-registry.yaml      MODIFIED version 0.2 -> 0.3
+                                             blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+                                               -> d8d40852d38705db405ea365c01800dfd032a0b4
+docs/architecture/system-decomposition.md   MODIFIED version 0.2 -> 0.3
+                                             blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+                                               -> 30fb6336c3d0f53c9c2fa9276dbaa11166a0a347
+                                             status Draft (unchanged), approved_by null
+                                             (unchanged), approved_at null (unchanged)
+docs/MANIFEST.md                            MODIFIED (manifest_version 10.26 -> 10.27,
+                                             both Package 1.1 artifact rows updated)
+docs/CHANGELOG.md                           MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/adr/ADR-015.md                                                 unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/adr/ADR-016.md                                                 unchanged, v0.8, Approved, blob 2a57d428935bd1956379dde79af92c92c83c397b
+docs/architecture/phase-1-plan.md                                  unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/architecture/package-1.3-c-decision-taxonomy-exploration.md   unchanged, v0.2, Draft, blob 6f0f65e91187184778f8984a814b5f3f1a47be2a
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                                         unchanged
+```
+
+### Forbidden-scope verification
+
+KHÔNG Package 1.1 approved/Consolidated Stable. KHÔNG ADR-015/ADR-016 sửa. KHÔNG ADR-016's scoped amendment expanded beyond decision-engine module identity/dependency edges. KHÔNG Strategy Plugin/Evaluation boundary gap resolved. KHÔNG evaluation-proposal Domain Contract authored. KHÔNG `attempt_outcome` value thêm/đổi. KHÔNG field-level schema/API/database schema authored. KHÔNG source code/test authored. KHÔNG implementation authorized. KHÔNG Gate 2 passed. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — correct ADR-016 final review history (procedural, no decision effect)
 
 **Bounded procedural-history correction — approval transaction record only, NO decision effect.** Vai trò: `ADR-016 Approval-History Correction Author & Repository Transaction Executor`. Corrects a factual defect in the entry immediately below ("approve ADR-016: Candidate B (split) under Mechanism A") and in this session's prior report to `ChatGPT / RiDe`. Does NOT reopen ADR-016, does NOT change Candidate B, Mechanism A, the ADR-015 amendment scope, Trigger 1–5 status, or any lifecycle outcome. `docs/adr/ADR-016.md` is **NOT modified** by this transaction — it remains byte-identical (v0.8, `status: Approved`, blob `2a57d428935bd1956379dde79af92c92c83c397b`), consistent with Chapter 11 §11.3 post-approval immutability; MANIFEST.md and this CHANGELOG.md are the corrective authority for post-approval procedural-history facts, per the pattern already established for ADR-015.

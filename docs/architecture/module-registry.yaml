@@ -52,11 +52,11 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "0.2"
+version: "0.3"
 status: Draft
 package: "1.1"
 package_lifecycle: candidate
-generated_at: "2026-08-03"
+generated_at: "2026-08-04"
 
 modules:
 
@@ -281,7 +281,7 @@ modules:
     consumes: [query]
     emits: [event]
     depends_on: [strategy-engine, context-aggregator, plugin-release-manager]
-    forbidden_dependencies: [execution-engine, risk-gateway, paper-execution-boundary]
+    forbidden_dependencies: [execution-engine, risk-gateway, paper-execution-boundary, decision-authority-service]
     plugin_relation: hosts
     security_classification: none
     phase: { identified_in: "1.1", elaborated_by: "1.3-C" }
@@ -289,33 +289,71 @@ modules:
     notes: >
       Strategy Plugin cannot bypass Decision or Risk Gateway (I-4, I-7) — forbidden_dependencies
       enforces this at module-boundary level. Output is candidate analytical signal, NOT the
-      authoritative Decision fact — decision-engine owns the authoritative record.
+      authoritative Decision fact — `decision-authority-service` owns the authoritative record
+      (ADR-016 v0.8, Candidate B; `decision-evaluation-engine` performs non-authoritative
+      evaluation upstream of it). Explicit forbidden_dependency on `decision-authority-service`
+      added (ADR-016 v0.8 correction) — Plugin must never directly reach authority append.
 
   # ---------------------------------------------------------------------
   # Decision / Risk / Execution (C7 chain)
   # ---------------------------------------------------------------------
 
-  - module_id: decision-engine
-    name: Decision Engine
-    module_type: runtime_service
-    hybrid:
-      secondary_responsibility: "decision_evaluation (deterministic evaluation of Strategy Instance at decision_context_cursor, ADR-010/Chapter 8 §8.4-§8.5)"
-      condition: "Decision Engine sở hữu CẢ authoritative Decision/Trade Intent record (runtime_service core) LẪN deterministic evaluation logic (compute-like core) — potential hybrid theo Chapter 7 §7.1."
-      adr_status: "ADR REQUIRED trước khi hybrid status này được coi là hợp lệ — Chapter 7 §7.1 điều kiện 4. KHÔNG tự động approve tại đây. Xem system-decomposition.md §12 (ADR Scope Rule evaluation)."
+  - module_id: decision-evaluation-engine
+    name: Decision Evaluation Engine
+    module_type: compute_engine
+    hybrid: null
     responsibilities:
-      - "Sở hữu Decision identity (ADR-010, Chapter 8 §8.4/§8.5) và Trade Intent identity."
+      - "Platform-owned deterministic Decision evaluation của Strategy Instance tại decision_context_cursor (ADR-010, Chapter 8 §8.4-§8.5) — sinh non-authoritative evaluation output/proposal."
+      - "KHÔNG sở hữu Decision identity, KHÔNG Decision append authority, KHÔNG Trade Intent identity, KHÔNG Risk approval authority, KHÔNG Execution authority (ADR-016 v0.8, Candidate B)."
+    implements_capabilities: [decision-management]
+    serves_contexts: [strategy-decision]
+    owns_authoritative_state: false
+    consumes: [event, query]
+    emits: [event]
+    depends_on: [strategy-engine, strategy-plugin-host, context-aggregator]
+    forbidden_dependencies: [execution-engine, risk-gateway, paper-execution-boundary]
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.3-C" }
+    status: candidate
+    notes: >
+      ADR-016 v0.8 (Approved, 2026-08-04, Product Owner — Candidate B/split selected under
+      Mechanism A) — tách từ `decision-engine` hybrid cũ (Candidate A, KHÔNG selected;
+      superseded, xem "Alternatives considered" trong ADR-016 cho phân tích lịch sử). Output
+      là non-authoritative evaluation proposal — `decision-authority-service` (dưới) sở hữu
+      validate/append. KHÔNG modeled như second Strategy Plugin Host, KHÔNG authoritative
+      Decision/Trade Intent writer, KHÔNG projection, KHÔNG runtime side-effect authority.
+      Forbidden dependency enforces non-bypass của Risk Gateway/Execution (cùng nguyên tắc
+      `strategy-plugin-host`). Ranh giới CHÍNH XÁC với `strategy-plugin-host` CHƯA resolve
+      (residual risk #1, ADR-016 v0.8 Accepted risks) — CẦN further contract work, KHÔNG
+      resolve tại transaction này.
+
+  - module_id: decision-authority-service
+    name: Decision Authority Service
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Sole invariant-validation authority; sole authoritative Decision append authority; sole Decision identity authority (ADR-010, Chapter 8 §8.4/§8.5) và Trade Intent identity."
+      - "Final acceptance/rejection tại authority boundary — validate evaluation proposal identity/version/cursor/eligibility từ `decision-evaluation-engine` trước khi append."
     implements_capabilities: [decision-management]
     serves_contexts: [strategy-decision]
     owns_authoritative_state: true
     consumes: [event, query]
     emits: [event]
-    depends_on: [strategy-engine, strategy-plugin-host, context-aggregator]
+    depends_on: [decision-evaluation-engine, strategy-engine]
     forbidden_dependencies: [execution-engine, paper-execution-boundary]
     plugin_relation: none
     security_classification: none
     phase: { identified_in: "1.1", elaborated_by: "1.3-C" }
     status: candidate
-    notes: "Decision TRƯỚC Trade Intent (preserved). Forbidden dependency enforces Decision cannot bypass Risk Gateway downstream."
+    notes: >
+      ADR-016 v0.8 (Approved, 2026-08-04, Product Owner — Candidate B/split selected under
+      Mechanism A) — thay thế `decision-engine` hybrid cũ. Decision TRƯỚC Trade Intent
+      (preserved). Forbidden dependency enforces Decision cannot bypass Risk Gateway
+      downstream. KHÔNG sở hữu Strategy Plugin advisory computation, Context Aggregator
+      responsibility, Risk approval, hay Execution side effect nào. Mechanism A: ADR-016
+      v0.8 tự nó amend hiệu lực kiểm soát của ADR-015 SCOPED cho module này + dependency
+      edge liên quan — ADR-015 vẫn controlling cho 21/22 module còn lại (không đổi).
 
   - module_id: risk-gateway
     name: Risk Gateway
@@ -329,13 +367,13 @@ modules:
     owns_authoritative_state: true
     consumes: [event]
     emits: [event]
-    depends_on: [decision-engine, account-service]
+    depends_on: [decision-authority-service, account-service]
     forbidden_dependencies: []
     plugin_relation: none
     security_classification: trust_boundary_candidate
     phase: { identified_in: "1.1", elaborated_by: "1.3-D" }
     status: candidate
-    notes: "Trade Intent TRƯỚC RiskEvaluation TRƯỚC Execution Intent (preserved)."
+    notes: "Trade Intent TRƯỚC RiskEvaluation TRƯỚC Execution Intent (preserved). Risk Gateway consumes authoritative Decision output từ `decision-authority-service` (ADR-016 v0.8) — KHÔNG trực tiếp từ `decision-evaluation-engine` (non-authoritative)."
 
   - module_id: execution-engine
     name: Execution Engine
@@ -425,13 +463,13 @@ modules:
     owns_authoritative_state: false
     consumes: [event]
     emits: [query]
-    depends_on: [decision-engine, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection]
+    depends_on: [decision-authority-service, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection]
     forbidden_dependencies: []
     plugin_relation: none
     security_classification: none
     phase: { identified_in: "1.1", elaborated_by: "1.3-A" }
     status: candidate
-    notes: "Chapter 8 §8.5 canonical Replay Cursor authority — no ReplayDecision (preserved)."
+    notes: "Chapter 8 §8.5 canonical Replay Cursor authority — no ReplayDecision (preserved). Folds authoritative fact only — `decision-authority-service` (ADR-016 v0.8), KHÔNG `decision-evaluation-engine` (non-authoritative evaluation proposal, ngoài phạm vi Replay authoritative-fact scope)."
 
   # ---------------------------------------------------------------------
   # Backtest / Paper orchestration boundaries
@@ -449,7 +487,7 @@ modules:
     owns_authoritative_state: deferred
     consumes: [event]
     emits: [event]
-    depends_on: [strategy-engine, decision-engine, risk-gateway]
+    depends_on: [strategy-engine, decision-evaluation-engine, decision-authority-service, risk-gateway]
     forbidden_dependencies: [execution-engine, paper-execution-boundary, execution-result-processor, fill-processor, position-projection]
     plugin_relation: none
     security_classification: none
@@ -462,6 +500,9 @@ modules:
       Package 1.1 scope). This module identifies the ORCHESTRATION boundary only — does NOT
       invent Backtest entities (BacktestOrder/BacktestFill/BacktestPosition/
       BacktestExecutionResult or equivalent remain forbidden per DD-001's own constraint).
+      ADR-016 v0.8 correction: `decision-engine` dependency split into
+      `decision-evaluation-engine` + `decision-authority-service` — bounded Backtest run
+      cần cả evaluation VÀ authority append, không chỉ authoritative record access.
 
   - module_id: paper-execution-boundary
     name: Paper Execution Boundary
@@ -502,13 +543,13 @@ modules:
     owns_authoritative_state: false
     consumes: [event, query, command]
     emits: [query, command]
-    depends_on: [market-reference-service, market-data-ingestion, structure-engine, raw-regime-engine, feature-engine, context-aggregator, account-service, strategy-engine, decision-engine, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service, review-evidence-service]
+    depends_on: [market-reference-service, market-data-ingestion, structure-engine, raw-regime-engine, feature-engine, context-aggregator, account-service, strategy-engine, decision-authority-service, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service, review-evidence-service]
     forbidden_dependencies: []
     plugin_relation: none
     security_classification: trust_boundary_candidate
     phase: { identified_in: "1.1", elaborated_by: "1.4" }
     status: candidate
-    notes: "implements_capabilities/serves_contexts intentionally empty — this module is a routing/exposure layer, not a capability owner (avoids inventing a competing capability identity outside context-map.yaml)."
+    notes: "implements_capabilities/serves_contexts intentionally empty — this module is a routing/exposure layer, not a capability owner (avoids inventing a competing capability identity outside context-map.yaml). ADR-016 v0.8 correction: `decision-engine` → `decision-authority-service` only (authoritative) — `decision-evaluation-engine` intentionally excluded, same pattern as `strategy-plugin-host` (compute_engine, non-authoritative modules are not exposed via this routing layer)."
 
   - module_id: review-evidence-service
     name: Review Evidence Service
@@ -521,13 +562,13 @@ modules:
     owns_authoritative_state: false
     consumes: [event]
     emits: [query]
-    depends_on: [decision-engine, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service]
+    depends_on: [decision-authority-service, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service]
     forbidden_dependencies: []
     plugin_relation: none
     security_classification: none
     phase: { identified_in: "1.1", elaborated_by: "1.5" }
     status: candidate
-    notes: "Cross-cutting read/evidence layer — no new authoritative fact, no recomputation (PR-030 no-recompute preserved)."
+    notes: "Cross-cutting read/evidence layer — no new authoritative fact, no recomputation (PR-030 no-recompute preserved). ADR-016 v0.8 correction: `decision-engine` → `decision-authority-service` (Decision→Position lineage trace uses authoritative fact only)."
 
   - module_id: ux-application-shell
     name: UX Application Shell
@@ -541,7 +582,7 @@ modules:
     consumes: [query]
     emits: [command]
     depends_on: [command-query-api-surface]
-    forbidden_dependencies: [structure-engine, raw-regime-engine, feature-engine, context-aggregator, strategy-engine, decision-engine, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service, review-evidence-service]
+    forbidden_dependencies: [structure-engine, raw-regime-engine, feature-engine, context-aggregator, strategy-engine, decision-evaluation-engine, decision-authority-service, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service, review-evidence-service]
     plugin_relation: none
     security_classification: none
     phase: { identified_in: "1.1", elaborated_by: "1.6" }

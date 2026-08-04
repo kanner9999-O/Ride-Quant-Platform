@@ -1,7 +1,7 @@
 ---
 id: system-decomposition
 title: "Package 1.1 — System Decomposition & Module Registry"
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -17,9 +17,9 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 
 **CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Đây là first authored candidate cho Package 1.1, theo `docs/architecture/phase-1-plan.md` v0.2 (`Consolidated Stable`) §5.3/§7/§8. Tài liệu này KHÔNG tự approve/consolidate chính nó — Product Owner decision riêng, sau Review A + Independent Review B, mới có thẩm quyền đó (§15).
 
-**Ghi chú tường minh bắt buộc (§12):** Package này phát hiện MỘT quyết định thuộc diện **ADR REQUIRED** — chính module dependency graph chính thức đề xuất tại §5/`module-registry.yaml`. Theo đúng "Important boundary" của task gốc: candidate này ĐƯỢC author đầy đủ, quyết định ADR-required được ghi lại tường minh, nhưng Package 1.1 **KHÔNG được đánh dấu `Consolidated Stable`** cho tới khi ADR đó `Approved` (hoặc Product Owner quyết định khác qua Decision Workflow). KHÔNG ADR nào được tạo/approve tại transaction này.
+**Ghi chú tường minh bắt buộc (§12):** Package này phát hiện HAI quyết định thuộc diện **ADR REQUIRED** — Decision 1 (module dependency graph chính thức, §5/`module-registry.yaml`) và Decision 2 (`decision-engine` hybrid taxonomy). **Cập nhật (v0.3, 2026-08-04):** cả hai nay `Approved` — Decision 1 qua [ADR-015](../adr/ADR-015.md) v0.3 (Approved, 2026-08-03), Decision 2 qua [ADR-016](../adr/ADR-016.md) v0.8 (Approved, 2026-08-04, Candidate B/split, Mechanism A) — xem §12. ADR gate condition (Decision 1 + Decision 2 Approved) nay THỎA, NHƯNG Package 1.1 **VẪN KHÔNG được đánh dấu `Consolidated Stable`** — Review A + Independent Review B trên chính candidate v0.3 này (post-correction) + Product Owner consolidation decision CHƯA thực hiện (§15). KHÔNG ADR nào được tạo/approve/sửa tại transaction này — cả hai ADR immutable, chỉ Package 1.1 candidate được align.
 
-**v0.2 — bounded correction (2026-08-03), đóng `P11-A-MAJ-01`/`P11-A-MAJ-02`/`P11-A-MIN-01`** (Review A REVISE + Independent Review B REVISE trên v0.1, findings CONFIRMED — Blocker 0, Major 2, Minor 1): (1) `P11-A-MAJ-01` — `risk-gateway` trước đây khai `hybrid` với `adr_status: "ADR NOT REQUIRED"`, sai vì Chapter 7 §7.1 điều kiện 4 đòi ADR cho MỌI hybrid retained, kể cả worked example — sửa: `risk-gateway` nay `hybrid: null`, `runtime_service` thuần, risk policy logic là primary responsibility hợp lệ theo Chapter 7 §7.3 (KHÔNG phải secondary taxonomy) — KHÔNG tạo ADR. (2) `P11-A-MAJ-02` — `plugin-registry-service` trước đây claim sở hữu Plugin Definition identity/taxonomy, xung đột authority với chính `module-registry.yaml` (I-12/Chapter 9 §9.1) — sửa: đổi tên thành `plugin-release-manager`, thu hẹp về operational fact ONLY (Plugin Version→artifact resolution, runtime compatibility, activation coordination); `module-registry.yaml` tường minh là authority DUY NHẤT cho Plugin Definition identity/taxonomy/architecture responsibility. (3) `P11-A-MIN-01` — taxonomy tally và state-authority tally trước đây sai số (đếm nhầm, category chồng lấn "cross-cutting no state") — sửa: hai tally tách biệt, script-verified, exhaustive/mutually-exclusive (§4). Bounded — KHÔNG reopen module boundary khác (Market/Data, Structure/Regime/Feature/Context, Strategy Engine, Decision→Risk→Execution ordering, ExecutionResult/Fill/Position, Replay, Backtest, Paper boundary, API Surface, Review Evidence, UX Shell), KHÔNG đổi PR/UC/UX/Domain coverage, KHÔNG đổi DD-001/DD-003/Structure-aware-Regime deferral/OQ-001/OQ-002/OQ-003. `decision-engine` hybrid vẫn `ADR REQUIRED` (§12 Decision 2, không đổi). Module count vẫn 22 (đổi tên, không thêm/bớt). `status: Draft`, `approved_by: null`, `approved_at: null`, `package lifecycle: candidate` không đổi. Findings corrected nhưng CHƯA verified — chờ bounded Review A + independent bounded Review B mới.
+**v0.3 — bounded ADR-016 alignment correction (2026-08-04)** (Product Owner-authorized correction, aligning candidate với Approved ADR-016 v0.8 — KHÔNG một finding ID review-round, một mechanical Package 1.1 correction transaction sau Decision 2 §12 resolve): Decision 2 (§12) — `decision-engine` hybrid taxonomy — nay **RESOLVED**: ADR-016 v0.8 (Approved, 2026-08-04, Product Owner) chọn **Candidate B (split)** dưới **Mechanism A** — hybrid REJECTED, KHÔNG còn module nào classified Chapter 7 hybrid trong candidate này. `decision-engine` tách thành hai module: `decision-evaluation-engine` (compute_engine, non-authoritative deterministic evaluation) + `decision-authority-service` (runtime_service, sole Decision/Trade Intent authority). Mechanism A: ADR-016 v0.8 tự nó amend hiệu lực kiểm soát của ADR-015 SCOPED cho module identity/dependency edge liên quan — ADR-015 vẫn controlling/immutable cho 21/22 module còn lại (không đổi). Đã cập nhật: module inventory (§4, 22→23 module), taxonomy tally (compute_engine 4→5), state-authority tally (true 13→13, false 8→9, tổng 22→23), dependency graph (§5, risk-gateway/replay-integration-service/review-evidence-service/command-query-api-surface nay depends_on `decision-authority-service` — KHÔNG `decision-evaluation-engine`; backtest-orchestrator depends_on CẢ HAI), §10 coverage table (mọi `decision-engine` reference thay bằng `decision-authority-service` hoặc CẢ HAI tùy dependency-edge tương ứng đã pin tại `module-registry.yaml`), §12 Decision 1 (ADR-015 Approved, RESOLVED) + Decision 2 (ADR-016 Approved, RESOLVED). Bốn residual risk từ ADR-016 v0.8 Accepted risks GIỮ NGUYÊN, KHÔNG resolve tại đây (Strategy Plugin/Evaluation boundary; evaluation-proposal Domain Contract gap; `attempt_outcome` mapping gap; operational/dependency/replay complexity). Bounded — KHÔNG reopen module boundary khác (Market/Data, Structure/Regime/Feature/Context, Strategy Engine, ExecutionResult/Fill/Position, Replay, Backtest, Paper boundary, API Surface, Review Evidence, UX Shell responsibility content ngoài dependency-edge fix), KHÔNG đổi PR/UC/UX/Domain coverage totals (34/21/17/11/15 không đổi), KHÔNG đổi DD-001/DD-003/Structure-aware-Regime deferral/OQ-001/OQ-002/OQ-003. `status: Draft`, `approved_by: null`, `approved_at: null`, `package lifecycle: candidate` không đổi — **KHÔNG tự động Consolidated Stable/Approved** dù cả Decision 1 VÀ Decision 2 nay Approved — Review A + Independent Review B trên chính candidate v0.3 này + Product Owner consolidation decision vẫn CHƯA thực hiện (§15).
 
 ## 1. Purpose and scope
 
@@ -67,7 +67,7 @@ Package 1.1 KHÔNG redefine domain entities, domain invariants, product behavior
 
 ## 4. Official module inventory
 
-**22 module** — xem `module-registry.yaml` cho định nghĩa đầy đủ từng field. Tóm tắt:
+**23 module** (v0.3 — 22→23, `decision-engine` hybrid tách thành hai module theo ADR-016 v0.8 Approved) — xem `module-registry.yaml` cho định nghĩa đầy đủ từng field. Tóm tắt:
 
 | module_id | Taxonomy | Owns authoritative state | Elaborated by |
 |---|---|---|---|
@@ -81,7 +81,8 @@ Package 1.1 KHÔNG redefine domain entities, domain invariants, product behavior
 | `strategy-engine` | runtime_service | Yes | 1.3-C |
 | `plugin-release-manager` | runtime_service | Yes (operational fact only, §12 Decision 5b) | 1.3-C |
 | `strategy-plugin-host` | compute_engine | No | 1.3-C |
-| `decision-engine` | runtime_service (potential hybrid, ADR REQUIRED, §12 Decision 2) | Yes | 1.3-C |
+| `decision-evaluation-engine` | compute_engine (ADR-016 v0.8 Approved, §12 Decision 2) | No | 1.3-C |
+| `decision-authority-service` | runtime_service (ADR-016 v0.8 Approved, §12 Decision 2 — no hybrid) | Yes | 1.3-C |
 | `risk-gateway` | runtime_service (no hybrid — §12 Decision 2b) | Yes | 1.3-D |
 | `execution-engine` | runtime_service | Yes | 1.3-D |
 | `execution-result-processor` | runtime_service | Yes | 1.3-D |
@@ -94,38 +95,40 @@ Package 1.1 KHÔNG redefine domain entities, domain invariants, product behavior
 | `review-evidence-service` | projection | No | 1.5 |
 | `ux-application-shell` | runtime_service | No | 1.6 |
 
-**Taxonomy tally (P11-A-MIN-01 correction — script-verified against `module-registry.yaml`, exhaustive/mutually-exclusive, sums to 22):**
+**Taxonomy tally (v0.3 — script-verified against `module-registry.yaml`, exhaustive/mutually-exclusive, sums to 23; updated for ADR-016 v0.8 split):**
 
 ```text
-compute_engine   4   structure-engine, raw-regime-engine, feature-engine, strategy-plugin-host
+compute_engine   5   structure-engine, raw-regime-engine, feature-engine, strategy-plugin-host,
+                      decision-evaluation-engine
 projection       4   context-aggregator, position-projection, replay-integration-service,
                       review-evidence-service
 runtime_service  14  market-reference-service, market-data-ingestion, account-service,
-                      strategy-engine, plugin-release-manager, decision-engine, risk-gateway,
-                      execution-engine, execution-result-processor, fill-processor,
-                      backtest-orchestrator, paper-execution-boundary,
+                      strategy-engine, plugin-release-manager, decision-authority-service,
+                      risk-gateway, execution-engine, execution-result-processor,
+                      fill-processor, backtest-orchestrator, paper-execution-boundary,
                       command-query-api-surface, ux-application-shell
-total            22
+total            23
 ```
 
-**State-authority tally (separate dimension — DO NOT overlap with taxonomy tally above; script-verified, exhaustive/mutually-exclusive, sums to 22):**
+**State-authority tally (v0.3 — separate dimension — DO NOT overlap with taxonomy tally above; script-verified, exhaustive/mutually-exclusive, sums to 23; updated for ADR-016 v0.8 split):**
 
 ```text
 owns_authoritative_state: true      13  market-reference-service, market-data-ingestion,
                                          structure-engine, raw-regime-engine, feature-engine,
                                          account-service, strategy-engine,
-                                         plugin-release-manager, decision-engine, risk-gateway,
-                                         execution-engine, execution-result-processor,
-                                         fill-processor
-owns_authoritative_state: false     8   context-aggregator, strategy-plugin-host,
-                                         position-projection, replay-integration-service,
-                                         paper-execution-boundary, command-query-api-surface,
-                                         review-evidence-service, ux-application-shell
+                                         plugin-release-manager, decision-authority-service,
+                                         risk-gateway, execution-engine,
+                                         execution-result-processor, fill-processor
+owns_authoritative_state: false     9   context-aggregator, strategy-plugin-host,
+                                         decision-evaluation-engine, position-projection,
+                                         replay-integration-service, paper-execution-boundary,
+                                         command-query-api-surface, review-evidence-service,
+                                         ux-application-shell
 owns_authoritative_state: deferred  1   backtest-orchestrator
-total                                22
+total                                23
 ```
 
-Ghi chú bắt buộc (đóng `P11-A-MIN-01`): "false" KHÔNG đồng nghĩa "Projection" — 4/8 module `false` là `runtime_service`/`compute_engine` (`strategy-plugin-host`, `paper-execution-boundary`, `command-query-api-surface`, `ux-application-shell`), KHÔNG chỉ bốn `projection` type. Hai chiều (taxonomy, state-authority) tách biệt hoàn toàn, KHÔNG dùng chung một bảng/tally.
+Ghi chú bắt buộc (đóng `P11-A-MIN-01`, giữ nguyên nguyên tắc, cập nhật số liệu v0.3): "false" KHÔNG đồng nghĩa "Projection" — 5/9 module `false` là `runtime_service`/`compute_engine` (`strategy-plugin-host`, `decision-evaluation-engine`, `paper-execution-boundary`, `command-query-api-surface`, `ux-application-shell`), KHÔNG chỉ bốn `projection` type. Hai chiều (taxonomy, state-authority) tách biệt hoàn toàn, KHÔNG dùng chung một bảng/tally.
 
 ## 5. Dependency graph
 
@@ -149,11 +152,18 @@ strategy-plugin-host             → depends_on: strategy-engine, context-aggreg
                                     (forbidden_dependencies: execution-engine, risk-gateway,
                                     paper-execution-boundary)
 
-decision-engine                  → depends_on: strategy-engine, strategy-plugin-host,
+decision-evaluation-engine        → depends_on: strategy-engine, strategy-plugin-host,
                                     context-aggregator
+                                    (forbidden_dependencies: execution-engine, risk-gateway,
+                                    paper-execution-boundary)
+                                    [ADR-016 v0.8 Approved — non-authoritative deterministic
+                                    evaluation, replaces `decision-engine` hybrid]
+decision-authority-service        → depends_on: decision-evaluation-engine, strategy-engine
                                     (forbidden_dependencies: execution-engine,
                                     paper-execution-boundary)
-risk-gateway                     → depends_on: decision-engine, account-service
+                                    [ADR-016 v0.8 Approved — sole Decision/Trade Intent
+                                    authority, replaces `decision-engine` hybrid]
+risk-gateway                     → depends_on: decision-authority-service, account-service
 execution-engine                 → depends_on: risk-gateway, paper-execution-boundary
                                     (forbidden_dependencies: strategy-engine,
                                     strategy-plugin-host, context-aggregator)
@@ -161,27 +171,30 @@ execution-result-processor       → depends_on: execution-engine, paper-executi
 fill-processor                   → depends_on: execution-result-processor
 position-projection              → depends_on: fill-processor
 
-replay-integration-service       → depends_on: decision-engine, risk-gateway,
+replay-integration-service       → depends_on: decision-authority-service, risk-gateway,
                                     execution-engine, execution-result-processor,
                                     fill-processor, position-projection
 
-backtest-orchestrator            → depends_on: strategy-engine, decision-engine, risk-gateway
+backtest-orchestrator            → depends_on: strategy-engine, decision-evaluation-engine,
+                                    decision-authority-service, risk-gateway
                                     (forbidden_dependencies: execution-engine,
                                     paper-execution-boundary, execution-result-processor,
                                     fill-processor, position-projection)
 paper-execution-boundary (root — referenced BY execution-engine/execution-result-processor)
 
-command-query-api-surface        → depends_on: [all 16 authoritative/projection modules]
-review-evidence-service          → depends_on: decision-engine, risk-gateway,
+command-query-api-surface        → depends_on: [all 16 authoritative/projection modules —
+                                    decision-authority-service, NOT decision-evaluation-engine
+                                    (same exclusion pattern as strategy-plugin-host)]
+review-evidence-service          → depends_on: decision-authority-service, risk-gateway,
                                     execution-engine, execution-result-processor,
                                     fill-processor, position-projection,
                                     replay-integration-service
 ux-application-shell             → depends_on: command-query-api-surface
-                                    (forbidden_dependencies: all 13 engine/projection
+                                    (forbidden_dependencies: all 14 engine/projection
                                     modules directly — must go through API surface)
 ```
 
-Validated (script-checked before commit, §13): 22 unique `module_id`; every `depends_on`/`forbidden_dependencies` reference resolves to an existing `module_id`; zero cycles in the `depends_on` graph; zero module has the same ID in both `depends_on` and `forbidden_dependencies`.
+Validated (script-checked before commit, §13): 23 unique `module_id`; every `depends_on`/`forbidden_dependencies` reference resolves to an existing `module_id`; zero cycles in the `depends_on` graph; zero module has the same ID in both `depends_on` and `forbidden_dependencies`.
 
 ### 5.2 Diagram (illustrative only — §5.1 is normative)
 
@@ -197,12 +210,15 @@ Structure Engine   Raw Regime Engine        (độc lập)
             ▼
     Context Aggregator (Projection, KHÔNG business decision)
             ▼
- Strategy Engine ──► Strategy Plugin Host ──► Decision Engine
-                                                    │
-                                                    ▼
-                                              Risk Gateway
-                                                    │
-                                                    ▼
+ Strategy Engine ──► Strategy Plugin Host ──► Decision Evaluation Engine ──► Decision
+                                               (non-authoritative,             Authority Service
+                                                compute_engine)                (sole authority,
+                                                                                runtime_service)
+                                                                                     │
+                                                                                     ▼
+                                                                               Risk Gateway
+                                                                                     │
+                                                                                     ▼
                                             Execution Engine ◄── Paper Execution Boundary
                                                     │
                                                     ▼
@@ -215,11 +231,19 @@ Structure Engine   Raw Regime Engine        (độc lập)
                                            Position Projection
 
 (Account Service, Plugin Release Manager: independent roots referenced by Strategy/Risk.)
-(Replay Integration Service, Review Evidence Service: cross-cutting read layers over the chain.)
-(Backtest Orchestrator: parallel non-PAPER path — explicitly forbidden from touching
+(Replay Integration Service, Review Evidence Service: cross-cutting read layers over the chain
+ — consume Decision Authority Service authoritative fact only, NOT Decision Evaluation
+ Engine's non-authoritative proposal.)
+(Backtest Orchestrator: parallel non-PAPER path — depends on BOTH Decision Evaluation Engine
+ and Decision Authority Service — explicitly forbidden from touching
  Execution/Paper/ExecutionResult/Fill/Position modules.)
-(Command/Query/API Surface: fan-in from every authoritative/projection module.)
+(Command/Query/API Surface: fan-in from every authoritative/projection module — Decision
+ Authority Service only, same exclusion pattern as Strategy Plugin Host for
+ Decision Evaluation Engine.)
 (UX Application Shell: depends ONLY on API Surface, never engines directly.)
+(ADR-016 v0.8 Approved, 2026-08-04 — Candidate B/split, Mechanism A: `decision-engine` hybrid
+ replaced by the two modules shown above. This is a responsibility/dependency view, NOT
+ authorization to implement a synchronous pipeline or specific runtime topology.)
 ```
 
 ## 6. Responsibility and ownership boundaries
@@ -234,9 +258,10 @@ Dùng ĐÚNG state-authority tally đã pin tại §4 (P11-A-MIN-01 correction) 
 
 ```text
 owns_authoritative_state: true      13  (xem §4 cho danh sách đầy đủ)
-owns_authoritative_state: false     8   (xem §4 — KHÔNG chỉ bốn Projection; gồm cả
-                                         strategy-plugin-host/paper-execution-boundary/
-                                         command-query-api-surface/ux-application-shell)
+owns_authoritative_state: false     9   (xem §4 — KHÔNG chỉ bốn Projection; gồm cả
+                                         strategy-plugin-host/decision-evaluation-engine/
+                                         paper-execution-boundary/command-query-api-surface/
+                                         ux-application-shell)
 owns_authoritative_state: deferred  1   backtest-orchestrator (DD-001)
 ```
 
@@ -252,7 +277,7 @@ I-12 conformance: mỗi domain concept resolve đúng MỘT authoritative module
 
 **Authority boundary tường minh (P11-A-MAJ-02 correction, đóng finding):** `module-registry.yaml` — CHÍNH tài liệu YAML này — là **authority DUY NHẤT** cho Plugin Definition identity, module existence, primary taxonomy, và architecture responsibility của MỌI module, kể cả module liên quan plugin (Chapter 7 §7.5, Chapter 9 §9.1). KHÔNG runtime module nào — kể cả `plugin-release-manager` — được sở hữu hay mutate các architecture fact đó. `plugin-release-manager` (đổi tên từ "Plugin Registry Service", đóng `P11-A-MAJ-02`) CHỈ sở hữu OPERATIONAL fact: Plugin Version → exact Package/Build Artifact content identity resolution, immutable release-manifest resolution (Chapter 9 §9.1, mô hình A/B), runtime compatibility/availability status của Plugin Runtime replica, và activation/deactivation coordination (Chapter 9 §9.5, validated compatibility set) — KHÔNG Plugin Definition identity/taxonomy, KHÔNG một registry thứ hai. `strategy-plugin-host` (Plugin Definition, taxonomy `compute_engine`) tự nó vẫn đăng ký DUY NHẤT tại `module-registry.yaml`, không đổi.
 
-Strategy Plugin (`strategy-plugin-host`) KHÔNG được bypass Decision/Risk Gateway — `forbidden_dependencies: [execution-engine, risk-gateway, paper-execution-boundary]` enforce tại module-boundary level, đúng I-4/I-7. Decision-time visibility (Chapter 9 §9.5) là ràng buộc của chính `strategy-plugin-host`'s runtime behavior, elaborated đầy đủ tại Package 1.3-C — Package 1.1 chỉ pin boundary, KHÔNG thiết kế cơ chế cursor-bounded cụ thể.
+Strategy Plugin (`strategy-plugin-host`) KHÔNG được bypass Decision/Risk Gateway — `forbidden_dependencies: [execution-engine, risk-gateway, paper-execution-boundary, decision-authority-service]` enforce tại module-boundary level, đúng I-4/I-7 (v0.3 — thêm `decision-authority-service` sau ADR-016 v0.8 split: Plugin phải KHÔNG BAO GIỜ trực tiếp reach authority append, chỉ feed advisory input qua `decision-evaluation-engine`, vốn tự nó cũng KHÔNG được bypass Decision Authority Service/Risk Gateway/Execution — `decision-evaluation-engine.forbidden_dependencies: [execution-engine, risk-gateway, paper-execution-boundary]`, cùng nguyên tắc non-bypass). Decision-time visibility (Chapter 9 §9.5) là ràng buộc của chính `strategy-plugin-host`'s runtime behavior, elaborated đầy đủ tại Package 1.3-C — Package 1.1 chỉ pin boundary, KHÔNG thiết kế cơ chế cursor-bounded cụ thể.
 
 ## 10. Product/UC/UX coverage evidence
 
@@ -262,20 +287,20 @@ Strategy Plugin (`strategy-plugin-host`) KHÔNG được bypass Decision/Risk Ga
 |---|---|---|---|---|
 | UC-001 | `context-aggregator` | `market-data-ingestion`, `structure-engine`, `raw-regime-engine`, `feature-engine` | PR-003, PR-015, PR-017 | SCR-001, VIEW-001 |
 | UC-002 | `strategy-engine` | — | PR-001, PR-016 | VIEW-001 |
-| UC-003 | `decision-engine` | — | PR-017 | VIEW-002 |
-| UC-004 | `replay-integration-service` | `decision-engine`, `risk-gateway`, `execution-engine`, `execution-result-processor`, `fill-processor`, `position-projection` | PR-008, PR-018, PR-020 | SCR-002 |
-| UC-005 | `decision-engine` | `replay-integration-service` | PR-010, PR-019 | VIEW-003 |
-| UC-006 | `backtest-orchestrator` | `strategy-engine`, `decision-engine`, `risk-gateway` | PR-021, PR-022, PR-023 | SCR-003 |
-| UC-007 | `backtest-orchestrator` | `decision-engine`, `risk-gateway` | PR-021, PR-009, PR-004, PR-005 | SCR-004 |
+| UC-003 | `decision-authority-service` | — | PR-017 | VIEW-002 |
+| UC-004 | `replay-integration-service` | `decision-authority-service`, `risk-gateway`, `execution-engine`, `execution-result-processor`, `fill-processor`, `position-projection` | PR-008, PR-018, PR-020 | SCR-002 |
+| UC-005 | `decision-authority-service` | `replay-integration-service` | PR-010, PR-019 | VIEW-003 |
+| UC-006 | `backtest-orchestrator` | `strategy-engine`, `decision-evaluation-engine`, `decision-authority-service`, `risk-gateway` | PR-021, PR-022, PR-023 | SCR-003 |
+| UC-007 | `backtest-orchestrator` | `decision-evaluation-engine`, `decision-authority-service`, `risk-gateway` | PR-021, PR-009, PR-004, PR-005 | SCR-004 |
 | UC-008 | `backtest-orchestrator` | — | PR-033 | SCR-004 |
 | UC-009 | `backtest-orchestrator` | `strategy-engine` | PR-034 | SCR-004 |
 | UC-010 | `backtest-orchestrator` | `strategy-engine` | PR-034 | SCR-005 |
-| UC-011 | `decision-engine` | `risk-gateway`, `execution-engine`, `paper-execution-boundary`, `account-service` | PR-007, PR-024, PR-004, PR-005 | SCR-006 |
+| UC-011 | `decision-authority-service` | `risk-gateway`, `execution-engine`, `paper-execution-boundary`, `account-service` | PR-007, PR-024, PR-004, PR-005 | SCR-006 |
 | UC-012 | `execution-result-processor` | `execution-engine` | PR-007, PR-024 | SCR-007 |
 | UC-013 | `fill-processor` | `execution-result-processor` | PR-025 | SCR-007 |
 | UC-014 | `position-projection` | `fill-processor` | PR-026 | SCR-007 |
 | UC-015 | `execution-engine` | `paper-execution-boundary` | PR-027 | SCR-007 |
-| UC-016 | `review-evidence-service` | `decision-engine`…`position-projection` (full chain) | PR-028, PR-004, PR-005 | SCR-008 |
+| UC-016 | `review-evidence-service` | `decision-authority-service`…`position-projection` (full chain) | PR-028, PR-004, PR-005 | SCR-008 |
 | UC-017 | `replay-integration-service` | `review-evidence-service` | PR-029 | SCR-009 |
 | UC-018 | `review-evidence-service` | — | PR-011, PR-030 | VIEW-004 |
 | UC-019 | `strategy-engine` | — | PR-031 | SCR-010, VIEW-006 |
@@ -304,7 +329,7 @@ Strategy Plugin (`strategy-plugin-host`) KHÔNG được bypass Decision/Risk Ga
 | PR-006 | UC-011 alternate flow (§8, RiskEvaluation REJECTED/NON_EVALUABLE reason disclosure) | `risk-gateway` |
 | PR-012 | `WF-INV-7` (§4, historical cursor deterministic, không phụ thuộc network) — cross-cutting | `replay-integration-service` |
 | PR-013 | `WF-INV-8` (§4, giá trị tài chính hiển thị lossless) — cross-cutting | `fill-processor`, `position-projection`, `execution-result-processor` |
-| PR-014 | `WF-INV-9` (§4, lifecycle state hiển thị phản ánh transition đã khai báo) — cross-cutting | `decision-engine`, `risk-gateway`, `execution-engine`, `execution-result-processor`, `fill-processor` (mọi module sở hữu state machine) |
+| PR-014 | `WF-INV-9` (§4, lifecycle state hiển thị phản ánh transition đã khai báo) — cross-cutting | `decision-authority-service`, `risk-gateway`, `execution-engine`, `execution-result-processor`, `fill-processor` (mọi module sở hữu state machine — `decision-evaluation-engine` KHÔNG có Decision lifecycle state, chỉ compute non-authoritative proposal) |
 
 Với năm PR trên, coverage đến từ **Workflow Invariant** (`WF-INV-XXX`, cross-cutting toàn bộ workflow, KHÔNG gắn riêng một UC) hoặc từ **alternate-flow** của một UC cụ thể (không xuất hiện ở "Primary PR(s)" nhưng vẫn material) — cả hai đều là traceability hợp lệ theo `use-case-workflow.md` §"Quy tắc traceability nguồn". Coverage totals §10 (34/34) đã tính đủ năm PR này.
 
@@ -345,9 +370,14 @@ Decision 1 — Official Phase 1 module dependency graph (§5, module-registry.ya
                    Đây là lần ĐẦU TIÊN dependency graph chính thức được đề xuất (trước đây
                    chỉ có bản nháp Chapter 7/architecture README) — khó đảo ngược một khi
                    Package 1.2–1.6 bắt đầu elaborate dựa trên nó.
-  Consequence:     Package 1.1 KHÔNG được Consolidated Stable cho tới khi ADR này Approved
-                   (hoặc Product Owner quyết định khác qua Decision Workflow) — xem banner
-                   đầu tài liệu VÀ §15.
+  Status (v0.3):   **RESOLVED** — [ADR-015](../adr/ADR-015.md) v0.3, `Approved` (Product
+                   Owner, 2026-08-03). Official Phase 1 module decomposition/dependency-graph
+                   baseline established, pin bất biến, exact-artifact reference. ADR-015 vẫn
+                   controlling/immutable cho toàn bộ module inventory NGOÀI phạm vi SCOPED mà
+                   ADR-016 v0.8 (Decision 2 dưới) amend.
+  Consequence:     ADR gate condition cho Decision 1 nay THỎA — NHƯNG một mình Decision 1
+                   Approved KHÔNG đủ cho Consolidated Stable; xem Consequence tổng hợp tại
+                   Decision 2 dưới và §15.
 
 Decision 2 — decision-engine hybrid taxonomy (primary runtime_service, secondary
              decision_evaluation):
@@ -358,6 +388,28 @@ Decision 2 — decision-engine hybrid taxonomy (primary runtime_service, seconda
                    §7.1 (responsibility không thể tách hợp lý) chưa được chứng minh —
                    candidate này KHÔNG tự chứng minh đủ 4 điều kiện, do đó hybrid status
                    CHƯA hợp lệ cho tới khi ADR resolve đúng bốn điều kiện đó.
+  Status (v0.3):   **RESOLVED** — [ADR-016](../adr/ADR-016.md) v0.8, `Approved` (Product
+                   Owner, 2026-08-04). Outcome: **Candidate B (split) SELECTED**, hybrid
+                   (Candidate A) REJECTED — `decision-engine` tách thành
+                   `decision-evaluation-engine` (compute_engine, non-authoritative
+                   deterministic evaluation; KHÔNG Decision/Trade Intent identity, KHÔNG
+                   Risk approval, KHÔNG Execution authority) + `decision-authority-service`
+                   (runtime_service, sole invariant-validation/Decision-append/Trade-Intent-
+                   identity authority). Governance mechanism: **Mechanism A** — ADR-016 v0.8
+                   tự nó amend hiệu lực kiểm soát của ADR-015 SCOPED cho module identity/
+                   dependency edge liên quan (KHÔNG toàn bộ ADR-015 — 21/22 module còn lại
+                   không đổi). Bốn residual risk CHẤP NHẬN bởi Product Owner tại approval
+                   (Strategy Plugin/Evaluation boundary; evaluation-proposal Domain Contract
+                   gap; `attempt_outcome` mapping gap; operational/dependency/replay
+                   complexity) — GIỮ NGUYÊN, KHÔNG resolve tại Package 1.1 correction này.
+  Consequence:     ADR gate condition cho CẢ Decision 1 VÀ Decision 2 nay THỎA (cả hai
+                   Approved). Package 1.1 candidate (module-registry.yaml/
+                   system-decomposition.md v0.3) đã align với quyết định — NHƯNG Package 1.1
+                   VẪN KHÔNG được Consolidated Stable: Review A + Independent Review B trên
+                   chính candidate v0.3 này (post-correction) + Product Owner consolidation
+                   decision CHƯA thực hiện (§15). ADR Approved ≠ Package artifact tự động
+                   Consolidated Stable — hai bước riêng biệt theo package-lifecycle/
+                   artifact-lifecycle separation đã dùng nhất quán trong toàn bộ session này.
 
 Decision 2b — risk-gateway taxonomy (P11-A-MAJ-01 correction, đóng finding):
   Classification:  ADR NOT REQUIRED — KHÔNG phải vì "Chapter 7 §7.1 worked example waive
@@ -431,7 +483,7 @@ Decision 7 — command-query-api-surface / review-evidence-service / ux-applicat
 ## 13. Quality-gate applicability
 
 ```text
-Trigger A (universal invariant conformance):        ÁP DỤNG cho toàn bộ 22 module — mọi
+Trigger A (universal invariant conformance):        ÁP DỤNG cho toàn bộ 23 module — mọi
                                                       responsibility/dependency-direction
                                                       claim trong module-registry.yaml phải
                                                       conform I-1..I-13 by design (đã tự-
@@ -506,26 +558,45 @@ Review A scope:            Module completeness (22/22 bounded, no god module); t
                             Domain coverage completeness (11/11 capability, 15/15
                             context); ADR Scope Rule correctness (§12 — hai Decision REQUIRED
                             không bị silently approve); no silent semantic invention; no
-                            implementation leakage (§14).
+                            implementation leakage (§14). **Cập nhật (v0.3):** xác nhận
+                            candidate v0.3 align CHÍNH XÁC với ADR-015 v0.3 + ADR-016 v0.8 đã
+                            Approved — KHÔNG expand ADR-016's scoped amendment ra ngoài
+                            decision-engine module identity/dependency edge liên quan, KHÔNG
+                            silently resolve bốn residual risk gap ADR-016 đã accept.
 Independent Review B
-  scope:                   Độc lập xác nhận CÙNG phạm vi trên, đặc biệt: (a) xác nhận
-                            Decision 1/Decision 2 tại §12 THỰC SỰ là ADR-required (không bị
-                            hidden/downplay); (b) xác nhận DD-001/DD-003/Structure-aware-
-                            Regime deferred items KHÔNG bị lấp bằng semantics tự phát minh;
-                            (c) xác nhận `module-registry.yaml` machine-parseable, mọi
-                            script-check (§13, unique ID/valid reference/no cycle/no
-                            contradiction/full coverage) tái tạo được độc lập.
+  scope:                   Độc lập xác nhận CÙNG phạm vi trên, đặc biệt (v0.3, cập nhật sau
+                            Decision 1/2 Approved): (a) xác nhận `decision-evaluation-engine`/
+                            `decision-authority-service` split ĐÚNG bốn authority guarantee
+                            ADR-016 v0.8 đã Approved (non-authoritative evaluation; sole
+                            invariant-validation/append/Trade-Intent-identity authority;
+                            Strategy Plugin Host/Context Aggregator/Event Bus/Projection
+                            không có Decision authority) — KHÔNG bị silently diverge; (b) xác
+                            nhận KHÔNG module nào còn classified Chapter 7 hybrid; (c) xác
+                            nhận DD-001/DD-003/Structure-aware-Regime deferred items KHÔNG bị
+                            lấp bằng semantics tự phát minh; (d) xác nhận `module-registry.yaml`
+                            machine-parseable, mọi script-check (§13, unique ID/valid
+                            reference/no cycle/no contradiction/full coverage) tái tạo được
+                            độc lập, module count = 23.
 Product Owner decision
   point:                   SAU khi Review A + Review B hoàn tất VÀ Decision 1 (module
                             dependency graph ADR) + Decision 2 (decision-engine hybrid ADR)
                             đã `Approved` — Product Owner mới có đủ điều kiện quyết
-                            Consolidated Stable cho Package 1.1. TRƯỚC đó, package ở
-                            trạng thái candidate/reviewed nhưng KHÔNG thể Consolidated
-                            Stable dù Review A/B đều CLEAN, đúng "Important boundary" của
-                            task gốc.
+                            Consolidated Stable cho Package 1.1. **Cập nhật (v0.3,
+                            2026-08-04):** Decision 1 (ADR-015 v0.3) VÀ Decision 2 (ADR-016
+                            v0.8) nay ĐỀU `Approved` — ADR gate condition THỎA. NHƯNG Review
+                            A + Independent Review B trên CHÍNH candidate v0.3 này
+                            (post-ADR-016-alignment correction) CHƯA thực hiện — package
+                            VẪN ở trạng thái candidate/not-reviewed-since-correction, KHÔNG
+                            thể Consolidated Stable cho tới khi review đó hoàn tất VÀ Product
+                            Owner ra quyết định consolidation riêng, đúng "Important
+                            boundary" của task gốc (ADR Approved ≠ artifact tự động
+                            Consolidated Stable).
 Consolidation condition:  Zero unresolved Blocker/Major; Decision 1 + Decision 2 ADR (§12)
-                            Approved; §13 script-check tái tạo PASS; §10 coverage totals
-                            (34/21/17/11/15, zero orphan) không đổi kể từ Review A/B
-                            baseline; forbidden-scope verification (không Package 1.2–1.6
-                            content, không Product/Domain semantic thay đổi) PASS.
+                            Approved (**THỎA, v0.3**); §13 script-check tái tạo PASS; §10
+                            coverage totals (34/21/17/11/15, zero orphan) không đổi kể từ
+                            Review A/B baseline; forbidden-scope verification (không Package
+                            1.2–1.6 content, không Product/Domain semantic thay đổi,
+                            KHÔNG expand ADR-016 scope, KHÔNG resolve residual risk gaps)
+                            PASS; **Review A + Independent Review B trên candidate v0.3
+                            (post-correction) PASS — CHƯA thực hiện tại transaction này.**
 ```
