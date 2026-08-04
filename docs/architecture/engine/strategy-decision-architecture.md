@@ -1,7 +1,7 @@
 ---
 id: strategy-decision-architecture
 title: "Package 1.3-C — Strategy & Decision Engine Architecture"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -17,9 +17,11 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 
 **CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.3-C v0.1 là candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.4), Package 1.3-A `Consolidated Stable`, và Package 1.3-B `Consolidated Stable` (xem §1), theo [`phase-1-plan.md`](../phase-1-plan.md) v0.4 (`Approved`) §8 Package 1.3-C block. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
 
+**v0.2 — bounded correction (2026-08-04), đóng `P13C-IRB-MAJ-01`/`P13C-A-MIN-01`/`P13C-IRB-MIN-01`** (findings confirmed từ Review A/Independent Review B trên v0.1). `P13C-IRB-MAJ-01`: `module-registry.yaml` v0.4 gán `plugin-release-manager.phase.elaborated_by: "1.3-C"` từ trước (Package 1.1 assignment KHÔNG sai, KHÔNG cần sửa) nhưng v0.1 của tài liệu này KHÔNG elaborate module đó — sửa: mở rộng scope bốn → **năm module**, thêm §5a "Module boundary — Plugin Release Manager". `P13C-A-MIN-01`/`P13C-IRB-MIN-01`: §7.3 (v0.1) gộp nhầm "Feature Engine/Context Aggregator" chung một nhóm "authoritative source DUY NHẤT" — SAI vì `feature-engine.owns_authoritative_state: true` nhưng `context-aggregator.owns_authoritative_state: false` (projection); sửa tách bạch tường minh tại §7.3 + thêm terminology block tại §9. KHÔNG đổi Decision authority model đã Approved (ADR-016 v0.8), KHÔNG đổi mandatory non-bypass sequence, KHÔNG đổi Context fail-closed conditions, KHÔNG resolve context.md terminology gap, KHÔNG tạo ADR.
+
 ## 0. Vai trò của tài liệu này
 
-Package 1.3-C elaborate **kiến trúc kỹ thuật** cho bốn module ĐÃ được Package 1.1 (`Consolidated Stable`, [`module-registry.yaml`](../module-registry.yaml) v0.4 blob `6c4daa3eda3ef560b201de516dd019564d264c08`, [`system-decomposition.md`](../system-decomposition.md) v0.4 blob `8e60b9e6051956cfbe83f33e1c82f404bc082e37`) thiết lập identity/taxonomy/dependency: `strategy-engine`, `strategy-plugin-host`, `decision-evaluation-engine`, `decision-authority-service`. Tài liệu này **KHÔNG redefine** module identity/taxonomy/dependency đã pin ở Package 1.1, **KHÔNG redefine** Domain Contract semantics đã pin ở `strategy.md`/`decision.md`, và **KHÔNG redefine** ADR-016's approved taxonomy decision — chỉ elaborate: responsibility boundary chi tiết, mandatory non-bypass flow, sole Decision-authority proof, Context criticality consumption (không đổi Package 1.3-B), determinism/replay/no-repaint treatment, và open gap — đúng phạm vi `phase-1-plan.md` §8 Package 1.3-C "Purpose: Kiến trúc kỹ thuật cho Strategy Engine → Decision Engine, bao gồm Plugin hosting boundary (Strategy Plugin)".
+Package 1.3-C elaborate **kiến trúc kỹ thuật** cho năm module ĐÃ được Package 1.1 (`Consolidated Stable`, [`module-registry.yaml`](../module-registry.yaml) v0.4 blob `6c4daa3eda3ef560b201de516dd019564d264c08`, [`system-decomposition.md`](../system-decomposition.md) v0.4 blob `8e60b9e6051956cfbe83f33e1c82f404bc082e37`) thiết lập identity/taxonomy/dependency: `strategy-engine`, `strategy-plugin-host`, `plugin-release-manager`, `decision-evaluation-engine`, `decision-authority-service` — **v0.2 correction (2026-08-04), đóng `P13C-IRB-MAJ-01`: thêm `plugin-release-manager`** (module-registry.yaml v0.4 đã gán `phase.elaborated_by: "1.3-C"` cho module này từ trước; v0.1 bỏ sót elaboration, sửa tại v0.2, xem §5a). Tài liệu này **KHÔNG redefine** module identity/taxonomy/dependency đã pin ở Package 1.1, **KHÔNG redefine** Domain Contract semantics đã pin ở `strategy.md`/`decision.md`, và **KHÔNG redefine** ADR-016's approved taxonomy decision — chỉ elaborate: responsibility boundary chi tiết, mandatory non-bypass flow, sole Decision-authority proof, Context criticality consumption (không đổi Package 1.3-B), determinism/replay/no-repaint treatment, và open gap — đúng phạm vi `phase-1-plan.md` §8 Package 1.3-C "Purpose: Kiến trúc kỹ thuật cho Strategy Engine → Decision Engine, bao gồm Plugin hosting boundary (Strategy Plugin)".
 
 **KHÔNG thuộc phạm vi tài liệu này:** field-level event schema (đã khóa tại `strategy.md` v0.3/`decision.md` v0.3, Package 0.2-C3/C4, `Consolidated Stable`); Strategy Plugin algorithm; evaluation-proposal field-level schema (chưa tồn tại — §13 gap); database schema; deployment/runtime topology cụ thể; Risk/Execution semantics (Package 1.3-D); Package 1.3-A/1.3-B content (KHÔNG redefine, `Consolidated Stable`).
 
@@ -53,25 +55,27 @@ feature-context-architecture.md v0.2 (Package     Context Aggregator criticality
 phase-1-plan.md v0.4 (Approved):                  Phase 1 work-breakdown/package-boundary
                                                     authority
 Package 1.3-C (tài liệu này):                     technical elaboration authority ONLY, cho
-                                                    đúng bốn module trong scope
+                                                    đúng năm module trong scope (v0.2, đóng
+                                                    P13C-IRB-MAJ-01)
 ```
 
 Package 1.3-C KHÔNG redefine domain entity/event semantics, module identity/taxonomy, hay ADR decision nào — mọi nội dung dưới đây chỉ **elaborate** kiến trúc kỹ thuật trong ranh giới đã pin.
 
-## 2. Module scope (bốn module, pin nguyên trạng từ Package 1.1 v0.4)
+## 2. Module scope (năm module, pin nguyên trạng từ Package 1.1 v0.4 — v0.2 mở rộng, đóng `P13C-IRB-MAJ-01`)
 
-Bốn module dưới đây trích dẫn NGUYÊN VĂN `module-registry.yaml` v0.4 (identity/taxonomy/dependency KHÔNG đổi) — cột "Elaboration" là nội dung MỚI của tài liệu này:
+Năm module dưới đây trích dẫn NGUYÊN VĂN `module-registry.yaml` v0.4 (identity/taxonomy/dependency KHÔNG đổi) — cột "Elaboration" là nội dung MỚI của tài liệu này. **`plugin-release-manager` thêm tại v0.2** — Package 1.1 đã gán `phase.elaborated_by: "1.3-C"` cho module này từ trước (assignment KHÔNG sai, KHÔNG cần sửa Package 1.1); v0.1 của tài liệu này bỏ sót elaboration, sửa tại đây:
 
 | module_id | module_type | owns_authoritative_state | depends_on | forbidden_dependencies |
 |---|---|---|---|---|
 | `strategy-engine` | runtime_service | true | `account-service` | (none) |
 | `strategy-plugin-host` | compute_engine | false | `strategy-engine`, `context-aggregator`, `plugin-release-manager` | `execution-engine`, `risk-gateway`, `paper-execution-boundary`, `decision-authority-service` |
+| `plugin-release-manager` | runtime_service | true | (none) | (none) |
 | `decision-evaluation-engine` | compute_engine | false | `strategy-engine`, `strategy-plugin-host`, `context-aggregator` | `execution-engine`, `risk-gateway`, `paper-execution-boundary` |
 | `decision-authority-service` | runtime_service | true | `decision-evaluation-engine`, `strategy-engine` | `execution-engine`, `paper-execution-boundary` |
 
 **KHÔNG recreate `decision-engine` (xác nhận tường minh, yêu cầu task):** module `decision-engine` (hybrid cũ, Candidate A) KHÔNG còn tồn tại trong `module-registry.yaml` v0.4 — ADR-016 v0.8 (Approved) đã REJECT Candidate A, chọn Candidate B (split). Tài liệu này KHÔNG tham chiếu `decision-engine` như một entity/module còn hiệu lực dưới bất kỳ hình thức nào ngoài historical/lineage reference (ví dụ khi trích dẫn nguyên văn ADR-016).
 
-**Module tham chiếu, KHÔNG elaborate đầy đủ tại đây (out of scope cho Package 1.3-C, task chỉ liệt kê bốn module trên):** `context-aggregator` (Package 1.3-B, `Consolidated Stable`, KHÔNG redefine); `account-service` (Package 1.2, chưa elaborate); `plugin-release-manager` (Package 1.1's `module-registry.yaml` v0.4 gán `phase.elaborated_by: "1.3-C"` cho module này, NHƯNG task scope của chính transaction này liệt kê CHỈ bốn module — `strategy-engine`/`strategy-plugin-host`/`decision-evaluation-engine`/`decision-authority-service`; `plugin-release-manager` do đó CHỈ được tham chiếu như một dependency boundary của `strategy-plugin-host`, KHÔNG được elaborate đầy đủ tại tài liệu này — ghi nhận tường minh §13); `risk-gateway` (Package 1.3-D, downstream boundary, KHÔNG elaborate).
+**Module tham chiếu, KHÔNG elaborate đầy đủ tại đây (out of scope cho Package 1.3-C, task chỉ liệt kê năm module trên):** `context-aggregator` (Package 1.3-B, `Consolidated Stable`, KHÔNG redefine); `account-service` (Package 1.2, chưa elaborate); `risk-gateway` (Package 1.3-D, downstream boundary, KHÔNG elaborate).
 
 ## 3. Mandatory architecture flow (non-bypass sequence — KHÔNG runtime topology)
 
@@ -258,6 +262,132 @@ Package 1.3-C KHÔNG resolve ranh giới CHÍNH XÁC giữa "candidate analytica
   §13 cho gap đầy đủ.
 ```
 
+## 5a. Module boundary — Plugin Release Manager (MỚI, v0.2, đóng `P13C-IRB-MAJ-01`)
+
+**Trách nhiệm (Package 1.1, KHÔNG đổi):** "Resolve Plugin Version → exact Package/Build Artifact content identity (content hash, target platform, build identity) HOẶC immutable release manifest (Chapter 9 §9.1, mô hình A/B) — operational resolution, KHÔNG architecture identity." + "Theo dõi runtime compatibility/availability status của Plugin Runtime replica đã deploy." + "Điều phối activation/deactivation boundary (Chapter 9 §9.5 — validated compatibility set, atomic activation) — operational coordination fact, KHÔNG Plugin Definition identity." + "KHÔNG sở hữu Plugin Definition identity, taxonomy type, hay bất kỳ architecture responsibility nào — authority đó thuộc DUY NHẤT `module-registry.yaml`."
+
+### 5a.1 Registry classification (bảo toàn nguyên vẹn, yêu cầu task)
+
+```text
+module_type:               runtime_service
+owns_authoritative_state:  true (operational fact ONLY — §5a.3 dưới, KHÔNG Plugin
+                            Definition identity)
+consumes:                  command
+emits:                     event, query
+depends_on:                (none — root)
+forbidden_dependencies:    (none)
+plugin_relation:           manages_release
+security_classification:   none
+```
+
+### 5a.2 Architecture-level responsibility (elaboration, đúng yêu cầu task)
+
+```text
+Plugin Release Manager chịu trách nhiệm cho:
+  registered plugin release metadata (Plugin Version → Package/Build Artifact resolution
+    record, Chapter 9 §9.1);
+  Plugin Definition / Plugin Version / Package-Build Artifact resolution — CHỈ resolution
+    (tra cứu/xác nhận), KHÔNG sở hữu Plugin Definition identity (đó là module-registry.yaml
+    chính nó, Chapter 7 §7.5/Chapter 9 §9.1 — "Module này KHÔNG phải, và KHÔNG tạo, một
+    plugin registry thứ hai");
+  compatibility và capability evidence — theo dõi runtime compatibility/availability
+    status của Plugin Runtime replica đã deploy (Chapter 10, referenced KHÔNG redefine);
+  activation eligibility coordination — điều phối activation/deactivation boundary
+    (Chapter 9 §9.5: validated compatibility set phải đồng bộ atomic — Plugin Contract
+    version, Input Contract version, published contract references, permission grant
+    version, required capability/compatibility result, runtime implementation/deployment
+    version, exact Package/Build Artifact content identity đã qua parity/compatibility
+    validation);
+  immutable release-manifest hoặc exact artifact resolution nơi ĐÃ được Chapter 9 §9.1
+    cho phép (Mô hình A — Decision pin trực tiếp artifact: plugin_definition_id ·
+    plugin_version · artifact_content_hash; Mô hình B — Version manifest bất biến trỏ
+    exact artifact theo target platform) — Package 1.3-C KHÔNG chọn giữa hai mô hình,
+    chỉ ghi nhận cả hai đều hợp lệ theo Chapter 9;
+  cung cấp eligible release identity cho Strategy Plugin Host (§5) — Strategy Plugin Host
+    depends_on chứa plugin-release-manager (§2) chính vì lý do này: Plugin Host cần biết
+    release/artifact nào eligible TRƯỚC khi load/execute plugin.
+```
+
+### 5a.3 Preserved boundary (bắt buộc, yêu cầu task — KHÔNG được vi phạm)
+
+```text
+Plugin Release Manager KHÔNG được:
+  thực thi Strategy Plugin algorithm — đó là strategy-plugin-host (§5) responsibility,
+    KHÔNG phải Plugin Release Manager.
+  host plugin runtime invocation — plugin_relation: manages_release (§5a.1), KHÔNG
+    plugin_relation: hosts (đó là strategy-plugin-host); Plugin Release Manager KHÔNG tự
+    thực thi bất kỳ Plugin logic nào.
+  tiêu thụ live Context cho strategy evaluation — depends_on: (none) (§5a.1); KHÔNG có
+    edge nào tới context-aggregator; Plugin Release Manager KHÔNG chạm Context dưới bất
+    kỳ hình thức nào.
+  sinh plugin analytical output — đó là strategy-plugin-host's output ("candidate
+    analytical signal", §5.2), KHÔNG phải Plugin Release Manager's responsibility.
+  append Decision — decision-authority-service SOLE authority (§7).
+  assign Decision hay Trade Intent identity — decision-authority-service SOLE authority
+    (§7).
+  thực hiện Decision evaluation — decision-evaluation-engine (§6) responsibility.
+  approve Risk — ngoài phạm vi hoàn toàn (Package 1.3-D); forbidden_dependencies rỗng
+    (§5a.1) nhưng KHÔNG có depends_on nào tới risk-gateway, KHÔNG có architecture path
+    nào để làm việc này.
+  route Execution — cùng lý do trên, ngoài phạm vi hoàn toàn (Package 1.3-D).
+  mutate Strategy Definition semantics — strategy-engine (§4) SOLE authority cho Strategy
+    Definition Version/Instance identity; Plugin Release Manager KHÔNG sở hữu bất kỳ
+    Strategy semantic nào.
+  âm thầm thay thế mutable-latest plugin artifact — Chapter 9 §9.1 cấm tường minh: "Chỉ
+    trùng Plugin Version là KHÔNG đủ để activation eligible" — runtime implementation
+    thực tế phải resolve duy nhất tới đúng artifact ĐÃ nằm trong validated compatibility
+    set (§9.5); mixed-build activation (artifact khác dù cùng Plugin Version) LÀ integrity
+    violation, fail-safe (I-6).
+```
+
+### 5a.4 Plugin Release Manager vs Strategy Plugin Host — phân biệt tường minh (BẮT BUỘC, yêu cầu task)
+
+```text
+Plugin Release Manager quyết định release/artifact ĐÃ ĐĂNG KÝ nào eligible và resolvable
+  (§5a.2) — CHỈ resolution/coordination, KHÔNG execution.
+
+Strategy Plugin Host thực thi artifact eligible ĐÃ được chọn thông qua published contract
+  (§5.1) — CHỈ execution trong ranh giới cursor-bounded, KHÔNG tự resolve artifact
+  identity của chính nó (đó là lý do strategy-plugin-host.depends_on chứa
+  plugin-release-manager, §2).
+
+Đây là HAI trách nhiệm TÁCH BIỆT — module-registry.yaml v0.4 xác nhận qua hai
+  plugin_relation khác nhau (manages_release vs hosts, §5a.1/§5.1) — và KHÔNG module nào
+  trong hai module này được bypass Decision Evaluation Engine hay Decision Authority
+  Service: `plugin-release-manager.forbidden_dependencies` rỗng NHƯNG `depends_on` cũng
+  rỗng (root, §5a.1) — KHÔNG architecture path nào tồn tại từ Plugin Release Manager tới
+  decision-authority-service/risk-gateway/execution-engine; `strategy-plugin-host.
+  forbidden_dependencies` chứa `decision-authority-service` tường minh (§2/§5.2) — non-
+  bypass đã bảo toàn cho CẢ HAI module, không chỉ Strategy Plugin Host.
+```
+
+### 5a.5 KHÔNG invent (bắt buộc, yêu cầu task)
+
+```text
+Package 1.3-C KHÔNG invent tại §5a này:
+  plugin lifecycle state mới — Chapter 9 §9.8 đã khóa runtime lifecycle facts (installed/
+    deployed/created/activated/paused/deactivated/promoted/rolled-back/retired) là
+    authoritative event log, KHÔNG registry status; Package 1.3-C KHÔNG thêm state nào.
+  capability type mới — Chapter 10 (referenced, KHÔNG redefine) sở hữu compatibility/
+    capability algorithm.
+  activation protocol mới — Chapter 9 §9.5's validated compatibility set là ranh giới
+    ĐÃ khóa; cơ chế fencing/transaction/deployment-coordinator cụ thể "có thể defer sang
+    Phase 1 design spec" (Chapter 9 §9.5, nguyên văn) — Package 1.3-C KHÔNG author cơ chế
+    đó, chỉ ghi nhận atomic semantic đã khóa.
+  field-level release schema — KHÔNG author payload/schema cho Plugin Version/Package-
+    Build-Artifact resolution record.
+  artifact-signing implementation — ngoài phạm vi hoàn toàn (Package 1.2 security/custody
+    concern nếu có).
+  deployment topology — Package 1.3-C KHÔNG chọn process/container/host cho Plugin
+    Release Manager.
+  runtime isolation technology — cơ chế cô lập cụ thể (container, sandbox, process
+    boundary) là Phase 1/Package 1.2 concern, KHÔNG author tại đây.
+
+Nơi exact release activation hoặc compatibility mechanics còn chưa resolve (Mô hình A vs
+  B lựa chọn cụ thể; fencing/transaction mechanism; capability matching algorithm cụ thể)
+  — carry forward như gap tường minh tại §13, KHÔNG chọn implementation.
+```
+
 ## 6. Module boundary — Decision Evaluation Engine
 
 **Trách nhiệm (Package 1.1, KHÔNG đổi):** "Platform-owned deterministic Decision evaluation của Strategy Instance tại decision_context_cursor (ADR-010, Chapter 8 §8.4-§8.5) — sinh non-authoritative evaluation output/proposal." + "KHÔNG sở hữu Decision identity, KHÔNG Decision append authority, KHÔNG Trade Intent identity, KHÔNG Risk approval authority, KHÔNG Execution authority (ADR-016 v0.8, Candidate B)."
@@ -373,8 +503,14 @@ Decision Authority Service, VÀ CHỈ Decision Authority Service, được phép
 Decision Authority Service KHÔNG được:
   thực thi strategy/plugin algorithm — đó là strategy-plugin-host (§5)/decision-evaluation-
     engine (§6) responsibility.
-  tự tính lại Feature hay Context — Feature Engine/Context Aggregator (Package 1.3-B) là
-    authoritative source DUY NHẤT.
+  tự tính lại Feature — Feature Engine LÀ authoritative owner của Feature fact
+    (owns_authoritative_state: true, Package 1.3-B).
+  tự tính lại Context — Context Aggregator LÀ designated producer của eligible,
+    cursor-bounded Context projection record (owns_authoritative_state: false, projection,
+    rebuildable — Package 1.3-B, KHÔNG authoritative source, §9 dưới; correction v0.2,
+    đóng `P13C-A-MIN-01`/`P13C-IRB-MIN-01` — trước đây gộp nhầm Feature Engine và Context
+    Aggregator chung một nhóm "authoritative source DUY NHẤT", SAI vì hai module có
+    `owns_authoritative_state` khác nhau).
   thực hiện Risk Policy evaluation — risk-gateway (Package 1.3-D).
   tạo Execution Intent — execution-engine (Package 1.3-D); forbidden_dependencies chứa
     execution-engine/paper-execution-boundary (§2).
@@ -436,6 +572,23 @@ Cả ba trường hợp là fail-safe-by-scope (I-6, Chapter 7 §7.4) tại cons
 ```
 
 **Context KHÔNG BAO GIỜ được gọi là authoritative domain-state owner (xác nhận tường minh, đúng Package 1.3-B §5.1/§5.3):** `context-aggregator` vẫn `module_type: projection`, `owns_authoritative_state: false`, rebuildable, KHÔNG authoritative source cho upstream (Structure/Regime/Feature) hay business domain state (Strategy/Decision/Risk/Account/Position/Execution) — Package 1.3-C bảo toàn nguyên vẹn.
+
+**Terminology (correction v0.2, đóng `P13C-A-MIN-01`/`P13C-IRB-MIN-01` — bắt buộc, KHÔNG resolve `context.md` terminology gap, KHÔNG đổi Context sang authoritative ownership):**
+
+```text
+Feature Engine LÀ authoritative owner của Feature fact (feature-engine,
+  owns_authoritative_state: true, Package 1.3-B).
+
+Context Aggregator LÀ designated producer của eligible, cursor-bounded Context projection
+  record (context-aggregator, owns_authoritative_state: false, projection, rebuildable,
+  Package 1.3-B) — KHÔNG phải authoritative source.
+
+Decision Authority Service KHÔNG được tự tính lại CẢ HAI — không tính lại Feature fact (đó
+  là Feature Engine's authoritative computation, Package 1.3-B §4), không tính lại Context
+  projection (đó là Context Aggregator's as-of aggregation, Package 1.3-B §5.2).
+```
+
+Trước correction này, §7.3 (Decision Authority Service preserved boundary) gộp nhầm "Feature Engine/Context Aggregator" chung một nhóm "authoritative source DUY NHẤT" — SAI vì hai module có `owns_authoritative_state` khác nhau (`true` vs `false`); đã sửa tại §7.3 để tách bạch tường minh hai vai trò riêng biệt.
 
 ## 10. Determinism, replay và no-repaint
 
@@ -502,13 +655,13 @@ No silent historical repaint (I-3):  replay tại cursor T chỉ thấy fact có
 ## 11. Security / trust-boundary identification
 
 ```text
-strategy-engine, strategy-plugin-host, decision-evaluation-engine, decision-authority-
-  service:  security_classification: none (module-registry.yaml v0.4, KHÔNG đổi) — không
-  chạm external network boundary trực tiếp, không sở hữu credential/secret material. Cả
-  bốn tiêu thụ CHỈ internal authoritative event/query/command stream — external venue
-  trust boundary đã cô lập hoàn toàn tại Market Data Ingestion (Package 1.3-A); exchange
-  credential boundary thuộc Exchange Adapter/Custody-Signing Service (I-11, Chapter 9
-  §9.6, ngoài phạm vi bốn module này).
+strategy-engine, strategy-plugin-host, plugin-release-manager, decision-evaluation-
+  engine, decision-authority-service:  security_classification: none (module-registry.yaml
+  v0.4, KHÔNG đổi) — không chạm external network boundary trực tiếp, không sở hữu
+  credential/secret material. Cả năm tiêu thụ CHỈ internal authoritative event/query/
+  command stream — external venue trust boundary đã cô lập hoàn toàn tại Market Data
+  Ingestion (Package 1.3-A); exchange credential boundary thuộc Exchange Adapter/Custody-
+  Signing Service (I-11, Chapter 9 §9.6, ngoài phạm vi năm module này).
 
 Permission boundary (Chapter 9 §9.6, áp dụng cho Strategy Plugin Host là plugin-hosting
   module):  Declaration (Plugin Contract) → Grant (deployment/authorization config,
@@ -530,7 +683,7 @@ Package 1.1 (module identity/taxonomy/dependency, v0.4, Consolidated Stable):  K
   — §2 trích dẫn nguyên văn, không thêm/sửa module hay edge nào.
 
 Package 1.3-A (Structure/Regime independence, Feature Engine downstream role,
-  Consolidated Stable):  KHÔNG chạm — ngoài phạm vi hoàn toàn của bốn module trong
+  Consolidated Stable):  KHÔNG chạm — ngoài phạm vi hoàn toàn của năm module trong
   Package 1.3-C.
 
 Package 1.3-B (Feature selective fan-in, Context aggregation boundary, Context non-
@@ -597,12 +750,15 @@ Chapter 9 Plugin Model (Locked):  KHÔNG đổi — bốn tầng identity (Plugi
    module/node/edge, hai điểm idempotency/replay-pin so với Candidate A — CHẤP NHẬN bởi
    Product Owner tại approval ADR-016, KHÔNG resolve/giảm thiểu tại Package 1.3-C.
 
-9. `plugin-release-manager` full architecture elaboration (§2 trên, ghi nhận minh bạch)
-   — module-registry.yaml v0.4 gán `phase.elaborated_by: "1.3-C"` cho module này, NHƯNG
-   task scope của chính transaction này CHỈ liệt kê bốn module (strategy-engine/strategy-
-   plugin-host/decision-evaluation-engine/decision-authority-service) — `plugin-release-
-   manager` do đó CHƯA elaborate đầy đủ tại package nào, carry forward cho một transaction
-   Package 1.3-C tương lai (nếu Product Owner yêu cầu) hoặc package riêng.
+9. Plugin Release Manager exact release-activation/compatibility mechanics (§5a.5, MỚI
+   v0.2, đóng `P13C-IRB-MAJ-01` — elaboration nay hoàn tất, NHƯNG một số mechanics cụ thể
+   vẫn CHƯA resolve, carry forward thay vì chọn implementation): lựa chọn cụ thể giữa Mô
+   hình A (Decision pin trực tiếp artifact) và Mô hình B (immutable release manifest,
+   Chapter 9 §9.1) cho hệ thống thực tế; fencing/transaction/deployment-coordinator
+   mechanism cụ thể cho activation boundary (Chapter 9 §9.5 "có thể defer sang Phase 1
+   design spec" — nguyên văn); capability matching algorithm cụ thể (Chapter 10,
+   referenced KHÔNG redefine). Package 1.3-C KHÔNG chọn bất kỳ mechanism nào trong ba mục
+   trên tại v0.2 này.
 ```
 
 ## 14. Explicit non-goals
@@ -612,6 +768,9 @@ KHÔNG author field-level event schema (đã khóa tại strategy.md/decision.md
   0.2-C3/C4, Consolidated Stable) — chỉ contract CATEGORY (event/query/command).
 KHÔNG author Strategy Plugin algorithm.
 KHÔNG author evaluation-proposal field-level schema (chưa tồn tại — §13 gap #2).
+KHÔNG author plugin lifecycle state mới, capability type mới, activation protocol mới,
+  release field-level schema, artifact-signing implementation, deployment topology, hay
+  runtime isolation technology cho Plugin Release Manager (§5a.5).
 KHÔNG redefine Strategy Definition/Strategy Instance/Plugin Definition identity (Chapter
   9 §9.3 đã khóa).
 KHÔNG resolve DD-003 (PAPER-context Decision establishment mechanism) — chỉ tham chiếu
@@ -643,13 +802,18 @@ Review A scope:               Decision Pipeline topology không vi phạm I-2 (D
                                Chapter 9 §9.2 (published contract only, §5); sole Decision-
                                authority proof (§7/§8) verified script-checkable qua
                                forbidden_dependencies/depends_on (§3/§10); KHÔNG recreate
-                               decision-engine (§2); module boundary elaboration (§4–§7)
-                               nhất quán với module-registry.yaml v0.4 (Consolidated
-                               Stable) — không silent semantic invention; Context
+                               decision-engine (§2); module boundary elaboration (§4–§5a/
+                               §6/§7) nhất quán với module-registry.yaml v0.4 (Consolidated
+                               Stable) — không silent semantic invention; Plugin Release
+                               Manager (§5a) KHÔNG host plugin execution, KHÔNG chạm
+                               Context/Decision/Risk/Execution authority; Context
                                criticality (§9) trích dẫn nguyên vẹn Package 1.3-B, KHÔNG
-                               redefine; mọi gap (§13) carry forward trung thực, KHÔNG bị
-                               silently resolved (đặc biệt §13 gap #1/#2/#3, ADR-016
-                               Accepted risks).
+                               redefine; Context terminology correction (§7.3/§9, đóng
+                               `P13C-A-MIN-01`/`P13C-IRB-MIN-01`) đúng — Feature Engine
+                               authoritative owner, Context Aggregator designated
+                               producer, KHÔNG gộp chung; mọi gap (§13) carry forward
+                               trung thực, KHÔNG bị silently resolved (đặc biệt §13 gap
+                               #1/#2/#3/#9, ADR-016 Accepted risks).
 Independent Review B
   scope:                      Độc lập xác nhận DD-003 KHÔNG bị tự resolve ngầm ở tầng
                                architecture (§13 gap #4) — mechanism cụ thể vẫn phải
@@ -659,7 +823,12 @@ Independent Review B
                                schema nào bị author (§6.4/§13 gap #2); xác nhận
                                attempt_outcome KHÔNG bị thêm giá trị mới (§13 gap #3); xác
                                nhận §3 "reconciliation" statement không bị đọc nhầm thành
-                               một dependency edge module-registry mới.
+                               một dependency edge module-registry mới; xác nhận Plugin
+                               Release Manager vs Strategy Plugin Host distinction (§5a.4)
+                               không rò rỉ execution/hosting responsibility chéo nhau; xác
+                               nhận `plugin-release-manager.depends_on`/
+                               `forbidden_dependencies` (rỗng cả hai, §5a.1) khớp CHÍNH
+                               XÁC module-registry.yaml v0.4, KHÔNG bị diễn giải thêm.
 Product Owner decision
   point:                      Sau Review A/B CLEAN.
 Consolidation condition:      Zero unresolved Blocker/Major; ADR Decision-Pipeline-

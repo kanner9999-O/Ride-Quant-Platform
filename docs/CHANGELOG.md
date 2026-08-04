@@ -2,6 +2,174 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — bounded correction: Package 1.3-C v0.2 (add Plugin Release Manager, fix Context terminology)
+
+**Bounded correction transaction — đóng `P13C-IRB-MAJ-01`/`P13C-A-MIN-01`/`P13C-IRB-MIN-01`.** Vai trò: `Package 1.3-C Bounded Correction Executor`. Root cause finding #1: `module-registry.yaml` v0.4 đã gán `plugin-release-manager.phase.elaborated_by: "1.3-C"` từ trước (Package 1.1 assignment KHÔNG sai), nhưng Package 1.3-C v0.1 chỉ elaborate bốn trong năm module được gán cho package này — bỏ sót `plugin-release-manager`. Root cause finding #2/#3: §7.3 (v0.1) gộp nhầm "Feature Engine/Context Aggregator" chung một nhóm "authoritative source DUY NHẤT" — SAI vì hai module có `owns_authoritative_state` khác nhau. Đây là scoped completeness + terminology correction áp dụng semantics ĐÃ pin sẵn tại Package 1.1/Chapter 9 — KHÔNG một kiến trúc option mới, KHÔNG đổi Decision authority model, KHÔNG đổi mandatory non-bypass sequence, KHÔNG ADR required.
+
+### Baseline
+
+```text
+Baseline HEAD:                                             6766cbeddd1e210aa40336ba22bc32430319b116
+docs/architecture/engine/strategy-decision-architecture.md v0.1 blob:  1c7b0272ee6e87f6bbc814140de0d6389e5c285a
+docs/architecture/module-registry.yaml v0.4 blob (unchanged):          6c4daa3eda3ef560b201de516dd019564d264c08
+docs/architecture/system-decomposition.md v0.4 blob (unchanged):       8e60b9e6051956cfbe83f33e1c82f404bc082e37
+```
+
+### Findings closed
+
+```text
+P13C-IRB-MAJ-01   plugin-release-manager is assigned phase.elaborated_by: "1.3-C" but
+                   Package 1.3-C does not elaborate it. RESOLVED — expanded scope four ->
+                   five modules, added §5a "Module boundary — Plugin Release Manager"
+                   (registry classification, architecture-level responsibility,
+                   preserved boundary, Plugin Release Manager vs Strategy Plugin Host
+                   distinction, explicit non-invention list).
+
+P13C-A-MIN-01 /    Context Aggregator is incorrectly grouped with Feature Engine under
+P13C-IRB-MIN-01    "authoritative source" terminology. RESOLVED — §7.3 corrected: Feature
+                   Engine stated as authoritative owner of Feature facts;
+                   Context Aggregator stated as designated producer of eligible,
+                   cursor-bounded Context projection records (non-authoritative,
+                   projection, rebuildable); §9 gained a dedicated "Terminology" block
+                   stating Decision Authority Service must not recompute either.
+```
+
+### Correction 1 — Extended module scope (four -> five)
+
+```text
+strategy-engine              (unchanged)
+strategy-plugin-host         (unchanged)
+plugin-release-manager       NEW — runtime_service, owns_authoritative_state: true
+                              (operational fact only), depends_on: (none, root),
+                              forbidden_dependencies: (none), plugin_relation:
+                              manages_release
+decision-evaluation-engine   (unchanged)
+decision-authority-service   (unchanged)
+```
+
+### Plugin Release Manager boundary (§5a, new)
+
+```text
+Responsible for:  registered plugin release metadata; Plugin Definition/Plugin
+                  Version/Package-Build Artifact resolution (resolution only, not
+                  identity ownership); compatibility and capability evidence tracking;
+                  activation eligibility coordination (Chapter 9 §9.5 validated
+                  compatibility set); immutable release-manifest or exact artifact
+                  resolution per Chapter 9 §9.1 Model A/B (neither chosen); supplying
+                  eligible release identity to Strategy Plugin Host.
+
+Must not:         execute Strategy Plugin algorithms; host plugin runtime invocation;
+                  consume live Context; produce plugin analytical output; append
+                  Decision; assign Decision/Trade Intent identity; perform Decision
+                  evaluation; approve Risk; route Execution; mutate Strategy Definition
+                  semantics; silently substitute mutable-latest plugin artifacts
+                  (Chapter 9 §9.1 mixed-build activation prohibition).
+
+Distinction from  Plugin Release Manager determines which registered release/artifact is
+Strategy Plugin   eligible and resolvable (resolution/coordination only). Strategy
+Host:             Plugin Host executes the selected eligible artifact through published
+                  contracts (execution only, within cursor-bounded ranh giới). Two
+                  distinct plugin_relation values confirm this (manages_release vs
+                  hosts) — neither may bypass Decision Evaluation Engine or Decision
+                  Authority Service (plugin-release-manager has no depends_on path to
+                  either; strategy-plugin-host explicitly forbids decision-authority-
+                  service).
+
+Not invented:     new plugin lifecycle state; new capability type; new activation
+                  protocol; field-level release schema; artifact-signing
+                  implementation; deployment topology; runtime isolation technology.
+                  Exact release-activation/compatibility mechanics (Model A vs B choice,
+                  fencing/transaction mechanism, capability matching algorithm) carried
+                  forward as an explicit gap (§13 gap #9, updated).
+```
+
+### Correction 2 — Context terminology (§7.3, §9)
+
+```text
+Before (v0.1, INCORRECT):  "tự tính lại Feature hay Context — Feature Engine/Context
+                            Aggregator (Package 1.3-B) là authoritative source DUY NHẤT."
+After (v0.2, CORRECTED):   Feature Engine LÀ authoritative owner của Feature fact
+                            (owns_authoritative_state: true). Context Aggregator LÀ
+                            designated producer của eligible, cursor-bounded Context
+                            projection record (owns_authoritative_state: false,
+                            projection, rebuildable) — KHÔNG authoritative source.
+                            Decision Authority Service KHÔNG được tự tính lại CẢ HAI.
+```
+
+`context-aggregator` kept unchanged: `module_type: projection`, `owns_authoritative_state: false`, rebuildable. `context.md`'s own terminology gap (Package 1.3-B §13) is NOT touched or resolved by this correction.
+
+### Preserved unchanged (confirmed)
+
+```text
+Strategy Engine authority; Strategy Plugin Host mandatory boundary; Decision Evaluation
+non-authority; Decision Authority Service sole authority; Decision and Trade Intent
+identity ownership; Strategy -> Plugin Host -> Decision Evaluation -> Decision Authority
+-> Risk non-bypass sequence; Context fail-closed conditions (§9, three conditions
+unchanged); DD-003; evaluation-proposal Domain gap; attempt_outcome rejection-mapping
+gap; ADR-009 ordering gap; Definition Version registry gap; Decision append/revalidation
+semantics; decision-engine NOT recreated.
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/engine/strategy-decision-architecture.md   0.1 -> 0.2
+                                                               1c7b0272ee6e87f6bbc814140de0d6389e5c285a
+                                                               -> 3687e84d0e4b07a699a1389f600d9447c0f5be21
+docs/MANIFEST.md                                              manifest_version 10.34 -> 10.35
+docs/CHANGELOG.md                                             this entry prepended
+```
+
+### Automated validation results
+
+```text
+Frontmatter/YAML:  strategy-decision-architecture.md parses cleanly — version "0.2",
+                   status Draft, approved_by/approved_at null, unchanged; fence balance
+                   even (62). MANIFEST.md parses cleanly; row paren/backtick balance
+                   verified.
+Diff scope:        18 diff hunks on the artifact (git diff -U0) — banner, §0, §1, §2
+                   table+prose, new §5a (six subsections), §7.3, §9 terminology block,
+                   §11, §12, §13 gap #9, §14, §15. git status confirms exactly the 3
+                   expected files changed; forbidden-scope diff (module-registry.yaml,
+                   system-decomposition.md, structure-regime-architecture.md,
+                   feature-context-architecture.md, phase-1-plan.md, docs/adr/,
+                   docs/domain/, docs/product/, docs/constitution/, docs/team/,
+                   docs/phase-dod/) empty.
+Registry           plugin-release-manager.module_type == runtime_service,
+cross-check:       owns_authoritative_state == true, depends_on == [],
+                   forbidden_dependencies == [], plugin_relation == manages_release —
+                   confirmed identical to module-registry.yaml v0.4 live entry.
+                   decision-engine confirmed absent (23 modules total, unchanged).
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/engine/structure-regime-architecture.md
+docs/architecture/engine/feature-context-architecture.md
+docs/architecture/phase-1-plan.md
+docs/adr/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
+### Resulting lifecycle state
+
+```text
+Package 1.3-C:  Draft, candidate, NOT Consolidated Stable, NOT Approved
+Package 1.3-B:  Consolidated Stable (unchanged)
+Package 1.3-A:  Consolidated Stable (unchanged)
+Package 1.1:    Consolidated Stable (unchanged, v0.4)
+Phase 1:        Active, not Complete
+Phase 2:        Not Opened
+Live:           Unauthorized
+```
+
 ## [Unreleased] — 2026-08-04 — author Package 1.3-C v0.1 (Strategy & Decision Engine Architecture)
 
 **Package 1.3-C v0.1 authored — `docs/architecture/engine/strategy-decision-architecture.md`, `candidate`, `status: Draft`, KHÔNG Consolidated Stable, KHÔNG Approved.** Vai trò: `Package 1.3-C Architecture Author`. Dựa trên Package 1.1 `Consolidated Stable` v0.4, Package 1.3-A `Consolidated Stable`, và Package 1.3-B `Consolidated Stable`, theo `phase-1-plan.md` v0.4 (`Approved`) §8 Package 1.3-C block.
