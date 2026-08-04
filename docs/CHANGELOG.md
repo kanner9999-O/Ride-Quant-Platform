@@ -2,6 +2,153 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — author Package 1.3-B v0.1 (Feature & Context Engine Architecture)
+
+**Package 1.3-B v0.1 authored — `docs/architecture/engine/feature-context-architecture.md`, `candidate`, `status: Draft`, KHÔNG Consolidated Stable, KHÔNG Approved.** Vai trò: `Package 1.3-B Architecture Author`. Dựa trên Package 1.1 `Consolidated Stable` (`module-registry.yaml` v0.3 blob `ab09d031183014c1af259895dadf86aaf644cc04`, `system-decomposition.md` v0.3 blob `c72dfdf54d2ac86bc7ad83de742dda485da11328`) và Package 1.3-A `Consolidated Stable` (`structure-regime-architecture.md` v0.1 blob `37cf19cafd2f067caae96a690b4597f0649d79f3`), theo `phase-1-plan.md` v0.4 (`Approved`) §8 Package 1.3-B block.
+
+### Baseline
+
+```text
+Baseline HEAD:                090ff26fa02ec8a4a677eb851761d2df8cd8efe2
+Package 1.1:                   Consolidated Stable
+Package 1.3-A:                  Consolidated Stable
+structure-regime-architecture.md v0.1 blob:  37cf19cafd2f067caae96a690b4597f0649d79f3
+feature.md (Package 0.2-B3, Consolidated Stable) blob:  2262adf9253ea20c8d817d1066f50c4353d2d35d
+context.md (Package 0.2-B4, Consolidated Stable) blob:  f9274d5749768151748b9dfa2713118a4fd77791
+ADR-014 (Approved 2026-07-30) blob:  b2e5757102c360756f1649c93fa8cb61bf931f69
+```
+
+### Module scope elaborated
+
+```text
+feature-engine       compute_engine, owns_authoritative_state: true,
+                      depends_on: [structure-engine, raw-regime-engine]
+context-aggregator   projection, owns_authoritative_state: false,
+                      depends_on: [structure-engine, raw-regime-engine, feature-engine]
+```
+
+Identity/taxonomy/dependency KHÔNG đổi — trích dẫn nguyên văn `module-registry.yaml` v0.3.
+
+### Nội dung chính
+
+```text
+Selective Feature fan-in:      mỗi feature_definition_version pin đúng MỘT upstream path
+                                (candle|regime cho volatility_metric/directional_
+                                persistence_metric; Candle+Swing cho distance_to_last_
+                                confirmed_swing) — KHÔNG universal join requirement.
+                                distance_to_last_confirmed_swing tiêu thụ Swing layer
+                                (Lớp 1) của structure-engine CHỈ — KHÔNG BOS/CHoCH (Lớp 2).
+Authoritative ownership:       Feature Engine sở hữu FeatureComputed/FeatureFactInvalidated;
+                                Context Aggregator KHÔNG sở hữu authoritative state nào
+                                (projection-scoped).
+Definition-pinned direct      ADR-014 nguyên tắc áp dụng cho cả hai module — layer
+  fan-in:                     capability KHÔNG tự authorize input, chỉ Definition mới.
+Context aggregation/          as-of selection + two-phase Eligible Upstream Fact pipeline
+  projection semantics:       (context.md §8, Phase 1 eligibility filtering per-candidate
+                                độc lập → Phase 2 role-specific selection) — Context sao
+                                chép NGUYÊN VẸN, KHÔNG tính toán lại.
+Context criticality/failure   Context LÀ dependency của decision-evaluation-engine
+  policy (Chapter 7 §7.4 +     (module-registry.yaml v0.3) — pin tường minh: valid-absence
+  I-6, BẮT BUỘC):              (missing_input_policy enum đóng); PENDING_CORRECTION staleness
+                                signal; ba điều kiện Decision evaluation PHẢI fail closed
+                                (absence/PENDING_CORRECTION/definition-version mismatch);
+                                provenance/cursor traceability (bảy fact ref + lineage).
+Correction/invalidation       Feature: feature.md §9, scoped per-window. Context: context.md
+  propagation:                 §12, independent per-window, KHÔNG tái tạo Structure cascade
+                                nội bộ — chỉ tiêu thụ StructureFactInvalidated/
+                                StructureRecomputed ĐÃ settled.
+Stale/incomplete Context:      missing_input_policy: NO_SNAPSHOT_WHEN_ANY_REQUIRED_ROLE_
+                                MISSING_OR_PENDING — KHÔNG partial snapshot, KHÔNG null
+                                filling, KHÔNG stale fallback (context.md §9 cấm tuyệt đối).
+Determinism/replay/no-repaint: I-2 mode parity, I-3 append-only, no-look-ahead qua batch
+                                recomputation (feature.md §13/context.md §15) — cả hai
+                                module.
+Event-time/recorded-time:      Feature Eligible-Swing cutoff EXCLUSIVE (feature.md §9a)
+                                vs Context cutoff INCLUSIVE (context.md §8) — hai policy
+                                riêng biệt, KHÔNG hòa hợp thành một quy tắc chung.
+Security/trust-boundary:       security_classification: none cho cả hai module — external
+                                trust boundary đã cô lập tại Market Data Ingestion
+                                (Package 1.3-A). Trigger D KHÔNG áp dụng.
+```
+
+### Open gap ghi nhận, KHÔNG resolve
+
+```text
+1. Terminology tension (MỚI, Package 1.3-B) — context.md mô tả MarketContextSnapshot bằng
+   khuôn "authoritative event record" (Chapter 8 §8.2) trong khi module-registry.yaml
+   phân loại context-aggregator Type 2 Projection/owns_authoritative_state: false/Chapter
+   7 §7.4 cấm "phát sinh authoritative domain fact". Package 1.3-B đọc "authoritative"
+   tại context.md theo nghĩa hẹp data-integrity (deterministic/append-only snapshot
+   record) — KHÔNG phải authoritative SOURCE cho domain khác — nhưng KHÔNG chính thức
+   resolve tension giữa hai tài liệu Consolidated Stable (context.md Package 0.2-B4,
+   module-registry.yaml Package 1.1). KHÔNG kích hoạt ADR rule của task (không đề xuất
+   fan-in ngoài ADR-014, không đổi authority boundary hiện có) — ghi nhận cho Product
+   Owner awareness, carry forward, KHÔNG blocking.
+2. Structure-aware Regime — kế thừa Package 1.3-A §13, vẫn blocked trên Domain
+   Context/Capability registration.
+3. Definition Version registry mechanism (feature_definition_version/
+   context_definition_version) — Phase 1, chưa author.
+4. ADR-009 ordering protocol implementation — deferred, chưa author.
+5. stream-registry.yaml/producer_ref resolution — chưa author.
+6. Decision evaluation fail-closed MECHANISM cụ thể (MỚI, Package 1.3-B) — §8 chỉ pin
+   YÊU CẦU boundary; cơ chế thực thi (retry/circuit-breaker/alerting/timeout) là Package
+   1.3-C scope, CHƯA author.
+```
+
+### Xác nhận không vi phạm
+
+```text
+KHÔNG redefine module identity/taxonomy/dependency (Package 1.1, Consolidated Stable).
+KHÔNG redefine Structure Engine/Raw Regime Engine boundary (Package 1.3-A, Consolidated
+  Stable).
+KHÔNG redefine feature.md/context.md domain semantics (Package 0.2-B3/B4, Consolidated
+  Stable).
+KHÔNG mở rộng fan-in ngoài ADR-014 — KHÔNG tạo/approve ADR nào tại transaction này.
+KHÔNG author field-level schema, Engine algorithm/formula, database schema, deployment
+  topology, framework, source code.
+KHÔNG author Strategy/Decision logic/algorithm (Package 1.3-C) — chỉ pin YÊU CẦU boundary
+  criticality/failure policy (§8), KHÔNG author cơ chế cụ thể.
+KHÔNG author Package 1.3-C/1.3-D.
+KHÔNG mark Package 1.3-B Consolidated Stable, KHÔNG pass Gate 2, KHÔNG tuyên bố Phase 1
+  hoàn thành, KHÔNG mở Phase 2, KHÔNG authorize Live.
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/engine/feature-context-architecture.md   NEW — v0.1, Draft, candidate,
+                                                             blob fc65ef3f4dbe198297f88979066e2801e6150691
+docs/MANIFEST.md                                            manifest_version 10.30 → 10.31,
+                                                             new row inserted
+docs/CHANGELOG.md                                           this entry prepended
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/engine/structure-regime-architecture.md
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/phase-1-plan.md
+docs/adr/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
+### Resulting lifecycle state
+
+```text
+Package 1.3-B:  candidate, Draft, NOT Consolidated Stable, NOT Approved
+Package 1.3-A:  Consolidated Stable (unchanged)
+Package 1.1:    Consolidated Stable (unchanged)
+Phase 1:        Active, not Complete
+Phase 2:        Not Opened
+Live:           Unauthorized
+```
+
 ## [Unreleased] — 2026-08-04 — consolidate Package 1.3-A v0.1
 
 **Package 1.3-A v0.1 consolidated as `Consolidated Stable`.** Vai trò: `Package 1.3-A Consolidation Transaction Executor`. Product Owner decision: **"I approve consolidation of Package 1.3-A v0.1 as the current Consolidated Stable architecture baseline."** (2026-08-04). Đây là mechanical lifecycle transaction — architecture semantics KHÔNG đổi.
