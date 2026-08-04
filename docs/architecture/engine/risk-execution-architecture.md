@@ -1,7 +1,7 @@
 ---
 id: risk-execution-architecture
 title: "Package 1.3-D — Risk Gateway & Execution Engine Architecture"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -16,6 +16,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 # Package 1.3-D — Risk Gateway & Execution Engine Architecture
 
 **CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.3-D v0.1 là candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.4), Package 1.3-A `Consolidated Stable`, Package 1.3-B `Consolidated Stable`, và Package 1.3-C `Consolidated Stable` (xem §1), theo [`phase-1-plan.md`](../phase-1-plan.md) v0.4 (`Approved`) §8 Package 1.3-D block. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
+
+**v0.2 — bounded correction (2026-08-04), đóng `P13D-A-MAJ-01`/`P13D-IRB-MAJ-01`/`P13D-IRB-MAJ-02`** (findings confirmed từ Review A/Independent Review B trên v0.1). `P13D-A-MAJ-01`/`P13D-IRB-MAJ-01`: §8.1 (v0.1) suy diễn caller exclusivity SAI từ `paper-execution-boundary.depends_on: []` ("CHỈ reachable NHƯ MỘT DEPENDENCY của execution-engine") — `depends_on` diễn tả MODULE PREREQUISITE, KHÔNG diễn tả inbound caller/transport access control. Sửa: §8.1 thêm một normative eligibility invariant (command PHẢI causally trace về đúng một eligible OrderSubmissionRequested → Order → Execution Intent → RiskEvaluation APPROVED → Decision/Trade Intent authoritative; missing/invalidated/stale/withdrawn/superseded/duplicated/version-mismatched/causally-unrelated authorization PHẢI fail closed, sản sinh KHÔNG PAPER computation/Observation/ExecutionResult/Fill nào) — non-bypass CHỨNG MINH bằng causal chain, KHÔNG bằng graph shape; §3/§10 cập nhật tương ứng. `P13D-IRB-MAJ-02`: §11 (v0.1) nâng nhầm kill-switch POLICY ownership (đã established) thành kill-switch STATE ownership (CHƯA established) — sửa: tách bạch tường minh "ĐÃ established" (Risk Gateway sở hữu policy evaluation/enforcement; Execution Engine PHẢI fail safely khi execution-suspension active/stale/unknown) khỏi "CHƯA established" (authoritative state identity/source-of-truth owner/representation/lifecycle/change emitter/observation contract/freshness protocol/in-flight handling/future venue-adapter participation) — KHÔNG chọn state owner mới. §16 gap list mở rộng tương ứng (gap #4 chi tiết hóa, gap #4a mới cho PAPER authorization enforcement mechanism). KHÔNG đổi Decision → Risk → Execution authority model, KHÔNG đổi mandatory non-bypass sequence, KHÔNG registry dependency change, KHÔNG tạo ADR.
 
 ## 0. Vai trò của tài liệu này
 
@@ -115,7 +117,10 @@ authoritative Decision (Decision Authority Service, Package 1.3-C)
       ▼
 Risk Gateway (MANDATORY — mọi Trade Intent PHẢI qua đây trước bất kỳ execution path nào)
       ▼
-Paper Execution Boundary (CHỈ reachable qua Execution Engine, KHÔNG có đường tắt)
+Paper Execution Boundary (execution AUTHORIZATION chỉ phát sinh qua Execution Engine's
+                          eligible OrderSubmissionRequested ancestry — §8.1 dưới; đây LÀ
+                          một ràng buộc normative-eligibility, KHÔNG một khẳng định về
+                          transport/caller access — xem §8.1 correction v0.2)
 ```
 
 **Xác nhận tường minh (yêu cầu task):** đây là responsibility/mandatory-ordering view — KHÔNG phải authorization triển khai một synchronous pipeline hay runtime topology cụ thể (process/container/host, đồng bộ/bất đồng bộ, message broker). Package 1.3-D KHÔNG chọn cơ chế thực thi cụ thể.
@@ -416,16 +421,65 @@ Boundary là ĐIỂM CHẠM/consumes: command, emits: event — surface tiếp n
 OrderSubmissionRequested-driven trigger và phát sinh raw simulation output MÀ Execution
 Result Processor (§6) consume để tạo authoritative fact.
 
+**Correction v0.2 (đóng `P13D-A-MAJ-01`/`P13D-IRB-MAJ-01`) — `depends_on` KHÔNG diễn tả caller exclusivity:**
+
+```text
+`depends_on` ở registry-level diễn tả MODULE PREREQUISITE (module này CẦN gì để hoạt
+động đúng) — KHÔNG diễn tả inbound caller exclusivity, access control, hay command
+authorization. `paper-execution-boundary.depends_on: []` (§2) nghĩa là module này KHÔNG
+CẦN module khác để tồn tại/hoạt động (root) — TUYỆT ĐỐI KHÔNG suy ra rằng chỉ
+`execution-engine` có khả năng gửi command tới module này. `module-registry.yaml`
+KHÔNG mã hóa inbound-caller/transport-layer access control — đó là một concern
+KHÁC hoàn toàn (§16 gap, chưa established).
+
+API, Event Bus, scheduler, test harness, hay orchestration transport bất kỳ ĐỀU CÓ THỂ
+mang một PAPER execution command về mặt vật lý/transport — nhưng transport KHÔNG BAO GIỜ
+tự nó tạo ra execution authorization. CHỈ eligible OrderSubmissionRequested ancestry
+(dưới đây) mới tạo ra authorization cho PAPER computation.
+```
+
+**Normative eligibility invariant (BẮT BUỘC, architecture-level — MỚI, v0.2, đóng `P13D-A-MAJ-01`/`P13D-IRB-MAJ-01`):**
+
+```text
+Paper Execution Boundary PHẢI accept hoặc process một PAPER execution command CHỈ KHI
+command đó được causally authorize bởi ĐÚNG MỘT eligible, visible-valid
+`OrderSubmissionRequested` do `execution-engine` phát sinh (order.md §6).
+
+`OrderSubmissionRequested` được tham chiếu PHẢI resolve, TẠI authorization cursor, tới:
+  ĐÚNG MỘT Order eligible (order.md §8a/§8b — visible-valid-head, current_status = CREATED
+    tại thời điểm request);
+  ĐÚNG MỘT Execution Intent authoritative eligible (execution-intent.md §6a
+    `eligible_for_new_order_creation` — ISSUED, transitively valid);
+  ĐÚNG MỘT RiskEvaluation gốc, result = APPROVED (risk.md §1/§9);
+  ĐÚNG MỘT chuỗi Decision/Trade Intent authoritative (Package 1.3-C sole authority,
+    trade-intent.md/decision.md).
+
+Missing, invalidated, stale, withdrawn, superseded, duplicated, version-mismatched, hay
+causally KHÔNG liên quan authorization PHẢI fail closed — Paper Execution Boundary KHÔNG
+được tiến hành computation.
+
+Một command ineligible PHẢI sản sinh:
+  KHÔNG PAPER computation nào;
+  KHÔNG raw simulation outcome nào;
+  KHÔNG PaperExecutionObservation nào (execution-result.md §1);
+  KHÔNG ExecutionResult nào (execution-result.md §8);
+  KHÔNG Fill nào (fill.md §3).
+```
+
+**Xác nhận tường minh (yêu cầu task — "Do not author command field-level schema; authentication mechanism; broker ACL; API route; network topology; database key; runtime protocol"):** invariant trên là YÊU CẦU architecture-level (WHAT phải đúng trước khi computation tiến hành), KHÔNG phải cơ chế (HOW enforcement được implement — mechanism cụ thể là Phase 1/implementation concern, KHÔNG author tại đây). KHÔNG registry dependency change nào cần thiết cho correction này (§2 KHÔNG đổi).
+
 Paper Execution Boundary KHÔNG được (bắt buộc, yêu cầu task):
-  tạo authoritative Decision — depends_on: (none, root, §2) — KHÔNG đường nào tới
-    decision-authority-service/risk-gateway; module này KHÔNG bao giờ tự phát Decision.
-  bypass Risk Gateway — depends_on rỗng nghĩa là Paper Execution Boundary CHỈ reachable
-    NHƯ MỘT DEPENDENCY của execution-engine (execution-engine.depends_on chứa
-    paper-execution-boundary, §2) — KHÔNG đường nào cho phép một Trade Intent/Decision đi
-    thẳng tới Paper Execution Boundary bỏ qua risk-gateway.
-  reinterpret một Risk REJECTED thành APPROVED — Paper Execution Boundary KHÔNG tiêu thụ
-    RiskEvaluation trực tiếp (KHÔNG depends_on risk-gateway) — nó chỉ nhận input đã đi
-    qua Execution Engine (đã pass Risk Gateway + eligible_for_new_order_creation).
+  tạo authoritative Decision — depends_on: (none, root, §2) — KHÔNG module PREREQUISITE
+    nào tới decision-authority-service/risk-gateway; module này KHÔNG bao giờ tự phát
+    Decision. (Xác nhận: đây là một tuyên bố về việc module KHÔNG CẦN các module đó để
+    hoạt động — KHÔNG phải một tuyên bố về caller exclusivity, đã sửa ở trên.)
+  bypass Risk Gateway — thực thi qua eligibility invariant trên: MỌI command hợp lệ PHẢI
+    causally trace về đúng một RiskEvaluation APPROVED — KHÔNG đường causal nào cho phép
+    một Trade Intent/Decision "đi thẳng" tới Paper Execution Boundary mà KHÔNG qua
+    Risk Gateway trước.
+  reinterpret một Risk REJECTED thành APPROVED — eligibility invariant trên yêu cầu
+    RiskEvaluation gốc PHẢI result = APPROVED; một command trace về RiskEvaluation
+    REJECTED/NON_EVALUABLE là ineligible, PHẢI fail closed.
   chia sẻ mutable Live venue state — v0.1/v0.2 KHÔNG LIVE state nào tồn tại trong Domain
     Contract (§3 xác nhận PAPER-only) — KHÔNG venue state thật nào được mô hình hóa.
   âm thầm contaminate Live Order/Fill/Position state — environment: [PAPER] là enum ĐÓNG
@@ -569,7 +623,14 @@ Position Projection tiêu thụ Fill, KHÔNG Strategy/Decision/Risk instruction 
   projection.depends_on CHỈ chứa fill-processor (§2).
 
 KHÔNG API, Event Bus, projection, PAPER module, hay venue adapter nào được bypass Decision
-  Authority Service hay Risk Gateway — script-verifiable qua module-registry.yaml v0.4:
+  Authority Service hay Risk Gateway — chứng minh theo HAI cơ chế riêng biệt (v0.2
+  correction, đóng `P13D-A-MAJ-01`/`P13D-IRB-MAJ-01`): (a) `depends_on`/
+  `forbidden_dependencies` graph shape — script-verifiable trực tiếp qua
+  module-registry.yaml v0.4, áp dụng cho risk-gateway/execution-engine/execution-result-
+  processor/fill-processor/position-projection (dưới); (b) eligibility invariant thực thi
+  bằng causal chain (§8.1) — áp dụng cho paper-execution-boundary, VÌ module đó
+  `depends_on: []` (root) nên non-bypass của NÓ KHÔNG thể chứng minh bằng graph shape,
+  CHỈ bằng invariant tại §8.1:
 ```
 
 **Script verification (Python, thực hiện tại transaction này):**
@@ -580,8 +641,10 @@ Với mọi module M trong sáu module Package 1.3-D:
   execution-engine.forbidden_dependencies ⊇ {strategy-engine, strategy-plugin-host,
     context-aggregator}                                                    (TRUE, xác nhận)
   risk-gateway.depends_on == {decision-authority-service, account-service}  (TRUE, xác nhận)
-  paper-execution-boundary.depends_on == {}                                 (TRUE, xác nhận —
-    root, KHÔNG đường nào từ trên xuống thẳng module này ngoài qua execution-engine)
+  paper-execution-boundary.depends_on == {}                                 (TRUE, xác nhận
+    — root, KHÔNG module PREREQUISITE nào; KHÔNG suy ra caller/transport exclusivity từ
+    kết quả này — non-bypass thực thi qua eligibility invariant §8.1 v0.2 correction,
+    KHÔNG qua depends_on graph shape)
   position-projection.depends_on == {fill-processor}                        (TRUE, xác nhận)
   fill-processor.depends_on == {execution-result-processor}                 (TRUE, xác nhận)
   execution-result-processor.depends_on == {execution-engine,
@@ -590,43 +653,59 @@ Với mọi module M trong sáu module Package 1.3-D:
 
 ## 11. Kill switch và safety controls (I-8, bắt buộc, yêu cầu task)
 
+**Correction v0.2 (đóng `P13D-IRB-MAJ-02`) — phân biệt tường minh POLICY ownership (đã established) khỏi STATE ownership (CHƯA established):**
+
 ```text
-Module nào sở hữu kill-switch state (ĐÃ established, KHÔNG invent thêm):  risk-gateway.
-  module-registry.yaml v0.4 responsibilities (nguyên văn): "Risk Policy logic (exposure
-  limit, approve/reject, risk-increasing detection, kill switch) — LÀ business logic hợp
-  lệ của đúng responsibility này." I-8 (Chapter 2, Locked) Statement: "Hệ thống phải hỗ
-  trợ kill switch ở cấp platform, account, strategy, và exchange"; Required guarantees:
-  "Risk Gateway phải được phép pause, cancel, hedge, reduce, hoặc controlled unwind theo
-  risk policy đã định nghĩa."
+ĐÃ established:
+  Risk Gateway sở hữu kill-switch POLICY EVALUATION và ENFORCEMENT bên trong ranh giới
+    Risk (module-registry.yaml v0.4 responsibilities, nguyên văn: "Risk Policy logic
+    (exposure limit, approve/reject, risk-increasing detection, kill switch) — LÀ
+    business logic hợp lệ của đúng responsibility này"; I-8 Required guarantees, nguyên
+    văn: "Risk Gateway phải được phép pause, cancel, hedge, reduce, hoặc controlled
+    unwind theo risk policy đã định nghĩa"). Đây là quyền/trách nhiệm THỰC THI policy khi
+    Risk Gateway đánh giá MỘT Trade Intent cụ thể — KHÔNG phải quyền sở hữu một
+    authoritative fact "kill-switch state" độc lập.
+  Execution Engine PHẢI fail safely TRƯỚC KHI tạo hoặc submit execution effect MỚI khi
+    điều kiện execution-suspension áp dụng đang active, stale, hay unknown (I-8 Scope:
+    "Risk Gateway, Execution Engine, mọi Exchange Adapter"; §5.2 "bypass kill-switch hay
+    execution-suspension control" đã liệt kê trong preserved boundary — KHÔNG đổi).
 
-Module nào PHẢI observe kill-switch:  I-8 Scope (nguyên văn): "Risk Gateway, Execution
-  Engine, mọi Exchange Adapter." Trong ranh giới sáu module Package 1.3-D: risk-gateway
-  (owner) VÀ execution-engine (PHẢI observe — §5.2 "bypass kill-switch hay execution-
-  suspension control" đã liệt kê tường minh trong preserved boundary). Exchange Adapter
-  CHƯA tồn tại (Package 1.2/venue adapter, chưa author) — KHÔNG thể xác nhận observe
-  boundary cho module đó tại đây.
+CHƯA established (KHÔNG invent tại transaction này):
+  authoritative kill-switch-state identity — KHÔNG entity/subject nào được risk.md/
+    execution-intent.md/order.md/execution-result.md định nghĩa cho khái niệm này.
+  source-of-truth owner cho state đó — Package 1.3-D KHÔNG chọn module nào sở hữu MỘT
+    authoritative kill-switch-state fact, vì fact đó CHƯA tồn tại ở tầng Domain Contract.
+  event hay state representation cụ thể (field/event nào biểu diễn "active"/"inactive").
+  lifecycle của state đó (activate/deactivate/transition rule).
+  change emitter (module nào phát sinh sự thay đổi trạng thái).
+  observation contract (Execution Engine query/subscribe bằng cơ chế nào).
+  freshness/staleness protocol (làm sao biết một trạng thái đã "stale").
+  in-flight Execution Intent/Order handling — risk.md/execution-intent.md/order.md/
+    execution-result.md KHÔNG định nghĩa hành vi cho một Execution Intent/Order ĐÃ
+    ISSUED/CREATED trước khi kill-switch kích hoạt.
+  future venue-adapter participation trong kill-switch scope (Exchange Adapter, I-8
+    Scope, CHƯA tồn tại — Package 1.2/venue adapter chưa author).
 
-Nơi execution mới bị chặn:  tại Risk Gateway (KHÔNG Risk evaluation mới nếu kill-switch
-  active trong scope liên quan — I-8 "pause" action) VÀ/HOẶC tại Execution Engine (KHÔNG
-  Order creation mới nếu execution-suspension active) — CẢ HAI điểm chặn hợp lý theo I-8
-  Scope, NHƯNG cơ chế CHÍNH XÁC (field/event nào biểu diễn kill-switch state, ai emit nó,
-  Execution Engine query/subscribe ra sao) CHƯA established tại bất kỳ Domain Contract
-  nào đã đọc (risk.md/execution-intent.md/order.md KHÔNG có kill-switch field/event nào)
-  — Package 1.3-D KHÔNG invent — carry forward §16 gap.
+Package 1.3-D KHÔNG chọn một authoritative kill-switch-state owner mới. Nếu một package
+tương lai thiết lập một owner như vậy, đó là một quyết định source-of-truth RIÊNG BIỆT,
+đòi hỏi đúng controlling process (ví dụ Domain Contract mới hoặc correction, khả năng ADR
+Required nếu đổi authority/dependency graph — §17 ADR rule, KHÔNG kích hoạt tại transaction
+này vì KHÔNG có quyết định nào được đưa ra).
+```
 
-In-flight handling:  KHÔNG established — risk.md/execution-intent.md/order.md/execution-
-  result.md KHÔNG định nghĩa hành vi cho một Execution Intent/Order ĐÃ ISSUED/CREATED
-  trước khi kill-switch kích hoạt. Carry forward §16 gap tường minh, KHÔNG tự phát minh.
+**Nơi execution mới bị chặn (elaboration, KHÔNG invent mechanism):**
 
-Stale/unknown kill-switch state fail-safe:  áp dụng I-6 (Fail-Safe by Scope, Chapter 2,
-  Locked) như nguyên tắc chung — "Khi không thể xác định tính đúng đắn của dữ liệu, trạng
-  thái, risk hoặc execution trong một scope, hệ thống phải chuyển scope đó về trạng thái
-  an toàn. Mặc định không được mở thêm risk-increasing exposure." Package 1.3-D áp dụng
-  nguyên tắc NÀY cho kill-switch cụ thể (stale/unknown state → treat như active/fail-
-  closed cho risk-increasing action, vẫn cho phép risk-reducing action theo I-6) — NHƯNG
-  KHÔNG author cơ chế detect "stale/unknown" cụ thể (thiếu event/field xác nhận kill-
-  switch state đã pin ở Domain Contract level) — carry forward §16 gap.
+```text
+Theo đúng phân biệt trên: Risk Gateway là nơi hợp lý để chặn Risk evaluation MỚI (I-8
+  "pause" action, trong ranh giới Risk Gateway's policy enforcement ĐÃ established);
+  Execution Engine là nơi hợp lý để chặn Order creation MỚI (I-8 Scope liệt kê tường
+  minh). CẢ HAI điểm chặn là suy luận HỢP LÝ từ I-8 Scope + Risk Gateway's established
+  policy responsibility — NHƯNG cơ chế CHÍNH XÁC (field/event nào biểu diễn trạng thái,
+  ai emit, Execution Engine query/subscribe ra sao) CHƯA established tại bất kỳ Domain
+  Contract nào đã đọc — carry forward §16 gap, KHÔNG tự phát minh.
+```
 
+```text
 PAPER và LIVE isolation:  TRIVIAL hiện tại — v0.1/v0.2 Domain Contract KHÔNG mô hình hóa
   LIVE path (§3/§8.1) — KHÔNG cần isolation runtime giữa hai environment CHƯA CẢ HAI cùng
   tồn tại. Khi LIVE được mô hình hóa (tương lai, ngoài phạm vi), kill-switch scope theo
@@ -853,11 +932,26 @@ risk.md/execution-intent.md/order.md/execution-result.md/fill.md/position.md (Pa
    `execution-engine`/`paper-execution-boundary` là ranh giới CHỈ dành cho PAPER simulation
    hiện tại (§3/§8), KHÔNG venue thật nào được mô hình hóa.
 
-4. Kill-switch ownership CỤ THỂ về in-flight behavior — §11 xác nhận risk-gateway sở hữu
-   kill-switch POLICY (established), NHƯNG cơ chế field/event representation, observation
-   protocol cụ thể (Execution Engine), VÀ in-flight handling (Execution Intent/Order đã
-   issued trước khi kill-switch kích hoạt) đều CHƯA established tại bất kỳ Domain Contract
-   nào — carry forward nguyên vẹn.
+4. Kill-switch STATE ownership (v0.2, mở rộng chính xác, đóng `P13D-IRB-MAJ-02`) — §11
+   xác nhận risk-gateway sở hữu kill-switch POLICY EVALUATION/ENFORCEMENT (established),
+   NHƯNG các mục sau đều CHƯA established, KHÔNG được invent tại Package 1.3-D: authoritative
+   kill-switch-state identity; source-of-truth owner cho state đó; event/state
+   representation cụ thể; lifecycle của state; change emitter; observation contract
+   (Execution Engine); freshness/staleness protocol; in-flight Execution Intent/Order
+   handling (đã ISSUED/CREATED trước khi kill-switch kích hoạt); future venue-adapter
+   (Exchange Adapter) participation trong kill-switch scope. Một owner cho các mục này,
+   nếu cần trong tương lai, là một quyết định source-of-truth RIÊNG BIỆT ngoài phạm vi
+   Package 1.3-D.
+
+4a. Paper Execution Boundary command-authorization enforcement mechanism (v0.2, MỚI, đóng
+    `P13D-A-MAJ-01`/`P13D-IRB-MAJ-01`) — §8.1 pin YÊU CẦU architecture-level (normative
+    eligibility invariant: command PHẢI trace về đúng một eligible OrderSubmissionRequested
+    → Order → Execution Intent → RiskEvaluation APPROVED → Decision/Trade Intent
+    authoritative) — NHƯNG cơ chế THỰC THI cụ thể (làm sao Paper Execution Boundary
+    verify causal chain đó tại runtime — query, embedded reference, gatekeeper service,
+    transport-layer authorization token) hoàn toàn CHƯA author (forbidden scope: "author
+    command field-level schema; authentication mechanism; broker ACL; API route; network
+    topology; database key; runtime protocol"). Carry forward.
 
 5. External venue retry/idempotency mechanism — I-10's "venue order, child order,
    execution attempt" concept CHƯA có domain fact tương ứng (v0.1/v0.2 chỉ PAPER
@@ -938,20 +1032,31 @@ Review A scope:               Decision → Trade Intent → RiskEvaluation → E
                                nhất quán với module-registry.yaml v0.4 (Consolidated
                                Stable) — không silent semantic invention; Position
                                terminology (§9.1) đúng — KHÔNG authoritative ownership bị
-                               fabricate; mọi gap (§16) carry forward trung thực, KHÔNG bị
+                               fabricate; §8.1 v0.2 correction xác nhận `depends_on`
+                               KHÔNG bị đọc nhầm thành caller/transport exclusivity ở bất
+                               kỳ chỗ nào khác trong tài liệu; §11 v0.2 correction xác
+                               nhận kill-switch POLICY/STATE distinction nhất quán xuyên
+                               suốt; mọi gap (§16) carry forward trung thực, KHÔNG bị
                                silently resolved (đặc biệt DD-003, custody-adjacent, kill-
-                               switch in-flight).
+                               switch state ownership, PAPER authorization enforcement
+                               mechanism).
 Independent Review B
   scope:                      Độc lập xác nhận I-8 (Kill Switch)/I-10 (Idempotent
                                Execution) scope được map đúng module trong kiến trúc
                                (§11/§12, đúng phase-1-plan.md §8 Package 1.3-D
                                Independent Review B scope) — KHÔNG invent ownership/
-                               mechanism nào chưa established; xác nhận Risk Gateway
-                               KHÔNG bypassable (§10 script verification); xác nhận
-                               Execution Engine/Position Projection KHÔNG có đường nào
-                               tới Decision Authority Service/Strategy layer ngoài qua
-                               Risk Gateway; xác nhận PAPER Execution Boundary KHÔNG được
-                               mô tả như một Decision/Risk authority thay thế (§8.1).
+                               mechanism nào chưa established; xác nhận §11 v0.2 KHÔNG
+                               chọn một authoritative kill-switch-state owner mới, CHỈ
+                               retreat về policy responsibility đã established; xác nhận
+                               Risk Gateway KHÔNG bypassable (§10 script verification);
+                               xác nhận Execution Engine/Position Projection KHÔNG có
+                               đường nào tới Decision Authority Service/Strategy layer
+                               ngoài qua Risk Gateway; xác nhận PAPER Execution Boundary
+                               KHÔNG được mô tả như một Decision/Risk authority thay thế
+                               (§8.1); xác nhận eligibility invariant mới (§8.1 v0.2)
+                               KHÔNG author command field-level schema/authentication
+                               mechanism/broker ACL/API route/network topology/database
+                               key/runtime protocol nào.
 Product Owner decision
   point:                      Sau Review A/B CLEAN.
 Consolidation condition:      Zero unresolved Blocker/Major; ADR custody-boundary (nếu

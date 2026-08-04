@@ -2,6 +2,167 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — bounded correction: Package 1.3-D v0.2 (PAPER authorization eligibility, kill-switch policy/state distinction)
+
+**Bounded correction transaction — đóng `P13D-A-MAJ-01`/`P13D-IRB-MAJ-01`/`P13D-IRB-MAJ-02`.** Vai trò: `Package 1.3-D Bounded Correction Executor`. Root cause finding #1/#2: §8.1 (v0.1) incorrectly inferred inbound caller exclusivity for Paper Execution Boundary from `paper-execution-boundary.depends_on: []` — `depends_on` expresses module prerequisites, not access control. Root cause finding #3: §11 (v0.1) elevated Risk Gateway's established kill-switch *policy* ownership into an unestablished kill-switch *state* ownership claim. Both corrections apply semantics already established (or explicitly not established) by controlling authority — neither is a new architecture option, neither changes the Decision → Risk → Execution authority model, no ADR required.
+
+### Baseline
+
+```text
+Baseline HEAD:                                              f89c0069f44cb7f3bbc8bb00c41ccbaeebbe7d2c
+docs/architecture/engine/risk-execution-architecture.md v0.1 blob:  2db4dc1955323aea99c65a155e1b94452578cc8a
+docs/architecture/module-registry.yaml v0.4 blob (unchanged):        6c4daa3eda3ef560b201de516dd019564d264c08
+docs/architecture/system-decomposition.md v0.4 blob (unchanged):     8e60b9e6051956cfbe83f33e1c82f404bc082e37
+```
+
+### Findings closed
+
+```text
+P13D-A-MAJ-01 /   Paper Execution Boundary non-bypass is asserted but not
+P13D-IRB-MAJ-01   architecturally enforced; the document incorrectly infers caller
+                  exclusivity from paper-execution-boundary.depends_on: []. RESOLVED —
+                  §8.1 corrected to state depends_on expresses prerequisites, not
+                  caller/transport exclusivity; a normative eligibility invariant added
+                  requiring causal authorization via an eligible OrderSubmissionRequested
+                  ancestry; §3/§10 updated to match.
+
+P13D-IRB-MAJ-02   Risk Gateway kill-switch policy ownership is incorrectly elevated to
+                  already-established authoritative kill-switch-state ownership.
+                  RESOLVED — §11 corrected to distinguish established policy
+                  evaluation/enforcement responsibility from the still-unestablished
+                  state identity/ownership/representation/lifecycle/observation/in-flight
+                  handling.
+```
+
+### Correction 1 — PAPER command authorization (§8.1, §3, §10)
+
+```text
+Removed claim:      "depends_on rỗng nghĩa là Paper Execution Boundary CHỈ reachable
+                     NHƯ MỘT DEPENDENCY của execution-engine" (incorrectly inferred
+                     caller exclusivity from an empty depends_on list).
+
+Added statement:     depends_on expresses module prerequisites. It does not express
+                     inbound caller exclusivity, access control, or command
+                     authorization. Transport (API, Event Bus, scheduler, test harness,
+                     orchestration) may physically carry a command, but transport never
+                     creates execution authorization by itself.
+
+Added normative      Paper Execution Boundary MUST accept/process a PAPER execution
+eligibility          command only when it is causally authorized by exactly one
+invariant:           eligible, visible-valid OrderSubmissionRequested (execution-engine),
+                     which must resolve at the authorization cursor to: one eligible
+                     Order; one eligible authoritative Execution Intent; one originating
+                     RiskEvaluation with result = APPROVED; one authoritative
+                     Decision/Trade Intent lineage. Missing, invalidated, stale,
+                     withdrawn, superseded, duplicated, version-mismatched, or causally
+                     unrelated authorization MUST fail closed, producing no PAPER
+                     computation, no raw simulation outcome, no PaperExecutionObservation,
+                     no ExecutionResult, no Fill.
+
+§10 script            paper-execution-boundary.depends_on == {} kept as a
+verification updated: registry-graph fact, with an explicit note that non-bypass for
+                     this specific module is proven by the §8.1 eligibility invariant
+                     (causal chain), not by depends_on graph shape.
+```
+
+No registry dependency change was made; no field-level command schema, authentication mechanism, broker ACL, API route, network topology, database key, or runtime protocol was authored.
+
+### Correction 2 — Kill-switch boundary (§11)
+
+```text
+Established (kept):        Risk Gateway owns kill-switch POLICY EVALUATION and
+                            ENFORCEMENT inside the Risk boundary (per its own registered
+                            responsibilities text and I-8's Required guarantees).
+                            Execution Engine must fail safely before creating or
+                            submitting new execution effects when the applicable
+                            execution-suspension condition is active, stale, or unknown.
+
+Not established (now       authoritative kill-switch-state identity; source-of-truth
+explicit, not invented):   owner; event/state representation; lifecycle; change emitter;
+                            observation contract; freshness/staleness protocol; in-flight
+                            Execution Intent/Order handling; future venue-adapter
+                            (Exchange Adapter) participation.
+
+Explicit statement added:   Package 1.3-D does not select a new authoritative
+                            kill-switch-state owner. If a future package establishes
+                            such an owner, that is a separate source-of-truth decision
+                            requiring the proper controlling process.
+```
+
+### Preserved unchanged (confirmed)
+
+```text
+Six-module Package 1.3-D scope; Decision Authority Service sole Decision authority; Risk
+Gateway sole RiskEvaluation and Execution Intent authority; Risk rejection/non-evaluable
+-> zero Execution Intent; Execution Engine Order authority; Execution Result Processor
+authority; Fill Processor authority; Position Projection non-authority; Decision -> Risk
+-> Execution non-bypass sequence; Execution Intent and Order cardinality; DD-003; Package
+1.2 custody prerequisite; PAPER-only current Domain scope; idempotency boundaries;
+replay/no-repaint semantics; partial-fill and multiple-Fill aggregation gaps; ADR-009
+ordering gap; Definition Version registry gap; all nine inherited Package 1.3-C gaps.
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/engine/risk-execution-architecture.md   0.1 -> 0.2
+                                                            2db4dc1955323aea99c65a155e1b94452578cc8a
+                                                            -> 95c5403060f09163f14fb80ceaaefd7dd0c555bb
+docs/MANIFEST.md                                           manifest_version 10.37 -> 10.38
+docs/CHANGELOG.md                                          this entry prepended
+```
+
+### Automated validation results
+
+```text
+Frontmatter/YAML:  risk-execution-architecture.md parses cleanly — version "0.2", status
+                   Draft, approved_by/approved_at null, unchanged; fence balance even
+                   (68).
+Diff scope:        14 diff hunks on the artifact (git diff -U0). git status confirms
+                   exactly the 3 expected files changed; forbidden-scope diff
+                   (module-registry.yaml, system-decomposition.md,
+                   structure-regime-architecture.md, feature-context-architecture.md,
+                   strategy-decision-architecture.md, phase-1-plan.md, docs/adr/,
+                   docs/domain/, docs/product/, docs/constitution/, docs/team/,
+                   docs/phase-dod/) empty.
+Text grep check:   no remaining occurrence of the corrected phrases ("CHỈ reachable",
+                   "depends_on rỗng nghĩa là", "sở hữu kill-switch state") outside the
+                   v0.2 correction banner's own historical description of what was wrong
+                   in v0.1.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/engine/structure-regime-architecture.md
+docs/architecture/engine/feature-context-architecture.md
+docs/architecture/engine/strategy-decision-architecture.md
+docs/architecture/phase-1-plan.md
+docs/adr/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
+### Resulting lifecycle state
+
+```text
+Package 1.3-D:  Draft, candidate, NOT Consolidated Stable, NOT Approved (unchanged by
+                this correction — Package 1.2 custody-adjacent baseline still required
+                before consolidation, per phase-1-plan.md §8)
+Package 1.3-C:  Consolidated Stable (unchanged)
+Package 1.3-B:  Consolidated Stable (unchanged)
+Package 1.3-A:  Consolidated Stable (unchanged)
+Package 1.1:    Consolidated Stable (unchanged, v0.4)
+Phase 1:        Active, not Complete
+Phase 2:        Not Opened
+Live:           Unauthorized
+```
+
 ## [Unreleased] — 2026-08-04 — author Package 1.3-D v0.1 (Risk Gateway & Execution Engine Architecture)
 
 **Package 1.3-D v0.1 authored — `docs/architecture/engine/risk-execution-architecture.md`, `candidate`, `status: Draft`, KHÔNG Consolidated Stable, KHÔNG Approved.** Vai trò: `Package 1.3-D Architecture Author`. Dựa trên Package 1.1 `Consolidated Stable` v0.4, Package 1.3-A/1.3-B `Consolidated Stable`, và Package 1.3-C `Consolidated Stable`, theo `phase-1-plan.md` v0.4 (`Approved`) §8 Package 1.3-D block.
