@@ -15,7 +15,7 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 
 # Package 1.3-B — Feature & Context Engine Architecture
 
-**CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.3-B v0.1 là candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` và Package 1.3-A `Consolidated Stable` (xem §1), theo [`phase-1-plan.md`](../phase-1-plan.md) v0.4 (`Approved`) §8 Package 1.3-B block. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
+**CONSOLIDATED STABLE (package lifecycle, 2026-08-04, Product Owner decision) — artifact status: Draft, KHÔNG Approved/Locked.** Package 1.3-B v0.2 đạt `Consolidated Stable` SAU Review A CLEAN (Blocker 0/Major 0/Minor 1) + Independent Review B REVISE (Blocker 0/Major 3/Minor 1) trên v0.1 → bounded correction tại HEAD `71007bf1063c012001eb34465f41c0ce4905b7cf` (đóng `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`/`P13B-IRB-MAJ-03`/`P13B-A-MIN-01`/`P13B-IRB-MIN-01`) → final bounded verification CLEAN (mọi Major finding đóng, không Minor nào còn cần correction) + Product Owner consolidation decision (2026-08-04, §15). `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi, đúng package-lifecycle/artifact-lifecycle separation đã dùng nhất quán trong toàn bộ session này (cùng pattern Package 0.2-B4/Package 1.1/Package 1.3-A). **Open gap bảo lưu tường minh, KHÔNG blocking:** `context.md` dùng khuôn "authoritative event record" cho `MarketContextSnapshot` trong khi `context-aggregator` vẫn `module_type: projection`, `owns_authoritative_state: false`, rebuildable, KHÔNG authoritative source cho upstream hay business domain state — tension này KHÔNG được resolve bởi consolidation này, xem §13. Consolidation quyết định này KHÔNG chọn một Context authority model mới.
 
 **v0.2 — bounded correction (2026-08-04), đóng `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`/`P13B-IRB-MAJ-03`/`P13B-A-MIN-01`/`P13B-IRB-MIN-01`** (findings confirmed từ Review A/Independent Review B trên v0.1). Root cause: `module-registry.yaml` v0.3 (khi v0.1 author) thiếu `market-data-ingestion` trong `depends_on` của `feature-engine`/`context-aggregator` dù cả hai đã trực tiếp tiêu thụ `candle-closed`/`candle-corrected` theo đúng `feature.md`/`context.md` (Package 0.2-B3/B4, Consolidated Stable, KHÔNG đổi), và `context-aggregator.emits` thiếu `event` dù `context.md` §3/§4 đã khóa `MarketContextSnapshot`/`MarketContextFactInvalidated` là event category — MỘT registry gap tại Package 1.1, KHÔNG một kiến trúc option mới. `module-registry.yaml`/`system-decomposition.md` v0.3 → **v0.4** sửa đúng gap này (bounded parity correction riêng, KHÔNG ADR, `package_lifecycle: Consolidated Stable` KHÔNG reset). Tài liệu này (v0.1 → v0.2) cập nhật §2/§3/§4/§5 để khớp `module-registry.yaml` v0.4, VÀ sửa terminology (§5.2/§8) — thay `authoritative MarketContextSnapshot` bằng `eligible cursor-bounded MarketContextSnapshot projection record` — làm rõ record-integrity (immutable/cursor-bounded/lineage-preserving) tách biệt khỏi authoritative domain-state ownership, KHÔNG đổi Context sang authoritative ownership. KHÔNG expand architecture scope, KHÔNG đổi Feature/Context responsibility, KHÔNG invent event mới, KHÔNG tạo universal fan-in, KHÔNG tạo ADR.
 
@@ -568,7 +568,12 @@ Terminology tension — "authoritative event record" (context.md §2, Chapter 8 
   tension này — điều kiện ADR rule của task (fan-in ngoài ADR-014 / đổi authority boundary
   hiện có) KHÔNG bị kích hoạt vì Package 1.3-B không đề xuất mở rộng fan-in hay đổi
   boundary nào, kể cả tại correction v0.2 này. Ghi nhận tường minh cho Product Owner
-  awareness — carry forward, KHÔNG blocking.
+  awareness — carry forward, KHÔNG blocking. **Cập nhật (2026-08-04, Product Owner
+  consolidation decision):** Package 1.3-B v0.2 nay `Consolidated Stable` VỚI ĐÚNG gap này
+  bảo lưu tường minh, KHÔNG resolve — Product Owner quote: "...with the context.md
+  authority-terminology tension preserved as an explicit non-blocking open gap."
+  Consolidation KHÔNG chọn một Context authority model mới, KHÔNG đổi
+  `owns_authoritative_state`, KHÔNG sửa `context.md`.
 
 Structure-aware Regime (Package 1.3-A §13, KHÔNG thay đổi):  vẫn blocked trên Domain
   Context/Capability registration — Feature/Context không tạo thêm phụ thuộc mới vào
@@ -660,7 +665,27 @@ Independent Review B
                               (P13B-IRB-MAJ-03 verification — emits: [event, query] KHÔNG
                               làm Context trở thành authoritative source).
 Product Owner decision
-  point:                     Sau Review A/B CLEAN.
-Consolidation condition:     Zero unresolved Blocker/Major; không vi phạm ADR-014
-                              boundary.
+  point:                     Sau Review A/B CLEAN. **Cập nhật (2026-08-04, Product Owner
+                              consolidation decision):** Review A CLEAN (Blocker 0/Major
+                              0/Minor 1) trên v0.1; Independent Review B REVISE (Blocker
+                              0/Major 3/Minor 1) trên v0.1 — ba Major xác nhận là
+                              `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`/`P13B-IRB-MAJ-03`, một
+                              Minor xác nhận là `P13B-A-MIN-01`/`P13B-IRB-MIN-01`. Bounded
+                              correction hoàn tất tại HEAD
+                              `71007bf1063c012001eb34465f41c0ce4905b7cf` (v0.1 → v0.2,
+                              `module-registry.yaml`/`system-decomposition.md` v0.3 →
+                              v0.4). Final bounded verification: CLEAN — mọi Major finding
+                              đóng, không Minor nào còn cần correction. Product Owner đã
+                              quyết định: "I approve consolidation of Package 1.3-B v0.2
+                              as the current Consolidated Stable architecture baseline,
+                              with the context.md authority-terminology tension preserved
+                              as an explicit non-blocking open gap." — Package 1.3-B nay
+                              **`Consolidated Stable`**.
+Consolidation condition:     Zero unresolved Blocker/Major (**THỎA** — ba Major đóng qua
+                              bounded correction, final verification CLEAN); không vi
+                              phạm ADR-014 boundary (**THỎA**). §13 terminology-tension
+                              open gap bảo lưu tường minh, KHÔNG blocking, KHÔNG resolve
+                              bởi consolidation này (**THỎA, theo đúng Product Owner
+                              decision quote**). **Mọi điều kiện consolidation ĐÃ thỏa —
+                              Package 1.3-B v0.2 nay `Consolidated Stable`.**
 ```

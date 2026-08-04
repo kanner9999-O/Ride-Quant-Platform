@@ -2,6 +2,134 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — consolidate Package 1.3-B v0.2
+
+**Package 1.3-B v0.2 consolidated as `Consolidated Stable`.** Vai trò: `Package 1.3-B Consolidation Transaction Executor`. Product Owner decision: **"I approve consolidation of Package 1.3-B v0.2 as the current Consolidated Stable architecture baseline, with the context.md authority-terminology tension preserved as an explicit non-blocking open gap."** (2026-08-04). Đây là mechanical lifecycle transaction — architecture semantics KHÔNG đổi.
+
+### Review evidence
+
+```text
+Review A:               CLEAN
+  Blocker 0, Major 0, Minor 1
+
+Independent Review B:   REVISE
+  Blocker 0, Major 3, Minor 1
+  Major findings: P13B-IRB-MAJ-01, P13B-IRB-MAJ-02, P13B-IRB-MAJ-03
+  Minor finding:  P13B-A-MIN-01 / P13B-IRB-MIN-01
+
+Bounded correction:      completed at HEAD 71007bf1063c012001eb34465f41c0ce4905b7cf
+                         (v0.1 -> v0.2)
+
+Final bounded verification:  CLEAN
+  all Major findings closed
+  no correction-requiring Minor remains
+```
+
+### Baseline
+
+```text
+Baseline HEAD:                                71007bf1063c012001eb34465f41c0ce4905b7cf
+docs/architecture/engine/feature-context-architecture.md v0.2 blob:  5b65eb0c96680bf1f9b4d48b1630da4ff6c0e8a5
+docs/architecture/module-registry.yaml v0.4 blob:                    6c4daa3eda3ef560b201de516dd019564d264c08
+docs/architecture/system-decomposition.md v0.4 blob:                 8e60b9e6051956cfbe83f33e1c82f404bc082e37
+```
+
+### Lifecycle transition
+
+```text
+package_lifecycle:  candidate -> Consolidated Stable
+version:            "0.2" (unchanged — no bump for a pure lifecycle transaction, same
+                     pattern as Package 0.2-B4 / Package 1.1 / Package 1.3-A)
+status:              Draft (unchanged)
+approved_by:         null (unchanged)
+approved_at:         null (unchanged)
+```
+
+### Preserved open gap (mandatory, non-blocking, NOT resolved by this transaction)
+
+```text
+context.md uses "authoritative event record" terminology for MarketContextSnapshot
+(Chapter 8 §8.2 envelope framing), while context-aggregator remains:
+  module_type:                projection
+  owns_authoritative_state:   false
+  rebuildable:                yes
+  not authoritative source for upstream (Structure/Regime/Feature/Candle) or business
+    domain state (Strategy/Decision/Risk/Account/Position/Execution).
+
+context.md itself is NOT modified by this transaction. This consolidation decision does
+NOT choose a new Context authority model, does NOT change owns_authoritative_state, and
+does NOT resolve the terminology tension — it is recorded as explicitly preserved, per
+the Product Owner's decision quote above.
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/engine/feature-context-architecture.md   banner + §13 gap note + §15
+                                                             lifecycle record updated;
+                                                             blob 5b65eb0c96680bf1f9b4d48b1630da4ff6c0e8a5
+                                                             -> a24d22a4fc66a4f6c505214d3b9fd53c5f757067
+docs/MANIFEST.md                                            manifest_version 10.32 -> 10.33
+docs/CHANGELOG.md                                            this entry prepended
+```
+
+Exactly 3 diff hunks on the artifact (`git diff -U0`): banner text, §13 gap note, §15 review/consolidation block. Frontmatter unchanged: `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### Architecture semantics unchanged (confirmed)
+
+```text
+Feature selective fan-in semantics       unchanged
+Feature authoritative ownership          unchanged
+Context direct aggregation boundary      unchanged
+Context non-authority and rebuildability unchanged
+Context criticality and fail-closed policy unchanged
+Dependency graph (§2/§3)                 unchanged
+Contract categories (§4.3/§5.4)          unchanged
+Determinism/replay/no-repaint (§6/§7)    unchanged
+Correction/invalidation lineages (§9)    unchanged
+Package 1.3-A semantics                  unchanged (not touched)
+Package 1.1 v0.4 corrections             unchanged (not touched)
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/engine/structure-regime-architecture.md
+docs/architecture/phase-1-plan.md
+docs/adr/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
+### Resulting lifecycle state
+
+```text
+Package 1.3-B:  Consolidated Stable
+                not implementation authorization
+Package 1.3-A:  Consolidated Stable (unchanged)
+Package 1.1:    Consolidated Stable (unchanged, v0.4)
+Phase 1:        Active, not Complete
+Phase 2:        Not Opened
+Live:           Unauthorized
+```
+
+### Non-effects (confirmed)
+
+```text
+Does NOT author Package 1.3-C.
+Does NOT resolve the context.md terminology gap.
+Does NOT authorize implementation.
+Does NOT pass Gate 2.
+Does NOT complete Phase 1.
+Does NOT open Phase 2.
+Does NOT authorize Live.
+```
+
 ## [Unreleased] — 2026-08-04 — bounded parity correction: Package 1.3-B v0.2, module-registry.yaml v0.4, system-decomposition.md v0.4
 
 **Bounded correction transaction — đóng `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`/`P13B-IRB-MAJ-03`/`P13B-A-MIN-01`/`P13B-IRB-MIN-01`.** Vai trò: `Package 1.3-B Bounded Correction Executor`. Root cause: registry gap tại Package 1.1 — `feature-engine`/`context-aggregator` đã trực tiếp tiêu thụ `candle-closed`/`candle-corrected` theo `feature.md`/`context.md` (Package 0.2-B3/B4, Consolidated Stable, KHÔNG đổi) nhưng `module-registry.yaml` v0.3's `depends_on` thiếu `market-data-ingestion`; `context-aggregator.emits` thiếu `event` dù `MarketContextSnapshot`/`MarketContextFactInvalidated` là event category (context.md §3/§4). Đây là một scoped parity correction áp dụng semantics ĐÃ pin sẵn tại Domain Contract — KHÔNG một kiến trúc option mới, KHÔNG đổi authority ownership, KHÔNG đổi Feature/Context responsibility, KHÔNG invent event mới, KHÔNG universal fan-in, KHÔNG ADR required.
