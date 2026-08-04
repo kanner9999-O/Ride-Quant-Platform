@@ -2,6 +2,198 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — bounded correction: Package 1.2 v0.2 (ADR gate now active; `security_classification: none` semantics corrected)
+
+**Bounded correction transaction — đóng `P12-A-MAJ-01`/`P12-IRB-MAJ-01`/`P12-A-MAJ-02`/`P12-IRB-MAJ-02`.** Vai trò: `Package 1.2 Bounded Correction Executor`. Neither finding is a new architecture option — both correct the candidate's own self-contradictions against controlling authority already cited inside it (`phase-1-plan.md`'s own quoted ADR-dependency text at §0; `module-registry.yaml`'s own definition of `security_classification` as a Package 1.1 taxonomy field, not a security clearance). No ADR is created or approved by this transaction. Package 1.3-D remains not consolidated.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                       5350e218b792a2b7bfd813d29779a31c7bb2b413
+docs/architecture/security-custody-baseline.md v0.1 blob:            87ffce89d5121ca3272a6df8732abb06664aced7
+docs/architecture/module-registry.yaml v0.4 blob (unchanged):        6c4daa3eda3ef560b201de516dd019564d264c08
+docs/architecture/system-decomposition.md v0.4 blob (unchanged):     8e60b9e6051956cfbe83f33e1c82f404bc082e37
+docs/architecture/phase-1-plan.md v0.4 blob (unchanged):             fe272215a28563cf68c4eb28feb525c547240c6d
+docs/architecture/engine/risk-execution-architecture.md v0.2 blob    95c5403060f09163f14fb80ceaaefd7dd0c555bb
+  (unchanged):
+```
+
+### Findings closed
+
+```text
+P12-A-MAJ-01 /    v0.1's §15 ADR assessment concluded that none of the six ADR-trigger
+P12-IRB-MAJ-01     conditions were activated, and that Package 1.2 did not need to create
+                   an ADR. This directly contradicted phase-1-plan.md's own controlling
+                   text, quoted verbatim inside the candidate's own §0: "Likely tạo ADR
+                   riêng cho security trust boundary + custody boundary — package 1.2
+                   PHẢI dừng tại đúng boundary đó chờ ADR Approved trước khi tự
+                   Consolidated Stable." The candidate had, in fact, already elaborated
+                   far enough (§6/§7) to reach exactly that boundary. RESOLVED — §15
+                   rewritten: an ADR decision requirement is recorded as now active;
+                   Package 1.2 may remain Draft and continue bounded review but must not
+                   become Consolidated Stable until an Approved ADR resolves the security
+                   trust boundary and custody/signing authority boundary; §15.2 records an
+                   eight-item architecture-level ADR decision scope; §15.3 confirms no
+                   solution is selected; §15.4 states the pre-consolidation stop condition
+                   explicitly. §14/§16 updated to reflect the gate; banner adds
+                   `ADR-GATED`.
+
+P12-A-MAJ-02 /     v0.1's §3 treated `security_classification: none` as affirmative proof
+P12-IRB-MAJ-02     that the 19 so-classified modules have no external interaction, no
+                   credential relevance, and need no cross-cutting baseline assessment —
+                   an unsupported inference beyond what module-registry.yaml (Package 1.1,
+                   Consolidated Stable) actually states. RESOLVED — new §3.0 states `none`
+                   means only that Package 1.1 assigned no special classification, not an
+                   affirmative clearance; new §3.1 defines a nine-item class-neutral
+                   minimum security baseline applying to all 23 registered modules
+                   regardless of classification; §3.2 (renamed from the old class blocks)
+                   preserves class-specific additions for trust_boundary_candidate and
+                   custody_adjacent, corrects the `none` block to state it is not exempt
+                   from §3.1, and adds a new "future credential-using boundary" class tying
+                   direct-secret authority to an Approved ADR plus registry-level
+                   establishment.
+```
+
+### Correction 1 — ADR gate (§15, §14, §16, banner)
+
+```text
+Removed claim:       "KHÔNG mục nào trong sáu mục trên bị kích hoạt tại transaction v0.1
+                     này — Package 1.2 KHÔNG tạo ADR."
+
+Added statement:     An ADR decision requirement is now active. Package 1.2 may remain
+                     Draft and continue bounded review, but it must not become
+                     Consolidated Stable until an Approved ADR resolves the security
+                     trust boundary and custody/signing authority boundary sufficiently
+                     for the baseline being consolidated.
+
+§15.1 re-evaluation: three of the six original ADR-rule conditions are now active (new
+                     credential/signing authority owner; custody source of truth; new
+                     venue-adapter authority) — not because Package 1.2 selects a
+                     resolution, but because the baseline's own elaboration (§6/§7) cannot
+                     be completed without one. Three remain not active (new PAPER/LIVE
+                     isolation model; execution bypass; dependency/topology outside
+                     approved authority, standalone).
+
+§15.2 ADR decision   authoritative custody/signing boundary; registered module identity
+scope (8 items):     or another explicitly approved architectural boundary; direct
+                     credential-use authority; credential-reference source-of-truth
+                     relationship; published interaction boundary with Execution Engine;
+                     dependency-graph implications; audit and provenance responsibility;
+                     kill-switch observation and enforcement participation scope.
+
+§15.3 non-selection: explicit confirmation the candidate authors no ADR document, no new
+                     module, no registry correction, no dependency edge, no Vault/HSM
+                     product, no credential storage, no signing algorithm, no network
+                     topology, no API/event schema.
+
+§15.4 stop condition: "The gap is disclosed and intentionally unresolved. Its unresolved
+                     status blocks Package 1.2 Consolidated Stable. Avoiding a concrete
+                     mechanism does not remove the requirement for an Approved
+                     architectural decision."
+
+§14 gap #1/#2/#3:    updated to state explicitly they are not generic future gaps but
+                     the pre-consolidation ADR gate.
+
+§16:                 new "ADR gate condition" row — Review A/B CLEAN and an Approved ADR
+                     are two independent conditions; both required before Consolidated
+                     Stable.
+```
+
+No ADR document, module, registry correction, dependency edge, or concrete mechanism was authored.
+
+### Correction 2 — `security_classification: none` semantics (§2, §3.0, §3.1, §3.2, §13)
+
+```text
+Removed claim:       19 modules "KHÔNG chạm external network boundary trực tiếp, KHÔNG
+                     sở hữu credential/secret material" as a consequence of
+                     `security_classification: none`.
+
+Added statement      security_classification: none means only that Package 1.1 assigned
+(§3.0):              no special security classification to the module. It is not an
+                     affirmative security clearance.
+
+Added baseline       published-contract-only interaction; no raw-secret or private-key
+(§3.1, 9 items,      exposure; least-privilege service and data access; authorization
+applies to all 23    validation for commands and privileged operations; no authority
+modules):            inferred from transport, routing or possession of signed material;
+                     no ambient mutable-state access outside declared contracts;
+                     auditability of privileged and security-relevant actions; fail-closed
+                     behavior when authority, permission, identity or security evidence is
+                     absent, stale, invalid, unknown or mismatched; mandatory
+                     reassessment and possible reclassification when module connectivity,
+                     privilege, external exposure or secret-derived evidence handling
+                     changes.
+
+Preserved            trust_boundary_candidate: additional boundary and ingress/egress
+class-specific        scrutiny (on top of §3.1). custody_adjacent: opaque credential
+additions (§3.2):    reference only, no raw-secret ownership (on top of §3.1). New:
+                     future credential-using boundary — direct-secret authority only
+                     after an Approved ADR and registry-level establishment.
+```
+
+19 `none`-classified modules remain outside detailed functional/trust-boundary elaboration (unchanged, still the owning package's authority) but are no longer described as exempt from any security baseline obligation. No module was reclassified; `module-registry.yaml` was not touched.
+
+### Preserved unchanged (confirmed)
+
+```text
+Package 1.2 cross-cutting purpose; account-service as the only module with
+elaborated_by: "1.2"; Account Service identity/lifecycle authority; exactly-one Account
+Boundary cardinality; opaque credential_reference semantics; raw-secret exclusion from
+Account Service; Decision/Trade Intent authority; RiskEvaluation/Execution Intent
+authority; Order/Execution Result/Fill authority; Position Projection non-authority;
+business-vs-custody-signing-vs-transport-vs-venue-acknowledgment distinction (§5);
+PAPER/LIVE current scope (§8); DD-003; kill-switch-state ownership gap (§9); Package
+1.3-D preserved gaps; forbidden implementation scope (§13); Package 1.1 module inventory,
+identity, taxonomy and dependency graph (byte-identical, not reclassified).
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/security-custody-baseline.md   0.1 -> 0.2
+                                                  87ffce89d5121ca3272a6df8732abb06664aced7
+                                                  -> 7f2cfebbbbbe80348e16013814db573e4c6497dc
+docs/MANIFEST.md                                 manifest_version 10.39 -> 10.40
+docs/CHANGELOG.md                                this entry prepended
+```
+
+### Automated validation results
+
+```text
+Frontmatter/YAML:  security-custody-baseline.md parses cleanly — version "0.2", status
+                   Draft, approved_by/approved_at null, unchanged; fence balance even
+                   (50).
+Diff scope:        git status --short confirms exactly the 3 expected files changed;
+                   forbidden-scope diff (module-registry.yaml, system-decomposition.md,
+                   structure-regime-architecture.md, feature-context-architecture.md,
+                   strategy-decision-architecture.md, risk-execution-architecture.md,
+                   phase-1-plan.md, docs/adr/, docs/domain/, docs/product/,
+                   docs/constitution/, docs/team/, docs/phase-dod/) empty.
+Text grep check:   no remaining occurrence of the corrected phrases ("KHÔNG mục nào...
+                   bị kích hoạt", "KHÔNG kích hoạt ADR" as a final §15 conclusion, "KHÔNG
+                   chạm external network boundary trực tiếp, KHÔNG sở hữu credential"
+                   as an unqualified §3 class-`none` claim) outside this entry's own
+                   historical description of what was wrong in v0.1.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/phase-1-plan.md
+docs/architecture/engine/structure-regime-architecture.md
+docs/architecture/engine/feature-context-architecture.md
+docs/architecture/engine/strategy-decision-architecture.md
+docs/architecture/engine/risk-execution-architecture.md
+docs/adr/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
 ## [Unreleased] — 2026-08-04 — new candidate: Package 1.2 v0.1 (Security & Custody Baseline, cross-cutting)
 
 **Architecture authoring transaction — vai trò: `Package 1.2 Architecture Scope & Baseline Author`.** Establishes the missing custody-adjacent baseline required before Package 1.3-D may become Consolidated Stable (`risk-execution-architecture.md` v0.2, review-clean, consolidation blocked pending Package 1.2). Package 1.3-D is **not** consolidated in this transaction.

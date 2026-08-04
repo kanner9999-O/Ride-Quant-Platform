@@ -1,7 +1,7 @@
 ---
 id: security-custody-baseline
 title: "Package 1.2 — Security & Custody Baseline"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -15,7 +15,11 @@ depends_on: ["00-governance", "02-platform-invariants", "06-identity-model", "07
 
 # Package 1.2 — Security & Custody Baseline
 
-**CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.2 v0.1 là candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.4, xem §1) — theo `phase-1-plan.md` v0.4 (`Approved`) §"Package 1.2 — Security & Custody Baseline (cross-cutting)". Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
+**CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved, ADR-GATED.** Package 1.2 v0.2 — bounded correction, đóng `P12-A-MAJ-01`/`P12-IRB-MAJ-01`/`P12-A-MAJ-02`/`P12-IRB-MAJ-02` trên candidate v0.1. Author dựa trên Package 1.1 `Consolidated Stable` (v0.4, xem §1) — theo `phase-1-plan.md` v0.4 (`Approved`) §"Package 1.2 — Security & Custody Baseline (cross-cutting)".
+
+**Một ADR decision requirement NAY ACTIVE (§15).** Package 1.2 CÓ THỂ tiếp tục ở `Draft` và tiếp tục bounded review, NHƯNG KHÔNG được trở thành `Consolidated Stable` cho tới khi một ADR `Approved` resolve đủ security trust boundary và custody/signing authority boundary cho đúng phần baseline đang được consolidate. Correction này KHÔNG tự tạo/approve ADR đó — CHỈ ghi nhận yêu cầu và stop condition (§15/§16).
+
+Chưa qua Review A/Independent Review B cho v0.2, chưa có Product Owner consolidation decision.
 
 ## 0. Vai trò của tài liệu này — scope resolved từ controlling source (bắt buộc, yêu cầu task)
 
@@ -94,22 +98,86 @@ Package 1.2 KHÔNG redefine domain entity/event semantics, module identity/taxon
 | `execution-engine` | runtime_service | true | `risk-gateway`, `paper-execution-boundary` | `strategy-engine`, `strategy-plugin-host`, `context-aggregator` | `event` | `event`, `command` | `trust_boundary_candidate` | `1.3-D` (tham chiếu §3 CHỈ) |
 | `command-query-api-surface` | runtime_service | false | (16 module, xem §2 note) | (none) | `event`, `query`, `command` | `query`, `command` | `trust_boundary_candidate` | `1.4` (tham chiếu §3 CHỈ) |
 
-**KHÔNG recreate/invent module (xác nhận tường minh, yêu cầu task):** module-registry.yaml v0.4 KHÔNG đăng ký bất kỳ module nào tên "Exchange Adapter", "Custody-Signing Service", "Vault", "KMS", hay tương đương — I-11's "Chỉ Exchange Adapter hoặc dedicated Custody/Signing Service được phép sử dụng exchange credential trực tiếp" tham chiếu một AUTHORITY CHƯA ĐƯỢC ĐĂNG KÝ trong 23-module inventory hiện tại. Package 1.2 KHÔNG tạo module này (xem §16 ADR assessment — thêm module MỚI với published boundary/responsibility riêng LÀ architecture change, ADR Required theo Chapter 9 §9.10 "thay đổi module dependency graph"). Carry forward §15 gap.
+**KHÔNG recreate/invent module (xác nhận tường minh, yêu cầu task):** module-registry.yaml v0.4 KHÔNG đăng ký bất kỳ module nào tên "Exchange Adapter", "Custody-Signing Service", "Vault", "KMS", hay tương đương — I-11's "Chỉ Exchange Adapter hoặc dedicated Custody/Signing Service được phép sử dụng exchange credential trực tiếp" tham chiếu một AUTHORITY CHƯA ĐƯỢC ĐĂNG KÝ trong 23-module inventory hiện tại. Package 1.2 KHÔNG tạo module này (xem §15 ADR assessment — thêm module MỚI với published boundary/responsibility riêng LÀ architecture change, ADR Required theo Chapter 9 §9.10 "thay đổi module dependency graph"). Carry forward §15 gap.
 
-**19 module còn lại (`security_classification: none`):** KHÔNG thuộc phạm vi trust boundary treatment của Package 1.2 — không cần isolation requirement bổ sung ngoài baseline platform-wide (I-4/I-7 scope chung).
+**19 module còn lại (`security_classification: none`, đóng `P12-A-MAJ-02`/`P12-IRB-MAJ-02`):** `none` nghĩa CHỈ là Package 1.1 KHÔNG gán classification đặc biệt nào cho module đó — KHÔNG PHẢI một affirmative security clearance, KHÔNG PHẢI bằng chứng "không có external interaction/không có sensitive evidence/không liên quan credential/không có nghĩa vụ bảo mật riêng/loại trừ vĩnh viễn khỏi trust-boundary review". 19 module này VẪN nằm ngoài phạm vi elaborate chức năng chi tiết VÀ ngoài phạm vi trust-boundary-map riêng của §3's ba lớp có tên (`trust_boundary_candidate`/`custody_adjacent`), NHƯNG KHÔNG được miễn trừ khỏi class-neutral minimum security baseline (§3.1) — mọi module trong 23-module inventory, không phân biệt classification, đều chịu baseline đó. Chi tiết đầy đủ: §3.0/§3.1.
 
 ## 3. Trust boundary map — theo module class (bắt buộc, yêu cầu task, KHÔNG re-elaborate chức năng module khác)
 
 **Nguyên tắc bắt buộc:** mục này định nghĩa YÊU CẦU security/isolation ÁP DỤNG LÊN mỗi `security_classification`, KHÔNG redefine responsibility/dependency/authority đã pin tại Package 1.1/1.3-A/1.3-D/1.4. Package sở hữu chức năng của từng module (1.3-A/1.3-D/1.4) VẪN là authority cho chính module đó — Package 1.2 CHỈ thêm layer bảo mật.
 
+### 3.0 Corrected semantics của `security_classification: none` (bounded correction, đóng `P12-A-MAJ-02`/`P12-IRB-MAJ-02`)
+
+**Finding đóng:** v0.1 của §3 diễn giải SAI `security_classification: none` như một affirmative proof rằng 19 module đó "KHÔNG chạm external network boundary trực tiếp, KHÔNG sở hữu credential/secret material" — đây là silent invention, KHÔNG phải điều `module-registry.yaml` (Package 1.1, Consolidated Stable) thực sự tuyên bố.
+
+```text
+security_classification: none nghĩa CHỈ LÀ: Package 1.1 KHÔNG gán một classification
+đặc biệt nào (trust_boundary_candidate/custody_adjacent) cho module đó tại thời điểm
+đăng ký.
+
+KHÔNG PHẢI một affirmative security clearance.
+
+KHÔNG chứng minh: module đó không có external interaction; module đó không liên quan
+sensitive evidence; module đó không liên quan credential; module đó không có nghĩa vụ
+bảo mật riêng; module đó được loại trừ vĩnh viễn khỏi trust-boundary review.
+```
+
+### 3.1 Class-neutral minimum security baseline (áp dụng cho MỌI 23 module đã đăng ký, không phân biệt classification — mới, đóng `P12-A-MAJ-02`/`P12-IRB-MAJ-02`)
+
+19 module `security_classification: none` VẪN nằm ngoài phạm vi elaborate chức năng chi tiết của Package 1.2 (không author lại architecture riêng cho từng module đó — đó là thẩm quyền package sở hữu chức năng của chúng), NHƯNG KHÔNG được miễn trừ khỏi baseline sau — baseline này áp dụng ĐỒNG NHẤT cho cả 23 module, kể cả `account-service` và bốn module `trust_boundary_candidate`:
+
+```text
+1. Published-contract-only interaction — module chỉ tương tác qua contract category đã
+   đăng ký (event/query/command, module-registry.yaml), KHÔNG qua kênh ngầm/side-channel.
+
+2. Không raw-secret hay private-key exposure — không module nào (bất kể classification)
+   được lộ raw exchange credential/private key trong payload, log, snapshot, hay replay
+   artifact, trừ phạm vi đã pin riêng cho custody_adjacent/future credential-using
+   boundary (§3.2).
+
+3. Least-privilege service và data access — module chỉ truy cập đúng dữ liệu/service cần
+   cho trách nhiệm đã đăng ký của nó (Chapter 7 §7.3), không quyền truy cập rộng hơn.
+
+4. Authorization validation cho command và privileged operation — mọi command/thao tác
+   có tác động (đặc biệt command mutating authoritative state) PHẢI qua authorization
+   validation, KHÔNG tự động chấp nhận vì đến từ nội bộ hệ thống.
+
+5. Không suy authority từ transport, routing, hay việc sở hữu signed material — cùng
+   nguyên tắc đã pin tại §5 (transport KHÔNG BAO GIỜ tự thân là authority), áp dụng
+   chung cho MỌI module, không riêng execution path.
+
+6. Không ambient mutable-state access ngoài contract đã khai báo — module KHÔNG được
+   đọc/ghi authoritative state của module khác ngoài qua published contract.
+
+7. Auditability cho hành động privileged/security-relevant — hành động có ý nghĩa bảo
+   mật (đặc biệt của bốn module trust_boundary_candidate và account-service) PHẢI truy
+   vết được (I-1 Explainability nguyên tắc chung, §12).
+
+8. Fail-closed khi authority/permission/identity/security evidence absent, stale,
+   invalid, unknown, hoặc mismatched — cùng nguyên tắc I-6 đã pin tại §10, áp dụng cho
+   MỌI module, không riêng custody/boundary state.
+
+9. Mandatory reassessment và khả năng reclassification khi connectivity, privilege,
+   external exposure, hoặc secret-derived evidence handling của module thay đổi — một
+   module `none` hôm nay KHÔNG tự động vẫn `none` mãi mãi nếu trách nhiệm/kết nối của nó
+   thay đổi; reclassification là quyết định Package 1.1 (registry authority, KHÔNG phải
+   Package 1.2 — Package 1.2 KHÔNG tự reclassify module nào tại transaction này).
+```
+
+**Xác nhận tường minh:** baseline chín mục trên là YÊU CẦU architecture-level (WHAT phải đúng), KHÔNG author cơ chế/implementation cụ thể nào (forbidden scope §13 không đổi) — KHÔNG mở lại/redefine `module-registry.yaml`, KHÔNG reclassify module nào tại transaction này.
+
+### 3.2 Class-specific additions (trên NỀN baseline §3.1 — KHÔNG thay thế)
+
 ```text
 Class: trust_boundary_candidate (4 module: market-data-ingestion, risk-gateway,
   execution-engine, command-query-api-surface)
-  Ý nghĩa:  module CÓ TIỀM NĂNG chạm external network boundary (venue connection,
-    custody-adjacent execution surface, hoặc API ingress/egress) — IDENTIFICATION ONLY
-    tại package sở hữu chức năng (§2 note, đúng nguyên văn "identification only, no
-    auth/isolation design (Package 1.2)" mà cả bốn module đều mang trong notes/
-    elaboration của package sở hữu).
+  Baseline:  §3.1 (bắt buộc, không miễn trừ).
+  Bổ sung:   module CÓ TIỀM NĂNG chạm external network boundary (venue connection,
+    custody-adjacent execution surface, hoặc API ingress/egress) — nhận thêm boundary
+    và ingress/egress scrutiny NGOÀI baseline chung — IDENTIFICATION ONLY tại package
+    sở hữu chức năng (§2 note, đúng nguyên văn "identification only, no auth/isolation
+    design (Package 1.2)" mà cả bốn module đều mang trong notes/elaboration của package
+    sở hữu).
   Yêu cầu I-4/I-7 áp dụng:  I-4 Scope liệt kê tường minh "Strategy Engine, Decision
     Engine, Risk Gateway, Execution Engine" — mọi trade intent PHẢI qua Risk Gateway
     trước khi tới Execution Engine (ĐÃ script-verified tại Package 1.3-C/1.3-D, KHÔNG
@@ -123,24 +191,39 @@ Class: trust_boundary_candidate (4 module: market-data-ingestion, risk-gateway,
     venue adapter thật tương lai) — CẢ HAI KHÔNG được cấp quyền đọc raw secret rộng
     hơn cần thiết trừ khi cùng trust boundary với Exchange Adapter/Custody-Signing
     Service (I-11 Prohibited behavior) — Exchange Adapter CHƯA tồn tại (§2), nên
-    boundary CỤ THỂ CHƯA thể xác nhận, carry forward §15.
+    boundary CỤ THỂ CHƯA thể xác nhận, carry forward §15 (nay ADR-gated, KHÔNG chỉ một
+    generic gap).
   Design status:  IDENTIFICATION ONLY — Package 1.2 KHÔNG design concrete auth
     mechanism/network ACL implementation cho bốn module này (forbidden scope).
 
 Class: custody_adjacent (1 module: account-service)
-  Ý nghĩa:  module sở hữu identity/metadata GẦN custody nhưng KHÔNG sở hữu raw secret
+  Baseline:  §3.1 (bắt buộc, không miễn trừ).
+  Bổ sung:   module sở hữu identity/metadata GẦN custody nhưng KHÔNG sở hữu raw secret
     (account-service responsibilities, nguyên văn: "KHÔNG sở hữu credential/secret
-    material (I-11)").
+    material (I-11)") — CHỈ opaque credential reference, KHÔNG raw-secret ownership.
   Yêu cầu I-11 áp dụng:  đầy đủ tại §6 dưới — account-service CHỈ giữ
     `credential_reference` (opaque), KHÔNG BAO GIỜ raw secret.
   Design status:  §4 dưới elaborate ĐẦY ĐỦ kiến trúc (module DUY NHẤT gán cho Package
     1.2) — bao gồm identification, KHÔNG bao gồm credential storage implementation.
 
-Class: none (19 module còn lại)
-  Ý nghĩa:  KHÔNG chạm external network boundary trực tiếp, KHÔNG sở hữu credential/
-    secret material — baseline platform-wide I-4/I-7 vẫn áp dụng NHƯNG KHÔNG cần
-    isolation requirement bổ sung riêng.
-  Design status:  KHÔNG elaborate riêng tại Package 1.2 — I-4/I-7 baseline chung đã đủ.
+Class: none (19 module còn lại, đóng P12-A-MAJ-02/P12-IRB-MAJ-02)
+  Baseline:  §3.1 (bắt buộc, không miễn trừ — KHÔNG "no isolation requirement" như v0.1
+    sai tuyên bố).
+  Bổ sung:   KHÔNG bổ sung riêng ngoài §3.1 — 19 module này KHÔNG nhận boundary/
+    ingress-egress scrutiny bổ sung của trust_boundary_candidate, KHÔNG nhận custody
+    treatment của custody_adjacent, NHƯNG VẪN chịu đầy đủ chín mục §3.1.
+  Design status:  KHÔNG elaborate chức năng chi tiết riêng tại Package 1.2 (thẩm quyền
+    package sở hữu chức năng của từng module) — KHÔNG đồng nghĩa "không cần đánh giá
+    baseline bảo mật nào" (sửa từ v0.1). Reassessment/reclassification khi thay đổi
+    kết nối/privilege/exposure — §3.1 mục 9.
+
+Class: future credential-using boundary (Exchange Adapter/Custody-Signing Service —
+  CHƯA đăng ký, §2/§7)
+  Baseline:  §3.1 (áp dụng khi/nếu module được đăng ký).
+  Bổ sung:   direct-secret authority CHỈ được cấp SAU KHI có một ADR Approved (§15) VÀ
+    module đó được registry-level established tại `module-registry.yaml` (thẩm quyền
+    Package 1.1) — Package 1.2 KHÔNG tự cấp quyền này, KHÔNG tự đăng ký module, KHÔNG
+    tự tạo ADR đó tại transaction này (§13/§15).
 ```
 
 ## 4. Module boundary — Account Service (module DUY NHẤT gán cho Package 1.2, elaborate đầy đủ)
@@ -346,7 +429,7 @@ nào được đăng ký trong module-registry.yaml v0.4 — I-11's authority re
 Exchange Adapter hoặc dedicated Custody/Signing Service") là một khái niệm Constitution
 đã Locked NHƯNG CHƯA có module tương ứng trong 23-module inventory hiện tại.
 
-Package 1.2 KHÔNG tạo module này (§16 ADR assessment — thêm module MỚI với published
+Package 1.2 KHÔNG tạo module này (§15 ADR assessment — thêm module MỚI với published
 boundary/responsibility riêng LÀ architecture change, Chapter 9 §9.10 "thay đổi module
 dependency graph" → ADR Required, thuộc thẩm quyền Package 1.1, KHÔNG phải Package 1.2
 authoring transaction này).
@@ -523,6 +606,8 @@ KHÔNG tạo module "Exchange Adapter"/"Custody-Signing Service" mới trong
   module-registry.yaml — đó là Package 1.1 correction transaction riêng, thuộc diện ADR
   Required (Chapter 9 §9.10).
 KHÔNG chọn một authoritative kill-switch-state owner (§9).
+KHÔNG reclassify `security_classification` của module nào (§3.0/§3.1 — Package 1.1
+  authority, KHÔNG Package 1.2; class-neutral baseline áp dụng KHÔNG cần reclassify).
 KHÔNG redefine module identity/taxonomy/dependency đã pin tại Package 1.1
   (module-registry.yaml/system-decomposition.md v0.4, Consolidated Stable).
 KHÔNG redefine Package 1.3-A/1.3-B/1.3-C/1.3-D content (Consolidated Stable/review-clean).
@@ -538,20 +623,25 @@ KHÔNG authorize Live.
 
 ## 14. Preserved unresolved gaps (KHÔNG resolve, chỉ carry forward — bắt buộc, yêu cầu task)
 
+**Bounded correction note (đóng `P12-A-MAJ-01`/`P12-IRB-MAJ-01`):** Gap #1, #2, #3 dưới đây KHÔNG còn là generic "chờ tương lai" gap — chúng CÙNG cấu thành đúng ranh giới ADR decision requirement NAY ACTIVE tại §15. Gap được disclosed và intentionally unresolved; trạng thái unresolved đó CHẶN Package 1.2 `Consolidated Stable` (§15.4/§16) cho tới khi một ADR Approved resolve §15.2. Tránh chọn một concrete mechanism KHÔNG loại bỏ yêu cầu phải có một Approved architectural decision.
+
 ```text
 1. Exchange Adapter/Custody-Signing Service module registration — KHÔNG tồn tại trong
-   module-registry.yaml v0.4 (§2/§7). Đăng ký module này là Package 1.1 correction
-   transaction, thuộc diện ADR Required (Chapter 9 §9.10, "thay đổi module dependency
-   graph"/"thêm plugin type/capability mới" nếu module đó có plugin_relation).
+   module-registry.yaml v0.4 (§2/§7). Đăng ký module này là một phần của ADR decision
+   scope §15.2 (mục 2/3/6) — thuộc diện ADR Required (Chapter 9 §9.10, "thay đổi module
+   dependency graph"/"thêm plugin type/capability mới" nếu module đó có
+   plugin_relation). **Pre-consolidation ADR gate — xem §15.**
 
 2. Credential reference concrete mechanism (Vault/KMS binding, signing service
    integration) — account.md §14/§16 VÀ ADR-012 §6 đều tường minh defer TỚI "Phase 1
-   Security & Custody Baseline" — Package 1.2 v0.1 elaborate YÊU CẦU (§6) nhưng KHÔNG
-   chọn mechanism cụ thể (forbidden scope) — carry forward cho version tương lai của
-   CHÍNH artifact này hoặc một correction.
+   Security & Custody Baseline" — Package 1.2 v0.2 elaborate YÊU CẦU (§6) nhưng KHÔNG
+   chọn mechanism cụ thể (forbidden scope). Nguồn thật (§15.2 mục 4) KHÔNG thể pin cho
+   tới khi ADR đó Approved. **Pre-consolidation ADR gate — xem §15.**
 
 3. Signing-request pattern lựa chọn cụ thể (Mô hình A trực tiếp vs Mô hình B qua signing
-   service, §6) — hai mô hình đều hợp lệ theo I-11, KHÔNG chọn tại đây.
+   service, §6) — hai mô hình đều hợp lệ theo I-11, KHÔNG chọn tại đây; lựa chọn cụ thể
+   phụ thuộc vào chính custody/signing authority owner (§15.2 mục 1/3) — **cùng
+   pre-consolidation ADR gate, xem §15.**
 
 4. Kill-switch state ownership/representation/lifecycle/observation/in-flight handling
    — kế thừa NGUYÊN VẸN từ Package 1.3-D §16 gap #4, KHÔNG mở rộng/resolve tại Package
@@ -585,40 +675,110 @@ KHÔNG authorize Live.
     condition yêu cầu.
 ```
 
-## 15. ADR assessment (bắt buộc, yêu cầu task — báo cáo, KHÔNG tự quyết)
+## 15. ADR assessment — ADR decision requirement ACTIVE (bounded correction, đóng `P12-A-MAJ-01`/`P12-IRB-MAJ-01`)
+
+**Finding đóng:** v0.1's kết luận "KHÔNG mục nào... bị kích hoạt... Package 1.2 KHÔNG tạo ADR" là SAI — tự mâu thuẫn với chính `phase-1-plan.md` đã được quote nguyên văn tại §0 ("Likely tạo ADR riêng cho security trust boundary + custody boundary — package 1.2 PHẢI dừng tại đúng boundary đó chờ ADR Approved trước khi tự Consolidated Stable"). Candidate v0.1 ĐÃ đi tới đúng ranh giới đó (nội dung §6/§7 elaborate đầy đủ YÊU CẦU nhưng dừng lại trước concrete mechanism) — nhưng §15 v0.1 lại tuyên bố ranh giới đó "không kích hoạt ADR", tức phủ nhận chính observation mà tài liệu tự đưa ra. Sửa: ghi nhận yêu cầu ADR là ACTIVE ngay bây giờ, KHÔNG chờ tới "một transaction tương lai" mới ghi nhận.
 
 ```text
-Đúng ADR rule của task: "Stop and report a decision requirement only if Package 1.2
-genuinely needs to select: a new credential or signing authority owner; a custody
-source of truth; a new venue-adapter authority; a new PAPER/LIVE isolation model; an
-execution bypass; a dependency or topology absent from approved authority."
+An ADR decision requirement is now active.
 
-Đánh giá TỪNG mục:
-  new credential/signing authority owner:  Package 1.2 KHÔNG chọn — §6/§7 xác nhận
-    Exchange Adapter/Custody-Signing Service CHƯA đăng ký, Package 1.2 KHÔNG tự đăng ký
-    module đó (đó là Package 1.1 scope). KHÔNG kích hoạt ADR tại transaction NÀY.
-  custody source of truth:  Package 1.2 KHÔNG chọn — §6 pin YÊU CẦU (credential_reference
-    opaque, Vault/KMS bên ngoài), KHÔNG chọn hệ thống cụ thể nào làm source of truth.
-    KHÔNG kích hoạt ADR.
-  new venue-adapter authority:  cùng lý do "credential/signing authority owner" — KHÔNG
-    kích hoạt.
-  new PAPER/LIVE isolation model:  §8 xác nhận isolation HIỆN TẠI (identity-level,
-    environment field) đã đủ cho phạm vi Package 1.2 — KHÔNG author isolation model mới.
-    KHÔNG kích hoạt ADR.
-  execution bypass:  KHÔNG — §5 xác nhận business/custody/transport authorization TÁCH
-    BIỆT, KHÔNG bypass nào được tạo ra. KHÔNG kích hoạt ADR.
-  dependency/topology ngoài Approved authority:  KHÔNG — Package 1.2 KHÔNG thêm dependency
-    edge nào vào module-registry.yaml (account-service.depends_on giữ nguyên rỗng),
-    KHÔNG chọn runtime topology. KHÔNG kích hoạt ADR.
-
-Kết luận: KHÔNG mục nào trong sáu mục trên bị kích hoạt tại transaction v0.1 này — Package
-1.2 KHÔNG tạo ADR. Đúng `phase-1-plan.md`'s dự đoán riêng ("Likely tạo ADR riêng cho
-security trust boundary + custody boundary") — bản CANDIDATE v0.1 này CHƯA tới điểm cần
-quyết định đó, vì nó CHƯA chọn concrete mechanism nào (đúng forbidden scope). ADR khả năng
-sẽ cần thiết tại một transaction TƯƠNG LAI, KHI Package 1.2 (hoặc Package 1.1) thực sự
-tiến tới đăng ký Exchange Adapter/Custody-Signing Service module HOẶC chọn concrete
-credential mechanism — CẢ HAI đều KHÔNG xảy ra tại v0.1 này.
+Package 1.2 may remain Draft and continue bounded review, but it must not become
+Consolidated Stable until an Approved ADR resolves the security trust boundary and
+custody/signing authority boundary sufficiently for the baseline being consolidated.
 ```
+
+### 15.1 Vì sao yêu cầu ADR active (đánh giá lại sáu điều kiện gốc của ADR rule)
+
+```text
+Đúng ADR rule của task gốc: "a decision requirement... a new credential or signing
+authority owner; a custody source of truth; a new venue-adapter authority; a new
+PAPER/LIVE isolation model; an execution bypass; a dependency or topology absent from
+approved authority."
+
+new credential/signing authority owner:   ACTIVE — §7 xác nhận I-11 yêu cầu "CHỈ Exchange
+  Adapter hoặc dedicated Custody/Signing Service được phép dùng credential trực tiếp"
+  nhưng KHÔNG module nào giữ vai trò đó được đăng ký (§2). Baseline ĐANG được consolidate
+  (§6 §7 §3.2 "future credential-using boundary") PHỤ THUỘC vào việc ai/module nào SẼ giữ
+  vai trò authority đó — đây LÀ một quyết định chưa có, không phải một fact đã pin có thể
+  chỉ "trích dẫn". Package 1.2 KHÔNG tự chọn owner đó (vẫn đúng, KHÔNG đổi) — NHƯNG việc
+  baseline cần owner đó tồn tại để hoàn thiện chính nó LÀ điều kích hoạt ADR gate.
+custody source of truth:                 ACTIVE — cùng lý do trên; §6 pin YÊU CẦU
+  (credential_reference opaque, nguồn thật bên ngoài Domain Contract) nhưng "nguồn thật"
+  cụ thể là gì (Vault/KMS/signing service nào, quan hệ với module nào) là quyết định
+  authoritative-source-of-truth CHƯA có — điều kiện "custody source of truth" trigger.
+new venue-adapter authority:              ACTIVE — cùng module gap tại §7; venue-adapter
+  authority CHƯA established, baseline hiện tại chỉ carry forward "khi module đó tồn tại,
+  các yêu cầu sau áp dụng" — bản thân việc CHƯA có authority này chặn baseline hoàn thiện
+  phần venue-adapter interaction boundary với Execution Engine (§5).
+new PAPER/LIVE isolation model:           KHÔNG active — §8 xác nhận isolation hiện tại
+  (identity-level, environment field) đã đủ cho phạm vi hiện tại; Package 1.2 KHÔNG cần
+  một isolation model mới cho phần này. KHÔNG kích hoạt ADR ở mục riêng này.
+execution bypass:                         KHÔNG active — §5 xác nhận business/custody/
+  transport authorization tách biệt, KHÔNG bypass nào được tạo. KHÔNG kích hoạt ADR ở
+  mục riêng này.
+dependency/topology ngoài Approved        KHÔNG active riêng lẻ — Package 1.2 KHÔNG tự
+  authority:                              thêm dependency edge nào vào module-registry.yaml
+                                           tại transaction này; NHƯNG dependency-graph
+                                           implications của việc MỘT module custody mới
+                                           (nếu/khi đăng ký) sẽ cần edge tới Execution
+                                           Engine/Risk Gateway LÀ một phần của chính
+                                           quyết định ADR nói trên (§15.2 mục 6) — ghi
+                                           nhận như một phần của decision scope, KHÔNG
+                                           như một trigger độc lập mới.
+
+Kết luận: BA trong sáu điều kiện gốc (credential/signing authority owner, custody source
+of truth, venue-adapter authority) đã đạt điểm cần quyết định — KHÔNG PHẢI vì Package 1.2
+chọn resolve chúng (KHÔNG chọn, đúng nguyên tắc "does not choose among possible
+solutions" — §15.3), mà vì baseline ĐÃ elaborate đủ sâu (§6/§7) để lộ ra rằng các phần đó
+KHÔNG THỂ hoàn thiện/consolidate nếu thiếu một quyết định kiến trúc Approved. Đây chính
+là ranh giới `phase-1-plan.md` đã tiên đoán — KHÔNG một tình huống mới.
+```
+
+### 15.2 ADR decision scope (mô tả ở architecture level — KHÔNG chọn giải pháp)
+
+```text
+1. Authoritative custody/signing boundary — ranh giới trust boundary chính xác giữa nơi
+   business authorization kết thúc và custody/signing authorization bắt đầu.
+2. Registered module identity, hoặc một architectural boundary khác đã được approve tường
+   minh, cho vai trò "Exchange Adapter hoặc dedicated Custody/Signing Service" (I-11).
+3. Direct credential-use authority — module/boundary nào (và CHỈ nó) được cấp quyền dùng
+   exchange credential trực tiếp.
+4. Credential-reference source-of-truth relationship — `account-service`'s
+   `credential_reference` (opaque, §4/§6) quan hệ CHÍNH XÁC thế nào với nguồn thật giữ raw
+   secret.
+5. Published interaction boundary với Execution Engine — Execution Engine (Package 1.3-D)
+   tương tác với custody/signing boundary đó qua contract nào, theo mô hình nào (§5).
+6. Dependency-graph implications — module/boundary mới đó cần edge gì trong
+   module-registry.yaml (thẩm quyền Package 1.1, KHÔNG Package 1.2).
+7. Audit and provenance responsibility — ai chịu trách nhiệm audit trail cho credential
+   access (§12 đã pin YÊU CẦU audit trail phải tồn tại; ADR quyết định AI thực hiện).
+8. Kill-switch observation and enforcement participation scope — custody/signing boundary
+   đó tham gia I-8 kill-switch scope thế nào (§7/§9 đã ghi nhận gap, KHÔNG resolve).
+```
+
+### 15.3 Xác nhận tường minh — candidate KHÔNG chọn giải pháp
+
+```text
+The candidate does not choose among possible solutions.
+
+Package 1.2 v0.2 KHÔNG author: một ADR document; một module mới; một registry correction;
+một dependency edge; một sản phẩm Vault hay HSM cụ thể; credential storage; signing
+algorithm; network topology; API hay event schema. Tất cả tám mục tại §15.2 được MÔ TẢ ở
+mức architecture-level (WHAT cần quyết định), KHÔNG đề xuất giải pháp nào trong số đó.
+```
+
+### 15.4 Pre-consolidation stop condition
+
+```text
+The gap is disclosed and intentionally unresolved.
+
+Its unresolved status blocks Package 1.2 Consolidated Stable.
+
+Avoiding a concrete mechanism does not remove the requirement for an Approved
+architectural decision.
+```
+
+**KHÔNG tạo ADR tại transaction này (§13 non-goals không đổi).** Một transaction ADR riêng, Product Owner-authorized, PHẢI resolve tám mục tại §15.2 trước khi Package 1.2 được xem xét `Consolidated Stable`. Correction NÀY chỉ ghi nhận yêu cầu và stop condition — KHÔNG resolve.
 
 ## 16. Review and consolidation conditions
 
@@ -629,8 +789,14 @@ Review A scope:               Baseline có bao phủ đủ I-4/I-7/I-11 Scope đ
                                module boundary (§4) nhất quán với module-registry.yaml
                                v0.4 (Consolidated Stable) — không silent semantic
                                invention; §7 xác nhận KHÔNG module mới được tạo; §15 ADR
-                               assessment đúng — không mục nào bị silently kích hoạt hay
-                               silently bỏ qua; mọi gap (§14) carry forward trung thực.
+                               assessment đúng — ADR decision requirement được ghi nhận
+                               ACTIVE đúng chỗ (KHÔNG under-claim như v0.1, KHÔNG
+                               over-claim bằng cách tự resolve nó); §3.0/§3.1 xác nhận
+                               `security_classification: none` được diễn giải đúng
+                               (absence of classification, KHÔNG affirmative clearance)
+                               và class-neutral baseline áp dụng cho toàn bộ 23 module;
+                               mọi gap (§14) carry forward trung thực, gap #1/#2/#3 gắn
+                               đúng với ADR gate.
 Independent Review B
   scope:                      Độc lập kiểm tra checklist (§3/§6/§9/§10) đủ để MỌI package
                                khác (1.3-A..D, 1.4, 1.5) tham chiếu được, không mơ hồ —
@@ -638,12 +804,30 @@ Independent Review B
                                KHÔNG business/custody/transport authorization nào bị
                                conflate (§5); xác nhận kill-switch state ownership KHÔNG
                                bị silently claimed (§9); xác nhận PAPER/LIVE treatment
-                               (§8) không invent LIVE support mới.
+                               (§8) không invent LIVE support mới; xác nhận §15 KHÔNG tự
+                               chọn giải pháp nào trong tám mục ADR decision scope
+                               (§15.2/§15.3); xác nhận §3.1 chín-mục baseline KHÔNG author
+                               mechanism/implementation nào (chỉ architecture-level
+                               requirement).
 Product Owner decision
-  point:                      Sau Review A/B CLEAN cho baseline (chưa cần đợi mọi package
-                               khác dùng xong checklist, đúng phase-1-plan.md).
+  point:                      Sau Review A/B CLEAN cho baseline v0.2 (chưa cần đợi mọi
+                               package khác dùng xong checklist, đúng phase-1-plan.md) —
+                               VÀ sau khi ADR gate (§15/§15.4) đã Approved cho đúng phần
+                               liên quan (xem Consolidation condition dưới).
+ADR gate condition (mới,      Package 1.2 KHÔNG được `Consolidated Stable` cho tới khi
+  đóng P12-A-MAJ-01/           một ADR riêng, Product Owner-authorized, Approved, resolve
+  P12-IRB-MAJ-01):             đủ tám mục tại §15.2 (authoritative custody/signing
+                               boundary; registered module identity hoặc boundary khác đã
+                               approve; direct credential-use authority; credential-
+                               reference source-of-truth relationship; published
+                               interaction boundary với Execution Engine; dependency-graph
+                               implications; audit/provenance responsibility; kill-switch
+                               observation/enforcement participation scope) cho ĐÚNG phần
+                               baseline đang được consolidate. Bounded review A/B CLEAN
+                               trên v0.2 KHÔNG tự nó thỏa điều kiện này — hai điều kiện
+                               (review CLEAN + ADR Approved) ĐỘC LẬP, cả hai PHẢI thỏa.
 Consolidation condition:      Baseline checklist explicit, versioned, pinned; zero
-                               unresolved Blocker/Major; ADR liên quan (nếu có, §15 —
-                               CHƯA phát sinh tại v0.1) Approved cho đúng phần baseline
-                               đã pin.
+                               unresolved Blocker/Major trên v0.2; ADR gate condition trên
+                               đã thỏa (Approved) cho đúng phần baseline đã pin — KHÔNG
+                               Consolidated Stable nếu thiếu MỘT trong hai.
 ```
