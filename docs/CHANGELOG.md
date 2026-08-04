@@ -2,6 +2,128 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — new candidate: Package 1.2 v0.1 (Security & Custody Baseline, cross-cutting)
+
+**Architecture authoring transaction — vai trò: `Package 1.2 Architecture Scope & Baseline Author`.** Establishes the missing custody-adjacent baseline required before Package 1.3-D may become Consolidated Stable (`risk-execution-architecture.md` v0.2, review-clean, consolidation blocked pending Package 1.2). Package 1.3-D is **not** consolidated in this transaction.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                       72e7e10240f607df7b6482a81fc66c255f2f2cfc
+docs/architecture/engine/risk-execution-architecture.md v0.2 blob:   95c5403060f09163f14fb80ceaaefd7dd0c555bb (unchanged)
+docs/architecture/module-registry.yaml v0.4 blob (unchanged):        6c4daa3eda3ef560b201de516dd019564d264c08
+docs/architecture/system-decomposition.md v0.4 blob (unchanged):     8e60b9e6051956cfbe83f33e1c82f404bc082e37
+docs/architecture/phase-1-plan.md v0.4 blob (unchanged):             fe272215a28563cf68c4eb28feb525c547240c6d
+```
+
+### Step 1 — Scope resolution (controlling sources, not Package 1.3-D wording)
+
+```text
+Resolved from phase-1-plan.md v0.4 (Approved) §"Package 1.2 — Security & Custody
+Baseline (cross-cutting)": ONE artifact, docs/architecture/security-custody-baseline.md
+(top-level, not docs/architecture/engine/), producing a trust-boundary map + per-
+module-class isolation checklist that every other Phase 1 package must satisfy before
+its own Consolidated Stable — not a fifth engine-style module-elaboration package.
+
+Module inventory (script-verified against module-registry.yaml v0.4, 23 modules):
+  phase.elaborated_by: "1.2"        account-service (custody_adjacent) — ONLY module,
+                                     elaborated in full at §4.
+  security_classification tally:    none 18, trust_boundary_candidate 4
+                                     (market-data-ingestion/risk-gateway/execution-engine/
+                                     command-query-api-surface — each already
+                                     elaborated_by its own owning package; Package 1.2
+                                     adds identification/trust-boundary-map treatment
+                                     only, §3), custody_adjacent 1 (account-service).
+
+Confirmed: no Exchange Adapter / Custody-Signing Service / Vault / KMS module is
+registered anywhere in the 23-module inventory — I-11's authority reference has no
+corresponding registered module. Carried forward as an explicit gap (§14 item 1), not
+invented.
+```
+
+### Artifact authored
+
+```text
+docs/architecture/security-custody-baseline.md   NEW, v0.1, status Draft, package
+                                                  lifecycle candidate — NOT Consolidated
+                                                  Stable, NOT Approved.
+                                                  Blob 87ffce89d5121ca3272a6df8732abb06664aced7
+```
+
+Sections: §0 scope resolution; §1 governing authority; §2 module scope table (account-service full elaboration + four trust_boundary_candidate reference rows); §3 trust boundary map per module class; §4 Account Service module boundary (registry classification, authoritative ownership, ADR-012 account-to-boundary architecture, account suspension/execution eligibility); §5 execution authorization vs transport (business/custody-signing/transport/venue-acknowledgment/execution-observation — none conflated); §6 custody and signing isolation (I-11 — credential/secret isolation, signing-request vs signed-payload, least-privilege, secret non-exposure per layer, cardinality, environment/venue eligibility, audit evidence, revocation/suspension, fail-closed unknown state); §7 venue-adapter/execution-boundary treatment (no module invented); §8 PAPER/LIVE treatment (no LIVE path invented, DD-003 not resolved); §9 kill-switch interaction (state ownership not claimed, Package 1.3-D §16 gap #4 preserved unmodified); §10 fail-safe behavior for absent/stale/unknown/version-mismatched custody state (I-6); §11 idempotency tie-in (I-10, citation only); §12 audit/provenance requirements; §13 explicit non-goals; §14 eleven preserved gaps; §15 ADR assessment; §16 review/consolidation conditions.
+
+### Authority preserved (confirmed, not redefined)
+
+```text
+Decision Authority Service sole Decision/Trade Intent authority; Risk Gateway sole
+RiskEvaluation/Execution Intent authority; Execution Engine Order authority; Execution
+Result Processor Execution Result authority; Fill Processor Fill authority; Position
+Projection non-authoritative. Package 1.2 introduces zero alternative Decision, Risk, or
+execution-business-authority path. module-registry.yaml/system-decomposition.md (Package
+1.1, Consolidated Stable) and risk-execution-architecture.md/strategy-decision-
+architecture.md/feature-context-architecture.md (Consolidated Stable) are byte-identical
+— untouched by this transaction.
+```
+
+### ADR assessment
+
+```text
+All six ADR-triggering conditions evaluated (new credential/signing authority owner; new
+custody source of truth; new venue-adapter authority; new PAPER/LIVE isolation model;
+execution bypass; dependency/topology outside approved authority) — NONE triggered at
+v0.1. No ADR created or proposed. phase-1-plan.md's own prediction ("likely tạo ADR riêng
+cho security trust boundary + custody boundary") remains open for a future transaction
+that selects a concrete mechanism — this candidate only pins requirements, it does not
+select a mechanism.
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/security-custody-baseline.md   NEW — 0.1, Draft, candidate
+docs/MANIFEST.md                                 manifest_version 10.38 -> 10.39, new
+                                                  Architecture table row, generated_at
+                                                  2026-08-03 -> 2026-08-04
+docs/CHANGELOG.md                                this entry prepended
+```
+
+### Automated validation results
+
+```text
+Frontmatter/YAML:  security-custody-baseline.md parses cleanly — id
+                   security-custody-baseline, version "0.1", status Draft, owner Product
+                   Owner, approved_by/approved_at null; fence balance even (38).
+Diff scope:        git status --short shows exactly the 3 expected files
+                   (security-custody-baseline.md new, MANIFEST.md, CHANGELOG.md);
+                   forbidden-scope diff (module-registry.yaml, system-decomposition.md,
+                   structure-regime-architecture.md, feature-context-architecture.md,
+                   strategy-decision-architecture.md, risk-execution-architecture.md,
+                   phase-1-plan.md, docs/adr/, docs/domain/, docs/product/,
+                   docs/constitution/, docs/team/, docs/phase-dod/) empty.
+Module scope check: script-verified account-service is the only module_id with
+                   phase.elaborated_by == "1.2" across all 23 module-registry.yaml v0.4
+                   entries; confirmed no Exchange Adapter/Custody-Signing Service/Vault/
+                   KMS module_id exists in the registry.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/phase-1-plan.md
+docs/architecture/engine/structure-regime-architecture.md
+docs/architecture/engine/feature-context-architecture.md
+docs/architecture/engine/strategy-decision-architecture.md
+docs/architecture/engine/risk-execution-architecture.md
+docs/adr/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
 ## [Unreleased] — 2026-08-04 — bounded correction: Package 1.3-D v0.2 (PAPER authorization eligibility, kill-switch policy/state distinction)
 
 **Bounded correction transaction — đóng `P13D-A-MAJ-01`/`P13D-IRB-MAJ-01`/`P13D-IRB-MAJ-02`.** Vai trò: `Package 1.3-D Bounded Correction Executor`. Root cause finding #1/#2: §8.1 (v0.1) incorrectly inferred inbound caller exclusivity for Paper Execution Boundary from `paper-execution-boundary.depends_on: []` — `depends_on` expresses module prerequisites, not access control. Root cause finding #3: §11 (v0.1) elevated Risk Gateway's established kill-switch *policy* ownership into an unestablished kill-switch *state* ownership claim. Both corrections apply semantics already established (or explicitly not established) by controlling authority — neither is a new architecture option, neither changes the Decision → Risk → Execution authority model, no ADR required.
