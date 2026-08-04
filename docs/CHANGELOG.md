@@ -2,6 +2,152 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — new Draft ADR: ADR-017 (Custody & Signing Trust Boundary — split Custody/Signing Service + Exchange Adapter)
+
+**ADR authoring transaction — vai trò: `Package 1.2 Custody & Security Trust-Boundary ADR Author`.** Resolves the eight-item ADR decision scope that [`security-custody-baseline.md`](../architecture/security-custody-baseline.md) v0.2 §15.2 recorded as an active pre-consolidation gate. This transaction authors a Draft ADR candidate only — it does not approve the ADR, does not consolidate Package 1.2 or Package 1.3-D, and does not touch `module-registry.yaml`/`system-decomposition.md`.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                       b30e56132e841b443af7c8602a7e51714164d340
+docs/architecture/security-custody-baseline.md v0.2 blob (unchanged): 7f2cfebbbbbe80348e16013814db573e4c6497dc
+docs/architecture/module-registry.yaml v0.4 blob (unchanged):        6c4daa3eda3ef560b201de516dd019564d264c08
+docs/architecture/system-decomposition.md v0.4 blob (unchanged):     8e60b9e6051956cfbe83f33e1c82f404bc082e37
+docs/architecture/phase-1-plan.md v0.4 blob (unchanged):             fe272215a28563cf68c4eb28feb525c547240c6d
+docs/architecture/engine/risk-execution-architecture.md v0.2 blob    95c5403060f09163f14fb80ceaaefd7dd0c555bb
+  (unchanged):
+```
+
+### Decision authored
+
+```text
+docs/adr/ADR-017.md   NEW — v0.1, status Draft, approved_by/approved_at null.
+                       Blob bc60c53e362ca43982fefd7f9df165f0a5d07342.
+```
+
+Next valid ADR number confirmed by inspecting `docs/adr/` — highest existing was ADR-016 (Approved); ADR-017 does not collide.
+
+**Options evaluated (ADR §4/§5):** Option A (single Custody/Signing Service module also owning venue interaction); Option B (Exchange Adapter module owning credential use directly); Option C (split — Custody/Signing Service owns credential custody and signing only, Exchange Adapter owns venue protocol translation/transport only, receiving signed material via bounded signing request). Evaluated against I-4/I-6/I-7/I-8/I-10/I-11, least privilege, secret blast radius, venue portability, testability, auditability, replay/evidence separation, credential rotation/revocation boundary, future multi-venue support, dependency clarity, operational complexity, failure isolation.
+
+**Selected: Option C.** Rationale (§6): least secret blast radius (credential-holding code never has venue network egress); best venue portability (N Adapter instances share one Custody/Signing Service); clearest alignment with Constitution's own pre-existing Scope references ("Exchange Adapter" already named in I-8/I-10 Scope; I-11 lists both roles as alternatives). Accepted trade-off: higher operational complexity (one additional cross-module hop per signing request) than A/B.
+
+**Module identities defined (§3.1/§3.2, architecture-level only — no field schema):**
+
+```text
+custody-signing-service:  runtime_service, owns_authoritative_state true (credential-
+                          binding/signing-operational state only), security_classification
+                          secret_consuming (pre-existing enum value in module-registry.yaml
+                          v0.4's schema comment, not yet used by any module — not invented
+                          by this ADR), depends_on [account-service], forbidden_dependencies
+                          exclude every business/execution/API authority module. Sole module
+                          platform-wide permitted direct exchange-credential use.
+
+exchange-adapter:         runtime_service, owns_authoritative_state true (narrow — venue
+                          acknowledgment/observation facts only, not Order/ExecutionResult/
+                          Fill authority), security_classification trust_boundary_candidate,
+                          depends_on [custody-signing-service], forbidden_dependencies
+                          exclude every business/execution/API authority module plus
+                          account-service directly. No raw-secret access under Option C.
+```
+
+### Authority preservation confirmed (§7)
+
+```text
+Decision Authority Service, Risk Gateway, Execution Engine, Execution Result Processor,
+Fill Processor, Position Projection, Account Service — all authority unchanged. Custody/
+signing capability never becomes business execution authorization; a valid signature
+cannot bypass Decision Authority Service, Risk Gateway, eligible Execution Intent,
+Execution Engine, or the eligible OrderSubmissionRequested causal-authorization invariant
+already pinned at risk-execution-architecture.md v0.2 §8.1 (unmodified, applied
+consistently to the new modules).
+```
+
+### Execution interaction (§8)
+
+```text
+Execution Engine sends an execution request (command) to exchange-adapter — same
+interaction shape already used with paper-execution-boundary in PAPER mode, no new
+contract for LIVE. exchange-adapter internally issues a bounded signing request to
+custody-signing-service, receives a signature/signed payload (never raw secret), attaches
+venue-specific protocol framing, and transmits externally. Execution Engine never contacts
+custody-signing-service directly and never assembles unsigned venue payloads itself.
+```
+
+### Kill-switch participation (§10) — state ownership NOT claimed
+
+```text
+Both new modules must observe the current execution-suspension decision and fail closed
+(no new signing/submission effect) when it is active, stale, or unknown — extending I-8
+Scope ("Risk Gateway, Execution Engine, mọi Exchange Adapter") for the first time to a
+registered module. Authoritative kill-switch-state ownership is explicitly NOT decided by
+this ADR — preserved unresolved per Package 1.3-D §11/§16 gap #4, per the task instruction
+to prefer leaving it unresolved unless strictly necessary (it is not, for participation to
+be fully specified).
+```
+
+### PAPER/LIVE treatment (§13)
+
+```text
+Nothing changes in the current PAPER pipeline — paper-execution-boundary does not interact
+with either new module. LIVE account identity still does not authorize LIVE execution
+(account.md §8, ADR-007). This ADR establishes a future-capable custody/adapter boundary
+but authorizes no LIVE execution; DD-003 is not resolved.
+```
+
+### Registry impact recorded, not executed (§9)
+
+```text
+Lists the future bounded Package 1.1 correction required after Approval: 2 new modules
+(23 -> 25), taxonomy tally (runtime_service 14 -> 16), authority-flag tally
+(owns_authoritative_state true 13 -> 15), new dependency edges (custody-signing-service ->
+account-service; exchange-adapter -> custody-signing-service; a future execution-engine ->
+exchange-adapter edge, LIVE-path only), security_classification tally (secret_consuming
+0 -> 1, trust_boundary_candidate 4 -> 5), system-decomposition.md updates. module-
+registry.yaml and system-decomposition.md remain byte-identical, v0.4 — this ADR does not
+perform that correction.
+```
+
+### Changed-file scope
+
+```text
+docs/adr/ADR-017.md   NEW — v0.1, Draft, candidate
+docs/MANIFEST.md      manifest_version 10.40 -> 10.41, compatible_adr_range ADR-016 ->
+                      ADR-017, new ADR table row
+docs/CHANGELOG.md     this entry prepended
+```
+
+### Automated validation results
+
+```text
+Frontmatter/YAML:  ADR-017.md parses cleanly — version "0.1", status Draft,
+                   approved_by/approved_at null, depends_on [ADR-007, ADR-012]; fence
+                   balance even (32).
+Diff scope:        git status --short confirms exactly the 3 expected files changed;
+                   forbidden-scope diff (security-custody-baseline.md, module-
+                   registry.yaml, system-decomposition.md, phase-1-plan.md,
+                   docs/architecture/engine/, docs/domain/, docs/product/,
+                   docs/constitution/, docs/team/, docs/phase-dod/, all pre-existing
+                   ADR files) empty.
+ADR numbering:     confirmed ADR-001..ADR-016 exist, ADR-017 does not collide with any
+                   existing file.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/security-custody-baseline.md
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/phase-1-plan.md
+docs/architecture/engine/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+docs/adr/ADR-001.md through docs/adr/ADR-016.md
+```
+
 ## [Unreleased] — 2026-08-04 — bounded correction: Package 1.2 v0.2 (ADR gate now active; `security_classification: none` semantics corrected)
 
 **Bounded correction transaction — đóng `P12-A-MAJ-01`/`P12-IRB-MAJ-01`/`P12-A-MAJ-02`/`P12-IRB-MAJ-02`.** Vai trò: `Package 1.2 Bounded Correction Executor`. Neither finding is a new architecture option — both correct the candidate's own self-contradictions against controlling authority already cited inside it (`phase-1-plan.md`'s own quoted ADR-dependency text at §0; `module-registry.yaml`'s own definition of `security_classification` as a Package 1.1 taxonomy field, not a security clearance). No ADR is created or approved by this transaction. Package 1.3-D remains not consolidated.
