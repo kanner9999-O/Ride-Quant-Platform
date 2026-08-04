@@ -1,7 +1,7 @@
 ---
 id: feature-context-architecture
 title: "Package 1.3-B — Feature & Context Engine Architecture"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -17,9 +17,11 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 
 **CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.3-B v0.1 là candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` và Package 1.3-A `Consolidated Stable` (xem §1), theo [`phase-1-plan.md`](../phase-1-plan.md) v0.4 (`Approved`) §8 Package 1.3-B block. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
 
+**v0.2 — bounded correction (2026-08-04), đóng `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`/`P13B-IRB-MAJ-03`/`P13B-A-MIN-01`/`P13B-IRB-MIN-01`** (findings confirmed từ Review A/Independent Review B trên v0.1). Root cause: `module-registry.yaml` v0.3 (khi v0.1 author) thiếu `market-data-ingestion` trong `depends_on` của `feature-engine`/`context-aggregator` dù cả hai đã trực tiếp tiêu thụ `candle-closed`/`candle-corrected` theo đúng `feature.md`/`context.md` (Package 0.2-B3/B4, Consolidated Stable, KHÔNG đổi), và `context-aggregator.emits` thiếu `event` dù `context.md` §3/§4 đã khóa `MarketContextSnapshot`/`MarketContextFactInvalidated` là event category — MỘT registry gap tại Package 1.1, KHÔNG một kiến trúc option mới. `module-registry.yaml`/`system-decomposition.md` v0.3 → **v0.4** sửa đúng gap này (bounded parity correction riêng, KHÔNG ADR, `package_lifecycle: Consolidated Stable` KHÔNG reset). Tài liệu này (v0.1 → v0.2) cập nhật §2/§3/§4/§5 để khớp `module-registry.yaml` v0.4, VÀ sửa terminology (§5.2/§8) — thay `authoritative MarketContextSnapshot` bằng `eligible cursor-bounded MarketContextSnapshot projection record` — làm rõ record-integrity (immutable/cursor-bounded/lineage-preserving) tách biệt khỏi authoritative domain-state ownership, KHÔNG đổi Context sang authoritative ownership. KHÔNG expand architecture scope, KHÔNG đổi Feature/Context responsibility, KHÔNG invent event mới, KHÔNG tạo universal fan-in, KHÔNG tạo ADR.
+
 ## 0. Vai trò của tài liệu này
 
-Package 1.3-B elaborate **kiến trúc kỹ thuật** cho hai module ĐÃ được Package 1.1 (`Consolidated Stable`, [`module-registry.yaml`](../module-registry.yaml) v0.3 blob `ab09d031183014c1af259895dadf86aaf644cc04`, [`system-decomposition.md`](../system-decomposition.md) v0.3 blob `c72dfdf54d2ac86bc7ad83de742dda485da11328`) thiết lập identity/taxonomy/dependency: `feature-engine`, `context-aggregator`. Tài liệu này **KHÔNG redefine** module identity/taxonomy/dependency đã pin ở Package 1.1 — chỉ elaborate: responsibility boundary chi tiết hơn, dependency direction, selective fan-in treatment, definition-version pinning, event-time/recorded-time treatment, determinism/replay/no-repaint, Context aggregation/projection semantics, Context criticality/failure policy, correction/invalidation propagation, stale/incomplete Context behavior, security/trust-boundary identification, và open gap — đúng phạm vi `phase-1-plan.md` §8 Package 1.3-B "Purpose: Kiến trúc kỹ thuật cho Feature Engine (fan-in có chọn lọc từ Structure) và Context Aggregation (CQRS, aggregator)".
+Package 1.3-B elaborate **kiến trúc kỹ thuật** cho hai module ĐÃ được Package 1.1 (`Consolidated Stable`, [`module-registry.yaml`](../module-registry.yaml) v0.4 blob `6c4daa3eda3ef560b201de516dd019564d264c08`, [`system-decomposition.md`](../system-decomposition.md) v0.4 blob `8e60b9e6051956cfbe83f33e1c82f404bc082e37`) thiết lập identity/taxonomy/dependency: `feature-engine`, `context-aggregator`. Tài liệu này **KHÔNG redefine** module identity/taxonomy/dependency đã pin ở Package 1.1 — chỉ elaborate: responsibility boundary chi tiết hơn, dependency direction, selective fan-in treatment, definition-version pinning, event-time/recorded-time treatment, determinism/replay/no-repaint, Context aggregation/projection semantics, Context criticality/failure policy, correction/invalidation propagation, stale/incomplete Context behavior, security/trust-boundary identification, và open gap — đúng phạm vi `phase-1-plan.md` §8 Package 1.3-B "Purpose: Kiến trúc kỹ thuật cho Feature Engine (fan-in có chọn lọc từ Structure) và Context Aggregation (CQRS, aggregator)".
 
 **KHÔNG thuộc phạm vi tài liệu này:** field-level event schema (đã khóa tại `feature.md` v0.2/`context.md` v0.2, Package 0.2-B3/B4, `Consolidated Stable`); Engine algorithm/formula/source code; database schema; deployment/runtime topology cụ thể; Strategy/Decision logic (Package 1.3-C); Package 1.3-A content (Data Ingestion/Structure/Raw Regime — `Consolidated Stable`, KHÔNG redefine).
 
@@ -33,9 +35,9 @@ Approved ADR-014 (supersedes ADR-003, scoped):    controlling authority cho Feat
 Domain Contract (feature.md v0.2, context.md v0.2 controlling domain semantic authority —
   — Package 0.2-B3/B4, Consolidated Stable):        Consolidated Stable, KHÔNG redefine tại
                                                     đây
-module-registry.yaml v0.3 (Consolidated Stable):  module identity/taxonomy/dependency
+module-registry.yaml v0.4 (Consolidated Stable):  module identity/taxonomy/dependency
                                                     authority — KHÔNG redefine tại đây
-system-decomposition.md v0.3 (Consolidated        official Phase 1 module dependency graph
+system-decomposition.md v0.4 (Consolidated        official Phase 1 module dependency graph
   Stable):                                         — KHÔNG redefine tại đây
 structure-regime-architecture.md v0.1 (Package    upstream Structure Engine/Raw Regime
   1.3-A, Consolidated Stable):                     Engine boundary — KHÔNG redefine tại đây
@@ -49,44 +51,59 @@ Package 1.3-B KHÔNG redefine domain entity/event semantics, module identity/tax
 
 ## 2. Module scope (hai module, pin nguyên trạng từ Package 1.1)
 
-Hai module dưới đây trích dẫn NGUYÊN VĂN `module-registry.yaml` v0.3 (identity/taxonomy/dependency KHÔNG đổi) — cột "Elaboration" là nội dung MỚI của tài liệu này:
+Hai module dưới đây trích dẫn NGUYÊN VĂN `module-registry.yaml` v0.4 (identity/taxonomy KHÔNG đổi — `depends_on`/`emits` corrected tại v0.4, đóng `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`/`P13B-IRB-MAJ-03`, xem banner) — cột "Elaboration" là nội dung MỚI của tài liệu này:
 
-| module_id | module_type | owns_authoritative_state | depends_on | forbidden_dependencies |
-|---|---|---|---|---|
-| `feature-engine` | compute_engine | true | `structure-engine`, `raw-regime-engine` | (none) |
-| `context-aggregator` | projection | false | `structure-engine`, `raw-regime-engine`, `feature-engine` | (none) |
+| module_id | module_type | owns_authoritative_state | depends_on | emits | forbidden_dependencies |
+|---|---|---|---|---|---|
+| `feature-engine` | compute_engine | true | `market-data-ingestion`, `structure-engine`, `raw-regime-engine` | `event` | (none) |
+| `context-aggregator` | projection | false | `market-data-ingestion`, `structure-engine`, `raw-regime-engine`, `feature-engine` | `event`, `query` | (none) |
 
-**Xác nhận (yêu cầu task):** `depends_on` ở registry-level là ranh giới **permitted connectivity** — module ĐƯỢC PHÉP tiêu thụ contract từ module đích, KHÔNG phải "mọi instance computation PHẢI tiêu thụ cả hai/cả ba module đó cùng lúc". Ranh giới thực sự per-computation nằm ở `feature_definition_version`/`context_definition_version` (ADR-014 "Definition-pinned direct fan-in" — xem §4.5/§5.6).
+**Xác nhận (yêu cầu task):** `depends_on` ở registry-level là ranh giới **permitted connectivity** — module ĐƯỢC PHÉP tiêu thụ contract từ module đích, KHÔNG phải "mọi instance computation PHẢI tiêu thụ cả hai/cả ba/cả bốn module đó cùng lúc". Ranh giới thực sự per-computation nằm ở `feature_definition_version`/`context_definition_version` (ADR-014 "Definition-pinned direct fan-in" — xem §4.5/§5.6). **`market-data-ingestion` có mặt trong cả hai `depends_on`** vì cả `feature-engine` (§4.3) và `context-aggregator` (§5.4) đều trực tiếp tiêu thụ `candle-closed`/`candle-corrected` — quan hệ này ĐÃ tồn tại trong `feature.md`/`context.md` từ trước (Package 0.2-B3/B4, Consolidated Stable, KHÔNG đổi bởi correction này), nhưng trước v0.4 KHÔNG được registry phản ánh; correction v0.4 chỉ đồng bộ registry với Domain Contract đã pin, KHÔNG tạo quan hệ mới.
 
 ## 3. Data flow (dependency-direction view — KHÔNG runtime topology)
 
 ```text
-Structure Engine (Package 1.3-A, Consolidated Stable)   Raw Regime Engine (Package 1.3-A,
-  emits: break-of-structure-detected,                     Consolidated Stable)
-    change-of-character-detected,                         emits: regime-classified,
-    structure-fact-invalidated, structure-recomputed,        regime-fact-invalidated
-    swing-candidate-detected, swing-confirmed,
+Market Data Ingestion (Package 1.3-A, Consolidated Stable)
+  emits: candle-closed, candle-corrected
+         │                                                │
+         ├────────────────────┬───────────────────────────┤ (context cutoff/trigger
+         │ (reference price/   │                           │  source, §7.0 — direct,
+         │  candle path,       │                           │  §5.4)
+         │  feature.md §7.1/   │                           │
+         │  §7.3, §4.3)        │                           │
+         ▼                     │                           │
+Structure Engine (Package 1.3-A)  Raw Regime Engine (Package 1.3-A, Consolidated Stable)
+  emits: break-of-structure-        emits: regime-classified, regime-fact-invalidated
+    detected, change-of-character-
+    detected, structure-fact-
+    invalidated, structure-
+    recomputed, swing-candidate-
+    detected, swing-confirmed,
     swing-invalidated
-         │                    │                    │
-         │ (Swing layer       │ (regime path,       │ (Structure orientation +
-         │  ONLY —            │  optional per        │  cả hai Regime dimension +
-         │  feature.md §14)   │  feature_definition_ │  ba Feature value, ADR-014
-         │                    │  version)            │  Context aggregation)
-         ▼                    ▼                      │
-    Feature Engine (compute_engine, selective fan-in) │
-      emits: feature-computed, feature-fact-invalidated
-         │                                            │
-         └───────────────────┬────────────────────────┘
+         │                    │                    │                          │
+         │ (Swing layer       │ (regime path,       │ (Structure orientation + │
+         │  ONLY —            │  optional per        │  cả hai Regime dimension │
+         │  feature.md §14)   │  feature_definition_ │  + ba Feature value,     │
+         │                    │  version)            │  ADR-014 Context         │
+         │                    │                      │  aggregation)            │
+         ▼                    ▼                      │                          │
+    Feature Engine (compute_engine, selective fan-in) │                          │
+      emits: feature-computed, feature-fact-invalidated                        │
+         │                                            │                          │
+         └───────────────────┬────────────────────────┴──────────────────────────┘
                               ▼
                     Context Aggregator (projection)
                       emits: market-context-snapshot,
-                        market-context-fact-invalidated
+                        market-context-fact-invalidated (event); GetCurrentContext,
+                        GetContextHistory (query)
                               │
                               ▼
               Strategy/Decision Engine (Package 1.3-C — KHÔNG thuộc phạm vi tài liệu này)
 ```
 
 **Xác nhận tường minh (yêu cầu task):** đây là responsibility/dependency view — KHÔNG phải authorization triển khai một synchronous pipeline hay runtime topology cụ thể. Việc chọn cơ chế thực thi cụ thể thuộc Engineering/Phase 1 execution-topology decision (`phase-1-plan.md` §7), KHÔNG quyết định tại Package 1.3-B.
+
+**Xác nhận tường minh (correction v0.2, `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`):** Feature Engine VÀ Context Aggregator đều tiêu thụ `candle-closed`/`candle-corrected` **trực tiếp** từ Market Data Ingestion — Feature Engine cho giá tham chiếu/`upstream_source: candle` path (feature.md §7.1/§7.3, §4.3); Context Aggregator cho `context_cutoff_source_ref` (cadence/cutoff driver, context.md §7.0/§11, §5.4). Đây KHÔNG phải quan hệ MỚI được tạo tại correction này — quan hệ này đã tồn tại nguyên vẹn tại `feature.md`/`context.md` (Package 0.2-B3/B4, Consolidated Stable) từ trước khi Package 1.3-B v0.1 được author; correction chỉ đồng bộ registry `depends_on` (đã thiếu edge này) với Domain Contract đã pin.
 
 **Điểm kiến trúc quan trọng (ADR-014, KHÔNG suy diễn mới):** Context Aggregator fan-in **trực tiếp** từ `structure-engine`/`raw-regime-engine`/`feature-engine` — KHÔNG route qua Feature Engine như một intermediary bắt buộc. Đây là chính amendment ADR-014 pin ("Context snapshot aggregation" là một operation khác "Feature computation fan-in", cả hai được phép fan-in trực tiếp từ Structure/Regime theo đúng vai trò riêng — xem ADR-014 "Canonical distinction").
 
@@ -111,7 +128,7 @@ distance_to_last_confirmed_swing (feature.md §7.3):
   — KHÔNG chạm Regime, KHÔNG chạm Structure's BOS/CHoCH event.
 ```
 
-**Xác nhận tường minh (yêu cầu task — "Do not invent universal join requirements"):** module-level `depends_on: [structure-engine, raw-regime-engine]` (§2) là **union** của permitted connectivity cho ba feature type khác nhau, KHÔNG phải một yêu cầu mỗi computation phải join cả hai luồng. Chỉ khi một `feature_definition_version` tương lai thực sự cần cả Structure lẫn Regime cùng lúc (ADR-014 "selective cross-domain synthesis" — chưa dùng ở B3 minimal scope) thì synchronization mới xảy ra bên trong CHÍNH một Feature Definition đó — vẫn KHÔNG phải một universal rule.
+**Xác nhận tường minh (yêu cầu task — "Do not invent universal join requirements"):** module-level `depends_on: [market-data-ingestion, structure-engine, raw-regime-engine]` (§2, v0.4) là **union** của permitted connectivity cho ba feature type khác nhau, KHÔNG phải một yêu cầu mỗi computation phải join cả ba module đó. Chỉ khi một `feature_definition_version` tương lai thực sự cần cả Structure lẫn Regime cùng lúc (ADR-014 "selective cross-domain synthesis" — chưa dùng ở B3 minimal scope) thì synchronization mới xảy ra bên trong CHÍNH một Feature Definition đó — vẫn KHÔNG phải một universal rule.
 
 **Ranh giới Swing vs Structure (quan trọng, dễ hiểu nhầm):** `distance_to_last_confirmed_swing` tiêu thụ `SwingConfirmed`/`SwingInvalidated` — hai event thuộc **Lớp 1 (Swing detection)** bên trong module `structure-engine` (Package 1.3-A §4.1) — **KHÔNG BAO GIỜ** tiêu thụ `BreakOfStructureDetected`/`ChangeOfCharacterDetected`/`StructureFactInvalidated`/`StructureRecomputed` (Lớp 2, BOS/CHoCH — `feature.md` §14 cấm tường minh). Module-level dependency edge `feature-engine → structure-engine` được thỏa mãn HOÀN TOÀN qua Lớp 1 — Feature Engine không có quan hệ nào với Lớp 2 của `structure-engine`.
 
@@ -186,17 +203,22 @@ rebuildable:          MarketContextSnapshot/MarketContextFactInvalidated rebuild
                       toàn từ authoritative event stream cùng context_definition_version +
                       implementation version đã pin (context.md §5, Chapter 7 §7.4 rebuild
                       determinism).
-downstream of         module-level depends_on: [structure-engine, raw-regime-engine,
-Feature Engine:       feature-engine] (§2) — Context fan-in SONG SONG từ cả ba, KHÔNG
-                      route qua Feature Engine (§3 "Điểm kiến trúc quan trọng").
+downstream of         module-level depends_on: [market-data-ingestion, structure-engine,
+Feature Engine:       raw-regime-engine, feature-engine] (§2, v0.4) — Context fan-in
+                      SONG SONG từ cả bốn, KHÔNG route Structure/Regime/Feature qua Feature
+                      Engine (§3 "Điểm kiến trúc quan trọng"); `market-data-ingestion` là
+                      context cutoff/trigger source riêng (§5.4, §7.0), KHÔNG phải một
+                      trong bảy context_values role.
 not owner of upstream Context KHÔNG tự tính một engineered Feature mới, KHÔNG tái sản xuất
 computation:          công thức/transformation của Feature Engine (context.md §17,
                       ADR-014 prohibition list).
 not Decision          Context là "authoritative market-state snapshot, KHÔNG phải một
-authority:            decision" (context.md §17) — KHÔNG đưa ra kết luận Strategy/Decision/
-                      Risk/Account/Position/Execution; KHÔNG xác định execution eligibility;
-                      KHÔNG authorize/reject/size/route một order (ADR-014 prohibition,
-                      xem §5.4 dưới).
+authority:            decision" (context.md §17, TRÍCH DẪN nguyên văn Domain Contract —
+                      xem §5.2 "Terminology" cho cách Package 1.3-B đọc "authoritative"
+                      tại đây, KHÔNG redefine text này) — KHÔNG đưa ra kết luận Strategy/
+                      Decision/Risk/Account/Position/Execution; KHÔNG xác định execution
+                      eligibility; KHÔNG authorize/reject/size/route một order (ADR-014
+                      prohibition, xem §5.4 dưới).
 ```
 
 ### 5.2 Aggregation / projection semantics (as-of selection, KHÔNG tính toán lại)
@@ -222,6 +244,28 @@ Context KHÔNG BAO GIỜ (context.md §17, ADR-014):
   đổi tên một conclusion domain khác thành "context value" để lách ownership.
 ```
 
+**Terminology (correction v0.2, `P13B-A-MIN-01`/`P13B-IRB-MIN-01` — bắt buộc, KHÔNG resolve bằng cách đổi Context sang authoritative ownership):**
+
+```text
+MarketContextSnapshot/MarketContextFactInvalidated records LÀ:
+  immutable       — KHÔNG BAO GIỜ ghi đè tại chỗ (§8 no-repaint).
+  cursor-bounded  — record đúng CHÍNH XÁC computation cursor/context_cutoff tại thời điểm
+                    phát sinh (§7, §11).
+  lineage-preserving — correction/invalidation lineage đầy đủ, append-only (§9.2).
+  eligible        — kết quả của two-phase Eligible Upstream Fact selection (§5.2 trên,
+                    context.md §8) — record CHỈ tồn tại khi bảy fact ref eligible tại
+                    computation point đó.
+
+context-aggregator VẪN LÀ:
+  projection                        (module-registry.yaml, module_type: projection)
+  owns_authoritative_state: false   (module-registry.yaml — KHÔNG đổi bởi correction này)
+  rebuildable                       (§5.1 — rebuild từ authoritative event stream)
+  KHÔNG authoritative source cho upstream (Structure/Regime/Feature/Candle) HAY bất kỳ
+    business domain state nào (Strategy/Decision/Risk/Account/Position/Execution).
+```
+
+Gọi một record là "eligible cursor-bounded MarketContextSnapshot projection record" (record-integrity — deterministic, append-only, đúng lineage) — KHÔNG gọi nó "authoritative MarketContextSnapshot" (có thể bị đọc nhầm thành authoritative domain-state ownership, Chapter 7 §7.4 cấm cho Projection). Hai tính chất này **tách biệt**: một record có thể record-integrity hoàn hảo (immutable, cursor-bounded, lineage-preserving) mà KHÔNG phải là authoritative SOURCE cho domain concept nó tổng hợp — đây chính xác là vị trí của `context-aggregator`. Xem §13 cho phạm vi correction này KHÔNG resolve (context.md's own "authoritative event record" envelope framing — Domain Contract text, ngoài phạm vi thay đổi của Package 1.3-B).
+
 ### 5.3 Authoritative ownership (không có gì — xác nhận tường minh)
 
 ```text
@@ -246,10 +290,15 @@ Consumes (event):  candle-closed, candle-corrected (context cutoff source, §7.0
                     §7.1); regime-classified, regime-fact-invalidated (hai Regime role,
                     §7.2); feature-computed, feature-fact-invalidated (ba Feature role,
                     §7.3) — context.md §16, KHÔNG hơn.
-Emits (query):      MarketContextSnapshot/MarketContextFactInvalidated (event, đúng
-                    module-registry.yaml Notes — projection được phép "phát sinh
-                    operational metadata event về chính nó", Chapter 7 §7.4); GetCurrentContext,
-                    GetContextHistory (query, module-registry.yaml `emits: [query]`).
+Emits (event):      market-context-snapshot, market-context-fact-invalidated — eligible
+                    cursor-bounded MarketContextSnapshot/MarketContextFactInvalidated
+                    projection record (correction v0.2, `P13B-A-MIN-01`/`P13B-IRB-MIN-01`
+                    — KHÔNG gọi "authoritative", xem §5.2/§13); module-registry.yaml v0.4
+                    `emits: [event, query]` (correction v0.4, đóng `P13B-IRB-MAJ-03`) —
+                    projection được phép "phát sinh operational metadata event về chính
+                    nó", Chapter 7 §7.4; record-integrity (immutable/cursor-bounded/
+                    lineage-preserving), KHÔNG authoritative domain-state ownership.
+Emits (query):      GetCurrentContext, GetContextHistory.
 ```
 
 **Không tiêu thụ (context.md §16, xác nhận tường minh):** `CandleObserved`; bất kỳ `*-current-view` nào (kể cả chính `MarketContextCurrentView`); `SwingCandidateDetected`; `Swing` event trực tiếp (Structure đã tự tiêu thụ Swing — Context không đi vòng qua Structure để lấy lại Swing); Strategy/Decision/Risk/Account/Position/Execution/Order/Fill.
@@ -346,7 +395,7 @@ context_cutoff = effective_window.window_end của context_cutoff_source_ref (Ca
 
 ## 8. Context criticality và failure policy (Chapter 7 §7.4 + I-6 — bắt buộc, Context là dependency của Decision)
 
-**Xác nhận tường minh (Independent Review B scope, `phase-1-plan.md` §8 Package 1.3-B block):** `context-aggregator` LÀ dependency của Decision evaluation — `module-registry.yaml` v0.3 (`decision-evaluation-engine.depends_on: [strategy-engine, strategy-plugin-host, context-aggregator]`, Package 1.1 `Consolidated Stable`). Theo Chapter 7 §7.4: "một projection được dùng làm dependency của decision/risk/execution... phải khai báo criticality và failure policy tường minh; khi tính đúng đắn hoặc độ freshness của nó không xác định, consumer phải fail-safe theo I-6."
+**Xác nhận tường minh (Independent Review B scope, `phase-1-plan.md` §8 Package 1.3-B block):** `context-aggregator` LÀ dependency của Decision evaluation — `module-registry.yaml` v0.4 (`decision-evaluation-engine.depends_on: [strategy-engine, strategy-plugin-host, context-aggregator]`, Package 1.1 `Consolidated Stable`). Theo Chapter 7 §7.4: "một projection được dùng làm dependency của decision/risk/execution... phải khai báo criticality và failure policy tường minh; khi tính đúng đắn hoặc độ freshness của nó không xác định, consumer phải fail-safe theo I-6."
 
 ```text
 Criticality:              Context Aggregator LÀ critical dependency cho Decision
@@ -377,9 +426,9 @@ Khi context LÀ incomplete hoặc stale (context.md §13, view_state):
 
 Khi Decision evaluation PHẢI fail closed (kiến trúc-level requirement, KHÔNG author
   Decision algorithm tại đây — Package 1.3-C elaborate cơ chế cụ thể):
-  (a) computation cursor của Decision evaluation KHÔNG có MarketContextSnapshot
-      authoritative tương ứng (absence) — Decision evaluation KHÔNG được tiến hành với
-      một window cũ hơn thay thế ngầm;
+  (a) computation cursor của Decision evaluation KHÔNG có eligible cursor-bounded
+      MarketContextSnapshot projection record tương ứng (absence) — Decision evaluation
+      KHÔNG được tiến hành với một window cũ hơn thay thế ngầm;
   (b) lineage head applicable đang view_state: PENDING_CORRECTION — Decision evaluation
       KHÔNG được coi giá trị đã invalidate là còn hợp lệ;
   (c) required context_definition_version của Decision Evaluation Engine không khớp
@@ -451,7 +500,8 @@ Không có nhánh "degraded Context" nào ngoài hai trạng thái đã pin (VAL
 
 ```text
 Feature Engine, Context Aggregator:  security_classification: none (module-registry.yaml
-  v0.3, KHÔNG đổi) — không chạm external network boundary trực tiếp, không sở hữu
+  v0.4, KHÔNG đổi bởi correction v0.2/registry v0.4 — chỉ depends_on/emits đổi) — không
+  chạm external network boundary trực tiếp, không sở hữu
   credential/secret material. Cả hai tiêu thụ CHỈ internal authoritative event stream
   (Candle/Swing/Structure/Regime/Feature) — external venue trust boundary đã được cô lập
   hoàn toàn tại Market Data Ingestion (Package 1.3-A §12, trust_boundary_candidate).
@@ -494,26 +544,31 @@ Package 1.3-A correction semantics:  KHÔNG sửa Package 1.3-A — Structure de
 ```text
 Terminology tension — "authoritative event record" (context.md §2, Chapter 8 §8.2 envelope
   framing) vs "projection, owns_authoritative_state: false, cấm phát sinh authoritative
-  domain fact" (module-registry.yaml Notes, Chapter 7 §7.4):
-  context.md mô tả MarketContextSnapshot/MarketContextFactInvalidated bằng đúng khuôn
-  envelope "authoritative event record" (Chapter 8 §8.2, giống hệt cấu trúc
+  domain fact" (module-registry.yaml Notes, Chapter 7 §7.4) — **PARTIALLY addressed tại
+  v0.2 (`P13B-A-MIN-01`/`P13B-IRB-MIN-01`), KHÔNG fully resolved:**
+  context.md (Package 0.2-B4, Consolidated Stable, KHÔNG đổi bởi Package 1.3-B) mô tả
+  MarketContextSnapshot/MarketContextFactInvalidated bằng đúng khuôn envelope
+  "authoritative event record" (Chapter 8 §8.2, giống hệt cấu trúc
   candle-closed/swing-confirmed/regime-classified/feature-computed — full lineage,
   supersedes_fact_ref, causation_refs) — trong khi module-registry.yaml (Package 1.1,
   Consolidated Stable) phân loại context-aggregator là Type 2 Projection,
   owns_authoritative_state: false, và Chapter 7 §7.4 tường minh cấm Projection "phát
-  sinh authoritative domain fact". Package 1.3-B đọc hai nguồn này theo hướng: snapshot
-  event của Context "authoritative" CHỈ theo nghĩa hẹp — chính bản ghi snapshot đó
-  deterministic/append-only/có lineage đúng chuẩn envelope (data-integrity property,
-  Chapter 7 §7.4 cho phép Projection "phát sinh operational metadata event về chính
-  nó") — KHÔNG có nghĩa Context trở thành authoritative SOURCE cho Structure/Regime/
-  Feature/Strategy/Decision (đó vẫn là cấm tuyệt đối, ADR-014 + context.md §17). Đây là
-  MỘT cách đọc hợp lý, KHÔNG PHẢI một resolution chính thức — hai tài liệu nguồn (context.md
-  Package 0.2-B4, module-registry.yaml Package 1.1) đều đã Consolidated Stable TRƯỚC
-  Package 1.3-B và KHÔNG tự mâu thuẫn tường minh với nhau về mặt văn bản đã pin. Package
-  1.3-B KHÔNG sửa context.md/module-registry.yaml, KHÔNG tạo ADR cho tension này — điều
-  kiện ADR rule của task (fan-in ngoài ADR-014 / đổi authority boundary hiện có) KHÔNG bị
-  kích hoạt vì Package 1.3-B không đề xuất mở rộng fan-in hay đổi boundary nào. Ghi nhận
-  tường minh cho Product Owner awareness — carry forward, KHÔNG blocking.
+  sinh authoritative domain fact". **v0.2 correction đã sửa PHẦN Package 1.3-B tự kiểm
+  soát được:** tài liệu này (§5.2 "Terminology") nay nhất quán gọi record của Context là
+  "eligible cursor-bounded MarketContextSnapshot projection record" (record-integrity —
+  immutable/cursor-bounded/lineage-preserving), KHÔNG còn gọi nó "authoritative
+  MarketContextSnapshot" như một khẳng định của CHÍNH tài liệu này — tách bạch tường minh
+  record-integrity khỏi authoritative domain-state ownership, KHÔNG đổi
+  `owns_authoritative_state` sang `true`. **PHẦN KHÔNG resolve (ngoài phạm vi Package
+  1.3-B):** chính văn bản `context.md` §2 vẫn dùng khuôn "authoritative event record" cho
+  MarketContextSnapshot — Domain Contract này KHÔNG được sửa bởi Package 1.3-B (§14 non-
+  goal), nên tension giữa văn bản context.md và văn bản module-registry.yaml VẪN tồn tại
+  ở tầng Domain Contract, độc lập với cách Package 1.3-B tự diễn giải nó. Package 1.3-B
+  KHÔNG sửa context.md/module-registry.yaml's Chapter 7 classification, KHÔNG tạo ADR cho
+  tension này — điều kiện ADR rule của task (fan-in ngoài ADR-014 / đổi authority boundary
+  hiện có) KHÔNG bị kích hoạt vì Package 1.3-B không đề xuất mở rộng fan-in hay đổi
+  boundary nào, kể cả tại correction v0.2 này. Ghi nhận tường minh cho Product Owner
+  awareness — carry forward, KHÔNG blocking.
 
 Structure-aware Regime (Package 1.3-A §13, KHÔNG thay đổi):  vẫn blocked trên Domain
   Context/Capability registration — Feature/Context không tạo thêm phụ thuộc mới vào
@@ -559,7 +614,7 @@ KHÔNG author stream-registry.yaml hay bất kỳ Definition Version registry me
 KHÔNG author Context làm authoritative decision owner (Chapter 7 §7.4, cấm tường minh —
   phase-1-plan.md §8 Package 1.3-B explicit non-goal).
 KHÔNG redefine module identity/taxonomy/dependency đã pin tại Package 1.1
-  (module-registry.yaml/system-decomposition.md v0.3, Consolidated Stable).
+  (module-registry.yaml/system-decomposition.md v0.4, Consolidated Stable).
 KHÔNG redefine Structure Engine/Raw Regime Engine boundary đã pin tại Package 1.3-A
   (Consolidated Stable).
 KHÔNG author Package 1.3-C/1.3-D.
@@ -583,20 +638,27 @@ KHÔNG authorize Live.
 Review A scope:              Context KHÔNG sở hữu upstream computation (Chapter 7 §7.4);
                               Feature fan-in đúng ADR-014 Definition-pinned direct fan-in
                               (§4.5/§5.6); module boundary elaboration (§4/§5) nhất quán
-                              với module-registry.yaml v0.3 (Consolidated Stable) — không
+                              với module-registry.yaml v0.4 (Consolidated Stable) — không
                               silent semantic invention; §13 terminology tension KHÔNG bị
-                              lấp bằng một resolution tự phát minh; no-repaint/
+                              lấp bằng một resolution tự phát minh; §5.2 terminology
+                              ("eligible cursor-bounded ... projection record") KHÔNG đổi
+                              Context sang authoritative ownership; no-repaint/
                               determinism/replay treatment (§6/§7) đúng Domain Contract
-                              invariant, không suy diễn thêm.
+                              invariant, không suy diễn thêm; §2/§3 market-data-ingestion
+                              edge khớp CHÍNH XÁC feature.md §7.1/§7.3 và context.md
+                              §7.0/§11 (P13B-IRB-MAJ-01/MAJ-02 correction verification).
 Independent Review B
   scope:                     Độc lập xác nhận Context criticality/failure policy tường
                               minh (§8) — đúng Chapter 7 §7.4 yêu cầu vì Context LÀ
                               dependency của Decision (decision-evaluation-engine.depends_on
-                              chứa context-aggregator, module-registry.yaml v0.3); xác nhận
+                              chứa context-aggregator, module-registry.yaml v0.4); xác nhận
                               §4.1 KHÔNG invent universal join requirement; xác nhận mọi
                               open gap (§13) được ghi nhận trung thực, KHÔNG bị silently
                               resolved; xác nhận KHÔNG Decision authority nào rò rỉ vào
-                              tài liệu này (§5.1/§5.3/§12).
+                              tài liệu này (§5.1/§5.3/§12); xác nhận `context-aggregator`
+                              vẫn `owns_authoritative_state: false` sau correction v0.2/v0.4
+                              (P13B-IRB-MAJ-03 verification — emits: [event, query] KHÔNG
+                              làm Context trở thành authoritative source).
 Product Owner decision
   point:                     Sau Review A/B CLEAN.
 Consolidation condition:     Zero unresolved Blocker/Major; không vi phạm ADR-014

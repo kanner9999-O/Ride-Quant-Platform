@@ -2,6 +2,198 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — bounded parity correction: Package 1.3-B v0.2, module-registry.yaml v0.4, system-decomposition.md v0.4
+
+**Bounded correction transaction — đóng `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`/`P13B-IRB-MAJ-03`/`P13B-A-MIN-01`/`P13B-IRB-MIN-01`.** Vai trò: `Package 1.3-B Bounded Correction Executor`. Root cause: registry gap tại Package 1.1 — `feature-engine`/`context-aggregator` đã trực tiếp tiêu thụ `candle-closed`/`candle-corrected` theo `feature.md`/`context.md` (Package 0.2-B3/B4, Consolidated Stable, KHÔNG đổi) nhưng `module-registry.yaml` v0.3's `depends_on` thiếu `market-data-ingestion`; `context-aggregator.emits` thiếu `event` dù `MarketContextSnapshot`/`MarketContextFactInvalidated` là event category (context.md §3/§4). Đây là một scoped parity correction áp dụng semantics ĐÃ pin sẵn tại Domain Contract — KHÔNG một kiến trúc option mới, KHÔNG đổi authority ownership, KHÔNG đổi Feature/Context responsibility, KHÔNG invent event mới, KHÔNG universal fan-in, KHÔNG ADR required.
+
+### Baseline
+
+```text
+Baseline HEAD:                                86e7b80eaa88331132978a6200a7172ba6d74b58
+docs/architecture/engine/feature-context-architecture.md v0.1 blob:  fc65ef3f4dbe198297f88979066e2801e6150691
+docs/architecture/module-registry.yaml v0.3 blob:                    ab09d031183014c1af259895dadf86aaf644cc04
+docs/architecture/system-decomposition.md v0.3 blob:                 c72dfdf54d2ac86bc7ad83de742dda485da11328
+```
+
+### Findings closed
+
+```text
+P13B-IRB-MAJ-01   feature-engine.depends_on thiếu market-data-ingestion dù trực tiếp
+                   tiêu thụ candle-closed/candle-corrected (feature.md §7.1/§7.3).
+                   RESOLVED — thêm market-data-ingestion vào depends_on.
+
+P13B-IRB-MAJ-02   context-aggregator.depends_on thiếu market-data-ingestion dù trực tiếp
+                   tiêu thụ candle-closed/candle-corrected làm cutoff/trigger source
+                   (context.md §7.0/§11). RESOLVED — thêm market-data-ingestion vào
+                   depends_on.
+
+P13B-IRB-MAJ-03   context-aggregator.emits khai báo [query] dù emit cả
+                   MarketContextSnapshot/MarketContextFactInvalidated (event category,
+                   context.md §3/§4). RESOLVED — emits: [event, query].
+
+P13B-A-MIN-01 /    Context terminology phải phân biệt immutable record integrity khỏi
+P13B-IRB-MIN-01    authoritative domain-state ownership. RESOLVED (partially, tại phạm vi
+                   Package 1.3-B) — feature-context-architecture.md nay dùng "eligible
+                   cursor-bounded MarketContextSnapshot projection record", KHÔNG "authoritative
+                   MarketContextSnapshot"; context-aggregator xác nhận lại
+                   owns_authoritative_state: false. context.md §2's own "authoritative event
+                   record" envelope framing KHÔNG sửa (ngoài phạm vi Package 1.3-B) — tension
+                   ở tầng Domain Contract vẫn carry forward, ghi nhận tại §13 open gap.
+```
+
+### Registry corrections (module-registry.yaml v0.3 → v0.4)
+
+```text
+feature-engine.depends_on:        [structure-engine, raw-regime-engine]
+                                   → [market-data-ingestion, structure-engine, raw-regime-engine]
+context-aggregator.depends_on:    [structure-engine, raw-regime-engine, feature-engine]
+                                   → [market-data-ingestion, structure-engine, raw-regime-engine,
+                                      feature-engine]
+context-aggregator.emits:         [query] → [event, query]
+context-aggregator.notes:         appended clarification — event là append-only projection
+                                   snapshot/invalidation record, KHÔNG authoritative domain
+                                   fact; owns_authoritative_state: false KHÔNG đổi.
+```
+
+**KHÔNG đổi:** `module_type`, `owns_authoritative_state`, `responsibilities`, `forbidden_dependencies` của hai module; module inventory (vẫn 23); module nào khác; taxonomy tally; state-authority tally.
+
+### Rationale (explained per task requirement)
+
+```text
+Feature direct Candle dependency:   permits definition-pinned Candle input paths already
+                                     established by feature.md (§7.1 volatility_metric/
+                                     directional_persistence_metric candle path; §7.3
+                                     distance_to_last_confirmed_swing reference price);
+                                     does NOT create universal fan-in — each
+                                     feature_definition_version still pins exactly one path.
+Context direct Candle dependency:   supplies the authoritative cutoff/trigger Candle
+                                     already required by context.md §7.0/§11
+                                     (computation_cadence_policy: DRIVEN_BY_CANDLE_CLOSE);
+                                     does NOT route Candle through Feature Engine — Context
+                                     fan-in is direct and parallel, per ADR-014.
+Context event emission:             represents append-only projection snapshot/
+                                     invalidation records (MarketContextSnapshot/
+                                     MarketContextFactInvalidated) — immutable,
+                                     cursor-bounded, lineage-preserving; does NOT make
+                                     Context an authoritative domain-state owner.
+                                     owns_authoritative_state: false unchanged.
+```
+
+### system-decomposition.md (v0.3 → v0.4) — exact semantic parity
+
+```text
+§5.1 (normative text-form graph):  feature-engine/context-aggregator depends_on updated,
+                                    each with a short rationale note (see above).
+§5.2 (diagram, illustrative):      note added — Market Data Ingestion edge simplified out
+                                    of the diagram for readability, §5.1 remains normative.
+§8 (event/command/query):          explicit exception added for context-aggregator's
+                                    emits: [event, query] — Projection producing an
+                                    append-only projection record, not an authoritative
+                                    domain fact.
+§15 (consolidation conditions):    "Cập nhật (v0.4)" note — bounded correction does not
+                                    reopen consolidation; receives a separate bounded
+                                    verification, not a new full Review A+B round.
+```
+
+**KHÔNG đổi:** module inventory, taxonomy tally, state-authority tally, coverage totals (34/21/17/11/15), module boundary content khác ngoài hai dependency-edge/emits fix và các note liên quan.
+
+### feature-context-architecture.md (v0.1 → v0.2)
+
+```text
+§2 module scope table:    depends_on updated to match module-registry.yaml v0.4; emits
+                           column added.
+§3 data flow diagram:     Market Data Ingestion → Feature Engine/Context Aggregator direct
+                           edges added, with explicit confirmation this is NOT a new
+                           relationship (already existed in feature.md/context.md; only the
+                           registry edge was missing — claim that the old Package 1.1 graph
+                           already represented this relationship is NOT made; instead the
+                           gap and its correction are stated directly).
+§4.1/§5.1:                 "Xác nhận tường minh" depends_on lists updated.
+§5.2:                      new "Terminology" block — MarketContextSnapshot/
+                           MarketContextFactInvalidated records are immutable,
+                           cursor-bounded, lineage-preserving projection records;
+                           context-aggregator remains projection / owns_authoritative_state:
+                           false / rebuildable / not an authoritative source for upstream or
+                           business domain state. "authoritative MarketContextSnapshot"
+                           replaced with "eligible cursor-bounded MarketContextSnapshot
+                           projection record" throughout this document's own prose. Direct
+                           quotes of context.md §17's own wording are left verbatim (citing
+                           the Domain Contract text, not asserted by this document) with a
+                           pointer added to this terminology block.
+§5.4:                      Emits (event) / Emits (query) split correctly, matching
+                           module-registry.yaml v0.4.
+§13:                       terminology-tension open gap updated — PARTIALLY addressed
+                           (this document's own language), NOT fully resolved (context.md's
+                           own "authoritative event record" envelope framing is untouched,
+                           out of scope).
+§1/§8/§11/§14/§15:         all module-registry.yaml/system-decomposition.md v0.3 references
+                           updated to v0.4 with new blobs.
+```
+
+**KHÔNG đổi:** Feature/Context responsibility, authority ownership, no new event invented, no universal fan-in created, no ADR created.
+
+### Changed-file scope
+
+```text
+docs/architecture/module-registry.yaml                       0.3 → 0.4
+                                                               ab09d031183014c1af259895dadf86aaf644cc04
+                                                               → 6c4daa3eda3ef560b201de516dd019564d264c08
+docs/architecture/system-decomposition.md                    0.3 → 0.4
+                                                               c72dfdf54d2ac86bc7ad83de742dda485da11328
+                                                               → 8e60b9e6051956cfbe83f33e1c82f404bc082e37
+docs/architecture/engine/feature-context-architecture.md     0.1 → 0.2
+                                                               fc65ef3f4dbe198297f88979066e2801e6150691
+                                                               → 5b65eb0c96680bf1f9b4d48b1630da4ff6c0e8a5
+docs/MANIFEST.md                                              manifest_version 10.31 → 10.32
+docs/CHANGELOG.md                                             this entry prepended
+```
+
+### Automated validation results
+
+```text
+module-registry.yaml:  23 unique module_id; zero unresolved depends_on/forbidden_dependencies
+                        reference; zero dependency cycle; zero depends_on/forbidden_dependencies
+                        overlap; feature-engine retains structure-engine + raw-regime-engine
+                        (plus new market-data-ingestion); context-aggregator retains
+                        structure-engine + raw-regime-engine + feature-engine (plus new
+                        market-data-ingestion); context-aggregator owns_authoritative_state:
+                        false confirmed unchanged; context-aggregator emits: [event, query]
+                        confirmed.
+Frontmatter/YAML:       docs/MANIFEST.md, module-registry.yaml, system-decomposition.md,
+                        feature-context-architecture.md all parse cleanly; fence balance even
+                        on feature-context-architecture.md (50) and MANIFEST rows (paren/backtick
+                        balance verified per row).
+Diff scope:             git status confirms exactly the 5 expected files changed; forbidden-
+                        scope diff (structure-regime-architecture.md, phase-1-plan.md, docs/adr/,
+                        docs/domain/, docs/product/, docs/constitution/, docs/team/,
+                        docs/phase-dod/) empty.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/engine/structure-regime-architecture.md
+docs/architecture/phase-1-plan.md
+docs/adr/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
+### Resulting lifecycle state
+
+```text
+Package 1.1:    Consolidated Stable (unchanged — bounded correction does not reopen
+                 consolidation)
+Package 1.3-B:  Draft, candidate, NOT Consolidated Stable, NOT Approved
+Package 1.3-A:  Consolidated Stable (unchanged)
+Phase 1:        Active, not Complete
+Phase 2:        Not Opened
+Live:           Unauthorized
+```
+
 ## [Unreleased] — 2026-08-04 — author Package 1.3-B v0.1 (Feature & Context Engine Architecture)
 
 **Package 1.3-B v0.1 authored — `docs/architecture/engine/feature-context-architecture.md`, `candidate`, `status: Draft`, KHÔNG Consolidated Stable, KHÔNG Approved.** Vai trò: `Package 1.3-B Architecture Author`. Dựa trên Package 1.1 `Consolidated Stable` (`module-registry.yaml` v0.3 blob `ab09d031183014c1af259895dadf86aaf644cc04`, `system-decomposition.md` v0.3 blob `c72dfdf54d2ac86bc7ad83de742dda485da11328`) và Package 1.3-A `Consolidated Stable` (`structure-regime-architecture.md` v0.1 blob `37cf19cafd2f067caae96a690b4597f0649d79f3`), theo `phase-1-plan.md` v0.4 (`Approved`) §8 Package 1.3-B block.

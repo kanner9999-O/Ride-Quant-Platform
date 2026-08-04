@@ -1,7 +1,7 @@
 ---
 id: system-decomposition
 title: "Package 1.1 — System Decomposition & Module Registry"
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -22,6 +22,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 **v0.3 — bounded ADR-016 alignment correction (2026-08-04)** (Product Owner-authorized correction, aligning candidate với Approved ADR-016 v0.8 — KHÔNG một finding ID review-round, một mechanical Package 1.1 correction transaction sau Decision 2 §12 resolve): Decision 2 (§12) — `decision-engine` hybrid taxonomy — nay **RESOLVED**: ADR-016 v0.8 (Approved, 2026-08-04, Product Owner) chọn **Candidate B (split)** dưới **Mechanism A** — hybrid REJECTED, KHÔNG còn module nào classified Chapter 7 hybrid trong candidate này. `decision-engine` tách thành hai module: `decision-evaluation-engine` (compute_engine, non-authoritative deterministic evaluation) + `decision-authority-service` (runtime_service, sole Decision/Trade Intent authority). Mechanism A: ADR-016 v0.8 tự nó amend hiệu lực kiểm soát của ADR-015 SCOPED cho module identity/dependency edge liên quan — ADR-015 vẫn controlling/immutable cho 21/22 module còn lại (không đổi). Đã cập nhật: module inventory (§4, 22→23 module), taxonomy tally (compute_engine 4→5), state-authority tally (true 13→13, false 8→9, tổng 22→23), dependency graph (§5, risk-gateway/replay-integration-service/review-evidence-service/command-query-api-surface nay depends_on `decision-authority-service` — KHÔNG `decision-evaluation-engine`; backtest-orchestrator depends_on CẢ HAI), §10 coverage table (mọi `decision-engine` reference thay bằng `decision-authority-service` hoặc CẢ HAI tùy dependency-edge tương ứng đã pin tại `module-registry.yaml`), §12 Decision 1 (ADR-015 Approved, RESOLVED) + Decision 2 (ADR-016 Approved, RESOLVED). Bốn residual risk từ ADR-016 v0.8 Accepted risks GIỮ NGUYÊN, KHÔNG resolve tại đây (Strategy Plugin/Evaluation boundary; evaluation-proposal Domain Contract gap; `attempt_outcome` mapping gap; operational/dependency/replay complexity). Bounded — KHÔNG reopen module boundary khác (Market/Data, Structure/Regime/Feature/Context, Strategy Engine, ExecutionResult/Fill/Position, Replay, Backtest, Paper boundary, API Surface, Review Evidence, UX Shell responsibility content ngoài dependency-edge fix), KHÔNG đổi PR/UC/UX/Domain coverage totals (34/21/17/11/15 không đổi), KHÔNG đổi DD-001/DD-003/Structure-aware-Regime deferral/OQ-001/OQ-002/OQ-003. `status: Draft`, `approved_by: null`, `approved_at: null`, `package lifecycle: candidate` không đổi — **KHÔNG tự động Consolidated Stable/Approved** dù cả Decision 1 VÀ Decision 2 nay Approved — Review A + Independent Review B trên chính candidate v0.3 này + Product Owner consolidation decision vẫn CHƯA thực hiện (§15).
 
 **Cập nhật (2026-08-04, Product Owner consolidation decision) — Package 1.1 v0.3 nay `Consolidated Stable`:** Review A CLEAN + Independent Review B CLEAN trên candidate v0.3 (post-ADR-016-alignment correction) hoàn tất — Blocker 0/Major 0/Minor 0. Product Owner đã quyết định: "I approve consolidation of Package 1.1 v0.3 as the current stable Phase 1 System Decomposition and Module Registry baseline." — `package lifecycle: candidate → Consolidated Stable` (xem `module-registry.yaml` `package_lifecycle` field). **KHÔNG đổi:** module inventory, module identity, taxonomy classification, responsibilities, authority ownership, dependencies, forbidden dependencies, module counts, residual gap, ADR reference nào — architecture semantics của candidate v0.3 giữ nguyên byte-for-byte về nội dung kiến trúc, CHỈ lifecycle-state field/prose thay đổi. `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi — Consolidated Stable là package lifecycle/readiness state, KHÔNG có nghĩa artifact `Approved`/`Locked` (Chapter 0 §7.1). Consolidation này KHÔNG tự động: resolve bốn residual risk (Strategy Plugin/Evaluation boundary; evaluation-proposal Domain Contract gap; `attempt_outcome` mapping gap; operational/dependency/replay complexity); authorize implementation; pass Gate 2 (Gate 2 governance riêng theo `phase-1-plan.md` §6.1, không tự động pass qua Package 1.1 consolidation); tuyên bố Phase 1 hoàn thành; mở Phase 2; authorize Live.
+
+**v0.4 — bounded parity correction (2026-08-04), đóng `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`/`P13B-IRB-MAJ-03`/`P13B-A-MIN-01`/`P13B-IRB-MIN-01`** (findings confirmed during Package 1.3-B Review A/Independent Review B, root cause là một registry gap tại Package 1.1 v0.3 — KHÔNG một kiến trúc option mới, KHÔNG một ADR-required decision): `feature-engine.depends_on` và `context-aggregator.depends_on` trước đây thiếu `market-data-ingestion` dù cả hai module đã trực tiếp tiêu thụ `candle-closed`/`candle-corrected` theo đúng `feature.md`/`context.md` (Package 0.2-B3/B4, Consolidated Stable, KHÔNG đổi) — sửa: thêm `market-data-ingestion` vào `depends_on` của cả hai (§5.1). `context-aggregator.emits` trước đây `[query]` dù `context.md` §3/§4 đã khóa `MarketContextSnapshot`/`MarketContextFactInvalidated` là event category — sửa: `emits: [event, query]` (§8, ngoại lệ tường minh mới thêm). Terminology clarification (§8): `event` của `context-aggregator` là append-only projection snapshot/invalidation record (record-integrity), KHÔNG phải authoritative domain fact theo nghĩa Chapter 7 §7.4 cấm — `owns_authoritative_state: false` KHÔNG đổi. **KHÔNG đổi:** module inventory (vẫn 23), module identity, `module_type`, `owns_authoritative_state`, `responsibilities`, `forbidden_dependencies`, taxonomy tally, state-authority tally, module nào khác ngoài hai module này. `status: Draft`, `approved_by: null`, `approved_at: null`, `package lifecycle: Consolidated Stable` KHÔNG đổi (correction KHÔNG reopen consolidation — bounded verification riêng, KHÔNG full Review A+B round mới). KHÔNG tạo/approve ADR — correction này áp dụng semantics đã pin sẵn tại `feature.md`/`context.md`, KHÔNG phải một quyết định kiến trúc mới. Blob trước: `ab09d031183014c1af259895dadf86aaf644cc04` (`module-registry.yaml`), `c72dfdf54d2ac86bc7ad83de742dda485da11328` (`system-decomposition.md`, chính file này).
 
 ## 1. Purpose and scope
 
@@ -142,8 +144,21 @@ market-data-ingestion            → depends_on: market-reference-service
 structure-engine                 → depends_on: market-data-ingestion
 raw-regime-engine                → depends_on: market-data-ingestion
                                     (forbidden_dependencies: structure-engine — ADR-003/014)
-feature-engine                   → depends_on: structure-engine, raw-regime-engine
-context-aggregator               → depends_on: structure-engine, raw-regime-engine, feature-engine
+feature-engine                   → depends_on: market-data-ingestion, structure-engine,
+                                    raw-regime-engine
+                                    [P13B-IRB-MAJ-01 correction, 2026-08-04 — feature-engine
+                                    directly consumes candle-closed/candle-corrected
+                                    (feature.md §7.1/§7.3 reference-price/candle path);
+                                    this permits the definition-pinned Candle input path
+                                    already established by feature.md, it does NOT create
+                                    universal fan-in]
+context-aggregator               → depends_on: market-data-ingestion, structure-engine,
+                                    raw-regime-engine, feature-engine
+                                    [P13B-IRB-MAJ-02 correction, 2026-08-04 — context-
+                                    aggregator directly consumes candle-closed/candle-
+                                    corrected as the authoritative cutoff/trigger Candle
+                                    already required by context.md §7.0/§11; this does NOT
+                                    route Candle through Feature Engine]
 
 account-service (root)
 
@@ -246,6 +261,10 @@ Structure Engine   Raw Regime Engine        (độc lập)
 (ADR-016 v0.8 Approved, 2026-08-04 — Candidate B/split, Mechanism A: `decision-engine` hybrid
  replaced by the two modules shown above. This is a responsibility/dependency view, NOT
  authorization to implement a synchronous pipeline or specific runtime topology.)
+(Feature Engine, Context Aggregator: both also depend directly on Market Data Ingestion for
+ the Candle cutoff/reference-price/trigger input — simplified out of the diagram above for
+ readability; §5.1 text form is normative and includes this edge, per P13B-IRB-MAJ-01/
+ P13B-IRB-MAJ-02 correction, 2026-08-04.)
 ```
 
 ## 6. Responsibility and ownership boundaries
@@ -272,6 +291,8 @@ I-12 conformance: mỗi domain concept resolve đúng MỘT authoritative module
 ## 8. Event/command/query interaction categories
 
 `module-registry.yaml` field `consumes`/`emits` khai báo CATEGORY (`event` | `query` | `command`), KHÔNG field-level schema (đó là Package 1.4). Event log là authoritative source cho runtime fact/decision history (Chapter 8 §8.1) — transport/broker cụ thể KHÔNG authoritative (không quyết định tại Package 1.1). Mọi module authoritative emit `event`; Projection emit `query` (read contract); orchestration/boundary module (`account-service`, `strategy-engine`, `plugin-release-manager`) consume `command`.
+
+**Ngoại lệ tường minh (`context-aggregator`, `emits: [event, query]`, P13B-IRB-MAJ-03 correction, 2026-08-04):** `context-aggregator` là Projection duy nhất phát `event` — `MarketContextSnapshot`/`MarketContextFactInvalidated` (context.md §3/§4). `event` ở đây là **append-only projection snapshot/invalidation record** (immutable, cursor-bounded, lineage-preserving) — KHÔNG phải authoritative domain fact theo nghĩa Chapter 7 §7.4 cấm ("phát sinh authoritative domain fact"). Ranh giới: `owns_authoritative_state: false` KHÔNG đổi — Context KHÔNG trở thành authoritative source cho Structure/Regime/Feature hay bất kỳ domain concept nào khác; nó chỉ ghi nhận CHÍNH bản ghi snapshot của nó (record integrity), không tuyên bố sở hữu domain state nó tổng hợp. Xem `docs/architecture/engine/feature-context-architecture.md` cho elaboration đầy đủ.
 
 ## 9. Plugin boundaries
 
@@ -602,4 +623,6 @@ Consolidation condition:  Zero unresolved Blocker/Major (**THỎA**); Decision 1
                             Review B trên candidate v0.3 (post-correction) PASS (**THỎA,
                             2026-08-04**). **Mọi điều kiện consolidation ĐÃ thỏa — Package
                             1.1 v0.3 nay `Consolidated Stable`.**
+
+**Cập nhật (2026-08-04, v0.4 bounded parity correction):** `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`/`P13B-IRB-MAJ-03`/`P13B-A-MIN-01`/`P13B-IRB-MIN-01` (Package 1.3-B Review A/Independent Review B findings) sửa — xem banner phía trên. Correction áp dụng semantics ĐÃ pin sẵn tại `feature.md`/`context.md` (Package 0.2-B3/B4, Consolidated Stable, KHÔNG đổi) vào `depends_on`/`emits` registry entry còn thiếu — KHÔNG một kiến trúc option/decision mới, KHÔNG kích hoạt ADR Scope Rule (§12 KHÔNG có Decision mới). `package_lifecycle: Consolidated Stable` KHÔNG reset — correction này nhận **một bounded verification riêng** (focused trên đúng năm finding), KHÔNG một full Review A + Independent Review B round mới trên toàn Package 1.1.
 ```
