@@ -2,6 +2,85 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — resume ADR-016 decision workflow
+
+**ADR-016 Decision Workflow resumed — v0.4 → v0.5, disposition DEFERRED → RESUMED.** Vai trò: `ADR-016 Decision Candidate Author & Repository Transaction Executor`. Sau Package 1.3-C exploratory evidence v0.2 (blob `6f0f65e91187184778f8984a814b5f3f1a47be2a`) hoàn tất Review A CLEAN + Independent Review B CLEAN + Backward Consistency Check NO CONFLICT (đóng `P13C-A-MAJ-01`). Đây là mechanical decision-candidate-authoring transaction — **KHÔNG approve ADR-016**, KHÔNG sửa ADR-015/Package 1.1 artifact, KHÔNG implement hay mechanically apply taxonomy nào.
+
+### Resume-trigger accounting
+
+```text
+Trigger 1 (authoritative responsibility definition):  PENDING — chờ final ADR decision.
+Trigger 2 (Package 1.3-C architecture candidate):     SATISFIED — evidence v0.2 reviewed.
+Trigger 3 (Chapter 7 §7.1 validation):                SATISFIED — evidence §7/§8 reviewed.
+Trigger 4 (Review A + Independent Review B):          SATISFIED — CLEAN cả hai, 0/0/0.
+Trigger 5 (Product Owner decision qua Approved ADR):  PENDING — chưa có Product Owner decision.
+```
+
+Trigger 1 và Trigger 5 tường minh ghi nhận là hoàn tất bởi CÙNG một final ADR decision transaction — KHÔNG đánh dấu sớm.
+
+### Review evidence recorded
+
+```text
+Package 1.3-C evidence Review A:          CLEAN
+Package 1.3-C Independent Review B:       CLEAN
+Backward Consistency Check:               NO CONFLICT
+P13C-A-MAJ-01:                            RESOLVED
+Blocker 0, Major 0, Minor 0
+```
+
+### New sections — Resume-trigger accounting + Author recommendation (NOT an Approved decision)
+
+Thêm `## Resume-trigger accounting (v0.5)` và `## Author recommendation (v0.5) — NOT an Approved decision`, chèn giữa "Required deferral trigger" và "Package 1.1 consequence". Author recommendation ưu tiên **Candidate B (split)** CÓ ĐIỀU KIỆN — nêu đầy đủ bốn ràng buộc bắt buộc (Decision Evaluation Engine non-authoritative/pure compute không quyền append; Decision Authority Service sole validation/append/Trade Intent identity authority; Strategy Plugin Host advisory-only; Context Aggregator/Event Bus/Projection không Decision authority), rationale (Candidate A lacks positive evidence cho điều kiện 1; Candidate B credible non-overlapping split), governance effect nếu Approved (select Candidate B, thỏa Trigger 1/5, amend/supersede ADR-015 NẾU ADR-016 là governance vehicle — KHÔNG tự động sửa Package 1.1 artifact), required 4-bước sequence sau approval, và required non-effects list đầy đủ.
+
+### Candidate A evidence (unchanged, recap)
+
+```text
+Condition 1: NOT ESTABLISHED
+Condition 2: NOT ESTABLISHED
+Condition 3: SATISFIED (declared only, current representation)
+Condition 4: NOT SATISFIED (ADR-016 chưa Approved)
+```
+
+### Candidate B evidence (unchanged, recap)
+
+Technically credible; một authoritative append owner; least-privilege/isolation tốt hơn A; operational/dependency/replay complexity cao hơn A; evaluation-proposal artifact governance/Domain gap chưa resolve; authority-level rejection chưa có `attempt_outcome` mapping xác nhận — cả hai chi phí này KHÔNG bị che giấu trong recommendation.
+
+### ADR-015 governance effect (neutral, not selected in the abstract)
+
+Candidate B đòi hỏi ADR-level supersession/amendment TRƯỚC KHI Package 1.1 artifact được phép đổi. Hai mechanism nêu trung lập: (A) chính ADR-016 tường minh amend/supersede NẾU Approved với Candidate B; (B) một ADR kế nhiệm riêng biệt. Recommendation chỉ mô tả hệ quả của việc approve CHÍNH ADR-016 (Mechanism A áp dụng definitionally trong trường hợp đó) — KHÔNG chọn mechanism một cách trừu tượng cho mọi tình huống tương lai.
+
+### Related staleness fixes (đóng pattern lỗi tương tự `P13C-A-MAJ-01`, trong scope self-review)
+
+`Depends on` line và `Package 1.1 consequence` section sửa stale reference "ADR-015 (Draft, chưa Approved)" → "ADR-015 (Approved, v0.3)" (ADR-015 đã Approved từ trước, các đoạn này viết khi ADR-015 còn Draft). `Consequences` section's split branch sửa "Package 1.1 candidate ĐÒI HỎI bounded follow-up correction" (SAI, cùng pattern `P13C-A-MAJ-01`) → yêu cầu ADR-level supersession/amendment trước, correction transaction riêng biệt CHỈ sau khi đó Approved. `Scale check` reason và `Do đó: DEFERRED` conclusion nhận note cập nhật (v0.5) xác nhận resume — không sửa nội dung phân tích lịch sử.
+
+### Exact changed-file scope
+
+```text
+docs/adr/ADR-016.md   MODIFIED version 0.4 -> 0.5
+                       blob 5385ff81e6da480a7bee8c71279d82a16c1913cd
+                         -> 5d21b8c030bb2a73d7dc28a0bf36f14f12f782f4
+                       status Draft (unchanged), approved_by null (unchanged),
+                       approved_at null (unchanged)
+docs/MANIFEST.md      MODIFIED (manifest_version 10.21 -> 10.22, ADR-016 index row updated)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/architecture/phase-1-plan.md                                  unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/adr/ADR-015.md                                                 unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/architecture/package-1.3-c-decision-taxonomy-exploration.md   unchanged, v0.2, Draft, blob 6f0f65e91187184778f8984a814b5f3f1a47be2a
+docs/architecture/module-registry.yaml                              unchanged, v0.2, blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md                           unchanged, v0.2, blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                                         unchanged
+```
+
+### Forbidden-scope verification
+
+KHÔNG ADR-016 approved. KHÔNG Product Owner decision invented — `approved_by`/`approved_at` vẫn `null`. KHÔNG ADR-015 sửa. KHÔNG Package 1.1 artifact sửa. KHÔNG Domain Contract correction authored. KHÔNG `attempt_outcome` mới invented. KHÔNG field-level schema/algorithm/source code authored. KHÔNG implementation authorized. KHÔNG Gate 1 closed. KHÔNG Gate 2 passed. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — correct ADR-015 supersession path (NOT yet verified)
 
 **Bounded governance correction to the Package 1.3-C exploratory evidence artifact — addresses `P13C-A-MAJ-01`.** Vai trò: `Package 1.3-C Evidence Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. Architecture comparison KHÔNG reopen, KHÔNG select hybrid/split, KHÔNG sửa bất kỳ Approved artifact nào.
