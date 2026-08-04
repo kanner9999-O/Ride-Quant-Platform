@@ -1,10 +1,14 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
-# CONSOLIDATED STABLE (package lifecycle, 2026-08-04, Product Owner decision) — status:
-# Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable) and artifact status
-# (Draft) are separate dimensions (Chapter 0 §7.1) — Consolidated Stable does NOT mean this
-# file is Approved/Locked; it means the reviewed package baseline is internally coherent
-# and stable enough to be a dependency baseline for the next package.
+# CANDIDATE (package lifecycle reverted, 2026-08-04) — status: Draft, NOT Approved/Locked.
+# v0.5 registers two new modules (custody-signing-service, exchange-adapter) authorized by
+# Approved ADR-017 v0.2 (2026-08-04T20:08:00+07:00) — a genuine architectural/semantic
+# change (module count, taxonomy, authority, dependency-graph consequence), NOT a bounded
+# parity/wording correction. Same precedent as the v0.2 -> v0.3 ADR-016 alignment
+# correction: package_lifecycle reverts from `Consolidated Stable` to `candidate` and
+# REQUIRES a fresh Review A + Independent Review B + Product Owner consolidation decision
+# on this v0.5 candidate before it may become `Consolidated Stable` again — this transaction
+# does NOT perform that review/consolidation, and does NOT falsely claim it.
 # Authority: Chapter 7 §7.5 (Locked) — module identity/taxonomy/mapping ONLY.
 # This registry does NOT own: Business Capability/Domain Context identity (context-map.yaml,
 # Chapter 4), domain concept semantics (Domain Contract, /docs/domain/), Product/UC/UX
@@ -56,10 +60,10 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "0.4"
+version: "0.5"
 status: Draft
 package: "1.1"
-package_lifecycle: Consolidated Stable
+package_lifecycle: candidate
 generated_at: "2026-08-04"
 
 modules:
@@ -228,6 +232,95 @@ modules:
     phase: { identified_in: "1.1", elaborated_by: "1.2" }
     status: candidate
     notes: "Custody-adjacent identification only — no credential/key-management design (Package 1.2)."
+
+  # ---------------------------------------------------------------------
+  # Custody & Signing (ADR-017 v0.2, Approved 2026-08-04T20:08:00+07:00 — Option C split)
+  # ---------------------------------------------------------------------
+
+  - module_id: custody-signing-service
+    name: Custody & Signing Service
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Module DUY NHẤT trong toàn platform được phép sử dụng exchange credential trực tiếp (I-11; ADR-017 §3.1)."
+      - "Resolve account-service's opaque `credential_reference` thành credential-binding/signing-eligibility state, dưới đúng Account Boundary/environment scope."
+      - "Nhận bounded signing request, trả về signature/signed-payload evidence — KHÔNG BAO GIỜ trả raw secret material cho caller."
+      - "Fail closed khi credential_reference absent/revoked/stale/unauthorized/environment-mismatched/boundary-mismatched (I-6; ADR-017 §11)."
+    implements_capabilities: []
+    serves_contexts: []
+    owns_authoritative_state: true
+    consumes: [command, query]
+    emits: [event, query]
+    depends_on: [account-service]
+    forbidden_dependencies: [decision-authority-service, risk-gateway, execution-engine, exchange-adapter, strategy-engine, strategy-plugin-host, decision-evaluation-engine, context-aggregator, position-projection, command-query-api-surface]
+    plugin_relation: none
+    security_classification: secret_consuming
+    phase: { identified_in: "1.1", elaborated_by: "1.2" }
+    status: candidate
+    notes: >
+      ADR-017 v0.2 (Approved, 2026-08-04T20:08:00+07:00, Product Owner — Option C split
+      selected). Stage 1 architecture-boundary registration ONLY (ADR-017 §9a) — does NOT
+      activate any LIVE execution path. owns_authoritative_state: true scoped strictly to
+      credential-binding/eligibility/revocation state and signing-attempt/signing-outcome
+      operational facts — NOT raw secret material itself (outside Domain Contract scope,
+      forbidden per ADR-017 §3.3), NOT Account identity, NOT Decision/RiskEvaluation/
+      Execution Intent/Order/ExecutionResult/Fill/Position, NOT kill-switch state. Kill-
+      switch: future fail-safe participant SELECTED by ADR-017 as a consequence of
+      I-6/I-8/I-11 combined (ADR-017 §10) — I-8 does not literally name this module;
+      authoritative kill-switch-state ownership remains UNRESOLVED, not claimed here.
+      Published authorization evidence carried within a bounded signing request does NOT
+      create a dependency on decision-authority-service or risk-gateway (ADR-017 §8.4) —
+      forbidden_dependencies enforces this at module-boundary level. `security_classification:
+      secret_consuming` is a pre-existing enum value from this file's own field-reference
+      comment (line 48-50), first assigned here — not a new value. Implementation (Vault/
+      KMS/HSM binding, signing algorithm, credential rotation protocol) is forbidden scope
+      (ADR-017 §3.3) — NOT authored here.
+
+  - module_id: exchange-adapter
+    name: Exchange Adapter
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Venue protocol translation và external venue transport."
+      - "Bounded signing-request coordination với custody-signing-service — nhận signature/signed payload, KHÔNG BAO GIỜ raw secret."
+      - "Ghi nhận raw venue-interaction evidence trực tiếp chứng kiến tại external venue boundary (ADR-017 §3.2a) — KHÔNG platform ExecutionObservation/ExecutionResult."
+    implements_capabilities: []
+    serves_contexts: []
+    owns_authoritative_state: true
+    consumes: [command]
+    emits: [event]
+    depends_on: [custody-signing-service]
+    forbidden_dependencies: [decision-authority-service, risk-gateway, strategy-engine, strategy-plugin-host, decision-evaluation-engine, context-aggregator, position-projection, account-service, command-query-api-surface]
+    plugin_relation: none
+    security_classification: trust_boundary_candidate
+    phase: { identified_in: "1.1", elaborated_by: null }
+    status: candidate
+    notes: >
+      ADR-017 v0.2 (Approved, 2026-08-04T20:08:00+07:00, Product Owner — Option C split
+      selected). Stage 1 architecture-boundary registration ONLY (ADR-017 §9a) — LIVE
+      execution path NOT activated by this registration: execution-engine.depends_on does
+      NOT include this module (see execution-engine notes below); an active
+      execution-engine -> exchange-adapter edge is a Stage 2 concern requiring a separate
+      future LIVE architecture/governance authorization (ADR-017 §9a), NOT added here.
+      owns_authoritative_state: true scoped STRICTLY to raw venue-interaction evidence
+      directly witnessed at the external venue boundary (venue interaction attempt,
+      transport transmission outcome, transport failure/timeout evidence, venue
+      acceptance/rejection acknowledgment, venue-side external-reference evidence,
+      venue-originating order/execution evidence, protocol response evidence — ADR-017
+      §3.2a) — NOT platform ExecutionObservation, ExecutionResult, executed/not-executed
+      business interpretation, Order, Fill, execution economics, Position, Decision,
+      RiskEvaluation, Execution Intent, or kill-switch state; execution-result-processor
+      (unchanged) remains sole authority interpreting this evidence into execution-
+      observation/ExecutionResult under a future LIVE Domain Contract (not yet authored).
+      Kill-switch: future execution-suspension participant expressly ANTICIPATED by I-8
+      Scope ("Risk Gateway, Execution Engine, mọi Exchange Adapter") — authoritative
+      kill-switch-state ownership remains UNRESOLVED, not claimed here. `phase.
+      elaborated_by` intentionally `null` — Exchange Adapter's full functional
+      architecture is a LIVE-prerequisite outside all nine current Phase 1 package scopes
+      (1.1/1.2/1.3-A-D/1.4/1.5/1.6, all PAPER-focused per phase-1-plan.md v0.4); no future
+      package ID is invented per ADR-017's own instruction — assignment deferred to a
+      future Phase 1 amendment or new package, Product Owner decision, out of this
+      transaction's scope.
 
   # ---------------------------------------------------------------------
   # Strategy / Plugin
@@ -406,7 +499,15 @@ modules:
     security_classification: trust_boundary_candidate
     phase: { identified_in: "1.1", elaborated_by: "1.3-D" }
     status: candidate
-    notes: "Execution cannot accept unapproved Trade Intent directly (preserved) — forbidden_dependencies blocks any path bypassing Risk Gateway."
+    notes: >
+      Execution cannot accept unapproved Trade Intent directly (preserved) —
+      forbidden_dependencies blocks any path bypassing Risk Gateway. depends_on
+      intentionally does NOT include `exchange-adapter` (ADR-017 v0.2, Approved,
+      2026-08-04T20:08:00+07:00) — a future LIVE venue-submission dependency is
+      authorized in principle (ADR-017 §8/§9a) but registering it as an active edge is a
+      Stage 2 concern requiring separate future LIVE architecture/governance
+      authorization; the current `paper-execution-boundary` PAPER dependency is
+      unchanged.
 
   - module_id: execution-result-processor
     name: Execution Result Processor

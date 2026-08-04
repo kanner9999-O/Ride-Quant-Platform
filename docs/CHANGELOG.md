@@ -2,6 +2,195 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — Package 1.1 v0.5: ADR-017 authorized registry correction (custody-signing-service + exchange-adapter registered; package lifecycle reverted to candidate)
+
+**Bounded Package 1.1 correction transaction — vai trò: `ADR-017 Authorized Package 1.1 Bounded Correction Executor`.** Implements only the module-registry and system-decomposition consequences authorized by Approved [ADR-017](docs/adr/ADR-017.md) v0.2 (§9 registry-impact scope). Registers the selected architectural boundaries; does not activate or complete a LIVE execution path.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                       e7fa59feb606e67f37912943c659e5aafe11d63a
+docs/adr/ADR-017.md v0.2 blob (unchanged, Approved):                 b08af6a04a5df8e7642b7a62b3fbeb63a9c9f184
+docs/architecture/module-registry.yaml v0.4 blob:                    6c4daa3eda3ef560b201de516dd019564d264c08
+docs/architecture/system-decomposition.md v0.4 blob:                 8e60b9e6051956cfbe83f33e1c82f404bc082e37
+docs/architecture/security-custody-baseline.md v0.2 blob (unchanged): 7f2cfebbbbbe80348e16013814db573e4c6497dc
+docs/architecture/engine/risk-execution-architecture.md v0.2 blob    95c5403060f09163f14fb80ceaaefd7dd0c555bb
+  (unchanged):
+```
+
+### Module registration (module-registry.yaml)
+
+```text
+custody-signing-service:  runtime_service, owns_authoritative_state true (credential-
+                          binding/eligibility/revocation state and signing-attempt/
+                          signing-outcome operational facts only — NOT raw secret
+                          material, NOT Account identity, NOT Decision/Risk/Execution/
+                          Order/ExecutionResult/Fill/Position, NOT kill-switch state),
+                          security_classification secret_consuming (a pre-existing but
+                          previously unused registry enum value, first assigned here),
+                          depends_on [account-service], forbidden_dependencies exclude
+                          every business/execution/API authority module including
+                          exchange-adapter, phase.elaborated_by "1.2".
+
+exchange-adapter:         runtime_service, owns_authoritative_state true (raw
+                          venue-interaction evidence directly witnessed only — NOT
+                          platform ExecutionObservation/ExecutionResult/Fill/Position/
+                          business interpretation), security_classification
+                          trust_boundary_candidate, depends_on [custody-signing-service],
+                          forbidden_dependencies exclude every business/execution/API
+                          authority module plus account-service, phase.elaborated_by
+                          null (no future package ID invented — Exchange Adapter's full
+                          functional architecture is a LIVE-prerequisite outside all
+                          nine current Phase 1 package scopes).
+```
+
+Module count 23 -> 25. Taxonomy tally: `runtime_service` 14 -> 16 (`compute_engine`/`projection` unchanged). State-authority tally: `owns_authoritative_state: true` 13 -> 15 (`false`/`deferred` unchanged). Security-classification tally: `secret_consuming` 0 -> 1, `trust_boundary_candidate` 4 -> 5.
+
+### Dependency-graph / LIVE-path rule
+
+```text
+Registered:      custody-signing-service depends_on account-service;
+                 exchange-adapter depends_on custody-signing-service.
+
+NOT added:       execution-engine -> exchange-adapter. The registry has no established
+                 convention for representing a future/inactive dependency without
+                 implying current architectural availability, so the edge is kept
+                 absent; a note on execution-engine records it as a future prerequisite
+                 (ADR-017 §9a, Stage 2). execution-engine.depends_on remains unchanged:
+                 [risk-gateway, paper-execution-boundary] — the current PAPER
+                 dependency is untouched.
+```
+
+### Package 1.1 lifecycle treatment — reverted to candidate, not falsely claimed Consolidated Stable
+
+```text
+package_lifecycle: Consolidated Stable -> candidate (both module-registry.yaml and
+                   system-decomposition.md).
+
+Rationale:         registering two new modules with new authority/taxonomy/dependency-
+                   graph consequences is a genuine architectural/semantic change, not a
+                   bounded parity/wording correction — same precedent as the v0.2 -> v0.3
+                   ADR-016 alignment correction, which also reverted package_lifecycle to
+                   candidate pending a fresh Review A + Independent Review B + Product
+                   Owner consolidation decision. This transaction does not perform that
+                   review/consolidation and does not claim Consolidated Stable.
+
+system-decomposition.md §15 rewritten: Review A / Independent Review B scope updated for
+                   candidate v0.5; Consolidation condition table states which sub-
+                   conditions are already satisfied (ADR-017 Approved, coverage totals
+                   unchanged, forbidden-scope verification) and which are not yet
+                   (Review A/B on v0.5, Blocker/Major confirmation) — Product Owner
+                   decision point explicitly not reached.
+
+system-decomposition.md §12 gains Decision 8 (ADR REQUIRED, RESOLVED via ADR-017 v0.2
+                   Approved) documenting the ADR Scope Rule evaluation for this
+                   correction, following the same pattern as Decision 1/Decision 2.
+```
+
+### system-decomposition.md updates
+
+```text
+§4:   inventory table +2 rows, taxonomy/state-authority tallies updated, new "Bounded
+      scope note" clarifying the two new modules' owns_authoritative_state: true does
+      not extend beyond their narrow ADR-017 §3.1/§3.2a scope.
+§5.1/§5.2: account-service -> custody-signing-service -> exchange-adapter dependency
+      chain added (text + diagram), explicitly not connected to the Execution Engine
+      PAPER chain; execution-engine entry gains a note explaining the Stage 1/Stage 2
+      distinction.
+§6:   "five cross-cutting modules without dedicated capability/context" (previously
+      three) — custody-signing-service/exchange-adapter added, same principle as
+      raw-regime-engine's Structure-aware-Regime deferral (no capability_id/
+      domain_context_id registered in context-map.yaml for custody/signing/venue-
+      adapter responsibility).
+§7:   tally reference updated, bounded-scope cross-reference added.
+§8:   contract categories for both new modules documented (category only, no
+      field-level schema).
+§10:  new "Deferred coverage" note — zero PR/UC/UX coverage for the two new modules
+      (same treatment as backtest-orchestrator/DD-001) — coverage totals (34/21/17/
+      11/15) unchanged.
+§11:  three new deferred items — Exchange Adapter elaborating package unresolved; LIVE
+      path activation is a Stage 2 concern; custody/signing implementation remains
+      forbidden scope.
+§13:  Trigger A module count updated to 25; Trigger D module list gains both new
+      modules with their security_classification.
+```
+
+### Authority preservation confirmed
+
+```text
+Decision Authority Service, Risk Gateway, Execution Engine, Execution Result Processor,
+Fill Processor, Position Projection, Account Service — all authority unchanged. Neither
+new module creates business authorization: no signature, signed payload, transport
+success, venue acknowledgment, or raw venue evidence establishes Decision, Risk
+approval, Execution Intent, Order eligibility, ExecutionResult, or Fill.
+```
+
+### Kill-switch and PAPER/LIVE treatment
+
+```text
+exchange-adapter:           future execution-suspension participant expressly
+                            anticipated by I-8 Scope ("Risk Gateway, Execution Engine,
+                            mọi Exchange Adapter").
+custody-signing-service:    future fail-safe participant selected by ADR-017 as a
+                            consequence of I-6/I-8/I-11 combined — I-8 does not
+                            literally name this module.
+Authoritative kill-switch-state ownership: NOT assigned, remains unresolved.
+
+Current platform execution: PAPER-only. New modules are registered architecture
+                            boundaries, not active LIVE execution components. LIVE
+                            remains Unauthorized. A LIVE Account does not authorize LIVE
+                            execution. DD-003 not resolved.
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/module-registry.yaml       0.4 -> 0.5
+                                              6c4daa3eda3ef560b201de516dd019564d264c08
+                                              -> 27fae85ccd198ffd230125b242586c9d46ed7404
+docs/architecture/system-decomposition.md    0.4 -> 0.5
+                                              8e60b9e6051956cfbe83f33e1c82f404bc082e37
+                                              -> a27fea805c53c7c4c125c0106fe986824a0bb8da
+docs/MANIFEST.md                             manifest_version 10.43 -> 10.44, both
+                                              Architecture table rows updated, ADR-017
+                                              Decision Log row added
+docs/CHANGELOG.md                            this entry prepended
+```
+
+### Automated validation results
+
+```text
+Script-verified (module-registry.yaml): 25 modules, 25 unique module_id, zero unresolved
+                   depends_on/forbidden_dependencies references, zero depends_on/
+                   forbidden_dependencies overlap, zero dependency cycle. Taxonomy tally
+                   {runtime_service: 16, compute_engine: 5, projection: 4}. Authority
+                   tally {true: 15, false: 9, deferred: 1}. Security-classification
+                   tally {none: 18, trust_boundary_candidate: 5, custody_adjacent: 1,
+                   secret_consuming: 1}. execution-engine.depends_on confirmed unchanged
+                   ([risk-gateway, paper-execution-boundary] — no exchange-adapter edge).
+Frontmatter/YAML:  both files parse cleanly — version "0.5", status Draft unchanged;
+                   module-registry.yaml package_lifecycle: candidate; fence balance even
+                   (system-decomposition.md: 26).
+Diff scope:        git status --short confirmed exactly the 4 expected files changed;
+                   forbidden-scope diff (docs/adr/, security-custody-baseline.md,
+                   phase-1-plan.md, docs/architecture/engine/, docs/domain/,
+                   docs/product/, docs/constitution/, docs/team/, docs/phase-dod/) empty.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/adr/ADR-001.md through docs/adr/ADR-017.md
+docs/architecture/security-custody-baseline.md
+docs/architecture/phase-1-plan.md
+docs/architecture/engine/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
 ## [Unreleased] — 2026-08-04T20:08:00+07:00 — ADR-017 Approved: Custody & Signing Trust Boundary — Option C (split Custody/Signing Service + Exchange Adapter)
 
 **Mechanical lifecycle transaction — vai trò: `ADR-017 Approval Lifecycle Transaction Executor`.** Records the Product Owner's approval of ADR-017 v0.2. Does not execute the Package 1.1 registry/system-decomposition correction that approval authorizes.
