@@ -2,6 +2,90 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — author Package 1.3-A candidate
+
+**New Package 1.3-A candidate authored, using the Consolidated Stable Package 1.1 module baseline.** Vai trò: `Package 1.3-A Architecture Author`. Package 1.1 (`module-registry.yaml`/`system-decomposition.md` v0.3, `Consolidated Stable`), ADR-015, ADR-016 KHÔNG bị sửa.
+
+### New artifact
+
+```text
+docs/architecture/engine/structure-regime-architecture.md   NEW, v0.1, Draft
+                                                              blob 5c6ddb6c3136f4bcfd0d3cb471988344636ed009
+```
+
+Đúng expected artifact path đã pin tại `phase-1-plan.md` §8 Package 1.3-A block ("Expected artifact paths: docs/architecture/engine/structure-regime-architecture.md") — một document duy nhất, không nhiều tài liệu rời rạc.
+
+### Module scope (bốn module, pin nguyên trạng từ Package 1.1)
+
+`market-reference-service`, `market-data-ingestion`, `structure-engine`, `raw-regime-engine` — identity/taxonomy/dependency trích dẫn nguyên văn `module-registry.yaml` v0.3, cross-verified script (không lệch).
+
+### Nội dung chính
+
+```text
+Module boundary:        Structure Engine internal split (Swing detection + BOS/CHoCH
+                         detection, cùng MỘT module identity theo Package 1.1 — KHÔNG tách
+                         thành hai module).
+Data flow:               Market Reference → Market Data Ingestion → {Structure Engine,
+                         Raw Regime Engine} độc lập → Feature Engine (ngoài phạm vi) —
+                         responsibility/dependency view, KHÔNG runtime topology.
+Contract categories:     event only cho cả bốn module — KHÔNG field-level schema.
+Determinism/replay:      Definition Version pinning (swing/structure/regime_definition_
+                         version, Referenced Authoritative Artifact Chapter 8 §8.1.1); mode
+                         parity (I-2); deterministic total order (8-tiêu-chí Structure,
+                         7-tiêu-chí Regime); ADR-009 per-stream ordering.
+No-repaint:              I-3 cho Swing/Structure/Regime — append-only, no backfill, replay
+                         cursor visibility theo recorded_time.
+Correction propagation:  Structure — dependency-forward cascade (structure.md §10). Regime
+                         — independent per-window, KHÔNG cascade (regime.md §10) — khác
+                         biệt kiến trúc thật, ghi nhận tường minh KHÔNG phải thiếu sót.
+Failure/stale-data:      candle.md §11 5-bước fail-closed precedence; missing-data ba
+                         trường hợp tách bạch (candle.md §12); Swing/Regime valid-absence
+                         handling khi evidence chưa đủ.
+Security/trust-boundary: market-data-ingestion = trust_boundary_candidate (identification
+                         only, Package 1.2 elaborates); ba module còn lại = none.
+Independence:            ADR-003/ADR-014 — Raw Regime/Structure ĐỘC LẬP HOÀN TOÀN xác nhận
+                         script-verified (không dependency edge nào giữa hai module theo
+                         bất kỳ hướng nào); Feature Engine là điểm fan-in CÓ CHỌN LỌC DUY
+                         NHẤT, ngoài phạm vi tài liệu này.
+```
+
+### Preserved gaps (ghi nhận, KHÔNG resolve)
+
+```text
+1. Structure-aware Regime — KHÔNG invent Domain Context/Capability, vẫn blocked trên
+   registration (Product Owner + Domain Contract authoring decision, ngoài phạm vi).
+2. Swing/Structure/Regime Definition Version registry mechanism — Phase 1, chưa author.
+3. ADR-009 ordering protocol implementation — deferred (ADR tự khóa Phase 1 elaboration).
+4. stream-registry.yaml / instrument-venue-reference Domain Contract — chưa author, ngoài
+   phạm vi.
+```
+
+### Exact changed-file scope
+
+```text
+docs/architecture/engine/structure-regime-architecture.md   NEW
+docs/MANIFEST.md                                             MODIFIED (manifest_version
+                                                              10.28 -> 10.29, new
+                                                              Architecture table row)
+docs/CHANGELOG.md                                             MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml       unchanged, v0.3, Consolidated Stable, blob ab09d031183014c1af259895dadf86aaf644cc04
+docs/architecture/system-decomposition.md    unchanged, v0.3, Consolidated Stable, blob c72dfdf54d2ac86bc7ad83de742dda485da11328
+docs/architecture/phase-1-plan.md            unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/adr/ADR-015.md                          unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/adr/ADR-016.md                          unchanged, v0.8, Approved, blob 2a57d428935bd1956379dde79af92c92c83c397b
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                  unchanged
+```
+
+### Forbidden-scope verification
+
+KHÔNG Package 1.3-B/C/D authored. KHÔNG missing Domain Context resolved. KHÔNG field-level event/schema authored. KHÔNG database/API/framework selected. KHÔNG implementation/test authored. KHÔNG Package 1.3-A marked Consolidated Stable. KHÔNG Gate 2 passed. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — consolidate Package 1.1 v0.3
 
 **Package 1.1 v0.3 consolidated as `Consolidated Stable`.** Vai trò: `Package 1.1 Consolidation Transaction Executor`. Product Owner decision: **"I approve consolidation of Package 1.1 v0.3 as the current stable Phase 1 System Decomposition and Module Registry baseline."** (2026-08-04). Đây là mechanical lifecycle transaction — architecture semantics KHÔNG đổi.
