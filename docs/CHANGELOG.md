@@ -2,6 +2,121 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04T20:08:00+07:00 — ADR-017 Approved: Custody & Signing Trust Boundary — Option C (split Custody/Signing Service + Exchange Adapter)
+
+**Mechanical lifecycle transaction — vai trò: `ADR-017 Approval Lifecycle Transaction Executor`.** Records the Product Owner's approval of ADR-017 v0.2. Does not execute the Package 1.1 registry/system-decomposition correction that approval authorizes.
+
+### Baseline
+
+```text
+Baseline HEAD:                        45886d19fae167c3ccfe383aee04b7ec06e14618
+docs/adr/ADR-017.md v0.2 blob:         4a24eb5787a77c4a2c1774ea73c1f604559c096c (review-clean)
+```
+
+### Product Owner decision (recorded verbatim)
+
+```text
+"I approve ADR-017 v0.2 — Custody & Signing Trust Boundary — selecting Option C, the
+split Custody/Signing Service and Exchange Adapter architecture, as the current Approved
+architecture decision."
+
+Decision timestamp: 2026-08-04T20:08:00+07:00
+```
+
+### Lifecycle change
+
+```text
+version:      "0.2" (unchanged — pure lifecycle transaction, no version bump, same
+              pattern as ADR-012/ADR-016 approvals)
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-04T20:08:00+07:00"
+```
+
+Banner rewritten from `DRAFT` to `APPROVED`; the Product Owner decision is quoted verbatim in the banner and in §16 (review/decision evidence section); new §21 "Lifecycle status" appended stating `ADR-017: Approved, not Locked` alongside the still-unchanged downstream lifecycle states for Package 1.2 and Package 1.3-D.
+
+### Decision semantics preserved (unchanged by this transaction)
+
+```text
+Custody/Signing Service:  sole direct exchange-credential-use authority; credential-
+                          binding/signing-operational authority; no venue-facing
+                          transport responsibility.
+Exchange Adapter:         venue protocol translation and external transport; no
+                          raw-secret access; authoritative only for raw
+                          venue-interaction evidence directly witnessed (§3.2a).
+Execution Result          platform execution-observation and ExecutionResult authority
+  Processor:               — unchanged, not displaced.
+Execution Engine ->       current PAPER simulation-command boundary — unchanged.
+  Paper Execution
+  Boundary:
+Execution Engine ->       distinct future LIVE venue-submission boundary — not
+  Exchange Adapter:        implemented or activated by this approval (§8, §9a).
+```
+
+### Approval effect — what this transaction does NOT do
+
+```text
+Does not modify module-registry.yaml or system-decomposition.md (both remain
+byte-identical, v0.4). Does not register custody-signing-service or exchange-adapter.
+Does not add an execution-engine -> exchange-adapter dependency edge. Does not activate
+or authorize any LIVE execution path. Does not authorize implementation. Does not
+consolidate Package 1.2 or Package 1.3-D. Does not pass Gate 2, complete Phase 1, or
+open Phase 2. Approval only authorizes a later, separately scoped Package 1.1 correction
+transaction (ADR-017 §9/§9a) to register the selected module identities and
+architecture boundaries.
+```
+
+### Preserved gaps (unchanged, none resolved by this approval)
+
+```text
+Kill-switch authoritative-state ownership; in-flight signing/submission handling; raw
+venue-interaction evidence Domain Contract; signing correlation and timeout mechanisms;
+Exchange Adapter functional elaboration and owning package; Vault/KMS/HSM
+implementation; signing algorithm and credential rotation protocol; RBAC/caller
+authorization mechanism; DD-003; future LIVE governance authorization.
+```
+
+### Changed-file scope
+
+```text
+docs/adr/ADR-017.md   status Draft -> Approved (version unchanged at 0.2)
+                      4a24eb5787a77c4a2c1774ea73c1f604559c096c
+                      -> b08af6a04a5df8e7642b7a62b3fbeb63a9c9f184
+docs/MANIFEST.md      manifest_version 10.42 -> 10.43, ADR-017 table row status
+                      updated to Approved
+docs/CHANGELOG.md     this entry prepended
+```
+
+### Automated validation results
+
+```text
+Frontmatter/YAML:  ADR-017.md parses cleanly — version "0.2" unchanged, status
+                   Approved, approved_by "Product Owner", approved_at
+                   "2026-08-04T20:08:00+07:00"; fence balance even (52).
+Diff scope:        git status --short confirms exactly the 3 expected files changed;
+                   forbidden-scope diff (security-custody-baseline.md, module-
+                   registry.yaml, system-decomposition.md, phase-1-plan.md,
+                   docs/architecture/engine/, docs/domain/, docs/product/,
+                   docs/constitution/, docs/team/, docs/phase-dod/, ADR-001.md through
+                   ADR-016.md) empty.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/security-custody-baseline.md
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/phase-1-plan.md
+docs/architecture/engine/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+docs/adr/ADR-001.md through docs/adr/ADR-016.md
+```
+
 ## [Unreleased] — 2026-08-04 — bounded correction: ADR-017 v0.2 (distinct PAPER/LIVE contract boundaries; narrowed Exchange Adapter authority; balanced Option C risk evaluation)
 
 **Bounded correction transaction — đóng `ADR017-A-MAJ-01`/`ADR017-IRB-MAJ-01`/`ADR017-A-MAJ-02`/`ADR017-IRB-MAJ-02`/`ADR017-IRB-MIN-01`.** Vai trò: `ADR-017 Bounded Correction Executor`. All three findings correct self-contradictions/omissions in v0.1's own text against controlling authority already cited inside it (Package 1.3-D's own OrderSubmissionRequested eligibility invariant; Execution Result Processor's existing execution-observation authority). Option C (split Custody/Signing Service + Exchange Adapter) remains selected — none of the findings produced an actual contradiction with that choice, per the task's explicit instruction. No ADR is approved by this transaction; no module registration is executed.
