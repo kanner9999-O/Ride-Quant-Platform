@@ -2,6 +2,77 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — correct Path B2 trigger accounting (NOT yet verified)
+
+**Bounded wording correction to ADR-016 — addresses `ADR016-A-MAJ-03`.** Vai trò: `ADR-016 Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. Candidate A/B architecture analysis KHÔNG reopen, Candidate B recommendation KHÔNG đổi, ADR-016 KHÔNG approve.
+
+**This correction is NOT verified.** Ghi nhận finding `ADR016-A-MAJ-03` (Confirmed, review round trên v0.6 — ID mới, KHÔNG trùng `ADR016-B-MAJ-01` lịch sử đã đóng tại v0.4) và sửa tại transaction này — chờ Review A + independent bounded Review B.
+
+### ADR016-A-MAJ-03 — Path B2 conflated Trigger 1 with the ADR-015 amendment prerequisite
+
+v0.6's Mechanism B Path B2 said Trigger 5 CÓ THỂ thỏa bởi ADR-016 Approved với Candidate B, nhưng Trigger 1 CHƯA thỏa cho tới khi ADR-015 amendment/supersession effect (một ADR kế nhiệm riêng biệt) cũng Approved. Đây là lỗi — gộp lẫn **authoritative taxonomy responsibility definition** (Trigger 1 — CÁI GÌ là platform-owned deterministic evaluation, ai là sole authority validate/append) với **permission to change ADR-015's pinned Package 1.1 baseline** (một governance requirement riêng biệt, không phải một phần của Trigger 1 trừ khi taxonomy decision đó thất bại trong việc định nghĩa trách nhiệm authoritative).
+
+### The fix — Path B2 now five steps
+
+```text
+1. Product Owner approve ADR-016 với Candidate B VÀ authoritative responsibility definition
+   đầy đủ (Decision Evaluation Engine non-authoritative deterministic evaluation only;
+   Decision Authority Service sole invariant-validation/append/Trade Intent identity
+   authority).
+2. Trigger 1 VÀ Trigger 5 cùng thỏa NGAY bởi CHÍNH Approved ADR-016 taxonomy decision đó.
+3. Package 1.1 vẫn frozen — NHƯNG vì ADR-015 vẫn LÀ controlling exact-artifact authority,
+   KHÔNG PHẢI vì Trigger 1 pending (Trigger 1 đã thỏa ở bước 2).
+4. Một ADR kế nhiệm riêng biệt tường minh amend/supersede hiệu lực kiểm soát của ADR-015.
+5. CHỈ SAU KHI CẢ HAI Approved governance effect (bước 1 và bước 4) tồn tại, bounded Package
+   1.1 correction transaction mới được bắt đầu.
+```
+
+Thêm phân biệt bắt buộc: *authoritative taxonomy responsibility definition* (Trigger 1) KHÁC khỏi *permission to change ADR-015's pinned Package 1.1 baseline* (governance requirement riêng biệt) — ADR-015 amendment/supersession KHÔNG phải một phần của Trigger 1 trừ khi taxonomy decision đó tự thất bại trong việc định nghĩa trách nhiệm authoritative (không áp dụng ở Path B2 đã sửa, vì bước 1 yêu cầu tường minh cả bốn ràng buộc).
+
+### Unchanged (verified via diff hunk inspection — 3 hunks: frontmatter version, new v0.7 correction banner, Path B2 heading+sequence+distinction paragraph)
+
+```text
+Path B1 sequence:                                      unchanged.
+Mechanism A sequence:                                  unchanged.
+Mandatory five-step future ordering:                   unchanged.
+Candidate A architecture analysis:                     unchanged.
+Candidate B architecture analysis:                     unchanged.
+Candidate B recommendation:                            unchanged.
+Candidate B authority guarantees:                      unchanged.
+Candidate B Domain/governance gaps:                    unchanged.
+Chapter 7 §7.1 results (condition 1/2/3/4):             unchanged.
+Trigger 2/3 status (SATISFIED):                        unchanged.
+Package 1.3-C review evidence:                         unchanged.
+```
+
+### Exact changed-file scope
+
+```text
+docs/adr/ADR-016.md   MODIFIED version 0.6 -> 0.7
+                       blob 285f23b23778d921e8d4b6c39c05b858d767a5b7
+                         -> 622a31ec1e694187eb97622e17b3399db998fd35
+                       status Draft (unchanged), disposition RESUMED (unchanged),
+                       approved_by null (unchanged), approved_at null (unchanged)
+docs/MANIFEST.md      MODIFIED (manifest_version 10.23 -> 10.24, ADR-016 index row updated)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/architecture/phase-1-plan.md                                  unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/adr/ADR-015.md                                                 unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/architecture/package-1.3-c-decision-taxonomy-exploration.md   unchanged, v0.2, Draft, blob 6f0f65e91187184778f8984a814b5f3f1a47be2a
+docs/architecture/module-registry.yaml                              unchanged, v0.2, blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md                           unchanged, v0.2, blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                                         unchanged
+```
+
+### Forbidden-scope verification
+
+KHÔNG ADR-016 approved. KHÔNG Product Owner decision recorded. KHÔNG Candidate B selected as official architecture. KHÔNG Mechanism A/B selected. KHÔNG ADR-015/Package 1.1 artifact sửa. KHÔNG successor ADR authored. KHÔNG Path B1 substance changed. KHÔNG Candidate B recommendation changed. KHÔNG Domain Contract correction authored. KHÔNG `attempt_outcome` mới invented. KHÔNG schema/algorithm/source code authored. KHÔNG Package 1.1 unblocked. KHÔNG Gate 2 passed. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — make ADR-016 governance paths mechanism-neutral (NOT yet verified)
 
 **Bounded wording correction to ADR-016 — addresses `ADR016-B-MAJ-01`.** Vai trò: `ADR-016 Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. Candidate A/B architecture analysis KHÔNG reopen, author recommendation KHÔNG đổi, ADR-016 KHÔNG approve.
