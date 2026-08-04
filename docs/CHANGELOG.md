@@ -2,6 +2,93 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — correct ADR-015 supersession path (NOT yet verified)
+
+**Bounded governance correction to the Package 1.3-C exploratory evidence artifact — addresses `P13C-A-MAJ-01`.** Vai trò: `Package 1.3-C Evidence Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. Architecture comparison KHÔNG reopen, KHÔNG select hybrid/split, KHÔNG sửa bất kỳ Approved artifact nào.
+
+**This correction is NOT verified.** Ghi nhận finding `P13C-A-MAJ-01` (Confirmed) và sửa tại transaction này — chờ Review A + independent bounded Review B.
+
+### P13C-A-MAJ-01 — Candidate B's ADR-015 effect misclassified as mechanical correction
+
+v0.1's §9 nói Candidate B (module split) "KHÔNG BẮT BUỘC ADR-015 bị supersede" và có thể nhận "bounded follow-up correction" theo cùng pattern `P11-A-MAJ-01`/`P11-A-MAJ-02`. Đây là lỗi: [ADR-015](../adr/ADR-015.md) là **Approved, immutable, một exact-artifact approval của đúng 22-module inventory và dependency graph**. Một module mới, module split, tái phân bổ trách nhiệm, hay dependency-edge change là **thay đổi chính quyết định đã Approved** — không phải một mechanical correction bảo toàn nó (khác về bản chất với `P11-A-MAJ-01`/`P11-A-MAJ-02`, vốn sửa lỗi trong một baseline CHƯA Approved tại thời điểm đó).
+
+### The fix — §9 Candidate B reclassified
+
+```text
+no ADR-015 baseline change:        NO
+future module rename:              potentially
+future module split:               YES
+future dependency-edge amendment:  YES
+ADR-level supersession/amendment:  REQUIRED trước khi official baseline được phép đổi
+```
+
+Hai cơ chế governance tương lai nêu trung lập, **KHÔNG chọn cơ chế nào**:
+
+```text
+A. ADR-016, NẾU final approved form của nó tường minh supersede/amend chính hiệu lực kiểm soát
+   module-taxonomy/dependency-graph của ADR-015;
+hoặc
+B. một ADR kế nhiệm riêng biệt, supersede ADR-015 cho đúng phần baseline decision bị ảnh hưởng.
+```
+
+Ba câu tường minh bổ sung: tài liệu exploratory KHÔNG authorize bất kỳ cơ chế nào trong hai cơ chế trên; ADR-015 vẫn LÀ controlling authority cho tới khi một ADR Approved tường minh đổi hiệu lực kiểm soát của nó; Package 1.1 artifact KHÔNG được sửa TRƯỚC rồi justify SAU.
+
+### §12 stop-condition check corrected
+
+KHÔNG còn tuyên bố Candidate B "không mâu thuẫn ADR-015" một cách chung chung. Phân biệt tường minh: tài liệu exploratory HIỆN TẠI KHÔNG sửa và KHÔNG hiện vi phạm ADR-015 (chỉ mô tả effect giả định); Candidate B NẾU được chọn tương lai SẼ cần một ADR-level supersession/amendment tường minh TRƯỚC KHI baseline chính thức đổi.
+
+### §13 self-review — new entry
+
+Mục "ADR-015 compatibility vs permission to modify" nay ghi nhận Concern/Risk/Recommendation đầy đủ cho `P13C-A-MAJ-01`, xác nhận sửa được apply và giới hạn đúng phạm vi.
+
+### Unchanged (verified via diff hunk inspection — chỉ 6 hunk: version, correction banner, §9 Candidate B block, §9 closing distinction line, §12 conflict line, §13 self-review entry)
+
+```text
+Candidate A architecture (§4):                       unchanged.
+Candidate B architecture (§5, module identity/
+  responsibility/evidence dimensions):                unchanged.
+16-criterion comparison (§6):                         unchanged.
+Chapter 7 §7.1 results (§7 — condition 1/2 NOT
+  ESTABLISHED, condition 3 SATISFIED declared-only,
+  condition 4 NOT SATISFIED):                          unchanged.
+Split validation (§8):                                 unchanged.
+Authority definitions (§2/§3):                         unchanged.
+Domain-level evidence analysis (§1.1):                 unchanged.
+ADR-016 trigger mapping (§10 — Trigger 4/5 not
+  satisfied):                                          unchanged.
+Neutral non-selection conclusion (§11):                unchanged.
+Mandatory lifecycle labels:                            unchanged.
+```
+
+### Exact changed-file scope
+
+```text
+docs/architecture/package-1.3-c-decision-taxonomy-exploration.md   MODIFIED version 0.1 -> 0.2
+                                                                     blob 3144580af180c6c86e3ab6580a0a29836b4fb7a9
+                                                                       -> 6f0f65e91187184778f8984a814b5f3f1a47be2a
+                                                                     status Draft (unchanged)
+docs/MANIFEST.md                                                    MODIFIED (manifest_version
+                                                                     10.20 -> 10.21, artifact row
+                                                                     updated)
+docs/CHANGELOG.md                                                   MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/architecture/phase-1-plan.md               unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/adr/ADR-015.md                             unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/adr/ADR-016.md                             unchanged, v0.4, Draft, Decision Deferred, blob 5385ff81e6da480a7bee8c71279d82a16c1913cd
+docs/architecture/module-registry.yaml          unchanged, v0.2, blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md       unchanged, v0.2, blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                     unchanged
+```
+
+### Forbidden-scope verification
+
+KHÔNG ADR-015/ADR-016 sửa. KHÔNG Package 1.1 artifact sửa. KHÔNG future supersession mechanism chosen. KHÔNG Candidate A/B selected/approved. KHÔNG ADR mới author. KHÔNG schema/algorithm authored. KHÔNG implementation authorized. KHÔNG Gate 1 closed. KHÔNG Gate 2 passed. KHÔNG Package 1.1 unblocked. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — author ADR-016 taxonomy evidence
 
 **New bounded, non-authoritative exploratory artifact under Gate 1.** Vai trò: `Package 1.3-C Exploratory Architecture Author & Repository Transaction Executor`. Authored under Gate 1 (`phase-1-plan.md` §6.1, Open — 2026-08-04 opening transaction). Đây là evidence-authoring transaction — KHÔNG select/approve taxonomy, KHÔNG sửa ADR-015/ADR-016/Package 1.1 artifact/`phase-1-plan.md`.

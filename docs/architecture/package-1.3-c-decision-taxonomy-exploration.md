@@ -1,7 +1,7 @@
 ---
 id: package-1.3-c-decision-taxonomy-exploration
 title: "Package 1.3-C — Decision Taxonomy Exploratory Evidence"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -18,6 +18,8 @@ depends_on: ["ADR-015", "ADR-016", "07-module-taxonomy", "08-event-model", "09-p
 > **NON-AUTHORITATIVE — EXPLORATORY — NOT APPROVED — NOT IMPLEMENTATION-READY — EVIDENCE FOR ADR-016 ONLY.**
 >
 > Tài liệu này KHÔNG phải architecture decision, KHÔNG phải Package 1.3-C completion, KHÔNG selects/approves một taxonomy nào (hybrid HAY split), KHÔNG sửa ADR-015/ADR-016/Package 1.1 artifact/`phase-1-plan.md`. Mọi nội dung dưới đây là **candidate evidence** phục vụ DUY NHẤT [ADR-016](../adr/ADR-016.md) resume trigger — không thứ gì trong tài liệu này có hiệu lực kiến trúc cho tới khi qua Review A + Independent Review B + Product Owner decision, ghi nhận trong một ADR `Approved`.
+
+**v0.2 — bounded correction (2026-08-04), đóng `P13C-A-MAJ-01`:** v0.1's §9 nói SAI rằng Candidate B (module split) "KHÔNG BẮT BUỘC ADR-015 bị supersede" và có thể nhận "bounded follow-up correction" giống pattern `P11-A-MAJ-01`/`P11-A-MAJ-02`. Đây là lỗi: [ADR-015](../adr/ADR-015.md) là **Approved, immutable, một exact-artifact approval của đúng 22-module inventory và dependency graph** — thêm module mới, tách module, tái phân bổ trách nhiệm, hay đổi dependency edge là **thay đổi chính quyết định đã Approved**, KHÔNG PHẢI một mechanical correction bảo toàn nó (khác về bản chất với `P11-A-MAJ-01`/`P11-A-MAJ-02`, vốn sửa lỗi TRONG một baseline CHƯA Approved tại thời điểm đó). Sửa: §9 nay phân loại chính xác Candidate B đòi hỏi **ADR-level supersession/amendment** (một trong hai cơ chế trung lập, KHÔNG chọn) TRƯỚC KHI baseline chính thức có thể đổi — xem §9 đã sửa. §12 sửa tương ứng (KHÔNG còn tuyên bố Candidate B "không mâu thuẫn ADR-015" — phân biệt tường minh "tài liệu hiện tại không sửa/không vi phạm ADR-015" khỏi "Candidate B NẾU chọn sẽ cần ADR-level supersession/amendment"). §13 self-review bổ sung một mục xác nhận sửa. KHÔNG reopen architecture comparison (§4/§5/§6 không đổi), KHÔNG select hybrid/split, KHÔNG sửa ADR-015/ADR-016/Package 1.1 artifact/`phase-1-plan.md` (byte-identical, không đổi bởi correction này).
 
 ## 0. Authorizing scope
 
@@ -396,24 +398,59 @@ Candidate A:
   secondary decision_evaluation) ĐÃ khớp chính xác candidate này, không cần sửa gì.
 
 Candidate B:
-  a future module rename       — CÓ THỂ (decision-engine → decision-authority-service, hoặc giữ
-                                  tên, chỉ thu hẹp responsibilities + xóa field `hybrid`).
-  a future module split        — CÓ (thêm module_id mới `decision-evaluation-engine`,
-                                  compute_engine).
-  a future dependency-edge
-    amendment                  — CÓ (risk-gateway.depends_on hiện trỏ `decision-engine` — cần
+  no ADR-015 baseline change   — NO. Candidate B thêm module mới, tách trách nhiệm, và đổi
+                                  dependency edge so với pin hiện tại — đây LÀ một thay đổi so
+                                  với baseline đã Approved, không phải trạng thái "không đổi".
+  future module rename         — potentially (decision-engine → decision-authority-service,
+                                  hoặc giữ tên, chỉ thu hẹp responsibilities + xóa field
+                                  `hybrid`).
+  future module split          — YES (thêm module_id mới `decision-evaluation-engine`,
+                                  compute_engine, tách khỏi `decision-engine` hiện tại).
+  future dependency-edge
+    amendment                  — YES (risk-gateway.depends_on hiện trỏ `decision-engine` — cần
                                   resolve lại; decision-authority-service.depends_on cần thêm
                                   edge tới decision-evaluation-engine).
-  a superseding ADR            — KHÔNG BẮT BUỘC ADR-015 bị supersede — ADR-015 pin baseline
-                                  Package 1.1 v0.2 CÓ THỂ nhận bounded follow-up correction (cùng
-                                  pattern đã dùng cho P11-A-MAJ-01/02, KHÔNG cần re-approve toàn
-                                  bộ ADR-015) NẾU ADR-016 (hoặc bản kế nhiệm) đạt `Approved` với
-                                  Alternative B selected — chính ADR-016 là cơ chế ghi nhận quyết
-                                  định taxonomy này (Governance §4b), KHÔNG phải một ADR mới
-                                  supersede ADR-015.
+  ADR-level supersession/
+    amendment                  — REQUIRED trước khi official baseline được phép đổi. [ADR-015]
+                                  (../adr/ADR-015.md) là **Approved, immutable, một exact-
+                                  artifact approval của đúng 22-module inventory và dependency
+                                  graph** (blob `2dd1e1fae8f886b605896864b432f3f79a3726d1` cho
+                                  `module-registry.yaml`, blob
+                                  `45d745315ba36ea4ca53b5bb4bcd2aa6ca076293` cho
+                                  `system-decomposition.md`) — thêm module, tách module, tái
+                                  phân bổ trách nhiệm, hay đổi dependency edge là **thay đổi
+                                  chính quyết định đã Approved**, KHÔNG PHẢI một mechanical
+                                  correction bảo toàn nó (khác `P11-A-MAJ-01`/`P11-A-MAJ-02`,
+                                  vốn sửa lỗi trong một baseline CHƯA Approved tại thời điểm
+                                  đó — sau khi ADR-015 Approved, tình huống KHÔNG còn tương tự).
 ```
 
-**Phân biệt bắt buộc (yêu cầu task):** mục trên là **evidence of compatibility** (candidate nào tương thích/không tương thích với pin hiện tại, và cần correction loại nào NẾU chọn) — **KHÔNG phải authorization to change the baseline**. `docs/adr/ADR-015.md` và `docs/architecture/module-registry.yaml`/`system-decomposition.md` **KHÔNG bị sửa** bởi tài liệu này (verified byte-identical, xem §"Frozen files" trong báo cáo transaction).
+**Cơ chế governance tương lai — hai lựa chọn trung lập, KHÔNG chọn tại đây (yêu cầu task):**
+
+```text
+A. ADR-016, NẾU final approved form của nó tường minh supersede/amend chính hiệu lực kiểm soát
+   module-taxonomy/dependency-graph của ADR-015;
+
+hoặc
+
+B. một ADR kế nhiệm riêng biệt, supersede ADR-015 cho đúng phần baseline decision bị ảnh hưởng.
+```
+
+**Tường minh (yêu cầu task):**
+
+```text
+Tài liệu exploratory này KHÔNG authorize BẤT KỲ cơ chế nào trong hai cơ chế trên.
+
+ADR-015 vẫn LÀ controlling authority cho tới khi một ADR Approved tường minh đổi hiệu lực
+kiểm soát của nó — không có transaction nào khác (kể cả tài liệu evidence này) có thẩm quyền
+đó.
+
+Package 1.1 artifact (module-registry.yaml/system-decomposition.md) KHÔNG được sửa TRƯỚC rồi
+justify SAU — bất kỳ thay đổi baseline nào PHẢI đến SAU KHI ADR-level supersession/amendment
+tương ứng đã Approved, KHÔNG BAO GIỜ ngược lại.
+```
+
+**Phân biệt bắt buộc (yêu cầu task):** mục trên là **evidence of compatibility** (candidate nào tương thích/không tương thích với pin hiện tại, và cần governance mechanism loại nào NẾU chọn) — **KHÔNG phải authorization to change the baseline**. `docs/adr/ADR-015.md` và `docs/architecture/module-registry.yaml`/`system-decomposition.md` **KHÔNG bị sửa** bởi tài liệu này (verified byte-identical, xem §"Frozen files" trong báo cáo transaction).
 
 ## 10. ADR-016 resume-trigger mapping
 
@@ -473,10 +510,18 @@ Forbidden implementation/schema scope entered?          KHÔNG — không field-
                                                           API/database schema, không Decision
                                                           algorithm nào được author (§2/§5 chỉ
                                                           cite Domain Contract hiện có).
-Conflict với ADR-015 hoặc Approved ADR khác?             KHÔNG — §9 xác nhận Candidate A không
-                                                          cần sửa pin; Candidate B chỉ mô tả effect
-                                                          GIẢ ĐỊNH, không tự authorize, không mâu
-                                                          thuẫn nội dung ADR-015 hiện có.
+Conflict với ADR-015 hoặc Approved ADR khác?             Phân biệt tường minh (đóng `P13C-A-MAJ-01`):
+                                                          tài liệu exploratory HIỆN TẠI KHÔNG sửa
+                                                          và KHÔNG hiện vi phạm ADR-015 (chỉ mô tả
+                                                          effect GIẢ ĐỊNH, không tự authorize). NHƯNG
+                                                          Candidate B, NẾU được chọn tương lai, SẼ
+                                                          cần một ADR-level supersession/amendment
+                                                          tường minh (§9) TRƯỚC KHI baseline chính
+                                                          thức đổi — KHÔNG tuyên bố Candidate B
+                                                          "không mâu thuẫn ADR-015" một cách chung
+                                                          chung, vì nội dung nó đề xuất (module mới/
+                                                          split/dependency-edge đổi) LÀ một thay đổi
+                                                          so với quyết định đã Approved.
 Product/Domain/Constitution semantics chưa authorize
   bị yêu cầu?                                            KHÔNG — §1.1 chỉ CITE decision.md §5c/§5e
                                                           đã Consolidated Stable, không redefine.
@@ -533,7 +578,20 @@ Evidence vs decision:
   1.1 vẫn candidate" — verified.
 
 ADR-015 compatibility vs permission to modify:
-  Concern: đã giải quyết tại §9 self-review ở trên — không lặp lại.
+  Concern (đóng `P13C-A-MAJ-01`): v0.1's §9 nói SAI rằng Candidate B "KHÔNG BẮT BUỘC ADR-015 bị
+  supersede" và có thể nhận "bounded follow-up correction" — sai vì ADR-015 là Approved/
+  immutable/exact-artifact approval của đúng 22-module inventory và dependency graph; module
+  mới/split/dependency-edge đổi LÀ thay đổi quyết định đã Approved, không phải correction bảo
+  toàn nó.
+  Risk: nếu không sửa, một transaction tương lai có thể đọc §9 như bật đèn xanh cho việc sửa
+  Package 1.1 artifact trực tiếp rồi "giải thích sau" bằng một correction nhỏ, bỏ qua yêu cầu
+  ADR-level supersession/amendment.
+  Recommendation: §9 v0.2 sửa toàn bộ Candidate B block — phân loại chính xác NO/potentially/
+  YES/YES/REQUIRED, nêu hai cơ chế trung lập (ADR-016 mở rộng HOẶC ADR kế nhiệm riêng) KHÔNG
+  chọn cơ chế nào, và nêu tường minh ba câu bắt buộc (không tự authorize, ADR-015 vẫn controlling,
+  Package 1.1 KHÔNG được sửa trước rồi justify sau). §12 sửa tương ứng, phân biệt "tài liệu hiện
+  tại không vi phạm" khỏi "Candidate B nếu chọn sẽ cần ADR-level path". Applied — verified qua
+  diff hunk inspection giới hạn đúng §9/§12/banner correction, không chạm §4/§5/§6/§7/§8/§10/§11.
 
 Trigger produced vs trigger satisfied:
   Concern: §10's "produced" cho Trigger 2/3 có thể bị đọc nhầm thành "satisfied"/"resumed".
