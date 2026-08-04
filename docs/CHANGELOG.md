@@ -2,6 +2,65 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — correct ADR-016 final review history (procedural, no decision effect)
+
+**Bounded procedural-history correction — approval transaction record only, NO decision effect.** Vai trò: `ADR-016 Approval-History Correction Author & Repository Transaction Executor`. Corrects a factual defect in the entry immediately below ("approve ADR-016: Candidate B (split) under Mechanism A") and in this session's prior report to `ChatGPT / RiDe`. Does NOT reopen ADR-016, does NOT change Candidate B, Mechanism A, the ADR-015 amendment scope, Trigger 1–5 status, or any lifecycle outcome. `docs/adr/ADR-016.md` is **NOT modified** by this transaction — it remains byte-identical (v0.8, `status: Approved`, blob `2a57d428935bd1956379dde79af92c92c83c397b`), consistent with Chapter 11 §11.3 post-approval immutability; MANIFEST.md and this CHANGELOG.md are the corrective authority for post-approval procedural-history facts, per the pattern already established for ADR-015.
+
+### The defect
+
+The entry below states: *"Ghi nhận minh bạch: không có một vòng Review A CLEAN + Independent Review B CLEAN riêng biệt, mới, xác nhận lại toàn văn v0.7 trước khi approval này tới — Product Owner đã trực tiếp exercise thẩm quyền Decision Workflow (Chapter 0 §3) dựa trên correction-chain evidence tích lũy, khác với ADR-015's approval (vốn có một vòng review cuối tường minh trên v0.2)."* **This statement is FALSE.**
+
+### The corrected fact
+
+```text
+Final v0.7 candidate:
+  HEAD:   1adb2cc6e76dc37a62f9ed4fb9fbd18416ba47d1
+  blob:   622a31ec1e694187eb97622e17b3399db998fd35
+  status: Draft, disposition: RESUMED
+
+It received:
+  Review A:                     CLEAN
+  Independent Review B:         CLEAN
+  Backward Consistency Check:   NO CONFLICT
+  ADR016-A-MAJ-03:              RESOLVED
+  Blocker 0, Major 0, Minor 0
+```
+
+**The Product Owner approval did NOT rely only on cumulative unverified correction-chain evidence.** It relied on the exact final v0.7 candidate, after both final reviews (Review A, Independent Review B) returned CLEAN and `ADR016-A-MAJ-03` was confirmed RESOLVED — the same evidentiary standard ADR-015's approval met, not a lesser one.
+
+### Why the defect occurred
+
+The entry below was authored working from this session's own visible transaction history, which — for the specific v0.6→v0.7 bounded corrections — recorded each correction's own CHANGELOG entry as "NOT yet verified... chờ Review A + independent bounded Review B" at the time each correction was authored. That in-progress marker was carried forward incorrectly into the v0.8 approval entry as if no subsequent dedicated final review had ever closed it out. The Product Owner's current message supplies the missing fact: a dedicated final Review A + Independent Review B round did occur on the exact v0.7 candidate and returned CLEAN before this approval.
+
+### Exact changed-file scope
+
+```text
+docs/adr/ADR-016.md   NOT MODIFIED — byte-identical, blob 2a57d428935bd1956379dde79af92c92c83c397b
+docs/MANIFEST.md      MODIFIED (manifest_version 10.25 -> 10.26; ADR-016 architecture-table row
+                       and "## Decision Log" row both corrected with the dedicated final review
+                       record)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended — the v0.8 approval entry below is left
+                       byte-unchanged as historical record; this entry supersedes its false
+                       procedural-history claim going forward)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/adr/ADR-016.md                                                 unchanged, v0.8, Approved, blob 2a57d428935bd1956379dde79af92c92c83c397b
+docs/adr/ADR-015.md                                                 unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/architecture/phase-1-plan.md                                  unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/architecture/package-1.3-c-decision-taxonomy-exploration.md   unchanged, v0.2, Draft, blob 6f0f65e91187184778f8984a814b5f3f1a47be2a
+docs/architecture/module-registry.yaml                              unchanged, v0.2, blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md                           unchanged, v0.2, blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                                         unchanged
+```
+
+### Unaffected lifecycle state
+
+KHÔNG ADR-016 reopened. KHÔNG Candidate B changed (vẫn selected). KHÔNG Mechanism A changed (vẫn exercised). KHÔNG ADR-015 amendment scope changed. KHÔNG re-approval. KHÔNG Product Owner decision invented (this correction is procedural/historical, not a new decision). KHÔNG Package 1.1 artifact modified. KHÔNG Domain Contract correction authored. KHÔNG implementation authorized. Trigger 1–5 remain satisfied. Package 1.1 remains blocked pending the still-unperformed correction transaction. Gate 2 remains blocked. Phase 1 remains Active/not Complete. Phase 2 remains Not Opened. Live remains Unauthorized.
+
 ## [Unreleased] — 2026-08-04 — approve ADR-016: Candidate B (split) under Mechanism A
 
 **ADR-016 v0.7 Approved by Product Owner — Candidate B (split) selected under Mechanism A.** Vai trò: `ADR Approval Recorder & Repository Transaction Executor`. Product Owner decision: **"I approve ADR-016 v0.7 with Candidate B — Split under Mechanism A."** (2026-08-04). ADR-016 moves `version: 0.7 → 0.8`, `status: Draft → Approved`, `disposition: RESUMED → APPROVED`, `supersedes: [] → [ADR-015]` (SCOPED — see below).
