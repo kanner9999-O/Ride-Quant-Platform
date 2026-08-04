@@ -2,6 +2,90 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — open Gate 1 (Package 1.3-C exploratory work)
+
+**Mechanical Gate 1 opening transaction.** Vai trò: `Architecture Governance Executor`. Product Owner decision: **"I authorize opening Gate 1 for bounded Package 1.3-C exploratory architecture work."** (2026-08-04). Đây là mechanical opening transaction only — KHÔNG author exploratory evidence trong transaction này.
+
+### Authorizing baseline (unchanged, verified)
+
+```text
+docs/architecture/phase-1-plan.md   v0.4   Approved   blob fe272215a28563cf68c4eb28feb525c547240c6d
+Approval HEAD:                                          a695bdf611e894b020afdc96ce96d1630474f135
+```
+
+`phase-1-plan.md` **KHÔNG bị sửa** trong transaction này — đúng pattern đã dùng cho Package 1.1 "Authorized to Begin" (Phase 1 Planning Baseline v0.2 consolidation): mechanical opening/authorization fact ghi nhận qua Product Owner decision + MANIFEST record, không sửa artifact chứa condition đó.
+
+### Condition satisfied — §6.1 Lifecycle
+
+`phase-1-plan.md` §6.1 "Lifecycle" ghi: Package 1.3-C exploratory work chỉ bắt đầu SAU KHI (a) amendment Approved VÀ (b) một mechanical opening transaction riêng được ghi nhận (Product Owner decision fact + MANIFEST record). Điều kiện (a) đã thỏa (approval transaction trước). **Transaction này thỏa điều kiện (b).** Gate 1 nay `Open`.
+
+### Scope — evidence production for ADR-016 resume path only
+
+Phân biệt tường minh: Strategy Plugin advisory output; platform-owned deterministic Decision evaluation (nếu responsibility này thực sự tồn tại); authoritative Decision validation and append.
+
+### Permitted outputs (unchanged from §6.1, reproduced for this transaction's authorization scope)
+
+```text
+taxonomy-level responsibility proposals; một bounded non-overlapping hybrid candidate;
+một non-overlapping Evaluation Engine + Decision Authority Service split candidate;
+authority/source-of-truth analysis; semantic/transactional boundary analysis;
+contract categories KHÔNG field-level schema; Chapter 7 §7.1 four-condition evaluation;
+effects trên ADR-015 approved baseline (đánh giá, KHÔNG sửa); risks/reversibility/
+downstream consequences; evidence package cho ADR-016 Review A/Independent Review B/
+Product Owner decision.
+```
+
+### Forbidden outputs (unchanged from §6.1)
+
+```text
+selecting/approving hybrid; selecting/approving split; treating either candidate as
+official architecture; changing ADR-015; modifying Package 1.1 artifacts; authoring
+Decision algorithms; authoring strategy/trading logic; field-level proposal/Decision
+schemas; API/database schemas; deployment/framework/implementation design; source code
+or tests; implementation authorization; Package 1.3-C completion; Package 1.1
+consolidation/approval; Phase 1 completion; Phase 2 opening; Live authorization.
+```
+
+### Changed-file scope
+
+```text
+docs/MANIFEST.md      MODIFIED (manifest_version 10.18 -> 10.19, architecture/
+                       phase-1-plan.md row: new "Gate 1 Opened" note prepended)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended)
+```
+
+`docs/architecture/phase-1-plan.md`: **NOT modified** — blob confirmed unchanged at `fe272215a28563cf68c4eb28feb525c547240c6d`, both before and after this commit.
+
+### Frozen files — verified byte-identical
+
+```text
+docs/architecture/phase-1-plan.md               unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/adr/ADR-015.md                             unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/adr/ADR-016.md                             unchanged, v0.4, Draft, Decision Deferred, blob 5385ff81e6da480a7bee8c71279d82a16c1913cd
+docs/architecture/module-registry.yaml          unchanged, v0.2, blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md       unchanged, v0.2, blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                     unchanged
+```
+
+### Lifecycle after this transaction
+
+```text
+Gate 1:                             Open
+Package 1.3-C exploratory work:     Authorized to Begin, evidence-only, non-authoritative,
+                                     not Approved, not implementation-ready
+Gate 2:                             blocked
+ADR-016:                            Draft, Decision Deferred, not Approved
+Package 1.1:                        blocked, not Consolidated Stable, not Approved
+Phase 1:                            Active, not Complete
+Phase 2:                            Not Opened
+Live:                               Unauthorized
+```
+
+### Forbidden-scope verification
+
+KHÔNG exploratory evidence authored (mechanical opening only). KHÔNG hybrid/split selected. KHÔNG ADR-015/ADR-016 sửa. KHÔNG Package 1.1 sửa/consolidate/approve. KHÔNG Decision algorithm/strategy logic authored. KHÔNG schema/implementation authored. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — approve bounded exploratory-work amendment
 
 **`docs/architecture/phase-1-plan.md` v0.3 Approved by Product Owner.** Vai trò: `Planning Baseline Approval Recorder & Repository Transaction Executor`. Product Owner decision: **"Tao Approve phase-1-plan.md v0.3."** (2026-08-04). Đây là mechanical approval transaction — Package 1.3-C exploratory work KHÔNG mở, ADR-015/ADR-016 KHÔNG sửa.
