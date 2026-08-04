@@ -15,7 +15,7 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 
 # Package 1.3-A — Data Ingestion & Structure/Regime Engine Architecture
 
-**CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Đây là first authored candidate cho Package 1.3-A, theo [`phase-1-plan.md`](../phase-1-plan.md) v0.4 (`Approved`) §8 Package 1.3-A block. Tài liệu này KHÔNG tự approve/consolidate chính nó — Product Owner decision riêng, sau Review A + Independent Review B, mới có thẩm quyền đó (§15).
+**CONSOLIDATED STABLE (package lifecycle, 2026-08-04, Product Owner decision) — artifact status: Draft, KHÔNG Approved/Locked.** Package 1.3-A v0.1 đạt `Consolidated Stable` SAU Review A CLEAN + Independent Review B CLEAN (Blocker 0/Major 0/Minor 0) và Product Owner consolidation decision (2026-08-04, §15), theo [`phase-1-plan.md`](../phase-1-plan.md) v0.4 (`Approved`) §8 Package 1.3-A block. `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi, đúng package-lifecycle/artifact-lifecycle separation đã dùng nhất quán trong toàn bộ session này (cùng pattern Package 0.2-B4/Package 1.1).
 
 ## 0. Vai trò của tài liệu này
 
@@ -240,7 +240,7 @@ Ordering mechanism (ADR-009):  per-stream contiguous sequence + explicit causati
 
 ```text
 Structure Engine:
-  BreakOfStructureDetected/ChangeOfCharangeDetected KHÔNG BAO GIỜ bị ghi đè tại chỗ — chỉ
+  BreakOfStructureDetected/ChangeOfCharacterDetected KHÔNG BAO GIỜ bị ghi đè tại chỗ — chỉ
   phủ định qua StructureFactInvalidated với nguyên nhân tường minh, KHÔNG BAO GIỜ vì "giá
   tiếp tục di chuyển" (đó luôn là BOS/CHoCH MỚI). Replay tại cursor T chỉ thấy fact có
   recorded_time ≤ T — không backfill lịch sử (structure.md §8).
@@ -453,9 +453,17 @@ Independent Review B
                               regime.md §10 KHÔNG lệch; xác nhận mọi open gap (§13) được ghi
                               nhận trung thực, KHÔNG bị silently resolved.
 Product Owner decision
-  point:                     SAU khi Review A + Review B CLEAN.
-Consolidation condition:     Zero unresolved Blocker/Major; ADR execution-topology (nếu có
-                              phát sinh — §3, hiện KHÔNG cần) Approved; không domain semantic
-                              mới bị invent; module identity/taxonomy/dependency khớp
-                              module-registry.yaml v0.3 (Consolidated Stable) không lệch.
+  point:                     SAU khi Review A + Review B CLEAN. **Cập nhật (2026-08-04,
+                              Product Owner consolidation decision):** Review A CLEAN +
+                              Independent Review B CLEAN hoàn tất (Blocker 0/Major 0/Minor
+                              0). Product Owner đã quyết định: "I approve consolidation of
+                              Package 1.3-A v0.1 as the current Consolidated Stable
+                              architecture baseline." — Package 1.3-A nay **`Consolidated
+                              Stable`**.
+Consolidation condition:     Zero unresolved Blocker/Major (**THỎA**); ADR execution-
+                              topology (không phát sinh — §3) N/A; không domain semantic mới
+                              bị invent (**THỎA**); module identity/taxonomy/dependency khớp
+                              module-registry.yaml v0.3 (Consolidated Stable) không lệch
+                              (**THỎA**). **Mọi điều kiện consolidation ĐÃ thỏa — Package
+                              1.3-A v0.1 nay `Consolidated Stable`.**
 ```

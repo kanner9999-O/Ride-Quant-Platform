@@ -2,6 +2,80 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — consolidate Package 1.3-A v0.1
+
+**Package 1.3-A v0.1 consolidated as `Consolidated Stable`.** Vai trò: `Package 1.3-A Consolidation Transaction Executor`. Product Owner decision: **"I approve consolidation of Package 1.3-A v0.1 as the current Consolidated Stable architecture baseline."** (2026-08-04). Đây là mechanical lifecycle transaction — architecture semantics KHÔNG đổi.
+
+### Review evidence
+
+```text
+Review A:              CLEAN
+Independent Review B:  CLEAN
+Blocker 0, Major 0, Minor 0
+```
+
+### Package lifecycle transition
+
+```text
+structure-regime-architecture.md   package lifecycle banner/§15: candidate -> Consolidated
+                                    Stable (prose — không có dedicated YAML field, cùng
+                                    pattern system-decomposition.md)
+                                    version: "0.1" (unchanged), status: Draft (unchanged),
+                                    approved_by: null (unchanged), approved_at: null (unchanged)
+```
+
+`Consolidated Stable` là package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`/`Locked`, cùng pattern đã dùng cho Package 0.2-B4 và Package 1.1.
+
+### Editorial typo fix (non-semantic, cùng transaction)
+
+```text
+ChangeOfCharangeDetected -> ChangeOfCharacterDetected   (§8 No-repaint requirements)
+```
+
+Sửa lỗi đánh máy thuần túy — KHÔNG đổi ý nghĩa, KHÔNG kích hoạt review round mới (đúng yêu cầu task).
+
+### Architecture semantics — confirmed unchanged
+
+Module scope, module identity, taxonomy, authority ownership, dependency edge, Structure Engine boundary, Raw Regime independence, Feature Engine boundary, determinism/replay/no-repaint semantics, correction-propagation semantics, failure/stale-data behavior, preserved gap — **KHÔNG mục nào bị sửa nội dung.** Chỉ lifecycle-state banner/§15 prose + một typo phi-semantic đổi.
+
+### Exact changed-file scope
+
+```text
+docs/architecture/engine/structure-regime-architecture.md   MODIFIED (version 0.1 unchanged)
+                                                              blob 5c6ddb6c3136f4bcfd0d3cb471988344636ed009
+                                                                -> 37cf19cafd2f067caae96a690b4597f0649d79f3
+docs/MANIFEST.md                                              MODIFIED (manifest_version
+                                                              10.29 -> 10.30, artifact row updated)
+docs/CHANGELOG.md                                             MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml       unchanged, v0.3, Consolidated Stable, blob ab09d031183014c1af259895dadf86aaf644cc04
+docs/architecture/system-decomposition.md    unchanged, v0.3, Consolidated Stable, blob c72dfdf54d2ac86bc7ad83de742dda485da11328
+docs/architecture/phase-1-plan.md            unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/adr/ADR-015.md                          unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/adr/ADR-016.md                          unchanged, v0.8, Approved, blob 2a57d428935bd1956379dde79af92c92c83c397b
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                  unchanged
+```
+
+### Resulting lifecycle state
+
+```text
+Package 1.3-A:  Consolidated Stable (package lifecycle); artifact remains status: Draft,
+                not Approved, not Locked
+Package 1.1:    Consolidated Stable (unchanged)
+Phase 1:        Active, not Complete
+Phase 2:        Not Opened
+Live:           Unauthorized
+```
+
+### Non-effects verification
+
+KHÔNG Package 1.3-B authored. KHÔNG preserved gap resolved. KHÔNG implementation authorized. KHÔNG Gate 2 passed. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — author Package 1.3-A candidate
 
 **New Package 1.3-A candidate authored, using the Consolidated Stable Package 1.1 module baseline.** Vai trò: `Package 1.3-A Architecture Author`. Package 1.1 (`module-registry.yaml`/`system-decomposition.md` v0.3, `Consolidated Stable`), ADR-015, ADR-016 KHÔNG bị sửa.
