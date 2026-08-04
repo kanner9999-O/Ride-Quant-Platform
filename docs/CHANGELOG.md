@@ -2,6 +2,101 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — author ADR-016 taxonomy evidence
+
+**New bounded, non-authoritative exploratory artifact under Gate 1.** Vai trò: `Package 1.3-C Exploratory Architecture Author & Repository Transaction Executor`. Authored under Gate 1 (`phase-1-plan.md` §6.1, Open — 2026-08-04 opening transaction). Đây là evidence-authoring transaction — KHÔNG select/approve taxonomy, KHÔNG sửa ADR-015/ADR-016/Package 1.1 artifact/`phase-1-plan.md`.
+
+### New artifact
+
+```text
+docs/architecture/package-1.3-c-decision-taxonomy-exploration.md   NEW, v0.1, Draft
+                                                                     blob 3144580af180c6c86e3ab6580a0a29836b4fb7a9
+```
+
+Mandatory lifecycle labels tại đầu tài liệu: `NON-AUTHORITATIVE`, `EXPLORATORY`, `NOT APPROVED`, `NOT IMPLEMENTATION-READY`, `EVIDENCE FOR ADR-016 ONLY`.
+
+### Core question — responsibility 2 existence analyzed, not assumed
+
+Phân biệt ba trách nhiệm (Strategy Plugin advisory output / platform-owned deterministic Decision evaluation nếu tồn tại / authoritative Decision validation and append). §1.1 phân tích `decision.md` §5c/§5e (`Consolidated Stable`, cite không redefine) — rule-evidence shape (`rule_family: PRICE_CROSSES_REFERENCE_SERIES`, `crossing_policy`, `current_condition_met`) cho thấy khái niệm "deterministic evaluation" tồn tại MỘT PHẦN ở tầng domain, nhưng module placement CHƯA xác lập.
+
+### Candidate A — bounded non-overlapping hybrid
+
+Module identity `decision-engine` (không đổi — module-registry.yaml v0.2 pin nguyên trạng). Một module sở hữu cả deterministic evaluation lẫn authoritative Decision/Trade Intent identity + append. Một điểm idempotency/replay/trace.
+
+### Candidate B — non-overlapping split
+
+`decision-evaluation-engine` (compute_engine, HYPOTHETICAL) + `decision-authority-service` (runtime_service, HYPOTHETICAL) — module-registry.yaml KHÔNG đổi. Hai điểm idempotency/replay/trace; một governance gap ghi nhận (proposal-rejection outcome chưa map vào `attempt_outcome` enum hiện có). §5.4 xác nhận không component nào (Plugin Host/Evaluation Engine/Context Aggregator/Event Bus/Projection) rò rỉ Decision authority.
+
+### Candidate comparison
+
+16 tiêu chí (responsibility cohesion → future extensibility), assumptions tường minh, KHÔNG weight ngầm, KHÔNG tổng hợp điểm số.
+
+### Chapter 7 §7.1 evaluation (Candidate A)
+
+```text
+Condition 1 (không thể tách hợp lý):        NOT ESTABLISHED (bằng chứng tích cực, không suy
+                                             luận từ thiếu chi tiết)
+Condition 2 (ownership không vi phạm):      NOT ESTABLISHED (cùng root uncertainty condition 1)
+Condition 3 (khai báo tường minh registry): SATISFIED (chỉ declared — KHÔNG approved)
+Condition 4 (ADR Approved):                 NOT SATISFIED (ADR-016 chưa Approved)
+```
+
+### Split validation (Candidate B)
+
+Mọi tiêu chí (no overlapping authority, no hidden append, no Plugin leakage, proposal-vs-fact, transaction ownership, replay, idempotency, trace continuity) — Addressed hoặc Addressed-với-chi-phí-ghi-nhận. Một residual gap: failure isolation cho authority-level rejection chưa có mapping domain-contract.
+
+### Effect on ADR-015 baseline
+
+Candidate A: no baseline change. Candidate B: future module rename/split/dependency-edge amendment CÓ THỂ cần — KHÔNG cần ADR-015 bị supersede (bounded follow-up correction pattern, cùng P11-A-MAJ-01/02). Tường minh: **evidence of compatibility, KHÔNG authorization to change baseline.**
+
+### ADR-016 trigger mapping
+
+```text
+Trigger 1: candidate evidence produced, NOT authoritative
+Trigger 2: produced
+Trigger 3: produced
+Trigger 4: not satisfied
+Trigger 5: not satisfied
+```
+
+### Neutral conclusion
+
+Candidate A lacks positive evidence cho condition 1; Candidate B technically credible; both remain viable pending review — cả hai chia sẻ CÙNG root uncertainty (ranh giới Plugin advisory output ↔ platform Decision evaluation). KHÔNG hybrid approved, KHÔNG split approved, KHÔNG ADR-016 resolved, KHÔNG Package 1.1 unblocked, KHÔNG official architecture selected.
+
+### Stop-condition check — none reached
+
+Không forbidden implementation/schema scope, không conflict với ADR-015/Approved ADR khác, không unauthorized Product/Domain/Constitution semantics, không repository baseline drift, không scope expansion ngoài ADR-016 evidence.
+
+### Self-review
+
+Concern/Risk/Recommendation tại tám hạng mục (authority vs evaluation, proposal vs fact, hybrid vs split neutrality, current vs future tense, candidate vs approved architecture, evidence vs decision, ADR-015 compatibility vs permission to modify, trigger produced vs satisfied) — reproduced đầy đủ trong artifact §13. Không self-approve.
+
+### Changed-file scope
+
+```text
+docs/architecture/package-1.3-c-decision-taxonomy-exploration.md   NEW
+docs/MANIFEST.md                                                    MODIFIED (manifest_version
+                                                                     10.19 -> 10.20, new
+                                                                     Architecture table row)
+docs/CHANGELOG.md                                                   MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/architecture/phase-1-plan.md               unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/adr/ADR-015.md                             unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/adr/ADR-016.md                             unchanged, v0.4, Draft, Decision Deferred, blob 5385ff81e6da480a7bee8c71279d82a16c1913cd
+docs/architecture/module-registry.yaml          unchanged, v0.2, blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md       unchanged, v0.2, blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                     unchanged
+```
+
+### Forbidden-scope verification
+
+KHÔNG hybrid/split selected/approved. KHÔNG Decision algorithm/strategy logic authored. KHÔNG field-level schema/API/database schema authored. KHÔNG ADR-015/ADR-016 sửa. KHÔNG Package 1.1 artifact sửa. KHÔNG Package 1.1 consolidation/approval. KHÔNG `phase-1-plan.md` sửa. KHÔNG implementation authorized. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — open Gate 1 (Package 1.3-C exploratory work)
 
 **Mechanical Gate 1 opening transaction.** Vai trò: `Architecture Governance Executor`. Product Owner decision: **"I authorize opening Gate 1 for bounded Package 1.3-C exploratory architecture work."** (2026-08-04). Đây là mechanical opening transaction only — KHÔNG author exploratory evidence trong transaction này.
