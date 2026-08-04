@@ -2,6 +2,92 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — make ADR-016 governance paths mechanism-neutral (NOT yet verified)
+
+**Bounded wording correction to ADR-016 — addresses `ADR016-B-MAJ-01`.** Vai trò: `ADR-016 Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. Candidate A/B architecture analysis KHÔNG reopen, author recommendation KHÔNG đổi, ADR-016 KHÔNG approve.
+
+**This correction is NOT verified.** Ghi nhận finding `ADR016-B-MAJ-01` (Confirmed, review round trên v0.5) và sửa tại transaction này — chờ Review A + independent bounded Review B.
+
+### ADR016-B-MAJ-01 — Mechanism B was nominal, not executable
+
+v0.5 khai báo cả Mechanism A lẫn Mechanism B available, nhưng Trigger 1/5 wording, "Required governance effect", "Required sequence after any future approval", và "Consequences" split branch đều hardcode approval của CHÍNH ADR-016 làm vehicle mang hiệu lực amendment/supersession ADR-015 — khiến Mechanism B chỉ mang tính danh nghĩa, không có executable path riêng.
+
+### The fix — mechanism-neutral throughout
+
+```text
+Trigger 1/5 wording:              sửa thành mechanism-neutral — Trigger 1 thỏa khi MỘT
+                                   Approved ADR-level taxonomy decision tồn tại (KHÔNG nhất
+                                   thiết ADR-016); Trigger 5 thỏa khi Product Owner decision
+                                   ghi trong CHÍNH ADR đó. Trigger 1/5 CÓ THỂ thỏa bởi CÙNG
+                                   một Approved ADR (Mechanism A) HOẶC không bắt buộc là
+                                   chính ADR-016 (Mechanism B).
+
+New section:                      "### Governance mechanism paths (mechanism-neutral)" thay
+                                   thế "### Required governance effect if Candidate B is
+                                   recommended AND Approved" — định nghĩa Mechanism A (bốn
+                                   bước, ADR-016 làm vehicle) VÀ Mechanism B (Path B1 — ADR
+                                   kế nhiệm mang toàn bộ taxonomy decision + amendment
+                                   effect; Path B2 — ADR-016 chọn taxonomy trước, ADR kế
+                                   nhiệm mang amendment effect sau, Trigger 1 CHƯA thỏa cho
+                                   tới khi CẢ HAI Approved).
+
+Required sequence:                sửa thành năm bước mechanism-neutral — bước 1 (taxonomy
+                                   decision + Product Owner decision) và bước 2 (ADR-015
+                                   amendment/supersession nếu cần) CÓ THỂ là MỘT HOẶC HAI
+                                   Approved ADR transaction, tường minh nêu cả hai khả năng.
+
+Consequences split branch:        KHÔNG còn "Approval ADR-016 với Candidate B PHẢI tường
+                                   minh amend/supersede... (Mechanism A hoặc B)" — thay bằng
+                                   "NẾU Mechanism A được chọn: approval ADR-016 tự nó mang
+                                   hiệu lực đó. NẾU Mechanism B được chọn: hiệu lực đó được
+                                   mang bởi một ADR kế nhiệm riêng biệt."
+```
+
+### Unchanged (verified via diff hunk inspection — 8 hunks tổng cộng, tất cả trong lifecycle/governance-path wording)
+
+```text
+Candidate A architecture analysis (§"Candidate A evidence"):           unchanged.
+Candidate B architecture analysis (§"Candidate B evidence"):           unchanged.
+Candidate B author recommendation (ưu tiên split, có điều kiện):       unchanged.
+Candidate A Chapter 7 §7.1 results (condition 1/2 NOT ESTABLISHED,
+  condition 3 SATISFIED declared-only, condition 4 NOT SATISFIED):     unchanged.
+Candidate B authority guarantees (bốn ràng buộc bắt buộc):              unchanged.
+Candidate B Domain/governance gaps (evaluation-proposal artifact,
+  attempt_outcome mapping):                                            unchanged.
+Trigger 2 status (SATISFIED):                                          unchanged.
+Trigger 3 status (SATISFIED):                                          unchanged.
+Package 1.3-C review evidence (Review A/B CLEAN, P13C-A-MAJ-01
+  RESOLVED, 0/0/0):                                                    unchanged.
+```
+
+### Exact changed-file scope
+
+```text
+docs/adr/ADR-016.md   MODIFIED version 0.5 -> 0.6
+                       blob 5d21b8c030bb2a73d7dc28a0bf36f14f12f782f4
+                         -> 285f23b23778d921e8d4b6c39c05b858d767a5b7
+                       status Draft (unchanged), disposition RESUMED (unchanged),
+                       approved_by null (unchanged), approved_at null (unchanged)
+docs/MANIFEST.md      MODIFIED (manifest_version 10.22 -> 10.23, ADR-016 index row updated)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/architecture/phase-1-plan.md                                  unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/adr/ADR-015.md                                                 unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/architecture/package-1.3-c-decision-taxonomy-exploration.md   unchanged, v0.2, Draft, blob 6f0f65e91187184778f8984a814b5f3f1a47be2a
+docs/architecture/module-registry.yaml                              unchanged, v0.2, blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md                           unchanged, v0.2, blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                                         unchanged
+```
+
+### Forbidden-scope verification
+
+KHÔNG mechanism nào được chọn. KHÔNG ADR-016 approved. KHÔNG Product Owner decision recorded. KHÔNG Candidate A/B selected as official architecture. KHÔNG ADR-015/Package 1.1 artifact sửa. KHÔNG successor ADR authored. KHÔNG Domain Contract correction authored. KHÔNG `attempt_outcome` mới invented. KHÔNG schema/algorithm/source code authored. KHÔNG Package 1.1 unblocked. KHÔNG Gate 2 passed. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — resume ADR-016 decision workflow
 
 **ADR-016 Decision Workflow resumed — v0.4 → v0.5, disposition DEFERRED → RESUMED.** Vai trò: `ADR-016 Decision Candidate Author & Repository Transaction Executor`. Sau Package 1.3-C exploratory evidence v0.2 (blob `6f0f65e91187184778f8984a814b5f3f1a47be2a`) hoàn tất Review A CLEAN + Independent Review B CLEAN + Backward Consistency Check NO CONFLICT (đóng `P13C-A-MAJ-01`). Đây là mechanical decision-candidate-authoring transaction — **KHÔNG approve ADR-016**, KHÔNG sửa ADR-015/Package 1.1 artifact, KHÔNG implement hay mechanically apply taxonomy nào.
