@@ -2,6 +2,201 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — author Package 1.3-D v0.1 (Risk Gateway & Execution Engine Architecture)
+
+**Package 1.3-D v0.1 authored — `docs/architecture/engine/risk-execution-architecture.md`, `candidate`, `status: Draft`, KHÔNG Consolidated Stable, KHÔNG Approved.** Vai trò: `Package 1.3-D Architecture Author`. Dựa trên Package 1.1 `Consolidated Stable` v0.4, Package 1.3-A/1.3-B `Consolidated Stable`, và Package 1.3-C `Consolidated Stable`, theo `phase-1-plan.md` v0.4 (`Approved`) §8 Package 1.3-D block.
+
+### Baseline
+
+```text
+Baseline HEAD:                                             d22863f51241577808cfb1dd0ea4f64e68c46988
+module-registry.yaml v0.4 blob:                             6c4daa3eda3ef560b201de516dd019564d264c08
+system-decomposition.md v0.4 blob:                          8e60b9e6051956cfbe83f33e1c82f404bc082e37
+strategy-decision-architecture.md v0.2 blob (Package 1.3-C): 432e728ea774b3f521a19d7f230fc82889f433e9
+risk.md (Package 0.2-C5, Consolidated Stable) v0.3 blob:      (verified, see MANIFEST domain/ row)
+execution-intent.md v0.2 blob, order.md v0.2 blob,
+execution-result.md v0.3 blob, fill.md v0.3 blob,
+position.md v0.3 blob (Package 0.2-C5/C6/C7, Consolidated
+  Stable):                                                   verified
+ADR-009/ADR-012/ADR-015/ADR-016 (all Approved):               verified
+```
+
+### Module scope — six modules, script-verified complete (does not repeat the Package 1.3-C omission pattern)
+
+```text
+risk-gateway                 runtime_service, owns_authoritative_state: true,
+                              depends_on: [decision-authority-service, account-service]
+execution-engine              runtime_service, owns_authoritative_state: true,
+                              depends_on: [risk-gateway, paper-execution-boundary],
+                              forbidden_dependencies: [strategy-engine,
+                              strategy-plugin-host, context-aggregator]
+execution-result-processor    runtime_service, owns_authoritative_state: true,
+                              depends_on: [execution-engine, paper-execution-boundary]
+fill-processor                 runtime_service, owns_authoritative_state: true,
+                              depends_on: [execution-result-processor]
+position-projection            projection, owns_authoritative_state: false,
+                              depends_on: [fill-processor]
+paper-execution-boundary       runtime_service, owns_authoritative_state: false,
+                              depends_on: [] (root)
+```
+
+Every module in `module-registry.yaml` v0.4 with `phase.elaborated_by: "1.3-D"` was located via direct script scan and elaborated — six found, six covered.
+
+### Mandatory non-bypass flow
+
+```text
+Decision Authority Service (Package 1.3-C) -> Risk Gateway -> Execution Engine ->
+Paper Execution Boundary -> Execution Result Processor -> Fill Processor ->
+Position Projection
+```
+
+Script-verified directly against the live registry: only `risk-gateway` has a `depends_on` edge to `decision-authority-service` among the six modules; `execution-engine` explicitly forbids `strategy-engine`/`strategy-plugin-host`/`context-aggregator`; `risk-gateway.depends_on == {decision-authority-service, account-service}` exactly; `paper-execution-boundary.depends_on == {}` (root); `position-projection.depends_on == {fill-processor}`; `fill-processor.depends_on == {execution-result-processor}`; `execution-result-processor.depends_on == {execution-engine, paper-execution-boundary}`.
+
+### Nội dung chính
+
+```text
+Risk Gateway boundary:         mandatory gate, sole RiskEvaluation + Execution Intent
+                                authority; thirteen-step sizing algorithm (risk.md §5c)
+                                referenced, not re-authored; explicit "no Decision -> no
+                                Risk evaluation / no approved Risk -> no Execution Intent
+                                / no Execution Intent -> no execution attempt" statement.
+Execution Intent boundary       ownership (Risk Gateway, sole), originating RiskEvaluation
+  (§4a, elaboration of Risk      requirement (exactly one, APPROVED), cardinality (zero or
+  Gateway's own responsibility): one valid Intent per approval),
+                                idempotency/duplicate-prevention, correction/cancellation
+                                (invalidate-only for Issued, standard lineage for
+                                lifecycle status), recorded/effective-time eligibility —
+                                all cited verbatim from execution-intent.md, no new
+                                schema or lifecycle state invented.
+Execution Engine boundary:      sole Order identity authority; explicitly does NOT own
+                                ExecutionResult (Execution Result Processor does);
+                                idempotent creation/submission via
+                                order_creation_attempt_id and order_id-scoped submission
+                                idempotency.
+Execution Result Processor      sole ExecutionResultComputation/PaperExecutionObservation/
+  boundary:                     ExecutionResult authority; never recomputes result_type,
+                                only copies from the visible-valid Observation; strict
+                                ordering (authorize -> compute -> Observation -> Attempt
+                                PROCESSED -> ExecutionResultRecorded).
+Fill Processor boundary:        sole Fill authority; economics copied exactly from the
+                                Observation via ExecutionResult, never independently
+                                observed/computed; no separate processing Attempt entity
+                                (by domain design).
+Paper Execution Boundary:       execution-MODE boundary, not a Decision/Risk authority;
+                                owns_authoritative_state: false (the resulting facts are
+                                owned downstream by Execution Result Processor); DD-003
+                                explicitly not resolved.
+Position Projection boundary    terminology correction: the registered module is
+  (Position Ledger              `position-projection` (projection,
+  terminology corrected):       owns_authoritative_state: false) — no "Position Ledger"
+                                authoritative module exists in the registry or in
+                                position.md; phase-1-plan.md's "Position Ledger" phrasing
+                                is non-binding descriptive language. Fill Processor is the
+                                sole authoritative source; Position has no event stream of
+                                its own (position.md's own text confirms this).
+Kill-switch mapping (I-8):      Risk Gateway owns kill-switch policy (already established
+                                via module-registry.yaml's own responsibilities text and
+                                I-8's Required guarantees); Execution Engine must observe
+                                per I-8 Scope; concrete field/event representation,
+                                observation protocol, and in-flight handling are not
+                                established anywhere in the read Domain Contracts —
+                                recorded as an explicit gap, not invented.
+Idempotency mapping (I-10):     Execution Intent issuance, Order creation/submission,
+                                Execution Result ingestion (via
+                                execution_result_computation_id, computation identity
+                                anchored per C7-DELTA-MAJ-01), and Fill ingestion each
+                                cite their exact canonical policy identifier from the
+                                Domain Contracts; venue retry has no corresponding domain
+                                fact yet (PAPER-only); Position application needs no
+                                separate idempotency key (pure recompute).
+Determinism/replay/no-repaint:  Risk Policy/version pinning, full effective-time causal
+                                chain Decision -> Position, ADR-009 per-stream ordering,
+                                append-only correction across all six entities, external
+                                venue outcomes explicitly flagged as not deterministically
+                                reproducible by Replay (Replay represents recorded
+                                outcome only — no venue re-execution).
+```
+
+### Mười một gap ghi nhận, KHÔNG resolve, KHÔNG tạo ADR
+
+```text
+1. DD-003 (PAPER-context Decision establishment mechanism) — escalate only.
+2. Custody-adjacent boundary details — Package 1.2 has no architecture file yet.
+3. Venue-adapter protocol and authority boundary — not authored (forbidden scope).
+4. Kill-switch in-flight handling / concrete observation mechanism.
+5. External venue retry/idempotency mechanism (I-10's venue-order concept has no domain
+   fact yet).
+6. Partial-fill and multi-Fill-Position aggregation mechanics (both Domain Contracts
+   self-defer).
+7. ADR-009 concrete ordering protocol implementation.
+8. Definition Version registry mechanism (Risk Policy + simulation evidence axes added
+   to the existing gap).
+9. context.md authority-terminology gap — inherited, not directly touched (no 1.3-D
+   module depends on context-aggregator).
+10. All nine Package 1.3-C preserved gaps remain upstream prerequisites — especially the
+    Plugin Host/Decision Evaluation boundary and evaluation-proposal Domain Contract gaps,
+    which directly affect the input Risk Gateway consumes.
+11. `replay-integration-service` elaboration gap — belongs to Package 1.3-A (already
+    Consolidated Stable, not modified here) — recorded transparently.
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/engine/risk-execution-architecture.md   NEW — v0.1, Draft, candidate,
+                                                            blob 2db4dc1955323aea99c65a155e1b94452578cc8a
+docs/MANIFEST.md                                            manifest_version 10.36 -> 10.37,
+                                                            new row inserted
+docs/CHANGELOG.md                                           this entry prepended
+```
+
+### Automated validation results
+
+```text
+module-registry.yaml cross-check (Python, direct):  all six modules' module_type/
+  owns_authoritative_state/depends_on/forbidden_dependencies/consumes/emits/phase confirmed
+  exactly against the live registry; non-bypass check passed (only risk-gateway depends
+  on decision-authority-service among the six); replay-integration-service confirmed
+  phase.elaborated_by: "1.3-A" (out of Package 1.3-D scope, correctly not touched).
+Frontmatter/YAML:  risk-execution-architecture.md parses cleanly — version "0.1", status
+  Draft, approved_by/approved_at null; fence balance even (60).
+Diff scope:  git status confirms exactly the 3 expected files changed; forbidden-scope
+  diff (module-registry.yaml, system-decomposition.md, structure-regime-architecture.md,
+  feature-context-architecture.md, strategy-decision-architecture.md, phase-1-plan.md,
+  docs/adr/, docs/domain/, docs/product/, docs/constitution/, docs/team/, docs/phase-dod/)
+  empty.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/engine/structure-regime-architecture.md
+docs/architecture/engine/feature-context-architecture.md
+docs/architecture/engine/strategy-decision-architecture.md
+docs/architecture/phase-1-plan.md
+docs/adr/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
+### Resulting lifecycle state
+
+```text
+Package 1.3-D:  candidate, Draft, NOT Consolidated Stable, NOT Approved
+Package 1.3-C:  Consolidated Stable (unchanged)
+Package 1.3-B:  Consolidated Stable (unchanged)
+Package 1.3-A:  Consolidated Stable (unchanged)
+Package 1.1:    Consolidated Stable (unchanged, v0.4)
+Phase 1:        Active, not Complete
+Phase 2:        Not Opened
+Live:           Unauthorized
+```
+
 ## [Unreleased] — 2026-08-04 — consolidate Package 1.3-C v0.2
 
 **Package 1.3-C v0.2 consolidated as `Consolidated Stable`.** Vai trò: `Package 1.3-C Consolidation Transaction Executor`. Product Owner decision: **"I approve consolidation of Package 1.3-C v0.2 as the current Consolidated Stable architecture baseline, with all documented unresolved Domain, ordering, plugin-release activation, PAPER-context, and authority-terminology gaps preserved explicitly and without implementation authorization."** (2026-08-04). Đây là mechanical lifecycle transaction — architecture semantics KHÔNG đổi.
