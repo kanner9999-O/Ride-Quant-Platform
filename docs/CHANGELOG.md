@@ -2,6 +2,187 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — author Package 1.3-C v0.1 (Strategy & Decision Engine Architecture)
+
+**Package 1.3-C v0.1 authored — `docs/architecture/engine/strategy-decision-architecture.md`, `candidate`, `status: Draft`, KHÔNG Consolidated Stable, KHÔNG Approved.** Vai trò: `Package 1.3-C Architecture Author`. Dựa trên Package 1.1 `Consolidated Stable` v0.4, Package 1.3-A `Consolidated Stable`, và Package 1.3-B `Consolidated Stable`, theo `phase-1-plan.md` v0.4 (`Approved`) §8 Package 1.3-C block.
+
+### Baseline
+
+```text
+Baseline HEAD:                                72e2c2b8db9512a5a8a522e58b463b3d01bb92db
+module-registry.yaml v0.4 blob:                6c4daa3eda3ef560b201de516dd019564d264c08
+system-decomposition.md v0.4 blob:             8e60b9e6051956cfbe83f33e1c82f404bc082e37
+structure-regime-architecture.md v0.1 blob:    37cf19cafd2f067caae96a690b4597f0649d79f3
+feature-context-architecture.md v0.2 blob:     a24d22a4fc66a4f6c505214d3b9fd53c5f757067
+strategy.md (Package 0.2-C3, Consolidated Stable) v0.3 blob:  c2cadc464bc8baecff41ff8079461ec0d5dfaccc
+decision.md (Package 0.2-C4, Consolidated Stable) v0.3 blob:  e2a26320200d350ace3da0247235bb14cef12509
+ADR-009 blob:   2667b860ee5568979a3853e0c6703d0c873d45d0
+ADR-010 blob:   80b1807f9b99f2a83bfbdbdbd90672bd9ff06759
+ADR-013 blob:   02df931143f8408c61d19ee2c91d2d355d5deb1d
+Chapter 9 (09-plugin-model.md) blob:           8fa435c33278beca989840ff9cf8d358312c6dcc
+```
+
+### Module scope elaborated
+
+```text
+strategy-engine              runtime_service, owns_authoritative_state: true,
+                              depends_on: [account-service]
+strategy-plugin-host         compute_engine, owns_authoritative_state: false,
+                              depends_on: [strategy-engine, context-aggregator,
+                              plugin-release-manager],
+                              forbidden_dependencies: [execution-engine, risk-gateway,
+                              paper-execution-boundary, decision-authority-service]
+decision-evaluation-engine   compute_engine, owns_authoritative_state: false,
+                              depends_on: [strategy-engine, strategy-plugin-host,
+                              context-aggregator],
+                              forbidden_dependencies: [execution-engine, risk-gateway,
+                              paper-execution-boundary]
+decision-authority-service   runtime_service, owns_authoritative_state: true,
+                              depends_on: [decision-evaluation-engine, strategy-engine],
+                              forbidden_dependencies: [execution-engine,
+                              paper-execution-boundary]
+```
+
+Identity/taxonomy/dependency KHÔNG đổi — trích dẫn nguyên văn `module-registry.yaml` v0.4. `decision-engine` (hybrid cũ, Candidate A, rejected ADR-016 v0.8) KHÔNG recreated.
+
+### Nội dung chính
+
+```text
+Mandatory non-bypass flow:     Context Aggregator → Strategy Engine → Strategy Plugin
+                                Host → Decision Evaluation Engine → Decision Authority
+                                Service → Risk Gateway — với reconciliation tường minh:
+                                Context tiêu thụ trực tiếp bởi strategy-plugin-host VÀ
+                                decision-evaluation-engine (dependency edge thực tế),
+                                KHÔNG bởi strategy-engine (không có edge này trong
+                                module-registry.yaml).
+Strategy Engine boundary:      orchestration Strategy Definition/Instance eligibility
+                                (strategy.md §9a, sáu điều kiện); KHÔNG host plugin
+                                (plugin_relation: none); KHÔNG append Decision; KHÔNG sở
+                                hữu Trade Intent; KHÔNG Risk/Execution.
+Strategy Plugin Host           mandatory published-contract execution boundary (Chapter 9
+  boundary:                    §9.2/§9.5 Decision-time visibility); forbidden_dependencies
+                                chứa decision-authority-service TƯỜNG MINH — non-bypass
+                                tới authority append đã script-verifiable.
+Decision Evaluation Engine     module_type: compute_engine, authority: non-authoritative;
+  boundary:                    sinh non-authoritative evaluation proposal; preserve
+                                provenance/definition-version/causal-ancestry; KHÔNG
+                                append Decision, KHÔNG assign Decision/Trade-Intent
+                                identity, KHÔNG final invariant validation, KHÔNG Risk/
+                                Execution.
+Decision Authority Service     module_type: runtime_service, role: sole authoritative
+  boundary:                    Decision authority — final invariant validation
+                                (decision.md §3 relational invariants), accept/reject
+                                evaluation proposal, append DecisionRecorded, assign
+                                decision_id, establish Trade Intent identity
+                                (decision.md §10 cardinality). Preserved chính xác từ
+                                ADR-016 v0.8.
+Sole-authority/non-bypass      ba chiều: risk-gateway.depends_on CHỈ chứa
+  proof:                       decision-authority-service (KHÔNG strategy-plugin-host,
+                                KHÔNG decision-evaluation-engine); decision-evaluation-
+                                engine VÀ strategy-plugin-host forbidden tới risk-gateway;
+                                strategy-plugin-host forbidden tới decision-authority-
+                                service — script-verifiable qua module-registry.yaml v0.4.
+Context criticality/fail-      trích dẫn NGUYÊN VẸN feature-context-architecture.md
+  closed handling:             (Package 1.3-B) §8 — ba điều kiện fail-closed (absence,
+                                PENDING_CORRECTION, definition-version mismatch), KHÔNG
+                                redefine, KHÔNG resolve context.md terminology gap, KHÔNG
+                                gọi Context authoritative domain-state owner. Trách nhiệm
+                                implement gán cho Decision Evaluation Engine (dependency
+                                edge trực tiếp tới context-aggregator).
+Determinism/replay/no-repaint: Strategy Definition Version pinning (ADR-013 bốn trục);
+                                Plugin/compatibility pinning (Chapter 9 §9.1/§9.5);
+                                recorded-time/effective-time (ADR-010 §2.4, decision.md
+                                §3 relational invariants); cursor-bounded replay (Chapter
+                                8 §8.5.1); causation/provenance (ADR-009 §2.4); per-stream
+                                ordering, KHÔNG global sequence (ADR-009); mode parity
+                                (I-2); append-only Decision correction lineage
+                                (decision.md §11); no silent repaint (I-3, decision.md
+                                §12).
+```
+
+### Chín gap ghi nhận, KHÔNG resolve, KHÔNG tạo ADR
+
+```text
+1. Plugin Host vs Decision Evaluation Engine exact responsibility boundary (ADR-016 v0.8
+   Accepted risk #1) — đòi hỏi Decision algorithm cụ thể, ngoài phạm vi kiến trúc.
+2. Evaluation-proposal Domain Contract absent (ADR-016 v0.8 Accepted risk #2) — KHÔNG
+   author schema tại transaction này.
+3. Authority-level proposal rejection thiếu attempt_outcome mapping (ADR-016 v0.8
+   Accepted risk #3) — KHÔNG invent giá trị mới.
+4. DD-003 — PAPER-context authoritative Decision establishment mechanism (phase-1-plan.md
+   §11, Deferred) — chỉ escalate, KHÔNG tự phát minh.
+5. context.md authority-terminology tension (Package 1.3-B §13) — carry forward nguyên
+   vẹn, KHÔNG re-mở.
+6. ADR-009 concrete ordering protocol implementation — deferred Phase 1.
+7. Definition Version registry mechanism — kế thừa Package 1.3-A/1.3-B, mở rộng ghi nhận
+   cho Strategy/Plugin/Configuration/Package-Build-Artifact/Decision-Evaluation-Engine
+   implementation version.
+8. Operational/dependency/replay complexity của Candidate B (ADR-016 v0.8 Accepted
+   risk #4) — ghi nhận thêm, KHÔNG resolve/giảm thiểu.
+9. plugin-release-manager chưa elaborate đầy đủ — module-registry.yaml v0.4 gán
+   elaborated_by: "1.3-C" cho module này, nhưng task scope của transaction này chỉ liệt
+   kê bốn module — ghi nhận minh bạch, carry forward.
+```
+
+### Xác nhận không vi phạm
+
+```text
+KHÔNG redefine module identity/taxonomy/dependency (Package 1.1 v0.4, Consolidated
+  Stable).
+KHÔNG redefine Package 1.3-A/1.3-B content (Consolidated Stable).
+KHÔNG redefine strategy.md/decision.md domain semantics (Package 0.2-C3/C4, Consolidated
+  Stable).
+KHÔNG recreate decision-engine (rejected Candidate A, ADR-016 v0.8).
+KHÔNG tạo/approve ADR nào tại transaction này — mechanical elaboration của ADR-016 KHÔNG
+  cần ADR mới (KHÔNG Decision Pipeline topology mới, KHÔNG authority owner mới, KHÔNG
+  bypass path, KHÔNG plugin type/capability mới, KHÔNG dependency ngoài Approved
+  authority).
+KHÔNG author field-level schema, evaluation-proposal schema, Strategy Plugin algorithm,
+  database schema, deployment topology, framework, source code.
+KHÔNG author Package 1.3-D (Risk/Execution semantics) content.
+KHÔNG resolve DD-003, KHÔNG resolve context.md terminology gap.
+KHÔNG mark Package 1.3-C Consolidated Stable, KHÔNG pass Gate 2, KHÔNG tuyên bố Phase 1
+  hoàn thành, KHÔNG mở Phase 2, KHÔNG authorize Live.
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/engine/strategy-decision-architecture.md   NEW — v0.1, Draft, candidate,
+                                                               blob 1c7b0272ee6e87f6bbc814140de0d6389e5c285a
+docs/MANIFEST.md                                              manifest_version 10.33 → 10.34,
+                                                               new row inserted
+docs/CHANGELOG.md                                             this entry prepended
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/engine/structure-regime-architecture.md
+docs/architecture/engine/feature-context-architecture.md
+docs/architecture/phase-1-plan.md
+docs/adr/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
+### Resulting lifecycle state
+
+```text
+Package 1.3-C:  candidate, Draft, NOT Consolidated Stable, NOT Approved
+Package 1.3-B:  Consolidated Stable (unchanged)
+Package 1.3-A:  Consolidated Stable (unchanged)
+Package 1.1:    Consolidated Stable (unchanged, v0.4)
+Phase 1:        Active, not Complete
+Phase 2:        Not Opened
+Live:           Unauthorized
+```
+
 ## [Unreleased] — 2026-08-04 — consolidate Package 1.3-B v0.2
 
 **Package 1.3-B v0.2 consolidated as `Consolidated Stable`.** Vai trò: `Package 1.3-B Consolidation Transaction Executor`. Product Owner decision: **"I approve consolidation of Package 1.3-B v0.2 as the current Consolidated Stable architecture baseline, with the context.md authority-terminology tension preserved as an explicit non-blocking open gap."** (2026-08-04). Đây là mechanical lifecycle transaction — architecture semantics KHÔNG đổi.
