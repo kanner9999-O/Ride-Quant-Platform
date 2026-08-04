@@ -2,6 +2,94 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — approve ADR-016: Candidate B (split) under Mechanism A
+
+**ADR-016 v0.7 Approved by Product Owner — Candidate B (split) selected under Mechanism A.** Vai trò: `ADR Approval Recorder & Repository Transaction Executor`. Product Owner decision: **"I approve ADR-016 v0.7 with Candidate B — Split under Mechanism A."** (2026-08-04). ADR-016 moves `version: 0.7 → 0.8`, `status: Draft → Approved`, `disposition: RESUMED → APPROVED`, `supersedes: [] → [ADR-015]` (SCOPED — see below).
+
+### Approved taxonomy decision
+
+```text
+Decision Evaluation Engine (compute_engine):
+  non-authoritative deterministic evaluation only;
+  no Decision identity authority; no Decision append authority; no Trade Intent identity
+  authority.
+
+Decision Authority Service (runtime_service):
+  sole invariant-validation authority;
+  sole authoritative Decision append authority;
+  sole Trade Intent identity authority.
+
+Strategy Plugin Host / Context Aggregator / Event Bus / Projection and read models:
+  no Decision authority (unchanged from prior architecture — confirmed, not newly imposed).
+```
+
+### Approved governance mechanism — Mechanism A exercised
+
+ADR-016 v0.8 (chính tài liệu này) tường minh amend hiệu lực kiểm soát của [ADR-015](../adr/ADR-015.md) — **SCOPED, KHÔNG toàn bộ**: chỉ decision-engine module taxonomy classification (module-registry.yaml v0.2 entry) + dependency edge liên quan (risk-gateway → decision-authority-service, decision-authority-service → decision-evaluation-engine). ADR-015 vẫn LÀ controlling authority KHÔNG đổi cho 21/22 module còn lại + toàn bộ dependency graph ngoài phạm vi hẹp này. `docs/adr/ADR-015.md` **KHÔNG bị sửa** — byte-identical, blob `37f2712aa0b204dcc6c58687226a4adcbeaa2f4f`, vẫn `Approved`/immutable (Chapter 11 §11.3) — supersession là quan hệ governance (frontmatter `supersedes: [ADR-015]`, cùng pattern ADR-014/ADR-003), KHÔNG PHẢI edit vào chính văn bản ADR-015.
+
+### Trigger effects — all five SATISFIED
+
+```text
+Trigger 1 (authoritative responsibility definition): SATISFIED — established by this Approved
+  ADR-016 taxonomy decision.
+Trigger 2 (Package 1.3-C architecture candidate):    SATISFIED — reviewed Package 1.3-C
+  exploratory evidence v0.2.
+Trigger 3 (Chapter 7 §7.1 validation):                SATISFIED — evidence §7/§8, reviewed.
+Trigger 4 (Review A + Independent Review B):          SATISFIED — CLEAN both, on Package 1.3-C
+  evidence v0.2.
+Trigger 5 (Product Owner decision in Approved ADR):   SATISFIED — this approval.
+```
+
+### Required post-approval sequence — steps 1-2 done, 3-5 pending
+
+```text
+1. [DONE, 2026-08-04] Taxonomy decision + Product Owner decision — ADR-016 v0.8 Approved.
+2. [DONE, 2026-08-04] ADR-015 amendment/supersession (scoped) — Mechanism A, this same ADR.
+3. [PENDING] Separate bounded Package 1.1 correction transaction (module-registry.yaml/
+   system-decomposition.md).
+4. [PENDING] Review A + Independent Review B on the corrected Package 1.1 artifacts.
+5. [PENDING] Product Owner decides Package 1.1 consolidation.
+```
+
+### Accepted residual risks (Product Owner, 2026-08-04)
+
+Bốn residual risk CHẤP NHẬN, có điều kiện, không risk/mitigation nào đổi: (1) redundancy/boundary risk với `strategy-plugin-host` (ranh giới chính xác chưa resolve, cần author Decision algorithm ngoài phạm vi ADR); (2) evaluation-proposal artifact governance/Domain gap (loại artifact mới chưa có Domain Contract); (3) authority-level proposal rejection thiếu `attempt_outcome` mapping trong `decision.md`; (4) operational/dependency/replay complexity cao hơn Candidate A (trade-off có chủ đích cho least-privilege/testability/security-isolation).
+
+### Independent reviews table populated
+
+Populated với năm finding lịch sử đã RESOLVED xuyên suốt correction chain (`ADR016-A-MAJ-01`/`ADR016-A-MAJ-02`/`ADR016-B-MAJ-01` v0.4 closure/`ADR016-B-MAJ-01` v0.6 closure/`ADR016-A-MAJ-03`). **Ghi nhận minh bạch:** không có một vòng Review A CLEAN + Independent Review B CLEAN riêng biệt, mới, xác nhận lại toàn văn v0.7 trước khi approval này tới — Product Owner đã trực tiếp exercise thẩm quyền Decision Workflow (Chapter 0 §3) dựa trên correction-chain evidence tích lũy, khác với ADR-015's approval (vốn có một vòng review cuối tường minh trên v0.2).
+
+### Exact changed-file scope
+
+```text
+docs/adr/ADR-016.md   MODIFIED version 0.7 -> 0.8
+                       blob 622a31ec1e694187eb97622e17b3399db998fd35
+                         -> 2a57d428935bd1956379dde79af92c92c83c397b
+                       status Draft -> Approved, disposition RESUMED -> APPROVED,
+                       approved_by null -> Product Owner, approved_at null -> "2026-08-04",
+                       reviewers [] -> [ChatGPT, Claude], supersedes [] -> [ADR-015]
+docs/MANIFEST.md      MODIFIED (manifest_version 10.24 -> 10.25, compatible_adr_range
+                       ADR-001~ADR-015 -> ADR-001~ADR-016, ADR-015 row scoped-amendment note,
+                       ADR-016 index row updated, new "## Decision Log" row)
+docs/CHANGELOG.md     MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/architecture/phase-1-plan.md                                  unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/adr/ADR-015.md                                                 unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/architecture/package-1.3-c-decision-taxonomy-exploration.md   unchanged, v0.2, Draft, blob 6f0f65e91187184778f8984a814b5f3f1a47be2a
+docs/architecture/module-registry.yaml                              unchanged, v0.2, blob 2dd1e1fae8f886b605896864b432f3f79a3726d1
+docs/architecture/system-decomposition.md                           unchanged, v0.2, blob 45d745315ba36ea4ca53b5bb4bcd2aa6ca076293
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                                         unchanged
+```
+
+### Non-effects verification
+
+KHÔNG `module-registry.yaml` sửa. KHÔNG `system-decomposition.md` sửa. KHÔNG field-level evaluation-proposal schema authored. KHÔNG `attempt_outcome` value mới thêm/đổi. KHÔNG implementation authorized. KHÔNG Package 1.1 mark Consolidated Stable. KHÔNG Package 1.1 approved. KHÔNG Gate 2 passed. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized.
+
 ## [Unreleased] — 2026-08-04 — correct Path B2 trigger accounting (NOT yet verified)
 
 **Bounded wording correction to ADR-016 — addresses `ADR016-A-MAJ-03`.** Vai trò: `ADR-016 Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. Candidate A/B architecture analysis KHÔNG reopen, Candidate B recommendation KHÔNG đổi, ADR-016 KHÔNG approve.
