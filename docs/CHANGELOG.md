@@ -2,6 +2,221 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — bounded correction: ADR-017 v0.2 (distinct PAPER/LIVE contract boundaries; narrowed Exchange Adapter authority; balanced Option C risk evaluation)
+
+**Bounded correction transaction — đóng `ADR017-A-MAJ-01`/`ADR017-IRB-MAJ-01`/`ADR017-A-MAJ-02`/`ADR017-IRB-MAJ-02`/`ADR017-IRB-MIN-01`.** Vai trò: `ADR-017 Bounded Correction Executor`. All three findings correct self-contradictions/omissions in v0.1's own text against controlling authority already cited inside it (Package 1.3-D's own OrderSubmissionRequested eligibility invariant; Execution Result Processor's existing execution-observation authority). Option C (split Custody/Signing Service + Exchange Adapter) remains selected — none of the findings produced an actual contradiction with that choice, per the task's explicit instruction. No ADR is approved by this transaction; no module registration is executed.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                       2409abfe22ec88712c7c71ba8b5516053011b5f5
+docs/adr/ADR-017.md v0.1 blob:                                        bc60c53e362ca43982fefd7f9df165f0a5d07342
+docs/architecture/security-custody-baseline.md v0.2 blob (unchanged): 7f2cfebbbbbe80348e16013814db573e4c6497dc
+docs/architecture/module-registry.yaml v0.4 blob (unchanged):        6c4daa3eda3ef560b201de516dd019564d264c08
+docs/architecture/system-decomposition.md v0.4 blob (unchanged):     8e60b9e6051956cfbe83f33e1c82f404bc082e37
+docs/architecture/engine/risk-execution-architecture.md v0.2 blob    95c5403060f09163f14fb80ceaaefd7dd0c555bb
+  (unchanged):
+```
+
+### Findings closed
+
+```text
+ADR017-A-MAJ-01 /  v0.1's §7/§8 claimed the Execution Engine -> Exchange Adapter
+ADR017-IRB-MAJ-01  interaction has "the same shape" as Execution Engine -> Paper
+                   Execution Boundary and requires "no new LIVE contract" -- conflating
+                   the established PAPER simulation-command boundary with an
+                   unauthored future LIVE venue-submission contract boundary. RESOLVED
+                   -- §8 rewritten into five subsections: §8.1 states the two boundaries
+                   explicitly as distinct; §8.2 states the shared mandatory causal
+                   ancestry (eligible OrderSubmissionRequested <- Order <- Execution
+                   Intent <- RiskEvaluation APPROVED <- Decision/Trade Intent) does not
+                   imply shared contract identity, schema, lifecycle, retry, or result
+                   semantics; §8.3 lists ten minimum prerequisites the future LIVE
+                   contract must eventually establish (no field-level schema authored);
+                   §8.4 clarifies authorization-evidence binding without adding any new
+                   Decision Authority Service/Risk Gateway dependency; §8.5 preserves the
+                   internal Adapter -> Custody Service interaction unchanged. §9 gains a
+                   new §9a two-stage distinction (module registration vs. future LIVE
+                   path activation) so registration alone never activates a live
+                   execution path.
+
+ADR017-A-MAJ-02 /  v0.1's §3.2 granted Exchange Adapter authority over ambiguous "venue
+ADR017-IRB-MAJ-02  acknowledgment/observation facts" that overlapped Execution Result
+                   Processor's existing execution-observation authority (Package
+                   1.3-D). RESOLVED -- new §3.2a defines Exchange Adapter as "the sole
+                   authoritative recorder of raw venue-interaction evidence that it
+                   directly witnesses," lists seven architecture-level categories it may
+                   record (venue interaction attempt, transport transmission outcome,
+                   transport failure/timeout evidence, venue acceptance/rejection
+                   acknowledgment, venue-side external-reference evidence,
+                   venue-originating order/execution evidence, protocol response
+                   evidence) and seven it must not authoritatively establish (platform
+                   ExecutionObservation, ExecutionResult, executed/not-executed business
+                   interpretation, Fill, execution economics, Position, final platform
+                   order-state interpretation); restates Execution Result Processor as
+                   the platform authority that interprets that evidence. §11/§12
+                   terminology updated to match ("raw venue-interaction evidence"
+                   replacing "venue acknowledgment/observation").
+
+ADR017-IRB-MIN-01  v0.1's §5 Option C evaluation was not fully balanced on
+                   operational/failure-mode risk, and one sentence implied
+                   caching/queueing signing requests was a safe mitigation for Custody
+                   Service outage -- an undesigned mechanic. RESOLVED -- that sentence
+                   removed; §5's Failure isolation row now distinguishes secret-exposure
+                   isolation (good) from availability failure domain (shared, not
+                   isolated); new §5.1 lists nine specific risks (shared availability
+                   dependency; outage blast radius; centralized signing-policy blast
+                   radius; unauthorized-payload signing as a mandatory invariant, not an
+                   accepted risk; signed-material staleness/replay/revocation window;
+                   signing-correlation-mechanism gap; timeout/cancellation-mechanism gap;
+                   kill-switch/revocation in-flight race; latency/coordination
+                   complexity) and states they are accepted at architecture-decision
+                   level without designing any concrete mechanism. §14 gains gap #11
+                   (raw venue-interaction evidence identity/lifecycle/correction/
+                   idempotency/schema) and gap #12 (signing-correlation/timeout
+                   mechanism). §18/§19 updated to match.
+```
+
+### Correction 1 — distinct PAPER/LIVE execution contract boundaries (§8, §9a)
+
+```text
+Removed claim:      Execution Engine -> Exchange Adapter has "the same shape" as
+                    Execution Engine -> Paper Execution Boundary; no new LIVE contract
+                    is required.
+
+Added statement:    the two are distinct contract boundaries sharing only the mandatory
+                    causal-authorization ancestry already pinned at Package 1.3-D
+                    §8.1 -- shared ancestry does not imply shared contract identity,
+                    schema compatibility, identical lifecycle, retry semantics, or
+                    result semantics.
+
+Added future LIVE   contract identity; submission identity; environment and venue
+contract            eligibility; Account Boundary and credential-reference
+prerequisites       relationship; causal authorization reference; idempotency and
+(10 items):          retry scope; signing correlation; protocol-version binding;
+                    timeout and uncertain-outcome semantics; cancellation and
+                    correction behavior -- none authored as field-level schema.
+
+Added §9a           registration of the two new modules (Stage 1, a future Package 1.1
+two-stage           correction) never itself activates the LIVE execution path; only a
+distinction:        separate future LIVE architecture and governance authorization
+                    (Stage 2) permits completing and using the Execution Engine ->
+                    Exchange Adapter contract.
+```
+
+### Correction 2 — Exchange Adapter authority narrowed to raw venue-interaction evidence (§3.2, §3.2a, §11, §12)
+
+```text
+Removed claim:      "sole authoritative source ... venue acknowledgment/observation
+                    facts" (overlapped Execution Result Processor's execution-observation
+                    authority).
+
+Added category      Exchange Adapter is the sole authoritative recorder of raw
+(§3.2a):            venue-interaction evidence that it directly witnesses at the
+                    external venue boundary -- bounded to seven listed categories,
+                    explicitly excluding platform ExecutionObservation, ExecutionResult,
+                    Fill, Position, and any executed/not-executed business
+                    interpretation.
+
+Preserved           Execution Result Processor remains the platform authority that
+authority:          validates, correlates, deduplicates, orders and interprets eligible
+                    venue evidence into execution-observation/ExecutionResult under a
+                    future LIVE Domain Contract (not yet authored).
+```
+
+`owns_authoritative_state: true` for exchange-adapter is now justified only by this narrow raw-evidence category, not by a general "execution observation" claim.
+
+### Correction 3 — balanced Option C risk evaluation (§5, §5.1, §18, §19)
+
+```text
+Removed claim:      "mỗi Adapter có thể cache/queue bounded signing request theo policy
+                    riêng" presented within the Failure isolation row as an implicit safe
+                    mitigation.
+
+Added §5.1 (9       shared availability dependency; outage blast radius; centralized
+risks):             signing-policy blast radius; unauthorized-payload signing (stated as
+                    a mandatory invariant, not an accepted risk); signed-material
+                    staleness/replay/revocation window; signing-correlation-mechanism
+                    gap; timeout/cancellation-mechanism gap; kill-switch/revocation
+                    in-flight race; latency/operational-coordination complexity.
+
+Explicit statement: these risks are accepted at architecture-decision level because
+                    Option C still provides materially stronger least privilege, secret
+                    isolation, portability, and audit separation than Option A/B; no
+                    concrete queueing, caching, retry, or timeout algorithm is designed
+                    for any of them.
+```
+
+### Preserved unchanged (confirmed)
+
+```text
+Option C selection; custody-signing-service as sole direct credential user;
+exchange-adapter as venue-facing transport boundary with no raw-secret access; Account
+Service opaque credential_reference-only boundary; Decision Authority Service authority;
+Risk Gateway authority; Execution Engine Order/submission-orchestration authority;
+Execution Result Processor authority; Fill Processor authority; Position Projection
+non-authority; PAPER pipeline; DD-003; kill-switch-state ownership gap; LIVE not
+authorized; Package 1.1 registry correction deferred; Exchange Adapter's elaborating
+package unresolved; implementation and field-level schema forbidden scope;
+depends_on/forbidden_dependencies unchanged for both new modules.
+```
+
+### Kill-switch wording clarification (§10)
+
+```text
+Exchange Adapter participation is expressly anticipated by I-8's own Scope text ("Risk
+Gateway, Execution Engine, mọi Exchange Adapter") -- this ADR only realizes it for the
+first time by registering the module. Custody/Signing Service participation, in
+contrast, is selected by ADR-017 itself as a fail-safe consequence of I-6, I-8, and
+I-11 combined, even though I-8 does not literally name that module -- this distinction
+was not made in v0.1 and is now explicit. Kill-switch-state source-of-truth ownership
+remains unresolved in both cases.
+```
+
+### Changed-file scope
+
+```text
+docs/adr/ADR-017.md   0.1 -> 0.2
+                      bc60c53e362ca43982fefd7f9df165f0a5d07342
+                      -> 4a24eb5787a77c4a2c1774ea73c1f604559c096c
+docs/MANIFEST.md      manifest_version 10.41 -> 10.42
+docs/CHANGELOG.md     this entry prepended
+```
+
+### Automated validation results
+
+```text
+Frontmatter/YAML:  ADR-017.md parses cleanly -- version "0.2", status Draft,
+                   approved_by/approved_at null, depends_on [ADR-007, ADR-012]
+                   unchanged; fence balance even (50).
+Diff scope:        git status --short confirms exactly the 3 expected files changed;
+                   forbidden-scope diff (security-custody-baseline.md, module-
+                   registry.yaml, system-decomposition.md, phase-1-plan.md,
+                   docs/architecture/engine/, docs/domain/, docs/product/,
+                   docs/constitution/, docs/team/, docs/phase-dod/, ADR-001.md through
+                   ADR-016.md) empty.
+Text grep check:   remaining occurrences of "venue acknowledgment" and "CÙNG shape /
+                   KHÔNG contract mới" confirmed limited to this entry's and the ADR's
+                   own "Finding đóng" historical descriptions of what was wrong in
+                   v0.1 -- not present as live claims elsewhere in the document.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/security-custody-baseline.md
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/architecture/phase-1-plan.md
+docs/architecture/engine/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+docs/adr/ADR-001.md through docs/adr/ADR-016.md
+```
+
 ## [Unreleased] — 2026-08-04 — new Draft ADR: ADR-017 (Custody & Signing Trust Boundary — split Custody/Signing Service + Exchange Adapter)
 
 **ADR authoring transaction — vai trò: `Package 1.2 Custody & Security Trust-Boundary ADR Author`.** Resolves the eight-item ADR decision scope that [`security-custody-baseline.md`](../architecture/security-custody-baseline.md) v0.2 §15.2 recorded as an active pre-consolidation gate. This transaction authors a Draft ADR candidate only — it does not approve the ADR, does not consolidate Package 1.2 or Package 1.3-D, and does not touch `module-registry.yaml`/`system-decomposition.md`.
