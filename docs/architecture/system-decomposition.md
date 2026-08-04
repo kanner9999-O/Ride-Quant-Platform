@@ -15,11 +15,13 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 
 # Package 1.1 — System Decomposition & Module Registry
 
-**CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Đây là first authored candidate cho Package 1.1, theo `docs/architecture/phase-1-plan.md` v0.2 (`Consolidated Stable`) §5.3/§7/§8. Tài liệu này KHÔNG tự approve/consolidate chính nó — Product Owner decision riêng, sau Review A + Independent Review B, mới có thẩm quyền đó (§15).
+**CONSOLIDATED STABLE (package lifecycle, 2026-08-04, Product Owner decision) — artifact status: Draft, KHÔNG Approved/Locked.** Package 1.1 v0.3 đạt `Consolidated Stable` SAU Review A CLEAN + Independent Review B CLEAN (Blocker 0/Major 0/Minor 0) và Product Owner consolidation decision (2026-08-04, §15), theo `docs/architecture/phase-1-plan.md` v0.4 (`Approved`) §5.3/§7/§8. `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi, đúng package-lifecycle/artifact-lifecycle separation đã dùng nhất quán trong toàn bộ session này (cùng pattern Package 0.2-B4).
 
-**Ghi chú tường minh bắt buộc (§12):** Package này phát hiện HAI quyết định thuộc diện **ADR REQUIRED** — Decision 1 (module dependency graph chính thức, §5/`module-registry.yaml`) và Decision 2 (`decision-engine` hybrid taxonomy). **Cập nhật (v0.3, 2026-08-04):** cả hai nay `Approved` — Decision 1 qua [ADR-015](../adr/ADR-015.md) v0.3 (Approved, 2026-08-03), Decision 2 qua [ADR-016](../adr/ADR-016.md) v0.8 (Approved, 2026-08-04, Candidate B/split, Mechanism A) — xem §12. ADR gate condition (Decision 1 + Decision 2 Approved) nay THỎA, NHƯNG Package 1.1 **VẪN KHÔNG được đánh dấu `Consolidated Stable`** — Review A + Independent Review B trên chính candidate v0.3 này (post-correction) + Product Owner consolidation decision CHƯA thực hiện (§15). KHÔNG ADR nào được tạo/approve/sửa tại transaction này — cả hai ADR immutable, chỉ Package 1.1 candidate được align.
+**Ghi chú tường minh bắt buộc (§12):** Package này phát hiện HAI quyết định thuộc diện **ADR REQUIRED** — Decision 1 (module dependency graph chính thức, §5/`module-registry.yaml`) và Decision 2 (`decision-engine` hybrid taxonomy). Cả hai `Approved` — Decision 1 qua [ADR-015](../adr/ADR-015.md) v0.3 (Approved, 2026-08-03), Decision 2 qua [ADR-016](../adr/ADR-016.md) v0.8 (Approved, 2026-08-04, Candidate B/split, Mechanism A) — xem §12. **Cập nhật (2026-08-04, Product Owner consolidation decision):** ADR gate condition (Decision 1 + Decision 2 Approved) THỎA, VÀ Review A CLEAN + Independent Review B CLEAN (Blocker 0/Major 0/Minor 0) trên chính candidate v0.3 này đã hoàn tất — Package 1.1 nay **`Consolidated Stable`** (package lifecycle, §15). KHÔNG ADR nào được tạo/approve/sửa tại transaction này — cả hai ADR immutable, KHÔNG đổi. Consolidation KHÔNG tự động resolve Domain gap, KHÔNG authorize implementation, KHÔNG tuyên bố Phase 1 hoàn thành, KHÔNG mở Phase 2, KHÔNG authorize Live.
 
 **v0.3 — bounded ADR-016 alignment correction (2026-08-04)** (Product Owner-authorized correction, aligning candidate với Approved ADR-016 v0.8 — KHÔNG một finding ID review-round, một mechanical Package 1.1 correction transaction sau Decision 2 §12 resolve): Decision 2 (§12) — `decision-engine` hybrid taxonomy — nay **RESOLVED**: ADR-016 v0.8 (Approved, 2026-08-04, Product Owner) chọn **Candidate B (split)** dưới **Mechanism A** — hybrid REJECTED, KHÔNG còn module nào classified Chapter 7 hybrid trong candidate này. `decision-engine` tách thành hai module: `decision-evaluation-engine` (compute_engine, non-authoritative deterministic evaluation) + `decision-authority-service` (runtime_service, sole Decision/Trade Intent authority). Mechanism A: ADR-016 v0.8 tự nó amend hiệu lực kiểm soát của ADR-015 SCOPED cho module identity/dependency edge liên quan — ADR-015 vẫn controlling/immutable cho 21/22 module còn lại (không đổi). Đã cập nhật: module inventory (§4, 22→23 module), taxonomy tally (compute_engine 4→5), state-authority tally (true 13→13, false 8→9, tổng 22→23), dependency graph (§5, risk-gateway/replay-integration-service/review-evidence-service/command-query-api-surface nay depends_on `decision-authority-service` — KHÔNG `decision-evaluation-engine`; backtest-orchestrator depends_on CẢ HAI), §10 coverage table (mọi `decision-engine` reference thay bằng `decision-authority-service` hoặc CẢ HAI tùy dependency-edge tương ứng đã pin tại `module-registry.yaml`), §12 Decision 1 (ADR-015 Approved, RESOLVED) + Decision 2 (ADR-016 Approved, RESOLVED). Bốn residual risk từ ADR-016 v0.8 Accepted risks GIỮ NGUYÊN, KHÔNG resolve tại đây (Strategy Plugin/Evaluation boundary; evaluation-proposal Domain Contract gap; `attempt_outcome` mapping gap; operational/dependency/replay complexity). Bounded — KHÔNG reopen module boundary khác (Market/Data, Structure/Regime/Feature/Context, Strategy Engine, ExecutionResult/Fill/Position, Replay, Backtest, Paper boundary, API Surface, Review Evidence, UX Shell responsibility content ngoài dependency-edge fix), KHÔNG đổi PR/UC/UX/Domain coverage totals (34/21/17/11/15 không đổi), KHÔNG đổi DD-001/DD-003/Structure-aware-Regime deferral/OQ-001/OQ-002/OQ-003. `status: Draft`, `approved_by: null`, `approved_at: null`, `package lifecycle: candidate` không đổi — **KHÔNG tự động Consolidated Stable/Approved** dù cả Decision 1 VÀ Decision 2 nay Approved — Review A + Independent Review B trên chính candidate v0.3 này + Product Owner consolidation decision vẫn CHƯA thực hiện (§15).
+
+**Cập nhật (2026-08-04, Product Owner consolidation decision) — Package 1.1 v0.3 nay `Consolidated Stable`:** Review A CLEAN + Independent Review B CLEAN trên candidate v0.3 (post-ADR-016-alignment correction) hoàn tất — Blocker 0/Major 0/Minor 0. Product Owner đã quyết định: "I approve consolidation of Package 1.1 v0.3 as the current stable Phase 1 System Decomposition and Module Registry baseline." — `package lifecycle: candidate → Consolidated Stable` (xem `module-registry.yaml` `package_lifecycle` field). **KHÔNG đổi:** module inventory, module identity, taxonomy classification, responsibilities, authority ownership, dependencies, forbidden dependencies, module counts, residual gap, ADR reference nào — architecture semantics của candidate v0.3 giữ nguyên byte-for-byte về nội dung kiến trúc, CHỈ lifecycle-state field/prose thay đổi. `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi — Consolidated Stable là package lifecycle/readiness state, KHÔNG có nghĩa artifact `Approved`/`Locked` (Chapter 0 §7.1). Consolidation này KHÔNG tự động: resolve bốn residual risk (Strategy Plugin/Evaluation boundary; evaluation-proposal Domain Contract gap; `attempt_outcome` mapping gap; operational/dependency/replay complexity); authorize implementation; pass Gate 2 (Gate 2 governance riêng theo `phase-1-plan.md` §6.1, không tự động pass qua Package 1.1 consolidation); tuyên bố Phase 1 hoàn thành; mở Phase 2; authorize Live.
 
 ## 1. Purpose and scope
 
@@ -581,22 +583,23 @@ Product Owner decision
   point:                   SAU khi Review A + Review B hoàn tất VÀ Decision 1 (module
                             dependency graph ADR) + Decision 2 (decision-engine hybrid ADR)
                             đã `Approved` — Product Owner mới có đủ điều kiện quyết
-                            Consolidated Stable cho Package 1.1. **Cập nhật (v0.3,
-                            2026-08-04):** Decision 1 (ADR-015 v0.3) VÀ Decision 2 (ADR-016
-                            v0.8) nay ĐỀU `Approved` — ADR gate condition THỎA. NHƯNG Review
-                            A + Independent Review B trên CHÍNH candidate v0.3 này
-                            (post-ADR-016-alignment correction) CHƯA thực hiện — package
-                            VẪN ở trạng thái candidate/not-reviewed-since-correction, KHÔNG
-                            thể Consolidated Stable cho tới khi review đó hoàn tất VÀ Product
-                            Owner ra quyết định consolidation riêng, đúng "Important
-                            boundary" của task gốc (ADR Approved ≠ artifact tự động
-                            Consolidated Stable).
-Consolidation condition:  Zero unresolved Blocker/Major; Decision 1 + Decision 2 ADR (§12)
-                            Approved (**THỎA, v0.3**); §13 script-check tái tạo PASS; §10
-                            coverage totals (34/21/17/11/15, zero orphan) không đổi kể từ
-                            Review A/B baseline; forbidden-scope verification (không Package
-                            1.2–1.6 content, không Product/Domain semantic thay đổi,
-                            KHÔNG expand ADR-016 scope, KHÔNG resolve residual risk gaps)
-                            PASS; **Review A + Independent Review B trên candidate v0.3
-                            (post-correction) PASS — CHƯA thực hiện tại transaction này.**
+                            Consolidated Stable cho Package 1.1. **Cập nhật (2026-08-04,
+                            Product Owner consolidation decision):** điều kiện trên nay ĐẦY
+                            ĐỦ — Decision 1 (ADR-015 v0.3) + Decision 2 (ADR-016 v0.8) đều
+                            `Approved`, Review A CLEAN + Independent Review B CLEAN trên
+                            candidate v0.3 (post-ADR-016-alignment correction, Blocker
+                            0/Major 0/Minor 0) hoàn tất. Product Owner đã quyết định:
+                            "I approve consolidation of Package 1.1 v0.3 as the current
+                            stable Phase 1 System Decomposition and Module Registry
+                            baseline." — Package 1.1 nay **`Consolidated Stable`**.
+Consolidation condition:  Zero unresolved Blocker/Major (**THỎA**); Decision 1 + Decision 2
+                            ADR (§12) Approved (**THỎA**); §13 script-check tái tạo PASS
+                            (**THỎA**); §10 coverage totals (34/21/17/11/15, zero orphan)
+                            không đổi kể từ Review A/B baseline (**THỎA**); forbidden-scope
+                            verification (không Package 1.2–1.6 content, không Product/Domain
+                            semantic thay đổi, KHÔNG expand ADR-016 scope, KHÔNG resolve
+                            residual risk gaps) PASS (**THỎA**); Review A + Independent
+                            Review B trên candidate v0.3 (post-correction) PASS (**THỎA,
+                            2026-08-04**). **Mọi điều kiện consolidation ĐÃ thỏa — Package
+                            1.1 v0.3 nay `Consolidated Stable`.**
 ```

@@ -2,6 +2,79 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-04 — consolidate Package 1.1 v0.3
+
+**Package 1.1 v0.3 consolidated as `Consolidated Stable`.** Vai trò: `Package 1.1 Consolidation Transaction Executor`. Product Owner decision: **"I approve consolidation of Package 1.1 v0.3 as the current stable Phase 1 System Decomposition and Module Registry baseline."** (2026-08-04). Đây là mechanical lifecycle transaction — architecture semantics KHÔNG đổi.
+
+### Review evidence
+
+```text
+Review A:              CLEAN
+Independent Review B:  CLEAN
+Blocker 0, Major 0, Minor 0
+```
+
+### Package lifecycle transition
+
+```text
+module-registry.yaml     package_lifecycle: candidate -> Consolidated Stable
+                          version: "0.3" (unchanged), status: Draft (unchanged),
+                          approved_by: null (unchanged), approved_at: null (unchanged)
+system-decomposition.md  package lifecycle banner/§12/§15: candidate -> Consolidated
+                          Stable (prose, no dedicated YAML field in this document)
+                          version: "0.3" (unchanged), status: Draft (unchanged),
+                          approved_by: null (unchanged), approved_at: null (unchanged)
+```
+
+`Consolidated Stable` là package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`/`Locked`. Cùng pattern đã dùng cho Package 0.2-B4: reviewed package baseline nội bộ coherent, mọi qualifying finding resolved, đủ ổn định để làm dependency baseline cho package kế tiếp — KHÔNG có nghĩa: artifact Approved; artifact Locked; OQ closure; Phase completion; implementation authorization; Live authorization.
+
+### Architecture semantics — confirmed unchanged
+
+Module inventory (23 module), module identity, taxonomy classification, responsibilities, authority ownership, dependencies, forbidden dependencies, module counts, taxonomy tally (5/4/14), state-authority tally (13/9/1), residual gap (4 accepted risks từ ADR-016), ADR reference (ADR-015/ADR-016) — **KHÔNG module nào trong hai artifact bị sửa nội dung kiến trúc.** Chỉ `package_lifecycle` field (module-registry.yaml) và lifecycle banner/§12/§15 prose (system-decomposition.md) đổi.
+
+### Exact changed-file scope
+
+```text
+docs/architecture/module-registry.yaml      MODIFIED (version 0.3 unchanged)
+                                             blob d8d40852d38705db405ea365c01800dfd032a0b4
+                                               -> ab09d031183014c1af259895dadf86aaf644cc04
+docs/architecture/system-decomposition.md   MODIFIED (version 0.3 unchanged)
+                                             blob 30fb6336c3d0f53c9c2fa9276dbaa11166a0a347
+                                               -> c72dfdf54d2ac86bc7ad83de742dda485da11328
+docs/MANIFEST.md                            MODIFIED (manifest_version 10.27 -> 10.28,
+                                             both Package 1.1 artifact rows updated)
+docs/CHANGELOG.md                           MODIFIED (this entry, prepended)
+```
+
+### Frozen files — verified byte-identical
+
+```text
+docs/adr/ADR-015.md                                                 unchanged, v0.3, Approved, blob 37f2712aa0b204dcc6c58687226a4adcbeaa2f4f
+docs/adr/ADR-016.md                                                 unchanged, v0.8, Approved, blob 2a57d428935bd1956379dde79af92c92c83c397b
+docs/architecture/phase-1-plan.md                                  unchanged, v0.4, Approved, blob fe272215a28563cf68c4eb28feb525c547240c6d
+docs/architecture/package-1.3-c-decision-taxonomy-exploration.md   unchanged, v0.2, Draft, blob 6f0f65e91187184778f8984a814b5f3f1a47be2a
+docs/product/, docs/domain/, docs/constitution/,
+docs/team/, docs/phase-dod/                                         unchanged
+```
+
+### Resulting lifecycle state
+
+```text
+Package 1.1:  Consolidated Stable (package lifecycle); artifacts remain status: Draft,
+              not Approved, not Locked
+ADR-015:      Approved, immutable
+ADR-016:      Approved, immutable
+Gate 2:       blocked (unchanged — Package 1.1 consolidation does not itself pass Gate 2;
+              phase-1-plan.md §6.1 governs Gate 2 separately)
+Phase 1:      Active, not Complete
+Phase 2:      Not Opened
+Live:         Unauthorized
+```
+
+### Non-effects verification
+
+KHÔNG Domain gap resolved (4 residual risk từ ADR-016 GIỮ NGUYÊN). KHÔNG implementation authorized. KHÔNG Gate 2 passed. KHÔNG Phase 1 completed. KHÔNG Phase 2 opened. KHÔNG Live authorized. KHÔNG broader lifecycle transition inferred.
+
 ## [Unreleased] — 2026-08-04 — align Package 1.1 with ADR-016 (NOT yet verified)
 
 **Bounded Package 1.1 correction aligning the architecture candidate with Approved ADR-016 v0.8.** Vai trò: `Package 1.1 Architecture Correction Author & Repository Transaction Executor`. Product Owner authorized this bounded correction. Package 1.1 KHÔNG consolidate/approve, KHÔNG implementation/schema/API/Domain Contract content authored.

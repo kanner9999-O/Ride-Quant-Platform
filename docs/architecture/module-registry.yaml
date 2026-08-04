@@ -1,6 +1,10 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
-# CANDIDATE — status: Draft, NOT Consolidated Stable, NOT Approved.
+# CONSOLIDATED STABLE (package lifecycle, 2026-08-04, Product Owner decision) — status:
+# Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable) and artifact status
+# (Draft) are separate dimensions (Chapter 0 §7.1) — Consolidated Stable does NOT mean this
+# file is Approved/Locked; it means the reviewed package baseline is internally coherent
+# and stable enough to be a dependency baseline for the next package.
 # Authority: Chapter 7 §7.5 (Locked) — module identity/taxonomy/mapping ONLY.
 # This registry does NOT own: Business Capability/Domain Context identity (context-map.yaml,
 # Chapter 4), domain concept semantics (Domain Contract, /docs/domain/), Product/UC/UX
@@ -55,7 +59,7 @@ registry_id: phase-1-module-registry
 version: "0.3"
 status: Draft
 package: "1.1"
-package_lifecycle: candidate
+package_lifecycle: Consolidated Stable
 generated_at: "2026-08-04"
 
 modules:
