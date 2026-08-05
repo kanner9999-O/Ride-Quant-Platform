@@ -2,6 +2,97 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.4 v0.1: initial candidate — API Architecture
+
+**Authoring transaction — vai trò: `Package 1.4 API Architecture Initial Author`.** Authors the first Package 1.4 candidate, elaborating the architecture-level boundary of the registered `command-query-api-surface` module, based on Package 1.1 v0.7, Package 1.2 v0.4, and Package 1.3-A/B/C/D (all Consolidated Stable). This is an authoring transaction, not a review/consolidation transaction.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                 5fa876a81b6c822422a84fd3341b054f1b43aacb
+Controlling sources: phase-1-plan.md v0.4 (Approved); module-registry.yaml v0.7 /
+  system-decomposition.md v0.7 (Consolidated Stable); security-custody-baseline.md v0.4
+  (Consolidated Stable); risk-execution-architecture.md v0.2 (Consolidated Stable);
+  Package 1.3-A/1.3-B/1.3-C (Consolidated Stable).
+```
+
+### New artifact
+
+```text
+docs/architecture/api-architecture.md — NEW
+  version: 0.1, status: Draft, package lifecycle: candidate
+  Blob: be4a7b5dc63edaf0ed725aab3e9b106991c7b89f
+```
+
+### Scope covered
+
+```text
+§2  Module boundary — command-query-api-surface registry classification (owns_
+      authoritative_state: false, 16-module depends_on, security_classification:
+      trust_boundary_candidate, phase.elaborated_by: "1.4") preserved verbatim, no
+      dependency edge added or removed.
+§3  Command boundary — identity carried not invented, authorization evidence required,
+      routing to authoritative module, no Decision/Risk/execution/custody eligibility
+      evaluation inside API Surface, transport acceptance != business acceptance,
+      command rejection distinguishable from authoritative outcome.
+§4  Query boundary — routing to authoritative service/designated projection, no
+      recomputation, cursor/version/freshness preservation, non-authoritative
+      projection marker preserved, fail-closed on stale/missing/ambiguous source.
+§5  Event/streaming exposure — read-only (emits: [query, command], no event authoring),
+      identity/ordering/correction/provenance preserved, no event mutation, disconnect/
+      retry/resumption as transport-only concerns, replay/backtest/live separation.
+§6  Security and non-bypass — Decision/Risk/Execution/Custody non-bypass grounded in
+      structural absence of dependency edges to custody-signing-service, exchange-
+      adapter, strategy-plugin-host, decision-evaluation-engine; no raw-secret
+      exposure; API/UX cannot reach custody signing directly (ux-application-shell's
+      sole edge is to command-query-api-surface); PAPER/LIVE separation; LIVE
+      Unauthorized.
+§7  Error/failure semantics — six distinguished categories: transport failure,
+      validation failure, authorization rejection, domain rejection, authoritative
+      processing failure, unknown/unresolved outcome. No concrete codes.
+§8  API contract governance — versioned contracts per Chapter 10 §10.3 (three
+      independent axes), backward-compatibility policy, deterministic version
+      resolution (Compatibility Result immutability, §10.4), deprecation evidence,
+      idempotency/correlation preservation, no mutable-latest substitution, audit/
+      provenance requirement.
+§9  Interaction boundaries — Account Service, market/analytical read sources,
+      Strategy/Decision modules, Risk Gateway, Execution/result modules, Review
+      Evidence Service (Package 1.5 forward reference), UX Application Shell (Package
+      1.6 consumer) — all existing registry edges only; absent custody/exchange-
+      adapter exposure recorded as a gap, not invented.
+§10 Preserved gaps and non-goals — kill-switch state ownership, in-flight signing/
+      execution behavior, LIVE Domain Contract, DD-003, exchange-adapter package
+      assignment carried forward unresolved; concrete authentication/RBAC/rate-
+      limiting/API-technology/gateway/field-level-schema/deployment-topology/
+      observability implementation, Package 1.5/1.6 content, and LIVE activation
+      explicitly out of scope.
+§11 Review A / Independent Review B scope + Consolidation condition (per
+      phase-1-plan.md).
+§12 Lifecycle treatment.
+```
+
+### Validation
+
+```text
+Baseline HEAD matched before authoring.
+Exactly three files changed: api-architecture.md (new), MANIFEST.md, CHANGELOG.md.
+Target artifact exists at docs/architecture/api-architecture.md.
+version: 0.1, status: Draft, package lifecycle: candidate.
+command-query-api-surface classification (depends_on, forbidden_dependencies,
+  security_classification, phase) transcribed verbatim from module-registry.yaml v0.7
+  — no new module or dependency edge invented (diff-checked against registry).
+API Surface owns no authoritative business state (owns_authoritative_state: false
+  confirmed).
+No Decision/Risk/Execution/Custody bypass — grounded in absence of edges to
+  custody-signing-service, exchange-adapter, strategy-plugin-host, decision-
+  evaluation-engine in the registry's own depends_on list.
+No raw-secret exposure possible — no custody/signing dependency edge exists.
+PAPER-only execution and LIVE Unauthorized unchanged.
+module-registry.yaml, system-decomposition.md, security-custody-baseline.md,
+  risk-execution-architecture.md, ADR-017: not in the changed-file list, byte-identical.
+Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-05T14:09:00+07:00 — Package 1.3-D v0.2: Consolidated Stable (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.3-D v0.2 Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for Package 1.3-D v0.2. No semantic architecture change.
