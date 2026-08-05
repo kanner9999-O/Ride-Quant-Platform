@@ -2,6 +2,136 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05T08:40:00+07:00 — Package 1.1 v0.6: Consolidated Stable (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.1 v0.6 Consolidation Lifecycle Transaction Executor`.** Records the Product Owner's consolidation approval for Package 1.1 v0.6. No semantic architecture change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                e650071b0675eaa015419a84cf523555d200ba00
+docs/architecture/module-registry.yaml v0.6 blob (candidate):  d5b84c6b0fd378592b19ccf056ddb597f496064c
+docs/architecture/system-decomposition.md v0.6 blob (candidate): 63f0aed07ce072d5d4d327c20efb2bfa1ca34103
+docs/adr/ADR-017.md v0.2 blob (unchanged, Approved):           b08af6a04a5df8e7642b7a62b3fbeb63a9c9f184
+```
+
+### Product Owner decision (recorded verbatim)
+
+```text
+"I approve consolidation of Package 1.1 v0.6 as the current Consolidated Stable
+module-registry and system-decomposition baseline."
+
+Decision timestamp: 2026-08-05T08:40:00+07:00
+```
+
+### Lifecycle change
+
+```text
+version:            "0.6" (unchanged — pure lifecycle transaction, no version bump)
+status:              Draft (unchanged, existing repository convention — Consolidated
+                     Stable does not mean Approved/Locked, Chapter 0 §7.1)
+package_lifecycle:   candidate -> Consolidated Stable (both artifacts)
+```
+
+Banners rewritten on both files; system-decomposition.md §15 (Product Owner decision point + Consolidation condition) updated to state every sub-condition is satisfied; a closing historical note documents the transaction, matching the exact pattern used for Package 1.1 v0.3's consolidation.
+
+### Consolidated baseline semantics preserved
+
+```text
+25 modules total, including:
+
+custody-signing-service:  sole direct exchange-credential-use authority; authority
+                          restricted to credential binding, eligibility, revocation, and
+                          signing-operational facts; phase.elaborated_by: null
+                          (unchanged).
+exchange-adapter:         venue-facing protocol/transport boundary; no raw-secret
+                          access; authority restricted to raw venue-interaction evidence
+                          directly witnessed; phase.elaborated_by: null (unchanged).
+```
+
+All other module identities, taxonomy, authority classifications, dependencies, forbidden dependencies, capability/context mappings, and notes preserved exactly.
+
+### Dependency and execution preservation
+
+```text
+custody-signing-service depends_on account-service          (unchanged)
+exchange-adapter depends_on custody-signing-service          (unchanged)
+execution-engine depends_on risk-gateway, paper-execution-boundary  (unchanged)
+```
+
+No `execution-engine -> exchange-adapter` edge added. Current execution architecture remains PAPER-only.
+
+### Consolidation effect — what this transaction does NOT do
+
+```text
+Does not assign an elaborating package to custody-signing-service or exchange-adapter.
+Does not extend Package 1.2 review coverage. Does not modify Package 1.2 or
+Package 1.3-D. Does not activate Execution Engine -> Exchange Adapter. Does not
+authorize LIVE execution or implementation. Does not resolve kill-switch-state
+ownership or DD-003. Does not pass Gate 2, complete Phase 1, or open Phase 2.
+```
+
+### Package 1.2 treatment preserved
+
+```text
+Package 1.2 v0.2 remains review-clean only for its existing reviewed scope
+(account-service was its sole assigned module) — does not yet elaborate
+custody-signing-service. Package 1.1 consolidation does not retrospectively extend
+Package 1.2 coverage.
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/module-registry.yaml       package_lifecycle: candidate ->
+                                              Consolidated Stable (version unchanged
+                                              at 0.6)
+                                              d5b84c6b0fd378592b19ccf056ddb597f496064c
+                                              -> d98f707e0a21676ac84de6cbfda904bc79dbfb09
+docs/architecture/system-decomposition.md    package_lifecycle: candidate ->
+                                              Consolidated Stable (version unchanged
+                                              at 0.6)
+                                              63f0aed07ce072d5d4d327c20efb2bfa1ca34103
+                                              -> 8a19b41300abefaab2fa5936e5948101d9d254fb
+docs/MANIFEST.md                             manifest_version 10.45 -> 10.46, both
+                                              Architecture table rows updated
+docs/CHANGELOG.md                            this entry prepended
+```
+
+### Automated validation results
+
+```text
+Script-verified (module-registry.yaml): 25 modules (unchanged), 25 unique module_id,
+                   zero unresolved depends_on/forbidden_dependencies references, zero
+                   overlap, zero cycle. custody-signing-service.phase and
+                   exchange-adapter.phase both confirmed unchanged
+                   ({identified_in: "1.1", elaborated_by: None}). No other module
+                   definition or phase assignment changed. execution-engine.depends_on
+                   confirmed unchanged ([risk-gateway, paper-execution-boundary]).
+Frontmatter/YAML:  both files parse cleanly — version "0.6" unchanged, status Draft
+                   unchanged; module-registry.yaml package_lifecycle: Consolidated
+                   Stable; fence balance even (system-decomposition.md: 26).
+Diff scope:        git status --short confirmed exactly the 4 expected files changed;
+                   forbidden-scope diff (docs/adr/, security-custody-baseline.md,
+                   phase-1-plan.md, docs/architecture/engine/, docs/domain/,
+                   docs/product/, docs/constitution/, docs/team/, docs/phase-dod/)
+                   empty.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/adr/
+docs/architecture/security-custody-baseline.md
+docs/architecture/phase-1-plan.md
+docs/architecture/engine/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.1 v0.6: bounded correction — custody-signing-service elaborating-package assignment de-falsified
 
 **Bounded correction transaction — vai trò: `Package 1.1 v0.5 Bounded Correction Executor`.** Closes the sole confirmed Package 1.1 v0.5 Review A/Independent Review B finding. Does not alter ADR-017, Package 1.2, Package 1.3-D, or any LIVE-path architecture.

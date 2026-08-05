@@ -1,19 +1,29 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
-# CANDIDATE (package lifecycle reverted, 2026-08-04) — status: Draft, NOT Approved/Locked.
-# v0.5 registered two new modules (custody-signing-service, exchange-adapter) authorized by
-# Approved ADR-017 v0.2 (2026-08-04T20:08:00+07:00) — a genuine architectural/semantic
-# change (module count, taxonomy, authority, dependency-graph consequence), NOT a bounded
-# parity/wording correction. Same precedent as the v0.2 -> v0.3 ADR-016 alignment
-# correction: package_lifecycle reverts from `Consolidated Stable` to `candidate` and
-# REQUIRES a fresh Review A + Independent Review B + Product Owner consolidation decision
-# on this candidate before it may become `Consolidated Stable` again — this file does NOT
-# perform that review/consolidation, and does NOT falsely claim it.
+# CONSOLIDATED STABLE (package lifecycle, 2026-08-05T08:40:00+07:00, Product Owner
+# decision) — status: Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable)
+# and artifact status (Draft) are separate dimensions (Chapter 0 §7.1) — Consolidated
+# Stable does NOT mean this file is Approved/Locked; it means the reviewed package
+# baseline (v0.6, 25 modules) is internally coherent and stable enough to be a dependency
+# baseline for the next package. Product Owner decision: "I approve consolidation of
+# Package 1.1 v0.6 as the current Consolidated Stable module-registry and
+# system-decomposition baseline." Mechanical lifecycle transaction — `version: "0.6"`
+# UNCHANGED (no content/architecture change), `package_lifecycle: candidate ->
+# Consolidated Stable`.
+#
+# History: v0.5 registered two new modules (custody-signing-service, exchange-adapter)
+# authorized by Approved ADR-017 v0.2 (2026-08-04T20:08:00+07:00) — a genuine
+# architectural/semantic change, NOT a bounded parity/wording correction — which reverted
+# package_lifecycle to `candidate` (same precedent as v0.2 -> v0.3 ADR-016 alignment).
 # v0.6 — bounded correction (2026-08-05), đóng `P11V05-A-MAJ-01`/`P11-v0.5-IRB-MAJ-01`:
 # v0.5's `custody-signing-service.phase.elaborated_by: "1.2"` was a false package-coverage
 # claim — security-custody-baseline.md v0.2 was authored/reviewed BEFORE this module
 # existed. Corrected to `elaborated_by: null` (same deferred representation already used
-# for `exchange-adapter`) — module registered, elaborating package NOT yet assigned.
+# for `exchange-adapter`) — module registered, elaborating package NOT yet assigned. This
+# consolidation transaction reviews v0.6 (post-correction) — Review A CLEAN + Independent
+# Review B CLEAN, Blocker 0/Major 0/Minor 0 — and does NOT reopen or resolve either
+# module's elaborating-package assignment, capability/context mapping, LIVE-path
+# activation, or any other preserved gap.
 # Authority: Chapter 7 §7.5 (Locked) — module identity/taxonomy/mapping ONLY.
 # This registry does NOT own: Business Capability/Domain Context identity (context-map.yaml,
 # Chapter 4), domain concept semantics (Domain Contract, /docs/domain/), Product/UC/UX
@@ -68,8 +78,8 @@ registry_id: phase-1-module-registry
 version: "0.6"
 status: Draft
 package: "1.1"
-package_lifecycle: candidate
-generated_at: "2026-08-04"
+package_lifecycle: Consolidated Stable
+generated_at: "2026-08-05"
 
 modules:
 
