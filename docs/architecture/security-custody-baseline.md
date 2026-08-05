@@ -15,7 +15,9 @@ depends_on: ["00-governance", "02-platform-invariants", "06-identity-model", "07
 
 # Package 1.2 — Security & Custody Baseline
 
-**CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.2 v0.3 — substantive extension candidate, author dựa trên Package 1.1 `Consolidated Stable` (v0.6, 25 module, xem §1) VÀ [ADR-017](../adr/ADR-017.md) v0.2 (`Approved`, 2026-08-04T20:08:00+07:00, Product Owner — Option C: Custody/Signing Service + Exchange Adapter split). Đây LÀ một authoring transaction, KHÔNG PHẢI một consolidation transaction.
+**CONSOLIDATED STABLE (package lifecycle, 2026-08-05T14:00:00+07:00, Product Owner decision) — status: Draft, KHÔNG Approved.** Package 1.2 v0.4 đạt `Consolidated Stable` SAU Review A CLEAN + Independent Review B CLEAN (Blocker 0/Major 0/Minor 0, post v0.4 bounded correction) VÀ Package 1.1 v0.7 alignment transaction hoàn tất (`custody-signing-service.phase.elaborated_by: "1.2"`, `module-registry.yaml`/`system-decomposition.md` v0.7 `Consolidated Stable`, xem §16a) VÀ Product Owner consolidation decision. Product Owner đã quyết định nguyên văn: "I approve consolidation of Package 1.2 v0.4 as the current Consolidated Stable Security & Custody Baseline, including the architecture-level elaboration of custody-signing-service under Package 1.1 v0.7, while preserving exchange-adapter as functionally deferred, all documented unresolved gaps, the PAPER-only execution path, and LIVE Unauthorized." `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. Mechanical lifecycle transaction — `version: "0.4"` UNCHANGED (no content/architecture change), package lifecycle: `candidate → Consolidated Stable`.
+
+**CANDIDATE (package lifecycle, HISTORICAL — superseded bởi Consolidated Stable trên) — status: Draft, khi đó KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.2 v0.3 — substantive extension candidate, author dựa trên Package 1.1 `Consolidated Stable` (v0.6, 25 module, xem §1) VÀ [ADR-017](../adr/ADR-017.md) v0.2 (`Approved`, 2026-08-04T20:08:00+07:00, Product Owner — Option C: Custody/Signing Service + Exchange Adapter split). Đây LÀ một authoring transaction, KHÔNG PHẢI một consolidation transaction.
 
 **ADR gate (§15) NAY RESOLVED — KHÔNG còn ACTIVE/pending.** v0.2's §15 ghi nhận một ADR decision requirement ACTIVE chặn Consolidated Stable; ADR-017 v0.2 Approved đã resolve đủ tám mục decision scope đó (§15.2 cũ) — xem §15 (viết lại) cho xác nhận đầy đủ. Việc ADR gate resolved KHÔNG tự động làm Package 1.2 `Consolidated Stable` — v0.3 CẦN Review A + Independent Review B MỚI trên chính candidate này, VÀ một Package 1.1 alignment transaction riêng biệt (§16a) trước khi Product Owner consolidation decision có thể xảy ra.
 
@@ -1515,6 +1517,8 @@ Consolidation condition:      Baseline checklist explicit, versioned, pinned; ze
                                số này.
 ```
 
+**Cập nhật (2026-08-05T14:00:00+07:00, Product Owner consolidation decision) — Package 1.2 v0.4 nay `Consolidated Stable`:** cả ba điều kiện tại "Product Owner decision point" trên ĐÃ thỏa: Review A CLEAN + Independent Review B CLEAN cho baseline v0.4 (post bounded correction đóng bốn finding trên v0.3, Blocker 0/Major 0/Minor 0); Package 1.1 alignment transaction (§16a) HOÀN TẤT (`custody-signing-service.phase.elaborated_by: null → "1.2"`, `module-registry.yaml`/`system-decomposition.md` v0.6 → v0.7, required consistency verification PASS); VÀ Product Owner consolidation decision (nguyên văn ở banner đầu tài liệu). `package lifecycle: candidate → Consolidated Stable` — mechanical transaction, KHÔNG architecture content nào đổi. `version: "0.4"`, `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi.
+
 ## 16a. Package 1.1 alignment dependency (MỚI v0.3, bắt buộc, yêu cầu task)
 
 ```text
@@ -1537,6 +1541,8 @@ Product Owner consolidation decision (§16 Product Owner decision point).
 
 Package 1.2 v0.3 KHÔNG tự thực hiện registry change nào tại transaction này (§13
 non-goals) — §16a CHỈ ghi nhận dependency VÀ trình tự bắt buộc, KHÔNG thực hiện.
+
+**RESOLVED (v0.4 → Package 1.1 v0.7, 2026-08-05):** alignment transaction trên đã HOÀN TẤT — `custody-signing-service.phase.elaborated_by` đổi `null → "1.2"` tại `module-registry.yaml` v0.7 (`package_lifecycle: Consolidated Stable`), `system-decomposition.md` v0.7 cập nhật parity, required consistency verification PASS (25-module inventory, dependency graph acyclic, KHÔNG module/phase assignment nào khác đổi). `exchange-adapter.phase.elaborated_by` VẪN `null`, KHÔNG đổi. Điều kiện này KHÔNG còn pending — xem §16/§17 cho Product Owner consolidation decision đã theo sau.
 ```
 
 ## 17. Lifecycle treatment (MỚI v0.3)
@@ -1545,15 +1551,23 @@ non-goals) — §16a CHỈ ghi nhận dependency VÀ trình tự bắt buộc, K
 Package 1.2:
   version: 0.4
   status: Draft
-  package lifecycle/readiness: candidate
-  not Consolidated Stable
-  pending Review A verification (bounded correction v0.3 → v0.4)
-  pending Independent Review B
-  pending Package 1.1 alignment (§16a)
-  pending Product Owner consolidation decision
+  package lifecycle/readiness: Consolidated Stable (2026-08-05T14:00:00+07:00, Product
+    Owner decision)
+  Review A: CLEAN (Blocker 0/Major 0/Minor 0)
+  Independent Review B: CLEAN (Blocker 0/Major 0/Minor 0)
+  Package 1.1 alignment (§16a): HOÀN TẤT (v0.7, custody-signing-service.phase.
+    elaborated_by: "1.2")
+  Product Owner consolidation decision: RECORDED (§16)
 
 Package 1.2 v0.2 VẪN là historical review-clean evidence cho phạm vi gốc của nó
-  (account-service, ĐÚNG MỘT module registry-assigned) — v0.3 KHÔNG invalidate v0.2's
-  review evidence cho phạm vi ĐÓ, CHỈ mở rộng phạm vi baseline sang custody-signing-
-  service (đề xuất, CHƯA registry-assigned).
+  (account-service, ĐÚNG MỘT module registry-assigned) — v0.3/v0.4 KHÔNG invalidate
+  v0.2's review evidence cho phạm vi ĐÓ, CHỈ mở rộng phạm vi baseline sang
+  custody-signing-service (nay registry-assigned, §16a).
+
+`Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có
+  nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`,
+  `approved_at: null` KHÔNG đổi. Mọi gap carried forward tại §14 (kill-switch-state
+  ownership, in-flight signing/revocation behavior, DD-003, credential mechanism
+  implementation, v.v.) VẪN unresolved — Consolidated Stable KHÔNG resolve gap nào
+  trong số đó, KHÔNG authorize implementation, KHÔNG authorize LIVE.
 ```

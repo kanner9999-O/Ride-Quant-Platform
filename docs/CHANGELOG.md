@@ -2,6 +2,68 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05T14:00:00+07:00 — Package 1.2 v0.4: Consolidated Stable (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.2 v0.4 Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for Package 1.2 v0.4. No semantic architecture change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                 dc7680ceb2e76c7c19193cbc6a2c71fcd8e60f29
+docs/architecture/security-custody-baseline.md v0.4 blob (candidate): 3abbcaba50c8fa7ab1d61dec98d36ca697aa708b
+Controlling Package 1.1 baseline: module-registry.yaml v0.7 / system-decomposition.md
+  v0.7, both package_lifecycle: Consolidated Stable
+```
+
+### Product Owner decision (verbatim)
+
+```text
+"I approve consolidation of Package 1.2 v0.4 as the current Consolidated Stable
+Security & Custody Baseline, including the architecture-level elaboration of
+custody-signing-service under Package 1.1 v0.7, while preserving exchange-adapter
+as functionally deferred, all documented unresolved gaps, the PAPER-only execution
+path, and LIVE Unauthorized."
+
+Decision timestamp: 2026-08-05T14:00:00+07:00
+```
+
+### Lifecycle change
+
+```text
+security-custody-baseline.md: version 0.4 (unchanged), status Draft (unchanged),
+                               package lifecycle: candidate -> Consolidated Stable
+Blob:                          3abbcaba... -> d48d44b370...
+```
+
+### Preserved unchanged
+
+```text
+custody-signing-service architecture exactly as reviewed (§4a); Package 1.1 v0.7
+  assignment (custody-signing-service.phase.elaborated_by: "1.2");
+  exchange-adapter.phase.elaborated_by: null; Exchange Adapter functionally deferred.
+All Decision/Risk/Execution/Result/Fill authority boundaries; all signing identity,
+  idempotency, fail-closed, and audit semantics.
+Unresolved in-flight signing behavior; unresolved kill-switch-state ownership.
+No execution-engine -> exchange-adapter edge; PAPER-only execution; LIVE Unauthorized.
+Package 1.1 artifacts (v0.7, Consolidated Stable): unchanged, byte-identical.
+ADR-017 and Package 1.3-D: unchanged, byte-identical.
+```
+
+### Validation
+
+```text
+Baseline HEAD and artifact blob matched before editing.
+Exactly three files changed: security-custody-baseline.md, MANIFEST.md, CHANGELOG.md.
+Version remains 0.4; status remains Draft; package lifecycle now Consolidated Stable.
+Product Owner decision and 2026-08-05T14:00:00+07:00 timestamp recorded verbatim in
+  the artifact banner, §16, §16a, §17, and MANIFEST.md.
+Diff confined to the top banner, §16 (Cập nhật note), §16a (RESOLVED note), and §17
+  (lifecycle block) — no architecture content (§1-§15, §16a's dependency description
+  itself) touched outside added confirmation prose.
+Package 1.1 artifacts, ADR-017, and Package 1.3-D: not in the changed-file list.
+Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-05T13:51:00+07:00 — Package 1.1 v0.7: Consolidated Stable (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.1 v0.7 Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for Package 1.1 v0.7. No semantic architecture change.
