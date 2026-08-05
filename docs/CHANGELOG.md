@@ -2,6 +2,85 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05T16:45:00+07:00 — Package 1.5 v0.2: Consolidated Stable (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.5 v0.2 Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for Package 1.5 v0.2. No semantic architecture change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        19dade4124eaa3502c8c1d0bf2df652b2cc16543
+docs/architecture/database-architecture.md v0.2 blob (candidate): f739b391bd805ec04491b54538ede35c906e0a32
+```
+
+### Review evidence
+
+```text
+Review A:                REVISE on v0.1 — P15-A-MAJ-01/P15-A-MAJ-02/P15-A-MIN-01/
+                          P15-A-MIN-02 closed via v0.2 bounded correction.
+Bounded verification:    CLEAN, Blocker 0/Major 0/Minor 0.
+Independent Review B:     CLEAN, Blocker 0/Major 0/Minor 0, consolidation readiness:
+                          READY.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+"I approve consolidation of Package 1.5 v0.2 as the current Consolidated Stable
+Database Architecture baseline, while preserving review-evidence-service as a
+non-authoritative projection and evidence boundary, all existing source-of-truth and
+authoritative ownership boundaries, the documented contract-category interaction gap,
+the unresolved retention/deletion policy ownership gap, all append-only correction,
+projection rebuild, custody, security, failure, replay, PAPER/LIVE separation, and
+non-goal constraints, and LIVE Unauthorized."
+
+Decision timestamp: 2026-08-05T16:45:00+07:00
+```
+
+### Lifecycle change
+
+```text
+database-architecture.md: version 0.2 (unchanged), status Draft (unchanged),
+                           package lifecycle: candidate -> Consolidated Stable
+Blob:                      f739b391bd805ec04491b54538ede35c906e0a32 -> cb3295630990277c030effdccfaf87ca079fbf67
+```
+
+### Preserved unchanged (§2-§11 diff-verified byte-identical)
+
+```text
+review-evidence-service registry classification (module_type: projection,
+  owns_authoritative_state: false, consumes: [event], emits: [query], all 7
+  dependencies, forbidden_dependencies: [], security_classification: none).
+Order authority at execution-engine; ExecutionResult authority at execution-result-
+  processor; Fill authority at fill-processor; Position as non-authoritative
+  rebuildable projection from Fill history.
+Persistence-technology-never-creates-authority principle; six-category classification
+  framed as architecture-level, not a locked constitutional taxonomy.
+Append-only correction semantics; supersedes_fact_ref as example-only, not universal.
+Contract-category interaction gap (position-projection/replay-integration-service) and
+  retention/deletion ownership gap: both remain unresolved, not resolved by this
+  transaction.
+All transaction/consistency/replay/audit/failure/recovery boundaries; Package 1.2
+  custody boundary; Package 1.4 API boundary; Package 1.6 unauthored.
+PAPER-only execution; LIVE Unauthorized.
+Package 1.1-1.4 (Consolidated Stable) and ADR-017: unchanged, byte-identical.
+```
+
+### Validation
+
+```text
+Baseline HEAD and artifact blob matched before editing.
+Exactly three files changed: database-architecture.md, MANIFEST.md, CHANGELOG.md.
+Version remains 0.2; status remains Draft; package lifecycle now Consolidated Stable.
+Product Owner decision and 2026-08-05T16:45:00+07:00 timestamp recorded verbatim in
+  the artifact banner, §12, §13, and MANIFEST.md.
+Diff confined to the top banner and §12/§13 (consolidation-condition confirmation +
+  lifecycle block) — §2 through §11 confirmed byte-identical via direct diff.
+No module, dependency, contract category, or authority changed. Both preserved gaps
+  remain unresolved. Package 1.1-1.4 untouched. Package 1.6 remains unauthored. Final
+  tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.5 v0.2: bounded correction — Review A finding closure on v0.1
 
 **Bounded correction transaction — vai trò: `Package 1.5 v0.2 Bounded Correction Executor`.** Closes four confirmed Review A findings on the v0.1 initial candidate. Localized edits only — no redesign, no scope expansion, no new architecture sections.

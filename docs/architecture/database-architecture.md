@@ -15,7 +15,9 @@ depends_on: ["00-governance", "02-platform-invariants", "07-module-taxonomy", "0
 
 # Package 1.5 — Database Architecture
 
-**CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.5 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module, module-registry.yaml/system-decomposition.md), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable`, Package 1.4 `Consolidated Stable` (v0.3), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.5 — Database Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
+**CONSOLIDATED STABLE (package lifecycle, 2026-08-05T16:45:00+07:00, Product Owner decision) — status: Draft, KHÔNG Approved.** Package 1.5 v0.2 đạt `Consolidated Stable` SAU: Review A (REVISE trên v0.1, đóng `P15-A-MAJ-01`/`P15-A-MAJ-02`/`P15-A-MIN-01`/`P15-A-MIN-02`) → bounded verification (CLEAN, Blocker 0/Major 0/Minor 0) → Independent Review B (CLEAN, Blocker 0/Major 0/Minor 0, consolidation readiness: READY) → Product Owner consolidation decision. Product Owner đã quyết định nguyên văn: "I approve consolidation of Package 1.5 v0.2 as the current Consolidated Stable Database Architecture baseline, while preserving review-evidence-service as a non-authoritative projection and evidence boundary, all existing source-of-truth and authoritative ownership boundaries, the documented contract-category interaction gap, the unresolved retention/deletion policy ownership gap, all append-only correction, projection rebuild, custody, security, failure, replay, PAPER/LIVE separation, and non-goal constraints, and LIVE Unauthorized." `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. Mechanical lifecycle transaction — `version: "0.2"` UNCHANGED (no content/architecture change), package lifecycle: `candidate → Consolidated Stable`.
+
+**CANDIDATE (package lifecycle, HISTORICAL — superseded bởi Consolidated Stable trên) — status: Draft, khi đó KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.5 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module, module-registry.yaml/system-decomposition.md), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable`, Package 1.4 `Consolidated Stable` (v0.3), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.5 — Database Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
 
 **v0.2 — bounded correction (2026-08-05), đóng bốn Review A finding trên v0.1 (`P15-A-MAJ-01`/`P15-A-MAJ-02`/`P15-A-MIN-01`/`P15-A-MIN-02`), KHÔNG redesign/mở rộng scope:** (a) `P15-A-MAJ-01` — §4 sửa: bỏ claim review-evidence-service consume event từ đủ bảy dependency — phân biệt tường minh năm event-emitting dependency (decision-authority-service/risk-gateway/execution-engine/execution-result-processor/fill-processor) khỏi hai query-emitting projection (position-projection/replay-integration-service); ghi nhận contract-category interaction gap (registry xác lập dependency relationship NHƯNG KHÔNG đầy đủ xác lập cơ chế lấy output từ hai query-emitting dependency dưới `consumes: [event]`); KHÔNG invent event emission mới, KHÔNG invent query consumption mới, KHÔNG dependency edge mới. (b) `P15-A-MAJ-02` — §2.2/§8 sửa: bỏ mọi statement gộp Position với Order/ExecutionResult/Fill như authoritative fact — xác nhận Position LÀ deterministic/derived/rebuildable projection từ Fill history, `position-projection.owns_authoritative_state: false`, KHÔNG một authority owner nào; PAPER evidence wording, provenance chain wording sửa tương ứng. (c) `P15-A-MIN-01` — §3 sửa: sáu category persistence xác nhận LÀ một Package 1.5 architecture-level classification derive dưới I-12/Chapter 7/Chapter 8/package baseline, KHÔNG PHẢI taxonomy I-12 trực tiếp mandate, KHÔNG tạo module taxonomy/authority type/locked constitutional taxonomy mới. (d) `P15-A-MIN-02` — §6 sửa: `supersedes_fact_ref` xác nhận LÀ một ví dụ mechanism (account.md §11), KHÔNG một universal field Package 1.5 áp đặt — correction lineage PHẢI theo controlling Domain Contract của từng concept; §5 retention/deletion owner claim qualify lại thành "KHÔNG identify được trong các baseline ĐÃ review", KHÔNG một exhaustive-proof claim across toàn repository. Mọi nội dung khác của v0.1 GIỮ NGUYÊN.
 
@@ -603,20 +605,34 @@ Consolidation condition:      Zero unresolved Blocker/Major trên baseline hiệ
                                Consolidation condition cho Package 1.5).
 ```
 
+**Cập nhật (2026-08-05T16:45:00+07:00, Product Owner consolidation decision) — Package 1.5 v0.2 nay `Consolidated Stable`:** review evidence hoàn tất theo đúng trình tự — Review A (REVISE trên v0.1, đóng `P15-A-MAJ-01`/`P15-A-MAJ-02`/`P15-A-MIN-01`/`P15-A-MIN-02` qua v0.2) → bounded verification (CLEAN, Blocker 0/Major 0/Minor 0) → Independent Review B (CLEAN, Blocker 0/Major 0/Minor 0, consolidation readiness: READY) → Product Owner consolidation decision (nguyên văn ở banner đầu tài liệu). `package lifecycle: candidate → Consolidated Stable` — mechanical transaction, KHÔNG architecture content nào đổi. `version: "0.2"`, `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. Cả hai preserved gap VẪN unresolved, KHÔNG resolve tại transaction này: contract-category interaction gap cho position-projection/replay-integration-service (§4/§11); retention/deletion policy ownership gap (§5/§11). Mọi gap khác tại §11 (kill-switch state ownership, in-flight signing/execution behavior, LIVE Domain Contract, DD-003, DD-001, exchange-adapter assignment) VẪN carry forward nguyên vẹn — Consolidated Stable KHÔNG resolve/narrow gap nào trong số đó, KHÔNG author một contract mechanism cho hai query-emitting projection, KHÔNG assign retention/deletion owner, KHÔNG author Package 1.6, KHÔNG mở Gate 2/Phase 2, KHÔNG authorize LIVE.
+
 ## 13. Lifecycle treatment
 
 ```text
 Package 1.5:
   version: 0.2
   status: Draft
-  package lifecycle/readiness: candidate
-  not Consolidated Stable
-  Review A findings (P15-A-MAJ-01/P15-A-MAJ-02/P15-A-MIN-01/P15-A-MIN-02) corrected —
-    pending bounded verification
-  pending Independent Review B
-  pending Product Owner consolidation decision
+  package lifecycle/readiness: Consolidated Stable (2026-08-05T16:45:00+07:00, Product
+    Owner decision)
+  Review A: REVISE trên v0.1 — P15-A-MAJ-01/P15-A-MAJ-02/P15-A-MIN-01/P15-A-MIN-02
+    CLOSED (v0.2)
+  Bounded verification: CLEAN (Blocker 0/Major 0/Minor 0)
+  Independent Review B: CLEAN (Blocker 0/Major 0/Minor 0), consolidation readiness:
+    READY
+  Product Owner consolidation decision: RECORDED (banner đầu tài liệu)
 
 Package 1.5 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đóng bốn Review A
   finding trên v0.1 (banner đầu tài liệu), KHÔNG invalidate phần v0.1 KHÔNG bị finding
-  chạm tới, KHÔNG redesign/mở rộng scope.
+  chạm tới, KHÔNG redesign/mở rộng scope; v0.2 sau đó đạt `Consolidated Stable` qua
+  transaction consolidation riêng biệt (banner đầu tài liệu) — KHÔNG version bump nào
+  kèm theo mechanical lifecycle transaction này.
+
+`Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có
+  nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`,
+  `approved_at: null` KHÔNG đổi. Contract-category interaction gap (§4/§11) VÀ
+  retention/deletion policy ownership gap (§5/§11) VẪN unresolved — Consolidated Stable
+  KHÔNG resolve gap nào trong số đó, KHÔNG author một contract mechanism mới, KHÔNG
+  assign owner mới, KHÔNG author Package 1.6, KHÔNG mở Gate 2/Phase 2, KHÔNG authorize
+  LIVE.
 ```
