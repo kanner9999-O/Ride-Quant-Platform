@@ -1,14 +1,19 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
 # CANDIDATE (package lifecycle reverted, 2026-08-04) — status: Draft, NOT Approved/Locked.
-# v0.5 registers two new modules (custody-signing-service, exchange-adapter) authorized by
+# v0.5 registered two new modules (custody-signing-service, exchange-adapter) authorized by
 # Approved ADR-017 v0.2 (2026-08-04T20:08:00+07:00) — a genuine architectural/semantic
 # change (module count, taxonomy, authority, dependency-graph consequence), NOT a bounded
 # parity/wording correction. Same precedent as the v0.2 -> v0.3 ADR-016 alignment
 # correction: package_lifecycle reverts from `Consolidated Stable` to `candidate` and
 # REQUIRES a fresh Review A + Independent Review B + Product Owner consolidation decision
-# on this v0.5 candidate before it may become `Consolidated Stable` again — this transaction
-# does NOT perform that review/consolidation, and does NOT falsely claim it.
+# on this candidate before it may become `Consolidated Stable` again — this file does NOT
+# perform that review/consolidation, and does NOT falsely claim it.
+# v0.6 — bounded correction (2026-08-05), đóng `P11V05-A-MAJ-01`/`P11-v0.5-IRB-MAJ-01`:
+# v0.5's `custody-signing-service.phase.elaborated_by: "1.2"` was a false package-coverage
+# claim — security-custody-baseline.md v0.2 was authored/reviewed BEFORE this module
+# existed. Corrected to `elaborated_by: null` (same deferred representation already used
+# for `exchange-adapter`) — module registered, elaborating package NOT yet assigned.
 # Authority: Chapter 7 §7.5 (Locked) — module identity/taxonomy/mapping ONLY.
 # This registry does NOT own: Business Capability/Domain Context identity (context-map.yaml,
 # Chapter 4), domain concept semantics (Domain Contract, /docs/domain/), Product/UC/UX
@@ -60,7 +65,7 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "0.5"
+version: "0.6"
 status: Draft
 package: "1.1"
 package_lifecycle: candidate
@@ -255,7 +260,7 @@ modules:
     forbidden_dependencies: [decision-authority-service, risk-gateway, execution-engine, exchange-adapter, strategy-engine, strategy-plugin-host, decision-evaluation-engine, context-aggregator, position-projection, command-query-api-surface]
     plugin_relation: none
     security_classification: secret_consuming
-    phase: { identified_in: "1.1", elaborated_by: "1.2" }
+    phase: { identified_in: "1.1", elaborated_by: null }
     status: candidate
     notes: >
       ADR-017 v0.2 (Approved, 2026-08-04T20:08:00+07:00, Product Owner — Option C split
@@ -275,6 +280,19 @@ modules:
       comment (line 48-50), first assigned here — not a new value. Implementation (Vault/
       KMS/HSM binding, signing algorithm, credential rotation protocol) is forbidden scope
       (ADR-017 §3.3) — NOT authored here.
+      `phase.elaborated_by` corrected v0.5 -> v0.6 (bounded correction, đóng
+      `P11V05-A-MAJ-01`/`P11-v0.5-IRB-MAJ-01`): v0.5's `elaborated_by: "1.2"` was a false
+      package-coverage/readiness claim — [security-custody-baseline.md](../security-custody-baseline.md)
+      v0.2 was authored and reviewed BEFORE this module existed (it registers only at
+      Package 1.1 v0.5, AFTER Package 1.2 v0.2's review-clean state), so Package 1.2 has
+      NOT actually elaborated it. This module is registered by Package 1.1 under Approved
+      ADR-017; its detailed elaborating package is NOT yet authoritatively assigned.
+      Package 1.2 is the natural future extension candidate (same cross-cutting custody
+      purpose that already elaborates account-service) — but no assignment or completed
+      elaboration is claimed here, same deferred/null representation already used for
+      `exchange-adapter` below. Package 1.2 v0.2 remains review-clean ONLY for its
+      existing reviewed scope, where `account-service` was the sole fully assigned
+      Package 1.2 module.
 
   - module_id: exchange-adapter
     name: Exchange Adapter

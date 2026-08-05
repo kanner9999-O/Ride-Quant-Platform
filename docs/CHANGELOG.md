@@ -2,6 +2,126 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.1 v0.6: bounded correction — custody-signing-service elaborating-package assignment de-falsified
+
+**Bounded correction transaction — vai trò: `Package 1.1 v0.5 Bounded Correction Executor`.** Closes the sole confirmed Package 1.1 v0.5 Review A/Independent Review B finding. Does not alter ADR-017, Package 1.2, Package 1.3-D, or any LIVE-path architecture.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                       3d242c44156974b664d5046928b835dee896f7fc
+docs/architecture/module-registry.yaml v0.5 blob:                    27fae85ccd198ffd230125b242586c9d46ed7404
+docs/architecture/system-decomposition.md v0.5 blob:                 a27fea805c53c7c4c125c0106fe986824a0bb8da
+docs/adr/ADR-017.md v0.2 blob (unchanged, Approved):                 b08af6a04a5df8e7642b7a62b3fbeb63a9c9f184
+docs/architecture/security-custody-baseline.md v0.2 blob (unchanged): 7f2cfebbbbbe80348e16013814db573e4c6497dc
+```
+
+### Finding closed
+
+```text
+P11V05-A-MAJ-01 /  custody-signing-service.phase.elaborated_by: "1.2" created a false
+P11-v0.5-IRB-MAJ-01  package-coverage/readiness claim, because
+                     security-custody-baseline.md v0.2 was authored and reviewed BEFORE
+                     the module existed (the module was first registered at Package 1.1
+                     v0.5, after Package 1.2 v0.2's review-clean state). RESOLVED —
+                     elaborated_by corrected to null, the same deferred representation
+                     already used for exchange-adapter; every registry/decomposition
+                     statement implying Package 1.2 had already elaborated the module is
+                     corrected to state the elaborating package is not yet assigned.
+```
+
+### Correction
+
+```text
+Changed:    custody-signing-service.phase.elaborated_by: "1.2" -> null
+            (module-registry.yaml)
+            §4 inventory table "Elaborated by" column: 1.2 -> *(unassigned — §11)*
+            (system-decomposition.md)
+
+Added:      §11 new deferred item — Custody & Signing Service elaborating package
+            unresolved (same form as the existing Exchange Adapter entry); §15 new
+            "Cập nhật (v0.6)" note confirming the finding is closed and that Package 1.2
+            v0.2 is described as review-clean only for its existing reviewed scope
+            (account-service).
+
+Semantic    custody-signing-service is registered by Package 1.1 under Approved
+statement:  ADR-017; its detailed elaborating package is not yet authoritatively
+            assigned; Package 1.2 is the natural future extension candidate (same
+            cross-cutting custody purpose that already elaborates account-service), but
+            no assignment or completed elaboration is claimed by this transaction;
+            Package 1.2 v0.2 remains review-clean only for its existing reviewed scope,
+            where account-service was the sole fully assigned Package 1.2 module.
+```
+
+Neither module is described as orphaned — registered identity, responsibility, authority, dependency, security classification, and ADR provenance remain valid and unchanged; only the elaborating-package assignment claim is corrected.
+
+### Preserved unchanged (confirmed)
+
+```text
+25-module inventory; custody-signing-service identity/authority/sole-direct-credential-
+user status; exchange-adapter identity/authority over raw venue-interaction evidence
+only; module types; owns_authoritative_state values; security classifications;
+depends_on edges; forbidden_dependencies; execution-engine current dependencies
+(unchanged, no exchange-adapter edge); current PAPER path; LIVE Unauthorized;
+Decision/Risk/Execution/Fill authority; kill-switch-state ownership gap; DD-003;
+implements_capabilities: []; serves_contexts: []; Package 1.1 candidate lifecycle.
+```
+
+### Versioning
+
+```text
+module-registry.yaml:       0.5 -> 0.6
+system-decomposition.md:    0.5 -> 0.6
+status:                     Draft (unchanged)
+package_lifecycle:          candidate (unchanged) — Consolidated Stable NOT claimed
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/module-registry.yaml       0.5 -> 0.6
+                                              27fae85ccd198ffd230125b242586c9d46ed7404
+                                              -> d5b84c6b0fd378592b19ccf056ddb597f496064c
+docs/architecture/system-decomposition.md    0.5 -> 0.6
+                                              a27fea805c53c7c4c125c0106fe986824a0bb8da
+                                              -> 63f0aed07ce072d5d4d327c20efb2bfa1ca34103
+docs/MANIFEST.md                             manifest_version 10.44 -> 10.45, both
+                                              Architecture table rows updated
+docs/CHANGELOG.md                            this entry prepended
+```
+
+### Automated validation results
+
+```text
+Script-verified (module-registry.yaml): 25 modules (unchanged), 25 unique module_id,
+                   zero unresolved depends_on/forbidden_dependencies references, zero
+                   overlap, zero cycle. custody-signing-service.phase == {identified_in:
+                   "1.1", elaborated_by: None}; exchange-adapter.phase unchanged (null).
+                   No other module's phase assignment changed. Taxonomy/authority/
+                   security-classification tallies unchanged from v0.5.
+Frontmatter/YAML:  both files parse cleanly — version "0.6", status Draft unchanged;
+                   module-registry.yaml package_lifecycle: candidate (unchanged); fence
+                   balance even (system-decomposition.md: 26).
+Diff scope:        git status --short confirmed exactly the 4 expected files changed;
+                   forbidden-scope diff (docs/adr/, security-custody-baseline.md,
+                   phase-1-plan.md, docs/architecture/engine/, docs/domain/,
+                   docs/product/, docs/constitution/, docs/team/, docs/phase-dod/) empty.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/adr/
+docs/architecture/security-custody-baseline.md
+docs/architecture/phase-1-plan.md
+docs/architecture/engine/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
 ## [Unreleased] — 2026-08-04 — Package 1.1 v0.5: ADR-017 authorized registry correction (custody-signing-service + exchange-adapter registered; package lifecycle reverted to candidate)
 
 **Bounded Package 1.1 correction transaction — vai trò: `ADR-017 Authorized Package 1.1 Bounded Correction Executor`.** Implements only the module-registry and system-decomposition consequences authorized by Approved [ADR-017](docs/adr/ADR-017.md) v0.2 (§9 registry-impact scope). Registers the selected architectural boundaries; does not activate or complete a LIVE execution path.

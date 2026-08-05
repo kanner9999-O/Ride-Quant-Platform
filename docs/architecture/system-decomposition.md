@@ -1,7 +1,7 @@
 ---
 id: system-decomposition
 title: "Package 1.1 — System Decomposition & Module Registry"
-version: "0.5"
+version: "0.6"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -15,7 +15,9 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 
 # Package 1.1 — System Decomposition & Module Registry
 
-**CANDIDATE (package lifecycle reverted, 2026-08-04) — artifact status: Draft, KHÔNG Approved/Locked, KHÔNG Consolidated Stable.** Package 1.1 v0.5 đăng ký hai module mới (`custody-signing-service`, `exchange-adapter`) authorized bởi [ADR-017](../adr/ADR-017.md) v0.2 (`Approved`, 2026-08-04T20:08:00+07:00, Product Owner — Option C split selected) — một thay đổi kiến trúc/semantic THẬT (module count, taxonomy, authority, dependency-graph), KHÔNG PHẢI một bounded parity/wording correction. Đúng tiền lệ đã dùng cho v0.2 → v0.3 (ADR-016 alignment correction): `package_lifecycle` REVERT từ `Consolidated Stable` về `candidate` — v0.5 CẦN một vòng Review A + Independent Review B + Product Owner consolidation decision MỚI (§15) trước khi có thể `Consolidated Stable` trở lại. Transaction này KHÔNG thực hiện review/consolidation đó, KHÔNG tuyên bố Consolidated Stable.
+**CANDIDATE (package lifecycle reverted, 2026-08-04) — artifact status: Draft, KHÔNG Approved/Locked, KHÔNG Consolidated Stable.** Package 1.1 v0.5 đăng ký hai module mới (`custody-signing-service`, `exchange-adapter`) authorized bởi [ADR-017](../adr/ADR-017.md) v0.2 (`Approved`, 2026-08-04T20:08:00+07:00, Product Owner — Option C split selected) — một thay đổi kiến trúc/semantic THẬT (module count, taxonomy, authority, dependency-graph), KHÔNG PHẢI một bounded parity/wording correction. Đúng tiền lệ đã dùng cho v0.2 → v0.3 (ADR-016 alignment correction): `package_lifecycle` REVERT từ `Consolidated Stable` về `candidate` — candidate này CẦN một vòng Review A + Independent Review B + Product Owner consolidation decision MỚI (§15) trước khi có thể `Consolidated Stable` trở lại. Transaction gần nhất KHÔNG thực hiện review/consolidation đó, KHÔNG tuyên bố Consolidated Stable.
+
+**v0.6 — bounded correction (2026-08-05), đóng `P11V05-A-MAJ-01`/`P11-v0.5-IRB-MAJ-01`** (Package 1.1 v0.5 Review A/Independent Review B confirmed finding): v0.5's `custody-signing-service.phase.elaborated_by: "1.2"` tạo ra một false package-coverage/readiness claim — [`security-custody-baseline.md`](../architecture/security-custody-baseline.md) v0.2 đã được author VÀ review TRƯỚC KHI module này tồn tại (module đăng ký lần đầu tại Package 1.1 v0.5, SAU Package 1.2 v0.2's review-clean state), nên Package 1.2 CHƯA thực sự elaborate nó. Sửa: `custody-signing-service.phase.elaborated_by` đổi `"1.2"` → `null` — cùng deferred/null representation đã dùng cho `exchange-adapter`. §4 inventory table's "Elaborated by" column cho `custody-signing-service` đổi `1.2` → `*(unassigned — §11)*`. Module này VẪN được đăng ký bởi Package 1.1 dưới Approved ADR-017; elaborating package chi tiết CHƯA được authoritatively assign — Package 1.2 LÀ ứng viên mở rộng tự nhiên trong tương lai (cùng cross-cutting custody purpose đã elaborate `account-service`), NHƯNG KHÔNG assignment hay completed elaboration nào được tuyên bố tại transaction này. **Package 1.2 v0.2 VẪN review-clean CHỈ cho đúng phạm vi đã review của nó, nơi `account-service` là module Package 1.2 DUY NHẤT được fully assign.** §11 thêm một deferred item mới (custody-signing-service elaborating package, cùng dạng với exchange-adapter's). **KHÔNG đổi:** 25-module inventory, identity/authority/dependency/forbidden_dependencies/security_classification của cả hai module mới, module type nào khác, `execution-engine` dependencies, absence của `execution-engine → exchange-adapter` edge, PAPER path, LIVE Unauthorized, Decision/Risk/Execution/Fill authority, kill-switch-state ownership gap, DD-003, `implements_capabilities: []`/`serves_contexts: []`, Package 1.1 candidate lifecycle. KHÔNG cần architecture decision mới cho correction này. `status: Draft`, `package_lifecycle: candidate` KHÔNG đổi — KHÔNG tuyên bố Consolidated Stable.
 
 **v0.5 — bounded ADR-017 authorized correction (2026-08-04), thực hiện đúng ADR-017 §9 registry-impact scope (KHÔNG mở rộng ngoài đó):** Đăng ký `custody-signing-service` (runtime_service, `owns_authoritative_state: true` cho credential-binding/signing-operational state, `security_classification: secret_consuming` — giá trị enum đã tồn tại sẵn trong field-reference comment của `module-registry.yaml`, lần đầu được gán, KHÔNG invent mới; `depends_on: [account-service]`; module DUY NHẤT được phép dùng exchange credential trực tiếp) và `exchange-adapter` (runtime_service, `owns_authoritative_state: true` CHỈ cho raw venue-interaction evidence phạm vi hẹp — ADR-017 §3.2a, KHÔNG execution observation/ExecutionResult; `security_classification: trust_boundary_candidate`; `depends_on: [custody-signing-service]`; KHÔNG raw-secret access). Module count 23 → **25**. Taxonomy tally `runtime_service` 14 → 16 (`compute_engine`/`projection` không đổi). State-authority tally `true` 13 → 15 (`false`/`deferred` không đổi). Security-classification tally `secret_consuming` 0 → 1, `trust_boundary_candidate` 4 → 5. **KHÔNG thêm** `execution-engine.depends_on → exchange-adapter` — registry KHÔNG có cơ chế biểu diễn "future/inactive dependency" nào không ngụ ý current architectural availability; cạnh đó bị GIỮ VẮNG, ghi lại như một future prerequisite tại notes của `execution-engine` (Stage 2, ADR-017 §9a) thay vì đăng ký — PAPER dependency hiện có (`execution-engine → paper-execution-boundary`) KHÔNG đổi. `exchange-adapter.phase.elaborated_by` cố tình để `null` — không package nào trong chín package Phase 1 hiện tại (tất cả PAPER-focused) elaborate chức năng đầy đủ của nó; KHÔNG invent package ID mới (đúng chỉ dẫn ADR-017). **KHÔNG đổi:** 23 module hiện có (identity/taxonomy/dependency/forbidden_dependencies/responsibility, TRỪ một note bổ sung tại `execution-engine`), coverage totals gốc (34/21/17/11/15, xem §10 cho treatment mới của hai module này), DD-001/DD-003/Structure-aware-Regime/OQ-001/OQ-002/OQ-003. KHÔNG tạo/approve ADR mới — ADR-017 đã Approved, transaction này CHỈ thực hiện registry-impact scope ĐÃ authorize (§9 ADR-017), KHÔNG tự ý mở rộng. KHÔNG kích hoạt LIVE execution path nào.
 
@@ -84,7 +86,7 @@ Package 1.1 KHÔNG redefine domain entities, domain invariants, product behavior
 | `feature-engine` | compute_engine | Yes | 1.3-B |
 | `context-aggregator` | projection | No | 1.3-B |
 | `account-service` | runtime_service | Yes | 1.2 |
-| `custody-signing-service` | runtime_service (ADR-017 v0.2 Approved, §12 Decision 8) | Yes (credential-binding/signing-operational state only) | 1.2 |
+| `custody-signing-service` | runtime_service (ADR-017 v0.2 Approved, §12 Decision 8) | Yes (credential-binding/signing-operational state only) | *(unassigned — §11)* |
 | `exchange-adapter` | runtime_service (ADR-017 v0.2 Approved, §12 Decision 8) | Yes (raw venue-interaction evidence only) | *(unassigned — §11)* |
 | `strategy-engine` | runtime_service | Yes | 1.3-C |
 | `plugin-release-manager` | runtime_service | Yes (operational fact only, §12 Decision 5b) | 1.3-C |
@@ -439,6 +441,17 @@ Exchange Adapter elaborating package (v0.5, ADR-017 v0.2 Approved) — `phase.
         Phase 1 amendment (package mới) HOẶC quyết định tương đương, Product Owner, ngoài
         phạm vi Package 1.1 correction transaction này — KHÔNG invent package ID.
 
+Custody & Signing Service elaborating package (v0.6, bounded correction đóng
+        `P11V05-A-MAJ-01`/`P11-v0.5-IRB-MAJ-01`) — `phase.elaborated_by: null` tại
+        `module-registry.yaml` (sửa từ `"1.2"` sai tại v0.5 — Package 1.2 v0.2 được
+        author/review TRƯỚC KHI module này tồn tại, nên CHƯA thực sự elaborate nó).
+        Package 1.2 LÀ ứng viên mở rộng tự nhiên trong tương lai (cùng cross-cutting
+        custody purpose đã elaborate `account-service`), NHƯNG KHÔNG assignment chính
+        thức nào được tuyên bố tại candidate này. Escalation: một Package 1.2 correction/
+        version-bump transaction tương lai, Product Owner-authorized, elaborate đầy đủ
+        module này VÀ tường minh cập nhật `phase.elaborated_by` — ngoài phạm vi Package
+        1.1 correction transaction này.
+
 Execution Engine → Exchange Adapter LIVE path activation (v0.5, ADR-017 v0.2 §9a) —
         module registration (Stage 1) KHÔNG tự kích hoạt dependency edge/execution path
         thật (Stage 2). Escalation: future LIVE architecture candidate + governance
@@ -686,7 +699,12 @@ Review A scope:            Module completeness (25/25 bounded, no god module); t
                             module + dependency edge đã định nghĩa, KHÔNG thêm active
                             execution-engine → exchange-adapter edge (Stage 1/Stage 2
                             distinction, §9a ADR-017, đúng bảo toàn), KHÔNG silently
-                            resolve preserved gap nào (§11).
+                            resolve preserved gap nào (§11). **Cập nhật (v0.6):** xác nhận
+                            `custody-signing-service.phase.elaborated_by` KHÔNG còn tuyên
+                            bố false Package 1.2 coverage — đóng `P11V05-A-MAJ-01`/
+                            `P11-v0.5-IRB-MAJ-01`; xác nhận Package 1.2 v0.2 chỉ được mô tả
+                            review-clean cho ĐÚNG phạm vi đã review của nó (account-service),
+                            KHÔNG mở rộng ngầm sang custody-signing-service.
 Independent Review B
   scope:                   Độc lập xác nhận CÙNG phạm vi trên, đặc biệt (v0.5, sau Decision
                             8 Approved): (a) xác nhận `custody-signing-service` là module
