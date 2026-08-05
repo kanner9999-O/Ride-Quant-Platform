@@ -2,6 +2,77 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05T14:09:00+07:00 — Package 1.3-D v0.2: Consolidated Stable (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.3-D v0.2 Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for Package 1.3-D v0.2. No semantic architecture change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                 b85b0ca2853b812df891e6f0447b18ad405d5b75
+docs/architecture/engine/risk-execution-architecture.md v0.2 blob (candidate): 95c5403060f09163f14fb80ceaaefd7dd0c555bb
+Required upstream baselines: module-registry.yaml v0.7 / system-decomposition.md v0.7
+  (Consolidated Stable), security-custody-baseline.md v0.4 (Consolidated Stable, blob
+  d48d44b370afc9a4843137c6f55bc21c6e7ceadc)
+```
+
+### Product Owner decision (verbatim)
+
+```text
+"I approve consolidation of Package 1.3-D v0.2 as the current Consolidated Stable
+Risk & Execution Engine Architecture baseline, based on Package 1.1 v0.7 and Package
+1.2 v0.4 as Consolidated Stable upstream baselines, while preserving all documented
+unresolved execution, kill-switch, LIVE-boundary, reconciliation, and Domain Contract
+gaps, the PAPER-only execution path, and LIVE Unauthorized."
+
+Decision timestamp: 2026-08-05T14:09:00+07:00
+```
+
+### Lifecycle change
+
+```text
+risk-execution-architecture.md: version 0.2 (unchanged), status Draft (unchanged),
+                                 package lifecycle: review-clean candidate ->
+                                 Consolidated Stable
+Blob:                            95c5403060... -> d455bdf190...
+```
+
+Obsolete "consolidation blocked pending Package 1.2" framing in §18's consolidation
+condition replaced with resolved lifecycle wording only — original condition text
+preserved, labeled HISTORICAL, with a new "Cập nhật" paragraph confirming Package 1.2
+v0.4 (Consolidated Stable) resolves the former blocker.
+
+### Preserved unchanged
+
+```text
+All Risk Gateway, Execution Engine, Execution Result Processor, Fill Processor
+  authority; Position Projection non-authoritative status; custody-signing-service
+  and Exchange Adapter boundaries.
+execution-engine.depends_on: [risk-gateway, paper-execution-boundary] — no active
+  execution-engine -> exchange-adapter edge.
+PAPER-only current execution; LIVE Unauthorized.
+Unresolved kill-switch authoritative-state ownership; unresolved in-flight
+  cancellation/revocation behavior; unresolved reconciliation semantics; unresolved
+  LIVE Domain Contracts; DD-003; every other gap documented at §16.
+Package 1.1 (v0.7, Consolidated Stable), Package 1.2 (v0.4, Consolidated Stable),
+  and ADR-017: unchanged, byte-identical.
+```
+
+### Validation
+
+```text
+Baseline HEAD and artifact blob matched before editing.
+Exactly three files changed: risk-execution-architecture.md, MANIFEST.md,
+  CHANGELOG.md.
+Version remains 0.2; status remains Draft; package lifecycle now Consolidated Stable.
+Product Owner decision and 2026-08-05T14:09:00+07:00 timestamp recorded verbatim in
+  the artifact banner, §18, and MANIFEST.md.
+Diff confined to the top banner and §18 (consolidation-condition relabeling +
+  confirmation paragraph) — no architecture section (§1-§17) touched.
+Package 1.1, Package 1.2, and ADR-017: not in the changed-file list.
+Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-05T14:00:00+07:00 — Package 1.2 v0.4: Consolidated Stable (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.2 v0.4 Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for Package 1.2 v0.4. No semantic architecture change.
