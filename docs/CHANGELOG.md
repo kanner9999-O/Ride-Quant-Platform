@@ -2,6 +2,83 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05T15:16:00+07:00 — Package 1.4 v0.3: Consolidated Stable (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.4 v0.3 Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for Package 1.4 v0.3. No semantic architecture change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        75513a130f2227d68c06415452ec004f3ef108ee
+docs/architecture/api-architecture.md v0.3 blob (candidate): e2652d16268343a87c89cb52e95d4be966b9434d
+```
+
+### Review evidence
+
+```text
+Review A:                REVISE on v0.1 — P14-A-MAJ-01/P14-A-MAJ-02/P14-A-MIN-01 closed
+                          across v0.2 (bounded correction) and v0.3 (micro-correction).
+Final bounded
+  verification:           CLEAN, Blocker 0/Major 0/Minor 0.
+Independent Review B:     CLEAN, Blocker 0/Major 0/Minor 0, consolidation readiness:
+                          READY.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+"I approve consolidation of Package 1.4 v0.3 as the current Consolidated Stable API
+Architecture baseline, while preserving the command-query-api-surface as a
+non-authoritative routing and exposure boundary, all authoritative service,
+causal-lineage, compatibility, custody, security, failure and environment boundaries,
+all documented unresolved gaps and non-goals, the PAPER-only execution path, and LIVE
+Unauthorized."
+
+Decision timestamp: 2026-08-05T15:16:00+07:00
+```
+
+### Lifecycle change
+
+```text
+api-architecture.md: version 0.3 (unchanged), status Draft (unchanged),
+                      package lifecycle: candidate -> Consolidated Stable
+Blob:                 e2652d16268343a87c89cb52e95d4be966b9434d -> 49a46e3145947ca53396672e0b9d50a306fa05e2
+```
+
+### Preserved unchanged (§2-§9 diff-verified byte-identical)
+
+```text
+command-query-api-surface module identity/registry classification, owns_authoritative_
+  state: false, all 16 dependencies/forbidden_dependencies, routing/exposure-only
+  status.
+No Account/market/analytical/Strategy/Decision/Risk/Execution Intent/Order/
+  ExecutionResult/Fill/Position/custody/signing/review-evidence authority held by API
+  Surface.
+Transport acceptance != business acceptance; authoritative-boundary/eligible-lineage
+  invariants; fail-closed behavior.
+Compatibility ownership stays outside API Surface; Chapter 10's three version axes
+  remain distinct; API Surface remains non-authoritative for events/streaming.
+Raw secrets/signing material excluded from API payloads, confined to Package 1.2
+  custody boundary.
+Package 1.5/1.6 boundaries; all documented gaps and non-goals.
+PAPER-only execution; LIVE Unauthorized.
+Package 1.1-1.3-D (Consolidated Stable) and ADR-017: unchanged, byte-identical.
+```
+
+### Validation
+
+```text
+Baseline HEAD and artifact blob matched before editing.
+Exactly three files changed: api-architecture.md, MANIFEST.md, CHANGELOG.md.
+Version remains 0.3; status remains Draft; package lifecycle now Consolidated Stable.
+Product Owner decision and 2026-08-05T15:16:00+07:00 timestamp recorded verbatim in
+  the artifact banner, §11, §12, and MANIFEST.md.
+Diff confined to the top banner and §11/§12 (consolidation-condition confirmation +
+  lifecycle block) — §2 through §9 confirmed byte-identical via direct diff.
+No dependency or authority changed. Package 1.1-1.3-D untouched. Package 1.5/1.6
+  remain unauthored. Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.4 v0.3: micro-correction — residual P14-A-MAJ-01 closure
 
 **Micro-correction transaction — vai trò: `Package 1.4 v0.3 Micro-Correction Executor`.** Closes the single remaining bounded-verification finding (P14-A-MAJ-01) — two residual contradictions in §2.1 and §11 that v0.2's §6 rewrite did not reach. Does not reopen P14-A-MAJ-02 or P14-A-MIN-01, does not redesign, does not touch §6.

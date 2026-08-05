@@ -15,7 +15,9 @@ depends_on: ["00-governance", "02-platform-invariants", "07-module-taxonomy", "0
 
 # Package 1.4 — API Architecture
 
-**CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.4 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module, module-registry.yaml/system-decomposition.md), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable` (v0.2), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.4 — API Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
+**CONSOLIDATED STABLE (package lifecycle, 2026-08-05T15:16:00+07:00, Product Owner decision) — status: Draft, KHÔNG Approved.** Package 1.4 v0.3 đạt `Consolidated Stable` SAU: Review A (REVISE trên v0.1, đóng `P14-A-MAJ-01`/`P14-A-MAJ-02`/`P14-A-MIN-01`) → final bounded verification (CLEAN, Blocker 0/Major 0/Minor 0) → Independent Review B (CLEAN, Blocker 0/Major 0/Minor 0, consolidation readiness: READY) → Product Owner consolidation decision. Product Owner đã quyết định nguyên văn: "I approve consolidation of Package 1.4 v0.3 as the current Consolidated Stable API Architecture baseline, while preserving the command-query-api-surface as a non-authoritative routing and exposure boundary, all authoritative service, causal-lineage, compatibility, custody, security, failure and environment boundaries, all documented unresolved gaps and non-goals, the PAPER-only execution path, and LIVE Unauthorized." `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. Mechanical lifecycle transaction — `version: "0.3"` UNCHANGED (no content/architecture change), package lifecycle: `candidate → Consolidated Stable`.
+
+**CANDIDATE (package lifecycle, HISTORICAL — superseded bởi Consolidated Stable trên) — status: Draft, khi đó KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.4 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module, module-registry.yaml/system-decomposition.md), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable` (v0.2), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.4 — API Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
 
 **v0.2 — bounded correction (2026-08-05), đóng ba Review A finding trên v0.1 (`P14-A-MAJ-01`/`P14-A-MAJ-02`/`P14-A-MIN-01`), KHÔNG redesign/mở rộng scope:** (a) `P14-A-MAJ-01` — §6 sửa: dependency-edge absence (§2.1/§2.3) KHÔNG còn được trình bày như bằng chứng ĐẦY ĐỦ cho caller exclusion/invocation impossibility/payload-flow exclusion/raw-secret isolation/authority non-bypass/causal authorization — `depends_on` LÀ prerequisite relation, KHÔNG PHẢI một complete caller-access/dataflow-control model; thêm bộ architecture-level invariant mới (transport KHÔNG BAO GIỜ tạo eligibility, effect-producing command PHẢI qua authoritative boundary, lineage fail-closed, secrets/signing material bị cấm khỏi API payload); (b) `P14-A-MAJ-02` — §8 sửa: bỏ claim mọi request dùng đủ ba trục Chapter 10, bỏ claim Plugin Version là trục universal, bỏ claim API Surface LÀ canonical compatibility evaluator/PHẢI tạo Compatibility Result cho mọi request — thay bằng bounded rule: compatibility evaluation VẪN thuộc module authoritative/designated đã đăng ký, API Surface CHỈ carry/route/expose evidence; (c) `P14-A-MIN-01` — §5 sửa: `emits` loại trừ `event` CHỈ chứng minh API Surface KHÔNG phải registered authoritative event emitter, KHÔNG chứng minh một transport topology cụ thể nào — transport mechanism CÓ THỂ chọn sau, exposure VẪN read-only, event identity/provenance/ordering/correction KHÔNG đổi. Mọi nội dung khác của v0.1 GIỮ NGUYÊN.
 
@@ -662,23 +664,32 @@ Consolidation condition:      Zero unresolved Blocker/Major trên baseline hiệ
                                Package 1.4).
 ```
 
+**Cập nhật (2026-08-05T15:16:00+07:00, Product Owner consolidation decision) — Package 1.4 v0.3 nay `Consolidated Stable`:** review evidence hoàn tất theo đúng trình tự — Review A (REVISE trên v0.1, đóng `P14-A-MAJ-01`/`P14-A-MAJ-02`/`P14-A-MIN-01` qua v0.2 + v0.3 micro-correction) → final bounded verification (CLEAN, Blocker 0/Major 0/Minor 0) → Independent Review B (CLEAN, Blocker 0/Major 0/Minor 0, consolidation readiness: READY) → Product Owner consolidation decision (nguyên văn ở banner đầu tài liệu). `package lifecycle: candidate → Consolidated Stable` — mechanical transaction, KHÔNG architecture content nào đổi. `version: "0.3"`, `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. Mọi gap tại §10 (kill-switch state ownership, in-flight signing/execution behavior, LIVE Domain Contract, DD-003, exchange-adapter assignment, và mọi non-goal khác) VẪN carry forward nguyên vẹn — Consolidated Stable KHÔNG resolve/narrow gap nào trong số đó, KHÔNG author Package 1.5/1.6, KHÔNG mở Phase 2, KHÔNG authorize LIVE.
+
 ## 12. Lifecycle treatment
 
 ```text
 Package 1.4:
   version: 0.3
   status: Draft
-  package lifecycle/readiness: candidate
-  not Consolidated Stable
-  P14-A-MAJ-01 corrected (v0.3, residual §2.1/§11 contradiction closed) — pending
-    bounded verification
-  P14-A-MAJ-02: remains CLOSED (v0.2, KHÔNG reopen)
-  P14-A-MIN-01: remains CLOSED (v0.2, KHÔNG reopen)
-  pending Independent Review B
-  pending Product Owner consolidation decision
+  package lifecycle/readiness: Consolidated Stable (2026-08-05T15:16:00+07:00, Product
+    Owner decision)
+  Review A: REVISE trên v0.1 — P14-A-MAJ-01/P14-A-MAJ-02/P14-A-MIN-01 CLOSED
+  Final bounded verification: CLEAN (Blocker 0/Major 0/Minor 0)
+  Independent Review B: CLEAN (Blocker 0/Major 0/Minor 0), consolidation readiness:
+    READY
+  Product Owner consolidation decision: RECORDED (banner đầu tài liệu)
 
 Package 1.4 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đóng ba Review A
   finding trên v0.1 (banner đầu tài liệu); v0.3 LÀ micro-correction đóng đúng residual
   contradiction sót lại của P14-A-MAJ-01 (§2.1/§11), KHÔNG invalidate/reopen phần nào
-  của v0.2 KHÔNG bị finding chạm tới, KHÔNG redesign/mở rộng scope.
+  của v0.2 KHÔNG bị finding chạm tới, KHÔNG redesign/mở rộng scope; v0.3 sau đó đạt
+  `Consolidated Stable` qua transaction consolidation riêng biệt (banner đầu tài liệu) —
+  KHÔNG version bump nào kèm theo mechanical lifecycle transaction này.
+
+`Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có
+  nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`,
+  `approved_at: null` KHÔNG đổi. Mọi gap tại §10 VẪN unresolved — Consolidated Stable
+  KHÔNG resolve gap nào trong số đó, KHÔNG authorize implementation, KHÔNG author
+  Package 1.5/1.6, KHÔNG mở Phase 2, KHÔNG authorize LIVE.
 ```
