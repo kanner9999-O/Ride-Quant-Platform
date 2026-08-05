@@ -2,6 +2,72 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05T13:51:00+07:00 — Package 1.1 v0.7: Consolidated Stable (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.1 v0.7 Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for Package 1.1 v0.7. No semantic architecture change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                 11f944336822a7557dfa9a2156e61d779b52ffe3
+docs/architecture/module-registry.yaml v0.7 blob (candidate):  7ad69a52c37dad14e24b07af8949d0f06d520adf
+docs/architecture/system-decomposition.md v0.7 blob (candidate): 5a0549f657237a8b415683ef5d35fc71ace9c9cb
+```
+
+### Product Owner decision (verbatim)
+
+```text
+"I approve consolidation of Package 1.1 v0.7 as the current Consolidated Stable
+module-registry and system-decomposition baseline, including the assignment of
+custody-signing-service.phase.elaborated_by to Package 1.2, while preserving
+exchange-adapter.phase.elaborated_by as null, the PAPER-only execution path, and
+LIVE Unauthorized."
+
+Decision timestamp: 2026-08-05T13:51:00+07:00
+```
+
+### Lifecycle change
+
+```text
+module-registry.yaml:      version 0.7 (unchanged), status Draft (unchanged),
+                            package_lifecycle: candidate -> Consolidated Stable
+system-decomposition.md:   version 0.7 (unchanged), status Draft (unchanged),
+                            package_lifecycle: candidate -> Consolidated Stable
+Blobs:                     module-registry.yaml       7ad69a52... -> 3879966305...
+                            system-decomposition.md    5a0549f6... -> 3afb113b32...
+```
+
+### Preserved unchanged
+
+```text
+25-module inventory; custody-signing-service.phase.elaborated_by: "1.2";
+exchange-adapter.phase.elaborated_by: null; every module's identity, taxonomy,
+responsibilities, dependencies, forbidden_dependencies, security_classification.
+execution-engine.depends_on: [risk-gateway, paper-execution-boundary] — no
+  execution-engine -> exchange-adapter edge.
+PAPER-only current execution; LIVE Unauthorized.
+Kill-switch-state ownership and in-flight signing/revocation behavior: still unresolved.
+Package 1.2 v0.4: untouched, byte-identical — still not Consolidated Stable, pending
+  its own Product Owner consolidation decision.
+ADR-017: Approved, not Locked — unchanged, byte-identical.
+```
+
+### Validation
+
+```text
+Baseline HEAD/blobs matched before editing.
+Exactly four files changed: module-registry.yaml, system-decomposition.md,
+  MANIFEST.md, CHANGELOG.md.
+Both artifacts remain version 0.7; package_lifecycle now Consolidated Stable in both.
+Only header-comment/banner prose and the package_lifecycle field changed in each
+  artifact — no module_id, phase, depends_on, or forbidden_dependencies field touched
+  (diff-verified; module-registry.yaml re-parsed as YAML, 25 modules, fields intact).
+Product Owner decision and 2026-08-05T13:51:00+07:00 timestamp recorded verbatim in
+  both artifacts' banners and in MANIFEST.md.
+Package 1.2 and ADR-017 files: not in the changed-file list, byte-identical.
+Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.1 v0.7: semantic alignment — custody-signing-service elaborating-package assignment
 
 **Semantic alignment transaction — vai trò: `Package 1.1 Custody Assignment Alignment Executor`.** Assigns `custody-signing-service.phase.elaborated_by: null -> "1.2"` in `module-registry.yaml` after Package 1.2 v0.4 (`security-custody-baseline.md`) passed Review A CLEAN + Independent Review B CLEAN (Blocker 0/Major 0/Minor 0). Reverts `package_lifecycle: Consolidated Stable -> candidate` — this is a genuine semantic phase-assignment change, not a mechanical/wording-only transaction, same precedent as v0.5's original module registration and the v0.2 -> v0.3 ADR-016 alignment. Does not modify Package 1.2 semantics, does not consolidate Package 1.2, does not activate LIVE.

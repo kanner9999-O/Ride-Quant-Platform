@@ -1,19 +1,31 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
-# CANDIDATE (package lifecycle, 2026-08-05, v0.7 semantic Package 1.1 alignment
-# transaction) — status: Draft, NOT Approved/Locked. v0.7 reverts package_lifecycle from
-# `Consolidated Stable` (v0.6) back to `candidate`: `custody-signing-service.phase.
-# elaborated_by` changes `null -> "1.2"` after Package 1.2 v0.4 (security-custody-
+# CONSOLIDATED STABLE (package lifecycle, 2026-08-05T13:51:00+07:00, Product Owner
+# decision) — status: Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable)
+# and artifact status (Draft) are separate dimensions (Chapter 0 §7.1) — Consolidated
+# Stable does NOT mean this file is Approved/Locked; it means the reviewed package
+# baseline (v0.7, 25 modules, custody-signing-service.phase.elaborated_by: "1.2") is
+# internally coherent and stable enough to be a dependency baseline for the next package.
+# Product Owner decision (verbatim): "I approve consolidation of Package 1.1 v0.7 as the
+# current Consolidated Stable module-registry and system-decomposition baseline,
+# including the assignment of custody-signing-service.phase.elaborated_by to Package
+# 1.2, while preserving exchange-adapter.phase.elaborated_by as null, the PAPER-only
+# execution path, and LIVE Unauthorized." Mechanical lifecycle transaction — `version:
+# "0.7"` UNCHANGED (no content/architecture change), `package_lifecycle: candidate ->
+# Consolidated Stable`.
+#
+# v0.7 semantic alignment transaction (2026-08-05, HISTORICAL — candidate v0.7 review
+# scope preceding the consolidation decision above): reverted package_lifecycle from
+# `Consolidated Stable` (v0.6) to `candidate`: `custody-signing-service.phase.
+# elaborated_by` changed `null -> "1.2"` after Package 1.2 v0.4 (security-custody-
 # baseline.md §4a) passed Review A CLEAN + Independent Review B CLEAN (Blocker 0/Major
 # 0/Minor 0) — a genuine semantic phase-assignment change, NOT a mechanical/wording-only
 # transaction, same precedent as v0.5's original registration and the v0.2 -> v0.3
-# ADR-016 alignment (both reverted Consolidated Stable -> candidate). v0.6's Consolidated
-# Stable consolidation decision (2026-08-05T08:40:00+07:00, Product Owner) is NOT
-# falsified — it remains the historical record for candidate v0.6's own review-clean
-# state at that time; it is simply no longer the current package_lifecycle. v0.7 requires
-# a bounded consistency verification pass and a NEW Product Owner consolidation decision
-# before returning to `Consolidated Stable`. `exchange-adapter.phase.elaborated_by`
-# remains `null`, unchanged. `version: "0.6" -> "0.7"`.
+# ADR-016 alignment. v0.6's Consolidated Stable consolidation decision
+# (2026-08-05T08:40:00+07:00, Product Owner) was NOT falsified — it remained the
+# historical record for candidate v0.6's own review-clean state at that time.
+# `exchange-adapter.phase.elaborated_by` remains `null`, unchanged. `version: "0.6" ->
+# "0.7"`.
 #
 # CONSOLIDATED STABLE (package lifecycle, 2026-08-05T08:40:00+07:00, Product Owner
 # decision, HISTORICAL — superseded by v0.7 above) — status: Draft, NOT Approved/Locked.
@@ -93,7 +105,7 @@ registry_id: phase-1-module-registry
 version: "0.7"
 status: Draft
 package: "1.1"
-package_lifecycle: candidate
+package_lifecycle: Consolidated Stable
 generated_at: "2026-08-05"
 
 modules:
