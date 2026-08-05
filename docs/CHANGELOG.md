@@ -2,6 +2,108 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.5 v0.1: initial candidate — Database Architecture
+
+**Authoring transaction — vai trò: `Package 1.5 Database Architecture Initial Author`.** Authors the first Package 1.5 candidate, elaborating the architecture-level boundary of the registered `review-evidence-service` module (the sole module assigned `phase.elaborated_by: "1.5"`), based on Package 1.1 v0.7, Package 1.2 v0.4, Package 1.3-A/B/C/D, and Package 1.4 v0.3 (all Consolidated Stable). This is an authoring transaction, not a review/consolidation transaction.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                 62465c0bee4141f3685fcbe39d4f4b52095fb369
+Controlling sources: phase-1-plan.md v0.4 (Approved); module-registry.yaml v0.7 /
+  system-decomposition.md v0.7 (Consolidated Stable); security-custody-baseline.md v0.4
+  (Consolidated Stable); risk-execution-architecture.md v0.2 (Consolidated Stable);
+  api-architecture.md v0.3 (Consolidated Stable); Package 1.3-A/1.3-B/1.3-C
+  (Consolidated Stable).
+```
+
+### New artifact
+
+```text
+docs/architecture/database-architecture.md — NEW
+  version: 0.1, status: Draft, package lifecycle: candidate
+  Blob: 376dea92676cfab054d7c177a55124399544a130
+```
+
+### Scope covered
+
+```text
+§2  Module boundary — review-evidence-service registry classification (owns_
+      authoritative_state: false, module_type: projection, 7-module depends_on,
+      security_classification: none, phase.elaborated_by: "1.5") transcribed verbatim,
+      confirmed the sole Package 1.5 module, no dependency edge added.
+§3  Persistence authority model — six categories (authoritative domain fact,
+      append-only history, designated projection, review/evidence record, index/
+      cache/rebuildable materialization, operational storage) per I-12; storage
+      technology never creates or transfers Domain authority.
+§4  Review Evidence Service boundary — evidence collection/retrieval responsibility,
+      provenance/correlation/source-reference preservation, non-authoritative status,
+      inability to rewrite authoritative source records, relationship to API exposure
+      (Package 1.4) and future UX consumption (Package 1.6), failure behavior for
+      missing/stale/incomplete/unverifiable evidence.
+§5  Data classification and ownership matrix — all 24 non-Package-1.5 modules plus
+      review-evidence-service itself, transcribed from the registry (authoritative
+      status, persistence purpose, append/correction/rebuild treatment, security
+      sensitivity); retention/deletion decision owner recorded as an unestablished
+      gap, no new owner assigned.
+§6  Append, correction, and no-repaint semantics — immutable identity, effective/
+      recorded-time distinction, supersedes_fact_ref lineage, no silent overwrite, no
+      mutable-latest substitution, rebuild determinism.
+§7  Transaction and consistency boundaries — atomicity within authoritative write
+      boundary, idempotency, ordering/cursor evidence, causal/correlation
+      preservation, cross-module writes avoiding distributed authority, eventual
+      projection updates not representing authoritative completion, unknown/partial
+      outcomes failing safely.
+§8  Query, replay, and audit support — deterministic replay via replay-integration-
+      service's canonical cursor, backtest evidence (DD-001 unresolved), PAPER
+      evidence via the environment field, correction-aware historical query, audit/
+      review traceability, environment/Account Boundary separation — no conflation
+      of replay/backtest/PAPER with LIVE.
+§9  Security and custody constraints — no raw secret/signing material in general-
+      purpose persistence, custody secrets confined to the Package 1.2 boundary,
+      least-privilege evidence exposure per security_classification, no direct
+      storage route to custody/signing, LIVE Unauthorized.
+§10 Failure and recovery semantics — eight distinguished categories: write rejection,
+      duplicate/idempotent replay, stale/invalidated input, partial/unknown outcome,
+      projection lag, missing evidence, corrupted/unverifiable evidence, authoritative
+      source unavailable. No concrete codes.
+§11 Preserved gaps and non-goals — kill-switch state ownership, in-flight signing/
+      execution behavior, LIVE Domain Contract, DD-003, DD-001, exchange-adapter
+      assignment, and retention/deletion ownership carried forward unresolved;
+      SQL/NoSQL/vendor choice, schema/DDL, migration tooling, ORM, deployment
+      topology, replication, backup, encryption implementation, Package 1.6 content,
+      and LIVE activation explicitly out of scope.
+§12 Review A / Independent Review B scope + Consolidation condition (per
+      phase-1-plan.md).
+§13 Lifecycle treatment.
+```
+
+### Validation
+
+```text
+Baseline HEAD matched before authoring.
+Exactly three files changed: database-architecture.md (new), MANIFEST.md,
+  CHANGELOG.md.
+Target artifact exists at docs/architecture/database-architecture.md.
+version: 0.1, status: Draft, package lifecycle: candidate.
+review-evidence-service classification (depends_on, forbidden_dependencies,
+  security_classification, phase, owns_authoritative_state, module_type) transcribed
+  verbatim from module-registry.yaml v0.7 — confirmed via Python/YAML cross-check as
+  the sole module with phase.elaborated_by: "1.5" — no new module or dependency edge
+  invented.
+Authoritative facts remain owned by their existing modules (§5 ownership matrix
+  transcribes, does not reassign, authority).
+Review Evidence Service does not replace authoritative source records (§4 — read-only,
+  no event emission, provenance preserved).
+No table/schema/vendor implementation authored.
+module-registry.yaml, system-decomposition.md, security-custody-baseline.md,
+  risk-execution-architecture.md, api-architecture.md, ADR-017: not in the
+  changed-file list, byte-identical.
+Package 1.6 remains unauthored.
+PAPER-only execution and LIVE Unauthorized unchanged.
+Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-05T15:16:00+07:00 — Package 1.4 v0.3: Consolidated Stable (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.4 v0.3 Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for Package 1.4 v0.3. No semantic architecture change.
