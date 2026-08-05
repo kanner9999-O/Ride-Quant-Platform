@@ -2,6 +2,119 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.6 v0.1: initial candidate — UX Architecture
+
+**Authoring transaction — vai trò: `Package 1.6 UX Architecture Initial Author`.** Authors the first Package 1.6 candidate, elaborating the architecture-level boundary of the registered `ux-application-shell` module (the sole module assigned `phase.elaborated_by: "1.6"`), based on Package 1.1 v0.7, Package 1.2 v0.4, Package 1.3-A/B/C/D, Package 1.4 v0.3, Package 1.5 v0.2 (all Consolidated Stable), and `ux-blueprint.md` (Package 0.3-C, Consolidated Stable). This is the last Phase 1 package authored for the first time — Phase 1 now has a candidate or Consolidated Stable artifact for every package (1.1 through 1.6).
+
+### Baseline
+
+```text
+Baseline HEAD:                                                 7f3f388cd696f0b568ffb96064aa240c7b32e7f2
+Controlling sources: phase-1-plan.md v0.4 (Approved); module-registry.yaml v0.7 /
+  system-decomposition.md v0.7 (Consolidated Stable); api-architecture.md v0.3
+  (Consolidated Stable); database-architecture.md v0.2 (Consolidated Stable);
+  ux-blueprint.md (Package 0.3-C, Consolidated Stable); product-requirement.md;
+  use-case-workflow.md; Package 1.1-1.5 (Consolidated Stable).
+```
+
+### New artifact
+
+```text
+docs/architecture/ux-architecture.md — NEW
+  version: 0.1, status: Draft, package lifecycle: candidate
+  Blob: 44ab2cd34658d75ea2172136cce60c81c0857f9b
+```
+
+### Scope covered
+
+```text
+§2  Module boundary — ux-application-shell registry classification (owns_
+      authoritative_state: false, consumes: [query], emits: [command], depends_on:
+      [command-query-api-surface] sole edge, 14-entry forbidden_dependencies,
+      security_classification: none, implements_capabilities/serves_contexts: [],
+      phase.elaborated_by: "1.6") transcribed verbatim, confirmed the sole Package 1.6
+      module, no dependency edge/capability/context/authority invented.
+§3  UX authority boundary — UX Blueprint owns screen/flow/state semantics; Package 1.6
+      owns technical realization only; UX Shell owns no Domain/business authority;
+      rendering/command orchestration create no business acceptance; no recomputation
+      of Decision/Risk/Execution/Position/review truth.
+§4  Complete acceptance-surface traceability — full 59/59 identifier trace: 17 SCR/VIEW
+      with a seven-column matrix (owning surface, component responsibility, required
+      API interaction, state classification, failure treatment, environment/account
+      boundary, implementation status), WS-001 (4 owned items + STATE-027), 6 NAV
+      destinations, 6 FLOW journeys, 29 STATE identifiers — all individually verified
+      present as literal identifiers (exhaustive substring check). Two gaps recorded:
+      VIEW-002/VIEW-003 synthesis-layer ownership, and NAV-003 Backtest's missing
+      command-query-api-surface dependency edge to backtest-orchestrator.
+§5  Component decomposition — eight architecture-level classifications (application
+      shell, workspace/navigation frame, route/surface container, query-bound view
+      component, command interaction component, evidence/review presentation
+      component, environment/account context boundary, shared non-authoritative
+      presentation utility) — explicitly not a new module registry.
+§6  State model — authoritative backend state, designated projection state, API
+      transport state, local ephemeral UI state, persisted user preference (none
+      established upstream), stale/loading/error/unknown state, command-pending/
+      unresolved-outcome state. No frontend persistence authority invented.
+§7  API binding — all UX data/commands bind only through command-query-api-surface; no
+      direct engine/projection/evidence-service/custody/signing access; transport
+      acceptance != business acceptance; cursor/version/freshness/provenance/
+      correlation/environment evidence preserved; no field-level API schema authored.
+§8  Non-bypass and forbidden dependencies — explicitly states forbidden_dependencies/
+      depends_on establish a prerequisite relation, not a complete caller/access-control
+      proof on their own (applying the lesson from Package 1.4's P14-A-MAJ-01 correction
+      from the start, not after a finding); four positive invariants defined.
+§9  Environment and Account Boundary — PAPER/LIVE distinction, LIVE Unauthorized
+      (STATE-027), immutable environment/account references, no cross-account/
+      environment leakage, no hidden transition into LIVE.
+§10 Review, replay, and evidence surfaces — Review Evidence Service remains non-
+      authoritative; Position is projection evidence, not authoritative truth;
+      correction lineage/provenance/incomplete-evidence markers remain visible;
+      replay/backtest/PAPER stay distinct; the Package 1.5 contract-category
+      interaction gap is inherited unresolved, not fixed in UX.
+§11 Failure and interaction semantics — ten distinguished categories (loading, empty,
+      stale, unavailable, unauthorized, validation rejection, domain rejection,
+      processing failure, unknown/unresolved outcome, partial/unverifiable evidence).
+      No new codes/retry algorithms/UI copy beyond what ux-blueprint.md bounds.
+§12 Accessibility, responsiveness, and presentation constraints — only transcribes
+      constraints ux-blueprint.md already establishes (none concrete exist yet); gap
+      recorded for accessibility/breakpoint/design-token decisions pending upstream.
+§13 Preserved gaps and non-goals — three new gaps (synthesis-layer ownership,
+      NAV-003 API-binding, accessibility/design-token) plus full carry-forward of
+      upstream unresolved gaps; explicit non-goals for framework choice, component
+      code, CSS, pixel design, field-level schema, new UX behavior, authentication,
+      database design, custody implementation, backend orchestration, Package 1.5
+      gap resolution, and LIVE activation.
+§14 Review A / Independent Review B scope + Consolidation condition (per
+      phase-1-plan.md).
+§15 Lifecycle treatment.
+```
+
+### Validation
+
+```text
+Baseline HEAD matched before authoring.
+Exactly three files changed: ux-architecture.md (new), MANIFEST.md, CHANGELOG.md.
+Target artifact exists at docs/architecture/ux-architecture.md.
+version: 0.1, status: Draft, package lifecycle: candidate.
+ux-application-shell classification (depends_on, forbidden_dependencies,
+  security_classification, phase, owns_authoritative_state, consumes, emits,
+  implements_capabilities, serves_contexts) transcribed verbatim from
+  module-registry.yaml v0.7 — confirmed via Python/YAML cross-check as the sole
+  module with phase.elaborated_by: "1.6" — no new module, edge, capability, context,
+  authority, or contract category invented.
+All 17 SCR/VIEW, WS-001, all 6 NAV, all 6 FLOW, and all 29 STATE identifiers
+  individually verified present via exhaustive substring check (initial pass found 5
+  STATE IDs only present via ambiguous slash/range shorthand — corrected to fully
+  spelled-out identifiers before finalizing).
+UX depends only on command-query-api-surface; all 14 forbidden dependencies preserved
+  verbatim; no business, custody, signing, or persistence authority assigned to UX.
+module-registry.yaml, system-decomposition.md, security-custody-baseline.md,
+  risk-execution-architecture.md, api-architecture.md, database-architecture.md,
+  ux-blueprint.md, ADR-017: not in the changed-file list, byte-identical.
+PAPER/LIVE separation and LIVE Unauthorized unchanged. Phase 2 remains unopened.
+Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-05T16:45:00+07:00 — Package 1.5 v0.2: Consolidated Stable (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.5 v0.2 Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for Package 1.5 v0.2. No semantic architecture change.
