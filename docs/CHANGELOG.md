@@ -2,6 +2,202 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.2 v0.3: substantive extension — Custody & Signing Service elaboration (Package 1.1 v0.6 / ADR-017 alignment)
+
+**Authoring transaction — vai trò: `Package 1.2 v0.3 Extension Author`.** Aligns the Security & Custody Baseline with Consolidated Stable Package 1.1 v0.6, Approved ADR-017 v0.2, the registered `custody-signing-service`, and the preserved PAPER-only/LIVE-Unauthorized architecture. This is an authoring transaction, not a consolidation transaction — Package 1.1 phase assignments are not modified.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                 2fb5fb1e21d819b0b16cd7893aef467ac721bd55
+docs/architecture/security-custody-baseline.md v0.2 blob:       7f2cfebbbbbe80348e16013814db573e4c6497dc
+docs/architecture/module-registry.yaml v0.6 blob (unchanged):   d98f707e0a21676ac84de6cbfda904bc79dbfb09
+docs/architecture/system-decomposition.md v0.6 blob (unchanged): 8a19b41300abefaab2fa5936e5948101d9d254fb
+docs/adr/ADR-017.md v0.2 blob (unchanged, Approved):            b08af6a04a5df8e7642b7a62b3fbeb63a9c9f184
+```
+
+### Baseline alignment
+
+```text
+Package 1.1 references updated throughout:  v0.4/23-module -> v0.6/25-module
+                                             (Consolidated Stable), historical mentions
+                                             of the old baseline clearly labeled.
+security_classification tally referenced:   secret_consuming 1 (custody-signing-service),
+                                             trust_boundary_candidate 5 (adds
+                                             exchange-adapter), custody_adjacent 1
+                                             (account-service), none 18.
+```
+
+### Module scope extension (§2, §3.2)
+
+```text
+custody-signing-service:  added to the module scope table — fully elaborated (§4a, new).
+exchange-adapter:         added to the module scope table — trust-boundary-only
+                          reference, functionally unelaborated (registered, no owning
+                          package).
+§3.2:                     new secret_consuming class replaces the v0.1/v0.2
+                          "future credential-using boundary" placeholder;
+                          trust_boundary_candidate list extended to 5 modules.
+```
+
+### New §4a — Custody & Signing Service module elaboration (12 subsections)
+
+```text
+4a.1  Registry classification — current (phase.elaborated_by: null) vs. proposed ("1.2",
+      not yet executed).
+4a.2  Authority model — may be authoritative ONLY for credential-binding identity/state,
+      credential eligibility/suspension/revocation state, signing-attempt identity/
+      lifecycle, signing outcome operational facts, custody/signing audit provenance;
+      explicitly NOT authoritative for raw secret material, Account identity, Decision,
+      Trade Intent, RiskEvaluation, Execution Intent, Order, Order eligibility,
+      ExecutionObservation, ExecutionResult, Fill, Position, kill-switch state, or venue
+      interaction evidence. All other modules' authority (Account Service, Decision
+      Authority Service, Risk Gateway, Execution Engine, Exchange Adapter, Execution
+      Result Processor, Fill Processor, Position Projection) explicitly preserved.
+4a.3  Credential-reference model — architecture-level concepts only (CredentialReference,
+      CredentialBinding, CredentialEligibility, CredentialRevocationState, SigningRequest,
+      SigningAttempt, SigningOutcome, SigningFailure, SigningAuthorizationEvidence) and
+      their relationships — no field-level schema.
+4a.4  Responsibilities (bounded list per task).
+4a.5  Signing-request lifecycle — RECEIVED / VALIDATING / REJECTED /
+      AUTHORIZED_FOR_SIGNING / SIGNING / SIGNED / FAILED / CANCELLED / UNKNOWN_OUTCOME /
+      EXPIRED, with explicit clarification that SIGNED does not imply venue submission,
+      Order execution, ExecutionResult, or Fill.
+4a.6  Identity, idempotency, correlation — immutable SigningRequest identity, one
+      logical request across retries, payload-digest and authorization-evidence binding,
+      mandatory invariant that a retry must never silently sign a different payload
+      under the same logical identity.
+4a.7  Caller authorization boundary — only a future authorized Exchange Adapter or an
+      explicitly approved administrative operation may call; direct signing access
+      explicitly prohibited for strategy-engine, strategy-plugin-host,
+      decision-evaluation-engine, decision-authority-service, risk-gateway,
+      context-aggregator, position-projection, command-query-api-surface,
+      ux-application-shell; carrying authorization evidence does not create a dependency
+      on Decision Authority Service or Risk Gateway.
+4a.8  Fail-closed rules — thirteen required conditions (missing, invalid, stale, revoked,
+      suspended, expired, environment-mismatched, venue-mismatched,
+      Account-Boundary-mismatched, payload-mismatched, authorization-evidence-mismatched,
+      unsupported, ambiguous, unverifiable) with no raw-secret leakage.
+4a.9  Timeout, cancellation, uncertain-outcome semantics — timeout is not failure or
+      success until confirmed; unknown outcome requires reconciliation; in-flight
+      handling remains explicitly unresolved.
+4a.10 Kill-switch participation — fail-safe participant selected by ADR-017 under
+      I-6/I-8/I-11 combined; state ownership not assigned.
+4a.11 Audit and provenance — thirteen required audit categories; six categories that
+      must always be excluded (raw secret, private key, seed phrase, recovery secret,
+      full sensitive credential material, unredacted sensitive signed payload).
+4a.12 Interaction boundaries — Account Service <-> Custody/Signing Service, future
+      Exchange Adapter <-> Custody/Signing Service; no active
+      execution-engine -> exchange-adapter edge.
+```
+
+### New §12a — Cross-cutting control matrix
+
+Twelve control areas (raw-secret access, credential-reference access, signing-request initiation, signed-material receipt, venue transport, business authorization, audit visibility, replay/backtest exclusion, log/event/snapshot redaction, plugin isolation, API/UI restrictions, fail-closed behavior) mapped across all 25 modules, applying the existing class-neutral baseline (§3.1) plus class-specific additions (§3.2) — no new rule invented beyond what's already pinned.
+
+### New §12b — Replay/backtest constraints
+
+Raw credentials, credential bindings, signing requests containing sensitive material, signatures, and signed payloads must never enter market replay, strategy replay, backtest datasets, deterministic simulation snapshots, general analytical event streams, or user-facing journal exports. Non-secret audit metadata may be retained only under explicit classification and redaction rules (mechanism not designed here).
+
+### §5-§12 updated (cross-reference to §4a, stale references corrected)
+
+```text
+§5:   raw venue-interaction evidence (Exchange Adapter, now registered) distinguished
+      from signing outcome (Custody/Signing Service) and execution observation.
+§6:   signing-request pattern confirmed CHOSEN via ADR-017 Option C (no longer "two
+      unchosen models"); secret non-exposure table extended per-layer including
+      Execution Engine (no direct Custody/Signing Service call).
+§7:   both modules confirmed registered (module-registry.yaml v0.6); exchange-adapter
+      remains functionally unelaborated, no owning package created.
+§8:   custody-signing-service confirmed elaborated as a future-capable security boundary,
+      not activated as part of a LIVE execution path.
+§9:   custody-signing-service's ADR-017-selected fail-safe participation distinguished
+      from exchange-adapter's I-8-anticipated participation.
+§10:  cross-reference to §4a.8's thirteen fail-closed conditions.
+§11:  custody-signing-service's SigningRequest idempotency cross-referenced to §4a.6.
+§12:  cross-reference to §4a.11's audit category list.
+```
+
+### §13 non-goals updated
+
+Module-creation non-goal removed (both modules already registered by Package 1.1); added: no elaborating-package creation for exchange-adapter, no registry self-modification, no self-execution of the §16a Package 1.1 alignment transaction, and a thirteen-item deferred implementation scope list (Vault/KMS/HSM vendor, cryptographic algorithm, key generation ceremony, credential import UX, physical storage topology, database implementation, network/service mesh, deployment topology, concrete RBAC product, rotation schedule, venue-specific signing details, SLA/timeout values, incident-response runbook).
+
+### §14 preserved gaps rewritten
+
+Gaps #1-#3 from v0.2 (module registration, credential mechanism, signing-request pattern) partially resolved — module registration and signing pattern resolved via ADR-017; concrete credential mechanism remains forbidden scope. Replaced with an 18-item list covering Exchange Adapter elaboration/package assignment, future LIVE Domain Contract, Stage 2 activation, raw venue-evidence Domain Contract, kill-switch state ownership (still unresolved), in-flight behavior, signing correlation mechanism, timeout/reconciliation mechanism, Vault/KMS/HSM, rotation/algorithm, DD-003, future LIVE governance authorization, PAPER/LIVE credential isolation, Broker Boundary contract, RBAC/OQ-001, audit log schema, venue-adapter protocol, and full Package 1.3-D/ADR-017 gap inheritance.
+
+### §15 rewritten — ADR gate RESOLVED
+
+All eight ADR decision-scope items (§15.2, preserved as historical record at new §15.0) cross-referenced against ADR-017's actual content and confirmed resolved at the architecture-decision level. Package 1.2 v0.3 is **not** thereby Consolidated Stable — the ADR gate condition is satisfied, but review-clean status and Package 1.1 alignment (§16a) remain independent, unmet conditions.
+
+### §16 rewritten + new §16a — Package 1.1 alignment dependency
+
+```text
+Package 1.2 v0.3 may become review-clean while custody-signing-service.phase.
+elaborated_by remains null. After Package 1.2 v0.3 passes Review A and Independent
+Review B, a separate bounded Package 1.1 alignment transaction must change
+elaborated_by: null -> "1.2", followed by required consistency verification. Only after
+that may Package 1.2 receive Product Owner consolidation. This transaction does not
+perform that registry change.
+```
+
+### New §17 — Lifecycle treatment
+
+```text
+Package 1.2 v0.3: Draft, candidate, not Consolidated Stable, pending Review A, pending
+Independent Review B, pending Package 1.1 alignment, pending Product Owner consolidation
+decision. Package 1.2 v0.2 remains historical review-clean evidence for its original
+scope (account-service).
+```
+
+### Preserved unchanged (confirmed)
+
+```text
+account-service module boundary (§4); business-vs-custody authority separation
+principle (§5); Decision Authority Service, Risk Gateway, Execution Engine, Execution
+Result Processor, Fill Processor, Position Projection authority; PAPER-only current
+scope; LIVE Unauthorized; DD-003 not resolved; no execution-engine -> exchange-adapter
+edge; module-registry.yaml/system-decomposition.md untouched (custody-signing-
+service.phase.elaborated_by remains null at the registry).
+```
+
+### Changed-file scope
+
+```text
+docs/architecture/security-custody-baseline.md   0.2 -> 0.3
+                                                  7f2cfebbbbbe80348e16013814db573e4c6497dc
+                                                  -> fc8e8cf4fad1bbe17b47a9ffc2b2ecf3f1df9f25
+docs/MANIFEST.md                                 manifest_version 10.46 -> 10.47,
+                                                  Architecture table row updated
+docs/CHANGELOG.md                                this entry prepended
+```
+
+### Automated validation results
+
+```text
+Frontmatter/YAML:  security-custody-baseline.md parses cleanly — version "0.3", status
+                   Draft, approved_by/approved_at null; fence balance even (94).
+Diff scope:        git status --short confirmed exactly the 3 expected files changed;
+                   forbidden-scope diff (module-registry.yaml, system-decomposition.md,
+                   docs/adr/, phase-1-plan.md, docs/architecture/engine/, docs/domain/,
+                   docs/product/, docs/constitution/, docs/team/, docs/phase-dod/) empty.
+```
+
+### Frozen files verified byte-identical
+
+```text
+docs/architecture/module-registry.yaml
+docs/architecture/system-decomposition.md
+docs/adr/
+docs/architecture/phase-1-plan.md
+docs/architecture/engine/
+docs/domain/
+docs/product/
+docs/constitution/
+docs/team/
+docs/phase-dod/
+```
+
 ## [Unreleased] — 2026-08-05T08:40:00+07:00 — Package 1.1 v0.6: Consolidated Stable (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.1 v0.6 Consolidation Lifecycle Transaction Executor`.** Records the Product Owner's consolidation approval for Package 1.1 v0.6. No semantic architecture change.
