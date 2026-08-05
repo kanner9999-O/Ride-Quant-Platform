@@ -2,6 +2,86 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.4 v0.2: bounded correction — Review A finding closure on v0.1
+
+**Bounded correction transaction — vai trò: `Package 1.4 Bounded Correction Executor`.** Closes three confirmed Review A findings on the v0.1 initial candidate. Localized edits only — no redesign, no scope expansion, no new architecture sections.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        4e11ff9159110f083488b1454938c51c532ad485
+docs/architecture/api-architecture.md v0.1 blob:      be4a7b5dc63edaf0ed725aab3e9b106991c7b89f
+```
+
+### Finding closure
+
+```text
+P14-A-MAJ-01 (dependency-edge absence over-claimed as non-bypass proof):  §6 corrected
+  — depends_on absence (no edge to custody-signing-service, exchange-adapter,
+  strategy-plugin-host, decision-evaluation-engine; ux-application-shell's sole edge
+  to command-query-api-surface) is preserved as registry fact, but is no longer
+  presented as complete proof of caller exclusion, invocation impossibility, payload-
+  flow exclusion, raw-secret isolation, authority non-bypass, or causal authorization.
+  depends_on is now stated explicitly as a prerequisite relation, not a complete
+  caller-access/dataflow-control model. Added a new architecture-level invariant block:
+  API transport never creates Decision/Risk/execution/custody/signing eligibility;
+  every effect-producing command must be accepted and validated by its authoritative
+  owning boundary; execution-affecting routes must preserve eligible lineage/
+  correlation to the Decision -> Risk -> Execution chain; missing/stale/invalidated/
+  ambiguous/duplicated/unauthorized/causally-unrelated lineage fails closed at the
+  authoritative boundary; API validation/transport acceptance cannot substitute for
+  authoritative eligibility; secrets/signing material must be rejected from API
+  payloads and remain confined to the Package 1.2 custody boundary. No field-level
+  lineage schema, authorization protocol, middleware, token format, or network
+  topology invented.
+
+P14-A-MAJ-02 (API Surface over-claimed as compatibility authority):  §8 corrected —
+  removed the claims that every API request uses all three Chapter 10 §10.3 version
+  axes, that Plugin Version is a universal API axis, and that API Surface is the
+  canonical compatibility evaluator or must create a Compatibility Result per request.
+  Replaced with bounded rules: every published contract identifies its applicable
+  version per the controlling contract; the three axes remain distinct and apply only
+  where relevant; Plugin Version applies only to plugin-related artifacts; compatibility
+  evaluation ownership remains with the registered authoritative/designated module;
+  API Surface only carries/routes/exposes compatibility evidence; absence or ambiguity
+  of required evidence fails closed or routes to the owning module. No compatibility
+  algorithm defined, no new authority owner assigned.
+
+P14-A-MIN-01 (emits exclusion over-claimed as transport topology proof):  §5 corrected
+  — `emits` excluding `event` is now stated to prove only that API Surface is not a
+  registered authoritative event emitter, not any specific transport topology. Event/
+  streaming exposure may use a transport mechanism selected later; such exposure
+  remains read-only from the API authority perspective regardless of mechanism; event
+  identity/provenance/ordering/correction semantics are unchanged; no transport
+  mechanism may turn API Surface into an event authority. No WebSocket/SSE/polling/
+  broker/query-based implementation selected.
+```
+
+### Preserved unchanged
+
+```text
+command-query-api-surface registry classification, all 16 dependencies,
+  forbidden_dependencies, owns_authoritative_state: false.
+Account/Decision/Risk/Execution/Fill/Position/custody authority boundaries.
+Transport acceptance != business acceptance; error/failure categories (§7).
+Package 1.5 and Package 1.6 forward boundaries.
+PAPER-only execution; LIVE Unauthorized.
+module-registry.yaml, system-decomposition.md, security-custody-baseline.md,
+  risk-execution-architecture.md, ADR-017: byte-identical, not touched.
+All gaps and non-goals unrelated to the three findings.
+```
+
+### Version
+
+```text
+docs/architecture/api-architecture.md:  0.1 -> 0.2
+Blob:                                    be4a7b5dc63edaf0ed725aab3e9b106991c7b89f
+                                         -> 2e3fc6ac22c4ac62e60dba75b038cbb677a6d813
+status: Draft, package lifecycle: candidate — unchanged. Not Consolidated Stable.
+Pending: bounded verification of this correction, Independent Review B, Product
+  Owner consolidation decision.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.4 v0.1: initial candidate — API Architecture
 
 **Authoring transaction — vai trò: `Package 1.4 API Architecture Initial Author`.** Authors the first Package 1.4 candidate, elaborating the architecture-level boundary of the registered `command-query-api-surface` module, based on Package 1.1 v0.7, Package 1.2 v0.4, and Package 1.3-A/B/C/D (all Consolidated Stable). This is an authoring transaction, not a review/consolidation transaction.

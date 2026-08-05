@@ -1,7 +1,7 @@
 ---
 id: api-architecture
 title: "Package 1.4 — API Architecture"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -16,6 +16,8 @@ depends_on: ["00-governance", "02-platform-invariants", "07-module-taxonomy", "0
 # Package 1.4 — API Architecture
 
 **CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.4 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module, module-registry.yaml/system-decomposition.md), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable` (v0.2), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.4 — API Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
+
+**v0.2 — bounded correction (2026-08-05), đóng ba Review A finding trên v0.1 (`P14-A-MAJ-01`/`P14-A-MAJ-02`/`P14-A-MIN-01`), KHÔNG redesign/mở rộng scope:** (a) `P14-A-MAJ-01` — §6 sửa: dependency-edge absence (§2.1/§2.3) KHÔNG còn được trình bày như bằng chứng ĐẦY ĐỦ cho caller exclusion/invocation impossibility/payload-flow exclusion/raw-secret isolation/authority non-bypass/causal authorization — `depends_on` LÀ prerequisite relation, KHÔNG PHẢI một complete caller-access/dataflow-control model; thêm bộ architecture-level invariant mới (transport KHÔNG BAO GIỜ tạo eligibility, effect-producing command PHẢI qua authoritative boundary, lineage fail-closed, secrets/signing material bị cấm khỏi API payload); (b) `P14-A-MAJ-02` — §8 sửa: bỏ claim mọi request dùng đủ ba trục Chapter 10, bỏ claim Plugin Version là trục universal, bỏ claim API Surface LÀ canonical compatibility evaluator/PHẢI tạo Compatibility Result cho mọi request — thay bằng bounded rule: compatibility evaluation VẪN thuộc module authoritative/designated đã đăng ký, API Surface CHỈ carry/route/expose evidence; (c) `P14-A-MIN-01` — §5 sửa: `emits` loại trừ `event` CHỈ chứng minh API Surface KHÔNG phải registered authoritative event emitter, KHÔNG chứng minh một transport topology cụ thể nào — transport mechanism CÓ THỂ chọn sau, exposure VẪN read-only, event identity/provenance/ordering/correction KHÔNG đổi. Mọi nội dung khác của v0.1 GIỮ NGUYÊN.
 
 ## 0. Vai trò của tài liệu này — scope resolved từ controlling source (bắt buộc, yêu cầu task)
 
@@ -249,11 +251,22 @@ Stale, missing, hay ambiguous source state PHẢI fail closed nơi controlling
 ## 5. Event and streaming exposure (bắt buộc, yêu cầu task — KHÔNG design WebSocket/SSE/Kafka implementation)
 
 ```text
-Read-only event/stream exposure CHỈ: registry xác nhận `command-query-api-surface.
-  emits: [query, command]` — KHÔNG bao gồm `event` — API Surface KHÔNG tự phát sinh
-  event mới; mọi event stream expose cho client LÀ relay/read-surface của event đã
-  authoritative-published bởi module sở hữu (`consumes: [event]` — input để re-expose
-  qua `query`), KHÔNG một event-authoring path độc lập.
+Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P14-A-MIN-01`): registry fact
+  `command-query-api-surface.emits: [query, command]` (KHÔNG bao gồm `event`) chứng
+  minh CHÍNH XÁC một điều — API Surface KHÔNG được registered như một authoritative
+  event emitter (Chapter 8, module-registry.yaml) — fact này KHÔNG chứng minh, VÀ
+  KHÔNG được diễn giải thành, một transport topology cụ thể nào (vd. polling-only,
+  request/response-only, hay loại trừ streaming). Event/streaming exposure (nếu có)
+  CÓ THỂ dùng bất kỳ transport mechanism nào được chọn SAU tại một transaction riêng
+  (§14 gap, KHÔNG author tại đây) — bất kể mechanism nào được chọn, exposure đó VẪN
+  read-only từ góc độ API authority (API Surface KHÔNG author/emit event mới dưới BẤT
+  KỲ transport nào); KHÔNG transport mechanism nào được phép biến API Surface thành
+  một event authority — registry's `emits` field VẪN LÀ nguồn xác nhận DUY NHẤT cho
+  authority status đó, KHÔNG một implementation choice nào override được.
+
+Read-only event/stream exposure: mọi event stream expose cho client LÀ relay/read-
+  surface của event đã authoritative-published bởi module sở hữu (`consumes: [event]`
+  — input để re-expose qua `query`), KHÔNG một event-authoring path độc lập.
 
 Preservation của identity/ordering/correction/provenance: append-only event record
   (Chapter 8 §8.2, Locked) VÀ correction lineage (`supersedes_fact_ref` pattern dùng
@@ -284,34 +297,92 @@ Replay/backtest/live environment separation: `replay-integration-service` (Chapt
 ## 6. Security và non-bypass (I-4/I-7/I-8/I-11, bắt buộc, yêu cầu task)
 
 ```text
-Strategy, Plugin, Decision, Risk, Execution, VÀ Custody authority KHÔNG THỂ bypass qua
-  API: cấu trúc `command-query-api-surface.depends_on` (§2.1) KHÔNG chứa
-  `strategy-plugin-host`, `decision-evaluation-engine`, `custody-signing-service`, hay
-  `exchange-adapter` — script-verifiable absence, KHÔNG cần forbidden_dependencies
-  riêng vì depends_on ĐÃ exhaustive (§2.3). Mọi command/query PHẢI đi qua module
-  authoritative đã đăng ký (`decision-authority-service`, `risk-gateway`,
-  `execution-engine`, v.v.) — KHÔNG đường tắt nào tới internal implementation/plugin-
-  hosted logic (I-7 Plugin Non-Bypass, Chapter 2, Locked, nguyên văn: "Plugin chỉ tương
-  tác qua published contracts... Prohibited: Plugin gọi trực tiếp implementation nội bộ
-  hoặc mutable state của module khác").
+Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P14-A-MAJ-01`): `depends_on`
+  (module-registry.yaml) LÀ một prerequisite relation — nó khai báo module NÀO một
+  module ĐƯỢC PHÉP phụ thuộc/gọi tới, KHÔNG PHẢI một complete caller-access hay
+  dataflow-control model. Absence của một edge tại `depends_on` (§2.1/§2.3) LÀ registry
+  fact CÓ THẬT VÀ preserved nguyên vẹn dưới đây, NHƯNG absence đó, TỰ THÂN, KHÔNG chứng
+  minh đầy đủ: caller exclusion (ai được phép GỌI vào một module, khác chiều với
+  depends_on); direct hay indirect invocation impossibility; payload-flow exclusion
+  (dữ liệu gì CÓ THỂ chảy qua một route hợp lệ khác); raw-secret isolation; authority
+  non-bypass; hay causal authorization. Các claim đó đòi hỏi bằng chứng bổ sung ngoài
+  một dependency-graph fact đơn lẻ — §6 dưới đây KHÔNG còn trình bày absence-of-edge
+  như bằng chứng đầy đủ cho bất kỳ mục nào trong số này.
 
-Raw exchange credential VÀ signing material KHÔNG BAO GIỜ được expose: vì API Surface
-  KHÔNG có dependency edge tới `custody-signing-service`/`exchange-adapter` (§2.3), nó
-  KHÔNG THỂ nhận raw secret hay signing material qua bất kỳ published contract nào —
-  ngay cả SigningOutcome (Package 1.2 §4a.4/§4a.5, Consolidated Stable) tự thân đã
-  KHÔNG BAO GIỜ chứa raw secret; API Surface KHÔNG có đường nào để chạm evidence đó dù
-  gián tiếp.
+Registry fact bảo toàn (KHÔNG đổi, script-verifiable): `command-query-api-surface.
+  depends_on` KHÔNG chứa `custody-signing-service`, `exchange-adapter`,
+  `strategy-plugin-host`, hay `decision-evaluation-engine`; `ux-application-shell.
+  depends_on` CHỈ chứa `command-query-api-surface` (§2.1/§2.3, KHÔNG đổi). Những fact
+  này LÀ tiền đề cần thiết (necessary) cho non-bypass ở tầng registry — KHÔNG PHẢI điều
+  kiện đủ (sufficient) cho toàn bộ non-bypass/isolation guarantee, vốn PHẢI dựa thêm
+  vào các invariant kiến trúc bên dưới, VÀ vào authority/eligibility validation thật sự
+  được thực thi tại module authoritative (§3, §4a.2/§4a.7 Package 1.2, §4/§5 Package
+  1.3-D — KHÔNG đổi).
 
-API VÀ UX KHÔNG THỂ gọi custody signing trực tiếp: `ux-application-shell.depends_on:
-  [command-query-api-surface]` (registry, edge DUY NHẤT được phép) — UX KHÔNG có đường
-  cấu trúc nào khác ngoài API Surface; API Surface tự nó KHÔNG có edge tới
-  `custody-signing-service` (trên) — do đó CẢ HAI lớp (UX VÀ API) đều KHÔNG THỂ chạm
-  custody/signing authority trực tiếp, kể cả gián tiếp qua nhau.
+Mọi command/query PHẢI đi qua module authoritative đã đăng ký (`decision-authority-
+  service`, `risk-gateway`, `execution-engine`, v.v.) — I-7 Plugin Non-Bypass (Chapter
+  2, Locked, nguyên văn: "Plugin chỉ tương tác qua published contracts... Prohibited:
+  Plugin gọi trực tiếp implementation nội bộ hoặc mutable state của module khác") ĐÒI
+  HỎI cả route hợp lệ (registry) LẪN validation thật tại authority đó (§3) — KHÔNG một
+  mình route absence.
 
-Plugin KHÔNG THỂ đạt thêm capability qua API: API Surface KHÔNG có edge tới
-  `strategy-plugin-host`/`decision-evaluation-engine` (§2.3) — route qua API KHÔNG tạo
-  một con đường mới cho plugin logic vượt khỏi Chapter 9 boundary đã established;
-  plugin VẪN CHỈ tương tác qua published contract đã pin tại Package 1.3-C, KHÔNG đổi.
+Raw exchange credential VÀ signing material: registry fact (API Surface KHÔNG có
+  dependency edge tới `custody-signing-service`/`exchange-adapter`) LÀ MỘT layer bảo
+  vệ, KHÔNG PHẢI toàn bộ bảo đảm — bảo đảm ĐẦY ĐỦ đến từ VIỆC custody-signing-service
+  (Package 1.2 §4a.2/§4a.5, Consolidated Stable) tự thân KHÔNG BAO GIỜ trả raw secret
+  qua bất kỳ published contract nào (SigningOutcome), CỘNG VỚI invariant bắt buộc
+  "secrets/signing material bị cấm khỏi API payload" dưới đây — hai lớp kết hợp, KHÔNG
+  CHỈ dependency-edge absence đơn lẻ.
+
+API VÀ UX tương tác với custody signing: `ux-application-shell.depends_on:
+  [command-query-api-surface]` (registry, edge DUY NHẤT được phép) VÀ
+  `command-query-api-surface.depends_on` KHÔNG chứa `custody-signing-service` (registry
+  fact, trên) — hai fact NÀY, kết hợp với việc KHÔNG module nào khác trong registry
+  cung cấp một route thay thế, LÀ căn cứ cho việc UX/API KHÔNG có route hợp lệ tới
+  custody signing; đây là kết luận rút ra từ TOÀN BỘ dependency graph registry (script-
+  verifiable), KHÔNG một tuyên bố tổng quát rằng "absence của MỘT edge" tự nó loại trừ
+  mọi invocation path có thể có.
+
+Plugin capability qua API: API Surface KHÔNG có edge tới `strategy-plugin-host`/
+  `decision-evaluation-engine` (§2.3) — route qua API KHÔNG cấp thêm published contract
+  nào cho plugin logic ngoài những gì Chapter 9/Package 1.3-C đã established; plugin
+  VẪN CHỈ tương tác qua published contract đã pin tại Package 1.3-C, KHÔNG đổi. Đây là
+  registry-level fact hỗ trợ non-bypass, KHÔNG PHẢI toàn bộ bảo đảm — bảo đảm đầy đủ
+  vẫn phụ thuộc invariant/authority validation bên dưới.
+
+**Architecture-level invariant bổ sung (bắt buộc, v0.2 correction, đóng `P14-A-MAJ-01` —
+KHÔNG field-level lineage schema, KHÔNG authorization protocol, KHÔNG middleware,
+KHÔNG token format, KHÔNG network topology):**
+
+```text
+API transport KHÔNG BAO GIỜ tự tạo Decision, Risk, execution, custody, hay signing
+  eligibility — cùng nguyên tắc "transport KHÔNG BAO GIỜ tự thân là authority" đã pin
+  tại security-custody-baseline.md §5/ADR-017 §7, áp dụng ĐỒNG NHẤT cho API transport
+  layer.
+
+Mọi effect-producing command PHẢI được chấp nhận VÀ validate bởi đúng authoritative
+  owning boundary của nó (Decision Authority Service/Risk Gateway/Execution Engine/
+  custody-signing-service tùy domain concept) — API Surface route KHÔNG thay thế
+  validation đó.
+
+Execution-affecting route PHẢI bảo toàn eligible authoritative lineage VÀ correlation
+  về đúng chuỗi Decision → Risk → Execution đang kiểm soát (causation_refs chain, §3/
+  §4a Package 1.3-D) — API Surface KHÔNG được route một effect-producing command tách
+  rời khỏi lineage đó.
+
+Lineage missing, stale, invalidated, ambiguous, duplicated, unauthorized, hay causally-
+  unrelated PHẢI fail closed TẠI authoritative boundary (I-6 Fail-Safe by Scope, Chapter
+  2, Locked) — KHÔNG tại API Surface bằng một quyết định thay thế.
+
+API validation hay transport acceptance KHÔNG THỂ thay thế authoritative eligibility
+  (§3 trên, "transport acceptance ≠ business acceptance") — một request được API
+  Surface chấp nhận về mặt transport/structural KHÔNG ngụ ý eligibility đã confirm.
+
+Secrets VÀ signing material PHẢI bị reject khỏi public/API payload VÀ giữ nguyên
+  confined trong custody boundary dưới Package 1.2 (§4a, Consolidated Stable) — API
+  Surface KHÔNG BAO GIỜ relay, log, hay echo lại raw secret/signing material trong bất
+  kỳ request/response nào, kể cả lỗi.
+```
 
 Environment VÀ Account Boundary isolation bảo toàn: `account_boundary_ref`
   (ADR-012 §2.1, canonical, exactly-one-boundary) VÀ `environment` (PAPER|LIVE, bất
@@ -366,11 +437,21 @@ Unknown/unresolved outcome:      local certainty KHÔNG đủ để xác nhận 
 ## 8. API contract governance (bắt buộc, yêu cầu task — KHÔNG OpenAPI/GraphQL/protobuf schema)
 
 ```text
-Versioned published contract: mọi command/query/event contract API Surface expose
-  PHẢI mang version tường minh, theo đúng ba trục ĐỘC LẬP đã Locked tại Chapter 10 §10.3
-  (Event Contract version, schema_version, Plugin Version — nguyên tắc tương đương áp
-  cho published API contract version) — KHÔNG hợp nhất ba trục thành một con số, KHÔNG
-  hardcode format cụ thể tại đây (Chapter 10 §10.3, nguyên văn).
+Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P14-A-MAJ-02`): Chapter 10 §10.3's
+  ba trục ĐỘC LẬP (Event Contract version, schema_version, Plugin Version) áp dụng THEO
+  ĐÚNG artifact loại của chúng — KHÔNG PHẢI mọi API request đều mang/dùng đủ CẢ BA trục;
+  Plugin Version CHỈ áp dụng cho artifact/interaction liên quan Plugin (Chapter 9 §9.1),
+  KHÔNG PHẢI một trục universal cho mọi API request. API Surface KHÔNG PHẢI canonical
+  compatibility evaluator VÀ KHÔNG bắt buộc tạo một Compatibility Result (Chapter 10
+  §10.4) cho MỌI request — compatibility evaluation VẪN thuộc authority của module
+  registered authoritative/designated bởi controlling architecture cho đúng contract
+  đó (vd. Plugin Contract compatibility — Chapter 9 §9.6, KHÔNG API Surface).
+
+Versioned published contract (bounded rule): mọi published API contract (command/
+  query/event category API Surface expose) PHẢI identify đúng contract/schema version
+  áp dụng của nó theo controlling contract liên quan (Chapter 8 §8.2.5 Event Contract
+  version cho event; Chapter 8 `schema_version` cho payload schema) — KHÔNG hardcode
+  format cụ thể tại đây (Chapter 10 §10.3, nguyên văn).
 
 Backward compatibility policy: breaking change PHẢI xác định theo published contract
   SURFACE, KHÔNG theo internal implementation (Chapter 10 §10.3, nguyên văn) — mọi
@@ -378,10 +459,15 @@ Backward compatibility policy: breaking change PHẢI xác định theo publishe
   (backward/forward, §10.3.1); THIẾU declaration → invalid declaration → `eligible:
   false` (I-6), KHÔNG được suy diễn mặc định.
 
-Deterministic schema/version resolution: Compatibility Result LÀ artifact bất biến
-  mang evaluation provenance (ai đánh giá, theo luật nào, Chapter 10 §10.4/§10.4.1) —
-  KHÔNG một lần kiểm tra thoáng qua rồi bỏ; API Surface PHẢI resolve version DETERMINISTIC
-  cho mọi request, KHÔNG "mutable-latest" ngầm định (dưới).
+Compatibility evaluation ownership (bounded rule): đánh giá compatibility (Compatibility
+  Result, Chapter 10 §10.4 — artifact bất biến mang evaluation provenance, ai đánh giá/
+  theo luật nào, §10.4.1) VẪN thuộc module authoritative/designated ĐÃ đăng ký cho đúng
+  contract đó — API Surface KHÔNG tự tạo, KHÔNG override, KHÔNG độc lập author một
+  compatibility authority mới. API Surface CHỈ carry, route, VÀ expose compatibility
+  evidence (Compatibility Result đã tồn tại) nơi controlling architecture yêu cầu —
+  KHÔNG tự đánh giá thay. Absence hay ambiguity của compatibility evidence bắt buộc
+  PHẢI fail closed (I-6) HOẶC được route tới đúng module sở hữu để đánh giá — API
+  Surface KHÔNG tự quyết định thay.
 
 Deprecation evidence: một contract element `deprecated` nhưng còn giữ CHƯA breaking,
   NHƯNG việc gỡ bỏ nó LÀ breaking VÀ PHẢI theo đúng chu kỳ đã cam kết (Chapter 10
@@ -549,24 +635,28 @@ Independent Review B
                                separation VÀ LIVE Unauthorized KHÔNG bị đổi.
 Product Owner decision
   point:                      Sau Review A/B CLEAN.
-Consolidation condition:      Zero unresolved Blocker/Major trên v0.1; mọi capability
-                               engine đã Consolidated Stable (Package 1.3-A..D) có bề
-                               mặt API tương ứng, KHÔNG bỏ sót (đúng phase-1-plan.md
-                               Consolidation condition cho Package 1.4).
+Consolidation condition:      Zero unresolved Blocker/Major trên baseline hiện tại (v0.2,
+                               post bounded correction đóng P14-A-MAJ-01/P14-A-MAJ-02/
+                               P14-A-MIN-01); mọi capability engine đã Consolidated
+                               Stable (Package 1.3-A..D) có bề mặt API tương ứng, KHÔNG
+                               bỏ sót (đúng phase-1-plan.md Consolidation condition cho
+                               Package 1.4).
 ```
 
 ## 12. Lifecycle treatment
 
 ```text
 Package 1.4:
-  version: 0.1
+  version: 0.2
   status: Draft
   package lifecycle/readiness: candidate
   not Consolidated Stable
-  pending Review A
+  Review A findings (P14-A-MAJ-01/P14-A-MAJ-02/P14-A-MIN-01) corrected — pending
+    bounded verification
   pending Independent Review B
   pending Product Owner consolidation decision
 
-Package 1.4 v0.1 LÀ candidate đầu tiên — KHÔNG historical version nào trước đó để
-  preserve/reference.
+Package 1.4 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đóng ba Review A
+  finding trên v0.1 (banner đầu tài liệu), KHÔNG invalidate phần v0.1 KHÔNG bị finding
+  chạm tới, KHÔNG redesign/mở rộng scope.
 ```
