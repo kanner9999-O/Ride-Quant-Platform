@@ -2,6 +2,84 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.6 v0.2: bounded correction — Review A finding closure on v0.1
+
+**Bounded correction transaction — vai trò: `Package 1.6 v0.2 Bounded Correction Executor`.** Closes four confirmed Review A findings on the v0.1 initial candidate. Localized edits only — no redesign, no registry/API architecture change, no upstream gap resolution.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        de28d16698eefb5c856b866641e1256d1ffc9545
+docs/architecture/ux-architecture.md v0.1 blob:      44ab2cd34658d75ea2172136cce60c81c0857f9b
+```
+
+### Finding closure
+
+```text
+P16-A-MAJ-01 (NAV-003 treated as fully API-bound):  §4.1/§4.3/§13 corrected — NAV-003
+  (SCR-003/SCR-004/SCR-005, plus the backtest-orchestrator portion of SCR-011/VIEW-005)
+  no longer presented as fully bound. command-query-api-surface.depends_on v0.7 does
+  not contain backtest-orchestrator, so no route exists. Identifier/component
+  placement remains accounted for, but backend binding is now marked TECHNICALLY
+  BLOCKED — an upstream registry/API-alignment prerequisite requiring a separate
+  governed transaction (Package 1.1/1.4 authority, not Package 1.6). No edge added, no
+  contract invented.
+
+P16-A-MAJ-02 (conditional synthesis exception for VIEW-002/VIEW-003):  §3/§4.1/§13
+  corrected — removed the "ngoại lệ có điều kiện" (conditional exception) that
+  previously authorized VIEW-002 to perform its own workflow-visible synthesis.
+  Restated: a non-authoritative output still requires an established computation
+  owner and contract; ux-application-shell does not own it; command-query-api-surface
+  does not automatically own it merely by routing; Package 1.6 does not select
+  client-side vs. API-side execution. VIEW-002/VIEW-003 binding is now marked
+  TECHNICALLY BLOCKED pending established ownership.
+
+P16-A-MIN-01 (coverage terminology conflation):  §4.1/§4.5/§14/§15 corrected —
+  identifier accounting (59/59, unchanged, nothing removed or claimed missing) is now
+  explicitly separated from technical-realization completeness (NOT COMPLETE while
+  the two Major prerequisites above remain unresolved). §14's Consolidation condition
+  rewritten to state that "component correspondence" being satisfied does not mean
+  "Zero unresolved Blocker/Major" is satisfied.
+
+P16-A-MIN-02 (accessibility authority overreach risk):  §12/§13 corrected — qualified
+  the accessibility/responsiveness/design-token gap: Package 1.6 can only technical-
+  realize requirements already established by Product/UX authority; it cannot itself
+  establish WCAG targets, breakpoint semantics, branding, or design-token acceptance
+  requirements through any correction transaction, including this one. Those require
+  a governed upstream Product/UX decision or an explicitly authorized transaction on
+  the controlling source. Package 1.6 must not silently become the UX
+  acceptance-semantics authority.
+```
+
+### Preserved unchanged (diff-verified byte-identical)
+
+```text
+§2.1 ux-application-shell registry classification block (module_id/depends_on/
+  forbidden_dependencies/owns_authoritative_state/consumes/emits/
+  implements_capabilities/serves_contexts/phase — all field values unchanged).
+§5 (component decomposition), §7 (API binding), §8 (non-bypass positive invariants),
+  §9 (environment/Account Boundary), §10 (review/replay/evidence treatment), §11
+  (failure semantics) — confirmed byte-identical via direct diff.
+All 59 UX identifiers (17 SCR/VIEW, WS-001, 6 NAV, 6 FLOW, 29 STATE) individually
+  re-verified present — none removed, none newly invented.
+UX Blueprint authority; transport acceptance != business acceptance; Review Evidence
+  Service and Position non-authoritative treatment; Package 1.5 gaps; Package 1.1-1.5
+  (byte-identical); LIVE Unauthorized.
+```
+
+### Version
+
+```text
+docs/architecture/ux-architecture.md:  0.1 -> 0.2
+Blob:                                   44ab2cd34658d75ea2172136cce60c81c0857f9b
+                                        -> c5e3c770b90a04c0d4398d5a1501eef6746b7639
+status: Draft, package lifecycle: candidate — unchanged. Not Consolidated Stable.
+Pending: bounded verification of this correction, upstream binding resolution (NAV-003
+  API-binding; VIEW-002/VIEW-003 synthesis owner — both Major prerequisites, not
+  resolvable by Package 1.6), Independent Review B, Product Owner consolidation
+  decision.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.6 v0.1: initial candidate — UX Architecture
 
 **Authoring transaction — vai trò: `Package 1.6 UX Architecture Initial Author`.** Authors the first Package 1.6 candidate, elaborating the architecture-level boundary of the registered `ux-application-shell` module (the sole module assigned `phase.elaborated_by: "1.6"`), based on Package 1.1 v0.7, Package 1.2 v0.4, Package 1.3-A/B/C/D, Package 1.4 v0.3, Package 1.5 v0.2 (all Consolidated Stable), and `ux-blueprint.md` (Package 0.3-C, Consolidated Stable). This is the last Phase 1 package authored for the first time — Phase 1 now has a candidate or Consolidated Stable artifact for every package (1.1 through 1.6).
