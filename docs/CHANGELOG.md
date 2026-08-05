@@ -2,6 +2,91 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.5 v0.2: bounded correction — Review A finding closure on v0.1
+
+**Bounded correction transaction — vai trò: `Package 1.5 v0.2 Bounded Correction Executor`.** Closes four confirmed Review A findings on the v0.1 initial candidate. Localized edits only — no redesign, no scope expansion, no new architecture sections.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        529ffc7cdcf8f2acd038c42afeab77fae6a4a037
+docs/architecture/database-architecture.md v0.1 blob: 376dea92676cfab054d7c177a55124399544a130
+```
+
+### Finding closure
+
+```text
+P15-A-MAJ-01 (review-evidence-service interaction categories over-claimed):  §4
+  corrected — removed the claim that review-evidence-service consumes events from all
+  seven dependencies. Distinguished the five event-emitting dependencies (decision-
+  authority-service, risk-gateway, execution-engine, execution-result-processor,
+  fill-processor — emits: [event]) from the two query-emitting projections
+  (position-projection, replay-integration-service — emits: [query]). Recorded an
+  explicit contract-category interaction gap: the registry establishes the dependency
+  relationship but not the mechanism by which review-evidence-service obtains output
+  from the two query-emitting dependencies under its own consumes: [event]
+  declaration. No event emission invented for the two projections, no query
+  consumption invented for review-evidence-service, no new dependency edge or
+  contract category.
+
+P15-A-MAJ-02 (Position grouped with authoritative facts):  §2.2, §4, and §8 corrected
+  — removed every statement grouping Position with authoritative Order/
+  ExecutionResult/Fill facts. Position-projection.owns_authoritative_state: false is
+  now stated explicitly; Position is described as a deterministic, derived,
+  rebuildable projection from eligible visible-valid Fill history with no
+  authoritative owner. Corrected: the §2.2 authority-status list (Position removed
+  from the authoritative-fact grouping), the §4 causal-chain provenance wording
+  (Position now marked non-authoritative within the chain), and the §8 PAPER-evidence
+  wording (Position no longer listed alongside Order/ExecutionResult/Fill as
+  authoritative). No Position event stream or authority owner invented.
+
+P15-A-MIN-01 (six-category taxonomy presented as I-12-mandated):  §3 corrected — the
+  six persistence categories are now stated as a Package 1.5 architecture-level
+  classification, derived under I-12, Chapter 7 §7.4 projection constraints, Chapter 8
+  §8.1 event-log rules, and existing Consolidated Stable package baselines — not a
+  taxonomy I-12 itself defines. Explicitly states the classification creates no new
+  module taxonomy, authority type, or locked constitutional taxonomy.
+
+P15-A-MIN-02 (correction-pattern universality and retention-owner exhaustiveness):
+  (A) §6 corrected — removed the claim that supersedes_fact_ref is used "throughout"
+  every Domain Contract. Restated: authoritative corrections must be append-only;
+  the specific correction-lineage mechanism follows the controlling Domain Contract;
+  supersedes_fact_ref is one example (account.md §11), not a universal field Package
+  1.5 imposes; no universal correction schema authored.
+  (B) §5 corrected — qualified the retention/deletion ownership claim: Package 1.5
+  did not identify an established owner in the controlling baselines actually
+  reviewed for this transaction (module-registry.yaml, system-decomposition.md,
+  Package 1.2/1.3-A..D/1.4) — not a claim of exhaustive proof across every repository
+  artifact. Chapter 8 §8.1.1 requires an explicit retention/archive policy but does
+  not itself designate the owner. Remains a preserved gap pending broader
+  confirmation; no owner assigned.
+```
+
+### Preserved unchanged (diff-verified byte-identical)
+
+```text
+§2.1 registry classification block (review-evidence-service module_id/depends_on/
+  forbidden_dependencies/owns_authoritative_state/consumes/emits/phase — all field
+  values byte-identical).
+§7 (transaction and consistency boundaries), §9 (security and custody constraints),
+  §10 (failure and recovery semantics) — confirmed byte-identical via direct diff.
+All 7 dependencies; all upstream authoritative ownership; persistence-technology-
+  never-creates-authority principle; append-only/no-repaint principle; Package 1.4 API
+  boundary; Package 1.6 unauthored; PAPER-only execution; LIVE Unauthorized; every
+  unrelated gap and non-goal.
+```
+
+### Version
+
+```text
+docs/architecture/database-architecture.md:  0.1 -> 0.2
+Blob:                                         376dea92676cfab054d7c177a55124399544a130
+                                              -> f739b391bd805ec04491b54538ede35c906e0a32
+status: Draft, package lifecycle: candidate — unchanged. Not Consolidated Stable.
+Pending: bounded verification of this correction, Independent Review B, Product
+  Owner consolidation decision.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.5 v0.1: initial candidate — Database Architecture
 
 **Authoring transaction — vai trò: `Package 1.5 Database Architecture Initial Author`.** Authors the first Package 1.5 candidate, elaborating the architecture-level boundary of the registered `review-evidence-service` module (the sole module assigned `phase.elaborated_by: "1.5"`), based on Package 1.1 v0.7, Package 1.2 v0.4, Package 1.3-A/B/C/D, and Package 1.4 v0.3 (all Consolidated Stable). This is an authoring transaction, not a review/consolidation transaction.

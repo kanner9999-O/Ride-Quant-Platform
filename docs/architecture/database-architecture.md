@@ -1,7 +1,7 @@
 ---
 id: database-architecture
 title: "Package 1.5 — Database Architecture"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -16,6 +16,8 @@ depends_on: ["00-governance", "02-platform-invariants", "07-module-taxonomy", "0
 # Package 1.5 — Database Architecture
 
 **CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.5 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module, module-registry.yaml/system-decomposition.md), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable`, Package 1.4 `Consolidated Stable` (v0.3), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.5 — Database Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
+
+**v0.2 — bounded correction (2026-08-05), đóng bốn Review A finding trên v0.1 (`P15-A-MAJ-01`/`P15-A-MAJ-02`/`P15-A-MIN-01`/`P15-A-MIN-02`), KHÔNG redesign/mở rộng scope:** (a) `P15-A-MAJ-01` — §4 sửa: bỏ claim review-evidence-service consume event từ đủ bảy dependency — phân biệt tường minh năm event-emitting dependency (decision-authority-service/risk-gateway/execution-engine/execution-result-processor/fill-processor) khỏi hai query-emitting projection (position-projection/replay-integration-service); ghi nhận contract-category interaction gap (registry xác lập dependency relationship NHƯNG KHÔNG đầy đủ xác lập cơ chế lấy output từ hai query-emitting dependency dưới `consumes: [event]`); KHÔNG invent event emission mới, KHÔNG invent query consumption mới, KHÔNG dependency edge mới. (b) `P15-A-MAJ-02` — §2.2/§8 sửa: bỏ mọi statement gộp Position với Order/ExecutionResult/Fill như authoritative fact — xác nhận Position LÀ deterministic/derived/rebuildable projection từ Fill history, `position-projection.owns_authoritative_state: false`, KHÔNG một authority owner nào; PAPER evidence wording, provenance chain wording sửa tương ứng. (c) `P15-A-MIN-01` — §3 sửa: sáu category persistence xác nhận LÀ một Package 1.5 architecture-level classification derive dưới I-12/Chapter 7/Chapter 8/package baseline, KHÔNG PHẢI taxonomy I-12 trực tiếp mandate, KHÔNG tạo module taxonomy/authority type/locked constitutional taxonomy mới. (d) `P15-A-MIN-02` — §6 sửa: `supersedes_fact_ref` xác nhận LÀ một ví dụ mechanism (account.md §11), KHÔNG một universal field Package 1.5 áp đặt — correction lineage PHẢI theo controlling Domain Contract của từng concept; §5 retention/deletion owner claim qualify lại thành "KHÔNG identify được trong các baseline ĐÃ review", KHÔNG một exhaustive-proof claim across toàn repository. Mọi nội dung khác của v0.1 GIỮ NGUYÊN.
 
 ## 0. Vai trò của tài liệu này — scope resolved từ controlling source (bắt buộc, yêu cầu task)
 
@@ -124,11 +126,15 @@ phase:                     { identified_in: "1.1", elaborated_by: "1.5" }
 ### 2.2 Authority status — non-authoritative projection, KHÔNG business authority
 
 ```text
-review-evidence-service.owns_authoritative_state: false — module KHÔNG sở hữu bất kỳ
-  authoritative domain fact nào (Decision, Trade Intent, RiskEvaluation, Execution
-  Intent, Order, ExecutionResult, Fill, Position — tất cả thuộc authority của module
-  registered elaborate riêng: decision-authority-service/risk-gateway/execution-engine/
-  execution-result-processor/fill-processor, KHÔNG đổi bởi Package 1.5).
+Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P15-A-MAJ-02`): review-evidence-
+  service.owns_authoritative_state: false — module KHÔNG sở hữu bất kỳ authoritative
+  domain fact nào (Decision, Trade Intent, RiskEvaluation, Execution Intent, Order,
+  ExecutionResult, Fill — tất cả thuộc authority của module registered elaborate riêng:
+  decision-authority-service/risk-gateway/execution-engine/execution-result-processor/
+  fill-processor, KHÔNG đổi bởi Package 1.5). Position KHÔNG thuộc danh sách authoritative
+  fact này — `position-projection.owns_authoritative_state: false` (§5 dưới); Position
+  LÀ deterministic, derived, rebuildable projection từ eligible visible-valid Fill
+  history (Chapter 7 §7.4), KHÔNG một authoritative domain fact được module NÀO sở hữu.
 
 implements_capabilities: [] / serves_contexts: [] (registry, KHÔNG đổi) — cùng nguyên
   tắc đã dùng cho command-query-api-surface (Package 1.4 §2.2): tránh silent invention
@@ -137,10 +143,20 @@ implements_capabilities: [] / serves_contexts: [] (registry, KHÔNG đổi) — 
 
 ## 3. Persistence authority model (bắt buộc, yêu cầu task)
 
+Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P15-A-MIN-01`): sáu category
+dưới đây LÀ một Package 1.5 architecture-level classification — KHÔNG PHẢI một taxonomy
+được I-12 trực tiếp mandate nguyên văn. Classification này được DERIVE dưới I-12 Single
+Source of Truth (Chapter 2, Locked, nguyên văn: "Mỗi concept và scope PHẢI có một
+authoritative source được chỉ định rõ"), Chapter 7 §7.4 projection constraint (Locked),
+Chapter 8 §8.1 event-log rule (Locked), VÀ các package baseline đã Consolidated Stable
+(Package 1.1-1.4) — I-12 xác lập YÊU CẦU single-source-of-truth NHƯNG KHÔNG tự thân định
+nghĩa đúng sáu category này. Classification này KHÔNG tạo một module taxonomy mới
+(Chapter 7 §7.5 VẪN authority DUY NHẤT), KHÔNG tạo một authority type mới, VÀ KHÔNG tạo
+một locked constitutional taxonomy nào — nó LÀ một tổ chức thuật ngữ ở mức Package 1.5
+để elaborate persistence boundary, KHÔNG một Chapter mới.
+
 ```text
-Sáu category persistence PHẢI phân biệt được ở mức architecture (I-12 Single Source of
-Truth, Chapter 2, Locked, nguyên văn: "Mỗi concept và scope PHẢI có một authoritative
-source được chỉ định rõ"):
+Sáu category persistence PHẢI phân biệt được ở mức architecture (theo derivation trên):
 
 1. Authoritative domain fact:        durable append-only event log (Chapter 8 §8.1,
      Locked) — CHỈ module `owns_authoritative_state: true` được phép author (account-
@@ -184,18 +200,50 @@ source được chỉ định rõ"):
 ## 4. Review Evidence Service boundary (elaboration, bắt buộc yêu cầu task)
 
 ```text
-Evidence collection VÀ retrieval responsibility: review-evidence-service `consumes:
-  [event]` từ bảy module authoritative/projection đã đăng ký (§2.1 depends_on) — fold/
-  aggregate các event đó thành read/trace surface phục vụ Decision→Position lineage
-  trace, historical-state comparison, VÀ correction inspection (registry responsibilities,
-  UC-016–UC-018) — `emits: [query]` CHỈ, KHÔNG BAO GIỜ event mới (cùng nguyên tắc §7.4
-  "no new authoritative fact, no recomputation" — registry notes, nguyên văn).
+Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P15-A-MAJ-01`): registry fact
+  (`review-evidence-service.consumes: [event]`, `emits: [query]`, §2.1) VÀ bảy
+  dependency đã đăng ký PHẢI phân biệt theo contract category CHÍNH XÁC của TỪNG
+  dependency, KHÔNG gộp chung thành "bảy nguồn event":
+```
+
+```text
+Event-emitting dependency (emits: [event], năm module — nguồn event thật cho
+  review-evidence-service's consumes: [event]):
+  decision-authority-service, risk-gateway, execution-engine, execution-result-
+  processor, fill-processor.
+
+Query-emitting projection (emits: [query], hai module — KHÔNG PHẢI nguồn event):
+  position-projection, replay-integration-service.
+
+Registry KHÔNG invent tại đây: position-projection KHÔNG emit event (chỉ query,
+  §2.1/registry); replay-integration-service KHÔNG emit event (chỉ query, registry);
+  review-evidence-service KHÔNG consume query (chỉ event, §2.1 — KHÔNG field mới nào
+  thêm); KHÔNG dependency edge hay contract category mới nào được thêm ngoài registry.
+
+Contract-category interaction gap (ghi nhận tường minh, KHÔNG resolve tại đây):
+  module-registry.yaml v0.7 xác lập ĐÚNG dependency relationship (`depends_on`) giữa
+  review-evidence-service VÀ cả bảy module trên, NHƯNG KHÔNG tự đầy đủ xác lập CƠ CHẾ
+  review-evidence-service dùng để lấy được output của HAI query-emitting dependency
+  (position-projection, replay-integration-service) dưới khai báo `consumes: [event]`
+  của chính nó — một dependency edge (§7.5 Chapter 7, prerequisite relation) KHÔNG tự
+  động ngụ ý contract-category compatibility hoàn chỉnh giữa consumes/emits hai phía.
+  Package 1.5 KHÔNG tự phát minh cơ chế đó (vd. một internal query-pull path, một
+  event-projection-of-projection, hay một contract category mới) — ghi nhận NHƯ MỘT
+  gap carry forward (§11), KHÔNG resolve.
+
+Decision→Position lineage trace VẪN LÀ một desired evidence outcome (registry
+  responsibilities, UC-016–UC-018) — NHƯNG tài liệu này KHÔNG claim rằng registry hiện
+  tại, TỰ THÂN, đã chứng minh một complete bảy-nguồn event-consumption path cho outcome
+  đó; phần path đi qua hai query-emitting dependency VẪN CHƯA fully established (gap
+  trên).
 
 Provenance, correlation, VÀ source-reference preservation: mọi evidence record review-
   evidence-service expose PHẢI giữ nguyên tham chiếu tới authoritative event gốc (event
   identity, `supersedes_fact_ref` correction lineage nếu có, VÀ correlation/causation_
   refs chain đã pin tại module nguồn — vd. Decision→RiskEvaluation→Execution Intent→
-  Order→ExecutionResult→Fill→Position, Package 1.3-C/1.3-D) — review-evidence-service
+  Order→ExecutionResult→Fill (authoritative fact) →Position (derived, non-authoritative
+  projection — §2.2/§5, KHÔNG cùng loại authority với năm fact trước), Package 1.3-C/
+  1.3-D) — review-evidence-service
   KHÔNG được strip provenance, KHÔNG collapse nhiều fact riêng biệt thành một entry mất
   khả năng truy vết ngược.
 
@@ -264,7 +312,7 @@ review-evidence-service          | NO (projection) | Category 3/4 — evidence/t
 ux-application-shell             | NO              | KHÔNG persistence — Package 1.6, CHƯA elaborate| N/A                                             | none
 ```
 
-**Retention/deletion decision owner (gap chung, KHÔNG established):** KHÔNG module nào trong 25-module registry, VÀ KHÔNG Domain Contract nào được review tại các package trước, chỉ định tường minh ai quyết định retention/deletion policy cho bất kỳ authoritative event stream hay projection nào — Chapter 8 §8.1.1 mục 4 CHỈ yêu cầu "phải có explicit retention/archive policy" khi hết replay/audit horizon, KHÔNG chỉ định AI quyết định policy đó. Package 1.5 KHÔNG tự assign owner này — ghi nhận NHƯ MỘT preserved gap (§11).
+**Retention/deletion decision owner (v0.2 correction, đóng `P15-A-MIN-02`.B — qualified, KHÔNG exhaustive claim):** Package 1.5 KHÔNG identify được một retention/deletion policy decision owner đã established trong CÁC controlling baseline đã review cho transaction này (`module-registry.yaml` v0.7, `system-decomposition.md` v0.7, Package 1.2/1.3-A..D/1.4 — KHÔNG PHẢI một claim đã kiểm tra exhaustive MỌI artifact trong toàn bộ repository, trừ khi việc kiểm tra đó thực sự được thực hiện, điều CHƯA xảy ra tại đây). Chapter 8 §8.1.1 mục 4 yêu cầu "phải có explicit retention/archive policy" khi hết replay/audit horizon, NHƯNG TỰ THÂN KHÔNG chỉ định AI quyết định policy đó. Đây VẪN LÀ một preserved gap pending broader confirmation (§11) — Package 1.5 KHÔNG tự assign hay resolve owner này.
 
 ## 6. Append, correction, và no-repaint semantics (bắt buộc, yêu cầu task — KHÔNG table/schema cụ thể)
 
@@ -279,10 +327,16 @@ Effective-time VÀ recorded-time distinction (nơi upstream contract yêu cầu)
   persistence layer PHẢI lưu VÀ resolve được CẢ HAI trục độc lập cho historical replay,
   KHÔNG hợp nhất thành một timestamp duy nhất.
 
-Append-only correction lineage: `supersedes_fact_ref` pattern (account.md §11, dùng
-  xuyên suốt Domain Contract) — correction PHẢI LÀ một fact MỚI trỏ predecessor, KHÔNG
-  BAO GIỜ sửa fact cũ tại chỗ; persistence layer PHẢI hỗ trợ resolve "visible-valid-head
-  per slice" (account.md §7) tại bất kỳ cursor nào, KHÔNG latest-state duy nhất.
+Append-only correction lineage (v0.2 correction, đóng `P15-A-MIN-02`.A): authoritative
+  correction PHẢI append-only — MỘT fact MỚI trỏ predecessor, KHÔNG BAO GIỜ sửa fact cũ
+  tại chỗ. Cơ chế correction lineage CỤ THỂ (field name, reference structure) PHẢI theo
+  ĐÚNG controlling Domain Contract của concept đó — `supersedes_fact_ref` (account.md
+  §11) LÀ MỘT ví dụ đã dùng bởi contract cụ thể đó (account.md), KHÔNG PHẢI một field
+  universal mà Package 1.5 áp đặt lên mọi Domain Contract; contract khác CÓ THỂ dùng
+  mechanism khác miễn thỏa append-only. Package 1.5 KHÔNG author một universal correction
+  schema mới tại đây. Persistence layer PHẢI hỗ trợ resolve "visible-valid-head per
+  slice" (account.md §7 pattern) tại bất kỳ cursor nào theo ĐÚNG mechanism controlling
+  contract quy định, KHÔNG latest-state duy nhất.
 
 KHÔNG silent overwrite hay historical rewriting: I-3 No Repaint (Chapter 2, Locked) —
   "một output đã publish KHÔNG được sửa hoặc xóa" — persistence layer KHÔNG author một
@@ -358,11 +412,17 @@ Backtest evidence: `backtest-orchestrator` (`owns_authoritative_state: deferred`
   authority established; Package 1.5 KHÔNG resolve DD-001 tại đây, CHỈ ghi nhận gap carry
   forward (§11).
 
-PAPER evidence: `paper-execution-boundary` (Package 1.3-D, Consolidated Stable) — PAPER
-  execution path's evidence (Order/ExecutionResult/Fill/Position) LÀ authoritative fact
-  của đúng module sở hữu (execution-engine/execution-result-processor/fill-processor/
-  position-projection) dưới `environment: PAPER` — persistence layer KHÔNG author cơ chế
-  isolation mới ngoài `environment` field bất biến đã pin (ADR-012 §2.4, account.md §8).
+PAPER evidence (v0.2 correction, đóng `P15-A-MAJ-02`): `paper-execution-boundary`
+  (Package 1.3-D, Consolidated Stable) — PAPER execution path's authoritative evidence
+  (Order/ExecutionResult/Fill) LÀ authoritative fact của đúng module sở hữu (execution-
+  engine/execution-result-processor/fill-processor tương ứng) dưới `environment: PAPER`.
+  Position, KHÁC với ba fact trên, KHÔNG PHẢI authoritative fact — `position-projection`
+  KHÔNG sở hữu authoritative state (§2.2/§5); Position evidence trong PAPER context LÀ
+  deterministic, rebuildable projection từ eligible visible-valid Fill history, CÓ THỂ
+  expose như projection evidence NHƯNG KHÔNG BAO GIỜ được present như một authoritative
+  domain fact. Persistence layer KHÔNG author cơ chế isolation mới ngoài `environment`
+  field bất biến đã pin (ADR-012 §2.4, account.md §8); persistence của Position
+  projection output KHÔNG chuyển giao authority từ Fill history sang chính projection đó.
 
 Correction-aware historical query: mọi query lịch sử (qua review-evidence-service hay
   bất kỳ projection nào) PHẢI resolve đúng "visible-valid-head per slice" TẠI cursor yêu
@@ -534,7 +594,9 @@ Independent Review B
                                Unauthorized KHÔNG bị đổi (§8).
 Product Owner decision
   point:                      Sau Review A/B CLEAN.
-Consolidation condition:      Zero unresolved Blocker/Major trên v0.1; ADR source-of-
+Consolidation condition:      Zero unresolved Blocker/Major trên baseline hiện tại
+                               (v0.2, post bounded correction đóng P15-A-MAJ-01/
+                               P15-A-MAJ-02/P15-A-MIN-01/P15-A-MIN-02); ADR source-of-
                                truth-boundary (nếu có domain concept nào lộ ra CHƯA có
                                authoritative source resolve được — §5 hiện xác nhận
                                KHÔNG mục nào như vậy) Approved (đúng phase-1-plan.md
@@ -545,14 +607,16 @@ Consolidation condition:      Zero unresolved Blocker/Major trên v0.1; ADR sour
 
 ```text
 Package 1.5:
-  version: 0.1
+  version: 0.2
   status: Draft
   package lifecycle/readiness: candidate
   not Consolidated Stable
-  pending Review A
+  Review A findings (P15-A-MAJ-01/P15-A-MAJ-02/P15-A-MIN-01/P15-A-MIN-02) corrected —
+    pending bounded verification
   pending Independent Review B
   pending Product Owner consolidation decision
 
-Package 1.5 v0.1 LÀ candidate đầu tiên — KHÔNG historical version nào trước đó để
-  preserve/reference.
+Package 1.5 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đóng bốn Review A
+  finding trên v0.1 (banner đầu tài liệu), KHÔNG invalidate phần v0.1 KHÔNG bị finding
+  chạm tới, KHÔNG redesign/mở rộng scope.
 ```
