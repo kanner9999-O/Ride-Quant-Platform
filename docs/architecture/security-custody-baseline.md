@@ -1,7 +1,7 @@
 ---
 id: security-custody-baseline
 title: "Package 1.2 — Security & Custody Baseline"
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -20,6 +20,8 @@ depends_on: ["00-governance", "02-platform-invariants", "06-identity-model", "07
 **ADR gate (§15) NAY RESOLVED — KHÔNG còn ACTIVE/pending.** v0.2's §15 ghi nhận một ADR decision requirement ACTIVE chặn Consolidated Stable; ADR-017 v0.2 Approved đã resolve đủ tám mục decision scope đó (§15.2 cũ) — xem §15 (viết lại) cho xác nhận đầy đủ. Việc ADR gate resolved KHÔNG tự động làm Package 1.2 `Consolidated Stable` — v0.3 CẦN Review A + Independent Review B MỚI trên chính candidate này, VÀ một Package 1.1 alignment transaction riêng biệt (§16a) trước khi Product Owner consolidation decision có thể xảy ra.
 
 **Phạm vi v0.3 — mở rộng, KHÔNG chỉ correction:** thêm elaboration kiến trúc đầy đủ cho `custody-signing-service` (module ADR-017 đã chọn, đã đăng ký tại Package 1.1 v0.5/v0.6 NHƯNG `phase.elaborated_by: null` — v0.3 LÀ candidate elaboration đó, KHÔNG PHẢI xác nhận một assignment đã tồn tại). `exchange-adapter` VẪN functionally unelaborated tại transaction này — registered nhưng KHÔNG có home package (§7/§14). Chưa qua Review A/Independent Review B cho v0.3, chưa có Product Owner consolidation decision, chưa có Package 1.1 alignment transaction.
+
+**v0.4 — bounded correction (2026-08-05), đóng bốn Review A finding trên v0.3 (`P12V03-A-BLK-01`/`P12V03-A-MAJ-01`/`P12V03-A-MIN-01`/`P12V03-A-MIN-02`), KHÔNG substantive extension mới:** (a) `P12V03-A-BLK-01` — loại bỏ mọi statement/exception (co-location, chia sẻ process/host, network zone, deployment topology) cho phép Execution Engine raw-secret access — custody-signing-service LÀ module DUY NHẤT được phép dùng exchange credential trực tiếp dưới ADR-017 Option C, KHÔNG ngoại lệ (§3.2, §6); (b) `P12V03-A-MAJ-01` — loại bỏ terminal-outcome claim sai ("PHẢI fail closed, KHÔNG hoàn tất SIGNED") cho một SigningAttempt in-flight bị credential revocation/execution suspension ảnh hưởng — hành vi đó VẪN UNRESOLVED pending một ADR Approved riêng, chỉ rule chặn SigningRequest/SigningAttempt MỚI được giữ (§4a.9); (c) `P12V03-A-MIN-01` — sửa tham chiếu §4a nội bộ sai lệch (§4a.2, §4a.3), KHÔNG renumber tài liệu; (d) `P12V03-A-MIN-02` — phân biệt tường minh `forbidden_dependencies` (chiều custody-signing-service → module khác) khỏi caller-authorization boundary (chiều module khác → custody-signing-service) tại §4a.7, KHÔNG dùng cái này làm bằng chứng cho cái kia. Mọi nội dung khác của v0.3 GIỮ NGUYÊN.
 
 ## 0. Vai trò của tài liệu này — scope resolved từ controlling source (bắt buộc, yêu cầu task)
 
@@ -204,9 +206,11 @@ Class: trust_boundary_candidate (5 module — v0.3 thêm exchange-adapter: marke
     KHÔNG đổi; future LIVE venue-submission boundary via exchange-adapter, ADR-017 §8.1,
     KHÔNG active edge), VÀ exchange-adapter (venue-facing transport, KHÔNG raw-secret
     access dưới Option C, ADR-017 §3.2) — KHÔNG module nào trong nhóm này được cấp
-    quyền đọc raw secret rộng hơn cần thiết trừ khi cùng trust boundary với
-    custody-signing-service (I-11 Prohibited behavior) — boundary CỤ THỂ (deployment
-    trust-boundary grant) CHƯA author, carry forward §14.
+    quyền đọc raw secret dưới BẤT KỲ hình thức nào — co-location, chia sẻ process, chia
+    sẻ host, cùng network zone, hay bất kỳ deployment topology nào ĐỀU KHÔNG chuyển giao
+    credential-use authority (ADR-017 Option C, §4a.2/§4a.3): custody-signing-service LÀ
+    module DUY NHẤT được phép dùng exchange credential trực tiếp; execution-engine
+    KHÔNG BAO GIỜ được cấp ngoại lệ đó dưới kiến trúc ĐÃ Approved này.
   Design status:  IDENTIFICATION ONLY — Package 1.2 KHÔNG design concrete auth
     mechanism/network ACL implementation cho năm module này (forbidden scope).
 
@@ -377,13 +381,13 @@ phase (đề xuất v0.3):        elaborated_by: "1.2" — CHƯA thực hiện, 
 
 ```text
 Custody/Signing Service CÓ THỂ authoritative CHỈ cho:
-  credential-binding identity và state (CredentialBinding, §4a.3);
+  credential-binding identity và state (CredentialBinding, §4a.4);
   credential eligibility, suspension, và revocation state (CredentialEligibility/
-    CredentialRevocationState, §4a.3);
-  signing-attempt identity (SigningAttempt, §4a.3);
-  signing-attempt lifecycle (§4a.4);
-  signing outcome operational fact (SigningOutcome/SigningFailure, §4a.3);
-  custody/signing audit provenance (§4a.10).
+    CredentialRevocationState, §4a.4);
+  signing-attempt identity (SigningAttempt, §4a.4);
+  signing-attempt lifecycle (§4a.5);
+  signing outcome operational fact (SigningOutcome/SigningFailure, §4a.4);
+  custody/signing audit provenance (§4a.11).
 
 Custody/Signing Service KHÔNG được authoritative cho:
   raw secret material như một domain fact — secret material nằm HOÀN TOÀN ngoài Domain
@@ -428,11 +432,11 @@ Credential-binding identity và lifecycle (§4a.4 CredentialBinding).
 Credential eligibility, suspension, và revocation state (§4a.4
   CredentialEligibility/CredentialRevocationState).
 Bounded signing-request acceptance (§4a.5/§4a.6).
-Signing-attempt identity và lifecycle (§4a.4/§4a.7).
+Signing-attempt identity và lifecycle (§4a.4/§4a.5).
 Signing outcome và failure evidence (§4a.4 SigningOutcome/SigningFailure).
 Signature hay signed-payload return KHÔNG raw-secret disclosure (I-11 Verification —
   "KMS/signing service có thể ký request mà KHÔNG BAO GIỜ trả secret cho caller").
-Fail-closed behavior (§4a.9).
+Fail-closed behavior (§4a.8).
 Audit và provenance emission (§4a.11).
 Kill-switch/execution-suspension participation cho signing effect MỚI (§4a.10).
 ```
@@ -589,10 +593,23 @@ Prohibited — direct signing access CẤM tường minh cho (tối thiểu):
   command-query-api-surface
   ux-application-shell
 
-(Danh sách này khớp trực tiếp `forbidden_dependencies` đã đăng ký tại registry cho
-custody-signing-service, §4a.1, cộng thêm `execution-engine`/`exchange-adapter`
-tự thân — execution-engine KHÔNG gọi trực tiếp Custody/Signing Service, ADR-017 §8.5;
-exchange-adapter KHÔNG tự depends_on chính nó.)
+(`forbidden_dependencies` (§4a.1) VÀ caller-authorization boundary này LÀ HAI kiểm soát
+tách biệt, khác chiều, v0.4 correction — bắt buộc phân biệt tường minh: `forbidden_
+dependencies` kiểm soát module NÀO custody-signing-service ĐƯỢC PHÉP tự phụ thuộc/gọi
+(chiều custody-signing-service → module khác); caller-authorization boundary kiểm soát
+module NÀO ĐƯỢC PHÉP submit SigningRequest tới custody-signing-service (chiều NGƯỢC LẠI,
+module khác → custody-signing-service). `forbidden_dependencies` KHÔNG BAO GIỜ được dùng
+làm bằng chứng cho caller authorization — trùng lặp một phần giữa hai danh sách (strategy-
+engine, strategy-plugin-host, decision-evaluation-engine, decision-authority-service,
+risk-gateway, context-aggregator, position-projection, command-query-api-surface xuất
+hiện ở CẢ HAI) là kết quả riêng biệt của domain logic hiện tại, KHÔNG PHẢI suy diễn một
+chiều từ chiều kia. `exchange-adapter` minh họa rõ sự khác biệt: nó nằm trong `forbidden_
+dependencies` của custody-signing-service (custody-signing-service KHÔNG được phụ thuộc/
+gọi ngược exchange-adapter) NHƯNG đồng thời LÀ caller CHÍNH tương lai được phép (trên,
+§4a.7 — ADR-017 §8.5) — hai vai trò này KHÔNG mâu thuẫn vì thuộc hai chiều khác nhau.
+`execution-engine` KHÔNG gọi trực tiếp Custody/Signing Service (ADR-017 §8.5) — đây LÀ
+một xác nhận caller-authorization riêng biệt, KHÔNG suy ra chỉ vì nó cũng nằm trong
+`forbidden_dependencies`.)
 ```
 
 **Xác nhận tường minh (bắt buộc, yêu cầu task, khớp ADR-017 §8.4/§7 trên):**
@@ -654,8 +671,11 @@ Service cancellation:                Custody/Signing Service tự hủy (vd. do 
                                      condition kích hoạt giữa chừng, §4a.8) → CANCELLED
                                      hoặc REJECTED tùy giai đoạn lifecycle.
 Credential revocation during        nếu CredentialRevocationState kích hoạt giữa một
-  signing:                          SigningAttempt đang tiến hành → attempt đó PHẢI
-                                     fail closed, KHÔNG hoàn tất SIGNED.
+  signing:                          SigningAttempt đang tiến hành → in-flight handling
+                                     CHƯA established (§4a.10/§14 gap #6, KHÔNG resolve
+                                     tại đây, v0.4 correction) — revocation CHẶN
+                                     SigningRequest/SigningAttempt MỚI (§4a.5), KHÔNG tự
+                                     động quyết định outcome của attempt đã in-flight.
 Execution suspension during         nếu execution-suspension (kill-switch, §4a.10) kích
   signing:                          hoạt giữa một SigningAttempt đang tiến hành → in-
                                      flight handling CHƯA established (§4a.10/§14 gap,
@@ -821,12 +841,25 @@ Signing requests vs signed payloads (I-11 phân biệt, elaboration — v0.3 c�
   hình chưa chọn" như v0.1/v0.2; concrete signing algorithm/protocol VẪN forbidden scope
   (§13).
 
-Least-privilege access (I-11 Required guarantees, nguyên văn):
+Least-privilege access (I-11 Required guarantees, nguyên văn — Chapter 2, Locked, KHÔNG
+  sửa tại đây):
   "Execution Engine tương tác qua contract (gửi execution command), KHÔNG cần đọc raw
-  secret TRỪ KHI được triển khai cùng trust boundary với Adapter." Execution Engine
-  (Package 1.3-D) mặc định KHÔNG có quyền đọc raw secret — chỉ được cấp quyền đó nếu
-  deployment manifest (Phase 1, CHƯA author) chứng minh cùng trust boundary với Exchange
-  Adapter VÀ quyền đó đã phê duyệt rõ ràng (I-11 Verification).
+  secret TRỪ KHI được triển khai cùng trust boundary với Adapter." Văn bản Locked này
+  giữ nguyên conditional clause đó ở mức constitutional — Package 1.2 KHÔNG sửa/xóa I-11.
+
+  Áp dụng CỤ THỂ dưới ADR-017 v0.2 (Approved) Option C (bắt buộc, v0.4 correction): Option
+  C ĐÃ CHỌN custody-signing-service làm module DUY NHẤT trong toàn platform được phép sử
+  dụng exchange credential trực tiếp (§4a.2/§4a.3) — quyết định kiến trúc CỤ THỂ này
+  KHÔNG exercise conditional trust-boundary exception mà I-11 cho phép ở mức nguyên tắc
+  chung. Dưới kiến trúc ĐÃ Approved này: Execution Engine (Package 1.3-D) KHÔNG BAO GIỜ
+  được cấp quyền đọc raw secret trực tiếp, dưới BẤT KỲ hình thức nào — co-location, chia
+  sẻ process, chia sẻ host, cùng network zone, hay bất kỳ deployment topology nào ĐỀU
+  KHÔNG chuyển giao credential-use authority sang Execution Engine. Exchange Adapter
+  (venue-facing transport, §7) nhận CHỈ signature hay signed-payload evidence từ
+  custody-signing-service (SigningOutcome, §4a.4/§4a.5) — KHÔNG BAO GIỜ raw secret. Một
+  kiến trúc tương lai muốn exercise conditional exception đó cho Execution Engine sẽ cần
+  một ADR MỚI thay thế/bổ sung ADR-017 — KHÔNG PHẢI điều Package 1.2 tự cấp hay carry
+  forward tại đây.
 
 Secret non-exposure — xác nhận tường minh cho TỪNG layer (yêu cầu task):
   Strategy/Plugin (Package 1.3-C):        KHÔNG được cấp quyền — I-11 Prohibited
@@ -1510,11 +1543,11 @@ non-goals) — §16a CHỈ ghi nhận dependency VÀ trình tự bắt buộc, K
 
 ```text
 Package 1.2:
-  version: 0.3
+  version: 0.4
   status: Draft
   package lifecycle/readiness: candidate
   not Consolidated Stable
-  pending Review A
+  pending Review A verification (bounded correction v0.3 → v0.4)
   pending Independent Review B
   pending Package 1.1 alignment (§16a)
   pending Product Owner consolidation decision

@@ -2,6 +2,79 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.2 v0.4: bounded correction — Review A finding closure on v0.3
+
+**Bounded correction transaction — vai trò: `Package 1.2 v0.3 Review A Bounded Correction Executor`.** Closes four confirmed Review A findings on the v0.3 substantive-extension candidate. Localized edits only — no re-write of unaffected v0.3 prose, no renumbering.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                 e153d792fee1e93536bcbcbe0ab26087b9d859e1
+docs/architecture/security-custody-baseline.md v0.3 blob:       fc8e8cf4fad1bbe17b47a9ffc2b2ecf3f1df9f25
+```
+
+### Finding closure
+
+```text
+P12V03-A-BLK-01 (raw-secret authority):  removed every statement/exception (co-location,
+  shared process/host, network zone, deployment topology) permitting Execution Engine
+  direct raw-secret access (§3.2 trust_boundary_candidate I-11 block; §6 least-privilege
+  access paragraph). custody-signing-service confirmed sole direct-credential-use
+  authority under ADR-017 Option C, no exception. I-11's own Locked constitutional text
+  (Chapter 2, §190/§196 — conditional co-location clause) is quoted verbatim and left
+  unmodified; §6 now states explicitly that ADR-017 Option C does not exercise that
+  conditional exception for this concrete architecture.
+
+P12V03-A-MAJ-01 (in-flight revocation):  removed the terminal-outcome claim ("attempt
+  đó PHẢI fail closed, KHÔNG hoàn tất SIGNED") for a SigningAttempt in-flight when
+  CredentialRevocationState activates (§4a.9). Behavior for an in-flight attempt affected
+  by revocation or execution suspension is now stated as unresolved pending an Approved
+  ADR (§4a.9/§4a.10/§14 gap #6), matching the existing execution-suspension row. The rule
+  that revoked/suspended credentials block new SigningRequests/SigningAttempts (§4a.5) is
+  preserved unchanged.
+
+P12V03-A-MIN-01 (internal references):  corrected six shifted §4a cross-references:
+  §4a.2 authority-model list (CredentialBinding/CredentialEligibility/CredentialRevocation
+  State/SigningAttempt/SigningOutcome concepts §4a.3 → §4a.4; signing-attempt lifecycle
+  §4a.4 → §4a.5; audit provenance §4a.10 → §4a.11); §4a.3 responsibilities list
+  (signing-attempt lifecycle §4a.7 → §4a.5; fail-closed behavior §4a.9 → §4a.8). Document
+  not renumbered.
+
+P12V03-A-MIN-02 (dependency vs caller authorization):  rewrote the §4a.7 parenthetical
+  that treated `forbidden_dependencies` (§4a.1) as direct proof of the caller-
+  authorization list. Now states explicitly that `forbidden_dependencies` controls which
+  modules custody-signing-service may depend on/call (custody-signing-service → module),
+  while caller authorization controls which modules may submit SigningRequests to it
+  (module → custody-signing-service) — opposite directions, separate controls.
+  exchange-adapter is used as the illustrating case: forbidden as a dependency of
+  custody-signing-service while simultaneously being the anticipated future authorized
+  caller — not a contradiction, since the two controls run in opposite directions.
+```
+
+### Preserved unchanged
+
+```text
+Package 1.1 v0.6 (Consolidated Stable): not touched, byte-identical.
+custody-signing-service.phase.elaborated_by: null (registry unchanged).
+Exchange Adapter: functionally deferred, no owning package created.
+Execution: PAPER-only; no execution-engine → exchange-adapter dependency edge added.
+LIVE: Unauthorized.
+All Decision/Risk/Execution authority boundaries (§4a.2), business-vs-custody-vs-
+  transport authorization separation (§5), and every other v0.3 boundary not named in
+  the four findings above.
+```
+
+### Version
+
+```text
+docs/architecture/security-custody-baseline.md:  0.3 → 0.4
+Blob:                                             fc8e8cf4fad1bbe17b47a9ffc2b2ecf3f1df9f25
+                                                  → 3abbcaba50c8fa7ab1d61dec98d36ca697aa708b
+status: Draft, package lifecycle: candidate — unchanged. Not Consolidated Stable.
+Pending: Review A verification of this correction, Independent Review B, Package 1.1
+  alignment (§16a), Product Owner consolidation decision.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.2 v0.3: substantive extension — Custody & Signing Service elaboration (Package 1.1 v0.6 / ADR-017 alignment)
 
 **Authoring transaction — vai trò: `Package 1.2 v0.3 Extension Author`.** Aligns the Security & Custody Baseline with Consolidated Stable Package 1.1 v0.6, Approved ADR-017 v0.2, the registered `custody-signing-service`, and the preserved PAPER-only/LIVE-Unauthorized architecture. This is an authoring transaction, not a consolidation transaction — Package 1.1 phase assignments are not modified.
