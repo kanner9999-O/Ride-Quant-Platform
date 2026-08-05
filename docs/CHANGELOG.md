@@ -2,6 +2,65 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.4 v0.3: micro-correction — residual P14-A-MAJ-01 closure
+
+**Micro-correction transaction — vai trò: `Package 1.4 v0.3 Micro-Correction Executor`.** Closes the single remaining bounded-verification finding (P14-A-MAJ-01) — two residual contradictions in §2.1 and §11 that v0.2's §6 rewrite did not reach. Does not reopen P14-A-MAJ-02 or P14-A-MIN-01, does not redesign, does not touch §6.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        5efc5bfd4c1d532accd22f9e7708a430d12bd764
+docs/architecture/api-architecture.md v0.2 blob:      2e3fc6ac22c4ac62e60dba75b038cbb677a6d813
+```
+
+### Corrections
+
+```text
+§2.1 (registry classification block):  the parenthetical "non-bypass enforced
+  structurally bởi ABSENCE khỏi depends_on" (left over from v0.1, not touched by v0.2)
+  replaced. New wording: absence from depends_on confirms only that no registered
+  direct prerequisite edge exists to custody-signing-service/exchange-adapter/
+  strategy-plugin-host/decision-evaluation-engine — it does not independently prove
+  caller exclusion, transport access control, transitive payload flow, causal
+  authorization, or complete non-bypass; non-bypass is established by the §6
+  authoritative-boundary/lineage/authorization/fail-closed/secret-confinement
+  invariants, not by this registry fact alone.
+
+§11 (Independent Review B scope):  the criterion "script-checkable qua absence trong
+  depends_on" (left over from v0.1) replaced with a bounded criterion requiring
+  verification of both: (a) registry parity and absence of unauthorized direct
+  dependency edges; and (b) the §6 normative invariants — authoritative acceptance,
+  eligible lineage, authorization, fail-closed behavior, and custody secret
+  confinement. No claim that a dependency-graph script alone proves complete
+  non-bypass.
+
+§11 (Consolidation condition) and §12 (Lifecycle treatment): updated to reference v0.3
+  and confirm P14-A-MAJ-02/P14-A-MIN-01 remain CLOSED (unchanged from v0.2).
+```
+
+### Preserved unchanged (diff-verified byte-identical)
+
+```text
+§5, §6, §7, §8 — confirmed byte-identical to the pre-edit v0.2 text (P14-A-MAJ-02 and
+  P14-A-MIN-01 corrections untouched).
+command-query-api-surface registry field values (depends_on, forbidden_dependencies,
+  owns_authoritative_state, phase) — only the §2.1 parenthetical prose changed, no
+  field value touched.
+All 16 dependencies; all authority boundaries; failure semantics; Package 1.5/1.6
+  boundaries; PAPER-only execution; LIVE Unauthorized; every unrelated gap/non-goal.
+```
+
+### Version
+
+```text
+docs/architecture/api-architecture.md:  0.2 -> 0.3
+Blob:                                    2e3fc6ac22c4ac62e60dba75b038cbb677a6d813
+                                         -> e2652d16268343a87c89cb52e95d4be966b9434d
+status: Draft, package lifecycle: candidate — unchanged. Not Consolidated Stable.
+Pending: bounded verification of this micro-correction, Independent Review B, Product
+  Owner consolidation decision.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.4 v0.2: bounded correction — Review A finding closure on v0.1
 
 **Bounded correction transaction — vai trò: `Package 1.4 Bounded Correction Executor`.** Closes three confirmed Review A findings on the v0.1 initial candidate. Localized edits only — no redesign, no scope expansion, no new architecture sections.

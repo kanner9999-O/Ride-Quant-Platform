@@ -1,7 +1,7 @@
 ---
 id: api-architecture
 title: "Package 1.4 — API Architecture"
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -18,6 +18,8 @@ depends_on: ["00-governance", "02-platform-invariants", "07-module-taxonomy", "0
 **CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.4 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module, module-registry.yaml/system-decomposition.md), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable` (v0.2), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.4 — API Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
 
 **v0.2 — bounded correction (2026-08-05), đóng ba Review A finding trên v0.1 (`P14-A-MAJ-01`/`P14-A-MAJ-02`/`P14-A-MIN-01`), KHÔNG redesign/mở rộng scope:** (a) `P14-A-MAJ-01` — §6 sửa: dependency-edge absence (§2.1/§2.3) KHÔNG còn được trình bày như bằng chứng ĐẦY ĐỦ cho caller exclusion/invocation impossibility/payload-flow exclusion/raw-secret isolation/authority non-bypass/causal authorization — `depends_on` LÀ prerequisite relation, KHÔNG PHẢI một complete caller-access/dataflow-control model; thêm bộ architecture-level invariant mới (transport KHÔNG BAO GIỜ tạo eligibility, effect-producing command PHẢI qua authoritative boundary, lineage fail-closed, secrets/signing material bị cấm khỏi API payload); (b) `P14-A-MAJ-02` — §8 sửa: bỏ claim mọi request dùng đủ ba trục Chapter 10, bỏ claim Plugin Version là trục universal, bỏ claim API Surface LÀ canonical compatibility evaluator/PHẢI tạo Compatibility Result cho mọi request — thay bằng bounded rule: compatibility evaluation VẪN thuộc module authoritative/designated đã đăng ký, API Surface CHỈ carry/route/expose evidence; (c) `P14-A-MIN-01` — §5 sửa: `emits` loại trừ `event` CHỈ chứng minh API Surface KHÔNG phải registered authoritative event emitter, KHÔNG chứng minh một transport topology cụ thể nào — transport mechanism CÓ THỂ chọn sau, exposure VẪN read-only, event identity/provenance/ordering/correction KHÔNG đổi. Mọi nội dung khác của v0.1 GIỮ NGUYÊN.
+
+**v0.3 — micro-correction (2026-08-05), đóng residual bounded-verification finding `P14-A-MAJ-01` (hai contradiction sót lại sau v0.2), KHÔNG reopen `P14-A-MAJ-02`/`P14-A-MIN-01`, KHÔNG redesign:** (a) §2.1 — parenthetical "non-bypass enforced structurally bởi ABSENCE khỏi depends_on" (sót lại từ v0.1, KHÔNG bị v0.2 sửa) thay bằng: absence khỏi `depends_on` CHỈ xác nhận KHÔNG có registered direct prerequisite edge, KHÔNG độc lập chứng minh caller exclusion/transport access control/transitive payload flow/causal authorization/complete non-bypass — non-bypass được thiết lập bởi bộ invariant tại §6, KHÔNG PHẢI bởi riêng registry fact này. (b) §11 Independent Review B scope — criterion "script-checkable qua absence trong depends_on" (sót lại từ v0.1) thay bằng bounded criterion đòi hỏi verify CẢ HAI: registry parity/absence của unauthorized dependency edge, VÀ §6's normative invariant (authoritative acceptance, eligible lineage, authorization, fail-closed, secret confinement) — KHÔNG một mình dependency-graph script chứng minh complete non-bypass. §6 (v0.2 correction), §8 (P14-A-MAJ-02), §5 (P14-A-MIN-01) GIỮ NGUYÊN KHÔNG đổi.
 
 ## 0. Vai trò của tài liệu này — scope resolved từ controlling source (bắt buộc, yêu cầu task)
 
@@ -128,8 +130,17 @@ depends_on:                market-reference-service, market-data-ingestion,
                            execution-result-processor, fill-processor,
                            position-projection, replay-integration-service,
                            review-evidence-service
-forbidden_dependencies:    (none registered — non-bypass enforced structurally bởi
-                           ABSENCE khỏi depends_on, không cần forbidden-list riêng, §6)
+forbidden_dependencies:    (none registered tại registry — absence khỏi `depends_on`
+                           (v0.3 correction, đóng `P14-A-MAJ-01` residual) xác nhận
+                           KHÔNG có registered direct prerequisite edge tới
+                           custody-signing-service/exchange-adapter/strategy-plugin-
+                           host/decision-evaluation-engine; absence đó, TỰ THÂN, KHÔNG
+                           độc lập chứng minh caller exclusion, transport access
+                           control, transitive payload flow, causal authorization, hay
+                           complete non-bypass — non-bypass được thiết lập bởi bộ
+                           authoritative-boundary/lineage/authorization/fail-closed/
+                           secret-confinement invariant tại §6, KHÔNG PHẢI bởi riêng
+                           registry fact này)
 plugin_relation:           none
 security_classification:   trust_boundary_candidate
 phase:                     { identified_in: "1.1", elaborated_by: "1.4" }
@@ -630,14 +641,22 @@ Independent Review B
                                conflate qua API (§3/§6); xác nhận error/failure category
                                (§7) phân biệt đúng transport/validation/authorization/
                                domain/processing/unknown; xác nhận KHÔNG Decision/Risk/
-                               Execution/Custody bypass nào tồn tại (script-checkable
-                               qua absence trong depends_on); xác nhận PAPER/LIVE
-                               separation VÀ LIVE Unauthorized KHÔNG bị đổi.
+                               Execution/Custody bypass nào tồn tại — bounded criterion
+                               (v0.3 correction, đóng `P14-A-MAJ-01` residual) đòi hỏi
+                               xác nhận CẢ HAI: (a) registry parity VÀ absence của
+                               unauthorized direct dependency edge (script-checkable qua
+                               `depends_on`, §2.1/§2.3); VÀ (b) §6's normative invariant
+                               — authoritative acceptance, eligible lineage,
+                               authorization, fail-closed behavior, VÀ custody secret
+                               confinement — ĐỀU PHẢI verify; KHÔNG một mình dependency-
+                               graph script chứng minh complete non-bypass; xác nhận
+                               PAPER/LIVE separation VÀ LIVE Unauthorized KHÔNG bị đổi.
 Product Owner decision
   point:                      Sau Review A/B CLEAN.
-Consolidation condition:      Zero unresolved Blocker/Major trên baseline hiện tại (v0.2,
-                               post bounded correction đóng P14-A-MAJ-01/P14-A-MAJ-02/
-                               P14-A-MIN-01); mọi capability engine đã Consolidated
+Consolidation condition:      Zero unresolved Blocker/Major trên baseline hiện tại (v0.3,
+                               post micro-correction đóng residual P14-A-MAJ-01, VÀ
+                               P14-A-MAJ-02/P14-A-MIN-01 VẪN CLOSED từ v0.2); mọi
+                               capability engine đã Consolidated
                                Stable (Package 1.3-A..D) có bề mặt API tương ứng, KHÔNG
                                bỏ sót (đúng phase-1-plan.md Consolidation condition cho
                                Package 1.4).
@@ -647,16 +666,19 @@ Consolidation condition:      Zero unresolved Blocker/Major trên baseline hiệ
 
 ```text
 Package 1.4:
-  version: 0.2
+  version: 0.3
   status: Draft
   package lifecycle/readiness: candidate
   not Consolidated Stable
-  Review A findings (P14-A-MAJ-01/P14-A-MAJ-02/P14-A-MIN-01) corrected — pending
+  P14-A-MAJ-01 corrected (v0.3, residual §2.1/§11 contradiction closed) — pending
     bounded verification
+  P14-A-MAJ-02: remains CLOSED (v0.2, KHÔNG reopen)
+  P14-A-MIN-01: remains CLOSED (v0.2, KHÔNG reopen)
   pending Independent Review B
   pending Product Owner consolidation decision
 
 Package 1.4 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đóng ba Review A
-  finding trên v0.1 (banner đầu tài liệu), KHÔNG invalidate phần v0.1 KHÔNG bị finding
-  chạm tới, KHÔNG redesign/mở rộng scope.
+  finding trên v0.1 (banner đầu tài liệu); v0.3 LÀ micro-correction đóng đúng residual
+  contradiction sót lại của P14-A-MAJ-01 (§2.1/§11), KHÔNG invalidate/reopen phần nào
+  của v0.2 KHÔNG bị finding chạm tới, KHÔNG redesign/mở rộng scope.
 ```
