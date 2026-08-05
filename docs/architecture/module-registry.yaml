@@ -1,15 +1,30 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# CANDIDATE (package lifecycle, 2026-08-05, v0.7 semantic Package 1.1 alignment
+# transaction) — status: Draft, NOT Approved/Locked. v0.7 reverts package_lifecycle from
+# `Consolidated Stable` (v0.6) back to `candidate`: `custody-signing-service.phase.
+# elaborated_by` changes `null -> "1.2"` after Package 1.2 v0.4 (security-custody-
+# baseline.md §4a) passed Review A CLEAN + Independent Review B CLEAN (Blocker 0/Major
+# 0/Minor 0) — a genuine semantic phase-assignment change, NOT a mechanical/wording-only
+# transaction, same precedent as v0.5's original registration and the v0.2 -> v0.3
+# ADR-016 alignment (both reverted Consolidated Stable -> candidate). v0.6's Consolidated
+# Stable consolidation decision (2026-08-05T08:40:00+07:00, Product Owner) is NOT
+# falsified — it remains the historical record for candidate v0.6's own review-clean
+# state at that time; it is simply no longer the current package_lifecycle. v0.7 requires
+# a bounded consistency verification pass and a NEW Product Owner consolidation decision
+# before returning to `Consolidated Stable`. `exchange-adapter.phase.elaborated_by`
+# remains `null`, unchanged. `version: "0.6" -> "0.7"`.
+#
 # CONSOLIDATED STABLE (package lifecycle, 2026-08-05T08:40:00+07:00, Product Owner
-# decision) — status: Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable)
-# and artifact status (Draft) are separate dimensions (Chapter 0 §7.1) — Consolidated
-# Stable does NOT mean this file is Approved/Locked; it means the reviewed package
-# baseline (v0.6, 25 modules) is internally coherent and stable enough to be a dependency
-# baseline for the next package. Product Owner decision: "I approve consolidation of
-# Package 1.1 v0.6 as the current Consolidated Stable module-registry and
-# system-decomposition baseline." Mechanical lifecycle transaction — `version: "0.6"`
-# UNCHANGED (no content/architecture change), `package_lifecycle: candidate ->
-# Consolidated Stable`.
+# decision, HISTORICAL — superseded by v0.7 above) — status: Draft, NOT Approved/Locked.
+# Package lifecycle (Consolidated Stable) and artifact status (Draft) are separate
+# dimensions (Chapter 0 §7.1) — Consolidated Stable does NOT mean this file is
+# Approved/Locked; it meant the reviewed package baseline (v0.6, 25 modules) was
+# internally coherent and stable enough to be a dependency baseline for the next
+# package. Product Owner decision: "I approve consolidation of Package 1.1 v0.6 as the
+# current Consolidated Stable module-registry and system-decomposition baseline."
+# Mechanical lifecycle transaction — `version: "0.6"` UNCHANGED (no content/architecture
+# change), `package_lifecycle: candidate -> Consolidated Stable`.
 #
 # History: v0.5 registered two new modules (custody-signing-service, exchange-adapter)
 # authorized by Approved ADR-017 v0.2 (2026-08-04T20:08:00+07:00) — a genuine
@@ -75,10 +90,10 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "0.6"
+version: "0.7"
 status: Draft
 package: "1.1"
-package_lifecycle: Consolidated Stable
+package_lifecycle: candidate
 generated_at: "2026-08-05"
 
 modules:
@@ -270,7 +285,7 @@ modules:
     forbidden_dependencies: [decision-authority-service, risk-gateway, execution-engine, exchange-adapter, strategy-engine, strategy-plugin-host, decision-evaluation-engine, context-aggregator, position-projection, command-query-api-surface]
     plugin_relation: none
     security_classification: secret_consuming
-    phase: { identified_in: "1.1", elaborated_by: null }
+    phase: { identified_in: "1.1", elaborated_by: "1.2" }
     status: candidate
     notes: >
       ADR-017 v0.2 (Approved, 2026-08-04T20:08:00+07:00, Product Owner — Option C split
@@ -291,18 +306,25 @@ modules:
       KMS/HSM binding, signing algorithm, credential rotation protocol) is forbidden scope
       (ADR-017 §3.3) — NOT authored here.
       `phase.elaborated_by` corrected v0.5 -> v0.6 (bounded correction, đóng
-      `P11V05-A-MAJ-01`/`P11-v0.5-IRB-MAJ-01`): v0.5's `elaborated_by: "1.2"` was a false
-      package-coverage/readiness claim — [security-custody-baseline.md](../security-custody-baseline.md)
+      `P11V05-A-MAJ-01`/`P11-v0.5-IRB-MAJ-01`, HISTORICAL): v0.5's `elaborated_by: "1.2"`
+      was a false package-coverage/readiness claim — [security-custody-baseline.md](../security-custody-baseline.md)
       v0.2 was authored and reviewed BEFORE this module existed (it registers only at
-      Package 1.1 v0.5, AFTER Package 1.2 v0.2's review-clean state), so Package 1.2 has
-      NOT actually elaborated it. This module is registered by Package 1.1 under Approved
-      ADR-017; its detailed elaborating package is NOT yet authoritatively assigned.
-      Package 1.2 is the natural future extension candidate (same cross-cutting custody
-      purpose that already elaborates account-service) — but no assignment or completed
-      elaboration is claimed here, same deferred/null representation already used for
-      `exchange-adapter` below. Package 1.2 v0.2 remains review-clean ONLY for its
-      existing reviewed scope, where `account-service` was the sole fully assigned
-      Package 1.2 module.
+      Package 1.1 v0.5, AFTER Package 1.2 v0.2's review-clean state), so Package 1.2 had
+      NOT actually elaborated it at that time. Corrected to `null` in v0.6 pending genuine
+      elaboration and review.
+      `phase.elaborated_by` assigned v0.6 -> v0.7 (semantic Package 1.1 alignment
+      transaction, 2026-08-05, `Package 1.1 Custody Assignment Alignment Executor`):
+      `null -> "1.2"`. This assignment follows, rather than precedes, genuine elaboration —
+      [security-custody-baseline.md](../security-custody-baseline.md) v0.4 §4a fully
+      elaborates this module's architecture (authority model, credential-reference model,
+      signing-request lifecycle, caller-authorization boundary, fail-closed rules, kill-
+      switch participation, audit/provenance) and passed Review A CLEAN + Independent
+      Review B CLEAN (Blocker 0/Major 0/Minor 0) after its own v0.4 bounded correction —
+      the exact precondition v0.6's correction said was missing. Package 1.2 v0.4 remains
+      the elaborating artifact; this transaction does NOT modify Package 1.2 semantics,
+      does NOT consolidate Package 1.2, and does NOT activate LIVE. `exchange-adapter`
+      below is unaffected — same deferred/null representation, no elaborating package
+      exists for it.
 
   - module_id: exchange-adapter
     name: Exchange Adapter

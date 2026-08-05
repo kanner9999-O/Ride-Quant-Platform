@@ -2,6 +2,73 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.1 v0.7: semantic alignment — custody-signing-service elaborating-package assignment
+
+**Semantic alignment transaction — vai trò: `Package 1.1 Custody Assignment Alignment Executor`.** Assigns `custody-signing-service.phase.elaborated_by: null -> "1.2"` in `module-registry.yaml` after Package 1.2 v0.4 (`security-custody-baseline.md`) passed Review A CLEAN + Independent Review B CLEAN (Blocker 0/Major 0/Minor 0). Reverts `package_lifecycle: Consolidated Stable -> candidate` — this is a genuine semantic phase-assignment change, not a mechanical/wording-only transaction, same precedent as v0.5's original module registration and the v0.2 -> v0.3 ADR-016 alignment. Does not modify Package 1.2 semantics, does not consolidate Package 1.2, does not activate LIVE.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                 44d6144a4c1f54b3e3fd91dbd2301e895644c1b0
+docs/architecture/module-registry.yaml v0.6 blob:              d98f707e0a21676ac84de6cbfda904bc79dbfb09
+docs/architecture/system-decomposition.md v0.6 blob:           8a19b41300abefaab2fa5936e5948101d9d254fb
+docs/architecture/security-custody-baseline.md v0.4 blob:      3abbcaba50c8fa7ab1d61dec98d36ca697aa708b
+  (Review A CLEAN, Independent Review B CLEAN, Blocker/Major/Minor: 0/0/0)
+```
+
+### Assignment change
+
+```text
+module-registry.yaml:
+  custody-signing-service.phase.elaborated_by:  null -> "1.2"
+  exchange-adapter.phase.elaborated_by:         null (unchanged)
+  package_lifecycle:                            Consolidated Stable -> candidate
+  version:                                       0.6 -> 0.7
+
+system-decomposition.md:
+  §4 inventory table "Elaborated by" column for custody-signing-service:
+    *(unassigned — §11)* -> `1.2` (v0.7, §11)
+  §11 "Custody & Signing Service elaborating package" deferred item: CLOSED (RESOLVED)
+  §11 "Exchange Adapter elaborating package" deferred item: unchanged (still open)
+  Top banner package lifecycle: Consolidated Stable -> candidate; v0.6's consolidation
+    decision preserved as historical record (not falsified)
+  version:                                       0.6 -> 0.7
+```
+
+### Preserved unchanged
+
+```text
+25-module inventory; every module's identity, taxonomy, responsibilities, dependencies,
+  forbidden_dependencies, security_classification (including custody-signing-service's
+  own forbidden_dependencies and exchange-adapter's).
+execution-engine.depends_on: [risk-gateway, paper-execution-boundary] — no
+  execution-engine -> exchange-adapter edge added.
+PAPER-only current execution; LIVE Unauthorized.
+Kill-switch authoritative-state ownership: still unresolved.
+In-flight signing/revocation behavior (security-custody-baseline.md §4a.9): still
+  unresolved, unchanged by this transaction.
+Package 1.2 v0.4 content: untouched (out of Package 1.1 scope) — still not
+  Consolidated Stable, pending its own Package 1.1 alignment verification and Product
+  Owner consolidation decision.
+ADR-017: Approved, not Locked — unchanged.
+```
+
+### Validation
+
+```text
+Baseline HEAD/blobs matched before editing.
+Exactly four files changed: module-registry.yaml, system-decomposition.md,
+  MANIFEST.md, CHANGELOG.md.
+module-registry.yaml module count: 25 (grep-verified, unchanged).
+Exactly one phase.elaborated_by value changed (custody-signing-service:
+  null -> "1.2"); account-service's pre-existing "1.2" and exchange-adapter's null
+  confirmed unaffected; no other module's phase field touched.
+No dependency/forbidden_dependencies edges added or removed — graph unchanged,
+  therefore still acyclic.
+No execution-engine -> exchange-adapter edge, no LIVE authorization introduced.
+Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.2 v0.4: bounded correction — Review A finding closure on v0.3
 
 **Bounded correction transaction — vai trò: `Package 1.2 v0.3 Review A Bounded Correction Executor`.** Closes four confirmed Review A findings on the v0.3 substantive-extension candidate. Localized edits only — no re-write of unaffected v0.3 prose, no renumbering.
