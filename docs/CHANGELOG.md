@@ -2,6 +2,114 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05T19:39:00+07:00 — Package 1.6 upstream-resolution exploration v0.1 (NON-AUTHORITATIVE, decision evidence only)
+
+**Exploratory authoring transaction — vai trò: `Package 1.6 Upstream Resolution Source Clarification Author`.** Authors one bounded, non-authoritative evidence artifact for the three unresolved Package 1.6 v0.2 upstream prerequisites (NAV-003 API binding, VIEW-002 ownership, VIEW-003 ownership/package assignment). Prepares decision evidence only — approves nothing.
+
+### Authorization (verbatim)
+
+```text
+"I authorize bounded upstream-resolution work for the Package 1.6 v0.2 binding
+prerequisites concerning NAV-003, VIEW-002, and VIEW-003.
+
+This authorization permits read-only source analysis and bounded authoring of the
+Product, Domain, and ADR evidence required to decide:
+
+1. whether command-query-api-surface should gain a registered dependency on
+   backtest-orchestrator for NAV-003;
+2. the controlling semantics and eligible owner for VIEW-002 Research verification;
+3. the controlling semantics, eligible owner, and package assignment for VIEW-003
+   parity verification.
+
+This authorization does not approve any dependency edge, module, responsibility
+transfer, Product or Domain semantic change, ADR decision, registry change, API
+exposure, or UX binding.
+
+Package 1.1 through Package 1.5 remain Consolidated Stable unless and until a
+separately reviewed and approved semantic transaction explicitly reopens one.
+
+Package 1.6 remains candidate and blocked from Independent Review B and
+consolidation.
+
+Phase 1 remains Active and not Complete. Gate 2 and Phase 2 remain unopened. LIVE
+remains Unauthorized."
+
+Authorization timestamp: 2026-08-05T19:39:00+07:00
+```
+
+### Baseline
+
+```text
+Baseline HEAD:                                        59e24c9d152889d2d2fafcd2e5d4a0bc1a3a4781
+Controlling sources read directly: phase-1-plan.md v0.4; module-registry.yaml v0.7;
+  system-decomposition.md v0.7; api-architecture.md v0.3; database-architecture.md
+  v0.2; ux-architecture.md v0.2; product-requirement.md; use-case-workflow.md;
+  ux-blueprint.md; decision.md v0.3 (Package 0.2-C4, Consolidated Stable); strategy.md
+  v0.3 (Package 0.2-C3, Consolidated Stable); replay-event.md v0.3 (Package 0.2-C7,
+  Consolidated Stable); Constitution Chapter 0 §4b (ADR Scope Rule); MANIFEST.md
+  deferred decisions/open questions.
+```
+
+### New artifact
+
+```text
+docs/architecture/package-1.6-upstream-resolution-exploration.md — NEW
+  version: 0.1, status: Draft, package lifecycle: exploratory candidate
+  Labels: NON-AUTHORITATIVE, EXPLORATORY, NOT APPROVED, NOT IMPLEMENTATION-READY,
+    DECISION EVIDENCE ONLY
+  Blob: 1f46d5d90a5a5821fb84672c06bc70cfb0477f96
+```
+
+### Key findings (evidence, not decisions)
+
+```text
+NAV-003:    DD-001 (backtest-orchestrator's owns_authoritative_state: deferred) blocks
+  only stronger authoritative-fact claims, not API reachability — routing (depends_on)
+  and authoritative-state resolution are independent registry fields. Four resolution
+  candidates evaluated (add edge / route via existing module / change Product-UX
+  semantics / stay blocked) without selecting one. Adding the edge would trigger ADR
+  Required and reopen both Package 1.1 and Package 1.4.
+
+VIEW-002:   UC-003 fully establishes PASSED/FAILED conditions and the non-authoritative
+  output classification; INDETERMINATE is established only at the principle level, not
+  the mechanism level. Four semantic items are missing (session-interval identity,
+  evidence-completeness mechanism, correction-arrival handling, computation owner).
+  Five ownership candidates evaluated without selecting one or assigning by data
+  proximity alone.
+
+VIEW-003:   The most concrete gap found — canonical semantic-decision hash is
+  referenced by product-requirement.md/use-case-workflow.md/ux-blueprint.md as
+  "defined by decision.md," but an exhaustive grep of decision.md v0.3 (Consolidated
+  Stable) returns zero occurrences of "hash." Configuration Version is a locked
+  ADR-013 evidence axis whose own Domain Contract content is not yet authored.
+  INDETERMINATE-equivalent behavior is not established for VIEW-003 at all (only
+  MATCH/MISMATCH exist), unlike VIEW-002's three-outcome model. Six ownership
+  candidates evaluated without selecting one; recommendation: the hash-definition gap
+  must resolve before any ownership decision is meaningful.
+```
+
+### Validation
+
+```text
+Expected HEAD matched before authoring.
+Exactly three files changed: package-1.6-upstream-resolution-exploration.md (new),
+  MANIFEST.md, CHANGELOG.md.
+version: 0.1, Draft, exploratory candidate — all five mandatory labels present.
+NAV-003, VIEW-002, and VIEW-003 analyzed as three separate issues throughout, with
+  three separate candidate-decision records and three separate ADR-trigger
+  assessments (not combined by default).
+Source facts distinguished from inference throughout (each subsection separates
+  "established" from "not established" with direct source citation).
+No Product/Domain semantic changed; no ADR authored or approved; no module,
+  dependency edge, responsibility, contract category, or package assignment changed.
+Package 1.1-1.5: not in the changed-file list, byte-identical, remain Consolidated
+  Stable.
+Package 1.6 (ux-architecture.md): not in the changed-file list, byte-identical,
+  remains candidate — Independent Review B remains blocked.
+Phase 2 remains unopened; LIVE remains Unauthorized.
+Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.6 v0.2: bounded correction — Review A finding closure on v0.1
 
 **Bounded correction transaction — vai trò: `Package 1.6 v0.2 Bounded Correction Executor`.** Closes four confirmed Review A findings on the v0.1 initial candidate. Localized edits only — no redesign, no registry/API architecture change, no upstream gap resolution.
