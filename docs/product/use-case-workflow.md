@@ -1,7 +1,7 @@
 ---
 id: use-case-workflow
 title: Use Case & Workflow
-version: "0.6"
+version: "0.7"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -29,6 +29,8 @@ next_review: null
 **v0.5 — bounded semantic correction (đóng `P03B-V04-A-MAJ-01`):** v0.4 chỉ MECHANICALLY gán `PR-004`/`PR-005` vào trường "PR traceability" của `UC-007`/`UC-011`/`UC-016`, nhưng chưa operationalize đầy đủ acceptance evidence của hai PR đó trong behavior thực tế (Main flow/Observable outcome/Evidence consumed). Nay: `UC-007` Main flow bước 2 viết lại — mỗi Decision hiển thị tường minh đúng một outcome (LONG/SHORT/không có exposure mới), Strategy Instance CHÍNH XÁC + Strategy Definition Version/configuration context nguồn gốc, VÀ evidence đã dùng để tạo ra Decision đó (recorded input snapshot/causation reference/RiskEvaluation liên quan) — resolve TRỰC TIẾP từ recorded fact, KHÔNG suy diễn/tính lại sau sự kiện. `UC-011` Preconditions/Main flow/Observable outcome viết lại — tách bạch tường minh **upstream Decision evidence** (outcome + Strategy Instance/Definition Version nguồn gốc + input snapshot/evidence reference, hiển thị TRƯỚC khi khởi tạo PAPER execution) khỏi **downstream C7 causation** (fact do CHÍNH hành động khởi tạo sinh ra) — downstream chain KHÔNG tự nó ngụ ý thỏa evidence trace của Decision. `UC-016` thêm Main flow bước 3 mới — khi đạt tới Decision gốc, hiển thị tường minh **Decision explainability evidence** (input snapshot/configuration → Decision), tách biệt khỏi **downstream lineage** ở bước 2 (Position/Fill → ... → Decision). `UC-008`/`UC-009` KHÔNG đổi, KHÔNG nhận `PR-004`/`PR-005`. §5 catalogue giữ nguyên (đã đúng từ v0.4); chỉ §6 detailed block của ba UC, §9b annotation, và §12 acceptance criteria cập nhật. Backtest vẫn non-PAPER simulated (KHÔNG entity Backtest mới, KHÔNG gọi material này authoritative PAPER Order/ExecutionResult/Fill/Position, domain representation vẫn deferred); PAPER-context Decision separation, no-clone/no-carry-forward/no-promote/no-reuse, canonical semantic-decision hash, `OQ-002`/`OQ-003` `Open`, Live `Unauthorized` giữ nguyên vẹn. Bounded — không đổi 21 Use Case ID, không đổi sáu-giai-đoạn lifecycle, không thêm PR/UC mới.
 
 **v0.6 — final consolidated correction (đóng `P03B-V05-B-MAJ-01`, frozen finding):** v0.5 sửa gap operationalization của `PR-004`/`PR-005` nhưng tự nó mắc causal-direction error tại `UC-007`: nhóm evidence "đã dùng để tạo ra Decision" liệt kê CẢ "RiskEvaluation liên quan" — SAI, vì RiskEvaluation (risk.md §1) là bản ghi đánh giá MỘT Trade Intent, mà Trade Intent chỉ tồn tại SAU KHI Decision result = LONG/SHORT (decision.md §9) — RiskEvaluation luôn causally downstream của Decision, KHÔNG BAO GIỜ là input tạo ra nó. Sửa: `UC-007` Main flow bước 2 tách bạch tường minh BA nhóm — (A) Decision outcome LONG/SHORT/NO_ACTION (decision.md `result` enum); (B) upstream Decision origin/explainability — Strategy Instance/Definition Version/configuration, recorded input snapshot, recorded evaluation/configuration evidence, KHÔNG còn chứa RiskEvaluation; (C) downstream lineage KHI TỒN TẠI — Trade Intent/RiskEvaluation/Execution Intent/related fact, hiển thị tách biệt khỏi B với phát biểu tường minh "causally derived from/related to Decision, KHÔNG phải evidence dùng để tạo ra nó." Cùng phân biệt áp dụng đồng bộ tại Observable outcome, Evidence consumed, PR traceability rationale, và §12 acceptance criterion 21. `UC-011`/`UC-016`/`UC-008`/`UC-009` KHÔNG đổi — finding chỉ về `UC-007`. `UC-001`–`UC-021` giữ nguyên identity; KHÔNG PR/UC/domain entity mới; Backtest non-PAPER/PAPER-context Decision separation/OQ-002/OQ-003 Open/Live Unauthorized giữ nguyên vẹn. Đây là correction cuối cùng cho frozen finding này — bounded delta verification tiếp theo chỉ xét lại đúng phạm vi này, KHÔNG mở lại toàn bộ Package 0.3-B review.
+
+**v0.7 — CANDIDATE semantic clarification (2026-08-06), KHÔNG Approved/Consolidated, pending Review A/Independent Review B/Product Owner decision — Product Owner authorized (timestamp 2026-08-06T09:21:00+07:00) bounded source-semantics clarification cho VIEW-003 replay parity verification:** `UC-005` (§6) thêm một branch outcome thứ ba, tường minh — bên cạnh match/mismatch đã có, nay hỗ trợ **INDETERMINATE**, dùng khi input evidence cho parity recomputation thiếu/stale/invalidated/ambiguous/non-evaluable — KHÔNG ép buộc hệ thống trả về match hay mismatch giả tạo trong tình huống này. Định nghĩa canonical semantic-decision hash được dùng bởi `UC-005` nay resolve cụ thể tại `decision.md` §9a (Canonical Decision Semantic Representation/Digest, CANDIDATE cùng transaction) — xem `product-requirement.md` v0.3. Bounded — KHÔNG thêm/renumber Use Case, KHÔNG đổi `UC-001`–`UC-021` identity nào khác ngoài `UC-005`, KHÔNG domain entity/event mới (branch outcome này là workflow-visible, non-authoritative — cùng pattern đã dùng cho `UC-003` PASSED/FAILED/INDETERMINATE tại v0.2), KHÔNG chọn computation owner/module/package/dependency edge/ADR, KHÔNG đóng `OQ-002`/`OQ-003`, KHÔNG Approve/Lock/Consolidate.
 
 ## 1. Purpose and authority boundary
 
@@ -114,7 +116,7 @@ Live KHÔNG phải một bước trong hành trình này — chỉ được nh�
 | UC-002 | Select/configure Strategy Instance | Research | PR-001, PR-016 |
 | UC-003 | Confirm Research session produced no side-effect | Research | PR-017 |
 | UC-004 | Choose canonical Replay Cursor and reconstruct historical state | Replay | PR-008, PR-018, PR-020 |
-| UC-005 | Run optional parity recomputation and view match/mismatch finding | Replay | PR-010, PR-019 |
+| UC-005 | Run optional parity recomputation and view match/mismatch/indeterminate finding | Replay | PR-010, PR-019 |
 | UC-006 | Start a bounded Backtest run bound to Strategy/version/configuration | Backtest | PR-021, PR-022, PR-023 |
 | UC-007 | Inspect Decision/RiskEvaluation trace for a Backtest run | Backtest | PR-021, PR-009, PR-004, PR-005 |
 | UC-008 | Inspect simulated economic evidence and exposure/position progression | Backtest | PR-033 |
@@ -252,7 +254,7 @@ Out-of-scope boundary:  KHÔNG chạy lại simulation/computation nào (đó l�
                         và luôn tuỳ chọn/tách biệt).
 ```
 
-**UC-005 — Run optional parity recomputation and view match/mismatch finding**
+**UC-005 — Run optional parity recomputation and view match/mismatch/indeterminate finding**
 ```text
 Primary actor:         Ride user (§2).
 Goal:                   Tuỳ chọn kiểm chứng lại (parity recomputation) rằng Decision logic tái tính
@@ -266,14 +268,20 @@ Inputs:                 Yêu cầu kích hoạt parity recomputation từ ngư�
 Main flow:              1. Người dùng kích hoạt parity recomputation.
                         2. Hệ thống tái tính toán Decision logic (semantic verification, non-
                            authoritative) và so sánh với Decision đã ghi nhận qua `canonical
-                           semantic-decision hash` (WF-INV-5).
-                        3. Hệ thống hiển thị kết quả match/mismatch — KHÔNG BAO GIỜ tự động ghi đè,
-                           thay thế, hay tạo Decision mới từ kết quả này (Replay authority boundary).
-Alternate/failure:      Kết quả mismatch → §8 "parity mismatch" (hiển thị finding, KHÔNG hành động
-                        authoritative nào tự động xảy ra).
-Observable outcome:     Người dùng thấy match/mismatch, KHÔNG có Decision mới/thay thế nào xuất hiện.
+                           semantic-decision hash` (WF-INV-5), theo Canonical Decision Semantic
+                           Representation (decision.md §9a, CANDIDATE — v0.7).
+                        3. Hệ thống hiển thị kết quả MATCH, MISMATCH, hoặc INDETERMINATE — KHÔNG BAO
+                           GIỜ tự động ghi đè, thay thế, hay tạo Decision mới từ kết quả này (Replay
+                           authority boundary).
+Alternate/failure:      (a) Kết quả mismatch → §8 "parity mismatch" (hiển thị finding, KHÔNG hành động
+                        authoritative nào tự động xảy ra). (b) **(CANDIDATE — v0.7)** Recorded-side
+                        hoặc recomputed-side evidence thiếu/stale/invalidated/ambiguous/non-evaluable
+                        → hệ thống hiển thị INDETERMINATE (decision.md §9a.6), KHÔNG ép buộc match hay
+                        mismatch giả tạo — KHÔNG hành động authoritative nào tự động xảy ra.
+Observable outcome:     Người dùng thấy MATCH, MISMATCH, hoặc INDETERMINATE, KHÔNG có Decision mới/thay
+                        thế nào xuất hiện.
 Evidence consumed:      Decision đã ghi nhận tại cursor, canonical semantic-decision hash definition
-                        (decision.md).
+                        (decision.md §9a).
 Evidence produced:      Kết quả so sánh (non-authoritative, KHÔNG phải một fact được ghi vào event
                         log Decision Pipeline).
 PR traceability:        PR-010, PR-019.
@@ -1007,7 +1015,7 @@ no downstream authoritative action occurs
 | Invalid Instrument/Venue selection | Workflow dừng tại UC-001/UC-011; lựa chọn ngoài tập TradableListing bị từ chối TRƯỚC khi tạo bất kỳ fact nào; reason disclosed. | PR-003 (reject trước khi tạo fact — có controlling rule). |
 | Missing historical evidence | Workflow dừng tại UC-001/UC-006; state hiển thị "no data at this point/interval"; reason disclosed; không fact nào được tạo. | PR-015, PR-021 (không controlling resolution cụ thể — fallback bốn nguyên tắc). |
 | Replay cursor with unavailable references | Workflow dừng tại UC-004; cursor được chọn nhưng reconstruction không hoàn tất; reason disclosed (artifact không materialize); không Decision nào được tạo. | PR-020/I-5 (self-contained Replay — không controlling resolution cho reference thiếu — fallback). |
-| Parity mismatch | Workflow KHÔNG dừng runtime — hiển thị finding match/mismatch (UC-005); mismatch KHÔNG tự động ghi đè/tạo Decision; cần Product Owner/reviewer xem xét ngoài phạm vi runtime tự động. | PR-010, PR-019 (có controlling rule — Replay authority boundary). |
+| Parity mismatch/indeterminate | Workflow KHÔNG dừng runtime — hiển thị finding MATCH/MISMATCH/INDETERMINATE (UC-005; INDETERMINATE CANDIDATE v0.7, decision.md §9a.6); mismatch/indeterminate KHÔNG tự động ghi đè/tạo Decision; cần Product Owner/reviewer xem xét ngoài phạm vi runtime tự động. | PR-010, PR-019 (có controlling rule — Replay authority boundary). |
 | Backtest run insufficient evaluable evidence | Workflow dừng tại UC-008/UC-009; run identity vẫn tồn tại và observable; reason "no simulated exposure change produced" disclosed; không strategy-level result nào được hiển thị như evaluable. | PR-033, PR-034 (fallback bốn nguyên tắc — chưa có controlling resolution cụ thể). |
 | RiskEvaluation REJECTED | Workflow dừng tại UC-011 bước 2; result + reason code hiển thị (risk.md); KHÔNG Execution Intent/Order nào được tạo. | PR-006 (có controlling rule). |
 | RiskEvaluation NON_EVALUABLE | Giống REJECTED — workflow dừng, result + reason code hiển thị, KHÔNG Execution Intent/Order. | PR-006 (có controlling rule). |

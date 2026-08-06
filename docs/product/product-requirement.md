@@ -1,7 +1,7 @@
 ---
 id: product-requirement
 title: Product Requirement
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -17,6 +17,8 @@ next_review: null
 > **Vai trò của tài liệu này:** Artifact đầu tiên của Package 0.3-A (Phase 0.3 — Product Requirement · Use Case & Workflow · UX Blueprint). Draft, chưa Approved/Locked, **chưa `Consolidated Stable`**. Dịch [Chapter 1 Vision](../constitution/01-vision.md) (Locked v2.3) thành các requirement cụ thể, testable, bounded — KHÔNG lặp lại nguyên văn Vision, KHÔNG tự quyết architecture. Controlling sources: [Chapter 1](../constitution/01-vision.md) (Vision), [Chapter 2](../constitution/02-platform-invariants.md) (Platform Invariants, Locked), [Chapter 4](../constitution/04-domain-principles.md) (Domain Principles, Locked), [ADR-007](../adr/ADR-007.md) (Locked — nội bộ/single-workspace/crypto-only/2-3 sàn), và toàn bộ Domain Contract `Consolidated Stable` tại [`/docs/domain/`](../domain/README.md) (Package 0.2-A/B/C). Tài liệu này CHỈ dùng vocabulary ĐÃ tồn tại trong Domain Contract — KHÔNG định nghĩa concept domain mới.
 
 **v0.2 — bounded correction (đóng consolidated Review A + Independent Review B findings, `P03A-MAJ-01`/`P03A-MIN-01`/`P03A-MIN-02`/`P03A-B-MIN-03`):** (1) `P03A-MAJ-01` — Backtest (§9.3) nay yêu cầu simulated economic evidence VÀ exposure/position progression quan sát/evaluate được (`PR-033`, MỚI) VÀ strategy-level evaluable result so sánh được cross-run/cross-version (`PR-034`, MỚI), gắn stable run identity (`PR-021` cập nhật) — CỘNG một **Backtest authority boundary** tường minh (KHÔNG tái sử dụng PAPER Order/ExecutionResult/Fill/Position, KHÔNG author entity/event Backtest, KHÔNG định nghĩa simulation/fee/slippage/accounting/PnL). (2) `P03A-MIN-01` — thay thuật ngữ chung chung "Decision hash" bằng `canonical semantic-decision hash` (`PR-010`/`PR-019`), định nghĩa rõ theo Decision Contract authoritative, loại trừ runtime identity/envelope/transport/processing metadata — KHÔNG hardcode danh sách field canonical. (3) `P03A-MIN-02` — bỏ quy tắc "resolve về đúng một nguồn" — thay bằng "một hoặc nhiều applicable authoritative source, có thể kết hợp, mọi nguồn phải material" (Authority boundary, §14 item 3). (4) `P03A-B-MIN-03` — `PR-019` viết lại tách bạch historical reconstruction (mặc định) và parity recomputation (tuỳ chọn, non-authoritative) — CỘNG một **Replay authority boundary** tường minh (không append Decision trùng lặp, không tạo Replay authority stream, không mutate Decision đã ghi nhận, không `ReplayDecision`). Bounded — không đổi 32 requirement gốc ngoài các sửa đổi tường minh trên, không đổi sáu-giai-đoạn lifecycle, không đóng OQ-002/OQ-003, không Approve/Lock/Consolidate.
+
+**v0.3 — CANDIDATE semantic clarification (2026-08-06), KHÔNG Approved/Consolidated, pending Review A/Independent Review B/Product Owner decision — Product Owner authorized (timestamp 2026-08-06T09:21:00+07:00) bounded source-semantics clarification cho VIEW-003 replay parity verification:** `canonical semantic-decision hash` (PR-010/PR-019) NAY resolve tới một định nghĩa CỤ THỂ — `decision.md` v0.4 §9a (CANDIDATE, cùng transaction) cung cấp **Canonical Decision Semantic Representation** VÀ **Canonical Decision Semantic Digest** lần đầu tiên; PRD này VẪN KHÔNG hardcode danh sách field (đúng nguyên tắc I-2 Verification, KHÔNG đổi) — CHỈ cập nhật pointer từ "chưa resolve" thành "resolve tại decision.md §9a." PR-010/PR-019 acceptance evidence cập nhật thêm outcome INDETERMINATE (bên cạnh match/mismatch đã có) — đúng §9a.6 outcome model MỚI. Bounded — KHÔNG đổi 34 requirement gốc ngoài cập nhật pointer/outcome trên, KHÔNG chọn computation owner/module/package/dependency edge/ADR, KHÔNG đổi Backtest/Replay authority boundary đã pin, KHÔNG Approve/Lock/Consolidate.
 
 **Authority boundary:** tài liệu này sở hữu **product requirement content** cho Phase 0.3 — KHÔNG sở hữu domain semantics (thuộc `/docs/domain/`, không sửa), KHÔNG sở hữu architecture quyết định (thuộc Phase 1, `/docs/architecture/`), KHÔNG sở hữu UX screen/flow design chi tiết (thuộc Package 0.3-C `ux-blueprint.md`, chưa author), KHÔNG đóng Open Question nào (`OQ-002`/`OQ-003` vẫn `Open`, xem §13), KHÔNG authorize Live, KHÔNG tuyên bố Phase 0.3/Phase 0 hoàn thành.
 
@@ -196,10 +198,12 @@ Rationale:           Guarantee đã tồn tại ở tầng platform; đây là r
                      yêu cầu mới.
 Source:              I-2 (Locked).
 Acceptance evidence: Golden event-log comparison giữa Replay/Backtest/Paper cho cùng input trả về cùng
-                     canonical semantic-decision hash (I-2 Verification).
+                     canonical semantic-decision hash (I-2 Verification). **(v0.3, CANDIDATE)** So sánh
+                     có thể trả về MATCH, MISMATCH, hoặc INDETERMINATE (evidence thiếu/stale/invalidated/
+                     ambiguous/non-evaluable) — xem `decision.md` §9a.6.
 ```
 
-**Định nghĩa `canonical semantic-decision hash` (v0.2, đóng `P03A-MIN-01`, dùng xuyên suốt PR-010/PR-019):** hash so sánh semantic Decision, định nghĩa BỞI Decision Contract authoritative (`decision.md`, tại `/docs/domain/`) — **KHÔNG hardcode danh sách field canonical tại PRD này** (đúng I-2 Verification: "danh sách field cụ thể sống trong Domain/Event Contract... KHÔNG hardcode trong Constitution"). So sánh semantic này PHẢI **loại trừ**: runtime identity, event-envelope field, transport metadata, và processing metadata — chỉ so sánh nội dung quyết định (Decision content) thực chất. Execution outcome (fill price, timing, venue behavior...) VẪN được phép khác nhau giữa Replay/Backtest/Paper — canonical semantic-decision hash chỉ áp dụng ở tầng Decision, KHÔNG áp dụng ở tầng Execution Result (đúng I-2 "Parity nằm ở tầng Decision, không phải tầng Execution Result").
+**Định nghĩa `canonical semantic-decision hash` (v0.2, đóng `P03A-MIN-01`, dùng xuyên suốt PR-010/PR-019; v0.3 — pointer resolve, CANDIDATE):** hash so sánh semantic Decision, định nghĩa BỞI Decision Contract authoritative (`decision.md`, tại `/docs/domain/`) — **KHÔNG hardcode danh sách field canonical tại PRD này** (đúng I-2 Verification: "danh sách field cụ thể sống trong Domain/Event Contract... KHÔNG hardcode trong Constitution"). So sánh semantic này PHẢI **loại trừ**: runtime identity, event-envelope field, transport metadata, và processing metadata — chỉ so sánh nội dung quyết định (Decision content) thực chất. Execution outcome (fill price, timing, venue behavior...) VẪN được phép khác nhau giữa Replay/Backtest/Paper — canonical semantic-decision hash chỉ áp dụng ở tầng Decision, KHÔNG áp dụng ở tầng Execution Result (đúng I-2 "Parity nằm ở tầng Decision, không phải tầng Execution Result"). **(v0.3, CANDIDATE)** Pointer nay resolve cụ thể tới `decision.md` §9a — **Canonical Decision Semantic Representation** (danh sách include/exclude field) VÀ **Canonical Decision Semantic Digest** (giá trị hash đơn khi cần) — kèm `decision_semantic_representation_version` định danh phiên bản của chính định nghĩa so sánh này. So sánh có thể trả về ba outcome workflow-visible, non-authoritative: MATCH / MISMATCH / INDETERMINATE (§9a.6) — INDETERMINATE dùng khi input evidence thiếu/stale/invalidated/ambiguous/non-evaluable, KHÔNG ép buộc MATCH hay MISMATCH giả tạo.
 
 **PR-011 — No silent rewrite guarantee**
 ```text
@@ -308,9 +312,10 @@ Source:              I-2; I-3; I-12; decision.md; replay-event.md (ReplayStatePr
                      authoritative, §3 "Không duplicate authority").
 Acceptance evidence: Chạy Replay tại một cursor (historical reconstruction) KHÔNG làm tăng số lượng
                      Decision fact trong event log. Khi người dùng kích hoạt parity recomputation, kết
-                     quả so sánh dùng canonical semantic-decision hash (PR-010) và hiển thị match/mismatch
-                     — mismatch KHÔNG tự động ghi đè hay tạo Decision mới, chỉ hiển thị như một finding
-                     cần xem xét.
+                     quả so sánh dùng canonical semantic-decision hash (PR-010) và hiển thị MATCH,
+                     MISMATCH, hoặc INDETERMINATE **(v0.3, CANDIDATE — xem `decision.md` §9a.6)** —
+                     mismatch/indeterminate KHÔNG tự động ghi đè hay tạo Decision mới, chỉ hiển thị như
+                     một finding cần xem xét.
 ```
 
 **Replay authority boundary (v0.2, đóng `P03A-B-MIN-03`):**
@@ -326,7 +331,8 @@ Replay Cursor — KHÔNG computation mới, KHÔNG authoritative fact mới.
 
 Parity recomputation (tuỳ chọn): semantic verification deterministic, non-authoritative — mọi so sánh
 PHẢI dùng canonical semantic-decision hash (PR-010) — kết quả KHÔNG BAO GIỜ tự động trở thành fact
-authoritative.
+authoritative. Kết quả là MATCH, MISMATCH, hoặc INDETERMINATE (v0.3, CANDIDATE — decision.md §9a.6) —
+cả ba đều workflow-visible, non-authoritative.
 
 Authoritative Decision creation KHÔNG bao giờ bị gây ra ngầm chỉ bằng việc chạy Replay.
 

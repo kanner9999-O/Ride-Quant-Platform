@@ -2,6 +2,67 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — VIEW-003 Replay Parity Semantic Clarification: CANDIDATE (not Approved/Consolidated)
+
+**Bounded Product/Domain semantic clarification transaction — vai trò: `VIEW-003 Replay Parity Semantic Clarification Author`.** Product Owner authorized (verbatim, timestamp 2026-08-06T09:21:00+07:00): "Product Owner authorizes a bounded Product/Domain semantic clarification to define the previously-undefined 'canonical semantic-decision hash' concept used by VIEW-003 (Replay parity verification). This authorization permits clarifying exactly the following: (1) the canonical representation used for semantic comparison; (2) which Decision fields are included/excluded from that representation; (3) how definition/version identity is pinned for the representation itself; (4) how Strategy Instance, Strategy Definition Version, Configuration Version, rule evidence, and input evidence bindings participate; (5) how the recorded-side Decision is selected for comparison in a correction-aware (Append-and-Revalidate) manner; (6) expected behavior when evidence is missing, stale, invalidated, ambiguous, or non-evaluable; (7) whether an INDETERMINATE outcome is required alongside MATCH/MISMATCH. This authorization does NOT select any computation owner, module, package, dependency edge, or ADR." No owner/module/package/dependency edge/ADR selected. `NAV-003`/`VIEW-002` remain unresolved. Package 1.1–1.5 controlling baselines remain `Consolidated Stable`, untouched. Package 1.6 remains candidate. Phase 2/Gate 2/Live remain unopened/unauthorized.
+
+### Baseline
+
+```text
+Baseline HEAD (expected, verified):    810bbfae8d7e904a4d1d32469cea66678b1cc386
+```
+
+### Changed (all CANDIDATE — NOT Approved/Consolidated, pending Review A/Independent Review B/Product Owner decision)
+
+```text
+docs/domain/decision.md                v0.3 → v0.4 (Draft) — new §9a: Canonical Decision Semantic
+  Representation / Canonical Decision Semantic Digest. Include/exclude field list drawn from existing
+  §5b/§5c/§5d/§5e. Strategy Definition Version + Configuration Version INCLUDED (semantic/business-logic
+  identity, ADR-013 axes); Plugin Version + Package/Build Artifact EXCLUDED (implementation/build
+  identity) but still pinned separately as provenance/context. New versioned identifier
+  `decision_semantic_representation_version` pins the comparison-definition's own version (Chapter 8
+  §8.1.1, five Referenced Authoritative Artifact conditions). Recorded-side selection via existing §8
+  fold algorithm (correction-aware); recomputed-side constraints explicitly distinguished from
+  DecisionRevalidated/§7 Append-and-Revalidate. Outcome model: MATCH / MISMATCH / INDETERMINATE —
+  workflow-visible, non-authoritative, explicitly NOT a new Domain entity/event (same pattern as UC-003's
+  PASSED/FAILED/INDETERMINATE). Explicit authority-boundary statement: no owner/module/package/edge/ADR
+  selected. v0.3 Consolidated Stable baseline preserved as controlling history, untouched.
+
+docs/product/product-requirement.md    v0.2 → v0.3 (Draft) — `canonical semantic-decision hash` pointer
+  (PR-010/PR-019) now resolves to `decision.md` §9a; still no hardcoded field list in this document
+  (I-2 Verification unchanged). PR-010/PR-019 acceptance evidence updated to mention INDETERMINATE as a
+  third possible outcome alongside match/mismatch.
+
+docs/product/use-case-workflow.md      v0.6 → v0.7 (Draft) — UC-005 adds a third workflow-visible,
+  non-authoritative outcome branch, INDETERMINATE, used when parity recomputation evidence is
+  missing/stale/invalidated/ambiguous/non-evaluable. No new Use Case, no renumbering; UC-001–UC-021
+  identity unchanged.
+
+docs/product/ux-blueprint.md           v0.5 → v0.6 (Draft) — VIEW-003 spec block (Information displayed,
+  Evidence consumed, Primary states, Empty/unavailable/blocked states) updated for the third outcome.
+  New CANDIDATE state identifier STATE-030 (parity indeterminate) added to the state catalogue (29 → 30)
+  — explicitly flagged as a Product/UX semantic candidate requiring review, not mechanical/cosmetic.
+  §14e/§14f/§14g traceability matrices updated accordingly. NAV-003/VIEW-002 remain unresolved.
+
+docs/MANIFEST.md                       manifest_version 10.63 → 10.64 — new banner recording this
+  transaction and the verbatim Product Owner authorization under Domain; version-bump table rows for
+  the four modified artifacts under Product, each explicitly marked candidate-only, with each package's
+  prior Consolidated Stable baseline (blob) preserved and referenced as untouched historical record.
+
+docs/CHANGELOG.md                      this entry.
+```
+
+### Not changed / explicitly out of scope
+
+```text
+No architecture file touched: module-registry.yaml, system-decomposition.md, api-architecture.md,
+  ux-architecture.md, engine/*, security-custody-baseline.md, database-architecture.md,
+  package-1.6-upstream-resolution-exploration.md.
+No ADR authored or modified. No owner/module/package/dependency edge selected. No Backtest/Replay
+authority boundary changed. Package 1.1–1.5 Consolidated Stable baselines untouched. Package 1.6 status
+unchanged (candidate). Phase 2/Gate 2/Live unopened/unauthorized. OQ-002/OQ-003 remain Open.
+```
+
 ## [Unreleased] — 2026-08-05 — Package 1.6 upstream-resolution exploration v0.2: bounded correction — Review A finding closure on v0.1
 
 **Bounded correction transaction — vai trò: `Package 1.6 Upstream Resolution Exploration v0.2 Bounded Correction Executor`.** Closes three confirmed Review A findings on the v0.1 exploratory evidence artifact. No new architecture design, no option/owner/module/edge/contract selected, no ADR authored, no Product/Domain/registry/API/database/UX architecture modified, no package reopened or reconsolidated.
