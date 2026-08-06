@@ -2,6 +2,64 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.1 v0.8 decomposition mirror: bounded correction (closes P11V08-A-MIN-01)
+
+**Bounded correction transaction — vai trò: `Package 1.1 v0.8 Single-Line Correction Executor`.** Closes one Review A finding on the `system-decomposition.md` v0.8 §5.1 mirror text. No dependency-list, contract-category, taxonomy, or authority change.
+
+### Baseline
+
+```text
+Baseline HEAD:                              87d7b3f61a449cbcfcff8908453e226ae6d95af7
+docs/architecture/system-decomposition.md v0.8 blob: 0ea7c822003459bcfa8411f0db555d1e470ed7bf (verified matched)
+```
+
+### Finding closure
+
+```text
+P11V08-A-MIN-01 (inaccurate module characterization in §5.1 text-form mirror):
+  command-query-api-surface's depends_on description read "all 17 authoritative/
+  projection modules" -- inaccurate as of v0.8, since backtest-orchestrator (the 17th
+  dependency, added by the ADR-019 alignment) is module_type: runtime_service with
+  owns_authoritative_state: deferred -- neither "authoritative" (it does not own
+  Decision/RiskEvaluation content, per ADR-018/ADR-019) nor "projection" (a distinct
+  taxonomy, unchanged). Corrected: the description now separates the original sixteen
+  "authoritative/projection modules" from backtest-orchestrator, described on its own
+  terms as a runtime_service and the non-authoritative Backtest query-composition
+  boundary. The dependency list itself (which 17 modules) is unchanged -- only the
+  descriptive label was wrong.
+```
+
+### Semantic-diff confirmation
+
+```text
+Dependency list: unchanged (still the same 17 module_ids, in the same order).
+Contract categories (consumes/emits): unchanged, not touched by this correction.
+Taxonomy/authority fields: unchanged, not touched by this correction.
+module-registry.yaml: untouched -- it never contained the inaccurate phrase; this
+  finding was scoped entirely to system-decomposition.md's own mirror prose.
+No other section of system-decomposition.md edited beyond the corrected line, the new
+  v0.9 changelog paragraph, and a one-clause addition to the top banner noting the
+  current version.
+```
+
+### Validation
+
+```text
+Baseline HEAD and system-decomposition.md blob matched before editing.
+Dependency list confirmed unchanged; count remains 17.
+backtest-orchestrator no longer described as "authoritative" or "projection" --
+  described explicitly as runtime_service, non-authoritative Backtest query-composition
+  boundary.
+module-registry.yaml confirmed untouched (git diff empty) -- version stays "0.8",
+  intentionally not bumped in lockstep, since its own content did not change; this
+  asymmetry is documented inline in both the artifact and the MANIFEST.md row to avoid
+  confusion. The underlying dependency-set fact (module-registry.yaml's actual
+  depends_on list) was already correct and remains the parity anchor.
+Package 1.1 package_lifecycle remains candidate -- not reconsolidated, not silently
+  changed.
+No other semantic content changed. Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-06 — NAV-003 Gap A: Package 1.1 alignment (candidate, mechanical transcription of Approved ADR-019)
 
 **Mechanical alignment transaction — vai trò: `NAV-003 Gap A Package 1.1 Alignment Executor`.** Transcribes exactly the ADR-019 §2 decision into the Package 1.1 module baseline. Not a new architecture decision, not a new ADR.
