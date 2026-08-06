@@ -2,6 +2,77 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.4 v0.4 baseline-reference correction (closes P14V04-A-MAJ-01)
+
+**Bounded correction transaction — vai trò: `Package 1.4 v0.4 Baseline-Reference Correction Executor`.** Closes one Review A finding on `api-architecture.md` v0.4: three current-normative references remained incorrectly anchored to Package 1.1 v0.7 after the v0.4 ADR-019 alignment moved the controlling baseline to v0.8/v0.9. No route, dependency-set, authority, or contract-semantic change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        39b565ab3f471e363573d4dce5791d33ceb64adb
+docs/architecture/api-architecture.md v0.4 blob:       1a1dd48da236a4409ccc1e4f89ace6f98aea4226 (verified matched)
+docs/architecture/module-registry.yaml v0.8 blob:      ad885b0e2f09bf1582cdccc1d94c055e23469a80 (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v0.9 blob:   04e5ba915601cc9d03aa53ce54823ac443642b4f (verified matched, Consolidated Stable)
+```
+
+### Finding closure (P14V04-A-MAJ-01)
+
+```text
+§0 (Vai trò của tài liệu này): "command-query-api-surface (module-registry.yaml v0.7,
+  phase.elaborated_by: '1.4')" -- corrected to v0.8.
+
+§1 (Governing authority): "system-decomposition.md v0.7 (Consolidated Stable): semantic
+  parity với module-registry.yaml v0.7" -- corrected to "system-decomposition.md v0.9
+  (Consolidated Stable): semantic parity với module-registry.yaml v0.8".
+
+§10 (Preserved gaps and non-goals): "Bất kỳ dependency edge mới nào ngoài
+  `module-registry.yaml` v0.7 đã đăng ký" -- this read as an internal contradiction
+  against §2.1/§2.3/§9's own backtest-orchestrator edge (registered at v0.8, documented
+  earlier in the same v0.4 transaction). Corrected to reference the current v0.8/v0.9
+  baseline explicitly, confirming the backtest-orchestrator edge is already registered,
+  not a new invention by Package 1.4.
+
+Preserved as historical (not corrected, per explicit instruction): the v0.1 candidate
+  banner ("khi đó" -- at that time, v0.7), the v0.4 changelog paragraph's own
+  description of the v0.7 -> v0.8 transition, and the §12 citation of Package 1.1's
+  v0.7 -> v0.8 precedent -- all legitimately describe historical state, not current
+  baseline claims.
+```
+
+### Semantic-diff confirmation
+
+```text
+ADR-019 route (command-query-api-surface -> backtest-orchestrator): unchanged.
+17-module dependency list: unchanged.
+Contract categories, Decision/RiskEvaluation authority, §6 non-bypass invariants:
+  unchanged.
+No API path, schema, or implementation detail introduced.
+Only the three version-reference locations above edited, plus a new v0.5 banner clause
+  and versioned changelog paragraph, and a §12 lifecycle-treatment update reflecting
+  version 0.5.
+```
+
+### Validation
+
+```text
+Baseline HEAD, api-architecture.md blob, and both Package 1.1 controlling blobs matched
+  before editing.
+All current normative Package 1.1 references now use registry v0.8 and decomposition
+  v0.9 (confirmed via grep -- zero remaining current-normative v0.7 references).
+Historical v0.7 records confirmed unchanged (three locations, all explicitly marked
+  historical or self-describing a past transition).
+The §10 non-goal no longer excludes the ADR-019 edge -- confirmed it now explicitly
+  affirms the edge is already registered.
+Route, dependency list, authority, and contract semantics confirmed unchanged (diff-
+  verified -- no hunk touches §2.1's depends_on list, §9's Backtest Orchestrator entry
+  content, or §6).
+Package lifecycle remains candidate (unchanged).
+No implementation detail introduced.
+module-registry.yaml, system-decomposition.md, ADR-018.md, ADR-019.md, and
+  ux-architecture.md confirmed untouched (git diff empty). Final tracked working tree
+  clean after commit.
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.4 ADR-019 parity transcription (candidate)
 
 **Parity-transcription transaction — vai trò: `Package 1.4 ADR-019 Parity Executor`.** Aligns `api-architecture.md` with the Approved ADR-019 decision and the now-Consolidated-Stable Package 1.1 dependency baseline. Not a new architecture decision, not a new ADR.
