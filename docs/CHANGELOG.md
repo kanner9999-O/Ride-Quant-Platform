@@ -2,6 +2,123 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.4 ADR-020 parity alignment (VIEW-002 documented)
+
+**Bounded semantic Package 1.4 alignment — vai trò: `Package 1.4 ADR-020 Parity Alignment Executor`.** Aligns `api-architecture.md` with Approved ADR-020 v0.1 and the current Consolidated Stable Package 1.1 baseline. Documents the VIEW-002 query capability exposed through the already-registered `review-evidence-service` route. No new route, edge, contract category, or architecture decision introduced.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        91192a0b5770b4bece766172854682c25ca2d609
+docs/adr/ADR-020.md v0.1 blob:                         453d4995d557c138b3ec3af61f4b1e2b63c47f88 (verified matched, Approved)
+docs/architecture/module-registry.yaml v0.9 blob:      578ae5399a2be2ec60ba7e13c01c3a01df16610d (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v1.0 blob:   54f3aed10f594e0276fe179602cf973b0e2a59a4 (verified matched, Consolidated Stable)
+docs/architecture/api-architecture.md v0.5 blob:       fc322491ec881a0f0a23ebc034cfcadf0e76366e (verified matched, Consolidated Stable)
+```
+
+### Capability documented (§9, ADR-020 transcribed verbatim)
+
+```text
+Route (already registered, no new edge):
+  ux-application-shell -> command-query-api-surface -> review-evidence-service
+
+New capability exposed through that route:
+  Non-authoritative, interval-bounded VIEW-002 / UC-003 Research verification
+  existence-check. Result: PASSED / FAILED / INDETERMINATE.
+
+Input facts (five streams, four authoritative source modules, all already
+  registered as review-evidence-service dependencies -- zero new edge):
+  Decision                    -> decision-authority-service
+  RiskEvaluation               -> risk-gateway
+  Execution Intent             -> risk-gateway (same module as RiskEvaluation)
+  Order                        -> execution-engine
+  ExecutionResult               -> execution-result-processor
+
+review-evidence-service performs existence-check only -- does not recompute
+  Decision/Risk/Execution logic, does not append/replace/own any source fact,
+  produces no new authoritative entity or event.
+
+Sections edited: top banner (new v0.6 candidate paragraph prepended, prior v0.5
+  Consolidated Stable banner preserved and marked HISTORICAL), a new v0.6
+  changelog paragraph, SS0 (module-registry.yaml reference), SS1 (governing
+  authority baseline versions), SS2.1 (registry classification confirmation),
+  SS9 (Review Evidence Service entry rewritten, and the adjacent Gap paragraph
+  corrected to reflect that Package 1.5/1.6 are now elaborated), SS10
+  (non-goals baseline reference), SS11 (Review A scope baseline reference),
+  SS12 (Lifecycle treatment).
+```
+
+### Preserved unchanged
+
+```text
+command-query-api-surface -> review-evidence-service edge: confirmed already
+  existing (registered since Package 1.4 v0.1), not newly added.
+17-module dependency baseline; all 16 other dependency edges.
+review-evidence-service.consumes ([event]), .emits ([query]), module_type
+  (projection), owns_authoritative_state (false): unchanged.
+Decision authority (decision-authority-service); RiskEvaluation/Execution Intent
+  authority (risk-gateway); Order authority (execution-engine); ExecutionResult
+  authority (execution-result-processor).
+API Surface routing/exposure-only status; UX Shell non-authority.
+SS3 (Command boundary), SS4 (Query boundary), SS5 (Event/streaming exposure),
+  SS6 (Security and non-bypass), SS7 (Error/failure semantics), SS8 (API
+  contract governance): confirmed byte-identical (section-by-section diff) --
+  no hunk touches any non-bypass invariant or fail-closed requirement.
+VIEW-003 computation ownership, canonical semantic-decision hash, VIEW-003's
+  INDETERMINATE-equivalent outcome, UC-003's three Product-level mechanism gaps
+  (session-interval, evidence-completeness, correction-arrival), DD-001, and
+  any Package 1.5 interaction gap: all remain unresolved, untouched.
+VIEW-002 documented as an architecture-level capability only -- not described
+  as implementation-ready; no field-level schema, path, transport, caching,
+  storage, indexing, or auth mechanics authored.
+ADR-020.md and all existing ADRs: byte-identical, untouched.
+module-registry.yaml, system-decomposition.md: byte-identical, untouched.
+database-architecture.md, ux-architecture.md: byte-identical, untouched.
+```
+
+### Lifecycle change
+
+```text
+api-architecture.md:      version "0.5" -> "0.6", package lifecycle:
+                           Consolidated Stable -> candidate (reverted, same
+                           precedent as v0.3 -> v0.4 ADR-019 alignment). NOT
+                           reconsolidated at this transaction. status: Draft
+                           UNCHANGED.
+Blob:                      fc322491ec881a0f0a23ebc034cfcadf0e76366e ->
+                           6b670591cc24b64e85539cc849bf9c87e57f02d4
+MANIFEST.md:               row updated (package lifecycle candidate, version
+                           0.6, blob transition recorded).
+```
+
+### Validation
+
+```text
+Baseline HEAD and all four blobs (ADR-020.md, module-registry.yaml,
+  system-decomposition.md, api-architecture.md) matched before editing.
+Route described accurately as pre-existing (command-query-api-surface ->
+  review-evidence-service already registered at Package 1.4 v0.1) -- no
+  dependency edge added or removed (git diff confirms module-registry.yaml/
+  system-decomposition.md untouched by this transaction).
+Contract categories confirmed unchanged (review-evidence-service.consumes:
+  [event] / .emits: [query], unchanged).
+Output confirmed non-authoritative and workflow-visible only -- no new
+  authoritative entity or event introduced.
+Source authorities (decision-authority-service, risk-gateway, execution-engine,
+  execution-result-processor) confirmed unchanged.
+API Surface and UX Shell confirmed to remain non-authoritative/routing-only.
+VIEW-003 and all Product-level UC-003 mechanisms confirmed still unresolved
+  (not weakened or described as resolved anywhere in the diff).
+Current Package 1.1 references confirmed updated to v0.9/v1.0 (SS0/SS1/SS9/
+  SS10/SS11); historical point-in-time citations ("Package 1.1 v0.8
+  alignment", v0.4/v0.5 changelog history) confirmed preserved unchanged.
+Package 1.4 lifecycle confirmed candidate; status confirmed Draft.
+ADR-020.md and Packages 1.1/1.5/1.6 confirmed untouched (git diff --quiet
+  empty across all relevant files).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+Only docs/architecture/api-architecture.md, docs/MANIFEST.md, and
+  docs/CHANGELOG.md changed (git status --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.1 ADR-020 alignment mechanical consolidation
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.1 ADR-020 Alignment Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean Package 1.1 ADR-020 alignment. No architecture-semantic change.
