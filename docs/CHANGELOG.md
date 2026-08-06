@@ -2,6 +2,96 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.4 v0.6 mechanical consolidation
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.4 v0.6 Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean Package 1.4 v0.6 baseline. No API Architecture semantic change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        e7c3354ef20c3034d16c4759b14d715a9c324b53
+docs/architecture/api-architecture.md v0.6 blob:       6b670591cc24b64e85539cc849bf9c87e57f02d4 (verified matched, candidate)
+docs/adr/ADR-020.md v0.1 blob:                         453d4995d557c138b3ec3af61f4b1e2b63c47f88 (verified matched, Approved)
+docs/architecture/module-registry.yaml v0.9 blob:      578ae5399a2be2ec60ba7e13c01c3a01df16610d (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v1.0 blob:   54f3aed10f594e0276fe179602cf973b0e2a59a4 (verified matched, Consolidated Stable)
+```
+
+### Review evidence
+
+```text
+Review A:                 CLEAN (Blocker 0/Major 0/Minor 0)
+Independent Review B:     CLEAN (Blocker 0/Major 0/Minor 0)
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE PACKAGE 1.4 V0.6 CONSOLIDATION"
+
+Decision date: 2026-08-06 (date-only — exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+api-architecture.md:      package lifecycle: candidate -> Consolidated Stable.
+                           version: "0.6" UNCHANGED. status: Draft UNCHANGED.
+                           approved_by: null UNCHANGED. approved_at: null UNCHANGED.
+Blob:                      6b670591cc24b64e85539cc849bf9c87e57f02d4 ->
+                           97b97cc51513ae7f1fadf3ae98a0ce77a00dcc4b
+MANIFEST.md:               row updated (package lifecycle Consolidated Stable,
+                           version 0.6 unchanged, blob transition recorded).
+```
+
+### Preserved unchanged
+
+```text
+VIEW-002 capability description (SS9): byte-identical.
+Route: ux-application-shell -> command-query-api-surface -> review-evidence-service
+  (already-registered edge, unchanged).
+17-module API Surface dependency baseline; all dependency and forbidden-dependency
+  semantics.
+review-evidence-service.consumes ([event]), .emits ([query]), module_type
+  (projection), owns_authoritative_state (false): unchanged.
+Decision authority (decision-authority-service); RiskEvaluation/Execution Intent
+  authority (risk-gateway); Order authority (execution-engine); ExecutionResult
+  authority (execution-result-processor).
+API Surface routing/exposure-only status; UX Shell non-authority.
+SS3-SS8 (command, query, event/streaming, security/non-bypass, error/failure,
+  contract-governance semantics): confirmed byte-identical (section-by-section diff).
+No-recompute and correction-lineage requirements: unchanged.
+ADR-020.md and all existing ADRs: byte-identical, untouched.
+module-registry.yaml, system-decomposition.md: byte-identical, untouched.
+database-architecture.md, ux-architecture.md: byte-identical, untouched.
+VIEW-003 computation ownership, canonical semantic-decision hash, VIEW-003's
+  INDETERMINATE-equivalent outcome, UC-003's three Product-level mechanism gaps,
+  DD-001, and any Package 1.5 interaction gap: all remain unresolved.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all four blobs (api-architecture.md, ADR-020.md,
+  module-registry.yaml, system-decomposition.md) matched before editing.
+Diff confirmed scoped to exactly two locations: the top banner (new Consolidated
+  Stable paragraph prepended, prior CANDIDATE banner preserved and marked
+  HISTORICAL) and SS12 (Lifecycle treatment, package lifecycle/readiness field and
+  precedent-history paragraph updated) -- SS0-SS11 and frontmatter confirmed
+  byte-identical via section-by-section extraction.
+ADR-020.md, module-registry.yaml, system-decomposition.md, database-architecture.md,
+  and ux-architecture.md confirmed untouched (git diff --quiet empty across all
+  five).
+Package lifecycle changed from candidate to Consolidated Stable (confirmed).
+version remains "0.6" (confirmed, unchanged). status remains Draft, approved_by/
+  approved_at remain null (confirmed, unchanged).
+VIEW-003 and all Product-level UC-003 gaps confirmed still unresolved.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced (confirmed --
+  banner explicitly states this).
+Only docs/architecture/api-architecture.md, docs/MANIFEST.md, and
+  docs/CHANGELOG.md changed (git status --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.4 ADR-020 parity alignment (VIEW-002 documented)
 
 **Bounded semantic Package 1.4 alignment — vai trò: `Package 1.4 ADR-020 Parity Alignment Executor`.** Aligns `api-architecture.md` with Approved ADR-020 v0.1 and the current Consolidated Stable Package 1.1 baseline. Documents the VIEW-002 query capability exposed through the already-registered `review-evidence-service` route. No new route, edge, contract category, or architecture decision introduced.
