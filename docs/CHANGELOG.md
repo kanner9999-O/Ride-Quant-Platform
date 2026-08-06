@@ -2,6 +2,82 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06T11:30:00+07:00 — ADR-018: Approved (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `ADR-018 Mechanical Approval Executor`.** Records the Product Owner's approval of ADR-018 v0.2 (Backtest Run Identity — Correlation Concept Over Existing Decision/RiskEvaluation Facts, NAV-003 Gap B). No decision semantic change.
+
+### Baseline
+
+```text
+Approved HEAD:                    aeb6567e5c93aa33cf0290c4eafd3bce238747d4
+docs/adr/ADR-018.md v0.2 blob:    b2c0c0f94db394cbfbeb601802646f5dda609109 (verified matched)
+```
+
+### Review evidence
+
+```text
+Review A:                CLEAN, 0 qualifying finding on v0.2 (after bounded correction
+                          closing ADR018-A-MAJ-01/ADR018-A-MIN-01).
+Independent Review B:    CLEAN, 0 qualifying finding.
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE ADR-018"
+
+Decision timestamp: 2026-08-06T11:30:00+07:00
+```
+
+### Lifecycle change
+
+```text
+ADR-018.md:  version 0.2 (unchanged, no bump for pure approval, Chapter 11 §11.4),
+             status: Draft -> Approved, approved_by: null -> Product Owner,
+             approved_at: null -> "2026-08-06T11:30:00+07:00"
+Blob:        b2c0c0f94db394cbfbeb601802646f5dda609109 -> c8387e6333869dfa12d745ee4b2212117a6f4fbc
+MANIFEST.md: new adr/ADR-018.md row added (Approved); compatible_adr_range
+             "ADR-001 ~ ADR-017" -> "ADR-001 ~ ADR-018"
+```
+
+### Preserved unchanged (decision content byte-identical — only frontmatter, top banner, the §2 status-framing sentence, and the §4 reviewer table/approval record were edited)
+
+```text
+Decision statement (§2 quote block): run identity is a correlation/grouping concept over
+  existing Decision/RiskEvaluation facts; not a new Domain entity/event/aggregate/
+  authoritative fact; Decision authority stays with decision-authority-service; RiskEvaluation
+  authority stays with risk-gateway; backtest-orchestrator gains no authority over either fact
+  type; DD-001 and owns_authoritative_state untouched.
+Scope boundaries (§2.1), module-authority table (§2.2), Alternatives (§3), Scale Check (§5),
+  Consequences (§6), Accepted risks (§7), Relationship (§8), Open questions (§9) — all
+  byte-identical.
+NAV-003 Gap A: unresolved, ADR Required, separate — not resolved or authorized by this
+  approval.
+DD-001 and backtest-orchestrator.owns_authoritative_state: unresolved.
+structure-regime-architecture.md v0.3 §13a: candidate, unconsolidated — untouched.
+Package 1.6 (ux-architecture.md): candidate, blocked — untouched.
+module-registry.yaml: untouched, no dependency edge/owner/API path/technology selected.
+ADR-010, ADR-013, ADR-015, ADR-016 (depends_on): byte-identical, not superseded.
+```
+
+### Validation
+
+```text
+Approved HEAD and ADR-018 blob matched before editing.
+Exactly two files changed: ADR-018.md, MANIFEST.md.
+Version remains 0.2; status now Approved; approved_by/approved_at recorded exactly as
+  supplied.
+Product Owner decision ("APPROVE ADR-018") and 2026-08-06T11:30:00+07:00 timestamp recorded
+  verbatim in the ADR's top banner, §2, §4 approval block, and MANIFEST.md.
+Diff confined to frontmatter, top banner, §2's framing sentence, and §4's reviewer table/
+  approval paragraph — §2 quote block, §2.1/§2.2/§3/§5/§6/§7/§8/§9 confirmed byte-identical
+  via direct diff.
+Gap A remains unresolved and ADR-required, separate. DD-001 and owns_authoritative_state
+  remain unresolved. §13a remains candidate/unconsolidated. Package 1.6 remains candidate and
+  blocked. Per Chapter 11 §11.3/§11.6, ADR-018.md is now immutable byte-for-byte from this
+  approval boundary forward. Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-06 — VIEW-003 Replay Parity Semantic Clarification: Consolidated Stable (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `VIEW-003 Replay Parity Semantic Clarification Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for the VIEW-003 Replay Parity Semantic Clarification (the CANDIDATE authoring transaction + bounded correction transaction immediately below in this changelog). No semantic content change to any of the four artifacts.
