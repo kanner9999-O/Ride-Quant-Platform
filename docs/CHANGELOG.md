@@ -2,6 +2,111 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — VIEW-003 Replay Parity Semantic Clarification: Consolidated Stable (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `VIEW-003 Replay Parity Semantic Clarification Consolidation Lifecycle Executor`.** Records the Product Owner's consolidation approval for the VIEW-003 Replay Parity Semantic Clarification (the CANDIDATE authoring transaction + bounded correction transaction immediately below in this changelog). No semantic content change to any of the four artifacts.
+
+### Baseline
+
+```text
+Baseline HEAD (expected, verified):         0729da2bea12ac2c73746becc6b6b32fabfd9286
+docs/domain/decision.md v0.5 blob:          49cddf7cffd03deb30c5e9d9e360fc6ab8f8742a (verified matched)
+docs/product/product-requirement.md v0.4:   1d6396cf93c820e67a3f7409e1eb1e73d257bcaa (verified matched)
+docs/product/use-case-workflow.md v0.8:     0e0041efc1625bef8218bdfc9818bab8d1d6845e (verified matched)
+docs/product/ux-blueprint.md v0.7:          ee33d2519c2325eb454b4d95ed092e291ae77089 (verified matched)
+```
+
+### Review evidence
+
+```text
+Review A:                REVISE on decision.md §9a v0.4 / product-requirement.md v0.3 /
+                          use-case-workflow.md v0.7 / ux-blueprint.md v0.6 —
+                          P16-V003-A-MAJ-01/P16-V003-A-MAJ-02/P16-V003-A-MAJ-03/
+                          P16-V003-A-MIN-01 closed via v0.5/v0.4/v0.8/v0.7 bounded
+                          correction (commit 0729da2).
+Bounded correction verification:  CLEAN.
+Independent Review B:             CLEAN.
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE CONSOLIDATION"
+
+Decision timestamp: not specified in this transaction request (recorded as
+2026-08-06, no time-of-day given).
+```
+
+### Lifecycle change
+
+```text
+decision.md:             version 0.5 (unchanged), status Draft (unchanged),
+                          §9a lifecycle: candidate -> Consolidated Stable
+product-requirement.md:  version 0.4 (unchanged), status Draft (unchanged),
+                          VIEW-003 delta lifecycle: candidate -> Consolidated Stable
+use-case-workflow.md:    version 0.8 (unchanged), status Draft (unchanged),
+                          VIEW-003 delta lifecycle: candidate -> Consolidated Stable
+ux-blueprint.md:         version 0.7 (unchanged), status Draft (unchanged),
+                          VIEW-003 delta lifecycle: candidate -> Consolidated Stable
+                          (includes STATE-030 catalogue entry, §13/table)
+Blobs:
+  decision.md             49cddf7cffd03deb30c5e9d9e360fc6ab8f8742a -> a24beeb892f995064677233148965ecaa1f2a897
+  product-requirement.md  1d6396cf93c820e67a3f7409e1eb1e73d257bcaa -> dff71dce1536f33f4f17455b8f58952baf6f3799
+  use-case-workflow.md    0e0041efc1625bef8218bdfc9818bab8d1d6845e -> c218750367e23f7e19b1be2929f5eb6183859b6f
+  ux-blueprint.md          ee33d2519c2325eb454b4d95ed092e291ae77089 -> 436d3f44938fc9dbcdd3633be6667ef098c42a62
+```
+
+### Preserved unchanged (diff-verified — banners, superseded-history relabels, and the two ux-blueprint.md status fields are the only edits)
+
+```text
+decision.md §9a.1-§9a.6 field set (Canonical Decision Semantic Representation/Digest),
+  nine pinned axes, MATCH/MISMATCH/INDETERMINATE outcome model, three independent
+  definition-identity axes (decision_contract_document_version /
+  decision_semantic_representation_definition_id+version /
+  decision_semantic_digest_definition_id+version), authority boundary (parity never
+  creates/approves/replaces/invalidates a Decision). decision.md §1-§8/§10-§18
+  untouched.
+product-requirement.md PR-010/PR-019 statement/rationale/source/acceptance-evidence,
+  34 requirements, Backtest/Replay authority boundary.
+use-case-workflow.md UC-005 Main flow/Alternate-failure/Observable outcome, UC-001-
+  UC-021 identity, Backtest non-PAPER/PAPER-context separation.
+ux-blueprint.md VIEW-003 §7 spec block wording, STATE-030 field set (parity
+  indeterminate, UC-005, PR-010/PR-019, VIEW-003), 29 other STATE-XXX entries,
+  §14e/§14f/§14g traceability.
+decision.md v0.3 Consolidated Stable (Package 0.2-C4); product-requirement.md v0.2
+  Consolidated Stable (Package 0.3-A); use-case-workflow.md v0.6 Consolidated Stable
+  (Package 0.3-B); ux-blueprint.md v0.5 Consolidated Stable (Package 0.3-C) — all four
+  original package-level consolidations remain untouched, separate historical
+  baselines.
+NAV-003 and VIEW-002: unresolved, not touched by this transaction.
+Package 1.6: remains candidate, lifecycle not changed by this transaction.
+Package 1.1-1.5 controlling baselines: Consolidated Stable, untouched.
+No owner, module, package, dependency edge, API path, ADR, or implementation
+  authority selected.
+```
+
+### Validation
+
+```text
+Baseline HEAD (0729da2bea12ac2c73746becc6b6b32fabfd9286) and all four approved
+  artifact blobs matched before editing.
+Exactly six files changed: decision.md, product-requirement.md, use-case-workflow.md,
+  ux-blueprint.md, MANIFEST.md, CHANGELOG.md.
+Version unchanged on all four artifacts (0.5/0.4/0.8/0.7); status remains Draft on
+  all four; VIEW-003-scoped lifecycle now Consolidated Stable on all four.
+Product Owner decision ("APPROVE CONSOLIDATION") recorded in each artifact's new
+  banner paragraph and in MANIFEST.md (domain/ row + three product/ rows).
+Diff confined to: one new banner paragraph per artifact, a HISTORICAL relabel of the
+  two pre-existing CANDIDATE changelog paragraphs per artifact (start-of-paragraph
+  tag only), the decision.md §9a section header + "Vai trò" paragraph + one inline
+  DSR-001/version-2 status tag, and (ux-blueprint.md only) the STATE-030 catalogue-
+  table status field + one self-review-checklist clause. No other line changed.
+NAV-003/VIEW-002 confirmed still unresolved/Open in all four artifacts. Package 1.6
+  file not touched, lifecycle status not changed. No owner/module/package/dependency
+  edge/API path/ADR/implementation authority selected. Final tracked working tree
+  clean after commit.
+```
+
 ## [Unreleased] — 2026-08-06 — VIEW-003 Replay Parity Semantic Clarification: bounded correction (Review A findings closed, still CANDIDATE)
 
 **Bounded correction transaction — vai trò: `VIEW-003 Replay Parity Semantic Clarification Bounded Correction Executor`.** Closes four Review A findings on the `decision.md` v0.4 §9a CANDIDATE clarification from the prior transaction. No VIEW-003 redesign, no parity computation owner/module/package selected, no dependency edge added, no ADR authored/approved, no architecture artifact/registry/system decomposition/Package 1.6 modified, `NAV-003`/`VIEW-002` not resolved, no implementation/Gate 2/Phase 2/LIVE authorized.
