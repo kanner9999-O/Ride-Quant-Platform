@@ -2,6 +2,90 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — ADR-019: Approved (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `ADR-019 Mechanical Approval Executor`.** Records the Product Owner's approval of ADR-019 v0.2 (NAV-003 Gap A — Backtest Run-Identity Correlation Query Composition and Exposure via backtest-orchestrator). No decision semantic change.
+
+### Baseline
+
+```text
+Approved HEAD:                    18c84f368d963ce0fa37c1c730288723cfe10d59
+docs/adr/ADR-019.md v0.2 blob:    35e34627705098dfef72cd91fd639d273076bc19 (verified matched)
+```
+
+### Review evidence
+
+```text
+Review A:                CLEAN, 0 qualifying finding on v0.2 (after bounded correction
+                          closing ADR019-A-MAJ-01/ADR019-A-MAJ-02/ADR019-A-MIN-01).
+Independent Review B:    CLEAN, 0 qualifying finding.
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE ADR-019"
+
+Decision date: 2026-08-06 (exact clock time not supplied -- date-only approval metadata
+  used per repository convention; no timestamp invented, ADR-018's precedent followed
+  directly rather than repeating the fabricated-timestamp defect corrected there).
+```
+
+### Lifecycle change
+
+```text
+ADR-019.md:  version 0.2 (unchanged, no bump for pure approval, Chapter 11 §11.4),
+             status: Draft -> Approved, approved_by: null -> Product Owner,
+             approved_at: null -> "2026-08-06" (date-only)
+Blob:        35e34627705098dfef72cd91fd639d273076bc19 -> c7778454bedcba0752eb4b11dfd1dc26cf5acdfe
+MANIFEST.md: new adr/ADR-019.md row added (Approved); compatible_adr_range
+             "ADR-001 ~ ADR-018" -> "ADR-001 ~ ADR-019"
+```
+
+### Preserved unchanged (decision content byte-identical -- only frontmatter, top banner, the §2 status-framing sentence, and the §4 reviewer table/approval record were edited)
+
+```text
+Selected candidate: A (backtest-orchestrator composition), grounded in cohesion, minimal
+  responsibility expansion, existing access, boundary separation, smallest change (§2, §3).
+Composition owner: backtest-orchestrator. Exposure route: command-query-api-surface ->
+  backtest-orchestrator, exactly one new dependency edge.
+Contract-category/taxonomy decision: backtest-orchestrator.consumes: [event] ->
+  [event, query] (required); emits unchanged ([event]); module_type stays runtime_service,
+  no hybrid -- all by direct precedent from decision-authority-service.
+Decision authority stays with decision-authority-service; RiskEvaluation authority stays
+  with risk-gateway -- both explicitly unchanged.
+Failure/partial-evidence rules (fail closed, architecture level), determinism rules
+  (deterministic fold, no recomputation), §1.1/§3/§5/§6/§7/§8/§9 -- all byte-identical.
+DD-001, backtest-orchestrator.owns_authoritative_state, VIEW-002: unresolved, untouched.
+structure-regime-architecture.md v0.3 §13a and ADR-018: byte-identical, not modified by
+  this transaction.
+module-registry.yaml, system-decomposition.md, api-architecture.md, ux-architecture.md:
+  untouched -- the edge and consumes change are recorded as mechanical transcription work
+  for a later Package 1.1/1.4/1.6 alignment transaction, not applied here.
+Package 1.6 (ux-architecture.md): candidate, blocked -- untouched, not unblocked by this
+  approval.
+```
+
+### Validation
+
+```text
+Approved HEAD and ADR-019 blob matched before editing.
+Exactly three files changed: ADR-019.md, MANIFEST.md, CHANGELOG.md.
+Version remains 0.2; status now Approved; approved_by/approved_at recorded exactly as
+  supplied -- date-only, no fabricated clock precision.
+Product Owner decision ("APPROVE ADR-019") and 2026-08-06 date recorded verbatim in the
+  ADR's top banner, §2, §4 approval block, and MANIFEST.md.
+Diff confined to frontmatter, top banner, §2's framing sentence, and §4's reviewer table/
+  approval paragraph -- §1.1/§2 (decision statement)/§3/§5/§6/§7/§8/§9 confirmed
+  byte-identical via direct diff.
+NAV-003 Gap A approval does not apply repository alignment -- module-registry.yaml,
+  system-decomposition.md, api-architecture.md, ux-architecture.md all confirmed untouched
+  (git diff empty).
+DD-001 and VIEW-002 remain unresolved. Package 1.6 remains candidate and blocked. Per
+  Chapter 11 §11.3/§11.6, ADR-019.md is now immutable byte-for-byte from this approval
+  boundary forward. Final tracked working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-06 — NAV-003 Gap B §13a: Consolidated Stable (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `NAV-003 Gap B §13a Mechanical Consolidation Executor`.** Records the Product Owner's consolidation of `structure-regime-architecture.md` §13a (NAV-003 Gap B — Backtest run-identity classification) only. No semantic content change.
