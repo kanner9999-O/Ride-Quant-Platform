@@ -1,7 +1,7 @@
 ---
 id: api-architecture
 title: "Package 1.4 — API Architecture"
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -15,7 +15,11 @@ depends_on: ["00-governance", "02-platform-invariants", "07-module-taxonomy", "0
 
 # Package 1.4 — API Architecture
 
-**CONSOLIDATED STABLE (package lifecycle, 2026-08-05T15:16:00+07:00, Product Owner decision) — status: Draft, KHÔNG Approved.** Package 1.4 v0.3 đạt `Consolidated Stable` SAU: Review A (REVISE trên v0.1, đóng `P14-A-MAJ-01`/`P14-A-MAJ-02`/`P14-A-MIN-01`) → final bounded verification (CLEAN, Blocker 0/Major 0/Minor 0) → Independent Review B (CLEAN, Blocker 0/Major 0/Minor 0, consolidation readiness: READY) → Product Owner consolidation decision. Product Owner đã quyết định nguyên văn: "I approve consolidation of Package 1.4 v0.3 as the current Consolidated Stable API Architecture baseline, while preserving the command-query-api-surface as a non-authoritative routing and exposure boundary, all authoritative service, causal-lineage, compatibility, custody, security, failure and environment boundaries, all documented unresolved gaps and non-goals, the PAPER-only execution path, and LIVE Unauthorized." `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. Mechanical lifecycle transaction — `version: "0.3"` UNCHANGED (no content/architecture change), package lifecycle: `candidate → Consolidated Stable`.
+**CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-06) — status: Draft, KHÔNG Approved/Locked.** Package 1.4 v0.3 → v0.4: genuine semantic parity-transcription change — EXACT mechanical transcription của Approved [ADR-019](../adr/ADR-019.md) v0.2 (`Approved`, `approved_at: "2026-08-06"`, NAV-003 Gap A) VÀ Package 1.1's now-`Consolidated Stable` v0.8/v0.9 baseline (`module-registry.yaml`/`system-decomposition.md`) — NOT a new architecture decision, NOT a new ADR. `command-query-api-surface.depends_on` gains `backtest-orchestrator` (17th module, registered edge — Package 1.1 v0.8, Consolidated Stable) — §2.1/§2.3/§9 updated to reflect this route: exposes the non-authoritative bounded Backtest run correlation query, `backtest-orchestrator` composes the view from existing Decision (`decision-authority-service`) and RiskEvaluation (`risk-gateway`) facts, receives queries via `consumes: [event, query]`. Same precedent as the ADR-017 → Package 1.4 alignment (Package 1.2 custody/signing registration) — a genuine architectural/semantic parity change, NOT a bounded wording-only correction, reverts `package_lifecycle` from `Consolidated Stable` to `candidate`. This transaction does NOT reconsolidate — a separate Review A + Independent Review B + Product Owner consolidation decision MUST complete before this baseline returns to `Consolidated Stable`. **Preserved unchanged:** Decision authority (`decision-authority-service`), RiskEvaluation authority (`risk-gateway`), all other 16 dependency edges, `forbidden_dependencies`, `consumes: [event, query, command]`/`emits: [query, command]` of `command-query-api-surface` itself, `owns_authoritative_state: false`, every non-bypass invariant (§6), every documented gap/non-goal (§10), PAPER-only execution, LIVE Unauthorized. No field-level API path/schema/transport/caching/storage/indexing/auth mechanics chosen — architecture-level route only. `DD-001`, `backtest-orchestrator.owns_authoritative_state`, and VIEW-002 remain unresolved — untouched. ADR-018, ADR-019, and Package 1.1 (`module-registry.yaml`/`system-decomposition.md`) are NOT modified by this transaction. `ux-architecture.md`/Package 1.6 are NOT modified — remain candidate and blocked.
+
+**v0.4 — Package 1.4 ADR-019 parity transcription (2026-08-06), vai trò: `Package 1.4 ADR-019 Parity Executor`, mechanical transcription của [ADR-019](../adr/ADR-019.md) v0.2 (`Approved`) VÀ Package 1.1 v0.8/v0.9 (`Consolidated Stable`):** §2.1's registry classification block cập nhật — `command-query-api-surface.depends_on` nay 17 module (`backtest-orchestrator` thêm), nguyên văn tham chiếu `module-registry.yaml` cập nhật v0.7 → v0.8. §2.3's "16 module" → "17 module", thêm một bullet xác nhận CÓ edge tới `backtest-orchestrator` (khác biệt với các bullet "KHÔNG có edge" hiện có). §9 thêm một entry mới "Backtest Orchestrator" — route non-authoritative bounded Backtest run correlation query, `backtest-orchestrator` compose view từ Decision (`decision-authority-service`) VÀ RiskEvaluation (`risk-gateway`) fact ĐÃ tồn tại, KHÔNG tự submit/own hai loại fact đó; nhận query qua `consumes: [event, query]` (Package 1.1 v0.8 alignment). §11's `module-registry.yaml v0.7` reference cập nhật → v0.8. **KHÔNG chọn/author:** HTTP/RPC path, request/response field, pagination, filtering syntax, transport protocol, caching, storage, indexing, authentication/authorization mechanics, implementation topology — architecture-level route ONLY. **KHÔNG đổi:** Decision authority (`decision-authority-service`), RiskEvaluation authority (`risk-gateway`), 16 dependency edge còn lại, `forbidden_dependencies`, `command-query-api-surface`'s own `consumes`/`emits`/`owns_authoritative_state: false`, mọi non-bypass invariant (§6), mọi gap/non-goal (§10), PAPER-only execution, LIVE Unauthorized. `module-registry.yaml`/`system-decomposition.md`/`ADR-018`/`ADR-019` KHÔNG sửa. KHÔNG module/Domain fact/entity/event/schema mới nào tạo. `DD-001`, `backtest-orchestrator.owns_authoritative_state`, VÀ VIEW-002 VẪN unresolved. `ux-architecture.md`/Package 1.6 KHÔNG sửa — VẪN `candidate`/blocked. `status: Draft`, `approved_by: null`, `approved_at: null`, `package lifecycle: candidate` (revert từ `Consolidated Stable`, KHÔNG tự động — xem banner đầu tài liệu) KHÔNG reconsolidate tại transaction này.
+
+**CONSOLIDATED STABLE (package lifecycle, 2026-08-05T15:16:00+07:00, Product Owner decision, HISTORICAL — superseded bởi v0.4 trên) — status: Draft, KHÔNG Approved.** Package 1.4 v0.3 đạt `Consolidated Stable` SAU: Review A (REVISE trên v0.1, đóng `P14-A-MAJ-01`/`P14-A-MAJ-02`/`P14-A-MIN-01`) → final bounded verification (CLEAN, Blocker 0/Major 0/Minor 0) → Independent Review B (CLEAN, Blocker 0/Major 0/Minor 0, consolidation readiness: READY) → Product Owner consolidation decision. Product Owner đã quyết định nguyên văn: "I approve consolidation of Package 1.4 v0.3 as the current Consolidated Stable API Architecture baseline, while preserving the command-query-api-surface as a non-authoritative routing and exposure boundary, all authoritative service, causal-lineage, compatibility, custody, security, failure and environment boundaries, all documented unresolved gaps and non-goals, the PAPER-only execution path, and LIVE Unauthorized." `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. Mechanical lifecycle transaction — `version: "0.3"` UNCHANGED (no content/architecture change), package lifecycle: `candidate → Consolidated Stable`.
 
 **CANDIDATE (package lifecycle, HISTORICAL — superseded bởi Consolidated Stable trên) — status: Draft, khi đó KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.4 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module, module-registry.yaml/system-decomposition.md), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable` (v0.2), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.4 — API Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
 
@@ -83,7 +87,7 @@ Approved ADR-017 (Custody & Signing Trust
                                                     direct-credential-use authority; API
                                                     Surface KHÔNG có edge tới module này
                                                     (§6 dưới)
-module-registry.yaml v0.7 (Consolidated
+module-registry.yaml v0.8 (Consolidated
   Stable, 25 module):                              module identity/taxonomy/dependency
                                                     authority — KHÔNG redefine tại đây;
                                                     `command-query-api-surface` ĐÃ đăng
@@ -131,7 +135,9 @@ depends_on:                market-reference-service, market-data-ingestion,
                            decision-authority-service, risk-gateway, execution-engine,
                            execution-result-processor, fill-processor,
                            position-projection, replay-integration-service,
-                           review-evidence-service
+                           review-evidence-service, backtest-orchestrator (v0.4,
+                           ADR-019 v0.2 Approved / Package 1.1 v0.8 Consolidated
+                           Stable alignment — NAV-003 Gap A query-exposure route)
 forbidden_dependencies:    (none registered tại registry — absence khỏi `depends_on`
                            (v0.3 correction, đóng `P14-A-MAJ-01` residual) xác nhận
                            KHÔNG có registered direct prerequisite edge tới
@@ -148,7 +154,7 @@ security_classification:   trust_boundary_candidate
 phase:                     { identified_in: "1.1", elaborated_by: "1.4" }
 ```
 
-**Xác nhận tường minh (bắt buộc, yêu cầu task):** classification, `depends_on`, `emits`/`consumes`, VÀ `phase.elaborated_by: "1.4"` trên đây LÀ nguyên trạng từ `module-registry.yaml` v0.7 (Consolidated Stable) — Package 1.4 KHÔNG sửa/redefine bất kỳ field nào trong số này, KHÔNG thêm/bớt một dependency edge nào.
+**Xác nhận tường minh (bắt buộc, yêu cầu task):** classification, `depends_on`, `emits`/`consumes`, VÀ `phase.elaborated_by: "1.4"` trên đây LÀ nguyên trạng từ `module-registry.yaml` v0.8 (Consolidated Stable) — Package 1.4 KHÔNG sửa/redefine bất kỳ field nào trong số này, KHÔNG tự thêm/bớt một dependency edge nào (v0.4 CHỈ transcribe edge ĐÃ registered qua ADR-019/Package 1.1 alignment, KHÔNG tự invent).
 
 ### 2.2 Authority status — exposure/routing boundary, KHÔNG business authority (bắt buộc, yêu cầu task)
 
@@ -170,9 +176,14 @@ implements_capabilities: [] / serves_contexts: [] (registry, KHÔNG đổi) — 
 
 ### 2.3 Dependency và forbidden-dependency treatment (bảo toàn, KHÔNG mở rộng)
 
-`depends_on` (16 module, nguyên trạng) là danh sách ĐẦY ĐỦ module mà API Surface được phép route/expose tới — Package 1.4 KHÔNG thêm dependency edge nào ngoài danh sách này (§9 dưới, "Do not invent new dependency edges beyond Package 1.1"). Đáng chú ý (bắt buộc xác nhận):
+`depends_on` (17 module, nguyên trạng — v0.4 cập nhật khớp `module-registry.yaml` v0.8, `backtest-orchestrator` thêm qua ADR-019/Package 1.1 alignment, KHÔNG một lựa chọn tự ý của Package 1.4) là danh sách ĐẦY ĐỦ module mà API Surface được phép route/expose tới — Package 1.4 KHÔNG tự thêm dependency edge nào ngoài danh sách ĐÃ registered này (§9 dưới, "Do not invent new dependency edges beyond Package 1.1"). Đáng chú ý (bắt buộc xác nhận):
 
 ```text
+CÓ edge tới `backtest-orchestrator` (v0.4, ADR-019 v0.2 Approved, Package 1.1 v0.8
+  Consolidated Stable alignment — NAV-003 Gap A) — API Surface route/expose query tới
+  bounded Backtest run correlation view; `backtest-orchestrator` compose view từ
+  Decision (`decision-authority-service`)/RiskEvaluation (`risk-gateway`) fact ĐÃ tồn
+  tại, KHÔNG tự authoritative cho hai loại fact đó (§9 dưới cho boundary đầy đủ).
 KHÔNG có edge tới `custody-signing-service` — API Surface KHÔNG THỂ route/expose trực
   tiếp tới module custody/signing (§6).
 KHÔNG có edge tới `exchange-adapter` — cùng nguyên tắc, cộng với exchange-adapter VẪN
@@ -541,6 +552,31 @@ Risk Gateway:                     `depends_on` (registry) — Risk Gateway's `co
                                   RiskEvaluation/Execution Intent (Risk Gateway's
                                   authority riêng, Package 1.3-D §4, KHÔNG đổi).
 
+Backtest Orchestrator (v0.4,
+  ADR-019 v0.2 Approved, Package
+  1.1 v0.8 Consolidated Stable
+  alignment — NAV-003 Gap A):      `depends_on` (registry, edge MỚI) — route/expose query
+                                  tới `backtest-orchestrator` để tái tạo/trình bày một
+                                  non-authoritative bounded Backtest run correlation
+                                  view. `backtest-orchestrator.consumes: [event, query]`
+                                  (Package 1.1 v0.8 alignment) — module nay directly
+                                  query-answerable, cùng precedent `decision-authority-
+                                  service`. Composed view correlate/fold Decision fact
+                                  (`decision-authority-service`, authority KHÔNG đổi) VÀ
+                                  RiskEvaluation fact (`risk-gateway`, authority KHÔNG
+                                  đổi) ĐÃ tồn tại, bằng run identity (ADR-018 v0.2
+                                  Approved) — `backtest-orchestrator` KHÔNG BAO GIỜ trở
+                                  thành authoritative cho Decision hay RiskEvaluation
+                                  content, KHÔNG tự submit/append fact nào; API Surface
+                                  CHỈ route/expose, KHÔNG tự compose/interpret kết quả
+                                  (§2.2, KHÔNG business logic riêng). `backtest-
+                                  orchestrator.owns_authoritative_state: deferred`
+                                  (DD-001) KHÔNG resolve, KHÔNG đổi bởi edge này. KHÔNG
+                                  field-level query/response schema, API path, transport,
+                                  caching, storage, indexing, hay auth mechanics nào
+                                  chọn tại đây — architecture-level route ONLY (implement-
+                                  ation design, ngoài phạm vi Package 1.4).
+
 Execution VÀ result-processing
   module (execution-engine,
   execution-result-processor,
@@ -630,11 +666,13 @@ KHÔNG tuyên bố Phase 1 hoàn thành, KHÔNG mở Phase 2, KHÔNG authorize L
 Review A scope:               API surface trace đầy đủ về Domain Contract/Use Case đã
                                tồn tại (đúng phase-1-plan.md) — KHÔNG mồ côi, KHÔNG
                                invent capability mới ngoài PR-XXX; module boundary (§2)
-                               nhất quán với module-registry.yaml v0.7 (Consolidated
-                               Stable) — KHÔNG dependency edge mới nào bị invent (§2.3/
-                               §9); §6 xác nhận đúng absence của edge tới
-                               custody-signing-service/exchange-adapter/strategy-
-                               plugin-host/decision-evaluation-engine; mọi gap (§10)
+                               nhất quán với module-registry.yaml v0.8 (Consolidated
+                               Stable) — 17 dependency edge, ĐÚNG MỘT edge mới
+                               (`backtest-orchestrator`, v0.4, transcribed từ ADR-019/
+                               Package 1.1 alignment, KHÔNG invent) (§2.3/§9); §6 xác
+                               nhận đúng absence của edge tới custody-signing-service/
+                               exchange-adapter/strategy-plugin-host/decision-
+                               evaluation-engine (KHÔNG đổi bởi v0.4); mọi gap (§10)
                                carry forward trung thực, KHÔNG silently resolved.
 Independent Review B
   scope:                      Độc lập xác nhận versioning strategy khớp Chapter 10
@@ -670,26 +708,29 @@ Consolidation condition:      Zero unresolved Blocker/Major trên baseline hiệ
 
 ```text
 Package 1.4:
-  version: 0.3
+  version: 0.4
   status: Draft
-  package lifecycle/readiness: Consolidated Stable (2026-08-05T15:16:00+07:00, Product
-    Owner decision)
-  Review A: REVISE trên v0.1 — P14-A-MAJ-01/P14-A-MAJ-02/P14-A-MIN-01 CLOSED
-  Final bounded verification: CLEAN (Blocker 0/Major 0/Minor 0)
-  Independent Review B: CLEAN (Blocker 0/Major 0/Minor 0), consolidation readiness:
-    READY
-  Product Owner consolidation decision: RECORDED (banner đầu tài liệu)
+  package lifecycle/readiness: candidate (reverted from Consolidated Stable, 2026-08-06
+    — v0.4 parity-transcription transaction, xem banner đầu tài liệu)
+  v0.4 KHÔNG reconsolidate — một Review A + Independent Review B + Product Owner
+    consolidation decision RIÊNG BIỆT PHẢI hoàn tất TRƯỚC KHI baseline này trở lại
+    `Consolidated Stable`.
 
 Package 1.4 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đóng ba Review A
   finding trên v0.1 (banner đầu tài liệu); v0.3 LÀ micro-correction đóng đúng residual
   contradiction sót lại của P14-A-MAJ-01 (§2.1/§11), KHÔNG invalidate/reopen phần nào
   của v0.2 KHÔNG bị finding chạm tới, KHÔNG redesign/mở rộng scope; v0.3 sau đó đạt
-  `Consolidated Stable` qua transaction consolidation riêng biệt (banner đầu tài liệu) —
-  KHÔNG version bump nào kèm theo mechanical lifecycle transaction này.
+  `Consolidated Stable` qua transaction consolidation riêng biệt (banner đầu tài liệu,
+  HISTORICAL). v0.4 LÀ một genuine semantic parity-transcription transaction (ADR-019/
+  Package 1.1 v0.8 alignment — §2.1/§2.3/§9/§11 cập nhật, `backtest-orchestrator` edge
+  thêm), KHÔNG một bounded wording-only correction — reverts `package lifecycle` từ
+  `Consolidated Stable` về `candidate`, cùng nguyên tắc đã dùng nhất quán cho Package
+  1.1's v0.7→v0.8 ADR-019 alignment.
 
 `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có
   nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`,
-  `approved_at: null` KHÔNG đổi. Mọi gap tại §10 VẪN unresolved — Consolidated Stable
-  KHÔNG resolve gap nào trong số đó, KHÔNG authorize implementation, KHÔNG author
-  Package 1.5/1.6, KHÔNG mở Phase 2, KHÔNG authorize LIVE.
+  `approved_at: null` KHÔNG đổi. Mọi gap tại §10 VẪN unresolved — v0.4 KHÔNG resolve gap
+  nào trong số đó, KHÔNG resolve `DD-001`/`backtest-orchestrator.owns_authoritative_
+  state`/VIEW-002, KHÔNG authorize implementation, KHÔNG unblock Package 1.6, KHÔNG mở
+  Phase 2, KHÔNG authorize LIVE.
 ```

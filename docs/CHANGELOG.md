@@ -2,6 +2,110 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.4 ADR-019 parity transcription (candidate)
+
+**Parity-transcription transaction — vai trò: `Package 1.4 ADR-019 Parity Executor`.** Aligns `api-architecture.md` with the Approved ADR-019 decision and the now-Consolidated-Stable Package 1.1 dependency baseline. Not a new architecture decision, not a new ADR.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        9672c7ec07ea3ee7abb4602884658d5da246a527
+docs/adr/ADR-019.md v0.2 blob:                         c7778454bedcba0752eb4b11dfd1dc26cf5acdfe (verified matched, Approved)
+docs/architecture/module-registry.yaml v0.8 blob:      ad885b0e2f09bf1582cdccc1d94c055e23469a80 (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v0.9 blob:   04e5ba915601cc9d03aa53ce54823ac443642b4f (verified matched, Consolidated Stable)
+docs/architecture/api-architecture.md v0.3 blob:       49a46e3145947ca53396672e0b9d50a306fa05e2 (verified matched)
+```
+
+### Route transcribed (ADR-019 §2, unchanged)
+
+```text
+Route:                    command-query-api-surface -> backtest-orchestrator (17th
+                           dependency edge, registered at Package 1.1 v0.8).
+Purpose:                   exposes the non-authoritative bounded Backtest run
+                           correlation query.
+Composition:                backtest-orchestrator composes the view from existing
+                           Decision (decision-authority-service) and RiskEvaluation
+                           (risk-gateway) facts -- authority for both stays exactly
+                           where it already was.
+Contract category:         backtest-orchestrator.consumes: [event, query] (Package 1.1
+                           v0.8 alignment) -- module now directly query-answerable.
+No field-level API path, schema, transport, caching, storage, indexing, or auth
+  mechanics selected -- architecture-level route only.
+```
+
+### Lifecycle change
+
+```text
+api-architecture.md:      version "0.3" -> "0.4", package_lifecycle:
+                           Consolidated Stable -> candidate (reverted, same precedent
+                           as Package 1.1's own v0.7->v0.8 ADR-019 alignment). NOT
+                           reconsolidated at this transaction.
+Blob:                      49a46e3145947ca53396672e0b9d50a306fa05e2 -> 1a1dd48da236a4409ccc1e4f89ace6f98aea4226
+MANIFEST.md:               row updated (package lifecycle candidate, version 0.4, blob
+                           transition recorded).
+```
+
+### Exact sections changed
+
+```text
+Top banner: new CANDIDATE (reverted) banner + new v0.4 changelog paragraph; prior
+  CONSOLIDATED STABLE banner marked HISTORICAL.
+§1 Governing authority: module-registry.yaml reference "v0.7" -> "v0.8".
+§2.1 Registry classification: depends_on list gains backtest-orchestrator; "Xác nhận
+  tường minh" reference "v0.7" -> "v0.8".
+§2.3 Dependency treatment: "16 module" -> "17 module"; new positive-edge bullet added
+  (distinct from the existing "KHÔNG có edge" bullets).
+§9 Interaction boundaries: new "Backtest Orchestrator" entry.
+§11 Review and consolidation conditions: Review A scope updated to reference v0.8 and
+  the one new registered edge.
+§12 Lifecycle treatment: rewritten to reflect candidate (reverted) status.
+```
+
+### Preserved unchanged (architecture semantics byte-identical outside the transcribed route)
+
+```text
+Decision authority (decision-authority-service) and RiskEvaluation authority
+  (risk-gateway): unchanged.
+The other 16 dependency edges, forbidden_dependencies, command-query-api-surface's own
+  consumes/emits/owns_authoritative_state (false): unchanged.
+§6 non-bypass invariants (absence of edges to custody-signing-service/exchange-adapter/
+  strategy-plugin-host/decision-evaluation-engine): unchanged.
+§10 gaps and non-goals: all carried forward, none resolved.
+No new module, Domain fact, entity, event, or schema introduced.
+DD-001, backtest-orchestrator.owns_authoritative_state, and VIEW-002: unresolved,
+  untouched.
+ADR-018.md, ADR-019.md, module-registry.yaml, system-decomposition.md: byte-identical,
+  not modified by this transaction.
+ux-architecture.md / Package 1.6: untouched, remains candidate and blocked.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all three controlling blobs (ADR-019, module-registry.yaml,
+  system-decomposition.md) matched before editing, plus api-architecture.md's own
+  starting blob.
+Exactly two files changed: api-architecture.md, MANIFEST.md (plus this CHANGELOG.md
+  entry).
+Route confirmed to match ADR-019 exactly -- one edge, one contract-category fact
+  (consumes += query), no additional architecture choice made.
+Package 1.1 dependency and contract-category facts transcribed accurately (17-module
+  count, backtest-orchestrator's consumes/emits/module_type/hybrid/
+  owns_authoritative_state all correctly cited, none altered).
+No field-level API contract, path, schema, or technology invented -- confirmed via
+  direct text review of all new content.
+Decision and RiskEvaluation authority confirmed unchanged.
+No new Domain concept or authoritative Backtest fact introduced.
+Package 1.4 explicitly reverted to candidate, not silently reconsolidated -- no Review
+  A/Independent Review B/Product Owner consolidation decision performed or claimed.
+Package 1.1 (module-registry.yaml, system-decomposition.md) and ADR-018/ADR-019
+  confirmed byte-identical (git diff empty).
+ux-architecture.md confirmed untouched (git diff empty) -- Package 1.6 remains
+  candidate and blocked.
+DD-001 and VIEW-002 confirmed still unresolved. Final tracked working tree clean after
+  commit.
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.1 ADR-019 alignment: Consolidated Stable (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.1 ADR-019 Alignment Mechanical Consolidation Executor`.** Records the Product Owner's consolidation of the review-clean Package 1.1 ADR-019 alignment baseline (`module-registry.yaml` v0.8, `system-decomposition.md` v0.9). No architecture semantic change.
