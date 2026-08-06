@@ -1,7 +1,34 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-06) — status:
+# Draft, NOT Approved/Locked. Package 1.1 v0.7 -> v0.8: genuine semantic registry change —
+# EXACT mechanical transcription of Approved ADR-019 (NAV-003 Gap A, v0.2, Approved
+# 2026-08-06, approved_at "2026-08-06") — NOT a new architecture decision, NOT a new ADR.
+# Controlled by Approved ADR-018 (v0.2, NAV-003 Gap B classification, unchanged) and
+# ADR-019 (v0.2, unchanged). Exactly two changes: (1) command-query-api-surface.depends_on
+# += backtest-orchestrator (ONE new dependency edge — the query-exposure route ADR-019 §2
+# decided); (2) backtest-orchestrator.consumes: [event] -> [event, query] (the
+# contract-category expansion ADR-019 §2 decided as required, precedent
+# decision-authority-service). Same precedent as v0.4 -> v0.5 (ADR-017 alignment) and
+# v0.6 -> v0.7 (ADR-016/Package 1.2 alignment) — a genuine architectural/semantic change,
+# NOT a bounded parity/wording correction, reverts `package_lifecycle` from
+# `Consolidated Stable` to `candidate`. This transaction does NOT reconsolidate — a
+# separate Review A + Independent Review B + Product Owner consolidation decision MUST
+# complete before this baseline returns to `Consolidated Stable`. Preserved unchanged:
+# backtest-orchestrator.emits (`[event]`), `module_type` (`runtime_service`), `hybrid`
+# (`null`), `owns_authoritative_state` (`deferred`); decision-authority-service/
+# risk-gateway's `owns_authoritative_state` (`true`/`true`, Decision/RiskEvaluation
+# authority unchanged); module inventory (STILL 25 modules — no module added); every
+# other module's `depends_on`/`forbidden_dependencies`/`consumes`/`emits`/taxonomy/
+# authority/phase assignment. No Backtest Domain entity/event/schema/authoritative fact
+# introduced. `DD-001`, `backtest-orchestrator.owns_authoritative_state` (specific
+# true/false), and VIEW-002 remain unresolved — untouched by this transaction. Package
+# 1.4 (`api-architecture.md`) and Package 1.6 (`ux-architecture.md`) are NOT modified by
+# this transaction — a separate Package 1.4 parity-transcription transaction and a
+# separate Package 1.6 correction transaction remain pending.
+#
 # CONSOLIDATED STABLE (package lifecycle, 2026-08-05T13:51:00+07:00, Product Owner
-# decision) — status: Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable)
+# decision, HISTORICAL — superseded by v0.8 above) — status: Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable)
 # and artifact status (Draft) are separate dimensions (Chapter 0 §7.1) — Consolidated
 # Stable does NOT mean this file is Approved/Locked; it means the reviewed package
 # baseline (v0.7, 25 modules, custody-signing-service.phase.elaborated_by: "1.2") is
@@ -102,11 +129,11 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "0.7"
+version: "0.8"
 status: Draft
 package: "1.1"
-package_lifecycle: Consolidated Stable
-generated_at: "2026-08-05"
+package_lifecycle: candidate
+generated_at: "2026-08-06"
 
 modules:
 
@@ -662,7 +689,7 @@ modules:
     implements_capabilities: [decision-management, risk-management]
     serves_contexts: [strategy-decision, risk-gateway]
     owns_authoritative_state: deferred
-    consumes: [event]
+    consumes: [event, query]
     emits: [event]
     depends_on: [strategy-engine, decision-evaluation-engine, decision-authority-service, risk-gateway]
     forbidden_dependencies: [execution-engine, paper-execution-boundary, execution-result-processor, fill-processor, position-projection]
@@ -680,6 +707,13 @@ modules:
       ADR-016 v0.8 correction: `decision-engine` dependency split into
       `decision-evaluation-engine` + `decision-authority-service` — bounded Backtest run
       cần cả evaluation VÀ authority append, không chỉ authoritative record access.
+      ADR-019 v0.2 (Approved, 2026-08-06) alignment: `consumes` mở rộng `[event]` →
+      `[event, query]` — module nay directly query-answerable qua `command-query-api-
+      surface` (edge mới, cùng transaction), composing một non-authoritative correlation
+      view của Decision (`decision-authority-service`)/RiskEvaluation (`risk-gateway`)
+      fact ĐÃ tồn tại bằng run identity (ADR-018) — KHÔNG một fact/entity/event mới,
+      KHÔNG authority transfer nào. `emits`/`module_type`/`hybrid`/`owns_authoritative_
+      state` KHÔNG đổi (precedent: `decision-authority-service`, cùng shape).
 
   - module_id: paper-execution-boundary
     name: Paper Execution Boundary
@@ -720,13 +754,13 @@ modules:
     owns_authoritative_state: false
     consumes: [event, query, command]
     emits: [query, command]
-    depends_on: [market-reference-service, market-data-ingestion, structure-engine, raw-regime-engine, feature-engine, context-aggregator, account-service, strategy-engine, decision-authority-service, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service, review-evidence-service]
+    depends_on: [market-reference-service, market-data-ingestion, structure-engine, raw-regime-engine, feature-engine, context-aggregator, account-service, strategy-engine, decision-authority-service, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service, review-evidence-service, backtest-orchestrator]
     forbidden_dependencies: []
     plugin_relation: none
     security_classification: trust_boundary_candidate
     phase: { identified_in: "1.1", elaborated_by: "1.4" }
     status: candidate
-    notes: "implements_capabilities/serves_contexts intentionally empty — this module is a routing/exposure layer, not a capability owner (avoids inventing a competing capability identity outside context-map.yaml). ADR-016 v0.8 correction: `decision-engine` → `decision-authority-service` only (authoritative) — `decision-evaluation-engine` intentionally excluded, same pattern as `strategy-plugin-host` (compute_engine, non-authoritative modules are not exposed via this routing layer)."
+    notes: "implements_capabilities/serves_contexts intentionally empty — this module is a routing/exposure layer, not a capability owner (avoids inventing a competing capability identity outside context-map.yaml). ADR-016 v0.8 correction: `decision-engine` → `decision-authority-service` only (authoritative) — `decision-evaluation-engine` intentionally excluded, same pattern as `strategy-plugin-host` (compute_engine, non-authoritative modules are not exposed via this routing layer). ADR-019 v0.2 (Approved, 2026-08-06) alignment: `backtest-orchestrator` added to `depends_on` — the NAV-003 Gap A query-exposure route, mechanical transcription only; `command-query-api-surface` itself gains no new authority, remains routing/exposure-only, `owns_authoritative_state: false` unchanged."
 
   - module_id: review-evidence-service
     name: Review Evidence Service

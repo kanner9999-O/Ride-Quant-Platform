@@ -2,6 +2,99 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — NAV-003 Gap A: Package 1.1 alignment (candidate, mechanical transcription of Approved ADR-019)
+
+**Mechanical alignment transaction — vai trò: `NAV-003 Gap A Package 1.1 Alignment Executor`.** Transcribes exactly the ADR-019 §2 decision into the Package 1.1 module baseline. Not a new architecture decision, not a new ADR.
+
+### Baseline
+
+```text
+Baseline HEAD:                             14074d1f1e6b9fdeec78ccf990bc54314cb02c6d
+docs/adr/ADR-019.md v0.2 blob:              c7778454bedcba0752eb4b11dfd1dc26cf5acdfe (verified matched, status: Approved, approved_at: "2026-08-06")
+docs/adr/ADR-018.md v0.2 blob:              status: Approved (prerequisite, verified, untouched)
+docs/architecture/module-registry.yaml v0.7 blob:    3879966305e0b9b7d82b0c79d9dad161da348d47
+docs/architecture/system-decomposition.md v0.7 blob: 3afb113b320676336e4f3639cd5451df9d57a326
+```
+
+### Transcribed decision (ADR-019 §2, unchanged)
+
+```text
+Selected candidate:      A (backtest-orchestrator composition) -- unchanged, not
+                          re-decided here.
+Edge added:               command-query-api-surface.depends_on += backtest-orchestrator
+                          (exactly one).
+Contract-category change: backtest-orchestrator.consumes: [event] -> [event, query]
+                          (exactly one field).
+Preserved:                backtest-orchestrator.emits ([event]), module_type
+                          (runtime_service), hybrid (null), owns_authoritative_state
+                          (deferred); decision-authority-service/risk-gateway
+                          owns_authoritative_state (true/true, unchanged).
+```
+
+### Lifecycle change
+
+```text
+module-registry.yaml:     version 0.7 -> 0.8, package_lifecycle: Consolidated Stable ->
+                           candidate (reverted, same precedent as v0.4->v0.5 ADR-017
+                           alignment and v0.6->v0.7 ADR-016/Package 1.2 alignment -- a
+                           genuine semantic registry change, not mechanical/wording-only).
+                           NOT reconsolidated at this transaction.
+system-decomposition.md:  version 0.7 -> 0.8, same package_lifecycle revert (parity).
+Blobs:
+  module-registry.yaml     3879966305e0b9b7d82b0c79d9dad161da348d47 -> ee62b679d754430bd687afbf6d6613d161e390ff
+  system-decomposition.md  3afb113b320676336e4f3639cd5451df9d57a326 -> 0ea7c822003459bcfa8411f0db555d1e470ed7bf
+MANIFEST.md:               both rows updated (version 0.7 -> 0.8, package lifecycle
+                           candidate, blob transitions recorded).
+```
+
+### Preserved unchanged (semantic content outside the two approved changes -- diff-verified)
+
+```text
+Module inventory: still 25 modules, no module added/removed.
+decision-authority-service: owns_authoritative_state true, Decision authority unchanged.
+risk-gateway: owns_authoritative_state true, RiskEvaluation authority unchanged.
+backtest-orchestrator: emits [event] (unchanged), module_type runtime_service
+  (unchanged), hybrid null (unchanged), owns_authoritative_state deferred (unchanged),
+  depends_on [strategy-engine, decision-evaluation-engine, decision-authority-service,
+  risk-gateway] (unchanged -- edges to decision-authority-service/risk-gateway already
+  existed, not newly added), forbidden_dependencies unchanged.
+Every other module's depends_on/forbidden_dependencies/consumes/emits/module_type/
+  owns_authoritative_state/phase assignment: byte-identical.
+No Backtest Domain entity, event, aggregate, schema, or authoritative fact introduced.
+DD-001, backtest-orchestrator.owns_authoritative_state (specific true/false), and
+  VIEW-002: unresolved, untouched.
+api-architecture.md, ux-architecture.md, ADR-018.md, ADR-019.md: untouched (git diff
+  empty) -- a separate Package 1.4 parity-transcription transaction and a separate
+  Package 1.6 correction transaction remain pending.
+Package 1.6 (ux-architecture.md): candidate, blocked -- untouched, not unblocked by
+  this alignment.
+```
+
+### Validation
+
+```text
+Baseline HEAD and ADR-019/ADR-018 blobs matched before editing.
+Exactly four files changed: module-registry.yaml, system-decomposition.md, MANIFEST.md,
+  CHANGELOG.md.
+Exactly one dependency edge added (command-query-api-surface -> backtest-orchestrator).
+Exactly one contract-category field changed (backtest-orchestrator.consumes += query).
+emits, module_type, hybrid, owns_authoritative_state confirmed unchanged for
+  backtest-orchestrator (diff-verified); decision-authority-service/risk-gateway
+  authority confirmed unchanged.
+Registry (module-registry.yaml) and system-decomposition.md confirmed semantically
+  consistent -- YAML parsed successfully, module count still 25, no
+  depends_on/forbidden_dependencies overlap, no dependency cycle introduced (script-
+  checked).
+Package 1.1 package_lifecycle explicitly reverted to candidate, not silently
+  reconsolidated -- no Review A/Independent Review B/Product Owner consolidation
+  decision performed or claimed at this transaction.
+ADR-018.md and ADR-019.md confirmed byte-identical (git diff empty).
+Package 1.4 (api-architecture.md) and Package 1.6 (ux-architecture.md) confirmed
+  untouched (git diff empty).
+DD-001 and VIEW-002 confirmed still unresolved. Final tracked working tree clean after
+  commit.
+```
+
 ## [Unreleased] — 2026-08-06 — ADR-019: Approved (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `ADR-019 Mechanical Approval Executor`.** Records the Product Owner's approval of ADR-019 v0.2 (NAV-003 Gap A — Backtest Run-Identity Correlation Query Composition and Exposure via backtest-orchestrator). No decision semantic change.
