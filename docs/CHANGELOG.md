@@ -2,6 +2,101 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — NAV-003 Gap B §13a: Consolidated Stable (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `NAV-003 Gap B §13a Mechanical Consolidation Executor`.** Records the Product Owner's consolidation of `structure-regime-architecture.md` §13a (NAV-003 Gap B — Backtest run-identity classification) only. No semantic content change.
+
+### Baseline
+
+```text
+Approved HEAD:                                        3147db771c6ae14dd0f59ec4639a3a6b2183bef2
+docs/architecture/engine/structure-regime-architecture.md v0.3 blob:  b0920775a14271e94b7f0ef718088d42cb3dc257 (verified matched)
+docs/adr/ADR-018.md v0.2 blob:                         bba522775824402bc1d6032414efa591b04b4914 (verified matched, status: Approved, approved_at: "2026-08-06")
+```
+
+### Review evidence
+
+```text
+§13a Review A:              CLEAN.
+§13a Independent Review B:  CLEAN.
+Controlling ADR:            ADR-018 v0.2, status: Approved, approved_by: Product Owner,
+                             approved_at: "2026-08-06".
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE §13a CONSOLIDATION"
+```
+
+### Lifecycle change
+
+```text
+structure-regime-architecture.md: version 0.3 (unchanged), status Draft (unchanged),
+                                   §13a lifecycle: candidate -> Consolidated Stable
+                                   (Package 1.3-A v0.1's four-module baseline: unchanged,
+                                   still Consolidated Stable, not re-opened)
+Blob:                              b0920775a14271e94b7f0ef718088d42cb3dc257 ->
+                                    2c163b2050b9d85f0b074565213f26685fb157b9
+MANIFEST.md:                       architecture/engine/structure-regime-architecture.md row
+                                    updated: Version column 0.1 -> 0.3 (was stale since the
+                                    v0.2/v0.3 §13a transactions did not touch MANIFEST, per
+                                    those transactions' own tighter scope); new consolidation
+                                    paragraph prepended documenting v0.1/v0.2/v0.3 history and
+                                    this §13a Consolidated Stable transaction.
+```
+
+### Preserved unchanged (§13a.1-§13a.5 diff-verified byte-identical; only the top banner, the §13a section header, and one stale "Explicit non-goals" bullet were edited)
+
+```text
+§13a.1 classification (run identity = correlation/grouping concept over existing
+  Decision/RiskEvaluation facts, not a new Domain entity/event/authoritative fact).
+§13a.2 authority (Decision authority stays with decision-authority-service; RiskEvaluation
+  authority stays with risk-gateway; backtest-orchestrator gains no authority).
+§13a.3 no-new-entity/event/field/edge confirmations.
+§13a.4 NAV-003 Gap A / VIEW-002 / Package 1.6 carry-forward (all still unresolved/candidate/
+  blocked -- not touched by this transaction).
+§13a.5 Governance §4b assessment (ADR Required conclusion for Gap B, kept separate from
+  Gap A's independent ADR Required conclusion) -- byte-identical from the ADR018-A-MAJ-01
+  correction.
+Package 1.3-A v0.1 four-module Consolidated Stable baseline (market-reference-service,
+  market-data-ingestion, structure-engine, raw-regime-engine, §0/§2): byte-identical, not
+  re-opened, not re-reviewed, not re-consolidated.
+ADR-018.md: byte-identical, not modified by this transaction.
+module-registry.yaml: byte-identical -- no dependency edge, query owner, API path, schema,
+  storage, or transport selected.
+NAV-003 Gap A: unresolved, ADR Required, separate -- no ADR authored or authorized.
+DD-001 and backtest-orchestrator.owns_authoritative_state: unresolved.
+Package 1.6 (ux-architecture.md): candidate, blocked -- untouched.
+Phase 1: Active. Gate 2: Not Ready. No implementation or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and both target blobs (structure-regime-architecture.md, ADR-018.md) matched
+  before editing.
+Exactly three files changed: structure-regime-architecture.md, MANIFEST.md, CHANGELOG.md.
+Version remains 0.3; status remains Draft; §13a lifecycle now Consolidated Stable, scoped
+  to §13a only -- no unrelated Draft content in the document implicitly marked
+  Approved/Consolidated (explicit statement added to the banner: "§0-§13, §14-§15" not
+  implied Approved/Consolidated).
+§13a.1-§13a.5 confirmed byte-identical via direct diff -- edits confined to the top banner
+  insertion, the §13a section header, and one stale non-goals bullet (updated for internal
+  consistency, since it asserted "§13a LÀ candidate...trước khi được coi là Consolidated,"
+  which the consolidation just recorded above it in the banner made false).
+Package 1.3-A v0.1 baseline confirmed untouched (diff-verified, no hunk touches §0/§2 module
+  scope).
+ADR-018.md confirmed byte-identical (git diff empty).
+NAV-003 Gap A confirmed still unresolved and separate (§13a.4/§13a.5 unchanged, banner
+  restates it explicitly).
+DD-001 and owns_authoritative_state confirmed unresolved.
+Package 1.6 confirmed candidate and blocked (ux-architecture.md untouched).
+Phase 1 confirmed Active, Gate 2 confirmed Not Ready (banner restates explicitly). No
+  implementation/LIVE authorization introduced. Final tracked working tree clean after
+  commit.
+```
+
 ## [Unreleased] — 2026-08-06 — ADR-018: Approval-record correction (fabricated timestamp, file-count defect)
 
 **Bounded lifecycle-record correction — vai trò: `ADR-018 Approval-Record Correction Executor`.** Corrects two factual defects introduced by the immediately-prior "ADR-018: Approved" transaction (entry below). This is a correction to the approval *record*, not a reopening of the Approved decision.

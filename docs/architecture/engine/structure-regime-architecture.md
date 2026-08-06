@@ -21,6 +21,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 
 **v0.3 — bounded correction (2026-08-06), đóng Review A finding `P16-NAV003-A-MAJ-01` trên §13a v0.2, KHÔNG design/select mới:** §13a.5's Governance §4b conclusion SAI — v0.2 kết luận classification statement "KHÔNG khớp bất kỳ tiêu chí ADR Required nào," dismissing "ảnh hưởng >1 module" bằng lý do nó chỉ "xác nhận một cách đọc" thay vì "thay đổi" registered contract. Sửa: §13a's classification LÀ một semantic architecture contract statement ảnh hưởng BA module đã đăng ký (`backtest-orchestrator`/`decision-authority-service`/`risk-gateway`) — khớp CHÍNH XÁC tiêu chí "quyết định ảnh hưởng >1 module" tại §4b table; §4b KHÔNG yêu cầu registered contract/dependency field phải đổi để trigger nhánh này — chỉ yêu cầu quyết định ảnh hưởng nhiều hơn một module, ĐÃ THỎA. §13a.5 nay kết luận `ADR Required` cho CHÍNH classification statement này (Gap B) — tách biệt, KHÔNG tự động combine với Gap A's ADR Required (routing/edge/ownership, đã kết luận độc lập tại v0.2, KHÔNG đổi). Gap B's `ADR Required` KHÔNG resolve/authorize Gap A; liệu hai gap dùng chung MỘT ADR hay hai ADR riêng biệt KHÔNG được quyết định tại transaction này — để một Product Owner transaction sau quyết định trình tự đó. §13a.1–§13a.4 (classification/authority/KHÔNG-mới/Gap-A-carry-forward) KHÔNG đổi, byte-identical. KHÔNG ADR nào author/approve tại transaction này; KHÔNG edge/owner/API path/technology nào chọn; KHÔNG DD-001/`owns_authoritative_state` resolve; KHÔNG VIEW-002 chạm; Package 1.6 VẪN `candidate`/blocked; §13a VẪN candidate, KHÔNG Consolidated.
 
+**§13a — Consolidated Stable (bounded amendment lifecycle, 2026-08-06, Product Owner decision, nguyên văn: "APPROVE §13a CONSOLIDATION") — mechanical lifecycle transaction, `version: "0.3"` UNCHANGED, `status: Draft` UNCHANGED.** Review evidence trên §13a v0.3: Review A `CLEAN`, Independent Review B `CLEAN`. **Controlling ADR: [`ADR-018`](../../adr/ADR-018.md) v0.2, `status: Approved`, `approved_at: "2026-08-06"`** — ADR-018 LÀ authoritative decision cho classification statement này (Backtest run identity = correlation/grouping concept, KHÔNG một Domain entity/event/authoritative fact mới, Decision/RiskEvaluation authority KHÔNG đổi); §13a.1–§13a.5 formalize ĐÚNG classification ĐÃ Approved đó, byte-identical, KHÔNG semantic content nào đổi bởi transaction này. `§13a lifecycle: candidate → Consolidated Stable` — CHỈ §13a, LÀ một bounded amendment TÁCH BIỆT khỏi, KHÔNG mở rộng, Package 1.3-A v0.1's bốn-module `Consolidated Stable` baseline (`market-reference-service`/`market-data-ingestion`/`structure-engine`/`raw-regime-engine`, §0/§2) — baseline đó GIỮ NGUYÊN byte-for-byte, KHÔNG re-open, KHÔNG re-review, KHÔNG re-consolidate. `Consolidated Stable` LÀ lifecycle/readiness state (Chapter 0 §7.1) cho ĐÚNG §13a — KHÔNG có nghĩa §13a hay tài liệu này `Approved`/`Locked`; artifact-level `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi, VÀ KHÔNG một nội dung Draft nào khác trong tài liệu này (§0–§13, §14–§15) được ngụ ý Approved/Consolidated bởi transaction này. KHÔNG resolve NAV-003 Gap A (VẪN unresolved, VẪN `ADR Required` riêng, chưa có ADR nào — §13a.4/§13a.5 KHÔNG đổi); KHÔNG author/approve Gap A ADR; KHÔNG dependency edge/query owner/API path/schema/storage/transport nào chọn; KHÔNG resolve `DD-001`/`backtest-orchestrator.owns_authoritative_state` (VẪN `deferred`); KHÔNG sửa `ADR-018.md` (byte-identical); KHÔNG đổi Package 1.6 lifecycle (VẪN `candidate`, VẪN blocked); KHÔNG authorize implementation, Gate 2, Phase 2, hay LIVE. Phase 1 VẪN Active; Gate 2 VẪN Not Ready.
+
 ## 0. Vai trò của tài liệu này
 
 Package 1.3-A elaborate **kiến trúc kỹ thuật** cho bốn module ĐÃ được Package 1.1 (`Consolidated Stable`, [`module-registry.yaml`](../module-registry.yaml) v0.3 blob `ab09d031183014c1af259895dadf86aaf644cc04`, [`system-decomposition.md`](../system-decomposition.md) v0.3 blob `c72dfdf54d2ac86bc7ad83de742dda485da11328`) thiết lập identity/taxonomy/dependency: `market-reference-service`, `market-data-ingestion`, `structure-engine`, `raw-regime-engine`. Tài liệu này **KHÔNG redefine** module identity/taxonomy/dependency đã pin ở Package 1.1 — chỉ elaborate: responsibility boundary chi tiết hơn, data flow, event-time/correction handling, determinism/replay constraint, no-repaint requirement, failure/stale-data boundary, security/trust-boundary identification, và open gap — đúng phạm vi `phase-1-plan.md` §8 Package 1.3-A "Outputs: module boundary chi tiết, data flow, event contract giữa Data Layer/Structure Engine/Regime Engine (KHÔNG schema cụ thể)".
@@ -410,7 +412,7 @@ Venue/session authority (instrument-venue-reference domain context):
   Package 1.3-A) dù capability/context đã đăng ký tại context-map.yaml.
 ```
 
-## 13a. Backtest run-identity classification — NAV-003 Gap B (bounded candidate, KHÔNG Consolidated, v0.2 → v0.3)
+## 13a. Backtest run-identity classification — NAV-003 Gap B (bounded amendment, `Consolidated Stable`, v0.2 → v0.3 — controlling ADR: ADR-018 `Approved`, xem banner đầu tài liệu)
 
 **Phạm vi:** mục này CHỈ trả lời câu hỏi "run identity" (`backtest-orchestrator`, UC-006 "Evidence produced: Decision/RiskEvaluation sequence gắn run identity", `use-case-workflow.md:327-328`) LÀ loại khái niệm gì — KHÔNG trả lời ai expose nó, qua edge/module/API path nào (câu hỏi đó VẪN unresolved, xem §13a.4 dưới). `backtest-orchestrator` được đăng ký `phase.elaborated_by: "1.3-A"` (`module-registry.yaml` v0.7) nhưng CHƯA từng được elaborate tại §0/§2/§4/§5 của tài liệu này — mục này KHÔNG mở rộng bốn-module `Consolidated Stable` scope đó, CHỈ thêm một classification statement bounded cho đúng MỘT khái niệm.
 
@@ -508,9 +510,13 @@ Explicit non-goals (§13a):
     (v0.3, §13a.5).
   KHÔNG VIEW-002 resolve.
   KHÔNG Package 1.6 lifecycle đổi.
-  KHÔNG consolidate §13a hay Package 1.3-A tại transaction này — §13a LÀ candidate,
-    pending Review A/Independent Review B/Product Owner decision riêng biệt trước khi
-    được coi là Consolidated.
+  KHÔNG consolidate Package 1.3-A v0.1's bốn-module baseline tại transaction này — baseline
+    đó GIỮ NGUYÊN byte-for-byte, KHÔNG re-open, KHÔNG re-review, KHÔNG re-consolidate. [CẬP
+    NHẬT — xem banner đầu tài liệu: §13a chính nó ĐÃ Consolidated Stable (2026-08-06, Review
+    A `CLEAN`/Independent Review B `CLEAN`/Product Owner decision, controlling ADR-018
+    `Approved`) — dòng gốc tại đây, viết TRƯỚC khi consolidation đó xảy ra, tuyên bố "§13a LÀ
+    candidate... trước khi được coi là Consolidated"; dòng đó KHÔNG còn đúng, sửa tại đây để
+    tránh mâu thuẫn nội bộ với banner.]
   KHÔNG `module-registry.yaml` sửa tại transaction này.
   KHÔNG ADR nào author/approve tại transaction này (v0.3 CHỈ correct Governance §4b
     classification — KHÔNG tạo/draft/approve nội dung ADR nào cho Gap A hoặc Gap B).
