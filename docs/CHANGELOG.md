@@ -2,6 +2,103 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.1 ADR-020 alignment mechanical consolidation
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.1 ADR-020 Alignment Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean Package 1.1 ADR-020 alignment. No architecture-semantic change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        f8b287dd69fc31c56088e421fd7d86b8f09dbe1b
+docs/adr/ADR-020.md v0.1 blob:                         453d4995d557c138b3ec3af61f4b1e2b63c47f88 (verified matched, Approved)
+docs/architecture/module-registry.yaml v0.9 blob:      1f01a7393b4d6560e024f1917285e9eaef7fc3ff (verified matched, candidate)
+docs/architecture/system-decomposition.md v1.0 blob:   77165d18c7761280af51e685c4c402d02348bb59 (verified matched, candidate)
+```
+
+### Review evidence
+
+```text
+Review A:                 CLEAN (Blocker 0/Major 0/Minor 0)
+Independent Review B:     CLEAN (Blocker 0/Major 0/Minor 0)
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE PACKAGE 1.1 ADR-020 ALIGNMENT CONSOLIDATION"
+
+Decision date: 2026-08-06 (date-only — exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+module-registry.yaml:      package lifecycle: candidate -> Consolidated Stable.
+                            version: "0.9" UNCHANGED. status: Draft UNCHANGED.
+system-decomposition.md:   package lifecycle: candidate -> Consolidated Stable.
+                            version: "1.0" UNCHANGED. status: Draft UNCHANGED.
+Blobs:                      module-registry.yaml:
+                              1f01a7393b4d6560e024f1917285e9eaef7fc3ff ->
+                              578ae5399a2be2ec60ba7e13c01c3a01df16610d
+                            system-decomposition.md:
+                              77165d18c7761280af51e685c4c402d02348bb59 ->
+                              54f3aed10f594e0276fe179602cf973b0e2a59a4
+MANIFEST.md:                 both rows updated (package lifecycle Consolidated
+                              Stable, versions unchanged, blob transitions
+                              recorded).
+```
+
+### Preserved unchanged
+
+```text
+The added review-evidence-service VIEW-002/UC-003 responsibility (ADR-020 SS5/SS7/
+  SS9), verbatim, in both artifacts.
+All 25 module identities; every dependency and forbidden-dependency list
+  (script-verified via python3/yaml -- only the top-level package_lifecycle field
+  changed in module-registry.yaml, all 25 modules byte-identical in content).
+review-evidence-service.consumes ([event]), .emits ([query]), module_type
+  (projection), owns_authoritative_state (false), hybrid (null), phase assignment.
+Decision authority (decision-authority-service); RiskEvaluation/Execution Intent
+  authority (risk-gateway); Order authority (execution-engine); ExecutionResult
+  authority (execution-result-processor).
+API Surface routing/exposure-only status; UX Shell non-authority; no-recompute and
+  correction-lineage requirements.
+system-decomposition.md frontmatter and all 15 numbered sections (SS1-SS15, including
+  SS6's responsibility mirror, SS5 dependency graph, SS10 coverage table): confirmed
+  byte-identical (section-by-section diff) -- only the top banner changed.
+ADR-020.md and all existing ADRs: byte-identical, untouched.
+api-architecture.md, database-architecture.md, ux-architecture.md: untouched.
+VIEW-003 computation ownership, canonical semantic-decision hash, VIEW-003's
+  INDETERMINATE-equivalent outcome, UC-003's three Product-level mechanism gaps,
+  DD-001, and any Package 1.5 interaction gap: all remain unresolved.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all three blobs (ADR-020.md, module-registry.yaml,
+  system-decomposition.md) matched before editing.
+Diff confirmed scoped to exactly: module-registry.yaml (top banner + top-level
+  package_lifecycle field only) and system-decomposition.md (top banner only,
+  frontmatter and all 15 sections confirmed byte-identical).
+Versions confirmed unchanged ("0.9" and "1.0"); artifact statuses confirmed Draft
+  for both.
+Responsibility text confirmed unchanged (byte-identical in both artifacts).
+Module inventory confirmed still 25; all dependency/forbidden_dependencies/
+  contract-category fields confirmed unchanged (script-verified).
+Authority fields (Decision/RiskEvaluation/Execution Intent/Order/ExecutionResult)
+  and no-recompute/correction-lineage requirements confirmed unchanged.
+ADR-020.md confirmed byte-identical and Approved (git diff --quiet empty).
+Package 1.4 (api-architecture.md), Package 1.5 (database-architecture.md), and
+  Package 1.6 (ux-architecture.md) confirmed untouched (git diff --quiet empty).
+VIEW-003 and all Product-level UC-003 gaps confirmed still unresolved.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+Only docs/architecture/module-registry.yaml, docs/architecture/system-
+  decomposition.md, docs/MANIFEST.md, and docs/CHANGELOG.md changed (git status
+  --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.1 ADR-020 alignment (review-evidence-service responsibility expansion)
 
 **Bounded semantic Package 1.1 alignment — vai trò: `Package 1.1 ADR-020 Alignment Executor`.** Mechanically aligns Package 1.1 with Approved ADR-020 v0.1 by expanding only the registered responsibility of `review-evidence-service`. Not a new architecture decision, not a new ADR.

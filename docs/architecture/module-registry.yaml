@@ -1,7 +1,40 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# CONSOLIDATED STABLE (package lifecycle, 2026-08-06, Product Owner decision,
+# vai trò: `Package 1.1 ADR-020 Alignment Mechanical Consolidation Executor`) —
+# status: Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable)
+# and artifact status (Draft) are separate dimensions (Chapter 0 §7.1). Product
+# Owner decision (verbatim, as supplied in the transaction request): "APPROVE
+# PACKAGE 1.1 ADR-020 ALIGNMENT CONSOLIDATION." Decision date: 2026-08-06
+# (exact clock time not supplied -- date-only metadata used, no timestamp
+# invented). Review evidence on the v0.9 ADR-020 alignment (this file) and
+# system-decomposition.md v1.0 (parity mirror): Review A CLEAN, Independent
+# Review B CLEAN, Blocker 0/Major 0/Minor 0. Mechanical lifecycle transaction —
+# `version: "0.9"` UNCHANGED (no content/architecture change),
+# `package_lifecycle: candidate -> Consolidated Stable`. system-decomposition.md
+# consolidates in parallel at its own reviewed version, `"1.0"` -- the two
+# artifact versions are NOT normalized to a shared number; each is recorded
+# exactly as reviewed. Preserved unchanged (byte-identical, this consolidation
+# changes lifecycle prose/fields ONLY): the added review-evidence-service
+# VIEW-002/UC-003 responsibility (ADR-020 §5/§7/§9); 25-module inventory; every
+# dependency/forbidden_dependencies list; review-evidence-service.consumes
+# (`[event]`), .emits (`[query]`), module_type (`projection`),
+# owns_authoritative_state (`false`), hybrid (`null`), phase assignment;
+# Decision/RiskEvaluation/Execution Intent/Order/ExecutionResult authority; API
+# Surface routing/exposure-only boundary; UX Shell non-authority; no-recompute
+# and correction-lineage requirements. ADR-020 is NOT modified by this
+# transaction. VIEW-003 computation ownership, `canonical semantic-decision
+# hash`, UC-003's three Product-level mechanism gaps, `DD-001`, and any Package
+# 1.5 interaction gap remain unresolved. Package 1.4 (`api-architecture.md`),
+# Package 1.5 (`database-architecture.md`), and Package 1.6
+# (`ux-architecture.md`) are NOT modified -- the separate Package 1.4
+# parity-description transaction and the separate Package 1.6 correction
+# transaction remain pending, unaffected by this consolidation. No
+# implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+#
 # CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-06,
-# vai trò: `Package 1.1 ADR-020 Alignment Executor`) — status: Draft, NOT
+# HISTORICAL — superseded by the Consolidated Stable decision above, vai trò:
+# `Package 1.1 ADR-020 Alignment Executor`) — status: Draft, NOT
 # Approved/Locked. Package 1.1 v0.8 -> v0.9: genuine semantic registry change —
 # EXACT mechanical transcription of Approved ADR-020 (v0.1, Approved 2026-08-06,
 # approved_at "2026-08-06") — NOT a new architecture decision, NOT a new ADR.
@@ -197,7 +230,7 @@ registry_id: phase-1-module-registry
 version: "0.9"
 status: Draft
 package: "1.1"
-package_lifecycle: candidate
+package_lifecycle: Consolidated Stable
 generated_at: "2026-08-06"
 
 modules:
