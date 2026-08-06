@@ -2,6 +2,100 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.6 v0.3 NAV-003 binding correction
+
+**Bounded UX-architecture correction — vai trò: `Package 1.6 NAV-003 Binding Correction Executor`.** Updates `ux-architecture.md` to reflect that NAV-003's upstream registry and API prerequisites (Package 1.1 v0.8, Package 1.4 v0.5) are now resolved. Not a new architecture decision, not a new ADR.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        e33355fc978ca73de9aec7b38923b3afc04686d0
+docs/architecture/ux-architecture.md v0.2 blob:        c5e3c770b90a04c0d4398d5a1501eef6746b7639 (verified matched)
+docs/architecture/module-registry.yaml v0.8 blob:      ad885b0e2f09bf1582cdccc1d94c055e23469a80 (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v0.9 blob:   04e5ba915601cc9d03aa53ce54823ac443642b4f (verified matched, Consolidated Stable)
+docs/architecture/api-architecture.md v0.5 blob:       fc322491ec881a0f0a23ebc034cfcadf0e76366e (verified matched, Consolidated Stable)
+ADR-018 v0.2 blob:                                     Approved (verified byte-identical after edit)
+ADR-019 v0.2 blob:                                     c7778454bedcba0752eb4b11dfd1dc26cf5acdfe (Approved, verified byte-identical after edit)
+```
+
+### NAV-003 blocker closure
+
+```text
+Prior state (v0.2): SCR-003/SCR-004/SCR-005 (NAV-003 Backtest) and the
+  backtest-orchestrator portion of SCR-011/VIEW-005 were TECHNICALLY BLOCKED --
+  command-query-api-surface.depends_on (module-registry.yaml v0.7) did not contain
+  backtest-orchestrator, so no API route existed to bind to (§13 gap #2).
+
+Resolved state (v0.3): Package 1.1 v0.8 (Consolidated Stable, ADR-019 v0.2 Approved
+  alignment) and Package 1.4 v0.5 (Consolidated Stable) established the route
+  command-query-api-surface -> backtest-orchestrator. §13 gap #2 (upstream prerequisite
+  of P16-A-MAJ-01) is RESOLVED -- SCR-003/SCR-004/SCR-005 and the backtest-orchestrator
+  portion of SCR-011/VIEW-005 are no longer marked technically blocked for this reason.
+
+Binding established:
+  ux-application-shell -> command-query-api-surface -> backtest-orchestrator
+  Query: non-authoritative bounded Backtest run correlation view, composed from
+    existing Decision (decision-authority-service) and RiskEvaluation (risk-gateway)
+    facts. Authority for both unchanged.
+  Run identity: remains the ADR-018 correlation/grouping concept -- not a new entity,
+    event, or authoritative fact.
+
+Sections edited: §0 (module-registry reference), §1 (governing authority baseline
+  versions), §2.1 confirmation prose, §4.1 (Table A/B, SCR-003/004/005/011,
+  VIEW-005), §4.3 (NAV-003 row), §4.5 (technical-realization counts), §7
+  (traceability/API-binding gap note), §13 (gap #2 closure, DD-001 carry-forward
+  wording, non-goals version reference), §14 (Review A/Independent Review B scope,
+  Consolidation condition), §15 (Lifecycle treatment). Top banner: new v0.3
+  paragraph prepended, v0.1/v0.2 paragraphs preserved unchanged (historical).
+```
+
+### Preserved unchanged
+
+```text
+Decision authority (decision-authority-service); RiskEvaluation authority
+  (risk-gateway); backtest-orchestrator.owns_authoritative_state: deferred (DD-001
+  unresolved, Package 1.1 §11 -- not resolved by this transaction, not set to
+  true/false).
+VIEW-002/VIEW-003 synthesis-owner gap (§13 gap #1) -- still TECHNICALLY BLOCKED,
+  P16-A-MAJ-02 still unresolved.
+Identifier accounting: 59/59, unchanged.
+UX Blueprint screen/flow/state semantics (§3, §5, §6, §8, §9, §10, §11, §12):
+  byte-identical (diff-verified).
+No new module, dependency edge, API route, Domain concept, field-level schema, or
+  client/API-side synthesis responsibility introduced.
+ADR-018.md, ADR-019.md, module-registry.yaml, system-decomposition.md,
+  api-architecture.md: byte-identical (git diff empty, confirmed).
+package lifecycle: candidate (unchanged -- not reconsolidated).
+status: Draft, approved_by: null, approved_at: null (unchanged).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all four target/upstream blobs matched before editing.
+Diff confirmed scoped to §0/§1/§2.1/§4.1/§4.3/§4.5/§7/§13/§14/§15 prose plus the top
+  banner and frontmatter version -- §3, §5, §6, §8, §9, §10, §11, §12 confirmed
+  byte-identical via section-by-section comparison (Python diff of extracted
+  section text).
+Module registry classification code block (§2.1) field values confirmed unchanged --
+  only surrounding version-label prose updated.
+NAV-003's missing-route blocker removed from SCR-003/SCR-004/SCR-005 and the
+  Backtest-related portion of SCR-011/VIEW-005 (confirmed via diff).
+Route matches Package 1.1 v0.8 and Package 1.4 v0.5 exactly (command-query-api-surface
+  -> backtest-orchestrator).
+Current upstream references updated to v0.8/v0.9/v0.5 throughout; v0.7/v0.3 mentions
+  confirmed to survive only inside explicitly historical v0.1/v0.2 banner paragraphs.
+VIEW-002/VIEW-003 confirmed still unresolved/blocked (§13 gap #1 unchanged).
+DD-001 and backtest-orchestrator.owns_authoritative_state confirmed still
+  unresolved/deferred.
+Identifier accounting (59/59) and existing UX semantics confirmed unchanged.
+Package lifecycle confirmed still candidate.
+No implementation, Gate 2, Phase 2, or LIVE authorization confirmed introduced.
+ADR-018.md, ADR-019.md, module-registry.yaml, system-decomposition.md, and
+  api-architecture.md confirmed untouched (git diff --quiet empty across all five).
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.4 v0.5 mechanical consolidation
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.4 v0.5 Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean `api-architecture.md` v0.5 baseline. No architecture-semantic change.
