@@ -1,6 +1,32 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
-# CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-06) — status:
+# CONSOLIDATED STABLE (package lifecycle, 2026-08-06, Product Owner decision) — status:
+# Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable) and artifact status
+# (Draft) are separate dimensions (Chapter 0 §7.1). Product Owner decision (verbatim, as
+# supplied in the transaction request): "APPROVE PACKAGE 1.1 ADR-019 ALIGNMENT
+# CONSOLIDATION." Decision date: 2026-08-06 (exact clock time not supplied -- date-only
+# metadata used, no timestamp invented). Review evidence on the v0.8 ADR-019 alignment
+# (this file) and system-decomposition.md v0.9 (parity mirror, post P11V08-A-MIN-01
+# correction): Review A CLEAN, Independent Review B CLEAN, Blocker 0/Major 0/Minor 0.
+# Mechanical lifecycle transaction -- `version: "0.8"` UNCHANGED (no content/architecture
+# change), `package_lifecycle: candidate -> Consolidated Stable`. system-decomposition.md
+# consolidates in parallel at its own reviewed version, `"0.9"` -- the two artifact
+# versions are NOT normalized to a shared number; each is recorded exactly as reviewed.
+# Preserved unchanged (byte-identical, this consolidation changes lifecycle prose/fields
+# ONLY): 25-module inventory; the 17-module command-query-api-surface.depends_on list
+# (including backtest-orchestrator); backtest-orchestrator.consumes (`[event, query]`),
+# .emits (`[event]`), `module_type` (`runtime_service`), `hybrid` (`null`),
+# `owns_authoritative_state` (`deferred`); decision-authority-service/risk-gateway's
+# `owns_authoritative_state` (`true`/`true`, Decision/RiskEvaluation authority unchanged);
+# every other module's dependencies, forbidden_dependencies, and contract categories.
+# ADR-018 and ADR-019 are NOT modified by this transaction. `DD-001` and VIEW-002 remain
+# unresolved. Package 1.4 (`api-architecture.md`) and Package 1.6 (`ux-architecture.md`)
+# are NOT modified -- the separate Package 1.4 parity-transcription transaction and the
+# separate Package 1.6 correction transaction remain pending, unaffected by this
+# consolidation. No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+#
+# CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-06,
+# HISTORICAL — superseded by the Consolidated Stable decision above) — status:
 # Draft, NOT Approved/Locked. Package 1.1 v0.7 -> v0.8: genuine semantic registry change —
 # EXACT mechanical transcription of Approved ADR-019 (NAV-003 Gap A, v0.2, Approved
 # 2026-08-06, approved_at "2026-08-06") — NOT a new architecture decision, NOT a new ADR.
@@ -132,7 +158,7 @@ registry_id: phase-1-module-registry
 version: "0.8"
 status: Draft
 package: "1.1"
-package_lifecycle: candidate
+package_lifecycle: Consolidated Stable
 generated_at: "2026-08-06"
 
 modules:

@@ -2,6 +2,88 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.1 ADR-019 alignment: Consolidated Stable (mechanical lifecycle transaction)
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.1 ADR-019 Alignment Mechanical Consolidation Executor`.** Records the Product Owner's consolidation of the review-clean Package 1.1 ADR-019 alignment baseline (`module-registry.yaml` v0.8, `system-decomposition.md` v0.9). No architecture semantic change.
+
+### Baseline
+
+```text
+Approved HEAD:                                        fa572945f4705786aa0f3116793257dbd8e4656f
+docs/architecture/module-registry.yaml v0.8 blob:      ee62b679d754430bd687afbf6d6613d161e390ff (verified matched)
+docs/architecture/system-decomposition.md v0.9 blob:   c8e48c889b264725e4f3bc6591f57d3bdc9729a8 (verified matched)
+```
+
+### Review evidence
+
+```text
+Review A:                CLEAN, Blocker 0/Major 0/Minor 0.
+Independent Review B:    CLEAN, Blocker 0/Major 0/Minor 0.
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE PACKAGE 1.1 ADR-019 ALIGNMENT CONSOLIDATION"
+
+Decision date: 2026-08-06 (exact clock time not supplied -- date-only approval metadata
+  used, no timestamp invented).
+```
+
+### Lifecycle change
+
+```text
+module-registry.yaml:      version "0.8" (unchanged), package_lifecycle:
+                            candidate -> Consolidated Stable
+system-decomposition.md:   version "0.9" (unchanged), package_lifecycle:
+                            candidate -> Consolidated Stable
+Versions NOT normalized -- each artifact retains its own exactly-reviewed version
+  (0.8 and 0.9 respectively), per explicit instruction.
+Blobs:
+  module-registry.yaml       ee62b679d754430bd687afbf6d6613d161e390ff -> ad885b0e2f09bf1582cdccc1d94c055e23469a80
+  system-decomposition.md    c8e48c889b264725e4f3bc6591f57d3bdc9729a8 -> 04e5ba915601cc9d03aa53ce54823ac443642b4f
+MANIFEST.md:                 both rows updated (package lifecycle Consolidated Stable,
+                              versions unchanged, blob transitions recorded).
+```
+
+### Preserved unchanged (architecture semantics byte-identical -- only lifecycle prose/fields changed)
+
+```text
+25-module inventory: unchanged, no module added/removed.
+command-query-api-surface.depends_on: still exactly 17 modules, including
+  backtest-orchestrator.
+backtest-orchestrator: consumes [event, query], emits [event], module_type
+  runtime_service, hybrid null, owns_authoritative_state deferred -- all unchanged.
+decision-authority-service / risk-gateway: owns_authoritative_state true/true,
+  Decision/RiskEvaluation authority unchanged.
+Every other module's dependencies, forbidden_dependencies, and contract categories:
+  byte-identical.
+ADR-018.md and ADR-019.md: byte-identical, not modified by this transaction.
+DD-001 and VIEW-002: unresolved, untouched.
+api-architecture.md and ux-architecture.md: untouched -- the separate Package 1.4
+  parity-transcription transaction and the separate Package 1.6 correction transaction
+  remain pending, unaffected by this consolidation.
+```
+
+### Validation
+
+```text
+Approved HEAD and both artifact blobs matched before editing.
+Exactly four files changed: module-registry.yaml, system-decomposition.md, MANIFEST.md,
+  CHANGELOG.md.
+package_lifecycle changed from candidate to Consolidated Stable in both artifacts.
+Versions remain module-registry.yaml v0.8 and system-decomposition.md v0.9 -- confirmed
+  not normalized to a shared version.
+Architecture semantics confirmed unchanged via direct inspection: 25-module inventory,
+  17-module dependency list, backtest-orchestrator's consumes/emits/module_type/hybrid/
+  owns_authoritative_state, Decision/RiskEvaluation authority all byte-identical.
+ADR-018.md and ADR-019.md confirmed byte-identical (git diff empty).
+api-architecture.md and ux-architecture.md confirmed untouched (git diff empty).
+DD-001 and VIEW-002 confirmed still unresolved.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced. Final tracked
+  working tree clean after commit.
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.1 v0.8 decomposition mirror: bounded correction (closes P11V08-A-MIN-01)
 
 **Bounded correction transaction — vai trò: `Package 1.1 v0.8 Single-Line Correction Executor`.** Closes one Review A finding on the `system-decomposition.md` v0.8 §5.1 mirror text. No dependency-list, contract-category, taxonomy, or authority change.
