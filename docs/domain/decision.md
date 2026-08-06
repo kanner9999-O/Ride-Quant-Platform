@@ -1,7 +1,7 @@
 ---
 id: decision
 title: Decision
-version: "0.4"
+version: "0.5"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -31,6 +31,8 @@ Decision **KHÔNG phải** Strategy/Strategy Instance (`strategy.md`, đã autho
 **v0.3 — micro-correction, đóng `C4-DELTA-MAJ-01`/`C4-DELTA-MAJ-02` (consolidated Review A + Independent Review B findings trên baseline v0.2):** (a) `C4-DELTA-MAJ-01` — loại bỏ `resulting_decision_id` khỏi `DecisionEvaluationAttempt` entity schema/`DecisionEvaluationAttemptRecorded` payload/invariants/canonical policy/scenario — attempt DECIDED và DecisionRecorded nay liên hệ MỘT CHIỀU DUY NHẤT (Attempt ghi trước, `DecisionRecorded.causation_refs` trỏ ngược lại attempt), loại bỏ circular append-order dependency; query chiều ngược (Decision nào ứng với một attempt) resolve qua cơ chế ĐÃ CÓ (`GetDecisionForComputation` §8, hoặc reverse `causation_refs` lookup) — KHÔNG event/field liên kết mới. (b) `C4-DELTA-MAJ-02` — tách `evaluation_attempt_id` (identity cá nhân MỘT lần thử) khỏi logical computation key (`strategy_instance_id`, `decision_context_cursor` — nhóm NHIỀU attempt); idempotency nay scoped theo `evaluation_attempt_id` (canonical `decision_evaluation_attempt_idempotency_policy: STABLE_ATTEMPT_ID_SAME_PAYLOAD_IS_IDEMPOTENT`, đối xứng `instrument.md` §17), KHÔNG còn theo logical key — nhiều attempt (outcome khác nhau, ví dụ FAILED_BEFORE_EVALUATION rồi DECIDED) CÙNG một logical key nay hợp lệ; nhiều attempt DECIDED cùng key PHẢI resolve/reuse cùng một Decision qua `decision_computation_idempotency_policy` (tầng Decision, không phải tầng Attempt) — không tạo hai Decision head trừ khi correction lineage (§11) cho phép. Bounded — không đổi Decision correction lineage, `decision_id` semantics, `decision_time`, `decision_context_cursor`, no-look-ahead, bốn trục evidence, bounded EMA rule evidence, explanation, Decision-to-Trade-Intent derivation, Trade Intent time ordering, `eligible_for_new_risk_evaluation`, Trade Intent lifecycle, C1–C3 semantics, C4/C5 boundary. KHÔNG thêm attempt lifecycle/scheduler/retry workflow.
 
 **v0.4 — CANDIDATE semantic clarification (2026-08-06), KHÔNG Approved/Consolidated, pending Review A/Independent Review B/Product Owner decision — Product Owner authorized (timestamp 2026-08-06T09:21:00+07:00) bounded source-semantics clarification cho VIEW-003 replay parity verification:** thêm §9a MỚI — **Canonical Decision Semantic Representation** (và, khi cần một giá trị đơn: **Canonical Decision Semantic Digest**) — lần đầu tiên cung cấp định nghĩa CỤ THỂ cho thuật ngữ `canonical semantic-decision hash` (product-requirement.md PR-010/PR-019, use-case-workflow.md UC-005, ux-blueprint.md VIEW-003) mà trước v0.4 CHỈ là một pointer chưa resolve ("định nghĩa bởi Decision Contract authoritative" nhưng KHÔNG field-list nào tồn tại tại decision.md v0.1–v0.3). §9a derive field CHỈ từ §5b/§5c/§5d/§5e ĐÃ established (KHÔNG field Decision mới nào invent); định nghĩa recorded-side selection correction-aware qua §8 fold algorithm (KHÔNG redefine); định nghĩa recomputed-side constraint (non-authoritative, KHÔNG append/replace/correct Decision, KHÔNG invoke Decision Authority acceptance, KHÔNG tiêu thụ downstream Risk/Execution outcome); định nghĩa outcome model BA giá trị workflow-visible non-authoritative (MATCH/MISMATCH/INDETERMINATE — INDETERMINATE MỚI, trước v0.3 CHỈ có MATCH/MISMATCH tại UC-005/ux-blueprint.md); xác nhận authority boundary (parity KHÔNG tạo/approve/replace/invalidate Decision). KHÔNG chọn computation owner/module/package assignment/dependency edge/ADR/API exposure/UX implementation — TẤT CẢ VẪN unresolved, ngoài phạm vi transaction này (xem package-1.6-upstream-resolution-exploration.md v0.2, KHÔNG sửa). Baseline v0.3 Consolidated Stable (Package 0.2-C4) VẪN controlling cho tới khi §9a này qua đúng review cycle riêng biệt. Bounded — KHÔNG đổi §1–§8/§10–§18 nội dung hiện có, KHÔNG redefine fold algorithm/correction lineage/canonical policy identifier đã pin, KHÔNG đổi Decision-to-Trade-Intent cardinality, KHÔNG chọn hash algorithm/serialization technology.
+
+**v0.5 — CANDIDATE bounded correction (2026-08-06), KHÔNG Approved/Consolidated, pending bounded verification/Independent Review B/Product Owner decision — đóng bốn Review A finding trên §9a v0.4 (`P16-V003-A-MAJ-01`, `P16-V003-A-MAJ-02`, `P16-V003-A-MAJ-03`, `P16-V003-A-MIN-01`):** (1) `P16-V003-A-MAJ-01` — Implementation/provenance equivalence: `decision_implementation_version` (plugin_version_ref + package_build_artifact_ref) VẪN loại trừ khỏi Representation (§9a.1, ý nghĩa semantic tách biệt khỏi implementation identity KHÔNG đổi), NHƯNG nay BẮT BUỘC (KHÔNG optional) tại parity result envelope khi recorded Decision ĐÃ establish các reference đó; recomputation PHẢI dùng ĐÚNG CÙNG pinned implementation identity với recorded side (§9a.4); nếu required reference không resolve/reproduce được ở một trong hai phía → INDETERMINATE (§9a.6); output/Representation bằng nhau dưới implementation identity KHÁC NHAU KHÔNG đủ để tuyên bố một deterministic parity verification. (2) `P16-V003-A-MAJ-02` — Digest qualification: sửa tuyên bố sai "Representation và Digest logic tương đương chỉ vì digest derivation deterministic" — Representation (structured, §9a.1) LÀ semantic comparison authority; Digest (§9a.2) CHỈ LÀ compact derived evidence, đòi hỏi CHÍNH NÓ một digest-definition identity/version riêng (`decision_semantic_digest_definition_id`/`decision_semantic_digest_definition_version`, §9a.5b) ràng buộc canonical encoding/field ordering/absent-vs-null treatment/digest algorithm qua một technical contract quản trị riêng (KHÔNG chọn công nghệ tại transaction này); cho tới khi contract đó tồn tại, so sánh Representation trực tiếp LÀ cơ sở hợp lệ DUY NHẤT cho MATCH; digest equality ĐƠN ĐỘC KHÔNG được thiết lập MATCH; digest mismatch CHỈ được thiết lập MISMATCH khi cả hai digest cùng derive dưới CÙNG một valid digest-definition version TỪ Representation đã resolve thành công; digest-definition unresolved/incompatible → INDETERMINATE. (3) `P16-V003-A-MAJ-03` — Independent definition identity: thay thế việc dùng lẫn version của tài liệu decision.md làm representation-definition identity bằng BA trục độc lập tường minh (§9a.5b) — `decision_contract_document_version` (version của decision.md NHƯ một tài liệu, KHÔNG phải comparison identity), `decision_semantic_representation_definition_id`/`decision_semantic_representation_definition_version` (identity/version ĐỘC LẬP của field-set + comparison semantics, bất biến sau khi reference, KHÔNG tái sử dụng ID, persistently resolvable, verifiable content identity — Chapter 8 §8.1.1), `decision_semantic_digest_definition_id`/`decision_semantic_digest_definition_version` (CÓ THỂ VẪN unresolved/chưa established tại candidate này). Một sửa đổi decision.md KHÔNG liên quan (vd. sửa lỗi chính tả nơi khác) KHÔNG tự động bump representation-definition version; ngược lại, một thay đổi field-set/comparison-semantics (như chính correction §9a v0.5 này) ĐÒI HỎI representation-definition version mới — `decision_semantic_representation_definition_id: "DSR-001"`, `decision_semantic_representation_definition_version: "2"` (CANDIDATE, bump từ giá trị ngầm định "1" tại v0.4 — nơi định danh này CHƯA tách biệt tường minh khỏi document version, nay tách biệt lần đầu). (4) `P16-V003-A-MIN-01` — Complete pinned-axis wording: mọi câu "cùng pinned version axis" (§9a.1/§9a.3/§9a.4/§9a.5/§9a.6) nay liệt kê ĐẦY ĐỦ chín trục — Strategy Instance; Strategy Definition Version; Configuration Version; Decision rule identity/version; Decision implementation provenance (khi có); canonical Replay Cursor; input evidence reference; semantic-representation-definition version; digest-definition version (khi dùng digest) — bất kỳ trục bắt buộc nào không resolve nhất quán → INDETERMINATE. KHÔNG redesign VIEW-003; KHÔNG chọn parity computation owner/module/package assignment/dependency edge/ADR; KHÔNG sửa architecture artifact/registry/system decomposition/Package 1.6; KHÔNG resolve NAV-003/VIEW-002; KHÔNG authorize implementation/Gate 2/Phase 2/LIVE. Baseline §9a v0.4 (CANDIDATE, chưa Consolidated) và decision.md v0.3 Consolidated Stable (Package 0.2-C4) đều giữ nguyên là lịch sử preserved — v0.5 CHỈ correct nội dung §9a candidate, KHÔNG retroactively claim Consolidated.
 
 ## 1. Decision — `kind: entity`
 
@@ -461,7 +463,7 @@ Result: LONG                               (result)
 
 **Invariant:** hai Decision với cùng `rule_evidence`/`input_evidence`/`result` PHẢI cho cùng explanation render (deterministic). Explanation KHÔNG có event/subject riêng — một PROJECTION thuần túy của DecisionRecorded.
 
-## 9a. Parity/replay comparison semantics — Canonical Decision Semantic Representation (v0.4, **CANDIDATE — KHÔNG Approved/Consolidated**, pending Review A/Independent Review B/Product Owner decision)
+## 9a. Parity/replay comparison semantics — Canonical Decision Semantic Representation (v0.4 → v0.5, **CANDIDATE — KHÔNG Approved/Consolidated**, pending bounded verification/Independent Review B/Product Owner decision)
 
 **Vai trò:** làm rõ semantics cho parity/replay comparison — thuật ngữ `canonical semantic-decision hash` đã dùng xuyên suốt `product-requirement.md` (PR-010/PR-019), `use-case-workflow.md` (UC-005), VÀ `ux-blueprint.md` (VIEW-003) TỪ v0.1/v0.2 các tài liệu đó, NHƯNG decision.md v0.1–v0.3 KHÔNG BAO GIỜ chứa định nghĩa CỤ THỂ nào cho thuật ngữ này (exhaustive search xác nhận, xem package-1.6-upstream-resolution-exploration.md §4.2). §9a này CUNG CẤP định nghĩa đó LẦN ĐẦU TIÊN, dưới dạng một CANDIDATE clarification — KHÔNG PHẢI đã Approved/Consolidated. Baseline decision.md v0.3 (Package 0.2-C4, Consolidated Stable) VẪN LÀ controlling cho tới khi §9a này qua Review A + Independent Review B + Product Owner decision riêng biệt.
 
@@ -508,8 +510,14 @@ plugin_version_ref,
   package_build_artifact_ref (§5b,
   ADR-013 trục 2/4)                — LÀ implementation/build identity (CODE NÀO đã chạy), KHÔNG
                                     xác định Ý NGHĨA quyết định — loại trừ khỏi representation so
-                                    sánh; VẪN bắt buộc pin riêng tại parity result envelope như
-                                    context (§9a.5), KHÔNG bị bỏ qua hoàn toàn.
+                                    sánh (Representation payload KHÔNG đổi bởi v0.5). **(v0.5, đóng
+                                    `P16-V003-A-MAJ-01`)** VẪN bắt buộc pin ĐẦY ĐỦ tại parity result
+                                    envelope như `decision_implementation_version` (§9a.5a) — KHÔNG
+                                    optional khi recorded Decision đã establish các reference này —
+                                    VÀ recomputation PHẢI dùng ĐÚNG CÙNG pinned implementation
+                                    identity với recorded side (§9a.4), KHÔNG chỉ pin như context bị
+                                    động; nếu required reference không resolve/reproduce được ở một
+                                    trong hai phía → INDETERMINATE (§9a.6), KHÔNG MATCH/MISMATCH.
 Explanation (§9)                    — deterministic PURE render của {rule_evidence, input_evidence,
                                     result} ĐÃ có trong representation — so sánh prose rendering LÀ
                                     redundant VÀ fragile trước formatting change — loại trừ.
@@ -520,16 +528,45 @@ Risk/Execution/Order/Fill/Position
                                     này — loại trừ tuyệt đối.
 ```
 
-### 9a.2 Canonical Decision Semantic Digest (tuỳ chọn, khi cần một giá trị đơn)
+### 9a.2 Canonical Decision Semantic Digest (tuỳ chọn, non-authoritative derived evidence — v0.5, đóng `P16-V003-A-MAJ-02`)
 
 ```text
-Canonical Decision Semantic Digest LÀ một digest/hash derive TỪ (VÀ CHỈ TỪ) Canonical Decision
-  Semantic Representation (§9a.1) — KHÔNG derive từ bất kỳ field nào bị loại trừ tại §9a.1.
-Thuật toán hash/serialization CỤ THỂ KHÔNG được chọn tại §9a (forbidden scope — Phase 1
-  implementation concern) — §9a CHỈ pin ĐẦU VÀO nào digest PHẢI derive từ, KHÔNG pin cơ chế.
-Digest LÀ một biểu diễn TIỆN DỤNG (compact) của Representation — so sánh CÓ THỂ dùng trực tiếp
-  Representation (structured) HOẶC Digest (compact), kết quả logic tương đương, miễn digest
-  derivation deterministic — cơ chế cụ thể KHÔNG author tại đây.
+**Sửa v0.5:** v0.4 tuyên bố SAI "so sánh CÓ THỂ dùng trực tiếp Representation HOẶC Digest, kết quả
+  logic tương đương, miễn digest derivation deterministic" — deterministic derivation KHÔNG tự động
+  ngụ ý logical equivalence giữa Representation và Digest tại tầng GOVERNANCE, vì digest phụ thuộc
+  một canonical encoding/field-ordering/absent-vs-null treatment/algorithm CHƯA được pin ở đâu.
+
+Canonical Decision Semantic Representation (§9a.1, structured) LÀ semantic comparison authority.
+Canonical Decision Semantic Digest LÀ evidence phái sinh COMPACT, derive TỪ (VÀ CHỈ TỪ)
+  Representation (§9a.1) — KHÔNG derive từ bất kỳ field nào bị loại trừ tại §9a.1 — nhưng Digest
+  TỰ NÓ KHÔNG PHẢI authority, CHỈ là một biểu diễn tiện dụng CÓ ĐIỀU KIỆN.
+
+Sử dụng Digest đòi hỏi CHÍNH NÓ một digest-definition identity/version riêng biệt —
+  `decision_semantic_digest_definition_id`/`decision_semantic_digest_definition_version` (§9a.5b) —
+  ràng buộc tối thiểu bốn yếu tố qua một technical contract quản trị RIÊNG (KHÔNG author/chọn công
+  nghệ tại §9a này — ngoài phạm vi transaction này):
+    canonical encoding (thứ tự serialize field);
+    field ordering;
+    absent-versus-null treatment (field vắng mặt vs field = null);
+    digest/hash algorithm cụ thể.
+
+CHO TỚI KHI digest-definition contract đó tồn tại VÀ được govern riêng: so sánh Representation
+  CẤU TRÚC trực tiếp (structured comparison) LÀ cơ sở hợp lệ DUY NHẤT cho MATCH (§9a.6).
+
+Digest equality ĐƠN ĐỘC (không kèm structured Representation comparison hợp lệ dưới cùng digest-
+  definition version đã govern) KHÔNG được thiết lập MATCH.
+
+Digest mismatch CHỈ được thiết lập MISMATCH khi CẢ HAI điều kiện đúng: (a) cả hai digest được sinh
+  ra dưới CÙNG một digest-definition version đã govern hợp lệ; VÀ (b) cả hai digest derive từ
+  Representation đã resolve THÀNH CÔNG ở cả hai phía (§9a.1/§9a.3/§9a.4).
+
+Digest-definition unresolved, KHÔNG tồn tại, HOẶC incompatible giữa hai phía → INDETERMINATE
+  (§9a.6) — KHÔNG BAO GIỜ tự ý coi digest mismatch LÀ semantic MISMATCH khi digest-definition chưa
+  govern/chưa khớp.
+
+Digest concept VẪN available/candidate tại §9a này nhưng non-authoritative VÀ non-substitutive cho
+  structured Representation comparison cho tới khi digest-definition technical contract được author
+  VÀ Consolidated riêng biệt.
 ```
 
 ### 9a.3 Recorded-side selection (correction-aware, cursor-bounded)
@@ -549,10 +586,33 @@ Multiple eligible head, missing key resolution, HOẶC ambiguous lineage (§8 B�
 ### 9a.4 Recomputed-side constraint (non-authoritative)
 
 ```text
-Recomputation PHẢI dùng ĐÚNG semantic input VÀ version axis đã pin của Decision recorded đang
-  test — CÙNG strategy_instance_id, CÙNG strategy_definition_version_id, CÙNG
-  configuration_version_ref, CÙNG decision_rule_ref/rule_family, CÙNG decision_context_cursor,
-  CÙNG input_evidence_refs (§9a.1) — recomputation KHÔNG được tự chọn version/input khác.
+Recomputation PHẢI dùng ĐÚNG semantic input VÀ ĐẦY ĐỦ chín trục pinned đã established của Decision
+  recorded đang test (v0.5, đóng `P16-V003-A-MIN-01`, thay thế danh sách rút gọn tại v0.4) —
+  KHÔNG được tự chọn version/input/identity khác cho bất kỳ trục nào dưới đây:
+    (1) Strategy Instance (strategy_instance_id);
+    (2) Strategy Definition Version (strategy_definition_version_id);
+    (3) Configuration Version (configuration_version_ref);
+    (4) Decision rule identity/version (decision_rule_ref, rule_family);
+    (5) Decision implementation provenance, KHI CÓ established tại recorded Decision
+        (decision_implementation_version — plugin_version_ref + package_build_artifact_ref, §9a.5a);
+    (6) canonical Replay Cursor (decision_context_cursor);
+    (7) input evidence reference (input_evidence_refs);
+    (8) semantic-representation-definition version (decision_semantic_representation_definition_id/
+        version, §9a.5b);
+    (9) digest-definition version, KHI dùng Digest (decision_semantic_digest_definition_id/version,
+        §9a.5b, §9a.2).
+
+**(v0.5, đóng `P16-V003-A-MAJ-01`) Implementation-identity constraint:** khi recorded Decision đã
+  establish `decision_implementation_version` (trục 5), recomputation PHẢI chạy dưới ĐÚNG CÙNG
+  pinned implementation identity đó (KHÔNG "code/build mới nhất hiện tại") — nếu recorded Decision
+  đã establish trục này VÀ một trong hai phía KHÔNG resolve/reproduce được đúng identity đó, kết
+  quả PHẢI LÀ INDETERMINATE (§9a.6), KHÔNG MATCH/MISMATCH. Representation (§9a.1) bằng nhau giữa
+  hai phía trong khi implementation identity KHÁC NHAU hoặc KHÔNG xác nhận được KHÔNG đủ căn cứ để
+  tuyên bố một deterministic parity verification — trường hợp này PHẢI INDETERMINATE, KHÔNG tự động
+  MATCH chỉ vì Representation khớp.
+
+Nếu BẤT KỲ trục nào trong chín trục trên KHÔNG resolve nhất quán giữa recorded/recomputed side →
+  INDETERMINATE (§9a.6).
 
 Recomputation KHÔNG được:
   append một Decision authoritative MỚI (§1/§5 authority KHÔNG đổi).
@@ -575,50 +635,95 @@ Module/owner nào thực thi recomputation KHÔNG được chọn tại §9a nà
   này (xem package-1.6-upstream-resolution-exploration.md, KHÔNG sửa bởi transaction này).
 ```
 
-### 9a.5 Definition/version identity — parity result envelope
+### 9a.5 Definition/version identity — parity result envelope (v0.5 — restructure, đóng `P16-V003-A-MAJ-03`)
+
+**Sửa v0.5:** v0.4 dùng version của CHÍNH tài liệu decision.md (`v0.4`) LÀM identity cho representation-definition — conflate hai khái niệm khác nhau: "decision.md thay đổi NHƯ một tài liệu" versus "field-set/comparison-semantics của Representation thay đổi." Một sửa đổi decision.md KHÔNG liên quan §9a (vd. sửa lỗi chính tả tại §1–§8) sẽ SAI nếu tự động bump identity so sánh của parity. §9a.5 nay tách BA trục độc lập tường minh:
+
+#### 9a.5a Parity result envelope — pinned axes (repeat từ Representation cho audit/provenance)
 
 ```text
-Mọi parity result PHẢI pin:
-  decision_semantic_representation_version: {type: string, required: true, description:
-    "version của CHÍNH §9a.1 definition này — Chapter 8 §8.1.1 năm điều kiện Referenced
-    Authoritative Artifact áp dụng (versioned, immutable-after-reference, no ID reuse,
-    persistently resolvable, verifiable content identity) — v0.4 CANDIDATE LÀ giá trị ĐẦU
-    TIÊN, CHƯA Approved."
+Mọi parity result PHẢI pin đầy đủ:
   strategy_instance_id, strategy_definition_version_id, configuration_version_ref,
-    decision_rule_ref: đã có trong Representation (§9a.1), pin LẶP LẠI tại result envelope cho
-    mục đích audit/provenance tách biệt khỏi payload so sánh.
-  decision_implementation_version: {type: object, required: false, description: "plugin_version_ref
-    + package_build_artifact_ref (§5b) — pin NHƯ context/provenance, KHÔNG PHẢI một phần
-    Representation so sánh (§9a.1 loại trừ) — cho phép audit 'code nào thực sự chạy' TÁCH BIỆT
-    khỏi câu hỏi 'ý nghĩa quyết định có khớp không'"}
+    decision_rule_ref, rule_family: đã có trong Representation (§9a.1), pin LẶP LẠI tại result
+    envelope cho mục đích audit/provenance tách biệt khỏi payload so sánh.
+  decision_implementation_version: {type: object, required: CONDITIONAL — v0.5, đóng
+    `P16-V003-A-MAJ-01`: BẮT BUỘC (KHÔNG optional) khi recorded Decision ĐÃ establish
+    plugin_version_ref VÀ/HOẶC package_build_artifact_ref (§5b); vắng mặt CHỈ hợp lệ khi recorded
+    Decision tự nó KHÔNG establish các reference này. description: "plugin_version_ref +
+    package_build_artifact_ref (§5b) — pin NHƯ implementation-identity context/provenance, KHÔNG
+    PHẢI một phần Representation so sánh (§9a.1 loại trừ) — recomputation PHẢI reproduce ĐÚNG
+    CÙNG giá trị này khi required (§9a.4); KHÔNG resolve được → INDETERMINATE."
   canonical_replay_cursor: đã có trong Representation (decision_context_cursor) — KHÔNG duplicate,
     tham chiếu lại.
   eligible_input_evidence_refs: đã có trong Representation (input_evidence_refs) — KHÔNG
     duplicate, tham chiếu lại.
 ```
 
-### 9a.6 Outcome model — MATCH / MISMATCH / INDETERMINATE (workflow-visible, non-authoritative)
+#### 9a.5b Independent definition identities (v0.5, đóng `P16-V003-A-MAJ-03` — BA trục tách biệt, KHÔNG gộp)
+
+```text
+1. decision_contract_document_version: {type: string, description: "version của decision.md NHƯ
+     một TÀI LIỆU (frontmatter `version`, hiện = 0.5) — KHÔNG PHẢI comparison identity. Thay đổi
+     document version (kể cả thay đổi KHÔNG liên quan §9a) KHÔNG tự động bump hai trục dưới đây."}
+
+2. decision_semantic_representation_definition_id / decision_semantic_representation_definition_version:
+     {type: string/string, required: true, description: "identity/version ĐỘC LẬP của field-set +
+     comparison semantics tại §9a.1/§9a.3/§9a.4/§9a.6 — Chapter 8 §8.1.1 năm điều kiện Referenced
+     Authoritative Artifact áp dụng đầy đủ: versioned, immutable-after-reference, no ID reuse,
+     persistently resolvable, verifiable content identity. Giá trị hiện tại (CANDIDATE, tách biệt
+     lần đầu khỏi document version tại v0.5): id = `DSR-001`, version = `2` — bump từ giá trị ngầm
+     định trước đó (`1`, chưa tách biệt tường minh tại v0.4) vì chính correction v0.5 này đổi
+     comparison semantics (bắt buộc implementation-identity pin khi established, MATCH criterion
+     mở rộng, §9a.4/§9a.6). Một thay đổi field-set/comparison-semantics TƯƠNG LAI PHẢI bump
+     version này; unrelated decision.md document revision KHÔNG bump."}
+
+3. decision_semantic_digest_definition_id / decision_semantic_digest_definition_version:
+     {type: string/string, required: false, description: "identity/version ĐỘC LẬP cho canonical
+     encoding + digest derivation (§9a.2) — KHÁC BIỆT khỏi (2), quản trị qua technical contract
+     RIÊNG (KHÔNG author tại đây). Giá trị tại candidate này: **CHƯA ESTABLISHED / unresolved** —
+     KHÔNG chọn placeholder giả; digest-based comparison KHÔNG valid cho tới khi trục này được
+     author và Consolidated riêng biệt (§9a.2). Trong lúc unresolved: bất kỳ yêu cầu digest-based
+     comparison nào → INDETERMINATE (§9a.6), KHÔNG MATCH/MISMATCH."}
+```
+
+### 9a.6 Outcome model — MATCH / MISMATCH / INDETERMINATE (workflow-visible, non-authoritative — v0.5 tightened, đóng `P16-V003-A-MAJ-01`/`P16-V003-A-MAJ-02`/`P16-V003-A-MIN-01`)
 
 ```text
 Đúng BA outcome, KHÔNG hơn, KHÔNG collapse INDETERMINATE vào MISMATCH:
 
-MATCH:          CẢ HAI phía (recorded, recomputed) evaluable dưới CÙNG pinned definition/version
-                (§9a.5) VÀ Canonical Decision Semantic Representation (§9a.1) của cả hai BẰNG
-                NHAU.
+MATCH:          TẤT CẢ đúng: (a) CẢ HAI phía (recorded, recomputed) evaluable dưới CÙNG ĐẦY ĐỦ
+                chín pinned axis (§9a.4 — Strategy Instance, Strategy Definition Version,
+                Configuration Version, Decision rule identity/version, Decision implementation
+                provenance khi có, canonical Replay Cursor, input evidence reference, semantic-
+                representation-definition version §9a.5b, digest-definition version §9a.5b khi
+                dùng digest); (b) Canonical Decision Semantic Representation (§9a.1) của cả hai
+                BẰNG NHAU qua structured comparison trực tiếp (§9a.2 — digest equality ĐƠN ĐỘC
+                KHÔNG đủ); VÀ (c) **(v0.5)** khi recorded Decision đã establish
+                `decision_implementation_version`, recomputation đã reproduce ĐÚNG CÙNG identity
+                đó (§9a.4) — Representation bằng nhau dưới implementation identity KHÁC NHAU/KHÔNG
+                xác nhận được KHÔNG đủ căn cứ cho MATCH (→ INDETERMINATE).
 
-MISMATCH:       CẢ HAI phía evaluable dưới CÙNG pinned definition/version VÀ Representation của
-                hai phía KHÁC NHAU.
+MISMATCH:       CẢ HAI phía evaluable dưới CÙNG đầy đủ chín pinned axis (bao gồm cùng
+                implementation identity khi established) VÀ Representation của hai phía KHÁC
+                NHAU qua structured comparison — HOẶC (§9a.2, v0.5) digest mismatch được thiết lập
+                CHỈ khi cả hai digest sinh dưới CÙNG digest-definition version đã govern hợp lệ TỪ
+                Representation đã resolve thành công ở cả hai phía.
 
 INDETERMINATE:  một so sánh hợp lệ KHÔNG THỂ hoàn tất vì evidence bắt buộc, version identity,
-                cursor state, visible-valid head (§9a.3), semantic-definition version (§9a.5),
-                HOẶC recomputation input (§9a.4) missing/stale/invalidated/ambiguous/incompatible/
-                non-evaluable — bao gồm, KHÔNG giới hạn: input_evidence_refs KHÔNG resolve được
-                tại cursor; decision_context_cursor tự nó KHÔNG resolve/valid; recorded-side
-                visible-valid-head ở trạng thái PENDING_CORRECTION KHÔNG CÓ successor (§8 Bước
-                5); nhiều eligible head hoặc lineage ambiguous (data-integrity condition, PHẢI
-                INDETERMINATE nếu phát hiện, KHÔNG tự ý chọn một head); decision_semantic_
-                representation_version KHÔNG khớp/KHÔNG resolve giữa hai phía; recomputation
-                KHÔNG thể chạy dưới ĐÚNG pinned version axis đã chọn tại recorded side.
+                cursor state, visible-valid head (§9a.3), bất kỳ trục nào trong chín pinned axis
+                (§9a.4), definition identity (§9a.5b), HOẶC recomputation input (§9a.4) missing/
+                stale/invalidated/ambiguous/incompatible/non-evaluable — bao gồm, KHÔNG giới hạn:
+                input_evidence_refs KHÔNG resolve được tại cursor; decision_context_cursor tự nó
+                KHÔNG resolve/valid; recorded-side visible-valid-head ở trạng thái
+                PENDING_CORRECTION KHÔNG CÓ successor (§8 Bước 5); nhiều eligible head hoặc
+                lineage ambiguous (data-integrity condition, PHẢI INDETERMINATE nếu phát hiện,
+                KHÔNG tự ý chọn một head); `decision_semantic_representation_definition_id`/
+                `version` (§9a.5b) KHÔNG khớp/KHÔNG resolve giữa hai phía; **(v0.5)** recorded
+                Decision đã establish `decision_implementation_version` NHƯNG một trong hai phía
+                KHÔNG resolve/reproduce được đúng identity đó; **(v0.5)** digest-based comparison
+                được yêu cầu nhưng `decision_semantic_digest_definition_id`/`version` unresolved/
+                incompatible giữa hai phía; recomputation KHÔNG thể chạy dưới ĐÚNG CÙNG pinned axis
+                đã chọn tại recorded side (bất kỳ trục nào trong chín trục).
 
 TẤT CẢ BA outcome LÀ workflow-visible, non-authoritative — KHÔNG một Domain fact/entity mới nào
 được tạo cho bất kỳ outcome nào (cùng nguyên tắc UC-003's "workflow-visible result DUY NHẤT,

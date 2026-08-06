@@ -1,7 +1,7 @@
 ---
 id: ux-blueprint
 title: UX Blueprint
-version: "0.6"
+version: "0.7"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -31,6 +31,8 @@ next_review: null
 **v0.5 — final mechanical traceability correction, đóng `P03C-MAJ-01` (2026-08-03, KHÔNG behavior change):** loại bỏ đúng hai mapping không hợp lệ còn sót lại tại `STATE-002` sau v0.4: `PR-007 → STATE-002` và `PR-032 → STATE-002`. `PR-007`'s acceptance evidence "với NOT_EXECUTED, người dùng thấy rõ zero Fill" mô tả outcome của MỘT Order đã tồn tại (đã sở hữu bởi `STATE-016`/`STATE-017`), KHÔNG phải trường hợp "chưa Order/Fill nào tồn tại" mà `STATE-002` tại SCR-007 đại diện. `PR-032` governs truy vấn outcome xuyên suốt Strategy Definition Version CŨ (đã sở hữu bởi `VIEW-005`/`STATE-025`/`STATE-026`/`NAV-006`/`FLOW-005`/`FLOW-006`), KHÔNG phải minimum-record-count của Strategy Instance hiện tại để so sánh tại SCR-011. `STATE-002` PR traceability nay ĐÚNG `PR-021`, `PR-034` — UC traceability (`UC-007`/`UC-008`/`UC-009`/`UC-010`/`UC-012`/`UC-013`/`UC-014`/`UC-015`/`UC-020`) và applicable screens (`SCR-004`/`SCR-005`/`SCR-007`/`SCR-011`) KHÔNG đổi. `PR-007` và `PR-032` giữ nguyên toàn bộ acceptance surface hợp lệ khác (`PR-007`: `SCR-006`/`SCR-007`/`FLOW-004`/`STATE-015`/`STATE-016`; `PR-032`: `NAV-006`/`SCR-011`/`VIEW-005`/`FLOW-005`/`FLOW-006`/`STATE-025`/`STATE-026`). §14 (STATE→UC/PR, PR→UX) cập nhật tương ứng. KHÔNG UX behavior/navigation/flow/state/authority/lifecycle semantics nào đổi; KHÔNG stable ID nào thêm/bớt/đổi tên; mọi finding đã resolved trước đó giữ nguyên. Package 0.3-C vẫn `Draft`, chưa `Consolidated Stable`.
 
 **v0.6 — CANDIDATE semantic clarification (2026-08-06), KHÔNG Approved/Consolidated, pending Review A/Independent Review B/Product Owner decision — Product Owner authorized (timestamp 2026-08-06T09:21:00+07:00) bounded source-semantics clarification cho VIEW-003 replay parity verification:** `use-case-workflow.md` v0.7 (CANDIDATE) thêm một outcome workflow-visible thứ ba cho `UC-005` — **INDETERMINATE** — bên cạnh match/mismatch đã có, dùng khi parity recomputation evidence thiếu/stale/invalidated/ambiguous/non-evaluable (`decision.md` §9a.6, CANDIDATE cùng transaction). `VIEW-003` (§7 spec block) trước đây CHỈ resolve về hai state (`STATE-007` parity match, `STATE-008` parity mismatch) — KHÔNG đủ để biểu diễn outcome thứ ba này. Nay THÊM một stable state identifier MỚI — **`STATE-030` — parity indeterminate** — vào catalogue §13 (29 → 30 trạng thái). Đây là **Product/UX semantic candidate requiring review**, KHÔNG phải mechanical/cosmetic — mở rộng catalogue acceptance-surface identifier, do đó đóng vai trò input bắt buộc cho Review A/Independent Review B trước khi coi `STATE-030` là Consolidated. `VIEW-003` "Information displayed"/"Evidence consumed"/"Primary states"/"Empty-unavailable-blocked states" cập nhật để phản ánh ba outcome; §14e (STATE→UC/PR)/§14f (UC→UX)/§14g (PR→UX) cập nhật đồng bộ để thêm `STATE-030`. KHÔNG stable ID nào khác thêm/bớt/đổi tên; KHÔNG screen/nav/flow mới; `NAV-003`/`VIEW-002` giữ nguyên unresolved; KHÔNG chọn computation owner/module/package/dependency edge/ADR; KHÔNG Approve/Lock/Consolidate.
+
+**v0.7 — CANDIDATE bounded correction (2026-08-06), KHÔNG Approved/Consolidated, pending bounded verification/Independent Review B/Product Owner decision — đóng bốn Review A finding trên `decision.md` §9a v0.4 (`P16-V003-A-MAJ-01`/`P16-V003-A-MAJ-02`/`P16-V003-A-MAJ-03`/`P16-V003-A-MIN-01`, xem `decision.md` v0.5):** `VIEW-003` §7 spec block wording cập nhật — INDETERMINATE (`STATE-030`, vẫn CANDIDATE — 29→30 catalogue amendment KHÔNG đổi bởi correction này) nay tường minh bao gồm trường hợp implementation identity (`decision_implementation_version`) established tại recorded Decision nhưng không resolve/reproduce được ở một phía, và trường hợp digest-definition (khi dùng digest) unresolved/incompatible. KHÔNG thêm state/screen/view/flow/action mới; KHÔNG đổi ba-outcome model (MATCH/MISMATCH/INDETERMINATE); §14e/§14f/§14g KHÔNG đổi (đã có `STATE-030` từ v0.6). `NAV-003`/`VIEW-002` giữ nguyên unresolved. KHÔNG chọn computation owner/module/package/dependency edge/ADR; KHÔNG redesign VIEW-003; KHÔNG Approve/Lock/Consolidate.
 
 ## 1. Purpose and authority boundary
 
@@ -586,10 +588,16 @@ Information displayed:   Kết quả MATCH, MISMATCH, hoặc INDETERMINATE **(CA
                          `canonical semantic-decision hash` (UX-INV-5), resolve tại `decision.md` §9a
                          Canonical Decision Semantic Representation/Digest.
 Available user actions:  Kích hoạt parity recomputation (tuỳ chọn, người dùng chủ động).
-System-owned actions:    Tái tính toán Decision logic (semantic verification, non-authoritative); so
-                         sánh qua canonical semantic-decision hash; hiển thị MATCH, MISMATCH, hoặc
-                         INDETERMINATE (evidence thiếu/stale/invalidated/ambiguous/non-evaluable,
-                         decision.md §9a.6) — KHÔNG BAO GIỜ tự động ghi đè/thay thế/tạo Decision mới.
+System-owned actions:    Tái tính toán Decision logic (semantic verification, non-authoritative) dưới
+                         ĐÚNG CÙNG pinned axis đã establish tại recorded Decision, bao gồm implementation
+                         identity khi có (`decision_implementation_version`, decision.md §9a.4/§9a.5a,
+                         **CANDIDATE — v0.7, đóng `P16-V003-A-MAJ-01`**); so sánh qua structured
+                         Canonical Decision Semantic Representation (decision.md §9a.1/§9a.2 — digest
+                         equality đơn độc KHÔNG đủ, **CANDIDATE — v0.7, đóng `P16-V003-A-MAJ-02`**);
+                         hiển thị MATCH, MISMATCH, hoặc INDETERMINATE (evidence thiếu/stale/invalidated/
+                         ambiguous/non-evaluable, HOẶC implementation identity/digest-definition không
+                         resolve/reproduce được, decision.md §9a.6) — KHÔNG BAO GIỜ tự động ghi đè/thay
+                         thế/tạo Decision mới.
 Evidence consumed:       Decision đã ghi nhận tại cursor; canonical semantic-decision hash definition
                          (decision.md §9a).
 Evidence produced:       Kết quả so sánh (non-authoritative, KHÔNG một fact trong event log Decision

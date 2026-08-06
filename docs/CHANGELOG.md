@@ -2,6 +2,109 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — VIEW-003 Replay Parity Semantic Clarification: bounded correction (Review A findings closed, still CANDIDATE)
+
+**Bounded correction transaction — vai trò: `VIEW-003 Replay Parity Semantic Clarification Bounded Correction Executor`.** Closes four Review A findings on the `decision.md` v0.4 §9a CANDIDATE clarification from the prior transaction. No VIEW-003 redesign, no parity computation owner/module/package selected, no dependency edge added, no ADR authored/approved, no architecture artifact/registry/system decomposition/Package 1.6 modified, `NAV-003`/`VIEW-002` not resolved, no implementation/Gate 2/Phase 2/LIVE authorized.
+
+### Baseline
+
+```text
+Baseline HEAD (expected, verified):    bb7b0e4176b428916381e572f6f4e35b187fd2e7
+docs/domain/decision.md v0.4 blob:     810b31c5009e3d2c3d5d3ceb0a1c47f588361ed9 (verified matched)
+```
+
+### Finding closure
+
+```text
+P16-V003-A-MAJ-01 (implementation/provenance equivalence):
+  decision.md §9a.1 exclusion note, §9a.4, §9a.5a corrected. plugin_version_ref/
+  package_build_artifact_ref (decision_implementation_version) stay OUTSIDE the Canonical
+  Decision Semantic Representation (semantic meaning vs implementation/build identity distinction
+  unchanged) but are now MANDATORY (not optional) at the parity result envelope whenever the
+  recorded Decision has established them. Recorded and recomputed side must use the exact same
+  pinned implementation identity — if the recorded Decision establishes it and either side cannot
+  resolve/reproduce it, outcome is INDETERMINATE, never MATCH/MISMATCH. Representation equality
+  under different or unconfirmed implementation identity is explicitly declared insufficient for a
+  deterministic parity verification claim.
+
+P16-V003-A-MAJ-02 (digest qualification):
+  decision.md §9a.2 rewritten. Corrects the false claim that deterministic digest derivation
+  implies automatic logical equivalence with the structured Representation. Representation (§9a.1)
+  is now stated as the semantic comparison authority; Digest is compact non-authoritative derived
+  evidence requiring its own digest-definition identity/version (decision_semantic_digest_
+  definition_id/version, §9a.5b) binding canonical encoding, field ordering, absent-vs-null
+  treatment, and digest algorithm through a separately governed technical contract — not authored
+  in this transaction. Until that contract exists, direct structured comparison is the only valid
+  basis for MATCH; digest equality alone cannot establish MATCH; digest mismatch establishes
+  MISMATCH only when both digests were produced under the same valid, governed digest-definition
+  version from successfully resolved Representations; unresolved/incompatible digest-definition →
+  INDETERMINATE.
+
+P16-V003-A-MAJ-03 (independent definition identity):
+  decision.md §9a.5 restructured into §9a.5a (parity result envelope pinned axes) and §9a.5b
+  (independent definition identities). Replaces the prior conflated use of decision.md's own
+  document version as the representation-definition identity with three explicit, independent
+  axes: decision_contract_document_version (decision.md document version, not a comparison
+  identity), decision_semantic_representation_definition_id/version (independent identity/version
+  of the field-set + comparison semantics — Chapter 8 §8.1.1 five Referenced Authoritative Artifact
+  conditions apply in full; CANDIDATE value id=DSR-001, version=2), decision_semantic_digest_
+  definition_id/version (separate, still unresolved/not-yet-established). Unrelated decision.md
+  document revisions no longer automatically bump the representation-definition version; a
+  semantic field-set/comparison-semantics change requires a new representation-definition version.
+
+P16-V003-A-MIN-01 (complete pinned-axis wording):
+  decision.md §9a.4/§9a.6 (and aligned product/workflow/UX wording) now enumerate all nine pinned
+  axes wherever "same pinned version axis" is claimed: Strategy Instance, Strategy Definition
+  Version, Configuration Version, Decision rule identity/version, Decision implementation
+  provenance (when present), canonical Replay Cursor, input evidence reference, semantic-
+  representation-definition version, digest-definition version (when digest is used). Any required
+  axis that cannot be resolved consistently between recorded/recomputed side → INDETERMINATE.
+```
+
+### Changed (all CANDIDATE — NOT Approved/Consolidated, pending bounded verification/Independent Review B/Product Owner decision)
+
+```text
+docs/domain/decision.md                v0.4 → v0.5 (Draft) — §9a.1 exclusion-note strengthened;
+  §9a.2 digest section rewritten; §9a.4 recomputed-side constraint expanded to nine pinned axes +
+  implementation-identity constraint; §9a.5 restructured into §9a.5a/§9a.5b; §9a.6 outcome model
+  tightened for MATCH/MISMATCH/INDETERMINATE. v0.3 Consolidated Stable baseline (Package 0.2-C4)
+  preserved untouched; v0.4 CANDIDATE content itself is what this correction amends.
+
+docs/product/product-requirement.md    v0.3 → v0.4 (Draft) — canonical semantic-decision hash
+  definition paragraph and PR-010 acceptance evidence updated to require implementation-identity
+  pinning and to qualify digest use; pointer to decision.md §9a.5b independent definition
+  identities.
+
+docs/product/use-case-workflow.md      v0.7 → v0.8 (Draft) — UC-005 Main flow/Alternate-failure
+  wording expanded so INDETERMINATE explicitly covers unresolved/mismatched implementation identity
+  and unresolved/incompatible digest-definition. No fourth outcome added; three-outcome model
+  (MATCH/MISMATCH/INDETERMINATE) unchanged.
+
+docs/product/ux-blueprint.md           v0.6 → v0.7 (Draft) — VIEW-003 §7 spec block (System-owned
+  actions, Information displayed) wording expanded for the same corrections. STATE-030
+  identity/catalogue position (29→30, CANDIDATE) unchanged from the prior transaction; §14e/§14f/
+  §14g unchanged.
+
+docs/MANIFEST.md                       manifest_version 10.64 → 10.65 — new banner recording this
+  bounded correction under Domain; version-bump table rows for the three modified Product
+  artifacts, each explicitly candidate-only with prior Consolidated Stable baselines referenced as
+  untouched historical record.
+
+docs/CHANGELOG.md                      this entry.
+```
+
+### Not changed / explicitly out of scope
+
+```text
+VIEW-003 not redesigned. No parity computation owner/module/package assignment/dependency edge/ADR
+selected or authored. No architecture file touched: module-registry.yaml, system-decomposition.md,
+api-architecture.md, ux-architecture.md, engine/*, security-custody-baseline.md,
+database-architecture.md, package-1.6-upstream-resolution-exploration.md. NAV-003/VIEW-002 remain
+unresolved. No implementation, Gate 2, Phase 2, or LIVE authorized. Package 1.1–1.5 Consolidated
+Stable baselines untouched. Package 1.6 status unchanged (candidate, Independent Review B not
+eligible).
+```
+
 ## [Unreleased] — 2026-08-06 — VIEW-003 Replay Parity Semantic Clarification: CANDIDATE (not Approved/Consolidated)
 
 **Bounded Product/Domain semantic clarification transaction — vai trò: `VIEW-003 Replay Parity Semantic Clarification Author`.** Product Owner authorized (verbatim, timestamp 2026-08-06T09:21:00+07:00): "Product Owner authorizes a bounded Product/Domain semantic clarification to define the previously-undefined 'canonical semantic-decision hash' concept used by VIEW-003 (Replay parity verification). This authorization permits clarifying exactly the following: (1) the canonical representation used for semantic comparison; (2) which Decision fields are included/excluded from that representation; (3) how definition/version identity is pinned for the representation itself; (4) how Strategy Instance, Strategy Definition Version, Configuration Version, rule evidence, and input evidence bindings participate; (5) how the recorded-side Decision is selected for comparison in a correction-aware (Append-and-Revalidate) manner; (6) expected behavior when evidence is missing, stale, invalidated, ambiguous, or non-evaluable; (7) whether an INDETERMINATE outcome is required alongside MATCH/MISMATCH. This authorization does NOT select any computation owner, module, package, dependency edge, or ADR." No owner/module/package/dependency edge/ADR selected. `NAV-003`/`VIEW-002` remain unresolved. Package 1.1–1.5 controlling baselines remain `Consolidated Stable`, untouched. Package 1.6 remains candidate. Phase 2/Gate 2/Live remain unopened/unauthorized.

@@ -1,7 +1,7 @@
 ---
 id: use-case-workflow
 title: Use Case & Workflow
-version: "0.7"
+version: "0.8"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -31,6 +31,8 @@ next_review: null
 **v0.6 — final consolidated correction (đóng `P03B-V05-B-MAJ-01`, frozen finding):** v0.5 sửa gap operationalization của `PR-004`/`PR-005` nhưng tự nó mắc causal-direction error tại `UC-007`: nhóm evidence "đã dùng để tạo ra Decision" liệt kê CẢ "RiskEvaluation liên quan" — SAI, vì RiskEvaluation (risk.md §1) là bản ghi đánh giá MỘT Trade Intent, mà Trade Intent chỉ tồn tại SAU KHI Decision result = LONG/SHORT (decision.md §9) — RiskEvaluation luôn causally downstream của Decision, KHÔNG BAO GIỜ là input tạo ra nó. Sửa: `UC-007` Main flow bước 2 tách bạch tường minh BA nhóm — (A) Decision outcome LONG/SHORT/NO_ACTION (decision.md `result` enum); (B) upstream Decision origin/explainability — Strategy Instance/Definition Version/configuration, recorded input snapshot, recorded evaluation/configuration evidence, KHÔNG còn chứa RiskEvaluation; (C) downstream lineage KHI TỒN TẠI — Trade Intent/RiskEvaluation/Execution Intent/related fact, hiển thị tách biệt khỏi B với phát biểu tường minh "causally derived from/related to Decision, KHÔNG phải evidence dùng để tạo ra nó." Cùng phân biệt áp dụng đồng bộ tại Observable outcome, Evidence consumed, PR traceability rationale, và §12 acceptance criterion 21. `UC-011`/`UC-016`/`UC-008`/`UC-009` KHÔNG đổi — finding chỉ về `UC-007`. `UC-001`–`UC-021` giữ nguyên identity; KHÔNG PR/UC/domain entity mới; Backtest non-PAPER/PAPER-context Decision separation/OQ-002/OQ-003 Open/Live Unauthorized giữ nguyên vẹn. Đây là correction cuối cùng cho frozen finding này — bounded delta verification tiếp theo chỉ xét lại đúng phạm vi này, KHÔNG mở lại toàn bộ Package 0.3-B review.
 
 **v0.7 — CANDIDATE semantic clarification (2026-08-06), KHÔNG Approved/Consolidated, pending Review A/Independent Review B/Product Owner decision — Product Owner authorized (timestamp 2026-08-06T09:21:00+07:00) bounded source-semantics clarification cho VIEW-003 replay parity verification:** `UC-005` (§6) thêm một branch outcome thứ ba, tường minh — bên cạnh match/mismatch đã có, nay hỗ trợ **INDETERMINATE**, dùng khi input evidence cho parity recomputation thiếu/stale/invalidated/ambiguous/non-evaluable — KHÔNG ép buộc hệ thống trả về match hay mismatch giả tạo trong tình huống này. Định nghĩa canonical semantic-decision hash được dùng bởi `UC-005` nay resolve cụ thể tại `decision.md` §9a (Canonical Decision Semantic Representation/Digest, CANDIDATE cùng transaction) — xem `product-requirement.md` v0.3. Bounded — KHÔNG thêm/renumber Use Case, KHÔNG đổi `UC-001`–`UC-021` identity nào khác ngoài `UC-005`, KHÔNG domain entity/event mới (branch outcome này là workflow-visible, non-authoritative — cùng pattern đã dùng cho `UC-003` PASSED/FAILED/INDETERMINATE tại v0.2), KHÔNG chọn computation owner/module/package/dependency edge/ADR, KHÔNG đóng `OQ-002`/`OQ-003`, KHÔNG Approve/Lock/Consolidate.
+
+**v0.8 — CANDIDATE bounded correction (2026-08-06), KHÔNG Approved/Consolidated, pending bounded verification/Independent Review B/Product Owner decision — đóng bốn Review A finding trên `decision.md` §9a v0.4 (`P16-V003-A-MAJ-01`/`P16-V003-A-MAJ-02`/`P16-V003-A-MAJ-03`/`P16-V003-A-MIN-01`, xem `decision.md` v0.5):** `UC-005` (§6) Main flow bước 2/Alternate-failure (b) cập nhật — INDETERMINATE nay bao gồm tường minh trường hợp implementation identity (`decision_implementation_version`) đã establish tại recorded Decision NHƯNG một trong hai phía không resolve/reproduce được, VÀ trường hợp digest-definition (khi dùng digest) unresolved/incompatible. KHÔNG thêm branch outcome thứ tư — vẫn đúng ba outcome MATCH/MISMATCH/INDETERMINATE (v0.7). KHÔNG thêm/renumber Use Case, KHÔNG đổi `UC-001`–`UC-021` identity nào khác ngoài `UC-005`, KHÔNG domain entity/event mới, KHÔNG chọn computation owner/module/package/dependency edge/ADR, KHÔNG redesign VIEW-003, KHÔNG đóng `OQ-002`/`OQ-003`, KHÔNG Approve/Lock/Consolidate.
 
 ## 1. Purpose and authority boundary
 
@@ -267,17 +269,25 @@ Inputs:                 Yêu cầu kích hoạt parity recomputation từ ngư�
                         định).
 Main flow:              1. Người dùng kích hoạt parity recomputation.
                         2. Hệ thống tái tính toán Decision logic (semantic verification, non-
-                           authoritative) và so sánh với Decision đã ghi nhận qua `canonical
-                           semantic-decision hash` (WF-INV-5), theo Canonical Decision Semantic
-                           Representation (decision.md §9a, CANDIDATE — v0.7).
+                           authoritative) dưới ĐÚNG CÙNG chín pinned axis đã establish tại recorded
+                           Decision (decision.md §9a.4 — v0.8: bao gồm implementation identity
+                           `decision_implementation_version` khi recorded Decision đã establish, và
+                           digest-definition version khi dùng digest) và so sánh qua Canonical
+                           Decision Semantic Representation, structured comparison (decision.md §9a,
+                           CANDIDATE — v0.5).
                         3. Hệ thống hiển thị kết quả MATCH, MISMATCH, hoặc INDETERMINATE — KHÔNG BAO
                            GIỜ tự động ghi đè, thay thế, hay tạo Decision mới từ kết quả này (Replay
                            authority boundary).
 Alternate/failure:      (a) Kết quả mismatch → §8 "parity mismatch" (hiển thị finding, KHÔNG hành động
-                        authoritative nào tự động xảy ra). (b) **(CANDIDATE — v0.7)** Recorded-side
-                        hoặc recomputed-side evidence thiếu/stale/invalidated/ambiguous/non-evaluable
-                        → hệ thống hiển thị INDETERMINATE (decision.md §9a.6), KHÔNG ép buộc match hay
-                        mismatch giả tạo — KHÔNG hành động authoritative nào tự động xảy ra.
+                        authoritative nào tự động xảy ra). (b) Recorded-side hoặc recomputed-side
+                        evidence thiếu/stale/invalidated/ambiguous/non-evaluable → hệ thống hiển thị
+                        INDETERMINATE (decision.md §9a.6), KHÔNG ép buộc match hay mismatch giả tạo —
+                        KHÔNG hành động authoritative nào tự động xảy ra. (c) **(CANDIDATE — v0.8,
+                        đóng `P16-V003-A-MAJ-01`)** Recorded Decision đã establish implementation
+                        identity (`decision_implementation_version`) NHƯNG một trong hai phía không
+                        resolve/reproduce được đúng identity đó, HOẶC digest-definition (khi dùng
+                        digest) unresolved/incompatible giữa hai phía → hệ thống hiển thị
+                        INDETERMINATE, KHÔNG tự động MATCH chỉ vì Representation khớp.
 Observable outcome:     Người dùng thấy MATCH, MISMATCH, hoặc INDETERMINATE, KHÔNG có Decision mới/thay
                         thế nào xuất hiện.
 Evidence consumed:      Decision đã ghi nhận tại cursor, canonical semantic-decision hash definition
