@@ -2,6 +2,119 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.1 ADR-020 alignment (review-evidence-service responsibility expansion)
+
+**Bounded semantic Package 1.1 alignment — vai trò: `Package 1.1 ADR-020 Alignment Executor`.** Mechanically aligns Package 1.1 with Approved ADR-020 v0.1 by expanding only the registered responsibility of `review-evidence-service`. Not a new architecture decision, not a new ADR.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        87c3a728ef2085678958fbede8fff5402e6d507e
+docs/adr/ADR-020.md v0.1 blob:                         453d4995d557c138b3ec3af61f4b1e2b63c47f88 (verified matched, Approved)
+docs/architecture/module-registry.yaml v0.8 blob:      ad885b0e2f09bf1582cdccc1d94c055e23469a80 (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v0.9 blob:   04e5ba915601cc9d03aa53ce54823ac443642b4f (verified matched, Consolidated Stable)
+```
+
+### Responsibility added (ADR-020 §5/§7/§9, transcribed verbatim)
+
+```text
+review-evidence-service.responsibilities += "Performs the non-authoritative,
+  interval-bounded VIEW-002 / UC-003 Research verification existence check over
+  existing Decision, RiskEvaluation, Execution Intent, Order and ExecutionResult
+  facts, producing a workflow-visible PASSED / FAILED / INDETERMINATE query result
+  without recomputing or replacing source authority."
+
+Registry fact re-verified via python3 + yaml parse before editing: all four source
+  modules (decision-authority-service, risk-gateway, execution-engine,
+  execution-result-processor) were already present in
+  review-evidence-service.depends_on; command-query-api-surface.depends_on already
+  contained review-evidence-service. Zero new dependency edge added at any layer.
+
+Mirrored in both Package 1.1 artifacts: module-registry.yaml (the field itself) and
+  system-decomposition.md (§6 Responsibility and ownership boundaries, a new "Ngoại
+  lệ tường minh" paragraph quoting the same responsibility text verbatim).
+```
+
+### Lifecycle change
+
+```text
+module-registry.yaml:      version "0.8" -> "0.9", package_lifecycle:
+                            Consolidated Stable -> candidate (reverted, same
+                            precedent as v0.7 -> v0.8 ADR-019 alignment). NOT
+                            reconsolidated at this transaction.
+system-decomposition.md:   version "0.9" -> "1.0" (own reviewed version, NOT
+                            normalized to module-registry.yaml's "0.9" -- the two
+                            artifact versions remain independently tracked, per
+                            repository convention).
+Blobs:                      module-registry.yaml:
+                              ad885b0e2f09bf1582cdccc1d94c055e23469a80 ->
+                              1f01a7393b4d6560e024f1917285e9eaef7fc3ff
+                            system-decomposition.md:
+                              04e5ba915601cc9d03aa53ce54823ac443642b4f ->
+                              77165d18c7761280af51e685c4c402d02348bb59
+MANIFEST.md:                 both rows updated (package lifecycle candidate,
+                              version transitions, blob transitions recorded).
+```
+
+### Preserved unchanged
+
+```text
+review-evidence-service.depends_on, .forbidden_dependencies, .consumes ([event]),
+  .emits ([query]), .module_type (projection), .owns_authoritative_state (false),
+  .hybrid (null), .phase.
+Every other module's identity/taxonomy/dependency/forbidden_dependencies/contract-
+  category/authority/phase assignment -- confirmed via a full python3/yaml diff of
+  all 25 modules (only review-evidence-service.responsibilities/.notes changed).
+Module inventory: still 25 modules.
+Decision authority (decision-authority-service); RiskEvaluation/Execution Intent
+  authority (risk-gateway); Order authority (execution-engine); ExecutionResult
+  authority (execution-result-processor).
+review-evidence-service remains non-authoritative; API Surface remains
+  routing/exposure-only; UX Shell remains non-authoritative.
+No-recompute and correction-lineage requirements unchanged.
+system-decomposition.md §5 (dependency graph) and §10 (UC/PR/UX coverage table):
+  byte-identical (section-by-section diff confirmed) -- the UC-003 coverage row is
+  a pre-existing vocabulary-based mapping, out of this transaction's scope, left
+  untouched.
+ADR-020.md and all existing ADRs: byte-identical, untouched.
+api-architecture.md, database-architecture.md, ux-architecture.md: untouched.
+VIEW-003 computation ownership, canonical semantic-decision hash, VIEW-003's
+  INDETERMINATE-equivalent outcome, UC-003's three Product-level mechanism gaps
+  (session-interval, evidence-completeness, correction-arrival), DD-001, and any
+  Package 1.5 interaction gap: all remain unresolved, untouched.
+status: Draft, approved_by: null, approved_at: null (both artifacts): unchanged.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all three blobs (ADR-020.md, module-registry.yaml,
+  system-decomposition.md) matched before editing.
+Diff confirmed scoped to exactly: module-registry.yaml (top banner, top-level
+  version/package_lifecycle fields, review-evidence-service.responsibilities/.notes)
+  and system-decomposition.md (frontmatter version, top banner, §6 new paragraph) --
+  no hunk touches any other module or any other section (§1-§5, §7-§15 confirmed
+  byte-identical via section-by-section extraction).
+Only review-evidence-service.responsibilities semantics changed (script-verified,
+  all 24 other modules byte-identical field-by-field).
+Responsibility wording confirmed to mirror ADR-020 §5/§7/§9 exactly (verbatim
+  string match).
+Dependency lists, consumes/emits, taxonomy, and authority fields confirmed
+  unchanged for review-evidence-service and every other module.
+Package lifecycle confirmed candidate (both artifacts' banners); artifact status
+  confirmed Draft (both).
+ADR-020.md confirmed byte-identical and Approved (git diff --quiet empty).
+Package 1.4 (api-architecture.md), Package 1.5 (database-architecture.md), and
+  Package 1.6 (ux-architecture.md) confirmed untouched (git diff --quiet empty).
+VIEW-003 and all Product-level UC-003 gaps confirmed still unresolved (not
+  referenced as decided anywhere in the diff).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+Only docs/architecture/module-registry.yaml, docs/architecture/system-
+  decomposition.md, docs/MANIFEST.md, and docs/CHANGELOG.md changed (git status
+  --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-06 — ADR-020 v0.1 mechanical approval
 
 **Mechanical ADR lifecycle transaction — vai trò: `ADR-020 v0.1 Mechanical Approval Executor`.** Records Product Owner approval of ADR-020 v0.1. No decision-semantic change.
