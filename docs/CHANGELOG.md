@@ -2,6 +2,126 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.6 v0.5 VIEW-003 prerequisite-state correction (P16V04-B-MAJ-01)
+
+**Bounded UX-architecture correction — vai trò: `Package 1.6 v0.4 VIEW-003 Prerequisite-State Correction Executor`.** Corrects the stale VIEW-003 prerequisite state in Package 1.6 v0.4, which incorrectly claimed the canonical semantic-decision hash and VIEW-003's INDETERMINATE-equivalent outcome remained undefined -- both are now established by `decision.md` v0.5 SS9a. Preserves the clean VIEW-002 binding. Does not select a VIEW-003 computation owner, author an ADR, or consolidate Package 1.6.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        220ff0cd107e20b7bb57753c2d65b4591c33c297
+docs/architecture/ux-architecture.md v0.4 blob:        c9b99695e4998861519a3cda6e04d72274029173 (verified matched, candidate)
+docs/domain/decision.md v0.5 blob:                     a24beeb892f995064677233148965ecaa1f2a897 (verified matched, SS9a Consolidated Stable)
+docs/adr/ADR-020.md v0.1 blob:                         453d4995d557c138b3ec3af61f4b1e2b63c47f88 (verified matched, Approved)
+docs/architecture/module-registry.yaml v0.9 blob:      578ae5399a2be2ec60ba7e13c01c3a01df16610d (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v1.0 blob:   54f3aed10f594e0276fe179602cf973b0e2a59a4 (verified matched, Consolidated Stable)
+docs/architecture/api-architecture.md v0.6 blob:       97b97cc51513ae7f1fadf3ae98a0ce77a00dcc4b (verified matched, Consolidated Stable)
+```
+
+### Finding closure (P16V04-B-MAJ-01)
+
+```text
+Stale claim (v0.1-v0.4): "canonical semantic-decision hash (decision.md, Package
+  0.2-C4) VAN chua dinh nghia" and "VIEW-003's INDETERMINATE-equivalent outcome VAN
+  unresolved" -- required a Domain Contract amendment AND a separate Product Owner
+  outcome decision.
+
+Correction: decision.md v0.5 SS9a (Consolidated Stable, NOT Approved) now establishes
+  the full semantic definition read directly from source:
+    SS9a.1 Canonical Decision Semantic Representation -- fixed field-set derived from
+      SS5b/SS5c/SS5d/SS5e.
+    SS9a.2 Canonical Decision Semantic Digest -- optional, non-authoritative,
+      non-substitutive; structured Representation comparison remains the sole valid
+      basis for MATCH until a separate digest-definition technical contract is
+      authored/Consolidated.
+    SS9a.3 Recorded-side selection -- correction-aware, visible-valid-head at the
+      canonical Replay Cursor.
+    SS9a.4 Recomputed-side constraint -- nine required pinned semantic axes.
+    SS9a.5 Definition/version identity -- decision_semantic_representation_definition_id/
+      version = DSR-001/2, Consolidated Stable (separate from decision.md's own
+      document version).
+    SS9a.6 Outcome model -- exactly MATCH / MISMATCH / INDETERMINATE, workflow-visible,
+      non-authoritative.
+    SS9a.7 Authority boundary -- parity never creates/approves/replaces/invalidates/
+      corrects a Decision; owner/module/API/UX technical realization explicitly NOT
+      resolved at SS9a ("VAN unresolved, ngoai pham vi transaction nay").
+
+VIEW-003 remains technically blocked -- for the correct, now-accurate reason: no
+  computation owner selected (SS9a.4/SS9a.7 confirms this is explicitly out of
+  decision.md's scope), future route remains
+  ux-application-shell -> command-query-api-surface -> [module TBD], no owner/route
+  ADR authored or approved, required downstream Package 1.1/1.4/1.6 alignment has not
+  occurred. No owner inferred or selected from existing modules.
+
+Sections edited: top banner (new v0.5 paragraph prepended, prior v0.1-v0.4 paragraphs
+  preserved unchanged), SS4.1 (VIEW-003 row in Table A), SS4.5 (technical-realization
+  paragraph), SS13 (gap #1 intro and gap #1b rewritten), SS14 (Review A scope,
+  Consolidation condition item (c)), SS15 (Lifecycle treatment).
+```
+
+### Preserved unchanged
+
+```text
+VIEW-002 complete binding and route (ux-application-shell -> command-query-api-surface
+  -> review-evidence-service); review-evidence-service remains VIEW-002's owner only;
+  VIEW-002 PASSED / FAILED / INDETERMINATE outcome; VIEW-002 Product-level gaps
+  (session-interval, evidence-completeness, correction-arrival).
+VIEW-003 route stays [module TBD]; no VIEW-003 owner named or implied anywhere in the
+  diff.
+NAV-003 bindings: byte-identical (SS4.1/SS4.3 NAV-003 rows untouched).
+Identifier accounting: 59/59, unchanged.
+UX Shell non-authority; API Surface routing/exposure-only status; all dependency and
+  forbidden-dependency semantics (SS2.1 registry classification block confirmed
+  byte-identical).
+DD-001, accessibility/design-token gap (SS13 gap #3), Package 1.5 interaction gap, and
+  all other SS13 carry-forward gaps: unresolved, unchanged.
+SS0, SS1, SS2, SS3, SS5, SS6, SS7, SS8, SS9, SS10, SS11, SS12: confirmed byte-identical
+  (section-by-section diff) -- no Package 1.1/1.4 baseline-version prose needed
+  updating this transaction (unchanged since the prior v0.4 transaction).
+No new dependency edge or contract category introduced.
+decision.md, ADR-020.md, all other ADRs, module-registry.yaml,
+  system-decomposition.md, api-architecture.md, database-architecture.md: byte-identical
+  (git diff empty, confirmed).
+package lifecycle: candidate (unchanged -- not consolidated).
+status: Draft, approved_by: null, approved_at: null (unchanged).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Lifecycle change
+
+```text
+ux-architecture.md:       version "0.4" -> "0.5", package lifecycle: candidate
+                           UNCHANGED (no consolidation). status: Draft UNCHANGED.
+Blob:                      c9b99695e4998861519a3cda6e04d72274029173 ->
+                           e078ee7c8541ad3369589c7495104c972597e2eb
+MANIFEST.md:               row updated (new v0.5 paragraph prepended, version column
+                           corrected to 0.5 -- a residual staleness from the prior
+                           v0.4 transaction, where the row's version column was left
+                           at "0.3" by error, also fixed here).
+```
+
+### Validation
+
+```text
+Baseline HEAD and all six relevant blobs matched before editing.
+Diff confirmed scoped to top banner/SS4.1/SS4.5/SS13/SS14/SS15 -- SS0, SS1, SS2, SS3,
+  SS5-SS12 confirmed byte-identical via section-by-section comparison.
+P16V04-B-MAJ-01 confirmed closed: Decision semantic representation/digest recorded as
+  established, MATCH/MISMATCH/INDETERMINATE recorded as established, no Domain
+  Contract amendment claimed necessary, no Product Owner outcome decision claimed
+  necessary -- all four confirmed by direct text search of the diff.
+VIEW-003 confirmed still technically blocked; no owner named or implied anywhere.
+Future route confirmed still [module TBD].
+No new edge or contract category introduced (module-registry.yaml/
+  system-decomposition.md/api-architecture.md untouched).
+VIEW-002 semantics confirmed unchanged (byte-identical diff region).
+NAV-003 and unrelated UX sections confirmed unchanged.
+Package 1.6 confirmed still candidate/Draft.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+Only docs/architecture/ux-architecture.md, docs/MANIFEST.md, and docs/CHANGELOG.md
+  changed (git status --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.6 v0.4 VIEW-002 correction (P16-A-MAJ-02 split)
 
 **Bounded UX-architecture correction — vai trò: `Package 1.6 VIEW-002 Correction Executor`.** Updates `ux-architecture.md` to reflect the now-established VIEW-002 computation and API-binding architecture. Splits the combined VIEW-002/VIEW-003 blocker so VIEW-002 is established while VIEW-003 remains technically blocked. Does not resolve VIEW-003 or consolidate Package 1.6.
