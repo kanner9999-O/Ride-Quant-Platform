@@ -1,7 +1,7 @@
 ---
 id: structure-regime-architecture
 title: "Package 1.3-A — Data Ingestion & Structure/Regime Engine Architecture"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -16,6 +16,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 # Package 1.3-A — Data Ingestion & Structure/Regime Engine Architecture
 
 **CONSOLIDATED STABLE (package lifecycle, 2026-08-04, Product Owner decision) — artifact status: Draft, KHÔNG Approved/Locked.** Package 1.3-A v0.1 đạt `Consolidated Stable` SAU Review A CLEAN + Independent Review B CLEAN (Blocker 0/Major 0/Minor 0) và Product Owner consolidation decision (2026-08-04, §15), theo [`phase-1-plan.md`](../phase-1-plan.md) v0.4 (`Approved`) §8 Package 1.3-A block. `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi, đúng package-lifecycle/artifact-lifecycle separation đã dùng nhất quán trong toàn bộ session này (cùng pattern Package 0.2-B4/Package 1.1).
+
+**v0.2 — bounded candidate amendment (2026-08-06), KHÔNG Approved/Consolidated, pending Review A/Independent Review B/Product Owner decision riêng biệt — Product Owner authorized một localized amendment cho NAV-003 Gap B (theo `package-1.6-upstream-resolution-exploration.md` NAV-003 exploration result: `READY FOR BOUNDED AUTHORING`):** Package 1.3-A v0.1 `Consolidated Stable` baseline (bốn module: `market-reference-service`/`market-data-ingestion`/`structure-engine`/`raw-regime-engine`, §0/§2) GIỮ NGUYÊN byte-for-byte, KHÔNG re-open, KHÔNG re-review. Thêm **§13a MỚI** — MỘT classification statement bounded cho khái niệm "Backtest run identity" (`backtest-orchestrator`, đăng ký `phase.elaborated_by: "1.3-A"` tại `module-registry.yaml` v0.7 NHƯNG chưa từng được elaborate tại tài liệu này trước v0.2) — CHỈ trả lời câu hỏi "run identity LÀ loại khái niệm gì" (NAV-003 Gap B, xem `package-1.6-upstream-resolution-exploration.md` §2.2/§2.5 mục 2), KHÔNG trả lời "ai expose nó qua route/edge/API nào" (NAV-003 Gap A, VẪN unresolved, VẪN ADR Required). §13a LÀ candidate content, TÁCH BIỆT khỏi bốn-module `Consolidated Stable` baseline — Package 1.3-A's package lifecycle KHÔNG đổi bởi v0.2 (VẪN ghi nhận `Consolidated Stable` cho phạm vi v0.1 gốc; §13a pending review riêng của chính nó trước khi coi là Consolidated). KHÔNG dependency edge/owner/API path/schema/storage/transport nào được chọn; KHÔNG `owns_authoritative_state` nào resolve; KHÔNG DD-001 resolve; KHÔNG Product/UX semantics sửa; KHÔNG NAV-003 Gap A/VIEW-002 resolve; KHÔNG Package 1.6 lifecycle đổi; KHÔNG `module-registry.yaml` sửa tại transaction này.
 
 ## 0. Vai trò của tài liệu này
 
@@ -404,6 +406,102 @@ Venue/session authority (instrument-venue-reference domain context):
   candle.md §12 "Venue/session hợp lệ đóng" case defer về context instrument-venue-
   reference — Domain Contract cho context này CHƯA author (Package 0.2-C, ngoài phạm vi
   Package 1.3-A) dù capability/context đã đăng ký tại context-map.yaml.
+```
+
+## 13a. Backtest run-identity classification — NAV-003 Gap B (bounded candidate, KHÔNG Consolidated, v0.2)
+
+**Phạm vi:** mục này CHỈ trả lời câu hỏi "run identity" (`backtest-orchestrator`, UC-006 "Evidence produced: Decision/RiskEvaluation sequence gắn run identity", `use-case-workflow.md:327-328`) LÀ loại khái niệm gì — KHÔNG trả lời ai expose nó, qua edge/module/API path nào (câu hỏi đó VẪN unresolved, xem §13a.4 dưới). `backtest-orchestrator` được đăng ký `phase.elaborated_by: "1.3-A"` (`module-registry.yaml` v0.7) nhưng CHƯA từng được elaborate tại §0/§2/§4/§5 của tài liệu này — mục này KHÔNG mở rộng bốn-module `Consolidated Stable` scope đó, CHỈ thêm một classification statement bounded cho đúng MỘT khái niệm.
+
+```text
+13a.1 Classification (candidate, pending review):
+
+  Backtest run identity LÀ một correlation/grouping concept — dùng để truy vấn hoặc
+    liên kết (query/relate) các Decision fact VÀ RiskEvaluation fact ĐÃ tồn tại, gắn
+    chúng vào một bounded run context (Strategy Instance/Definition Version/policy
+    version/thời gian, UC-006). Run identity KHÔNG PHẢI một Domain entity/event mới,
+    KHÔNG PHẢI một authoritative fact riêng của backtest-orchestrator.
+
+13a.2 Authority — KHÔNG đổi:
+
+  Decision content VẪN authoritative dưới đúng Decision authority hiện có
+    (decision-authority-service/decision.md, Package 0.2-C4, Consolidated Stable) —
+    KHÔNG đổi bởi run identity.
+  RiskEvaluation content VẪN authoritative dưới đúng Risk authority hiện có
+    (risk-gateway/risk.md, Consolidated Stable) — KHÔNG đổi bởi run identity.
+  Gán run identity cho một Decision/RiskEvaluation sequence KHÔNG làm
+    backtest-orchestrator authoritative cho MỘT trong hai fact type đó —
+    backtest-orchestrator.owns_authoritative_state VẪN `deferred` (DD-001, module-
+    registry.yaml v0.7) — KHÔNG resolve tại mục này.
+
+13a.3 KHÔNG mới — bounded xác nhận:
+
+  KHÔNG Domain entity mới (không "BacktestRunContext" hay tương đương được author).
+  KHÔNG Domain event mới.
+  KHÔNG field mới thêm vào Decision/RiskEvaluation schema (decision.md/risk.md
+    KHÔNG sửa, byte-identical, KHÔNG re-open).
+  KHÔNG dependency edge nào thêm/đổi (module-registry.yaml KHÔNG sửa tại transaction
+    này).
+  KHÔNG owner assign cho việc expose run-identity query (module/service nào thực thi
+    correlation query — KHÔNG quyết định).
+  KHÔNG API path/schema/storage model/transport nào chọn.
+  KHÔNG `owns_authoritative_state` nào resolve; KHÔNG DD-001 resolve.
+
+13a.4 KHÔNG resolve (NAV-003 Gap A — VẪN unresolved, VẪN carry forward):
+
+  Route API/dependency edge cho SCR-003/SCR-004/SCR-005 (`ux-architecture.md` §13 gap
+    #2, `TECHNICALLY BLOCKED`) — VẪN unresolved. Câu hỏi "ai/qua đâu expose run-
+    identity correlation" (Candidate A/B, `package-1.6-upstream-resolution-
+    exploration.md` §2.4) VẪN mở, VẪN đòi hỏi một ADR riêng (§13a.5 dưới) trước khi
+    quyết định.
+  VIEW-002 (Research verification ownership) — KHÔNG liên quan, KHÔNG chạm bởi mục
+    này, VẪN unresolved độc lập.
+  Package 1.6 (`ux-architecture.md`) lifecycle — VẪN `candidate`, VẪN blocked cho
+    Independent Review B/consolidation.
+
+13a.5 Governance §4b assessment (bắt buộc, bounded):
+
+  Constitution Chapter 0 §4b ADR Scope Rule table: "ADR Required" áp dụng cho "Thêm/
+    sửa Platform Invariant · thay đổi Event Schema · Module Taxonomy/dependency graph
+    · Governance/Approval process · quyết định ảnh hưởng >1 module hoặc khó đảo ngược
+    · sửa/supersede ADR đã Locked."
+  Đánh giá cho CHÍNH classification statement này (§13a.1-13a.3, KHÔNG bao gồm §13a.4's
+    unresolved Gap A): KHÔNG thêm/sửa Platform Invariant; KHÔNG thay đổi Event Schema
+    (tường minh KHÔNG entity/event mới, §13a.3); KHÔNG thay đổi Module Taxonomy/
+    dependency graph (`module-registry.yaml` KHÔNG sửa); KHÔNG thay đổi Governance/
+    Approval process; KHÔNG sửa/supersede ADR đã Locked. "Ảnh hưởng >1 module" — mục
+    này MÔ TẢ quan hệ giữa ba module ĐÃ đăng ký (backtest-orchestrator/decision-
+    authority-service/risk-gateway) NHƯNG KHÔNG thay đổi registered contract/
+    responsibility/dependency của module nào trong ba module đó — CHỈ xác nhận
+    (confirm) một cách đọc semantic ĐÃ ngụ ý bởi UC-006 (`use-case-workflow.md:327-
+    328`) mà chưa từng được viết tường minh ở tầng architecture. "Khó đảo ngược" —
+    KHÔNG, mục này KHÔNG cấp quyền/route/ownership nào — reversible bằng một correction
+    transaction khác nếu classification này sai.
+  Kết luận (bounded, KHÔNG tự động exempt): classification statement này KHÔNG khớp
+    bất kỳ tiêu chí "ADR Required" nào tại §4b table — rơi vào "ADR Not Required" hoặc
+    "ADR Optional" (§4b: "Thay đổi nội bộ một module không đổi contract nhưng ảnh
+    hưởng đáng kể"). Đây LÀ một đánh giá bounded của transaction này, KHÔNG PHẢI một
+    self-declared exemption chính thức — Gap A's edge/owner/API-path decision (§13a.4)
+    VẪN LÀ MỘT quyết định riêng, KHÔNG liên quan tới kết luận này, VÀ VẪN `ADR
+    Required` không mơ hồ (khớp CHÍNH XÁC "Module Taxonomy/dependency graph" table
+    entry, đúng kết luận đã ghi tại `package-1.6-upstream-resolution-exploration.md`
+    §6) — KHÔNG bị thay đổi/giảm nhẹ bởi §13a này.
+
+Explicit non-goals (§13a):
+
+  KHÔNG dependency edge nào thêm.
+  KHÔNG owner nào assign cho query exposure/computation.
+  KHÔNG API path/schema/storage model/transport nào chọn.
+  KHÔNG `backtest-orchestrator.owns_authoritative_state` resolve.
+  KHÔNG DD-001 resolve.
+  KHÔNG Product/workflow/UX semantics sửa (`product-requirement.md`/`use-case-
+    workflow.md`/`ux-blueprint.md` KHÔNG sửa).
+  KHÔNG NAV-003 Gap A resolve.
+  KHÔNG VIEW-002 resolve.
+  KHÔNG Package 1.6 lifecycle đổi.
+  KHÔNG consolidate §13a hay Package 1.3-A tại transaction này — §13a LÀ candidate,
+    pending Review A/Independent Review B/Product Owner decision riêng biệt trước khi
+    được coi là Consolidated.
+  KHÔNG `module-registry.yaml` sửa tại transaction này.
 ```
 
 ## 14. Explicit non-goals
