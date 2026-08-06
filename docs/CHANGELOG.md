@@ -2,7 +2,74 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
-## [Unreleased] — 2026-08-06T11:30:00+07:00 — ADR-018: Approved (mechanical lifecycle transaction)
+## [Unreleased] — 2026-08-06 — ADR-018: Approval-record correction (fabricated timestamp, file-count defect)
+
+**Bounded lifecycle-record correction — vai trò: `ADR-018 Approval-Record Correction Executor`.** Corrects two factual defects introduced by the immediately-prior "ADR-018: Approved" transaction (entry below). This is a correction to the approval *record*, not a reopening of the Approved decision.
+
+### Baseline
+
+```text
+Baseline HEAD:               3d3f7ff0000cb239b1a65da9944b1b6839a1f1bf
+docs/adr/ADR-018.md blob:    c8387e6333869dfa12d745ee4b2212117a6f4fbc (verified matched)
+```
+
+### Defects found and corrected
+
+```text
+1. Fabricated timestamp precision: ADR-018.md frontmatter (`approved_at`), the §2 status-
+   framing sentence, and the §4 approval blockquote all recorded the Product Owner decision
+   time as the exact clock timestamp "2026-08-06T11:30:00+07:00." That precision was never
+   actually supplied or verified by the Product Owner -- only the decision text ("APPROVE
+   ADR-018") and the date (2026-08-06) were confirmed. Corrected: `approved_at` changed to
+   "2026-08-06" (date-only) -- an accepted repository representation for approvals without a
+   verified exact time (precedent: ADR-001, ADR-013, ADR-015, ADR-016 all use date-only
+   `approved_at`). No replacement clock time was invented. The same fix applied to the two
+   body-prose occurrences in ADR-018.md, and to MANIFEST.md's ADR-018 row and CHANGELOG.md's
+   own prior entry (below) wherever the fabricated timestamp appeared as asserted fact --
+   historical mentions of the fabricated string, quoted specifically to explain what was
+   wrong, were left intact for evidentiary clarity.
+
+2. CHANGELOG.md file-count defect: the prior "ADR-018: Approved" entry's Validation section
+   stated "Exactly two files changed: ADR-018.md, MANIFEST.md" -- omitting CHANGELOG.md
+   itself, even though that same transaction edited CHANGELOG.md to record the entry making
+   the claim. Corrected to "Exactly three files changed: ADR-018.md, MANIFEST.md,
+   CHANGELOG.md."
+```
+
+### Semantic-diff confirmation
+
+```text
+ADR-018.md: decision statement (§2 quote block), §2.1 scope boundaries, §2.2 module-authority
+  table, §3 Alternatives, §5 Scale Check, §6 Consequences, §7 Accepted risks, §8 Relationship,
+  §9 Open questions -- all byte-identical, confirmed via direct diff. `status: Approved`,
+  `approved_by: Product Owner`, `version: "0.2"` unchanged. Review A CLEAN / Independent
+  Review B CLEAN evidence unchanged. Only `approved_at`, the §2 framing sentence, and the §4
+  blockquote (timestamp fix plus one new explanatory paragraph documenting this correction)
+  were edited.
+MANIFEST.md: only the ADR-018 row edited (timestamp corrected, one explanatory clause added);
+  compatible_adr_range unchanged ("ADR-001 ~ ADR-018").
+```
+
+### Validation
+
+```text
+Baseline HEAD and ADR-018 blob matched before editing.
+Exactly three files changed: ADR-018.md, MANIFEST.md, CHANGELOG.md.
+The unsupported clock time "2026-08-06T11:30:00+07:00" no longer appears anywhere as
+  asserted current fact -- remaining occurrences are explicitly historical/explanatory,
+  quoted to describe what was wrong and corrected.
+Product Owner decision remains recorded verbatim as "APPROVE ADR-018" in all locations.
+ADR-018 remains status: Approved; decision content, Scale Check, alternatives, consequences,
+  relationship, and open questions confirmed byte-identical (see semantic-diff above).
+Review A and Independent Review B evidence (CLEAN, CLEAN) unchanged.
+NAV-003 Gap A: still unresolved, ADR Required, separate -- untouched.
+structure-regime-architecture.md v0.3 §13a: still candidate, unconsolidated -- untouched.
+Package 1.6 (ux-architecture.md): still candidate, blocked -- untouched.
+No replacement clock time invented; no ADR version bump (not an ADR amendment). Final tracked
+  working tree clean after commit.
+```
+
+## [Unreleased] — 2026-08-06 — ADR-018: Approved (mechanical lifecycle transaction)
 
 **Mechanical lifecycle transaction — vai trò: `ADR-018 Mechanical Approval Executor`.** Records the Product Owner's approval of ADR-018 v0.2 (Backtest Run Identity — Correlation Concept Over Existing Decision/RiskEvaluation Facts, NAV-003 Gap B). No decision semantic change.
 
@@ -26,7 +93,10 @@ Independent Review B:    CLEAN, 0 qualifying finding.
 ```text
 "APPROVE ADR-018"
 
-Decision timestamp: 2026-08-06T11:30:00+07:00
+Decision date: 2026-08-06 (exact clock time not supplied/verified by the Product Owner —
+  the originally recorded "2026-08-06T11:30:00+07:00" was a fabricated precision, corrected
+  in a follow-up transaction; see the "ADR-018: Approval-record correction" entry above in
+  this changelog for the correction record)
 ```
 
 ### Lifecycle change
@@ -34,7 +104,10 @@ Decision timestamp: 2026-08-06T11:30:00+07:00
 ```text
 ADR-018.md:  version 0.2 (unchanged, no bump for pure approval, Chapter 11 §11.4),
              status: Draft -> Approved, approved_by: null -> Product Owner,
-             approved_at: null -> "2026-08-06T11:30:00+07:00"
+             approved_at: null -> "2026-08-06" (recorded at the time as
+             "2026-08-06T11:30:00+07:00", a fabricated clock-time precision never
+             supplied/verified by the Product Owner -- corrected in a follow-up
+             transaction, see the entry above)
 Blob:        b2c0c0f94db394cbfbeb601802646f5dda609109 -> c8387e6333869dfa12d745ee4b2212117a6f4fbc
 MANIFEST.md: new adr/ADR-018.md row added (Approved); compatible_adr_range
              "ADR-001 ~ ADR-017" -> "ADR-001 ~ ADR-018"
@@ -64,11 +137,15 @@ ADR-010, ADR-013, ADR-015, ADR-016 (depends_on): byte-identical, not superseded.
 
 ```text
 Approved HEAD and ADR-018 blob matched before editing.
-Exactly two files changed: ADR-018.md, MANIFEST.md.
-Version remains 0.2; status now Approved; approved_by/approved_at recorded exactly as
-  supplied.
-Product Owner decision ("APPROVE ADR-018") and 2026-08-06T11:30:00+07:00 timestamp recorded
-  verbatim in the ADR's top banner, §2, §4 approval block, and MANIFEST.md.
+Exactly three files changed: ADR-018.md, MANIFEST.md, CHANGELOG.md. (Correction, see entry
+  above: the original text here wrongly said "Exactly two files changed," omitting
+  CHANGELOG.md itself from its own file-count statement.)
+Version remains 0.2; status now Approved; approved_by recorded as supplied; approved_at
+  recorded as the confirmed date only (2026-08-06) -- NOT "exactly as supplied," since no
+  exact clock time was ever supplied. (Correction, see entry above: the original text here
+  wrongly claimed exact-as-supplied recording of a fabricated "2026-08-06T11:30:00+07:00.")
+Product Owner decision ("APPROVE ADR-018") recorded verbatim, and approval date (2026-08-06,
+  date-only) recorded in the ADR's top banner, §2, §4 approval block, and MANIFEST.md.
 Diff confined to frontmatter, top banner, §2's framing sentence, and §4's reviewer table/
   approval paragraph — §2 quote block, §2.1/§2.2/§3/§5/§6/§7/§8/§9 confirmed byte-identical
   via direct diff.
