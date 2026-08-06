@@ -2,6 +2,75 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-05 — Package 1.6 upstream-resolution exploration v0.2: bounded correction — Review A finding closure on v0.1
+
+**Bounded correction transaction — vai trò: `Package 1.6 Upstream Resolution Exploration v0.2 Bounded Correction Executor`.** Closes three confirmed Review A findings on the v0.1 exploratory evidence artifact. No new architecture design, no option/owner/module/edge/contract selected, no ADR authored, no Product/Domain/registry/API/database/UX architecture modified, no package reopened or reconsolidated.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        4f1561054326c66f90b7a985e3e765c7dc0b0076
+docs/architecture/package-1.6-upstream-resolution-exploration.md v0.1 blob: 1f46d5d90a5a5821fb84672c06bc70cfb0477f96
+```
+
+### Finding closure
+
+```text
+P16-UR-A-MAJ-01 (DD-001 over-narrowed to "wholly independent" of API reachability):
+  §2.2/§2.4/§5/§7.1 corrected. Kept: depends_on and owns_authoritative_state are
+  distinct registry fields; adding the edge does not itself resolve DD-001. Added:
+  current sources do not yet establish whether Backtest run identity/context is an
+  authoritative fact, non-authoritative orchestration result, correlation tag, or
+  another contract-controlled concept, nor complete Backtest create/query contract
+  semantics — so semantic eligibility for the API edge remains contingent on that
+  clarification. Some routing-mechanics observations may stand while DD-001 is
+  preserved, but full semantic independence/readiness is no longer claimed. Candidate
+  A remains an unelected candidate, not rejected.
+
+P16-UR-A-MAJ-02 (weak "ADR Conditionally Required" classification):  §6/§7.2/§7.3/§8
+  corrected. Replaced with a three-branch framework: (A) source clarification only —
+  no architecture decision made in this exploration; (B) ADR may not be required,
+  subject to a separate Governance §4b review, only if an existing module already
+  owns the complete responsibility and no dependency/contract-category/module-
+  boundary change is needed; (C) ADR REQUIRED if resolution requires responsibility
+  expansion, computation-owner selection, a new module, a new dependency edge, a new
+  multi-module orchestration boundary, or a hard-to-reverse contract-ownership
+  decision. Applied separately to VIEW-002 and VIEW-003 (not combined by default):
+  every feasible candidate evaluated for both falls into Branch C — ADR REQUIRED.
+
+P16-UR-A-MIN-01 (implied automatic Consolidated-Stable-to-candidate transition):
+  §5/§7.1/§7.2/§7.3 corrected. Removed language implying a package reverts to
+  candidate automatically. Restated: the current Consolidated Stable baseline remains
+  controlling until a separately authorized lifecycle transaction changes it; a
+  semantic modification requires governed reopening or a successor candidate
+  transaction; Review A, Independent Review B, and a new Product Owner
+  reconsolidation decision are required before the modified baseline becomes
+  Consolidated Stable again; exact lifecycle mechanics are not decided by this
+  exploration. Applied consistently across the Package 1.1, 1.3-A/1.3-C, 1.4, and 1.5
+  consequence sections.
+```
+
+### Preserved unchanged (diff-verified byte-identical)
+
+```text
+§0 (Product Owner authorization, verbatim), §1 (governing authority), §3 (VIEW-002
+  source extraction), §4 (VIEW-003 evidence and semantic-hash gap), §9 (preserved
+  invariants), §10 (non-goals) — confirmed byte-identical via direct diff.
+Three-issue separation; no owner/dependency/module selected; no tenth Phase 1
+  package; DD-001/DD-003 Deferred; Package 1.1-1.5 Consolidated Stable; Package 1.6
+  candidate; LIVE Unauthorized.
+```
+
+### Version
+
+```text
+docs/architecture/package-1.6-upstream-resolution-exploration.md:  0.1 -> 0.2
+Blob:  1f46d5d90a5a5821fb84672c06bc70cfb0477f96 -> 6c9dd5dd6a7e7f5b551739527ea65ed055a16d13
+status: Draft, package lifecycle: exploratory candidate — unchanged. Still
+  NON-AUTHORITATIVE, NOT APPROVED, NOT IMPLEMENTATION-READY.
+Pending: bounded verification of this correction.
+```
+
 ## [Unreleased] — 2026-08-05T19:39:00+07:00 — Package 1.6 upstream-resolution exploration v0.1 (NON-AUTHORITATIVE, decision evidence only)
 
 **Exploratory authoring transaction — vai trò: `Package 1.6 Upstream Resolution Source Clarification Author`.** Authors one bounded, non-authoritative evidence artifact for the three unresolved Package 1.6 v0.2 upstream prerequisites (NAV-003 API binding, VIEW-002 ownership, VIEW-003 ownership/package assignment). Prepares decision evidence only — approves nothing.
