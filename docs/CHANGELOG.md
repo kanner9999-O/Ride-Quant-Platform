@@ -2,6 +2,132 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.6 v0.4 VIEW-002 correction (P16-A-MAJ-02 split)
+
+**Bounded UX-architecture correction — vai trò: `Package 1.6 VIEW-002 Correction Executor`.** Updates `ux-architecture.md` to reflect the now-established VIEW-002 computation and API-binding architecture. Splits the combined VIEW-002/VIEW-003 blocker so VIEW-002 is established while VIEW-003 remains technically blocked. Does not resolve VIEW-003 or consolidate Package 1.6.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        2701e4d85b29e684e76573cfc8cef916c930acfe
+docs/architecture/ux-architecture.md v0.3 blob:        342a7b6a6bb51fd335b64f2b60eeb15f236316f5 (verified matched, candidate)
+docs/adr/ADR-020.md v0.1 blob:                         453d4995d557c138b3ec3af61f4b1e2b63c47f88 (verified matched, Approved)
+docs/architecture/module-registry.yaml v0.9 blob:      578ae5399a2be2ec60ba7e13c01c3a01df16610d (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v1.0 blob:   54f3aed10f594e0276fe179602cf973b0e2a59a4 (verified matched, Consolidated Stable)
+docs/architecture/api-architecture.md v0.6 blob:       97b97cc51513ae7f1fadf3ae98a0ce77a00dcc4b (verified matched, Consolidated Stable)
+```
+
+### VIEW-002 blocker closure
+
+```text
+Prior state (v0.3): VIEW-002 and VIEW-003 shared one combined TECHNICALLY BLOCKED
+  entry (SS13 gap #1, P16-A-MAJ-02) -- no computation owner established for either.
+
+Resolved state (v0.4): Approved ADR-020 v0.1 established review-evidence-service as
+  VIEW-002's singular computation boundary. SS13 gap #1 split into 1a (VIEW-002,
+  RESOLVED) and 1b (VIEW-003, still TECHNICALLY BLOCKED) -- P16-A-MAJ-02 is NOT marked
+  fully closed, only the VIEW-002 half.
+
+Binding established:
+  ux-application-shell -> command-query-api-surface -> review-evidence-service
+  (route already registered since Package 1.4 v0.1 -- zero new edge/contract
+  category at any layer).
+  Result: PASSED / FAILED / INDETERMINATE, non-authoritative, interval-bounded
+    UC-003 Research verification existence-check.
+  Inputs: Decision (decision-authority-service), RiskEvaluation and Execution
+    Intent (both risk-gateway), Order (execution-engine), ExecutionResult
+    (execution-result-processor) -- five streams, four authoritative source
+    modules, all already registered as review-evidence-service dependencies.
+  review-evidence-service performs existence-check only -- no recomputation of
+    Decision/Risk/Execution logic, no new entity/event/authority created.
+
+VIEW-003 explicitly preserved blocked: does not reuse the VIEW-002 result; no
+  computation owner selected; future route remains
+  ux-application-shell -> command-query-api-surface -> [module TBD]; canonical
+  semantic-decision hash remains undefined; VIEW-003's INDETERMINATE-equivalent
+  outcome remains unresolved; a Domain Contract correction and a separate ADR are
+  required (ADR-020 SS4/SS12, explicit scope conflict).
+
+Sections edited: top banner (new v0.4 paragraph prepended, prior v0.1/v0.2/v0.3
+  paragraphs preserved unchanged), SS0 (module-registry.yaml reference), SS1
+  (governing authority baseline versions), SS2.1 (registry classification
+  confirmation), SS4.1 (Table A/B VIEW-002/VIEW-003 rows, NAV-001 row), SS4.5
+  (technical-realization counts: 15/17 -> 16/17 established), SS7
+  (traceability/API-binding gap note), SS13 (gap #1 split into 1a/1b,
+  non-goals version reference), SS14 (Review A/Independent Review B scope,
+  Consolidation condition split into (a)/(b)/(c)), SS15 (Lifecycle treatment).
+```
+
+### Preserved unchanged
+
+```text
+Decision authority (decision-authority-service); RiskEvaluation/Execution Intent
+  authority (risk-gateway); Order authority (execution-engine); ExecutionResult
+  authority (execution-result-processor); review-evidence-service.
+  owns_authoritative_state: false.
+UX Shell non-authority; API Surface routing/exposure-only boundary;
+  ux-application-shell.forbidden_dependencies (14 entries, review-evidence-service
+  still included -- no direct edge, route only through API Surface).
+No-recompute and no-repaint requirements.
+All NAV-003 bindings established in v0.3: byte-identical (SS4.1/SS4.3/SS13 gap #2/
+  SS14/SS15 NAV-003-specific citations preserved verbatim, including historical
+  Package 1.1 v0.8/Package 1.4 v0.5 point-in-time references).
+DD-001 unresolved; accessibility/design-token gap (SS13 gap #3) unresolved;
+  Package 1.5 interaction gap unresolved; all other SS13 carry-forward gaps
+  unresolved.
+Identifier accounting: 59/59, unchanged.
+SS3, SS5, SS6, SS8, SS9, SS10, SS11, SS12 (UX authority boundary, component
+  decomposition, state model, non-bypass, environment/account boundary, review/
+  replay/evidence surfaces, failure semantics, accessibility): confirmed
+  byte-identical (section-by-section diff).
+SS2.1 registry classification code block (module_id/depends_on/
+  forbidden_dependencies/etc.): confirmed byte-identical.
+No new module, dependency edge, API route, Domain concept, field-level schema, or
+  client/API-side synthesis responsibility introduced.
+ADR-020.md and all existing ADRs: byte-identical (git diff empty, confirmed).
+module-registry.yaml, system-decomposition.md, api-architecture.md,
+  database-architecture.md: byte-identical (git diff empty, confirmed).
+package lifecycle: candidate (unchanged -- not consolidated).
+status: Draft, approved_by: null, approved_at: null (unchanged).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all five target/upstream blobs matched before editing.
+Diff confirmed scoped to top banner/SS0/SS1/SS2.1/SS4.1/SS4.5/SS7/SS13/SS14/SS15 --
+  SS3, SS5, SS6, SS8, SS9, SS10, SS11, SS12 confirmed byte-identical via
+  section-by-section comparison.
+VIEW-002 owner confirmed exactly review-evidence-service (singular, no hybrid/
+  ambiguous ownership).
+VIEW-002 route confirmed matches Package 1.1 v0.9/Package 1.4 v0.6 exactly -- no
+  edge or contract category invented (zero new depends_on entries anywhere,
+  confirmed via prior transactions' registry verification, unchanged here).
+VIEW-002 output confirmed non-authoritative and workflow-visible only.
+Source authorities (decision-authority-service, risk-gateway, execution-engine,
+  execution-result-processor) confirmed unchanged.
+No client-side or API-Surface synthesis introduced -- review-evidence-service is
+  the sole named computation boundary.
+VIEW-003 confirmed to have no named owner anywhere in the diff; confirmed still
+  TECHNICALLY BLOCKED (SS13 gap #1b, SS4.1 VIEW-003 row, SS4.5, SS14 condition (c)).
+P16-A-MAJ-02 confirmed NOT marked fully closed -- explicitly split into a
+  resolved VIEW-002 half and an unresolved VIEW-003 half throughout SS4.5/SS13/
+  SS14/SS15.
+Product-level UC-003 gaps (session-interval, evidence-completeness,
+  correction-arrival) confirmed still unresolved.
+NAV-003 semantics confirmed unchanged (byte-identical citations, diff-verified).
+Package 1.6 confirmed still candidate/Draft.
+Current normative references confirmed updated to v0.9/v1.0/v0.6 (SS0/SS1/SS2.1/
+  SS13/SS14); NAV-003-specific and other historical point-in-time citations
+  confirmed preserved unchanged.
+ADR-020.md and Packages 1.1/1.4/1.5 confirmed untouched (git diff --quiet empty
+  across all relevant files).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+Only docs/architecture/ux-architecture.md, docs/MANIFEST.md, and
+  docs/CHANGELOG.md changed (git status --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.4 v0.6 mechanical consolidation
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.4 v0.6 Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean Package 1.4 v0.6 baseline. No API Architecture semantic change.

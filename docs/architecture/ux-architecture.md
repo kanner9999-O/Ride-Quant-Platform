@@ -1,7 +1,7 @@
 ---
 id: ux-architecture
 title: "Package 1.6 — UX Architecture"
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -16,6 +16,8 @@ depends_on: ["00-governance", "02-platform-invariants", "07-module-taxonomy", "0
 # Package 1.6 — UX Architecture
 
 **CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.6 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable`, Package 1.4 `Consolidated Stable` (v0.3), Package 1.5 `Consolidated Stable` (v0.2), [`ux-blueprint.md`](../product/ux-blueprint.md) (Package 0.3-C, `Consolidated Stable`), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.6 — UX Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
+
+**v0.4 — bounded correction (2026-08-06), đóng phần VIEW-002 của `P16-A-MAJ-02` (VIEW-002/VIEW-003 synthesis-owner gap), KHÔNG redesign/mở rộng scope, vai trò: `Package 1.6 VIEW-002 Correction Executor`:** Approved [ADR-020](../adr/ADR-020.md) v0.1 quyết định `review-evidence-service` LÀ computation boundary cho UC-003 Research verification existence-check — VIEW-002's registry/API-binding blocker (§13 gap #1, phần VIEW-002) nay RESOLVED. §1/§2/§4.1/§4.3/§4.5/§7/§13/§14/§15 sửa: VIEW-002 KHÔNG còn trình bày TECHNICALLY BLOCKED bởi absence của computation owner/route API. Binding established: `ux-application-shell → command-query-api-surface → review-evidence-service` (route ĐÃ đăng ký từ Package 1.4 v0.1, KHÔNG edge/contract-category mới — cả bốn module nguồn ĐÃ CÓ trong `review-evidence-service.depends_on`, Package 1.1 v0.9); query LÀ non-authoritative, interval-bounded UC-003 existence-check, kết quả `PASSED / FAILED / INDETERMINATE`, tính trên Decision (`decision-authority-service`), RiskEvaluation VÀ Execution Intent (CẢ HAI tại `risk-gateway`), Order (`execution-engine`), ExecutionResult (`execution-result-processor`) fact ĐÃ tồn tại — `review-evidence-service` CHỈ thực hiện existence-check, KHÔNG tái tính toán Decision/Risk/Execution logic, KHÔNG author entity/event authoritative mới, `owns_authoritative_state: false` KHÔNG đổi. **VIEW-003 KHÔNG resolve tại transaction này** — VẪN TECHNICALLY BLOCKED, `P16-A-MAJ-02` KHÔNG đóng hoàn toàn (CHỈ nửa VIEW-002); VIEW-003 KHÔNG chia sẻ kết quả/computation owner của VIEW-002 — computation owner VIEW-003 CHƯA chọn (route tương lai VẪN cùng hình dạng ba tầng `ux-application-shell → command-query-api-surface → [module TBD]`, module cụ thể CHƯA quyết định), `canonical semantic-decision hash` (decision.md, Package 0.2-C4) VẪN chưa định nghĩa, VIEW-003's INDETERMINATE-equivalent outcome VẪN unresolved — ADR-020 §4/§12 xác nhận đây LÀ một scope conflict tường minh, KHÔNG một silent decision. Current-normative upstream reference cập nhật đúng baseline hiện tại: `module-registry.yaml` v0.8 → v0.9, `system-decomposition.md` v0.9 → v1.0, `api-architecture.md` v0.5 → v0.6 (§0/§1/§2.1/§13/§14) — tham chiếu v0.8/v0.5 BÊN TRONG bản ghi lịch sử tường minh (banner v0.1/v0.2/v0.3 phía trên, VÀ mọi citation NAV-003-specific tại §4.1/§4.3/§4.5/§7/§13/§14/§15) GIỮ NGUYÊN, KHÔNG sửa — đó LÀ mô tả trung thực trạng thái NAV-003 tại thời điểm v0.3, KHÔNG PHẢI current-normative claim cho VIEW-002. Ba missing semantic item UC-003 (Research-session interval identity mechanism, evidence-completeness determination mechanism, correction-arrival-during-window handling) VẪN unresolved — Product-level, KHÔNG resolve tại transaction này, VIEW-002 KHÔNG trình bày như implementation-ready. **KHÔNG đổi:** NAV-003 binding (§4.1/§4.3, v0.3, byte-identical); DD-001/`backtest-orchestrator.owns_authoritative_state` classification (VẪN deferred/unresolved, KHÔNG liên quan); `ux-application-shell.forbidden_dependencies` (14 entry, KHÔNG đổi — `review-evidence-service` VẪN nằm trong đó, UX Shell VẪN KHÔNG có route trực tiếp); accessibility/design-token gap (§13 gap #3); Package 1.5 interaction gap; identifier accounting (59/59, KHÔNG đổi); UX Blueprint screen/flow/state semantics (KHÔNG redefine); component decomposition (§5)/state model (§6) — byte-identical; field-level API schema; frontend framework/technology choice; Package 1.6 module registry classification (§2.1, byte-identical). `package lifecycle: candidate` KHÔNG đổi — KHÔNG consolidate tại transaction này. `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi.
 
 **v0.3 — bounded correction (2026-08-06), đóng upstream prerequisite của `P16-A-MAJ-01` (NAV-003 registry/API-binding gap), KHÔNG redesign/mở rộng scope, vai trò: `Package 1.6 NAV-003 Binding Correction Executor`:** Package 1.1 v0.8 (`Consolidated Stable`, ADR-019 alignment) VÀ Package 1.4 v0.5 (`Consolidated Stable`) nay đã established route `command-query-api-surface → backtest-orchestrator` — NAV-003's registry/API binding blocker (§13 gap #2) nay RESOLVED. §1/§2/§4.1/§4.3/§4.5/§7/§13/§14/§15 sửa: SCR-003/SCR-004/SCR-005 KHÔNG còn trình bày TECHNICALLY BLOCKED bởi absence của route API; phần `backtest-orchestrator` của SCR-011/VIEW-005 tương tự KHÔNG còn blocked. Binding established: `ux-application-shell → command-query-api-surface → backtest-orchestrator`; query LÀ non-authoritative bounded Backtest run correlation view, composed từ Decision (`decision-authority-service`) VÀ RiskEvaluation (`risk-gateway`) fact ĐÃ tồn tại — authority của cả hai KHÔNG đổi. Run identity VẪN LÀ khái niệm correlation/grouping của ADR-018, KHÔNG một entity/event/authoritative fact mới. `backtest-orchestrator.owns_authoritative_state` VẪN `deferred` (DD-001 CHƯA resolve, Package 1.1 §11) — KHÔNG resolve tại transaction này, KHÔNG chuyển `true`/`false`. Current-normative upstream reference cập nhật đúng baseline hiện tại: `module-registry.yaml` v0.7 → v0.8, `system-decomposition.md` v0.7 → v0.9, `api-architecture.md` v0.3 → v0.5 (§1/§2/§7/§13/§14) — tham chiếu v0.7/v0.3 BÊN TRONG bản ghi lịch sử tường minh (banner v0.1/v0.2 phía trên) GIỮ NGUYÊN, KHÔNG sửa. **KHÔNG đổi:** VIEW-002/VIEW-003 synthesis-owner gap (§13 gap #1, VẪN TECHNICALLY BLOCKED, `P16-A-MAJ-02` VẪN unresolved); DD-001/`owns_authoritative_state` classification (VẪN deferred/unresolved); identifier accounting (59/59, KHÔNG đổi); UX Blueprint screen/flow/state semantics (KHÔNG redefine); component decomposition (§5)/state model (§6) — byte-identical; field-level API schema; frontend framework/technology choice; Package 1.6 module registry classification (§2.1, byte-identical). `package lifecycle: candidate` KHÔNG đổi — KHÔNG reconsolidate tại transaction này. `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi.
 
@@ -50,7 +52,7 @@ Consolidation condition:  Zero unresolved Blocker/Major; 1.4 Consolidated Stable
                           bộ acceptance surface UX Blueprint có component tương ứng.
 ```
 
-**Đây là MỘT artifact duy nhất** (`docs/architecture/ux-architecture.md`) elaborate kiến trúc kỹ thuật cho ĐÚNG MỘT module đã đăng ký assign cho Package 1.6 tại Package 1.1: `ux-application-shell` (`module-registry.yaml` v0.8, `Consolidated Stable`, `phase.elaborated_by: "1.6"` — script-verified, MỘT VÀ CHỈ MỘT module mang assignment này).
+**Đây là MỘT artifact duy nhất** (`docs/architecture/ux-architecture.md`) elaborate kiến trúc kỹ thuật cho ĐÚNG MỘT module đã đăng ký assign cho Package 1.6 tại Package 1.1: `ux-application-shell` (`module-registry.yaml` v0.9, `Consolidated Stable`, `phase.elaborated_by: "1.6"` — script-verified, MỘT VÀ CHỈ MỘT module mang assignment này).
 
 **KHÔNG thuộc phạm vi tài liệu này:** React/Vue/Svelte hay bất kỳ frontend framework choice nào; component source code; CSS/design-system implementation; pixel-perfect layout; field-level API schema; Product/UX behavior MỚI ngoài `ux-blueprint.md` đã Consolidated Stable; authentication implementation; database persistence design; custody implementation; backend orchestration; Package 1.5 gap resolution (§9); LIVE activation.
 
@@ -66,7 +68,7 @@ Constitution (Chapter 0–14, Locked):              highest architectural author
 Chapter 7 (Module Taxonomy, Locked):               §7.4 Projection constraint (Locked);
                                                     §7.5 module classification authority
                                                     = module-registry.yaml
-module-registry.yaml v0.8 (Consolidated
+module-registry.yaml v0.9 (Consolidated
   Stable, 25 module):                              module identity/taxonomy/dependency
                                                     authority — KHÔNG redefine tại đây;
                                                     `ux-application-shell` ĐÃ đăng ký,
@@ -74,17 +76,23 @@ module-registry.yaml v0.8 (Consolidated
                                                     `command-query-api-surface →
                                                     backtest-orchestrator` edge ĐÃ
                                                     registered (v0.8, ADR-019 v0.2
-                                                    Approved alignment)
-system-decomposition.md v0.9 (Consolidated
+                                                    Approved alignment);
+                                                    `review-evidence-service.
+                                                    responsibilities` +1 VIEW-002/UC-003
+                                                    existence-check (v0.9, ADR-020 v0.1
+                                                    Approved alignment, KHÔNG edge mới)
+system-decomposition.md v1.0 (Consolidated
   Stable):                                         semantic parity với module-registry.yaml
-                                                    v0.8 — KHÔNG redefine tại đây
-api-architecture.md v0.5 (Package 1.4,
+                                                    v0.9 — KHÔNG redefine tại đây
+api-architecture.md v0.6 (Package 1.4,
   Consolidated Stable):                             command-query-api-surface exposure/
                                                     routing/non-bypass boundary VÀ contract
                                                     governance — Package 1.6 bind VÀO đúng
                                                     boundary đó, KHÔNG redefine; §9 NAV-003
                                                     Backtest route (`backtest-orchestrator`)
-                                                    ĐÃ elaborate tại boundary đó
+                                                    VÀ VIEW-002 existence-check
+                                                    (`review-evidence-service`) ĐÃ elaborate
+                                                    tại boundary đó
 database-architecture.md v0.2 (Package 1.5,
   Consolidated Stable):                             persistence authority model, review-
                                                     evidence-service boundary, contract-
@@ -147,7 +155,7 @@ serves_contexts:           []
 phase:                     { identified_in: "1.1", elaborated_by: "1.6" }
 ```
 
-**Xác nhận tường minh (bắt buộc, yêu cầu task):** classification, `depends_on` (đúng MỘT edge: `command-query-api-surface`), `forbidden_dependencies` (14 entry), `emits`/`consumes`, `implements_capabilities: []`/`serves_contexts: []`, VÀ `phase.elaborated_by: "1.6"` trên đây LÀ nguyên trạng từ `module-registry.yaml` v0.8 (Consolidated Stable) — Package 1.6 KHÔNG sửa/redefine bất kỳ field nào trong số này, KHÔNG thêm/bớt một dependency edge, capability, context, authority, hay contract category nào. Registry `notes` (nguyên văn): "Forbidden direct-engine dependencies enforce UX must go through command-query-api-surface, not bypass it (same non-bypass principle applied to UI as to plugins)."
+**Xác nhận tường minh (bắt buộc, yêu cầu task):** classification, `depends_on` (đúng MỘT edge: `command-query-api-surface`), `forbidden_dependencies` (14 entry), `emits`/`consumes`, `implements_capabilities: []`/`serves_contexts: []`, VÀ `phase.elaborated_by: "1.6"` trên đây LÀ nguyên trạng từ `module-registry.yaml` v0.9 (Consolidated Stable) — Package 1.6 KHÔNG sửa/redefine bất kỳ field nào trong số này, KHÔNG thêm/bớt một dependency edge, capability, context, authority, hay contract category nào. Registry `notes` (nguyên văn): "Forbidden direct-engine dependencies enforce UX must go through command-query-api-surface, not bypass it (same non-bypass principle applied to UI as to plugins)."
 
 ### 2.2 Authority status — technical realization boundary, KHÔNG business/domain authority
 
@@ -224,9 +232,9 @@ Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P16-A-MAJ-02`)
 |---|---|---|---|
 | SCR-001 | NAV-001 Research | Route/surface container + query-bound view component | Query: market-reference-service (Instrument/Venue), market-data-ingestion (Candle), structure-engine/raw-regime-engine/feature-engine/context-aggregator (market-analysis derived fact) |
 | VIEW-001 | NAV-001 Research (global commit-gate) | Command interaction component (selection) + environment/account context boundary | Query: strategy-engine (Strategy Instance identity), account-service (Account context). "Pin" LÀ local/session UX state (§6), KHÔNG backend command — KHÔNG `PaperSession` entity (ux-blueprint.md §3, nguyên văn) |
-| VIEW-002 | NAV-001 Research (commit-gate) | Query-bound view component (component placement CHỈ — computation owner CHƯA established, xem dưới) | Underlying evidence: decision-authority-service, risk-gateway, execution-engine, execution-result-processor (event-log existence-check trong khoảng thời gian phiên, UC-003) — **TECHNICALLY BLOCKED (đóng `P16-A-MAJ-02`)**: KHÔNG computation owner nào established cho PASSED/FAILED/INDETERMINATE synthesis; `ux-application-shell` KHÔNG sở hữu (§3); `command-query-api-surface` KHÔNG tự động sở hữu; Package 1.6 KHÔNG chọn client-side/API-side — §13 gap #1 |
+| VIEW-002 | NAV-001 Research (commit-gate) | Query-bound view component | **Established (v0.4, đóng phần VIEW-002 của `P16-A-MAJ-02`)**: Query qua `command-query-api-surface → review-evidence-service` (route ĐÃ đăng ký từ Package 1.4 v0.1, KHÔNG edge/contract-category mới) — `review-evidence-service` LÀ computation boundary duy nhất (ADR-020 v0.1 Approved), thực hiện non-authoritative, interval-bounded UC-003 existence-check trên Decision (`decision-authority-service`), RiskEvaluation VÀ Execution Intent (CẢ HAI tại `risk-gateway`), Order (`execution-engine`), ExecutionResult (`execution-result-processor`) fact ĐÃ tồn tại — bốn module nguồn ĐÃ CÓ trong `review-evidence-service.depends_on` (Package 1.1 v0.9); KHÔNG tái tính toán Decision/Risk/Execution logic, KHÔNG append/replace/sở hữu fact nguồn, KHÔNG author entity/event authoritative mới — `owns_authoritative_state: false` KHÔNG đổi |
 | SCR-002 | NAV-002 Replay | Route/surface container + query-bound view component | Query: replay-integration-service (canonical Replay Cursor, Chapter 8 §8.5) + authoritative stream tại cursor đó (decision-authority-service/risk-gateway/execution-engine chain, per rebuild determinism) |
-| VIEW-003 | NAV-002 Replay | Query-bound view component (component placement CHỈ — computation owner CHƯA established, xem dưới) | Underlying evidence: replay-integration-service + authoritative comparison evidence — **TECHNICALLY BLOCKED (đóng `P16-A-MAJ-02`)**: cùng lý do VIEW-002 — KHÔNG computation owner established cho parity match/mismatch synthesis, KHÔNG UX/API-side selection tại Package 1.6 — §13 gap #1 |
+| VIEW-003 | NAV-002 Replay | Query-bound view component (component placement CHỈ — computation owner CHƯA established, xem dưới) | Underlying evidence: replay-integration-service + authoritative comparison evidence — **TECHNICALLY BLOCKED (đóng nửa VIEW-003 của `P16-A-MAJ-02`)**: KHÔNG computation owner established cho parity match/mismatch synthesis, KHÔNG UX/API-side selection tại Package 1.6; VIEW-003 KHÔNG chia sẻ computation/route của VIEW-002 (§13 gap #1, phần VIEW-003) — `canonical semantic-decision hash` (decision.md, Package 0.2-C4) VẪN chưa định nghĩa, ADR-020 §4/§12 xác nhận đây LÀ một scope conflict tường minh, KHÔNG resolve tại transaction này |
 | SCR-003 | NAV-003 Backtest | Command interaction component | **Established (v0.3, đóng upstream prerequisite của `P16-A-MAJ-01`)**: Command/Query qua `command-query-api-surface → backtest-orchestrator` (registered edge — Package 1.1 v0.8/Package 1.4 v0.5, `Consolidated Stable`); `backtest-orchestrator` composes non-authoritative bounded Backtest run correlation view từ Decision (`decision-authority-service`)/RiskEvaluation (`risk-gateway`) fact ĐÃ tồn tại; `owns_authoritative_state: deferred` VẪN (DD-001 CHƯA resolve, Package 1.1 §11) — ảnh hưởng authoritative-state classification của Backtest run evidence, KHÔNG còn ảnh hưởng route/binding establishment |
 | SCR-004 | NAV-003 Backtest | Query-bound view component | **Established (v0.3)**: cùng route SCR-003 — `backtest-orchestrator` reachable qua `command-query-api-surface` (Package 1.1 v0.8); Backtest run evidence scoped riêng biệt khỏi PAPER (`forbidden_dependencies` loại trừ execution-engine/paper-execution-boundary/execution-result-processor/fill-processor/position-projection) KHÔNG đổi; `owns_authoritative_state: deferred` VẪN unresolved (DD-001) |
 | SCR-005 | NAV-003 Backtest | Query-bound view component | **Established (v0.3)**: cùng route SCR-003/SCR-004 |
@@ -246,9 +254,9 @@ Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P16-A-MAJ-02`)
 |---|---|---|---|---|
 | SCR-001 | API transport state (query pending/result) — KHÔNG local business state | STATE-001 loading; STATE-003 invalid Instrument/Venue; STATE-005 missing historical evidence | Instrument/Venue selector giới hạn TradableListing đã đăng ký (UX-INV-2); Account context read-only (UX-INV-1) | architecture-only |
 | VIEW-001 | Local/session UX state (selected/pinned Strategy Instance — KHÔNG persisted backend) | STATE-004 missing Strategy Instance; STATE-028/STATE-029 Paper-specific not-selected/not-pinned | Strategy Instance pin scoped theo Account/environment (PAPER/LIVE distinct, §8) | architecture-only |
-| VIEW-002 | Workflow-visible computed result (non-authoritative per UC-003) + API transport state | STATE-001 loading (SCR-001 chỉ — VIEW-002 KHÔNG tự có STATE-001 riêng theo bảng blueprint); STATE-022/STATE-023/STATE-024 PASSED/FAILED/INDETERMINATE | Verification window scoped theo phiên hiện tại, KHÔNG cross-Account | identifier/component accounted for — technical realization NOT COMPLETE (synthesis binding blocked, §4.1/§13 gap #1) |
+| VIEW-002 | Workflow-visible computed result (non-authoritative per UC-003) + API transport state | STATE-001 loading (SCR-001 chỉ — VIEW-002 KHÔNG tự có STATE-001 riêng theo bảng blueprint); STATE-022/STATE-023/STATE-024 PASSED/FAILED/INDETERMINATE | Verification window scoped theo phiên hiện tại, KHÔNG cross-Account | architecture-only (computation/API binding established v0.4, §4.1/§13 gap #1 phần VIEW-002 RESOLVED — Research-session interval identity/evidence-completeness/correction-arrival mechanism VẪN Product-level gap, KHÔNG implementation-ready) |
 | SCR-002 | Designated projection state (Replay Cursor-bounded reconstruction) | STATE-001 loading; STATE-006 Replay reference unavailable | Historical cursor scoped theo Account Boundary đã pin (§8) | architecture-only |
-| VIEW-003 | Workflow-visible computed result (parity synthesis) | STATE-007/STATE-008 parity match/mismatch | Cùng cursor/Account scope với SCR-002 | identifier/component accounted for — technical realization NOT COMPLETE (synthesis binding blocked, §4.1/§13 gap #1) |
+| VIEW-003 | Workflow-visible computed result (parity synthesis) | STATE-007/STATE-008 parity match/mismatch | Cùng cursor/Account scope với SCR-002 | identifier/component accounted for — technical realization NOT COMPLETE (synthesis binding blocked, §4.1/§13 gap #1 phần VIEW-003, VẪN unresolved) |
 | SCR-003 | API transport state (command pending) | STATE-001 loading (KHÔNG liệt kê tường minh — chỉ SCR-001/002/003 theo bảng blueprint §11, SCR-003 CÓ trong danh sách ba screen); STATE-005 missing historical evidence | Backtest scoped theo Strategy Instance đã pin (§4 commit-gate) | architecture-only (API binding established v0.3, §4.1/§13 gap #2 RESOLVED) |
 | SCR-004 | Designated projection/query-result state (Backtest run evidence, KHÔNG PAPER authority) | STATE-002 empty (chưa run nào); STATE-009 evidence insufficient; STATE-010 run identity unresolved | KHÔNG PAPER/LIVE environment field (Backtest scoped riêng, non-PAPER simulated authority) | architecture-only (API binding established v0.3, §4.1/§13 gap #2 RESOLVED) |
 | SCR-005 | Designated projection/query-result state | STATE-002 empty (dưới 2 run); STATE-009 evidence insufficient | Cùng Backtest scope | architecture-only (API binding established v0.3, §4.1/§13 gap #2 RESOLVED) |
@@ -262,7 +270,7 @@ Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P16-A-MAJ-02`)
 | SCR-011 | Designated projection/query-result state (comparison) | STATE-002 empty (dưới 2 Instance để so sánh) | Cross-version comparison, KHÔNG cross-Account (mỗi Instance vẫn giữ đúng Account Boundary riêng) | architecture-only (backtest-orchestrator portion established v0.3, §13 gap #2 RESOLVED; strategy-engine portion đã established trước đó) |
 | VIEW-005 | Designated projection/evidence-record state (old-version, resolve độc lập hai family) | STATE-025 complete; STATE-026 partially unavailable | Cùng Account Boundary với Instance/version nguồn | architecture-only (Backtest-family portion established v0.3, §13 gap #2 RESOLVED; PAPER-family portion đã established trước đó) |
 
-**Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P16-A-MIN-01`):** toàn bộ 17 SCR/VIEW ĐÃ trace — KHÔNG ID nào mồ côi, KHÔNG một screen/workflow/state/navigation path/user action nào bị invent ngoài `ux-blueprint.md` §6/§7. Identifier accounting (17/17 traced về đúng surface/component category) VÀ technical-realization completeness LÀ HAI khái niệm TÁCH BIỆT — mọi 17 ID ĐÃ trace; technical realization của SCR-003/SCR-004/SCR-005 (NAV-003, §13 gap #2) nay Established (v0.3, upstream prerequisite của `P16-A-MAJ-01` resolved qua Package 1.1 v0.8/Package 1.4 v0.5); VIEW-002/VIEW-003 (§13 gap #1) VẪN KHÔNG COMPLETE — gap đó VẪN unresolved — KHÔNG tự invent một contract để lấp gap đó.
+**Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P16-A-MIN-01`):** toàn bộ 17 SCR/VIEW ĐÃ trace — KHÔNG ID nào mồ côi, KHÔNG một screen/workflow/state/navigation path/user action nào bị invent ngoài `ux-blueprint.md` §6/§7. Identifier accounting (17/17 traced về đúng surface/component category) VÀ technical-realization completeness LÀ HAI khái niệm TÁCH BIỆT — mọi 17 ID ĐÃ trace; technical realization của SCR-003/SCR-004/SCR-005 (NAV-003, §13 gap #2) nay Established (v0.3, upstream prerequisite của `P16-A-MAJ-01` resolved qua Package 1.1 v0.8/Package 1.4 v0.5); VIEW-002 (§13 gap #1, phần VIEW-002) nay Established (v0.4, ADR-020 v0.1 Approved, `review-evidence-service` computation boundary); VIEW-003 (§13 gap #1, phần VIEW-003) VẪN KHÔNG COMPLETE — gap đó VẪN unresolved, KHÔNG chia sẻ resolution của VIEW-002 — KHÔNG tự invent một contract để lấp gap đó.
 
 ### 4.2 WS-001 — Ride Workspace Shell (supporting element, trace compact)
 
@@ -290,7 +298,7 @@ Implementation status: architecture-only.
 
 | ID | Destination (SCR/VIEW) | Required context | API interaction category | Non-bypass note (§7) |
 |---|---|---|---|---|
-| NAV-001 Research | SCR-001, VIEW-001, VIEW-002 | Không cần Strategy Instance để vào SCR-001 (entry-first) | Query market/analysis modules; query strategy-engine/account-service tại commit-gate | Route CHỈ qua API Surface — KHÔNG edge trực tiếp tới structure-engine/raw-regime-engine/feature-engine/context-aggregator |
+| NAV-001 Research | SCR-001, VIEW-001, VIEW-002 | Không cần Strategy Instance để vào SCR-001 (entry-first) | Query market/analysis modules; query strategy-engine/account-service tại commit-gate; query `review-evidence-service` (VIEW-002 existence-check, v0.4, ADR-020 v0.1 Approved — route ĐÃ đăng ký, KHÔNG mới) | Route CHỈ qua API Surface — KHÔNG edge trực tiếp tới structure-engine/raw-regime-engine/feature-engine/context-aggregator/review-evidence-service (`ux-application-shell.forbidden_dependencies`, 14 entry, KHÔNG đổi) |
 | NAV-002 Replay | SCR-002, VIEW-003 | Strategy Instance đã pin (VIEW-001→VIEW-002 PASSED) | Query replay-integration-service + authoritative stream tại cursor | Route CHỈ qua API Surface — KHÔNG edge trực tiếp tới replay-integration-service |
 | NAV-003 Backtest | SCR-003, SCR-004, SCR-005 | Strategy Instance đã pin, cùng ràng buộc NAV-002 | **Established (v0.3, đóng upstream prerequisite của `P16-A-MAJ-01`)** — command/query `backtest-orchestrator` route ĐÃ established | Route CHỈ qua API Surface (đúng, KHÔNG đổi) — `command-query-api-surface → backtest-orchestrator` (registered edge, Package 1.1 v0.8 `Consolidated Stable`, ADR-019 v0.2 Approved alignment; elaborated tại API Architecture Package 1.4 v0.5 `Consolidated Stable` §9) nay LÀ route hợp lệ; query LÀ non-authoritative bounded Backtest run correlation view composed từ Decision (`decision-authority-service`)/RiskEvaluation (`risk-gateway`) fact ĐÃ tồn tại, authority KHÔNG đổi; run identity VẪN LÀ khái niệm correlation/grouping của ADR-018, KHÔNG entity/event/authoritative fact mới; `backtest-orchestrator.owns_authoritative_state` VẪN `deferred` (DD-001 CHƯA resolve, Package 1.1 §11) — KHÔNG resolve tại transaction này — §13 gap #2 RESOLVED, KHÔNG tự thêm edge/invent contract nào ngoài route ĐÃ registered |
 | NAV-004 Paper | SCR-006, SCR-007 | Account context + Instrument/Venue + Strategy Instance pin CHO Paper (thứ tự riêng) | Command/query execution-engine/execution-result-processor/fill-processor/position-projection/risk-gateway | Route CHỈ qua API Surface — KHÔNG edge trực tiếp tới execution-engine/risk-gateway/execution-result-processor/fill-processor/position-projection |
@@ -361,20 +369,26 @@ Identifier accounting (KHÔNG đổi, VẪN đầy đủ):
     đúng UX surface/component category — KHÔNG identifier nào bị bỏ sót, KHÔNG
     identifier mới nào invent. Xác nhận này KHÔNG đổi bởi v0.2 correction.
 
-Technical-realization completeness (v0.3 correction — CHƯA COMPLETE, phân biệt tường
+Technical-realization completeness (v0.4 correction — CHƯA COMPLETE, phân biệt tường
   minh khỏi identifier accounting ở trên):
-  17/17 SCR/VIEW có identifier/component placement; nay 15/17 có backend command/query
-    binding ĐẦY ĐỦ established (KHÔNG blocked) — CHỈ 2/17 (VIEW-002, VIEW-003) VẪN
-    technically blocked pending upstream resolution (§13 gap #1, `P16-A-MAJ-02`).
+  17/17 SCR/VIEW có identifier/component placement; nay 16/17 có backend command/query
+    binding ĐẦY ĐỦ established (KHÔNG blocked) — CHỈ 1/17 (VIEW-003) VẪN technically
+    blocked pending upstream resolution (§13 gap #1, phần VIEW-003 của `P16-A-MAJ-02`).
   NAV-003 (Backtest) API-binding gap RESOLVED (v0.3, đóng upstream prerequisite của
     `P16-A-MAJ-01`) — SCR-003/SCR-004/SCR-005 VÀ phần backtest-orchestrator của
     SCR-011/VIEW-005 nay established qua route `command-query-api-surface →
     backtest-orchestrator` (Package 1.1 v0.8/Package 1.4 v0.5, `Consolidated Stable`)
     — §4.3.
-  Package 1.6 KHÔNG claim complete acceptance-surface technical realization tại v0.3 —
-    MỘT Major prerequisite còn lại (`P16-A-MAJ-02` VIEW-002/VIEW-003 synthesis
-    ownership, §13 gap #1) PHẢI resolve bởi transaction upstream riêng biệt TRƯỚC KHI
-    technical-realization completeness đạt được (§14 Consolidation condition).
+  VIEW-002 computation ownership/API-binding gap RESOLVED (v0.4, đóng phần VIEW-002 của
+    `P16-A-MAJ-02`) — VIEW-002 nay established qua route `command-query-api-surface →
+    review-evidence-service` (Package 1.1 v0.9/Package 1.4 v0.6, `Consolidated Stable`,
+    ADR-020 v0.1 Approved) — §4.1/§4.3. VIEW-003 KHÔNG chia sẻ resolution này — VẪN
+    technically blocked, `P16-A-MAJ-02` KHÔNG đóng hoàn toàn.
+  Package 1.6 KHÔNG claim complete acceptance-surface technical realization tại v0.4 —
+    MỘT Major prerequisite còn lại (VIEW-003 synthesis ownership, §13 gap #1 phần
+    VIEW-003) PHẢI resolve bởi transaction upstream riêng biệt (Domain Contract
+    amendment + một ADR kế tiếp, ADR-020 §4/§12) TRƯỚC KHI technical-realization
+    completeness đạt được (§14 Consolidation condition).
 ```
 
 ## 5. Component decomposition (bắt buộc, yêu cầu task — KHÔNG component code/framework API/file tree)
@@ -518,12 +532,16 @@ KHÔNG field-level API schema nào được author tại §7 — mọi mục tr�
   architecture-level (WHAT phải đúng), KHÔNG concrete request/response shape.
 
 Traceability/API-binding gap (bắt buộc ghi nhận thay vì invent contract, đúng yêu cầu
-  task): một trường hợp còn lại tại §4.1 (VIEW-002/VIEW-003 synthesis-layer) LÀ gap
-  KHÔNG resolve tại Package 1.6 — carry forward §11. NAV-003 Backtest binding gap
+  task): một trường hợp còn lại tại §4.1 (VIEW-003 synthesis-layer, parity match/
+  mismatch) LÀ gap KHÔNG resolve tại Package 1.6 — carry forward §11; VIEW-003 KHÔNG
+  chia sẻ computation/route của VIEW-002. NAV-003 Backtest binding gap
   (`backtest-orchestrator` trong `command-query-api-surface.depends_on`) ĐÃ RESOLVED
   (v0.3) — `backtest-orchestrator` nay LÀ registered edge (`module-registry.yaml` v0.8,
   elaborated tại `api-architecture.md` v0.5 §9), KHÔNG còn một traceability/API-binding
-  gap.
+  gap. VIEW-002 Research verification binding gap ĐÃ RESOLVED (v0.4, ADR-020 v0.1
+  Approved) — `review-evidence-service` nay LÀ computation boundary qua route ĐÃ đăng
+  ký (`module-registry.yaml` v0.9, elaborated tại `api-architecture.md` v0.6 §9), KHÔNG
+  còn một traceability/API-binding gap cho VIEW-002.
 ```
 
 ## 8. Non-bypass và forbidden dependencies (bắt buộc, yêu cầu task)
@@ -707,19 +725,41 @@ Xác nhận tường minh (bắt buộc, v0.2 correction, đóng `P16-A-MIN-02`)
 **Gap ghi nhận tại Package 1.6 (v0.2 correction cập nhật khung ngôn ngữ cho gap #1/#2,
 đóng `P16-A-MAJ-01`/`P16-A-MAJ-02`; gap #3 qualify thêm, đóng `P16-A-MIN-02`; v0.3
 correction RESOLVE gap #2 qua upstream Package 1.1 v0.8/Package 1.4 v0.5, đóng
-upstream prerequisite của `P16-A-MAJ-01` — gap #1 VÀ gap #3 VẪN unresolved):**
+upstream prerequisite của `P16-A-MAJ-01`; v0.4 correction RESOLVE phần VIEW-002 của
+gap #1 qua Approved ADR-020 v0.1 VÀ upstream Package 1.1 v0.9/Package 1.4 v0.6 —
+`P16-A-MAJ-02` KHÔNG đóng hoàn toàn, phần VIEW-003 của gap #1 VÀ gap #3 VẪN
+unresolved):**
 
 ```text
-1. VIEW-002/VIEW-003 synthesis owner/contract gap (§3/§4.1, TECHNICALLY BLOCKED):
-   PASSED/FAILED/INDETERMINATE (VIEW-002, UC-003) VÀ parity match/mismatch (VIEW-003,
-   UC-005) LÀ non-authoritative output ĐÃ tự xác nhận bởi UC-003/UC-005 — NHƯNG một
-   non-authoritative output VẪN đòi hỏi một computation owner VÀ contract đã
-   established. KHÔNG module registry nào (`ux-application-shell`, `command-query-api-
-   surface`, hay module khác) hiện sở hữu computation này tường minh. Package 1.6
-   KHÔNG chọn client-side/API-side, KHÔNG cấp một "exception" nào cho UX tự thực hiện
-   — VIEW-002/VIEW-003 binding VẪN technically blocked cho tới khi một transaction
-   upstream governed (registry và/hoặc API Architecture correction, hoặc Domain
-   Contract mới xác lập owner) thiết lập computation owner/contract đó.
+1a. VIEW-002 computation-owner/contract gap (§3/§4.1, RESOLVED v0.4, đóng phần
+   VIEW-002 của `P16-A-MAJ-02`): PASSED/FAILED/INDETERMINATE (VIEW-002, UC-003) LÀ
+   non-authoritative output ĐÃ tự xác nhận bởi UC-003 — Approved [ADR-020](../adr/ADR-020.md)
+   v0.1 quyết định `review-evidence-service` LÀ computation boundary duy nhất, qua route
+   `ux-application-shell → command-query-api-surface → review-evidence-service` (route
+   ĐÃ đăng ký, KHÔNG edge/contract-category mới — bốn module nguồn ĐÃ CÓ trong
+   `review-evidence-service.depends_on`, Package 1.1 v0.9). `review-evidence-service`
+   CHỈ thực hiện existence-check (KHÔNG tái tính toán Decision/Risk/Execution logic,
+   KHÔNG append/replace/sở hữu fact nguồn, KHÔNG author entity/event authoritative mới)
+   — `owns_authoritative_state: false` KHÔNG đổi. Ba missing semantic item Product-level
+   (Research-session interval identity mechanism, evidence-completeness determination
+   mechanism, correction-arrival-during-window handling) VẪN unresolved — Package 1.6
+   KHÔNG resolve, KHÔNG trình bày VIEW-002 như implementation-ready.
+1b. VIEW-003 synthesis owner/contract gap (§3/§4.1, TECHNICALLY BLOCKED, VẪN unresolved,
+   phần VIEW-003 của `P16-A-MAJ-02`): parity match/mismatch (VIEW-003, UC-005) LÀ
+   non-authoritative output ĐÃ tự xác nhận bởi UC-005 — NHƯNG một non-authoritative
+   output VẪN đòi hỏi một computation owner VÀ contract đã established. KHÔNG module
+   registry nào (`ux-application-shell`, `command-query-api-surface`, hay module khác,
+   BAO GỒM `review-evidence-service`) hiện sở hữu computation này tường minh — VIEW-003
+   KHÔNG chia sẻ resolution của VIEW-002 (1a trên), computation của hai VIEW này khác
+   biệt về bản chất (existence-check vs. recomputation-và-so-sánh). Package 1.6 KHÔNG
+   chọn client-side/API-side, KHÔNG cấp một "exception" nào cho UX tự thực hiện — VIEW-003
+   binding VẪN technically blocked cho tới khi (a) `canonical semantic-decision hash`
+   (decision.md, Package 0.2-C4) được định nghĩa VÀ (b) một Product Owner quyết định về
+   INDETERMINATE-equivalent outcome cho VIEW-003 VÀ (c) một ADR kế tiếp/độc lập chọn
+   computation owner — CẢ BA prerequisite này (ADR-020 §4/§12, scope conflict tường
+   minh) PHẢI resolve TRƯỚC. Route tương lai VẪN cùng hình dạng ba tầng
+   `ux-application-shell → command-query-api-surface → [module TBD]` — module cụ thể
+   CHƯA chọn.
 2. NAV-003 Backtest API-binding gap (§4.3/§4.1, RESOLVED v0.3): `backtest-orchestrator`
    nay LÀ registered edge trong `command-query-api-surface.depends_on` (module-
    registry.yaml v0.8, ADR-019 v0.2 Approved alignment; elaborated tại api-
@@ -773,7 +813,7 @@ Custody implementation (thẩm quyền Package 1.2, KHÔNG Package 1.6).
 Backend orchestration (thẩm quyền Package 1.3-C/1.3-D, KHÔNG Package 1.6).
 Bất kỳ registry change nào (`module-registry.yaml`/`system-decomposition.md` KHÔNG sửa).
 Bất kỳ dependency edge, capability, context, hay authority mới nào ngoài `module-
-  registry.yaml` v0.8 đã đăng ký.
+  registry.yaml` v0.9 đã đăng ký.
 Package 1.5 gap resolution (§10/§13, carry forward).
 KHÔNG tạo/approve ADR tại transaction này.
 KHÔNG mark Package 1.6 Consolidated Stable.
@@ -786,28 +826,38 @@ KHÔNG tuyên bố Phase 1 hoàn thành, KHÔNG mở Gate 2/Phase 2, KHÔNG auth
 Review A scope:               Mọi SCR/VIEW/WS/NAV/FLOW/STATE trace được về component
                                architecture (§4, đúng phase-1-plan.md) — KHÔNG mồ côi,
                                KHÔNG invent UX behavior mới ngoài ux-blueprint.md; module
-                               boundary (§2) nhất quán với module-registry.yaml v0.8
+                               boundary (§2) nhất quán với module-registry.yaml v0.9
                                (Consolidated Stable) — KHÔNG dependency edge mới nào bị
                                invent ngoài route `command-query-api-surface →
-                               backtest-orchestrator` ĐÃ registered (v0.3); §8 non-bypass
-                               claim KHÔNG over-claim graph shape như complete proof
-                               (đúng bài học Package 1.4 P14-A-MAJ-01); gap còn lại (§13
-                               gap #1) ghi nhận trung thực, KHÔNG silently resolved bằng
-                               một invented contract.
+                               backtest-orchestrator` ĐÃ registered (v0.3) VÀ route
+                               `command-query-api-surface → review-evidence-service` ĐÃ
+                               registered (v0.4, VIEW-002 capability MỚI qua edge ĐÃ CÓ
+                               SẴN — KHÔNG edge mới); §8 non-bypass claim KHÔNG
+                               over-claim graph shape như complete proof (đúng bài học
+                               Package 1.4 P14-A-MAJ-01); gap còn lại (§13 gap #1 phần
+                               VIEW-003) ghi nhận trung thực, KHÔNG silently resolved
+                               bằng một invented contract.
 Independent Review B
   scope:                      Độc lập xác nhận data-binding (§7) khớp đúng API
-                               Architecture (Package 1.4 v0.5, Consolidated Stable)
+                               Architecture (Package 1.4 v0.6, Consolidated Stable)
                                contract surface — KHÔNG tự phát minh contract riêng (đúng
                                phase-1-plan.md Independent Review B scope cho Package
                                1.6); xác nhận Position/review-evidence-service treatment
                                (§10) khớp đúng Package 1.5 §2.2/§8 non-authoritative
-                               status; xác nhận LIVE Unauthorized/PAPER-LIVE separation
-                               (§9) KHÔNG bị đổi.
+                               status; xác nhận VIEW-002's existence-check treatment
+                               (§4.1) khớp đúng ADR-020 v0.1 (Approved)/api-architecture.md
+                               v0.6 §9 — KHÔNG recompute/authority claim nào invent; xác
+                               nhận LIVE Unauthorized/PAPER-LIVE separation (§9) KHÔNG bị
+                               đổi.
 Product Owner decision
   point:                      Sau Review A/B CLEAN VÀ sau khi prerequisite còn lại dưới
                                đây resolve.
 Consolidation condition
-  (v0.3 correction — gap #2
+  (v0.4 correction — phần
+  VIEW-002 của gap #1
+  RESOLVED, đóng phần
+  VIEW-002 của `P16-A-MAJ-02`;
+  v0.3 correction — gap #2
   RESOLVED, đóng upstream
   prerequisite của
   `P16-A-MAJ-01`; v0.2
@@ -817,35 +867,42 @@ Consolidation condition
   technical-realization
   completeness — vẫn áp
   dụng):                       Zero unresolved Blocker/Major trên baseline hiện tại
-                               (v0.3, post bounded correction đóng upstream prerequisite
-                               của P16-A-MAJ-01; P16-A-MAJ-02/P16-A-MIN-01/P16-A-MIN-02
-                               vẫn tại trạng thái v0.2); Package 1.4 Consolidated Stable
-                               (ĐÃ thỏa, v0.5); TOÀN BỘ 59/59 identifier ĐÃ trace về đúng
-                               component category (§4.5, identifier accounting — ĐÃ
-                               thỏa) — NHƯNG "component tương ứng" KHÔNG tự động nghĩa
-                               là "technical-realization HOÀN TẤT": Package 1.6 KHÔNG
-                               đạt consolidation readiness cho tới khi prerequisite còn
-                               lại sau resolve bởi transaction upstream governed riêng
-                               biệt (KHÔNG Package 1.6 tự resolve):
+                               (v0.4, post bounded correction đóng phần VIEW-002 của
+                               P16-A-MAJ-02; P16-A-MAJ-01/P16-A-MIN-01/P16-A-MIN-02 vẫn
+                               tại trạng thái đã đóng trước đó); Package 1.4
+                               Consolidated Stable (ĐÃ thỏa, v0.6); TOÀN BỘ 59/59
+                               identifier ĐÃ trace về đúng component category (§4.5,
+                               identifier accounting — ĐÃ thỏa) — NHƯNG "component
+                               tương ứng" KHÔNG tự động nghĩa là "technical-realization
+                               HOÀN TẤT": Package 1.6 KHÔNG đạt consolidation readiness
+                               cho tới khi prerequisite còn lại sau resolve bởi
+                               transaction upstream governed riêng biệt (KHÔNG Package
+                               1.6 tự resolve):
                                  (a) NAV-003 Backtest API-binding (`P16-A-MAJ-01`, §13
                                      gap #2) — route command-query-api-surface →
                                      backtest-orchestrator ĐÃ established (v0.3,
                                      RESOLVED — Package 1.1 v0.8/Package 1.4 v0.5);
-                                 (b) VIEW-002/VIEW-003 synthesis owner/contract
-                                     (`P16-A-MAJ-02`, §13 gap #1) — computation owner
-                                     PHẢI established — VẪN unresolved.
+                                 (b) VIEW-002 computation owner/contract (§13 gap #1
+                                     phần VIEW-002) — ĐÃ established (v0.4, RESOLVED —
+                                     ADR-020 v0.1 Approved, Package 1.1 v0.9/Package 1.4
+                                     v0.6);
+                                 (c) VIEW-003 synthesis owner/contract (`P16-A-MAJ-02`
+                                     phần VIEW-003, §13 gap #1) — computation owner PHẢI
+                                     established, chờ Domain Contract amendment
+                                     (`canonical semantic-decision hash`) VÀ một ADR kế
+                                     tiếp — VẪN unresolved.
                                Đúng phase-1-plan.md Consolidation condition cho Package
                                1.6, diễn giải nghiêm ngặt hơn: "toàn bộ acceptance
                                surface có component tương ứng" ĐÃ thỏa (identifier
                                accounting), NHƯNG "Zero unresolved Blocker/Major" CHƯA
-                               thỏa cho tới khi (b) resolve.
+                               thỏa cho tới khi (c) resolve.
 ```
 
 ## 15. Lifecycle treatment
 
 ```text
 Package 1.6:
-  version: 0.3
+  version: 0.4
   status: Draft
   package lifecycle/readiness: candidate
   not Consolidated Stable
@@ -854,8 +911,13 @@ Package 1.6:
   NAV-003 API-binding upstream prerequisite (§13 gap #2) RESOLVED (v0.3) — route
     command-query-api-surface → backtest-orchestrator established (Package 1.1 v0.8/
     Package 1.4 v0.5, Consolidated Stable)
-  pending upstream binding resolution (VIEW-002/VIEW-003 synthesis owner, §13 gap #1)
-    — Major prerequisite còn lại, KHÔNG resolve tại Package 1.6
+  VIEW-002 computation-owner/API-binding prerequisite (§13 gap #1, phần VIEW-002)
+    RESOLVED (v0.4) — route command-query-api-surface → review-evidence-service
+    established (ADR-020 v0.1 Approved, Package 1.1 v0.9/Package 1.4 v0.6, Consolidated
+    Stable)
+  pending upstream binding resolution (VIEW-003 synthesis owner, §13 gap #1 phần
+    VIEW-003) — Major prerequisite còn lại, KHÔNG resolve tại Package 1.6, chờ Domain
+    Contract amendment (canonical semantic-decision hash) VÀ một ADR kế tiếp
   pending Independent Review B
   pending Product Owner consolidation decision
 
@@ -868,9 +930,15 @@ Package 1.6 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đó
   Package 1.1 v0.8 VÀ Package 1.4 v0.5 established route command-query-api-surface →
   backtest-orchestrator, KHÔNG redesign/mở rộng scope, KHÔNG resolve VIEW-002/VIEW-003
   (`P16-A-MAJ-02`, §13 gap #1, VẪN Major prerequisite còn lại), KHÔNG resolve DD-001,
-  KHÔNG reconsolidate. Toàn bộ chín package Phase 1 (1.1–1.6, cộng 1.3-A/B/C/D) nay có
+  KHÔNG reconsolidate. v0.4 LÀ bounded correction (đóng phần VIEW-002 của
+  `P16-A-MAJ-02`, vai trò `Package 1.6 VIEW-002 Correction Executor`) — cập nhật
+  VIEW-002 binding/current baseline reference sau khi Approved ADR-020 v0.1 VÀ Package
+  1.1 v0.9/Package 1.4 v0.6 established route command-query-api-surface →
+  review-evidence-service, KHÔNG redesign/mở rộng scope, KHÔNG resolve VIEW-003 (§13
+  gap #1 phần VIEW-003, VẪN Major prerequisite còn lại), KHÔNG resolve DD-001, KHÔNG
+  reconsolidate. Toàn bộ chín package Phase 1 (1.1–1.6, cộng 1.3-A/B/C/D) nay có
   candidate/Consolidated Stable artifact — Gate 2/Phase 2 VẪN KHÔNG mở cho tới khi TẤT
   CẢ package đạt Consolidated Stable VÀ mọi consolidation condition (§14) thỏa, BAO GỒM
-  prerequisite còn lại (VIEW-002/VIEW-003 synthesis owner) ghi nhận tại v0.2, VẪN
-  unresolved tại v0.3.
+  prerequisite còn lại (VIEW-003 synthesis owner) ghi nhận tại v0.2, VẪN unresolved tại
+  v0.4.
 ```
