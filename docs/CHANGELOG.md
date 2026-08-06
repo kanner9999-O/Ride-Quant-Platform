@@ -2,6 +2,87 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — Package 1.4 v0.5 mechanical consolidation
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.4 v0.5 Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean `api-architecture.md` v0.5 baseline. No architecture-semantic change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        0c0f0ed65994eeda5cdcc96e6302553b3f312a5b
+docs/architecture/api-architecture.md v0.5 blob:       a055d897bd40d6c6e83084fc9ad9dfef682a5aa4 (verified matched)
+```
+
+### Review evidence
+
+```text
+Review A:                 CLEAN (Blocker 0/Major 0/Minor 0)
+Independent Review B:     CLEAN (Blocker 0/Major 0/Minor 0)
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE PACKAGE 1.4 V0.5 CONSOLIDATION"
+
+Decision date: 2026-08-06 (date-only — exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+api-architecture.md:      package lifecycle: candidate -> Consolidated Stable.
+                           version: "0.5" UNCHANGED (pure lifecycle-state transaction,
+                           no content/architecture change).
+                           status: Draft UNCHANGED. approved_by: null UNCHANGED.
+                           approved_at: null UNCHANGED. `Consolidated Stable` is a
+                           package lifecycle/readiness state (Chapter 0 §7.1), NOT
+                           equivalent to artifact `Approved`/`Locked`.
+Blob:                      a055d897bd40d6c6e83084fc9ad9dfef682a5aa4 ->
+                           fc322491ec881a0f0a23ebc034cfcadf0e76366e
+MANIFEST.md:               row updated (package lifecycle Consolidated Stable, version
+                           0.5 unchanged, blob transition recorded).
+```
+
+### Preserved unchanged
+
+```text
+command-query-api-surface -> backtest-orchestrator route.
+17-module dependency baseline.
+backtest-orchestrator.consumes: [event, query]; .emits: [event]; module_type:
+  runtime_service; hybrid: null; owns_authoritative_state: deferred.
+Decision authority (decision-authority-service); RiskEvaluation authority
+  (risk-gateway); API Surface non-authority.
+§6 non-bypass invariants.
+Current Package 1.1 v0.8/v0.9 references (post P14V04-A-MAJ-01).
+All implementation exclusions.
+ADR-018.md, ADR-019.md, module-registry.yaml, system-decomposition.md: byte-identical
+  (git diff empty, confirmed).
+ux-architecture.md/Package 1.6: untouched, remain candidate and blocked.
+DD-001 and VIEW-002: remain unresolved.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and api-architecture.md v0.5 blob matched before editing.
+Diff confirmed scoped to exactly two locations: the top banner (new Consolidated
+  Stable paragraph prepended, prior CANDIDATE banner preserved and marked HISTORICAL)
+  and §12 Lifecycle treatment (package lifecycle/readiness field and precedent-history
+  paragraph updated to reflect Consolidated Stable) -- no hunk touches §2.1, §2.3, §9,
+  §6, §10, or any other route/dependency/authority/contract-semantic content.
+ADR-018.md, ADR-019.md, module-registry.yaml, system-decomposition.md, and
+  ux-architecture.md confirmed untouched (git diff --quiet empty across all five).
+Package lifecycle changed from candidate to Consolidated Stable (confirmed).
+version remains "0.5" (confirmed, unchanged).
+status remains Draft, approved_by/approved_at remain null (confirmed, unchanged).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced (confirmed --
+  banner explicitly states this).
+Only docs/architecture/api-architecture.md, docs/MANIFEST.md, and docs/CHANGELOG.md
+  changed (git status --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.4 v0.4 baseline-reference correction (closes P14V04-A-MAJ-01)
 
 **Bounded correction transaction — vai trò: `Package 1.4 v0.4 Baseline-Reference Correction Executor`.** Closes one Review A finding on `api-architecture.md` v0.4: three current-normative references remained incorrectly anchored to Package 1.1 v0.7 after the v0.4 ADR-019 alignment moved the controlling baseline to v0.8/v0.9. No route, dependency-set, authority, or contract-semantic change.
