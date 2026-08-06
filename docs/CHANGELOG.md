@@ -2,6 +2,103 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — ADR-020 v0.1 mechanical approval
+
+**Mechanical ADR lifecycle transaction — vai trò: `ADR-020 v0.1 Mechanical Approval Executor`.** Records Product Owner approval of ADR-020 v0.1. No decision-semantic change.
+
+### Baseline
+
+```text
+Baseline HEAD:                974be2fc13389434ddfbaec21bc4884aaa8ab67b
+docs/adr/ADR-020.md v0.1 blob: 08e25732b4d0f3464db621886e735ab5c6d1f9ff (verified matched, Draft)
+```
+
+### Review evidence
+
+```text
+Semantic Review A:         CLEAN (Blocker 0/Major 0/Minor 0)
+Independent Review B:      CLEAN (Blocker 0/Major 0/Minor 0)
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE ADR-020 V0.1"
+
+Decision date: 2026-08-06 (date-only — exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+ADR-020.md:                status: Draft -> Approved. approved_by: null -> Product
+                            Owner. approved_at: null -> "2026-08-06". version: "0.1"
+                            UNCHANGED (mechanical lifecycle transaction — no version
+                            bump for pure approval, Chapter 11 §11.4, same pattern as
+                            ADR-017/ADR-018/ADR-019). From this point, ADR-020.md is
+                            immutable byte-for-byte (Chapter 11 §11.3).
+Blob:                       08e25732b4d0f3464db621886e735ab5c6d1f9ff ->
+                            453d4995d557c138b3ec3af61f4b1e2b63c47f88
+MANIFEST.md:                row updated (Approved, review evidence, verbatim decision,
+                             blob transition recorded).
+```
+
+### Preserved unchanged
+
+```text
+review-evidence-service as the singular VIEW-002 computation boundary.
+Route: ux-application-shell -> command-query-api-surface -> review-evidence-service.
+Zero new dependency edges required (verified against module-registry.yaml v0.8,
+  unchanged by this transaction).
+Output classification: non-authoritative, workflow-visible only. No new Domain entity
+  or event.
+Decision authority (decision-authority-service); RiskEvaluation/Execution Intent
+  authority (risk-gateway); Order authority (execution-engine); ExecutionResult
+  authority (execution-result-processor).
+review-evidence-service.owns_authoritative_state: false.
+API Surface routing/exposure-only boundary; UX Shell non-authority.
+No-recompute and correction-lineage requirements.
+VIEW-003 computation owner: still unresolved (explicit scope conflict, unchanged).
+canonical semantic-decision hash: still unresolved (Domain Contract gap, unchanged).
+DD-001: unrelated, unresolved, untouched.
+All Product-level UC-003 mechanism gaps (session-interval boundary, evidence-
+  completeness rule, correction-arrival handling): unresolved, unchanged.
+Package 1.1, 1.4, 1.5, 1.6: untouched — module-registry.yaml, system-decomposition.md,
+  api-architecture.md, database-architecture.md, ux-architecture.md all confirmed
+  byte-identical (git diff empty).
+All existing ADRs (001-019): untouched, byte-identical.
+`P16-A-MAJ-02` NOT fully closed — only the VIEW-002 half is addressed by this ADR;
+  VIEW-003 half remains open.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and ADR-020.md v0.1 blob matched before editing.
+Diff confirmed scoped to exactly two locations: frontmatter lifecycle fields (status/
+  approved_by/approved_at) and two prose updates (top banner CANDIDATE->APPROVED
+  relabel with immutability clause; §16 Independent reviews table/blockquote recording
+  review evidence and the verbatim Product Owner decision) — no hunk touches §1-§15
+  (Context, Decision drivers, Candidate set, Selected decision, Computation/authority
+  boundary, Query-exposure route, Input facts/output classification, Identity/
+  reproducibility/correction, Package 1.1/1.4/1.6 follow-ups, Rejected alternatives,
+  Consequences/risks, Preserved unresolved gaps, Validation criteria, Scale check,
+  Relationship) or §17 (Open questions).
+version confirmed unchanged ("0.1").
+approved_by confirmed exactly "Product Owner"; approved_at confirmed exactly
+  "2026-08-06".
+VIEW-003 confirmed still unresolved (§4/§12 text unchanged, diff-verified).
+Package 1.1/1.4/1.6 alignments confirmed still pending — no registry/API/UX file
+  touched (git diff --quiet empty across module-registry.yaml, system-decomposition.md,
+  api-architecture.md, database-architecture.md, ux-architecture.md, and all existing
+  ADR-001 through ADR-019 files).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced (confirmed —
+  banner and §16 explicitly restate this).
+Only docs/adr/ADR-020.md, docs/MANIFEST.md, and docs/CHANGELOG.md changed (git status
+  --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-06 — ADR-020 authored: VIEW-002 computation ownership (candidate, VIEW-003 deferred)
 
 **New ADR authored — vai trò: `VIEW-002/VIEW-003 Computation Ownership ADR Author`.** Resolves the VIEW-002 half of the remaining Package 1.6 blocker `P16-A-MAJ-02` (`ux-architecture.md` v0.3 §13 gap #1). Does not modify Package 1.6 or any registry artifact.
