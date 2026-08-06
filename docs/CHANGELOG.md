@@ -2,6 +2,98 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — ADR-020 authored: VIEW-002 computation ownership (candidate, VIEW-003 deferred)
+
+**New ADR authored — vai trò: `VIEW-002/VIEW-003 Computation Ownership ADR Author`.** Resolves the VIEW-002 half of the remaining Package 1.6 blocker `P16-A-MAJ-02` (`ux-architecture.md` v0.3 §13 gap #1). Does not modify Package 1.6 or any registry artifact.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                c6d6cf201fc6312b39d027a1d48bd749aed5714e
+docs/architecture/ux-architecture.md v0.3 blob:                342a7b6a6bb51fd335b64f2b60eeb15f236316f5 (verified matched, candidate)
+docs/architecture/package-1.6-upstream-resolution-exploration.md blob: 6c9dd5dd6a7e7f5b551739527ea65ed055a16d13 (verified matched, exploratory candidate)
+docs/architecture/module-registry.yaml v0.8 blob:               ad885b0e2f09bf1582cdccc1d94c055e23469a80 (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v0.9 blob:            04e5ba915601cc9d03aa53ce54823ac443642b4f (verified matched, Consolidated Stable)
+docs/architecture/api-architecture.md v0.5 blob:                fc322491ec881a0f0a23ebc034cfcadf0e76366e (verified matched, Consolidated Stable)
+docs/architecture/database-architecture.md v0.2 blob:            cb3295630990277c030effdccfaf87ca079fbf67 (verified matched, Consolidated Stable)
+```
+
+### Candidate evaluation (VIEW-002)
+
+```text
+Candidates evaluated: (A) review-evidence-service [SELECTED]; (B) replay-integration-
+  service [rejected -- weak semantic fit, point-in-time cursor reconstruction is not an
+  existence-check-over-interval]; (C) multi-source aggregation at command-query-api-
+  surface [rejected -- would make the API Surface a silent computation owner]; (D)
+  client-side synthesis [rejected -- violates no-recompute/Single Source of Truth,
+  I-12]; (E) single-source self-serve by decision-authority-service/risk-gateway/
+  execution-engine/execution-result-processor [rejected -- no module sees all five
+  needed streams alone]; (F) new module [rejected -- candidate A is not structurally
+  unsuitable, the "prove every existing candidate unsuitable" precondition is not met];
+  (G) keep blocked [rejected as a resolution -- does not close the blocker].
+
+Registry fact verified directly against module-registry.yaml v0.8 (python3 + yaml,
+  not inferred): review-evidence-service.depends_on already contains all four modules
+  UC-003 needs (decision-authority-service, risk-gateway, execution-engine,
+  execution-result-processor); command-query-api-surface.depends_on already contains
+  review-evidence-service. Zero new dependency edge required at any layer -- unlike the
+  NAV-003/ADR-019 precedent, which required one brand-new edge.
+```
+
+### Selected decision
+
+```text
+VIEW-002: review-evidence-service becomes the computation boundary for UC-003 Research
+  verification existence-check. Output: non-authoritative, workflow-visible-only
+  (PASSED/FAILED/INDETERMINATE) -- no new entity/event created. Existence-check is
+  distinguished from recomputation (no-recompute/PR-030 compliance preserved). Query
+  route: ux-application-shell -> command-query-api-surface -> review-evidence-service
+  (already-registered edges, zero new edges). Required Package 1.1 follow-up: a
+  `responsibilities` field expansion only (no depends_on/consumes/emits change).
+  Required Package 1.4 follow-up: a description-level parity update (no new edge).
+  Required Package 1.6 follow-up (separate future transaction): split ux-architecture.md
+  §13 gap #1 into VIEW-002 RESOLVED / VIEW-003 still blocked.
+
+VIEW-003: NOT decided -- explicit scope conflict. `canonical semantic-decision hash` is
+  completely undefined in decision.md (Package 0.2-C4, Consolidated Stable), confirmed
+  by exhaustive grep in the exploration document (§4.2, zero occurrences of "hash").
+  Selecting a VIEW-003 computation owner without that Domain Contract definition would
+  be a premature decision. ADR-020 confirms VIEW-003 is a separately-established
+  projection (does not reuse VIEW-002/review-evidence-service) and confirms its output
+  is non-authoritative and its future route will follow the same three-tier shape, but
+  explicitly declines to select an owner module -- deferred to a follow-up ADR pending
+  a decision.md amendment and a Product Owner decision on an INDETERMINATE-equivalent
+  outcome for VIEW-003. DD-001 is unrelated and untouched.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all six relevant blobs matched before authoring.
+review-evidence-service candidate evaluation fact-checked directly against
+  module-registry.yaml v0.8 via a Python/yaml parse (not narrative inference) --
+  confirmed all four needed modules already present in its depends_on, and confirmed
+  review-evidence-service already present in command-query-api-surface.depends_on.
+No hybrid/ambiguous computation-ownership decision produced -- VIEW-002 owner is
+  singular and explicit; VIEW-003 owner is explicitly and singularly left undecided
+  (not split, not ambiguous).
+No field-level request/response schema, frontend framework, database technology, or
+  transport technology authored.
+UX Shell and API Surface confirmed to remain non-authoritative/routing-only -- neither
+  is assigned computation ownership.
+Decision, RiskEvaluation, execution, Fill, and review-evidence authorities confirmed
+  unchanged (byte-identical references, no registry file modified by this transaction).
+No new module invented -- existing candidate (review-evidence-service) proven
+  structurally sufficient.
+DD-001 confirmed untouched and unreferenced as a decision input.
+ADR status remains Draft (not Approved/Locked) -- Review A, Independent Review B, and
+  Product Owner decision are pending, not performed by this transaction.
+Only docs/adr/ADR-020.md, docs/MANIFEST.md, and docs/CHANGELOG.md changed; git diff
+  --quiet confirmed empty for ux-architecture.md, module-registry.yaml,
+  system-decomposition.md, api-architecture.md, database-architecture.md, and all
+  existing ADR files.
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.6 v0.3 NAV-003 binding correction
 
 **Bounded UX-architecture correction — vai trò: `Package 1.6 NAV-003 Binding Correction Executor`.** Updates `ux-architecture.md` to reflect that NAV-003's upstream registry and API prerequisites (Package 1.1 v0.8, Package 1.4 v0.5) are now resolved. Not a new architecture decision, not a new ADR.
