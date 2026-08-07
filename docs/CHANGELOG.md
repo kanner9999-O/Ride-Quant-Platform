@@ -2,6 +2,131 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-07 — Phase 1 gate-readiness freshness correction (`G2-RDY-MAJ-01`/`G2-RDY-MAJ-02`/`G2-RDY-MIN-01` CLOSED)
+
+**Bounded factual/freshness correction — vai trò: `Phase 1 Gate-Readiness Freshness Correction Executor`.** Corrects stale current-state claims in Package 1.3-A §13a about NAV-003 Gap A (now resolved by Approved ADR-019), adds missing Decision Log entries for ADR-018/019/020/021, and refreshes `MANIFEST.md generated_at`. No architecture semantics changed; no Quality Gates, BCC, or Gate 2 review performed.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        7d6f6d77635b8d808f923a5a355449490fff1e6e
+docs/phase-dod/phase-1-dod.md v0.1 blob:               2e184d92c8f96b18abe51963a6de6bf63196b703 (verified matched, Approved, canonically incorporated)
+ADR-018/019/020/021:                                   all verified Approved
+```
+
+### A. Package 1.3-A §13a factual correction (closes `G2-RDY-MAJ-01`)
+
+```text
+docs/architecture/engine/structure-regime-architecture.md: version "0.3" -> "0.4",
+  status Draft UNCHANGED, package/§13a lifecycle Consolidated Stable UNCHANGED.
+New top-banner paragraph (v0.4) prepended -- explains the correction, references
+  Approved ADR-019, does NOT edit the historical 2026-08-04/06 banner paragraphs in
+  place.
+New [CAP NHAT] annotation added inside SS13a.4, immediately after the original
+  "NAV-003 Gap A -- VAN unresolved" text -- original text preserved byte-for-byte as
+  an accurate historical record of the SS13a v0.2/v0.3 consolidation boundary; the
+  annotation records current state: NAV-003 Gap A resolved by Approved ADR-019,
+  route command-query-api-surface -> backtest-orchestrator, downstream alignment at
+  Package 1.1 v0.8/Package 1.4 v0.5/Package 1.6 v0.3.
+SS13a.1-SS13a.5 decision semantics (Backtest run identity = correlation/grouping
+  concept, NAV-003 Gap B, controlling ADR-018) NOT rewritten -- byte-identical.
+Blob:  b0920775a14271e94b7f0ef718088d42cb3dc257 (pre-existing MANIFEST-pinned) ->
+       d1c9866ac18df859546cd45e158e998cfca47b68
+```
+
+**Version bump justification:** the transaction adds new tracked prose (a new banner paragraph and a new in-section annotation) to a `Draft`-status, `Consolidated Stable`-lifecycle artifact. Established repository convention throughout this session (every bounded correction to a living document, including this exact file's own v0.2->v0.3 correction) bumps the document version for any content change, while preserving package/section lifecycle. No override condition applies here, so version 0.3 -> 0.4 was applied; lifecycle remains `Consolidated Stable`, unaffected.
+
+### B. MANIFEST Decision Log additions (closes `G2-RDY-MAJ-02`)
+
+```text
+Added rows: ADR-018, ADR-019, ADR-020, ADR-021 (Decision Log table).
+Each row: Approved status, approval date, and a minimum semantic summary matching
+  the already-established decision only -- no semantic expansion:
+  ADR-018:  Backtest run identity = correlation/grouping concept, no new
+            authoritative fact.
+  ADR-019:  NAV-003 Gap A resolved via backtest-orchestrator route composition/
+            exposure.
+  ADR-020:  VIEW-002 owner = review-evidence-service, non-authoritative
+            existence-check, PASSED / FAILED / INDETERMINATE.
+  ADR-021:  VIEW-003 owner = review-evidence-service, decision-evaluation-engine
+            recomputation delegate only, MATCH / MISMATCH / INDETERMINATE.
+ADR-001-ADR-017 rows preserved unchanged.
+No ADR file modified. No approval times invented beyond authoritative date
+  metadata already on record.
+compatible_adr_range: "ADR-001 ~ ADR-021" (frontmatter) confirmed unchanged --
+  already covered this range.
+```
+
+### C. MANIFEST freshness refresh (closes `G2-RDY-MIN-01`)
+
+```text
+generated_at: "2026-08-06" -> "2026-08-07" (date-only, no exact clock time
+  invented).
+manifest_version: "10.66" left UNCHANGED -- consistent with established recent
+  practice (not bumped by any MANIFEST-touching commit this session).
+```
+
+### Semantic-preservation confirmation
+
+```text
+Run identity: non-authoritative correlation/grouping concept -- unchanged.
+No new authoritative Backtest fact/entity/event introduced.
+Decision authority (decision-authority-service) -- unchanged.
+RiskEvaluation authority (risk-gateway) -- unchanged.
+DD-001 -- still unresolved.
+backtest-orchestrator.owns_authoritative_state -- still deferred.
+Phase 1 DoD v0.1 Approved/canonically incorporated -- unchanged.
+G2-RDY-BLK-01 -- remains CLOSED (prior transaction), not reopened.
+All nine Phase 1 package lifecycle states -- unchanged.
+All ADR lifecycle states -- unchanged (no ADR file modified, git diff --quiet
+  empty for all).
+Package 1.1/1.4/1.6 ADR-021 alignment -- unchanged.
+All carry-forward gaps -- unchanged, none resolved by this transaction.
+```
+
+### Finding-state treatment
+
+```text
+G2-RDY-MAJ-01:  CLOSED -- Package 1.3-A SS13a freshness correction applied.
+G2-RDY-MAJ-02:  CLOSED -- MANIFEST Decision Log entries added for ADR-018/019/020/021.
+G2-RDY-MIN-01:  CLOSED -- MANIFEST generated_at refreshed to 2026-08-07.
+G2-RDY-BLK-02:  remains open (Phase-wide BCC absent) -- not touched.
+G2-RDY-BLK-03:  remains open (Quality Gate PASS evidence absent) -- not touched.
+G2-RDY-BLK-04:  remains open (Phase-level gate reviews absent) -- not touched.
+No overall Gate 2 readiness claimed.
+```
+
+### Validation
+
+```text
+Baseline HEAD and phase-1-dod.md v0.1 blob matched before editing; ADR-018/019/
+  020/021 confirmed Approved before use.
+Exactly three files changed: docs/architecture/engine/structure-regime-
+  architecture.md, docs/MANIFEST.md, docs/CHANGELOG.md (git status --porcelain
+  confirmed).
+Package 1.3-A architecture semantics confirmed unchanged (diff shows pure
+  insertions except the version-number line; SS13a.1-SS13a.5 decision text,
+  SS0-SS12, SS14-SS15 confirmed byte-identical via diff hunk review).
+Historical NAV-003 state (SS13a v0.2/v0.3 consolidation boundary, and the
+  2026-08-04/06 banner paragraphs) confirmed preserved byte-for-byte.
+Current NAV-003 Gap A state confirmed now resolves to ADR-019 (new [CAP NHAT]
+  annotation + new top banner paragraph).
+ADR-018/019/020/021 confirmed present in MANIFEST Decision Log with summaries
+  matching only already-Approved decisions, no semantic expansion.
+ADR-001-ADR-017 Decision Log entries confirmed preserved (pipe-count and diff
+  verified, only additive rows inserted).
+compatible_adr_range confirmed remains "ADR-001 ~ ADR-021".
+generated_at confirmed became "2026-08-07".
+Phase 1 DoD acceptance/incorporation (SS12 of phase-1-dod.md, MANIFEST Phase DoD
+  row) confirmed unchanged -- file not touched by this transaction.
+G2-RDY-MAJ-01, G2-RDY-MAJ-02, G2-RDY-MIN-01 confirmed closed.
+G2-RDY-BLK-02/03/04 confirmed remain open.
+No Gate 2 review, Phase 2 opening, implementation, or LIVE authorization occurred;
+  no Quality Gate evidence generated; no BCC run.
+docs/architecture/phase-1-plan.md, all Constitution chapters, all ADR files, and
+  Package 1.1/1.4/1.5/1.6 confirmed untouched (git diff --quiet empty).
+```
+
 ## [Unreleased] — 2026-08-07 — Phase 1 DoD v0.1 accepted and canonically incorporated (`G2-RDY-BLK-01` CLOSED)
 
 **Mechanical lifecycle-recording transaction — vai trò: `Phase 1 DoD v0.1 Acceptance + Canonical Incorporation Executor`.** Records Product Owner acceptance and canonical incorporation (Chapter 14 §14.3.1) of the review-clean Phase 1 DoD v0.1. No substantive DoD criteria change; no BCC, Quality Gate, Gate 2 review, or Phase transition performed.

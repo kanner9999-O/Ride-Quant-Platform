@@ -1,7 +1,7 @@
 ---
 id: structure-regime-architecture
 title: "Package 1.3-A — Data Ingestion & Structure/Regime Engine Architecture"
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 ---
 
 # Package 1.3-A — Data Ingestion & Structure/Regime Engine Architecture
+
+**v0.4 — bounded freshness correction (2026-08-07), đóng `G2-RDY-MAJ-01` (Phase 1 Gate-Readiness Freshness finding), KHÔNG design/select mới, KHÔNG redesign/mở rộng scope, vai trò: `Phase 1 Gate-Readiness Freshness Correction Executor`:** §13a.4 VÀ paragraph "§13a — Consolidated Stable" (phía dưới, dated 2026-08-06) trước đây tuyên bố "NAV-003 Gap A VẪN unresolved, VẪN `ADR Required` riêng, chưa có ADR nào" — ĐÚNG tại §13a v0.3 consolidation boundary (2026-08-06) NHƯNG KHÔNG còn LÀ current state. Approved [ADR-019](../../adr/ADR-019.md) (2026-08-06) sau đó resolve NAV-003 Gap A (composition/exposure của Backtest run-identity correlation query qua `backtest-orchestrator`, route `command-query-api-surface → backtest-orchestrator`); Package 1.1 v0.8 (`Consolidated Stable`, ADR-019 alignment)/Package 1.4 v0.5 (`Consolidated Stable`)/Package 1.6 v0.3 (`ux-architecture.md`, đóng upstream prerequisite của `P16-A-MAJ-01`) sau đó established downstream route/binding alignment. §13a.4 nay bổ sung một `[CẬP NHẬT]` annotation bounded (bên dưới, KHÔNG xóa/rewrite câu gốc) ghi nhận current state chính xác — LỊCH SỬ tại §13a v0.2/v0.3 consolidation boundary VÀ paragraph "§13a — Consolidated Stable" GIỮ NGUYÊN byte-for-byte, KHÔNG sửa (đó LÀ mô tả trung thực trạng thái tại đúng thời điểm đó). §13a.1–§13a.5's classification DECISION semantics (Backtest run identity = correlation/grouping concept, NAV-003 Gap B, controlling ADR-018) — KHÔNG rewrite, byte-identical. **KHÔNG đổi:** run identity = correlation/grouping concept, KHÔNG một Domain entity/event/authoritative fact mới; Decision authority (`decision-authority-service`) KHÔNG đổi; RiskEvaluation authority (`risk-gateway`) KHÔNG đổi; `DD-001` VẪN unresolved; `backtest-orchestrator.owns_authoritative_state` VẪN `deferred`; Package 1.3-A v0.1's bốn-module `Consolidated Stable` baseline (byte-identical, KHÔNG re-open/re-review/re-consolidate); §13a's own `Consolidated Stable` lifecycle (KHÔNG đổi); `ADR-018`/`ADR-019` (KHÔNG sửa, byte-identical). `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. KHÔNG Quality Gate evidence/Backward Consistency Check/Gate 2 review/Phase 1 approval/Phase 2 mở/implementation/LIVE nào authorize tại transaction này.
 
 **CONSOLIDATED STABLE (package lifecycle, 2026-08-04, Product Owner decision) — artifact status: Draft, KHÔNG Approved/Locked.** Package 1.3-A v0.1 đạt `Consolidated Stable` SAU Review A CLEAN + Independent Review B CLEAN (Blocker 0/Major 0/Minor 0) và Product Owner consolidation decision (2026-08-04, §15), theo [`phase-1-plan.md`](../phase-1-plan.md) v0.4 (`Approved`) §8 Package 1.3-A block. `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi, đúng package-lifecycle/artifact-lifecycle separation đã dùng nhất quán trong toàn bộ session này (cùng pattern Package 0.2-B4/Package 1.1).
 
@@ -461,6 +463,29 @@ Venue/session authority (instrument-venue-reference domain context):
     này, VẪN unresolved độc lập.
   Package 1.6 (`ux-architecture.md`) lifecycle — VẪN `candidate`, VẪN blocked cho
     Independent Review B/consolidation.
+
+  [CẬP NHẬT — 2026-08-07, `G2-RDY-MAJ-01` freshness correction, xem banner đầu tài
+    liệu, vai trò `Phase 1 Gate-Readiness Freshness Correction Executor`: đoạn 13a.4
+    phía trên (viết tại §13a v0.2/v0.3, TRƯỚC khi Approved ADR-019 tồn tại) mô tả
+    ĐÚNG trạng thái TẠI §13a consolidation boundary (2026-08-06) — NAV-003 Gap A khi
+    đó VẪN unresolved, VẪN `ADR Required`, chưa có ADR nào. Đoạn đó GIỮ NGUYÊN như
+    một historical record, KHÔNG sửa/xóa, VẪN đúng CHO đúng boundary thời điểm đó.
+    **Current state (2026-08-07):** NAV-003 Gap A NAY resolved bởi Approved
+    [ADR-019](../../adr/ADR-019.md) (composition/exposure của Backtest run-identity
+    correlation query via `backtest-orchestrator`, route `command-query-api-surface →
+    backtest-orchestrator`) — SCR-003/SCR-004/SCR-005 (`ux-architecture.md` §13 gap
+    #2) KHÔNG còn `TECHNICALLY BLOCKED`. Downstream alignment established route/
+    binding: Package 1.1 v0.8 (`Consolidated Stable`, ADR-019 alignment)/Package 1.4
+    v0.5 (`Consolidated Stable`)/Package 1.6 v0.3 (`ux-architecture.md`, đóng upstream
+    prerequisite của `P16-A-MAJ-01`). §13a's own classification statement (§13a.1–
+    §13a.3, Gap B, controlling ADR-018) — KHÔNG đổi bởi update này, byte-identical.
+    Package 1.3-A v0.1's bốn-module baseline VÀ §13a's `Consolidated Stable` lifecycle
+    — KHÔNG đổi. VIEW-002 (Research verification ownership) — KHÔNG chạm bởi update
+    này, vẫn resolve độc lập qua ADR-020 (xem `ux-architecture.md`); Package 1.6
+    lifecycle hiện `Consolidated Stable` (v0.6) — KHÔNG resolve/đổi bởi update tại
+    ĐÂY, chỉ ghi nhận tường minh để tránh stale cross-reference. `DD-001`/
+    `backtest-orchestrator.owns_authoritative_state` (VẪN `deferred`) — KHÔNG resolve
+    bởi update này.]
 
 13a.5 Governance §4b assessment (bắt buộc, bounded — v0.3 correction, đóng `P16-NAV003-A-MAJ-01`):
 
