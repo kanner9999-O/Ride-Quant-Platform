@@ -2,11 +2,11 @@
 id: phase-1-dod
 title: "Phase 1 — System Architecture Definition of Done"
 version: "0.1"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-07"
 created_at: "2026-08-07"
 last_review: null
 next_review: null
@@ -15,7 +15,7 @@ depends_on: ["00-governance", "11-adr-process", "12-approval-gates", "13-quality
 
 # Phase 1 — System Architecture: Definition of Done (DoD)
 
-**CANDIDATE — status: Draft, KHÔNG accepted, KHÔNG incorporated.** Đây LÀ **candidate DoD artifact đầu tiên** cho Phase 1, author trực tiếp bởi transaction này — vai trò: `Phase 1 DoD Candidate Author`. Chưa qua Review A/Independent Review B. Chưa có Product Owner acceptance decision. Xem §12 "Acceptance status" phía dưới cho trạng thái đầy đủ.
+**ACCEPTED VÀ INCORPORATED (2026-08-07, Product Owner decision) — status: Approved.** `phase-1-dod.md` v0.1 LÀ **candidate DoD artifact đầu tiên** cho Phase 1, author bởi transaction `Phase 1 DoD Candidate Author` — nay ĐÃ được Product Owner accept VÀ incorporate làm authoritative Phase 1 DoD, qua transaction mechanical `Phase 1 DoD v0.1 Acceptance + Canonical Incorporation Executor` (2026-08-07). Review evidence trước acceptance: Review A `CLEAN`, Independent Review B `CLEAN`, Blocker 0/Major 0/Minor 0. Xem §12 "Acceptance status" phía dưới cho incorporation record đầy đủ theo bốn điều kiện [Chapter 14 §14.3.1](../constitution/14-roadmap.md). **Lifecycle:** `version: "0.1"` UNCHANGED (mechanical acceptance/incorporation transaction, KHÔNG substantive content change), `status: Draft → Approved`, `approved_by: Product Owner`, `approved_at: "2026-08-07"`. `Approved` — KHÔNG `Locked` — LÀ package/document lifecycle state (Chapter 12 §12.2 điểm 5 công nhận `Approved` một mình đã authoritative cho mục đích Chapter 12/13 sử dụng, KHÔNG bắt buộc `Locked` bổ sung). **Transaction acceptance/incorporation này KHÔNG:** sửa §§1–11 substantive DoD criteria; chạy full-scope Backward Consistency Check; sinh Quality Gate PASS evidence; thực hiện Phase-level Gate review; approve Phase 1; mở Gate 2; mở Phase 2; authorize implementation/LIVE; sửa `phase-1-plan.md`, Constitution chapter, ADR, package architecture artifact, Domain Contract, hay Product artifact nào.
 
 **Vai trò của tài liệu này:** đây LÀ **DoD artifact** mà [Chapter 12 §12.1](../constitution/12-approval-gates.md) (Locked, v1.5) khóa rule ("mỗi Phase phải có DoD cụ thể, viết ra và Product Owner chấp nhận TRƯỚC KHI phase/gate mở"), VÀ [Chapter 14 §14.3](../constitution/14-roadmap.md) (Locked, v1.6) khóa cardinality/nơi ở ("mỗi Phase phải resolve được đúng một authoritative DoD artifact"). Tài liệu này **định nghĩa tiêu chí** cho Phase 1 — nó **KHÔNG** phải bằng chứng "đã đạt tiêu chí", VÀ nó **KHÔNG** tự nó là Product Owner acceptance. `Approved`/`Phase 1 Approved` LÀ outcome của Phase 1 Approval Gate ([Chapter 12 §12.1](../constitution/12-approval-gates.md)) — **KHÔNG** phải một mục trong DoD này, VÀ mục này **KHÔNG chứa** chính outcome đó (tránh vòng lặp định nghĩa Chapter 12 đã cấm tường minh).
 
@@ -356,27 +356,70 @@ Tại đúng atomic recording boundary (Chapter 14 §14.4.2), bundle phải pin 
 ## 12. Acceptance status
 
 ```text
-Product Owner acceptance của DoD này:   CHƯA ghi nhận — v0.1 LÀ candidate đầu tiên,
-                                        author bởi transaction `Phase 1 DoD Candidate
-                                        Author` (2026-08-07).
+Product Owner acceptance của DoD này:   ĐÃ ghi nhận (2026-08-07, mechanical lifecycle-
+                                        recording transaction `Phase 1 DoD v0.1
+                                        Acceptance + Canonical Incorporation
+                                        Executor`, Decision Workflow — Chapter 0 §3).
+                                        Nguyên văn: "ACCEPT AND INCORPORATE PHASE 1
+                                        DOD V0.1."
 
-Review evidence trước acceptance:       CHƯA có — Review A/Independent Review B chưa
-                                        thực hiện trên tài liệu này.
+Review evidence trước acceptance:
+  Review A:                             CLEAN
+  Independent Review B:                 CLEAN
+  Blocker:                              0
+  Major:                                0
+  Minor:                                0
 
 Canonical incorporation (Chapter 14
-  §14.3.1) vào Phase-plan của Phase 1:  CHƯA tồn tại — cả bốn điều kiện §14.3.1 CHƯA
-                                        thỏa (KHÔNG có Product Owner acceptance evidence
-                                        nào resolve được cho tài liệu này tại thời điểm
-                                        này).
+  §14.3.1) vào Phase-plan của Phase 1:  ĐÃ tồn tại — bốn điều kiện §14.3.1 thỏa đầy đủ,
+                                        cùng một evidence:
 
-Hệ quả:                                Gate-set declaration tại §2 CHƯA hợp lệ cho mục
-                                        đích Chapter 12/13 sử dụng — DoD này CHƯA LÀ
-                                        authoritative Phase 1 DoD. `G2-RDY-BLK-01`
-                                        ("dedicated Phase 1 DoD absent") — tài liệu này
-                                        LÀ candidate remediation cho finding đó, NHƯNG
-                                        finding đó CHƯA đóng cho tới khi acceptance +
-                                        incorporation (bốn điều kiện §14.3.1) hoàn tất
-                                        qua một transaction governed riêng biệt.
+  1. Product Owner acceptance evidence resolve được:      CÓ (transaction này).
+  2. Cùng evidence đó xác định tường minh:
+       Phase identity:                  Phase 1 — System Architecture
+       Roadmap phase-section version/
+         content identity:              Chapter 14 — Roadmap, v1.6, Locked (current
+                                         version resolve từ MANIFEST theo I-12)
+       DoD version/content identity:    docs/phase-dod/phase-1-dod.md, v0.1, accepted
+                                         substantive blob
+                                         31353882424f4db7d6ed6008cedd503f627d53d4
+       Explicit incorporation decision: "phase-1-dod.md v0.1 is incorporated into the
+                                         canonical Phase 1 plan as the single
+                                         authoritative Phase 1 DoD" (Product Owner)
+  3. Evidence tồn tại TRƯỚC Phase 1 gate evaluation:       CÓ — Phase 1/Gate 2 CHƯA mở
+                                                            (§11 phía trên, §2 gate-set
+                                                            declaration).
+  4. Đúng MỘT incorporation, KHÔNG xung đột:                CÓ — đây LÀ acceptance
+                                                            evidence DUY NHẤT cho Phase
+                                                            1 DoD tại boundary này.
+
+Hệ quả:                                Gate-set declaration tại §2 nay hợp lệ cho mục
+                                        đích Chapter 12/13 sử dụng — LÀ authoritative
+                                        Phase 1 DoD kể từ transaction này (Chapter 12
+                                        §12.2 điểm 5: "Approved/Locked authoritative
+                                        quality contract hoặc phase plan"). `G2-RDY-
+                                        BLK-01` ("dedicated Phase 1 DoD absent") — NAY
+                                        CLOSED, đóng đúng bởi transaction này.
 ```
 
-**Việc tiếp theo:** một review + Product Owner acceptance/incorporation transaction RIÊNG BIỆT — bao gồm Review A + Independent Review B trên chính candidate DoD này (§6, cấp Phase, KHÔNG phải cấp package) — PHẢI hoàn tất TRƯỚC KHI DoD này trở thành authoritative gate-set input cho Chapter 12/13 (Chapter 14 §14.3.1). Sau đó, VÀ chỉ sau đó, một Phase 1 Approval Gate consolidated review (ChatGPT Review A + Independent Review B trên toàn bộ Phase 1 evidence, §4, bao gồm full-scope Backward Consistency Check, §8) mới đủ điều kiện chạy — TRƯỚC KHI Product Owner đưa ra Phase 1 Approval Gate decision (Chapter 12 §12.2).
+**Transaction này CHỈ ghi nhận DoD acceptance/incorporation. Nó KHÔNG:**
+
+```text
+tuyên bố Phase 1 DoD criteria (§1–§10) đã pass (VẪN LÀ tiêu chí CẦN đạt, KHÔNG phải ĐÃ
+  đạt)
+tuyên bố Phase 1 hoàn thành
+chạy full-scope Backward Consistency Check (§8)
+sinh Quality Gate PASS evidence (§4)
+thực hiện Phase-level Gate review (§6)
+mở/thực hiện Gate 2 review
+approve Phase 1
+mở Phase 2
+authorize implementation/LIVE
+đóng `G2-RDY-BLK-02`/`G2-RDY-BLK-03`/`G2-RDY-BLK-04`/`G2-RDY-MAJ-01`/`G2-RDY-MAJ-02`/
+  `G2-RDY-MIN-01` — TẤT CẢ VẪN open
+tuyên bố overall Gate 2 readiness
+sửa `phase-1-plan.md`, Constitution chapter, ADR, package architecture artifact,
+  Domain Contract, hay Product artifact nào
+```
+
+**Việc tiếp theo:** một Phase 1 Approval Gate consolidated review (ChatGPT Review A + Independent Review B trên toàn bộ Phase 1 evidence, §4, bao gồm full-scope Backward Consistency Check, §8) — cùng việc đóng các finding Gate 2 readiness còn lại (`G2-RDY-BLK-02`/`03`/`04`, `G2-RDY-MAJ-01`/`02`, `G2-RDY-MIN-01`) — trước khi Product Owner đưa ra Phase 1 Approval Gate decision (Chapter 12 §12.2) hay Gate 2 mở.

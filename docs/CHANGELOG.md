@@ -2,6 +2,115 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-07 — Phase 1 DoD v0.1 accepted and canonically incorporated (`G2-RDY-BLK-01` CLOSED)
+
+**Mechanical lifecycle-recording transaction — vai trò: `Phase 1 DoD v0.1 Acceptance + Canonical Incorporation Executor`.** Records Product Owner acceptance and canonical incorporation (Chapter 14 §14.3.1) of the review-clean Phase 1 DoD v0.1. No substantive DoD criteria change; no BCC, Quality Gate, Gate 2 review, or Phase transition performed.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        d536353e88f8ec91a9022100905526456262a114
+docs/phase-dod/phase-1-dod.md v0.1 blob:               31353882424f4db7d6ed6008cedd503f627d53d4 (verified matched, Draft)
+docs/constitution/14-roadmap.md:                       v1.6, Locked (verified matched)
+```
+
+### Review evidence
+
+```text
+Review A:                            CLEAN (Blocker 0/Major 0/Minor 0)
+Independent Review B:                CLEAN (Blocker 0/Major 0/Minor 0)
+Acceptance/incorporation readiness:  READY
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"ACCEPT AND INCORPORATE PHASE 1 DOD V0.1"
+
+Decision date: 2026-08-07 (date-only -- exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+phase-1-dod.md:            version: "0.1" UNCHANGED. status: Draft -> Approved.
+                            approved_by: null -> Product Owner. approved_at: null ->
+                            "2026-08-07".
+Blob:                       31353882424f4db7d6ed6008cedd503f627d53d4 ->
+                            2e184d92c8f96b18abe51963a6de6bf63196b703
+MANIFEST.md:                row updated (Status Draft -> Approved, Approved by/
+                            Approved at populated, new v0.1 acceptance/incorporation
+                            paragraph prepended).
+```
+
+### Canonical incorporation (Chapter 14 §14.3.1)
+
+```text
+Condition 1 (PO acceptance evidence resolves):        satisfied -- this transaction.
+Condition 2 (same evidence identifies):
+  Phase identity:            Phase 1 -- System Architecture
+  Roadmap identity:          Chapter 14 -- Roadmap, v1.6, Locked
+  DoD identity:               docs/phase-dod/phase-1-dod.md, v0.1, accepted
+                               substantive blob 31353882424f4db7d6ed6008cedd503f627d53d4
+  Explicit incorporation
+    decision:                "phase-1-dod.md v0.1 is incorporated into the canonical
+                               Phase 1 plan as the single authoritative Phase 1 DoD"
+Condition 3 (evidence exists before Phase 1 gate evaluation): satisfied -- Gate 2 not
+  opened, Phase 1 not approved.
+Condition 4 (exactly one, non-conflicting incorporation):     satisfied -- sole
+  acceptance evidence for Phase 1 DoD at this boundary.
+
+Result: gate-set declaration at phase-1-dod.md SS2 now valid as authoritative input
+  for Chapter 12/13 (Chapter 12 SS12.2 point 5).
+```
+
+### Substantive-diff confirmation
+
+```text
+Diff confirmed scoped to exactly three locations: frontmatter (status/approved_by/
+  approved_at), the top banner (CANDIDATE -> ACCEPTED AND INCORPORATED), and SS12
+  Acceptance status (full incorporation record written, next-action note updated).
+SS1-SS11 substantive criteria confirmed byte-identical via direct line-range diff
+  (lines 26-355 unchanged).
+version: "0.1" confirmed unchanged throughout.
+```
+
+### Finding-state treatment
+
+```text
+G2-RDY-BLK-01 ("dedicated Phase 1 DoD absent"):  CLOSED -- closed by this recording.
+G2-RDY-BLK-02:                                    remains open, not touched.
+G2-RDY-BLK-03:                                    remains open, not touched.
+G2-RDY-BLK-04:                                    remains open, not touched.
+G2-RDY-MAJ-01:                                    remains open, not touched.
+G2-RDY-MAJ-02:                                    remains open, not touched.
+G2-RDY-MIN-01:                                    remains open, not touched.
+No overall Gate 2 readiness claimed.
+```
+
+### Validation
+
+```text
+Baseline HEAD, phase-1-dod.md v0.1 blob, and Chapter 14 v1.6/Locked identity matched
+  before editing.
+Exactly three files changed: docs/phase-dod/phase-1-dod.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+Version confirmed unchanged ("0.1"); status confirmed changed to Approved;
+  approved_by confirmed Product Owner; approved_at confirmed "2026-08-07".
+SS1-SS11 substantive DoD criteria confirmed unchanged (diff-verified byte-identical).
+Acceptance evidence confirmed pinning exact Phase identity, Roadmap v1.6 identity,
+  and DoD v0.1/blob identity.
+Explicit canonical incorporation confirmed recorded within the same PO acceptance
+  evidence (SS12).
+Exactly one Phase 1 DoD incorporation confirmed to resolve (no conflicting evidence).
+G2-RDY-BLK-01 confirmed closed only as a result of this recording.
+G2-RDY-BLK-02/03/04, G2-RDY-MAJ-01/02, G2-RDY-MIN-01 confirmed still open.
+No BCC, Quality Gate evidence generation, Gate 2 review, Phase 1 approval, Phase 2
+  opening, implementation, or LIVE authorization occurred.
+docs/architecture/phase-1-plan.md and all Constitution chapters/ADRs/package
+  architecture artifacts confirmed untouched (git diff --quiet empty).
+```
+
 ## [Unreleased] — 2026-08-07 — Phase 1 DoD candidate authored (`docs/phase-dod/phase-1-dod.md` v0.1)
 
 **Authoring transaction — vai trò: `Phase 1 DoD Candidate Author`.** Creates the dedicated Phase 1 Definition of Done candidate required by Chapter 12 §12.1 and Chapter 14 §14.3 — remediation candidate for Gate 2 readiness finding `G2-RDY-BLK-01` ("dedicated Phase 1 DoD absent"). Does not accept the DoD, does not run the Phase-wide BCC, does not perform Gate 2 review, does not open Gate 2, does not approve Phase 1, does not open Phase 2.
