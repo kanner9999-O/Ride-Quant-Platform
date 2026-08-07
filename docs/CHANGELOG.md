@@ -2,6 +2,142 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-07 — Package 1.6 VIEW-003 ADR-021 alignment/correction (`P16-A-MAJ-02` CLOSED)
+
+**Bounded Package 1.6 correction — vai trò: `Package 1.6 VIEW-003 ADR-021 Alignment/Correction Executor`.** Aligns `ux-architecture.md` VIEW-003 binding with Approved ADR-021 v0.1 and the now-stable Package 1.1 (v1.0/v1.1) / Package 1.4 (v0.7) baselines. Closes the remaining VIEW-003 architecture-binding half of `P16-A-MAJ-02`. Does not consolidate Package 1.6.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        0c09903a489f92954949cb2ccd012a5404588c8a
+docs/architecture/ux-architecture.md v0.5 blob:        e078ee7c8541ad3369589c7495104c972597e2eb (verified matched, candidate)
+docs/adr/ADR-021.md v0.1 blob:                         cc922e571419c827c203c24920cf6e22f52326b8 (verified matched, Approved)
+docs/architecture/module-registry.yaml v1.0 blob:      da8601b8ae5cda27b6cd4a50803811ae206fb2bb (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v1.1 blob:   2b46ba0f8cae3ea2e1415ce696586eb581c701f9 (verified matched, Consolidated Stable)
+docs/architecture/api-architecture.md v0.7 blob:       fb2a4a4a04c20d373227d92869abe7cb99f59db0 (verified matched, Consolidated Stable)
+docs/domain/decision.md v0.5 blob:                     a24beeb892f995064677233148965ecaa1f2a897 (verified matched, SS9a Consolidated Stable)
+```
+
+### Finding closure
+
+```text
+P16-A-MAJ-02 (VIEW-002/VIEW-003 synthesis-owner gap, SS13 gap #1):
+  gap #1a (VIEW-002) already RESOLVED at v0.4 (ADR-020).
+  gap #1b (VIEW-003) now RESOLVED at v0.6 (ADR-021) -- P16-A-MAJ-02 CLOSED in full.
+```
+
+### VIEW-003 binding
+
+```text
+Route:                     ux-application-shell -> command-query-api-surface ->
+                            review-evidence-service (already-registered edge --
+                            zero new API Surface edge).
+Owner:                     review-evidence-service -- VIEW-003 comparison/
+                            orchestration owner; obtains recorded-side Decision
+                            via its existing edge to decision-authority-service;
+                            does not perform canonical Decision evaluation itself.
+Delegate:                  decision-evaluation-engine -- pinned deterministic
+                            recomputation only (decision.md v0.5 SS9a.4); never
+                            exposed directly through UX/API; reached only via the
+                            new internal Package 1.1 edge
+                            review-evidence-service.depends_on +=
+                            decision-evaluation-engine (zero cycle, verified).
+Result:                    MATCH / MISMATCH / INDETERMINATE (decision.md v0.5
+                            SS9a.6); workflow-visible, non-authoritative.
+```
+
+### Preserved unresolved (delegation protocol)
+
+```text
+Explicitly still unresolved (implementation-level, distinct from the closed
+  owner/route blocker): recomputation request representation, response/event
+  correlation, synchronous-vs-asynchronous behavior, timeout behavior, concrete
+  failure codes, transport between review-evidence-service and
+  decision-evaluation-engine. VIEW-003 is not presented as implementation-ready.
+```
+
+### Preserved unchanged
+
+```text
+VIEW-002 owner (review-evidence-service), route, PASSED / FAILED / INDETERMINATE
+  result, and Product-level gaps (Research-session interval identity, evidence
+  completeness, correction arrival): byte-identical, not merged with VIEW-003.
+NAV-003 route (backtest-orchestrator) and run-identity semantics: byte-identical.
+VIEW-004 and unrelated UX bindings: byte-identical.
+Identifier accounting: 59/59, unchanged in count (only description text updated
+  for gap #1b's now-Established status).
+DD-001: untouched.
+Package 1.5 interaction gap: untouched.
+Decision authority (decision-authority-service); decision-evaluation-engine and
+  review-evidence-service non-authoritative; API Surface routing/exposure-only;
+  UX Shell non-authoritative; no Decision append/accept/revalidation through
+  parity; MATCH does not reauthorize; MISMATCH does not invalidate;
+  correction-aware visible-valid-head semantics; Digest limitations -- all
+  unchanged.
+decision.md SS9a: not redefined, byte-identical (git diff --quiet empty).
+ADR-021.md, module-registry.yaml, system-decomposition.md, api-architecture.md:
+  byte-identical, untouched (git diff --quiet empty for all four).
+```
+
+### Lifecycle change
+
+```text
+ux-architecture.md:       version: "0.5" -> "0.6". status: Draft UNCHANGED.
+                           package lifecycle: candidate UNCHANGED -- not
+                           consolidated at this transaction.
+Blob:                      e078ee7c8541ad3369589c7495104c972597e2eb ->
+                           f569b7ff856ae804b6186386ea67548db019af27
+MANIFEST.md:               row updated (new v0.6 paragraph prepended; version
+                           column corrected to 0.6 -- a residual staleness from
+                           prior transactions, where the row's version column
+                           was left at "0.3" by error, also fixed here).
+```
+
+### Residual governance / readiness state
+
+```text
+Package 1.6 remains: version 0.6, status Draft, package lifecycle candidate.
+Package 1.6 does NOT reach consolidation readiness at this transaction -- a
+  separate bounded Review A verification pass (over cumulative v0.2-v0.6
+  correction), Independent Review B, and Product Owner consolidation decision
+  remain outstanding, mirroring the same pattern applied to Package 1.1 and
+  Package 1.4 (correction/alignment transaction followed by a separate mechanical
+  consolidation transaction).
+Only SS13 gap #3 (accessibility/design-token, P16-A-MIN-02, Minor, unrelated)
+  remains open among SS13's tracked gaps.
+No Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all six blobs (ux-architecture.md, ADR-021.md,
+  module-registry.yaml, system-decomposition.md, api-architecture.md,
+  decision.md) matched before editing.
+Diff confirmed scoped to exactly the top banner, SS1 (governing authority version
+  citations), SS2.1 (confirmation prose only, registry fields byte-identical),
+  SS3, SS4.1, SS4.3, SS4.5, SS7, SS13, SS14, and SS15 -- SS5, SS6, SS8, SS9, SS10,
+  SS11, SS12 confirmed byte-identical (git diff hunk review).
+Version confirmed changed 0.5 -> 0.6; status confirmed unchanged (Draft);
+  package lifecycle confirmed unchanged (candidate).
+VIEW-003 route confirmed now targets review-evidence-service;
+  decision-evaluation-engine confirmed delegate-only, never exposed via UX/API.
+Result confirmed exactly MATCH / MISMATCH / INDETERMINATE.
+VIEW-003 owner/route blocker confirmed closed; P16-A-MAJ-02 confirmed closed in
+  full (both gap #1a and gap #1b established).
+Delegation-protocol interaction-mechanism gap confirmed still explicitly
+  unresolved (not conflated with the closed owner/route blocker).
+VIEW-002 semantics and Product-level gaps confirmed unchanged.
+NAV-003 and unrelated UX bindings confirmed unchanged.
+Authority boundaries and decision.md SS9a semantics confirmed unchanged
+  (git diff --quiet empty).
+Package 1.1 (v1.0/v1.1) and Package 1.4 (v0.7) confirmed cited as current stable
+  baselines and confirmed untouched (git diff --quiet empty for both).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+Only docs/architecture/ux-architecture.md, docs/MANIFEST.md, and
+  docs/CHANGELOG.md changed (git status --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-07 — Package 1.4 v0.7 mechanical consolidation
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.4 v0.7 Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean Package 1.4 v0.7 ADR-021 alignment. No API architecture semantic change.
