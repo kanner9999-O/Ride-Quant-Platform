@@ -2,6 +2,105 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-07 — Package 1.4 v0.7 mechanical consolidation
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.4 v0.7 Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean Package 1.4 v0.7 ADR-021 alignment. No API architecture semantic change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        1fa2f52d25533b9bc534c334800c4430eef63c04
+docs/architecture/api-architecture.md v0.7 blob:       d2d3608ff20a687531c59de434f2cb05e1a9f780 (verified matched, candidate)
+docs/adr/ADR-021.md v0.1 blob:                         cc922e571419c827c203c24920cf6e22f52326b8 (verified matched, Approved)
+```
+
+### Review evidence
+
+```text
+Review A:                 CLEAN (Blocker 0/Major 0/Minor 0)
+Independent Review B:     CLEAN (Blocker 0/Major 0/Minor 0)
+Consolidation readiness:  READY
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE PACKAGE 1.4 V0.7 CONSOLIDATION"
+
+Decision date: 2026-08-07 (date-only — exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+api-architecture.md:      package lifecycle: candidate -> Consolidated Stable.
+                           version: "0.7" UNCHANGED. status: Draft UNCHANGED.
+Blob:                      d2d3608ff20a687531c59de434f2cb05e1a9f780 ->
+                           fb2a4a4a04c20d373227d92869abe7cb99f59db0
+MANIFEST.md:               row updated (package lifecycle Consolidated Stable,
+                           version column corrected to 0.7 -- a residual staleness
+                           from the prior ADR-021 alignment transaction, where the
+                           row's version column was left at "0.6" by error, also
+                           fixed here).
+```
+
+### Preserved unchanged
+
+```text
+VIEW-003 route: ux-application-shell -> command-query-api-surface ->
+  review-evidence-service (already-registered edge) -- unchanged.
+review-evidence-service comparison/orchestration ownership -- unchanged.
+decision-evaluation-engine recomputation delegate-only role (never exposed directly
+  through API Surface) -- unchanged.
+Final comparison at review-evidence-service; result MATCH / MISMATCH / INDETERMINATE
+  -- unchanged.
+Zero new API Surface edge; zero Package 1.4 dependency edge; zero contract-category
+  change -- unchanged.
+VIEW-002 capability description (SS9): byte-identical.
+NAV-003 semantics: byte-identical.
+SS3-SS8 (command, query, event/streaming, security/non-bypass, error/failure,
+  contract-governance semantics): confirmed byte-identical (section-by-section
+  diff).
+Current Package 1.1 v1.0/v1.1 references: unchanged.
+Decision authority (decision-authority-service); RiskEvaluation/Execution Intent
+  authority (risk-gateway); Order authority (execution-engine); ExecutionResult
+  authority (execution-result-processor).
+Interaction-mechanism gap (request representation, response/event correlation,
+  sync/async behavior, timeout behavior, failure codes, transport): remains
+  EXPLICITLY unresolved -- this consolidation does not resolve it or represent it
+  as resolved.
+ADR-021.md and all existing ADRs: byte-identical, untouched.
+decision.md, module-registry.yaml, system-decomposition.md, ux-architecture.md,
+  database-architecture.md: byte-identical, untouched -- Package 1.1 and Package
+  1.6 alignment not begun.
+status: Draft, approved_by: null, approved_at: null: unchanged.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and both blobs (api-architecture.md, ADR-021.md) matched before
+  editing.
+Diff confirmed scoped to exactly two locations: the top banner (new Consolidated
+  Stable paragraph prepended, prior CANDIDATE banner preserved and marked
+  HISTORICAL) and SS12 (Lifecycle treatment, package lifecycle/readiness field and
+  precedent-history paragraph updated) -- SS0-SS11 and frontmatter confirmed
+  byte-identical via section-by-section extraction.
+Version confirmed unchanged ("0.7"); status confirmed unchanged (Draft).
+VIEW-003, VIEW-002, and NAV-003 semantics confirmed unchanged.
+No edge or contract-category change occurred (module-registry.yaml,
+  system-decomposition.md untouched, git diff --quiet empty).
+Authority boundaries confirmed unchanged.
+Interaction protocol confirmed still explicitly unresolved (banner and SS12
+  language unchanged, diff-verified).
+Package 1.1 (module-registry.yaml/system-decomposition.md) and Package 1.6
+  (ux-architecture.md) confirmed untouched (git diff --quiet empty).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+Only docs/architecture/api-architecture.md, docs/MANIFEST.md, and
+  docs/CHANGELOG.md changed (git status --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-07 — Package 1.4 ADR-021 parity alignment (VIEW-003 documented)
 
 **Bounded semantic Package 1.4 alignment — vai trò: `Package 1.4 ADR-021 Parity Alignment Executor`.** Aligns `api-architecture.md` with Approved ADR-021 v0.1 and the new Consolidated Stable Package 1.1 baseline (v1.0/v1.1). Documents the VIEW-003 Decision replay-parity comparison capability now exposed through the already-registered `review-evidence-service` route. No new API Surface edge, no new Package 1.4 edge, no contract-category change.
