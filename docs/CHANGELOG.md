@@ -2,6 +2,146 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-07 — ADR-022 authored (candidate): Package 1.4 published-contract compatibility commitment and policy root
+
+**Authoring transaction — vai trò: `ADR-022 Author`.** Authors a new ADR candidate resolving the semantic authority gap blocking Package 1.4 Trigger E (`QG-P14-E-EVID-01`, Chapter 13 §13.12 lifecycle-triggered gate). Does not perform compatibility evaluation, does not create a Compatibility Result, does not rerun the Phase 1 Quality Gate.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        7b7b3a5ce05e009917623a8a7b4b7ebfcbfd2bfc
+docs/architecture/api-architecture.md v0.7 blob:       fb2a4a4a04c20d373227d92869abe7cb99f59db0 (verified matched, Consolidated Stable)
+Predecessor commit 2701e4d (v0.6) blob:                97b97cc51513ae7f1fadf3ae98a0ce77a00dcc4b (verified matched)
+Chapter 10 (Compatibility & Capability Contract):      v2.7, Locked (verified matched)
+Chapter 13 (Quality Gates):                            v1.7, Locked (verified matched)
+Phase 1 DoD v0.1:                                      Approved, canonically incorporated (verified matched)
+```
+
+### New artifact
+
+```text
+Path:                      docs/adr/ADR-022.md
+id:                        ADR-022
+title:                     Package 1.4 Published-Contract Compatibility Commitment
+                            and Policy Root
+version:                   "0.1"
+status:                    Draft
+approved_by:               null
+approved_at:                null
+Blob:                      8506ccf06229c53c331b0094e0e25dd4f20b6f2a
+```
+
+### A. Selected compatibility commitment
+
+```text
+Backward compatibility ONLY, scoped to command-query-api-surface's published
+  semantic contract surface (route existence, module ownership, authoritative/
+  non-authoritative classification, outcome-type contract such as
+  PASSED / FAILED / INDETERMINATE and MATCH / MISMATCH / INDETERMINATE) -- NOT
+  field-level schema, which does not exist. Existing integrated consumer (Package
+  1.6, via the NAV-003/VIEW-002/VIEW-003 routes) must continue working as the
+  surface evolves additively.
+Rejected: forward-only (no identified requirement, e.g. no mixed-version rollback
+  need documented); both directions (premature and operationally unverifiable
+  with zero field-level schema at architecture stage; narrower commitment is more
+  reversible); explicit no-compatibility (defeats the purpose of a published,
+  routed API boundary with an already-integrated consumer).
+```
+
+### B. Policy-root decision
+
+```text
+Chapter 10 v2.7 (Locked, blob 016e46bcad0826e983a51ee24c8ec4c3217aeba1) +
+  api-architecture.md SS8 "API contract governance" (v0.7, Consolidated Stable,
+  blob fb2a4a4a04c20d373227d92869abe7cb99f59db0) -- matches Chapter 10 SS10.4.3's
+  own "accepted alternative" for projects that do not want a standalone policy
+  artifact at this stage. No format-specific rule-set invented -- deferred until a
+  concrete field-level schema artifact exists.
+Rejected: format-specific policy (no concrete OpenAPI/GraphQL/protobuf artifact
+  exists); dedicated standalone Compatibility Policy artifact (unnecessary
+  over-engineering for Phase 1 architecture-only scope when SS10.4.3's accepted
+  alternative already suffices).
+```
+
+### Canonical authority decision
+
+```text
+docs/MANIFEST.md (per I-12) designated as the sole canonical authority for BOTH
+  roles required by SS10.4.3, scoped to Package 1.4 published-contract compatibility:
+  Identity/definition/version authority (SS10.4.3 point 3): MANIFEST's existing
+    rows for Chapter 10 and api-architecture.md.
+  Applicability/activation authority (SS10.4.3 point 4), Phase 1 architecture-only
+    scope only: active exactly when MANIFEST confirms Chapter 10 status Locked AND
+    api-architecture.md package lifecycle Consolidated Stable -- an explicit
+    limitation noted; a fuller runtime applicability model is deferred to a
+    successor ADR once implementation (Phase 3) begins.
+Rejected: inventing a new runtime "Compatibility Policy Registry" service (task
+  boundary prohibits inventing a runtime service merely to satisfy
+  documentation-stage evaluation); module-registry.yaml as authority (would
+  conflate module-identity authority with policy-identity authority).
+```
+
+### Evaluator-boundary treatment
+
+```text
+ADR locks only the authorization MODEL requirement (Declaration -> Grant ->
+  Enforcement -> Verification, Chapter 9 SS9.6) for future compatibility
+  evaluation. Does not self-authorize a specific evaluator implementation, does
+  not issue a Compatibility Result. Explicitly preserves: module identity !=
+  evaluator grant; evaluator self-certification prohibited (Chapter 10 SS10.4.1).
+  command-query-api-surface is not automatically granted evaluator status for its
+  own published contract -- a separate governed transaction must designate the
+  evaluator.
+```
+
+### Alternatives rejected (summary)
+
+```text
+Compatibility commitment: forward-only, both directions, explicit no-commitment.
+Policy root: format-specific policy without a concrete schema, a dedicated
+  standalone Compatibility Policy artifact.
+Canonical authority: a newly-invented runtime registry service, module-registry.yaml.
+Evaluator: none selected/proposed -- explicitly out of scope per task boundary.
+```
+
+### Required downstream alignment (not performed by this transaction)
+
+```text
+api-architecture.md SS8 mechanical transcription of the decision (separate
+  transaction, after approval).
+Evaluator designation/grant (separate governed transaction, Declaration -> Grant
+  -> Enforcement -> Verification).
+Compatibility Result pinning for QG-P14-E-EVID-01/G2-RDY-BLK-03 (separate
+  transaction, after both alignments above). All three explicitly kept separate,
+  not bundled, matching the ADR-018/019/020/021 downstream-alignment pattern.
+```
+
+### Validation
+
+```text
+Baseline HEAD, api-architecture.md v0.7 blob, predecessor commit/blob, and
+  Chapter 10/13/Phase-1-DoD identities matched before authoring.
+Exactly three files changed: docs/adr/ADR-022.md (new), docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+ADR-022 confirmed Draft only: version "0.1", approved_by null, approved_at null.
+Exactly one compatibility commitment selected (backward-only), not left
+  undecided between alternatives.
+Scope stated explicitly (semantic contract surface, not field-level schema).
+Policy root exact-pinned (Chapter 10 v2.7 blob + api-architecture.md SS8 v0.7
+  blob); no format-specific rule invented without a concrete format.
+Exactly one canonical policy identity/version authority established (MANIFEST).
+Exactly one applicability/activation authority established (MANIFEST, Phase 1
+  architecture-only scope, explicitly limited).
+No evaluator self-certification occurs; module identity != evaluator grant
+  preserved.
+No Compatibility Result produced.
+Package 1.4 architecture semantics confirmed unchanged (api-architecture.md,
+  module-registry.yaml, system-decomposition.md, ADR-018/019/020/021,
+  ux-architecture.md, phase-1-dod.md all git diff --quiet empty).
+Quality Gate overall result remains FAIL -- evidence; Gate 2 remains closed;
+  QG-P14-E-EVID-01 and G2-RDY-BLK-03 remain open, not closed by this transaction.
+```
+
 ## [Unreleased] — 2026-08-07 — Phase 1 gate-readiness freshness correction (`G2-RDY-MAJ-01`/`G2-RDY-MAJ-02`/`G2-RDY-MIN-01` CLOSED)
 
 **Bounded factual/freshness correction — vai trò: `Phase 1 Gate-Readiness Freshness Correction Executor`.** Corrects stale current-state claims in Package 1.3-A §13a about NAV-003 Gap A (now resolved by Approved ADR-019), adds missing Decision Log entries for ADR-018/019/020/021, and refreshes `MANIFEST.md generated_at`. No architecture semantics changed; no Quality Gates, BCC, or Gate 2 review performed.
