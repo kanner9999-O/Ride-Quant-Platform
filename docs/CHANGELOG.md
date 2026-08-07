@@ -2,6 +2,118 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-07 — Package 1.1 ADR-021 mechanical consolidation
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.1 ADR-021 Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean Package 1.1 ADR-021 alignment. No architecture-semantic change.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        caa1ffebdc3fb6f4e544e6cae5bee2e9263243ac
+docs/architecture/module-registry.yaml v1.0 blob:      7c65bcfd410ff164ec9106ce755b47132068e7c8 (verified matched, candidate)
+docs/architecture/system-decomposition.md v1.1 blob:   48856a7fc770db02589cc156cb36d5619a1de4e5 (verified matched, candidate)
+docs/adr/ADR-021.md v0.1 blob:                         cc922e571419c827c203c24920cf6e22f52326b8 (verified matched, Approved)
+```
+
+### Review evidence
+
+```text
+Review A:                 CLEAN (Blocker 0/Major 0/Minor 0)
+Independent Review B:     CLEAN (Blocker 0/Major 0/Minor 0)
+Consolidation readiness:  READY
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE PACKAGE 1.1 V1.0/V1.1 CONSOLIDATION"
+
+Decision date: 2026-08-07 (date-only — exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+module-registry.yaml:      package lifecycle: candidate -> Consolidated Stable.
+                            version: "1.0" UNCHANGED. status: Draft UNCHANGED.
+system-decomposition.md:   package lifecycle: candidate -> Consolidated Stable.
+                            version: "1.1" UNCHANGED. status: Draft UNCHANGED.
+Blobs:                      module-registry.yaml:
+                              7c65bcfd410ff164ec9106ce755b47132068e7c8 ->
+                              da8601b8ae5cda27b6cd4a50803811ae206fb2bb
+                            system-decomposition.md:
+                              48856a7fc770db02589cc156cb36d5619a1de4e5 ->
+                              2b46ba0f8cae3ea2e1415ce696586eb581c701f9
+MANIFEST.md:                 both rows updated (package lifecycle Consolidated
+                              Stable, version columns corrected to 1.0/1.1 -- a
+                              residual staleness from the prior ADR-021 alignment
+                              transaction, where both rows' version columns were
+                              left at "0.9"/"1.0" by error, also fixed here).
+```
+
+### Preserved unchanged
+
+```text
+review-evidence-service.depends_on += decision-evaluation-engine (ADR-021 SS4/SS10,
+  recomputation delegate only) -- unchanged.
+VIEW-003 responsibility text (recorded Decision via decision-authority-service,
+  deterministic recomputation delegated to decision-evaluation-engine, final
+  structured comparison staying at review-evidence-service, review-evidence-service
+  does not perform canonical Decision evaluation itself) -- unchanged.
+review-evidence-service.module_type (projection), owns_authoritative_state (false),
+  consumes ([event]), emits ([query]), forbidden_dependencies -- unchanged.
+decision-evaluation-engine: every field unchanged (script-verified full-object
+  equality) -- remains recomputation delegate only.
+Module count: still 25.
+All other dependency edges: unchanged.
+Decision authority (decision-authority-service, sole authority); RiskEvaluation/
+  Execution Intent authority (risk-gateway); Order authority (execution-engine);
+  ExecutionResult authority (execution-result-processor).
+Parity recomputation non-authoritative; no Decision append/accept/revalidation
+  through parity; no Decision correction/invalidation by parity modules; MATCH does
+  not reauthorize; MISMATCH does not invalidate (decision.md SS9a, unchanged, only
+  cited).
+Interaction-mechanism gap (request representation, response/event correlation,
+  sync/async behavior, timeout behavior, concrete failure codes, implementation
+  transport): remains EXPLICITLY unresolved -- this consolidation does not resolve
+  it, does not represent it as resolved, and introduces no consumes/emits change
+  to address it.
+decision.md, ADR-021.md, all other ADRs: byte-identical, untouched.
+api-architecture.md, ux-architecture.md, database-architecture.md: untouched --
+  Package 1.4 and Package 1.6 alignment not begun.
+status: Draft, approved_by: null, approved_at: null (both artifacts): unchanged.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all three blobs (module-registry.yaml, system-decomposition.md,
+  ADR-021.md) matched before editing.
+Diff confirmed scoped to exactly: module-registry.yaml (top banner + top-level
+  package_lifecycle field only) and system-decomposition.md (top banner only,
+  frontmatter and all 15 sections confirmed byte-identical).
+Versions confirmed unchanged ("1.0" and "1.1"); architecture semantics confirmed
+  unchanged (script-verified: all 25 modules content-identical except the
+  top-level package_lifecycle field in module-registry.yaml).
+Exactly one ADR-021 edge (review-evidence-service -> decision-evaluation-engine)
+  confirmed still present; no other edge changed.
+Module count confirmed still 25.
+Contract categories confirmed unchanged for both review-evidence-service and
+  decision-evaluation-engine.
+Authority fields confirmed unchanged for all 25 modules.
+decision-evaluation-engine confirmed to remain delegate only (full-object equality
+  check, unchanged).
+Interaction-mechanism gap confirmed still explicitly unresolved (banner language
+  unchanged, diff-verified).
+Package 1.4 (api-architecture.md) and Package 1.6 (ux-architecture.md) confirmed
+  untouched (git diff --quiet empty).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+Only docs/architecture/module-registry.yaml, docs/architecture/system-
+  decomposition.md, docs/MANIFEST.md, and docs/CHANGELOG.md changed (git status
+  --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-07 — Package 1.1 ADR-021 alignment (VIEW-003 recomputation delegation edge)
 
 **Bounded semantic Package 1.1 alignment — vai trò: `Package 1.1 ADR-021 Alignment Executor`.** Mechanically aligns Package 1.1 with Approved ADR-021 v0.1 by registering exactly one new dependency edge for VIEW-003 replay-parity recomputation delegation. Not a new architecture decision, not a new ADR.

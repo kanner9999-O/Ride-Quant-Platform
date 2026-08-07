@@ -1,7 +1,57 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# CONSOLIDATED STABLE (package lifecycle, 2026-08-07, Product Owner decision,
+# vai trò: `Package 1.1 ADR-021 Mechanical Consolidation Executor`) — status:
+# Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable) and
+# artifact status (Draft) are separate dimensions (Chapter 0 §7.1). Product
+# Owner decision (verbatim, as supplied in the transaction request): "APPROVE
+# PACKAGE 1.1 V1.0/V1.1 CONSOLIDATION." Decision date: 2026-08-07 (exact clock
+# time not supplied -- date-only metadata used, no timestamp invented). Review
+# evidence on the v1.0 ADR-021 alignment (this file) and system-decomposition.md
+# v1.1 (parity mirror): Review A CLEAN, Independent Review B CLEAN,
+# consolidation readiness: READY, Blocker 0/Major 0/Minor 0. Mechanical
+# lifecycle transaction -- `version: "1.0"` UNCHANGED (no content/architecture
+# change), `package_lifecycle: candidate -> Consolidated Stable`.
+# system-decomposition.md consolidates in parallel at its own reviewed version,
+# `"1.1"` -- the two artifact versions are NOT normalized to a shared number;
+# each is recorded exactly as reviewed. Preserved unchanged (byte-identical,
+# this consolidation changes lifecycle prose/fields ONLY): the added
+# review-evidence-service.depends_on edge to decision-evaluation-engine
+# (ADR-021 §4/§10) -- recomputation delegation ONLY; the VIEW-003
+# responsibility text (recorded Decision via decision-authority-service,
+# deterministic recomputation delegated to decision-evaluation-engine, final
+# structured comparison staying at review-evidence-service,
+# review-evidence-service does NOT perform canonical Decision evaluation
+# itself); 25-module inventory; every other dependency/forbidden_dependencies
+# list; review-evidence-service.consumes (`[event]`), .emits (`[query]`),
+# module_type (`projection`), owns_authoritative_state (`false`), hybrid
+# (`null`), forbidden_dependencies; decision-evaluation-engine's every field
+# (module_type/consumes/emits/depends_on/forbidden_dependencies/
+# owns_authoritative_state/phase, unchanged -- remains recomputation delegate
+# ONLY, gains no authority, performs no comparison, exposes no query result
+# directly); Decision authority (decision-authority-service, sole authority);
+# RiskEvaluation/Execution Intent authority (risk-gateway); Order authority
+# (execution-engine); ExecutionResult authority (execution-result-processor);
+# API Surface routing/exposure-only boundary; UX Shell non-authority;
+# `decision.md` §9a semantics (not redefined, only cited). The
+# recomputation-delegation interaction mechanism (request representation,
+# response/event correlation, synchronous-vs-asynchronous interaction, timeout
+# behavior, concrete failure codes, implementation transport) remains
+# EXPLICITLY unresolved -- this consolidation does NOT resolve it, does NOT
+# represent it as resolved, and does NOT introduce any consumes/emits change to
+# address it; it remains carried forward as an interaction-mechanism gap, same
+# pattern as the Package 1.5 contract-category interaction gap. ADR-021 is NOT
+# modified by this transaction. `DD-001` and any Package 1.5 interaction gap
+# remain unresolved. Package 1.4 (`api-architecture.md`) and Package 1.6
+# (`ux-architecture.md`) are NOT modified -- the separate Package 1.4
+# parity-description transaction and the separate Package 1.6 correction
+# transaction (closing `P16-A-MAJ-02` fully) remain pending, unaffected by this
+# consolidation. No implementation, Gate 2, Phase 2, or LIVE authorization
+# introduced.
+#
 # CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-07,
-# vai trò: `Package 1.1 ADR-021 Alignment Executor`) — status: Draft, NOT
+# HISTORICAL — superseded by the Consolidated Stable decision above, vai trò:
+# `Package 1.1 ADR-021 Alignment Executor`) — status: Draft, NOT
 # Approved/Locked. Package 1.1 v0.9 -> v1.0: genuine semantic registry change —
 # EXACT mechanical transcription of Approved ADR-021 (v0.1, Approved 2026-08-07,
 # approved_at "2026-08-07") — NOT a new architecture decision, NOT a new ADR.
@@ -290,7 +340,7 @@ registry_id: phase-1-module-registry
 version: "1.0"
 status: Draft
 package: "1.1"
-package_lifecycle: candidate
+package_lifecycle: Consolidated Stable
 generated_at: "2026-08-07"
 
 modules:
