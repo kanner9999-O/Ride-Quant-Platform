@@ -2,6 +2,98 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-07 — ADR-021 mechanical approval
+
+**Mechanical ADR lifecycle transaction — vai trò: `ADR-021 Mechanical Approval Executor`.** Records Product Owner approval of ADR-021 v0.1. No decision-semantic change.
+
+### Baseline
+
+```text
+Baseline HEAD:                0397110ac0d726d837eaabb07933ff3d54f42ff7
+docs/adr/ADR-021.md v0.1 blob: fba027fadc92c657e548f005a5e0fd05575b3757 (verified matched, Draft)
+```
+
+### Review evidence
+
+```text
+Review A:                  CLEAN (Blocker 0/Major 0/Minor 0)
+Independent Review B:      CLEAN (Blocker 0/Major 0/Minor 0, readiness: READY)
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE ADR-021"
+
+Decision date: 2026-08-07 (date-only — exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+ADR-021.md:                status: Draft -> Approved. approved_by: null -> Product
+                            Owner. approved_at: null -> "2026-08-07". version: "0.1"
+                            UNCHANGED (mechanical lifecycle transaction — no version
+                            bump for pure approval, Chapter 11 §11.4, same pattern as
+                            ADR-017/ADR-018/ADR-019/ADR-020). From this point,
+                            ADR-021.md is immutable byte-for-byte (Chapter 11 §11.3).
+Blob:                       fba027fadc92c657e548f005a5e0fd05575b3757 ->
+                            cc922e571419c827c203c24920cf6e22f52326b8
+MANIFEST.md:                row updated (Approved, review evidence, verbatim decision,
+                             blob transition recorded).
+```
+
+### Preserved unchanged
+
+```text
+Selected VIEW-003 owner: review-evidence-service.
+Recomputation delegate: decision-evaluation-engine.
+Final comparison ownership at review-evidence-service.
+Route: ux-application-shell -> command-query-api-surface -> review-evidence-service.
+Exactly one proposed downstream edge (review-evidence-service ->
+  decision-evaluation-engine) -- remains proposed, NOT applied to
+  module-registry.yaml.
+Zero new API Surface edge; zero contract-category change.
+MATCH / MISMATCH / INDETERMINATE outcome model.
+Decision authority at decision-authority-service.
+Parity non-authority and no-write boundaries.
+decision.md SS9a Digest limitations (unchanged, not redefined).
+Correction-aware cursor handling (unchanged).
+Unresolved recomputation-delegation protocol (unchanged, still deferred).
+Required downstream Package 1.1/1.4/1.6 alignment requirements (identified, not
+  executed).
+decision.md, all other ADRs, module-registry.yaml, system-decomposition.md,
+  api-architecture.md, ux-architecture.md, database-architecture.md: byte-identical
+  (git diff empty).
+Package 1.6: remains candidate, untouched.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and ADR-021.md v0.1 blob matched before editing.
+Diff confirmed scoped to exactly two locations: frontmatter lifecycle fields (status/
+  approved_by/approved_at) and two prose updates (top banner CANDIDATE->APPROVED
+  relabel with immutability clause; §16 Independent reviews table/blockquote
+  recording review evidence and the verbatim Product Owner decision) — no hunk
+  touches §1-§15 (Context through Relationship) or §17 (Open questions).
+version confirmed unchanged ("0.1").
+approved_by confirmed exactly "Product Owner"; approved_at confirmed exactly
+  "2026-08-07".
+Proposed edge confirmed still proposed, unexecuted (module-registry.yaml untouched,
+  git diff --quiet empty).
+Contract categories confirmed unchanged.
+Decision authority confirmed unchanged.
+Delegation protocol confirmed still unresolved (§7/§11/§17 text unchanged,
+  diff-verified).
+Package 1.6 confirmed still candidate — ux-architecture.md untouched.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced (confirmed —
+  banner and §16 explicitly restate this).
+Only docs/adr/ADR-021.md, docs/MANIFEST.md, and docs/CHANGELOG.md changed (git status
+  --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-06 — ADR-021 authored: VIEW-003 owner/route (candidate)
 
 **New ADR authored — vai trò: `ADR-021 VIEW-003 Owner/Route Bounded Author`.** Selects the computation owner and API query route for VIEW-003 Decision replay-parity verification, resolving the remaining half of Package 1.6's `P16-A-MAJ-02` blocker (`ux-architecture.md` v0.5 SS13 gap #1b). Does not modify Package 1.1, 1.4, 1.5, or 1.6 architecture artifacts.
