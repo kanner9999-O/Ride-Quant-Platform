@@ -2,6 +2,101 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-08 — ADR-022 v0.2 bounded correction (`ADR022-A-MAJ-01` CLOSED)
+
+**Bounded correction — vai trò: `ADR-022 v0.2 Bounded Correction Executor`.** Corrects a stale-by-construction policy-root pin in ADR-022 v0.1 (`ADR022-A-MAJ-01`). Does not redesign the compatibility commitment, authority model, or evaluator model.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        e6ebc3f08bfe0fed2efbe89b96c78fcfb4ef5435
+docs/adr/ADR-022.md v0.1 blob:                         8506ccf06229c53c331b0094e0e25dd4f20b6f2a (verified matched, Draft)
+```
+
+### Defect (`ADR022-A-MAJ-01`)
+
+```text
+SS4.1 pinned api-architecture.md v0.7 (blob fb2a4a4a04c20d373227d92869abe7cb99f59db0)
+  as the permanent Package 1.4 component of the policy root. But v0.7 does not
+  contain the backward-only declaration ADR-022 itself selects (SS3.2), and SS7
+  already requires a future alignment transaction to transcribe that declaration
+  into SS8 -- necessarily producing a new version/blob. Pinning v0.7 as permanent
+  evidence made the policy root stale/incomplete by construction as soon as the
+  first alignment transaction occurs.
+```
+
+### Correction applied
+
+```text
+SS4.1 now distinguishes:
+  Logical policy-root composition (unchanged): Chapter 10 v2.7 + a Package 1.4
+    contract-governance artifact that has authoritatively incorporated ADR-022's
+    approved compatibility commitment.
+  Evaluation-time evidence (new, mandatory): any future Compatibility Result MUST
+    exact-pin the concrete post-alignment api-architecture.md version/blob that
+    actually contains the declaration -- no mutable "latest" reference permitted.
+  v0.7/blob fb2a4a4a04c20d373227d92869abe7cb99f59db0 now explicitly labeled the
+    sole historical pre-alignment subject -- NOT sufficient as final policy-root
+    evidence, since it does not contain the selected declaration.
+SS7's Quality Gate evidence paragraph gained one sentence cross-referencing the
+  same exact-pin-post-alignment requirement, to avoid internal inconsistency.
+New v0.2 correction banner paragraph prepended (history preserved, v0.1 paragraph
+  unchanged).
+```
+
+### Lifecycle change
+
+```text
+ADR-022.md:                version: "0.1" -> "0.2". status: Draft UNCHANGED.
+Blob:                       8506ccf06229c53c331b0094e0e25dd4f20b6f2a ->
+                             e83b40b77d9fbd7a18eefb8ba3cf4feaf75b22a9
+MANIFEST.md:                row updated (new v0.2 correction paragraph prepended,
+                             v0.1 paragraph preserved as historical record with a
+                             pointer to the v0.2 current-normative statement).
+```
+
+### Preserved unchanged
+
+```text
+Backward-compatibility-only commitment (SS3.2) -- byte-identical.
+Chapter 10 v2.7 exact identity 016e46bcad0826e983a51ee24c8ec4c3217aeba1.
+v0.6 compatibility predecessor blob 97b97cc51513ae7f1fadf3ae98a0ce77a00dcc4b
+  (baseline citation, untouched).
+No-format-specific-rule decision (SS4).
+MANIFEST canonical-authority decision (SS5) -- unchanged in substance.
+Phase-1-architecture-only applicability limitation (SS5.2).
+Evaluator authorization model (SS6, Declaration -> Grant -> Enforcement ->
+  Verification) and anti-self-certification rule -- unchanged.
+Package 1.4 route/dependency architecture -- untouched.
+ADR-018/019/020/021 -- byte-identical, untouched (git diff --quiet empty).
+Quality Gate overall result -- remains FAIL -- evidence.
+```
+
+### Validation
+
+```text
+Baseline HEAD and ADR-022.md v0.1 blob matched before editing.
+Exactly three files changed: docs/adr/ADR-022.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+Diff confirmed scoped to exactly four locations: frontmatter (version), the top
+  banner (new v0.2 paragraph prepended), SS4.1 (policy-root correction), and SS7
+  (one added cross-reference sentence) -- SS1-SS3, SS5-SS6, SS8-SS14 confirmed
+  byte-identical via diff hunk review.
+Version confirmed changed 0.1 -> 0.2; status confirmed unchanged (Draft).
+Backward-only commitment confirmed unchanged.
+Chapter 10 exact blob confirmed unchanged.
+v0.7 blob confirmed now explicitly labeled historical/pre-alignment, not final
+  policy-root evidence.
+Future evaluation confirmed requires an exact post-alignment Package 1.4
+  version/blob -- no mutable reference introduced.
+No Compatibility Result produced; no evaluator authorized.
+No Package 1.4 semantics modified (api-architecture.md, module-registry.yaml,
+  system-decomposition.md, ux-architecture.md, phase-1-dod.md, ADR-018/019/020/021
+  all git diff --quiet empty).
+Quality Gate overall result confirmed remains FAIL -- evidence; Gate 2 confirmed
+  remains closed.
+```
+
 ## [Unreleased] — 2026-08-07 — ADR-022 authored (candidate): Package 1.4 published-contract compatibility commitment and policy root
 
 **Authoring transaction — vai trò: `ADR-022 Author`.** Authors a new ADR candidate resolving the semantic authority gap blocking Package 1.4 Trigger E (`QG-P14-E-EVID-01`, Chapter 13 §13.12 lifecycle-triggered gate). Does not perform compatibility evaluation, does not create a Compatibility Result, does not rerun the Phase 1 Quality Gate.
