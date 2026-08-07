@@ -1,7 +1,67 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-07,
+# vai trò: `Package 1.1 ADR-021 Alignment Executor`) — status: Draft, NOT
+# Approved/Locked. Package 1.1 v0.9 -> v1.0: genuine semantic registry change —
+# EXACT mechanical transcription of Approved ADR-021 (v0.1, Approved 2026-08-07,
+# approved_at "2026-08-07") — NOT a new architecture decision, NOT a new ADR.
+# Exactly one dependency edge added: review-evidence-service.depends_on +=
+# decision-evaluation-engine (VIEW-003/UC-005 Decision replay-parity
+# recomputation delegation, ADR-021 §4/§10). The recorded-side edge
+# (review-evidence-service -> decision-authority-service) was already present
+# -- ZERO new edge needed for that side. `command-query-api-surface`'s edge to
+# review-evidence-service was already present -- ZERO new edge at the API
+# Surface layer. Independently graph-verified (full 25-module DFS): exactly one
+# edge added, zero edges removed, zero duplicate edges, the full depends_on
+# graph remains acyclic, and the direct cycle decision-authority-service <->
+# decision-evaluation-engine is NOT introduced (decision-authority-service
+# already depends_on decision-evaluation-engine; the new edge runs the other
+# direction, review-evidence-service -> decision-evaluation-engine, with no
+# path back). No forbidden_dependencies violated. Module count unchanged (25).
+# `review-evidence-service.responsibilities` gains one new entry describing the
+# VIEW-003 comparison-orchestration boundary (recorded-side via existing edge,
+# recomputation delegated to decision-evaluation-engine, final comparison and
+# query exposure staying at review-evidence-service) -- review-evidence-service
+# does NOT perform canonical Decision evaluation itself. `review-evidence-
+# service.consumes` (`[event]`), `.emits` (`[query]`), `module_type`
+# (`projection`), `owns_authoritative_state` (`false`), `hybrid` (`null`) are
+# ALL unchanged -- NO contract-category change introduced to address the
+# interaction-mechanism gap (§ below). `decision-evaluation-engine` (every
+# field: module_type, consumes, emits, depends_on, forbidden_dependencies,
+# owns_authoritative_state, phase) is completely unchanged -- it remains a
+# non-authoritative recomputation delegate ONLY, gains no new authority, and is
+# not itself modified by this transaction. Interaction-mechanism gap (bắt buộc
+# ghi nhận, KHÔNG resolve tại transaction này): the exact recomputation request
+# representation, response/event correlation, synchronous-vs-asynchronous
+# interaction, timeout behavior, concrete failure codes, and implementation
+# transport between review-evidence-service and decision-evaluation-engine are
+# NOT defined by this depends_on edge alone -- carried forward as an unresolved
+# implementation/interaction-mechanism gap, same pattern as the Package 1.5
+# contract-category interaction gap (database-architecture.md §11, ADR-019
+# §1.1's own citation of that precedent). Same precedent as v0.8 -> v0.9
+# (ADR-020 alignment) — a genuine architectural/semantic change, NOT a bounded
+# wording-only correction, reverts `package_lifecycle` from `Consolidated
+# Stable` to `candidate`. This transaction does NOT reconsolidate — a separate
+# Review A + Independent Review B + Product Owner consolidation decision MUST
+# complete before this baseline returns to `Consolidated Stable`. Preserved
+# unchanged: every other module's identity/taxonomy/dependency/
+# forbidden_dependencies/contract-category/authority/phase assignment; module
+# inventory (STILL 25 modules — no module added); Decision authority
+# (decision-authority-service, sole authority, unchanged); RiskEvaluation/
+# Execution Intent authority (risk-gateway); Order authority
+# (execution-engine); ExecutionResult authority (execution-result-processor);
+# API Surface routing/exposure-only boundary; UX Shell non-authority;
+# `decision.md` §9a semantics (not redefined, only cited by ADR-021). `DD-001`
+# and any Package 1.5 interaction gap remain unresolved — untouched by this
+# transaction. Package 1.4 (`api-architecture.md`) and Package 1.6
+# (`ux-architecture.md`) are NOT modified by this transaction — a separate
+# Package 1.4 parity-description transaction and a separate Package 1.6
+# correction transaction (closing `P16-A-MAJ-02` fully) remain pending. No
+# implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+#
 # CONSOLIDATED STABLE (package lifecycle, 2026-08-06, Product Owner decision,
-# vai trò: `Package 1.1 ADR-020 Alignment Mechanical Consolidation Executor`) —
+# HISTORICAL — superseded by the candidate decision above, vai trò:
+# `Package 1.1 ADR-020 Alignment Mechanical Consolidation Executor`) —
 # status: Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable)
 # and artifact status (Draft) are separate dimensions (Chapter 0 §7.1). Product
 # Owner decision (verbatim, as supplied in the transaction request): "APPROVE
@@ -227,11 +287,11 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "0.9"
+version: "1.0"
 status: Draft
 package: "1.1"
-package_lifecycle: Consolidated Stable
-generated_at: "2026-08-06"
+package_lifecycle: candidate
+generated_at: "2026-08-07"
 
 modules:
 
@@ -867,18 +927,19 @@ modules:
     responsibilities:
       - "Read-only aggregation/trace query surface phục vụ Decision→Position lineage trace, historical-state comparison, correction inspection (UC-016–UC-018)."
       - "Performs the non-authoritative, interval-bounded VIEW-002 / UC-003 Research verification existence check over existing Decision, RiskEvaluation, Execution Intent, Order and ExecutionResult facts, producing a workflow-visible PASSED / FAILED / INDETERMINATE query result without recomputing or replacing source authority."
+      - "Owns the non-authoritative VIEW-003 / UC-005 Decision replay-parity comparison orchestration: obtains the recorded Decision via the existing decision-authority-service dependency, delegates deterministic pinned recomputation to decision-evaluation-engine (review-evidence-service does not perform canonical Decision evaluation itself), performs the final structured Canonical Decision Semantic Representation comparison, and exposes a workflow-visible MATCH / MISMATCH / INDETERMINATE query result without appending, replacing, or authorizing any Decision."
     implements_capabilities: []
     serves_contexts: []
     owns_authoritative_state: false
     consumes: [event]
     emits: [query]
-    depends_on: [decision-authority-service, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service]
+    depends_on: [decision-authority-service, risk-gateway, execution-engine, execution-result-processor, fill-processor, position-projection, replay-integration-service, decision-evaluation-engine]
     forbidden_dependencies: []
     plugin_relation: none
     security_classification: none
     phase: { identified_in: "1.1", elaborated_by: "1.5" }
     status: candidate
-    notes: "Cross-cutting read/evidence layer — no new authoritative fact, no recomputation (PR-030 no-recompute preserved). ADR-016 v0.8 correction: `decision-engine` → `decision-authority-service` (Decision→Position lineage trace uses authoritative fact only). ADR-020 v0.1 (Approved, 2026-08-06) alignment: VIEW-002/UC-003 existence-check responsibility added — the four source modules (decision-authority-service, risk-gateway, execution-engine, execution-result-processor) were already present in depends_on; consumes/emits unchanged ([event]/[query]); review-evidence-service gains no new authority, remains owns_authoritative_state: false."
+    notes: "Cross-cutting read/evidence layer — no new authoritative fact, no recomputation performed BY review-evidence-service itself (PR-030 no-recompute preserved; deterministic recomputation for VIEW-003 parity is delegated to decision-evaluation-engine, a separate non-authoritative module). ADR-016 v0.8 correction: `decision-engine` → `decision-authority-service` (Decision→Position lineage trace uses authoritative fact only). ADR-020 v0.1 (Approved, 2026-08-06) alignment: VIEW-002/UC-003 existence-check responsibility added — the four source modules (decision-authority-service, risk-gateway, execution-engine, execution-result-processor) were already present in depends_on; consumes/emits unchanged ([event]/[query]); review-evidence-service gains no new authority, remains owns_authoritative_state: false. ADR-021 v0.1 (Approved, 2026-08-07) alignment: VIEW-003/UC-005 replay-parity comparison responsibility added — ONE new dependency edge (decision-evaluation-engine, for pinned recomputation delegation only); decision-authority-service edge (recorded-side) already present; consumes/emits unchanged ([event]/[query]); review-evidence-service gains no new authority, remains owns_authoritative_state: false; final comparison and query exposure stay at review-evidence-service, recomputation stays non-authoritative at decision-evaluation-engine. The exact request/response interaction mechanism between review-evidence-service and decision-evaluation-engine (synchronous vs. asynchronous, correlation, timeout, failure codes, transport) is NOT resolved by this depends_on edge — carried forward as an unresolved implementation/interaction-mechanism gap, same pattern as the Package 1.5 contract-category interaction gap (database-architecture.md §11)."
 
   - module_id: ux-application-shell
     name: UX Application Shell

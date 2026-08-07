@@ -2,6 +2,144 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-07 — Package 1.1 ADR-021 alignment (VIEW-003 recomputation delegation edge)
+
+**Bounded semantic Package 1.1 alignment — vai trò: `Package 1.1 ADR-021 Alignment Executor`.** Mechanically aligns Package 1.1 with Approved ADR-021 v0.1 by registering exactly one new dependency edge for VIEW-003 replay-parity recomputation delegation. Not a new architecture decision, not a new ADR.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        dfb141a4ebe115bd96d59cd301f0ca72b4d4259f
+docs/adr/ADR-021.md v0.1 blob:                         cc922e571419c827c203c24920cf6e22f52326b8 (verified matched, Approved)
+docs/architecture/module-registry.yaml v0.9 blob:      578ae5399a2be2ec60ba7e13c01c3a01df16610d (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v1.0 blob:   54f3aed10f594e0276fe179602cf973b0e2a59a4 (verified matched, Consolidated Stable)
+docs/architecture/api-architecture.md v0.6 blob:       97b97cc51513ae7f1fadf3ae98a0ce77a00dcc4b (verified matched, Consolidated Stable)
+docs/architecture/ux-architecture.md v0.5 blob:        e078ee7c8541ad3369589c7495104c972597e2eb (verified matched, candidate)
+```
+
+### Dependency edge added (ADR-021 §4/§10, transcribed verbatim)
+
+```text
+review-evidence-service.depends_on += decision-evaluation-engine
+
+Registry fact re-verified via python3 + yaml parse before and after editing: exactly
+  one edge added, zero edges removed, zero duplicate edges. Full 25-module depends_on
+  graph confirmed acyclic (DFS cycle detection, script re-run). Direct cycle
+  decision-authority-service <-> decision-evaluation-engine confirmed NOT introduced
+  (decision-authority-service already depends_on decision-evaluation-engine; the new
+  edge runs the opposite direction only). Zero forbidden_dependencies violations.
+  Module count confirmed unchanged (25).
+
+Responsibility added (verbatim): "Owns the non-authoritative VIEW-003 / UC-005
+  Decision replay-parity comparison orchestration: obtains the recorded Decision via
+  the existing decision-authority-service dependency, delegates deterministic pinned
+  recomputation to decision-evaluation-engine (review-evidence-service does not
+  perform canonical Decision evaluation itself), performs the final structured
+  Canonical Decision Semantic Representation comparison, and exposes a
+  workflow-visible MATCH / MISMATCH / INDETERMINATE query result without appending,
+  replacing, or authorizing any Decision."
+
+Mirrored in both Package 1.1 artifacts: module-registry.yaml (the field itself, plus
+  updated notes) and system-decomposition.md (SS5 dependency graph, SS6 "Ngoại lệ
+  tường minh" paragraph quoting the same responsibility text verbatim).
+```
+
+### Lifecycle change
+
+```text
+module-registry.yaml:      version "0.9" -> "1.0", package_lifecycle:
+                            Consolidated Stable -> candidate (reverted, same
+                            precedent as v0.8 -> v0.9 ADR-020 alignment). NOT
+                            reconsolidated at this transaction.
+system-decomposition.md:   version "1.0" -> "1.1" (own reviewed version, NOT
+                            normalized to module-registry.yaml's "1.0" -- the two
+                            artifact versions remain independently tracked, per
+                            repository convention).
+Blobs:                      module-registry.yaml:
+                              578ae5399a2be2ec60ba7e13c01c3a01df16610d ->
+                              7c65bcfd410ff164ec9106ce755b47132068e7c8
+                            system-decomposition.md:
+                              54f3aed10f594e0276fe179602cf973b0e2a59a4 ->
+                              48856a7fc770db02589cc156cb36d5619a1de4e5
+MANIFEST.md:                 both rows updated (package lifecycle candidate,
+                              version transitions, blob transitions recorded).
+```
+
+### Preserved unchanged
+
+```text
+review-evidence-service.consumes ([event]), .emits ([query]), module_type
+  (projection), owns_authoritative_state (false), hybrid (null),
+  forbidden_dependencies -- unchanged.
+decision-evaluation-engine: EVERY field (module_type, consumes, emits, depends_on,
+  forbidden_dependencies, owns_authoritative_state, phase) confirmed unchanged --
+  script-verified full-object equality. Remains a non-authoritative recomputation
+  delegate only, gains no new authority, performs no comparison, exposes no query
+  result directly.
+Every other module's identity/taxonomy/dependency/forbidden_dependencies/contract-
+  category/authority/phase assignment -- confirmed via a full python3/yaml diff of
+  all 25 modules (only review-evidence-service changed).
+Module inventory: still 25 modules.
+Decision authority (decision-authority-service, sole authority, unchanged);
+  RiskEvaluation/Execution Intent authority (risk-gateway); Order authority
+  (execution-engine); ExecutionResult authority (execution-result-processor).
+Parity recomputation cannot append or accept a Decision (ADR-021 SS7/SS9, decision.md
+  SS9a.4/SS9a.7, unchanged, only cited).
+MATCH does not reauthorize; MISMATCH does not invalidate (decision.md SS9a.7,
+  unchanged).
+Correction-aware cursor handling and Digest limitations (decision.md SS9a.2/SS9a.3):
+  unchanged, only cited.
+system-decomposition.md SS1-SS4, SS7-SS15 (including SS10 UC/PR/UX coverage table):
+  byte-identical (section-by-section diff confirmed) -- only SS5 (dependency graph)
+  and SS6 (responsibility mirror) changed in the body.
+decision.md, ADR-021.md, and all existing ADRs: byte-identical, untouched.
+api-architecture.md, ux-architecture.md, database-architecture.md: untouched.
+Interaction-mechanism gap (request representation, response/event correlation,
+  sync-vs-async, timeout behavior, failure codes, transport) explicitly recorded as
+  unresolved -- NOT defined by this depends_on edge alone, NOT addressed via any
+  consumes/emits change.
+DD-001 and any Package 1.5 interaction gap: unresolved, untouched.
+Package 1.6 (ux-architecture.md): untouched, remains candidate.
+status: Draft, approved_by: null, approved_at: null (both artifacts): unchanged.
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all five blobs (ADR-021.md, module-registry.yaml,
+  system-decomposition.md, api-architecture.md, ux-architecture.md) matched before
+  editing.
+Diff confirmed scoped to exactly: module-registry.yaml (top banner, top-level
+  version/package_lifecycle/generated_at fields, review-evidence-service.depends_on/
+  .responsibilities/.notes) and system-decomposition.md (frontmatter version, top
+  banner, SS5 dependency-graph line, SS6 new paragraph) -- no hunk touches any other
+  module or any other section.
+Exactly one edge added (script-verified); no edge removed; no duplicate edge; full
+  graph acyclic; direct decision-authority-service <-> decision-evaluation-engine
+  cycle confirmed not introduced; zero forbidden_dependencies violations; module
+  count unchanged (25).
+Contract categories confirmed unchanged for both review-evidence-service and
+  decision-evaluation-engine.
+Authority fields confirmed unchanged for all 25 modules.
+Responsibility wording confirmed to mirror ADR-021 SS4-SS10 exactly (verbatim string
+  match, no claim of canonical Decision evaluation by review-evidence-service).
+decision-evaluation-engine confirmed to remain recomputation delegate only (no
+  comparison logic, no query exposure, no authority gained).
+review-evidence-service confirmed to remain final comparison owner and sole query-
+  exposure point.
+Interaction mechanism confirmed still explicitly unresolved (SS7/SS11 language
+  unchanged, diff-verified).
+Package 1.1 lifecycle confirmed candidate (both artifacts' banners), not
+  Consolidated Stable.
+Package 1.4 (api-architecture.md) and Package 1.6 (ux-architecture.md) confirmed
+  untouched (git diff --quiet empty).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+Only docs/architecture/module-registry.yaml, docs/architecture/system-
+  decomposition.md, docs/MANIFEST.md, and docs/CHANGELOG.md changed (git status
+  --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-07 — ADR-021 mechanical approval
 
 **Mechanical ADR lifecycle transaction — vai trò: `ADR-021 Mechanical Approval Executor`.** Records Product Owner approval of ADR-021 v0.1. No decision-semantic change.
