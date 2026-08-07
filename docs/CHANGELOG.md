@@ -2,6 +2,110 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-07 — Package 1.6 v0.6 mechanical consolidation (Consolidated Stable)
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.6 v0.6 Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean Package 1.6 v0.6 baseline (cumulative Review A/Independent Review B over v0.2–v0.6). No UX architecture semantic change; no Gate 2 readiness assessment performed.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        34b7419633da6ccc60b305f8c5d53f0885d00a05
+docs/architecture/ux-architecture.md v0.6 blob:        f569b7ff856ae804b6186386ea67548db019af27 (verified matched, candidate)
+```
+
+### Review evidence
+
+```text
+Cumulative Review A (v0.2-v0.6):  CLEAN (Blocker 0/Major 0/Minor 0)
+Independent cumulative Review B:  CLEAN (Blocker 0/Major 0/Minor 0)
+Consolidation readiness:          READY
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE PACKAGE 1.6 V0.6 CONSOLIDATION"
+
+Decision date: 2026-08-07 (date-only -- exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+ux-architecture.md:       package lifecycle: candidate -> Consolidated Stable.
+                           version: "0.6" UNCHANGED. status: Draft UNCHANGED.
+Blob:                      f569b7ff856ae804b6186386ea67548db019af27 ->
+                           8998efd89ce9792460a8c550f1f1348c5d58b31b
+MANIFEST.md:               row updated (package lifecycle Consolidated Stable
+                           paragraph prepended; version column already correct at
+                           0.6 from the prior transaction, no staleness found this
+                           time).
+```
+
+### Preserved unchanged
+
+```text
+NAV-003 route: ux-application-shell -> command-query-api-surface ->
+  backtest-orchestrator -- unchanged. Run identity non-authoritative
+  correlation/grouping; Decision/RiskEvaluation authority; DD-001 unresolved.
+VIEW-002 route: ux-application-shell -> command-query-api-surface ->
+  review-evidence-service -- unchanged. Existence-check only; result
+  PASSED / FAILED / INDETERMINATE; no recomputation; UC-003 Product-level gaps
+  unresolved.
+VIEW-003 same route -- unchanged. review-evidence-service is orchestration/
+  final-comparison owner; recorded Decision through decision-authority-service;
+  pinned recomputation delegated to decision-evaluation-engine (never exposed
+  directly through UX/API); result MATCH / MISMATCH / INDETERMINATE;
+  workflow-visible, non-authoritative.
+Finding state: P16-A-MAJ-01 / P16-A-MAJ-02 / P16-A-MIN-01 CLOSED, not reopened.
+  P16-A-MIN-02 correction satisfied; accessibility/design-token gap remains
+  carry-forward.
+Authority boundaries: Decision authority (decision-authority-service);
+  RiskEvaluation/Execution Intent authority (risk-gateway); Order authority
+  (execution-engine); ExecutionResult authority (execution-result-processor);
+  review-evidence-service and decision-evaluation-engine non-authoritative;
+  API Surface routing/exposure-only; UX Shell non-authoritative; MATCH does not
+  reauthorize; MISMATCH does not invalidate.
+decision.md SS9a: not redefined, byte-identical.
+Carry-forward gaps remain explicitly unresolved: accessibility/responsiveness/
+  design-token requirements; DD-001; Package 1.5 interaction/retention gaps;
+  UC-003 Product-level mechanisms; VIEW-003 delegation protocol (request
+  representation, response/event correlation, sync/async behavior, timeout,
+  failure codes, transport).
+Identifier accounting: 59/59, unchanged.
+No ADR, decision.md, module-registry.yaml, system-decomposition.md,
+  api-architecture.md, or Package 1.5 artifact modified (git diff --quiet empty
+  for all).
+```
+
+### Validation
+
+```text
+Baseline HEAD and blob (ux-architecture.md) matched before editing.
+Diff confirmed scoped to exactly two locations: the top banner (new
+  Consolidated Stable paragraph prepended, prior CANDIDATE banner preserved
+  and marked HISTORICAL) and SS15 (Lifecycle treatment, package
+  lifecycle/readiness field, review-evidence fields, and precedent-history
+  paragraph updated, plus a short consolidation-confirmation paragraph
+  appended before the SS15 heading) -- SS0-SS14 confirmed byte-identical via
+  git diff hunk review.
+Lifecycle confirmed changed candidate -> Consolidated Stable.
+Version confirmed unchanged ("0.6"); status confirmed unchanged (Draft).
+NAV-003, VIEW-002, and VIEW-003 semantics confirmed unchanged.
+Finding closure state (P16-A-MAJ-01/02, P16-A-MIN-01 CLOSED; P16-A-MIN-02
+  qualified) confirmed unchanged.
+Authority boundaries confirmed unchanged.
+Carry-forward gaps confirmed still explicitly unresolved.
+Package 1.1, Package 1.4, and Package 1.5 artifacts confirmed untouched
+  (git diff --quiet empty for all six: both ADR-020/ADR-021, decision.md,
+  module-registry.yaml, system-decomposition.md, api-architecture.md,
+  database-architecture.md).
+No Gate 2, Phase 2, implementation, or LIVE authorization introduced; no
+  Gate 2 readiness assessment performed.
+Only docs/architecture/ux-architecture.md, docs/MANIFEST.md, and
+  docs/CHANGELOG.md changed (git status --porcelain confirmed after edits).
+```
+
 ## [Unreleased] — 2026-08-07 — Package 1.6 VIEW-003 ADR-021 alignment/correction (`P16-A-MAJ-02` CLOSED)
 
 **Bounded Package 1.6 correction — vai trò: `Package 1.6 VIEW-003 ADR-021 Alignment/Correction Executor`.** Aligns `ux-architecture.md` VIEW-003 binding with Approved ADR-021 v0.1 and the now-stable Package 1.1 (v1.0/v1.1) / Package 1.4 (v0.7) baselines. Closes the remaining VIEW-003 architecture-binding half of `P16-A-MAJ-02`. Does not consolidate Package 1.6.

@@ -15,7 +15,9 @@ depends_on: ["00-governance", "02-platform-invariants", "07-module-taxonomy", "0
 
 # Package 1.6 — UX Architecture
 
-**CANDIDATE — status: Draft, KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.6 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable`, Package 1.4 `Consolidated Stable` (v0.3), Package 1.5 `Consolidated Stable` (v0.2), [`ux-blueprint.md`](../product/ux-blueprint.md) (Package 0.3-C, `Consolidated Stable`), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.6 — UX Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
+**CONSOLIDATED STABLE (package lifecycle, 2026-08-07, Product Owner decision) — status: Draft, KHÔNG Approved/Locked.** Product Owner đã quyết định nguyên văn (as supplied in the transaction request): "APPROVE PACKAGE 1.6 V0.6 CONSOLIDATION." Decision date: 2026-08-07 (exact clock time KHÔNG được cung cấp — date-only metadata, KHÔNG một giá trị giả định nào được invent). Review evidence trên v0.6 (cumulative, v0.2–v0.6): Review A `CLEAN`, Independent Review B `CLEAN`, consolidation readiness: `READY`, Blocker 0/Major 0/Minor 0. Mechanical lifecycle transaction — `version: "0.6"` UNCHANGED (no content/UX architecture semantic change), `package lifecycle: candidate → Consolidated Stable`. **Preserved unchanged (byte-identical, transaction này CHỈ đổi lifecycle prose/field):** NAV-003 route `ux-application-shell → command-query-api-surface → backtest-orchestrator`, run identity như non-authoritative correlation/grouping, Decision/RiskEvaluation authority, `DD-001` unresolved; VIEW-002 route `ux-application-shell → command-query-api-surface → review-evidence-service`, existence-check only, kết quả `PASSED / FAILED / INDETERMINATE`, KHÔNG recomputation, UC-003 Product-level gap unresolved; VIEW-003 CÙNG route, `review-evidence-service` LÀ orchestration/final-comparison owner, recorded Decision qua `decision-authority-service`, pinned recomputation delegate tới `decision-evaluation-engine` (KHÔNG expose trực tiếp UX/API), kết quả `MATCH / MISMATCH / INDETERMINATE`, workflow-visible/non-authoritative; finding state `P16-A-MAJ-01`/`P16-A-MAJ-02`/`P16-A-MIN-01` CLOSED, `P16-A-MIN-02` correction satisfied NHƯNG accessibility/design-token gap VẪN carry-forward; toàn bộ authority boundaries (Decision tại `decision-authority-service`, RiskEvaluation/Execution Intent tại `risk-gateway`, Order tại `execution-engine`, ExecutionResult tại `execution-result-processor`, `review-evidence-service`/`decision-evaluation-engine` non-authoritative, API Surface routing/exposure-only, UX Shell non-authoritative, `MATCH` KHÔNG reauthorize, `MISMATCH` KHÔNG invalidate); VIEW-003 recomputation-delegation interaction mechanism (request representation, response/event correlation, sync/async, timeout, failure code, transport) VẪN EXPLICITLY unresolved — consolidation này KHÔNG resolve gap đó, KHÔNG trình bày như đã resolve; identifier accounting 59/59. Không ADR, `decision.md`, `module-registry.yaml`, `system-decomposition.md`, `api-architecture.md`, hay Package 1.5 artifact nào bị sửa. `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi — `Consolidated Stable` LÀ package lifecycle/readiness state, KHÔNG có nghĩa artifact `Approved`/`Locked` (Chapter 0 §7.1). KHÔNG authorize implementation/Gate 2/Phase 2/LIVE.
+
+**CANDIDATE (package lifecycle, HISTORICAL — superseded bởi quyết định Consolidated Stable trên) — status: Draft, khi đó KHÔNG Consolidated Stable, KHÔNG Approved.** Package 1.6 v0.1 — candidate đầu tiên, author dựa trên Package 1.1 `Consolidated Stable` (v0.7, 25 module), Package 1.2 `Consolidated Stable` (v0.4), Package 1.3-A/1.3-B/1.3-C/1.3-D `Consolidated Stable`, Package 1.4 `Consolidated Stable` (v0.3), Package 1.5 `Consolidated Stable` (v0.2), [`ux-blueprint.md`](../product/ux-blueprint.md) (Package 0.3-C, `Consolidated Stable`), VÀ [`phase-1-plan.md`](phase-1-plan.md) v0.4 (`Approved`) §"Package 1.6 — UX Architecture". Đây LÀ một authoring transaction, KHÔNG PHẢI một review/consolidation transaction. Chưa qua Review A/Independent Review B, chưa có Product Owner consolidation decision.
 
 **v0.6 — bounded correction (2026-08-07), đóng phần VIEW-003 của `P16-A-MAJ-02` (VIEW-003 owner/route alignment với Approved ADR-021) — `P16-A-MAJ-02` NAY ĐÓNG HOÀN TOÀN, KHÔNG redesign/mở rộng scope, vai trò: `Package 1.6 VIEW-003 ADR-021 Alignment/Correction Executor`:** Approved [ADR-021](../adr/ADR-021.md) v0.1 quyết định `review-evidence-service` LÀ VIEW-003 comparison/orchestration owner, delegate deterministic pinned recomputation tới `decision-evaluation-engine` — VIEW-003's registry/API-binding blocker (§13 gap #1b) nay RESOLVED, cùng Package 1.1 v1.0/v1.1 (`Consolidated Stable`, ADR-021 alignment) VÀ Package 1.4 v0.7 (`Consolidated Stable`, ADR-021 parity alignment) đã established. §3/§4.1/§4.3/§4.5/§7/§13/§14/§15 sửa: VIEW-003 KHÔNG còn trình bày TECHNICALLY BLOCKED bởi absence của computation owner/route. Binding established: `ux-application-shell → command-query-api-surface → review-evidence-service` (route ĐÃ đăng ký, KHÔNG edge/contract-category mới ở tầng API Surface — edge mới `review-evidence-service.depends_on += decision-evaluation-engine` nằm HOÀN TOÀN nội bộ Package 1.1); `review-evidence-service` obtain recorded-side Decision qua edge ĐÃ CÓ tới `decision-authority-service`, delegate deterministic pinned recomputation (`decision.md` v0.5 §9a.4) tới `decision-evaluation-engine`, thực hiện structured comparison cuối cùng, expose kết quả `MATCH / MISMATCH / INDETERMINATE` (`decision.md` v0.5 §9a.6) — `review-evidence-service` KHÔNG tự thực hiện canonical Decision evaluation; `decision-evaluation-engine` KHÔNG expose trực tiếp qua UX/API, CHỈ LÀ recomputation delegate nội bộ. Với gap #1a (VIEW-002, RESOLVED v0.4) VÀ gap #1b (VIEW-003, RESOLVED v0.6) CẢ HAI nay established, **`P16-A-MAJ-02` (VIEW-002/VIEW-003 synthesis-owner gap, §13 gap #1) NAY CLOSED HOÀN TOÀN**. VIEW-003's recomputation-delegation interaction mechanism (request representation, response/event correlation, synchronous-vs-asynchronous behavior, timeout behavior, concrete failure code, transport giữa `review-evidence-service` VÀ `decision-evaluation-engine`) VẪN EXPLICITLY unresolved (carry-forward, ADR-021 §7/§11, Package 1.1/1.4 KHÔNG resolve) — đây LÀ một gap KHÁC, KHÔNG PHẢI owner/route blocker đã đóng, KHÔNG giữ VIEW-003 architecture ownership ở trạng thái TBD, VIEW-003 KHÔNG trình bày như implementation-ready. **KHÔNG đổi:** VIEW-002 binding/route/authority ĐẦY ĐỦ (§4.1, byte-identical); `review-evidence-service` VẪN CHỈ LÀ VIEW-002's owner cho existence-check, VÀ nay CŨNG LÀ VIEW-003's owner cho parity comparison — HAI capability khác biệt về bản chất, KHÔNG merge semantics; VIEW-002 `PASSED / FAILED / INDETERMINATE` outcome VÀ Product-level gap (session-interval/evidence-completeness/correction-arrival); NAV-003 binding (byte-identical); identifier accounting (59/59); UX Shell non-authority; API Surface routing/exposure-only; mọi dependency/forbidden_dependencies semantics; `DD-001`; accessibility/design-token gap (§13 gap #3, `P16-A-MIN-02` VẪN unresolved); Package 1.5 interaction gap; mọi §13 gap KHÔNG liên quan. `ADR-021`/mọi ADR/Package 1.1/Package 1.4/Package 1.5/`decision.md`/Product artifact/Domain Contract khác KHÔNG sửa. `package lifecycle: candidate` KHÔNG đổi — KHÔNG consolidate tại transaction này (Package 1.6 VẪN cần Review A verification pass CỘNG Independent Review B CỘNG Product Owner consolidation decision RIÊNG BIỆT, chưa thực hiện). `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi.
 
@@ -1004,18 +1006,19 @@ Consolidation condition
                                Review B + Product Owner decision) CHƯA thỏa.
 ```
 
+**Cập nhật (2026-08-07, Product Owner consolidation decision) — Package 1.6 v0.6 nay `Consolidated Stable`:** review evidence hoàn tất theo đúng trình tự cumulative trên v0.2–v0.6 — Review A (`CLEAN`, Blocker 0/Major 0/Minor 0) → Independent Review B (`CLEAN`, Blocker 0/Major 0/Minor 0, consolidation readiness: `READY`) → Product Owner consolidation decision (nguyên văn ở banner đầu tài liệu). `package lifecycle: candidate → Consolidated Stable` — mechanical transaction, KHÔNG UX architecture semantic nào đổi. `version: "0.6"`, `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. NAV-003/VIEW-002/VIEW-003 binding, finding-closure state, authority boundaries, VÀ toàn bộ carry-forward gap (accessibility/design-token, `DD-001`, Package 1.5 interaction gap, UC-003 Product-level mechanism, VIEW-003 delegation-protocol interaction mechanism) VẪN carry forward nguyên vẹn — Consolidated Stable KHÔNG resolve/narrow gap nào trong số đó, KHÔNG mở Gate 2/Phase 2, KHÔNG authorize implementation/LIVE.
+
 ## 15. Lifecycle treatment
 
 ```text
 Package 1.6:
   version: 0.6
   status: Draft
-  package lifecycle/readiness: candidate
-  not Consolidated Stable
-  Review A findings (P16-A-MAJ-01/P16-A-MAJ-02/P16-A-MIN-01/P16-A-MIN-02) corrected —
-    pending bounded verification
-  P16V04-B-MAJ-01 (VIEW-003 prerequisite-state staleness) corrected — pending bounded
-    verification
+  package lifecycle/readiness: Consolidated Stable (2026-08-07, Product Owner decision
+    — v0.6 mechanical consolidation transaction, xem banner đầu tài liệu)
+  Review A: CLEAN (Blocker 0/Major 0/Minor 0, cumulative trên v0.2–v0.6)
+  Independent Review B: CLEAN (Blocker 0/Major 0/Minor 0, consolidation readiness: READY)
+  Product Owner consolidation decision: RECORDED (banner đầu tài liệu)
   NAV-003 API-binding upstream prerequisite (§13 gap #2) RESOLVED (v0.3) — route
     command-query-api-surface → backtest-orchestrator established (Package 1.1 v0.8/
     Package 1.4 v0.5, Consolidated Stable)
@@ -1032,13 +1035,15 @@ Package 1.6:
     Package 1.1 v1.0/v1.1 (`review-evidence-service.depends_on += decision-
     evaluation-engine`)/Package 1.4 v0.7 (Consolidated Stable) — `P16-A-MAJ-02`
     (gap #1a + gap #1b) CLOSED HOÀN TOÀN
+  P16-A-MAJ-01/P16-A-MAJ-02/P16-A-MIN-01: CLOSED, KHÔNG reopen
+  P16-A-MIN-02: correction satisfied — accessibility/design-token gap VẪN
+    carry-forward (§13 gap #3, KHÔNG resolve bởi consolidation này)
   recomputation-delegation interaction mechanism (request representation, response/
     event correlation, sync-vs-async, timeout, failure code, transport giữa
     review-evidence-service VÀ decision-evaluation-engine) VẪN EXPLICITLY unresolved
     — implementation-level carry-forward, KHÁC biệt khỏi owner/route blocker đã đóng,
-    KHÔNG blocking architecture-binding completeness
-  pending Independent Review B
-  pending Product Owner consolidation decision
+    KHÔNG blocking architecture-binding completeness, KHÔNG resolve bởi consolidation
+    này
 
 Package 1.6 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đóng bốn Review A
   finding trên v0.1 (banner đầu tài liệu), KHÔNG invalidate identifier accounting của
@@ -1071,11 +1076,21 @@ Package 1.6 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đó
   alignment — `P16-A-MAJ-02` (gap #1a + gap #1b) CLOSED HOÀN TOÀN, KHÔNG redesign/mở
   rộng scope, KHÔNG resolve recomputation-delegation interaction mechanism (carry-
   forward, implementation-level, KHÁC biệt khỏi owner/route blocker đã đóng), KHÔNG
-  resolve DD-001, KHÔNG reconsolidate (Package 1.6 VẪN cần Review A verification pass
-  CỘNG Independent Review B CỘNG Product Owner consolidation decision, chưa thực
-  hiện). Toàn bộ chín package Phase 1 (1.1–1.6, cộng 1.3-A/B/C/D) nay có candidate/
-  Consolidated Stable artifact — Gate 2/Phase 2 VẪN KHÔNG mở cho tới khi TẤT CẢ package
-  đạt Consolidated Stable VÀ mọi consolidation condition (§14) thỏa, BAO GỒM Review A
-  verification pass/Independent Review B/Product Owner decision, chưa thực hiện tại
-  v0.6.
+  resolve DD-001, KHÔNG reconsolidate tại chính transaction đó (Package 1.6 khi đó VẪN
+  cần Review A verification pass CỘNG Independent Review B CỘNG Product Owner
+  consolidation decision RIÊNG BIỆT); v0.6 sau đó đạt `Consolidated Stable` qua
+  transaction consolidation riêng biệt (banner đầu tài liệu) — KHÔNG version bump nào
+  kèm theo mechanical lifecycle transaction đó, KHÔNG UX architecture semantic nào đổi.
+  Toàn bộ chín package Phase 1 (1.1–1.6, cộng 1.3-A/B/C/D) nay có candidate/Consolidated
+  Stable artifact — Gate 2/Phase 2 VẪN KHÔNG mở cho tới khi TẤT CẢ package đạt
+  Consolidated Stable VÀ mọi consolidation condition (§14) thỏa; consolidation transaction
+  này KHÔNG tự nó thực hiện một Gate 2 readiness assessment, KHÔNG mở Gate 2/Phase 2,
+  KHÔNG authorize implementation/LIVE.
 ```
+
+`Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có
+  nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`,
+  `approved_at: null` KHÔNG đổi. Mọi carry-forward gap (accessibility/design-token §13
+  gap #3, `DD-001`, Package 1.5 interaction gap, UC-003 Product-level mechanism,
+  VIEW-003 delegation-protocol interaction mechanism) VẪN unresolved — Consolidated
+  Stable KHÔNG resolve gap nào trong số đó.
