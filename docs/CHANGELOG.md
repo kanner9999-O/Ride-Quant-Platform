@@ -2,6 +2,115 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-08 — ADR-022 v0.3 bounded correction (`ADR022-B-MAJ-01` CLOSED)
+
+**Bounded correction — vai trò: `ADR-022 v0.3 Bounded Correction Executor`.** Corrects an internal-consistency defect in ADR-022 v0.2 SS5.2, flagged by Review B (verdict `REVISE`, finding `ADR022-B-MAJ-01`). Bounded to SS5.2 only -- does not redesign the compatibility commitment, policy-root composition, MANIFEST canonical-authority selection, evaluator authorization model, or downstream sequence.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        e428eb8cace2c9721c816f1243c26cad8f891cc3
+docs/adr/ADR-022.md v0.2 blob:                         e83b40b77d9fbd7a18eefb8ba3cf4feaf75b22a9 (verified matched, Draft)
+Review B verdict:                                      REVISE (ADR022-B-MAJ-01)
+```
+
+### Defect (`ADR022-B-MAJ-01`)
+
+```text
+SS5.2's applicability/activation predicate said the Package 1.4 policy component
+  is "active" whenever MANIFEST reports api-architecture.md package lifecycle =
+  Consolidated Stable (currently v0.7) AND Chapter 10 = Locked. That predicate
+  incorrectly let current v0.7 resolve as an active policy-root component even
+  though SS4.1 (corrected in v0.2) already established v0.7 lacks the approved
+  backward-only declaration and is not a valid policy-root component -- a direct
+  internal inconsistency between SS4.1 and SS5.2.
+```
+
+### Correction applied
+
+```text
+SS5.2's applicability/activation bullet now requires BOTH conditions
+  simultaneously:
+  1. Chapter 10 policy component: v2.7, Locked, exact content identity
+     resolvable at MANIFEST (unchanged).
+  2. Package 1.4 policy component: a concrete POST-ADR-022-alignment
+     api-architecture.md version/content identity (not v0.7) that actually
+     contains the approved backward-only declaration, whose governed package
+     lifecycle is Consolidated Stable (reached via normal Review A/Independent
+     Review B/Product Owner consolidation), and that MANIFEST resolves exactly
+     -- no mutable "latest" reference.
+Current v0.7 explicitly labeled: remains the current Consolidated Stable
+  architecture baseline (package lifecycle untouched/not reopened) but is NOT an
+  active policy-root component -- Consolidated Stable status alone is
+  insufficient.
+Before condition 2 is satisfied: policy-root applicability for the Package 1.4
+  component is incomplete; any compatibility evaluation for this scope must fail
+  closed (I-6) and cannot issue PASS/eligible=true.
+MANIFEST confirmed as resolver/authority for identity only -- it does not author
+  or invent the declaration itself.
+New v0.3 correction banner paragraph prepended (v0.1/v0.2 history preserved,
+  unchanged).
+```
+
+### Lifecycle change
+
+```text
+ADR-022.md:                version: "0.2" -> "0.3". status: Draft UNCHANGED.
+Blob:                       e83b40b77d9fbd7a18eefb8ba3cf4feaf75b22a9 ->
+                             7d4ef95a74b68d7390b10a7d04fce85cc3f1100b
+MANIFEST.md:                row updated (new v0.3 correction paragraph prepended,
+                             v0.1/v0.2 paragraphs preserved as historical record).
+```
+
+### Preserved unchanged
+
+```text
+SS4.1's logical policy-root/evaluation-time exact-pin model (v0.2) -- byte-identical.
+Backward-compatibility-only commitment (SS3.2).
+Chapter 10 v2.7 exact identity 016e46bcad0826e983a51ee24c8ec4c3217aeba1.
+v0.6 predecessor blob 97b97cc51513ae7f1fadf3ae98a0ce77a00dcc4b (baseline citation).
+No-format-specific-rule decision (SS4).
+MANIFEST as sole Phase-1 canonical authority (SS5) -- selection unchanged, only
+  the activation predicate made internally consistent.
+Phase-1-architecture-only applicability limitation.
+Evaluator authorization model (SS6, Declaration -> Grant -> Enforcement ->
+  Verification) and anti-self-certification rule.
+Three downstream alignment transactions remain separate, not bundled (SS7).
+Package 1.4 route/dependency architecture -- untouched, api-architecture.md not
+  modified.
+ADR-018/019/020/021 -- byte-identical, untouched (git diff --quiet empty).
+Quality Gate overall result -- remains FAIL -- evidence.
+```
+
+### Validation
+
+```text
+Baseline HEAD and ADR-022.md v0.2 blob matched before editing.
+Exactly three files changed: docs/adr/ADR-022.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+Diff confirmed scoped to exactly three locations: frontmatter (version), the top
+  banner (new v0.3 paragraph prepended), and SS5.2 (applicability/activation
+  predicate corrected) -- SS1-SS4, SS6-SS14 confirmed byte-identical via diff
+  hunk review (SS4.1 explicitly confirmed untouched).
+Version confirmed changed 0.2 -> 0.3; status confirmed unchanged (Draft).
+SS5.2 confirmed no longer treats current v0.7 Consolidated Stable status alone
+  as sufficient for policy-root activation.
+Activation confirmed requires an exact post-alignment artifact identity that
+  actually contains the approved declaration.
+MANIFEST confirmed remains the sole canonical authority; confirmed as
+  resolver/authority, not declaration author.
+No mutable reference introduced.
+SS4.1 confirmed semantically unchanged.
+Backward-only commitment confirmed unchanged.
+No evaluator designated; no Compatibility Result produced.
+QG-P14-E-EVID-01 confirmed remains open.
+Overall Quality Gate confirmed remains FAIL -- evidence; Gate 2 confirmed remains
+  closed.
+No Package 1.4 semantics modified (api-architecture.md, module-registry.yaml,
+  system-decomposition.md, ux-architecture.md, phase-1-dod.md, ADR-018/019/020/021
+  all git diff --quiet empty).
+```
+
 ## [Unreleased] — 2026-08-08 — ADR-022 v0.2 bounded correction (`ADR022-A-MAJ-01` CLOSED)
 
 **Bounded correction — vai trò: `ADR-022 v0.2 Bounded Correction Executor`.** Corrects a stale-by-construction policy-root pin in ADR-022 v0.1 (`ADR022-A-MAJ-01`). Does not redesign the compatibility commitment, authority model, or evaluator model.
