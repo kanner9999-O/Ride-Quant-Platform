@@ -2,6 +2,188 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-07 — Phase 1 DoD candidate authored (`docs/phase-dod/phase-1-dod.md` v0.1)
+
+**Authoring transaction — vai trò: `Phase 1 DoD Candidate Author`.** Creates the dedicated Phase 1 Definition of Done candidate required by Chapter 12 §12.1 and Chapter 14 §14.3 — remediation candidate for Gate 2 readiness finding `G2-RDY-BLK-01` ("dedicated Phase 1 DoD absent"). Does not accept the DoD, does not run the Phase-wide BCC, does not perform Gate 2 review, does not open Gate 2, does not approve Phase 1, does not open Phase 2.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        30b16d4625124f9712cceb1deedeec2e1c83ebad
+docs/architecture/phase-1-plan.md v0.4 blob:           fe272215a28563cf68c4eb28feb525c547240c6d (verified matched, Approved)
+docs/constitution/12-approval-gates.md:                v1.5, Locked (verified matched)
+docs/constitution/13-quality-gates.md:                 v1.7, Locked (verified matched)
+docs/constitution/14-roadmap.md:                       v1.6, Locked (verified matched)
+```
+
+### New artifact
+
+```text
+Path:                      docs/phase-dod/phase-1-dod.md
+id:                        phase-1-dod
+version:                   "0.1"
+status:                    Draft
+owner:                     Product Owner
+approved_by:               null
+approved_at:               null
+Blob:                      31353882424f4db7d6ed6008cedd503f627d53d4
+```
+
+### Criterion groups authored
+
+```text
+SS1  Phase identity -- 9 packages (1.1, 1.2, 1.3-A/B/C/D, 1.4, 1.5, 1.6), package to
+     artifact-path mapping (reference only, current state resolves from MANIFEST).
+SS2  Applicable gate set (Chapter 14 SS14.4 declaration) -- derived from
+     phase-1-plan.md SS9 trigger map. Trigger A universal across all 9 packages.
+     Trigger B/C deferred to Phase 3 implementation for all 9 packages (no
+     executable implementation at Phase 1). Trigger D conditional -- applies only
+     where a concrete boundary is actually defined (Package 1.2, Package 1.3-D at
+     authoring boundary); re-confirmation required at actual gate evaluation.
+     Trigger E -- Package 1.4 explicitly applies (publishes contract via
+     command-query-api-surface, Chapter 10 SS10.3); Package 1.1/1.5/1.3-C
+     conditional; other packages N/A at authoring boundary.
+SS3  Substantive completion criteria -- package completion (9/9 Consolidated
+     Stable, Draft artifact status explicitly permitted per package/artifact
+     lifecycle separation, Chapter 0 SS7.1); ADR closure (actually-triggered ADR
+     under Governance SS4b distinguished explicitly from hypothetical conditional
+     ADR -- only actual trigger occurrence requires closure); zero unresolved
+     architecture Blocker/Major (documented carry-forward gaps not automatically
+     blocking); cross-package consistency (1.3-A/B/C/D dependency/authority
+     ordering; 1.4/1.5 do not redefine authority; 1.6 consumes published API
+     binding, does not invent parallel contracts; 1.1 registry/decomposition is
+     the exact reviewed baseline for downstream resolution and tier-resolution).
+SS4  Evidence requirements -- deliverable evidence per package/ADR; Quality Gate
+     evidence per trigger (Trigger A pinned for all 9; B/C not required at Phase 1
+     gate; D required only for confirmed-boundary packages; E required for
+     Package 1.4 and any package where the condition is confirmed); explicit rule
+     that gate result must be pinned evidence, not inferred merely from review
+     clean status.
+SS5  Validator requirements -- MANIFEST freshness, YAML frontmatter validity,
+     cross-reference resolvability, module-registry graph integrity.
+SS6  Review requirements -- minimum two eligible independent reviews AT the Phase
+     Approval Gate boundary; package-level Review A/Independent Review B evidence
+     does not substitute for this Phase-level review.
+SS7  Finding-closure requirements -- Blocker/Major never waivable via
+     residual-risk acceptance; only Minor eligible; carry-forward gaps (SS9)
+     explicitly distinguished from unresolved review findings.
+SS8  Repository-consistency requirements -- full-scope Backward Consistency Check
+     (Chapter 12 SS12.4) over the complete Phase 1 aggregate against Constitution/
+     Domain Contract/Product layer/Approved-Locked ADRs, required result No
+     conflict; per-package BCC explicitly does not substitute.
+SS9  Explicit carry-forward classification -- DD-001, DD-003, Package 1.5
+     interaction/retention gap, UC-003 Product-level mechanism gap,
+     accessibility/design-token requirement, VIEW-003 delegation protocol,
+     OQ-001/OQ-002/OQ-003 -- listed and classified as carry-forward, not
+     automatically gate-blocking unless another authoritative criterion says
+     otherwise; none resolved by this transaction.
+SS10 Phase-decision bundle requirements (Chapter 14 SS14.4.1-SS14.4.2) --
+     prepared-content fields Chapter 14 owns directly; reference-only fields
+     other chapters own; resulting MANIFEST transition identity explicitly not
+     precomputed.
+SS11 Explicit non-inclusion -- Approved/Phase 1 Approved not a DoD item; DoD
+     satisfaction establishes eligibility only, not approval; Product Owner
+     remains sole Phase-approval authority; no BCC/Gate 2 review/Gate 2
+     opening/Phase 1 approval/Phase 2 opening/implementation/LIVE authorization
+     performed by this document.
+SS12 Acceptance status -- NOT YET accepted, NOT YET incorporated (Chapter 14
+     SS14.3.1's four conditions not satisfied); explicit statement that
+     G2-RDY-BLK-01 remains open until acceptance + incorporation completes via a
+     separate governed transaction.
+```
+
+### Quality-gate treatment
+
+```text
+Trigger A:  universal, applies to all 9 packages at architecture level.
+Trigger B:  deferred to Phase 3 (executable implementation), not applicable at
+            Phase 1 gate for any package.
+Trigger C:  deferred to Phase 3 (tier/chaos/parity execution), not applicable at
+            Phase 1 gate for any package.
+Trigger D:  conditional on actual concrete-boundary definition -- Package 1.2 and
+            Package 1.3-D identified as conditionally applicable at authoring
+            boundary; re-confirmation required at gate evaluation for all
+            packages, no default assumption either way.
+Trigger E:  Package 1.4 explicitly required (publishes contract). Package
+            1.1/1.5/1.3-C conditional. Fail-closed rule preserved: an
+            unresolved trigger condition is eligibility-incomplete, not
+            "not applicable" by default.
+```
+
+### BCC treatment
+
+```text
+Full-scope Phase-wide Backward Consistency Check (Chapter 12 SS12.4) required
+  before Phase 1 Approval Gate -- compares the complete Phase 1 deliverable
+  aggregate against Constitution/Domain Contract/Product layer/Approved-Locked
+  ADRs. Required result: No conflict. Per-package BCC already performed during
+  individual package consolidation transactions does NOT substitute -- this is a
+  separate, Phase-wide requirement per phase-1-plan.md SS10. This transaction
+  does NOT run that check.
+```
+
+### Phase-review treatment
+
+```text
+Minimum two eligible independent reviews required AT the Phase Approval Gate
+  boundary itself (Chapter 0 SS3 / Chapter 11 SS11.5) -- package-level Review A +
+  Independent Review B evidence, already pinned per package during Phase 1, does
+  NOT substitute for this Phase-level review requirement.
+```
+
+### Carry-forward-gap treatment
+
+```text
+DD-001, DD-003, Package 1.5 interaction/retention gap, UC-003 Product-level
+  mechanism gap, accessibility/design-token requirement, VIEW-003 delegation
+  protocol, OQ-001/OQ-002/OQ-003 -- all explicitly listed and classified as
+  carry-forward, sourced from phase-1-plan.md SS11 and package-level preserved-gap
+  sections. None are automatically gate-blocking; none resolved by this DoD
+  transaction. List explicitly NOT claimed exhaustive -- new carry-forward gaps
+  arising later must be classified at their own source and re-evaluated at gate
+  time.
+```
+
+### Product Owner authority treatment
+
+```text
+DoD satisfaction (SS3-SS10 resolved) establishes gate ELIGIBILITY only -- it does
+  not itself constitute Phase 1 approval. Product Owner remains the sole
+  authority to decide Approve / Reject / Revision Requested after eligibility is
+  complete (Chapter 12 SS12.2). "Approved" / "Phase 1 Approved" is explicitly NOT
+  included as a DoD criterion (Chapter 12 SS12.1 circular-definition prohibition).
+```
+
+### Validation
+
+```text
+Baseline HEAD and phase-1-plan.md v0.4 blob matched before authoring; Chapter
+  12/13/14 version/status (v1.5 Locked / v1.7 Locked / v1.6 Locked) confirmed
+  matched.
+Exactly three files changed: docs/phase-dod/phase-1-dod.md (new),
+  docs/MANIFEST.md, docs/CHANGELOG.md (git status --porcelain confirmed).
+New artifact path confirmed: docs/phase-dod/phase-1-dod.md.
+DoD confirmed candidate/Draft only: version "0.1", status Draft, approved_by
+  null, approved_at null.
+All nine packages represented in SS1/SS3.
+ADR-closure rule confirmed distinguishing actually-triggered from hypothetical
+  conditional ADRs (SS3.2).
+Trigger A/B/C/D/E treatment confirmed matching phase-1-plan.md SS9 trigger map
+  and SS10 planning input.
+Package 1.4 Trigger E confirmed explicit (SS2).
+Full-scope BCC requirement confirmed explicit (SS8), distinct from per-package
+  BCC.
+Phase-level two-review requirement confirmed explicit (SS6), distinct from
+  package-level Review A/B.
+Product Owner confirmed sole approval authority (SS11).
+Carry-forward gaps confirmed not silently resolved (SS9).
+DoD confirmed not itself claiming Gate 2 readiness (SS12, explicit
+  not-yet-accepted/not-yet-incorporated statement).
+No BCC run, no Gate 2 review, no Phase 1 approval, no Phase 2 opening, no
+  implementation or LIVE authorization occurred.
+docs/architecture/phase-1-plan.md confirmed untouched (git diff --quiet empty).
+```
+
 ## [Unreleased] — 2026-08-07 — Package 1.6 v0.6 mechanical consolidation (Consolidated Stable)
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.6 v0.6 Mechanical Consolidation Executor`.** Records Product Owner consolidation of the review-clean Package 1.6 v0.6 baseline (cumulative Review A/Independent Review B over v0.2–v0.6). No UX architecture semantic change; no Gate 2 readiness assessment performed.
