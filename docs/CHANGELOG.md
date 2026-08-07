@@ -2,6 +2,131 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-06 — ADR-021 authored: VIEW-003 owner/route (candidate)
+
+**New ADR authored — vai trò: `ADR-021 VIEW-003 Owner/Route Bounded Author`.** Selects the computation owner and API query route for VIEW-003 Decision replay-parity verification, resolving the remaining half of Package 1.6's `P16-A-MAJ-02` blocker (`ux-architecture.md` v0.5 SS13 gap #1b). Does not modify Package 1.1, 1.4, 1.5, or 1.6 architecture artifacts.
+
+### Baseline
+
+```text
+Baseline HEAD:                                                1dbf5368fa268479fb9735b484fe9c9219b00ab5
+docs/architecture/ux-architecture.md v0.5 blob:                e078ee7c8541ad3369589c7495104c972597e2eb (verified matched, candidate)
+docs/domain/decision.md v0.5 blob:                             a24beeb892f995064677233148965ecaa1f2a897 (verified matched, SS9a Consolidated Stable)
+docs/architecture/module-registry.yaml v0.9 blob:               578ae5399a2be2ec60ba7e13c01c3a01df16610d (verified matched, Consolidated Stable)
+docs/architecture/system-decomposition.md v1.0 blob:            54f3aed10f594e0276fe179602cf973b0e2a59a4 (verified matched, Consolidated Stable)
+docs/architecture/api-architecture.md v0.6 blob:                97b97cc51513ae7f1fadf3ae98a0ce77a00dcc4b (verified matched, Consolidated Stable)
+docs/adr/ADR-020.md v0.1 blob:                                  453d4995d557c138b3ec3af61f4b1e2b63c47f88 (verified matched, Approved)
+docs/adr/ADR-021.md:                                             confirmed did not exist before this transaction.
+```
+
+### Candidate evaluation
+
+```text
+Candidates evaluated: (A) review-evidence-service [SELECTED]; (B) replay-integration-
+  service [rejected -- registered "KHONG author fact moi" self-constraint conflicts
+  with triggering a fresh recomputation]; (C) decision-evaluation-engine as full
+  owner [rejected -- structurally unsafe: decision-authority-service already depends
+  on decision-evaluation-engine, so adding the reverse edge
+  (decision-evaluation-engine -> decision-authority-service) needed to fetch the
+  recorded-side Decision would create a two-node cycle, confirmed by DFS cycle check
+  over the full 25-module graph]; (D) decision-authority-service [rejected --
+  assigning non-authoritative comparison to the sole Decision authority risks
+  conflating the authority/non-authority boundary decision.md SS9a.7 protects]; (E)
+  new module [rejected -- candidate A is not structurally unsuitable].
+
+Registry fact verified directly against module-registry.yaml v0.9 (python3 + yaml,
+  not inferred): review-evidence-service.depends_on already contains
+  decision-authority-service (recorded-side reachable, zero new edge); command-
+  query-api-surface.depends_on already contains review-evidence-service (API route
+  already exists, zero new edge); decision-evaluation-engine.consumes already
+  contains "query" (zero contract-category change needed to receive a delegated
+  recompute request). A new edge review-evidence-service -> decision-evaluation-
+  engine was confirmed acyclic via full-graph DFS cycle detection (script re-run,
+  independent of narrative claim).
+```
+
+### Selected decision
+
+```text
+review-evidence-service becomes the computation boundary for VIEW-003 Decision
+  replay-parity comparison, with the recomputation step delegated to
+  decision-evaluation-engine (the platform's canonical deterministic Decision-
+  evaluation module) rather than duplicated -- preserving I-12 Single Source of
+  Truth. review-evidence-service orchestrates: fetch recorded-side visible-valid-
+  head Decision (decision.md SS9a.3, via the existing edge to
+  decision-authority-service), delegate a pinned nine-axis recomputation (SS9a.4,
+  via one new edge to decision-evaluation-engine), and perform structured
+  Representation comparison (SS9a.1/SS9a.2) to produce exactly one of
+  MATCH / MISMATCH / INDETERMINATE (SS9a.6). Output exposed via the
+  already-registered route ux-application-shell -> command-query-api-surface ->
+  review-evidence-service (same route already serving VIEW-002/SCR-008/009/
+  VIEW-004) -- zero new API Surface edge.
+
+Dependency-edge impact: exactly one new edge --
+  review-evidence-service.depends_on += decision-evaluation-engine.
+Contract-category impact: none required at this ADR --
+  review-evidence-service.consumes/[event]/.emits/[query] unchanged;
+  decision-evaluation-engine.consumes/[event,query]/.emits/[event] unchanged
+  (already sufficient). The exact recomputation-delegation interaction mechanism
+  (parameterized request/response, timeout handling) is explicitly deferred as a
+  Package 1.1 alignment/implementation-level detail -- flagged as a
+  traceability/interaction-mechanism carry-forward gap, matching the established
+  precedent (database-architecture.md SS11, ADR-019 SS1.1: a depends_on edge does
+  not automatically imply full contract-category interaction completeness).
+
+Authority preserved: decision-authority-service remains sole Decision fact
+  authority (unchanged); decision-evaluation-engine's recompute-for-parity output
+  remains explicitly non-authoritative (owns_authoritative_state: false unchanged)
+  and never appends a Decision or invokes Decision Authority acceptance/
+  revalidation; review-evidence-service never gains a write path (emits: [query]
+  only, unchanged); API Surface remains routing/exposure-only; UX Shell remains
+  non-authoritative.
+
+decision.md SS9a semantics (Representation, Digest, recorded-side selection,
+  pinned axes, definition identity, outcome model, authority boundary) are cited
+  and relied upon but NOT redefined.
+```
+
+### Preserved unchanged
+
+```text
+decision.md SS9a: fully preserved, untouched (byte-identical, confirmed).
+ADR-020.md and all existing ADRs: byte-identical, untouched.
+module-registry.yaml, system-decomposition.md, api-architecture.md,
+  ux-architecture.md, database-architecture.md: byte-identical, untouched.
+Package 1.6 lifecycle: remains candidate (unchanged -- this ADR alone does not
+  correct ux-architecture.md).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+```
+
+### Validation
+
+```text
+Baseline HEAD and all six relevant blobs matched before authoring; confirmed
+  docs/adr/ADR-021.md did not previously exist.
+At least three required existing candidates compared (review-evidence-service,
+  replay-integration-service, decision-evaluation-engine), plus one additional
+  existing candidate (decision-authority-service) and the new-module option,
+  per task instruction.
+Exactly one owner selected (review-evidence-service); exact route established
+  (ux-application-shell -> command-query-api-surface -> review-evidence-service).
+Edge impact stated explicitly (one new edge, zero removed); contract-category
+  impact stated explicitly (none required, with the deferred-mechanism gap
+  flagged).
+Decision authority confirmed unchanged; parity output confirmed non-authoritative;
+  API Surface and UX Shell confirmed non-authoritative.
+decision.md SS9a confirmed not redefined (citation-only, diff-verified untouched).
+Required downstream Package 1.1/1.4/1.6 alignments identified (SS10 of the ADR)
+  but explicitly not executed by this transaction.
+Package 1.6 confirmed to remain candidate (ux-architecture.md untouched, git diff
+  --quiet empty).
+No implementation, Gate 2, Phase 2, or LIVE authorization introduced.
+Only docs/adr/ADR-021.md (new), docs/MANIFEST.md, and docs/CHANGELOG.md changed;
+  git diff --quiet confirmed empty for ux-architecture.md, decision.md,
+  module-registry.yaml, system-decomposition.md, api-architecture.md,
+  database-architecture.md, and all existing ADR files.
+```
+
 ## [Unreleased] — 2026-08-06 — Package 1.6 v0.5 VIEW-003 prerequisite-state correction (P16V04-B-MAJ-01)
 
 **Bounded UX-architecture correction — vai trò: `Package 1.6 v0.4 VIEW-003 Prerequisite-State Correction Executor`.** Corrects the stale VIEW-003 prerequisite state in Package 1.6 v0.4, which incorrectly claimed the canonical semantic-decision hash and VIEW-003's INDETERMINATE-equivalent outcome remained undefined -- both are now established by `decision.md` v0.5 SS9a. Preserves the clean VIEW-002 binding. Does not select a VIEW-003 computation owner, author an ADR, or consolidate Package 1.6.
