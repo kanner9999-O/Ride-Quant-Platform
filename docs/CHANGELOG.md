@@ -2,6 +2,114 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-08 — Package 1.4 ADR-022 alignment: compatibility declaration transcribed (v0.8)
+
+**Bounded semantic Package 1.4 alignment — vai trò: `Package 1.4 ADR-022 Alignment Executor`.** Mechanically transcribes Approved ADR-022 v0.3 into `api-architecture.md` §8, creating the concrete post-alignment artifact required by ADR-022 §4.1/§5.2. Does not perform Package 1.4 Review A, does not reconsolidate, does not designate an evaluator, does not create a Compatibility Result, does not rerun the Phase 1 Quality Gate.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        f7f30f0b4f4e67b1257dee1890b346d9e727596c
+docs/adr/ADR-022.md v0.3 blob:                         049a3d941493a0fcb3a0f44733f17534e158f9b0 (verified matched, Approved)
+docs/architecture/api-architecture.md v0.7 blob:       fb2a4a4a04c20d373227d92869abe7cb99f59db0 (verified matched, Consolidated Stable)
+Compatibility predecessor v0.6 blob:                   97b97cc51513ae7f1fadf3ae98a0ce77a00dcc4b (cited, unchanged)
+```
+
+### Package 1.4 lifecycle transition
+
+```text
+version: "0.7" -> "0.8"
+package lifecycle: Consolidated Stable -> candidate (reverted, genuine semantic
+  parity-transcription change, not a bounded wording-only correction -- same
+  precedent as the ADR-018/019/020/021 alignments)
+status: Draft UNCHANGED. approved_by: null UNCHANGED. approved_at: null UNCHANGED.
+```
+
+### ADR-022 transcription (SS8 "API contract governance")
+
+```text
+Compatibility commitment:  BACKWARD COMPATIBILITY ONLY (ADR-022 SS3.2, verbatim).
+Scope:                     command-query-api-surface's published SEMANTIC contract
+                            surface -- route existence, routing/module ownership,
+                            authoritative/non-authoritative classification,
+                            outcome-type semantics (PASSED / FAILED / INDETERMINATE;
+                            MATCH / MISMATCH / INDETERMINATE). No field-level schema
+                            (none exists).
+Meaning:                    existing valid consumers (Package 1.6) must continue
+                            working through compatible additive change. No forward,
+                            no bidirectional, no nonexistent-schema claims.
+Policy root:                Chapter 10 v2.7 (Locked, blob
+                            016e46bcad0826e983a51ee24c8ec4c3217aeba1) + this
+                            api-architecture.md artifact after incorporating
+                            ADR-022 -- no mutable "latest" reference.
+MANIFEST authority model:   MANIFEST is sole resolver/authority for identity/version
+                            AND bounded applicability/activation (Phase 1
+                            architecture-only scope); MANIFEST does not author the
+                            declaration. Package 1.4 policy component becomes
+                            eligible-active only after (1) this post-alignment
+                            identity contains the declaration, (2) Review A +
+                            Independent Review B + Product Owner reconsolidation
+                            complete, (3) MANIFEST resolves the exact Consolidated
+                            Stable identity. This transaction alone does NOT
+                            activate the policy-root component.
+Evaluator boundary:         module identity != evaluator grant; self-certification
+                            prohibited; Declaration -> Grant -> Enforcement ->
+                            Verification preserved. No evaluator designated.
+```
+
+### Resulting blob
+
+```text
+api-architecture.md:      fb2a4a4a04c20d373227d92869abe7cb99f59db0 ->
+                           be40fe5e34f0dd1760cb61353bfe33dd164ace45
+MANIFEST.md:               row updated (version column 0.7 -> 0.8, new v0.8
+                           alignment paragraph prepended).
+```
+
+### Architecture preservation
+
+```text
+Dependency graph / module inventory (17-module baseline): byte-identical.
+Command/query/event contract categories: unchanged.
+NAV-003 / VIEW-002 / VIEW-003 semantics: byte-identical.
+review-evidence-service / decision-evaluation-engine responsibilities: untouched
+  (module-registry.yaml / system-decomposition.md not modified).
+Decision authority (decision-authority-service); RiskEvaluation/Execution Intent
+  authority (risk-gateway); Order authority (execution-engine); ExecutionResult
+  authority (execution-result-processor): unchanged.
+API Surface non-authority; SS3-SS7 command/query/event/security/error semantics;
+  SS6 non-bypass invariants; route structure: unchanged.
+Interaction-mechanism gap (request representation, correlation, sync/async,
+  timeout, failure code, transport): remains EXPLICITLY unresolved.
+No new ADR created. ADR-018/019/020/021: byte-identical, untouched.
+database-architecture.md / Package 1.5 and ux-architecture.md / Package 1.6:
+  not modified.
+```
+
+### Validation
+
+```text
+Starting HEAD, ADR-022 v0.3 Approved/blob, and api-architecture.md v0.7/blob
+  matched before editing.
+Exactly three files changed: docs/architecture/api-architecture.md,
+  docs/MANIFEST.md, docs/CHANGELOG.md (git status --porcelain confirmed).
+Package version confirmed 0.8; artifact status confirmed remains Draft; package
+  lifecycle confirmed becomes candidate.
+Backward-only declaration confirmed explicit; scope confirmed semantic-only, not
+  field-level schema.
+Chapter 10 exact identity confirmed preserved (016e46bcad0826e983a51ee24c8ec4c3217aeba1).
+No mutable reference introduced.
+MANIFEST confirmed resolver, not declaration author.
+No evaluator designated; no Compatibility Result created.
+Dependency/route/authority semantics confirmed unchanged (module-registry.yaml,
+  system-decomposition.md, ADR-018/019/020/021, ux-architecture.md,
+  database-architecture.md all git diff --quiet empty).
+QG-P14-E-EVID-01 confirmed remains open.
+G2-RDY-BLK-03 confirmed remains open.
+No BCC run, no Gate 2 review, no Phase 2 opening, no implementation or LIVE
+  authorization occurred.
+```
+
 ## [Unreleased] — 2026-08-08 — ADR-022 v0.3 mechanical approval (Approved)
 
 **Mechanical lifecycle transaction — vai trò: `ADR-022 v0.3 Approval Executor`.** Records Product Owner approval of the review-clean ADR-022 v0.3. No ADR semantic change; no Package 1.4 alignment; no compatibility evidence created.

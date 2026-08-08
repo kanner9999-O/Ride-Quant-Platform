@@ -1,7 +1,7 @@
 ---
 id: api-architecture
 title: "Package 1.4 — API Architecture"
-version: "0.7"
+version: "0.8"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -15,7 +15,9 @@ depends_on: ["00-governance", "02-platform-invariants", "07-module-taxonomy", "0
 
 # Package 1.4 — API Architecture
 
-**CONSOLIDATED STABLE (package lifecycle, 2026-08-07, Product Owner decision) — status: Draft, KHÔNG Approved/Locked.** Product Owner đã quyết định nguyên văn (as supplied in the transaction request): "APPROVE PACKAGE 1.4 V0.7 CONSOLIDATION." Decision date: 2026-08-07 (exact clock time KHÔNG được cung cấp — date-only metadata, KHÔNG một giá trị giả định nào được invent). Review evidence trên v0.7 (ADR-021 parity alignment): Review A `CLEAN`, Independent Review B `CLEAN`, consolidation readiness: `READY`, Blocker 0/Major 0/Minor 0. Mechanical lifecycle transaction — `version: "0.7"` UNCHANGED (no content/architecture change), `package lifecycle: candidate → Consolidated Stable`. **Preserved unchanged (byte-identical, transaction này CHỈ đổi lifecycle prose/field):** VIEW-003 route `ux-application-shell → command-query-api-surface → review-evidence-service` (already-registered edge); `review-evidence-service` comparison/orchestration ownership; `decision-evaluation-engine` recomputation delegate-only role (KHÔNG expose trực tiếp qua API Surface); final comparison tại `review-evidence-service`; kết quả `MATCH / MISMATCH / INDETERMINATE`; ZERO new API Surface edge; ZERO Package 1.4 dependency edge; ZERO contract-category change; VIEW-002 capability description (§9, byte-identical); NAV-003 semantics (byte-identical); 17-module dependency baseline; `review-evidence-service.consumes` (`[event]`), `.emits` (`[query]`), `module_type` (`projection`), `owns_authoritative_state` (`false`); Decision authority (`decision-authority-service`), RiskEvaluation/Execution Intent authority (`risk-gateway`), Order authority (`execution-engine`), ExecutionResult authority (`execution-result-processor`); API Surface non-authority; §3–§8 command/query/event/security/error/contract-governance semantics; §6 non-bypass invariants; current Package 1.1 v1.0/v1.1 references. Interaction-mechanism gap (request representation, response/event correlation, synchronous-vs-asynchronous behavior, timeout behavior, failure codes, transport giữa `review-evidence-service` VÀ `decision-evaluation-engine`) VẪN EXPLICITLY unresolved — consolidation này KHÔNG resolve gap đó, KHÔNG trình bày như đã resolve. `ADR-021`/Package 1.1 (`module-registry.yaml`/`system-decomposition.md`) KHÔNG sửa. `database-architecture.md`/Package 1.5 VÀ `ux-architecture.md`/Package 1.6 KHÔNG sửa — VẪN Consolidated Stable/`candidate` như trước. `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi — `Consolidated Stable` LÀ package lifecycle/readiness state, KHÔNG có nghĩa artifact `Approved`/`Locked` (Chapter 0 §7.1). KHÔNG authorize implementation/Gate 2/Phase 2/LIVE.
+**CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-08, vai trò: `Package 1.4 ADR-022 Alignment Executor`) — status: Draft, KHÔNG Approved/Locked.** Package 1.4 v0.7 → v0.8: genuine semantic parity-transcription change — EXACT mechanical transcription của Approved [ADR-022](../adr/ADR-022.md) v0.3 (`Approved`, `approved_at: "2026-08-08"`, Package 1.4 published-contract compatibility commitment/policy-root/canonical-authority/evaluator-boundary decision) — NOT a new architecture decision, NOT a new ADR. §8 "API contract governance" mở rộng — thêm explicit compatibility declaration mà chính §8 (v0.7 trở về trước) ĐÃ mandate PHẢI tồn tại: **backward compatibility CHỈ**, scoped tới `command-query-api-surface`'s published SEMANTIC contract surface (route existence, routing/module ownership semantics, authoritative/non-authoritative classification, published outcome-type semantics — vd `PASSED / FAILED / INDETERMINATE`, `MATCH / MISMATCH / INDETERMINATE`) — KHÔNG field-level schema (KHÔNG tồn tại); existing valid consumer (Package 1.6, qua route ĐÃ đăng ký) PHẢI TIẾP TỤC hoạt động đúng khi surface tiến hóa qua compatible additive change; forward/bidirectional compatibility KHÔNG tuyên bố. Policy root transcribe nguyên văn logical composition ADR-022 §4.1 đã quyết định — Chapter 10 v2.7 (Locked, exact blob `016e46bcad0826e983a51ee24c8ec4c3217aeba1`) + CHÍNH artifact `api-architecture.md` này SAU KHI incorporate ADR-022 (KHÔNG mutable "latest" reference). MANIFEST authority model transcribe nguyên văn ADR-022 §5.2 — MANIFEST LÀ resolver/authority DUY NHẤT cho CẢ policy identity/version LẪN bounded applicability/activation trong phạm vi Phase 1 architecture-only, KHÔNG tự author/invent declaration. Evaluator boundary (ADR-022 §6) preserve nguyên vẹn — `module identity ≠ evaluator grant`, self-certification bị cấm, Declaration → Grant → Enforcement → Verification (Chapter 9 §9.6) — KHÔNG evaluator nào designate tại transaction này. Same precedent as the ADR-018/019/020/021 → Package 1.4 alignment — a genuine architectural/semantic parity change, NOT a bounded wording-only correction, reverts `package_lifecycle` từ `Consolidated Stable` về `candidate`. This transaction does NOT reconsolidate — a separate Review A + Independent Review B + Product Owner consolidation decision MUST complete before this baseline returns to `Consolidated Stable`; CHỈ khi VÀ SAU KHI reconsolidation đó, artifact v0.8 này mới eligible trở thành active Package 1.4 policy-root component (ADR-022 §5.2 mục 2-3). **Preserved unchanged:** dependency graph/module inventory (17-module baseline, byte-identical); command/query/event contract category (KHÔNG đổi); NAV-003 semantics (byte-identical); VIEW-002 capability description (byte-identical); VIEW-003 route `command-query-api-surface → review-evidence-service` VÀ `decision-evaluation-engine` recomputation delegate-only role (byte-identical); `review-evidence-service`/`decision-evaluation-engine` responsibilities (KHÔNG sửa, `module-registry.yaml`/`system-decomposition.md` KHÔNG chạm); Decision authority (`decision-authority-service`), RiskEvaluation/Execution Intent authority (`risk-gateway`), Order authority (`execution-engine`), ExecutionResult authority (`execution-result-processor`); API Surface non-authority; §3–§7 command/query/event/security/error semantics; §6 non-bypass invariants; route structure; interaction-mechanism gap VẪN EXPLICITLY unresolved (carry-forward, KHÔNG resolve tại transaction này). KHÔNG ADR mới tạo. `database-architecture.md`/Package 1.5 VÀ `ux-architecture.md`/Package 1.6 KHÔNG sửa. `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. KHÔNG Package 1.4 Review A thực hiện, KHÔNG reconsolidate, KHÔNG evaluator nào designate, KHÔNG Compatibility Result nào tạo, KHÔNG Quality Gate nào re-run — `QG-P14-E-EVID-01`/`G2-RDY-BLK-03` VẪN open, Phase 1 Quality Gate VẪN `FAIL — evidence`, Gate 2 VẪN CLOSED. KHÔNG authorize implementation/Phase 2/LIVE.
+
+**CONSOLIDATED STABLE (package lifecycle, 2026-08-07, Product Owner decision, HISTORICAL — superseded bởi quyết định `candidate` trên, vai trò: `Package 1.4 v0.7 Mechanical Consolidation Executor`) — status: Draft, KHÔNG Approved/Locked.** Product Owner đã quyết định nguyên văn (as supplied in the transaction request): "APPROVE PACKAGE 1.4 V0.7 CONSOLIDATION." Decision date: 2026-08-07 (exact clock time KHÔNG được cung cấp — date-only metadata, KHÔNG một giá trị giả định nào được invent). Review evidence trên v0.7 (ADR-021 parity alignment): Review A `CLEAN`, Independent Review B `CLEAN`, consolidation readiness: `READY`, Blocker 0/Major 0/Minor 0. Mechanical lifecycle transaction — `version: "0.7"` UNCHANGED (no content/architecture change), `package lifecycle: candidate → Consolidated Stable`. **Preserved unchanged (byte-identical, transaction này CHỈ đổi lifecycle prose/field):** VIEW-003 route `ux-application-shell → command-query-api-surface → review-evidence-service` (already-registered edge); `review-evidence-service` comparison/orchestration ownership; `decision-evaluation-engine` recomputation delegate-only role (KHÔNG expose trực tiếp qua API Surface); final comparison tại `review-evidence-service`; kết quả `MATCH / MISMATCH / INDETERMINATE`; ZERO new API Surface edge; ZERO Package 1.4 dependency edge; ZERO contract-category change; VIEW-002 capability description (§9, byte-identical); NAV-003 semantics (byte-identical); 17-module dependency baseline; `review-evidence-service.consumes` (`[event]`), `.emits` (`[query]`), `module_type` (`projection`), `owns_authoritative_state` (`false`); Decision authority (`decision-authority-service`), RiskEvaluation/Execution Intent authority (`risk-gateway`), Order authority (`execution-engine`), ExecutionResult authority (`execution-result-processor`); API Surface non-authority; §3–§8 command/query/event/security/error/contract-governance semantics; §6 non-bypass invariants; current Package 1.1 v1.0/v1.1 references. Interaction-mechanism gap (request representation, response/event correlation, synchronous-vs-asynchronous behavior, timeout behavior, failure codes, transport giữa `review-evidence-service` VÀ `decision-evaluation-engine`) VẪN EXPLICITLY unresolved — consolidation này KHÔNG resolve gap đó, KHÔNG trình bày như đã resolve. `ADR-021`/Package 1.1 (`module-registry.yaml`/`system-decomposition.md`) KHÔNG sửa. `database-architecture.md`/Package 1.5 VÀ `ux-architecture.md`/Package 1.6 KHÔNG sửa — VẪN Consolidated Stable/`candidate` như trước. `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi — `Consolidated Stable` LÀ package lifecycle/readiness state, KHÔNG có nghĩa artifact `Approved`/`Locked` (Chapter 0 §7.1). KHÔNG authorize implementation/Gate 2/Phase 2/LIVE.
 
 **CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-07, HISTORICAL — superseded bởi quyết định Consolidated Stable trên, vai trò: `Package 1.4 ADR-021 Parity Alignment Executor`) — status: Draft, KHÔNG Approved/Locked.** Package 1.4 v0.6 → v0.7: genuine semantic parity-transcription change — EXACT mechanical transcription của Approved [ADR-021](../adr/ADR-021.md) v0.1 (`Approved`, `approved_at: "2026-08-07"`, VIEW-003 computation-ownership decision) VÀ Package 1.1's now-`Consolidated Stable` v1.0/v1.1 baseline (`module-registry.yaml`/`system-decomposition.md`) — NOT a new architecture decision, NOT a new ADR. §9's `review-evidence-service` entry updated to document VIEW-003's Decision replay-parity comparison capability, exposed qua CÙNG route ĐÃ đăng ký `ux-application-shell → command-query-api-surface → review-evidence-service` (edge KHÔNG mới, KHÔNG contract-category mới) — `review-evidence-service` LÀ comparison/orchestration owner, obtain recorded Decision qua edge ĐÃ CÓ tới `decision-authority-service`, delegate deterministic pinned recomputation tới `decision-evaluation-engine` qua một edge Package 1.1 mới (`review-evidence-service.depends_on += decision-evaluation-engine`, KHÔNG chạm command-query-api-surface), thực hiện comparison cuối cùng, expose `MATCH / MISMATCH / INDETERMINATE`. `decision-evaluation-engine` KHÔNG được expose trực tiếp qua API Surface — command-query-api-surface's dependency list KHÔNG đổi. Same precedent as the ADR-020 → Package 1.4 v0.6 alignment — a genuine architectural/semantic parity change, NOT a bounded wording-only correction, reverts `package_lifecycle` from `Consolidated Stable` to `candidate`. This transaction does NOT reconsolidate — a separate Review A + Independent Review B + Product Owner consolidation decision MUST complete before this baseline returns to `Consolidated Stable`. **Preserved unchanged:** `command-query-api-surface → review-evidence-service` route (already existing, not new); 17-module dependency baseline (KHÔNG đổi — edge mới nằm NỘI BỘ Package 1.1, KHÔNG chạm command-query-api-surface's own depends_on); `review-evidence-service.consumes` (`[event]`), `.emits` (`[query]`), `module_type` (`projection`), `owns_authoritative_state` (`false`); Decision authority (`decision-authority-service`), RiskEvaluation/Execution Intent authority (`risk-gateway`), Order authority (`execution-engine`), ExecutionResult authority (`execution-result-processor`); API Surface non-authority; §3–§8 command/query/event/security/error/contract-governance semantics; §6 non-bypass invariants; VIEW-002 capability description (§9, byte-identical). Interaction-mechanism gap (request representation, correlation, sync/async, timeout, failure code, transport) VẪN EXPLICITLY unresolved, KHÔNG resolve tại transaction này. `ADR-021` and Package 1.1 (`module-registry.yaml`/`system-decomposition.md`) are NOT modified by this transaction. `database-architecture.md`/Package 1.5 and `ux-architecture.md`/Package 1.6 are NOT modified — remain Consolidated Stable/candidate as before. VIEW-003 is documented as an architecture-level capability only — NOT described as implementation-ready.
 
@@ -506,6 +508,56 @@ Backward compatibility policy: breaking change PHẢI xác định theo publishe
   (backward/forward, §10.3.1); THIẾU declaration → invalid declaration → `eligible:
   false` (I-6), KHÔNG được suy diễn mặc định.
 
+Compatibility commitment declaration (v0.8, mechanical transcription của Approved
+  [ADR-022](../adr/ADR-022.md) v0.3 §3.2 — đóng gap bounded rule trên tự nó ĐÃ
+  mandate, KHÔNG redesign):
+
+  `command-query-api-surface`'s published SEMANTIC contract surface yêu cầu **BACKWARD
+    COMPATIBILITY CHỈ** — KHÔNG forward, KHÔNG bidirectional, KHÔNG no-commitment.
+
+  Scope: CHỈ áp dụng cho published semantic contract concern ĐÃ established — route
+    existence; routing/module ownership semantics; authoritative VS non-authoritative
+    classification; published outcome-type semantics (vd `PASSED / FAILED /
+    INDETERMINATE`, §9 VIEW-002; `MATCH / MISMATCH / INDETERMINATE`, §9 VIEW-003).
+    KHÔNG áp dụng field-level schema — KHÔNG tồn tại tại Phase 1 (frontmatter title
+    "KHÔNG OpenAPI/GraphQL/protobuf schema", KHÔNG đổi).
+
+  Ý nghĩa: existing valid consumer của published semantic surface (hiện tại: Package
+    1.6 UX Shell, qua route NAV-003/VIEW-002/VIEW-003 ĐÃ đăng ký) PHẢI TIẾP TỤC hoạt
+    động đúng KHI surface tiến hóa qua compatible additive change (vd route/capability
+    mới thêm vào). KHÔNG tuyên bố forward compatibility (consumer mới đọc dữ liệu cũ);
+    KHÔNG tuyên bố bidirectional; KHÔNG tuyên bố compatibility cho field-level schema
+    chưa tồn tại.
+
+  Policy root (ADR-022 §4.1, logical composition — KHÔNG mutable "latest" reference):
+    Chapter 10 v2.7 (Locked, exact blob `016e46bcad0826e983a51ee24c8ec4c3217aeba1`) +
+    CHÍNH artifact `api-architecture.md` này SAU KHI incorporate ADR-022 (exact
+    post-alignment version/content identity — resolve tại MANIFEST, KHÔNG một nhãn
+    "current"/"latest" tự do nào). Format-specific rule-set (JSON Schema/OpenAPI/
+    GraphQL/protobuf...) KHÔNG author — deferred tới khi một concrete schema artifact
+    tồn tại (Phase 1.5/Phase 3), đúng ADR-022 §4.
+
+  MANIFEST authority model (ADR-022 §5.2, Phase 1 architecture-only scope): MANIFEST
+    LÀ resolver/authority DUY NHẤT cho CẢ (a) policy identity/version LẪN (b) bounded
+    policy applicability/activation — MANIFEST KHÔNG tự author/invent compatibility
+    declaration nội dung; declaration PHẢI thực sự tồn tại trong artifact được MANIFEST
+    trỏ tới. Package 1.4 policy component CHỈ eligible được coi LÀ active KHI VÀ CHỈ
+    KHI CẢ BA điều kiện thỏa: (1) đúng post-alignment Package 1.4 identity này (v0.8
+    trở lên) chứa declaration ĐÃ approved; (2) package SAU ĐÓ hoàn tất Review A +
+    Independent Review B + Product Owner reconsolidation (governed transaction riêng,
+    KHÔNG tự động); (3) MANIFEST resolve đúng exact `Consolidated Stable` version/
+    content identity đó. Transaction v0.8 này TỰ NÓ KHÔNG kích hoạt policy-root
+    component — package lifecycle chuyển `candidate` (§0 banner đầu tài liệu), CHƯA
+    `Consolidated Stable`.
+
+  Evaluator boundary (ADR-022 §6, preserve nguyên vẹn): `module identity ≠ evaluator
+    grant`; evaluator self-certification bị cấm (Chapter 10 §10.4.1); quyền đánh giá
+    PHẢI qua Declaration → Grant → Enforcement → Verification (Chapter 9 §9.6),
+    `granted ⊆ declared`. `command-query-api-surface` (module của CHÍNH Package 1.4)
+    KHÔNG tự động LÀ evaluator được grant cho compatibility evaluation của contract
+    nó publish. KHÔNG evaluator nào được designate tại transaction này — một
+    transaction governed riêng biệt SAU đây sẽ xác định (ADR-022 §7).
+
 Compatibility evaluation ownership (bounded rule): đánh giá compatibility (Compatibility
   Result, Chapter 10 §10.4 — artifact bất biến mang evaluation provenance, ai đánh giá/
   theo luật nào, §10.4.1) VẪN thuộc module authoritative/designated ĐÃ đăng ký cho đúng
@@ -836,13 +888,14 @@ Consolidation condition:      Zero unresolved Blocker/Major trên baseline hiệ
 
 ```text
 Package 1.4:
-  version: 0.7
+  version: 0.8
   status: Draft
-  package lifecycle/readiness: Consolidated Stable (2026-08-07, Product Owner decision
-    — v0.7 mechanical consolidation transaction, xem banner đầu tài liệu)
-  Review A: CLEAN (Blocker 0/Major 0/Minor 0)
-  Independent Review B: CLEAN (Blocker 0/Major 0/Minor 0, consolidation readiness: READY)
-  Product Owner consolidation decision: RECORDED (banner đầu tài liệu)
+  package lifecycle/readiness: candidate (reverted from Consolidated Stable, 2026-08-08
+    — v0.8 ADR-022 parity-transcription transaction, xem banner đầu tài liệu)
+  v0.8 KHÔNG reconsolidate — một Review A + Independent Review B + Product Owner
+    consolidation decision RIÊNG BIỆT PHẢI hoàn tất TRƯỚC KHI baseline này trở lại
+    `Consolidated Stable`, VÀ CHỈ SAU đó v0.8 mới eligible LÀM active Package 1.4
+    policy-root component (ADR-022 §5.2 mục 2-3).
 
 Package 1.4 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đóng ba Review A
   finding trên v0.1 (banner đầu tài liệu); v0.3 LÀ micro-correction đóng đúng residual
@@ -874,8 +927,17 @@ Package 1.4 v0.1 LÀ candidate đầu tiên — v0.2 LÀ bounded correction đó
   Package 1.1), KHÔNG một bounded wording-only correction — reverted `package lifecycle`
   từ `Consolidated Stable` về `candidate`, cùng nguyên tắc đã dùng cho v0.6 VÀ Package
   1.1's v0.9→v1.0 ADR-021 alignment; v0.7 sau đó đạt `Consolidated Stable` qua
-  transaction consolidation riêng biệt (banner đầu tài liệu) — KHÔNG version bump nào
-  kèm theo mechanical lifecycle transaction này.
+  transaction consolidation riêng biệt (banner đầu tài liệu, HISTORICAL) — KHÔNG
+  version bump nào kèm theo mechanical lifecycle transaction đó. v0.8 LÀ một genuine
+  semantic parity-transcription transaction thứ tư (ADR-022 v0.3 Approved alignment —
+  §8 cập nhật, explicit backward-only compatibility declaration/policy-root/MANIFEST-
+  authority-model/evaluator-boundary transcribed VÀO §8, ZERO edge/dependency/
+  contract-category/route change nào), KHÔNG một bounded wording-only correction —
+  reverted `package lifecycle` từ `Consolidated Stable` về `candidate`, cùng nguyên
+  tắc đã dùng cho v0.4/v0.6/v0.7. v0.8 KHÔNG tự kích hoạt policy-root component đó
+  (ADR-022 §5.2) — CẦN Review A + Independent Review B + Product Owner reconsolidation
+  RIÊNG BIỆT trước, VÀ trước cả evaluator designation/Compatibility Result pinning
+  (ADR-022 §7, hai transaction governed riêng biệt khác).
 
 `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có
   nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`,
