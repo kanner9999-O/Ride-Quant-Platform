@@ -2,6 +2,103 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-08 — ADR-022 v0.3 mechanical approval (Approved)
+
+**Mechanical lifecycle transaction — vai trò: `ADR-022 v0.3 Approval Executor`.** Records Product Owner approval of the review-clean ADR-022 v0.3. No ADR semantic change; no Package 1.4 alignment; no compatibility evidence created.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        917d31c4fe397b425e1fb7107e49e465b4dbf620
+docs/adr/ADR-022.md v0.3 blob:                         7d4ef95a74b68d7390b10a7d04fce85cc3f1100b (verified matched, Draft)
+```
+
+### Review evidence
+
+```text
+Review A:                 CLEAN (Blocker 0/Major 0/Minor 0)
+Independent Review B:     CLEAN (Blocker 0/Major 0/Minor 0)
+Prior findings:            ADR022-A-MAJ-01 (v0.1, closed at v0.2) and
+                            ADR022-B-MAJ-01 (v0.2, closed at v0.3) both confirmed
+                            resolved, no new finding.
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE ADR-022 V0.3"
+
+Decision date: 2026-08-08 (date-only -- exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+ADR-022.md:                 version: "0.3" UNCHANGED. status: Draft -> Approved.
+                             approved_by: null -> Product Owner.
+                             approved_at: null -> "2026-08-08".
+Blob:                        7d4ef95a74b68d7390b10a7d04fce85cc3f1100b ->
+                              049a3d941493a0fcb3a0f44733f17534e158f9b0
+MANIFEST.md:                 row updated (Status Draft -> Approved, approval
+                              paragraph prepended, v0.1/v0.2/v0.3 correction
+                              history preserved).
+```
+
+### Preserved unchanged (substantive decisions)
+
+```text
+Backward compatibility only (SS3.2).
+Package 1.4 semantic-contract scope (route/module-ownership/authoritative-
+  classification/outcome-type, not field-level schema).
+v0.6 predecessor blob 97b97cc51513ae7f1fadf3ae98a0ce77a00dcc4b (baseline citation).
+Chapter 10 v2.7 policy component, exact identity
+  016e46bcad0826e983a51ee24c8ec4c3217aeba1.
+Post-alignment exact-pin requirement (SS4.1, no mutable "latest").
+MANIFEST canonical-authority model (SS5) -- identity/version and
+  applicability/activation, both roles.
+Current api-architecture.md v0.7 confirmed still NOT an active policy-root
+  component (SS5.2, v0.3 correction, unchanged by this transaction).
+Phase-1-architecture-only applicability limitation.
+Evaluator authorization model (SS6, Declaration -> Grant -> Enforcement ->
+  Verification) and anti-self-certification rule.
+Three downstream alignment transactions remain separate (SS7).
+Package 1.4 (api-architecture.md) and all other ADRs (ADR-018/019/020/021)
+  untouched -- git diff --quiet empty for all.
+```
+
+### Residual Quality Gate state
+
+```text
+QG-P14-E-EVID-01:   OPEN -- approval alone does not produce compatibility
+                     PASS/eligible evidence.
+G2-RDY-BLK-03:      OPEN.
+Phase 1 Quality Gate overall result: FAIL -- evidence (unchanged).
+Gate 2: remains closed.
+```
+
+### Validation
+
+```text
+Starting HEAD, ADR-022.md version/status/blob matched before editing.
+Exactly three files changed: docs/adr/ADR-022.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+Version confirmed unchanged ("0.3"); status confirmed changed to Approved;
+  approved_by confirmed Product Owner; approved_at confirmed "2026-08-08".
+Diff confirmed scoped to exactly three locations: frontmatter
+  (approved_by/approved_at), the top banner (DRAFT -> APPROVED), and SS13
+  (review table populated, approval record appended) -- SS1-SS12 and SS14
+  confirmed byte-identical via diff hunk review.
+ADR substantive sections (SS1-SS12, SS14) confirmed unchanged.
+Review evidence confirmed intact and recorded (SS13).
+Package 1.4 (api-architecture.md) confirmed untouched.
+No evaluator grant created; no Compatibility Result created.
+QG-P14-E-EVID-01 confirmed remains open.
+G2-RDY-BLK-03 confirmed remains open.
+Gate 2 confirmed remains closed.
+No BCC run, no Gate 2 review, no Phase 1 approval, no Phase 2 opening, no
+  implementation or LIVE authorization occurred.
+```
+
 ## [Unreleased] — 2026-08-08 — ADR-022 v0.3 bounded correction (`ADR022-B-MAJ-01` CLOSED)
 
 **Bounded correction — vai trò: `ADR-022 v0.3 Bounded Correction Executor`.** Corrects an internal-consistency defect in ADR-022 v0.2 SS5.2, flagged by Review B (verdict `REVISE`, finding `ADR022-B-MAJ-01`). Bounded to SS5.2 only -- does not redesign the compatibility commitment, policy-root composition, MANIFEST canonical-authority selection, evaluator authorization model, or downstream sequence.
