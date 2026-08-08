@@ -542,11 +542,18 @@ Compatibility commitment declaration (v0.8, mechanical transcription của Appro
     policy applicability/activation — MANIFEST KHÔNG tự author/invent compatibility
     declaration nội dung; declaration PHẢI thực sự tồn tại trong artifact được MANIFEST
     trỏ tới. Package 1.4 policy component CHỈ eligible được coi LÀ active KHI VÀ CHỈ
-    KHI CẢ BA điều kiện thỏa: (1) đúng post-alignment Package 1.4 identity này (v0.8
-    trở lên) chứa declaration ĐÃ approved; (2) package SAU ĐÓ hoàn tất Review A +
-    Independent Review B + Product Owner reconsolidation (governed transaction riêng,
-    KHÔNG tự động); (3) MANIFEST resolve đúng exact `Consolidated Stable` version/
-    content identity đó. Transaction v0.8 này TỰ NÓ KHÔNG kích hoạt policy-root
+    KHI CẢ BA điều kiện thỏa cho ĐÚNG MỘT concrete Package 1.4 version/content identity
+    đang được đánh giá: (1) CHÍNH XÁC concrete artifact đang được đánh giá đó chứa
+    declaration ĐÃ approved (KHÔNG suy diễn từ "≥ v0.8" hay bất kỳ range/threshold
+    nào); (2) CHÍNH XÁC artifact đó ĐÃ hoàn tất governed Review A +
+    Independent Review B + Product Owner reconsolidation (transaction riêng, KHÔNG tự
+    động); (3) MANIFEST resolve đúng exact version/content identity CỦA CHÍNH artifact
+    đó (KHÔNG một reference "current"/"latest"/">=0.8"/range nào khác). **Xác nhận
+    tường minh:** một Package 1.4 version SAU này KHÔNG tự động kế thừa compatibility-
+    policy eligibility CHỈ vì version number của nó lớn hơn v0.8 — MỌI evaluation
+    boundary tương lai PHẢI exact-pin ĐÚNG concrete artifact thực sự đang được đánh giá
+    tại boundary đó, đúng nguyên tắc Chapter 10 §10.4.3 mục 1 ("pin bằng nhãn version
+    tự do LÀ không hợp lệ"). Transaction v0.8 này TỰ NÓ KHÔNG kích hoạt policy-root
     component — package lifecycle chuyển `candidate` (§0 banner đầu tài liệu), CHƯA
     `Consolidated Stable`.
 

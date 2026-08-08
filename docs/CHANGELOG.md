@@ -2,6 +2,110 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-08 — Package 1.4 v0.8 bounded correction (`P14V08-A-MIN-01` CLOSED)
+
+**Bounded wording correction — vai trò: `Package 1.4 v0.8 Bounded Correction Executor`.** Corrects an ambiguous version-range phrase in `api-architecture.md` v0.8 SS8 that could weaken ADR-022's exact version/content identity requirement. Does not redesign or expand ADR-022 semantics.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        3a8b8a41d0de8c680c03185a91acf80bdb6ea722
+docs/architecture/api-architecture.md v0.8 blob:       be40fe5e34f0dd1760cb61353bfe33dd164ace45 (verified matched, candidate)
+docs/adr/ADR-022.md v0.3 blob:                         049a3d941493a0fcb3a0f44733f17534e158f9b0 (verified matched, Approved)
+```
+
+### Finding (`P14V08-A-MIN-01`)
+
+```text
+SS8's MANIFEST authority model used the phrase "post-alignment Package 1.4
+  identity này (v0.8 trở lên)" -- "v0.8 trở lên" ("v0.8 and above") can be read as
+  a version range, weakening ADR-022 SS5.2's exact version/content identity
+  requirement (no threshold/range resolution permitted).
+```
+
+### Correction applied
+
+```text
+SS8's MANIFEST authority model now requires all three eligibility conditions to
+  hold for exactly ONE concrete Package 1.4 version/content identity being
+  evaluated -- no range or threshold inference ("KHÔNG suy diễn từ '>= v0.8' hay
+  bất kỳ range/threshold nào"): (1) that exact artifact contains the approved
+  declaration; (2) that exact artifact has completed governed Review A +
+  Independent Review B + Product Owner reconsolidation; (3) MANIFEST resolves the
+  exact version/content identity of that same artifact.
+Explicit statement added: a later Package 1.4 version does NOT automatically
+  inherit compatibility-policy eligibility merely because its version number is
+  greater than v0.8 -- every future evaluation boundary must exact-pin the
+  concrete artifact actually being evaluated, per Chapter 10 SS10.4.3 point 1
+  ("pinning by a free-form version label is invalid").
+No "current", "latest", ">=0.8", or other mutable/range reference introduced.
+```
+
+### Version/lifecycle treatment
+
+```text
+version: "0.8" UNCHANGED (per explicit task instruction -- this is a pre-Review-A
+  wording polish of the same candidate authoring cycle, not a correction to an
+  already-reviewed/consolidated baseline, so no version bump applies here, unlike
+  prior bounded corrections in this session).
+package lifecycle: candidate UNCHANGED.
+status: Draft UNCHANGED. approved_by: null UNCHANGED. approved_at: null UNCHANGED.
+```
+
+### Resulting blob
+
+```text
+api-architecture.md:      be40fe5e34f0dd1760cb61353bfe33dd164ace45 ->
+                           c3d42b67cdd2ecbeee6fa8230fa29e876f0f4795
+MANIFEST.md:               row updated (blob chain extended, correction note added
+                           after the v0.8 alignment paragraph, version column stays
+                           0.8).
+```
+
+### Preserved unchanged
+
+```text
+Backward compatibility only.
+Semantic-contract scope (route existence, module ownership, authoritative
+  classification, outcome-type semantics).
+Chapter 10 v2.7 exact blob 016e46bcad0826e983a51ee24c8ec4c3217aeba1.
+Logical policy root (Chapter 10 v2.7 + this artifact post-incorporation).
+MANIFEST authority model (identity/version and applicability/activation roles) --
+  only the ambiguous wording corrected, not the model itself.
+Evaluator boundary (module identity != evaluator grant, no self-certification,
+  Declaration -> Grant -> Enforcement -> Verification).
+candidate lifecycle.
+Dependency graph / module inventory: byte-identical.
+NAV-003 / VIEW-002 / VIEW-003 semantics: byte-identical.
+All authority boundaries (Decision, RiskEvaluation/Execution Intent, Order,
+  ExecutionResult, API Surface non-authority): unchanged.
+Interaction-protocol gap: remains EXPLICITLY unresolved.
+No Compatibility Result created. No evaluator grant created. No reconsolidation
+  performed.
+```
+
+### Validation
+
+```text
+Baseline HEAD, api-architecture.md v0.8 blob, and ADR-022 v0.3 Approved/blob
+  matched before editing.
+Exactly three files changed: docs/architecture/api-architecture.md,
+  docs/MANIFEST.md, docs/CHANGELOG.md (git status --porcelain confirmed).
+Package confirmed remains v0.8; lifecycle confirmed remains candidate.
+Ambiguous "v0.8 trở lên" semantics confirmed removed.
+Exact-artifact requirement confirmed explicit.
+Future higher version confirmed does not automatically inherit eligibility.
+No mutable/range reference introduced.
+Diff confirmed scoped to exactly one location (SS8's MANIFEST authority model
+  paragraph) -- all other sections confirmed byte-identical via diff hunk review.
+No architecture route/dependency/authority change (module-registry.yaml,
+  system-decomposition.md, ADR-018/019/020/021, ux-architecture.md,
+  database-architecture.md all git diff --quiet empty).
+No evaluator designated; no Compatibility Result produced.
+Quality Gate overall result confirmed remains FAIL -- evidence; Gate 2 confirmed
+  remains closed.
+```
+
 ## [Unreleased] — 2026-08-08 — Package 1.4 ADR-022 alignment: compatibility declaration transcribed (v0.8)
 
 **Bounded semantic Package 1.4 alignment — vai trò: `Package 1.4 ADR-022 Alignment Executor`.** Mechanically transcribes Approved ADR-022 v0.3 into `api-architecture.md` §8, creating the concrete post-alignment artifact required by ADR-022 §4.1/§5.2. Does not perform Package 1.4 Review A, does not reconsolidate, does not designate an evaluator, does not create a Compatibility Result, does not rerun the Phase 1 Quality Gate.
