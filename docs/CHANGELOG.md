@@ -2,6 +2,140 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-09 — ADR-023 v0.2 bounded taxonomy correction (`ADR023-A-MAJ-01` CLOSED)
+
+**Bounded correction — vai trò: `ADR-023 v0.2 Bounded Taxonomy Correction Executor`.** Corrects a Review A Major finding in ADR-023 v0.1: the selected evaluator responsibility conflicted with Chapter 7 Projection taxonomy. Does not create ADR-024, does not reopen ADR-022, does not grant an evaluator, does not create a Compatibility Result, does not rerun the Quality Gate.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        b8558e752048491d1c4b0bf7745309337e77cc79
+docs/adr/ADR-023.md v0.1 blob:                         4ae1d1407fb92efe72b8503d547eed129627def4 (verified matched, Draft)
+Review A:                                              Blocker 0, Major 1, Minor 0, verdict REVISE
+```
+
+### Root cause (`ADR023-A-MAJ-01`)
+
+```text
+review-evidence-service is module_type: projection (Chapter 7 Type 2). Chapter 7
+  SS7.4 (Locked) prohibits a Projection from originating an authoritative domain
+  fact/decision/state transition belonging to another capability. A Compatibility
+  Result (Chapter 10 SS10.4) is exactly such an authoritative eligibility decision
+  -- immutable, gates real activation (Chapter 9 SS9.5) -- belonging to the
+  compatibility-policy-governance capability, distinct from review-evidence-
+  service's registered Decision-evidence capability. Labeling the output
+  "non-authoritative" does not cure the violation: SS7.4 prohibits by the nature
+  of the decision, not by the semantic label attached to it.
+```
+
+### Taxonomy re-assessment (all four candidates + new-module option)
+
+```text
+review-evidence-service (Type 2 Projection):   taxonomy-ineligible -- SS7.4
+  prohibits originating authoritative decisions of another capability. REJECTED
+  (was the v0.1 selection; this is the corrected exclusion).
+command-query-api-surface (Type 3 Runtime Service): taxonomy-eligible in
+  principle, but is the evaluated publisher itself -- excluded by
+  anti-self-certification (Chapter 10 SS10.4.1), unchanged from v0.1.
+plugin-release-manager (Type 3 Runtime Service, owns_authoritative_state: true):
+  taxonomy-eligible (Type 3 is the only type permitted to originate an
+  authoritative event/decision, Chapter 7 SS7.1); already authoritative for its
+  own operational/governance-fact domain (Plugin Version resolution, runtime
+  compatibility tracking, activation/deactivation coordination -- the last of
+  which is functionally the same "compatibility-gate authoring" pattern Package
+  1.4 Trigger E needs). SELECTED.
+decision-evaluation-engine (Type 1 Compute Engine): taxonomy-ineligible for the
+  same structural reason as review-evidence-service -- only Type 3 has the
+  "originate authoritative event" permission; its own registered responsibility
+  already states "non-authoritative... proposal". REJECTED, unchanged reasoning
+  from v0.1.
+New module: plugin-release-manager is not demonstrably invalid, so a new module
+  remains unnecessary. REJECTED, unchanged from v0.1.
+```
+
+### Corrected selection
+
+```text
+plugin-release-manager gains Declaration-tier responsibility for Package 1.4
+  published-contract compatibility evaluation (Trigger E) -- a genuinely new
+  responsibility category, not an automatic generalization of its existing
+  Plugin-artifact responsibilities, but within the same Type 3 functional
+  pattern the module already exercises for activation-boundary coordination.
+Blast radius unchanged from v0.1's (rejected) selection: zero new dependency
+  edge, exactly one new Declaration bullet (Package 1.1 alignment, separate
+  future transaction, not performed here).
+```
+
+### God-module guardrail assessment (Chapter 7 SS7.2, new in SS11)
+
+```text
+plugin-release-manager now carries two capabilities: existing Plugin-artifact
+  compatibility, and the new Package 1.4 API-contract compatibility Declaration.
+  Both fall within the SAME taxonomy type (Type 3 Runtime Service) -- SS7.2's
+  four-condition hybrid-declaration requirement (which triggers only when
+  combining CORE responsibilities of DIFFERENT taxonomy types) is explicitly
+  assessed as NOT triggered. Conceptual-cohesion risk (two different domain
+  objects under one module) is honestly flagged as a risk to monitor, not
+  disqualifying.
+```
+
+### Lifecycle change
+
+```text
+ADR-023.md:                version: "0.1" -> "0.2". status: Draft UNCHANGED.
+Blob:                       4ae1d1407fb92efe72b8503d547eed129627def4 ->
+                             ecceac34963550797fd39ea01dbe29b07fb65e09
+MANIFEST.md:                row updated (new v0.2 correction paragraph prepended,
+                             v0.1 paragraph preserved as historical record).
+```
+
+### Sections touched
+
+```text
+Banner (new v0.2 paragraph), SS3 (candidate set -- added SS3.0 taxonomy
+  constraint citation, rewrote SS3.1/SS3.2 with six-dimension comparison per
+  candidate), SS4 (selected decision), SS5 (evaluator identity in the "may
+  judge" intro line), SS6 (separation -- owns_authoritative_state true instead
+  of false), SS7 (Package 1.1 consequence -- module name and responsibility-
+  count references), SS8 (dependency assessment -- module name, depends_on: []
+  citation), SS9 (Declaration/Grant -- module name, taxonomy-validity note),
+  SS11 (consequences/risks -- god-module guardrail assessment added), SS12
+  (validation criteria -- taxonomy-focused Review A/B checks added), SS13
+  (scale check -- module name, responsibility-count), SS14 (relationship --
+  added Chapter 7 citation, precedent-divergence note). SS1, SS2, SS10, SS15,
+  SS16 confirmed byte-identical.
+```
+
+### Validation
+
+```text
+Starting HEAD and ADR-023.md v0.1 blob matched before editing.
+Exactly three files changed: docs/adr/ADR-023.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+ADR-023 confirmed becomes v0.2, status remains Draft.
+Review A Major finding addressed directly (root cause cited verbatim from
+  Chapter 7 SS7.4, taxonomy table from SS7.1).
+All four candidates plus the new-module option re-evaluated under Chapter 7
+  taxonomy, with the required six dimensions (taxonomy eligibility,
+  responsibility/domain fit, anti-self-certification, ability to receive a
+  future Grant, ability to originate the governed Compatibility Result,
+  registry/dependency consequences).
+Selected placement (plugin-release-manager) confirmed can validly receive a
+  future Grant and originate the governed Compatibility Result (Type 3,
+  Chapter 7 SS7.1).
+Projection restriction confirmed not bypassed by wording -- SS7.4 violation
+  explicitly stated as inherent to the decision's nature, not curable by
+  labeling the output "non-authoritative".
+No ADR-024 created; evaluator placement remains ADR-023's sole decision scope.
+No Package 1.1 alignment performed (module-registry.yaml, system-decomposition.md
+  confirmed git diff --quiet empty).
+No evaluator Grant created; no Compatibility Result created.
+docs/adr/ADR-022.md, docs/architecture/api-architecture.md confirmed untouched
+  (git diff --quiet empty).
+QG-P14-E-EVID-01 and G2-RDY-BLK-03 confirmed remain open; Phase 1 Quality Gate
+  remains FAIL -- evidence; Gate 2 remains closed.
+```
+
 ## [Unreleased] — 2026-08-09 — Governance execution-rule structure established (Global + Phase 1 + template)
 
 **Structuring transaction — vai trò: `Governance Execution Rulebook Structuring Executor`.** Establishes the canonical operational execution-rule structure formalizing the Product Owner instruction: "Every project phase must have explicit phase-specific execution rules used to improve working efficiency and incorporate lessons learned." Does not modify ADR-023, Constitution, Approved ADRs, Package 1.1/1.4, or Quality Gate evidence.
