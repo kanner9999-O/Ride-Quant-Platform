@@ -2,6 +2,168 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-09 — ADR-023 v0.3 final bounded evaluator-placement correction (`ADR023-A2-MAJ-01` CLOSED)
+
+**Bounded correction — vai trò: `ADR-023 v0.3 Final Bounded Evaluator-Placement Correction Executor`.** Corrects a remaining Review A Major in ADR-023 v0.2: it overstated Chapter 7 by claiming only Type 3 Runtime Service may originate an authoritative decision, and selected plugin-release-manager primarily from a Plugin-scoped activation-boundary analogy without establishing genuine responsibility/domain cohesion. Does not create ADR-024, does not grant an evaluator, does not create a Compatibility Result.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        c90d437f4ef09f171c0a3830a0daadf776cc4367
+docs/adr/ADR-023.md v0.2 blob:                         ecceac34963550797fd39ea01dbe29b07fb65e09 (verified matched, Draft)
+```
+
+### Corrected taxonomy interpretation
+
+```text
+v0.2 error: "only Type 3 Runtime Service is permitted to originate an
+  authoritative event/decision" -- an over-generalization.
+Corrected: Chapter 7 SS7.1's table states Type 3 IS PERMITTED to originate an
+  authoritative event -- it does not say Type 3 is the ONLY type that may. Type
+  1 Compute Engine's sole constraint is "does not own external side effect"
+  (I-3) -- nothing prohibits authoritative domain OUTPUT. Registry fact proves
+  this directly: structure-engine, raw-regime-engine, and feature-engine are ALL
+  module_type: compute_engine (Type 1) AND owns_authoritative_state: true.
+  decision-evaluation-engine's owns_authoritative_state: false is an ADR-016
+  DESIGN CHOICE for its own domain, not a Chapter 7 taxonomy mandate.
+Preserved: Chapter 7 SS7.4 remains the ONE explicit prohibition (Projection
+  cannot originate authoritative decisions of another capability) --
+  review-evidence-service's exclusion is unchanged.
+New principle applied (Chapter 7 SS7.3, verbatim): "Module Taxonomy answers
+  'what is the module's nature of responsibility'; Responsibility Ownership
+  (Chapter 3 SS3.1) answers 'which business logic belongs to which module' --
+  two independent questions." Taxonomy eligibility != responsibility ownership.
+```
+
+### Computation-vs-result-authority model (A/B/C)
+
+```text
+A. Computation of the compatibility judgment (deterministic comparison of two
+   artifact identities against the policy root).
+B. Authority to issue the immutable Compatibility Result (Chapter 10 SS10.4).
+C. Activation/enforcement coordination (Chapter 9 SS9.5-style "validated
+   compatibility set, atomic activation").
+Assessment: Part C does not apply to Package 1.4 Trigger E -- its Compatibility
+  Result is Quality Gate EVIDENCE (Chapter 13 SS13.12, QG-P14-E-EVID-01) for
+  Gate 2 eligibility, not a Plugin-style runtime activation/deactivation
+  boundary. v0.2's plugin-release-manager selection relied primarily on Part
+  C's Plugin-scoped analogy -- this is the second root cause.
+Parts A+B need an owner; they need not share a module (precedent: ADR-021 split
+  A from B), but for this simple, deterministic, side-effect-free computation,
+  one Type 3 module owning both atomically is architecturally simpler and
+  matches the Risk Gateway precedent (Chapter 7 SS7.3: a Type 3 module "owns
+  and must have" the authoritative logic of its own responsibility).
+```
+
+### Candidate assessment (seven dimensions each: taxonomy compatibility,
+### existing responsibility/domain cohesion, authoritative-result ownership,
+### anti-self-certification, Grant compatibility, god-module risk, required
+### Package 1.1 change)
+
+```text
+review-evidence-service (Type 2):        taxonomy-ineligible (SS7.4). REJECTED,
+  unchanged from v0.2.
+command-query-api-surface (Type 3):      taxonomy-eligible but is the evaluated
+  publisher. REJECTED -- anti-self-certification, unchanged.
+plugin-release-manager (Type 3,
+  owns_authoritative_state: true):        taxonomy-eligible, BUT every registered
+  responsibility bullet is explicitly Plugin-scoped (Version resolution, Runtime
+  replica tracking, Plugin activation coordination) -- none touches the API-
+  contract domain. The v0.2 "activation-boundary" cohesion argument was Part-C
+  based and does not apply here (see above). REJECTED at v0.3 -- weak cohesion,
+  based on a mismatched analogy.
+decision-evaluation-engine (Type 1):     now correctly assessed as
+  taxonomy-eligible in principle (corrected interpretation above), but domain
+  cohesion is weak -- Decision computation (ADR-010) is unrelated to API-contract
+  compatibility, and its own non-authoritative design is an ADR-016 choice
+  specific to the Decision domain. REJECTED -- weak cohesion, not taxonomy
+  (reason corrected from v0.2).
+New minimal module:                       the only candidate achieving BOTH
+  decision conditions -- semantically coherent (single dedicated responsibility,
+  zero god-module risk) AND compliant with Chapters 7/9/10 (taxonomy-eligible,
+  not self-certifying). SELECTED.
+```
+
+### Final placement
+
+```text
+contract-compatibility-authority (new module, Type 3 Runtime Service,
+  owns_authoritative_state: true, scoped strictly to Package 1.4
+  published-contract Compatibility Result issuance). Owns both Part A
+  (computation) and Part B (authoritative Result issuance) atomically; Part C
+  does not apply to this scope. depends_on: [] (reads api-architecture.md
+  content via MANIFEST, no runtime edge). phase: identified_in "1.1",
+  elaborated_by "1.4".
+```
+
+### Responsibility-cohesion justification
+
+```text
+A single, dedicated responsibility exactly matching the domain in question
+  (Package 1.4 published-contract compatibility) -- no other capability rides
+  along, eliminating the god-module risk v0.2 itself flagged for
+  plugin-release-manager. This is the smallest architecture boundary that is
+  BOTH semantically coherent and Chapter 7/9/10-compliant, per the task's
+  explicit decision principle -- not chosen merely to avoid a new module (v0.1's
+  error) nor created merely for conceptual purity (the opposite failure mode the
+  task also warned against).
+```
+
+### Package 1.1 consequence
+
+```text
+Larger than v0.2's bullet-only approach: register one new module entry (module
+  count 25 -> 26) with full identity/taxonomy/responsibilities/depends_on/phase
+  fields, re-run graph-safety verification. Zero existing module (review-
+  evidence-service, plugin-release-manager, decision-evaluation-engine,
+  command-query-api-surface) is modified. Still a separate future governed
+  transaction -- not performed here.
+```
+
+### Sections touched
+
+```text
+Banner (new v0.3 paragraph), SS3 (candidate set -- corrected SS3.0 taxonomy
+  interpretation, new SS3.0a A/B/C decomposition, rewrote SS3.1/SS3.2 with
+  seven-dimension comparison), SS4 (selected decision + new SS4.1 architecture-
+  level identity/taxonomy/responsibility for the new module), SS5 (evaluator
+  identity), SS6 (separation), SS7 (Package 1.1 consequence -- module
+  registration instead of a bullet), SS8 (dependency assessment), SS9
+  (Declaration/Grant -- module name), SS11 (consequences/risks -- rewrote
+  positive/negative framing, removed the god-module risk since it no longer
+  applies), SS12 (validation criteria), SS13 (scale check), SS14 (relationship
+  -- added ADR-016 citation for the A/B/C precedent, Chapter 13 SS13.12
+  citation). SS1, SS2, SS10, SS15, SS16 confirmed byte-identical.
+```
+
+### Validation
+
+```text
+Starting HEAD and ADR-023.md v0.2 blob matched before editing.
+Exactly three files changed: docs/adr/ADR-023.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+ADR-023 confirmed becomes v0.3, status remains Draft.
+False "only Type 3 can originate an authoritative decision" generalization
+  confirmed removed, with structure-engine/raw-regime-engine/feature-engine
+  cited as direct registry counter-evidence.
+Projection restriction (SS7.4) confirmed preserved unchanged.
+Taxonomy and responsibility ownership confirmed assessed as two separate
+  dimensions per candidate (Chapter 7 SS7.3 cited).
+plugin-release-manager confirmed selected only if genuine cohesion existed --
+  it did not, so it was NOT selected at v0.3.
+decision-evaluation-engine (Compute Engine) confirmed not rejected solely by
+  taxonomy -- rejected for weak domain cohesion instead.
+New-module option confirmed considered honestly, selected only after all four
+  existing candidates were shown to lack genuine cohesion.
+No ADR-024 created; evaluator placement remains ADR-023's sole decision scope.
+No Grant created; no Compatibility Result created.
+docs/adr/ADR-022.md, docs/architecture/module-registry.yaml,
+  docs/architecture/system-decomposition.md, docs/architecture/api-architecture.md
+  all confirmed untouched (git diff --quiet empty).
+QG-P14-E-EVID-01 and G2-RDY-BLK-03 confirmed remain open; Phase 1 Quality Gate
+  remains FAIL -- evidence; Gate 2 remains closed.
+```
+
 ## [Unreleased] — 2026-08-09 — ADR-023 v0.2 bounded taxonomy correction (`ADR023-A-MAJ-01` CLOSED)
 
 **Bounded correction — vai trò: `ADR-023 v0.2 Bounded Taxonomy Correction Executor`.** Corrects a Review A Major finding in ADR-023 v0.1: the selected evaluator responsibility conflicted with Chapter 7 Projection taxonomy. Does not create ADR-024, does not reopen ADR-022, does not grant an evaluator, does not create a Compatibility Result, does not rerun the Quality Gate.
