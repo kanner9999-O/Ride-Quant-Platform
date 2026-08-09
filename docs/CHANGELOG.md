@@ -2,6 +2,102 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-09 — Package 1.4 v0.8 mechanical reconsolidation (Consolidated Stable)
+
+**Mechanical lifecycle transaction — vai trò: `Package 1.4 v0.8 Reconsolidation Executor`.** Records Product Owner reconsolidation of the review-clean Package 1.4 v0.8 (post-`P14V08-A-MIN-01` correction). No substantive semantic change; no evaluator designated; no Compatibility Result created; no Quality Gate re-run.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        55d10417b3eb641836fb1688ee62c4c87d6dbd4e
+docs/architecture/api-architecture.md v0.8 blob:       c3d42b67cdd2ecbeee6fa8230fa29e876f0f4795 (verified matched, candidate)
+docs/adr/ADR-022.md v0.3 blob:                         049a3d941493a0fcb3a0f44733f17534e158f9b0 (verified matched, Approved)
+```
+
+### Review evidence
+
+```text
+Review A:                 finding P14V08-A-MIN-01 corrected, bounded re-review CLEAN
+                           (Blocker 0/Major 0/Minor 0)
+Independent Review B:     CLEAN (Blocker 0/Major 0/Minor 0)
+Final:                     READY FOR PRODUCT OWNER RECONSOLIDATION
+```
+
+### Product Owner decision (verbatim, as supplied in the transaction request)
+
+```text
+"APPROVE PACKAGE 1.4 V0.8 RECONSOLIDATION"
+
+Decision date: 2026-08-09 (date-only -- exact clock time not supplied, none invented).
+```
+
+### Lifecycle change
+
+```text
+api-architecture.md:      package lifecycle: candidate -> Consolidated Stable.
+                           version: "0.8" UNCHANGED. status: Draft UNCHANGED.
+Blob:                      c3d42b67cdd2ecbeee6fa8230fa29e876f0f4795 ->
+                           b79493e44daf5154333068454d565cb8053ed7dd
+MANIFEST.md:               row updated (Package lifecycle Consolidated Stable
+                           paragraph prepended; version column stays 0.8).
+```
+
+### Preserved unchanged
+
+```text
+Backward compatibility only (ADR-022 SS3.2).
+Semantic-contract-only scope (route existence, module ownership, authoritative
+  classification, outcome-type semantics -- not field-level schema).
+Chapter 10 v2.7 exact policy component, blob 016e46bcad0826e983a51ee24c8ec4c3217aeba1.
+Logical policy-root composition (Chapter 10 v2.7 + this artifact post-incorporation).
+Exact-artifact eligibility semantics (post-P14V08-A-MIN-01, no range/threshold
+  reference); no automatic eligibility inheritance by future versions.
+MANIFEST as resolver/authority, not declaration author.
+Evaluator identity/grant separation and anti-self-certification (ADR-022 SS6).
+NAV-003 / VIEW-002 / VIEW-003 semantics: byte-identical.
+Dependency graph / module inventory (17-module baseline): byte-identical.
+All authority boundaries (Decision, RiskEvaluation/Execution Intent, Order,
+  ExecutionResult); API Surface non-authority: unchanged.
+Interaction-protocol gap: remains EXPLICITLY unresolved.
+ADR-022 and all other ADRs (ADR-018/019/020/021): byte-identical, untouched.
+database-architecture.md / Package 1.5 and ux-architecture.md / Package 1.6:
+  not modified.
+```
+
+### MANIFEST exact-resolution confirmation
+
+```text
+Per ADR-022 SS5.2, MANIFEST now resolves the exact resulting Package 1.4
+  identity (v0.8, blob c3d42b67cdd2ecbeee6fa8230fa29e876f0f4795) as
+  Consolidated Stable -- satisfying the Package-side lifecycle prerequisite
+  (condition 2) of the compatibility-policy applicability model. Condition 3
+  (evaluator designation/grant + Compatibility Result) remains unsatisfied and
+  is explicitly NOT addressed by this transaction.
+```
+
+### Validation
+
+```text
+Starting HEAD, api-architecture.md v0.8 blob, and ADR-022 v0.3 Approved/blob
+  matched before editing.
+Exactly three files changed: docs/architecture/api-architecture.md,
+  docs/MANIFEST.md, docs/CHANGELOG.md (git status --porcelain confirmed).
+Package version confirmed remains 0.8; artifact status confirmed remains Draft;
+  package lifecycle confirmed becomes Consolidated Stable.
+Package substantive content (SS1-SS14) confirmed unchanged -- diff scoped to
+  exactly three locations (top banner, SS12 status block, SS12 history sentence).
+Review A CLEAN evidence recorded (post-P14V08-A-MIN-01 correction).
+Independent Review B CLEAN evidence recorded.
+Product Owner decision recorded verbatim.
+MANIFEST confirmed resolves the resulting exact Package 1.4 identity.
+No evaluator designation/grant created; no Compatibility Result created.
+QG-P14-E-EVID-01 confirmed remains open.
+G2-RDY-BLK-03 confirmed remains open.
+Quality Gate confirmed remains FAIL -- evidence; Gate 2 confirmed remains closed.
+No BCC run, no Gate 2 review, no Phase 1 approval, no Phase 2 opening, no
+  implementation or LIVE authorization occurred.
+```
+
 ## [Unreleased] — 2026-08-08 — Package 1.4 v0.8 bounded correction (`P14V08-A-MIN-01` CLOSED)
 
 **Bounded wording correction — vai trò: `Package 1.4 v0.8 Bounded Correction Executor`.** Corrects an ambiguous version-range phrase in `api-architecture.md` v0.8 SS8 that could weaken ADR-022's exact version/content identity requirement. Does not redesign or expand ADR-022 semantics.
