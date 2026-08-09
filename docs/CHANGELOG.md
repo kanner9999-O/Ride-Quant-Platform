@@ -2,6 +2,150 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-09 — ADR-023 authored (candidate): Package 1.4 Trigger E evaluator responsibility placement
+
+**Authoring transaction — vai trò: `ADR-023 Evaluator Responsibility Authoring Executor`.** Authors a new Draft ADR deciding the Declaration-tier (Chapter 9 SS9.6) architectural responsibility boundary for Package 1.4 Trigger E compatibility evaluation -- the remaining gap ADR-022 SS6/SS7 explicitly left open. Does not grant operational evaluator authority, does not create a Compatibility Result. Also applies a bounded MANIFEST freshness correction in the same transaction.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        38886c5777486c058000ad5901fa9793c359c9a9
+docs/architecture/api-architecture.md v0.8 blob:       b79493e44daf5154333068454d565cb8053ed7dd (verified matched, Consolidated Stable)
+docs/adr/ADR-022.md v0.3 blob:                         049a3d941493a0fcb3a0f44733f17534e158f9b0 (verified matched, Approved)
+```
+
+### New artifact
+
+```text
+Path:                      docs/adr/ADR-023.md
+id:                        ADR-023
+title:                     Package 1.4 Trigger E Compatibility-Evaluator
+                            Responsibility Placement
+version:                   "0.1"
+status:                    Draft
+approved_by:                null
+approved_at:                null
+Blob:                      4ae1d1407fb92efe72b8503d547eed129627def4
+```
+
+### Candidate comparison
+
+```text
+review-evidence-service (SELECTED): non-authoritative, tách biệt khỏi
+  command-query-api-surface's registry identity/authority, smallest blast radius
+  (zero new dependency edge, one new Declaration bullet only), already an
+  established non-authoritative verification-boundary module (VIEW-002/VIEW-003)
+  -- not demonstrably invalid, so no new module warranted. Domain fit noted
+  honestly as a genuine new responsibility category (compatibility-policy
+  governance), not an automatic generalization of existing responsibilities.
+command-query-api-surface (REJECTED): is the evaluated publisher itself --
+  direct violation of Chapter 10 SS10.4.1 anti-self-certification; this ADR does
+  not design a compliant self-evaluation + independent-verification model.
+plugin-release-manager (REJECTED): domain mismatch -- Plugin Version/Package-
+  Build-Artifact resolution (Chapter 9 SS9.1/SS9.5) does not generalize to API
+  published-contract compatibility (Chapter 10 SS10.3.1).
+decision-evaluation-engine (REJECTED): domain mismatch -- Decision computation
+  (ADR-010) does not generalize to contract-policy evaluation.
+New module (REJECTED): review-evidence-service is not demonstrably invalid;
+  creating a new module is unnecessary and would violate the task's
+  no-new-module-unless-invalid constraint.
+```
+
+### Selected/recommended responsibility placement
+
+```text
+review-evidence-service gains Declaration-tier responsibility for Package 1.4
+  published-contract compatibility evaluation (Trigger E) -- a new, distinct
+  responsibility category, explicitly separate from its existing VIEW-002/
+  VIEW-003 (Decision-fact comparison) responsibilities.
+```
+
+### Authority/non-authority boundary
+
+```text
+May judge: Package 1.4 published SEMANTIC contract surface compatibility
+  (backward-only, ADR-022 SS3.2) and compliance with the pinned policy root
+  (ADR-022 SS4.1).
+May NOT judge: field-level schema (none exists); any other contract (Plugin
+  Contract, Event Contract); Decision/Risk/Execution semantics; command-query-
+  api-surface's module identity/taxonomy/dependency classification; compatibility-
+  policy identity/version or applicability/activation facts (both remain MANIFEST's,
+  per ADR-022 SS5.2).
+owns_authoritative_state: false unchanged. No route/edge into
+  command-query-api-surface's runtime behavior -- evaluator reads artifact content
+  only.
+```
+
+### Package 1.1 alignment consequence
+
+```text
+Required, separate governed transaction (not performed here): add exactly one
+  new Declaration bullet to review-evidence-service.responsibilities in
+  module-registry.yaml (and parity-mirror system-decomposition.md), citing
+  ADR-023 -- does not rewrite the existing VIEW-002/VIEW-003 bullets. Zero
+  dependency edge or consumes/emits category change required -- compatibility
+  evaluation reads artifact content via MANIFEST, not a runtime data dependency.
+Package lifecycle: requires its own governed reopening/realignment/
+  reconsolidation cycle when performed, same pattern as ADR-019/020/021
+  alignments.
+```
+
+### Grant/enforcement/verification separation
+
+```text
+Declaration (resolved by this ADR): review-evidence-service requests the
+  compatibility-evaluator responsibility.
+Grant (explicitly NOT resolved here): the operational authority to actually
+  produce a Compatibility Result is a separate, versioned, governed
+  authorization transaction -- not inferred from Declaration (module identity
+  != evaluator grant; granted subseteq declared).
+Enforcement / Verification: deferred to implementation stage (Phase 1.5/Phase 3),
+  not authored at architecture stage.
+Compatibility Result authority exists only after a valid Grant -- not created by
+  this ADR or by the future Package 1.1 alignment transaction.
+```
+
+### Freshness correction (bounded, not a separate architectural decision)
+
+```text
+docs/MANIFEST.md frontmatter:
+  compatible_adr_range: "ADR-001 ~ ADR-021" -> "ADR-001 ~ ADR-022" (reflects
+    ADR-022's already-Approved status; ADR-023 explicitly NOT included since it
+    is Draft, not yet Approved/compatible -- avoids falsely claiming Draft
+    ADR-023 is already compatible).
+  generated_at: "2026-08-07" -> "2026-08-09" (date-only, no clock time invented).
+manifest_version left unchanged ("10.66"), consistent with established practice
+  this session (not bumped by any prior MANIFEST-touching commit).
+```
+
+### Validation
+
+```text
+Baseline HEAD, api-architecture.md v0.8 blob, and ADR-022 v0.3 Approved/blob
+  matched before authoring.
+Exactly three files changed: docs/adr/ADR-023.md (new), docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+ADR-023 confirmed Draft, not Approved: version "0.1", approved_by null,
+  approved_at null.
+Exactly one evaluator-responsibility decision scope (Declaration tier only).
+Candidate comparison confirmed covers all four required placements plus the
+  new-module option.
+Selected placement confirmed does not imply operational grant -- SS9 explicitly
+  separates Declaration from Grant/Enforcement/Verification.
+Anti-self-certification confirmed preserved (command-query-api-surface excluded
+  by that constraint specifically, not by domain-fit reasoning).
+docs/architecture/module-registry.yaml, docs/architecture/system-decomposition.md,
+  docs/architecture/api-architecture.md, and docs/adr/ADR-022.md all confirmed
+  untouched (git diff --quiet empty).
+No Compatibility Result exists anywhere in the repository as a result of this
+  transaction.
+MANIFEST freshness fields corrected without extending compatible_adr_range to
+  include the still-Draft ADR-023.
+QG-P14-E-EVID-01 and G2-RDY-BLK-03 confirmed remain open.
+Gate 2 confirmed remains closed; Phase 1 Quality Gate remains FAIL -- evidence.
+No BCC, Phase 1 approval, or Phase 2 action occurred.
+```
+
 ## [Unreleased] — 2026-08-09 — Package 1.4 v0.8 post-reconsolidation exact-identity correction (`P14V08-POSTCON-MAJ-01` CLOSED)
 
 **Bounded evidence/metadata correction — vai trò: `Package 1.4 v0.8 Post-Reconsolidation Exact-Identity Correction Executor`.** The v0.8 mechanical reconsolidation transaction changed lifecycle prose/status recording and thereby produced a new exact file blob, but the resulting MANIFEST/CHANGELOG exact-resolution statement still pointed at the pre-reconsolidation reviewed candidate blob. Corrects the stale identity reference only. Does not redesign or reopen Package 1.4, does not designate an evaluator, does not create a Compatibility Result, does not rerun the Phase 1 Quality Gate.
