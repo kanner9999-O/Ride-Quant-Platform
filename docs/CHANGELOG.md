@@ -2,6 +2,155 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-09 — Governance execution-rule structure established (Global + Phase 1 + template)
+
+**Structuring transaction — vai trò: `Governance Execution Rulebook Structuring Executor`.** Establishes the canonical operational execution-rule structure formalizing the Product Owner instruction: "Every project phase must have explicit phase-specific execution rules used to improve working efficiency and incorporate lessons learned." Does not modify ADR-023, Constitution, Approved ADRs, Package 1.1/1.4, or Quality Gate evidence.
+
+### Baseline
+
+```text
+Starting HEAD:                                        18ec91a6e54644bc1bb135753cddf81ad1481be4
+docs/adr/ADR-023.md v0.1 blob:                         4ae1d1407fb92efe72b8503d547eed129627def4 (verified matched, Draft -- not touched by this transaction)
+```
+
+### New artifacts
+
+```text
+docs/governance/execution-rules.md
+  id: execution-rules, version: "0.1", operational_state: EFFECTIVE,
+  accepted_by: Product Owner, accepted_at: 2026-08-09
+  Blob: aa20527a5b851c465fbee193c606d918b5776b91
+
+docs/governance/phases/phase-1-rules.md
+  id: phase-1-rules, version: "0.1", operational_state: EFFECTIVE,
+  phase: 1, phase_name: System Architecture,
+  accepted_by: Product Owner, accepted_at: 2026-08-09
+  Blob: 5621f57949b3e3efcc28f65423e00ad3920b7a8c
+
+docs/governance/phases/phase-rules-template.md
+  id: phase-rules-template, version: "0.1", operational_state: TEMPLATE
+  (not itself an effective ruleset, no acceptance needed)
+  Blob: 608c217718521fc1bde510e65455577aed433ff7
+```
+
+### Authority hierarchy (locked in execution-rules.md)
+
+```text
+Constitution / Locked governance
+-> Approved ADRs
+-> Approved Phase Plan / accepted Phase DoD
+-> MANIFEST current state
+-> Global Execution Rules
+-> Current Phase Rules
+-> review/history evidence
+-> conversation memory (cache only, never authoritative)
+```
+
+### Global rule groups (stable IDs)
+
+```text
+G-AUTH (4 rules)    repository authority before memory; no persistent chat-only
+                     rule; higher authority always wins; memory is cache only.
+G-ADR (4 rules)      no gap->ADR reflex; ADR only for genuinely hard-to-reverse
+                     decisions; no ADR merely to finish a prior ADR; mandatory
+                     inflation/scope check before proposing a new ADR. Phase-1's
+                     ADR-023 ceiling intentionally NOT globalized here.
+G-TXN (4 rules)      one primary decision per transaction; bounded correction
+                     over lifecycle amplification; deterministic bookkeeping
+                     fixes may fold into an already-required transaction when
+                     safe; mechanical transactions must stay mechanical.
+G-REV (4 rules)      semantic risk over repeated bookkeeping; bounded
+                     correction -> bounded re-review; Independent Review B stays
+                     independent; stop correction churn absent new Major/Blocker.
+G-BUDGET (targets)   mechanical 250-500 words; bounded correction 400-800;
+                     architecture/ADR 700-1,200 (ceiling 1,400); independent
+                     review 800-1,500 (ceiling 2,000); avoid invariant padding.
+G-ID (3 rules)       distinguish reviewed semantic blob from resulting
+                     lifecycle-record blob; no mutable latest/current/range
+                     reference where exact identity required; MANIFEST favors
+                     compact current-state, history belongs in CHANGELOG.
+G-QG (7 rules)       Quality Gate != Approval Gate; reevaluation authorization
+                     not silently reused; module identity != evaluator grant;
+                     Declaration -> Grant -> Enforcement -> Verification;
+                     granted subseteq declared; Grant never creates architecture
+                     responsibility; Compatibility Result only after a complete
+                     exact-pinned authority/evidence chain.
+G-PHASE (3 rules)    next phase never inferred automatically; deferred gap is
+                     not automatically a gate blocker; phase transition remains
+                     Product Owner authority.
+G-ORCH (self-check
+  + 3 rules)         mandatory six-question self-check before every governed
+                     prompt; repository mutation reports must be verified before
+                     acceptance; no auto-approval; no auto-consolidation.
+```
+
+### Phase 1 special controls summary
+
+```text
+P1-ADR-001   ADR ceiling: ADR-023 is the maximum planned ADR before Gate 2;
+             ADR-024+ requires a genuinely new conflict, proof existing
+             authority cannot resolve it, and an explicit Product-Owner-facing
+             exception justification. Kept Phase-1-local, not globalized.
+P1-ADR-002   No prerequisite splitting -- prefer existing authority ->
+             alignment -> versioned grant/configuration -> evidence before
+             considering another ADR.
+P1-TXN-001   Minimize transaction amplification -- fold deterministic
+             bookkeeping fixes into the next legitimate transaction.
+P1-REV-001   Avoid repeated full reviews -- bounded correction gets bounded
+             review absent unrelated semantic changes.
+P1-ID-001    Lifecycle/blob lesson (drawn from P14V08-POSTCON-MAJ-01) -- always
+             separately record reviewed semantic blob vs. resulting current
+             artifact blob.
+P1-QG-001    Trigger E scope containment -- do not reopen NAV-003, VIEW-002,
+             VIEW-003, DD-001, DD-003, UX accessibility, database retention,
+             LIVE, or unrelated deferred gaps.
+P1-GATE-001  Direct Gate 2 path -- Phase-wide BCC -> two eligible independent
+             Phase-level Gate reviews -> Product Owner Gate 2 decision; no new
+             architecture authoring between steps absent a real gate-blocking
+             conflict.
+P1-RETRO-001 Phase 1 retrospective mandatory before Phase 2 substantive work
+             begins (wasted transactions, avoidable ADRs, repeated review
+             cycles, prompt-size problems, bookkeeping defects, useful/failed
+             rules, rules to promote to Global, Phase-2-specific controls).
+```
+
+### Future-phase prerequisite rule (in phase-rules-template.md)
+
+```text
+A future phase must have its phase-specific execution-rule artifact authored
+  and explicitly accepted by the Product Owner before substantive work for that
+  phase begins -- fail-closed, same "criteria defined before used" principle as
+  Chapter 12 SS12.1's DoD rule. No speculative Phase 2/3/4+ rule files authored
+  in this transaction -- future phase rules must derive from actual prior-phase
+  retrospective lessons, written when that phase is about to begin.
+```
+
+### Validation
+
+```text
+Starting HEAD and ADR-023 v0.1 blob matched before editing.
+Exactly five files changed: docs/governance/execution-rules.md (new),
+  docs/governance/phases/phase-1-rules.md (new),
+  docs/governance/phases/phase-rules-template.md (new), docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+Global and Phase 1 rules confirmed separated into distinct files/documents.
+Phase-1 rules confirmed cannot override Global/higher authority (explicit
+  "tighten, never override" statement in both files' role paragraphs).
+Phase 1 file confirmed contains the ADR-023 ceiling (P1-ADR-001).
+ADR ceiling confirmed NOT placed in Global Rules (explicitly noted as
+  Phase-1-local in both execution-rules.md's G-ADR section and the MANIFEST row).
+Future-phase rule confirmed mandatory before substantive phase work, in
+  phase-rules-template.md.
+No speculative Phase 2+ rule files authored.
+docs/adr/ADR-023.md confirmed byte-identical (git diff --quiet empty).
+No Quality Gate or Gate 2 state changed by this transaction.
+MANIFEST confirmed exact-resolves all three governance-rule artifacts (new
+  "Governance -- Execution Rules" section, version/operational_state/accepted_by/
+  accepted_at/blob columns for each).
+CHANGELOG records the Product Owner instruction establishing the Global +
+  per-Phase model (this entry).
+```
+
 ## [Unreleased] — 2026-08-09 — ADR-023 authored (candidate): Package 1.4 Trigger E evaluator responsibility placement
 
 **Authoring transaction — vai trò: `ADR-023 Evaluator Responsibility Authoring Executor`.** Authors a new Draft ADR deciding the Declaration-tier (Chapter 9 SS9.6) architectural responsibility boundary for Package 1.4 Trigger E compatibility evaluation -- the remaining gap ADR-022 SS6/SS7 explicitly left open. Does not grant operational evaluator authority, does not create a Compatibility Result. Also applies a bounded MANIFEST freshness correction in the same transaction.
