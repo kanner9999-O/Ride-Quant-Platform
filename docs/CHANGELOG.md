@@ -2,6 +2,103 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-09 — Package 1.4 v0.8 post-reconsolidation exact-identity correction (`P14V08-POSTCON-MAJ-01` CLOSED)
+
+**Bounded evidence/metadata correction — vai trò: `Package 1.4 v0.8 Post-Reconsolidation Exact-Identity Correction Executor`.** The v0.8 mechanical reconsolidation transaction changed lifecycle prose/status recording and thereby produced a new exact file blob, but the resulting MANIFEST/CHANGELOG exact-resolution statement still pointed at the pre-reconsolidation reviewed candidate blob. Corrects the stale identity reference only. Does not redesign or reopen Package 1.4, does not designate an evaluator, does not create a Compatibility Result, does not rerun the Phase 1 Quality Gate.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        5ed977757ba012c5357e8d2786c95ce4ac45ec8a
+docs/architecture/api-architecture.md v0.8 blob:       b79493e44daf5154333068454d565cb8053ed7dd (verified matched, Consolidated Stable -- unchanged by this transaction)
+docs/adr/ADR-022.md v0.3 blob:                         049a3d941493a0fcb3a0f44733f17534e158f9b0 (verified matched, Approved)
+```
+
+### Defect (`P14V08-POSTCON-MAJ-01`)
+
+```text
+MANIFEST's "Hệ quả (ADR-022 SS5.2)" clause, and the equivalent "MANIFEST
+  exact-resolution confirmation" paragraph in the prior CHANGELOG entry, both
+  asserted that MANIFEST resolves Package 1.4 v0.8 blob
+  c3d42b67cdd2ecbeee6fa8230fa29e876f0f4795 as the current Consolidated Stable
+  identity. That blob is the reviewed pre-reconsolidation candidate content
+  identity -- the mechanical reconsolidation transaction itself (lifecycle
+  prose/status field edits) produced a new resulting file blob,
+  b79493e44daf5154333068454d565cb8053ed7dd, which is the actual current file
+  identity. The exact-resolution claim pointed at the wrong artifact.
+```
+
+### Correction applied
+
+```text
+MANIFEST.md:  the "Hệ quả (ADR-022 SS5.2)" clause now states the current/
+              normative exact Consolidated Stable identity is
+              b79493e44daf5154333068454d565cb8053ed7dd, with the transition
+              spelled out explicitly: reviewed semantic candidate
+              (c3d42b67cdd2ecbeee6fa8230fa29e876f0f4795) -> mechanical
+              reconsolidation -> current exact identity
+              (b79493e44daf5154333068454d565cb8053ed7dd). The adjacent
+              "Blob c3d42... -> b79493..." transition sentence was already
+              correct and is unchanged.
+CHANGELOG.md: the "MANIFEST exact-resolution confirmation" section of the
+              still-unreleased v0.8 reconsolidation entry corrected in place
+              (current/normative statement, not a historical record of a
+              closed transaction's own baseline/resulting-blob pair) --
+              c3d42... replaced with b79493..., with an explicit correction
+              note. That entry's own "Baseline" (blob verified BEFORE its
+              edits) and "Lifecycle change" / "Resulting blob" transition
+              sentences remain untouched -- they correctly and historically
+              describe c3d42... as the pre-transaction starting point.
+```
+
+### Historical `c3d42...` treatment
+
+```text
+Left unchanged everywhere it correctly denotes the reviewed pre-reconsolidation
+  candidate: the P14V08-A-MIN-01 correction entry's own baseline/resulting-blob
+  pair (be40fe5e... -> c3d42...), the v0.8 reconsolidation entry's "Baseline"
+  blob-verified-before-editing line, and its "Lifecycle change" / "Resulting
+  blob" transition sentence (c3d42... -> b79493...). None of these describe
+  current state -- they are procedurally accurate historical records of what
+  each transaction started from and produced.
+```
+
+### Current `b79493...` treatment
+
+```text
+Now the sole current/normative Package 1.4 Consolidated Stable exact identity
+  referenced by both MANIFEST's "Hệ quả" clause and CHANGELOG's "MANIFEST
+  exact-resolution confirmation" section.
+```
+
+### Package 1.4 byte-identity confirmation
+
+```text
+docs/architecture/api-architecture.md NOT modified by this transaction -- blob
+  confirmed unchanged at b79493e44daf5154333068454d565cb8053ed7dd throughout
+  (git diff --quiet empty).
+```
+
+### Validation
+
+```text
+Starting HEAD, api-architecture.md v0.8 blob, and ADR-022 v0.3 Approved/blob
+  matched before editing.
+Current Package 1.4 blob confirmed exactly b79493e44daf5154333068454d565cb8053ed7dd.
+Exactly two files changed: docs/MANIFEST.md, docs/CHANGELOG.md (git status
+  --porcelain confirmed) -- api-architecture.md untouched.
+MANIFEST current/normative exact identity confirmed now b79493e44daf5154333068454d565cb8053ed7dd.
+c3d42... confirmed retained only where historically correct (P14V08-A-MIN-01
+  entry, v0.8 reconsolidation entry's Baseline/Lifecycle-change sections).
+No semantic Package 1.4 content changed.
+No version/lifecycle change (version stays "0.8", package lifecycle stays
+  Consolidated Stable, status stays Draft).
+No evaluator designation/grant created; no Compatibility Result created.
+QG-P14-E-EVID-01 confirmed remains open.
+G2-RDY-BLK-03 confirmed remains open.
+Quality Gate confirmed remains FAIL -- evidence; Gate 2 confirmed remains closed.
+```
+
 ## [Unreleased] — 2026-08-09 — Package 1.4 v0.8 mechanical reconsolidation (Consolidated Stable)
 
 **Mechanical lifecycle transaction — vai trò: `Package 1.4 v0.8 Reconsolidation Executor`.** Records Product Owner reconsolidation of the review-clean Package 1.4 v0.8 (post-`P14V08-A-MIN-01` correction). No substantive semantic change; no evaluator designated; no Compatibility Result created; no Quality Gate re-run.
@@ -67,8 +164,15 @@ database-architecture.md / Package 1.5 and ux-architecture.md / Package 1.6:
 ### MANIFEST exact-resolution confirmation
 
 ```text
+[Corrected 2026-08-09, P14V08-POSTCON-MAJ-01 -- see the dedicated correction
+  entry below. The paragraph immediately following originally misidentified
+  the current exact identity as the pre-reconsolidation reviewed candidate
+  blob c3d42b67cdd2ecbeee6fa8230fa29e876f0f4795; corrected in place here since
+  this is the current/normative statement of a still-unreleased entry, not a
+  historical record of a prior transaction's own baseline/resulting-blob pair.]
+
 Per ADR-022 SS5.2, MANIFEST now resolves the exact resulting Package 1.4
-  identity (v0.8, blob c3d42b67cdd2ecbeee6fa8230fa29e876f0f4795) as
+  identity (v0.8, blob b79493e44daf5154333068454d565cb8053ed7dd) as
   Consolidated Stable -- satisfying the Package-side lifecycle prerequisite
   (condition 2) of the compatibility-policy applicability model. Condition 3
   (evaluator designation/grant + Compatibility Result) remains unsatisfied and
