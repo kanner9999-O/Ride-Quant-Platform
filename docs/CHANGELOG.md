@@ -2,6 +2,141 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — ADR-023 v0.4 final root-cause taxonomy correction
+
+**Bounded correction — vai trò: `ADR-023 v0.4 Final Root-Cause Taxonomy Correction Executor`.** Applies the exact minimum correction established by the read-only ADR-023 Evaluator Taxonomy Root-Cause Check (`OPTION_A_COMPUTE_ENGINE`). Keeps the dedicated evaluator boundary selected at v0.3 (`contract-compatibility-authority`), correcting only its primary taxonomy and the reasoning that depends on it. Does not create ADR-024, does not split computation from result issuance, does not grant evaluator authority, does not create a Compatibility Result.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        77e5d8e74e4ab766d44fa602be2e107377dddf71
+docs/adr/ADR-023.md v0.3 blob:                         3e37ec6d1378fb96cb42c9f82c595daf6f12cea7 (verified matched, Draft)
+Root-cause check result:                               OPTION_A_COMPUTE_ENGINE
+```
+
+### Exact taxonomy correction
+
+```text
+contract-compatibility-authority.module_type: runtime_service -> compute_engine
+  (Type 3 -> Type 1, Chapter 7 SS7.1).
+```
+
+### Corrected Chapter 7 rationale
+
+```text
+The module's primary responsibility is: deterministic transformation/derivation
+  of pinned Package 1.4 contract information + pinned compatibility-policy
+  information into one compatibility domain output; no external side effect; no
+  runtime interaction/orchestration/coordination/control responsibility within
+  current Trigger E Phase 1 scope. This matches Chapter 7 SS7.1's Type 1
+  (Compute Engine) definition exactly, not Type 3 (Runtime Service, which owns
+  runtime interaction/orchestration/control and/or a side-effect boundary --
+  neither applies here).
+Authority and taxonomy remain separate concepts (Chapter 7 SS7.3): a Compute
+  Engine may own authoritative domain output when responsibility ownership and
+  Grant are valid -- direct registry precedent: structure-engine,
+  raw-regime-engine, and feature-engine are all compute_engine with
+  owns_authoritative_state: true. Runtime Service is not required merely because
+  the resulting Compatibility Result is authoritative.
+Risk Gateway is retained only as a responsibility-ownership example ("owns and
+  must have" the authoritative logic of its own responsibility) -- no longer
+  cited as justification for choosing Type 3, since Risk Gateway is Type 3 for
+  an unrelated reason (it owns a runtime control/gating boundary and
+  side-effect), which does not apply to this evaluator.
+```
+
+### Confirmation A+B remain cohesive
+
+```text
+Part A (compatibility-judgment computation) and Part B (immutable Compatibility
+  Result issuance) remain owned atomically by the single
+  contract-compatibility-authority module -- no split into separate
+  "computation" and "result authority/stamping" services. Part C
+  (activation/enforcement coordination) remains explicitly out of scope, as
+  established at v0.3.
+```
+
+### Candidate conclusions preserved
+
+```text
+review-evidence-service:      rejected -- Projection SS7.4 restriction (unchanged).
+command-query-api-surface:    rejected -- anti-self-certification (unchanged).
+plugin-release-manager:       taxonomy-compatible but rejected -- domain/
+                               responsibility mismatch (unchanged).
+decision-evaluation-engine:   taxonomy-compatible in principle but rejected --
+                               domain/responsibility mismatch and its existing
+                               Decision-specific boundary (unchanged).
+contract-compatibility-authority (new): selected for responsibility cohesion;
+                               taxonomy corrected to Compute Engine (this
+                               transaction).
+Candidate selection itself was NOT reopened -- only the selected module's
+  taxonomy field and taxonomy-dependent reasoning changed.
+```
+
+### Package 1.1 future registration consequence
+
+```text
+Unchanged in scope: one new module, module count 25 -> 26, full new registry
+  entry required, graph-safety re-verification, zero dependency edge, no
+  existing module modification. The proposed registration now specifies:
+    module_id: contract-compatibility-authority
+    module_type: compute_engine
+    owns_authoritative_state: true
+    depends_on: []
+    phase: { identified_in: "1.1", elaborated_by: "1.4" }
+Not performed in this transaction -- remains a separate future governed
+  transaction.
+```
+
+### Declaration/Grant separation
+
+```text
+Unchanged: this ADR resolves Declaration tier only. The operational Grant to
+  actually produce a Compatibility Result remains a separate, versioned,
+  governed authorization transaction -- not inferred from Declaration (module
+  identity != evaluator grant; granted subseteq declared).
+```
+
+### Sections touched
+
+```text
+Banner (new v0.4 paragraph), SS3.0a (Risk Gateway/Type-3 reasoning replaced with
+  corrected Type 1 rationale), SS3.2 candidate E (taxonomy field and rationale
+  corrected), SS4 (selected-decision paragraph), SS4.1 (module_type field and
+  owns_authoritative_state rationale), SS9 (Declaration taxonomy reference),
+  SS11 (positive-consequences framing), SS12 (new Review A validation item #10
+  confirming the correction's exact scope). SS1, SS2, SS3.0, SS3.1, SS3.2
+  (candidates A/B/C/D), SS5-SS8, SS10, SS13-SS16 confirmed byte-identical.
+```
+
+### Validation
+
+```text
+Starting HEAD and ADR-023.md v0.3 blob matched before editing.
+Exactly three files changed: docs/adr/ADR-023.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+ADR-023 confirmed becomes v0.4, status remains Draft.
+contract-compatibility-authority confirmed remains the selected evaluator
+  boundary.
+Taxonomy change confirmed scoped to exactly module_type: runtime_service ->
+  compute_engine.
+owns_authoritative_state: true confirmed unchanged.
+Parts A and B confirmed remain in one module -- no split introduced.
+Part C confirmed remains out of scope.
+No evaluator Grant created; no Compatibility Result created.
+No ADR-024 created.
+No Package 1.1 alignment performed (module-registry.yaml,
+  system-decomposition.md confirmed git diff --quiet empty).
+No existing candidate selection reopened -- review-evidence-service,
+  command-query-api-surface, plugin-release-manager, and
+  decision-evaluation-engine conclusions all confirmed unchanged.
+docs/adr/ADR-022.md, docs/architecture/api-architecture.md, and
+  docs/governance/execution-rules.md confirmed untouched (git diff --quiet
+  empty).
+QG-P14-E-EVID-01 and G2-RDY-BLK-03 confirmed remain open; Phase 1 Quality Gate
+  remains FAIL -- evidence; Gate 2 remains closed.
+```
+
 ## [Unreleased] — 2026-08-09 — ADR-023 v0.3 final bounded evaluator-placement correction (`ADR023-A2-MAJ-01` CLOSED)
 
 **Bounded correction — vai trò: `ADR-023 v0.3 Final Bounded Evaluator-Placement Correction Executor`.** Corrects a remaining Review A Major in ADR-023 v0.2: it overstated Chapter 7 by claiming only Type 3 Runtime Service may originate an authoritative decision, and selected plugin-release-manager primarily from a Plugin-scoped activation-boundary analogy without establishing genuine responsibility/domain cohesion. Does not create ADR-024, does not grant an evaluator, does not create a Compatibility Result.
