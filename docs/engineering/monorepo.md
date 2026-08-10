@@ -1,7 +1,7 @@
 ---
 id: engineering-monorepo
 title: "Engineering Foundation — Monorepo Structure"
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -16,6 +16,8 @@ depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../
 # Engineering Foundation — Monorepo Structure
 
 **Vai trò của tài liệu này:** convention document đầu tiên của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2: "nội dung chi tiết từng mục được điền dần khi Phase 1.5 triển khai"), phạm vi CHỈ category **Monorepo** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). KHÔNG Constitution chapter, KHÔNG ADR, KHÔNG redefine Module Taxonomy/dependency graph — `docs/architecture/module-registry.yaml` vẫn LÀ single source of truth cho `module_id`/dependency; tài liệu này CHỈ quy định CHỖ ĐẶT source code tương ứng, KHÔNG tự quyết định lại bất kỳ module boundary nào.
+
+**Candidate này CHƯA authoritative/final (v0.3, đóng `EF-MONO-B-MAJ-01`/`EF-MONO-B-MAJ-02` — Independent Review B `NOT_READY`):** quyết định "một-repo" tại §1 LÀ platform-wide, ảnh hưởng >1 module — thuộc diện **ADR Required** (Chapter 0 §4b, xem §6). Toàn bộ nội dung §1–§5 dưới đây LÀ đề xuất (proposal) tạm giữ nguyên nội dung để tài liệu ADR tương lai tham chiếu, KHÔNG PHẢI quyết định đã establish. Quyết định monorepo platform-wide bị **BLOCK**, chờ (a) một ADR transaction riêng biệt VÀ (b) Product Owner approve chính ADR đó. Transaction v0.3 này KHÔNG tự approve/establish quyết định monorepo, KHÔNG tự author ADR đó.
 
 ## 1. Repository model
 
@@ -108,21 +110,44 @@ KHÔNG root workspace manifest nào (go.work/pyproject.toml) được tạo tạ
   plating cho nhu cầu chưa tồn tại.
 ```
 
-## 6. ADR-scope check (`EF-ADR-001`)
+## 6. ADR-scope check (`EF-ADR-001`) — SỬA tại v0.3, đóng `EF-MONO-B-MAJ-01`
 
 ```text
-Quyết định tại tài liệu này: (a) một-repo (monorepo model); (b) hai root
-  cấp cao theo NGÔN NGỮ đã Approved sẵn (ADR-008); (c) quy ước tên
-  directory-per-module PHẢI khớp module_id đã có sẵn trong registry.
-KHÔNG mục nào: thêm/sửa Platform Invariant, đổi Event Schema, đổi Module
-  Taxonomy/dependency graph (module-registry.yaml byte-identical), thay
-  đổi Governance/Approval process, hay ảnh hưởng quyết định kiến trúc
-  khó đảo ngược nào — đổi tên/cấu trúc folder trước khi có code LÀ hoàn
-  toàn reversible.
-Kết luận (Chapter 0 §4b + Chapter 3 §"Nguyên tắc bắt buộc"): **ADR Not
-  Required** — convention/tooling change, refactor-class, không đổi
-  behavior/contract nào. Lịch sử thay đổi ghi tại CHANGELOG.md (đúng yêu
-  cầu "không cần ADR nhưng vẫn phải để lại lịch sử thay đổi rõ ràng").
+[v0.1/v0.2 kết luận SAI "ADR Not Required" — sửa tại v0.3. Root cause:
+  v0.1/v0.2 chỉ kiểm tra "khó đảo ngược" (reversibility) và bỏ sót vế
+  đầu của chính rule đang trích dẫn. Xem correction dưới.]
+
+Chapter 0 §4b nguyên văn (verify trực tiếp tại 00-governance.md):
+  "ADR Required" áp dụng cho — trong SỐ NHIỀU điều kiện khác — "quyết
+  định ảnh hưởng >1 module HOẶC khó đảo ngược". Đây LÀ điều kiện OR
+  (đủ MỘT trong hai vế, KHÔNG cần CẢ HAI) — v0.1/v0.2 chỉ đánh giá vế
+  "khó đảo ngược" ("đổi tên/cấu trúc folder trước khi có code LÀ hoàn
+  toàn reversible") rồi kết luận ADR Not Required, bỏ sót hoàn toàn vế
+  ">1 module" — đây LÀ lỗi áp rule sai (conjunctive thay vì disjunctive).
+
+`EF-ADR-001` (phase-1.5-rules.md) restate ĐÚNG cùng rule: "ADR CHỈ bắt
+  buộc khi thay đổi thuộc diện ADR Required (... quyết định >1 module
+  HOẶC khó đảo ngược)" — cùng OR, KHÔNG redefine.
+
+Áp dụng lại cho §1 (quyết định "một-repo"): đây LÀ quyết định
+  platform-wide — áp dụng cho TOÀN BỘ 26 module trong module-registry.yaml
+  (mọi module tương lai đều sống trong monorepo này), rõ ràng thỏa vế
+  ">1 module". Reversibility KHÔNG hủy trigger này — OR nghĩa là MỘT vế
+  đủ, "dễ đảo ngược" KHÔNG miễn trừ vế ">1 module" đã thỏa.
+
+Kết luận (sửa): **ADR Required** cho quyết định "một-repo" tại §1.
+  §2 (root python/go split) và §3 (naming convention) LÀ derivative của
+  §1 — VẪN LÀ đề xuất (proposal), KHÔNG PHẢI quyết định established,
+  cho tới khi ADR đó Approved.
+Số ADR cụ thể: KHÔNG invent tại đây — repository ground truth hiện tại
+  (ADR-001..023 tồn tại, ADR-023 LÀ file cuối) KHÔNG đủ để xác định
+  identity kế tiếp một cách dứt khoát (P1-ADR-001's ADR ceiling — scoped
+  riêng Phase 1, "trước Gate 2" — cần đánh giá lại có còn áp dụng hậu-
+  Gate-2/Phase-1.5 hay không; đây LÀ việc của chính transaction author
+  ADR, KHÔNG PHẢI transaction correction này). Transaction ADR-authoring
+  riêng biệt PHẢI tự resolve identity + chạy G-ADR-004 inflation/scope
+  check trước khi author.
+Lịch sử thay đổi ghi tại CHANGELOG.md.
 ```
 
 ## Change history
@@ -169,4 +194,24 @@ v0.2  2026-08-10  Bounded semantic correction, đóng `EF-MONO-A-MAJ-01`.
       deferral, module_id-based directory naming. KHÔNG chạm §1/§2/§3/
       §5/§6 semantics, KHÔNG EF category khác, KHÔNG module taxonomy/
       dependency graph nào sửa. `status` VẪN `Draft`.
+v0.3  2026-08-10  Bounded correction, đóng `EF-MONO-B-MAJ-01`/
+      `EF-MONO-B-MAJ-02` (Independent Review B, verdict `NOT_READY`).
+      §6 v0.1/v0.2 kết luận SAI "ADR Not Required" — chỉ kiểm tra vế
+      "khó đảo ngược" của Chapter 0 §4b/`EF-ADR-001`, bỏ sót vế ">1
+      module" (rule LÀ OR, KHÔNG cần cả hai). Quyết định "một-repo" (§1)
+      LÀ platform-wide, ảnh hưởng >1 module — sửa kết luận thành **ADR
+      Required**. KHÔNG invent số ADR cụ thể (ground truth hiện tại
+      KHÔNG đủ xác định identity kế tiếp dứt khoát — P1-ADR-001 ceiling
+      cần re-evaluate hậu-Gate-2, thuộc transaction ADR-authoring riêng).
+      Bổ sung preamble: candidate CHƯA authoritative/final, §1–§5 LÀ
+      proposal, quyết định monorepo BLOCK chờ ADR + Product Owner
+      approve ADR đó — transaction này KHÔNG tự approve/establish
+      quyết định, KHÔNG tự author ADR. Đồng thời sửa `python/README.md`/
+      `go/README.md`: bỏ ví dụ module_id cụ thể (`feature-engine`,
+      `market-data-ingestion`) hàm ý gán ngôn ngữ — chỉ giữ pattern
+      generic `<module_id>/`, thêm ghi chú "chỉ đặt sau khi language
+      resolve legitimately qua governance". KHÔNG author ADR, KHÔNG
+      approve candidate, KHÔNG đổi §1/§2/§3's nội dung đề xuất, KHÔNG
+      đổi §4/§5, KHÔNG module taxonomy/dependency graph nào sửa.
+      `status` VẪN `Draft`.
 ```

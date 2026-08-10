@@ -2,6 +2,118 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Monorepo convention bounded correction: Independent Review B `EF-MONO-B-MAJ-01`/`EF-MONO-B-MAJ-02` CLOSED
+
+**Bounded correction — vai trò: `Phase 1.5 Monorepo Foundation Bounded Correction Executor`.** Fixes two Major findings from Independent Review B (verdict `NOT_READY`) on `docs/engineering/monorepo.md` v0.2. Does not author the required ADR.
+
+### Baseline
+
+```text
+Starting HEAD:  eee28fe88d704678a0b55329d2fa2b9454cbe7fb
+Target:          docs/engineering/monorepo.md v0.2, status Draft,
+                 blob 80b36e6965eb5f4c1f93841ba76b4d3b8c20f408
+Review verdict:  Independent Review B, NOT_READY
+```
+
+### Finding closed: `EF-MONO-B-MAJ-01` — wrong ADR-scope disposition
+
+```text
+Re-verified Chapter 0 §4b directly: "ADR Required" applies to a decision
+  that affects >1 module OR is hard to reverse -- an OR condition, not
+  AND. v0.1/v0.2 §6 only evaluated the "hard to reverse" clause
+  ("changing a folder name before any code exists is fully reversible")
+  and concluded ADR Not Required -- missing the ">1 module" clause
+  entirely. EF-ADR-001 restates the identical OR trigger, so the same
+  gap applied there too. The single-repository decision (§1) is
+  platform-wide: it applies to all 26 module_id in module-registry.yaml
+  by definition -- clearly satisfies ">1 module" regardless of how
+  reversible the folder layout itself is.
+Fixed: §6 now concludes ADR Required for the monorepo decision.
+  No specific ADR number invented -- ADR-023 is verified as the last
+  existing ADR file, but that alone does not settle the next identity;
+  Phase-1's P1-ADR-001 ceiling was explicitly scoped to "before Gate 2"
+  and needs its own re-evaluation now that Gate 2 has passed and Phase
+  1.5 is current -- left to the future ADR-authoring transaction, not
+  decided here.
+```
+
+### Finding closed: `EF-MONO-B-MAJ-02` — README examples implied settled assignments
+
+```text
+python/README.md and go/README.md each carried one concrete example
+  (python/feature-engine/, go/market-data-ingestion/) that implied those
+  module_id were already assigned to that language -- inconsistent with
+  monorepo.md v0.2's own §4, which explicitly states no module_id is
+  currently language-pinned by existing authority.
+Fixed: both READMEs now show only the generic <module_id>/ pattern, with
+  an explicit note that a module may be placed under a language root
+  only after its language is legitimately resolved via governance -- no
+  module assigned to Python or Go by these files.
+```
+
+### Files changed
+
+```text
+docs/engineering/monorepo.md  (0.2 -> 0.3: preamble + §6 rewritten +
+                               change history entry; §1/§2/§3/§4/§5
+                               byte-equivalent)
+python/README.md               (example removed, generic pattern +
+                               governance-gate note)
+go/README.md                    (example removed, generic pattern +
+                               governance-gate note)
+docs/MANIFEST.md                (row updated: version, blob, note;
+                               manifest_version 10.74 -> 10.75)
+docs/CHANGELOG.md               (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Single-monorepo proposal (§1), root python//go/ proposal (§2),
+  module_id-based naming convention (§3), language-assignment framing
+  (§4), workspace/tooling deferral (§5): all byte-equivalent. No ADR
+  authored, no ADR number invented, candidate not approved. No language
+  assigned to any module_id. ADR-008, module-registry.yaml, every other
+  architecture package, all ADRs, Constitution, Global Execution Rules,
+  Phase 2/1.5 rules, Gate 2, retrospective evidence: byte-identical (git
+  diff --quiet). No other EF category touched. status remains Draft.
+  Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/engineering/monorepo.md:  version 0.3, status Draft, ADR-scope
+                               disposition ADR Required (candidate
+                               explicitly not authoritative, blocked
+                               pending ADR + Product Owner approval)
+EF-MONO-B-MAJ-01 / -02:         CLOSED
+ADR authored:                   NO
+Phase 2 -- Product Prototype:   NOT AUTHORIZED (unchanged)
+LIVE:                           NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after:                              CONFIRMED
+Chapter 0 §4b multi-module trigger
+  re-verified literally:                         CONFIRMED
+EF-ADR-001 exact trigger re-verified:            CONFIRMED
+Candidate now states ADR Required:               CONFIRMED
+Candidate remains Draft, explicitly blocked
+  pending ADR:                                   CONFIRMED
+Neither README has a concrete module->language
+  example:                                       CONFIRMED (grep clean)
+No replacement module-language mapping
+  introduced:                                    CONFIRMED
+No other Monorepo semantics changed
+  (SS1/SS2/SS3/SS4/SS5):                          CONFIRMED (git diff)
+Diff bounded to target + two READMEs +
+  bookkeeping:                                    CONFIRMED
+Phase 2/LIVE unchanged:                          CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Monorepo convention bounded correction: `EF-MONO-A-MAJ-01` CLOSED
 
 **Bounded semantic correction — vai trò: `Phase 1.5 Monorepo Foundation Bounded Correction Executor`.** Fixes an overclaimed module-language authority statement in `docs/engineering/monorepo.md` §4.
