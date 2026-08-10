@@ -2,6 +2,137 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Package 1.4 Trigger E Compatibility Result #002 ISSUED (`eligible: true` — proved compatible)
+
+**New immutable Compatibility Result — vai trò: `P1.4 Trigger E Compatibility Result #002 Executor`.** Executes evaluator implementation v1.1 (post bounded-correction) under active Grant v1.0 and issues the current Package 1.4 Trigger E Compatibility Result. Result #001 remains immutable and untouched, but is declared not admissible as current evidence.
+
+### Baseline
+
+```text
+Starting HEAD:                     2078e5b14d914292c01039b023eee443ee49649c
+Evaluator v1.1:                      Active, blob
+                                     95cb3aa216e057a0393c539c1d51512a9cc2ae19
+Grant v1.0:                          Active, unrevoked, blob
+                                     b45e8efe313749c0809440b259d1517bfe1c8ea0
+```
+
+### New file
+
+```text
+docs/governance/compatibility-results/p14-trigger-e-compatibility-result-002.md
+  result_id:       p14-trigger-e-compatibility-result-002
+  result_version:  1.0
+  result_status:    Final (immutable)
+  blob:             3d53482cb68e6661829de814f990d78d94420d55
+```
+
+### Exact subjects
+
+```text
+Previous:  api-architecture.md v0.7, blob
+           fb2a4a4a04c20d373227d92869abe7cb99f59db0 (Consolidated Stable,
+           commit 0c09903, immediately before ADR-022 alignment to v0.8 --
+           git-verified canonical blob, distinct from Result #001's
+           incorrectly-pinned candidate blob d2d3608f...).
+Current:   api-architecture.md v0.8, blob
+           b79493e44daf5154333068454d565cb8053ed7dd (Consolidated Stable,
+           policy-root-active per ADR-022 §5.2).
+```
+
+### Four-dimension comparison (script-verified via direct git diff between the two blobs)
+
+```text
+git diff fb2a4a4a...  b79493e4...  -- 3 hunks total:
+  1. frontmatter version/lifecycle-history banner prose
+  2. §8 "API contract governance" -- ADDS a new compatibility-commitment
+     declaration paragraph (cites existing route/ownership/classification/
+     outcome-type concepts as scope definition; adds/removes/redefines none)
+  3. end-of-document lifecycle/review-status summary block (bookkeeping)
+§9 (actual route/module-ownership/classification/outcome-type definitions)
+  has ZERO diff hunks -- byte-identical between v0.7 and v0.8.
+
+1. Route existence:                    breaking: false (§9 unchanged)
+2. Routing/module ownership semantics:  breaking: false (§9 unchanged)
+3. Authoritative/non-authoritative:      breaking: false (§9 unchanged)
+4. Published outcome-type semantics:     breaking: false (§9 unchanged; new
+                                          §8 text only cites existing
+                                          PASSED/FAILED/INDETERMINATE and
+                                          MATCH/MISMATCH/INDETERMINATE sets)
+```
+
+### Final result
+
+```text
+eligible:               true
+reason_classification:  proved compatible
+```
+
+All four dimensions non-breaking; all six inputs resolved successfully; Grant
+active/unrevoked/correct scope at the evaluation boundary — satisfies
+evaluator v1.1 §7's `eligible: true` rule exactly.
+
+### Result #001 admissibility disposition (Result #001 NOT modified)
+
+```text
+Result #001 (blob 5f9dcd6d2b0c3b7dcff03d16b9a4e7320afc4716) remains
+  byte-identical and immutable -- confirmed via git diff --quiet, no field
+  changed.
+Declared NOT admissible as current Trigger-E evidence, for two independent
+  reasons: (1) its §3 pinned the wrong v0.7 blob (d2d3608f..., the
+  pre-consolidation candidate blob, not the canonical Consolidated Stable
+  blob fb2a4a4a...); (2) it executed evaluator v1.0's defective Input-1 rule
+  (closed by the v1.1 bounded correction).
+This disposition is recorded one-directionally: Result #002's frontmatter
+  (supersedes_as_evidence: p14-trigger-e-compatibility-result-001) and the
+  MANIFEST row for Result #001 (bookkeeping annotation only) -- no edit to
+  Result #001's own file.
+Result #002 is now the current Trigger-E compatibility evidence.
+```
+
+### Files changed
+
+```text
+docs/governance/compatibility-results/p14-trigger-e-compatibility-result-002.md  (new)
+docs/MANIFEST.md                                                                  (new row
+                                                                                    + Result
+                                                                                    #001 row
+                                                                                    annotated)
+docs/CHANGELOG.md                                                                  (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Result #001, evaluator v1.1, Grant v1.0, module-registry.yaml,
+  system-decomposition.md, api-architecture.md, ADR-022, ADR-023: all
+  byte-identical, not modified.
+```
+
+### Residual state (unchanged)
+
+```text
+QG-P14-E-EVID-01:          OPEN
+G2-RDY-BLK-03:              OPEN
+Phase 1 Quality Gate:       FAIL -- evidence
+Gate 2:                     CLOSED
+Phase 2:                    NOT AUTHORIZED
+```
+
+### Validation
+
+```text
+HEAD before/after:                          CONFIRMED
+Result #002 identity/version/blob:           CONFIRMED
+v0.7/v0.8 subjects exact-pinned:              CONFIRMED
+Four-dimension comparison, all non-breaking: CONFIRMED (git diff verified)
+eligible: true / reason: proved compatible:   CONFIRMED
+Full Chapter 10 §10.4.1 provenance pinned:    CONFIRMED
+Result #001 admissibility disposition
+  recorded without modifying Result #001:     CONFIRMED (git diff --quiet)
+Result #001 byte-identical:                   CONFIRMED
+No QG rerun:                                   CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — P1.4 Trigger E evaluator v1.1 bounded correction (Input 1 rule fixed)
 
 **Bounded correction — vai trò: `P1.4 Trigger E Evaluator v1.1 Bounded Correction Executor`.** Corrects one semantic defect in evaluator implementation v1.0: §4 Input 1 incorrectly required the previous comparison subject to itself have been a prior policy-root-active artifact under ADR-022 §5.2. ADR-022 does not require that — §4.1 explicitly identifies v0.7 as the historical pre-alignment subject, and §5.2's policy-root-active requirement applies to the artifact currently being judged (Input 2), not to the historical comparison baseline. Distinction: comparison subject identity ≠ policy applicability identity.
