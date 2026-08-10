@@ -1,7 +1,7 @@
 ---
 id: system-decomposition
 title: "Package 1.1 — System Decomposition & Module Registry"
-version: "1.1"
+version: "1.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 ---
 
 # Package 1.1 — System Decomposition & Module Registry
+
+**CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-10, vai trò: `Package 1.1 ADR-023 Alignment Executor`) — artifact status: Draft, KHÔNG Approved/Locked.** Package 1.1 v1.1 → v1.2 (`system-decomposition.md`, parity mirror của `module-registry.yaml` v1.0 → v1.1): genuine semantic registry change — EXACT mechanical transcription của [ADR-023](../adr/ADR-023.md) v0.5 (`Approved`, 2026-08-10, `approved_by: Product Owner`, `approved_at: "2026-08-10"`) — Package 1.4 Trigger E compatibility-evaluator Declaration-tier responsibility placement, KHÔNG một quyết định kiến trúc mới, KHÔNG một ADR mới. ĐÚNG MỘT thay đổi: một module mới đăng ký — `contract-compatibility-authority` (`module_type: compute_engine`, `owns_authoritative_state: true`, `depends_on: []`, `forbidden_dependencies: []`, `implements_capabilities: []`, `serves_contexts: []` — KHÔNG existing context-map.yaml capability/Domain Context nào invented, cùng empty-field convention như `command-query-api-surface`; §4/§5.1/§12 Decision 9 cho mirror đầy đủ). ZERO dependency edge thêm/bớt trên BẤT KỲ module hiện có nào — đọc Package 1.4 published-contract artifact VÀ pinned compatibility-policy root qua MANIFEST identity/applicability authority (ADR-022 §5.2, cùng pattern ADR-022 §8/ADR-023 §8), KHÔNG một runtime module dependency edge. Graph safety (script-verified, DFS toàn 26-module graph): module count 25 → 26, zero edge mới, zero edge xóa, zero duplicate edge, full graph VẪN acyclic, zero forbidden_dependencies violation. `review-evidence-service`/`decision-evaluation-engine`/mọi module khác — MỌI field KHÔNG đổi. Cùng tiền lệ v0.9 → v1.0 (ADR-021 alignment)/v0.8 → v0.9 (ADR-020 alignment) — một genuine architectural/semantic change, KHÔNG một bounded parity/wording correction, `package_lifecycle` revert từ `Consolidated Stable` VỀ `candidate`. Transaction này KHÔNG reconsolidate — một Review A + Independent Review B + Product Owner consolidation decision RIÊNG BIỆT PHẢI hoàn tất TRƯỚC KHI baseline này trở lại `Consolidated Stable`. **Preserved unchanged:** mọi module khác — identity/taxonomy/dependency/forbidden_dependencies/contract-category/authority/phase; Decision authority (`decision-authority-service`); RiskEvaluation/Execution Intent authority (`risk-gateway`); Order authority (`execution-engine`); ExecutionResult authority (`execution-result-processor`); API Surface routing/exposure-only boundary; UX Shell non-authority; ADR-022 §5.2 MANIFEST compatibility-policy authority (KHÔNG chạm, KHÔNG redefine); evaluator-Grant authority VẪN unresolved. Registration này LÀ Declaration-tier architecture only (Chapter 9 §9.6) — `module identity ≠ evaluator grant`, `Declaration → Grant → Enforcement → Verification`, `granted ⊆ declared` — KHÔNG evaluator Grant nào issue, KHÔNG Compatibility Result nào tạo tại transaction này. Package 1.4 (`api-architecture.md`) KHÔNG sửa. `QG-P14-E-EVID-01`/`G2-RDY-BLK-03` VẪN `OPEN`, Phase 1 Quality Gate VẪN `FAIL — evidence`, Gate 2 VẪN `CLOSED`, Phase 2 VẪN `NOT AUTHORIZED` — registration alone KHÔNG close Trigger E. `ADR-023` KHÔNG sửa bởi transaction này. `ADR-024` KHÔNG tạo. KHÔNG authorize implementation/Gate 2/Phase 2/LIVE.
 
 **CONSOLIDATED STABLE (package lifecycle, 2026-08-07, Product Owner decision, vai trò: `Package 1.1 ADR-021 Mechanical Consolidation Executor`) — artifact status: Draft, KHÔNG Approved/Locked.** Product Owner đã quyết định nguyên văn (as supplied in the transaction request): "APPROVE PACKAGE 1.1 V1.0/V1.1 CONSOLIDATION." Decision date: 2026-08-07 (exact clock time KHÔNG được cung cấp — date-only metadata, KHÔNG một giá trị giả định nào được invent). Review evidence trên v1.1 ADR-021 alignment (`system-decomposition.md`, chính file này) VÀ `module-registry.yaml` v1.0 (parity mirror): Review A `CLEAN`, Independent Review B `CLEAN`, consolidation readiness: `READY`, Blocker 0/Major 0/Minor 0. Mechanical lifecycle transaction — `version: "1.1"` UNCHANGED (no content/architecture change), `package_lifecycle: candidate → Consolidated Stable`. `module-registry.yaml` consolidates song song tại đúng phiên bản ĐÃ reviewed của nó, `"1.0"` — HAI phiên bản KHÔNG normalize thành một số chung, mỗi file ghi ĐÚNG version đã review. **Preserved unchanged (byte-identical, transaction này CHỈ đổi lifecycle prose/field):** `review-evidence-service.depends_on += decision-evaluation-engine` (ADR-021 §4/§10, recomputation delegate CHỈ); VIEW-003 responsibility text (recorded Decision qua `decision-authority-service`, deterministic recomputation delegate tới `decision-evaluation-engine`, final structured comparison VẪN tại `review-evidence-service`, `review-evidence-service` KHÔNG tự thực hiện canonical Decision evaluation); 25-module inventory; mọi dependency/forbidden_dependencies list khác; `review-evidence-service.consumes` (`[event]`), `.emits` (`[query]`), `module_type` (`projection`), `owns_authoritative_state` (`false`), `hybrid` (`null`), `forbidden_dependencies`; MỌI field của `decision-evaluation-engine` (KHÔNG đổi — recomputation delegate CHỈ, KHÔNG gain authority, KHÔNG thực hiện comparison, KHÔNG expose query result trực tiếp); Decision authority (`decision-authority-service`); RiskEvaluation/Execution Intent authority (`risk-gateway`); Order authority (`execution-engine`); ExecutionResult authority (`execution-result-processor`); API Surface routing/exposure-only boundary; UX Shell non-authority; `decision.md` §9a semantics (KHÔNG redefine, chỉ tham chiếu). Interaction-mechanism gap (request representation, response/event correlation, synchronous-vs-asynchronous, timeout, failure code, transport giữa `review-evidence-service` VÀ `decision-evaluation-engine`) VẪN EXPLICITLY unresolved — consolidation này KHÔNG resolve gap đó, KHÔNG trình bày như đã resolve, KHÔNG thêm contract-category nào để "giải quyết" — VẪN carry-forward, ĐÚNG pattern Package 1.5's contract-category interaction gap. `ADR-021` KHÔNG sửa bởi transaction này. `DD-001` VÀ mọi Package 1.5 interaction gap VẪN unresolved. Package 1.4 (`api-architecture.md`) VÀ Package 1.6 (`ux-architecture.md`) KHÔNG sửa — transaction alignment/correction riêng biệt VẪN pending, KHÔNG chạm bởi consolidation này. KHÔNG authorize implementation/Gate 2/Phase 2/LIVE.
 
@@ -97,7 +99,7 @@ Package 1.1 KHÔNG redefine domain entities, domain invariants, product behavior
 
 ## 4. Official module inventory
 
-**25 module** (v0.5 — 23→25, `custody-signing-service` + `exchange-adapter` đăng ký theo ADR-017 v0.2 Approved, Option C split) — xem `module-registry.yaml` cho định nghĩa đầy đủ từng field. Tóm tắt:
+**26 module** (v1.2 — 25→26, `contract-compatibility-authority` đăng ký theo ADR-023 v0.5 Approved, Declaration-tier evaluator placement; v0.5 — 23→25, `custody-signing-service` + `exchange-adapter` đăng ký theo ADR-017 v0.2 Approved, Option C split) — xem `module-registry.yaml` cho định nghĩa đầy đủ từng field. Tóm tắt:
 
 | module_id | Taxonomy | Owns authoritative state | Elaborated by |
 |---|---|---|---|
@@ -126,12 +128,13 @@ Package 1.1 KHÔNG redefine domain entities, domain invariants, product behavior
 | `command-query-api-surface` | runtime_service | No | 1.4 |
 | `review-evidence-service` | projection | No | 1.5 |
 | `ux-application-shell` | runtime_service | No | 1.6 |
+| `contract-compatibility-authority` | compute_engine (ADR-023 v0.5 Approved, Declaration-tier only — Grant deferred) | Yes (Grant-conditional Compatibility Result issuance only, §12 below) | 1.4 |
 
-**Taxonomy tally (v0.5 — script-verified against `module-registry.yaml`, exhaustive/mutually-exclusive, sums to 25; updated for ADR-017 v0.2 split registration):**
+**Taxonomy tally (v1.2 — script-verified against `module-registry.yaml`, exhaustive/mutually-exclusive, sums to 26; updated for ADR-023 v0.5 alignment):**
 
 ```text
-compute_engine   5   structure-engine, raw-regime-engine, feature-engine, strategy-plugin-host,
-                      decision-evaluation-engine
+compute_engine   6   structure-engine, raw-regime-engine, feature-engine, strategy-plugin-host,
+                      decision-evaluation-engine, contract-compatibility-authority
 projection       4   context-aggregator, position-projection, replay-integration-service,
                       review-evidence-service
 runtime_service  16  market-reference-service, market-data-ingestion, account-service,
@@ -140,27 +143,30 @@ runtime_service  16  market-reference-service, market-data-ingestion, account-se
                       risk-gateway, execution-engine, execution-result-processor,
                       fill-processor, backtest-orchestrator, paper-execution-boundary,
                       command-query-api-surface, ux-application-shell
-total            25
+total            26
 ```
 
-**State-authority tally (v0.5 — separate dimension — DO NOT overlap with taxonomy tally above; script-verified, exhaustive/mutually-exclusive, sums to 25; updated for ADR-017 v0.2 split registration):**
+**State-authority tally (v1.2 — separate dimension — DO NOT overlap with taxonomy tally above; script-verified, exhaustive/mutually-exclusive, sums to 26; updated for ADR-023 v0.5 alignment):**
 
 ```text
-owns_authoritative_state: true      15  market-reference-service, market-data-ingestion,
+owns_authoritative_state: true      16  market-reference-service, market-data-ingestion,
                                          structure-engine, raw-regime-engine, feature-engine,
                                          account-service, custody-signing-service,
                                          exchange-adapter, strategy-engine,
                                          plugin-release-manager, decision-authority-service,
                                          risk-gateway, execution-engine,
-                                         execution-result-processor, fill-processor
+                                         execution-result-processor, fill-processor,
+                                         contract-compatibility-authority
 owns_authoritative_state: false     9   context-aggregator, strategy-plugin-host,
                                          decision-evaluation-engine, position-projection,
                                          replay-integration-service, paper-execution-boundary,
                                          command-query-api-surface, review-evidence-service,
                                          ux-application-shell
 owns_authoritative_state: deferred  1   backtest-orchestrator
-total                                25
+total                                26
 ```
+
+**Bounded scope note (v1.2, `contract-compatibility-authority`):** `owns_authoritative_state: true` reflects the module's Declaration-tier design as sole authority for its own Compatibility Result — it does NOT mean an operational Grant currently exists. Registration alone confers NO permission to actually create a Compatibility Result (Chapter 9 §9.6 Declaration ≠ Grant, `granted ⊆ declared`); the evaluator Grant remains unresolved, deferred to a future governed transaction (ADR-023 §9).
 
 **Bounded scope note (v0.5):** `custody-signing-service`'s `true` là CHỈ cho credential-binding/signing-operational state (KHÔNG raw secret material — ngoài Domain Contract scope). `exchange-adapter`'s `true` là CHỈ cho raw venue-interaction evidence trực tiếp chứng kiến (KHÔNG platform ExecutionObservation/ExecutionResult — `execution-result-processor` VẪN authority đó, KHÔNG đổi). Cả hai KHÔNG mở rộng ý nghĩa `true` ngoài phạm vi hẹp đã định nghĩa tại ADR-017 §3.1/§3.2a.
 
@@ -285,9 +291,19 @@ review-evidence-service          → depends_on: decision-authority-service, ris
 ux-application-shell             → depends_on: command-query-api-surface
                                     (forbidden_dependencies: all 14 engine/projection
                                     modules directly — must go through API surface)
+
+contract-compatibility-authority (root — depends_on: [] — ADR-023 v0.5 Approved.
+                                    Reads the Package 1.4 published-contract artifact
+                                    and the pinned compatibility-policy root via
+                                    MANIFEST identity/applicability authority
+                                    (ADR-022 §5.2, same pattern as ADR-022 §8/
+                                    ADR-023 §8), NOT a runtime module dependency
+                                    edge. ZERO existing module's depends_on/
+                                    forbidden_dependencies edited by this addition.
+                                    forbidden_dependencies: [])
 ```
 
-Validated (script-checked before commit, §13): 25 unique `module_id`; every `depends_on`/`forbidden_dependencies` reference resolves to an existing `module_id`; zero cycles in the `depends_on` graph; zero module has the same ID in both `depends_on` and `forbidden_dependencies`.
+Validated (script-checked before commit, §13): 26 unique `module_id`; every `depends_on`/`forbidden_dependencies` reference resolves to an existing `module_id`; zero cycles in the `depends_on` graph; zero module has the same ID in both `depends_on` and `forbidden_dependencies`.
 
 ### 5.2 Diagram (illustrative only — §5.1 is normative)
 
@@ -647,12 +663,35 @@ Decision 8 — custody/signing trust boundary: đăng ký hai module mới
                    REVERT về `candidate`, một vòng Review A + Independent Review B +
                    Product Owner consolidation decision MỚI trên chính candidate v0.5 này
                    là bắt buộc (§15), CHƯA thực hiện tại transaction này.
+
+Decision 9 — Package 1.4 Trigger E compatibility-evaluator Declaration-tier placement:
+             đăng ký một module mới (contract-compatibility-authority), taxonomy Type 1
+             Compute Engine, `owns_authoritative_state: true`, ZERO dependency edge (v1.2):
+  Classification:  ADR REQUIRED.
+  Rule applied:    Governance §4b — thêm module mới với published responsibility riêng LÀ
+                   "Module Taxonomy/dependency graph" change → Required, đúng nguyên tắc đã
+                   áp dụng cho Decision 1/Decision 8.
+  Status (v1.2):   **RESOLVED** — [ADR-023](../adr/ADR-023.md) v0.5, `Approved` (Product
+                   Owner, 2026-08-10) — "APPROVE ADR-023 V0.5." ADR-023 §4/§4.1/§9 định
+                   nghĩa CHÍNH XÁC registry-impact scope mà transaction v1.2 này thực
+                   hiện — KHÔNG mở rộng ngoài đó (KHÔNG evaluator Grant, KHÔNG Compatibility
+                   Result, ZERO dependency edge trên bất kỳ module hiện có nào — reading
+                   Package 1.4 published-contract artifact/compatibility-policy root qua
+                   MANIFEST, KHÔNG runtime dependency).
+  Consequence:     ADR gate condition cho Decision 9 nay THỎA — NHƯNG một mình ADR Approved
+                   KHÔNG đủ cho Package 1.1 v1.2 `Consolidated Stable`; cùng nguyên tắc đã
+                   áp dụng cho Decision 1/Decision 8 — package_lifecycle REVERT về
+                   `candidate`, một vòng Review A + Independent Review B + Product Owner
+                   consolidation decision MỚI trên chính candidate v1.2 này là bắt buộc
+                   (§15), CHƯA thực hiện tại transaction này. Registration alone KHÔNG close
+                   `QG-P14-E-EVID-01`/Trigger E — evaluator Grant VÀ Compatibility Result
+                   VẪN CẦN transaction governed riêng biệt sau ADR-023.
 ```
 
 ## 13. Quality-gate applicability
 
 ```text
-Trigger A (universal invariant conformance):        ÁP DỤNG cho toàn bộ 25 module — mọi
+Trigger A (universal invariant conformance):        ÁP DỤNG cho toàn bộ 26 module — mọi
                                                       responsibility/dependency-direction
                                                       claim trong module-registry.yaml phải
                                                       conform I-1..I-13 by design (đã tự-
@@ -719,7 +758,7 @@ KHÔNG redefine domain entity, domain invariant, product behavior, use-case outc
 ## 15. Package review and consolidation conditions
 
 ```text
-Review A scope:            Module completeness (25/25 bounded, no god module); taxonomy
+Review A scope:            Module completeness (26/26 bounded, no god module); taxonomy
                             correctness (Chapter 7 §7.1 exhaustive, no invented type);
                             dependency coherence (no cycle, established pipeline direction
                             preserved); authority/source-of-truth correctness (I-12, no
@@ -761,7 +800,7 @@ Independent Review B
                             invent package ID mới; (e) xác nhận `module-registry.yaml`
                             machine-parseable, mọi script-check (§13, unique ID/valid
                             reference/no cycle/no contradiction/full coverage) tái tạo được
-                            độc lập, module count = 25.
+                            độc lập, module count = 26.
 Product Owner decision
   point:                   SAU khi Review A + Independent Review B hoàn tất trên chính
                             candidate v0.6 này (Blocker 0/Major 0/Minor 0) — Product Owner

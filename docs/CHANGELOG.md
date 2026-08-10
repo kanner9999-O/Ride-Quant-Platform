@@ -2,6 +2,114 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Package 1.1 ADR-023 alignment: `contract-compatibility-authority` registered
+
+**Mechanical alignment — vai trò: `Package 1.1 ADR-023 Alignment Executor`.** Transcribes Approved ADR-023 v0.5 into Package 1.1 by registering exactly one new module. Not a new architecture decision. No evaluator Grant, no Compatibility Result, no Package 1.4 change, no Quality Gate rerun, no reconsolidation, no ADR-024.
+
+### Baseline
+
+```text
+Starting HEAD:                              ac9973134aa11e853dd21003b43ff313ad845a04
+docs/adr/ADR-023.md v0.5 blob:              623ac8f9d048ad42158e2979e8646bf9bd2c8be7 (Approved, verified matched)
+docs/architecture/module-registry.yaml:      v1.0, Consolidated Stable, blob da8601b8ae5cda27b6cd4a50803811ae206fb2bb
+```
+
+### New module registered
+
+```text
+module_id:                   contract-compatibility-authority
+name:                         Contract Compatibility Authority
+module_type:                  compute_engine (Type 1, Chapter 7 SS7.1)
+owns_authoritative_state:     true
+depends_on:                   []
+forbidden_dependencies:       []
+implements_capabilities:      []   -- no context-map.yaml capability invented
+serves_contexts:               []   -- no context-map.yaml Domain Context invented
+consumes:                      []   -- reads via MANIFEST, not a contract-category edge
+emits:                          [event]  -- Grant-conditional Compatibility Result issuance
+plugin_relation:               none
+security_classification:       none
+phase:                          { identified_in: "1.1", elaborated_by: "1.4" }
+status:                         candidate
+```
+
+### Dependency/graph validation (script-verified, full 26-module DFS)
+
+```text
+module count:                  25 -> 26
+new dependency edges:          0
+removed dependency edges:      0
+total depends_on edges:        65 -> 65 (unchanged)
+cycles introduced:              0 (graph remains acyclic)
+forbidden dependency violations: 0
+existing modules changed:       0 (byte-for-byte field comparison, all 25 unchanged)
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml      v1.0 -> v1.1, package_lifecycle: Consolidated Stable -> candidate
+                                             blob da8601b8ae5cda27b6cd4a50803811ae206fb2bb
+                                             -> 1a1197b51c565be7d15c6d11ef55eea0b31482ad
+docs/architecture/system-decomposition.md   v1.1 -> v1.2, package_lifecycle: Consolidated Stable -> candidate
+                                             blob 2b46ba0f8cae3ea2e1415ce696586eb581c701f9
+                                             -> ba64330294489a43c956ee5cf569bd5753510e65
+docs/MANIFEST.md                            ADR-023 alignment rows updated
+docs/CHANGELOG.md                           this entry
+```
+
+### system-decomposition.md parity mirror
+
+```text
+SS4  module inventory table + taxonomy tally + state-authority tally: 25 -> 26
+SS5.1 dependency graph text form: new root entry (depends_on: []), zero edges
+     changed on any existing module, validation count 25 -> 26
+SS12 Decision 9 added (Package 1.4 Trigger E compatibility-evaluator Declaration-
+     tier placement) -- RESOLVED via ADR-023 v0.5 Approved
+SS13 Trigger A applicability count: 25 -> 26
+SS15 review-scope module-completeness bound: 25/25 -> 26/26 (describes the NEXT,
+     not-yet-executed consolidation review; no review performed by this transaction)
+```
+
+### Package lifecycle
+
+```text
+module-registry.yaml:       package_lifecycle: Consolidated Stable -> candidate
+system-decomposition.md:    package_lifecycle: Consolidated Stable -> candidate
+Reconsolidation:             NOT performed at this transaction (requires a separate
+                              Review A + Independent Review B + Product Owner decision)
+```
+
+### Not implied by this alignment
+
+```text
+No evaluator Grant issued.
+No Compatibility Result created.
+Package 1.4 (api-architecture.md) byte-identical, not modified.
+Trigger E does not close by registration alone.
+```
+
+### Residual state (unchanged)
+
+```text
+QG-P14-E-EVID-01:          OPEN
+G2-RDY-BLK-03:              OPEN
+Phase 1 Quality Gate:       FAIL -- evidence
+Gate 2:                     CLOSED
+Phase 2:                    NOT AUTHORIZED
+```
+
+### Validation
+
+```text
+Starting HEAD exact match:                  CONFIRMED
+ADR-023 Approved blob exact match:           CONFIRMED
+Exactly four authorized files changed:       CONFIRMED
+docs/adr/ADR-023.md/ADR-022.md/
+  api-architecture.md/execution-rules.md/
+  phase-1-rules.md byte-identical:            CONFIRMED (git diff --quiet)
+```
+
 ## [Unreleased] — 2026-08-10 — ADR-023 v0.5 APPROVED (Product Owner decision)
 
 **Mechanical approval — vai trò: `ADR-023 v0.5 Mechanical Approval Executor`.** Records the Product Owner decision "APPROVE ADR-023 V0.5". Lifecycle transition only: `status: Draft -> Approved`, `approved_by: null -> Product Owner`, `approved_at: null -> "2026-08-10"`. Version does not bump for pure approval (Chapter 11 SS11.4). No architecture semantics changed.

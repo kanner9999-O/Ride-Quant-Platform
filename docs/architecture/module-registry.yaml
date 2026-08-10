@@ -1,5 +1,37 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-10,
+# vai trò: `Package 1.1 ADR-023 Alignment Executor`) -- status: Draft, NOT
+# Approved/Locked. v1.0 -> v1.1: genuine semantic registry change -- EXACT
+# mechanical transcription of Approved ADR-023 (v0.5, Approved 2026-08-10,
+# approved_by: Product Owner, approved_at: 2026-08-10) -- NOT a new
+# architecture decision, NOT a new ADR. Exactly one module added:
+# `contract-compatibility-authority` (module_type: compute_engine,
+# owns_authoritative_state: true, depends_on: [], forbidden_dependencies: [],
+# implements_capabilities: [], serves_contexts: [] -- no existing context-
+# map.yaml capability/Domain Context invented, same empty-field convention as
+# command-query-api-surface). ZERO dependency edges added or removed on ANY
+# existing module -- reading the Package 1.4 published-contract artifact and
+# the pinned compatibility-policy root occurs via MANIFEST identity/
+# applicability authority (ADR-022 §5.2, same pattern as ADR-022 §8/ADR-023
+# §8), NOT a runtime module dependency edge. Independently graph-verified
+# (full 26-module DFS): module count 25 -> 26, zero edges added, zero edges
+# removed, zero duplicate edges, full depends_on graph remains acyclic, zero
+# forbidden_dependencies violations. No existing module's module_type,
+# owns_authoritative_state, responsibilities, consumes, emits, depends_on, or
+# forbidden_dependencies changed. This registration is Declaration-tier
+# architecture only (Chapter 9 §9.6) -- module identity != evaluator grant,
+# `Declaration -> Grant -> Enforcement -> Verification`, granted subset
+# declared -- NO evaluator Grant issued by this transaction, NO Compatibility
+# Result created, Package 1.4 (`api-architecture.md`) NOT modified,
+# `QG-P14-E-EVID-01`/`G2-RDY-BLK-03` remain OPEN, Phase 1 Quality Gate remains
+# `FAIL -- evidence`, Gate 2 remains CLOSED, Phase 2 remains NOT AUTHORIZED.
+# `package_lifecycle: Consolidated Stable -> candidate` (genuine semantic
+# change, this consolidation is NOT re-run by this transaction).
+# `system-decomposition.md` mirrors this module in parallel at its own
+# reviewed version stream, NOT normalized to a shared version number with this
+# file. ADR-023 is NOT modified by this transaction. ADR-024 is NOT created.
+#
 # CONSOLIDATED STABLE (package lifecycle, 2026-08-07, Product Owner decision,
 # vai trò: `Package 1.1 ADR-021 Mechanical Consolidation Executor`) — status:
 # Draft, NOT Approved/Locked. Package lifecycle (Consolidated Stable) and
@@ -337,11 +369,11 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "1.0"
+version: "1.1"
 status: Draft
 package: "1.1"
-package_lifecycle: Consolidated Stable
-generated_at: "2026-08-07"
+package_lifecycle: candidate
+generated_at: "2026-08-10"
 
 modules:
 
@@ -1009,3 +1041,22 @@ modules:
     phase: { identified_in: "1.1", elaborated_by: "1.6" }
     status: candidate
     notes: "Forbidden direct-engine dependencies enforce UX must go through command-query-api-surface, not bypass it (same non-bypass principle applied to UI as to plugins)."
+
+  - module_id: contract-compatibility-authority
+    name: Contract Compatibility Authority
+    module_type: compute_engine
+    hybrid: null
+    responsibilities:
+      - "Deterministically evaluate Package 1.4 published semantic-contract compatibility against the exact pinned compatibility-policy root and, only when a valid evaluator Grant is in force for the declared scope, originate the immutable authoritative Compatibility Result for that scope."
+    implements_capabilities: []
+    serves_contexts: []
+    owns_authoritative_state: true
+    consumes: []
+    emits: [event]
+    depends_on: []
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: "1.4" }
+    status: candidate
+    notes: "ADR-023 v0.5 (Approved, 2026-08-10) Declaration-tier registration only -- evaluator Grant NOT yet issued (module identity != evaluator grant, Declaration -> Grant -> Enforcement -> Verification, granted subset declared per Chapter 9 §9.6), NO operational permission exists yet to create a Compatibility Result. implements_capabilities/serves_contexts intentionally empty -- no existing context-map.yaml capability/Domain Context registered for this responsibility, and this module is not a candidate to invent one (same empty-field convention as command-query-api-surface). consumes: [] / depends_on: [] intentionally: the Package 1.4 published-contract artifact and the pinned compatibility-policy root are resolved via MANIFEST identity/applicability authority (ADR-022 §5.2, same reading pattern as ADR-022 §8/ADR-023 §8) -- NOT a runtime module dependency or consumes contract-category edge. emits: [event] reflects the eventual, Grant-conditional authoritative Compatibility Result issuance (Chapter 10 §10.4) -- same emits convention as other compute_engine/owns_authoritative_state: true modules (structure-engine/raw-regime-engine/feature-engine). Taxonomy: Type 1 Compute Engine (Chapter 7 §7.1) -- deterministic transform, no external side effect, no runtime interaction/orchestration/coordination/control responsibility (ADR-023 v0.4 root-cause correction, OPTION_A_COMPUTE_ENGINE). This module does NOT own runtime activation/enforcement coordination (ADR-023 §3.0a Part C, out of scope), Package 1.4 routing/exposure, compatibility-policy identity/version authority (ADR-022 §5.2, unchanged), evaluator Grant authority or Grant applicability authority (still unresolved, deferred to a future governed Grant transaction, ADR-023 §9), Decision/Risk/Execution semantics, or Plugin release/runtime compatibility."
