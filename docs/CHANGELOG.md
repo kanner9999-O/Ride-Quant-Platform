@@ -2,6 +2,143 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Package 1.4 Trigger E evaluator Grant ACTIVE (`contract-compatibility-authority`)
+
+**New Grant/configuration artifact — vai trò: `Package 1.4 Trigger E Evaluator Grant Executor`.** Creates the governed evaluator Grant that ADR-023 §9 explicitly deferred: `contract-compatibility-authority` is now granted the right to issue Compatibility Results for the exact Package 1.4 Trigger E scope declared at ADR-023 v0.5 §5. Grant/configuration work under existing Approved authority — not a new architecture decision, no ADR-024.
+
+### Baseline
+
+```text
+Starting HEAD:                              f09b5e9ae227327e1511046256a2faada151e87b
+docs/architecture/module-registry.yaml:      v1.1, Consolidated Stable, blob
+                                              eda6b3e0c8cffba4024b5dc2458ee0f5cf722ef5
+docs/adr/ADR-022.md:                         v0.3, Approved, blob
+                                              049a3d941493a0fcb3a0f44733f17534e158f9b0
+docs/adr/ADR-023.md:                         v0.5, Approved, blob
+                                              623ac8f9d048ad42158e2979e8646bf9bd2c8be7
+```
+
+### New file
+
+```text
+docs/governance/grants/contract-compatibility-authority-p14-trigger-e-grant.md
+  grant_version:  1.0
+  grant_status:   Active
+  granted_to:     contract-compatibility-authority
+  granted_by:     Product Owner
+  granted_at:     2026-08-10
+  revoked:         false
+  blob:            b45e8efe313749c0809440b259d1517bfe1c8ea0
+```
+
+### Canonical Grant-authority designation (mandatory resolution per ADR-023 §9 / Chapter 10 §10.4.1)
+
+```text
+Designated:   the Grant document itself (docs/governance/grants/
+              contract-compatibility-authority-p14-trigger-e-grant.md), per the
+              Chapter 9 SS9.6 "deployment/authorization configuration,
+              versioned" model.
+NOT MANIFEST: MANIFEST.md is explicitly NOT the Grant authority -- this was
+              exactly the root cause of ADR023-B-MAJ-01 (closed at ADR-023
+              v0.5). MANIFEST's row for this file is identity/version/blob
+              tracking only (I-12 convention applied to every artifact in the
+              repository), not a substantive authority over Grant content or
+              validity.
+NOT module-registry.yaml: that is module identity/taxonomy/dependency
+              authority (Chapter 7 SS7.5), not authorization-configuration
+              authority -- module identity != evaluator grant.
+NOT a new runtime service: Phase 1 has no executable implementation
+              (Trigger B/C deferred) -- inventing one would be premature and
+              create an unnecessary architecture responsibility (same
+              principle ADR-022 SS5.1 item 1 already excluded for policy
+              authority).
+```
+
+### Declared Grant scope (subset of Declaration, `granted ⊆ declared`)
+
+```text
+Granted:      exactly ADR-023 SS5's "Evaluator ĐƯỢC PHÉP judge" list (backward-
+              only semantic contract compatibility between api-architecture.md
+              content identities; compliance with the pinned policy root;
+              reason classification per Chapter 10 SS10.4.2) PLUS the single
+              new operational right this Grant exists to confer: issuing the
+              Compatibility Result itself (Chapter 10 SS10.4).
+Not granted:  field-level schema compatibility; any contract outside Package
+              1.4 scope; Decision/Risk/Execution semantics; command-query-
+              api-surface's module identity/taxonomy; compatibility-policy
+              identity/version or applicability/activation authority (remains
+              MANIFEST, ADR-022 SS5.2, unchanged).
+```
+
+### Activation/applicability fact and coverage
+
+```text
+Activation fact:  grant_status: Active as of granted_at (2026-08-10),
+                  resolvable directly in the Grant document -- no competing
+                  activation source permitted for this scope.
+Coverage:          policy version (Chapter 10 v2.7 blob 016e46bcad0826e983a
+                  51ee24c8ec4c3217aeba1 + api-architecture.md v0.8 blob
+                  b79493e44daf5154333068454d565cb8053ed7dd, both currently
+                  active per ADR-022 SS5.2) x subject scope (Package 1.4
+                  published-contract, semantic-level, backward-only) x right
+                  to issue Compatibility Results x boundary (Phase 1
+                  architecture-only, Enforcement/Verification deferred).
+Unrevoked:         revoked: false, revoked_at: null.
+```
+
+### Files changed
+
+```text
+docs/governance/grants/contract-compatibility-authority-p14-trigger-e-grant.md  (new)
+docs/MANIFEST.md                                                                 (new section
+                                                                                   + row)
+docs/CHANGELOG.md                                                                 (this entry)
+```
+
+### Preserved unchanged
+
+```text
+module-registry.yaml/system-decomposition.md: byte-identical, git diff empty,
+  Package 1.1 remains Consolidated Stable (v1.1/v1.3).
+ADR-022/ADR-023: byte-identical, not modified.
+api-architecture.md (Package 1.4): byte-identical, not modified.
+Declaration (module identity/taxonomy/responsibility): unchanged.
+```
+
+### Not implied by this Grant
+
+```text
+No Compatibility Result created -- issuance is a separate, future governed
+  transaction.
+No Quality Gate rerun.
+Gate 2 remains closed; Phase 2 remains not authorized.
+```
+
+### Residual state (unchanged)
+
+```text
+QG-P14-E-EVID-01:          OPEN
+G2-RDY-BLK-03:              OPEN
+Phase 1 Quality Gate:       FAIL -- evidence
+Gate 2:                     CLOSED
+Phase 2:                    NOT AUTHORIZED
+```
+
+### Validation
+
+```text
+Starting HEAD exact match:                  CONFIRMED
+Grant versioned/content-addressable:         CONFIRMED
+Grant authority explicit (not MANIFEST):     CONFIRMED
+Activation/applicability evidence explicit:  CONFIRMED
+Grant unrevoked:                             CONFIRMED
+Grant scope subset of Declaration:           CONFIRMED
+No architecture responsibility created:      CONFIRMED (module-registry.yaml
+  byte-identical)
+No Compatibility Result created:             CONFIRMED
+No QG rerun; Gate 2 remains closed:          CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Package 1.1 ADR-023 alignment RECONSOLIDATED
 
 **Mechanical reconsolidation — vai trò: `Package 1.1 ADR-023 Alignment Mechanical Reconsolidation Executor`.** Records the Product Owner decision "APPROVE PACKAGE 1.1 ADR-023 ALIGNMENT RECONSOLIDATION". Lifecycle transition only: `package_lifecycle: candidate -> Consolidated Stable` for both `module-registry.yaml` and `system-decomposition.md`. No content/architecture change; versions unchanged.
