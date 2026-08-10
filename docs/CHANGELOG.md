@@ -2,6 +2,139 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1 Phase-wide Backward Consistency Check #001: CONFLICT (1 Major, 6 Minor)
+
+**Backward Consistency Check — vai trò: `Phase 1 Phase-wide Backward Consistency Check Executor`.** Checks the complete Phase 1 architecture baseline (9 packages) against Constitution/Approved ADRs/accepted DoD/Approved Phase Plan and against itself, per Chapter 12 §12.4 and P1-GATE-001. A read/check transaction — no architecture authoring, no ADR, no package modification.
+
+### Baseline
+
+```text
+Starting HEAD:      7a38c7007bd52b32ee06bf8b0bceb06207abc7d0
+Phase 1 Quality Gate: PASS (unchanged, re-confirmed)
+QG-P14-E-EVID-01:      CLOSED (unchanged)
+G2-RDY-BLK-03:          CLOSED (unchanged)
+```
+
+### New file
+
+```text
+docs/governance/bcc/phase1-bcc-001.md
+  bcc_version:  1.0
+  bcc_status:    Final
+  verdict:        CONFLICT
+  blob:           cd2ec35d920da1054aecef7cb7820e8a1eb5a3d4
+```
+
+### Scope checked
+
+```text
+All 9 Phase 1 packages (module-registry.yaml v1.1/system-decomposition.md
+  v1.3, security-custody-baseline.md v0.4, structure-regime-architecture.md
+  v0.4, feature-context-architecture.md v0.2, strategy-decision-
+  architecture.md v0.2, risk-execution-architecture.md v0.2, api-
+  architecture.md v0.8, database-architecture.md v0.2, ux-architecture.md
+  v0.6) against Constitution/Locked governance, Approved ADR-001..023,
+  accepted phase-1-dod.md, Approved phase-1-plan.md, and current Quality
+  Gate PASS evidence (Result #002 + reevaluation record) -- all
+  re-confirmed byte-identical and admissible. module-registry.yaml graph
+  re-verified: 26 modules, 65 edges, acyclic, 0 forbidden violations.
+```
+
+### Findings
+
+```text
+Blocker: 0
+
+Major: 1
+  P15-BCC-MAJ-01 -- database-architecture.md (Package 1.5 v0.2) §2.1
+    transcribes review-evidence-service.depends_on as seven modules and
+    self-certifies "no edge added or removed" relative to
+    module-registry.yaml v0.7. Current registry (v1.1) has eight
+    dependencies -- decision-evaluation-engine was added by the ADR-021
+    alignment (2026-08-07, VIEW-003 recomputation delegation), after
+    Package 1.5's Consolidated Stable boundary (2026-08-05T16:45). The
+    self-certification claim is now false. No technical/persistence-design
+    contradiction exists -- decision-evaluation-engine is already correctly
+    classified elsewhere in the same document (§4, "NO persistence
+    authority, non-authoritative proposal") -- but the stale, false
+    self-certified fidelity claim is a Major-class finding, same category
+    as the earlier P14V08-POSTCON-MAJ-01.
+
+Minor: 6
+  P1X-BCC-MIN-01..06 -- cosmetic Package 1.1 version-label staleness across
+    1.3-A/B/C/D, 1.2, and 1.4/1.6 (cited version/blob numbers are outdated,
+    but every module field/dependency described remains field-identical to
+    the current registry -- no semantic contradiction).
+```
+
+### Cross-package authority contradictions
+
+None found beyond P15-BCC-MAJ-01.
+
+### Deferred/carry-forward gaps
+
+All accounted for in phase-1-dod.md §9 (DD-001, DD-003, Package 1.5
+interaction/retention gap, UC-003/VIEW-002 Product-level mechanism gap,
+accessibility/design-token gap, VIEW-003 delegation-protocol gap,
+OQ-001/OQ-002/OQ-003) -- none missing.
+
+### Verdict
+
+```text
+BCC verdict:      CONFLICT
+G2-RDY-BLK-02:      remains OPEN -- BCC has been performed (the finding's
+                    literal absence-of-check condition is resolved), but
+                    the finding stays open, redefined as "BCC performed,
+                    conflict found, pending P15-BCC-MAJ-01 resolution" --
+                    per DoD §3 item 3 ("zero unresolved architecture
+                    Blocker/Major"), a single unresolved Major is enough to
+                    block Phase 1 Approval Gate readiness regardless of the
+                    BCC deliverable's own completion.
+```
+
+### Files changed
+
+```text
+docs/governance/bcc/phase1-bcc-001.md  (new)
+docs/MANIFEST.md                        (new section + row)
+docs/CHANGELOG.md                        (this entry)
+```
+
+### Preserved unchanged
+
+```text
+All 9 package artifacts, module-registry.yaml, system-decomposition.md,
+  Compatibility Result #001/#002, evaluator, Grant, ADR-022/023,
+  reevaluation record: all byte-identical, not modified. No finding
+  reopened without a concrete current conflict.
+```
+
+### Gate 2 / Phase 2 state (unchanged)
+
+```text
+Gate 2:    CLOSED -- G2-RDY-BLK-02 (this BCC, now conflict-pending) and
+           G2-RDY-BLK-04 (Phase-level Gate reviews, not yet performed)
+           remain open.
+Phase 2:   NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+HEAD before/after:                          CONFIRMED
+BCC scope: all 9 packages checked:           CONFIRMED
+Conflicts classified by severity:            CONFIRMED (0 Blocker / 1 Major
+  / 6 Minor)
+BCC verdict:                                  CONFLICT
+G2-RDY-BLK-02 state:                          OPEN (redefined)
+No package/architecture semantics modified:   CONFIRMED (git diff --quiet)
+No ADR created:                               CONFIRMED
+No closed finding reopened without concrete
+  current conflict:                            CONFIRMED
+Two Phase-level Gate reviews NOT performed:    CONFIRMED (out of scope)
+Gate 2 decision NOT made:                      CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1 Quality Gate Trigger E reevaluated: `QG-P14-E-EVID-01` CLOSED, Quality Gate PASS
 
 **Quality Gate reevaluation — vai trò: `Phase 1 Quality Gate Trigger E Reevaluation Executor`.** Independently verifies Compatibility Result #002 against Trigger E criteria and closes the long-open Package 1.4 evidence finding. Scoped strictly to Trigger E — does not touch other Gate 2 readiness blockers or perform the Phase 1 Approval Gate process.
