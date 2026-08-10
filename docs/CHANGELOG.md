@@ -2,6 +2,142 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1 Quality Gate Trigger E reevaluated: `QG-P14-E-EVID-01` CLOSED, Quality Gate PASS
+
+**Quality Gate reevaluation — vai trò: `Phase 1 Quality Gate Trigger E Reevaluation Executor`.** Independently verifies Compatibility Result #002 against Trigger E criteria and closes the long-open Package 1.4 evidence finding. Scoped strictly to Trigger E — does not touch other Gate 2 readiness blockers or perform the Phase 1 Approval Gate process.
+
+### Baseline
+
+```text
+Starting HEAD:      33864851aacc5d232d3fe8ea84a8f36133455b31
+Result #002:          Final, blob 3d53482cb68e6661829de814f990d78d94420d55,
+                      eligible: true, reason: proved compatible
+Evaluator v1.1:        Active, blob 95cb3aa216e057a0393c539c1d51512a9cc2ae19
+Grant v1.0:            Active, unrevoked, blob
+                      b45e8efe313749c0809440b259d1517bfe1c8ea0
+```
+
+### New file
+
+```text
+docs/governance/quality-gate/qg-p14-trigger-e-reevaluation-001.md
+  reevaluation_version:  1.0
+  reevaluation_status:    Final
+  blob:                   0cde05c70b47ae975db34ea8b9e3df37e513f1d8
+```
+
+### Independent re-verification (all re-hashed at reevaluation boundary)
+
+```text
+Previous subject (v0.7):    blob fb2a4a4a04c20d373227d92869abe7cb99f59db0 --
+                            re-verified via git show 3a8b8a4^ | hash-object.
+Current subject (v0.8):      blob b79493e44daf5154333068454d565cb8053ed7dd --
+                            re-hashed, matches, Consolidated Stable unchanged.
+Chapter 10 policy:            blob 016e46bcad0826e983a51ee24c8ec4c3217aeba1 --
+                            re-hashed, matches, Locked unchanged.
+Evaluator module:              module-registry.yaml v1.1, blob
+                            eda6b3e0c8cffba4024b5dc2458ee0f5cf722ef5 --
+                            re-hashed, matches.
+Evaluator implementation:      v1.1, blob 95cb3aa216e057a0393c539c1d51512a9cc2ae19
+                            -- re-hashed, matches.
+Evaluator Grant:                v1.0, blob b45e8efe313749c0809440b259d1517bfe1c8ea0,
+                            re-checked grant_status: Active, revoked: false at
+                            reevaluation boundary (2026-08-10).
+§9 (route/module-ownership/authoritative-classification/outcome-type
+  definitions):                independently re-diffed between v0.7 and v0.8 --
+                            0 hunks, byte-identical, confirmed via isolated
+                            section diff (not just whole-file diff).
+```
+
+### Verdict
+
+```text
+QG-P14-E-EVID-01:  CLOSED (2026-08-10) -- Trigger E evidence for Package 1.4
+                    is now complete and admissible.
+G2-RDY-BLK-03:      CLOSED (2026-08-10) -- same evidence gap, resolved
+                    simultaneously.
+```
+
+### Preserved Trigger A/B/C/D conclusions (not recomputed)
+
+```text
+Trigger A: by-design declarative conformance across all 9 packages --
+  existing conclusion carried forward.
+Trigger B/C: deferred to Phase 3, N/A at Phase 1 gate -- existing conclusion
+  carried forward.
+Trigger D: conditional, Package 1.2/1.3-D, not yet concretely triggered --
+  existing conclusion carried forward, not re-confirmed here.
+Trigger E (Package 1.1/1.5/1.3-C conditional applicability): NOT resolved by
+  this transaction -- scope limited to Package 1.4 only. No other
+  QG-P1X-E-EVID-0X ID exists in the repository (only QG-P14-E-EVID-01),
+  suggesting no other tracked obligation currently exists, but this is an
+  observation, not a formal confirmation -- still requires re-confirmation
+  at the actual Phase 1 Approval Gate evaluation per phase-1-dod.md §2's
+  fail-closed rule.
+```
+
+### Phase 1 Quality Gate overall result
+
+```text
+Phase 1 Quality Gate (Trigger-conformance evidence, Chapter 13 §13.12): PASS
+
+Basis: QG-P14-E-EVID-01 was the sole tracked Quality Gate evidence-ID in the
+  entire repository -- the sole documented reason for the historical
+  "FAIL -- evidence" verdict. With it closed and Trigger A/B/C/D conclusions
+  non-blocking (preserved, not recomputed), no other tracked Quality Gate
+  blocker remains.
+
+Explicit scope limit: this PASS verdict covers Chapter 13 Trigger-conformance
+  evidence ONLY -- it is NOT a Phase 1 Approval Gate decision (Chapter 12),
+  does NOT include the Phase-wide Backward Consistency Check (G2-RDY-BLK-02,
+  still open), does NOT include the Phase-level Gate review (G2-RDY-BLK-04,
+  still open), and does NOT resolve Trigger E's conditional applicability to
+  Package 1.1/1.5/1.3-C.
+```
+
+### Gate 2 / Phase 2 state (unchanged)
+
+```text
+Gate 2:    CLOSED -- G2-RDY-BLK-02 (Phase-wide BCC) and G2-RDY-BLK-04
+           (Phase-level Gate review) remain open; Product Owner Approval
+           Gate decision not performed.
+Phase 2:   NOT AUTHORIZED.
+```
+
+### Files changed
+
+```text
+docs/governance/quality-gate/qg-p14-trigger-e-reevaluation-001.md  (new)
+docs/MANIFEST.md                                                    (new
+                                                                      section
+                                                                      + row)
+docs/CHANGELOG.md                                                    (this
+                                                                      entry)
+```
+
+### Preserved unchanged
+
+```text
+Compatibility Result #001/#002, evaluator v1.1, Grant v1.0,
+  module-registry.yaml, system-decomposition.md, api-architecture.md,
+  ADR-022, ADR-023, phase-1-dod.md: all byte-identical, not modified.
+```
+
+### Validation
+
+```text
+HEAD before/after:                          CONFIRMED
+Files changed (exactly three):               CONFIRMED
+Result #002 independently re-verified:       CONFIRMED
+Trigger E verdict:                           PASS (Package 1.4)
+QG-P14-E-EVID-01:                             CLOSED
+Overall Phase 1 Quality Gate result:          PASS (Trigger-conformance,
+  scoped as documented above)
+G2-RDY-BLK-03:                                 CLOSED
+No unrelated review rerun, no ADR created,
+  no architecture/evidence artifact changed:   CONFIRMED (git diff --quiet)
+```
+
 ## [Unreleased] — 2026-08-10 — Package 1.4 Trigger E Compatibility Result #002 ISSUED (`eligible: true` — proved compatible)
 
 **New immutable Compatibility Result — vai trò: `P1.4 Trigger E Compatibility Result #002 Executor`.** Executes evaluator implementation v1.1 (post bounded-correction) under active Grant v1.0 and issues the current Package 1.4 Trigger E Compatibility Result. Result #001 remains immutable and untouched, but is declared not admissible as current evidence.
