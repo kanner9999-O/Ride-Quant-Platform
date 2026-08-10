@@ -2,6 +2,116 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Package 1.1 ADR-023 alignment RECONSOLIDATED
+
+**Mechanical reconsolidation — vai trò: `Package 1.1 ADR-023 Alignment Mechanical Reconsolidation Executor`.** Records the Product Owner decision "APPROVE PACKAGE 1.1 ADR-023 ALIGNMENT RECONSOLIDATION". Lifecycle transition only: `package_lifecycle: candidate -> Consolidated Stable` for both `module-registry.yaml` and `system-decomposition.md`. No content/architecture change; versions unchanged.
+
+### Baseline
+
+```text
+Starting HEAD:                              1d1adf9feffc4f3d0100ee01b7ec897b11cdba6c
+```
+
+### Reviewed semantic identities (pre-reconsolidation, unchanged by this transaction)
+
+```text
+docs/architecture/module-registry.yaml       v1.1, candidate, blob
+                                              1a1197b51c565be7d15c6d11ef55eea0b31482ad
+docs/architecture/system-decomposition.md    v1.3, candidate, blob
+                                              92fbda6f635898e964a1b6517b25f7696f99a57c
+```
+
+### Review evidence
+
+```text
+Review A:                                    CLEAN
+Independent Review B (initial alignment):     Blocker 0, Major 0, Minor 1,
+                                              P11-ADR023-B-MIN-01
+Bounded parity correction:                   system-decomposition.md v1.2 -> v1.3
+Review A (bounded re-review):                 CLEAN
+Independent Review B (bounded re-review):     CLEAN, P11-ADR023-B-MIN-01 CLOSED
+Final:                                        Blocker 0, Major 0, Minor 0,
+                                              READY FOR PRODUCT OWNER RECONSOLIDATION
+```
+
+### Lifecycle change
+
+```text
+module-registry.yaml:
+  version:            "1.1"                       UNCHANGED
+  package_lifecycle:  candidate -> Consolidated Stable
+  resulting blob:      1a1197b51c565be7d15c6d11ef55eea0b31482ad
+                    -> eda6b3e0c8cffba4024b5dc2458ee0f5cf722ef5
+system-decomposition.md:
+  version:            "1.3"                       UNCHANGED
+  package_lifecycle:  candidate -> Consolidated Stable
+  resulting blob:      92fbda6f635898e964a1b6517b25f7696f99a57c
+                    -> e0d8f8d605cfa608b2524f7295e2360b454e59f3
+```
+
+Per G-ID/P1-ID, the resulting lifecycle-record blobs above are distinct from
+the reviewed semantic blobs — a pure lifecycle-recording transaction changes
+the blob (banner/frontmatter prose) even though no semantic content changed.
+
+### Preserved unchanged (script-verified)
+
+```text
+Module count:                26 (unchanged)
+Dependency edges:             65 (unchanged, 0 added, 0 removed)
+Graph:                        acyclic, 0 forbidden_dependencies violations
+Existing modules changed:      0 (byte-for-byte field comparison, all 25 unchanged)
+contract-compatibility-authority: module_type compute_engine,
+  owns_authoritative_state: true, depends_on: [], implements_capabilities: [],
+  serves_contexts: [], consumes: [], emits: [event] -- all unchanged.
+system-decomposition.md SS6 six-module exception set, SS7 tally 16+9+1=26 --
+  unchanged.
+Declaration-tier registration only -- module identity != evaluator grant,
+  Declaration -> Grant -> Enforcement -> Verification, granted subset declared.
+```
+
+### Not implied by this reconsolidation
+
+```text
+No evaluator Grant issued.
+No Compatibility Result created.
+Package 1.4 (api-architecture.md) not modified, byte-identical.
+ADR-023/ADR-022 not modified, byte-identical.
+No ADR-024 created.
+```
+
+### Residual state (unchanged)
+
+```text
+QG-P14-E-EVID-01:          OPEN
+G2-RDY-BLK-03:              OPEN
+Phase 1 Quality Gate:       FAIL -- evidence
+Gate 2:                     CLOSED
+Phase 2:                    NOT AUTHORIZED
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml       (lifecycle banner + package_lifecycle
+                                              field only)
+docs/architecture/system-decomposition.md    (lifecycle banner only)
+docs/MANIFEST.md                             (both rows updated)
+docs/CHANGELOG.md                            (this entry)
+```
+
+### Validation
+
+```text
+Starting HEAD exact match:                  CONFIRMED
+Reviewed candidate blobs exact match:        CONFIRMED
+Exactly four authorized files changed:       CONFIRMED
+Versions unchanged (1.1 / 1.3):             CONFIRMED
+Both package_lifecycle -> Consolidated Stable: CONFIRMED
+ADR-023/ADR-022/api-architecture.md/
+  execution-rules.md/phase-1-rules.md
+  byte-identical:                            CONFIRMED (git diff --quiet)
+```
+
 ## [Unreleased] — 2026-08-10 — Package 1.1 bounded parity correction (`P11-ADR023-B-MIN-01` CLOSED)
 
 **Bounded parity correction — vai trò: `Package 1.1 ADR-023 Bounded Parity Correction Executor`.** Closes an Independent Review B Minor finding: the ADR-023 alignment transaction (v1.2) correctly added `contract-compatibility-authority` to `module-registry.yaml` and SS4's tally, but left two stale derived descriptions elsewhere in `system-decomposition.md`. Bookkeeping only — no architecture change, `module-registry.yaml` not touched.
