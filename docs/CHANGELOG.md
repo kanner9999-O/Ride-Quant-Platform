@@ -2,6 +2,92 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1.5 — Engineering Foundation: AUTHORIZED TO BEGIN (Product Owner decision)
+
+**Phase start authorization — vai trò: `Phase 1.5 Start/Authorization Recorder`.** Records the Product Owner decision "I authorize/start Phase 1.5 — Engineering Foundation" and performs the mechanical `current_phase` transition. This is the deferred phase-transition decision noted at the Phase 1 Approval Gate bundle (Gate 2 PASSED did not itself move `current_phase`, unlike the earlier Phase 0 -> Phase 1 transition) -- now recorded as its own explicit transaction, per Roadmap Chapter 14 v1.6 (Locked) sequence Phase 1 -> Phase 1.5 -> Phase 2.
+
+### Baseline
+
+```text
+Starting HEAD:            7634f30f8b72360c142d7e4660624b14f4e8f23d
+Phase 1:                    APPROVED (unchanged)
+Gate 2:                      PASSED (unchanged)
+P1-RETRO-001:                COMPLETE (unchanged)
+current_phase (before):      "Phase 1 -- System Architecture"
+```
+
+### G-VERIFY-001 applied
+
+```text
+Verified directly against docs/MANIFEST.md before recording: Gate 2 =
+  PASSED (Phase 1 Approval Gate -- Decision bundle, byte-identical);
+  P1-RETRO-001 = COMPLETE (Governance -- Retrospectives section,
+  byte-identical); current_phase frontmatter value before edit = "Phase 1
+  -- System Architecture" (git-verified, not from memory).
+```
+
+### MANIFEST changes
+
+```text
+docs/MANIFEST.md
+  manifest_version:  10.68 -> 10.69
+  current_phase:     "Phase 1 -- System Architecture"
+                      -> "Phase 1.5 -- Engineering Foundation"
+  New section added: "Phase 1.5 Start Authorization -- Product Owner
+    Decision" (mechanical, not a new Approval Gate Decision bundle --
+    Gate 2's evidence chain is unchanged and not re-opened).
+```
+
+### Result
+
+```text
+Phase 1 -- System Architecture:      APPROVED (unchanged)
+Gate 2:                               PASSED (unchanged)
+Phase 1.5 -- Engineering Foundation:  AUTHORIZED TO BEGIN
+current_phase:                        "Phase 1.5 -- Engineering Foundation"
+Phase 1.5 substantive governed work:  PENDING -- blocked on Phase
+                                       1.5-specific execution rules
+                                       (governance/phases/phase-1.5-
+                                       rules.md), not created by this
+                                       transaction (Global Execution
+                                       Rules' mandatory "phase rule before
+                                       substantive work" requirement).
+Phase 2 -- Product Prototype:         NOT AUTHORIZED (unchanged)
+LIVE:                                 NOT AUTHORIZED (unchanged)
+```
+
+### Preserved unchanged
+
+```text
+All architecture packages, ADR-001..023, Constitution, the recorded
+  Gate 2 decision bundle, Phase 1 retrospective evidence, Global
+  Execution Rules (execution-rules.md), and Phase 2 execution rules
+  (phase-2-rules.md): all byte-identical (git diff --quiet). No ADR
+  authored. No Phase 1.5 DoD, execution plan, or phase-specific rules
+  file created -- out of scope for this transaction.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md     (frontmatter current_phase + manifest_version, new
+                      Phase 1.5 Start Authorization section)
+docs/CHANGELOG.md    (this entry)
+```
+
+### Validation
+
+```text
+HEAD before/after:                            CONFIRMED
+current_phase transition git-verified:         CONFIRMED
+ADR/Constitution/architecture/Gate 2 decision/
+  retrospective/Global Execution Rules/Phase 2
+  rules untouched:                             CONFIRMED (git diff --quiet)
+Phase 1.5 substantive work still blocked on
+  its own execution rules:                     CONFIRMED
+Phase 2/LIVE not authorized:                   CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Pre-Phase-2 process hardening: `G-VERIFY-001` + Phase 2 execution rules
 
 **Process/governance hardening — vai trò: `Pre-Phase-2 Process Hardening Executor`.** Formalizes the proposals from Phase 1 Process Retrospective #001 (`docs/governance/retrospectives/phase1-retrospective-001.md` §8.3/§8.4) into binding rules, ahead of any Phase 2 authorization decision.

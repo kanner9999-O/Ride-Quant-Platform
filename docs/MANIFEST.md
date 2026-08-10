@@ -1,10 +1,10 @@
 ---
-manifest_version: "10.68"
+manifest_version: "10.69"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.1.0"
-current_phase: "Phase 1 — System Architecture"
+current_phase: "Phase 1.5 — Engineering Foundation"
 compatible_adr_range: "ADR-001 ~ ADR-022"
 generated_at: "2026-08-09"
 ---
@@ -453,6 +453,63 @@ bắt đầu Phase 2 substantive work
 ```
 
 **Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên, KHÔNG đổi) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state. Sau atomic boundary này, evidence bị mất/hỏng là integrity violation, KHÔNG tự động đảo ngược quyết định (§14.4.2).
+
+## Phase 1.5 Start Authorization — Product Owner Decision (mechanical current-state transition, KHÔNG một Approval Gate Decision bundle mới — Gate 2 evidence chain phía trên byte-identical, KHÔNG sửa)
+
+**Quyết định:** "I authorize/start Phase 1.5 — Engineering Foundation." (Product Owner, 2026-08-10)
+
+```text
+Prerequisite check (Gate 2 bundle phía trên, §12.1/§12.2 — bundle byte-
+  identical, KHÔNG sửa bởi transaction này):
+    Gate 2:                    PASSED (unchanged)
+    Phase 1 retrospective
+      (P1-RETRO-001):          COMPLETE (unchanged, xem section
+                                "Governance — Retrospectives" phía trên)
+    Roadmap sequence (Chapter 14 §14.3, Locked v1.6):
+                                Phase 1 -> Phase 1.5 -> Phase 2
+    Phase 1.5:                 full Phase (KHÔNG sub-phase, Chapter 14
+                                §14.3), có Approval Gate riêng của chính
+                                nó tại CUỐI phase — gate đó CHƯA mở/pass
+                                tại transaction này
+```
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.68` → `10.69`; `current_phase` `"Phase 1 — System Architecture"` → `"Phase 1.5 — Engineering Foundation"`.
+
+**Recorded state transition:**
+
+```text
+Phase 1 — System Architecture:        APPROVED (unchanged)
+Gate 2:                                PASSED (unchanged)
+Phase 1.5 — Engineering Foundation:    AUTHORIZED TO BEGIN
+Phase 1.5 substantive governed work:   PENDING — chờ phase-specific
+                                        execution rules
+                                        (`governance/phases/phase-1.5-
+                                        rules.md`, CHƯA tạo tại transaction
+                                        này), đúng Global Execution Rules'
+                                        mandatory "phase rule trước
+                                        substantive work" requirement
+                                        (`phase-rules-template.md` §Mandatory
+                                        rule)
+Phase 2 — Product Prototype:           NOT AUTHORIZED (unchanged)
+LIVE:                                  NOT AUTHORIZED (unchanged)
+```
+
+**Transaction này KHÔNG:**
+
+```text
+author Engineering Foundation deliverable nào (monorepo/code/config/
+  testing/CI-CD)
+tạo/accept Phase 1.5 DoD
+tạo Phase 1.5 execution plan
+tạo `docs/governance/phases/phase-1.5-rules.md`
+author ADR nào
+reopen/modify Phase 1, bất kỳ ADR, Constitution, Gate 2 decision,
+  retrospective evidence, Global Execution Rules, hay Phase 2 rules
+authorize/bắt đầu Phase 2 substantive work
+authorize LIVE
+```
+
+**Xác nhận tường minh (G-VERIFY-001 áp dụng — verify trực tiếp, KHÔNG suy diễn từ memory):** `current_phase` frontmatter (line 7, file này) verify trực tiếp trước/sau edit. Gate 2 `PASSED` và `P1-RETRO-001` `COMPLETE` verify lại từ chính section tương ứng phía trên trong file này (byte-identical). ADR/Constitution/architecture package/Global Execution Rules (`governance/execution-rules.md`)/Phase 2 rules (`governance/phases/phase-2-rules.md`) KHÔNG sửa bởi transaction này (git diff --quiet cho tất cả).
 
 ## Decision Log
 
