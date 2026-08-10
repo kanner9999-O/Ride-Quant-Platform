@@ -2,6 +2,132 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Package 1.4 Trigger E evaluator implementation/procedure artifact READY
+
+**New evidence/procedure artifact — vai trò: `Package 1.4 Trigger E Evaluator Implementation Artifact Executor`.** Creates the minimum versioned, immutable evaluator implementation/procedure manifest required by Chapter 10 §10.4.1 ("evaluator implementation version + exact artifact or immutable manifest") for `contract-compatibility-authority`. Evidence/procedure work under existing Approved authority — not a new architecture decision, no ADR-024.
+
+### Baseline
+
+```text
+Starting HEAD:                     3ec7e007ab6ae5884f9169da7d44107dbb48451b
+ADR-022 v0.3 Approved:              blob 049a3d941493a0fcb3a0f44733f17534e158f9b0
+ADR-023 v0.5 Approved:               blob 623ac8f9d048ad42158e2979e8646bf9bd2c8be7
+Evaluator Grant v1.0:                Active, unrevoked, blob
+                                     b45e8efe313749c0809440b259d1517bfe1c8ea0
+```
+
+### New file
+
+```text
+docs/governance/evaluators/contract-compatibility-authority-p14-trigger-e-evaluator.md
+  implementation_id:       contract-compatibility-authority-p14-trigger-e-evaluator
+  implementation_version:  1.0
+  implementation_status:    Active
+  blob:                     5b683745bfdb9d491eb959b604f8f7912e3de427
+```
+
+### Exact evaluation inputs (six, exact-pin required, no mutable latest/current reference)
+
+```text
+1. Previous Package 1.4 published-contract semantic artifact (api-architecture.md,
+   exact prior policy-root-active version/blob).
+2. Current Package 1.4 published-contract semantic artifact (api-architecture.md,
+   exact policy-root-active version/blob at evaluation boundary, MANIFEST-resolved).
+3. Chapter 10 policy artifact (exact version/blob, Locked, MANIFEST-resolved).
+4. ADR-022 compatibility commitment/policy-root authority (exact blob, §3.2/§4.1).
+5. Applicable policy authority/applicability facts (MANIFEST, both ADR-022 §5.2
+   conditions simultaneously satisfied).
+6. Evaluator Grant v1.0 activation/applicability state (grant_status/revoked read
+   directly at evaluation boundary).
+```
+
+### Comparison dimensions (exactly four, authorized scope only)
+
+```text
+1. Route existence.
+2. Routing/module ownership semantics.
+3. Authoritative vs non-authoritative classification.
+4. Published outcome-type semantics.
+Field-level schema explicitly excluded -- Package 1.4 has no field-level
+  schema contract at Phase 1 scope.
+```
+
+### Compatibility rule and result semantics
+
+```text
+Commitment:  backward compatibility ONLY (ADR-022 §3.2, unchanged).
+Rule:        eligible: true iff all four dimensions non-breaking AND all six
+             inputs resolve AND Grant active/unrevoked/correct scope at
+             evaluation boundary. One breaking dimension -> eligible: false
+             (no partial-compatible state).
+Reason classification (Chapter 10 §10.4.2, six cases): proved compatible /
+  proved incompatible / insufficient evidence-unable to evaluate / invalid
+  declaration / unresolvable reference / policy mismatch.
+```
+
+### Determinism / fail-closed
+
+```text
+Same pinned inputs + same implementation_version "1.0" -> same conclusion,
+  always. Procedure never mutates under version "1.0" identity -- a changed
+  procedure requires a new implementation_version.
+Fail-closed (I-6): any unresolvable input, or Grant revoked/wrong scope/not
+  yet active at evaluation boundary -> evaluation stops, no eligible: true.
+```
+
+### Files changed
+
+```text
+docs/governance/evaluators/contract-compatibility-authority-p14-trigger-e-evaluator.md  (new)
+docs/MANIFEST.md                                                                          (new section
+                                                                                            + row)
+docs/CHANGELOG.md                                                                          (this entry)
+```
+
+### Preserved unchanged
+
+```text
+module-registry.yaml/system-decomposition.md/api-architecture.md: byte-
+  identical, not modified.
+ADR-022/ADR-023/evaluator Grant document: byte-identical, not modified.
+```
+
+### Not implied by this artifact
+
+```text
+No evaluation performed at this transaction.
+No Compatibility Result created -- issuance is a separate, future governed
+  transaction that will cite this implementation_id/version.
+No Quality Gate rerun.
+Gate 2 remains closed; Phase 2 remains not authorized.
+```
+
+### Residual state (unchanged)
+
+```text
+QG-P14-E-EVID-01:          OPEN
+G2-RDY-BLK-03:              OPEN
+Phase 1 Quality Gate:       FAIL -- evidence
+Gate 2:                     CLOSED
+Phase 2:                    NOT AUTHORIZED
+```
+
+### Validation
+
+```text
+Starting HEAD exact match:                  CONFIRMED
+Grant exact blob / Active / unrevoked:       CONFIRMED
+Exactly one implementation artifact created: CONFIRMED
+Stable logical identity, version 1.0:        CONFIRMED
+Procedure deterministic, exact-pin based:    CONFIRMED
+Backward-only scope matches ADR-022/023:     CONFIRMED
+No field-level schema evaluation introduced: CONFIRMED
+No architecture responsibility changed:      CONFIRMED (module-registry.yaml/
+  system-decomposition.md/api-architecture.md byte-identical)
+No Compatibility Result created:             CONFIRMED
+No QG rerun:                                  CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Package 1.4 Trigger E evaluator Grant ACTIVE (`contract-compatibility-authority`)
 
 **New Grant/configuration artifact — vai trò: `Package 1.4 Trigger E Evaluator Grant Executor`.** Creates the governed evaluator Grant that ADR-023 §9 explicitly deferred: `contract-compatibility-authority` is now granted the right to issue Compatibility Results for the exact Package 1.4 Trigger E scope declared at ADR-023 v0.5 §5. Grant/configuration work under existing Approved authority — not a new architecture decision, no ADR-024.
