@@ -2,6 +2,99 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1.5 rules bounded correction: `EF-RULES-A-MAJ-01` CLOSED
+
+**Bounded semantic correction — vai trò: `Phase 1.5 Rules Bounded Correction Executor`.** Fixes `EF-TXN-001` in `docs/governance/phases/phase-1.5-rules.md`, which read as constraining Phase 1.5's Engineering Foundation scope to only what Phase 2 immediately needs.
+
+### Baseline
+
+```text
+Starting HEAD:  1870fb95b2082ac254b32ac15a5dad89ae93d2ae
+Target:          docs/governance/phases/phase-1.5-rules.md v0.1, DRAFT,
+                 acceptance PENDING
+```
+
+### Finding closed: `EF-RULES-A-MAJ-01`
+
+```text
+v0.1 wording: "moi transaction Phase 1.5 CHI thiet lap noi dung nam trong
+  Chapter 14 §14.2's Phase 1.5 scope list ... va CHI muc toi thieu can
+  cho phase ke tiep" (exact: "...và CHỈ mức tối thiểu cần cho phase kế
+  tiếp") -- "phase kế tiếp" (the next phase) reads as Phase 2
+  specifically, even though the parenthetical already hedged with "Phase
+  2+". Risk: this could be read to license shrinking Phase 1.5's
+  Engineering Foundation scope down to whatever Phase 2 (Product
+  Prototype) happens to need, when the actual scope authority is Roadmap
+  §14.2's fixed 8-category list, independent of any one downstream
+  phase's specific requirements.
+```
+
+### Semantic delta (`EF-TXN-001` only)
+
+```text
+Unchanged:  full Roadmap §14.2 8-category scope list (Monorepo/Coding
+            Standard/Naming/Logging/Config/Error Handling/Testing/
+            CI-CD); the anti-gold-plating constraint (no speculative
+            capability without concrete known need).
+Changed:    "minimum needed for the next phase" -> "the foundation
+            reasonably required by known downstream platform phases/
+            work" (Phase 2 and whatever known phases/work follow it per
+            §14.2 sequence) -- explicitly NOT solely Phase 2's
+            requirements, and explicitly NOT license to expand beyond
+            Roadmap authority.
+Not changed: EF-ADR-001, EF-ADR-002, EF-TXN-002, EF-REV-001,
+            EF-BUDGET-001, EF-VERIFY-001, EF-RETRO-001 -- no other rule
+            semantics touched, no rule ID added or removed.
+```
+
+### Files changed
+
+```text
+docs/governance/phases/phase-1.5-rules.md  (0.1 -> 0.2, EF-TXN-001 text +
+                                            change history entry)
+docs/MANIFEST.md                            (row updated: version 0.1 ->
+                                            0.2, blob, compact note)
+docs/CHANGELOG.md                           (this entry)
+```
+
+### Preserved unchanged
+
+```text
+operational_state remains DRAFT; accepted_by/accepted_at remain PENDING
+  -- not marked EFFECTIVE, no Product Owner acceptance fabricated. Phase
+  2 rules (phase-2-rules.md), including its separate §14.3 citation
+  issue, untouched -- out of scope for this transaction. No ADR/
+  Constitution/architecture package/Global Execution Rules/Gate 2/
+  retrospective evidence modified (git diff --quiet). No Phase 1.5 DoD
+  or execution plan created. Phase 2/LIVE remain not authorized.
+```
+
+### Result
+
+```text
+docs/governance/phases/phase-1.5-rules.md:  version 0.2, DRAFT,
+                                             acceptance PENDING
+EF-RULES-A-MAJ-01:                           CLOSED
+Phase 1.5 substantive governed work:         still PENDING (Product
+                                             Owner acceptance transaction
+                                             still required)
+Phase 2 / LIVE:                              NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after:                            CONFIRMED
+EF-TXN-001 no longer Phase-2-only-scoped:      CONFIRMED
+Full §14.2 scope list intact:                 CONFIRMED
+Anti-gold-plating constraint intact:           CONFIRMED
+No other rule semantics changed, no rule
+  ID added:                                    CONFIRMED
+Artifact still DRAFT / PENDING:                CONFIRMED
+Diff bounded to target + bookkeeping:          CONFIRMED
+Phase 2/LIVE unchanged:                        CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1.5 execution rules authored (`DRAFT`, Product Owner acceptance pending)
 
 **Governance-rule authoring — vai trò: `Phase 1.5 Rules Authoring Executor`.** Creates `docs/governance/phases/phase-1.5-rules.md` per `phase-rules-template.md`'s mandatory structure, deriving controls from Phase 1 Process Retrospective #001, Chapter 3's Engineering-Foundation ADR Scope Rule note, and Chapter 14 §14.1/§14.2 (Phase 1.5 = full Phase, own Approval Gate, scope = Monorepo/Coding Standard/Naming/Logging/Config/Error Handling/Testing/CI-CD). Authoring only -- no Product Owner acceptance is recorded or fabricated.

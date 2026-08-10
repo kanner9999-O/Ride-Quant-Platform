@@ -1,7 +1,7 @@
 ---
 id: phase-1.5-rules
 title: "Phase 1.5 — Engineering Foundation: Execution Rules"
-version: "0.1"
+version: "0.2"
 operational_state: DRAFT
 owner: Product Owner
 accepted_by: PENDING
@@ -115,10 +115,20 @@ EF-ADR-002  Correction-chain circuit breaker (Foundation artifact): nếu
 EF-TXN-001  Foundation-only scope: mỗi transaction Phase 1.5 CHỈ thiết
             lập nội dung nằm trong Chapter 14 §14.2's Phase 1.5 scope
             list (Monorepo/Coding Standard/Naming/Logging/Config/Error
-            Handling/Testing/CI-CD) và CHỈ mức tối thiểu cần cho phase
-            kế tiếp — KHÔNG gold-plating/tooling suy đoán trước
-            (speculative feature/config chưa có nhu cầu cụ thể từ Phase
-            2+ deliverable đã biết).
+            Handling/Testing/CI-CD) — KHÔNG vượt ra ngoài danh sách này
+            (KHÔNG mở rộng scope vượt Roadmap authority). Trong đúng
+            danh sách đó, CHỈ thiết lập mức foundation hợp lý cần cho
+            downstream platform phase/work ĐÃ BIẾT theo Chapter 14 §14.2
+            sequence (Phase 2 Product Prototype VÀ các phase/work biết
+            trước khác sau đó — KHÔNG CHỈ riêng nhu cầu của Phase 2) —
+            KHÔNG gold-plating/tooling suy đoán trước (speculative
+            capability chưa có nhu cầu cụ thể từ bất kỳ downstream
+            phase/work đã biết nào).
+            [v0.2 (2026-08-10), đóng `EF-RULES-A-MAJ-01`: v0.1 wording
+            "CHỈ mức tối thiểu cần cho phase kế tiếp" đọc được như CHỈ
+            giới hạn theo nhu cầu riêng của Phase 2 — sai; Phase 1.5
+            scope xác định bởi Roadmap §14.2's 8-category list, KHÔNG
+            bởi nhu cầu của một phase kế tiếp cụ thể nào.]
 EF-TXN-002  Batch related engineering-foundation work: các quyết định
             liên quan trong CÙNG một category (vd toàn bộ Coding
             Standard, hoặc toàn bộ CI/CD pipeline) nên gộp vào MỘT
@@ -266,4 +276,17 @@ v0.1  2026-08-10  Authored (DRAFT) — vai trò: `Phase 1.5 Rules Authoring
       fabricate; Product Owner acceptance CHƯA thực hiện, đòi hỏi
       transaction riêng trước khi Phase 1.5 substantive work được phép
       bắt đầu.
+v0.2  2026-08-10  Bounded semantic correction, đóng `EF-RULES-A-MAJ-01`.
+      `EF-TXN-001` wording v0.1 ("CHỈ mức tối thiểu cần cho phase kế
+      tiếp") đọc được như CHỈ giới hạn Phase 1.5 theo nhu cầu riêng của
+      Phase 2 — sai. Sửa: giữ nguyên full Roadmap §14.2 8-category scope
+      (Monorepo/Coding Standard/Naming/Logging/Config/Error Handling/
+      Testing/CI-CD), đổi tiêu chí "tối thiểu" sang "foundation hợp lý
+      cần cho downstream platform phase/work ĐÃ BIẾT" (KHÔNG CHỈ riêng
+      Phase 2), giữ nguyên anti-gold-plating constraint, KHÔNG mở rộng
+      scope vượt Roadmap authority. KHÔNG rule ID nào thêm/xóa, KHÔNG
+      rule khác (`EF-ADR-001`/`EF-ADR-002`/`EF-TXN-002`/`EF-REV-001`/
+      `EF-BUDGET-001`/`EF-VERIFY-001`/`EF-RETRO-001`) sửa semantic.
+      `operational_state` VẪN `DRAFT`, accepted_by/accepted_at VẪN
+      `PENDING` — KHÔNG mark EFFECTIVE tại transaction này.
 ```
