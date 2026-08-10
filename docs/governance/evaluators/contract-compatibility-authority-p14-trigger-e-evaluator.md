@@ -1,7 +1,7 @@
 ---
 id: contract-compatibility-authority-p14-trigger-e-evaluator
 title: "Evaluator Implementation/Procedure — contract-compatibility-authority — Package 1.4 Trigger E"
-implementation_version: "1.0"
+implementation_version: "1.1"
 implementation_status: Active
 evaluator_module: contract-compatibility-authority
 owner: Product Owner
@@ -14,6 +14,8 @@ superseded_by: null
 
 **Vai trò của tài liệu này:** đây LÀ evaluator implementation/procedure manifest (Chapter 10 [§10.4.1](../../constitution/10-compatibility-capability-contract.md) — "evaluator implementation version + exact artifact hoặc immutable manifest") — KHÔNG PHẢI executable production code, KHÔNG PHẢI một runtime service, KHÔNG PHẢI một ADR, KHÔNG thay đổi Declaration ([ADR-023](../../adr/ADR-023.md) §4.1/§5) hay Grant ([`contract-compatibility-authority-p14-trigger-e-grant.md`](../grants/contract-compatibility-authority-p14-trigger-e-grant.md) v1.0). Tài liệu này định nghĩa CHÍNH XÁC procedure deterministic mà evaluator sẽ dùng để sinh Package 1.4 Trigger E Compatibility Result trong một transaction governed TƯƠNG LAI — KHÔNG tự thực hiện evaluation, KHÔNG tạo Compatibility Result tại đây.
 
+**v1.1 — bounded correction (2026-08-10), sửa một semantic defect tại v1.0's Input 1 resolution rule, KHÔNG modify Compatibility Result #001 (bất biến historical evidence), KHÔNG tạo ADR-024, KHÔNG sửa ADR-022/ADR-023/Package 1.1/Package 1.4/Grant document, vai trò: `P1.4 Trigger E Evaluator v1.1 Bounded Correction Executor`:** v1.0's §4 Input 1 SAI khi yêu cầu previous comparison subject PHẢI tự nó từng LÀ policy-root-active component theo ADR-022 §5.2 TẠI thời điểm nó áp dụng — ADR-022 KHÔNG yêu cầu điều đó. ADR-022 §4.1 tường minh xác định v0.7 LÀ historical pre-alignment subject (tồn tại TRƯỚC KHI ADR-022 approve, KHÔNG BAO GIỜ policy-governed tại thời điểm publish của chính nó); §5.2 CHỈ yêu cầu artifact HIỆN TẠI (current, v0.8) + Chapter 10 hợp thành active policy root TẠI evaluation boundary — đây LÀ policy applicability requirement cho SUBJECT ĐANG được đánh giá, KHÔNG PHẢI một điều kiện lịch sử áp lên baseline so sánh. Phân biệt đúng: **comparison subject identity ≠ policy applicability identity**. Sửa: §4 Input 1 nay resolve previous subject LÀ `api-architecture.md` v0.7 (exact historical blob `fb2a4a4a04c20d373227d92869abe7cb99f59db0`, commit `0c09903` — trạng thái Consolidated Stable NGAY TRƯỚC KHI ADR-022 alignment transition sang v0.8, resolved từ repository authority git-verified) — KHÔNG còn yêu cầu v0.7 tự nó từng policy-root-active; v0.7 CHỈ cần LÀ một exact-pinned historical artifact identity hợp lệ (KHÔNG mutable reference). **KHÔNG đổi:** Input 2 (current subject, v0.8, blob `b79493e44daf5154333068454d565cb8053ed7dd`) VẪN PHẢI policy-root-active TẠI evaluation boundary theo ADR-022 §5.2 (§6 KHÔNG đổi) — CHỈ subject ĐANG được judge mới cần policy-governed NGAY TẠI evaluation boundary, KHÔNG PHẢI historical baseline; Input 3–6 (§4); bốn comparison dimension (§5); backward-only compatibility rule (§6); sáu-case reason classification (§7); determinism/replay guarantee (§8); fail-closed behavior (§9); scope exclusions (§3); tất cả KHÔNG đổi. Compatibility Result #001 (`governance/compatibility-results/p14-trigger-e-compatibility-result-001.md`) VẪN bất biến, KHÔNG sửa — Result đó cite implementation v1.0 tại đúng thời điểm nó tạo, VẪN LÀ historical evidence hợp lệ dưới identity v1.0 của chính nó (đúng nguyên tắc §8: một evaluation MỚI dùng v1.1 sẽ sinh Result identity MỚI, KHÔNG hồi tố Result cũ). `module-registry.yaml`/`system-decomposition.md`/`api-architecture.md`/ADR-022/ADR-023/Grant document KHÔNG sửa tại transaction này (byte-identical, git diff empty). `QG-P14-E-EVID-01`/`G2-RDY-BLK-03` VẪN open, Phase 1 Quality Gate VẪN `FAIL — evidence`, Gate 2 VẪN CLOSED — transaction này KHÔNG tạo Compatibility Result mới, KHÔNG rerun Quality Gate.
+
 ## 1. Purpose
 
 Đóng đúng prerequisite còn thiếu của Chapter 10 §10.4.1's provenance checklist cho Compatibility Result tương lai: **evaluator implementation version + exact artifact hoặc immutable manifest**. Trước tài liệu này, evaluator module (Declaration) VÀ evaluator Grant ĐÃ tồn tại, NHƯNG KHÔNG một artifact nào pin CHÍNH XÁC evaluator sẽ tính toán compatibility judgment NHƯ THẾ NÀO — thiếu artifact này, một Compatibility Result tương lai sẽ KHÔNG thể pin "evaluator implementation version + exact artifact" theo đúng yêu cầu, VÀ sẽ KHÔNG deterministic/replayable (§10.4.1 mục "grant artifact tồn tại ≠ grant đang có hiệu lực", nguyên tắc tương tự áp dụng cho implementation artifact).
@@ -22,7 +24,7 @@ superseded_by: null
 
 ```text
 implementation_id:       contract-compatibility-authority-p14-trigger-e-evaluator
-implementation_version:  "1.0"
+implementation_version:  "1.1"
 implementation_status:   Active
 content identity:        git blob hash của CHÍNH file này — resolvable/pinned tại
                           docs/MANIFEST.md (I-12 tracking convention, GIỐNG HỆT mọi
@@ -50,15 +52,23 @@ Procedure này CHỈ được phép áp dụng cho đúng phạm vi ADR-023 §5 
 ```text
 Input 1 — Previous Package 1.4 published-contract semantic artifact:
   Resolution:  chính xác MỘT `api-architecture.md` version/content-identity
-               (blob) trước đó, đã từng LÀ policy-root-active component theo
-               ADR-022 §5.2 (§4.1's điều kiện mục 2) TẠI thời điểm nó áp dụng —
-               PHẢI cite exact version number VÀ exact blob, KHÔNG "previous"/
-               "prior"/"last" như một reference tự do.
-  Fail-closed: nếu KHÔNG artifact nào trước đó từng thỏa policy-root-active
-               condition (§4.1 dưới — vd đây LÀ evaluation ĐẦU TIÊN, chưa có
-               "previous" hợp lệ) → evaluation KHÔNG thể chứng minh backward
-               compatibility (KHÔNG có baseline để so) → reason "insufficient
-               evidence / unable to evaluate" (§7), KHÔNG "proved compatible".
+               (blob) LÀ historical prior comparison subject — PHẢI cite exact
+               version number VÀ exact blob, resolved từ repository authority
+               (git-verified), KHÔNG "previous"/"prior"/"last" như một
+               reference tự do. **(v1.1, sửa v1.0's over-broad rule):**
+               comparison subject identity ≠ policy applicability identity —
+               subject này KHÔNG cần tự nó từng LÀ policy-root-active
+               component theo ADR-022 §5.2 TẠI thời điểm nó publish (ADR-022
+               KHÔNG yêu cầu điều đó; §4.1 tường minh xác định v0.7 LÀ
+               historical pre-alignment subject, tồn tại TRƯỚC KHI ADR-022
+               approve). Subject CHỈ cần LÀ một artifact identity đã published
+               hợp lệ, exact-pinned, KHÔNG mutable.
+  Fail-closed: nếu KHÔNG version/blob nào resolve được từ repository authority
+               LÀM previous subject (vd đây LÀ Package 1.4 artifact ĐẦU TIÊN
+               từng publish, chưa có "previous" nào tồn tại) → evaluation
+               KHÔNG thể chứng minh backward compatibility (KHÔNG có baseline
+               để so) → reason "insufficient evidence / unable to evaluate"
+               (§7), KHÔNG "proved compatible".
 
 Input 2 — Current Package 1.4 published-contract semantic artifact:
   Resolution:  chính xác MỘT `api-architecture.md` version/content-identity
@@ -137,7 +147,7 @@ Explicit exclusion: field-level schema KHÔNG được so sánh — Package 1.4 
   có concrete field-level schema contract tại Phase 1 scope (`api-architecture.
   md` frontmatter title, ADR-022 §4 mục 1 đã xác nhận) — so sánh field-level LÀ
   ngoài phạm vi procedure này, KHÔNG được thêm bởi bất kỳ evaluation nào dùng
-  procedure v1.0 này.
+  procedure v1.1 này.
 ```
 
 ## 6. Compatibility rule (backward-only, đúng ADR-022 §3.2 — KHÔNG redefine)
@@ -181,22 +191,23 @@ eligible: false  áp dụng CHÍNH XÁC một trong sáu reason sau (Chapter 10
     (Input 3/5) tại đúng evaluation boundary.
 
 KHÔNG trạng thái "một phần" nào — mọi kết luận NGOÀI đúng sáu case trên LÀ
-  KHÔNG hợp lệ theo procedure v1.0 này.
+  KHÔNG hợp lệ theo procedure v1.1 này.
 ```
 
 ## 8. Determinism / replay guarantee
 
 ```text
 Given identical pinned inputs (Input 1–6, §4, đúng exact version/blob) VÀ
-  cùng implementation_version ("1.0") CỦA CHÍNH tài liệu này → evaluator PHẢI
+  cùng implementation_version ("1.1") CỦA CHÍNH tài liệu này → evaluator PHẢI
   sinh CÙNG MỘT kết luận (eligible + reason) — KHÔNG phụ thuộc thời điểm chạy
   lại, KHÔNG phụ thuộc runtime state không được represent trong pinned
   evidence, KHÔNG phụ thuộc diễn giải hội thoại/tác nhân thực hiện.
-Procedure v1.0 này KHÔNG BAO GIỜ mutate dưới cùng implementation_version
+Procedure v1.1 này KHÔNG BAO GIỜ mutate dưới cùng implementation_version
   identity (đúng Chapter 10 §10.4.3 mục 5's lifecycle-transition-authoritative
   rule, áp dụng tương tự cho evaluator implementation artifact) — một thay đổi
   procedure BẮT BUỘC một implementation_version MỚI (§10 dưới), KHÔNG sửa file
-  này tại chỗ dưới `1.0`.
+  này tại chỗ dưới `1.1`. Cùng nguyên tắc ĐÃ áp dụng cho v1.0 (lịch sử, KHÔNG
+  còn mutate — vẫn LÀ identity cite bởi Compatibility Result #001).
 Re-evaluation SAU một pinned input đổi (vd artifact mới, policy mới, Grant
   mới) sinh một Compatibility Result MỚI, KHÔNG sửa/hồi tố result lịch sử
   (đúng Chapter 10 §10.4.4, "đánh giá lại sinh result MỚI, không sửa lịch sử").
@@ -214,7 +225,7 @@ Grant (Input 6) revoked/sai scope/chưa active tại evaluation boundary →
   KHÔNG được thực hiện dưới một Grant không hợp lệ dù mọi Input khác resolve
   thành công.
 Đây LÀ default fail-safe (I-6) — KHÔNG một exception nào được author bởi
-  procedure v1.0 này.
+  procedure v1.1 này.
 ```
 
 ## 10. What this artifact does NOT do
@@ -253,4 +264,19 @@ v1.0  2026-08-10  Established — vai trò: `Package 1.4 Trigger E Evaluator
       field-level schema evaluation. Compatibility Result CHƯA tạo — transaction
       governed riêng biệt tương lai. `QG-P14-E-EVID-01`/`G2-RDY-BLK-03` VẪN
       OPEN, Phase 1 Quality Gate VẪN FAIL — evidence, Gate 2 VẪN CLOSED.
+
+v1.1  2026-08-10  Bounded correction — vai trò: `P1.4 Trigger E Evaluator
+      v1.1 Bounded Correction Executor`. Sửa v1.0's §4 Input 1: previous
+      comparison subject KHÔNG còn yêu cầu tự nó từng policy-root-active
+      (ADR-022 KHÔNG yêu cầu điều đó) — nay resolve LÀ `api-architecture.md`
+      v0.7, exact historical blob `fb2a4a4a04c20d373227d92869abe7cb99f59db0`
+      (Consolidated Stable, NGAY TRƯỚC ADR-022 alignment sang v0.8). Input 2
+      (current subject) VẪN PHẢI policy-root-active tại evaluation boundary
+      (KHÔNG đổi). Bốn dimension/backward-only rule/reason classification/
+      determinism/fail-closed/scope exclusions KHÔNG đổi. Compatibility Result
+      #001 (cite implementation v1.0) VẪN bất biến, KHÔNG sửa — v1.0 identity
+      giữ nguyên lịch sử. `module-registry.yaml`/`system-decomposition.md`/
+      `api-architecture.md`/ADR-022/ADR-023/Grant document KHÔNG sửa. KHÔNG
+      Compatibility Result mới tạo, KHÔNG rerun Quality Gate.
+      `QG-P14-E-EVID-01`/`G2-RDY-BLK-03` VẪN OPEN, Gate 2 VẪN CLOSED.
 ```

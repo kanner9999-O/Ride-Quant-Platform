@@ -2,6 +2,91 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — P1.4 Trigger E evaluator v1.1 bounded correction (Input 1 rule fixed)
+
+**Bounded correction — vai trò: `P1.4 Trigger E Evaluator v1.1 Bounded Correction Executor`.** Corrects one semantic defect in evaluator implementation v1.0: §4 Input 1 incorrectly required the previous comparison subject to itself have been a prior policy-root-active artifact under ADR-022 §5.2. ADR-022 does not require that — §4.1 explicitly identifies v0.7 as the historical pre-alignment subject, and §5.2's policy-root-active requirement applies to the artifact currently being judged (Input 2), not to the historical comparison baseline. Distinction: comparison subject identity ≠ policy applicability identity.
+
+### Baseline
+
+```text
+Starting HEAD:                84f7cbcebe3621746cb7f217796cce5f6572220c
+Evaluator v1.0 blob:            5b683745bfdb9d491eb959b604f8f7912e3de427
+Compatibility Result #001 blob: 5f9dcd6d2b0c3b7dcff03d16b9a4e7320afc4716 (immutable,
+                                 NOT modified by this transaction)
+```
+
+### Corrected Input 1 rule
+
+```text
+Before (v1.0, defective): previous subject must itself have been
+  policy-root-active (ADR-022 §5.2) at the time it applied.
+After (v1.1, corrected):  previous subject is simply a valid, exact-pinned
+  historical published artifact identity -- it does NOT need to have been
+  policy-governed when historically published.
+Resolved previous subject: api-architecture.md v0.7, exact historical blob
+  fb2a4a4a04c20d373227d92869abe7cb99f59db0 (Consolidated Stable, commit
+  0c09903, immediately before the ADR-022 alignment transition to v0.8;
+  git-verified from repository authority).
+Input 2 (current subject) unchanged: must still be policy-root-active at the
+  evaluation boundary (v0.8, blob b79493e44daf5154333068454d565cb8053ed7dd,
+  ADR-022 §5.2, unchanged) -- only the subject presently being judged needs
+  active policy governance, not the historical baseline.
+```
+
+### Files changed
+
+```text
+docs/governance/evaluators/contract-compatibility-authority-p14-trigger-e-evaluator.md
+  v1.0 -> v1.1, blob 5b683745bfdb9d491eb959b604f8f7912e3de427
+                   -> 95cb3aa216e057a0393c539c1d51512a9cc2ae19
+docs/MANIFEST.md    (evaluator row updated)
+docs/CHANGELOG.md   (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Compatibility Result #001: byte-identical, NOT modified -- remains immutable
+  historical evidence citing implementation v1.0 (its own identity, valid
+  forever under that version).
+Four comparison dimensions, backward-only rule, six-case reason
+  classification, determinism/replay guarantee, fail-closed behavior, scope
+  exclusions: all unchanged.
+module-registry.yaml/system-decomposition.md/api-architecture.md/ADR-022/
+  ADR-023/Grant document: byte-identical, not modified.
+```
+
+### Not implied by this correction
+
+```text
+No new Compatibility Result created -- a future evaluation under v1.1 will
+  produce a new Result identity, not retroactively alter Result #001.
+No Quality Gate rerun.
+```
+
+### Residual state (unchanged)
+
+```text
+QG-P14-E-EVID-01:          OPEN
+G2-RDY-BLK-03:              OPEN
+Phase 1 Quality Gate:       FAIL -- evidence
+Gate 2:                     CLOSED
+Phase 2:                    NOT AUTHORIZED
+```
+
+### Validation
+
+```text
+v0.7 resolves as previous historical subject:      CONFIRMED (blob
+  fb2a4a4a04c20d373227d92869abe7cb99f59db0, git-verified)
+v0.8 resolves as current subject:                   CONFIRMED
+Policy evaluated for applicability at boundary,
+  not retrospectively imposed on v0.7:               CONFIRMED
+Implementation version becomes 1.1 with exact blob:  CONFIRMED
+Result #001 remains byte-identical:                  CONFIRMED (git diff --quiet)
+Architecture/authority artifacts byte-identical:      CONFIRMED (git diff --quiet)
+```
+
 ## [Unreleased] — 2026-08-10 — Package 1.4 Trigger E Compatibility Result #001 ISSUED (`eligible: false` — insufficient evidence)
 
 **New immutable Compatibility Result — vai trò: `Package 1.4 Trigger E Compatibility Result Executor`.** Executes evaluator implementation v1.0 under the active evaluator Grant v1.0 and issues the first Package 1.4 Trigger E Compatibility Result. This is the actual compatibility evaluation — not a Grant, not a procedure definition, not architecture work.
