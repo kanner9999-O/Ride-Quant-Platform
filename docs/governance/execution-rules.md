@@ -1,11 +1,11 @@
 ---
 id: execution-rules
 title: "Ride Quant Platform — Global Execution Rules"
-version: "0.1"
+version: "0.2"
 operational_state: EFFECTIVE
 owner: Product Owner
 accepted_by: Product Owner
-accepted_at: "2026-08-09"
+accepted_at: "2026-08-10"
 created_at: "2026-08-09"
 ---
 
@@ -44,6 +44,23 @@ G-AUTH-003  Authority cao hơn LUÔN thắng — không có ngoại lệ ngầm 
 G-AUTH-004  Conversation memory LÀ cache — hữu ích để tăng tốc, KHÔNG BAO GIỜ LÀ
             nguồn sự thật; mọi claim quan trọng PHẢI verify lại trên repository
             tại thời điểm dùng.
+```
+
+## G-VERIFY — Verify before claim
+
+```text
+G-VERIFY-001  TRƯỚC KHI khẳng định bất kỳ exact repository fact nào dùng
+              trong governance/architecture decision content — bao gồm
+              blob SHA, version/lifecycle status, module taxonomy,
+              dependency edge, module/edge count, authority mapping, hoặc
+              registry parity — PHẢI verify TRỰC TIẾP chống lại repository
+              ground truth (git hash-object, python+yaml, hoặc script-
+              verify tương đương) tại CHÍNH transaction đó.
+              Memory, prompt trước, MANIFEST prose, hoặc historical
+              evidence CÓ THỂ dùng để LOCATE fact, NHƯNG KHÔNG BAO GIỜ
+              thay thế verification khi fact đó decision-relevant.
+              Rule này áp dụng TRƯỚC KHI author claim, KHÔNG CHỈ sau khi
+              một reviewer phát hiện discrepancy.
 ```
 
 ## G-ADR — ADR control
@@ -196,4 +213,13 @@ v0.1  2026-08-09  Established — vai trò: `Governance Execution Rulebook
       có phase-specific execution rules để cải thiện hiệu quả làm việc VÀ tích
       hợp lesson learned. Global rules established (§Authority–§G-ORCH trên).
       accepted_by: Product Owner, accepted_at: 2026-08-09.
+v0.2  2026-08-10  Bổ sung Global rule mới `G-VERIFY-001` ("verify before
+      claim") — promote từ Phase 1 Process Retrospective #001
+      (`docs/governance/retrospectives/phase1-retrospective-001.md` §8.3
+      PROMOTE_GLOBAL), rule giá trị cao nhất rút từ Phase 1: ADR-023's ba
+      correction round (v0.2/v0.3/v0.4) VÀ Compatibility Result #001's stale
+      v0.7 blob citation CÙNG root cause — taxonomy/registry/blob claim
+      asserted TRƯỚC KHI script-verify chống lại ground truth. v0.1 content
+      (§Authority–§G-ORCH) KHÔNG đổi. accepted_by: Product Owner,
+      accepted_at: 2026-08-10.
 ```

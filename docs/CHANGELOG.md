@@ -2,6 +2,147 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Pre-Phase-2 process hardening: `G-VERIFY-001` + Phase 2 execution rules
+
+**Process/governance hardening — vai trò: `Pre-Phase-2 Process Hardening Executor`.** Formalizes the proposals from Phase 1 Process Retrospective #001 (`docs/governance/retrospectives/phase1-retrospective-001.md` §8.3/§8.4) into binding rules, ahead of any Phase 2 authorization decision.
+
+### Baseline
+
+```text
+Starting HEAD:      ef84eda589b4bbf4ad6562c159d1ed42040413c7
+Phase 1:              APPROVED (unchanged)
+Gate 2:                PASSED (unchanged)
+P1-RETRO-001:          COMPLETE (unchanged)
+Phase 2 substantive work: NOT YET AUTHORIZED (unchanged going in)
+```
+
+### Global rule added
+
+```text
+docs/governance/execution-rules.md  0.1 -> 0.2
+  G-VERIFY-001 ("verify before claim"): before asserting any exact
+  repository fact used in governance/architecture decision content --
+  blob SHA, version/lifecycle status, module taxonomy, dependency edge,
+  module/edge count, authority mapping, or registry parity -- it must be
+  verified directly against repository ground truth (git hash-object,
+  python+yaml, or equivalent) at the transaction itself. Memory, prior
+  prompts, MANIFEST prose, or historical evidence may LOCATE a fact but
+  never SUBSTITUTE for verification. Applies before authoring the claim,
+  not only after a reviewer finds a discrepancy.
+  blob: 4defb9e72dc3273c4df470e48939b635711b152c
+```
+
+### New file: Phase 2 execution rules
+
+```text
+docs/governance/phases/phase-2-rules.md  (new, v0.1, operational_state: EFFECTIVE)
+  blob: d7d26774ea5955a44f8b58304ceb4f913106aa70
+
+  P2-TXN-001         Transaction proportionality -- one semantic decision
+                     per transaction; deterministic bookkeeping may fold
+                     in; mechanical/factual corrections get self-
+                     verification instead of automatic full review.
+  P2-ADR-CHAIN-001   Correction-chain circuit breaker -- 3 consecutive
+                     non-stabilizing correction rounds on one ADR/
+                     artifact triggers a root-cause consolidation pause
+                     instead of a 4th round.
+  P2-BUDGET-001      Prompt/MANIFEST budget -- MANIFEST table cells capped
+                     at ~1,500 words per edit (mechanical, not just
+                     prose); Phase 2 prompts default to a delta-only
+                     Goal/Baseline/Required delta/Forbidden changes/
+                     Validation/Report structure.
+  P2-REVIEW-001      Risk-proportional review -- review depth keyed to
+                     change type (new architecture/contract decision ->
+                     full A/B; bounded semantic correction -> bounded
+                     re-review; mechanical/factual -> deterministic
+                     verification only; bookkeeping -> validation only).
+  P2-PROTOTYPE-001   Batch prototype/UX review -- Phase 2 prototype/UX
+                     work reviewed by batch/milestone by default, not
+                     screen-by-screen, unless a screen introduces a new
+                     architecture/authority/contract/security/Product
+                     decision.
+
+  P2-TXN-001/P2-ADR-CHAIN-001/P2-BUDGET-001 formalize the retrospective's
+  §8.4 PHASE2_CONTROL proposals directly. P2-REVIEW-001/P2-PROTOTYPE-001
+  are new: the former generalizes the retrospective's §7 self-replication
+  finding plus existing Global G-REV rules into an explicit table; the
+  latter has no direct Phase 1 precedent (Phase 1 produced no prototype/UX
+  artifacts) and is authored as an anticipatory containment control under
+  phase-rules-template.md §5's exception clause for "containment/ceiling
+  controls obvious at phase-open time."
+```
+
+### Files changed
+
+```text
+docs/governance/execution-rules.md          (0.1 -> 0.2, G-VERIFY-001 added)
+docs/governance/phases/phase-2-rules.md     (new)
+docs/MANIFEST.md                             (execution-rules.md row
+                                              compacted per newly-tightened
+                                              budget rule; phase-2-rules.md
+                                              row added; manifest_version
+                                              10.67 -> 10.68)
+docs/CHANGELOG.md                            (this entry)
+```
+
+### Preserved unchanged
+
+```text
+docs/governance/phases/phase-1-rules.md, phase-rules-template.md: byte-
+  identical, not modified.
+All Constitution chapters, ADR-001..023, the recorded Gate 2 decision, and
+  every existing evidence/retrospective record: byte-identical, not
+  modified (git diff --quiet).
+The six accepted Phase 1 Minor findings: not touched, still carried
+  forward.
+Retrospective proposals converted into effective rules by this
+  transaction are process/governance rules only -- no architecture
+  decision, module taxonomy, dependency graph, or ADR was created or
+  changed.
+```
+
+### ADR trigger check
+
+```text
+Constitution Chapter 0 §4b lists "Governance/Approval process" changes as
+  ADR Required. Both docs/governance/execution-rules.md and
+  docs/governance/phases/phase-1-rules.md were themselves established
+  directly by Product Owner instruction, without an ADR, on the explicit
+  basis that this document class is operational governance -- "KHONG
+  Constitution chapter, KHONG ADR, KHONG tao architecture authority nao"
+  (execution-rules.md's own preamble; confirmed again in MANIFEST's
+  "Xac nhan tuong minh" note for this section). This transaction is the
+  same class of action (adding one Global rule + one per-phase ruleset,
+  neither touching Constitution/ADR/Approval-Gate mechanics themselves)
+  -- no new ADR trigger found. No ADR authored.
+```
+
+### Result
+
+```text
+G-VERIFY-001:              EFFECTIVE
+P2-TXN-001:                 EFFECTIVE_FOR_PHASE2
+P2-ADR-CHAIN-001:            EFFECTIVE_FOR_PHASE2
+P2-BUDGET-001:               EFFECTIVE_FOR_PHASE2
+P2-REVIEW-001:               EFFECTIVE_FOR_PHASE2
+P2-PROTOTYPE-001:            EFFECTIVE_FOR_PHASE2
+Phase 2 substantive work:    still NOT YET AUTHORIZED
+LIVE:                        still NOT AUTHORIZED
+```
+
+### Validation
+
+```text
+HEAD before/after:                           CONFIRMED
+Blobs pinned via git hash-object (G-VERIFY-
+  001 applied to this very transaction):      CONFIRMED
+No architecture/ADR/Constitution/Gate 2
+  decision modified:                          CONFIRMED (git diff --quiet)
+MANIFEST row for execution-rules.md compacted
+  per P2-BUDGET-001's own new ceiling:         CONFIRMED
+Phase 2 not started, LIVE not authorized:      CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1 Process Retrospective #001: COMPLETE (`P1-RETRO-001` satisfied)
 
 **Process retrospective — vai trò: `Phase 1 Process Retrospective Executor`.** Performs the mandatory Phase 1 retrospective required by `P1-RETRO-001` before Phase 2 substantive work can begin. Evidence-based (git log, CHANGELOG, MANIFEST), not generic process advice.
