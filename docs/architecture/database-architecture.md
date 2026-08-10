@@ -1,7 +1,7 @@
 ---
 id: database-architecture
 title: "Package 1.5 — Database Architecture"
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,8 @@ depends_on: ["00-governance", "02-platform-invariants", "07-module-taxonomy", "0
 ---
 
 # Package 1.5 — Database Architecture
+
+**v0.3 — bounded freshness correction (2026-08-10), đóng `P15-BCC-MAJ-01` (Phase-wide Backward Consistency Check finding, `phase1-bcc-001.md`), KHÔNG redesign persistence, KHÔNG mở lại Review A/Independent Review B/Product Owner consolidation decision, KHÔNG reconsolidate, vai trò: `Package 1.5 BCC Major Bounded Correction Executor`:** §2.1's registry-classification transcription VÀ tự-chứng-nhận fidelity claim đã stale — `review-evidence-service.depends_on` liệt kê ĐÚNG bảy module, tự chứng nhận "nguyên trạng từ `module-registry.yaml` v0.7... KHÔNG thêm/bớt một dependency edge" — SAI so với registry HIỆN TẠI (v1.1): một edge thứ tám (`decision-evaluation-engine`) ĐÃ được thêm SAU Package 1.5 v0.2's Consolidated Stable boundary (2026-08-05T16:45), bởi ADR-021 alignment (2026-08-07, VIEW-003 Decision replay-parity recomputation delegation, non-authoritative) — một transaction governed HOÀN TOÀN riêng biệt, KHÔNG bởi Package 1.5. Sửa: §2.1's `depends_on` nay liệt kê ĐÚNG tám module VÀ tự-chứng-nhận đúng lịch sử (Package 1.5 CHÍNH NÓ KHÔNG tự thêm/bớt edge nào; edge thứ tám ĐÃ được thêm SAU bởi ADR-021, riêng biệt); registry authority reference sửa `v0.7 → v1.1`; §4 bổ sung một `[Cập nhật]` paragraph bounded ghi nhận edge thứ tám VÀ carry-forward interaction-mechanism gap tương ứng cho nó (CÙNG loại gap đã ghi nhận cho hai query-emitting dependency, KHÔNG resolve). **KHÔNG đổi:** `review-evidence-service` VẪN `module_type: projection`, `owns_authoritative_state: false`; persistence authority model/store-per-concept map/projection rebuild strategy (KHÔNG store/category mới — `decision-evaluation-engine` KHÔNG sở hữu persistence authority, §5); ADR-021's recomputation delegation VẪN non-authoritative; retention/deletion policy ownership gap VẪN unresolved; mọi Preserved gap khác (§11, KHÔNG đổi); §3/§5–§13 (byte-identical, KHÔNG chạm). `module-registry.yaml`/ADR-021/ADR-022/ADR-023/mọi package khác KHÔNG sửa tại transaction này (byte-identical, git diff empty). `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi — **`package lifecycle` VẪN `Consolidated Stable`, KHÔNG revert về `candidate`** (đây LÀ bounded factual correction — sửa một transcription/self-certification claim đã stale khớp lại registry hiện tại, KHÔNG một quyết định architecture mới, KHÔNG mở lại baseline đã review — cùng nguyên tắc đã dùng cho `structure-regime-architecture.md` v0.4's bounded freshness correction, KHÔNG cần reconsolidate). `P15-BCC-MAJ-01` CLOSED. `G2-RDY-BLK-02` VẪN chờ xác nhận riêng (transaction Phase-wide BCC follow-up, KHÔNG tại đây). KHÔNG Phase-level Gate review nào thực hiện, KHÔNG Gate 2 decision, KHÔNG rerun Quality Gate.
 
 **CONSOLIDATED STABLE (package lifecycle, 2026-08-05T16:45:00+07:00, Product Owner decision) — status: Draft, KHÔNG Approved.** Package 1.5 v0.2 đạt `Consolidated Stable` SAU: Review A (REVISE trên v0.1, đóng `P15-A-MAJ-01`/`P15-A-MAJ-02`/`P15-A-MIN-01`/`P15-A-MIN-02`) → bounded verification (CLEAN, Blocker 0/Major 0/Minor 0) → Independent Review B (CLEAN, Blocker 0/Major 0/Minor 0, consolidation readiness: READY) → Product Owner consolidation decision. Product Owner đã quyết định nguyên văn: "I approve consolidation of Package 1.5 v0.2 as the current Consolidated Stable Database Architecture baseline, while preserving review-evidence-service as a non-authoritative projection and evidence boundary, all existing source-of-truth and authoritative ownership boundaries, the documented contract-category interaction gap, the unresolved retention/deletion policy ownership gap, all append-only correction, projection rebuild, custody, security, failure, replay, PAPER/LIVE separation, and non-goal constraints, and LIVE Unauthorized." `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi. Mechanical lifecycle transaction — `version: "0.2"` UNCHANGED (no content/architecture change), package lifecycle: `candidate → Consolidated Stable`.
 
@@ -116,14 +118,15 @@ consumes:                  event
 emits:                     query
 depends_on:                decision-authority-service, risk-gateway, execution-engine,
                            execution-result-processor, fill-processor,
-                           position-projection, replay-integration-service
+                           position-projection, replay-integration-service,
+                           decision-evaluation-engine
 forbidden_dependencies:    (none registered)
 plugin_relation:           none
 security_classification:   none
 phase:                     { identified_in: "1.1", elaborated_by: "1.5" }
 ```
 
-**Xác nhận tường minh (bắt buộc, yêu cầu task):** classification, `depends_on`, `emits`/`consumes`, VÀ `phase.elaborated_by: "1.5"` trên đây LÀ nguyên trạng từ `module-registry.yaml` v0.7 (Consolidated Stable) — Package 1.5 KHÔNG sửa/redefine bất kỳ field nào trong số này, KHÔNG thêm/bớt một dependency edge, capability, hay authority nào. Registry `notes` (nguyên văn): "Cross-cutting read/evidence layer — no new authoritative fact, no recomputation (PR-030 no-recompute preserved)."
+**Xác nhận tường minh (bắt buộc, yêu cầu task; sửa 2026-08-10, đóng `P15-BCC-MAJ-01`):** classification, `depends_on`, `emits`/`consumes`, VÀ `phase.elaborated_by: "1.5"` trên đây LÀ nguyên trạng từ `module-registry.yaml` v1.1 (Consolidated Stable) — Package 1.5 CHÍNH NÓ KHÔNG sửa/redefine bất kỳ field nào trong số này, KHÔNG tự thêm/bớt một dependency edge, capability, hay authority nào tại transaction này hay tại v0.2 gốc. Edge thứ tám (`decision-evaluation-engine`) ĐÃ được thêm SAU Package 1.5 v0.2's Consolidated Stable boundary (2026-08-05T16:45), bởi một transaction governed RIÊNG BIỆT — ADR-021 alignment (2026-08-07, VIEW-003 Decision replay-parity recomputation delegation, non-authoritative) — KHÔNG bởi Package 1.5. Registry `notes` (nguyên văn): "Cross-cutting read/evidence layer — no new authoritative fact, no recomputation (PR-030 no-recompute preserved)."
 
 ### 2.2 Authority status — non-authoritative projection, KHÔNG business authority
 
@@ -232,6 +235,8 @@ Contract-category interaction gap (ghi nhận tường minh, KHÔNG resolve tạ
   Package 1.5 KHÔNG tự phát minh cơ chế đó (vd. một internal query-pull path, một
   event-projection-of-projection, hay một contract category mới) — ghi nhận NHƯ MỘT
   gap carry forward (§11), KHÔNG resolve.
+
+**Cập nhật (2026-08-10, đóng `P15-BCC-MAJ-01`):** SAU Package 1.5 v0.2's Consolidated Stable boundary, `module-registry.yaml` v1.1 (ADR-021 alignment, 2026-08-07) thêm ĐÚNG MỘT dependency thứ tám — `decision-evaluation-engine` (`consumes: [event, query]`, `emits: [event]`, VIEW-003 Decision replay-parity recomputation delegation, non-authoritative) — xem §2.1 đã cập nhật. Package 1.5 KHÔNG tự tạo edge này (governed bởi ADR-021, riêng biệt). Đúng nguyên tắc gap carry-forward trên: cơ chế interaction CHÍNH XÁC (request representation, response/event correlation, synchronous-vs-asynchronous, timeout, failure code, transport) giữa review-evidence-service VÀ decision-evaluation-engine cho edge thứ tám này CŨNG KHÔNG được `depends_on` edge tự động xác lập — ghi nhận NHƯ một gap carry-forward BỔ SUNG (§11), CÙNG loại với gap hai query-emitting dependency trên, KHÔNG resolve tại correction này (đúng module-registry.yaml's own note: "interaction-mechanism gap remains EXPLICITLY unresolved"). Package 1.5's persistence authority model/store-per-concept map/projection rebuild strategy KHÔNG đổi — `decision-evaluation-engine` KHÔNG sở hữu persistence authority nào (§5 dưới, "NO (compute)"), nên KHÔNG một store/category mới nào cần thiết cho edge này.
 
 Decision→Position lineage trace VẪN LÀ một desired evidence outcome (registry
   responsibilities, UC-016–UC-018) — NHƯNG tài liệu này KHÔNG claim rằng registry hiện

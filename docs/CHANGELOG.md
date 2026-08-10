@@ -2,6 +2,93 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Package 1.5 bounded correction: `P15-BCC-MAJ-01` CLOSED
+
+**Bounded freshness correction — vai trò: `Package 1.5 BCC Major Bounded Correction Executor`.** Closes the sole Major finding from `phase1-bcc-001.md`: `database-architecture.md` §2.1's stale `review-evidence-service.depends_on` transcription and false self-certification claim.
+
+### Baseline
+
+```text
+Starting HEAD:                      a0a0adc705dfacd837db31a5ff8a0f1b85b4cf41
+database-architecture.md v0.2:       blob cb3295630990277c030effdccfaf87ca079fbf67
+module-registry.yaml v1.1:            review-evidence-service.depends_on has 8
+                                      entries (re-confirmed unchanged)
+```
+
+### Correction
+
+```text
+§2.1 depends_on:      7 modules -> 8 modules (added decision-evaluation-engine)
+§2.1 authority ref:    module-registry.yaml v0.7 -> v1.1
+§2.1 self-certification: corrected to accurately state Package 1.5 itself did
+                       not add/remove any edge -- the eighth edge was added
+                       later, by the separate ADR-021 alignment (2026-08-07)
+§4 addition:           bounded [Cập nhật] paragraph acknowledging the eighth
+                       dependency and its own carry-forward interaction-
+                       mechanism gap (same class as the existing gap for the
+                       two query-emitting dependencies -- not resolved)
+```
+
+### Files changed
+
+```text
+docs/architecture/database-architecture.md   v0.2 -> v0.3
+                                              blob cb3295630990277c030effdccfaf87ca079fbf67
+                                              -> 373b536d851519cecefab8c10849b3e8435338d4
+docs/MANIFEST.md                              (row updated)
+docs/CHANGELOG.md                              (this entry)
+```
+
+### Preserved unchanged
+
+```text
+review-evidence-service: module_type projection, owns_authoritative_state
+  false -- unchanged.
+Persistence authority model/store-per-concept map/projection rebuild
+  strategy: unchanged (decision-evaluation-engine owns no persistence
+  authority, no new store needed).
+ADR-021's recomputation delegation: remains non-authoritative.
+Retention/deletion ownership gap and all other preserved gaps (§11):
+  unchanged.
+module-registry.yaml, every other Phase 1 package, ADR-021/022/023,
+  phase1-bcc-001.md, qg-p14-trigger-e-reevaluation-001.md: all
+  byte-identical, not modified.
+package_lifecycle: remains Consolidated Stable -- NOT reverted to
+  candidate (bounded factual correction, not a new architecture decision,
+  no baseline reopened; no reconsolidation required, same convention as
+  structure-regime-architecture.md v0.4's bounded freshness correction).
+```
+
+### Verdict
+
+```text
+P15-BCC-MAJ-01:   CLOSED
+```
+
+### Residual state
+
+```text
+G2-RDY-BLK-02:      pending separate confirmation (Phase-wide BCC follow-up
+                    transaction, not performed here) -- this transaction
+                    closes the underlying Major finding but does not itself
+                    re-declare the BCC "no conflict."
+G2-RDY-BLK-04:      still OPEN (Phase-level Gate reviews not performed).
+Gate 2:              CLOSED.
+Phase 2:             NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+Starting HEAD exact match:                  CONFIRMED
+Eight-dependency transcription corrected:    CONFIRMED
+No persistence redesign:                     CONFIRMED
+module-registry.yaml/ADRs/other packages
+  byte-identical:                            CONFIRMED (git diff --quiet)
+Six BCC Minor findings NOT addressed:        CONFIRMED (out of scope)
+No Phase-level Gate review performed:        CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1 Phase-wide Backward Consistency Check #001: CONFLICT (1 Major, 6 Minor)
 
 **Backward Consistency Check — vai trò: `Phase 1 Phase-wide Backward Consistency Check Executor`.** Checks the complete Phase 1 architecture baseline (9 packages) against Constitution/Approved ADRs/accepted DoD/Approved Phase Plan and against itself, per Chapter 12 §12.4 and P1-GATE-001. A read/check transaction — no architecture authoring, no ADR, no package modification.
