@@ -2,6 +2,118 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-024 v0.2 APPROVED: Repository Topology — Single Monorepo
+
+**Mechanical lifecycle recording — vai trò: `ADR-024 Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-024 V0.2" — no ADR semantic content changed.
+
+### Baseline
+
+```text
+Starting HEAD:  e55acdc90be532d7da64728051d378607921ef12
+Reviewed candidate: docs/adr/ADR-024.md v0.2, status Draft,
+                    blob 0a673548bfbd41b892268cb0cca9703c943a9e86
+Review state:       Review A CLEAN (closed ADR024-A-MIN-01);
+                    Independent Review B bounded re-review
+                    READY_FOR_PRODUCT_OWNER_DECISION (closed
+                    ADR024-B-MAJ-01/ADR024-B-MIN-01); Blocker 0/Major 0
+```
+
+### G-VERIFY-001 / G-ID-001 / G-ORCH-002 applied
+
+```text
+Verified starting HEAD and the on-disk blob of ADR-024.md matched the
+  stated reviewed candidate (0a673548...) exactly before any edit.
+Re-verified Chapter 11 §11.4 (Metadata contract: version fixed after
+  approval), §11.5 (minimum two independent reviewer identities before
+  approval), §11.6 (approval transition must be atomic: status change +
+  approved_by/approved_at + reviewer evidence + MANIFEST update, all in
+  one change) directly before recording -- not from memory.
+No auto-approval performed prior to this explicit Product Owner
+  decision (G-ORCH-002).
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-11"
+version:      "0.2" unchanged (pure mechanical approval, §11.4 -- no
+              bump for approval alone)
+```
+
+### Reviewer evidence pinned (§8, atomic with the approval)
+
+```text
+Review A:               CLEAN -- closed ADR024-A-MIN-01
+Independent Review B:    READY_FOR_PRODUCT_OWNER_DECISION -- closed
+                        ADR024-B-MAJ-01/ADR024-B-MIN-01
+Blocker / Major / Minor: 0 / 0 / 0
+Table filled with these two reviewer identities; no decision semantics
+  in §1-§7/§9/§10 touched.
+```
+
+### Reviewed vs resulting blob (G-ID-001 -- distinguished, not conflated)
+
+```text
+Reviewed semantic candidate blob:      0a673548bfbd41b892268cb0cca9703c943a9e86
+Resulting post-approval lifecycle blob: d15ba39a02eb170f4daa1e791d4e00af58f81e63
+(differ only because the approval banner + reviewer-table fill + frontmatter
+ lifecycle fields were written -- no decision content changed)
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-024.md  (frontmatter status/approved_by/approved_at;
+                      approval banner added after title; §8 reviewer
+                      table filled; §1-§7/§9/§10 byte-equivalent)
+docs/MANIFEST.md      (ADR-table row updated to Approved + both blobs;
+                      manifest_version 10.77 -> 10.78)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Decision content (§1-§7, §9-§10 of ADR-024.md): byte-equivalent outside
+  the reviewer-table fill. docs/engineering/monorepo.md, ADR-008,
+  module-registry.yaml, every other ADR, Constitution, team.yaml,
+  Global Execution Rules, Phase 2/1.5 rules: byte-identical (git diff
+  --quiet). No ADR-025 created. Monorepo convention not approved or
+  aligned -- that remains a separate future transaction. No Phase 1.5
+  DoD created. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/adr/ADR-024.md:  version 0.2, status Approved, approved_by
+                      Product Owner, approved_at 2026-08-11
+MANIFEST:              current ADR-table row reflects Approved state
+                      and both blobs (reviewed vs resulting)
+Phase 2 -- Product Prototype:  NOT AUTHORIZED (unchanged)
+LIVE:                          NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after and reviewed candidate blob:  CONFIRMED
+Product Owner decision recorded verbatim:        CONFIRMED
+Review eligibility/evidence sufficient
+  (2 independent reviewer identities, §11.5):     CONFIRMED
+No ADR semantic content changed:                 CONFIRMED (git diff:
+  only frontmatter + banner + §8 table)
+ADR version remains 0.2:                          CONFIRMED
+Resulting lifecycle state is Approved:            CONFIRMED
+Reviewed blob and resulting blob distinguished:   CONFIRMED (differ,
+  both recorded)
+MANIFEST current state matches approval:          CONFIRMED
+Only deterministic approval bookkeeping changed:  CONFIRMED
+Phase 2/LIVE unchanged:                           CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — ADR-024 bounded correction: `ADR024-B-MAJ-01`/`ADR024-B-MIN-01`/`ADR024-A-MIN-01` CLOSED
 
 **Bounded correction — vai trò: `ADR-024 v0.2 Bounded Correction Executor`.** Fixes one Major and two Minor findings from Review A / Independent Review B (`NOT_READY`) on `docs/adr/ADR-024.md` v0.1. Does not redesign the repository-topology decision.
