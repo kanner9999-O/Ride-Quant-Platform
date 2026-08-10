@@ -2,6 +2,128 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1 Process Retrospective #001: COMPLETE (`P1-RETRO-001` satisfied)
+
+**Process retrospective — vai trò: `Phase 1 Process Retrospective Executor`.** Performs the mandatory Phase 1 retrospective required by `P1-RETRO-001` before Phase 2 substantive work can begin. Evidence-based (git log, CHANGELOG, MANIFEST), not generic process advice.
+
+### Baseline
+
+```text
+Starting HEAD:      1871d850710135cfc3638c4612887fb4e8bffd86
+Phase 1:              APPROVED (unchanged)
+Gate 2:                PASSED (unchanged)
+Phase 2 substantive work: NOT YET AUTHORIZED (unchanged going in)
+```
+
+### New file
+
+```text
+docs/governance/retrospectives/phase1-retrospective-001.md
+  retrospective_version:  1.0
+  retrospective_status:    Final
+  blob:                    73a7617b79f350f337a1361164e991f4415ebb99
+```
+
+### Evidence base
+
+```text
+125 Phase 1 commits (6fbbeb9..1871d85), 308 CHANGELOG entries, 97 distinct
+  finding IDs. ADR-023 churn: 8 commits (vs 4-6 for other Phase 1 ADRs),
+  5 versions (v0.1-v0.5). Longest single MANIFEST table cell: 8,512 words
+  (ADR-023 row) -- ~6x the 700-1,400 word Architecture/ADR G-BUDGET
+  ceiling.
+```
+
+### Top findings
+
+```text
+Root cause (highest-value finding): ADR-023's three correction rounds
+  (v0.2, v0.3, v0.4) and Compatibility Result #001's stale v0.7 blob
+  citation (d2d3608f..., a pre-consolidation candidate blob, instead of
+  the canonical Consolidated Stable blob fb2a4a4a...) share the same root
+  cause -- taxonomy/registry/blob claims asserted BEFORE script-verifying
+  against ground truth. This was fixed ad hoc from v0.4 onward but never
+  formally codified.
+MANIFEST compact-state rule (G-ID-001/G-BUDGET-001) exists but was not
+  consistently enforced -- a genuine enforcement gap, not a bad rule.
+Governance-chain self-replication: ADR-023's 5-version chain is the
+  clearest instance of the risk phase-1-rules.md itself predicted;
+  P1-ADR-001/P1-QG-001 correctly prevented ADR-024+ and scope reopening,
+  but did not prevent correction-round amplification within one ADR.
+No transaction was fully wasted; no rule failed outright -- everything
+  either worked (KEEP) or needs tightened enforcement (TIGHTEN).
+```
+
+### Rule dispositions
+
+```text
+KEEP:            P1-ADR-001, P1-ADR-002, P1-QG-001, bounded correction
+                 pattern, anti-self-certification discipline, immutable-
+                 evidence-disposition-not-mutation, fail-closed-over-
+                 forced-pass.
+TIGHTEN:          G-ID-001 (reviewed vs resulting blob -- still violated
+                 despite existing), G-ID-001/G-BUDGET-001 (MANIFEST
+                 compact-state -- rule right, enforcement absent).
+PROMOTE_GLOBAL:   proposed G-VERIFY-001 ("script-verify any registry/
+                 taxonomy/blob claim before asserting it in decision
+                 content" -- the single highest-value lesson); immutable-
+                 evidence-disposition pattern as a general template beyond
+                 Compatibility Results.
+PHASE2_CONTROL:   proposed P2-TXN-001 (self-verification allowed for
+                 mechanical/deterministic corrections), P2-ADR-CHAIN-001
+                 (root-cause pause after 3 consecutive correction rounds
+                 on one ADR), P2-BUDGET-001 (MANIFEST cell word-count
+                 ceiling, mechanically enforced).
+RETIRE:           none -- no rule produced a worse outcome by existing.
+```
+
+### Files changed
+
+```text
+docs/governance/retrospectives/phase1-retrospective-001.md  (new)
+docs/MANIFEST.md                                              (new
+                                                              section
+                                                              + row)
+docs/CHANGELOG.md                                              (this
+                                                              entry)
+```
+
+### Preserved unchanged
+
+```text
+All architecture packages, ADRs, Constitution, the recorded Gate 2
+  decision, and every existing evidence record (Grant, evaluator,
+  Compatibility Results, QG reevaluation, both BCC records, gate review
+  record): all byte-identical, not modified. Proposed rules (G-VERIFY-001,
+  P2-TXN-001, P2-ADR-CHAIN-001, P2-BUDGET-001) are proposals only -- not
+  promoted into execution-rules.md/phase-1-rules.md by this transaction.
+```
+
+### Result
+
+```text
+P1-RETRO-001:              COMPLETE
+Phase 1 retrospective:      COMPLETE
+Phase 2 substantive work:   still NOT YET AUTHORIZED -- pending a separate
+                            explicit Phase 2 start/authorization
+                            transaction.
+```
+
+### Validation
+
+```text
+HEAD before/after:                          CONFIRMED
+Evidence-based, not generic advice:          CONFIRMED (commit SHAs,
+  finding IDs, measured word counts cited throughout)
+All 10 required retrospective categories
+  addressed:                                  CONFIRMED
+Rule dispositions classified:                 CONFIRMED (KEEP/TIGHTEN/
+  PROMOTE_GLOBAL/PHASE2_CONTROL/RETIRE)
+No architecture/ADR/Constitution/Gate 2
+  decision modified:                          CONFIRMED (git diff --quiet)
+Phase 2 not started:                          CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1 APPROVED, Gate 2 PASSED (Product Owner decision)
 
 **Phase Approval Gate decision — vai trò: `Phase 1 / Gate 2 Product Owner Decision Recorder`.** Records the Product Owner decision "I approve Phase 1 / Gate 2 and accept the 6 Minor residual risks" as the immutable Phase-decision bundle (Chapter 14 §14.4.1–§14.4.2), following the exact structure established for the Phase 0 → Phase 1 decision. Mechanical lifecycle/decision bookkeeping only.
