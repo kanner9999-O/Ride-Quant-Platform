@@ -2,6 +2,139 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1.5 execution rules authored (`DRAFT`, Product Owner acceptance pending)
+
+**Governance-rule authoring — vai trò: `Phase 1.5 Rules Authoring Executor`.** Creates `docs/governance/phases/phase-1.5-rules.md` per `phase-rules-template.md`'s mandatory structure, deriving controls from Phase 1 Process Retrospective #001, Chapter 3's Engineering-Foundation ADR Scope Rule note, and Chapter 14 §14.1/§14.2 (Phase 1.5 = full Phase, own Approval Gate, scope = Monorepo/Coding Standard/Naming/Logging/Config/Error Handling/Testing/CI-CD). Authoring only -- no Product Owner acceptance is recorded or fabricated.
+
+### Baseline
+
+```text
+Starting HEAD:            196539c58a9413dd59497e4075ce23a84abb09f1
+current_phase:              "Phase 1.5 -- Engineering Foundation"
+Phase 1.5:                   AUTHORIZED TO BEGIN (unchanged)
+Phase 1.5 substantive work:  PENDING -- blocked on accepted phase-
+                              specific execution rules (unchanged going in)
+Phase 2 / LIVE:               NOT AUTHORIZED (unchanged)
+```
+
+### G-VERIFY-001 applied -- ID-collision check
+
+```text
+Before choosing a rule-ID prefix, grepped the repository for `P15-` (the
+  naturally-expected prefix for "Phase 1.5"). Found it already in use,
+  extensively, for a DIFFERENT artifact: `P15-BCC-MAJ-01`, `P15-A-MAJ-01/
+  02`, `P15-A-MIN-01/02` (docs/CHANGELOG.md, docs/MANIFEST.md) are finding
+  IDs for **Package 1.5** (database-architecture.md v0.3, an architecture
+  package inside Phase 1) -- unrelated to **Phase 1.5** (the new full
+  Phase, Engineering Foundation). Reusing `P15-` here would violate the
+  template's "stable rule ID never reused for a different meaning" rule.
+  Chose prefix `EF-` (Engineering Foundation) instead; verified `EF-` has
+  zero prior occurrences in docs/ before use.
+```
+
+### New file (DRAFT)
+
+```text
+docs/governance/phases/phase-1.5-rules.md  (new, v0.1, operational_state: DRAFT)
+  blob: b4ed3488911af780e49dc46e166d46cefe2521cc
+  accepted_by / accepted_at: PENDING (not fabricated)
+
+  EF-ADR-001     Convention/configuration before ADR; no reopening Phase
+                 1 architecture without a concrete conflict (Chapter 3's
+                 Engineering-Foundation ADR Scope Rule note + Chapter 0
+                 §4b).
+  EF-ADR-002     Correction-chain circuit breaker, scoped to ANY
+                 Foundation artifact (not just ADR, since Phase 1.5
+                 rarely produces ADRs) -- 3 non-stabilizing rounds
+                 triggers a root-cause pause.
+  EF-TXN-001     Foundation-only scope -- only Chapter 14 §14.2's listed
+                 categories, minimum needed for later phases, no
+                 speculative tooling.
+  EF-TXN-002     Batch related engineering-foundation work by category
+                 (one bounded transaction per category by default, not
+                 per file/rule).
+  EF-REV-001     Risk-proportional review table for Phase 1.5 artifact
+                 types (impactful convention/config decision -> review
+                 proportional to impact; mechanical/tooling/config change
+                 -> deterministic verification; bookkeeping -> validation
+                 only).
+  EF-BUDGET-001  Mechanical MANIFEST/prompt budget (MANIFEST cells <=
+                 1,500 words per edit; delta-only prompt structure) --
+                 same enforcement gap this closes as P2-BUDGET-001.
+  EF-VERIFY-001  Tightens G-VERIFY-001 specifically for exact tool/
+                 library/dependency version, CI config, and lint/format
+                 rule claims -- must be verified by running the tool/
+                 reading the lockfile directly, not from memory.
+
+  Retrospective requirement EF-RETRO-001 added: Phase 2 substantive work
+  now has TWO retrospective preconditions in sequence -- P1-RETRO-001
+  (Phase 1, already COMPLETE) and EF-RETRO-001 (Phase 1.5, not yet
+  performed) -- neither waives the other.
+```
+
+### MANIFEST/CHANGELOG bookkeeping
+
+```text
+docs/MANIFEST.md
+  manifest_version:  10.69 -> 10.70
+  New row added to "Governance -- Execution Rules" table for
+    governance/phases/phase-1.5-rules.md (Operational state `DRAFT`,
+    Accepted by/at `PENDING`).
+  "Xac nhan tuong minh" note updated: four files -> five files; records
+    Phase 1.5 rules as DRAFT/pending acceptance, Phase 1.5 substantive
+    work still PENDING, Phase 2/LIVE still not authorized, current_phase
+    unchanged by this transaction.
+```
+
+### Files changed
+
+```text
+docs/governance/phases/phase-1.5-rules.md  (new, DRAFT)
+docs/MANIFEST.md                            (new row + confirmation note
+                                             + manifest_version bump)
+docs/CHANGELOG.md                           (this entry)
+```
+
+### Preserved unchanged
+
+```text
+current_phase frontmatter, ADR-001..023, Constitution, Gate 2 decision
+  bundle, Phase 1 retrospective evidence, Global Execution Rules
+  (execution-rules.md), and Phase 2 rules (phase-2-rules.md): all
+  byte-identical (git diff --quiet). No ADR authored. No Engineering
+  Foundation deliverable, Phase 1.5 DoD, or Phase 1.5 execution plan
+  created -- out of scope for this transaction.
+```
+
+### Result
+
+```text
+Phase 1.5 -- Engineering Foundation:  AUTHORIZED TO BEGIN (unchanged)
+Phase 1.5 rules:                       DRAFT, operational_state DRAFT,
+                                       accepted_by/accepted_at PENDING
+Phase 1.5 substantive governed work:   still PENDING -- blocked on a
+                                       separate Product Owner acceptance
+                                       transaction for phase-1.5-rules.md
+Phase 2 -- Product Prototype:          NOT AUTHORIZED (unchanged)
+LIVE:                                  NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after:                            CONFIRMED
+Structure matches phase-rules-template.md's
+  13 mandatory sections:                       CONFIRMED
+Rule-ID collision check (P15- vs EF-):         CONFIRMED (git-verified,
+  see G-VERIFY-001 note above)
+No fabricated Product Owner acceptance:         CONFIRMED (accepted_by/
+  accepted_at = PENDING throughout)
+No architecture/ADR/Constitution/Gate 2
+  decision/retrospective/Global Execution
+  Rules/Phase 2 rules modified:                 CONFIRMED (git diff --quiet)
+Phase 2/LIVE still not authorized:              CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1.5 — Engineering Foundation: AUTHORIZED TO BEGIN (Product Owner decision)
 
 **Phase start authorization — vai trò: `Phase 1.5 Start/Authorization Recorder`.** Records the Product Owner decision "I authorize/start Phase 1.5 — Engineering Foundation" and performs the mechanical `current_phase` transition. This is the deferred phase-transition decision noted at the Phase 1 Approval Gate bundle (Gate 2 PASSED did not itself move `current_phase`, unlike the earlier Phase 0 -> Phase 1 transition) -- now recorded as its own explicit transaction, per Roadmap Chapter 14 v1.6 (Locked) sequence Phase 1 -> Phase 1.5 -> Phase 2.
