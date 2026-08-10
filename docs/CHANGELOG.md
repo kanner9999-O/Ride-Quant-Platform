@@ -2,6 +2,121 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1 Phase-level Gate Review recorded: `G2-RDY-BLK-04` CLOSED, Gate 2 prerequisites COMPLETE
+
+**Gate review evidence record — vai trò: `Phase 1 Gate Review Evidence Recorder`.** Records the completed Phase-level Gate Review A + Independent Review B and closes `G2-RDY-BLK-04`. Does not rerun any review, the Quality Gate, or the BCC, and does not make the Product Owner Gate 2 decision.
+
+### Baseline
+
+```text
+Starting HEAD:      b39d0b6deea34856f3f69f71bf5da31161cf1414
+Review boundary:      b39d0b6deea34856f3f69f71bf5da31161cf1414 (same as HEAD
+                     — both reviews conducted at this exact boundary)
+```
+
+### New file
+
+```text
+docs/governance/gate-review/phase1-gate-review-001.md
+  gate_review_version:  1.0
+  gate_review_status:    Final
+  blob:                  2d612ab130025fa42056624c26b4b0e285861ee8
+```
+
+### Reviewer eligibility (resolved from docs/team/team.yaml)
+
+```text
+ChatGPT:  role AI Technical Architect, distinct actor identity.
+Claude:    role AI Technical Architect, alias "Independent Review B"
+          (registered field `aliases`, resolves to the same actor "Claude"
+          — not a separate actor, per the F-04 Phase 0 Exit Readiness
+          Audit resolution).
+Distinct-actor requirement (Chapter 11 §11.5): satisfied -- two different
+  registered actor identities, both AI Technical Architect role.
+Boundary requirement: satisfied -- both reviews cite the same Phase-level
+  review boundary, distinct from any prior package-level review evidence.
+```
+
+### Findings summary
+
+```text
+Review A (ChatGPT):
+  Blocker: 0, Major: 0, Minor (new): 0
+  verdict: CLEAN / READY
+  recommendation: READY FOR PRODUCT OWNER GATE 2 DECISION, subject to
+    Independent Review B completion
+
+Review B (Claude / "Independent Review B"):
+  Blocker: 0, Major: 0, Minor (new): 0
+  verdict: PHASE1_GATE_REVIEW_B_READY
+  recommendation: proceed to Product Owner Gate 2 decision
+
+Both independently re-confirmed conditional Trigger D (Package 1.2/1.3-D)
+  and Trigger E (Package 1.1/1.5/1.3-C) applicability -- no additional
+  gate obligation found.
+```
+
+### Prerequisite state (re-cited, not re-verified in this transaction)
+
+```text
+Phase 1 Quality Gate:  PASS
+Phase-wide BCC:          NO CONFLICT AT BLOCKER/MAJOR LEVEL
+QG-P14-E-EVID-01:         CLOSED
+G2-RDY-BLK-02:             CLOSED
+G2-RDY-BLK-03:              CLOSED
+```
+
+### Residual six Minor findings
+
+```text
+P1X-BCC-MIN-01..06 remain carried forward, non-blocking, not resolved by
+  this transaction. Formal Product Owner residual-risk acceptance (if
+  required before the Gate 2 decision, per phase-1-dod.md §7) is part of
+  that future Gate 2 decision transaction, not this one.
+```
+
+### Files changed
+
+```text
+docs/governance/gate-review/phase1-gate-review-001.md  (new)
+docs/MANIFEST.md                                         (new section
+                                                          + row)
+docs/CHANGELOG.md                                         (this entry)
+```
+
+### Preserved unchanged
+
+```text
+All Phase 1 packages, module-registry.yaml, system-decomposition.md, all
+  ADRs, all governance evidence records (Grant, evaluator, Compatibility
+  Results, reevaluation record, both BCC records): all byte-identical,
+  not modified.
+```
+
+### Verdict
+
+```text
+G2-RDY-BLK-04:        CLOSED
+Gate 2 prerequisites:  COMPLETE
+Gate 2 decision:        NOT YET MADE
+Gate 2:                 CLOSED, pending Product Owner decision
+Phase 2:                NOT AUTHORIZED
+```
+
+### Validation
+
+```text
+HEAD before/after:                          CONFIRMED (unchanged --
+  review boundary IS the baseline HEAD)
+Files changed (exactly three):               CONFIRMED
+Review A/B identities and exact boundary:     CONFIRMED
+Eligibility verified:                         CONFIRMED (team.yaml)
+Findings: 0 Blocker / 0 Major / 0 new Minor:  CONFIRMED
+No review/QG/BCC rerun:                        CONFIRMED
+No package/ADR/evidence semantics modified:    CONFIRMED (git diff --quiet)
+No Gate 2 decision made:                       CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1 BCC bounded follow-up: `P15-BCC-MAJ-01` CLOSED, `G2-RDY-BLK-02` CLOSED
 
 **Bounded follow-up verification — vai trò: `Phase 1 BCC Bounded Follow-up Executor`.** Independently verifies the Package 1.5 correction fully closes `P15-BCC-MAJ-01` and introduces no new Blocker/Major. Does not rerun the full-scope BCC, does not modify `phase1-bcc-001.md` (remains immutable historical evidence), does not touch the six Minor findings, does not perform Phase-level Gate reviews.
