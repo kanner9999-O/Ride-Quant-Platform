@@ -2,6 +2,89 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Package 1.1 bounded parity correction (`P11-ADR023-B-MIN-01` CLOSED)
+
+**Bounded parity correction — vai trò: `Package 1.1 ADR-023 Bounded Parity Correction Executor`.** Closes an Independent Review B Minor finding: the ADR-023 alignment transaction (v1.2) correctly added `contract-compatibility-authority` to `module-registry.yaml` and SS4's tally, but left two stale derived descriptions elsewhere in `system-decomposition.md`. Bookkeeping only — no architecture change, `module-registry.yaml` not touched.
+
+### Baseline
+
+```text
+Starting HEAD:                              380a6124723bab68554e4717334552e9c3d6d592
+docs/architecture/module-registry.yaml:      v1.1, candidate, blob 1a1197b51c565be7d15c6d11ef55eea0b31482ad
+docs/architecture/system-decomposition.md:   v1.2, candidate, blob ba64330294489a43c956ee5cf569bd5753510e65
+Independent Review B:                        Blocker 0, Major 0, Minor 1, finding
+                                              P11-ADR023-B-MIN-01, verdict REVISE
+```
+
+### Exact stale text corrected
+
+```text
+SS6 (Responsibility and ownership boundaries):
+  "TRU NAM module cross-cutting" (five)
+  -> "TRU SAU module cross-cutting" (six)
+  contract-compatibility-authority added as the sixth intentionally unmapped
+  module -- reason preserved: implements_capabilities: []/serves_contexts: [],
+  no context-map.yaml capability/Domain Context covers this Package 1.4
+  compatibility-evaluation responsibility, Package 1.1 does not invent one.
+
+SS7 (Authority/source-of-truth map):
+  owns_authoritative_state: true    15 -> 16
+  Final tally: true 16 + false 9 + deferred 1 = 26 (matches SS4 exactly,
+  reference only per I-12, no duplicate number).
+```
+
+### Files changed
+
+```text
+docs/architecture/system-decomposition.md   v1.2 -> v1.3
+                                             blob ba64330294489a43c956ee5cf569bd5753510e65
+                                             -> 92fbda6f635898e964a1b6517b25f7696f99a57c
+docs/MANIFEST.md                            system-decomposition.md row updated
+docs/CHANGELOG.md                           this entry
+```
+
+### Preserved unchanged
+
+```text
+docs/architecture/module-registry.yaml -- byte-identical, not modified, remains
+  version "1.1".
+Module count 26; contract-compatibility-authority (module_type: compute_engine,
+  owns_authoritative_state: true, depends_on: [], implements_capabilities: [],
+  serves_contexts: [], consumes: [], emits: [event]); all 25 pre-existing
+  modules; dependency graph; ADR-023; ADR-022; Package 1.4.
+Grant model: module identity != evaluator grant, Declaration -> Grant ->
+  Enforcement -> Verification, granted subset declared -- no evaluator Grant
+  issued, no Compatibility Result created.
+```
+
+### Package lifecycle
+
+```text
+package_lifecycle: candidate (unchanged) -- reconsolidation NOT performed.
+```
+
+### Residual state (unchanged)
+
+```text
+QG-P14-E-EVID-01:          OPEN
+G2-RDY-BLK-03:              OPEN
+Phase 1 Quality Gate:       FAIL -- evidence
+Gate 2:                     CLOSED
+Phase 2:                    NOT AUTHORIZED
+```
+
+### Validation
+
+```text
+Starting HEAD exact match:                  CONFIRMED
+Exactly three authorized files changed:      CONFIRMED
+module-registry.yaml byte-identical:         CONFIRMED (git diff --quiet)
+SS6 exception count is six, includes
+  contract-compatibility-authority:           CONFIRMED
+SS7 true tally is 16, final tally 26:        CONFIRMED
+No architecture/dependency field changed:     CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Package 1.1 ADR-023 alignment: `contract-compatibility-authority` registered
 
 **Mechanical alignment — vai trò: `Package 1.1 ADR-023 Alignment Executor`.** Transcribes Approved ADR-023 v0.5 into Package 1.1 by registering exactly one new module. Not a new architecture decision. No evaluator Grant, no Compatibility Result, no Package 1.4 change, no Quality Gate rerun, no reconsolidation, no ADR-024.
