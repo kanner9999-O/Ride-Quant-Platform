@@ -2,6 +2,124 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — ADR-024 bounded correction: `ADR024-B-MAJ-01`/`ADR024-B-MIN-01`/`ADR024-A-MIN-01` CLOSED
+
+**Bounded correction — vai trò: `ADR-024 v0.2 Bounded Correction Executor`.** Fixes one Major and two Minor findings from Review A / Independent Review B (`NOT_READY`) on `docs/adr/ADR-024.md` v0.1. Does not redesign the repository-topology decision.
+
+### Baseline
+
+```text
+Starting HEAD:  961a223f04419036d514727fe7017aa6a40cde41
+Target:          docs/adr/ADR-024.md v0.1, status Draft,
+                 blob 9d6320c3d3b054d4896677683bebef527a315700
+Review state:    Review A: 1 Minor (ADR024-A-MIN-01); Independent
+                 Review B: NOT_READY, 1 Major (ADR024-B-MAJ-01), 1 Minor
+                 (ADR024-B-MIN-01)
+```
+
+### Finding closed: `ADR024-B-MAJ-01` — unsupported multi-repo/I-12 premise
+
+```text
+Re-verified I-12 directly (Chapter 2, docs/constitution/02-platform-
+  invariants.md): "Moi concept va scope PHAI co MOT authoritative source
+  duoc chi dinh ro" -- requires one designated authoritative source per
+  CONCEPT, says nothing about Git repository count. v0.1 §6 implied
+  multi-repo -> manual sync -> I-12 violation -- unsupported.
+Fixed: §6 rewritten as a fair comparison. Single Monorepo (atomic
+  cross-contract changes, simpler coordination at current scale, fewer
+  release surfaces, easier consistency checks vs. repo/CI growth,
+  weaker ownership isolation, eventual path-aware CI need, larger
+  blast radius) vs. a viable automated multi-repo model (stronger
+  ownership isolation, independent release cadence, smaller CI scope,
+  better fit for future independent teams vs. a NEW contract-artifact
+  publish/version lifecycle, exact pinning, cross-repo compatibility
+  automation, and real drift risk if that automation fails).
+Re-evaluated at actual current scale (docs/team/team.yaml, see next
+  finding): no independent module/domain teams exist yet, so
+  multi-repo's main benefit does not yet apply, while its cost (build
+  and operate new publishing/pinning automation now) is disproportionate.
+Result: Single Monorepo remains selected -- for organizational/cost-
+  benefit reasons at current scale, explicitly NOT because multi-repo
+  violates I-12 (that claim is now removed). The corrected analysis does
+  not invalidate the decision, so this stayed a bounded correction
+  rather than triggering a broader revision.
+```
+
+### Finding closed: `ADR024-B-MIN-01` — inaccurate team/scale description
+
+```text
+Re-verified docs/team/team.yaml directly. v0.1 described current scale
+  as "1 Product Owner + AI Architect" -- inaccurate. Actual roles: one
+  Product Owner who also holds Chief Architect; two distinct AI
+  Technical Architects (ChatGPT, Claude); one Software Engineer
+  (Thach). Fixed in §6 and the §9 Scale Check's current_scale field.
+  The underlying architectural point (Ride is not organized as multiple
+  independent module/domain teams -- module_owner is only assigned at
+  Phase 3) is preserved, now stated accurately.
+```
+
+### Finding closed: `ADR024-A-MIN-01` — imprecise module-lifecycle wording
+
+```text
+v0.1's Scale Check called the 26 module_id "candidate module IDs"
+  without qualification. Re-verified module-registry.yaml directly:
+  three distinct lifecycle fields exist -- document status: Draft;
+  Package 1.1 package_lifecycle: Consolidated Stable; and each module
+  entry's own status: candidate. Fixed: §9 now names all three fields
+  explicitly rather than collapsing them into one "candidate" claim.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-024.md  (0.1 -> 0.2: §6 rewritten, §9 current_scale
+                      corrected, v0.2 correction banner added; §1-§5/
+                      §7/§8/§10 substantively unchanged)
+docs/MANIFEST.md      (row updated: version, blob, note)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Decision (Single Monorepo, §3), authority preservation (module-
+  registry.yaml, ADR-008, §4), Rust deferral (§5), risks (§7), and
+  consequences (§10): substantively unchanged. No module->language
+  mapping introduced. docs/engineering/monorepo.md, ADR-008,
+  module-registry.yaml, every other ADR, Constitution, team.yaml:
+  byte-identical (git diff --quiet). No ADR-025 created, no ADR
+  identity changed. status remains Draft, approval fields not
+  populated. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/adr/ADR-024.md:  version 0.2, status Draft, decision unchanged
+                      (Single Monorepo)
+ADR024-B-MAJ-01 / ADR024-B-MIN-01 / ADR024-A-MIN-01:  CLOSED
+Phase 2 -- Product Prototype:  NOT AUTHORIZED (unchanged)
+LIVE:                          NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after and v0.1 blob:                CONFIRMED
+I-12 exact semantics re-verified directly:        CONFIRMED
+Multi-repo no longer described as requiring
+  manual sync / inherently violating I-12:        CONFIRMED
+Viable automated multi-repo evaluated fairly:      CONFIRMED
+Single Monorepo remains supported after
+  corrected comparison (no stop needed):           CONFIRMED
+Team roles verified from team.yaml:                CONFIRMED
+Module-lifecycle wording matches repo authority:   CONFIRMED
+No module->language assignment introduced:         CONFIRMED (grep clean)
+ADR remains Draft:                                 CONFIRMED
+Diff bounded to ADR-024 + bookkeeping:             CONFIRMED
+Phase 2/LIVE unchanged:                            CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — ADR-024 authored (Draft): Repository Topology — Single Monorepo
 
 **ADR authoring — vai trò: `ADR-024 Monorepo Authoring Executor`.** Authors the ADR that `docs/engineering/monorepo.md` v0.3 §6 flagged as Required (Chapter 0 §4b / `EF-ADR-001`: the single-monorepo decision is platform-wide, affecting >1 module). Draft only — not approved.
