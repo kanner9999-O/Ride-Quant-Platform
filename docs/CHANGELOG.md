@@ -2,6 +2,116 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — ADR-023 v0.5 bounded Grant-authority correction (`ADR023-B-MAJ-01` CLOSED)
+
+**Bounded correction — vai trò: `ADR-023 v0.5 Bounded Grant-Authority Correction Executor`.** Corrects an Independent Review B Major finding in ADR-023 v0.4: SS9's Grant paragraph prematurely designated MANIFEST as the authoritative source for future evaluator Grant activation/applicability, conflating it with ADR-022 SS5.2's separate, narrower compatibility-policy authority designation. Limited to SS9 wording. Does not reopen evaluator placement, taxonomy, Package 1.1, or create ADR-024.
+
+### Baseline
+
+```text
+Baseline HEAD:                                        4ebbe8ca4ddfc965e9792f28b02258296ec7b0db
+docs/adr/ADR-023.md v0.4 blob:                         d7af67bc42d83c133402ca961faa8ff42ba99226 (verified matched, Draft)
+Independent Review B:                                  Blocker 0, Major 1, Minor 0, verdict REVISE
+```
+
+### Root authority distinction (preserved exactly, per task)
+
+```text
+Compatibility-policy authority (ADR-022 SS5.2, unchanged): MANIFEST is the
+  designated canonical authority for the bounded Phase 1 Package 1.4
+  compatibility-policy model -- policy identity/version resolution and policy
+  applicability/activation for the Phase 1 architecture-only scope.
+Evaluator-Grant authority (was NOT designated, now explicitly left open): ADR-022
+  does not designate MANIFEST as canonical evaluator Grant authority, Grant
+  activation source, or Grant applicability source. Chapter 10 SS10.4.1 requires
+  Compatibility Result provenance to pin evaluator Grant identity, immutable
+  Grant version/content identity, declared Grant scope, canonical Grant-authority
+  designation, and authoritative Grant applicability/activation evidence -- the
+  source/authority for those Grant facts remains unresolved until the future
+  governed Grant transaction.
+```
+
+### Exact removed MANIFEST-for-Grant claim
+
+```text
+"...authoritative grant activation/applicability fact (MANIFEST, cung nguyen tac
+  ADR-022 SS5.2)." -- removed from SS9's Grant paragraph.
+```
+
+### Corrected future Grant requirement
+
+```text
+The future governed Grant transaction MUST explicitly establish and exact-pin
+  the canonical Grant-authority designation and the authoritative Grant
+  activation/applicability fact required by Chapter 10 SS10.4.1.
+ADR-023 does not preselect the storage, registry, MANIFEST entry, configuration,
+  event source, or other mechanism that will own those Grant facts.
+```
+
+### Confirmation policy authority remains separate
+
+```text
+ADR-022 SS5.2's MANIFEST designation for compatibility-POLICY identity/version
+  and applicability/activation is untouched and explicitly re-cited as distinct
+  from evaluator-Grant authority in the new SS9 wording -- the two authority
+  concepts are never conflated.
+```
+
+### Evaluator architecture unchanged
+
+```text
+contract-compatibility-authority: module_type compute_engine,
+  owns_authoritative_state: true, depends_on: [] -- all unchanged.
+Parts A (computation) and B (Compatibility Result issuance) remain in one
+  cohesive module; Part C remains out of scope.
+All four candidate rejections (review-evidence-service, command-query-api-
+  surface, plugin-release-manager, decision-evaluation-engine) unchanged, not
+  reopened.
+Module-count future consequence (25 -> 26) and deferred Package 1.1 alignment
+  unchanged.
+```
+
+### Declaration/Grant separation confirmation
+
+```text
+Unchanged and reinforced: this ADR resolves Declaration tier only. module
+  identity != evaluator grant; Declaration -> Grant -> Enforcement ->
+  Verification; granted subseteq declared. No operational Grant issued, no
+  Compatibility Result created by this transaction.
+```
+
+### Sections touched
+
+```text
+Banner (new v0.5 paragraph), SS9 (Grant paragraph -- MANIFEST-for-Grant claim
+  removed, replaced with bounded future-transaction requirement and explicit
+  policy-authority/Grant-authority separation). SS1-SS8, SS10-SS16 confirmed
+  byte-identical.
+```
+
+### Validation
+
+```text
+Starting HEAD and ADR-023.md v0.4 blob matched before editing.
+Exactly three files changed: docs/adr/ADR-023.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md (git status --porcelain confirmed).
+ADR-023 confirmed becomes v0.5, status remains Draft.
+MANIFEST confirmed no longer pre-designated as evaluator Grant authority/
+  applicability source.
+ADR-022 SS5.2 MANIFEST policy-authority designation confirmed untouched.
+Future Grant transaction confirmed must establish canonical Grant authority
+  explicitly -- no mechanism invented.
+Evaluator placement unchanged; Compute Engine taxonomy unchanged; Parts A+B
+  unchanged.
+No ADR-024 created; no Package 1.1 alignment performed (module-registry.yaml,
+  system-decomposition.md confirmed git diff --quiet empty); no Compatibility
+  Result created.
+docs/adr/ADR-022.md and docs/architecture/api-architecture.md confirmed
+  untouched (git diff --quiet empty).
+QG-P14-E-EVID-01 and G2-RDY-BLK-03 confirmed remain open; Phase 1 Quality Gate
+  remains FAIL -- evidence; Gate 2 remains closed.
+```
+
 ## [Unreleased] — 2026-08-10 — ADR-023 v0.4 final root-cause taxonomy correction
 
 **Bounded correction — vai trò: `ADR-023 v0.4 Final Root-Cause Taxonomy Correction Executor`.** Applies the exact minimum correction established by the read-only ADR-023 Evaluator Taxonomy Root-Cause Check (`OPTION_A_COMPUTE_ENGINE`). Keeps the dedicated evaluator boundary selected at v0.3 (`contract-compatibility-authority`), correcting only its primary taxonomy and the reasoning that depends on it. Does not create ADR-024, does not split computation from result issuance, does not grant evaluator authority, does not create a Compatibility Result.
