@@ -2,6 +2,114 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1.5 Execution Rules v0.2: Product Owner ACCEPTED (`operational_state` DRAFT -> EFFECTIVE)
+
+**Mechanical lifecycle/evidence recording — vai trò: `Phase 1.5 Rules Acceptance Recorder`.** Records the Product Owner decision "I accept Phase 1.5 Execution Rules v0.2" for `docs/governance/phases/phase-1.5-rules.md`. No rule semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:              e0ee6cd504cb7161c038f1a8a9aa04309b3161f6
+Reviewed semantic candidate: version 0.2, operational_state DRAFT,
+                              accepted_by/accepted_at PENDING,
+                              blob 8b2380a64053ff58743d8d07b4ea775c7d1c1a6e
+Review state going in:       Review A CLEAN (after EF-RULES-A-MAJ-01),
+                              Independent Review B
+                              READY_FOR_PRODUCT_OWNER_ACCEPTANCE,
+                              Blocker/Major/Minor 0/0/0
+```
+
+### G-VERIFY-001 applied
+
+```text
+Verified directly before recording: starting HEAD matches; blob of
+  docs/governance/phases/phase-1.5-rules.md on disk (git hash-object)
+  matches the stated reviewed candidate 8b2380a6... exactly before any
+  edit was made.
+```
+
+### Acceptance recorded
+
+```text
+Decision:            "I accept Phase 1.5 Execution Rules v0.2."
+operational_state:   DRAFT -> EFFECTIVE
+accepted_by:         PENDING -> Product Owner
+accepted_at:         PENDING -> "2026-08-10"
+version:              0.2 (NOT bumped -- pure mechanical acceptance,
+                      same pattern as ADR-023 v0.5 approval, Chapter 11
+                      §11.4)
+```
+
+### Reviewed candidate vs resulting lifecycle-record blob (G-ID-001)
+
+```text
+Reviewed semantic candidate blob (unchanged, what was reviewed):
+  8b2380a64053ff58743d8d07b4ea775c7d1c1a6e
+Resulting lifecycle-record blob (after this transaction edits
+  operational_state/accepted_by/accepted_at/§Product Owner acceptance/
+  §Change history/preamble lifecycle note -- metadata/prose only, no rule
+  text):
+  7d136ad0e3348d13d8f913b7a0b69fec267c93de
+These two blobs are deliberately different and both recorded explicitly
+  -- not conflated.
+```
+
+### Files changed
+
+```text
+docs/governance/phases/phase-1.5-rules.md  (lifecycle metadata +
+                                            acceptance section + change
+                                            history only; EF-* rule text
+                                            byte-equivalent)
+docs/MANIFEST.md                            (row updated to EFFECTIVE/
+                                            Product Owner/2026-08-10 +
+                                            confirmation note;
+                                            manifest_version 10.71 -> 10.72)
+docs/CHANGELOG.md                           (this entry)
+```
+
+### Preserved unchanged
+
+```text
+No EF-* rule semantics modified (git diff confirms only lifecycle/
+  acceptance/history/preamble regions changed). No rule ID added or
+  removed. No Phase 1.5 DoD or execution plan created -- not inferred as
+  satisfied by this transaction. Phase 2 rules (including its separate
+  §14.3 citation issue), ADRs, Constitution, architecture packages,
+  Global Execution Rules, Gate 2 decision, and retrospective evidence:
+  untouched (git diff --quiet). Phase 1 not reopened.
+```
+
+### Result
+
+```text
+docs/governance/phases/phase-1.5-rules.md:  version 0.2, EFFECTIVE,
+                                             accepted_by Product Owner,
+                                             accepted_at 2026-08-10
+Phase 1.5 substantive governed work:         rule-acceptance prerequisite
+                                             SATISFIED; DoD/execution
+                                             plan still separately
+                                             required
+Phase 2 -- Product Prototype:                NOT AUTHORIZED (unchanged)
+LIVE:                                        NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after and reviewed candidate
+  blob:                                        CONFIRMED (git-verified)
+Decision matches v0.2:                         CONFIRMED
+Only lifecycle/acceptance/history changed:      CONFIRMED (git diff)
+EF-* rule semantics byte-equivalent elsewhere:   CONFIRMED
+Resulting state EFFECTIVE:                      CONFIRMED
+accepted_by = Product Owner,
+  accepted_at = 2026-08-10:                     CONFIRMED
+Reviewed candidate vs resulting blob both
+  recorded, not conflated:                      CONFIRMED
+Phase 2/LIVE not authorized:                    CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1.5 rules bounded correction: `EF-RULES-A-MAJ-01` CLOSED
 
 **Bounded semantic correction — vai trò: `Phase 1.5 Rules Bounded Correction Executor`.** Fixes `EF-TXN-001` in `docs/governance/phases/phase-1.5-rules.md`, which read as constraining Phase 1.5's Engineering Foundation scope to only what Phase 2 immediately needs.

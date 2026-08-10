@@ -2,10 +2,10 @@
 id: phase-1.5-rules
 title: "Phase 1.5 — Engineering Foundation: Execution Rules"
 version: "0.2"
-operational_state: DRAFT
+operational_state: EFFECTIVE
 owner: Product Owner
-accepted_by: PENDING
-accepted_at: PENDING
+accepted_by: Product Owner
+accepted_at: "2026-08-10"
 created_at: "2026-08-10"
 phase: 1.5
 phase_name: "Engineering Foundation"
@@ -13,27 +13,50 @@ phase_name: "Engineering Foundation"
 
 # Phase 1.5 — Engineering Foundation: Execution Rules
 
-**Vai trò của tài liệu này:** per-phase operational execution rule cho Phase 1.5 — Engineering Foundation (Chapter 14 §14.2: Monorepo · Coding Standard · Naming · Logging · Config · Error Handling · Testing · CI/CD; "tài liệu SỐNG, sửa qua ADR"), đúng khung `docs/governance/phases/phase-rules-template.md`. Document này LÀ `DRAFT` — **KHÔNG PHẢI EFFECTIVE** — vì transaction này CHỈ author nội dung, KHÔNG fabricate Product Owner acceptance. Đúng template's mandatory rule (fail-closed "criteria defined before used"), Phase 1.5 substantive governed work VẪN KHÔNG được phép bắt đầu cho tới khi một transaction riêng ghi nhận Product Owner acceptance tường minh cho chính văn bản này.
+**Vai trò của tài liệu này:** per-phase operational execution rule cho Phase 1.5 — Engineering Foundation (Chapter 14 §14.2: Monorepo · Coding Standard · Naming · Logging · Config · Error Handling · Testing · CI/CD; "tài liệu SỐNG, sửa qua ADR"), đúng khung `docs/governance/phases/phase-rules-template.md`. Document này LÀ `EFFECTIVE` kể từ Product Owner acceptance (2026-08-10, xem §Product Owner acceptance dưới) — v0.2 semantic candidate (Review A `CLEAN` sau khi đóng `EF-RULES-A-MAJ-01`, Independent Review B `READY_FOR_PRODUCT_OWNER_ACCEPTANCE`, Blocker 0/Major 0/Minor 0) accepted nguyên vẹn, KHÔNG sửa rule semantics nào tại transaction acceptance này.
 
 **Stable-ID prefix `EF-` (KHÔNG dùng `P15-`):** verify trực tiếp (đúng `G-VERIFY-001`) tại chính transaction này cho thấy `P15-` ĐÃ mang nghĩa khác trong repository — `P15-BCC-MAJ-01`/`P15-A-MAJ-01..02`/`P15-A-MIN-01..02` (CHANGELOG.md, MANIFEST.md) là finding ID của **Package 1.5** (`database-architecture.md` v0.3, một architecture package BÊN TRONG Phase 1), hoàn toàn khác **Phase 1.5** (Engineering Foundation, Phase kế tiếp sau Phase 1). Tái dùng `P15-` cho rule ID tại đây sẽ vi phạm nguyên tắc "Stable rule ID KHÔNG BAO GIỜ tái sử dụng cho một nghĩa khác" (`phase-rules-template.md` §Ràng buộc chung). Rule tại đây dùng prefix `EF-` (Engineering Foundation) để tránh collision này tường minh.
 
 ```text
 phase:              1.5
 phase_name:         Engineering Foundation
-operational_state:  DRAFT
-accepted_by:        PENDING — CHƯA có Product Owner acceptance transaction
-accepted_at:        PENDING
+operational_state:  EFFECTIVE
+accepted_by:        Product Owner
+accepted_at:        2026-08-10
 ```
 
 ## Product Owner acceptance
 
 ```text
-Document này CHƯA được Product Owner accept. KHÔNG accepted_by/accepted_at
-  nào được fabricate tại transaction này. Đúng phase-rules-template.md's
-  mandatory rule (fail-closed): Phase 1.5 substantive governed work KHÔNG
-  được phép bắt đầu cho tới khi một transaction riêng biệt ghi nhận quyết
-  định Product Owner accept văn bản này — operational_state chuyển
-  DRAFT -> EFFECTIVE CHỈ tại transaction acceptance đó, KHÔNG tự động.
+Quyết định: "I accept Phase 1.5 Execution Rules v0.2." (Product Owner,
+  2026-08-10)
+
+Reviewed semantic candidate (KHÔNG đổi bởi acceptance transaction này):
+  version:  0.2
+  blob:     8b2380a64053ff58743d8d07b4ea775c7d1c1a6e
+  Review A:               CLEAN (sau khi đóng EF-RULES-A-MAJ-01)
+  Independent Review B:   READY_FOR_PRODUCT_OWNER_ACCEPTANCE
+  Blocker / Major / Minor: 0 / 0 / 0
+
+Resulting lifecycle-record (blob SAU khi transaction acceptance này edit
+  operational_state/accepted_by/accepted_at/§Product Owner acceptance/
+  §Change history — prose/metadata field, KHÔNG rule semantics):
+  version:              0.2 (KHÔNG bump — pure mechanical acceptance,
+                        cùng pattern ADR-023 v0.5 approval, Chapter 11
+                        §11.4)
+  operational_state:    DRAFT -> EFFECTIVE
+  blob:                 xem MANIFEST.md row cho blob chính xác sau commit
+                        này (đúng G-ID-001 — reviewed semantic blob ≠
+                        resulting lifecycle-record blob, PHẢI phân biệt
+                        tường minh)
+
+KHÔNG rule EF-* nào sửa semantics tại transaction acceptance này (byte-
+  equivalent ngoài vùng operational_state/accepted_by/accepted_at/§Product
+  Owner acceptance/§Change history). Kể từ acceptance này: Phase 1.5
+  substantive governed work KHÔNG còn bị block bởi rule-acceptance
+  prerequisite (đúng phase-rules-template.md's mandatory rule) — CÁC
+  prerequisite KHÁC (Phase 1.5 DoD, execution plan...) KHÔNG được suy diễn
+  là satisfied bởi transaction này, CHƯA tồn tại, cần transaction riêng.
 ```
 
 ## Inherited Global Rules
@@ -289,4 +312,22 @@ v0.2  2026-08-10  Bounded semantic correction, đóng `EF-RULES-A-MAJ-01`.
       `EF-BUDGET-001`/`EF-VERIFY-001`/`EF-RETRO-001`) sửa semantic.
       `operational_state` VẪN `DRAFT`, accepted_by/accepted_at VẪN
       `PENDING` — KHÔNG mark EFFECTIVE tại transaction này.
+ACCEPTANCE  2026-08-10  Product Owner acceptance — mechanical lifecycle
+      recording, vai trò: `Phase 1.5 Rules Acceptance Recorder`. Quyết
+      định: "I accept Phase 1.5 Execution Rules v0.2." Reviewed semantic
+      candidate: v0.2, blob `8b2380a64053ff58743d8d07b4ea775c7d1c1a6e`
+      (Review A `CLEAN` sau `EF-RULES-A-MAJ-01`, Independent Review B
+      `READY_FOR_PRODUCT_OWNER_ACCEPTANCE`, Blocker/Major/Minor 0/0/0).
+      `operational_state: DRAFT -> EFFECTIVE`, `accepted_by: PENDING ->
+      Product Owner`, `accepted_at: PENDING -> "2026-08-10"`. `version`
+      KHÔNG bump (pure mechanical acceptance, cùng pattern ADR-023 v0.5
+      approval, Chapter 11 §11.4) — VẪN `0.2`. KHÔNG rule EF-* nào sửa
+      semantics (thay đổi CHỈ nằm ở operational_state/accepted_by/
+      accepted_at/§Product Owner acceptance/§Change history/preamble
+      lifecycle note — đúng G-ID-001, reviewed semantic blob
+      `8b2380a64...` ≠ resulting lifecycle-record blob sau transaction
+      này). Phase 1.5 substantive governed work KHÔNG còn bị block bởi
+      rule-acceptance prerequisite — prerequisite KHÁC (DoD, execution
+      plan) CHƯA tồn tại, KHÔNG suy diễn satisfied. KHÔNG authorize
+      Phase 2/LIVE, KHÔNG reopen Phase 1.
 ```
