@@ -2,6 +2,131 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — ADR-024 authored (Draft): Repository Topology — Single Monorepo
+
+**ADR authoring — vai trò: `ADR-024 Monorepo Authoring Executor`.** Authors the ADR that `docs/engineering/monorepo.md` v0.3 §6 flagged as Required (Chapter 0 §4b / `EF-ADR-001`: the single-monorepo decision is platform-wide, affecting >1 module). Draft only — not approved.
+
+### Baseline
+
+```text
+Starting HEAD:  ec35cf26801f26266d0ed5a18339fab89fea2ff1
+Last existing ADR:  ADR-023.md (verified via `ls docs/adr/`)
+Monorepo candidate: docs/engineering/monorepo.md v0.3, status Draft,
+                    blob 9a71d2758189317e1b5234346fb3118e2b8c8e38,
+                    disposition ADR Required
+```
+
+### G-VERIFY-001 / G-ADR-004 applied
+
+```text
+Verified ADR-024 is the next unused identity (ls docs/adr/ shows
+  ADR-023 as the last file; docs/adr/ADR-024.md did not exist before
+  this transaction).
+Ran the G-ADR-004 inflation/scope check before authoring: existing
+  authority checked directly -- ADR-008 (Approved) pins language by
+  layer/capability only, says nothing about repository topology;
+  module-registry.yaml (Consolidated Stable) pins module identity/
+  dependency only, has no field for source-code location. Neither
+  resolves the gap -- genuine ADR trigger, not a reflex.
+Verified P1-ADR-001 (Phase 1's ADR ceiling) is explicitly scoped to
+  "before Gate 2" (phase-1-rules.md); Gate 2 has PASSED and
+  current_phase (MANIFEST frontmatter) is now "Phase 1.5 -- Engineering
+  Foundation" -- the ceiling does not apply to this ADR.
+```
+
+### New file (Draft, not approved)
+
+```text
+docs/adr/ADR-024.md  (new, v0.1, status Draft)
+  blob: 9d6320c3d3b054d4896677683bebef527a315700
+  depends_on: [ADR-008]
+
+  Decision question: single monorepo (docs + all implementation source)
+    vs multiple repositories by language/service/domain.
+  Decision: single monorepo, root-level python/ and go/ per ADR-008's
+    existing language layers, module_id-named directories created only
+    when a module is actually built.
+  Scope stated precisely: repository TOPOLOGY only -- explicitly
+    distinguished from module taxonomy/dependency architecture, which
+    module-registry.yaml continues to own exclusively.
+  Authority preserved: module-registry.yaml (module identity/dependency
+    graph), ADR-008 (language allocation by layer/capability) -- neither
+    redefined. python//go/ roots framed as a derivative consequence of
+    ADR-008, not new language-allocation authority.
+  No module_id assigned a language: name-similarity to an ADR-008 layer
+    (e.g. feature-engine, market-data-ingestion) explicitly stated as
+    not sufficient evidence; grep-verified zero concrete module->
+    language pins anywhere in the ADR text.
+  Rust preserved reserved (ADR-008); no rust/ root created or implied.
+  Alternatives evaluated: multi-repo by language, by service/module, by
+    domain/bounded context -- each rejected with a stated reason;
+    single monorepo selected.
+  Risks/tradeoffs covered: shared-contract/version drift, repository
+    growth, CI scope/coupling, ownership boundaries, future multi-team
+    scaling.
+  Scale Check included (mandatory), with an explicit reason_if_no
+    condition for future re-evaluation.
+  Consequences stated for docs/engineering/monorepo.md if ADR-024 is
+    later approved: a separate alignment transaction would be needed to
+    point monorepo.md's authority at ADR-024 and, separately, for the
+    Product Owner to accept monorepo.md itself -- neither happens
+    automatically on ADR approval.
+  Independent reviews table left blank -- no review performed yet.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-024.md  (new)
+docs/MANIFEST.md      (compact ADR-table row added, matching the
+                      ADR-001..022 short-row convention rather than
+                      ADR-023's oversized legacy cell, which this
+                      transaction does not touch; manifest_version
+                      10.75 -> 10.76)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+docs/engineering/monorepo.md, python/README.md, go/README.md: byte-
+  identical -- not touched by this transaction. ADR-008, module-
+  registry.yaml, every other architecture package, ADR-001..023,
+  Constitution, Global Execution Rules, Phase 2/1.5 rules, Gate 2
+  decision, retrospective evidence: byte-identical (git diff --quiet).
+  No Coding Standard or other Engineering Foundation category touched.
+  No workspace/package-manager tooling created. No Phase 1.5 DoD
+  created. Phase 1 not reopened.
+```
+
+### Result
+
+```text
+docs/adr/ADR-024.md:            v0.1, status Draft, NOT approved
+Monorepo candidate
+  (docs/engineering/monorepo.md): still v0.3, Draft, unchanged
+Phase 2 -- Product Prototype:    NOT AUTHORIZED (unchanged)
+LIVE:                            NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after:                              CONFIRMED
+ADR-024 is next unused identity:                 CONFIRMED (ls docs/adr/)
+ADR Scope Rule genuinely requires this ADR:       CONFIRMED (G-ADR-004
+  check above)
+Monorepo v0.3 identity/state re-verified:         CONFIRMED
+ADR-008 exact authority boundary re-verified:     CONFIRMED
+No module->language mapping invented:            CONFIRMED (grep clean)
+No module taxonomy/dependency change:             CONFIRMED (git diff
+  --quiet on module-registry.yaml)
+ADR follows template, includes Scale Check:       CONFIRMED
+ADR remains Draft:                                CONFIRMED
+Diff bounded to ADR-024 + bookkeeping:            CONFIRMED
+Phase 2/LIVE unchanged:                          CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Monorepo convention bounded correction: Independent Review B `EF-MONO-B-MAJ-01`/`EF-MONO-B-MAJ-02` CLOSED
 
 **Bounded correction — vai trò: `Phase 1.5 Monorepo Foundation Bounded Correction Executor`.** Fixes two Major findings from Independent Review B (verdict `NOT_READY`) on `docs/engineering/monorepo.md` v0.2. Does not author the required ADR.
