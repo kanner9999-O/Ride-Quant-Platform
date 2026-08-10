@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.66"
+manifest_version: "10.67"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -288,6 +288,162 @@ reopen bất kỳ Phase 0 package nào (0.2-A/B1-B4/C1-C7, 0.3-A/B/C đều byte
 ```
 
 **Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state. Sau atomic boundary này, evidence bị mất/hỏng là integrity violation, KHÔNG tự động đảo ngược quyết định (§14.4.2).
+
+## Phase 1 Approval Gate — Decision (immutable Phase-decision bundle, Chapter 14 §14.4.1–§14.4.2)
+
+**Gate decision source HEAD:** `5d3d68dbdadbe727aebf8d73f49d1ec0a448ac43`. **Reviewed Gate boundary:** `b39d0b6deea34856f3f69f71bf5da31161cf1414`.
+
+**Prepared content — Chapter 14 authority (pinned directly here, §14.4.1):**
+
+```text
+Canonical Phase identity:                Phase 1 — System Architecture
+Exact Roadmap version/content identity:  Chapter 14 — Roadmap, v1.6, Locked
+Exact accepted-DoD identity/content
+  version incorporated (§14.3.1):        docs/phase-dod/phase-1-dod.md v0.1
+                                          accepted substantive blob
+                                          31353882424f4db7d6ed6008cedd503f627d53d4
+                                          post-acceptance blob
+                                          2e184d92c8f96b18abe51963a6de6bf63196b703
+                                          status Approved, approved_by Product Owner,
+                                          approved_at 2026-08-07
+Exact gate-set declaration resolved
+  (§14.4, from the incorporated DoD §2):  Trigger A (universal invariant conformance,
+                                          toàn bộ 9 package) + Trigger D (điều kiện,
+                                          Package 1.2/1.3-D, chưa concretely triggered
+                                          tại boundary này) + Trigger E (Package 1.4
+                                          áp dụng tường minh — PASS, xem
+                                          governance/quality-gate/qg-p14-trigger-e-
+                                          reevaluation-001.md; Package 1.1/1.5/1.3-C
+                                          điều kiện) — Trigger B/C not applicable
+                                          (deferred tới Phase 3, không executable
+                                          implementation tại Phase 1)
+```
+
+**Prepared content — reference-only, authority của chapter khác (bundle chỉ REFERENCE, không redefine):**
+
+```text
+Product Owner DoD-acceptance evidence (Chapter 0 §3):     phase-1-dod.md v0.1
+                                                            acceptance transaction,
+                                                            2026-08-07, xem row phía
+                                                            trên (section Phase DoD)
+Required/submitted deliverable evidence (Chapter 12 §12.1): 9/9 Phase 1 package
+                                                            Consolidated Stable (1.1,
+                                                            1.2, 1.3-A/B/C/D, 1.4, 1.5,
+                                                            1.6 — xem section
+                                                            Architecture phía trên)
+Applicable Quality Gate result (Chapter 13 §13.9):         PASS —
+                                                            governance/quality-gate/
+                                                            qg-p14-trigger-e-
+                                                            reevaluation-001.md v1.0,
+                                                            blob
+                                                            0cde05c70b47ae975db34ea8b
+                                                            9e3df37e513f1d8
+                                                            (`QG-P14-E-EVID-01` CLOSED)
+Backward Consistency Check result (Chapter 12 §12.4):      NO CONFLICT AT
+                                                            BLOCKER/MAJOR LEVEL —
+                                                            governance/bcc/phase1-bcc-
+                                                            001.md v1.0 (gốc, CONFLICT
+                                                            found) + governance/bcc/
+                                                            phase1-bcc-001-followup-
+                                                            001.md v1.0 (`P15-BCC-MAJ-01`
+                                                            RESOLVED, current verdict NO
+                                                            CONFLICT AT BLOCKER/MAJOR
+                                                            LEVEL)
+Validator/freshness result (Chapter 11 §11.9):             pass — MANIFEST/CHANGELOG
+                                                            bookkeeping kept current
+                                                            throughout Phase 1 (xem
+                                                            G2-RDY-MAJ-01/MAJ-02/MIN-01
+                                                            closure, 2026-08-07)
+Independent review evidence (Chapter 0 §3):
+  Phase 1 Gate Review record:                              governance/gate-review/
+                                                            phase1-gate-review-001.md
+                                                            v1.0, blob
+                                                            2d612ab130025fa42056624c26
+                                                            b4b0e285861ee8
+  Review boundary:                                          b39d0b6deea34856f3f69f71bf
+                                                            5da31161cf1414
+  Review A (ChatGPT, AI Technical Architect):                CLEAN / READY
+  Independent Review B (Claude, alias "Independent Review
+    B", AI Technical Architect):                             PHASE1_GATE_REVIEW_B_READY
+  Blocker:                                                    0
+  Major:                                                      0
+  Minor (new):                                                0
+Product Owner decision fact:                                "I approve Phase 1 / Gate 2
+                                                            and accept the 6 Minor
+                                                            residual risks."
+```
+
+**Residual-risk acceptance (Chapter 0 §3, `phase-1-dod.md` §7 — CHỈ Minor được phép remain open qua Product Owner acceptance tường minh):**
+
+```text
+Accepted findings:  P1X-BCC-MIN-01, P1X-BCC-MIN-02, P1X-BCC-MIN-03,
+                    P1X-BCC-MIN-04, P1X-BCC-MIN-05, P1X-BCC-MIN-06
+                    (governance/bcc/phase1-bcc-001.md §6.3 — cosmetic
+                    Package 1.1 version-label staleness tại 1.3-A/B/C/D,
+                    1.2, 1.4/1.6; KHÔNG semantic contradiction, mọi module
+                    field cited vẫn field-identical với registry hiện tại)
+Acceptance decision: Product Owner đã tường minh chấp nhận rủi ro tồn đọng
+                    ("accept the 6 Minor residual risks") — đúng
+                    phase-1-dod.md §7's yêu cầu tường minh, KHÔNG ngầm
+                    định, KHÔNG suy diễn từ im lặng.
+Resulting status:    sáu finding trên VẪN OPEN, carried forward — KHÔNG bị
+                    đóng SAI ("closed"/"resolved") bởi acceptance này;
+                    acceptance CHỈ cho phép chúng KHÔNG chặn Gate 2, KHÔNG
+                    tự động resolve nội dung finding.
+```
+
+**Resulting MANIFEST transition (authoritative TẠI atomic recording boundary — commit này, cùng lúc với bundle phía trên, §14.4.2):** `manifest_version` `10.66` → `10.67`. `current_phase` KHÔNG đổi — VẪN `"Phase 1 — System Architecture"` (Phase 2 substantive work CHƯA authorized, §12.1/§12.2 dưới — Gate 2 PASSED KHÔNG tự động chuyển `current_phase`, phân biệt tường minh KHỎI Phase 0→1 transition trước đó, nơi "Authorized to Begin" cấp NGAY LẬP TỨC).
+
+**Recorded state transition:**
+
+```text
+Phase 1 — System Architecture:      APPROVED
+Gate 2:                              PASSED
+```
+
+**"Gate 2 PASSED" nghĩa là gì:** Product Owner đã quyết định Phase 1 deliverable đạt eligibility đầy đủ (8-điều kiện Chapter 12 §12.2 — DoD accepted, deliverable complete, dependency state phù hợp, ADR closure, Quality Gate PASS, BCC NO CONFLICT, validator/freshness pass, hai independent review complete) VÀ approve — nhưng đây LÀ Gate 2 (transition MECHANISM), KHÔNG tự động LÀ Phase 2 substantive work authorization (§12.1 dưới).
+
+## 12.1 Phase 1 retrospective — REQUIRED trước Phase 2 substantive work
+
+```text
+Đúng P1-RETRO-001 (governance/phases/phase-1-rules.md §Retrospective
+  requirement): TRƯỚC KHI Phase 2 substantive work bắt đầu, PHẢI thực hiện
+  một Phase 1 process retrospective (wasted transaction, avoidable ADR,
+  repeated review cycle, prompt-size problem, bookkeeping defect, rule
+  hữu ích/thất bại, rule nên promote Global, Phase-2-specific control mới)
+  — đòi hỏi một transaction riêng thực hiện nó, KHÔNG tự động đóng.
+Retrospective: REQUIRED, CHƯA thực hiện tại transaction này.
+```
+
+## 12.2 Phase 2 / LIVE authorization state
+
+```text
+Phase 2 substantive work:  NOT YET AUTHORIZED — chờ (a) Phase 1
+                           retrospective (§12.1 trên) VÀ (b) một explicit
+                           Phase 2 start/authorization transaction riêng
+                           biệt (Product Owner decision, chưa thực hiện).
+LIVE:                       NOT AUTHORIZED — Gate 2 passing KHÔNG tự nó
+                           authorize LIVE dưới bất kỳ hình thức nào (đúng
+                           nguyên tắc PAPER-only/LIVE Unauthorized đã giữ
+                           xuyên suốt toàn bộ Phase 1).
+```
+
+**Transaction này KHÔNG:**
+
+```text
+authorize LIVE
+rerun Review A/Independent Review B
+rerun Phase 1 Quality Gate
+rerun Phase-wide Backward Consistency Check
+sửa architecture/package semantics nào
+sửa ADR nào
+resolve sáu Minor finding (VẪN OPEN, carried forward, §trên)
+thực hiện Phase 1 retrospective (§12.1 trên, REQUIRED nhưng CHƯA thực hiện)
+bắt đầu Phase 2 substantive work
+đóng OQ-001, OQ-002, hay OQ-003
+```
+
+**Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên, KHÔNG đổi) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state. Sau atomic boundary này, evidence bị mất/hỏng là integrity violation, KHÔNG tự động đảo ngược quyết định (§14.4.2).
 
 ## Decision Log
 

@@ -2,6 +2,99 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1 APPROVED, Gate 2 PASSED (Product Owner decision)
+
+**Phase Approval Gate decision — vai trò: `Phase 1 / Gate 2 Product Owner Decision Recorder`.** Records the Product Owner decision "I approve Phase 1 / Gate 2 and accept the 6 Minor residual risks" as the immutable Phase-decision bundle (Chapter 14 §14.4.1–§14.4.2), following the exact structure established for the Phase 0 → Phase 1 decision. Mechanical lifecycle/decision bookkeeping only.
+
+### Baseline
+
+```text
+Starting HEAD:            5d3d68dbdadbe727aebf8d73f49d1ec0a448ac43
+Reviewed Gate boundary:     b39d0b6deea34856f3f69f71bf5da31161cf1414
+Prerequisites (re-cited, not re-verified):
+  Phase 1 Quality Gate:     PASS
+  Phase-wide BCC:            NO CONFLICT at Blocker/Major level
+  G2-RDY-BLK-01..04:          all CLOSED
+  Unresolved Blocker/Major:   0
+```
+
+### New MANIFEST section
+
+```text
+"Phase 1 Approval Gate — Decision" — mirrors the existing "Phase 0
+  Approval Gate — Decision" section exactly (prepared Chapter 14 content,
+  reference-only bundle citations, resulting state transition, explicit
+  non-inclusion list) -- lives in MANIFEST.md itself, no separate file,
+  same convention as the Phase 0 decision.
+manifest_version: "10.66" -> "10.67"
+current_phase: unchanged ("Phase 1 — System Architecture") -- Phase 2 has
+  not been authorized to begin, unlike the Phase 0 -> Phase 1 transition.
+```
+
+### Recorded decision
+
+```text
+Phase 1 — System Architecture:   APPROVED
+Gate 2:                           PASSED
+```
+
+### Residual-risk acceptance
+
+```text
+Accepted: P1X-BCC-MIN-01..06 (cosmetic Package 1.1 version-label
+  staleness, no semantic contradiction) -- Product Owner explicitly
+  accepted these six residual risks, per phase-1-dod.md §7's requirement
+  for explicit (not implicit) acceptance.
+Resulting status: all six findings remain OPEN, carried forward -- NOT
+  falsely marked closed/resolved by this acceptance. Acceptance only
+  permits them to not block Gate 2.
+```
+
+### Resulting state
+
+```text
+Phase 1 retrospective:      REQUIRED before substantive Phase 2 work
+                            (P1-RETRO-001, phase-1-rules.md), NOT yet
+                            performed.
+Phase 2 substantive work:    NOT YET AUTHORIZED -- pending (a) the
+                            retrospective and (b) a separate explicit
+                            Phase 2 start/authorization transaction.
+LIVE:                         NOT AUTHORIZED -- Gate 2 passing does not
+                            itself authorize LIVE (PAPER-only/LIVE
+                            Unauthorized principle unchanged).
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md    (new "Phase 1 Approval Gate — Decision" section,
+                     manifest_version bump)
+docs/CHANGELOG.md    (this entry)
+```
+
+### Preserved unchanged
+
+```text
+All Phase 1 packages, module-registry.yaml, all ADRs, all governance
+  evidence records (Grant, evaluator, Compatibility Results, reevaluation
+  record, both BCC records, gate review record): all byte-identical, not
+  modified. No Review A/B rerun, no Quality Gate rerun, no BCC rerun.
+```
+
+### Validation
+
+```text
+HEAD before/after:                          CONFIRMED
+Product Owner decision recorded verbatim:     CONFIRMED
+Residual-risk acceptance recorded, findings
+  NOT falsely closed:                         CONFIRMED
+No architecture/package/ADR semantics
+  modified:                                    CONFIRMED (git diff --quiet)
+No review/QG/BCC rerun:                        CONFIRMED
+No Phase 2 substantive work started:           CONFIRMED
+No LIVE authorization:                          CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1 Phase-level Gate Review recorded: `G2-RDY-BLK-04` CLOSED, Gate 2 prerequisites COMPLETE
 
 **Gate review evidence record — vai trò: `Phase 1 Gate Review Evidence Recorder`.** Records the completed Phase-level Gate Review A + Independent Review B and closes `G2-RDY-BLK-04`. Does not rerun any review, the Quality Gate, or the BCC, and does not make the Product Owner Gate 2 decision.
