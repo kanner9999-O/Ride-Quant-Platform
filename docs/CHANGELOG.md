@@ -2,6 +2,103 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — ADR-023 v0.5 APPROVED (Product Owner decision)
+
+**Mechanical approval — vai trò: `ADR-023 v0.5 Mechanical Approval Executor`.** Records the Product Owner decision "APPROVE ADR-023 V0.5". Lifecycle transition only: `status: Draft -> Approved`, `approved_by: null -> Product Owner`, `approved_at: null -> "2026-08-10"`. Version does not bump for pure approval (Chapter 11 SS11.4). No architecture semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:                    53ae176339ce7d90a7ab67dfe84e2596adfe3ac5
+docs/adr/ADR-023.md v0.5 blob:    9fd69c7f48abdc3f33502d094bb9f34e084d009f (verified matched, Draft)
+```
+
+### Review state established before approval
+
+```text
+Review A:               CLEAN (ADR023-A-MAJ-01 closed at v0.2, ADR023-A2-MAJ-01
+                         closed at v0.3, root-cause taxonomy issue
+                         OPTION_A_COMPUTE_ENGINE applied/closed at v0.4)
+Independent Review B:   initial v0.4 REVISE (ADR023-B-MAJ-01); v0.5 bounded SS9
+                         correction CLEAN
+Final:                   Blocker 0, Major 0, Minor 0 -- READY FOR PRODUCT OWNER
+                         APPROVAL
+```
+
+### Lifecycle change
+
+```text
+docs/adr/ADR-023.md:
+  version:      "0.5"           UNCHANGED
+  status:       Draft        -> Approved
+  approved_by:  null         -> Product Owner
+  approved_at:  null         -> "2026-08-10"
+Resulting blob: 9fd69c7f48abdc3f33502d094bb9f34e084d009f
+             -> 623ac8f9d048ad42158e2979e8646bf9bd2c8be7
+Changed sections: frontmatter (status/approved_by/approved_at), top banner
+  (DRAFT -> APPROVED lifecycle notice), SS15 (Independent reviews table +
+  Product Owner decision record). No other section touched.
+```
+
+### Preserved unchanged
+
+```text
+contract-compatibility-authority: module_type compute_engine,
+  owns_authoritative_state: true, depends_on: [] -- unchanged.
+Parts A (computation) and B (Compatibility Result issuance) remain in one
+  cohesive module; Part C remains out of scope.
+All four candidate rejections unchanged, not reopened.
+ADR-022 policy root, MANIFEST compatibility-policy authority (SS5.2) --
+  unchanged, not redefined.
+Evaluator-Grant authority -- still unresolved, left to a future governed
+  Grant transaction (not created here).
+Declaration -> Grant -> Enforcement -> Verification tiering, granted subset
+  declared, anti-self-certification -- all unchanged.
+```
+
+### Not implied by this approval
+
+```text
+contract-compatibility-authority is NOT registered in Package 1.1
+  (module-registry.yaml/system-decomposition.md byte-identical, git diff
+  empty).
+No evaluator operational Grant exists.
+No Compatibility Result exists.
+Trigger E does not pass. Quality Gate does not pass. Gate 2 does not open.
+Phase 2 is not authorized.
+```
+
+### Residual state (unchanged)
+
+```text
+QG-P14-E-EVID-01:          OPEN
+G2-RDY-BLK-03:              OPEN
+Phase 1 Quality Gate:       FAIL -- evidence
+Gate 2:                     CLOSED
+Phase 2:                    NOT AUTHORIZED
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-023.md   (frontmatter + banner + SS15 only)
+docs/MANIFEST.md      (ADR-023 row: status marker + new approval-record
+                       paragraph)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Validation
+
+```text
+Starting HEAD exact match:                 CONFIRMED
+Pre-approval blob exact match:              CONFIRMED
+Exactly three authorized files changed:     CONFIRMED
+Version unchanged ("0.5"):                  CONFIRMED
+module-registry.yaml/system-decomposition.md/api-architecture.md/ADR-022/
+  Constitution/Quality Gate evidence/execution rules byte-identical:
+  CONFIRMED (git diff --quiet)
+```
+
 ## [Unreleased] — 2026-08-10 — ADR-023 v0.5 bounded Grant-authority correction (`ADR023-B-MAJ-01` CLOSED)
 
 **Bounded correction — vai trò: `ADR-023 v0.5 Bounded Grant-Authority Correction Executor`.** Corrects an Independent Review B Major finding in ADR-023 v0.4: SS9's Grant paragraph prematurely designated MANIFEST as the authoritative source for future evaluator Grant activation/applicability, conflating it with ADR-022 SS5.2's separate, narrower compatibility-policy authority designation. Limited to SS9 wording. Does not reopen evaluator placement, taxonomy, Package 1.1, or create ADR-024.
