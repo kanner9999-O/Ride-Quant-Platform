@@ -1,7 +1,7 @@
 ---
 id: engineering-monorepo
 title: "Engineering Foundation — Monorepo Structure"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -55,36 +55,40 @@ Tài liệu này KHÔNG pre-create bất kỳ module directory nào — Roadmap
   speculative, vi phạm EF-TXN-001.
 ```
 
-## 4. Language assignment — chỉ resolve phần ĐÃ authoritative
+## 4. Language assignment — ADR-008 pins theo layer/capability, KHÔNG theo `module_id`
 
 ```text
-ADR-008 (Approved) chỉ named tường minh:
+[v0.2 sửa v0.1, đóng EF-MONO-A-MAJ-01 — xem §Change history.]
+
+ADR-008 (Approved) pin ngôn ngữ theo LAYER/CAPABILITY, verify trực tiếp
+  nguyên văn tại chính ADR-008.md §Decision:
   Python:  Feature Engineering · Strategy · Decision logic · Backtest
            Engine
   Go:      Market Data Ingestion · Risk Gateway · Execution Engine
+  Rust:    KHÔNG dùng ngay (reserved)
 
-Cross-reference trực tiếp (verify tại module-registry.yaml, KHÔNG suy
-  diễn) — các module_id sau ĐÃ resolve nhờ khớp tên/capability trực tiếp
-  với ADR-008:
-  Python:  feature-engine · strategy-engine · strategy-plugin-host ·
-           decision-evaluation-engine · decision-authority-service ·
-           backtest-orchestrator
-  Go:      market-data-ingestion · risk-gateway · execution-engine
+ADR-008 KHÔNG liệt kê bất kỳ module_id nào — ADR-008 approved 2026-07-18,
+  TRƯỚC KHI module-registry.yaml (v1.1, generated_at 2026-08-10) tồn tại.
+  Verify trực tiếp module-registry.yaml (grep toàn file): KHÔNG module
+  entry nào có field `language`/tương đương, KHÔNG entry nào reference
+  ADR-008. Do đó: tại thời điểm tài liệu này author, KHÔNG một module_id
+  nào (trong 26 module_id hiện có) được pin ngôn ngữ bởi authority hiện
+  hữu nào — kể cả các module_id CÓ TÊN nghe giống layer của ADR-008 (vd
+  `feature-engine`, `market-data-ingestion`, `risk-gateway`,
+  `execution-engine`...). Tên giống nhau KHÔNG PHẢI authority — đó là
+  suy diễn, KHÔNG PHẢI ADR-008 "trực tiếp named" module_id đó.
 
-TẤT CẢ module_id còn lại trong module-registry.yaml (17 module — vd
-  market-reference-service/structure-engine/raw-regime-engine/context-
-  aggregator/account-service/custody-signing-service/exchange-adapter/
-  plugin-release-manager/execution-result-processor/fill-processor/
-  position-projection/replay-integration-service/paper-execution-
-  boundary/command-query-api-surface/review-evidence-service/ux-
-  application-shell/contract-compatibility-authority) KHÔNG có language
-  assignment authoritative nào tại thời điểm tài liệu này author — CHƯA
-  resolve, KHÔNG suy đoán/gán tại đây (tránh reopen/mở rộng ADR-008 vượt
-  authority hiện có). Module build transaction (Phase 3) của từng module
-  PHẢI tự resolve language của chính nó tại thời điểm đó — bằng cách áp
-  layer principle của ADR-008 ("lõi logic" = Python, "biên hệ thống" =
-  Go) theo đúng bản chất capability của module, HOẶC mở một ADR mới nếu
-  thật sự ambiguous/không fit layer nào.
+Tài liệu này KHÔNG tự tạo một module→language mapping mới để lấp khoảng
+  trống đó (tránh tự tạo authority không thuộc phạm vi Monorepo
+  convention). Quy tắc CHUYỂN GIAO: một module_id CHỈ được đặt dưới
+  `python/` hoặc `go/` khi language của chính module đó đã được resolve
+  LEGITIMATELY — tức HOẶC (a) một authority hiện hữu khác pin trực tiếp
+  module đó (PHẢI verify trực tiếp trước khi dùng, KHÔNG suy diễn/mở
+  rộng thành mapping chung), HOẶC (b) một governed decision SAU này (Phase
+  3 build transaction của chính module đó, áp layer principle ADR-008
+  theo đúng bản chất capability, HOẶC một ADR mới nếu thật sự ambiguous/
+  không fit layer nào). KHÔNG đoán/gán trước cho bất kỳ module_id nào tại
+  tài liệu này.
 ```
 
 ## 5. Workspace/package-manager tooling — deferred
@@ -144,4 +148,25 @@ v0.1  2026-08-10  Established — vai trò: `Phase 1.5 Monorepo Foundation
       `status: Draft` — not self-approved (G-ORCH-002 no auto-approval);
       Product Owner review/approval is a separate transaction if
       desired.
+v0.2  2026-08-10  Bounded semantic correction, đóng `EF-MONO-A-MAJ-01`.
+      v0.1 §4 sai: presented một 6-Python/3-Go module_id mapping như
+      thể ADR-008 "trực tiếp named" các module_id đó — SAI, verify trực
+      tiếp cho thấy ADR-008 (approved 2026-07-18) pin ngôn ngữ theo
+      LAYER/CAPABILITY (Feature Engineering/Strategy/Decision logic/
+      Backtest Engine → Python; Market Data Ingestion/Risk Gateway/
+      Execution Engine → Go), KHÔNG liệt kê module_id nào — ADR-008 CÓ
+      TRƯỚC module-registry.yaml (v1.1). Verify trực tiếp
+      module-registry.yaml: KHÔNG entry nào có field `language`, KHÔNG
+      entry nào reference ADR-008. Sửa: bỏ hoàn toàn mapping 9-module_id
+      "đã resolve" — tường minh nói KHÔNG module_id nào (trong 26) được
+      pin ngôn ngữ bởi authority hiện hữu, tên module_id giống layer
+      ADR-008 KHÔNG PHẢI authority. KHÔNG tự tạo module→language mapping
+      mới thay thế — pin quy tắc chuyển giao: module_id CHỈ vào
+      `python/`/`go/` khi language của chính nó resolve legitimately
+      (authority hiện hữu verify trực tiếp, HOẶC governed decision sau
+      này tại Phase 3 build transaction/ADR mới). Preserved nguyên vẹn:
+      single-monorepo decision, root python/go convention, Rust
+      deferral, module_id-based directory naming. KHÔNG chạm §1/§2/§3/
+      §5/§6 semantics, KHÔNG EF category khác, KHÔNG module taxonomy/
+      dependency graph nào sửa. `status` VẪN `Draft`.
 ```

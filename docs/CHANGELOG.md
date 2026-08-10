@@ -2,6 +2,114 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Monorepo convention bounded correction: `EF-MONO-A-MAJ-01` CLOSED
+
+**Bounded semantic correction — vai trò: `Phase 1.5 Monorepo Foundation Bounded Correction Executor`.** Fixes an overclaimed module-language authority statement in `docs/engineering/monorepo.md` §4.
+
+### Baseline
+
+```text
+Starting HEAD:  245a4cd71aa606876164836b23ba231e9a48ad72
+Target:          docs/engineering/monorepo.md v0.1, status Draft,
+                 blob 0feefca9e2780ad143e2ade71587080f34675bca
+```
+
+### Finding closed: `EF-MONO-A-MAJ-01`
+
+```text
+v0.1 §4 claimed "6 Python-module_id + 3 Go-module_id already resolve
+  via direct cross-reference with ADR-008" -- treating ADR-008 as having
+  directly named those module_id. Re-verified ADR-008.md §Decision
+  directly: it pins language by LAYER/CAPABILITY only (Feature
+  Engineering/Strategy/Decision logic/Backtest Engine -> Python; Market
+  Data Ingestion/Risk Gateway/Execution Engine -> Go), approved
+  2026-07-18 -- BEFORE module-registry.yaml (v1.1) existed. Re-verified
+  module-registry.yaml directly (grep for "language" and "ADR-008"
+  across the whole file): zero matches on any of the 26 module entries.
+  So no module_id is actually pinned by ADR-008 or any other existing
+  authority -- v0.1's "resolved 9 module_id" claim was my own inference
+  from name/capability similarity, presented as if it were ADR-008
+  authority. Same failure class G-VERIFY-001/EF-VERIFY-001 exist to
+  catch.
+```
+
+### Semantic delta (§4 only)
+
+```text
+Removed: the "6 Python / 3 Go module_id already resolved by direct
+  cross-reference" list and the "17 remaining unresolved" framing that
+  implied 9 were settled.
+Added:   explicit statement that ADR-008 pins language by layer/
+  capability only and enumerates no module_id; that module-registry.yaml
+  has no language field and references ADR-008 nowhere; that therefore
+  NONE of the 26 current module_id are language-pinned by existing
+  authority (name similarity to an ADR-008 layer is not authority); and
+  a hand-off rule -- a module_id moves under python/ or go/ only once
+  its language is legitimately resolved (a directly-verified existing
+  authority, or a later governed decision at that module's own Phase 3
+  build transaction / a new ADR if ambiguous). No replacement mapping is
+  invented here.
+Preserved: single-monorepo decision (§1), root python/go structure
+  (§2), module_id-based directory naming (§3), Rust deferral, the
+  workspace/tooling deferral (§5), and the ADR-scope check (§6) --
+  none of §1/§2/§3/§5/§6 touched.
+```
+
+### Files changed
+
+```text
+docs/engineering/monorepo.md  (0.1 -> 0.2, §4 rewritten + change
+                               history entry; §1/§2/§3/§5/§6
+                               byte-equivalent)
+docs/MANIFEST.md                (row updated: version, blob, note;
+                               manifest_version 10.73 -> 10.74)
+docs/CHANGELOG.md               (this entry)
+```
+
+### ADR-scope check (re-confirmed for this correction)
+
+```text
+This transaction only corrects a documentation/authority-attribution
+  error in a Draft convention document -- no Platform Invariant/Event
+  Schema/Module Taxonomy/dependency-graph/Governance-process change.
+  ADR Not Required (Chapter 0 §4b). No ADR authored.
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-008.md, docs/architecture/module-registry.yaml, every other
+  architecture package, all other ADRs, Constitution, Global Execution
+  Rules, Phase 2 rules, Phase 1.5 rules, Gate 2 decision, and
+  retrospective evidence: byte-identical (git diff --quiet). No other
+  EF category touched. status remains Draft -- not self-approved. No
+  Phase 1.5 DoD created. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/engineering/monorepo.md:  version 0.2, status Draft
+EF-MONO-A-MAJ-01:               CLOSED
+Phase 2 -- Product Prototype:   NOT AUTHORIZED (unchanged)
+LIVE:                           NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after and candidate blob:           CONFIRMED
+ADR-008 exact wording re-verified directly:      CONFIRMED
+No remaining claim that ADR-008 names module_id: CONFIRMED
+Monorepo structure semantics otherwise
+  unchanged (§1/§2/§3/§5/§6):               CONFIRMED (git diff)
+No new module->language authority introduced:    CONFIRMED
+No other EF category touched:                    CONFIRMED
+status remains Draft:                            CONFIRMED
+Diff bounded to target + bookkeeping:            CONFIRMED
+Phase 2/LIVE unchanged:                          CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1.5 Monorepo Foundation established (first bounded Engineering Foundation transaction)
 
 **First bounded Phase 1.5 category transaction — vai trò: `Phase 1.5 Monorepo Foundation Executor`.** Establishes the Monorepo foundation only (`EF-TXN-002`: one category per transaction), per Roadmap Chapter 14 §14.2's Phase 1.5 scope list.
