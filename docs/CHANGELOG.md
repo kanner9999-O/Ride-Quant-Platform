@@ -2,6 +2,110 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1 BCC bounded follow-up: `P15-BCC-MAJ-01` CLOSED, `G2-RDY-BLK-02` CLOSED
+
+**Bounded follow-up verification — vai trò: `Phase 1 BCC Bounded Follow-up Executor`.** Independently verifies the Package 1.5 correction fully closes `P15-BCC-MAJ-01` and introduces no new Blocker/Major. Does not rerun the full-scope BCC, does not modify `phase1-bcc-001.md` (remains immutable historical evidence), does not touch the six Minor findings, does not perform Phase-level Gate reviews.
+
+### Baseline
+
+```text
+Starting HEAD:                      6f8ac1ad8bdcea11780f8fd9d83b3f3a835d9fb6
+database-architecture.md v0.3:       Consolidated Stable, blob
+                                     373b536d851519cecefab8c10849b3e8435338d4
+module-registry.yaml v1.1:            unchanged, 26 modules/65 edges/acyclic
+```
+
+### New file
+
+```text
+docs/governance/bcc/phase1-bcc-001-followup-001.md
+  followup_version:  1.0
+  followup_status:    Final
+  blob:               4747043812080e19e183914152f21e17e7cba137
+```
+
+### Verification (script-independent re-derivation)
+
+```text
+review-evidence-service.depends_on -- registry vs document, exact order:
+  registry:  [decision-authority-service, risk-gateway, execution-engine,
+              execution-result-processor, fill-processor, position-projection,
+              replay-integration-service, decision-evaluation-engine]
+  document:  [decision-authority-service, risk-gateway, execution-engine,
+              execution-result-processor, fill-processor, position-projection,
+              replay-integration-service, decision-evaluation-engine]
+  MATCH: exact, including order.
+
+Registry authority reference: v1.1 (current) -- confirmed.
+Self-certification claim: corrected accurately (Package 1.5 itself added no
+  edge; the eighth was added by the separate ADR-021 alignment) -- confirmed.
+Diff v0.2 -> v0.3 (database-architecture.md): confined to exactly 4 regions
+  (frontmatter version, banner paragraph, §2.1 depends_on + self-
+  certification, §4 addition) -- §0/§1/§2.2-§3/§5-§13 byte-identical, no
+  persistence/module/dependency semantic changed beyond bounded scope.
+module-registry.yaml graph re-verified: 26 modules, 65 edges, acyclic,
+  0 forbidden violations -- unchanged since original BCC.
+All 8 other Phase 1 packages, ADR-021/022/023, and every governance
+  evidence record (Grant, evaluator, Compatibility Result #001/#002,
+  reevaluation record, original BCC): byte-identical, unchanged since
+  original BCC -- no new Blocker/Major found.
+```
+
+### Verdict
+
+```text
+P15-BCC-MAJ-01:              CLOSED
+New Blocker/Major:            NONE
+Current Phase-wide BCC verdict: NO CONFLICT AT BLOCKER/MAJOR LEVEL
+Six Minor findings:            unchanged, non-blocking, carried forward
+```
+
+### Files changed
+
+```text
+docs/governance/bcc/phase1-bcc-001-followup-001.md  (new)
+docs/MANIFEST.md                                      (new row + BCC
+                                                       section rows
+                                                       annotated)
+docs/CHANGELOG.md                                      (this entry)
+```
+
+### Preserved unchanged
+
+```text
+docs/governance/bcc/phase1-bcc-001.md: byte-identical, NOT modified --
+  remains immutable historical evidence of its own findings at the time it
+  was performed.
+database-architecture.md, all other packages, module-registry.yaml,
+  ADR-021/022/023, all evidence records: byte-identical, not touched by
+  this transaction.
+```
+
+### `G2-RDY-BLK-02` / Gate 2 / Phase 2 state
+
+```text
+G2-RDY-BLK-02:  CLOSED (2026-08-10) -- Phase-wide BCC was performed and its
+                sole Major finding is now fully resolved.
+Gate 2:          still CLOSED -- G2-RDY-BLK-04 (two independent Phase-level
+                Gate reviews) remains open.
+Phase 2:         NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+HEAD before/after:                          CONFIRMED
+Eight-dependency exact match (order-
+  independent AND exact order):              CONFIRMED
+Registry authority reference current:        CONFIRMED
+Self-certification corrected accurately:      CONFIRMED
+No semantic change beyond bounded scope:      CONFIRMED (diff-verified,
+  4 regions only)
+No new Blocker/Major introduced:              CONFIRMED (module-registry.yaml
+  graph + 8 packages + ADRs + evidence records byte-identical)
+phase1-bcc-001.md not modified:               CONFIRMED (git diff --quiet)
+```
+
 ## [Unreleased] — 2026-08-10 — Package 1.5 bounded correction: `P15-BCC-MAJ-01` CLOSED
 
 **Bounded freshness correction — vai trò: `Package 1.5 BCC Major Bounded Correction Executor`.** Closes the sole Major finding from `phase1-bcc-001.md`: `database-architecture.md` §2.1's stale `review-evidence-service.depends_on` transcription and false self-certification claim.
