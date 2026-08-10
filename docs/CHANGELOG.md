@@ -2,6 +2,138 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-10 — Phase 1.5 Monorepo Foundation established (first bounded Engineering Foundation transaction)
+
+**First bounded Phase 1.5 category transaction — vai trò: `Phase 1.5 Monorepo Foundation Executor`.** Establishes the Monorepo foundation only (`EF-TXN-002`: one category per transaction), per Roadmap Chapter 14 §14.2's Phase 1.5 scope list.
+
+### Baseline
+
+```text
+Starting HEAD:  b609bfa651993ab16bea09e8b3d3baa57a1c8030
+Repo state:      docs/-only repository, no code, no package manifests of
+                 any kind (verified by directory listing before any
+                 decision was made)
+```
+
+### G-VERIFY-001 / EF-VERIFY-001 applied
+
+```text
+Before recording any tooling/structure fact: listed the actual repo tree
+  (only docs/, .claude/, .git/ existed -- confirmed empty of code).
+  Read ADR-008 (Approved) directly for the language-layer decision
+  instead of relying on memory. Cross-referenced ADR-008's named
+  capabilities against docs/architecture/module-registry.yaml's actual
+  module_id list (26 entries, grepped directly) rather than assuming a
+  mapping. Caught and fixed one own transcription error before commit:
+  initially wrote "command-query-event-api-surface", registry's actual
+  module_id is "command-query-api-surface" (no "event") -- corrected
+  after re-verifying against the grep output, matching exactly the
+  failure class G-VERIFY-001 exists to prevent.
+```
+
+### Existing authority reused
+
+```text
+ADR-008 (Approved, 2026-07-18): Python for Feature Engineering/Strategy/
+  Decision logic/Backtest Engine layer; Go for Market Data Ingestion/
+  Risk Gateway/Execution Engine layer; Rust reserved, not used now.
+docs/architecture/module-registry.yaml (Consolidated Stable, v1.1):
+  single source of truth for module_id naming -- reused verbatim, not
+  redefined.
+```
+
+### New files
+
+```text
+docs/engineering/monorepo.md  (new, v0.1, status Draft)
+  blob: 0feefca9e2780ad143e2ade71587080f34675bca
+
+  Repository model: single monorepo (docs + code together), rationale
+    shared-contract version-drift avoidance (I-12).
+  Root-level structure: docs/ (unchanged) + python/ + go/, mapped
+    directly to ADR-008's two Approved language layers. No rust/ root
+    (ADR-008: reserved, not used now).
+  Per-module directory naming: pinned to module-registry.yaml's
+    module_id, created only when that module is actually built (Phase
+    3) -- no module directories pre-created here (EF-TXN-001: avoids
+    speculative scaffolding for work 1.5 phases away).
+  Language assignment: resolved ONLY for the 9 module_id ADR-008 already
+    names by direct, verified cross-reference (Python: feature-engine,
+    strategy-engine, strategy-plugin-host, decision-evaluation-engine,
+    decision-authority-service, backtest-orchestrator; Go:
+    market-data-ingestion, risk-gateway, execution-engine). The other 17
+    of 26 registry module_id are explicitly left unresolved -- not
+    guessed -- deferred to each module's own Phase 3 build transaction.
+  Workspace/package-manager tooling (go.work, pyproject.toml, a specific
+    Python package-manager brand): deliberately NOT created/chosen --
+    zero Python/Go code exists yet to need one; picking a brand now
+    would be inventing speculative tooling.
+
+python/README.md  (new) -- one-line pointer to the convention doc.
+go/README.md      (new) -- one-line pointer to the convention doc.
+```
+
+### ADR-scope check (`EF-ADR-001`)
+
+```text
+Decision surface: (a) single-repo model; (b) two top-level roots along
+  an already-Approved language boundary; (c) directory-per-module naming
+  convention pinned to an existing registry field. None of this adds/
+  changes a Platform Invariant, Event Schema, Module Taxonomy or
+  dependency-graph edge, or Governance/Approval process -- and it is
+  fully reversible (no code exists to migrate). Chapter 0 §4b / Chapter
+  3's Engineering-Foundation carve-out: ADR Not Required. No ADR
+  authored.
+```
+
+### Files changed
+
+```text
+docs/engineering/monorepo.md  (new)
+python/README.md               (new)
+go/README.md                   (new)
+docs/MANIFEST.md               (new "Engineering Foundation" section +
+                               row; manifest_version 10.72 -> 10.73)
+docs/CHANGELOG.md              (this entry)
+```
+
+### Preserved unchanged
+
+```text
+docs/architecture/module-registry.yaml and every other architecture
+  package, ADR-001..023, Constitution, Global Execution Rules, Phase 2
+  rules, Gate 2 decision, and retrospective evidence: byte-identical
+  (git diff --quiet). No Phase 1.5 DoD or execution-plan artifact
+  created. No Coding Standard/Naming/Logging/Config/Error Handling/
+  Testing/CI-CD category touched -- Monorepo only. Phase 1 not reopened.
+```
+
+### Result
+
+```text
+docs/engineering/monorepo.md:  v0.1, status Draft (not self-approved)
+python/, go/:                   created, empty except for README markers
+Phase 2 -- Product Prototype:   NOT AUTHORIZED (unchanged)
+LIVE:                           NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after:                             CONFIRMED
+Repo/tooling facts verified before recording:    CONFIRMED (see
+  G-VERIFY-001 note above, including the caught-and-fixed
+  transcription error)
+All changes inside Monorepo category:            CONFIRMED
+No approved architecture/module boundary changed: CONFIRMED (git diff
+  --quiet on docs/architecture/)
+ADR Scope Rule checked:                           CONFIRMED (EF-ADR-001,
+  ADR Not Required)
+No unrelated Engineering Foundation category
+  implemented:                                    CONFIRMED
+Phase 2/LIVE not authorized:                       CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-10 — Phase 1.5 Execution Rules v0.2: Product Owner ACCEPTED (`operational_state` DRAFT -> EFFECTIVE)
 
 **Mechanical lifecycle/evidence recording — vai trò: `Phase 1.5 Rules Acceptance Recorder`.** Records the Product Owner decision "I accept Phase 1.5 Execution Rules v0.2" for `docs/governance/phases/phase-1.5-rules.md`. No rule semantics changed.
