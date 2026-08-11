@@ -2,6 +2,149 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-026 authored (Draft): Cross-Module Naming Convention Baseline
+
+**ADR authoring — vai trò: `ADR-026 Naming Baseline Authoring Executor`.** Authors the ADR required for the Phase 1.5 Naming Convention category, applying the exact ADR-scope lesson from `ADR-025`'s Coding Standard baseline before any living convention document is created. Draft only — not approved. Does not create `docs/engineering/naming.md`.
+
+### Baseline
+
+```text
+Starting HEAD:  b0e8795ca486d632a163fe6679efb261752d6aa9
+Completed categories: Monorepo (Approved); Coding Standard (ADR-025
+                      v0.2 Approved, coding-standard.md v0.2 Approved)
+Last existing ADR:    ADR-025.md (verified via `ls docs/adr/`)
+```
+
+### G-VERIFY-001 / G-ADR-004 applied
+
+```text
+Verified ADR-026 is the next unused identity (ls docs/adr/ shows
+  ADR-025 as the last file; docs/adr/ADR-026.md did not exist before
+  this transaction).
+Re-verified Chapter 0 §4b directly, and re-read Chapter 3 §3.2's exact
+  wording -- the illustrative naming examples (PAST_TENSE_UPPER_SNAKE,
+  I-prefix, DTO-suffix) are explicitly labeled "minh hoa cu the cho
+  Ride, khong phai canonical domain vocabulary bat buoc" -- not treated
+  as pre-approved canonical vocabulary anywhere in this ADR.
+Applied the ADR-scope lesson directly from ADR-025/coding-standard.md
+  (EF-CODE-B-MAJ-01): a decision to establish one cross-module Naming
+  Convention baseline is itself platform-wide (>1 module), so the ADR
+  is authored BEFORE any naming.md living-convention document, not
+  after.
+Ran the G-ADR-004 inflation/scope check: ADR-008 (language only),
+  ADR-024 (repository topology only), ADR-025/coding-standard.md
+  (coding-quality baseline only, explicitly not naming), and
+  module-registry.yaml (module identity/dependency only) resolve none
+  of this gap.
+```
+
+### New file (Draft, not approved)
+
+```text
+docs/adr/ADR-026.md  (new, v0.1, status Draft)
+  blob: c7f41d9a0e8d90c6b584e49ede68664608bc4604
+
+  Decision question: one governed cross-module Naming Convention
+    baseline vs independent per-module naming vs language-only
+    conventions with no platform-level baseline.
+  Decision: one governed cross-module baseline -- scoped narrowly.
+  ADR authority (frozen): the baseline exists; modules conform to
+    whichever Naming Convention version is currently Approved;
+    language-specific idioms may differ but must stay consistent with
+    the baseline; deviations cannot override higher architecture/domain
+    authority; Naming Convention does not itself create or rename
+    canonical module identity, dependency edges, domain concepts,
+    events, schemas, APIs, or contracts.
+  Living convention authority (future docs/engineering/naming.md, not
+    created here): per-language identifier casing, file/package
+    naming, acronym/initialism handling, symbol/interface/type/DTO
+    naming conventions, event-name presentation, deviation
+    documentation, concrete examples -- every future *semantic* change
+    must independently rerun the ADR Scope Rule, no exemption inferred
+    from "reversible" (same rule preserved from ADR-025 §3, not
+    redefined).
+  Chapter 3 §3.2 examples treated carefully: acknowledged as existing
+    illustrative patterns, explicitly not canonical vocabulary; ADR-026
+    invents no event names, DTO inventory, or interface inventory --
+    a future naming.md may evaluate/adopt/refine those patterns under
+    this ADR's authority, not here.
+  Alternatives evaluated fairly using only verified facts (26 module_id
+    in module-registry.yaml, no domain reason for per-module divergence)
+    -- no invented team-scale or implementation assumptions.
+  Consequences: both benefits (consistency, easier review/navigation,
+    less drift, clearer cross-language boundaries, easier tooling
+    later) and costs (lower module autonomy, wider blast radius,
+    Python/Go idiom tension, future semantic changes may re-trigger
+    ADR review, need to keep ADR text narrow) recorded.
+  Authority boundaries: module-registry.yaml, ADR-008, ADR-024,
+    ADR-025/coding-standard.md, and domain/contract authorities (event
+    schema, API contracts, DTO/interface meaning) all explicitly
+    preserved -- naming determines identifier representation/style
+    only, never the existence or meaning of an architecture/domain
+    concept. No module->language mapping created.
+  Scale Check performed honestly -- used to confirm the decision
+    substance, not to argue the already-established ADR trigger away.
+  §9 records the expected downstream sequence (Review A -> Independent
+    Review B as warranted -> Product Owner decision -> if Approved,
+    author naming.md separately -> its own review/lifecycle decision)
+    as expectation only -- none of those steps executed here.
+  Independent reviews table left blank -- no review performed yet.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-026.md  (new)
+docs/MANIFEST.md      (new compact ADR-table row; manifest_version
+                      10.89 -> 10.90)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+docs/engineering/naming.md: not created. ADR-025, docs/engineering/
+  coding-standard.md, docs/engineering/monorepo.md, ADR-008, ADR-024,
+  module-registry.yaml, every other ADR, Constitution, Phase 1.5 rules:
+  byte-identical (git diff --quiet). No canonical event/domain/API
+  vocabulary invented. No module->language mapping introduced. No
+  Logging/Config/Error Handling/Testing/CI-CD category touched. No
+  Phase 1.5 DoD created. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/adr/ADR-026.md:            v0.1, status Draft, NOT approved
+docs/engineering/naming.md:      does not exist (as required)
+Phase 2 -- Product Prototype:    NOT AUTHORIZED (unchanged)
+LIVE:                            NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                            CONFIRMED
+ADR-026 did not already exist:                    CONFIRMED
+Current ADR template used:                        CONFIRMED
+>1 module ADR trigger represented correctly:       CONFIRMED
+Decision narrowly scoped to baseline existence:    CONFIRMED
+Detailed naming rules remain future living
+  convention:                                      CONFIRMED
+Chapter 3 examples remain explicitly
+  illustrative:                                    CONFIRMED
+No canonical vocabulary invented:                  CONFIRMED (grep
+  clean)
+module-registry/ADR-008/ADR-024/ADR-025
+  authority preserved:                             CONFIRMED (git diff
+  --quiet)
+No module->language mapping introduced:            CONFIRMED
+naming.md not created:                             CONFIRMED
+Diff bounded to ADR-026 + bookkeeping:             CONFIRMED
+ADR-026 remains Draft:                             CONFIRMED
+Phase 2/LIVE unchanged:                            CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Coding Standard v0.2 APPROVED
 
 **Mechanical lifecycle recording — vai trò: `Phase 1.5 Coding Standard Approval Recorder`.** Records the Product Owner decision "APPROVE CODING STANDARD V0.2" — no Coding Standard semantic content changed.
