@@ -2,6 +2,115 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Coding Standard v0.2 APPROVED
+
+**Mechanical lifecycle recording — vai trò: `Phase 1.5 Coding Standard Approval Recorder`.** Records the Product Owner decision "APPROVE CODING STANDARD V0.2" — no Coding Standard semantic content changed.
+
+### Baseline
+
+```text
+Starting HEAD:  2543dabf9656188202f20e8d65ca8afddf346e91
+Reviewed candidate: docs/engineering/coding-standard.md v0.2, status
+                    Draft, blob b1d5c3faa9fcd08704c5d6030104f0c65f1c1199
+Approved authority: docs/adr/ADR-025.md v0.2, status Approved, blob
+                    aa669a2557d640f241d64fa4dc3235c3b43a864d
+Review state:        bounded Review A re-review CLEAN; Independent
+                    Review B READY_FOR_PRODUCT_OWNER_DECISION;
+                    Blocker 0/Major 0/Minor 0; EF-CODE-B-MAJ-01/
+                    EF-CODE-A-MIN-01/EF-CODE-A-MIN-02 all CLOSED
+```
+
+### G-VERIFY-001 / G-ID-001 applied
+
+```text
+Verified starting HEAD and the on-disk blob of coding-standard.md
+  matched the stated reviewed candidate (b1d5c3fa...) exactly before
+  any edit. Re-verified ADR-025.md's blob (aa669a25...) before and
+  after this transaction -- byte-identical, not touched.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-11"
+version:      "0.2" unchanged (pure mechanical approval -- no bump)
+```
+
+### Reviewed vs resulting blob (G-ID-001 -- distinguished, not conflated)
+
+```text
+Reviewed semantic candidate blob:      b1d5c3faa9fcd08704c5d6030104f0c65f1c1199
+Resulting post-approval lifecycle blob: 8b31e5f83ffe20f7b6c491d341ae26318d4e889e
+(differ only because the approval banner + lifecycle frontmatter fields
+ + one change-history entry were written -- no semantic content changed,
+ confirmed section-by-section for §1-§12)
+```
+
+### Files changed
+
+```text
+docs/engineering/coding-standard.md  (frontmatter status/approved_by/
+                                     approved_at; approval banner added
+                                     after title; ACCEPTANCE change-
+                                     history entry appended; §1-§12
+                                     byte-equivalent)
+docs/MANIFEST.md                     (row updated to Approved + both
+                                     blobs; manifest_version
+                                     10.88 -> 10.89)
+docs/CHANGELOG.md                    (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Coding Standard semantics (§1-§12): byte-equivalent -- ADR-025
+  alignment, ADR-008/ADR-024/module-registry.yaml boundaries, source
+  formatting, lint/static-analysis, language-version policy, dependency
+  hygiene, import/package discipline, generated-code treatment,
+  comments/docstrings, dead-code/warning handling, reproducibility,
+  deviations, and Phase 1.5 category boundaries all untouched.
+docs/adr/ADR-025.md: byte-identical (git diff --quiet) -- immutable
+  after approval, not touched. ADR-008, ADR-024, module-registry.yaml,
+  Constitution, Phase 1.5 rules: byte-identical. No ADR-026 created. No
+  Naming/Logging/Config/Error Handling/Testing/CI-CD category touched.
+  Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/engineering/coding-standard.md:  version 0.2, status Approved,
+                                      approved_by Product Owner,
+                                      approved_at 2026-08-11
+EF-CODE-B-MAJ-01 / EF-CODE-A-MIN-01 / EF-CODE-A-MIN-02:  all still
+                                      CLOSED (unchanged by this
+                                      approval)
+Phase 2 -- Product Prototype:         NOT AUTHORIZED (unchanged)
+LIVE:                                 NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                              CONFIRMED
+Reviewed candidate blob matches exactly:            CONFIRMED
+Product Owner decision exactly matches
+  "APPROVE CODING STANDARD V0.2":                    CONFIRMED
+Version remains 0.2:                                CONFIRMED
+Status becomes Approved:                             CONFIRMED
+Approval metadata correct:                           CONFIRMED
+Review A/B evidence recorded accurately:             CONFIRMED
+All three prior findings remain CLOSED:              CONFIRMED
+Semantic content unchanged:                          CONFIRMED (section-
+  by-section diff, §1-§12)
+Reviewed candidate and resulting lifecycle blob
+  distinguished:                                      CONFIRMED
+ADR-025 remains byte-identical:                      CONFIRMED
+Phase 2/LIVE unchanged:                              CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Coding Standard aligned to Approved ADR-025; three findings closed
 
 **ADR-025 alignment + bounded correction — vai trò: `Phase 1.5 Coding Standard ADR-025 Alignment Executor`.** Resolves `EF-CODE-B-MAJ-01`, `EF-CODE-A-MIN-01`, and `EF-CODE-A-MIN-02` together on `docs/engineering/coding-standard.md`. Does not redesign the Coding Standard or start another Phase 1.5 category.
