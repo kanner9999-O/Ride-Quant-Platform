@@ -2,6 +2,143 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Coding Standard foundation established (second bounded Engineering Foundation transaction)
+
+**Second bounded Phase 1.5 category transaction — vai trò: `Phase 1.5 Coding Standard Foundation Executor`.** Establishes the Coding Standard foundation only (`EF-TXN-002`: one category per transaction), per Roadmap Chapter 14 §14.2's Phase 1.5 scope list.
+
+### Baseline
+
+```text
+Starting HEAD:  4091c0ce658943021a710a5bc801662e8dc23e7a
+Repo state:      python/ and go/ contain only a README marker each, no
+                 code; no coding-standard/lint/format artifact of any
+                 kind existed before this transaction (verified by
+                 directory listing before any decision was made)
+```
+
+### G-VERIFY-001 / EF-VERIFY-001 applied
+
+```text
+Verified directly before authoring: current HEAD; ADR-008.md's exact
+  Decision text (Python/Go language layers, Rust reserved); docs/
+  engineering/monorepo.md's identity (v0.5, status Approved, blob
+  2ece8623...); python/ and go/ directory contents (README only); the
+  absence of any pyproject.toml/ruff.toml/mypy.ini/.golangci.yml/
+  go.work/go.mod/pre-commit/CI-workflow file anywhere in the repo.
+No concrete tool version was pinned in the new document -- where a
+  version would be needed (language minimum-support version), the
+  document defers verification to the first module-build transaction
+  rather than asserting a number now that would need re-verification
+  later anyway.
+```
+
+### New file (Draft)
+
+```text
+docs/engineering/coding-standard.md  (new, v0.1, status Draft)
+  blob: 7d6aa1b059313c8633aebc683f4a3f40a2e77dd9
+
+  Source formatting: every language must have one automated, CI-
+    enforced formatter. Go uses gofmt (bundled in the official Go
+    toolchain -- not a 3rd-party brand choice). Python formatter brand
+    deferred -- Python has no bundled official formatter, unlike Go.
+  Lint/static analysis: Go uses go vet (bundled); extended linter and
+    all Python lint/type-check tooling deferred, same reasoning.
+  Language-version/support policy: no version number pinned here --
+    verified directly against official language docs at the first
+    module-build transaction for that language, not asserted now.
+  Dependency hygiene: every dependency needs a concrete justification;
+    exact version pins, no open ranges or "latest" for production
+    dependencies.
+  Import/package discipline: no circular imports within a module_id;
+    cross-module imports must match module-registry.yaml's declared
+    depends_on edges (an unregistered import is an architecture
+    violation, not a style issue); no wildcard imports.
+  Generated code: must be marked explicitly, never hand-edited directly.
+  Comments/docstrings: explain why, not what; public APIs need a
+    docstring describing their contract -- explicitly distinct from the
+    Documentation Convention (Chapter 3 §3.2's separate item, = /docs
+    structure), not redefined here.
+  Dead code/warnings: no commented-out "for later" code; warnings must
+    be resolved before merge (once CI/CD exists), no blanket suppression.
+  Deterministic/reproducible development: builds/tests must reproduce
+    from commit + lockfile, not undocumented local machine state.
+  Exceptions/deviations: allowed with a concrete technical reason
+    recorded at the deviation point; ADR Optional/Not Required class
+    unless the deviation itself meets the ADR Scope Rule.
+
+  §11 explicitly defers Naming, Logging, Config, Error Handling,
+  Testing, and CI/CD to their own dedicated Phase 1.5 category
+  transactions -- nothing from those categories is absorbed here.
+```
+
+### ADR-scope check (`EF-ADR-001`/`G-ADR-004`)
+
+```text
+Every principle above is convention/tooling-level and fully reversible
+  (a formatter/linter swap, a version-policy update) -- none adds/
+  changes a Platform Invariant, Event Schema, Module Taxonomy or
+  dependency-graph edge (the import-discipline rule enforces the
+  existing graph, it does not create or change one), or a Governance/
+  Approval-process change. ADR Not Required (Chapter 0 §4b). No ADR
+  authored.
+```
+
+### Files changed
+
+```text
+docs/engineering/coding-standard.md  (new)
+docs/MANIFEST.md                      (new row; manifest_version
+                                      10.82 -> 10.83)
+docs/CHANGELOG.md                     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+docs/engineering/monorepo.md, docs/adr/ADR-008.md, docs/adr/ADR-024.md,
+  docs/architecture/module-registry.yaml, every other ADR, Constitution,
+  docs/governance/phases/phase-1.5-rules.md, Global Execution Rules,
+  Phase 2 rules: all byte-identical (git diff --quiet). No ADR
+  authored. No Naming/Logging/Config/Error Handling/Testing/CI-CD
+  category touched. No speculative config file created
+  (pyproject.toml, ruff.toml, mypy.ini, .golangci.yml, go.work, go.mod,
+  pre-commit config, CI workflow files -- none exist). No Phase 1.5
+  DoD created. Phase 2/LIVE remain not authorized.
+```
+
+### Result
+
+```text
+docs/engineering/coding-standard.md:  v0.1, status Draft (not self-
+                                      approved)
+Phase 2 -- Product Prototype:         NOT AUTHORIZED (unchanged)
+LIVE:                                 NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Starting HEAD exactly matches baseline:          CONFIRMED
+No existing Coding Standard artifact duplicated:  CONFIRMED (none
+  existed)
+Resulting artifact is Coding Standard category
+  only:                                            CONFIRMED
+ADR-008 authority preserved:                       CONFIRMED (git diff
+  --quiet)
+ADR-024/Monorepo authority preserved:              CONFIRMED (git diff
+  --quiet)
+No module-language mapping invented:               CONFIRMED
+No architecture authority created accidentally:     CONFIRMED
+No unrelated Phase 1.5 category implemented:        CONFIRMED
+Concrete tool/version facts directly verified
+  where introduced (none introduced):               CONFIRMED
+Speculative config files not created:               CONFIRMED
+Coding Standard remains Draft:                      CONFIRMED
+MANIFEST/CHANGELOG updated deterministically:        CONFIRMED
+Phase 2/LIVE not authorized:                        CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Global rule added: `G-ORCH-004` (mandatory next-task prompt)
 
 **Global governance addition — vai trò: `Governance Execution Rulebook Structuring Executor`.** Formalizes a Product Owner instruction as a durable Global Execution Rule, per `G-AUTH-001` (no durable rule may live in chat-only memory).
