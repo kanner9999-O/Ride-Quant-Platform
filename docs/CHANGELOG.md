@@ -2,6 +2,147 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-027 authored (Draft): Cross-Module Logging Convention Baseline
+
+**ADR authoring — vai trò: `ADR-027 Logging Baseline Authoring Executor`.** Authors the ADR required for the Phase 1.5 Logging Convention category, applying the same ADR-first pattern established by `ADR-025`/`ADR-026`. Draft only — not approved. Does not create `docs/engineering/logging.md`.
+
+### Baseline
+
+```text
+Starting HEAD:  2d409e997c6fec1a6915259ca9386bf3b944817a
+Completed categories: Monorepo (Approved); Coding Standard (ADR-025
+                      v0.2 Approved, coding-standard.md v0.2 Approved);
+                      Naming Convention (ADR-026 v0.1 Approved,
+                      naming.md v0.2 Approved)
+Last existing ADR:    ADR-026.md (verified via `ls docs/adr/`)
+```
+
+### G-VERIFY-001 / G-ADR-004 applied
+
+```text
+Verified ADR-027 is the next unused identity (ls docs/adr/ shows
+  ADR-026 as the last file; docs/adr/ADR-027.md did not exist before
+  this transaction). Confirmed docs/engineering/logging.md did not
+  exist.
+Re-verified Chapter 0 §4b directly, and re-read Chapter 3 §3.2 --
+  Logging Convention is listed as an Engineering Foundation framework
+  item with no illustrative content yet (unlike Naming Convention).
+Ran the G-ADR-004 inflation/scope check: grepped the whole repository
+  for any existing "Logging Convention"/"logging baseline" authority --
+  none found beyond Chapter 3 §3.2's bare framework listing. ADR-008
+  (language only), ADR-024 (repository topology only), ADR-025/coding-
+  standard.md (coding-quality only), ADR-026/naming.md (identifier
+  naming only), and module-registry.yaml (module identity/dependency
+  only) resolve none of this gap.
+Applied the ADR-scope lesson from Coding Standard (EF-CODE-B-MAJ-01):
+  a decision to establish one cross-module Logging Convention baseline
+  is itself platform-wide (>1 module), so the ADR is authored before
+  any logging.md living-convention document, not after.
+```
+
+### New file (Draft, not approved)
+
+```text
+docs/adr/ADR-027.md  (new, v0.1, status Draft)
+  blob: bf560b83408810dffdebd8920309e74a616f86c8
+
+  Decision question: one governed cross-module Logging Convention
+    baseline vs independent per-module logging rules vs language-only
+    conventions with no platform-level baseline.
+  Decision: one governed cross-module baseline -- scoped narrowly.
+  ADR authority (frozen): the baseline exists; modules conform to
+    whichever Logging Convention version is currently Approved;
+    language/runtime-specific logging APIs may differ but must stay
+    consistent with the baseline; logging cannot redefine domain/
+    event/API semantics -- explicit "log record != domain event"
+    distinction: a log may describe an event/action but does not
+    itself create canonical event existence or schema authority.
+  Living convention authority (future docs/engineering/logging.md, not
+    created here): log levels, structured-log field names, timestamps,
+    correlation/request/trace identifiers, module/source fields, error/
+    exception logging presentation, sensitive-data/redaction rules,
+    event-vs-log distinction detail, sink/serialization behavior,
+    sampling/rate limiting, concrete examples, language/library
+    choices -- every future *semantic* change must independently rerun
+    the ADR Scope Rule, no generic reversible-change exemption (same
+    rule preserved from ADR-025/ADR-026 §3, not redefined).
+  Alternatives evaluated fairly using only verified facts (26 module_id
+    in module-registry.yaml, I-1 Explainability's cross-module trace
+    requirement) -- no invented team-scale or implementation
+    assumptions.
+  Consequences: both benefits (consistent cross-module correlation/
+    debugging, easier tooling enforcement later, less drift, supports
+    I-1) and costs (lower module autonomy, wider blast radius,
+    Python/Go idiom tension, future semantic changes may re-trigger
+    ADR review, need to keep ADR text narrow) recorded.
+  Authority boundaries: module-registry.yaml, ADR-008, ADR-024, ADR-
+    025/coding-standard.md, ADR-026/naming.md, and domain/event/API
+    contract authorities all explicitly preserved. Explicitly out of
+    scope: logging library/observability infrastructure selection,
+    storage/retention backend, CI/CD enforcement mechanism, Error
+    Handling policy -- none decided here. No module->language mapping
+    created.
+  Scale Check performed honestly -- used to confirm the decision
+    substance (cross-module correlation matters more, not less, as
+    exchange/strategy count grows), not to argue the already-
+    established ADR trigger away.
+  §9 records the expected downstream sequence (Review A -> Independent
+    Review B as warranted -> Product Owner decision -> if Approved,
+    author logging.md separately -> its own review/lifecycle decision)
+    as expectation only -- none of those steps executed here.
+  Independent reviews table left blank -- no review performed yet.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-027.md  (new)
+docs/MANIFEST.md      (new compact ADR-table row; manifest_version
+                      10.94 -> 10.95)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+docs/engineering/logging.md: not created. ADR-026, naming.md, ADR-025,
+  coding-standard.md, monorepo.md, ADR-008, ADR-024, module-
+  registry.yaml, every other ADR, Constitution, Phase 1.5 rules: byte-
+  identical (git diff --quiet). No canonical event/domain/API
+  vocabulary invented. No module->language mapping introduced. No
+  logging library/observability tool selected. No Config/Error
+  Handling/Testing/CI-CD category touched. No Phase 1.5 DoD created.
+  Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/adr/ADR-027.md:            v0.1, status Draft, NOT approved
+docs/engineering/logging.md:     does not exist (as required)
+Phase 2 -- Product Prototype:    NOT AUTHORIZED (unchanged)
+LIVE:                            NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                            CONFIRMED
+ADR-027 identity unused before:                   CONFIRMED
+Logging baseline genuinely ADR Required:           CONFIRMED (>1 module
+  trigger, Chapter 0 §4b)
+No existing authority already resolves it:         CONFIRMED (grep
+  clean across repository)
+ADR remains narrow:                                CONFIRMED
+Detailed Logging rules deferred:                    CONFIRMED
+Authority boundaries preserved:                     CONFIRMED (git diff
+  --quiet)
+logging.md remains absent:                         CONFIRMED
+Only ADR-027 + bookkeeping changed:                 CONFIRMED
+status Draft / version 0.1:                         CONFIRMED
+Phase 2/LIVE unchanged:                             CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Naming Convention v0.2 APPROVED
 
 **Mechanical lifecycle recording — vai trò: `Phase 1.5 Naming Convention Approval Recorder`.** Records the Product Owner decision "APPROVE NAMING CONVENTION V0.2" — no Naming semantic content changed.
