@@ -2,11 +2,11 @@
 id: engineering-config
 title: "Engineering Foundation — Config Convention"
 version: "0.2"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-11"
 created_at: "2026-08-11"
 last_review: null
 next_review: null
@@ -14,6 +14,33 @@ depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../
 ---
 
 # Engineering Foundation — Config Convention
+
+**APPROVED (2026-08-11) — status: Draft → Approved.** Product Owner decision: **"APPROVE CONFIG CONVENTION V0.2 — ACCEPT EF-CONFIG-B-MIN-01 AS NON-BLOCKING RESIDUAL."** Reviewed candidate: v0.2, blob `805bd9a351d1792e5d9283ea0f4989129aa36295`. `version: "0.2"` KHÔNG đổi (pure mechanical lifecycle approval — KHÔNG bump). Tài liệu này VẪN LÀ living document (Chapter 3 §3.2 "tài liệu SỐNG, không bất biến"; Chapter 0 §7.1 lifecycle Draft→...→Approved→Locked) — `Approved` KHÔNG đồng nghĩa immutable byte-for-byte như ADR (Chapter 11 §11.3 KHÔNG áp dụng ở đây); thay đổi tương lai vẫn hợp lệ qua version bump + re-review (Chapter 0 §8), VÀ mọi thay đổi SEMANTIC PHẢI tự rerun ADR Scope Rule đúng §15.
+
+**Review evidence tại approval này:**
+
+```text
+Đóng (trước approval, v0.2): EF-CONFIG-A-MAJ-01.
+
+Bounded Review A re-review trên v0.2:
+  EF-CONFIG-A-MAJ-01: CLOSED
+  New Blocker 0 / New Major 0 / New Minor 0
+  CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+
+Independent Review B trên đúng v0.2:
+  EF-CONFIG-A-MAJ-01: CLOSED
+  New Blocker 0 / New Major 0 / New Minor 1
+
+  EF-CONFIG-B-MIN-01: candidate-identity/provenance wording VẪN stale
+    tại — mục "Non-goals" heading (nói "v0.1"), "ADR-scope disposition"
+    (tham chiếu "config.md v0.1"/"v0.1"). Finding VALID, non-blocking.
+
+  Verdict: READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+**`EF-CONFIG-B-MIN-01`: VẪN `OPEN — accepted non-blocking residual`** — Product Owner chấp nhận LÀM residual tại chính approval này, KHÔNG sửa/KHÔNG đóng tại transaction này (correction riêng biệt, nếu thực hiện, sẽ đóng finding này sau, KHÔNG tại đây). Stale "v0.1" wording tại mục "Non-goals" heading VÀ "ADR-scope disposition" GIỮ NGUYÊN KHÔNG sửa.
+
+**Approval này KHÔNG đổi Config Convention semantics nào** (§1–§15 dưới byte-equivalent ngoài banner/lifecycle metadata/change history này, VÀ ngoài residual `EF-CONFIG-B-MIN-01` stale wording đã accept KHÔNG sửa) — KHÔNG chạm `ADR-028`/`ADR-017` (Approved, immutable)/`account.md`/`ADR-027`/`logging.md`/`ADR-026`/`naming.md`/`ADR-025`/`coding-standard.md`/`ADR-024`/`monorepo.md`/`ADR-008`/`module-registry.yaml`/Constitution/Phase 1.5 rules, KHÔNG tạo ADR-029, KHÔNG mở Error Handling/Testing/CI-CD category, KHÔNG chọn config/secret tooling, KHÔNG authorize Phase 2, KHÔNG authorize LIVE.
 
 **Vai trò của tài liệu này:** convention document THỨ NĂM của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2), phạm vi CHỈ category **Config** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). **`ADR-028` v0.2 (Approved 2026-08-11) LÀ authority cho chính việc CÓ một cross-module Config Convention baseline bắt buộc** — tài liệu này LÀ living convention chứa chi tiết rule reversible dưới authority đó, KHÔNG lặp lại decision text của ADR-028. KHÔNG Constitution chapter, KHÔNG ADR, KHÔNG redefine Module Taxonomy/dependency graph/ngôn ngữ allocation/Coding Standard/Naming Convention/Logging Convention/Custody & Signing Trust Boundary — `module-registry.yaml` VẪN authority module identity/dependency, `ADR-008` VẪN authority ngôn ngữ, `ADR-024`/`monorepo.md` VẪN authority repository topology, `ADR-025`/`coding-standard.md` VẪN authority Coding Standard, `ADR-026`/`naming.md` VẪN authority identifier naming, `ADR-027`/`logging.md` VẪN authority Logging, `ADR-017` VẪN authority architecture-level Custody & Signing Trust Boundary. Mọi thay đổi SEMANTIC tương lai vào tài liệu này PHẢI tự chạy lại ADR Scope Rule (Chapter 0 §4b) hiện hành TẠI chính thời điểm đổi — reversibility của kỹ thuật thay đổi KHÔNG hủy/miễn vế ">1 module" nếu vế đó đã thỏa (đúng lesson `ADR-025`/`ADR-026`/`ADR-027`/`ADR-028` §3, KHÔNG redefine — xem §15 dưới).
 
@@ -522,4 +549,31 @@ v0.2  2026-08-11  Bounded correction, đóng `EF-CONFIG-A-MAJ-01`. v0.1
       (Account domain authority)/`ADR-028`/`ADR-017`/`ADR-007`. KHÔNG
       tạo ADR-029, KHÔNG redesign Account/environment semantics, KHÔNG
       authorize LIVE. `status` VẪN `Draft`.
+ACCEPTANCE  2026-08-11  Product Owner lifecycle approval — mechanical,
+      vai trò: `Config Convention v0.2 Mechanical Approval Recorder`.
+      Quyết định: "APPROVE CONFIG CONVENTION V0.2 — ACCEPT
+      EF-CONFIG-B-MIN-01 AS NON-BLOCKING RESIDUAL." Reviewed candidate:
+      v0.2, blob 805bd9a351d1792e5d9283ea0f4989129aa36295 (bounded
+      Review A re-review CLEAN, New Blocker/Major/Minor 0/0/0, đóng
+      `EF-CONFIG-A-MAJ-01`; Independent Review B trên đúng v0.2: New
+      Blocker 0/New Major 0/New Minor 1 — `EF-CONFIG-B-MIN-01`
+      (candidate-identity/provenance wording stale tại "Non-goals"
+      heading VÀ "ADR-scope disposition," VALID, non-blocking),
+      `READY_FOR_PRODUCT_OWNER_DECISION`). `status: Draft -> Approved`,
+      `approved_by: null -> Product Owner`, `approved_at: null ->
+      "2026-08-11"`. `version` KHÔNG bump (pure mechanical lifecycle
+      approval) — VẪN `0.2`. `EF-CONFIG-B-MIN-01` VẪN `OPEN — accepted
+      non-blocking residual`, KHÔNG đóng, KHÔNG sửa stale "v0.1"
+      wording tại đây (correction riêng biệt tương lai, KHÔNG tại
+      transaction này). KHÔNG semantic content nào đổi (§1–§15 byte-
+      equivalent ngoài banner/lifecycle metadata/change history này VÀ
+      residual stale wording đã accept). Tài liệu VẪN LÀ living
+      document — `Approved` KHÔNG immutable byte-for-byte như ADR;
+      thay đổi SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule
+      đúng §15. KHÔNG chạm `ADR-028`/`ADR-017` (Approved, immutable)/
+      `account.md`/`ADR-027`/`logging.md`/`ADR-026`/`naming.md`/
+      `ADR-025`/`coding-standard.md`/`ADR-024`/`monorepo.md`/`ADR-008`/
+      `module-registry.yaml`/Constitution/Phase 1.5 rules, KHÔNG tạo
+      ADR-029, KHÔNG mở Engineering Foundation category khác, KHÔNG
+      chọn config/secret tooling nào, KHÔNG authorize Phase 2/LIVE.
 ```

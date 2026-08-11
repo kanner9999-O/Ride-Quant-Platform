@@ -2,6 +2,124 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Config Convention v0.2 APPROVED (residual `EF-CONFIG-B-MIN-01` accepted)
+
+**Mechanical lifecycle recording — vai trò: `Config Convention v0.2 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE CONFIG CONVENTION V0.2 — ACCEPT EF-CONFIG-B-MIN-01 AS NON-BLOCKING RESIDUAL" — no Config Convention semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:      03465fbb5167ce2d33b16a16918a1273682d6b6e
+Reviewed candidate: docs/engineering/config.md v0.2, status Draft,
+                    blob 805bd9a351d1792e5d9283ea0f4989129aa36295
+Approved authority: docs/adr/ADR-028.md v0.2, status Approved,
+                    blob 016fbe8786d7e5df5609579d8aeea7ffb1f06178
+```
+
+### Review evidence
+
+```text
+Đóng (trước approval, v0.2): EF-CONFIG-A-MAJ-01.
+Bounded Review A re-review trên v0.2: CLEAN, New Blocker 0/New Major
+  0/New Minor 0, READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B trên đúng v0.2: New Blocker 0/New Major 0/New
+  Minor 1 — EF-CONFIG-B-MIN-01 (candidate-identity/provenance wording
+  stale "v0.1" tại mục "Non-goals" heading VÀ "ADR-scope disposition,"
+  VALID, non-blocking), READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-11"
+version:      "0.2" KHÔNG đổi (pure mechanical approval, KHÔNG bump)
+Product Owner decision (nguyên văn): "APPROVE CONFIG CONVENTION V0.2
+  — ACCEPT EF-CONFIG-B-MIN-01 AS NON-BLOCKING RESIDUAL."
+```
+
+### Residual finding recorded (not closed)
+
+```text
+EF-CONFIG-B-MIN-01: OPEN — accepted non-blocking residual. Stale
+  "v0.1" wording tại mục "Non-goals" heading ("KHÔNG chọn tại v0.1
+  này") VÀ "ADR-scope disposition" (tham chiếu "config.md v0.1"/"v0.1
+  này") KHÔNG sửa tại transaction này — correction riêng biệt tương
+  lai (nếu thực hiện) sẽ đóng finding này, KHÔNG tại đây.
+```
+
+### Reviewed vs resulting blob (G-ID-001, distinguished)
+
+```text
+Reviewed candidate:  v0.2 / Draft
+                      blob 805bd9a351d1792e5d9283ea0f4989129aa36295
+Resulting Approved identity: v0.2 / Approved
+                      blob 6c58dde51b915f81e3748d4dfa314a13c25e5ada
+Decision content (§1–§15 của config.md): byte-equivalent — CHỈ banner/
+  lifecycle metadata/change history thay đổi; stale "v0.1" wording
+  (EF-CONFIG-B-MIN-01) giữ nguyên KHÔNG sửa.
+```
+
+### Files changed
+
+```text
+docs/engineering/config.md  (v0.2 Draft -> v0.2 Approved, blob
+                             6c58dde51b915f81e3748d4dfa314a13c25e5ada)
+docs/MANIFEST.md             (manifest_version 10.106 -> 10.107; row +
+                              confirmation note cập nhật)
+docs/CHANGELOG.md            (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-028.md/docs/adr/ADR-017.md (Approved, immutable) —
+  verified byte-identical. docs/domain/account.md, ADR-027/logging.md,
+  ADR-026/naming.md, ADR-025/coding-standard.md, ADR-024/monorepo.md,
+  ADR-008, module-registry.yaml, Constitution, Phase 1.5 rules — tất
+  cả verified byte-identical (git diff empty).
+Config Convention semantics KHÔNG đổi: configuration model, source
+  precedence, environment-variable mapping, defaults/required/optional/
+  validation semantics, startup/activation boundary, ADR-017 secrets/
+  custody boundary, Account.environment domain ownership, override
+  provenance, reloadability classification, local-development
+  boundary, Python/Go idiomatic allowance, Logging interaction, Error
+  Handling/CI-CD/deployment boundaries, tooling/vendor/format
+  non-goals, future ADR Scope Rule rerun requirement.
+KHÔNG tạo ADR-029. Phase 2 substantive work VẪN NOT YET AUTHORIZED.
+  LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/config.md: v0.2, status Approved, approved_by
+  Product Owner, approved_at 2026-08-11, blob
+  6c58dde51b915f81e3748d4dfa314a13c25e5ada.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 03465fbb5167ce2d33b16a16918a1273682d6b6e verified
+[x] Reviewed candidate blob 805bd9a351d1792e5d9283ea0f4989129aa36295
+    verified
+[x] version remains 0.2
+[x] status becomes Approved
+[x] approved_by/approved_at correct
+[x] Product Owner decision recorded exactly
+[x] EF-CONFIG-A-MAJ-01 remains CLOSED
+[x] EF-CONFIG-B-MIN-01 remains OPEN — accepted non-blocking residual
+[x] Review B READY state recorded
+[x] Stale v0.1 wording remains untouched (verified grep)
+[x] Semantic content unchanged (§1–§15 byte-equivalent, verified)
+[x] ADR-028/ADR-017 byte-identical
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Config Convention v0.2 bounded correction: `EF-CONFIG-A-MAJ-01` CLOSED
 
 **Narrowly bounded correction — vai trò: `Phase 1.5 Config v0.2 Bounded Correction Executor`.** Resolves one Review A finding on the v0.1 Config Convention draft. No redesign of the Config Convention.
