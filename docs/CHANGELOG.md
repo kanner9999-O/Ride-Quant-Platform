@@ -2,6 +2,140 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Logging Convention v0.2 bounded correction: `EF-LOG-A-MAJ-01`/`02`/`03` CLOSED
+
+**Bounded correction — vai trò: `Phase 1.5 Logging v0.2 Bounded Correction Executor`.** Consolidated bounded correction of `docs/engineering/logging.md` v0.1, resolving exactly three Review A Major findings. No redesign of the Logging Convention.
+
+### Baseline
+
+```text
+Starting HEAD:      123851f0e2bc4cc6877f7ef3657c7ee722149336
+Candidate:          docs/engineering/logging.md v0.1, status Draft,
+                    blob 416ebed02ec8ed5db3c24a3ee0631973d228a31c
+Approved authority: docs/adr/ADR-027.md v0.2, status Approved,
+                    blob b89d0f9d1d7109d41e45cc7d302f5b398f100b09
+ADR027-B-MIN-01:    OPEN / accepted non-blocking (unchanged)
+```
+
+### EF-LOG-A-MAJ-01 — timestamp normalization (§4)
+
+```text
+Vấn đề: v0.1 §4 nói "ISO 8601 string, UTC" NHƯNG KHÔNG fix một emitted
+  representation profile duy nhất — "ISO 8601" cho phép nhiều shape
+  (có/không fractional second, `Z` hay `+00:00`, số chữ số fractional-
+  second khác nhau). §4 v0.1 ĐỒNG THỜI claim lexicographic sort/so
+  sánh đúng thứ tự KHÔNG cần parse — claim đó CHỈ đúng khi MỌI module
+  emit CÙNG một fixed-width shape; với "ISO 8601" chung, claim đó KHÔNG
+  được support.
+Sửa: fix DUY NHẤT MỘT emitted profile — `YYYY-MM-DDTHH:MM:SS.sssZ`.
+  UTC bắt buộc, ký hiệu DUY NHẤT `Z` (KHÔNG `+00:00`, KHÔNG offset
+  khác). Fractional second CHÍNH XÁC 3 chữ số (millisecond), LUÔN LUÔN
+  xuất hiện (KHÔNG bỏ khi `000`, KHÔNG microsecond/nanosecond). Profile
+  tương thích ISO-8601/RFC-3339 (subset hợp lệ, KHÔNG format riêng).
+  Lexicographic-ordering claim giữ nguyên, giờ thực sự supported vì
+  MỌI module emit ĐÚNG cùng fixed-width shape. KHÔNG library nào chọn,
+  KHÔNG storage backend nào chọn — CHỈ representation.
+```
+
+### EF-LOG-A-MAJ-02 — CI/CD authority boundary (§10/§11/§14)
+
+```text
+Vấn đề: v0.1 §10 nói lựa chọn logging library "thuộc ... HOẶC CI/CD
+  category tương lai"; §14 gán "log collector/observability vendor
+  selection" LÀ thuộc "CI/CD category riêng" — cả hai đọc được như
+  CI/CD LÀ owner của quyết định chọn library/collector/vendor/backend.
+  KHÔNG existing approved authority gán ownership đó cho CI/CD.
+Sửa: §10/§11/§14 tách rõ CI/CD's legitimate concern — CHỈ pipeline/
+  enforcement/integration của MỘT lựa chọn logging ĐÃ authorize —
+  KHÔNG tự động owns việc CHỌN library/collector/vendor/backend. Lựa
+  chọn cụ thể VẪN deferred; owner CHỈ xác định khi một authority đã
+  Approved thực sự assign, KHÔNG suy đoán tại living convention này.
+  CI/CD (khi category đó mở, tương lai) CÓ THỂ enforce/integrate một
+  lựa chọn ĐÃ authorize, KHÔNG tự nó quyết định lựa chọn đó.
+```
+
+### EF-LOG-A-MAJ-03 — evidence authority (§12)
+
+```text
+Vấn đề: v0.1 §12 nêu tên `replay-integration-service` (đọc từ
+  `module-registry.yaml`) LÀM MỘT phần của authority cho replay/
+  execution evidence. `module-registry.yaml` CHỈ pin module identity/
+  dependency graph, KHÔNG establish evidence/authority cho execution/
+  replay/audit truth — nêu tên module cụ thể LÀ suy diễn authority
+  KHÔNG tồn tại.
+Sửa: bỏ tên module cụ thể khỏi §12. §12 giờ CHỈ giữ nguyên tắc chung:
+  log record LÀ auxiliary observation, KHÔNG PHẢI nguồn sự thật duy
+  nhất/canonical cho execution/replay/audit/domain truth; canonical
+  evidence PHẢI đến từ authority/evidence artifact do approved
+  contract/governance liên quan thiết lập; KHÔNG tự designate module
+  nào LÀM evidence authority trừ khi một authority Approved khác
+  explicit làm vậy.
+```
+
+### Section-by-section verification
+
+```text
+Verified (Python regex extraction, so sánh HEAD vs working tree):
+  SAME (byte-equivalent): §1, §2, §3, §5, §6, §7, §8, §9, §13, §15
+  DIFF (đúng scope 3 finding trên): §4, §10, §11, §12, §14
+Trong §10/§11/§14 (DIFF), phần idiomatic-representation principle
+  (§10)/technology-neutral output-stream principle (§11)/category-
+  boundary còn lại (§14) giữ nguyên nội dung — CHỈ đoạn CI/CD-ownership
+  implication sửa.
+```
+
+### Files changed
+
+```text
+docs/engineering/logging.md  (v0.1 -> v0.2, Draft, blob
+                              3ad89f279059bd7b38d3b51efd9253e200708b73)
+docs/MANIFEST.md             (manifest_version 10.98 -> 10.99; row +
+                              confirmation note cập nhật)
+docs/CHANGELOG.md            (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-027.md (Approved, immutable) — verified byte-identical.
+ADR-026/naming.md, ADR-025/coding-standard.md, ADR-024/monorepo.md,
+  ADR-008, module-registry.yaml, Constitution, Phase 1.5 rules — tất cả
+  verified byte-identical (git diff empty).
+ADR027-B-MIN-01 VẪN OPEN — accepted non-blocking, KHÔNG đóng.
+KHÔNG logging library/vendor/backend nào chọn. KHÔNG mở Config/Error
+  Handling/Testing/CI-CD. KHÔNG tạo ADR-028. Phase 2 substantive work
+  VẪN NOT YET AUTHORIZED. LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/logging.md: v0.2, status Draft, blob
+  3ad89f279059bd7b38d3b51efd9253e200708b73 — not self-approved
+  (G-ORCH-002); Review/Approval VẪN LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 123851f0e2bc4cc6877f7ef3657c7ee722149336 verified
+[x] Candidate blob 416ebed02ec8ed5db3c24a3ee0631973d228a31c verified
+[x] v0.2 Draft resulting identity: blob
+    3ad89f279059bd7b38d3b51efd9253e200708b73
+[x] EF-LOG-A-MAJ-01/02/03 tất cả genuinely closed (§4/§10/§11/§14/§12
+    edited, verified content)
+[x] Timestamp emitted profile deterministic (một shape duy nhất, fixed
+    3-digit fractional second, Z suffix)
+[x] CI/CD KHÔNG còn owns logging library/vendor selection (§10/§11/§14)
+[x] module identity KHÔNG còn implies evidence authority (§12)
+[x] Unaffected Logging semantics preserved (§1/§2/§3/§5/§6/§7/§8/§9/
+    §13/§15 byte-equivalent, verified)
+[x] ADR-027 unchanged (byte-identical)
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Logging Convention v0.1 DRAFTED: `docs/engineering/logging.md`
 
 **Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Logging Foundation Executor`.** Authors `docs/engineering/logging.md` v0.1 (`Draft`) as the living Logging Convention under Approved `ADR-027`. Fourth Phase 1.5 Engineering Foundation category, following the established pattern (Monorepo, Coding Standard, Naming).

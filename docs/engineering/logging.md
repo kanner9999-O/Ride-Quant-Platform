@@ -1,7 +1,7 @@
 ---
 id: engineering-logging
 title: "Engineering Foundation — Logging Convention"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -18,6 +18,8 @@ depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../
 **Vai trò của tài liệu này:** convention document THỨ TƯ của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2), phạm vi CHỈ category **Logging** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). **`ADR-027` v0.2 (Approved 2026-08-11) LÀ authority cho chính việc CÓ một cross-module Logging Convention baseline bắt buộc** — tài liệu này LÀ living convention chứa chi tiết rule reversible dưới authority đó, KHÔNG lặp lại decision text của ADR-027. KHÔNG Constitution chapter, KHÔNG ADR, KHÔNG redefine Module Taxonomy/dependency graph/ngôn ngữ allocation/Coding Standard/Naming Convention — `module-registry.yaml` VẪN authority module identity/dependency, `ADR-008` VẪN authority ngôn ngữ, `ADR-024`/`monorepo.md` VẪN authority repository topology, `ADR-025`/`coding-standard.md` VẪN authority Coding Standard, `ADR-026`/`naming.md` VẪN authority identifier naming. Mọi thay đổi SEMANTIC tương lai vào tài liệu này PHẢI tự chạy lại ADR Scope Rule (Chapter 0 §4b) hiện hành TẠI chính thời điểm đổi — reversibility của kỹ thuật thay đổi KHÔNG hủy/miễn vế ">1 module" nếu vế đó đã thỏa (đúng lesson `ADR-025`/`ADR-026` §3, KHÔNG redefine — xem §13 dưới).
 
 **Residual ADR finding `ADR027-B-MIN-01` (§4 Alternatives của ADR-027): VẪN `OPEN — accepted non-blocking`** — quan sát riêng của chính ADR-027, KHÔNG chạm/KHÔNG đóng tại đây (thuộc phạm vi correction riêng cho `ADR-027.md`, KHÔNG tại living convention document này). Rule bên dưới derive ĐỘC LẬP dưới ADR-027 §3's living-convention authority — KHÔNG suy diễn từ §4's rationale sentence như đã là detailed policy quyết định sẵn.
+
+**v0.2 — bounded correction (2026-08-11), đóng ba Review A Major, vai trò: `Phase 1.5 Logging v0.2 Bounded Correction Executor`.** Đóng `EF-LOG-A-MAJ-01` (§4 v0.1 nói "ISO 8601 UTC" NHƯNG KHÔNG fix một emitted representation profile duy nhất, trong khi claim lexicographic-ordering-KHÔNG-cần-parse chỉ đúng nếu MỌI module emit ĐÚNG cùng shape — sửa: fix DUY NHẤT một profile `YYYY-MM-DDTHH:MM:SS.sssZ`, UTC `Z` bắt buộc, fractional second CHÍNH XÁC 3 chữ số luôn xuất hiện, tương thích ISO-8601/RFC-3339). Đóng `EF-LOG-A-MAJ-02` (§10/§11/§14 v0.1 gán/đọc được như CI/CD category LÀ owner của việc CHỌN logging library/log collector/observability vendor/storage backend — sửa: tách rõ CI/CD's legitimate concern CHỈ LÀ pipeline/enforcement/integration của một lựa chọn ĐÃ authorize, KHÔNG tự động owns việc CHỌN lựa chọn đó; lựa chọn cụ thể VẪN deferred, KHÔNG owner nào gán trừ khi authority Approved khác explicit assign). Đóng `EF-LOG-A-MAJ-03` (§12 v0.1 nêu tên `replay-integration-service` từ `module-registry.yaml` LÀM MỘT phần authority cho replay/execution evidence — SAI, `module-registry.yaml` CHỈ pin module identity/dependency, KHÔNG tạo evidence authority — sửa: bỏ tên module cụ thể, chỉ giữ nguyên tắc chung "canonical evidence PHẢI đến từ authority/evidence artifact do approved contract/governance liên quan thiết lập, KHÔNG tự designate module nào"). **KHÔNG đổi:** ADR-027 relationship (§1), structured logging requirement (§2), minimum field model ngoài timestamp clarification (§3), log level semantics (§5), correlation/causation contextual-only rule (§6), Error Handling boundary (§7), sensitive-data prohibition/redaction (§8), event-vs-log boundary (§9), Python/Go idiomatic representation principle (§10 phần còn lại), output-stream technology-neutral principle (§11 phần còn lại), deviations (§13), future ADR Scope Rule rerun requirement (§13/§15), boundary với category khác ngoài CI/CD clarification (§14 phần còn lại), ADR-scope disposition (§15). `ADR027-B-MIN-01` VẪN `OPEN — accepted non-blocking`, KHÔNG đóng, KHÔNG chạm `ADR-027.md`. KHÔNG chọn logging library/vendor/backend nào. `status` VẪN `Draft`.
 
 ## 1. Purpose and authority
 
@@ -86,17 +88,47 @@ Tài liệu này KHÔNG invent trace/span/distributed-tracing semantics nào
 ## 4. Timestamp
 
 ```text
-Timestamp representation: ISO 8601 string, UTC, có timezone designator
-  rõ ràng (vd `2026-08-11T09:15:32.123Z`) — chọn vì: (1) human-readable
-  trực tiếp trong raw log file/text sink (KHÔNG cần decode timestamp
-  epoch); (2) sort/so sánh lexicographic đúng thứ tự thời gian mà KHÔNG
-  cần parse; (3) hỗ trợ cross-module ordering nhất quán khi mọi module
-  cùng dùng UTC, KHÔNG lệ thuộc local timezone của host/container.
+[v0.2 sửa, đóng EF-LOG-A-MAJ-01: v0.1 nói "ISO 8601 string, UTC" NHƯNG
+  KHÔNG fix một emitted representation profile duy nhất — "ISO 8601"
+  cho phép nhiều shape khác nhau (có/không fractional second, `Z` hay
+  `+00:00`, số chữ số fractional-second khác nhau), trong khi §4 v0.1
+  ĐỒNG THỜI claim "sort/so sánh lexicographic đúng thứ tự KHÔNG cần
+  parse" — claim đó CHỈ đúng khi MỌI module emit CÙNG MỘT fixed-width
+  representation; nếu shape khác nhau (vd một module bỏ fractional
+  second, module khác dùng `+00:00` thay `Z`), lexicographic sort SAI
+  thứ tự. Sửa: fix DUY NHẤT MỘT emitted profile bên dưới, KHÔNG cho
+  phép shape thay thế.]
+
+Timestamp representation PHẢI theo ĐÚNG MỘT profile sau — KHÔNG shape
+  thay thế nào khác được phép tại emitted log record:
+  Format:     `YYYY-MM-DDTHH:MM:SS.sssZ`
+  Timezone:   UTC bắt buộc, ký hiệu DUY NHẤT `Z` (KHÔNG `+00:00`,
+              KHÔNG offset khác UTC, KHÔNG local timezone).
+  Fractional second: CHÍNH XÁC 3 chữ số (millisecond), LUÔN LUÔN xuất
+              hiện — KHÔNG bỏ khi giá trị `000`, KHÔNG dùng độ chính
+              xác khác (KHÔNG microsecond/nanosecond, KHÔNG bỏ hẳn
+              fractional second) — millisecond ĐỦ cho nhu cầu ordering/
+              debugging hiện tại của Ride (chưa có nhu cầu sub-
+              millisecond timing đã biết); nếu tương lai cần độ chính
+              xác khác, đó LÀ một semantic change PHẢI tự rerun ADR
+              Scope Rule (§13 dưới).
+  Ví dụ hợp lệ DUY NHẤT dạng: `2026-08-11T09:15:32.123Z`.
+Profile này TƯƠNG THÍCH ISO-8601/RFC-3339 (LÀ một subset hợp lệ của cả
+  hai chuẩn, KHÔNG PHẢI một format riêng biệt) — tài liệu này CHỈ fix
+  chính xác MỘT profile trong không gian shape mà ISO-8601/RFC-3339 cho
+  phép, KHÔNG mở rộng ra ngoài hai chuẩn đó.
+Vì MỌI module emit ĐÚNG cùng fixed-width profile trên (cùng độ dài
+  string, cùng vị trí từng field, cùng `Z` suffix), lexicographic sort/
+  so sánh string PHẢN ÁNH ĐÚNG thứ tự thời gian mà KHÔNG cần parse —
+  claim này CHỈ đúng KHI mọi module tuân thủ profile duy nhất trên;
+  KHÔNG shape thay thế nào được phép làm mất tính chất này.
 Mọi log record PHẢI ghi timestamp theo UTC — KHÔNG local timezone,
   KHÔNG offset khác UTC. Module chạy ở bất kỳ timezone host nào PHẢI tự
   convert sang UTC trước khi ghi log.
-Tài liệu này KHÔNG chọn storage backend nào lưu timestamp đó (deferred,
-  §11) — CHỈ quyết định representation của chính field trong log record.
+Tài liệu này KHÔNG chọn library/hàm cụ thể để format timestamp (Python/
+  Go tự chọn API idiomatic để đạt ĐÚNG profile trên, §10 dưới), KHÔNG
+  chọn storage backend nào lưu timestamp đó (deferred, §11) — CHỈ
+  quyết định representation của chính field trong log record.
 ```
 
 ## 5. Log levels
@@ -220,10 +252,24 @@ Yêu cầu DUY NHẤT: mỗi implementation PHẢI conform đúng SEMANTIC
   khi có context §6, error-logging boundary §7, sensitive-data
   prohibition §8, event-vs-log distinction §9) — KHÔNG PHẢI identical
   syntax/API/object shape.
+[v0.2 sửa, đóng EF-LOG-A-MAJ-02: v0.1 nói lựa chọn library "thuộc một
+  transaction implementation-readiness riêng ... HOẶC CI/CD category
+  tương lai" — đọc được như CI/CD LÀ (một) owner của quyết định chọn
+  logging library, SAI: `module-registry.yaml`/existing approved
+  authority KHÔNG gán ownership đó cho CI/CD; CI/CD (khi category đó mở)
+  CHỈ owns pipeline/enforcement/integration concern của riêng nó (vd
+  enforce lint rule, chạy test, deploy step), KHÔNG tự động owns việc
+  CHỌN library/vendor/backend nào. Sửa: bỏ implication đó.]
+
 Tài liệu này KHÔNG chọn logging library cụ thể cho Python HAY Go tại
-  transaction này (deferred, §11 dưới) — lựa chọn library/tooling cụ
-  thể thuộc một transaction implementation-readiness riêng (nếu cần
-  trước khi module đầu tiên build) hoặc CI/CD category tương lai.
+  transaction này (deferred). Việc CHỌN library CỤ THỂ thuộc một
+  transaction implementation-readiness riêng (khi cần, trước khi module
+  đầu tiên build) — tài liệu này KHÔNG gán ownership quyết định đó cho
+  CI/CD category hay bất kỳ category/module nào khác; owner cụ thể CHỈ
+  xác định khi một authority đã Approved thực sự assign nó, KHÔNG suy
+  đoán tại đây. CI/CD category (khi mở, tương lai) CÓ THỂ enforce/
+  integrate một lựa chọn logging ĐÃ được authorize bởi nơi khác, NHƯNG
+  KHÔNG tự động LÀ nơi quyết định lựa chọn đó (xem §11/§14 dưới).
 ```
 
 ## 11. Output / sink boundary
@@ -239,10 +285,12 @@ Application-output expectation tối thiểu cần cho implementation-
   mỗi module implementation (Python/Go) PHẢI ghi structured log record
   (§2–§3) ra một output stream mà runtime/deployment environment CÓ THỂ
   thu thập được (vd stdout/stderr theo container logging convention phổ
-  biến, hoặc file — CHỌN CỤ THỂ nào thuộc CI/CD/deployment category
-  tương lai) — module KHÔNG tự implement riêng một sink/transport
-  logging phức tạp (network log shipper tự viết...) khi runtime
-  environment đã cung cấp collection mechanism chuẩn.
+  biến, hoặc file — lựa chọn CỤ THỂ giữa các phương án đó deferred tới
+  một transaction implementation-readiness/deployment riêng, KHÔNG tự
+  động gán CI/CD category LÀ owner quyết định đó, xem §14) — module
+  KHÔNG tự implement riêng một sink/transport logging phức tạp (network
+  log shipper tự viết...) khi runtime environment đã cung cấp collection
+  mechanism chuẩn.
 Serialization format cụ thể (JSON line, key=value text...) deferred tới
   transaction implementation-readiness riêng hoặc CI/CD category — CHỈ
   yêu cầu: format đó PHẢI parse được structured record §2–§3 nhất quán,
@@ -252,16 +300,36 @@ Serialization format cụ thể (JSON line, key=value text...) deferred tới
 ## 12. Determinism / explainability
 
 ```text
+[v0.2 sửa, đóng EF-LOG-A-MAJ-03: v0.1 nêu tên `replay-integration-
+  service` (đọc từ `module-registry.yaml`) LÀM MỘT phần của authority
+  cho replay/execution evidence — SAI: `module-registry.yaml` CHỈ pin
+  module identity/dependency graph, KHÔNG establish evidence/authority
+  cho execution/replay/audit truth. Nêu tên module cụ thể tại đây LÀ
+  suy diễn authority KHÔNG tồn tại. Sửa: bỏ tên module cụ thể, CHỈ nói
+  nguyên tắc chung — canonical evidence PHẢI đến từ authority/evidence
+  artifact do approved contract/governance liên quan thiết lập, KHÔNG
+  tự designate module nào LÀM authority trừ khi một approved authority
+  hiện hành đã explicit làm vậy (KHÔNG tại đây).]
+
 Log record PHẢI mô tả sự việc/fact ĐÃ xảy ra tại runtime — KHÔNG suy
   diễn/log một causality chưa thực sự xác nhận (vd KHÔNG log "X gây ra
   Y" khi hệ thống chỉ quan sát được X và Y riêng biệt, chưa xác nhận
   quan hệ nhân quả).
-Logging KHÔNG PHẢI substitute cho canonical execution/replay/domain
-  evidence — khi cần xác nhận chính xác một luồng xử lý/quyết định đã
-  xảy ra thế nào (audit, replay, compliance), authority ĐÚNG LÀ Domain
-  Contract/Event Contract/replay-integration-service (xem
-  `module-registry.yaml`) và execution evidence tương ứng — KHÔNG dùng
-  log record LÀM nguồn sự thật duy nhất cho quyết định/replay đó.
+Log record LÀ observation phụ trợ (auxiliary) — KHÔNG PHẢI nguồn sự
+  thật duy nhất/canonical cho execution, replay, audit, hay domain
+  truth. Khi cần xác nhận chính xác một luồng xử lý/quyết định đã xảy
+  ra thế nào (audit, replay, compliance), canonical evidence PHẢI đến
+  từ authority/evidence artifact do approved contract/governance liên
+  quan thiết lập (Domain Contract/Event Contract, hoặc bất kỳ evidence
+  authority nào khác đã Approved) — KHÔNG dùng log record LÀM nguồn sự
+  thật duy nhất cho quyết định/replay đó.
+Tài liệu này KHÔNG tự designate module CỤ THỂ nào (vd theo
+  `module-registry.yaml`) LÀM canonical evidence authority — module
+  identity/dependency graph (`module-registry.yaml`) KHÔNG tự nó tạo
+  evidence authority; việc một module CÓ hay KHÔNG LÀ evidence
+  authority (nếu có) PHẢI xác định bởi authority Approved khác (Domain/
+  Event Contract hoặc governance liên quan), KHÔNG suy diễn tại living
+  convention document này.
 Nguyên tắc này hỗ trợ I-1 Explainability tại tầng logging — log record
   LÀ observation phụ trợ, KHÔNG PHẢI canonical decision/event record.
 ```
@@ -301,11 +369,25 @@ Error Handling (exception hierarchy/error contract/retry policy):
   "presentation requirement," KHÔNG định nghĩa exception hierarchy.
 Testing (framework/coverage/tier):                          deferred tới
   Testing category riêng.
-CI/CD (pipeline/enforcement mechanism, log collector/observability
-  vendor selection):                                        deferred tới
-  CI/CD category riêng — §11's "PHẢI ghi ra output stream thu thập
-  được" LÀ principle chờ CI/CD category thực sự chọn collection
-  mechanism, KHÔNG tự tạo pipeline tại đây.
+[v0.2 sửa, đóng EF-LOG-A-MAJ-02: v0.1 gán "log collector/observability
+  vendor selection" LÀ thuộc "CI/CD category riêng" — SAI, đọc được như
+  CI/CD LÀ owner của quyết định chọn library/collector/vendor/backend.
+  Sửa: tách rõ CI/CD's legitimate concern (pipeline/enforcement/
+  integration của MỘT lựa chọn logging ĐÃ authorize) khỏi việc CHỌN
+  library/collector/vendor/backend đó (vẫn deferred, KHÔNG owner nào
+  gán tại đây trừ khi một authority Approved khác đã assign).]
+CI/CD (pipeline/enforcement mechanism riêng của CI/CD — chạy lint/test/
+  build/deploy step, enforce convention ĐÃ có tại tài liệu này):
+  deferred tới CI/CD category riêng khi mở — CI/CD CHỈ owns
+  pipeline/enforcement/integration concern của chính nó, KHÔNG tự động
+  owns việc CHỌN logging library/log collector/observability vendor/
+  storage backend (§10/§11 trên) — lựa chọn đó VẪN deferred, KHÔNG
+  owner nào được gán tại đây trừ khi một authority Approved khác đã
+  explicit assign. CI/CD (khi category đó mở) CÓ THỂ enforce/integrate
+  một lựa chọn logging ĐÃ được authorize bởi nơi khác, KHÔNG tự nó
+  quyết định lựa chọn đó. §11's "PHẢI ghi ra output stream thu thập
+  được" LÀ principle chờ implementation-readiness/CI-CD category thực
+  sự triển khai collection mechanism, KHÔNG tự tạo pipeline tại đây.
 ```
 
 ## 15. ADR-scope disposition
@@ -376,4 +458,42 @@ v0.1  2026-08-11  Established — vai trò: `Phase 1.5 Logging Foundation
       `module-registry.yaml`/Constitution/Phase 1.5 rules. KHÔNG bắt đầu
       Config/Error Handling/Testing/CI-CD. `status: Draft` — not
       self-approved (`G-ORCH-002`).
+v0.2  2026-08-11  Bounded correction, đóng `EF-LOG-A-MAJ-01`/
+      `EF-LOG-A-MAJ-02`/`EF-LOG-A-MAJ-03` (Review A findings). Chi tiết
+      từng finding: xem banner đầu tài liệu VÀ marker inline tại §4/§10/
+      §11/§14/§12. `EF-LOG-A-MAJ-01`: §4 fix DUY NHẤT một emitted
+      timestamp profile (`YYYY-MM-DDTHH:MM:SS.sssZ`, UTC `Z`, fractional
+      second CHÍNH XÁC 3 chữ số luôn xuất hiện, tương thích ISO-8601/
+      RFC-3339) — lexicographic-ordering claim giữ nguyên NHƯNG giờ
+      thực sự supported bởi profile fixed-width duy nhất. `EF-LOG-A-
+      MAJ-02`: §10/§11/§14 bỏ implication CI/CD LÀ owner của việc CHỌN
+      logging library/log collector/observability vendor/storage
+      backend — CI/CD (khi mở) CHỈ owns pipeline/enforcement/
+      integration concern riêng, KHÔNG tự động owns lựa chọn đó; lựa
+      chọn cụ thể VẪN deferred, KHÔNG owner nào gán tại đây trừ khi một
+      authority Approved khác explicit assign. `EF-LOG-A-MAJ-03`: §12
+      bỏ tên module cụ thể (`replay-integration-service`) khỏi vị trí
+      "authority" cho replay/execution evidence — `module-registry.yaml`
+      CHỈ pin module identity/dependency, KHÔNG tạo evidence authority;
+      §12 giờ CHỈ giữ nguyên tắc chung (log LÀ auxiliary observation,
+      canonical evidence PHẢI đến từ authority/evidence artifact do
+      approved contract/governance liên quan thiết lập, KHÔNG tự
+      designate module nào). **KHÔNG đổi:** §1 (ADR-027 relationship),
+      §2 (structured logging), §3 (minimum field model ngoài timestamp
+      clarification), §5 (log level semantics), §6 (correlation/
+      causation contextual-only), §7 (Error Handling boundary), §8
+      (sensitive-data prohibition/redaction), §9 (event-vs-log
+      boundary), phần idiomatic-representation principle của §10, phần
+      technology-neutral output-stream principle của §11, §13
+      (deviations, ADR Scope Rule rerun requirement), phần category-
+      boundary còn lại của §14, §15 (ADR-scope disposition). KHÔNG rule
+      mới nào thêm, KHÔNG category mới mở (Config/Error Handling/
+      Testing/CI-CD VẪN chưa bắt đầu). KHÔNG chọn logging library/
+      vendor/backend nào tại correction này. `ADR027-B-MIN-01` VẪN
+      `OPEN — accepted non-blocking`, KHÔNG đóng, KHÔNG chạm
+      `ADR-027.md` (Approved, immutable, verified byte-identical).
+      KHÔNG chạm `ADR-026`/`naming.md`/`ADR-025`/`coding-standard.md`/
+      `ADR-024`/`monorepo.md`/`ADR-008`/`module-registry.yaml`/
+      Constitution/Phase 1.5 rules. `status` VẪN `Draft` — not
+      self-approved (`G-ORCH-002`), KHÔNG authorize Phase 2/LIVE.
 ```
