@@ -2,6 +2,138 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-025 authored (Draft): Cross-Module Coding Standard Baseline
+
+**ADR authoring — vai trò: `ADR-025 Coding Standard Baseline Authoring Executor`.** Authors the ADR that Independent Review B flagged as Required (`EF-CODE-B-MAJ-01`) on `docs/engineering/coding-standard.md` v0.1. Draft only — not approved. Does not modify `coding-standard.md`.
+
+### Baseline
+
+```text
+Starting HEAD:  2990fc0fdfceb4a73849ea9556967ede2521df6c
+Last existing ADR:  ADR-024.md (verified via `ls docs/adr/`)
+Blocked candidate: docs/engineering/coding-standard.md v0.1, status
+                   Draft, blob 7d6aa1b059313c8633aebc683f4a3f40a2e77dd9
+Review state:       Review A: Blocker 0/Major 0/Minor 2
+                   (EF-CODE-A-MIN-01, EF-CODE-A-MIN-02); Independent
+                   Review B: Blocker 0/Major 1 (EF-CODE-B-MAJ-01),
+                   verdict NOT_READY
+```
+
+### G-VERIFY-001 / G-ADR-004 applied
+
+```text
+Verified ADR-025 is the next unused identity (ls docs/adr/ shows
+  ADR-024 as the last file; docs/adr/ADR-025.md did not exist before
+  this transaction).
+Re-verified Chapter 0 §4b directly and EF-ADR-001 (phase-1.5-rules.md):
+  both state the ">1 module OR hard to reverse" OR trigger identically
+  -- coding-standard.md v0.1's own ADR-scope check (§12) evaluated only
+  the "hard to reverse" branch and missed ">1 module" entirely, the
+  same failure class as monorepo.md v0.1-v0.3's ADR-scope error (which
+  ADR-024 itself exists to resolve).
+Ran the G-ADR-004 inflation/scope check: ADR-008 (language only),
+  ADR-024 (repository topology only), and module-registry.yaml (module
+  identity/dependency only) resolve none of this gap -- a cross-module
+  Coding Standard baseline authority genuinely does not exist yet.
+```
+
+### New file (Draft, not approved)
+
+```text
+docs/adr/ADR-025.md  (new, v0.1, status Draft)
+  blob: a066f5414338cdf6fe9fc634b857181a2013e98d
+
+  Decision question: adopt one governed cross-module Coding Standard
+    baseline vs independent per-module standards vs language-only
+    standards with no platform-level baseline.
+  Decision: one governed cross-module baseline -- scoped narrowly.
+  ADR authority (frozen): a baseline exists; modules must conform to
+    whichever Coding Standard version is currently Approved; deviations
+    stay governed and cannot override higher architecture authority.
+  Living convention authority (stays in coding-standard.md, versioned
+    independently, no ADR needed for future reversible updates):
+    formatter/linter brand, dependency-hygiene detail, comment/
+    docstring rules, warning/dead-code rules, reproducibility wording,
+    concrete tool/version choices.
+  Alternatives evaluated fairly: one cross-module baseline (selected),
+    independent per-module standards (rejected -- no domain reason for
+    26 module_id to diverge, unnecessary drift/tooling complexity at
+    current scale), language-only standards (rejected -- still missing
+    one authority for cross-language concerns like import discipline
+    against the dependency graph, generated-code treatment, and
+    determinism).
+  Consequences: both benefits (consistency, easier enforcement, less
+    drift, easier onboarding) and costs (wider blast radius, lower
+    module autonomy, cross-module coordination on baseline changes, the
+    need to keep ADR text narrow while the living convention evolves)
+    recorded.
+  Relationship to existing authority: ADR-008 (language allocation),
+    ADR-024 (repository topology), and module-registry.yaml (module
+    identity/dependency graph) all explicitly preserved, not redefined;
+    no module->language mapping created.
+  Scale Check performed honestly -- used to confirm the decision
+    substance still holds at current/near-future scale, not to argue
+    the already-established ADR Required trigger away.
+  §9 records that after Product Owner approval, one bounded Coding
+    Standard alignment transaction is expected to resolve
+    EF-CODE-B-MAJ-01, EF-CODE-A-MIN-01, and EF-CODE-A-MIN-02 together --
+    none closed here, and no content of the two Review A Minors is
+    guessed at.
+  Independent reviews table left blank -- no review performed yet.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-025.md  (new)
+docs/MANIFEST.md      (new compact ADR-table row; manifest_version
+                      10.84 -> 10.85)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+docs/engineering/coding-standard.md: byte-identical (git diff --quiet)
+  -- not touched by this transaction; EF-CODE-B-MAJ-01/EF-CODE-A-MIN-01/
+  EF-CODE-A-MIN-02 remain OPEN, none marked CLOSED. ADR-008, ADR-024,
+  module-registry.yaml, every other ADR, Constitution, Phase 1.5 rules:
+  byte-identical. No ADR-026 created. No formatter/linter/package-
+  manager tool selected. No Naming category touched. No Phase 1.5 DoD
+  created. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/adr/ADR-025.md:            v0.1, status Draft, NOT approved
+Coding Standard candidate:       still v0.1, Draft, unchanged
+EF-CODE-B-MAJ-01/A-MIN-01/A-MIN-02:  all OPEN, none CLOSED
+Phase 2 -- Product Prototype:    NOT AUTHORIZED (unchanged)
+LIVE:                            NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                            CONFIRMED
+ADR-025 did not already exist:                    CONFIRMED
+Current ADR template used:                        CONFIRMED
+Decision narrowly scoped to cross-module Coding
+  Standard authority:                              CONFIRMED
+Detailed reversible rules remain in living
+  convention:                                      CONFIRMED
+>1 module trigger represented correctly:           CONFIRMED
+ADR-008/ADR-024/module-registry authority
+  preserved:                                       CONFIRMED (git diff
+  --quiet)
+Coding Standard v0.1 byte-identical:               CONFIRMED
+All three findings remain OPEN:                    CONFIRMED
+ADR-025 remains Draft:                             CONFIRMED
+Diff bounded to ADR-025 + bookkeeping:             CONFIRMED
+Phase 2/LIVE unchanged:                            CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Bounded correction: `G-ORCH-004` scoped to primary orchestrator role
 
 **Bounded semantic correction — vai trò: `Governance Execution Rulebook Structuring Executor`.** Scopes `G-ORCH-004`'s mandatory full next-task-prompt duty to the primary orchestrator role, per Product Owner clarification, so executor/reviewer reports don't grow unnecessarily long.
