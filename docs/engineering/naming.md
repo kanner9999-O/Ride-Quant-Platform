@@ -2,11 +2,11 @@
 id: engineering-naming
 title: "Engineering Foundation — Naming Convention"
 version: "0.2"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-11"
 created_at: "2026-08-11"
 last_review: null
 next_review: null
@@ -14,6 +14,22 @@ depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../
 ---
 
 # Engineering Foundation — Naming Convention
+
+**APPROVED (2026-08-11) — status: Draft → Approved.** Product Owner decision: **"APPROVE NAMING CONVENTION V0.2."** Reviewed candidate: v0.2, blob `c64eaca155e1382aedf0bee00e958febcd788ef1`. `version: "0.2"` KHÔNG đổi (pure mechanical lifecycle approval — KHÔNG bump). Tài liệu này VẪN LÀ living document (Chapter 3 §3.2 "tài liệu SỐNG, không bất biến"; Chapter 0 §7.1 lifecycle Draft→...→Approved→Locked) — `Approved` KHÔNG đồng nghĩa immutable byte-for-byte như ADR (Chapter 11 §11.3 KHÔNG áp dụng ở đây); thay đổi tương lai vẫn hợp lệ qua version bump + re-review (Chapter 0 §8), VÀ mọi thay đổi SEMANTIC PHẢI tự rerun ADR Scope Rule đúng §14.
+
+**Review evidence tại approval này:**
+
+```text
+Đóng (trước approval, v0.2):  EF-NAME-A-MAJ-01, EF-NAME-A-MIN-01
+Carry-forward, ACCEPTED non-blocking, VẪN OPEN (KHÔNG closed tại
+  transaction này):
+  EF-NAME-A2-MIN-01   Python `__init__.py` wording (§4) — residual
+  EF-NAME-B-MIN-01     Go file/package wording (§4) — residual
+```
+
+**`ADR026-A-MIN-01` (residual của chính `ADR-026`, tách biệt khỏi hai residual trên): VẪN `OPEN — accepted non-blocking`** — KHÔNG chạm, KHÔNG đóng tại đây (thuộc phạm vi correction riêng cho `ADR-026.md`).
+
+**Approval này KHÔNG đổi Naming semantics nào** (§1–§14 dưới byte-equivalent) — KHÔNG chạm `ADR-026` (Approved, immutable)/`ADR-025`/`coding-standard.md`/`ADR-008`/`ADR-024`/`module-registry.yaml`/Constitution/Phase 1.5 rules, KHÔNG tạo ADR-027, KHÔNG mở Logging/Config/Error Handling/Testing/CI-CD category, KHÔNG authorize Phase 2, KHÔNG authorize LIVE. **KHÔNG sửa** Python `__init__.py` wording hay Go file/package wording tại transaction này — cả hai VẪN LÀ accepted residual Minor.
 
 **Vai trò của tài liệu này:** convention document THỨ BA của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2), phạm vi CHỈ category **Naming Convention** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). **`ADR-026` v0.1 (Approved 2026-08-11) LÀ authority cho chính việc CÓ một cross-module Naming Convention baseline bắt buộc** — tài liệu này LÀ living convention chứa chi tiết rule dưới authority đó, KHÔNG lặp lại decision text của ADR-026. KHÔNG Constitution chapter, KHÔNG ADR, KHÔNG redefine Module Taxonomy/dependency graph/ngôn ngữ allocation/Coding Standard — `module-registry.yaml` VẪN authority module identity/dependency, `ADR-008` VẪN authority ngôn ngữ, `ADR-024` VẪN authority repository topology, `ADR-025`/`coding-standard.md` VẪN authority Coding Standard. Mọi thay đổi SEMANTIC tương lai vào tài liệu này PHẢI tự chạy lại ADR Scope Rule (Chapter 0 §4b) hiện hành TẠI chính thời điểm đổi — reversibility của kỹ thuật thay đổi KHÔNG hủy/miễn vế ">1 module" nếu vế đó đã thỏa (đúng lesson `ADR-025`/`coding-standard.md` §12/§3, KHÔNG redefine).
 
@@ -317,4 +333,25 @@ v0.2  2026-08-11  Bounded correction, đóng `EF-NAME-A-MAJ-01`/
       `ADR-026` (Approved, immutable)/`ADR-025`/`coding-standard.md`/
       `ADR-008`/`ADR-024`/`module-registry.yaml`/Constitution/Phase 1.5
       rules. `status` VẪN `Draft`.
+ACCEPTANCE  2026-08-11  Product Owner lifecycle approval — mechanical,
+      vai trò: `Phase 1.5 Naming Convention Approval Recorder`. Quyết
+      định: "APPROVE NAMING CONVENTION V0.2." Reviewed candidate: v0.2,
+      blob `c64eaca155e1382aedf0bee00e958febcd788ef1`. `status: Draft ->
+      Approved`, `approved_by: null -> Product Owner`, `approved_at:
+      null -> "2026-08-11"`. `version` KHÔNG bump (pure mechanical
+      lifecycle approval). Đóng trước approval (v0.2): `EF-NAME-A-MAJ-
+      01`/`EF-NAME-A-MIN-01`. Carry-forward, ACCEPTED non-blocking, VẪN
+      `OPEN` (KHÔNG đóng tại đây): `EF-NAME-A2-MIN-01` (Python
+      `__init__.py` wording, §4) VÀ `EF-NAME-B-MIN-01` (Go file/package
+      wording, §4). `ADR026-A-MIN-01` (residual riêng của `ADR-026`)
+      VẪN `OPEN — accepted non-blocking`, KHÔNG chạm. KHÔNG semantic
+      content nào đổi (§1–§14 byte-equivalent ngoài banner/lifecycle
+      metadata/change history này). Tài liệu VẪN LÀ living document —
+      `Approved` KHÔNG immutable byte-for-byte như ADR; thay đổi
+      SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule đúng §14.
+      KHÔNG chạm `ADR-026` (Approved, immutable)/`ADR-025`/
+      `coding-standard.md`/`ADR-008`/`ADR-024`/`module-registry.yaml`/
+      Constitution/Phase 1.5 rules, KHÔNG tạo ADR-027, KHÔNG mở
+      Engineering Foundation category khác, KHÔNG authorize Phase
+      2/LIVE.
 ```

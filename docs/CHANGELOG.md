@@ -2,6 +2,126 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Naming Convention v0.2 APPROVED
+
+**Mechanical lifecycle recording — vai trò: `Phase 1.5 Naming Convention Approval Recorder`.** Records the Product Owner decision "APPROVE NAMING CONVENTION V0.2" — no Naming semantic content changed.
+
+### Baseline
+
+```text
+Starting HEAD:  df9da85df632786e3d8fb9967846a25975989729
+Reviewed candidate: docs/engineering/naming.md v0.2, status Draft,
+                    blob c64eaca155e1382aedf0bee00e958febcd788ef1
+Authority:           docs/adr/ADR-026.md v0.1, status Approved, blob
+                    7f1980db1aa220daf530f510d576f5096d9a8cf2
+Review state:        EF-NAME-A-MAJ-01/EF-NAME-A-MIN-01 already CLOSED
+                    (v0.2). Carry-forward: EF-NAME-A2-MIN-01 (Python
+                    __init__.py wording), EF-NAME-B-MIN-01 (Go file/
+                    package wording) -- both OPEN, accepted
+                    non-blocking. ADR026-A-MIN-01 -- OPEN, accepted
+                    non-blocking, separate residual on ADR-026 itself.
+```
+
+### G-VERIFY-001 / G-ID-001 applied
+
+```text
+Verified starting HEAD and the on-disk blob of naming.md matched the
+  stated reviewed candidate (c64eaca1...) exactly before any edit.
+  Re-verified ADR-026.md's blob before and after -- byte-identical, not
+  touched.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-11"
+version:      "0.2" unchanged (pure mechanical approval -- no bump)
+```
+
+### Residual findings recorded (none closed)
+
+```text
+EF-NAME-A2-MIN-01: OPEN -- accepted non-blocking. Python __init__.py
+  wording (§4) -- carried forward, not corrected in this transaction.
+EF-NAME-B-MIN-01:   OPEN -- accepted non-blocking. Go file/package
+  wording (§4) -- carried forward, not corrected in this transaction.
+ADR026-A-MIN-01:    OPEN -- accepted non-blocking. Separate residual on
+  ADR-026 itself -- not touched, not closed here.
+```
+
+### Reviewed vs resulting blob (G-ID-001 -- distinguished, not conflated)
+
+```text
+Reviewed semantic candidate blob:      c64eaca155e1382aedf0bee00e958febcd788ef1
+Resulting post-approval lifecycle blob: e436fb5b92c676f75bd45c32ed59fcbb67ecc7c7
+(differ only because the approval banner + review-evidence note +
+ frontmatter lifecycle fields + one change-history entry were written --
+ no semantic content changed, confirmed section-by-section for §1-§14)
+```
+
+### Files changed
+
+```text
+docs/engineering/naming.md  (frontmatter status/approved_by/
+                             approved_at; approval banner + review-
+                             evidence note added after title;
+                             ACCEPTANCE change-history entry appended;
+                             §1-§14 byte-equivalent)
+docs/MANIFEST.md              (row updated to Approved + both blobs +
+                             residual states; manifest_version
+                             10.93 -> 10.94)
+docs/CHANGELOG.md             (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Naming semantics (§1-§14 of naming.md): byte-equivalent -- ADR-026
+  authority, general principles, Python/Go naming (including the still-
+  open __init__.py and file/package wording), event PAST_TENSE_
+  UPPER_SNAKE representation, no mandatory I-prefix, bounded DTO suffix,
+  booleans/predicates, constants/enums, module-registry authority,
+  category boundaries, and ADR-scope disposition all untouched.
+docs/adr/ADR-026.md: byte-identical (git diff --quiet) -- immutable
+  after approval, not touched. ADR-025, coding-standard.md,
+  monorepo.md, ADR-008, ADR-024, module-registry.yaml, every other ADR,
+  Constitution, Phase 1.5 rules: byte-identical. No ADR-027 created. No
+  Logging/Config/Error Handling/Testing/CI-CD category touched. Phase
+  2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/engineering/naming.md:  version 0.2, status Approved, approved_by
+                             Product Owner, approved_at 2026-08-11
+EF-NAME-A2-MIN-01 / EF-NAME-B-MIN-01 / ADR026-A-MIN-01:  all still OPEN
+                             -- accepted non-blocking
+Phase 2 -- Product Prototype:  NOT AUTHORIZED (unchanged)
+LIVE:                           NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD/blob:                          CONFIRMED
+Version remains 0.2:                                CONFIRMED
+Status becomes Approved:                             CONFIRMED
+Approval metadata correct:                           CONFIRMED
+PO decision recorded exactly:                        CONFIRMED
+Semantic Naming content unchanged:                   CONFIRMED (section-
+  by-section diff, SS1-SS14)
+Both Naming residual Minors remain OPEN/accepted
+  non-blocking:                                       CONFIRMED
+ADR026-A-MIN-01 remains OPEN:                         CONFIRMED
+ADR-026 unchanged:                                    CONFIRMED (git
+  diff --quiet)
+Only three expected files changed:                    CONFIRMED
+Phase 2/LIVE unchanged:                              CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Naming Convention bounded correction: `EF-NAME-A-MAJ-01`/`EF-NAME-A-MIN-01` CLOSED
 
 **Bounded correction — vai trò: `Phase 1.5 Naming Foundation Bounded Correction Executor`.** Fixes one Major and one Minor finding from Review A on `docs/engineering/naming.md` v0.1. Does not redesign the Naming Convention.
