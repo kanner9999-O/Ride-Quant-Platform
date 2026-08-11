@@ -1,7 +1,7 @@
 ---
 id: engineering-logging
 title: "Engineering Foundation — Logging Convention"
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -20,6 +20,8 @@ depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../
 **Residual ADR finding `ADR027-B-MIN-01` (§4 Alternatives của ADR-027): VẪN `OPEN — accepted non-blocking`** — quan sát riêng của chính ADR-027, KHÔNG chạm/KHÔNG đóng tại đây (thuộc phạm vi correction riêng cho `ADR-027.md`, KHÔNG tại living convention document này). Rule bên dưới derive ĐỘC LẬP dưới ADR-027 §3's living-convention authority — KHÔNG suy diễn từ §4's rationale sentence như đã là detailed policy quyết định sẵn.
 
 **v0.2 — bounded correction (2026-08-11), đóng ba Review A Major, vai trò: `Phase 1.5 Logging v0.2 Bounded Correction Executor`.** Đóng `EF-LOG-A-MAJ-01` (§4 v0.1 nói "ISO 8601 UTC" NHƯNG KHÔNG fix một emitted representation profile duy nhất, trong khi claim lexicographic-ordering-KHÔNG-cần-parse chỉ đúng nếu MỌI module emit ĐÚNG cùng shape — sửa: fix DUY NHẤT một profile `YYYY-MM-DDTHH:MM:SS.sssZ`, UTC `Z` bắt buộc, fractional second CHÍNH XÁC 3 chữ số luôn xuất hiện, tương thích ISO-8601/RFC-3339). Đóng `EF-LOG-A-MAJ-02` (§10/§11/§14 v0.1 gán/đọc được như CI/CD category LÀ owner của việc CHỌN logging library/log collector/observability vendor/storage backend — sửa: tách rõ CI/CD's legitimate concern CHỈ LÀ pipeline/enforcement/integration của một lựa chọn ĐÃ authorize, KHÔNG tự động owns việc CHỌN lựa chọn đó; lựa chọn cụ thể VẪN deferred, KHÔNG owner nào gán trừ khi authority Approved khác explicit assign). Đóng `EF-LOG-A-MAJ-03` (§12 v0.1 nêu tên `replay-integration-service` từ `module-registry.yaml` LÀM MỘT phần authority cho replay/execution evidence — SAI, `module-registry.yaml` CHỈ pin module identity/dependency, KHÔNG tạo evidence authority — sửa: bỏ tên module cụ thể, chỉ giữ nguyên tắc chung "canonical evidence PHẢI đến từ authority/evidence artifact do approved contract/governance liên quan thiết lập, KHÔNG tự designate module nào"). **KHÔNG đổi:** ADR-027 relationship (§1), structured logging requirement (§2), minimum field model ngoài timestamp clarification (§3), log level semantics (§5), correlation/causation contextual-only rule (§6), Error Handling boundary (§7), sensitive-data prohibition/redaction (§8), event-vs-log boundary (§9), Python/Go idiomatic representation principle (§10 phần còn lại), output-stream technology-neutral principle (§11 phần còn lại), deviations (§13), future ADR Scope Rule rerun requirement (§13/§15), boundary với category khác ngoài CI/CD clarification (§14 phần còn lại), ADR-scope disposition (§15). `ADR027-B-MIN-01` VẪN `OPEN — accepted non-blocking`, KHÔNG đóng, KHÔNG chạm `ADR-027.md`. KHÔNG chọn logging library/vendor/backend nào. `status` VẪN `Draft`.
+
+**v0.3 — bounded correction (2026-08-11), đóng phần còn lại của `EF-LOG-A-MAJ-02`, vai trò: `Phase 1.5 Logging v0.3 Bounded Correction Executor`.** Independent Review B phát hiện một surviving authority leak tại §11: v0.2 đã sửa §10/§14 (bỏ CI/CD LÀM owner của việc CHỌN library/collector/vendor/backend) NHƯNG §11's câu serialization-format ("deferred tới transaction implementation-readiness riêng HOẶC CI/CD category") VẪN sót giữ implication tương tự. Sửa: bỏ "CI/CD category" khỏi vị trí owner tiềm năng — serialization format VẪN deferred, KHÔNG gán owner nào tại đây; CI/CD CÓ THỂ enforce/integrate một lựa chọn ĐÃ authorize NHƯNG KHÔNG tự động sở hữu quyết định chọn (đúng boundary §10/§14 đã pin tại v0.2). **KHÔNG đổi:** timestamp profile (§4), structured logging (§2), minimum fields (§3), log levels (§5), correlation/causation (§6), Error Handling boundary (§7), sensitive-data rules (§8), event-vs-log boundary (§9), Python/Go idiomatic representation (§10 phần còn lại), output-stream technology-neutral principle (§11 phần còn lại), evidence-authority correction (§12), deviations (§13), ADR Scope Rule (§13/§15), mọi category boundary khác (§14 phần còn lại). `EF-LOG-A-MAJ-01`/`EF-LOG-A-MAJ-03` dispositions KHÔNG chạm (VẪN CLOSED, KHÔNG reopen). `ADR027-B-MIN-01` VẪN `OPEN — accepted non-blocking`, KHÔNG đóng, KHÔNG chạm `ADR-027.md`. KHÔNG chọn serialization format/library/vendor/backend nào. `status` VẪN `Draft`.
 
 ## 1. Purpose and authority
 
@@ -291,10 +293,22 @@ Application-output expectation tối thiểu cần cho implementation-
   KHÔNG tự implement riêng một sink/transport logging phức tạp (network
   log shipper tự viết...) khi runtime environment đã cung cấp collection
   mechanism chuẩn.
-Serialization format cụ thể (JSON line, key=value text...) deferred tới
-  transaction implementation-readiness riêng hoặc CI/CD category — CHỈ
-  yêu cầu: format đó PHẢI parse được structured record §2–§3 nhất quán,
-  KHÔNG free-form-only.
+[v0.3 sửa, đóng phần còn lại của EF-LOG-A-MAJ-02: v0.2 nói serialization
+  format "deferred tới transaction implementation-readiness riêng HOẶC
+  CI/CD category" — VẪN đọc được như CI/CD LÀ (một) owner tiềm năng của
+  quyết định chọn serialization format, cùng defect class đã sửa cho
+  library/collector/vendor/backend tại §10/§14 (v0.2) NHƯNG sót lại tại
+  chính câu này. Sửa: bỏ hẳn "CI/CD category" khỏi vị trí owner, giữ
+  ĐÚNG boundary đã pin tại §10/§14 — CI/CD CÓ THỂ enforce/integrate một
+  lựa chọn ĐÃ authorize, KHÔNG tự động sở hữu quyết định chọn.]
+
+Serialization format cụ thể (JSON Lines, key=value text...) VẪN
+  deferred. Tài liệu này KHÔNG gán owner cho quyết định đó. Khi một
+  governed transaction/authority phù hợp sau này chọn format, CI/CD CÓ
+  THỂ enforce/integrate lựa chọn đã được authorize, nhưng CI/CD KHÔNG tự
+  động sở hữu quyết định chọn format. CHỈ yêu cầu semantic hiện tại:
+  format đó (khi chọn) PHẢI parse được structured record §2–§3 nhất
+  quán, KHÔNG free-form-only.
 ```
 
 ## 12. Determinism / explainability
@@ -496,4 +510,29 @@ v0.2  2026-08-11  Bounded correction, đóng `EF-LOG-A-MAJ-01`/
       `ADR-024`/`monorepo.md`/`ADR-008`/`module-registry.yaml`/
       Constitution/Phase 1.5 rules. `status` VẪN `Draft` — not
       self-approved (`G-ORCH-002`), KHÔNG authorize Phase 2/LIVE.
+v0.3  2026-08-11  Bounded correction, đóng PHẦN CÒN LẠI của
+      `EF-LOG-A-MAJ-02` (surviving authority leak tại §11, phát hiện bởi
+      Independent Review B sau v0.2). v0.2 đã sửa §10/§14 (bỏ CI/CD LÀM
+      owner của việc CHỌN logging library/log collector/observability
+      vendor/storage backend) NHƯNG §11's câu serialization-format
+      ("deferred tới transaction implementation-readiness riêng HOẶC
+      CI/CD category") VẪN sót giữ implication tương tự — CI/CD VẪN đọc
+      được như một owner tiềm năng của việc CHỌN serialization format.
+      Sửa: bỏ "CI/CD category" khỏi vị trí owner — serialization format
+      VẪN deferred, KHÔNG gán owner nào tại đây (chỉ một governed
+      transaction/authority phù hợp sau này mới chọn); CI/CD CÓ THỂ
+      enforce/integrate một lựa chọn ĐÃ authorize, KHÔNG tự động sở hữu
+      quyết định chọn — đúng boundary §10/§14 đã pin tại v0.2, giờ nhất
+      quán tại §11. KHÔNG chọn JSON/key=value/bất kỳ serialization
+      format cụ thể nào tại correction này. **KHÔNG đổi:** §1–§9, §12,
+      §13, §15 nguyên vẹn; phần idiomatic-representation của §10 và
+      technology-neutral output-stream principle của §11 giữ nguyên;
+      §14's category-boundary còn lại giữ nguyên. `EF-LOG-A-MAJ-01`/
+      `EF-LOG-A-MAJ-03` dispositions KHÔNG chạm (VẪN CLOSED). `ADR027-
+      B-MIN-01` VẪN `OPEN — accepted non-blocking`, KHÔNG đóng. KHÔNG
+      chạm `ADR-027.md` (Approved, immutable, verified byte-identical)/
+      `ADR-026`/`naming.md`/`ADR-025`/`coding-standard.md`/`ADR-024`/
+      `monorepo.md`/`ADR-008`/`module-registry.yaml`/Constitution/
+      Phase 1.5 rules. `status` VẪN `Draft` — not self-approved
+      (`G-ORCH-002`), KHÔNG authorize Phase 2/LIVE.
 ```

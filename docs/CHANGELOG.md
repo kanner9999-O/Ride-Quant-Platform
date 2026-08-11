@@ -2,6 +2,103 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Logging Convention v0.3 bounded correction: remaining `EF-LOG-A-MAJ-02` leak CLOSED
+
+**Narrowly bounded correction — vai trò: `Phase 1.5 Logging v0.3 Bounded Correction Executor`.** Resolves the surviving portion of `EF-LOG-A-MAJ-02` — a CI/CD authority leak in §11 that survived the v0.2 correction. No redesign of the Logging Convention.
+
+### Baseline
+
+```text
+Starting HEAD:      5a82385eb2401f67300abb37584564fa47730138
+Candidate:          docs/engineering/logging.md v0.2, status Draft,
+                    blob 3ad89f279059bd7b38d3b51efd9253e200708b73
+Approved authority: docs/adr/ADR-027.md v0.2, status Approved,
+                    blob b89d0f9d1d7109d41e45cc7d302f5b398f100b09
+Review state:       EF-LOG-A-MAJ-01/03 already CLOSED; EF-LOG-A-MAJ-02
+                    still OPEN — Independent Review B found a surviving
+                    leak at §11.
+```
+
+### EF-LOG-A-MAJ-02 — remaining leak (§11)
+
+```text
+Vấn đề: v0.2 đã sửa §10/§14 (bỏ implication CI/CD LÀM owner của việc
+  CHỌN logging library/log collector/observability vendor/storage
+  backend) NHƯNG §11's câu serialization-format vẫn nói "deferred tới
+  transaction implementation-readiness riêng HOẶC CI/CD category" —
+  CI/CD VẪN đọc được như một owner tiềm năng của việc CHỌN serialization
+  format, cùng defect class đã sửa cho library/collector/vendor/backend
+  NHƯNG sót lại tại chính câu này.
+Sửa: bỏ "CI/CD category" khỏi vị trí owner. Serialization format VẪN
+  deferred; tài liệu KHÔNG gán owner cho quyết định đó; khi một governed
+  transaction/authority phù hợp sau này chọn format, CI/CD CÓ THỂ
+  enforce/integrate lựa chọn đã authorize, NHƯNG KHÔNG tự động sở hữu
+  quyết định chọn format — nhất quán với boundary đã pin tại §10/§14.
+  KHÔNG chọn JSON/key=value/bất kỳ serialization format cụ thể nào.
+```
+
+### Section-by-section verification
+
+```text
+Verified (Python regex extraction, so sánh HEAD vs working tree):
+  SAME (byte-equivalent): §1, §2, §3, §4, §5, §6, §7, §8, §9, §10, §12,
+                          §13, §14, §15
+  DIFF (đúng scope): §11 (CHỈ ĐOẠN)
+`EF-LOG-A-MAJ-01`/`EF-LOG-A-MAJ-03` dispositions KHÔNG chạm — VẪN
+  CLOSED, KHÔNG reopen.
+```
+
+### Files changed
+
+```text
+docs/engineering/logging.md  (v0.2 -> v0.3, Draft, blob
+                              b03f94699423edfafce010867506718e539a976b)
+docs/MANIFEST.md             (manifest_version 10.99 -> 10.100; row +
+                              confirmation note cập nhật)
+docs/CHANGELOG.md            (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-027.md (Approved, immutable) — verified byte-identical.
+ADR-026/naming.md, ADR-025/coding-standard.md, ADR-024/monorepo.md,
+  ADR-008, module-registry.yaml, Constitution, Phase 1.5 rules — tất cả
+  verified byte-identical (git diff empty).
+ADR027-B-MIN-01 VẪN OPEN — accepted non-blocking, KHÔNG đóng.
+KHÔNG serialization format/library/vendor/backend nào chọn. KHÔNG mở
+  Config/Error Handling/Testing/CI-CD. KHÔNG tạo ADR-028. Phase 2
+  substantive work VẪN NOT YET AUTHORIZED. LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/logging.md: v0.3, status Draft, blob
+  b03f94699423edfafce010867506718e539a976b — not self-approved
+  (G-ORCH-002); Review/Approval VẪN LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 5a82385eb2401f67300abb37584564fa47730138 verified
+[x] Candidate blob 3ad89f279059bd7b38d3b51efd9253e200708b73 verified
+[x] v0.3 Draft resulting identity: blob
+    b03f94699423edfafce010867506718e539a976b
+[x] §11 no longer assigns serialization selection to CI/CD
+[x] EF-LOG-A-MAJ-02 genuinely CLOSED (§11 edited, verified content)
+[x] §10/§14 corrected authority boundaries remain intact (byte-
+    equivalent, unchanged since v0.2)
+[x] Unaffected Logging semantics unchanged (§1–§10/§12–§15 byte-
+    equivalent, verified)
+[x] ADR-027 byte-identical
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] ADR027-B-MIN-01 VẪN OPEN
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Logging Convention v0.2 bounded correction: `EF-LOG-A-MAJ-01`/`02`/`03` CLOSED
 
 **Bounded correction — vai trò: `Phase 1.5 Logging v0.2 Bounded Correction Executor`.** Consolidated bounded correction of `docs/engineering/logging.md` v0.1, resolving exactly three Review A Major findings. No redesign of the Logging Convention.
