@@ -2,6 +2,88 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-027 bounded correction: `ADR027-A-MAJ-01` CLOSED
+
+**Bounded correction — vai trò: `ADR-027 v0.2 Bounded Correction Executor`.** Fixes one Review A Major finding on `docs/adr/ADR-027.md` v0.1: §3's ADR authority block prematurely froze a detailed cross-language logging representation rule. Does not redesign the Logging baseline.
+
+### Baseline
+
+```text
+Starting HEAD:  529fda9fee2fc0abfaa5fd680291fd6b7dd96d94
+Target:          docs/adr/ADR-027.md v0.1, status Draft,
+                 blob bf560b83408810dffdebd8920309e74a616f86c8
+```
+
+### Finding closed: `ADR027-A-MAJ-01`
+
+```text
+§3's "ADR authority" block gave the example "log-record structure/
+  field pattern ap dung ca hai ngon ngu nhu nhau" -- this prematurely
+  froze a detailed cross-language representation rule into immutable
+  ADR text, directly conflicting with §3's own boundary that detailed
+  logging rules (structured fields, serialization, etc.) live in
+  logging.md, not the ADR itself.
+Fixed: removed the example; replaced with bounded wording -- Python/Go
+  logging APIs and representation details may differ where idiomatic,
+  provided each implementation conforms to the common semantic
+  requirements defined by the currently Approved Logging Convention.
+  Does not decide here which fields/structures must be identical vs
+  merely semantically equivalent -- that remains future logging.md
+  authority.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-027.md  (0.1 -> 0.2: v0.2 correction banner added, §3's
+                      affected bullet corrected; §1/§2/§4-§9
+                      unchanged)
+docs/MANIFEST.md      (row updated: version, blob, note)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+§1/§2/§4/§5/§6/§7/§8/§9 of ADR-027.md: byte-identical
+  (programmatically diffed section-by-section, confirmed) -- ADR
+  Required rationale, primary common-baseline decision, "log record !=
+  domain event", the future-semantic-change ADR-Scope-Rule-rerun rule,
+  alternatives, consequences, authority boundaries (including library/
+  infrastructure/backend/CI/Error Handling deferrals), and the
+  downstream sequence all unchanged. docs/engineering/logging.md: still
+  not created. ADR-008, ADR-024, ADR-025/coding-standard.md, ADR-026/
+  naming.md, module-registry.yaml, every other ADR, Constitution, Phase
+  1.5 rules: byte-identical (git diff --quiet). No logging field/
+  level/library/backend selected. No other Foundation category
+  touched. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/adr/ADR-027.md:  version 0.2, status Draft
+ADR027-A-MAJ-01:       CLOSED
+Phase 2 -- Product Prototype:  NOT AUTHORIZED (unchanged)
+LIVE:                          NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD/blob:                          CONFIRMED
+ADR becomes v0.2 Draft:                              CONFIRMED
+ADR027-A-MAJ-01 genuinely closed:                    CONFIRMED
+No detailed cross-language field/structure
+  uniformity remains frozen in ADR:                   CONFIRMED
+Living-convention authority remains intact:           CONFIRMED
+Unaffected ADR semantics preserved:                   CONFIRMED (section-
+  by-section diff)
+Only expected three files changed:                    CONFIRMED
+logging.md remains absent:                            CONFIRMED
+Phase 2/LIVE unchanged:                               CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-027 authored (Draft): Cross-Module Logging Convention Baseline
 
 **ADR authoring — vai trò: `ADR-027 Logging Baseline Authoring Executor`.** Authors the ADR required for the Phase 1.5 Logging Convention category, applying the same ADR-first pattern established by `ADR-025`/`ADR-026`. Draft only — not approved. Does not create `docs/engineering/logging.md`.
