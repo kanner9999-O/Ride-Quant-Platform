@@ -2,6 +2,119 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-028 v0.2 APPROVED: Cross-Module Config Convention Baseline
+
+**Mechanical lifecycle recording — vai trò: `ADR-028 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-028 V0.2" — no ADR decision semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:  314781e9ca956a22e8137121e554951b285c46f7
+Reviewed candidate: docs/adr/ADR-028.md v0.2, status Draft,
+                    blob b7bcade1da7e3fef74e94df78ceacb358bf9fa74
+Review state:        bounded Review A re-review CLEAN (New Blocker 0/
+                    New Major 0/New Minor 0 — đóng ADR028-A-MAJ-01/
+                    ADR028-A-MIN-01); Independent Review B trên đúng
+                    v0.2 (New Blocker 0/New Major 0/New Minor 0,
+                    READY_FOR_PRODUCT_OWNER_DECISION).
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-11"
+version:      "0.2" KHÔNG đổi (pure mechanical approval, KHÔNG bump)
+Product Owner decision (nguyên văn): "APPROVE ADR-028 V0.2."
+```
+
+### Reviewer evidence pinned
+
+```text
+Review A bounded re-review: CLEAN, New Blocker 0/New Major 0/New Minor
+  0 — ADR028-A-MAJ-01 và ADR028-A-MIN-01 CLOSED (đóng tại v0.2 bounded
+  correction transaction trước).
+Independent Review B trên đúng v0.2: New Blocker 0/New Major 0/New
+  Minor 0 — cả hai finding CLOSED, verdict READY_FOR_PRODUCT_OWNER_
+  DECISION. Không finding mới nào invented tại approval này.
+```
+
+### Reviewed vs resulting blob (G-ID-001, distinguished)
+
+```text
+Reviewed semantic candidate:  v0.2 / Draft
+                               blob b7bcade1da7e3fef74e94df78ceacb358bf9fa74
+Resulting Approved identity:  v0.2 / Approved
+                               blob 016fbe8786d7e5df5609579d8aeea7ffb1f06178
+Decision content (§1–§6/§8–§9 của ADR-028.md): byte-equivalent —
+  Independent-reviews-table (§7) fill + banner LÀ thay đổi duy nhất.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-028.md  (v0.2 Draft -> v0.2 Approved, blob
+                      016fbe8786d7e5df5609579d8aeea7ffb1f06178)
+docs/MANIFEST.md     (manifest_version 10.103 -> 10.104; row cập nhật)
+docs/CHANGELOG.md    (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-017.md (Approved, immutable) — verified byte-identical.
+ADR-027/logging.md, ADR-026/naming.md, ADR-025/coding-standard.md,
+  ADR-024/monorepo.md, ADR-008, module-registry.yaml, Security &
+  Custody architecture, Constitution, Phase 1.5 rules — tất cả verified
+  byte-identical (git diff empty).
+Toàn bộ decision semantics ADR-028 (ADR Required từ >1 module, MỘT
+  governed cross-module Config baseline, module conform theo config.md
+  Approved hiện hành, Python/Go idiomatic mechanism allowance, detailed
+  policy deferred, ADR-017 authority preserved, custody-signing-service
+  direct-credential-use authority nguyên vẹn, module-registry.yaml CHỈ
+  identity/dependency authority, secret manager/KMS/backend/rotation
+  mechanism deferred, KHÔNG tooling/vendor/library/file format nào
+  chọn, CI/CD/deployment/Error Handling/Domain/Event/API/repository/
+  language/Coding/Naming/Logging authority tách biệt, future semantic
+  change rerun ADR Scope Rule, Scale Check supporting-analysis-only,
+  downstream sequence) KHÔNG đổi.
+docs/engineering/config.md: KHÔNG tạo tại transaction này (confirmed
+  absent). KHÔNG tạo ADR-029. KHÔNG chọn config/secret tooling. KHÔNG
+  mở Error Handling/Testing/CI-CD. Phase 2 substantive work VẪN NOT
+  YET AUTHORIZED. LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/adr/ADR-028.md: v0.2, status Approved, approved_by Product Owner,
+  approved_at 2026-08-11, blob
+  016fbe8786d7e5df5609579d8aeea7ffb1f06178.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 314781e9ca956a22e8137121e554951b285c46f7 verified
+[x] Reviewed candidate blob b7bcade1da7e3fef74e94df78ceacb358bf9fa74
+    verified
+[x] version remains 0.2
+[x] status becomes Approved
+[x] approved_by/approved_at correct
+[x] Product Owner decision recorded exactly
+[x] ADR028-A-MAJ-01 recorded CLOSED
+[x] ADR028-A-MIN-01 recorded CLOSED
+[x] Final Review B state recorded as READY_FOR_PRODUCT_OWNER_DECISION
+[x] Không finding mới nào invented
+[x] Semantic content unchanged (§1–§6/§8–§9 byte-equivalent, verified)
+[x] ADR-017 byte-identical
+[x] docs/engineering/config.md remains absent
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-028 v0.2 bounded correction: `ADR028-A-MAJ-01`/`ADR028-A-MIN-01` CLOSED
 
 **Bounded correction — vai trò: `ADR-028 v0.2 Bounded Correction Executor`.** Resolves two Review A findings on the v0.1 Config ADR draft. No redesign of the Config baseline decision.
