@@ -1,7 +1,7 @@
 ---
 id: engineering-config
 title: "Engineering Foundation — Config Convention"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -16,6 +16,8 @@ depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../
 # Engineering Foundation — Config Convention
 
 **Vai trò của tài liệu này:** convention document THỨ NĂM của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2), phạm vi CHỈ category **Config** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). **`ADR-028` v0.2 (Approved 2026-08-11) LÀ authority cho chính việc CÓ một cross-module Config Convention baseline bắt buộc** — tài liệu này LÀ living convention chứa chi tiết rule reversible dưới authority đó, KHÔNG lặp lại decision text của ADR-028. KHÔNG Constitution chapter, KHÔNG ADR, KHÔNG redefine Module Taxonomy/dependency graph/ngôn ngữ allocation/Coding Standard/Naming Convention/Logging Convention/Custody & Signing Trust Boundary — `module-registry.yaml` VẪN authority module identity/dependency, `ADR-008` VẪN authority ngôn ngữ, `ADR-024`/`monorepo.md` VẪN authority repository topology, `ADR-025`/`coding-standard.md` VẪN authority Coding Standard, `ADR-026`/`naming.md` VẪN authority identifier naming, `ADR-027`/`logging.md` VẪN authority Logging, `ADR-017` VẪN authority architecture-level Custody & Signing Trust Boundary. Mọi thay đổi SEMANTIC tương lai vào tài liệu này PHẢI tự chạy lại ADR Scope Rule (Chapter 0 §4b) hiện hành TẠI chính thời điểm đổi — reversibility của kỹ thuật thay đổi KHÔNG hủy/miễn vế ">1 module" nếu vế đó đã thỏa (đúng lesson `ADR-025`/`ADR-026`/`ADR-027`/`ADR-028` §3, KHÔNG redefine — xem §15 dưới).
+
+**v0.2 — bounded correction (2026-08-11), đóng `EF-CONFIG-A-MAJ-01`, vai trò: `Phase 1.5 Config v0.2 Bounded Correction Executor`.** v0.1 §4/§9 dùng "LIVE-vs-PAPER environment selection" LÀM ví dụ setting Config-owned cần explicit-config/fail-closed default, VÀ liệt kê PAPER/LIVE cùng cấp với deployment-style environment (dev/test/staging/production) — tạo alternate-source-of-truth ambiguity với `account.md` (Account authority: `environment` required, immutable, gán TẠI `AccountRegistered`, `account.md` §1/§8). Sửa: §4 bỏ ví dụ PAPER/LIVE khỏi danh sách Config-owned sensitive setting; §9 tách bạch tường minh — `Account.environment` VẪN LÀ domain value thuộc Account authority DUY NHẤT, Config KHÔNG own/derive/default/override/replace giá trị đó, source precedence (§2) KHÔNG BAO GIỜ được hiểu LÀ cách thay đổi `Account.environment`; Config VẪN CÓ THỂ định nghĩa operational setting được scope/condition bởi một giá trị ĐÃ authoritative, MIỄN LÀ KHÔNG tự đặt/suy diễn chính giá trị đó; configuration KHÔNG BAO GIỜ silently convert PAPER→LIVE; LIVE execution authorization VẪN LÀ quyết định governance riêng biệt. **KHÔNG đổi:** configuration model (§1, VẪN LÀ controlling principle, KHÔNG suy yếu), source precedence (§2), environment-variable mapping (§3), defaults policy ngoài ví dụ PAPER/LIVE đã bỏ (§4 phần còn lại), required/optional semantics (§5), validation (§6), startup/activation rule (§7), secrets boundary (§8), overrides (§10), reloadability (§11), local-development rules (§12), Python/Go boundary (§13), Logging interaction (§14), authority boundaries (§15), Non-goals, ADR-scope disposition, future ADR Scope Rule rerun requirement. KHÔNG chạm `account.md`/`ADR-028`/`ADR-017`/`ADR-007`. KHÔNG tạo ADR-029, KHÔNG redesign Account/environment semantics, KHÔNG authorize LIVE. `status` VẪN `Draft`.
 
 ## 1. Configuration model
 
@@ -96,11 +98,20 @@ Default value cho một config key PHẢI explicit VÀ documented (tại code
   trong đầu người viết code.
 Setting unsafe/security-sensitive/execution-sensitive (vd credential
   handling, execution-suspension/kill-switch observation, custody/
-  signing interaction, LIVE-vs-PAPER environment selection) KHÔNG được
-  gán permissive default CHỈ VÌ convenience (vd KHÔNG default "cho
-  phép LIVE" hay "bỏ qua kill-switch observation" — mọi giá trị loại
-  này PHẢI yêu cầu explicit configuration, fail-closed nếu absent, xem
-  §7).
+  signing interaction) KHÔNG được gán permissive default CHỈ VÌ
+  convenience (vd KHÔNG default "bỏ qua kill-switch observation" — mọi
+  giá trị loại này PHẢI yêu cầu explicit configuration, fail-closed
+  nếu absent, xem §7).
+
+[v0.2 sửa, đóng `EF-CONFIG-A-MAJ-01`: v0.1 dùng "LIVE-vs-PAPER
+  environment selection" LÀM ví dụ setting cần explicit-config/fail-
+  closed NGAY TẠI ĐÂY — đọc được như Config Convention sở hữu/default/
+  select giá trị đó. SAI: `Account.environment` (PAPER|LIVE) LÀ
+  required, immutable domain value do Account authority (`account.md`
+  §1/§8) gán TẠI `AccountRegistered`, KHÔNG PHẢI một Config-owned
+  setting — Config KHÔNG own/derive/default/override/replace giá trị
+  đó dưới bất kỳ hình thức nào (xem §9 dưới, chi tiết đầy đủ). Ví dụ đó
+  bỏ khỏi danh sách trên.]
 Sự vắng mặt (absence) của một required value PHẢI PHÂN BIỆT được với
   một giá trị đã configure explicit (vd absence ≠ empty string ≠ zero
   ≠ false một cách ngầm định) — implementation PHẢI có cách xác định
@@ -212,24 +223,57 @@ Tài liệu này KHÔNG redefine credential custody/rotation/signing
 ## 9. Environment-specific configuration
 
 ```text
+[v0.2 sửa, đóng `EF-CONFIG-A-MAJ-01`: v0.1 liệt kê "PAPER/LIVE đúng
+  account.md §8 environment enum" NGAY TẠI cùng cấp với deployment-
+  style environment (dev/test/staging/production) — ngụ ý Config
+  Convention quản lý/sở hữu giá trị PAPER/LIVE đó cùng cách như một
+  environment category thông thường, tạo alternate-source-of-truth
+  ambiguity với Account domain authority. Sửa: tách bạch tường minh
+  dưới đây — §1's nguyên tắc "configuration KHÔNG PHẢI domain fact"
+  VẪN LÀ controlling principle, KHÔNG suy yếu.]
+
 Config Convention cho phép semantic handling khác nhau theo môi
-  trường vận hành (dev/test/staging/production-like, VÀ PAPER/LIVE
-  đúng `account.md` §8 environment enum, KHÔNG đổi) — KHÔNG hardcode
-  deployment topology cụ thể (container platform, orchestration,
-  network layout — Non-goals) vào chính semantic đó.
-Behavior khác biệt xuyên môi trường PHẢI explicit VÀ documented tại
-  đúng config key/category liên quan — KHÔNG hidden behavior
-  difference (vd một module KHÔNG được tự động thay đổi business logic
-  chỉ vì "đang chạy tại staging" mà KHÔNG có config key tương ứng
-  explicit).
-Environment KHÔNG được silently thay đổi business semantics TRỪ KHI
-  explicitly configured VÀ authorized qua đúng authority hiện hành
-  (vd chuyển PAPER sang LIVE KHÔNG BAO GIỜ tự động qua config — đúng
-  `account.md` §8/`ADR-007` "Live execution authorization là quyết
-  định governance riêng," KHÔNG đổi tại đây).
-Tài liệu này KHÔNG authorize LIVE execution dưới bất kỳ hình thức nào
-  — quyết định đó VẪN thuộc một governance transaction riêng biệt,
-  hoàn toàn ngoài phạm vi Config Convention.
+  trường vận hành kiểu deployment (dev/test/staging/production-like)
+  — KHÔNG hardcode deployment topology cụ thể (container platform,
+  orchestration, network layout — Non-goals) vào chính semantic đó.
+
+`Account.environment` (PAPER|LIVE) LÀ required, immutable domain value
+  thuộc Account authority DUY NHẤT (`account.md` §1 "environment BẮT
+  BUỘC, BẤT BIẾN — gán tại `AccountRegistered`, KHÔNG tái gán sau đó";
+  §8 closed enum, "KHÔNG tự authorize Live execution của platform") —
+  Config Convention KHÔNG own, KHÔNG derive, KHÔNG default, KHÔNG
+  override, KHÔNG replace giá trị đó dưới bất kỳ hình thức nào. Source
+  precedence (§2 — config file/environment variable/runtime override)
+  KHÔNG BAO GIỜ được hiểu LÀ một cách để thay đổi `Account.environment`
+  đã authoritative — precedence đó CHỈ áp dụng cho Config-owned
+  operational/runtime setting, KHÔNG áp dụng cho domain value thuộc
+  authority khác.
+
+Config CÓ THỂ định nghĩa operational/runtime setting được scope/
+  condition bởi một giá trị ĐÃ authoritative (vd một module đọc một
+  endpoint/timeout config khác nhau TÙY THEO `Account.environment` ĐÃ
+  resolve từ Account authority tại runtime) — MIỄN LÀ existing
+  authority (Account/`ADR-007`) cho phép việc đọc/condition đó, VÀ
+  Config KHÔNG tự đặt/suy diễn/tạo ra chính giá trị PAPER/LIVE đó.
+
+Behavior khác biệt xuyên deployment-style environment (dev/test/
+  staging/production-like) PHẢI explicit VÀ documented tại đúng config
+  key/category liên quan — KHÔNG hidden behavior difference (vd một
+  module KHÔNG được tự động thay đổi business logic chỉ vì "đang chạy
+  tại staging" mà KHÔNG có config key tương ứng explicit).
+
+Configuration KHÔNG BAO GIỜ silently convert một Account PAPER thành
+  LIVE hay ngược lại — đúng bất biến `account.md` §1 (đổi environment
+  LÀ tạo Account khác, KHÔNG PHẢI một "nâng cấp" tại chỗ). LIVE
+  execution authorization VẪN LÀ một quyết định governance riêng biệt,
+  hoàn toàn tách khỏi Config Convention (`account.md` §8/`ADR-007`
+  "Live execution authorization là quyết định governance riêng,"
+  KHÔNG đổi tại đây).
+
+Tài liệu này KHÔNG authorize LIVE execution dưới bất kỳ hình thức nào,
+  KHÔNG invent một environment model mới nào ngoài Account authority đã
+  pin — quyết định LIVE authorization VẪN thuộc một governance
+  transaction riêng biệt, hoàn toàn ngoài phạm vi Config Convention.
 ```
 
 ## 10. Overrides
@@ -449,4 +493,33 @@ v0.1  2026-08-11  Established — vai trò: `Phase 1.5 Config Convention
       architecture/Constitution/Phase 1.5 rules. KHÔNG bắt đầu Error
       Handling/Testing/CI-CD. `status: Draft` — not self-approved
       (`G-ORCH-002`). KHÔNG authorize Phase 2/LIVE.
+v0.2  2026-08-11  Bounded correction, đóng `EF-CONFIG-A-MAJ-01`. v0.1
+      §4 dùng "LIVE-vs-PAPER environment selection" LÀM ví dụ setting
+      Config-owned cần explicit-config/fail-closed default, VÀ §9
+      liệt kê PAPER/LIVE cùng cấp với deployment-style environment
+      (dev/test/staging/production) — tạo alternate-source-of-truth
+      ambiguity với `account.md` (Account authority: `environment`
+      required, immutable, gán TẠI `AccountRegistered`, §1/§8, KHÔNG
+      tự authorize Live execution). Sửa: §4 bỏ ví dụ PAPER/LIVE khỏi
+      danh sách Config-owned sensitive setting. §9 tách bạch tường
+      minh — `Account.environment` VẪN LÀ domain value thuộc Account
+      authority DUY NHẤT; Config KHÔNG own/derive/default/override/
+      replace giá trị đó; source precedence (§2) KHÔNG BAO GIỜ được
+      hiểu LÀ cách thay đổi `Account.environment` đã authoritative;
+      Config VẪN CÓ THỂ định nghĩa operational setting được scope/
+      condition bởi một giá trị ĐÃ authoritative, MIỄN LÀ KHÔNG tự
+      đặt/suy diễn chính giá trị PAPER/LIVE đó; configuration KHÔNG
+      BAO GIỜ silently convert PAPER→LIVE; LIVE execution authorization
+      VẪN LÀ quyết định governance riêng biệt. **KHÔNG đổi:** §1
+      (configuration model, VẪN LÀ controlling principle, KHÔNG suy
+      yếu), §2 (source precedence), §3 (environment-variable mapping),
+      §4 phần còn lại (defaults policy), §5 (required/optional), §6
+      (validation), §7 (startup/activation), §8 (secrets boundary),
+      §10 (overrides), §11 (reloadability), §12 (local development),
+      §13 (Python/Go boundary), §14 (Logging interaction), §15
+      (authority boundaries), Non-goals, ADR-scope disposition, future
+      ADR Scope Rule rerun requirement. KHÔNG chạm `account.md`
+      (Account domain authority)/`ADR-028`/`ADR-017`/`ADR-007`. KHÔNG
+      tạo ADR-029, KHÔNG redesign Account/environment semantics, KHÔNG
+      authorize LIVE. `status` VẪN `Draft`.
 ```

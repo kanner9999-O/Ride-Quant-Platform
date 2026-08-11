@@ -2,6 +2,116 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Config Convention v0.2 bounded correction: `EF-CONFIG-A-MAJ-01` CLOSED
+
+**Narrowly bounded correction — vai trò: `Phase 1.5 Config v0.2 Bounded Correction Executor`.** Resolves one Review A finding on the v0.1 Config Convention draft. No redesign of the Config Convention.
+
+### Baseline
+
+```text
+Starting HEAD:      e86aee99ec6acb69caae1c2a88621ea876e0b3ab
+Candidate:          docs/engineering/config.md v0.1, status Draft,
+                    blob b9acdc0e3a94a1262ce1ae08de139efe1edd42e6
+Approved Config authority: docs/adr/ADR-028.md v0.2, status Approved,
+                    blob 016fbe8786d7e5df5609579d8aeea7ffb1f06178
+```
+
+### EF-CONFIG-A-MAJ-01 — PAPER/LIVE ownership ambiguity (§4/§9)
+
+```text
+Vấn đề: v0.1 §1 correctly nói configuration KHÔNG PHẢI domain fact/
+  authoritative business state — NHƯNG §4 dùng "LIVE-vs-PAPER
+  environment selection" LÀM ví dụ Config-owned sensitive setting cần
+  explicit-config/fail-closed default, VÀ §9 liệt kê PAPER/LIVE cùng
+  cấp với deployment-style environment (dev/test/staging/production)
+  — cả hai tạo alternate-source-of-truth ambiguity với `account.md`
+  (Account authority: `environment` field required, immutable, gán
+  TẠI `AccountRegistered`, KHÔNG tái gán sau đó — §1/§8).
+Sửa: §4 bỏ ví dụ PAPER/LIVE khỏi danh sách Config-owned sensitive
+  setting. §9 tách bạch tường minh: `Account.environment` VẪN LÀ
+  required, immutable domain value thuộc Account authority DUY NHẤT;
+  Config KHÔNG own/derive/default/override/replace giá trị đó dưới bất
+  kỳ hình thức nào; source precedence (§2) KHÔNG BAO GIỜ được hiểu LÀ
+  cách thay đổi `Account.environment` đã authoritative; Config VẪN CÓ
+  THỂ định nghĩa operational/runtime setting được scope/condition bởi
+  một giá trị ĐÃ authoritative (MIỄN LÀ existing authority cho phép VÀ
+  Config KHÔNG tự đặt/suy diễn chính giá trị đó); configuration KHÔNG
+  BAO GIỜ silently convert PAPER→LIVE; LIVE execution authorization
+  VẪN LÀ một quyết định governance riêng biệt, hoàn toàn tách khỏi
+  Config Convention. §1's controlling principle giữ nguyên, KHÔNG suy
+  yếu.
+```
+
+### Section-by-section verification
+
+```text
+Verified (Python regex extraction, so sánh HEAD vs working tree):
+  SAME (byte-equivalent): §1, §2, §3, §5, §6, §7, §8, §10, §11, §12,
+                          §13, §14, §15
+  DIFF (đúng scope 1 finding trên): §4, §9
+```
+
+### Files changed
+
+```text
+docs/engineering/config.md  (v0.1 -> v0.2, Draft, blob
+                             805bd9a351d1792e5d9283ea0f4989129aa36295)
+docs/MANIFEST.md            (manifest_version 10.105 -> 10.106; row
+                             cập nhật)
+docs/CHANGELOG.md           (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/domain/account.md (Account Domain Contract) — verified byte-
+  identical, KHÔNG redesign Account/environment semantics.
+docs/adr/ADR-028.md/docs/adr/ADR-017.md (Approved, immutable) —
+  verified byte-identical. ADR-027/logging.md, ADR-026/naming.md,
+  ADR-025/coding-standard.md, ADR-024/monorepo.md, ADR-008,
+  module-registry.yaml, Security & Custody architecture, Constitution,
+  Phase 1.5 rules — tất cả verified byte-identical (git diff empty).
+Configuration model (§1), source precedence (§2), environment-
+  variable mapping (§3), defaults policy ngoài ví dụ đã bỏ (§4 phần
+  còn lại), required/optional semantics (§5), validation (§6),
+  startup/activation rule (§7), ADR-017 secrets boundary (§8),
+  override provenance (§10), reloadability (§11), local-development
+  rules (§12), Python/Go boundary (§13), Logging interaction (§14),
+  authority boundaries (§15), Non-goals, future ADR Scope Rule rerun
+  requirement — tất cả giữ nguyên.
+KHÔNG tạo ADR-029. LIVE VẪN KHÔNG được authorize. Phase 2 substantive
+  work VẪN NOT YET AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/config.md: v0.2, status Draft, blob
+  805bd9a351d1792e5d9283ea0f4989129aa36295 — not self-approved
+  (G-ORCH-002); Review/Approval VẪN LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD e86aee99ec6acb69caae1c2a88621ea876e0b3ab verified
+[x] Candidate blob b9acdc0e3a94a1262ce1ae08de139efe1edd42e6 verified
+[x] v0.2 Draft resulting identity: blob
+    805bd9a351d1792e5d9283ea0f4989129aa36295
+[x] EF-CONFIG-A-MAJ-01 genuinely CLOSED
+[x] PAPER/LIVE Account environment remains domain authority
+[x] Config KHÔNG THỂ override/default/derive Account.environment
+[x] Environment-specific operational config remains possible KHÔNG
+    trở thành domain authority
+[x] LIVE authorization remains separate
+[x] Unaffected Config semantics preserved (§1/§2/§3/§5/§6/§7/§8/
+    §10–§15 byte-equivalent, verified)
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] ADR-028/ADR-017 untouched (byte-identical)
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Config Convention v0.1 DRAFTED: `docs/engineering/config.md`
 
 **Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Config Convention v0.1 Authoring Executor`.** Authors `docs/engineering/config.md` v0.1 (Draft), the fifth Phase 1.5 Engineering Foundation living convention, under Approved `ADR-028`. Follows the established ADR-first, living-convention-second pattern (Monorepo/Coding Standard/Naming/Logging/Config).
