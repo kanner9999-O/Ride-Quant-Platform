@@ -1,11 +1,11 @@
 ---
 id: execution-rules
 title: "Ride Quant Platform — Global Execution Rules"
-version: "0.2"
+version: "0.3"
 operational_state: EFFECTIVE
 owner: Product Owner
 accepted_by: Product Owner
-accepted_at: "2026-08-10"
+accepted_at: "2026-08-11"
 created_at: "2026-08-09"
 ---
 
@@ -191,6 +191,8 @@ Trước MỌI governed executor/reviewer prompt, bắt buộc tự hỏi:
 4. Prompt size có nằm trong budget không? (§G-BUDGET)
 5. Exact identity (blob/version) có được xử lý đúng không? (§G-ID)
 6. Tôi có đang tạo một review/micro-transaction KHÔNG CẦN THIẾT không?
+7. Tôi đã cung cấp exact next-task prompt / Product Owner decision action
+   chưa? (G-ORCH-004)
 ```
 
 ```text
@@ -203,6 +205,26 @@ G-ORCH-002  KHÔNG auto-approval — mọi Approved/Consolidated Stable/Accepted
             cấp trong transaction request.
 G-ORCH-003  KHÔNG auto-consolidation — package lifecycle KHÔNG tự chuyển
             Consolidated Stable chỉ vì nội dung "trông sẵn sàng."
+G-ORCH-004  Sau khi một governed task được verify và xác nhận hoàn tất,
+            orchestrator PHẢI cung cấp NGAY hành động/task tiếp theo cụ
+            thể trong CHÍNH response đó — KHÔNG để lại cho một turn sau.
+
+            Nếu task tiếp theo do một executor/reviewer khác thực hiện
+            (session/actor khác), response PHẢI bao gồm một prompt hoàn
+            chỉnh, copy-paste được, VÀ chỉ rõ prompt đó phải gửi cho
+            actor/session nào.
+
+            Nếu task tiếp theo đòi hỏi một Product Owner decision (KHÔNG
+            phải executor/reviewer action), response PHẢI cung cấp CHÍNH
+            XÁC decision phrase/action mà Product Owner cần trả lời —
+            KHÔNG mô tả chung, PHẢI actionable/copy-paste được.
+
+            KHÔNG được kết thúc response bằng việc CHỈ mô tả next step,
+            roadmap, hay "tiếp theo sẽ..." mà KHÔNG kèm prompt/decision
+            action cụ thể — TRỪ KHI KHÔNG CÒN governed task hợp lệ nào để
+            thực hiện (auto-approval/authorize Phase/LIVE vẫn KHÔNG được
+            phép, đúng G-ORCH-002/G-PHASE — rule này CHỈ đòi hỏi CUNG CẤP
+            action, KHÔNG tự thực thi action đó).
 ```
 
 ## Change history
@@ -222,4 +244,17 @@ v0.2  2026-08-10  Bổ sung Global rule mới `G-VERIFY-001` ("verify before
       asserted TRƯỚC KHI script-verify chống lại ground truth. v0.1 content
       (§Authority–§G-ORCH) KHÔNG đổi. accepted_by: Product Owner,
       accepted_at: 2026-08-10.
+v0.3  2026-08-11  Bổ sung Global rule mới `G-ORCH-004` — formalize Product
+      Owner instruction nguyên văn: "Sau mỗi task thì tao cần prompt của
+      task tiếp theo." Sau khi một governed task verify/xác nhận hoàn tất,
+      orchestrator PHẢI cung cấp NGAY next-task action trong CHÍNH response
+      đó: một prompt hoàn chỉnh copy-paste được (kèm actor/session nhận)
+      nếu task tiếp theo do executor/reviewer khác thực hiện, HOẶC decision
+      phrase/action chính xác nếu task tiếp theo cần Product Owner decision
+      — KHÔNG dừng ở mô tả roadmap/"tiếp theo sẽ..." chung. Rule KHÔNG tự
+      authorize phase transition/LIVE/override Product Owner authority nào
+      — CHỈ đòi hỏi CUNG CẤP action, KHÔNG tự thực thi. §G-ORCH self-check
+      bổ sung mục 7 tương ứng. v0.1/v0.2 content (§Authority–G-ORCH-003)
+      KHÔNG đổi, KHÔNG rule ID nào renumber. accepted_by: Product Owner,
+      accepted_at: 2026-08-11.
 ```

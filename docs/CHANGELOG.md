@@ -2,6 +2,106 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Global rule added: `G-ORCH-004` (mandatory next-task prompt)
+
+**Global governance addition — vai trò: `Governance Execution Rulebook Structuring Executor`.** Formalizes a Product Owner instruction as a durable Global Execution Rule, per `G-AUTH-001` (no durable rule may live in chat-only memory).
+
+### Baseline
+
+```text
+Starting HEAD:  f5a3e3d8f808c84e99efbde44399f69c88c2afa1
+Target:          docs/governance/execution-rules.md v0.2,
+                 operational_state EFFECTIVE,
+                 blob 4defb9e72dc3273c4df470e48939b635711b152c
+```
+
+### Product Owner instruction recorded
+
+```text
+Verbatim: "Sau moi task thi tao can prompt cua task tiep theo."
+  (After every task, I need the prompt for the next task.)
+```
+
+### New rule added
+
+```text
+G-ORCH-004: after a governed task is verified and confirmed complete,
+  the orchestrator MUST supply the next-task action immediately in that
+  same response.
+  - If the next task is executor/reviewer work (a different actor/
+    session), the response MUST include a complete, copy-paste-able
+    prompt, and state which actor/session to send it to.
+  - If the next task requires a Product Owner decision instead of
+    executor/reviewer action, the response MUST supply the exact
+    decision phrase/action the Product Owner needs to answer.
+  - The response must NOT end on a generic "next step"/roadmap/"we will
+    next..." description without a concrete actionable prompt/decision,
+    unless no valid governed task remains.
+  Does not authorize any phase transition, LIVE, or override Product
+  Owner authority -- it only requires SUPPLYING the action, not
+  executing it.
+G-ORCH self-check gained item 7: "Toi da cung cap exact next-task
+  prompt / Product Owner decision action chua? (G-ORCH-004)"
+```
+
+### Files changed
+
+```text
+docs/governance/execution-rules.md  (0.2 -> 0.3: G-ORCH-004 added,
+                                     self-check item 7 added, change
+                                     history entry; G-AUTH..G-ORCH-003
+                                     byte-equivalent, no rule ID
+                                     renumbered)
+docs/MANIFEST.md                     (row updated: version, blob, note;
+                                     manifest_version 10.81 -> 10.82)
+docs/CHANGELOG.md                    (this entry)
+```
+
+### Preserved unchanged
+
+```text
+G-AUTH/G-VERIFY/G-ADR/G-TXN/G-REV/G-BUDGET/G-ID/G-QG/G-PHASE and
+  G-ORCH-001/G-ORCH-002/G-ORCH-003: semantically unchanged, no rule ID
+  renumbered. operational_state remains EFFECTIVE; accepted_by remains
+  Product Owner (accepted_at bumped to this v0.3 acceptance date, same
+  pattern as the v0.1 -> v0.2 transition -- not reset/removed).
+  Constitution, ADRs, Phase 1.5 rules, Phase 2 rules, and the Monorepo
+  convention: byte-identical (git diff --quiet). No phase transition,
+  no LIVE authorization, no Coding Standard work started.
+```
+
+### Result
+
+```text
+docs/governance/execution-rules.md:  version 0.3, operational_state
+                                     EFFECTIVE
+G-ORCH-004:                           EFFECTIVE, applies globally across
+                                     all phases
+Phase 2 -- Product Prototype:        NOT AUTHORIZED (unchanged)
+LIVE:                                NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                            CONFIRMED
+Current execution-rules v0.2 identity
+  re-verified before edit:                        CONFIRMED
+Only one new durable semantic rule introduced:    CONFIRMED
+Rule ID exactly G-ORCH-004:                        CONFIRMED
+G-ORCH-001..003 semantically unchanged:            CONFIRMED (git diff)
+Self-check gained the next-task-prompt check:      CONFIRMED
+Version becomes 0.3:                               CONFIRMED
+operational_state remains EFFECTIVE:                CONFIRMED
+Product Owner acceptance metadata intact
+  (not reset/removed):                              CONFIRMED
+MANIFEST/CHANGELOG reflect the change:              CONFIRMED
+Diff bounded to execution-rules + bookkeeping:      CONFIRMED
+Monorepo/ADR files untouched:                       CONFIRMED (git diff
+  --quiet)
+Phase 2/LIVE unchanged:                             CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Monorepo Convention v0.5 APPROVED
 
 **Mechanical lifecycle recording — vai trò: `Phase 1.5 Monorepo Convention Approval Recorder`.** Records the Product Owner decision "APPROVE MONOREPO CONVENTION V0.5" — no Monorepo semantic content changed.
