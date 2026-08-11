@@ -2,6 +2,141 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-026 v0.1 APPROVED: Cross-Module Naming Convention Baseline
+
+**Mechanical lifecycle recording — vai trò: `ADR-026 Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-026 V0.1" — no ADR decision semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:  9f42bc76a0348c376f083ebb13477081c6fc41d0
+Reviewed candidate: docs/adr/ADR-026.md v0.1, status Draft,
+                    blob c7f41d9a0e8d90c6b584e49ede68664608bc4604
+Review state:        Review A: Blocker 0/Major 0/Minor 1
+                    (ADR026-A-MIN-01), READY_FOR_INDEPENDENT_REVIEW_B;
+                    Independent Review B: Blocker 0/Major 0/New Minor
+                    0, READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+### G-VERIFY-001 / G-ID-001 applied
+
+```text
+Verified starting HEAD and the on-disk blob of ADR-026.md matched the
+  stated reviewed candidate (c7f41d9a...) exactly before any edit.
+Re-verified Chapter 11 §11.3/§11.4/§11.5 directly before recording.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-11"
+version:      "0.1" unchanged (pure mechanical approval, §11.4 -- no
+              bump for approval alone)
+```
+
+### Residual finding recorded (not closed)
+
+```text
+ADR026-A-MIN-01: OPEN -- accepted non-blocking residual.
+  Finding: §4 Alternative 3 slightly overstated Chapter 3 §3.2 by
+    saying common cross-language event/DTO/interface naming is "dung
+    ngu y Chapter 3 §3.2's vi du" -- Chapter 3's examples are
+    illustrative and do not themselves establish identical Python/Go
+    applicability.
+  Disposition: does not invalidate the primary ADR decision (§3).
+    Product Owner explicitly accepts it as non-blocking at this
+    approval -- recorded in the approval banner, the §7 reviewer table,
+    and the Accepted risks line. NOT marked CLOSED, NOT corrected in
+    this transaction -- a separate future correction transaction would
+    close it, not this one.
+```
+
+### Reviewer evidence pinned (§7, atomic with the approval)
+
+```text
+Review A:               Blocker 0/Major 0/Minor 1 (ADR026-A-MIN-01) --
+                        READY_FOR_INDEPENDENT_REVIEW_B
+Independent Review B:    Blocker 0/Major 0/New Minor 0 --
+                        READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+### Reviewed vs resulting blob (G-ID-001 -- distinguished, not conflated)
+
+```text
+Reviewed semantic candidate blob:      c7f41d9a0e8d90c6b584e49ede68664608bc4604
+Resulting post-approval lifecycle blob: 7f1980db1aa220daf530f510d576f5096d9a8cf2
+(differ only because the approval banner + reviewer-table fill +
+ accepted-risks line + frontmatter lifecycle fields were written -- no
+ decision content changed)
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-026.md  (frontmatter status/approved_by/approved_at;
+                      approval banner + residual-finding note added
+                      after title; §7 reviewer table filled; Accepted
+                      risks line updated; §1-§6/§8/§9 content
+                      byte-equivalent)
+docs/MANIFEST.md      (row updated to Approved + both blobs + residual
+                      finding state; manifest_version 10.90 -> 10.91)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Decision content (§1-§6, §8-§9 of ADR-026.md): byte-equivalent outside
+  the reviewer-table/accepted-risks fill -- one governed cross-module
+  Naming Convention baseline, the ADR/living-convention boundary, the
+  future ADR Scope Rule requirement, language-idiom allowance,
+  alternatives, consequences, authority boundaries (module-registry.
+  yaml/ADR-008/ADR-024/ADR-025/coding-standard.md/domain-contract), and
+  the downstream sequence all unchanged. docs/engineering/naming.md:
+  still absent. ADR-025, coding-standard.md, monorepo.md, ADR-008,
+  ADR-024, module-registry.yaml, every other ADR, Constitution, Phase
+  1.5 rules: byte-identical (git diff --quiet). No ADR-027 created. No
+  Logging/Config/Error Handling/Testing/CI-CD category touched. Phase
+  2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/adr/ADR-026.md:  version 0.1, status Approved, approved_by
+                      Product Owner, approved_at 2026-08-11
+ADR026-A-MIN-01:       OPEN -- accepted non-blocking residual
+Phase 2 -- Product Prototype:  NOT AUTHORIZED (unchanged)
+LIVE:                          NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                            CONFIRMED
+Reviewed ADR-026 blob exactly matches baseline:    CONFIRMED
+PO decision exactly matches "APPROVE ADR-026
+  V0.1":                                           CONFIRMED
+Version remains 0.1:                              CONFIRMED
+Status becomes Approved:                           CONFIRMED
+Approval metadata correct:                         CONFIRMED
+Review evidence accurate:                          CONFIRMED
+ADR026-A-MIN-01 remains OPEN:                       CONFIRMED
+ADR026-A-MIN-01 recorded as accepted non-
+  blocking:                                        CONFIRMED
+No semantic ADR decision content changes:          CONFIRMED (git
+  diff: only frontmatter + banner + §7 table +
+  accepted-risks line)
+Reviewed candidate/resulting lifecycle blob
+  distinguished:                                    CONFIRMED
+naming.md remains absent:                          CONFIRMED
+ADR-025/Coding Standard remain untouched:           CONFIRMED (git
+  diff --quiet)
+Phase 2/LIVE unchanged:                            CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-026 authored (Draft): Cross-Module Naming Convention Baseline
 
 **ADR authoring — vai trò: `ADR-026 Naming Baseline Authoring Executor`.** Authors the ADR required for the Phase 1.5 Naming Convention category, applying the exact ADR-scope lesson from `ADR-025`'s Coding Standard baseline before any living convention document is created. Draft only — not approved. Does not create `docs/engineering/naming.md`.
