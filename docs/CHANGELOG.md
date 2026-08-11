@@ -2,6 +2,120 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-025 v0.2 APPROVED: Cross-Module Coding Standard Baseline
+
+**Mechanical lifecycle recording — vai trò: `ADR-025 Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-025 V0.2" — no ADR decision semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:  93f02b3258996e4cf0714ae26d5f22c1cdf169d3
+Reviewed candidate: docs/adr/ADR-025.md v0.2, status Draft,
+                    blob cc481d014f97fc8ee376594eddd71b22edc1bfa7
+Review state:        Review A bounded re-review CLEAN (closed
+                    ADR025-A-MAJ-01); Independent Review B
+                    READY_FOR_PRODUCT_OWNER_DECISION; Blocker 0/Major
+                    0/Minor 0
+```
+
+### G-VERIFY-001 / G-ID-001 applied
+
+```text
+Verified starting HEAD and the on-disk blob of ADR-025.md matched the
+  stated reviewed candidate (cc481d01...) exactly before any edit.
+Re-verified Chapter 11 §11.3/§11.4/§11.5/§11.6 (immutability boundary,
+  metadata contract, review gate, atomic approval transition) directly
+  before recording.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-11"
+version:      "0.2" unchanged (pure mechanical approval, §11.4 -- no
+              bump for approval alone)
+```
+
+### Reviewer evidence pinned (§7, atomic with the approval)
+
+```text
+Review A:               bounded re-review CLEAN -- closed ADR025-A-MAJ-01
+Independent Review B:    READY_FOR_PRODUCT_OWNER_DECISION
+Blocker / Major / Minor: 0 / 0 / 0
+```
+
+### Reviewed vs resulting blob (G-ID-001 -- distinguished, not conflated)
+
+```text
+Reviewed semantic candidate blob:      cc481d014f97fc8ee376594eddd71b22edc1bfa7
+Resulting post-approval lifecycle blob: aa669a2557d640f241d64fa4dc3235c3b43a864d
+(differ only because the approval banner + reviewer-table fill +
+ frontmatter lifecycle fields were written -- no decision content changed)
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-025.md  (frontmatter status/approved_by/approved_at;
+                      approval banner added after title; §7 reviewer
+                      table filled; §1-§6/§8/§9 byte-equivalent)
+docs/MANIFEST.md      (row updated to Approved + both blobs;
+                      manifest_version 10.86 -> 10.87)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Decision content (§1-§6, §8-§9 of ADR-025.md): byte-equivalent outside
+  the reviewer-table fill -- one governed cross-module Coding Standard
+  baseline, the ADR/living-convention boundary, the future ADR Scope
+  Rule requirement, alternatives, consequences, Scale Check, and
+  ADR-008/ADR-024/module-registry.yaml authority boundaries all
+  unchanged. docs/engineering/coding-standard.md: byte-identical (git
+  diff --quiet), not touched -- EF-CODE-B-MAJ-01/EF-CODE-A-MIN-01/
+  EF-CODE-A-MIN-02 remain OPEN; this approval creates the authority
+  needed for their later alignment but does not itself close them.
+  ADR-008, ADR-024, module-registry.yaml, Constitution, Phase 1.5
+  rules: byte-identical. No ADR-026 created. No Naming category
+  started. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/adr/ADR-025.md:           version 0.2, status Approved,
+                              approved_by Product Owner, approved_at
+                              2026-08-11
+EF-CODE-B-MAJ-01 / EF-CODE-A-MIN-01 / EF-CODE-A-MIN-02:  all still OPEN
+Phase 2 -- Product Prototype:  NOT AUTHORIZED (unchanged)
+LIVE:                          NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                            CONFIRMED
+Reviewed candidate blob exactly matches
+  baseline:                                       CONFIRMED
+Product Owner decision exactly matches
+  "APPROVE ADR-025 V0.2":                          CONFIRMED
+Version remains 0.2:                              CONFIRMED
+Status becomes Approved:                           CONFIRMED
+Approval metadata correct:                         CONFIRMED
+Review evidence reflects actual Review A/B
+  outcomes:                                        CONFIRMED
+Semantic ADR content unchanged:                    CONFIRMED (git
+  diff: only frontmatter + banner + §7 table)
+Reviewed candidate and resulting lifecycle
+  blob distinguished:                               CONFIRMED
+Coding Standard byte-identical:                     CONFIRMED
+All three Coding Standard findings remain OPEN:     CONFIRMED
+Phase 2/LIVE unchanged:                            CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-025 bounded correction: `ADR025-A-MAJ-01` CLOSED
 
 **Bounded correction — vai trò: `ADR-025 v0.2 Bounded Correction Executor`.** Fixes one Review A Major finding on `docs/adr/ADR-025.md` v0.1: §3's living-convention wording implied reversibility alone exempts future Coding Standard changes from the ADR Scope Rule. Does not redesign the ADR.
