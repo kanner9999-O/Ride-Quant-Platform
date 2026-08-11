@@ -1,7 +1,7 @@
 ---
 id: engineering-monorepo
 title: "Engineering Foundation — Monorepo Structure"
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -10,16 +10,31 @@ approved_at: null
 created_at: "2026-08-10"
 last_review: null
 next_review: null
-depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../constitution/14-roadmap"]
+depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../adr/ADR-024", "../constitution/14-roadmap"]
 ---
 
 # Engineering Foundation — Monorepo Structure
 
 **Vai trò của tài liệu này:** convention document đầu tiên của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2: "nội dung chi tiết từng mục được điền dần khi Phase 1.5 triển khai"), phạm vi CHỈ category **Monorepo** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). KHÔNG Constitution chapter, KHÔNG ADR, KHÔNG redefine Module Taxonomy/dependency graph — `docs/architecture/module-registry.yaml` vẫn LÀ single source of truth cho `module_id`/dependency; tài liệu này CHỈ quy định CHỖ ĐẶT source code tương ứng, KHÔNG tự quyết định lại bất kỳ module boundary nào.
 
-**Candidate này CHƯA authoritative/final (v0.3, đóng `EF-MONO-B-MAJ-01`/`EF-MONO-B-MAJ-02` — Independent Review B `NOT_READY`):** quyết định "một-repo" tại §1 LÀ platform-wide, ảnh hưởng >1 module — thuộc diện **ADR Required** (Chapter 0 §4b, xem §6). Toàn bộ nội dung §1–§5 dưới đây LÀ đề xuất (proposal) tạm giữ nguyên nội dung để tài liệu ADR tương lai tham chiếu, KHÔNG PHẢI quyết định đã establish. Quyết định monorepo platform-wide bị **BLOCK**, chờ (a) một ADR transaction riêng biệt VÀ (b) Product Owner approve chính ADR đó. Transaction v0.3 này KHÔNG tự approve/establish quyết định monorepo, KHÔNG tự author ADR đó.
+**Authority alignment (v0.4, sửa tại transaction alignment SAU khi `ADR-024` Approved):**
+
+```text
+Repository-topology decision:  Approved via ADR-024 (v0.2, Approved
+                                2026-08-11, Product Owner decision
+                                "APPROVE ADR-024 V0.2", resulting blob
+                                d15ba39a02eb170f4daa1e791d4e00af58f81e63).
+Convention lifecycle
+  (chính tài liệu monorepo.md này):  VẪN `status: Draft`.
+```
+
+Quyết định "một-repo" tại §1 (platform-wide, ảnh hưởng >1 module, Chapter 0 §4b — xem §6 cho lịch sử classification) KHÔNG CÒN LÀ đề xuất chờ ADR — `ADR-024` LÀ authority hiện tại cho chính quyết định repository-topology đó. §1–§5 dưới đây nay elaborate CONSEQUENCES filesystem/source-layout của quyết định Approved đó (nội dung KHÔNG đổi so với trước, đã reviewed clean — CHỈ authority-framing đổi).
+
+**`ADR-024` Approved KHÔNG tự động approve/accept chính convention document này** — đây LÀ hai quyết định tách biệt: ADR quyết định repository TOPOLOGY (platform-wide, >1-module, ADR Scope Rule); convention document elaborate filesystem/source-layout CONSEQUENCES của topology đó (Engineering Foundation category, Chapter 3 §3.2). Product Owner lifecycle decision cho chính `monorepo.md` (accept/approve tài liệu này) LÀ một transaction riêng biệt, CHƯA thực hiện tại đây — `status: Draft` VẪN giữ.
 
 ## 1. Repository model
+
+**Authority: `ADR-024` v0.2 (Approved 2026-08-11).** Nội dung dưới đây KHÔNG đổi so với candidate trước — CHỈ nay LÀ elaboration của một quyết định Approved, KHÔNG CÒN LÀ proposal chờ authority.
 
 ```text
 Toàn bộ Ride Quant Platform — docs + code — sống trong ĐÚNG một
@@ -110,9 +125,16 @@ KHÔNG root workspace manifest nào (go.work/pyproject.toml) được tạo tạ
   plating cho nhu cầu chưa tồn tại.
 ```
 
-## 6. ADR-scope check (`EF-ADR-001`) — SỬA tại v0.3, đóng `EF-MONO-B-MAJ-01`
+## 6. ADR-scope check (`EF-ADR-001`) — RESOLVED tại v0.4 (`ADR-024` Approved); lịch sử classification GIỮ NGUYÊN làm evidence
 
 ```text
+[v0.4: kết luận "ADR Required" dưới đây (đúng từ v0.3) ĐÃ RESOLVE —
+  ADR-024 v0.2 Approved 2026-08-11 (xem preamble). Nội dung phân tích
+  dưới GIỮ NGUYÊN, KHÔNG xóa/viết lại — LÀ historical evidence cho
+  chính classification "ADR Required" đã dẫn tới ADR-024. Đoạn "Kết
+  luận"/"Số ADR cụ thể" cuối §6 (trước v0.4 suy đoán) đã sửa thành
+  current-state resolved — xem cuối §6.]
+
 [v0.1/v0.2 kết luận SAI "ADR Not Required" — sửa tại v0.3. Root cause:
   v0.1/v0.2 chỉ kiểm tra "khó đảo ngược" (reversibility) và bỏ sót vế
   đầu của chính rule đang trích dẫn. Xem correction dưới.]
@@ -135,18 +157,18 @@ Chapter 0 §4b nguyên văn (verify trực tiếp tại 00-governance.md):
   ">1 module". Reversibility KHÔNG hủy trigger này — OR nghĩa là MỘT vế
   đủ, "dễ đảo ngược" KHÔNG miễn trừ vế ">1 module" đã thỏa.
 
-Kết luận (sửa): **ADR Required** cho quyết định "một-repo" tại §1.
-  §2 (root python/go split) và §3 (naming convention) LÀ derivative của
-  §1 — VẪN LÀ đề xuất (proposal), KHÔNG PHẢI quyết định established,
-  cho tới khi ADR đó Approved.
-Số ADR cụ thể: KHÔNG invent tại đây — repository ground truth hiện tại
-  (ADR-001..023 tồn tại, ADR-023 LÀ file cuối) KHÔNG đủ để xác định
-  identity kế tiếp một cách dứt khoát (P1-ADR-001's ADR ceiling — scoped
-  riêng Phase 1, "trước Gate 2" — cần đánh giá lại có còn áp dụng hậu-
-  Gate-2/Phase-1.5 hay không; đây LÀ việc của chính transaction author
-  ADR, KHÔNG PHẢI transaction correction này). Transaction ADR-authoring
-  riêng biệt PHẢI tự resolve identity + chạy G-ADR-004 inflation/scope
-  check trước khi author.
+Kết luận (v0.3, giữ nguyên đúng): **ADR Required** cho quyết định
+  "một-repo" tại §1 — §2 (root python/go split) và §3 (naming
+  convention) LÀ derivative của §1.
+
+**Current state (v0.4, RESOLVED):** `ADR-024` LÀ ADR đó — authored,
+  Independent-reviewed (Review A `CLEAN`, Independent Review B
+  `READY_FOR_PRODUCT_OWNER_DECISION`), VÀ Approved bởi Product Owner
+  (2026-08-11, "APPROVE ADR-024 V0.2"). §1's quyết định "một-repo" VÀ
+  §2/§3's derivative consequence (root python/go split, module_id-based
+  naming) nay LÀ authoritative theo `ADR-024`, KHÔNG CÒN LÀ đề xuất chờ
+  approval. `monorepo.md` (chính tài liệu này) VẪN `status: Draft` —
+  ADR Approved KHÔNG tự động approve convention document (xem preamble).
 Lịch sử thay đổi ghi tại CHANGELOG.md.
 ```
 
@@ -214,4 +236,25 @@ v0.3  2026-08-10  Bounded correction, đóng `EF-MONO-B-MAJ-01`/
       approve candidate, KHÔNG đổi §1/§2/§3's nội dung đề xuất, KHÔNG
       đổi §4/§5, KHÔNG module taxonomy/dependency graph nào sửa.
       `status` VẪN `Draft`.
+v0.4  2026-08-11  Authority-alignment transaction (KHÔNG bounded
+      correction — không đóng finding review nào), vai trò: `Phase 1.5
+      Monorepo ADR-024 Alignment Executor`. `ADR-024` v0.2 (Approved
+      2026-08-11, "APPROVE ADR-024 V0.2", blob
+      `d15ba39a02eb170f4daa1e791d4e00af58f81e63`) LÀ authority mới cho
+      §1's repository-topology decision — preamble viết lại: bỏ
+      "CHƯA authoritative/final"/"BLOCK chờ ADR" (stale), thay bằng
+      "Approved via ADR-024" + "convention lifecycle VẪN Draft" (hai
+      quyết định tách biệt, KHÔNG conflate). §1 thêm authority pointer
+      1 dòng (KHÔNG đổi nội dung code block). §6 giữ nguyên TOÀN BỘ
+      lịch sử phân tích "ADR Required" (v0.1-v0.3, làm historical
+      evidence dẫn tới ADR-024) — CHỈ sửa "Kết luận"/"Số ADR cụ thể"
+      cuối §6 thành current-state RESOLVED (ADR-024 identity/Approved
+      fact, KHÔNG CÒN suy đoán identity). `depends_on` thêm
+      `../adr/ADR-024`. KHÔNG đổi §2/§3/§4/§5 (root split/naming/
+      language-assignment-deferral/tooling-deferral nguyên vẹn) —
+      KHÔNG module→language mapping nào thêm, KHÔNG `module-registry.
+      yaml`/`ADR-008`/`ADR-024` nào sửa (ADR-024 immutable, KHÔNG chạm).
+      **KHÔNG approve/Lock `monorepo.md`** — `status` VẪN `Draft`, chờ
+      Product Owner lifecycle decision riêng biệt cho chính tài liệu
+      này.
 ```

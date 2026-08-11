@@ -2,6 +2,120 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Monorepo convention aligned to Approved ADR-024
+
+**Authority-alignment transaction — vai trò: `Phase 1.5 Monorepo ADR-024 Alignment Executor`.** Updates `docs/engineering/monorepo.md` to reflect that ADR-024 is now Approved. Not a bounded correction (no review finding closed) and not an approval of the convention document itself.
+
+### Baseline
+
+```text
+Starting HEAD:       f875318dc9e00a13a3fced5e93c16d307d6214c3
+ADR-024 (authority):  v0.2, status Approved, resulting blob
+                     d15ba39a02eb170f4daa1e791d4e00af58f81e63
+Monorepo before:      v0.3, status Draft,
+                     blob 9a71d2758189317e1b5234346fb3118e2b8c8e38
+```
+
+### G-VERIFY-001 / G-ID-001 applied
+
+```text
+Verified starting HEAD; re-read docs/adr/ADR-024.md directly and
+  confirmed version/status/approved_by/approved_at/blob match the
+  stated Approved identity exactly before editing anything.
+```
+
+### Authority alignment (preamble + §1 + §6)
+
+```text
+Removed stale current-state language: "candidate CHUA authoritative/
+  final", "BLOCK cho ADR", "de xuat cho toi khi ADR duoc Approved".
+Replaced with: repository-topology decision Approved via ADR-024 (v0.2,
+  Approved 2026-08-11, "APPROVE ADR-024 V0.2"); convention lifecycle
+  (this document) still Draft -- explicitly stated as two separate
+  decisions, ADR approval does NOT auto-approve this convention
+  document.
+§1 (Repository model) gained a one-line authority pointer to ADR-024;
+  its reasoning text is unchanged.
+§6 (ADR-scope check): the full v0.1-v0.3 "ADR Required" analysis is
+  preserved unchanged as historical evidence (the classification that
+  led to ADR-024). Only the closing "Ket luan"/"So ADR cu the"
+  paragraphs -- previously speculative ("KHONG invent tai day", "chua
+  du de xac dinh identity ke tiep") -- are updated to resolved
+  current-state: ADR-024 identity, Approved fact, both decisions
+  distinguished.
+depends_on gained ../adr/ADR-024.
+```
+
+### Semantic containment preserved
+
+```text
+§2 (root python//go/), §3 (module_id-based naming, no pre-created
+  directories), §4 (language assignment deferred except the modules
+  ADR-008 already resolves), §5 (workspace/package-manager tooling
+  deferred): byte-equivalent, not touched. No module->language mapping
+  added. No rust/ root. No package-manager/workspace config created.
+```
+
+### Files changed
+
+```text
+docs/engineering/monorepo.md  (0.3 -> 0.4: preamble rewritten, §1
+                              authority pointer added, §6 closing
+                              paragraphs resolved, depends_on updated,
+                              change-history entry added; §2-§5
+                              byte-equivalent)
+docs/MANIFEST.md               (row updated: version, blob, note;
+                              manifest_version 10.78 -> 10.79)
+docs/CHANGELOG.md              (this entry)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-024.md: byte-identical (git diff --quiet) -- immutable
+  after approval, not touched. ADR-008, module-registry.yaml, every
+  other ADR, Constitution, team.yaml, Global Execution Rules, Phase
+  2/1.5 rules: byte-identical. No ADR-025 created. monorepo.md itself
+  not approved or Locked -- status remains Draft. No Coding Standard or
+  other Engineering Foundation category touched. No Phase 1.5 DoD
+  created. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/engineering/monorepo.md:  version 0.4, status Draft
+Repository-topology decision:   Approved (ADR-024 v0.2)
+Convention document lifecycle:  still Draft, pending separate Product
+                                Owner acceptance
+Phase 2 -- Product Prototype:   NOT AUTHORIZED (unchanged)
+LIVE:                           NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after:                              CONFIRMED
+ADR-024 v0.2 Approved identity/blob
+  re-verified directly:                          CONFIRMED
+Monorepo v0.3 blob re-verified before edit:      CONFIRMED
+ADR-024.md byte-identical:                       CONFIRMED (git diff
+  --quiet)
+Stale "pending ADR" language removed:            CONFIRMED
+ADR-024 referenced as repository-topology
+  authority:                                     CONFIRMED
+Convention remains Draft:                        CONFIRMED
+No module->language assignment exists:           CONFIRMED (grep clean)
+ADR-008/module-registry authority boundaries
+  unchanged:                                     CONFIRMED (git diff
+  --quiet)
+No new repository-topology semantics beyond
+  ADR-024 introduced:                            CONFIRMED
+Package/workspace tooling still deferred:        CONFIRMED
+Diff bounded to monorepo.md + bookkeeping:       CONFIRMED
+Phase 2/LIVE unchanged:                          CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-024 v0.2 APPROVED: Repository Topology — Single Monorepo
 
 **Mechanical lifecycle recording — vai trò: `ADR-024 Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-024 V0.2" — no ADR semantic content changed.
