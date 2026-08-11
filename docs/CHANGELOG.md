@@ -2,6 +2,162 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-029 v0.1 DRAFTED: Cross-Module Error Handling Convention Baseline
+
+**Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Error Handling ADR Authoring Executor`.** Authors `docs/adr/ADR-029.md` v0.1 (Draft), the required ADR for the Phase 1.5 Error Handling category — next category in Chapter 14 §14.2 sequence after Monorepo/Coding Standard/Naming/Logging/Config (all Approved). `docs/engineering/error-handling.md` NOT authored at this transaction — separate future transaction, per the established ADR-first-then-living-convention pattern.
+
+### Baseline
+
+```text
+Starting HEAD:  f9a630f6ba69bd81a6c9acb288a8a487037f8067
+Completed categories: Monorepo/Coding Standard/Naming/Logging/Config —
+  all Approved (ADR-024/025/026/027/028 + monorepo.md/coding-
+  standard.md/naming.md/logging.md/config.md, all Approved).
+Accepted Config residual: EF-CONFIG-B-MIN-01 — OPEN, accepted non-
+  blocking, NOT touched at this transaction.
+docs/adr/ADR-029.md: confirmed absent trước transaction này (ADR-028
+  LÀ ADR cuối hiện có).
+docs/engineering/error-handling.md: confirmed absent trước transaction
+  này.
+```
+
+### ADR Scope check
+
+```text
+Quyết định "CÓ một Error Handling Convention baseline chung bắt buộc
+  cho MỌI module" LÀ platform-wide, thỏa vế ">1 module" của Chapter 0
+  §4b — ADR Required, KHÔNG dùng reversibility của chi tiết rule bên
+  trong LÀM exemption (đúng lesson `EF-CODE-B-MAJ-01`/`ADR-025`/
+  `ADR-026`/`ADR-027`/`ADR-028`). Verify trực tiếp: grep `docs/` cho
+  "Error Handling Convention"/"error-handling convention" — KHÔNG
+  match nào tồn tại trước transaction này (CHỈ mục khung liệt kê tại
+  Chapter 3 §3.2/Chapter 14 §14.2, chưa nội dung). KHÔNG existing
+  authority (ADR-008/ADR-017/ADR-024/025/026/027/028/module-
+  registry.yaml/Domain Contract) resolve được quyết định baseline-
+  existence này — gap thật, ADR chính đáng. KHÔNG existing Approved
+  authority duplicate được tạo.
+```
+
+### Primary decision (narrow)
+
+```text
+§3: MỘT cross-module Error Handling Convention baseline TỒN TẠI; mọi
+  implementation module PHẢI conform theo Error Handling Convention
+  `Approved` hiện hành (`docs/engineering/error-handling.md`, CHƯA
+  tạo); Python/Go error-handling mechanism/API ĐƯỢC PHÉP khác nhau
+  theo idiom, MIỄN LÀ conform semantic chung.
+technical/programming error ≠ domain/business outcome (§3, tái khẳng
+  định tại §6): RiskEvaluation result/rejection_reason (risk.md §5e),
+  Execution Result/Fill semantics, business rejection/denial ĐÃ
+  established KHÔNG bị collapse vào một generic "error" authority.
+  Error Handling Convention CHỈ governs transport/representation/
+  propagation mechanics QUANH một outcome ĐÃ established, KHÔNG
+  redefine Ý NGHĨA của outcome đó.
+Chi tiết rule (taxonomy, expected/unexpected, validation/config error,
+  retryable classification, transient/permanent, wrapping/chaining,
+  user-facing vs internal, error-code, panic/exception usage, boundary
+  translation, logging interaction, redaction, retry ownership,
+  timeout/cancellation, startup failure, partial failure, ví dụ,
+  Python/Go implementation detail) explicitly deferred tới
+  `docs/engineering/error-handling.md` tương lai — KHÔNG đóng băng vào
+  ADR text.
+```
+
+### Retry/idempotency boundary
+
+```text
+§6: Retry/idempotency authority hiện hành (I-10 Idempotent Execution
+  Effect, Package 1.3-D eligibility invariant, ADR-017 §8 signing/
+  venue-submission retry scope) VẪN authority — ADR này KHÔNG establish
+  broad retry/backoff policy; future living convention PHẢI preserve
+  authority đó, KHÔNG suy diễn retryability CHỈ từ loại exception/error
+  ngôn ngữ. KHÔNG chọn retry framework/backoff policy tại đây.
+```
+
+### Logging/Config boundary
+
+```text
+§6: Error Handling CÓ THỂ require preserving sufficient context/cause
+  cho việc log/diagnostics sau đó, NHƯNG log level/field/schema
+  semantics VẪN thuộc `ADR-027`/`logging.md` `Approved`, KHÔNG redefine.
+  Invalid/missing configuration CÓ THỂ trở thành một error-handling
+  input (vd startup failure), NHƯNG `ADR-028`/`config.md` VẪN authority
+  cho validation/startup config semantics ĐÃ Approved, KHÔNG redefine.
+  `EF-CONFIG-B-MIN-01` VẪN `OPEN — accepted non-blocking`, KHÔNG chạm.
+```
+
+### Security boundary
+
+```text
+§6: Error message/context KHÔNG BAO GIỜ expose secret/credential/
+  private signing material/sensitive payload/restricted internal state
+  (đúng nguyên tắc `logging.md` §8/`config.md` §8, tái khẳng định nhất
+  quán cho error context). KHÔNG chọn redaction library/security vendor
+  tại ADR này.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-029.md   (NEW — v0.1, Draft, blob
+                       fdf4226e08fb9075ec6031a5b5fe3caaf69363bd)
+docs/MANIFEST.md      (manifest_version 10.107 -> 10.108; thêm
+                       adr/ADR-029.md row)
+docs/CHANGELOG.md     (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-028.md/docs/engineering/config.md (Approved) — verified
+  byte-identical. ADR-027/logging.md, ADR-026/naming.md, ADR-025/
+  coding-standard.md, ADR-024/monorepo.md, ADR-017, ADR-008,
+  module-registry.yaml, Domain Contract (risk.md/account.md/...),
+  Constitution, Phase 1.5 rules — tất cả verified byte-identical (git
+  diff empty).
+EF-CONFIG-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted non-blocking.
+docs/engineering/error-handling.md: KHÔNG tạo tại transaction này
+  (confirmed absent, đúng "Do NOT author docs/engineering/
+  error-handling.md yet"). KHÔNG chọn exception hierarchy/error-code
+  schema/retry framework/library nào. KHÔNG mở Testing/CI-CD category.
+  Phase 2 substantive work VẪN NOT YET AUTHORIZED. LIVE VẪN NOT
+  AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/adr/ADR-029.md: v0.1, status Draft, owner Product Owner, blob
+  fdf4226e08fb9075ec6031a5b5fe3caaf69363bd — not self-approved
+  (G-ORCH-002); Review/Approval LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD f9a630f6ba69bd81a6c9acb288a8a487037f8067 verified
+[x] ADR-029 identity unused trước transaction (ADR-028 LÀ ADR cuối
+    hiện có, verified `ls docs/adr/`)
+[x] docs/engineering/error-handling.md absent trước transaction,
+    confirmed
+[x] ADR Scope result: Required, >1 module, KHÔNG duplicate authority
+    tạo mới
+[x] Resulting ADR-029 v0.1 Draft identity/blob confirmed
+[x] Primary decision remains narrow (§3 CHỈ baseline-existence +
+    authority + technical-vs-domain boundary + language boundary)
+[x] Chi tiết Error Handling mechanics deferred tới error-handling.md
+    tương lai (§3 living-convention-authority block)
+[x] Domain/business outcome kept distinct từ technical error (§3/§6)
+[x] Retry/idempotency authority preserved (§6)
+[x] Logging/Config/Security boundary preserved (§6)
+[x] KHÔNG library/framework/error schema nào chọn
+[x] KHÔNG duplicate authority created
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] EF-CONFIG-B-MIN-01 untouched
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Config Convention v0.2 APPROVED (residual `EF-CONFIG-B-MIN-01` accepted)
 
 **Mechanical lifecycle recording — vai trò: `Config Convention v0.2 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE CONFIG CONVENTION V0.2 — ACCEPT EF-CONFIG-B-MIN-01 AS NON-BLOCKING RESIDUAL" — no Config Convention semantics changed.
