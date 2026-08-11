@@ -2,6 +2,132 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-027 v0.2 APPROVED: Cross-Module Logging Convention Baseline
+
+**Mechanical lifecycle recording — vai trò: `ADR-027 Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-027 V0.2" — no ADR decision semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:  15bc9ba4f318c27d6445afab44dbb73823cb9b77
+Reviewed candidate: docs/adr/ADR-027.md v0.2, status Draft,
+                    blob 68f30f70a6c9f148b213902f952c13f7aa9459c2
+Review state:        bounded Review A re-review CLEAN (New Blocker 0/
+                    New Major 0/New Minor 0, closed ADR027-A-MAJ-01);
+                    Independent Review B (New Blocker 0/New Major 0/
+                    New Minor 1 -- ADR027-B-MIN-01, VALID, verdict
+                    READY_FOR_PRODUCT_OWNER_DECISION)
+```
+
+### G-VERIFY-001 / G-ID-001 applied
+
+```text
+Verified starting HEAD and the on-disk blob of ADR-027.md matched the
+  stated reviewed candidate (68f30f70...) exactly before any edit.
+Re-verified Chapter 11 §11.3/§11.4/§11.5 directly before recording.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-11"
+version:      "0.2" unchanged (pure mechanical approval, §11.4 -- no
+              bump for approval alone)
+```
+
+### Residual finding recorded (not closed)
+
+```text
+ADR027-B-MIN-01: OPEN -- accepted non-blocking. Observation at §4
+  (Alternatives) -- VALID Minor per Independent Review B. Disposition:
+  does not invalidate the primary decision (§3). Product Owner
+  explicitly accepts it as non-blocking at this approval -- recorded in
+  the approval banner, the §7 reviewer table, and the Accepted risks
+  line. NOT marked CLOSED, §4 wording NOT corrected in this
+  transaction -- a separate future correction transaction would close
+  it, not this one.
+```
+
+### Reviewer evidence pinned (§7, atomic with the approval)
+
+```text
+Review A:               bounded re-review CLEAN -- closed ADR027-A-MAJ-01
+Independent Review B:    ADR027-B-MIN-01 (VALID Minor) --
+                        READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+### Reviewed vs resulting blob (G-ID-001 -- distinguished, not conflated)
+
+```text
+Reviewed semantic candidate blob:      68f30f70a6c9f148b213902f952c13f7aa9459c2
+Resulting post-approval lifecycle blob: b89d0f9d1d7109d41e45cc7d302f5b398f100b09
+(differ only because the approval banner + reviewer-table fill +
+ accepted-risks line + frontmatter lifecycle fields were written -- no
+ decision content changed)
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-027.md  (frontmatter status/approved_by/approved_at;
+                      approval banner + residual-finding note added
+                      after title; §7 reviewer table filled; Accepted
+                      risks line updated; §1-§6/§8/§9 content
+                      byte-equivalent)
+docs/MANIFEST.md      (row updated to Approved + both blobs + residual
+                      finding state; manifest_version 10.96 -> 10.97)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Decision content (§1-§6, §8-§9 of ADR-027.md): byte-equivalent
+  outside the reviewer-table/accepted-risks fill -- one governed cross-
+  module Logging Convention baseline, the ADR Scope reasoning, the
+  Python/Go representation boundary, "log record != domain event",
+  living-convention deferrals, alternatives, consequences, authority
+  boundaries, Scale Check, and the downstream sequence all unchanged.
+  docs/engineering/logging.md: still absent. ADR-026/naming.md, ADR-025/
+  coding-standard.md, ADR-024/monorepo.md, ADR-008, module-registry.
+  yaml, every other ADR, Constitution, Phase 1.5 rules: byte-identical
+  (git diff --quiet). No ADR-028 created. No Config/Error Handling/
+  Testing/CI-CD category touched. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/adr/ADR-027.md:  version 0.2, status Approved, approved_by
+                      Product Owner, approved_at 2026-08-11
+ADR027-A-MAJ-01:       CLOSED (unchanged by this approval)
+ADR027-B-MIN-01:       OPEN -- accepted non-blocking
+Phase 2 -- Product Prototype:  NOT AUTHORIZED (unchanged)
+LIVE:                          NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Starting HEAD exact:                              CONFIRMED
+Reviewed blob exact:                               CONFIRMED
+Version remains 0.2:                               CONFIRMED
+Status becomes Approved:                            CONFIRMED
+Approval metadata correct:                          CONFIRMED
+Product Owner decision recorded exactly:             CONFIRMED
+Review A evidence recorded:                          CONFIRMED
+Review B evidence recorded:                          CONFIRMED
+ADR027-B-MIN-01 remains OPEN/accepted non-
+  blocking:                                          CONFIRMED
+Semantic decision content unchanged:                 CONFIRMED (section-
+  by-section diff)
+Only expected three files changed:                   CONFIRMED
+logging.md remains absent:                           CONFIRMED
+Phase 2/LIVE unchanged:                              CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-027 bounded correction: `ADR027-A-MAJ-01` CLOSED
 
 **Bounded correction — vai trò: `ADR-027 v0.2 Bounded Correction Executor`.** Fixes one Review A Major finding on `docs/adr/ADR-027.md` v0.1: §3's ADR authority block prematurely froze a detailed cross-language logging representation rule. Does not redesign the Logging baseline.
