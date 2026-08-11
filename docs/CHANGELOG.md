@@ -2,6 +2,128 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-028 v0.2 bounded correction: `ADR028-A-MAJ-01`/`ADR028-A-MIN-01` CLOSED
+
+**Bounded correction — vai trò: `ADR-028 v0.2 Bounded Correction Executor`.** Resolves two Review A findings on the v0.1 Config ADR draft. No redesign of the Config baseline decision.
+
+### Baseline
+
+```text
+Starting HEAD:      c70211706d9a49785d477ee4bd2d112da47461ef
+Candidate:          docs/adr/ADR-028.md v0.1, status Draft,
+                    blob 2918a6a00302d6271a11e6ece85b80a6048646ca
+Relevant Approved authority: docs/adr/ADR-017.md v0.2, status Approved
+                    — Custody & Signing Trust Boundary.
+```
+
+### ADR028-A-MAJ-01 — ADR-017 authority correction (Context/§3/§6)
+
+```text
+Vấn đề: v0.1 tuyên bố overbroad "CHƯA tồn tại authority nào" cho secret
+  custody/storage/rotation/signing trong repository — mâu thuẫn trực
+  tiếp với `ADR-017` v0.2 (Approved), authority hiện hành cho
+  architecture-level Custody & Signing Trust Boundary (custody-signing-
+  service LÀ module DUY NHẤT được phép sử dụng exchange credential trực
+  tiếp, KHÔNG BAO GIỜ trả raw secret cho caller — ADR-017 §3.1).
+Sửa: Context/§3/§6 nay acknowledge `ADR-017` LÀ existing Approved
+  authority cho architecture-level trust boundary; preserve nguyên vẹn
+  `custody-signing-service`'s direct-credential-use/custody-signing
+  authority ĐÚNG như `ADR-017` định nghĩa; KHÔNG suy diễn authority đó
+  từ `module-registry.yaml` (module-registry.yaml CHỈ pin module
+  identity/dependency — authority THẬT thuộc ADR-017). Config
+  Convention CÓ THỂ định nghĩa làm sao configuration reference/nhận một
+  secret-related value, NHƯNG KHÔNG redefine/absorb/làm suy yếu
+  custody/signing authority mà ADR-017 đã pin. Concrete Vault/KMS/HSM
+  binding, signing algorithm, credential rotation protocol VẪN
+  deferred/unresolved — CHÍNH ADR-017 (§3.3/§14 gap #1) đã forbidden
+  scope những mục đó, KHÔNG PHẢI vì KHÔNG authority nào tồn tại.
+  ADR-028 KHÔNG mở rộng thành Security & Custody architecture — CHỈ
+  tham chiếu ADR-017 để tránh contradiction, KHÔNG redesign trust
+  boundary đó.
+```
+
+### ADR028-A-MIN-01 — Alternative 3 correction (§4)
+
+```text
+Vấn đề: v0.1 §4 Alternative 3 dùng ví dụ chi tiết cụ thể (secret-
+  reference pattern, required/optional semantics, startup-failure
+  behavior) LÀM đã "cần nhất quán" — prejudge chính những living-
+  convention decision mà §3 explicitly deferred tới `config.md`.
+Sửa: rationale nay CHỈ nói platform-level baseline cung cấp MỘT
+  authority dưới đó future cross-module semantic Config requirement CÓ
+  THỂ được thiết lập nhất quán (định nghĩa chi tiết tại `config.md`
+  tương lai) — KHÔNG assert tại ADR-028 policy chi tiết nào PHẢI
+  identical hay chỉ cần semantically equivalent xuyên Python/Go.
+```
+
+### Section-by-section verification
+
+```text
+Verified (Python regex extraction, so sánh HEAD vs working tree):
+  SAME (byte-equivalent): §2, §5, §7, §8, §9
+  DIFF (đúng scope 2 finding trên): §1 (Context), §3 (Decision),
+                                     §4 (Alternatives), §6 (Authority
+                                     boundaries)
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-028.md   (v0.1 -> v0.2, Draft, blob
+                       b7bcade1da7e3fef74e94df78ceacb358bf9fa74)
+docs/MANIFEST.md      (manifest_version 10.102 -> 10.103; row cập nhật)
+docs/CHANGELOG.md     (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-017.md (Approved, immutable) — verified byte-identical,
+  KHÔNG chạm, KHÔNG redesign Security & Custody architecture.
+ADR-027/logging.md, ADR-026/naming.md, ADR-025/coding-standard.md,
+  ADR-024/monorepo.md, ADR-008, module-registry.yaml, Constitution,
+  Phase 1.5 rules — tất cả verified byte-identical (git diff empty).
+ADR Required result từ >1 module, primary decision cho MỘT governed
+  cross-module Config baseline, Python/Go idiomatic mechanism
+  allowance, living-detail deferrals, KHÔNG chọn config library/
+  service/vendor nào, future semantic-change ADR Scope Rule rerun
+  requirement, Scale Check purpose, downstream sequence (§9) — tất cả
+  giữ nguyên.
+docs/engineering/config.md: KHÔNG tạo tại transaction này (confirmed
+  absent). KHÔNG tạo ADR-029. Phase 2 substantive work VẪN NOT YET
+  AUTHORIZED. LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/adr/ADR-028.md: v0.2, status Draft, blob
+  b7bcade1da7e3fef74e94df78ceacb358bf9fa74 — not self-approved
+  (G-ORCH-002); Review/Approval VẪN LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD c70211706d9a49785d477ee4bd2d112da47461ef verified
+[x] Candidate blob 2918a6a00302d6271a11e6ece85b80a6048646ca verified
+[x] v0.2 Draft resulting identity: blob
+    b7bcade1da7e3fef74e94df78ceacb358bf9fa74
+[x] ADR028-A-MAJ-01 genuinely closed
+[x] ADR028-A-MIN-01 genuinely closed
+[x] ADR-017 authority accurately preserved (custody-signing-service
+    direct-credential-use authority intact, per ADR-017 §3.1)
+[x] module-registry.yaml KHÔNG treated LÀM authority source cho
+    custody/signing
+[x] KHÔNG security architecture redesign (ADR-017 byte-identical)
+[x] KHÔNG detailed Config policy prejudged (§4 Alternative 3 examples
+    removed)
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] docs/engineering/config.md remains absent
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-028 v0.1 DRAFTED: Cross-Module Config Convention Baseline
 
 **Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Config ADR Authoring Executor`.** Authors `docs/adr/ADR-028.md` v0.1 (Draft), the required ADR for the Phase 1.5 Config category — next category in Chapter 14 §14.2 sequence after Monorepo/Coding Standard/Naming/Logging (all Approved). `docs/engineering/config.md` NOT authored at this transaction — separate future transaction, per the established ADR-first-then-living-convention pattern.
