@@ -2,6 +2,144 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Config Convention v0.1 DRAFTED: `docs/engineering/config.md`
+
+**Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Config Convention v0.1 Authoring Executor`.** Authors `docs/engineering/config.md` v0.1 (Draft), the fifth Phase 1.5 Engineering Foundation living convention, under Approved `ADR-028`. Follows the established ADR-first, living-convention-second pattern (Monorepo/Coding Standard/Naming/Logging/Config).
+
+### Baseline
+
+```text
+Starting HEAD:      7f3559a34079f9a1c522f030732c00470dc67285
+Approved authority: docs/adr/ADR-028.md v0.2, status Approved,
+                    blob 016fbe8786d7e5df5609579d8aeea7ffb1f06178
+docs/engineering/config.md: confirmed absent trước transaction này.
+```
+
+### Pre-author verification
+
+```text
+Inspected trực tiếp trước khi author: ADR-028.md (full content, Approved
+  blob verified), Phase 1.5 rules, Chapter 3 Engineering Principles,
+  Chapter 14 Roadmap, ADR-008, ADR-017 (Custody & Signing Trust
+  Boundary, full content), ADR-024/monorepo.md, ADR-025/
+  coding-standard.md, ADR-026/naming.md, ADR-027/logging.md,
+  module-registry.yaml. Không newer Approved authority nào supersede
+  bất kỳ boundary dùng dưới đây.
+```
+
+### Established content (v0.1, 15 mục + Non-goals + ADR-scope disposition)
+
+```text
+§1  Configuration model — externally-supplied operational/runtime
+    setting, KHÔNG PHẢI domain fact/authoritative state.
+§2  Source precedence — built-in default -> config file ->
+    environment variable -> runtime override, technology-neutral,
+    source class KHÔNG bắt buộc hỗ trợ toàn bộ, KHÔNG remote config
+    service/vendor.
+§3  Environment variables — deterministic mapping tới canonical config
+    key, KHÔNG ambiguous alias/silent fallback, parse/validate trước
+    khi business logic dùng.
+§4  Defaults — explicit/documented, KHÔNG permissive default cho
+    sensitive setting, absence phân biệt khỏi explicit value.
+§5  Required/optional semantics — module sở hữu key tự định nghĩa,
+    KHÔNG implicit missing-means-falsy.
+§6  Validation — type/range/malformed/unknown-key policy,
+    deterministic, KHÔNG thiết kế Error Handling hierarchy.
+§7  Startup/activation boundary — fail-closed cho required invalid
+    config, phân biệt disabled-capability case, KHÔNG absorb retry/
+    recovery policy.
+§8  Secrets boundary — align ADR-017/ADR-028: reference/locator được
+    phép, raw credential KHÔNG được phép trong ordinary config, KHÔNG
+    log/persist secret, custody-signing-service authority nguyên vẹn,
+    KHÔNG chọn Vault/KMS/HSM.
+§9  Environment-specific configuration — dev/test/staging/production/
+    PAPER/LIVE semantic handling KHÔNG hardcode topology, KHÔNG silent
+    semantic change, KHÔNG authorize LIVE.
+§10 Overrides — deterministic, provenance/explainability required,
+    KHÔNG chọn observability vendor.
+§11 Reloadability — KHÔNG mandate hot-reload toàn cục, phân loại ba
+    nhóm (requires restart/may reload safely/immutable) mỗi key.
+§12 Local development — bounded convenience, KHÔNG credential thật,
+    KHÔNG silent production leakage.
+§13 Python/Go boundary — idiomatic library riêng, semantic conformance
+    CHỈ, KHÔNG chọn library.
+§14 Logging/explainability interaction — report source/key/status,
+    KHÔNG secret value, KHÔNG redefine Logging Convention.
+§15 Authority boundaries — ADR-017/module-registry/ADR-008/ADR-024/
+    monorepo.md/ADR-025/coding-standard.md/ADR-026/naming.md/ADR-027/
+    logging.md/Domain-Event-API/Error Handling/CI-CD/deployment — tất
+    cả preserved riêng biệt.
+Non-goals — KHÔNG library/format/secret-manager/remote-config/
+    feature-flag-vendor/orchestration/deployment/schema-tech/reload-
+    mechanism nào chọn.
+ADR-scope disposition — v0.1 implement living-detail authority ĐÃ cấp
+    sẵn bởi ADR-028; KHÔNG rule nào độc lập trigger Chapter 0 §4b mới;
+    KHÔNG tạo ADR-029 tại transaction này.
+```
+
+### ADR trigger check (explicit — no silent scope expansion)
+
+```text
+Rà soát từng mục §1–§14: KHÔNG mục nào tự tạo một quyết định >1-module
+  hay khó đảo ngược MỚI vượt ngoài phạm vi ADR-028 §3 đã Approved
+  (baseline-existence + secrets-reference boundary + Python/Go idiom
+  boundary + living-detail deferral list) — mọi rule LÀ reversible
+  detail-level convention thuộc đúng danh sách ADR-028 §3 đã defer.
+  KHÔNG tạo ADR-029.
+```
+
+### Files changed
+
+```text
+docs/engineering/config.md  (NEW — v0.1, Draft, blob
+                             b9acdc0e3a94a1262ce1ae08de139efe1edd42e6)
+docs/MANIFEST.md            (manifest_version 10.104 -> 10.105; thêm
+                             engineering/config.md row + confirmation
+                             note)
+docs/CHANGELOG.md           (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-028.md/docs/adr/ADR-017.md (Approved) — verified byte-
+  identical. ADR-027/logging.md, ADR-026/naming.md, ADR-025/
+  coding-standard.md, ADR-024/monorepo.md, ADR-008, module-registry.yaml,
+  Security & Custody architecture, Constitution, Phase 1.5 rules — tất
+  cả verified byte-identical (git diff empty).
+KHÔNG chọn config library/vendor/backend/secret manager nào. KHÔNG tạo
+  ADR-029. KHÔNG mở Error Handling/Testing/CI-CD category. Phase 2
+  substantive work VẪN NOT YET AUTHORIZED. LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/config.md: v0.1, status Draft, owner Product Owner,
+  blob b9acdc0e3a94a1262ce1ae08de139efe1edd42e6 — not self-approved
+  (G-ORCH-002); Review/Approval LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 7f3559a34079f9a1c522f030732c00470dc67285 verified
+[x] ADR-028 v0.2 Approved blob 016fbe8786d7e5df5609579d8aeea7ffb1f06178
+    verified trước khi author
+[x] docs/engineering/config.md absent trước transaction, confirmed
+[x] Deterministic source precedence defined (§2)
+[x] Required/optional/default/validation semantics rõ ràng (§4/§5/§6)
+[x] Secret boundary align ADR-017/ADR-028 (§8) — KHÔNG raw secret
+    storage/exposure authorized
+[x] KHÔNG tooling/vendor/format nào chọn (Non-goals)
+[x] Python/Go common-semantic boundary preserved (§13)
+[x] Error Handling/CI-CD/deployment boundaries VẪN tách biệt (§15)
+[x] KHÔNG new ADR trigger nào silently crossed — KHÔNG tạo ADR-029
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-028 v0.2 APPROVED: Cross-Module Config Convention Baseline
 
 **Mechanical lifecycle recording — vai trò: `ADR-028 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-028 V0.2" — no ADR decision semantics changed.
