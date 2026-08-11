@@ -2,6 +2,131 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Monorepo Convention v0.5 APPROVED
+
+**Mechanical lifecycle recording — vai trò: `Phase 1.5 Monorepo Convention Approval Recorder`.** Records the Product Owner decision "APPROVE MONOREPO CONVENTION V0.5" — no Monorepo semantic content changed.
+
+### Baseline
+
+```text
+Starting HEAD:  1c6f48bcb669bc9785a7691ee0398636b9f03a3f
+Reviewed candidate: docs/engineering/monorepo.md v0.5, status Draft,
+                    blob d1fe7f8c8116e1473863279934a300ae20e1045d
+Approved authority: docs/adr/ADR-024.md v0.2, status Approved,
+                    blob d15ba39a02eb170f4daa1e791d4e00af58f81e63
+Review state:        Review A bounded re-review CLEAN; Independent
+                    Review B READY_FOR_PRODUCT_OWNER_DECISION;
+                    Blocker 0/Major 0/Minor 1 (EF-MONO-ADR024-B-MIN-01)
+```
+
+### G-VERIFY-001 / G-ID-001 / G-ORCH-002 applied
+
+```text
+Verified starting HEAD and the on-disk blob of monorepo.md matched the
+  stated reviewed candidate (d1fe7f8c...) exactly before any edit.
+Re-verified the living-document lifecycle (Chapter 0 §7.1: Draft -> In
+  Review -> Revision Requested -> Approved -> Locked) and confirmed
+  precedent for this document class: docs/phase-dod/phase-0-dod.md and
+  phase-1-dod.md both use status: Draft -> Approved without a version
+  bump for pure acceptance/approval -- same pattern applied here rather
+  than inventing Locked/Accepted/Consolidated Stable.
+No auto-approval performed prior to this explicit Product Owner
+  decision (G-ORCH-002).
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-11"
+version:      "0.5" unchanged (pure mechanical approval -- no bump)
+```
+
+### Residual Minor handling (`EF-MONO-ADR024-B-MIN-01`)
+
+```text
+Recorded as OPEN, carried forward -- ACCEPTED as non-blocking by the
+  Product Owner decision, explicitly NOT marked CLOSED (same pattern as
+  the Phase 1 Approval Gate's six accepted Minor findings, MANIFEST.md
+  "Phase 1 Approval Gate -- Decision" § Residual-risk acceptance). The
+  finding's text was not rewritten; it will only be closed if actually
+  corrected in a future version.
+```
+
+### Reviewed vs resulting blob (G-ID-001 -- distinguished, not conflated)
+
+```text
+Reviewed candidate blob:              d1fe7f8c8116e1473863279934a300ae20e1045d
+Resulting post-approval lifecycle blob: 2ece86234517834575d23a11e21a8156d1c32867
+(differ only because the approval banner + lifecycle frontmatter fields
+ + one change-history entry were written -- no semantic content changed)
+```
+
+### Files changed
+
+```text
+docs/engineering/monorepo.md  (frontmatter status/approved_by/
+                              approved_at; approval banner + residual-
+                              Minor note added after title; ACCEPTANCE
+                              change-history entry appended; §1-§6
+                              byte-equivalent)
+docs/MANIFEST.md               (row updated to Approved + both blobs +
+                              residual Minor state; manifest_version
+                              10.80 -> 10.81)
+docs/CHANGELOG.md              (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Monorepo semantics (§1-§6 of monorepo.md): byte-equivalent. Single
+  Monorepo decision, ADR-024 authority, I-12 rationale, current-scale
+  rationale, python//go/ roots, Rust deferral, module_id naming, no
+  module pre-creation, module-language deferral, ADR-008 authority,
+  module-registry authority, workspace/tooling deferral: all untouched.
+docs/adr/ADR-024.md: byte-identical (git diff --quiet) -- immutable
+  after approval, not touched. ADR-008, module-registry.yaml, every
+  other ADR, Constitution, team.yaml: byte-identical. No ADR-025
+  created. No other Engineering Foundation category touched. No Phase
+  1.5 DoD created. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/engineering/monorepo.md:  version 0.5, status Approved,
+                              approved_by Product Owner, approved_at
+                              2026-08-11
+EF-MONO-ADR024-B-MIN-01:        OPEN, carried forward (accepted,
+                              non-blocking, not closed)
+Phase 2 -- Product Prototype:  NOT AUTHORIZED (unchanged)
+LIVE:                          NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                            CONFIRMED
+Exact reviewed v0.5 blob:                        CONFIRMED
+Product Owner decision recorded verbatim:         CONFIRMED
+Review A and Review B evidence recorded:          CONFIRMED
+Residual Minor explicitly non-blocking, not
+  falsely CLOSED:                                 CONFIRMED
+No semantic content changes:                      CONFIRMED (git diff:
+  only frontmatter + banner + change-history entry)
+Version behavior follows lifecycle authority
+  (no bump for approval):                         CONFIRMED
+Resulting lifecycle state (Approved) follows
+  governance/precedent exactly:                    CONFIRMED (DoD
+  precedent)
+Reviewed vs resulting blob distinguished:          CONFIRMED
+ADR-024 remains byte-identical:                    CONFIRMED
+Only target lifecycle metadata/evidence +
+  bookkeeping changed:                             CONFIRMED
+Phase 2/LIVE unchanged:                            CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Monorepo convention bounded correction: `EF-MONO-ADR024-A-MAJ-01` CLOSED
 
 **Bounded correction — vai trò: `Phase 1.5 Monorepo ADR-024 Alignment Bounded Correction Executor`.** Fixes one Review A Major finding on `docs/engineering/monorepo.md` v0.4: §1's rationale text had not been updated to match Approved ADR-024 v0.2's own corrected reasoning. Does not redesign the Monorepo convention.

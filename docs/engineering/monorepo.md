@@ -2,11 +2,11 @@
 id: engineering-monorepo
 title: "Engineering Foundation — Monorepo Structure"
 version: "0.5"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-11"
 created_at: "2026-08-10"
 last_review: null
 next_review: null
@@ -16,6 +16,12 @@ depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../
 # Engineering Foundation — Monorepo Structure
 
 **Vai trò của tài liệu này:** convention document đầu tiên của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2: "nội dung chi tiết từng mục được điền dần khi Phase 1.5 triển khai"), phạm vi CHỈ category **Monorepo** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). KHÔNG Constitution chapter, KHÔNG ADR, KHÔNG redefine Module Taxonomy/dependency graph — `docs/architecture/module-registry.yaml` vẫn LÀ single source of truth cho `module_id`/dependency; tài liệu này CHỈ quy định CHỖ ĐẶT source code tương ứng, KHÔNG tự quyết định lại bất kỳ module boundary nào.
+
+**APPROVED (2026-08-11) — status: Draft → Approved.** Product Owner decision: **"APPROVE MONOREPO CONVENTION V0.5."** Reviewed candidate: v0.5, blob `d1fe7f8c8116e1473863279934a300ae20e1045d` (Review A bounded re-review `CLEAN`; Independent Review B `READY_FOR_PRODUCT_OWNER_DECISION`; Blocker 0/Major 0/Minor 1). `version: "0.5"` KHÔNG đổi (pure mechanical lifecycle approval — KHÔNG bump). Tài liệu này VẪN LÀ living document (Chapter 3 §3.2 "tài liệu SỐNG, không bất biến"; Chapter 0 §7.1 lifecycle Draft→...→Approved→Locked) — `Approved` KHÔNG đồng nghĩa immutable byte-for-byte như ADR (Chapter 11 §11.3 KHÔNG áp dụng ở đây); thay đổi tương lai vẫn hợp lệ qua version bump + re-review (Chapter 0 §8).
+
+**Residual Minor `EF-MONO-ADR024-B-MIN-01`** (v0.4-era provenance/self-description inconsistency — một số framing nói nội dung dưới "không đổi" dù v0.5 đã sửa §1 rationale; KHÔNG chạm repository-topology decision/authority boundary/language allocation/module mapping/Rust deferral/`module_id` naming/tooling deferral) — Product Owner ACCEPT làm non-blocking: **`OPEN, carried forward` — KHÔNG đóng SAI ("closed"/"resolved") bởi approval này**, đúng pattern Gate 2's sáu accepted Minor (`MANIFEST.md` "Phase 1 Approval Gate — Decision" §Residual-risk acceptance). Text của finding này CHỈ được đóng khi thực sự sửa tại một version tương lai.
+
+**Approval này KHÔNG đổi Monorepo semantics nào** (§1–§6 dưới byte-equivalent) — KHÔNG chạm `ADR-024`/`ADR-008`/`module-registry.yaml` (ADR-024 immutable, verified byte-identical), KHÔNG tạo ADR-025, KHÔNG mở Coding Standard hay Engineering Foundation category khác, KHÔNG authorize Phase 2, KHÔNG authorize LIVE.
 
 **Authority alignment (v0.4, sửa tại transaction alignment SAU khi `ADR-024` Approved):**
 
@@ -295,4 +301,25 @@ v0.5  2026-08-11  Bounded correction, đóng `EF-MONO-ADR024-A-MAJ-01`
       KHÔNG module→language mapping nào thêm, KHÔNG chạm
       `module-registry.yaml`/`ADR-008`/`ADR-024` (ADR-024 immutable,
       verified byte-identical). `status` VẪN `Draft`.
+ACCEPTANCE  2026-08-11  Product Owner lifecycle approval — mechanical,
+      vai trò: `Phase 1.5 Monorepo Convention Approval Recorder`.
+      Quyết định: "APPROVE MONOREPO CONVENTION V0.5." Reviewed
+      candidate: v0.5, blob
+      `d1fe7f8c8116e1473863279934a300ae20e1045d` (Review A bounded
+      re-review `CLEAN`; Independent Review B
+      `READY_FOR_PRODUCT_OWNER_DECISION`; Blocker 0/Major 0/Minor 1).
+      `status: Draft -> Approved`, `approved_by: null -> Product
+      Owner`, `approved_at: null -> "2026-08-11"`. `version` KHÔNG bump
+      (pure mechanical lifecycle approval). Residual Minor
+      `EF-MONO-ADR024-B-MIN-01` (v0.4-era provenance/self-description
+      inconsistency, KHÔNG semantic/authority/mapping impact) ACCEPTED
+      làm non-blocking — **`OPEN, carried forward`, KHÔNG đóng
+      "closed"/"resolved"** bởi approval này; CHỈ đóng khi text thực sự
+      sửa tại version tương lai. KHÔNG semantic content nào đổi (§1–§6
+      byte-equivalent ngoài banner/lifecycle metadata/change history
+      này). Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable
+      byte-for-byte như ADR. KHÔNG chạm `ADR-024`/`ADR-008`/
+      `module-registry.yaml` (ADR-024 immutable, verified
+      byte-identical), KHÔNG tạo ADR-025, KHÔNG mở Engineering
+      Foundation category khác, KHÔNG authorize Phase 2/LIVE.
 ```
