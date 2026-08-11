@@ -2,6 +2,100 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Naming Convention bounded correction: `EF-NAME-A-MAJ-01`/`EF-NAME-A-MIN-01` CLOSED
+
+**Bounded correction — vai trò: `Phase 1.5 Naming Foundation Bounded Correction Executor`.** Fixes one Major and one Minor finding from Review A on `docs/engineering/naming.md` v0.1. Does not redesign the Naming Convention.
+
+### Baseline
+
+```text
+Starting HEAD:  f5ec8e7ae0caecc65e1884e79a2188484bbcbccc
+Target:          docs/engineering/naming.md v0.1, status Draft,
+                 blob aabcb850b7a621259129a3850463aff612d9ba9a
+Authority:        docs/adr/ADR-026.md v0.1, status Approved,
+                 blob 7f1980db1aa220daf530f510d576f5096d9a8cf2
+```
+
+### Finding closed: `EF-NAME-A-MAJ-01`
+
+```text
+§4 v0.1 combined "file/package" into one bullet, implying Python
+  packages follow the same snake_case rule as modules/files (§2) --
+  wrong per PEP 8, which distinguishes module/file naming from package
+  naming (packages: short, all-lowercase, underscores discouraged).
+Fixed: §4 now states Python module/file naming (lowercase/snake_case
+  for multi-word names) separately from Python package naming (short,
+  all-lowercase, prefer a single word, underscores discouraged unless
+  justified by readability) -- canonical module_id/repository directory
+  authority (module-registry.yaml/monorepo.md §3) explicitly unchanged.
+```
+
+### Finding closed: `EF-NAME-A-MIN-01`
+
+```text
+§5 v0.1 attributed the Go initialism-casing rule (HTTPClient/
+  APIClient/OrderID) to "Effective Go" -- imprecise: Effective Go only
+  covers general MixedCaps/mixedCaps conventions and short lowercase
+  package names, not initialism casing specifically.
+Fixed: attribution corrected to "Go Code Review Comments" (Initialisms
+  section) -- the rule itself (keep common-initialism casing
+  consistent) is unchanged, only the source citation.
+```
+
+### Files changed
+
+```text
+docs/engineering/naming.md  (0.1 -> 0.2: §4/§5 corrected + change-
+                             history entry; §1/§2/§3/§6-§14
+                             verified byte-identical section-by-section)
+docs/MANIFEST.md              (row updated: version, blob, note;
+                             manifest_version 10.92 -> 10.93)
+docs/CHANGELOG.md             (this entry)
+```
+
+### Preserved unchanged
+
+```text
+§1/§2/§3/§6-§14 of naming.md: byte-identical (programmatically
+  diffed section-by-section, confirmed) -- ADR-026 authority, general
+  principles, event PAST_TENSE_UPPER_SNAKE representation, event
+  representation != semantic/schema authority, no mandatory I-prefix,
+  bounded DTO suffix, booleans/predicates, constants/enums, module-
+  registry authority, category boundaries, ADR-scope disposition all
+  unchanged. No tooling added. ADR026-A-MIN-01 remains OPEN -- accepted
+  non-blocking, not closed. docs/adr/ADR-026.md, ADR-025, coding-
+  standard.md, monorepo.md, ADR-008, ADR-024, module-registry.yaml,
+  every other ADR, Constitution, Phase 1.5 rules: byte-identical (git
+  diff --quiet). No Logging/Config/Error Handling/Testing/CI-CD
+  category touched. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/engineering/naming.md:  version 0.2, status Draft
+EF-NAME-A-MAJ-01 / EF-NAME-A-MIN-01:  both CLOSED
+Phase 2 -- Product Prototype:         NOT AUTHORIZED (unchanged)
+LIVE:                                 NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD/blob:                          CONFIRMED
+v0.2 Draft produced:                                CONFIRMED
+Python package rule now matches PEP 8 distinction:   CONFIRMED
+Go initialism attribution corrected:                 CONFIRMED
+Both findings genuinely resolved:                    CONFIRMED
+Unaffected Naming semantics preserved:               CONFIRMED (section-
+  by-section diff)
+ADR-026 byte-identical:                              CONFIRMED (git
+  diff --quiet)
+ADR026-A-MIN-01 still OPEN:                          CONFIRMED
+Only three expected files changed:                   CONFIRMED
+Phase 2/LIVE unchanged:                              CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Naming Convention foundation established (third bounded Engineering Foundation transaction)
 
 **Third bounded Phase 1.5 category transaction — vai trò: `Phase 1.5 Naming Foundation Executor`.** Establishes the Naming Convention living document only (`EF-TXN-002`: one category per transaction), as the living convention under Approved `ADR-026`.

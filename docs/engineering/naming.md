@@ -1,7 +1,7 @@
 ---
 id: engineering-naming
 title: "Engineering Foundation — Naming Convention"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -68,20 +68,44 @@ KHÔNG ép visual uniformity xuyên ngôn ngữ — Python và Go giữ đúng i
 ## 4. File / package naming
 
 ```text
+[v0.2 sửa, đóng EF-NAME-A-MAJ-01: v0.1 gộp "file/package" thành một
+  bullet chung, ngụ ý Python package cũng theo snake_case như module/
+  file (§2) — SAI theo PEP 8. Tách rõ dưới đây.]
+
+Python module/file (một file .py):    lowercase, snake_case khi cần
+  nhiều từ (đúng §2/PEP 8 module naming) — vd `market_data_ingestion.py`.
+Python package (directory có `__init__.py`): short, all-lowercase, ƯU
+  TIÊN MỘT từ duy nhất — underscore trong package name KHÔNG khuyến
+  khích (PEP 8: "the use of underscores is discouraged"), CHỈ dùng khi
+  thực sự cần cho readability. Rule này TÁCH BIỆT khỏi module/file
+  naming — §2's snake_case áp cho module/file, KHÔNG tự động áp cho
+  package name.
+Go file/package: theo §3 (package ngắn, lowercase, KHÔNG snake_case/
+  camelCase — đã pin, KHÔNG đổi tại đây).
 Tên file/package PHẢI phản ánh nội dung chính bên trong — KHÔNG tên
   generic (`utils.py`, `helper.go`) trừ khi thực sự chứa utility chung
   không thuộc một concept cụ thể nào.
-File/package naming PHẢI nhất quán casing đúng ngôn ngữ (§2/§3) — KHÔNG
-  trộn casing trong CÙNG một ngôn ngữ.
+KHÔNG đổi canonical `module_id`/repository directory authority
+  (`module-registry.yaml`/`monorepo.md` §3, xem §6 dưới) — rule trên
+  CHỈ áp cho file/package Python/Go NỘI BỘ một module, KHÔNG áp cho tên
+  source directory cấp module (đã pin `python/<module_id>/`/
+  `go/<module_id>/`).
 ```
 
 ## 5. Acronym / initialism handling
 
 ```text
+[v0.2 sửa, đóng EF-NAME-A-MIN-01: v0.1 gán attribution SAI — "Effective
+  Go" chỉ quy định MixedCaps/mixedCaps chung + package name ngắn/
+  lowercase, KHÔNG có rule initialism-casing cụ thể. Rule bên dưới GIỮ
+  NGUYÊN (KHÔNG đổi), CHỈ sửa attribution.]
+
 Xử lý acronym theo idiom ngôn ngữ, KHÔNG ép một quy tắc chung cho cả
   hai — minh họa (pattern, KHÔNG canonical vocabulary):
-  Go:      HTTPClient, APIClient, OrderID (acronym giữ nguyên case theo
-           idiomatic Go — Effective Go convention).
+  Go:      HTTPClient, APIClient, OrderID — common initialism
+           (`HTTP`/`API`/`ID`...) giữ nguyên casing nhất quán, đúng
+           "Go Code Review Comments" (mục Initialisms) — KHÔNG PHẢI
+           Effective Go.
   Python:  http_client, api_client, order_id (snake_case tự nhiên hóa
            acronym, đúng PEP 8).
 ```
@@ -268,4 +292,29 @@ v0.1  2026-08-11  Established — vai trò: `Phase 1.5 Naming Foundation
       `module-registry.yaml`/Constitution/Phase 1.5 rules. KHÔNG bắt
       đầu Logging/Config/Error Handling/Testing/CI-CD. `status: Draft`
       — not self-approved (`G-ORCH-002`).
+v0.2  2026-08-11  Bounded correction, đóng `EF-NAME-A-MAJ-01`/
+      `EF-NAME-A-MIN-01` (Review A findings). `EF-NAME-A-MAJ-01`: §4 v0.1
+      gộp "file/package" thành một bullet chung, ngụ ý Python package
+      cũng theo snake_case như module/file (§2) — SAI theo PEP 8. Sửa:
+      §4 tách rõ Python module/file (lowercase/snake_case khi cần nhiều
+      từ) khỏi Python package (short/all-lowercase, ƯU TIÊN một từ,
+      underscore KHÔNG khuyến khích trừ khi cần readability, đúng PEP 8
+      "the use of underscores is discouraged"). `EF-NAME-A-MIN-01`: §5
+      v0.1 gán SAI attribution "Effective Go" cho Go initialism casing
+      rule (`HTTPClient`/`APIClient`/`OrderID`) — Effective Go CHỈ quy
+      định MixedCaps/mixedCaps chung + package name ngắn/lowercase,
+      KHÔNG có rule initialism-casing cụ thể. Sửa: attribution đổi
+      thành "Go Code Review Comments" (mục Initialisms) — CHÍNH rule đó
+      (casing các initialism) GIỮ NGUYÊN, KHÔNG đổi, CHỈ sửa nguồn trích
+      dẫn. **KHÔNG đổi:** canonical `module_id`/repository directory
+      authority, `ADR-026` authority, general principles, event
+      `PAST_TENSE_UPPER_SNAKE` representation, event representation ≠
+      semantic/schema authority, no mandatory `I` prefix, bounded DTO
+      suffix, booleans/predicates, constants/enums, module-registry
+      authority, category boundaries, ADR-scope disposition (§1/§2/§3/
+      §6–§14 nguyên vẹn). KHÔNG tool nào thêm. `ADR026-A-MIN-01` VẪN
+      `OPEN — accepted non-blocking`, KHÔNG đóng tại đây. KHÔNG chạm
+      `ADR-026` (Approved, immutable)/`ADR-025`/`coding-standard.md`/
+      `ADR-008`/`ADR-024`/`module-registry.yaml`/Constitution/Phase 1.5
+      rules. `status` VẪN `Draft`.
 ```
