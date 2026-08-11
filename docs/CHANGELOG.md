@@ -2,6 +2,109 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Bounded correction: `G-ORCH-004` scoped to primary orchestrator role
+
+**Bounded semantic correction — vai trò: `Governance Execution Rulebook Structuring Executor`.** Scopes `G-ORCH-004`'s mandatory full next-task-prompt duty to the primary orchestrator role, per Product Owner clarification, so executor/reviewer reports don't grow unnecessarily long.
+
+### Baseline
+
+```text
+Starting HEAD:  24dbd2a92e57dbff26438c5b8f91851b38c4b712
+Target:          docs/governance/execution-rules.md v0.3,
+                 operational_state EFFECTIVE,
+                 blob 7cbb3408a05bf8f885176dd9b9e55bd8f495a9c6
+```
+
+### Product Owner clarification recorded
+
+```text
+The Product Owner wants ChatGPT / the primary orchestration session to
+  always provide the exact next-task prompt after each completed
+  governed task. Executors/reviewers such as Claude Code should
+  normally return only the concise next governed action, not author a
+  full copy-paste prompt for the following transaction unless
+  explicitly requested.
+```
+
+### Correction (`G-ORCH-004` only)
+
+```text
+v0.3's G-ORCH-004 required "the orchestrator" (unqualified) to always
+  supply a full next-task prompt/decision -- read literally, this fell
+  on every governed executor/reviewer report too, inflating them.
+v0.4 splits responsibility by role at the current session:
+  1. PRIMARY ORCHESTRATOR (e.g. ChatGPT): unchanged from v0.3 -- MUST
+     supply the exact next action immediately in the same response (full
+     copy-paste prompt + target actor/session, or the exact Product
+     Owner decision phrase).
+  2. EXECUTOR/REVIEWER (e.g. Claude Code, within a bounded governed
+     transaction): defaults to returning only a concise "next governed
+     action" -- does NOT automatically author a full prompt for the next
+     task, unless (a) the current task explicitly requests it, or (b)
+     the executor/reviewer is itself explicitly acting as primary
+     orchestrator (not its normal bounded-executor role).
+  3. The rule still only requires SUPPLYING the next action -- it does
+     not auto-execute, auto-approve, or authorize a phase/LIVE transition.
+G-ORCH self-check item 7 updated to ask which role applies (orchestrator
+  vs executor/reviewer) and check the corresponding duty.
+```
+
+### Files changed
+
+```text
+docs/governance/execution-rules.md  (0.3 -> 0.4: G-ORCH-004 rewritten,
+                                     self-check item 7 updated, change
+                                     history entry; G-AUTH..G-ORCH-003
+                                     byte-equivalent, no rule ID
+                                     renumbered)
+docs/MANIFEST.md                     (row updated: version, blob, note;
+                                     manifest_version 10.83 -> 10.84)
+docs/CHANGELOG.md                    (this entry)
+```
+
+### Preserved unchanged
+
+```text
+G-AUTH/G-VERIFY/G-ADR/G-TXN/G-REV/G-BUDGET/G-ID/G-QG/G-PHASE and
+  G-ORCH-001/G-ORCH-002/G-ORCH-003: semantically unchanged, no rule ID
+  renumbered. operational_state remains EFFECTIVE; accepted_by remains
+  Product Owner. No new orchestration rule added. Transaction/review/
+  ADR policy unchanged. Constitution, Phase 1.5 rules, the Monorepo
+  convention, and the Coding Standard foundation: byte-identical (git
+  diff --quiet). No phase transition, no LIVE authorization.
+```
+
+### Result
+
+```text
+docs/governance/execution-rules.md:  version 0.4, operational_state
+                                     EFFECTIVE
+G-ORCH-004:                           EFFECTIVE, role-scoped (primary
+                                     orchestrator vs executor/reviewer)
+Phase 2 -- Product Prototype:        NOT AUTHORIZED (unchanged)
+LIVE:                                NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                            CONFIRMED
+Current execution-rules v0.3 identity
+  re-verified before edit:                        CONFIRMED
+Only G-ORCH-004 + self-check item 7 change
+  semantically:                                    CONFIRMED (git diff)
+Primary orchestrator retains mandatory
+  full-prompt duty:                                CONFIRMED
+Executor/reviewer no longer automatically has
+  full-prompt duty:                                CONFIRMED
+Executor/reviewer still reports concise next
+  governed action:                                 CONFIRMED
+Version becomes 0.4:                              CONFIRMED
+operational_state remains EFFECTIVE:               CONFIRMED
+MANIFEST/CHANGELOG updated:                        CONFIRMED
+Phase 2/LIVE unchanged:                            CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Coding Standard foundation established (second bounded Engineering Foundation transaction)
 
 **Second bounded Phase 1.5 category transaction — vai trò: `Phase 1.5 Coding Standard Foundation Executor`.** Establishes the Coding Standard foundation only (`EF-TXN-002`: one category per transaction), per Roadmap Chapter 14 §14.2's Phase 1.5 scope list.

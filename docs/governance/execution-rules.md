@@ -1,7 +1,7 @@
 ---
 id: execution-rules
 title: "Ride Quant Platform — Global Execution Rules"
-version: "0.3"
+version: "0.4"
 operational_state: EFFECTIVE
 owner: Product Owner
 accepted_by: Product Owner
@@ -191,8 +191,12 @@ Trước MỌI governed executor/reviewer prompt, bắt buộc tự hỏi:
 4. Prompt size có nằm trong budget không? (§G-BUDGET)
 5. Exact identity (blob/version) có được xử lý đúng không? (§G-ID)
 6. Tôi có đang tạo một review/micro-transaction KHÔNG CẦN THIẾT không?
-7. Tôi đã cung cấp exact next-task prompt / Product Owner decision action
-   chưa? (G-ORCH-004)
+7. Tôi đang đóng vai primary orchestrator hay executor/reviewer tại
+   session này? Nếu orchestrator — đã cung cấp full next-task prompt/
+   Product Owner decision action chưa? Nếu executor/reviewer — tôi có
+   đang tự động author full prompt KHÔNG CẦN THIẾT không (mặc định CHỈ
+   trả về concise next governed action, trừ khi task yêu cầu hoặc tôi
+   đang tường minh LÀM orchestrator)? (G-ORCH-004)
 ```
 
 ```text
@@ -205,26 +209,38 @@ G-ORCH-002  KHÔNG auto-approval — mọi Approved/Consolidated Stable/Accepted
             cấp trong transaction request.
 G-ORCH-003  KHÔNG auto-consolidation — package lifecycle KHÔNG tự chuyển
             Consolidated Stable chỉ vì nội dung "trông sẵn sàng."
-G-ORCH-004  Sau khi một governed task được verify và xác nhận hoàn tất,
-            orchestrator PHẢI cung cấp NGAY hành động/task tiếp theo cụ
-            thể trong CHÍNH response đó — KHÔNG để lại cho một turn sau.
+G-ORCH-004  Trách nhiệm next-action PHÂN BIỆT theo vai trò tại session
+            hiện tại — sau khi một governed task được verify và xác nhận
+            hoàn tất:
 
-            Nếu task tiếp theo do một executor/reviewer khác thực hiện
-            (session/actor khác), response PHẢI bao gồm một prompt hoàn
-            chỉnh, copy-paste được, VÀ chỉ rõ prompt đó phải gửi cho
-            actor/session nào.
+            1. PRIMARY ORCHESTRATOR (session điều phối chính xuyên suốt
+               nhiều task/transaction, vd ChatGPT/primary orchestration
+               session): PHẢI cung cấp NGAY hành động tiếp theo cụ thể
+               trong CHÍNH response đó — KHÔNG để lại cho một turn sau.
+                 - Nếu task tiếp theo do một executor/reviewer khác thực
+                   hiện (session/actor khác): response PHẢI bao gồm một
+                   prompt hoàn chỉnh, copy-paste được, VÀ chỉ rõ prompt
+                   đó phải gửi cho actor/session nào.
+                 - Nếu task tiếp theo đòi hỏi một Product Owner decision
+                   (KHÔNG phải executor/reviewer action): response PHẢI
+                   cung cấp CHÍNH XÁC decision phrase/action mà Product
+                   Owner cần trả lời — KHÔNG mô tả chung.
 
-            Nếu task tiếp theo đòi hỏi một Product Owner decision (KHÔNG
-            phải executor/reviewer action), response PHẢI cung cấp CHÍNH
-            XÁC decision phrase/action mà Product Owner cần trả lời —
-            KHÔNG mô tả chung, PHẢI actionable/copy-paste được.
+            2. EXECUTOR/REVIEWER (thực hiện một bounded governed
+               transaction, vd Claude Code): MẶC ĐỊNH CHỈ trả về một
+               `next governed action` súc tích — KHÔNG tự động author
+               full copy-paste prompt cho task tiếp theo, TRỪ KHI:
+                 (a) transaction hiện tại tường minh yêu cầu prompt đó;
+                     HOẶC
+                 (b) chính executor/reviewer đó đang hoạt động tường
+                     minh LÀM primary orchestrator (KHÔNG PHẢI bounded
+                     executor role thông thường).
 
-            KHÔNG được kết thúc response bằng việc CHỈ mô tả next step,
-            roadmap, hay "tiếp theo sẽ..." mà KHÔNG kèm prompt/decision
-            action cụ thể — TRỪ KHI KHÔNG CÒN governed task hợp lệ nào để
-            thực hiện (auto-approval/authorize Phase/LIVE vẫn KHÔNG được
-            phép, đúng G-ORCH-002/G-PHASE — rule này CHỈ đòi hỏi CUNG CẤP
-            action, KHÔNG tự thực thi action đó).
+            3. Rule này CHỈ đòi hỏi CUNG CẤP next action (dạng phù hợp
+               với vai trò tại mục 1/2 trên) — KHÔNG tự động thực thi,
+               KHÔNG tự approve, KHÔNG tự authorize Phase transition/LIVE
+               nào (đúng G-ORCH-002/G-PHASE), TRỪ KHI KHÔNG CÒN governed
+               task hợp lệ nào để thực hiện.
 ```
 
 ## Change history
@@ -256,5 +272,21 @@ v0.3  2026-08-11  Bổ sung Global rule mới `G-ORCH-004` — formalize Product
       — CHỈ đòi hỏi CUNG CẤP action, KHÔNG tự thực thi. §G-ORCH self-check
       bổ sung mục 7 tương ứng. v0.1/v0.2 content (§Authority–G-ORCH-003)
       KHÔNG đổi, KHÔNG rule ID nào renumber. accepted_by: Product Owner,
+      accepted_at: 2026-08-11.
+v0.4  2026-08-11  Bounded semantic correction cho `G-ORCH-004`, đóng
+      Product Owner clarification: mandatory full next-task prompt CHỈ
+      áp cho PRIMARY ORCHESTRATOR (session điều phối chính, vd ChatGPT),
+      KHÔNG tự động áp cho executor/reviewer (vd Claude Code) — tránh
+      executor/reviewer report bị kéo dài không cần thiết. Sửa: `G-ORCH-
+      004` tách hai vai trò rõ ràng — (1) primary orchestrator VẪN PHẢI
+      cung cấp NGAY full prompt/decision action, giữ nguyên yêu cầu gốc
+      v0.3; (2) executor/reviewer MẶC ĐỊNH CHỈ trả về một `next governed
+      action` súc tích, KHÔNG tự động author full prompt TRỪ KHI task
+      hiện tại yêu cầu HOẶC chính executor/reviewer đó đang tường minh
+      LÀM orchestrator. §G-ORCH self-check mục 7 sửa tương ứng — phân
+      biệt orchestrator (full prompt) khỏi executor/reviewer (concise
+      action). KHÔNG đổi `G-ORCH-001`/`G-ORCH-002`/`G-ORCH-003`, KHÔNG
+      rule ID nào renumber, KHÔNG rule orchestration mới nào thêm, KHÔNG
+      đổi transaction/review/ADR policy. accepted_by: Product Owner,
       accepted_at: 2026-08-11.
 ```
