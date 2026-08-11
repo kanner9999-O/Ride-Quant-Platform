@@ -2,6 +2,94 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-025 bounded correction: `ADR025-A-MAJ-01` CLOSED
+
+**Bounded correction — vai trò: `ADR-025 v0.2 Bounded Correction Executor`.** Fixes one Review A Major finding on `docs/adr/ADR-025.md` v0.1: §3's living-convention wording implied reversibility alone exempts future Coding Standard changes from the ADR Scope Rule. Does not redesign the ADR.
+
+### Baseline
+
+```text
+Starting HEAD:  f51c2e8d59d238b6d2e79d37811119438bd045a8
+Target:          docs/adr/ADR-025.md v0.1, status Draft,
+                 blob a066f5414338cdf6fe9fc634b857181a2013e98d
+```
+
+### Finding closed: `ADR025-A-MAJ-01`
+
+```text
+v0.1 §3 listed, among living-convention items, "moi cap nhat convention
+  tuong lai con reversible/refactor-class" -- implying that future
+  Coding Standard updates which are reversible generally don't need a
+  new ADR. Chapter 0 §4b is disjunctive (>1 module OR hard to reverse)
+  -- reversibility does not cancel the >1-module branch if that branch
+  is independently satisfied. Since the baseline applies to every
+  module by definition (§3's own decision), most living-convention
+  semantic updates will in fact satisfy ">1 module" regardless of how
+  easy the underlying technical change is to reverse.
+Fixed: removed that bullet; added an explicit paragraph requiring every
+  future living-convention change to independently rerun the ADR Scope
+  Rule at the time of that change (not infer exemption from a
+  "reversible"/"refactor-class" label), with a worked example
+  distinguishing a wording-only clarification (may not trigger a NEW
+  platform-wide effect) from a semantic baseline change applied to all
+  modules (does trigger >1 module, regardless of technical
+  reversibility).
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-025.md  (0.1 -> 0.2: v0.2 correction banner added, §3's
+                      living-convention block corrected; §1/§2/§4-
+                      §9 unchanged in substance)
+docs/MANIFEST.md      (row updated: version, blob, note)
+docs/CHANGELOG.md     (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Decision (one governed cross-module baseline), ADR-authority-vs-living-
+  convention separation, ADR-008/ADR-024/module-registry.yaml authority,
+  alternatives, consequences, Scale Check, and §9's treatment of
+  EF-CODE-B-MAJ-01/EF-CODE-A-MIN-01/EF-CODE-A-MIN-02: unchanged in
+  substance. docs/engineering/coding-standard.md: byte-identical (git
+  diff --quiet), not touched. All three Coding Standard findings remain
+  OPEN -- none closed by this transaction. ADR-008, ADR-024, module-
+  registry.yaml, Constitution, Phase 1.5 rules: byte-identical. No
+  ADR-026 created. ADR-025 not approved -- status stays Draft.
+```
+
+### Result
+
+```text
+docs/adr/ADR-025.md:  version 0.2, status Draft
+ADR025-A-MAJ-01:       CLOSED
+EF-CODE-B-MAJ-01 / EF-CODE-A-MIN-01 / EF-CODE-A-MIN-02:  all still OPEN
+Phase 2 -- Product Prototype:  NOT AUTHORIZED (unchanged)
+LIVE:                          NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                              CONFIRMED
+Exact ADR-025 v0.1 blob:                            CONFIRMED
+Only bounded ADR-scope wording changed
+  semantically:                                      CONFIRMED (git diff)
+>1 module OR hard to reverse preserved explicitly:    CONFIRMED
+Reversibility no longer treated as an exemption:      CONFIRMED
+Living convention remains independently versioned:    CONFIRMED
+Every future semantic update must rerun ADR
+  Scope Rule:                                         CONFIRMED
+Coding Standard byte-identical:                       CONFIRMED
+All three Coding Standard findings remain OPEN:       CONFIRMED
+ADR025-A-MAJ-01 actually resolved:                    CONFIRMED
+ADR-025 remains Draft:                                CONFIRMED
+Version becomes 0.2:                                  CONFIRMED
+Phase 2/LIVE unchanged:                               CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-025 authored (Draft): Cross-Module Coding Standard Baseline
 
 **ADR authoring — vai trò: `ADR-025 Coding Standard Baseline Authoring Executor`.** Authors the ADR that Independent Review B flagged as Required (`EF-CODE-B-MAJ-01`) on `docs/engineering/coding-standard.md` v0.1. Draft only — not approved. Does not modify `coding-standard.md`.
