@@ -2,6 +2,130 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Naming Convention foundation established (third bounded Engineering Foundation transaction)
+
+**Third bounded Phase 1.5 category transaction — vai trò: `Phase 1.5 Naming Foundation Executor`.** Establishes the Naming Convention living document only (`EF-TXN-002`: one category per transaction), as the living convention under Approved `ADR-026`.
+
+### Baseline
+
+```text
+Starting HEAD:  7ddd029cc3919bb2359ad0cfb6b01b2af2bcc262
+ADR-026 (authority): v0.1, status Approved,
+                    blob 7f1980db1aa220daf530f510d576f5096d9a8cf2
+naming.md before:     did not exist
+Residual:             ADR026-A-MIN-01, OPEN -- accepted non-blocking
+```
+
+### G-VERIFY-001 applied
+
+```text
+Verified starting HEAD; re-read docs/adr/ADR-026.md directly and
+  confirmed version/status/blob match the stated Approved identity
+  exactly. Confirmed docs/engineering/naming.md did not exist before
+  this transaction. Re-verified three module_id spellings directly
+  against module-registry.yaml (feature-engine, risk-gateway,
+  market-data-ingestion) before citing them as spelling-preservation
+  examples.
+```
+
+### New file (Draft)
+
+```text
+docs/engineering/naming.md  (new, v0.1, status Draft)
+  blob: aabcb850b7a621259129a3850463aff612d9ba9a
+
+  General principles: clear domain meaning, one root term per
+    established concept, no redundant type-encoding in variable names,
+    implementation naming must not redefine canonical domain/contract
+    terminology.
+  Python naming: idiomatic PEP 8 (snake_case functions/variables,
+    PascalCase classes, UPPER_SNAKE_CASE constants) -- no formatter/
+    linter tool selected.
+  Go naming: idiomatic Go (PascalCase exported, camelCase unexported,
+    short lowercase packages) -- deliberately NOT forced into
+    cross-language visual uniformity with Python.
+  File/package naming, acronym/initialism handling (illustrative only:
+    HTTPClient/APIClient/OrderID in Go, http_client/api_client/order_id
+    in Python).
+  Canonical module_id references: module-registry.yaml remains the
+    sole authority; exact registry spelling must be preserved, no
+    second module-ID authority created.
+  Event-name representation: adopts PAST_TENSE_UPPER_SNAKE, explicitly
+    stated as a rule ESTABLISHED HERE under ADR-026 -- not a prior
+    Chapter 3 mandate -- and explicitly distinguished from event
+    existence/schema authority (Domain/Event Contract).
+  Interface/type naming: does NOT mandate Chapter 3's illustrative
+    I-prefix (not idiomatic Go or Python) -- chooses responsibility-
+    based naming idiomatic per language instead, as a bounded living-
+    convention choice.
+  DTO/data-structure naming: does NOT mandate a DTO suffix on every
+    data structure -- reserved for types that are genuine transfer-
+    boundary objects.
+  Boolean/predicate naming, constants/enums, deviations/exceptions
+    (same governed-deviation pattern as coding-standard.md).
+  Boundary section: explicitly defers Logging, Config, Error Handling,
+    Testing, CI/CD, and Documentation Convention; explicitly excludes
+    Coding Standard's formatting/lint/dependency/reproducibility policy.
+  ADR-scope disposition: records that the baseline-existence decision
+    WAS ADR Required, that ADR-026 satisfies it, that this document is
+    the aligned living convention, and that every future *semantic*
+    change must independently rerun the then-current ADR Scope Rule --
+    does NOT claim Naming is generally ADR Not Required (applying the
+    lesson from coding-standard.md's EF-CODE-B-MAJ-01 from the start).
+  No canonical event/domain/API vocabulary or inventory invented -- all
+    examples explicitly marked illustrative. ADR026-A-MIN-01 is not
+    repeated and not closed -- left OPEN, out of scope for this
+    transaction.
+```
+
+### Files changed
+
+```text
+docs/engineering/naming.md  (new)
+docs/MANIFEST.md             (new row; manifest_version 10.91 -> 10.92)
+docs/CHANGELOG.md            (this entry)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-026.md: byte-identical (git diff --quiet) -- immutable
+  after approval, not touched. ADR-025, docs/engineering/coding-
+  standard.md, docs/engineering/monorepo.md, ADR-008, ADR-024, module-
+  registry.yaml, every other ADR, Constitution, Phase 1.5 rules: byte-
+  identical. ADR026-A-MIN-01 remains OPEN, not closed. No module->
+  language mapping introduced. No formatter/linter/package-manager
+  selected. No ADR-027 created. No Logging/Config/Error Handling/
+  Testing/CI-CD category touched. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/engineering/naming.md:  v0.1, status Draft (not self-approved)
+ADR026-A-MIN-01:              OPEN -- accepted non-blocking (unchanged)
+Phase 2 -- Product Prototype: NOT AUTHORIZED (unchanged)
+LIVE:                         NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Starting HEAD exact:                             CONFIRMED
+ADR-026 exact Approved identity:                   CONFIRMED
+naming.md was absent before:                       CONFIRMED
+Resulting naming.md is v0.1 Draft:                  CONFIRMED
+Chapter 3 examples remain illustrative:             CONFIRMED
+Python/Go naming remains idiomatic:                 CONFIRMED
+No canonical vocabulary/inventory invented:          CONFIRMED
+Authority boundaries preserved:                      CONFIRMED (git
+  diff --quiet)
+ADR026-A-MIN-01 remains OPEN:                        CONFIRMED
+ADR-026 unchanged:                                   CONFIRMED
+Only Naming + MANIFEST + CHANGELOG changed:          CONFIRMED
+Phase 2/LIVE unchanged:                              CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-026 v0.1 APPROVED: Cross-Module Naming Convention Baseline
 
 **Mechanical lifecycle recording — vai trò: `ADR-026 Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-026 V0.1" — no ADR decision semantics changed.
