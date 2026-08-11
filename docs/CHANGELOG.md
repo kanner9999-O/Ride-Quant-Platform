@@ -2,6 +2,146 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Logging Convention v0.1 DRAFTED: `docs/engineering/logging.md`
+
+**Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Logging Foundation Executor`.** Authors `docs/engineering/logging.md` v0.1 (`Draft`) as the living Logging Convention under Approved `ADR-027`. Fourth Phase 1.5 Engineering Foundation category, following the established pattern (Monorepo, Coding Standard, Naming).
+
+### Baseline
+
+```text
+Starting HEAD:       95577bc4d22c97b4a67f2481943bee2dd623355e
+Approved authority:  docs/adr/ADR-027.md, version 0.2, status Approved,
+                     blob b89d0f9d1d7109d41e45cc7d302f5b398f100b09
+Residual finding:    ADR027-B-MIN-01 — OPEN / accepted non-blocking
+                     (§4 Alternatives của ADR-027, KHÔNG chạm/KHÔNG đóng
+                     tại transaction này)
+docs/engineering/logging.md: confirmed absent trước transaction này.
+```
+
+### Pre-author verification
+
+```text
+Inspected trực tiếp trước khi author: ADR-027.md (full content), Phase
+  1.5 rules (EF-* controls), Chapter 3 §3.2 (Engineering Foundation
+  framework list — Logging Convention liệt kê, KHÔNG có nội dung chi
+  tiết/ví dụ minh họa), ADR-008 (ngôn ngữ theo layer), ADR-025/
+  coding-standard.md (Coding Standard boundary), ADR-026/naming.md
+  (Naming boundary, dùng làm structural/style reference cho living
+  convention document), module-registry.yaml (canonical `module_id`
+  field, verified trực tiếp — field tên đúng `module_id`, kebab-case,
+  26 module hiện có).
+```
+
+### Established content (v0.1, 15 mục)
+
+```text
+§1  Purpose and authority — ADR-027 giữ nguyên authority baseline-
+    existence; `log record ≠ domain event`.
+§2  Structured logging — record structured, KHÔNG free-form-only mặc
+    định; KHÔNG chọn serialization format.
+§3  Minimum common fields — required-always: timestamp/level/message/
+    canonical module_id; contextual: correlation_id/causation_id/error
+    context. KHÔNG invent trace/span/distributed-tracing semantics.
+§4  Timestamp — ISO 8601, UTC bắt buộc, lý do explicit (readability/
+    sortability/cross-module ordering). KHÔNG chọn storage backend.
+§5  Log levels — DEBUG/INFO/WARN/ERROR/CRITICAL, bounded semantic mỗi
+    level, KHÔNG language-library-specific API.
+§6  Correlation and causation — mang theo khi context ĐÃ tồn tại; KHÔNG
+    tạo canonical ID scheme/tracing architecture mới; KHÔNG bắt buộc
+    khi KHÔNG có context liên quan.
+§7  Error/exception logging boundary — presentation requirement chỉ
+    (preserve error identity/context, tránh log trùng lặp); KHÔNG
+    thiết kế Error Handling exception hierarchy/retry policy.
+§8  Sensitive information — baseline prohibition: secrets/credentials/
+    API key/token/private auth material; redaction khi cần; KHÔNG tạo
+    security/privacy classification system đầy đủ.
+§9  Event vs log distinction — giữ nguyên ADR-027 §3 (event existence/
+    schema authority thuộc Domain/Event Contract); log CÓ THỂ tham
+    chiếu canonical event identifier CHỈ khi ĐÃ tồn tại dưới authority
+    đúng.
+§10 Language/runtime boundary — Python/Go idiom riêng ĐƯỢC PHÉP khác;
+    yêu cầu DUY NHẤT LÀ conform semantic §2–§9; KHÔNG chọn library.
+§11 Output/sink boundary — KHÔNG chọn collector/vendor/storage backend/
+    deployment topology; CHỈ pin technology-neutral output-stream
+    expectation tối thiểu cho implementation-readiness.
+§12 Determinism/explainability — log mô tả fact đã xảy ra, KHÔNG suy
+    diễn causality; KHÔNG substitute canonical execution/replay/domain
+    evidence.
+§13 Deviations — justified + documented khi external SDK/generated
+    code buộc; mọi thay đổi SEMANTIC tương lai PHẢI tự rerun ADR Scope
+    Rule (Chapter 0 §4b).
+§14 Boundary với category khác — KHÔNG absorb Coding Standard/Naming/
+    Config/Error Handling/Testing/CI-CD.
+§15 ADR-scope disposition — baseline-existence ĐÃ ADR Required
+    (>1 module), ADR-027 satisfy; semantic update tương lai vẫn PHẢI
+    tự rerun ADR Scope Rule; `ADR027-B-MIN-01` VẪN OPEN, KHÔNG tự đóng.
+```
+
+### ADR027-B-MIN-01 guard applied
+
+```text
+ADR-027 §4 (Alternatives) chứa một rationale sentence đề cập correlation
+  ID VÀ timestamp representation làm ví dụ pattern cross-language "cần
+  nhất quán" — KHÔNG treat câu đó LÀ detailed policy đã quyết định sẵn.
+  §4/§6 của logging.md v0.1 derive ĐỘC LẬP dưới ADR-027 §3's living-
+  convention authority (§6 correlation: chỉ mang theo khi context tồn
+  tại, KHÔNG tạo scheme mới; §4 timestamp: ISO 8601 UTC với lý do riêng
+  của chính tài liệu này, KHÔNG trích dẫn §4 của ADR-027 làm decision
+  đã có sẵn).
+`ADR027-B-MIN-01` KHÔNG đóng, KHÔNG sửa tại transaction này — carry-
+  forward `OPEN — accepted non-blocking`, đúng phạm vi correction riêng
+  cho `ADR-027.md` (KHÔNG tại đây).
+```
+
+### Files changed
+
+```text
+docs/engineering/logging.md   (NEW — v0.1, Draft, blob
+                               416ebed02ec8ed5db3c24a3ee0631973d228a31c)
+docs/MANIFEST.md              (manifest_version 10.97 -> 10.98; thêm
+                               engineering/logging.md row)
+docs/CHANGELOG.md             (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-027.md (Approved, immutable) — verified byte-identical,
+  git diff empty. ADR-026/naming.md, ADR-025/coding-standard.md,
+  ADR-024/monorepo.md, ADR-008, module-registry.yaml, Constitution,
+  Phase 1.5 rules — tất cả verified byte-identical (git diff empty).
+Không tạo ADR-028. Không mở Config/Error Handling/Testing/CI-CD
+  category. Phase 2 substantive work VẪN NOT YET AUTHORIZED. LIVE VẪN
+  NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/logging.md: v0.1, status Draft, owner Product Owner,
+  blob 416ebed02ec8ed5db3c24a3ee0631973d228a31c — not self-approved
+  (G-ORCH-002); Review/Approval là transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 95577bc4d22c97b4a67f2481943bee2dd623355e verified
+[x] ADR-027 v0.2 Approved blob b89d0f9d1d7109d41e45cc7d302f5b398f100b09
+    verified trước khi author
+[x] docs/engineering/logging.md absent trước transaction, confirmed
+[x] v0.1 Draft created — status: Draft, owner: Product Owner
+[x] ADR-027 boundaries honored — log record != domain event, không
+    lặp decision text, không đóng ADR027-B-MIN-01
+[x] Không domain/event/API authority mới invented
+[x] Không logging library/vendor/backend chọn
+[x] Không Error Handling architecture absorbed
+[x] Chỉ 3 file thay đổi đúng dự kiến (logging.md, MANIFEST.md,
+    CHANGELOG.md)
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-027 v0.2 APPROVED: Cross-Module Logging Convention Baseline
 
 **Mechanical lifecycle recording — vai trò: `ADR-027 Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-027 V0.2" — no ADR decision semantics changed.
