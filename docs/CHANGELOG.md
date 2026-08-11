@@ -2,6 +2,112 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Monorepo convention bounded correction: `EF-MONO-ADR024-A-MAJ-01` CLOSED
+
+**Bounded correction — vai trò: `Phase 1.5 Monorepo ADR-024 Alignment Bounded Correction Executor`.** Fixes one Review A Major finding on `docs/engineering/monorepo.md` v0.4: §1's rationale text had not been updated to match Approved ADR-024 v0.2's own corrected reasoning. Does not redesign the Monorepo convention.
+
+### Baseline
+
+```text
+Starting HEAD:  937f735a3a77730e448aa027b1e79f49bfb41302
+Target:          docs/engineering/monorepo.md v0.4, status Draft,
+                 blob c65a257bab4a04678a5ffe31372031f3fb9ca14e
+Approved authority: docs/adr/ADR-024.md v0.2, status Approved,
+                 blob d15ba39a02eb170f4daa1e791d4e00af58f81e63
+```
+
+### Finding closed: `EF-MONO-ADR024-A-MAJ-01`
+
+```text
+v0.4's alignment transaction added a correct one-line ADR-024 authority
+  pointer to §1, but did not touch §1's actual rationale text block --
+  which still carried the pre-ADR-024-v0.2 premise (multi-repo implies
+  I-12 violation / inherent version-drift) and the stale team-scale
+  phrase "1 Product Owner + AI Architect". Approved ADR-024 v0.2 §6 had
+  already corrected exactly this premise before its own approval; that
+  correction had not been propagated into this convention document.
+```
+
+### Correction (§1 rationale text only)
+
+```text
+Removed: "nhieu repo se tao version-drift risk ... dung I-12 Single
+  Source of Truth" (implying multi-repo violates I-12) and "1 Product
+  Owner + AI Architect".
+Replaced with the exact Approved ADR-024 v0.2 §6 rationale: I-12
+  requires one authoritative source per concept/scope, not one Git
+  repository; a versioned/pinned/automated multi-repo model still
+  satisfies I-12; Single Monorepo is selected because, at current
+  scale, it gives atomic cross-contract/consumer changes, simpler
+  coordination, fewer release/version coordination surfaces, and
+  easier repository-wide consistency checks; the accepted tradeoffs are
+  repo/CI growth, weaker repo-level ownership isolation, an eventual
+  need for path-aware CI, and a larger repo-level tooling/config blast
+  radius; multi-repo becomes more attractive if genuinely independent
+  teams/ownership boundaries emerge later.
+Team-scale corrected to exact docs/team/team.yaml: 1 Product Owner
+  (also Chief Architect) + 2 AI Technical Architects (ChatGPT, Claude)
+  + 1 Software Engineer (Thach) -- no independent module/domain teams
+  currently exist.
+Decision unchanged: Single Monorepo remains selected.
+```
+
+### Files changed
+
+```text
+docs/engineering/monorepo.md  (0.4 -> 0.5: §1 rationale text corrected
+                              + change-history entry; preamble/§1
+                              authority pointer/§2-§6/depends_on
+                              byte-equivalent)
+docs/MANIFEST.md               (row updated: version, blob, note;
+                              manifest_version 10.79 -> 10.80)
+docs/CHANGELOG.md              (this entry)
+```
+
+### Preserved unchanged
+
+```text
+Single Monorepo decision; ADR-024 authority pointer; python//go/ root
+  structure; no rust/ root; exact <module_id> naming; no pre-created
+  module directories; no module->language assignments; ADR-008 and
+  module-registry.yaml authority boundaries; tooling/package-manager
+  deferral; §6's historical ADR-scope evidence. docs/adr/ADR-024.md:
+  byte-identical (git diff --quiet) -- immutable after approval, not
+  touched. ADR-008, module-registry.yaml, every other ADR,
+  Constitution, team.yaml: byte-identical. No ADR-025 created.
+  monorepo.md not approved or Locked -- status remains Draft. No other
+  Engineering Foundation category touched. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/engineering/monorepo.md:  version 0.5, status Draft
+EF-MONO-ADR024-A-MAJ-01:        CLOSED
+Phase 2 -- Product Prototype:   NOT AUTHORIZED (unchanged)
+LIVE:                           NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+HEAD before/after:                              CONFIRMED
+Current v0.4 blob re-verified before edit:        CONFIRMED
+Approved ADR-024 v0.2 exact blob re-verified:      CONFIRMED
+§1 no longer misstates I-12:                     CONFIRMED
+§1 fairly acknowledges viable automated
+  multi-repo:                                     CONFIRMED
+Single Monorepo rationale matches Approved
+  ADR-024:                                        CONFIRMED
+Team-scale wording matches team.yaml:              CONFIRMED
+No unrelated semantic changes
+  (SS2-SS6/preamble/depends_on unchanged):         CONFIRMED (git diff)
+ADR-024 remains byte-identical:                    CONFIRMED
+Convention remains Draft:                          CONFIRMED
+Diff bounded to target + bookkeeping:              CONFIRMED
+Phase 2/LIVE unchanged:                            CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — Monorepo convention aligned to Approved ADR-024
 
 **Authority-alignment transaction — vai trò: `Phase 1.5 Monorepo ADR-024 Alignment Executor`.** Updates `docs/engineering/monorepo.md` to reflect that ADR-024 is now Approved. Not a bounded correction (no review finding closed) and not an approval of the convention document itself.

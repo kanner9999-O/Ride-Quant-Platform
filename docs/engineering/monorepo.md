@@ -1,7 +1,7 @@
 ---
 id: engineering-monorepo
 title: "Engineering Foundation — Monorepo Structure"
-version: "0.4"
+version: "0.5"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -37,12 +37,27 @@ Quyết định "một-repo" tại §1 (platform-wide, ảnh hưởng >1 module,
 **Authority: `ADR-024` v0.2 (Approved 2026-08-11).** Nội dung dưới đây KHÔNG đổi so với candidate trước — CHỈ nay LÀ elaboration của một quyết định Approved, KHÔNG CÒN LÀ proposal chờ authority.
 
 ```text
+[v0.5 sửa, đóng EF-MONO-ADR024-A-MAJ-01: rationale dưới trước đây ngụ ý
+  multi-repo → version-drift → vi phạm I-12 (SAI, cùng lỗi ADR-024 v0.1
+  đã sửa trước approval) VÀ dùng team-scale wording stale "1 Product
+  Owner + AI Architect". Thay bằng ĐÚNG rationale Approved tại ADR-024
+  v0.2 §6, KHÔNG suy diễn lại.]
+
 Toàn bộ Ride Quant Platform — docs + code — sống trong ĐÚNG một
-  repository (monorepo). Lý do: contract/schema shared (Event Contract,
-  Domain Contract, module-registry.yaml dependency graph) cần đổi đồng
-  bộ, đúng I-12 Single Source of Truth — nhiều repo sẽ tạo version-drift
-  risk giữa contract producer/consumer không cần thiết ở quy mô hiện tại
-  (1 Product Owner + AI Architect, chưa multi-team).
+  repository (monorepo). I-12 (Chapter 2) yêu cầu MỘT authoritative
+  source per concept/scope — KHÔNG yêu cầu MỘT Git repository duy nhất;
+  một multi-repo model versioned/pinned/automated VẪN thỏa I-12. Single
+  Monorepo được CHỌN (đúng ADR-024 v0.2 §6) vì, tại quy mô hiện tại (1
+  Product Owner kiêm Chief Architect + 2 AI Technical Architect
+  [ChatGPT, Claude] + 1 Software Engineer [Thạch] — bốn actor, KHÔNG có
+  independent module/domain team nào — verify `docs/team/team.yaml`),
+  nó cho: atomic change xuyên contract+consumer; coordination đơn giản
+  hơn; ít release/version coordination surface; consistency check toàn
+  repo dễ hơn. Đánh đổi được chấp nhận: repo/CI phình to theo thời
+  gian; ownership isolation cấp repo yếu hơn; cần path-aware CI sau
+  này; blast radius lớn hơn cho lỗi tooling/config cấp repo. Multi-repo
+  trở nên hấp dẫn hơn NẾU team độc lập thật xuất hiện sau này (ADR-024
+  §9 Scale Check `reason_if_no`).
 ```
 
 ## 2. Root-level structure
@@ -257,4 +272,27 @@ v0.4  2026-08-11  Authority-alignment transaction (KHÔNG bounded
       **KHÔNG approve/Lock `monorepo.md`** — `status` VẪN `Draft`, chờ
       Product Owner lifecycle decision riêng biệt cho chính tài liệu
       này.
+v0.5  2026-08-11  Bounded correction, đóng `EF-MONO-ADR024-A-MAJ-01`
+      (Review A finding). §1's rationale text (KHÔNG PHẢI authority
+      pointer thêm tại v0.4, mà chính nội dung ```text``` block) VẪN
+      giữ premise tiền-ADR-024-v0.2: ngụ ý multi-repo → version-drift →
+      vi phạm I-12, VÀ dùng team-scale wording stale "1 Product Owner +
+      AI Architect" — CÙNG lỗi ADR-024 v0.1 đã sửa trước khi Approved,
+      nhưng chưa propagate vào chính convention document này tại v0.4's
+      alignment. Sửa: §1 nay trích ĐÚNG rationale Approved tại ADR-024
+      v0.2 §6 — I-12 yêu cầu MỘT authoritative source per concept/
+      scope, KHÔNG MỘT Git repository; multi-repo versioned/automated
+      VẪN thỏa I-12; Single Monorepo chọn vì atomic cross-contract
+      change/coordination đơn giản/ít release surface/consistency check
+      dễ hơn TẠI QUY MÔ HIỆN TẠI; đánh đổi (repo/CI growth/ownership
+      isolation yếu/path-aware CI sau này/blast radius) được chấp nhận;
+      multi-repo hấp dẫn hơn NẾU team độc lập xuất hiện. Team-scale sửa
+      thành chính xác `team.yaml`: 1 Product Owner (kiêm Chief
+      Architect) + 2 AI Technical Architect (ChatGPT, Claude) + 1
+      Software Engineer (Thạch), KHÔNG independent module/domain team
+      nào. **KHÔNG đổi lựa chọn** (Single Monorepo VẪN được chọn) —
+      KHÔNG đổi §2/§3/§4/§5/§6/preamble/ADR-024 authority pointer,
+      KHÔNG module→language mapping nào thêm, KHÔNG chạm
+      `module-registry.yaml`/`ADR-008`/`ADR-024` (ADR-024 immutable,
+      verified byte-identical). `status` VẪN `Draft`.
 ```
