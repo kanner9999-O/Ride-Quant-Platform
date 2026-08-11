@@ -2,6 +2,135 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Coding Standard aligned to Approved ADR-025; three findings closed
+
+**ADR-025 alignment + bounded correction — vai trò: `Phase 1.5 Coding Standard ADR-025 Alignment Executor`.** Resolves `EF-CODE-B-MAJ-01`, `EF-CODE-A-MIN-01`, and `EF-CODE-A-MIN-02` together on `docs/engineering/coding-standard.md`. Does not redesign the Coding Standard or start another Phase 1.5 category.
+
+### Baseline
+
+```text
+Starting HEAD:  3cb58d5145d4e27a43425abe935816fb67e0b8ad
+Coding Standard: v0.1, status Draft,
+                 blob 7d6aa1b059313c8633aebc683f4a3f40a2e77dd9
+ADR-025 (authority): v0.2, status Approved,
+                 blob aa669a2557d640f241d64fa4dc3235c3b43a864d
+```
+
+### G-VERIFY-001 applied
+
+```text
+Verified starting HEAD; re-read docs/adr/ADR-025.md directly and
+  confirmed version/status/blob match the stated Approved identity
+  exactly before editing coding-standard.md.
+```
+
+### Finding closed: `EF-CODE-B-MAJ-01`
+
+```text
+§12 v0.1 concluded "ADR Not Required" for the baseline-existence
+  decision -- missed Chapter 0 §4b's ">1 module" branch (reversibility
+  does not cancel it).
+Fixed: §12 now records the current, resolved state -- ADR-025 v0.2
+  (Approved) is the authority for the baseline-existence decision;
+  this document is the aligned living convention under that authority;
+  every future *semantic* change to this document must independently
+  rerun the then-current ADR Scope Rule, with no exemption inferred
+  from a "reversible"/"refactor-class" label (preserving ADR-025 §3's
+  own rule, not redefining it). Preamble and depends_on gained
+  ../adr/ADR-025.
+```
+
+### Finding closed: `EF-CODE-A-MIN-01`
+
+```text
+§4 cited G-ID-002 as the rationale for exact dependency version
+  pinning -- imprecise: G-ID-002 governs governance/evidence identity
+  (document blob/version), not package dependency resolution.
+Fixed: removed the G-ID-002 analogy; exact dependency pinning now
+  stands as its own Coding Standard convention (justified by build
+  reproducibility, §9), not borrowed authority.
+```
+
+### Finding closed: `EF-CODE-A-MIN-02`
+
+```text
+§9 required reproducibility from "commit + dependency lock," implying
+  one universal lockfile representation, while §1/§4 explicitly defer
+  any package-manager/lockfile choice.
+Fixed: rewritten ecosystem-neutral -- a build/test result must be
+  reproducible from the exact source revision plus a reconstructable
+  exact dependency/toolchain/configuration state; the concrete
+  representation (lockfile, checksum/module metadata, pinned manifest,
+  toolchain declaration, or another mechanism) is left to the relevant
+  tooling/package-management transaction. No package manager or tool
+  chosen here.
+```
+
+### Files changed
+
+```text
+docs/engineering/coding-standard.md  (0.1 -> 0.2: preamble + depends_on
+                                     updated, §4/§9/§12 corrected,
+                                     v0.2 change-history entry;
+                                     §1/§2/§3/§5/§6/§7/§8/§10/
+                                     §11 verified byte-identical)
+docs/MANIFEST.md                     (row updated: version, blob, note;
+                                     manifest_version 10.87 -> 10.88)
+docs/CHANGELOG.md                    (this entry)
+```
+
+### Preserved unchanged
+
+```text
+§1/§2/§3/§5/§6/§7/§8/§10/§11 of coding-standard.md: byte-
+  identical (programmatically diffed section-by-section, confirmed).
+No formatter/linter/package-manager brand selected. No language
+  version pinned. No config/tooling file created. No Naming/Logging/
+  Config/Error Handling/Testing/CI-CD category touched. docs/adr/
+  ADR-025.md: byte-identical (git diff --quiet) -- Approved and
+  immutable, not touched. ADR-008, ADR-024, module-registry.yaml,
+  Constitution, Phase 1.5 rules, monorepo.md: byte-identical. No
+  ADR-026 created. Coding Standard not approved -- status stays
+  Draft. Phase 2/LIVE untouched.
+```
+
+### Result
+
+```text
+docs/engineering/coding-standard.md:  version 0.2, status Draft
+EF-CODE-B-MAJ-01 / EF-CODE-A-MIN-01 / EF-CODE-A-MIN-02:  all CLOSED
+Phase 2 -- Product Prototype:         NOT AUTHORIZED (unchanged)
+LIVE:                                 NOT AUTHORIZED (unchanged)
+```
+
+### Validation
+
+```text
+Exact starting HEAD:                              CONFIRMED
+Coding Standard v0.1 exact blob:                    CONFIRMED
+ADR-025 v0.2 Approved exact identity:               CONFIRMED
+ADR-025 remains byte-identical:                     CONFIRMED (git diff
+  --quiet)
+Coding Standard becomes v0.2 Draft:                 CONFIRMED
+ADR-025 explicitly reflected as cross-module
+  baseline authority:                                CONFIRMED
+§12 no longer says ADR Not Required (current
+  state):                                            CONFIRMED
+Future semantic changes must rerun ADR Scope
+  Rule:                                              CONFIRMED
+G-ID-002 dependency analogy removed:                CONFIRMED
+Reproducibility wording no longer universally
+  requires a lockfile:                                CONFIRMED
+No concrete tooling/package-manager choice
+  introduced:                                        CONFIRMED
+Unaffected sections remain semantically stable:      CONFIRMED (section-
+  by-section diff)
+Other Phase 1.5 categories untouched:                CONFIRMED
+All three findings genuinely resolved before
+  CLOSED:                                            CONFIRMED
+Phase 2/LIVE unchanged:                             CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-025 v0.2 APPROVED: Cross-Module Coding Standard Baseline
 
 **Mechanical lifecycle recording — vai trò: `ADR-025 Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-025 V0.2" — no ADR decision semantics changed.

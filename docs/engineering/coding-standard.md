@@ -1,7 +1,7 @@
 ---
 id: engineering-coding-standard
 title: "Engineering Foundation — Coding Standard"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -10,12 +10,12 @@ approved_at: null
 created_at: "2026-08-11"
 last_review: null
 next_review: null
-depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "monorepo"]
+depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../adr/ADR-025", "monorepo"]
 ---
 
 # Engineering Foundation — Coding Standard
 
-**Vai trò của tài liệu này:** convention document THỨ HAI của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2), phạm vi CHỈ category **Coding Standard** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). KHÔNG Constitution chapter, KHÔNG ADR, KHÔNG redefine Module Taxonomy/dependency graph/ngôn ngữ allocation — `ADR-008` (Approved) VẪN LÀ authority DUY NHẤT cho Python/Go/Rust layer assignment, `docs/engineering/monorepo.md` (Approved v0.5) VẪN LÀ authority cho repository topology. Tài liệu này CHỈ quy định coding-quality convention CHUNG áp cho MỌI module — KHÔNG PHẢI Naming/Logging/Config/Error Handling/Testing/CI-CD (category riêng, CHƯA triển khai, xem §11).
+**Vai trò của tài liệu này:** convention document THỨ HAI của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2), phạm vi CHỈ category **Coding Standard** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). KHÔNG Constitution chapter, KHÔNG ADR, KHÔNG redefine Module Taxonomy/dependency graph/ngôn ngữ allocation — `ADR-008` (Approved) VẪN LÀ authority DUY NHẤT cho Python/Go/Rust layer assignment, `docs/engineering/monorepo.md` (Approved v0.5) VẪN LÀ authority cho repository topology, `module-registry.yaml` VẪN LÀ single source of truth cho module/dependency identity. **`ADR-025` v0.2 (Approved 2026-08-11) LÀ authority cho chính việc CÓ một cross-module Coding Standard baseline bắt buộc** (§12 dưới, sửa tại v0.2, đóng `EF-CODE-B-MAJ-01`) — tài liệu này LÀ living convention chứa chi tiết rule dưới authority đó, KHÔNG lặp lại decision text của ADR-025. Tài liệu này CHỈ quy định coding-quality convention CHUNG áp cho MỌI module — KHÔNG PHẢI Naming/Logging/Config/Error Handling/Testing/CI-CD (category riêng, CHƯA triển khai, xem §11).
 
 ## 1. Source formatting
 
@@ -61,13 +61,19 @@ Quy tắc: version PHẢI verify trực tiếp (tài liệu chính thức ngôn 
 ## 4. Dependency hygiene
 
 ```text
+[v0.2 sửa, đóng EF-CODE-A-MIN-01: bỏ analogy G-ID-002 — G-ID-002 quản
+  governance/evidence identity (blob/version tài liệu), KHÔNG PHẢI
+  package dependency resolution; dependency exact-pinning dưới đây LÀ
+  MỘT Coding Standard convention riêng của chính nó, KHÔNG cần mượn
+  authority từ G-ID-002.]
+
 Mọi dependency (package Python, module Go) PHẢI có lý do sử dụng rõ ràng
   (giải quyết nhu cầu cụ thể, KHÔNG add "phòng khi cần"). Version pin
-  CHÍNH XÁC (KHÔNG dùng range mở/`latest` cho production dependency —
-  cùng nguyên tắc G-ID-002 áp dụng tương tự cho dependency identity).
-  Cơ chế lockfile cụ thể (requirements.txt/poetry.lock/go.sum...) do
-  package-manager choice (§1/`monorepo.md` §5) quyết định — CHƯA chọn
-  tại đây.
+  CHÍNH XÁC (KHÔNG dùng range mở/`latest` cho production dependency) —
+  đây LÀ Coding Standard convention riêng, đảm bảo build reproducible
+  (xem §9). Cơ chế lockfile cụ thể (requirements.txt/poetry.lock/
+  go.sum...) do package-manager choice (§1/`monorepo.md` §5) quyết
+  định — CHƯA chọn tại đây.
 ```
 
 ## 5. Import / package discipline
@@ -121,12 +127,23 @@ KHÔNG commit code đã comment-out/unreachable "để sau" — xóa hẳn, lị
 ## 9. Deterministic / reproducible development
 
 ```text
-Build/test PHẢI reproducible từ đúng commit + đúng dependency lock —
-  KHÔNG phụ thuộc trạng thái máy local không ghi lại (biến môi trường
-  ngầm, cache ẩn). Đúng tinh thần I-2 Decision Parity (Research/
-  Production cùng hàm) — mục này CHỈ khẳng định lại nguyên tắc
-  reproducibility ở tầng build/dev, KHÔNG redefine I-2 (thuộc
-  Constitution).
+[v0.2 sửa, đóng EF-CODE-A-MIN-02: "commit + dependency lock" (v0.1)
+  ngụ ý MỘT lockfile representation chung cho mọi ngôn ngữ — SAI, §1/§4
+  tường minh CHƯA chọn package-manager/lockfile mechanism nào. Sửa
+  thành ecosystem-neutral: yêu cầu LÀ exact reproducibility của
+  dependency/environment state, KHÔNG PHẢI một cơ chế cụ thể.]
+
+Build/test PHẢI reproducible từ đúng source revision (commit) CỘNG một
+  dependency/toolchain/configuration state CÓ THỂ reconstruct chính
+  xác — KHÔNG phụ thuộc trạng thái máy local không ghi lại (biến môi
+  trường ngầm, cache ẩn). Representation cụ thể của dependency/
+  toolchain state (lockfile, checksum/module metadata, pinned manifest,
+  toolchain declaration, hay cơ chế khác) do transaction tooling/
+  package-management liên quan chọn (§1/§4/`monorepo.md` §5) — KHÔNG
+  chọn tại đây, KHÔNG PHẢI MỘT lockfile format bắt buộc cho mọi ngôn
+  ngữ. Đúng tinh thần I-2 Decision Parity (Research/Production cùng
+  hàm) — mục này CHỈ khẳng định lại nguyên tắc reproducibility ở tầng
+  build/dev, KHÔNG redefine I-2 (thuộc Constitution).
 ```
 
 ## 10. Exceptions / deviations
@@ -163,23 +180,38 @@ CI/CD (pipeline/enforcement mechanism):         deferred tới CI/CD
   tại đây.
 ```
 
-## 12. ADR-scope check (`EF-ADR-001`/`G-ADR-004`)
+## 12. ADR-scope disposition — RESOLVED tại v0.2 bởi `ADR-025` (đóng `EF-CODE-B-MAJ-01`)
 
 ```text
-Quyết định tại tài liệu này: coding-quality convention CHUNG (format/
-  lint/version-policy/dependency-hygiene/import-discipline/generated-
-  code/comment/dead-code/determinism/exception-rule) — TẤT CẢ ở mức
-  principle, KHÔNG pin brand/version cụ thể nào (trừ Go's bundled
-  gofmt/go vet, KHÔNG PHẢI 3rd-party choice).
-KHÔNG mục nào: thêm/sửa Platform Invariant, đổi Event Schema, đổi
+[v0.1 kết luận SAI "ADR Not Required" cho chính việc CÓ một baseline
+  chung — chỉ đánh giá vế "refactor-class, dễ đảo ngược" của Chapter 0
+  §4b, bỏ sót hoàn toàn vế ">1 module." Việc "CÓ một Coding Standard
+  baseline bắt buộc cho MỌI module" tự nó LÀ quyết định platform-wide,
+  thỏa vế ">1 module" — ĐÃ ADR Required, bất kể chi tiết rule bên
+  trong dễ sửa/đảo ngược tới đâu (reversibility KHÔNG hủy vế đó).]
+
+Current state (v0.2, RESOLVED): `ADR-025` v0.2 (Approved 2026-08-11,
+  "APPROVE ADR-025 V0.2") LÀ ADR đó — establish chính xác authority
+  cho việc CÓ một cross-module Coding Standard baseline bắt buộc. Tài
+  liệu này (`coding-standard.md`) LÀ living convention ALIGNED dưới
+  `ADR-025` — chứa chi tiết rule reversible (format/lint/version-
+  policy/dependency-hygiene/import-discipline/generated-code/comment/
+  dead-code/determinism/exception-rule), KHÔNG lặp lại decision text
+  của ADR-025.
+
+Mọi thay đổi SEMANTIC tương lai vào tài liệu này (KHÔNG PHẢI mọi sửa —
+  chỉ khi đổi Ý NGHĨA rule, không phải wording/typo) PHẢI tự chạy lại
+  ADR Scope Rule (Chapter 0 §4b) hiện hành TẠI chính thời điểm đổi —
+  KHÔNG suy diễn "reversible/refactor-class" LÀ đủ để miễn ADR (đúng
+  `ADR-025` §3's nguyên tắc, KHÔNG redefine ở đây). Đa số thay đổi
+  semantic baseline (áp dụng cho MỌI module) sẽ thỏa vế ">1 module"
+  lại — CẦN đánh giá, KHÔNG tự động "đã có ADR-025 rồi nên miễn."
+
+KHÔNG mục nào khác: thêm/sửa Platform Invariant, đổi Event Schema, đổi
   Module Taxonomy/dependency graph (§5's import discipline THỰC THI
   dependency graph ĐÃ có, KHÔNG tạo/đổi edge nào), thay đổi Governance/
-  Approval process, hay tạo constraint kiến trúc platform-wide khó đảo
-  ngược nào — mọi rule ở đây refactor-class, sửa được bất kỳ lúc nào
-  qua version bump.
-Kết luận (Chapter 0 §4b + Chapter 3 §"Nguyên tắc bắt buộc"): **ADR Not
-  Required** — convention/tooling change, refactor-class. Lịch sử thay
-  đổi ghi tại CHANGELOG.md.
+  Approval process nào — nằm ngoài phạm vi ADR-025 đã resolve. Lịch sử
+  thay đổi ghi tại CHANGELOG.md.
 ```
 
 ## Change history
@@ -209,4 +241,30 @@ v0.1  2026-08-11  Established — vai trò: `Phase 1.5 Coding Standard
       (`EF-ADR-001`): ADR Not Required. KHÔNG chạm `monorepo.md`/
       `ADR-008`/`ADR-024`/`module-registry.yaml`/Constitution.
       `status: Draft` — not self-approved (`G-ORCH-002`).
+v0.2  2026-08-11  ADR-025 alignment + bounded correction, đóng
+      `EF-CODE-B-MAJ-01`/`EF-CODE-A-MIN-01`/`EF-CODE-A-MIN-02`, vai trò:
+      `Phase 1.5 Coding Standard ADR-025 Alignment Executor`.
+      `EF-CODE-B-MAJ-01`: §12 v0.1 kết luận SAI "ADR Not Required" cho
+      chính việc CÓ một baseline chung — bỏ sót vế ">1 module" của
+      Chapter 0 §4b (reversibility KHÔNG hủy vế đó). Sửa: §12 nay ghi
+      current-state RESOLVED — `ADR-025` v0.2 (Approved 2026-08-11) LÀ
+      authority cho baseline-existence decision; tài liệu này LÀ living
+      convention aligned dưới ADR-025; mọi thay đổi SEMANTIC tương lai
+      PHẢI tự rerun ADR Scope Rule, KHÔNG suy diễn reversible LÀ miễn
+      (đúng ADR-025 §3). Preamble + `depends_on` thêm `../adr/ADR-025`.
+      `EF-CODE-A-MIN-01`: §4 bỏ analogy `G-ID-002` (governance/evidence
+      identity, KHÔNG PHẢI dependency resolution) — dependency exact-
+      pinning giữ nguyên LÀ convention riêng, KHÔNG cần mượn authority
+      sai. `EF-CODE-A-MIN-02`: §9 "commit + dependency lock" (ngụ ý MỘT
+      lockfile chung) sửa thành ecosystem-neutral — reproducibility từ
+      source revision + dependency/toolchain/config state CÓ THỂ
+      reconstruct chính xác, representation cụ thể (lockfile/checksum/
+      pinned manifest/toolchain declaration/khác) do tooling transaction
+      liên quan chọn, KHÔNG chọn tại đây. KHÔNG chọn formatter/linter/
+      package-manager brand nào, KHÔNG pin language version nào, KHÔNG
+      tạo config/tooling file nào. KHÔNG absorb Naming/Logging/Config/
+      Error Handling/Testing/CI-CD. §1/§2/§3/§5/§6/§7/§8/§10/§11 KHÔNG
+      đổi semantic. KHÔNG chạm `ADR-025`(Approved, immutable)/`ADR-008`/
+      `ADR-024`/`module-registry.yaml`/Constitution/Phase 1.5 rules.
+      `status` VẪN `Draft` — not self-approved (`G-ORCH-002`).
 ```
