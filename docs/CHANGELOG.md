@@ -2,6 +2,127 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — Phase 1.5 Logging Convention v0.3 APPROVED
+
+**Mechanical lifecycle recording — vai trò: `Mechanical Logging Convention Approval Recorder`.** Records the Product Owner decision "APPROVE LOGGING CONVENTION V0.3" — no Logging Convention semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:      97d4ce905db8ea4a3952c252dec8e157c264799a
+Reviewed candidate: docs/engineering/logging.md v0.3, status Draft,
+                    blob b03f94699423edfafce010867506718e539a976b
+Approved authority: docs/adr/ADR-027.md v0.2, status Approved,
+                    blob b89d0f9d1d7109d41e45cc7d302f5b398f100b09
+```
+
+### Review evidence
+
+```text
+Đóng (trước approval, xuyên v0.2/v0.3): EF-LOG-A-MAJ-01, EF-LOG-A-MAJ-02
+  (đóng qua hai bước — v0.2 sửa §10/§14, v0.3 đóng phần sót lại §11),
+  EF-LOG-A-MAJ-03. Bounded Review A final state trên v0.3: Blocker 0/
+  Major 0/Minor 0.
+Independent Review B trên v0.2: NOT_READY (EF-LOG-A-MAJ-02 còn surviving
+  §11 leak). v0.3 resolve chính defect đó.
+Independent bounded Review B re-review trên đúng v0.3:
+  EF-LOG-A-MAJ-01: CLOSED
+  EF-LOG-A-MAJ-02: CLOSED
+  EF-LOG-A-MAJ-03: CLOSED
+  New Blocker 0 / New Major 0 / New Minor 0
+  Verdict: READY_FOR_PRODUCT_OWNER_DECISION
+Không finding mới nào invented tại approval này.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-11"
+version:      "0.3" KHÔNG đổi (pure mechanical approval, KHÔNG bump)
+Product Owner decision (nguyên văn): "APPROVE LOGGING CONVENTION V0.3."
+```
+
+### Residual finding recorded (not closed)
+
+```text
+ADR027-B-MIN-01: OPEN — accepted non-blocking. Residual riêng của
+  ADR-027 (Approved, immutable) — KHÔNG chạm, KHÔNG đóng tại approval
+  này.
+```
+
+### Reviewed vs resulting blob (G-ID-001, distinguished)
+
+```text
+Reviewed semantic candidate:  v0.3 / Draft
+                               blob b03f94699423edfafce010867506718e539a976b
+Resulting Approved identity:  v0.3 / Approved
+                               blob 27db535ce9fb91e202734c8c0e5de9ff4a498453
+Decision content (§1–§15 của logging.md): byte-equivalent — CHỈ banner/
+  lifecycle metadata/change history thay đổi.
+```
+
+### Files changed
+
+```text
+docs/engineering/logging.md  (v0.3 Draft -> v0.3 Approved, blob
+                              27db535ce9fb91e202734c8c0e5de9ff4a498453)
+docs/MANIFEST.md             (manifest_version 10.100 -> 10.101; row +
+                              confirmation note cập nhật)
+docs/CHANGELOG.md            (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-027.md (Approved, immutable) — verified byte-identical.
+ADR-026/naming.md, ADR-025/coding-standard.md, ADR-024/monorepo.md,
+  ADR-008, module-registry.yaml, Constitution, Phase 1.5 rules — tất cả
+  verified byte-identical (git diff empty).
+Logging Convention semantics KHÔNG đổi: ADR-027 authority relationship,
+  structured logging requirement, minimum common fields, canonical
+  timestamp profile, log-level semantics, correlation/causation rules,
+  Error Handling boundary, sensitive-data prohibition/redaction,
+  event-vs-log distinction, Python/Go semantic-conformance boundary,
+  library/vendor/backend deferrals, CI/CD enforcement/integration
+  boundary, serialization-format deferral, evidence-authority boundary,
+  deviations, future ADR Scope Rule requirement, category boundaries.
+KHÔNG logging library/vendor/backend/serialization format nào chọn.
+  KHÔNG tạo ADR-028. KHÔNG mở Config/Error Handling/Testing/CI-CD.
+  Phase 2 substantive work VẪN NOT YET AUTHORIZED. LIVE VẪN NOT
+  AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/logging.md: v0.3, status Approved, approved_by
+  Product Owner, approved_at 2026-08-11, blob
+  27db535ce9fb91e202734c8c0e5de9ff4a498453.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 97d4ce905db8ea4a3952c252dec8e157c264799a verified
+[x] Reviewed candidate blob b03f94699423edfafce010867506718e539a976b
+    verified
+[x] version remains 0.3
+[x] status becomes Approved
+[x] approved_by/approved_at correct
+[x] Product Owner decision recorded exactly
+[x] EF-LOG-A-MAJ-01/02/03 all recorded CLOSED
+[x] Final Review B state recorded as READY_FOR_PRODUCT_OWNER_DECISION
+[x] Không finding mới nào invented
+[x] Semantic content unchanged (§1–§15 byte-equivalent, verified)
+[x] ADR-027 byte-identical
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] ADR027-B-MIN-01 VẪN OPEN
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Logging Convention v0.3 bounded correction: remaining `EF-LOG-A-MAJ-02` leak CLOSED
 
 **Narrowly bounded correction — vai trò: `Phase 1.5 Logging v0.3 Bounded Correction Executor`.** Resolves the surviving portion of `EF-LOG-A-MAJ-02` — a CI/CD authority leak in §11 that survived the v0.2 correction. No redesign of the Logging Convention.
