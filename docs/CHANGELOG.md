@@ -2,6 +2,145 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-028 v0.1 DRAFTED: Cross-Module Config Convention Baseline
+
+**Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Config ADR Authoring Executor`.** Authors `docs/adr/ADR-028.md` v0.1 (Draft), the required ADR for the Phase 1.5 Config category — next category in Chapter 14 §14.2 sequence after Monorepo/Coding Standard/Naming/Logging (all Approved). `docs/engineering/config.md` NOT authored at this transaction — separate future transaction, per the established ADR-first-then-living-convention pattern.
+
+### Baseline
+
+```text
+Starting HEAD:  b6e08cef1d00ef8f54b06c11d246d83c648863b3
+Completed categories: Monorepo/Coding Standard/Naming/Logging — all
+  Approved (ADR-024/025/026/027 + monorepo.md/coding-standard.md/
+  naming.md/logging.md, all Approved).
+docs/adr/ADR-028.md: confirmed absent trước transaction này (ADR-027 LÀ
+  ADR cuối hiện có).
+docs/engineering/config.md: confirmed absent trước transaction này.
+```
+
+### ADR Scope check
+
+```text
+Quyết định "CÓ một Config Convention baseline chung bắt buộc cho MỌI
+  module" LÀ platform-wide, thỏa vế ">1 module" của Chapter 0 §4b — ADR
+  Required, KHÔNG dùng reversibility của chi tiết rule bên trong LÀM
+  exemption (đúng lesson `EF-CODE-B-MAJ-01`/`ADR-025`/`ADR-026`/
+  `ADR-027`). Verify trực tiếp: grep `docs/` cho "Config Convention"/
+  "configuration convention" — KHÔNG match nào tồn tại trước transaction
+  này. KHÔNG existing authority (ADR-008/ADR-024/ADR-025/ADR-026/
+  ADR-027/module-registry.yaml) resolve được quyết định baseline-
+  existence này — gap thật, ADR chính đáng.
+```
+
+### Primary decision (narrow)
+
+```text
+§3: MỘT cross-module Config Convention baseline TỒN TẠI; mọi
+  implementation module PHẢI conform theo Config Convention `Approved`
+  hiện hành (`docs/engineering/config.md`, CHƯA tạo); Python/Go config
+  mechanism/API ĐƯỢC PHÉP khác nhau theo idiom, MIỄN LÀ conform semantic
+  chung; config CÓ THỂ reference/nhận secret value NHƯNG KHÔNG establish
+  custody/storage/rotation/signing authority cho secret material đó.
+Chi tiết rule (source precedence, env-var rule, file format, key naming,
+  default, required/optional, validation, startup-failure behavior,
+  secret reference mechanism, runtime override, environment-specific
+  value, reloadability, local-dev config, library/framework choice, ví
+  dụ) explicitly deferred tới `docs/engineering/config.md` tương lai —
+  KHÔNG đóng băng vào ADR text.
+```
+
+### Secrets boundary (đặc biệt cẩn trọng)
+
+```text
+§3/§6: Config Convention CHỈ CÓ THỂ quyết định làm sao configuration
+  reference/nhận một secret value (vd biến môi trường trỏ tới secret,
+  cách đánh dấu field LÀ secret reference) — KHÔNG establish custody/
+  storage/rotation/signing authority cho chính secret material đó.
+`custody-signing-service` (`module-registry.yaml`, security_
+  classification: secret_consuming, "KHÔNG sở hữu credential/secret
+  material") CHỈ LÀ module identity/responsibility declaration — KHÔNG
+  tự nó tạo custody/storage/rotation authority (đúng lesson vừa áp dụng
+  tại `EF-LOG-A-MAJ-03` — KHÔNG suy diễn authority KHÔNG tồn tại từ
+  module-registry.yaml). ADR-028 KHÔNG designate module nào LÀM secret
+  custody authority; KHÔNG chọn secret manager/backend cụ thể.
+```
+
+### Runtime/deployment boundary
+
+```text
+KHÔNG chọn tại ADR này: container orchestration, environment platform,
+  config service, feature-flag vendor, secret manager, deployment
+  pipeline, file format, environment-variable framework — tất cả
+  deferred (một số tới `config.md` tương lai, một số tới category/
+  quyết định khác hẳn, KHÔNG tại baseline-existence ADR này).
+```
+
+### Authority preservation
+
+```text
+module-registry.yaml (module identity/dependency), ADR-008 (ngôn ngữ),
+  ADR-024/monorepo.md (repository topology), ADR-025/coding-standard.md
+  (Coding Standard), ADR-026/naming.md (Naming), ADR-027/logging.md
+  (Logging), Domain/Event/API contract authority (/docs/domain/) — TẤT
+  CẢ giữ nguyên, KHÔNG redefine, verified byte-identical (git diff
+  empty).
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-028.md   (NEW — v0.1, Draft, blob
+                       2918a6a00302d6271a11e6ece85b80a6048646ca)
+docs/MANIFEST.md      (manifest_version 10.101 -> 10.102; thêm
+                       adr/ADR-028.md row)
+docs/CHANGELOG.md     (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-027.md/docs/engineering/logging.md (Approved) — verified
+  byte-identical. ADR-026/naming.md, ADR-025/coding-standard.md,
+  ADR-024/monorepo.md, ADR-008, module-registry.yaml, Constitution,
+  Phase 1.5 rules — tất cả verified byte-identical (git diff empty).
+docs/engineering/config.md: KHÔNG tạo tại transaction này (confirmed
+  absent, đúng "Do not author docs/engineering/config.md yet").
+KHÔNG chọn config library/backend/service/secret manager nào. KHÔNG mở
+  Error Handling/Testing/CI-CD category. Phase 2 substantive work VẪN
+  NOT YET AUTHORIZED. LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/adr/ADR-028.md: v0.1, status Draft, owner Product Owner, blob
+  2918a6a00302d6271a11e6ece85b80a6048646ca — not self-approved
+  (G-ORCH-002); Review/Approval LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD b6e08cef1d00ef8f54b06c11d246d83c648863b3 verified
+[x] ADR-028 identity unused trước transaction (ADR-027 LÀ ADR cuối
+    hiện có, verified `ls docs/adr/`)
+[x] docs/engineering/config.md absent trước transaction, confirmed
+[x] ADR Required correctly triggered by >1 module (Chapter 0 §4b),
+    KHÔNG dùng reversibility LÀM exemption
+[x] ADR primary decision remains narrow (§3 CHỈ baseline-existence +
+    authority + secrets boundary + language boundary)
+[x] Chi tiết Config rule deferred tới config.md tương lai (§3 living-
+    convention-authority block)
+[x] Secret/custody/deployment/CI-CD/Error Handling authorities preserved
+    (§6, KHÔNG designate module nào LÀM custody authority)
+[x] KHÔNG concrete config mechanism/library/backend/service nào chọn
+[x] Chỉ 3 file thay đổi đúng dự kiến (ADR-028.md, MANIFEST.md,
+    CHANGELOG.md)
+[x] status remains Draft
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — Phase 1.5 Logging Convention v0.3 APPROVED
 
 **Mechanical lifecycle recording — vai trò: `Mechanical Logging Convention Approval Recorder`.** Records the Product Owner decision "APPROVE LOGGING CONVENTION V0.3" — no Logging Convention semantics changed.
