@@ -2,6 +2,136 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — ADR-030 v0.1 DRAFTED: Cross-Module CI/CD Convention Baseline
+
+**Bounded `EF-TXN-002` category transaction — vai trò: `ADR-030 v0.1 Authoring Executor`.** Authors `docs/adr/ADR-030.md` v0.1 (Draft), the required narrow ADR for the final Phase 1.5 category (CI/CD) — per the preceding CI/CD ADR Scope Check transaction, which concluded `PARTIAL_ADR_REQUIRED`. `docs/engineering/ci-cd.md` NOT authored at this transaction — separate future transaction, per the established ADR-first-then-living-convention pattern.
+
+### Baseline
+
+```text
+Starting HEAD:  f5c03338006c5af28606c7bc48d82d1e928ba96b
+Completed categories: Monorepo/Coding Standard/Naming/Logging/Config/
+  Error Handling/Testing — all Approved.
+Prior ADR Scope Check result: PARTIAL_ADR_REQUIRED — the "one CI/CD
+  Convention baseline exists, scoped to Foundation-level CI" decision
+  is unresolved (no Chapter-3-style carve-out unlike Testing) and is
+  ADR Required; provider/tool/topology/deployment detail is NOT the
+  ADR reason.
+docs/adr/ADR-030.md: confirmed absent trước transaction này (ADR-029
+  LÀ ADR cuối hiện có).
+docs/engineering/ci-cd.md: confirmed absent trước transaction này.
+.github/ VÀ mọi CI workflow/provider config: confirmed absent.
+```
+
+### ADR Scope check
+
+```text
+Quyết định "CÓ một CI/CD Convention baseline chung bắt buộc, giới hạn
+  Foundation-level CI" LÀ platform-wide, thỏa vế ">1 module" của
+  Chapter 0 §4b — ADR Required, KHÔNG dùng "CI tooling đang thiếu" LÀM
+  lý do (lý do THẬT LÀ baseline-existence + CI-vs-CD scope boundary
+  chưa resolve). Verify trực tiếp: KHÔNG carve-out nào giống Testing's
+  (Chapter 3 §3.2 line 44) tồn tại cho CI/CD; Chapter 13 §13.14 CHỈ
+  defer tooling mechanism, KHÔNG establish baseline; Chapter 14 §14.2
+  liệt kê CI/CD cùng cấp Logging/Config/Error Handling (đều ĐÃ cần ADR
+  riêng) — gap thật, ADR chính đáng.
+```
+
+### Primary decision (narrow)
+
+```text
+§3: MỘT cross-module CI/CD Convention baseline TỒN TẠI, GIỚI HẠN
+  Foundation-level CI (validation/lint/format/test execution/quality-
+  evidence check/build verification khi applicable) — KHÔNG deployment/
+  environment promotion/release promotion/LIVE authorization/production
+  credential-custody/production infrastructure topology.
+CI vs CD boundary tường minh (§3): tên category "CI/CD" LÀ tên Roadmap
+  category (Chapter 14 §14.2), KHÔNG PHẢI tuyên bố authority cho cả CI
+  VÀ CD tại Phase 1.5 — CHỈ phần CI được establish tại ADR này.
+Chi tiết pipeline (provider/tool, workflow layout, stage/job name,
+  matrix strategy, caching, concurrency, trigger syntax, filter, command
+  alias, artifact retention, provider-specific config) explicitly
+  deferred tới `docs/engineering/ci-cd.md` tương lai — KHÔNG đóng băng
+  vào ADR text.
+```
+
+### Chapter 12/13 boundary preserved
+
+```text
+Chapter 12: CI success ≠ Product Owner approval, CI success ≠ phase
+  transition, CI failure ≠ Product Owner rejection — CI CÓ THỂ supply
+  evidence, Product Owner VẪN sole lifecycle/phase decision authority.
+Chapter 13: quality dimensions/coverage-tier policy/tier resolution/
+  gate applicability/pass-fail semantics/evidence contract/waiver
+  semantics VẪN authority DUY NHẤT — CI CÓ THỂ execute check/collect/
+  forward evidence, KHÔNG invent quality criteria/đổi coverage floor/
+  reinterpret pass-fail/tạo competing evidence semantics.
+```
+
+### Security/secret boundary (ADR-017/Config)
+
+```text
+CI/CD KHÔNG tạo custody/signing authority mới. Secret-related config
+  tương lai (nếu cần) PHẢI inherit boundary ĐÃ pin tại `ADR-017`/
+  `config.md` §8 — raw exchange credential/private signing material
+  KHÔNG được trở thành CI-owned authority CHỈ VÌ automation cần access.
+  KHÔNG chọn Vault/KMS/HSM/secret manager tại đây.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-030.md   (NEW — v0.1, Draft, blob
+                       2349af7c473c1f09633246821d464162a81ea7c4)
+docs/MANIFEST.md      (manifest_version 10.116 -> 10.117; thêm
+                       adr/ADR-030.md row)
+docs/CHANGELOG.md     (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-025.md–ADR-029.md/engineering/coding-standard.md-naming.md-
+  logging.md-config.md-error-handling.md-testing.md (Approved) —
+  verified byte-identical. ADR-008/ADR-017/ADR-024/monorepo.md,
+  module-registry.yaml, Chapter 12/13/14 (Locked), Constitution, Phase
+  1.5 rules — tất cả verified byte-identical (git diff empty).
+EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted
+  non-blocking.
+docs/engineering/ci-cd.md: KHÔNG tạo tại transaction này. KHÔNG
+  provider config/`.github/`/workflow file nào tạo. KHÔNG chọn
+  provider/tool. KHÔNG authorize deployment/Phase 2/LIVE.
+```
+
+### Result
+
+```text
+docs/adr/ADR-030.md: v0.1, status Draft, owner Product Owner, blob
+  2349af7c473c1f09633246821d464162a81ea7c4 — not self-approved
+  (G-ORCH-002); Review/Approval LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD f5c03338006c5af28606c7bc48d82d1e928ba96b verified
+[x] ADR-030 identity unused trước transaction (ADR-029 LÀ ADR cuối
+    hiện có, verified `ls docs/adr/`)
+[x] docs/engineering/ci-cd.md absent trước transaction, confirmed
+[x] Primary decision remains narrow, cross-module trigger identified
+[x] CI-vs-CD boundary explicit (§3)
+[x] Phase 7 Deployment authority preserved
+[x] Chapter 12 approval boundary preserved
+[x] Chapter 13 quality authority preserved
+[x] ADR-017/Config secret authority preserved
+[x] Provider/tool selection deferred — KHÔNG workflow file/ci-cd.md
+    nào tạo
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01 untouched
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — Phase 1.5 Testing Convention v0.2 APPROVED
 
 **Mechanical lifecycle recording — vai trò: `Testing Convention v0.2 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE TESTING CONVENTION V0.2" — no Testing Convention semantics changed.
