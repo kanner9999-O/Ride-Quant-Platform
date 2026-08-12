@@ -2,6 +2,108 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — ADR-029 v0.2 APPROVED: Cross-Module Error Handling Convention Baseline
+
+**Mechanical lifecycle recording — vai trò: `ADR-029 v0.2 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-029 V0.2" — no ADR decision semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:      4ced6fe026b97c05ba35ae839ed44a422811267f
+Reviewed candidate: docs/adr/ADR-029.md v0.2, status Draft,
+                    blob 4563ed0546047bf6b05447ddab430fe9a6b6d559
+```
+
+### Review evidence
+
+```text
+Đóng (trước approval, v0.2): ADR029-A-MAJ-01.
+Bounded Review A re-review trên v0.2: CLEAN, New Blocker 0/New Major
+  0/New Minor 0, READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B trên đúng v0.2: New Blocker 0/New Major 0/New
+  Minor 0, ADR inflation/scope: JUSTIFIED — NOT ADR INFLATION,
+  READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-12"
+version:      "0.2" KHÔNG đổi (pure mechanical approval, KHÔNG bump)
+Product Owner decision (nguyên văn): "APPROVE ADR-029 V0.2."
+```
+
+### Reviewed vs resulting blob (G-ID-001, distinguished)
+
+```text
+Reviewed candidate:           v0.2 / Draft
+                               blob 4563ed0546047bf6b05447ddab430fe9a6b6d559
+Resulting Approved identity:  v0.2 / Approved
+                               blob 9c8877d3e16a54c1908c37f1b214ef185744cd9c
+Decision content (§1–§6/§8–§9 của ADR-029.md): byte-equivalent —
+  Independent-reviews-table (§7) fill + banner LÀ thay đổi duy nhất.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-029.md  (v0.2 Draft -> v0.2 Approved, blob
+                      9c8877d3e16a54c1908c37f1b214ef185744cd9c)
+docs/MANIFEST.md     (manifest_version 10.109 -> 10.110; row cập nhật)
+docs/CHANGELOG.md    (entry này)
+```
+
+### Preserved unchanged
+
+```text
+Một governed cross-module Error Handling baseline (§3), mandatory
+  module conformance, Python/Go idiomatic freedom under shared
+  semantics, technical/programming error ≠ domain/business outcome,
+  retry/idempotency authority, prohibition on living convention
+  assigning/reassigning retry ownership (§6), Domain/Event/API
+  boundary, Logging authority, Config authority, ADR-017 authority,
+  security boundary, KHÔNG framework/library/error-code/retry-policy
+  selection — tất cả giữ nguyên.
+docs/adr/ADR-028.md/docs/engineering/config.md (Approved), ADR-027/
+  logging.md, ADR-026/naming.md, ADR-025/coding-standard.md, ADR-024/
+  monorepo.md, ADR-017, ADR-008, module-registry.yaml, Domain Contract,
+  Constitution, Phase 1.5 rules — tất cả verified byte-identical (git
+  diff empty).
+docs/engineering/error-handling.md: KHÔNG tạo tại transaction này.
+  EF-CONFIG-B-MIN-01 KHÔNG chạm, VẪN OPEN — accepted non-blocking.
+  KHÔNG tạo ADR-030. KHÔNG mở Testing/CI-CD. Phase 2 substantive work
+  VẪN NOT YET AUTHORIZED. LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/adr/ADR-029.md: v0.2, status Approved, approved_by Product Owner,
+  approved_at 2026-08-12, blob
+  9c8877d3e16a54c1908c37f1b214ef185744cd9c.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 4ced6fe026b97c05ba35ae839ed44a422811267f verified
+[x] Reviewed candidate blob 4563ed0546047bf6b05447ddab430fe9a6b6d559
+    verified
+[x] version remains 0.2
+[x] status becomes Approved
+[x] approved_by Product Owner, approved_at "2026-08-12"
+[x] Product Owner decision recorded exactly
+[x] ADR029-A-MAJ-01 remains CLOSED
+[x] Review B clean/READY evidence recorded
+[x] Semantic content unchanged (§1–§6/§8–§9 byte-equivalent, verified)
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] EF-CONFIG-B-MIN-01 untouched
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-029 v0.2 bounded correction: `ADR029-A-MAJ-01` CLOSED
 
 **Bounded correction — vai trò: `ADR-029 v0.2 Bounded Correction Executor`.** Resolves one Review A finding on the v0.1 Error Handling ADR draft. No redesign of ADR-029.
