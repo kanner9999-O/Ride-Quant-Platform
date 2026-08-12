@@ -2,11 +2,11 @@
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
 version: "0.2"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-12"
 created_at: "2026-08-12"
 last_review: null
 next_review: null
@@ -14,6 +14,30 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**APPROVED (2026-08-12) — status: Draft → Approved.** Product Owner decision: **"APPROVE TESTING CONVENTION V0.2."** Reviewed candidate: v0.2, blob `0a325665f5ed011a7439fb8d3c349c3db79d50fa`. `version: "0.2"` KHÔNG đổi (pure mechanical lifecycle approval — KHÔNG bump). Tài liệu này VẪN LÀ living document (Chapter 3 §3.2 "tài liệu SỐNG, không bất biến"; Chapter 0 §7.1 lifecycle Draft→...→Approved→Locked) — `Approved` KHÔNG đồng nghĩa immutable byte-for-byte như ADR (Chapter 11 §11.3 KHÔNG áp dụng ở đây, VÀ tài liệu này KHÔNG dưới authority một ADR nào — `ADR_NOT_REQUIRED` VẪN đúng); thay đổi tương lai vẫn hợp lệ qua version bump + re-review (Chapter 0 §8), VÀ mọi thay đổi SEMANTIC PHẢI tự rerun ADR Scope Rule đúng ADR-scope disposition.
+
+**Review evidence tại approval này:**
+
+```text
+Đóng (trước approval, v0.2): EF-TEST-A-MAJ-01, EF-TEST-A-MIN-01.
+
+Bounded Review A re-review trên v0.2:
+  EF-TEST-A-MAJ-01: CLOSED
+  EF-TEST-A-MIN-01: CLOSED
+  New Blocker 0 / New Major 0 / New Minor 0
+  CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+
+Independent Review B:
+  New Blocker 0 / New Major 0 / New Minor 0
+  ADR_NOT_REQUIRED: CONFIRMED
+  Verdict: READY_FOR_PRODUCT_OWNER_DECISION
+
+Không finding/residual nào từ Review B cần Product Owner acceptance
+  riêng tại approval này.
+```
+
+**Approval này KHÔNG đổi Testing Convention semantics nào** (§1–§18 dưới byte-equivalent ngoài banner/lifecycle metadata/change history này) — KHÔNG chạm Chapter 3/Chapter 13 (Locked)/`ADR-008`/`ADR-017`/`ADR-024`/`monorepo.md`/`ADR-025`/`coding-standard.md`/`ADR-026`/`naming.md`/`ADR-027`/`logging.md`/`ADR-028`/`config.md`/`ADR-029`/`error-handling.md`/`module-registry.yaml`/Domain Contract/Constitution/Phase 1.5 rules, KHÔNG tạo ADR-030, KHÔNG chọn framework/vendor, KHÔNG introduce production DI/API architecture, KHÔNG đóng `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01`, KHÔNG mở CI/CD, KHÔNG authorize Phase 2, KHÔNG authorize LIVE. Stale editorial/provenance reference tới v0.1 (nếu có) KHÔNG sửa tại transaction này.
 
 **Vai trò của tài liệu này:** convention document THỨ BẢY của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2), phạm vi CHỈ category **Testing** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). **KHÔNG author dưới authority một ADR mới** — ADR Scope Check (transaction riêng biệt trước) đã kết luận `ADR_NOT_REQUIRED`: [Chapter 3 §3.2](../constitution/03-engineering-principles.md) (Locked v1.4) ĐÃ established sẵn cả hai phần quyết định baseline-existence — (1) CÓ một Testing Convention category trong Engineering Foundation, VÀ (2) scope của nó GIỚI HẠN style/tooling (framework, cấu trúc test file, naming test case), coverage/tier requirement ĐÃ có đầy đủ tại [Chapter 13](../constitution/13-quality-gates.md) (Locked), KHÔNG định nghĩa lại. Tài liệu này CHỈ implement chi tiết reversible dưới boundary ĐÃ Locked đó — KHÔNG lặp lại/redefine bất kỳ Chapter 13 substance nào.
 
@@ -538,4 +562,30 @@ v0.2  2026-08-12  Bounded correction, đóng `EF-TEST-A-MAJ-01`/
       Approved ADR/convention nào. `EF-CONFIG-B-MIN-01`/
       `EF-ERR-B-MIN-01` KHÔNG chạm. `status` VẪN `Draft` — not
       self-approved (`G-ORCH-002`), KHÔNG authorize Phase 2/LIVE.
+ACCEPTANCE  2026-08-12  Product Owner lifecycle approval — mechanical,
+      vai trò: `Testing Convention v0.2 Mechanical Approval Recorder`.
+      Quyết định: "APPROVE TESTING CONVENTION V0.2." Reviewed
+      candidate: v0.2, blob 0a325665f5ed011a7439fb8d3c349c3db79d50fa
+      (bounded Review A re-review CLEAN, New Blocker/Major/Minor
+      0/0/0, đóng `EF-TEST-A-MAJ-01`/`EF-TEST-A-MIN-01`; Independent
+      Review B: New Blocker 0/New Major 0/New Minor 0,
+      `ADR_NOT_REQUIRED` CONFIRMED, `READY_FOR_PRODUCT_OWNER_
+      DECISION`). `status: Draft -> Approved`, `approved_by: null ->
+      Product Owner`, `approved_at: null -> "2026-08-12"`. `version`
+      KHÔNG bump (pure mechanical lifecycle approval) — VẪN `0.2`.
+      KHÔNG semantic content nào đổi (§1–§18 byte-equivalent ngoài
+      banner/lifecycle metadata/change history này). Tài liệu VẪN LÀ
+      living document — `Approved` KHÔNG immutable byte-for-byte như
+      ADR; `ADR_NOT_REQUIRED` VẪN đúng (tài liệu này KHÔNG dưới
+      authority một ADR nào); thay đổi SEMANTIC tương lai VẪN PHẢI tự
+      rerun ADR Scope Rule. Stale editorial/provenance reference tới
+      v0.1 (nếu có) KHÔNG sửa tại transaction này. KHÔNG chạm Chapter
+      3/Chapter 13 (Locked)/`ADR-008`/`ADR-017`/`ADR-024`/
+      `monorepo.md`/`ADR-025`/`coding-standard.md`/`ADR-026`/
+      `naming.md`/`ADR-027`/`logging.md`/`ADR-028`/`config.md`/
+      `ADR-029`/`error-handling.md`/`module-registry.yaml`/Domain
+      Contract/Constitution/Phase 1.5 rules, KHÔNG tạo ADR-030, KHÔNG
+      chọn framework/vendor, KHÔNG introduce production DI/API
+      architecture, KHÔNG đóng `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01`,
+      KHÔNG mở CI/CD, KHÔNG authorize Phase 2/LIVE.
 ```

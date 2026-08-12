@@ -2,6 +2,118 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — Phase 1.5 Testing Convention v0.2 APPROVED
+
+**Mechanical lifecycle recording — vai trò: `Testing Convention v0.2 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE TESTING CONVENTION V0.2" — no Testing Convention semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:      cd125b5208e5f5ea8063470fd84660677a2f4b90
+Reviewed candidate: docs/engineering/testing.md v0.2, status Draft,
+                    blob 0a325665f5ed011a7439fb8d3c349c3db79d50fa
+ADR Scope state:    ADR_NOT_REQUIRED — no ADR-030 exists.
+```
+
+### Review evidence
+
+```text
+Đóng (trước approval, v0.2): EF-TEST-A-MAJ-01, EF-TEST-A-MIN-01.
+Bounded Review A re-review trên v0.2: CLEAN, New Blocker 0/New Major
+  0/New Minor 0, READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B: New Blocker 0/New Major 0/New Minor 0,
+  ADR_NOT_REQUIRED CONFIRMED, READY_FOR_PRODUCT_OWNER_DECISION.
+Không finding/residual nào từ Review B cần Product Owner acceptance
+  riêng.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-12"
+version:      "0.2" KHÔNG đổi (pure mechanical approval, KHÔNG bump)
+Product Owner decision (nguyên văn): "APPROVE TESTING CONVENTION V0.2."
+```
+
+### Reviewed vs resulting blob (G-ID-001, distinguished)
+
+```text
+Reviewed candidate:  v0.2 / Draft
+                      blob 0a325665f5ed011a7439fb8d3c349c3db79d50fa
+Resulting Approved identity: v0.2 / Approved
+                      blob 43758067d17e38990ef25477dfa504ac4fc389a4
+Decision content (§1–§18 của testing.md): byte-equivalent — CHỈ
+  banner/lifecycle metadata/change history thay đổi. Stale editorial/
+  provenance reference tới v0.1 (nếu có) KHÔNG sửa tại transaction này.
+```
+
+### Files changed
+
+```text
+docs/engineering/testing.md  (v0.2 Draft -> v0.2 Approved, blob
+                              43758067d17e38990ef25477dfa504ac4fc389a4)
+docs/MANIFEST.md             (manifest_version 10.115 -> 10.116; row
+                              cập nhật)
+docs/CHANGELOG.md            (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/constitution/03-engineering-principles.md/13-quality-gates.md
+  (Locked) — verified byte-identical. ADR-008/017/024/025/026/027/
+  028/029, monorepo.md/coding-standard.md/naming.md/logging.md/
+  config.md/error-handling.md (Approved), module-registry.yaml,
+  Domain Contract, Constitution, Phase 1.5 rules — tất cả verified
+  byte-identical (git diff empty).
+Chapter 3 style/tooling-only boundary, Chapter 13 quality-policy
+  authority, ADR_NOT_REQUIRED disposition, test structure, test
+  naming, isolation, deterministic-test mechanics (already-existing
+  seams only), production-design-gap routing, fixtures/factories,
+  mocking/stubbing, unit/integration distinction, contract/boundary
+  testing, Python guidance, Go guidance, test-data guidance, flaky-
+  test tooling mechanics, local command convention, reusable helpers,
+  Error Handling interaction, Config/Logging boundaries, coverage
+  boundary, quality-gate boundary, framework/tool selection (deferred),
+  Non-goals — tất cả giữ nguyên.
+EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted
+  non-blocking. KHÔNG tạo ADR-030. KHÔNG chọn framework/vendor. KHÔNG
+  introduce production DI/API architecture. Phase 2 substantive work
+  VẪN NOT YET AUTHORIZED. LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/testing.md: v0.2, status Approved, approved_by
+  Product Owner, approved_at 2026-08-12, blob
+  43758067d17e38990ef25477dfa504ac4fc389a4.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD cd125b5208e5f5ea8063470fd84660677a2f4b90 verified
+[x] Reviewed candidate blob 0a325665f5ed011a7439fb8d3c349c3db79d50fa
+    verified
+[x] version remains 0.2
+[x] status becomes Approved
+[x] approved_by Product Owner, approved_at "2026-08-12"
+[x] Product Owner decision recorded exactly
+[x] EF-TEST-A-MAJ-01 remains CLOSED
+[x] EF-TEST-A-MIN-01 remains CLOSED
+[x] Review B remains 0/0/0
+[x] ADR_NOT_REQUIRED remains recorded
+[x] KHÔNG ADR-030 nào tạo
+[x] Semantic content unchanged (§1–§18 byte-equivalent, verified)
+[x] EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01 untouched
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — Phase 1.5 Testing Convention v0.2 bounded correction: `EF-TEST-A-MAJ-01`/`EF-TEST-A-MIN-01` CLOSED
 
 **Bounded correction — vai trò: `Testing Convention v0.2 Bounded Correction Executor`.** Resolves two Review A findings on the v0.1 Testing Convention draft. No redesign of the convention; no ADR-030.
