@@ -2,6 +2,156 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — Phase 1.5 Testing Convention v0.1 DRAFTED (no ADR): `docs/engineering/testing.md`
+
+**Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Testing Convention v0.1 Authoring Executor`.** Authors `docs/engineering/testing.md` v0.1 (Draft), the seventh Phase 1.5 Engineering Foundation living convention, authored directly under existing Locked Constitution authority — **no ADR created**, per the preceding Testing ADR Scope Check transaction (`ADR_NOT_REQUIRED`).
+
+### Baseline
+
+```text
+Starting HEAD:  2fe84d04705d3f74f6a128f3f919d45608582376
+ADR Scope result (prior transaction): ADR_NOT_REQUIRED — Chapter 3
+  §3.2 (Locked v1.4) already establishes both the Testing Convention
+  category's existence and its style/tooling-only scope; Chapter 13
+  (Locked) already owns coverage/tier/quality-gate substance.
+docs/engineering/testing.md: confirmed absent trước transaction này.
+Không Testing ADR nào tồn tại (ls docs/adr/ verified).
+```
+
+### Pre-author verification
+
+```text
+Inspected trực tiếp trước khi author: 03-engineering-principles.md
+  (§3.2 style/tooling carve-out), 13-quality-gates.md (§13.2 dimension
+  ownership table, §13.3/§13.4 coverage/tier, §13.9 evidence contract,
+  §13.10 flaky-test policy + explicit tooling deferral), 14-roadmap.md,
+  execution-rules.md (G-ADR-001/002/004), phase-1.5-rules.md
+  (EF-ADR-001), ADR-008, coding-standard.md/monorepo.md/naming.md/
+  logging.md/config.md/error-handling.md (all Approved),
+  module-registry.yaml. Verify trực tiếp: KHÔNG concrete test
+  framework/tool nào đã pin ở bất kỳ authority hiện hành — `python/`/
+  `go/` CHỈ chứa `README.md` placeholder, KHÔNG dependency manifest
+  nào tồn tại.
+```
+
+### Established content (v0.1, 18 mục + Framework/tool selection + Non-goals + ADR-scope disposition)
+
+```text
+§1  Test structure — predictable, KHÔNG redesign monorepo topology.
+§2  Test naming — semantic behavior naming, align naming.md.
+§3  Test isolation — order-independence/no hidden state/cleanup/no
+    wall-clock dependence, KHÔNG redefine Chapter 13 determinism.
+§4  Deterministic test mechanics — injectable clock/seeded randomness/
+    explicit event-time input, KHÔNG platform determinism rule mới.
+§5  Fixtures/factories — explicit default/visible override, domain
+    fixture VẪN hợp lệ dưới Domain Contract, KHÔNG invent semantics.
+§6  Mocking/stubbing — mock boundary KHÔNG PHẢI unit under test, KHÔNG
+    coverage inflation, align Chapter 13 anti-gaming (§13.3).
+§7  Unit vs integration — engineering-style distinction, KHÔNG gán
+    tier/count (Chapter 13 authority).
+§8  Contract/boundary testing — verify mechanics CHỈ, KHÔNG redefine
+    contract.
+§9  Python guidance — idiomatic, framework selection deferred.
+§10 Go guidance — idiomatic, `testing` stdlib đủ, third-party deferred.
+§11 Test data — nhỏ/deterministic/seeded, KHÔNG production sensitive
+    data trừ khi security authority cho phép, golden data meaningful.
+§12 Flaky-test tooling mechanics — implement Chapter 13 §13.10's
+    explicit-deferred tooling (marker/owner/reason/visible-in-CI),
+    KHÔNG redefine policy (cấm retry-until-green/quarantine required/
+    flaky ≠ passing evidence GIỮ NGUYÊN).
+§13 Local test commands — predictable entry point, KHÔNG hardcode tool
+    chưa chọn (monorepo.md §5 deferred, KHÔNG đổi).
+§14 Reusable helpers — giảm duplication, KHÔNG che assertion, KHÔNG
+    domain semantics cạnh tranh.
+§15 Error assertions — align error-handling.md, semantic category over
+    raw string, KHÔNG error-code schema mới.
+§16 Logging/config interaction — verify được, KHÔNG redefine level/
+    field/schema hay validation/startup rule.
+§17 Coverage boundary — Chapter 13 CHỈ sở hữu; KHÔNG copy số ngưỡng cụ
+    thể vào tài liệu này (I-12 Single Source of Truth).
+§18 Quality-gate boundary — Chapter 13 CHỈ sở hữu eligibility/evidence/
+    tier-resolution/pass-fail; mọi authority khác (Domain/Event/API,
+    module-registry, ADR-008/017/024/025/026/027/028/029) preserved.
+Framework/tool selection — verify trực tiếp KHÔNG framework/library
+    nào đã pin; deferred tới implementation-readiness transaction
+    riêng biệt tương lai.
+Non-goals — coverage/tier policy, parity/determinism substance,
+    quality-gate policy, module criticality, domain semantics mới,
+    CI/CD pipeline design, framework/vendor selection, performance
+    benchmark policy, security architecture change.
+ADR-scope disposition — v0.1 implement reversible detail dưới Chapter
+    3 §3.2 ĐÃ Locked; KHÔNG rule nào tạo architecture responsibility/
+    Platform Invariant/quality-gate policy/coverage-tier semantic/
+    module-criticality mapping/published-contract mới; KHÔNG tạo
+    ADR-030.
+```
+
+### ADR trigger check (explicit — no smuggled ADR-required decision)
+
+```text
+Rà soát từng mục §1–§16: KHÔNG mục nào tự tạo một architecture decision
+  mới, một quality-gate policy mới, một coverage/tier semantic mới,
+  một module-criticality mapping mới, hay một published-contract mới
+  vượt ngoài boundary ĐÃ Locked bởi Chapter 3 §3.2/Chapter 13. Mọi rule
+  LÀ reversible style/tooling convention thuộc đúng phạm vi Chapter 3
+  §3.2 đã pin. KHÔNG tạo ADR-030.
+```
+
+### Files changed
+
+```text
+docs/engineering/testing.md  (NEW — v0.1, Draft, blob
+                              70fbaeb77781c82f8e1a823bca1a05abeea33bc6)
+docs/MANIFEST.md             (manifest_version 10.113 -> 10.114; thêm
+                              engineering/testing.md row)
+docs/CHANGELOG.md            (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/constitution/03-engineering-principles.md/13-quality-gates.md
+  (Locked) — verified byte-identical, KHÔNG redefine. ADR-008/017/024/
+  025/026/027/028/029, monorepo.md/coding-standard.md/naming.md/
+  logging.md/config.md/error-handling.md (Approved),
+  module-registry.yaml, Domain Contract, Constitution, Phase 1.5 rules
+  — tất cả verified byte-identical (git diff empty).
+EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted
+  non-blocking.
+KHÔNG chọn test framework/vendor nào. KHÔNG mở CI/CD category. KHÔNG
+  tạo ADR-030. Phase 2 substantive work VẪN NOT YET AUTHORIZED. LIVE
+  VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/testing.md: v0.1, status Draft, owner Product Owner,
+  blob 70fbaeb77781c82f8e1a823bca1a05abeea33bc6 — not self-approved
+  (G-ORCH-002); Review/Approval LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 2fe84d04705d3f74f6a128f3f919d45608582376 verified
+[x] docs/engineering/testing.md absent trước transaction, confirmed
+[x] Không Testing ADR nào tồn tại/tạo — KHÔNG ADR-030
+[x] Resulting v0.1 Draft blob confirmed
+[x] Style/tooling-only scope preserved (§"Nguyên tắc chi phối")
+[x] Chapter 13 remains sole quality-policy authority (§17/§18)
+[x] KHÔNG coverage/tier policy nào duplicated (§17, KHÔNG copy số
+    ngưỡng)
+[x] KHÔNG parity/determinism semantics nào redefined (§3/§4)
+[x] Python/Go guidance idiomatic, non-prescriptive (§9/§10)
+[x] KHÔNG unauthorized framework/vendor nào chọn
+[x] Flaky-test tooling mechanics KHÔNG redefine Chapter 13 §13.10
+    policy (§12)
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — Phase 1.5 Error Handling Convention v0.2 APPROVED (residual `EF-ERR-B-MIN-01` accepted)
 
 **Mechanical lifecycle recording — vai trò: `Error Handling Convention v0.2 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE ERROR HANDLING CONVENTION V0.2 — ACCEPT EF-ERR-B-MIN-01 AS NON-BLOCKING RESIDUAL" — no Error Handling Convention semantics changed.
