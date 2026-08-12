@@ -2,6 +2,162 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — Phase 1.5 Error Handling Convention v0.1 DRAFTED: `docs/engineering/error-handling.md`
+
+**Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Error Handling Convention v0.1 Authoring Executor`.** Authors `docs/engineering/error-handling.md` v0.1 (Draft), the sixth Phase 1.5 Engineering Foundation living convention, under Approved `ADR-029`. Follows the established ADR-first, living-convention-second pattern (Monorepo/Coding Standard/Naming/Logging/Config/Error Handling).
+
+### Baseline
+
+```text
+Starting HEAD:      c39392942ee3a53dcbfd7ad1f34931b3bea455c4
+Approved authority: docs/adr/ADR-029.md v0.2, status Approved,
+                    blob 9c8877d3e16a54c1908c37f1b214ef185744cd9c
+Accepted residual:  EF-CONFIG-B-MIN-01 — OPEN, accepted non-blocking,
+                    NOT touched at this transaction.
+docs/engineering/error-handling.md: confirmed absent trước transaction
+  này.
+```
+
+### Pre-author verification
+
+```text
+Inspected trực tiếp trước khi author: ADR-029.md (full content,
+  Approved blob verified), Phase 1.5 rules, Chapter 3 Engineering
+  Principles, Chapter 14 Roadmap, ADR-008, ADR-017 (Custody & Signing
+  Trust Boundary, retry/idempotency scope §8), ADR-027/logging.md,
+  ADR-028/config.md, module-registry.yaml, relevant Domain/Event/API/
+  Risk/Execution contracts (risk.md RiskEvaluation result/
+  rejection_reason semantics, execution-intent.md). Không newer
+  authority nào supersede bất kỳ boundary dùng dưới đây.
+```
+
+### Established content (v0.1, 15 mục + Non-goals + ADR-scope disposition)
+
+```text
+§1  Error categories — 7 category nhỏ semantic (validation/input,
+    configuration, dependency/infrastructure, timeout/cancellation,
+    security/authorization technical failure, invariant/programming
+    defect, external/venue integration failure); KHÔNG invent
+    business-domain outcome category.
+§2  Expected vs unexpected — programming defect KHÔNG silently
+    convert thành successful/domain outcome.
+§3  Cause preservation — giữ causal context xuyên boundary, KHÔNG
+    mandate serialization/wrapping library cụ thể.
+§4  Boundary translation — technical representation CHỈ; KHÔNG
+    redefine domain/API outcome hay published-contract semantics;
+    thay đổi Ý NGHĨA đó PHẢI tự rerun ADR Scope Rule qua authority
+    riêng của chính contract đó.
+§5  Retry-related classification — CHỈ metadata support một retry
+    decision ĐÃ authorize sẵn; KHÔNG độc lập tuyên bố retryable, KHÔNG
+    assign/reassign ownership, KHÔNG tạo retry/backoff policy, KHÔNG
+    override idempotency authority, KHÔNG suy diễn từ loại exception.
+§6  Timeout and cancellation — phân biệt khi có ích, KHÔNG invent giá
+    trị timeout/retry behavior cross-module.
+§7  Partial failure — KHÔNG silent full-success; surface CHỈ qua
+    representation đã hợp lệ; fail explicitly nếu KHÔNG có
+    representation authoritative.
+§8  Startup/config failures — align `config.md` §7 fail-closed
+    semantics, KHÔNG redefine; `EF-CONFIG-B-MIN-01` KHÔNG chạm.
+§9  Security and redaction — KHÔNG expose credential/secret/signing
+    material/sensitive payload; KHÔNG chọn redaction vendor/library.
+§10 Logging interaction — align `logging.md`; Logging VẪN authority
+    level/field/schema; tránh duplicate-log không kiểm soát.
+§11 Python guidance — exception idiomatic, chaining preserve, KHÔNG
+    catch-and-suppress broad, KHÔNG dùng exception LÀM domain control
+    flow khi domain result type ĐÃ tồn tại; KHÔNG mandate hierarchy.
+§12 Go guidance — return error idiomatic, wrap giữ cause, panic CHỈ
+    cho unrecoverable programmer/invariant defect; KHÔNG mandate
+    custom-error framework.
+§13 User-facing/internal representation — KHÔNG expose stack trace/
+    secret/internal detail; theo published contract authority.
+§14 Explainability — category/boundary/cause/translation/retry-source
+    xác định được; KHÔNG mandate tooling mechanism.
+§15 Authority boundaries — Domain/Event/API/Account/ADR-017/retry-
+    idempotency/Logging/Config/module-registry/ADR-008/monorepo/
+    Coding-Standard/Naming — tất cả preserved riêng biệt.
+Non-goals — KHÔNG exception hierarchy/sentinel-error framework/
+    library/retry framework/backoff algorithm/retry-ownership
+    reassignment/HTTP middleware/serialization tech/observability
+    vendor/Domain-Event-API outcome mới/security architecture redesign
+    nào chọn.
+ADR-scope disposition — v0.1 implement living-detail authority ĐÃ
+    delegate bởi ADR-029; mọi rule checked against Chapter 0 §4b;
+    KHÔNG rule nào độc lập trigger; KHÔNG tạo ADR-030.
+```
+
+### ADR trigger check (explicit — no smuggled ADR-required decision)
+
+```text
+Rà soát từng mục §1–§14: KHÔNG mục nào tự tạo một architecture
+  decision mới, một published-contract semantic mới, một module
+  responsibility/dependency change, một Platform Invariant change, hay
+  bất kỳ quyết định ADR-required nào khác vượt ngoài phạm vi ADR-029
+  §3 đã Approved (baseline-existence + technical-vs-domain boundary +
+  retry-classification-not-ownership boundary + Python/Go idiom
+  boundary + living-detail deferral list). Mọi rule LÀ reversible
+  detail-level convention thuộc đúng danh sách ADR-029 §3 đã defer.
+  KHÔNG tạo ADR-030.
+```
+
+### Files changed
+
+```text
+docs/engineering/error-handling.md  (NEW — v0.1, Draft, blob
+                                     f7010f8ff39c7af3226ac482e4178cb9b4959f89)
+docs/MANIFEST.md                    (manifest_version 10.110 -> 10.111;
+                                     thêm engineering/error-handling.md
+                                     row)
+docs/CHANGELOG.md                   (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-029.md (Approved, immutable) — verified byte-identical.
+ADR-028/config.md, ADR-027/logging.md, ADR-026/naming.md, ADR-025/
+  coding-standard.md, ADR-024/monorepo.md, ADR-017, ADR-008,
+  module-registry.yaml, Domain Contract (risk.md/account.md/...),
+  Constitution, Phase 1.5 rules — tất cả verified byte-identical (git
+  diff empty).
+EF-CONFIG-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted non-blocking.
+KHÔNG chọn exception hierarchy/error-code schema/retry framework/
+  library/vendor nào. KHÔNG mở Testing/CI-CD category. KHÔNG tạo
+  ADR-030. Phase 2 substantive work VẪN NOT YET AUTHORIZED. LIVE VẪN
+  NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/error-handling.md: v0.1, status Draft, owner Product
+  Owner, blob f7010f8ff39c7af3226ac482e4178cb9b4959f89 — not self-
+  approved (G-ORCH-002); Review/Approval LÀ transaction riêng biệt
+  tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD c39392942ee3a53dcbfd7ad1f34931b3bea455c4 verified
+[x] ADR-029 v0.2 Approved blob 9c8877d3e16a54c1908c37f1b214ef185744cd9c
+    verified trước khi author
+[x] docs/engineering/error-handling.md absent trước transaction,
+    confirmed
+[x] Technical error kept distinct từ domain outcome (§"Nguyên tắc chi
+    phối"/§4/§7)
+[x] Taxonomy remains small/semantic (§1, 7 category)
+[x] Cause preservation defined (§3)
+[x] Boundary translation bounded (§4)
+[x] Retry ownership/policy KHÔNG created (§5)
+[x] Config/Logging/Security boundaries preserved (§8/§9/§10)
+[x] Python/Go guidance idiomatic, non-prescriptive (§11/§12)
+[x] KHÔNG concrete framework/schema/library/vendor nào chọn
+[x] KHÔNG ADR-required semantic nào smuggled in — KHÔNG tạo ADR-030
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — ADR-029 v0.2 APPROVED: Cross-Module Error Handling Convention Baseline
 
 **Mechanical lifecycle recording — vai trò: `ADR-029 v0.2 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-029 V0.2" — no ADR decision semantics changed.
