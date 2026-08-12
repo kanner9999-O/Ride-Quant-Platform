@@ -2,6 +2,125 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-11 — ADR-029 v0.2 bounded correction: `ADR029-A-MAJ-01` CLOSED
+
+**Bounded correction — vai trò: `ADR-029 v0.2 Bounded Correction Executor`.** Resolves one Review A finding on the v0.1 Error Handling ADR draft. No redesign of ADR-029.
+
+### Baseline
+
+```text
+Starting HEAD:  4bb7bb6aaaab072dead07454e528f18bb67c650a
+Candidate:      docs/adr/ADR-029.md v0.1, status Draft,
+                blob fdf4226e08fb9075ec6031a5b5fe3caaf69363bd
+```
+
+### ADR029-A-MAJ-01 — retry-ownership authority overreach (§3/§6)
+
+```text
+Vấn đề: v0.1 correctly preserved existing retry/idempotency authority
+  VÀ nói future Error Handling Convention KHÔNG được establish một
+  broad retry/backoff policy — NHƯNG §3's "Living convention authority"
+  list ĐỒNG THỜI delegate "retry ownership (module nào quyết định
+  retry...)" LÀM detail-level authority cho `error-handling.md` tương
+  lai. Retry ownership KHÔNG chắc LÀ reversible/detail-level Error
+  Handling policy — gán/đổi module nào sở hữu một retry CÓ THỂ thay
+  đổi cross-module responsibility boundary, idempotency behavior,
+  duplicate-effect risk, execution/venue-submission flow, hay custody/
+  signing behavior (`ADR-017` §8).
+Sửa: §3's bullet đổi từ "retry ownership" thành "retry-related error
+  classification/metadata" (CHỈ thông tin support một retry decision
+  ĐÃ authorize sẵn ở nơi khác, KHÔNG PHẢI ownership/policy). §6 thêm
+  block riêng pin rõ boundary: `error-handling.md` CÓ THỂ (a) định
+  nghĩa classification/metadata support retry decision ĐÃ authorize;
+  (b) document/reflect retry ownership ĐÃ established bởi authority
+  hiện hành (vd ADR-017 §8, Package 1.3-D) — CHỈ ghi lại, KHÔNG tự
+  assign/reassign. `error-handling.md` KHÔNG ĐƯỢC độc lập assign/
+  reassign retry ownership giữa module. Một đề xuất retry-ownership
+  tương lai THẬT SỰ thay đổi cross-module responsibility boundary PHẢI
+  tự rerun ADR Scope Rule hiện hành, KHÔNG tự động qua living
+  convention.
+Cùng nguyên tắc áp dụng cho "boundary translation" (§3/§6): CHỈ
+  technical representation/propagation mechanics thuộc
+  `error-handling.md`; thay đổi Ý NGHĨA domain/Event/API outcome hay
+  published-contract semantics VẪN thuộc authority hiện hành của chính
+  contract đó, PHẢI tự rerun ADR Scope Rule nếu applicable.
+```
+
+### Section-by-section verification
+
+```text
+Verified (Python regex extraction, so sánh HEAD vs working tree):
+  SAME (byte-equivalent): §1, §2, §4, §5, §7, §8, §9
+  DIFF (đúng scope 1 finding trên): §3, §6
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-029.md   (v0.1 -> v0.2, Draft, blob
+                       4563ed0546047bf6b05447ddab430fe9a6b6d559)
+docs/MANIFEST.md      (manifest_version 10.108 -> 10.109; row cập nhật)
+docs/CHANGELOG.md     (entry này)
+```
+
+### Preserved unchanged
+
+```text
+Primary decision "MỘT governed cross-module Error Handling baseline"
+  (§3 phần còn lại), mandatory module conformance, Python/Go idiomatic
+  allowance, technical/programming error ≠ domain/business outcome,
+  mọi living-detail khác (taxonomy, expected/unexpected, validation/
+  config error, retryable classification, transient/permanent,
+  wrapping/chaining, user-facing vs internal, error-code, panic/
+  exception usage, logging interaction, redaction, timeout/
+  cancellation, startup failure, partial failure, ví dụ, Python/Go
+  implementation detail), Logging authority, Config authority
+  (`EF-CONFIG-B-MIN-01` KHÔNG chạm), `ADR-017` custody/signing
+  authority, security/redaction boundary, existing retry/idempotency
+  semantics (I-10/Package 1.3-D/ADR-017 §8), future ADR Scope Rule
+  rerun requirement, Alternatives (§4), Scale Check (§8), downstream
+  sequence (§9) — tất cả giữ nguyên.
+docs/adr/ADR-028.md/docs/engineering/config.md (Approved), ADR-027/
+  logging.md, ADR-026/naming.md, ADR-025/coding-standard.md, ADR-024/
+  monorepo.md, ADR-017, ADR-008, module-registry.yaml, Domain Contract,
+  Constitution, Phase 1.5 rules — tất cả verified byte-identical (git
+  diff empty).
+docs/engineering/error-handling.md: KHÔNG tạo tại transaction này.
+  KHÔNG tạo ADR-029... (n/a, chính ADR-029 đang correction). KHÔNG chọn
+  retry framework/backoff policy/exception hierarchy/error-code
+  schema/library nào. Phase 2 substantive work VẪN NOT YET AUTHORIZED.
+  LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/adr/ADR-029.md: v0.2, status Draft, blob
+  4563ed0546047bf6b05447ddab430fe9a6b6d559 — not self-approved
+  (G-ORCH-002); Review/Approval VẪN LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 4bb7bb6aaaab072dead07454e528f18bb67c650a verified
+[x] Candidate blob fdf4226e08fb9075ec6031a5b5fe3caaf69363bd verified
+[x] v0.2 Draft resulting identity: blob
+    4563ed0546047bf6b05447ddab430fe9a6b6d559
+[x] ADR029-A-MAJ-01 CLOSED
+[x] Living convention KHÔNG THỂ assign/reassign retry ownership (§6)
+[x] Existing retry/idempotency authority preserved (I-10/Package
+    1.3-D/ADR-017 §8, byte-equivalent)
+[x] Technical boundary translation remains allowed (§3/§6)
+[x] Published/domain contract semantic changes remain outside Error
+    Handling authority (§6)
+[x] Unrelated ADR-029 semantics preserved (§1/§2/§4/§5/§7/§8/§9 byte-
+    equivalent, verified)
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-11 — ADR-029 v0.1 DRAFTED: Cross-Module Error Handling Convention Baseline
 
 **Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Error Handling ADR Authoring Executor`.** Authors `docs/adr/ADR-029.md` v0.1 (Draft), the required ADR for the Phase 1.5 Error Handling category — next category in Chapter 14 §14.2 sequence after Monorepo/Coding Standard/Naming/Logging/Config (all Approved). `docs/engineering/error-handling.md` NOT authored at this transaction — separate future transaction, per the established ADR-first-then-living-convention pattern.
