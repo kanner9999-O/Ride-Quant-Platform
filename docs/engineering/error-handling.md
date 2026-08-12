@@ -1,7 +1,7 @@
 ---
 id: engineering-error-handling
 title: "Engineering Foundation — Error Handling Convention"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -20,6 +20,8 @@ depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../
 **Residual accepted riêng của `config.md`: `EF-CONFIG-B-MIN-01` VẪN `OPEN — accepted non-blocking`** — KHÔNG chạm, KHÔNG đóng tại đây (thuộc phạm vi correction riêng cho `config.md`, KHÔNG tại living convention document này).
 
 **Nguyên tắc chi phối (ADR-029 §3, tái khẳng định KHÔNG redefine):** technical/programming error ≠ domain/business outcome. Tài liệu này CHỈ quản lý technical error handling (exception/panic/timeout/validation failure nội bộ...) — KHÔNG BAO GIỜ redefine `RiskEvaluation` outcome/rejection reason (`risk.md` §5e), Execution Result/Fill semantics, business rejection/denial fact, Account lifecycle/domain state, hay Ý NGHĨA của bất kỳ Domain/Event/API contract nào (`/docs/domain/`).
+
+**v0.2 — bounded correction (2026-08-12), đóng `EF-ERR-A-MAJ-01`, vai trò: `Error Handling Convention v0.2 Bounded Correction Executor`.** v0.1 §7 nói "NẾU KHÔNG tồn tại một authoritative partial-result representation nào ... module PHẢI fail explicitly (technical error)" — quá rộng: KHÔNG tồn tại MỘT representation "partial" riêng biệt KHÔNG chứng minh underlying outcome LÀ technical/programming error; Domain/Event/API authority hiện hành CÓ THỂ ĐÃ định nghĩa một business failure/rejection/result representation KHÁC cho đúng tình huống đó — Error Handling KHÔNG được reclassify một business/domain outcome ĐÃ tồn tại thành technical error CHỈ vì thiếu representation "partial" riêng. Sửa: §7 pin rõ thứ tự resolve — (1) KHÔNG silent full-success; (2) nếu Domain/Event/API contract hiện hành ĐÃ có representation/outcome hợp lệ cho ĐÚNG tình huống đó (dù KHÔNG mang tên "partial"), PHẢI dùng ĐÚNG representation đó; (3) partial-result representation CHỈ dùng khi ĐÃ established bởi authority liên quan; (4) CHỈ khi KHÔNG có representation business/domain phù hợp NÀO VÀ nguyên nhân gốc THẬT SỰ technical/infrastructure/programming, module PHẢI fail explicitly LÀM technical error; (5) nếu tình huống lộ ra một business/domain semantic CHƯA tồn tại hoặc cần published-contract outcome MỚI, KHÔNG tự invent tại `error-handling.md` — report LÀM contract/authority gap, route qua đúng authority VÀ tự rerun ADR Scope Rule nếu applicable. **KHÔNG đổi:** taxonomy bảy category (§1), expected vs unexpected (§2), cause preservation (§3), bounded boundary translation (§4), retry-related classification/retry ownership prohibition (§5), timeout/cancellation (§6), Config startup/fail-closed boundary (§8), security/redaction (§9), Logging authority (§10), Python guidance (§11), Go guidance (§12), user-facing/internal representation (§13), explainability (§14), authority boundaries (§15), Non-goals, ADR-scope disposition. `EF-CONFIG-B-MIN-01` VẪN `OPEN — accepted non-blocking`, KHÔNG chạm. KHÔNG chạm `ADR-029.md`. KHÔNG invent Domain/Event/API partial-failure state mới, KHÔNG redefine Risk/Execution/Account outcome, KHÔNG đổi retry ownership/idempotency, KHÔNG chọn framework/library/error-code schema nào. `status` VẪN `Draft`.
 
 ## 1. Error categories
 
@@ -157,20 +159,52 @@ Tài liệu này KHÔNG định nghĩa retry behavior cho timeout/cancellation
 ## 7. Partial failure
 
 ```text
+[v0.2 sửa, đóng `EF-ERR-A-MAJ-01`: v0.1 nói "NẾU KHÔNG tồn tại một
+  authoritative partial-result representation nào ... module PHẢI
+  fail explicitly (technical error)" — quá rộng: việc KHÔNG tồn tại
+  MỘT representation "partial" riêng biệt KHÔNG chứng minh underlying
+  outcome LÀ technical/programming error. Domain/Event/API authority
+  hiện hành CÓ THỂ ĐÃ định nghĩa một business failure/rejection/result
+  representation KHÁC cho đúng tình huống đó (vd `RiskEvaluation
+  REJECTED`/`NON_EVALUABLE`, risk.md §5e) — Error Handling KHÔNG được
+  reclassify một business/domain outcome ĐÃ tồn tại thành technical
+  error CHỈ vì thiếu một "partial" representation riêng. Sửa: pin rõ
+  thứ tự resolve dưới đây, giữ nguyên nguyên tắc chi phối "technical/
+  programming error ≠ domain/business outcome."]
+
 Baseline behavior tối thiểu:
   KHÔNG silently report full success khi một phần của operation
     required đã thất bại — nếu chỉ một phần hoàn tất, kết quả PHẢI
     phản ánh đúng trạng thái đó, KHÔNG "làm tròn" thành thành công
     hoàn toàn.
-  Partial-failure state CHỈ được surface qua một boundary/contract
-    representation ĐÃ hợp lệ (vd một field/status ĐÃ established bởi
-    Domain/Event/API contract hiện hành nếu tồn tại) — KHÔNG tự invent
-    một domain state mới để biểu diễn partial failure.
-  NẾU KHÔNG tồn tại một authoritative partial-result representation
-    nào cho tình huống cụ thể đó, module PHẢI fail explicitly (technical
-    error rõ ràng, §1/§2) — KHÔNG tự sáng tạo một domain state mới
-    ngoài authority hiện hành (đúng nguyên tắc §"Nguyên tắc chi phối,"
-    KHÔNG redefine domain outcome).
+  NẾU một Domain/Event/API contract hiện hành ĐÃ định nghĩa một
+    representation/outcome hợp lệ cho ĐÚNG tình huống thực tế đó (dù
+    KHÔNG mang tên "partial" — vd một business rejection/failure
+    result ĐÃ established), module PHẢI dùng ĐÚNG representation/
+    outcome authoritative đó — KHÔNG bỏ qua nó để tạo một technical
+    error thay thế.
+  Một partial-result representation CHỈ được dùng khi ĐÃ established
+    bởi authority liên quan (Domain/Event/API contract hiện hành) —
+    KHÔNG tự invent một domain state "partial" mới.
+  NẾU KHÔNG tồn tại representation business/domain phù hợp nào CHO
+    tình huống đó, VÀ nguyên nhân gốc THẬT SỰ LÀ technical/
+    infrastructure/programming failure (đúng §1/§2 — vd dependency
+    không khả dụng giữa chừng operation), module PHẢI fail explicitly
+    LÀM technical error theo convention này (§1/§2/§3).
+  NẾU tình huống thực tế lộ ra một business/domain semantic CHƯA tồn
+    tại, hoặc cần một published-contract outcome/state MỚI (KHÔNG PHẢI
+    technical failure thật):
+      KHÔNG tự invent semantic/state đó tại `error-handling.md`;
+      report gap đó LÀM một contract/authority gap (thuộc phạm vi
+        Domain/Event/API authority tương ứng, KHÔNG tại đây);
+      một semantic change được đề xuất PHẢI đi qua đúng authority liên
+        quan VÀ tự rerun ADR Scope Rule (Chapter 0 §4b) hiện hành TẠI
+        chính thời điểm đó nếu applicable — KHÔNG tự động qua living
+        convention này.
+  Giữ nguyên nguyên tắc chi phối: technical/programming error ≠
+    domain/business outcome (§"Nguyên tắc chi phối" trên) — §7 này
+    KHÔNG redefine domain outcome nào, CHỈ pin thứ tự resolve khi
+    partial failure xảy ra.
 ```
 
 ## 8. Startup/config failures
@@ -409,4 +443,41 @@ v0.1  2026-08-12  Established — vai trò: `Phase 1.5 Error Handling
       KHÔNG chọn framework/library/schema/vendor nào. KHÔNG bắt đầu
       Testing/CI-CD. `status: Draft` — not self-approved (`G-ORCH-002`).
       KHÔNG authorize Phase 2/LIVE.
+v0.2  2026-08-12  Bounded correction, đóng `EF-ERR-A-MAJ-01`. v0.1 §7
+      nói "NẾU KHÔNG tồn tại một authoritative partial-result
+      representation nào ... module PHẢI fail explicitly (technical
+      error)" — quá rộng: KHÔNG tồn tại MỘT representation "partial"
+      riêng biệt KHÔNG chứng minh underlying outcome LÀ technical/
+      programming error; Domain/Event/API authority hiện hành CÓ THỂ
+      ĐÃ định nghĩa một business failure/rejection/result
+      representation KHÁC cho đúng tình huống đó (vd `RiskEvaluation
+      REJECTED`/`NON_EVALUABLE`, risk.md §5e) — reclassify outcome đó
+      thành technical error CHỈ vì thiếu representation "partial"
+      riêng LÀ vi phạm nguyên tắc chi phối. Sửa: §7 pin rõ thứ tự
+      resolve — (1) KHÔNG silent full-success; (2) dùng ĐÚNG
+      representation/outcome authoritative nếu Domain/Event/API
+      contract hiện hành ĐÃ có cho đúng tình huống đó; (3) partial-
+      result representation CHỈ dùng khi ĐÃ established bởi authority
+      liên quan; (4) fail explicitly LÀM technical error CHỈ khi
+      KHÔNG có representation business/domain phù hợp VÀ nguyên nhân
+      gốc THẬT SỰ technical/infrastructure/programming; (5) nếu lộ ra
+      một business/domain semantic CHƯA tồn tại hoặc cần published-
+      contract outcome MỚI, KHÔNG tự invent tại đây — report LÀM
+      contract/authority gap, route qua đúng authority VÀ tự rerun ADR
+      Scope Rule nếu applicable. Nguyên tắc chi phối "technical/
+      programming error ≠ domain/business outcome" giữ nguyên, KHÔNG
+      suy yếu. **KHÔNG đổi:** §1 (taxonomy), §2 (expected/unexpected),
+      §3 (cause preservation), §4 (boundary translation), §5 (retry-
+      related classification/ownership prohibition), §6 (timeout/
+      cancellation), §8 (Config startup boundary), §9 (security/
+      redaction), §10 (Logging authority), §11 (Python guidance), §12
+      (Go guidance), §13 (user-facing/internal representation), §14
+      (explainability), §15 (authority boundaries), Non-goals, ADR-
+      scope disposition. KHÔNG invent Domain/Event/API partial-failure
+      state mới, KHÔNG redefine Risk/Execution/Account outcome, KHÔNG
+      đổi retry ownership/idempotency, KHÔNG chọn framework/library/
+      error-code schema nào. `EF-CONFIG-B-MIN-01` VẪN `OPEN — accepted
+      non-blocking`, KHÔNG chạm. KHÔNG chạm `ADR-029.md` (Approved,
+      immutable, verified byte-identical). `status` VẪN `Draft` — not
+      self-approved (`G-ORCH-002`), KHÔNG authorize Phase 2/LIVE.
 ```

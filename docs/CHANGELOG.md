@@ -2,6 +2,127 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — Phase 1.5 Error Handling Convention v0.2 bounded correction: `EF-ERR-A-MAJ-01` CLOSED
+
+**Narrowly bounded correction — vai trò: `Error Handling Convention v0.2 Bounded Correction Executor`.** Resolves one Review A finding on the v0.1 Error Handling Convention draft. No redesign of the convention.
+
+### Baseline
+
+```text
+Starting HEAD:      fd2684fc35e4a0d6bbcd323ec74c485ac15b1c4c
+Candidate:          docs/engineering/error-handling.md v0.1, status
+                    Draft, blob f7010f8ff39c7af3226ac482e4178cb9b4959f89
+Approved authority: docs/adr/ADR-029.md v0.2, status Approved,
+                    blob 9c8877d3e16a54c1908c37f1b214ef185744cd9c
+```
+
+### EF-ERR-A-MAJ-01 — overbroad technical-error fallback (§7)
+
+```text
+Vấn đề: v0.1 §7 nói "NẾU KHÔNG tồn tại một authoritative partial-
+  result representation nào cho tình huống cụ thể đó, module PHẢI fail
+  explicitly (technical error)" — quá rộng. KHÔNG tồn tại MỘT
+  representation "partial" riêng biệt KHÔNG chứng minh underlying
+  outcome LÀ technical/programming error — Domain/Event/API authority
+  hiện hành CÓ THỂ ĐÃ định nghĩa một business failure/rejection/result
+  representation KHÁC cho đúng tình huống đó (vd `RiskEvaluation
+  REJECTED`/`NON_EVALUABLE`, risk.md §5e). Reclassify một outcome ĐÃ
+  tồn tại thành technical error CHỈ vì thiếu representation "partial"
+  riêng vi phạm chính nguyên tắc chi phối "technical/programming error
+  ≠ domain/business outcome."
+Sửa: §7 pin rõ thứ tự resolve —
+  (1) KHÔNG silently report full success khi một phần required thất
+      bại;
+  (2) NẾU Domain/Event/API contract hiện hành ĐÃ có representation/
+      outcome hợp lệ cho ĐÚNG tình huống thực tế đó (dù KHÔNG mang tên
+      "partial"), PHẢI dùng ĐÚNG representation authoritative đó;
+  (3) một partial-result representation CHỈ được dùng khi ĐÃ
+      established bởi authority liên quan — KHÔNG tự invent;
+  (4) fail explicitly LÀM technical error CHỈ khi KHÔNG có
+      representation business/domain phù hợp NÀO VÀ nguyên nhân gốc
+      THẬT SỰ technical/infrastructure/programming;
+  (5) NẾU tình huống lộ ra một business/domain semantic CHƯA tồn tại
+      hoặc cần một published-contract outcome/state MỚI, KHÔNG tự
+      invent tại `error-handling.md` — report LÀM contract/authority
+      gap, route qua đúng authority liên quan VÀ tự rerun ADR Scope
+      Rule (Chapter 0 §4b) hiện hành nếu applicable.
+Nguyên tắc chi phối "technical/programming error ≠ domain/business
+  outcome" giữ nguyên, KHÔNG suy yếu.
+```
+
+### Section-by-section verification
+
+```text
+Verified (Python regex extraction, so sánh HEAD vs working tree):
+  SAME (byte-equivalent): §1, §2, §3, §4, §5, §6, §8, §9, §10, §11,
+                          §12, §13, §14, §15
+  DIFF (đúng scope 1 finding trên): §7
+```
+
+### Files changed
+
+```text
+docs/engineering/error-handling.md  (v0.1 -> v0.2, Draft, blob
+                                     10c1b259ec28bdfb0caa318ceffda81228a707da)
+docs/MANIFEST.md                    (manifest_version 10.111 ->
+                                     10.112; row cập nhật)
+docs/CHANGELOG.md                   (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-029.md (Approved, immutable) — verified byte-identical.
+ADR-028/config.md, ADR-027/logging.md, ADR-026/naming.md, ADR-025/
+  coding-standard.md, ADR-024/monorepo.md, ADR-017, ADR-008,
+  module-registry.yaml, Domain Contract, Constitution, Phase 1.5 rules
+  — tất cả verified byte-identical (git diff empty).
+Taxonomy bảy category (§1), expected vs unexpected (§2), cause
+  preservation (§3), bounded boundary translation (§4), retry-related
+  classification/retry ownership prohibition (§5), timeout/
+  cancellation (§6), Config startup/fail-closed boundary (§8),
+  security/redaction (§9), Logging authority (§10), Python guidance
+  (§11), Go guidance (§12), user-facing/internal representation (§13),
+  explainability (§14), authority boundaries (§15), Non-goals, ADR-
+  scope disposition — tất cả giữ nguyên.
+EF-CONFIG-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted non-blocking.
+KHÔNG invent Domain/Event/API partial-failure state mới. KHÔNG
+  redefine Risk/Execution/Account outcome. KHÔNG đổi retry ownership/
+  idempotency. KHÔNG chọn framework/library/error-code schema nào.
+  KHÔNG tạo ADR-030. Phase 2 substantive work VẪN NOT YET AUTHORIZED.
+  LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/error-handling.md: v0.2, status Draft, blob
+  10c1b259ec28bdfb0caa318ceffda81228a707da — not self-approved
+  (G-ORCH-002); Review/Approval VẪN LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD fd2684fc35e4a0d6bbcd323ec74c485ac15b1c4c verified
+[x] Candidate blob f7010f8ff39c7af3226ac482e4178cb9b4959f89 verified
+[x] v0.2 Draft resulting identity: blob
+    10c1b259ec28bdfb0caa318ceffda81228a707da
+[x] EF-ERR-A-MAJ-01 CLOSED
+[x] KHÔNG legitimate domain/business outcome nào bị force thành
+    technical error (§7 point 2/3)
+[x] Technical failure VẪN fail explicitly khi appropriate (§7 point 4)
+[x] Missing domain semantic report LÀM authority gap, KHÔNG invent
+    (§7 point 5)
+[x] §1–§6/§8 onward remain semantically unchanged (verified byte-
+    equivalent)
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] ADR-029 byte-identical
+[x] EF-CONFIG-B-MIN-01 untouched
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — Phase 1.5 Error Handling Convention v0.1 DRAFTED: `docs/engineering/error-handling.md`
 
 **Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Error Handling Convention v0.1 Authoring Executor`.** Authors `docs/engineering/error-handling.md` v0.1 (Draft), the sixth Phase 1.5 Engineering Foundation living convention, under Approved `ADR-029`. Follows the established ADR-first, living-convention-second pattern (Monorepo/Coding Standard/Naming/Logging/Config/Error Handling).
