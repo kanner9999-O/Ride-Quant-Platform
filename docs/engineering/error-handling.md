@@ -2,11 +2,11 @@
 id: engineering-error-handling
 title: "Engineering Foundation — Error Handling Convention"
 version: "0.2"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-12"
 created_at: "2026-08-12"
 last_review: null
 next_review: null
@@ -14,6 +14,33 @@ depends_on: ["../constitution/03-engineering-principles", "../adr/ADR-008", "../
 ---
 
 # Engineering Foundation — Error Handling Convention
+
+**APPROVED (2026-08-12) — status: Draft → Approved.** Product Owner decision: **"APPROVE ERROR HANDLING CONVENTION V0.2 — ACCEPT EF-ERR-B-MIN-01 AS NON-BLOCKING RESIDUAL."** Reviewed candidate: v0.2, blob `10c1b259ec28bdfb0caa318ceffda81228a707da`. `version: "0.2"` KHÔNG đổi (pure mechanical lifecycle approval — KHÔNG bump). Tài liệu này VẪN LÀ living document (Chapter 3 §3.2 "tài liệu SỐNG, không bất biến"; Chapter 0 §7.1 lifecycle Draft→...→Approved→Locked) — `Approved` KHÔNG đồng nghĩa immutable byte-for-byte như ADR (Chapter 11 §11.3 KHÔNG áp dụng ở đây); thay đổi tương lai vẫn hợp lệ qua version bump + re-review (Chapter 0 §8), VÀ mọi thay đổi SEMANTIC PHẢI tự rerun ADR Scope Rule đúng ADR-scope disposition dưới.
+
+**Review evidence tại approval này:**
+
+```text
+Đóng (trước approval, v0.2): EF-ERR-A-MAJ-01.
+
+Bounded Review A re-review trên v0.2:
+  EF-ERR-A-MAJ-01: CLOSED
+  New Blocker 0 / New Major 0 / New Minor 0
+  CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+
+Independent Review B trên đúng v0.2:
+  New Blocker 0 / New Major 0 / New Minor 1
+
+  EF-ERR-B-MIN-01: candidate/provenance wording VẪN stale, tham chiếu
+    "v0.1" tại nhiều mục KHÔNG đổi (vd Non-goals heading, ADR-scope
+    disposition, Change history v0.1 entry). Finding VALID, non-
+    blocking.
+
+  Verdict: READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+**`EF-ERR-B-MIN-01`: VẪN `OPEN — accepted non-blocking residual`** — Product Owner chấp nhận LÀM residual tại chính approval này, KHÔNG sửa/KHÔNG đóng tại transaction này (đúng `G-REV-004` — KHÔNG correction churn khi KHÔNG có Major/Blocker mới; correction riêng biệt, nếu thực hiện, sẽ đóng finding này sau, KHÔNG tại đây). Stale "v0.1" wording tại các mục liên quan GIỮ NGUYÊN KHÔNG sửa.
+
+**Approval này KHÔNG đổi Error Handling Convention semantics nào** (§1–§15 dưới byte-equivalent ngoài banner/lifecycle metadata/change history này, VÀ ngoài residual `EF-ERR-B-MIN-01` stale wording đã accept KHÔNG sửa) — KHÔNG chạm `ADR-029` (Approved, immutable)/`ADR-028`/`config.md`/`ADR-027`/`logging.md`/`ADR-026`/`naming.md`/`ADR-025`/`coding-standard.md`/`ADR-024`/`monorepo.md`/`ADR-008`/`ADR-017`/`module-registry.yaml`/Domain Contract/Constitution/Phase 1.5 rules, KHÔNG tạo ADR-030, KHÔNG mở Testing/CI-CD category, KHÔNG chọn framework/library/error-code schema nào, KHÔNG đóng `EF-CONFIG-B-MIN-01`, KHÔNG authorize Phase 2, KHÔNG authorize LIVE.
 
 **Vai trò của tài liệu này:** convention document THỨ SÁU của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2), phạm vi CHỈ category **Error Handling** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). **`ADR-029` v0.2 (Approved 2026-08-12) LÀ authority cho chính việc CÓ một cross-module Error Handling Convention baseline bắt buộc** — tài liệu này LÀ living convention chứa chi tiết rule reversible dưới authority đó, KHÔNG lặp lại decision text của ADR-029 (xem `ADR-029.md` cho full architecture text, KHÔNG duplicate tại đây). KHÔNG Constitution chapter, KHÔNG ADR, KHÔNG redefine module identity/dependency/ngôn ngữ allocation/repository topology/Coding Standard/Naming Convention/Logging Convention/Config Convention/Custody & Signing Trust Boundary — mỗi authority đó VẪN giữ nguyên (§15 dưới). Mọi thay đổi SEMANTIC tương lai vào tài liệu này PHẢI tự chạy lại ADR Scope Rule (Chapter 0 §4b) hiện hành TẠI chính thời điểm đổi — reversibility của kỹ thuật thay đổi KHÔNG hủy/miễn vế ">1 module" nếu vế đó đã thỏa (đúng lesson `ADR-025`/`ADR-026`/`ADR-027`/`ADR-028`/`ADR-029` §3, KHÔNG redefine — xem §16 dưới).
 
@@ -480,4 +507,34 @@ v0.2  2026-08-12  Bounded correction, đóng `EF-ERR-A-MAJ-01`. v0.1 §7
       non-blocking`, KHÔNG chạm. KHÔNG chạm `ADR-029.md` (Approved,
       immutable, verified byte-identical). `status` VẪN `Draft` — not
       self-approved (`G-ORCH-002`), KHÔNG authorize Phase 2/LIVE.
+ACCEPTANCE  2026-08-12  Product Owner lifecycle approval — mechanical,
+      vai trò: `Error Handling Convention v0.2 Mechanical Approval
+      Recorder`. Quyết định: "APPROVE ERROR HANDLING CONVENTION V0.2
+      — ACCEPT EF-ERR-B-MIN-01 AS NON-BLOCKING RESIDUAL." Reviewed
+      candidate: v0.2, blob 10c1b259ec28bdfb0caa318ceffda81228a707da
+      (bounded Review A re-review CLEAN, New Blocker/Major/Minor
+      0/0/0, đóng `EF-ERR-A-MAJ-01`; Independent Review B trên đúng
+      v0.2: New Blocker 0/New Major 0/New Minor 1 — `EF-ERR-B-MIN-01`
+      (candidate/provenance wording stale "v0.1" tại nhiều mục KHÔNG
+      đổi, VALID, non-blocking), `READY_FOR_PRODUCT_OWNER_DECISION`).
+      `status: Draft -> Approved`, `approved_by: null -> Product
+      Owner`, `approved_at: null -> "2026-08-12"`. `version` KHÔNG
+      bump (pure mechanical lifecycle approval) — VẪN `0.2`.
+      `EF-ERR-B-MIN-01` VẪN `OPEN — accepted non-blocking residual`,
+      KHÔNG đóng, KHÔNG sửa stale "v0.1" wording tại đây — đúng
+      `G-REV-004` (KHÔNG correction churn khi KHÔNG có Major/Blocker
+      mới), correction riêng biệt tương lai (nếu thực hiện) sẽ đóng
+      finding này. KHÔNG semantic content nào đổi (§1–§15 byte-
+      equivalent ngoài banner/lifecycle metadata/change history này VÀ
+      residual stale wording đã accept). Tài liệu VẪN LÀ living
+      document — `Approved` KHÔNG immutable byte-for-byte như ADR;
+      thay đổi SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule.
+      KHÔNG chạm `ADR-029` (Approved, immutable)/`ADR-028`/`config.md`/
+      `ADR-027`/`logging.md`/`ADR-026`/`naming.md`/`ADR-025`/
+      `coding-standard.md`/`ADR-024`/`monorepo.md`/`ADR-008`/
+      `ADR-017`/`module-registry.yaml`/Domain Contract/Constitution/
+      Phase 1.5 rules, KHÔNG tạo ADR-030, KHÔNG mở Engineering
+      Foundation category khác, KHÔNG chọn framework/library/error-
+      code schema nào, KHÔNG đóng `EF-CONFIG-B-MIN-01`, KHÔNG
+      authorize Phase 2/LIVE.
 ```

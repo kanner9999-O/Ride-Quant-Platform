@@ -2,6 +2,129 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — Phase 1.5 Error Handling Convention v0.2 APPROVED (residual `EF-ERR-B-MIN-01` accepted)
+
+**Mechanical lifecycle recording — vai trò: `Error Handling Convention v0.2 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE ERROR HANDLING CONVENTION V0.2 — ACCEPT EF-ERR-B-MIN-01 AS NON-BLOCKING RESIDUAL" — no Error Handling Convention semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:      af86764f603207959054958c5f68ea7dc9bc13f7
+Reviewed candidate: docs/engineering/error-handling.md v0.2, status
+                    Draft, blob 10c1b259ec28bdfb0caa318ceffda81228a707da
+Approved parent authority: docs/adr/ADR-029.md v0.2, status Approved,
+                    blob 9c8877d3e16a54c1908c37f1b214ef185744cd9c
+```
+
+### Review evidence
+
+```text
+Đóng (trước approval, v0.2): EF-ERR-A-MAJ-01.
+Bounded Review A re-review trên v0.2: CLEAN, New Blocker 0/New Major
+  0/New Minor 0, READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B trên đúng v0.2: New Blocker 0/New Major 0/New
+  Minor 1 — EF-ERR-B-MIN-01 (candidate/provenance wording stale "v0.1"
+  tại nhiều mục KHÔNG đổi, vd Non-goals heading, ADR-scope
+  disposition, Change history v0.1 entry, VALID, non-blocking),
+  READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-12"
+version:      "0.2" KHÔNG đổi (pure mechanical approval, KHÔNG bump)
+Product Owner decision (nguyên văn): "APPROVE ERROR HANDLING
+  CONVENTION V0.2 — ACCEPT EF-ERR-B-MIN-01 AS NON-BLOCKING RESIDUAL."
+```
+
+### Residual finding recorded (not closed)
+
+```text
+EF-ERR-B-MIN-01: OPEN — accepted non-blocking residual. Stale "v0.1"
+  wording tại các mục KHÔNG đổi (Non-goals heading "KHÔNG chọn tại
+  v0.1 này," ADR-scope disposition tham chiếu "error-handling.md
+  v0.1"/"v0.1 này," Change history v0.1 entry) KHÔNG sửa tại
+  transaction này — đúng G-REV-004 (KHÔNG correction churn khi KHÔNG
+  có Major/Blocker mới); correction riêng biệt tương lai (nếu thực
+  hiện) sẽ đóng finding này, KHÔNG tại đây.
+```
+
+### Reviewed vs resulting blob (G-ID-001, distinguished)
+
+```text
+Reviewed candidate:  v0.2 / Draft
+                      blob 10c1b259ec28bdfb0caa318ceffda81228a707da
+Resulting Approved identity: v0.2 / Approved
+                      blob d2b43a439f6447c44e49220ebdaf3041793b154c
+Decision content (§1–§15 của error-handling.md): byte-equivalent —
+  CHỈ banner/lifecycle metadata/change history thay đổi; stale "v0.1"
+  wording (EF-ERR-B-MIN-01) giữ nguyên KHÔNG sửa.
+```
+
+### Files changed
+
+```text
+docs/engineering/error-handling.md  (v0.2 Draft -> v0.2 Approved, blob
+                                     d2b43a439f6447c44e49220ebdaf3041793b154c)
+docs/MANIFEST.md                    (manifest_version 10.112 ->
+                                     10.113; row cập nhật)
+docs/CHANGELOG.md                   (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-029.md (Approved, immutable) — verified byte-identical.
+ADR-028/config.md, ADR-027/logging.md, ADR-026/naming.md, ADR-025/
+  coding-standard.md, ADR-024/monorepo.md, ADR-017, ADR-008,
+  module-registry.yaml, Domain Contract, Constitution, Phase 1.5 rules
+  — tất cả verified byte-identical (git diff empty).
+Error Handling Convention semantics KHÔNG đổi: seven-category
+  taxonomy, technical/programming error ≠ domain/business outcome,
+  expected/unexpected semantics, cause preservation, boundary
+  translation, retry classification/ownership/idempotency boundary,
+  timeout/cancellation, partial-failure resolution order, Config
+  startup/fail-closed boundary, security/redaction, Logging authority,
+  Python guidance, Go guidance, user-facing/internal representation,
+  explainability, authority boundaries, Non-goals, ADR-scope
+  disposition.
+EF-CONFIG-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted non-blocking.
+KHÔNG tạo ADR-030. Phase 2 substantive work VẪN NOT YET AUTHORIZED.
+  LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/error-handling.md: v0.2, status Approved, approved_by
+  Product Owner, approved_at 2026-08-12, blob
+  d2b43a439f6447c44e49220ebdaf3041793b154c.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD af86764f603207959054958c5f68ea7dc9bc13f7 verified
+[x] Reviewed candidate blob 10c1b259ec28bdfb0caa318ceffda81228a707da
+    verified
+[x] version remains 0.2
+[x] status becomes Approved
+[x] approved_by Product Owner, approved_at "2026-08-12"
+[x] Product Owner decision recorded exactly
+[x] EF-ERR-A-MAJ-01 remains CLOSED
+[x] EF-ERR-B-MIN-01 remains OPEN, marked accepted non-blocking
+[x] Stale v0.1 wording remains intentionally unchanged (verified grep)
+[x] Semantic content unchanged (§1–§15 byte-equivalent, verified)
+[x] ADR-029 byte-identical
+[x] EF-CONFIG-B-MIN-01 untouched
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — Phase 1.5 Error Handling Convention v0.2 bounded correction: `EF-ERR-A-MAJ-01` CLOSED
 
 **Narrowly bounded correction — vai trò: `Error Handling Convention v0.2 Bounded Correction Executor`.** Resolves one Review A finding on the v0.1 Error Handling Convention draft. No redesign of the convention.
