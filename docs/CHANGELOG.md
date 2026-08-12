@@ -2,6 +2,123 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — ADR-030 v0.3 bounded correction: `ADR030-B-MAJ-01` CLOSED
+
+**Bounded correction — vai trò: `ADR-030 v0.3 Bounded Correction Executor`.** Resolves one Independent Review B finding on the v0.2 CI/CD ADR draft. No redesign of ADR-030.
+
+### Baseline
+
+```text
+Starting HEAD:  1c0f242e2049a97986e356642391e14de054a424
+Candidate:      docs/adr/ADR-030.md v0.2, status Draft,
+                blob 7de8883dbe52b3110436b5750a27a873e709ada6
+Review state:   ADR030-A-MAJ-01 CLOSED (prior); ADR030-B-MAJ-01 OPEN,
+                verdict NOT_READY.
+```
+
+### ADR030-B-MAJ-01 — unsupported LIVE-authority attribution (§3/§4/§6)
+
+```text
+Vấn đề: v0.2 gán `ADR-007`/`account.md` §8 LÀM "authority DUY NHẤT cho
+  LIVE execution authorization" tại §3/§4/§6 — unsupported. Verify
+  trực tiếp: `ADR-007` (Locked) CHỈ pin phạm vi Vision Phase 0–3
+  (internal-first/crypto-first, Account first-class, extensibility),
+  KHÔNG định nghĩa LIVE execution authorization. `docs/domain/
+  account.md` VẪN `status: Draft` — §8 tự nó xác nhận tường minh "LIVE
+  CHỈ LÀ domain value để phân biệt account environment — nó KHÔNG
+  authorize Live execution của platform. Live execution authorization
+  LÀ quyết định governance riêng" — tài liệu KHÔNG tự claim LÀM
+  authority đó. `ADR-017` cũng KHÔNG authorize LIVE execution.
+  ADR-030's substantive boundary "KHÔNG authorize LIVE" LÀ đúng và
+  giữ nguyên — defect CHỈ nằm ở authority attribution.
+Sửa: bỏ MỌI claim ADR-007/account.md/ADR-017 LÀ (sole) authority cho
+  LIVE execution authorization tại §3 (mục 5), §4 (Alternative 3), và
+  §6 (authority-boundaries table) — KHÔNG thay bằng một "sole
+  authority" đoán khác. Diễn đạt lại bằng wording authority-safe: LIVE
+  authorization tương lai PHẢI establish/validate dưới đúng governance/
+  architecture/domain/security/phase authority áp dụng TẠI chính
+  decision boundary đó tương lai; Account `environment: LIVE` KHÔNG tự
+  nó authorize platform LIVE execution; Phase 1.5 CI/CD automation
+  KHÔNG được infer/grant/promote/bypass LIVE authorization. Phase 7
+  VẪN LÀ deployment scope (KHÔNG tự động đồng nghĩa "toàn bộ LIVE
+  authorization"). `ADR-017` custody/signing boundary giữ nguyên, CHỈ
+  thêm rõ "custody/signing authority ≠ LIVE execution authorization."
+```
+
+### Section-by-section verification
+
+```text
+Verified (Python regex extraction, so sánh HEAD vs working tree):
+  SAME (byte-equivalent): §1, §2, §5, §7, §8, §9
+  DIFF (đúng scope 1 finding trên): §3, §4, §6
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-030.md   (v0.2 -> v0.3, Draft, blob
+                       8a1200cbe1bef0e00bae0df4b455e6363d16c726)
+docs/MANIFEST.md      (manifest_version 10.118 -> 10.119; row cập nhật)
+docs/CHANGELOG.md     (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-007.md/docs/domain/account.md/docs/adr/ADR-017.md — verified
+  byte-identical, KHÔNG modify. docs/constitution/12-approval-gates.md/
+  13-quality-gates.md/14-roadmap.md (Locked), docs/engineering/
+  testing.md (Approved), ADR-025–ADR-029/coding-standard.md/naming.md/
+  logging.md/config.md/error-handling.md, ADR-008/024, monorepo.md,
+  module-registry.yaml, Constitution, Phase 1.5 rules — tất cả
+  verified byte-identical (git diff empty).
+Cross-module Foundation-CI baseline (§3 phần còn lại), Chapter 0 §4b
+  ADR justification, CI-only Phase 1.5 scope, CI-vs-CD boundary,
+  deployment/release/promotion exclusion, Chapter 12 Approval Gate
+  boundary, Chapter 13 Quality Gate authority, Chapter 13 flaky-test
+  policy authority (§6, v0.2), Testing tooling-only authority (§6,
+  v0.2), Coding/Naming/Logging/Config/Error Handling boundary,
+  provider/tool selection deferred, pipeline topology/detail deferred,
+  living-convention delegation, Scale Check, downstream sequence,
+  Non-goals — tất cả giữ nguyên.
+EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted
+  non-blocking. KHÔNG tạo ci-cd.md/workflow file/provider selection/
+  LIVE authorization ADR. Phase 2/deployment/LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/adr/ADR-030.md: v0.3, status Draft, blob
+  8a1200cbe1bef0e00bae0df4b455e6363d16c726 — not self-approved
+  (G-ORCH-002); Review/Approval VẪN LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 1c0f242e2049a97986e356642391e14de054a424 verified
+[x] Candidate blob 7de8883dbe52b3110436b5750a27a873e709ada6 verified
+[x] v0.3 Draft resulting identity: blob
+    8a1200cbe1bef0e00bae0df4b455e6363d16c726
+[x] ADR030-B-MAJ-01 CLOSED
+[x] KHÔNG claim còn lại ADR-007 own LIVE authorization
+[x] KHÔNG claim còn lại account.md own LIVE authorization
+[x] KHÔNG unsupported "sole LIVE authority" nào introduced
+[x] ADR-030 VẪN explicit KHÔNG authorize LIVE
+[x] Account environment: LIVE KHÔNG treated LÀM platform
+    authorization
+[x] Phase 7 deployment boundary preserved
+[x] ADR-017 custody/signing boundary preserved
+[x] Unrelated ADR sections remain semantically unchanged (§1/§2/§5/
+    §7/§8/§9 byte-equivalent, verified)
+[x] KHÔNG ci-cd.md/workflow/provider nào introduced
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Residuals untouched (EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01)
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — ADR-030 v0.2 bounded correction: `ADR030-A-MAJ-01` CLOSED
 
 **Bounded correction — vai trò: `ADR-030 v0.2 Bounded Correction Executor`.** Resolves one Review A finding on the v0.1 CI/CD ADR draft. No redesign of ADR-030.
