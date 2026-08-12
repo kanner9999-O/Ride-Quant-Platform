@@ -2,6 +2,108 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — ADR-030 v0.2 bounded correction: `ADR030-A-MAJ-01` CLOSED
+
+**Bounded correction — vai trò: `ADR-030 v0.2 Bounded Correction Executor`.** Resolves one Review A finding on the v0.1 CI/CD ADR draft. No redesign of ADR-030.
+
+### Baseline
+
+```text
+Starting HEAD:  d1ef71a32f6e6ac9df672b83ef5c5f4a48f23877
+Candidate:      docs/adr/ADR-030.md v0.1, status Draft,
+                blob 2349af7c473c1f09633246821d464162a81ea7c4
+```
+
+### ADR030-A-MAJ-01 — flaky-test authority misattribution (§6)
+
+```text
+Vấn đề: v0.1 §6 nói Testing Convention (`testing.md`, Approved) VẪN
+  authority cho "test structure/naming/isolation/flaky-test policy &
+  tooling mechanics" — gán "flaky-test policy" (KHÔNG CHỈ tooling
+  mechanics) LÀM authority của `testing.md`. SAI: Chapter 13 §13.10
+  (Locked) VẪN authority DUY NHẤT cho flaky-test policy (cấm retry-
+  until-green, quarantine required, flaky ≠ passing evidence);
+  `testing.md` §12 CHỈ authority cho tooling mechanics (quarantine
+  marker/owner/reason/CI-visibility) dưới policy đó, KHÔNG PHẢI chính
+  policy.
+Sửa: §6 tách bạch tường minh ba dòng riêng biệt — Chapter 13 §13.10
+  (flaky-test policy VÀ quality/evidence semantics liên quan, KHÔNG
+  redefine); Testing Convention (test structure/naming/isolation VÀ
+  flaky-test/quarantine tooling mechanics CHỈ, KHÔNG authority cho
+  chính policy); CI/CD (CÓ THỂ invoke test, expose quarantine state/
+  result, collect/forward evidence theo ĐÚNG hai authority trên,
+  KHÔNG redefine cả hai).
+```
+
+### Section-by-section verification
+
+```text
+Verified (Python regex extraction, so sánh HEAD vs working tree):
+  SAME (byte-equivalent): §1, §2, §3, §4, §5, §7, §8, §9
+  DIFF (đúng scope 1 finding trên): §6
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-030.md   (v0.1 -> v0.2, Draft, blob
+                       7de8883dbe52b3110436b5750a27a873e709ada6)
+docs/MANIFEST.md      (manifest_version 10.117 -> 10.118; row cập nhật)
+docs/CHANGELOG.md     (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/constitution/13-quality-gates.md (Locked)/docs/engineering/
+  testing.md (Approved) — verified byte-identical, KHÔNG redefine
+  flaky-test policy. ADR-025–ADR-029/coding-standard.md/naming.md/
+  logging.md/config.md/error-handling.md, ADR-008/017/024,
+  monorepo.md, module-registry.yaml, Constitution, Phase 1.5 rules —
+  tất cả verified byte-identical (git diff empty).
+Primary cross-module CI baseline decision (§3), Chapter 0 §4b
+  justification, CI-only Phase 1.5 scope, CI-vs-CD boundary, Phase 7
+  Deployment exclusion, Chapter 12 Approval Gate boundary, Chapter 13
+  overall quality authority (ngoài flaky-policy line vừa tách bạch),
+  Coding/Naming/Logging/Config/Error Handling boundaries, ADR-017
+  custody/signing boundary, provider/tool selection deferred, pipeline
+  topology/detail deferred, build/release/deployment exclusions,
+  living-convention delegation, Scale Check, downstream sequence,
+  Non-goals — tất cả giữ nguyên.
+EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted
+  non-blocking. KHÔNG tạo ci-cd.md/workflow file/provider selection.
+  Phase 2 substantive work VẪN NOT YET AUTHORIZED. LIVE/deployment VẪN
+  NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/adr/ADR-030.md: v0.2, status Draft, blob
+  7de8883dbe52b3110436b5750a27a873e709ada6 — not self-approved
+  (G-ORCH-002); Review/Approval VẪN LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD d1ef71a32f6e6ac9df672b83ef5c5f4a48f23877 verified
+[x] Candidate blob 2349af7c473c1f09633246821d464162a81ea7c4 verified
+[x] v0.2 Draft resulting identity: blob
+    7de8883dbe52b3110436b5750a27a873e709ada6
+[x] ADR030-A-MAJ-01 CLOSED
+[x] Chapter 13 explicitly retains flaky-test policy authority (§6)
+[x] Testing Convention retains tooling/mechanics only (§6)
+[x] CI/CD KHÔNG redefine either authority (§6)
+[x] Unrelated ADR sections remain semantically unchanged (§1–§5/§7–§9
+    byte-equivalent, verified)
+[x] KHÔNG ci-cd.md/workflow/provider nào introduced
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Residuals untouched (EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01)
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — ADR-030 v0.1 DRAFTED: Cross-Module CI/CD Convention Baseline
 
 **Bounded `EF-TXN-002` category transaction — vai trò: `ADR-030 v0.1 Authoring Executor`.** Authors `docs/adr/ADR-030.md` v0.1 (Draft), the required narrow ADR for the final Phase 1.5 category (CI/CD) — per the preceding CI/CD ADR Scope Check transaction, which concluded `PARTIAL_ADR_REQUIRED`. `docs/engineering/ci-cd.md` NOT authored at this transaction — separate future transaction, per the established ADR-first-then-living-convention pattern.
