@@ -2,6 +2,138 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — Phase 1.5 Testing Convention v0.2 bounded correction: `EF-TEST-A-MAJ-01`/`EF-TEST-A-MIN-01` CLOSED
+
+**Bounded correction — vai trò: `Testing Convention v0.2 Bounded Correction Executor`.** Resolves two Review A findings on the v0.1 Testing Convention draft. No redesign of the convention; no ADR-030.
+
+### Baseline
+
+```text
+Starting HEAD:      2fb80e7af7d5996ae575f564e67ed0d09c0087c9
+Candidate:          docs/engineering/testing.md v0.1, status Draft,
+                    blob 70fbaeb77781c82f8e1a823bca1a05abeea33bc6
+ADR Scope state:    ADR_NOT_REQUIRED — no ADR-030 exists or is needed
+                    for these corrections.
+```
+
+### EF-TEST-A-MAJ-01 — production-architecture overreach (§4)
+
+```text
+Vấn đề: v0.1 §4 nói module "cung cấp clock qua dependency injection/
+  parameter khi cần test time-dependent logic" — đọc được như MANDATE
+  một production-code API/design change (buộc thêm DI pattern/
+  constructor-parameter/interface mới) CHỈ để thỏa testing convention.
+  Đây LÀ một production architecture decision, vượt ngoài Chapter 3
+  §3.2's boundary "style/tooling."
+Sửa: Testing Convention CHỈ định nghĩa CÁCH dùng/control một seam
+  (clock abstraction/parameter/fake adapter/harness) ĐÃ tồn tại —
+  KHÔNG BAO GIỜ bắt buộc một production module PHẢI tạo MỚI một
+  dependency-injection pattern/parameter/published interface/module
+  dependency/production architecture CHỈ để thỏa convention này. NẾU
+  deterministic testing KHÔNG đạt được mà KHÔNG đổi production design,
+  đó LÀ một implementation/design gap — report gap đó, route qua
+  authority sở hữu production design tương ứng, tự rerun ADR Scope
+  Rule (Chapter 0 §4b) nếu applicable — KHÔNG tự thiết kế production
+  architecture change tại `testing.md`. Chapter 13 determinism
+  authority giữ nguyên.
+```
+
+### EF-TEST-A-MIN-01 — self-contradicting threshold duplication (§17)
+
+```text
+Vấn đề: v0.1 §17 tuyên bố "KHÔNG copy lại con số ngưỡng cụ thể" NHƯNG
+  ngay sau đó liệt kê chính các con số đó (Tier 0 ≥ 95%/Tier 1 ≥ 90%/
+  Tier 2 ≥ 80%/Tier 3 ≥ 60%) — tự mâu thuẫn, tạo duplicate policy text
+  KHÔNG cần thiết, đúng chính rủi ro I-12 mà câu đó đang cảnh báo.
+Sửa: bỏ hẳn con số ngưỡng khỏi §17. Chỉ giữ nguyên tắc: Chapter 13
+  §13.3/§13.4 LÀ authority DUY NHẤT cho coverage floor/tier mapping;
+  người đọc PHẢI resolve giá trị hiện hành trực tiếp từ
+  `13-quality-gates.md`. Chapter 13 KHÔNG chạm, KHÔNG sửa.
+```
+
+### Section-by-section verification
+
+```text
+Verified (Python regex extraction, so sánh HEAD vs working tree):
+  SAME (byte-equivalent): §1, §2, §3, §5, §6, §7, §8, §9, §10, §11,
+                          §12, §13, §14, §15, §16, §18
+  DIFF (đúng scope 2 finding trên): §4, §17
+Numeric threshold check: "95%/90%/80%/60%" KHÔNG còn xuất hiện trong
+  §17's active guidance text — CHỈ còn xuất hiện trong banner/change-
+  history's finding-description (trích dẫn LẠI văn bản v0.1 đang được
+  sửa, KHÔNG PHẢI policy content mới).
+```
+
+### Files changed
+
+```text
+docs/engineering/testing.md  (v0.1 -> v0.2, Draft, blob
+                              0a325665f5ed011a7439fb8d3c349c3db79d50fa)
+docs/MANIFEST.md             (manifest_version 10.114 -> 10.115; row
+                              cập nhật)
+docs/CHANGELOG.md            (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/constitution/03-engineering-principles.md/13-quality-gates.md
+  (Locked) — verified byte-identical. ADR-008/017/024/025/026/027/
+  028/029, monorepo.md/coding-standard.md/naming.md/logging.md/
+  config.md/error-handling.md (Approved), module-registry.yaml,
+  Domain Contract, Constitution, Phase 1.5 rules — tất cả verified
+  byte-identical (git diff empty).
+ADR_NOT_REQUIRED result, Chapter 3 style/tooling-only boundary,
+  Chapter 13 quality-policy authority, test structure (§1), naming
+  (§2), isolation (§3 phần còn lại), fixtures/factories (§5),
+  mocking/stubbing (§6), unit/integration distinction (§7), contract/
+  boundary testing (§8), Python guidance (§9), Go guidance (§10),
+  test-data guidance (§11), flaky-test tooling mechanics (§12), local
+  command convention (§13), reusable helpers (§14), Error Handling
+  interaction (§15), Logging/Config boundaries (§16), quality-gate
+  boundary (§18), framework/tool selection (VẪN deferred), Non-goals
+  — tất cả giữ nguyên.
+EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted
+  non-blocking. KHÔNG tạo ADR-030. KHÔNG chọn framework/vendor. KHÔNG
+  introduce production DI architecture. Phase 2 substantive work VẪN
+  NOT YET AUTHORIZED. LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/testing.md: v0.2, status Draft, blob
+  0a325665f5ed011a7439fb8d3c349c3db79d50fa — not self-approved
+  (G-ORCH-002); Review/Approval VẪN LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 2fb80e7af7d5996ae575f564e67ed0d09c0087c9 verified
+[x] Candidate blob 70fbaeb77781c82f8e1a823bca1a05abeea33bc6 verified
+[x] v0.2 Draft resulting identity: blob
+    0a325665f5ed011a7439fb8d3c349c3db79d50fa
+[x] EF-TEST-A-MAJ-01 CLOSED
+[x] EF-TEST-A-MIN-01 CLOSED
+[x] testing.md KHÔNG còn mandate production DI/API change nào (§4)
+[x] Deterministic-test mechanics remain useful (§4, seam-based
+    guidance preserved)
+[x] Production-design gap routed tới owning authority, KHÔNG tự giải
+    quyết tại testing.md (§4)
+[x] Numeric coverage threshold KHÔNG còn xuất hiện trong §17's active
+    guidance
+[x] Chapter 13 remains sole coverage/tier authority (§17, byte-
+    identical)
+[x] Unrelated sections remain semantically unchanged (§1/§2/§3/§5–
+    §16/§18 byte-equivalent, verified)
+[x] KHÔNG tạo ADR-030
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Residual states untouched (EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01)
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — Phase 1.5 Testing Convention v0.1 DRAFTED (no ADR): `docs/engineering/testing.md`
 
 **Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 Testing Convention v0.1 Authoring Executor`.** Authors `docs/engineering/testing.md` v0.1 (Draft), the seventh Phase 1.5 Engineering Foundation living convention, authored directly under existing Locked Constitution authority — **no ADR created**, per the preceding Testing ADR Scope Check transaction (`ADR_NOT_REQUIRED`).

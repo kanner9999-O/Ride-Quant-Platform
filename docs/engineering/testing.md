@@ -1,7 +1,7 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -18,6 +18,8 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 **Vai trò của tài liệu này:** convention document THỨ BẢY của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2), phạm vi CHỈ category **Testing** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). **KHÔNG author dưới authority một ADR mới** — ADR Scope Check (transaction riêng biệt trước) đã kết luận `ADR_NOT_REQUIRED`: [Chapter 3 §3.2](../constitution/03-engineering-principles.md) (Locked v1.4) ĐÃ established sẵn cả hai phần quyết định baseline-existence — (1) CÓ một Testing Convention category trong Engineering Foundation, VÀ (2) scope của nó GIỚI HẠN style/tooling (framework, cấu trúc test file, naming test case), coverage/tier requirement ĐÃ có đầy đủ tại [Chapter 13](../constitution/13-quality-gates.md) (Locked), KHÔNG định nghĩa lại. Tài liệu này CHỈ implement chi tiết reversible dưới boundary ĐÃ Locked đó — KHÔNG lặp lại/redefine bất kỳ Chapter 13 substance nào.
 
 **Nguyên tắc chi phối (Chapter 3 §3.2 + Chapter 13 §13.2, tái khẳng định KHÔNG redefine):** Testing Convention CHỈ quản lý style/tooling — test structure, naming, isolation mechanics, fixture/mocking guidance, ngôn ngữ idiom, local command convention, flaky-test tooling mechanics. Chapter 13 VẪN authority DUY NHẤT cho coverage percentage/tier, tier resolution, parity substance (I-2), determinism/reproducibility substance (I-2/I-3/I-12, Chapter 5), quality-gate pass/fail semantics, immutable gate evidence contract, flaky-test POLICY (§13.10), module criticality (Chapter 7 §7.5). Tài liệu này KHÔNG tạo domain/architecture acceptance semantics mới.
+
+**v0.2 — bounded correction (2026-08-12), đóng `EF-TEST-A-MAJ-01`/`EF-TEST-A-MIN-01`, vai trò: `Testing Convention v0.2 Bounded Correction Executor`.** Đóng `EF-TEST-A-MAJ-01` (§4 v0.1 nói module "cung cấp clock qua dependency injection/parameter khi cần test time-dependent logic" — đọc được như MANDATE một production-code API/design change CHỈ để thỏa testing convention, vượt ngoài Chapter 3 §3.2's boundary "style/tooling." Sửa: pin rõ Testing Convention CHỈ định nghĩa CÁCH dùng/control một seam ĐÃ tồn tại, KHÔNG BAO GIỜ bắt buộc production module tạo MỚI một DI pattern/parameter/interface/dependency CHỈ để thỏa convention; nếu deterministic testing KHÔNG đạt được mà KHÔNG đổi production design, đó LÀ một implementation/design gap PHẢI route qua authority sở hữu production design tương ứng VÀ tự rerun ADR Scope Rule nếu applicable, KHÔNG tự giải quyết tại `testing.md`). Đóng `EF-TEST-A-MIN-01` (§17 v0.1 tuyên bố "KHÔNG copy lại con số ngưỡng cụ thể" NHƯNG ngay sau đó liệt kê chính các con số đó — tự mâu thuẫn, duplicate policy text KHÔNG cần thiết. Sửa: bỏ hẳn con số, CHỈ giữ nguyên tắc "Chapter 13 §13.3/§13.4 LÀ authority DUY NHẤT," người đọc PHẢI resolve giá trị hiện hành trực tiếp từ Chapter 13). **KHÔNG đổi:** `ADR_NOT_REQUIRED` result, Chapter 3 style/tooling-only boundary, Chapter 13 quality-policy authority, test structure (§1), naming (§2), isolation (§3 phần còn lại), fixtures/factories (§5), mocking/stubbing (§6), unit/integration distinction (§7), contract/boundary testing (§8), Python guidance (§9), Go guidance (§10), test-data guidance (§11), flaky-test tooling mechanics (§12), local command convention (§13), reusable helpers (§14), Error Handling interaction (§15), Logging/Config boundaries (§16), quality-gate boundary (§18), framework/tool selection VẪN deferred, Non-goals. KHÔNG tạo ADR-030, KHÔNG chọn framework/vendor, KHÔNG introduce production DI architecture, KHÔNG chạm Chapter 3/Chapter 13/bất kỳ Approved ADR/convention nào. `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01` KHÔNG chạm. `status` VẪN `Draft`.
 
 ## 1. Test structure
 
@@ -82,18 +84,48 @@ Tài liệu này KHÔNG redefine Chapter 13 determinism substance (I-2/I-3,
 ## 4. Deterministic test mechanics
 
 ```text
+[v0.2 sửa, đóng `EF-TEST-A-MAJ-01`: v0.1 nói module "cung cấp clock
+  qua dependency injection/parameter khi cần test time-dependent
+  logic" — đọc được như MANDATE một production-code API/design change
+  (buộc module thêm DI pattern/constructor-parameter/interface mới)
+  CHỈ để thỏa testing convention — vượt ngoài Chapter 3 §3.2's boundary
+  "style/tooling," vì đó LÀ một production architecture decision,
+  KHÔNG PHẢI test-side convention. Sửa: pin rõ Testing Convention CHỈ
+  quy định CÁCH dùng/control một seam ĐÃ tồn tại, KHÔNG bắt buộc tạo
+  seam mới trong production code.]
+
 Style/tooling guidance (KHÔNG tạo platform determinism rule mới, CHỈ
   hỗ trợ test tuân thủ determinism substance ĐÃ có, §13.2):
-  injectable/fake clock — module cung cấp clock qua dependency
-    injection/parameter khi cần test time-dependent logic, KHÔNG gọi
-    trực tiếp system clock không kiểm soát được trong test;
+  time-dependent behavior — test PHẢI dùng một controllable
+    deterministic time mechanism KHI MỘT mechanism như vậy ĐÃ tồn tại
+    (vd clock/time abstraction, parameter, fake adapter, test harness,
+    hay bất kỳ seam nào đã được production code/authority hiện hành
+    authorize sẵn) — Testing Convention CHỈ định nghĩa CÁCH test sử
+    dụng/control seam đó (vd cách inject giá trị fake clock vào seam
+    ĐÃ có, cách seed nó, cách verify), KHÔNG BAO GIỜ bắt buộc một
+    production module PHẢI tạo MỚI một dependency-injection pattern,
+    constructor/function parameter, published interface, module
+    dependency, hay bất kỳ production architecture nào CHỈ để thỏa
+    convention này;
+  NẾU deterministic testing cho một behavior cụ thể KHÔNG đạt được mà
+    KHÔNG thay đổi production design/contract (vd module gọi trực tiếp
+    system clock, KHÔNG seam nào khả dụng), đây LÀ một implementation/
+    design gap — Testing Convention KHÔNG tự giải quyết gap đó tại
+    đây: report gap đó, route qua đúng authority sở hữu production
+    design tương ứng (vd module owner, hoặc Coding Standard/Config
+    Convention nếu applicable), VÀ tự rerun ADR Scope Rule (Chapter 0
+    §4b) hiện hành nếu applicable — KHÔNG tự thiết kế production
+    architecture change tại `testing.md`;
   seeded randomness — mọi randomness dùng trong test PHẢI seeded rõ
     ràng, kết quả reproducible;
   deterministic fixture (§5 dưới) — dữ liệu input cố định, KHÔNG sinh
     ngẫu nhiên không seed;
   explicit event-time input — khi domain logic phụ thuộc effective-
-    time/event-time (Chapter 5 Time Model, KHÔNG đổi), test PHẢI cung
-    cấp giá trị đó explicit, KHÔNG suy diễn từ thời điểm chạy test;
+    time/event-time (Chapter 5 Time Model, KHÔNG đổi) VÀ một seam ĐÃ
+    tồn tại cho phép cung cấp giá trị đó, test NÊN cung cấp giá trị đó
+    explicit qua seam sẵn có, KHÔNG suy diễn từ thời điểm chạy test —
+    NẾU KHÔNG seam nào tồn tại, áp dụng nguyên tắc "implementation/
+    design gap" trên, KHÔNG tự tạo seam mới tại đây;
   stable test data (§11 dưới) — dữ liệu KHÔNG thay đổi giữa các lần
     chạy trừ khi chính test đó chủ động thay đổi.
 ```
@@ -330,15 +362,20 @@ Testing Convention KHÔNG được redefine:
 ## 17. Coverage boundary
 
 ```text
+[v0.2 sửa, đóng `EF-TEST-A-MIN-01`: v0.1 nói "KHÔNG copy lại con số
+  ngưỡng cụ thể" NHƯNG ngay sau đó liệt kê chính các con số đó (Tier 0
+  ≥ 95%/Tier 1 ≥ 90%/Tier 2 ≥ 80%/Tier 3 ≥ 60%) — tự mâu thuẫn, tạo
+  duplicate policy text KHÔNG cần thiết (đúng rủi ro I-12 mà chính câu
+  đó đang cảnh báo). Sửa: bỏ hẳn con số, CHỈ giữ nguyên tắc.]
+
 Testing Convention KHÔNG sở hữu coverage threshold nào — Chapter 13
   (`13-quality-gates.md`, Locked) LÀ authority DUY NHẤT cho coverage
-  percentage/floor VÀ tier mapping (§13.3/§13.4). Tài liệu này KHÔNG
-  copy lại con số ngưỡng cụ thể (Tier 0 ≥ 95%/Tier 1 ≥ 90%/Tier 2 ≥
-  80%/Tier 3 ≥ 60%, §13.3) để tránh tạo một "bản sao" số liệu dễ lệch
-  khỏi Chapter 13 gốc theo thời gian (I-12 Single Source of Truth) —
-  khi cần tham chiếu, PHẢI trỏ trực tiếp tới `13-quality-gates.md`
-  §13.3/§13.4, KHÔNG lặp lại số cụ thể tại đây. Tài liệu này KHÔNG tạo
-  một coverage policy thay thế nào.
+  percentage/floor VÀ tier mapping (§13.3/§13.4). Tài liệu này CHỦ Ý
+  KHÔNG lặp lại con số ngưỡng cụ thể nào tại đây, để tránh tạo một
+  "bản sao" số liệu dễ lệch khỏi Chapter 13 gốc theo thời gian (I-12
+  Single Source of Truth). Khi cần biết giá trị hiện hành, người đọc
+  PHẢI resolve trực tiếp từ `13-quality-gates.md` §13.3/§13.4 — tài
+  liệu này KHÔNG tạo một coverage policy thay thế nào.
 ```
 
 ## 18. Quality-gate boundary
@@ -470,4 +507,35 @@ v0.1  2026-08-12  Established — vai trò: `Phase 1.5 Testing Convention
       VÀ `EF-ERR-B-MIN-01` KHÔNG chạm, KHÔNG đóng. KHÔNG bắt đầu CI/CD.
       `status: Draft` — not self-approved (`G-ORCH-002`). KHÔNG
       authorize Phase 2/LIVE.
+v0.2  2026-08-12  Bounded correction, đóng `EF-TEST-A-MAJ-01`/
+      `EF-TEST-A-MIN-01`. `EF-TEST-A-MAJ-01`: §4 v0.1 mandate module
+      "cung cấp clock qua dependency injection/parameter" — vượt ngoài
+      Chapter 3 §3.2's style/tooling boundary vì buộc một production-
+      code API/design change. Sửa: Testing Convention CHỈ định nghĩa
+      CÁCH dùng/control một seam (clock abstraction/parameter/fake
+      adapter/harness) ĐÃ tồn tại, KHÔNG BAO GIỜ bắt buộc tạo MỚI một
+      DI pattern/parameter/interface/dependency production CHỈ để thỏa
+      convention; khi KHÔNG seam nào khả dụng, đó LÀ một implementation/
+      design gap — report VÀ route qua authority sở hữu production
+      design, tự rerun ADR Scope Rule nếu applicable, KHÔNG tự giải
+      quyết tại `testing.md`. `EF-TEST-A-MIN-01`: §17 v0.1 tuyên bố
+      "KHÔNG copy lại con số ngưỡng cụ thể" NHƯNG ngay sau đó liệt kê
+      chính các con số đó (Tier 0 ≥ 95%/Tier 1 ≥ 90%/Tier 2 ≥ 80%/
+      Tier 3 ≥ 60%) — tự mâu thuẫn. Sửa: bỏ hẳn con số, CHỈ giữ nguyên
+      tắc "Chapter 13 §13.3/§13.4 LÀ authority DUY NHẤT," người đọc
+      PHẢI resolve giá trị hiện hành trực tiếp từ Chapter 13. **KHÔNG
+      đổi:** `ADR_NOT_REQUIRED` result, Chapter 3/Chapter 13 boundary,
+      §1 (test structure), §2 (naming), §3 phần còn lại (isolation),
+      §5 (fixtures/factories), §6 (mocking/stubbing), §7 (unit/
+      integration), §8 (contract/boundary testing), §9 (Python
+      guidance), §10 (Go guidance), §11 (test data), §12 (flaky-test
+      tooling mechanics), §13 (local commands), §14 (reusable
+      helpers), §15 (Error Handling interaction), §16 (Logging/Config
+      interaction), §18 (quality-gate boundary), Framework/tool
+      selection (VẪN deferred), Non-goals. KHÔNG tạo ADR-030, KHÔNG
+      chọn framework/vendor, KHÔNG introduce production DI
+      architecture, KHÔNG chạm Chapter 3/Chapter 13 (Locked)/bất kỳ
+      Approved ADR/convention nào. `EF-CONFIG-B-MIN-01`/
+      `EF-ERR-B-MIN-01` KHÔNG chạm. `status` VẪN `Draft` — not
+      self-approved (`G-ORCH-002`), KHÔNG authorize Phase 2/LIVE.
 ```
