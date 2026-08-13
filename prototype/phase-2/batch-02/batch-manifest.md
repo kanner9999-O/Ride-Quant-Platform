@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-02-manifest
 title: "Phase 2 Prototype — Batch 02 — Batch Manifest"
-version: "1.1"
+version: "1.2"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -12,6 +12,8 @@ created_at: "2026-08-13"
 **Vai trò của tài liệu này:** batch-level evidence record cho Batch 02, đúng `phase-2-rules.md` `P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch 02 LÀ candidate/in-review — **KHÔNG self-approved** (chờ Review A + Independent Review B theo batch, đúng `P2-PROTOTYPE-001`).
 
 **v1.1 — bounded correction (2026-08-13), đóng `P2-B02-A-MAJ-01` (Review A).** v1.0's §4 cumulative UC ledger KHÔNG PHẢI một valid partition — `UC-002` xuất hiện CẢ trong A LẪN B; `UC-009`/`UC-010` bị gọi B trong khi mô tả nói zero-reference; C ghi "9 of 21" nhưng liệt kê 10 UC; "5+7+9=21" do đó sai. Sửa: §4 viết lại — B recompute TỪ ĐẦU trực tiếp từ `ux-blueprint.md` §5a's NAV-003/004/005/006 UC traceability (loại UC-002/UC-004 vì đã A), kết quả A=5/B=9/C=7, tổng=21, ba set đôi một rời nhau (verify mechanically, xem `traceability.md` v1.1 §2). KHÔNG đổi Replay/parity behavior, KHÔNG surface mới, KHÔNG đổi 3/17→5/17 surface progress (surface accounting KHÔNG bị ảnh hưởng bởi finding này).
+
+**v1.2 — micro bounded correction (2026-08-13), `P2-B02-A-MAJ-01` REOPENED bởi bounded Review A re-review trên v1.1 (stale current-state evidence VẪN còn sót lại dù §4's ledger đã đúng) — đóng lại tại transaction này.** Ba defect còn sót: (1) §15 "Unresolved gaps" VẪN dùng wording cũ "7 partial/referenced + 9 deferred" — swap SAI so với §4's B=9/C=7 đã đúng từ v1.1, sửa khớp chính xác cùng set. (2) §6 "Prototype artifact identities" VẪN pin `traceability.md` vào blob v1.0 cũ (`61e7f2af...`) thay vì current v1.1 blob (`f37ca959...`) — sửa pin đúng current identity, giữ blob cũ LÀM historical reference có nhãn tường minh. (3) §8/§15 dùng arithmetic sai "13 of remaining 15 surfaces" — KHÔNG khớp candidate cumulative 5/17 (17 tổng − 5 candidate substantive = 12 remaining, KHÔNG PHẢI 13/15) — sửa thành "12 of 17 surfaces not yet substantively covered" (SCR-003..SCR-011 = 9 + VIEW-004..VIEW-006 = 3 = 12) tại cả hai vị trí. KHÔNG đổi §4's A/B/C partition (VẪN A=5/B=9/C=7/tổng=21, KHÔNG chạm), KHÔNG đổi candidate 5/17 hay 5/21, KHÔNG đổi last-independently-verified 3/17/3/21. KHÔNG đổi Replay/parity behavior, KHÔNG surface mới, KHÔNG đổi `traceability.md` (byte-identical, v1.1 giữ nguyên — content KHÔNG cần sửa, CHỈ MỘT reference stale nằm trong batch-manifest.md's own §6 pin).
 
 ## 1. Batch identity
 
@@ -102,10 +104,10 @@ PR-010, PR-019 (VIEW-003)
 ## 6. Prototype artifact identities
 
 ```text
-prototype/phase-2/batch-02/index.html         blob c69502da70e32db07572848a795d74f67ecc838d
-prototype/phase-2/batch-02/styles.css          blob bcd250d57cfb5b56e3558fbdbede0cca89cf1b82
-prototype/phase-2/batch-02/app.js              blob 8f5fba218457b965dd2f9ecdc1576de9b61639a6
-prototype/phase-2/batch-02/traceability.md     blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425
+prototype/phase-2/batch-02/index.html         blob c69502da70e32db07572848a795d74f67ecc838d (unchanged since v1.0)
+prototype/phase-2/batch-02/styles.css          blob bcd250d57cfb5b56e3558fbdbede0cca89cf1b82 (unchanged since v1.0)
+prototype/phase-2/batch-02/app.js              blob 8f5fba218457b965dd2f9ecdc1576de9b61639a6 (unchanged since v1.0)
+prototype/phase-2/batch-02/traceability.md     blob f37ca95963111dcdece19b11fb8a919646ebfe8b (CURRENT — v1.1, đóng P2-B02-A-MAJ-01's UC ledger correction; historical v1.0 blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425, superseded)
 ```
 
 ## 7. Authority sources consumed (reference only, none modified)
@@ -128,10 +130,11 @@ docs/domain/replay-event.md, trade-intent.md, risk.md, execution-intent.md, orde
 ## 8. Known deferred surfaces / non-substantive UC (not a gap — explicit batch boundary, đúng A/B/C taxonomy từ đầu — KHÔNG lặp lại `P2-B01-A-MIN-01`'s "deferred" collapse defect)
 
 ```text
-13 of remaining 15 surfaces (relative to full 17: SCR-001/VIEW-001/VIEW-002 done at Batch 01,
-  SCR-002/VIEW-003 done at Batch 02, SCR-003..SCR-011 + VIEW-004..VIEW-006 remain) deferred:
-  represented ONLY as read-only nav-bar/handoff affordance leading to a labelled "Deferred" or
-  "not authored" placeholder — no substantive screen/view content for any of them.
+12 of 17 surfaces not yet substantively covered (17 total; 5 candidate substantive — SCR-001/
+  VIEW-001/VIEW-002 done at Batch 01, SCR-002/VIEW-003 done at Batch 02; 12 remaining: SCR-003..
+  SCR-011 = 9 + VIEW-004..VIEW-006 = 3 = 12) deferred: represented ONLY as read-only nav-bar/
+  handoff affordance leading to a labelled "Deferred" or "not authored" placeholder — no
+  substantive screen/view content for any of them.
 
 16 of 21 UC NOT substantively covered (§4 above — B=9, C=7, KHÔNG collapsed thành một bucket,
   KHÔNG double-count UC-002 vào A, đúng `P2-B02-A-MAJ-01` correction):
@@ -221,9 +224,11 @@ No new domain entity, no new state machine, no architecture change, no backend c
 ## 15. Unresolved gaps
 
 ```text
-None within this batch's scope. 13/15 remaining surfaces and 16/21 UC not substantively covered
-  (7 partial/referenced + 9 deferred) remain for later batches -- the expected, planned state of
-  a second milestone, not an unresolved defect.
+None within this batch's scope. 12/17 surfaces not yet substantively covered (SCR-003..SCR-011 =
+  9 + VIEW-004..VIEW-006 = 3) and 16/21 UC not substantively covered (9 partial/referenced —
+  UC-006, UC-011, UC-015, UC-016, UC-017, UC-018, UC-019, UC-020, UC-021 + 7 deferred — UC-007,
+  UC-008, UC-009, UC-010, UC-012, UC-013, UC-014, matching §4's partition exactly) remain for
+  later batches -- the expected, planned state of a second milestone, not an unresolved defect.
 ```
 
 ## 16. Batch lifecycle / review state

@@ -2,6 +2,115 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 02 v1.2 micro correction: `P2-B02-A-MAJ-01` REOPENED-then-CLOSED (stale current-state evidence only)
+
+**Micro bounded correction — vai trò: `Phase 2 Prototype Batch 02 v1.2 Micro Bounded Correction Executor`.** Closes `P2-B02-A-MAJ-01`, which bounded Review A re-review reopened on v1.1: the A/B/C partition itself (§4) was already correct, but three other current-state statements in `batch-manifest.md` still carried stale/inconsistent evidence. No Replay/parity behavior change, no scope change, no partition change.
+
+### Baseline
+
+```text
+Starting HEAD:        a9022e1a606f18105cdeb356502fa3b5becb4eb7
+traceability.md:       v1.1, blob f37ca95963111dcdece19b11fb8a919646ebfe8b (already correct,
+                       untouched by this transaction)
+batch-manifest.md:     v1.1, blob decb228607178b0ab593f330d049663a482b3726
+Batch lifecycle:       CANDIDATE (unchanged going in)
+Review history:        Initial Review A (P2-B02-A-MAJ-01, REVISION_REQUIRED) -> v1.1 bounded
+                       correction (attempted closure) -> bounded Review A re-review on v1.1:
+                       P2-B02-A-MAJ-01 REOPENED because stale current-state evidence remained
+                       elsewhere in batch-manifest.md, despite §4's ledger itself being correct.
+```
+
+### Defects closed (all in `batch-manifest.md`, none in `traceability.md`)
+
+```text
+1. §15 "Unresolved gaps" still read "7 partial/referenced + 9 deferred" -- the pre-v1.1 swapped
+   numbers -- contradicting §4's already-correct B=9/C=7. Fixed to state the exact same sets as
+   §4 (B: UC-006/011/015/016/017/018/019/020/021; C: UC-007/008/009/010/012/013/014).
+2. §6 "Prototype artifact identities" still pinned traceability.md to its old v1.0 blob
+   (61e7f2af...) instead of the current v1.1 blob (f37ca959...). Fixed to pin the current
+   identity, with the v1.0 blob retained only as an explicitly labelled historical reference.
+3. §8 and §15 both used "13 of remaining 15 surfaces" -- arithmetically inconsistent with the
+   candidate cumulative 5/17 already stated elsewhere (17 total - 5 candidate substantive = 12
+   remaining, not 13/15). Fixed to "12 of 17 surfaces not yet substantively covered"
+   (SCR-003..SCR-011 = 9 + VIEW-004..VIEW-006 = 3 = 12) in both locations.
+```
+
+### Files changed (prototype)
+
+```text
+prototype/phase-2/batch-02/batch-manifest.md    v1.1 blob decb228607178b0ab593f330d049663a482b3726
+                                                -> v1.2 blob 83f072dc7eee37409c59bbf88c30d6008fd25c7b
+prototype/phase-2/batch-02/traceability.md      UNCHANGED, blob
+                                                f37ca95963111dcdece19b11fb8a919646ebfe8b (the
+                                                A/B/C partition itself needed no further
+                                                correction)
+prototype/phase-2/batch-02/index.html           UNCHANGED, blob
+                                                c69502da70e32db07572848a795d74f67ecc838d
+prototype/phase-2/batch-02/styles.css           UNCHANGED, blob
+                                                bcd250d57cfb5b56e3558fbdbede0cca89cf1b82
+prototype/phase-2/batch-02/app.js               UNCHANGED, blob
+                                                8f5fba218457b965dd2f9ecdc1576de9b61639a6
+prototype/phase-2/batch-02/README.md            UNCHANGED (verified git diff --quiet)
+```
+
+### Preserved unchanged
+
+```text
+The A/B/C partition itself (A=5 {UC-001..005}, B=9 {UC-006,011,015,016,017,018,019,020,021},
+  C=7 {UC-007,008,009,010,012,013,014}, sum=21, pairwise disjoint) -- unchanged, was already
+  correct as of v1.1. Candidate cumulative progress (5/17 surfaces, 5/21 UC) and last
+  independently verified progress (3/17, 3/21, Batch 01 only) -- both unchanged. Replay/parity
+  UX behavior, I-11 result, Trigger B/C/D/E boundary, LIVE Unauthorized -- all unchanged. No
+  Product/UX authority, Domain Contract, Phase 2 DoD, Phase 2 rules, or ADR modified. Batch 01
+  files/lifecycle untouched (git diff --quiet verified).
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-02/batch-manifest.md  (1 file corrected, listed above)
+docs/MANIFEST.md                               (manifest_version 10.137 -> 10.138; Batch 02 row
+                                                v1.2 micro-correction note prepended, prior notes
+                                                preserved as history)
+docs/CHANGELOG.md                              (this entry)
+```
+
+### Result
+
+```text
+P2-B02-A-MAJ-01:               CLOSED (all current-state contradictions removed; partition
+                               itself was already correct)
+Cumulative A/B/C partition:     unchanged, valid (A=5, B=9, C=7, sum=21)
+Current traceability.md pin
+  in batch-manifest.md §6:      f37ca95963111dcdece19b11fb8a919646ebfe8b (v1.1, correct)
+Remaining-surface count:        12/17 (was incorrectly stated as 13/15)
+Candidate cumulative:           5/17 surfaces, 5/21 UC (unchanged)
+Last independently verified:    3/17 surfaces, 3/21 UC (Batch 01 only, unchanged)
+Batch lifecycle:                CANDIDATE (unchanged) -- NOT self-approved, NOT claimed
+                                independently verified.
+Phase 2 substantive completion: NOT ESTABLISHED (unchanged).
+Gate 3 / Phase 3 / LIVE:        NOT OPENED / NOT AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+[x] Starting HEAD a9022e1a606f18105cdeb356502fa3b5becb4eb7 verified
+[x] §15 now says B=9 partial/referenced, C=7 deferred, matching §4 exactly
+[x] §6 pins current traceability.md v1.1 blob f37ca95963111dcdece19b11fb8a919646ebfe8b
+[x] Remaining surfaces corrected to 12 (not 13/15) in both §8 and §15
+[x] Candidate 5/17 and 5/21 unchanged
+[x] Last independently verified 3/17 and 3/21 unchanged
+[x] P2-B02-A-MAJ-01 reported CLOSED only after all three current-state contradictions removed
+[x] Batch remains CANDIDATE
+[x] Batch 01 untouched (git diff --quiet)
+[x] app.js/index.html/styles.css/traceability.md byte-identical (git diff --quiet)
+[x] No scope expansion, no Replay/parity behavior change
+[x] Gate 3 remains NOT OPENED; Phase 3/LIVE remain NOT AUTHORIZED
+[x] Only intended files changed (prototype/phase-2/batch-02/batch-manifest.md + MANIFEST.md +
+    CHANGELOG.md)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 02 v1.1 bounded correction: `P2-B02-A-MAJ-01` CLOSED
 
 **Bounded correction — vai trò: `Phase 2 Prototype Batch 02 v1.1 Bounded Correction Executor`.** Closes exactly one Review A finding on `prototype/phase-2/batch-02/`'s cumulative UC accounting ledger. Does not change Replay/parity UX behavior or expand batch scope.
