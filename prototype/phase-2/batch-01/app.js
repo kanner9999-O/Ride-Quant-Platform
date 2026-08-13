@@ -27,10 +27,47 @@
     { id: "inst-b", label: "Instance B — bound to Strategy Definition Version v2.0" }
   ];
 
+  // Illustrative snapshot per selected point/range (SCR-001 "Available user actions": chọn
+  // thời điểm/khoảng thời gian quan tâm, ux-blueprint.md §7.1). Each range is a distinct static
+  // fixture on purpose (P2-B01-B-MAJ-01) -- values do not matter, only that "Latest observed" !=
+  // "Last 4 hours" != "Last 1 day" is visible.
+  var MOCK_RANGE_EVIDENCE = {
+    "latest": {
+      label: "Latest observed",
+      candleLabel: "Candle (latest)",
+      candle: "O 61,200 · H 61,540 · L 61,050 · C 61,410 (illustrative)",
+      swing: "Recent swing high at 61,540 (illustrative)",
+      structure: "Higher-high / higher-low sequence (illustrative)",
+      regime: "Trending (illustrative)",
+      feature: "Illustrative feature snapshot, no real indicator computed"
+    },
+    "last-4h": {
+      label: "Last 4 hours",
+      candleLabel: "Candle (last 4 hours)",
+      candle: "O 60,900 · H 61,300 · L 60,750 · C 61,050 (illustrative)",
+      swing: "Swing low at 60,750, 3 hours ago (illustrative)",
+      structure: "Range-bound consolidation (illustrative)",
+      regime: "Ranging (illustrative)",
+      feature: "Illustrative feature snapshot for the 4-hour window, no real indicator computed"
+    },
+    "last-1d": {
+      label: "Last 1 day",
+      candleLabel: "Candle (last 1 day)",
+      candle: "O 59,800 · H 61,540 · L 59,600 · C 61,410 (illustrative)",
+      swing: "Swing high at 61,540, swing low at 59,600 over the day (illustrative)",
+      structure: "Higher-high / higher-low sequence, day-scale (illustrative)",
+      regime: "Trending, day-scale (illustrative)",
+      feature: "Illustrative feature snapshot for the 1-day window, no real indicator computed"
+    }
+  };
+
+  var DEFAULT_RANGE = "latest";
+
   // ---- Demo/UI state (prototype-local only, not a domain/session state) ----
 
   var state = {
     selectedInstrumentId: null,
+    selectedRange: DEFAULT_RANGE,
     pinnedStrategyInstanceId: null,
     // QA overrides let every STATE-XXX be inspected on demand without
     // pretending this static prototype computes real verification logic.
@@ -55,6 +92,10 @@
       if (MOCK_STRATEGY_INSTANCES[i].id === id) return MOCK_STRATEGY_INSTANCES[i];
     }
     return null;
+  }
+
+  function rangeEvidence(rangeKey) {
+    return MOCK_RANGE_EVIDENCE[rangeKey] || MOCK_RANGE_EVIDENCE[DEFAULT_RANGE];
   }
 
   function showScreen(targetId, deferredStageName) {
@@ -107,18 +148,23 @@
       return;
     }
 
+    var range = rangeEvidence(state.selectedRange);
+
     if (override === "scr001-missing" || !instrument.hasHistoricalEvidence) {
       body.innerHTML =
         '<div class="panel panel-blocked">' +
         '<div class="panel-title">STATE-005 — missing historical evidence</div>' +
         "<div>No historical Candle/Swing/Structure/Regime/Feature/Market Context evidence is " +
-        "available yet for <strong>" + instrument.label + "</strong> at the selected range.</div>" +
+        "available yet for <strong>" + instrument.label + "</strong> at the selected range " +
+        "(<strong>" + range.label + "</strong>).</div>" +
         "</div>";
       el("btn-to-view-001").disabled = true;
       return;
     }
 
-    // Normal content — illustrative snapshot only, not a real chart/indicator.
+    // Normal content — illustrative snapshot only, not a real chart/indicator. Bound to
+    // state.selectedRange so the displayed evidence visibly changes with #range-select
+    // (closes P2-B01-B-MAJ-01).
     body.innerHTML =
       '<div class="panel">' +
       '<div class="label-row">' +
@@ -126,12 +172,13 @@
       '<span class="authority-label authority-label-authoritative">Authority class: Recorded fact (read-only)</span>' +
       '<span class="prototype-datum-label">Prototype datum: Illustrative / non-authoritative</span>' +
       "</div>" +
-      '<div class="evidence-row"><span class="evidence-label">Candle (latest)</span><span class="evidence-value">O 61,200 · H 61,540 · L 61,050 · C 61,410 (illustrative)</span></div>' +
-      '<div class="evidence-row"><span class="evidence-label">Swing</span><span class="evidence-value">Recent swing high at 61,540 (illustrative)</span></div>' +
-      '<div class="evidence-row"><span class="evidence-label">Structure</span><span class="evidence-value">Higher-high / higher-low sequence (illustrative)</span></div>' +
-      '<div class="evidence-row"><span class="evidence-label">Regime</span><span class="evidence-value">Trending (illustrative)</span></div>' +
-      '<div class="evidence-row"><span class="evidence-label">Feature</span><span class="evidence-value">Illustrative feature snapshot, no real indicator computed</span></div>' +
-      '<div class="evidence-row"><span class="evidence-label">Market Context</span><span class="evidence-value">Illustrative snapshot for ' + instrument.label + "</span></div>" +
+      '<div class="evidence-row"><span class="evidence-label">Range</span><span class="evidence-value">' + range.label + "</span></div>" +
+      '<div class="evidence-row"><span class="evidence-label">' + range.candleLabel + '</span><span class="evidence-value">' + range.candle + "</span></div>" +
+      '<div class="evidence-row"><span class="evidence-label">Swing</span><span class="evidence-value">' + range.swing + "</span></div>" +
+      '<div class="evidence-row"><span class="evidence-label">Structure</span><span class="evidence-value">' + range.structure + "</span></div>" +
+      '<div class="evidence-row"><span class="evidence-label">Regime</span><span class="evidence-value">' + range.regime + "</span></div>" +
+      '<div class="evidence-row"><span class="evidence-label">Feature</span><span class="evidence-value">' + range.feature + "</span></div>" +
+      '<div class="evidence-row"><span class="evidence-label">Market Context</span><span class="evidence-value">Illustrative snapshot for ' + instrument.label + ", " + range.label + "</span></div>" +
       "</div>";
     el("btn-to-view-001").disabled = false;
   }
@@ -291,9 +338,11 @@
 
     el("qa-reset").addEventListener("click", function () {
       state.selectedInstrumentId = null;
+      state.selectedRange = DEFAULT_RANGE;
       state.pinnedStrategyInstanceId = null;
       state.qaOverride = null;
       el("instrument-select").value = "";
+      el("range-select").value = DEFAULT_RANGE;
       updateContextBar();
       showScreen("screen-scr-001");
       renderAll();
@@ -320,6 +369,14 @@
       state.selectedInstrumentId = select.value || null;
       state.qaOverride = null;
       updateContextBar();
+      renderScr001();
+    });
+
+    var rangeSelect = el("range-select");
+    rangeSelect.value = state.selectedRange;
+    rangeSelect.addEventListener("change", function () {
+      state.selectedRange = rangeSelect.value || DEFAULT_RANGE;
+      state.qaOverride = null;
       renderScr001();
     });
 

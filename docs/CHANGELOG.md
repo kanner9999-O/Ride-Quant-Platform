@@ -2,6 +2,161 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 01 v1.2 bounded correction: `P2-B01-B-MAJ-01` CLOSED, `P2-B01-A-MIN-01` REOPENED-then-CLOSED
+
+**Bounded correction — vai trò: `Phase 2 Prototype Batch 01 v1.2 Bounded Correction Executor`.** Closes exactly one new Major finding and the reopened Minor finding from Independent Review B's review of v1.1. Does not expand batch scope; no new SCR/VIEW surface authored.
+
+### Baseline
+
+```text
+Starting HEAD:       6b2024fe2ee33ff9d035044a5cc419665ad63d17
+app.js:               blob 1aadeb01387beb6fb3379535cf82c57d41af0281
+styles.css:            blob 89c34c0d7f500950987dfb4cdd440f14cc7661ab
+traceability.md:       v1.1, blob 46466e2e99937311ef3e7f7124eccc9388c5aefe
+batch-manifest.md:     v1.1, blob 000cdd06a86fd5e8165738f94baac4f0c36357df
+Batch lifecycle:       CANDIDATE (unchanged going in)
+```
+
+### Review history feeding this transaction
+
+```text
+Review A (v1.0):              P2-B01-A-MAJ-01, P2-B01-A-MIN-01 -- REVISION_REQUIRED.
+v1.1 bounded correction:       both reported CLOSED.
+Bounded Review A re-review
+  (v1.1):                      CLEAN.
+Independent Review B (v1.1):   P2-B01-A-MAJ-01 CLOSED; P2-B01-A-MIN-01 REOPENED; new
+                                P2-B01-B-MAJ-01 found; verdict REVISION_REQUIRED. Reduced
+                                verified progress to 2/17 surfaces, 2/21 UC pending this
+                                correction.
+```
+
+### Finding 1 — `P2-B01-B-MAJ-01` (closed)
+
+```text
+Defect: SCR-001 exposes the authoritative UC-001 action "choose point/range in time"
+  (#range-select: Latest observed / Last 4 hours / Last 1 day), but app.js never read or
+  listened to that control. Changing the range left the displayed Candle/Swing/Structure/
+  Regime/Feature/Market Context evidence unchanged, and the Candle row stayed mislabelled
+  "Candle (latest)" regardless of selection.
+Fix: added state.selectedRange (default "latest", matching the HTML default) and a
+  MOCK_RANGE_EVIDENCE fixture set with three genuinely distinct illustrative snapshots (one per
+  range). Added a change listener on #range-select that updates state.selectedRange, clears any
+  QA override, and re-renders SCR-001. renderScr001()'s normal-content branch now reads its
+  Candle/Swing/Structure/Regime/Feature/Market Context values -- and the Candle row's label --
+  from the currently selected range's fixture, so "Latest observed" != "Last 4 hours" != "Last 1
+  day" is visibly true. The missing-evidence (STATE-005) message now also names the selected
+  range. QA reset restores the default range and re-syncs the <select> element. No real market-
+  data computation, no network call, no backend -- values remain hard-coded illustrative
+  fixtures. The existing "Authority class: [...]" / "Prototype datum: Illustrative / non-
+  authoritative" label pair (from the v1.1 correction) is untouched.
+```
+
+### Finding 2 — `P2-B01-A-MIN-01` REOPENED (closed again)
+
+```text
+Defect: batch-manifest.md §8 ("Known deferred surfaces") and §15 ("Unresolved gaps") still said
+  "18 of 21 UC deferred: UC-004..UC-021" -- collapsing the A/B/C taxonomy's category B (Partial/
+  referenced, 7 UCs) and category C (Deferred, 11 UCs) back into a single undifferentiated
+  "deferred" bucket, directly contradicting §4's own taxonomy.
+Fix: §8 now states the 18 non-substantive UCs as two explicit groups -- B (7: UC-004, UC-006,
+  UC-011, UC-015, UC-019, UC-020, UC-021, each traced to the exact shell/nav/handoff fragment it
+  represents) and C (11: the remaining UCs, zero reference). §15 updated to match ("18/21 UC not
+  substantively covered", not "deferred"). §16 (Batch lifecycle/review state), which was also
+  stale (still said "Review A/Independent Review B NOT YET PERFORMED" despite both having already
+  run), was rewritten with the full accurate review history and an explicit "candidate
+  contribution" (3/17, 3/21 -- not yet verified) vs "last independently verified" (2/17, 2/21 --
+  Independent Review B's v1.1 finding) distinction, so this transaction does not silently claim
+  restored progress as verified.
+```
+
+### Files changed (prototype)
+
+```text
+prototype/phase-2/batch-01/app.js              v1.1 blob 1aadeb01387beb6fb3379535cf82c57d41af0281
+                                                -> v1.2 blob 5e1a7237d034afffb28a268c1b828b2dc86ccf32
+prototype/phase-2/batch-01/traceability.md      v1.1 blob 46466e2e99937311ef3e7f7124eccc9388c5aefe
+                                                -> v1.2 blob 764936474af8ff6b5cb8f1672f2855bac5c47759
+                                                (added element-level row for MOCK_RANGE_EVIDENCE/
+                                                #range-select/rangeEvidence(), traced to SCR-001
+                                                "Available user actions", UC-001, ux-blueprint.md
+                                                §7.1 -- no new Product/UX concept, prototype-local
+                                                UI binding only)
+prototype/phase-2/batch-01/batch-manifest.md    v1.1 -> v1.2 blob
+                                                a55105328408796bcfd1737b3ec9c111229ed34d
+prototype/phase-2/batch-01/index.html           UNCHANGED, blob
+                                                e519162bd3407dc176f265e1799cadc883246769
+prototype/phase-2/batch-01/styles.css           UNCHANGED, blob
+                                                89c34c0d7f500950987dfb4cdd440f14cc7661ab
+prototype/phase-2/batch-01/README.md            UNCHANGED (verified git diff --quiet)
+```
+
+### Preserved unchanged
+
+```text
+Batch semantic scope, SCR-001/VIEW-001/VIEW-002 substantive spec, VIEW-001 selection/pin
+  behavior, VIEW-002 tri-state behavior, commit-gate semantics, the v1.1 authority-label
+  correction, static HTML/CSS/vanilla-JS medium, mock/static data policy, QA tooling, I-11
+  Access-control-audit boundary (re-verified PASS -- grep for credential-like patterns still
+  clean, one match = disclaiming comment only), I-12 source-of-truth boundary (re-verified PASS),
+  Trigger B/C/D/E boundary (re-verified -- grep for fetch/XHR/WebSocket still clean), LIVE
+  Unauthorized, no production/backend architecture. No SCR-002..SCR-011 or VIEW-003..VIEW-006
+  authored. No Product/UX authority, Domain Contract, Constitution, Phase 2 DoD, or Phase 2 rules
+  modified (git diff --quiet verified for all).
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-01/*  (3 files corrected, listed above)
+docs/MANIFEST.md               (manifest_version 10.134 -> 10.135; Batch 01 row v1.2 correction
+                                note prepended, status/UC-covered columns updated to distinguish
+                                candidate vs last-independently-verified progress, prior notes
+                                preserved as history)
+docs/CHANGELOG.md              (this entry)
+```
+
+### Result
+
+```text
+Batch lifecycle:                CANDIDATE (unchanged) -- NOT self-approved.
+17-surface candidate
+  contribution:                  3/17 (SCR-001 restored, pending re-review confirmation).
+17-surface last independently
+  verified:                      2/17 (Independent Review B's v1.1 finding, authoritative until
+                                 re-review confirms v1.2).
+21-UC substantive candidate
+  contribution:                  3/21 (UC-001 restored, pending re-review confirmation).
+21-UC substantive last
+  independently verified:        2/21 (same caveat).
+I-11 / I-12 / Trigger B-C-D-E:   preserved (re-confirmed).
+LIVE:                            NOT AUTHORIZED (unchanged).
+Phase 2 substantive completion:  NOT ESTABLISHED (unchanged).
+Gate 3 / Phase 3:                NOT OPENED / NOT AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 6b2024fe2ee33ff9d035044a5cc419665ad63d17 verified
+[x] P2-B01-B-MAJ-01 closed -- #range-select bound to real prototype-local state, range change
+    triggers a re-render, displayed evidence visibly differs per range, no fixed "latest"
+    wording survives, mock/static data only, no network/backend, QA reset deterministic,
+    authority/prototype-datum badge distinction intact
+[x] P2-B01-A-MIN-01 (reopened) closed -- §8 no longer calls all 18 non-substantive UCs
+    "deferred"; B=7 partial/referenced enumerated; C=11 deferred enumerated; collective wording
+    now "not substantively covered"; taxonomy consistent across traceability.md,
+    batch-manifest.md, and MANIFEST
+[x] No new SCR/VIEW surface authored
+[x] Batch remains CANDIDATE
+[x] Verified Review-B progress (2/17, 2/21) not falsely rewritten as already re-reviewed --
+    candidate vs verified distinction made explicit in batch-manifest.md §16 and MANIFEST
+[x] I-11 preserved; I-12 preserved; Trigger B/C/D/E preserved
+[x] Phase 2 substantive completion NOT established
+[x] Quality Gate not run; Gate 3 not opened; Phase 3/LIVE not authorized
+[x] Only intended files changed (prototype/phase-2/batch-01/{app.js,traceability.md,
+    batch-manifest.md} + MANIFEST.md + CHANGELOG.md)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 01 bounded correction: `P2-B01-A-MAJ-01`/`P2-B01-A-MIN-01` CLOSED
 
 **Bounded correction — vai trò: `Phase 2 Prototype Batch 01 Bounded Correction Executor`.** Closes exactly two Review A findings on `prototype/phase-2/batch-01/`. Does not expand batch scope; no new SCR/VIEW surface authored.

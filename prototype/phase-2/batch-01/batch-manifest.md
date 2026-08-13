@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-01-manifest
 title: "Phase 2 Prototype — Batch 01 — Batch Manifest"
-version: "1.1"
+version: "1.2"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -12,6 +12,8 @@ created_at: "2026-08-13"
 **Vai trò của tài liệu này:** batch-level evidence record cho Batch 01, đúng `phase-2-rules.md` `P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch 01 LÀ candidate/in-review — **KHÔNG self-approved** (chờ Review A + Independent Review B theo batch, đúng `P2-PROTOTYPE-001`).
 
 **v1.1 — bounded correction (2026-08-13), đóng `P2-B01-A-MAJ-01`/`P2-B01-A-MIN-01`.** (1) `P2-B01-A-MAJ-01`: authority/workflow label trong `app.js` conflate authority CLASS (vd "authoritative (recorded fact, read-only)") với authority STATUS của chính prototype datum (mock fixture) — sửa thành hai badge tách biệt: "Authority class: [...]" (giữ nguyên UX affordance) + "Prototype datum: Illustrative / non-authoritative" (badge mới, `.prototype-datum-label`) tại cả ba vị trí (SCR-001 normal-content, VIEW-001 list, VIEW-002 tất cả ba outcome). (2) `P2-B01-A-MIN-01`: 21-UC coverage accounting mơ hồ giữa "substantive" và "referenced qua shell/nav/handoff" — thêm taxonomy A (Substantive)/B (Partial-referenced)/C (Deferred) tường minh tại `traceability.md` §0/§1, đầy đủ 21 UC classify; §4 dưới đây cập nhật đồng bộ. Progress 3/21 KHÔNG đổi (vẫn CHỈ đếm hạng mục A) — chỉ accounting logic được làm rõ, KHÔNG inflate. **KHÔNG đổi:** batch semantic scope, SCR-001/VIEW-001/VIEW-002, NAV/FLOW/STATE scope, static HTML/CSS/vanilla-JS medium, mock/static data policy, QA tooling, I-11 audit result, I-12 source authority, Trigger B/C/D/E boundary, LIVE Unauthorized, 3/17 surface progress.
+
+**v1.2 — bounded correction (2026-08-13), Independent Review B trên v1.1: `P2-B01-A-MAJ-01` CLOSED, `P2-B01-A-MIN-01` REOPENED, `P2-B01-B-MAJ-01` (mới) — đóng CẢ HAI tại transaction này.** `P2-B01-B-MAJ-01`: `#range-select` (SCR-001's authorized "chọn thời điểm/khoảng thời gian" action) tồn tại trong `index.html` NHƯNG `app.js` KHÔNG đọc/listen nó — đổi range KHÔNG làm evidence hiển thị thay đổi, "Candle (latest)" label sai bất kể range nào chọn. Sửa: thêm `state.selectedRange` + `MOCK_RANGE_EVIDENCE` (ba fixture tách biệt: Latest/Last 4h/Last 1d, mỗi cái khác nhau tường minh ở candle/swing/structure/regime/feature) + change listener trên `#range-select` + `renderScr001()` nay bind theo `state.selectedRange` + candle label động (`range.candleLabel`) thay "Candle (latest)" cố định + QA reset khôi phục default range + missing-evidence message nay trích dẫn đúng range đã chọn. `P2-B01-A-MIN-01` REOPENED: `batch-manifest.md` §8/§15 VẪN dùng wording "18 of 21 UC deferred" — collapse sai B+C thành một "deferred" bucket, mâu thuẫn taxonomy §4 đã establish. Sửa: §8/§15 nay tách tường minh B (7, partial/referenced)/C (11, deferred) — KHÔNG dùng "deferred" cho tổng 18 nữa. §16 (Batch lifecycle) cập nhật đồng bộ để phản ánh chính xác review history đầy đủ VÀ phân biệt tường minh "candidate contribution" (3/17, 3/21 — CHƯA verified) khỏi "last independently verified" (2/17, 2/21 — theo Independent Review B's v1.1 finding). **KHÔNG đổi:** batch semantic scope, SCR-001/VIEW-001/VIEW-002 substantive spec, VIEW-001/VIEW-002 behavior, commit-gate semantics, authority-label correction từ v1.1, medium, mock/static data only, QA tooling, I-11/I-12 boundary, Trigger B/C/D/E boundary, LIVE Unauthorized. KHÔNG surface/screen mới nào thêm.
 
 ## 1. Batch identity
 
@@ -90,10 +92,10 @@ PR-001, PR-003, PR-015, PR-016, PR-017
 ## 6. Prototype artifact identities
 
 ```text
-prototype/phase-2/batch-01/index.html         blob e519162bd3407dc176f265e1799cadc883246769 (unchanged, v1.0/v1.1)
-prototype/phase-2/batch-01/styles.css          blob 89c34c0d7f500950987dfb4cdd440f14cc7661ab (v1.1, was cdd6dbb1b2364dc288616f083f7247b7bb0cb146)
-prototype/phase-2/batch-01/app.js              blob 1aadeb01387beb6fb3379535cf82c57d41af0281 (v1.1, was cfae4327486c48c2eb9f20988d94441797fadfac)
-prototype/phase-2/batch-01/traceability.md     blob 46466e2e99937311ef3e7f7124eccc9388c5aefe (v1.1, was 1f98aa71fc05b670bd40759f12d448f04ef5879c)
+prototype/phase-2/batch-01/index.html         blob e519162bd3407dc176f265e1799cadc883246769 (unchanged since v1.0)
+prototype/phase-2/batch-01/styles.css          blob 89c34c0d7f500950987dfb4cdd440f14cc7661ab (unchanged since v1.1)
+prototype/phase-2/batch-01/app.js              blob 5e1a7237d034afffb28a268c1b828b2dc86ccf32 (v1.2, was 1aadeb01387beb6fb3379535cf82c57d41af0281)
+prototype/phase-2/batch-01/traceability.md     blob 764936474af8ff6b5cb8f1672f2855bac5c47759 (v1.2, was 46466e2e99937311ef3e7f7124eccc9388c5aefe)
 ```
 
 ## 7. Authority sources consumed (reference only, none modified)
@@ -108,14 +110,23 @@ docs/domain/instrument.md, venue.md, candle.md, swing.md, structure.md, regime.m
   context.md, strategy.md, decision.md (vocabulary reference only — no schema/field authored)
 ```
 
-## 8. Known deferred surfaces (not a gap — explicit batch boundary)
+## 8. Known deferred surfaces / non-substantive UC (not a gap — explicit batch boundary, đóng REOPENED `P2-B01-A-MIN-01`)
 
 ```text
-14 of 17 SCR/VIEW surfaces deferred: SCR-002..SCR-011, VIEW-003..VIEW-006.
-18 of 21 UC deferred: UC-004..UC-021.
-Represented in this batch ONLY as a read-only nav-bar affordance leading to a labelled
-  "Deferred — not included in Batch 01" placeholder (#screen-deferred) — no substantive
-  screen/view content authored for any of them, per batch-selection rule.
+14 of 17 SCR/VIEW surfaces deferred: SCR-002..SCR-011, VIEW-003..VIEW-006. Represented in this
+  batch ONLY as a read-only nav-bar affordance leading to a labelled "Deferred — not included in
+  Batch 01" placeholder (#screen-deferred) — no substantive screen/view content authored for any
+  of them, per batch-selection rule.
+
+18 of 21 UC NOT substantively covered (traceability.md §0/§1 taxonomy — NOT collapsed to a single
+  "deferred" bucket):
+  B — Partial/referenced (7): UC-004, UC-006, UC-011, UC-015, UC-019, UC-020, UC-021 — appear only
+    via shell/nav-button-existence/handoff-affordance elements, traced to the exact source-spec
+    fragment each element actually represents (traceability.md §1).
+  C — Deferred/not yet represented (11): UC-005, UC-007, UC-008, UC-009, UC-010, UC-012, UC-013,
+    UC-014, UC-016, UC-017, UC-018 — zero reference anywhere in Batch 01.
+  Neither B nor C counts toward the 3/21 substantive-completion numerator (§4 above) — that
+  distinction is exactly what this correction makes explicit.
 ```
 
 ## 9. I-11 — Secrets & Custody Isolation — bounded Phase-2 Access-control audit
@@ -200,18 +211,42 @@ No missing-authoritative-decision gap was encountered that required stopping an 
 ## 15. Unresolved gaps
 
 ```text
-None within this batch's scope. 14/17 surfaces and 18/21 UC remain for later batches (§8) — this
-  is the expected, planned state of a first milestone, not an unresolved defect.
+None within this batch's scope. 14/17 surfaces not yet authored and 18/21 UC not substantively
+  covered (7 partial/referenced + 11 deferred, §8) remain for later batches — this is the
+  expected, planned state of a first milestone, not an unresolved defect.
 ```
 
 ## 16. Batch lifecycle / review state
 
 ```text
-Status:            CANDIDATE — authored, NOT self-approved.
-Review A:           NOT YET PERFORMED (batch-level, P2-PROTOTYPE-001).
-Independent
-  Review B:          NOT YET PERFORMED.
-Next step:          Batch-level Review A + Independent Review B on this coherent milestone —
-                     a separate governed transaction, per this transaction's own scope
-                     (authoring only).
+Status:            CANDIDATE — corrected (v1.2), NOT self-approved.
+
+Review history:
+  Review A (v1.0):              P2-B01-A-MAJ-01, P2-B01-A-MIN-01 found, REVISION_REQUIRED.
+  v1.1 bounded correction:       both CLOSED.
+  Bounded Review A re-review
+    (v1.1):                      CLEAN.
+  Independent Review B (v1.1):   P2-B01-A-MAJ-01 CLOSED; P2-B01-A-MIN-01 REOPENED; new
+                                 P2-B01-B-MAJ-01 found; verdict REVISION_REQUIRED.
+  v1.2 bounded correction
+    (transaction này):           đóng P2-B01-B-MAJ-01 (range-select binding) VÀ REOPENED
+                                 P2-B01-A-MIN-01 (§8 taxonomy wording).
+  Bounded re-review trên v1.2:   CHƯA thực hiện — bước tiếp theo, transaction riêng.
+
+Candidate contribution (transaction này claims, CHƯA independently verified):
+  17-surface:                    3/17 (SCR-001 restored — range-select now bound).
+  21-UC substantive:              3/21 (UC-001 restored).
+
+Last INDEPENDENTLY VERIFIED progress (Independent Review B's v1.1 finding — the authoritative
+  number cho tới khi bounded re-review xác nhận v1.2's correction):
+  17-surface:                    2/17 (Review B reduced verified SCR-001 progress do
+                                 P2-B01-B-MAJ-01).
+  21-UC substantive:              2/21 (same reason — UC-001 not verified-complete pending fix).
+
+KHÔNG tuyên bố 3/17 hay 3/21 LÀ verified tại transaction này — CHỈ LÀ candidate contribution,
+  chờ bounded re-review xác nhận P2-B01-B-MAJ-01 đã đóng đúng.
+
+Next step:          Bounded Review A re-review + Independent bounded Review B on this v1.2
+                     candidate — a separate governed transaction, per this transaction's own
+                     scope (correction only).
 ```

@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-01-traceability
 title: "Phase 2 Prototype — Batch 01 — Traceability Artifact"
-version: "1.1"
+version: "1.2"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -12,6 +12,8 @@ created_at: "2026-08-13"
 **Vai trò của tài liệu này:** đây LÀ I-12 (Single Source of Truth) conformance evidence cho Batch 01, per `docs/phase-dod/phase-2-dod.md` §2's applicable Trigger A / I-12 requirement — mọi phần tử prototype trong batch này PHẢI trace được TRỰC TIẾP về đúng một hoặc nhiều `SCR-XXX`/`VIEW-XXX`/`NAV-XXX`/`FLOW-XXX`/`STATE-XXX` đã `Consolidated Stable` trong [`docs/product/ux-blueprint.md`](../../../docs/product/ux-blueprint.md), VÀ về đúng `UC-XXX`/`PR-XXX` đã tồn tại. Prototype LÀ derived representation — KHÔNG một UC/PR/domain concept nào originate tại đây.
 
 **v1.1 — bounded correction (2026-08-13), đóng `P2-B01-A-MIN-01`.** Thêm §0 "UC accounting taxonomy" (A Substantive / B Partial-referenced / C Deferred) VÀ §1 "Full 21-UC classification" (toàn bộ 21 UC classify tường minh) — giải quyết ambiguity giữa UC xuất hiện tại element-level map (§2, cũ §1) như một REFERENCE và UC được substantively cover đủ tính vào 21-UC completion numerator. Progress `3/21` KHÔNG đổi (UC-001/002/003, hạng mục A) — CHỈ accounting logic được làm rõ tường minh, KHÔNG inflate. §4 (cũ §3, "Excluded-by-design") cập nhật đồng bộ để phân biệt 7 UC hạng mục B khỏi 11 UC hạng mục C. KHÔNG đổi §2 element-level map's nội dung hàng (row content giữ nguyên, CHỈ thêm ghi chú disclaimer phía trên bảng).
+
+**v1.2 — bounded correction (2026-08-13), đóng `P2-B01-B-MAJ-01` (Independent Review B trên v1.1).** Thêm một hàng mới tại §2 cho `MOCK_RANGE_EVIDENCE`/`#range-select`/`rangeEvidence()` (SCR-001 "Available user actions" — chọn thời điểm/khoảng thời gian, `ux-blueprint.md` §7.1) — element MỚI này LÀ prototype-local UI binding cho một action ĐÃ authorize trong SCR-001 spec, KHÔNG một Product/UX concept mới ("range state" KHÔNG PHẢI domain/session entity). Cập nhật ghi chú hàng `renderScr001() normal-content branch` để phản ánh nó nay bound theo `state.selectedRange`. KHÔNG đổi §0/§1 UC taxonomy (UC-001 VẪN hạng mục A, KHÔNG PR/UC mới). Xem `../batch-manifest.md` §8 cho `P2-B01-A-MIN-01` REOPENED correction (§8 wording, KHÔNG chạm tài liệu này — traceability.md's §4 "Excluded-by-design" đã đúng từ v1.1).
 
 ## 0. UC accounting taxonomy (đóng `P2-B01-A-MIN-01`)
 
@@ -82,7 +84,8 @@ Tally: A (substantive) = 3 (UC-001, UC-002, UC-003).
 | `index.html` `[data-nav="NAV-002"]`..`[data-nav="NAV-006"]` → `#screen-deferred` placeholder | NAV-002..NAV-006 (destination existence only — read-only inspection navigation, UX-P-5) | UC-002/UC-004 (NAV-002) .. UC-019/UC-002/UC-020/UC-021 (NAV-006) | see §5a per NAV | `ux-blueprint.md` §5a "NAV-002".."NAV-006"; §3 UX-P-5 (read-only inspection navigation always available) |
 | `index.html` `#screen-scr-001` (Market Analysis Workspace) | SCR-001 | UC-001 | PR-003, PR-015, PR-017 | `ux-blueprint.md` §7.1 "SCR-001 — Market Analysis Workspace" |
 | `app.js` `MOCK_INSTRUMENTS` / `#instrument-select` | SCR-001 required context (Instrument/Venue, UX-INV-2) | UC-001 | PR-003 | `ux-blueprint.md` §7.1 SCR-001 "Required context"; §3 UX-INV-2 |
-| `app.js` `renderScr001()` normal-content branch (Candle/Swing/Structure/Regime/Feature/Market Context) | SCR-001 "Information displayed" | UC-001 | PR-003, PR-015, PR-017 | `ux-blueprint.md` §7.1 SCR-001 "Information displayed"; domain vocabulary candle.md/swing.md/structure.md/regime.md/feature.md/context.md/instrument.md/venue.md (referenced, not redefined) |
+| `app.js` `MOCK_RANGE_EVIDENCE` / `#range-select` / `rangeEvidence()` (v1.2, đóng `P2-B01-B-MAJ-01`) | SCR-001 "Available user actions" — chọn thời điểm/khoảng thời gian quan tâm | UC-001 | PR-003, PR-015, PR-017 | `ux-blueprint.md` §7.1 SCR-001 "Available user actions" — prototype-local representation của action đã authorize, KHÔNG một Product/UX concept mới ("range state" LÀ UI binding, KHÔNG phải domain/session entity) |
+| `app.js` `renderScr001()` normal-content branch (Candle/Swing/Structure/Regime/Feature/Market Context, bound to `state.selectedRange`) | SCR-001 "Information displayed" | UC-001 | PR-003, PR-015, PR-017 | `ux-blueprint.md` §7.1 SCR-001 "Information displayed"; domain vocabulary candle.md/swing.md/structure.md/regime.md/feature.md/context.md/instrument.md/venue.md (referenced, not redefined) |
 | `app.js` `renderScr001()` loading branch | STATE-001 loading | UC-001 | PR-003, PR-018 | `ux-blueprint.md` §11 STATE-001 row |
 | `app.js` `renderScr001()` invalid-Instrument branch | STATE-003 invalid Instrument/Venue | UC-001, UC-011 | PR-003 | `ux-blueprint.md` §11 STATE-003 row |
 | `app.js` `renderScr001()` missing-evidence branch | STATE-005 missing historical evidence | UC-001, UC-006 | PR-015, PR-021 | `ux-blueprint.md` §11 STATE-005 row |
