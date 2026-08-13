@@ -2,6 +2,131 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 1.5 DoD v0.2 bounded correction: `EF-DOD-A-MAJ-01` CLOSED
+
+**Bounded correction — vai trò: `Phase 1.5 DoD v0.2 Bounded Correction Executor`.** Resolves one Review A finding on the v0.1 Phase 1.5 DoD candidate. No redesign of the DoD.
+
+### Baseline
+
+```text
+Starting HEAD:  438d9b76857c043ed21ec54fb2db6b52c2573317
+Candidate:      docs/phase-dod/phase-1.5-dod.md v0.1, status Draft,
+                blob 183f5070b3972e0c59c5ea6bc596aa73f54ed33d
+Review A:       Blocker 0/Major 1/Minor 0 — EF-DOD-A-MAJ-01 OPEN.
+```
+
+### EF-DOD-A-MAJ-01 — unsupported Trigger C/D rationale (§2)
+
+```text
+Vấn đề (Trigger C): v0.1 nói Chaos/Parity Test "đòi hỏi executable
+  implementation đã build (§13.12 trigger B tiền đề)" — Chapter 13
+  §13.12 KHÔNG định nghĩa quan hệ tiền đề đó. §13.12 mục C viết:
+  "Chaos Test → Tier 0; Parity Test → Tier 1; tier cũng đặt coverage
+  floor (CHỈ áp khi coverage đã trigger theo B)" — mệnh đề "chỉ áp
+  khi... theo B" CHỈ áp cho sub-effect "coverage floor," KHÔNG áp cho
+  chính việc Chaos/Parity Test có trigger. Trigger C LÀ tier-triggered
+  ĐỘC LẬP khỏi Trigger B.
+Vấn đề (Trigger D): v0.1 dùng "KHÔNG declare boundary MỚI" LÀM tiêu
+  chí N/A — §13.12 mục D KHÔNG phân biệt boundary mới hay kế thừa,
+  trigger LÀ "khi artifact CÓ" isolation/custody/authorization
+  boundary (I-4/I-7/I-11), xử lý authoritative/financial data
+  (I-9/I-13), CÓ performance budget áp dụng, hay nằm trên production/
+  operational path.
+Sửa (Trigger C): đánh giá lại qua Chapter 13 §13.4's tier-resolution
+  chain (ba nhánh: runtime module/executable-artifact-thuộc-module/
+  standalone-executable-declared) — verify trực tiếp KHÔNG category
+  Phase 1.5 nào (7 ADR + 8 living convention) thuộc bất kỳ nhánh nào
+  (TẤT CẢ LÀ governance/decision document, KHÔNG runtime/executable).
+  KHÔNG nhánh tier-resolution nào áp dụng cho KIỂU artifact này — tier
+  KHÔNG resolve được cho bất kỳ category nào, KHÔNG PHẢI vì thiếu
+  executable LÀM tiền đề cho C. KẾT LUẬN: KHÔNG APPLICABLE, lý do đúng
+  = KHÔNG artifact nào LÀ subject mà §13.4 tier-resolution chain định
+  nghĩa, KHÔNG PHẢI B-dependency.
+Sửa (Trigger D): đánh giá lại first-principles cho `config.md`/
+  `ADR-028`, `error-handling.md`/`ADR-029`, `ci-cd.md`/`ADR-030`
+  (tham chiếu `ADR-017`/`module-registry.yaml` LÀM context — CẢ HAI
+  KHÔNG PHẢI Phase 1.5 deliverable, KHÔNG tự chịu gate tại đây) —
+  KHÔNG category nào TỰ nó CÓ isolation/custody/authorization
+  boundary (config.md §8/error-handling.md §9/ci-cd.md §11 CHỈ mô tả
+  CÁCH future implementation code NÊN reference/tránh expose secret —
+  CHÍNH những document này KHÔNG tự thực thi, KHÔNG tự giữ credential,
+  KHÔNG tự thực hiện authorization check tại runtime), KHÔNG xử lý
+  authoritative/financial data, KHÔNG performance budget áp dụng,
+  KHÔNG nằm trên production/operational path. KẾT LUẬN: KHÔNG
+  APPLICABLE, lý do đúng = artifact tự thân KHÔNG CÓ/thực thi bất kỳ
+  responsibility nào trong bốn sub-trigger D, KHÔNG PHẢI vì boundary
+  "không mới."
+KHÔNG đổi kết luận tổng thể: Trigger A CHỈ áp dụng, Trigger B/C/D/E
+  KHÔNG APPLICABLE cho toàn bộ Phase 1.5 tại boundary này — CHỈ
+  reasoning đằng sau C/D được sửa để authority-grounded, gate-set vẫn
+  deterministic/fail-closed (re-confirmation requirement mở rộng để
+  bao gồm cả Trigger C, KHÔNG CHỈ D/E như v0.1).
+```
+
+### Section-by-section verification
+
+```text
+Verified (Python regex extraction, so sánh HEAD vs working tree):
+  SAME (byte-equivalent): §1, §3, §4, §5, §6, §7, §8, §9, §10, §11,
+                          §12, §13
+  DIFF (đúng scope 1 finding trên): §2
+```
+
+### Files changed
+
+```text
+docs/phase-dod/phase-1.5-dod.md  (v0.1 -> v0.2, Draft, blob
+                                  b1083706b94653a0c6e3931ead49edff3a17c596)
+docs/MANIFEST.md                 (manifest_version 10.123 -> 10.124;
+                                  row cập nhật)
+docs/CHANGELOG.md                (entry này)
+```
+
+### Preserved unchanged
+
+```text
+Toàn bộ 7 ADR (024–030) + 8 living convention (Approved) — verified
+  byte-identical, git diff empty. Constitution, Governance
+  execution-rules.md, phase-1.5-rules.md, phase-0-dod.md, phase-1-dod.md
+  — tất cả verified byte-identical.
+Phase identity (§1), substantive completion criteria (§3), evidence/
+  validator/review/finding-closure/BCC requirements (§4–§8), residual
+  list (§9), EF-RETRO-001 boundary (§10), phase-decision bundle
+  requirements (§11), explicit non-inclusion (§12), acceptance state
+  (§13, CHƯA accepted, CHƯA incorporated) — tất cả giữ nguyên.
+Bảy residual finding Minor: KHÔNG chạm, VẪN OPEN — accepted non-
+  blocking. DoD candidate VẪN CHƯA accepted, CHƯA incorporated. Phase
+  1.5 Approval Gate: KHÔNG mở. Phase 2 substantive work: VẪN NOT YET
+  AUTHORIZED. LIVE/deployment: VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/phase-dod/phase-1.5-dod.md: v0.2, status Draft, blob
+  b1083706b94653a0c6e3931ead49edff3a17c596 — not self-approved
+  (G-ORCH-002); Review A re-review + Independent Review B, rồi Product
+  Owner acceptance/incorporation, LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 438d9b76857c043ed21ec54fb2db6b52c2573317 verified
+[x] Candidate blob 183f5070b3972e0c59c5ea6bc596aa73f54ed33d verified
+[x] EF-DOD-A-MAJ-01 corrected
+[x] Trigger C KHÔNG còn phụ thuộc sai vào Trigger B
+[x] Trigger D KHÔNG còn dùng "boundary mới" LÀM applicability rule
+[x] Gate-set VẪN deterministic/fail-closed (re-confirmation mở rộng
+    bao gồm C)
+[x] Unrelated DoD sections preserved (§1/§3–§13 byte-equivalent,
+    verified)
+[x] Resulting v0.2 Draft blob confirmed
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 1.5 DoD v0.1 DRAFTED (candidate, not accepted): `docs/phase-dod/phase-1.5-dod.md`
 
 **Read-only readiness remediation — vai trò: `Phase 1.5 DoD v0.1 Candidate Author`.** Authors the Phase 1.5 — Engineering Foundation Definition of Done candidate, remediating the "Phase 1.5 DoD absent" gap identified by the preceding Phase 1.5 DoD/Gate Readiness Check. Structural precedent only from `phase-0-dod.md`/`phase-1-dod.md`; semantics derived directly from current Locked authority. **This transaction does not accept/incorporate the DoD, does not run the Phase 1.5 Approval Gate, and does not authorize Phase 2.**

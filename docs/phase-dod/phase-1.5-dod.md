@@ -1,7 +1,7 @@
 ---
 id: phase-1.5-dod
 title: "Phase 1.5 — Engineering Foundation Definition of Done"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -20,6 +20,8 @@ depends_on: ["00-governance", "11-adr-process", "12-approval-gates", "13-quality
 **Nguồn gốc:** tài liệu này chuyển hóa Chapter 14 §14.2's Phase 1.5 deliverable list ("Monorepo · Coding Standard · Naming · Logging · Config · Error Handling · Testing · CI/CD") thành explicit Phase 1.5 gate criteria, theo cùng pattern `phase-0-dod.md`/`phase-1-dod.md` — DoD artifact riêng biệt cho mỗi Phase, KHÔNG tái sử dụng structure của Phase khác LÀM authority, CHỈ LÀM structural precedent (theo đúng chỉ dẫn task này).
 
 **Authority boundary:** tài liệu này sở hữu **substantive DoD content của Phase 1.5** (criteria/evidence/validator/review/finding-closure/repository-consistency/phase-decision-bundle requirements áp cho chính Phase 1.5) — theo delegation từ [Chapter 14 §14.3](../constitution/14-roadmap.md). Nó **KHÔNG** định nghĩa lại: phase approval orchestration ([Chapter 12](../constitution/12-approval-gates.md)); review eligibility/cardinality ([Chapter 0 §3](../constitution/00-governance.md), [Chapter 11 §11.5](../constitution/11-adr-process.md)); quality-gate semantics/trigger A–E ([Chapter 13 §13.12](../constitution/13-quality-gates.md)); ADR Scope Rule ([Chapter 0 §4b](../constitution/00-governance.md)); phase sequence/canonical Phase-plan model ([Chapter 14 §14.1–§14.2](../constitution/14-roadmap.md)); current version/status/state của bất kỳ tài liệu nào ([MANIFEST](../MANIFEST.md) theo [I-12](../constitution/02-platform-invariants.md)); hay `EF-RETRO-001` (Phase 1.5 rules, KHÔNG redefine — xem §11 dưới cho boundary chính xác).
+
+**v0.2 — bounded correction (2026-08-13), đóng `EF-DOD-A-MAJ-01` (Review A):** §2 v0.1 resolve Trigger C VÀ Trigger D bằng rationale KHÔNG được Chapter 13 §13.12 hỗ trợ. (1) Trigger C: v0.1 nói Chaos/Parity Test "đòi hỏi executable implementation đã build (§13.12 trigger B tiền đề)" — SAI, §13.12's mệnh đề "tier cũng đặt coverage floor (chỉ áp khi coverage đã trigger theo B)" CHỈ áp cho sub-effect "coverage floor," KHÔNG áp cho chính việc Chaos/Parity Test có trigger — Trigger C LÀ tier-triggered ĐỘC LẬP khỏi Trigger B. Sửa: đánh giá lại từ Chapter 13 §13.4's tier-resolution chain (ba nhánh: runtime module/executable-artifact-thuộc-module/standalone-executable-declared) — KHÔNG category Phase 1.5 nào (7 ADR + 8 living convention) thuộc bất kỳ nhánh nào (TẤT CẢ LÀ governance/decision document, KHÔNG runtime/executable) — Trigger C KHÔNG APPLICABLE VÌ KHÔNG nhánh tier-resolution nào áp dụng cho KIỂU artifact này, KHÔNG PHẢI vì thiếu executable LÀM tiền đề. (2) Trigger D: v0.1 dùng "KHÔNG declare boundary MỚI" LÀM tiêu chí N/A — SAI, §13.12 mục D KHÔNG phân biệt boundary mới hay kế thừa, trigger LÀ "khi artifact CÓ" boundary/responsibility đó. Sửa: đánh giá lại first-principles cho `config.md`/`ADR-028`, `error-handling.md`/`ADR-029`, `ci-cd.md`/`ADR-030` (tham chiếu `ADR-017`/`module-registry.yaml` LÀM context, KHÔNG PHẢI Phase 1.5 deliverable) — KHÔNG category nào TỰ nó CÓ isolation/custody/authorization boundary, xử lý authoritative/financial data, có performance budget áp dụng, hay nằm trên production/operational path — TẤT CẢ CHỈ mô tả/tham chiếu boundary người khác giữ (vd `ADR-017`'s custody/signing boundary), KHÔNG PHẢI TỰ nó LÀ boundary đó — Trigger D KHÔNG APPLICABLE VÌ artifact tự thân KHÔNG CÓ responsibility đó, KHÔNG PHẢI vì boundary "không mới." **KHÔNG đổi:** kết luận tổng thể (Trigger A CHỈ áp dụng, B/C/D/E KHÔNG APPLICABLE cho toàn bộ Phase 1.5) — CHỈ reasoning đằng sau C/D được sửa để authority-grounded. **KHÔNG đổi:** §1 Phase identity, §3 substantive completion criteria, §4–§8 (evidence/validator/review/finding-closure/BCC requirements), §9 residual list, §10 EF-RETRO-001 boundary, §11 phase-decision bundle requirements, §12 explicit non-inclusion, §13 acceptance status. `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null` — CHƯA accepted, CHƯA incorporated.
 
 ## 1. Phase identity
 
@@ -76,21 +78,83 @@ B. Executable-implementation-triggered (coverage):
    "not applicable" tại boundary này, KHÔNG phải fail-closed.
 
 C. Tier-triggered (Chaos/Parity Test):
-   KHÔNG APPLICABLE — tier assignment (Chapter 13 §13.4) chưa thực thi build
-   cho category nào; Chaos/Parity Test đòi hỏi executable implementation đã
-   build (§13.12 trigger B tiền đề), KHÔNG tồn tại tại Phase 1.5.
+   [v0.2 sửa, đóng `EF-DOD-A-MAJ-01` phần Trigger C: v0.1 nói Chaos/Parity
+     Test "đòi hỏi executable implementation đã build (§13.12 trigger B
+     tiền đề)" — SAI, Chapter 13 §13.12 KHÔNG định nghĩa quan hệ tiền đề
+     đó. §13.12 mục C viết: "Chaos Test → Tier 0; Parity Test → Tier 1
+     (decision-pipeline responsibility); tier CŨNG đặt coverage floor (CHỈ
+     áp khi coverage ĐÃ trigger theo B)" — mệnh đề "chỉ áp khi... theo B"
+     CHỈ áp cho phần "tier đặt coverage floor" (một sub-effect của tier),
+     KHÔNG áp cho chính việc Chaos/Parity Test có trigger hay không. Trigger
+     C LÀ tier-triggered ĐỘC LẬP, KHÔNG phụ thuộc Trigger B.]
+   Đánh giá lại từ nguồn: Chaos/Parity Test trigger phụ thuộc criticality
+   tier CỦA CHÍNH artifact đó resolve được (Chapter 13 §13.4). §13.4 tự nó
+   giới hạn tier-resolution chain cho ba loại subject: (1) runtime module
+   (`module-registry.yaml`, Chapter 7 §7.5); (2) executable artifact thuộc
+   MỘT canonical owning module; (3) standalone executable artifact với
+   authoritative quality-tier declaration riêng. Verify trực tiếp: KHÔNG
+   category nào trong tám category Phase 1.5 (7 ADR + 8 living convention)
+   LÀ runtime module, executable artifact thuộc module, hay standalone
+   executable artifact — TẤT CẢ LÀ governance/decision/convention document
+   (KHÔNG thực thi runtime nào). KHÔNG nhánh nào của §13.4's tier-resolution
+   chain áp dụng cho loại artifact này — tier KHÔNG resolve được cho bất kỳ
+   category nào (KHÔNG PHẢI vì thiếu executable implementation làm tiền đề
+   cho C, MÀ vì chính KIỂU artifact này nằm ngoài phạm vi §13.4 định nghĩa
+   subject nào cần/có thể resolve tier). KẾT QUẢ: Chaos Test (Tier 0)/
+   Parity Test (Tier 1, decision-pipeline responsibility) KHÔNG APPLICABLE
+   cho toàn bộ tám category tại boundary này — KHÔNG category nào mang
+   decision-pipeline responsibility hay bất kỳ tier nào khác. NẾU một
+   artifact Phase 1.5 tương lai (ngoài phạm vi bảy ADR/tám convention hiện
+   có) trở thành runtime module/executable artifact có tier resolve được,
+   trigger C PHẢI re-confirm tại đúng thời điểm gate evaluation — KHÔNG
+   suy diễn từ declaration tại đây.
 
 D. Responsibility/boundary-triggered (Security/data-quality/performance/
    observability):
-   KHÔNG APPLICABLE tại boundary hiện tại — verify trực tiếp: KHÔNG category
-   nào trong tám category tự declare một concrete isolation/custody/
-   authorization boundary MỚI (I-4/I-7/I-11). `error-handling.md` §9 VÀ
-   `ci-cd.md` §11 CHỈ tham chiếu/inherit boundary ĐÃ tồn tại tại `ADR-017`
-   (KHÔNG tự tạo boundary mới) — đúng nguyên tắc "convention CHỈ implement
-   detail dưới authority đã có, KHÔNG tự tạo authority mới" áp dụng xuyên
-   suốt Phase 1.5. NẾU một concrete boundary declaration mới phát sinh
-   trước gate evaluation thực tế, trigger D PHẢI re-confirm tại đúng thời
-   điểm đó (xem "Xác nhận bắt buộc" dưới).
+   [v0.2 sửa, đóng `EF-DOD-A-MAJ-01` phần Trigger D: v0.1 dùng tiêu chí
+     "KHÔNG declare một boundary MỚI" LÀM lý do N/A — SAI, Chapter 13
+     §13.12 mục D KHÔNG đòi hỏi boundary phải "mới" — trigger LÀ "khi
+     artifact CÓ isolation/custody/authorization boundary" (I-4/I-7/I-11),
+     "xử lý authoritative/financial data" (I-9/I-13), "CÓ authoritative
+     performance budget áp dụng," hay "nằm trên production/operational
+     path" — KHÔNG PHÂN BIỆT boundary đó mới hay kế thừa.]
+   Đánh giá lại từ first principles, verify trực tiếp từng artifact liên
+   quan (`config.md`/`ADR-028`, `error-handling.md`/`ADR-029`, `ci-cd.md`/
+   `ADR-030`, tham chiếu `ADR-017`/`module-registry.yaml` LÀM context —
+   CẢ HAI KHÔNG PHẢI Phase 1.5 deliverable, KHÔNG tự chịu gate tại đây):
+     Security (I-4/I-7/I-11): `config.md` §8 VÀ `error-handling.md` §9
+       (Security and redaction) VÀ `ci-cd.md` §11 ĐỀU CHỈ mô tả CÁCH
+       future implementation code NÊN reference/tránh expose secret —
+       CHÍNH những living convention document này KHÔNG tự thực thi, KHÔNG
+       tự giữ credential, KHÔNG tự thực hiện authorization check tại
+       runtime — chúng LÀ governance/convention artifact, KHÔNG PHẢI
+       chính isolation/custody/authorization boundary đó. `ADR-017` (đã
+       Approved tại Phase 1, KHÔNG PHẢI Phase 1.5 deliverable) LÀ nơi
+       custody/signing boundary THẬT sự tồn tại — nhưng ADR-017 KHÔNG
+       nằm trong tám category đang được DoD này gate. KẾT LUẬN: KHÔNG
+       category Phase 1.5 nào (7 ADR + 8 convention) TỰ nó CÓ một
+       isolation/custody/authorization boundary — Security sub-trigger
+       KHÔNG APPLICABLE cho tám category, KHÔNG PHẢI vì boundary "không
+       mới," MÀ vì bản thân các document Phase 1.5 KHÔNG PHẢI/KHÔNG chứa
+       chính boundary đó.
+     Data quality/numerical precision (I-9/I-13): KHÔNG category nào xử
+       lý authoritative/financial data trực tiếp — TẤT CẢ LÀ convention/
+       decision document về CÁCH code tương lai nên viết, KHÔNG PHẢI data
+       processor. KHÔNG APPLICABLE.
+     Performance (§13.7): KHÔNG authoritative performance budget nào áp
+       dụng cho bất kỳ category Phase 1.5 nào (KHÔNG runtime code, KHÔNG
+       benchmark subject). KHÔNG APPLICABLE.
+     Observability: KHÔNG category nào nằm trên production/operational
+       path (KHÔNG runtime component). KHÔNG APPLICABLE.
+   KẾT QUẢ: Trigger D KHÔNG APPLICABLE cho toàn bộ tám category tại
+   boundary này — lý do CHÍNH XÁC LÀ các artifact Phase 1.5 tự thân LÀ
+   governance/convention document, KHÔNG tự CÓ/thực thi bất kỳ boundary/
+   responsibility nào trong bốn sub-trigger D liệt kê, KHÔNG PHẢI vì
+   boundary chúng tham chiếu "không mới." NẾU một concrete boundary/
+   responsibility MỚI phát sinh (thuộc về CHÍNH một Phase 1.5 artifact,
+   KHÔNG PHẢI artifact khác nó tham chiếu) trước gate evaluation thực tế,
+   trigger D PHẢI re-confirm tại đúng thời điểm đó (xem "Xác nhận bắt
+   buộc" dưới).
 
 E. Lifecycle-triggered (Schema/contract compatibility):
    KHÔNG APPLICABLE — verify trực tiếp: KHÔNG category nào trong tám
@@ -104,7 +168,7 @@ E. Lifecycle-triggered (Schema/contract compatibility):
 
 **Gate set chính thức cho Phase deliverable của Phase 1.5 = Trigger A CHỈ (universal, toàn bộ 7 ADR + 8 living convention).** Trigger B/C/D/E KHÔNG APPLICABLE cho toàn bộ Phase 1.5 tại boundary authoring này. Đây LÀ gate-set declaration mà [Chapter 12 §12.2(5)](../constitution/12-approval-gates.md) resolve tới khi đánh giá Phase 1.5 Approval Gate — theo đúng authority bridge [Chapter 14 §14.3.1](../constitution/14-roadmap.md) khóa, declaration này CHỈ trở thành authoritative gate-set input cho Chapter 12/13 tại đúng thời điểm DoD này được Product Owner accept VÀ incorporate theo §14.3.1 — **chưa xảy ra tại thời điểm authoring này**.
 
-**Xác nhận bắt buộc (fail-closed rule, Chapter 13 §13.12):** nếu một trigger condition (D/E cụ thể) KHÔNG resolve được cho một category cụ thể tại thời điểm gate evaluation thực tế — applicability chưa xác định = eligibility incomplete, **KHÔNG** được mặc định "gate không áp dụng" để bỏ qua. Bảng trên LÀ đánh giá tại boundary authoring (2026-08-13); gate evaluation thực tế PHẢI re-confirm trigger D/E cho từng category tại đúng thời điểm đó — verify trực tiếp lại, KHÔNG suy diễn từ declaration này.
+**Xác nhận bắt buộc (fail-closed rule, Chapter 13 §13.12):** nếu một trigger condition (C/D/E cụ thể) KHÔNG resolve được cho một category cụ thể tại thời điểm gate evaluation thực tế — applicability chưa xác định = eligibility incomplete, **KHÔNG** được mặc định "gate không áp dụng" để bỏ qua. Bảng trên LÀ đánh giá tại boundary authoring (2026-08-13); gate evaluation thực tế PHẢI re-confirm trigger C/D/E cho từng category tại đúng thời điểm đó — verify trực tiếp lại, KHÔNG suy diễn từ declaration này.
 
 ## 3. Substantive completion criteria
 
