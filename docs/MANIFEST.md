@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.125"
+manifest_version: "10.126"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -546,6 +546,327 @@ authorize LIVE
 ```
 
 **Xác nhận tường minh (G-VERIFY-001 áp dụng — verify trực tiếp, KHÔNG suy diễn từ memory):** `current_phase` frontmatter (line 7, file này) verify trực tiếp trước/sau edit. Gate 2 `PASSED` và `P1-RETRO-001` `COMPLETE` verify lại từ chính section tương ứng phía trên trong file này (byte-identical). ADR/Constitution/architecture package/Global Execution Rules (`governance/execution-rules.md`)/Phase 2 rules (`governance/phases/phase-2-rules.md`) KHÔNG sửa bởi transaction này (git diff --quiet cho tất cả).
+
+## Phase 1.5 Approval Gate — Decision (immutable Phase-decision bundle, Chapter 14 §14.4.1–§14.4.2)
+
+**Gate decision source HEAD:** `b10cf917fb3c80d76e5a59ce1f572b67109095ae`.
+
+**Prepared content — Chapter 14 authority (pinned directly here, §14.4.1):**
+
+```text
+Canonical Phase identity:                Phase 1.5 — Engineering Foundation
+Exact Roadmap version/content identity:  Chapter 14 §14.2 — Roadmap, v1.6,
+                                          Locked, blob
+                                          f2cd722218bd80b40241e26530a19198
+                                          11fedad9
+Exact accepted-DoD identity/content
+  version incorporated (§14.3.1):        docs/phase-dod/phase-1.5-dod.md
+                                          v0.2
+                                          reviewed substantive blob
+                                          b1083706b94653a0c6e3931ead49edff
+                                          3a17c596
+                                          post-acceptance blob
+                                          12499147b6040faac176410c2193b8c
+                                          7bafbef22
+                                          status Approved, approved_by
+                                          Product Owner, approved_at
+                                          2026-08-13
+Exact gate-set declaration resolved
+  (§14.4, from the incorporated DoD §2):  Trigger A ONLY (universal
+                                          invariant conformance, toàn bộ
+                                          8/8 Chapter 14 §14.2 category:
+                                          Monorepo · Coding Standard ·
+                                          Naming · Logging · Config ·
+                                          Error Handling · Testing ·
+                                          CI/CD) — Trigger B/C/D/E đều
+                                          KHÔNG APPLICABLE (v0.2
+                                          authority-grounded reasoning,
+                                          đóng EF-DOD-A-MAJ-01: Trigger C
+                                          N/A vì KHÔNG nhánh nào của
+                                          Chapter 13 §13.4's tier-
+                                          resolution chain áp dụng cho
+                                          governance/documentation
+                                          artifact; Trigger D N/A vì
+                                          first-principles inspection
+                                          từng category — KHÔNG category
+                                          nào TỰ nó CÓ isolation/custody/
+                                          authorization/data-quality/
+                                          performance/observability
+                                          responsibility)
+```
+
+**Prepared content — reference-only, authority của chapter khác (bundle chỉ REFERENCE, không redefine):**
+
+```text
+Product Owner DoD-acceptance evidence (Chapter 0 §3):     phase-1.5-dod.md
+                                                            v0.2 acceptance
+                                                            + canonical
+                                                            incorporation
+                                                            transaction,
+                                                            2026-08-13,
+                                                            HEAD
+                                                            b10cf917fb3c80
+                                                            d76e5a59ce1f57
+                                                            2b67109095ae —
+                                                            xem row "Phase
+                                                            1.5 —
+                                                            Engineering
+                                                            Foundation"
+                                                            trong bảng
+                                                            "Phase DoD"
+                                                            phía trên
+Required/submitted deliverable evidence (Chapter 12 §12.1): 8/8 Chapter 14
+                                                            §14.2 category
+                                                            Approved —
+                                                            Monorepo
+                                                            (monorepo.md
+                                                            v0.5 + ADR-024
+                                                            v0.2), Coding
+                                                            Standard
+                                                            (coding-
+                                                            standard.md
+                                                            v0.2 + ADR-025
+                                                            v0.2), Naming
+                                                            (naming.md
+                                                            v0.2 + ADR-026
+                                                            v0.1), Logging
+                                                            (logging.md
+                                                            v0.3 + ADR-027
+                                                            v0.2), Config
+                                                            (config.md
+                                                            v0.2 + ADR-028
+                                                            v0.2), Error
+                                                            Handling
+                                                            (error-
+                                                            handling.md
+                                                            v0.2 + ADR-029
+                                                            v0.2), Testing
+                                                            (testing.md
+                                                            v0.2,
+                                                            ADR_NOT_
+                                                            REQUIRED
+                                                            confirmed —
+                                                            KHÔNG ADR),
+                                                            CI/CD (ci-
+                                                            cd.md v0.1 +
+                                                            ADR-030 v0.3)
+                                                            — mỗi mục
+                                                            resolve từ
+                                                            section
+                                                            "Engineering
+                                                            Foundation" +
+                                                            "ADR" phía
+                                                            trên trong
+                                                            MANIFEST này
+                                                            (exact blob
+                                                            per file)
+Applicable Quality Gate result (Chapter 13 §13.9):         PASS — Trigger
+                                                            A only (§ trên)
+                                                            ; KHÔNG
+                                                            executable
+                                                            implementation
+                                                            /tier tại Phase
+                                                            1.5 (governance
+                                                            /documentation
+                                                            artifact,
+                                                            Chapter 13
+                                                            §13.4 KHÔNG
+                                                            nhánh nào áp
+                                                            dụng), KHÔNG
+                                                            Quality Gate
+                                                            theo Tier áp
+                                                            dụng
+Backward Consistency Check result (Chapter 12 §12.4):      NO CONFLICT
+                                                            (full-scope) —
+                                                            verified trực
+                                                            tiếp: `docs/
+                                                            architecture/
+                                                            module-
+                                                            registry.yaml`
+                                                            KHÔNG sửa kể từ
+                                                            trước commit
+                                                            196539c ("Phase
+                                                            1.5 —
+                                                            Engineering
+                                                            Foundation:
+                                                            AUTHORIZED TO
+                                                            BEGIN"); toàn
+                                                            bộ Constitution
+                                                            Chapter 0–14
+                                                            KHÔNG sửa xuyên
+                                                            suốt Phase 1.5
+                                                            (last touch
+                                                            40704ab, trước
+                                                            Phase 1.5 bắt
+                                                            đầu); Domain
+                                                            Contract KHÔNG
+                                                            sửa xuyên suốt
+                                                            Phase 1.5 (last
+                                                            touch df7def4,
+                                                            trước Phase 1.5
+                                                            bắt đầu); Phase
+                                                            1 architecture
+                                                            package KHÔNG
+                                                            reopen; grep
+                                                            toàn bộ 8
+                                                            convention + 7
+                                                            ADR cho LIVE/
+                                                            deployment-
+                                                            authorizing
+                                                            language — chỉ
+                                                            tìm thấy
+                                                            negation
+                                                            (KHÔNG
+                                                            authorize),
+                                                            KHÔNG positive
+                                                            authorization
+                                                            nào
+Validator/freshness result (Chapter 11 §11.9):             pass — MANIFEST
+                                                            /CHANGELOG kept
+                                                            current qua
+                                                            toàn bộ 8
+                                                            deliverable +
+                                                            7 ADR + DoD
+                                                            transaction,
+                                                            zero stale
+                                                            pointer/
+                                                            duplicate blob
+                                                            reference
+                                                            (cross-verified)
+Independent review evidence (Chapter 0 §3):
+  Phase 1.5 Approval Gate Review A (comprehensive, full
+    Phase 1.5 evidence, incl. full-scope BCC):              CLEAN
+  Blocker/Major/Minor (new):                                0/0/0
+  Independent Phase 1.5 Approval Gate Review B:              READY_FOR_
+                                                              PRODUCT_
+                                                              OWNER_
+                                                              DECISION
+  Chapter 12 prerequisite aggregation (8-điều kiện §12.2 —
+    DoD accepted+incorporated, deliverable complete 8/8,
+    dependency state proper, required ADR closure 7/7,
+    applicable Quality Gate PASS, BCC No conflict,
+    validator/freshness pass, ≥2 independent review TẠI
+    Phase Approval Gate boundary):                          COMPLETE
+  Blocker/Major/Minor (new):                                0/0/0
+  Ghi chú: KHÔNG governance/gate-review hay governance/bcc
+    artifact file riêng được author cho transaction Phase
+    1.5 Approval Gate này (khác precedent Phase 1) — Review
+    A/B evidence record trực tiếp tại bundle này theo đúng
+    task specification riêng của transaction; BCC
+    verification thực hiện trực tiếp qua git history, cite
+    phía trên.
+Product Owner decision fact:                                "APPROVE
+                                                            PHASE 1.5 —
+                                                            ENGINEERING
+                                                            FOUNDATION"
+                                                            (decision date
+                                                            2026-08-13)
+```
+
+**Residual-risk acceptance (Chapter 0 §3, `phase-1.5-dod.md` §9 — CHỈ Minor được phép remain open qua Product Owner acceptance tường minh):**
+
+```text
+Accepted findings:  EF-MONO-ADR024-B-MIN-01 (monorepo.md, v0.4-era
+                    provenance wording inconsistency, KHÔNG semantic/
+                    authority impact), ADR026-A-MIN-01 (ADR-026 §4
+                    Alternative 3 hơi overstate Chapter 3 §3.2's ví dụ,
+                    KHÔNG invalidate primary decision), EF-NAME-A2-MIN-01
+                    (naming.md §4 Python __init__.py wording),
+                    EF-NAME-B-MIN-01 (naming.md §4 Go file/package
+                    wording), ADR027-B-MIN-01 (ADR-027 §4 Alternatives,
+                    valid Minor, KHÔNG invalidate primary decision),
+                    EF-CONFIG-B-MIN-01 (config.md stale "v0.1" wording,
+                    Non-goals heading + ADR-scope disposition),
+                    EF-ERR-B-MIN-01 (error-handling.md stale "v0.1"
+                    wording, nhiều mục), EF-DOD-B-MIN-01 (phase-1.5-
+                    dod.md v0.2, Review B Minor, VALID non-blocking),
+                    EF-DOD-B-MIN-02 (phase-1.5-dod.md v0.2, Review B
+                    Minor, VALID non-blocking)
+Acceptance decision: Product Owner đã tường minh chấp nhận toàn bộ chín
+                    residual Minor này qua transaction riêng của từng
+                    category (xem section "Engineering Foundation"/"ADR"
+                    /"Phase DoD" phía trên) — đúng phase-1.5-dod.md §9's
+                    yêu cầu tường minh, KHÔNG ngầm định, KHÔNG suy diễn
+                    từ im lặng, KHÔNG re-accept/re-decide tại transaction
+                    này (chỉ carry-forward reference).
+Resulting status:    chín finding trên VẪN OPEN, carried forward — KHÔNG
+                    bị đóng SAI ("closed"/"resolved") bởi bundle này;
+                    bundle CHỈ tổng hợp reference, KHÔNG tự động resolve
+                    nội dung finding nào.
+```
+
+**Resulting MANIFEST transition (authoritative TẠI atomic recording boundary — commit này, cùng lúc với bundle phía trên, §14.4.2):** `manifest_version` `10.125` → `10.126`. `current_phase` KHÔNG đổi — VẪN `"Phase 1.5 — Engineering Foundation"` (Phase 2 substantive work CHƯA authorized, §ngay dưới đây — Approval Gate PASSED KHÔNG tự động chuyển `current_phase`, đúng phân biệt tường minh khỏi Phase 0→1 transition, VÀ giống hệt pattern Phase 1's Gate 2: current_phase CHỈ chuyển qua một transaction "Start Authorization" riêng biệt, SAU KHI retrospective yêu cầu hoàn thành).
+
+**Recorded state transition:**
+
+```text
+Phase 1.5 — Engineering Foundation:  APPROVED
+Approval Gate:                       PASSED
+```
+
+**"Approval Gate PASSED" nghĩa là gì:** Product Owner đã quyết định Phase 1.5 deliverable đạt eligibility đầy đủ (8-điều kiện Chapter 12 §12.2, xem Chapter 12 prerequisite aggregation COMPLETE phía trên) VÀ approve — nhưng đây LÀ Approval Gate decision (transition MECHANISM), KHÔNG tự động LÀ Phase 2 substantive work authorization (xem section retrospective + Phase 2/LIVE state ngay dưới).
+
+**Transaction này KHÔNG:**
+
+```text
+authorize LIVE
+rerun Review A/Independent Review B
+rerun Phase 1.5 Quality Gate
+rerun Phase-wide Backward Consistency Check
+sửa DoD/ADR/convention semantics nào
+đóng bất kỳ residual nào trong chín residual Minor (VẪN OPEN, carried
+  forward, §trên)
+thực hiện EF-RETRO-001 (§ngay dưới, REQUIRED nhưng CHƯA thực hiện)
+bắt đầu Phase 2 substantive work
+tạo Phase 2 rules/plan/architecture/DoD/ADR nào
+đóng OQ-001, OQ-002, hay OQ-003
+```
+
+**Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state. Sau atomic boundary này, evidence bị mất/hỏng là integrity violation, KHÔNG tự động đảo ngược quyết định (§14.4.2).
+
+## Phase 1.5 retrospective — REQUIRED trước Phase 2 substantive work (EF-RETRO-001)
+
+```text
+Đúng EF-RETRO-001 (governance/phases/phase-1.5-rules.md §Retrospective
+  requirement, operational_state EFFECTIVE): TRƯỚC KHI Phase 2 substantive
+  work bắt đầu, PHẢI thực hiện một Phase 1.5 process retrospective
+  (wasted transaction, avoidable ADR, repeated review cycle, prompt-size
+  problem, bookkeeping defect, rule hữu ích/thất bại, rule nên promote
+  Global, Phase-2-specific control mới) — đòi hỏi một transaction riêng
+  thực hiện nó, KHÔNG tự động đóng bởi Approval Gate decision phía trên.
+Retrospective: REQUIRED, CHƯA thực hiện tại transaction này.
+```
+
+## Phase 2 / LIVE authorization state (post–Phase 1.5 Approval Gate)
+
+```text
+Phase 2 substantive work:  NOT YET AUTHORIZED — chờ (a) Phase 1.5
+                           retrospective (EF-RETRO-001, §trên) VÀ (b) một
+                           explicit Phase 2 start/authorization
+                           transaction riêng biệt (Product Owner decision,
+                           chưa thực hiện) — cùng pattern hai điều kiện
+                           như Phase 1 → Phase 1.5's precedent.
+LIVE:                       NOT AUTHORIZED — Approval Gate passing KHÔNG
+                           tự nó authorize LIVE dưới bất kỳ hình thức nào
+                           (đúng nguyên tắc PAPER-only/LIVE Unauthorized
+                           đã giữ xuyên suốt toàn bộ Phase 1 và Phase 1.5).
+```
+
+**Transaction này KHÔNG:**
+
+```text
+authorize LIVE
+rerun Review A/Independent Review B
+rerun Phase 1.5 Quality Gate
+rerun Phase-wide Backward Consistency Check
+sửa DoD/ADR/convention semantics nào
+resolve chín Minor finding (VẪN OPEN, carried forward, §trên)
+thực hiện Phase 1.5 retrospective (§trên, REQUIRED nhưng CHƯA thực hiện)
+bắt đầu Phase 2 substantive work
+đóng OQ-001, OQ-002, hay OQ-003
+```
+
+**Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên, KHÔNG đổi) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state. Sau atomic boundary này, evidence bị mất/hỏng là integrity violation, KHÔNG tự động đảo ngược quyết định (§14.4.2).
 
 ## Decision Log
 

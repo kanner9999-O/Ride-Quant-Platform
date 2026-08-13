@@ -2,6 +2,124 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 1.5 APPROVED, Approval Gate PASSED (Product Owner decision)
+
+**Phase Approval Gate decision — vai trò: `Phase 1.5 Approval Decision + Atomic Recording Executor`.** Records the Product Owner decision "APPROVE PHASE 1.5 — ENGINEERING FOUNDATION" as the immutable Phase-decision bundle (Chapter 14 §14.4.1–§14.4.2), following the structure established for the Phase 0 → Phase 1 and Phase 1 / Gate 2 decisions. Mechanical lifecycle/decision bookkeeping only — recording transaction, not substantive Phase 2 work, not `EF-RETRO-001`, not LIVE authorization.
+
+### Baseline
+
+```text
+Starting HEAD:      b10cf917fb3c80d76e5a59ce1f572b67109095ae
+Authoritative DoD:  docs/phase-dod/phase-1.5-dod.md v0.2, status Approved
+                    reviewed substantive blob
+                    b1083706b94653a0c6e3931ead49edff3a17c596
+                    post-acceptance blob
+                    12499147b6040faac176410c2193b8c7bafbef22
+Roadmap identity:   Chapter 14 §14.2, v1.6, Locked, blob
+                    f2cd722218bd80b40241e26530a1919811fedad9
+Prerequisites (re-cited, not re-verified this transaction):
+  Gate-set declaration (DoD §2):  Trigger A only, B/C/D/E N/A
+  8/8 category deliverable:       Approved (Monorepo, Coding Standard,
+                                   Naming, Logging, Config, Error
+                                   Handling, Testing, CI/CD)
+  7/7 required ADR:                Approved (ADR-024..ADR-030)
+  Phase 1.5 Approval Gate Review A: CLEAN, Blocker 0/Major 0/Minor 0
+  Independent Phase 1.5 Approval
+    Gate Review B:                 READY_FOR_PRODUCT_OWNER_DECISION,
+                                    Chapter 12 prerequisite aggregation
+                                    COMPLETE, Blocker 0/Major 0/Minor 0
+  Full-scope BCC:                  NO CONFLICT (module-registry.yaml,
+                                    Constitution, Domain Contract all
+                                    unmodified since before Phase 1.5
+                                    started — verified via git log)
+```
+
+### New MANIFEST sections
+
+```text
+"Phase 1.5 Approval Gate — Decision" -- mirrors the existing "Phase 1
+  Approval Gate — Decision" section structure (prepared Chapter 14
+  content, reference-only bundle citations, residual-risk acceptance,
+  resulting state transition, explicit non-inclusion list).
+"Phase 1.5 retrospective — REQUIRED trước Phase 2 substantive work
+  (EF-RETRO-001)" -- mirrors "12.1 Phase 1 retrospective" structure.
+"Phase 2 / LIVE authorization state (post–Phase 1.5 Approval Gate)" --
+  mirrors "12.2 Phase 2 / LIVE authorization state" structure.
+manifest_version: "10.125" -> "10.126"
+current_phase: unchanged ("Phase 1.5 — Engineering Foundation") -- Phase
+  2 has not been authorized to begin, same pattern as Phase 1's Gate 2
+  (current_phase only transitions via a later, separate explicit "Start
+  Authorization" transaction, after the retrospective is complete).
+```
+
+### Recorded decision
+
+```text
+Phase 1.5 — Engineering Foundation:   APPROVED
+Approval Gate:                        PASSED
+```
+
+### Residual-risk acceptance
+
+```text
+Carried forward (referenced, not re-decided, not closed): EF-MONO-
+  ADR024-B-MIN-01, ADR026-A-MIN-01, EF-NAME-A2-MIN-01, EF-NAME-B-MIN-01,
+  ADR027-B-MIN-01, EF-CONFIG-B-MIN-01, EF-ERR-B-MIN-01, EF-DOD-B-MIN-01,
+  EF-DOD-B-MIN-02 -- all nine remain OPEN, accepted non-blocking, per
+  each finding's own prior Product Owner acceptance transaction.
+Resulting status: none of the nine findings are closed/resolved by this
+  bundle. This transaction only aggregates them by reference.
+```
+
+### Resulting state
+
+```text
+EF-RETRO-001:                REQUIRED before substantive Phase 2 work
+                             (phase-1.5-rules.md, operational_state
+                             EFFECTIVE), NOT yet performed.
+Phase 2 substantive work:     NOT YET AUTHORIZED -- pending (a) the
+                             retrospective and (b) a separate explicit
+                             Phase 2 start/authorization transaction.
+LIVE:                          NOT AUTHORIZED -- Approval Gate passing
+                             does not itself authorize LIVE (PAPER-only/
+                             LIVE Unauthorized principle unchanged).
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md    (new "Phase 1.5 Approval Gate — Decision" +
+                     retrospective + Phase 2/LIVE state sections,
+                     manifest_version bump)
+docs/CHANGELOG.md    (this entry)
+```
+
+### Preserved unchanged
+
+```text
+phase-1.5-dod.md, ADR-024 through ADR-030, all 8 Engineering Foundation
+  conventions, Constitution (Chapter 0–14), Domain Contract,
+  module-registry.yaml, all Phase 1 architecture packages,
+  phase-0-dod.md, phase-1-dod.md, all prior governance evidence records:
+  all byte-identical, not modified. No Review A/B rerun, no Quality Gate
+  rerun, no BCC rerun.
+```
+
+### Validation
+
+```text
+HEAD before/after:                          CONFIRMED
+Product Owner decision recorded verbatim:     CONFIRMED
+Residual-risk carry-forward recorded, findings
+  NOT falsely closed:                         CONFIRMED
+No DoD/ADR/convention/Constitution/Domain
+  Contract semantics modified:                 CONFIRMED (git diff --quiet)
+No review/QG/BCC rerun:                        CONFIRMED
+EF-RETRO-001 NOT performed, remains OPEN:      CONFIRMED
+No Phase 2 substantive work started:           CONFIRMED
+No LIVE authorization:                          CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 1.5 DoD v0.2 ACCEPTED + CANONICALLY INCORPORATED
 
 **Mechanical lifecycle recording — vai trò: `Phase 1.5 DoD v0.2 Acceptance + Canonical Incorporation Recorder`.** Records the Product Owner decision "ACCEPT PHASE 1.5 DOD V0.2 — ACCEPT EF-DOD-B-MIN-01 AND EF-DOD-B-MIN-02 AS NON-BLOCKING RESIDUALS — INCORPORATE INTO PHASE 1.5 CANONICAL PHASE PLAN" — no substantive DoD semantics changed. `phase-1.5-dod.md` becomes the authoritative Phase 1.5 DoD, and its gate-set declaration (§2) becomes authoritative for future Chapter 12/13 use.
