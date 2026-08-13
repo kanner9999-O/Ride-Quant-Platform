@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-02-manifest
 title: "Phase 2 Prototype — Batch 02 — Batch Manifest"
-version: "1.0"
+version: "1.1"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -10,6 +10,8 @@ created_at: "2026-08-13"
 # Phase 2 Prototype — Batch 02 — Batch Manifest
 
 **Vai trò của tài liệu này:** batch-level evidence record cho Batch 02, đúng `phase-2-rules.md` `P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch 02 LÀ candidate/in-review — **KHÔNG self-approved** (chờ Review A + Independent Review B theo batch, đúng `P2-PROTOTYPE-001`).
+
+**v1.1 — bounded correction (2026-08-13), đóng `P2-B02-A-MAJ-01` (Review A).** v1.0's §4 cumulative UC ledger KHÔNG PHẢI một valid partition — `UC-002` xuất hiện CẢ trong A LẪN B; `UC-009`/`UC-010` bị gọi B trong khi mô tả nói zero-reference; C ghi "9 of 21" nhưng liệt kê 10 UC; "5+7+9=21" do đó sai. Sửa: §4 viết lại — B recompute TỪ ĐẦU trực tiếp từ `ux-blueprint.md` §5a's NAV-003/004/005/006 UC traceability (loại UC-002/UC-004 vì đã A), kết quả A=5/B=9/C=7, tổng=21, ba set đôi một rời nhau (verify mechanically, xem `traceability.md` v1.1 §2). KHÔNG đổi Replay/parity behavior, KHÔNG surface mới, KHÔNG đổi 3/17→5/17 surface progress (surface accounting KHÔNG bị ảnh hưởng bởi finding này).
 
 ## 1. Batch identity
 
@@ -63,24 +65,31 @@ STATE:  STATE-001 (loading), STATE-004 (cited at NAV-002 level, distinction from
         indeterminate)
 ```
 
-## 4. Covered UC IDs — substantive accounting (A/B/C taxonomy, kế thừa từ `../batch-01/traceability.md` §0)
+## 4. Covered UC IDs — substantive accounting (A/B/C taxonomy, kế thừa từ `../batch-01/traceability.md` §0, recomputed đúng tại v1.1, đóng `P2-B02-A-MAJ-01`)
 
 ```text
 Batch-02-authored substantive (A, +2 mới): UC-004 (SCR-002), UC-005 (VIEW-003).
 
 Cumulative A (candidate, 5 of 21): UC-001, UC-002, UC-003 (Batch 01) + UC-004, UC-005 (Batch 02).
+  UC-001/002/003 GIỮ NGUYÊN A dù Batch 02 tiêu thụ chúng LÀM prerequisite/incoming-context —
+  KHÔNG hạ xuống B (một UC KHÔNG thể vừa A vừa B, đóng finding 1 của `P2-B02-A-MAJ-01`).
 
-Cumulative B (7 of 21, UNCHANGED set from Batch 01 -- Batch 02 adds evidence for UC-002/UC-006/
-  UC-011/UC-015/UC-019/UC-020/UC-021 without promoting any of them to A):
-  UC-002, UC-006, UC-011, UC-015, UC-019, UC-020, UC-021.
+Cumulative B (9 of 21, recomputed TỪ ĐẦU trực tiếp từ ux-blueprint.md §5a — KHÔNG copy Batch
+  01's set cũ, KHÔNG bao gồm UC-002/UC-004 vì đã A):
+  UC-006 (NAV-003), UC-011 (NAV-004/WS-001/STATE-027), UC-015 (WS-001/STATE-027), UC-016/017/018
+  (NAV-005 + VIEW-003 MISMATCH→Review handoff), UC-019/020/021 (NAV-006).
 
-Cumulative C (9 of 21, giảm từ 11 vì UC-004/UC-005 chuyển sang A):
-  UC-007, UC-008, UC-009, UC-010, UC-012, UC-013, UC-014, UC-016, UC-017, UC-018.
+Cumulative C (7 of 21 — verify trực tiếp: KHÔNG element nào trong Batch 01/02 tham chiếu, kể cả
+  UC-009/UC-010 dù cùng Backtest lifecycle stage với UC-006 — NAV-003's OWN citation CHỈ UC-002/
+  UC-006, KHÔNG UC-009/UC-010):
+  UC-007, UC-008, UC-009, UC-010, UC-012, UC-013, UC-014.
 
-5 + 7 + 9 = 21. Đúng.
+Partition validation: |A|=5, |B|=9, |C|=7, tổng=21. A∩B=A∩C=B∩C=∅ (verify mechanically, xem
+  traceability.md v1.1 §2). Union = {UC-001..UC-021}, mỗi UC đúng một lần — KHÔNG thiếu, KHÔNG dư.
 
 21-UC substantive completion progress: candidate 5/21 (A only) -- CHƯA independently verified
-  tại transaction này (chờ Review A + Independent Review B trên Batch 02).
+  tại transaction này (chờ Review A + Independent Review B trên Batch 02). Last INDEPENDENTLY
+  VERIFIED progress VẪN 3/21 (Batch 01 only).
 ```
 
 ## 5. Covered PR IDs (Batch 02 mới)
@@ -124,10 +133,11 @@ docs/domain/replay-event.md, trade-intent.md, risk.md, execution-intent.md, orde
   represented ONLY as read-only nav-bar/handoff affordance leading to a labelled "Deferred" or
   "not authored" placeholder — no substantive screen/view content for any of them.
 
-16 of 21 UC NOT substantively covered (§4 above — B=7, C=9, KHÔNG collapsed thành một bucket):
-  B — Partial/referenced (7): UC-002, UC-006, UC-011, UC-015, UC-019, UC-020, UC-021.
-  C — Deferred/not yet represented (9): UC-007, UC-008, UC-009, UC-010, UC-012, UC-013, UC-014,
-    UC-016, UC-017, UC-018.
+16 of 21 UC NOT substantively covered (§4 above — B=9, C=7, KHÔNG collapsed thành một bucket,
+  KHÔNG double-count UC-002 vào A, đúng `P2-B02-A-MAJ-01` correction):
+  B — Partial/referenced (9): UC-006, UC-011, UC-015, UC-016, UC-017, UC-018, UC-019, UC-020,
+    UC-021.
+  C — Deferred/not yet represented (7): UC-007, UC-008, UC-009, UC-010, UC-012, UC-013, UC-014.
 ```
 
 ## 9. I-11 — Secrets & Custody Isolation — bounded Phase-2 Access-control audit

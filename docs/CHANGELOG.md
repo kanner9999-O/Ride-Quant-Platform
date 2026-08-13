@@ -2,6 +2,129 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 02 v1.1 bounded correction: `P2-B02-A-MAJ-01` CLOSED
+
+**Bounded correction — vai trò: `Phase 2 Prototype Batch 02 v1.1 Bounded Correction Executor`.** Closes exactly one Review A finding on `prototype/phase-2/batch-02/`'s cumulative UC accounting ledger. Does not change Replay/parity UX behavior or expand batch scope.
+
+### Baseline
+
+```text
+Starting HEAD:        1adb36803351e844bb8ee83eacd168d9204bfc99
+traceability.md:       v1.0, blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425
+batch-manifest.md:     v1.0, blob 08fd687f79b554f55d90aec1abf891e873106b8a
+Batch lifecycle:       CANDIDATE (unchanged going in)
+```
+
+### Finding — `P2-B02-A-MAJ-01` (closed)
+
+```text
+Defect: the cumulative A/B/C UC ledger in traceability.md/batch-manifest.md was not a valid
+  partition. Specifically: (1) UC-002 appeared in both A (Batch 01 substantive) and cumulative B
+  -- a UC cannot be both; (2) UC-009/UC-010 were labelled B while their own description said "not
+  referenced by Batch 02 at all" -- self-contradictory, should have been C; (3) the C set was
+  labelled "9 of 21" but the enumerated list contained 10 UCs; (4) "5 + 7 + 9 = 21" was therefore
+  not a valid proof given the overlapping/miscounted sets; (5) Batch 02 introduces Review-stage
+  reference behavior (NAV-005 nav-button existence + VIEW-003's MISMATCH -> Review handoff) that
+  the v1.0 ledger had not freshly accounted for -- it had simply copied Batch 01's prior B set
+  forward.
+Fix: rebuilt the cumulative ledger for all UC-001..UC-021 from scratch, verifying each NAV's exact
+  UC traceability directly against ux-blueprint.md §5a (not copied from memory or from Batch 01's
+  prior ledger): NAV-003 = "UC-002 (precondition), UC-006"; NAV-004 = "UC-002, UC-011"; NAV-005 =
+  "UC-016, UC-017, UC-018"; NAV-006 = "UC-019, UC-002, UC-020, UC-021". UC-002 and UC-004 excluded
+  from B (both already A). WS-001/STATE-027 contribute UC-015 (not already covered via a NAV).
+  Result: A = {UC-001..005} (5), B = {UC-006, UC-011, UC-015, UC-016, UC-017, UC-018, UC-019,
+  UC-020, UC-021} (9), C = {UC-007, UC-008, UC-009, UC-010, UC-012, UC-013, UC-014} (7).
+  Mechanically verified: |A|+|B|+|C| = 21; A∩B = A∩C = B∩C = empty set; A∪B∪C =
+  {UC-001..UC-021} with each UC appearing exactly once (Python set-based verification run and
+  confirmed before writing the correction). Candidate cumulative progress remains 5/21, 5/17 --
+  unaffected, since only the B/C breakdown was wrong, not the A count.
+```
+
+### Files changed (prototype)
+
+```text
+prototype/phase-2/batch-02/traceability.md      v1.0 blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425
+                                                -> v1.1 blob f37ca95963111dcdece19b11fb8a919646ebfe8b
+prototype/phase-2/batch-02/batch-manifest.md    v1.0 blob 08fd687f79b554f55d90aec1abf891e873106b8a
+                                                -> v1.1 blob decb228607178b0ab593f330d049663a482b3726
+prototype/phase-2/batch-02/index.html           UNCHANGED, blob
+                                                c69502da70e32db07572848a795d74f67ecc838d
+prototype/phase-2/batch-02/styles.css           UNCHANGED, blob
+                                                bcd250d57cfb5b56e3558fbdbede0cca89cf1b82
+prototype/phase-2/batch-02/app.js               UNCHANGED, blob
+                                                8f5fba218457b965dd2f9ecdc1576de9b61639a6
+prototype/phase-2/batch-02/README.md            UNCHANGED (verified git diff --quiet)
+```
+
+### Preserved unchanged
+
+```text
+Replay/parity UX behavior (SCR-002 cursor binding, VIEW-003 optional entry, MATCH/MISMATCH/
+  INDETERMINATE representation, canonical semantic representation fields, pinned-axis
+  representation, authority/prototype-datum labels), STATE-001/004/006/007/008/030 behavior,
+  I-11 result (re-verified PASS), Trigger B/C/D/E boundary (re-verified preserved), LIVE
+  Unauthorized, surface accounting (candidate cumulative 5/17, last independently verified
+  3/17 -- both unchanged, this correction is UC-ledger-only). No SCR/VIEW added. No Product/UX
+  authority, Domain Contract, Phase 2 DoD, Phase 2 rules, or ADR modified. Batch 01 files/
+  lifecycle untouched (git diff --quiet verified).
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-02/{traceability.md,batch-manifest.md}  (2 files corrected, listed above)
+docs/MANIFEST.md                                                  (manifest_version 10.136 ->
+                                                                  10.137; Batch 02 row v1.1
+                                                                  correction note prepended,
+                                                                  prior v1.0 note preserved as
+                                                                  history)
+docs/CHANGELOG.md                                                 (this entry)
+```
+
+### Result
+
+```text
+Cumulative A:                 {UC-001, UC-002, UC-003, UC-004, UC-005} -- 5
+Cumulative B:                 {UC-006, UC-011, UC-015, UC-016, UC-017, UC-018, UC-019, UC-020,
+                              UC-021} -- 9
+Cumulative C:                 {UC-007, UC-008, UC-009, UC-010, UC-012, UC-013, UC-014} -- 7
+Partition validation:          PASS (mechanically verified, disjoint, union = UC-001..UC-021,
+                              sum = 21)
+Batch-02 substantive UC
+  contribution:                 UC-004, UC-005 (unchanged)
+Candidate cumulative surface/
+  UC progress:                  5/17, 5/21 (unchanged)
+Last independently verified
+  cumulative surface/UC
+  progress:                     3/17, 3/21 (Batch 01 only, unchanged)
+Batch lifecycle:               CANDIDATE (unchanged) -- NOT self-approved.
+I-11 / Trigger B-C-D-E:        preserved (re-confirmed).
+Phase 2 substantive completion: NOT ESTABLISHED (unchanged).
+Gate 3 / Phase 3 / LIVE:        NOT OPENED / NOT AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 1adb36803351e844bb8ee83eacd168d9204bfc99 verified
+[x] P2-B02-A-MAJ-01 closed -- all 21 UCs classified exactly once
+[x] A ∩ B = ∅, A ∩ C = ∅, B ∩ C = ∅ (mechanically verified)
+[x] A ∪ B ∪ C = {UC-001..UC-021}, no duplicate, no missing UC
+[x] |A| + |B| + |C| = 5 + 9 + 7 = 21
+[x] No UC labelled B while simultaneously described as zero-reference (UC-009/UC-010 now C)
+[x] No A UC appears in B/C (UC-001/002/003/004/005 exclusively A)
+[x] Candidate vs independently-verified progress remains clearly distinguished (5/21 candidate,
+    3/21 last verified)
+[x] Batch 02 remains CANDIDATE
+[x] Batch 01 untouched (git diff --quiet)
+[x] I-11 PASS; I-12 internally consistent (§2 ledger no longer contradicts §3 element map)
+[x] Trigger B/C/D/E preserved
+[x] No Replay/parity behavior change, no scope expansion (app.js/styles.css/index.html
+    byte-identical)
+[x] Only intended files changed (prototype/phase-2/batch-02/{traceability.md,batch-manifest.md}
+    + MANIFEST.md + CHANGELOG.md)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 02 AUTHORED (candidate, not reviewed): Replay reconstruction + optional parity verification
 
 **Second substantive Phase 2 prototype authoring — vai trò: `Phase 2 Product Prototype Batch 02 Author`.** Authors the second coherent Product Prototype batch under the Approved Phase 2 DoD (v0.3), building on Batch 01's Independent-Review-B-verified `READY_FOR_NEXT_PHASE2_BATCH` contribution. Static HTML/CSS/vanilla-JS, mock/static data only, self-contained (no shared live JS state with Batch 01). Batch-level candidate, not self-approved.
