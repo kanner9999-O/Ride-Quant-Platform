@@ -2,6 +2,127 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-12 — ADR-030 v0.3 APPROVED: Cross-Module CI/CD Convention Baseline
+
+**Mechanical lifecycle recording — vai trò: `ADR-030 v0.3 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-030 V0.3" — no ADR decision semantics changed.
+
+### Baseline
+
+```text
+Starting HEAD:      826c979fd3c9f7ac806673d2a05e5e0d3df2cd25
+Reviewed candidate: docs/adr/ADR-030.md v0.3, status Draft,
+                    blob 8a1200cbe1bef0e00bae0df4b455e6363d16c726
+```
+
+### Review evidence
+
+```text
+Đóng (trước approval, xuyên v0.2/v0.3): ADR030-A-MAJ-01 (đóng tại
+  v0.2), ADR030-B-MAJ-01 (đóng tại v0.3). Bounded Review A: CLEAN, New
+  Blocker 0/New Major 0/New Minor 0.
+Independent Review B trên v0.2: NOT_READY (ADR030-B-MAJ-01, unsupported
+  LIVE-authority attribution). v0.3 resolve chính defect đó.
+Independent bounded Review B re-review trên đúng v0.3:
+  ADR030-A-MAJ-01: CLOSED
+  ADR030-B-MAJ-01: CLOSED
+  New Blocker 0 / New Major 0 / New Minor 0
+  ADR scope: ADR_REQUIRED / JUSTIFIED — NOT ADR INFLATION
+  Verdict: READY_FOR_PRODUCT_OWNER_DECISION
+Không finding mới nào invented tại approval này.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-12"
+version:      "0.3" KHÔNG đổi (pure mechanical approval, KHÔNG bump)
+Product Owner decision (nguyên văn): "APPROVE ADR-030 V0.3."
+```
+
+### Reviewed vs resulting blob (G-ID-001, distinguished)
+
+```text
+Reviewed candidate:           v0.3 / Draft
+                               blob 8a1200cbe1bef0e00bae0df4b455e6363d16c726
+Resulting Approved identity:  v0.3 / Approved
+                               blob e02853e2ad21e14cf679099480397344c6bcf3c7
+Decision content (§1–§6/§8–§9 của ADR-030.md): byte-equivalent —
+  Independent-reviews-table (§7) fill + banner LÀ thay đổi duy nhất.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-030.md  (v0.3 Draft -> v0.3 Approved, blob
+                      e02853e2ad21e14cf679099480397344c6bcf3c7)
+docs/MANIFEST.md     (manifest_version 10.119 -> 10.120; row cập nhật)
+docs/CHANGELOG.md    (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-007.md/docs/domain/account.md/docs/adr/ADR-017.md —
+  verified byte-identical, KHÔNG modify. docs/constitution/12-
+  approval-gates.md/13-quality-gates.md/14-roadmap.md (Locked),
+  docs/engineering/testing.md (Approved), ADR-025–ADR-029/coding-
+  standard.md/naming.md/logging.md/config.md/error-handling.md,
+  ADR-008/024, monorepo.md, module-registry.yaml, Constitution,
+  Phase 1.5 rules — tất cả verified byte-identical (git diff empty).
+Một governed cross-module Foundation-CI baseline, CI-only Phase 1.5
+  scope, CI-vs-CD boundary, deployment/release/promotion exclusions,
+  "ADR-030 KHÔNG authorize LIVE," no invented sole LIVE-authorization
+  authority, Account environment=LIVE KHÔNG tự authorize platform LIVE
+  execution, Phase 7 remains Deployment scope, Chapter 12 Approval
+  Gate/Product Owner authority, Chapter 13 Quality Gate authority,
+  Chapter 13 §13.10 flaky-test policy authority, Testing Convention
+  quarantine/tooling-mechanics-only boundary, ADR-017 custody/signing
+  boundary distinct from LIVE authorization, Coding/Naming/Logging/
+  Config/Error Handling boundaries, provider/tool selection deferred,
+  workflow/pipeline topology deferred, living-convention delegation to
+  future ci-cd.md, Scale Check, Non-goals, downstream sequence — tất
+  cả giữ nguyên.
+EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted
+  non-blocking. KHÔNG tạo ci-cd.md/`.github/workflows`/CI provider.
+  Phase 2/deployment/LIVE VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/adr/ADR-030.md: v0.3, status Approved, approved_by Product Owner,
+  approved_at 2026-08-12, blob
+  e02853e2ad21e14cf679099480397344c6bcf3c7.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 826c979fd3c9f7ac806673d2a05e5e0d3df2cd25 verified
+[x] Reviewed candidate blob 8a1200cbe1bef0e00bae0df4b455e6363d16c726
+    verified
+[x] version remains 0.3
+[x] status becomes Approved
+[x] approved_by Product Owner, approved_at "2026-08-12"
+[x] Product Owner decision recorded exactly
+[x] ADR030-A-MAJ-01 remains CLOSED
+[x] ADR030-B-MAJ-01 remains CLOSED
+[x] Final Review B state remains 0/0/0
+[x] ADR scope remains JUSTIFIED / NOT ADR INFLATION
+[x] Semantic decision content unchanged (§1–§6/§8–§9 byte-equivalent,
+    verified)
+[x] KHÔNG unsupported LIVE authority nào introduced
+[x] KHÔNG ci-cd.md nào tạo
+[x] KHÔNG workflow/provider nào introduced
+[x] Residual findings untouched
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2 VẪN NOT AUTHORIZED
+[x] LIVE VẪN NOT AUTHORIZED
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — ADR-030 v0.3 bounded correction: `ADR030-B-MAJ-01` CLOSED
 
 **Bounded correction — vai trò: `ADR-030 v0.3 Bounded Correction Executor`.** Resolves one Independent Review B finding on the v0.2 CI/CD ADR draft. No redesign of ADR-030.
