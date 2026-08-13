@@ -2,6 +2,222 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 02 AUTHORED (candidate, not reviewed): Replay reconstruction + optional parity verification
+
+**Second substantive Phase 2 prototype authoring — vai trò: `Phase 2 Product Prototype Batch 02 Author`.** Authors the second coherent Product Prototype batch under the Approved Phase 2 DoD (v0.3), building on Batch 01's Independent-Review-B-verified `READY_FOR_NEXT_PHASE2_BATCH` contribution. Static HTML/CSS/vanilla-JS, mock/static data only, self-contained (no shared live JS state with Batch 01). Batch-level candidate, not self-approved.
+
+### Baseline
+
+```text
+Starting HEAD:       7c4eee979c8f2a1bbd882e2fb273bc5b446c376a
+Phase 2 DoD:          v0.3, Approved, canonical incorporation ESTABLISHED
+Batch 01:             Independent Review B verdict READY_FOR_NEXT_PHASE2_BATCH; verified
+                      contribution SCR-001/VIEW-001/VIEW-002, 3/17 surfaces, 3/21 UC
+                      (UC-001/002/003); lifecycle CANDIDATE (unchanged by this transaction,
+                      verified git diff --quiet across prototype/phase-2/batch-01/)
+```
+
+### Authority inspected
+
+```text
+docs/product/ux-blueprint.md §5a NAV-002, §7.2 SCR-002/VIEW-003, §8 FLOW-001 (existing scope
+  only, not redefined), §11 STATE-001/004/006/007/008/030.
+docs/domain/decision.md §9a.1-§9a.7 (Canonical Decision Semantic Representation, exclusion list,
+  nine pinned axes, definition/version identities, MATCH/MISMATCH/INDETERMINATE outcome model,
+  authority boundary) -- Consolidated Stable.
+docs/product/use-case-workflow.md / product-requirement.md for UC-004/UC-005 and PR-008/010/018/
+  019/020.
+```
+
+### Batch-02 semantic scope
+
+```text
+NAV-002 (Replay) + SCR-002 (Replay Cursor & Historical Reconstruction) + VIEW-003 (Parity
+  Recomputation Result) -- VIEW-003 included because ux-blueprint.md defines it as an optional
+  action directly from SCR-002, using the ReplayState(C) currently displayed. Backtest
+  (SCR-003..SCR-005) and Review (SCR-009, the VIEW-003 MISMATCH handoff target) explicitly
+  excluded -- represented only as read-only navigation/handoff affordances to a labelled
+  "deferred" placeholder, per batch-selection rule.
+```
+
+### Files created
+
+```text
+prototype/phase-2/batch-02/index.html         blob c69502da70e32db07572848a795d74f67ecc838d
+prototype/phase-2/batch-02/styles.css          blob bcd250d57cfb5b56e3558fbdbede0cca89cf1b82
+prototype/phase-2/batch-02/app.js              blob 8f5fba218457b965dd2f9ecdc1576de9b61639a6
+prototype/phase-2/batch-02/traceability.md     blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425
+prototype/phase-2/batch-02/batch-manifest.md   (batch evidence record, see below)
+prototype/phase-2/batch-02/README.md           (batch overview)
+```
+
+### NAV-002 / SCR-002 behavior
+
+```text
+NAV-002 precondition gate: represented faithfully at SCR-002 entry -- if no Strategy Instance is
+  pinned (simulated incoming context, QA panel), a blocked panel cites STATE-004 explicitly as
+  NAV-002's own prose-described gate, WITH an explicit note that STATE-004's own catalogue
+  "Applicable screen/view" column names VIEW-001, not SCR-002 -- the authority tension is
+  represented, not collapsed/silently resolved. If Research verification did not PASS, SCR-002
+  remains read-only-navigable (UX-P-5) showing the blocked reason, with no reconstruction run.
+Cursor binding: state.selectedRange-equivalent state.selectedCursor is read by a real
+  #cursor-select change listener; changing the cursor visibly changes the rendered ReplayState(C)
+  lineage (does NOT repeat Batch 01's original P2-B01-B-MAJ-01 inert-control defect). Three mock
+  cursors: two resolve normally with genuinely distinct lineage content, one (C-003) is
+  deliberately unavailable to demonstrate STATE-006.
+Lineage displayed: Decision -> Trade Intent -> RiskEvaluation -> Execution Intent -> Order ->
+  ExecutionResult -> Fill -> Position, labelled "Authority class: Recorded fact (default
+  reconstruction)" + "Prototype datum: Illustrative / non-authoritative" (same corrected pattern
+  as Batch 01's P2-B01-A-MAJ-01 fix) -- no fixture is presented as an actual repository/runtime
+  fact.
+```
+
+### VIEW-003 parity representation
+
+```text
+Entry is exclusively a button click from SCR-002's normal-reconstruction state -- never automatic,
+  never triggered by cursor selection alone.
+Represents recorded-vs-recomputed Canonical Decision Semantic Representation (decision.md §9a.1)
+  as two side-by-side panels using the exact fixed field set (result, instrument_selection_ref,
+  strategy_instance_id, strategy_definition_version_id, configuration_version_ref,
+  decision_rule_ref, rule_family, decision_context_cursor, normalized_rule_parameters,
+  input_evidence_refs) -- excluded fields (decision_id, envelope metadata, causation_refs,
+  account_id, plugin_version_ref, etc., per §9a.1's exclusion list) are deliberately not rendered
+  as comparison fields.
+Represents the nine pinned axes (decision.md §9a.4) as an explicit checklist, and a static note
+  that decision_semantic_digest_definition_id/version remains unresolved (§9a.2/§9a.5b(3)),
+  meaning structured Representation comparison is the only valid basis for MATCH.
+Outcome (MATCH/STATE-007, MISMATCH/STATE-008, INDETERMINATE/STATE-030) is demo-selected via the
+  QA panel only -- no recomputation algorithm is implemented or claimed. INDETERMINATE demo
+  specifically shows axis 5 (implementation provenance) unresolved, per §9a.4's implementation-
+  identity constraint, rather than a vague pass/fail toggle.
+MISMATCH shows a "Continue to Review" handoff to the deferred placeholder (SCR-009 not authored)
+  and states explicitly that MISMATCH does not auto-invalidate the recorded Decision (§9a.7).
+No "Save recomputed Decision as authoritative" / "Replace recorded Decision" / "Promote parity
+  result" / ReplayDecision action exists anywhere -- verified via grep, no match.
+```
+
+### UC A/B/C accounting (cumulative, candidate)
+
+```text
+Batch-02-authored substantive (A, +2): UC-004 (SCR-002), UC-005 (VIEW-003).
+Cumulative A (candidate, 5/21): UC-001, UC-002, UC-003 (Batch 01) + UC-004, UC-005 (Batch 02).
+Cumulative B (7/21, UNCHANGED set from Batch 01 -- UC-002/006/011/015/019/020/021 gain evidence
+  but are NOT promoted to A by this batch).
+Cumulative C (9/21, down from 11 -- UC-004/UC-005 moved from C to A): UC-007, UC-008, UC-009,
+  UC-010, UC-012, UC-013, UC-014, UC-016, UC-017, UC-018.
+5 + 7 + 9 = 21.
+```
+
+### I-11 -- Secrets & Custody Isolation (bounded Phase-2 Access-control audit)
+
+```text
+Result: AUDIT PASS -- no credential-use capability, no credential access-control surface, no
+  backend/custody/signing integration, no real secret used or required.
+Supporting secret-pattern scan (grep -niE "api[_-]?key|secret|password|private[_-]?key|token|
+  credential|apikey|auth[_-]?header|bearer" across all new files): one match, app.js:5 -- inside
+  a disclaiming comment. No actual credential-like value found.
+```
+
+### I-12 -- Single Source of Truth (traceability/reconciliation)
+
+```text
+Full element-by-element traceability: prototype/phase-2/batch-02/traceability.md §3. Every
+  prototype element traces to an existing SCR/VIEW/NAV/FLOW/STATE + UC + PR + exact
+  ux-blueprint.md/decision.md §9a section. Zero new UC/PR/domain concept originated -- no Cursor
+  entity, no ParityResult entity (decision.md §9a.6 explicitly confirms no such entity is
+  created), no API/database/event contract authored.
+Result: PASS.
+```
+
+### Trigger B/C/D/E boundary (re-confirmed, not re-resolved)
+
+```text
+No authoritative executable implementation, no registered runtime module, no authoritative
+  financial data (all lineage/Representation values hardcoded and labelled "illustrative"), no
+  real backend (verified: grep for fetch/XHR/WebSocket/axios/.ajax across app.js/index.html
+  returned no match), no production/operational deployment, no published API/database/event
+  contract, no migration. Boundary preserved -- phase-2-dod.md §2's Trigger B/C/D/E conclusions
+  remain valid for this batch; no re-resolution triggered.
+```
+
+### LIVE boundary
+
+```text
+Static "Unauthorized" badge (STATE-027) in the global context bar, identical convention to Batch
+  01. No action/link/button anywhere leads toward a Live path. OQ-002 not touched, not resolved.
+```
+
+### Preserved unchanged
+
+```text
+prototype/phase-2/batch-01/* (all files byte-identical, git diff --quiet verified -- lifecycle
+  remains CANDIDATE, unchanged). docs/product/product-requirement.md, use-case-workflow.md,
+  ux-blueprint.md (byte-identical), docs/domain/ (all files, untouched), docs/constitution/ (all
+  chapters, untouched), docs/architecture/ (untouched), docs/phase-dod/phase-2-dod.md (untouched),
+  docs/governance/phases/phase-2-rules.md (untouched), all ADRs (untouched). No production
+  frontend/backend code created. No exchange connection, no real Account/financial data, no
+  secret used or stored. No replay/Decision/parity computation implemented.
+```
+
+### Batch lifecycle / review state
+
+```text
+Status: CANDIDATE -- authored, NOT self-approved. Review A and Independent Review B on this
+  coherent milestone are a separate future transaction, per P2-PROTOTYPE-001. This transaction
+  performs authoring only.
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-02/*  (6 new files, listed above)
+docs/MANIFEST.md               (manifest_version 10.135 -> 10.136; new Batch 02 row appended to
+                                the existing "Phase 2 — Product Prototype Batches" table; Batch
+                                01 row left untouched)
+docs/CHANGELOG.md              (this entry)
+```
+
+### Explicit non-claims
+
+```text
+Does NOT claim 5/17 or 5/21 as independently verified -- these are candidate contributions only,
+  pending Review A/Independent Review B on Batch 02. The last independently verified cumulative
+  progress remains 3/17, 3/21 (Batch 01's verdict). Does NOT claim all 17 surfaces or 21 UC
+  complete. Does NOT run the full Phase 2 Quality Gate. Does NOT run the full-scope Gate-3
+  Backward Consistency Check. Does NOT open Gate 3. Does NOT approve Phase 2. Does NOT perform
+  P2-RETRO-001. Does NOT authorize Phase 3. Does NOT authorize LIVE. Does NOT resolve OQ-002.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 7c4eee979c8f2a1bbd882e2fb273bc5b446c376a verified
+[x] Batch 01 Independent Review B READY_FOR_NEXT_PHASE2_BATCH taken as given, Batch 01 files
+    verified untouched (git diff --quiet), lifecycle still CANDIDATE
+[x] Batch 02 forms one coherent Replay milestone (NAV-002 + SCR-002 + VIEW-003)
+[x] NAV-002 semantics authority-aligned, including the STATE-004 NAV-vs-SCR applicability
+    distinction represented faithfully rather than collapsed
+[x] SCR-002 cursor control actually changes the rendered ReplayState(C) (verified via code
+    review of #cursor-select change listener -> renderReconstruction())
+[x] VIEW-003 optional, entered only via explicit button click, never automatic
+[x] MATCH/MISMATCH/INDETERMINATE all inspectable via QA panel
+[x] Recorded authority vs non-authoritative parity result visibly distinct (separate label
+    classes: authority-label-authoritative vs authority-label-recomputation)
+[x] Prototype fixtures visibly non-authoritative (prototype-datum-label badge on every panel)
+[x] No real computation/backend/network (grep-verified)
+[x] No new domain/product semantics (traceability.md §4 confirmed)
+[x] Full traceability exists (traceability.md §3)
+[x] UC A/B/C accounting explicit and consistent across traceability.md, batch-manifest.md, and
+    MANIFEST
+[x] No double-counting of Batch-01 UCs/surfaces (UC-001/002/003 and SCR-001/VIEW-001/VIEW-002
+    cited as already-covered, not re-claimed)
+[x] I-11 PASS; I-12 PASS
+[x] Trigger B/C/D/E preserved
+[x] Batch lifecycle CANDIDATE
+[x] Only intended files changed (prototype/phase-2/batch-02/* + MANIFEST.md + CHANGELOG.md)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 01 v1.2 bounded correction: `P2-B01-B-MAJ-01` CLOSED, `P2-B01-A-MIN-01` REOPENED-then-CLOSED
 
 **Bounded correction — vai trò: `Phase 2 Prototype Batch 01 v1.2 Bounded Correction Executor`.** Closes exactly one new Major finding and the reopened Minor finding from Independent Review B's review of v1.1. Does not expand batch scope; no new SCR/VIEW surface authored.
