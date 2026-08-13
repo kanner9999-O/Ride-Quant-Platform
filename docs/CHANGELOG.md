@@ -2,6 +2,150 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 1.5 CI/CD Convention v0.1 DRAFTED (CI only): `docs/engineering/ci-cd.md`
+
+**Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 CI/CD Convention v0.1 Authoring Executor`.** Authors `docs/engineering/ci-cd.md` v0.1 (Draft), the eighth and final Phase 1.5 Engineering Foundation living convention, under Approved `ADR-030`. Follows the established ADR-first, living-convention-second pattern. No executable CI workflow/provider configuration created.
+
+### Baseline
+
+```text
+Starting HEAD:      907c0aa651fec51f1062357e94aeac732a1915ab
+Approved authority: docs/adr/ADR-030.md v0.3, status Approved,
+                    blob e02853e2ad21e14cf679099480397344c6bcf3c7
+docs/engineering/ci-cd.md: confirmed absent trước transaction này.
+.github/ VÀ mọi CI workflow/provider config: confirmed absent.
+0 module đã build (KHÔNG executable artifact nào).
+```
+
+### Pre-author verification
+
+```text
+Inspected trực tiếp trước khi author: ADR-030.md (full content,
+  Approved blob verified), Chapter 3/12/13/14, execution-rules.md,
+  phase-1.5-rules.md, ADR-017, module-registry.yaml, Approved
+  engineering conventions (coding-standard.md/naming.md/logging.md/
+  config.md/error-handling.md/testing.md), repository tooling/
+  workflow state (KHÔNG dependency manifest/workflow file nào tồn
+  tại). Không newer authority nào supersede bất kỳ boundary dùng dưới
+  đây.
+```
+
+### Established content (v0.1, 15 mục + Non-goals + ADR-scope disposition)
+
+```text
+§1  CI purpose/authority boundary — CI success ≠ Product Owner
+    approval/phase transition, CI failure ≠ rejection; Chapter 12 VẪN
+    sole lifecycle authority.
+§2  Validation/lint/test/build-check orchestration — CHỈ chạy/report
+    check ĐÃ authoritative, KHÔNG invent.
+§3  Inheritance từ Coding Standard/Naming/Logging/Config/Error
+    Handling/Testing — CI validate conformance, KHÔNG redefine rule.
+§4  Chapter 13 quality/evidence boundary — CI execute/collect/forward,
+    KHÔNG invent criteria/đổi coverage/reinterpret pass-fail/tạo
+    competing evidence schema.
+§5  Fail-safe khi required check KHÔNG evaluate được — fail-closed,
+    đúng Chapter 13 §13.8, KHÔNG tự suy diễn PASS.
+§6  Local-vs-CI logical parity — cùng logic check, KHÔNG mandate
+    identical infrastructure; tái sử dụng `testing.md` §13 entry point.
+§7  Test/quarantine interaction — Chapter 13 §13.10 (policy) vs
+    `testing.md` §12 (tooling mechanics CHỈ), tách bạch tường minh
+    đúng `ADR-030` §6; CI KHÔNG retry-until-green, KHÔNG tính
+    quarantined test LÀM passing evidence.
+§8  Evidence hand-off mechanics — KHÔNG competing schema với Chapter
+    13 §13.9; MANIFEST VẪN authority current state (I-12).
+§9  Provider-neutral trigger/check organization — "propose
+    integration" concept, KHÔNG syntax provider cụ thể.
+§10 Affected-area/caching/concurrency — chỉ khi có ích, conservative
+    (KHÔNG bỏ sót check required), cơ chế cụ thể deferred.
+§11 ADR-017/Config secret boundary — KHÔNG custody authority mới; raw
+    credential KHÔNG trở thành CI-owned authority; credential mechanism
+    deferred.
+§12 Build verification — CHỈ khi ground truth tồn tại; verify trực
+    tiếp 0 module đã build, deferred tới Phase 3+.
+§13 Provider/operator/workflow implementation — deferred; verify trực
+    tiếp KHÔNG provider nào đã pin; KHÔNG chọn GitHub Actions dù repo
+    host trên GitHub.
+§14 Explainability/visibility — kết quả CI PHẢI traceable, KHÔNG
+    mandate tooling cụ thể.
+§15 Authority boundaries — Chapter 12/13/`ADR-017`/module-registry/
+    ADR-008/024/monorepo.md/Phase 7/LIVE authorization — tất cả
+    preserved riêng biệt, KHÔNG gán authority cụ thể nào cho LIVE.
+Non-goals — KHÔNG CI provider/workflow syntax/build system/artifact
+    format/container registry/deployment platform/IaC/release-tagging/
+    environment promotion/production deployment/LIVE authorization/
+    secret manager/quality-testing-governance semantics mới/affected-
+    area algorithm cụ thể nào chọn.
+ADR-scope disposition — v0.1 implement living-detail authority ĐÃ
+    delegate bởi ADR-030; KHÔNG rule nào độc lập trigger Chapter 0
+    §4b mới; KHÔNG tạo ADR-031.
+```
+
+### CI-vs-CD boundary reaffirmed
+
+```text
+Tài liệu này CHỈ establish phần CI (build/test/lint/validation
+  automation, Foundation-level). Phần CD (deployment/promotion/
+  release) KHÔNG được authorize — thuộc Phase 7 (Chapter 14 §14.2)
+  VÀ governance riêng biệt tương lai. LIVE execution authorization
+  VẪN NGOÀI phạm vi, KHÔNG gán authority cụ thể nào (đúng ADR-030
+  §3/§6 v0.3, KHÔNG redefine) — Account `environment: LIVE` KHÔNG tự
+  nó authorize platform LIVE execution.
+```
+
+### Files changed
+
+```text
+docs/engineering/ci-cd.md  (NEW — v0.1, Draft, blob
+                            8fdfde56f6a7926b2290bca610cf7c5978cb2238)
+docs/MANIFEST.md           (manifest_version 10.120 -> 10.121; thêm
+                            engineering/ci-cd.md row)
+docs/CHANGELOG.md          (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-030.md (Approved, immutable) — verified byte-identical.
+Chapter 12/13/14 (Locked), ADR-017, ADR-025–ADR-029/coding-standard.md/
+  naming.md/logging.md/config.md/error-handling.md/testing.md
+  (Approved), ADR-008/024, monorepo.md, module-registry.yaml,
+  Constitution, Phase 1.5 rules — tất cả verified byte-identical (git
+  diff empty).
+EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted
+  non-blocking.
+KHÔNG tạo workflow file/provider config/deployment configuration nào.
+  KHÔNG tạo ADR-031. Phase 2 substantive work VẪN NOT YET AUTHORIZED.
+  LIVE/deployment VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/ci-cd.md: v0.1, status Draft, owner Product Owner,
+  blob 8fdfde56f6a7926b2290bca610cf7c5978cb2238 — not self-approved
+  (G-ORCH-002); Review/Approval LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 907c0aa651fec51f1062357e94aeac732a1915ab verified
+[x] ADR-030 v0.3 Approved blob e02853e2ad21e14cf679099480397344c6bcf3c7
+    verified trước khi author
+[x] docs/engineering/ci-cd.md absent trước transaction, confirmed
+[x] Foundation-CI-only scope preserved (§"Nguyên tắc chi phối"/§1–§14)
+[x] Chapter 12/13 boundaries preserved (§1/§4/§5/§8)
+[x] Flaky-test authority split preserved (§7, đúng ADR-030 §6)
+[x] Provider/workflow VẪN deferred (§13, verified KHÔNG provider nào
+    pin)
+[x] KHÔNG deployment/LIVE semantics nào introduced (§15, CI-vs-CD
+    boundary)
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Residuals untouched (EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01)
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-12 — ADR-030 v0.3 APPROVED: Cross-Module CI/CD Convention Baseline
 
 **Mechanical lifecycle recording — vai trò: `ADR-030 v0.3 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE ADR-030 V0.3" — no ADR decision semantics changed.
