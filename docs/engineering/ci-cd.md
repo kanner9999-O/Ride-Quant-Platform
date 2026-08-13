@@ -2,11 +2,11 @@
 id: engineering-ci-cd
 title: "Engineering Foundation — CI/CD Convention (CI only)"
 version: "0.1"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-13"
 created_at: "2026-08-13"
 last_review: null
 next_review: null
@@ -14,6 +14,20 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/12-ap
 ---
 
 # Engineering Foundation — CI/CD Convention (CI only)
+
+**APPROVED (2026-08-13) — status: Draft → Approved.** Product Owner decision: **"APPROVE CI/CD CONVENTION V0.1."** Reviewed candidate: v0.1, blob `8fdfde56f6a7926b2290bca610cf7c5978cb2238`. `version: "0.1"` KHÔNG đổi (pure mechanical lifecycle approval — KHÔNG bump). Tài liệu này VẪN LÀ living document (Chapter 3 §3.2 "tài liệu SỐNG, không bất biến"; Chapter 0 §7.1 lifecycle Draft→...→Approved→Locked) — `Approved` KHÔNG đồng nghĩa immutable byte-for-byte như ADR (Chapter 11 §11.3 KHÔNG áp dụng ở đây); thay đổi tương lai vẫn hợp lệ qua version bump + re-review (Chapter 0 §8), VÀ mọi thay đổi SEMANTIC PHẢI tự rerun ADR Scope Rule đúng ADR-scope disposition.
+
+**Review evidence tại approval này:**
+
+```text
+Review A:              Blocker 0/Major 0/Minor 0, CLEAN
+Independent Review B:  Blocker 0/Major 0/Minor 0,
+                        READY_FOR_PRODUCT_OWNER_DECISION
+Không finding/residual riêng nào từ CI/CD Convention cần Product Owner
+  acceptance riêng tại approval này.
+```
+
+**Approval này KHÔNG đổi CI/CD Convention semantics nào** (§1–§15 dưới byte-equivalent ngoài banner/lifecycle metadata/change history này) — KHÔNG chạm `ADR-030` (Approved, immutable)/Chapter 12/13/`ADR-017`/`ADR-025`–`ADR-029`/`coding-standard.md`/`naming.md`/`logging.md`/`config.md`/`error-handling.md`/`testing.md`/`ADR-008`/`ADR-024`/`monorepo.md`/`module-registry.yaml`/Constitution/Phase 1.5 rules, KHÔNG tạo workflow file/provider config/deployment configuration nào, KHÔNG chọn CI provider, KHÔNG đóng `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01`, KHÔNG authorize deployment, KHÔNG authorize Phase 2, KHÔNG authorize LIVE.
 
 **Vai trò của tài liệu này:** convention document THỨ TÁM VÀ CUỐI CÙNG của Phase 1.5 — Engineering Foundation (Chapter 3 §3.2), phạm vi CHỈ category **CI/CD** (Chapter 14 §14.2's Phase 1.5 scope list) — đúng `EF-TXN-002` (một category = một transaction bounded). **`ADR-030` v0.3 (Approved 2026-08-12) LÀ authority cho chính việc CÓ một cross-module CI/CD Convention baseline bắt buộc, GIỚI HẠN Foundation-level CI** — tài liệu này LÀ living convention chứa chi tiết rule reversible dưới authority đó, KHÔNG lặp lại decision text của ADR-030 (xem `ADR-030.md` cho full architecture text, KHÔNG duplicate tại đây).
 
@@ -400,4 +414,34 @@ v0.1  2026-08-13  Established — vai trò: `Phase 1.5 CI/CD Convention
       file/provider config/deployment configuration nào. `status:
       Draft` — not self-approved (`G-ORCH-002`). KHÔNG authorize
       deployment/Phase 2/LIVE.
+ACCEPTANCE  2026-08-13  Product Owner lifecycle approval — mechanical,
+      vai trò: `CI/CD Convention v0.1 Mechanical Approval Recorder`.
+      Quyết định: "APPROVE CI/CD CONVENTION V0.1." Reviewed candidate:
+      v0.1, blob 8fdfde56f6a7926b2290bca610cf7c5978cb2238 (Review A
+      Blocker 0/Major 0/Minor 0, CLEAN; Independent Review B Blocker
+      0/Major 0/Minor 0, READY_FOR_PRODUCT_OWNER_DECISION). `status:
+      Draft -> Approved`, `approved_by: null -> Product Owner`,
+      `approved_at: null -> "2026-08-13"`. `version` KHÔNG bump (pure
+      mechanical lifecycle approval) — VẪN `0.1`. KHÔNG finding/
+      residual riêng nào từ CI/CD Convention cần Product Owner
+      acceptance riêng. KHÔNG semantic content nào đổi (§1–§15 byte-
+      equivalent ngoài banner/lifecycle metadata/change history này).
+      Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable
+      byte-for-byte như ADR; thay đổi SEMANTIC tương lai VẪN PHẢI tự
+      rerun ADR Scope Rule đúng ADR-scope disposition. Foundation-
+      level CI CHỈ, CI-vs-CD boundary, Chapter 12 Approval Gate
+      boundary, Chapter 13 Quality Gate/evidence authority, Chapter
+      13 §13.10 flaky-test policy, Testing quarantine/tooling-
+      mechanics boundary, fail-safe required-check handling, provider/
+      workflow deferral, build-verification deferral, ADR-017/Config
+      custody-secret boundary, KHÔNG sole LIVE authority, KHÔNG
+      deployment/release/promotion/LIVE authorization — tất cả giữ
+      nguyên. KHÔNG chạm `ADR-030` (Approved, immutable)/Chapter 12/
+      13/`ADR-017`/`ADR-025`–`ADR-029`/`coding-standard.md`/
+      `naming.md`/`logging.md`/`config.md`/`error-handling.md`/
+      `testing.md`/`ADR-008`/`ADR-024`/`monorepo.md`/`module-
+      registry.yaml`/Constitution/Phase 1.5 rules, KHÔNG tạo workflow/
+      provider config/deployment configuration nào, KHÔNG chọn CI
+      provider, KHÔNG đóng `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01`,
+      KHÔNG authorize deployment/Phase 2/LIVE.
 ```

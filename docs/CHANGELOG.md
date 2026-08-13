@@ -2,6 +2,115 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 1.5 CI/CD Convention v0.1 APPROVED (CI only)
+
+**Mechanical lifecycle recording — vai trò: `CI/CD Convention v0.1 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE CI/CD CONVENTION V0.1" — no CI/CD Convention semantics changed. This is the eighth and final Phase 1.5 Engineering Foundation category to reach Approved.
+
+### Baseline
+
+```text
+Starting HEAD:      69a500c786af8cb3a7212aa5abb5335cd422e140
+Reviewed candidate: docs/engineering/ci-cd.md v0.1, status Draft,
+                    blob 8fdfde56f6a7926b2290bca610cf7c5978cb2238
+Governing ADR:      docs/adr/ADR-030.md v0.3, status Approved,
+                    blob e02853e2ad21e14cf679099480397344c6bcf3c7
+```
+
+### Review evidence
+
+```text
+Review A:              Blocker 0/Major 0/Minor 0, CLEAN.
+Independent Review B:  Blocker 0/Major 0/Minor 0,
+                        READY_FOR_PRODUCT_OWNER_DECISION.
+Không CI/CD residual finding nào cần Product Owner acceptance riêng.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-13"
+version:      "0.1" KHÔNG đổi (pure mechanical approval, KHÔNG bump)
+Product Owner decision (nguyên văn): "APPROVE CI/CD CONVENTION V0.1."
+```
+
+### Reviewed vs resulting blob (G-ID-001, distinguished)
+
+```text
+Reviewed candidate:           v0.1 / Draft
+                               blob 8fdfde56f6a7926b2290bca610cf7c5978cb2238
+Resulting Approved identity:  v0.1 / Approved
+                               blob 0ab1fe87b2e220322d0f7c9d50382573f405f1e2
+Decision content (§1–§15 của ci-cd.md): byte-equivalent — CHỈ banner/
+  lifecycle metadata/change history thay đổi.
+```
+
+### Files changed
+
+```text
+docs/engineering/ci-cd.md  (v0.1 Draft -> v0.1 Approved, blob
+                            0ab1fe87b2e220322d0f7c9d50382573f405f1e2)
+docs/MANIFEST.md           (manifest_version 10.121 -> 10.122; row
+                            cập nhật)
+docs/CHANGELOG.md          (entry này)
+```
+
+### Preserved unchanged
+
+```text
+docs/adr/ADR-030.md (Approved, immutable) — verified byte-identical.
+Chapter 12/13 (Locked), ADR-017, ADR-025–ADR-029/coding-standard.md/
+  naming.md/logging.md/config.md/error-handling.md/testing.md
+  (Approved), ADR-008/024, monorepo.md, module-registry.yaml,
+  Constitution, Phase 1.5 rules — tất cả verified byte-identical (git
+  diff empty).
+Foundation-level CI CHỈ, CI-vs-CD boundary, Chapter 12 Approval Gate
+  boundary, Chapter 13 Quality Gate/evidence authority, Chapter 13
+  §13.10 flaky-test policy, Testing quarantine/tooling-mechanics
+  boundary, fail-safe required-check handling, provider/workflow
+  deferral, build-verification deferral until ground truth exists,
+  ADR-017/Config custody-secret boundary, KHÔNG sole LIVE authority,
+  KHÔNG deployment/release/promotion/LIVE authorization — tất cả giữ
+  nguyên.
+KHÔNG workflow/provider config nào tạo. EF-CONFIG-B-MIN-01/
+  EF-ERR-B-MIN-01: KHÔNG chạm, VẪN OPEN — accepted non-blocking. Phase
+  2 substantive work VẪN NOT YET AUTHORIZED. LIVE/deployment VẪN NOT
+  AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/engineering/ci-cd.md: v0.1, status Approved, approved_by Product
+  Owner, approved_at 2026-08-13, blob
+  0ab1fe87b2e220322d0f7c9d50382573f405f1e2.
+Toàn bộ tám category Phase 1.5 Engineering Foundation (Monorepo/
+  Coding Standard/Naming/Logging/Config/Error Handling/Testing/CI/CD)
+  nay Approved.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 69a500c786af8cb3a7212aa5abb5335cd422e140 verified
+[x] Reviewed candidate blob 8fdfde56f6a7926b2290bca610cf7c5978cb2238
+    verified
+[x] status Draft -> Approved
+[x] version remains 0.1
+[x] approved_by Product Owner, approved_at "2026-08-13"
+[x] Product Owner decision recorded exactly
+[x] Semantic content unchanged (§1–§15 byte-equivalent, verified)
+[x] Review A/B remain 0/0/0
+[x] Không CI/CD residual nào tạo
+[x] ADR-030 unchanged (byte-identical)
+[x] Provider/workflow VẪN deferred
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Existing residuals untouched (EF-CONFIG-B-MIN-01/EF-ERR-B-MIN-01)
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 1.5 CI/CD Convention v0.1 DRAFTED (CI only): `docs/engineering/ci-cd.md`
 
 **Bounded `EF-TXN-002` category transaction — vai trò: `Phase 1.5 CI/CD Convention v0.1 Authoring Executor`.** Authors `docs/engineering/ci-cd.md` v0.1 (Draft), the eighth and final Phase 1.5 Engineering Foundation living convention, under Approved `ADR-030`. Follows the established ADR-first, living-convention-second pattern. No executable CI workflow/provider configuration created.
