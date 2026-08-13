@@ -112,6 +112,19 @@
     "Digest-definition version (§9a.5b(3))"
   ];
 
+  // Axis 9 (Digest-definition version) is always "not-applicable" in this batch's demo path --
+  // structured Canonical Decision Semantic Representation comparison is the basis used, Digest
+  // comparison is never invoked, so this axis is N/A rather than "resolved" or "unresolved"
+  // (decision.md §9a.2). Closes P2-B02-B-MAJ-01: "ok"/"resolved, consistent" previously
+  // overloaded this axis even though Digest was never used.
+  var DIGEST_AXIS_INDEX = 8;
+
+  function baseAxisStatuses() {
+    var statuses = ["ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok"];
+    statuses[DIGEST_AXIS_INDEX] = "not-applicable";
+    return statuses;
+  }
+
   // ---- Demo/UI state (prototype-local only, not a domain/session/replay state) ----
 
   var state = {
@@ -292,18 +305,22 @@
     var outcome = state.parityOutcome; // "match" | "mismatch" | "indeterminate"
 
     var recomputed;
-    var axisStatuses; // array of "ok" | "differs" | "unresolved", one per PINNED_AXES entry
+    // array of "ok" | "differs" | "unresolved" | "not-applicable", one per PINNED_AXES entry --
+    // DIGEST_AXIS_INDEX is always "not-applicable" here (baseAxisStatuses()), never "ok", since
+    // Digest comparison is never used in this batch's demo path (closes P2-B02-B-MAJ-01).
+    var axisStatuses;
     if (outcome === "match") {
       recomputed = recorded;
-      axisStatuses = ["ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok"];
+      axisStatuses = baseAxisStatuses();
     } else if (outcome === "mismatch") {
       recomputed = Object.assign({}, recorded, {
         result: recorded.result === "LONG" ? "NO_ACTION" : "LONG"
       });
-      axisStatuses = ["ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok"];
+      axisStatuses = baseAxisStatuses();
     } else {
       recomputed = Object.assign({}, recorded);
-      axisStatuses = ["ok", "ok", "ok", "ok", "unresolved", "ok", "ok", "ok", "ok"];
+      axisStatuses = baseAxisStatuses();
+      axisStatuses[4] = "unresolved"; // Decision implementation provenance (axis 5)
     }
 
     var html = '<div class="label-row">' +
@@ -313,7 +330,15 @@
       "</div>";
 
     html += '<div class="digest-note">decision_semantic_digest_definition_id/version: <strong>CHƯA ESTABLISHED / unresolved</strong> ' +
-      "(decision.md §9a.2/§9a.5b(3)) — structured Canonical Decision Semantic Representation comparison is the only valid basis for MATCH until this axis is governed separately.</div>";
+      "(decision.md §9a.2/§9a.5b(3)). This prototype demonstrates structured Canonical Decision " +
+      "Semantic Representation comparison — the only valid basis for MATCH while this axis " +
+      "remains ungoverned. Because Digest comparison is NOT used here, the Digest-definition " +
+      "axis below renders as <strong>not applicable</strong>, not \"unresolved\" — those are " +
+      "different concepts: \"unresolved\" means a required axis failed to resolve (forcing " +
+      "INDETERMINATE); \"not applicable\" means this axis is not part of the comparison basis " +
+      "actually being used. A future comparison that DID use Digest would require this axis's " +
+      "governing definition to resolve, per decision.md §9a.2/§9a.6, before Digest could " +
+      "contribute to MATCH/MISMATCH — that governance gap is not resolved here.</div>";
 
     html += '<div class="representation-compare">' +
       representationPanel("Recorded Decision — Canonical Semantic Representation", recorded, "authoritative") +
@@ -330,19 +355,22 @@
       html +=
         '<div class="panel panel-passed">' +
         '<div class="panel-title">STATE-007 — parity match</div>' +
-        "<div>All nine pinned axes evaluable and consistent; Canonical Decision Semantic " +
-        "Representation equal under structured comparison. This confirms, but does not " +
-        "re-authorize, the already-recorded Decision (decision.md §9a.7).</div>" +
+        "<div>All applicable required axes are resolved and consistent; the Digest-definition " +
+        "axis is not applicable — Digest is not used in this structured Representation " +
+        "comparison (decision.md §9a.2). Canonical Decision Semantic Representation equal under " +
+        "structured comparison. This confirms, but does not re-authorize, the already-recorded " +
+        "Decision (decision.md §9a.7).</div>" +
         "</div>";
     } else if (outcome === "mismatch") {
       html +=
         '<div class="panel panel-fail">' +
         '<div class="panel-title">STATE-008 — parity mismatch</div>' +
-        "<div>All nine pinned axes evaluable and consistent, but the Canonical Decision Semantic " +
-        "Representation differs between recorded and recomputed sides (illustrative: result " +
-        recorded.result + " vs " + recomputed.result + "). This does NOT automatically invalidate " +
-        "the recorded Decision -- correction lineage (decision.md §11) still requires its own " +
-        "explicit invalidate-then-replace transaction.</div>" +
+        "<div>All applicable required axes are resolved and consistent (Digest-definition axis " +
+        "not applicable — Digest is not used for this comparison), but the Canonical Decision " +
+        "Semantic Representation differs between recorded and recomputed sides (illustrative: " +
+        "result " + recorded.result + " vs " + recomputed.result + "). This does NOT " +
+        "automatically invalidate the recorded Decision -- correction lineage (decision.md §11) " +
+        "still requires its own explicit invalidate-then-replace transaction.</div>" +
         "</div>" +
         '<div class="exit-row">' +
         '<button class="btn" data-nav="NAV-005" data-target="screen-deferred" data-stage="Review">Continue to Review</button>' +
@@ -373,12 +401,21 @@
     return html + "</div>";
   }
 
+  // Four distinct axis states (closes P2-B02-B-MAJ-01 -- "ok" previously overloaded both
+  // "genuinely resolved/consistent" and "not part of this comparison basis"):
+  //   ok              resolved, consistent
+  //   differs          resolved, but Representation differs between sides
+  //   unresolved       required for this comparison, but did not resolve (forces INDETERMINATE)
+  //   not-applicable   axis is not part of the comparison basis actually used here (Digest, in
+  //                    this batch's demo path)
   function axisRow(name, statusKey) {
     var statusText = statusKey === "ok" ? "resolved, consistent"
       : statusKey === "differs" ? "resolved, differs"
+      : statusKey === "not-applicable" ? "not applicable — not used for this comparison"
       : "unresolved";
     var statusClass = statusKey === "ok" ? "axis-status-ok"
       : statusKey === "differs" ? "axis-status-differs"
+      : statusKey === "not-applicable" ? "axis-status-not-applicable"
       : "axis-status-unresolved";
     return '<div class="axis-row"><span class="axis-name">' + name +
       '</span><span class="axis-status ' + statusClass + '">' + statusText + "</span></div>";

@@ -2,6 +2,155 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 02 v1.3 bounded correction: `P2-B02-A-MAJ-01` REOPENED-then-CLOSED, `P2-B02-B-MAJ-01` CLOSED (digest-axis semantic fix)
+
+**Bounded semantic correction — vai trò: `Phase 2 Prototype Batch 02 v1.3 Bounded Correction Executor`.** Closes two Independent Review B findings on the v1.2 baseline: a reopened stale-evidence finding split across two files, and a new semantic contradiction in VIEW-003's parity-axis representation. No Replay/parity behavior scope change, no new SCR/VIEW.
+
+### Baseline
+
+```text
+Starting HEAD:         0d8c551a4ccaba50711d0e66bd4822efb9aa9739
+index.html:              blob c69502da70e32db07572848a795d74f67ecc838d
+styles.css:               blob bcd250d57cfb5b56e3558fbdbede0cca89cf1b82
+app.js:                   blob 8f5fba218457b965dd2f9ecdc1576de9b61639a6
+traceability.md:          v1.1, blob f37ca95963111dcdece19b11fb8a919646ebfe8b
+batch-manifest.md:        v1.2, blob 83f072dc7eee37409c59bbf88c30d6008fd25c7b
+Batch lifecycle:          CANDIDATE (unchanged going in)
+Independent Review B on this exact baseline: P2-B02-A-MAJ-01 REOPENED; new P2-B02-B-MAJ-01
+  (Major); Blocker 0/Major 1 new + 1 reopened/Minor 0; REVISION_REQUIRED. Pre-correction
+  independently supportable progress: 4/17 surfaces, 4/21 UC (SCR-002/UC-004 supportable,
+  VIEW-003/UC-005 not, pending P2-B02-B-MAJ-01).
+```
+
+### Finding 1 — `P2-B02-A-MAJ-01` reopened (closed)
+
+```text
+Defect: v1.2's correction fixed batch-manifest.md's §6/§8/§15 "13 of remaining 15 surfaces"
+  arithmetic, but traceability.md's own §5 "Excluded-by-design" section still carried the exact
+  same stale wording -- the fix had been applied to only one of the two files that stated it.
+Fix: traceability.md §5 rewritten to distinguish, explicitly: Batch 01's prior contribution
+  (SCR-001/VIEW-001/VIEW-002, 3), Batch 02's authored candidate surfaces (SCR-002/VIEW-003, 2),
+  candidate total if the VIEW-003 semantic defect closes (5/17), candidate remaining (12/17 =
+  SCR-003..SCR-011 [9] + VIEW-004..VIEW-006 [3]), and Independent Review B's pre-correction
+  independently-supportable state (4/17). §2's cumulative-progress line and the PINNED_AXES/
+  digest-note traceability rows updated to match the same three-way distinction.
+```
+
+### Finding 2 — `P2-B02-B-MAJ-01` (closed)
+
+```text
+Defect: VIEW-003's nine-pinned-axis checklist marked the digest-definition axis (axis 9) "ok" /
+  "resolved, consistent" for both MATCH and MISMATCH outcomes, while the adjacent .digest-note
+  itself stated the digest definition is unestablished and that structured Canonical Decision
+  Semantic Representation comparison (not Digest) is the basis used -- a direct semantic
+  contradiction. Per decision.md §9a authority, an axis that is not part of the comparison basis
+  actually used is neither "resolved" nor "unresolved" -- it is not applicable, a third concept
+  the prototype had collapsed into "ok."
+Fix: added a fourth axis status, "not-applicable", distinct from "ok" (genuinely resolved/
+  consistent) and "unresolved" (required for this comparison but failed to resolve, forcing
+  INDETERMINATE). The digest-definition axis (index 8) now always renders "not-applicable" in
+  this batch's demo path via a new baseAxisStatuses() helper -- never "ok" -- since Digest
+  comparison is never invoked here. MATCH and MISMATCH panel copy changed from "All nine pinned
+  axes evaluable and consistent" to "All applicable required axes are resolved and consistent;
+  the Digest-definition axis is not applicable -- Digest is not used in this structured
+  Representation comparison (decision.md §9a.2)." The .digest-note was expanded to explain the
+  unresolved-vs-not-applicable distinction explicitly and to state that a future Digest-based
+  comparison would still require its own governing definition to resolve. INDETERMINATE's
+  existing implementation-provenance-unresolved demonstration is unchanged except that the
+  digest axis is now correctly "not-applicable" there too (via the same shared helper), not "ok".
+  No digest-definition authority was established; no hash/serialization algorithm was chosen --
+  the governance gap itself remains unresolved, only its representation was corrected. A new
+  .axis-status-not-applicable CSS class (neutral grey, deliberately not green like axis-status-ok)
+  was added, presentation-only.
+```
+
+### Files changed (prototype)
+
+```text
+prototype/phase-2/batch-02/app.js               blob 8f5fba218457b965dd2f9ecdc1576de9b61639a6
+                                                 -> 52487b0a70525011a9d38f3ce66f7f595cb4bb7c
+prototype/phase-2/batch-02/styles.css            blob bcd250d57cfb5b56e3558fbdbede0cca89cf1b82
+                                                 -> 7042966f1e41bb550fab0e42316803d1595e1754
+prototype/phase-2/batch-02/traceability.md       v1.1 blob f37ca95963111dcdece19b11fb8a919646ebfe8b
+                                                 -> v1.2 blob 302fd0ffd9eb59ba63e9b06854411f7abe57d13e
+prototype/phase-2/batch-02/batch-manifest.md     v1.2 blob 83f072dc7eee37409c59bbf88c30d6008fd25c7b
+                                                 -> v1.3 blob cef2ed00e6bb560c6a5c7664924dad5a480b6d96
+prototype/phase-2/batch-02/index.html            UNCHANGED, blob
+                                                 c69502da70e32db07572848a795d74f67ecc838d
+```
+
+### Preserved unchanged
+
+```text
+SCR-002 cursor binding/lineage rendering, NAV-002 precondition-gate behavior, VIEW-003's
+  optional-entry rule (never automatic), MATCH/MISMATCH/INDETERMINATE outcome model, MISMATCH ->
+  Review handoff, authority-class vs prototype-datum visual distinction, the A/B/C UC partition
+  (A=5, B=9, C=7, sum=21, unchanged from v1.1/v1.2), I-11 result (re-verified PASS), Trigger
+  B/C/D/E boundary (re-verified preserved), LIVE Unauthorized. No SCR/VIEW added. No Product/UX
+  authority, Domain Contract, Phase 2 DoD, Phase 2 rules, or ADR modified. No digest-definition
+  authority established, no ADR created (P2-ADR-CHAIN-001 does not trigger -- its scope is
+  ADR/architectural correction chains, not prototype batches). Batch 01 files/lifecycle
+  untouched (git diff --quiet verified).
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-02/{app.js,styles.css,traceability.md,batch-manifest.md}  (4 files
+                                                                                   corrected)
+docs/MANIFEST.md    (manifest_version 10.138 -> 10.139; Batch 02 row v1.3 correction note
+                     prepended, prior notes preserved as history)
+docs/CHANGELOG.md   (this entry)
+```
+
+### Result
+
+```text
+P2-B02-A-MAJ-01:                CLOSED (both files now consistent -- no stale surface arithmetic
+                                remains anywhere in Batch 02 evidence)
+P2-B02-B-MAJ-01:                CLOSED (digest axis no longer contradicts the digest note; four
+                                distinct axis statuses now exist: ok, differs, unresolved,
+                                not-applicable)
+A/B/C partition:                 unchanged, valid (A=5, B=9, C=7, sum=21)
+Candidate cumulative:             5/17 surfaces, 5/21 UC (unchanged by this correction)
+Pre-re-review independently
+  supportable:                    4/17 surfaces, 4/21 UC (Independent Review B's finding on the
+                                pre-correction baseline)
+Last independently verified:      3/17 surfaces, 3/21 UC (Batch 01 only, unchanged)
+Batch lifecycle:                 CANDIDATE (unchanged) -- NOT self-approved.
+I-11 / Trigger B-C-D-E:          preserved (re-confirmed).
+Phase 2 substantive completion:  NOT ESTABLISHED (unchanged).
+Gate 3 / Phase 3 / LIVE:         NOT OPENED / NOT AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 0d8c551a4ccaba50711d0e66bd4822efb9aa9739 verified
+[x] No current-state "13 of remaining 15" remains anywhere (traceability.md and
+    batch-manifest.md both checked)
+[x] Digest axis no longer shows "resolved, consistent" when Digest is not used -- explicit
+    not-applicable status exists and is distinct from unresolved
+[x] MATCH copy no longer says "all nine axes evaluable"
+[x] MISMATCH copy no longer says "all nine axes evaluable"
+[x] INDETERMINATE remains authority-aligned (implementation-provenance-unresolved example
+    preserved, digest axis correctly not-applicable there too)
+[x] Digest note internally consistent, explains unresolved vs not-applicable
+[x] Structured Representation comparison remains the sole demo basis; digest-definition
+    authority not established
+[x] A/B/C UC partition unchanged and valid (mechanically consistent with v1.1/v1.2)
+[x] Candidate cumulative 5/17, 5/21; pre-re-review supportable 4/17, 4/21 -- both recorded,
+    neither conflated with "independently verified"
+[x] VIEW-003/UC-005 not falsely claimed independently verified
+[x] I-11 PASS; I-12 internally consistent
+[x] Trigger B/C/D/E preserved (grep-verified no network call)
+[x] Batch remains CANDIDATE
+[x] Batch 01 untouched (git diff --quiet)
+[x] No scope expansion, no ADR created
+[x] Only intended files changed (prototype/phase-2/batch-02/{app.js,styles.css,traceability.md,
+    batch-manifest.md} + MANIFEST.md + CHANGELOG.md)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 02 v1.2 micro correction: `P2-B02-A-MAJ-01` REOPENED-then-CLOSED (stale current-state evidence only)
 
 **Micro bounded correction — vai trò: `Phase 2 Prototype Batch 02 v1.2 Micro Bounded Correction Executor`.** Closes `P2-B02-A-MAJ-01`, which bounded Review A re-review reopened on v1.1: the A/B/C partition itself (§4) was already correct, but three other current-state statements in `batch-manifest.md` still carried stale/inconsistent evidence. No Replay/parity behavior change, no scope change, no partition change.

@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-02-traceability
 title: "Phase 2 Prototype — Batch 02 — Traceability Artifact"
-version: "1.1"
+version: "1.2"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -12,6 +12,8 @@ created_at: "2026-08-13"
 **Vai trò của tài liệu này:** đây LÀ I-12 (Single Source of Truth) conformance evidence cho Batch 02, per `docs/phase-dod/phase-2-dod.md` §2's applicable Trigger A / I-12 requirement — mọi phần tử prototype trong batch này PHẢI trace được TRỰC TIẾP về đúng một hoặc nhiều `SCR-XXX`/`VIEW-XXX`/`NAV-XXX`/`FLOW-XXX`/`STATE-XXX` đã `Consolidated Stable` trong [`docs/product/ux-blueprint.md`](../../../docs/product/ux-blueprint.md) VÀ [`docs/domain/decision.md`](../../../docs/domain/decision.md) §9a, VÀ về đúng `UC-XXX`/`PR-XXX` đã tồn tại. Prototype LÀ derived representation — KHÔNG một UC/PR/domain concept nào originate tại đây. Áp dụng ĐÚNG taxonomy A/B/C đã establish tại `../batch-01/traceability.md` §0.
 
 **v1.1 — bounded correction (2026-08-13), đóng `P2-B02-A-MAJ-01` (Review A).** v1.0's cumulative A/B/C ledger KHÔNG PHẢI một valid partition: (1) `UC-002` xuất hiện CẢ trong A (Batch 01 substantive) LẪN trong cumulative B — vi phạm "once A, never also B/C"; (2) `UC-009`/`UC-010` bị gọi B trong khi chính mô tả nói "not referenced by Batch 02 at all" — tự mâu thuẫn; (3) C ghi "9 of 21" nhưng danh sách liệt kê 10 UC; (4) "5+7+9=21" do đó KHÔNG PHẢI một proof hợp lệ vì các set chồng lấn/cardinality sai. Sửa: §0-§2 viết lại hoàn toàn — recompute B TỪ ĐẦU bằng cách inspect trực tiếp `ux-blueprint.md` §5a's chính xác UC traceability của NAV-003 (`UC-002, UC-006`), NAV-004 (`UC-002, UC-011`), NAV-005 (`UC-016, UC-017, UC-018`), NAV-006 (`UC-019, UC-002, UC-020, UC-021`) — loại `UC-002`/`UC-004` khỏi B (VẪN A từ Batch 01/02), giữ `UC-006`/`UC-011`/`UC-016`/`UC-017`/`UC-018`/`UC-019`/`UC-020`/`UC-021` (8 UC từ NAV citation) + `UC-015` (WS-001/STATE-027 citation, KHÔNG qua NAV nào) = B đúng 9 UC. `UC-009`/`UC-010` (VÀ `UC-007`/`UC-008`/`UC-012`/`UC-013`/`UC-014`) KHÔNG một element nào trong Batch 01/02 tham chiếu — verify trực tiếp, C đúng 7 UC. Kết quả: A=5, B=9, C=7, tổng=21, A∩B=A∩C=B∩C=∅ (verify mechanically tại §2 dưới). KHÔNG đổi Replay/parity UX behavior, KHÔNG surface/screen mới, KHÔNG đổi §3 element-level map's hàng hiện có (CHỈ bổ sung explicit NAV-003..006 citation detail cho auditability).
+
+**v1.2 — bounded semantic correction (2026-08-13), Independent Review B trên baseline v1.2 (batch-manifest.md): `P2-B02-A-MAJ-01` REOPENED + `P2-B02-B-MAJ-01` (mới) — đóng CẢ HAI tại transaction này.** `P2-B02-A-MAJ-01`: §5 "Excluded-by-design" VẪN chứa current-state wording "13 of remaining 15 surfaces" (SAI arithmetic — 17 tổng, KHÔNG 15) sót lại từ v1.0, KHÔNG được sửa trong v1.1's UC-focused correction. Sửa: §5 viết lại — phân biệt tường minh candidate total nếu `P2-B02-B-MAJ-01` đóng đúng (5/17), candidate remaining (12/17 = SCR-003..SCR-011 [9] + VIEW-004..VIEW-006 [3]), VÀ Independent Review B's pre-correction independently-supportable state (4/17 — SCR-002/UC-004 supportable, VIEW-003/UC-005 KHÔNG do `P2-B02-B-MAJ-01`). `P2-B02-B-MAJ-01`: `app.js`'s `renderView003()` đánh dấu digest-definition axis (axis 9) LÀ "ok"/"resolved, consistent" cho MATCH/MISMATCH dù `.digest-note` chính nó nói digest-definition CHƯA established VÀ structured Representation comparison (KHÔNG Digest) LÀ cơ sở — mâu thuẫn ngữ nghĩa. Sửa: thêm axis-status thứ tư `not-applicable` (phân biệt tường minh khỏi `unresolved` — "not applicable" = KHÔNG PHẢI một phần comparison basis đang dùng; "unresolved" = BẮT BUỘC cho comparison này nhưng KHÔNG resolve được, buộc INDETERMINATE), axis 9 LUÔN `not-applicable` trong Batch 02's demo path (Digest KHÔNG BAO GIỜ dùng), MATCH/MISMATCH copy sửa từ "All nine pinned axes evaluable" thành "All applicable required axes... Digest-definition axis not applicable." Digest note mở rộng giải thích rõ sự phân biệt. KHÔNG establish digest-definition authority, KHÔNG chọn hash/serialization algorithm — governance gap VẪN unresolved, chỉ representation của gap đó được sửa cho chính xác. KHÔNG đổi §0-§2 A/B/C partition (VẪN A=5/B=9/C=7/tổng=21). KHÔNG surface/screen mới. KHÔNG đổi SCR-002 cursor binding/lineage/NAV-002 behavior/VIEW-003 optional-entry rule/MATCH-MISMATCH-INDETERMINATE outcome model/MISMATCH→Review handoff.
 
 ## 0. UC accounting taxonomy (kế thừa nguyên vẹn từ Batch 01, KHÔNG redefine)
 
@@ -79,8 +81,19 @@ Partition validation (mechanical):
     016(B) 017(B) 018(B) 019(B) 020(B) 021(B) — 21 UC, mỗi UC xuất hiện ĐÚNG MỘT LẦN.
 
 21-UC substantive completion progress (candidate): 5/21 -- CHỈ đếm hạng mục A, CHƯA independently
-  verified (chờ Review A + Independent Review B trên Batch 02, đúng P2-PROTOTYPE-001). Last
-  INDEPENDENTLY VERIFIED progress VẪN 3/21 (Batch 01 only, Independent Review B verdict).
+  verified (chờ bounded Review A re-review + Independent bounded Review B trên v1.2, đúng
+  P2-PROTOTYPE-001). Ba trạng thái tách biệt, KHÔNG conflate:
+    Candidate (sau v1.2 correction):                 5/21 (UC-001..005) -- CHƯA verified.
+    Independent Review B pre-re-review support
+      (trên baseline TRƯỚC transaction này):          4/21 -- UC-004 (SCR-002) supportable,
+                                                       UC-005 (VIEW-003) KHÔNG do
+                                                       `P2-B02-B-MAJ-01`, nay đóng, chờ bounded
+                                                       re-review xác nhận trước khi tính lại.
+    Last INDEPENDENTLY VERIFIED (Batch 01 baseline,
+      Independent Review B verdict
+      READY_FOR_NEXT_PHASE2_BATCH):                    3/21 (UC-001/002/003 only) -- authoritative
+                                                       cho tới khi Batch 02 tự nó qua Review A/B
+                                                       đầy đủ trên v1.2.
 ```
 
 ## 3. Element-level traceability map
@@ -104,8 +117,8 @@ Partition validation (mechanical):
 | `app.js` `#btn-to-view-003` ("Invoke optional parity recomputation") | SCR-002 "Exit points" (VIEW-003, tuỳ chọn); VIEW-003 "Entry points" (nút hành động tuỳ chọn tại SCR-002, KHÔNG mặc định) | UC-004, UC-005 | PR-008, PR-018, PR-020, PR-010, PR-019 | `ux-blueprint.md` §7.2 SCR-002 "Exit points" + VIEW-003 "Entry points" |
 | `index.html` `#screen-view-003` / `app.js` `renderView003()` | VIEW-003 | UC-005 | PR-010, PR-019 | `ux-blueprint.md` §7.2 "VIEW-003 — Parity Recomputation Result" |
 | `app.js` `MOCK_REPRESENTATION` / `REPRESENTATION_FIELD_ORDER` / `representationPanel()` | Canonical Decision Semantic Representation | UC-005 | PR-010, PR-019 | `decision.md` §9a.1 (field set + exclusions verbatim; excluded fields e.g. `decision_id`/envelope/`causation_refs`/`account_id`/`plugin_version_ref` deliberately NOT rendered as comparison fields, per §9a.1's exclusion list) |
-| `app.js` `PINNED_AXES` / `axisRow()` | Nine pinned axes | UC-005 | PR-010, PR-019 | `decision.md` §9a.4 (nine-axis list verbatim order) + §9a.5a (envelope pinning) + §9a.5b (definition identities) |
-| `app.js` `.digest-note` static text | Digest-definition unresolved | UC-005 | PR-010, PR-019 | `decision.md` §9a.2, §9a.5b(3) — "CHƯA ESTABLISHED / unresolved... structured comparison LÀ cơ sở hợp lệ DUY NHẤT cho MATCH" quoted in substance |
+| `app.js` `PINNED_AXES` / `baseAxisStatuses()` / `axisRow()` (v1.2, đóng `P2-B02-B-MAJ-01`) | Nine pinned axes, bốn axis-status khả dĩ (`ok`/`differs`/`unresolved`/`not-applicable` — prototype-local rendering state, KHÔNG một domain entity mới) | UC-005 | PR-010, PR-019 | `decision.md` §9a.4 (nine-axis list verbatim order) + §9a.5a (envelope pinning) + §9a.5b (definition identities) + §9a.2 (Digest KHÔNG required/used trong structured comparison → axis 9 = `not-applicable`, KHÔNG `ok`/"resolved, consistent" — phân biệt tường minh khỏi `unresolved`, KHÔNG conflate hai khái niệm) |
+| `app.js` `.digest-note` static text (v1.2, đóng `P2-B02-B-MAJ-01`) | Digest-definition unresolved + axis 9 not-applicable justification | UC-005 | PR-010, PR-019 | `decision.md` §9a.2, §9a.5b(3) — "CHƯA ESTABLISHED / unresolved... structured comparison LÀ cơ sở hợp lệ DUY NHẤT cho MATCH" quoted in substance; KHÔNG establish digest-definition authority tại đây (out of scope, ngoài phạm vi Batch 02/decision.md §9a.2's own bounded scope) |
 | `app.js` `renderView003()` MATCH branch | STATE-007 parity match | UC-005 | PR-010, PR-019 | `ux-blueprint.md` §11 STATE-007 row; `decision.md` §9a.6 MATCH conditions (a)(b)(c) |
 | `app.js` `renderView003()` MISMATCH branch | STATE-008 parity mismatch | UC-005 | PR-010, PR-019 | `ux-blueprint.md` §11 STATE-008 row; `decision.md` §9a.6 MISMATCH condition; §9a.7 "MISMATCH KHÔNG tự động invalidate" |
 | `app.js` `renderView003()` INDETERMINATE branch | STATE-030 parity indeterminate | UC-005 | PR-010, PR-019 | `ux-blueprint.md` §11 STATE-030 row (Consolidated Stable, v0.6); `decision.md` §9a.6 INDETERMINATE conditions (implementation-identity axis example verbatim) |
@@ -139,10 +152,28 @@ KHÔNG một UC/PR/domain concept mới nào originate trong Batch 02 — verify
 ## 5. Excluded-by-design (not a gap — batch-selection rule application)
 
 ```text
-SCR-003..SCR-011, VIEW-004..VIEW-006 (13 of remaining 15 surfaces, tính cả SCR-001/VIEW-001/
-  VIEW-002 đã author tại Batch 01): KHÔNG author trong Batch 02 — đúng batch-selection rule
-  ("do not expand into Backtest," "do not author SCR-009 substantively"). Nav/handoff affordance
-  tồn tại (dẫn tới #screen-deferred), substantive screen content KHÔNG.
+Surface accounting (đóng `P2-B02-A-MAJ-01`'s stale "13 of remaining 15" arithmetic — 17 tổng, KHÔNG
+  15; correct 12, KHÔNG 13):
+  Batch 01 candidate/verified prior contribution:  SCR-001, VIEW-001, VIEW-002 (3).
+  Batch 02 authored candidate surfaces:             SCR-002, VIEW-003 (2).
+  Candidate total NẾU VIEW-003's semantic defect
+    (`P2-B02-B-MAJ-01`) đóng đúng:                  5/17.
+  Candidate remaining (17 − 5):                     12/17 — SCR-003..SCR-011 (9) +
+                                                     VIEW-004..VIEW-006 (3) = 12. KHÔNG author
+                                                     trong Batch 02 — đúng batch-selection rule
+                                                     ("do not expand into Backtest," "do not
+                                                     author SCR-009 substantively"). Nav/handoff
+                                                     affordance tồn tại (dẫn tới
+                                                     #screen-deferred), substantive screen
+                                                     content KHÔNG.
+  Independent Review B support TRƯỚC transaction
+    này (pre-re-review, chưa xác nhận correction):   4/17 — SCR-002/UC-004 supportable, VIEW-003/
+                                                     UC-005 KHÔNG (semantic Major
+                                                     `P2-B02-B-MAJ-01`, đóng tại transaction này,
+                                                     chờ bounded re-review xác nhận trước khi
+                                                     tính lại vào verified progress).
+  Candidate KHÔNG PHẢI independently verified — 5/17 CHỈ authoritative sau khi bounded Review A
+    re-review + Independent bounded Review B xác nhận trên v1.2 candidate này.
 16 of 21 UC KHÔNG substantively covered (§2 ledger — B=9, C=7, KHÔNG collapse thành một bucket,
   đúng lesson từ Batch 01's `P2-B01-A-MIN-01`, VÀ KHÔNG double-count UC-002 vào cả A lẫn B, đúng
   fix của `P2-B02-A-MAJ-01`):

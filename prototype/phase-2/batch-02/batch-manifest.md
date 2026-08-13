@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-02-manifest
 title: "Phase 2 Prototype — Batch 02 — Batch Manifest"
-version: "1.2"
+version: "1.3"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -14,6 +14,8 @@ created_at: "2026-08-13"
 **v1.1 — bounded correction (2026-08-13), đóng `P2-B02-A-MAJ-01` (Review A).** v1.0's §4 cumulative UC ledger KHÔNG PHẢI một valid partition — `UC-002` xuất hiện CẢ trong A LẪN B; `UC-009`/`UC-010` bị gọi B trong khi mô tả nói zero-reference; C ghi "9 of 21" nhưng liệt kê 10 UC; "5+7+9=21" do đó sai. Sửa: §4 viết lại — B recompute TỪ ĐẦU trực tiếp từ `ux-blueprint.md` §5a's NAV-003/004/005/006 UC traceability (loại UC-002/UC-004 vì đã A), kết quả A=5/B=9/C=7, tổng=21, ba set đôi một rời nhau (verify mechanically, xem `traceability.md` v1.1 §2). KHÔNG đổi Replay/parity behavior, KHÔNG surface mới, KHÔNG đổi 3/17→5/17 surface progress (surface accounting KHÔNG bị ảnh hưởng bởi finding này).
 
 **v1.2 — micro bounded correction (2026-08-13), `P2-B02-A-MAJ-01` REOPENED bởi bounded Review A re-review trên v1.1 (stale current-state evidence VẪN còn sót lại dù §4's ledger đã đúng) — đóng lại tại transaction này.** Ba defect còn sót: (1) §15 "Unresolved gaps" VẪN dùng wording cũ "7 partial/referenced + 9 deferred" — swap SAI so với §4's B=9/C=7 đã đúng từ v1.1, sửa khớp chính xác cùng set. (2) §6 "Prototype artifact identities" VẪN pin `traceability.md` vào blob v1.0 cũ (`61e7f2af...`) thay vì current v1.1 blob (`f37ca959...`) — sửa pin đúng current identity, giữ blob cũ LÀM historical reference có nhãn tường minh. (3) §8/§15 dùng arithmetic sai "13 of remaining 15 surfaces" — KHÔNG khớp candidate cumulative 5/17 (17 tổng − 5 candidate substantive = 12 remaining, KHÔNG PHẢI 13/15) — sửa thành "12 of 17 surfaces not yet substantively covered" (SCR-003..SCR-011 = 9 + VIEW-004..VIEW-006 = 3 = 12) tại cả hai vị trí. KHÔNG đổi §4's A/B/C partition (VẪN A=5/B=9/C=7/tổng=21, KHÔNG chạm), KHÔNG đổi candidate 5/17 hay 5/21, KHÔNG đổi last-independently-verified 3/17/3/21. KHÔNG đổi Replay/parity behavior, KHÔNG surface mới, KHÔNG đổi `traceability.md` (byte-identical, v1.1 giữ nguyên — content KHÔNG cần sửa, CHỈ MỘT reference stale nằm trong batch-manifest.md's own §6 pin).
+
+**v1.3 — bounded semantic correction (2026-08-13), Independent Review B trên v1.2 baseline: `P2-B02-A-MAJ-01` REOPENED LẦN NỮA + `P2-B02-B-MAJ-01` (mới) — đóng CẢ HAI tại transaction này.** `P2-B02-A-MAJ-01`: v1.2's correction CHỈ sửa `batch-manifest.md`'s §6/§8/§15 — `traceability.md`'s riêng §5 "Excluded-by-design" VẪN chứa "13 of remaining 15 surfaces" chưa sửa (bị bỏ sót giữa hai file). Sửa: `traceability.md` v1.2 §5 viết lại — phân biệt candidate total nếu `P2-B02-B-MAJ-01` đóng đúng (5/17), candidate remaining (12/17), VÀ Independent Review B's pre-correction supportable state (4/17). `P2-B02-B-MAJ-01`: `app.js`'s digest-definition axis (axis 9) hiển thị "ok"/"resolved, consistent" cho MATCH/MISMATCH dù `.digest-note` nói digest-definition CHƯA established VÀ structured Representation comparison (KHÔNG Digest) LÀ cơ sở — mâu thuẫn ngữ nghĩa với chính `decision.md` §9a.2 authority. Sửa: thêm axis-status thứ tư `not-applicable` (`baseAxisStatuses()`, `axisRow()`, CSS `.axis-status-not-applicable`), axis 9 LUÔN `not-applicable` (KHÔNG BAO GIỜ `ok`) trong Batch 02's demo path, MATCH/MISMATCH copy sửa từ "All nine pinned axes evaluable" thành "All applicable required axes... Digest-definition axis not applicable," digest-note mở rộng giải thích phân biệt `unresolved` vs `not-applicable`. KHÔNG establish digest-definition authority, KHÔNG chọn hash/serialization algorithm — governance gap VẪN unresolved, CHỈ representation của gap được sửa cho chính xác. KHÔNG đổi A/B/C partition (VẪN A=5/B=9/C=7/tổng=21). KHÔNG surface/screen mới. KHÔNG đổi SCR-002 cursor binding/lineage/NAV-002 behavior/VIEW-003 optional-entry rule/MATCH-MISMATCH-INDETERMINATE outcome model/MISMATCH→Review handoff/I-11/Trigger B-C-D-E boundary. Independent Review B's pre-re-review independently-supportable state: 4/17, 4/21 (SCR-002/UC-004 supportable, VIEW-003/UC-005 KHÔNG). Candidate SAU correction: 5/17, 5/21 — CHƯA verified, chờ bounded re-review.
 
 ## 1. Batch identity
 
@@ -87,7 +89,9 @@ Cumulative C (7 of 21 — verify trực tiếp: KHÔNG element nào trong Batch 
   UC-007, UC-008, UC-009, UC-010, UC-012, UC-013, UC-014.
 
 Partition validation: |A|=5, |B|=9, |C|=7, tổng=21. A∩B=A∩C=B∩C=∅ (verify mechanically, xem
-  traceability.md v1.1 §2). Union = {UC-001..UC-021}, mỗi UC đúng một lần — KHÔNG thiếu, KHÔNG dư.
+  traceability.md v1.2 §2 — partition KHÔNG đổi từ v1.1, CHỈ traceability.md's §5 surface
+  wording + app.js's digest-axis representation được sửa tại v1.3, xem §16 dưới cho review
+  history đầy đủ). Union = {UC-001..UC-021}, mỗi UC đúng một lần — KHÔNG thiếu, KHÔNG dư.
 
 21-UC substantive completion progress: candidate 5/21 (A only) -- CHƯA independently verified
   tại transaction này (chờ Review A + Independent Review B trên Batch 02). Last INDEPENDENTLY
@@ -105,9 +109,9 @@ PR-010, PR-019 (VIEW-003)
 
 ```text
 prototype/phase-2/batch-02/index.html         blob c69502da70e32db07572848a795d74f67ecc838d (unchanged since v1.0)
-prototype/phase-2/batch-02/styles.css          blob bcd250d57cfb5b56e3558fbdbede0cca89cf1b82 (unchanged since v1.0)
-prototype/phase-2/batch-02/app.js              blob 8f5fba218457b965dd2f9ecdc1576de9b61639a6 (unchanged since v1.0)
-prototype/phase-2/batch-02/traceability.md     blob f37ca95963111dcdece19b11fb8a919646ebfe8b (CURRENT — v1.1, đóng P2-B02-A-MAJ-01's UC ledger correction; historical v1.0 blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425, superseded)
+prototype/phase-2/batch-02/app.js              blob 52487b0a70525011a9d38f3ce66f7f595cb4bb7c (CURRENT — v1.3, đóng P2-B02-B-MAJ-01's digest-axis semantic correction; historical pre-fix blob 8f5fba218457b965dd2f9ecdc1576de9b61639a6, superseded)
+prototype/phase-2/batch-02/styles.css          blob 7042966f1e41bb550fab0e42316803d1595e1754 (CURRENT — v1.3, thêm .axis-status-not-applicable class, presentation-only; historical pre-fix blob bcd250d57cfb5b56e3558fbdbede0cca89cf1b82, superseded)
+prototype/phase-2/batch-02/traceability.md     blob 302fd0ffd9eb59ba63e9b06854411f7abe57d13e (CURRENT — v1.2, đóng REOPENED P2-B02-A-MAJ-01 + P2-B02-B-MAJ-01; historical v1.1 blob f37ca95963111dcdece19b11fb8a919646ebfe8b, historical v1.0 blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425, both superseded)
 ```
 
 ## 7. Authority sources consumed (reference only, none modified)
@@ -234,22 +238,45 @@ None within this batch's scope. 12/17 surfaces not yet substantively covered (SC
 ## 16. Batch lifecycle / review state
 
 ```text
-Status:            CANDIDATE — authored, NOT self-approved.
+Status:            CANDIDATE — corrected (v1.3 app.js/styles.css, v1.2 traceability.md, v1.3
+                    batch-manifest.md), NOT self-approved.
 
-Candidate contribution (this transaction, CHƯA independently verified):
-  17-surface cumulative:          5/17 (3/17 from Batch 01 + 2/17 from Batch 02).
-  21-UC substantive cumulative:    5/21 (3/21 from Batch 01 + 2/21 from Batch 02).
+Review history:
+  Review A (v1.0):                     P2-B02-A-MAJ-01 found, REVISION_REQUIRED.
+  v1.1 bounded correction:              đóng P2-B02-A-MAJ-01 (A/B/C partition rebuild).
+  Bounded Review A re-review (v1.1):    P2-B02-A-MAJ-01 REOPENED (stale current-state evidence
+                                        sót lại ngoài partition itself).
+  v1.2 micro correction:                đóng REOPENED P2-B02-A-MAJ-01 (§6/§8/§15 stale wording).
+  Independent Review B (trên v1.2
+    baseline):                          P2-B02-A-MAJ-01 REOPENED LẦN NỮA (traceability.md's
+                                        riêng §5 VẪN "13 of remaining 15" sót — batch-manifest.md
+                                        đã sửa nhưng traceability.md's own copy KHÔNG); MỚI
+                                        P2-B02-B-MAJ-01 (digest-axis semantic contradiction,
+                                        app.js). Blocker 0, Major 1 new + 1 reopened, Minor 0,
+                                        REVISION_REQUIRED.
+  v1.3 (transaction này):               đóng CẢ HAI P2-B02-A-MAJ-01 (traceability.md §5) VÀ
+                                        P2-B02-B-MAJ-01 (app.js digest-axis representation).
+                                        Correction ONLY — CHƯA tuyên bố bounded re-review đã
+                                        pass trên v1.3.
 
-Last INDEPENDENTLY VERIFIED cumulative progress (Independent Review B's verdict on Batch 01,
-  READY_FOR_NEXT_PHASE2_BATCH — the authoritative number cho tới khi Batch 02 tự nó qua Review
-  A/B):
-  17-surface:                     3/17 (Batch 01 only).
-  21-UC substantive:                3/21 (Batch 01 only).
+Progress — BA trạng thái tách biệt, KHÔNG conflate:
+  Candidate (sau v1.3 correction, CHƯA verified):
+    17-surface cumulative:              5/17 (3/17 Batch 01 + 2/17 Batch 02: SCR-002+VIEW-003).
+    21-UC substantive cumulative:        5/21 (3/21 Batch 01 + 2/21 Batch 02: UC-004+UC-005).
 
-Review A:           NOT YET PERFORMED (batch-level, P2-PROTOTYPE-001) trên Batch 02.
-Independent
-  Review B:          NOT YET PERFORMED trên Batch 02.
-Next step:          Batch-level Review A + Independent Review B on this coherent Batch 02
-                     milestone — a separate governed transaction, per this transaction's own
-                     scope (authoring only).
+  Independent Review B pre-re-review independently-supportable state (trên baseline TRƯỚC
+    transaction này — SCR-002/UC-004 supportable, VIEW-003/UC-005 KHÔNG do P2-B02-B-MAJ-01):
+    17-surface cumulative:              4/17 (3/17 Batch 01 + 1/17 Batch 02: SCR-002 only).
+    21-UC substantive cumulative:        4/21 (3/21 Batch 01 + 1/21 Batch 02: UC-004 only).
+
+  Last INDEPENDENTLY VERIFIED (Batch 01's own Independent Review B verdict,
+    READY_FOR_NEXT_PHASE2_BATCH — authoritative cho tới khi Batch 02 tự nó qua Review A + Review
+    B đầy đủ, KHÔNG REOPENED):
+    17-surface:                          3/17 (Batch 01 only).
+    21-UC substantive:                    3/21 (Batch 01 only).
+
+Next step:          Bounded Review A re-review + Independent bounded Review B on this v1.3
+                     candidate (app.js/styles.css v1.3, traceability.md v1.2, batch-manifest.md
+                     v1.3) — a separate governed transaction, per this transaction's own scope
+                     (correction only).
 ```

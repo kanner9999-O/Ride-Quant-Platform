@@ -381,6 +381,13 @@ select, .btn {
   color: #4a3a9e;
 }
 
+/* Distinct from axis-status-ok on purpose (closes P2-B02-B-MAJ-01) -- "not applicable" must
+   never look like "resolved, consistent." Neutral/grey, not green. */
+.axis-status-not-applicable {
+  background: #e4e9ef;
+  color: #5b6b80;
+}
+
 .representation-compare {
   display: grid;
   grid-template-columns: 1fr 1fr;
