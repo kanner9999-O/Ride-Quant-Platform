@@ -2,6 +2,127 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 03 v1.1 bounded correction: `P2-B03-A-MAJ-01` CLOSED (UC-008 progression), `P2-B03-A-MIN-01` CLOSED (last-verified provenance)
+
+**Bounded correction — vai trò: `Phase 2 Prototype Batch 03 v1.1 Bounded Correction Executor`.** Closes two Review A findings on the v1.0 baseline: a missing UC-008 progression representation, and a stale/inconsistent provenance description for the "last independently verified" baseline. No scope expansion, no new SCR/VIEW.
+
+### Baseline
+
+```text
+Starting HEAD:           2b7eed7640168233de2fc598f1ea9f342ef5be1f
+index.html:               blob 0c3b3601f3d89d712b09ba7950b478503e9cc197
+styles.css:                blob 92e2dd485b496c50737f2f7639ea1a58abc6c590
+app.js:                    blob 9ddc87dd833b10e048f5d04142afa08325b74839
+traceability.md:           v1.0, blob 3406b6de95f96a5fdf3045f7d49ede329f9d1cef
+batch-manifest.md:         v1.0
+README.md:                 blob 369453dad6d00811a33db31243f1cab036f70d8c
+Batch lifecycle:           CANDIDATE (unchanged going in)
+Review A on v1.0: Blocker 0/Major 1/Minor 1; REVISION_REQUIRED.
+```
+
+### Finding 1 — `P2-B03-A-MAJ-01` (closed)
+
+```text
+Defect: use-case-workflow.md UC-008 requires BOTH (1) deterministic simulated economic evidence
+  per Decision→exposure change, AND (2) exposure/position progression theo thời gian xuyên suốt
+  khoảng interval của run (Main flow bước 2, distinct from bước 1). v1.0's renderEconomicEvidence()
+  only rendered (1) — a per-Decision change list. Its local `progression` variable was updated in
+  a loop but never rendered; traceability.md nevertheless claimed UC-008 was fully authored.
+Fix: added positionProgression(run) helper to app.js — derives an ordered array (one point per
+  Decision, including no-change points) deterministically and directly from the run's own
+  `decisions` array (already part of the run fixture, no new dataset invented). Each point carries
+  seq, decisionId, before, change ("no change" or the exposure-change label), after. Rendered as a
+  new `.progression-table` (# / Decision / Position before / Simulated change / Position after) in
+  SCR-004 Panel B, below the existing per-Decision change list. Different runs naturally show
+  different progressions since they're derived from that run's own decisions — no generic shared
+  timeline. STATE-009's guard is unchanged: a run with zero exposure-changing Decisions still
+  short-circuits to STATE-009 before positionProgression() is ever called — no progression is
+  fabricated for an insufficient-evidence run. No BacktestFill/BacktestPosition/
+  BacktestExecutionResult entity introduced; wording stays "simulated exposure/position
+  progression," non-PAPER, illustrative. UC-009's evaluable result and SCR-005's comparison remain
+  bound to the same run's (now-corrected) economic evidence, unchanged threshold-neutral framing.
+```
+
+### Finding 2 — `P2-B03-A-MIN-01` (closed)
+
+```text
+Defect: traceability.md §2/§6 and batch-manifest.md §4/§17 described the "last independently
+  verified 5/17, 5/21" baseline as though it were "Batch 01's own Independent Review B verified
+  contribution (3) + Batch 02's candidate contribution (2)" — hedging Batch 02's UC-004/UC-005 and
+  SCR-002/VIEW-003 as merely candidate. That is stale/inconsistent: the original Batch 03 authoring
+  transaction's own given baseline explicitly stated "Batch 02: READY_FOR_NEXT_PHASE2_BATCH" (see
+  this file's own Batch-03-authoring Baseline block above, "Batch 02: READY_FOR_NEXT_PHASE2_BATCH
+  per task baseline") and Independent Review B's verdict on Batch 02 v1.3 was already
+  READY_FOR_NEXT_PHASE2_BATCH at the Batch-03 starting boundary — traceability.md had not carried
+  that consistently, instead self-hedging Batch 02 down to "candidate."
+Verification note (G-VERIFY-001): checked this directly against prototype/phase-2/batch-02/
+  batch-manifest.md §17 and MANIFEST.md's own Batch 02 row — both still read CANDIDATE, chờ Review
+  A + Independent Review B, with no Independent Review B PASS verdict recorded in batch-02's own
+  files. Per explicit orchestrator direction, this transaction treats the relayed
+  READY_FOR_NEXT_PHASE2_BATCH verdict as given (same class of external fact as every other
+  relayed Review A/B verdict in this workflow) and corrects Batch 03's own documents to be
+  consistent with that given baseline — it does NOT modify batch-02/'s own files. Recording that
+  verdict into batch-02/batch-manifest.md's own §17 review-state section remains a separate,
+  not-yet-issued governed transaction.
+Fix: traceability.md §2 (Last INDEPENDENTLY VERIFIED block), §6 (Excluded-by-design surface
+  accounting), and the UC-001..005 classification-table row rewritten to state plainly that all
+  five UC/four surfaces (SCR-001/VIEW-001/VIEW-002 — Batch 01; SCR-002/VIEW-003 — Batch 02 v1.3)
+  are independently verified, sourced explicitly to Batch 01's and Batch 02's own Independent
+  Review B verdicts. batch-manifest.md §1 (Depends on), §4, and §17 updated to match, with an
+  explicit transparency note that batch-02's own file has not yet been updated to record this.
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-03/app.js               blob a33f969724e18ae4ad13906f9076ec19a2c00706
+prototype/phase-2/batch-03/styles.css            blob af973c0ad6e46dc7d66bb032af015bb6da3fb2ed
+prototype/phase-2/batch-03/traceability.md       v1.0 → v1.1, blob 06d18b66f420e3f5f11603568837843cff0184d7
+prototype/phase-2/batch-03/batch-manifest.md     v1.0 → v1.1, blob a3d8df765e7c4faeefa16ad5f8b0b41c22914f64
+prototype/phase-2/batch-03/README.md             blob 482420c661a347a93d327319c8de91c338b643ca
+                                                  (incidental fix: stale "§16" cross-reference →
+                                                  correct "§17")
+prototype/phase-2/batch-03/index.html            UNCHANGED, blob 0c3b3601f3d89d712b09ba7950b478503e9cc197
+docs/MANIFEST.md                                 Batch 03 row rewritten (compact current-state,
+                                                  P2-BUDGET-001 discipline — no growing history
+                                                  cell, full journey lives here)
+```
+
+### Preserved unchanged
+
+```text
+NAV-003 semantics, SCR-003 run binding, STATE-001/004/005 behavior, UC-007 A/B/C causal
+  separation, RiskEvaluation downstream-only treatment, SCR-004 tabs, STATE-002/010 semantics,
+  threshold-neutral UC-009, SCR-005 selector binding, per-run comparison identity, deferred
+  SCR-011 handoff, Backtest/Paper authority separation, no promotion to Paper, A/B/C partition
+  (A=10/B=8/C=3, unchanged), I-11 PASS, Trigger B/C/D/E boundary, LIVE unauthorized. Batch 01/02
+  untouched (git diff --quiet verified).
+```
+
+### Result
+
+```text
+P2-B03-A-MAJ-01:  CLOSED.
+P2-B03-A-MIN-01:  CLOSED.
+Candidate Batch-03 surface/UC contribution: unchanged, 8/17, 10/21 — still pending Review A
+  re-review + Independent Review B, NOT self-verified.
+Last independently verified: 5/17 surfaces, 5/21 UC — now sourced accurately (Batch 01 + Batch 02
+  v1.3, both Independent Review B READY_FOR_NEXT_PHASE2_BATCH), no longer hedging Batch 02 as
+  candidate.
+Batch lifecycle: CANDIDATE, NOT self-approved.
+```
+
+### Validation
+
+```text
+node --check app.js:      OK.
+Secret-pattern grep:      clean (one match = disclaiming comment, unchanged).
+Network-call grep:        clean.
+index.html:                verified byte-identical (blob unchanged).
+git diff --quiet -- batch-01/, batch-02/: clean (both untouched).
+Forbidden-authority paths: untouched.
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 03 authored: Backtest setup + run detail + run comparison (NAV-003 + SCR-003/004/005)
 
 **Authored — vai trò: `Phase 2 Prototype Batch 03 Author`.** One coherent Backtest milestone (P2-PROTOTYPE-001), not split into separate governance cycles. Static HTML/CSS/vanilla-JS prototype, mock/static/deterministic data only — no framework, no backend, no build step, no simulation/Decision/Risk engine implemented. Batch 01/02 untouched.

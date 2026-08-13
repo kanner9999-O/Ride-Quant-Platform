@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-03-traceability
 title: "Phase 2 Prototype — Batch 03 — Traceability Artifact"
-version: "1.0"
+version: "1.1"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -10,6 +10,8 @@ created_at: "2026-08-13"
 # Phase 2 Prototype — Batch 03 — Traceability Artifact
 
 **Vai trò của tài liệu này:** đây LÀ I-12 (Single Source of Truth) conformance evidence cho Batch 03, per `docs/phase-dod/phase-2-dod.md` §2's applicable Trigger A / I-12 requirement — mọi phần tử prototype trong batch này PHẢI trace được TRỰC TIẾP về đúng một hoặc nhiều `SCR-XXX`/`VIEW-XXX`/`NAV-XXX`/`FLOW-XXX`/`STATE-XXX` đã `Consolidated Stable` trong [`docs/product/ux-blueprint.md`](../../../docs/product/ux-blueprint.md), VÀ về đúng `UC-XXX` đã `Consolidated Stable` trong [`docs/product/use-case-workflow.md`](../../../docs/product/use-case-workflow.md) (v0.6, đóng `P03B-V05-B-MAJ-01`), VÀ về đúng `PR-XXX` đã tồn tại. Prototype LÀ derived representation — KHÔNG một UC/PR/domain concept nào originate tại đây. Áp dụng ĐÚNG taxonomy A/B/C đã establish tại `../batch-01/traceability.md` §0, kế thừa nguyên vẹn qua `../batch-02/traceability.md`.
+
+**v1.1 — bounded correction (2026-08-13), Review A trên v1.0: `P2-B03-A-MAJ-01` (Major) + `P2-B03-A-MIN-01` (Minor) — đóng CẢ HAI tại transaction này.** `P2-B03-A-MAJ-01`: `use-case-workflow.md` UC-008 yêu cầu CẢ HAI — (1) simulated economic evidence per Decision→exposure change, VÀ (2) exposure/position progression theo thời gian xuyên suốt khoảng interval của run (Main flow bước 2, tách biệt bước 1) — v1.0's `renderEconomicEvidence()` chỉ render (1), KHÔNG render một ordered temporal progression nào (biến `progression` cục bộ được cập nhật nhưng KHÔNG BAO GIỜ hiển thị). Sửa: thêm `positionProgression()` helper (`app.js`) — dẫn xuất deterministic TRỰC TIẾP từ `run.decisions` sẵn có (KHÔNG fixture mới, KHÔNG simulation engine) — MỘT ordered row/Decision (kể cả điểm không đổi), hiển thị dưới dạng bảng `.progression-table` (# / Decision / Position before / Simulated change / Position after) tại SCR-004 Panel B, ngay dưới danh sách per-Decision change đã có. Khác run → khác progression (dẫn xuất từ chính run's decisions, KHÔNG một timeline giả chung). STATE-009 giữ nguyên hành vi — KHÔNG progression nào render cho run insufficient-evidence (guard KHÔNG đổi). `P2-B03-A-MIN-01`: §2 dưới's "Last INDEPENDENTLY VERIFIED" provenance mô tả sai 5/17, 5/21 như thể "Batch 01 verified + Batch 02 candidate" — SAI, tại boundary khởi đầu Batch 03, Batch 02 v1.3 ĐÃ có Independent bounded Review B verdict `READY_FOR_NEXT_PHASE2_BATCH` (task-relayed baseline cho transaction authoring Batch 03 gốc, đã ghi nhận nguyên văn tại `docs/CHANGELOG.md`'s Baseline block cho Batch 03 — "Batch 02: READY_FOR_NEXT_PHASE2_BATCH per task baseline" — nhưng KHÔNG được carry forward nhất quán vào tài liệu này, vốn tự ý hedge thành "candidate contribution"). Sửa: §2 viết lại — 5/17, 5/21 nay ghi nhận LÀ last independently verified (KHÔNG hedge UC-004/UC-005 hay SCR-002/VIEW-003 là "candidate"). Lưu ý minh bạch: việc ghi nhận chính thức verdict này VÀO `batch-02/batch-manifest.md`'s own §17 review-state section VẪN LÀ một governed transaction riêng, CHƯA issue — tài liệu batch-02 tự thân KHÔNG bị sửa bởi transaction này (đúng "Preserve unchanged: Batch 02").
 
 ## 0. UC accounting taxonomy (kế thừa nguyên vẹn từ Batch 01/02, KHÔNG redefine)
 
@@ -48,10 +50,10 @@ Batch-01/02-verified substantive UC (KHÔNG re-authored, KHÔNG double-counted, 
 |---|---|---|
 | UC-006 | **A — Substantive** (Batch 03, promoted từ B) | SCR-003 fully authored: NAV-003 precondition gate (Strategy Instance pinned), read-only existing-run list (always visible), bounded interval input, stable run identity assignment visibly bound to interval + Strategy Instance + Strategy Definition Version + configuration/policy version, STATE-001/STATE-005 — matches `ux-blueprint.md` §7.3 SCR-003 spec + `use-case-workflow.md` UC-006 Main flow. |
 | UC-007 | **A — Substantive** (Batch 03, promoted từ C) | SCR-004 Panel A fully authored: mỗi Decision hiển thị tách biệt tường minh (A) outcome LONG/SHORT/NO_ACTION, (B) upstream explainability (Strategy Instance/Definition Version/configuration/input snapshot/evaluation evidence), (C) downstream lineage khi tồn tại (Trade Intent/RiskEvaluation/Execution Intent) — RiskEvaluation LUÔN ở nhóm C, KHÔNG BAO GIỜ nhóm B (đúng `use-case-workflow.md` UC-007 v0.6, đóng `P03B-V05-B-MAJ-01`'s causal-direction fix). STATE-002/STATE-010 phân biệt tường minh. |
-| UC-008 | **A — Substantive** (Batch 03, promoted từ C) | SCR-004 Panel B fully authored: simulated economic evidence per Decision→exposure-change, exposure/position progression theo thời gian, nhãn non-PAPER simulated tường minh, KHÔNG PAPER Order/ExecutionResult/Fill/Position tạo/tái sử dụng, STATE-009 khi zero exposure-changing Decision — matches `ux-blueprint.md` §7.3 SCR-004 spec (b) + `use-case-workflow.md` UC-008. |
+| UC-008 | **A — Substantive** (Batch 03, promoted từ C; v1.1 đóng `P2-B03-A-MAJ-01`) | SCR-004 Panel B fully authored: (1) simulated economic evidence per Decision→exposure-change; (2) ordered exposure/position progression theo thời gian xuyên suốt khoảng interval, `.progression-table` (#/Decision/Position before/Simulated change/Position after, một hàng/Decision, dẫn xuất deterministic từ `run.decisions`) — v1.0 chỉ có (1), (2) bị bỏ sót (`P2-B03-A-MAJ-01`, nay đóng); nhãn non-PAPER simulated tường minh, KHÔNG PAPER Order/ExecutionResult/Fill/Position tạo/tái sử dụng, STATE-009 khi zero exposure-changing Decision (progression KHÔNG render cho run này) — matches `ux-blueprint.md` §7.3 SCR-004 spec (b) + `use-case-workflow.md` UC-008 Main flow bước 1+2. |
 | UC-009 | **A — Substantive** (Batch 03, promoted từ C) | SCR-004 Panel C fully authored: strategy-level evaluable result gắn CHÍNH XÁC run/version tuple, threshold-neutral (KHÔNG KPI/pass-fail/Sharpe/win-rate/profitability criterion — `OQ-003` unresolved, tường minh disclosed), STATE-009 khi thiếu evidence — matches `ux-blueprint.md` §7.3 SCR-004 spec (c) + `use-case-workflow.md` UC-009. |
 | UC-010 | **A — Substantive** (Batch 03, promoted từ C) | SCR-005 fully authored: chọn hai run (select thật sự bind vào rendering), kết quả evaluable cạnh nhau giữ nguyên run/version identity riêng, KHÔNG gộp/aggregate, STATE-002 khi dưới hai run hoàn tất, STATE-009 per-run khi một run thiếu evidence (run khác vẫn hiển thị), deferred SCR-011 handoff (KHÔNG author substantively) — matches `ux-blueprint.md` §7.3 SCR-005 spec + `use-case-workflow.md` UC-010. |
-| UC-001, UC-002, UC-003, UC-004, UC-005 | **A — Substantive** (Batch 01/02, giữ nguyên) | SCR-001/VIEW-001/VIEW-002/SCR-002/VIEW-003 fully authored tại Batch 01/02 (Independent Review B verdict `READY_FOR_NEXT_PHASE2_BATCH` cho Batch 01). Batch 03 CHỈ link tới Research/Replay (real nav link) VÀ simulate incoming context (QA panel) — KHÔNG re-author, NHƯNG cumulative classification VẪN A (một UC KHÔNG thể vừa A vừa B/C, đúng nguyên tắc đã đóng `P2-B02-A-MAJ-01`). |
+| UC-001, UC-002, UC-003, UC-004, UC-005 | **A — Substantive** (Batch 01/02, giữ nguyên; v1.1 sửa provenance, đóng `P2-B03-A-MIN-01`) | SCR-001/VIEW-001/VIEW-002/SCR-002/VIEW-003 fully authored, VÀ ĐÃ independently verified — Batch 01 (Independent Review B verdict `READY_FOR_NEXT_PHASE2_BATCH`) VÀ Batch 02 v1.3 (Independent bounded Review B verdict `READY_FOR_NEXT_PHASE2_BATCH`, task-relayed baseline cho Batch 03 authoring, xem §2). Batch 03 CHỈ link tới Research/Replay (real nav link) VÀ simulate incoming context (QA panel) — KHÔNG re-author, NHƯNG cumulative classification VẪN A (một UC KHÔNG thể vừa A vừa B/C, đúng nguyên tắc đã đóng `P2-B02-A-MAJ-01`). |
 
 ## 2. Cumulative Phase-2 UC ledger (Batch 01 + Batch 02 + Batch 03, candidate — KHÔNG independently verified tại transaction này)
 
@@ -87,13 +89,24 @@ Partition validation (mechanical):
   Candidate (sau Batch 03 authoring):               10/21 (A only) — CHƯA independently verified
                                                      (chờ Review A + Independent Review B trên
                                                      Batch 03, đúng P2-PROTOTYPE-001).
-  Last INDEPENDENTLY VERIFIED (Batch 01 Independent
-    Review B verdict READY_FOR_NEXT_PHASE2_BATCH —
-    authoritative cho tới khi Batch 02/03 tự nó qua
-    Review A/B đầy đủ):                              5/21 (UC-001..005 — Batch 01's verified 3 +
-                                                     Batch 02's candidate 2, per baseline này task
-                                                     đã cung cấp làm "Current independently
-                                                     verified cumulative").
+  Last INDEPENDENTLY VERIFIED (v1.1, đóng
+    `P2-B03-A-MIN-01` — sửa provenance):              5/21 (UC-001, UC-002, UC-003 — Batch 01
+                                                     Independent Review B verdict
+                                                     `READY_FOR_NEXT_PHASE2_BATCH` — + UC-004,
+                                                     UC-005 — Batch 02 v1.3 Independent bounded
+                                                     Review B verdict `READY_FOR_NEXT_PHASE2_BATCH`
+                                                     — CẢ NĂM UC này ĐÃ independently verified,
+                                                     KHÔNG còn mô tả UC-004/UC-005 là "candidate."
+                                                     Nguồn: baseline task-relayed cho Batch 03
+                                                     authoring transaction gốc (ghi nguyên văn tại
+                                                     `docs/CHANGELOG.md`'s Batch-03 Baseline block —
+                                                     "Batch 02: READY_FOR_NEXT_PHASE2_BATCH per
+                                                     task baseline"). Minh bạch: ghi nhận chính
+                                                     thức verdict này vào `batch-02/batch-
+                                                     manifest.md`'s own §17 VẪN LÀ một governed
+                                                     transaction riêng, CHƯA issue tại thời điểm
+                                                     này — tài liệu batch-02 tự thân KHÔNG bị sửa
+                                                     bởi transaction này.
 ```
 
 ## 3. Element-level traceability map
@@ -119,8 +132,9 @@ Partition validation (mechanical):
 | `app.js` `renderDecisionTrace()` `.evidence-group-upstream` (group B — upstream Decision origin/explainability) | SCR-004 Panel (a), group B | UC-007 | PR-005, PR-009, PR-021 | `use-case-workflow.md` UC-007 Main flow step 2B — Strategy Instance/Definition Version/configuration, recorded input snapshot, recorded evaluation evidence, resolve TRỰC TIẾP từ recorded fact |
 | `app.js` `renderDecisionTrace()` `.evidence-group-downstream` (group C — downstream lineage, incl. RiskEvaluation) | SCR-004 Panel (a), group C | UC-007 | PR-009, PR-021 | `use-case-workflow.md` UC-007 Main flow step 2C — Trade Intent/RiskEvaluation/Execution Intent, "causally derived from/related to Decision, KHÔNG PHẢI evidence dùng để tạo ra nó"; `risk.md` §1 (RiskEvaluation đánh giá Trade Intent SINH RA SAU Decision — RiskEvaluation LUÔN thuộc C, KHÔNG BAO GIỜ B, đóng cùng causal-direction requirement đã fix tại `P03B-V05-B-MAJ-01`) |
 | `app.js` `renderDecisionTrace()` "Downstream lineage: none" branch (NO_ACTION) | SCR-004 Panel (a) | UC-007 | PR-021 | `use-case-workflow.md` UC-007; `decision.md` §10 "result = NO_ACTION → ZERO Trade Intent LUÔN LUÔN" |
-| `app.js` `renderEconomicEvidence()` normal branch (simulated exposure change per Decision, exposure/position progression) | SCR-004 Panel (b) | UC-008 | PR-033 | `ux-blueprint.md` §7.3 SCR-004 "Information displayed" (b); `use-case-workflow.md` UC-008 Main flow |
-| `app.js` `renderEconomicEvidence()` STATE-009 branch | STATE-009 Backtest evidence insufficient | UC-008 (alternate/failure) | PR-033, PR-034 | `ux-blueprint.md` §11 STATE-009 row; `use-case-workflow.md` UC-008 "Alternate/failure" |
+| `app.js` `renderEconomicEvidence()` normal branch, `.lineage-list` rows (Decision → simulated exposure change, per changing Decision) | SCR-004 Panel (b) | UC-008 | PR-033 | `ux-blueprint.md` §7.3 SCR-004 "Information displayed" (b); `use-case-workflow.md` UC-008 Main flow bước 1 ("simulated economic evidence deterministic cho mỗi điểm Decision→simulated exposure change") |
+| `app.js` `positionProgression()` / `.progression-table` (v1.1, đóng `P2-B03-A-MAJ-01` — ordered exposure/position progression, một hàng/Decision, TÁCH BIỆT khỏi hàng trên) | SCR-004 Panel (b) | UC-008 | PR-033 | `ux-blueprint.md` §7.3 SCR-004 "Information displayed" (b); `use-case-workflow.md` UC-008 Main flow bước 2 ("exposure/position progression theo thời gian trong suốt khoảng interval") — dẫn xuất deterministic từ `run.decisions`, KHÔNG fixture/entity mới, KHÔNG simulation engine |
+| `app.js` `renderEconomicEvidence()` STATE-009 branch (KHÔNG progression nào render) | STATE-009 Backtest evidence insufficient | UC-008 (alternate/failure) | PR-033, PR-034 | `ux-blueprint.md` §11 STATE-009 row; `use-case-workflow.md` UC-008 "Alternate/failure" |
 | `app.js` `renderEvaluableResult()` normal branch (strategy-level evaluable result, threshold-neutral) | SCR-004 Panel (c) | UC-009 | PR-034, PR-022 | `ux-blueprint.md` §7.3 SCR-004 "Information displayed" (c); `use-case-workflow.md` UC-009 Main flow — "KHÔNG threshold/target cụ thể (`OQ-003`)" |
 | `app.js` `renderEvaluableResult()` STATE-009 branch | STATE-009 Backtest evidence insufficient | UC-009 (alternate/failure) | PR-034 | `ux-blueprint.md` §11 STATE-009 row; `use-case-workflow.md` UC-009 "Alternate/failure" |
 | `index.html` `#btn-to-scr-005` ("Compare with another run") | SCR-004 "Exit points" (SCR-005) | UC-007, UC-008, UC-009, UC-010 | PR-034 | `ux-blueprint.md` §7.3 SCR-004 "Exit points" |
@@ -180,9 +194,16 @@ Verified trực tiếp across prototype/phase-2/batch-03/*.{html,js}:
 
 ```text
 Surface accounting:
-  Batch 01+02 candidate/verified prior contribution:  SCR-001, VIEW-001, VIEW-002, SCR-002,
-                                                       VIEW-003 (5).
-  Batch 03 authored candidate surfaces:                SCR-003, SCR-004, SCR-005 (3).
+  Batch 01+02 independently verified prior contribution
+    (v1.1, đóng `P2-B03-A-MIN-01`):                     SCR-001, VIEW-001, VIEW-002 (Batch 01,
+                                                       Independent Review B `READY_FOR_NEXT_
+                                                       PHASE2_BATCH`) + SCR-002, VIEW-003 (Batch
+                                                       02 v1.3, Independent bounded Review B
+                                                       `READY_FOR_NEXT_PHASE2_BATCH`) — cả năm ĐÃ
+                                                       independently verified, KHÔNG còn "candidate"
+                                                       (5).
+  Batch 03 authored candidate surfaces:                SCR-003, SCR-004, SCR-005 (3) — CHƯA
+                                                       independently verified.
   Candidate cumulative total:                          8/17.
   Candidate remaining (17 − 8):                        9/17 — SCR-006..SCR-011 (6) +
                                                        VIEW-004..VIEW-006 (3) = 9. KHÔNG author
@@ -192,9 +213,11 @@ Surface accounting:
                                                        substantively"). Nav/handoff affordance tồn
                                                        tại (dẫn tới #screen-deferred), substantive
                                                        screen content KHÔNG.
-  Last INDEPENDENTLY VERIFIED (task-provided baseline,
-    Batch 01 verified 3/17 + Batch 02 candidate 2/17,
-    per "Current independently verified cumulative"):  5/17.
+  Last INDEPENDENTLY VERIFIED:                          5/17 (Batch 01 3 + Batch 02 2, cả hai ĐÃ
+                                                       independently verified — xem §2 cho nguồn
+                                                       đầy đủ; ghi nhận chính thức vào batch-02's
+                                                       own file VẪN LÀ transaction riêng, CHƯA
+                                                       issue).
   Candidate KHÔNG PHẢI independently verified — 8/17 CHỈ authoritative sau khi bounded Review A +
     Independent bounded Review B xác nhận trên Batch 03.
 

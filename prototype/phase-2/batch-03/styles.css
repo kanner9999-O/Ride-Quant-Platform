@@ -459,6 +459,30 @@ select, .btn {
   text-align: right;
 }
 
+/* ---- ordered exposure/position progression table (SCR-004 Panel B, UC-008 Main flow step 2,
+   closes P2-B03-A-MAJ-01) ---- */
+
+.progression-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.progression-table th, .progression-table td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px dashed #e4e9ef;
+}
+
+.progression-table th {
+  color: #5b6b80;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+}
+
 /* ---- SCR-005 run comparison ---- */
 
 .representation-compare {

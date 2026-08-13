@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-03-manifest
 title: "Phase 2 Prototype — Batch 03 — Batch Manifest"
-version: "1.0"
+version: "1.1"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -10,6 +10,8 @@ created_at: "2026-08-13"
 # Phase 2 Prototype — Batch 03 — Batch Manifest
 
 **Vai trò của tài liệu này:** batch-level evidence record cho Batch 03, đúng `phase-2-rules.md` `P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch 03 LÀ candidate/in-review — **KHÔNG self-approved** (chờ Review A + Independent Review B theo batch, đúng `P2-PROTOTYPE-001`).
+
+**v1.1 — bounded correction (2026-08-13), Review A trên v1.0: `P2-B03-A-MAJ-01` (Major) + `P2-B03-A-MIN-01` (Minor) — đóng CẢ HAI tại transaction này.** `P2-B03-A-MAJ-01`: UC-008 Panel B chỉ render simulated economic evidence per Decision (bước 1), KHÔNG render ordered exposure/position progression theo thời gian xuyên suốt khoảng interval (bước 2, `use-case-workflow.md` UC-008 Main flow) — sửa bằng `app.js` `positionProgression()` helper + `.progression-table` mới, dẫn xuất deterministic từ `run.decisions` sẵn có (KHÔNG fixture/entity mới). `P2-B03-A-MIN-01`: current-state evidence (§4/§17) mô tả sai 5/17, 5/21 như "Batch 01 verified + Batch 02 candidate" — sửa: cả năm UC-001..005/SCR-001/VIEW-001/VIEW-002/SCR-002/VIEW-003 ĐÃ independently verified (Batch 01 Independent Review B + Batch 02 v1.3 Independent bounded Review B, cả hai verdict `READY_FOR_NEXT_PHASE2_BATCH`), KHÔNG còn hedge Batch 02 là "candidate." Minh bạch: ghi nhận chính thức verdict Batch 02 vào `batch-02/batch-manifest.md`'s own §17 VẪN LÀ một governed transaction riêng, CHƯA issue — batch-02's own file KHÔNG bị sửa bởi transaction này. Blob mới: `app.js`; `styles.css`; `traceability.md` v1.1; `README.md` (fixed stale "§16" cross-reference → §17, incidental — xem §6 cho tất cả blob). `index.html` KHÔNG đổi. KHÔNG đổi A/B/C partition, KHÔNG surface mới, KHÔNG UC/PR/domain concept mới. Batch VẪN `CANDIDATE`, KHÔNG self-approved.
 
 ## 1. Batch identity
 
@@ -25,9 +27,12 @@ Depends on (real,
   read-only link,
   KHÔNG modified):    prototype/phase-2/batch-01/ — READY_FOR_NEXT_PHASE2_BATCH (Independent
                      Review B verdict), CANDIDATE lifecycle, untouched by this transaction.
-                     prototype/phase-2/batch-02/ — CANDIDATE, chờ Review A/Independent Review B,
-                     untouched by this transaction. Verified: git diff --quiet trên toàn bộ
-                     prototype/phase-2/batch-01/ VÀ prototype/phase-2/batch-02/.
+                     prototype/phase-2/batch-02/ — READY_FOR_NEXT_PHASE2_BATCH (Independent
+                     bounded Review B verdict on v1.3, task-relayed baseline — xem §4 cho nguồn
+                     đầy đủ; ghi nhận chính thức vào batch-02's own file VẪN LÀ transaction
+                     riêng, CHƯA issue), CANDIDATE lifecycle, untouched by this transaction.
+                     Verified: git diff --quiet trên toàn bộ prototype/phase-2/batch-01/ VÀ
+                     prototype/phase-2/batch-02/.
 ```
 
 ## 2. Semantic scope
@@ -74,8 +79,9 @@ STATE:  STATE-001 (loading, cited at SCR-003), STATE-002 (empty, SCR-004/SCR-005
 Batch-03-authored substantive (A, +5 mới): UC-006 (SCR-003), UC-007 (SCR-004 Panel A), UC-008
   (SCR-004 Panel B), UC-009 (SCR-004 Panel C), UC-010 (SCR-005).
 
-Cumulative A (candidate, 10 of 21): UC-001, UC-002, UC-003, UC-004, UC-005 (Batch 01+02) +
-  UC-006, UC-007, UC-008, UC-009, UC-010 (Batch 03).
+Cumulative A (10 of 21): UC-001, UC-002, UC-003, UC-004, UC-005 (Batch 01+02, ĐÃ independently
+  verified — v1.1, đóng `P2-B03-A-MIN-01`, xem dưới) + UC-006, UC-007, UC-008, UC-009, UC-010
+  (Batch 03, candidate — CHƯA independently verified).
 
 Cumulative B (8 of 21, giảm từ 9 vì UC-006 promote lên A):
   UC-011, UC-015, UC-016, UC-017, UC-018, UC-019, UC-020, UC-021.
@@ -86,10 +92,12 @@ Cumulative C (3 of 21, giảm từ 7 vì UC-007/008/009/010 promote lên A):
 Partition validation: |A|=10, |B|=8, |C|=3, tổng=21. A∩B=A∩C=B∩C=∅ (verify mechanically, xem
   traceability.md §2). Union = {UC-001..UC-021}, mỗi UC đúng một lần — KHÔNG thiếu, KHÔNG dư.
 
-21-UC substantive completion progress: candidate 10/21 (A only) — CHƯA independently verified tại
-  transaction này (chờ Review A + Independent Review B trên Batch 03). Last INDEPENDENTLY
-  VERIFIED progress VẪN 5/21 (Batch 01+02 baseline theo task-provided "Current independently
-  verified cumulative").
+21-UC substantive completion progress: candidate cumulative 10/21 (A only) — Batch 03's own +5
+  (UC-006..010) CHƯA independently verified tại transaction này (chờ Review A + Independent
+  Review B trên Batch 03). Last INDEPENDENTLY VERIFIED progress 5/21 (UC-001..005 — Batch 01
+  Independent Review B `READY_FOR_NEXT_PHASE2_BATCH` + Batch 02 v1.3 Independent bounded
+  Review B `READY_FOR_NEXT_PHASE2_BATCH`, v1.1 đóng `P2-B03-A-MIN-01` — KHÔNG còn mô tả
+  Batch 02's phần này là "candidate").
 ```
 
 ## 5. Covered PR IDs (Batch 03 mới)
@@ -105,11 +113,11 @@ PR-034 (SCR-005, UC-010)
 ## 6. Prototype artifact identities
 
 ```text
-prototype/phase-2/batch-03/index.html         blob 0c3b3601f3d89d712b09ba7950b478503e9cc197
-prototype/phase-2/batch-03/app.js              blob 9ddc87dd833b10e048f5d04142afa08325b74839
-prototype/phase-2/batch-03/styles.css          blob 92e2dd485b496c50737f2f7639ea1a58abc6c590
-prototype/phase-2/batch-03/traceability.md     blob 3406b6de95f96a5fdf3045f7d49ede329f9d1cef
-prototype/phase-2/batch-03/README.md           blob 369453dad6d00811a33db31243f1cab036f70d8c
+prototype/phase-2/batch-03/index.html         blob 0c3b3601f3d89d712b09ba7950b478503e9cc197 (unchanged since v1.0)
+prototype/phase-2/batch-03/app.js              blob a33f969724e18ae4ad13906f9076ec19a2c00706 (CURRENT — v1.1, đóng P2-B03-A-MAJ-01; historical pre-fix blob 9ddc87dd833b10e048f5d04142afa08325b74839, superseded)
+prototype/phase-2/batch-03/styles.css          blob af973c0ad6e46dc7d66bb032af015bb6da3fb2ed (CURRENT — v1.1, thêm .progression-table class, presentation-only; historical pre-fix blob 92e2dd485b496c50737f2f7639ea1a58abc6c590, superseded)
+prototype/phase-2/batch-03/traceability.md     blob 06d18b66f420e3f5f11603568837843cff0184d7 (CURRENT — v1.1, đóng P2-B03-A-MAJ-01 + P2-B03-A-MIN-01; historical v1.0 blob 3406b6de95f96a5fdf3045f7d49ede329f9d1cef, superseded)
+prototype/phase-2/batch-03/README.md           blob 482420c661a347a93d327319c8de91c338b643ca (CURRENT — v1.1, fixed stale "§16" cross-reference to correct §17; historical pre-fix blob 369453dad6d00811a33db31243f1cab036f70d8c, superseded)
 ```
 
 ## 7. Authority sources consumed (reference only, none modified)
@@ -174,8 +182,9 @@ Result: AUDIT PASS.
 ```text
 Command: grep -niE "api[_-]?key|secret|password|private[_-]?key|token|credential|apikey|
   auth[_-]?header|bearer" prototype/phase-2/batch-03/*.html *.css *.js
-Result: (see validation run at commit time) — expected clean, or comment-only disclaiming match,
-  same pattern as Batch 01/02.
+Result (re-run post-v1.1 correction): one match, app.js:5 — inside the file-header comment
+  explicitly disclaiming credentials. No actual credential-like value found. Same clean pattern
+  as Batch 01/02.
 ```
 
 ## 11. I-12 — Single Source of Truth — traceability/reconciliation result
@@ -260,21 +269,35 @@ None within this batch's scope. 9/17 surfaces not yet substantively covered (SCR
 ## 17. Batch lifecycle / review state
 
 ```text
-Status:            CANDIDATE — authored (v1.0), NOT self-approved.
+Status:            CANDIDATE — corrected (v1.1 app.js/styles.css/traceability.md), NOT
+                    self-approved.
+
+Review history:
+  Review A (v1.0):                     P2-B03-A-MAJ-01 (UC-008 progression missing) + P2-B03-A-
+                                       MIN-01 (stale last-verified provenance) found,
+                                       REVISION_REQUIRED.
+  v1.1 (transaction này):               đóng CẢ HAI tại transaction này.
 
 Progress — BA trạng thái tách biệt, KHÔNG conflate:
-  Candidate (sau Batch 03 authoring, CHƯA verified):
-    17-surface cumulative:              8/17 (5/17 Batch 01+02 + 3/17 Batch 03: SCR-003+SCR-004
-                                        +SCR-005).
-    21-UC substantive cumulative:        10/21 (5/21 Batch 01+02 + 5/21 Batch 03: UC-006..010).
+  Candidate (Batch 03's own contribution, CHƯA verified):
+    17-surface cumulative:              8/17 (5/17 Batch 01+02, independently verified + 3/17
+                                        Batch 03: SCR-003+SCR-004+SCR-005, candidate).
+    21-UC substantive cumulative:        10/21 (5/21 Batch 01+02, independently verified + 5/21
+                                        Batch 03: UC-006..010, candidate).
 
-  Last INDEPENDENTLY VERIFIED (task-provided baseline — Batch 01's own Independent Review B
-    verdict READY_FOR_NEXT_PHASE2_BATCH, Batch 02 candidate — authoritative cho tới khi Batch
-    02/03 tự nó qua Review A + Review B đầy đủ):
-    17-surface:                          5/17.
-    21-UC substantive:                    5/21.
+  Last INDEPENDENTLY VERIFIED (v1.1, đóng P2-B03-A-MIN-01 — sửa provenance):
+    17-surface:                          5/17 (SCR-001/VIEW-001/VIEW-002 — Batch 01 Independent
+                                        Review B verdict READY_FOR_NEXT_PHASE2_BATCH + SCR-002/
+                                        VIEW-003 — Batch 02 v1.3 Independent bounded Review B
+                                        verdict READY_FOR_NEXT_PHASE2_BATCH — cả năm ĐÃ verified,
+                                        KHÔNG còn "candidate"). Nguồn: task-relayed baseline cho
+                                        Batch 03 authoring transaction gốc (docs/CHANGELOG.md's
+                                        Batch-03 Baseline block). Minh bạch: ghi nhận chính thức
+                                        vào batch-02/batch-manifest.md's own §17 VẪN LÀ governed
+                                        transaction riêng, CHƯA issue.
+    21-UC substantive:                    5/21 (cùng nguồn).
 
-Next step:          Bounded Review A + Independent bounded Review B on this Batch 03 candidate
-                     (one coherent Backtest milestone, per P2-PROTOTYPE-001) — a separate
-                     governed transaction.
+Next step:          Bounded Review A re-review + Independent bounded Review B on this v1.1
+                     Batch 03 candidate (one coherent Backtest milestone, per P2-PROTOTYPE-001)
+                     — a separate governed transaction.
 ```

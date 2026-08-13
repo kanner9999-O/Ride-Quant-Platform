@@ -56,5 +56,6 @@ Backtest engine to derive these from.
 Not a production frontend, not connected to any backend/exchange, not authorized for LIVE, not an
 implementation of a simulation/Decision/Risk engine, and not a claim that Phase 2 (or even this
 batch's full UC/surface coverage) is complete or independently verified. See `batch-manifest.md`
-§16 for the exact candidate-vs-verified progress distinction — this batch is a **candidate**, not
-yet reviewed or approved.
+§17 for the exact candidate-vs-verified progress distinction — this batch's own SCR-003/SCR-004/
+SCR-005 contribution is a **candidate**, not yet reviewed or approved (Batch 01/02's prior
+contribution is independently verified, see §17).

@@ -153,6 +153,28 @@
     return last.split("→")[1].trim();
   }
 
+  // Ordered exposure/position progression across the run interval (UC-008 Main flow step 2,
+  // distinct from step 1's "per-Decision exposure change" list, closes P2-B03-A-MAJ-01).
+  // Derived deterministically from the run's OWN decisions array (already part of the run
+  // fixture) — not a separate invented dataset, and naturally differs per run since each run's
+  // decisions differ. One ordered point per Decision (not only the exposure-changing ones), so
+  // the timeline is continuous across the whole interval, not just the change events.
+  function positionProgression(run) {
+    var current = "FLAT";
+    return run.decisions.map(function (d, idx) {
+      var before = current;
+      var changed = !!d.exposureChange;
+      if (changed) current = d.exposureChange.split("→")[1].trim();
+      return {
+        seq: idx + 1,
+        decisionId: d.id,
+        before: before,
+        change: changed ? d.exposureChange : "no change",
+        after: current
+      };
+    });
+  }
+
   // ---- Demo/UI state (prototype-local only, not a domain/session/replay state) ----
 
   var state = {
@@ -521,15 +543,28 @@
       "</div>" +
       '<div class="hint">Simulated exposure change per Decision — NOT PAPER ExecutionResult/Fill/Position; no BacktestFill/BacktestPosition entity exists or is invented here.</div>' +
       '<div class="lineage-list">';
-    var progression = "FLAT";
     run.decisions.forEach(function (d) {
       if (d.exposureChange) {
-        progression = d.exposureChange.split("→")[1].trim();
         html += lineageRow(d.id + " (" + d.outcome + ") simulated exposure change", d.exposureChange);
       }
     });
-    html += "</div>" +
-      '<div class="evidence-row" style="margin-top:8px;"><span class="evidence-label">Final simulated position (illustrative)</span><span class="evidence-value">' + finalPosition(run) + "</span></div>";
+    html += "</div>";
+
+    // UC-008 Main flow step 2 — exposure/position progression theo thời gian xuyên suốt khoảng
+    // interval của run (ux-blueprint.md §7.3 SCR-004 Panel (b)), distinct from step 1's
+    // per-Decision change list above. One ordered row per Decision (including no-change points)
+    // so the timeline is continuous across the whole interval, not just the change events.
+    html += '<h3 style="font-size:13px;margin:16px 0 8px;color:#33455e;">Simulated exposure/position progression (ordered across the run interval)</h3>' +
+      '<table class="progression-table"><thead><tr>' +
+      "<th>#</th><th>Decision</th><th>Position before</th><th>Simulated change</th><th>Position after</th>" +
+      "</tr></thead><tbody>";
+    positionProgression(run).forEach(function (p) {
+      html += "<tr><td>" + p.seq + "</td><td>" + p.decisionId + "</td><td>" + p.before +
+        "</td><td>" + p.change + "</td><td>" + p.after + "</td></tr>";
+    });
+    html += "</tbody></table>";
+
+    html += '<div class="evidence-row" style="margin-top:8px;"><span class="evidence-label">Final simulated position (illustrative)</span><span class="evidence-value">' + finalPosition(run) + "</span></div>";
     return html;
   }
 
