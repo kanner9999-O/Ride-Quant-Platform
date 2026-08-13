@@ -123,7 +123,8 @@
       '<div class="panel">' +
       '<div class="label-row">' +
       '<span class="mode-label">Research</span>' +
-      '<span class="authority-label authority-label-authoritative">authoritative (recorded fact, read-only)</span>' +
+      '<span class="authority-label authority-label-authoritative">Authority class: Recorded fact (read-only)</span>' +
+      '<span class="prototype-datum-label">Prototype datum: Illustrative / non-authoritative</span>' +
       "</div>" +
       '<div class="evidence-row"><span class="evidence-label">Candle (latest)</span><span class="evidence-value">O 61,200 · H 61,540 · L 61,050 · C 61,410 (illustrative)</span></div>' +
       '<div class="evidence-row"><span class="evidence-label">Swing</span><span class="evidence-value">Recent swing high at 61,540 (illustrative)</span></div>' +
@@ -156,7 +157,8 @@
 
     var html = '<div class="label-row">' +
       '<span class="mode-label">Research</span>' +
-      '<span class="authority-label authority-label-registration">authoritative (registration record)</span>' +
+      '<span class="authority-label authority-label-registration">Authority class: Registration record</span>' +
+      '<span class="prototype-datum-label">Prototype datum: Illustrative / non-authoritative</span>' +
       "</div>" +
       '<div class="instance-list">';
     list.forEach(function (inst) {
@@ -195,7 +197,8 @@
 
     var html = '<div class="label-row">' +
       '<span class="mode-label">Research</span>' +
-      '<span class="authority-label authority-label-workflow">workflow-visible verification result</span>' +
+      '<span class="authority-label authority-label-workflow">Authority class: Workflow-visible verification result</span>' +
+      '<span class="prototype-datum-label">Prototype datum: Illustrative / non-authoritative (demo-selected outcome)</span>' +
       "</div>";
 
     if (outcome === "PASSED") {

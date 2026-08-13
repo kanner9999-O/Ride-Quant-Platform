@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-01-manifest
 title: "Phase 2 Prototype — Batch 01 — Batch Manifest"
-version: "1.0"
+version: "1.1"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -10,6 +10,8 @@ created_at: "2026-08-13"
 # Phase 2 Prototype — Batch 01 — Batch Manifest
 
 **Vai trò của tài liệu này:** batch-level evidence record cho Batch 01, đúng `phase-2-rules.md` `P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch 01 LÀ candidate/in-review — **KHÔNG self-approved** (chờ Review A + Independent Review B theo batch, đúng `P2-PROTOTYPE-001`).
+
+**v1.1 — bounded correction (2026-08-13), đóng `P2-B01-A-MAJ-01`/`P2-B01-A-MIN-01`.** (1) `P2-B01-A-MAJ-01`: authority/workflow label trong `app.js` conflate authority CLASS (vd "authoritative (recorded fact, read-only)") với authority STATUS của chính prototype datum (mock fixture) — sửa thành hai badge tách biệt: "Authority class: [...]" (giữ nguyên UX affordance) + "Prototype datum: Illustrative / non-authoritative" (badge mới, `.prototype-datum-label`) tại cả ba vị trí (SCR-001 normal-content, VIEW-001 list, VIEW-002 tất cả ba outcome). (2) `P2-B01-A-MIN-01`: 21-UC coverage accounting mơ hồ giữa "substantive" và "referenced qua shell/nav/handoff" — thêm taxonomy A (Substantive)/B (Partial-referenced)/C (Deferred) tường minh tại `traceability.md` §0/§1, đầy đủ 21 UC classify; §4 dưới đây cập nhật đồng bộ. Progress 3/21 KHÔNG đổi (vẫn CHỈ đếm hạng mục A) — chỉ accounting logic được làm rõ, KHÔNG inflate. **KHÔNG đổi:** batch semantic scope, SCR-001/VIEW-001/VIEW-002, NAV/FLOW/STATE scope, static HTML/CSS/vanilla-JS medium, mock/static data policy, QA tooling, I-11 audit result, I-12 source authority, Trigger B/C/D/E boundary, LIVE Unauthorized, 3/17 surface progress.
 
 ## 1. Batch identity
 
@@ -55,12 +57,28 @@ WS:     WS-001 (Ride Workspace Shell — bounded subset per ux-blueprint.md §5 
         context, Instrument/Venue context, Strategy Instance context, Live Unauthorized label)
 ```
 
-## 4. Covered UC IDs (3 of 21)
+## 4. Covered UC IDs — substantive accounting (đóng `P2-B01-A-MIN-01`, xem `traceability.md` §0/§1 cho taxonomy đầy đủ)
 
 ```text
-UC-001  Research / Market Analysis observation — SCR-001
-UC-002  Strategy Instance selection/pin — VIEW-001, FLOW-002
-UC-003  Research Verification — VIEW-002
+Taxonomy (traceability.md §0): A = Substantively covered (counts toward 21-UC numerator);
+  B = Partial/referenced (appears via shell/nav/handoff, does NOT count); C = Deferred/not yet
+  represented.
+
+A — Substantively covered (3 of 21, = the 21-UC completion progress number):
+  UC-001  Research / Market Analysis observation — SCR-001
+  UC-002  Strategy Instance selection/pin — VIEW-001, FLOW-002
+  UC-003  Research Verification — VIEW-002
+
+B — Partial/referenced (7 of 21, do NOT count toward the numerator):
+  UC-004, UC-006 (Replay/Backtest nav-button + handoff-affordance existence only)
+  UC-011, UC-015 (WS-001 shell context / STATE-027 global label source-spec justification only)
+  UC-019, UC-020, UC-021 (NAV-006 nav-button existence only)
+
+C — Deferred/not yet represented (11 of 21):
+  UC-005, UC-007, UC-008, UC-009, UC-010, UC-012, UC-013, UC-014, UC-016, UC-017, UC-018
+
+21-UC substantive completion progress: 3/21 (A only — B is explicitly excluded from the
+  numerator, per the taxonomy above).
 ```
 
 ## 5. Covered PR IDs (5 of 34)
@@ -72,10 +90,10 @@ PR-001, PR-003, PR-015, PR-016, PR-017
 ## 6. Prototype artifact identities
 
 ```text
-prototype/phase-2/batch-01/index.html         blob e519162bd3407dc176f265e1799cadc883246769
-prototype/phase-2/batch-01/styles.css          blob cdd6dbb1b2364dc288616f083f7247b7bb0cb146
-prototype/phase-2/batch-01/app.js              blob cfae4327486c48c2eb9f20988d94441797fadfac
-prototype/phase-2/batch-01/traceability.md     blob 1f98aa71fc05b670bd40759f12d448f04ef5879c
+prototype/phase-2/batch-01/index.html         blob e519162bd3407dc176f265e1799cadc883246769 (unchanged, v1.0/v1.1)
+prototype/phase-2/batch-01/styles.css          blob 89c34c0d7f500950987dfb4cdd440f14cc7661ab (v1.1, was cdd6dbb1b2364dc288616f083f7247b7bb0cb146)
+prototype/phase-2/batch-01/app.js              blob 1aadeb01387beb6fb3379535cf82c57d41af0281 (v1.1, was cfae4327486c48c2eb9f20988d94441797fadfac)
+prototype/phase-2/batch-01/traceability.md     blob 46466e2e99937311ef3e7f7124eccc9388c5aefe (v1.1, was 1f98aa71fc05b670bd40759f12d448f04ef5879c)
 ```
 
 ## 7. Authority sources consumed (reference only, none modified)

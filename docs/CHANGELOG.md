@@ -2,6 +2,123 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 01 bounded correction: `P2-B01-A-MAJ-01`/`P2-B01-A-MIN-01` CLOSED
+
+**Bounded correction — vai trò: `Phase 2 Prototype Batch 01 Bounded Correction Executor`.** Closes exactly two Review A findings on `prototype/phase-2/batch-01/`. Does not expand batch scope; no new SCR/VIEW surface authored.
+
+### Baseline
+
+```text
+Starting HEAD:      935107f556607f169f4a4555ab9b281f988d92ad
+Batch lifecycle:     CANDIDATE (unchanged going in)
+Included surfaces:   SCR-001, VIEW-001, VIEW-002 (unchanged going in)
+```
+
+### Finding 1 — `P2-B01-A-MAJ-01` (closed)
+
+```text
+Defect: app.js's authority/workflow badges conflated the authority CLASS the production feature
+  would present (e.g. "authoritative (recorded fact, read-only)", "authoritative (registration
+  record)") with the authority STATUS of the prototype's own displayed datum -- which is a
+  hard-coded mock fixture (MOCK_INSTRUMENTS/MOCK_STRATEGY_INSTANCES), never a real recorded fact.
+Fix: every rendered authority/workflow label in Batch 01 was reviewed (grep across app.js) --
+  three locations found (SCR-001 normal-content, VIEW-001 instance list, VIEW-002 all three
+  outcomes). Each now renders TWO distinct badges instead of one: the existing authority-class
+  badge (wording tightened to "Authority class: Recorded fact (read-only)" / "Authority class:
+  Registration record" / "Authority class: Workflow-visible verification result" -- UX affordance
+  preserved, not removed) PLUS a new "Prototype datum: Illustrative / non-authoritative" badge
+  (new .prototype-datum-label CSS class, visually distinct dashed-amber style). No hard-coded
+  fixture is presented as an authoritative runtime fact anywhere in the batch.
+```
+
+### Finding 2 — `P2-B01-A-MIN-01` (closed)
+
+```text
+Defect: batch-manifest.md reported "3/21 UC covered" while traceability.md's element-level map
+  also cited UC-004, UC-006, UC-011, UC-015, UC-019, UC-020, UC-021 against shell/nav/handoff
+  elements -- ambiguous whether those counted toward the 21-UC completion numerator.
+Fix: defined an explicit three-way taxonomy in traceability.md §0 -- A (Substantively covered,
+  counts toward the numerator), B (Partial/referenced -- appears via global shell context,
+  nav-button existence, or handoff affordance, does NOT count), C (Deferred/not yet represented
+  -- zero reference anywhere in the batch). Classified all 21 UCs individually in a new §1 table:
+  A = {UC-001, UC-002, UC-003} (3), B = {UC-004, UC-006, UC-011, UC-015, UC-019, UC-020, UC-021}
+  (7), C = the remaining 11. 3 + 7 + 11 = 21. The same taxonomy is now used consistently in
+  traceability.md, batch-manifest.md §4, and MANIFEST's Batch 01 row. Numerator progress remains
+  3/21 -- unchanged, only the accounting logic was made explicit. README.md required no change
+  (it never stated a specific UC coverage number).
+```
+
+### Files changed (prototype)
+
+```text
+prototype/phase-2/batch-01/app.js              v1.0 blob cfae4327486c48c2eb9f20988d94441797fadfac
+                                                -> v1.1 blob 1aadeb01387beb6fb3379535cf82c57d41af0281
+prototype/phase-2/batch-01/styles.css          v1.0 blob cdd6dbb1b2364dc288616f083f7247b7bb0cb146
+                                                -> v1.1 blob 89c34c0d7f500950987dfb4cdd440f14cc7661ab
+prototype/phase-2/batch-01/traceability.md      v1.0 blob 1f98aa71fc05b670bd40759f12d448f04ef5879c
+                                                -> v1.1 blob 46466e2e99937311ef3e7f7124eccc9388c5aefe
+prototype/phase-2/batch-01/batch-manifest.md    v1.0 -> v1.1 blob
+                                                000cdd06a86fd5e8165738f94baac4f0c36357df
+prototype/phase-2/batch-01/index.html           UNCHANGED, blob
+                                                e519162bd3407dc176f265e1799cadc883246769
+prototype/phase-2/batch-01/README.md            UNCHANGED (verified git diff --quiet)
+```
+
+### Preserved unchanged
+
+```text
+Batch semantic scope, SCR-001/VIEW-001/VIEW-002 substantive content (only label wording touched,
+  not structure/behavior), NAV/FLOW/STATE scope, static HTML/CSS/vanilla-JS medium, mock/static
+  data policy, QA tooling, I-11 Access-control audit result (re-verified PASS after correction --
+  grep for credential-like patterns still clean, one match = disclaiming comment only), I-12
+  source authority, Trigger B/C/D/E boundary (re-verified -- grep for fetch/XHR/WebSocket still
+  clean), LIVE Unauthorized, 3/17 surface progress (unchanged). No SCR-002..SCR-011 or
+  VIEW-003..VIEW-006 authored. No Product/UX authority, Domain Contract, Constitution, Phase 2
+  DoD, or Phase 2 rules modified (git diff --quiet verified for all).
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-01/*  (4 files corrected, listed above)
+docs/MANIFEST.md               (manifest_version 10.133 -> 10.134; Batch 01 row correction note
+                                prepended, v1.0 note preserved as history)
+docs/CHANGELOG.md              (this entry)
+```
+
+### Result
+
+```text
+Batch lifecycle:              CANDIDATE (unchanged) -- NOT self-approved.
+17-surface progress:           3/17 (unchanged).
+21-UC substantive progress:     3/21 (unchanged, now explicitly grounded in an A/B/C taxonomy).
+I-11:                           PASS (re-confirmed).
+I-12:                           PASS (re-confirmed, taxonomy strengthens rather than weakens
+                                traceability).
+Trigger B/C/D/E:                boundary preserved (re-confirmed).
+LIVE:                           NOT AUTHORIZED (unchanged).
+Phase 2 substantive completion:  NOT ESTABLISHED (unchanged).
+Gate 3 / Phase 3:                NOT OPENED / NOT AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 935107f556607f169f4a4555ab9b281f988d92ad verified
+[x] P2-B01-A-MAJ-01 closed -- no mock datum presented as authoritative runtime fact anywhere in
+    Batch 01 (all three label locations corrected, app.js syntax verified valid)
+[x] Authority-class UX affordance preserved, not removed
+[x] P2-B01-A-MIN-01 closed -- explicit A/B/C UC taxonomy defined and applied to all 21 UCs
+[x] 21-UC numerator uses substantive (A) coverage only -- still 3/21
+[x] All UC references in traceability.md classified
+[x] Surface scope unchanged at 3/17 -- no new SCR/VIEW authored
+[x] I-11 re-verified PASS; I-12 re-verified PASS
+[x] Trigger B/C/D/E boundary re-verified preserved (grep-clean for network calls)
+[x] Batch lifecycle remains CANDIDATE
+[x] Phase 2 / Gate 3 / Phase 3 / LIVE state unchanged
+[x] Only intended files changed (prototype/phase-2/batch-01/* + MANIFEST.md + CHANGELOG.md)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 01 AUTHORED (candidate, not reviewed): Lifecycle entry + Research foundation
 
 **First substantive Phase 2 prototype authoring — vai trò: `Phase 2 Product Prototype Batch 01 Author`.** Authors the first coherent Product Prototype batch under the Approved Phase 2 DoD (v0.3). Static HTML/CSS/vanilla-JS, mock/static data only. Batch-level candidate, not self-approved — batch-level Review A + Independent Review B is a separate future transaction, per `P2-PROTOTYPE-001`.

@@ -263,12 +263,22 @@ select, .btn {
   margin-bottom: 12px;
 }
 
-.mode-label, .authority-label {
+.mode-label, .authority-label, .prototype-datum-label {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 2px 8px;
   border-radius: 10px;
+}
+
+/* Prototype-datum-label communicates that the ACTUAL displayed value in this batch is a mock
+   fixture, never a real recorded fact — kept visually distinct from authority-label (which
+   communicates the authority CLASS the production feature would carry) so the two are never
+   read as the same claim. Closes P2-B01-A-MAJ-01. */
+.prototype-datum-label {
+  background: transparent;
+  color: #8a5a12;
+  border: 1px dashed #d99a3a;
 }
 
 .mode-label {
