@@ -2,6 +2,200 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 1.5 Process Retrospective #001: COMPLETE (`EF-RETRO-001` satisfied)
+
+**Process retrospective — vai trò: `EF-RETRO-001 Phase 1.5 Process Retrospective Executor`.** Performs the mandatory Phase 1.5 retrospective required by `EF-RETRO-001` before Phase 2 substantive work can begin, using at least the structure of `P1-RETRO-001` plus a dedicated effectiveness disposition for each of `EF-ADR-001`/`EF-ADR-002`/`EF-TXN-001`/`EF-TXN-002`/`EF-REV-001`/`EF-BUDGET-001`/`EF-VERIFY-001`. Evidence-based (git log, CHANGELOG, MANIFEST, direct grep/word-count inspection), not generic process advice.
+
+### Baseline
+
+```text
+Starting HEAD:              2e12b9bfbb3332a5df964eb6620430954f8e8bc0
+Phase 1.5:                   APPROVED / Approval Gate PASSED (unchanged)
+Phase 1.5 decision bundle:    RECORDED (unchanged)
+Phase 2 substantive work:     NOT AUTHORIZED (unchanged going in)
+```
+
+### New file
+
+```text
+docs/governance/retrospectives/phase1.5-retrospective-001.md
+  retrospective_version:  1.0
+  retrospective_status:    Final
+  blob:                    3300f215189dc0a5c961bac21edd7aed41adb41a
+```
+
+### Evidence base
+
+```text
+57 Phase 1.5 commits (196539c58a9413dd59497e4075ce23a84abb09f1..
+  2e12b9bfbb3332a5df964eb6620430954f8e8bc0). 37 distinct Phase-1.5-scope
+  findings (21 Major/16 Minor/0 Blocker -- excludes Package 1.5/`P15-`
+  architecture findings, a different taxonomy per phase-1.5-rules.md's
+  own banner). 9 accepted residual Minor. 19/57 commits (~33%) were
+  bounded-correction rounds. MANIFEST table cells: 128-636 words
+  (Engineering Foundation + ADR-024..030 + Phase DoD rows) vs Phase 1's
+  8,512-word outlier.
+```
+
+### Top findings
+
+```text
+monorepo.md had the highest churn (5 versions, v0.1-v0.5) but for
+  multiple distinct root causes (ADR-scope-disposition wording, a
+  README-example finding, and a post-ADR-024-approval align step) --
+  NOT a single repeated root cause like Phase 1's ADR-023.
+Independent Review B found a materially different defect class from
+  Review A in both of the two highest-churn cases: ADR-030
+  (`ADR030-A-MAJ-01` flaky-test authority misattribution found by
+  Review A vs `ADR030-B-MAJ-01` unsupported LIVE-authority attribution
+  found by Independent Review B on v0.2) and monorepo.md
+  (`EF-MONO-A-MAJ-01` vs `EF-MONO-B-MAJ-01`/`02`) -- direct evidence
+  the dual-review requirement adds real value, not redundant process.
+Zero ADR inflation: all 7 ADRs created (ADR-024..030) were actually
+  triggered (each a cross-module convention baseline, satisfying
+  Chapter 0 §4b's ">1 module" prong); Testing's dedicated ADR Scope
+  Check correctly produced `ADR_NOT_REQUIRED`, preventing an
+  unnecessary ADR.
+EF-BUDGET-001 held decisively: no MANIFEST cell came close to the
+  1,500-word ceiling (128-636 words observed vs Phase 1's 8,512-word
+  cell) -- confirms the Phase 1 retrospective's TIGHTEN recommendation
+  worked once made mechanical.
+A transcription typo in a blob citation (introduced while hand-
+  wrapping a long hex string in the immediately preceding Approval Gate
+  transaction) was caught and fixed before commit via a direct
+  string-concatenation cross-check -- live evidence that verify-before-
+  commit discipline (G-VERIFY-001/G-ID-001) prevents executor error from
+  becoming implicit authority, even when the executor is the error's own
+  source.
+```
+
+### Hypotheses tested (explicit, not assumed true)
+
+```text
+SUPPORTED:              convention-first ADR scope checking reduced
+                        inflation (Testing); bounded corrections reduced
+                        semantic churn (no scope creep in 19 rounds, though
+                        did not reduce total round count on one artifact);
+                        Independent Review B found materially different
+                        defects than Review A (ADR-030, monorepo.md);
+                        transaction verification prevented an executor
+                        error from becoming authoritative.
+PARTIALLY SUPPORTED:     stale/provenance wording caused a disproportionate
+                        share of Minor findings (3/9 accepted residuals,
+                        ~33% -- notable but not a majority of all Minors).
+REJECTED:                prompt/MANIFEST budget controls need strengthening
+                        before Phase 2 -- evidence shows the existing
+                        ceiling holds comfortably, no strain observed.
+```
+
+### EF-rule dispositions
+
+```text
+EFFECTIVE:                EF-ADR-001, EF-TXN-001, EF-BUDGET-001.
+PARTIALLY_EFFECTIVE:       EF-TXN-002 (batching worked at the ADR-vs-
+                          convention lifecycle granularity but wording is
+                          ambiguous about what counts as one "category"
+                          batch), EF-REV-001 (full-tier review applied
+                          consistently and caught everything; the lighter
+                          mechanical/bookkeeping tiers were never
+                          exercised because no concrete tool/version
+                          decision ever occurred).
+NOT_MATERIALLY_TESTED:     EF-ADR-002 (circuit breaker never triggered --
+                          closest near-miss, monorepo.md, never hit 3
+                          consecutive rounds), EF-VERIFY-001 (no exact
+                          tool/library/CI-config version was ever
+                          asserted into decision content this phase --
+                          verified via direct grep, `.github/` absent, no
+                          dependency manifests present).
+RETIRE:                    none.
+```
+
+### Global-promotion and Phase-2-specific recommendations (proposals only, not promoted)
+
+```text
+PROMOTE_GLOBAL (proposed):  full-scope BCC via git-log absence-of-touch
+                            verification (technique, used consistently
+                            throughout Phase 1.5); EF-BUDGET-001's
+                            <=1,500-word MANIFEST-cell ceiling (validated
+                            across two consecutive phases); batched
+                            multi-finding bounded correction (ADR-024,
+                            Coding Standard align).
+PHASE2_CONTROL (proposed):  P2-CHURN-001 (refine EF-ADR-002 circuit-
+                            breaker counting to include align/sync steps,
+                            not just correction rounds -- refine then
+                            promote, not enough data yet);P2-AUTHORITY-
+                            VERIFY-001 (extend G-VERIFY-001 to cover
+                            authority/permission claims, not just
+                            registry/blob facts -- required before Phase
+                            2 start, directly derived from
+                            ADR030-B-MAJ-01); P2-DOUBLECLOSE-001
+                            (explicit "fully closed, not partial"
+                            self-check per bounded correction -- useful
+                            but optional, one observed instance).
+```
+
+### Files changed
+
+```text
+docs/governance/retrospectives/phase1.5-retrospective-001.md  (new)
+docs/MANIFEST.md                                                (new row
+                                                                 in
+                                                                 "Governance
+                                                                 —
+                                                                 Retrospectives"
+                                                                 table,
+                                                                 manifest_version
+                                                                 bump)
+docs/CHANGELOG.md                                                (this
+                                                                 entry)
+```
+
+### Preserved unchanged
+
+```text
+phase-1.5-dod.md, ADR-024 through ADR-030, all 8 Engineering Foundation
+  conventions, Constitution, Domain Contract, module-registry.yaml, the
+  recorded Phase 1.5 Approval Gate decision, all nine accepted residual
+  findings, phase-0-dod.md, phase-1-dod.md, phase1-retrospective-001.md:
+  all byte-identical, not modified. Proposed rules (P2-CHURN-001,
+  P2-AUTHORITY-VERIFY-001, P2-DOUBLECLOSE-001, and the three
+  PROMOTE_GLOBAL proposals) are proposals only -- not promoted into
+  execution-rules.md/phase-1.5-rules.md by this transaction.
+```
+
+### Result
+
+```text
+EF-RETRO-001:                COMPLETE
+Phase 1.5 retrospective:      COMPLETE
+Phase 1.5 Approved state:     unchanged
+Nine accepted residuals:      unchanged, still OPEN
+Phase 2 substantive work:     still NOT YET AUTHORIZED -- pending a
+                              separate explicit Phase 2 start/
+                              authorization transaction.
+LIVE:                          still NOT AUTHORIZED
+```
+
+### Validation
+
+```text
+HEAD before/after:                          CONFIRMED
+Evidence-based, not generic advice:          CONFIRMED (commit SHAs,
+  finding IDs, measured word counts, direct grep results cited
+  throughout)
+All 10 required retrospective categories
+  addressed, plus 7 EF-rule dispositions:      CONFIRMED
+Six explicit hypotheses tested,
+  not assumed true:                            CONFIRMED
+Rule dispositions classified:                 CONFIRMED (KEEP/TIGHTEN/
+  PROMOTE_GLOBAL/PHASE2_CONTROL/RETIRE)
+No DoD/ADR/convention/Constitution/Domain
+  Contract/Approval Gate decision modified:     CONFIRMED (git diff
+  --quiet)
+Nine accepted residuals unchanged:            CONFIRMED
+Phase 2 not started, LIVE not authorized:      CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 1.5 APPROVED, Approval Gate PASSED (Product Owner decision)
 
 **Phase Approval Gate decision — vai trò: `Phase 1.5 Approval Decision + Atomic Recording Executor`.** Records the Product Owner decision "APPROVE PHASE 1.5 — ENGINEERING FOUNDATION" as the immutable Phase-decision bundle (Chapter 14 §14.4.1–§14.4.2), following the structure established for the Phase 0 → Phase 1 and Phase 1 / Gate 2 decisions. Mechanical lifecycle/decision bookkeeping only — recording transaction, not substantive Phase 2 work, not `EF-RETRO-001`, not LIVE authorization.
