@@ -2,6 +2,132 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 DoD v0.2 bounded correction: `P2-DOD-A-MAJ-01`/`P2-DOD-A-MIN-01` CLOSED
+
+**Bounded correction — vai trò: `Phase 2 DoD v0.2 Bounded Correction Executor`.** Closes exactly two Review A findings on `docs/phase-dod/phase-2-dod.md` v0.1. Does not redesign the DoD.
+
+### Baseline
+
+```text
+Starting HEAD:      b3332259b08cb3d9a4512795c84d4d5a2afc43d4
+Reviewed candidate: docs/phase-dod/phase-2-dod.md v0.1, status Draft,
+                    blob 672c0c2a4116da0ee74f39291c4fcf5260464902
+```
+
+### Finding 1 — `P2-DOD-A-MAJ-01` (closed)
+
+```text
+Defect: §2 Trigger A concluded the applicable-invariant set was empty by
+  inferring "prototype does not execute production behavior" therefore
+  "no invariant applies" -- this conflicts with Chapter 2's own
+  per-invariant Scope declarations, most directly I-11 (Secrets &
+  Custody Isolation) and I-12 (Single Source of Truth), both of which
+  declare Scope "Toàn hệ thống" (whole-system) -- explicitly including
+  a Product Prototype and this DoD document itself.
+Fix: re-derived Trigger A by evaluating I-1..I-13 individually against
+  their actual declared Scope (docs/constitution/02-platform-
+  invariants.md, Locked v3.1), distinguishing genuinely-outside-Scope
+  from applicable-and-satisfied-by-absence from applicable-with-
+  concrete-requirement, per the task's explicit instruction not to
+  collapse all three into "not applicable."
+Result: I-11 and I-12 -- APPLICABLE, satisfied-by-absence plus a
+  concrete prototype-level conformance requirement each (no real
+  exchange credential/secret embedded anywhere; every prototype
+  artifact must remain traceable/reconcilable against the Consolidated
+  Stable Product/UX baseline, not become a competing source of truth).
+  I-1 through I-10 and I-13 -- NOT APPLICABLE, Scope exclusion
+  (structural: Decision Pipeline / Compute Engine / Strategy-Decision-
+  Risk-Execution Engine / Plugin / Ledger / Domain-Contract-entity
+  Scope does not include a UI prototype layer). §4 extended
+  correspondingly, elevating two requirements that already existed in
+  part into explicit I-11/I-12 gate evidence. Trigger A's applicable
+  set is now non-empty exactly where current Invariant Scope requires
+  it; the per-artifact fail-closed re-resolution requirement is
+  preserved unchanged.
+```
+
+### Finding 2 — `P2-DOD-A-MIN-01` (closed)
+
+```text
+Defect: opening wording paraphrased Chapter 12 §12.1 as "TRƯỚC KHI
+  phase/gate mở" -- ambiguous enough to be misread as "before Phase 2
+  starts," which would incorrectly imply the already-recorded Phase 2
+  Start Authorization was premature/invalid.
+Fix: quoted Chapter 12 §12.1 verbatim -- "DoD criteria phải được viết
+  ra và được Product Owner chấp nhận TRƯỚC KHI phase/gate tương ứng sử
+  dụng chúng," and "mọi Phase... phải có DoD cụ thể được viết ra và
+  duyệt TRƯỚC KHI Phase đó MỞ APPROVAL GATE" -- i.e. before Gate 3
+  opens, not before Phase 2 itself starts -- and added an explicit
+  sentence distinguishing "Phase authorized" from "DoD accepted."
+  Phase 2 authorization history is not reinterpreted or reopened.
+```
+
+### Preserved unchanged (bounded scope)
+
+```text
+§1 Phase identity, §3 substantive completion criteria (9 items), §5
+  external dependencies/deferred items, §6-§10 (evidence/validator/
+  review/finding-closure/BCC requirements), §11 P2-RETRO-001 boundary,
+  §12 phase-decision bundle requirements, §13 explicit non-inclusion (9
+  states), §14 acceptance status, Trigger B/C/D/E conclusions, ADR Scope
+  Rule check conclusion (ADR_NOT_REQUIRED, unchanged) -- confirmed via
+  full diff review, no hunks touched these sections.
+```
+
+### Lifecycle transition
+
+```text
+version:       "0.1" -> "0.2"
+status:        Draft (unchanged)
+approved_by:   null (unchanged)
+approved_at:   null (unchanged)
+Blob:          672c0c2a4116da0ee74f39291c4fcf5260464902 (v0.1) ->
+               26eb5875ef6c2c920d899581576093762c51ceff (v0.2)
+```
+
+### Files changed
+
+```text
+docs/phase-dod/phase-2-dod.md  (v0.1 -> v0.2, blob
+                                26eb5875ef6c2c920d899581576093762c51ceff)
+docs/MANIFEST.md                (manifest_version 10.129 -> 10.130; Phase
+                                2 DoD row version/blob updated, correction
+                                note prepended, prior v0.1 note preserved)
+docs/CHANGELOG.md               (this entry)
+```
+
+### Preserved unchanged (files)
+
+```text
+Product/UX authority (product-requirement.md/use-case-workflow.md/
+  ux-blueprint.md), Constitution (all chapters), phase-2-rules.md, all
+  ADRs, all Engineering Foundation conventions, module-registry.yaml,
+  phase-0-dod.md/phase-1-dod.md/phase-1.5-dod.md: all byte-identical,
+  git diff empty. No ADR created. No prototype artifact created. DoD
+  not self-accepted, not self-incorporated.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD b3332259b08cb3d9a4512795c84d4d5a2afc43d4 verified
+[x] v0.1 blob 672c0c2a4116da0ee74f39291c4fcf5260464902 verified before
+    edit
+[x] P2-DOD-A-MAJ-01 closed -- Trigger A applicable set non-empty
+    ({I-11, I-12}), I-1..I-13 evaluated individually from Chapter 2
+[x] P2-DOD-A-MIN-01 closed -- Chapter 12 §12.1 quoted verbatim, Phase 2
+    Start Authorization not reinterpreted
+[x] Full diff reviewed -- only opening paragraph, correction banner,
+    §2 Trigger A block, §2 summary block, two §4 bullets, and Change
+    history touched; §1/§3/§5-§14/Trigger B-C-D-E/ADR check untouched
+[x] Resulting v0.2 Draft blob recorded
+    (26eb5875ef6c2c920d899581576093762c51ceff)
+[x] Only three files changed
+[x] Phase 3/LIVE unchanged, still not authorized
+[x] Not self-accepted/incorporated -- status Draft, approved_by/
+    approved_at null
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 DoD v0.1 DRAFTED (candidate, not accepted): `docs/phase-dod/phase-2-dod.md`
 
 **DoD candidate authoring — vai trò: `Phase 2 Product Prototype DoD v0.1 Candidate Author`.** Authors the first explicit Definition of Done candidate for Phase 2 — Product Prototype. Structural precedent only from `phase-0-dod.md`/`phase-1-dod.md`/`phase-1.5-dod.md`; gate-set conclusion independently re-derived, not copied from Phase 1.5. **This transaction does not accept/incorporate the DoD, does not author any prototype/UX/product artifact, does not run Gate 3, and does not authorize Phase 3/LIVE.**

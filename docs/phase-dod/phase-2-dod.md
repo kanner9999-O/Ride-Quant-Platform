@@ -1,7 +1,7 @@
 ---
 id: phase-2-dod
 title: "Phase 2 — Product Prototype Definition of Done"
-version: "0.1"
+version: "0.2"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -15,13 +15,15 @@ depends_on: ["00-governance", "11-adr-process", "12-approval-gates", "13-quality
 
 # Phase 2 — Product Prototype: Definition of Done (DoD)
 
-**Vai trò của tài liệu này:** đây LÀ **DoD candidate artifact** mà [Chapter 12 §12.1](../constitution/12-approval-gates.md) (Locked) khóa rule ("mỗi Phase phải có DoD cụ thể, viết ra và Product Owner chấp nhận TRƯỚC KHI phase/gate mở"), VÀ [Chapter 14 §14.3](../constitution/14-roadmap.md) (Locked, v1.6) khóa cardinality/nơi ở ("mỗi Phase phải resolve được đúng một authoritative DoD artifact"). Tài liệu này **định nghĩa tiêu chí** cho Phase 2 — nó **KHÔNG** phải bằng chứng "đã đạt tiêu chí", VÀ nó **KHÔNG** tự nó là Product Owner acceptance. `Approved`/`Phase 2 Approved` LÀ outcome của Phase 2 Approval Gate (Gate 3) — **KHÔNG** phải một mục trong DoD này.
+**Vai trò của tài liệu này:** đây LÀ **DoD candidate artifact** mà [Chapter 12 §12.1](../constitution/12-approval-gates.md) (Locked) khóa rule — nguyên văn: "DoD criteria phải được viết ra và được Product Owner chấp nhận TRƯỚC KHI phase/gate tương ứng sử dụng chúng," VÀ "mọi Phase... phải có DoD cụ thể được viết ra và duyệt TRƯỚC KHI Phase đó MỞ APPROVAL GATE" — tức TRƯỚC KHI Gate 3 mở, KHÔNG PHẢI trước khi Phase 2 BẮT ĐẦU (Phase 2 start authorization LÀ một transaction riêng biệt, ĐÃ ghi nhận hợp lệ trước DoD này, đúng Chapter 14 §14.3's phân biệt "Phase authorized" ≠ "DoD accepted" — xem §13 dưới). VÀ [Chapter 14 §14.3](../constitution/14-roadmap.md) (Locked, v1.6) khóa cardinality/nơi ở ("mỗi Phase phải resolve được đúng một authoritative DoD artifact"). Tài liệu này **định nghĩa tiêu chí** cho Phase 2 — nó **KHÔNG** phải bằng chứng "đã đạt tiêu chí", VÀ nó **KHÔNG** tự nó là Product Owner acceptance. `Approved`/`Phase 2 Approved` LÀ outcome của Phase 2 Approval Gate (Gate 3) — **KHÔNG** phải một mục trong DoD này.
 
 **Nguồn gốc:** Roadmap Chapter 14 §14.2 (Locked v1.6) khai báo Phase 2 CHỈ bằng "Phase 2 — Product Prototype (HTML/React/Figma — công cụ không quan trọng) → Approval Gate" — **KHÔNG** một sub-item deliverable list nào (khác Phase 0/1/1.5/3/6/8, mỗi phase đó CÓ danh sách con tường minh). Vì vậy tài liệu này derive substantive completion criteria (§3) TRỰC TIẾP từ Product/Vision/UX authority đã `Consolidated Stable` (Package 0.3-A `product-requirement.md`, 0.3-B `use-case-workflow.md`, 0.3-C `ux-blueprint.md`) — KHÔNG tự invent product scope mới, KHÔNG mở rộng ngoài 21 Use Case (`UC-001`–`UC-021`) đã tồn tại.
 
 **Authority boundary:** tài liệu này sở hữu **substantive DoD content của Phase 2** — theo delegation từ [Chapter 14 §14.3](../constitution/14-roadmap.md). Nó **KHÔNG** định nghĩa lại: phase approval orchestration ([Chapter 12](../constitution/12-approval-gates.md)); review eligibility/cardinality ([Chapter 0 §3](../constitution/00-governance.md), [Chapter 11 §11.5](../constitution/11-adr-process.md)); quality-gate semantics/trigger A–E ([Chapter 13 §13.12](../constitution/13-quality-gates.md)); ADR Scope Rule ([Chapter 0 §4b](../constitution/00-governance.md)); Product requirement/Use Case/UX content ([`product-requirement.md`](../product/product-requirement.md)/[`use-case-workflow.md`](../product/use-case-workflow.md)/[`ux-blueprint.md`](../product/ux-blueprint.md), Package 0.3-A/B/C — CHỈ tham chiếu, KHÔNG redefine); phase sequence/canonical Phase-plan model ([Chapter 14 §14.1–§14.2](../constitution/14-roadmap.md)); current version/status/state của bất kỳ tài liệu nào ([MANIFEST](../MANIFEST.md) theo [I-12](../constitution/02-platform-invariants.md)); hay `P2-RETRO-001` (`phase-2-rules.md`, KHÔNG redefine — §11 dưới cho boundary chính xác).
 
 **ADR Scope Rule check (áp cho chính DoD này, Chapter 0 §4b):** tài liệu này KHÔNG tạo Platform Invariant/Event Schema/Module Taxonomy/Governance-process change nào, KHÔNG quyết định architecture ảnh hưởng >1 module (chỉ định nghĩa completion criteria, tham chiếu authority đã tồn tại), KHÔNG khó đảo ngược (DoD sửa được qua bounded correction, đúng pattern Phase 0/1/1.5), KHÔNG supersede ADR Locked nào → **`ADR_NOT_REQUIRED`** cho chính transaction authoring DoD này. Bất kỳ quyết định product/architecture MỚI nào phát sinh trong lúc author DoD (nếu có) được ghi nhận LÀM external dependency (§5), KHÔNG tự quyết tại đây.
+
+**v0.2 — bounded correction (2026-08-13), đóng `P2-DOD-A-MAJ-01`/`P2-DOD-A-MIN-01` (Review A).** (1) `P2-DOD-A-MAJ-01`: v0.1 §2 Trigger A kết luận applicable-invariant set = RỖNG bằng suy diễn "prototype không thực thi production behavior ⟹ invariant không applicable" — SAI, vi phạm Chapter 2's per-invariant Scope declaration, cụ thể I-11/I-12 khai báo Scope **"Toàn hệ thống"** (whole-system), bao trùm prototype VÀ chính tài liệu governance này. Sửa: §2 Trigger A nay đánh giá TỪNG I-1..I-13 riêng theo đúng Scope — I-11 (Secrets & Custody Isolation) VÀ I-12 (Single Source of Truth) APPLICABLE (satisfied-by-absence + concrete prototype-level conformance requirement mỗi cái); {I-1..I-10, I-13} NOT APPLICABLE (Scope exclusion structural — Decision Pipeline/Compute Engine/Strategy-Decision-Risk-Execution Engine/Plugin/Ledger/Domain-Contract-entity Scope KHÔNG bao gồm một UI prototype layer). §4 mở rộng tương ứng với hai concrete requirement (KHÔNG credential/secret thật; traceability/rebuild-được từ authoritative Product/UX baseline — đã tồn tại một phần tại v0.1, nay elevate tường minh thành I-11/I-12 gate evidence). (2) `P2-DOD-A-MIN-01`: đoạn mở đầu "Vai trò của tài liệu này" trích Chapter 12 §12.1 mơ hồ ("TRƯỚC KHI phase/gate mở") — CÓ THỂ đọc sai thành "trước khi Phase 2 bắt đầu," ngụ ý sai rằng Phase 2 Start Authorization (đã ghi nhận trước DoD này) chưa hợp lệ. Sửa: trích nguyên văn chính xác Chapter 12 §12.1 — "DoD criteria phải được viết ra và được Product Owner chấp nhận TRƯỚC KHI phase/gate TƯƠNG ỨNG sử dụng chúng," VÀ "TRƯỚC KHI Phase đó MỞ APPROVAL GATE" (Gate 3, KHÔNG PHẢI Phase 2 start) — thêm câu tường minh phân biệt "Phase authorized" ≠ "DoD accepted," KHÔNG reinterpret/reopen Phase 2 Start Authorization transaction đã ghi nhận. **KHÔNG đổi:** §1 Phase identity, §3 substantive completion criteria (9 mục), §5 external dependencies, §6-§10 (evidence/validator/review/finding-closure/BCC requirements), §11 P2-RETRO-001 boundary, §12 phase-decision bundle requirements, §13 explicit non-inclusion (9 trạng thái), §14 acceptance status, Trigger B/C/D/E kết luận (§2), ADR Scope Rule check kết luận (`ADR_NOT_REQUIRED`, KHÔNG đổi). `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null` — CHƯA accepted, CHƯA incorporated.
 
 ## 1. Phase identity
 
@@ -61,21 +63,123 @@ bắt buộc:            Approval Gate (Gate 3) — đơn vị chịu gate LÀ P
 
 ```text
 Trigger A (universal — invariant conformance, §13.5):
-  Mỗi Platform Invariant (I-1..I-13) áp dụng theo Scope CHÍNH invariant
-    đó khai báo (Decision Pipeline, Compute Engine, Strategy/Decision/
-    Risk/Execution, Engine/Projection/Runtime Service, Plugin, Risk
-    Gateway/Execution/Adapter, Ledger, "toàn hệ thống Execution/Adapter",
-    "mọi derived representation" [của MỘT authoritative source thật],
-    "entity có state machine" [thực thi transition thật]).
-  Kết luận: Trigger A LÀ cơ chế universal, KHÔNG BAO GIỜ tự động skip —
-    NHƯNG với deliverable "Product Prototype" ĐÚNG boundary §4 (mock/
-    illustrative data, KHÔNG execution thật, KHÔNG backend integration
-    thật, KHÔNG Decision computation thật), KHÔNG một invariant Scope
-    nào ở trên resolve match — applicable-invariant set = RỖNG.
-  Điều kiện: nếu MỘT screen/artifact cụ thể vi phạm boundary (vd wire
-    thật vào authoritative Domain state, tính Decision thật) → invariant
-    Scope đó PHẢI re-resolve cho ĐÚNG artifact đó, KHÔNG miễn trừ theo
-    kết luận Phase-wide này.
+  Đánh giá TỪNG invariant I-1..I-13 riêng theo đúng Scope [Chapter 2
+    (02-platform-invariants.md, Locked v3.1)] khai báo — KHÔNG suy diễn
+    "prototype không thực thi production behavior" ⟹ "invariant không
+    applicable" (đúng chỉ dẫn task, sửa lỗi v0.1 tại đây).
+
+  I-1 Explainability      — Scope "Toàn bộ Decision Pipeline". Prototype
+                            KHÔNG PHẢI Decision Pipeline (KHÔNG tính
+                            Decision thật, §4). NOT APPLICABLE — Scope
+                            exclusion (structural, KHÔNG phải "absence-
+                            satisfied"). Nhu cầu UX-level explainability
+                            affordance VẪN LÀ một product requirement
+                            (§3 mục 6), NHƯNG đó KHÔNG PHẢI I-1 gate
+                            evidence.
+  I-2 Decision Parity     — Scope "Decision pipeline; cả 4 execution
+                            mode". Prototype KHÔNG tính Decision thật ở
+                            bất kỳ mode nào. NOT APPLICABLE — Scope
+                            exclusion.
+  I-3 No Repaint          — Scope "Mọi Compute Engine phát sinh output
+                            theo thời gian". Prototype KHÔNG PHẢI
+                            Compute Engine. NOT APPLICABLE — Scope
+                            exclusion.
+  I-4 Strategy Isolation  — Scope "Strategy Engine, Decision Engine,
+                            Risk Gateway, Execution Engine". Prototype
+                            (UI layer) KHÔNG PHẢI một trong bốn engine
+                            đó. NOT APPLICABLE — Scope exclusion.
+  I-5 Observable Dependency — Scope "Mọi input... dùng trong Decision
+                            Pipeline". KHÔNG Decision Pipeline thật tồn
+                            tại trong prototype. NOT APPLICABLE — Scope
+                            exclusion.
+  I-6 Fail-Safe by Scope  — Scope "Mọi Compute Engine, Projection,
+                            Runtime Service" (ba loại runtime module
+                            theo Chapter 7 taxonomy). Prototype KHÔNG
+                            PHẢI runtime module nào (KHÔNG deploy,
+                            KHÔNG backend, §4) — KHÔNG PHẢI "Projection"
+                            theo nghĩa Chapter 7 (runtime service type),
+                            khác với "derived representation" nghĩa
+                            rộng của I-12. NOT APPLICABLE — Scope
+                            exclusion.
+  I-7 Plugin Non-Bypass   — Scope "Mọi Plugin". Prototype KHÔNG PHẢI
+                            plugin. NOT APPLICABLE — Scope exclusion.
+  I-8 Kill Switch         — Scope "Risk Gateway, Execution Engine, mọi
+                            Exchange Adapter". NOT APPLICABLE — Scope
+                            exclusion.
+  I-9 Numerical Precision — Scope "Position Ledger, Execution Engine,
+                            Risk Gateway". Prototype KHÔNG PHẢI một
+                            trong ba module đó, KHÔNG lưu trữ/tính toán
+                            giá trị tài chính authoritative (§4, §5 —
+                            CHỈ hiển thị mock/illustrative value). NOT
+                            APPLICABLE — Scope exclusion (KHÔNG PHẢI
+                            "absence-satisfied", vì Scope tự nó loại trừ
+                            UI display layer).
+  I-10 Idempotent Execution — Scope "Execution Engine, Exchange
+                            Adapter". Prototype KHÔNG thực thi lệnh
+                            thật (§4). NOT APPLICABLE — Scope exclusion.
+  I-11 Secrets & Custody  — Scope **"Toàn hệ thống, đặc biệt Execution
+                            Engine, Exchange Adapter"** — whole-system
+                            Scope, bao trùm prototype. **APPLICABLE —
+                            satisfied-by-absence, VỚI một concrete
+                            conformance requirement:** KHÔNG một Phase 2
+                            prototype artifact/code/config nào được
+                            nhúng, tham chiếu, hay yêu cầu exchange API
+                            key/secret/private key/credential thật dưới
+                            bất kỳ hình thức nào (kể cả placeholder giả
+                            danh thật) — đây LÀ completion-boundary
+                            REQUIREMENT bổ sung tại §4. Verification
+                            prototype-level: repo-scan/grep cho
+                            credential-like pattern tại mỗi batch review
+                            (§8) — proportional với access-control audit
+                            gốc của I-11, KHÔNG đòi hỏi custody
+                            architecture nào (đó LÀ Phase 3/deployment).
+  I-12 Single Source of Truth — Scope **"Toàn hệ thống — cả runtime
+                            (Event Log) lẫn authoritative documentation
+                            như MANIFEST.md, ADR, Constitution, và
+                            Domain Contract"** — whole-system Scope, bao
+                            trùm prototype VÀ chính DoD này. **APPLICABLE
+                            — satisfied-by-absence, VỚI một concrete
+                            conformance requirement:** prototype LÀ một
+                            derived representation của Product/UX
+                            authority đã Consolidated Stable
+                            (`product-requirement.md`/`use-case-
+                            workflow.md`/`ux-blueprint.md`) — nó KHÔNG
+                            được trở thành một competing source of truth
+                            (KHÔNG tự tạo `UC-XXX`/`PR-XXX`/domain
+                            concept mới, đúng §5/§6 đã yêu cầu). Mọi
+                            prototype artifact PHẢI "rebuild hoặc đối
+                            chiếu hoàn toàn" (I-12's Verification) được
+                            từ baseline đó — CHÍNH LÀ traceability
+                            requirement §6 đã định nghĩa (UC-XXX/SCR-XXX/
+                            VIEW-XXX), nay elevate tường minh thành I-12
+                            gate evidence, KHÔNG CHỈ một "nice-to-have"
+                            evidence field.
+  I-13 State Transition Integrity — Scope "Mọi entity có vòng đời trạng
+                            thái được khai báo trong Domain Contract".
+                            Prototype KHÔNG sở hữu/mutate một entity
+                            Domain Contract nào (CHỈ hiển thị UX-level
+                            state như "loading/blocked/empty" — KHÁC
+                            entity state machine của Domain Contract).
+                            NOT APPLICABLE — Scope exclusion. Liên quan
+                            NHƯNG tách biệt: prototype KHÔNG được hiển
+                            thị state/transition combination mà Domain
+                            Contract's state machine authoritative
+                            KHÔNG cho phép — đây LÀ product-level
+                            non-invention constraint đã tồn tại
+                            (`ux-blueprint.md` Non-Goals), KHÔNG PHẢI
+                            chính I-13 gate.
+
+  Kết luận Trigger A: applicable-invariant set **KHÔNG RỖNG** — {I-11,
+    I-12} APPLICABLE (whole-system Scope, satisfied-by-absence + concrete
+    prototype-level conformance requirement mỗi cái, §4 mở rộng tương
+    ứng); {I-1..I-10, I-13} NOT APPLICABLE (Scope exclusion structural —
+    prototype KHÔNG PHẢI runtime module/engine/pipeline/entity nào mà
+    Scope tương ứng chỉ định).
+  Điều kiện: nếu MỘT screen/artifact cụ thể vi phạm boundary §4 (vd wire
+    thật vào authoritative Domain state, tính Decision thật, nhúng
+    secret thật) → invariant Scope đó PHẢI re-resolve cho ĐÚNG artifact
+    đó (có thể kích hoạt thêm I-1..I-10/I-13 cho riêng artifact đó),
+    KHÔNG miễn trừ theo kết luận Phase-wide này.
 
 Trigger B (executable-implementation-triggered coverage, §13.12-B):
   Trigger đòi hỏi CẢ BA: authoritative executable implementation +
@@ -138,13 +242,17 @@ Rollup (§13.12, "Phase deliverable"):
     KHÔNG một tài liệu khác định nghĩa lại.
 
 Kết luận tổng hợp (Chapter 14 §14.4 declaration):
-  Trigger A ÁP DỤNG như cơ chế, applicable-invariant set = RỖNG cho
-    deliverable ĐÚNG boundary §4. Trigger B/C/D/E KHÔNG APPLICABLE, MỖI
-    kết luận CÓ ĐIỀU KIỆN trên §4's boundary giữ vững cho TỪNG artifact
-    cụ thể. KHÔNG một trigger nào "undefined/không resolve được" — mọi
-    trigger resolve rõ ràng (§13.8 fail-closed KHÔNG bị vi phạm, vì
-    "N/A có điều kiện + per-artifact re-resolve requirement" LÀ một
-    resolved state, KHÔNG PHẢI ambiguity).
+  Trigger A ÁP DỤNG, applicable-invariant set = **{I-11, I-12}** (whole-
+    system Scope invariant, mỗi cái satisfied-by-absence + concrete
+    prototype-level conformance requirement, §4 mở rộng) — {I-1..I-10,
+    I-13} NOT APPLICABLE (Scope exclusion structural, ĐỘC LẬP khỏi §4's
+    boundary vì chính Scope loại trừ prototype artifact class). Trigger
+    B/C/D/E KHÔNG APPLICABLE, MỖI kết luận CÓ ĐIỀU KIỆN trên §4's
+    boundary giữ vững cho TỪNG artifact cụ thể. KHÔNG một trigger nào
+    "undefined/không resolve được" — mọi trigger resolve rõ ràng (§13.8
+    fail-closed KHÔNG bị vi phạm; "N/A có điều kiện + per-artifact
+    re-resolve requirement" LÀ một resolved state, KHÔNG PHẢI ambiguity;
+    "APPLICABLE non-empty" LÀ một resolved state khác, KHÔNG PHẢI gap).
 ```
 
 ## 3. Substantive completion criteria (Product Prototype)
@@ -201,10 +309,20 @@ Phase 2 Product Prototype LÀ:
   - UX/product representation cho hành vi ĐÃ được `product-
     requirement.md`/`use-case-workflow.md`/`ux-blueprint.md` kiểm soát
     (Consolidated Stable) — bất kể medium triển khai thực tế (Figma
-    mockup, static HTML, React với mock/static data, hay tổ hợp).
+    mockup, static HTML, React với mock/static data, hay tổ hợp). Đây
+    LÀ derived representation của authoritative Product/UX baseline
+    (I-12 Single Source of Truth, §2 — Trigger A applicable), KHÔNG BAO
+    GIỜ competing source of truth: KHÔNG artifact nào tự tạo `UC-XXX`/
+    `PR-XXX`/domain concept mới, mọi artifact PHẢI rebuild/đối chiếu
+    được từ baseline đó (§6 traceability requirement CHÍNH LÀ I-12's
+    Verification).
   - non-authoritative: KHÔNG kết nối backend thật, KHÔNG xử lý dữ liệu
-    tài chính/authoritative thật, KHÔNG thực thi lệnh thật, KHÔNG nhúng/
-    yêu cầu exchange credential/API key/secret thật.
+    tài chính/authoritative thật, KHÔNG thực thi lệnh thật. KHÔNG một
+    artifact/code/config nào được nhúng, tham chiếu, hay yêu cầu exchange
+    credential/API key/secret/private key thật dưới bất kỳ hình thức nào,
+    kể cả placeholder giả danh thật (I-11 Secrets & Custody Isolation,
+    §2 — whole-system Scope, Trigger A applicable) — verify qua repo-
+    scan/grep credential-like pattern tại mỗi batch review (§8).
 
 Phase 2 Product Prototype KHÔNG LÀ:
   - Production frontend implementation (Phase 4 — Frontend, Chapter 14
@@ -463,6 +581,23 @@ Trạng thái hiện tại:                    Đây LÀ Phase 2 DoD candidate D
 ## Change history
 
 ```text
+v0.2  2026-08-13  Bounded correction (Draft), đóng `P2-DOD-A-MAJ-01`/
+      `P2-DOD-A-MIN-01` (Review A) — vai trò: `Phase 2 DoD v0.2 Bounded
+      Correction Executor`. `P2-DOD-A-MAJ-01`: §2 Trigger A v0.1 wrongly
+      inferred "prototype không thực thi production behavior ⟹ mọi
+      invariant không applicable" — vi phạm Chapter 2's per-invariant
+      Scope. Sửa: đánh giá riêng I-1..I-13 theo đúng Scope — I-11/I-12
+      (Scope "Toàn hệ thống") APPLICABLE, satisfied-by-absence + concrete
+      conformance requirement; {I-1..I-10, I-13} NOT APPLICABLE, Scope
+      exclusion structural. §4 mở rộng tương ứng, elevate hai requirement
+      đã tồn tại một phần thành tường minh I-11/I-12 gate evidence.
+      `P2-DOD-A-MIN-01`: đoạn mở đầu trích Chapter 12 §12.1 mơ hồ, sửa
+      trích nguyên văn chính xác + phân biệt tường minh "trước Gate 3
+      mở" KHÔNG PHẢI "trước Phase 2 bắt đầu" — KHÔNG reinterpret Phase 2
+      Start Authorization đã ghi nhận. KHÔNG đổi §1/§3/§5–§14, Trigger
+      B/C/D/E kết luận, ADR Scope Rule check kết luận. `status` VẪN
+      `Draft`, `approved_by`/`approved_at` VẪN `null`. Blob v0.1 (trước)
+      `672c0c2a4116da0ee74f39291c4fcf5260464902`.
 v0.1  2026-08-13  Authored (Draft) — vai trò: `Phase 2 Product Prototype
       DoD v0.1 Candidate Author`. Derives §1 Phase identity từ Roadmap
       Chapter 14 §14.2's sparse Phase 2 declaration (KHÔNG sub-item
