@@ -2,6 +2,173 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 DoD v0.1 DRAFTED (candidate, not accepted): `docs/phase-dod/phase-2-dod.md`
+
+**DoD candidate authoring — vai trò: `Phase 2 Product Prototype DoD v0.1 Candidate Author`.** Authors the first explicit Definition of Done candidate for Phase 2 — Product Prototype. Structural precedent only from `phase-0-dod.md`/`phase-1-dod.md`/`phase-1.5-dod.md`; gate-set conclusion independently re-derived, not copied from Phase 1.5. **This transaction does not accept/incorporate the DoD, does not author any prototype/UX/product artifact, does not run Gate 3, and does not authorize Phase 3/LIVE.**
+
+### Baseline
+
+```text
+Starting HEAD:  99ffeeeb2541649d69c058f3fbe154ca9d192ecd
+docs/phase-dod/phase-2-dod.md: confirmed absent trước transaction này.
+current_phase: "Phase 2 — Product Prototype" (Authorized to Begin).
+Phase 2 execution rules (phase-2-rules.md): EFFECTIVE, unchanged.
+```
+
+### Pre-author verification
+
+```text
+Inspected trực tiếp trước khi author: 00-governance.md, 01-vision.md,
+  02-platform-invariants.md, 03-engineering-principles.md,
+  12-approval-gates.md, 13-quality-gates.md (§13.4/§13.5/§13.7/§13.12
+  full text), 14-roadmap.md (§14.2's sparse Phase 2 declaration —
+  KHÔNG sub-item list, khác mọi Phase khác), execution-rules.md,
+  phase-2-rules.md (P2-ADR-CHAIN-001/P2-TXN-001/P2-REVIEW-001/
+  P2-BUDGET-001/P2-PROTOTYPE-001/P2-RETRO-001 full text), MANIFEST.md.
+  Also inspected docs/product/ux-blueprint.md (Package 0.3-C,
+  Consolidated Stable, §5/§5a/§6/§7.1-7.6/§8-§14/§15/§16/§17/§18),
+  use-case-workflow.md/product-requirement.md (Package 0.3-A/B,
+  Consolidated Stable) to resolve actual Phase 2 prototype scope —
+  Roadmap itself does not enumerate one.
+```
+
+### Established content (v0.1, 14 mục + ADR Scope Rule check)
+
+```text
+ADR Scope Rule check (đầu tài liệu): ADR_NOT_REQUIRED cho chính DoD
+  authoring transaction này — KHÔNG Platform Invariant/Event Schema/
+  Module Taxonomy/Governance-process change, KHÔNG architecture ảnh
+  hưởng >1 module, KHÔNG khó đảo ngược, KHÔNG supersede ADR Locked.
+§1  Phase identity — Roadmap §14.2's sparse declaration ("HTML/React/
+    Figma — công cụ không quan trọng," KHÔNG sub-item list); deliverable
+    scope derive từ Product/UX Consolidated Stable authority (21 UC, 17
+    screen/view, 6 stage), KHÔNG tự invent.
+§2  Applicable gate set — Trigger A–E đánh giá ĐỘC LẬP, KHÔNG copy
+    Phase 1.5's kết luận: Trigger A applicable-như-cơ-chế nhưng
+    applicable-invariant set RỖNG cho prototype ĐÚNG boundary; Trigger
+    B/C/D/E KHÔNG APPLICABLE, MỖI kết luận CÓ ĐIỀU KIỆN trên §4's
+    deliverable-boundary requirement (KHÔNG authoritative executable
+    implementation/KHÔNG secret thật/KHÔNG dữ liệu tài chính thật/KHÔNG
+    performance budget/KHÔNG production path/KHÔNG publish contract) —
+    vi phạm boundary tại BẤT KỲ artifact cụ thể bắt buộc fail-closed
+    re-resolve cho ĐÚNG artifact đó, KHÔNG grandfather. Gate applicability
+    KHÔNG phụ thuộc tool choice (Figma/HTML/React) — gắn với boundary,
+    KHÔNG gắn với medium.
+§3  Substantive completion criteria — 9 mục outcome-oriented derive
+    trực tiếp từ ux-blueprint.md §5-§14/§17: end-to-end journey,
+    workspace/navigation, 17 screen/view surface, ĐÚNG stage taxonomy
+    (Research/Replay/Backtest/Paper/Review/Improve, KHÔNG paraphrase),
+    Account context (UX-INV-1, read-only, KHÔNG switcher)/RiskEvaluation
+    evidence CHỈ nơi UC đã định nghĩa, explainability affordance (§10),
+    Replay/Backtest/Paper/Live distinction (Live LUÔN Unauthorized),
+    responsive/error/empty/loading/blocked/NON_EVALUABLE state coverage,
+    cross-screen consistency.
+§4  Explicit deliverable boundary — prototype ≠ production frontend
+    (Phase 4)/backend (Phase 3)/exchange integration (Phase 3/5)/
+    deployment (Phase 7)/LIVE (OQ-002) — KHÔNG carry-forward thành
+    production code mà KHÔNG qua transaction governed riêng biệt tương
+    lai; đây LÀ nền tảng cho §2's Trigger B/C N/A conclusion.
+§5  External dependencies/deferred items — OQ-002 (Live-gate)/OQ-003
+    (Product Metrics)/Backtest domain representation deferred/
+    PAPER-context Decision establishment mechanism deferred/NAV-003/
+    VIEW-002 unresolved — tham chiếu ux-blueprint.md §15, KHÔNG redecide
+    tại DoD này.
+§6  Evidence requirements — prototype identity/content pin (blob cho
+    text-based, content-hash cho binary/Figma), traceability về
+    UC-XXX/SCR-XXX/VIEW-XXX, review evidence, full-scope BCC evidence.
+§7  Validator requirements — MANIFEST freshness, artifact-reference
+    consistency KHÔNG giả định markdown/git-diffable format (content-
+    hash cho binary), MANIFEST cell budget (EF-BUDGET-001/P2-BUDGET-001).
+§8  Review requirements — P2-PROTOTYPE-001 batch/milestone review (KHÔNG
+    per-screen cycle), P2-REVIEW-001 risk-proportional depth, tối thiểu
+    HAI independent review TẠI Gate 3 boundary (batch review KHÔNG thay
+    thế).
+§9  Finding-closure requirements — Blocker/Major never waived, Minor
+    waivable qua explicit Product Owner acceptance (KHÔNG residual nào
+    tồn tại tại v0.1, chưa substantive work bắt đầu).
+§10 Repository-consistency requirements — full-scope BCC bắt buộc trước
+    Gate 3 eligibility (Constitution/Domain Contract/Product-UX
+    Consolidated Stable/Phase 1/Phase 1.5), dùng git-log absence-of-
+    touch technique (đề xuất PROMOTE_GLOBAL từ phase1.5-retrospective-
+    001.md §10.3).
+§11 Retrospective boundary (P2-RETRO-001) — xác nhận rule TỒN TẠI, gắn
+    với Phase 3 substantive work, KHÔNG một Gate 3 prerequisite — đúng
+    pattern EF-RETRO-001's treatment (phase-1.5-dod.md §10).
+§12 Phase-decision bundle requirements (Chapter 14 §14.4.1–§14.4.2).
+§13 Explicit non-inclusion — chín trạng thái tách biệt tường minh: Phase
+    2 authorized ≠ DoD defined ≠ DoD accepted/incorporated ≠ prototype
+    complete ≠ Quality Gate PASS ≠ Gate 3 eligible ≠ Product Owner Phase
+    2 approval ≠ Phase 3 authorization ≠ LIVE authorization.
+§14 Acceptance status — CHƯA accepted, CHƯA canonical incorporation
+    (Chapter 14 §14.3.1 bốn điều kiện, KHÔNG điều kiện nào thỏa).
+```
+
+### No fabricated evidence (explicit)
+
+```text
+KHÔNG Quality Gate PASS evidence nào fabricated (§2 CHỈ định nghĩa gate-
+  set, §6 CHỈ định nghĩa yêu cầu evidence). KHÔNG claim full-scope BCC đã
+  chạy (§10 tường minh "trước Gate 3 eligibility," CHƯA chạy). KHÔNG
+  phase-level review evidence nào fabricated (§8 CHỈ định nghĩa yêu cầu).
+  KHÔNG P2-RETRO-001 retrospective nào thực hiện tại transaction này
+  (§11 tường minh KHÔNG). KHÔNG prototype screen/Figma/HTML/React
+  artifact nào author (§13 tường minh KHÔNG).
+```
+
+### Files changed
+
+```text
+docs/phase-dod/phase-2-dod.md  (NEW — v0.1, Draft, blob
+                                672c0c2a4116da0ee74f39291c4fcf5260464902)
+docs/MANIFEST.md                (manifest_version 10.128 -> 10.129; thêm
+                                Phase 2 DoD row vào Phase DoD table)
+docs/CHANGELOG.md               (entry này)
+```
+
+### Preserved unchanged
+
+```text
+Constitution (mọi chapter), Domain Contract, ADR-024..030, mọi
+  Engineering Foundation convention (Approved), phase-2-rules.md,
+  product-requirement.md/use-case-workflow.md/ux-blueprint.md (Package
+  0.3-A/B/C Consolidated Stable), module-registry.yaml, phase-0-dod.md/
+  phase-1-dod.md/phase-1.5-dod.md — tất cả verified byte-identical, git
+  diff empty.
+DoD candidate CHƯA accepted, CHƯA incorporated — gate-set declaration
+  (§2) CHƯA authoritative cho mục đích Chapter 12/13 sử dụng. Gate 3:
+  KHÔNG mở. Phase 3 substantive work: VẪN NOT AUTHORIZED. LIVE: VẪN NOT
+  AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/phase-dod/phase-2-dod.md: v0.1, status Draft, owner Product Owner,
+  blob 672c0c2a4116da0ee74f39291c4fcf5260464902 — not self-approved
+  (G-ORCH-002); Review A + Independent Review B, rồi Product Owner
+  acceptance/incorporation, LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 99ffeeeb2541649d69c058f3fbe154ca9d192ecd verified
+[x] current_phase = "Phase 2 — Product Prototype" verified
+[x] docs/phase-dod/phase-2-dod.md absent trước transaction, confirmed
+[x] Exactly one new DoD candidate created
+[x] Roadmap scope preserved (§1, KHÔNG invent sub-item list)
+[x] Completion criteria outcome-based, KHÔNG tool-based (§3)
+[x] Trigger A-E đánh giá độc lập, KHÔNG copy Phase 1.5 (§2)
+[x] Unresolved applicability fails closed (§2's per-artifact re-resolve
+    requirement)
+[x] P2-PROTOTYPE-001 batching respected (§8)
+[x] P2-RETRO-001 boundary correct (§11 — KHÔNG Gate 3 prerequisite)
+[x] KHÔNG substantive prototype work performed
+[x] status VẪN Draft
+[x] Chỉ ba file đổi (phase-2-dod.md, MANIFEST.md, CHANGELOG.md)
+[x] Phase 3/LIVE VẪN unauthorized
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 — Product Prototype: AUTHORIZED TO BEGIN (Product Owner decision)
 
 **Phase start authorization — vai trò: `Phase 2 Start Authorization Recorder`.** Records the Product Owner decision "AUTHORIZE PHASE 2 — PRODUCT PROTOTYPE TO BEGIN" and performs the mechanical `current_phase` transition. This is the deferred phase-transition decision noted at the Phase 1.5 Approval Gate bundle (Approval Gate PASSED did not itself move `current_phase`, same pattern as Phase 1's Gate 2) — now recorded as its own explicit transaction, per Roadmap Chapter 14 v1.6 (Locked) sequence Phase 1.5 -> Phase 2 -> Phase 3.
