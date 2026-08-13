@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ride — Phase 2 Prototype — Batch 03 (Backtest setup + run detail + run comparison)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- WS-001 Ride Workspace Shell (bounded subset, same convention as Batch 01/02). This is a
+     separate, self-contained page — it does NOT share live JS state with Batch 01/02's pages.
+     "Strategy Instance already pinned" is represented as Batch-03-local simulated incoming
+     context (QA panel), NOT by re-implementing VIEW-001. -->
+<header class="shell" id="shell">
+  <div class="shell-row shell-context-bar" id="context-bar">
+    <div class="context-item">
+      <span class="context-label">Account</span>
+      <span class="context-value" id="ctx-account">Ride Internal Account</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Instrument / Venue</span>
+      <span class="context-value" id="ctx-instrument">BTC/USDT — Binance</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Strategy Instance</span>
+      <span class="context-value" id="ctx-strategy-instance">— see below —</span>
+    </div>
+    <div class="context-item context-item-live">
+      <span class="context-label">Live</span>
+      <span class="context-value badge badge-unauthorized" id="ctx-live">Unauthorized</span>
+    </div>
+  </div>
+  <nav class="shell-row shell-nav" id="nav-bar" aria-label="Lifecycle stage navigation">
+    <a class="nav-btn" href="../batch-01/index.html" data-nav="NAV-001">Research</a>
+    <a class="nav-btn" href="../batch-02/index.html" data-nav="NAV-002">Replay</a>
+    <button class="nav-btn nav-btn-active" data-nav="NAV-003" data-target="screen-scr-003">Backtest</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-004" data-target="screen-deferred" data-stage="Paper">Paper</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-005" data-target="screen-deferred" data-stage="Review">Review</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-006" data-target="screen-deferred" data-stage="Improve">Improve</button>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- SCR-003 Backtest Run Setup, plus NAV-003's own "existing run list" destination
+       (ux-blueprint.md §5a NAV-003 "Destination"). Traceability: traceability.md#scr-003 -->
+  <section class="screen" id="screen-scr-003" data-screen="SCR-003">
+    <h1>Backtest Run Setup <span class="stage-label">Backtest</span></h1>
+    <p class="purpose">Start a bounded Backtest run over a historical interval, under a stable
+      run identity bound to the exact Strategy Instance / Strategy Definition Version /
+      configuration in use — or inspect an existing run below (read-only, always available).</p>
+
+    <h2 style="font-size:14px;color:#33455e;">Existing Backtest runs</h2>
+    <div id="scr-003-run-list-body">
+      <!-- populated by app.js: always visible read-only, regardless of Strategy Instance pin -->
+    </div>
+
+    <h2 style="font-size:14px;color:#33455e;">Start a new Backtest run</h2>
+    <div id="scr-003-start-form-body">
+      <!-- populated by app.js: NAV-003-level gate (missing Strategy Instance) or the interval
+           picker + start action -->
+    </div>
+  </section>
+
+  <!-- SCR-004 Backtest Run Detail. Traceability: traceability.md#scr-004 -->
+  <section class="screen screen-hidden" id="screen-scr-004" data-screen="SCR-004">
+    <h1>Backtest Run Detail <span class="stage-label">Backtest</span></h1>
+    <p class="purpose">Decision/RiskEvaluation trace, simulated economic evidence, and a
+      strategy-level evaluable result for one Backtest run — non-PAPER simulated throughout.</p>
+    <div id="scr-004-body">
+      <!-- populated by app.js -->
+    </div>
+  </section>
+
+  <!-- SCR-005 Backtest Run Comparison. Traceability: traceability.md#scr-005 -->
+  <section class="screen screen-hidden" id="screen-scr-005" data-screen="SCR-005">
+    <h1>Backtest Run Comparison <span class="stage-label">Backtest</span></h1>
+    <p class="purpose">Compare the strategy-level evaluable result of two (or more) Backtest
+      runs, side by side — never aggregated into one opaque overall score.</p>
+    <div id="scr-005-body">
+      <!-- populated by app.js -->
+    </div>
+    <div class="exit-row">
+      <button class="btn" data-nav="NAV-003" data-target="screen-scr-003">Back to Backtest</button>
+    </div>
+  </section>
+
+  <!-- Placeholder for stages not included in Batch 03. -->
+  <section class="screen screen-hidden" id="screen-deferred" data-screen="DEFERRED">
+    <h1><span id="deferred-stage-name">This stage</span> <span class="stage-label">Deferred</span></h1>
+    <p class="purpose">Read-only navigation to this destination is preserved (UX-P-5), but its
+      substantive screen/view content is not authored in Batch 03 — it is deferred to a later
+      Phase 2 batch. No behavior is invented here, and no Backtest-to-Paper carry-forward/promote
+      action exists anywhere in this batch.</p>
+    <button class="btn" data-nav="NAV-003" data-target="screen-scr-003">Back to Backtest</button>
+  </section>
+
+</main>
+
+<!-- Prototype QA panel — NOT part of the authoritative UX itself. Also used here to simulate
+     "Strategy Instance already pinned" incoming context without re-implementing VIEW-001 as a
+     new surface. -->
+<footer class="qa-panel" id="qa-panel">
+  <button id="qa-toggle" class="qa-toggle" aria-expanded="false">Batch 03 QA state switcher (prototype tooling — not authoritative UX)</button>
+  <div class="qa-body qa-hidden" id="qa-body">
+    <div class="qa-group">
+      <span class="qa-group-label">Simulated incoming context (NAV-003 precondition for STARTING a run)</span>
+      <button class="qa-btn" data-qa="incoming-ok">Strategy Instance pinned (default)</button>
+      <button class="qa-btn" data-qa="incoming-no-instance">No Strategy Instance pinned</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">SCR-003 states</span>
+      <button class="qa-btn" data-qa="scr003-loading">STATE-001 loading</button>
+      <button class="qa-btn" data-qa="scr003-normal">Normal</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">SCR-004 states</span>
+      <button class="qa-btn" data-qa="scr004-unresolved">STATE-010 unresolved run identity</button>
+      <button class="qa-btn" data-qa="scr004-clear-runs">STATE-002 clear all runs (also affects SCR-005)</button>
+    </div>
+    <div class="qa-group">
+      <button class="qa-btn qa-btn-reset" id="qa-reset">Reset demo state</button>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

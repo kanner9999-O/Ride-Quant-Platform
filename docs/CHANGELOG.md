@@ -2,6 +2,154 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 03 authored: Backtest setup + run detail + run comparison (NAV-003 + SCR-003/004/005)
+
+**Authored — vai trò: `Phase 2 Prototype Batch 03 Author`.** One coherent Backtest milestone (P2-PROTOTYPE-001), not split into separate governance cycles. Static HTML/CSS/vanilla-JS prototype, mock/static/deterministic data only — no framework, no backend, no build step, no simulation/Decision/Risk engine implemented. Batch 01/02 untouched.
+
+### Baseline
+
+```text
+Starting HEAD:          45126d90062910e847c6ea8a8ebc33126aed7dfb
+Phase:                   Phase 2 — Product Prototype
+Phase 2 DoD:             docs/phase-dod/phase-2-dod.md v0.3, Approved, post-acceptance blob
+                         de399900a93c7ec7ee64577093513de1643ebb33
+Batch 01:                READY_FOR_NEXT_PHASE2_BATCH (Independent Review B verdict), CANDIDATE
+                         lifecycle, verified untouched (git diff --quiet).
+Batch 02:                READY_FOR_NEXT_PHASE2_BATCH per task baseline, CANDIDATE lifecycle,
+                         verified untouched (git diff --quiet).
+Independently verified cumulative before this transaction: 5/17 surfaces, 5/21 UC.
+```
+
+### Authority inspected (direct, at starting HEAD — G-VERIFY-001)
+
+```text
+docs/product/product-requirement.md, docs/product/use-case-workflow.md (v0.6, đóng
+  P03B-V05-B-MAJ-01 — UC-007's causal-direction fix: RiskEvaluation always downstream of
+  Decision, never upstream evidence), docs/product/ux-blueprint.md (§5a NAV-003, §7.3
+  SCR-003/SCR-004/SCR-005, §11 STATE-001/002/004/005/009/010, §8 FLOW-001/FLOW-003),
+  docs/phase-dod/phase-2-dod.md, docs/governance/phases/phase-2-rules.md,
+  docs/constitution/02-platform-invariants.md, docs/domain/decision.md (§5e/§9/§10 result enum,
+  NO_ACTION → zero Trade Intent), docs/domain/risk.md (§1 RiskEvaluation evaluates a Trade
+  Intent, which only exists AFTER a LONG/SHORT Decision), docs/domain/strategy.md, docs/MANIFEST.md.
+```
+
+### Scope — one coherent Backtest milestone
+
+```text
+NAV-003 (Backtest) + SCR-003 (Backtest Run Setup) + SCR-004 (Backtest Run Detail, three
+  separated panels: Decision/RiskEvaluation trace, simulated economic evidence, strategy-level
+  evaluable result) + SCR-005 (Backtest Run Comparison). Nav bar's Research/Replay items are
+  real links to ../batch-01/ and ../batch-02/ (not re-authored). Paper/Review/Improve remain
+  deferred placeholders, unchanged convention. SCR-006/SCR-007/SCR-011 explicitly NOT authored
+  substantively — SCR-005's own "Exit points" (SCR-011, version comparison) represented as a
+  deferred Improve handoff only.
+```
+
+### Backtest/Paper authority separation (critical, verified explicitly)
+
+```text
+No PAPER Order/ExecutionResult/Fill/Position created or reused anywhere. No BacktestOrder/
+  BacktestExecutionResult/BacktestFill/BacktestPosition entity defined or invented. No action
+  resembling "execute in Paper"/"promote to Paper"/"convert to Paper Decision"/"reuse as PAPER
+  Fill/Position." SCR-004's only forward exit is SCR-005 (Backtest); global nav's "Paper" item
+  remains an unchanged read-only deferred placeholder. FLOW-003 (Backtest → Paper judgment gate,
+  Consolidated Stable) not modified; its SCR-006-facing half not authored.
+```
+
+### SCR-004 causal-separation implementation (Decision outcome / upstream / downstream)
+
+```text
+Every Decision renders three explicitly separate groups: (A) outcome LONG/SHORT/NO_ACTION;
+  (B) upstream Decision origin/explainability — Strategy Instance/Definition Version/
+  configuration, recorded input snapshot, recorded evaluation evidence, resolved directly from
+  recorded fact; (C) downstream lineage when present — Trade Intent/RiskEvaluation/Execution
+  Intent, causally derived from/related to the Decision, explicitly NOT presented as evidence
+  used to create it. RiskEvaluation always renders inside group C, never group B (risk.md §1 —
+  a RiskEvaluation evaluates a Trade Intent, which exists only after a LONG/SHORT Decision).
+  Economic evidence (UC-008) and the strategy-level evaluable result (UC-009) are each traced
+  and rendered as their own separate panel/tab, not folded into the trace panel. Comparison
+  (UC-010) is its own screen (SCR-005).
+```
+
+### Created files
+
+```text
+prototype/phase-2/batch-03/index.html          blob 0c3b3601f3d89d712b09ba7950b478503e9cc197
+prototype/phase-2/batch-03/styles.css           blob 92e2dd485b496c50737f2f7639ea1a58abc6c590
+prototype/phase-2/batch-03/app.js               blob 9ddc87dd833b10e048f5d04142afa08325b74839
+prototype/phase-2/batch-03/traceability.md      v1.0, blob 3406b6de95f96a5fdf3045f7d49ede329f9d1cef
+prototype/phase-2/batch-03/batch-manifest.md    v1.0
+prototype/phase-2/batch-03/README.md            blob 369453dad6d00811a33db31243f1cab036f70d8c
+docs/MANIFEST.md                                Batch 03 row added, compact current-state format
+                                                 (P2-BUDGET-001 discipline — no oversized history
+                                                 cell; full journey lives here in CHANGELOG)
+```
+
+### UC accounting — A/B/C partition (recomputed, mechanically verified)
+
+```text
+Before Batch 03 (Batch 01+02, already verified): A={001,002,003,004,005} (5); B={006,011,015,
+  016,017,018,019,020,021} (9); C={007,008,009,010,012,013,014} (7).
+Batch 03 promotes UC-006 (B→A, SCR-003) and UC-007/008/009/010 (C→A, SCR-004 three panels +
+  SCR-005) — each promotion backed by full substantive representation, not a relabeling.
+After Batch 03: A={001..010} (10); B={011,015,016,017,018,019,020,021} (8); C={012,013,014} (3).
+Partition validation: |A|=10, |B|=8, |C|=3, sum=21. Pairwise disjoint (verified). Union =
+  {UC-001..UC-021}, each exactly once.
+```
+
+### Progress — candidate vs. last independently verified (NOT conflated)
+
+```text
+Candidate Batch-03 surface contribution:      +3 (SCR-003, SCR-004, SCR-005).
+Candidate cumulative surfaces:                 8/17 — NOT independently verified.
+Candidate Batch-03 UC contribution:            +5 (UC-006, UC-007, UC-008, UC-009, UC-010).
+Candidate cumulative UC:                       10/21 — NOT independently verified.
+Last independently verified cumulative:        5/17 surfaces, 5/21 UC (task-provided baseline,
+                                                unchanged by this transaction).
+```
+
+### I-11 / I-12 / Trigger boundary
+
+```text
+I-11 Access-control audit: PASS (bounded Phase-2 interpretation — no credential-use capability/
+  access-control surface/backend-custody-signing integration/real secret; supporting grep scan
+  clean, one match = disclaiming comment only).
+I-12 traceability: PASS — full element-level map at traceability.md §3, SCR-004's three panels
+  traced separately to UC-007/008/009 (not one undifferentiated row), Decision outcome/upstream/
+  downstream traced separately within UC-007. Zero new UC/PR/domain concept originated.
+Trigger B/C/D/E: PRESERVED — no authoritative executable implementation, no registered runtime
+  module, no authoritative financial data, no real backend (grep clean for fetch/XHR/WebSocket/
+  axios/.ajax), no production deployment, no published API/database/event contract, no
+  migration, no fee/slippage/accounting/PnL formula, no KPI threshold (OQ-003 unresolved,
+  disclosed explicitly).
+```
+
+### Explicit non-claims
+
+```text
+Does NOT claim 8/17 or 10/21 independently verified — candidate only, pending Review A +
+  Independent Review B. Does NOT run full Phase-2 Quality Gate or full-scope Gate-3 BCC. Does
+  NOT open Gate 3, approve Phase 2, perform P2-RETRO-001, or authorize Phase 3/LIVE. Does NOT
+  author SCR-006/SCR-007/SCR-011 substantively, does NOT implement a Backtest/Decision/Risk
+  engine or simulation algorithm, does NOT define fee/slippage/PnL/accounting formulas or KPI
+  thresholds, does NOT create Backtest domain entities/contracts or API/event/db schema. Batch
+  01/02 lifecycle unchanged (CANDIDATE), content unchanged (verified git diff --quiet). LIVE
+  remains NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+node --check app.js:                    OK.
+Secret-pattern grep:                    clean (one match = disclaiming comment, same convention
+                                         as Batch 01/02).
+Network-call grep (fetch/XHR/WebSocket/
+  axios/.ajax):                          clean.
+git diff --quiet -- batch-01/, batch-02/: clean (both untouched).
+Forbidden-authority paths (docs/product/, docs/domain/, docs/constitution/, docs/phase-dod/,
+  docs/governance/phases/phase-2-rules.md, docs/architecture/, docs/adr/): untouched.
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 02 v1.3 bounded correction: `P2-B02-A-MAJ-01` REOPENED-then-CLOSED, `P2-B02-B-MAJ-01` CLOSED (digest-axis semantic fix)
 
 **Bounded semantic correction — vai trò: `Phase 2 Prototype Batch 02 v1.3 Bounded Correction Executor`.** Closes two Independent Review B findings on the v1.2 baseline: a reopened stale-evidence finding split across two files, and a new semantic contradiction in VIEW-003's parity-axis representation. No Replay/parity behavior scope change, no new SCR/VIEW.
