@@ -2,6 +2,112 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 — Product Prototype: AUTHORIZED TO BEGIN (Product Owner decision)
+
+**Phase start authorization — vai trò: `Phase 2 Start Authorization Recorder`.** Records the Product Owner decision "AUTHORIZE PHASE 2 — PRODUCT PROTOTYPE TO BEGIN" and performs the mechanical `current_phase` transition. This is the deferred phase-transition decision noted at the Phase 1.5 Approval Gate bundle (Approval Gate PASSED did not itself move `current_phase`, same pattern as Phase 1's Gate 2) — now recorded as its own explicit transaction, per Roadmap Chapter 14 v1.6 (Locked) sequence Phase 1.5 -> Phase 2 -> Phase 3.
+
+### Baseline
+
+```text
+Starting HEAD:            2f0631e12358901689ba64ebb5265b6888d2319b
+Phase 1.5:                  APPROVED / Approval Gate PASSED (unchanged)
+P1-RETRO-001:                COMPLETE (unchanged)
+EF-RETRO-001:                COMPLETE (unchanged)
+Phase 2 execution rules:     EFFECTIVE (unchanged, already existed since
+                              2026-08-10, blob
+                              d7d26774ea5955a44f8b58304ceb4f913106aa70)
+current_phase (before):      "Phase 1.5 — Engineering Foundation"
+```
+
+### G-VERIFY-001 applied
+
+```text
+Verified directly against docs/MANIFEST.md and the retrospective
+  documents themselves before recording: Phase 1.5 Approval Gate = PASSED
+  (Phase 1.5 Approval Gate — Decision bundle, byte-identical);
+  P1-RETRO-001 = COMPLETE (Governance — Retrospectives section AND
+  phase1-retrospective-001.md's own frontmatter, byte-identical);
+  EF-RETRO-001 = COMPLETE (Governance — Retrospectives section AND
+  phase1.5-retrospective-001.md's own frontmatter, byte-identical);
+  phase-2-rules.md operational_state = EFFECTIVE, blob unchanged, git log
+  confirms exactly one commit (7634f30) ever touched the file;
+  current_phase frontmatter value before edit = "Phase 1.5 — Engineering
+  Foundation" (git-verified, not from memory); no prior "Phase 2 Start
+  Authorization" section existed (no conflicting record).
+```
+
+### MANIFEST changes
+
+```text
+docs/MANIFEST.md
+  manifest_version:  10.127 -> 10.128
+  current_phase:     "Phase 1.5 — Engineering Foundation"
+                      -> "Phase 2 — Product Prototype"
+  New section added: "Phase 2 Start Authorization — Product Owner
+    Decision" (mechanical, not a new Approval Gate Decision bundle —
+    the Phase 1.5 Approval Gate's evidence chain is unchanged and not
+    re-opened).
+```
+
+### Result
+
+```text
+Phase 1.5 — Engineering Foundation:   APPROVED (unchanged)
+Phase 1.5 Approval Gate:               PASSED (unchanged)
+P1-RETRO-001 / EF-RETRO-001:           COMPLETE (unchanged)
+Phase 2 — Product Prototype:           AUTHORIZED TO BEGIN
+current_phase:                         "Phase 2 — Product Prototype"
+Phase 2 substantive governed work:     PERMITTED to begin in future
+                                        transactions — phase-2-rules.md
+                                        was already EFFECTIVE before this
+                                        transaction, so the "phase rule
+                                        before substantive work"
+                                        prerequisite is already satisfied;
+                                        no substantive Phase 2 artifact
+                                        was created or modified by this
+                                        transaction itself.
+Phase 2 Approval Gate / Gate 3:        NOT YET OPENED
+Phase 3:                                NOT AUTHORIZED
+LIVE:                                   NOT AUTHORIZED (unchanged)
+```
+
+### Preserved unchanged
+
+```text
+Phase 1.5 DoD, phase1.5-retrospective-001.md, phase1-retrospective-
+  001.md, the recorded Phase 1.5 Approval Gate decision bundle, all nine
+  accepted residual Minor findings, ADR-024..030, all 8 Engineering
+  Foundation conventions, Constitution, Domain Contract, module-
+  registry.yaml, Global Execution Rules (execution-rules.md), and Phase
+  2 execution rules (phase-2-rules.md): all byte-identical (git diff
+  --quiet). No ADR authored. No Phase 2 prototype/UX/product artifact,
+  Phase 2 DoD, or new architecture created — out of scope for this
+  transaction.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md     (frontmatter current_phase + manifest_version, new
+                      Phase 2 Start Authorization section)
+docs/CHANGELOG.md    (this entry)
+```
+
+### Validation
+
+```text
+HEAD before/after:                            CONFIRMED
+current_phase transition git-verified:         CONFIRMED
+ADR/Constitution/Domain Contract/architecture/
+  Phase 1.5 DoD/Phase 1.5 retrospective/Phase
+  1.5 Approval Gate decision/Global Execution
+  Rules/Phase 2 rules untouched:                CONFIRMED (git diff
+                                                --quiet)
+Nine accepted residuals unchanged, still OPEN:  CONFIRMED
+No substantive Phase 2 artifact created:        CONFIRMED
+Phase 3/LIVE not authorized:                    CONFIRMED
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 1.5 Process Retrospective #001: COMPLETE (`EF-RETRO-001` satisfied)
 
 **Process retrospective — vai trò: `EF-RETRO-001 Phase 1.5 Process Retrospective Executor`.** Performs the mandatory Phase 1.5 retrospective required by `EF-RETRO-001` before Phase 2 substantive work can begin, using at least the structure of `P1-RETRO-001` plus a dedicated effectiveness disposition for each of `EF-ADR-001`/`EF-ADR-002`/`EF-TXN-001`/`EF-TXN-002`/`EF-REV-001`/`EF-BUDGET-001`/`EF-VERIFY-001`. Evidence-based (git log, CHANGELOG, MANIFEST, direct grep/word-count inspection), not generic process advice.

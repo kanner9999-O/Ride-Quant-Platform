@@ -1,10 +1,10 @@
 ---
-manifest_version: "10.127"
+manifest_version: "10.128"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.1.0"
-current_phase: "Phase 1.5 — Engineering Foundation"
+current_phase: "Phase 2 — Product Prototype"
 compatible_adr_range: "ADR-001 ~ ADR-022"
 generated_at: "2026-08-09"
 ---
@@ -868,6 +868,107 @@ bắt đầu Phase 2 substantive work
 ```
 
 **Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên, KHÔNG đổi) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state. Sau atomic boundary này, evidence bị mất/hỏng là integrity violation, KHÔNG tự động đảo ngược quyết định (§14.4.2).
+
+## Phase 2 Start Authorization — Product Owner Decision (mechanical current-state transition, KHÔNG một Approval Gate Decision bundle mới — Phase 1.5 Approval Gate evidence chain phía trên byte-identical, KHÔNG sửa)
+
+**Quyết định:** "AUTHORIZE PHASE 2 — PRODUCT PROTOTYPE TO BEGIN." (Product Owner, 2026-08-13)
+
+```text
+Prerequisite check (verify trực tiếp tại HEAD 2f0631e12358901689ba64ebb
+  5265b6888d2319b, TRƯỚC KHI recording — G-VERIFY-001):
+    Phase 1.5 Approval Gate:    PASSED (unchanged, xem section "Phase 1.5
+                                Approval Gate — Decision" phía trên, byte-
+                                identical)
+    Phase 1.5 immutable decision
+      bundle:                  EXISTS, resolves (section trên)
+    P1-RETRO-001:               COMPLETE (unchanged, xem section
+                                "Governance — Retrospectives" phía trên,
+                                VÀ frontmatter `phase1_retrospective_
+                                status: COMPLETE` trong chính retrospective
+                                document, verified trực tiếp)
+    EF-RETRO-001:                COMPLETE (unchanged, xem section
+                                "Governance — Retrospectives" phía trên,
+                                VÀ frontmatter `phase1_5_retrospective_
+                                status: COMPLETE` trong chính retrospective
+                                document, verified trực tiếp)
+    Phase 2 execution rules
+      (`governance/phases/phase-
+      2-rules.md`):              EFFECTIVE (verified trực tiếp — version
+                                0.1, `operational_state: EFFECTIVE`,
+                                `accepted_by: Product Owner`,
+                                `accepted_at: "2026-08-10"`, blob
+                                d7d26774ea5955a44f8b58304ceb4f913106aa70,
+                                KHÔNG sửa kể từ khi tạo — commit `7634f30`
+                                LÀ commit DUY NHẤT chạm file này). Rule-
+                                authoring transaction (2026-08-10) ≠ phase-
+                                authorization transaction (đúng
+                                `G-PHASE-003`) — rule established SỚM,
+                                CHƯA từng tự authorize Phase 2 trước
+                                transaction NÀY.
+    Conflicting later phase-
+      transition record:         KHÔNG tồn tại (verify trực tiếp — KHÔNG
+                                một section "Phase 2 Start Authorization"
+                                nào khác trong MANIFEST trước transaction
+                                này)
+    Roadmap sequence (Chapter 14 §14.3, Locked v1.6):
+                                Phase 1.5 -> Phase 2 -> Phase 3
+    Phase 2:                    full Phase (Chapter 14 §14.3, "HTML/
+                                React/Figma — công cụ không quan trọng"),
+                                có Approval Gate riêng của chính nó (Gate
+                                3, Chapter 12 §12.2) tại CUỐI phase — gate
+                                đó CHƯA mở/pass tại transaction này
+```
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.127` → `10.128`; `current_phase` `"Phase 1.5 — Engineering Foundation"` → `"Phase 2 — Product Prototype"`.
+
+**Recorded state transition:**
+
+```text
+Phase 1.5 — Engineering Foundation:    APPROVED (unchanged)
+Phase 1.5 Approval Gate:               PASSED (unchanged)
+P1-RETRO-001:                          COMPLETE (unchanged)
+EF-RETRO-001:                          COMPLETE (unchanged)
+Phase 2 — Product Prototype:           AUTHORIZED TO BEGIN
+Phase 2 substantive governed work:     PERMITTED to begin in future
+                                        transactions — phase-specific
+                                        execution rules
+                                        (`governance/phases/phase-2-
+                                        rules.md`) đã EFFECTIVE TRƯỚC
+                                        transaction này (2026-08-10),
+                                        mandatory "phase rule trước
+                                        substantive work" prerequisite
+                                        (`phase-rules-template.md`
+                                        §Mandatory rule) ĐÃ satisfied.
+                                        KHÔNG một substantive Phase 2
+                                        artifact nào được tạo/sửa BỞI
+                                        CHÍNH transaction này (pure
+                                        phase-transition recording).
+Phase 2 Approval Gate / Gate 3:        NOT YET OPENED (unchanged)
+Phase 3:                                NOT AUTHORIZED (unchanged)
+LIVE:                                   NOT AUTHORIZED (unchanged)
+```
+
+**"AUTHORIZED TO BEGIN" nghĩa là gì:** substantive Phase 2 work (prototype/UX authoring dưới Chapter 14 §14.3, theo đúng `phase-2-rules.md`'s control — P2-ADR-CHAIN-001/P2-TXN-001/P2-REVIEW-001/P2-BUDGET-001/P2-PROTOTYPE-001) ĐƯỢC PHÉP bắt đầu KỂ TỪ SAU transaction này, trong các transaction governed riêng biệt tiếp theo. Nó **KHÔNG** tự pre-approve/thực hiện bất kỳ Phase 2 deliverable/prototype/UX/product decision nào — mỗi deliverable Phase 2 vẫn phải qua đúng quy trình review/DoD/Approval Gate riêng của chính nó, cùng nguyên tắc "Authorized to Begin" đã áp dụng cho Phase 0→1 VÀ Phase 1→1.5.
+
+**Transaction này KHÔNG:**
+
+```text
+tạo/sửa bất kỳ Phase 2 substantive artifact nào (prototype screen,
+  Figma artifact, HTML/React prototype, UX flow, Product design decision,
+  implementation code, architecture mới, ADR mới, Phase 2 DoD)
+re-author/re-approve `governance/phases/phase-2-rules.md` (giữ nguyên
+  EFFECTIVE, byte-identical, verified trực tiếp)
+reopen/modify Phase 1.5 DoD, Phase 1.5 retrospective, Phase 1.5 Approval
+  Gate decision, bất kỳ ADR/convention Phase 1.5 nào, Constitution,
+  Domain Contract, architecture artifact
+đóng/sửa bất kỳ residual nào trong chín accepted residual Minor Phase
+  1.5 (VẪN OPEN, carried forward, KHÔNG chạm)
+reinterpret/reopen P1-RETRO-001 hay EF-RETRO-001
+authorize Phase 3
+authorize LIVE (KHÔNG suy diễn LIVE permission từ Phase 2 start)
+```
+
+**Xác nhận tường minh (G-VERIFY-001 áp dụng — verify trực tiếp, KHÔNG suy diễn từ memory):** `current_phase` frontmatter (line 7, file này) verify trực tiếp trước/sau edit. Phase 1.5 Approval Gate `PASSED`, `P1-RETRO-001` `COMPLETE`, `EF-RETRO-001` `COMPLETE` verify lại từ chính section tương ứng phía trên trong file này VÀ từ frontmatter của chính hai retrospective document (byte-identical). `phase-2-rules.md` verify `operational_state: EFFECTIVE` trực tiếp, blob KHÔNG đổi, git log xác nhận CHỈ MỘT commit (`7634f30`) từng chạm file này. ADR/Constitution/Domain Contract/architecture package/Phase 1.5 DoD/Phase 1.5 retrospective/Global Execution Rules (`governance/execution-rules.md`)/Phase 2 rules (`governance/phases/phase-2-rules.md`) KHÔNG sửa bởi transaction này (git diff --quiet cho tất cả).
 
 ## Decision Log
 
