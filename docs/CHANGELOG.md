@@ -2,6 +2,139 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 DoD v0.3 ACCEPTED + CANONICALLY INCORPORATED
+
+**Mechanical lifecycle recording — vai trò: `Phase 2 DoD v0.3 Acceptance + Canonical Incorporation Recorder`.** Records the Product Owner decision "ACCEPT PHASE 2 DOD V0.3 — INCORPORATE INTO PHASE 2 CANONICAL PHASE PLAN" — no substantive DoD semantics changed. `phase-2-dod.md` becomes the authoritative Phase 2 DoD, and its gate-set declaration (§2) becomes authoritative for future Chapter 12/13 use.
+
+### Baseline
+
+```text
+Starting HEAD:      fb1026ed5551b0922cdfaea1a3946ae829ea623c
+Reviewed candidate: docs/phase-dod/phase-2-dod.md v0.3, status Draft,
+                    blob 876c4f099883cf3e5e2b3800d765108662405e24
+```
+
+### Review evidence (full chain)
+
+```text
+Review A trên v0.1: 1 Major (P2-DOD-A-MAJ-01), 1 Minor (P2-DOD-A-MIN-01),
+  REVISION_REQUIRED.
+v0.2 bounded correction: đóng cả hai.
+Bounded Review A re-review trên v0.2: CLEAN, Blocker 0/Major 0/Minor 0.
+Independent Review B trên v0.2: Blocker 0/Major 3/Minor 0 — P2-DOD-B-
+  MAJ-01/02/03, REVISION_REQUIRED.
+v0.3 bounded correction: đóng cả ba.
+Bounded Review A verification trên v0.3: CLEAN, Blocker 0/Major 0/
+  Minor 0.
+Independent bounded Review B trên v0.3: P2-DOD-B-MAJ-01/02/03 CLOSED,
+  New Blocker 0/New Major 0/New Minor 0, regression check CLEAN,
+  ADR_NOT_REQUIRED, READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-13"
+version:      "0.3" KHÔNG đổi (pure mechanical acceptance, KHÔNG bump)
+Product Owner decision (nguyên văn): "ACCEPT PHASE 2 DOD V0.3 —
+  INCORPORATE INTO PHASE 2 CANONICAL PHASE PLAN."
+```
+
+### Canonical incorporation (Chapter 14 §14.3.1, four conditions)
+
+```text
+1. Product Owner acceptance evidence resolve được:       CÓ (transaction
+   này).
+2. Cùng evidence xác định tường minh: Phase identity "Phase 2 —
+   Product Prototype"; Roadmap phase-section identity Chapter 14
+   §14.2 v1.6 Locked (blob f2cd722218bd80b40241e26530a1919811fedad9,
+   verified khớp MANIFEST); DoD identity v0.3/blob
+   876c4f099883cf3e5e2b3800d765108662405e24; explicit incorporation
+   decision "INCORPORATE INTO PHASE 2 CANONICAL PHASE PLAN".
+3. Evidence tồn tại TRƯỚC gate evaluation:                CÓ — Gate 3
+   CHƯA mở.
+4. Đúng MỘT incorporation, KHÔNG xung đột:                 CÓ — DUY NHẤT
+   candidate DoD tại `docs/phase-dod/` cho Phase 2, verified trực
+   tiếp.
+Hệ quả: gate-set declaration (§2) nay authoritative cho Chapter 12/13
+  sử dụng — Trigger A APPLICABLE (applicable-invariant set {I-11,
+  I-12}); Trigger B/C/D/E NOT APPLICABLE (điều kiện §4's deliverable
+  boundary). Acceptance declaration KHÔNG PHẢI Quality Gate PASS.
+```
+
+### Files changed
+
+```text
+docs/phase-dod/phase-2-dod.md  (v0.3 Draft -> v0.3 Approved, blob
+                                de399900a93c7ec7ee64577093513de1643ebb33)
+docs/MANIFEST.md                (manifest_version 10.131 -> 10.132; row
+                                compact-rewritten per EF-BUDGET-001/
+                                P2-BUDGET-001 -- current-state pointer
+                                only, full journey detail moved to
+                                CHANGELOG)
+docs/CHANGELOG.md               (entry này)
+```
+
+### Preserved unchanged
+
+```text
+Substantive DoD content (§1–§13 của phase-2-dod.md) — verified byte-
+  identical, CHỈ banner/lifecycle metadata/§14 acceptance record thay
+  đổi (full diff review confirmed hunks chỉ chạm frontmatter, banner
+  insertion, và §14 + Change history). Product/UX authority (product-
+  requirement.md/use-case-workflow.md/ux-blueprint.md, KHÔNG SCR/VIEW
+  ID nào đổi), Constitution (mọi chapter), phase-2-rules.md, mọi ADR,
+  mọi Engineering Foundation convention, module-registry.yaml,
+  phase-0-dod.md/phase-1-dod.md/phase-1.5-dod.md — tất cả verified
+  byte-identical.
+Gate-set declaration (§2 — 17-surface + 21-UC dual completion
+  requirement, I-11 Access-control-audit authority, I-12 traceability
+  requirement, Trigger B/C/D/E semantics), evidence/review/BCC/
+  validator requirement (§6-§10), P2-RETRO-001 boundary (§11, VẪN gắn
+  với Phase 3, KHÔNG PHẢI Gate 3), phase-decision bundle semantics
+  (§12), lifecycle-separation list (§13), ADR_NOT_REQUIRED result — tất
+  cả giữ nguyên.
+KHÔNG Quality Gate PASS evidence nào fabricated. KHÔNG full-scope BCC
+  nào claim đã chạy. KHÔNG Phase-level review evidence nào fabricated.
+  KHÔNG P2-RETRO-001 nào thực hiện. Gate 3: KHÔNG mở, KHÔNG approve.
+  Phase 3 substantive work: VẪN NOT AUTHORIZED. LIVE: VẪN NOT
+  AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/phase-dod/phase-2-dod.md: v0.3, status Approved, approved_by
+  Product Owner, approved_at 2026-08-13, blob
+  de399900a93c7ec7ee64577093513de1643ebb33 — authoritative Phase 2 DoD,
+  canonically incorporated.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD fb1026ed5551b0922cdfaea1a3946ae829ea623c verified
+[x] Reviewed candidate blob 876c4f099883cf3e5e2b3800d765108662405e24
+    verified before edit
+[x] PO decision recorded exactly
+[x] version remains 0.3
+[x] status Draft -> Approved
+[x] approved_by Product Owner, approved_at "2026-08-13"
+[x] Substantive DoD content unchanged (§1–§13 byte-equivalent, verified
+    via full diff)
+[x] Chapter 14 §14.3.1 incorporation conditions all satisfied by same
+    PO acceptance evidence
+[x] Đúng MỘT Phase 2 DoD incorporation resolve được
+[x] Gate-set declaration authoritative cho gate evaluation tương lai
+[x] KHÔNG Quality Gate/BCC/Phase-level review nào claimed complete sai
+[x] current_phase VẪN "Phase 2 — Product Prototype", KHÔNG đổi
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Gate 3/Phase 3/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 DoD v0.3 bounded correction: `P2-DOD-B-MAJ-01`/`P2-DOD-B-MAJ-02`/`P2-DOD-B-MAJ-03` CLOSED
 
 **Bounded correction — vai trò: `Phase 2 DoD v0.3 Bounded Correction Executor`.** Closes exactly three Independent Review B findings on `docs/phase-dod/phase-2-dod.md` v0.2. Does not redesign the DoD.

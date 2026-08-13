@@ -2,11 +2,11 @@
 id: phase-2-dod
 title: "Phase 2 — Product Prototype Definition of Done"
 version: "0.3"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-13"
 created_at: "2026-08-13"
 last_review: null
 next_review: null
@@ -14,6 +14,8 @@ depends_on: ["00-governance", "11-adr-process", "12-approval-gates", "13-quality
 ---
 
 # Phase 2 — Product Prototype: Definition of Done (DoD)
+
+**ACCEPTED VÀ INCORPORATED (2026-08-13, Product Owner decision) — status: Draft → Approved.** `phase-2-dod.md` v0.3 nay ĐÃ được Product Owner accept VÀ incorporate làm authoritative Phase 2 DoD, qua transaction mechanical `Phase 2 DoD v0.3 Acceptance + Canonical Incorporation Recorder` (2026-08-13). Nguyên văn quyết định: **"ACCEPT PHASE 2 DOD V0.3 — INCORPORATE INTO PHASE 2 CANONICAL PHASE PLAN."** Review evidence trước acceptance: Review A trên v0.1 (`P2-DOD-A-MAJ-01`/`P2-DOD-A-MIN-01`, `REVISION_REQUIRED`) → v0.2 đóng cả hai → bounded Review A re-review v0.2 `CLEAN` → Independent Review B v0.2 (Blocker 0/Major 3/Minor 0 — `P2-DOD-B-MAJ-01`/`02`/`03`, `REVISION_REQUIRED`) → v0.3 đóng cả ba → bounded Review A verification v0.3 `CLEAN` (Blocker 0/Major 0/Minor 0) → Independent bounded Review B v0.3 (`P2-DOD-B-MAJ-01`/`02`/`03` CLOSED, New Blocker 0/New Major 0/New Minor 0, regression check `CLEAN`, `ADR_NOT_REQUIRED`, `READY_FOR_PRODUCT_OWNER_DECISION`). Xem §14 "Acceptance status" phía dưới cho incorporation record đầy đủ theo bốn điều kiện [Chapter 14 §14.3.1](../constitution/14-roadmap.md). **Lifecycle:** `version: "0.3"` UNCHANGED (mechanical acceptance/incorporation transaction, KHÔNG substantive content change), `status: Draft → Approved`, `approved_by: Product Owner`, `approved_at: "2026-08-13"`. `Approved` — KHÔNG `Locked` — LÀ document lifecycle state (Chapter 12 §12.2 điểm 5 công nhận `Approved` một mình đã authoritative cho mục đích Chapter 12/13 sử dụng, KHÔNG bắt buộc `Locked` bổ sung). **Hệ quả:** §2's gate-set declaration (Trigger A applicable, {I-11, I-12}; Trigger B/C/D/E NOT APPLICABLE, mỗi kết luận điều kiện trên §4's boundary) nay LÀ authoritative Phase 2 gate-set declaration cho mục đích Chapter 12/13 sử dụng — chấp nhận declaration KHÔNG PHẢI Quality Gate PASS, KHÔNG PHẢI gate nào đã "pass." **Transaction acceptance/incorporation này KHÔNG:** sửa §§1–13 substantive DoD criteria (bao gồm 17-surface + 21-UC completion requirement, I-11 Access-control audit authority, I-12 traceability requirement, Trigger B/C/D/E semantics, prototype boundary, evidence/review/BCC/validator requirements, `P2-RETRO-001` boundary, `ADR_NOT_REQUIRED` result); tuyên bố prototype substantively complete; chạy full-scope Backward Consistency Check (§10); sinh Quality Gate PASS evidence (§2/§6); thực hiện Phase-level Gate review (§8); thực hiện `P2-RETRO-001` (§11); mở Gate 3; approve Phase 2; authorize Phase 3/deployment/implementation/LIVE; sửa Product/UX authority, Constitution, Phase 2 rules, ADR, hay architecture nào.
 
 **Vai trò của tài liệu này:** đây LÀ **DoD candidate artifact** mà [Chapter 12 §12.1](../constitution/12-approval-gates.md) (Locked) khóa rule — nguyên văn: "DoD criteria phải được viết ra và được Product Owner chấp nhận TRƯỚC KHI phase/gate tương ứng sử dụng chúng," VÀ "mọi Phase... phải có DoD cụ thể được viết ra và duyệt TRƯỚC KHI Phase đó MỞ APPROVAL GATE" — tức TRƯỚC KHI Gate 3 mở, KHÔNG PHẢI trước khi Phase 2 BẮT ĐẦU (Phase 2 start authorization LÀ một transaction riêng biệt, ĐÃ ghi nhận hợp lệ trước DoD này, đúng Chapter 14 §14.3's phân biệt "Phase authorized" ≠ "DoD accepted" — xem §13 dưới). VÀ [Chapter 14 §14.3](../constitution/14-roadmap.md) (Locked, v1.6) khóa cardinality/nơi ở ("mỗi Phase phải resolve được đúng một authoritative DoD artifact"). Tài liệu này **định nghĩa tiêu chí** cho Phase 2 — nó **KHÔNG** phải bằng chứng "đã đạt tiêu chí", VÀ nó **KHÔNG** tự nó là Product Owner acceptance. `Approved`/`Phase 2 Approved` LÀ outcome của Phase 2 Approval Gate (Gate 3) — **KHÔNG** phải một mục trong DoD này.
 
@@ -603,12 +605,18 @@ Tại đúng atomic recording boundary (Chapter 14 §14.4.2), bundle phải pin 
 ## 14. Acceptance status
 
 ```text
-Product Owner acceptance của DoD này:   CHƯA ghi nhận. Candidate hiện
-                                        v0.3, `status: Draft`,
-                                        `approved_by: null`,
-                                        `approved_at: null`.
+Product Owner acceptance của DoD này:   ĐÃ ghi nhận (2026-08-13,
+                                        mechanical lifecycle-recording
+                                        transaction `Phase 2 DoD v0.3
+                                        Acceptance + Canonical
+                                        Incorporation Recorder`, Decision
+                                        Workflow — Chapter 0 §3). Nguyên
+                                        văn: "ACCEPT PHASE 2 DOD V0.3 —
+                                        INCORPORATE INTO PHASE 2
+                                        CANONICAL PHASE PLAN."
 
-Review history (chính xác, phân biệt lịch sử khỏi current candidate):
+Review history đầy đủ (chính xác, phân biệt lịch sử khỏi acceptance
+  này):
   Review A trên v0.1:                   1 Major (`P2-DOD-A-MAJ-01`),
                                         1 Minor (`P2-DOD-A-MIN-01`),
                                         verdict `REVISION_REQUIRED`.
@@ -620,29 +628,98 @@ Review history (chính xác, phân biệt lịch sử khỏi current candidate):
                                         `P2-DOD-B-MAJ-01`/
                                         `P2-DOD-B-MAJ-02`/
                                         `P2-DOD-B-MAJ-03` identified.
-  v0.3 (transaction này):                bounded correction đóng
-                                        `P2-DOD-B-MAJ-01`/
+  v0.3 bounded correction:               đóng `P2-DOD-B-MAJ-01`/
                                         `P2-DOD-B-MAJ-02`/
-                                        `P2-DOD-B-MAJ-03`. Correction
-                                        ONLY — tài liệu này KHÔNG tuyên
-                                        bố Independent Review B đã
-                                        re-review v0.3; bounded re-review
-                                        trên v0.3 LÀ bước tiếp theo, CHƯA
-                                        thực hiện tại transaction này.
+                                        `P2-DOD-B-MAJ-03`.
+  Bounded Review A verification trên
+    v0.3:                                CLEAN — Blocker 0/Major
+                                        0/Minor 0.
+  Independent bounded Review B trên
+    v0.3:                                `P2-DOD-B-MAJ-01`/`02`/`03`
+                                        CLOSED — New Blocker 0/New
+                                        Major 0/New Minor 0, regression
+                                        check CLEAN, `ADR_NOT_REQUIRED`,
+                                        verdict
+                                        `READY_FOR_PRODUCT_OWNER_
+                                        DECISION`.
 
 Canonical incorporation (Chapter 14
-  §14.3.1, bốn điều kiện):              CHƯA satisfied — (1) Product
-                                        Owner acceptance evidence: CHƯA
-                                        tồn tại; (2)-(4): phụ thuộc (1),
-                                        CHƯA resolve.
+  §14.3.1) vào Phase-plan của Phase 2: ĐÃ tồn tại — bốn điều kiện
+                                        §14.3.1 thỏa đầy đủ, cùng một
+                                        evidence:
+
+  1. Product Owner acceptance evidence resolve được:      CÓ (transaction
+                                                            này).
+  2. Cùng evidence đó xác định tường minh:
+       Phase identity:                  Phase 2 — Product Prototype
+       Roadmap phase-section version/
+         content identity:              Chapter 14 — Roadmap, §14.2,
+                                         v1.6, Locked, blob
+                                         f2cd722218bd80b40241e26530a19198
+                                         11fedad9 (verify trực tiếp tại
+                                         transaction này, khớp MANIFEST)
+       DoD version/content identity:    docs/phase-dod/phase-2-dod.md,
+                                         v0.3, reviewed substantive blob
+                                         876c4f099883cf3e5e2b3800d76510
+                                         8662405e24 (verify trực tiếp
+                                         trước edit, khớp HEAD trước
+                                         transaction này)
+       Explicit incorporation decision: "INCORPORATE INTO PHASE 2
+                                         CANONICAL PHASE PLAN" (Product
+                                         Owner, cùng nguyên văn quyết
+                                         định trên)
+  3. Evidence tồn tại TRƯỚC Phase 2 gate evaluation:        CÓ — Gate 3
+                                                            CHƯA mở
+                                                            (§Explicit
+                                                            non-inclusion
+                                                            §13 trên,
+                                                            §2 gate-set
+                                                            declaration).
+  4. Đúng MỘT incorporation, KHÔNG xung đột:                CÓ — đây LÀ
+                                                            acceptance
+                                                            evidence DUY
+                                                            NHẤT cho
+                                                            Phase 2 DoD
+                                                            tại boundary
+                                                            này (verify
+                                                            trực tiếp:
+                                                            KHÔNG
+                                                            candidate DoD
+                                                            nào khác tồn
+                                                            tại tại
+                                                            `docs/
+                                                            phase-dod/`).
+
+  Hệ quả:                                Gate-set declaration tại §2 nay
+                                        hợp lệ/authoritative cho mục
+                                        đích Chapter 12/13 sử dụng — LÀ
+                                        authoritative Phase 2 gate-set
+                                        declaration kể từ transaction
+                                        này (Chapter 12 §12.2 điểm 5:
+                                        "Approved/Locked authoritative
+                                        quality contract hoặc phase
+                                        plan"): Trigger A APPLICABLE
+                                        (applicable-invariant set
+                                        {I-11, I-12}); Trigger B/C/D/E
+                                        NOT APPLICABLE, mỗi kết luận
+                                        điều kiện trên §4's deliverable
+                                        boundary. **Chấp nhận declaration
+                                        NÀY KHÔNG PHẢI Quality Gate
+                                        PASS** — KHÔNG một gate nào đã
+                                        "pass" tại transaction này.
 
 Trạng thái hiện tại (verify trực tiếp mỗi mục, KHÔNG suy diễn):
-  Product Owner acceptance:             CHƯA ghi nhận.
-  Canonical incorporation:              CHƯA established.
+  Product Owner acceptance:             ĐÃ ghi nhận (trên).
+  Canonical incorporation:              ESTABLISHED (trên).
+  Authoritative gate-set declaration:   ESTABLISHED (§2, hệ quả trên).
   Prototype substantive completion:     CHƯA established (CHƯA bắt đầu
-                                        substantive work nào).
-  Quality Gate PASS:                    CHƯA established.
+                                        substantive Phase 2 work nào).
+  Quality Gate PASS:                    CHƯA established — CHƯA chạy.
+  Full-scope Backward Consistency
+    Check:                              CHƯA chạy, CHƯA established
+                                        "No conflict."
   Gate 3 eligibility:                   CHƯA established.
+  Gate 3 mở:                             CHƯA (NOT OPENED).
   Phase 2 approval:                     CHƯA established.
   `P2-RETRO-001`:                        CHƯA thực hiện.
   Phase 3:                               NOT AUTHORIZED.
@@ -653,9 +730,55 @@ Trạng thái hiện tại (verify trực tiếp mỗi mục, KHÔNG suy diễn)
                                         conflicting candidate nào.
 ```
 
+**Transaction này CHỈ ghi nhận DoD acceptance/incorporation. Nó KHÔNG:**
+
+```text
+tuyên bố Phase 2 DoD criteria (§1–§13) đã pass (VẪN LÀ tiêu chí CẦN đạt,
+  KHÔNG phải ĐÃ đạt)
+tuyên bố prototype substantively complete
+chạy full-scope Backward Consistency Check (§10)
+sinh Quality Gate PASS evidence (§2/§6)
+thực hiện Phase-level Gate review (§8)
+thực hiện P2-RETRO-001 retrospective (§11)
+mở Gate 3
+approve Phase 2
+authorize Phase 3/deployment/implementation/LIVE
+sửa §1–§13 substantive DoD content (17-surface + 21-UC completion
+  requirement, I-11 Access-control audit authority, I-12 traceability
+  requirement, Trigger B/C/D/E semantics, prototype boundary, evidence/
+  review/BCC/validator requirements, P2-RETRO-001 boundary,
+  ADR_NOT_REQUIRED result — tất cả byte-unchanged)
+sửa Product/UX authority, Constitution, Phase 2 rules, ADR, hay
+  architecture nào
+```
+
 ## Change history
 
 ```text
+ACCEPTANCE  2026-08-13  Product Owner acceptance + canonical
+      incorporation — mechanical lifecycle recording, vai trò: `Phase 2
+      DoD v0.3 Acceptance + Canonical Incorporation Recorder`. Quyết
+      định: "ACCEPT PHASE 2 DOD V0.3 — INCORPORATE INTO PHASE 2
+      CANONICAL PHASE PLAN." Reviewed substantive candidate: v0.3, blob
+      `876c4f099883cf3e5e2b3800d765108662405e24` (Bounded Review A
+      verification `CLEAN`; Independent bounded Review B: `P2-DOD-B-
+      MAJ-01`/`02`/`03` CLOSED, New Blocker/Major/Minor 0/0/0,
+      `ADR_NOT_REQUIRED`, `READY_FOR_PRODUCT_OWNER_DECISION`).
+      `status: Draft -> Approved`, `approved_by: Product Owner`,
+      `approved_at: "2026-08-13"`, `version: "0.3"` UNCHANGED (mechanical
+      acceptance, KHÔNG substantive content change — §1–§13
+      byte-unchanged). Canonical incorporation (Chapter 14 §14.3.1)
+      established — Phase identity "Phase 2 — Product Prototype",
+      Roadmap §14.2 v1.6 Locked (blob
+      `f2cd722218bd80b40241e26530a1919811fedad9`), DoD v0.3/blob
+      `876c4f099883cf3e5e2b3800d765108662405e24`, explicit incorporation
+      decision — bốn điều kiện §14.3.1 thỏa bởi cùng evidence này.
+      Gate-set declaration (§2) nay authoritative cho Chapter 12/13 —
+      Trigger A applicable ({I-11, I-12}), Trigger B/C/D/E NOT
+      APPLICABLE (điều kiện §4). Acceptance KHÔNG PHẢI Quality Gate
+      PASS, KHÔNG chạy full-scope BCC, KHÔNG mở Gate 3, KHÔNG approve
+      Phase 2, KHÔNG thực hiện `P2-RETRO-001`, KHÔNG authorize Phase 3/
+      LIVE.
 v0.3  2026-08-13  Bounded correction (Draft), đóng `P2-DOD-B-MAJ-01`/
       `P2-DOD-B-MAJ-02`/`P2-DOD-B-MAJ-03` (Independent Review B trên
       v0.2, Blocker 0/Major 3/Minor 0, `REVISION_REQUIRED`) — vai trò:
@@ -716,3 +839,5 @@ v0.1  2026-08-13  Authored (Draft) — vai trò: `Phase 2 Product Prototype
       accepted, CHƯA incorporated. KHÔNG prototype screen/Figma/HTML/
       React artifact nào author tại transaction này.
 ```
+
+**Việc tiếp theo:** Phase 2 substantive prototype/UX work (theo batch, `P2-PROTOTYPE-001`), sau đó một Phase 2 Approval Gate consolidated review (Review A + Independent Review B trên toàn bộ Phase 2 evidence, §8, bao gồm full-scope Backward Consistency Check, §10) — trước khi Product Owner đưa ra Gate 3 decision (Chapter 12 §12.2). Riêng biệt, ĐỘC LẬP với Approval Gate đó: `P2-RETRO-001` (§11) VẪN LÀ điều kiện bổ sung PHẢI COMPLETE trước Phase 3 substantive work, KHÔNG PHẢI trước chính Gate 3.
