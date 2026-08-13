@@ -2,11 +2,11 @@
 id: phase-1.5-dod
 title: "Phase 1.5 — Engineering Foundation Definition of Done"
 version: "0.2"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-13"
 created_at: "2026-08-13"
 last_review: null
 next_review: null
@@ -14,6 +14,8 @@ depends_on: ["00-governance", "11-adr-process", "12-approval-gates", "13-quality
 ---
 
 # Phase 1.5 — Engineering Foundation: Definition of Done (DoD)
+
+**ACCEPTED VÀ INCORPORATED (2026-08-13, Product Owner decision) — status: Draft → Approved.** `phase-1.5-dod.md` v0.2 nay ĐÃ được Product Owner accept VÀ incorporate làm authoritative Phase 1.5 DoD, qua transaction mechanical `Phase 1.5 DoD v0.2 Acceptance + Canonical Incorporation Recorder` (2026-08-13). Nguyên văn quyết định: **"ACCEPT PHASE 1.5 DOD V0.2 — ACCEPT EF-DOD-B-MIN-01 AND EF-DOD-B-MIN-02 AS NON-BLOCKING RESIDUALS — INCORPORATE INTO PHASE 1.5 CANONICAL PHASE PLAN."** Review evidence trước acceptance: bounded Review A re-review `CLEAN` (Blocker 0/Major 0/Minor 0, đóng `EF-DOD-A-MAJ-01`); Independent Review B (Blocker 0/Major 0/Minor 2 — `EF-DOD-B-MIN-01`/`EF-DOD-B-MIN-02`, VALID, `READY_FOR_PRODUCT_OWNER_DECISION`). Xem §13 "Acceptance status" phía dưới cho incorporation record đầy đủ theo bốn điều kiện [Chapter 14 §14.3.1](../constitution/14-roadmap.md). **Lifecycle:** `version: "0.2"` UNCHANGED (mechanical acceptance/incorporation transaction, KHÔNG substantive content change), `status: Draft → Approved`, `approved_by: Product Owner`, `approved_at: "2026-08-13"`. `Approved` — KHÔNG `Locked` — LÀ document lifecycle state (Chapter 12 §12.2 điểm 5 công nhận `Approved` một mình đã authoritative cho mục đích Chapter 12/13 sử dụng, KHÔNG bắt buộc `Locked` bổ sung). **Residual Minor `EF-DOD-B-MIN-01`/`EF-DOD-B-MIN-02`: `OPEN — accepted non-blocking`** — KHÔNG sửa wording tại transaction này (correction riêng biệt, nếu thực hiện, sẽ đóng finding này sau, KHÔNG tại đây). **Transaction acceptance/incorporation này KHÔNG:** sửa §§1–12 substantive DoD criteria; chạy full-scope Backward Consistency Check (§8); sinh Quality Gate PASS evidence (§4); thực hiện Phase-level Gate review (§6); thực hiện `EF-RETRO-001` (§10); approve Phase 1.5; mở Phase 2; authorize deployment/implementation/LIVE; sửa Constitution chapter, ADR, Approved Engineering Foundation artifact, hay Domain Contract nào.
 
 **Vai trò của tài liệu này:** đây LÀ **DoD candidate artifact** mà [Chapter 12 §12.1](../constitution/12-approval-gates.md) (Locked, v1.5) khóa rule ("mỗi Phase phải có DoD cụ thể, viết ra và Product Owner chấp nhận TRƯỚC KHI phase/gate mở"), VÀ [Chapter 14 §14.3](../constitution/14-roadmap.md) (Locked, v1.6) khóa cardinality/nơi ở ("mỗi Phase phải resolve được đúng một authoritative DoD artifact"). Tài liệu này **định nghĩa tiêu chí** cho Phase 1.5 — nó **KHÔNG** phải bằng chứng "đã đạt tiêu chí", VÀ nó **KHÔNG** tự nó là Product Owner acceptance. `Approved`/`Phase 1.5 Approved` LÀ outcome của Phase 1.5 Approval Gate ([Chapter 12 §12.1](../constitution/12-approval-gates.md)) — **KHÔNG** phải một mục trong DoD này, VÀ mục này **KHÔNG chứa** chính outcome đó (tránh vòng lặp định nghĩa Chapter 12 đã cấm tường minh).
 
@@ -431,40 +433,100 @@ Tại đúng atomic recording boundary (Chapter 14 §14.4.2), bundle phải pin 
 ## 13. Acceptance status
 
 ```text
-Product Owner acceptance của DoD này:   CHƯA ghi nhận. `status: Draft`,
-                                        `approved_by: null`,
-                                        `approved_at: null` — candidate
-                                        DoD, CHƯA qua Review A/Independent
-                                        Review B, CHƯA Product Owner
-                                        acceptance, CHƯA canonical
-                                        incorporation (Chapter 14 §14.3.1).
+Product Owner acceptance của DoD này:   ĐÃ ghi nhận (2026-08-13,
+                                        mechanical lifecycle-recording
+                                        transaction `Phase 1.5 DoD v0.2
+                                        Acceptance + Canonical
+                                        Incorporation Recorder`, Decision
+                                        Workflow — Chapter 0 §3). Nguyên
+                                        văn: "ACCEPT PHASE 1.5 DOD V0.2 —
+                                        ACCEPT EF-DOD-B-MIN-01 AND
+                                        EF-DOD-B-MIN-02 AS NON-BLOCKING
+                                        RESIDUALS — INCORPORATE INTO
+                                        PHASE 1.5 CANONICAL PHASE PLAN."
+
+Review evidence trước acceptance:
+  Bounded Review A re-review:           CLEAN — đóng `EF-DOD-A-MAJ-01`.
+  Blocker/Major/Minor:                  0/0/0
+  Independent Review B:                 Blocker 0/Major 0/Minor 2 —
+                                        `EF-DOD-B-MIN-01`/
+                                        `EF-DOD-B-MIN-02` (VALID,
+                                        non-blocking), verdict
+                                        `READY_FOR_PRODUCT_OWNER_
+                                        DECISION`.
+
+Residual Minor (accepted, VẪN OPEN — KHÔNG sửa tại transaction này):
+  `EF-DOD-B-MIN-01`:                    OPEN — accepted non-blocking.
+  `EF-DOD-B-MIN-02`:                    OPEN — accepted non-blocking.
 
 Canonical incorporation (Chapter 14
-  §14.3.1) vào Phase-plan của Phase 1.5: CHƯA tồn tại — KHÔNG điều kiện
-                                        nào trong bốn điều kiện §14.3.1
-                                        thỏa tại transaction authoring này
-                                        (KHÔNG Product Owner acceptance
-                                        evidence nào resolve được).
+  §14.3.1) vào Phase-plan của Phase 1.5: ĐÃ tồn tại — bốn điều kiện
+                                        §14.3.1 thỏa đầy đủ, cùng một
+                                        evidence:
 
-Hệ quả:                                Gate-set declaration tại §2 CHƯA
-                                        authoritative cho mục đích Chapter
-                                        12/13 sử dụng — CHỈ trở thành
-                                        authoritative TẠI đúng thời điểm
-                                        Product Owner accept VÀ incorporate
-                                        tài liệu này (transaction riêng
-                                        biệt tương lai, KHÔNG tại đây).
+  1. Product Owner acceptance evidence resolve được:      CÓ (transaction
+                                                            này).
+  2. Cùng evidence đó xác định tường minh:
+       Phase identity:                  Phase 1.5 — Engineering
+                                         Foundation
+       Roadmap phase-section version/
+         content identity:              Chapter 14 — Roadmap, §14.2,
+                                         v1.6, Locked, blob
+                                         f2cd722218bd80b40241e26530a19198
+                                         11fedad9 (verify trực tiếp tại
+                                         transaction này, khớp MANIFEST)
+       DoD version/content identity:    docs/phase-dod/phase-1.5-dod.md,
+                                         v0.2, reviewed substantive blob
+                                         b1083706b94653a0c6e3931ead49edff
+                                         3a17c596
+       Explicit incorporation decision: "INCORPORATE INTO PHASE 1.5
+                                         CANONICAL PHASE PLAN" (Product
+                                         Owner, cùng nguyên văn quyết
+                                         định trên)
+  3. Evidence tồn tại TRƯỚC Phase 1.5 gate evaluation:      CÓ — Phase
+                                                            1.5 Approval
+                                                            Gate CHƯA mở
+                                                            (§14 dưới,
+                                                            §2 gate-set
+                                                            declaration).
+  4. Đúng MỘT incorporation, KHÔNG xung đột:                CÓ — đây LÀ
+                                                            acceptance
+                                                            evidence DUY
+                                                            NHẤT cho
+                                                            Phase 1.5
+                                                            DoD tại
+                                                            boundary này
+                                                            (verify trực
+                                                            tiếp: KHÔNG
+                                                            candidate
+                                                            DoD nào khác
+                                                            tồn tại tại
+                                                            `docs/
+                                                            phase-dod/`).
+
+Hệ quả:                                Gate-set declaration tại §2 nay
+                                        hợp lệ cho mục đích Chapter 12/13
+                                        sử dụng — LÀ authoritative Phase
+                                        1.5 DoD kể từ transaction này
+                                        (Chapter 12 §12.2 điểm 5:
+                                        "Approved/Locked authoritative
+                                        quality contract hoặc phase
+                                        plan").
 ```
 
-**Transaction authoring này CHỈ tạo DoD candidate. Nó KHÔNG:**
+**Transaction này CHỈ ghi nhận DoD acceptance/incorporation. Nó KHÔNG:**
 
 ```text
-tuyên bố Phase 1.5 DoD criteria (§1–§11) đã pass
+tuyên bố Phase 1.5 DoD criteria (§1–§12) đã pass (VẪN LÀ tiêu chí CẦN
+  đạt, KHÔNG phải ĐÃ đạt)
 tuyên bố Phase 1.5 hoàn thành
 chạy full-scope Backward Consistency Check (§8)
 sinh Quality Gate PASS evidence (§4)
 thực hiện Phase-level Gate review (§6)
 thực hiện EF-RETRO-001 retrospective (§10)
-accept/incorporate chính tài liệu này
+đóng `EF-DOD-B-MIN-01`/`EF-DOD-B-MIN-02` — CẢ HAI VẪN open
+đóng bất kỳ residual finding nào khác trong §9 (bảy Minor category
+  residual — KHÔNG chạm, KHÔNG rewrite)
 approve Phase 1.5
 mở Phase 2
 authorize deployment/implementation/LIVE
@@ -472,4 +534,4 @@ sửa Constitution chapter, ADR, Approved Engineering Foundation artifact,
   Domain Contract, hay Product artifact nào
 ```
 
-**Việc tiếp theo:** Review A + Independent Review B trên chính DoD candidate này (bounded, đúng Chapter 0 §3/Chapter 11 §11.5), sau đó Product Owner acceptance + canonical incorporation (Chapter 14 §14.3.1) — TRƯỚC KHI Phase-level Gate review (§6) VÀ full-scope Backward Consistency Check (§8) có thể tiến hành cho Phase 1.5 Approval Gate.
+**Việc tiếp theo:** một Phase 1.5 Approval Gate consolidated review (Review A + Independent Review B trên toàn bộ Phase 1.5 evidence, §4, bao gồm full-scope Backward Consistency Check, §8) — trước khi Product Owner đưa ra Phase 1.5 Approval Gate decision (Chapter 12 §12.2). Riêng biệt, ĐỘC LẬP với Approval Gate đó: `EF-RETRO-001` (§10) VẪN LÀ điều kiện bổ sung PHẢI COMPLETE trước Phase 2 substantive work, KHÔNG PHẢI trước chính Phase 1.5 Approval Gate.

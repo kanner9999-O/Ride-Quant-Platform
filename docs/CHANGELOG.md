@@ -2,6 +2,136 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 1.5 DoD v0.2 ACCEPTED + CANONICALLY INCORPORATED
+
+**Mechanical lifecycle recording — vai trò: `Phase 1.5 DoD v0.2 Acceptance + Canonical Incorporation Recorder`.** Records the Product Owner decision "ACCEPT PHASE 1.5 DOD V0.2 — ACCEPT EF-DOD-B-MIN-01 AND EF-DOD-B-MIN-02 AS NON-BLOCKING RESIDUALS — INCORPORATE INTO PHASE 1.5 CANONICAL PHASE PLAN" — no substantive DoD semantics changed. `phase-1.5-dod.md` becomes the authoritative Phase 1.5 DoD, and its gate-set declaration (§2) becomes authoritative for future Chapter 12/13 use.
+
+### Baseline
+
+```text
+Starting HEAD:      8085cee263a28fc29db8a11f5f32ceb504d0fdc0
+Reviewed candidate: docs/phase-dod/phase-1.5-dod.md v0.2, status Draft,
+                    blob b1083706b94653a0c6e3931ead49edff3a17c596
+```
+
+### Review evidence
+
+```text
+Đóng (trước acceptance, v0.2): EF-DOD-A-MAJ-01.
+Bounded Review A re-review: CLEAN, Blocker 0/Major 0/Minor 0.
+Independent Review B: Blocker 0/Major 0/Minor 2 — EF-DOD-B-MIN-01/
+  EF-DOD-B-MIN-02 (VALID, non-blocking), READY_FOR_PRODUCT_OWNER_
+  DECISION.
+```
+
+### Lifecycle transition recorded
+
+```text
+status:       Draft -> Approved
+approved_by:  null -> Product Owner
+approved_at:  null -> "2026-08-13"
+version:      "0.2" KHÔNG đổi (pure mechanical acceptance, KHÔNG bump)
+Product Owner decision (nguyên văn): "ACCEPT PHASE 1.5 DOD V0.2 —
+  ACCEPT EF-DOD-B-MIN-01 AND EF-DOD-B-MIN-02 AS NON-BLOCKING RESIDUALS
+  — INCORPORATE INTO PHASE 1.5 CANONICAL PHASE PLAN."
+```
+
+### Residual finding recorded (not closed)
+
+```text
+EF-DOD-B-MIN-01: OPEN — accepted non-blocking. KHÔNG sửa wording tại
+  transaction này.
+EF-DOD-B-MIN-02: OPEN — accepted non-blocking. KHÔNG sửa wording tại
+  transaction này.
+Bảy residual Minor category (§9, EF-MONO-ADR024-B-MIN-01/ADR026-A-MIN-01/
+  EF-NAME-A2-MIN-01/EF-NAME-B-MIN-01/ADR027-B-MIN-01/EF-CONFIG-B-MIN-01/
+  EF-ERR-B-MIN-01): KHÔNG chạm, KHÔNG rewrite, VẪN OPEN — accepted
+  non-blocking (giữ nguyên trạng từ trước).
+```
+
+### Canonical incorporation (Chapter 14 §14.3.1, four conditions)
+
+```text
+1. Product Owner acceptance evidence resolve được:       CÓ (transaction
+   này).
+2. Cùng evidence xác định tường minh: Phase identity "Phase 1.5 —
+   Engineering Foundation"; Roadmap phase-section identity Chapter 14
+   §14.2 v1.6 Locked (blob f2cd722218bd80b40241e26530a1919811fedad9,
+   verified khớp MANIFEST); DoD identity v0.2/blob
+   b1083706b94653a0c6e3931ead49edff3a17c596; explicit incorporation
+   decision "INCORPORATE INTO PHASE 1.5 CANONICAL PHASE PLAN".
+3. Evidence tồn tại TRƯỚC gate evaluation:                CÓ — Phase 1.5
+   Approval Gate CHƯA mở.
+4. Đúng MỘT incorporation, KHÔNG xung đột:                 CÓ — DUY NHẤT
+   candidate DoD tại `docs/phase-dod/` cho Phase 1.5, verified trực
+   tiếp.
+Hệ quả: gate-set declaration (§2, Trigger A CHỈ) nay authoritative cho
+  Chapter 12/13 sử dụng.
+```
+
+### Files changed
+
+```text
+docs/phase-dod/phase-1.5-dod.md  (v0.2 Draft -> v0.2 Approved, blob
+                                  12499147b6040faac176410c2193b8c7bafbef22)
+docs/MANIFEST.md                 (manifest_version 10.124 -> 10.125;
+                                  row cập nhật)
+docs/CHANGELOG.md                (entry này)
+```
+
+### Preserved unchanged
+
+```text
+Substantive DoD content (§1–§12 của phase-1.5-dod.md) — verified byte-
+  identical, CHỈ banner/lifecycle metadata/§13 acceptance record thay
+  đổi. Toàn bộ 7 ADR (024–030) + 8 living convention (Approved) —
+  verified byte-identical. Constitution (mọi chapter, bao gồm Chapter
+  14), Governance execution-rules.md, phase-1.5-rules.md, phase-0-dod.md,
+  phase-1-dod.md — tất cả verified byte-identical.
+Gate-set declaration (§2, Trigger A CHỈ, B/C/D/E KHÔNG APPLICABLE), ADR
+  closure (§3.2), BCC requirement (§8, CHƯA chạy), validator/freshness
+  requirement (§5), phase-level review requirement (§6), EF-RETRO-001
+  boundary (§10, VẪN gắn với Phase 2, KHÔNG PHẢI Phase 1.5 gate),
+  phase-decision bundle semantics (§11), Phase 2/LIVE boundaries — tất
+  cả giữ nguyên.
+KHÔNG Quality Gate PASS evidence nào fabricated. KHÔNG full-scope BCC
+  nào claim đã chạy. KHÔNG Phase-level review evidence nào fabricated.
+  KHÔNG EF-RETRO-001 nào thực hiện. Phase 1.5 Approval Gate: KHÔNG mở,
+  KHÔNG approve. Phase 2 substantive work: VẪN NOT YET AUTHORIZED.
+  LIVE/deployment: VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/phase-dod/phase-1.5-dod.md: v0.2, status Approved, approved_by
+  Product Owner, approved_at 2026-08-13, blob
+  12499147b6040faac176410c2193b8c7bafbef22 — authoritative Phase 1.5
+  DoD, canonically incorporated.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 8085cee263a28fc29db8a11f5f32ceb504d0fdc0 verified
+[x] Reviewed candidate blob b1083706b94653a0c6e3931ead49edff3a17c596
+    verified
+[x] PO decision recorded exactly
+[x] version remains 0.2
+[x] status Draft -> Approved
+[x] approved_by Product Owner, approved_at "2026-08-13"
+[x] Substantive DoD content unchanged (§1–§12 byte-equivalent, verified)
+[x] EF-DOD-B-MIN-01/02 remain OPEN — accepted non-blocking
+[x] Chapter 14 §14.3.1 incorporation conditions all satisfied by same
+    PO acceptance evidence
+[x] Đúng MỘT Phase 1.5 DoD incorporation resolve được
+[x] Gate-set declaration authoritative cho gate evaluation tương lai
+[x] KHÔNG Quality Gate/BCC/Phase-level review nào claimed complete sai
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 1.5 DoD v0.2 bounded correction: `EF-DOD-A-MAJ-01` CLOSED
 
 **Bounded correction — vai trò: `Phase 1.5 DoD v0.2 Bounded Correction Executor`.** Resolves one Review A finding on the v0.1 Phase 1.5 DoD candidate. No redesign of the DoD.
