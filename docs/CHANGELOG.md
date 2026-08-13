@@ -2,6 +2,179 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 01 AUTHORED (candidate, not reviewed): Lifecycle entry + Research foundation
+
+**First substantive Phase 2 prototype authoring — vai trò: `Phase 2 Product Prototype Batch 01 Author`.** Authors the first coherent Product Prototype batch under the Approved Phase 2 DoD (v0.3). Static HTML/CSS/vanilla-JS, mock/static data only. Batch-level candidate, not self-approved — batch-level Review A + Independent Review B is a separate future transaction, per `P2-PROTOTYPE-001`.
+
+### Baseline
+
+```text
+Starting HEAD:       59b62c52df760417961d6550163ed26bc6f50f85
+Phase 2 DoD:          v0.3, Approved, canonical incorporation ESTABLISHED
+current_phase:        "Phase 2 — Product Prototype" (unchanged going in)
+Existing prototype
+  scaffold:            none found (verified: find . -iname "*prototype*" -not -path
+                       "./.git/*" returned nothing before this transaction)
+```
+
+### Batch-01 scope resolution
+
+```text
+Resolved directly from docs/product/ux-blueprint.md §4 ("Thứ tự entry của Research": SCR-001 is
+  NAV-001's entry-first screen, VIEW-001/VIEW-002 are commit-gates before Replay/Backtest) and §8
+  FLOW-001's initial segment (WS-001 -> NAV-001 -> SCR-001 -> commit gate -> VIEW-001 -> VIEW-002
+  -> [PASSED] -> SCR-002/SCR-003).
+Batch-selection rule applied: only WS-001 (bounded subset, §5 table), NAV-001 (full spec, §5a),
+  SCR-001, VIEW-001, VIEW-002 met the inclusion criteria (authoritative lifecycle-entry/Research
+  slice; slice-coherence prerequisite; explicit commit-gate/binding/handoff; reusable global
+  shell). NAV-002..NAV-006 represented as read-only navigation affordances only (UX-P-5) --
+  their substantive SCR/VIEW content was NOT authored, per the explicit instruction not to pull
+  later-stage surfaces into Batch 01 merely because they appear later in FLOW-001.
+```
+
+### Prototype medium
+
+```text
+No established Phase-2 prototype scaffold existed (verified directly, see Baseline). Used the
+  lowest-commitment standalone medium: static HTML + CSS + minimal vanilla JavaScript, mock/
+  static data, no build step, no framework. No ADR authored for this tool choice -- it does not
+  independently meet the ADR Scope Rule (single-artifact-class choice, reversible, does not
+  redefine module taxonomy/dependency graph/governance process).
+```
+
+### Files created
+
+```text
+prototype/phase-2/batch-01/index.html         blob e519162bd3407dc176f265e1799cadc883246769
+prototype/phase-2/batch-01/styles.css          blob cdd6dbb1b2364dc288616f083f7247b7bb0cb146
+prototype/phase-2/batch-01/app.js              blob cfae4327486c48c2eb9f20988d94441797fadfac
+prototype/phase-2/batch-01/traceability.md     blob 1f98aa71fc05b670bd40759f12d448f04ef5879c
+prototype/phase-2/batch-01/batch-manifest.md   (batch evidence record, see below)
+prototype/phase-2/batch-01/README.md           (batch overview)
+```
+
+### Included IDs / coverage
+
+```text
+SCR:    SCR-001 (Market Analysis Workspace)
+VIEW:   VIEW-001 (Strategy Instance Selector), VIEW-002 (Research Verification Result)
+NAV:    NAV-001 full; NAV-002..NAV-006 destination-existence/read-only-navigation-affordance only
+FLOW:   FLOW-001 (initial segment through the commit gate), FLOW-002 (Strategy Instance
+        selection/pin)
+STATE:  STATE-001, STATE-003, STATE-004, STATE-005, STATE-022, STATE-023, STATE-024, STATE-027
+UC covered (3/21):  UC-001, UC-002, UC-003
+PR covered (5/34):  PR-001, PR-003, PR-015, PR-016, PR-017
+17-surface progress: 3/17 (SCR-002..SCR-011, VIEW-003..VIEW-006 deferred -- 14 remaining)
+21-UC progress:       3/21 (UC-004..UC-021 deferred -- 18 remaining)
+```
+
+### I-11 -- Secrets & Custody Isolation (bounded Phase-2 Access-control audit)
+
+```text
+Authoritative Verification (Chapter 2 §I-11, not redefined): Access-control audit.
+Bounded interpretation checked directly against the new files: no credential-use capability, no
+  credential access-control surface, no backend/custody/signing integration, no real secret/
+  credential used or required.
+Result: AUDIT PASS.
+Supporting secret-pattern scan (grep -niE "api[_-]?key|secret|password|private[_-]?key|token|
+  credential|apikey|auth[_-]?header|bearer" across all new files): one match, app.js:5 -- inside
+  a comment explicitly disclaiming credentials. No actual credential-like value found. This scan
+  is supporting evidence only, not a substitute for the audit above.
+```
+
+### I-12 -- Single Source of Truth (traceability/reconciliation)
+
+```text
+Full element-by-element traceability: prototype/phase-2/batch-01/traceability.md. Every prototype
+  element traces to an existing SCR/VIEW/NAV/FLOW/STATE + UC + PR + exact ux-blueprint.md section.
+Zero new UC/PR/domain concept originated in this batch -- verified directly (no new entity/event/
+  state-machine, no API/database/event contract authored).
+Result: PASS.
+```
+
+### Trigger B/C/D/E boundary (re-confirmed, not re-resolved)
+
+```text
+No authoritative executable implementation, no registered runtime module, no authoritative
+  financial data (all values hardcoded and labelled "illustrative"), no real backend (verified:
+  grep -niE "fetch\(|XMLHttpRequest|WebSocket|axios|\.ajax\(" across app.js/index.html returned
+  no match), no production/operational deployment, no published API/database/event contract, no
+  migration. Boundary preserved -- phase-2-dod.md §2's Trigger B/C/D/E conclusions remain valid
+  for this batch; no re-resolution triggered.
+```
+
+### LIVE boundary
+
+```text
+Static "Unauthorized" badge (STATE-027) in the global context bar, always visible. No action/
+  link/button anywhere leads toward a Live path. OQ-002 not touched, not resolved.
+```
+
+### Preserved unchanged
+
+```text
+docs/product/product-requirement.md, use-case-workflow.md, ux-blueprint.md (byte-identical, git
+  diff empty), docs/domain/ (all files, untouched), docs/constitution/ (all chapters, untouched),
+  docs/architecture/ (untouched), docs/phase-dod/phase-2-dod.md (untouched), docs/governance/
+  phases/phase-2-rules.md (untouched), all ADRs (untouched). No production frontend/backend code
+  created. No exchange connection, no real Account/financial data, no secret used or stored.
+```
+
+### Batch lifecycle / review state
+
+```text
+Status: CANDIDATE -- authored, NOT self-approved. Review A and Independent Review B on this
+  coherent milestone are a separate future transaction, per P2-PROTOTYPE-001. This transaction
+  performs authoring only.
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-01/*  (6 new files, listed above)
+docs/MANIFEST.md               (manifest_version 10.132 -> 10.133; new "Phase 2 — Product
+                                Prototype Batches" section + Batch 01 row)
+docs/CHANGELOG.md              (this entry)
+```
+
+### Explicit non-claims
+
+```text
+Does NOT claim all 17 surfaces complete (3/17 only). Does NOT claim all 21 UC complete (3/21
+  only). Does NOT claim Phase 2 substantive completion. Does NOT run the full Phase 2 Quality
+  Gate. Does NOT run the full-scope Gate-3 Backward Consistency Check. Does NOT open Gate 3. Does
+  NOT approve Phase 2. Does NOT perform P2-RETRO-001. Does NOT authorize Phase 3. Does NOT
+  authorize LIVE. Does NOT resolve OQ-002.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 59b62c52df760417961d6550163ed26bc6f50f85 verified
+[x] Phase 2 DoD v0.3 Approved + incorporated, verified before authoring
+[x] current_phase = "Phase 2 — Product Prototype" verified
+[x] phase-2-rules.md EFFECTIVE, verified (P2-TXN-001/P2-REVIEW-001/P2-BUDGET-001/
+    P2-PROTOTYPE-001 applied)
+[x] Batch-01 semantic slice resolved directly from ux-blueprint.md, not assumed from the task
+    prompt's suggested wording
+[x] Every authored UX element has UC + PR traceability (traceability.md)
+[x] No unauthorized Product/Domain behavior invented
+[x] Coherent interaction milestone (SCR-001 -> VIEW-001 -> VIEW-002, full commit-gate loop
+    demonstrable)
+[x] P2-PROTOTYPE-001 batching respected -- no per-screen governance cycle
+[x] Medium creates no production architecture (static files only)
+[x] Mock/static data only (verified: MOCK_INSTRUMENTS/MOCK_STRATEGY_INSTANCES hardcoded)
+[x] I-11 Access-control audit PASS; supporting secret scan recorded
+[x] I-12 traceability/reconciliation PASS
+[x] Trigger B/C/D/E boundary preserved (grep-verified no network call)
+[x] LIVE remains Unauthorized
+[x] Exact prototype artifact blobs recorded
+[x] MANIFEST cell budget preserved (266 words, well under 1,500)
+[x] No forbidden authority modified (git diff --quiet across all forbidden paths)
+[x] Batch not self-approved -- status CANDIDATE
+[x] Only intended files changed
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 DoD v0.3 ACCEPTED + CANONICALLY INCORPORATED
 
 **Mechanical lifecycle recording — vai trò: `Phase 2 DoD v0.3 Acceptance + Canonical Incorporation Recorder`.** Records the Product Owner decision "ACCEPT PHASE 2 DOD V0.3 — INCORPORATE INTO PHASE 2 CANONICAL PHASE PLAN" — no substantive DoD semantics changed. `phase-2-dod.md` becomes the authoritative Phase 2 DoD, and its gate-set declaration (§2) becomes authoritative for future Chapter 12/13 use.

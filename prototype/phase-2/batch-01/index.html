@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ride — Phase 2 Prototype — Batch 01 (Research foundation)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- WS-001 Ride Workspace Shell. Traceability: TRACEABILITY.md#ws-001 -->
+<header class="shell" id="shell">
+  <div class="shell-row shell-context-bar" id="context-bar">
+    <div class="context-item">
+      <span class="context-label">Account</span>
+      <span class="context-value" id="ctx-account">Ride Internal Account</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Instrument / Venue</span>
+      <span class="context-value" id="ctx-instrument">— none selected —</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Strategy Instance</span>
+      <span class="context-value" id="ctx-strategy-instance">— not pinned —</span>
+    </div>
+    <div class="context-item context-item-live">
+      <span class="context-label">Live</span>
+      <span class="context-value badge badge-unauthorized" id="ctx-live">Unauthorized</span>
+    </div>
+  </div>
+  <nav class="shell-row shell-nav" id="nav-bar" aria-label="Lifecycle stage navigation">
+    <button class="nav-btn nav-btn-active" data-nav="NAV-001" data-target="screen-scr-001">Research</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-002" data-target="screen-deferred" data-stage="Replay">Replay</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-003" data-target="screen-deferred" data-stage="Backtest">Backtest</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-004" data-target="screen-deferred" data-stage="Paper">Paper</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-005" data-target="screen-deferred" data-stage="Review">Review</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-006" data-target="screen-deferred" data-stage="Improve">Improve</button>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- SCR-001 Market Analysis Workspace. Traceability: TRACEABILITY.md#scr-001 -->
+  <section class="screen" id="screen-scr-001" data-screen="SCR-001">
+    <h1>Market Analysis Workspace <span class="stage-label">Research</span></h1>
+    <p class="purpose">Observe market-analysis state (Candle / Swing / Structure / Regime / Feature /
+      Market Context) for a chosen point/range in time. Observation only — no side effect, no
+      Strategy Instance required to enter (UC-001).</p>
+
+    <div class="field-row">
+      <label for="instrument-select">Instrument / Venue (registered TradableListing only)</label>
+      <select id="instrument-select"></select>
+    </div>
+
+    <div class="field-row">
+      <label for="range-select">Point / range in time (illustrative)</label>
+      <select id="range-select">
+        <option value="latest">Latest observed</option>
+        <option value="last-4h">Last 4 hours</option>
+        <option value="last-1d">Last 1 day</option>
+      </select>
+    </div>
+
+    <div id="scr-001-body">
+      <!-- populated by app.js: loading / invalid / missing-evidence / content -->
+    </div>
+
+    <div class="exit-row">
+      <button id="btn-to-view-001" class="btn btn-primary">Continue — select Strategy Instance</button>
+      <p class="hint">Strategy Instance is only required from here on (commit gate before Replay/Backtest),
+        not to observe Research (UX-INV-3).</p>
+    </div>
+  </section>
+
+  <!-- VIEW-001 Strategy Instance Selector. Traceability: TRACEABILITY.md#view-001 -->
+  <section class="screen screen-hidden" id="screen-view-001" data-screen="VIEW-001">
+    <h1>Strategy Instance Selector <span class="stage-label">Global panel</span></h1>
+    <p class="purpose">Select and pin exactly one already-registered Strategy Instance as the basis
+      for the bounded interaction that follows. This view never creates a new Strategy Instance
+      (that belongs to VIEW-006, out of Batch 01 scope).</p>
+
+    <div id="view-001-body">
+      <!-- populated by app.js: instance list or STATE-004 missing -->
+    </div>
+  </section>
+
+  <!-- VIEW-002 Research Verification Result. Traceability: TRACEABILITY.md#view-002 -->
+  <section class="screen screen-hidden" id="screen-view-002" data-screen="VIEW-002">
+    <h1>Research Verification Result <span class="stage-label">Research</span></h1>
+    <p class="purpose">Confirms whether the Research session that just ended created no prohibited
+      authoritative fact. Tri-state outcome — never binary.</p>
+
+    <div id="view-002-body">
+      <!-- populated by app.js -->
+    </div>
+  </section>
+
+  <!-- Placeholder for stages not included in Batch 01. -->
+  <section class="screen screen-hidden" id="screen-deferred" data-screen="DEFERRED">
+    <h1><span id="deferred-stage-name">This stage</span> <span class="stage-label">Deferred</span></h1>
+    <p class="purpose">Read-only navigation to this destination is preserved (UX-P-5), but its
+      substantive screen/view content is not authored in Batch 01 — it is deferred to a later Phase 2
+      batch. No behavior is invented here.</p>
+    <button class="btn" data-nav="NAV-001" data-target="screen-scr-001">Back to Research</button>
+  </section>
+
+</main>
+
+<!-- Prototype QA panel — NOT part of the authoritative UX itself. It exists only so every
+     STATE-XXX in Batch 01's scope can be inspected directly, without pretending the prototype
+     computes real verification/data-availability logic. -->
+<footer class="qa-panel" id="qa-panel">
+  <button id="qa-toggle" class="qa-toggle" aria-expanded="false">Batch 01 QA state switcher (prototype tooling — not authoritative UX)</button>
+  <div class="qa-body qa-hidden" id="qa-body">
+    <div class="qa-group">
+      <span class="qa-group-label">SCR-001 states</span>
+      <button class="qa-btn" data-qa="scr001-loading">STATE-001 loading</button>
+      <button class="qa-btn" data-qa="scr001-invalid">STATE-003 invalid Instrument/Venue</button>
+      <button class="qa-btn" data-qa="scr001-missing">STATE-005 missing historical evidence</button>
+      <button class="qa-btn" data-qa="scr001-content">Content (normal)</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">VIEW-001 states</span>
+      <button class="qa-btn" data-qa="view001-empty">STATE-004 missing Strategy Instance</button>
+      <button class="qa-btn" data-qa="view001-list">Instance list (normal)</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">VIEW-002 states</span>
+      <button class="qa-btn" data-qa="view002-passed">STATE-022 PASSED</button>
+      <button class="qa-btn" data-qa="view002-failed">STATE-023 FAILED</button>
+      <button class="qa-btn" data-qa="view002-indeterminate">STATE-024 INDETERMINATE</button>
+    </div>
+    <div class="qa-group">
+      <button class="qa-btn qa-btn-reset" id="qa-reset">Reset demo state</button>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
