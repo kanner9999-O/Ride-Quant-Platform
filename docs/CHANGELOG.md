@@ -2,6 +2,151 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 2 DoD v0.3 bounded correction: `P2-DOD-B-MAJ-01`/`P2-DOD-B-MAJ-02`/`P2-DOD-B-MAJ-03` CLOSED
+
+**Bounded correction — vai trò: `Phase 2 DoD v0.3 Bounded Correction Executor`.** Closes exactly three Independent Review B findings on `docs/phase-dod/phase-2-dod.md` v0.2. Does not redesign the DoD.
+
+### Baseline
+
+```text
+Starting HEAD:      7c248d74b474325141de11eb65133b6f4fc98c6f
+Reviewed candidate: docs/phase-dod/phase-2-dod.md v0.2, status Draft,
+                    blob 26eb5875ef6c2c920d899581576093762c51ceff
+Review history going in: Review A v0.1 (1 Major/1 Minor,
+                    REVISION_REQUIRED) -> v0.2 closed both -> bounded
+                    Review A re-review v0.2 CLEAN -> Independent Review
+                    B v0.2 (Blocker 0/Major 3/Minor 0,
+                    REVISION_REQUIRED, P2-DOD-B-MAJ-01..03).
+```
+
+### Finding 1 — `P2-DOD-B-MAJ-01` (closed)
+
+```text
+Defect: §3 criterion 3 weakened Phase-level completion to "coverage đủ
+  cho 21 UC" -- 21-UC coverage and 17-surface completion (SCR-001..
+  SCR-011, VIEW-001..VIEW-006) are not equivalent; a UC mapping can
+  overlap multiple surfaces, so a prototype could cover all 21 UCs
+  while still omitting a required first-class surface.
+Fix: criterion 3 now requires all three, none substituting for another
+  -- (a) representation of all 17 authoritative surfaces; (b)
+  applicable authoritative behavior/state/handoff requirements for
+  each represented surface; (c) coverage of all 21 UCs, additional not
+  substitutive. P2-PROTOTYPE-001 batching preserved (all 17 need not be
+  authored in one batch, no per-screen governance cycle). No 18th
+  surface invented; no SCR/VIEW ID merged, removed, or renamed.
+```
+
+### Finding 2 — `P2-DOD-B-MAJ-02` (closed)
+
+```text
+Defect: §2/§4's I-11 wording presented repo-scan/grep for credential-
+  like patterns as if it were the Verification itself -- it cannot
+  replace Chapter 2 §I-11's authoritative Verification (Access-control
+  audit).
+Fix: §2/§4 now state the authoritative Verification verbatim (Access-
+  control audit) and define a bounded Phase-2 interpretation of it (no
+  prototype artifact establishes credential-use capability; no
+  credential access-control surface is required/introduced; no
+  backend/custody/signing integration exists; no real secret/
+  credential is used or required). Repo-scan/grep is now explicitly
+  framed as supporting evidence only, not a replacement or redefinition
+  of I-11 Verification. I-11 remains APPLICABLE; no custody
+  architecture invented.
+```
+
+### Finding 3 — `P2-DOD-B-MAJ-03` (closed)
+
+```text
+Defect: §12/§13/§14 still referenced "current candidate v0.1" and "no
+  Review A/Independent Review B yet" -- stale, conflicting with the
+  document's actual v0.2-era identity and completed review history.
+Fix: every current-candidate pointer now reads v0.3; §14 rewritten with
+  accurate full review history (Review A on v0.1: 1 Major/1 Minor,
+  REVISION_REQUIRED -> v0.2 closed both -> bounded Review A re-review
+  on v0.2: CLEAN -> Independent Review B on v0.2: Blocker 0/Major
+  3/Minor 0, REVISION_REQUIRED, P2-DOD-B-MAJ-01..03 -> this v0.3
+  transaction: correction only, does NOT claim Review B has re-
+  reviewed v0.3). Genuine historical v0.1/v0.2 references (the v0.2
+  correction banner, Change history) preserved unchanged -- not
+  mechanically replaced.
+```
+
+### Preserved unchanged (bounded scope)
+
+```text
+§1 Phase identity, §3 criteria 1-2 and 4-9, 21-UC scope, stage
+  taxonomy, §5 external dependencies/deferred items, §6/§7 (except
+  pointer identity), §8 P2-PROTOTYPE-001/P2-REVIEW-001/two-independent-
+  review requirement, §9 finding-closure rules, §10 full-scope BCC,
+  §11 P2-RETRO-001 boundary, §12/§13 Chapter 14 phase-decision-bundle
+  and lifecycle-separation semantics (except pointer identity), Trigger
+  B/C/D/E conclusions, I-1..I-10/I-13 Scope-exclusion conclusions,
+  ADR_NOT_REQUIRED conclusion (Review B finding Majors does not
+  independently trigger ADR scope) -- confirmed via full diff review.
+```
+
+### Lifecycle transition
+
+```text
+version:       "0.2" -> "0.3"
+status:        Draft (unchanged)
+approved_by:   null (unchanged)
+approved_at:   null (unchanged)
+Blob:          26eb5875ef6c2c920d899581576093762c51ceff (v0.2) ->
+               876c4f099883cf3e5e2b3800d765108662405e24 (v0.3)
+```
+
+### Files changed
+
+```text
+docs/phase-dod/phase-2-dod.md  (v0.2 -> v0.3, blob
+                                876c4f099883cf3e5e2b3800d765108662405e24)
+docs/MANIFEST.md                (manifest_version 10.130 -> 10.131; Phase
+                                2 DoD row version/blob updated, v0.3
+                                correction note prepended, prior notes
+                                preserved)
+docs/CHANGELOG.md               (this entry)
+```
+
+### Preserved unchanged (files)
+
+```text
+Product/UX authority (product-requirement.md/use-case-workflow.md/
+  ux-blueprint.md, no SCR/VIEW ID added/removed/renamed), Constitution
+  (all chapters), phase-2-rules.md, all ADRs, all Engineering Foundation
+  conventions, module-registry.yaml, phase-0-dod.md/phase-1-dod.md/
+  phase-1.5-dod.md: all byte-identical, git diff empty. No ADR created.
+  No prototype artifact created. DoD not self-accepted, not self-
+  incorporated. No Quality Gate run, no full-scope Gate-3 BCC run, Gate
+  3 not opened, P2-RETRO-001 not performed.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 7c248d74b474325141de11eb65133b6f4fc98c6f verified
+[x] v0.2 blob 26eb5875ef6c2c920d899581576093762c51ceff verified before
+    edit
+[x] P2-DOD-B-MAJ-01 closed -- 17-surface completion required alongside
+    21-UC coverage, batching preserved, no per-screen amplification
+[x] P2-DOD-B-MAJ-02 closed -- I-11 applicable, authoritative
+    Verification is Chapter 2 Access-control audit, bounded/
+    proportional Phase-2 interpretation, grep is supporting evidence
+    only, no custody architecture invented
+[x] P2-DOD-B-MAJ-03 closed -- no stale v0.1 current-candidate identity
+    remains, historical v0.1/v0.2 references preserved accurately,
+    Review A + Review B history accurate, no v0.3 re-review falsely
+    claimed
+[x] Full diff reviewed -- only frontmatter, correction banner, §2
+    Trigger A I-11 block, §3 criterion 3, §4 two bullets, §9 residual
+    wording, §12/§13/§14 pointers, and Change history touched
+[x] Other substantive criteria unchanged; Trigger B/C/D/E unchanged
+[x] status Draft; approved_by/approved_at null
+[x] No prototype work performed
+[x] Only three files changed
+[x] Gate 3 not opened; Phase 3/LIVE unchanged, still not authorized
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 DoD v0.2 bounded correction: `P2-DOD-A-MAJ-01`/`P2-DOD-A-MIN-01` CLOSED
 
 **Bounded correction — vai trò: `Phase 2 DoD v0.2 Bounded Correction Executor`.** Closes exactly two Review A findings on `docs/phase-dod/phase-2-dod.md` v0.1. Does not redesign the DoD.

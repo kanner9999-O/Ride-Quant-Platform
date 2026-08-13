@@ -1,7 +1,7 @@
 ---
 id: phase-2-dod
 title: "Phase 2 — Product Prototype Definition of Done"
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -24,6 +24,8 @@ depends_on: ["00-governance", "11-adr-process", "12-approval-gates", "13-quality
 **ADR Scope Rule check (áp cho chính DoD này, Chapter 0 §4b):** tài liệu này KHÔNG tạo Platform Invariant/Event Schema/Module Taxonomy/Governance-process change nào, KHÔNG quyết định architecture ảnh hưởng >1 module (chỉ định nghĩa completion criteria, tham chiếu authority đã tồn tại), KHÔNG khó đảo ngược (DoD sửa được qua bounded correction, đúng pattern Phase 0/1/1.5), KHÔNG supersede ADR Locked nào → **`ADR_NOT_REQUIRED`** cho chính transaction authoring DoD này. Bất kỳ quyết định product/architecture MỚI nào phát sinh trong lúc author DoD (nếu có) được ghi nhận LÀM external dependency (§5), KHÔNG tự quyết tại đây.
 
 **v0.2 — bounded correction (2026-08-13), đóng `P2-DOD-A-MAJ-01`/`P2-DOD-A-MIN-01` (Review A).** (1) `P2-DOD-A-MAJ-01`: v0.1 §2 Trigger A kết luận applicable-invariant set = RỖNG bằng suy diễn "prototype không thực thi production behavior ⟹ invariant không applicable" — SAI, vi phạm Chapter 2's per-invariant Scope declaration, cụ thể I-11/I-12 khai báo Scope **"Toàn hệ thống"** (whole-system), bao trùm prototype VÀ chính tài liệu governance này. Sửa: §2 Trigger A nay đánh giá TỪNG I-1..I-13 riêng theo đúng Scope — I-11 (Secrets & Custody Isolation) VÀ I-12 (Single Source of Truth) APPLICABLE (satisfied-by-absence + concrete prototype-level conformance requirement mỗi cái); {I-1..I-10, I-13} NOT APPLICABLE (Scope exclusion structural — Decision Pipeline/Compute Engine/Strategy-Decision-Risk-Execution Engine/Plugin/Ledger/Domain-Contract-entity Scope KHÔNG bao gồm một UI prototype layer). §4 mở rộng tương ứng với hai concrete requirement (KHÔNG credential/secret thật; traceability/rebuild-được từ authoritative Product/UX baseline — đã tồn tại một phần tại v0.1, nay elevate tường minh thành I-11/I-12 gate evidence). (2) `P2-DOD-A-MIN-01`: đoạn mở đầu "Vai trò của tài liệu này" trích Chapter 12 §12.1 mơ hồ ("TRƯỚC KHI phase/gate mở") — CÓ THỂ đọc sai thành "trước khi Phase 2 bắt đầu," ngụ ý sai rằng Phase 2 Start Authorization (đã ghi nhận trước DoD này) chưa hợp lệ. Sửa: trích nguyên văn chính xác Chapter 12 §12.1 — "DoD criteria phải được viết ra và được Product Owner chấp nhận TRƯỚC KHI phase/gate TƯƠNG ỨNG sử dụng chúng," VÀ "TRƯỚC KHI Phase đó MỞ APPROVAL GATE" (Gate 3, KHÔNG PHẢI Phase 2 start) — thêm câu tường minh phân biệt "Phase authorized" ≠ "DoD accepted," KHÔNG reinterpret/reopen Phase 2 Start Authorization transaction đã ghi nhận. **KHÔNG đổi:** §1 Phase identity, §3 substantive completion criteria (9 mục), §5 external dependencies, §6-§10 (evidence/validator/review/finding-closure/BCC requirements), §11 P2-RETRO-001 boundary, §12 phase-decision bundle requirements, §13 explicit non-inclusion (9 trạng thái), §14 acceptance status, Trigger B/C/D/E kết luận (§2), ADR Scope Rule check kết luận (`ADR_NOT_REQUIRED`, KHÔNG đổi). `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null` — CHƯA accepted, CHƯA incorporated.
+
+**v0.3 — bounded correction (2026-08-13), đóng `P2-DOD-B-MAJ-01`/`P2-DOD-B-MAJ-02`/`P2-DOD-B-MAJ-03` (Independent Review B trên v0.2, verdict `REVISION_REQUIRED`, Blocker 0/Major 3/Minor 0).** (1) `P2-DOD-B-MAJ-01`: §3 criterion 3 làm loãng completion thành "coverage đủ cho 21 UC" — SAI, 21-UC coverage KHÔNG tương đương 17-surface completion (một UC mapping có thể trùng lặp nhiều surface, prototype có thể phủ đủ 21 UC mà VẪN bỏ sót một first-class surface). Sửa: criterion 3 nay đòi hỏi CẢ BA — (a) representation cho TOÀN BỘ 17 surface (`SCR-001`–`SCR-011`/`VIEW-001`–`VIEW-006`); (b) applicable authoritative behavior/state/handoff requirement cho MỖI surface đã represent; (c) coverage đủ 21 UC, BỔ SUNG KHÔNG thay thế (a)/(b). `P2-PROTOTYPE-001` batching giữ nguyên (KHÔNG bắt buộc TẤT CẢ 17 trong MỘT batch, KHÔNG per-screen governance cycle). KHÔNG surface thứ 18 nào invent, KHÔNG `SCR-XXX`/`VIEW-XXX` ID nào merge/xóa/rename. (2) `P2-DOD-B-MAJ-02`: §2/§4's I-11 verification wording trình bày repo-scan/grep credential-pattern NHƯ THỂ đó LÀ verification — SAI, Chapter 2 §I-11's authoritative Verification LÀ "Access-control audit," KHÔNG thể bị thay thế. Sửa: §2/§4 nay nêu tường minh authoritative Verification (Access-control audit, trích Chapter 2), định nghĩa bounded Phase-2 interpretation của audit đó (bốn điều kiện: KHÔNG credential-use capability, KHÔNG access-control surface, KHÔNG backend/custody/signing integration, KHÔNG real secret sử dụng/yêu cầu), VÀ nêu tường minh repo-scan/grep CHỈ LÀ supporting evidence, KHÔNG PHẢI thay thế/redefine Verification. I-11 VẪN APPLICABLE (KHÔNG đổi), KHÔNG custody architecture nào invent. (3) `P2-DOD-B-MAJ-03`: §12/§13/§14 chứa stale current-candidate reference ("current candidate hiện v0.1," "DoD defined... v0.1 candidate," "Review evidence trước acceptance: CHƯA thực hiện," §9 "DoD v0.1 này") — mâu thuẫn identity/review-history thật. Sửa: mọi current-candidate pointer nay ghi v0.3; §14 viết lại đầy đủ review history chính xác (Review A trên v0.1: 1 Major/1 Minor, REVISION_REQUIRED; v0.2 đóng cả hai; bounded Review A re-review v0.2 CLEAN; Independent Review B v0.2: Blocker 0/Major 3/Minor 0, REVISION_REQUIRED, `P2-DOD-B-MAJ-01..03`; v0.3 = correction ONLY, KHÔNG tuyên bố Review B đã re-review v0.3). Lịch sử v0.1/v0.2 genuine giữ nguyên (banner v0.2 phía trên, Change history dưới) — KHÔNG mechanically thay mọi "v0.1"/"v0.2." **KHÔNG đổi:** §1 Phase identity, §3 criterion 1-2/4-9, §5 external dependencies, §6/§7 (trừ pointer identity), §8-§11, Trigger B/C/D/E kết luận, I-1..I-10/I-13 kết luận, ADR Scope Rule check kết luận (`ADR_NOT_REQUIRED`, KHÔNG đổi — Review B tìm Major KHÔNG tự động trigger ADR). `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null` — CHƯA accepted, CHƯA incorporated.
 
 ## 1. Phase identity
 
@@ -127,12 +129,36 @@ Trigger A (universal — invariant conformance, §13.5):
                             key/secret/private key/credential thật dưới
                             bất kỳ hình thức nào (kể cả placeholder giả
                             danh thật) — đây LÀ completion-boundary
-                            REQUIREMENT bổ sung tại §4. Verification
-                            prototype-level: repo-scan/grep cho
-                            credential-like pattern tại mỗi batch review
-                            (§8) — proportional với access-control audit
-                            gốc của I-11, KHÔNG đòi hỏi custody
-                            architecture nào (đó LÀ Phase 3/deployment).
+                            REQUIREMENT bổ sung tại §4.
+                            **Authoritative Verification (KHÔNG redefine
+                            tại DoD này):** Chapter 2 §I-11's chính xác
+                            Verification — "Access-control audit — xác
+                            nhận CHỈ Exchange Adapter hoặc dedicated
+                            Custody/Signing Service được phép sử dụng
+                            credential trực tiếp." **Bounded Phase-2
+                            interpretation của audit đó** (proportional
+                            với lớp deliverable KHÔNG có runtime/backend,
+                            §4) — audit xác nhận CẢ BỐN:
+                              (1) KHÔNG prototype artifact nào establish
+                                  credential-use capability (KHÔNG code
+                                  path nào "sử dụng" một credential);
+                              (2) KHÔNG credential access-control surface
+                                  nào bị required/introduced bởi
+                                  prototype (KHÔNG login/auth UI kết nối
+                                  hệ thống credential thật);
+                              (3) KHÔNG backend/custody/signing
+                                  integration nào tồn tại trong
+                                  prototype;
+                              (4) KHÔNG real secret/credential nào được
+                                  sử dụng hay yêu cầu ở bất kỳ đâu.
+                            Repository secret-pattern scan/grep **CÓ THỂ
+                            dùng LÀM supporting evidence** cho audit trên
+                            (mỗi batch review, §8) — **KHÔNG PHẢI thay
+                            thế hay redefine** chính I-11's Verification.
+                            KHÔNG custody/signing architecture nào được
+                            author/invent tại DoD này hay tại Phase 2
+                            (đó LÀ quyết định Phase 3/deployment riêng
+                            biệt).
   I-12 Single Source of Truth — Scope **"Toàn hệ thống — cả runtime
                             (Event Log) lẫn authoritative documentation
                             như MANIFEST.md, ADR, Constitution, và
@@ -267,12 +293,26 @@ Outcome-oriented — derive TRỰC TIẾP từ `ux-blueprint.md` (Package 0.3-C,
    sáu NAV spec) hiện diện VÀ nhất quán xuyên suốt mọi screen được
    author.
 3. Major product surface: 17 screen/view (`SCR-001`–`SCR-011`,
-   `VIEW-001`–`VIEW-006`, §6 catalogue) — KHÔNG bắt buộc TẤT CẢ 17 phải
-   author trong MỘT Phase 2 iteration/batch (P2-PROTOTYPE-001 cho phép
-   batch/milestone), NHƯNG completion đòi hỏi coverage đủ cho 21 UC
-   (§17 acceptance criterion 2 của `ux-blueprint.md`) trước khi Gate 3
-   eligibility — per-batch tracking, KHÔNG per-screen governance cycle
-   riêng.
+   `VIEW-001`–`VIEW-006`, §6 catalogue) LÀ 17 first-class surface riêng
+   biệt, đã Consolidated Stable — 21-UC coverage KHÔNG PHẢI thay thế
+   cho 17-surface completion (một UC mapping có thể trùng lặp nhiều
+   surface, prototype có thể phủ đủ 21 UC mà VẪN bỏ sót một first-class
+   surface bắt buộc). Phase 2 substantive completion TRƯỚC Gate 3
+   eligibility đòi hỏi CẢ BA điều kiện, KHÔNG điều kiện nào miễn trừ
+   điều kiện kia:
+     a. representation cho TOÀN BỘ 17 surface (`SCR-001`–`SCR-011`,
+        `VIEW-001`–`VIEW-006`) — KHÔNG một surface nào bị bỏ sót;
+     b. applicable authoritative behavior/state/handoff requirement
+        (§7.1–§7.6 detailed spec, §11 state coverage, §9 handoff) cho
+        MỖI surface đã represent;
+     c. coverage đủ cho 21 UC (`UC-001`–`UC-021`) — bổ sung, KHÔNG
+        thay thế điều kiện (a)/(b).
+   KHÔNG bắt buộc TẤT CẢ 17 surface phải author trong MỘT Phase 2
+   iteration/batch — P2-PROTOTYPE-001 (§8) VẪN áp dụng nguyên vẹn: batch/
+   milestone theo category/stage, KHÔNG per-screen governance cycle
+   riêng cho từng surface. Danh sách 17 surface LÀ closed set, đã pin
+   tại `ux-blueprint.md` §6 — DoD này KHÔNG invent surface thứ 18,
+   KHÔNG merge/xóa/rename bất kỳ `SCR-XXX`/`VIEW-XXX` ID nào.
 4. Stage loop (Research · Replay · Backtest · Paper · Review · Improve,
    tên CHÍNH XÁC theo `ux-blueprint.md` §7.1–§7.6 — KHÔNG dùng paraphrase
    khác "Research→Execute→Review→Improve" vì stage taxonomy đã
@@ -321,8 +361,11 @@ Phase 2 Product Prototype LÀ:
     artifact/code/config nào được nhúng, tham chiếu, hay yêu cầu exchange
     credential/API key/secret/private key thật dưới bất kỳ hình thức nào,
     kể cả placeholder giả danh thật (I-11 Secrets & Custody Isolation,
-    §2 — whole-system Scope, Trigger A applicable) — verify qua repo-
-    scan/grep credential-like pattern tại mỗi batch review (§8).
+    §2 — whole-system Scope, Trigger A applicable) — authoritative
+    Verification LÀ Chapter 2 §I-11's Access-control audit (KHÔNG
+    redefine tại đây, xem §2's bounded Phase-2 interpretation); repo-
+    scan/grep credential-like pattern tại mỗi batch review (§8) LÀ
+    supporting evidence, KHÔNG PHẢI thay thế audit đó.
 
 Phase 2 Product Prototype KHÔNG LÀ:
   - Production frontend implementation (Phase 4 — Frontend, Chapter 14
@@ -448,8 +491,11 @@ Backtest/Frontend tool choice
   acceptance (Chapter 0 §3) — tường minh, KHÔNG ngầm định, KHÔNG suy
   diễn từ im lặng, đúng pattern Phase 0/1/1.5's precedent. Danh sách
   accepted residual (nếu có) sẽ ghi nhận tại một bounded correction/
-  acceptance transaction TƯƠNG LAI — DoD v0.1 này KHÔNG có residual nào
-  (chưa substantive work nào bắt đầu).
+  acceptance transaction TƯƠNG LAI — DoD candidate hiện tại (v0.3) KHÔNG
+  có residual nào (chưa substantive Phase 2 work nào bắt đầu; `P2-DOD-
+  A-MAJ-01`/`A-MIN-01`/`B-MAJ-01`/`B-MAJ-02`/`B-MAJ-03` LÀ DoD-authoring
+  review finding, đã CLOSED qua v0.2/v0.3 correction — KHÔNG PHẢI Phase
+  2 substantive-work residual).
 ```
 
 ## 10. Repository-consistency requirements (full-scope Backward Consistency Check)
@@ -506,7 +552,7 @@ Tại đúng atomic recording boundary (Chapter 14 §14.4.2), bundle phải pin 
 - exact Roadmap version/content identity đã dùng (Chapter 14 §14.2, hiện
   v1.6, xem MANIFEST cho current version/status)
 - exact accepted-DoD identity/content version đã incorporate (tài liệu
-  này, khi được accept — current candidate hiện v0.1, CHƯA accepted,
+  này, khi được accept — current candidate hiện v0.3, CHƯA accepted,
   CHƯA incorporated)
 - exact gate-set declaration identity/content resolve từ đó (§2 phía
   trên)
@@ -527,7 +573,7 @@ Tại đúng atomic recording boundary (Chapter 14 §14.4.2), bundle phải pin 
   nào:
     1. Phase 2 authorized (đã ghi nhận, transaction trước — "Phase 2
        Start Authorization")
-    2. DoD defined (tài liệu này tồn tại, v0.1 candidate)
+    2. DoD defined (tài liệu này tồn tại, hiện v0.3 candidate)
     3. DoD accepted/incorporated (§Acceptance status §14 dưới — CHƯA)
     4. Prototype substantively complete (§3 criteria đạt — CHƯA bắt đầu)
     5. Quality Gate PASS (§2 evidence pinned theo declared gate-set —
@@ -558,13 +604,31 @@ Tại đúng atomic recording boundary (Chapter 14 §14.4.2), bundle phải pin 
 
 ```text
 Product Owner acceptance của DoD này:   CHƯA ghi nhận. Candidate hiện
-                                        v0.1, `status: Draft`,
+                                        v0.3, `status: Draft`,
                                         `approved_by: null`,
                                         `approved_at: null`.
 
-Review evidence trước acceptance:       CHƯA thực hiện (candidate mới
-                                        author, chưa qua Review A/
-                                        Independent Review B nào).
+Review history (chính xác, phân biệt lịch sử khỏi current candidate):
+  Review A trên v0.1:                   1 Major (`P2-DOD-A-MAJ-01`),
+                                        1 Minor (`P2-DOD-A-MIN-01`),
+                                        verdict `REVISION_REQUIRED`.
+  v0.2 bounded correction:               đóng `P2-DOD-A-MAJ-01`/
+                                        `P2-DOD-A-MIN-01`.
+  Bounded Review A re-review trên v0.2:  CLEAN.
+  Independent Review B trên v0.2:        Blocker 0/Major 3/Minor 0,
+                                        verdict `REVISION_REQUIRED` —
+                                        `P2-DOD-B-MAJ-01`/
+                                        `P2-DOD-B-MAJ-02`/
+                                        `P2-DOD-B-MAJ-03` identified.
+  v0.3 (transaction này):                bounded correction đóng
+                                        `P2-DOD-B-MAJ-01`/
+                                        `P2-DOD-B-MAJ-02`/
+                                        `P2-DOD-B-MAJ-03`. Correction
+                                        ONLY — tài liệu này KHÔNG tuyên
+                                        bố Independent Review B đã
+                                        re-review v0.3; bounded re-review
+                                        trên v0.3 LÀ bước tiếp theo, CHƯA
+                                        thực hiện tại transaction này.
 
 Canonical incorporation (Chapter 14
   §14.3.1, bốn điều kiện):              CHƯA satisfied — (1) Product
@@ -572,15 +636,46 @@ Canonical incorporation (Chapter 14
                                         tồn tại; (2)-(4): phụ thuộc (1),
                                         CHƯA resolve.
 
-Trạng thái hiện tại:                    Đây LÀ Phase 2 DoD candidate DUY
-                                        NHẤT tồn tại (verify trực tiếp
-                                        `docs/phase-dod/`) — KHÔNG
+Trạng thái hiện tại (verify trực tiếp mỗi mục, KHÔNG suy diễn):
+  Product Owner acceptance:             CHƯA ghi nhận.
+  Canonical incorporation:              CHƯA established.
+  Prototype substantive completion:     CHƯA established (CHƯA bắt đầu
+                                        substantive work nào).
+  Quality Gate PASS:                    CHƯA established.
+  Gate 3 eligibility:                   CHƯA established.
+  Phase 2 approval:                     CHƯA established.
+  `P2-RETRO-001`:                        CHƯA thực hiện.
+  Phase 3:                               NOT AUTHORIZED.
+  LIVE:                                  NOT AUTHORIZED.
+  Candidate uniqueness:                  Đây LÀ Phase 2 DoD candidate
+                                        DUY NHẤT tồn tại (verify trực
+                                        tiếp `docs/phase-dod/`) — KHÔNG
                                         conflicting candidate nào.
 ```
 
 ## Change history
 
 ```text
+v0.3  2026-08-13  Bounded correction (Draft), đóng `P2-DOD-B-MAJ-01`/
+      `P2-DOD-B-MAJ-02`/`P2-DOD-B-MAJ-03` (Independent Review B trên
+      v0.2, Blocker 0/Major 3/Minor 0, `REVISION_REQUIRED`) — vai trò:
+      `Phase 2 DoD v0.3 Bounded Correction Executor`. `P2-DOD-B-MAJ-01`:
+      §3 criterion 3 sửa — 17-surface completion (`SCR-001`–`SCR-011`/
+      `VIEW-001`–`VIEW-006`) VÀ 21-UC coverage nay CẢ HAI bắt buộc, KHÔNG
+      cái nào thay thế cái kia; `P2-PROTOTYPE-001` batching giữ nguyên.
+      `P2-DOD-B-MAJ-02`: §2/§4 sửa — I-11 authoritative Verification LÀ
+      Chapter 2's Access-control audit (KHÔNG redefine), repo-scan/grep
+      CHỈ LÀ supporting evidence; bounded Phase-2 interpretation (bốn
+      điều kiện) định nghĩa tường minh. `P2-DOD-B-MAJ-03`: §12/§13/§14
+      sửa mọi stale current-candidate pointer (v0.1 → v0.3), §14 viết
+      lại review history đầy đủ chính xác (Review A v0.1 → v0.2
+      correction → bounded re-review CLEAN → Independent Review B v0.2
+      REVISION_REQUIRED → v0.3 correction, KHÔNG tuyên bố Review B đã
+      re-review v0.3). KHÔNG đổi §1/§3 criterion 1-2/4-9/§5/§8-§11,
+      Trigger B/C/D/E, I-1..I-10/I-13 kết luận, `ADR_NOT_REQUIRED`. KHÔNG
+      surface/UC/SCR/VIEW ID mới, KHÔNG custody architecture invent.
+      `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`. Blob
+      v0.2 (trước) `26eb5875ef6c2c920d899581576093762c51ceff`.
 v0.2  2026-08-13  Bounded correction (Draft), đóng `P2-DOD-A-MAJ-01`/
       `P2-DOD-A-MIN-01` (Review A) — vai trò: `Phase 2 DoD v0.2 Bounded
       Correction Executor`. `P2-DOD-A-MAJ-01`: §2 Trigger A v0.1 wrongly
