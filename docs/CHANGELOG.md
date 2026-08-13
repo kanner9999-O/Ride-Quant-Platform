@@ -2,6 +2,146 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-13 — Phase 1.5 DoD v0.1 DRAFTED (candidate, not accepted): `docs/phase-dod/phase-1.5-dod.md`
+
+**Read-only readiness remediation — vai trò: `Phase 1.5 DoD v0.1 Candidate Author`.** Authors the Phase 1.5 — Engineering Foundation Definition of Done candidate, remediating the "Phase 1.5 DoD absent" gap identified by the preceding Phase 1.5 DoD/Gate Readiness Check. Structural precedent only from `phase-0-dod.md`/`phase-1-dod.md`; semantics derived directly from current Locked authority. **This transaction does not accept/incorporate the DoD, does not run the Phase 1.5 Approval Gate, and does not authorize Phase 2.**
+
+### Baseline
+
+```text
+Starting HEAD:  113b6c7f84b8991095500a7ac7cdbbd7c5ea000c
+docs/phase-dod/phase-1.5-dod.md: confirmed absent trước transaction này.
+All eight Chapter 14 §14.2 Phase 1.5 categories: Approved.
+```
+
+### Pre-author verification
+
+```text
+Inspected trực tiếp trước khi author: 00-governance.md, 02-platform-
+  invariants.md, 03-engineering-principles.md, 11-adr-process.md,
+  12-approval-gates.md (§12.1/§12.2/§12.4), 13-quality-gates.md
+  (§13.12 trigger A–E), 14-roadmap.md (§14.1/§14.2/§14.3/§14.3.1/§14.4/
+  §14.4.1/§14.4.2), execution-rules.md, phase-1.5-rules.md (EF-RETRO-001
+  full text, Gate-path controls sequence), phase-0-dod.md/phase-1-dod.md
+  (structural precedent), MANIFEST.md (current blob/status của toàn bộ
+  7 ADR + 8 living convention, residual finding state, absence of any
+  Phase 1.5 DoD row).
+```
+
+### Established content (v0.1, 13 mục)
+
+```text
+§1  Phase identity — 8-category deliverable scope (Chapter 14 §14.2),
+    category→artifact mapping (7 ADR + 8 living convention, Testing/
+    CI-CD annotated riêng).
+§2  Applicable gate set — Trigger A universal cho toàn bộ deliverable;
+    Trigger B/C KHÔNG APPLICABLE (0 executable implementation, verify
+    trực tiếp); Trigger D KHÔNG APPLICABLE (KHÔNG concrete boundary
+    mới tự declare — error-handling.md/ci-cd.md CHỈ inherit ADR-017,
+    KHÔNG tạo boundary mới); Trigger E KHÔNG APPLICABLE (KHÔNG published
+    contract/schema mới).
+§3  Substantive completion criteria — category completion (8/8
+    Approved), ADR closure (7 ADR Approved + Testing intentional
+    ADR-absent qua ADR_NOT_REQUIRED, KHÔNG PHẢI gap), zero unresolved
+    Blocker/Major, CI-vs-CD boundary preserved (deployment/LIVE
+    intentionally excluded, KHÔNG một gap), cross-category consistency.
+§4  Evidence requirements — deliverable evidence + Quality Gate evidence
+    (Trigger A CHỈ), pinned blob/commit identity bắt buộc.
+§5  Validator requirements — MANIFEST freshness, frontmatter validity,
+    cross-reference resolvability.
+§6  Review requirements — tối thiểu 2 independent review TẠI Phase
+    Approval Gate boundary, category-level review KHÔNG thay thế.
+§7  Finding-closure requirements — Blocker/Major never waived, CHỈ
+    Minor waivable qua explicit Product Owner acceptance.
+§8  Repository-consistency requirements — full-scope Phase 1.5 BCC bắt
+    buộc, xác nhận tường minh CHƯA chạy tại boundary authoring này.
+§9  Accepted non-blocking residual findings — liệt kê tường minh bảy
+    (7) Minor residual hiện resolve từ MANIFEST (KHÔNG đóng/rewrite):
+    EF-MONO-ADR024-B-MIN-01, ADR026-A-MIN-01, EF-NAME-A2-MIN-01,
+    EF-NAME-B-MIN-01, ADR027-B-MIN-01, EF-CONFIG-B-MIN-01,
+    EF-ERR-B-MIN-01.
+§10 Retrospective boundary (EF-RETRO-001) — xác nhận rule TỒN TẠI
+    (verify trực tiếp, KHÔNG invent), gắn với Phase 2 substantive work
+    theo đúng wording gốc, KHÔNG đưa vào LÀM Phase 1.5 Approval Gate
+    criterion (Gate-path controls sequence hiện hành KHÔNG liệt kê
+    retrospective LÀM bước của chính Phase 1.5 gate).
+§11 Phase-decision bundle requirements (Chapter 14 §14.4.1–§14.4.2).
+§12 Explicit non-inclusion — sáu trạng thái tách biệt tường minh: DoD
+    defined ≠ satisfied ≠ Quality Gate PASS ≠ Approval Gate eligibility
+    ≠ Product Owner approval ≠ Phase 2 authorization.
+§13 Acceptance status — CHƯA accepted, CHƯA canonical incorporation
+    (Chapter 14 §14.3.1 bốn điều kiện, KHÔNG điều kiện nào thỏa).
+```
+
+### No fabricated evidence (explicit)
+
+```text
+KHÔNG Quality Gate PASS evidence nào fabricated (§4 CHỈ định nghĩa yêu
+  cầu). KHÔNG claim full-scope BCC đã chạy (§8 tường minh "CHƯA chạy").
+  KHÔNG phase-level review evidence nào fabricated (§6 CHỈ định nghĩa
+  yêu cầu, KHÔNG tự thực hiện). KHÔNG EF-RETRO-001 retrospective nào
+  thực hiện tại transaction này (§10 tường minh KHÔNG). KHÔNG residual
+  finding nào đóng/rewrite (§9 liệt kê nguyên trạng từ MANIFEST).
+```
+
+### Files changed
+
+```text
+docs/phase-dod/phase-1.5-dod.md  (NEW — v0.1, Draft, blob
+                                  183f5070b3972e0c59c5ea6bc596aa73f54ed33d)
+docs/MANIFEST.md                 (manifest_version 10.122 -> 10.123;
+                                  thêm Phase 1.5 DoD row vào Phase DoD
+                                  table)
+docs/CHANGELOG.md                (entry này)
+```
+
+### Preserved unchanged
+
+```text
+Toàn bộ 7 ADR (024–030) + 8 living convention (Approved) — verified
+  byte-identical, git diff empty. Constitution (mọi chapter), Governance
+  execution-rules.md, phase-1.5-rules.md, phase-0-dod.md, phase-1-dod.md
+  — tất cả verified byte-identical.
+Bảy residual finding Minor: KHÔNG chạm, VẪN OPEN — accepted non-blocking
+  (§9 chỉ liệt kê nguyên trạng, KHÔNG rewrite/đóng).
+DoD candidate CHƯA accepted, CHƯA incorporated — gate-set declaration
+  (§2) CHƯA authoritative cho mục đích Chapter 12/13 sử dụng. Phase 1.5
+  Approval Gate: KHÔNG mở. Phase 2 substantive work: VẪN NOT YET
+  AUTHORIZED. LIVE/deployment: VẪN NOT AUTHORIZED.
+```
+
+### Result
+
+```text
+docs/phase-dod/phase-1.5-dod.md: v0.1, status Draft, owner Product
+  Owner, blob 183f5070b3972e0c59c5ea6bc596aa73f54ed33d — not self-
+  approved (G-ORCH-002); Review A + Independent Review B, rồi Product
+  Owner acceptance/incorporation, LÀ transaction riêng biệt tương lai.
+```
+
+### Validation
+
+```text
+[x] Starting HEAD 113b6c7f84b8991095500a7ac7cdbbd7c5ea000c verified
+[x] docs/phase-dod/phase-1.5-dod.md absent trước transaction, confirmed
+[x] Resulting v0.1 Draft blob confirmed
+[x] Exactly một Phase 1.5 DoD candidate tồn tại (verified `ls
+    docs/phase-dod/`)
+[x] Tám-category scope khớp Chapter 14 §14.2 (§1)
+[x] Gate-set declaration explicit VÀ Chapter-13-aligned (§2, Trigger
+    A–E phân tích tường minh)
+[x] DoD KHÔNG chứa Approval outcome LÀM criterion (§12 tường minh loại
+    trừ)
+[x] EF-RETRO-001 boundary chính xác (§10, verify trực tiếp text gốc,
+    KHÔNG gán sai LÀM Phase 1.5 gate prerequisite)
+[x] KHÔNG gate/review/BCC evidence nào fabricated (§4/§6/§8 tường minh
+    "CHƯA chạy"/"CHỈ yêu cầu")
+[x] Residuals unchanged (bảy Minor, KHÔNG chạm)
+[x] Chỉ 3 file thay đổi đúng dự kiến
+[x] Phase 2/LIVE state unchanged
+[x] Commit + push thành công (xem commit SHA sau)
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 1.5 CI/CD Convention v0.1 APPROVED (CI only)
 
 **Mechanical lifecycle recording — vai trò: `CI/CD Convention v0.1 Mechanical Approval Recorder`.** Records the Product Owner decision "APPROVE CI/CD CONVENTION V0.1" — no CI/CD Convention semantics changed. This is the eighth and final Phase 1.5 Engineering Foundation category to reach Approved.
