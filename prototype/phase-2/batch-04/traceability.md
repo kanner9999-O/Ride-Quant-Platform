@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-04-traceability
 title: "Phase 2 Prototype — Batch 04 — Traceability Artifact"
-version: "1.2"
+version: "1.3"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-14"
@@ -10,6 +10,8 @@ created_at: "2026-08-14"
 # Phase 2 Prototype — Batch 04 — Traceability Artifact
 
 **v1.2 — bounded correction (2026-08-14), Independent Review B trên v1.1: `P2-B04-B-MAJ-01` (Major) + `P2-B04-B-MAJ-02` (Major) — đóng CẢ HAI tại transaction này (`P2-B04-A-MAJ-01`/`P2-B04-A-MAJ-02` từ v1.1 xác nhận CLOSED, KHÔNG reopen).** `P2-B04-B-MAJ-01`: STATE-020/Position SHORT KHÔNG materially reachable — `MOCK_PAPER_DECISION.outcome = "LONG"` cố định, `derivePositionNatural()` đọc trực tiếp từ đó, nhánh render SHORT LÀ dead code. Sửa: thay MỘT Decision fixture bằng `MOCK_PAPER_DECISIONS.LONG`/`MOCK_PAPER_DECISIONS.SHORT` — hai illustrative PAPER-context Decision fact RIÊNG BIỆT (cùng Strategy Instance pinned, khác Decision identity/outcome/input snapshot/evaluation evidence), chọn qua QA (`state.paperDecisionScenario`). `buildExecutionChain()` nay nhận decision LÀM tham số, gán `chain.fill.direction = decision.outcome` (field CÓ THẬT trong `fill.md` schema, trước đây bị bỏ sót) — `derivePositionNatural()` nay đọc `execution.fill.direction` (KHÔNG một global mutable) → SHORT scenario tạo ra Fill direction=SHORT → Position SHORT materially reachable qua tương tác thật. `P2-B04-B-MAJ-02`: sau khi một execution đã tạo, QA có thể mutate `paperPin`/`decisionAvailable`/`accountValid` MÀ KHÔNG invalidate `state.execution` — SCR-007 hiển thị "Strategy Instance (pinned, continuous from SCR-006)" trong khi context bar hiện tại nói "not pinned"/"selected-not-pinned" — mâu thuẫn current-state. Sửa: áp dụng preferred minimal model — `CONTEXT_MUTATION_KEYS` (Account/Instrument/Venue validity, Paper Strategy Instance selection/pin, PAPER Decision availability, PAPER Decision scenario LONG/SHORT) invalidate `state.execution` (set `null`) khi thay đổi; SCR-007 quay về STATE-002 cho tới khi một initiation MỚI xảy ra dưới context (có thể đã đổi) đó. Risk/execution-outcome QA keys (NEXT-initiation scenario) VÀ Position-demo-mode key KHÔNG nằm trong `CONTEXT_MUTATION_KEYS` — KHÔNG retroactively mutate execution đã tạo, đúng yêu cầu tường minh. SCR-007's Decision lineage row nay đọc snapshot `execution.decisionId`/`execution.decisionOutcome` (bound tại thời điểm chain được build), KHÔNG global hiện tại. KHÔNG PaperSession entity, KHÔNG production session/context invalidation semantics — prototype-local demo-state hygiene only. KHÔNG đổi A/B/C partition, KHÔNG surface mới, KHÔNG UC/PR/domain concept mới.
+
+**v1.3 — deterministic bookkeeping reconciliation (2026-08-14), vai trò: `Phase 2 Prototype Batch 04 Review-State Reconciliation Executor`, đúng `G-TXN-003`.** KHÔNG PHẢI lifecycle transition, KHÔNG PHẢI prototype semantic correction. §2's tiêu đề VÀ kết luận vẫn nói "candidate — Batch 04's own +5 CHƯA independently verified" / "CHƯA independently verified (chờ Review A + Independent Review B trên Batch 04)" — mâu thuẫn trực tiếp với governed review history ĐÃ hoàn tất từ v1.2 (final bounded Review A v1.2: bốn finding tất cả CLOSED, 0/0/0, CLEAN; final Independent Review B v1.2: cùng bốn finding CLOSED, 0/0/0, verdict `READY_FOR_NEXT_PHASE2_BATCH`). Sửa: §2's tiêu đề + kết luận viết lại để phản ánh 15/21 ĐÃ independently verified. KHÔNG đổi §0/§1/§3/§4/§5 (A/B/C partition, element-level map, reconciliation statement, năm PAPER invariant verification KHÔNG đổi — VẪN A=15/B=6/C=0/tổng=21).
 
 **v1.1 — bounded correction (2026-08-14), Review A trên v1.0: `P2-B04-A-MAJ-01` (Major) + `P2-B04-A-MAJ-02` (Major) — đóng CẢ HAI tại transaction này.** `P2-B04-A-MAJ-01`: `buildExecutionChain()` v1.0 bỏ qua hai domain concept riêng biệt bắt buộc theo `execution-result.md` — `ExecutionResultComputation` (§2, authorized computation identity/binding fact) VÀ `PaperExecutionObservation` (§1, simulation evidence bốn trục + economics) — ExecutionResult v1.0 chỉ mang một chuỗi `observationId` rời rạc, Fill mang `executionObservationId` riêng, KHÔNG một entity `paperExecutionObservation` nào thực sự tồn tại trong chain object. Sửa: thêm `chain.executionResultComputation` (id/computationPurpose/orderId/submissionRequestId/computationCursor, đúng schema §2) VÀ `chain.paperExecutionObservation` (id/executionResultComputationId/orderId/submissionRequestId/observationCursor/bốn trục simulation evidence/resultType/economics khi EXECUTED, đúng schema §1) LÀ hai node riêng biệt giữa OrderSubmissionRequest VÀ ExecutionResult. Fill's economics (`quantity`/`price`/`priceCurrency`) nay literally copy từ `paperExecutionObservation`'s field (KHÔNG một literal độc lập thứ hai) — khớp `fill.md` v0.2's invariant "PHẢI BẰNG HỆT Observation" tại code level. REJECTED/NON_EVALUABLE branch VẪN KHÔNG tạo Computation/Observation nào (`return` sớm trước khi hai node này được gán). NOT_EXECUTED: Computation + Observation tồn tại (`resultType: NOT_EXECUTED`, economics field absent đúng invariant), ExecutionResult copy `resultType`, zero Fill. SCR-006's `renderInitiationResult()` VÀ SCR-007's `renderExecutionResultTab()`/`renderFillTab()` cập nhật hiển thị hai identity mới LÀM supporting evidence (KHÔNG biến SCR-007 thành computation-debugging surface — chỉ thêm hai hàng identity). `P2-B04-A-MAJ-02`: `derivePosition()`'s NON_EVALUABLE demo v1.0 fabricate `FILL-002` KHÔNG có evidence basis, VÀ có thể render dù execution hiện tại LÀ NOT_EXECUTED (zero Fill) — mâu thuẫn trực tiếp với Fill/ExecutionResult tab. Sửa: NON_EVALUABLE demo nay CHỈ render khi execution hiện tại thực sự có Fill (EXECUTED) — `contributing_fill_refs` khi đó ghép Fill THẬT của execution hiện tại VỚI một `MOCK_PRIOR_FILL_LABEL` illustrative prior Fill được disclose tường minh (KHÔNG một Fill hiện tại thứ hai không giải thích). Khi override được chọn nhưng execution hiện tại KHÔNG có Fill, override KHÔNG áp dụng — trạng thái Position THẬT được hiển thị thay thế (KHÔNG collapse cưỡng bức về FLAT — chỉ LÀ trạng thái thật sự đúng lúc đó), kèm `demoNote` giải thích tường minh lý do. KHÔNG đổi A/B/C partition, KHÔNG surface mới, KHÔNG UC/PR/domain concept mới, KHÔNG order-sizing/fee/slippage engine.
 
@@ -59,7 +61,7 @@ Batch-01/02/03-verified substantive UC (KHÔNG re-authored, KHÔNG double-counte
 | UC-015 | **A — Substantive** (Batch 04, promoted từ B) | SCR-007 No-real-exchange tab fully authored: environment=PAPER confirmation, "no real exchange order placed," "no real network route trong prototype này" — KHÔNG tuyên bố một network audit kỹ thuật đã chạy — matches `ux-blueprint.md` §7.4 SCR-007 spec (d) + `use-case-workflow.md` UC-015. |
 | UC-001..UC-010 | **A — Substantive** (Batch 01/02/03, giữ nguyên) | Fully authored + independently verified tại Batch 01/02/03 (mỗi batch tự nó qua đầy đủ Review A + Independent Review B, verdict `READY_FOR_NEXT_PHASE2_BATCH`). Batch 04 CHỈ link tới Research/Replay/Backtest (real nav link) — KHÔNG re-author, NHƯNG cumulative classification VẪN A (một UC KHÔNG thể vừa A vừa B/C). |
 
-## 2. Cumulative Phase-2 UC ledger (Batch 01 + Batch 02 + Batch 03 + Batch 04, candidate — Batch 04's own +5 CHƯA independently verified)
+## 2. Cumulative Phase-2 UC ledger (Batch 01 + Batch 02 + Batch 03 + Batch 04 — ĐÃ independently verified, v1.3 bookkeeping reconciliation, final Independent Review B trên Batch 04 v1.2 verdict READY_FOR_NEXT_PHASE2_BATCH)
 
 ```text
 Trước Batch 04 (Batch 01+02+03, ĐÃ independently verified — xem ../batch-03/traceability.md §2):
@@ -86,14 +88,12 @@ Partition validation (mechanical):
   A ∪ B ∪ C = {001..021} — liệt kê tuần tự xác nhận KHÔNG thiếu UC nào: 001..015 (A, 15 liên
     tiếp) 016(B) 017(B) 018(B) 019(B) 020(B) 021(B) — 21 UC, mỗi UC xuất hiện ĐÚNG MỘT LẦN.
 
-21-UC substantive completion progress: BA trạng thái tách biệt, KHÔNG conflate:
-  Candidate (sau Batch 04 authoring):               15/21 (A only) — CHƯA independently verified
-                                                     (chờ Review A + Independent Review B trên
-                                                     Batch 04, đúng P2-PROTOTYPE-001).
-  Last INDEPENDENTLY VERIFIED (Batch 01+02+03,
-    mỗi batch tự nó qua đầy đủ Review A +
-    Independent Review B, verdict
-    READY_FOR_NEXT_PHASE2_BATCH):                    10/21 (UC-001..010).
+21-UC substantive completion progress: 15/21 (A only) — ĐÃ independently verified (v1.3
+  bookkeeping reconciliation, 2026-08-14 — final bounded Review A v1.2 CLEAN (bốn finding
+  CLOSED) + final Independent Review B v1.2 verdict READY_FOR_NEXT_PHASE2_BATCH, 0/0/0). Lifecycle
+  VẪN CANDIDATE (verdict review ≠ lifecycle promotion).
+  Historical (TRƯỚC Batch 04's own review hoàn tất): last independently verified 10/21
+  (UC-001..010, Batch 01+02+03 baseline).
 ```
 
 ## 3. Element-level traceability map
