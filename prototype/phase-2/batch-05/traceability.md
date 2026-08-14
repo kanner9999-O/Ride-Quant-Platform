@@ -1,13 +1,24 @@
 ---
 id: phase-2-batch-05-traceability
 title: "Phase 2 Prototype — Batch 05 — Traceability Artifact"
-version: "1.1"
+version: "1.2"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-14"
 ---
 
 # Phase 2 Prototype — Batch 05 — Traceability Artifact
+
+**v1.2 — deterministic bookkeeping reconciliation (2026-08-14), vai trò: `Phase 2 Prototype
+Batch 05 Review-State Reconciliation Executor`, đúng `G-TXN-003`.** KHÔNG PHẢI lifecycle
+transition, KHÔNG PHẢI prototype semantic correction. §2's tiêu đề VÀ kết luận vẫn nói "candidate
+tại transaction này ... KHÔNG claim independently verified" — mâu thuẫn trực tiếp với governed
+review history ĐÃ hoàn tất từ v1.1 (final bounded Review A v1.1: hai finding tất cả CLOSED,
+0/0/0, CLEAN; final Independent Review B v1.1: cùng hai finding CLOSED, 0/0/0, verdict
+`READY_FOR_NEXT_PHASE2_BATCH`). Sửa: §2's tiêu đề + kết luận + surface-progress câu viết lại để
+phản ánh 18/21 UC + 13/17 surface ĐÃ independently verified. KHÔNG đổi §0/§1/§3/§4/§5 (A/B/C
+partition, element-level map, reconciliation statement, four Review invariant verification KHÔNG
+đổi — VẪN A=18/B=3/C=0/tổng=21).
 
 **v1.1 — bounded correction (2026-08-14), Review A trên v1.0: `P2-B05-A-MAJ-01` (Major) +
 `P2-B05-A-MIN-01` (Minor) — đóng CẢ HAI tại transaction này.** `P2-B05-A-MAJ-01`: SCR-009's
@@ -111,15 +122,17 @@ Partition validation (mechanical):
   A ∪ B ∪ C = {001..021} — liệt kê tuần tự xác nhận KHÔNG thiếu UC nào: 001..018 (A, 18 liên
     tiếp) 019(B) 020(B) 021(B) — 21 UC, mỗi UC xuất hiện ĐÚNG MỘT LẦN.
 
-21-UC substantive completion progress: 18/21 (A only) — CANDIDATE tại transaction này (Batch 05's
-  own Review A + Independent Review B CHƯA thực hiện — chỉ authoring transaction, KHÔNG claim
-  independently verified). Last independently verified: 15/21 (UC-001..015, Batch 01+02+03+04
-  baseline, mỗi batch đã qua đầy đủ Review A + Independent Review B).
+21-UC substantive completion progress: 18/21 (A only) — ĐÃ independently verified (v1.2
+  bookkeeping reconciliation, 2026-08-14 — final bounded Review A v1.1 CLEAN (hai finding
+  CLOSED) + final Independent Review B v1.1 verdict READY_FOR_NEXT_PHASE2_BATCH, 0/0/0). Lifecycle
+  VẪN CANDIDATE (verdict review ≠ lifecycle promotion). Historical (TRƯỚC Batch 05's own review
+  hoàn tất): last independently verified 15/21 (UC-001..015, Batch 01+02+03+04 baseline).
 ```
 
 Surface progress (17-surface set, `SCR-001`–`SCR-011`/`VIEW-001`–`VIEW-006`, `phase-2-dod.md` §3
 criterion 3a): trước Batch 05 = 10/17 (Batch 01+02+03+04). Batch 05 thêm `SCR-008`, `SCR-009`,
-`VIEW-004` (+3) → candidate 13/17. Remaining: `SCR-010`, `SCR-011`, `VIEW-005`, `VIEW-006` (4/17).
+`VIEW-004` (+3) → 13/17, ĐÃ independently verified (v1.2 bookkeeping reconciliation). Remaining:
+`SCR-010`, `SCR-011`, `VIEW-005`, `VIEW-006` (4/17).
 
 ## 3. Element-level traceability map
 

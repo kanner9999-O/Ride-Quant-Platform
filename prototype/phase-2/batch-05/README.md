@@ -86,7 +86,7 @@ no QA toggle for it — its one bounded correction fixture is always shown direc
 Not a production frontend, not connected to any backend/exchange, not authorized for LIVE, not an
 implementation of a Replay/correction engine, not a claim that a real network audit was
 performed, and not a claim that Phase 2's full 17-surface/21-UC coverage is complete. See
-`batch-manifest.md` for the exact progress accounting — this is an **authoring transaction only**:
-Review A and Independent Review B have not yet been performed on this batch, so its own +3
-surface / +3 UC contribution is a **candidate**, not yet independently verified (unlike Batch
-01-04, each of which has already completed both review rounds).
+`batch-manifest.md` for the exact progress accounting — Review A and Independent Review B are
+complete for this batch's own SCR-008/SCR-009/VIEW-004 contribution (verdict
+`READY_FOR_NEXT_PHASE2_BATCH`), but this batch's lifecycle remains a **candidate**, not yet
+approved — that verdict is not itself a lifecycle promotion.

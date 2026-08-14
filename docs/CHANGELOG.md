@@ -2,6 +2,80 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 05 review-state bookkeeping reconciliation (deterministic, G-TXN-003)
+
+**Bookkeeping reconciliation — vai trò: `Phase 2 Prototype Batch 05 Review-State Reconciliation
+Executor`.** NOT a lifecycle transition, NOT a prototype semantic correction. Records the
+completed final bounded Review A / final Independent Review B outcome for Batch 05 v1.1 into
+`batch-manifest.md`/`traceability.md`/`README.md`'s own current-state sections, which had not
+previously reflected it.
+
+### Baseline
+
+```text
+Starting HEAD:    8f24409c0befa5a1e399d09baabafd5930a5061d
+```
+
+### Governed review history incorporated (given, per this transaction's own instructions)
+
+```text
+Batch 05 (v1.1 artifact candidate, boundary 8f24409c0befa5a1e399d09baabafd5930a5061d): final
+  bounded Review A v1.1: P2-B05-A-MAJ-01, P2-B05-A-MIN-01 both CLOSED, new Blocker/Major/Minor =
+  0/0/0, CLEAN — READY_FOR_INDEPENDENT_REVIEW_B. Final Independent Review B v1.1: same two
+  findings both CLOSED, 0/0/0; verdict READY_FOR_NEXT_PHASE2_BATCH. Verified contribution: +3/17
+  surfaces (SCR-008, SCR-009, VIEW-004), +3/21 UC (UC-016, UC-017, UC-018). Verified cumulative
+  after Batch 05: 13/17, 18/21. Remaining: 4/17 surfaces, 3/21 UC not yet substantive.
+```
+
+### Files updated
+
+```text
+prototype/phase-2/batch-05/batch-manifest.md   v1.1 → v1.2, blob (this file)
+  (role statement, §1 Status/Starting HEAD, §4 UC-ledger conclusion, §6 blob table, §17
+  review-state rewritten to record final Review A + final Independent Review B outcome; §2/§3/
+  §5/§7–§16 semantic/artifact evidence byte-for-byte unchanged except this)
+prototype/phase-2/batch-05/traceability.md     v1.1 → v1.2, blob e2eaa184d67c124009c68fe3fa71b34a58cd09a0
+  (§2 title and conclusion said "candidate tại transaction này ... KHÔNG claim independently
+  verified" — a direct, material current-state contradiction of the completed v1.1 review.
+  Corrected; §0/§1/§3/§4/§5 — A/B/C partition, element-level map, reconciliation statement, four
+  Review invariant verification — unchanged, still A=18/B=3/C=0/21)
+prototype/phase-2/batch-05/README.md           blob 990c6301e3d3b98dd62c947dfd6eb468e552fff5
+  ("Review A and Independent Review B have not yet been performed... candidate, not yet
+  independently verified" — direct current-state contradiction — corrected to "reviewed, verdict
+  READY_FOR_NEXT_PHASE2_BATCH, lifecycle still candidate, not yet approved")
+prototype/phase-2/batch-05/{index.html,app.js,styles.css}  UNCHANGED (byte-identical, verified —
+  git diff --quiet on all three)
+docs/MANIFEST.md   manifest_version 10.148 → 10.149. Batch 05 row rewritten compact
+  (P2-BUDGET-001 discipline — full journey lives in batch-manifest.md §17 + this CHANGELOG only).
+  Confirmation paragraph below the batch table updated: cumulative 13/17, 18/21 (all five
+  batches) now stated as independently verified.
+```
+
+### No semantic prototype change / no lifecycle transition
+
+```text
+Zero bytes changed in index.html/app.js/styles.css (verified: git diff --quiet). No SCR/VIEW/
+  NAV/FLOW/STATE added or altered. No Product/UX/Domain authority touched. No ADR created. Batch
+  05 lifecycle unchanged — remains CANDIDATE; READY_FOR_NEXT_PHASE2_BATCH is recorded as the
+  completed-review verdict, explicitly distinguished from Approved/Accepted/Complete lifecycle
+  status. Batch 01/02/03/04 untouched (git status --porcelain=v1 -uall verified clean). Gate 3
+  not opened, Phase 2 not approved, P2-RETRO-001 not performed, Phase 3/LIVE not authorized.
+```
+
+### Result
+
+```text
+Verified cumulative progress (Batch 01+02+03+04+05): 13/17 surfaces, 18/21 substantive UC
+  (A={001..018}, B={019,020,021}=3, C=∅=0; partition mechanically valid: pairwise disjoint,
+  union={UC-001..021}, 18+3+0=21). Remaining: 4/17 surfaces, 3/21 UC.
+Batch 05: lifecycle CANDIDATE (unchanged), review verdict READY_FOR_NEXT_PHASE2_BATCH.
+I-11: PASS (preserved, not re-tested — this transaction performed no semantic re-review).
+I-12: PASS (traceability now consistent with the recorded review outcome; no new domain concept).
+Trigger B/C/D/E: PRESERVED (preserved, not re-tested).
+Phase 2 substantive completion: NOT ESTABLISHED. Quality Gate: NOT RUN. Gate 3: NOT OPENED.
+  P2-RETRO-001: NOT PERFORMED. Phase 3: NOT AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
 ## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 05 v1.1 bounded correction (P2-B05-A-MAJ-01, P2-B05-A-MIN-01)
 
 **Bounded correction — vai trò: `Phase 2 Prototype Batch 05 v1.1 Bounded Correction Executor`.**
