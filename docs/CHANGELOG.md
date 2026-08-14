@@ -2,6 +2,98 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 06 review-state bookkeeping reconciliation (deterministic, G-TXN-003) — prototype substantive coverage now independently verified complete
+
+**Bookkeeping reconciliation — vai trò: `Phase 2 Prototype Batch 06 Review-State Reconciliation
+Executor`.** NOT a lifecycle transition, NOT a prototype semantic correction, NOT a Phase-2
+approval transaction. Records the completed final bounded Review A / final Independent Review B
+outcome for Batch 06 v1.1 into `batch-manifest.md`/`traceability.md`/`README.md`'s own
+current-state sections, which had not previously reflected it. With this batch's review complete,
+the full candidate 17-surface/21-UC prototype scope across all six batches is now independently
+verified.
+
+### Baseline
+
+```text
+Starting HEAD:    7f78ac7a7033a49f9c03654c0a55ecd47585f073
+```
+
+### Governed review history incorporated (given, per this transaction's own instructions)
+
+```text
+Batch 06 (v1.1 artifact candidate, boundary 7f78ac7a7033a49f9c03654c0a55ecd47585f073): final
+  bounded Review A v1.1: P2-B06-A-MAJ-01, P2-B06-A-MAJ-02, P2-B06-A-MIN-01 all CLOSED, new
+  Blocker/Major/Minor = 0/0/0, CLEAN — READY_FOR_INDEPENDENT_REVIEW_B. Final Independent Review B
+  v1.1: same three findings all CLOSED, 0/0/0, regression CLEAN; verdict
+  READY_FOR_NEXT_PHASE2_GOVERNED_STEP. Verified contribution: +4/17 surfaces (SCR-010, VIEW-006,
+  SCR-011, VIEW-005), +3/21 UC (UC-019, UC-020, UC-021). Verified cumulative prototype coverage
+  after Batch 06: 17/17 surfaces, 21/21 UC — the full candidate prototype scope, independently
+  verified complete. Remaining: none.
+```
+
+### Files updated
+
+```text
+prototype/phase-2/batch-06/batch-manifest.md   v1.1 → v1.2, blob (this file)
+  (role statement, §1 Status, §4 UC-ledger conclusion, §8, §16, §17 review-state rewritten to
+  record final Review A + final Independent Review B outcome; §2/§3/§5/§6/§7/§9–§15
+  semantic/artifact evidence byte-for-byte unchanged except this)
+prototype/phase-2/batch-06/traceability.md     v1.1 → v1.2, blob 906ade2b6b7a11c13f87422f6d92cb2afad933e8
+  (§1/§2 title and conclusion said "candidate tại transaction này ... KHÔNG claim independently
+  verified" — a direct, material current-state contradiction of the completed v1.1 review.
+  Corrected; §0/§3/§4/§5 — element-level map, reconciliation statement, six Improve invariant
+  verification — unchanged, still A=21/B=0/C=0/21)
+prototype/phase-2/batch-06/README.md           blob 7f8d7e45859bbd1c4b92665668b1b375e6126cf1
+  ("authoring transaction only" / "not yet independently verified" — direct current-state
+  contradiction — corrected to "reviewed, verdict READY_FOR_NEXT_PHASE2_GOVERNED_STEP, lifecycle
+  still candidate, not yet approved," with an explicit prototype-coverage-vs-Phase-2-completion
+  distinction preserved)
+prototype/phase-2/batch-06/{index.html,app.js,styles.css}  UNCHANGED (byte-identical, verified —
+  git diff --quiet on all three)
+docs/MANIFEST.md   manifest_version 10.151 → 10.152. Batch 06 row rewritten compact
+  (P2-BUDGET-001 discipline — full journey lives in batch-manifest.md §17 + this CHANGELOG only).
+  Confirmation paragraph below the batch table updated: cumulative 17/17 surfaces, 21/21 UC (all
+  six batches) now stated as independently verified, with an explicit paragraph distinguishing
+  "prototype substantive coverage complete" from "Phase 2 Approved"/"Gate 3 passed" (neither
+  established by this transaction).
+```
+
+### No semantic prototype change / no lifecycle transition / no Phase-2 approval
+
+```text
+Zero bytes changed in index.html/app.js/styles.css (verified: git diff --quiet). No SCR/VIEW/
+  NAV/FLOW/STATE added or altered. No Product/UX/Domain authority touched. No ADR created. Batch
+  06 lifecycle unchanged — remains CANDIDATE; READY_FOR_NEXT_PHASE2_GOVERNED_STEP is recorded as
+  the completed-review verdict, explicitly distinguished from Approved/Accepted/Complete
+  lifecycle status AND from Phase-2 approval/Gate 3 passage. Batch 01/02/03/04/05 untouched (git
+  status --porcelain=v1 -uall verified clean). No batch lifecycle promoted. Quality Gate not run,
+  full-scope Phase-2 BCC not run (unless already separately recorded by repository authority),
+  phase-level Gate review not run (unless already separately recorded), Gate 3 not opened,
+  Product Owner Phase-2 approval not issued, P2-RETRO-001 not performed, Phase 3/LIVE not
+  authorized.
+```
+
+### Result
+
+```text
+Verified cumulative prototype coverage (Batch 01+02+03+04+05+06): 17/17 surfaces, 21/21
+  substantive UC (A={001..021}, B=∅=0, C=∅=0; partition mechanically valid: pairwise disjoint,
+  union={UC-001..021}, 21+0+0=21). Remaining: 0/17 surfaces, 0/21 UC — INDEPENDENTLY VERIFIED
+  COMPLETE at the prototype-substantive-coverage level.
+Batch 06: lifecycle CANDIDATE (unchanged), review verdict READY_FOR_NEXT_PHASE2_GOVERNED_STEP.
+Prototype substantive coverage: INDEPENDENTLY VERIFIED COMPLETE (17/17 surfaces, 21/21 UC).
+Phase-2 full completion: NOT YET ESTABLISHED BY THIS TRANSACTION — explicitly distinct from
+  prototype substantive coverage; requires the separately governed Phase-2 completion/exit
+  evidence sequence under the approved Phase-2 DoD.
+I-11: PASS (preserved, not re-tested — this transaction performed no semantic re-review).
+I-12: PASS (traceability now consistent with the recorded review outcome; no new domain concept).
+Trigger B/C/D/E: PRESERVED (preserved, not re-tested).
+Quality Gate: NOT RUN. Full-scope Phase-2 BCC: NOT RUN (unless already separately recorded).
+  Phase-level Gate review: NOT RUN (unless already separately recorded). Gate 3: NOT OPENED.
+  P2-RETRO-001: NOT PERFORMED. Product Owner Phase-2 approval: NOT ISSUED. Phase 3: NOT
+  AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
 ## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 06 v1.1 bounded correction (P2-B06-A-MAJ-01, P2-B06-A-MAJ-02, P2-B06-A-MIN-01)
 
 **Bounded correction — vai trò: `Phase 2 Prototype Batch 06 v1.1 Bounded Correction Executor`.**

@@ -1,13 +1,26 @@
 ---
 id: phase-2-batch-06-traceability
 title: "Phase 2 Prototype — Batch 06 — Traceability Artifact"
-version: "1.1"
+version: "1.2"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-14"
 ---
 
 # Phase 2 Prototype — Batch 06 — Traceability Artifact
+
+**v1.2 — deterministic bookkeeping reconciliation (2026-08-14), vai trò: `Phase 2 Prototype
+Batch 06 Review-State Reconciliation Executor`, đúng `G-TXN-003`.** KHÔNG PHẢI lifecycle
+transition, KHÔNG PHẢI prototype semantic correction, KHÔNG PHẢI Phase-2 approval transaction.
+§1/§2's tiêu đề VÀ kết luận vẫn nói "candidate tại transaction này ... KHÔNG claim independently
+verified" — mâu thuẫn trực tiếp với governed review history ĐÃ hoàn tất từ v1.1 (final bounded
+Review A v1.1: ba finding tất cả CLOSED, 0/0/0, CLEAN; final Independent Review B v1.1: cùng ba
+finding CLOSED, 0/0/0, regression CLEAN, verdict `READY_FOR_NEXT_PHASE2_GOVERNED_STEP`). Sửa:
+§1's tiêu đề + §2's tiêu đề/kết luận/surface-progress câu viết lại để phản ánh 21/21 UC + 17/17
+surface ĐÃ independently verified — prototype substantive coverage hoàn tất, TÁCH BIỆT hoàn toàn
+khỏi Phase-2 full completion/gate eligibility (KHÔNG establish bởi transaction này). KHÔNG đổi
+§0/§3/§4/§5 (element-level map, reconciliation statement, six Improve invariant verification
+KHÔNG đổi — VẪN A=21/B=0/C=0/tổng=21).
 
 **v1.1 — bounded correction (2026-08-14), Review A trên v1.0: `P2-B06-A-MAJ-01` (Major) +
 `P2-B06-A-MAJ-02` (Major) + `P2-B06-A-MIN-01` (Minor) — đóng CẢ BA tại transaction này.**
@@ -56,7 +69,9 @@ C. DEFERRED / NOT YET REPRESENTED — KHÔNG một element nào trong batch tham
 ## 1. Batch-06-authored substantive contribution (distinct từ cumulative ledger, §2 dưới)
 
 ```text
-Batch-06-authored substantive UC (NEW tại batch này, 3, CANDIDATE — CHƯA independently verified):
+Batch-06-authored substantive UC (NEW tại batch này, 3, ĐÃ independently verified — v1.2
+  bookkeeping reconciliation, final Review A v1.1 CLEAN + final Independent Review B v1.1
+  verdict READY_FOR_NEXT_PHASE2_GOVERNED_STEP):
   UC-019 (SCR-010 — Strategy Definition Version Creation)
   UC-020 (SCR-011 — Strategy Version Comparison)
   UC-021 (VIEW-005 — Old-Version Evidence Access)
@@ -105,7 +120,8 @@ Trước Batch 06 (Batch 01-05, ĐÃ independently verified — xem ../batch-05/
 Batch 06 di chuyển UC-019,020,021 từ B → A (SCR-010/SCR-011/VIEW-005 tự author đủ
   representation; VIEW-006 represents the UC-019→UC-002 handoff, UC-002 not re-counted).
 
-Sau Batch 06 (CANDIDATE — CHƯA independently verified cho phần Batch 06):
+Sau Batch 06 (ĐÃ independently verified — v1.2 bookkeeping reconciliation, final Review A v1.1
+  CLEAN + final Independent Review B v1.1 verdict READY_FOR_NEXT_PHASE2_GOVERNED_STEP):
   A = {001,002,003,004,005,006,007,008,009,010,011,012,013,014,015,016,017,018,019,020,021}   (21)
   B = {}                                                                                        (0)
   C = {}                                                                                        (0)
@@ -120,21 +136,25 @@ Partition validation (mechanical):
   A ∪ B ∪ C = {001..021} — liệt kê tuần tự xác nhận KHÔNG thiếu UC nào: 001..021 (A, 21 liên
     tiếp) — 21 UC, mỗi UC xuất hiện ĐÚNG MỘT LẦN.
 
-21-UC substantive completion progress: 21/21 (A only) — CANDIDATE tại transaction này (Batch 06's
-  own Review A + Independent Review B CHƯA thực hiện — chỉ authoring transaction, KHÔNG claim
-  independently verified). Last independently verified: 18/21 (UC-001..018, Batch 01-05 baseline,
-  mỗi batch đã qua đầy đủ Review A + Independent Review B).
+21-UC substantive completion progress: 21/21 (A only) — ĐÃ independently verified (v1.2
+  bookkeeping reconciliation, 2026-08-14 — final bounded Review A v1.1 CLEAN (ba finding CLOSED)
+  + final Independent Review B v1.1 verdict READY_FOR_NEXT_PHASE2_GOVERNED_STEP, 0/0/0,
+  regression CLEAN). Lifecycle VẪN CANDIDATE (verdict review ≠ lifecycle promotion). Historical
+  (TRƯỚC Batch 06's own review hoàn tất): last independently verified 18/21 (UC-001..018, Batch
+  01-05 baseline).
 
-IMPORTANT: candidate 21/21 UC (và candidate 17/17 surface, §ngay dưới) tại thời điểm authoring
-  KHÔNG establish Phase-2 substantive completion — completion đòi hỏi Batch 06's own Review A +
-  Independent Review B COMPLETE trước, VÀ tách biệt hoàn toàn khỏi Quality Gate/Gate 3/
-  P2-RETRO-001/Phase 3/LIVE authorization, KHÔNG một trong số đó được transaction này chạm tới.
+IMPORTANT: 21/21 UC (và 17/17 surface, §ngay dưới) NAY ĐÃ independently verified — prototype
+  substantive coverage hoàn tất. Điều này VẪN KHÔNG establish Phase-2 substantive completion/
+  full-scope gate eligibility — tách biệt hoàn toàn khỏi Quality Gate/full-scope BCC/phase-level
+  Gate review/Gate 3/Product Owner Phase-2 approval/P2-RETRO-001/Phase 3/LIVE authorization,
+  KHÔNG một trong số đó được transaction này chạm tới.
 ```
 
 Surface progress (17-surface set, `SCR-001`–`SCR-011`/`VIEW-001`–`VIEW-006`, `phase-2-dod.md` §3
 criterion 3a): trước Batch 06 = 13/17 (Batch 01-05). Batch 06 thêm `SCR-010`, `VIEW-006`,
-`SCR-011`, `VIEW-005` (+4) → candidate 17/17 (full 17-surface set represented). CANDIDATE, KHÔNG
-independently verified.
+`SCR-011`, `VIEW-005` (+4) → 17/17 (full 17-surface set represented), NAY ĐÃ independently
+verified (v1.2 bookkeeping reconciliation) — prototype substantive coverage complete, distinct
+from Phase-2 full completion/gate eligibility.
 
 ## 3. Element-level traceability map
 

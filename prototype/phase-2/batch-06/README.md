@@ -96,10 +96,12 @@ prototype-local creation/registration state back to its initial baseline.
 
 Not a production frontend, not connected to any backend, not authorized for LIVE, not an
 implementation of a Strategy management service/engine, not a claim that a real network audit was
-performed. Reaching a candidate 17/17 surfaces and 21/21 UC with this batch does **not** establish
-Phase-2 substantive completion — see `batch-manifest.md` for the exact progress accounting: this
-is an **authoring transaction only**, Review A and Independent Review B have not yet been
-performed on this batch, so its own +4 surface / +3 UC contribution is a **candidate**, not yet
-independently verified (unlike Batch 01-05, each of which has already completed both review
-rounds). Phase-2 completion additionally requires Quality Gate/Gate 3 evidence entirely separate
-from per-batch review — none of that is claimed, run, or authorized here.
+performed. See `batch-manifest.md` for the exact progress accounting — Review A and Independent
+Review B are now complete for this batch's own SCR-010/VIEW-006/SCR-011/VIEW-005 contribution
+(verdict `READY_FOR_NEXT_PHASE2_GOVERNED_STEP`), so the full candidate 17/17 surfaces and 21/21 UC
+prototype set is now independently verified — but this batch's lifecycle remains a **candidate**,
+not yet approved (that verdict is not itself a lifecycle promotion), and prototype substantive
+coverage being independently verified complete is explicitly **not** the same as Phase-2 full
+completion: Phase-2 completion additionally requires Quality Gate/full-scope BCC/phase-level Gate
+review/Gate 3/Product Owner Phase-2 approval/P2-RETRO-001 evidence entirely separate from
+per-batch review — none of that is claimed, run, or authorized here.
