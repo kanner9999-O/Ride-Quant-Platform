@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ride — Phase 2 Prototype — Batch 06 (Improve / new strategy version / instance registration / version comparison / old-version evidence access)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- WS-001 Ride Workspace Shell (bounded subset, same convention as Batch 01-05). Separate,
+     self-contained page — does NOT share live JS state with Batch 01-05. -->
+<header class="shell" id="shell">
+  <div class="shell-row shell-context-bar" id="context-bar">
+    <div class="context-item">
+      <span class="context-label">Account</span>
+      <span class="context-value" id="ctx-account">Ride Internal Account</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Instrument / Venue</span>
+      <span class="context-value" id="ctx-instrument">BTC/USDT — Binance</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Strategy Definition</span>
+      <span class="context-value" id="ctx-strategy-def">sd-fam-001</span>
+    </div>
+    <div class="context-item context-item-live">
+      <span class="context-label">Live</span>
+      <span class="context-value badge badge-unauthorized" id="ctx-live">Unauthorized</span>
+    </div>
+  </div>
+  <nav class="shell-row shell-nav" id="nav-bar" aria-label="Lifecycle stage navigation">
+    <a class="nav-btn" href="../batch-01/index.html" data-nav="NAV-001">Research</a>
+    <a class="nav-btn" href="../batch-02/index.html" data-nav="NAV-002">Replay</a>
+    <a class="nav-btn" href="../batch-03/index.html" data-nav="NAV-003">Backtest</a>
+    <a class="nav-btn" href="../batch-04/index.html" data-nav="NAV-004">Paper</a>
+    <a class="nav-btn" href="../batch-05/index.html" data-nav="NAV-005">Review</a>
+    <button class="nav-btn nav-btn-active" data-nav="NAV-006" data-target="screen-improve">Improve</button>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- NAV-006 destination: SCR-010 (Strategy Definition Version Creation) + VIEW-006 (Strategy
+       Instance Creation/Binding) + SCR-011 (Strategy Version Comparison) + VIEW-005 (Old-Version
+       Evidence Access). Improve owns ONLY version creation, Instance registration, comparison,
+       and old-version evidence access — no organization/strategy-administration behavior. -->
+  <section class="screen" id="screen-improve" data-screen="NAV-006">
+    <h1>Improve <span class="stage-label">Improve</span></h1>
+    <p class="purpose">Create a new Strategy Definition Version, register a separate Strategy
+      Instance bound to it, compare outcomes across versions (same-mode or cross-mode), and
+      inspect old-version evidence that remains accessible even when a version is no longer
+      active.</p>
+
+    <div class="subtab-row" id="improve-subtabs">
+      <button class="subtab-btn" data-subtab="scr-010">Version Creation (SCR-010)</button>
+      <button class="subtab-btn" data-subtab="view-006">Instance Registration (VIEW-006)</button>
+      <button class="subtab-btn" data-subtab="scr-011">Version Comparison (SCR-011)</button>
+      <button class="subtab-btn" data-subtab="view-005">Old-Version Evidence (VIEW-005)</button>
+    </div>
+
+    <!-- SCR-010 Strategy Definition Version Creation. Traceability: traceability.md#scr-010 -->
+    <div id="scr-010-body">
+      <!-- populated by app.js -->
+    </div>
+
+    <!-- VIEW-006 Strategy Instance Creation/Binding. Traceability: traceability.md#view-006 -->
+    <div id="view-006-body" class="screen-hidden">
+      <!-- populated by app.js -->
+    </div>
+
+    <!-- SCR-011 Strategy Version Comparison. Traceability: traceability.md#scr-011 -->
+    <div id="scr-011-body" class="screen-hidden">
+      <!-- populated by app.js -->
+    </div>
+
+    <!-- VIEW-005 Old-Version Evidence Access. Traceability: traceability.md#view-005 -->
+    <div id="view-005-body" class="screen-hidden">
+      <!-- populated by app.js -->
+    </div>
+  </section>
+
+</main>
+
+<!-- Prototype QA panel — NOT part of the authoritative UX itself. Simulates STATE-025/026 and the
+     SCR-011 required-context-missing scenario without a real event log/Strategy engine. -->
+<footer class="qa-panel" id="qa-panel">
+  <button id="qa-toggle" class="qa-toggle" aria-expanded="false">Batch 06 QA state switcher (prototype tooling — not authoritative UX)</button>
+  <div class="qa-body qa-hidden" id="qa-body">
+    <div class="qa-group">
+      <span class="qa-group-label">Old-version PAPER evidence (VIEW-005 STATE-025/026)</span>
+      <button class="qa-btn" data-qa="state025-complete">STATE-025 complete (default)</button>
+      <button class="qa-btn" data-qa="state026-partial">STATE-026 partial (PAPER Fill/Position unavailable)</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">SCR-011 required context</span>
+      <button class="qa-btn" data-qa="scr011-evidence-exists">≥2 Instances exist (default)</button>
+      <button class="qa-btn" data-qa="scr011-evidence-missing">Missing — STATE-002</button>
+    </div>
+    <div class="qa-group">
+      <button class="qa-btn qa-btn-reset" id="qa-reset">Reset demo state (clears created versions/registered instances)</button>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

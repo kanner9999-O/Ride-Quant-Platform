@@ -2,6 +2,140 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 06 authored (Improve — final planned Phase-2 milestone)
+
+**Authoring transaction — vai trò: `Phase 2 Product Prototype Batch 06 Author`.** Authors NAV-006
++ SCR-010 (Strategy Definition Version Creation) + VIEW-006 (Strategy Instance Creation/Binding)
++ SCR-011 (Strategy Version Comparison) + VIEW-005 (Old-Version Evidence Access) as one coherent
+Improve milestone, per `P2-PROTOTYPE-001` — the final planned Phase-2 Product Prototype milestone.
+Review A + Independent Review B are NOT performed by this transaction — this is authoring only.
+
+### Baseline
+
+```text
+Starting HEAD:    30c405bbb95010a8130d102a0c03a9aadfa1e29f (verified via git rev-parse HEAD before
+  any file was created)
+Batch 01/02/03/04/05: git status --porcelain=v1 -uall on all five directories returned empty
+  (zero diff) — confirmed untouched throughout this transaction.
+```
+
+### Authority inspected
+
+```text
+docs/product/ux-blueprint.md (NAV-006 §5a, SCR-010/VIEW-006/SCR-011/VIEW-005 §7.6, STATE-002 row
+  — SCR-011 explicitly listed in its own canonical "Applicable screen/view" column, no disclaimer
+  needed unlike Batch 05's SCR-008/009 — STATE-025/026 §11 rows), docs/product/use-case-
+  workflow.md (UC-019/020/021 detailed blocks), docs/domain/strategy.md (full document — §1
+  Strategy Definition Version seven-field schema + invalidate-only-no-replacement correction
+  policy, §5/§6 Strategy Instance four independent evidence axes + UNSEEN/ACTIVE/PAUSED/RETIRED
+  state machine, §9a computation eligibility, §10 downstream reference contract, §15
+  prohibitions), docs/product/product-requirement.md (PR-031/PR-032 full statement), docs/domain/
+  decision.md, risk.md, trade-intent.md, execution-intent.md, order.md, execution-result.md,
+  fill.md, position.md (vocabulary reference only, per task scope — not redefined),
+  docs/phase-dod/phase-2-dod.md, docs/governance/phases/phase-2-rules.md, docs/constitution/
+  02-platform-invariants.md, docs/MANIFEST.md. ADR-013 referenced only as strategy.md itself
+  cites it (four independent evidence axes) — not independently re-inspected beyond that.
+```
+
+### Scope
+
+```text
+Candidate surfaces: SCR-010, VIEW-006, SCR-011, VIEW-005 (+4/17 — completes the full 17-surface
+  candidate set). Candidate substantive UC: UC-019, UC-020, UC-021 (+3/21 — completes the full
+  21-UC candidate set). NAV-006 fully represented (required context is action-specific per
+  destination, never a navigation blocker). VIEW-006 represents the UC-019→UC-002 handoff
+  (registration, distinct from selection/pinning) — UC-002 NOT double-counted (already
+  independently verified since Batch 01).
+Six non-negotiable Improve invariants implemented and verified (traceability.md §5): INV-1 new
+  version = new immutable identity (buildNewVersion() append-only, old fixture never mutated),
+  INV-2 no invented Strategy Definition schema (exactly strategy.md §1's seven fields), INV-3
+  VIEW-006 registration ≠ VIEW-001 selection/pinning (no pin flag anywhere, exact required
+  handoff wording, real link only), INV-4 comparison keeps evidence families separate (two
+  independent render functions, zero score/rank/normalize function), INV-5 old-version evidence
+  stays accessible (identity always first, independent per-family resolution), INV-6 registration
+  vs inspection actions distinct (exactly two creation functions, all comparison/evidence-access
+  render functions read-only).
+"No longer active" modeled faithfully: strategy.md has no "active" field on Definition Version
+  (versions are never invalidated merely for being superseded) — represented instead as a
+  genuine RETIRED Strategy Instance (strategy.md §5 lifecycle value) bound to the older version,
+  the version itself remaining independently resolvable, never invalidated.
+```
+
+### Created files
+
+```text
+prototype/phase-2/batch-06/index.html          blob 3f081111c260e64618689490363bfdb6255bdc23
+prototype/phase-2/batch-06/app.js               blob b37967b62457595f7ac6cfb5fba692b6d255e9f2
+prototype/phase-2/batch-06/styles.css           blob 5114548728ad678c16f862e79b09b71798d8df69
+prototype/phase-2/batch-06/traceability.md      blob d8f1e360f2f726061049af0accfab7ecdb4971ff
+prototype/phase-2/batch-06/batch-manifest.md    (new, v1.0)
+prototype/phase-2/batch-06/README.md            (new, v1.0)
+docs/MANIFEST.md   manifest_version 10.149 → 10.150. Batch 06 row added (compact, per
+  P2-BUDGET-001 discipline — full journey lives in batch-manifest.md §17 + this CHANGELOG only).
+  Confirmation paragraph below the batch table updated: candidate cumulative 17/17 surfaces,
+  21/21 UC (Batch 06's own +4/+3 explicitly marked CHƯA independently verified); last
+  independently verified progress unchanged at 13/17, 18/21 (Batch 01-05 baseline).
+```
+
+### Preserved unchanged
+
+```text
+prototype/phase-2/batch-01/ .. batch-05/  UNCHANGED (git status --porcelain -uall returned empty
+  for all five). docs/product/, docs/domain/, docs/phase-dod/, docs/governance/,
+  docs/constitution/  UNCHANGED — read-only authority inspection only. No ADR created (no
+  Trigger fired). No new Domain Contract/API/schema. No Strategy management service/engine
+  implemented — every SCR-010/VIEW-006/SCR-011/VIEW-005 value is a hardcoded or
+  counter-generated deterministic fixture. No credential-shaped <input> element, no fetch/XHR/
+  WebSocket/axios/.ajax call, no credential-pattern match (grep clean, one incidental match
+  inside a disclaiming comment). No Strategy Definition aggregate beyond family identity, no
+  mutable "latest" object, no version graph, no approval workflow, no optimizer/DSL, no
+  auto-ranking/scoring, no unified Backtest/PAPER outcome object, no unified old-version
+  evidence object.
+```
+
+### Result
+
+```text
+Candidate progress (Batch 01+02+03+04+05+06): 17/17 surfaces, 21/21 substantive UC
+  (A={001..021}, B=∅=0, C=∅=0; partition mechanically valid: pairwise disjoint,
+  union={UC-001..021}, 21+0+0=21). This is the final planned Phase-2 Product Prototype milestone
+  — the candidate 17-surface/21-UC set is now closed.
+Batch 06: lifecycle CANDIDATE, NOT self-approved, NO review verdict yet — Review A + Independent
+  Review B not performed by this transaction.
+Last independently verified progress UNCHANGED at 13/17 surfaces, 18/21 UC (Batch 01-05 baseline)
+  until Batch 06 completes its own Review A + Independent Review B.
+I-11: PASS (Access-control audit, bounded Phase-2 interpretation — no credential capability, no
+  credential input surface, no signing/custody/backend integration, no real secret).
+I-12: PASS (traceability.md §3/§4 — every element traces to an existing NAV/SCR/VIEW/STATE + UC +
+  PR + exact authoritative source section; zero new UC/PR/domain concept originated).
+Trigger B/C/D/E: boundary preserved, no re-resolution triggered (batch-manifest.md §12).
+Phase 2 substantive completion: NOT ESTABLISHED — reaching a candidate 17/17 surfaces and 21/21
+  UC at authoring time does NOT establish completion; this batch still requires its own governed
+  Review A + Independent Review B, and Phase-2 completion additionally requires Quality
+  Gate/Gate 3 evidence entirely separate from per-batch review. Quality Gate: NOT RUN. Gate 3:
+  NOT OPENED. P2-RETRO-001: NOT PERFORMED. Phase 3: NOT AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+node --check prototype/phase-2/batch-06/app.js: OK.
+Secret-pattern grep (api_key/secret/password/private_key/token/credential/...): clean (one
+  incidental match inside app.js's own disclaiming file-header comment).
+Network-call grep (fetch/XMLHttpRequest/WebSocket/axios/.ajax): clean.
+Credential-shaped <input> element grep: clean (only illustrative thesis/supported_scope text
+  fields exist).
+Batch 01/02/03/04/05 untouched: git status --porcelain=v1 -uall clean.
+Forbidden authority-path modification check (docs/product, docs/domain, docs/phase-dod, docs/
+  governance, docs/constitution): git status --porcelain=v1 -uall clean.
+Manual logic review of app.js/index.html element-ID cross-references performed (no headless
+  browser tool available in this environment — this is a static/logic review, NOT a claim that
+  the page was visually exercised in an actual browser). Two minor dead-code items found and
+  removed during this review (an unused result div in VIEW-006, an unused local variable in the
+  comparison renderer) before finalizing. One leaked mid-thought editing artifact was
+  self-caught and corrected in traceability.md before finalizing.
+```
+
 ## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 05 review-state bookkeeping reconciliation (deterministic, G-TXN-003)
 
 **Bookkeeping reconciliation — vai trò: `Phase 2 Prototype Batch 05 Review-State Reconciliation
