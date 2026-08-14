@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.152"
+manifest_version: "10.153"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -255,6 +255,68 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | Batch 06 — Improve / new strategy version / instance registration / version comparison / old-version evidence access | [`prototype/phase-2/batch-06/`](../prototype/phase-2/batch-06/) | `CANDIDATE` — review COMPLETE, verdict `READY_FOR_NEXT_PHASE2_GOVERNED_STEP` (v1.1 artifact) | NAV-006 (full) · NAV-001/002/003/004/005 (real link tới Batch 01/02/03/04/05, KHÔNG re-author) · SCR-010 · VIEW-006 · SCR-011 · VIEW-005 | verified cumulative 21/21 (A={001..021}, B=∅, C=∅, mechanically verified) | **v1.2 bookkeeping reconciliation (2026-08-14), vai trò: `Phase 2 Prototype Batch 06 Review-State Reconciliation Executor`.** Verified Batch-06 contribution: +4/17 surfaces (SCR-010, VIEW-006, SCR-011, VIEW-005), +3/21 UC (UC-019, UC-020, UC-021). Verified cumulative prototype coverage (Batch 01+02+03+04+05+06): 17/17 surfaces, 21/21 UC — INDEPENDENTLY VERIFIED COMPLETE (prototype substantive coverage; distinct from Phase-2 full completion/gate eligibility, NOT established by this transaction). Remaining: 0/17 surfaces, 0/21 UC. Final bounded Review A v1.1 CLEAN (đóng `P2-B06-A-MAJ-01`/`P2-B06-A-MAJ-02`/`P2-B06-A-MIN-01`, 0/0/0) + final Independent Review B v1.1 verdict `READY_FOR_NEXT_PHASE2_GOVERNED_STEP` (0/0/0, regression CLEAN) — review COMPLETE, KHÔNG bounded re-review nào chờ xử lý. Lifecycle VẪN `CANDIDATE` (verdict review ≠ lifecycle promotion; Product Owner CHƯA issue lifecycle-promotion transaction). Batch 01/02/03/04/05 KHÔNG chạm. Next governed step: separately governed Phase-2 completion/exit evidence sequence under approved Phase-2 DoD (KHÔNG author tại transaction này). Full authoring/correction/review history: [`batch-manifest.md`](../prototype/phase-2/batch-06/batch-manifest.md) §17, `docs/CHANGELOG.md`. |
 
 **Xác nhận tường minh (v10.152, Batch 06 review-state bookkeeping reconciliation 2026-08-14, đúng G-TXN-003):** batch table trên LÀ current-state pointer (I-12 convention chung) — KHÔNG PHẢI authority cho nội dung/traceability/review-state, authority đó xác nhận DUY NHẤT bởi chính `batch-manifest.md`/`traceability.md` của batch tương ứng. Với Batch 06's review hoàn tất, TOÀN BỘ SÁU batch prototype (Batch 01-06) NAY ĐÃ independently verified — cumulative **17/17 surfaces, 21/21 substantive UC** (mỗi batch tự nó đã qua đầy đủ Review A + Independent Review B, verdict `READY_FOR_NEXT_PHASE2_BATCH`/`READY_FOR_NEXT_PHASE2_GOVERNED_STEP`) — đây LÀ **prototype substantive coverage hoàn tất** theo `phase-2-dod.md` §3 criterion 3. **Phân biệt tường minh, KHÔNG được conflate:** "prototype substantive coverage complete" (17/17 + 21/21, ĐÃ xác nhận) KHÁC HOÀN TOÀN "Phase 2 Approved"/"Gate 3 passed" — Phase-2 full completion/gate eligibility VẪN CHƯA established bởi transaction này, và đòi hỏi: Quality Gate (`NOT RUN`), full-scope Phase-2 BCC (`NOT RUN`, trừ khi đã ghi nhận riêng bởi repository authority khác), phase-level Gate review (`NOT RUN`, trừ khi đã ghi nhận riêng), Gate 3 (`NOT OPENED`), Product Owner Phase-2 approval (`NOT ISSUED`), `P2-RETRO-001` (`NOT PERFORMED`) — KHÔNG một trong số này được transaction này thực hiện/tuyên bố. `READY_FOR_NEXT_PHASE2_GOVERNED_STEP`/`READY_FOR_NEXT_PHASE2_BATCH` LÀ completed-review verdict, KHÔNG PHẢI lifecycle status, KHÔNG PHẢI Phase-2 approval — cả SÁU batch VẪN lifecycle `CANDIDATE` (Product Owner CHƯA issue lifecycle-promotion transaction riêng cho batch nào, KHÔNG batch nào được promote bởi transaction này). Phase 2 VẪN `ACTIVE`/`AUTHORIZED` (current_phase KHÔNG đổi). Phase 3/LIVE VẪN NOT AUTHORIZED. Transaction này KHÔNG PHẢI lifecycle transition, KHÔNG PHẢI prototype semantic correction, KHÔNG PHẢI Phase-2 approval transaction — CHỈ reconcile review-state/current-progress bookkeeping cho Batch 06 (chi tiết đầy đủ tại `docs/CHANGELOG.md`).
+
+## Phase 2 — Full-Scope Backward Consistency Check (P2-BCC-MAJ-01)
+
+```text
+Full-scope BCC result:         REVISION_REQUIRED.
+Finding:                       P2-BCC-MAJ-01 (Major) — Replay/SCR-002/UC-004 authority-class
+                              wording contradicted position.md §1 (Position is a non-authoritative
+                              derived projection, not an authoritative fact/event stream) by
+                              describing the full Decision→...→Position lineage under one
+                              universal "authority=authoritative recorded fact"/"toàn bộ
+                              authoritative event stream" label.
+Finding state:                 OPEN → correction candidate authored (this transaction, 2026-08-14).
+                              NOT closed — pending governed Review A + Independent Review B +
+                              Product Owner consolidation/revalidation on the corrected artifacts
+                              below.
+Affected authority artifacts
+  (candidate corrections):     docs/product/product-requirement.md v0.4 → v0.5 (PR-018 corrected;
+                              PR-019 unchanged, regression-verified byte-identical) — CANDIDATE.
+                              docs/product/use-case-workflow.md v0.8 → v0.9 (UC-004 corrected) —
+                              CANDIDATE.
+                              docs/product/ux-blueprint.md v0.7 → v0.8 (SCR-002 corrected) —
+                              CANDIDATE.
+                              None self-consolidated; historical Consolidated-Stable lifecycle
+                              evidence on all three documents (incl. the VIEW-003/UC-005/decision.md
+                              §9a Consolidated Stable banners) preserved untouched.
+Corrected model:                ReplayState(C) = authoritative recorded facts (Decision→Trade
+                              Intent→RiskEvaluation→Execution Intent→Order→ExecutionResult→Fill,
+                              visible at recorded_time ≤ C) PLUS Position, a derived/deterministic/
+                              non-authoritative projection reconstructed at the SAME canonical
+                              Replay Cursor C (position.md §2) — Position remains a required part
+                              of the lineage displayed; only its authority-class label changed.
+Domain Contracts touched:      NONE — position.md/fill.md/replay-event.md untouched, verified
+                              byte-identical (git diff --quiet).
+Prototype touched:             NONE — prototype/phase-2/batch-02/ and all other batches untouched
+                              this transaction (Batch 02's own prototype behavior correction, if
+                              any, is a separate future governed transaction).
+Clean full-scope BCC support
+  (distinct axis from
+  per-batch review verified
+  counts above):                16/17 surfaces, 20/21 substantive UC — SCR-002/UC-004 currently
+                              withheld from "clean full-scope" support pending this correction's
+                              own governed review closing P2-BCC-MAJ-01. This is SEPARATE from,
+                              and does NOT reopen or reduce, the per-batch prototype review
+                              accounting recorded above (Batch 01-06 all CANDIDATE, review
+                              COMPLETE, verdict READY_FOR_NEXT_PHASE2_BATCH/
+                              READY_FOR_NEXT_PHASE2_GOVERNED_STEP, 17/17 surfaces + 21/21 UC
+                              independently verified at the prototype-batch level) — full-scope BCC
+                              clean-support and per-batch prototype review are two distinct
+                              gates/axes, not conflated.
+ADR Scope Rule check:          ADR_NOT_REQUIRED — this transaction restores derived Product/
+                              Workflow/UX representation to the already-controlling position.md
+                              Domain Contract; it creates/alters no Platform Invariant, Event
+                              Schema, module taxonomy/dependency graph, governance process,
+                              architecture, Domain Contract, or irreversible cross-module decision.
+Governance state preserved:    Phase 2 ACTIVE/AUTHORIZED (current_phase unchanged). All six
+                              prototype batches remain CANDIDATE. Full-scope BCC remains
+                              REVISION_REQUIRED. Quality Gate NOT RUN. Gate-3 eligibility NOT
+                              ESTABLISHED. Gate 3 NOT OPENED. Product Owner Phase-2 decision NOT
+                              ISSUED. P2-RETRO-001 NOT PERFORMED. Phase 3 NOT AUTHORIZED. LIVE NOT
+                              AUTHORIZED.
+Full history:                   docs/CHANGELOG.md.
+```
 
 ## Phase 0 Approval Gate — Decision (immutable Phase-decision bundle, Chapter 14 §14.4.1–§14.4.2)
 

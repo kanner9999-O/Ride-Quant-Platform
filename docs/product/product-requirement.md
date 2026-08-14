@@ -1,7 +1,7 @@
 ---
 id: product-requirement
 title: Product Requirement
-version: "0.4"
+version: "0.5"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -23,6 +23,24 @@ next_review: null
 **v0.3 — CANDIDATE semantic clarification (2026-08-06) — HISTORICAL, superseded bởi VIEW-003 Consolidated Stable banner trên; tại thời điểm authoring: KHÔNG Approved/Consolidated, pending Review A/Independent Review B/Product Owner decision — Product Owner authorized (timestamp 2026-08-06T09:21:00+07:00) bounded source-semantics clarification cho VIEW-003 replay parity verification:** `canonical semantic-decision hash` (PR-010/PR-019) NAY resolve tới một định nghĩa CỤ THỂ — `decision.md` v0.4 §9a (CANDIDATE, cùng transaction) cung cấp **Canonical Decision Semantic Representation** VÀ **Canonical Decision Semantic Digest** lần đầu tiên; PRD này VẪN KHÔNG hardcode danh sách field (đúng nguyên tắc I-2 Verification, KHÔNG đổi) — CHỈ cập nhật pointer từ "chưa resolve" thành "resolve tại decision.md §9a." PR-010/PR-019 acceptance evidence cập nhật thêm outcome INDETERMINATE (bên cạnh match/mismatch đã có) — đúng §9a.6 outcome model MỚI. Bounded — KHÔNG đổi 34 requirement gốc ngoài cập nhật pointer/outcome trên, KHÔNG chọn computation owner/module/package/dependency edge/ADR, KHÔNG đổi Backtest/Replay authority boundary đã pin, KHÔNG Approve/Lock/Consolidate.
 
 **v0.4 — CANDIDATE bounded correction (2026-08-06) — HISTORICAL, superseded bởi VIEW-003 Consolidated Stable banner trên; tại thời điểm authoring: KHÔNG Approved/Consolidated, pending bounded verification/Independent Review B/Product Owner decision — đóng bốn Review A finding trên `decision.md` §9a v0.4 (`P16-V003-A-MAJ-01`/`P16-V003-A-MAJ-02`/`P16-V003-A-MAJ-03`/`P16-V003-A-MIN-01`, xem `decision.md` v0.5):** PR-010/PR-019 acceptance evidence cập nhật tường minh — parity comparison PHẢI pin đầy đủ implementation identity (`decision_implementation_version`) khi recorded Decision đã establish reference đó, KHÔNG optional; recomputation PHẢI dùng ĐÚNG CÙNG implementation identity với recorded side; output bằng nhau dưới implementation identity khác nhau/không xác nhận được KHÔNG đủ căn cứ cho MATCH → INDETERMINATE. Digest (khi PRD nhắc tới `canonical semantic-decision hash` như một giá trị compact) KHÔNG còn ngụ ý tự động tương đương với so sánh field-by-field — structured Representation (`decision.md` §9a.1) LÀ so sánh authority; digest CHỈ compact derived evidence, đòi hỏi một digest-definition riêng (`decision.md` §9a.5b) CHƯA established. Representation-definition identity (`decision_semantic_representation_definition_id`/`version`) nay tách biệt tường minh khỏi version tài liệu `decision.md` — PRD KHÔNG tự mình định nghĩa lại, CHỈ trỏ tới `decision.md` §9a.5b. Danh sách pinned axis mở rộng đầy đủ chín trục (Strategy Instance, Strategy Definition Version, Configuration Version, Decision rule identity/version, Decision implementation provenance khi có, canonical Replay Cursor, input evidence reference, semantic-representation-definition version, digest-definition version khi dùng digest) — bất kỳ trục nào không resolve nhất quán → INDETERMINATE. KHÔNG redesign VIEW-003; KHÔNG chọn parity computation owner/module/package/dependency edge/ADR; KHÔNG đổi 34 requirement gốc ngoài các cập nhật acceptance-evidence trên; KHÔNG Approve/Lock/Consolidate.
+
+**v0.5 — CANDIDATE bounded semantic correction (2026-08-14), đóng `P2-BCC-MAJ-01` (Phase-2
+Full-Scope Backward Consistency Check MAJOR finding) — KHÔNG Approved/Consolidated, pending Review
+A/Independent Review B/Product Owner decision:** `PR-018` Statement/Rationale/Source/Acceptance
+evidence viết lại — trước đây "bao gồm toàn bộ lineage Decision→...→Position" và "ReplayState hiển
+thị tại cursor C chỉ chứa fact có recorded_time ≤ C" ngụ ý Position là một fact có `recorded_time`
+như mọi fact khác trong lineage, mâu thuẫn trực tiếp `position.md` §1 (Position là `kind:
+read_model`, derived projection, non-authoritative, KHÔNG event stream riêng, dẫn xuất hoàn toàn
+từ `eligible_as_position_contributing_fill`, fill.md §6). Sửa: tách bạch tường minh authoritative
+recorded fact lineage (Decision→Trade Intent→RiskEvaluation→Execution Intent→Order→
+ExecutionResult→Fill, hiển thị theo `recorded_time ≤ C`, KHÔNG đổi) KHỎI Position (derived,
+deterministic, non-authoritative projection, reconstruct TẠI CÙNG cursor C, KHÔNG PHẢI fact
+riêng). Position VẪN LÀ phần bắt buộc của `ReplayState(C)` (KHÔNG loại bỏ) — CHỈ authority-class
+sửa cho khớp `position.md` đã pin từ trước. `PR-019` KHÔNG đổi (đã KHÔNG nhắc Position, chỉ nói về
+Decision — regression preserved, verify byte-identical). KHÔNG đổi canonical Replay Cursor,
+no-look-ahead rule, 34 requirement gốc khác, sáu-giai-đoạn lifecycle, `OQ-002`/`OQ-003` Open,
+KHÔNG PR mới/renumber, KHÔNG sửa `position.md`/`fill.md`/`replay-event.md` (Domain Contract,
+không sửa), KHÔNG Approve/Lock/Consolidate. Trạng thái: **CANDIDATE, pending governed review.**
 
 **Authority boundary:** tài liệu này sở hữu **product requirement content** cho Phase 0.3 — KHÔNG sở hữu domain semantics (thuộc `/docs/domain/`, không sửa), KHÔNG sở hữu architecture quyết định (thuộc Phase 1, `/docs/architecture/`), KHÔNG sở hữu UX screen/flow design chi tiết (thuộc Package 0.3-C `ux-blueprint.md`, chưa author), KHÔNG đóng Open Question nào (`OQ-002`/`OQ-003` vẫn `Open`, xem §13), KHÔNG authorize Live, KHÔNG tuyên bố Phase 0.3/Phase 0 hoàn thành.
 
@@ -296,10 +314,20 @@ Acceptance evidence: Sau một phiên Research, KHÔNG có Decision/RiskEvaluati
 **PR-018 — Chọn canonical Replay Cursor và xem state tái dựng**
 ```text
 Statement:          Người dùng PHẢI chọn được một canonical Replay Cursor và xem đúng ReplayState(C) tại
-                     cursor đó — bao gồm toàn bộ lineage Decision→...→Position.
-Rationale:           Replay Cursor là cơ chế duy nhất pin "thời điểm lịch sử" tường minh.
-Source:              Chapter 8 §8.5 (Locked); replay-event.md.
-Acceptance evidence: ReplayState hiển thị tại cursor C chỉ chứa fact có recorded_time ≤ C (no-look-ahead).
+                     cursor đó — bao gồm toàn bộ lineage Decision→Trade Intent→RiskEvaluation→Execution
+                     Intent→Order→ExecutionResult→Fill (authoritative recorded fact, hiển thị TẠI cursor
+                     đó) VÀ Position (derived, deterministic, non-authoritative projection — position.md
+                     — reconstruct TẠI CÙNG cursor C từ Fill eligible tại C, KHÔNG PHẢI fact riêng, KHÔNG
+                     event stream riêng — v0.5, đóng `P2-BCC-MAJ-01`).
+Rationale:           Replay Cursor là cơ chế duy nhất pin "thời điểm lịch sử" tường minh — áp dụng nhất
+                     quán CẢ cho authoritative-fact visibility LẪN derived-projection reconstruction.
+Source:              Chapter 8 §8.5 (Locked); replay-event.md; position.md (Position projection
+                     semantics, tham chiếu, KHÔNG redefine).
+Acceptance evidence: ReplayState hiển thị tại cursor C — (a) mọi authoritative fact (Decision, Trade
+                     Intent, RiskEvaluation, Execution Intent, Order, ExecutionResult, Fill) CHỈ hiển thị
+                     khi recorded_time ≤ C (no-look-ahead); (b) Position hiển thị LÀ kết quả deterministic
+                     reconstruction TẠI CÙNG cursor C (position.md §2 fold algorithm) — Position KHÔNG có
+                     recorded_time riêng, KHÔNG PHẢI một fact/event trong event stream.
 ```
 
 **PR-019 — Historical reconstruction (mặc định) và parity recomputation (tuỳ chọn) — Replay KHÔNG tạo Decision mới**

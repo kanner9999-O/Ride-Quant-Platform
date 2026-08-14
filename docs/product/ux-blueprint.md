@@ -1,7 +1,7 @@
 ---
 id: ux-blueprint
 title: UX Blueprint
-version: "0.7"
+version: "0.8"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -35,6 +35,30 @@ next_review: null
 **v0.6 — CANDIDATE semantic clarification (2026-08-06) — HISTORICAL, superseded bởi VIEW-003 Consolidated Stable banner trên; tại thời điểm authoring: KHÔNG Approved/Consolidated, pending Review A/Independent Review B/Product Owner decision — Product Owner authorized (timestamp 2026-08-06T09:21:00+07:00) bounded source-semantics clarification cho VIEW-003 replay parity verification:** `use-case-workflow.md` v0.7 (CANDIDATE) thêm một outcome workflow-visible thứ ba cho `UC-005` — **INDETERMINATE** — bên cạnh match/mismatch đã có, dùng khi parity recomputation evidence thiếu/stale/invalidated/ambiguous/non-evaluable (`decision.md` §9a.6, CANDIDATE cùng transaction). `VIEW-003` (§7 spec block) trước đây CHỈ resolve về hai state (`STATE-007` parity match, `STATE-008` parity mismatch) — KHÔNG đủ để biểu diễn outcome thứ ba này. Nay THÊM một stable state identifier MỚI — **`STATE-030` — parity indeterminate** — vào catalogue §13 (29 → 30 trạng thái). Đây là **Product/UX semantic candidate requiring review**, KHÔNG phải mechanical/cosmetic — mở rộng catalogue acceptance-surface identifier, do đó đóng vai trò input bắt buộc cho Review A/Independent Review B trước khi coi `STATE-030` là Consolidated. `VIEW-003` "Information displayed"/"Evidence consumed"/"Primary states"/"Empty-unavailable-blocked states" cập nhật để phản ánh ba outcome; §14e (STATE→UC/PR)/§14f (UC→UX)/§14g (PR→UX) cập nhật đồng bộ để thêm `STATE-030`. KHÔNG stable ID nào khác thêm/bớt/đổi tên; KHÔNG screen/nav/flow mới; `NAV-003`/`VIEW-002` giữ nguyên unresolved; KHÔNG chọn computation owner/module/package/dependency edge/ADR; KHÔNG Approve/Lock/Consolidate.
 
 **v0.7 — CANDIDATE bounded correction (2026-08-06) — HISTORICAL, superseded bởi VIEW-003 Consolidated Stable banner trên; tại thời điểm authoring: KHÔNG Approved/Consolidated, pending bounded verification/Independent Review B/Product Owner decision — đóng bốn Review A finding trên `decision.md` §9a v0.4 (`P16-V003-A-MAJ-01`/`P16-V003-A-MAJ-02`/`P16-V003-A-MAJ-03`/`P16-V003-A-MIN-01`, xem `decision.md` v0.5):** `VIEW-003` §7 spec block wording cập nhật — INDETERMINATE (`STATE-030`, vẫn CANDIDATE — 29→30 catalogue amendment KHÔNG đổi bởi correction này) nay tường minh bao gồm trường hợp implementation identity (`decision_implementation_version`) established tại recorded Decision nhưng không resolve/reproduce được ở một phía, và trường hợp digest-definition (khi dùng digest) unresolved/incompatible. KHÔNG thêm state/screen/view/flow/action mới; KHÔNG đổi ba-outcome model (MATCH/MISMATCH/INDETERMINATE); §14e/§14f/§14g KHÔNG đổi (đã có `STATE-030` từ v0.6). `NAV-003`/`VIEW-002` giữ nguyên unresolved. KHÔNG chọn computation owner/module/package/dependency edge/ADR; KHÔNG redesign VIEW-003; KHÔNG Approve/Lock/Consolidate.
+
+**v0.8 — CANDIDATE bounded semantic correction (2026-08-14), đóng `P2-BCC-MAJ-01` (Phase-2
+Full-Scope Backward Consistency Check MAJOR finding) — KHÔNG Approved/Consolidated, pending Review
+A/Independent Review B/Product Owner decision:** `SCR-002` "Information displayed"/"System-owned
+actions"/"Evidence consumed"/"Authority labels" viết lại — trước đây gán MỘT nhãn phổ quát
+"authority=authoritative recorded fact (default reconstruction)" cho TOÀN BỘ lineage kể cả
+Position, và "Evidence consumed" gọi cả chuỗi (kể cả Position) là "toàn bộ authoritative event
+stream" — mâu thuẫn trực tiếp `position.md` §1 (Position là `kind: read_model`, derived
+projection, non-authoritative, KHÔNG event stream riêng, dẫn xuất hoàn toàn từ
+`eligible_as_position_contributing_fill`, fill.md §6). Sửa: tách bạch tường minh (a) authoritative
+recorded fact lineage Decision→Trade Intent→RiskEvaluation→Execution Intent→Order→
+ExecutionResult→Fill (nhãn `authority=authoritative recorded fact`, hiển thị theo `recorded_time ≤
+C`, KHÔNG đổi) KHỎI (b) Position (nhãn RIÊNG `authority=derived deterministic non-authoritative
+projection`, reconstruct TẠI CÙNG cursor C, KHÔNG PHẢI fact riêng, KHÔNG event stream riêng).
+ReplayState(C) presentation tự thân xác nhận LÀ historical reconstruction/read-only, KHÔNG một
+authority stream mới. Position VẪN LÀ phần bắt buộc của lineage hiển thị (KHÔNG loại bỏ khỏi
+Information displayed) — CHỈ authority-class của nó sửa cho khớp `position.md` đã pin từ trước.
+KHÔNG đổi SCR-002 identity/Lifecycle stage/canonical Replay Cursor/full lineage-through-Position
+requirement/historical-reconstruction-as-default/VIEW-003 optional parity handoff/STATE-001/
+STATE-006 behavior/UC-PR traceability/no-look-ahead/no-new-fact-creation, KHÔNG SCR/VIEW/STATE
+mới, KHÔNG pixel/layout detail nào invent, KHÔNG universal rule "mọi ReplayState constituent là
+event hoặc Position" nào tạo — CHỈ chính xác hai constituent SCR-002 thực sự hiển thị. KHÔNG sửa
+`position.md`/`fill.md`/`replay-event.md` (Domain Contract, không sửa). Trạng thái: **CANDIDATE,
+pending governed review.**
 
 ## 1. Purpose and authority boundary
 
@@ -552,17 +576,30 @@ Entry points:            NAV-002 (Replay), sau khi Strategy Instance đã pin (V
 Exit points:             VIEW-003 (tuỳ chọn parity recomputation); hoặc chuyển NAV khác (Backtest/
                          Review).
 Required context:        Strategy Instance đã chọn; Instrument/Venue hợp lệ; canonical Replay Cursor.
-Information displayed:   ReplayState(C) — Decision→Trade Intent→RiskEvaluation→Execution Intent→
-                         Order→ExecutionResult→Fill→Position lineage TẠI cursor, chỉ fact có
-                         recorded_time ≤ C.
+Information displayed:   ReplayState(C) TẠI cursor, gồm HAI thành phần tách bạch authority (v0.8, đóng
+                         `P2-BCC-MAJ-01`): (a) authoritative recorded fact lineage Decision→Trade
+                         Intent→RiskEvaluation→Execution Intent→Order→ExecutionResult→Fill, chỉ fact
+                         có recorded_time ≤ C (no-look-ahead); VÀ (b) Position — derived, deterministic,
+                         non-authoritative projection (position.md §1/§2), KHÔNG PHẢI fact riêng, KHÔNG
+                         event stream riêng, reconstruct TRỌN VẸN TẠI CÙNG cursor C từ Fill eligible tại
+                         C (`eligible_as_position_contributing_fill`, fill.md §6).
 Available user actions:  Chọn Replay Cursor; xem lineage tại cursor.
 System-owned actions:    Resolve + hiển thị ReplayState(C) — KHÔNG tạo Decision hay authoritative fact
-                         nào (Replay authority boundary).
-Evidence consumed:       Toàn bộ authoritative event stream Decision→...→Position; canonical Replay
-                         Cursor (Chapter 8 §8.5).
+                         nào (Replay authority boundary); Position projection reconstruction CŨNG
+                         KHÔNG tạo fact/event mới nào.
+Evidence consumed:       Authoritative event stream Decision→Trade Intent→RiskEvaluation→Execution
+                         Intent→Order→ExecutionResult→Fill (v0.8, đóng `P2-BCC-MAJ-01` — Position KHÔNG
+                         còn liệt kê trong "event stream," xem mục (b) trên); Position derived
+                         projection (position.md §2, reconstruct tại CÙNG cursor C, non-authoritative);
+                         canonical Replay Cursor (Chapter 8 §8.5).
 Evidence produced:       KHÔNG — historical reconstruction thuần túy.
-Authority labels:        mode=Replay; authority=authoritative recorded fact (default reconstruction,
-                         §12).
+Authority labels:        mode=Replay; authority=authoritative recorded fact (Decision→Trade Intent→
+                         RiskEvaluation→Execution Intent→Order→ExecutionResult→Fill lineage, default
+                         reconstruction, §12) VÀ authority=derived deterministic non-authoritative
+                         projection (Position, reconstruct tại CÙNG cursor C — nhãn RIÊNG, KHÔNG BAO
+                         GIỜ gộp chung với nhãn authoritative recorded fact ở trên). ReplayState(C)
+                         presentation tự thân: historical reconstruction/read-only — KHÔNG một
+                         authority stream mới.
 Primary states:          STATE-001 loading; lineage hiển thị đầy đủ tại cursor.
 Empty/unavailable/
 blocked states:          STATE-006 Replay reference unavailable.

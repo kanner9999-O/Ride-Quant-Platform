@@ -2,6 +2,201 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — P2-BCC-MAJ-01 Product/Workflow/UX authority correction candidate authored (Replay / SCR-002 / UC-004 Position authority-class)
+
+**Bounded semantic correction — vai trò: `Phase 2 P2-BCC-MAJ-01 Product/Workflow/UX Authority
+Correction Executor`.** Corrects the derived Product/Workflow/UX authority-class wording for
+Replay/SCR-002/UC-004 to faithfully preserve the existing `position.md` Domain Contract (Position
+is a deterministic, non-authoritative projection/read model — NOT an authoritative recorded fact
+and NOT an event stream). Product/Workflow/UX authority ONLY — no Batch 02 prototype behavior
+change, no Domain Contract change.
+
+### Baseline
+
+```text
+Starting HEAD:    08037284c9ca3eb188bfb4fc168bd2ac81241c03
+```
+
+### Finding addressed
+
+```text
+P2-BCC-MAJ-01 (Phase-2 Full-Scope Backward Consistency Check, REVISION_REQUIRED):
+  SCR-002 prototype (Batch 02, NOT touched by this transaction) shows Decision→Trade Intent→
+  RiskEvaluation→Execution Intent→Order→ExecutionResult→Fill→Position under one common "Authority
+  class: Recorded fact (default reconstruction)" label. docs/product/ux-blueprint.md SCR-002 and
+  docs/product/use-case-workflow.md UC-004 similarly described the full lineage as "toàn bộ
+  authoritative event stream Decision→...→Position" and "authority=authoritative recorded fact"
+  universally. docs/domain/position.md §1 states unequivocally that Position is `kind: read_model`
+  — a deterministic, non-authoritative projection, with no event stream of its own, fully derived
+  from eligible_as_position_contributing_fill(fill_id, C) (fill.md §6), reconstructed at the
+  requested cursor. The Product/Workflow/UX documents do not own Domain semantics and must not
+  contradict this.
+```
+
+### Authority inspected
+
+```text
+docs/domain/position.md (full document — confirmed kind: read_model, non-authoritative, no event
+  stream, fold algorithm §2, position_context_cursor field), docs/domain/fill.md (§6
+  eligible_as_position_contributing_fill, referenced only, not modified), docs/domain/
+  replay-event.md (full document, already read this session — confirmed its OWN ReplayState(C)
+  formula §2 already correctly separates "derived Position projection ... KHÔNG authoritative" from
+  the authoritative fact components; replay-event.md itself required NO correction), docs/domain/
+  decision.md (vocabulary reference only), docs/product/product-requirement.md (PR-018/PR-019 full
+  text), docs/product/use-case-workflow.md (UC-004 full detailed block), docs/product/
+  ux-blueprint.md (SCR-002 + VIEW-003 full detailed blocks), docs/constitution/
+  02-platform-invariants.md, docs/constitution/12-approval-gates.md, docs/MANIFEST.md.
+```
+
+### Semantic resolution
+
+```text
+ReplayState(C) = authoritative recorded facts visible at cursor C (Decision, Trade Intent,
+  RiskEvaluation, Execution Intent, Order, ExecutionResult, Fill — recorded_time ≤ C, no-look-
+  ahead, unchanged) PLUS Position, a derived/deterministic/non-authoritative projection
+  reconstructed at the SAME canonical Replay Cursor C (position.md §2 fold algorithm). Position
+  remains a required, undropped part of the lineage displayed — only its authority-class
+  representation changed to match what position.md already specifies. No ReplayPosition entity/
+  event invented. No Position Domain semantics changed. No canonical Replay Cursor or no-look-
+  ahead rule changed.
+```
+
+### Correction 1 — product-requirement.md (v0.4 → v0.5, CANDIDATE)
+
+```text
+PR-018 Statement/Rationale/Source/Acceptance evidence rewritten: Statement now explicitly splits
+  the authoritative recorded-fact lineage (Decision→Trade Intent→RiskEvaluation→Execution Intent→
+  Order→ExecutionResult→Fill) from Position (derived, deterministic, non-authoritative projection,
+  reconstructed at the same cursor C). Acceptance evidence now distinguishes (a) recorded_time ≤ C
+  visibility for authoritative facts from (b) deterministic reconstruction at the same cursor for
+  Position — Position has no recorded_time of its own and is not a fact/event in the event stream.
+  PR-018 still requires the full historical lineage through Position (not dropped).
+PR-019: NOT modified — verified it never mentioned Position (Decision-only scope) — regression
+  preserved, confirmed byte-identical via diff (no hunk touches the PR-019 block).
+```
+
+### Correction 2 — use-case-workflow.md (v0.8 → v0.9, CANDIDATE)
+
+```text
+UC-004 Main flow step 2/3 and Evidence consumed rewritten: step 2 now explicitly separates (a) the
+  authoritative recorded fact lineage Decision→Trade Intent→RiskEvaluation→Execution Intent→Order→
+  ExecutionResult→Fill (recorded_time ≤ C, no-look-ahead, unchanged) from (b) Position — a derived,
+  deterministic, non-authoritative projection (position.md §1/§2), not a fact with its own
+  recorded_time, no event stream of its own, reconstructed fully at the same cursor C from
+  eligible_as_position_contributing_fill (fill.md §6). Step 3 now also states Position projection
+  reconstruction creates no fact/event. Evidence consumed no longer calls the full chain including
+  Position an "authoritative event stream" — Position is listed separately as a derived projection.
+  Observable outcome unchanged in substance (user sees the exact historical state for the selected
+  cursor); Evidence produced remains none; no new authoritative fact; no replay computation beyond
+  the deterministic projection reconstruction already required by Domain authority. UC-004
+  identity, Goal, Trigger, Preconditions, Alternate/failure, PR traceability, Domain vocabulary,
+  Out-of-scope boundary unchanged. UC-020/UC-021 (already correctly mode-separated since
+  P03B-DELTA-MIN-01) not touched — finding is UC-004 only.
+```
+
+### Correction 3 — ux-blueprint.md (v0.7 → v0.8, CANDIDATE)
+
+```text
+SCR-002 Information displayed/System-owned actions/Evidence consumed/Authority labels rewritten:
+  no longer assigns one universal "authority=authoritative recorded fact (default reconstruction)"
+  label to the whole lineage including Position. Now: authoritative recorded fact lineage
+  (Decision→Trade Intent→RiskEvaluation→Execution Intent→Order→ExecutionResult→Fill) keeps its own
+  "authority=authoritative recorded fact" label (recorded_time ≤ C); Position gets its own
+  separate label "authority=derived deterministic non-authoritative projection" (reconstructed at
+  the same cursor C, position.md). ReplayState(C) presentation itself is explicitly stated as
+  historical reconstruction/read-only, not a new authority stream. Evidence consumed no longer
+  calls the full chain "toàn bộ authoritative event stream Decision→...→Position" — Position is
+  listed as a separate derived projection. SCR-002 identity, Lifecycle stage, canonical Replay
+  Cursor, full lineage-through-Position requirement, historical-reconstruction-as-default, VIEW-003
+  optional parity handoff, STATE-001/STATE-006 behavior, UC/PR traceability, no-look-ahead, no-new-
+  fact-creation all unchanged. VIEW-003's own spec block untouched — confirmed via diff (no hunk
+  touches it). No pixel/layout detail prescribed. No universal "every ReplayState constituent is
+  either an event or Position" rule invented — exactly the two constituents SCR-002 actually
+  displays are named.
+```
+
+### Files changed
+
+```text
+docs/product/product-requirement.md   v0.4 -> v0.5 (Draft, CANDIDATE pending governed review) —
+  PR-018 corrected; PR-019 unchanged (verified).
+docs/product/use-case-workflow.md     v0.8 -> v0.9 (Draft, CANDIDATE pending governed review) —
+  UC-004 corrected; UC-001..UC-021 identity unchanged, no UC added/renumbered.
+docs/product/ux-blueprint.md          v0.7 -> v0.8 (Draft, CANDIDATE pending governed review) —
+  SCR-002 corrected; VIEW-003 and all other SCR/VIEW/NAV/STATE unchanged.
+docs/MANIFEST.md   manifest_version 10.152 -> 10.153. New compact "Phase 2 — Full-Scope Backward
+  Consistency Check (P2-BCC-MAJ-01)" section added recording: finding OPEN -> correction candidate
+  authored, affected candidate identities, corrected model, clean full-scope BCC support 16/17
+  surfaces + 20/21 UC pending closure (explicitly distinguished from the unchanged per-batch
+  prototype review accounting: Batch 01-06 remain 17/17 + 21/21 independently verified at the
+  batch-review level — two separate axes/gates, not conflated), ADR_NOT_REQUIRED, governance state
+  preserved. No historical Phase-2 batch rows rewritten.
+```
+
+### Historical Consolidated-Stable preservation
+
+```text
+All prior version banners on all three documents preserved unchanged (v0.2 through v0.7/v0.8 as
+  applicable). The "VIEW-003 Replay Parity Semantic Clarification — Consolidated Stable" banner
+  (Product Owner decision, "APPROVE CONSOLIDATION") on both product-requirement.md and
+  ux-blueprint.md, and the equivalent decision.md §9a Consolidated Stable status, are untouched —
+  they apply to UC-005/VIEW-003/PR-010/PR-019, not to UC-004/SCR-002/PR-018, and this transaction
+  does not reference or reopen them. New v0.5/v0.9/v0.8 banners are appended after the existing
+  banner sequence (same position convention as every prior bounded correction in these three
+  documents), each explicitly labelled CANDIDATE, pending Review A/Independent Review B/Product
+  Owner decision — none self-consolidated, no prior review/consolidation history overwritten.
+```
+
+### No scope expansion / no Domain change / no prototype change
+
+```text
+docs/domain/position.md, docs/domain/fill.md, docs/domain/replay-event.md: UNCHANGED, verified
+  byte-identical (git diff --quiet on all three). docs/architecture/, docs/constitution/,
+  docs/phase-dod/, docs/governance/phases/phase-2-rules.md, all ADRs: UNCHANGED. prototype/
+  phase-2/batch-02/ and every other prototype batch: UNCHANGED — no prototype behavior modified in
+  this transaction. No new PR/UC/SCR/VIEW/STATE ID introduced. No ADR created — ADR Scope Rule
+  check result: ADR_NOT_REQUIRED (this transaction restores derived representation to the already-
+  controlling Domain Contract; creates/alters no Platform Invariant, Event Schema, module
+  taxonomy/dependency graph, governance process, architecture, Domain Contract, or irreversible
+  cross-module decision).
+```
+
+### Result
+
+```text
+P2-BCC-MAJ-01: OPEN -> correction candidate authored. NOT closed — closure requires governed
+  Review A + Independent Review B + Product Owner consolidation/revalidation on the three
+  corrected documents.
+Full-scope BCC: remains REVISION_REQUIRED.
+Clean full-scope BCC support: 16/17 surfaces, 20/21 substantive UC pending closure (SCR-002/UC-004
+  withheld) — distinct from, and not reducing, the per-batch prototype review accounting (Batch
+  01-06 remain 17/17 surfaces + 21/21 UC independently verified at the batch-review level,
+  unchanged by this transaction).
+Phase 2: ACTIVE/AUTHORIZED (current_phase unchanged). All six prototype batches remain CANDIDATE.
+Quality Gate: NOT EVALUATED/NOT RUN. Gate-3 eligibility: NOT ESTABLISHED. Gate 3: NOT OPENED.
+  Product Owner Phase-2 decision: NOT ISSUED. P2-RETRO-001: NOT PERFORMED. Phase 3: NOT
+  AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+Domain Contract byte-identity: git diff --quiet on docs/domain/position.md, docs/domain/fill.md,
+  docs/domain/replay-event.md — all confirmed unchanged.
+Prototype byte-identity: git status --porcelain=v1 -uall on prototype/ — no tracked file changed
+  (only pre-existing untracked .DS_Store noise).
+Scope-boundary check: git status --porcelain=v1 -uall on docs/domain, docs/architecture,
+  docs/constitution, docs/adr, docs/phase-dod, docs/governance/phases/phase-2-rules.md — all clean.
+Cross-document consistency: PR-018/UC-004/SCR-002 confirmed to agree post-correction on the same
+  canonical Replay Cursor, full lineage remaining visible, no-look-ahead, authoritative-fact
+  visibility at C, Position projection rebuilt at C, Position non-authoritative, no Position event
+  stream, no Replay authority stream, no new authoritative fact produced.
+Self-caught fix during this transaction: the first drafted SCR-002 correction cited "v0.4" for two
+  P2-BCC-MAJ-01 references, inconsistent with the actual ux-blueprint.md frontmatter/banner bump
+  to v0.8 — caught and corrected to "v0.8" in both places before finalizing (grep-verified clean
+  across all three documents' inline version citations).
+```
+
 ## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 06 review-state bookkeeping reconciliation (deterministic, G-TXN-003) — prototype substantive coverage now independently verified complete
 
 **Bookkeeping reconciliation — vai trò: `Phase 2 Prototype Batch 06 Review-State Reconciliation
