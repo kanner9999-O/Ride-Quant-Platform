@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.153"
+manifest_version: "10.154"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -266,16 +266,30 @@ Finding:                       P2-BCC-MAJ-01 (Major) — Replay/SCR-002/UC-004 a
                               describing the full Decision→...→Position lineage under one
                               universal "authority=authoritative recorded fact"/"toàn bộ
                               authoritative event stream" label.
-Finding state:                 OPEN → correction candidate authored (this transaction, 2026-08-14).
-                              NOT closed — pending governed Review A + Independent Review B +
-                              Product Owner consolidation/revalidation on the corrected artifacts
-                              below.
+Finding state:                 OPEN → correction candidate authored (2026-08-14). NOT closed —
+                              pending governed Review A + Independent Review B + Product Owner
+                              consolidation/revalidation on the corrected artifacts below.
+Review A on the candidate
+  (2026-08-14):                 P2-BCC-MAJ01-A-MAJ-01 (Major) found — UC-004 Goal / SCR-002
+                              Purpose still used stale universal "state authoritative" wording for
+                              the WHOLE ReplayState(C), despite the detailed Main flow/Information
+                              displayed/Evidence consumed/Authority labels already being correctly
+                              split. Bounded correction (2026-08-14) rewrote UC-004 Goal + SCR-002
+                              Purpose to match the already-corrected detail; PR-018 required no
+                              change (already correctly split since v0.5). P2-BCC-MAJ01-A-MAJ-01:
+                              CLOSED by this candidate correction. P2-BCC-MAJ-01 (Phase-wide
+                              finding) remains OPEN — closure still requires bounded Review A
+                              re-review CLEAN + Independent Review B CLEAN + Product Owner
+                              consolidation/revalidation + prototype Batch 02 correction + affected
+                              prototype re-review + full-scope BCC rerun.
 Affected authority artifacts
   (candidate corrections):     docs/product/product-requirement.md v0.4 → v0.5 (PR-018 corrected;
-                              PR-019 unchanged, regression-verified byte-identical) — CANDIDATE.
-                              docs/product/use-case-workflow.md v0.8 → v0.9 (UC-004 corrected) —
-                              CANDIDATE.
-                              docs/product/ux-blueprint.md v0.7 → v0.8 (SCR-002 corrected) —
+                              PR-019 unchanged, regression-verified byte-identical) — CANDIDATE,
+                              UNCHANGED by this bounded correction (no PR-018 defect found).
+                              docs/product/use-case-workflow.md v0.8 → v0.9 (P2-BCC-MAJ-01) → v0.10
+                              (P2-BCC-MAJ01-A-MAJ-01, this correction — UC-004 Goal) — CANDIDATE.
+                              docs/product/ux-blueprint.md v0.7 → v0.8 (P2-BCC-MAJ-01) → v0.9
+                              (P2-BCC-MAJ01-A-MAJ-01, this correction — SCR-002 Purpose) —
                               CANDIDATE.
                               None self-consolidated; historical Consolidated-Stable lifecycle
                               evidence on all three documents (incl. the VIEW-003/UC-005/decision.md

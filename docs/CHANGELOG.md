@@ -2,6 +2,117 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — P2-BCC-MAJ01-A-MAJ-01 bounded correction (UC-004 Goal / SCR-002 Purpose stale universal-authority wording)
+
+**Bounded semantic correction — vai trò: `P2-BCC-MAJ-01 Authority Correction vNext Bounded
+Correction Executor`.** Closes exactly one Review-A finding, `P2-BCC-MAJ01-A-MAJ-01`, found on the
+P2-BCC-MAJ-01 Product/Workflow/UX authority correction candidate authored at commit `51f9600`.
+Does not broaden scope.
+
+### Baseline
+
+```text
+Starting HEAD:    51f9600b851466bbb3532939cbcbfe05d8394972
+```
+
+### Finding
+
+```text
+P2-BCC-MAJ01-A-MAJ-01 (Major): the detailed corrected semantics (Main flow/Information displayed/
+  Evidence consumed/Authority labels) already correctly split ReplayState(C) into authoritative
+  recorded facts (Decision→...→Fill) plus Position (derived, non-authoritative projection). But
+  two high-level summary lines still used the stale universal-authority wording: use-case-
+  workflow.md UC-004 Goal said "xem lại CHÍNH XÁC state authoritative đã tồn tại tại cursor đó";
+  ux-blueprint.md SCR-002 Purpose said "xem CHÍNH XÁC state authoritative đã tồn tại tại cursor
+  đó" — both still categorize the ENTIRE ReplayState(C) as authoritative, conflicting with
+  replay-event.md (Position is a "derived Position projection — non-authoritative" component of
+  ReplayState(C)) and position.md (Position is kind: read_model, non-authoritative, no event
+  stream).
+```
+
+### Correction
+
+```text
+UC-004 Goal rewritten: "Chọn một canonical Replay Cursor và xem lại CHÍNH XÁC historical
+  ReplayState(C) tại cursor đó (historical reconstruction — mặc định) — gồm authoritative recorded
+  fact VÀ derived projection theo authority class của từng constituent." Concise, does not
+  duplicate the full Main flow.
+SCR-002 Purpose rewritten: "Chọn canonical Replay Cursor và xem CHÍNH XÁC historical ReplayState(C)
+  tại cursor đó (historical reconstruction — mặc định), với authority class của từng constituent
+  được bảo toàn." No longer calls the whole ReplayState "state authoritative"/"authoritative
+  state"/"authoritative recorded state."
+Searched the full PR-018/UC-004/SCR-002 blocks for other direct equivalents that classify the
+  ENTIRE ReplayState(C) as authoritative — found none. PR-018 (Statement/Rationale/Source/
+  Acceptance evidence) already correctly split since v0.5 — left unmodified, product-
+  requirement.md stays at v0.5. UC-004's own Main flow/Evidence consumed/Observable outcome
+  (already split since v0.9) and SCR-002's own Information displayed/System-owned actions/
+  Evidence consumed/Authority labels (already split since v0.8) left unmodified — no prose
+  cleanup unrelated to the finding performed.
+```
+
+### Files changed
+
+```text
+docs/product/use-case-workflow.md   v0.9 -> v0.10 (Draft, CANDIDATE pending governed review) —
+  UC-004 Goal corrected; Main flow/Evidence consumed/Observable outcome/identity/Trigger/
+  Preconditions/Alternate-failure/PR traceability/Domain vocabulary/Out-of-scope unchanged.
+docs/product/ux-blueprint.md        v0.8 -> v0.9 (Draft, CANDIDATE pending governed review) —
+  SCR-002 Purpose corrected; Information displayed/Evidence consumed/Authority labels separation,
+  VIEW-003 handoff, STATE-001/STATE-006, identity/Lifecycle stage/canonical Replay Cursor/UC-PR
+  traceability/Domain vocabulary/Out-of-scope unchanged.
+docs/product/product-requirement.md  UNCHANGED — confirmed byte-identical (git diff --quiet); stays
+  at v0.5 (PR-018 required no correction for this finding).
+docs/MANIFEST.md   manifest_version 10.153 -> 10.154. "Phase 2 — Full-Scope Backward Consistency
+  Check (P2-BCC-MAJ-01)" section updated compactly: new "Review A on the candidate" entry recording
+  P2-BCC-MAJ01-A-MAJ-01 found/closed, updated candidate version-chain identities for use-case-
+  workflow.md (v0.8->v0.9->v0.10) and ux-blueprint.md (v0.7->v0.8->v0.9), P2-BCC-MAJ-01 explicitly
+  still OPEN. No historical batch rows rewritten.
+```
+
+### No scope expansion / no Domain change / no prototype change
+
+```text
+docs/domain/, docs/architecture/, docs/constitution/, docs/adr/, docs/phase-dod/,
+  docs/governance/phases/phase-2-rules.md: UNCHANGED (git status --porcelain=v1 -uall clean).
+  prototype/: UNCHANGED (only pre-existing untracked .DS_Store noise). No new PR/UC/SCR/VIEW/STATE
+  ID introduced. No ADR created. No Product artifact self-consolidated/approved. Full-scope BCC
+  not rerun. Quality Gate not run. Gate 3 not opened.
+```
+
+### Result
+
+```text
+P2-BCC-MAJ01-A-MAJ-01: CLOSED by this candidate correction.
+P2-BCC-MAJ-01 (Phase-wide finding): remains OPEN — closure still requires bounded Review A
+  re-review CLEAN + Independent Review B CLEAN + Product Owner consolidation/revalidation +
+  prototype Batch 02 correction + affected prototype re-review + full-scope BCC rerun.
+Full-scope BCC: remains REVISION_REQUIRED. Clean full-scope support: remains 16/17 surfaces, 20/21
+  substantive UC pending closure (unchanged by this bounded correction).
+Phase 2: ACTIVE/AUTHORIZED (current_phase unchanged). All six prototype batches remain CANDIDATE.
+Quality Gate: NOT RUN. Gate-3 eligibility: NOT ESTABLISHED. Gate 3: NOT OPENED. Phase 3: NOT
+  AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+Domain Contract byte-identity: git diff --quiet on docs/domain/ — confirmed no domain file
+  touched. Scope-boundary check: git status --porcelain=v1 -uall on docs/domain,
+  docs/architecture, docs/constitution, docs/adr, docs/phase-dod — all clean; git diff --quiet on
+  docs/governance/phases/phase-2-rules.md — unchanged. Prototype byte-identity: git status
+  --porcelain=v1 -uall on prototype/ — no tracked file changed. product-requirement.md byte-
+  identity: git diff --quiet — confirmed unchanged. VIEW-003/UC-005 own spec blocks confirmed
+  untouched (grep on diff hunks shows mentions only inside new banner prose, never inside their
+  own blocks). Version-citation consistency verified across both edited files (v0.10 in
+  use-case-workflow.md, v0.9 in ux-blueprint.md, matching each document's own frontmatter bump).
+Self-caught fix during this transaction: the first drafted UC-004 Goal correction had an awkward
+  double-dash/double-parenthetical construction ("... constituent (v0.10, đóng ...) — (historical
+  reconstruction — mặc định)."); reworded for clarity before finalizing (moved the historical-
+  reconstruction parenthetical earlier in the sentence). Also caught and fixed a copy-paste typo
+  in the MANIFEST.md version-chain note for use-case-workflow.md (wrote "v0.5 (authoring)"
+  instead of the correct "v0.8" starting point) before finalizing.
+```
+
 ## [Unreleased] — 2026-08-14 — P2-BCC-MAJ-01 Product/Workflow/UX authority correction candidate authored (Replay / SCR-002 / UC-004 Position authority-class)
 
 **Bounded semantic correction — vai trò: `Phase 2 P2-BCC-MAJ-01 Product/Workflow/UX Authority

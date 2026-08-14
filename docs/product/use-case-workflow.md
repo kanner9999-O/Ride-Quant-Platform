@@ -1,7 +1,7 @@
 ---
 id: use-case-workflow
 title: Use Case & Workflow
-version: "0.9"
+version: "0.10"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -57,6 +57,26 @@ authoritative từ trước, `P03B-DELTA-MIN-01`) KHÔNG chạm — finding này
 **CANDIDATE, pending governed review** — KHÔNG tự consolidate, KHÔNG ghi đè lịch sử Review/
 Consolidated Stable đã có (banner `VIEW-003 Replay Parity Semantic Clarification — Consolidated
 Stable` phía trên giữ nguyên, áp dụng cho `UC-005`, KHÔNG áp dụng cho `UC-004`).
+
+**v0.10 — CANDIDATE bounded semantic correction (2026-08-14), đóng `P2-BCC-MAJ01-A-MAJ-01`
+(Review A finding trên P2-BCC-MAJ-01 authority correction candidate v0.9) — KHÔNG Approved/
+Consolidated, pending bounded Review A re-review/Independent Review B/Product Owner decision:**
+`UC-004` Goal viết lại — trước đây "xem lại CHÍNH XÁC state authoritative đã tồn tại tại cursor
+đó" vẫn dùng ngôn ngữ "state authoritative" phổ quát cho TOÀN BỘ `ReplayState(C)`, mâu thuẫn chi
+tiết đã sửa tại Main flow bước 2/3 và Evidence consumed (v0.9, đóng `P2-BCC-MAJ-01`) — nơi Position
+đã tách bạch tường minh là derived/non-authoritative. Sửa: Goal nay nói "xem lại CHÍNH XÁC
+historical ReplayState(C) tại cursor đó — gồm authoritative recorded fact VÀ derived projection
+theo authority class của từng constituent" — khớp nhất quán với chi tiết đã có. Đã rà soát toàn bộ
+`PR-018`/`UC-004`/`SCR-002` cho các equivalent khác — KHÔNG tìm thấy wording nào khác phân loại
+TOÀN BỘ `ReplayState(C)` là authoritative (Main flow/Evidence consumed/Observable outcome của
+UC-004 đã tách bạch từ v0.9, KHÔNG cần sửa thêm). KHÔNG đổi Main flow bước 2/3, Evidence
+consumed, no-look-ahead, full lineage-through-Position, UC-004 identity/Trigger/Preconditions/
+Alternate-failure/PR traceability/Domain vocabulary/Out-of-scope. `PR-018`/`PR-019` KHÔNG chạm
+(product-requirement.md v0.5 giữ nguyên — PR-018 đã tách bạch đúng từ v0.5, KHÔNG cần sửa).
+Trạng thái: **CANDIDATE, pending governed review** — `P2-BCC-MAJ01-A-MAJ-01` CLOSED bởi candidate
+correction này, NHƯNG `P2-BCC-MAJ-01` (Phase-wide BCC finding) VẪN OPEN cho tới khi bounded Review
+A re-review CLEAN + Independent Review B CLEAN + Product Owner consolidation/revalidation +
+prototype Batch 02 correction + affected prototype re-review + full-scope BCC rerun.
 
 ## 1. Purpose and authority boundary
 
@@ -256,8 +276,10 @@ Out-of-scope boundary:  KHÔNG định nghĩa cơ chế audit/log kỹ thuật c
 **UC-004 — Choose canonical Replay Cursor and reconstruct historical state**
 ```text
 Primary actor:         Ride user (§2).
-Goal:                   Chọn một canonical Replay Cursor và xem lại CHÍNH XÁC state authoritative đã
-                        tồn tại tại cursor đó (historical reconstruction — mặc định).
+Goal:                   Chọn một canonical Replay Cursor và xem lại CHÍNH XÁC historical
+                        ReplayState(C) tại cursor đó (historical reconstruction — mặc định) — gồm
+                        authoritative recorded fact VÀ derived projection theo authority class của
+                        từng constituent (v0.10, đóng `P2-BCC-MAJ01-A-MAJ-01`).
 Trigger:                Người dùng, với Strategy Instance đã pin (UC-002), chọn chuyển sang Replay.
 Preconditions:          Strategy Instance đã chọn (WF-INV-3); Instrument/Venue hợp lệ (WF-INV-2).
 Inputs:                 Một canonical Replay Cursor (thời điểm lịch sử).

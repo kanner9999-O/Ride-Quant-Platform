@@ -1,7 +1,7 @@
 ---
 id: ux-blueprint
 title: UX Blueprint
-version: "0.8"
+version: "0.9"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -59,6 +59,27 @@ mới, KHÔNG pixel/layout detail nào invent, KHÔNG universal rule "mọi Repl
 event hoặc Position" nào tạo — CHỈ chính xác hai constituent SCR-002 thực sự hiển thị. KHÔNG sửa
 `position.md`/`fill.md`/`replay-event.md` (Domain Contract, không sửa). Trạng thái: **CANDIDATE,
 pending governed review.**
+
+**v0.9 — CANDIDATE bounded semantic correction (2026-08-14), đóng `P2-BCC-MAJ01-A-MAJ-01`
+(Review A finding trên P2-BCC-MAJ-01 authority correction candidate v0.8) — KHÔNG Approved/
+Consolidated, pending bounded Review A re-review/Independent Review B/Product Owner decision:**
+`SCR-002` Purpose viết lại — trước đây "xem CHÍNH XÁC state authoritative đã tồn tại tại cursor
+đó" vẫn dùng ngôn ngữ "state authoritative" phổ quát cho TOÀN BỘ `ReplayState(C)`, mâu thuẫn chi
+tiết đã sửa tại Information displayed/Evidence consumed/Authority labels (v0.8, đóng
+`P2-BCC-MAJ-01`) — nơi Position đã tách bạch tường minh là derived/non-authoritative. Sửa: Purpose
+nay nói "xem CHÍNH XÁC historical ReplayState(C) tại cursor đó (historical reconstruction — mặc
+định), với authority class của từng constituent được bảo toàn" — khớp nhất quán với chi tiết đã
+có, KHÔNG còn gọi toàn bộ ReplayState là "state authoritative"/"authoritative state"/
+"authoritative recorded state". Đã rà soát toàn bộ SCR-002 block cho các equivalent khác — KHÔNG
+tìm thấy wording nào khác phân loại TOÀN BỘ `ReplayState(C)` là authoritative (Information
+displayed/System-owned actions/Evidence consumed/Authority labels đã tách bạch từ v0.8, KHÔNG cần
+sửa thêm). KHÔNG đổi Information displayed/Evidence consumed/Authority labels separation, VIEW-003
+handoff, STATE-001/STATE-006, SCR-002 identity/Lifecycle stage/canonical Replay Cursor/UC-PR
+traceability/Domain vocabulary/Out-of-scope boundary. Trạng thái: **CANDIDATE, pending governed
+review** — `P2-BCC-MAJ01-A-MAJ-01` CLOSED bởi candidate correction này, NHƯNG `P2-BCC-MAJ-01`
+(Phase-wide BCC finding) VẪN OPEN cho tới khi bounded Review A re-review CLEAN + Independent
+Review B CLEAN + Product Owner consolidation/revalidation + prototype Batch 02 correction +
+affected prototype re-review + full-scope BCC rerun.
 
 ## 1. Purpose and authority boundary
 
@@ -569,8 +590,9 @@ Out-of-scope boundary:   KHÔNG entity/event "ResearchVerification"; KHÔNG inci
 ```text
 Name:                    Replay Cursor & Historical Reconstruction
 Lifecycle stage:         Replay
-Purpose:                 Chọn canonical Replay Cursor và xem CHÍNH XÁC state authoritative đã tồn tại
-                         tại cursor đó (historical reconstruction — mặc định).
+Purpose:                 Chọn canonical Replay Cursor và xem CHÍNH XÁC historical ReplayState(C) tại
+                         cursor đó (historical reconstruction — mặc định), với authority class của
+                         từng constituent được bảo toàn (v0.9, đóng `P2-BCC-MAJ01-A-MAJ-01`).
 Primary actor:           Ride user.
 Entry points:            NAV-002 (Replay), sau khi Strategy Instance đã pin (VIEW-001).
 Exit points:             VIEW-003 (tuỳ chọn parity recomputation); hoặc chuyển NAV khác (Backtest/
