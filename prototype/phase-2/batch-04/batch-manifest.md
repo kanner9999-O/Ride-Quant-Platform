@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-04-manifest
 title: "Phase 2 Prototype — Batch 04 — Batch Manifest"
-version: "1.0"
+version: "1.1"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-14"
@@ -10,6 +10,8 @@ created_at: "2026-08-14"
 # Phase 2 Prototype — Batch 04 — Batch Manifest
 
 **Vai trò của tài liệu này:** batch-level evidence record cho Batch 04, đúng `phase-2-rules.md` `P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch 04 LÀ candidate/in-review — **KHÔNG self-approved** (chờ Review A + Independent Review B theo batch, đúng `P2-PROTOTYPE-001`).
+
+**v1.1 — bounded correction (2026-08-14), Review A trên v1.0: `P2-B04-A-MAJ-01` (Major) + `P2-B04-A-MAJ-02` (Major) — đóng CẢ HAI tại transaction này.** `P2-B04-A-MAJ-01`: `buildExecutionChain()` bỏ qua hai domain concept riêng biệt bắt buộc theo `execution-result.md` — `ExecutionResultComputation` (§2) VÀ `PaperExecutionObservation` (§1) — ExecutionResult v1.0 chỉ mang `observationId` rời rạc, KHÔNG entity Observation thật. Sửa: thêm `chain.executionResultComputation` + `chain.paperExecutionObservation` LÀM hai node riêng biệt giữa OrderSubmissionRequest VÀ ExecutionResult, đúng schema §1/§2; Fill's economics nay literally copy từ Observation's field (KHÔNG literal độc lập); REJECTED/NON_EVALUABLE VẪN KHÔNG tạo hai node này; NOT_EXECUTED: Computation+Observation tồn tại (economics absent), zero Fill; SCR-006/SCR-007 hiển thị hai identity mới LÀM supporting evidence. `P2-B04-A-MAJ-02`: Position NON_EVALUABLE demo fabricate `FILL-002` KHÔNG evidence basis VÀ có thể render mâu thuẫn với execution NOT_EXECUTED hiện tại. Sửa: NON_EVALUABLE demo nay CHỈ render khi execution hiện tại thực sự có Fill (EXECUTED), ghép VỚI một `MOCK_PRIOR_FILL_LABEL` illustrative prior Fill tường minh disclosed; khi override KHÔNG áp dụng, trạng thái Position THẬT hiển thị thay thế kèm `demoNote` giải thích. Blob mới: `app.js`; `traceability.md` v1.1; `README.md` (mô tả SCR-007/QA panel cập nhật, incidental). `index.html`/`styles.css` KHÔNG đổi. KHÔNG đổi A/B/C partition, KHÔNG surface mới, KHÔNG UC/PR/domain concept mới. Batch VẪN `CANDIDATE`, KHÔNG self-approved.
 
 ## 1. Batch identity
 
@@ -108,11 +110,11 @@ PR-027 (SCR-007 No-real-exchange, UC-015)
 ## 6. Prototype artifact identities
 
 ```text
-prototype/phase-2/batch-04/index.html         blob 2a9ccffef9b5728801fc09c8d1267f1e10584d46
-prototype/phase-2/batch-04/app.js              blob 935d2ca00e9cbcdbb54674b876c264e2d57c5c15
-prototype/phase-2/batch-04/styles.css          blob 0539d04fda7161798261c5418a0c804ff47e5015
-prototype/phase-2/batch-04/traceability.md     blob 56902559106ca24184afe98919f58ad40b781af7
-prototype/phase-2/batch-04/README.md           blob 0300f8943fbf907cd1d84b58f02e24dcb4055898
+prototype/phase-2/batch-04/index.html         blob 2a9ccffef9b5728801fc09c8d1267f1e10584d46 (unchanged since v1.0)
+prototype/phase-2/batch-04/app.js              blob af36756ee6fa989adc617df3c4e2b3b9c64ce075 (CURRENT — v1.1, đóng P2-B04-A-MAJ-01 + P2-B04-A-MAJ-02; historical pre-fix blob 935d2ca00e9cbcdbb54674b876c264e2d57c5c15, superseded)
+prototype/phase-2/batch-04/styles.css          blob 0539d04fda7161798261c5418a0c804ff47e5015 (unchanged since v1.0)
+prototype/phase-2/batch-04/traceability.md     blob a606e0925bcddcae2d6460f71aabc283772e7971 (CURRENT — v1.1, đóng P2-B04-A-MAJ-01 + P2-B04-A-MAJ-02; historical v1.0 blob 56902559106ca24184afe98919f58ad40b781af7, superseded)
+prototype/phase-2/batch-04/README.md           blob 8fc88f9ac600c0ed924f2bcaaeccbe574570afe8 (CURRENT — v1.1, updated SCR-007/QA panel description; historical pre-fix blob 0300f8943fbf907cd1d84b58f02e24dcb4055898, superseded)
 ```
 
 ## 7. Authority sources consumed (reference only, none modified)
@@ -277,10 +279,19 @@ None within this batch's scope. 7/17 surfaces not yet substantively covered (SCR
 ## 17. Batch lifecycle / review state
 
 ```text
-Status:            CANDIDATE — authored (v1.0), NOT self-approved.
+Status:            CANDIDATE — corrected (v1.1 app.js/traceability.md/README.md), NOT
+                    self-approved.
+
+Review history:
+  Review A (v1.0):                     P2-B04-A-MAJ-01 (ExecutionResultComputation/
+                                       PaperExecutionObservation missing) + P2-B04-A-MAJ-02
+                                       (Position NON_EVALUABLE demo incoherent/contradictory)
+                                       found, REVISION_REQUIRED.
+  v1.1 (transaction này):               đóng CẢ HAI tại transaction này.
 
 Progress — BA trạng thái tách biệt, KHÔNG conflate:
-  Candidate (sau Batch 04 authoring, CHƯA verified):
+  Candidate (Batch 04's own contribution, CHƯA verified — correction KHÔNG thay đổi con số này,
+    CHỈ sửa chất lượng representation):
     17-surface cumulative:              10/17 (8/17 Batch 01+02+03, independently verified +
                                         2/17 Batch 04: SCR-006+SCR-007, candidate).
     21-UC substantive cumulative:        15/21 (10/21 Batch 01+02+03, independently verified +
@@ -291,7 +302,7 @@ Progress — BA trạng thái tách biệt, KHÔNG conflate:
     17-surface:                          8/17.
     21-UC substantive:                    10/21.
 
-Next step:          Bounded Review A + Independent bounded Review B on this Batch 04 candidate
-                     (one coherent PAPER milestone, per P2-PROTOTYPE-001) — a separate governed
-                     transaction.
+Next step:          Bounded Review A re-review + Independent bounded Review B on this v1.1
+                     Batch 04 candidate (one coherent PAPER milestone, per P2-PROTOTYPE-001) —
+                     a separate governed transaction.
 ```

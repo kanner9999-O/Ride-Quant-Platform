@@ -30,11 +30,12 @@ re-implementing VIEW-001 as a new surface.
   Initiating actually drives prototype-local state; RiskEvaluation REJECTED/NON_EVALUABLE
   truncate the chain exactly at RiskEvaluation, before any Execution Intent/Order is created.
 - **SCR-007 — Paper Order/Execution Detail**: inspects the *same* lineage SCR-006 produced (no
-  disconnected fixtures) across four panels — ExecutionResult (EXECUTED/NOT_EXECUTED), Fill
-  evidence (economics + four-axis simulation evidence, matching the same
-  PaperExecutionObservation), Position (FLAT/LONG/SHORT/NON_EVALUABLE, explicit — never guessed
-  or collapsed to FLAT), and a standing PAPER safety confirmation (no real exchange order, no
-  real network route in this prototype).
+  disconnected fixtures) across four panels — ExecutionResult (EXECUTED/NOT_EXECUTED, with the
+  distinct ExecutionResultComputation and PaperExecutionObservation identities that authorize it
+  exposed as supporting evidence), Fill evidence (economics + four-axis simulation evidence, both
+  sourced from that same PaperExecutionObservation), Position (FLAT/LONG/SHORT/NON_EVALUABLE,
+  explicit — never guessed or collapsed to FLAT), and a standing PAPER safety confirmation (no
+  real exchange order, no real network route in this prototype).
 
 The nav bar's "Research"/"Replay"/"Backtest" items are real links to `../batch-01/index.html`,
 `../batch-02/index.html`, and `../batch-03/index.html`. Review/Improve show a labelled "deferred"
@@ -57,9 +58,14 @@ family described in `batch-manifest.md`, since a static prototype has no real ev
 Risk/execution engine to derive these from. The Position tab's `NON_EVALUABLE` option is
 explicitly a QA-only demonstration: this prototype's single-initiation flow can only naturally
 produce zero or one Fill, so a genuine multiple-conflicting-Fill-lineage scenario (which
-`position.md` defines `NON_EVALUABLE` for) cannot arise from real interaction here — the QA
-override exists solely so that state is still inspectable and correctly labelled, not to imply a
-real product path produces it.
+`position.md` defines `NON_EVALUABLE` for) cannot arise from real interaction here. To stay
+internally coherent with the Fill/ExecutionResult tabs, the override only renders `NON_EVALUABLE`
+when the current execution actually produced a Fill (EXECUTED) — it then pairs that real current
+Fill with one explicitly-labelled illustrative *prior* Fill for the same Account/Instrument
+(clearly distinguished, never an unexplained second current Fill). If the current execution has
+no Fill (NOT_EXECUTED, or Risk-truncated), the override does not apply and the actual Position
+state is shown instead, with a note explaining why — the demo never fabricates evidence or
+contradicts what the other tabs show.
 
 ## What this is not
 

@@ -63,6 +63,18 @@
   // ONLY place a chain object is produced — SCR-006's inline summary and SCR-007's full detail
   // both render from the SAME state.execution object (INV-5 identity continuity / no disconnected
   // fixtures between screens).
+  //
+  // v1.1 (closes P2-B04-A-MAJ-01): the chain now represents ExecutionResultComputation
+  // (execution-result.md §2 — authorized computation identity/binding fact, computation_purpose/
+  // order_id/submission_request_id/computation_cursor) and PaperExecutionObservation
+  // (execution-result.md §1 — execution_result_computation_id/simulation evidence four-axis/
+  // result_type/economics) as two DISTINCT nodes between OrderSubmissionRequest and
+  // ExecutionResult — previously collapsed into a bare `observationId` string on ExecutionResult
+  // and `executionObservationId` on Fill, with no PaperExecutionObservation entity of its own.
+  // Fill's economics (quantity/price/currency) are now literally copied from
+  // paperExecutionObservation's own executedQuantity/executionPrice/priceCurrency fields (not a
+  // second independent literal), matching fill.md v0.2's "PHẢI BẰNG HỆT Observation" invariant at
+  // the code level.
   function buildExecutionChain(riskOutcome, executionOutcome) {
     var chain = {
       decisionId: MOCK_PAPER_DECISION.id,
@@ -71,13 +83,15 @@
       executionIntent: null,
       order: null,
       submissionRequest: null,
+      executionResultComputation: null,
+      paperExecutionObservation: null,
       executionResult: null,
       fill: null
     };
 
     if (riskOutcome === "REJECTED") {
       chain.riskEvaluation.reasonCode = "INVALID_SIZING_INPUT";
-      return chain; // STATE-013: stop at RiskEvaluation — no Execution Intent/Order/ExecutionResult/Fill.
+      return chain; // STATE-013: stop at RiskEvaluation — no Execution Intent/Order/Computation/Observation/ExecutionResult/Fill.
     }
     if (riskOutcome === "NON_EVALUABLE") {
       chain.riskEvaluation.reasonCode = "REQUIRED_EVIDENCE_UNAVAILABLE";
@@ -89,41 +103,75 @@
     chain.order = { id: "ORD-001", environment: "PAPER" };
     chain.submissionRequest = { id: "OSR-001" };
 
+    // ExecutionResultComputation (execution-result.md §2) — authorized computation identity,
+    // bound to this Order/OrderSubmissionRequest. Illustrative only, no computation logic run.
+    chain.executionResultComputation = {
+      id: "ERC-001",
+      computationPurpose: "INITIAL",
+      orderId: chain.order.id,
+      submissionRequestId: chain.submissionRequest.id,
+      computationCursor: "C-ERC-001"
+    };
+
+    // PaperExecutionObservation (execution-result.md §1) — bound to the ExecutionResultComputation
+    // above via execution_result_computation_id, carries the four simulation-evidence axes and
+    // (when EXECUTED) the economics that ExecutionResult/Fill copy from — never independently
+    // computed here.
+    chain.paperExecutionObservation = {
+      id: "OBS-001",
+      executionResultComputationId: chain.executionResultComputation.id,
+      orderId: chain.order.id,
+      submissionRequestId: chain.submissionRequest.id,
+      observationCursor: chain.executionResultComputation.computationCursor,
+      simulationPolicyRef: "sim-policy-v1",
+      simulationConfigurationRef: "sim-config-v1",
+      simulationBuildRef: "sim-build-v1",
+      deterministicInputRef: "det-input-abc123",
+      resultType: executionOutcome
+    };
+
     if (executionOutcome === "NOT_EXECUTED") {
-      chain.executionResult = { id: "ER-001", resultType: "NOT_EXECUTED", observationId: "OBS-001" };
-      return chain; // STATE-016: zero Fill.
+      // STATE-016: Computation + Observation both exist (result_type = NOT_EXECUTED, economics
+      // fields absent per execution-result.md §1 invariant), ExecutionResult copies that
+      // result_type, zero Fill.
+      chain.executionResult = {
+        id: "ER-001",
+        resultType: "NOT_EXECUTED",
+        executionObservationId: chain.paperExecutionObservation.id
+      };
+      return chain;
     }
 
-    // executionOutcome === "EXECUTED" — STATE-015, exactly one Fill.
-    chain.executionResult = { id: "ER-001", resultType: "EXECUTED", observationId: "OBS-001" };
+    // executionOutcome === "EXECUTED" — STATE-015, exactly one Fill. Economics live on the
+    // Observation first; ExecutionResult/Fill reference it, Fill copies its economics exactly.
+    chain.paperExecutionObservation.executedQuantity = "0.50";
+    chain.paperExecutionObservation.executionPrice = "65000.00";
+    chain.paperExecutionObservation.priceCurrency = "USDT";
+    chain.paperExecutionObservation.quantityUnit = "BTC";
+
+    chain.executionResult = {
+      id: "ER-001",
+      resultType: "EXECUTED",
+      executionObservationId: chain.paperExecutionObservation.id
+    };
     chain.fill = {
       id: "FILL-001",
-      executionObservationId: "OBS-001",
-      quantity: "0.50",
-      quantityUnit: "BTC",
-      price: "65000.00",
-      priceCurrency: "USDT",
-      policyRef: "sim-policy-v1",
-      configurationRef: "sim-config-v1",
-      buildRef: "sim-build-v1",
-      deterministicInputRef: "det-input-abc123"
+      executionObservationId: chain.paperExecutionObservation.id,
+      quantity: chain.paperExecutionObservation.executedQuantity,
+      quantityUnit: chain.paperExecutionObservation.quantityUnit,
+      price: chain.paperExecutionObservation.executionPrice,
+      priceCurrency: chain.paperExecutionObservation.priceCurrency
     };
     return chain;
   }
 
-  // Position (UC-014) is a derived projection (position.md §1 — read_model, Type 2 Projection,
-  // NOT an authoritative fact). Derived from eligible Fill count for this Account/Instrument —
-  // zero eligible Fill -> FLAT (independent of WHY there's no Fill); exactly one -> LONG/SHORT;
-  // the NON_EVALUABLE (>1 conflicting Fill lineage) branch cannot be naturally produced by this
-  // prototype's single-initiation flow, so it is demoed via an explicit, clearly-labelled QA
-  // override only (never presented as a real product-triggered outcome).
-  function derivePosition(execution, positionDemoOverride) {
-    if (positionDemoOverride === "non-evaluable") {
-      return {
-        status: "NON_EVALUABLE",
-        contributingFillRefs: ["FILL-001 (illustrative)", "FILL-002 (illustrative, QA demo only)"]
-      };
-    }
+  // An illustrative PRIOR eligible Fill for the SAME Account/Instrument, from an earlier Paper
+  // session not otherwise represented in this batch — exists ONLY to give the NON_EVALUABLE demo
+  // below (closes P2-B04-A-MAJ-02) a coherent, explicitly-disclosed second Fill lineage, rather
+  // than fabricating an unexplained FILL-002.
+  var MOCK_PRIOR_FILL_LABEL = "FILL-000 (illustrative prior eligible Fill, same Account/Instrument, earlier Paper session — not otherwise shown in this batch, represented only for this demo)";
+
+  function derivePositionNatural(execution) {
     if (!execution || !execution.fill) {
       return { status: "EVALUABLE", direction: null, netQuantity: "0" };
     }
@@ -135,6 +183,36 @@
       averageEntryPrice: execution.fill.price,
       priceCurrency: execution.fill.priceCurrency
     };
+  }
+
+  // Position (UC-014) is a derived projection (position.md §1 — read_model, Type 2 Projection,
+  // NOT an authoritative fact). Derived from eligible Fill count for this Account/Instrument —
+  // zero eligible Fill -> FLAT (independent of WHY there's no Fill); exactly one -> LONG/SHORT;
+  // >1 conflicting eligible Fill lineage -> NON_EVALUABLE.
+  //
+  // v1.1 (closes P2-B04-A-MAJ-02): the NON_EVALUABLE demo previously fabricated a second Fill
+  // (FILL-002) with no evidence basis, and could render even when the CURRENT selected execution
+  // was NOT_EXECUTED (zero Fill) — a direct contradiction with the Fill/ExecutionResult tabs.
+  // NON_EVALUABLE now renders ONLY when the current execution actually produced a Fill (EXECUTED)
+  // — its contributing_fill_refs then pair that REAL current Fill with one explicitly-labelled
+  // illustrative PRIOR Fill (MOCK_PRIOR_FILL_LABEL), never an unexplained second current Fill. If
+  // the override is selected but the current execution has no Fill, the override does not apply
+  // — the TRUE current Position state is returned instead (never silently forced to FLAT; it is
+  // whatever derivePositionNatural() actually resolves, which happens to be FLAT only when that
+  // is itself the true zero-Fill state), with an explicit note explaining why.
+  function derivePosition(execution, positionDemoOverride) {
+    if (positionDemoOverride === "non-evaluable") {
+      if (execution && execution.fill) {
+        return {
+          status: "NON_EVALUABLE",
+          contributingFillRefs: [MOCK_PRIOR_FILL_LABEL, execution.fill.id + " (current execution's Fill)"]
+        };
+      }
+      var natural = derivePositionNatural(execution);
+      natural.demoNote = "NON_EVALUABLE demo requires the current execution to have produced a Fill (EXECUTED) to pair with the illustrative prior Fill — the current execution has none, so the override does not apply here; the actual Position state is shown instead.";
+      return natural;
+    }
+    return derivePositionNatural(execution);
   }
 
   // ---- Demo/UI state (prototype-local only, not a domain/session/replay state) ----
@@ -312,26 +390,32 @@
       html = '<div class="panel panel-fail">' +
         '<div class="panel-title">STATE-013 — Risk REJECTED</div>' +
         "<div>RiskEvaluation " + ex.riskEvaluation.id + ": REJECTED (reason: " + ex.riskEvaluation.reasonCode +
-        "). Chain stops here — no Execution Intent, Order, OrderSubmissionRequest, ExecutionResult, or Fill created.</div>" +
+        "). Chain stops here — no Execution Intent, Order, OrderSubmissionRequest, " +
+        "ExecutionResultComputation, PaperExecutionObservation, ExecutionResult, or Fill created.</div>" +
         "</div>";
     } else if (ex.riskEvaluation.result === "NON_EVALUABLE") {
       html = '<div class="panel panel-indeterminate">' +
         '<div class="panel-title">STATE-014 — Risk NON_EVALUABLE</div>' +
         "<div>RiskEvaluation " + ex.riskEvaluation.id + ": NON_EVALUABLE (reason: " + ex.riskEvaluation.reasonCode +
-        "). Same stop boundary as REJECTED — no Execution Intent, Order, OrderSubmissionRequest, ExecutionResult, or Fill created.</div>" +
+        "). Same stop boundary as REJECTED — no Execution Intent, Order, OrderSubmissionRequest, " +
+        "ExecutionResultComputation, PaperExecutionObservation, ExecutionResult, or Fill created.</div>" +
         "</div>";
     } else if (ex.executionResult.resultType === "NOT_EXECUTED") {
       html = '<div class="panel panel-blocked">' +
         '<div class="panel-title">RiskEvaluation APPROVED → STATE-016 ExecutionResult NOT_EXECUTED</div>' +
-        "<div>Order " + ex.order.id + " submitted (" + ex.submissionRequest.id + "); ExecutionResult " +
-        ex.executionResult.id + ": NOT_EXECUTED. Zero Fill.</div>" +
+        "<div>Order " + ex.order.id + " submitted (" + ex.submissionRequest.id + "); " +
+        "ExecutionResultComputation " + ex.executionResultComputation.id + " authorized; " +
+        "PaperExecutionObservation " + ex.paperExecutionObservation.id + " recorded (result_type NOT_EXECUTED); " +
+        "ExecutionResult " + ex.executionResult.id + ": NOT_EXECUTED. Zero Fill.</div>" +
         '<button class="btn" id="btn-view-detail" style="margin-top:8px;">View full detail →</button>' +
         "</div>";
     } else {
       html = '<div class="panel panel-passed">' +
         '<div class="panel-title">RiskEvaluation APPROVED → STATE-015 ExecutionResult EXECUTED</div>' +
-        "<div>Order " + ex.order.id + " submitted (" + ex.submissionRequest.id + "); ExecutionResult " +
-        ex.executionResult.id + ": EXECUTED; exactly one Fill (" + ex.fill.id + ") recorded.</div>" +
+        "<div>Order " + ex.order.id + " submitted (" + ex.submissionRequest.id + "); " +
+        "ExecutionResultComputation " + ex.executionResultComputation.id + " authorized; " +
+        "PaperExecutionObservation " + ex.paperExecutionObservation.id + " recorded (result_type EXECUTED); " +
+        "ExecutionResult " + ex.executionResult.id + ": EXECUTED; exactly one Fill (" + ex.fill.id + ") recorded.</div>" +
         '<button class="btn" id="btn-view-detail" style="margin-top:8px;">View full detail →</button>' +
         "</div>";
     }
@@ -418,7 +502,9 @@
   // UC-012 — ExecutionResult: STATE-015 EXECUTED / STATE-016 NOT_EXECUTED (zero Fill explicit).
   // Reached only when state.execution.order exists (renderScr007's STATE-002 gate) — by
   // buildExecutionChain's construction, order only exists when riskEvaluation.result ===
-  // "APPROVED", so that branch is not re-checked here.
+  // "APPROVED", so that branch is not re-checked here. ExecutionResultComputation/
+  // PaperExecutionObservation identities exposed as supporting evidence (closes
+  // P2-B04-A-MAJ-01) — kept to identity rows only, not a computation-debugging surface.
   function renderExecutionResultTab() {
     var ex = state.execution;
     if (ex.executionResult.resultType === "NOT_EXECUTED") {
@@ -427,6 +513,8 @@
         el5("ExecutionResult identity", ex.executionResult.id) +
         el5("Order", ex.order.id) +
         el5("OrderSubmissionRequest", ex.submissionRequest.id) +
+        el5("Execution Result Computation", ex.executionResultComputation.id + " (INITIAL)") +
+        el5("PaperExecutionObservation", ex.paperExecutionObservation.id + " (result_type NOT_EXECUTED)") +
         el5("environment", "PAPER") +
         el5("Fill", "zero — none created") +
         "</div>";
@@ -436,22 +524,29 @@
       el5("ExecutionResult identity", ex.executionResult.id) +
       el5("Order", ex.order.id) +
       el5("OrderSubmissionRequest", ex.submissionRequest.id) +
+      el5("Execution Result Computation", ex.executionResultComputation.id + " (INITIAL)") +
+      el5("PaperExecutionObservation", ex.paperExecutionObservation.id + " (result_type EXECUTED)") +
       el5("environment", "PAPER") +
       el5("Fill", "exactly one — " + ex.fill.id) +
       "</div>";
   }
 
   // UC-013 — Fill simulation evidence + economics, matching the SAME PaperExecutionObservation
-  // as the ExecutionResult above (execution_observation_id equality, fill.md v0.2).
+  // as the ExecutionResult above (execution_observation_id equality, fill.md v0.2). Simulation
+  // evidence axes now read from ex.paperExecutionObservation (their actual owner per
+  // execution-result.md §1), not from the Fill object itself — Fill only owns economics, copied
+  // exactly from the Observation (see buildExecutionChain()).
   function renderFillTab() {
     var ex = state.execution;
     if (ex.executionResult.resultType === "NOT_EXECUTED") {
       return '<div class="panel panel-blocked">' +
         '<div class="panel-title">STATE-017 — Fill absent</div>' +
-        "<div>ExecutionResult " + ex.executionResult.id + " is NOT_EXECUTED — no Fill exists to inspect.</div>" +
+        "<div>ExecutionResult " + ex.executionResult.id + " is NOT_EXECUTED (PaperExecutionObservation " +
+        ex.paperExecutionObservation.id + " recorded a NOT_EXECUTED result) — no Fill exists to inspect.</div>" +
         "</div>";
     }
     var f = ex.fill;
+    var obs = ex.paperExecutionObservation;
     return '<div class="panel panel-passed">' +
       '<div class="panel-title">Fill ' + f.id + ' — economics (copied from PaperExecutionObservation ' + f.executionObservationId + ")</div>" +
       el5("Fill quantity", f.quantity + " " + f.quantityUnit) +
@@ -459,24 +554,30 @@
       el5("Price currency", f.priceCurrency) +
       "</div>" +
       '<table class="simulation-table"><thead><tr><th>Axis</th><th>Reference</th></tr></thead><tbody>' +
-      "<tr><td>Simulation policy</td><td>" + f.policyRef + "</td></tr>" +
-      "<tr><td>Simulation configuration</td><td>" + f.configurationRef + "</td></tr>" +
-      "<tr><td>Simulation build</td><td>" + f.buildRef + "</td></tr>" +
-      "<tr><td>Deterministic-input reference</td><td>" + f.deterministicInputRef + "</td></tr>" +
+      "<tr><td>Simulation policy</td><td>" + obs.simulationPolicyRef + "</td></tr>" +
+      "<tr><td>Simulation configuration</td><td>" + obs.simulationConfigurationRef + "</td></tr>" +
+      "<tr><td>Simulation build</td><td>" + obs.simulationBuildRef + "</td></tr>" +
+      "<tr><td>Deterministic-input reference</td><td>" + obs.deterministicInputRef + "</td></tr>" +
       "</tbody></table>" +
-      '<div class="hint">Economics and simulation evidence correspond to the same PaperExecutionObservation as the ExecutionResult tab — not independently recalculated.</div>';
+      '<div class="hint">Economics and simulation evidence both come from PaperExecutionObservation ' + obs.id + ' — the same Observation referenced by the ExecutionResult tab — not independently recalculated.</div>';
   }
 
   // UC-014 — Position: FLAT/LONG/SHORT/NON_EVALUABLE, explicit, never guessed/collapsed/aggregated.
+  // v1.1 (closes P2-B04-A-MAJ-02): NON_EVALUABLE now only ever renders with an explicit,
+  // coherent evidence basis (see derivePosition()). When the override was requested but doesn't
+  // apply (no current Fill to pair with the illustrative prior one), the TRUE state is shown
+  // with a `demoNote` explaining why — surfaced on whichever branch (FLAT/LONG/SHORT) is
+  // actually true, never silently dropped.
   function renderPositionTab() {
     var pos = derivePosition(state.execution, state.positionDemoOverride);
+    var demoNoteHtml = pos.demoNote ? '<div class="hint">' + pos.demoNote + "</div>" : "";
     if (pos.status === "NON_EVALUABLE") {
       return '<div class="panel panel-indeterminate">' +
         '<div class="panel-title">STATE-021 — Position NON_EVALUABLE</div>' +
         "<div>More than one eligible Fill lineage contributes to this Account/Instrument position — " +
-        "no single value is reported (QA demonstration only; this prototype's single-initiation flow " +
-        "cannot naturally produce this — see README).</div>" +
-        el5("contributing_fill_refs", pos.contributingFillRefs.join(", ")) +
+        "no single value is reported.</div>" +
+        el5("contributing_fill_refs", pos.contributingFillRefs.join("; ")) +
+        '<div class="hint">QA demonstration: one of the two contributing Fills is the current execution\'s real Fill; the other is an explicitly-labelled illustrative prior Fill (this prototype\'s single-initiation flow cannot itself naturally produce a second current Fill — see README).</div>' +
         "</div>";
     }
     if (!pos.direction) {
@@ -484,6 +585,7 @@
         '<div class="panel-title">STATE-018 — Position FLAT</div>' +
         el5("net_quantity", "0") +
         "<div class=\"hint\">Zero eligible Fill for this Account/Instrument (Position is a derived projection, not an authoritative fact — position.md §1).</div>" +
+        demoNoteHtml +
         "</div>";
     }
     var stateLabel = pos.direction === "LONG" ? "STATE-019 — Position LONG" : "STATE-020 — Position SHORT";
@@ -492,6 +594,7 @@
       el5("net_quantity", pos.netQuantity + " " + pos.quantityUnit) +
       el5("average_entry_price", pos.averageEntryPrice + " " + pos.priceCurrency) +
       "<div class=\"hint\">Position is a derived projection (position.md §1) — not an authoritative fact of its own.</div>" +
+      demoNoteHtml +
       "</div>";
   }
 

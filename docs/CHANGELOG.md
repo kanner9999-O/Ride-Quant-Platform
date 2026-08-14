@@ -2,6 +2,123 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 04 v1.1 bounded correction: `P2-B04-A-MAJ-01` CLOSED (ExecutionResultComputation/PaperExecutionObservation), `P2-B04-A-MAJ-02` CLOSED (Position NON_EVALUABLE coherence)
+
+**Bounded correction — vai trò: `Phase 2 Prototype Batch 04 v1.1 Bounded Correction Executor`.** Closes two Review A findings on the v1.0 baseline: two distinct authoritative PAPER domain concepts missing from the represented chain, and an internally-contradictory Position demo scenario. No scope expansion, no new SCR/VIEW.
+
+### Baseline
+
+```text
+Starting HEAD:            5d26deb6bda9edd61b1a39bed7ecd86fc4d24a7a
+index.html:                 blob 2a9ccffef9b5728801fc09c8d1267f1e10584d46
+styles.css:                  blob 0539d04fda7161798261c5418a0c804ff47e5015
+app.js:                      blob 935d2ca00e9cbcdbb54674b876c264e2d57c5c15
+traceability.md:             v1.0, blob 56902559106ca24184afe98919f58ad40b781af7
+batch-manifest.md:           v1.0
+README.md:                   blob 0300f8943fbf907cd1d84b58f02e24dcb4055898
+Batch lifecycle:             CANDIDATE (unchanged going in)
+Review A on v1.0: Blocker 0/Major 2/Minor 0; REVISION_REQUIRED.
+```
+
+### Finding 1 — `P2-B04-A-MAJ-01` (closed)
+
+```text
+Defect: use-case-workflow.md UC-011's authoritative PAPER chain is Decision -> Trade Intent ->
+  RiskEvaluation -> Execution Intent -> Order -> OrderSubmissionRequest ->
+  ExecutionResultComputation -> PaperExecutionObservation -> ExecutionResult -> Fill -> Position.
+  v1.0's buildExecutionChain() skipped the two distinct authoritative entities
+  ExecutionResultComputation (execution-result.md §2) and PaperExecutionObservation
+  (execution-result.md §1) entirely — ExecutionResult carried only a bare `observationId` string
+  and Fill carried `executionObservationId`, with no PaperExecutionObservation object of its own
+  and no ExecutionResultComputation represented anywhere.
+Fix: buildExecutionChain() now constructs chain.executionResultComputation (id/
+  computationPurpose=INITIAL/orderId/submissionRequestId/computationCursor, per §2's schema) and
+  chain.paperExecutionObservation (id/executionResultComputationId/orderId/submissionRequestId/
+  observationCursor/four simulation-evidence axes/resultType/economics-when-EXECUTED, per §1's
+  schema) as two distinct nodes between OrderSubmissionRequest and ExecutionResult. Fill's
+  economics (quantity/price/priceCurrency) are now literally copied from
+  paperExecutionObservation's own fields at construction time (not a second independent literal),
+  matching fill.md v0.2's "PHẢI BẰNG HỆT Observation" invariant at the code level. REJECTED/
+  NON_EVALUABLE still return before either node is ever assigned (INV-4 preserved). NOT_EXECUTED
+  now sets Computation + Observation (result_type NOT_EXECUTED, economics fields left absent per
+  execution-result.md §1's conditional invariant) before returning with zero Fill. SCR-006's
+  initiation-result panel and SCR-007's ExecutionResult/Fill tabs now surface both identities as
+  supporting evidence (two extra rows each) without turning SCR-007 into a computation-debugging
+  surface. No computation/simulation logic implemented — every value remains a hardcoded
+  deterministic fixture.
+```
+
+### Finding 2 — `P2-B04-A-MAJ-02` (closed)
+
+```text
+Defect: the Position tab's NON_EVALUABLE QA override could render `contributing_fill_refs =
+  [FILL-001, FILL-002]` even when the currently-selected execution was NOT_EXECUTED (zero Fill,
+  STATE-017 Fill absent on the Fill tab) — FILL-001 didn't exist in that scenario, and FILL-002
+  was fabricated with no evidence basis at all. This produced directly contradictory evidence
+  across the Fill/ExecutionResult/Position tabs for the same selected execution.
+Fix: derivePosition() now renders NON_EVALUABLE only when the current execution actually
+  produced a Fill (EXECUTED) — contributing_fill_refs then pairs that REAL current Fill with one
+  new, explicitly-labelled illustrative fixture (MOCK_PRIOR_FILL_LABEL: "illustrative prior
+  eligible Fill, same Account/Instrument, earlier Paper session — not otherwise shown in this
+  batch, represented only for this demo"), never a second unexplained current Fill. When the
+  override is selected but the current execution has no Fill, the override no longer silently
+  fabricates evidence or collapses to FLAT as a forced default — derivePosition() returns
+  whatever the TRUE current Position state actually is (FLAT/LONG/SHORT, whichever is correct),
+  with a `demoNote` explicitly explaining why the override didn't apply. renderPositionTab()
+  surfaces that note on whichever branch actually renders.
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-04/app.js               blob af36756ee6fa989adc617df3c4e2b3b9c64ce075
+prototype/phase-2/batch-04/traceability.md       v1.0 → v1.1, blob a606e0925bcddcae2d6460f71aabc283772e7971
+prototype/phase-2/batch-04/batch-manifest.md     v1.0 → v1.1, blob 48fbf89b4643bd37a64ed79e4b5f77a1e75dab24
+prototype/phase-2/batch-04/README.md             blob 8fc88f9ac600c0ed924f2bcaaeccbe574570afe8
+                                                  (SCR-007 panel description + QA panel
+                                                  NON_EVALUABLE description updated to match)
+prototype/phase-2/batch-04/index.html            UNCHANGED, blob 2a9ccffef9b5728801fc09c8d1267f1e10584d46
+prototype/phase-2/batch-04/styles.css            UNCHANGED, blob 0539d04fda7161798261c5418a0c804ff47e5015
+docs/MANIFEST.md                                 Batch 04 row rewritten (compact current-state,
+                                                  P2-BUDGET-001 discipline — full journey lives
+                                                  here in CHANGELOG)
+```
+
+### Preserved unchanged
+
+```text
+PAPER Decision distinct from Backtest, user intent only (zero <input> elements, re-verified),
+  STATE-003/028/029/011 precondition distinctness, upstream-vs-downstream evidence separation,
+  RiskEvaluation REJECTED/NON_EVALUABLE truncation before Execution Intent/Order, EXECUTED/
+  NOT_EXECUTED semantics, STATE-017 Fill absent, Paper pin independence from Replay/Backtest,
+  UC-015 no-real-exchange safety evidence, deferred Review handoff, no Live/backend/network/
+  credentials. A/B/C partition unchanged (A=15/B=6/C=empty). Batch 01/02/03 untouched (git diff
+  --quiet verified).
+```
+
+### Result
+
+```text
+P2-B04-A-MAJ-01:  CLOSED.
+P2-B04-A-MAJ-02:  CLOSED.
+Candidate Batch-04 surface/UC contribution: unchanged, 10/17, 15/21 — still pending Review A
+  re-review + Independent Review B, NOT self-verified.
+Last independently verified: 8/17 surfaces, 10/21 UC — unchanged (Batch 01+02+03 baseline).
+Batch lifecycle: CANDIDATE, NOT self-approved.
+```
+
+### Validation
+
+```text
+node --check app.js:      OK.
+Secret-pattern grep:      clean (one match = disclaiming comment, unchanged).
+Network-call grep:        clean (one match = descriptive label text, not code).
+<input> element grep:     clean (zero matches — INV-2 still holds).
+index.html/styles.css:    verified byte-identical (blobs unchanged).
+git diff --quiet -- batch-01/, batch-02/, batch-03/: clean (all three untouched).
+Forbidden-authority paths: untouched.
+```
+
 ## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 04 authored: Paper initiation + execution evidence/detail (NAV-004 + SCR-006/007)
 
 **Authored — vai trò: `Phase 2 Prototype Batch 04 Author`.** One coherent PAPER milestone (P2-PROTOTYPE-001), not split into separate governance cycles. Static HTML/CSS/vanilla-JS prototype, mock/static/deterministic data only — no framework, no backend, no build step, no Risk/execution/simulation engine implemented. Batch 01/02/03 untouched.
