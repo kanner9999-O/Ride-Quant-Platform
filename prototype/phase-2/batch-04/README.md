@@ -25,17 +25,23 @@ re-implementing VIEW-001 as a new surface.
   PAPER-context Decision) — never collapsed into one generic message.
 - **SCR-006 — Paper Execution Initiation**: shows the existing, distinct PAPER-context Decision
   (outcome, Strategy Instance/Definition Version origin, recorded input snapshot) *before*
-  initiation, visually separated from the downstream chain the initiation itself produces. The
-  user supplies intent only — no quantity/order-type/sizing/fee/slippage input exists anywhere.
-  Initiating actually drives prototype-local state; RiskEvaluation REJECTED/NON_EVALUABLE
-  truncate the chain exactly at RiskEvaluation, before any Execution Intent/Order is created.
+  initiation, visually separated from the downstream chain the initiation itself produces. Two
+  genuinely distinct illustrative PAPER Decision fixtures are selectable (LONG and SHORT — each
+  its own identity, evidence, and evaluation text; never one mutated into the other), so both
+  directions are materially inspectable, not just the outcome LABEL. The user supplies intent
+  only — no quantity/order-type/sizing/fee/slippage input exists anywhere. Initiating actually
+  drives prototype-local state; RiskEvaluation REJECTED/NON_EVALUABLE truncate the chain exactly
+  at RiskEvaluation, before any Execution Intent/Order/ExecutionResultComputation/
+  PaperExecutionObservation is created.
 - **SCR-007 — Paper Order/Execution Detail**: inspects the *same* lineage SCR-006 produced (no
   disconnected fixtures) across four panels — ExecutionResult (EXECUTED/NOT_EXECUTED, with the
   distinct ExecutionResultComputation and PaperExecutionObservation identities that authorize it
   exposed as supporting evidence), Fill evidence (economics + four-axis simulation evidence, both
-  sourced from that same PaperExecutionObservation), Position (FLAT/LONG/SHORT/NON_EVALUABLE,
-  explicit — never guessed or collapsed to FLAT), and a standing PAPER safety confirmation (no
-  real exchange order, no real network route in this prototype).
+  sourced from that same PaperExecutionObservation), Position (FLAT/LONG/SHORT/NON_EVALUABLE, all
+  four materially reachable — direction is read from the Fill's own `direction` field, which is
+  bound to whichever Decision scenario actually produced it — explicit, never guessed or
+  collapsed to FLAT), and a standing PAPER safety confirmation (no real exchange order, no real
+  network route in this prototype).
 
 The nav bar's "Research"/"Replay"/"Backtest" items are real links to `../batch-01/index.html`,
 `../batch-02/index.html`, and `../batch-03/index.html`. Review/Improve show a labelled "deferred"
@@ -66,6 +72,24 @@ Fill with one explicitly-labelled illustrative *prior* Fill for the same Account
 no Fill (NOT_EXECUTED, or Risk-truncated), the override does not apply and the actual Position
 state is shown instead, with a note explaining why — the demo never fabricates evidence or
 contradicts what the other tabs show.
+
+### Initiation-context mutation invalidates the current execution
+
+QA controls fall into two kinds, and they behave differently on purpose:
+
+- **Initiation-context controls** — Account/Instrument/Venue validity, Paper Strategy Instance
+  selection/pin, PAPER Decision availability, and *which* PAPER Decision scenario (LONG/SHORT) is
+  current. Changing any of these represents a different bounded Paper interaction, so any
+  already-created execution is invalidated (`state.execution` is cleared) — SCR-007 returns to
+  its empty state until a new initiation happens under the (possibly new) context. This is
+  prototype-local demo-state hygiene only, not a production session/context invalidation model,
+  and it is what prevents SCR-007 from ever showing historical execution evidence labelled
+  "continuous from SCR-006" while the current context bar says otherwise.
+- **Next-initiation-outcome controls** — Risk APPROVED/REJECTED/NON_EVALUABLE and ExecutionResult
+  EXECUTED/NOT_EXECUTED. These only set the scenario that the *next* click of "Initiate PAPER
+  execution" will produce; they never retroactively change an execution that already exists.
+  Switching the Position inspection demo mode likewise never mutates the recorded execution
+  lineage — it only changes how the existing Fill evidence (if any) is presented.
 
 ## What this is not
 

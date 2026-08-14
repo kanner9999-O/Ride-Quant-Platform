@@ -2,6 +2,131 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 04 v1.2 bounded correction: `P2-B04-B-MAJ-01` CLOSED (STATE-020/Position SHORT reachability), `P2-B04-B-MAJ-02` CLOSED (execution/context-mutation coherence)
+
+**Bounded correction — vai trò: `Phase 2 Prototype Batch 04 v1.2 Bounded Correction Executor`.** Closes two Independent Review B findings on the v1.1 baseline (Review A findings `P2-B04-A-MAJ-01`/`P2-B04-A-MAJ-02` confirmed CLOSED, not reopened). No scope expansion, no new SCR/VIEW.
+
+### Baseline
+
+```text
+Starting HEAD:             f821dcc6648069c0075ec036a57debe958181581
+index.html:                  blob 2a9ccffef9b5728801fc09c8d1267f1e10584d46
+styles.css:                   blob 0539d04fda7161798261c5418a0c804ff47e5015
+app.js:                       blob af36756ee6fa989adc617df3c4e2b3b9c64ce075
+traceability.md:              v1.1, blob a606e0925bcddcae2d6460f71aabc283772e7971
+batch-manifest.md:            v1.1
+README.md:                    blob 8fc88f9ac600c0ed924f2bcaaeccbe574570afe8
+Batch lifecycle:              CANDIDATE (unchanged going in)
+Independent Review B on v1.1: P2-B04-A-MAJ-01/P2-B04-A-MAJ-02 CLOSED (confirmed); Blocker 0/
+  Major 2 new/Minor 0; REVISION_REQUIRED.
+```
+
+### Finding 1 — `P2-B04-B-MAJ-01` (closed)
+
+```text
+Defect: STATE-020/Position SHORT was not materially reachable. MOCK_PAPER_DECISION.outcome was
+  hardcoded to "LONG" and derivePositionNatural() read directly from that fixed global — the
+  SHORT rendering branch existed but was dead code, since no scenario could ever produce it.
+  UC-014 cannot be considered fully substantive while an applicable required Position state is
+  unreachable.
+Fix: replaced the single Decision fixture with MOCK_PAPER_DECISIONS.LONG / .SHORT — two genuinely
+  distinct illustrative PAPER-context Decision facts (same pinned Strategy Instance, different
+  identity/outcome/input snapshot/evaluation evidence; neither is a mutation of the other, neither
+  derived independently of the Decision, neither a Backtest/Research Decision carried forward).
+  Selectable via a new QA control (state.paperDecisionScenario). buildExecutionChain() now takes
+  the decision as a parameter and sets chain.decisionId/chain.decisionOutcome from it, and —
+  critically — chain.fill.direction = decision.outcome, a genuine fill.md schema field (direction:
+  enum [LONG, SHORT]) that v1.0/v1.1 omitted entirely. derivePositionNatural() now reads
+  execution.fill.direction (the Fill's own field) instead of any global, so selecting the SHORT
+  scenario and initiating produces a Fill with direction=SHORT and a materially-rendered STATE-020
+  Position SHORT panel. All four Position states (FLAT/LONG/SHORT/NON_EVALUABLE) are now reachable
+  through real interaction.
+```
+
+### Finding 2 — `P2-B04-B-MAJ-02` (closed)
+
+```text
+Defect: after an execution had been created, QA controls could mutate paperPin/
+  decisionAvailable/accountValid (and, with Finding 1's new control, paperDecisionScenario)
+  without clearing or rebinding state.execution. SCR-007 could then display
+  "Strategy Instance (pinned, continuous from SCR-006)" for a historical execution while the
+  global context bar simultaneously said "not pinned" or "selected, not pinned" — directly
+  contradictory current-state semantics.
+Fix: adopted the preferred minimal model (invalidate current execution on context mutation).
+  CONTEXT_MUTATION_KEYS enumerates the QA keys that represent an initiation-context dimension —
+  Account/Instrument/Venue validity, Paper Strategy Instance selection/pin, PAPER Decision
+  availability, and which PAPER Decision scenario is current. Touching any of them now clears
+  state.execution; SCR-007 falls back to its STATE-002 empty state (already gated on
+  `!state.execution.order`) until a new initiation happens under the (possibly new) context. Risk
+  APPROVED/REJECTED/NON_EVALUABLE and ExecutionResult EXECUTED/NOT_EXECUTED — which represent the
+  scenario for the NEXT initiation only — and the Position inspection demo-mode toggle are
+  deliberately excluded from CONTEXT_MUTATION_KEYS, so they never retroactively mutate an
+  execution that already exists, per the explicit requirement. SCR-007's Decision-lineage row now
+  reads the snapshot bound on the execution itself (execution.decisionId/decisionOutcome) rather
+  than the current global, as additional defense-in-depth. This is prototype-local demo-state
+  hygiene only — no production session/context invalidation semantics defined, no PaperSession
+  entity introduced.
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-04/app.js               blob bffbec59f3d37ce75569a7ac9734ad85a8da4071
+prototype/phase-2/batch-04/index.html            blob 724b994f04211f188a20fe6735bd4a330387e56f
+                                                  (one new QA group: "PAPER Decision scenario")
+prototype/phase-2/batch-04/traceability.md       v1.1 → v1.2, blob 77f6917872845b362ff482e16e7eb2ff2074833f
+prototype/phase-2/batch-04/batch-manifest.md     v1.1 → v1.2, blob bd686bbbfedcd6cb33b58865df580d72e4be86e1
+prototype/phase-2/batch-04/README.md             blob 537ea5f1c690bc73f1138f7119c6725154a73723
+                                                  (documents SHORT scenario and the two-kind QA
+                                                  control taxonomy — initiation-context vs.
+                                                  next-initiation-outcome)
+prototype/phase-2/batch-04/styles.css            UNCHANGED, blob 0539d04fda7161798261c5418a0c804ff47e5015
+docs/MANIFEST.md                                 Batch 04 row rewritten (compact current-state,
+                                                  P2-BUDGET-001 discipline — full journey lives
+                                                  here in CHANGELOG)
+```
+
+### Preserved unchanged
+
+```text
+PAPER Decision distinct from Research/Replay/Backtest, user intent only, STATE-003/028/029/011
+  distinctness, upstream Decision evidence before initiation, upstream/downstream separation, full
+  chain including ExecutionResultComputation and PaperExecutionObservation (P2-B04-A-MAJ-01, not
+  reopened), Risk REJECTED/NON_EVALUABLE truncation, NOT_EXECUTED → zero Fill, EXECUTED → exactly
+  one Fill, Fill economics copied from the same PaperExecutionObservation, Position NON_EVALUABLE
+  evidence fix from v1.1 (P2-B04-A-MAJ-02, not reopened), Position remains a derived projection,
+  UC-015 PAPER safety, deferred Review handoff, no Live/backend/network/credentials. A/B/C
+  partition unchanged (A=15/B=6/C=empty). Batch 01/02/03 untouched (git diff --quiet verified).
+```
+
+### Result
+
+```text
+P2-B04-B-MAJ-01:  CLOSED.
+P2-B04-B-MAJ-02:  CLOSED.
+P2-B04-A-MAJ-01 / P2-B04-A-MAJ-02: regression-checked, still CLOSED, not reopened.
+Candidate Batch-04 surface/UC contribution: unchanged, 10/17, 15/21 — still pending bounded
+  Review A re-review + a NEW Independent Review B, NOT self-verified.
+Last independently verified: 8/17 surfaces, 10/21 UC — unchanged (Batch 01+02+03 baseline).
+Batch lifecycle: CANDIDATE, NOT self-approved.
+```
+
+### Validation
+
+```text
+node --check app.js:      OK.
+Secret-pattern grep:      clean (one match = disclaiming comment, unchanged).
+Network-call grep:        clean (one match = descriptive label text, not code).
+<input> element grep:     clean (zero matches — INV-2 still holds).
+styles.css:                verified byte-identical (blob unchanged).
+git diff --quiet -- batch-01/, batch-02/, batch-03/: clean (all three untouched).
+Forbidden-authority paths: untouched.
+Manual scenario trace: default (LONG/APPROVED/EXECUTED) unchanged from v1.1; SHORT scenario
+  produces Position SHORT; QA precondition/context mutation while an execution exists correctly
+  clears it (SCR-007 shows STATE-002); risk/execution-outcome and Position-demo-mode QA clicks
+  leave an existing execution's evidence untouched.
+```
+
 ## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 04 v1.1 bounded correction: `P2-B04-A-MAJ-01` CLOSED (ExecutionResultComputation/PaperExecutionObservation), `P2-B04-A-MAJ-02` CLOSED (Position NON_EVALUABLE coherence)
 
 **Bounded correction — vai trò: `Phase 2 Prototype Batch 04 v1.1 Bounded Correction Executor`.** Closes two Review A findings on the v1.0 baseline: two distinct authoritative PAPER domain concepts missing from the represented chain, and an internally-contradictory Position demo scenario. No scope expansion, no new SCR/VIEW.

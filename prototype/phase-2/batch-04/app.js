@@ -47,15 +47,37 @@
   // The PAPER-context authoritative Decision lineage — a distinct fact, NOT a Backtest/Research
   // Decision carried forward (INV-1). Its creation mechanism is intentionally NOT modeled here
   // (use-case-workflow.md UC-011: "deferred domain/workflow dependency, §9d").
-  var MOCK_PAPER_DECISION = {
-    id: "PD-001",
-    outcome: "LONG",
-    strategyInstance: MOCK_STRATEGY_CONTEXT.instanceLabel + " (" + MOCK_STRATEGY_CONTEXT.instanceId + ")",
-    strategyDefinitionVersion: MOCK_STRATEGY_CONTEXT.strategyDefinitionVersion,
-    configurationVersion: MOCK_STRATEGY_CONTEXT.configurationVersion,
-    inputSnapshot: "price_fact#7710, reference_fact#7709 (illustrative)",
-    evaluationEvidence: "current candle closed strictly above EMA(20); previous candle ≤ previous EMA(20) (crossing_policy=strict)"
+  //
+  // v1.2 (closes P2-B04-B-MAJ-01): two distinct illustrative PAPER-context Decision fixtures —
+  // v1.1 only ever had a LONG Decision, leaving STATE-020/Position SHORT unreachable dead code.
+  // Both are genuine, separate, already-existing Decision facts (same pinned Strategy Instance,
+  // different outcome) — never a mutation of one into the other, never derived independently of
+  // the Decision. Which one is "current" is selected via QA (an initiation-context dimension,
+  // see state.paperDecisionScenario / CONTEXT_MUTATION_KEYS below).
+  var MOCK_PAPER_DECISIONS = {
+    LONG: {
+      id: "PD-LONG-001",
+      outcome: "LONG",
+      strategyInstance: MOCK_STRATEGY_CONTEXT.instanceLabel + " (" + MOCK_STRATEGY_CONTEXT.instanceId + ")",
+      strategyDefinitionVersion: MOCK_STRATEGY_CONTEXT.strategyDefinitionVersion,
+      configurationVersion: MOCK_STRATEGY_CONTEXT.configurationVersion,
+      inputSnapshot: "price_fact#7710, reference_fact#7709 (illustrative)",
+      evaluationEvidence: "current candle closed strictly above EMA(20); previous candle ≤ previous EMA(20) (crossing_policy=strict)"
+    },
+    SHORT: {
+      id: "PD-SHORT-001",
+      outcome: "SHORT",
+      strategyInstance: MOCK_STRATEGY_CONTEXT.instanceLabel + " (" + MOCK_STRATEGY_CONTEXT.instanceId + ")",
+      strategyDefinitionVersion: MOCK_STRATEGY_CONTEXT.strategyDefinitionVersion,
+      configurationVersion: MOCK_STRATEGY_CONTEXT.configurationVersion,
+      inputSnapshot: "price_fact#8210, reference_fact#8209 (illustrative)",
+      evaluationEvidence: "current candle closed strictly below EMA(20); previous candle ≥ previous EMA(20) (crossing_policy=strict)"
+    }
   };
+
+  function currentPaperDecision() {
+    return MOCK_PAPER_DECISIONS[state.paperDecisionScenario];
+  }
 
   // ---- Deterministic downstream chain builder (INV-4: exact branch truncation) ----
 
@@ -75,9 +97,16 @@
   // paperExecutionObservation's own executedQuantity/executionPrice/priceCurrency fields (not a
   // second independent literal), matching fill.md v0.2's "PHẢI BẰNG HỆT Observation" invariant at
   // the code level.
-  function buildExecutionChain(riskOutcome, executionOutcome) {
+  //
+  // v1.2 (closes P2-B04-B-MAJ-01): takes the exact Decision fixture used for this initiation as a
+  // parameter (never reads a mutable global) and binds its outcome all the way through —
+  // chain.decisionOutcome is the snapshot for display, and chain.fill.direction (a genuine
+  // fill.md schema field, previously omitted) carries the SAME outcome so Position derives its
+  // LONG/SHORT direction from the Fill's own field, not a side-channel decision reference.
+  function buildExecutionChain(riskOutcome, executionOutcome, decision) {
     var chain = {
-      decisionId: MOCK_PAPER_DECISION.id,
+      decisionId: decision.id,
+      decisionOutcome: decision.outcome,
       tradeIntentId: "TI-001",
       riskEvaluation: { id: "RE-001", result: riskOutcome, reasonCode: null },
       executionIntent: null,
@@ -157,6 +186,7 @@
     chain.fill = {
       id: "FILL-001",
       executionObservationId: chain.paperExecutionObservation.id,
+      direction: decision.outcome, // fill.md schema field — bound to the exact Decision that produced this chain (closes P2-B04-B-MAJ-01)
       quantity: chain.paperExecutionObservation.executedQuantity,
       quantityUnit: chain.paperExecutionObservation.quantityUnit,
       price: chain.paperExecutionObservation.executionPrice,
@@ -171,13 +201,17 @@
   // than fabricating an unexplained FILL-002.
   var MOCK_PRIOR_FILL_LABEL = "FILL-000 (illustrative prior eligible Fill, same Account/Instrument, earlier Paper session — not otherwise shown in this batch, represented only for this demo)";
 
+  // v1.2 (closes P2-B04-B-MAJ-01): direction now reads from execution.fill.direction (the Fill's
+  // OWN schema field, fill.md) rather than a mutable global — makes STATE-020/Position SHORT
+  // materially reachable via the SHORT Decision scenario, since that scenario's Fill genuinely
+  // carries direction=SHORT through to here.
   function derivePositionNatural(execution) {
     if (!execution || !execution.fill) {
       return { status: "EVALUABLE", direction: null, netQuantity: "0" };
     }
     return {
       status: "EVALUABLE",
-      direction: MOCK_PAPER_DECISION.outcome, // LONG/SHORT — this prototype's single Fill lineage direction follows the Decision outcome.
+      direction: execution.fill.direction, // LONG/SHORT — Fill's own field, bound to the Decision that produced this chain.
       netQuantity: execution.fill.quantity,
       quantityUnit: execution.fill.quantityUnit,
       averageEntryPrice: execution.fill.price,
@@ -221,6 +255,7 @@
     accountValid: true, // STATE-003 when false
     paperPin: "pinned", // "none" (STATE-028) | "selected" (STATE-029) | "pinned"
     decisionAvailable: true, // STATE-011 when pinned but false
+    paperDecisionScenario: "LONG", // "LONG" | "SHORT" — which PAPER-context Decision fixture is current (v1.2, closes P2-B04-B-MAJ-01)
     riskOutcome: "APPROVED", // QA-selected scenario for the NEXT initiation
     executionOutcome: "EXECUTED",
     execution: null, // null until user clicks "Initiate PAPER execution" (STATE-002 on SCR-007 until then)
@@ -346,6 +381,7 @@
 
     // Eligible: show upstream Decision evidence (INV-3), visually separate from downstream
     // causation, then the initiation control.
+    var decision = currentPaperDecision();
     var html = '<div class="label-row">' +
       '<span class="mode-label">Paper</span>' +
       '<span class="authority-label authority-label-authoritative">Authority class: authoritative PAPER</span>' +
@@ -359,12 +395,12 @@
       el5("Configuration", MOCK_STRATEGY_CONTEXT.configurationVersion) +
       '<div class="evidence-group evidence-group-upstream">' +
       '<div class="evidence-group-label">Upstream PAPER Decision evidence (shown BEFORE initiation — resolved directly from recorded fact, NOT this Batch\'s Backtest Decision, NOT re-derived)</div>' +
-      '<div style="margin-bottom:6px;"><span class="outcome-badge ' + (MOCK_PAPER_DECISION.outcome === "LONG" ? "outcome-long" : "outcome-short") + '">' + MOCK_PAPER_DECISION.outcome + "</span></div>" +
-      el5("Decision identity", MOCK_PAPER_DECISION.id) +
-      el5("Strategy Instance (origin)", MOCK_PAPER_DECISION.strategyInstance) +
-      el5("Strategy Definition Version (origin)", MOCK_PAPER_DECISION.strategyDefinitionVersion) +
-      el5("Recorded input snapshot", MOCK_PAPER_DECISION.inputSnapshot) +
-      el5("Recorded evaluation evidence", MOCK_PAPER_DECISION.evaluationEvidence) +
+      '<div style="margin-bottom:6px;"><span class="outcome-badge ' + (decision.outcome === "LONG" ? "outcome-long" : "outcome-short") + '">' + decision.outcome + "</span></div>" +
+      el5("Decision identity", decision.id) +
+      el5("Strategy Instance (origin)", decision.strategyInstance) +
+      el5("Strategy Definition Version (origin)", decision.strategyDefinitionVersion) +
+      el5("Recorded input snapshot", decision.inputSnapshot) +
+      el5("Recorded evaluation evidence", decision.evaluationEvidence) +
       "</div>" +
       '<div class="hint">Initiating supplies intent only — no quantity/order type/sizing/fee/slippage/execution-model input is collected here; the system owns the entire downstream chain.</div>' +
       '<div id="scr-006-initiation-result"></div>' +
@@ -372,7 +408,7 @@
     body.innerHTML = html;
 
     el("btn-initiate").addEventListener("click", function () {
-      state.execution = buildExecutionChain(state.riskOutcome, state.executionOutcome);
+      state.execution = buildExecutionChain(state.riskOutcome, state.executionOutcome, decision);
       renderInitiationResult();
     });
 
@@ -465,7 +501,7 @@
       el5("Account", MOCK_ACCOUNT_CONTEXT.account) +
       el5("Instrument", MOCK_ACCOUNT_CONTEXT.instrument) +
       el5("Venue", MOCK_ACCOUNT_CONTEXT.venue) +
-      el5("Decision lineage", MOCK_PAPER_DECISION.id + " (" + MOCK_PAPER_DECISION.outcome + ")") +
+      el5("Decision lineage", state.execution.decisionId + " (" + state.execution.decisionOutcome + ")") +
       '<div class="subtab-row" id="scr-007-tabs">' +
       '<button class="subtab-btn" data-tab="result">ExecutionResult</button>' +
       '<button class="subtab-btn" data-tab="fill">Fill evidence</button>' +
@@ -635,6 +671,20 @@
 
   // ---- QA panel wiring ----
 
+  // v1.2 (closes P2-B04-B-MAJ-02): QA keys that represent an INITIATION-CONTEXT dimension
+  // (Account/Instrument/Venue validity, Paper Strategy Instance selection/pin, PAPER Decision
+  // availability, WHICH PAPER Decision scenario is current) — as opposed to keys that only set
+  // the scenario for the NEXT initiation (risk/execution outcome) or only change how an existing
+  // Fill is inspected (Position demo mode). Touching any of these invalidates any already-created
+  // state.execution — see wireQaPanel() below. This is prototype-local demo-state hygiene only,
+  // not a production session/context invalidation model.
+  var CONTEXT_MUTATION_KEYS = [
+    "acct-valid", "acct-invalid",
+    "pin-none", "pin-selected", "pin-pinned",
+    "decision-available", "decision-unavailable",
+    "decision-long", "decision-short"
+  ];
+
   function refreshQaActiveStates() {
     var map = {
       "acct-valid": state.accountValid === true,
@@ -644,6 +694,8 @@
       "pin-pinned": state.paperPin === "pinned",
       "decision-available": state.decisionAvailable === true,
       "decision-unavailable": state.decisionAvailable === false,
+      "decision-long": state.paperDecisionScenario === "LONG",
+      "decision-short": state.paperDecisionScenario === "SHORT",
       "risk-approved": state.riskOutcome === "APPROVED",
       "risk-rejected": state.riskOutcome === "REJECTED",
       "risk-non-evaluable": state.riskOutcome === "NON_EVALUABLE",
@@ -676,6 +728,8 @@
         else if (qa === "pin-pinned") state.paperPin = "pinned";
         else if (qa === "decision-available") state.decisionAvailable = true;
         else if (qa === "decision-unavailable") state.decisionAvailable = false;
+        else if (qa === "decision-long") state.paperDecisionScenario = "LONG";
+        else if (qa === "decision-short") state.paperDecisionScenario = "SHORT";
         else if (qa === "risk-approved") state.riskOutcome = "APPROVED";
         else if (qa === "risk-rejected") state.riskOutcome = "REJECTED";
         else if (qa === "risk-non-evaluable") state.riskOutcome = "NON_EVALUABLE";
@@ -683,6 +737,15 @@
         else if (qa === "exec-not-executed") state.executionOutcome = "NOT_EXECUTED";
         else if (qa === "position-natural") state.positionDemoOverride = null;
         else if (qa === "position-non-evaluable") state.positionDemoOverride = "non-evaluable";
+
+        // P2-B04-B-MAJ-02: an initiation-context dimension changed — any already-created
+        // execution no longer has a guaranteed-continuous context, so it is invalidated. SCR-007
+        // returns to STATE-002 until a new initiation happens under the (possibly new) context.
+        // risk/execution-outcome QA keys and Position-demo-mode keys are deliberately NOT in
+        // CONTEXT_MUTATION_KEYS — they must never retroactively mutate an existing execution.
+        if (CONTEXT_MUTATION_KEYS.indexOf(qa) !== -1) {
+          state.execution = null;
+        }
 
         updateContextBar();
         refreshQaActiveStates();
@@ -695,6 +758,7 @@
       state.accountValid = true;
       state.paperPin = "pinned";
       state.decisionAvailable = true;
+      state.paperDecisionScenario = "LONG";
       state.riskOutcome = "APPROVED";
       state.executionOutcome = "EXECUTED";
       state.execution = null;
