@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-06-manifest
 title: "Phase 2 Prototype — Batch 06 — Batch Manifest"
-version: "1.0"
+version: "1.1"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-14"
@@ -10,10 +10,27 @@ created_at: "2026-08-14"
 # Phase 2 Prototype — Batch 06 — Batch Manifest
 
 **Vai trò của tài liệu này:** batch-level evidence record cho Batch 06, đúng `phase-2-rules.md`
-`P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Đây LÀ
-transaction AUTHORING đầu tiên cho Batch 06 — the final planned Phase-2 Product Prototype
-milestone — Review A/Independent Review B **CHƯA thực hiện**. Lifecycle `CANDIDATE`, chưa
-self-approved, chưa review.
+`P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch
+06 đã qua Review A trên v1.0 (`P2-B06-A-MAJ-01`/`P2-B06-A-MAJ-02`/`P2-B06-A-MIN-01`,
+REVISION_REQUIRED), v1.1 đóng CẢ BA. **Independent Review B CHƯA thực hiện** — lifecycle
+`CANDIDATE`, chưa self-approved, KHÔNG `READY_FOR_NEXT_PHASE2_BATCH` verdict tại transaction này.
+
+**v1.1 — bounded correction (2026-08-14), Review A trên v1.0: `P2-B06-A-MAJ-01` (Major) +
+`P2-B06-A-MAJ-02` (Major) + `P2-B06-A-MIN-01` (Minor) — đóng CẢ BA tại transaction này.**
+`P2-B06-A-MAJ-01`: VIEW-005's STATE-025/026 badge đọc DUY NHẤT `state.oldVersionPaperFillAvailable`
+bất kể mode yêu cầu — "Backtest only" khi PAPER Fill unavailable sai lầm hiển thị STATE-026 dù mọi
+evidence Backtest yêu cầu đều đầy đủ. Sửa: `oldVersionEvidenceComplete(mode)` helper mới —
+`mode==="backtest"` LUÔN complete; `mode==="paper"`/`"both"` complete CHỈ khi
+`state.oldVersionPaperFillAvailable`; `renderView005Families()` nay derive STATE-025/026 từ helper
+này. `P2-B06-A-MAJ-02`: SCR-011 chỉ verify ≥2 Strategy Instance tồn tại, KHÔNG verify hai Instance
+được CHỌN có `strategyDefinitionVersionRef` khác nhau — cho phép so sánh một Instance với chính
+nó trông như hợp lệ. Sửa: `comparisonPairValidity()` + `renderScr011Panels()` mới — same
+Instance/cùng version → invalid pair, `#scr011-pair-status` disclose lý do, KHÔNG evidence family
+nào render, re-evaluate NGAY LẬP TỨC mỗi khi selector đổi. `P2-B06-A-MIN-01`: sửa wording
+"seven"→"eight (current payload fields)" xuyên suốt `app.js`/`README.md`/`traceability.md`/
+`batch-manifest.md` — object shape đã đúng từ v1.0, CHỈ prose sai. Blob mới: `app.js`,
+`traceability.md`, `README.md` (bullet cập nhật cho SCR-011/VIEW-005). `index.html`/`styles.css`
+KHÔNG đổi. KHÔNG đổi A/B/C partition, KHÔNG surface mới, KHÔNG claim independently verified.
 
 ## 1. Batch identity
 
@@ -113,12 +130,12 @@ PR-032 (VIEW-005, UC-021)
 ## 6. Prototype artifact identities
 
 ```text
-prototype/phase-2/batch-06/index.html         blob 3f081111c260e64618689490363bfdb6255bdc23 (CURRENT — v1.0)
-prototype/phase-2/batch-06/app.js              blob b37967b62457595f7ac6cfb5fba692b6d255e9f2 (CURRENT — v1.0)
-prototype/phase-2/batch-06/styles.css          blob 5114548728ad678c16f862e79b09b71798d8df69 (CURRENT — v1.0)
-prototype/phase-2/batch-06/traceability.md     blob d8f1e360f2f726061049af0accfab7ecdb4971ff (CURRENT — v1.0)
-prototype/phase-2/batch-06/batch-manifest.md   (this file — CURRENT, v1.0)
-prototype/phase-2/batch-06/README.md           (CURRENT, v1.0)
+prototype/phase-2/batch-06/index.html         blob 3f081111c260e64618689490363bfdb6255bdc23 (unchanged since v1.0)
+prototype/phase-2/batch-06/app.js              blob 5dc57d5dd2e8d82e4e7a94af92aa6c07b2b7532f (CURRENT — v1.1, đóng P2-B06-A-MAJ-01 + P2-B06-A-MAJ-02 + P2-B06-A-MIN-01; historical v1.0 blob b37967b62457595f7ac6cfb5fba692b6d255e9f2, superseded)
+prototype/phase-2/batch-06/styles.css          blob 5114548728ad678c16f862e79b09b71798d8df69 (unchanged since v1.0)
+prototype/phase-2/batch-06/traceability.md     blob 0a69307c143ab8b20d316ba125d259f99f5f83f8 (CURRENT — v1.1; historical v1.0 blob d8f1e360f2f726061049af0accfab7ecdb4971ff, superseded)
+prototype/phase-2/batch-06/batch-manifest.md   (this file — CURRENT, v1.1)
+prototype/phase-2/batch-06/README.md           blob 7752b350dade1e1c529152864db35e38ddea267f (CURRENT — v1.1, incidental SCR-011/VIEW-005 description update; historical v1.0 unrecorded blob, superseded)
 ```
 
 ## 7. Authority sources consumed (reference only, none modified)
@@ -128,8 +145,9 @@ docs/product/ux-blueprint.md          (Package 0.3-C, Consolidated Stable) §5a 
                                        SCR-010/VIEW-006/SCR-011/VIEW-005, §11 STATE-002/025/026
 docs/product/use-case-workflow.md     (Package 0.3-B, Consolidated Stable) UC-019, UC-020,
                                        UC-021 detailed block
-docs/domain/strategy.md               §1 StrategyDefinitionVersionRegistered (seven-field
-                                       schema, immutable, invalidate-only-no-replacement), §5/§6
+docs/domain/strategy.md               §1 StrategyDefinitionVersionRegistered (eight-field
+                                       current payload schema, immutable, invalidate-only-no-
+                                       replacement), §5/§6
                                        StrategyInstanceRegistered (four independent evidence
                                        axes + Account + instrument_selection_ref), §5
                                        state_machine (UNSEEN/ACTIVE/PAUSED/RETIRED)
@@ -240,8 +258,8 @@ Result: boundary preserved. Trigger B/C/D/E conclusions from phase-2-dod.md §2 
 ```text
 Full verification: prototype/phase-2/batch-06/traceability.md §5.
 Summary: INV-1 (new immutable identity) — buildNewVersion() append-only, old fixture never
-  mutated. INV-2 (no invented schema) — exactly strategy.md §1's seven fields, no DSL/compiler/
-  version graph/approval workflow. INV-3 (not VIEW-001) — no pin flag anywhere, exact required
+  mutated. INV-2 (no invented schema) — exactly strategy.md §1's eight current payload fields, no
+  DSL/compiler/version graph/approval workflow. INV-3 (not VIEW-001) — no pin flag anywhere, exact required
   handoff wording, real link only. INV-4 (families separate) — two independent render functions,
   zero score/rank/normalize function. INV-5 (old-version accessible) — identity always first,
   independent per-family resolution, incomplete marking never hides available evidence. INV-6
@@ -288,26 +306,34 @@ None within this batch's scope. This batch completes the candidate 17-surface/21
 ## 17. Batch lifecycle / review state
 
 ```text
-Status:            CANDIDATE — v1.0 authoring transaction. Review A + Independent Review B CHƯA
-                    thực hiện. KHÔNG self-approved, KHÔNG READY_FOR_NEXT_PHASE2_BATCH verdict.
+Status:            CANDIDATE — v1.1 bounded correction artifact. Review A trên v1.0 CLOSED (v1.1).
+                    Independent Review B CHƯA thực hiện. KHÔNG self-approved, KHÔNG
+                    READY_FOR_NEXT_PHASE2_BATCH verdict.
 
 Review history (chronological, KHÔNG rewrite):
-  (none yet — this is the initial authoring transaction)
+  Review A (v1.0):                     P2-B06-A-MAJ-01 (VIEW-005 STATE-025/026 not
+                                       requested-mode-sensitive) + P2-B06-A-MAJ-02 (SCR-011 does
+                                       not validate two-different-Version pair eligibility) +
+                                       P2-B06-A-MIN-01 (stale "seven fields" wording vs. actual
+                                       eight-field payload) found, REVISION_REQUIRED.
+  v1.1 bounded correction:              đóng CẢ BA Review A finding.
 
-CURRENT TRUTH (v1.0, authoring transaction, 2026-08-14):
-  Review verdict:                 NONE — chưa qua Review A.
+CURRENT TRUTH (v1.1 bounded correction, 2026-08-14):
+  Review verdict:                 NONE yet — v1.1 CHƯA qua re-review/Independent Review B.
   Candidate Batch-06 contribution: +4/17 surfaces (SCR-010, VIEW-006, SCR-011, VIEW-005); +3/21
                                  candidate substantive UC (UC-019, UC-020, UC-021) — CHƯA
-                                 independently verified.
+                                 independently verified (unchanged by this bounded correction —
+                                 correction đóng findings, KHÔNG phải một independent-
+                                 verification event).
   Candidate cumulative (Batch
     01+02+03+04+05+06):            17/17 surfaces; 21/21 candidate substantive UC.
   Last independently verified
-    (Batch 01-05 baseline):        13/17 surfaces; 18/21 UC.
+    (Batch 01-05 baseline):        13/17 surfaces; 18/21 UC — KHÔNG đổi bởi transaction này.
   Remaining:                      0/17 surfaces; 0/21 UC not substantive (candidate set closed;
                                  independent verification of Batch 06's own contribution still
                                  pending).
   Batch lifecycle:                CANDIDATE.
-  Next governed step:              Review A on this v1.0 artifact (not authored by this
-                                 transaction — per instruction, this executor does not author
-                                 the next-task prompt).
+  Next governed step:              Re-review (Review A re-check on v1.1, or Independent Review B)
+                                 — not authored by this transaction — per instruction, this
+                                 executor does not author the next-task prompt.
 ```

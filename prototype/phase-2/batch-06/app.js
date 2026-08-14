@@ -13,7 +13,7 @@
  * state.createdVersions. The old version stays exactly as it was, independently resolvable.
  *
  * INV-2 (no invented Strategy Definition schema): every field on a version object below is one
- * of exactly the seven strategy.md §1 StrategyDefinitionVersionRegistered fields
+ * of exactly the eight current strategy.md §1 StrategyDefinitionVersionRegistered payload fields
  * (strategy_definition_version_id, strategy_definition_id, thesis, supported_scope,
  * required_input_contracts, decision_rule_ref, explanation_contract_ref,
  * downstream_output_capability) — no DSL, compiler, validation taxonomy, version graph, or
@@ -281,7 +281,7 @@
       '<label>supported_scope (new version — editable, illustrative)</label>' +
       '<input class="ta" id="scr010-scope" type="text" value="' + state.formSupportedScope + '">' +
       "</div>" +
-      '<div class="hint">required_input_contracts/decision_rule_ref/explanation_contract_ref/downstream_output_capability for the new version use fixed illustrative values below — only thesis/supported_scope are user-editable in this bounded prototype. No Strategy Definition field beyond these seven (strategy.md §1) exists anywhere in this file.</div>' +
+      '<div class="hint">required_input_contracts/decision_rule_ref/explanation_contract_ref/downstream_output_capability for the new version use fixed illustrative values below — only thesis/supported_scope are user-editable in this bounded prototype. No Strategy Definition field beyond these eight (the exact current strategy.md §1 StrategyDefinitionVersionRegistered payload fields) exists anywhere in this file.</div>' +
       '<div class="exit-row"><button class="btn btn-primary" id="btn-create-version">Create Strategy Definition Version</button></div>' +
       '<div id="scr010-result"></div>';
     body.innerHTML = html;
@@ -449,6 +449,7 @@
       renderSideSelector("A", instances) +
       renderSideSelector("B", instances) +
       "</div>" +
+      '<div id="scr011-pair-status"></div>' +
       '<div class="compare-grid" id="scr011-panels">' +
       '<div id="scr011-side-a"></div>' +
       '<div id="scr011-side-b"></div>' +
@@ -457,8 +458,57 @@
 
     wireSideSelector("A", instances);
     wireSideSelector("B", instances);
+    renderScr011Panels();
+  }
+
+  // v1.1 (closes P2-B06-A-MAJ-02): UC-020 requires the two compared Strategy Instances to be
+  // bound to two DIFFERENT Strategy Definition Versions — same Instance selected twice, or two
+  // different Instances that happen to bind the SAME version, must never render as a valid
+  // comparison. Mode difference does NOT waive this requirement (it is evaluated before mode is
+  // even considered). Returns {ready:false} while either side is still missing a selection;
+  // {ready:true, valid:false, reason} when both sides are selected but the pair is ineligible;
+  // {ready:true, valid:true} when the pair is a genuine two-different-version comparison.
+  function comparisonPairValidity() {
+    if (!state.sideA.instanceId || !state.sideA.mode || !state.sideB.instanceId || !state.sideB.mode) {
+      return { ready: false };
+    }
+    var instances = allInstances();
+    var instA = instances[state.sideA.instanceId];
+    var instB = instances[state.sideB.instanceId];
+    if (state.sideA.instanceId === state.sideB.instanceId) {
+      return {
+        ready: true, valid: false,
+        reason: "Both sides select the same Strategy Instance (" + instA.strategyInstanceId + ")."
+      };
+    }
+    if (instA.strategyDefinitionVersionRef === instB.strategyDefinitionVersionRef) {
+      return {
+        ready: true, valid: false,
+        reason: "Both selected Strategy Instances are bound to the same Strategy Definition Version (" + instA.strategyDefinitionVersionRef + ")."
+      };
+    }
+    return { ready: true, valid: true };
+  }
+
+  // v1.1 (MỚI, closes P2-B06-A-MAJ-02): single entry point that re-evaluates pair validity
+  // fresh, THEN renders the shared pair-status panel and both sides together — called on every
+  // side/mode selection change so no stale panel from a previously-valid pair can persist.
+  function renderScr011Panels() {
+    renderPairStatus();
     renderComparisonSide("A");
     renderComparisonSide("B");
+  }
+
+  function renderPairStatus() {
+    var box = el("scr011-pair-status");
+    if (!box) return;
+    var v = comparisonPairValidity();
+    if (!v.ready || v.valid) { box.innerHTML = ""; return; }
+    box.innerHTML = '<div class="panel panel-blocked">' +
+      '<div class="panel-title">Not a valid comparison pair</div>' +
+      "<div>" + v.reason + " Strategy Version Comparison requires two different Strategy " +
+      "Definition Versions. Selected identities/context are shown below for reference — no " +
+      "comparison evidence is rendered until the selection changes.</div></div>";
   }
 
   function renderSideSelector(side, instances) {
@@ -482,11 +532,11 @@
     el("scr011-mode-" + side).value = stateSide.mode || "";
     el("scr011-inst-" + side).addEventListener("change", function (e) {
       stateSide.instanceId = e.target.value || null;
-      renderComparisonSide(side);
+      renderScr011Panels();
     });
     el("scr011-mode-" + side).addEventListener("change", function (e) {
       stateSide.mode = e.target.value || null;
-      renderComparisonSide(side);
+      renderScr011Panels();
     });
   }
 
@@ -509,6 +559,16 @@
       "</div>" +
       el5("Strategy Instance", inst.displayName + " (" + inst.strategyInstanceId + ")") +
       el5("Strategy Definition Version", inst.strategyDefinitionVersionRef);
+
+    // v1.1 (closes P2-B06-A-MAJ-02): identity/context above is ALWAYS shown, but comparison
+    // evidence is withheld entirely when the pair is not eligible (same Instance both sides, or
+    // two Instances bound to the same Version) — the shared #scr011-pair-status panel discloses
+    // why. This never invents a new STATE-XXX; it is a plain guard before rendering evidence.
+    var pairValidity = comparisonPairValidity();
+    if (pairValidity.ready && !pairValidity.valid) {
+      box.innerHTML = header + '<div class="hint">Comparison evidence is not shown for this side until both sides are bound to two different Strategy Definition Versions.</div>';
+      return;
+    }
 
     var oldVersionNote = "";
     if (inst.status === "RETIRED") {
@@ -609,6 +669,20 @@
     renderView005Families(famData);
   }
 
+  // v1.1 (closes P2-B06-A-MAJ-01): completeness is derived from the REQUESTED mode plus the
+  // availability of evidence that mode actually needs — NOT from a single global boolean read
+  // regardless of what was requested. Backtest evidence for inst-old-001 is always fully
+  // resolvable in this bounded prototype; only the PAPER family's Fill/Position is ever toggled
+  // unavailable (state.oldVersionPaperFillAvailable). So "Backtest only" is complete even when
+  // PAPER Fill/Position is unavailable, "PAPER only"/"Both" are complete only when it is
+  // available. STATE-026 is therefore never synonymous with "PAPER Fill missing" in the
+  // abstract — it only applies when the missing evidence actually falls within what was asked
+  // for.
+  function oldVersionEvidenceComplete(mode) {
+    if (mode === "backtest") return true;
+    return state.oldVersionPaperFillAvailable; // "paper" or "both" — both need the PAPER family
+  }
+
   function renderView005Families(famData) {
     var box = el("view005-families");
     if (!box) return;
@@ -616,22 +690,31 @@
       box.innerHTML = '<div class="hint">Choose a mode above to resolve evidence.</div>';
       return;
     }
+    var mode = state.view005Mode;
     var html = "";
-    if (state.view005Mode === "backtest" || state.view005Mode === "both") {
+    if (mode === "backtest" || mode === "both") {
       html += '<div class="evidence-group evidence-group-downstream">' +
         '<div class="evidence-group-label">Backtest evidence family (non-PAPER)</div>' +
         renderBacktestFamilyHtml(famData.backtest) +
         "</div>";
     }
-    if (state.view005Mode === "paper" || state.view005Mode === "both") {
+    if (mode === "paper" || mode === "both") {
       html += '<div class="evidence-group evidence-group-upstream">' +
         '<div class="evidence-group-label">PAPER evidence family (authoritative)</div>' +
         renderPaperFamilyHtml(famData.paper, state.oldVersionPaperFillAvailable) +
         "</div>";
     }
-    var overallState = state.oldVersionPaperFillAvailable
-      ? '<div class="panel panel-passed"><div class="panel-title">STATE-025 — old-version evidence complete</div><div>Every requested evidence family/type above resolved fully.</div></div>'
-      : '<div class="panel panel-indeterminate"><div class="panel-title">STATE-026 — old-version evidence partially unavailable</div><div>Backtest evidence is fully available; PAPER Fill/Position evidence is unavailable for this old version (see the "incomplete" panel above) — the version identity, mode, authority, and all other available evidence remain visible. This does NOT mean the entire old-version history is unavailable.</div></div>';
+    var complete = oldVersionEvidenceComplete(mode);
+    var overallState;
+    if (complete) {
+      overallState = '<div class="panel panel-passed"><div class="panel-title">STATE-025 — old-version evidence complete</div><div>Every requested evidence family/type above resolved fully' +
+        (mode === "backtest" ? " (PAPER evidence was not requested in this mode, so its availability does not affect this result)." : ".") +
+        "</div></div>";
+    } else {
+      overallState = '<div class="panel panel-indeterminate"><div class="panel-title">STATE-026 — old-version evidence partially unavailable</div><div>' +
+        (mode === "both" ? "Backtest evidence is fully available; " : "") +
+        'PAPER Fill/Position evidence is unavailable for this old version within the requested mode (see the "incomplete" panel above) — the version identity, mode, authority, and all other requested evidence remain visible. This does NOT mean the entire old-version history is unavailable.</div></div>';
+    }
     html += overallState;
     box.innerHTML = html;
   }

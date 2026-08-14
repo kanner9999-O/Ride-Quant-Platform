@@ -2,6 +2,144 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 06 v1.1 bounded correction (P2-B06-A-MAJ-01, P2-B06-A-MAJ-02, P2-B06-A-MIN-01)
+
+**Bounded correction — vai trò: `Phase 2 Prototype Batch 06 v1.1 Bounded Correction Executor`.**
+Closes exactly three Review A findings on Batch 06 v1.0: `P2-B06-A-MAJ-01` (Major),
+`P2-B06-A-MAJ-02` (Major), `P2-B06-A-MIN-01` (Minor). Does not expand Batch 06 scope.
+
+### Baseline
+
+```text
+Starting HEAD:    d6751cb1b74c2ab061767667b1b4252949922007 (verified via git rev-parse HEAD
+  before any edit, working tree clean)
+```
+
+### Finding 1 — P2-B06-A-MAJ-01 (CLOSED)
+
+```text
+Defect: VIEW-005's STATE-025/026 badge derived completeness ONLY from
+  state.oldVersionPaperFillAvailable, regardless of which evidence mode was actually requested —
+  "Backtest only" with PAPER Fill unavailable incorrectly rendered STATE-026 even though every
+  requested Backtest evidence item was complete. UC-021 requires partial/unavailable handling to
+  affect ONLY the requested evidence family/type that is unavailable.
+Fix: added oldVersionEvidenceComplete(mode) — mode==="backtest" is ALWAYS complete (PAPER
+  availability is irrelevant to a Backtest-only request); mode==="paper"/"both" is complete only
+  when state.oldVersionPaperFillAvailable is true. renderView005Families() now derives the
+  STATE-025/STATE-026 badge from this helper instead of reading the global flag directly.
+  Verified scenarios: Backtest-only + PAPER unavailable => STATE-025; PAPER-only + PAPER Fill
+  unavailable => STATE-026; Both + PAPER Fill unavailable => STATE-026; Both complete =>
+  STATE-025. STATE-026 is never synonymous with "PAPER Fill missing" in the abstract — it only
+  fires when the missing evidence falls within the requested mode; the version identity, mode,
+  and authority all remain visible regardless.
+```
+
+### Finding 2 — P2-B06-A-MAJ-02 (CLOSED)
+
+```text
+Defect: SCR-011 only verified that at least two Strategy Instances existed — it never verified
+  that the two user-selected sides were bound to DIFFERENT Strategy Definition Versions, so
+  comparing an Instance against itself (or, structurally, two Instances bound to the same
+  version) rendered as a valid-looking Strategy Version Comparison. UC-020 Preconditions require
+  two Strategy Instances bound to two different Strategy Definition Versions.
+Fix: added comparisonPairValidity() — same Strategy Instance selected on both sides, OR two
+  different Instances bound to the same strategyDefinitionVersionRef, both return an invalid-pair
+  result with a disclosed reason; mode difference does NOT waive this requirement (the check runs
+  before mode is even considered, so it applies uniformly to Backtest-vs-Backtest, PAPER-vs-PAPER,
+  and cross-mode). renderComparisonSide() now still renders each side's identity/context header,
+  but withholds all evidence-family rendering when the pair is invalid; a new shared
+  #scr011-pair-status panel discloses why (no new STATE-XXX invented). renderScr011Panels() is now
+  the single entry point called on every side/mode selector change, re-evaluating pair validity
+  fresh each time so no stale panel from a previously-valid pair can persist. Once a pair is
+  valid, existing per-side missing-outcome behavior is unchanged.
+```
+
+### Finding 3 — P2-B06-A-MIN-01 (CLOSED)
+
+```text
+Defect: comments/evidence across app.js/README.md/traceability.md/batch-manifest.md claimed
+  Strategy Definition Version uses exactly "seven fields," but the actual
+  StrategyDefinitionVersionRegistered payload (and this batch's own fixture/creation object
+  shape, unchanged since v1.0) has always carried eight: strategy_definition_version_id,
+  strategy_definition_id, thesis, supported_scope, required_input_contracts, decision_rule_ref,
+  explanation_contract_ref, downstream_output_capability.
+Fix: corrected every "seven"/"seven-field" occurrence to "eight"/"eight current payload fields"
+  across all four files — wording only, no object/schema semantics changed (the implementation
+  already carried the correct fields).
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-06/app.js              v1.0 -> v1.1, blob b37967b62457595f7ac6cfb5fba692b6d255e9f2 -> 5dc57d5dd2e8d82e4e7a94af92aa6c07b2b7532f
+prototype/phase-2/batch-06/traceability.md     v1.0 -> v1.1, blob d8f1e360f2f726061049af0accfab7ecdb4971ff -> 0a69307c143ab8b20d316ba125d259f99f5f83f8
+  (SCR-011 rows, VIEW-005 STATE-025/026 rows, and INV-2/INV-4/INV-5 verification text updated to
+  describe the new pair-validation helper, the requested-mode-sensitive completeness helper, and
+  the corrected eight-field wording; A/B/C partition and all other rows unchanged)
+prototype/phase-2/batch-06/batch-manifest.md   v1.0 -> v1.1 (role statement, §1 Status/Starting
+  HEAD, §6 blobs, §17 review history + CURRENT TRUTH updated to record Review A findings and
+  their closure; §2-5/§7-16 semantic/artifact evidence unchanged except the same wording fix)
+prototype/phase-2/batch-06/README.md           blob (unrecorded v1.0) -> 7752b350dade1e1c529152864db35e38ddea267f
+  (SCR-011/VIEW-005 bullets updated, incidental, to describe the new pair-validation and
+  mode-sensitive-completeness behavior; "seven"->"eight" wording fix)
+prototype/phase-2/batch-06/{index.html,styles.css}  UNCHANGED (byte-identical, verified — blobs
+  3f081111c260e64618689490363bfdb6255bdc23 / 5114548728ad678c16f862e79b09b71798d8df69)
+docs/MANIFEST.md   manifest_version 10.150 -> 10.151. Batch 06 row updated to record Review A
+  CLOSED (v1.1). Confirmation paragraph below the batch table updated accordingly. Candidate
+  17/17 surfaces, 21/21 UC unchanged (a bounded correction is not an independent-verification
+  event); last independently verified progress unchanged at 13/17, 18/21.
+```
+
+### No scope expansion
+
+```text
+No expansion of Batch 06 scope. No Product/UX/Domain authority modified (docs/product/,
+  docs/domain/, docs/phase-dod/, docs/governance/, docs/constitution/ untouched). No in-place
+  Strategy Version mutation introduced. No new Strategy schema invented. No new STATE-XXX ID
+  created. No unified Backtest/PAPER outcome, no score/rank/normalization function. VIEW-006 still
+  never performs VIEW-001 pinning. Batch 01/02/03/04/05 untouched (git status --porcelain=v1
+  -uall clean on all five). No claim that 17/17 or 21/21 is independently verified, no claim of
+  Phase-2 completion. Quality Gate not run, Gate 3 not opened, P2-RETRO-001 not performed,
+  Phase 3/LIVE not authorized.
+```
+
+### Result
+
+```text
+P2-B06-A-MAJ-01: CLOSED. P2-B06-A-MAJ-02: CLOSED. P2-B06-A-MIN-01: CLOSED.
+Candidate progress unchanged: 17/17 surfaces, 21/21 substantive UC (A={001..021}, B=empty=0,
+  C=empty=0; partition mechanically valid, unaffected by this correction).
+Batch 06: lifecycle CANDIDATE, NOT self-approved, NO READY_FOR_NEXT_PHASE2_BATCH verdict —
+  Independent Review B not performed by this transaction.
+Last independently verified progress UNCHANGED at 13/17 surfaces, 18/21 UC (Batch 01-05 baseline).
+I-11: PASS (preserved, not re-tested — no credential/backend surface touched).
+I-12: PASS (traceability.md now consistent with the corrected representation; zero new domain
+  concept — same fixtures, no new UC/PR/entity).
+Trigger B/C/D/E: PRESERVED (preserved, not re-tested).
+Phase 2 substantive completion: NOT ESTABLISHED. Quality Gate: NOT RUN. Gate 3: NOT OPENED.
+  P2-RETRO-001: NOT PERFORMED. Phase 3: NOT AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+node --check prototype/phase-2/batch-06/app.js: OK.
+Manual logic trace of all P2-B06-A-MAJ-01/MAJ-02 scenarios performed (no headless browser tool
+  available in this environment — static/logic review, not a visually-exercised browser test):
+  Backtest-only+PAPER-unavailable=STATE-025, PAPER-only+unavailable=STATE-026,
+  Both+unavailable=STATE-026, Both+available=STATE-025; same-Instance-both-sides rejected;
+  distinct-Instances-same-Version rejected (structurally correct — not independently
+  demonstrable via this bounded prototype's own one-Instance-per-Version registration flow,
+  since VIEW-006 was not touched); distinct-Instances-different-Versions accepted across all
+  three comparison modes; missing-outcome-per-side behavior confirmed unchanged once a pair is
+  valid.
+"seven" grep across batch-06/: zero live-claim occurrences remain (only inside historical banner
+  text describing the finding/fix, which is expected and correct).
+Batch 01/02/03/04/05 untouched: git status --porcelain=v1 -uall clean.
+Forbidden authority-path modification check: git status --porcelain=v1 -uall clean on
+  docs/product, docs/domain, docs/phase-dod, docs/governance, docs/constitution.
+```
+
 ## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 06 authored (Improve — final planned Phase-2 milestone)
 
 **Authoring transaction — vai trò: `Phase 2 Product Prototype Batch 06 Author`.** Authors NAV-006

@@ -1,13 +1,37 @@
 ---
 id: phase-2-batch-06-traceability
 title: "Phase 2 Prototype — Batch 06 — Traceability Artifact"
-version: "1.0"
+version: "1.1"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-14"
 ---
 
 # Phase 2 Prototype — Batch 06 — Traceability Artifact
+
+**v1.1 — bounded correction (2026-08-14), Review A trên v1.0: `P2-B06-A-MAJ-01` (Major) +
+`P2-B06-A-MAJ-02` (Major) + `P2-B06-A-MIN-01` (Minor) — đóng CẢ BA tại transaction này.**
+`P2-B06-A-MAJ-01`: VIEW-005's STATE-025/026 badge đọc DUY NHẤT `state.oldVersionPaperFillAvailable`
+bất kể mode được yêu cầu — "Backtest only" khi PAPER Fill unavailable sai lầm hiển thị STATE-026
+dù mọi evidence Backtest yêu cầu đều đầy đủ. Sửa: `oldVersionEvidenceComplete(mode)` helper mới —
+`mode === "backtest"` LUÔN complete (PAPER availability KHÔNG liên quan); `mode === "paper"`/`"both"`
+complete CHỈ khi `state.oldVersionPaperFillAvailable`. `renderView005Families()` nay derive
+STATE-025/026 từ helper này, KHÔNG còn global boolean shortcut. `P2-B06-A-MAJ-02`: SCR-011 chỉ
+verify ≥2 Strategy Instance tồn tại — KHÔNG verify hai Instance được CHỌN có `strategyDefinitionVersionRef`
+khác nhau, cho phép so sánh `inst-a` với chính nó (hoặc, về nguyên tắc, hai Instance khác nhau
+cùng version) trông như một comparison hợp lệ. Sửa: `comparisonPairValidity()` helper mới —
+same Instance cả hai bên, HOẶC cùng `strategyDefinitionVersionRef` → invalid pair, disclose lý do
+qua `#scr011-pair-status` panel MỚI, KHÔNG render evidence family cho bên nào (chỉ identity/context
+header vẫn hiển thị), KHÔNG STATE-XXX mới. `renderScr011Panels()` MỚI re-evaluate pair validity
+NGAY LẬP TỨC mỗi khi bất kỳ side/mode selector đổi — KHÔNG panel cũ nào còn sót từ pair hợp lệ
+trước đó. `P2-B06-A-MIN-01`: comment/evidence claim "seven fields" trong khi
+`StrategyDefinitionVersionRegistered` payload thực tế mang tám field
+(`strategy_definition_version_id`/`strategy_definition_id`/`thesis`/`supported_scope`/
+`required_input_contracts`/`decision_rule_ref`/`explanation_contract_ref`/
+`downstream_output_capability`) — implementation object shape đã đúng từ v1.0, CHỈ wording sai.
+Sửa: mọi "seven"/"seven-field" trong `app.js`/`README.md`/`traceability.md`/`batch-manifest.md`
+đổi thành "eight"/"eight current payload fields" — KHÔNG object/schema semantics nào đổi. KHÔNG
+đổi A/B/C partition, KHÔNG surface mới, KHÔNG claim independently verified.
 
 **Vai trò của tài liệu này:** đây LÀ I-12 (Single Source of Truth) conformance evidence cho Batch
 06, per `docs/phase-dod/phase-2-dod.md` §2's applicable Trigger A / I-12 requirement — mọi phần tử
@@ -65,7 +89,7 @@ Batch-01/02/03/04/05-verified substantive UC (KHÔNG re-authored, KHÔNG double-
 
 | UC | Classification | Evidence / reason |
 |---|---|---|
-| UC-019 | **A — Substantive** (Batch 06, promoted từ B, CANDIDATE) | SCR-010 fully authored: existing Strategy Definition (`sd-fam-001`) + old version (`sdv-v1.0`, full seven-field content) shown as required context; real, non-inert creation control (editable `thesis`/`supported_scope`, other fields fixed-illustrative-but-real) that materially produces a brand-new `strategy_definition_version_id` (`sdv-v1.1`, `sdv-v1.2`, ... via `buildNewVersion()`, append-only counter — never overwrites); old version's own panel re-reads the SAME unmutated `VERSION_FIXTURES["sdv-v1.0"]` object after creation, proving no in-place mutation; exact created version handed to VIEW-006 via `latestCreatedVersion()` (no unrelated fixture) — matches `ux-blueprint.md` §7.6 SCR-010 spec + `use-case-workflow.md` UC-019 Main flow steps 1-3. |
+| UC-019 | **A — Substantive** (Batch 06, promoted từ B, CANDIDATE) | SCR-010 fully authored: existing Strategy Definition (`sd-fam-001`) + old version (`sdv-v1.0`, full eight-field content (exact current StrategyDefinitionVersionRegistered payload fields)) shown as required context; real, non-inert creation control (editable `thesis`/`supported_scope`, other fields fixed-illustrative-but-real) that materially produces a brand-new `strategy_definition_version_id` (`sdv-v1.1`, `sdv-v1.2`, ... via `buildNewVersion()`, append-only counter — never overwrites); old version's own panel re-reads the SAME unmutated `VERSION_FIXTURES["sdv-v1.0"]` object after creation, proving no in-place mutation; exact created version handed to VIEW-006 via `latestCreatedVersion()` (no unrelated fixture) — matches `ux-blueprint.md` §7.6 SCR-010 spec + `use-case-workflow.md` UC-019 Main flow steps 1-3. |
 | UC-020 | **A — Substantive** (Batch 06, promoted từ B, CANDIDATE) | SCR-011 fully authored: STATE-002-canonical required-context gate (ux-blueprint.md §11 explicitly lists SCR-011 in STATE-002's own row — no disclaimer needed, unlike Batch 05's SCR-008/009 situation), real per-side Instance+mode selection materially reaching all three scenarios (same mode both sides = Backtest-vs-Backtest or PAPER-vs-PAPER; different modes = cross-mode), each side rendered from `EVIDENCE[instanceId][mode]` independently (never merged), missing-outcome renders empty for exactly one side without failing the other, RETIRED Instance's evidence links to VIEW-005 with identity preserved, `authority-label-recomputation` "Read-only / non-authoritative comparison presentation" badge distinct from each family's own authority label, zero score/ranking/normalization function anywhere — matches `ux-blueprint.md` §7.6 SCR-011 spec + `use-case-workflow.md` UC-020 Main flow steps 1-5. |
 | UC-021 | **A — Substantive** (Batch 06, promoted từ B, CANDIDATE) | VIEW-005 fully authored: old version identity (`sdv-v0.9`) always rendered first, unconditionally; mode selector (Backtest/PAPER/Both) resolves each family independently via `renderView005Families()`; STATE-025 (complete) and STATE-026 (PAPER Fill/Position unavailable, Backtest remains available) both materially reachable via the SAME QA flag `state.oldVersionPaperFillAvailable` that SCR-011 also reads (single source of truth, no drift between screens); missing-family panel discloses reason, marks the rest "incomplete," never hides/fabricates; explicit `<div>` states the missing part does NOT mean the entire old-version history is unavailable — matches `ux-blueprint.md` §7.6 VIEW-005 spec + `use-case-workflow.md` UC-021 Main flow + Alternate/failure. |
 | UC-001..UC-018 | **A — Substantive** (Batch 01-05, giữ nguyên) | Fully authored + independently verified tại Batch 01-05 (mỗi batch tự nó qua đầy đủ Review A + Independent Review B, verdict `READY_FOR_NEXT_PHASE2_BATCH`). Batch 06 CHỈ link tới Research/Replay/Backtest/Paper/Review (real nav link) — KHÔNG re-author, NHƯNG cumulative classification VẪN A. UC-002 specifically: VIEW-006's handoff cites it as the downstream consumer, but Batch 06 does NOT re-author VIEW-001 — UC-002's own A classification remains sourced ENTIRELY from Batch 01, not double-counted here. |
@@ -132,7 +156,7 @@ cho UC-019/UC-020/UC-021.
 | Prototype element (file:selector) | UX Blueprint / Domain ID | UC | PR | Authoritative source section |
 |---|---|---|---|---|
 | `app.js` `renderScr010()` "Existing Strategy Definition + current version" `.evidence-group-upstream` block | SCR-010 "Required context" — một Strategy Definition (identity) đã tồn tại | UC-019 | PR-031 | `ux-blueprint.md` §7.6 SCR-010 "Required context"; `use-case-workflow.md` UC-019 Preconditions |
-| `app.js` `VERSION_FIXTURES["sdv-v1.0"]` fields (`strategy_definition_version_id`/`strategy_definition_id`/`thesis`/`supported_scope`/`required_input_contracts`/`decision_rule_ref`/`explanation_contract_ref`/`downstream_output_capability`) | Old `strategy_definition_version_id` — exact seven-field schema, KHÔNG hơn | UC-019 | PR-031 | `strategy.md` §1 `StrategyDefinitionVersionRegistered` schema (exactly these seven fields) |
+| `app.js` `VERSION_FIXTURES["sdv-v1.0"]` fields (`strategy_definition_version_id`/`strategy_definition_id`/`thesis`/`supported_scope`/`required_input_contracts`/`decision_rule_ref`/`explanation_contract_ref`/`downstream_output_capability`) | Old `strategy_definition_version_id` — exact current StrategyDefinitionVersionRegistered payload fields (eight), KHÔNG hơn | UC-019 | PR-031 | `strategy.md` §1 `StrategyDefinitionVersionRegistered` schema (exactly these eight current payload fields) |
 | `index.html`/`app.js` `#scr010-thesis`/`#scr010-scope` editable fields + `#btn-create-version` | SCR-010 "Available user actions" — Tạo Strategy Definition Version mới; material interaction requirement | UC-019 | PR-031 | `ux-blueprint.md` §7.6 SCR-010 "Available user actions"; task requirement "the creation control must not be inert" |
 | `app.js` `buildNewVersion()` (new `strategy_definition_version_id` = `sdv-v1.` + counter, append-only, `VERSION_FIXTURES` never mutated) | SCR-010 "System-owned actions" — Gán version identity mới, tách biệt version cũ (append-only) | UC-019 | PR-031 | `ux-blueprint.md` §7.6 SCR-010 "System-owned actions"; `strategy.md` §1 invariants (opaque, immutable, no same-ID replacement) |
 | `app.js` `renderScr010Result()` "New Strategy Definition Version created" panel, incl. explicit "Old version ... is UNCHANGED" hint re-reading the same unmutated fixture | SCR-010 "Observable outcome" — Version mới tạo thành công, độc lập version cũ (INV-1) | UC-019 | PR-031 | `use-case-workflow.md` UC-019 "Observable outcome"; task INV-1 |
@@ -162,11 +186,13 @@ cho UC-019/UC-020/UC-021.
 |---|---|---|---|---|
 | `app.js` `state.scr011EvidenceExists` / `renderScr011()` `count < 2` branch — STATE-002 | STATE-002 empty (canonical row, ux-blueprint.md §11 explicitly lists SCR-011 — "dưới hai Strategy Instance đã đăng ký để so sánh"; unlike Batch 05's SCR-008/009, NO disclaimer needed — this is genuine canonical membership) | UC-020 (alternate/failure) | PR-021, PR-034 | `ux-blueprint.md` §11 STATE-002 row (SCR-011 explicitly listed) |
 | `index.html`/`app.js` `#scr011-inst-A`/`#scr011-mode-A`/`#scr011-inst-B`/`#scr011-mode-B` (independent per-side Instance+mode selection) | SCR-011 "Available user actions" — Chọn Strategy Instance cần so sánh; chọn mode so sánh | UC-020 | PR-031, PR-032 | `ux-blueprint.md` §7.6 SCR-011 "Available user actions"; `use-case-workflow.md` UC-020 Main flow bước 1 |
-| `app.js` `renderComparisonSide()` when both sides select mode=`backtest` (Scenario A) | SCR-011 "Information displayed" — Backtest vs Backtest, non-PAPER authority, tách biệt hoàn toàn | UC-020 | PR-031, PR-032 | `use-case-workflow.md` UC-020 Main flow bước 2 |
-| `app.js` `renderComparisonSide()` when both sides select mode=`paper` (Scenario B) | SCR-011 "Information displayed" — PAPER vs PAPER, authoritative, tách biệt hoàn toàn | UC-020 | PR-031, PR-032 | `use-case-workflow.md` UC-020 Main flow bước 3 |
-| `app.js` `renderComparisonSide()` when sides select different modes (Scenario C, cross-mode) | SCR-011 "Information displayed" — cross-mode side-by-side, mỗi bên gắn nhãn mode/authority/evidence-type/Instance identity/Version identity | UC-020 | PR-031, PR-032 | `use-case-workflow.md` UC-020 Main flow bước 4 |
+| `app.js` `comparisonPairValidity()` (v1.1, MỚI, đóng `P2-B06-A-MAJ-02` — same-Instance-both-sides HOẶC same-`strategyDefinitionVersionRef` → `{ready:true, valid:false, reason}`; mode difference KHÔNG waive rule này — version-equality check chạy TRƯỚC khi mode được xét) / `#scr011-pair-status` panel (invalid-pair disclosure, identity/context vẫn hiển thị, KHÔNG evidence family nào render, KHÔNG STATE-XXX mới) | UC-020 Preconditions — "ít nhất hai Strategy Instance, gắn HAI Strategy Definition Version KHÁC NHAU" | UC-020 (alternate/failure) | PR-031, PR-032 | `use-case-workflow.md` UC-020 Preconditions; `ux-blueprint.md` §7.6 SCR-011 "Required context" |
+| `app.js` `renderScr011Panels()` (v1.1, MỚI, đóng `P2-B06-A-MAJ-02` — single re-render entry point called on EVERY side/mode `change` event, re-evaluates `comparisonPairValidity()` fresh mỗi lần, KHÔNG panel cũ nào từ pair hợp lệ trước đó còn sót) | UC-020 "Interaction consistency" — re-evaluate pair validity ngay lập tức, KHÔNG stale panel | UC-020 | PR-031, PR-032 | task "Interaction consistency" |
+| `app.js` `renderComparisonSide()` when both sides select mode=`backtest` AND pair valid (Scenario A) | SCR-011 "Information displayed" — Backtest vs Backtest, non-PAPER authority, tách biệt hoàn toàn | UC-020 | PR-031, PR-032 | `use-case-workflow.md` UC-020 Main flow bước 2 |
+| `app.js` `renderComparisonSide()` when both sides select mode=`paper` AND pair valid (Scenario B) | SCR-011 "Information displayed" — PAPER vs PAPER, authoritative, tách biệt hoàn toàn | UC-020 | PR-031, PR-032 | `use-case-workflow.md` UC-020 Main flow bước 3 |
+| `app.js` `renderComparisonSide()` when sides select different modes AND pair valid (Scenario C, cross-mode) | SCR-011 "Information displayed" — cross-mode side-by-side, mỗi bên gắn nhãn mode/authority/evidence-type/Instance identity/Version identity | UC-020 | PR-031, PR-032 | `use-case-workflow.md` UC-020 Main flow bước 4 |
 | `app.js` `renderBacktestFamilyHtml()`/`renderPaperFamilyHtml()` (two fully separate functions, never called together into one merged object) + `index.html` `.label-row` per-column `authority-label-recomputation`("non-PAPER simulated")/`authority-label-authoritative`("authoritative PAPER") | SCR-011 "Authority labels" — gắn nhãn RIÊNG cho từng cột/panel, authority KHÔNG BAO GIỜ trộn lẫn | UC-020 | PR-031, PR-032 | `ux-blueprint.md` §7.6 SCR-011 "Authority labels" |
-| `app.js` `renderComparisonSide()` `!famObj` branch — "No outcome yet" (renders for exactly one side, `EVIDENCE` lookup miss for newly-registered Instances) | SCR-011 "Alternate/failure" — Một Strategy Instance chưa có outcome nào → hiển thị rỗng cho Instance đó, KHÔNG lỗi cho toàn bộ so sánh | UC-020 (alternate/failure) | PR-031, PR-032 | `use-case-workflow.md` UC-020 "Alternate/failure" |
+| `app.js` `renderComparisonSide()` `!famObj` branch — "No outcome yet" (only reachable once the pair is valid; renders for exactly one side, `EVIDENCE` lookup miss for newly-registered Instances — v1.1 unchanged behavior after `P2-B06-A-MAJ-02`, confirmed still reachable post-correction) | SCR-011 "Alternate/failure" — Một Strategy Instance chưa có outcome nào → hiển thị rỗng cho Instance đó, KHÔNG lỗi cho toàn bộ so sánh | UC-020 (alternate/failure) | PR-031, PR-032 | `use-case-workflow.md` UC-020 "Alternate/failure" |
 | `app.js` `inst.status === "RETIRED"` branch, `#btn-scr011-to-view005-A`/`-B` | SCR-011 "Exit points" — VIEW-005 (nếu version cũ không active) | UC-020 | PR-031, PR-032 | `ux-blueprint.md` §7.6 SCR-011 "Exit points"; `use-case-workflow.md` UC-020 Main flow bước 5 |
 | `index.html` `.label-row` top-level `authority-label-recomputation` "Read-only / non-authoritative comparison presentation" | SCR-011 comparison-result authority label (task requirement, distinct from each family's own label) | UC-020 | PR-031, PR-032 | task "Authority labels" section; `use-case-workflow.md` UC-020 "Evidence produced: KHÔNG" |
 | Absence of any score/ranking/normalization function anywhere in `app.js` (grep clean for "score"/"rank"/"normalize") | SCR-011 "System-owned actions" — KHÔNG unified outcome card, KHÔNG single normalized score, KHÔNG common execution result, KHÔNG automatic ranking | UC-020 | PR-031, PR-032 | `ux-blueprint.md` §7.6 SCR-011 "System-owned actions"; `use-case-workflow.md` UC-020 "Out-of-scope boundary" |
@@ -180,8 +206,8 @@ cho UC-019/UC-020/UC-021.
 | `app.js` `renderView005Families()` backtest branch (`famData.backtest`, non-PAPER) | VIEW-005 "Information displayed" — Backtest evidence family khi áp dụng | UC-021 | PR-032 | `use-case-workflow.md` UC-021 Main flow bước 2 |
 | `app.js` `renderView005Families()` paper branch (`famData.paper`, authoritative) | VIEW-005 "Information displayed" — PAPER evidence family khi áp dụng | UC-021 | PR-032 | `use-case-workflow.md` UC-021 Main flow bước 3 |
 | `app.js` `renderView005Families()` "both" branch — two separate `.evidence-group` blocks, never merged | VIEW-005 "Information displayed" — HAI HỌ HIỂN THỊ TÁCH BIỆT hoàn toàn | UC-021 | PR-032 | `use-case-workflow.md` UC-021 Main flow bước 4 |
-| `app.js` `state.oldVersionPaperFillAvailable = true` / `renderView005Families()` overall-state panel — STATE-025 | STATE-025 old-version evidence complete | UC-021 | PR-032 | `ux-blueprint.md` §11 STATE-025 row |
-| `app.js` `state.oldVersionPaperFillAvailable = false` / `renderPaperFamilyHtml()` "Fill / Position — incomplete" panel + overall-state STATE-026 panel (Backtest remains available, PAPER Fill/Position unavailable — coherent single fixture, reason disclosed, explicit "does NOT mean entire history unavailable" statement) | STATE-026 old-version evidence partially unavailable | UC-021 (alternate/failure) | PR-032 | `ux-blueprint.md` §11 STATE-026 row; `use-case-workflow.md` UC-021 "Alternate/failure" (all nine sub-requirements: stop only affected part, identity/mode/authority visible, available evidence visible+marked incomplete, missing family identified, reason disclosed, no fabrication, no silent omission, no false completeness claim, no "entire history unavailable" implication) |
+| `app.js` `oldVersionEvidenceComplete(mode)` (v1.1, MỚI, đóng `P2-B06-A-MAJ-01` — `mode==="backtest"` LUÔN `true`, KHÔNG phụ thuộc `state.oldVersionPaperFillAvailable`; `mode==="paper"`/`"both"` = trực tiếp `state.oldVersionPaperFillAvailable`) / `renderView005Families()` overall-state panel — STATE-025 branch (`complete === true`, reachable qua BOTH `mode==="backtest"` bất kể PAPER availability, VÀ `mode==="paper"/"both"` khi PAPER thật sự available) | STATE-025 old-version evidence complete — CHỈ derive từ evidence family mode ĐÃ yêu cầu | UC-021 | PR-032 | `ux-blueprint.md` §11 STATE-025 row; `use-case-workflow.md` UC-021 Main flow (resolve ĐỘC LẬP theo TỪNG mode được yêu cầu) |
+| `app.js` `oldVersionEvidenceComplete(mode)` `complete === false` branch (CHỈ reachable khi `mode==="paper"` HOẶC `mode==="both"` VÀ `state.oldVersionPaperFillAvailable === false` — KHÔNG BAO GIỜ khi `mode==="backtest"`) / `renderPaperFamilyHtml()` "Fill / Position — incomplete" panel + overall-state STATE-026 panel (Backtest remains available khi `mode==="both"`, PAPER Fill/Position unavailable — coherent single fixture, reason disclosed, explicit "does NOT mean entire history unavailable" statement) | STATE-026 old-version evidence partially unavailable — KHÔNG đồng nghĩa "PAPER Fill missing" một cách trừu tượng, CHỈ áp dụng khi phần thiếu nằm TRONG mode được yêu cầu | UC-021 (alternate/failure) | PR-032 | `ux-blueprint.md` §11 STATE-026 row; `use-case-workflow.md` UC-021 "Alternate/failure" (all nine sub-requirements: stop only affected part, identity/mode/authority visible, available evidence visible+marked incomplete, missing family identified, reason disclosed, no fabrication, no silent omission, no false completeness claim, no "entire history unavailable" implication) |
 | `app.js` `#btn-view005-to-scr011` | VIEW-005 "Exit points" — Trở lại SCR-011 với evidence resolved | UC-021 | PR-032 | `ux-blueprint.md` §7.6 VIEW-005 "Exit points" |
 | `app.js` `state.view005EntryNote` set by SCR-011's `#btn-scr011-to-view005-*` (same `inst-old-001`/`sdv-v0.9` identity, no unrelated fixture) + `state.oldVersionPaperFillAvailable` shared flag (SCR-011 and VIEW-005 both read it) | SCR-011↔VIEW-005 identity continuity — SAME old Strategy Definition Version identity; resolved/partial evidence stays associated with that version on return | UC-020, UC-021 | PR-031, PR-032 | task "SCR-011 ↔ VIEW-005 identity continuity" |
 
@@ -208,7 +234,7 @@ KHÔNG một NAV-XXX/SCR-XXX/VIEW-XXX/STATE-XXX/UC-XXX/PR-XXX ID nào xuất hi�
 KHÔNG một UC/PR/domain concept mới nào originate trong Batch 06 — verify trực tiếp: prototype/
   phase-2/batch-06/*.{html,css,js} KHÔNG tạo entity/event/state-machine mới (mọi identity là
   hardcoded/counter-generated illustrative string, KHÔNG API/database/event contract), KHÔNG
-  invent Strategy Definition field beyond strategy.md §1's exact seven, KHÔNG mutable "latest
+  invent Strategy Definition field beyond strategy.md §1's exact current payload fields (eight), KHÔNG mutable "latest
   strategy" object (VERSION_FIXTURES/INSTANCE_FIXTURES never mutated in place — grep clean for
   any assignment into their own keys), KHÔNG version graph/approval workflow/strategy DSL/
   optimizer/scoring function, KHÔNG unified Backtest/PAPER outcome object.
@@ -230,11 +256,13 @@ INV-1 (new version = new immutable identity): verified — buildNewVersion() onl
   distinct version id.
 
 INV-2 (no invented Strategy Definition schema): verified — every field in VERSION_FIXTURES and
-  buildNewVersion()'s new object is exactly one of strategy.md §1's seven
+  buildNewVersion()'s new object is exactly one of strategy.md §1's eight current
   StrategyDefinitionVersionRegistered payload fields (strategy_definition_version_id,
   strategy_definition_id, thesis, supported_scope, required_input_contracts, decision_rule_ref,
   explanation_contract_ref, downstream_output_capability) — no DSL, compiler, rule language,
-  validation taxonomy, version graph, or approval workflow field exists anywhere.
+  validation taxonomy, version graph, or approval workflow field exists anywhere. (v1.1, closes
+  P2-B06-A-MIN-01: this section previously said "seven" — the object shape was always these eight
+  fields, only the prose was wrong.)
 
 INV-3 (VIEW-006 registration is not VIEW-001 selection/pinning): verified — registerInstance()
   only sets strategy.md §6 StrategyInstanceRegistered-shaped fields (never a "pinnedForReplay"/
@@ -248,14 +276,23 @@ INV-4 (version comparison keeps evidence families separate): verified — render
   merged structure; each comparison side resolves EVIDENCE[instanceId][mode] independently; no
   score/rank/normalize function exists anywhere in app.js (grep clean); cross-mode rendering shows
   each side's own mode/authority/Instance-identity/Version-identity label, never a single unified
-  card.
+  card. (v1.1, closes P2-B06-A-MAJ-02: a comparison is now only ever rendered — in ANY of the
+  three modes — when comparisonPairValidity() confirms the two selected Strategy Instances are
+  bound to two DIFFERENT Strategy Definition Versions; same-Instance-both-sides or
+  same-Version-different-Instance pairs show identity/context plus an explicit disclosure instead
+  of evidence, on both sides, re-evaluated on every selector change via renderScr011Panels() so no
+  stale panel from a previously-valid pair can persist.)
 
 INV-5 (old-version evidence remains accessible): verified — renderView005() renders the old
   version's identity as the FIRST element, unconditionally, before any mode selection or family
   resolution; STATE-026's "incomplete" panel never removes the version identity, mode, or
   authority labels from view; the Backtest family remains fully visible even when the PAPER
   family's Fill/Position is unavailable (and vice versa is structurally possible via the same
-  independent-resolution code path).
+  independent-resolution code path). (v1.1, closes P2-B06-A-MAJ-01: the STATE-025/STATE-026 badge
+  itself is now derived from oldVersionEvidenceComplete(mode) — the REQUESTED mode plus whether
+  that mode's evidence is actually available — so "Backtest only" reads STATE-025 even while PAPER
+  Fill/Position is toggled unavailable, and STATE-026 only ever appears when the missing evidence
+  falls within what was actually requested.)
 
 INV-6 (registration vs inspection actions): verified — buildNewVersion()/registerInstance() are
   the ONLY two functions in app.js that create a new prototype-local record; every SCR-011/

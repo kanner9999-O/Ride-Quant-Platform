@@ -23,7 +23,8 @@ independently verified (see "What this is not" below).
 - **NAV-006** — Improve navigation, always available from the global nav bar at every stage.
   Required context is action-specific per destination, never a navigation blocker.
 - **SCR-010 — Strategy Definition Version Creation**: shows the existing Strategy Definition
-  identity and its current version's full content (all seven `strategy.md` §1 fields), then a
+  identity and its current version's full content (all eight current `strategy.md` §1
+  `StrategyDefinitionVersionRegistered` payload fields), then a
   real, editable creation control (`thesis`/`supported_scope`) that materially produces a
   brand-new, distinct `strategy_definition_version_id` — the old version is re-displayed
   unchanged afterward, proving it was never mutated in place.
@@ -34,14 +35,19 @@ independently verified (see "What this is not" below).
   never claims the Instance is already pinned.
 - **SCR-011 — Strategy Version Comparison**: pick a Strategy Instance and a mode independently for
   each side of a comparison — same mode on both sides gives Backtest-vs-Backtest or
-  PAPER-vs-PAPER; different modes give a cross-mode side-by-side view. The two evidence families
-  are never merged, normalized, or scored together, and a Strategy Instance with no outcome in
-  the selected mode renders empty for that side only.
+  PAPER-vs-PAPER; different modes give a cross-mode side-by-side view. A pair is only rendered as
+  a valid comparison when both sides are bound to two *different* Strategy Definition Versions —
+  selecting the same Instance twice, or two Instances that happen to share a version, shows both
+  identities plus an explicit "not a valid comparison pair" disclosure instead of evidence. The
+  two evidence families are never merged, normalized, or scored together, and a Strategy Instance
+  with no outcome in the selected mode renders empty for that side only.
 - **VIEW-005 — Old-Version Evidence Access**: for a Strategy Instance that is RETIRED (illustrating
   a version that is "no longer active"), the bound version's identity is always shown first,
   independent of whether its evidence resolves; Backtest and PAPER evidence families resolve
-  independently, and a QA toggle demonstrates both STATE-025 (complete) and STATE-026 (PAPER
-  Fill/Position unavailable, Backtest remains fully visible).
+  independently. STATE-025/STATE-026 are derived from the *requested* mode — "Backtest only"
+  reads STATE-025 even when the (unrequested) PAPER Fill/Position is unavailable; "PAPER only" or
+  "Both" read STATE-026 when it is. A QA toggle drives that underlying PAPER Fill/Position
+  availability so both outcomes are demonstrable.
 
 The nav bar's "Research"/"Replay"/"Backtest"/"Paper"/"Review" items are real links to
 `../batch-01/index.html` through `../batch-05/index.html`.
@@ -49,7 +55,7 @@ The nav bar's "Research"/"Replay"/"Backtest"/"Paper"/"Review" items are real lin
 ## Strategy Definition Version vocabulary (critical — read before assuming more exists)
 
 Every field on a Strategy Definition Version fixture here is exactly one of `strategy.md` §1's
-seven `StrategyDefinitionVersionRegistered` payload fields (`strategy_definition_version_id`,
+eight current `StrategyDefinitionVersionRegistered` payload fields (`strategy_definition_version_id`,
 `strategy_definition_id`, `thesis`, `supported_scope`, `required_input_contracts`,
 `decision_rule_ref`, `explanation_contract_ref`, `downstream_output_capability`). No DSL,
 compiler, rule language, validation taxonomy, version graph, or approval workflow exists anywhere
