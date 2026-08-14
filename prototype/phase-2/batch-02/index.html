@@ -47,10 +47,10 @@
   <!-- SCR-002 Replay Cursor & Historical Reconstruction. Traceability: traceability.md#scr-002 -->
   <section class="screen" id="screen-scr-002" data-screen="SCR-002">
     <h1>Replay Cursor &amp; Historical Reconstruction <span class="stage-label">Replay</span></h1>
-    <p class="purpose">Choose a canonical Replay Cursor and view exactly the authoritative state
-      that existed at that cursor (historical reconstruction — default behavior). Entry requires
-      a pinned Strategy Instance and a PASSED Research verification (NAV-002, commit gate from
-      Research).</p>
+    <p class="purpose">Choose a canonical Replay Cursor and view exactly the historical
+      ReplayState(C) reconstructed at that cursor (historical reconstruction — default behavior),
+      with each constituent's authority class preserved. Entry requires a pinned Strategy Instance
+      and a PASSED Research verification (NAV-002, commit gate from Research).</p>
 
     <div id="scr-002-precondition-body">
       <!-- populated by app.js: NAV-002-level gate (missing Strategy Instance / verification not

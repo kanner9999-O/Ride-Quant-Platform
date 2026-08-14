@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.156"
+manifest_version: "10.157"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -369,10 +369,30 @@ Governance state preserved:    Phase 2 ACTIVE/AUTHORIZED (current_phase unchange
                               ESTABLISHED. Gate 3 NOT OPENED. Product Owner Phase-2 decision NOT
                               ISSUED. P2-RETRO-001 NOT PERFORMED. Phase 3 NOT AUTHORIZED. LIVE NOT
                               AUTHORIZED.
-Current next step:              bounded Batch-02 prototype correction against the newly
-                              Consolidated Stable PR-018/UC-004/SCR-002 authority — followed by
-                              governed affected-scope prototype re-review, then full-scope Phase-2
-                              BCC rerun (target: NO_CONFLICT) before P2-BCC-MAJ-01 can close.
+Batch-02 prototype bounded
+  correction (2026-08-14,
+  boundary 3399247):             Authority correction: CONSOLIDATED STABLE (recorded above).
+                              Prototype correction: CANDIDATE AUTHORED —
+                              prototype/phase-2/batch-02/{app.js,styles.css,index.html} corrected
+                              so SCR-002's renderReconstruction() no longer renders one universal
+                              "Authority class: Recorded fact (default reconstruction)" badge over
+                              the whole Decision→...→Position lineage; the authoritative
+                              recorded-fact lineage (Decision→Trade Intent→RiskEvaluation→
+                              Execution Intent→Order→ExecutionResult→Fill) and Position (derived,
+                              deterministic, non-authoritative projection reconstructed at the SAME
+                              cursor C) now each carry their own, separate authority-class badge,
+                              matching the Consolidated Stable SCR-002 §7.2 wording exactly.
+                              prototype/phase-2/batch-02/{traceability.md v1.3→v1.4,
+                              batch-manifest.md v1.4→v1.5, README.md} updated accordingly — prior
+                              Batch-02 Review A/Independent Review B history on v1.3 (verdict
+                              READY_FOR_NEXT_PHASE2_BATCH) PRESERVED, NOT rewritten; this new v1.5
+                              delta explicitly marked pending governed affected-scope re-review,
+                              NOT automatically covered by the v1.3 verdict. Batch-02 lifecycle
+                              VẪN CANDIDATE. Batch 01/03/04/05/06 KHÔNG chạm.
+Current next step:              governed affected-scope Review A + Independent Review B on
+                              Batch-02's v1.5 SCR-002 representation delta — followed by full-scope
+                              Phase-2 BCC rerun (target: NO_CONFLICT) before P2-BCC-MAJ-01 can
+                              close.
 Full history:                   docs/CHANGELOG.md.
 ```
 

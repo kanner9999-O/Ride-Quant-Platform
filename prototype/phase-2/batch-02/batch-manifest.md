@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-02-manifest
 title: "Phase 2 Prototype — Batch 02 — Batch Manifest"
-version: "1.4"
+version: "1.5"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -9,7 +9,30 @@ created_at: "2026-08-13"
 
 # Phase 2 Prototype — Batch 02 — Batch Manifest
 
-**Vai trò của tài liệu này:** batch-level evidence record cho Batch 02, đúng `phase-2-rules.md` `P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch 02 đã qua đầy đủ Review A + Independent Review B trên v1.3 — verdict `READY_FOR_NEXT_PHASE2_BATCH` — **NHƯNG lifecycle VẪN `CANDIDATE`** (`READY_FOR_NEXT_PHASE2_BATCH` LÀ completed-review verdict, KHÔNG PHẢI lifecycle status; Product Owner CHƯA issue một lifecycle-promotion transaction riêng).
+**Vai trò của tài liệu này:** batch-level evidence record cho Batch 02, đúng `phase-2-rules.md` `P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch 02 đã qua đầy đủ Review A + Independent Review B trên v1.3 — verdict `READY_FOR_NEXT_PHASE2_BATCH`. Sau đó, transaction này (v1.5) authored MỘT bounded semantic correction MỚI (P2-BCC-MAJ-01 prototype-side) — CANDIDATE AUTHORED, pending governed affected-scope re-review (§16 dưới). Lifecycle VẪN `CANDIDATE` (`READY_FOR_NEXT_PHASE2_BATCH` LÀ completed-review verdict cho v1.3, KHÔNG PHẢI lifecycle status VÀ KHÔNG tự động áp dụng cho v1.5's mới thay đổi; Product Owner CHƯA issue một lifecycle-promotion transaction riêng).
+
+**v1.5 — bounded semantic correction (2026-08-14), đóng `P2-BCC-MAJ-01` (prototype-side, against
+the now Consolidated Stable `PR-018`/`UC-004`/`SCR-002` authority, commit `3399247`).**
+`renderReconstruction()` (`app.js`) rendered ONE universal `authority-label-authoritative` badge
+("Authority class: Recorded fact (default reconstruction)") over the WHOLE lineage including
+Position — mâu thuẫn `position.md` §1 (Position derived, deterministic, non-authoritative, KHÔNG
+authoritative fact/event stream riêng). Sửa: overall panel label nay authority-neutral
+("Historical reconstruction — read-only"); authoritative recorded-fact lineage (Decision→Trade
+Intent→RiskEvaluation→Execution Intent→Order→ExecutionResult→Fill) VÀ Position mỗi bên có
+`.lineage-group` riêng với authority-class badge riêng; hint text sửa KHÔNG còn ngụ ý Position có
+`recorded_time` riêng. `index.html`'s `.purpose` text ("view exactly the authoritative state that
+existed at that cursor") — cùng defect pattern — sửa tương tự. `MOCK_REPLAY_STATE` comment sửa
+để phân biệt authoritative recorded-fact lineage khỏi derived Position projection — object
+shape/field KHÔNG đổi. Hai CSS class mới `.lineage-group-recorded`/`.lineage-group-position`
+(border-left accent, thuần visual). KHÔNG đổi NAV-002 precondition/STATE-001/STATE-006/cursor
+selection/canonical cursor/full lineage through Position/VIEW-003 optional handoff/no automatic
+parity recomputation/no authoritative fact creation/VIEW-003's own semantics
+(MATCH/MISMATCH/INDETERMINATE, nine-axis comparison, digest-definition not-applicable,
+STATE-007/008/030). KHÔNG đổi §4 A/B/C partition (VẪN A=5/B=9/C=7/tổng=21). Blob mới:
+`app.js`/`styles.css`/`index.html`/`traceability.md`. `batch-manifest.md`/`README.md` sửa
+tương ứng (§16 dưới — v1.3's `READY_FOR_NEXT_PHASE2_BATCH` verdict KHÔNG tự động thừa hưởng cho
+delta v1.4 MỚI này — pending governed affected-scope Review A/Independent Review B). Prior
+Batch-02 review history (Review A/Independent Review B trên v1.3) GIỮ NGUYÊN, KHÔNG rewrite.
 
 **v1.4 — deterministic bookkeeping reconciliation (2026-08-14), vai trò: `Phase 2 Prototype Review-State Bookkeeping Reconciliation Executor`, đúng `G-TXN-003`.** KHÔNG PHẢI lifecycle transition, KHÔNG PHẢI prototype semantic correction — reconcile review-state/current-progress bookkeeping tại §1/§4/§16 để khớp với governed review history ĐÃ hoàn tất trên v1.3 (bounded Review A v1.3: `P2-B02-A-MAJ-01` CLOSED, `P2-B02-B-MAJ-01` CLOSED, Blocker/Major/Minor mới = 0/0/0, CLEAN; Independent bounded Review B v1.3: cùng hai finding CLOSED, 0/0/0, verdict `READY_FOR_NEXT_PHASE2_BATCH`) — history này trước đây CHƯA được ghi nhận vào tài liệu này, khiến §1/§4/§16 stale ("chờ Review A/Independent Review B," "candidate 5/21 CHƯA verified," "pre-re-review 4/17 supportable" trình bày như hiện trạng). KHÔNG sửa nội dung semantic/artifact evidence (§2/§3/§5–§15 giữ nguyên); KHÔNG sửa `index.html`/`app.js`/`styles.css` (blob KHÔNG đổi). `traceability.md` được sửa RIÊNG (bounded, cùng lý do — xem `traceability.md`'s own v1.3 banner). `README.md` sửa tối thiểu (câu "not yet reviewed or approved" mâu thuẫn trực tiếp với review COMPLETE — sửa thành "reviewed, verdict READY_FOR_NEXT_PHASE2_BATCH, nhưng lifecycle vẫn candidate, chưa approved"). Lifecycle VẪN `CANDIDATE`.
 
@@ -27,9 +50,13 @@ Phase:               Phase 2 — Product Prototype (AUTHORIZED TO BEGIN)
 Authoritative DoD:   docs/phase-dod/phase-2-dod.md v0.3, status Approved,
                      post-acceptance blob de399900a93c7ec7ee64577093513de1643ebb33
 Status:              CANDIDATE — Review A + Independent Review B COMPLETE trên v1.3, verdict
-                     READY_FOR_NEXT_PHASE2_BATCH (batch-level, P2-PROTOTYPE-001). Lifecycle VẪN
-                     CANDIDATE — verdict review KHÔNG PHẢI lifecycle promotion.
-Created:             2026-08-13
+                     READY_FOR_NEXT_PHASE2_BATCH (batch-level, P2-PROTOTYPE-001). v1.5 (2026-08-14)
+                     authored MỘT bounded semantic correction MỚI (P2-BCC-MAJ-01 prototype-side,
+                     boundary commit 3399247) SAU v1.3's review — CANDIDATE AUTHORED, pending
+                     governed affected-scope Review A/Independent Review B (§16 dưới). Lifecycle
+                     VẪN CANDIDATE — verdict review KHÔNG PHẢI lifecycle promotion, VÀ v1.3's
+                     verdict KHÔNG tự động áp dụng cho v1.5's representation delta MỚI.
+Created:             2026-08-13; v1.5 bounded correction 2026-08-14
 Depends on (real,
   read-only link,
   KHÔNG modified):    prototype/phase-2/batch-01/ — READY_FOR_NEXT_PHASE2_BATCH (Independent
@@ -111,10 +138,10 @@ PR-010, PR-019 (VIEW-003)
 ## 6. Prototype artifact identities
 
 ```text
-prototype/phase-2/batch-02/index.html         blob c69502da70e32db07572848a795d74f67ecc838d (unchanged since v1.0)
-prototype/phase-2/batch-02/app.js              blob 52487b0a70525011a9d38f3ce66f7f595cb4bb7c (CURRENT — v1.3, đóng P2-B02-B-MAJ-01's digest-axis semantic correction; historical pre-fix blob 8f5fba218457b965dd2f9ecdc1576de9b61639a6, superseded)
-prototype/phase-2/batch-02/styles.css          blob 7042966f1e41bb550fab0e42316803d1595e1754 (CURRENT — v1.3, thêm .axis-status-not-applicable class, presentation-only; historical pre-fix blob bcd250d57cfb5b56e3558fbdbede0cca89cf1b82, superseded)
-prototype/phase-2/batch-02/traceability.md     blob 3074affef2d50a5fefeb043beccc92fb95e3cdf3 (CURRENT — v1.3, bookkeeping reconciliation, §2/§5 review-progress conclusions updated to ĐÃ verified; historical v1.2 blob 302fd0ffd9eb59ba63e9b06854411f7abe57d13e, v1.1 blob f37ca95963111dcdece19b11fb8a919646ebfe8b, v1.0 blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425, all superseded)
+prototype/phase-2/batch-02/index.html         blob 5b92e617f2d4fa80d59ee0068faf7e918c84ba97 (CURRENT — v1.5, đóng P2-BCC-MAJ-01's `.purpose` text; historical blob c69502da70e32db07572848a795d74f67ecc838d, unchanged since v1.0 through v1.3, superseded)
+prototype/phase-2/batch-02/app.js              blob 0fa44ccb7e2b18adc21fbbfeb1b57fa8f0271aa0 (CURRENT — v1.5, đóng P2-BCC-MAJ-01's authority-class separation (SCR-002 lineage); historical v1.3 blob 52487b0a70525011a9d38f3ce66f7f595cb4bb7c, đóng P2-B02-B-MAJ-01's digest-axis semantic correction; historical pre-fix blob 8f5fba218457b965dd2f9ecdc1576de9b61639a6, both superseded)
+prototype/phase-2/batch-02/styles.css          blob c5d01b7426856956f1bdee3cd7a1b0fe6ea63b4f (CURRENT — v1.5, thêm `.lineage-group-recorded`/`.lineage-group-position` classes, presentation-only; historical v1.3 blob 7042966f1e41bb550fab0e42316803d1595e1754, thêm .axis-status-not-applicable class; historical pre-fix blob bcd250d57cfb5b56e3558fbdbede0cca89cf1b82, both superseded)
+prototype/phase-2/batch-02/traceability.md     blob a9bc59828f7c7987cf46d1156a470c4b79eeca3d (CURRENT — v1.4, bounded semantic correction, đóng P2-BCC-MAJ-01, §3 element-level rows split for SCR-002 authority-class separation, §2 CURRENT TRUTH note added; historical v1.3 blob 3074affef2d50a5fefeb043beccc92fb95e3cdf3, bookkeeping reconciliation; v1.2 blob 302fd0ffd9eb59ba63e9b06854411f7abe57d13e, v1.1 blob f37ca95963111dcdece19b11fb8a919646ebfe8b, v1.0 blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425, all superseded)
 ```
 
 ## 7. Authority sources consumed (reference only, none modified)
@@ -241,8 +268,10 @@ None within this batch's scope. 12/17 surfaces not yet substantively covered (SC
 ## 16. Batch lifecycle / review state
 
 ```text
-Status:            CANDIDATE — v1.3 artifact candidate, review COMPLETE, NOT self-approved
-                    (READY_FOR_NEXT_PHASE2_BATCH verdict ≠ lifecycle approval).
+Status:            CANDIDATE — v1.3 artifact review COMPLETE (READY_FOR_NEXT_PHASE2_BATCH verdict
+                    ≠ lifecycle approval); v1.5 authored a NEW bounded semantic correction
+                    (P2-BCC-MAJ-01 prototype-side) AFTER that review — CANDIDATE AUTHORED, pending
+                    governed affected-scope Review A/Independent Review B. NOT self-approved.
 
 Review history (chronological, KHÔNG rewrite):
   Review A (v1.0):                     P2-B02-A-MAJ-01 found, REVISION_REQUIRED.
@@ -265,20 +294,51 @@ Review history (chronological, KHÔNG rewrite):
     FINAL):                             P2-B02-A-MAJ-01 CLOSED; P2-B02-B-MAJ-01 CLOSED; new
                                         Blocker/Major/Minor = 0/0/0; verdict
                                         READY_FOR_NEXT_PHASE2_BATCH.
+  v1.4 bookkeeping reconciliation:      deterministic, recorded v1.3's completed review outcome
+                                        into current-state sections (§1/§4/§16) — no semantic
+                                        change.
+  Phase-2 Full-Scope Backward
+    Consistency Check (2026-08-14):     P2-BCC-MAJ-01 found — SCR-002's renderReconstruction()
+                                        rendered the entire Decision→...→Position lineage under
+                                        one universal "Authority class: Recorded fact (default
+                                        reconstruction)" label, contradicting position.md §1.
+                                        Product/Workflow/UX authority (PR-018/UC-004/SCR-002)
+                                        corrected + Consolidated Stable separately (commits
+                                        51f9600..3399247, docs/product/*). This remaining
+                                        prototype-side manifestation addressed by v1.5 below.
+  v1.5 bounded semantic correction:     đóng phần prototype-side của P2-BCC-MAJ-01 — authority-class
+                                        separation in renderReconstruction() (app.js), .purpose
+                                        text (index.html), new .lineage-group CSS. CANDIDATE
+                                        AUTHORED — governed affected-scope Review A/Independent
+                                        Review B NOT YET performed on this delta.
 
-CURRENT TRUTH (v1.4 bookkeeping reconciliation, 2026-08-14 — đóng gap "chờ bounded re-review"
-  trước đây, đúng G-TXN-003):
-  Review verdict:                 READY_FOR_NEXT_PHASE2_BATCH (final, v1.3 artifact candidate —
-                                 KHÔNG PHẢI Approved/Accepted/Complete lifecycle transition).
-  Verified Batch-02 contribution: +2/17 surfaces (SCR-002, VIEW-003); +2/21 substantive UC
-                                 (UC-004, UC-005).
+CURRENT TRUTH (v1.5 bounded semantic correction, 2026-08-14):
+  v1.3 review verdict (historical,
+    unchanged, GIỮ NGUYÊN):             READY_FOR_NEXT_PHASE2_BATCH — applies to the v1.3 artifact
+                                 AS IT WAS reviewed. KHÔNG PHẢI Approved/Accepted/Complete
+                                 lifecycle transition, and does NOT automatically extend to v1.5's
+                                 new representation delta.
+  v1.5 delta review state:        CANDIDATE AUTHORED, pending governed affected-scope Review A +
+                                 Independent Review B (and, for Phase-wide P2-BCC-MAJ-01 closure,
+                                 a subsequent full-scope Phase-2 BCC rerun returning NO_CONFLICT —
+                                 outside this batch's own scope).
+  Verified Batch-02 contribution
+    (UNCHANGED by this
+    bookkeeping-only accounting
+    dimension):                    +2/17 surfaces (SCR-002, VIEW-003); +2/21 substantive UC
+                                 (UC-004, UC-005) — per-batch prototype-review accounting is
+                                 SEPARATE from full-scope BCC clean-support (docs/MANIFEST.md),
+                                 not conflated; this batch-level count is not reduced by the new
+                                 pending delta, but the delta itself is explicitly NOT yet
+                                 independently re-verified.
   Verified cumulative (Batch
-    01+02):                       5/17 surfaces; 5/21 substantive UC.
+    01+02):                       5/17 surfaces; 5/21 substantive UC (historical per-batch
+                                 accounting, unchanged).
   Batch lifecycle:                CANDIDATE (unchanged — Product Owner CHƯA issue lifecycle-
                                  promotion transaction riêng cho Batch 02).
   Further Batch-02 correction/
-    re-review pending:            NONE — review COMPLETE trên v1.3, KHÔNG bounded re-review nào
-                                 chờ xử lý.
+    re-review pending:            YES — v1.5's SCR-002 authority-class delta pending governed
+                                 affected-scope Review A/Independent Review B.
 
 Historical (TRƯỚC v1.3's review hoàn tất — giữ nguyên làm bằng chứng lịch sử, KHÔNG PHẢI hiện
   trạng): Independent Review B's pre-re-review independently-supportable state trên baseline
@@ -286,6 +346,7 @@ Historical (TRƯỚC v1.3's review hoàn tất — giữ nguyên làm bằng ch�
   nay đóng): 4/17, 4/21. Last independently verified TRƯỚC Batch 02's own review hoàn tất: 3/17,
   3/21 (Batch 01 only).
 
-Next step:          Không applicable cho riêng Batch 02 — Phase 2 đã tiếp tục sang Batch 03 dựa
-                     trên contribution đã verified này (P2-PROTOTYPE-001).
+Next step:          Governed affected-scope Review A/Independent Review B on v1.5's SCR-002
+                     representation delta — not authored by this transaction, per instruction,
+                     this executor does not author the next-task prompt.
 ```

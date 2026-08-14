@@ -2,6 +2,156 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — P2-BCC-MAJ-01 Batch-02 prototype bounded correction (SCR-002 authority-class separation)
+
+**Bounded prototype semantic correction — vai trò: `P2-BCC-MAJ-01 Batch-02 Prototype Bounded
+Correction Executor`.** Corrects the remaining prototype-side manifestation of P2-BCC-MAJ-01
+against the now Consolidated Stable Product/Workflow/UX authority (PR-018/UC-004/SCR-002). Does
+not modify Product/Workflow/UX authority in this transaction.
+
+### Baseline
+
+```text
+Starting HEAD:    3399247dfd3c6350462e9619e6e8a249007106c4
+```
+
+### Controlling Consolidated Stable authority (verified via git hash-object before any edit)
+
+```text
+docs/product/product-requirement.md   v0.5, Draft, PR-018 locus, Consolidated Stable — blob
+  dbcd5cc811286ad1b8340a2303373f259dcefbc8.
+docs/product/use-case-workflow.md     v0.11, Draft, UC-004 locus, Consolidated Stable — blob
+  577666a701a219611a7ef1b25a1c1d260b870ea9.
+docs/product/ux-blueprint.md          v0.9, Draft, SCR-002 locus, Consolidated Stable — blob
+  877156ccd02d30ef3ce3ed0c3a336340ad69d64b.
+Domain authority inspected: docs/domain/position.md (kind: read_model, non-authoritative,
+  deterministic, no independent event stream, reconstructed at cursor C from eligible Fill
+  lineage), docs/domain/replay-event.md, docs/domain/fill.md — none modified.
+```
+
+### Defect
+
+```text
+prototype/phase-2/batch-02/app.js renderReconstruction() rendered ONE shared
+  .authority-label-authoritative badge ("Authority class: Recorded fact (default reconstruction)")
+  above the entire Decision→Trade Intent→RiskEvaluation→Execution Intent→Order→ExecutionResult→
+  Fill→Position lineage — incorrectly placing Position under the same recorded-fact authority
+  classification as the authoritative fact lineage, contradicting position.md §1. The cursor hint
+  ("only facts with recorded_time <= C are shown") also implied Position itself had a
+  recorded_time. index.html's SCR-002 .purpose text ("view exactly the authoritative state that
+  existed at that cursor") carried the same defect pattern in static markup.
+```
+
+### Correction
+
+```text
+renderReconstruction(): the panel's top-level label is now authority-neutral ("Historical
+  reconstruction — read-only"), no longer claiming the whole ReplayState is authoritative. The
+  authoritative recorded-fact lineage (Decision→Trade Intent→RiskEvaluation→Execution Intent→
+  Order→ExecutionResult→Fill, 7 rows) is now wrapped in its own .lineage-group-recorded block with
+  its own authority-label-authoritative badge ("Authority class: authoritative recorded fact").
+  Position is now wrapped in its own separate .lineage-group-position block with its own
+  authority-label-recomputation badge ("Authority class: derived deterministic non-authoritative
+  projection") — never under the universal recorded-fact label. The hint text now reads:
+  "authoritative facts shown are limited to recorded_time <= C; Position ... is deterministically
+  reconstructed at the SAME cursor C from the eligible Fill lineage ... it is not itself a
+  recorded fact and has no recorded_time of its own."
+MOCK_REPLAY_STATE comment corrected to distinguish the authoritative recorded-fact lineage
+  (Decision..Fill) from Position's derived, non-authoritative projection status — object shape and
+  the `position` field key unchanged, not reinterpreted as Domain authority.
+index.html .purpose text rewritten: "view exactly the historical ReplayState(C) reconstructed at
+  that cursor ..., with each constituent's authority class preserved."
+styles.css: two new classes, .lineage-group-recorded (green border-left accent) and
+  .lineage-group-position (purple border-left accent) — same evidence-group-upstream/downstream
+  visual convention already used in Batch 04+, presentation-only, no new semantic/domain concept.
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-02/app.js              blob 52487b0a70525011a9d38f3ce66f7f595cb4bb7c ->
+  0fa44ccb7e2b18adc21fbbfeb1b57fa8f0271aa0.
+prototype/phase-2/batch-02/styles.css          blob 7042966f1e41bb550fab0e42316803d1595e1754 ->
+  c5d01b7426856956f1bdee3cd7a1b0fe6ea63b4f.
+prototype/phase-2/batch-02/index.html          blob c69502da70e32db07572848a795d74f67ecc838d ->
+  5b92e617f2d4fa80d59ee0068faf7e918c84ba97.
+prototype/phase-2/batch-02/traceability.md     v1.3 -> v1.4, blob
+  3074affef2d50a5fefeb043beccc92fb95e3cdf3 -> a9bc59828f7c7987cf46d1156a470c4b79eeca3d — new v1.4
+  banner; §3 SCR-002/UC-004 rows split (authoritative recorded-fact lineage row, Position
+  projection row, overall-presentation row, mock-fixture-comment row, .purpose-text row); §2
+  "CURRENT TRUTH" note added recording the new delta as pending affected-scope review. §0/§1/§4/§5
+  (A/B/C partition A=5/B=9/C=7/21) unchanged.
+prototype/phase-2/batch-02/batch-manifest.md   v1.4 -> v1.5, blob (this file) — new v1.5 banner;
+  §1 Status, §6 artifact identities, §16 review history (new v1.5 entry, BCC finding entry) and
+  CURRENT TRUTH updated; prior Review A/Independent Review B history on v1.3 preserved verbatim.
+prototype/phase-2/batch-02/README.md           SCR-002 bullet and "What this is not" section
+  updated to describe the authority-class separation and the new pending-review delta.
+docs/MANIFEST.md   manifest_version 10.156 -> 10.157. New "Batch-02 prototype bounded correction"
+  entry recording authority correction = CONSOLIDATED STABLE, prototype correction = CANDIDATE
+  AUTHORED pending affected-scope review; P2-BCC-MAJ-01 NOT closed; "Current next step" updated to
+  governed affected-scope Review A/Independent Review B then full-scope BCC rerun.
+```
+
+### No scope expansion
+
+```text
+docs/product/, docs/domain/, docs/architecture/, docs/constitution/, docs/adr/, docs/phase-dod/,
+  docs/governance/phases/phase-2-rules.md: UNCHANGED (git status --porcelain=v1 -uall clean / git
+  diff --quiet as applicable). prototype/phase-2/batch-01/, batch-03/, batch-04/, batch-05/,
+  batch-06/: UNCHANGED (git status --porcelain=v1 -uall clean). No new SCR/VIEW/NAV/STATE/UC/PR ID
+  introduced. No new batch created. No ADR created (ADR_NOT_REQUIRED). VIEW-003's own semantics
+  (MATCH/MISMATCH/INDETERMINATE, nine-axis structured Representation comparison, digest-definition
+  not-applicable, STATE-007/008/030, MISMATCH-> Review handoff) untouched — confirmed no diff hunk
+  touches renderView003() or its own §7 spec citation. NAV-002 precondition behavior, STATE-001
+  loading, STATE-006 unavailable-reference, cursor selection, C-001/C-002/C-003 QA behavior, same
+  canonical cursor, full lineage through Position, optional VIEW-003 handoff, no automatic parity
+  recomputation, no authoritative fact creation, no network/exchange/credentials: all unchanged —
+  confirmed via diff-hunk-scope check (only the MOCK_REPLAY_STATE comment and
+  renderReconstruction() body changed in app.js; only .lineage-group CSS added in styles.css; only
+  the .purpose paragraph changed in index.html).
+```
+
+### Result
+
+```text
+P2-BCC-MAJ-01: remains OPEN. Authority correction: CONSOLIDATED STABLE (unchanged from prior
+  transaction). Prototype correction: CANDIDATE AUTHORED. Closure of P2-BCC-MAJ-01 still requires
+  (1) affected-scope prototype Review A CLEAN, (2) Independent Review B CLEAN if required by the
+  governed correction flow, (3) full-scope Phase-2 BCC rerun returning NO_CONFLICT — none
+  performed by this transaction.
+Full-scope BCC: remains REVISION_REQUIRED. Clean full-scope support: remains 16/17 surfaces, 20/21
+  substantive UC (unchanged by this transaction — restoration to 17/17+21/21 requires the closure
+  steps above). Historical per-batch accounting: unchanged, 17/17 surfaces + 21/21 UC at the
+  per-batch prototype-review level (Batch 01-06) — a distinct axis, not conflated.
+Batch 02: lifecycle CANDIDATE (unchanged). Prior v1.3 Review A/Independent Review B history
+  preserved, not rewritten. New v1.5 delta explicitly marked pending governed affected-scope
+  review.
+Phase 2: ACTIVE/AUTHORIZED (current_phase unchanged). I-11: PASS (no credential/backend/network
+  surface introduced or touched). I-12: candidate — restored for the corrected SCR-002
+  representation, but the Phase-wide I-12/BCC conflict is NOT finally closed before governed
+  re-review and BCC rerun. Trigger B/C/D/E: PRESERVED (not re-tested, no gate-set re-resolution).
+  ADR: NOT_REQUIRED. Quality Gate: NOT RUN. Gate-3 eligibility: NOT ESTABLISHED. Gate 3: NOT
+  OPENED. Product Owner Phase-2 decision: NOT ISSUED. P2-RETRO-001: NOT PERFORMED. Phase 3: NOT
+  AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+node --check prototype/phase-2/batch-02/app.js: OK. Secret-pattern grep: clean (one incidental
+  match inside app.js's own disclaiming file-header comment). Network-call grep
+  (fetch/XMLHttpRequest/WebSocket/axios/.ajax): clean. Manual HTML div-nesting balance check of
+  the rewritten renderReconstruction() body performed (no headless browser tool available in this
+  environment — static/logic review, not a visually-exercised browser test): opens and closes
+  paired 1:1 (panel / label-row / hint / lineage-group-recorded / label-row / lineage-list /
+  lineage-group-position / label-row / lineage-list / exit-row), confirmed via direct file read.
+  Diff-hunk-scope check on app.js/index.html confirmed only the intended regions changed (STATE-
+  001/STATE-006/NAV-002/cursor-selection/VIEW-003-handoff code untouched). Scope-boundary check:
+  git status --porcelain=v1 -uall clean on docs/product, docs/domain, docs/architecture,
+  docs/constitution, docs/adr, docs/phase-dod, and on batch-01/03/04/05/06; git diff --quiet on
+  docs/governance/phases/phase-2-rules.md.
+```
+
 ## [Unreleased] — 2026-08-14 — P2-BCC-MAJ-01 Product/Workflow/UX authority correction: Product Owner CONSOLIDATED PR-018 / UC-004 / SCR-002 as Consolidated Stable
 
 **Deterministic lifecycle transaction — vai trò: `P2-BCC-MAJ-01 Product/Workflow/UX Authority

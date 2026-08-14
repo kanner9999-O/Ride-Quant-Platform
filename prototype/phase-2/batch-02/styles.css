@@ -333,6 +333,25 @@ select, .btn {
   text-align: right;
 }
 
+/* v1.4 (closes P2-BCC-MAJ-01, prototype-side): two visually distinct groups so the authoritative
+   recorded-fact lineage and Position's derived, non-authoritative projection are never presented
+   under one universal authority label — same border-left accent convention as later batches'
+   evidence-group-upstream/downstream pattern. */
+.lineage-group {
+  margin-top: 10px;
+}
+
+.lineage-group-recorded {
+  border-left: 3px solid #3f9d5c;
+  padding-left: 10px;
+}
+
+.lineage-group-position {
+  border-left: 3px solid #7a6bd9;
+  padding-left: 10px;
+  margin-top: 14px;
+}
+
 /* ---- VIEW-003 pinned-axis checklist ---- */
 
 .axis-list {

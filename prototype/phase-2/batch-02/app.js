@@ -30,9 +30,14 @@
   ];
 
   // Decision -> Trade Intent -> RiskEvaluation -> Execution Intent -> Order -> ExecutionResult ->
-  // Fill -> Position lineage AT the cursor (ux-blueprint.md §7.2 SCR-002 "Information displayed").
-  // Only facts whose recorded_time <= C appear -- represented here as a static label per cursor,
-  // not a real timestamp engine.
+  // Fill are the authoritative recorded-fact lineage AT the cursor (ux-blueprint.md §7.2 SCR-002
+  // "Information displayed") -- only facts whose recorded_time <= C appear, represented here as a
+  // static label per cursor, not a real timestamp engine. Position is NOT itself a recorded fact
+  // (P2-BCC-MAJ-01, closed at the Product/Workflow/UX layer against position.md §1) -- it is a
+  // derived, deterministic, non-authoritative projection reconstructed at the SAME cursor C from
+  // the eligible Fill lineage above (position.md §2, fill.md §6), represented here as its own
+  // static label per cursor for the same illustrative reason -- it never has a recorded_time of
+  // its own and is not part of the authoritative event stream.
   var MOCK_REPLAY_STATE = {
     "C-001": {
       decision: "LONG",
@@ -261,14 +266,28 @@
 
     var lineage = MOCK_REPLAY_STATE[cursor.id];
 
+    // v1.4 (closes P2-BCC-MAJ-01, prototype-side): the panel below previously carried ONE
+    // universal "Authority class: Recorded fact (default reconstruction)" badge over the whole
+    // lineage including Position -- contradicting position.md §1 (Position is a derived,
+    // deterministic, non-authoritative projection, not an authoritative fact/event stream). The
+    // overall panel label is now authority-neutral ("Historical reconstruction — read-only");
+    // the authoritative recorded-fact lineage (Decision..Fill) and Position each carry their own,
+    // separate authority-class badge, matching the now-Consolidated-Stable SCR-002 §7.2 wording.
     body.innerHTML =
       '<div class="panel">' +
       '<div class="label-row">' +
       '<span class="mode-label">Replay</span>' +
-      '<span class="authority-label authority-label-authoritative">Authority class: Recorded fact (default reconstruction)</span>' +
+      '<span class="mode-label">Historical reconstruction — read-only</span>' +
       '<span class="prototype-datum-label">Prototype datum: Illustrative / non-authoritative</span>' +
       "</div>" +
-      '<div class="hint">ReplayState(' + cursor.id + ') — only facts with recorded_time &le; ' + cursor.id + " are shown.</div>" +
+      '<div class="hint">Historical ReplayState(' + cursor.id + ') — authoritative facts shown are ' +
+      "limited to recorded_time &le; " + cursor.id + "; Position below is deterministically " +
+      "reconstructed at the SAME cursor " + cursor.id + " from the eligible Fill lineage (position.md " +
+      "§2) — it is not itself a recorded fact and has no recorded_time of its own.</div>" +
+      '<div class="lineage-group lineage-group-recorded">' +
+      '<div class="label-row">' +
+      '<span class="authority-label authority-label-authoritative">Authority class: authoritative recorded fact</span>' +
+      "</div>" +
       '<div class="lineage-list">' +
       lineageRow("Decision", lineage.decision) +
       lineageRow("Trade Intent", lineage.tradeIntent) +
@@ -277,7 +296,15 @@
       lineageRow("Order", lineage.order) +
       lineageRow("ExecutionResult", lineage.executionResult) +
       lineageRow("Fill", lineage.fill) +
+      "</div>" +
+      "</div>" +
+      '<div class="lineage-group lineage-group-position">' +
+      '<div class="label-row">' +
+      '<span class="authority-label authority-label-recomputation">Authority class: derived deterministic non-authoritative projection</span>' +
+      "</div>" +
+      '<div class="lineage-list">' +
       lineageRow("Position", lineage.position) +
+      "</div>" +
       "</div>" +
       "</div>" +
       '<div class="exit-row">' +

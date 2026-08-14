@@ -22,8 +22,11 @@ VIEW-001/VIEW-002.
   pinned) and read-only-inspection behavior (blocked reason still shown if Research verification
   did not PASS).
 - **SCR-002** — Replay Cursor & Historical Reconstruction: choose a canonical Replay Cursor,
-  inspect the illustrative ReplayState(C) lineage (Decision → Trade Intent → RiskEvaluation →
-  Execution Intent → Order → ExecutionResult → Fill → Position) at that cursor.
+  inspect the illustrative historical ReplayState(C) at that cursor — the authoritative
+  recorded-fact lineage (Decision → Trade Intent → RiskEvaluation → Execution Intent → Order →
+  ExecutionResult → Fill) and Position (a separately-labelled, derived, deterministic,
+  non-authoritative projection reconstructed at the same cursor) are shown with their own,
+  distinct authority-class labels — never under one universal "authoritative" badge.
 - **VIEW-003** — Parity Recomputation Result: an optional, never-automatic action from SCR-002.
   Shows the recorded vs. recomputed Canonical Decision Semantic Representation, the nine pinned
   axes, and one of MATCH / MISMATCH / INDETERMINATE — always demo-selected, never actually
@@ -46,6 +49,9 @@ or parity engine to derive these from.
 Not a production frontend, not connected to any backend/exchange, not authorized for LIVE, not an
 implementation of replay or parity computation, and not a claim that Phase 2's full 17-surface/
 21-UC coverage is complete. See `batch-manifest.md` §16 for the exact progress accounting — Review
-A and Independent Review B are complete for this batch's own contribution (verdict
-`READY_FOR_NEXT_PHASE2_BATCH`), but this batch's lifecycle remains a **candidate**, not yet
-approved — that verdict is not itself a lifecycle promotion.
+A and Independent Review B completed for this batch's v1.3 contribution (verdict
+`READY_FOR_NEXT_PHASE2_BATCH`), but v1.5 then authored a new bounded semantic correction to
+SCR-002 (Phase-2 Full-Scope BCC finding `P2-BCC-MAJ-01`, prototype-side) that has **not** yet
+gone through its own governed review — that verdict does not automatically extend to this new
+delta. This batch's lifecycle remains a **candidate** either way, not yet approved — a review
+verdict is not itself a lifecycle promotion.

@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-02-traceability
 title: "Phase 2 Prototype — Batch 02 — Traceability Artifact"
-version: "1.3"
+version: "1.4"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -16,6 +16,35 @@ created_at: "2026-08-13"
 **v1.2 — bounded semantic correction (2026-08-13), Independent Review B trên baseline v1.2 (batch-manifest.md): `P2-B02-A-MAJ-01` REOPENED + `P2-B02-B-MAJ-01` (mới) — đóng CẢ HAI tại transaction này.** `P2-B02-A-MAJ-01`: §5 "Excluded-by-design" VẪN chứa current-state wording "13 of remaining 15 surfaces" (SAI arithmetic — 17 tổng, KHÔNG 15) sót lại từ v1.0, KHÔNG được sửa trong v1.1's UC-focused correction. Sửa: §5 viết lại — phân biệt tường minh candidate total nếu `P2-B02-B-MAJ-01` đóng đúng (5/17), candidate remaining (12/17 = SCR-003..SCR-011 [9] + VIEW-004..VIEW-006 [3]), VÀ Independent Review B's pre-correction independently-supportable state (4/17 — SCR-002/UC-004 supportable, VIEW-003/UC-005 KHÔNG do `P2-B02-B-MAJ-01`). `P2-B02-B-MAJ-01`: `app.js`'s `renderView003()` đánh dấu digest-definition axis (axis 9) LÀ "ok"/"resolved, consistent" cho MATCH/MISMATCH dù `.digest-note` chính nó nói digest-definition CHƯA established VÀ structured Representation comparison (KHÔNG Digest) LÀ cơ sở — mâu thuẫn ngữ nghĩa. Sửa: thêm axis-status thứ tư `not-applicable` (phân biệt tường minh khỏi `unresolved` — "not applicable" = KHÔNG PHẢI một phần comparison basis đang dùng; "unresolved" = BẮT BUỘC cho comparison này nhưng KHÔNG resolve được, buộc INDETERMINATE), axis 9 LUÔN `not-applicable` trong Batch 02's demo path (Digest KHÔNG BAO GIỜ dùng), MATCH/MISMATCH copy sửa từ "All nine pinned axes evaluable" thành "All applicable required axes... Digest-definition axis not applicable." Digest note mở rộng giải thích rõ sự phân biệt. KHÔNG establish digest-definition authority, KHÔNG chọn hash/serialization algorithm — governance gap VẪN unresolved, chỉ representation của gap đó được sửa cho chính xác. KHÔNG đổi §0-§2 A/B/C partition (VẪN A=5/B=9/C=7/tổng=21). KHÔNG surface/screen mới. KHÔNG đổi SCR-002 cursor binding/lineage/NAV-002 behavior/VIEW-003 optional-entry rule/MATCH-MISMATCH-INDETERMINATE outcome model/MISMATCH→Review handoff.
 
 **v1.3 — deterministic bookkeeping reconciliation (2026-08-14), vai trò: `Phase 2 Prototype Review-State Bookkeeping Reconciliation Executor`, đúng `G-TXN-003`.** KHÔNG PHẢI lifecycle transition, KHÔNG PHẢI prototype semantic correction. §2's "21-UC substantive completion progress" và §5's surface-accounting conclusion vẫn nói "CHƯA independently verified (chờ bounded Review A re-review + Independent bounded Review B trên v1.2)" và "Candidate KHÔNG PHẢI independently verified — 5/17 CHỈ authoritative sau khi..." — mâu thuẫn trực tiếp với governed review history ĐÃ hoàn tất từ v1.3 (bounded Review A v1.3 CLEAN; Independent bounded Review B v1.3: `P2-B02-A-MAJ-01` CLOSED, `P2-B02-B-MAJ-01` CLOSED, 0/0/0, verdict `READY_FOR_NEXT_PHASE2_BATCH`). Sửa: §2's cuối cùng + §5's kết luận viết lại để phản ánh 5/21 VÀ 5/17 ĐÃ independently verified — historical "candidate/pre-re-review" text phía trên GIỮ NGUYÊN, gắn nhãn rõ ràng LÀ lịch sử (KHÔNG xoá). KHÔNG đổi §0/§1/§3/§4/§6 (A/B/C partition, element-level map, reconciliation statement KHÔNG đổi — VẪN A=5/B=9/C=7/tổng=21).
+
+**v1.4 — bounded semantic correction (2026-08-14), đóng `P2-BCC-MAJ-01` (prototype-side, against
+the now Consolidated Stable `PR-018`/`UC-004`/`SCR-002` authority, commit `3399247`).**
+`renderReconstruction()` previously rendered ONE universal `.authority-label-authoritative`
+badge ("Authority class: Recorded fact (default reconstruction)") over the WHOLE lineage
+including Position — mâu thuẫn `position.md` §1 (Position là derived, deterministic,
+non-authoritative projection, KHÔNG authoritative fact/event stream riêng), mirroring chính xác
+finding đã đóng ở Product/Workflow/UX layer (P2-BCC-MAJ01-A-MAJ-01/A2-MAJ-01). Sửa: panel's
+top-level label nay authority-neutral ("Historical reconstruction — read-only"); authoritative
+recorded-fact lineage (Decision→Trade Intent→RiskEvaluation→Execution Intent→Order→
+ExecutionResult→Fill) VÀ Position mỗi bên có `.lineage-group` riêng biệt với authority-class badge
+riêng (`authority-label-authoritative` cho fact lineage, `authority-label-recomputation` cho
+Position); hint text sửa để KHÔNG còn ngụ ý Position có `recorded_time` riêng ("authoritative
+facts shown are limited to recorded_time ≤ C; Position ... is deterministically reconstructed at
+the SAME cursor C from the eligible Fill lineage"). `index.html`'s `.purpose` text ("view exactly
+the authoritative state that existed at that cursor") — cùng defect pattern — sửa thành "view
+exactly the historical ReplayState(C) reconstructed at that cursor ..., with each constituent's
+authority class preserved." `MOCK_REPLAY_STATE`'s own comment corrected để phân biệt authoritative
+recorded-fact lineage khỏi derived Position projection — object shape/`position` field key KHÔNG
+đổi, KHÔNG diễn giải LÀ Domain authority. Hai class CSS mới `.lineage-group-recorded`/
+`.lineage-group-position` (border-left accent, cùng convention `evidence-group-upstream/
+downstream` đã dùng ở Batch 04+) — thuần visual grouping, KHÔNG semantic/domain concept mới. KHÔNG
+đổi NAV-002 precondition/STATE-001/STATE-006/cursor selection/canonical cursor/full lineage
+through Position/VIEW-003 optional handoff/no automatic parity recomputation/no authoritative fact
+creation. VIEW-003's own semantics (MATCH/MISMATCH/INDETERMINATE, nine-axis structured
+Representation comparison, digest-definition not-applicable, STATE-007/008/030) KHÔNG chạm. KHÔNG
+đổi §0-§2 A/B/C partition (VẪN A=5/B=9/C=7/tổng=21) — CHỈ current-review-state wording cập nhật
+(§6 dưới) để phản ánh delta MỚI này CHƯA qua governed affected-scope re-review, KHÔNG tự động thừa
+hưởng v1.3's `READY_FOR_NEXT_PHASE2_BATCH` verdict cho phần representation ĐÃ thay đổi.
 
 ## 0. UC accounting taxonomy (kế thừa nguyên vẹn từ Batch 01, KHÔNG redefine)
 
@@ -97,6 +126,15 @@ Partition validation (mechanical):
       own review hoàn tất (Batch 01 baseline,
       Independent Review B verdict
       READY_FOR_NEXT_PHASE2_BATCH):                    3/21 (UC-001/002/003 only).
+
+CURRENT TRUTH (v1.4 bounded semantic correction, 2026-08-14, đóng P2-BCC-MAJ-01 prototype-side):
+  UC-004's OWN representation (SCR-002 renderReconstruction()) vừa nhận một bounded semantic
+  correction MỚI (authority-class separation, xem v1.4 banner phía trên) — SAU thời điểm
+  Independent Review B v1.3 đã verify. v1.3's verdict READY_FOR_NEXT_PHASE2_BATCH KHÔNG tự động
+  áp dụng cho phần representation ĐÃ thay đổi bởi v1.4 — delta này CANDIDATE AUTHORED, pending
+  governed affected-scope Review A/Independent Review B trước khi tính LẠI LÀ independently
+  verified. UC-005 (VIEW-003, KHÔNG chạm bởi v1.4) VÀ UC-001/002/003 (Batch 01, KHÔNG chạm) giữ
+  nguyên trạng thái đã verify trước đó KHÔNG đổi. Lifecycle VẪN CANDIDATE.
 ```
 
 ## 3. Element-level traceability map
@@ -112,11 +150,14 @@ Partition validation (mechanical):
 | `app.js` `state.incomingContext` = `"incoming-ok"` (default) | NAV-002 "Required context" satisfied | UC-002, UC-004 | PR-001, PR-016 | `ux-blueprint.md` §5a NAV-002 "Required context" |
 | `app.js` `state.incomingContext` = `"incoming-no-instance"` / `renderScr002()` blocked branch | NAV-002 "Available navigation behavior" (blocked/prompt option), STATE-004 cited at NAV level | UC-002 | PR-001 | `ux-blueprint.md` §5a NAV-002; §11 STATE-004 row (Applicable screen/view = VIEW-001 — distinction preserved explicitly in the panel copy and here) |
 | `app.js` `state.incomingContext` = `"incoming-not-passed"` / `renderScr002()` blocked branch | NAV-002 "Read-only inspection behavior" | UC-002, UC-003 (verification outcome referenced) | PR-001, PR-016, PR-017 | `ux-blueprint.md` §5a NAV-002 "Read-only inspection behavior"; §3 UX-P-5 |
-| `index.html` `#screen-scr-002` / `app.js` `renderScr002()` | SCR-002 | UC-004 | PR-008, PR-018, PR-020 | `ux-blueprint.md` §7.2 "SCR-002 — Replay Cursor & Historical Reconstruction" |
+| `index.html` `#screen-scr-002` `.purpose` (v1.4, đóng `P2-BCC-MAJ-01` — "view exactly the authoritative state that existed at that cursor" sửa thành "view exactly the historical ReplayState(C) reconstructed at that cursor... with each constituent's authority class preserved") / `app.js` `renderScr002()` | SCR-002 | UC-004 | PR-008, PR-018, PR-020 | `ux-blueprint.md` §7.2 "SCR-002 — Replay Cursor & Historical Reconstruction" (Purpose, Consolidated Stable v0.9) |
 | `app.js` `MOCK_CURSORS` / `#cursor-select` | SCR-002 "Available user actions" — chọn Replay Cursor | UC-004 | PR-008, PR-018, PR-020 | `ux-blueprint.md` §7.2 SCR-002 "Available user actions"; Chapter 8 §8.5 canonical Replay Cursor (referenced, not redefined) |
 | `app.js` `renderScr002()` loading branch | STATE-001 loading | UC-004 | PR-003, PR-018 | `ux-blueprint.md` §11 STATE-001 row (SCR-002 listed as applicable) |
 | `app.js` `renderReconstruction()` unavailable-cursor branch (`C-003`) | STATE-006 Replay reference unavailable | UC-004 | PR-020 | `ux-blueprint.md` §11 STATE-006 row |
-| `app.js` `MOCK_REPLAY_STATE` / `renderReconstruction()` normal branch (lineage list) | SCR-002 "Information displayed" — ReplayState(C) | UC-004 | PR-008, PR-018, PR-020 | `ux-blueprint.md` §7.2 SCR-002 "Information displayed"; domain vocabulary decision.md/trade-intent.md/risk.md/execution-intent.md/order.md/execution-result.md/fill.md/position.md (referenced, not redefined) |
+| `app.js` `renderReconstruction()` `.label-row` (v1.4, đóng `P2-BCC-MAJ-01` — top-level badges nay ĐÚNG HAI `.mode-label` ("Replay" + "Historical reconstruction — read-only"), KHÔNG còn `.authority-label-authoritative` phổ quát cho toàn bộ panel) + `.hint` (no-look-ahead áp dụng cho authoritative fact, Position reconstruct tại CÙNG cursor) | SCR-002 "Information displayed" — ReplayState(C) presentation tự thân: historical reconstruction/read-only, KHÔNG một authority stream mới | UC-004 | PR-008, PR-018, PR-020 | `ux-blueprint.md` §7.2 SCR-002 "Information displayed"/"Authority labels" (Consolidated Stable, v0.9); `position.md` §1 (Position KHÔNG có event stream riêng) |
+| `app.js` `.lineage-group-recorded` block (v1.4, MỚI, đóng `P2-BCC-MAJ-01`) — `.authority-label-authoritative` "Authority class: authoritative recorded fact" + `.lineage-list` (Decision→Trade Intent→RiskEvaluation→Execution Intent→Order→ExecutionResult→Fill, bảy dòng) | SCR-002 "Information displayed" — authoritative recorded fact lineage, `recorded_time ≤ C` (no-look-ahead) | UC-004 | PR-008, PR-018, PR-020 | `ux-blueprint.md` §7.2 SCR-002 "Information displayed" (Consolidated Stable, v0.9); domain vocabulary decision.md/trade-intent.md/risk.md/execution-intent.md/order.md/execution-result.md/fill.md (referenced, not redefined) |
+| `app.js` `.lineage-group-position` block (v1.4, MỚI, đóng `P2-BCC-MAJ-01`) — `.authority-label-recomputation` "Authority class: derived deterministic non-authoritative projection" + `.lineage-list` (Position, một dòng) | SCR-002 "Information displayed" — Position: derived, deterministic, non-authoritative projection, reconstruct TẠI CÙNG Replay Cursor C từ eligible Fill lineage, KHÔNG PHẢI fact riêng, KHÔNG recorded_time riêng | UC-004 | PR-008, PR-018, PR-020 | `ux-blueprint.md` §7.2 SCR-002 "Information displayed"/"Authority labels" (Consolidated Stable, v0.9); `position.md` §1/§2 (fold algorithm); `fill.md` §6 (`eligible_as_position_contributing_fill`) — referenced, not redefined |
+| `app.js` `MOCK_REPLAY_STATE` object shape (v1.4, comment corrected, đóng `P2-BCC-MAJ-01` — comment nay phân biệt "authoritative recorded-fact lineage" (Decision..Fill) khỏi "derived, deterministic, non-authoritative projection" (Position); object shape/field KHÔNG đổi, `position` key giữ nguyên như một display value, KHÔNG diễn giải LÀ Domain authority) | Mock fixture, prototype-local only | UC-004 | PR-008, PR-018, PR-020 | N/A — prototype-local illustrative data, KHÔNG Domain Contract |
 | `app.js` `#btn-to-view-003` ("Invoke optional parity recomputation") | SCR-002 "Exit points" (VIEW-003, tuỳ chọn); VIEW-003 "Entry points" (nút hành động tuỳ chọn tại SCR-002, KHÔNG mặc định) | UC-004, UC-005 | PR-008, PR-018, PR-020, PR-010, PR-019 | `ux-blueprint.md` §7.2 SCR-002 "Exit points" + VIEW-003 "Entry points" |
 | `index.html` `#screen-view-003` / `app.js` `renderView003()` | VIEW-003 | UC-005 | PR-010, PR-019 | `ux-blueprint.md` §7.2 "VIEW-003 — Parity Recomputation Result" |
 | `app.js` `MOCK_REPRESENTATION` / `REPRESENTATION_FIELD_ORDER` / `representationPanel()` | Canonical Decision Semantic Representation | UC-005 | PR-010, PR-019 | `decision.md` §9a.1 (field set + exclusions verbatim; excluded fields e.g. `decision_id`/envelope/`causation_refs`/`account_id`/`plugin_version_ref` deliberately NOT rendered as comparison fields, per §9a.1's exclusion list) |
