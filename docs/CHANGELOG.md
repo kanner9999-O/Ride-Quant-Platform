@@ -2,6 +2,170 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 04 authored: Paper initiation + execution evidence/detail (NAV-004 + SCR-006/007)
+
+**Authored — vai trò: `Phase 2 Prototype Batch 04 Author`.** One coherent PAPER milestone (P2-PROTOTYPE-001), not split into separate governance cycles. Static HTML/CSS/vanilla-JS prototype, mock/static/deterministic data only — no framework, no backend, no build step, no Risk/execution/simulation engine implemented. Batch 01/02/03 untouched.
+
+### Baseline
+
+```text
+Starting HEAD:          4c085fd61cd8d4ff8bc909cbd969a63afc5fed29
+Phase:                   Phase 2 — Product Prototype
+Phase 2 DoD:             docs/phase-dod/phase-2-dod.md v0.3, Approved, post-acceptance blob
+                         de399900a93c7ec7ee64577093513de1643ebb33
+Batch 01/02/03:          CANDIDATE, review COMPLETE, verdict READY_FOR_NEXT_PHASE2_BATCH each
+                         (per the 2026-08-14 bookkeeping reconciliation), verified untouched
+                         (git diff --quiet).
+Independently verified cumulative before this transaction: 8/17 surfaces, 10/21 UC.
+```
+
+### Authority inspected (direct, at starting HEAD — G-VERIFY-001)
+
+```text
+docs/product/product-requirement.md, docs/product/use-case-workflow.md (UC-011–UC-015 detailed
+  block), docs/product/ux-blueprint.md (§5a NAV-004, §7.4 SCR-006/SCR-007, §11
+  STATE-002/003/011/013/014/015/016/017/018/019/020/021/028/029), docs/phase-dod/phase-2-dod.md,
+  docs/governance/phases/phase-2-rules.md, docs/constitution/02-platform-invariants.md,
+  docs/domain/decision.md, docs/domain/trade-intent.md, docs/domain/risk.md (§1 RiskEvaluation
+  result/reason_code enums), docs/domain/execution-intent.md, docs/domain/order.md (Order/
+  OrderSubmissionRequest, environment=PAPER enum), docs/domain/execution-result.md (§1
+  PaperExecutionObservation four-axis simulation evidence, §8 ExecutionResult), docs/domain/
+  fill.md (§1 Fill economics, copied exactly from Observation), docs/domain/position.md (§1/§2
+  read_model projection, EVALUABLE/NON_EVALUABLE, contributing_fill_refs), docs/domain/
+  strategy.md, docs/MANIFEST.md.
+```
+
+### Scope — one coherent PAPER milestone
+
+```text
+NAV-004 (Paper) + SCR-006 (Paper Execution Initiation) + SCR-007 (Paper Order/Execution Detail,
+  four panels: ExecutionResult, Fill evidence, Position, no-real-exchange). Nav bar's Research/
+  Replay/Backtest items are real links to ../batch-01/, ../batch-02/, ../batch-03/ (not
+  re-authored). Review/Improve remain deferred placeholders. SCR-008/SCR-009/VIEW-004/SCR-010/
+  VIEW-006/SCR-011/VIEW-005 explicitly NOT authored substantively — SCR-007's own "Exit points"
+  (SCR-008, Review) represented as a deferred handoff only.
+```
+
+### Five non-negotiable PAPER invariants — implementation summary
+
+```text
+INV-1 (PAPER Decision distinct): MOCK_PAPER_DECISION is a standalone fixture, unrelated in code
+  to Batch 03's Backtest decision fixtures (separate file, separate module scope). No
+  Execute-in-Paper/Promote/Convert/Clone action exists anywhere in the UI; the Decision's
+  creation mechanism is deliberately left undefined (use-case-workflow.md UC-011: "deferred
+  domain/workflow dependency").
+INV-2 (user supplies intent only): zero order-payload input fields exist — verified directly,
+  grep clean for <input> across index.html/app.js. The "Initiate PAPER execution" button carries
+  no quantity/order-type/sizing/fee/slippage parameters.
+INV-3 (upstream vs downstream): SCR-006 renders upstream Decision evidence
+  (`.evidence-group-upstream`, outcome/Strategy Instance/Definition Version/recorded input
+  snapshot) BEFORE the initiate button; the downstream chain only appears in
+  `renderInitiationResult()`, AFTER the button is clicked — structurally and visually distinct
+  blocks, RiskEvaluation never in the upstream group.
+INV-4 (exact branch truncation): `buildExecutionChain()` returns immediately after setting
+  `riskEvaluation` for REJECTED/NON_EVALUABLE (executionIntent/order/submissionRequest/
+  executionResult/fill all remain null), and immediately after setting `executionResult` for
+  NOT_EXECUTED (fill remains null). EXECUTED is the only branch that assigns exactly one `fill`.
+INV-5 (identity continuity + Position semantics): SCR-006 and SCR-007 are two views over the SAME
+  page/module scope — MOCK_STRATEGY_CONTEXT/MOCK_ACCOUNT_CONTEXT/MOCK_PAPER_DECISION/
+  state.execution are single shared objects, no re-fetch/re-derive between screens. Position is
+  never labelled an authoritative fact (hint text cites position.md §1 explicitly); NON_EVALUABLE
+  is a dedicated, explicit branch with contributing_fill_refs always present — never guessed,
+  collapsed to FLAT, or arbitrarily aggregated.
+```
+
+### SCR-007 STATE-002 design note
+
+```text
+STATE-002 (empty) is gated on `!state.execution.order`, not merely `!state.execution` — this
+  covers BOTH "nothing initiated yet" AND "initiated, but RiskEvaluation REJECTED/NON_EVALUABLE
+  truncated the chain before Order was ever created," since ux-blueprint.md's own STATE-002 row
+  for SCR-007 is defined as "chưa Order/Fill nào tồn tại" (no Order/Fill exists yet) — true in
+  both cases. The RiskEvaluation outcome itself remains fully visible on SCR-006's own
+  initiation-result panel regardless.
+```
+
+### Created files
+
+```text
+prototype/phase-2/batch-04/index.html          blob 2a9ccffef9b5728801fc09c8d1267f1e10584d46
+prototype/phase-2/batch-04/styles.css           blob 0539d04fda7161798261c5418a0c804ff47e5015
+prototype/phase-2/batch-04/app.js               blob 935d2ca00e9cbcdbb54674b876c264e2d57c5c15
+prototype/phase-2/batch-04/traceability.md      v1.0, blob 56902559106ca24184afe98919f58ad40b781af7
+prototype/phase-2/batch-04/batch-manifest.md    v1.0
+prototype/phase-2/batch-04/README.md            blob 0300f8943fbf907cd1d84b58f02e24dcb4055898
+docs/MANIFEST.md                                Batch 04 row added, compact current-state format
+                                                 (P2-BUDGET-001 discipline)
+```
+
+### UC accounting — A/B/C partition (recomputed, mechanically verified)
+
+```text
+Before Batch 04 (Batch 01+02+03, already verified): A={001..010} (10); B={011,015,016,017,018,
+  019,020,021} (8); C={012,013,014} (3).
+Batch 04 promotes UC-011 and UC-015 (B→A, SCR-006 / SCR-007 no-real-exchange tab) and UC-012/
+  013/014 (C→A, SCR-007's remaining three panels) — each promotion backed by full substantive
+  representation, not a relabeling.
+After Batch 04: A={001..015} (15); B={016,017,018,019,020,021} (6); C=∅ (0).
+Partition validation: |A|=15, |B|=6, |C|=0, sum=21. Pairwise disjoint (verified, C trivially
+  disjoint from both being empty). Union = {UC-001..UC-021}, each exactly once.
+```
+
+### Progress — candidate vs. last independently verified (NOT conflated)
+
+```text
+Candidate Batch-04 surface contribution:      +2 (SCR-006, SCR-007).
+Candidate cumulative surfaces:                 10/17 — NOT independently verified.
+Candidate Batch-04 UC contribution:            +5 (UC-011, UC-012, UC-013, UC-014, UC-015).
+Candidate cumulative UC:                       15/21 — NOT independently verified.
+Last independently verified cumulative:        8/17 surfaces, 10/21 UC (Batch 01+02+03,
+                                                unchanged by this transaction).
+```
+
+### I-11 / I-12 / Trigger boundary
+
+```text
+I-11 Access-control audit: PASS (no credential-use capability/input surface/signing-custody-
+  backend integration/real secret; supporting grep scan clean, one match = disclaiming comment
+  only; zero <input> elements anywhere).
+I-12 traceability: PASS — full element-level map at traceability.md §3, SCR-006 traced across
+  ten distinct aspects and SCR-007 across eight distinct aspects (not one broad row per UC).
+  Zero new UC/PR/domain concept originated.
+Trigger B/C/D/E: PRESERVED — no authoritative executable implementation, no registered runtime
+  module/tier, no real backend (grep clean for fetch/XHR/WebSocket/axios/.ajax), no production
+  deployment, no published API/database/event contract, no new Domain Contract, no migration,
+  no PaperSession entity, no order-sizing/fee/slippage/execution-model algorithm, no PAPER-context
+  Decision creation mechanism defined (deferred, disclosed).
+```
+
+### Explicit non-claims
+
+```text
+Does NOT claim 10/17 or 15/21 independently verified — candidate only, pending Review A +
+  Independent Review B. Does NOT run full Phase-2 Quality Gate or full-scope Gate-3 BCC. Does
+  NOT open Gate 3, approve Phase 2, perform P2-RETRO-001, or authorize Phase 3/LIVE. Does NOT
+  author SCR-008/009/010/011/VIEW-004/005/006 substantively, does NOT implement a Risk/
+  execution/simulation engine, does NOT define order-sizing/fee/slippage/execution-model UI or
+  algorithms, does NOT create a PaperSession entity or new Domain Contract/API/event/db schema,
+  does NOT define the PAPER-context Decision creation mechanism, does NOT clone/promote the
+  Batch 03 Backtest Decision. Batch 01/02/03 lifecycle unchanged (CANDIDATE), content unchanged
+  (verified git diff --quiet). LIVE remains NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+node --check app.js:                    OK.
+Secret-pattern grep:                    clean (one match = disclaiming comment, same convention
+                                         as Batch 01/02/03).
+Network-call grep (fetch/XHR/WebSocket/
+  axios/.ajax):                          clean (one match = descriptive label text, not code).
+<input> element grep:                    clean (zero matches — INV-2 verified).
+git diff --quiet -- batch-01/, batch-02/, batch-03/: clean (all three untouched).
+Forbidden-authority paths (docs/product/, docs/domain/, docs/constitution/, docs/phase-dod/,
+  docs/governance/phases/phase-2-rules.md, docs/architecture/, docs/adr/): untouched.
+```
+
 ## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 01/02/03 review-state bookkeeping reconciliation (deterministic, G-TXN-003)
 
 **Bookkeeping reconciliation — vai trò: `Phase 2 Prototype Review-State Bookkeeping Reconciliation Executor`.** NOT a lifecycle transition, NOT a prototype semantic correction. Reconciles stale review-state/current-progress evidence in Batch 01/02/03's `batch-manifest.md` (and, where a current-state claim materially contradicted the given governed history, `traceability.md`) against the completed Review A / Independent Review B history for each batch, which had not previously been recorded into these files' own current-state sections.

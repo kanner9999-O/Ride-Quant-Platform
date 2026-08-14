@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ride — Phase 2 Prototype — Batch 04 (Paper initiation + execution evidence/detail)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- WS-001 Ride Workspace Shell (bounded subset, same convention as Batch 01/02/03). Separate,
+     self-contained page — does NOT share live JS state with Batch 01/02/03. "Paper-pinned
+     Strategy Instance" is represented as Batch-04-local simulated state (QA panel + bounded
+     local pin fixture), NOT by re-implementing VIEW-001. -->
+<header class="shell" id="shell">
+  <div class="shell-row shell-context-bar" id="context-bar">
+    <div class="context-item">
+      <span class="context-label">Account</span>
+      <span class="context-value" id="ctx-account">Ride Internal Account</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Instrument / Venue</span>
+      <span class="context-value" id="ctx-instrument">BTC/USDT — Binance</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Strategy Instance</span>
+      <span class="context-value" id="ctx-strategy-instance">— see below —</span>
+    </div>
+    <div class="context-item context-item-live">
+      <span class="context-label">Live</span>
+      <span class="context-value badge badge-unauthorized" id="ctx-live">Unauthorized</span>
+    </div>
+  </div>
+  <nav class="shell-row shell-nav" id="nav-bar" aria-label="Lifecycle stage navigation">
+    <a class="nav-btn" href="../batch-01/index.html" data-nav="NAV-001">Research</a>
+    <a class="nav-btn" href="../batch-02/index.html" data-nav="NAV-002">Replay</a>
+    <a class="nav-btn" href="../batch-03/index.html" data-nav="NAV-003">Backtest</a>
+    <button class="nav-btn nav-btn-active" data-nav="NAV-004" data-target="screen-paper">Paper</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-005" data-target="screen-deferred" data-stage="Review">Review</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-006" data-target="screen-deferred" data-stage="Improve">Improve</button>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- NAV-004 destination: SCR-006 (Paper Execution Initiation) + SCR-007 (Paper Order/Execution
+       Detail). Navigation itself is always available (UX-P-5) — the sub-tabs below switch
+       between the two screens independent of initiation eligibility. -->
+  <section class="screen" id="screen-paper" data-screen="NAV-004">
+    <h1>Paper <span class="stage-label">Paper</span></h1>
+    <p class="purpose">Initiate a PAPER execution against an existing, distinct PAPER-context
+      Decision, then inspect the resulting ExecutionResult/Fill/Position evidence — non-Live,
+      environment PAPER throughout.</p>
+
+    <div class="subtab-row" id="paper-subtabs">
+      <button class="subtab-btn" data-subtab="scr-006">Initiation (SCR-006)</button>
+      <button class="subtab-btn" data-subtab="scr-007">Order Detail (SCR-007)</button>
+    </div>
+
+    <!-- SCR-006 Paper Execution Initiation. Traceability: traceability.md#scr-006 -->
+    <div id="scr-006-body">
+      <!-- populated by app.js -->
+    </div>
+
+    <!-- SCR-007 Paper Order/Execution Detail. Traceability: traceability.md#scr-007 -->
+    <div id="scr-007-body" class="screen-hidden">
+      <!-- populated by app.js -->
+    </div>
+  </section>
+
+  <!-- Placeholder for stages not included in Batch 04. -->
+  <section class="screen screen-hidden" id="screen-deferred" data-screen="DEFERRED">
+    <h1><span id="deferred-stage-name">This stage</span> <span class="stage-label">Deferred</span></h1>
+    <p class="purpose">Read-only navigation to this destination is preserved (UX-P-5), but its
+      substantive screen/view content is not authored in Batch 04 — it is deferred to a later
+      Phase 2 batch. No behavior is invented here.</p>
+    <button class="btn" data-nav="NAV-004" data-target="screen-paper">Back to Paper</button>
+  </section>
+
+</main>
+
+<!-- Prototype QA panel — NOT part of the authoritative UX itself. Simulates precondition/risk/
+     execution/position scenarios without a real event log/Risk/execution engine. -->
+<footer class="qa-panel" id="qa-panel">
+  <button id="qa-toggle" class="qa-toggle" aria-expanded="false">Batch 04 QA state switcher (prototype tooling — not authoritative UX)</button>
+  <div class="qa-body qa-hidden" id="qa-body">
+    <div class="qa-group">
+      <span class="qa-group-label">Account/Instrument/Venue (STATE-003)</span>
+      <button class="qa-btn" data-qa="acct-valid">Valid (default)</button>
+      <button class="qa-btn" data-qa="acct-invalid">STATE-003 invalid</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">Paper Strategy Instance pin (STATE-028/029)</span>
+      <button class="qa-btn" data-qa="pin-none">STATE-028 not selected</button>
+      <button class="qa-btn" data-qa="pin-selected">STATE-029 selected, not pinned</button>
+      <button class="qa-btn" data-qa="pin-pinned">Pinned (default)</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">PAPER-context Decision (STATE-011)</span>
+      <button class="qa-btn" data-qa="decision-available">Eligible (default)</button>
+      <button class="qa-btn" data-qa="decision-unavailable">STATE-011 unavailable</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">Next initiation — Risk outcome</span>
+      <button class="qa-btn" data-qa="risk-approved">APPROVED (default)</button>
+      <button class="qa-btn" data-qa="risk-rejected">STATE-013 REJECTED</button>
+      <button class="qa-btn" data-qa="risk-non-evaluable">STATE-014 NON_EVALUABLE</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">Next initiation — Execution outcome (if APPROVED)</span>
+      <button class="qa-btn" data-qa="exec-executed">EXECUTED (default)</button>
+      <button class="qa-btn" data-qa="exec-not-executed">NOT_EXECUTED</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">Position tab demo</span>
+      <button class="qa-btn" data-qa="position-natural">Natural, from Fill (default)</button>
+      <button class="qa-btn" data-qa="position-non-evaluable">STATE-021 NON_EVALUABLE (illustrative multi-Fill demo)</button>
+    </div>
+    <div class="qa-group">
+      <button class="qa-btn qa-btn-reset" id="qa-reset">Reset demo state</button>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
