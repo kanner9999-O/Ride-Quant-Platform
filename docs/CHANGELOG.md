@@ -2,6 +2,154 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — P2-BCC-MAJ-01 Product/Workflow/UX authority correction: Product Owner CONSOLIDATED PR-018 / UC-004 / SCR-002 as Consolidated Stable
+
+**Deterministic lifecycle transaction — vai trò: `P2-BCC-MAJ-01 Product/Workflow/UX Authority
+Consolidation Recorder`.** Records the Product Owner's explicit consolidation decision on the
+P2-BCC-MAJ-01 authority-correction candidate. Mechanical lifecycle/bookkeeping only — no semantic
+mutation to the reviewed content, no Batch-02 prototype correction in this transaction.
+
+### Baseline
+
+```text
+Starting HEAD:    9da06d0be148d3d92f1d11c17e90adb2831a5bc0
+```
+
+### Product Owner decision
+
+```text
+Verbatim:          "APPROVE CONSOLIDATION — P2-BCC-MAJ-01 PRODUCT/WORKFLOW/UX AUTHORITY
+                    CORRECTION. REVALIDATE PR-018 / UC-004 / SCR-002 AS CONSOLIDATED STABLE AT THE
+                    REVIEWED IDENTITIES."
+Decision authority: Product Owner.
+Decision timestamp: 2026-08-14T15:38:00+07:00.
+```
+
+### Reviewed candidate identities (verified byte-identical to starting HEAD before any edit)
+
+```text
+docs/product/product-requirement.md   v0.5, Draft, P2-BCC-MAJ-01 correction CANDIDATE — reviewed
+  blob 379b431dd5c89a6e4446e63596ab9d687484b18d (verified via git hash-object before editing).
+  Consolidated semantic locus: PR-018. PR-019 regression-preserved, NOT newly re-decided.
+docs/product/use-case-workflow.md     v0.11, Draft, P2-BCC-MAJ-01 correction CANDIDATE — reviewed
+  blob ed67a021c72acc8ada10989cad2c520dc70e56f3 (verified via git hash-object before editing).
+  Consolidated semantic locus: UC-004.
+docs/product/ux-blueprint.md          v0.9, Draft, P2-BCC-MAJ-01 correction CANDIDATE — reviewed
+  blob 8a51ad1711110e625523b868adcc6a39557d490b (verified via git hash-object before editing).
+  Consolidated semantic locus: SCR-002. VIEW-003 remains governed by its own prior
+  Consolidated-Stable decision (2026-08-06) — not reopened.
+```
+
+### Governed review evidence (given, per this transaction's own instructions)
+
+```text
+Authority correction Review A chain: P2-BCC-MAJ01-A-MAJ-01 CLOSED; P2-BCC-MAJ01-A2-MAJ-01 CLOSED.
+Final bounded Review A: CLEAN, READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B (boundary 9da06d0...): new Blocker/Major/Minor = 0/0/0. PR-018 ALIGNED.
+  PR-019 regression CLEAN. UC-004 ALIGNED. SCR-002 ALIGNED. Position Domain consistency
+  NO_CONFLICT. Replay Domain consistency NO_CONFLICT. I-12 PASS. ADR NOT_REQUIRED.
+Verdict: AUTHORITY_CORRECTION_READY_FOR_PRODUCT_OWNER_CONSOLIDATION.
+```
+
+### Lifecycle recording
+
+```text
+Authority-correction lifecycle: candidate -> CONSOLIDATED STABLE, at the reviewed semantic
+  identities above (PR-018 / UC-004 / SCR-002 specifically — not a whole-document consolidation).
+A minimal, mechanical Consolidated-Stable lifecycle banner was appended to each of the three
+  documents, following the exact same convention already established by the existing "VIEW-003
+  Replay Parity Semantic Clarification — Consolidated Stable" banners on these same three
+  documents (2026-08-06): quoted Product Owner decision verbatim + timestamp, reviewed
+  boundary/candidate blob, Review A/Independent Review B evidence summary, explicit
+  "lifecycle: candidate -> Consolidated Stable" statement scoped to the correction's own locus,
+  explicit "byte-identical, no semantic content changed" statement, and explicit "status: Draft,
+  approved_by: null, approved_at: null KHÔNG đổi" statement (Consolidated Stable is a
+  package/correction-delta lifecycle state, distinct from document Approved/Locked status — same
+  lifecycle-axis discipline already used throughout these Product artifacts).
+Document versions UNCHANGED by this transaction: product-requirement.md stays v0.5,
+  use-case-workflow.md stays v0.11, ux-blueprint.md stays v0.9 (banners appended, no version bump
+  — same pattern as the existing VIEW-003 banners, each of which also left its document's version
+  unchanged).
+Frontmatter UNCHANGED on all three: status: Draft, approved_by: null, approved_at: null — no false
+  Approved/Locked promotion, no approved_by/approved_at populated merely because a
+  Consolidated-Stable lifecycle decision occurred.
+```
+
+### Files changed
+
+```text
+docs/product/product-requirement.md   banner-only insertion. PR-018 semantic block confirmed
+  byte-identical before/after (git diff shows zero deletion lines, single insertion hunk before
+  "## 1."). Blob: 379b431dd5c89a6e4446e63596ab9d687484b18d (reviewed candidate) ->
+  dbcd5cc811286ad1b8340a2303373f259dcefbc8 (post-lifecycle-banner).
+docs/product/use-case-workflow.md     banner-only insertion. UC-004 semantic block confirmed
+  byte-identical before/after (same zero-deletion verification). Blob:
+  ed67a021c72acc8ada10989cad2c520dc70e56f3 (reviewed candidate) ->
+  577666a701a219611a7ef1b25a1c1d260b870ea9 (post-lifecycle-banner).
+docs/product/ux-blueprint.md          banner-only insertion. SCR-002 semantic block confirmed
+  byte-identical before/after (same zero-deletion verification). Blob:
+  8a51ad1711110e625523b868adcc6a39557d490b (reviewed candidate) ->
+  877156ccd02d30ef3ce3ed0c3a336340ad69d64b (post-lifecycle-banner).
+docs/MANIFEST.md   manifest_version 10.155 -> 10.156. "Phase 2 — Full-Scope Backward Consistency
+  Check (P2-BCC-MAJ-01)" section updated: new "Independent Review B" + "Product Owner
+  consolidation decision" entries recording the verbatim decision/timestamp/evidence; "Affected
+  authority artifacts" rewritten to pin BOTH the reviewed-candidate blob AND the resulting
+  post-lifecycle-banner blob per document (G-ID-001 discipline — never conflating the two); new
+  "Current next step" line recording bounded Batch-02 prototype correction as the next governed
+  action. P2-BCC-MAJ-01 (Phase-wide finding) still explicitly recorded OPEN. No historical batch
+  rows rewritten.
+```
+
+### No scope expansion / no semantic mutation / no prototype change
+
+```text
+Semantic-content check performed for all three loci: PR-018 (product-requirement.md), UC-004
+  (use-case-workflow.md), SCR-002 (ux-blueprint.md) — each confirmed byte-semantic identical to
+  the content reviewed at boundary 9da06d0be148d3d92f1d11c17e90adb2831a5bc0 (only lifecycle/history
+  bookkeeping banners were added around them, never inside their own blocks). PR-019 unchanged,
+  not newly re-decided. VIEW-003 unchanged, not reopened. docs/domain/, docs/architecture/,
+  docs/constitution/, docs/adr/, docs/phase-dod/, docs/governance/phases/phase-2-rules.md:
+  UNCHANGED. prototype/: UNCHANGED (only pre-existing untracked .DS_Store noise). No new PR/UC/
+  SCR/VIEW/STATE ID introduced. No ADR created (ADR_NOT_REQUIRED, unchanged from prior
+  determination). No Quality Gate run. No Gate 3 opened. No Phase-2/Phase-3/LIVE authorization.
+```
+
+### Result
+
+```text
+Authority-correction lifecycle (PR-018/UC-004/SCR-002): CONSOLIDATED STABLE.
+P2-BCC-MAJ-01 (Phase-wide Full-Scope BCC finding): remains OPEN. Reason: prototype/phase-2/
+  batch-02/ still contains the stale universal "Authority class: Recorded fact (default
+  reconstruction)" label over the lineage including Position. Closure still requires (1) bounded
+  Batch-02 prototype correction, (2) governed affected-scope prototype re-review, (3) full-scope
+  Phase-2 BCC rerun returning NO_CONFLICT.
+Full-scope BCC: remains REVISION_REQUIRED. Clean full-scope support: remains 16/17 surfaces, 20/21
+  substantive UC (withheld: SCR-002, UC-004) — NOT restored to 17/17+21/21 merely because the
+  authority correction is now consolidated; that restoration only happens after prototype
+  correction/re-review and a clean full-scope BCC rerun.
+Historical per-batch independently reviewed accounting UNCHANGED: 17/17 surfaces, 21/21
+  substantive UC at the per-batch prototype-review level (Batch 01-06) — a distinct axis from
+  full-scope BCC clean-support, not conflated.
+Phase 2: ACTIVE/AUTHORIZED (current_phase unchanged). Quality Gate: NOT RUN. Gate-3 eligibility:
+  NOT ESTABLISHED. Gate 3: NOT OPENED. Product Owner Phase-2 decision: NOT ISSUED. P2-RETRO-001:
+  NOT PERFORMED. Phase 3: NOT AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+Pre-edit blob verification: git hash-object on all three files at starting HEAD matched the three
+  "reviewed candidate blob" values given in the task exactly, before any edit was made (G-VERIFY-001).
+Post-edit diff-scope check: git diff on all three files shows exactly one insertion hunk each
+  (the new lifecycle banner, placed after the last existing banner and before "## 1."), zero
+  deletion lines (confirmed via grep "^-" excluding the file-header line) — proves PR-018/UC-004/
+  SCR-002 (and PR-019/VIEW-003) remain byte-identical.
+Scope-boundary check: git status --porcelain=v1 -uall on docs/domain, docs/architecture,
+  docs/constitution, docs/adr, docs/phase-dod — all clean; git diff --quiet on
+  docs/governance/phases/phase-2-rules.md — unchanged. Prototype byte-identity: git status
+  --porcelain=v1 -uall on prototype/ — no tracked file changed.
+```
+
 ## [Unreleased] — 2026-08-14 — P2-BCC-MAJ01-A2-MAJ-01 bounded correction (UC-004 Observable outcome stale "state đã ghi nhận" wording)
 
 **Bounded semantic correction — vai trò: `P2-BCC-MAJ-01 Authority Candidate A2 Bounded Correction

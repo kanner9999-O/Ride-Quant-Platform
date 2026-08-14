@@ -59,6 +59,35 @@ No PR may be orphaned or supported only by non-authoritative material.
 ```
 Một requirement CÓ THỂ đồng thời truy vết Vision, Platform Invariant, VÀ Domain Contract — không bị ép resolve về đúng một nguồn duy nhất; điều kiện bắt buộc DUY NHẤT là mọi nguồn được trích dẫn phải material (đóng góp thực chất), và không PR nào được phép mồ côi nguồn hoặc chỉ dựa vào tài liệu non-authoritative.
 
+**P2-BCC-MAJ-01 Product/Workflow/UX Authority Correction — Consolidated Stable (lifecycle,
+Product Owner decision, verbatim: "APPROVE CONSOLIDATION — P2-BCC-MAJ-01 PRODUCT/WORKFLOW/UX
+AUTHORITY CORRECTION. REVALIDATE PR-018 / UC-004 / SCR-002 AS CONSOLIDATED STABLE AT THE
+REVIEWED IDENTITIES."; timestamp 2026-08-14T15:38:00+07:00) — mechanical lifecycle transaction,
+`version: "0.5"` UNCHANGED.** Reviewed boundary: HEAD `9da06d0be148d3d92f1d11c17e90adb2831a5bc0`;
+reviewed candidate blob (đúng file này tại boundary đó) `379b431dd5c89a6e4446e63596ab9d687484b18d`.
+Review evidence: final bounded Review A trên authority-correction candidate — hai finding
+`P2-BCC-MAJ01-A-MAJ-01`/`P2-BCC-MAJ01-A2-MAJ-01` CLOSED, CLEAN, `READY_FOR_INDEPENDENT_REVIEW_B`
+→ Independent Review B: new Blocker/Major/Minor = 0/0/0; `PR-018` ALIGNED; `PR-019` regression
+CLEAN; `UC-004` ALIGNED; `SCR-002` ALIGNED; Position Domain consistency `NO_CONFLICT`; Replay
+Domain consistency `NO_CONFLICT`; I-12 PASS; ADR `NOT_REQUIRED`; verdict
+`AUTHORITY_CORRECTION_READY_FOR_PRODUCT_OWNER_CONSOLIDATION` → Product Owner consolidation
+decision (trên). `lifecycle: candidate → Consolidated Stable` cho ĐÚNG `PR-018` (consolidated
+semantic locus của correction này) — KHÔNG semantic content nào đổi tại giao dịch này: `PR-018`
+Statement/Rationale/Source/Acceptance evidence giữ nguyên byte-identical so với reviewed candidate
+blob trên; `PR-019` KHÔNG chạm, KHÔNG newly re-decided bởi transaction này (regression-preserved
+only, xem PR-019's own Consolidated Stable status từ VIEW-003 banner phía trên, KHÔNG re-open bởi
+transaction này). Package 0.3-A `Consolidated Stable` gốc (v0.2) VÀ VIEW-003 Consolidated Stable
+decision (2026-08-06, PR-010/PR-019 scope) VẪN nguyên vẹn, KHÔNG re-open. `status: Draft`,
+`approved_by: null`, `approved_at: null` KHÔNG đổi — Consolidated Stable LÀ package/correction-delta
+lifecycle state, KHÔNG PHẢI document Approved/Locked state (cùng nguyên tắc đã dùng cho VIEW-003
+banner trên). **P2-BCC-MAJ-01 (Phase-wide Full-Scope BCC finding) VẪN OPEN** — consolidation này
+CHỈ đóng authority-correction candidate's own governed review, KHÔNG đóng finding Phase-wide (đóng
+finding đó còn cần bounded Batch-02 prototype correction + affected prototype re-review +
+full-scope BCC rerun trả `NO_CONFLICT`). Clean full-scope BCC support VẪN 16/17 surfaces, 20/21
+substantive UC — KHÔNG restore về 17/17+21/21 chỉ vì authority correction consolidated. KHÔNG
+owner/module/package/dependency edge/API path/ADR/implementation authority nào được chọn tại
+transaction này.
+
 ## 1. Document purpose and authority boundary
 
 Tài liệu này trả lời: **"Ride phải làm được gì cho người dùng nội bộ, trong ranh giới Phase 0-3 đã chốt (ADR-007), để hiện thực hóa Vision?"** — ở mức **product behavior**, KHÔNG ở mức implementation. Nó là input bắt buộc cho Package 0.3-B (`use-case-workflow.md`) và Package 0.3-C (`ux-blueprint.md`) — cả hai PHẢI truy vết ngược về đúng một `PR-XXX` ID tại đây, KHÔNG được tự phát minh requirement mới ở tầng workflow/UX.

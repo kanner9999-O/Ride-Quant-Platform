@@ -81,6 +81,35 @@ review** — `P2-BCC-MAJ01-A-MAJ-01` CLOSED bởi candidate correction này, NH�
 Review B CLEAN + Product Owner consolidation/revalidation + prototype Batch 02 correction +
 affected prototype re-review + full-scope BCC rerun.
 
+**P2-BCC-MAJ-01 Product/Workflow/UX Authority Correction — Consolidated Stable (lifecycle,
+Product Owner decision, verbatim: "APPROVE CONSOLIDATION — P2-BCC-MAJ-01 PRODUCT/WORKFLOW/UX
+AUTHORITY CORRECTION. REVALIDATE PR-018 / UC-004 / SCR-002 AS CONSOLIDATED STABLE AT THE
+REVIEWED IDENTITIES."; timestamp 2026-08-14T15:38:00+07:00) — mechanical lifecycle transaction,
+`version: "0.9"` UNCHANGED.** Reviewed boundary: HEAD `9da06d0be148d3d92f1d11c17e90adb2831a5bc0`;
+reviewed candidate blob (đúng file này tại boundary đó) `8a51ad1711110e625523b868adcc6a39557d490b`.
+Review evidence: final bounded Review A trên authority-correction candidate — hai finding
+`P2-BCC-MAJ01-A-MAJ-01`/`P2-BCC-MAJ01-A2-MAJ-01` CLOSED, CLEAN, `READY_FOR_INDEPENDENT_REVIEW_B`
+→ Independent Review B: new Blocker/Major/Minor = 0/0/0; `PR-018` ALIGNED; `PR-019` regression
+CLEAN; `UC-004` ALIGNED; `SCR-002` ALIGNED; Position Domain consistency `NO_CONFLICT`; Replay
+Domain consistency `NO_CONFLICT`; I-12 PASS; ADR `NOT_REQUIRED`; verdict
+`AUTHORITY_CORRECTION_READY_FOR_PRODUCT_OWNER_CONSOLIDATION` → Product Owner consolidation
+decision (trên). `lifecycle: candidate → Consolidated Stable` cho ĐÚNG `SCR-002` (consolidated
+semantic locus của correction này) — KHÔNG semantic content nào đổi tại giao dịch này: `SCR-002`
+Purpose/Information displayed/Available user actions/System-owned actions/Evidence consumed/
+Evidence produced/Authority labels/Primary states/Empty-unavailable-blocked states/UC-PR
+traceability/Domain vocabulary/Out-of-scope giữ nguyên byte-identical so với reviewed candidate
+blob trên. Mọi SCR/VIEW/NAV/STATE khác KHÔNG chạm, KHÔNG newly re-decided bởi transaction này —
+`VIEW-003`'s own Consolidated Stable status (2026-08-06 banner phía trên) KHÔNG re-open bởi
+transaction này. `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi —
+Consolidated Stable LÀ package/correction-delta lifecycle state, KHÔNG PHẢI document
+Approved/Locked state (cùng nguyên tắc đã dùng cho VIEW-003 banner trên). **P2-BCC-MAJ-01
+(Phase-wide Full-Scope BCC finding) VẪN OPEN** — consolidation này CHỈ đóng authority-correction
+candidate's own governed review, KHÔNG đóng finding Phase-wide (đóng finding đó còn cần bounded
+Batch-02 prototype correction + affected prototype re-review + full-scope BCC rerun trả
+`NO_CONFLICT`). Clean full-scope BCC support VẪN 16/17 surfaces, 20/21 substantive UC — KHÔNG
+restore về 17/17+21/21 chỉ vì authority correction consolidated. KHÔNG owner/module/package/
+dependency edge/API path/ADR/implementation authority nào được chọn tại transaction này.
+
 ## 1. Purpose and authority boundary
 
 Tài liệu này trả lời: **"Với 21 Use Case đã `Consolidated Stable` tại Package 0.3-B, người dùng nội bộ THỰC SỰ nhìn thấy gì, điều hướng ra sao, và tương tác qua screen/view/action cụ thể nào?"** — ở mức **UX representation** (đủ chi tiết cho Figma-level prototype VÀ Phase 1 architecture hiểu được), KHÔNG ở mức pixel/branding/component code/API/database/backend. Là điểm tiêu thụ CUỐI của Phase 0.3 — KHÔNG package nào phụ thuộc Package 0.3-C.

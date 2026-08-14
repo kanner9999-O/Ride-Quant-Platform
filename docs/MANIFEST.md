@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.155"
+manifest_version: "10.156"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -294,20 +294,46 @@ Review A round 2 on the
                               P2-BCC-MAJ01-A2-MAJ-01: CLOSED by this candidate correction.
                               P2-BCC-MAJ-01 (Phase-wide finding) remains OPEN — same closure
                               requirements as above.
+Independent Review B
+  (boundary 9da06d0...):        New Blocker/Major/Minor = 0/0/0. PR-018 ALIGNED. PR-019 regression
+                              CLEAN. UC-004 ALIGNED. SCR-002 ALIGNED. Position Domain consistency
+                              NO_CONFLICT. Replay Domain consistency NO_CONFLICT. I-12 PASS. ADR
+                              NOT_REQUIRED. Verdict:
+                              AUTHORITY_CORRECTION_READY_FOR_PRODUCT_OWNER_CONSOLIDATION.
+Product Owner consolidation
+  decision (2026-08-14T15:38
+  :00+07:00):                   Verbatim: "APPROVE CONSOLIDATION — P2-BCC-MAJ-01 PRODUCT/WORKFLOW/
+                              UX AUTHORITY CORRECTION. REVALIDATE PR-018 / UC-004 / SCR-002 AS
+                              CONSOLIDATED STABLE AT THE REVIEWED IDENTITIES." Authority-correction
+                              lifecycle: candidate → CONSOLIDATED STABLE, at the reviewed
+                              identities below (mechanical lifecycle banner added to each document,
+                              PR-018/UC-004/SCR-002 semantic blocks byte-identical before/after —
+                              verified via git diff, zero deletion lines in any of the three
+                              files). Document frontmatter UNCHANGED on all three: status: Draft,
+                              approved_by: null, approved_at: null — Consolidated Stable is a
+                              package/correction-delta lifecycle state, not document Approved/
+                              Locked (same discipline as the existing VIEW-003 banners).
 Affected authority artifacts
-  (candidate corrections):     docs/product/product-requirement.md v0.4 → v0.5 (PR-018 corrected;
-                              PR-019 unchanged, regression-verified byte-identical) — CANDIDATE,
-                              UNCHANGED since v0.5 (no further PR-018 defect found in either Review
-                              A round).
-                              docs/product/use-case-workflow.md v0.8 → v0.9 (P2-BCC-MAJ-01) → v0.10
-                              (P2-BCC-MAJ01-A-MAJ-01, UC-004 Goal) → v0.11 (P2-BCC-MAJ01-A2-MAJ-01,
-                              UC-004 Observable outcome, this correction) — CANDIDATE.
-                              docs/product/ux-blueprint.md v0.7 → v0.8 (P2-BCC-MAJ-01) → v0.9
-                              (P2-BCC-MAJ01-A-MAJ-01, SCR-002 Purpose) — CANDIDATE, UNCHANGED by
-                              this bounded correction.
-                              None self-consolidated; historical Consolidated-Stable lifecycle
-                              evidence on all three documents (incl. the VIEW-003/UC-005/decision.md
-                              §9a Consolidated Stable banners) preserved untouched.
+  (reviewed candidate → post-
+  lifecycle-banner blob):       docs/product/product-requirement.md v0.5 (PR-018 locus) —
+                              reviewed candidate blob 379b431dd5c89a6e4446e63596ab9d687484b18d →
+                              post-lifecycle-banner blob dbcd5cc811286ad1b8340a2303373f259dcefbc8
+                              (banner insertion only; PR-018 content byte-identical). PR-019
+                              unchanged, not newly re-decided.
+                              docs/product/use-case-workflow.md v0.11 (UC-004 locus) — reviewed
+                              candidate blob ed67a021c72acc8ada10989cad2c520dc70e56f3 →
+                              post-lifecycle-banner blob 577666a701a219611a7ef1b25a1c1d260b870ea9
+                              (banner insertion only; UC-004 content byte-identical).
+                              docs/product/ux-blueprint.md v0.9 (SCR-002 locus) — reviewed
+                              candidate blob 8a51ad1711110e625523b868adcc6a39557d490b →
+                              post-lifecycle-banner blob 877156ccd02d30ef3ce3ed0c3a336340ad69d64b
+                              (banner insertion only; SCR-002 content byte-identical). VIEW-003
+                              regression-verified untouched.
+                              None self-consolidated by the executor; Consolidated Stable recorded
+                              per explicit Product Owner decision only. Historical Consolidated-
+                              Stable lifecycle evidence on all three documents (incl. the
+                              VIEW-003/UC-005/decision.md §9a Consolidated Stable banners)
+                              preserved untouched, not reopened.
 Corrected model:                ReplayState(C) = authoritative recorded facts (Decision→Trade
                               Intent→RiskEvaluation→Execution Intent→Order→ExecutionResult→Fill,
                               visible at recorded_time ≤ C) PLUS Position, a derived/deterministic/
@@ -343,6 +369,10 @@ Governance state preserved:    Phase 2 ACTIVE/AUTHORIZED (current_phase unchange
                               ESTABLISHED. Gate 3 NOT OPENED. Product Owner Phase-2 decision NOT
                               ISSUED. P2-RETRO-001 NOT PERFORMED. Phase 3 NOT AUTHORIZED. LIVE NOT
                               AUTHORIZED.
+Current next step:              bounded Batch-02 prototype correction against the newly
+                              Consolidated Stable PR-018/UC-004/SCR-002 authority — followed by
+                              governed affected-scope prototype re-review, then full-scope Phase-2
+                              BCC rerun (target: NO_CONFLICT) before P2-BCC-MAJ-01 can close.
 Full history:                   docs/CHANGELOG.md.
 ```
 
