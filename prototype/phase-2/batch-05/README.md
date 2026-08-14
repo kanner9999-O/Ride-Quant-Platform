@@ -32,7 +32,11 @@ with any of them.
   ReplayState(C) reconstructed now next to the state recorded at that same cursor — structurally
   the same object, demonstrating no-drift by construction rather than by coincidence — then a
   separate correction-check panel that reaches either "No conflict" or "Correction visible after
-  historical cursor" (the historical panel above it is never altered either way).
+  historical cursor" (the historical panel above it is never altered either way). When a
+  correction exists, a further "Later-correction comparison" panel (v1.1) makes the old→new
+  difference explicit — original fact, invalidation record, later replacement, and an explicit
+  `NO_ACTION → LONG`-style comparison-result row labelled non-authoritative — so SCR-009 itself
+  satisfies UC-017 without requiring a trip to VIEW-004 to discover what changed.
 - **VIEW-004 — Correction Inspection**: the one bounded correction fixture in this batch (a
   Decision that was originally recorded `NO_ACTION`, later invalidated, and replaced by a
   corrected `LONG` Decision) is always shown as **both** the original fact (still resolvable,

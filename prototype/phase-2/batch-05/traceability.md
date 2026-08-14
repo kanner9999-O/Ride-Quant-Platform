@@ -1,13 +1,32 @@
 ---
 id: phase-2-batch-05-traceability
 title: "Phase 2 Prototype — Batch 05 — Traceability Artifact"
-version: "1.0"
+version: "1.1"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-14"
 ---
 
 # Phase 2 Prototype — Batch 05 — Traceability Artifact
+
+**v1.1 — bounded correction (2026-08-14), Review A trên v1.0: `P2-B05-A-MAJ-01` (Major) +
+`P2-B05-A-MIN-01` (Minor) — đóng CẢ HAI tại transaction này.** `P2-B05-A-MAJ-01`: SCR-009's
+correction-visible branch (`C-100`) chỉ disclose invalidation đã xảy ra (`invalidation_reason`/
+`invalidated_fact_ref`/recorded_time) — KHÔNG hiển thị later replacement value (`PD-101`/`LONG`)
+hay explicit old→new difference, khiến UC-017 KHÔNG thỏa mãn được nếu KHÔNG đi tiếp tới VIEW-004.
+Sửa: thêm một panel MỚI, riêng biệt ("Later-correction comparison") — hiển thị historical cursor,
+fact gốc (`PD-100`/`NO_ACTION`, KHÔNG đổi), invalidation đầy đủ, later replacement (`PD-101`/
+`LONG`, `supersedes_fact_ref=PD-100`, recorded_time), VÀ một comparison-result row tường minh
+(`NO_ACTION → LONG`) gắn nhãn non-authoritative — TÁCH BIỆT khỏi các row authoritative phía trên.
+Historical panel gốc (ReplayState(C-100)/recorded-at-cursor) VẪN KHÔNG đổi (no repaint) — panel
+mới thuần túy additive, dùng LẠI CHÍNH XÁC `MOCK_DECISION_CORRECTION` object đã share với
+VIEW-004 (KHÔNG duplicate fixture). `P2-B05-A-MIN-01`: SCR-008's exit button "Compare this
+trace's cursor in Historical State Comparison" ngụ ý sai rằng cursor của lineage đang chọn được
+carry forward sang SCR-009 — trong khi `LINEAGE_FILLS` KHÔNG mang mapped Replay Cursor nào, VÀ
+SCR-009 tự chọn cursor độc lập. Sửa: đổi tên thành "Open Historical State Comparison (SCR-009)"
++ thêm disclosure tường minh "the historical comparison target (Replay Cursor) is selected
+independently on SCR-009." KHÔNG đổi A/B/C partition, KHÔNG surface mới, KHÔNG claim independently
+verified. Xem `app.js`'s own v1.1 inline comments cho code-level chi tiết.
 
 **Vai trò của tài liệu này:** đây LÀ I-12 (Single Source of Truth) conformance evidence cho Batch
 05, per `docs/phase-dod/phase-2-dod.md` §2's applicable Trigger A / I-12 requirement — mọi phần tử
@@ -63,7 +82,7 @@ Batch-01/02/03/04-verified substantive UC (KHÔNG re-authored, KHÔNG double-cou
 | UC | Classification | Evidence / reason |
 |---|---|---|
 | UC-016 | **A — Substantive** (Batch 05, promoted từ B) | SCR-008 fully authored: STATE-002-labelled required-context gate (§3 below, disclaimer re: STATE-002's own narrower canonical scope), real Fill-selection control (`FILL-RV-A-001` LONG / `FILL-RV-B-001` SHORT, two genuinely distinct already-recorded lineages — never one mutated into the other) that materially updates the displayed trace, exactly the seven-link chain UC-016 itself names (Fill→ExecutionResult→Order→Execution Intent→RiskEvaluation→Trade Intent→Decision, no extra/invented nodes, none missing), Decision explainability group (outcome/Strategy Instance/Strategy Definition Version/recorded input snapshot/recorded evaluation evidence) rendered as a SEPARATE evidence group from the causation trace, resolved directly from the recorded fixture (no re-derivation) — matches `ux-blueprint.md` §7.5 SCR-008 spec + `use-case-workflow.md` UC-016 Main flow. |
-| UC-017 | **A — Substantive** (Batch 05, promoted từ B) | SCR-009 fully authored: STATE-002-labelled required-context gate, real cursor-selection control (`C-200` / `C-100`, two genuinely distinct already-run Replay Cursors), "ReplayState(C) reconstructed now" panel structurally identical to "state recorded/originally displayed at that cursor" panel (deterministic no-look-ahead fold, replay-event.md §2 — proves no-drift by construction, not by coincidence), correction-check panel materially reaching BOTH outcomes ("No conflict" for `C-200`; "Correction visible after historical cursor" for `C-100`, disclosing invalidation_reason/invalidated_fact_ref/correction recorded_time WITHOUT altering the historical panel above it), comparison-result authority label explicitly `authority-label-recomputation` (non-authoritative) distinct from the authoritative recorded-fact labels — matches `ux-blueprint.md` §7.5 SCR-009 spec + `use-case-workflow.md` UC-017 Main flow + `replay-event.md` §2 no-look-ahead invariant. |
+| UC-017 | **A — Substantive** (Batch 05, promoted từ B; v1.1 đóng `P2-B05-A-MAJ-01`) | SCR-009 fully authored: STATE-002-labelled required-context gate, real cursor-selection control (`C-200` / `C-100`, two genuinely distinct already-run Replay Cursors), "ReplayState(C) reconstructed now" panel structurally identical to "state recorded/originally displayed at that cursor" panel (deterministic no-look-ahead fold, replay-event.md §2 — proves no-drift by construction, not by coincidence), correction-check panel materially reaching BOTH outcomes ("No conflict" for `C-200`; "Correction visible after historical cursor" for `C-100`). **v1.1:** the `C-100` branch now ALSO renders a dedicated "Later-correction comparison" panel showing the original historical fact (`PD-100`/`NO_ACTION`, unchanged), the full invalidation record, the later replacement (`PD-101`/`LONG`, `supersedes_fact_ref=PD-100`), and an explicit `NO_ACTION → LONG` comparison-result row — the historical panels above remain byte-for-byte unchanged (no repaint). Authority labels split explicitly: `authority-label-authoritative` for original/invalidation/replacement rows, `authority-label-recomputation` (non-authoritative) for the comparison-result row only — matches `ux-blueprint.md` §7.5 SCR-009 spec + `use-case-workflow.md` UC-017 Main flow + `replay-event.md` §2 no-look-ahead invariant. |
 | UC-018 | **A — Substantive** (Batch 05, promoted từ B) | VIEW-004 fully authored: original fact panel (`PD-100`, still resolvable, explicitly labelled append-only) AND invalidation+replacement panel (`DecisionFactInvalidated` — `invalidated_fact_ref`/`invalidation_reason`; replacement `DecisionRecorded` `PD-101` — `supersedes_fact_ref` pointing DIRECTLY at `PD-100`, same `decision_context_cursor`) rendered SIMULTANEOUSLY, unconditionally, no empty/blocked branch (matches ux-blueprint.md's explicit "KHÔNG áp dụng — hiển thị luôn cả hai trạng thái là hành vi bắt buộc"), explicit `supersedes_fact_ref` binding called out in its own hint row, plus an explicit scope note disclosing that RiskEvaluation/Fill share this direct pattern while ExecutionResult's is materially different and PaperExecutionObservation/Position have none — matches `ux-blueprint.md` §7.5 VIEW-004 spec + `use-case-workflow.md` UC-018 Main flow + `decision.md` §6/§11. |
 | UC-001..UC-015 | **A — Substantive** (Batch 01/02/03/04, giữ nguyên) | Fully authored + independently verified tại Batch 01/02/03/04 (mỗi batch tự nó qua đầy đủ Review A + Independent Review B, verdict `READY_FOR_NEXT_PHASE2_BATCH`). Batch 05 CHỈ link tới Research/Replay/Backtest/Paper (real nav link) — KHÔNG re-author, NHƯNG cumulative classification VẪN A (một UC KHÔNG thể vừa A vừa B/C). |
 
@@ -123,14 +142,15 @@ UC-016..UC-018.
 | `index.html` `[data-fill-select="FILL-RV-A-001"]`/`[FILL-RV-B-001"]` / `app.js` `state.scr008Selection` | SCR-008 "Available user actions" — "chọn một Fill để trace" (UC-016 Main flow bước 1) | UC-016 | PR-028 | `ux-blueprint.md` §7.5 SCR-008 "Available user actions"; `use-case-workflow.md` UC-016 Main flow bước 1 |
 | `app.js` `LINEAGE_FILLS` / `renderScr008Trace()` `.evidence-group-downstream` chain-list (Fill→ExecutionResult→Order→Execution Intent→RiskEvaluation→Trade Intent→Decision, đúng bảy mắt xích, KHÔNG thiếu KHÔNG thừa) | SCR-008 "Information displayed" — causation trace ngược | UC-016 | PR-028, PR-004, PR-005 | `ux-blueprint.md` §7.5 SCR-008 "Information displayed"; `use-case-workflow.md` UC-016 Main flow bước 2 |
 | `app.js` `renderScr008Trace()` `.evidence-group-upstream` Decision explainability block (outcome badge, Decision identity, Strategy Instance, Strategy Definition Version, Configuration, recorded input snapshot, recorded evaluation evidence — resolved TRỰC TIẾP từ `LINEAGE_FILLS[...].decision`, KHÔNG suy diễn/tính lại) | SCR-008 "Information displayed" — Decision explainability evidence, TÁCH BIỆT khỏi downstream lineage | UC-016 | PR-004, PR-005 | `ux-blueprint.md` §7.5 SCR-008 "Information displayed"; `use-case-workflow.md` UC-016 Main flow bước 3 |
-| `index.html` `#btn-scr008-to-scr009` | SCR-008 "Exit points" — SCR-009 | UC-016 | PR-028, PR-029 | `ux-blueprint.md` §7.5 SCR-008 "Exit points" |
+| `index.html` `#btn-scr008-to-scr009` (v1.1, đóng `P2-B05-A-MIN-01` — renamed "Compare this trace's cursor..." → "Open Historical State Comparison (SCR-009)" + explicit disclosure "the historical comparison target (Replay Cursor) is selected independently on SCR-009," since `LINEAGE_FILLS` carries no mapped Replay Cursor and no cursor is actually carried forward) | SCR-008 "Exit points" — SCR-009 | UC-016 | PR-028, PR-029 | `ux-blueprint.md` §7.5 SCR-008 "Exit points" |
 | `app.js` `state.reviewEvidence.replayCursorRunExists = false` / `renderScr009()` required-context branch | NAV-005 "Required context" ("một Replay Cursor đã chạy tại SCR-002 ... phải tồn tại") — same STATE-002-at-NAV-level convention as SCR-008's row above | UC-017 (alternate/failure) | PR-029 | `ux-blueprint.md` §5a NAV-005 "Available navigation behavior"; §11 STATE-002 row |
 | `index.html` `[data-cursor-select="C-200"]`/`["C-100"]` / `app.js` `state.scr009Selection` | SCR-009 "Required context"/entry — cursor chosen from those already run at SCR-002 | UC-017 | PR-029 | `ux-blueprint.md` §7.5 SCR-009 "Entry points"/"Required context"; `use-case-workflow.md` UC-017 Main flow bước 1 |
 | `app.js` `REPLAY_CURSORS` / `renderScr009Comparison()` "ReplayState(C) — reconstructed now" panel | SCR-009 "Information displayed" — ReplayState(C) hiện tại | UC-017 | PR-029 | `use-case-workflow.md` UC-017 Main flow bước 1; `replay-event.md` §1/§2 `ReplayStateProjection` (`decision_lineage` fold TẠI `replay_cursor`) |
 | `app.js` `renderScr009Comparison()` "State recorded / originally displayed at cursor" panel (structurally identical object to the reconstructed panel above) | SCR-009 "Information displayed" — so sánh với state đã từng hiển thị/ghi nhận tại đúng cursor đó | UC-017 | PR-029 | `use-case-workflow.md` UC-017 Main flow bước 2; `replay-event.md` §2 "No-look-ahead xuyên suốt" (deterministic fold guarantees identity, not coincidence) |
 | `app.js` `renderScr009Comparison()` `!c.hasCorrectionAfterCursor` branch ("No conflict" panel, `authority-label-recomputation`) | SCR-009 "Primary states" — "No conflict"; comparison result non-authoritative | UC-017 | PR-029 | `ux-blueprint.md` §7.5 SCR-009 "Primary states"/"Authority labels"; `use-case-workflow.md` UC-017 Main flow bước 3 |
-| `app.js` `renderScr009Comparison()` `c.hasCorrectionAfterCursor` branch ("Correction visible after historical cursor" panel — historical panel above left unchanged, invalidation_reason/invalidated_fact_ref/recorded_time disclosed separately) + `#btn-scr009-to-view004` | SCR-009 "Empty/blocked" — correction visible sau historical cursor → dẫn VIEW-004 | UC-017 (alternate/failure), UC-018 (hand-off) | PR-029, PR-011, PR-030 | `ux-blueprint.md` §7.5 SCR-009 "Empty/blocked states"; `use-case-workflow.md` UC-017 "Alternate/failure §8 'correction visible after historical cursor'" |
-| `app.js` `MOCK_DECISION_CORRECTION` shared by reference between `renderScr009Comparison()`'s correction branch and `renderView004()` (SAME `PD-100`/`PD-101`/invalidation object identity, no re-fixture) | SCR-009→VIEW-004 cross-screen coherence — hand-off uses the SAME correction identity | UC-017, UC-018 | PR-029, PR-011, PR-030 | Task requirement: "SCR-009's correction-detection hand-off to VIEW-004 must use the SAME correction identity" |
+| `app.js` `renderScr009Comparison()` `c.hasCorrectionAfterCursor` branch, first panel ("Correction visible after historical cursor" — historical panel above left unchanged, correction recorded_time explicitly compared against the cursor's own recorded_time) | SCR-009 "Empty/blocked" — correction visible sau historical cursor | UC-017 (alternate/failure) | PR-029 | `ux-blueprint.md` §7.5 SCR-009 "Empty/blocked states"; `use-case-workflow.md` UC-017 "Alternate/failure §8 'correction visible after historical cursor'" |
+| `app.js` `renderScr009Comparison()` `c.hasCorrectionAfterCursor` branch, second panel — "Later-correction comparison" (v1.1, MỚI, đóng `P2-B05-A-MAJ-01`: `orig`/`inv`/`repl` rows resolved directly from `MOCK_DECISION_CORRECTION`, plus an explicit `orig.outcome + " → " + repl.outcome` comparison-result row) + `#btn-scr009-to-view004` | UC-017 "explicit difference kèm theo fact correction liên quan" (Main flow bước 3) + hand-off to VIEW-004 using the same identity | UC-017, UC-018 (hand-off) | PR-029, PR-011, PR-030 | `use-case-workflow.md` UC-017 Main flow bước 3 ("hiển thị khác biệt tường minh kèm fact correction liên quan"); `ux-blueprint.md` §7.5 SCR-009 "Exit points" (VIEW-004 nếu correction phát hiện) |
+| `app.js` `MOCK_DECISION_CORRECTION` shared by reference between `renderScr009Comparison()`'s "Later-correction comparison" panel and `renderView004()` (SAME `PD-100`/`PD-101`/invalidation object identity, no re-fixture) | SCR-009→VIEW-004 cross-screen coherence — hand-off uses the SAME correction identity | UC-017, UC-018 | PR-029, PR-011, PR-030 | Task requirement: "SCR-009's correction-detection hand-off to VIEW-004 must use the SAME correction identity" |
 | `app.js` `renderView004()` `.evidence-group-upstream` "Original fact" panel (`PD-100`, explicitly labelled "still resolvable, append-only") | VIEW-004 "Information displayed" — fact gốc vẫn resolvable | UC-018 | PR-011, PR-030 | `ux-blueprint.md` §7.5 VIEW-004 "Information displayed"; `use-case-workflow.md` UC-018 Main flow bước 2; `decision.md` (`DecisionRecorded` immutable, append-only) |
 | `app.js` `renderView004()` `.evidence-group-downstream` "Invalidation + replacement fact" panel (`DecisionFactInvalidated`: `invalidated_fact_ref`/`invalidation_reason`; replacement `DecisionRecorded` `PD-101`: `supersedes_fact_ref` explicit hint row) | VIEW-004 "Information displayed" — fact replacement + liên kết tường minh `supersedes_fact_ref` | UC-018 | PR-011, PR-030 | `ux-blueprint.md` §7.5 VIEW-004 "Information displayed"; `use-case-workflow.md` UC-018 Main flow bước 2; `decision.md` §6 `DecisionFactInvalidated` schema (`invalidated_fact_ref`/`invalidation_reason`), §11/DecisionRecorded `supersedes_fact_ref` (direct-predecessor-fact-targeting) |
 | `app.js` `renderView004()` unconditional dual-panel render (no `if`/empty branch — both panels always present in the returned HTML) | VIEW-004 "System-owned actions" — hiển thị CẢ HAI trạng thái, hành vi bắt buộc, không nhánh lỗi; "Empty/blocked: KHÔNG áp dụng" | UC-018 | PR-011, PR-030 | `ux-blueprint.md` §7.5 VIEW-004 "System-owned actions"/"Empty/blocked states" |
@@ -188,13 +208,17 @@ INV-3 (historical comparison never repaints history): verified — `renderScr009
   "ReplayState(C) reconstructed" and "state recorded at that cursor" panels render from the SAME
   `c.decision` object (no separate "current view" vs. "historical view" divergence is possible by
   construction). When a correction exists after the cursor (`C-100`), the historical panel's
-  values are NOT altered — the correction is disclosed in a THIRD, separate panel
-  ("Correction visible after historical cursor"), matching replay-event.md §2's no-look-ahead
-  guarantee (`fact.recorded_time ≤ C.recorded_time` for every ReplayState(C) component) and the
-  task's explicit INV-3 wording ("show the historical state as it was, show the later correction
-  separately, never silently replace historical values"). The comparison result itself carries the
-  `authority-label-recomputation` (non-authoritative) label, distinct from the authoritative
-  recorded-fact labels on the panels above it.
+  values are NOT altered — the correction is disclosed in a THIRD and FOURTH, separate panel
+  ("Correction visible after historical cursor" intro, then v1.1's "Later-correction comparison"
+  detail panel, closes `P2-B05-A-MAJ-01`), matching replay-event.md §2's no-look-ahead guarantee
+  (`fact.recorded_time ≤ C.recorded_time` for every ReplayState(C) component) and the task's
+  explicit INV-3 wording ("show the historical state as it was, show the later correction
+  separately, never silently replace historical values"). The v1.1 detail panel now ALSO shows
+  the explicit old→new difference (`orig.outcome → repl.outcome`) UC-017 requires, still without
+  touching the two historical panels above (verified: neither panel's HTML-building code changed
+  in v1.1 — only new panels were appended). The comparison-result row carries the
+  `authority-label-recomputation` (non-authoritative) label; the original/invalidation/replacement
+  rows above it carry `authority-label-authoritative`, distinct and explicit per row-group.
 
 INV-4 (correction inspection preserves original + correction lineage): verified —
   `renderView004()` unconditionally renders BOTH the original-fact panel (`PD-100`, labelled

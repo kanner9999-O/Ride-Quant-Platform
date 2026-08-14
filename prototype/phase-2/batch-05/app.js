@@ -308,8 +308,12 @@
       el5("Recorded evaluation evidence", lin.decision.evaluationEvidence) +
       "</div>" +
       '<div class="exit-row">' +
-      '<button class="btn" id="btn-scr008-to-scr009">Compare this trace’s cursor in Historical State Comparison (SCR-009) →</button>' +
-      '<p class="hint">Neither lineage above has a correction recorded against it, so there is no "correction detected" hand-off to VIEW-004 from this screen in this bounded fixture set — see SCR-009 for the correction-inspection hand-off (UC-018).</p>' +
+      // v1.1 (closes P2-B05-A-MIN-01): renamed from "Compare this trace's cursor..." — neither
+      // lineage above carries a mapped Replay Cursor, so the old wording overstated a handoff
+      // that never actually carried this trace's cursor into SCR-009. SCR-009's own cursor
+      // selection is genuinely independent of whatever was selected here.
+      '<button class="btn" id="btn-scr008-to-scr009">Open Historical State Comparison (SCR-009) →</button>' +
+      '<p class="hint">Neither lineage above has a correction recorded against it, so there is no "correction detected" hand-off to VIEW-004 from this screen in this bounded fixture set — see SCR-009 for the correction-inspection hand-off (UC-018). The historical comparison target (Replay Cursor) is selected independently on SCR-009 — this button does not carry the trace above’s own cursor forward.</p>' +
       "</div>";
     box.innerHTML = html;
     el("btn-scr008-to-scr009").addEventListener("click", function () { goToReviewTab("scr-009"); });
@@ -395,14 +399,35 @@
         "<div>No correction exists between the recorded time and now for this Decision.</div>" +
         "</div>";
     } else {
+      // v1.1 (closes P2-B05-A-MAJ-01): the panel below previously only disclosed that an
+      // invalidation occurred — it never showed the later replacement value or the explicit
+      // old→new difference, so UC-017 was not satisfied without a further trip to VIEW-004. The
+      // historical panels above remain byte-for-byte unchanged (no repaint) — this panel is
+      // purely additive, reusing the SAME MOCK_DECISION_CORRECTION object VIEW-004 reads (no
+      // duplicate/look-alike fixture).
+      var orig = MOCK_DECISION_CORRECTION.original;
+      var inv = MOCK_DECISION_CORRECTION.invalidation;
+      var repl = MOCK_DECISION_CORRECTION.replacement;
       html += '<div class="panel panel-indeterminate">' +
         '<div class="panel-title">Correction visible after historical cursor</div>' +
-        '<span class="authority-label authority-label-recomputation">Non-authoritative comparison result</span>' +
         "<div>The historical value shown above is UNCHANGED — it still correctly reflects " + d.id +
-        " at cursor " + c.cursor + " (no repaint). A correction was recorded AFTER this cursor:</div>" +
-        el5("invalidation_reason", MOCK_DECISION_CORRECTION.invalidation.invalidationReason) +
-        el5("invalidated_fact_ref", MOCK_DECISION_CORRECTION.invalidation.invalidatedFactRef) +
-        el5("correction recorded_time", MOCK_DECISION_CORRECTION.invalidation.recordedTime) +
+        " at cursor " + c.cursor + " (no repaint). A correction was recorded AFTER this cursor " +
+        "(recorded_time " + inv.recordedTime + " > this cursor’s own recorded_time " + d.recordedTime + "):</div>" +
+        "</div>" +
+        '<div class="panel panel-indeterminate">' +
+        '<div class="panel-title">Later-correction comparison (UC-017 explicit difference)</div>' +
+        '<span class="authority-label authority-label-authoritative">Authority class: authoritative recorded evidence (original / invalidation / replacement)</span>' +
+        '<span class="authority-label authority-label-recomputation">Authority class: non-authoritative comparison result</span>' +
+        el5("Historical cursor", c.cursor) +
+        el5("Original historical fact (unchanged above)", orig.id + " — " + orig.outcome) +
+        el5("Invalidation — invalidated_fact_ref", inv.invalidatedFactRef) +
+        el5("Invalidation — invalidation_reason", inv.invalidationReason) +
+        el5("Invalidation — recorded_time", inv.recordedTime) +
+        el5("Later replacement", repl.id + " — " + repl.outcome) +
+        el5("Later replacement — supersedes_fact_ref", repl.supersedesFactRef) +
+        el5("Later replacement — recorded_time", repl.recordedTime) +
+        '<div class="panel-title" style="margin-top:10px;">Comparison result (non-authoritative)</div>' +
+        "<div><strong>" + orig.outcome + " → " + repl.outcome + "</strong> — this difference is a derived comparison, not itself a fact; the authoritative facts remain the original/invalidation/replacement rows above.</div>" +
         '<div class="exit-row"><button class="btn btn-primary" id="btn-scr009-to-view004">Inspect correction (VIEW-004) →</button></div>' +
         "</div>";
     }

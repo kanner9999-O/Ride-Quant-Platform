@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-05-manifest
 title: "Phase 2 Prototype — Batch 05 — Batch Manifest"
-version: "1.0"
+version: "1.1"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-14"
@@ -10,9 +10,24 @@ created_at: "2026-08-14"
 # Phase 2 Prototype — Batch 05 — Batch Manifest
 
 **Vai trò của tài liệu này:** batch-level evidence record cho Batch 05, đúng `phase-2-rules.md`
-`P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Đây LÀ
-transaction AUTHORING đầu tiên cho Batch 05 — Review A/Independent Review B **CHƯA thực hiện**.
-Lifecycle `CANDIDATE`, chưa self-approved, chưa review.
+`P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch
+05 đã qua Review A trên v1.0 (`P2-B05-A-MAJ-01`/`P2-B05-A-MIN-01`, REVISION_REQUIRED), v1.1 đóng
+CẢ HAI. **Independent Review B CHƯA thực hiện** — lifecycle `CANDIDATE`, chưa self-approved,
+KHÔNG `READY_FOR_NEXT_PHASE2_BATCH` verdict tại transaction này.
+
+**v1.1 — bounded correction (2026-08-14), Review A trên v1.0: `P2-B05-A-MAJ-01` (Major) +
+`P2-B05-A-MIN-01` (Minor) — đóng CẢ HAI tại transaction này.** `P2-B05-A-MAJ-01`: SCR-009's
+correction-visible branch chỉ disclose invalidation, KHÔNG hiển thị later replacement/explicit
+old→new difference — UC-017 KHÔNG thỏa mãn nếu KHÔNG đi tiếp VIEW-004. Sửa: thêm panel "Later-
+correction comparison" (historical cursor, fact gốc KHÔNG đổi, invalidation đầy đủ, later
+replacement `PD-101`/`LONG` với `supersedes_fact_ref=PD-100`, comparison-result `NO_ACTION → LONG`
+gắn nhãn non-authoritative) — dùng LẠI `MOCK_DECISION_CORRECTION`, KHÔNG duplicate fixture,
+historical panel gốc KHÔNG đổi (no repaint). `P2-B05-A-MIN-01`: SCR-008's exit button ngụ ý sai
+cursor của lineage đang chọn được carry forward sang SCR-009. Sửa: đổi tên "Open Historical State
+Comparison (SCR-009)" + disclosure tường minh cursor được chọn độc lập tại SCR-009. Blob mới:
+`app.js`, `traceability.md`, `README.md` (incidental — mô tả SCR-009 cập nhật). `index.html`/
+`styles.css` KHÔNG đổi. KHÔNG đổi A/B/C partition, KHÔNG surface mới, KHÔNG UC/PR/domain concept
+mới, KHÔNG claim independently verified.
 
 ## 1. Batch identity
 
@@ -22,11 +37,13 @@ Batch:              Phase 2 — Batch 05 (Review / causation / historical compar
 Phase:               Phase 2 — Product Prototype (AUTHORIZED TO BEGIN)
 Authoritative DoD:   docs/phase-dod/phase-2-dod.md v0.3, status Approved,
                      post-acceptance blob de399900a93c7ec7ee64577093513de1643ebb33
-Status:              CANDIDATE — authoring transaction, Review A + Independent Review B CHƯA thực
-                     hiện. KHÔNG READY_FOR_NEXT_PHASE2_BATCH verdict tại transaction này.
-Created:             2026-08-14
-Starting HEAD:       988e3c368d452345329d27c47fa9d6963d31d3ff (verified via git rev-parse HEAD
-                     trước khi tạo file, đúng G-VERIFY-001)
+Status:              CANDIDATE — Review A trên v1.0 CLOSED (v1.1 bounded correction), Independent
+                     Review B CHƯA thực hiện. KHÔNG READY_FOR_NEXT_PHASE2_BATCH verdict tại
+                     transaction này.
+Created:             2026-08-14 (v1.0); v1.1 bounded correction 2026-08-14
+Starting HEAD (v1.0): 988e3c368d452345329d27c47fa9d6963d31d3ff
+Starting HEAD (v1.1): 22ab695bb34fcf09673237dae3365ab76fbf3242 (verified via git rev-parse HEAD
+                     trước khi sửa file, đúng G-VERIFY-001)
 Depends on (real,
   read-only link,
   KHÔNG modified):    prototype/phase-2/batch-01/ — CANDIDATE, review COMPLETE, verdict
@@ -113,12 +130,12 @@ PR-028, PR-029, PR-011, PR-030 (NAV-005)
 ## 6. Prototype artifact identities
 
 ```text
-prototype/phase-2/batch-05/index.html         blob 6946e9524ce8f1e92436e78796f02db06c147675 (CURRENT — v1.0)
-prototype/phase-2/batch-05/app.js              blob 547e763d8c5cdf62872512542b2204b820efbeb2 (CURRENT — v1.0)
-prototype/phase-2/batch-05/styles.css          blob a3e7898e047a4b7d0f84506def01e442934d707e (CURRENT — v1.0)
-prototype/phase-2/batch-05/traceability.md     blob a66982a13400c673f405d7ffc2b4d8b9fece4597 (CURRENT — v1.0)
-prototype/phase-2/batch-05/batch-manifest.md   (this file — CURRENT, v1.0)
-prototype/phase-2/batch-05/README.md           (CURRENT, v1.0)
+prototype/phase-2/batch-05/index.html         blob 6946e9524ce8f1e92436e78796f02db06c147675 (unchanged since v1.0)
+prototype/phase-2/batch-05/app.js              blob 287a1c8b999cf32fad4942fe8bcf037afae18e6b (CURRENT — v1.1, đóng P2-B05-A-MAJ-01 + P2-B05-A-MIN-01; historical v1.0 blob 547e763d8c5cdf62872512542b2204b820efbeb2, superseded)
+prototype/phase-2/batch-05/styles.css          blob a3e7898e047a4b7d0f84506def01e442934d707e (unchanged since v1.0)
+prototype/phase-2/batch-05/traceability.md     blob d2ac60bc547ded6016e66257d5d066ac42b915a0 (CURRENT — v1.1; historical v1.0 blob a66982a13400c673f405d7ffc2b4d8b9fece4597, superseded)
+prototype/phase-2/batch-05/batch-manifest.md   (this file — CURRENT, v1.1)
+prototype/phase-2/batch-05/README.md           blob e4363de91e45d454fc01a7472adbd8b6c24d6527 (CURRENT — v1.1, incidental SCR-009 description update; historical v1.0 unrecorded blob, superseded)
 ```
 
 ## 7. Authority sources consumed (reference only, none modified)
@@ -281,25 +298,31 @@ None within this batch's scope. 4/17 surfaces not yet substantively covered (SCR
 ## 17. Batch lifecycle / review state
 
 ```text
-Status:            CANDIDATE — v1.0 authoring transaction. Review A + Independent Review B CHƯA
-                    thực hiện. KHÔNG self-approved, KHÔNG READY_FOR_NEXT_PHASE2_BATCH verdict.
+Status:            CANDIDATE — v1.1 bounded correction artifact. Review A trên v1.0 CLOSED (v1.1).
+                    Independent Review B CHƯA thực hiện. KHÔNG self-approved, KHÔNG
+                    READY_FOR_NEXT_PHASE2_BATCH verdict.
 
 Review history (chronological, KHÔNG rewrite):
-  (none yet — this is the initial authoring transaction)
+  Review A (v1.0):                     P2-B05-A-MAJ-01 (SCR-009 correction-visible branch thiếu
+                                       later replacement/explicit old→new difference) +
+                                       P2-B05-A-MIN-01 (SCR-008 exit button ngụ ý sai cursor được
+                                       carry forward sang SCR-009) found, REVISION_REQUIRED.
+  v1.1 bounded correction:              đóng CẢ HAI Review A finding.
 
-CURRENT TRUTH (v1.0, authoring transaction, 2026-08-14):
-  Review verdict:                 NONE — chưa qua Review A.
+CURRENT TRUTH (v1.1 bounded correction, 2026-08-14):
+  Review verdict:                 NONE yet — v1.1 CHƯA qua re-review/Independent Review B.
   Candidate Batch-05 contribution: +3/17 surfaces (SCR-008, SCR-009, VIEW-004); +3/21 candidate
                                  substantive UC (UC-016, UC-017, UC-018) — CHƯA independently
-                                 verified.
+                                 verified (unchanged by this bounded correction — correction đóng
+                                 findings, KHÔNG phải một independent-verification event).
   Candidate cumulative (Batch
     01+02+03+04+05):               13/17 surfaces; 18/21 candidate substantive UC.
   Last independently verified
-    (Batch 01+02+03+04 baseline):  10/17 surfaces; 15/21 UC.
+    (Batch 01+02+03+04 baseline):  10/17 surfaces; 15/21 UC — KHÔNG đổi bởi transaction này.
   Remaining (post-Batch-05
     candidate):                    4/17 surfaces; 3/21 UC not substantive (§8/§16).
   Batch lifecycle:                CANDIDATE.
-  Next governed step:              Review A on this v1.0 artifact (not authored by this
-                                 transaction — per instruction, this executor does not author
-                                 the next-task prompt).
+  Next governed step:              Re-review (Review A re-check on v1.1, or Independent Review B)
+                                 — not authored by this transaction — per instruction, this
+                                 executor does not author the next-task prompt.
 ```

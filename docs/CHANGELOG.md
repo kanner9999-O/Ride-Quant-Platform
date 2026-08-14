@@ -2,6 +2,118 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 05 v1.1 bounded correction (P2-B05-A-MAJ-01, P2-B05-A-MIN-01)
+
+**Bounded correction — vai trò: `Phase 2 Prototype Batch 05 v1.1 Bounded Correction Executor`.**
+Closes exactly two Review A findings on Batch 05 v1.0: `P2-B05-A-MAJ-01` (Major) +
+`P2-B05-A-MIN-01` (Minor). Does not expand Batch 05 scope.
+
+### Baseline
+
+```text
+Starting HEAD:    22ab695bb34fcf09673237dae3365ab76fbf3242 (verified via git rev-parse HEAD before
+  any edit, working tree clean)
+```
+
+### Finding 1 — P2-B05-A-MAJ-01 (CLOSED)
+
+```text
+Defect: SCR-009's correction-visible branch (cursor C-100) correctly preserved the historical
+  ReplayState(C-100)/recorded-at-cursor panels as PD-100/NO_ACTION (no repaint), but its
+  correction panel only disclosed that an invalidation occurred (invalidation_reason/
+  invalidated_fact_ref/recorded_time) — it never showed the later replacement value (PD-101/LONG)
+  or the explicit old->new difference UC-017 requires, so the use case was not satisfied without
+  a further trip to VIEW-004.
+Fix: renderScr009Comparison()'s hasCorrectionAfterCursor branch now renders a SECOND, additive
+  panel ("Later-correction comparison") showing: historical cursor, original historical fact
+  (PD-100/NO_ACTION, explicitly noted unchanged), full invalidation record, later replacement
+  (PD-101/LONG, supersedes_fact_ref=PD-100, recorded_time), and an explicit comparison-result row
+  ("NO_ACTION -> LONG") labelled authority-label-recomputation (non-authoritative), distinct from
+  the authority-label-authoritative original/invalidation/replacement rows above it. The two
+  historical panels above are byte-for-byte unchanged — verified by inspection, only new HTML was
+  appended, no existing panel-building code was touched. Reuses the SAME MOCK_DECISION_CORRECTION
+  object VIEW-004 reads (no duplicate/look-alike fixture) — cross-screen correction identity
+  continuity preserved.
+```
+
+### Finding 2 — P2-B05-A-MIN-01 (CLOSED)
+
+```text
+Defect: SCR-008's exit button read "Compare this trace's cursor in Historical State Comparison
+  (SCR-009)" — but LINEAGE_FILLS carries no mapped Replay Cursor, and SCR-009 selects its cursor
+  entirely independently, so the wording overstated a cursor-carrying handoff that never happens.
+Fix: renamed to "Open Historical State Comparison (SCR-009)" and added an explicit disclosure:
+  "the historical comparison target (Replay Cursor) is selected independently on SCR-009 — this
+  button does not carry the trace above's own cursor forward." No new cursor binding was
+  introduced merely to preserve the old wording (minimal correction, per instruction).
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-05/app.js              v1.0 -> v1.1, blob 547e763d8c5cdf62872512542b2204b820efbeb2 -> 287a1c8b999cf32fad4942fe8bcf037afae18e6b
+prototype/phase-2/batch-05/traceability.md     v1.0 -> v1.1, blob a66982a13400c673f405d7ffc2b4d8b9fece4597 -> d2ac60bc547ded6016e66257d5d066ac42b915a0
+  (UC-017 row, SCR-008 exit row, SCR-009 correction-branch rows, MOCK_DECISION_CORRECTION
+  cross-reference row, and INV-3 verification text updated to describe the new panel and renamed
+  button; A/B/C partition and all other rows unchanged)
+prototype/phase-2/batch-05/batch-manifest.md   v1.0 -> v1.1 (role statement, §1 Status/Starting
+  HEAD, §6 blobs, §17 review history + CURRENT TRUTH updated to record Review A findings and
+  their closure; §2-5/§7-16 semantic/artifact evidence unchanged)
+prototype/phase-2/batch-05/README.md           blob (unrecorded v1.0) -> e4363de91e45d454fc01a7472adbd8b6c24d6527
+  (SCR-009 bullet updated, incidental, to describe the new Later-correction comparison panel)
+prototype/phase-2/batch-05/{index.html,styles.css}  UNCHANGED (byte-identical, verified — blobs
+  6946e9524ce8f1e92436e78796f02db06c147675 / a3e7898e047a4b7d0f84506def01e442934d707e)
+docs/MANIFEST.md   manifest_version 10.147 -> 10.148. Batch 05 row updated to record Review A
+  CLOSED (v1.1). Confirmation paragraph below the batch table updated accordingly. Candidate
+  13/17 surfaces, 18/21 UC unchanged (a bounded correction is not an independent-verification
+  event); last independently verified progress unchanged at 10/17, 15/21.
+```
+
+### No scope expansion
+
+```text
+No Improve authoring. No authoritative correction/write behavior introduced. No repaint of the
+  C-100 historical state (verified: the two pre-existing panels' HTML-building lines are
+  unmodified). No snapshot-storage architecture. No new/generic correction schema — the new panel
+  reads the SAME MOCK_DECISION_CORRECTION fields VIEW-004 already used. No Product/UX/Domain
+  authority modified (docs/product/, docs/domain/, docs/phase-dod/, docs/governance/,
+  docs/constitution/ untouched). No ADR. No new API/event/database schema. Batch 01/02/03/04
+  untouched (git status --porcelain=v1 -uall clean on all four). No claim that 13/17 or 18/21 is
+  independently verified. Quality Gate not run, Gate 3 not opened, Phase 2 not approved,
+  P2-RETRO-001 not performed, Phase 3/LIVE not authorized.
+```
+
+### Result
+
+```text
+P2-B05-A-MAJ-01: CLOSED. P2-B05-A-MIN-01: CLOSED.
+Candidate progress unchanged: 13/17 surfaces, 18/21 substantive UC (A={001..018}, B={019,020,021}
+  =3, C=empty=0; partition mechanically valid, unaffected by this correction).
+Batch 05: lifecycle CANDIDATE, NOT self-approved, NO READY_FOR_NEXT_PHASE2_BATCH verdict —
+  Independent Review B not performed by this transaction.
+Last independently verified progress UNCHANGED at 10/17 surfaces, 15/21 UC (Batch 01-04 baseline).
+I-11: PASS (preserved, not re-tested — no credential/backend surface touched).
+I-12: PASS (traceability.md now consistent with the corrected representation; zero new domain
+  concept — same MOCK_DECISION_CORRECTION fixture, no new UC/PR/entity).
+Trigger B/C/D/E: PRESERVED (preserved, not re-tested).
+Phase 2 substantive completion: NOT ESTABLISHED. Quality Gate: NOT RUN. Gate 3: NOT OPENED.
+  P2-RETRO-001: NOT PERFORMED. Phase 3: NOT AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+node --check prototype/phase-2/batch-05/app.js: OK.
+Secret-pattern grep: clean.
+Network-call grep (fetch/XMLHttpRequest/WebSocket/axios/.ajax): clean.
+Create/overwrite/invalidate/promote function-name grep: clean.
+Old wording ("Compare this trace") grep across batch-05/: zero remaining occurrences.
+MOCK_DECISION_CORRECTION defined exactly once (no duplicate/look-alike fixture): verified.
+Batch 01/02/03/04 untouched: git status --porcelain=v1 -uall clean.
+Forbidden authority-path modification check: git status --porcelain=v1 -uall clean on
+  docs/product, docs/domain, docs/phase-dod, docs/governance, docs/constitution.
+```
+
 ## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 05 authored (Review / causation / historical comparison / correction inspection)
 
 **Authoring transaction — vai trò: `Phase 2 Product Prototype Batch 05 Author`.** Authors NAV-005
