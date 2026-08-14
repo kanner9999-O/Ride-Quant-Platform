@@ -2,6 +2,128 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 05 authored (Review / causation / historical comparison / correction inspection)
+
+**Authoring transaction — vai trò: `Phase 2 Product Prototype Batch 05 Author`.** Authors NAV-005
++ SCR-008 (Decision → Position Lineage Trace) + SCR-009 (Historical State Comparison) + VIEW-004
+(Correction Inspection) as one coherent Review milestone, per `P2-PROTOTYPE-001`. Review A +
+Independent Review B are NOT performed by this transaction — this is authoring only.
+
+### Baseline
+
+```text
+Starting HEAD:    988e3c368d452345329d27c47fa9d6963d31d3ff (verified via git rev-parse HEAD before
+  any file was created)
+Batch 01/02/03/04: git status --porcelain=v1 -uall on all four directories returned empty (zero
+  diff) — confirmed untouched throughout this transaction.
+```
+
+### Authority inspected
+
+```text
+docs/product/ux-blueprint.md (NAV-005 §5a, SCR-008/SCR-009/VIEW-004 §7.5, STATE-002 §11 row +
+  rationale note — including the explicit v0.3 correction narrowing STATE-002's own canonical
+  scope to SCR-004/SCR-005/SCR-007/SCR-011, deliberately excluding SCR-008/SCR-009), docs/product/
+  use-case-workflow.md (UC-016/017/018 detailed blocks), docs/domain/decision.md (§6
+  DecisionFactInvalidated, §11 supersedes_fact_ref direct-predecessor-fact-targeting), docs/domain/
+  risk.md, docs/domain/fill.md (same direct correction pattern), docs/domain/execution-result.md
+  (§2/§5/§11 — materially more complex ExecutionResultComputation CORRECTION three-way linkage;
+  PaperExecutionObservation has no correction lineage of its own), docs/domain/position.md (§1 —
+  read_model, no correction lineage), docs/domain/replay-event.md (§2 ReplayState(C) fold, §2
+  no-look-ahead invariant), docs/domain/trade-intent.md, docs/domain/execution-intent.md,
+  docs/domain/order.md, docs/domain/strategy.md, docs/phase-dod/phase-2-dod.md, docs/governance/
+  phases/phase-2-rules.md, docs/constitution/02-platform-invariants.md, docs/MANIFEST.md.
+```
+
+### Scope
+
+```text
+Candidate surfaces: SCR-008, SCR-009, VIEW-004 (+3/17). Candidate substantive UC: UC-016, UC-017,
+  UC-018 (+3/21). NAV-005 fully represented (required-context routing for both destinations,
+  read-only inspection behavior). SCR-010/VIEW-006/SCR-011/VIEW-005 explicitly NOT authored —
+  Improve remains a labelled "deferred" placeholder, same convention as Batch 01-04's own deferred
+  stages.
+Four Review invariants implemented and verified (traceability.md §5): INV-1 read-only (no
+  create/overwrite/correct/invalidate/promote action anywhere), INV-2 downstream lineage vs.
+  Decision explainability visually/structurally distinct, INV-3 historical comparison never
+  repaints history (reconstructed and recorded-at-cursor panels are the same object by
+  construction; a later correction is disclosed separately, never altering the historical panel),
+  INV-4 correction inspection unconditionally shows both the original fact and the
+  invalidation+replacement fact with an explicit supersedes_fact_ref link.
+Correction-lineage scope: ONE bounded interactive correction fixture (Decision — decision.md §6/
+  §11 exact vocabulary), literally shared by identity between SCR-009's "correction visible after
+  historical cursor" hand-off and VIEW-004. RiskEvaluation/Fill's shared direct pattern and
+  ExecutionResult's materially different three-way CORRECTION linkage are disclosed in an explicit
+  scope note (VIEW-004 hint text, README.md) rather than fabricated into one generic universal
+  correction schema. No Position correction fact invented (position.md §1 — derived projection,
+  no correction lineage).
+```
+
+### Created files
+
+```text
+prototype/phase-2/batch-05/index.html          blob 6946e9524ce8f1e92436e78796f02db06c147675
+prototype/phase-2/batch-05/app.js               blob 547e763d8c5cdf62872512542b2204b820efbeb2
+prototype/phase-2/batch-05/styles.css           blob a3e7898e047a4b7d0f84506def01e442934d707e
+prototype/phase-2/batch-05/traceability.md      blob a66982a13400c673f405d7ffc2b4d8b9fece4597
+prototype/phase-2/batch-05/batch-manifest.md    (new, v1.0)
+prototype/phase-2/batch-05/README.md            (new, v1.0)
+docs/MANIFEST.md   manifest_version 10.146 → 10.147. Batch 05 row added (compact, per
+  P2-BUDGET-001 discipline — full journey lives in batch-manifest.md §17 + this CHANGELOG only).
+  Confirmation paragraph below the batch table updated: candidate cumulative 13/17 surfaces,
+  18/21 UC (Batch 05's own +3/+3 explicitly marked CHƯA independently verified); last
+  independently verified progress unchanged at 10/17, 15/21 (Batch 01-04 baseline).
+```
+
+### Preserved unchanged
+
+```text
+prototype/phase-2/batch-01/, batch-02/, batch-03/, batch-04/  UNCHANGED (git status --porcelain
+  -uall returned empty for all four). docs/product/, docs/domain/, docs/phase-dod/, docs/
+  governance/, docs/constitution/  UNCHANGED — read-only authority inspection only. No ADR
+  created (no Trigger fired). No new Domain Contract/API/schema. No Risk/execution/Replay/
+  correction engine implemented — every SCR-008/SCR-009/VIEW-004 value is a hardcoded
+  deterministic fixture. No <input> element, no fetch/XHR/WebSocket/axios/.ajax call, no
+  credential-pattern match (grep clean, one incidental match inside a disclaiming comment).
+```
+
+### Result
+
+```text
+Candidate progress (Batch 01+02+03+04+05): 13/17 surfaces, 18/21 substantive UC
+  (A={001..018}, B={019,020,021}=3, C=∅=0; partition mechanically valid: pairwise disjoint,
+  union={UC-001..021}, 18+3+0=21). Remaining: 4/17 surfaces, 3/21 UC.
+Batch 05: lifecycle CANDIDATE, NOT self-approved, NO review verdict yet — Review A + Independent
+  Review B not performed by this transaction.
+Last independently verified progress UNCHANGED at 10/17 surfaces, 15/21 UC (Batch 01-04 baseline)
+  until Batch 05 completes its own Review A + Independent Review B.
+I-11: PASS (Access-control audit, bounded Phase-2 interpretation — no credential capability, no
+  credential input surface, no signing/custody/backend integration, no real secret).
+I-12: PASS (traceability.md §3/§4 — every element traces to an existing NAV/SCR/VIEW/STATE + UC +
+  PR + exact authoritative source section; zero new UC/PR/domain concept originated).
+Trigger B/C/D/E: boundary preserved, no re-resolution triggered (batch-manifest.md §12).
+Phase 2 substantive completion: NOT ESTABLISHED. Quality Gate: NOT RUN. Gate 3: NOT OPENED.
+  P2-RETRO-001: NOT PERFORMED. Phase 3: NOT AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+node --check prototype/phase-2/batch-05/app.js: OK.
+Secret-pattern grep (api_key/secret/password/private_key/token/credential/...): clean (one
+  incidental match inside app.js's own disclaiming file-header comment).
+Network-call grep (fetch/XMLHttpRequest/WebSocket/axios/.ajax): clean.
+<input> element grep: clean.
+Batch 01/02/03/04 untouched: git status --porcelain=v1 -uall clean.
+Forbidden authority-path modification check (docs/product, docs/domain, docs/phase-dod, docs/
+  governance, docs/constitution): git status --porcelain=v1 -uall clean.
+Manual logic review of app.js/index.html element-ID cross-references performed (no headless
+  browser tool available in this environment — this is a static/logic review, NOT a claim that
+  the page was visually exercised in an actual browser). One bug found and fixed during this
+  review (SCR-009 cursor-select button active-highlight was not refreshed after a click) before
+  finalizing.
+```
+
 ## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 04 review-state bookkeeping reconciliation (deterministic, G-TXN-003)
 
 **Bookkeeping reconciliation — vai trò: `Phase 2 Prototype Batch 04 Review-State Reconciliation Executor`.** NOT a lifecycle transition, NOT a prototype semantic correction. Records the completed final bounded Review A / final Independent Review B outcome for Batch 04 v1.2 into `batch-manifest.md`/`traceability.md`'s own current-state sections, which had not previously reflected it.

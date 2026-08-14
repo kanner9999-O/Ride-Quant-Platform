@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ride — Phase 2 Prototype — Batch 05 (Review / causation / historical comparison / correction inspection)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- WS-001 Ride Workspace Shell (bounded subset, same convention as Batch 01/02/03/04). Separate,
+     self-contained page — does NOT share live JS state with Batch 01/02/03/04. -->
+<header class="shell" id="shell">
+  <div class="shell-row shell-context-bar" id="context-bar">
+    <div class="context-item">
+      <span class="context-label">Account</span>
+      <span class="context-value" id="ctx-account">Ride Internal Account</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Instrument / Venue</span>
+      <span class="context-value" id="ctx-instrument">BTC/USDT — Binance</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Strategy Instance</span>
+      <span class="context-value" id="ctx-strategy-instance">Instance A (inst-a) — Strategy Definition Version sdv-v1.0</span>
+    </div>
+    <div class="context-item context-item-live">
+      <span class="context-label">Live</span>
+      <span class="context-value badge badge-unauthorized" id="ctx-live">Unauthorized</span>
+    </div>
+  </div>
+  <nav class="shell-row shell-nav" id="nav-bar" aria-label="Lifecycle stage navigation">
+    <a class="nav-btn" href="../batch-01/index.html" data-nav="NAV-001">Research</a>
+    <a class="nav-btn" href="../batch-02/index.html" data-nav="NAV-002">Replay</a>
+    <a class="nav-btn" href="../batch-03/index.html" data-nav="NAV-003">Backtest</a>
+    <a class="nav-btn" href="../batch-04/index.html" data-nav="NAV-004">Paper</a>
+    <button class="nav-btn nav-btn-active" data-nav="NAV-005" data-target="screen-review">Review</button>
+    <button class="nav-btn nav-btn-deferred" data-nav="NAV-006" data-target="screen-deferred" data-stage="Improve">Improve</button>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- NAV-005 destination: SCR-008 (Decision -> Position Lineage Trace) + SCR-009 (Historical
+       State Comparison) + VIEW-004 (Correction Inspection). Read-only inspection throughout — no
+       authoritative action exists anywhere on this screen (INV-1). -->
+  <section class="screen" id="screen-review" data-screen="NAV-005">
+    <h1>Review <span class="stage-label">Review</span></h1>
+    <p class="purpose">Trace an already-recorded Decision → Position causation chain, compare a
+      historical Replay Cursor's reconstructed state against what was recorded at that cursor, and
+      inspect a correction (original fact + invalidation + replacement) without repainting
+      history. Read-only throughout — nothing on this screen creates, overwrites, corrects,
+      invalidates, or promotes any fact.</p>
+
+    <div class="subtab-row" id="review-subtabs">
+      <button class="subtab-btn" data-subtab="scr-008">Lineage Trace (SCR-008)</button>
+      <button class="subtab-btn" data-subtab="scr-009">Historical Comparison (SCR-009)</button>
+      <button class="subtab-btn" data-subtab="view-004">Correction Inspection (VIEW-004)</button>
+    </div>
+
+    <!-- SCR-008 Decision -> Position Lineage Trace. Traceability: traceability.md#scr-008 -->
+    <div id="scr-008-body">
+      <!-- populated by app.js -->
+    </div>
+
+    <!-- SCR-009 Historical State Comparison. Traceability: traceability.md#scr-009 -->
+    <div id="scr-009-body" class="screen-hidden">
+      <!-- populated by app.js -->
+    </div>
+
+    <!-- VIEW-004 Correction Inspection. Traceability: traceability.md#view-004 -->
+    <div id="view-004-body" class="screen-hidden">
+      <!-- populated by app.js -->
+    </div>
+  </section>
+
+  <!-- Placeholder for stages not included in Batch 05. -->
+  <section class="screen screen-hidden" id="screen-deferred" data-screen="DEFERRED">
+    <h1><span id="deferred-stage-name">This stage</span> <span class="stage-label">Deferred</span></h1>
+    <p class="purpose">Read-only navigation to this destination is preserved (UX-P-5), but its
+      substantive screen/view content is not authored in Batch 05 — it is deferred to a later
+      Phase 2 batch. No behavior is invented here.</p>
+    <button class="btn" data-nav="NAV-005" data-target="screen-review">Back to Review</button>
+  </section>
+
+</main>
+
+<!-- Prototype QA panel — NOT part of the authoritative UX itself. Simulates the NAV-005
+     required-context-missing scenario (Scenario family D) without a real event log/Replay engine. -->
+<footer class="qa-panel" id="qa-panel">
+  <button id="qa-toggle" class="qa-toggle" aria-expanded="false">Batch 05 QA state switcher (prototype tooling — not authoritative UX)</button>
+  <div class="qa-body qa-hidden" id="qa-body">
+    <div class="qa-group">
+      <span class="qa-group-label">SCR-008 required context — Fill/Position contribution</span>
+      <button class="qa-btn" data-qa="scr008-evidence-exists">Exists (default)</button>
+      <button class="qa-btn" data-qa="scr008-evidence-missing">Missing — STATE-002</button>
+    </div>
+    <div class="qa-group">
+      <span class="qa-group-label">SCR-009 required context — Replay Cursor run at SCR-002</span>
+      <button class="qa-btn" data-qa="scr009-cursor-exists">Exists (default)</button>
+      <button class="qa-btn" data-qa="scr009-cursor-missing">Missing — STATE-002</button>
+    </div>
+    <div class="qa-group">
+      <button class="qa-btn qa-btn-reset" id="qa-reset">Reset demo state</button>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
