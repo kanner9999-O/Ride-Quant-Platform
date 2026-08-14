@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-02-traceability
 title: "Phase 2 Prototype — Batch 02 — Traceability Artifact"
-version: "1.2"
+version: "1.3"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -14,6 +14,8 @@ created_at: "2026-08-13"
 **v1.1 — bounded correction (2026-08-13), đóng `P2-B02-A-MAJ-01` (Review A).** v1.0's cumulative A/B/C ledger KHÔNG PHẢI một valid partition: (1) `UC-002` xuất hiện CẢ trong A (Batch 01 substantive) LẪN trong cumulative B — vi phạm "once A, never also B/C"; (2) `UC-009`/`UC-010` bị gọi B trong khi chính mô tả nói "not referenced by Batch 02 at all" — tự mâu thuẫn; (3) C ghi "9 of 21" nhưng danh sách liệt kê 10 UC; (4) "5+7+9=21" do đó KHÔNG PHẢI một proof hợp lệ vì các set chồng lấn/cardinality sai. Sửa: §0-§2 viết lại hoàn toàn — recompute B TỪ ĐẦU bằng cách inspect trực tiếp `ux-blueprint.md` §5a's chính xác UC traceability của NAV-003 (`UC-002, UC-006`), NAV-004 (`UC-002, UC-011`), NAV-005 (`UC-016, UC-017, UC-018`), NAV-006 (`UC-019, UC-002, UC-020, UC-021`) — loại `UC-002`/`UC-004` khỏi B (VẪN A từ Batch 01/02), giữ `UC-006`/`UC-011`/`UC-016`/`UC-017`/`UC-018`/`UC-019`/`UC-020`/`UC-021` (8 UC từ NAV citation) + `UC-015` (WS-001/STATE-027 citation, KHÔNG qua NAV nào) = B đúng 9 UC. `UC-009`/`UC-010` (VÀ `UC-007`/`UC-008`/`UC-012`/`UC-013`/`UC-014`) KHÔNG một element nào trong Batch 01/02 tham chiếu — verify trực tiếp, C đúng 7 UC. Kết quả: A=5, B=9, C=7, tổng=21, A∩B=A∩C=B∩C=∅ (verify mechanically tại §2 dưới). KHÔNG đổi Replay/parity UX behavior, KHÔNG surface/screen mới, KHÔNG đổi §3 element-level map's hàng hiện có (CHỈ bổ sung explicit NAV-003..006 citation detail cho auditability).
 
 **v1.2 — bounded semantic correction (2026-08-13), Independent Review B trên baseline v1.2 (batch-manifest.md): `P2-B02-A-MAJ-01` REOPENED + `P2-B02-B-MAJ-01` (mới) — đóng CẢ HAI tại transaction này.** `P2-B02-A-MAJ-01`: §5 "Excluded-by-design" VẪN chứa current-state wording "13 of remaining 15 surfaces" (SAI arithmetic — 17 tổng, KHÔNG 15) sót lại từ v1.0, KHÔNG được sửa trong v1.1's UC-focused correction. Sửa: §5 viết lại — phân biệt tường minh candidate total nếu `P2-B02-B-MAJ-01` đóng đúng (5/17), candidate remaining (12/17 = SCR-003..SCR-011 [9] + VIEW-004..VIEW-006 [3]), VÀ Independent Review B's pre-correction independently-supportable state (4/17 — SCR-002/UC-004 supportable, VIEW-003/UC-005 KHÔNG do `P2-B02-B-MAJ-01`). `P2-B02-B-MAJ-01`: `app.js`'s `renderView003()` đánh dấu digest-definition axis (axis 9) LÀ "ok"/"resolved, consistent" cho MATCH/MISMATCH dù `.digest-note` chính nó nói digest-definition CHƯA established VÀ structured Representation comparison (KHÔNG Digest) LÀ cơ sở — mâu thuẫn ngữ nghĩa. Sửa: thêm axis-status thứ tư `not-applicable` (phân biệt tường minh khỏi `unresolved` — "not applicable" = KHÔNG PHẢI một phần comparison basis đang dùng; "unresolved" = BẮT BUỘC cho comparison này nhưng KHÔNG resolve được, buộc INDETERMINATE), axis 9 LUÔN `not-applicable` trong Batch 02's demo path (Digest KHÔNG BAO GIỜ dùng), MATCH/MISMATCH copy sửa từ "All nine pinned axes evaluable" thành "All applicable required axes... Digest-definition axis not applicable." Digest note mở rộng giải thích rõ sự phân biệt. KHÔNG establish digest-definition authority, KHÔNG chọn hash/serialization algorithm — governance gap VẪN unresolved, chỉ representation của gap đó được sửa cho chính xác. KHÔNG đổi §0-§2 A/B/C partition (VẪN A=5/B=9/C=7/tổng=21). KHÔNG surface/screen mới. KHÔNG đổi SCR-002 cursor binding/lineage/NAV-002 behavior/VIEW-003 optional-entry rule/MATCH-MISMATCH-INDETERMINATE outcome model/MISMATCH→Review handoff.
+
+**v1.3 — deterministic bookkeeping reconciliation (2026-08-14), vai trò: `Phase 2 Prototype Review-State Bookkeeping Reconciliation Executor`, đúng `G-TXN-003`.** KHÔNG PHẢI lifecycle transition, KHÔNG PHẢI prototype semantic correction. §2's "21-UC substantive completion progress" và §5's surface-accounting conclusion vẫn nói "CHƯA independently verified (chờ bounded Review A re-review + Independent bounded Review B trên v1.2)" và "Candidate KHÔNG PHẢI independently verified — 5/17 CHỈ authoritative sau khi..." — mâu thuẫn trực tiếp với governed review history ĐÃ hoàn tất từ v1.3 (bounded Review A v1.3 CLEAN; Independent bounded Review B v1.3: `P2-B02-A-MAJ-01` CLOSED, `P2-B02-B-MAJ-01` CLOSED, 0/0/0, verdict `READY_FOR_NEXT_PHASE2_BATCH`). Sửa: §2's cuối cùng + §5's kết luận viết lại để phản ánh 5/21 VÀ 5/17 ĐÃ independently verified — historical "candidate/pre-re-review" text phía trên GIỮ NGUYÊN, gắn nhãn rõ ràng LÀ lịch sử (KHÔNG xoá). KHÔNG đổi §0/§1/§3/§4/§6 (A/B/C partition, element-level map, reconciliation statement KHÔNG đổi — VẪN A=5/B=9/C=7/tổng=21).
 
 ## 0. UC accounting taxonomy (kế thừa nguyên vẹn từ Batch 01, KHÔNG redefine)
 
@@ -80,20 +82,21 @@ Partition validation (mechanical):
     003(A) 004(A) 005(A) 006(B) 007(C) 008(C) 009(C) 010(C) 011(B) 012(C) 013(C) 014(C) 015(B)
     016(B) 017(B) 018(B) 019(B) 020(B) 021(B) — 21 UC, mỗi UC xuất hiện ĐÚNG MỘT LẦN.
 
-21-UC substantive completion progress (candidate): 5/21 -- CHỈ đếm hạng mục A, CHƯA independently
-  verified (chờ bounded Review A re-review + Independent bounded Review B trên v1.2, đúng
-  P2-PROTOTYPE-001). Ba trạng thái tách biệt, KHÔNG conflate:
-    Candidate (sau v1.2 correction):                 5/21 (UC-001..005) -- CHƯA verified.
+21-UC substantive completion progress: 5/21 -- CHỈ đếm hạng mục A, ĐÃ independently verified
+  (v1.3 bookkeeping reconciliation — Independent bounded Review B trên v1.3 verdict
+  `READY_FOR_NEXT_PHASE2_BATCH`, đóng CẢ HAI `P2-B02-A-MAJ-01`/`P2-B02-B-MAJ-01`, 0/0/0). Lifecycle
+  VẪN CANDIDATE (verdict review ≠ lifecycle promotion). Historical (giữ nguyên làm bằng chứng
+  lịch sử, KHÔNG PHẢI hiện trạng):
+    Candidate (sau v1.2 correction, TRƯỚC v1.3's
+      review hoàn tất):                                5/21 (UC-001..005) -- lúc đó CHƯA verified.
     Independent Review B pre-re-review support
-      (trên baseline TRƯỚC transaction này):          4/21 -- UC-004 (SCR-002) supportable,
+      (trên baseline TRƯỚC v1.3 correction):           4/21 -- UC-004 (SCR-002) supportable,
                                                        UC-005 (VIEW-003) KHÔNG do
-                                                       `P2-B02-B-MAJ-01`, nay đóng, chờ bounded
-                                                       re-review xác nhận trước khi tính lại.
-    Last INDEPENDENTLY VERIFIED (Batch 01 baseline,
+                                                       `P2-B02-B-MAJ-01`, nay đóng.
+    Last independently verified TRƯỚC Batch 02's
+      own review hoàn tất (Batch 01 baseline,
       Independent Review B verdict
-      READY_FOR_NEXT_PHASE2_BATCH):                    3/21 (UC-001/002/003 only) -- authoritative
-                                                       cho tới khi Batch 02 tự nó qua Review A/B
-                                                       đầy đủ trên v1.2.
+      READY_FOR_NEXT_PHASE2_BATCH):                    3/21 (UC-001/002/003 only).
 ```
 
 ## 3. Element-level traceability map
@@ -166,14 +169,13 @@ Surface accounting (đóng `P2-B02-A-MAJ-01`'s stale "13 of remaining 15" arithm
                                                      affordance tồn tại (dẫn tới
                                                      #screen-deferred), substantive screen
                                                      content KHÔNG.
-  Independent Review B support TRƯỚC transaction
-    này (pre-re-review, chưa xác nhận correction):   4/17 — SCR-002/UC-004 supportable, VIEW-003/
+  Independent Review B support TRƯỚC v1.3 correction
+    (historical, pre-re-review):                     4/17 — SCR-002/UC-004 supportable, VIEW-003/
                                                      UC-005 KHÔNG (semantic Major
-                                                     `P2-B02-B-MAJ-01`, đóng tại transaction này,
-                                                     chờ bounded re-review xác nhận trước khi
-                                                     tính lại vào verified progress).
-  Candidate KHÔNG PHẢI independently verified — 5/17 CHỈ authoritative sau khi bounded Review A
-    re-review + Independent bounded Review B xác nhận trên v1.2 candidate này.
+                                                     `P2-B02-B-MAJ-01`, đóng tại v1.3).
+  5/17 ĐÃ independently verified (v1.3 bookkeeping reconciliation, 2026-08-14 — bounded Review A
+    v1.3 CLEAN + Independent bounded Review B v1.3 verdict READY_FOR_NEXT_PHASE2_BATCH, 0/0/0).
+    Lifecycle VẪN CANDIDATE.
 16 of 21 UC KHÔNG substantively covered (§2 ledger — B=9, C=7, KHÔNG collapse thành một bucket,
   đúng lesson từ Batch 01's `P2-B01-A-MIN-01`, VÀ KHÔNG double-count UC-002 vào cả A lẫn B, đúng
   fix của `P2-B02-A-MAJ-01`):

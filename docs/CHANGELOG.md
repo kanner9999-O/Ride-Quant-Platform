@@ -2,6 +2,123 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — Phase 2 Prototype Batch 01/02/03 review-state bookkeeping reconciliation (deterministic, G-TXN-003)
+
+**Bookkeeping reconciliation — vai trò: `Phase 2 Prototype Review-State Bookkeeping Reconciliation Executor`.** NOT a lifecycle transition, NOT a prototype semantic correction. Reconciles stale review-state/current-progress evidence in Batch 01/02/03's `batch-manifest.md` (and, where a current-state claim materially contradicted the given governed history, `traceability.md`) against the completed Review A / Independent Review B history for each batch, which had not previously been recorded into these files' own current-state sections.
+
+### Baseline
+
+```text
+Starting HEAD:    23835f426389a37f106e78268abb3020cea3147d
+```
+
+### Governed review history incorporated (given, per this transaction's own instructions)
+
+```text
+Batch 01 (v1.2 artifact candidate): bounded Review A re-review CLEAN; Independent bounded Review
+  B: P2-B01-B-MAJ-01 CLOSED, P2-B01-A-MIN-01 CLOSED, new Blocker/Major/Minor = 0/0/0; verdict
+  READY_FOR_NEXT_PHASE2_BATCH. Verified contribution: 3/17 surfaces (SCR-001, VIEW-001,
+  VIEW-002), 3/21 substantive UC (UC-001, UC-002, UC-003).
+
+Batch 02 (v1.3 artifact candidate, boundary 45126d90062910e847c6ea8a8ebc33126aed7dfb): bounded
+  Review A v1.3: P2-B02-A-MAJ-01 CLOSED, P2-B02-B-MAJ-01 CLOSED, 0/0/0, CLEAN. Independent
+  bounded Review B v1.3: same two findings CLOSED, 0/0/0; verdict READY_FOR_NEXT_PHASE2_BATCH.
+  Verified contribution: +2/17 surfaces (SCR-002, VIEW-003), +2/21 UC (UC-004, UC-005). Verified
+  cumulative after Batch 02: 5/17, 5/21.
+
+Batch 03 (v1.1 artifact candidate, boundary 23835f426389a37f106e78268abb3020cea3147d): Review A
+  v1.0 found P2-B03-A-MAJ-01/P2-B03-A-MIN-01, REVISION_REQUIRED; v1.1 bounded correction closed
+  both; bounded Review A re-review v1.1: both CLOSED, 0/0/0, CLEAN —
+  READY_FOR_INDEPENDENT_REVIEW_B. Independent Review B v1.1: both CLOSED, 0/0/0; verdict
+  READY_FOR_NEXT_PHASE2_BATCH. Verified contribution: +3/17 surfaces (SCR-003, SCR-004,
+  SCR-005), +5/21 UC (UC-006..UC-010). Verified cumulative after Batch 03: 8/17, 10/21.
+  Remaining: 9/17 surfaces, 11/21 UC not substantive.
+```
+
+### Files updated
+
+```text
+prototype/phase-2/batch-01/batch-manifest.md   v1.2 → v1.3, blob 557a0022f902fc1c26c57b0dbfcc09c9701ea1ee → 2102351608dbe450f25e4060ff5735d57d2329b7
+  (§1 Status, §16 review-state rewritten to record final Review A re-review + Independent Review
+  B outcome; §2–§15 semantic/artifact evidence byte-for-byte unchanged except this)
+prototype/phase-2/batch-01/README.md           blob 9c4153f64dc2827ef3e54ad30c00b566305ed64d
+  ("not yet reviewed or approved" — direct current-state contradiction — corrected to "reviewed,
+  verdict READY_FOR_NEXT_PHASE2_BATCH, lifecycle still candidate, not yet approved")
+prototype/phase-2/batch-01/traceability.md     UNCHANGED (verified: contains no current-state
+  review-progress claim contradicting the reconciled state — left byte-identical)
+prototype/phase-2/batch-01/{index.html,app.js,styles.css}  UNCHANGED (byte-identical, verified)
+
+prototype/phase-2/batch-02/batch-manifest.md   v1.3 → v1.4, blob → fdbf2aad11c3aeeec7885c7da512607d90935538
+  (§1 Status, §4 UC-ledger conclusion, §16 review-state rewritten; §2/§3/§5–§15 unchanged)
+prototype/phase-2/batch-02/traceability.md     v1.2 → v1.3, blob → 3074affef2d50a5fefeb043beccc92fb95e3cdf3
+  (§2 conclusion and §5 conclusion said "CHƯA independently verified (chờ bounded Review A
+  re-review + Independent bounded Review B trên v1.2)" — a direct, material current-state
+  contradiction of the completed v1.3 review. Corrected; historical candidate/pre-re-review
+  narrative retained above, explicitly labelled historical. §0/§1/§3/§4/§6 — A/B/C partition,
+  element-level map, reconciliation statement — unchanged, still A=5/B=9/C=7/21)
+prototype/phase-2/batch-02/README.md           blob 5a0693e6518028213c7f0dd51f0fb752b9e9ab59
+  (same "not yet reviewed or approved" contradiction, same fix)
+prototype/phase-2/batch-02/{index.html,app.js,styles.css}  UNCHANGED (byte-identical, verified)
+
+prototype/phase-2/batch-03/batch-manifest.md   v1.1 → v1.2, blob → 8a83e5e42341d7b30dae1b9d854197d7c2dcb311
+  (§1 Status, §4 UC-ledger conclusion, §17 review-state rewritten; §2/§3/§5/§6/§8–§16 unchanged)
+prototype/phase-2/batch-03/traceability.md     v1.1 → v1.2, blob → 8e93322db427c5bb686103f45a8abf41bbe6cff2
+  (§2 title/conclusion and §6 conclusion said "candidate — KHÔNG independently verified" / "CHƯA
+  independently verified (chờ Review A + Independent Review B trên Batch 03)" — a direct,
+  material current-state contradiction of the completed v1.1 review. Corrected; §0/§1/§3/§4/§5
+  unchanged, still A=10/B=8/C=3/21)
+prototype/phase-2/batch-03/README.md           blob 3ba9dc96d67a60b0e2d3cd75f4b9464ae4445a1a
+  (same "not yet reviewed or approved" contradiction, same fix)
+prototype/phase-2/batch-03/{index.html,app.js,styles.css}  UNCHANGED (byte-identical, verified)
+
+docs/MANIFEST.md   manifest_version 10.141 → 10.142. All three Batch rows rewritten compact
+  (P2-BUDGET-001 discipline — the large multi-version narrative history previously duplicated
+  inside these cells is now pointed to batch-manifest.md §16/§17 + this CHANGELOG only, not
+  repeated in MANIFEST). Confirmation paragraph below the batch table updated: 8/17, 10/21 is now
+  stated as independently verified (was "candidate... CHƯA independently verified vượt quá
+  5/17, 5/21").
+```
+
+### No semantic prototype change / no lifecycle transition
+
+```text
+Zero bytes changed in any index.html/app.js/styles.css across Batch 01/02/03 (verified: git diff
+  --quiet). No SCR/VIEW/NAV/FLOW/STATE added or altered. No Product/UX/Domain authority touched
+  (docs/product/, docs/domain/, docs/constitution/, docs/phase-dod/,
+  docs/governance/phases/phase-2-rules.md, docs/architecture/, docs/adr/ all byte-identical). No
+  ADR created. No batch lifecycle changed — all three remain CANDIDATE; READY_FOR_NEXT_PHASE2_BATCH
+  is recorded as the completed-review verdict for each, explicitly distinguished from
+  Approved/Accepted/Complete lifecycle status. Gate 3 not opened, Phase 2 not approved,
+  P2-RETRO-001 not performed, Phase 3/LIVE not authorized.
+```
+
+### Result
+
+```text
+Verified cumulative progress: 8/17 surfaces, 10/21 substantive UC (A={001..010}, B={011,015-021}
+  =8, C={012,013,014}=3, partition mechanically valid: pairwise disjoint, union={UC-001..021},
+  10+8+3=21). Remaining: 9/17 surfaces, 11/21 UC.
+Batch 01/02/03: lifecycle CANDIDATE (unchanged), review verdict READY_FOR_NEXT_PHASE2_BATCH
+  (recorded for all three).
+I-11: PASS (preserved, not re-tested — this transaction performed no semantic re-review).
+I-12: PASS (traceability now consistent with the recorded review outcome; no new domain concept).
+Trigger B/C/D/E: PRESERVED (preserved, not re-tested).
+Phase 2 substantive completion: NOT ESTABLISHED. Quality Gate: NOT RUN. Gate 3: NOT OPENED.
+  P2-RETRO-001: NOT PERFORMED. Phase 3: NOT AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+Behavior files (index.html/app.js/styles.css), all three batches: byte-identical (git diff
+  --quiet).
+batch-01/traceability.md: byte-identical (no contradiction found, left untouched).
+Forbidden-authority paths (docs/product/, docs/domain/, docs/constitution/, docs/phase-dod/,
+  docs/governance/phases/phase-2-rules.md, docs/architecture/, docs/adr/): untouched.
+docs/MANIFEST.md batch-row pipe/word counts: 7 pipes (matches 6-column header) for all three
+  rows; 109/137/162 words respectively, well under the 1,500-word P2-BUDGET-001 ceiling.
+```
+
 ## [Unreleased] — 2026-08-13 — Phase 2 Prototype Batch 03 v1.1 bounded correction: `P2-B03-A-MAJ-01` CLOSED (UC-008 progression), `P2-B03-A-MIN-01` CLOSED (last-verified provenance)
 
 **Bounded correction — vai trò: `Phase 2 Prototype Batch 03 v1.1 Bounded Correction Executor`.** Closes two Review A findings on the v1.0 baseline: a missing UC-008 progression representation, and a stale/inconsistent provenance description for the "last independently verified" baseline. No scope expansion, no new SCR/VIEW.

@@ -31,5 +31,6 @@ directly, since a static prototype has no real event log to compute these outcom
 
 Not a production frontend, not connected to any backend/exchange, not authorized for LIVE, not a
 claim that Phase 2 (or even this batch's full UC/surface coverage) is complete. See
-`batch-manifest.md` §16 for lifecycle/review state — this batch is a **candidate**, not yet
-reviewed or approved.
+`batch-manifest.md` §16 for lifecycle/review state — Review A and Independent Review B are
+complete (verdict `READY_FOR_NEXT_PHASE2_BATCH`), but this batch's lifecycle remains a
+**candidate**, not yet approved — that verdict is not itself a lifecycle promotion.

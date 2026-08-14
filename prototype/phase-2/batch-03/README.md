@@ -54,8 +54,8 @@ Backtest engine to derive these from.
 ## What this is not
 
 Not a production frontend, not connected to any backend/exchange, not authorized for LIVE, not an
-implementation of a simulation/Decision/Risk engine, and not a claim that Phase 2 (or even this
-batch's full UC/surface coverage) is complete or independently verified. See `batch-manifest.md`
-§17 for the exact candidate-vs-verified progress distinction — this batch's own SCR-003/SCR-004/
-SCR-005 contribution is a **candidate**, not yet reviewed or approved (Batch 01/02's prior
-contribution is independently verified, see §17).
+implementation of a simulation/Decision/Risk engine, and not a claim that Phase 2's full 17-surface/
+21-UC coverage is complete. See `batch-manifest.md` §17 for the exact progress accounting — Review
+A and Independent Review B are complete for this batch's own SCR-003/SCR-004/SCR-005 contribution
+(verdict `READY_FOR_NEXT_PHASE2_BATCH`), but this batch's lifecycle remains a **candidate**, not
+yet approved — that verdict is not itself a lifecycle promotion.

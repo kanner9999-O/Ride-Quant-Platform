@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-02-manifest
 title: "Phase 2 Prototype — Batch 02 — Batch Manifest"
-version: "1.3"
+version: "1.4"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -9,7 +9,9 @@ created_at: "2026-08-13"
 
 # Phase 2 Prototype — Batch 02 — Batch Manifest
 
-**Vai trò của tài liệu này:** batch-level evidence record cho Batch 02, đúng `phase-2-rules.md` `P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch 02 LÀ candidate/in-review — **KHÔNG self-approved** (chờ Review A + Independent Review B theo batch, đúng `P2-PROTOTYPE-001`).
+**Vai trò của tài liệu này:** batch-level evidence record cho Batch 02, đúng `phase-2-rules.md` `P2-PROTOTYPE-001` (review theo batch/milestone, KHÔNG per-screen governance cycle riêng). Batch 02 đã qua đầy đủ Review A + Independent Review B trên v1.3 — verdict `READY_FOR_NEXT_PHASE2_BATCH` — **NHƯNG lifecycle VẪN `CANDIDATE`** (`READY_FOR_NEXT_PHASE2_BATCH` LÀ completed-review verdict, KHÔNG PHẢI lifecycle status; Product Owner CHƯA issue một lifecycle-promotion transaction riêng).
+
+**v1.4 — deterministic bookkeeping reconciliation (2026-08-14), vai trò: `Phase 2 Prototype Review-State Bookkeeping Reconciliation Executor`, đúng `G-TXN-003`.** KHÔNG PHẢI lifecycle transition, KHÔNG PHẢI prototype semantic correction — reconcile review-state/current-progress bookkeeping tại §1/§4/§16 để khớp với governed review history ĐÃ hoàn tất trên v1.3 (bounded Review A v1.3: `P2-B02-A-MAJ-01` CLOSED, `P2-B02-B-MAJ-01` CLOSED, Blocker/Major/Minor mới = 0/0/0, CLEAN; Independent bounded Review B v1.3: cùng hai finding CLOSED, 0/0/0, verdict `READY_FOR_NEXT_PHASE2_BATCH`) — history này trước đây CHƯA được ghi nhận vào tài liệu này, khiến §1/§4/§16 stale ("chờ Review A/Independent Review B," "candidate 5/21 CHƯA verified," "pre-re-review 4/17 supportable" trình bày như hiện trạng). KHÔNG sửa nội dung semantic/artifact evidence (§2/§3/§5–§15 giữ nguyên); KHÔNG sửa `index.html`/`app.js`/`styles.css` (blob KHÔNG đổi). `traceability.md` được sửa RIÊNG (bounded, cùng lý do — xem `traceability.md`'s own v1.3 banner). `README.md` sửa tối thiểu (câu "not yet reviewed or approved" mâu thuẫn trực tiếp với review COMPLETE — sửa thành "reviewed, verdict READY_FOR_NEXT_PHASE2_BATCH, nhưng lifecycle vẫn candidate, chưa approved"). Lifecycle VẪN `CANDIDATE`.
 
 **v1.1 — bounded correction (2026-08-13), đóng `P2-B02-A-MAJ-01` (Review A).** v1.0's §4 cumulative UC ledger KHÔNG PHẢI một valid partition — `UC-002` xuất hiện CẢ trong A LẪN B; `UC-009`/`UC-010` bị gọi B trong khi mô tả nói zero-reference; C ghi "9 of 21" nhưng liệt kê 10 UC; "5+7+9=21" do đó sai. Sửa: §4 viết lại — B recompute TỪ ĐẦU trực tiếp từ `ux-blueprint.md` §5a's NAV-003/004/005/006 UC traceability (loại UC-002/UC-004 vì đã A), kết quả A=5/B=9/C=7, tổng=21, ba set đôi một rời nhau (verify mechanically, xem `traceability.md` v1.1 §2). KHÔNG đổi Replay/parity behavior, KHÔNG surface mới, KHÔNG đổi 3/17→5/17 surface progress (surface accounting KHÔNG bị ảnh hưởng bởi finding này).
 
@@ -24,8 +26,9 @@ Batch:              Phase 2 — Batch 02 (Replay reconstruction + optional parit
 Phase:               Phase 2 — Product Prototype (AUTHORIZED TO BEGIN)
 Authoritative DoD:   docs/phase-dod/phase-2-dod.md v0.3, status Approved,
                      post-acceptance blob de399900a93c7ec7ee64577093513de1643ebb33
-Status:              CANDIDATE — chờ Review A + Independent Review B (batch-level,
-                     P2-PROTOTYPE-001)
+Status:              CANDIDATE — Review A + Independent Review B COMPLETE trên v1.3, verdict
+                     READY_FOR_NEXT_PHASE2_BATCH (batch-level, P2-PROTOTYPE-001). Lifecycle VẪN
+                     CANDIDATE — verdict review KHÔNG PHẢI lifecycle promotion.
 Created:             2026-08-13
 Depends on (real,
   read-only link,
@@ -93,9 +96,9 @@ Partition validation: |A|=5, |B|=9, |C|=7, tổng=21. A∩B=A∩C=B∩C=∅ (ver
   wording + app.js's digest-axis representation được sửa tại v1.3, xem §16 dưới cho review
   history đầy đủ). Union = {UC-001..UC-021}, mỗi UC đúng một lần — KHÔNG thiếu, KHÔNG dư.
 
-21-UC substantive completion progress: candidate 5/21 (A only) -- CHƯA independently verified
-  tại transaction này (chờ Review A + Independent Review B trên Batch 02). Last INDEPENDENTLY
-  VERIFIED progress VẪN 3/21 (Batch 01 only).
+21-UC substantive completion progress: 5/21 (A only) -- ĐÃ independently verified (v1.4 bookkeeping
+  reconciliation — Independent Review B trên v1.3 verdict READY_FOR_NEXT_PHASE2_BATCH). Trước đó
+  (historical, TRƯỚC v1.3's review hoàn tất): last independently verified 3/21 (Batch 01 only).
 ```
 
 ## 5. Covered PR IDs (Batch 02 mới)
@@ -111,7 +114,7 @@ PR-010, PR-019 (VIEW-003)
 prototype/phase-2/batch-02/index.html         blob c69502da70e32db07572848a795d74f67ecc838d (unchanged since v1.0)
 prototype/phase-2/batch-02/app.js              blob 52487b0a70525011a9d38f3ce66f7f595cb4bb7c (CURRENT — v1.3, đóng P2-B02-B-MAJ-01's digest-axis semantic correction; historical pre-fix blob 8f5fba218457b965dd2f9ecdc1576de9b61639a6, superseded)
 prototype/phase-2/batch-02/styles.css          blob 7042966f1e41bb550fab0e42316803d1595e1754 (CURRENT — v1.3, thêm .axis-status-not-applicable class, presentation-only; historical pre-fix blob bcd250d57cfb5b56e3558fbdbede0cca89cf1b82, superseded)
-prototype/phase-2/batch-02/traceability.md     blob 302fd0ffd9eb59ba63e9b06854411f7abe57d13e (CURRENT — v1.2, đóng REOPENED P2-B02-A-MAJ-01 + P2-B02-B-MAJ-01; historical v1.1 blob f37ca95963111dcdece19b11fb8a919646ebfe8b, historical v1.0 blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425, both superseded)
+prototype/phase-2/batch-02/traceability.md     blob 3074affef2d50a5fefeb043beccc92fb95e3cdf3 (CURRENT — v1.3, bookkeeping reconciliation, §2/§5 review-progress conclusions updated to ĐÃ verified; historical v1.2 blob 302fd0ffd9eb59ba63e9b06854411f7abe57d13e, v1.1 blob f37ca95963111dcdece19b11fb8a919646ebfe8b, v1.0 blob 61e7f2afe44f0d0795cbfbe98c3041d10d4fb425, all superseded)
 ```
 
 ## 7. Authority sources consumed (reference only, none modified)
@@ -238,10 +241,10 @@ None within this batch's scope. 12/17 surfaces not yet substantively covered (SC
 ## 16. Batch lifecycle / review state
 
 ```text
-Status:            CANDIDATE — corrected (v1.3 app.js/styles.css, v1.2 traceability.md, v1.3
-                    batch-manifest.md), NOT self-approved.
+Status:            CANDIDATE — v1.3 artifact candidate, review COMPLETE, NOT self-approved
+                    (READY_FOR_NEXT_PHASE2_BATCH verdict ≠ lifecycle approval).
 
-Review history:
+Review history (chronological, KHÔNG rewrite):
   Review A (v1.0):                     P2-B02-A-MAJ-01 found, REVISION_REQUIRED.
   v1.1 bounded correction:              đóng P2-B02-A-MAJ-01 (A/B/C partition rebuild).
   Bounded Review A re-review (v1.1):    P2-B02-A-MAJ-01 REOPENED (stale current-state evidence
@@ -254,29 +257,35 @@ Review history:
                                         P2-B02-B-MAJ-01 (digest-axis semantic contradiction,
                                         app.js). Blocker 0, Major 1 new + 1 reopened, Minor 0,
                                         REVISION_REQUIRED.
-  v1.3 (transaction này):               đóng CẢ HAI P2-B02-A-MAJ-01 (traceability.md §5) VÀ
+  v1.3 bounded correction:              đóng CẢ HAI P2-B02-A-MAJ-01 (traceability.md §5) VÀ
                                         P2-B02-B-MAJ-01 (app.js digest-axis representation).
-                                        Correction ONLY — CHƯA tuyên bố bounded re-review đã
-                                        pass trên v1.3.
+  Bounded Review A (v1.3, FINAL):        P2-B02-A-MAJ-01 CLOSED; P2-B02-B-MAJ-01 CLOSED; new
+                                        Blocker/Major/Minor = 0/0/0; CLEAN.
+  Independent Review B (v1.3,
+    FINAL):                             P2-B02-A-MAJ-01 CLOSED; P2-B02-B-MAJ-01 CLOSED; new
+                                        Blocker/Major/Minor = 0/0/0; verdict
+                                        READY_FOR_NEXT_PHASE2_BATCH.
 
-Progress — BA trạng thái tách biệt, KHÔNG conflate:
-  Candidate (sau v1.3 correction, CHƯA verified):
-    17-surface cumulative:              5/17 (3/17 Batch 01 + 2/17 Batch 02: SCR-002+VIEW-003).
-    21-UC substantive cumulative:        5/21 (3/21 Batch 01 + 2/21 Batch 02: UC-004+UC-005).
+CURRENT TRUTH (v1.4 bookkeeping reconciliation, 2026-08-14 — đóng gap "chờ bounded re-review"
+  trước đây, đúng G-TXN-003):
+  Review verdict:                 READY_FOR_NEXT_PHASE2_BATCH (final, v1.3 artifact candidate —
+                                 KHÔNG PHẢI Approved/Accepted/Complete lifecycle transition).
+  Verified Batch-02 contribution: +2/17 surfaces (SCR-002, VIEW-003); +2/21 substantive UC
+                                 (UC-004, UC-005).
+  Verified cumulative (Batch
+    01+02):                       5/17 surfaces; 5/21 substantive UC.
+  Batch lifecycle:                CANDIDATE (unchanged — Product Owner CHƯA issue lifecycle-
+                                 promotion transaction riêng cho Batch 02).
+  Further Batch-02 correction/
+    re-review pending:            NONE — review COMPLETE trên v1.3, KHÔNG bounded re-review nào
+                                 chờ xử lý.
 
-  Independent Review B pre-re-review independently-supportable state (trên baseline TRƯỚC
-    transaction này — SCR-002/UC-004 supportable, VIEW-003/UC-005 KHÔNG do P2-B02-B-MAJ-01):
-    17-surface cumulative:              4/17 (3/17 Batch 01 + 1/17 Batch 02: SCR-002 only).
-    21-UC substantive cumulative:        4/21 (3/21 Batch 01 + 1/21 Batch 02: UC-004 only).
+Historical (TRƯỚC v1.3's review hoàn tất — giữ nguyên làm bằng chứng lịch sử, KHÔNG PHẢI hiện
+  trạng): Independent Review B's pre-re-review independently-supportable state trên baseline
+  TRƯỚC v1.3 correction (SCR-002/UC-004 supportable, VIEW-003/UC-005 KHÔNG do P2-B02-B-MAJ-01,
+  nay đóng): 4/17, 4/21. Last independently verified TRƯỚC Batch 02's own review hoàn tất: 3/17,
+  3/21 (Batch 01 only).
 
-  Last INDEPENDENTLY VERIFIED (Batch 01's own Independent Review B verdict,
-    READY_FOR_NEXT_PHASE2_BATCH — authoritative cho tới khi Batch 02 tự nó qua Review A + Review
-    B đầy đủ, KHÔNG REOPENED):
-    17-surface:                          3/17 (Batch 01 only).
-    21-UC substantive:                    3/21 (Batch 01 only).
-
-Next step:          Bounded Review A re-review + Independent bounded Review B on this v1.3
-                     candidate (app.js/styles.css v1.3, traceability.md v1.2, batch-manifest.md
-                     v1.3) — a separate governed transaction, per this transaction's own scope
-                     (correction only).
+Next step:          Không applicable cho riêng Batch 02 — Phase 2 đã tiếp tục sang Batch 03 dựa
+                     trên contribution đã verified này (P2-PROTOTYPE-001).
 ```
