@@ -2,6 +2,97 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-14 — P2-BCC-MAJ01-A2-MAJ-01 bounded correction (UC-004 Observable outcome stale "state đã ghi nhận" wording)
+
+**Bounded semantic correction — vai trò: `P2-BCC-MAJ-01 Authority Candidate A2 Bounded Correction
+Executor`.** Closes exactly one Review-A finding, `P2-BCC-MAJ01-A2-MAJ-01`, found on the
+P2-BCC-MAJ-01 Product/Workflow/UX authority correction candidate at commit `4c8f699`. Does not
+broaden scope.
+
+### Baseline
+
+```text
+Starting HEAD:    4c8f699946f37b6c97022b84618e7b5e25b4a48a
+```
+
+### Finding
+
+```text
+P2-BCC-MAJ01-A2-MAJ-01 (Major): UC-004 Observable outcome still said "Người dùng thấy chính xác
+  state đã ghi nhận tại cursor đã chọn ..." — even though the same sentence already goes on to
+  distinguish authoritative fact lineage from Position projection, "state đã ghi nhận" (state that
+  was recorded) still implies the WHOLE ReplayState(C), including Position, was itself a recorded
+  fact. Current Domain authority: ReplayState(C) is reconstructed/folded at cursor C; Position is
+  derived, deterministic, non-authoritative, with no independent recorded fact/event stream
+  (position.md §1).
+```
+
+### Correction
+
+```text
+UC-004 Observable outcome rewritten: "Người dùng thấy chính xác historical ReplayState(C) được
+  tái dựng tại cursor đã chọn — authoritative fact lineage VÀ Position projection tương ứng, với
+  authority class tách biệt rõ." Uses neutral historical-reconstruction language — does not imply
+  the whole ReplayState was recorded, does not imply Position was recorded, does not imply
+  ReplayState itself is authoritative. No other UC-004 field (Goal/Trigger/Preconditions/Inputs/
+  Main flow/Alternate-failure/Evidence consumed/Evidence produced/PR traceability/Domain
+  vocabulary/Out-of-scope) touched. PR-018/PR-019 (product-requirement.md) and SCR-002
+  (ux-blueprint.md) not touched — confirmed byte-identical.
+```
+
+### Files changed
+
+```text
+docs/product/use-case-workflow.md   v0.10 -> v0.11 (Draft, CANDIDATE pending governed review) —
+  UC-004 Observable outcome corrected; every other UC-004 field and every other UC unchanged.
+docs/product/product-requirement.md  UNCHANGED — confirmed byte-identical (git diff --quiet);
+  stays at v0.5.
+docs/product/ux-blueprint.md         UNCHANGED — confirmed byte-identical (git diff --quiet);
+  stays at v0.9.
+docs/MANIFEST.md   manifest_version 10.154 -> 10.155. "Phase 2 — Full-Scope Backward Consistency
+  Check (P2-BCC-MAJ-01)" section updated compactly: new "Review A round 2 on the candidate" entry
+  recording P2-BCC-MAJ01-A2-MAJ-01 found/closed, updated use-case-workflow.md version-chain
+  identity (v0.8->v0.9->v0.10->v0.11), P2-BCC-MAJ-01 explicitly still OPEN. No historical batch
+  rows rewritten.
+```
+
+### No scope expansion / no Domain change / no prototype change
+
+```text
+docs/domain/, docs/architecture/, docs/constitution/, docs/adr/, docs/phase-dod/,
+  docs/product/product-requirement.md, docs/product/ux-blueprint.md: UNCHANGED (git status
+  --porcelain=v1 -uall clean / git diff --quiet as applicable). prototype/: UNCHANGED (only
+  pre-existing untracked .DS_Store noise). No new PR/UC/SCR/VIEW/STATE ID introduced. No ADR
+  created. No Product artifact self-consolidated/approved. Full-scope BCC not rerun. Quality Gate
+  not run. Gate 3 not opened.
+```
+
+### Result
+
+```text
+P2-BCC-MAJ01-A2-MAJ-01: CLOSED by this candidate correction.
+P2-BCC-MAJ-01 (Phase-wide finding): remains OPEN — closure still requires bounded Review A
+  re-review CLEAN + Independent Review B CLEAN + Product Owner consolidation/revalidation +
+  prototype Batch 02 correction + affected prototype re-review + full-scope BCC rerun.
+Full-scope BCC: remains REVISION_REQUIRED. Clean full-scope support: remains 16/17 surfaces, 20/21
+  substantive UC pending closure (unchanged by this bounded correction).
+Phase 2: ACTIVE/AUTHORIZED (current_phase unchanged). All six prototype batches remain CANDIDATE.
+Quality Gate: NOT RUN. Gate-3 eligibility: NOT ESTABLISHED. Gate 3: NOT OPENED. Phase 3: NOT
+  AUTHORIZED. LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+Diff-scope check: git diff docs/product/use-case-workflow.md shows exactly one hunk (the
+  Observable outcome line) — confirmed no other field changed. product-requirement.md/
+  ux-blueprint.md byte-identity: git diff --quiet — confirmed unchanged. Domain Contract byte-
+  identity: git diff --quiet on docs/domain/ — confirmed no domain file touched. Scope-boundary
+  check: git status --porcelain=v1 -uall on docs/domain, docs/architecture, docs/constitution,
+  docs/adr, docs/phase-dod — all clean. Prototype byte-identity: git status --porcelain=v1 -uall
+  on prototype/ — no tracked file changed.
+```
+
 ## [Unreleased] — 2026-08-14 — P2-BCC-MAJ01-A-MAJ-01 bounded correction (UC-004 Goal / SCR-002 Purpose stale universal-authority wording)
 
 **Bounded semantic correction — vai trò: `P2-BCC-MAJ-01 Authority Correction vNext Bounded

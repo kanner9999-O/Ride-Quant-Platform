@@ -1,7 +1,7 @@
 ---
 id: use-case-workflow
 title: Use Case & Workflow
-version: "0.10"
+version: "0.11"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -77,6 +77,24 @@ Trạng thái: **CANDIDATE, pending governed review** — `P2-BCC-MAJ01-A-MAJ-01
 correction này, NHƯNG `P2-BCC-MAJ-01` (Phase-wide BCC finding) VẪN OPEN cho tới khi bounded Review
 A re-review CLEAN + Independent Review B CLEAN + Product Owner consolidation/revalidation +
 prototype Batch 02 correction + affected prototype re-review + full-scope BCC rerun.
+
+**v0.11 — CANDIDATE bounded semantic correction (2026-08-14), đóng `P2-BCC-MAJ01-A2-MAJ-01`
+(Review A finding trên P2-BCC-MAJ-01 authority correction candidate v0.10) — KHÔNG Approved/
+Consolidated, pending bounded Review A re-review/Independent Review B/Product Owner decision:**
+`UC-004` Observable outcome viết lại — trước đây "Người dùng thấy chính xác state đã ghi nhận tại
+cursor đã chọn ..." vẫn ngụ ý TOÀN BỘ `ReplayState(C)` (kể cả Position) là một "state đã ghi
+nhận," mâu thuẫn `position.md` §1 (Position derived, deterministic, non-authoritative, KHÔNG
+recorded fact/event stream riêng) dù chính câu đó đã nối thêm mệnh đề phân tách authoritative
+fact lineage khỏi Position projection. Sửa: Observable outcome nay nói "Người dùng thấy chính xác
+historical ReplayState(C) được tái dựng tại cursor đã chọn — authoritative fact lineage VÀ
+Position projection tương ứng, với authority class tách biệt rõ" — ngôn ngữ historical
+reconstruction trung lập, KHÔNG ngụ ý toàn bộ ReplayState/Position đã được ghi nhận/authoritative.
+KHÔNG đổi Goal/Trigger/Preconditions/Inputs/Main flow/Alternate-failure/Evidence consumed/Evidence
+produced/PR traceability/Domain vocabulary/Out-of-scope boundary của UC-004. `PR-018`/`PR-019`
+(product-requirement.md, KHÔNG chạm)/`SCR-002` (ux-blueprint.md, KHÔNG chạm) KHÔNG đổi. Trạng
+thái: **CANDIDATE, pending governed review** — `P2-BCC-MAJ01-A2-MAJ-01` CLOSED bởi candidate
+correction này, NHƯNG `P2-BCC-MAJ-01` (Phase-wide BCC finding) VẪN OPEN cho tới khi governed
+review/consolidation/prototype correction/re-review/full-scope BCC rerun hoàn tất.
 
 ## 1. Purpose and authority boundary
 
@@ -299,8 +317,9 @@ Main flow:              1. Người dùng chọn một Replay Cursor.
                            §1: "KHÔNG có event stream riêng").
 Alternate/failure:      Cursor tham chiếu artifact không materialize được → §8 "Replay cursor with
                         unavailable references".
-Observable outcome:     Người dùng thấy chính xác state đã ghi nhận tại cursor đã chọn — authoritative
-                        fact lineage VÀ Position projection tương ứng, nhãn authority tách biệt rõ.
+Observable outcome:     Người dùng thấy chính xác historical ReplayState(C) được tái dựng tại cursor
+                        đã chọn (v0.11, đóng `P2-BCC-MAJ01-A2-MAJ-01`) — authoritative fact lineage
+                        VÀ Position projection tương ứng, với authority class tách biệt rõ.
 Evidence consumed:      Authoritative event stream Decision→Trade Intent→RiskEvaluation→Execution
                         Intent→Order→ExecutionResult→Fill (v0.9, đóng `P2-BCC-MAJ-01` — Position KHÔNG
                         còn liệt kê trong "event stream," xem bước 2(b)); Position derived projection

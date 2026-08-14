@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.154"
+manifest_version: "10.155"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -282,15 +282,29 @@ Review A on the candidate
                               re-review CLEAN + Independent Review B CLEAN + Product Owner
                               consolidation/revalidation + prototype Batch 02 correction + affected
                               prototype re-review + full-scope BCC rerun.
+Review A round 2 on the
+  candidate (2026-08-14):       P2-BCC-MAJ01-A2-MAJ-01 (Major) found — UC-004 Observable outcome
+                              still said "state đã ghi nhận tại cursor đã chọn," implying the whole
+                              ReplayState(C) (incl. Position) was itself recorded, despite the same
+                              sentence already distinguishing authoritative fact lineage from
+                              Position projection. Bounded correction (2026-08-14) rewrote
+                              Observable outcome to neutral historical-reconstruction wording
+                              ("historical ReplayState(C) được tái dựng tại cursor đã chọn") — no
+                              other UC-004 field, PR-018/PR-019, or SCR-002 touched.
+                              P2-BCC-MAJ01-A2-MAJ-01: CLOSED by this candidate correction.
+                              P2-BCC-MAJ-01 (Phase-wide finding) remains OPEN — same closure
+                              requirements as above.
 Affected authority artifacts
   (candidate corrections):     docs/product/product-requirement.md v0.4 → v0.5 (PR-018 corrected;
                               PR-019 unchanged, regression-verified byte-identical) — CANDIDATE,
-                              UNCHANGED by this bounded correction (no PR-018 defect found).
+                              UNCHANGED since v0.5 (no further PR-018 defect found in either Review
+                              A round).
                               docs/product/use-case-workflow.md v0.8 → v0.9 (P2-BCC-MAJ-01) → v0.10
-                              (P2-BCC-MAJ01-A-MAJ-01, this correction — UC-004 Goal) — CANDIDATE.
+                              (P2-BCC-MAJ01-A-MAJ-01, UC-004 Goal) → v0.11 (P2-BCC-MAJ01-A2-MAJ-01,
+                              UC-004 Observable outcome, this correction) — CANDIDATE.
                               docs/product/ux-blueprint.md v0.7 → v0.8 (P2-BCC-MAJ-01) → v0.9
-                              (P2-BCC-MAJ01-A-MAJ-01, this correction — SCR-002 Purpose) —
-                              CANDIDATE.
+                              (P2-BCC-MAJ01-A-MAJ-01, SCR-002 Purpose) — CANDIDATE, UNCHANGED by
+                              this bounded correction.
                               None self-consolidated; historical Consolidated-Stable lifecycle
                               evidence on all three documents (incl. the VIEW-003/UC-005/decision.md
                               §9a Consolidated Stable banners) preserved untouched.
