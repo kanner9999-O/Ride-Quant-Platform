@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.158"
+manifest_version: "10.159"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -457,21 +457,148 @@ Phase-wide clean full-scope
                               a distinct axis from historical per-batch accounting, also 17/17+21/21,
                               not merged/redefined).
 Batch-02 lifecycle:             CANDIDATE — unchanged, NOT promoted by this closure.
-Quality Gate:                   NOT RUN (unaffected by this BCC-level closure).
-Gate-3 eligibility:             NOT YET ESTABLISHED.
+Quality Gate (AS OF 2026-08-15
+  BCC reconciliation — HISTORICAL,
+  superseded by the "Phase 2 —
+  Formal Quality Gate" section
+  below):                        NOT RUN (unaffected by this BCC-level closure).
+Gate-3 eligibility:             NOT YET ESTABLISHED (still true after the Quality Gate section
+                              below — Gate-3 also requires Phase-level Gate Review, NOT RUN).
 Gate 3:                         NOT OPENED.
-Governance state (current,
-  post-rerun-recording):        Phase 2 ACTIVE/AUTHORIZED (current_phase unchanged). All six
+Governance state (AS OF 2026-
+  08-15 BCC reconciliation —
+  HISTORICAL, superseded by
+  the Quality Gate section
+  below):                       Phase 2 ACTIVE/AUTHORIZED (current_phase unchanged). All six
                               prototype batches remain CANDIDATE. Full-scope BCC result: NO_CONFLICT
                               (P2-BCC-MAJ-01 CLOSED_BY_FULL_SCOPE_BCC_RERUN). Quality Gate NOT RUN.
                               Gate-3 eligibility NOT ESTABLISHED. Gate 3 NOT OPENED. Product Owner
                               Phase-2 decision NOT ISSUED. P2-RETRO-001 NOT PERFORMED. Phase 3 NOT
                               AUTHORIZED. LIVE NOT AUTHORIZED.
-Current next step:              formal Phase-2 Quality Gate evaluation against the accepted Phase-2
+Current next step (AS OF
+  2026-08-15 BCC reconciliation
+  — HISTORICAL, superseded):    formal Phase-2 Quality Gate evaluation against the accepted Phase-2
                               gate-set (Trigger A with {I-11, I-12}; Trigger B/C/D/E remain N/A
-                              subject to the preserved boundary) — NOT yet run; this transaction is
-                              bookkeeping recording only and does not itself constitute or imply a
-                              Quality Gate PASS.
+                              subject to the preserved boundary) — NOT yet run at this section's own
+                              recording time; this section's own transaction was bookkeeping
+                              recording only and did not itself constitute or imply a Quality Gate
+                              PASS. The Quality Gate has since been evaluated — see "Phase 2 —
+                              Formal Quality Gate" section immediately below for the current,
+                              authoritative state.
+Full history:                   docs/CHANGELOG.md.
+```
+
+## Phase 2 — Formal Quality Gate
+
+```text
+Result:                         PASS.
+Evaluation boundary:            0f01ebff9596a095a767b9bb87a670a2f89c23b6 (immutable Quality-Gate-
+                              evaluated semantic boundary — distinct from the post-recording
+                              bookkeeping commit this reconciliation transaction itself produces,
+                              G-ID-001; do NOT treat the reconciliation commit as itself having been
+                              evaluated).
+Subject:                         Phase 2 — Product Prototype.
+Evaluator:                      Independent Review session.
+Evaluation time:                2026-08-15T08:18:00+07:00.
+Accepted Phase-2 DoD identity:   docs/phase-dod/phase-2-dod.md v0.3, status Approved, post-
+                              acceptance blob de399900a93c7ec7ee64577093513de1643ebb33, canonical
+                              incorporation ESTABLISHED.
+Quality policy identity:        docs/constitution/13-quality-gates.md v1.7, status Locked, blob
+                              4bb697f3b43b0874a080015ef0ce6ca53de729f4.
+Gate-set resolution:
+  Trigger A:                     APPLICABLE — applicable invariants {I-11, I-12}.
+  Trigger B:                     NOT_APPLICABLE — Phase-2 prototype establishes no authoritative
+                              executable implementation; static HTML/CSS/vanilla-JS prototype
+                              behavior is not promoted to production frontend/runtime authority
+                              merely because browser code executes. No coverage floor, no test-
+                              effectiveness requirement, no tier-resolution provenance applies.
+  Trigger C:                     NOT_APPLICABLE — no applicable runtime/executable tier triggered.
+  Trigger D:                     NOT_APPLICABLE — no production custody/auth boundary,
+                              authoritative financial processing, performance budget, or
+                              operational production path exists in Phase 2's deliverable.
+  Trigger E:                     NOT_APPLICABLE — no published API/schema/contract or migration
+                              exists.
+Gate-set re-resolution:         NOT_REQUIRED.
+I-11 — Access-control audit
+  (Verification NOT redefined
+  away from Access-control
+  audit):                       PASS. Formal bounded audit covered all six Phase-2 prototype
+                              batches (01-06) and established, per batch and in aggregate: (1) no
+                              credential/API-key/private-key use capability in any batch's
+                              app.js/index.html; (2) no credential-backed access-control execution
+                              surface — no login/auth UI, no session token, no permission gate in
+                              any batch; (3) no backend/custody/signing/exchange integration — no
+                              fetch/XHR/WebSocket/axios/.ajax call in any batch; (4) no real secret
+                              used or required — all MOCK_*/illustrative constants are hardcoded
+                              demo values. LIVE remains Unauthorized in every batch (static
+                              "Unauthorized" badge, STATE-027, no action/link toward a Live path).
+                              Repository grep/secret-pattern scan across all six batches is
+                              supporting evidence only, not a substitute for the audit.
+I-12 — Single Source of Truth
+  reconciliation:               PASS. All six Phase-2 prototype batches remain derived
+                              representations reconcilable to current authoritative sources: direct
+                              element-level UC/SCR/VIEW/NAV/STATE traceability exists for every
+                              batch (batch-NN/traceability.md §3 each); zero prototype-originated
+                              Product/Domain authority (no new UC/PR/SCR/VIEW/NAV/STATE ID, no new
+                              domain entity/schema, verified across all batches). Current
+                              Product/Workflow/UX authority reconciles with Domain: the corrected
+                              PR-018/UC-004/SCR-002 authority split (Consolidated Stable) is
+                              preserved intact — ReplayState(C) is represented authority-neutrally
+                              ("Historical reconstruction — read-only"), with the authoritative
+                              recorded-fact lineage (Decision→Trade Intent→RiskEvaluation→Execution
+                              Intent→Order→ExecutionResult→Fill) and Position (a deterministic,
+                              derived, non-authoritative projection, no independent Position event
+                              stream, position.md §1/§2) each carrying their own, separate
+                              authority-class label, both reconstructed at the SAME canonical
+                              Replay Cursor C. docs/MANIFEST.md remains the authoritative current-
+                              state source for all of the above. Prototype substantive coverage
+                              (17/17 surfaces, 21/21 UC) remains reconciled with this traceability.
+Prototype substantive coverage: 17/17 surfaces, 21/21 substantive UC (unchanged, cited from the
+                              per-batch prototype-review accounting recorded above).
+Full-scope BCC (separate,
+  independently satisfied
+  prerequisite — NOT conflated
+  with this Quality Gate
+  result):                      BCC-reviewed boundary e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80;
+                              BCC reconciliation commit 0f01ebff9596a095a767b9bb87a670a2f89c23b6;
+                              result NO_CONFLICT; P2-BCC-MAJ-01: CLOSED_BY_FULL_SCOPE_BCC_RERUN.
+                              This Quality Gate PASS and the BCC NO_CONFLICT result are two
+                              independently satisfied prerequisites, not one evaluation — I-11/I-12
+                              PASS here is the formal Quality Gate's own determination, distinct
+                              from the earlier BCC-level I-11/I-12 NO_CONFLICT consistency
+                              assessment recorded in the section above.
+New Blocker/Major/Minor:        0/0/0.
+ADR Scope Rule check:           ADR_NOT_REQUIRED.
+Overall Phase-2 Quality Gate:   PASS.
+Quality-Gate evidence state:    PINNED (at evaluation boundary 0f01ebff...).
+Quality-Gate evidence
+  completeness:                  COMPLETE.
+Quality-Gate evidence
+  reproducibility:               REPRODUCIBLE.
+Quality Gate prerequisite:      SATISFIED.
+Gate-3 eligibility:              NOT YET ESTABLISHED — Quality Gate PASS and full-scope BCC
+                              NO_CONFLICT are both now satisfied prerequisites, but Gate-3
+                              eligibility additionally requires Phase-level independent Gate
+                              reviews at the post-Quality-Gate exact boundary, which have NOT yet
+                              been performed.
+Phase-level Gate Review A:      NOT RUN.
+Phase-level Gate Review B:      NOT RUN.
+Gate 3:                         NOT OPENED.
+Product Owner Phase-2
+  decision:                      NOT ISSUED.
+P2-RETRO-001:                   NOT PERFORMED.
+Phase 3:                        NOT AUTHORIZED.
+LIVE:                           NOT AUTHORIZED.
+Governance state preserved:     Phase 2 ACTIVE/AUTHORIZED (current_phase unchanged). All six
+                              prototype batches remain CANDIDATE, none promoted by this transaction.
+                              No prototype/Product/Domain/Architecture/Constitution artifact
+                              modified by this transaction (bookkeeping recording only).
+Current next step:              Phase-level Gate Review A at the exact post-Quality-Gate
+                              reconciliation boundary (this transaction's own resulting commit),
+                              followed by an independent Phase-level Gate Review B at that same
+                              immutable boundary — both must evaluate the complete Phase-2 decision
+                              bundle and Chapter-12 eligibility prerequisites, before any Product
+                              Owner Phase-2 decision or Gate-3 opening.
 Full history:                   docs/CHANGELOG.md.
 ```
 

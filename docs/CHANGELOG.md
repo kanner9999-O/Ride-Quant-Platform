@@ -2,6 +2,128 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-15 — Phase 2 Formal Quality Gate PASS Result Reconciliation (deterministic, G-TXN-003)
+
+**Bookkeeping reconciliation — vai trò: `Phase 2 Formal Quality Gate PASS Result Reconciliation
+Executor`.** NOT a Quality Gate rerun, NOT a Phase-level Gate Review, NOT a Gate-3 eligibility
+establishment, NOT a Gate-3 opening, NOT a Phase-2 approval, NOT a Phase-3/LIVE authorization.
+Records the result of an independently-completed, read-only formal Phase-2 Quality Gate evaluation
+at boundary `0f01ebff9596a095a767b9bb87a670a2f89c23b6` — result `PASS` — into `docs/MANIFEST.md`.
+
+### Baseline
+
+```text
+Starting HEAD:                  0f01ebff9596a095a767b9bb87a670a2f89c23b6 (verified via git rev-parse
+  HEAD before any edit, working tree clean).
+Quality-Gate evaluated boundary: 0f01ebff9596a095a767b9bb87a670a2f89c23b6 — same commit; this
+  transaction's own resulting commit is a distinct POST-QUALITY-GATE bookkeeping identity
+  (G-ID-001), not itself part of what the Quality Gate evaluated.
+```
+
+### Formal Quality Gate result being recorded
+
+```text
+Subject:                        Phase 2 — Product Prototype.
+Evaluator:                      Independent Review session.
+Evaluation time:                2026-08-15T08:18:00+07:00.
+Accepted Phase-2 DoD identity:   docs/phase-dod/phase-2-dod.md v0.3, status Approved, post-
+  acceptance blob de399900a93c7ec7ee64577093513de1643ebb33, canonical incorporation ESTABLISHED.
+Quality policy identity:        docs/constitution/13-quality-gates.md v1.7, status Locked, blob
+  4bb697f3b43b0874a080015ef0ce6ca53de729f4.
+Gate-set resolution:             Trigger A APPLICABLE, applicable invariants {I-11, I-12}. Trigger B
+  NOT_APPLICABLE (no authoritative executable implementation established by a static prototype —
+  browser code executing does not promote it to production frontend/runtime authority; no coverage
+  floor, no test-effectiveness requirement, no tier-resolution provenance). Trigger C NOT_APPLICABLE
+  (no applicable runtime/executable tier triggered). Trigger D NOT_APPLICABLE (no production
+  custody/auth boundary, authoritative financial processing, performance budget, or operational
+  production path). Trigger E NOT_APPLICABLE (no published API/schema/contract or migration).
+  Gate-set re-resolution: NOT_REQUIRED.
+I-11 — Access-control audit:    PASS. Formal bounded audit covered all six Phase-2 prototype
+  batches (01-06): no credential/API-key/private-key use capability; no credential-backed
+  access-control execution surface; no backend/custody/signing/exchange integration; no real secret
+  used or required. LIVE remains Unauthorized in every batch. Repository grep/secret-pattern scan
+  is supporting evidence only, not a substitute for the audit. I-11 Verification NOT redefined away
+  from Access-control audit.
+I-12 — Single Source of Truth
+  reconciliation:                PASS. All six batches remain derived representations reconcilable
+  to current authoritative sources: direct UC/SCR/VIEW traceability per batch; zero
+  prototype-originated Product/Domain authority; current Product/Workflow/UX authority reconciles
+  with Domain — the corrected PR-018/UC-004/SCR-002 authority split (Consolidated Stable) preserved;
+  ReplayState(C) represented authority-neutrally; authoritative recorded-fact lineage
+  (Decision→Trade Intent→RiskEvaluation→Execution Intent→Order→ExecutionResult→Fill) and Position
+  (deterministic, derived, non-authoritative projection, no independent Position event stream) each
+  separately labeled, reconstructed at the same canonical cursor C; docs/MANIFEST.md remains the
+  authoritative current-state source; 17/17 surfaces + 21/21 UC remain reconciled.
+Evidence:                       COMPLETE, REPRODUCIBLE, PINNED at evaluation boundary 0f01ebff....
+Overall result:                 Phase-2 Formal Quality Gate PASS. New Blocker/Major/Minor = 0/0/0.
+  ADR_NOT_REQUIRED.
+Full-scope BCC relationship
+  (separate, not conflated):    BCC-reviewed boundary e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80, BCC
+  reconciliation commit 0f01ebff9596a095a767b9bb87a670a2f89c23b6, result NO_CONFLICT, P2-BCC-MAJ-01
+  CLOSED_BY_FULL_SCOPE_BCC_RERUN — remains a separately, independently satisfied prerequisite; BCC
+  NO_CONFLICT is NOT the same evaluation as this Quality Gate PASS.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md   manifest_version 10.158 → 10.159. Within the "Phase 2 — Full-Scope Backward
+  Consistency Check (P2-BCC-MAJ-01)" section: "Quality Gate," "Governance state," and "Current next
+  step" fields explicitly relabeled "(AS OF 2026-08-15 BCC reconciliation — HISTORICAL, superseded)"
+  — content preserved verbatim, only labeled to prevent stale-as-current misreading. New "Phase 2 —
+  Formal Quality Gate" section appended immediately after, recording the full result set above
+  (evaluation boundary, subject, evaluator, DoD/policy identities, gate-set resolution, I-11/I-12
+  PASS, evidence COMPLETE/REPRODUCIBLE/PINNED, overall PASS, 0/0/0 findings, ADR_NOT_REQUIRED,
+  Quality Gate prerequisite SATISFIED, Gate-3 eligibility NOT YET ESTABLISHED, Phase-level Gate
+  Review A/B NOT RUN, Gate 3 NOT OPENED, Product Owner Phase-2 decision NOT ISSUED, P2-RETRO-001 NOT
+  PERFORMED, Phase 3/LIVE NOT AUTHORIZED, "Current next step" updated to Phase-level Gate Review A
+  then independent Phase-level Gate Review B at the post-Quality-Gate boundary).
+```
+
+### No scope expansion / no semantic mutation
+
+```text
+docs/product/, docs/domain/, docs/architecture/, docs/constitution/, docs/adr/, docs/phase-dod/,
+  docs/governance/phases/phase-2-rules.md: UNCHANGED (git diff --quiet). prototype/phase-2/batch-01
+  through batch-06: UNCHANGED (git status --porcelain=v1 -uall clean). No new SCR/VIEW/NAV/
+  STATE/UC/PR ID introduced. No new batch created. No ADR created (ADR_NOT_REQUIRED). No batch
+  lifecycle promoted — all six remain CANDIDATE. Quality Gate was not rerun by this transaction —
+  its PASS result is recorded as an already-completed, independently-evaluated outcome.
+```
+
+### Result
+
+```text
+Formal Phase-2 Quality Gate: PASS at evaluation boundary 0f01ebff9596a095a767b9bb87a670a2f89c23b6.
+  I-11: PASS. I-12: PASS. Trigger B/C/D/E: NOT_APPLICABLE. New Blocker/Major/Minor: 0/0/0. ADR:
+  NOT_REQUIRED. Gate-set re-resolution: NOT_REQUIRED. Evidence: COMPLETE, REPRODUCIBLE, PINNED.
+Full-scope BCC: remains separately NO_CONFLICT (boundary e8fb6fd...). P2-BCC-MAJ-01: remains
+  CLOSED_BY_FULL_SCOPE_BCC_RERUN. Quality Gate PASS and BCC NO_CONFLICT are two independently
+  satisfied prerequisites, not conflated into one evaluation.
+Quality Gate prerequisite: SATISFIED. Gate-3 eligibility: NOT YET ESTABLISHED — Phase-level
+  independent Gate Review A and Gate Review B at the post-Quality-Gate exact boundary have NOT yet
+  been performed. Gate 3: NOT OPENED. Product Owner Phase-2 decision: NOT ISSUED. P2-RETRO-001: NOT
+  PERFORMED. Phase 3: NOT AUTHORIZED. LIVE: NOT AUTHORIZED.
+Phase 2: ACTIVE/AUTHORIZED (current_phase unchanged). All six prototype batches remain CANDIDATE,
+  none promoted by this transaction.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 0f01ebff9596a095a767b9bb87a670a2f89c23b6 before any edit; git status
+  --porcelain=v1 -uno verified working tree clean before any edit. git status --porcelain=v1 -uall
+  confirmed clean on prototype/phase-2/batch-01 through batch-06 and on docs/product, docs/domain,
+  docs/architecture, docs/constitution, docs/adr, docs/phase-dod,
+  docs/governance/phases/phase-2-rules.md — only docs/MANIFEST.md and docs/CHANGELOG.md changed.
+  manifest_version increment verified (10.158 → 10.159). Evaluation boundary, DoD blob, and Chapter
+  13 policy blob pinned exactly as given, no mutable "latest" reference used as evidence. No
+  statement claims the reconciliation commit itself was Quality-Gate-evaluated (G-ID-001 preserved).
+  No stale "Quality Gate NOT RUN" statement left unlabeled as current state — all prior occurrences
+  explicitly relabeled historical. "Phase 2 — Formal Quality Gate" section word count 708, within
+  the ≤1500-word budget.
+```
+
 ## [Unreleased] — 2026-08-15 — Phase 2 Full-Scope BCC Rerun Result Bookkeeping Reconciliation (deterministic, G-TXN-003) — P2-BCC-MAJ-01 CLOSED_BY_FULL_SCOPE_BCC_RERUN
 
 **Bookkeeping reconciliation — vai trò: `Phase 2 Full-Scope BCC Rerun Result Bookkeeping
