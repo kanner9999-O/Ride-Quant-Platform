@@ -1,7 +1,7 @@
 ---
 id: phase-2-batch-02-traceability
 title: "Phase 2 Prototype — Batch 02 — Traceability Artifact"
-version: "1.4"
+version: "1.5"
 status: Candidate
 owner: Product Owner
 created_at: "2026-08-13"
@@ -45,6 +45,17 @@ Representation comparison, digest-definition not-applicable, STATE-007/008/030) 
 đổi §0-§2 A/B/C partition (VẪN A=5/B=9/C=7/tổng=21) — CHỈ current-review-state wording cập nhật
 (§6 dưới) để phản ánh delta MỚI này CHƯA qua governed affected-scope re-review, KHÔNG tự động thừa
 hưởng v1.3's `READY_FOR_NEXT_PHASE2_BATCH` verdict cho phần representation ĐÃ thay đổi.
+
+**v1.5 — deterministic bookkeeping reconciliation (2026-08-15), vai trò: `Phase 2 Full-Scope BCC
+Rerun Result Bookkeeping Reconciliation Executor`, đúng `G-TXN-003`.** KHÔNG PHẢI lifecycle
+transition, KHÔNG PHẢI prototype semantic correction. §2's "CURRENT TRUTH" note (v1.4) vẫn nói
+UC-004's v1.4 delta "CANDIDATE AUTHORED, pending governed affected-scope Review A/Independent
+Review B" — mâu thuẫn trực tiếp với governed review history ĐÃ hoàn tất SAU v1.4 (affected-scope
+bounded Review A CLEAN + affected-scope Independent Review B CLEAN, 2026-08-15; theo sau đó
+full-scope Phase-2 BCC rerun tại boundary `e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80` trả
+`NO_CONFLICT`, đóng `P2-BCC-MAJ-01`). Sửa: §2's CURRENT TRUTH note viết lại để phản ánh UC-004 ĐÃ
+independently verified trở lại. KHÔNG đổi §0/§1/§3/§4/§5 (A/B/C partition, element-level map,
+reconciliation statement KHÔNG đổi — VẪN A=5/B=9/C=7/tổng=21).
 
 ## 0. UC accounting taxonomy (kế thừa nguyên vẹn từ Batch 01, KHÔNG redefine)
 
@@ -127,14 +138,18 @@ Partition validation (mechanical):
       Independent Review B verdict
       READY_FOR_NEXT_PHASE2_BATCH):                    3/21 (UC-001/002/003 only).
 
-CURRENT TRUTH (v1.4 bounded semantic correction, 2026-08-14, đóng P2-BCC-MAJ-01 prototype-side):
-  UC-004's OWN representation (SCR-002 renderReconstruction()) vừa nhận một bounded semantic
-  correction MỚI (authority-class separation, xem v1.4 banner phía trên) — SAU thời điểm
-  Independent Review B v1.3 đã verify. v1.3's verdict READY_FOR_NEXT_PHASE2_BATCH KHÔNG tự động
-  áp dụng cho phần representation ĐÃ thay đổi bởi v1.4 — delta này CANDIDATE AUTHORED, pending
-  governed affected-scope Review A/Independent Review B trước khi tính LẠI LÀ independently
-  verified. UC-005 (VIEW-003, KHÔNG chạm bởi v1.4) VÀ UC-001/002/003 (Batch 01, KHÔNG chạm) giữ
-  nguyên trạng thái đã verify trước đó KHÔNG đổi. Lifecycle VẪN CANDIDATE.
+CURRENT TRUTH (v1.5 bookkeeping reconciliation, 2026-08-15, đóng gap "pending governed
+  affected-scope re-review" trước đây, đúng G-TXN-003): UC-004's representation (SCR-002
+  renderReconstruction()) nhận một bounded semantic correction (v1.4 banner phía trên,
+  authority-class separation, đóng P2-BCC-MAJ-01 prototype-side) SAU thời điểm Independent Review
+  B v1.3 đã verify — delta đó nay ĐÃ qua đầy đủ affected-scope bounded Review A + Independent
+  Review B CLEAN (2026-08-15), theo sau đó full-scope Phase-2 BCC rerun (boundary
+  e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80) trả NO_CONFLICT — Phase-wide `P2-BCC-MAJ-01`
+  `CLOSED_BY_FULL_SCOPE_BCC_RERUN` (chi tiết đầy đủ: docs/MANIFEST.md, docs/CHANGELOG.md). UC-004
+  nay ĐÃ independently verified TRỞ LẠI (cùng mức như UC-005/UC-001/002/003, KHÔNG chạm bởi
+  correction này). KHÔNG PHẢI prototype lifecycle promotion/Phase-2 approval/Quality Gate
+  PASS/Gate-3 eligibility — những đánh giá đó VẪN tách biệt hoàn toàn, CHƯA thực hiện. Lifecycle
+  VẪN CANDIDATE.
 ```
 
 ## 3. Element-level traceability map

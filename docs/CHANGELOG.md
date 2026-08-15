@@ -2,6 +2,161 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-15 — Phase 2 Full-Scope BCC Rerun Result Bookkeeping Reconciliation (deterministic, G-TXN-003) — P2-BCC-MAJ-01 CLOSED_BY_FULL_SCOPE_BCC_RERUN
+
+**Bookkeeping reconciliation — vai trò: `Phase 2 Full-Scope BCC Rerun Result Bookkeeping
+Reconciliation Executor`.** NOT another BCC run, NOT a Quality Gate evaluation, NOT a Phase-level
+Gate Review, NOT a Gate-3 opening, NOT a Phase-2 approval. Records the result of an
+independently-completed, read-only Phase-2 full-scope Backward Consistency Check rerun at boundary
+`e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80` — result `NO_CONFLICT` — into `docs/MANIFEST.md` and
+Batch-02's own bookkeeping files, closing `P2-BCC-MAJ-01`.
+
+### Baseline
+
+```text
+Starting HEAD:            e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80 (verified via git rev-parse HEAD
+  before any edit, working tree clean).
+BCC-reviewed boundary:     e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80 — same commit; this transaction's
+  own resulting commit is a distinct POST-BCC bookkeeping identity (G-ID-001), not itself part of
+  what the BCC rerun assessed.
+```
+
+### Prior BCC history (compact — full detail in the CHANGELOG entries below this one)
+
+```text
+Initial full-scope Phase-2 BCC (boundary 08037284c...): result REVISION_REQUIRED. Finding
+  P2-BCC-MAJ-01 (Major) — Replay/SCR-002/UC-004 represented Position under the same universal
+  authoritative-recorded-fact/event-stream authority class as the rest of ReplayState(C), despite
+  Position being a deterministic, non-authoritative, derived projection (position.md §1/§2).
+Correction chain (each step previously recorded in its own CHANGELOG entry, unchanged, not
+  rewritten): (1) Product/Workflow/UX authority correction candidate authored (PR-018 no change
+  required; UC-004/SCR-002 rewritten) — P2-BCC-MAJ-01 remained OPEN. (2) Governed Review A on the
+  candidate found + closed P2-BCC-MAJ01-A-MAJ-01 (UC-004 Goal / SCR-002 Purpose stale wording).
+  (3) Review A round 2 found + closed P2-BCC-MAJ01-A2-MAJ-01 (UC-004 Observable outcome stale
+  wording). (4) Independent Review B: CLEAN, 0/0/0, verdict
+  AUTHORITY_CORRECTION_READY_FOR_PRODUCT_OWNER_CONSOLIDATION. (5) Product Owner consolidation
+  decision (2026-08-14T15:38:00+07:00): PR-018/UC-004/SCR-002 REVALIDATED as CONSOLIDATED STABLE at
+  the reviewed identities. (6) Batch-02 prototype bounded correction (boundary 3399247):
+  renderReconstruction() authority-class separation (app.js/styles.css/index.html) — CANDIDATE
+  AUTHORED, P2-BCC-MAJ-01 still OPEN pending affected-scope review + BCC rerun.
+Affected-scope review on Batch-02's v1.5 delta (completed independently, prior to this transaction,
+  2026-08-15): bounded Review A: CLEAN, new Blocker/Major/Minor = 0/0/0. Independent Review B:
+  CLEAN, new Blocker/Major/Minor = 0/0/0.
+```
+
+### Full-scope BCC rerun result being recorded
+
+```text
+Review boundary:            e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80.
+Result:                     NO_CONFLICT.
+Evidence state:              PINNED (at the review boundary, Chapter 12 §12.4 discipline).
+P2-BCC-MAJ-01:               CLOSED_BY_FULL_SCOPE_BCC_RERUN. Closure authority is the BCC rerun
+                            itself — explicitly NOT a prototype lifecycle promotion, NOT Phase-2
+                            approval, NOT a Quality Gate PASS, NOT Gate-3 eligibility/opening.
+New Blocker/Major/Minor:     0/0/0.
+ADR Scope Rule check:        ADR_NOT_REQUIRED.
+Gate-set re-resolution:      NOT_REQUIRED.
+I-11 BCC consistency:        NO_CONFLICT — a BCC-level assessment only, NOT a Quality Gate PASS; the
+                            formal Quality Gate has not been run.
+I-12 BCC consistency:        NO_CONFLICT — same caveat, BCC-level assessment only, NOT Quality Gate
+                            PASS.
+Trigger A/B/C/D/E:           PRESERVED (boundary unchanged, no re-resolution triggered).
+Phase-wide clean full-scope
+  BCC support:                RESTORED to 17/17 surfaces, 21/21 substantive UC, remaining 0/0 —
+                            because and ONLY because this rerun returned NO_CONFLICT. This axis is
+                            kept explicitly distinct from, and NOT merged/redefined with, the
+                            historical per-batch prototype-review accounting (also 17/17+21/21,
+                            established separately via each batch's own Review A/Independent
+                            Review B) — the two now coincide numerically but remain semantically
+                            distinct evaluations.
+```
+
+### Files changed
+
+```text
+prototype/phase-2/batch-02/traceability.md     v1.4 → v1.5, blob a9bc59828f7c7987cf46d1156a470c4b79eeca3d
+  → e18beca6a1ba3715453c4df3c175674d13c61003 — new v1.5 banner; §2 "CURRENT TRUTH" rewritten to
+  record the affected-scope Review A/Independent Review B CLEAN outcome followed by the full-scope
+  BCC rerun NO_CONFLICT / P2-BCC-MAJ-01 closure. §0/§1/§3/§4/§5 (A/B/C partition A=5/B=9/C=7/21)
+  unchanged.
+prototype/phase-2/batch-02/batch-manifest.md   v1.5 → v1.6, blob 41703f3d71b79bdb1cfa9023c6afc0ff2db2d7b4
+  → df98b129ebeed43404edb1c93b3e33be957f53b1 — new v1.6 banner; role statement, §1 Status, §6
+  artifact identities (traceability.md/README.md rows updated; index.html/app.js/styles.css rows
+  annotated "verified byte-identical at v1.6"), §16 review history (three new chronological
+  entries: affected-scope Review A CLEAN, affected-scope Independent Review B CLEAN, full-scope BCC
+  rerun NO_CONFLICT/P2-BCC-MAJ-01 CLOSED_BY_FULL_SCOPE_BCC_RERUN) and CURRENT TRUTH block rewritten;
+  §2–§15 semantic/artifact evidence otherwise unchanged.
+prototype/phase-2/batch-02/README.md           blob 4a2cbdd92e53f447c9d445c5572ee9db1a6bd124 →
+  49858418c5b9c0aa01ae2ce02f5f710aad323fd6 — "What this is not" closing paragraph updated to record
+  that v1.5's correction has passed affected-scope governed review and was accepted by the
+  full-scope BCC rerun, closing P2-BCC-MAJ-01, while explicitly still denying Phase-2
+  approval/Quality Gate PASS/Gate-3 eligibility.
+prototype/phase-2/batch-02/{index.html,app.js,styles.css}  UNCHANGED (byte-identical, verified —
+  git diff --quiet on all three; blobs 5b92e617f2d4fa80d59ee0068faf7e918c84ba97 /
+  0fa44ccb7e2b18adc21fbbfeb1b57fa8f0271aa0 / c5d01b7426856956f1bdee3cd7a1b0fe6ea63b4f, unchanged
+  since v1.5).
+docs/MANIFEST.md   manifest_version 10.157 → 10.158. "Phase 2 — Full-Scope Backward Consistency
+  Check (P2-BCC-MAJ-01)" section updated: "Full-scope BCC result" and "Finding state" annotated
+  historical/superseded; "Clean full-scope BCC support" restored to 17/17 surfaces + 21/21 UC,
+  remaining 0/0, explicitly kept distinct from the historical per-batch accounting axis above it;
+  prior "Governance state preserved" block relabeled as the 2026-08-14 historical snapshot; new
+  "Full-scope Phase-2 BCC rerun — result recording (2026-08-15)" block appended recording the full
+  set of governed fields (review boundary, correction-chain authority state, affected-scope review
+  state, repository mutation/absence-of-touch, the full NO_CONFLICT consistency checklist, I-11/I-12
+  BCC-only caveats, Trigger A/B/C/D/E PRESERVED, new Blocker/Major/Minor 0/0/0, ADR_NOT_REQUIRED,
+  Gate-set re-resolution NOT_REQUIRED, P2-BCC-MAJ-01 CLOSED_BY_FULL_SCOPE_BCC_RERUN, current
+  governance state, and "Current next step" updated to formal Phase-2 Quality Gate evaluation).
+```
+
+### No scope expansion / no semantic mutation
+
+```text
+docs/product/, docs/domain/, docs/architecture/, docs/constitution/, docs/adr/, docs/phase-dod/,
+  docs/governance/phases/phase-2-rules.md: UNCHANGED (git diff --quiet). prototype/phase-2/batch-01/,
+  batch-03/, batch-04/, batch-05/, batch-06/: UNCHANGED (git status --porcelain=v1 -uall clean).
+  prototype/phase-2/batch-02/{index.html,app.js,styles.css}: byte-identical, verified. No new
+  SCR/VIEW/NAV/STATE/UC/PR ID introduced. No new batch created. No ADR created (ADR_NOT_REQUIRED).
+  Batch-02 lifecycle unchanged — remains CANDIDATE, not promoted by this transaction. Historical
+  per-batch prototype-review accounting (17/17 surfaces, 21/21 UC, all six batches) left untouched
+  as a semantically distinct axis from Phase-wide clean full-scope BCC support (also restored to
+  17/17+21/21 by this transaction, but via BCC rerun closure, not per-batch review).
+```
+
+### Result
+
+```text
+P2-BCC-MAJ-01: CLOSED_BY_FULL_SCOPE_BCC_RERUN (closure authority: full-scope Phase-2 BCC rerun at
+  boundary e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80, result NO_CONFLICT).
+Full-scope BCC: result NO_CONFLICT at boundary e8fb6fd... (supersedes the initial REVISION_REQUIRED
+  result at boundary 08037284c..., which remains preserved as historical record).
+Phase-wide clean full-scope BCC support: RESTORED to 17/17 surfaces, 21/21 substantive UC, remaining
+  0/0. Historical per-batch accounting: unchanged, also 17/17 surfaces + 21/21 UC — a distinct axis,
+  not conflated.
+Batch 02: lifecycle CANDIDATE (unchanged). v1.5's SCR-002 authority-class delta: affected-scope
+  Review A + Independent Review B CLEAN, subsequently accepted by the full-scope BCC rerun.
+Phase 2: ACTIVE/AUTHORIZED (current_phase unchanged). I-11 BCC consistency: NO_CONFLICT (BCC
+  assessment only, NOT Quality Gate PASS). I-12 BCC consistency: NO_CONFLICT (same caveat). Trigger
+  A/B/C/D/E: PRESERVED. ADR: NOT_REQUIRED. Gate-set re-resolution: NOT_REQUIRED. Quality Gate: NOT
+  RUN (this transaction does not run it and does not infer a PASS from BCC NO_CONFLICT). Gate-3
+  eligibility: NOT YET ESTABLISHED (full-scope BCC prerequisite now SATISFIED, but Gate-3 also
+  requires the formal Quality Gate and Phase-level Gate Review, neither run). Gate 3: NOT OPENED.
+  Product Owner Phase-2 decision: NOT ISSUED. P2-RETRO-001: NOT PERFORMED. Phase 3: NOT AUTHORIZED.
+  LIVE: NOT AUTHORIZED.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80 before any edit; git status
+  --porcelain=v1 -uno verified working tree clean before any edit. git diff --quiet confirmed on
+  prototype/phase-2/batch-02/{app.js,styles.css,index.html} after all edits (zero diff). git status
+  --porcelain=v1 -uall confirmed clean on prototype/phase-2/batch-01/03/04/05/06 and on
+  docs/product, docs/domain, docs/architecture, docs/constitution, docs/adr, docs/phase-dod,
+  docs/governance/phases/phase-2-rules.md. git hash-object verified pre-edit and post-edit blobs for
+  every changed file matched the values recorded above. No "Quality Gate PASS" string written
+  anywhere in this transaction's edits (grep-verified).
+```
+
 ## [Unreleased] — 2026-08-14 — P2-BCC-MAJ-01 Batch-02 prototype bounded correction (SCR-002 authority-class separation)
 
 **Bounded prototype semantic correction — vai trò: `P2-BCC-MAJ-01 Batch-02 Prototype Bounded

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.157"
+manifest_version: "10.158"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -259,16 +259,21 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 ## Phase 2 — Full-Scope Backward Consistency Check (P2-BCC-MAJ-01)
 
 ```text
-Full-scope BCC result:         REVISION_REQUIRED.
+Full-scope BCC result:         REVISION_REQUIRED at initial boundary 08037284c... (historical —
+                              superseded by the full-scope BCC rerun result recorded at the end of
+                              this section, boundary e8fb6fd..., result NO_CONFLICT).
 Finding:                       P2-BCC-MAJ-01 (Major) — Replay/SCR-002/UC-004 authority-class
                               wording contradicted position.md §1 (Position is a non-authoritative
                               derived projection, not an authoritative fact/event stream) by
                               describing the full Decision→...→Position lineage under one
                               universal "authority=authoritative recorded fact"/"toàn bộ
                               authoritative event stream" label.
-Finding state:                 OPEN → correction candidate authored (2026-08-14). NOT closed —
-                              pending governed Review A + Independent Review B + Product Owner
-                              consolidation/revalidation on the corrected artifacts below.
+Finding state:                 OPEN → correction candidate authored (2026-08-14) → CLOSED_BY_FULL_
+                              SCOPE_BCC_RERUN (2026-08-15, boundary e8fb6fd..., result NO_CONFLICT —
+                              full detail at the end of this section). Closure authority is the
+                              full-scope BCC rerun itself, NOT a prototype lifecycle promotion,
+                              Phase-2 approval, Quality Gate PASS, or Gate-3 eligibility/opening —
+                              those remain entirely separate, unresolved evaluations.
 Review A on the candidate
   (2026-08-14):                 P2-BCC-MAJ01-A-MAJ-01 (Major) found — UC-004 Goal / SCR-002
                               Purpose still used stale universal "state authoritative" wording for
@@ -348,22 +353,32 @@ Prototype touched:             NONE — prototype/phase-2/batch-02/ and all othe
 Clean full-scope BCC support
   (distinct axis from
   per-batch review verified
-  counts above):                16/17 surfaces, 20/21 substantive UC — SCR-002/UC-004 currently
-                              withheld from "clean full-scope" support pending this correction's
-                              own governed review closing P2-BCC-MAJ-01. This is SEPARATE from,
-                              and does NOT reopen or reduce, the per-batch prototype review
-                              accounting recorded above (Batch 01-06 all CANDIDATE, review
-                              COMPLETE, verdict READY_FOR_NEXT_PHASE2_BATCH/
+  counts above):                RESTORED to 17/17 surfaces, 21/21 substantive UC (2026-08-15,
+                              because and ONLY because the full-scope BCC rerun at boundary
+                              e8fb6fd... returned NO_CONFLICT — full detail at the end of this
+                              section). Remaining: 0/17 surfaces, 0/21 UC. Historical: was
+                              temporarily 16/17 surfaces, 20/21 substantive UC while SCR-002/UC-004
+                              were withheld pending this correction's own governed review. This
+                              axis is SEPARATE from, and must NOT be merged/redefined with, the
+                              per-batch prototype review accounting recorded above (Batch 01-06 all
+                              CANDIDATE, review COMPLETE, verdict READY_FOR_NEXT_PHASE2_BATCH/
                               READY_FOR_NEXT_PHASE2_GOVERNED_STEP, 17/17 surfaces + 21/21 UC
                               independently verified at the prototype-batch level) — full-scope BCC
                               clean-support and per-batch prototype review are two distinct
-                              gates/axes, not conflated.
+                              gates/axes; they now coincide numerically (17/17, 21/21 on both) but
+                              remain semantically distinct evaluations, not conflated.
 ADR Scope Rule check:          ADR_NOT_REQUIRED — this transaction restores derived Product/
                               Workflow/UX representation to the already-controlling position.md
                               Domain Contract; it creates/alters no Platform Invariant, Event
                               Schema, module taxonomy/dependency graph, governance process,
                               architecture, Domain Contract, or irreversible cross-module decision.
-Governance state preserved:    Phase 2 ACTIVE/AUTHORIZED (current_phase unchanged). All six
+Governance state preserved
+  (AS OF 2026-08-14, this
+  correction-candidate
+  transaction — historical,
+  superseded by the rerun-
+  result state at the end of
+  this section):                Phase 2 ACTIVE/AUTHORIZED (current_phase unchanged). All six
                               prototype batches remain CANDIDATE. Full-scope BCC remains
                               REVISION_REQUIRED. Quality Gate NOT RUN. Gate-3 eligibility NOT
                               ESTABLISHED. Gate 3 NOT OPENED. Product Owner Phase-2 decision NOT
@@ -388,11 +403,75 @@ Batch-02 prototype bounded
                               READY_FOR_NEXT_PHASE2_BATCH) PRESERVED, NOT rewritten; this new v1.5
                               delta explicitly marked pending governed affected-scope re-review,
                               NOT automatically covered by the v1.3 verdict. Batch-02 lifecycle
-                              VẪN CANDIDATE. Batch 01/03/04/05/06 KHÔNG chạm.
-Current next step:              governed affected-scope Review A + Independent Review B on
-                              Batch-02's v1.5 SCR-002 representation delta — followed by full-scope
-                              Phase-2 BCC rerun (target: NO_CONFLICT) before P2-BCC-MAJ-01 can
-                              close.
+                              VẪN CANDIDATE. Batch 01/03/04/05/06 KHÔNG chạm. (Historical — this
+                              v1.5 delta's affected-scope review and the subsequent full-scope BCC
+                              rerun are recorded immediately below.)
+
+Full-scope Phase-2 BCC rerun — result recording (2026-08-15, bookkeeping reconciliation, G-TXN-003):
+
+Review boundary:                e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80 (immutable BCC-reviewed
+                              semantic boundary — distinct from the post-recording bookkeeping
+                              commit this transaction itself produces, G-ID-001).
+Previous BCC finding:           P2-BCC-MAJ-01 (recorded above).
+Correction-chain authority
+  state:                        CONSOLIDATED STABLE (PR-018/UC-004/SCR-002, recorded above).
+Batch-02 affected-scope
+  review state:                 Affected-scope bounded Review A on v1.5: CLEAN, new
+                              Blocker/Major/Minor = 0/0/0. Affected-scope Independent Review B on
+                              v1.5: CLEAN, new Blocker/Major/Minor = 0/0/0.
+Repository mutation/absence-
+  of-touch:                     CLEAN — verified prototype/phase-2/batch-02/{app.js,styles.css,
+                              index.html} byte-identical at the rerun boundary; no other batch
+                              touched.
+Product/UX consistency:         NO_CONFLICT.
+Domain consistency:             NO_CONFLICT.
+P2-BCC-MAJ-01 direct closure
+  test:                         RESOLVED.
+Cross-batch identity/lineage:   NO_CONFLICT.
+Replay/no-look-ahead/
+  no-repaint:                   NO_CONFLICT.
+Strategy/version semantics:     NO_CONFLICT.
+Backtest/PAPER separation:      NO_CONFLICT.
+Risk/execution semantics:       NO_CONFLICT.
+Position semantics:             NO_CONFLICT.
+Old-version evidence:           NO_CONFLICT.
+LIVE boundary:                  NO_CONFLICT.
+I-11 consistency:               NO_CONFLICT (BCC assessment only — NOT a Quality Gate PASS; the
+                              formal Quality Gate has not been run).
+I-12 consistency:               NO_CONFLICT (same caveat — BCC assessment only, NOT Quality Gate
+                              PASS).
+Trigger A/B/C/D/E:              PRESERVED (boundary unchanged, no re-resolution triggered).
+New Blocker/Major/Minor:        0/0/0.
+ADR Scope Rule check:           ADR_NOT_REQUIRED.
+Gate-set re-resolution:         NOT_REQUIRED.
+P2-BCC-MAJ-01 state:            CLOSED_BY_FULL_SCOPE_BCC_RERUN.
+Full-scope BCC result:          NO_CONFLICT.
+Full-scope BCC evidence state:  PINNED (at review boundary e8fb6fd..., Chapter 12 §12.4).
+Full-scope BCC prerequisite
+  (phase-2-dod.md §6):          SATISFIED — evidence exists; this alone does NOT establish Gate-3
+                              eligibility (Gate-3 eligibility also requires the formal Quality Gate,
+                              NOT RUN, and Phase-level Gate Review, NOT RUN).
+Phase-wide clean full-scope
+  BCC support:                  RESTORED to 17/17 surfaces, 21/21 substantive UC, remaining 0/0
+                              (recorded in the "Clean full-scope BCC support" field above — kept as
+                              a distinct axis from historical per-batch accounting, also 17/17+21/21,
+                              not merged/redefined).
+Batch-02 lifecycle:             CANDIDATE — unchanged, NOT promoted by this closure.
+Quality Gate:                   NOT RUN (unaffected by this BCC-level closure).
+Gate-3 eligibility:             NOT YET ESTABLISHED.
+Gate 3:                         NOT OPENED.
+Governance state (current,
+  post-rerun-recording):        Phase 2 ACTIVE/AUTHORIZED (current_phase unchanged). All six
+                              prototype batches remain CANDIDATE. Full-scope BCC result: NO_CONFLICT
+                              (P2-BCC-MAJ-01 CLOSED_BY_FULL_SCOPE_BCC_RERUN). Quality Gate NOT RUN.
+                              Gate-3 eligibility NOT ESTABLISHED. Gate 3 NOT OPENED. Product Owner
+                              Phase-2 decision NOT ISSUED. P2-RETRO-001 NOT PERFORMED. Phase 3 NOT
+                              AUTHORIZED. LIVE NOT AUTHORIZED.
+Current next step:              formal Phase-2 Quality Gate evaluation against the accepted Phase-2
+                              gate-set (Trigger A with {I-11, I-12}; Trigger B/C/D/E remain N/A
+                              subject to the preserved boundary) — NOT yet run; this transaction is
+                              bookkeeping recording only and does not itself constitute or imply a
+                              Quality Gate PASS.
 Full history:                   docs/CHANGELOG.md.
 ```
 

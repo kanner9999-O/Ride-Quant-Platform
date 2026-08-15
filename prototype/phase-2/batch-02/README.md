@@ -50,8 +50,9 @@ Not a production frontend, not connected to any backend/exchange, not authorized
 implementation of replay or parity computation, and not a claim that Phase 2's full 17-surface/
 21-UC coverage is complete. See `batch-manifest.md` §16 for the exact progress accounting — Review
 A and Independent Review B completed for this batch's v1.3 contribution (verdict
-`READY_FOR_NEXT_PHASE2_BATCH`), but v1.5 then authored a new bounded semantic correction to
-SCR-002 (Phase-2 Full-Scope BCC finding `P2-BCC-MAJ-01`, prototype-side) that has **not** yet
-gone through its own governed review — that verdict does not automatically extend to this new
-delta. This batch's lifecycle remains a **candidate** either way, not yet approved — a review
-verdict is not itself a lifecycle promotion.
+`READY_FOR_NEXT_PHASE2_BATCH`), and v1.5's subsequent bounded semantic correction to SCR-002
+(Phase-2 Full-Scope BCC finding `P2-BCC-MAJ-01`, prototype-side) has since passed its own
+affected-scope governed review and was accepted by a full-scope Phase-2 BCC rerun (`NO_CONFLICT`)
+— that closes `P2-BCC-MAJ-01`, but is still **not** Phase-2 approval, a Quality Gate PASS, or
+Gate-3 eligibility. This batch's lifecycle remains a **candidate** either way, not yet approved —
+a review/BCC verdict is not itself a lifecycle promotion.
