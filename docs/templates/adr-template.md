@@ -26,12 +26,14 @@ supersedes: []
 
 **Independent reviews / Concerns / Risks noted:**
 
-| Reviewer identity | Role at review boundary | Concern | Risk | Recommendation |
-|---|---|---|---|---|
-| | AI Technical Architect | | | |
-| | AI Technical Architect | | | |
+| Reviewer principal | Role at review boundary | Execution ID | Review boundary | Independence mode | Isolation attestation | Concern | Risk | Recommendation |
+|---|---|---|---|---|---|---|---|---|
+| | AI Technical Architect | | | | | | | |
+| | AI Technical Architect | | | | | | | |
 
-> Trước approval phải có tối thiểu hai independent review execution đủ điều kiện, đúng Chapter 0 §3 / Chapter 11 §11.5: hai principal identity khác nhau (Mode A — `DISTINCT_PRINCIPAL`), HOẶC cùng một principal qua hai execution/session cô lập thỏa execution-isolation evidence contract (Mode B — `SAME_PRINCIPAL_DISTINCT_EXECUTION`, [ADR-031](../adr/ADR-031.md)). Reviewer evidence là historical attribution, không phải permanent governance rule.
+> Trước approval phải có tối thiểu hai independent review execution đủ điều kiện, đúng Chapter 0 §3 / Chapter 11 §11.5: hai principal identity khác nhau (Mode A — `DISTINCT_PRINCIPAL`), HOẶC cùng một principal qua hai execution/session cô lập thỏa execution-isolation evidence contract (Mode B — `SAME_PRINCIPAL_DISTINCT_EXECUTION`, [ADR-031](../adr/ADR-031.md) §5). Reviewer evidence là historical attribution, không phải permanent governance rule.
+>
+> Cột hướng dẫn (KHÔNG lặp lại toàn bộ evidence contract — xem [Chapter 0 §3](../constitution/00-governance.md) / [Chapter 11 §11.5](../constitution/11-adr-process.md) / [ADR-031](../adr/ADR-031.md) §5 cho định nghĩa đầy đủ): **Independence mode** ghi `DISTINCT_PRINCIPAL` (Mode A) hoặc `SAME_PRINCIPAL_DISTINCT_EXECUTION` (Mode B). **Execution ID** / **Isolation attestation**: với Mode A, ghi `N/A` (không bắt buộc — principal đã khác nhau); với Mode B, CẢ HAI bắt buộc — Execution ID phải là provider-native session ID nếu có, hoặc một deterministic workflow-generated ID; Isolation attestation phải xác nhận tường minh review đó chạy trong context/session tách biệt, KHÔNG bên trong review kia. Một nhãn tự do một mình KHÔNG PHẢI bằng chứng isolation.
 
 **Scale check:**
 

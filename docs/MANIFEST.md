@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.169"
+manifest_version: "10.170"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -100,8 +100,31 @@ Candidate delta (branch only):
     Chapter 0 §3/Chapter 11 §11.5. Blob c88b7539e8ab24b1892f2bc412bb47b0ead43a74.
   docs/templates/adr-template.md         wording sync — đóng `ADR031-B-MIN-01` (candidate
     disposition): "tối thiểu hai reviewer identity khác nhau" thay bằng Mode A/Mode B language, cite
-    ADR-031. Blob c76d6c2ddce7aeeb3c7966dd0c403d84a4984f78. (File này KHÔNG có version field riêng
-    độc lập khỏi ADR-schema example content trong chính nó — KHÔNG tracked bằng version số tại đây.)
+    ADR-031. Blob (superseded, xem `ADR031-ACT-A-MAJ-01` bounded correction dưới) c76d6c2ddce7aeeb3c7
+    966dd0c403d84a4984f78 -> `a66263f6d754800817b76660fd7130a01b62f191`. (File này KHÔNG có version
+    field riêng độc lập khỏi ADR-schema example content trong chính nó — KHÔNG tracked bằng version
+    số tại đây.)
+
+Bounded correction — `ADR031-ACT-A-MAJ-01` (Major, Review A trên candidate, 2026-08-18, vai trò:
+  `ADR-031 Activation Candidate Bounded Correction Executor`), CLOSED_BY_BOUNDED_CORRECTION,
+  PENDING_REVIEW_A_REREVIEW (KHÔNG claim CLEAN):
+  Defect: Chapter 11 §11.9 candidate (§ trên) đòi hỏi Mode-B review evidence pin đủ principal/role/
+    review_execution_id/review_boundary/independence_mode/execution_isolation_attestation — NHƯNG
+    `docs/templates/adr-template.md`'s review table VẪN CHỈ legacy 5 cột (Reviewer identity | Role |
+    Concern | Risk | Recommendation), KHÔNG một chỗ canonical nào để pin evidence đó cho ADR tương
+    lai.
+  Sửa: review-evidence table mở rộng 9 cột — Reviewer principal | Role at review boundary |
+    Execution ID | Review boundary | Independence mode | Isolation attestation | Concern | Risk |
+    Recommendation. Chú thích thêm: Independence mode ghi `DISTINCT_PRINCIPAL` (Mode A) hoặc
+    `SAME_PRINCIPAL_DISTINCT_EXECUTION` (Mode B); Execution ID/Isolation attestation = `N/A` cho Mode
+    A, BẮT BUỘC cả hai cho Mode B (provider-native session ID nếu có, HOẶC deterministic workflow-
+    generated ID + explicit attestation — một nhãn tự do một mình KHÔNG đủ). Tham chiếu Chapter 0
+    §3/Chapter 11 §11.5/ADR-031 §5 cho định nghĩa đầy đủ — KHÔNG copy toàn bộ evidence contract vào
+    template.
+  KHÔNG sửa Chapter 0 v1.2/Chapter 11 v2.2/Chapter 12 v1.6 candidate (byte-identical, git diff
+    --quiet). KHÔNG sửa ADR-031 (Approved, immutable, byte-identical). `ADR031-ACT-A-MAJ-01`:
+    `CLOSED_BY_BOUNDED_CORRECTION` — PENDING bounded Review A re-review trên candidate delta này,
+    CHƯA CLEAN.
 
 Preserved unchanged (verified trực tiếp, git diff --quiet trên branch):
   docs/adr/ADR-031.md (Approved, immutable — KHÔNG sửa), Global Execution Rules

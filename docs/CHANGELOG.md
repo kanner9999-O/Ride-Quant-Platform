@@ -2,6 +2,71 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — ADR-031 activation candidate: align ADR review evidence template (branch only)
+
+**Bounded correction — vai trò: `ADR-031 Activation Candidate Bounded Correction Executor`.** Closes
+`ADR031-ACT-A-MAJ-01` (Major, Review A on the activation candidate). Branch
+`adr031-atomic-activation-candidate` only — `main` untouched.
+
+### Baseline
+
+```text
+Required branch HEAD: a7a8218892c6a0eec09a7f980f0d6f89f9574873 (verified via git branch --show-
+  current + git rev-parse HEAD before any edit, working tree clean).
+```
+
+### Finding — ADR031-ACT-A-MAJ-01 (CLOSED_BY_BOUNDED_CORRECTION, PENDING_REVIEW_A_REREVIEW)
+
+```text
+Defect: the Chapter 11 §11.9 candidate (this same branch) requires Mode-B review evidence to pin
+  principal, role, review_execution_id, review_boundary, independence_mode, and
+  execution_isolation_attestation — but docs/templates/adr-template.md's review table still exposed
+  only the legacy five columns (Reviewer identity | Role | Concern | Risk | Recommendation), with no
+  canonical place for future ADRs to pin that evidence.
+Fix: review-evidence table expanded to nine columns — Reviewer principal | Role at review boundary |
+  Execution ID | Review boundary | Independence mode | Isolation attestation | Concern | Risk |
+  Recommendation. A guidance note added: Independence mode records DISTINCT_PRINCIPAL (Mode A) or
+  SAME_PRINCIPAL_DISTINCT_EXECUTION (Mode B); Execution ID / Isolation attestation are N/A for Mode
+  A and mandatory for both under Mode B (provider-native session ID where available, otherwise a
+  deterministic workflow-generated ID plus an explicit attestation — a free-form label alone is not
+  sufficient). The note references Chapter 0 §3 / Chapter 11 §11.5 / ADR-031 §5 rather than copying
+  the full evidence contract into the template.
+Result: ADR031-ACT-A-MAJ-01 CLOSED_BY_BOUNDED_CORRECTION. Verdict PENDING_REVIEW_A_REREVIEW —
+  explicitly NOT claimed CLEAN.
+```
+
+### Files changed
+
+```text
+docs/templates/adr-template.md   Review-evidence table expanded 5 → 9 columns; guidance note added.
+  Blob c76d6c2ddce7aeeb3c7966dd0c403d84a4984f78 → a66263f6d754800817b76660fd7130a01b62f191.
+docs/MANIFEST.md   manifest_version 10.169 → 10.170. "## ADR-031 Atomic Activation — CANDIDATE"
+  section's template blob reference updated; new "Bounded correction — ADR031-ACT-A-MAJ-01" block
+  added recording the defect, fix, and CLOSED_BY_BOUNDED_CORRECTION / PENDING_REVIEW_A_REREVIEW
+  disposition (693 words total in section, within budget).
+```
+
+### No scope expansion / no activation
+
+```text
+docs/constitution/00-governance.md (v1.2 candidate), 11-adr-process.md (v2.2 candidate),
+  12-approval-gates.md (v1.6 candidate): UNCHANGED on this branch, verified byte-identical (git diff
+  --quiet). docs/adr/ADR-031.md: UNCHANGED, byte-identical — Approved/immutable. main: NOT modified.
+  Mode B: still NOT_ACTIVE. Phase-3 rules workflow remains paused on P3-RULES-A-MAJ-01. Phase 3
+  substantive governed implementation unaffected — still PENDING_PHASE3_EXECUTION_RULE_
+  ESTABLISHMENT. LIVE remains NOT_AUTHORIZED.
+```
+
+### Validation
+
+```text
+git branch --show-current verified adr031-atomic-activation-candidate; git rev-parse HEAD verified
+  a7a8218892c6a0eec09a7f980f0d6f89f9574873 before any edit; working tree clean. git diff --quiet
+  confirmed Chapter 0/11/12 candidate files and ADR-031 all byte-identical after the edit — only
+  docs/templates/adr-template.md and docs/MANIFEST.md changed. manifest_version increment verified
+  (10.169 → 10.170).
+```
+
 ## [Unreleased] — 2026-08-18 — ADR-031: author atomic governance activation candidate (branch only, NOT on main)
 
 **Governance activation candidate authoring — vai trò: `ADR-031 Atomic Activation Candidate
