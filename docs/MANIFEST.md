@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.160"
+manifest_version: "10.161"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -1352,6 +1352,41 @@ authorize LIVE (KHÔNG suy diễn LIVE permission từ Phase 2 start)
 
 **Gate decision source HEAD (reviewed Gate-3 boundary, distinct from this transaction's own resulting recording commit, G-ID-001):** `5b58e5eeb698d78e4e1f8fa27bb22e4ad65d47b3`.
 
+**Bounded correction (2026-08-18, vai trò: `Bounded Gate-3 Lifecycle Recording Correction Executor`, corrects the evidence bundle originally recorded in commit `16f34c48599ffa17d433b0da36108069759816c8` — that commit is NOT reverted/reopened as a review/QG/BCC event, only its evidentiary record below is corrected):**
+
+```text
+Defect 1 — Review-B evidence misrepresentation: the evidence originally recorded below stated
+  Independent Review B as "CLEAN — ELIGIBLE" (marker
+  PHASE2_GATE3_INDEPENDENT_PHASE_LEVEL_REVIEW_B_FINAL, new Blocker/Major/Minor 0/0/0). This did NOT
+  faithfully represent the actual Claude Independent Review B report. Corrected below: actual marker
+  PHASE2_GATE3_CLAUDE_INDEPENDENT_PHASE_LEVEL_REVIEW_B_FINAL, actual historical verdict
+  REVISION_REQUIRED (new Blocker/Major/Minor 0/0/1 — P2-G3-B-MAJ-01 REMAINS_OPEN at that time because
+  Review-A evidence was not yet repository-resolvable/pinned; new Minor P2-G3-B-MIN-01). Claude's
+  historical verdict is NOT altered/rerun by this correction — it remains REVISION_REQUIRED as a
+  historical fact; no Claude rerun occurred.
+Defect 2 — temporal-ordering: Chapter 12 §12.2 requires eligibility to be COMPLETE before the valid
+  Product Owner phase decision. Prerequisite 8 was not yet completely established at
+  2026-08-18T10:35:00+07:00 (per Defect 1, Review B's REVISION_REQUIRED verdict was still the
+  standing evidence at that time). The Product Owner statement recorded at that timestamp is
+  therefore reclassified HISTORICAL_PREMATURE_DECISION_STATEMENT / NON_AUTHORITATIVE_FOR_GATE3_
+  LIFECYCLE — preserved below as history, NOT deleted, NOT a rejection, NOT the authoritative Gate-3
+  decision.
+Remediation (occurred after the above, before this correction): ChatGPT performed the final
+  Phase-level Review A, marker PHASE2_GATE3_PHASE_LEVEL_REVIEW_A_FINAL — distinct from, and
+  superseding as the current authoritative Review-A evidence, the earlier weaker
+  PHASE2_GATE3_PHASE_LEVEL_REVIEW_A_IDENTITY_PINNED attestation (preserved below as history, not
+  deleted) — supplying the missing repository-resolvable evidence. P2-G3-B-MAJ-01:
+  CLOSED_BY_SUBSEQUENT_REVIEW_A_EVIDENCE_COMPLETION. P2-G3-B-MIN-01 (stale P2-BCC-MAJ-01/coverage
+  banners in product-requirement.md/use-case-workflow.md/ux-blueprint.md, superseded by later
+  authoritative MANIFEST/full-scope-BCC state, NOT fixed by this transaction): remains
+  OPEN — NON_BLOCKING (does not block the Gate-3 decision — only unresolved Blocker/Major block,
+  finding-closure policy). Prerequisite 8: SATISFIED only as of this remediation. Product Owner then
+  re-issued "APPROVE — PHASE 2 GATE 3 — REISSUED AFTER COMPLETION OF PREREQUISITE 8" at
+  2026-08-18T13:41:00+07:00 — this is the sole authoritative Gate-3 decision (below).
+No Quality Gate rerun, no BCC rerun, no Review A/B rerun performed by this correction — only the
+  evidentiary record is corrected to reflect what actually occurred.
+```
+
 **Prepared content — Chapter 14 authority (pinned directly here, §14.4.1):**
 
 ```text
@@ -1446,24 +1481,66 @@ Validator/freshness result
                                         duplicate blob reference found
                                         trong validation sweep của chính
                                         transaction này.
-Independent review evidence (Chapter 0 §3, Chapter 11 §11.5):
-  Phase 2 Approval Gate ("Gate 3")
-    Review A:                           CLEAN — IDENTITY_PINNED
+Independent review evidence (Chapter 0 §3, Chapter 11 §11.5) — CORRECTED, xem "Bounded correction"
+  note phía trên cho lý do:
+  Phase-level Review A — historical
+    earlier attestation (preserved,
+    NOT the current authoritative
+    Review-A evidence):                 CLEAN — IDENTITY_PINNED
+                                        (PHASE2_GATE3_PHASE_LEVEL_REVIEW_A_
+                                        IDENTITY_PINNED)
     Reviewer:                           ChatGPT, role AI Technical
                                         Architect
     Review boundary:                    5b58e5eeb698d78e4e1f8fa27bb22e4a
                                         d65d47b3
-    Blocker/Major/Minor (new):           0/0/0
-  Independent Phase 2 Approval Gate
-    ("Gate 3") Review B:                 CLEAN — ELIGIBLE
-                                        (PHASE2_GATE3_INDEPENDENT_PHASE_
-                                        LEVEL_REVIEW_B_FINAL)
-  Reviewer:                             Claude, alias "Independent Review
-                                        B" (team.yaml F-04 resolution),
-                                        role AI Technical Architect
-  Review boundary (SAME as Review A):   5b58e5eeb698d78e4e1f8fa27bb22e4a
+  Phase-level Review A — FINAL
+    (current authoritative Review-A
+    evidence):                          CLEAN — ELIGIBLE
+                                        (PHASE2_GATE3_PHASE_LEVEL_REVIEW_A_
+                                        FINAL)
+    Reviewer:                           ChatGPT, role AI Technical
+                                        Architect
+    Review boundary (SAME):             5b58e5eeb698d78e4e1f8fa27bb22e4a
                                         d65d47b3
-  Blocker/Major/Minor (new):             0/0/0
+    Chapter 12 prerequisites 1-7:       SATISFIED
+    Blocker/Major/new Minor:            0/0/0
+    P2-G3-B-MAJ-01 remediation:         PRODUCED_BY_REVIEW_A — supplied the
+                                        missing repository-resolvable
+                                        Review-A evidence that Independent
+                                        Review B (below) had found absent.
+  Independent Phase-level Review B
+    (actual Claude report, historical
+    verdict — NOT altered/rerun by
+    this correction):                    REVISION_REQUIRED (marker
+                                        PHASE2_GATE3_CLAUDE_INDEPENDENT_
+                                        PHASE_LEVEL_REVIEW_B_FINAL)
+  Reviewer:                             Claude, registered alias
+                                        "Independent Review B" (team.yaml
+                                        F-04 resolution), role AI Technical
+                                        Architect
+  Review boundary:                      5b58e5eeb698d78e4e1f8fa27bb22e4a
+                                        d65d47b3
+  Reviewer eligibility:                  ELIGIBLE. Distinct actors
+                                        (ChatGPT / Claude): CONFIRMED.
+                                        Independent Review B: CONFIRMED.
+  Chapter 12 prerequisites 1-7:          SATISFIED
+  AT THE TIME OF THAT REVIEW —
+    Chapter 12 prerequisite 8:           NOT_SATISFIED (Review-A evidence
+                                        not yet repository-resolvable/
+                                        pinned)
+  P2-G3-B-MAJ-01 (Major) AT THAT
+    TIME:                                REMAINS_OPEN
+  New Blocker/Major/Minor (at that
+    time):                               0/0/1 — new Minor P2-G3-B-MIN-01
+                                        (§ dưới)
+  Substantive Phase-2 prototype
+    state Claude explicitly found
+    (NOT a substantive failure):         clean — 17/17 surfaces, 21/21
+                                        substantive UC; Quality Gate PASS;
+                                        BCC NO_CONFLICT; new Blocker 0, new
+                                        Major 0 (P2-G3-B-MAJ-01 pre-existed,
+                                        not newly raised by this review),
+                                        new Minor 1.
   Eligibility resolution (team.yaml):    ChatGPT VÀ Claude LÀ hai actor
                                         identity riêng biệt, CẢ HAI role
                                         AI Technical Architect —
@@ -1475,28 +1552,41 @@ Independent review evidence (Chapter 0 §3, Chapter 11 §11.5):
                                         đã dùng cho Phase 1 Gate 2 (xem
                                         section "Governance — Phase-level
                                         Gate Reviews" phía trên).
-  Finding P2-G3-B-MAJ-01 (Major,
-    reviewer eligibility) — found AND
-    CLOSED within this transaction,
-    trước bất kỳ file mutation nào:     một draft ban đầu của evidence cho
-                                        transaction này gán CẢ Review A LẪN
-                                        Review B cho actor "ChatGPT," phân
-                                        biệt CHỈ bởi một chuỗi "execution
-                                        identity" KHÔNG được đăng ký ở
-                                        team.yaml như một actor/alias riêng
-                                        — KHÔNG thỏa "hai actor identity
-                                        khác nhau" (Chapter 0 §3). Sửa:
-                                        Review B's actor re-designated
-                                        thành Claude dưới alias đã đăng ký
-                                        "Independent Review B" (team.yaml),
-                                        đúng precedent Phase 1 Gate 2.
-  Prior reviewer-execution mismatch:    CLOSED_AS_SUPERSEDED_BY_VALID_
-                                        REVIEW_B_EXECUTION (Claude / alias
-                                        "Independent Review B", SAME review
-                                        boundary 5b58e5eeb698d78e4e1f8fa27
-                                        bb22e4ad65d47b3).
+  Prior reviewer-execution mismatch
+    (an earlier, invalid same-actor
+    ChatGPT/ChatGPT evidence draft —
+    NOT the review above, NOT
+    counted as a real review):          PRIOR_REVIEW_B_ACTOR_EXECUTION_
+                                        MISMATCH: SUPERSEDED_BY_VALID_
+                                        CLAUDE_REVIEW_B.
+  P2-G3-B-MAJ-01 (Major) — final
+    state, after ChatGPT's final
+    Review A (above) supplied the
+    missing evidence:                    CLOSED_BY_SUBSEQUENT_REVIEW_A_
+                                        EVIDENCE_COMPLETION. (NOT closed by
+                                        altering Claude's verdict — Claude
+                                        did not rerun; closure results from
+                                        the completed evidence chain.)
+  P2-G3-B-MIN-01 (Minor, non-blocking,
+    found by Independent Review B):      OPEN — NON_BLOCKING. Description:
+                                        docs/product/product-requirement.md,
+                                        use-case-workflow.md, ux-blueprint.md
+                                        contain stale-as-current historical
+                                        banners saying P2-BCC-MAJ-01 remains
+                                        OPEN and/or clean coverage remains
+                                        16/17 surfaces + 20/21 UC, although
+                                        later authoritative MANIFEST/
+                                        full-scope-BCC state supersedes
+                                        those statements. NOT fixed by this
+                                        transaction (docs/product/ NOT
+                                        modified). Does NOT block the
+                                        Gate-3 decision — only unresolved
+                                        Blocker/Major block, per
+                                        finding-closure policy.
   Chapter 12 prerequisite aggregation
-    (8-điều kiện §12.2):
+    (8-điều kiện §12.2), FINAL state
+    after the complete evidence
+    sequence above:
     1. DoD defined + accepted:           SATISFIED
     2. required deliverables complete:   SATISFIED (17/17 + 21/21, above)
     3. dependency state phù hợp:         SATISFIED (Phase 1/1.5 Approved,
@@ -1510,15 +1600,37 @@ Independent review evidence (Chapter 0 §3, Chapter 11 §11.5):
     6. BCC No conflict:                  SATISFIED (above)
     7. validator/freshness pass:         SATISFIED (above)
     8. ≥2 eligible independent reviews,
-       distinct actors, evidence pinned: SATISFIED (Review A/B above)
+       distinct actors, evidence pinned: SATISFIED — Review A FINAL +
+                                        Independent Review B (Claude),
+                                        SAME boundary, distinct actors
+                                        CONFIRMED
     Aggregation result:                  COMPLETE
-    Blocker/Major/Minor (new):           0/0/0
-Product Owner decision fact:            "APPROVE — PHASE 2 GATE 3"
-                                        (decision time
-                                        2026-08-18T10:35:00+07:00)
+    Gate-3 eligibility:                   ESTABLISHED
+    Gate-3 eligibility verdict:           READY_FOR_PRODUCT_OWNER_GATE3_
+                                        DECISION
+Product Owner decision — historical,
+  premature statement (preserved,
+  NOT deleted, NOT a rejection, NOT
+  authoritative for Gate-3
+  lifecycle):                            "APPROVE — PHASE 2 GATE 3"
+                                        (2026-08-18T10:35:00+07:00).
+                                        Classification:
+                                        HISTORICAL_PREMATURE_DECISION_
+                                        STATEMENT / NON_AUTHORITATIVE_FOR_
+                                        GATE3_LIFECYCLE. Reason: at that
+                                        timestamp prerequisite 8 had not
+                                        yet completed its final eligible
+                                        Review-A/Review-B evidence sequence
+                                        (above).
+Product Owner decision — AUTHORITATIVE
+  (issued after prerequisite 8
+  completion):                          "APPROVE — PHASE 2 GATE 3 —
+                                        REISSUED AFTER COMPLETION OF
+                                        PREREQUISITE 8" (decision time
+                                        2026-08-18T13:41:00+07:00)
 ```
 
-**Resulting MANIFEST transition (authoritative TẠI atomic recording boundary — commit này, cùng lúc với bundle phía trên, §14.4.2):** `manifest_version` `10.159` → `10.160`. `current_phase` KHÔNG đổi — VẪN `"Phase 2 — Product Prototype"` (Phase 3 substantive work CHƯA authorized, §ngay dưới đây — Approval Gate PASSED KHÔNG tự động chuyển `current_phase`, đúng phân biệt tường minh khỏi Phase 0→1/Phase 1→1.5 transition trước đó, VÀ giống hệt pattern Phase 1.5's Gate: `current_phase` CHỈ chuyển qua một transaction "Start Authorization" riêng biệt, SAU KHI retrospective yêu cầu hoàn thành).
+**Resulting MANIFEST transition (authoritative TẠI atomic recording boundary — commit này, cùng lúc với bundle phía trên, §14.4.2):** `manifest_version` `10.159` → `10.160` (transaction gốc, KHÔNG đổi bởi correction này) → `10.161` (bounded correction này). `current_phase` KHÔNG đổi — VẪN `"Phase 2 — Product Prototype"` (Phase 3 substantive work CHƯA authorized, §ngay dưới đây — Approval Gate PASSED KHÔNG tự động chuyển `current_phase`, đúng phân biệt tường minh khỏi Phase 0→1/Phase 1→1.5 transition trước đó, VÀ giống hệt pattern Phase 1.5's Gate: `current_phase` CHỈ chuyển qua một transaction "Start Authorization" riêng biệt, SAU KHI retrospective yêu cầu hoàn thành). Phase 2 lifecycle (APPROVED) và Gate 3 (PASSED) KHÔNG đổi bởi correction này — CHỈ evidentiary record (Review-B verdict, PO decision timestamp/authority) được sửa để khớp chính xác với sự việc đã xảy ra (§"Bounded correction" phía trên).
 
 **Recorded state transition:**
 

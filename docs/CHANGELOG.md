@@ -2,6 +2,131 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — Phase 2 Gate 3: bounded correction — approval temporal ordering and review evidence
+
+**Bounded factual correction — vai trò: `Bounded Gate-3 Lifecycle Recording Correction Executor`.**
+Corrects factual/temporal defects in the Gate-3 recording commit `16f34c48599ffa17d433b0da36108069759816c8`.
+Does NOT rerun Review A/B, Quality Gate, or BCC; does NOT perform substantive Phase-2 work.
+
+### Baseline
+
+```text
+Starting HEAD:  16f34c48599ffa17d433b0da36108069759816c8 (verified via git rev-parse HEAD before any
+  edit, working tree clean). manifest_version verified 10.160 before edit, matching expectation.
+```
+
+### Defect 1 — Review-B evidence misrepresentation
+
+```text
+The Gate-3 bundle recorded in 16f34c4 stated Independent Review B as "CLEAN — ELIGIBLE" (marker
+  PHASE2_GATE3_INDEPENDENT_PHASE_LEVEL_REVIEW_B_FINAL, new Blocker/Major/Minor 0/0/0). This did not
+  faithfully represent the actual Claude Independent Review B report. Corrected: actual marker
+  PHASE2_GATE3_CLAUDE_INDEPENDENT_PHASE_LEVEL_REVIEW_B_FINAL, actual historical verdict
+  REVISION_REQUIRED at the time (new Blocker/Major/Minor 0/0/1) — P2-G3-B-MAJ-01 REMAINS_OPEN at
+  that time because Review-A evidence was not yet repository-resolvable/pinned; new Minor
+  P2-G3-B-MIN-01 (stale P2-BCC-MAJ-01/coverage banners in product-requirement.md/
+  use-case-workflow.md/ux-blueprint.md, superseded by later authoritative MANIFEST/full-scope-BCC
+  state, NOT fixed by this transaction). Claude explicitly found the substantive Phase-2 prototype
+  state clean (17/17 surfaces, 21/21 UC, Quality Gate PASS, BCC NO_CONFLICT) — this was a reviewer-
+  evidence-availability finding, not a substantive Phase-2 failure. Claude's historical verdict is
+  NOT altered/rerun by this correction — it remains REVISION_REQUIRED as a historical fact; no
+  Claude rerun occurred.
+```
+
+### Defect 2 — temporal ordering of the Product Owner decision
+
+```text
+Chapter 12 §12.2 requires eligibility to be complete BEFORE the valid Product Owner phase decision.
+  Prerequisite 8 was not yet completely established at 2026-08-18T10:35:00+07:00 (Defect 1's
+  REVISION_REQUIRED verdict was still the standing evidence at that time). The Product Owner
+  statement recorded at that timestamp is reclassified HISTORICAL_PREMATURE_DECISION_STATEMENT /
+  NON_AUTHORITATIVE_FOR_GATE3_LIFECYCLE — preserved as history, not deleted, not a rejection, not
+  the authoritative Gate-3 decision.
+```
+
+### Remediation and re-issued decision
+
+```text
+ChatGPT subsequently performed the final Phase-level Review A, marker
+  PHASE2_GATE3_PHASE_LEVEL_REVIEW_A_FINAL — distinct from, and now superseding as the current
+  authoritative Review-A evidence, the earlier weaker
+  PHASE2_GATE3_PHASE_LEVEL_REVIEW_A_IDENTITY_PINNED attestation (preserved as history, not deleted)
+  — supplying the missing repository-resolvable evidence. P2-G3-B-MAJ-01:
+  CLOSED_BY_SUBSEQUENT_REVIEW_A_EVIDENCE_COMPLETION (closed by the completed evidence chain, not by
+  altering Claude's verdict). P2-G3-B-MIN-01: remains OPEN — NON_BLOCKING (does not block the Gate-3
+  decision — only unresolved Blocker/Major block, per finding-closure policy). Prior
+  reviewer-execution mismatch (the earlier, invalid same-actor ChatGPT/ChatGPT evidence draft from
+  the immediately preceding transaction — not the review above, not counted as a real review):
+  PRIOR_REVIEW_B_ACTOR_EXECUTION_MISMATCH: SUPERSEDED_BY_VALID_CLAUDE_REVIEW_B. Chapter 12 §12.2
+  prerequisites 1-8: all SATISFIED (prerequisite 8 satisfied only as of this remediation).
+  Aggregation: COMPLETE. Gate-3 eligibility: ESTABLISHED, verdict
+  READY_FOR_PRODUCT_OWNER_GATE3_DECISION. Product Owner then re-issued "APPROVE — PHASE 2 GATE 3 —
+  REISSUED AFTER COMPLETION OF PREREQUISITE 8" at 2026-08-18T13:41:00+07:00 — this is now the sole
+  authoritative Gate-3 decision. No Quality Gate rerun, no BCC rerun, no Review A/B rerun performed
+  by this correction.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md   manifest_version 10.160 → 10.161. Within the "Phase 2 Approval Gate — Decision"
+  bundle: new "Bounded correction" note inserted after "Gate decision source HEAD" summarizing both
+  defects and the remediation/re-issue sequence; "Independent review evidence" block corrected in
+  place (historical Review-A "IDENTITY_PINNED" attestation preserved + new Review-A "FINAL" evidence
+  added as current authoritative; Review-B corrected from misrepresented CLEAN to actual
+  REVISION_REQUIRED-at-the-time with new Minor 1/P2-G3-B-MIN-01; P2-G3-B-MAJ-01 final state
+  CLOSED_BY_SUBSEQUENT_REVIEW_A_EVIDENCE_COMPLETION; prior reviewer-execution mismatch preserved as
+  SUPERSEDED_BY_VALID_CLAUDE_REVIEW_B); Chapter 12 §12.2 prerequisite-8 justification corrected to
+  cite the completed evidence sequence; "Product Owner decision fact" split into the historical
+  premature 10:35 statement (reclassified HISTORICAL_PREMATURE_DECISION_STATEMENT /
+  NON_AUTHORITATIVE_FOR_GATE3_LIFECYCLE, preserved) and the new authoritative 13:41 re-issued
+  decision; "Resulting MANIFEST transition" line updated to note the version chain and that Phase 2
+  APPROVED / Gate 3 PASSED do not themselves change — only the evidentiary record is corrected.
+  current_phase frontmatter UNCHANGED.
+```
+
+### No scope expansion / no semantic mutation / no rerun
+
+```text
+docs/product/, docs/domain/, docs/architecture/, docs/constitution/, docs/adr/, docs/phase-dod/,
+  docs/team/, docs/governance/gate-review/, docs/governance/phases/, prototype/phase-2/: UNCHANGED
+  (git status --porcelain=v1 -uall clean / git diff --quiet as applicable). No Quality Gate rerun
+  (still PASS at boundary 0f01ebff9596a095a767b9bb87a670a2f89c23b6, unchanged). No BCC rerun (still
+  NO_CONFLICT at boundary e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80, reconciliation
+  0f01ebff9596a095a767b9bb87a670a2f89c23b6, unchanged). No Review A/B rerun — Claude's historical
+  REVISION_REQUIRED verdict is preserved verbatim, not altered. Prototype substantive completion
+  (17/17 surfaces, 21/21 UC) unchanged, not mutated.
+```
+
+### Result
+
+```text
+Phase 2 — Product Prototype: APPROVED (unchanged). Approval Gate ("Gate 3"): PASSED (unchanged) —
+  now resting on the corrected, authoritative 13:41 Product Owner decision rather than the
+  reclassified-historical 10:35 statement. P2-G3-B-MAJ-01: CLOSED_BY_SUBSEQUENT_REVIEW_A_EVIDENCE_
+  COMPLETION. P2-G3-B-MIN-01: OPEN — NON_BLOCKING (carried forward, not fixed here). Chapter 12
+  §12.2 prerequisites 1-8: all SATISFIED, aggregation COMPLETE. Gate-3 eligibility: ESTABLISHED.
+P2-RETRO-001: REQUIRED BEFORE PHASE-3 SUBSTANTIVE WORK, NOT_PERFORMED (unaffected by this
+  correction). Phase 3 substantive work: NOT_AUTHORIZED. LIVE: NOT_AUTHORIZED. current_phase:
+  UNCHANGED, "Phase 2 — Product Prototype."
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 16f34c48599ffa17d433b0da36108069759816c8 before any edit; manifest_version
+  verified 10.160 before edit; git status --porcelain=v1 -uno verified working tree clean before any
+  edit. Governing authority re-inspected: docs/constitution/00-governance.md, 12-approval-gates.md,
+  14-roadmap.md, 11-adr-process.md, docs/team/team.yaml, docs/MANIFEST.md, docs/CHANGELOG.md. Only
+  docs/MANIFEST.md changed by this transaction (docs/CHANGELOG.md changed by this entry itself).
+  git status --porcelain=v1 -uall confirmed clean on docs/product, docs/domain, docs/architecture,
+  docs/constitution, docs/adr, docs/phase-dod, docs/team, docs/governance/gate-review,
+  docs/governance/phases, prototype/phase-2. manifest_version increment verified (10.160 → 10.161).
+  current_phase frontmatter verified unchanged. Grep-verified no statement claims Claude reran or
+  later returned CLEAN. Grep-verified Review-B new Minor recorded as 1 (P2-G3-B-MIN-01), not 0.
+  Grep-verified P2-G3-B-MIN-01 status recorded OPEN — NON_BLOCKING, not silently closed.
+```
+
 ## [Unreleased] — 2026-08-18 — Phase 2 Gate 3: Product Owner APPROVE recording (immutable Phase-decision bundle, Chapter 14 §14.4.1–§14.4.2)
 
 **Governance/lifecycle recording — vai trò: `Governance / Lifecycle Recorder Executor`.** Records the
