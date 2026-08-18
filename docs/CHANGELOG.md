@@ -2,6 +2,115 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — ADR-031 v0.2: bounded correction closes ADR031-A-MAJ-01
+
+**Bounded correction — vai trò: `ADR-031 Bounded Correction Executor`.** Closes exactly one Review-A
+finding, `ADR031-A-MAJ-01` (Major), on ADR-031 v0.1. Does not approve, does not activate any
+governance change, does not modify Constitution/Global Execution Rules/team.yaml.
+
+### Baseline
+
+```text
+Starting HEAD:  b048d068c7404794c6b4166fe80c38489730edcb (verified via git rev-parse HEAD before any
+  edit, working tree clean). manifest_version verified 10.165 before edit.
+```
+
+### Finding — ADR031-A-MAJ-01 (CLOSED_BY_V0.2_BOUNDED_CORRECTION)
+
+```text
+Defect: v0.1's §11 mandatory Atomic Activation Set listed only Chapter 0 §3 as a required
+  synchronized amendment, omitting Chapter 11 §11.5/§11.9 — both verified to independently contain
+  the same principal-only "identities khác nhau" requirement. This could have allowed Chapter 0 to
+  permit Mode B while Chapter 11's review-gate/validator contract still rejected it — a partial-
+  activation defect of exactly the class ADR-031 itself exists to prevent.
+Fix: §11 rewritten with an explicit A-G mandatory/recommended breakdown:
+  A. Chapter 0 §3 — substantive amendment, MANDATORY.
+  B. Chapter 11 §11.5 — substantive amendment, MANDATORY (added).
+  C. Chapter 11 §11.9 validator contract — substantive amendment, MANDATORY (added).
+  D. Chapter 12 — inspected directly (docs/constitution/12-approval-gates.md): its intro paragraph
+     literally restates "hai actor identity khác nhau" but §12.3 self-declares it has no independent
+     authority, only references Chapter 0 §3/Chapter 11 §11.5. Disposition:
+     CHAPTER12_SUBSTANTIVE_AMENDMENT_NOT_REQUIRED + CHAPTER12_WORDING_SYNC_REQUIRED_AT_SAME_BOUNDARY
+     (a non-authoritative wording-only correction, same class as Chapter 12's existing v1.5
+     factual-correction precedent, no ADR needed for that piece).
+  E. Global Execution Rules — inspected directly (docs/governance/execution-rules.md): Constitution
+     sits above Global Execution Rules in the Authority hierarchy, so the Chapter 11 §11.9
+     amendment (C) is self-sufficient for Mode B to be mechanically checkable. Disposition:
+     GLOBAL_EXECUTION_RULE_AMENDMENT_NOT_REQUIRED for activation; a future mechanical-enforcement
+     rule (reviewer_principal/reviewer_role/review_execution_id/review_boundary/independence_mode/
+     execution_isolation_attestation/model profile) remains a recommended, non-blocking follow-up.
+  F. team.yaml — TEAM_YAML_CLARIFICATION_REQUIRED (recommended, not blocking — team.yaml is
+     tier-4 SSOT for principal↔role mapping only, not eligibility-semantics authority).
+  G. MANIFEST reflects A-D (and E/F if the Product Owner chooses to synchronize them) at the
+     activation boundary.
+  No partial activation: missing any one of A/B/C/D invalidates activation; Mode B remains
+  NOT_ACTIVE until all four are synchronized and Product-Owner-approved in one governed action.
+  Validator-consistency requirement made explicit: Chapter 0/Chapter 11 §11.5/§11.9 semantics must
+  be mutually consistent at the same authoritative boundary, verified directly, not inferred.
+Result: ADR031-A-MAJ-01 CLOSED_BY_V0.2_BOUNDED_CORRECTION. Verdict recorded as
+  PENDING_BOUNDED_REVIEW_A_REREVIEW — explicitly NOT claimed CLEAN; a bounded Review A re-review
+  (scope: §11 only) remains required before Independent Review B can proceed.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-031.md   v0.1 → v0.2, blob c09bf7c5c2a185d2302eac20843e1178210c8aef →
+  13775774f948bfe8e8b356315189b9e2a361eb88. §11 rewritten in place (ADR files are not append-only
+  pre-approval — MANIFEST/CHANGELOG carry the version narrative). Two new evidence subsections added
+  ("Chapter-12-verification", "Global-Execution-Rules-verification") documenting the direct
+  inspection behind the D/E dispositions. Consequences section updated to match. Independent-reviews
+  table's Review A row filled in with the ADR031-A-MAJ-01 finding and its CLOSED_BY_V0.2_BOUNDED_
+  CORRECTION / PENDING_BOUNDED_REVIEW_A_REREVIEW disposition; Independent Review B row remains blank
+  (not yet performed). Bootstrap rule (§12), Mode A/B definitions (§3/§4), execution-isolation
+  evidence contract (§5), model-profile semantics (§6), eligibility-vs-diversity (§7), role
+  resolution (§8), fail-closed (§9), non-retroactivity (§10) all left substantively unchanged except
+  cross-references to the corrected §11.
+docs/MANIFEST.md   manifest_version 10.165 → 10.166. ADR-031 row updated in place: v0.2, the full
+  A-G disposition summary, and the ADR031-A-MAJ-01 closure/PENDING_BOUNDED_REVIEW_A_REREVIEW state
+  (365 words).
+```
+
+### No scope expansion / no activation
+
+```text
+docs/constitution/00-governance.md, 11-adr-process.md, 12-approval-gates.md,
+  docs/governance/execution-rules.md, docs/team/team.yaml, docs/governance/phases/phase-3-rules.md,
+  docs/architecture/, docs/domain/, docs/product/, docs/phase-dod/, prototype/: UNCHANGED (git
+  status --porcelain=v1 -uall clean). No governance change activated — Mode B remains NOT_ACTIVE.
+  No Product Owner approval performed or fabricated on ADR-031. Phase-3 rules workflow remains
+  paused on P3-RULES-A-MAJ-01, phase-3-rules.md untouched. Phase 3 substantive governed
+  implementation unaffected — still PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT. P2-G3-B-MIN-01
+  remains OPEN — NON_BLOCKING, untouched. current_phase unchanged, "Phase 3 — Core Backend."
+```
+
+### Result
+
+```text
+ADR-031: v0.2, Draft. ADR031-A-MAJ-01: CLOSED_BY_V0.2_BOUNDED_CORRECTION, PENDING_BOUNDED_REVIEW_A_
+  REREVIEW (not CLEAN). Mandatory Atomic Activation Set now complete: Chapter 0 §3 + Chapter 11
+  §11.5 + Chapter 11 §11.9, all MANDATORY. Chapter 12: substantive amendment not required, wording
+  sync required at the same boundary. Global Execution Rules: amendment not required for activation.
+  team.yaml: clarification recommended, not blocking. Bootstrap rule preserved — ADR-031's own
+  review must still use ChatGPT + Claude/"Independent Review B" under current Mode-A authority.
+Phase 3 lifecycle: AUTHORIZED TO BEGIN (unchanged). Phase 3 substantive governed implementation:
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT (unchanged). Phase-3 DoD: NOT_YET_ESTABLISHED /
+  NOT_YET_ACCEPTED (unchanged). LIVE: NOT_AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified b048d068c7404794c6b4166fe80c38489730edcb before any edit;
+  manifest_version verified 10.165 before edit; git status --porcelain=v1 -uno verified working tree
+  clean before any edit. docs/constitution/12-approval-gates.md and
+  docs/governance/execution-rules.md inspected directly (not guessed) to reach the D/E dispositions.
+  git status --porcelain=v1 -uall confirmed clean on every forbidden path — only docs/adr/ADR-031.md
+  and docs/MANIFEST.md changed. manifest_version increment verified (10.165 → 10.166). current_phase
+  verified unchanged. ADR-031 frontmatter verified version 0.2, status Draft, approved_by/approved_at
+  still null.
+```
+
 ## [Unreleased] — 2026-08-18 — ADR-031: define independent reviewer execution model (Draft)
 
 **ADR authoring — vai trò: `Governance ADR Authoring Executor`.** Authors `docs/adr/ADR-031.md` v0.1
