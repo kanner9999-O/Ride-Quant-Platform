@@ -2,6 +2,127 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — Phase 2 Process Retrospective #001 complete (P2-RETRO-001 satisfied)
+
+**Process retrospective — vai trò: `Phase 2 Process Retrospective Executor`.** Performs the required
+`P2-RETRO-001` retrospective using actual Phase-2 execution evidence. NOT an Approval Gate, NOT
+architecture authoring, NOT Product/UX correction, NOT an ADR, NOT a Quality Gate/BCC/Review A/B
+rerun, NOT a Phase-3 authorization transaction.
+
+### Baseline
+
+```text
+Starting HEAD:  7f94a5412ab04e6e48a5f47c4629f1680f2a5c62 (verified via git rev-parse HEAD before any
+  edit, working tree clean). manifest_version verified 10.161 before edit.
+```
+
+### Evidence gathered
+
+```text
+git log 99ffeee ("Phase 2 — Product Prototype: AUTHORIZED TO BEGIN") .. 7f94a54 (Gate-3 bounded
+  correction): 34 commit. docs/CHANGELOG.md: 35 Phase-2-scoped entry (of 403 total). 26 distinct
+  Phase-2 finding ID (git grep across MANIFEST.md/CHANGELOG.md). Direct word-count measurement of
+  every Phase-2-scoped MANIFEST table cell (max 257 words, "Phase 2 — Product Prototype" DoD row)
+  and the three Phase-2 decision-bundle sections (BCC 1,525 words; Quality Gate 772 words; Gate-3
+  1,707 words). Per-batch correction-round count derived directly from git log (Batch 02: 4 rounds,
+  the highest of all six batches).
+```
+
+### Retrospective artifact created
+
+```text
+docs/governance/retrospectives/phase2-retrospective-001.md v1.0, blob
+  da1f165f8eb7b5f5aaa6077283c7d14ed425e878. 16 section: Method/evidence scope; wasted/unnecessary
+  transactions; avoidable ADRs; repeated review/correction churn; prompt-size/budget behavior;
+  lifecycle/identity/bookkeeping defects; governance-chain self-replication; five-control
+  effectiveness (§9.1-§9.5); promote-to-Global candidates; Phase-3-specific controls; residual
+  risks/open follow-ups; final conclusion; what this retrospective does NOT do; relationship/
+  citations; change history.
+Top finding: the Gate-3 lifecycle-recording sequence (commits 16f34c4 → 7f94a54) — a transaction
+  recorded a Product Owner decision as authoritative based on a review verdict asserted in the task
+  prompt ("Review B: CLEAN"), without independently verifying it against the real review artifact
+  (Claude's actual REVISION_REQUIRED report) — a root cause NEW relative to Phase 1 (which was
+  blob/taxonomy-fact assertion; this is review-CONTENT assertion). Proposed G-VERIFY-002 (extends
+  G-VERIFY-001 to cited review/decision content, not just blob/identity).
+Five-control dispositions: P2-TXN-001 TIGHTEN (four separate bookkeeping-reconciliation transactions
+  that the rule already permits folding but never defaults to); P2-ADR-CHAIN-001 TIGHTEN, never
+  triggered (0 ADR created in Phase 2 — no invented success; its containment pattern recurred twice
+  in non-ADR form — Batch 02's 4-round correction chain, Gate-3's 2-round sequence — outside the
+  rule's literal ADR-only scope); P2-REVIEW-001 TIGHTEN (its own escape clause for "recording that
+  reveals a semantic conflict" should have fired at Gate-3 step 1 but did not); P2-BUDGET-001 KEEP
+  for table-cell scope (100% of Phase-2 table cells ≤ 257 words vs Phase 1's 8,512-word outlier) +
+  TIGHTEN for section scope (BCC/Gate-3 decision-bundle sections exceed the same 1,500-word figure
+  despite not being literal table cells); P2-PROTOTYPE-001 KEEP (zero per-screen governance
+  amplification across all six batches, unambiguous).
+No rule RETIRE. Four Phase-3-specific control proposals: P3-CORRECTION-CHAIN-001 (generalize the
+  circuit breaker beyond ADRs), P3-TXN-001 (default current-state-update-in-same-transaction),
+  P3-BUDGET-001 (extend the 1,500-word ceiling to decision-bundle sections), G-VERIFY-002 (verify
+  cited review/evidence content, not just identity) — plus a reviewer-identity mechanical pre-check
+  and module-level change batching recommendation.
+P2-G3-B-MIN-01 (product-requirement.md/use-case-workflow.md/ux-blueprint.md stale P2-BCC-MAJ-01
+  banners): preserved OPEN — NON_BLOCKING, NOT fixed by this transaction. Retrospective recommends a
+  future bounded, mechanical banner-update correction (not performed here).
+```
+
+### Files changed
+
+```text
+docs/governance/retrospectives/phase2-retrospective-001.md   NEW, blob
+  da1f165f8eb7b5f5aaa6077283c7d14ed425e878.
+docs/MANIFEST.md   manifest_version 10.161 → 10.162. "Governance — Retrospectives" section header
+  extended to reference P2-RETRO-001; new table row registering the retrospective artifact (351
+  words); confirmation paragraph updated to record P2-RETRO-001 COMPLETE alongside P1-RETRO-001/
+  EF-RETRO-001, and Phase 3 substantive work NOT_YET_AUTHORIZED (two-condition pattern, retrospective
+  condition now satisfied). Within "Phase 2 retrospective — REQUIRED trước Phase 3 substantive work"
+  section: the original "Retrospective: NOT_PERFORMED" field relabeled "(AS OF 2026-08-18 Gate-3
+  correction transaction — HISTORICAL, superseded below)"; new "Retrospective performed" paragraph
+  added recording completion. "Phase 3 / LIVE authorization state" section's "Phase 3 substantive
+  work" field updated from NOT AUTHORIZED to NOT_YET_AUTHORIZED with corrected wording (retrospective
+  condition satisfied, Start Authorization condition still pending); LIVE unchanged, NOT_AUTHORIZED.
+  current_phase frontmatter UNCHANGED — still "Phase 2 — Product Prototype." Gate-3 decision bundle
+  itself NOT reopened/modified.
+```
+
+### No scope expansion / no semantic mutation / no rerun
+
+```text
+docs/product/, docs/domain/, docs/architecture/, docs/constitution/, docs/adr/, docs/phase-dod/,
+  docs/team/, docs/governance/phases/, docs/governance/execution-rules.md, prototype/: UNCHANGED
+  (git status --porcelain=v1 -uall clean / git diff --quiet as applicable). No Quality Gate rerun,
+  no BCC rerun, no Review A/B rerun. No ADR created. Phase 2 approval/Gate 3 decision history
+  unchanged, not reopened. P2-G3-B-MIN-01 not fixed, remains OPEN — NON_BLOCKING. Phase-3-specific
+  control proposals are recommendations only — no rule file (execution-rules.md, phase-2-rules.md,
+  or any future phase-3-rules.md) modified by this transaction.
+```
+
+### Result
+
+```text
+P2-RETRO-001: COMPLETE. Phase 2 — Product Prototype: APPROVED (unchanged). Gate 3: PASSED
+  (unchanged). current_phase: UNCHANGED, "Phase 2 — Product Prototype."
+Phase 3 substantive work: NOT_YET_AUTHORIZED — retrospective prerequisite now satisfied; next
+  required action is a separate Product Owner Phase 3 Start Authorization transaction. LIVE:
+  NOT_AUTHORIZED.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 7f94a5412ab04e6e48a5f47c4629f1680f2a5c62 before any edit; manifest_version
+  verified 10.161 before edit; git status --porcelain=v1 -uno verified working tree clean before any
+  edit. Governing authority inspected directly: docs/governance/phases/phase-2-rules.md,
+  docs/governance/execution-rules.md, docs/constitution/00-governance.md, 12-approval-gates.md,
+  14-roadmap.md, docs/MANIFEST.md, docs/CHANGELOG.md, docs/governance/retrospectives/
+  phase1-retrospective-001.md (structural precedent only, findings not copied). git status
+  --porcelain=v1 -uall confirmed clean on docs/product, docs/domain, docs/architecture,
+  docs/constitution, docs/adr, docs/phase-dod, docs/team, docs/governance/phases,
+  docs/governance/execution-rules.md, prototype/ — only docs/MANIFEST.md, docs/CHANGELOG.md, and the
+  new retrospective artifact changed. manifest_version increment verified (10.161 → 10.162).
+  current_phase frontmatter verified unchanged. All required P2-RETRO-001 categories covered; all
+  five P2 controls evaluated with KEEP/TIGHTEN/RETIRE; Gate-3 identity/evidence failures analyzed
+  across five root-cause axes; P2-BCC-MAJ-01 chain analyzed; P2-G3-B-MIN-01 verified still OPEN.
+```
+
 ## [Unreleased] — 2026-08-18 — Phase 2 Gate 3: bounded correction — approval temporal ordering and review evidence
 
 **Bounded factual correction — vai trò: `Bounded Gate-3 Lifecycle Recording Correction Executor`.**
