@@ -2,6 +2,112 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — ADR-031 v0.2: pin independent review evidence
+
+**Review-evidence recording — vai trò: `ADR-031 Review Evidence Recording Executor`.** Records
+repository-resolvable evidence for two already-completed eligible independent reviews of ADR-031
+v0.2. Does not rerun either review, does not change ADR-031 semantic decision content, does not
+approve ADR-031, does not activate Mode B.
+
+### Baseline
+
+```text
+Starting HEAD:  af4cf353a0aaa73b0fd3d344cca1df794a3f653e (verified via git rev-parse HEAD before any
+  edit, working tree clean). manifest_version verified 10.166 before edit. Reviewed semantic
+  candidate verified directly: docs/adr/ADR-031.md blob 13775774f948bfe8e8b356315189b9e2a361eb88 at
+  this exact boundary — both reviews evaluated this identical semantic candidate. Stale wording in
+  docs/templates/adr-template.md ("tối thiểu hai reviewer identity khác nhau đủ điều kiện") verified
+  directly, matching the Review-B finding exactly. team.yaml verified to resolve ChatGPT and
+  Claude/"Independent Review B" as the two eligible AI Technical Architect principals.
+```
+
+### Evidence recorded
+
+```text
+Review A — marker ADR031_REVIEW_A_REREVIEW_FINAL, principal ChatGPT, role AI Technical Architect,
+  boundary af4cf353a0aaa73b0fd3d344cca1df794a3f653e, scope: bounded re-review of ADR031-A-MAJ-01/
+  corrected §11 activation delta. Result CLEAN. ADR031-A-MAJ-01: CLOSED. New Blocker/Major/Minor
+  0/0/0. Verdict READY_FOR_INDEPENDENT_REVIEW_B. Chronology preserved: this re-review occurred
+  before Independent Review B, not after.
+Independent Review B — marker ADR031_INDEPENDENT_REVIEW_B_FINAL, principal Claude, registered alias
+  "Independent Review B", role AI Technical Architect, boundary af4cf353a0aaa73b0fd3d344cca1df794a
+  3f653e, independence mode CURRENT MODE A — DISTINCT_PRINCIPAL, eligible under current governance.
+  Content-level result CLEAN. New Blocker/Major/Minor 0/0/1: new Minor ADR031-B-MIN-01 —
+  docs/templates/adr-template.md's reviewer note still carries stale principal-only wording despite
+  the proposed activation model permitting Mode A OR Mode B. Status OPEN — NON_BLOCKING, disposition
+  CARRY_TO_ADR031_ATOMIC_ACTIVATION_WORDING_SYNC (template not edited here — deferred to the future
+  activation transaction alongside Chapter 0 §3/Chapter 11 §11.5/§11.9/Chapter 12 wording sync).
+  Historical readiness statement preserved verbatim, NOT rewritten: READY_FOR_PRODUCT_OWNER_DECISION
+  was withheld at review time solely because Review-A evidence was not yet repository-resolvable at
+  the reviewed boundary — an evidence-recording gap, not a content objection.
+Aggregation (recorded separately from Review B's own historical statement, post-evidence-pinning):
+  Review A COMPLETE/ELIGIBLE/CLEAN; Review B COMPLETE/ELIGIBLE/CONTENT_CLEAN; distinct eligible
+  principals ChatGPT + Claude (team.yaml); current-governance independence (Mode A) SATISFIED;
+  shared reviewed semantic boundary af4cf353a0aaa73b0fd3d344cca1df794a3f653e for both; minimum-two-
+  review requirement for ADR-031 v0.2: SATISFIED. ADR-031 v0.2: READY_FOR_PRODUCT_OWNER_DECISION —
+  this does not mean approved.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-031.md   reviewers frontmatter [] → [ChatGPT, Claude] (pins actual reviewed principals).
+  "Independent reviews / Concerns / Risks noted" table's two rows filled in with the evidence above;
+  new "Review aggregation" block added directly below the table, explicitly distinct from Review B's
+  own preserved historical statement. version/status/approved_by/approved_at unchanged (0.2/Draft/
+  null/null — this is evidence recording, not a semantic revision, no version bump). Context,
+  Decision, Mode A/B semantics, execution-isolation contract, model/capability semantics, §11
+  activation decision, and bootstrap semantics all byte-unchanged (verified via diff — only the
+  reviewers field and the review-evidence table/aggregation block changed). Reviewed semantic
+  candidate blob 13775774f948bfe8e8b356315189b9e2a361eb88 → resulting review-evidence-record blob
+  e44f0dc2aa7bf27776675ab942b5d34f9f45fc4d (G-ID-001: two distinct identities, not conflated).
+docs/MANIFEST.md   manifest_version 10.166 → 10.167. ADR-031 row's tail rewritten in place to
+  record the review-evidence-recording transaction: both review markers/verdicts, the aggregation
+  result, ADR031-A-MAJ-01 CLOSED, ADR031-B-MIN-01 OPEN — NON_BLOCKING/CARRY_TO_ADR031_ATOMIC_
+  ACTIVATION_WORDING_SYNC, ADR-031 v0.2 READY_FOR_PRODUCT_OWNER_DECISION (not Approved), Mode B
+  NOT_ACTIVE (495 words).
+```
+
+### No scope expansion / no rerun / no approval
+
+```text
+docs/templates/adr-template.md, docs/constitution/, docs/governance/execution-rules.md,
+  docs/team/team.yaml, docs/governance/phases/phase-3-rules.md, docs/architecture/, docs/domain/,
+  docs/product/, docs/phase-dod/, prototype/: UNCHANGED (git status --porcelain=v1 -uall clean).
+  Neither review was rerun — both are recorded as already-completed, evidence pinned after the
+  fact. ADR-031 not approved, approved_by/approved_at remain null. Mode B remains NOT_ACTIVE — no
+  governance file amended. Phase-3 rules workflow remains paused on P3-RULES-A-MAJ-01,
+  phase-3-rules.md untouched. Phase 3 substantive governed implementation unaffected — still
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT. P2-G3-B-MIN-01 remains OPEN — NON_BLOCKING, untouched.
+  current_phase unchanged, "Phase 3 — Core Backend."
+```
+
+### Result
+
+```text
+ADR-031: v0.2, Draft, reviewers [ChatGPT, Claude] pinned. ADR031-A-MAJ-01: CLOSED. ADR031-B-MIN-01:
+  OPEN — NON_BLOCKING, CARRY_TO_ADR031_ATOMIC_ACTIVATION_WORDING_SYNC. Minimum-two-review
+  requirement: SATISFIED. ADR-031 v0.2: READY_FOR_PRODUCT_OWNER_DECISION. Mode B: NOT_ACTIVE. ADR
+  approval: NOT YET DECIDED. Atomic activation: NOT PERFORMED.
+Phase 3 lifecycle: AUTHORIZED TO BEGIN (unchanged). Phase 3 substantive governed implementation:
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT (unchanged). LIVE: NOT_AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified af4cf353a0aaa73b0fd3d344cca1df794a3f653e before any edit; ADR-031.md
+  blob verified 13775774f948bfe8e8b356315189b9e2a361eb88 at that boundary before any edit;
+  manifest_version verified 10.166 before edit; git status --porcelain=v1 -uno verified working tree
+  clean before any edit. docs/templates/adr-template.md and docs/team/team.yaml inspected directly
+  (not guessed) to confirm the ADR031-B-MIN-01 finding and reviewer eligibility. git diff on
+  docs/adr/ADR-031.md confirmed only the reviewers field and the review-evidence table/aggregation
+  block changed — no decision-content section touched. git status --porcelain=v1 -uall confirmed
+  clean on every forbidden path — only docs/adr/ADR-031.md and docs/MANIFEST.md changed.
+  manifest_version increment verified (10.166 → 10.167). ADR-031 frontmatter verified version 0.2,
+  status Draft, approved_by/approved_at still null. current_phase verified unchanged.
+```
+
 ## [Unreleased] — 2026-08-18 — ADR-031 v0.2: bounded correction closes ADR031-A-MAJ-01
 
 **Bounded correction — vai trò: `ADR-031 Bounded Correction Executor`.** Closes exactly one Review-A
