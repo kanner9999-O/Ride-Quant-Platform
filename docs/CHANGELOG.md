@@ -2,6 +2,142 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — Phase 2 Gate 3: Product Owner APPROVE recording (immutable Phase-decision bundle, Chapter 14 §14.4.1–§14.4.2)
+
+**Governance/lifecycle recording — vai trò: `Governance / Lifecycle Recorder Executor`.** Records the
+already-issued Product Owner decision "APPROVE — PHASE 2 GATE 3" as the authoritative Phase 2
+Approval Gate decision bundle. Does NOT re-decide the gate, does NOT rerun Review A/B, Quality
+Gate, or BCC, does NOT authorize Phase 3 substantive work, does NOT authorize LIVE.
+
+### Baseline
+
+```text
+Starting HEAD:                  5b58e5eeb698d78e4e1f8fa27bb22e4ad65d47b3 (verified via git rev-parse
+  HEAD before any edit, working tree clean).
+Reviewed Gate-3 boundary:        5b58e5eeb698d78e4e1f8fa27bb22e4ad65d47b3 — same commit; this
+  transaction's own resulting commit is a distinct POST-GATE-3 recording identity (G-ID-001), not
+  itself reviewed by Review A/B or evaluated by the Quality Gate.
+```
+
+### Eligibility defect found and closed before any file mutation (P2-G3-B-MAJ-01)
+
+```text
+The task specification for this transaction initially attributed BOTH Phase-level Gate Review A and
+  Review B to the same actor ("ChatGPT"), distinguished only by an unregistered "execution identity"
+  string — this does not satisfy Chapter 0 §3's "hai actor identity khác nhau" (two different actor
+  identities) requirement, nor Chapter 12 §12.2(8) (minimum-two eligible independent reviews). Per
+  Chapter 12 §12.2 "fail closed = eligibility incomplete," this was not eligible to record as
+  satisfying the review prerequisite. Verified directly against docs/team/team.yaml, which registers
+  exactly one mechanism for satisfying this requirement: ChatGPT (actor 1) + Claude, under its
+  registered alias "Independent Review B" (actor 2) — the same mechanism already used for Phase 1's
+  Gate 2 (docs/MANIFEST.md, "Governance — Phase-level Gate Reviews" section). Flagged to the user
+  before any edit; user selected using the registered Claude/"Independent Review B" alias for Review
+  B, consistent with existing precedent. P2-G3-B-MAJ-01 (Major, reviewer eligibility): found and
+  CLOSED within this same transaction, before any file mutation. Prior reviewer-execution mismatch:
+  CLOSED_AS_SUPERSEDED_BY_VALID_REVIEW_B_EXECUTION (Claude / alias "Independent Review B", same
+  review boundary 5b58e5eeb698d78e4e1f8fa27bb22e4ad65d47b3).
+```
+
+### Gate-3 decision evidence being recorded
+
+```text
+Canonical Phase identity:       Phase 2 — Product Prototype.
+Roadmap identity:               docs/constitution/14-roadmap.md v1.6, Locked, blob
+  f2cd722218bd80b40241e26530a1919811fedad9 (verified directly).
+Accepted Phase-2 DoD identity:  docs/phase-dod/phase-2-dod.md v0.3, Approved, post-acceptance blob
+  de399900a93c7ec7ee64577093513de1643ebb33, canonical incorporation ESTABLISHED.
+Prototype substantive
+  completion:                   17/17 required surfaces, 21/21 substantive UC, remaining 0/0 — all
+  six Phase-2 prototype batches (01-06) remain historical Phase-2 prototype evidence, lifecycle
+  CANDIDATE, not promoted or mutated by this transaction.
+Formal Quality Gate:            PASS at evaluation boundary 0f01ebff9596a095a767b9bb87a670a2f89c23b6
+  (Trigger A {I-11, I-12} both PASS; Trigger B/C/D/E NOT_APPLICABLE; evidence PINNED/COMPLETE/
+  REPRODUCIBLE; 0/0/0 new findings; ADR_NOT_REQUIRED) — referenced only, not rerun.
+Full-scope BCC:                 NO_CONFLICT — BCC-reviewed boundary
+  e8fb6fd724ba2ab3892fcfeb86d1d31eecda5f80, reconciliation boundary
+  0f01ebff9596a095a767b9bb87a670a2f89c23b6, P2-BCC-MAJ-01 CLOSED_BY_FULL_SCOPE_BCC_RERUN — referenced
+  only, not rerun. Quality Gate PASS and BCC NO_CONFLICT kept distinct, not conflated.
+Phase-level Gate Review A:      CLEAN — IDENTITY_PINNED. Reviewer: ChatGPT, AI Technical Architect.
+  Review boundary: 5b58e5eeb698d78e4e1f8fa27bb22e4ad65d47b3. New Blocker/Major/Minor: 0/0/0.
+Phase-level Gate Review B:      CLEAN — ELIGIBLE (PHASE2_GATE3_INDEPENDENT_PHASE_LEVEL_REVIEW_B_FINAL).
+  Reviewer: Claude, alias "Independent Review B" (team.yaml F-04 resolution), AI Technical Architect.
+  Review boundary (SAME as Review A): 5b58e5eeb698d78e4e1f8fa27bb22e4ad65d47b3. New Blocker/Major/
+  Minor: 0/0/0. Distinct-actor requirement (Chapter 0 §3) satisfied per team.yaml.
+Chapter 12 §12.2 prerequisites
+  1-8:                          all SATISFIED (DoD accepted+incorporated; deliverable complete
+  17/17+21/21; dependency state proper — Phase 1/1.5 Approved, phase-2-rules.md EFFECTIVE; required
+  ADR closure — ADR_NOT_REQUIRED; applicable Quality Gate PASS; BCC No conflict; validator/freshness
+  pass; ≥2 eligible independent reviews, distinct actors, evidence pinned). Aggregation: COMPLETE.
+Product Owner decision:         "APPROVE — PHASE 2 GATE 3" (Product Owner, 2026-08-18T10:35:00+07:00).
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md   manifest_version 10.159 → 10.160. New "Phase 2 Approval Gate — Decision"
+  immutable bundle appended (Chapter 14 §14.4.1–§14.4.2), recording all evidence above plus the
+  P2-G3-B-MAJ-01 finding-and-closure; "Resulting MANIFEST transition"/"Recorded state transition"
+  (Phase 2 — Product Prototype: APPROVED; Approval Gate ("Gate 3"): PASSED); new "Phase 2
+  retrospective — REQUIRED trước Phase 3 substantive work (P2-RETRO-001)" section (NOT_PERFORMED);
+  new "Phase 3 / LIVE authorization state" section (Phase 3 substantive work NOT AUTHORIZED, LIVE
+  NOT AUTHORIZED, pending P2-RETRO-001 + a separate Phase 3 Start Authorization transaction, same
+  two-condition pattern as Phase 1→1.5 and Phase 1.5→2). Within the "Phase 2 — Full-Scope Backward
+  Consistency Check" and "Phase 2 — Formal Quality Gate" sections: stale current-state fields
+  ("Quality Gate NOT RUN," "Gate-3 eligibility NOT YET ESTABLISHED," "Phase-level Gate Review A/B NOT
+  RUN," "Gate 3 NOT OPENED," "Product Owner Phase-2 decision NOT ISSUED," "Current next step")
+  explicitly relabeled "(AS OF <their own date> — HISTORICAL, superseded by the Phase 2 Approval
+  Gate — Decision section below)" — content preserved verbatim, only labeled to prevent
+  stale-as-current misreading. `current_phase` frontmatter UNCHANGED — still "Phase 2 — Product
+  Prototype" (Approval Gate PASSED does not itself transition current_phase, per Phase 1.5/Phase 2
+  precedent — a separate Start Authorization transaction does that, after the retrospective).
+```
+
+### No scope expansion / no semantic mutation
+
+```text
+docs/product/, docs/domain/, docs/architecture/, docs/constitution/, docs/adr/, docs/phase-dod/,
+  docs/governance/phases/phase-2-rules.md: UNCHANGED (git diff --quiet). prototype/phase-2/batch-01
+  through batch-06: UNCHANGED (git status --porcelain=v1 -uall clean) — no batch lifecycle promoted,
+  all six remain CANDIDATE, historical evidence preserved byte-for-byte. No new SCR/VIEW/NAV/
+  STATE/UC/PR ID introduced. No ADR created (ADR_NOT_REQUIRED). Review A/Review B, Quality Gate, and
+  BCC were not rerun — their already-completed results are recorded as-is.
+```
+
+### Result
+
+```text
+Phase 2 — Product Prototype: APPROVED. Approval Gate ("Gate 3"): PASSED. P2-BCC-MAJ-01: remains
+  CLOSED_BY_FULL_SCOPE_BCC_RERUN. P2-G3-B-MAJ-01: CLOSED (reviewer-eligibility defect, closed by
+  using the team.yaml-registered Claude/"Independent Review B" alias for Review B). Prior
+  reviewer-execution mismatch: CLOSED_AS_SUPERSEDED_BY_VALID_REVIEW_B_EXECUTION.
+Chapter 12 §12.2 prerequisites 1-8: all SATISFIED, aggregation COMPLETE. Formal Quality Gate: PASS
+  (unchanged, referenced). Full-scope BCC: NO_CONFLICT (unchanged, referenced).
+P2-RETRO-001: REQUIRED BEFORE PHASE-3 SUBSTANTIVE WORK, NOT_PERFORMED. Phase 3 substantive work: NOT
+  AUTHORIZED. LIVE: NOT AUTHORIZED. current_phase: UNCHANGED, "Phase 2 — Product Prototype."
+Next governed action: (a) Phase 2 process retrospective (P2-RETRO-001), then (b) a separate Phase 3
+  Start Authorization transaction (Product Owner decision) — same two-condition pattern already
+  used for Phase 1→1.5 and Phase 1.5→2.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 5b58e5eeb698d78e4e1f8fa27bb22e4ad65d47b3 before any edit; git status
+  --porcelain=v1 -uno verified working tree clean before any edit. Governing authority inspected
+  directly before mutation: docs/constitution/00-governance.md, 12-approval-gates.md,
+  13-quality-gates.md, 14-roadmap.md, docs/governance/execution-rules.md, phase-2-rules.md,
+  docs/phase-dod/phase-2-dod.md, docs/team/team.yaml. Roadmap blob/version, DoD blob/version, Quality
+  Gate/BCC identities all pinned exactly as given, no mutable "latest" reference used as evidence.
+  git status --porcelain=v1 -uall confirmed clean on prototype/phase-2/batch-01 through batch-06 and
+  on docs/product, docs/domain, docs/architecture, docs/constitution, docs/adr, docs/phase-dod,
+  docs/governance/phases/phase-2-rules.md — only docs/MANIFEST.md and docs/CHANGELOG.md changed.
+  manifest_version increment verified (10.159 → 10.160). current_phase frontmatter verified
+  unchanged. No statement claims the resulting recording commit itself was reviewed by Review A/B or
+  evaluated by the Quality Gate (G-ID-001 preserved). No stale current-state statement left saying
+  Review A/B NOT RUN, prerequisite 8 PENDING, Gate-3 eligibility NOT YET ESTABLISHED, or Product
+  Owner decision NOT ISSUED without an explicit HISTORICAL/superseded label.
+```
+
 ## [Unreleased] — 2026-08-15 — Phase 2 Formal Quality Gate PASS Result Reconciliation (deterministic, G-TXN-003)
 
 **Bookkeeping reconciliation — vai trò: `Phase 2 Formal Quality Gate PASS Result Reconciliation

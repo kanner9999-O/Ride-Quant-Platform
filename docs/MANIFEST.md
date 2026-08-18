@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.159"
+manifest_version: "10.160"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -462,9 +462,15 @@ Quality Gate (AS OF 2026-08-15
   superseded by the "Phase 2 —
   Formal Quality Gate" section
   below):                        NOT RUN (unaffected by this BCC-level closure).
-Gate-3 eligibility:             NOT YET ESTABLISHED (still true after the Quality Gate section
-                              below — Gate-3 also requires Phase-level Gate Review, NOT RUN).
-Gate 3:                         NOT OPENED.
+Gate-3 eligibility (AS OF 2026-
+  08-15 BCC reconciliation —
+  HISTORICAL, superseded by
+  the "Phase 2 Approval Gate —
+  Decision" section below):     NOT YET ESTABLISHED (Gate-3 also required Phase-level Gate Review,
+                              NOT RUN at that time).
+Gate 3 (AS OF 2026-08-15 BCC
+  reconciliation — HISTORICAL,
+  superseded below):            NOT OPENED.
 Governance state (AS OF 2026-
   08-15 BCC reconciliation —
   HISTORICAL, superseded by
@@ -576,29 +582,36 @@ Quality-Gate evidence
 Quality-Gate evidence
   reproducibility:               REPRODUCIBLE.
 Quality Gate prerequisite:      SATISFIED.
-Gate-3 eligibility:              NOT YET ESTABLISHED — Quality Gate PASS and full-scope BCC
-                              NO_CONFLICT are both now satisfied prerequisites, but Gate-3
-                              eligibility additionally requires Phase-level independent Gate
-                              reviews at the post-Quality-Gate exact boundary, which have NOT yet
-                              been performed.
-Phase-level Gate Review A:      NOT RUN.
-Phase-level Gate Review B:      NOT RUN.
-Gate 3:                         NOT OPENED.
-Product Owner Phase-2
-  decision:                      NOT ISSUED.
-P2-RETRO-001:                   NOT PERFORMED.
-Phase 3:                        NOT AUTHORIZED.
-LIVE:                           NOT AUTHORIZED.
+Gate-3 eligibility/Phase-level
+  Gate Review A/B/Gate 3/PO
+  decision (AS OF 2026-08-15
+  Quality Gate recording —
+  HISTORICAL, superseded by
+  the "Phase 2 Approval Gate —
+  Decision" section below):     Gate-3 eligibility NOT YET ESTABLISHED at that time — Quality Gate
+                              PASS and full-scope BCC NO_CONFLICT were both satisfied
+                              prerequisites, but Gate-3 eligibility additionally required
+                              Phase-level independent Gate reviews at the post-Quality-Gate exact
+                              boundary, not yet performed at that time. Phase-level Gate Review A:
+                              NOT RUN (at that time). Phase-level Gate Review B: NOT RUN (at that
+                              time). Gate 3: NOT OPENED (at that time). Product Owner Phase-2
+                              decision: NOT ISSUED (at that time).
+P2-RETRO-001:                   NOT PERFORMED (still true — unaffected by Gate 3, see "Phase 2
+                              retrospective" section below).
+Phase 3:                        NOT AUTHORIZED (still true — see "Phase 3 / LIVE authorization
+                              state" section below).
+LIVE:                           NOT AUTHORIZED (still true).
 Governance state preserved:     Phase 2 ACTIVE/AUTHORIZED (current_phase unchanged). All six
                               prototype batches remain CANDIDATE, none promoted by this transaction.
                               No prototype/Product/Domain/Architecture/Constitution artifact
                               modified by this transaction (bookkeeping recording only).
-Current next step:              Phase-level Gate Review A at the exact post-Quality-Gate
-                              reconciliation boundary (this transaction's own resulting commit),
-                              followed by an independent Phase-level Gate Review B at that same
-                              immutable boundary — both must evaluate the complete Phase-2 decision
-                              bundle and Chapter-12 eligibility prerequisites, before any Product
-                              Owner Phase-2 decision or Gate-3 opening.
+Current next step (AS OF
+  2026-08-15 — HISTORICAL,
+  superseded):                  Phase-level Gate Review A at the exact post-Quality-Gate
+                              reconciliation boundary, followed by an independent Phase-level Gate
+                              Review B at that same immutable boundary — both since performed, see
+                              "Phase 2 Approval Gate — Decision" section below for the current,
+                              authoritative state.
 Full history:                   docs/CHANGELOG.md.
 ```
 
@@ -1334,6 +1347,252 @@ authorize LIVE (KHÔNG suy diễn LIVE permission từ Phase 2 start)
 ```
 
 **Xác nhận tường minh (G-VERIFY-001 áp dụng — verify trực tiếp, KHÔNG suy diễn từ memory):** `current_phase` frontmatter (line 7, file này) verify trực tiếp trước/sau edit. Phase 1.5 Approval Gate `PASSED`, `P1-RETRO-001` `COMPLETE`, `EF-RETRO-001` `COMPLETE` verify lại từ chính section tương ứng phía trên trong file này VÀ từ frontmatter của chính hai retrospective document (byte-identical). `phase-2-rules.md` verify `operational_state: EFFECTIVE` trực tiếp, blob KHÔNG đổi, git log xác nhận CHỈ MỘT commit (`7634f30`) từng chạm file này. ADR/Constitution/Domain Contract/architecture package/Phase 1.5 DoD/Phase 1.5 retrospective/Global Execution Rules (`governance/execution-rules.md`)/Phase 2 rules (`governance/phases/phase-2-rules.md`) KHÔNG sửa bởi transaction này (git diff --quiet cho tất cả).
+
+## Phase 2 Approval Gate — Decision (immutable Phase-decision bundle, Chapter 14 §14.4.1–§14.4.2, colloquially "Gate 3")
+
+**Gate decision source HEAD (reviewed Gate-3 boundary, distinct from this transaction's own resulting recording commit, G-ID-001):** `5b58e5eeb698d78e4e1f8fa27bb22e4ad65d47b3`.
+
+**Prepared content — Chapter 14 authority (pinned directly here, §14.4.1):**
+
+```text
+Canonical Phase identity:                Phase 2 — Product Prototype
+Exact Roadmap version/content identity:  Chapter 14 — Roadmap, v1.6, Locked,
+                                          blob
+                                          f2cd722218bd80b40241e26530a1919811
+                                          fedad9 (verified directly)
+Exact accepted-DoD identity/content
+  version incorporated (§14.3.1):        docs/phase-dod/phase-2-dod.md v0.3
+                                          reviewed substantive blob
+                                          876c4f099883cf3e5e2b3800d76510866
+                                          2405e24
+                                          post-acceptance blob
+                                          de399900a93c7ec7ee64577093513de1
+                                          643ebb33
+                                          status Approved, approved_by
+                                          Product Owner, approved_at
+                                          2026-08-13, canonical incorporation
+                                          ESTABLISHED
+Exact gate-set declaration resolved
+  (§14.4, from the incorporated DoD §2):  Trigger A APPLICABLE, applicable
+                                          invariants {I-11, I-12}. Trigger
+                                          B/C/D/E NOT_APPLICABLE (no
+                                          authoritative executable
+                                          implementation, no runtime/
+                                          executable tier, no production
+                                          custody/auth/financial/performance/
+                                          operational-path boundary, no
+                                          published API/schema/contract or
+                                          migration — resolved by the formal
+                                          Quality Gate below, gate-set
+                                          re-resolution NOT_REQUIRED).
+```
+
+**Prepared content — reference-only, authority của chapter khác (bundle chỉ REFERENCE, không định nghĩa lại):**
+
+```text
+Product Owner DoD-acceptance evidence
+  (Chapter 0 §3):                       phase-2-dod.md v0.3 acceptance +
+                                        canonical incorporation, 2026-08-13
+                                        — xem row "Phase 2 — Product
+                                        Prototype" trong bảng "Phase DoD"
+                                        phía trên.
+Required/submitted deliverable
+  evidence (Chapter 12 §12.1):          17/17 required surfaces, 21/21
+                                        substantive UC, remaining 0/0 — all
+                                        six Phase-2 prototype batches
+                                        (01-06), each independently
+                                        Review A + Independent Review B
+                                        CLEAN at the batch level, verdict
+                                        READY_FOR_NEXT_PHASE2_BATCH/
+                                        READY_FOR_NEXT_PHASE2_GOVERNED_STEP.
+                                        All six batches remain historical
+                                        Phase-2 prototype evidence, lifecycle
+                                        CANDIDATE (batch-level lifecycle is a
+                                        distinct concern from this Phase-
+                                        level Approval Gate decision — not
+                                        promoted by this transaction).
+Applicable Quality Gate result
+  (Chapter 13 §13.9):                   PASS — evaluation boundary
+                                        0f01ebff9596a095a767b9bb87a670a2f
+                                        89c23b6, Trigger A {I-11, I-12}
+                                        both PASS, Trigger B/C/D/E
+                                        NOT_APPLICABLE, evidence PINNED/
+                                        COMPLETE/REPRODUCIBLE, new
+                                        Blocker/Major/Minor 0/0/0,
+                                        ADR_NOT_REQUIRED — xem section
+                                        "Phase 2 — Formal Quality Gate"
+                                        phía trên (KHÔNG re-run tại đây,
+                                        chỉ reference).
+Backward Consistency Check result
+  (Chapter 12 §12.4):                   NO_CONFLICT (full-scope) — BCC-
+                                        reviewed boundary
+                                        e8fb6fd724ba2ab3892fcfeb86d1d31eecd
+                                        a5f80, reconciliation boundary
+                                        0f01ebff9596a095a767b9bb87a670a2f
+                                        89c23b6, P2-BCC-MAJ-01
+                                        CLOSED_BY_FULL_SCOPE_BCC_RERUN,
+                                        evidence PINNED — xem section
+                                        "Phase 2 — Full-Scope Backward
+                                        Consistency Check" phía trên
+                                        (KHÔNG re-run tại đây, chỉ
+                                        reference). Quality Gate PASS và
+                                        BCC NO_CONFLICT giữ tách biệt,
+                                        KHÔNG conflate.
+Validator/freshness result
+  (Chapter 11 §11.9, I-12):             pass — MANIFEST/CHANGELOG kept
+                                        current qua toàn bộ Quality Gate +
+                                        BCC rerun + six-batch reconciliation
+                                        transaction; zero stale pointer/
+                                        duplicate blob reference found
+                                        trong validation sweep của chính
+                                        transaction này.
+Independent review evidence (Chapter 0 §3, Chapter 11 §11.5):
+  Phase 2 Approval Gate ("Gate 3")
+    Review A:                           CLEAN — IDENTITY_PINNED
+    Reviewer:                           ChatGPT, role AI Technical
+                                        Architect
+    Review boundary:                    5b58e5eeb698d78e4e1f8fa27bb22e4a
+                                        d65d47b3
+    Blocker/Major/Minor (new):           0/0/0
+  Independent Phase 2 Approval Gate
+    ("Gate 3") Review B:                 CLEAN — ELIGIBLE
+                                        (PHASE2_GATE3_INDEPENDENT_PHASE_
+                                        LEVEL_REVIEW_B_FINAL)
+  Reviewer:                             Claude, alias "Independent Review
+                                        B" (team.yaml F-04 resolution),
+                                        role AI Technical Architect
+  Review boundary (SAME as Review A):   5b58e5eeb698d78e4e1f8fa27bb22e4a
+                                        d65d47b3
+  Blocker/Major/Minor (new):             0/0/0
+  Eligibility resolution (team.yaml):    ChatGPT VÀ Claude LÀ hai actor
+                                        identity riêng biệt, CẢ HAI role
+                                        AI Technical Architect —
+                                        "Independent Review B" CHỈ LÀ
+                                        registered alias của Claude (F-04
+                                        resolution, KHÔNG một actor
+                                        riêng) — distinct-actor requirement
+                                        (Chapter 0 §3) THỎA, cùng pattern
+                                        đã dùng cho Phase 1 Gate 2 (xem
+                                        section "Governance — Phase-level
+                                        Gate Reviews" phía trên).
+  Finding P2-G3-B-MAJ-01 (Major,
+    reviewer eligibility) — found AND
+    CLOSED within this transaction,
+    trước bất kỳ file mutation nào:     một draft ban đầu của evidence cho
+                                        transaction này gán CẢ Review A LẪN
+                                        Review B cho actor "ChatGPT," phân
+                                        biệt CHỈ bởi một chuỗi "execution
+                                        identity" KHÔNG được đăng ký ở
+                                        team.yaml như một actor/alias riêng
+                                        — KHÔNG thỏa "hai actor identity
+                                        khác nhau" (Chapter 0 §3). Sửa:
+                                        Review B's actor re-designated
+                                        thành Claude dưới alias đã đăng ký
+                                        "Independent Review B" (team.yaml),
+                                        đúng precedent Phase 1 Gate 2.
+  Prior reviewer-execution mismatch:    CLOSED_AS_SUPERSEDED_BY_VALID_
+                                        REVIEW_B_EXECUTION (Claude / alias
+                                        "Independent Review B", SAME review
+                                        boundary 5b58e5eeb698d78e4e1f8fa27
+                                        bb22e4ad65d47b3).
+  Chapter 12 prerequisite aggregation
+    (8-điều kiện §12.2):
+    1. DoD defined + accepted:           SATISFIED
+    2. required deliverables complete:   SATISFIED (17/17 + 21/21, above)
+    3. dependency state phù hợp:         SATISFIED (Phase 1/1.5 Approved,
+                                        phase-2-rules.md EFFECTIVE)
+    4. required ADR Approved:            SATISFIED — ADR_NOT_REQUIRED cho
+                                        Phase 2 prototype deliverable
+                                        (không Platform Invariant/Event
+                                        Schema/Module Taxonomy/Governance-
+                                        process change)
+    5. applicable Quality Gate PASS:     SATISFIED (above)
+    6. BCC No conflict:                  SATISFIED (above)
+    7. validator/freshness pass:         SATISFIED (above)
+    8. ≥2 eligible independent reviews,
+       distinct actors, evidence pinned: SATISFIED (Review A/B above)
+    Aggregation result:                  COMPLETE
+    Blocker/Major/Minor (new):           0/0/0
+Product Owner decision fact:            "APPROVE — PHASE 2 GATE 3"
+                                        (decision time
+                                        2026-08-18T10:35:00+07:00)
+```
+
+**Resulting MANIFEST transition (authoritative TẠI atomic recording boundary — commit này, cùng lúc với bundle phía trên, §14.4.2):** `manifest_version` `10.159` → `10.160`. `current_phase` KHÔNG đổi — VẪN `"Phase 2 — Product Prototype"` (Phase 3 substantive work CHƯA authorized, §ngay dưới đây — Approval Gate PASSED KHÔNG tự động chuyển `current_phase`, đúng phân biệt tường minh khỏi Phase 0→1/Phase 1→1.5 transition trước đó, VÀ giống hệt pattern Phase 1.5's Gate: `current_phase` CHỈ chuyển qua một transaction "Start Authorization" riêng biệt, SAU KHI retrospective yêu cầu hoàn thành).
+
+**Recorded state transition:**
+
+```text
+Phase 2 — Product Prototype:  APPROVED
+Approval Gate ("Gate 3"):     PASSED
+```
+
+**"Approval Gate PASSED" nghĩa là gì:** Product Owner đã quyết định Phase 2 deliverable đạt eligibility đầy đủ (8-điều kiện Chapter 12 §12.2, xem Chapter 12 prerequisite aggregation COMPLETE phía trên) VÀ approve — nhưng đây LÀ Approval Gate decision (transition MECHANISM), KHÔNG tự động LÀ Phase 3 substantive work authorization, KHÔNG PHẢI Phase-3-start authorization, KHÔNG PHẢI LIVE authorization, KHÔNG PHẢI retrospective completion, KHÔNG PHẢI architecture approval vượt ngoài Phase-2 Gate 3 (xem section retrospective + Phase 3/LIVE state ngay dưới).
+
+**Transaction này KHÔNG:**
+
+```text
+authorize LIVE
+rerun Review A/Independent Review B
+rerun Phase 2 Quality Gate
+rerun Phase-wide Backward Consistency Check
+sửa DoD/ADR/convention semantics nào
+promote/rewrite bất kỳ individual prototype batch lifecycle nào (Batch
+  01-06 VẪN CANDIDATE, historical evidence preserved, byte-identical)
+thực hiện P2-RETRO-001 (§ngay dưới, REQUIRED nhưng CHƯA thực hiện)
+bắt đầu Phase 3 substantive work
+tạo Phase 3 rules/plan/architecture/DoD/ADR nào
+```
+
+**Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên, KHÔNG đổi) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state. Sau atomic boundary này, evidence bị mất/hỏng là integrity violation, KHÔNG tự động đảo ngược quyết định (§14.4.2).
+
+## Phase 2 retrospective — REQUIRED trước Phase 3 substantive work (P2-RETRO-001)
+
+```text
+Đúng P2-RETRO-001 (governance/phases/phase-2-rules.md §Retrospective
+  requirement): TRƯỚC KHI Phase 3 substantive work bắt đầu, PHẢI thực hiện
+  một Phase 2 process retrospective, cùng cấu trúc tối thiểu P1-RETRO-001
+  (wasted transaction, avoidable ADR, repeated review cycle, prompt-size
+  problem, bookkeeping defect, rule hữu ích/thất bại, rule nên promote
+  Global, Phase-3-specific control mới) — CỘNG THÊM đánh giá riêng hiệu
+  quả của P2-TXN-001/P2-ADR-CHAIN-001/P2-REVIEW-001/P2-BUDGET-001/
+  P2-PROTOTYPE-001 (rule nào KEEP, rule nào TIGHTEN/RETIRE cho Phase 3).
+  Retrospective LÀ điều kiện TRƯỚC substantive Phase 3 work — KHÔNG tự
+  động đóng bởi Approval Gate decision phía trên, đòi hỏi một transaction
+  riêng thực hiện nó.
+Retrospective:  REQUIRED BEFORE PHASE-3 SUBSTANTIVE WORK. NOT_PERFORMED
+  tại transaction này (Phase 2 approval KHÔNG tự động mark retrospective
+  complete).
+```
+
+## Phase 3 / LIVE authorization state (post–Phase 2 Approval Gate)
+
+```text
+Phase 3 substantive work:  NOT AUTHORIZED — chờ (a) Phase 2 retrospective
+                           (P2-RETRO-001, §trên) VÀ (b) một explicit
+                           Phase 3 start/authorization transaction riêng
+                           biệt (Product Owner decision, chưa thực hiện)
+                           — cùng pattern hai điều kiện như Phase 1 →
+                           Phase 1.5 và Phase 1.5 → Phase 2's precedent.
+LIVE:                       NOT AUTHORIZED — Approval Gate passing KHÔNG
+                           tự nó authorize LIVE dưới bất kỳ hình thức nào
+                           (đúng nguyên tắc PAPER-only/LIVE Unauthorized
+                           đã giữ xuyên suốt toàn bộ Phase 0/1/1.5/2).
+```
+
+**Transaction này KHÔNG:**
+
+```text
+authorize LIVE
+authorize Phase 3
+reopen/modify Phase 2 DoD, Quality Gate evidence, BCC evidence, Gate 3
+  decision bundle phía trên, bất kỳ ADR/convention nào, Constitution,
+  Domain Contract, architecture artifact, hay prototype artifact nào
+  (prototype/phase-2/batch-01..06 KHÔNG chạm)
+resolve/reinterpret P2-RETRO-001
+```
+
+**Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên, KHÔNG đổi) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state.
 
 ## Decision Log
 
