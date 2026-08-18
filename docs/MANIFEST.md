@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.168"
+manifest_version: "10.169"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23,7 +23,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 | File | Version | Status | Owner | Depends On |
 |---|---|---|---|---|
-| constitution/00-governance.md | 1.1 | **Locked** | Product Owner | — |
+| constitution/00-governance.md | 1.1 Locked (authoritative on `main`) / **1.2 CANDIDATE** (this branch `adr031-atomic-activation-candidate` only) | **Draft** (CANDIDATE — ADR-031 Atomic Activation pending, NOT active, xem section dưới) | Product Owner | — |
 | constitution/01-vision.md | 2.3 | **Locked** | Product Owner | 00-governance |
 | constitution/02-platform-invariants.md | 3.1 | **Locked** | Product Owner | 00-governance, 01-vision |
 | constitution/03-engineering-principles.md | 1.4 | **Locked** | Product Owner | 02-platform-invariants |
@@ -34,8 +34,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/08-event-model.md | 4.8 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
 | constitution/09-plugin-model.md | 2.9 | **Locked** | Product Owner | 02-platform-invariants, 07-module-taxonomy, 08-event-model |
 | constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
-| constitution/11-adr-process.md | 2.1 | **Locked** | Product Owner | 00-governance, 02-platform-invariants |
-| constitution/12-approval-gates.md | 1.5 | Locked | Product Owner | 00-governance, 11-adr-process |
+| constitution/11-adr-process.md | 2.1 Locked (authoritative on `main`) / **2.2 CANDIDATE** (this branch only) | **Draft** (CANDIDATE — ADR-031 Atomic Activation pending, NOT active) | Product Owner | 00-governance, 02-platform-invariants |
+| constitution/12-approval-gates.md | 1.5 Locked (authoritative on `main`) / **1.6 CANDIDATE** (this branch only) | **Draft** (CANDIDATE — wording sync only, ADR-031, NOT active) | Product Owner | 00-governance, 11-adr-process |
 | constitution/13-quality-gates.md | 1.7 | Locked | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.6 | Locked | Product Owner | ALL |
 
@@ -74,6 +74,60 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | adr/ADR-029.md — Cross-Module Error Handling Convention Baseline | **Approved** (v0.2, `approved_by: Product Owner`, `approved_at: 2026-08-12` — Product Owner decision "APPROVE ADR-029 V0.2") — **APPROVAL — mechanical (2026-08-12), vai trò: `ADR-029 v0.2 Mechanical Approval Recorder`.** Reviewed candidate v0.2 (bounded Review A re-review `CLEAN`, đóng `ADR029-A-MAJ-01`, New Blocker/Major/Minor 0/0/0; Independent Review B trên đúng v0.2: New Blocker 0/New Major 0/New Minor 0, ADR inflation/scope `JUSTIFIED — NOT ADR INFLATION`, verdict `READY_FOR_PRODUCT_OWNER_DECISION`), blob `4563ed0546047bf6b05447ddab430fe9a6b6d559` → resulting post-approval lifecycle-record blob `9c8877d3e16a54c1908c37f1b214ef185744cd9c` (G-ID-001: distinguished, KHÔNG conflate). `status: Draft → Approved`, `version: "0.2"` KHÔNG đổi (pure mechanical approval, Chapter 11 §11.4). KHÔNG đổi decision content nào (§1–§6/§8/§9 byte-equivalent ngoài Independent-reviews-table fill). Không finding mới nào invented. **Approval CHỈ resolve chính quyết định "một cross-module Error Handling Convention baseline" (§3) — KHÔNG tạo `docs/engineering/error-handling.md`, KHÔNG tạo ADR-030, KHÔNG chạm `ADR-028`/`config.md`/`ADR-027`/`logging.md`/`ADR-026`/`naming.md`/`ADR-025`/`coding-standard.md`/`ADR-024`/`monorepo.md`/`ADR-008`/`ADR-017`/`module-registry.yaml`/Domain Contract/Constitution/Phase 1.5 rules, KHÔNG đóng `EF-CONFIG-B-MIN-01`, KHÔNG authorize Phase 2, KHÔNG authorize LIVE.** | — | — |
 | adr/ADR-030.md — Cross-Module CI/CD Convention Baseline | **Approved** (v0.3, `approved_by: Product Owner`, `approved_at: 2026-08-12` — Product Owner decision "APPROVE ADR-030 V0.3") — **APPROVAL — mechanical (2026-08-12), vai trò: `ADR-030 v0.3 Mechanical Approval Recorder`.** Reviewed candidate v0.3 (bounded Review A `CLEAN`, đóng `ADR030-A-MAJ-01`, New Blocker/Major/Minor 0/0/0; Independent bounded Review B re-review trên đúng v0.3: New Blocker 0/New Major 0/New Minor 0, `ADR030-A-MAJ-01`/`ADR030-B-MAJ-01` CẢ HAI CLOSED, verdict `READY_FOR_PRODUCT_OWNER_DECISION`; ADR scope `ADR_REQUIRED` / `JUSTIFIED — NOT ADR INFLATION`), blob `8a1200cbe1bef0e00bae0df4b455e6363d16c726` → resulting post-approval lifecycle-record blob `e02853e2ad21e14cf679099480397344c6bcf3c7` (G-ID-001: distinguished, KHÔNG conflate). `status: Draft → Approved`, `version: "0.3"` KHÔNG đổi (pure mechanical approval, Chapter 11 §11.4). KHÔNG đổi decision content nào (§1–§6/§8/§9 byte-equivalent ngoài Independent-reviews-table fill). Không finding mới nào invented. **Approval CHỈ resolve chính quyết định "một cross-module CI/CD Convention baseline, giới hạn Foundation-level CI" (§3) — KHÔNG tạo `docs/engineering/ci-cd.md`, KHÔNG tạo `.github/workflows`/CI config, KHÔNG chọn CI provider, KHÔNG chạm Chapter 12/13/14/`ADR-007`/`ADR-017`/`account.md`/`ADR-025`–`ADR-029`/`coding-standard.md`/`naming.md`/`logging.md`/`config.md`/`error-handling.md`/`testing.md`/`ADR-008`/`ADR-024`/`monorepo.md`/`module-registry.yaml`/Constitution/Phase 1.5 rules, KHÔNG tạo LIVE authorization authority nào, KHÔNG authorize deployment/Phase 2/LIVE, KHÔNG đóng `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01`.** | — | — |
 | adr/ADR-031.md — Independent Reviewer Execution Model — Principal Identity vs Execution Identity for the Minimum-Two-Review Gate | **Approved** (v0.2, `approved_by: Product Owner`, `approved_at: "2026-08-18T15:56:00+07:00"` — Product Owner decision nguyên văn "APPROVE ADR-031 V0.2"; mechanical approval transition, vai trò: `ADR-031 v0.2 Mechanical Approval Recorder`) — proposes a Principal Identity / Execution Identity distinction for the minimum-two-independent-review gate: Mode A `DISTINCT_PRINCIPAL` (unchanged, preferred when practical) and Mode B `SAME_PRINCIPAL_DISTINCT_EXECUTION`, eligible only when a ten-point execution-isolation evidence contract is satisfied — a free-form execution label alone is explicitly insufficient. Model/capability profile difference remains optional diversity metadata, never a substitute for isolation evidence, never mandatory. Explicitly non-retroactive; Phase-2 Gate-3 stays judged under its own Mode-A-only boundary. **v0.2 bounded correction closes `ADR031-A-MAJ-01` (Major, Review A):** v0.1's mandatory Atomic Activation Set listed only Chapter 0 §3, omitting Chapter 11 §11.5/§11.9 despite both containing the same principal-only "identities khác nhau" requirement — could have let Chapter 0 permit Mode B while Chapter 11's review-gate/validator contract still rejected it. v0.2 §11 rewritten: mandatory synchronized set now explicitly **A.** Chapter 0 §3 (substantive amendment required), **B.** Chapter 11 §11.5 (substantive amendment required), **C.** Chapter 11 §11.9 validator contract (substantive amendment required) — none optional, all three or activation invalid. **D.** Chapter 12: `CHAPTER12_SUBSTANTIVE_AMENDMENT_NOT_REQUIRED` (§12.3 self-declares it only references Chapter 0/11, no independent authority) + `CHAPTER12_WORDING_SYNC_REQUIRED_AT_SAME_BOUNDARY` (its own intro-paragraph prose literally restates "hai actor identity khác nhau," verified directly, and needs a non-authoritative wording sync to avoid stale text). **E.** Global Execution Rules: `GLOBAL_EXECUTION_RULE_AMENDMENT_NOT_REQUIRED` for activation (Constitution-tier §11.9 amendment is self-sufficient; a future mechanical-enforcement rule — reviewer_principal/reviewer_role/review_execution_id/review_boundary/independence_mode/execution_isolation_attestation/model profile — is a recommended, non-blocking follow-up). **F.** team.yaml: `TEAM_YAML_CLARIFICATION_REQUIRED` (recommended documentation improvement, NOT blocking — team.yaml is tier-4 SSOT for principal↔role mapping only, not eligibility-semantics authority). **Review-evidence recorded (2026-08-18, vai trò: `ADR-031 Review Evidence Recording Executor`) — bounded re-review + Independent Review B, BOTH tại đúng reviewed semantic boundary `af4cf353a0aaa73b0fd3d344cca1df794a3f653e` (blob `13775774f948bfe8e8b356315189b9e2a361eb88`, G-ID-001: reviewed semantic candidate identity, distinct khỏi resulting review-evidence-record blob dưới):** Review A (`ADR031_REVIEW_A_REREVIEW_FINAL`, principal ChatGPT) — bounded scope `ADR031-A-MAJ-01`/§11 delta, CLEAN, `ADR031-A-MAJ-01` CLOSED, New Blocker/Major/Minor 0/0/0, verdict `READY_FOR_INDEPENDENT_REVIEW_B`. Independent Review B (`ADR031_INDEPENDENT_REVIEW_B_FINAL`, principal Claude, alias "Independent Review B", independence mode CURRENT MODE A) — content-level CLEAN, New Blocker/Major/Minor 0/0/1: new Minor `ADR031-B-MIN-01` (`docs/templates/adr-template.md`'s reviewer-note still contains stale principal-only wording, verified directly — OPEN — NON_BLOCKING, `CARRY_TO_ADR031_ATOMIC_ACTIVATION_WORDING_SYNC`, template NOT edited). Review B's own historical readiness statement preserved verbatim (NOT rewritten): `READY_FOR_PRODUCT_OWNER_DECISION` was WITHHELD at review time solely because Review-A evidence was not yet repository-resolvable — a review-evidence-recording gap this transaction resolves, distinct from a content objection. Aggregation (recorded separately, post-evidence-pinning): Review A `COMPLETE/ELIGIBLE/CLEAN`, Review B `COMPLETE/ELIGIBLE/CONTENT_CLEAN`, distinct principals ChatGPT+Claude resolved via team.yaml, current-governance independence (Mode A) `SATISFIED`, minimum-two-review requirement `SATISFIED`. **ADR-031 v0.2: `APPROVED`** (Product Owner decision "APPROVE ADR-031 V0.2", 2026-08-18T15:56:00+07:00) — approval authorizes CHỈ target governance model/future migration, KHÔNG tự activate bất kỳ rule nào. `ADR031-A-MAJ-01`: `CLOSED`. `ADR031-B-MIN-01`: VẪN `OPEN — NON_BLOCKING`, `CARRY_TO_ADR031_ATOMIC_ACTIVATION_WORDING_SYNC` — KHÔNG đóng bởi approval này. **Mode B: `NOT_ACTIVE`. Atomic Activation: `NOT_PERFORMED`.** Future activation PHẢI đồng bộ TẤT CẢ: (A) Chapter 0 §3, (B) Chapter 11 §11.5, (C) Chapter 11 §11.9 — substantive amendment bắt buộc cả ba; (D) Chapter 12 wording sync; (E) `adr-template.md` wording sync (đóng `ADR031-B-MIN-01`) — thiếu MỘT trong năm = Mode B VẪN `NOT_ACTIVE`, KHÔNG partial activation. Global Execution Rules: `NOT_REQUIRED_FOR_ACTIVATION` (mechanical follow-up VẪN khuyến nghị, KHÔNG blocking). team.yaml clarification: `RECOMMENDED / NON-BLOCKING`. `reviewers: [ChatGPT, Claude]` (unchanged). `version: "0.2"` KHÔNG đổi (pure mechanical approval, Chapter 11 §11.4 — KHÔNG bump version cho approval, cùng pattern ADR-017/018/019/020/030). `status: Draft → Approved`, `approved_by: null → Product Owner`, `approved_at: null → "2026-08-18T15:56:00+07:00"`. **Sau approval boundary này, ADR-031 file bất biến byte-for-byte (Chapter 0 §5.2/Chapter 11 §11.3) — activation transaction tương lai PHẢI sửa artifact A-E, TUYỆT ĐỐI KHÔNG sửa lại chính ADR-031.** `docs/templates/adr-template.md`/`docs/constitution/`/`docs/governance/execution-rules.md`/`docs/team/team.yaml`/`docs/governance/phases/phase-3-rules.md` KHÔNG modified bởi transaction này (Phase-3 rules workflow VẪN paused trên `P3-RULES-A-MAJ-01`, chỉ resume SAU khi ADR-031 activation hoàn tất). Reviewed semantic candidate blob `13775774f948bfe8e8b356315189b9e2a361eb88` → review-evidence-record blob `e44f0dc2aa7bf27776675ab942b5d34f9f45fc4d` → resulting Approved ADR blob `b45e15179be69e76176e3f3ba0516a4781375a2c` (G-ID-001: ba identity riêng biệt, KHÔNG conflate). | — | — |
+
+## ADR-031 Atomic Activation — CANDIDATE (branch `adr031-atomic-activation-candidate` ONLY, KHÔNG trên `main`, KHÔNG active)
+
+```text
+Vai trò: `ADR-031 Atomic Activation Candidate Executor` (2026-08-18). Authors the SYNCHRONIZED
+  candidate delta required by ADR-031 (Approved, v0.2) §11 mandatory Atomic Activation Set — CHỈ
+  candidate, KHÔNG activation. main HEAD KHÔNG đổi bởi transaction này; toàn bộ nội dung dưới đây
+  tồn tại DUY NHẤT trên branch `adr031-atomic-activation-candidate`, base tại main commit
+  `48c3b4f1aa97a4242b25817becbde6c5a2236847`.
+
+Candidate delta (branch only):
+  docs/constitution/00-governance.md    1.1 Locked -> 1.2 Draft (CANDIDATE) — §3 review-gate
+    rewritten: Mode A (DISTINCT_PRINCIPAL) HOẶC Mode B (SAME_PRINCIPAL_DISTINCT_EXECUTION, execution-
+    isolation evidence contract, ADR-031 §5) thay "hai actor identity khác nhau" cũ; role eligibility
+    tường minh principal-based; fail-closed clause giữ nguyên tinh thần, mở rộng phạm vi. Blob
+    5b594b099fd23c48fd33df688a9fff38061f7503.
+  docs/constitution/11-adr-process.md   2.1 Locked -> 2.2 Draft (CANDIDATE) — §11.5 cùng Mode A/B
+    semantics; §11.9 validator contract sửa "identities khác nhau" thành minimum-two eligible
+    independent review EXECUTION (principal, role, boundary, independence_mode), Mode A/Mode B
+    distinct check, fail-closed nếu independence KHÔNG resolve. Blob
+    22179ee11fcbbe5040d8b5e0d4e76e193b4f8cd0.
+  docs/constitution/12-approval-gates.md 1.5 Locked -> 1.6 Draft (CANDIDATE) — wording sync CHỈ,
+    KHÔNG tạo authority mới: bỏ literal "hai actor identity khác nhau," delegate tường minh sang
+    Chapter 0 §3/Chapter 11 §11.5. Blob c88b7539e8ab24b1892f2bc412bb47b0ead43a74.
+  docs/templates/adr-template.md         wording sync — đóng `ADR031-B-MIN-01` (candidate
+    disposition): "tối thiểu hai reviewer identity khác nhau" thay bằng Mode A/Mode B language, cite
+    ADR-031. Blob c76d6c2ddce7aeeb3c7966dd0c403d84a4984f78. (File này KHÔNG có version field riêng
+    độc lập khỏi ADR-schema example content trong chính nó — KHÔNG tracked bằng version số tại đây.)
+
+Preserved unchanged (verified trực tiếp, git diff --quiet trên branch):
+  docs/adr/ADR-031.md (Approved, immutable — KHÔNG sửa), Global Execution Rules
+  (`governance/execution-rules.md`), `docs/team/team.yaml`, `docs/governance/phases/phase-3-rules.md`
+  (v0.1 CANDIDATE, workflow VẪN paused trên `P3-RULES-A-MAJ-01`), toàn bộ docs/architecture/,
+  docs/domain/, docs/product/, docs/phase-dod/, prototype/, historical Phase-2 evidence.
+
+Mutual consistency (candidate, verified trực tiếp trên branch): Chapter 0 §3, Chapter 11 §11.5, và
+  Chapter 11 §11.9 ĐỀU cùng định nghĩa Mode A/Mode B — KHÔNG một trong ba còn principal-only
+  wording. Chapter 12/template wording sync khớp cùng mô hình, KHÔNG tạo authority cạnh tranh.
+
+No partial activation (tường minh): candidate này CHƯA active — KHÔNG một chapter nào Locked lại,
+  KHÔNG MANIFEST authoritative state nào (ngoài bảng Constitution/section này, cả hai đều đánh dấu
+  CANDIDATE/branch-only) tuyên bố Mode B active. `main` KHÔNG bị sửa. Activation thật đòi hỏi một
+  transaction governed RIÊNG BIỆT: review candidate delta (Review A/Independent Review B trên CHÍNH
+  branch/PR này), Product Owner activation decision, merge, VÀ atomic re-Lock cả ba chapter + template
+  cùng một hành động — CHƯA thực hiện tại đây.
+
+Mode B: NOT_ACTIVE. Atomic Activation: NOT_PERFORMED. ADR031-B-MIN-01 (template): CANDIDATE-CLOSED
+  trên branch này — VẪN chính thức OPEN tại MANIFEST authoritative (main) cho tới khi activation
+  transaction thật merge candidate này.
+Phase-3 rules workflow: VẪN paused (P3-RULES-A-MAJ-01) — resume CHỈ SAU KHI activation thật hoàn tất
+  (KHÔNG phải candidate authoring này).
+Phase 3 substantive governed implementation: PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT (unchanged).
+LIVE: NOT_AUTHORIZED (unchanged).
+```
 
 ## Domain
 

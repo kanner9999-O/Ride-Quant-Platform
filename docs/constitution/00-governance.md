@@ -1,14 +1,14 @@
 ---
 id: 00-governance
 title: Governance
-version: "1.1"
-status: Locked
+version: "1.2"
+status: Draft
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: Kanner
-approved_at: "2026-07-25"
+approved_by: null
+approved_at: null
 created_at: "2026-07-16"
-last_review: "2026-07-25"
+last_review: null
 next_review: null
 depends_on: []
 ---
@@ -20,6 +20,8 @@ Chapter 0 — đứng trước cả Vision, vì nó quy định CÁCH mọi quy�
 > **Ghi chú lịch sử:** phiên bản đầu của chương này có luật "Approval 3/3" + Challenge Round (nghi lễ theo vòng) + Devil's Advocate. Sau review của ChatGPT (round 2), các cơ chế này được đơn giản hóa để phù hợp quy mô 1 Product Owner + 2 AI Architect — xem [ADR-005](../adr/ADR-005.md) cho lịch sử quyết định.
 >
 > **Governance migration:** phiên bản 1.1 kích hoạt mô hình đã được Product Owner chấp thuận tại [ADR-011](../adr/ADR-011.md): ADR file bất biến sau approval, review gate dựa trên role với tối thiểu hai independent reviewers, và MANIFEST là authority cho current ADR/OQ state.
+>
+> **Governance migration CANDIDATE (v1.2, CHƯA activate):** bản nháp này chuẩn bị kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved, `approved_at: 2026-08-18T15:56:00+07:00`) — mở rộng independent-review eligibility từ principal-only sang Mode A (`DISTINCT_PRINCIPAL`) HOẶC Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION`, có execution-isolation evidence contract). Nội dung §3 dưới đây LÀ candidate — CHƯA active. Active CHỈ tại một Atomic Activation Boundary riêng biệt (ADR-031 §11) khi Chapter 0 §3 (file này), Chapter 11 §11.5/§11.9, và các wording-sync liên quan (Chapter 12, ADR template) đã đồng bộ ĐẦY ĐỦ VÀ được Product Owner approve TRONG CÙNG một hành động — thiếu MỘT trong số đó, v1.1's Mode-A-only rule VẪN nguyên vẹn có hiệu lực (KHÔNG partial activation).
 
 ## 1. Purpose
 
@@ -57,16 +59,18 @@ Requirement
 
 *(Accepted = quyết định đã được Product Owner chốt; Locked = current lifecycle state được MANIFEST ghim sau khi decision artifact đã ổn định. Với ADR, file đã bất biến ngay tại approval boundary.)*
 
-**Review gate bắt buộc:**
+**Review gate bắt buộc (v1.2 CANDIDATE — xem banner "Governance migration CANDIDATE" phía trên, CHƯA active cho tới Atomic Activation Boundary riêng biệt):**
 
 - Trước khi Product Owner quyết một ADR hoặc tài liệu thuộc approval gate, phải có tối thiểu **hai independent reviews**.
-- Mỗi reviewer phải đang giữ role `AI Technical Architect` tại review boundary.
-- Hai review phải do hai actor identity khác nhau thực hiện.
-- Reviewer set cụ thể phải được pin trong review evidence hoặc metadata của decision boundary.
+- Mỗi reviewer phải đang giữ role `AI Technical Architect` tại review boundary — role eligibility LUÔN thuộc về **principal** (person/AI đã đăng ký giữ role tại `/team/team.yaml`), KHÔNG BAO GIỜ thuộc về một execution/session cụ thể; một execution kế thừa eligibility từ principal đã đăng ký của nó, TỰ NÓ KHÔNG có role riêng.
+- Independent-review eligibility được thỏa bởi MỘT trong hai independence mode (ADR-031):
+  - **Mode A — `DISTINCT_PRINCIPAL`:** hai review do hai principal identity khác nhau thực hiện — vẫn LÀ diversity path preferred khi practical.
+  - **Mode B — `SAME_PRINCIPAL_DISTINCT_EXECUTION`:** hai review do CÙNG một principal thực hiện qua hai execution/session cô lập, CHỈ eligible KHI execution-isolation evidence contract (ADR-031 §5) được thỏa đầy đủ — một nhãn tự do (free-form execution label) một mình KHÔNG BAO GIỜ LÀ bằng chứng độc lập.
+- Reviewer set cụ thể (principal identity, execution identity nếu Mode B, review boundary, independence mode) phải được pin trong review evidence hoặc metadata của decision boundary.
 - Các reviewer ngang hàng; không reviewer nào có veto.
 - Product Owner là authority duy nhất approve/reject.
-- Nếu không resolve được tối thiểu hai reviewer đủ điều kiện, decision chưa đủ điều kiện đi tới Product Owner approval gate.
-- Constitution khóa role và minimum cardinality; actor ↔ role assignment sống trong `/team/team.yaml`.
+- Nếu KHÔNG resolve được đầy đủ Mode A HOẶC Mode B tại review boundary — bao gồm KHÔNG đủ execution-isolation evidence cho Mode B — decision CHƯA đủ điều kiện đi tới Product Owner approval gate (fail-closed, đúng nguyên tắc "eligibility incomplete," KHÔNG phải reviewer veto).
+- Constitution khóa role, minimum cardinality, VÀ hai independence mode hợp lệ (Mode A/Mode B); actor ↔ role assignment sống trong `/team/team.yaml`; execution-isolation evidence contract chi tiết sống trong [ADR-031](../adr/ADR-031.md) (Approved) — Constitution KHÔNG lặp lại nguyên văn evidence contract, chỉ tham chiếu.
 
 Mỗi review output tối thiểu:
 

@@ -2,6 +2,103 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — ADR-031: author atomic governance activation candidate (branch only, NOT on main)
+
+**Governance activation candidate authoring — vai trò: `ADR-031 Atomic Activation Candidate
+Executor`.** Authors the synchronized candidate delta required by ADR-031 (Approved v0.2) §11's
+mandatory Atomic Activation Set, on branch `adr031-atomic-activation-candidate` — `main` is NOT
+modified. Does NOT activate Mode B, does NOT Lock any chapter, does NOT edit ADR-031 itself.
+
+### Baseline
+
+```text
+Required main HEAD: 48c3b4f1aa97a4242b25817becbde6c5a2236847 (verified via git rev-parse HEAD
+  before branching, working tree clean). Branch adr031-atomic-activation-candidate created from
+  exactly this commit.
+```
+
+### Candidate delta authored (branch only)
+
+```text
+docs/constitution/00-governance.md    1.1 Locked -> 1.2 Draft (CANDIDATE). §3 review-gate bullets
+  rewritten: independence eligibility now Mode A (DISTINCT_PRINCIPAL) OR Mode B
+  (SAME_PRINCIPAL_DISTINCT_EXECUTION, requires ADR-031 §5's execution-isolation evidence contract),
+  replacing the old "hai actor identity khác nhau" principal-only requirement. Role eligibility made
+  explicitly principal-based (an execution inherits eligibility, never has its own). Fail-closed
+  language extended to cover unresolved independence under either mode. A new banner marks this
+  content CANDIDATE, citing ADR-031, explicit that it is inactive until a separate Atomic Activation
+  Boundary. Blob 5b594b099fd23c48fd33df688a9fff38061f7503.
+docs/constitution/11-adr-process.md   2.1 Locked -> 2.2 Draft (CANDIDATE). §11.5 updated with the
+  same Mode A/B language, preserving minimum-two reviews, AI Technical Architect eligibility,
+  evidence pinning, no-veto, and sole Product Owner approval authority. §11.9 validator contract
+  rewritten from "identities khác nhau" to checking two eligible independent review EXECUTIONS
+  (principal, role, boundary, independence_mode), with explicit Mode A (distinct principals) / Mode
+  B (isolated executions + attestation) branches and a fail-closed clause. Blob
+  22179ee11fcbbe5040d8b5e0d4e76e193b4f8cd0.
+docs/constitution/12-approval-gates.md 1.5 Locked -> 1.6 Draft (CANDIDATE). Wording-only sync, no
+  new authority created: the literal "do hai actor identity khác nhau thực hiện" restatement removed
+  and replaced with explicit delegation to Chapter 0 §3 / Chapter 11 §11.5; the "tham chiếu, không
+  định nghĩa lại" disclaimer strengthened to say Chapter 12 sets no actor-identity count itself. Blob
+  c88b7539e8ab24b1892f2bc412bb47b0ead43a74.
+docs/templates/adr-template.md   Wording sync closing the ADR031-B-MIN-01 defect (candidate
+  disposition): "tối thiểu hai reviewer identity khác nhau đủ điều kiện" replaced with Mode A/Mode B
+  language citing ADR-031. Blob c76d6c2ddce7aeeb3c7966dd0c403d84a4984f78. (This file has no
+  independent version field of its own outside the ADR-schema example content it contains — not
+  version-tracked here.)
+```
+
+### Files changed
+
+```text
+docs/constitution/00-governance.md, 11-adr-process.md, 12-approval-gates.md,
+  docs/templates/adr-template.md   as detailed above.
+docs/MANIFEST.md   manifest_version 10.168 → 10.169. "## Constitution" table's three rows (00-
+  governance/11-adr-process/12-approval-gates) updated to show both the Locked-on-main version and
+  the branch-only CANDIDATE version/status, clearly labeled. New "## ADR-031 Atomic Activation —
+  CANDIDATE (branch ... ONLY, KHÔNG trên main, KHÔNG active)" section added, summarizing the full
+  delta, what's preserved unchanged, mutual-consistency verification across Chapter 0/11, the
+  explicit no-partial-activation statement, and current Mode B/Atomic Activation/Phase-3/LIVE state
+  (473 words, within budget).
+```
+
+### No scope expansion / no activation / no main mutation
+
+```text
+main branch: NOT modified — all changes exist only on adr031-atomic-activation-candidate. ADR-031
+  (docs/adr/ADR-031.md): byte-identical, verified via git diff --quiet — Approved and immutable,
+  untouched. docs/governance/execution-rules.md, docs/team/team.yaml,
+  docs/governance/phases/phase-3-rules.md, docs/architecture/, docs/domain/, docs/product/,
+  docs/phase-dod/, prototype/: all UNCHANGED on this branch. No chapter marked Locked. No Mode B
+  activation claimed. Phase-3 rules workflow remains paused on P3-RULES-A-MAJ-01 — the candidate
+  authoring itself does not resume it; only a real activation merge would. Phase 3 substantive
+  governed implementation unaffected — still PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT. LIVE
+  remains NOT_AUTHORIZED.
+```
+
+### Result
+
+```text
+Candidate authored on branch adr031-atomic-activation-candidate (base 48c3b4f). Chapter 0 §3,
+  Chapter 11 §11.5, and Chapter 11 §11.9 verified mutually consistent — all three now define the
+  same Mode A/Mode B model, none left with stale principal-only wording. Chapter 12 and the ADR
+  template wording-synced to match, without creating competing authority. ADR031-B-MIN-01: CANDIDATE
+  -CLOSED on this branch only — remains formally OPEN in MANIFEST's authoritative (main) state until
+  a real activation transaction merges this candidate. Mode B: NOT_ACTIVE. Atomic Activation:
+  NOT_PERFORMED. main: NOT modified.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 48c3b4f1aa97a4242b25817becbde6c5a2236847 before branching; working tree
+  clean. Branch created from exactly that commit. git diff --quiet confirmed docs/adr/ADR-031.md
+  byte-identical on the branch. git status --porcelain=v1 confirmed only the five intended files
+  (three Constitution chapters, the ADR template, MANIFEST.md) plus this CHANGELOG entry changed —
+  no forbidden path touched. Frontmatter verified on all three chapters: version bumped exactly once
+  each (1.1→1.2, 2.1→2.2, 1.5→1.6), status Locked→Draft, approved_by/approved_at reset to null,
+  last_review reset to null — consistent candidate-lifecycle pattern across all three.
+```
+
 ## [Unreleased] — 2026-08-18 — ADR-031 v0.2: APPROVED (Product Owner decision)
 
 **Mechanical ADR approval — vai trò: `ADR-031 v0.2 Mechanical Approval Recorder`.** Records the

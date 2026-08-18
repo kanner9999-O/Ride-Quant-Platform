@@ -1,14 +1,14 @@
 ---
 id: 11-adr-process
 title: ADR Process
-version: "2.1"
-status: Locked
+version: "2.2"
+status: Draft
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: Kanner
-approved_at: "2026-07-25"
+approved_by: null
+approved_at: null
 created_at: "2026-07-16"
-last_review: "2026-07-25"
+last_review: null
 next_review: null
 depends_on: ["00-governance", "02-platform-invariants"]
 ---
@@ -16,6 +16,8 @@ depends_on: ["00-governance", "02-platform-invariants"]
 # 11. ADR Process
 
 Chapter 11 khóa quy trình và metadata contract của ADR. Document Lifecycle, Freeze Policy và ADR Scope Rule thuộc [Chapter 0](./00-governance.md); authority mapping thuộc [I-12](./02-platform-invariants.md).
+
+> **Governance migration CANDIDATE (v2.2, CHƯA activate):** §11.5/§11.9 dưới đây LÀ candidate, chuẩn bị kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved) — cùng nội dung Mode A/Mode B với [Chapter 0 §3 v1.2 candidate](./00-governance.md). CHƯA active — active CHỈ tại Atomic Activation Boundary riêng biệt, cùng lúc với Chapter 0 §3, khi TOÀN BỘ artifact mandatory (Chapter 0 §3, Chapter 11 §11.5, Chapter 11 §11.9) đồng bộ VÀ Product Owner approve trong CÙNG một hành động (KHÔNG partial activation). Trước boundary đó, v2.1's principal-only rule VẪN nguyên vẹn có hiệu lực.
 
 ## 11.1 Template và phạm vi
 
@@ -64,9 +66,9 @@ Current lifecycle state và reverse supersession relation thuộc MANIFEST.
 Trước Product Owner decision:
 
 - tối thiểu hai independent reviews;
-- reviewer giữ role `AI Technical Architect` tại review boundary;
-- hai actor identity khác nhau;
-- reviewer identities được pin;
+- reviewer giữ role `AI Technical Architect` tại review boundary — role eligibility thuộc về principal (đúng Chapter 0 §3), execution/session kế thừa eligibility từ principal, KHÔNG có role riêng;
+- independence được thỏa bởi Mode A (`DISTINCT_PRINCIPAL` — hai principal khác nhau) HOẶC Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION` — cùng principal, hai execution cô lập, CHỈ khi execution-isolation evidence contract [ADR-031](../adr/ADR-031.md) §5 thỏa đầy đủ);
+- reviewer identity (principal, execution identity nếu Mode B, independence mode) được pin;
 - reviewer ngang hàng, không veto;
 - Product Owner là authority duy nhất approve/reject.
 
@@ -123,13 +125,16 @@ Validator là blocking consistency gate, không phải approval authority.
 Tối thiểu kiểm tra:
 
 - ADR number unique, không reuse;
-- minimum-two eligible independent reviewers;
-- identities khác nhau và resolve được role;
+- minimum-two eligible independent review EXECUTIONS (KHÔNG chỉ "reviewer," đúng principal-vs-execution distinction, [ADR-031](../adr/ADR-031.md));
+- mỗi execution resolve được: principal identity, role (`AI Technical Architect`), review boundary, independence mode;
+- Mode A: hai principal identity khác nhau;
+- Mode B: hai execution cô lập của CÙNG principal ĐÚNG execution-isolation evidence contract (ADR-031 §5) — bao gồm distinct execution identifier VÀ explicit isolation attestation; một nhãn tự do một mình KHÔNG đủ;
 - `depends_on` tồn tại, Approved, acyclic;
 - `resolves` khớp MANIFEST OQ transition;
 - `supersedes` khớp MANIFEST current state/reverse relation;
 - Approved ADR file không bị mutate;
-- MANIFEST không stale.
+- MANIFEST không stale;
+- fail-closed: nếu independence mode (Mode A HOẶC Mode B) KHÔNG resolve đầy đủ tại review boundary, validator BÁO eligibility incomplete — KHÔNG tự suy diễn pass.
 
 Tooling/operator cụ thể defer Phase 1.
 

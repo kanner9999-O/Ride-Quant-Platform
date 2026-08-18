@@ -31,7 +31,7 @@ supersedes: []
 | | AI Technical Architect | | | |
 | | AI Technical Architect | | | |
 
-> Trước approval phải có tối thiểu hai reviewer identity khác nhau đủ điều kiện. Reviewer evidence là historical attribution, không phải permanent governance rule.
+> Trước approval phải có tối thiểu hai independent review execution đủ điều kiện, đúng Chapter 0 §3 / Chapter 11 §11.5: hai principal identity khác nhau (Mode A — `DISTINCT_PRINCIPAL`), HOẶC cùng một principal qua hai execution/session cô lập thỏa execution-isolation evidence contract (Mode B — `SAME_PRINCIPAL_DISTINCT_EXECUTION`, [ADR-031](../adr/ADR-031.md)). Reviewer evidence là historical attribution, không phải permanent governance rule.
 
 **Scale check:**
 
