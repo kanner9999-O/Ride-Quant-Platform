@@ -2,6 +2,119 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — Phase 3: author execution rules candidate v0.1
+
+**Rules authoring — vai trò: `Phase 3 Execution Rules Authoring Executor`.** Authors
+`docs/governance/phases/phase-3-rules.md` v0.1 as a CANDIDATE, derived directly from
+`docs/governance/retrospectives/phase2-retrospective-001.md`. Does NOT accept the rules, does NOT
+mark them EFFECTIVE, does NOT authorize substantive backend implementation, does NOT create the
+Phase-3 DoD, does NOT modify Global Execution Rules or activate G-VERIFY-002 globally.
+
+### Baseline
+
+```text
+Starting HEAD:  d0924bbacbae20c8b08b4137c8c870e61d66e9c8 (verified via git rev-parse HEAD before
+  any edit, working tree clean). manifest_version verified 10.163, current_phase verified "Phase 3
+  — Core Backend" before edit.
+```
+
+### Rules artifact authored
+
+```text
+docs/governance/phases/phase-3-rules.md v0.1, blob eb7bff69a3637658da04aee90787347bdd5d819b.
+  operational_state: CANDIDATE. accepted_by: null. accepted_at: null. Structure conforms to
+  phase-rules-template.md's 13-item mandatory order (Phase identity; Operational state; Product
+  Owner acceptance; Inherited Global Rules; Lessons from previous phase; Phase-specific ADR
+  controls; Transaction controls; Review controls; Prompt/efficiency controls; Known process risks;
+  Gate-path controls; Retrospective requirement; Change history), plus a "Deferred Global promotion
+  candidates" appendix and an ADR Scope Rule self-check.
+Seven controls, each traced to a specific retrospective finding (no invented lessons):
+  P3-CORRECTION-CHAIN-001 (§6) — generalizes P2-ADR-CHAIN-001 beyond ADR-only scope to any governed
+    artifact; sourced from Batch 02's 4-round correction chain and the Gate-3 2-round sequence,
+    both outside P2-ADR-CHAIN-001's literal reach (retrospective §7/§9.2).
+  P3-TXN-001 (§7) — changes the bookkeeping-fold default from permitted to required-unless-a-reason,
+    closing the four separate Phase-2 bookkeeping-reconciliation transactions (retrospective §9.1).
+  P3-VERIFY-001 (§4, filed as a Phase-3-scoped tightening of inherited Global G-VERIFY-001, NOT a
+    new Global rule) — requires cited review/QG/test/coverage/BCC/decision content be verified
+    against the original artifact, not accepted from a prompt assertion; sourced directly from the
+    Gate-3 lifecycle-recording defect (retrospective §6/§8); includes an executable-evidence
+    freshness clause for Phase 3's test/coverage/benchmark results.
+  P3-REVIEW-001 (§8) — tightens P2-REVIEW-001 with a mandatory stop-and-route step when a recording
+    transaction finds cited evidence contradicts the assertion being recorded (retrospective §9.3).
+  P3-BUDGET-001 (§9) — tightens P2-BUDGET-001, extending the 1,500-word ceiling from table cells to
+    standalone MANIFEST decision-bundle sections, with an explicit exception for Chapter-14
+    immutable-content minimums (retrospective §5/§9.4 — BCC section 1,525 words, Gate-3 section
+    1,707 words, both over the same figure despite not being literal table cells).
+  P3-IDENTITY-001 (§8) — mechanical actor/role/alias/boundary pre-check against team.yaml before a
+    review counts toward a governance prerequisite (retrospective §8 mục 1).
+  P3-MODULE-BATCH-001 (§9) — generalizes P2-PROTOTYPE-001's proven batch-containment pattern
+    (retrospective §9.5 KEEP, zero per-screen exception) to module-level implementation batching for
+    Phase 3, with explicit exceptions for architecture/security/Tier/dependency/cross-module changes.
+No arbitrary ADR ceiling invented (Phase 2 created zero ADR — retrospective §3; P3-CORRECTION-
+  CHAIN-001 covers any future correction-chain risk without a speculative count). ADR Scope Rule
+  self-check: ADR_NOT_REQUIRED (tightens Phase-3 workflow only, does not modify Constitution/Global
+  rules/architecture/module taxonomy/event schema/Approved ADR semantics).
+"Deferred Global promotion candidates" section references evidence-content verification (the
+  proposed G-VERIFY-002), mechanical per-edit budget enforcement, and the batch-containment pattern
+  — each explicitly marked NOT ACTIVATED GLOBALLY BY THIS DOCUMENT; Global promotion remains a
+  separate future governance amendment transaction.
+```
+
+### Files changed
+
+```text
+docs/governance/phases/phase-3-rules.md   NEW, blob eb7bff69a3637658da04aee90787347bdd5d819b.
+docs/MANIFEST.md   manifest_version 10.163 → 10.164. New table row registering
+  governance/phases/phase-3-rules.md (version 0.1, CANDIDATE, accepted_by/accepted_at null, 249
+  words). current_phase and the "Phase 3 Start Authorization" decision bundle left untouched
+  (immutable per Chapter 14 §14.4.1–§14.4.2) — this transaction registers a new candidate artifact
+  only, it does not re-record or reopen the Phase-3 start decision.
+```
+
+### No scope expansion / no acceptance / no implementation
+
+```text
+docs/governance/execution-rules.md, docs/governance/phases/phase-rules-template.md,
+  docs/governance/phases/phase-2-rules.md, docs/constitution/, docs/adr/, docs/architecture/,
+  docs/domain/, docs/product/, docs/phase-dod/, docs/team/, prototype/: UNCHANGED (git status
+  --porcelain=v1 -uall clean / git diff --quiet). No backend/source code file created. No Data
+  Layer implementation. No docs/phase-dod/phase-3-dod.md created. No Product Owner acceptance
+  performed or fabricated — operational_state remains CANDIDATE, accepted_by/accepted_at remain
+  null. Roadmap dependency sequence (Data Layer → Structure Engine & Raw Regime Engine → Feature
+  Engine → Context Projection → Strategy → Decision → Risk Gateway → Execution) quoted verbatim in
+  §1, not altered or reinterpreted. P2-G3-B-MIN-01 not touched, remains OPEN — NON_BLOCKING.
+```
+
+### Result
+
+```text
+Rules artifact: docs/governance/phases/phase-3-rules.md v0.1, CANDIDATE. Phase 3 lifecycle:
+  AUTHORIZED TO BEGIN (unchanged). Phase 3 substantive governed implementation: still
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT — this transaction does not change that state; the
+  future sequence (Review A → Independent Review B → Product Owner acceptance → deterministic
+  MANIFEST recording) remains entirely pending. Phase-3 DoD: still NOT_YET_ESTABLISHED /
+  NOT_YET_ACCEPTED. current_phase: unchanged, "Phase 3 — Core Backend." LIVE: NOT_AUTHORIZED
+  (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified d0924bbacbae20c8b08b4137c8c870e61d66e9c8 before any edit;
+  manifest_version verified 10.163, current_phase verified "Phase 3 — Core Backend" before edit;
+  git status --porcelain=v1 -uno verified working tree clean before any edit. Governing authority
+  inspected directly: docs/governance/phases/phase-rules-template.md, phase-2-rules.md,
+  docs/governance/execution-rules.md, docs/governance/retrospectives/phase2-retrospective-001.md,
+  docs/constitution/00-governance.md, 12-approval-gates.md, 14-roadmap.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md. Roadmap blob verified via git hash-object (f2cd722218bd80b40241e26530a1919811
+  fedad9, v1.6, Locked). git status --porcelain=v1 -uall confirmed clean on
+  docs/governance/execution-rules.md, phase-rules-template.md, phase-2-rules.md, docs/constitution,
+  docs/adr, docs/architecture, docs/domain, docs/product, docs/phase-dod, docs/team, prototype —
+  only docs/governance/phases/phase-3-rules.md (new) and docs/MANIFEST.md changed. manifest_version
+  increment verified (10.163 → 10.164). Template's 13-item mandatory structure verified present in
+  order. Every substantive P3 control traced to a specific retrospective section/finding.
+```
+
 ## [Unreleased] — 2026-08-18 — Phase 3 — Core Backend: AUTHORIZED TO BEGIN (Product Owner decision)
 
 **Lifecycle recording — vai trò: `Phase 3 Start Authorization Lifecycle Recorder`.** Records the
