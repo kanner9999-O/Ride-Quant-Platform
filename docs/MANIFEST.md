@@ -1,10 +1,10 @@
 ---
-manifest_version: "10.162"
+manifest_version: "10.163"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
 constitution_version: "1.1.0"
-current_phase: "Phase 2 — Product Prototype"
+current_phase: "Phase 3 — Core Backend"
 compatible_adr_range: "ADR-001 ~ ADR-022"
 generated_at: "2026-08-09"
 ---
@@ -1684,17 +1684,19 @@ Retrospective (AS OF 2026-08-18
 ## Phase 3 / LIVE authorization state (post–Phase 2 Approval Gate)
 
 ```text
-Phase 3 substantive work:  NOT_YET_AUTHORIZED — Phase 2 retrospective
-                           (P2-RETRO-001) nay COMPLETE (§trên); chờ điều
-                           kiện còn lại (b) một explicit Phase 3 start/
-                           authorization transaction riêng biệt (Product
-                           Owner decision, chưa thực hiện) — cùng pattern
-                           hai điều kiện như Phase 1 → Phase 1.5 và Phase
-                           1.5 → Phase 2's precedent.
+Phase 3 substantive work (AS OF 2026-
+  08-18 retrospective transaction —
+  HISTORICAL, superseded by "Phase 3
+  Start Authorization" section
+  below):                      NOT_YET_AUTHORIZED at that time — Phase 2 retrospective
+                           (P2-RETRO-001) was COMPLETE; the remaining condition (b), an explicit
+                           Phase 3 start/authorization transaction, had not yet been performed.
 LIVE:                       NOT_AUTHORIZED — Approval Gate passing KHÔNG
                            tự nó authorize LIVE dưới bất kỳ hình thức nào
                            (đúng nguyên tắc PAPER-only/LIVE Unauthorized
-                           đã giữ xuyên suốt toàn bộ Phase 0/1/1.5/2).
+                           đã giữ xuyên suốt toàn bộ Phase 0/1/1.5/2, VÀ
+                           tiếp tục giữ xuyên suốt Phase 3 lifecycle-start,
+                           xem section dưới).
 ```
 
 **Transaction này KHÔNG:**
@@ -1709,7 +1711,142 @@ reopen/modify Phase 2 DoD, Quality Gate evidence, BCC evidence, Gate 3
 resolve/reinterpret P2-RETRO-001
 ```
 
-**Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên, KHÔNG đổi) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state.
+**Phân biệt bắt buộc (§14.4.1):** current state của Phase resolve từ MANIFEST (frontmatter `current_phase`, phía trên) — historical decision (bundle này) resolve từ chính block pinned này, KHÔNG từ current state.
+
+## Phase 3 Start Authorization — Product Owner Decision (mechanical current-state transition, KHÔNG một Approval Gate Decision bundle mới — Phase 2 Approval Gate evidence chain phía trên byte-identical, KHÔNG sửa)
+
+**Quyết định:** "AUTHORIZE — START PHASE 3 — CORE BACKEND." (Product Owner, 2026-08-18T14:17:00+07:00)
+
+```text
+Prerequisite check (verify trực tiếp tại HEAD
+  778559b527118a182973b09541c2373b197cd960, TRƯỚC KHI recording —
+  G-VERIFY-001):
+    Phase 2 Approval Gate
+      ("Gate 3"):                PASSED (unchanged, xem section "Phase 2
+                                Approval Gate — Decision" phía trên,
+                                authoritative corrected recording boundary
+                                7f94a5412ab04e6e48a5f47c4629f1680f2a5c62,
+                                byte-identical — KHÔNG reopen/re-review/
+                                re-record tại transaction này).
+    Phase 2 immutable decision
+      bundle:                  EXISTS, resolves (section trên).
+    P2-RETRO-001:                COMPLETE (unchanged, xem section
+                                "Governance — Retrospectives" phía trên
+                                VÀ frontmatter `phase2_retrospective_
+                                status: COMPLETE` trong chính retrospective
+                                document, retrospective completion boundary
+                                778559b527118a182973b09541c2373b197cd960,
+                                verified trực tiếp).
+    Phase 3 execution rules
+      (`governance/phases/phase-
+      3-rules.md`):              KHÔNG TỒN TẠI (verify trực tiếp — `ls
+                                docs/governance/phases/` liệt kê CHỈ
+                                phase-1-rules.md/phase-1.5-rules.md/
+                                phase-2-rules.md/phase-rules-template.md,
+                                KHÔNG một phase-3-rules.md nào). Đúng
+                                `phase-rules-template.md` §Mandatory rule
+                                ("KHÔNG author trước speculative Phase
+                                2/3/4+ rule file... mỗi phase rule PHẢI
+                                viết TẠI thời điểm phase đó chuẩn bị bắt
+                                đầu") — CHƯA author LÀ trạng thái ĐÚNG dự
+                                kiến tại transaction này, KHÔNG PHẢI một
+                                gap cần sửa. Cùng template's fail-closed
+                                rule ("KHÔNG có phase rule artifact
+                                accepted → substantive work CHƯA được phép
+                                bắt đầu") áp dụng — do đó Phase 3
+                                SUBSTANTIVE governed implementation VẪN
+                                PENDING, dù lifecycle current_phase CÓ THỂ
+                                transition (mechanical, tách biệt khỏi
+                                substantive-work permission — cùng
+                                nguyên tắc rule-authoring ≠ phase-
+                                authorization ĐÃ áp dụng ngược lại cho
+                                Phase 2's start, nơi rule ĐÃ tồn tại
+                                TRƯỚC start).
+    Conflicting later phase-
+      transition record:         KHÔNG tồn tại (verify trực tiếp — KHÔNG
+                                một section "Phase 3 Start Authorization"
+                                nào khác trong MANIFEST trước transaction
+                                này).
+    Roadmap sequence (Chapter 14 §14.3, Locked v1.6, blob
+      f2cd722218bd80b40241e26530a1919811fedad9, verified trực tiếp):
+                                Phase 2 -> Phase 3 -> Phase 4. Phase 3's
+                                own internal dependency graph (§14.2,
+                                KHÔNG chạm/reinterpret bởi transaction
+                                này): Data Layer -> Structure Engine &
+                                Raw Regime Engine (song song, độc lập) ->
+                                Feature Engine -> Context Projection ->
+                                Strategy -> Decision -> Risk Gateway ->
+                                Execution -> Quality Gate theo Tier ->
+                                Approval Gate.
+    Phase 3:                    full Phase (Chapter 14 §14.3, "Core
+                                Backend — build ĐÚNG theo dependency graph
+                                ở 07-module-taxonomy.md"), có Approval
+                                Gate riêng của chính nó (Chapter 12 §12.2)
+                                tại CUỐI phase — gate đó CHƯA mở/pass tại
+                                transaction này. Phase-3 DoD (Chapter 12
+                                §12.1, mandatory trước Approval Gate mở):
+                                NOT_YET_ESTABLISHED / NOT_YET_ACCEPTED —
+                                verify trực tiếp: KHÔNG file nào dưới
+                                `docs/phase-dod/` tên `phase-3-dod.md`.
+```
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.162` → `10.163`; `current_phase` `"Phase 2 — Product Prototype"` → `"Phase 3 — Core Backend"`.
+
+**Recorded state transition:**
+
+```text
+Phase 2 — Product Prototype:           APPROVED (unchanged)
+Phase 2 Approval Gate ("Gate 3"):      PASSED (unchanged)
+P2-RETRO-001:                          COMPLETE (unchanged)
+P2-G3-B-MIN-01:                        OPEN — NON_BLOCKING (unchanged, carried forward — KHÔNG fix
+                                        docs/product/{product-requirement.md,use-case-workflow.md,
+                                        ux-blueprint.md} bởi transaction này)
+Phase 3 — Core Backend lifecycle:      AUTHORIZED TO BEGIN
+Phase 3 substantive governed
+  implementation:                      PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT — KHÔNG
+                                        "PERMITTED" (khác pattern Phase 2's start, nơi phase-2-
+                                        rules.md ĐÃ EFFECTIVE trước start) — phase-rules-
+                                        template.md's fail-closed Mandatory rule áp dụng: KHÔNG một
+                                        substantive Phase 3 artifact/module/implementation nào được
+                                        phép author cho tới khi `governance/phases/phase-3-rules.md`
+                                        được author VÀ Product Owner accept tường minh, một
+                                        transaction governed riêng biệt trong tương lai.
+Phase-3 DoD:                           NOT_YET_ESTABLISHED / NOT_YET_ACCEPTED (unchanged)
+Phase 3 Approval Gate:                 NOT YET OPENED (unchanged)
+LIVE:                                  NOT_AUTHORIZED (unchanged — KHÔNG suy diễn deployment/
+                                        exchange-connectivity/real-order-execution/custody/
+                                        credential-use/LIVE-trading authorization nào từ Phase 3
+                                        lifecycle start)
+```
+
+**"AUTHORIZED TO BEGIN" nghĩa là gì (khác Phase 2's precedent — đọc kỹ):** Product Owner đã quyết định Phase 3 LÀ active lifecycle phase (`current_phase` transition, mechanical) — NHƯNG, KHÁC pattern Phase 0→1/Phase 1→1.5/Phase 1.5→2 (nơi phase rule của phase mới ĐÃ EFFECTIVE trước start), Phase 3 execution rules CHƯA tồn tại. Do đó "AUTHORIZED TO BEGIN" tại đây CHỈ nghĩa LÀ lifecycle-start boundary — KHÔNG đồng nghĩa "substantive work PERMITTED." Không một module/Data Layer/Structure Engine/implementation artifact nào được phép author cho tới khi `phase-3-rules.md` tồn tại VÀ được accept — đúng `phase-rules-template.md` §Mandatory rule's fail-closed principle, áp dụng NGƯỢC LẠI so với Phase 2 (nơi rule pre-existed, cho phép "PERMITTED" ngay tại start).
+
+**Transaction này KHÔNG:**
+
+```text
+tạo/sửa bất kỳ Phase 3 substantive artifact nào (module code, backend
+  implementation, Data Layer schema, Structure Engine/Raw Regime Engine/
+  Feature Engine/Context Projection/Strategy/Decision/Risk Gateway/
+  Execution scaffolding, architecture mới, ADR mới, Phase 3 execution
+  rules, Phase 3 DoD)
+author `governance/phases/phase-3-rules.md` (KHÔNG tồn tại, KHÔNG author
+  speculative — đúng phase-rules-template.md §Mandatory rule)
+tạo/accept Phase 3 DoD
+reopen/modify Phase 2 DoD, Quality Gate evidence, BCC evidence, Gate 3
+  decision bundle, P2-RETRO-001 retrospective, bất kỳ ADR/convention nào,
+  Constitution, Domain Contract, architecture artifact, hay prototype
+  artifact nào (prototype/phase-2/batch-01..06 KHÔNG chạm)
+fix/close P2-G3-B-MIN-01 (docs/product/{product-requirement.md,
+  use-case-workflow.md, ux-blueprint.md} KHÔNG chạm, finding VẪN OPEN —
+  NON_BLOCKING)
+chạy Phase-3 Quality Gate nào (KHÔNG artifact-level gate applicability
+  nào được quyết định vượt ngoài Locked authority hiện có)
+authorize LIVE (KHÔNG suy diễn deployment/exchange-connectivity/
+  real-order-execution/custody/credential-use/LIVE-trading authorization
+  nào từ việc bắt đầu Core Backend)
+```
+
+**Xác nhận tường minh (G-VERIFY-001 áp dụng — verify trực tiếp, KHÔNG suy diễn từ memory):** `current_phase` frontmatter (line 7, file này) verify trực tiếp trước/sau edit. Phase 2 Approval Gate `PASSED` (boundary `7f94a5412ab04e6e48a5f47c4629f1680f2a5c62`), `P2-RETRO-001` `COMPLETE` (boundary `778559b527118a182973b09541c2373b197cd960`) verify lại từ chính section tương ứng phía trên trong file này VÀ từ frontmatter của chính retrospective document (byte-identical). `docs/constitution/14-roadmap.md` verify blob `f2cd722218bd80b40241e26530a1919811fedad9` trực tiếp (`git hash-object`), version `1.6`/`Locked` unchanged. `docs/governance/phases/` verify trực tiếp KHÔNG chứa `phase-3-rules.md`. ADR/Constitution/Domain Contract/architecture package/Phase 2 DoD/Phase 2 retrospective/Global Execution Rules (`governance/execution-rules.md`)/Phase 2 rules (`governance/phases/phase-2-rules.md`)/prototype/`docs/product/` KHÔNG sửa bởi transaction này (git status --porcelain=v1 -uall clean / git diff --quiet cho tất cả).
 
 ## Decision Log
 

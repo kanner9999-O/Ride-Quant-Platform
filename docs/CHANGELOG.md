@@ -2,6 +2,97 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — Phase 3 — Core Backend: AUTHORIZED TO BEGIN (Product Owner decision)
+
+**Lifecycle recording — vai trò: `Phase 3 Start Authorization Lifecycle Recorder`.** Records the
+Product Owner decision "AUTHORIZE — START PHASE 3 — CORE BACKEND" and performs the mechanical
+`current_phase` transition. NOT substantive backend implementation, NOT Phase-3 execution-rule
+authoring, NOT Phase-3 DoD establishment/acceptance, NOT LIVE authorization.
+
+### Baseline
+
+```text
+Starting HEAD:  778559b527118a182973b09541c2373b197cd960 (verified via git rev-parse HEAD before
+  any edit, working tree clean). manifest_version verified 10.162, current_phase verified "Phase 2
+  — Product Prototype" before edit.
+```
+
+### Prerequisite verification
+
+```text
+Phase 2 Approval Gate ("Gate 3"): PASSED (unchanged, corrected recording boundary
+  7f94a5412ab04e6e48a5f47c4629f1680f2a5c62). P2-RETRO-001: COMPLETE (retrospective completion
+  boundary 778559b527118a182973b09541c2373b197cd960). Roadmap identity verified directly:
+  docs/constitution/14-roadmap.md v1.6, Locked, blob f2cd722218bd80b40241e26530a1919811fedad9.
+  docs/governance/phases/ verified to contain no phase-3-rules.md — per phase-rules-template.md's
+  Mandatory rule ("KHÔNG author trước speculative... mỗi phase rule PHẢI viết TẠI thời điểm phase
+  đó chuẩn bị bắt đầu") and its fail-closed clause, this is the expected state, not a gap, and it
+  means Phase 3 substantive governed implementation remains blocked even though the lifecycle
+  phase itself can transition (rule-authoring ≠ phase-authorization, same principle as Phase 2's
+  own start, applied in the opposite direction since Phase 2's rules pre-existed its start and
+  Phase 3's do not).
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md   manifest_version 10.162 → 10.163; current_phase "Phase 2 — Product Prototype" →
+  "Phase 3 — Core Backend". New "Phase 3 Start Authorization — Product Owner Decision" section
+  appended (prerequisite check, resulting transition, recorded state, "AUTHORIZED TO BEGIN" meaning
+  explicitly distinguished from Phase 2's precedent, "Transaction này KHÔNG" list, explicit
+  verification note). Within "Phase 3 / LIVE authorization state" section: the original "Phase 3
+  substantive work: NOT_YET_AUTHORIZED" field relabeled "(AS OF 2026-08-18 retrospective transaction
+  — HISTORICAL, superseded below)".
+```
+
+### No scope expansion / no semantic mutation / no implementation
+
+```text
+docs/product/, docs/domain/, docs/architecture/, docs/constitution/, docs/adr/, docs/phase-dod/,
+  docs/team/, docs/governance/execution-rules.md, docs/governance/phases/,
+  docs/governance/retrospectives/, prototype/: UNCHANGED (git status --porcelain=v1 -uall clean).
+  No source code / backend implementation file created. No module scaffolding, no Data Layer work,
+  no architecture change. No governance/phases/phase-3-rules.md authored (deliberately, per the
+  template's Mandatory rule). No Phase-3 DoD created/accepted. Phase 2 approval/Gate 3
+  decision/P2-RETRO-001 history unchanged, not reopened. P2-G3-B-MIN-01 not fixed, remains OPEN —
+  NON_BLOCKING.
+```
+
+### Result
+
+```text
+Phase 3 — Core Backend lifecycle: AUTHORIZED TO BEGIN. current_phase: "Phase 2 — Product
+  Prototype" → "Phase 3 — Core Backend". Phase 3 substantive governed implementation:
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT (blocked until a phase-3-rules.md is authored and
+  accepted, a separate future transaction). Phase-3 DoD: NOT_YET_ESTABLISHED / NOT_YET_ACCEPTED.
+  Phase 3 Approval Gate: NOT YET OPENED.
+Phase 2: APPROVED (unchanged). Gate 3: PASSED (unchanged). P2-RETRO-001: COMPLETE (unchanged).
+  P2-G3-B-MIN-01: OPEN — NON_BLOCKING (unchanged). LIVE: NOT_AUTHORIZED (unchanged — starting Core
+  Backend implies no deployment/exchange-connectivity/real-order-execution/custody/credential-use/
+  LIVE-trading authorization).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 778559b527118a182973b09541c2373b197cd960 before any edit;
+  manifest_version verified 10.162, current_phase verified "Phase 2 — Product Prototype" before
+  edit; git status --porcelain=v1 -uno verified working tree clean before any edit. Governing
+  authority inspected directly: docs/constitution/00-governance.md, 12-approval-gates.md,
+  14-roadmap.md, docs/governance/execution-rules.md, phase-2-rules.md, phase-rules-template.md,
+  docs/MANIFEST.md, docs/CHANGELOG.md, docs/governance/retrospectives/phase2-retrospective-001.md
+  (structural precedent, findings not copied). Historical Phase-2 Start Authorization transaction
+  (commit 99ffeee) inspected as structural precedent only, not blindly copied — Phase-3-specific
+  divergence (no pre-existing execution rules) explicitly reasoned through. git status
+  --porcelain=v1 -uall confirmed clean on docs/product, docs/domain, docs/architecture,
+  docs/constitution, docs/adr, docs/phase-dod, docs/team, docs/governance/execution-rules.md,
+  docs/governance/phases, docs/governance/retrospectives, prototype — only docs/MANIFEST.md and
+  docs/CHANGELOG.md changed. manifest_version increment verified (10.162 → 10.163). current_phase
+  verified changed only to "Phase 3 — Core Backend". Roadmap dependency sequence (Data Layer →
+  Structure Engine & Raw Regime Engine → Feature Engine → Context Projection → Strategy → Decision
+  → Risk Gateway → Execution) quoted verbatim, not altered or reinterpreted.
+```
+
 ## [Unreleased] — 2026-08-18 — Phase 2 Process Retrospective #001 complete (P2-RETRO-001 satisfied)
 
 **Process retrospective — vai trò: `Phase 2 Process Retrospective Executor`.** Performs the required
