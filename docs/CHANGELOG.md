@@ -2,6 +2,85 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — ADR-031 activation candidate: pin final review evidence (branch only)
+
+**Review-evidence recording — vai trò: `ADR-031 Activation Review Evidence Recorder`.** Records the
+two already-completed bounded revalidations for the ADR-031 Atomic Activation candidate on branch
+`adr031-atomic-activation-candidate`. Does not rerun either review, does not change candidate
+semantics, does not activate Mode B.
+
+### Baseline
+
+```text
+Required branch HEAD: 2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27 (verified via git branch
+  --show-current + git rev-parse HEAD before any edit, working tree clean). main verified unchanged
+  at 48c3b4f1aa97a4242b25817becbde6c5a2236847.
+```
+
+### Evidence recorded
+
+```text
+Review A — marker ADR031_ACTIVATION_REVIEW_A_FINAL_REVALIDATION, reviewer ChatGPT (AI Technical
+  Architect), boundary 2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27, scope: bounded revalidation of the
+  §11.5 review-boundary wording correction and review-evidence recording consistency.
+  ADR031-ACT-B-MIN-01: CLOSED. ADR031-ACT-B-MIN-02: CLOSED. New Blocker/Major/Minor 0/0/0. Verdict
+  CLEAN — READY_FOR_BOUNDED_REVIEW_B_REREVIEW.
+Review B — marker ADR031_ATOMIC_ACTIVATION_REVIEW_B_REREVIEW_FINAL, reviewer Claude (alias
+  "Independent Review B", AI Technical Architect), same boundary, independence mode Mode A —
+  DISTINCT_PRINCIPAL. ADR031-ACT-B-MIN-01: CLOSED. ADR031-ACT-B-MIN-02: CLOSED. New Blocker/Major/
+  Minor 0/0/0. Content verdict CLEAN. Historical readiness at review time preserved verbatim, NOT
+  rewritten: READY_FOR_PRODUCT_OWNER_ACTIVATION_DECISION was withheld only because Review A evidence
+  at this boundary was not yet repository-resolvable at review time.
+Aggregation (recorded separately from Review B's own report): Review A COMPLETE/ELIGIBLE/CLEAN;
+  Review B COMPLETE/ELIGIBLE/CLEAN; shared review boundary
+  2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27; current-governance independence SATISFIED via Mode A —
+  DISTINCT_PRINCIPAL (ChatGPT + Claude, team.yaml); minimum-two-review requirement SATISFIED.
+  ADR031-ACT-A-MAJ-01: CLOSED. ADR031-ACT-B-MIN-01: CLOSED. ADR031-ACT-B-MIN-02: CLOSED. Activation
+  candidate: READY_FOR_PRODUCT_OWNER_ACTIVATION_DECISION — explicitly NOT activation; Mode B remains
+  NOT_ACTIVE, Atomic Activation remains NOT_PERFORMED pending a separate Product Owner activation
+  decision and merge transaction.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md   manifest_version 10.171 → 10.172. "## ADR-031 Atomic Activation — CANDIDATE"
+  section: new "Final bounded revalidation evidence pinned" block added (Review A, Review B,
+  aggregation); trailing summary updated to reflect both findings CLOSED, minimum-two-review
+  SATISFIED, and the candidate's READY_FOR_PRODUCT_OWNER_ACTIVATION_DECISION state, with an explicit
+  statement that this is not activation (1,319 words, within budget).
+```
+
+### No scope expansion / no rerun / no activation
+
+```text
+docs/constitution/00-governance.md (v1.2 candidate), 11-adr-process.md (v2.2 candidate),
+  12-approval-gates.md (v1.6 candidate), docs/templates/adr-template.md, docs/adr/ADR-031.md: all
+  UNCHANGED, verified byte-identical (git diff --quiet). main: NOT modified, verified unchanged at
+  48c3b4f. Neither review was rerun — both recorded as already-completed. Mode B: still NOT_ACTIVE.
+  Atomic Activation: still NOT_PERFORMED. Phase-3 rules workflow remains paused on
+  P3-RULES-A-MAJ-01. Phase 3 substantive governed implementation unaffected — still
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT. LIVE remains NOT_AUTHORIZED.
+```
+
+### Result
+
+```text
+ADR031-ACT-A-MAJ-01: CLOSED. ADR031-ACT-B-MIN-01: CLOSED. ADR031-ACT-B-MIN-02: CLOSED. Minimum-two-
+  review requirement: SATISFIED. Activation candidate: READY_FOR_PRODUCT_OWNER_ACTIVATION_DECISION
+  (not activation). Mode B: NOT_ACTIVE. Atomic Activation: NOT_PERFORMED. main: unchanged.
+```
+
+### Validation
+
+```text
+git branch --show-current verified adr031-atomic-activation-candidate; git rev-parse HEAD verified
+  2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27 before any edit; working tree clean; origin/main verified
+  unchanged at 48c3b4f. git diff --quiet confirmed all three Constitution candidate chapters, the
+  ADR template, and ADR-031 byte-identical after the edit — only docs/MANIFEST.md changed.
+  manifest_version increment verified (10.171 → 10.172).
+```
+
 ## [Unreleased] — 2026-08-18 — ADR-031 activation candidate: close Review-B minors (branch only)
 
 **Bounded correction + evidence recording — vai trò: `ADR-031 Activation Candidate Bounded

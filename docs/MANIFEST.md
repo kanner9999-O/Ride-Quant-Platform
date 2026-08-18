@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.171"
+manifest_version: "10.172"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -169,6 +169,36 @@ Independent Review B evidence pinned (2026-08-18, historical — reviewed TẠI 
   `PENDING_BOUNDED_REVIEW_A_AND_REVIEW_B_REREVIEW`. KHÔNG claim Product Owner eligibility
   established. KHÔNG claim Mode B active. KHÔNG claim activation complete.
 
+Final bounded revalidation evidence pinned (2026-08-18, historical — cả hai đã hoàn tất TẠI boundary
+  `2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27`, KHÔNG rerun):
+  Review A — Marker `ADR031_ACTIVATION_REVIEW_A_FINAL_REVALIDATION`. Reviewer ChatGPT, role AI
+    Technical Architect. Boundary `2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27`. Scope: bounded
+    revalidation của §11.5 review-boundary wording correction + review-evidence recording
+    consistency. `ADR031-ACT-B-MIN-01`: `CLOSED`. `ADR031-ACT-B-MIN-02`: `CLOSED`. New
+    Blocker/Major/Minor: 0/0/0. Verdict: `CLEAN — READY_FOR_BOUNDED_REVIEW_B_REREVIEW`.
+  Review B — Marker `ADR031_ATOMIC_ACTIVATION_REVIEW_B_REREVIEW_FINAL`. Reviewer Claude, alias
+    "Independent Review B", role AI Technical Architect. Boundary SAME
+    `2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27`. Independence mode: Mode A — `DISTINCT_PRINCIPAL`.
+    `ADR031-ACT-B-MIN-01`: `CLOSED`. `ADR031-ACT-B-MIN-02`: `CLOSED`. New Blocker/Major/Minor:
+    0/0/0. Content verdict: `CLEAN`. Historical readiness tại thời điểm review NÀY (giữ nguyên,
+    KHÔNG rewrite report): `READY_FOR_PRODUCT_OWNER_ACTIVATION_DECISION` — WITHHELD CHỈ vì Review A
+    evidence tại boundary này CHƯA repository-resolvable lúc đó.
+  Aggregation (recorded riêng, SAU KHI cả hai evidence trên đã pin — KHÔNG phải nội dung report gốc
+    của Review B):
+    Review A:                         `COMPLETE / ELIGIBLE / CLEAN`.
+    Review B:                         `COMPLETE / ELIGIBLE / CLEAN`.
+    Shared review boundary:           `2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27`.
+    Current-governance independence:  `SATISFIED` via Mode A — `DISTINCT_PRINCIPAL` (ChatGPT +
+                                      Claude, team.yaml).
+    Minimum-two-review requirement:   `SATISFIED`.
+    `ADR031-ACT-A-MAJ-01`:            `CLOSED`.
+    `ADR031-ACT-B-MIN-01`:            `CLOSED`.
+    `ADR031-ACT-B-MIN-02`:            `CLOSED`.
+    Activation candidate:             `READY_FOR_PRODUCT_OWNER_ACTIVATION_DECISION` — đây KHÔNG
+                                      PHẢI activation; Mode B VẪN `NOT_ACTIVE`, Atomic Activation
+                                      VẪN `NOT_PERFORMED` cho tới một Product Owner activation
+                                      decision + merge transaction riêng biệt.
+
 Preserved unchanged (verified trực tiếp, git diff --quiet trên branch):
   docs/adr/ADR-031.md (Approved, immutable — KHÔNG sửa), Global Execution Rules
   (`governance/execution-rules.md`), `docs/team/team.yaml`, `docs/governance/phases/phase-3-rules.md`
@@ -189,12 +219,14 @@ No partial activation (tường minh): candidate này CHƯA active — KHÔNG m�
 Mode B: NOT_ACTIVE. Atomic Activation: NOT_PERFORMED. ADR031-B-MIN-01 (template): CANDIDATE-CLOSED
   trên branch này — VẪN chính thức OPEN tại MANIFEST authoritative (main) cho tới khi activation
   transaction thật merge candidate này.
-ADR031-ACT-A-MAJ-01: CLOSED (Review A re-review CLEAN, § trên). ADR031-ACT-B-MIN-01:
-  CLOSED_BY_EVIDENCE_RECORDING. ADR031-ACT-B-MIN-02: CLOSED_BY_BOUNDED_CORRECTION. Review status:
-  PENDING_BOUNDED_REVIEW_A_AND_REVIEW_B_REREVIEW — §11.5 changed SAU KHI cả hai review trên đã
-  hoàn tất tại boundary `bee65ce...`, đòi hỏi bounded re-review trên boundary candidate MỚI (resulting
-  commit của transaction này) TRƯỚC KHI Product Owner eligibility có thể coi established. KHÔNG claim
-  Product Owner eligibility established. KHÔNG claim Mode B active. KHÔNG claim activation complete.
+ADR031-ACT-A-MAJ-01: CLOSED (Review A re-review CLEAN, § trên). ADR031-ACT-B-MIN-01: CLOSED (final
+  bounded revalidation, § trên). ADR031-ACT-B-MIN-02: CLOSED (final bounded revalidation, § trên).
+  Review status: bounded revalidation của CẢ Review A LẪN Review B nay COMPLETE tại boundary
+  `2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27`, cả hai CLEAN, minimum-two-review requirement
+  `SATISFIED` (Mode A — DISTINCT_PRINCIPAL, ChatGPT + Claude). Activation candidate:
+  `READY_FOR_PRODUCT_OWNER_ACTIVATION_DECISION`. **Đây KHÔNG PHẢI activation** — KHÔNG claim Mode B
+  active, KHÔNG claim Atomic Activation complete; CHỈ Product Owner activation decision (chưa thực
+  hiện) + merge transaction riêng biệt mới có thể chuyển Mode B sang active.
 Phase-3 rules workflow: VẪN paused (P3-RULES-A-MAJ-01) — resume CHỈ SAU KHI activation thật hoàn tất
   (KHÔNG phải candidate authoring này).
 Phase 3 substantive governed implementation: PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT (unchanged).
