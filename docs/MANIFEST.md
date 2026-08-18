@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.170"
+manifest_version: "10.171"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -94,7 +94,9 @@ Candidate delta (branch only):
     semantics; §11.9 validator contract sửa "identities khác nhau" thành minimum-two eligible
     independent review EXECUTION (principal, role, boundary, independence_mode), Mode A/Mode B
     distinct check, fail-closed nếu independence KHÔNG resolve. Blob
-    22179ee11fcbbe5040d8b5e0d4e76e193b4f8cd0.
+    22179ee11fcbbe5040d8b5e0d4e76e193b4f8cd0 -> `85dce3bff7e93929d2a79f6b9df5383f9b2a428d`
+    (`ADR031-ACT-B-MIN-02` wording-only fix, xem dưới — §11.5's reviewer-evidence pin list nay tường
+    minh liệt kê "review boundary," trước đây bị bỏ sót).
   docs/constitution/12-approval-gates.md 1.5 Locked -> 1.6 Draft (CANDIDATE) — wording sync CHỈ,
     KHÔNG tạo authority mới: bỏ literal "hai actor identity khác nhau," delegate tường minh sang
     Chapter 0 §3/Chapter 11 §11.5. Blob c88b7539e8ab24b1892f2bc412bb47b0ead43a74.
@@ -121,10 +123,51 @@ Bounded correction — `ADR031-ACT-A-MAJ-01` (Major, Review A trên candidate, 2
     generated ID + explicit attestation — một nhãn tự do một mình KHÔNG đủ). Tham chiếu Chapter 0
     §3/Chapter 11 §11.5/ADR-031 §5 cho định nghĩa đầy đủ — KHÔNG copy toàn bộ evidence contract vào
     template.
-  KHÔNG sửa Chapter 0 v1.2/Chapter 11 v2.2/Chapter 12 v1.6 candidate (byte-identical, git diff
-    --quiet). KHÔNG sửa ADR-031 (Approved, immutable, byte-identical). `ADR031-ACT-A-MAJ-01`:
-    `CLOSED_BY_BOUNDED_CORRECTION` — PENDING bounded Review A re-review trên candidate delta này,
-    CHƯA CLEAN.
+  KHÔNG sửa Chapter 0 v1.2/Chapter 12 v1.6 candidate (byte-identical, git diff --quiet). KHÔNG sửa
+    ADR-031 (Approved, immutable, byte-identical). `ADR031-ACT-A-MAJ-01`: `CLOSED_BY_BOUNDED_
+    CORRECTION` tại boundary đó — SAU ĐÓ đóng definitively bởi bounded Review A re-review CLEAN
+    (xem "Review A evidence pinned" dưới).
+
+Review A evidence pinned (2026-08-18, historical — review NÀY đã hoàn tất TRƯỚC Independent Review
+  B dưới, ghi nhận đúng chronology, KHÔNG rerun):
+  Marker:                  `ADR031_ACTIVATION_REVIEW_A_REREVIEW_FINAL`.
+  Reviewer:                ChatGPT, role AI Technical Architect.
+  Reviewed boundary:       `bee65ce25269edf09981c6201081b4b2d09ce404`.
+  Scope:                   template evidence-table correction (bounded, đúng phạm vi
+                          `ADR031-ACT-A-MAJ-01`).
+  Result:                  CLEAN. `ADR031-ACT-A-MAJ-01`: `CLOSED`. New Blocker/Major/Minor: 0/0/0.
+  Verdict:                 `READY_FOR_INDEPENDENT_REVIEW_B`.
+
+Bounded wording correction — `ADR031-ACT-B-MIN-02` (Minor, found bởi Independent Review B dưới,
+  CLOSED_BY_BOUNDED_WORDING_CORRECTION tại transaction này):
+  Defect: `docs/constitution/11-adr-process.md` §11.5's reviewer-evidence pin list ("reviewer
+    identity (principal, execution identity nếu Mode B, independence mode) được pin") bỏ sót "review
+    boundary" tường minh — dù §11.9 validator contract (đã sửa trước đó) ĐÃ yêu cầu review_boundary
+    LÀ một field bắt buộc.
+  Sửa (wording-only, KHÔNG đổi semantics khác của §11.5/§11.9): pin list nay đọc "principal identity,
+    execution identity nếu Mode B, review boundary, independence mode." Blob
+    22179ee11fcbbe5040d8b5e0d4e76e193b4f8cd0 -> `85dce3bff7e93929d2a79f6b9df5383f9b2a428d`.
+  `ADR031-ACT-B-MIN-02`: `CLOSED_BY_BOUNDED_WORDING_CORRECTION`.
+
+Independent Review B evidence pinned (2026-08-18, historical — reviewed TẠI boundary
+  `bee65ce25269edf09981c6201081b4b2d09ce404`, SAU Review A trên, KHÔNG rerun):
+  Marker:                  `ADR031_ATOMIC_ACTIVATION_INDEPENDENT_REVIEW_B_FINAL`.
+  Reviewer:                Claude, alias "Independent Review B", role AI Technical Architect.
+  Result:                  `CONTENT_CLEAN`. New Blocker/Major/Minor: 0/0/2 — hai Minor mới:
+                          `ADR031-ACT-B-MIN-01` (Review A's CLEAN evidence CHƯA được pin trong
+                          repository tại thời điểm review — evidence-recording gap, KHÔNG content
+                          objection) VÀ `ADR031-ACT-B-MIN-02` (§11.5 pin-list thiếu "review
+                          boundary," §ngay trên).
+  Historical readiness (giữ nguyên, KHÔNG rewrite thành READY): `READY_FOR_PRODUCT_OWNER_DECISION`
+    ĐÃ bị WITHHELD tại thời điểm review này — pending hai Minor trên được resolve.
+  `ADR031-ACT-B-MIN-01`: `CLOSED_BY_THIS_RECORDING` (Review A evidence nay đã pin, § trên).
+  `ADR031-ACT-B-MIN-02`: `CLOSED_BY_BOUNDED_WORDING_CORRECTION` (§ trên).
+
+**Vì §11.5 vừa đổi (blob mới, boundary candidate mới SAU commit này) — CẢ Review A LẪN Review B
+  trên đều PHẢI bounded-revalidate TRÊN boundary candidate MỚI (resulting commit của chính
+  transaction này), KHÔNG PHẢI tại `bee65ce...` cũ nữa.** Review status:
+  `PENDING_BOUNDED_REVIEW_A_AND_REVIEW_B_REREVIEW`. KHÔNG claim Product Owner eligibility
+  established. KHÔNG claim Mode B active. KHÔNG claim activation complete.
 
 Preserved unchanged (verified trực tiếp, git diff --quiet trên branch):
   docs/adr/ADR-031.md (Approved, immutable — KHÔNG sửa), Global Execution Rules
@@ -146,6 +189,12 @@ No partial activation (tường minh): candidate này CHƯA active — KHÔNG m�
 Mode B: NOT_ACTIVE. Atomic Activation: NOT_PERFORMED. ADR031-B-MIN-01 (template): CANDIDATE-CLOSED
   trên branch này — VẪN chính thức OPEN tại MANIFEST authoritative (main) cho tới khi activation
   transaction thật merge candidate này.
+ADR031-ACT-A-MAJ-01: CLOSED (Review A re-review CLEAN, § trên). ADR031-ACT-B-MIN-01:
+  CLOSED_BY_EVIDENCE_RECORDING. ADR031-ACT-B-MIN-02: CLOSED_BY_BOUNDED_CORRECTION. Review status:
+  PENDING_BOUNDED_REVIEW_A_AND_REVIEW_B_REREVIEW — §11.5 changed SAU KHI cả hai review trên đã
+  hoàn tất tại boundary `bee65ce...`, đòi hỏi bounded re-review trên boundary candidate MỚI (resulting
+  commit của transaction này) TRƯỚC KHI Product Owner eligibility có thể coi established. KHÔNG claim
+  Product Owner eligibility established. KHÔNG claim Mode B active. KHÔNG claim activation complete.
 Phase-3 rules workflow: VẪN paused (P3-RULES-A-MAJ-01) — resume CHỈ SAU KHI activation thật hoàn tất
   (KHÔNG phải candidate authoring này).
 Phase 3 substantive governed implementation: PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT (unchanged).

@@ -2,6 +2,94 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — ADR-031 activation candidate: close Review-B minors (branch only)
+
+**Bounded correction + evidence recording — vai trò: `ADR-031 Activation Candidate Bounded
+Correction Executor`.** Resolves `ADR031-ACT-B-MIN-01` and `ADR031-ACT-B-MIN-02` on branch
+`adr031-atomic-activation-candidate`. `main` untouched.
+
+### Baseline
+
+```text
+Required branch HEAD: bee65ce25269edf09981c6201081b4b2d09ce404 (verified via git branch
+  --show-current + git rev-parse HEAD before any edit, working tree clean). main verified
+  unchanged at 48c3b4f1aa97a4242b25817becbde6c5a2236847.
+```
+
+### MIN-01 — pin completed Review A evidence
+
+```text
+Marker ADR031_ACTIVATION_REVIEW_A_REREVIEW_FINAL, reviewer ChatGPT (AI Technical Architect),
+  reviewed boundary bee65ce25269edf09981c6201081b4b2d09ce404, scope: template evidence-table
+  correction. Result CLEAN. ADR031-ACT-A-MAJ-01: CLOSED. New Blocker/Major/Minor 0/0/0. Verdict
+  READY_FOR_INDEPENDENT_REVIEW_B. Recorded as historical evidence, chronologically before
+  Independent Review B — not rerun, not reordered.
+```
+
+### MIN-02 — wording-only §11.5 correction
+
+```text
+Defect: docs/constitution/11-adr-process.md §11.5's reviewer-evidence pin list ("principal,
+  execution identity nếu Mode B, independence mode") omitted "review boundary" explicitly, even
+  though §11.9's validator contract already requires review_boundary as a mandatory field.
+Fix (wording-only, no other §11.5/§11.9 semantics touched): pin list now reads "principal identity,
+  execution identity nếu Mode B, review boundary, independence mode." Blob
+  22179ee11fcbbe5040d8b5e0d4e76e193b4f8cd0 → 85dce3bff7e93929d2a79f6b9df5383f9b2a428d.
+ADR031-ACT-B-MIN-02: CLOSED_BY_BOUNDED_WORDING_CORRECTION.
+```
+
+### Review-B evidence pinned
+
+```text
+Marker ADR031_ATOMIC_ACTIVATION_INDEPENDENT_REVIEW_B_FINAL, reviewer Claude (alias "Independent
+  Review B", AI Technical Architect), boundary bee65ce25269edf09981c6201081b4b2d09ce404 (same as
+  Review A). Result CONTENT_CLEAN. New Blocker/Major/Minor 0/0/2 — ADR031-ACT-B-MIN-01 (Review A's
+  CLEAN evidence not yet pinned in the repository at review time — an evidence-recording gap, not a
+  content objection) and ADR031-ACT-B-MIN-02 (§11.5 pin-list gap, above). Historical readiness
+  preserved verbatim, NOT rewritten as READY: READY_FOR_PRODUCT_OWNER_DECISION was withheld at
+  review time pending both Minors. ADR031-ACT-B-MIN-01: CLOSED_BY_THIS_RECORDING (Review A evidence
+  now pinned, above). ADR031-ACT-B-MIN-02: CLOSED_BY_BOUNDED_WORDING_CORRECTION (above).
+Because §11.5 changes as part of this same transaction, both Review A and Review B (both performed
+  at bee65ce...) must be bounded-revalidated on the resulting NEW candidate boundary before Product
+  Owner eligibility can be considered established — recorded explicitly as
+  PENDING_BOUNDED_REVIEW_A_AND_REVIEW_B_REREVIEW, not as eligibility satisfied.
+```
+
+### Files changed
+
+```text
+docs/constitution/11-adr-process.md   §11.5 wording-only edit (above). Blob
+  22179ee11fcbbe5040d8b5e0d4e76e193b4f8cd0 → 85dce3bff7e93929d2a79f6b9df5383f9b2a428d.
+docs/MANIFEST.md   manifest_version 10.170 → 10.171. "## ADR-031 Atomic Activation — CANDIDATE"
+  section updated: Chapter 11 blob reference updated with the MIN-02 note; Review A evidence block
+  added; ADR031-ACT-B-MIN-02 bounded-correction block added; Independent Review B evidence block
+  added (both Minors' closures, historical readiness preserved); trailing summary updated with
+  ADR031-ACT-A-MAJ-01/ADR031-ACT-B-MIN-01/ADR031-ACT-B-MIN-02 final states and the explicit
+  PENDING_BOUNDED_REVIEW_A_AND_REVIEW_B_REREVIEW status (1,093 words, within budget).
+```
+
+### No scope expansion / no activation
+
+```text
+docs/constitution/00-governance.md (v1.2 candidate), 12-approval-gates.md (v1.6 candidate),
+  docs/templates/adr-template.md (current corrected content), docs/adr/ADR-031.md: all UNCHANGED,
+  verified byte-identical (git diff --quiet). main: NOT modified, verified unchanged at 48c3b4f.
+  Mode B: still NOT_ACTIVE. Atomic Activation: still NOT_PERFORMED. No claim of Product Owner
+  eligibility established. Phase-3 rules workflow remains paused on P3-RULES-A-MAJ-01. Phase 3
+  substantive governed implementation unaffected — still
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT. LIVE remains NOT_AUTHORIZED.
+```
+
+### Validation
+
+```text
+git branch --show-current verified adr031-atomic-activation-candidate; git rev-parse HEAD verified
+  bee65ce25269edf09981c6201081b4b2d09ce404 before any edit; working tree clean; origin/main verified
+  unchanged at 48c3b4f. git diff --quiet confirmed Chapter 0/12, the ADR template, and ADR-031 all
+  byte-identical after the edit — only docs/constitution/11-adr-process.md and docs/MANIFEST.md
+  changed. manifest_version increment verified (10.170 → 10.171).
+```
+
 ## [Unreleased] — 2026-08-18 — ADR-031 activation candidate: align ADR review evidence template (branch only)
 
 **Bounded correction — vai trò: `ADR-031 Activation Candidate Bounded Correction Executor`.** Closes

@@ -68,7 +68,7 @@ Trước Product Owner decision:
 - tối thiểu hai independent reviews;
 - reviewer giữ role `AI Technical Architect` tại review boundary — role eligibility thuộc về principal (đúng Chapter 0 §3), execution/session kế thừa eligibility từ principal, KHÔNG có role riêng;
 - independence được thỏa bởi Mode A (`DISTINCT_PRINCIPAL` — hai principal khác nhau) HOẶC Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION` — cùng principal, hai execution cô lập, CHỈ khi execution-isolation evidence contract [ADR-031](../adr/ADR-031.md) §5 thỏa đầy đủ);
-- reviewer identity (principal, execution identity nếu Mode B, independence mode) được pin;
+- reviewer identity (principal identity, execution identity nếu Mode B, review boundary, independence mode) được pin;
 - reviewer ngang hàng, không veto;
 - Product Owner là authority duy nhất approve/reject.
 
