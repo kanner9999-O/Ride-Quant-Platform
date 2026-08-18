@@ -2,6 +2,123 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — ADR-031: define independent reviewer execution model (Draft)
+
+**ADR authoring — vai trò: `Governance ADR Authoring Executor`.** Authors `docs/adr/ADR-031.md` v0.1
+(Draft), proposing a Principal Identity / Execution Identity distinction for the minimum-two-
+independent-review gate. Does NOT approve, does NOT activate any governance change, does NOT modify
+Chapter 0, Global Execution Rules, or team.yaml.
+
+### Baseline
+
+```text
+Starting HEAD:  0e1e60c483a119cf44470213b624a28b438f5cc7 (verified via git rev-parse HEAD before any
+  edit, working tree clean). manifest_version verified 10.164 before edit. Next ADR number resolved
+  directly: ls docs/adr/ showed ADR-001..ADR-030 exist, no ADR-031 — confirmed via grep that every
+  prior "ADR-031" mention in the repository is an explicit "KHÔNG tạo ADR-031" (not created)
+  disclaimer, never an actual file.
+```
+
+### Why ADR_REQUIRED
+
+```text
+Chapter 0 §3 / Chapter 11 §11.5 require "hai actor identity khác nhau" (two different actor
+  identities) for the minimum-two-review gate; team.yaml resolves exactly two eligible principals
+  (ChatGPT, Claude/"Independent Review B"). Changing independence semantics from principal-only to
+  principal-OR-isolated-execution changes Governance/Approval-process semantics — Chapter 0 §4b's
+  ADR Scope Rule table classifies this ADR_REQUIRED; team.yaml alone has no authority to change
+  eligibility semantics, only actor↔role mapping.
+```
+
+### Decision summary
+
+```text
+Principal Identity: the registered person/AI holding the eligible role (team.yaml SSOT). Execution
+  Identity: a specific isolated review execution/session performed by an eligible principal — never
+  a new principal itself.
+Mode A DISTINCT_PRINCIPAL: unchanged, remains valid and preferred when practical.
+Mode B SAME_PRINCIPAL_DISTINCT_EXECUTION: new, eligible only when a ten-point execution-isolation
+  evidence contract is satisfied (distinct session contexts; Review B never inside Review A's
+  session; both independently inspect the subject boundary; Review B independently resolves
+  authority rather than trusting Review A; no execution counted twice; distinct execution
+  identifiers; minimum evidence fields pinned; explicit independence_mode tag; fail-closed if
+  isolation cannot be resolved; a free-form label alone is explicitly insufficient — the exact
+  Gate-3 defect class).
+Model/capability profile (e.g. Review B using a higher-capability profile) is optional audit
+  metadata — never actor identity, never required for eligibility, never sufficient alone to prove
+  independence.
+Eligibility vs. diversity preference kept explicit and separate: Mode A preferred when practical;
+  Mode B eligible; same-principal + different profile preferred over same-principal + identical
+  profile when practical — none of these preferences are mandatory; Claude is not made mandatory,
+  different-provider review is not made mandatory, higher-model is not made mandatory.
+Fail-closed preserved (Chapter 12 §12.2 "eligibility incomplete", unchanged) — this ADR only widens
+  how eligibility can be resolved, not the fail-closed principle itself.
+Non-retroactivity: explicit. Phase-2 Gate-3 (boundary 7f94a5412ab04e6e48a5f47c4629f1680f2a5c62,
+  corrected recording d0924bb) remains judged under the Mode-A-only rule effective at its own
+  boundary — not reopened, not reinterpreted.
+Migration: activation deferred to a future Atomic Activation Boundary (same pattern as ADR-011 §4)
+  requiring Chapter 0 §3 amendment, possibly Global Execution Rules and a team.yaml clarification
+  note, all approved together — no partial activation, nothing active from Draft or even from
+  approval alone.
+Bootstrap rule: this ADR's own Review A / Independent Review B must use the current Mode-A model
+  (ChatGPT + Claude/"Independent Review B") — the proposed model cannot approve itself; this is the
+  final bootstrap under the old reviewer-principal rule.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-031.md   NEW, v0.1, status Draft, blob c09bf7c5c2a185d2302eac20843e1178210c8aef.
+  depends_on: [ADR-006, ADR-011] (generalizes both, supersedes neither). reviewers: [], approved_by:
+  null, approved_at: null — template's blank Independent-reviews table preserved, no review
+  fabricated.
+docs/MANIFEST.md   manifest_version 10.164 → 10.165. New row in the "## ADR" table registering
+  adr/ADR-031.md, Status Draft, Supersedes/Superseded By both "—" (230 words). "## Decision Log"
+  table NOT touched — that table's Ngày/Tóm tắt columns represent a decided outcome; a Decision Log
+  entry is added at the future approval transaction, consistent with how prior ADRs' Draft periods
+  were tracked only in the "## ADR" table.
+```
+
+### No scope expansion / no activation
+
+```text
+docs/constitution/00-governance.md, docs/governance/execution-rules.md, docs/team/team.yaml,
+  docs/governance/phases/phase-3-rules.md, docs/governance/phases/phase-rules-template.md,
+  docs/architecture/, docs/domain/, docs/product/, docs/phase-dod/, prototype/: UNCHANGED (git
+  status --porcelain=v1 -uall clean). No governance change activated. No Product Owner
+  approval performed or fabricated. Phase 3 substantive governed implementation unaffected — still
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT; the phase-3-rules.md v0.1 CANDIDATE correction/review
+  workflow (paused on P3-RULES-A-MAJ-01) is unaffected, phase-3-rules.md itself not touched.
+  P2-G3-B-MIN-01 remains OPEN — NON_BLOCKING, untouched. current_phase unchanged, "Phase 3 — Core
+  Backend."
+```
+
+### Result
+
+```text
+ADR-031 v0.1: Draft, authored. ADR_REQUIRED reason recorded. Mode A preserved unchanged. Mode B
+  defined with a fail-closed execution-isolation evidence contract. Non-retroactivity and the
+  bootstrap-under-current-rules requirement both explicit. No Chapter 0/Global Execution
+  Rules/team.yaml modification. Phase 3 lifecycle: AUTHORIZED TO BEGIN (unchanged). Phase 3
+  substantive governed implementation: PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT (unchanged).
+  Phase-3 DoD: NOT_YET_ESTABLISHED / NOT_YET_ACCEPTED (unchanged). LIVE: NOT_AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 0e1e60c483a119cf44470213b624a28b438f5cc7 before any edit;
+  manifest_version verified 10.164 before edit; git status --porcelain=v1 -uno verified working tree
+  clean before any edit. Governing authority inspected directly: docs/constitution/00-governance.md,
+  11-adr-process.md, 12-approval-gates.md, docs/governance/execution-rules.md,
+  docs/governance/phases/phase-rules-template.md, docs/team/team.yaml, docs/MANIFEST.md,
+  docs/CHANGELOG.md, docs/templates/adr-template.md, docs/adr/ADR-006.md and ADR-011.md (structural
+  precedent for the Atomic Activation Boundary pattern — ADR-011 §4 — reused directly, not
+  reinvented). git status --porcelain=v1 -uall confirmed clean on every forbidden path — only
+  docs/adr/ADR-031.md (new) and docs/MANIFEST.md changed. manifest_version increment verified
+  (10.164 → 10.165). current_phase verified unchanged.
+```
+
 ## [Unreleased] — 2026-08-18 — Phase 3: author execution rules candidate v0.1
 
 **Rules authoring — vai trò: `Phase 3 Execution Rules Authoring Executor`.** Authors
