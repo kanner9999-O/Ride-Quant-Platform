@@ -2,6 +2,102 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — ADR-031 v0.2: APPROVED (Product Owner decision)
+
+**Mechanical ADR approval — vai trò: `ADR-031 v0.2 Mechanical Approval Recorder`.** Records the
+atomic Chapter 11 §11.6 approval transition for ADR-031 v0.2. Does not activate Mode B, does not
+amend Chapter 0/11/12, the ADR template, Global Execution Rules, or team.yaml.
+
+### Baseline
+
+```text
+Starting HEAD:  6411033a6aea372c7852619ea61557432f8d17b6 (verified via git rev-parse HEAD before any
+  edit, working tree clean). ADR-031.md verified directly before edit: version 0.2, status Draft,
+  reviewers [ChatGPT, Claude], approved_by/approved_at null, blob
+  e44f0dc2aa7bf27776675ab942b5d34f9f45fc4d (matches the review-evidence-recording boundary's
+  resulting blob exactly). manifest_version verified 10.167 before edit.
+```
+
+### Approval transition
+
+```text
+Product Owner decision: "APPROVE ADR-031 V0.2" (2026-08-18T15:56:00+07:00). Frontmatter changed:
+  status Draft → Approved; approved_by null → Product Owner; approved_at null →
+  "2026-08-18T15:56:00+07:00". Preserved unchanged: version "0.2" (no bump — pure mechanical
+  approval, Chapter 11 §11.4, same pattern as ADR-017/018/019/020/030), reviewers [ChatGPT, Claude],
+  last_review/next_review (null, unchanged), and all decision content (Context, Decision, Mode A/B
+  semantics, execution-isolation contract, §11 activation set, bootstrap rule, Alternatives,
+  Concerns, Scale check, Consequences, review-evidence table/aggregation) byte-unchanged — verified
+  via git diff, only the four frontmatter fields above changed.
+Reviewed semantic candidate identity (af4cf353..., blob 13775774f948bfe8e8b356315189b9e2a361eb88),
+  review-evidence-record identity (blob e44f0dc2aa7bf27776675ab942b5d34f9f45fc4d), and this
+  transaction's resulting Approved-ADR identity (blob b45e15179be69e76176e3f3ba0516a4781375a2c) kept
+  explicitly distinct — G-ID-001, three identities, not conflated.
+Decision Log convention check: docs/MANIFEST.md's "## Decision Log" table verified directly to stop
+  at ADR-021 — ADR-022 through ADR-030 (all Approved) were never added there, only to the "## ADR"
+  table. Following this actually-observed convention (not the template's aspirational text), no
+  Decision Log row is added for ADR-031 either — only the "## ADR" table entry is updated.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-031.md   status: Draft → Approved; approved_by: null → Product Owner; approved_at:
+  null → "2026-08-18T15:56:00+07:00". Blob e44f0dc2aa7bf27776675ab942b5d34f9f45fc4d →
+  b45e15179be69e76176e3f3ba0516a4781375a2c. File is now immutable byte-for-byte (Chapter 0 §5.2 /
+  Chapter 11 §11.3) — any future activation transaction must implement the decision by amending the
+  delegated artifacts (A-E below), never ADR-031 itself again.
+docs/MANIFEST.md   manifest_version 10.167 → 10.168. ADR-031 row updated in place: Draft → Approved
+  with Product Owner decision/timestamp cited; explicit statement that approval authorizes only the
+  target model, not activation; Mode B NOT_ACTIVE; Atomic Activation NOT_PERFORMED; the five-item
+  future activation set (A. Chapter 0 §3, B. Chapter 11 §11.5, C. Chapter 11 §11.9 — all three
+  substantive-amendment mandatory; D. Chapter 12 wording sync; E. adr-template.md wording sync,
+  closes ADR031-B-MIN-01) restated with the explicit no-partial-activation rule; Global Execution
+  Rules NOT_REQUIRED_FOR_ACTIVATION and team.yaml RECOMMENDED/NON-BLOCKING preserved; ADR031-A-MAJ-01
+  CLOSED, ADR031-B-MIN-01 still OPEN — NON_BLOCKING (not closed by this transaction); immutability
+  note added; three-identity blob chain recorded (666 words, within budget).
+```
+
+### No scope expansion / no activation
+
+```text
+docs/constitution/, docs/templates/adr-template.md, docs/governance/execution-rules.md,
+  docs/governance/phases/phase-3-rules.md, docs/team/team.yaml, docs/architecture/, docs/domain/,
+  docs/product/, docs/phase-dod/, prototype/: UNCHANGED (git status --porcelain=v1 -uall clean). No
+  governance change activated — Mode B remains NOT_ACTIVE, Atomic Activation NOT_PERFORMED. Neither
+  review was rerun. ADR031-B-MIN-01 not closed. Phase-3 rules workflow remains paused on
+  P3-RULES-A-MAJ-01, phase-3-rules.md untouched — the workflow may resume only after ADR-031
+  activation completes. Phase 3 substantive governed implementation unaffected — still
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT. P2-G3-B-MIN-01 remains OPEN — NON_BLOCKING, untouched.
+  current_phase unchanged, "Phase 3 — Core Backend."
+```
+
+### Result
+
+```text
+ADR-031: v0.2, Approved, approved_by Product Owner, approved_at 2026-08-18T15:56:00+07:00. Minimum-
+  two-review requirement: SATISFIED (unchanged from prior transaction). ADR031-A-MAJ-01: CLOSED.
+  ADR031-B-MIN-01: OPEN — NON_BLOCKING, CARRY_TO_ADR031_ATOMIC_ACTIVATION_WORDING_SYNC. Mode B:
+  NOT_ACTIVE. Atomic Activation: NOT_PERFORMED. ADR-031 file: immutable byte-for-byte as of this
+  boundary.
+Phase 3 lifecycle: AUTHORIZED TO BEGIN (unchanged). Phase 3 substantive governed implementation:
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT (unchanged). Phase-3 DoD: NOT_YET_ESTABLISHED /
+  NOT_YET_ACCEPTED (unchanged). LIVE: NOT_AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 6411033a6aea372c7852619ea61557432f8d17b6 before any edit; ADR-031.md
+  verified directly (version 0.2, status Draft, reviewers [ChatGPT, Claude], approved_by/approved_at
+  null, blob e44f0dc2a...) before any edit; manifest_version verified 10.167 before edit; git status
+  --porcelain=v1 -uno verified working tree clean before any edit. git diff on docs/adr/ADR-031.md
+  confirmed only the four frontmatter approval fields changed — no decision-content section touched.
+  git status --porcelain=v1 -uall confirmed clean on every forbidden path — only docs/adr/ADR-031.md
+  and docs/MANIFEST.md changed. manifest_version increment verified (10.167 → 10.168). current_phase
+  verified unchanged.
+```
+
 ## [Unreleased] — 2026-08-18 — ADR-031 v0.2: pin independent review evidence
 
 **Review-evidence recording — vai trò: `ADR-031 Review Evidence Recording Executor`.** Records
