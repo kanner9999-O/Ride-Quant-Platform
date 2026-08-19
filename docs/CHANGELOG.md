@@ -2,6 +2,113 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — Package 1.1 v1.2: record Product Owner reconsolidation
+
+**Mechanical lifecycle transaction only — vai trò: `Package 1.1 v1.2 Mechanical Reconsolidation
+Recorder`.** Records the Product Owner reconsolidation decision for `docs/architecture/
+module-registry.yaml` v1.2. No implementation code modified. No Quality Gate run.
+
+### Baseline
+
+```text
+Starting HEAD: 84a95eed108b3062d0521b7b453ee6b270d7e0ed (verified via git rev-parse HEAD before any
+  edit; git status --porcelain=v1 -uno clean; branch main). module-registry.yaml verified directly
+  before edit: version "1.2", status Draft, package_lifecycle candidate, 26 modules, 65 depends_on
+  edges, market-reference-service.quality_tier present with the exact prior-approved values.
+```
+
+### Product Owner decision
+
+```text
+Exact decision: "APPROVE PACKAGE 1.1 V1.2 RECONSOLIDATION". Decision time: 2026-08-19T22:02:00+07:00.
+Reviewed immutable boundary: 84a95eed108b3062d0521b7b453ee6b270d7e0ed.
+```
+
+### Review evidence
+
+```text
+Review A: COMPLETE / ELIGIBLE / CLEAN, Blocker 0 / Major 0 / Minor 0.
+Independent Review B: COMPLETE / ELIGIBLE / CLEAN, Blocker 0 / Major 0 / Minor 0, Mode B
+  (SAME_PRINCIPAL_DISTINCT_EXECUTION, ADR-031 §5), execution reference
+  P11-TIER-B-84a95eed-20260819T2126+0700 (deterministic workflow-generated ID, no provider-native
+  session ID supplied — ADR-031 §5's explicit fallback model), isolation attestation SATISFIED —
+  recorded expanded against ADR-031 §5's four conditions (separate execution context from Review A,
+  not nested within it; independently resolved repository authority for this exact boundary, did not
+  accept Review A's conclusions as ground truth; distinct execution identifier), not transcribed as a
+  bare label (same discipline applied to ADR-032's Mode B review evidence earlier this session).
+Independent-review requirement: SATISFIED.
+```
+
+### Lifecycle transition
+
+```text
+docs/architecture/module-registry.yaml: package_lifecycle: candidate -> Consolidated Stable.
+  version: "1.2" UNCHANGED. status: Draft UNCHANGED. Pure lifecycle-state reconsolidation — no
+  content/architecture change. New banner comment prepended (Product Owner decision quoted verbatim,
+  reviewed boundary, full review-evidence summary, explicit preserved-unchanged list, explicit
+  non-implications list) — same house style as every prior module-registry.yaml lifecycle banner in
+  this file (e.g. the original v1.1 Consolidated Stable banner this new one is prepended above).
+```
+
+### Verified preserved (byte-identical)
+
+```text
+market-reference-service.quality_tier: unchanged — {tier: "Tier 2 — Supporting",
+  approved_by: "Product Owner", approved_at: "2026-08-19T19:27:00+07:00"}.
+All 26 modules' module_id/module_type/responsibilities/implements_capabilities/serves_contexts/
+  owns_authoritative_state/consumes/emits/depends_on/forbidden_dependencies/plugin_relation/
+  security_classification/phase/status/notes: byte-identical (verified via targeted git diff review
+  — only the single package_lifecycle line at the top level changed; zero lines changed inside any
+  module's block).
+Dependency graph: byte-equivalent — verified via YAML parse: 26 modules, 65 depends_on edges,
+  unchanged.
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml   as detailed above.
+docs/MANIFEST.md   manifest_version 10.185 -> 10.186. "## Architecture" table's module-registry.yaml
+  row REWRITTEN to a compact current-state summary (P3-BUDGET-001 compaction — the cell had grown to
+  ~35,000 characters across this file's entire multi-year amendment history; full step-by-step
+  history remains in this CHANGELOG, not repeated in MANIFEST going forward).
+docs/CHANGELOG.md   this entry.
+```
+
+### No scope expansion / scope prohibitions verified held
+
+```text
+go/** untouched (verified git diff --quiet -- go/). ADR-032 untouched. Domain Contracts untouched.
+  Chapter 13 untouched. Dependency graph byte-equivalent. quality_tier unchanged. Module semantics
+  unchanged. Structure Engine/Raw Regime Engine not touched. No Quality Gate run. No Quality Gate
+  PASS claimed. No implementation module/package approval. LIVE not authorized, not referenced.
+```
+
+### Result
+
+```text
+docs/architecture/module-registry.yaml: version "1.2", status Draft, package_lifecycle
+  Consolidated Stable. market-reference-service.quality_tier unchanged (Tier 2 — Supporting).
+  Module semantics: unchanged. Dependency graph: unchanged (26 modules, 65 edges). Code changed:
+  none. QG run: no. QG status: not claimed. Module/package implementation approval: none.
+  LIVE: NOT_AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 84a95eed108b3062d0521b7b453ee6b270d7e0ed before any edit; git status
+  --porcelain=v1 -uno verified clean before any edit. python3 yaml.safe_load() confirmed
+  module-registry.yaml parses correctly post-edit: 26 modules, version "1.2", package_lifecycle
+  "Consolidated Stable", market-reference-service.quality_tier unchanged, 65 total depends_on edges
+  (unchanged). git diff reviewed: only the single top-level package_lifecycle field changed
+  (candidate -> Consolidated Stable); zero module-entry-level lines changed. git status
+  --porcelain=v1 -uall confirmed only docs/architecture/module-registry.yaml, docs/MANIFEST.md,
+  docs/CHANGELOG.md changed — go/**, docs/adr, docs/constitution, docs/governance, docs/domain,
+  docs/product, docs/engineering, docs/team, prototype/ all clean (git diff --quiet).
+  manifest_version increment verified (10.185 -> 10.186).
+```
+
 ## [Unreleased] — 2026-08-19 — market-reference-service: pin Quality Tier 2
 
 **Governed module-registry metadata amendment only — vai trò: `market-reference-service Tier-2
