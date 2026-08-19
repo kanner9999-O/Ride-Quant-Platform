@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.186"
+manifest_version: "10.187"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -2276,6 +2276,173 @@ Conclusion: ADR NOT REQUIRED. Per Chapter 13 §13.4 branch 1, the correct,
 **No scope expansion:** implementation code unchanged (verified `git diff --quiet -- go/`). `module-registry.yaml` unchanged (candidate only — not pinned). Dependency graph unchanged. Module taxonomy unchanged (module_type/responsibilities untouched). ADR-032 not touched. Structure Engine/Raw Regime Engine not touched. LIVE not authorized, not referenced.
 
 **Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
+
+## Phase 3 — `market-reference-service` Formal Quality Gate Evaluation (Chapter 13 — `FAIL — evidence`, NOT a Product Owner rejection, NOT approval)
+
+**Baseline:** branch `main`, HEAD `86107adb8ab01ce28b3984ee9ebfa15163ee5c62` (verified — matches required baseline, working tree clean before this transaction). **No implementation code touched** — verified `git diff --quiet -- go/` after evaluation. `module-registry.yaml` read-only (verified `git diff --quiet -- docs/architecture/module-registry.yaml`), blob `5586cdaeb890fa694a812526ba44751f4b0e1541`, `version: "1.2"`, `package_lifecycle: Consolidated Stable`.
+
+```text
+Subject:                 go/market-reference-service/** at commit 86107adb8ab01ce28b3984ee9ebfa15163ee5c62
+Tier source:              module-registry.yaml v1.2 (Consolidated Stable) — market-reference-
+                          service.quality_tier: {tier: "Tier 2 — Supporting", approved_by:
+                          "Product Owner", approved_at: "2026-08-19T19:27:00+07:00"}
+                          (Chapter 13 §13.4 branch 1: runtime module -> resolve tier from
+                          module-registry.yaml, Chapter 7 §7.5).
+Resolved tier:            Tier 2 — Supporting
+Coverage floors:          line >= 80% AND branch >= 80%, independently (Chapter 13 §13.3)
+Additional tier-triggered requirements: NONE (no Chaos Test [Tier 0-only], no Parity Test
+                          [Tier 1-only])
+```
+
+### Fresh verification — tool identity/version, exact commands, results
+
+```text
+go version:               go1.26.6 darwin/arm64 (verified via `go version` at evaluation time)
+gofmt:                    `gofmt -l .` (bundled with go1.26.6) — empty output, CLEAN
+go vet:                   `go vet ./...` — exit 0, CLEAN
+go build:                 `go build ./...` — exit 0, CLEAN
+go test:                  `go test ./...` — 51 top-level test functions across 9 packages with
+                          test files (calendar, decimal, fact, instrument, listing, query,
+                          store, venue, and their subtests), ALL PASS, zero FAIL, zero SKIP.
+Targeted ADR-032 two-axis/look-ahead tests (run explicitly, all PASS):
+  internal/query:         TestResolveIdentityLookAheadGuard, TestResolvePrecisionLookAheadGuard,
+                          TestResolveIdentityNotYetVisibleAtKnowledgeCursor
+  internal/fact:          TestResolveLineageHeadCorrectionRecordedLaterInvisibleToEarlierCursor,
+                          TestFoldStatusCorrectionRecordedLaterInvisibleToEarlierReplay
+Targeted state-transition/invariant tests (run explicitly, all PASS):
+  internal/fact:          TestFoldStatusSameEffectiveTimeConflict, TestFoldStatusSequentialTransitions,
+                          TestResolveLineageHeadScopeErrorTerminal,
+                          TestResolveLineageHeadMetadataErrorReplacement
+```
+
+### Line coverage — fresh, this exact boundary
+
+```text
+Command:                  `go test ./... -covermode=set -coverprofile=<profile> -coverpkg=./internal/...`
+                          (module-aggregate profile), plus per-package `go test ./internal/<pkg>/... -cover`
+                          for the standalone-package figures below. Tool: go1.26.6's built-in
+                          `go test -cover` / `go tool cover -func`.
+Module-aggregate line/statement coverage: 91.8% (go tool cover -func total, computed at this
+                          exact commit — not reused from any earlier boundary).
+Per-package (own-package coverage, standard covermode):
+  calendar 100.0% · decimal 93.2% · fact 94.4% · instrument 97.6% · listing 83.9% ·
+  query 83.3% · store 100.0% · venue 95.1% · envelope 0.0% (see finding below).
+Line coverage result:     Module-aggregate (91.8%) exceeds the 80% floor. Chapter 13 §13.4
+                          resolves tier — and therefore the floor — at the MODULE level
+                          (branch 1: runtime module), not at a sub-module/per-package
+                          granularity Chapter 13 does not separately define; module-aggregate
+                          is therefore the applicable artifact-level metric.
+FINDING (disclosed, not hidden, not silently fixed): internal/envelope has ONE executable
+  function (`EventRecordRef.IsZero`, an equality comparison) and it is currently untested —
+  0.0% of that package's own (small) statement count. This does not change the module-
+  aggregate result above, but is recorded as a genuine, minor coverage gap for a future
+  bounded correction (adding one test for IsZero), not repaired inside this evaluation per
+  this task's explicit "do not silently repair it inside the gate result" instruction.
+```
+
+### Branch coverage — mechanism verified unavailable, NOT estimated
+
+```text
+Verified directly (not from memory), this exact environment:
+  - `go help testflag` / `go tool cover -h` / `go tool covdata -h`: Go's entire coverage
+    instrumentation model (`-covermode=set|count|atomic`, and the newer GOCOVERDIR-based
+    `go tool covdata textfmt|percent|func|merge|subtract|intersect|debugdump`) is STATEMENT/
+    BLOCK-based throughout — none of these subcommands produce a branch/condition-coverage
+    metric (unlike, e.g., gcov --branch-coverage or JaCoCo's branch metric).
+  - `command -v gobco / go-carpet / gocov / gocov-branch`: no third-party branch-coverage
+    tool is installed on this machine.
+  - `go/market-reference-service/go.mod`: zero dependencies of any kind, let alone a
+    coverage tool — confirmed no branch-coverage tool is pinned.
+  - Independently consistent with this repository's own prior, repeated findings (Batch 01,
+    Data Layer completion, identity correction transactions): "no branch-coverage tool is
+    chosen/pinned anywhere in this repository."
+Branch coverage mechanism: NONE AVAILABLE (governed or otherwise) at this transaction.
+Branch coverage result:   FAIL — evidence. Per this task's explicit instruction and Chapter
+                          13 §13.3 ("Thiếu một trong hai metric... → FAIL — evidence, không
+                          phải pass mặc định") / §13.8 (missing required evidence = FAIL,
+                          fail-closed), branch coverage is NOT invented, NOT estimated, NOT
+                          inferred from statement coverage or any other proxy.
+```
+
+### Other applicable dimensions (per-dimension result, Chapter 13 §13.2/§13.5/§13.6)
+
+```text
+Correctness / invariant conformance:  PASS — 51 test functions pass, zero build/vet errors,
+  behavior matches instrument.md/venue.md fold algorithms as implemented.
+Determinism / reproducibility (I-2 substance re: repeatability, I-12):  PASS — identical
+  (effectiveInstant, knowledgeCursor) pairs verified to resolve identically
+  (TestResolveIdentityLookAheadGuard's repeat-query assertion); no wall-clock dependency in
+  any code path exercised by tests.
+No-look-ahead / bitemporal behavior (I-3 substance):  PASS — explicit tests prove a
+  correction recorded later is invisible to an earlier knowledge cursor, and identical
+  effective instants resolve differently only once the knowledge cursor advances past the
+  correction's recorded_time (see targeted tests above).
+I-12 (Single Source of Truth) authority:  PASS — by design, query.Service reverse-scans the
+  authoritative fact log (no separate mutable index competing as a second source of truth —
+  this was the exact defect P3-DL-A-MAJ-01 closed).
+State-transition integrity (I-13):  PARTIAL — transitions are correctly validated and tested
+  via deterministic table-driven tests (TestFoldStatusSameEffectiveTimeConflict and others),
+  but Chapter 13 §13.6 lists "Property-based" testing as required "khi áp dụng" for numerical/
+  state-machine boundaries (I-9, I-13) — no property-based/fuzz testing (e.g. Go's testing/
+  quick or native fuzzing) was performed; deterministic table-driven coverage of the same
+  invariants is evidence, but not the specific test-category Chapter 13 §13.6 names. Recorded
+  as a finding, not silently substituted.
+Numerical/reference-data correctness (within this module's own scope — I-9's own Chapter 2
+  Scope is "Position Ledger, Execution Engine, Risk Gateway," and does NOT include this
+  module, per this repository's own prior Tier-2 classification analysis; evaluated here as
+  an implementation-quality observation, not a formal I-9 gate):  PASS (qualified) — decimal
+  (lossless, math/big-backed, tested including the classic 0.1+0.2 float trap) used
+  consistently for price/quantity/min-quantity/min-notional fields; no float64 round-trip
+  anywhere in that path.
+Contract / schema compatibility (Chapter 10 §10.3):  N/A — no formally governed, published
+  schema/contract artifact exists yet for this module (internal Go interfaces only); §13.12-E
+  trigger ("khi artifact publish contract/schema") does not fire.
+Auditability / explainability (I-1):  N/A — I-1's own declared Scope is "Toàn bộ Decision
+  Pipeline," which this module is not part of (consistent with its Tier-2 classification).
+Resilience / error behavior:  PASS (qualified) — explicit, typed errors returned
+  (ErrUnknownReference, ErrNoCalendarBinding, ErrWindowNotResolved) rather than panics;
+  fail-closed fork detection in fact.ResolveLineageHead (multiple live heads -> pending, never
+  a silent pick). No Chaos Test performed or required — Tier 0-only (§13.4/§13.12-C).
+```
+
+### QG overall result
+
+```text
+FAIL — evidence.
+
+Reason: Chapter 13 §13.3's coverage-PASS rule requires line coverage >= floor AND branch
+  coverage >= floor, independently, with NO substitution/inference/estimation permitted for
+  either metric. Line coverage evidence is present and exceeds the Tier 2 floor (module-
+  aggregate 91.8% >= 80%). Branch coverage evidence CANNOT be produced — no governed/accepted
+  mechanism exists in this repository or environment (verified directly, not assumed). Per
+  §13.3/§13.8, a missing required metric is `FAIL — evidence`, never a default PASS and never
+  a `FAIL — criteria` (nothing was measured and found below threshold; the metric could not be
+  measured at all).
+
+This is NOT a Product Owner rejection (Chapter 13 §13.1/§13.8: "Quality Gate fail ≠ Product
+  Owner rejection... fail-closed = eligibility incomplete"). This is NOT an implementation
+  defect requiring immediate repair — it is a tooling/evidence-availability gap. No module or
+  package is approved or rejected by this result; Chapter 12 phase-approval remains a
+  separate, untouched authority.
+```
+
+**Open findings (disclosed, not resolved by this evaluation):**
+
+```text
+1. Branch coverage: no governed/accepted mechanism available for Go in this repository — a
+   future transaction would need to select and pin a tool (or accept an alternative
+   Chapter-13-compliant evidence mechanism) before this gate can produce a coverage PASS.
+2. internal/envelope.EventRecordRef.IsZero: untested (0.0% of a small statement count) —
+   candidate for a minor bounded correction (add one test), not fixed here.
+3. State-transition integrity (I-13) evidence is deterministic/table-driven, not property-
+   based — Chapter 13 §13.6 names property-based testing specifically for this boundary class;
+   a future transaction could add property-based/fuzz coverage of the fold engine's
+   transition-validity logic to fully satisfy this test-category expectation.
+```
+
+**No scope expansion:** no implementation code changed (verified `git diff --quiet -- go/`). `module-registry.yaml` read-only (verified `git diff --quiet`). Tier unchanged. Dependency graph unchanged. ADR-032 not touched. Domain Contracts not touched. Chapter 13 not touched. Structure Engine/Raw Regime Engine not touched. `market-reference-service` NOT approved. Data Layer NOT approved. LIVE not authorized, not referenced.
+
+**Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
 
 ## Decision Log
 
