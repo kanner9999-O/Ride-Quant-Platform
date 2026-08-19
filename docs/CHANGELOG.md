@@ -2,6 +2,119 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — market-reference-service Quality Tier Classification: CANDIDATE authored
+
+**Governance/classification preparation only — vai trò: `Market Reference Quality Tier Candidate
+Author`.** No implementation code modified. Prepares one governed quality-tier classification
+candidate for `market-reference-service`; does not approve, pin, or claim any Quality Gate result.
+
+### Baseline
+
+```text
+Starting HEAD: d84e5844c71e0765b1f92ffadf8624dcc453dd26 (verified via git rev-parse HEAD before any
+  edit; git status --porcelain=v1 -uno clean; branch main). Authority read in full for this
+  transaction: docs/constitution/13-quality-gates.md §13.4/§13.4.1/§13.4.2/§13.9 (complete text).
+  Re-verified directly (not from memory): docs/architecture/module-registry.yaml's current
+  market-reference-service entry (module_type: runtime_service, owns_authoritative_state: true,
+  security_classification: none, status: candidate) and confirmed zero `tier:` occurrences anywhere
+  in module-registry.yaml (this would be the first tier ever pinned in the registry).
+```
+
+### Classification candidate
+
+```text
+module_id:                     market-reference-service
+proposed tier:                  Tier 2 — Supporting
+coverage floor:                 >= 80% line AND >= 80% branch, independently (Chapter 13 §13.3)
+additional tier requirements:   none tier-triggered (no Chaos Test [Tier 0 only], no Parity Test
+  [Tier 1 only]). Boundary-triggered gates independent of tier still apply on their own Scope-
+  declared merits: I-12 (universal), I-13 (Instrument/Venue/TradableListing each have an explicit
+  state_machine in their Domain Contract). I-9 does NOT formally trigger — its own declared Scope
+  (Position Ledger/Execution Engine/Risk Gateway) does not include this module, and Chapter 13 §13.5
+  is explicit that it does not widen an invariant's own declared Scope. Security gate does NOT
+  trigger (security_classification: none).
+authority basis:                Chapter 13 §13.4 branch 1 ("Runtime module -> resolve tier từ
+  module-registry.yaml, Chapter 7 §7.5") — market-reference-service already has a canonical module
+  identity in Chapter 7's taxonomy, so branch 3's standalone-artifact canonical-tier-designation-
+  authority apparatus (§13.4.1) does not apply.
+```
+
+### Why adjacent tiers rejected (reasoned against stated criteria, not analogy alone)
+
+```text
+Tier 0 (Risk Gateway/Execution Engine/Position Ledger) rejected: no execution/custody/direct
+  financial-action authority (security_classification: none, unchanged); I-9's quantization-boundary
+  discipline places correctness-enforcement responsibility at Execution/Ledger/Risk Gateway's own
+  boundary, not solely trusted from upstream reference data.
+Tier 1 (Strategy/Feature/Structure/Regime Engine) rejected: not part of the Decision Pipeline, no
+  I-2 Decision Parity applicability, no Decision-layer output for a Parity Test to compare against —
+  it serves reference facts, it does not produce a Decision. Wide downstream blast radius alone does
+  not move a reference/master-data service into the Decision-Pipeline tier; Chapter 13 classifies by
+  responsibility nature, not fan-out.
+Tier 3 (Frontend) rejected trivially: backend runtime service, no UI surface.
+Tier 2 (API layer/Data Ingestion) accepted: matches Tier 2's own definition and named example (Data
+  Ingestion) on the stated criteria — both are Data Layer, supporting/reference-serving
+  infrastructure the Decision Pipeline depends on without itself deciding or executing; market-
+  reference-service is architecturally prerequisite to market-data-ingestion (depends_on edge), the
+  same supporting role Data Ingestion has relative to the Decision Pipeline.
+```
+
+### ADR Scope Rule assessment (Chapter 0 §4b)
+
+```text
+">1 module" clause: does NOT trigger — a single module's own tier field is a per-module registry
+  fact (analogous to security_classification/module_type), not a systemic/topological decision;
+  being the first tier ever pinned is a precedent worth Product Owner's awareness but is not itself
+  the ">1 module" trigger.
+"khó đảo ngược" clause: does NOT trigger — tier classifications are correctable via the same
+  bounded-correction pattern used throughout this session's governance history.
+Conclusion: ADR NOT REQUIRED. Minimum path per Chapter 13 §13.4 branch 1: a governed classification
+  candidate through the existing module-registry.yaml quality-metadata mechanism (this MANIFEST
+  section) — not a new ADR, not branch 3's separate canonical-tier-designation-authority apparatus.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md   manifest_version 10.183 -> 10.184. New "## Phase 3 — market-reference-service
+  Quality Tier Classification (CANDIDATE)" section — full classification, rejected-tiers reasoning,
+  ADR Scope Rule assessment, governance-approval-still-required statement, explicit no-QG-PASS
+  statement.
+docs/CHANGELOG.md   this entry.
+```
+
+### No scope expansion
+
+```text
+No implementation code touched (verified git diff --quiet -- go/). module-registry.yaml unchanged
+  (candidate only, not pinned — verified git diff --quiet). Dependency graph unchanged. Module
+  taxonomy/responsibilities unchanged. ADR-032 not touched. Structure Engine/Raw Regime Engine not
+  touched. LIVE not authorized, not referenced. No Quality Gate run, evaluated, or claimed for
+  market-reference-service — its tier remains UNRESOLVED (Chapter 13 §13.4 point 4 fail-closed) until
+  a separate governed transaction approves and pins this candidate.
+```
+
+### Result
+
+```text
+market-reference-service Quality Tier: CANDIDATE Tier 2 — Supporting, unapproved. ADR required: NO.
+  Governance approval (Product Owner decision + governed module-registry.yaml amendment transaction)
+  still required before this classification becomes authoritative. QG status: NOT claimed, NOT run.
+  Code changed: NONE. Dependency graph changed: NO. Structure/Regime touched: NO.
+  LIVE: NOT_AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified d84e5844c71e0765b1f92ffadf8624dcc453dd26 before any edit; git status
+  --porcelain=v1 -uno verified clean before any edit. grep -c "tier:" module-registry.yaml verified
+  0 before drafting the candidate. git status --porcelain=v1 -uall confirmed only docs/MANIFEST.md,
+  docs/CHANGELOG.md changed — go/**, docs/adr, docs/constitution, docs/governance, docs/architecture
+  (module-registry.yaml included), docs/domain, docs/product, docs/engineering, docs/team,
+  prototype/ all clean (git diff --quiet). manifest_version increment verified (10.183 -> 10.184).
+```
+
 ## [Unreleased] — 2026-08-19 — Phase-3 Data Layer: correct bitemporal identity resolution
 
 **Bounded correction, closes `P3-DL-A-MAJ-01` — vai trò:
