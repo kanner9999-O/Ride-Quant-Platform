@@ -14,9 +14,9 @@ import (
 	"github.com/kanner9999-O/Ride-Quant-Platform/go/market-reference-service/internal/venue"
 )
 
-func buildMetadataDraft(scope listing.Scope, recordedTime, effectiveTime time.Time) envelope.Draft {
+func buildListingMetadataDraft(scope listing.Scope, recordedTime, effectiveTime time.Time) envelope.Draft {
 	return envelope.Draft{
-		EventID:   "evt-correction",
+		EventID:   "evt-correction-" + recordedTime.String(),
 		EventType: listing.EventTypeMetadataRevised,
 		EventContractRef: envelope.ContractRef{
 			ContractID:      listing.ContractIDMetadataRevised,
@@ -35,6 +35,8 @@ func buildMetadataDraft(scope listing.Scope, recordedTime, effectiveTime time.Ti
 		EffectiveTime:    effectiveTime,
 	}
 }
+
+const rawVenueID = "binance-spot"
 
 type fixture struct {
 	svc          *Service
@@ -59,7 +61,10 @@ func setup(t *testing.T) fixture {
 	if err != nil {
 		t.Fatalf("Register instrument: %v", err)
 	}
-	venScope := venue.Scope{VenueIdentityRef: "binance-global", VenueType: "CENTRALIZED_EXCHANGE"}
+	// VenueIdentityRef intentionally matches rawVenueID — ResolveIdentity
+	// treats the raw venue reference as the Venue's venue_identity_ref
+	// (venue.md §1's opaque external reference, see query package doc).
+	venScope := venue.Scope{VenueIdentityRef: rawVenueID, VenueType: "CENTRALIZED_EXCHANGE"}
 	venRef, err := venues.Register(ctx, "ven-reg", venScope, "Binance", "UTC", "cal-crypto-247", "prec-default", t0, t0)
 	if err != nil {
 		t.Fatalf("Register venue: %v", err)
@@ -78,14 +83,13 @@ func setup(t *testing.T) fixture {
 		t.Fatalf("CreateListing: %v", err)
 	}
 
-	svc.RegisterSymbolBinding("binance-spot", "BTCUSDT", lstScope)
-
 	return fixture{svc: svc, instrumentID: insScope.InstrumentID(), venueID: venScope.VenueID(), listingScope: lstScope}
 }
 
 func TestResolveIdentityKnown(t *testing.T) {
 	f := setup(t)
-	id, err := f.svc.ResolveIdentity("binance-spot", "BTCUSDT")
+	instant := time.Date(2026, 8, 19, 10, 0, 0, 0, time.UTC)
+	id, err := f.svc.ResolveIdentity(rawVenueID, "BTCUSDT", instant, instant.Add(time.Hour))
 	if err != nil {
 		t.Fatalf("ResolveIdentity error: %v", err)
 	}
@@ -96,9 +100,23 @@ func TestResolveIdentityKnown(t *testing.T) {
 
 func TestResolveIdentityUnknown(t *testing.T) {
 	f := setup(t)
-	_, err := f.svc.ResolveIdentity("unknown-venue", "XXXX")
+	instant := time.Date(2026, 8, 19, 10, 0, 0, 0, time.UTC)
+	_, err := f.svc.ResolveIdentity("unknown-venue", "XXXX", instant, instant.Add(time.Hour))
 	if err != ErrUnknownReference {
 		t.Fatalf("got %v, want ErrUnknownReference", err)
+	}
+}
+
+// TestResolveIdentityNotYetVisibleAtKnowledgeCursor proves the identity
+// registration itself is subject to the knowledge axis: a query with a
+// knowledge cursor before the listing/venue/instrument were even recorded
+// must not resolve them (P3-DL-A-MAJ-01).
+func TestResolveIdentityNotYetVisibleAtKnowledgeCursor(t *testing.T) {
+	f := setup(t)
+	instant := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	_, err := f.svc.ResolveIdentity(rawVenueID, "BTCUSDT", instant, instant.Add(-time.Hour)) // knowledge cursor before registration was recorded
+	if err != ErrUnknownReference {
+		t.Fatalf("got %v, want ErrUnknownReference (registration not yet visible)", err)
 	}
 }
 
@@ -150,7 +168,7 @@ func TestResolvePrecisionLookAheadGuard(t *testing.T) {
 	// metadata patch effective at instant.Add(-time.Hour), well before our
 	// query instant, so it applies going forward through `instant`).
 	correctionRecordedAt := instant.Add(time.Hour)
-	if _, err := f.svc.Listings.Store.Append(ctx, buildMetadataDraft(f.listingScope, correctionRecordedAt, instant.Add(-time.Hour)), listing.MetadataRevisedPayload{
+	if _, err := f.svc.Listings.Store.Append(ctx, buildListingMetadataDraft(f.listingScope, correctionRecordedAt, instant.Add(-time.Hour)), listing.MetadataRevisedPayload{
 		ListingID:     f.listingScope.ListingID,
 		ChangedFields: map[string]string{"price_increment": "0.001"},
 	}); err != nil {
@@ -183,4 +201,84 @@ func TestResolvePrecisionLookAheadGuard(t *testing.T) {
 	// Current wall clock is irrelevant: querying with an explicit knowledge
 	// cursor from the past never depends on time.Now().
 	_ = time.Now() // documents the assertion above already proves this: no call in this test path reads wall-clock time.
+}
+
+// TestResolveIdentityLookAheadGuard is the P3-DL-A-MAJ-01 acceptance test:
+// identity resolution (venue_symbol -> canonical instrument/venue ID) must
+// obey the same two-axis bitemporal contract as window/precision
+// resolution. A rebrand (TradableListingMetadataRevised changing
+// venue_symbol, instrument.md §12) recorded later must not leak into an
+// earlier knowledge-cursor identity query, and the OLD raw symbol must
+// keep resolving at cursors before the rebrand was recorded — proving
+// effective_time alone does not control visibility.
+func TestResolveIdentityLookAheadGuard(t *testing.T) {
+	ctx := context.Background()
+	f := setup(t)
+	effectiveInstant := time.Date(2026, 8, 19, 10, 0, 0, 0, time.UTC)
+
+	// 1. Identity mapping A ("BTCUSDT") is effective at effectiveInstant —
+	// baseline resolution.
+	before, err := f.svc.ResolveIdentity(rawVenueID, "BTCUSDT", effectiveInstant, effectiveInstant.Add(time.Minute))
+	if err != nil {
+		t.Fatalf("ResolveIdentity (before rebrand) error: %v", err)
+	}
+	if before.InstrumentID != f.instrumentID || before.VenueID != f.venueID {
+		t.Fatalf("got %+v, want {%s %s}", before, f.instrumentID, f.venueID)
+	}
+
+	// 2. A corrected/revised mapping B ("XBTUSDT", a venue-side rebrand) is
+	// recorded later — instrument.md §12 explicitly authorizes venue_symbol
+	// as a forward-looking, whitelist-patchable field via
+	// TradableListingMetadataRevised, so this correction is within existing
+	// Domain Contract semantics, not an invented rule.
+	rebrandRecordedAt := effectiveInstant.Add(time.Hour)
+	rebrandEffectiveAt := effectiveInstant.Add(-30 * time.Minute) // forward-looking from a point before our query instant, so it applies going forward through effectiveInstant once visible
+	if _, err := f.svc.Listings.Store.Append(ctx, buildListingMetadataDraft(f.listingScope, rebrandRecordedAt, rebrandEffectiveAt), listing.MetadataRevisedPayload{
+		ListingID:     f.listingScope.ListingID,
+		ChangedFields: map[string]string{"venue_symbol": "XBTUSDT"},
+	}); err != nil {
+		t.Fatalf("append rebrand: %v", err)
+	}
+
+	// 3. Query at effective_instant + an EARLIER knowledge cursor (before
+	// the rebrand was recorded) must still resolve the OLD symbol
+	// ("BTCUSDT") to the same identity — the rebrand must not leak
+	// backward.
+	stillOld, err := f.svc.ResolveIdentity(rawVenueID, "BTCUSDT", effectiveInstant, rebrandRecordedAt.Add(-time.Minute))
+	if err != nil {
+		t.Fatalf("ResolveIdentity (knowledge cursor before rebrand, old symbol) error: %v", err)
+	}
+	if stillOld.InstrumentID != f.instrumentID || stillOld.VenueID != f.venueID {
+		t.Fatalf("got %+v at knowledge cursor before rebrand, want unchanged {%s %s} (look-ahead leak)", stillOld, f.instrumentID, f.venueID)
+	}
+	// The NEW symbol must NOT resolve yet at this earlier knowledge cursor.
+	if _, err := f.svc.ResolveIdentity(rawVenueID, "XBTUSDT", effectiveInstant, rebrandRecordedAt.Add(-time.Minute)); err != ErrUnknownReference {
+		t.Fatalf("got err=%v for new symbol at knowledge cursor before rebrand, want ErrUnknownReference", err)
+	}
+
+	// 4. SAME effective_instant, knowledge cursor AFTER the rebrand was
+	// recorded: the NEW symbol ("XBTUSDT") now resolves to the same
+	// canonical identity — the Domain Contract semantics (forward-looking
+	// metadata revision) authorize this.
+	afterRebrand, err := f.svc.ResolveIdentity(rawVenueID, "XBTUSDT", effectiveInstant, rebrandRecordedAt.Add(time.Minute))
+	if err != nil {
+		t.Fatalf("ResolveIdentity (knowledge cursor after rebrand, new symbol) error: %v", err)
+	}
+	if afterRebrand.InstrumentID != f.instrumentID || afterRebrand.VenueID != f.venueID {
+		t.Fatalf("got %+v, want {%s %s}", afterRebrand, f.instrumentID, f.venueID)
+	}
+	// The OLD symbol must no longer resolve at this later knowledge cursor
+	// (venue_symbol is a single-valued field — the patch supersedes it).
+	if _, err := f.svc.ResolveIdentity(rawVenueID, "BTCUSDT", effectiveInstant, rebrandRecordedAt.Add(time.Minute)); err != ErrUnknownReference {
+		t.Fatalf("got err=%v for old symbol at knowledge cursor after rebrand, want ErrUnknownReference (old symbol superseded)", err)
+	}
+
+	// 5. Determinism: identical cursor pairs resolve identically.
+	repeat, err := f.svc.ResolveIdentity(rawVenueID, "XBTUSDT", effectiveInstant, rebrandRecordedAt.Add(time.Minute))
+	if err != nil {
+		t.Fatalf("ResolveIdentity (repeat) error: %v", err)
+	}
+	if repeat != afterRebrand {
+		t.Fatalf("got %+v on repeat query with identical cursor pair, want %+v (deterministic resolution)", repeat, afterRebrand)
+	}
 }

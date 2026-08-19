@@ -34,17 +34,25 @@ as narrow Go interfaces (ports) with only test-double implementations:
   resolution). **Aligned to ADR-032 v0.2 §B.3's two-axis bitemporal
   contract**: `ResolveIdentity`/`WindowFor` each take an effective-
   applicability instant plus a separate, mandatory `knowledgeCursor`
-  (recorded_time / Replay Cursor) parameter — callers pass
-  `RawFact.RecordedTime` as the knowledge cursor (`ingest/service.go`'s
-  `resolveScope`). `internal/reference.Fake` is a 24/7, UTC-aligned test
+  (recorded_time / Replay Cursor) parameter — callers pass `RawFact.Instant`
+  as the effective-applicability input and `RawFact.RecordedTime` as the
+  knowledge cursor (`ingest/service.go`'s `resolveScope`).
+  **`ResolveIdentity` was corrected under `P3-DL-A-MAJ-01`**: an earlier
+  version of this alignment gave it only `knowledgeCursor`, leaving
+  identity resolution without the separate effective-applicability axis
+  `WindowFor` already had — it now carries both, matching the other two
+  lookups exactly. `internal/reference.Fake` is a 24/7, UTC-aligned test
   double — explicitly not a real trading-calendar implementation — but
-  DOES honor the two-axis contract for corrections registered via
-  `Fake.ReviseDuration`, letting this module's own tests
-  (`TestFakeWindowForLookAheadGuard`) prove the look-ahead guard
-  end-to-end without depending on `market-reference-service`'s package
-  (Go `internal/` visibility prevents that import anyway — see below).
-  `market-reference-service` (`go/market-reference-service/`) now exists
-  and implements the same contract for real against its own event store;
+  DOES honor the two-axis contract for corrections/revisions registered
+  via `Fake.ReviseDuration`/`Fake.ReviseIdentity`, letting this module's
+  own tests (`TestFakeWindowForLookAheadGuard`,
+  `TestFakeResolveIdentityLookAheadGuard`,
+  `TestIngestionCannotSeeFutureIdentityCorrections`) prove the look-ahead
+  guard end-to-end without depending on `market-reference-service`'s
+  package (Go `internal/` visibility prevents that import anyway — see
+  below). `market-reference-service` (`go/market-reference-service/`) now
+  exists and implements the same contract for real against its own event
+  store, including the same `P3-DL-A-MAJ-01` identity fix on its side;
   wiring `Provider` to a real client of it is a deployment-topology
   decision (ADR-032 §B.3 point 3, still deferred) — see "Not built" below.
 - **`internal/publish.EventPublisher`** — the append boundary that would

@@ -14,17 +14,19 @@
 // transaction (ADR-032 §B.3 point 3 defers transport, and neither module's
 // build has stood up any real transport yet).
 //
-// Two-axis bitemporal contract (ADR-032 v0.2 §B.3, aligned in this
-// transaction — closes the "Known implementation gap" ADR-032 itself
-// flagged): every method below takes BOTH required axes as separate,
-// mandatory parameters — an effective-applicability instant/window and a
-// knowledgeCursor (recorded_time / Replay Cursor) visibility boundary —
-// never a single ambiguous temporal parameter. Callers pass
-// RawFact.RecordedTime as the knowledge cursor (see ingest/service.go):
-// this ingestion pipeline's own processing/recording point is the correct
-// "what did we know as of when we processed this fact" boundary,
-// consistent with I-3/I-5 no-look-ahead applied to the ingestion pipeline
-// itself, not just to the Candle events it produces.
+// Two-axis bitemporal contract (ADR-032 v0.2 §B.3): every method below —
+// including ResolveIdentity, corrected under P3-DL-A-MAJ-01 (it previously
+// carried only a knowledgeCursor, leaving identity resolution without a
+// separate effective-applicability axis, unlike WindowFor) — takes BOTH
+// required axes as separate, mandatory parameters: an effective-
+// applicability instant and a knowledgeCursor (recorded_time / Replay
+// Cursor) visibility boundary, never a single ambiguous temporal
+// parameter. Callers pass RawFact.Instant as the effective-applicability
+// input and RawFact.RecordedTime as the knowledge cursor (see
+// ingest/service.go): this ingestion pipeline's own processing/recording
+// point is the correct "what did we know as of when we processed this
+// fact" boundary, consistent with I-3/I-5 no-look-ahead applied to the
+// ingestion pipeline itself, not just to the Candle events it produces.
 package reference
 
 import (
@@ -66,11 +68,17 @@ type WindowBoundary struct {
 type Provider interface {
 	// ResolveIdentity maps a venue-specific raw instrument/venue reference
 	// to the canonical instrument_id/venue_id used throughout Candle
-	// events, as visible at knowledgeCursor (ADR-032 §B.3.b — recorded_time
-	// / Replay Cursor boundary). Returns ErrUnknownReference if
-	// market-reference-service does not recognize the reference as of that
-	// cursor.
-	ResolveIdentity(ctx context.Context, rawVenueID, rawInstrumentSymbol string, knowledgeCursor time.Time) (Identity, error)
+	// events, at effectiveInstant (ADR-032 §B.3.a) as visible at
+	// knowledgeCursor (ADR-032 §B.3.b). The result MUST be the
+	// deterministic intersection of both axes — effectiveInstant alone
+	// must never control which venue_symbol/listing mapping is used; an
+	// identity correction/revision (e.g. a venue-side rebrand) recorded
+	// after knowledgeCursor must not be visible to this call, regardless
+	// of effectiveInstant (P3-DL-A-MAJ-01; ADR-032 §B.3: "corrections
+	// recorded later MUST NOT leak into earlier Replay"). Returns
+	// ErrUnknownReference if market-reference-service does not recognize
+	// the reference at that cursor pair.
+	ResolveIdentity(ctx context.Context, rawVenueID, rawInstrumentSymbol string, effectiveInstant, knowledgeCursor time.Time) (Identity, error)
 
 	// WindowFor resolves the [window_start, window_end) boundary that
 	// effectiveInstant falls into, for instrument/venue/timeframe, per the

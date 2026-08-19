@@ -35,7 +35,7 @@ func main() {
 	insRef, err := instruments.Register(ctx, "ins-reg-1", insScope, "BTC/USDT Spot", t0, t0)
 	must(err)
 
-	venScope := venue.Scope{VenueIdentityRef: "binance-global", VenueType: "CENTRALIZED_EXCHANGE"}
+	venScope := venue.Scope{VenueIdentityRef: "binance-spot", VenueType: "CENTRALIZED_EXCHANGE"}
 	venRef, err := venues.Register(ctx, "ven-reg-1", venScope, "Binance", "UTC", "cal-crypto-247", "prec-default", t0, t0)
 	must(err)
 
@@ -49,12 +49,11 @@ func main() {
 		RequestEventID: "req-1", ReservedEventID: "res-1", CreatedEventID: "created-1",
 	})
 	must(err)
-	svc.RegisterSymbolBinding("binance-spot", "BTCUSDT", lstScope)
 
 	instant := time.Date(2026, 8, 19, 10, 0, 37, 0, time.UTC)
 	knowledgeCursor := instant.Add(time.Minute)
 
-	id, err := svc.ResolveIdentity("binance-spot", "BTCUSDT")
+	id, err := svc.ResolveIdentity("binance-spot", "BTCUSDT", instant, knowledgeCursor)
 	must(err)
 	fmt.Printf("identity: %+v\n", id)
 

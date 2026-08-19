@@ -119,3 +119,94 @@ func TestIngestionReferenceResolutionIsDeterministicAndBitemporallyCorrect(t *te
 		t.Fatalf("repeat query with identical cursor pair = %v, want %v (deterministic resolution)", got, wantBefore)
 	}
 }
+
+// TestIngestionCannotSeeFutureIdentityCorrections is the P3-DL-A-MAJ-01
+// acceptance test at the full ingest.Service pipeline level: a venue-side
+// identity revision (e.g. a rebrand) recorded after a fact's knowledge
+// cursor must not affect which canonical instrument_id/venue_id that fact
+// resolves to and publishes under, even though the revision is already
+// recorded in the reference store by the time this test asserts on it.
+func TestIngestionCannotSeeFutureIdentityCorrections(t *testing.T) {
+	ctx := context.Background()
+	fake := reference.NewFake()
+	pub := publish.NewMemory("market-data-ingestion", "v0.1.0-dev", "test-run")
+	svc := NewService(fake, pub)
+
+	effectiveInstant := time.Date(2026, 8, 19, 10, 0, 0, 0, time.UTC)
+	revisionRecordedAt := effectiveInstant.Add(2 * time.Hour)
+
+	// Ingest a fact whose RecordedTime (knowledge cursor) is BEFORE the
+	// identity revision will be recorded.
+	raw := RawFact{
+		EventID:             "evt-obs-1",
+		RawVenueID:          "binance-spot",
+		RawInstrumentSymbol: "BTCUSDT",
+		Timeframe:           "1m",
+		Instant:             effectiveInstant,
+		RecordedTime:        revisionRecordedAt.Add(-time.Minute),
+		OHLCV:               ohlcv("101"),
+	}
+	ref, err := svc.ObserveProvisional(ctx, raw)
+	if err != nil {
+		t.Fatalf("ObserveProvisional error: %v", err)
+	}
+
+	// Now register a revised identity, effective retroactively but
+	// recorded AFTER the fact above was already ingested.
+	fake.ReviseIdentity("binance-spot", "BTCUSDT",
+		reference.Identity{InstrumentID: "BTC-USDT-REBRANDED", VenueID: "binance-spot"},
+		effectiveInstant.Add(-time.Hour), revisionRecordedAt)
+
+	var subjectID string
+	for _, r := range pub.Records() {
+		if r.Envelope.EventID == ref.EventID {
+			subjectID = r.Envelope.SubjectRef.SubjectID
+		}
+	}
+	if subjectID == "" {
+		t.Fatalf("published record for %v not found", ref)
+	}
+
+	// The already-published event's subject identity must remain resolved
+	// against the ORIGINAL (BTC-USDT) instrument — the later-recorded
+	// rebrand must not retroactively change a fact already ingested at an
+	// earlier knowledge cursor (candle_subject_id is derived from
+	// InstrumentID/VenueID at resolution time, so a different resolved
+	// InstrumentID would have produced a different subject_id entirely).
+	rawBefore := raw
+	rawBefore.EventID = "evt-obs-repeat-before-cursor"
+	repeatRef, err := svc.ObserveProvisional(ctx, rawBefore)
+	if err != nil {
+		t.Fatalf("ObserveProvisional (repeat, same knowledge cursor) error: %v", err)
+	}
+	var repeatSubjectID string
+	for _, r := range pub.Records() {
+		if r.Envelope.EventID == repeatRef.EventID {
+			repeatSubjectID = r.Envelope.SubjectRef.SubjectID
+		}
+	}
+	if repeatSubjectID != subjectID {
+		t.Fatalf("got subject_id=%q for a fact re-ingested at the same knowledge cursor after the rebrand was recorded, want unchanged %q (future identity correction leaked backward)", repeatSubjectID, subjectID)
+	}
+
+	// A NEW fact, ingested with a knowledge cursor AFTER the rebrand was
+	// recorded, resolves to a DIFFERENT subject (the rebranded instrument)
+	// — proving the pipeline does track the correction once it is actually
+	// visible, not that identity resolution is frozen forever.
+	rawAfter := raw
+	rawAfter.EventID = "evt-obs-after-cursor"
+	rawAfter.RecordedTime = revisionRecordedAt.Add(time.Minute)
+	afterRef, err := svc.ObserveProvisional(ctx, rawAfter)
+	if err != nil {
+		t.Fatalf("ObserveProvisional (after revision recorded) error: %v", err)
+	}
+	var afterSubjectID string
+	for _, r := range pub.Records() {
+		if r.Envelope.EventID == afterRef.EventID {
+			afterSubjectID = r.Envelope.SubjectRef.SubjectID
+		}
+	}
+	if afterSubjectID == subjectID {
+		t.Fatalf("got same subject_id=%q for a fact ingested AFTER the rebrand was recorded, want a different subject_id (rebranded instrument)", afterSubjectID)
+	}
+}

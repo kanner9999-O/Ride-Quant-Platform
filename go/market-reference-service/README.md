@@ -33,21 +33,33 @@ resolves the deterministic intersection of the two — never one alone.
   Venue identity, precision/tick/lot, calendar/session (I-12) — nothing in
   `market-data-ingestion` duplicates this authority (see the alignment
   note below).
-- **Two-axis query contract (ADR-032 §B.3, v0.2).** `query.Service.
-  ResolveWindow`/`ResolvePrecision` each take `(effectiveInstant,
-  knowledgeCursor time.Time)` as two independent parameters — never a
-  single ambiguous temporal parameter. `effective_time` alone never
-  controls visibility; a correction's visibility is governed solely by
-  `knowledgeCursor`, matching `instrument.md` §20's own selection
-  algorithm ("latest valid fact với `effective_time <= cursor` VÀ
-  `recorded_time <= replay cursor`") — ADR-032's contract and
-  `instrument.md`'s pre-existing Draft semantics agree exactly; this
-  transaction did not need to invent anything new here, only implement
-  what both already specified. Proven by
-  `internal/query/service_test.go`'s `TestResolvePrecisionLookAheadGuard`:
-  a correction recorded later is invisible to an earlier knowledge cursor,
-  and the same effective instant resolves differently only once the
-  knowledge cursor advances past the correction's `recorded_time`.
+- **Two-axis query contract (ADR-032 §B.3, v0.2), all three lookups.**
+  `query.Service.ResolveIdentity`/`ResolveWindow`/`ResolvePrecision` each
+  take `(effectiveInstant, knowledgeCursor time.Time)` as two independent
+  parameters — never a single ambiguous temporal parameter, and never a
+  current/static mapping. **`ResolveIdentity` was corrected under
+  `P3-DL-A-MAJ-01`**: it originally went through a static `bySymbol` map
+  with neither axis. It now reverse-scans the already-modeled bitemporal
+  fold: `resolveVenueID` matches a `VenueRegistered` fact's
+  `venue_identity_ref` (visible/effective per the cursor pair), and
+  `resolveListingByVenueSymbol` resolves each candidate
+  `TradableListing`'s `venue_symbol` via `listing.ResolveView` at the exact
+  same cursor pair — `venue_symbol` is already a forward-looking,
+  bitemporally-revisable field (`instrument.md` §12's
+  `EXPLICIT_PATCH_WITH_CLEAR_SET` whitelist), so no new Domain Contract
+  semantics were needed to fix this, only correct implementation against
+  what already existed. `effective_time` alone never controls visibility;
+  a correction's visibility is governed solely by `knowledgeCursor`,
+  matching `instrument.md` §20's own selection algorithm ("latest valid
+  fact với `effective_time <= cursor` VÀ `recorded_time <= replay
+  cursor"") — ADR-032's contract and `instrument.md`'s pre-existing Draft
+  semantics agree exactly; this transaction did not need to invent
+  anything new here, only implement what both already specified. Proven
+  by `internal/query/service_test.go`'s `TestResolvePrecisionLookAheadGuard`
+  and `TestResolveIdentityLookAheadGuard`: a correction recorded later is
+  invisible to an earlier knowledge cursor, and the same effective instant
+  resolves differently only once the knowledge cursor advances past the
+  correction's `recorded_time`.
 - **Deferred, unchanged by this transaction (ADR-032 §B.3 points 3-4):**
   transport/API serialization (this module exposes a Go interface, not a
   network API — no RPC/HTTP chosen) and the internal calendar/session/
@@ -103,13 +115,17 @@ nothing in this transaction's scope exercises it.
   `internal/store.Memory` is an in-memory test double (same gap
   `market-data-ingestion`'s `internal/publish` documents, independently
   confirmed absent by Package 1.3-A §13's own open-gaps list).
-- A real symbol-to-listing index — `query.Service.bySymbol` is a static
-  map populated by `RegisterSymbolBinding`; a full implementation would
-  resolve venue_symbol bindings through `TradableListing`'s own bitemporal
-  history (a symbol can rebrand via `TradableListingMetadataRevised`),
-  not a single current mapping. Flagged, not fixed — out of this
-  transaction's concrete deliverable (resolving identity/window/precision
-  for a single, uncontested listing per pair).
+- **Fixed under `P3-DL-A-MAJ-01`** (previously listed here as not built): a
+  bitemporal symbol-to-listing resolution mechanism — `query.Service` no
+  longer holds a static `bySymbol` map; `ResolveIdentity` now reverse-scans
+  `VenueRegistered`/`TradableListingCreated` facts and resolves each
+  candidate listing's `venue_symbol` through `listing.ResolveView` at the
+  requested two-axis cursor pair (see "ADR-032 compliance" above). Still
+  not built: an *indexed* (non-linear-scan) implementation — the current
+  scan is O(n) over all registered venues/listings, acceptable for this
+  transaction's scope (a handful of fixtures) but not a real deployment's
+  performance characteristic; that is a separate, later optimization, not
+  a correctness gap.
 - The full `ActiveListingReservation` arbitration protocol (see above).
 - A traditional exchange-hours `Calendar` implementation (see above).
 - `InstrumentCurrentView`/`VenueCurrentView`/`TradableListingCurrentView` as

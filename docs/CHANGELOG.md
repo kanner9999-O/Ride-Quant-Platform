@@ -2,6 +2,128 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — Phase-3 Data Layer: correct bitemporal identity resolution
+
+**Bounded correction, closes `P3-DL-A-MAJ-01` — vai trò:
+`Phase-3 Data Layer Identity Bitemporal Correction Executor`.** Does not broaden the Data Layer
+implementation. Does not call the Data Layer milestone COMPLETE.
+
+### Baseline
+
+```text
+Starting HEAD: 264e5c766446a7f8c4944d1bcd301d9bb9924aaf (verified via git rev-parse HEAD before any
+  edit; git status --porcelain=v1 -uno clean; branch main). Governing authority: Approved ADR-032 v0.2
+  (unchanged, not touched).
+```
+
+### Finding and correction
+
+```text
+P3-DL-A-MAJ-01: ADR-032 §B.3 applies the mandatory two-axis contract to all three reference lookups
+  (identity, calendar/session window, precision/tick/lot) equally. Identity resolution alone still
+  violated it on both sides: (1) market-reference-service's query.Service.ResolveIdentity had neither
+  effective applicability nor knowledge visibility input, resolving through a current/static bySymbol
+  map populated by RegisterSymbolBinding; (2) market-data-ingestion's reference.Provider.ResolveIdentity
+  had knowledgeCursor but lacked the separate effective-applicability input WindowFor already had.
+
+Correction — no DOMAIN_CONTRACT_DECISION_REQUIRED, existing Domain Contract semantics were sufficient:
+  market-reference-service: query.Service.bySymbol/RegisterSymbolBinding removed.
+    ResolveIdentity(rawVenueID, rawSymbol, effectiveInstant, knowledgeCursor) now reverse-scans the
+    already-modeled bitemporal fold — resolveVenueID matches a VenueRegistered fact's
+    venue_identity_ref (rawVenueID treated as venue_identity_ref by convention, venue.md §1's opaque
+    external reference — an implementation-level interpretation, not an invented domain rule);
+    resolveListingByVenueSymbol resolves each candidate TradableListing's venue_symbol via the
+    EXISTING listing.ResolveView at the exact same cursor pair — venue_symbol is already a
+    forward-looking, bitemporally-revisable field (instrument.md §12's EXPLICIT_PATCH_WITH_CLEAR_SET
+    whitelist), so no new Domain Contract semantics were needed, only correct implementation against
+    what already existed. findListingScope (ResolveWindow/ResolvePrecision) similarly became
+    cursor-aware, correctly handling relist-after-delist (instrument.md §10 invariant).
+  market-data-ingestion: reference.Provider.ResolveIdentity now takes (rawVenueID,
+    rawInstrumentSymbol, effectiveInstant, knowledgeCursor) — matching WindowFor's shape exactly.
+    ingest/service.go's resolveScope passes RawFact.Instant as the effective-applicability input
+    (the same field WindowFor already used) and RawFact.RecordedTime as the knowledge cursor
+    (unchanged, per task instruction). internal/reference.Fake extended with ReviseIdentity (mirrors
+    the existing ReviseDuration pattern).
+```
+
+### Required tests — all added, all passing
+
+```text
+go/market-reference-service/internal/query/service_test.go
+  TestResolveIdentityLookAheadGuard (against the REAL query.Service): proves (1) mapping A effective
+  at T; (2) revised mapping B recorded later; (3) query at T + earlier knowledge cursor resolves A
+  (old and new symbol both checked); (4) same T + later knowledge cursor resolves B (Domain Contract
+  semantics — venue_symbol patchability — authorize this correction/revision); (5) identical cursor
+  pairs resolve deterministically. Also added TestResolveIdentityNotYetVisibleAtKnowledgeCursor.
+go/market-data-ingestion/internal/reference/fake_test.go
+  TestFakeResolveIdentityLookAheadGuard — same scenario against the Fake.
+go/market-data-ingestion/internal/ingest/service_bitemporal_test.go
+  TestIngestionCannotSeeFutureIdentityCorrections — full ingest.Service pipeline: an already-
+  published event's resolved subject_id is unaffected by an identity revision recorded after that
+  event's own knowledge cursor; a fact ingested with a LATER knowledge cursor correctly resolves the
+  revised identity (different subject_id) — proves the ingestion pipeline cannot see future identity
+  corrections concretely, at the full-pipeline level, not just the raw Provider call.
+```
+
+### Preserved (verified unchanged)
+
+```text
+ADR-032: not touched. Domain Contracts (instrument.md/venue.md/candle.md): not touched, read only.
+  module-registry.yaml dependency graph: not touched. Calendar/window and precision resolution
+  behavior: unchanged except call-site signature alignment (both already had the two-axis shape;
+  findListingScope became cursor-aware as a side effect of removing the static map, with no behavior
+  change for existing passing tests). Structure Engine, Raw Regime Engine: not touched.
+  LIVE: NOT_AUTHORIZED, unchanged.
+```
+
+### Files changed
+
+```text
+go/market-reference-service/internal/query/service.go   ResolveIdentity/findListingScope rewritten.
+go/market-reference-service/internal/query/service_test.go   updated + new tests.
+go/market-reference-service/cmd/marketreferenceservice/main.go   demo call-site + venue identity ref
+  alignment (VenueIdentityRef changed to match the rawVenueID used in the ResolveIdentity call, a
+  pre-existing inconsistency the old static-map implementation silently tolerated).
+go/market-reference-service/README.md   updated — ADR-032 compliance section now covers identity;
+  "Not built" bullet about the static symbol index replaced with the fix description.
+go/market-data-ingestion/internal/reference/{reference.go,fake.go,fake_test.go}   ResolveIdentity
+  signature + ReviseIdentity, as detailed above.
+go/market-data-ingestion/internal/ingest/service.go   resolveScope passes RawFact.Instant.
+go/market-data-ingestion/internal/ingest/service_bitemporal_test.go   new test, as detailed above.
+go/market-data-ingestion/README.md   updated.
+docs/MANIFEST.md   manifest_version 10.182 -> 10.183. Prior "## Phase 3 — Data Layer Completion"
+  section title/Result paragraph corrected to HISTORICAL, no longer claiming COMPLETE, pointing to
+  this new "## Phase 3 — Data Layer Identity Bitemporal Correction" section (current state). Stale
+  "bySymbol is a static map" sentence in the Scope-descope paragraph corrected with a pointer.
+docs/CHANGELOG.md   this entry.
+```
+
+### Result
+
+```text
+P3-DL-A-MAJ-01: CLOSED_BY_BOUNDED_CORRECTION / PENDING_REVIEW_A_REREVIEW — NOT claimed CLEAN; a fresh
+  Review A pass against this correction boundary is required. Identity resolution now takes both
+  required axes on both sides of the module boundary, proven via three passing look-ahead-guard
+  tests (real implementation, Fake, full ingest pipeline). Data Layer milestone status: NOT COMPLETE
+  — pending review re-verification. Domain contract decision required: NONE. Architecture decision
+  required: NONE. Dependency graph changed: NO. Structure/Regime touched: NO. LIVE: NOT_AUTHORIZED.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 264e5c766446a7f8c4944d1bcd301d9bb9924aaf before any edit; git status
+  --porcelain=v1 -uno verified clean before any edit. gofmt -l (both modules, after formatting
+  passes): empty. go vet ./... (both modules): clean. go build ./... (both modules): clean.
+  go test ./... -cover (both modules): all packages with test files pass, no failures, no skips.
+  go run ./cmd/marketreferenceservice and go run ./cmd/marketdataingestion: both re-executed after
+  the correction, output manually inspected, still correct. git status --porcelain=v1 -uall confirmed
+  only the files listed above changed — docs/adr, docs/constitution, docs/governance,
+  docs/architecture (module-registry.yaml included), docs/domain, docs/product, docs/engineering,
+  docs/team, prototype/ all clean (git diff --quiet). manifest_version increment verified
+  (10.182 -> 10.183).
+```
+
 ## [Unreleased] — 2026-08-19 — Phase 3 Data Layer completion: implement market-reference-service, align market-data-ingestion to ADR-032's two-axis contract
 
 **Phase 3 substantive implementation — vai trò: `Phase-3 Data Layer Completion Executor`.** Completes the

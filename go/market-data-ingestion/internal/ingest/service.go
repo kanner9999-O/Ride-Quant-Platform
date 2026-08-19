@@ -103,7 +103,7 @@ func NewService(ref reference.Provider, pub publish.EventPublisher) *Service {
 // cursor, consistent with I-3/I-5 no-look-ahead applied to the pipeline
 // itself, not just to the Candle events it produces.
 func (s *Service) resolveScope(ctx context.Context, raw RawFact) (candle.Scope, error) {
-	id, err := s.Reference.ResolveIdentity(ctx, raw.RawVenueID, raw.RawInstrumentSymbol, raw.RecordedTime)
+	id, err := s.Reference.ResolveIdentity(ctx, raw.RawVenueID, raw.RawInstrumentSymbol, raw.Instant, raw.RecordedTime)
 	if err != nil {
 		return candle.Scope{}, fmt.Errorf("ingest: resolve identity: %w", err)
 	}
