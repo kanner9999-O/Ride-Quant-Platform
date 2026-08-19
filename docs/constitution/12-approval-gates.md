@@ -2,13 +2,13 @@
 id: 12-approval-gates
 title: Approval Gates
 version: "1.6"
-status: Draft
+status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-18T17:25:00+07:00"
 created_at: "2026-07-16"
-last_review: null
+last_review: "2026-08-18"
 next_review: null
 depends_on: ["00-governance", "11-adr-process"]
 ---
@@ -19,7 +19,7 @@ Mọi Phase kết thúc bằng một cổng phê duyệt trước khi Phase kế
 
 **Approval Authority:** Product Owner là người approve duy nhất; không AI nào có quyền override (xem [Chapter 0 §2–§3](./00-governance.md) — luật "3/3" của ADR-004 đã được lược bỏ, xem lịch sử ở [ADR-005](../adr/ADR-005.md), và governance migration sang mô hình role-based ở [ADR-011](../adr/ADR-011.md)).
 
-**(v1.6 CANDIDATE, wording sync — [ADR-031](../adr/ADR-031.md) Approved, CHƯA active cho tới Atomic Activation Boundary riêng biệt, đúng lúc với Chapter 0 §3/Chapter 11 §11.5/§11.9; xem banner tương ứng tại hai chương đó):**
+**(v1.6, ACTIVE — wording sync, [ADR-031](../adr/ADR-031.md) Approved, Atomic Activation Boundary hoàn tất TẠI ĐÚNG activation commit này, đồng bộ CÙNG Chapter 0 §3/Chapter 11 §11.5/§11.9; xem banner tương ứng tại hai chương đó):**
 
 Trước mỗi Approval phải có **tối thiểu hai independent review từ các actor đang giữ role `AI Technical Architect`** tại review boundary, đủ điều kiện độc lập đúng mô hình đã khóa tại [Chapter 0 §3](./00-governance.md) / [Chapter 11 §11.5](./11-adr-process.md), và được pin trong review evidence. Đây là **eligibility precondition bắt buộc**: nếu không resolve được independence eligibility đầy đủ thì decision **chưa đủ điều kiện** đi tới approval gate. Các reviewer **ngang hàng, không reviewer nào có veto** — sự **tồn tại** của review là điều kiện bắt buộc, còn **kết luận** của review không ràng buộc quyết định cuối cùng của Product Owner.
 

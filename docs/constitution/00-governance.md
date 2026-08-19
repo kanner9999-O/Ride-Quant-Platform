@@ -2,13 +2,13 @@
 id: 00-governance
 title: Governance
 version: "1.2"
-status: Draft
+status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-18T17:25:00+07:00"
 created_at: "2026-07-16"
-last_review: null
+last_review: "2026-08-18"
 next_review: null
 depends_on: []
 ---
@@ -21,7 +21,7 @@ Chapter 0 — đứng trước cả Vision, vì nó quy định CÁCH mọi quy�
 >
 > **Governance migration:** phiên bản 1.1 kích hoạt mô hình đã được Product Owner chấp thuận tại [ADR-011](../adr/ADR-011.md): ADR file bất biến sau approval, review gate dựa trên role với tối thiểu hai independent reviewers, và MANIFEST là authority cho current ADR/OQ state.
 >
-> **Governance migration CANDIDATE (v1.2, CHƯA activate):** bản nháp này chuẩn bị kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved, `approved_at: 2026-08-18T15:56:00+07:00`) — mở rộng independent-review eligibility từ principal-only sang Mode A (`DISTINCT_PRINCIPAL`) HOẶC Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION`, có execution-isolation evidence contract). Nội dung §3 dưới đây LÀ candidate — CHƯA active. Active CHỈ tại một Atomic Activation Boundary riêng biệt (ADR-031 §11) khi Chapter 0 §3 (file này), Chapter 11 §11.5/§11.9, và các wording-sync liên quan (Chapter 12, ADR template) đã đồng bộ ĐẦY ĐỦ VÀ được Product Owner approve TRONG CÙNG một hành động — thiếu MỘT trong số đó, v1.1's Mode-A-only rule VẪN nguyên vẹn có hiệu lực (KHÔNG partial activation).
+> **Governance migration (v1.2, ACTIVE):** phiên bản 1.2 kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved) — mở rộng independent-review eligibility từ principal-only sang Mode A (`DISTINCT_PRINCIPAL`, giữ nguyên preferred khi practical) HOẶC Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION`, có execution-isolation evidence contract, ADR-031 §5). Atomic Activation Boundary (ADR-031 §11) hoàn tất TẠI ĐÚNG activation commit này, cùng lúc với Chapter 11 §11.5/§11.9 (v2.2, Locked) và Chapter 12 (v1.6, Locked) wording sync, cùng ADR template evidence-table update — Product Owner decision nguyên văn "ACTIVATE ADR-031 GOVERNANCE MIGRATION," 2026-08-18T17:25:00+07:00.
 
 ## 1. Purpose
 
@@ -59,7 +59,7 @@ Requirement
 
 *(Accepted = quyết định đã được Product Owner chốt; Locked = current lifecycle state được MANIFEST ghim sau khi decision artifact đã ổn định. Với ADR, file đã bất biến ngay tại approval boundary.)*
 
-**Review gate bắt buộc (v1.2 CANDIDATE — xem banner "Governance migration CANDIDATE" phía trên, CHƯA active cho tới Atomic Activation Boundary riêng biệt):**
+**Review gate bắt buộc (v1.2, ACTIVE — xem banner "Governance migration" phía trên):**
 
 - Trước khi Product Owner quyết một ADR hoặc tài liệu thuộc approval gate, phải có tối thiểu **hai independent reviews**.
 - Mỗi reviewer phải đang giữ role `AI Technical Architect` tại review boundary — role eligibility LUÔN thuộc về **principal** (person/AI đã đăng ký giữ role tại `/team/team.yaml`), KHÔNG BAO GIỜ thuộc về một execution/session cụ thể; một execution kế thừa eligibility từ principal đã đăng ký của nó, TỰ NÓ KHÔNG có role riêng.

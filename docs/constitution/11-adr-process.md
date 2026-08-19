@@ -2,13 +2,13 @@
 id: 11-adr-process
 title: ADR Process
 version: "2.2"
-status: Draft
+status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-18T17:25:00+07:00"
 created_at: "2026-07-16"
-last_review: null
+last_review: "2026-08-18"
 next_review: null
 depends_on: ["00-governance", "02-platform-invariants"]
 ---
@@ -17,7 +17,7 @@ depends_on: ["00-governance", "02-platform-invariants"]
 
 Chapter 11 khóa quy trình và metadata contract của ADR. Document Lifecycle, Freeze Policy và ADR Scope Rule thuộc [Chapter 0](./00-governance.md); authority mapping thuộc [I-12](./02-platform-invariants.md).
 
-> **Governance migration CANDIDATE (v2.2, CHƯA activate):** §11.5/§11.9 dưới đây LÀ candidate, chuẩn bị kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved) — cùng nội dung Mode A/Mode B với [Chapter 0 §3 v1.2 candidate](./00-governance.md). CHƯA active — active CHỈ tại Atomic Activation Boundary riêng biệt, cùng lúc với Chapter 0 §3, khi TOÀN BỘ artifact mandatory (Chapter 0 §3, Chapter 11 §11.5, Chapter 11 §11.9) đồng bộ VÀ Product Owner approve trong CÙNG một hành động (KHÔNG partial activation). Trước boundary đó, v2.1's principal-only rule VẪN nguyên vẹn có hiệu lực.
+> **Governance migration (v2.2, ACTIVE):** §11.5/§11.9 dưới đây kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved) — cùng nội dung Mode A/Mode B với [Chapter 0 §3 v1.2](./00-governance.md) (Locked, cùng activation boundary). Atomic Activation Boundary (ADR-031 §11) hoàn tất TẠI ĐÚNG activation commit này, đồng bộ CÙNG Chapter 0 §3 và Chapter 12 (v1.6, Locked) — Product Owner decision nguyên văn "ACTIVATE ADR-031 GOVERNANCE MIGRATION," 2026-08-18T17:25:00+07:00.
 
 ## 11.1 Template và phạm vi
 

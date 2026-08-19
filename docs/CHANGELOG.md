@@ -2,6 +2,124 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-18 — ADR-031: activate reviewer execution governance model
+
+**Atomic governance activation — vai trò: `ADR-031 Atomic Governance Activation Executor`.** Executes
+the Product Owner decision "ACTIVATE ADR-031 GOVERNANCE MIGRATION" (2026-08-18T17:25:00+07:00),
+completing the Atomic Activation Boundary ADR-031 §11 requires. This is the final transaction on
+branch `adr031-atomic-activation-candidate`, then fast-forward-merged onto `main`.
+
+### Baseline
+
+```text
+main verified exactly: 48c3b4f1aa97a4242b25817becbde6c5a2236847.
+candidate branch HEAD verified exactly: 9c678e5c9c42a3a23664eba155a3116e5d615e8b.
+Reviewed candidate boundary: 2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27 — Review A and Independent
+  Review B both COMPLETE/ELIGIBLE/CLEAN there (recorded in the two preceding transactions), minimum-
+  two-review requirement SATISFIED via Mode A — DISTINCT_PRINCIPAL, activation candidate
+  READY_FOR_PRODUCT_OWNER_ACTIVATION_DECISION.
+```
+
+### Full candidate journey (compact summary — see prior CHANGELOG entries on this branch for full
+### detail of each step)
+
+```text
+1. ADR-031 v0.2 authored, bounded-corrected (closes ADR031-A-MAJ-01), reviewed (ChatGPT + Claude),
+   and Approved by Product Owner (2026-08-18T15:56:00+07:00) under the CURRENT Mode-A-only rule —
+   the required bootstrap, since the new model cannot approve itself.
+2. Atomic activation candidate authored on this branch: Chapter 0 §3 (1.1→1.2), Chapter 11 §11.5/
+   §11.9 (2.1→2.2), Chapter 12 wording sync (1.5→1.6), and the ADR template's review-evidence table
+   all drafted to the Mode A/Mode B model, all Draft/CANDIDATE, main untouched.
+3. Bounded correction closed ADR031-ACT-A-MAJ-01 (template evidence-table gap).
+4. Review A (ChatGPT) and Independent Review B (Claude) evidence pinned at boundary bee65ce...;
+   Review B found ADR031-ACT-B-MIN-01 (Review A evidence not yet pinned) and ADR031-ACT-B-MIN-02
+   (§11.5 pin-list missing "review boundary") — both closed, the second via a wording-only §11.5 fix
+   that produced a new candidate boundary.
+5. Because §11.5 changed, both reviews were bounded-revalidated on the new boundary
+   2958bcf522f6b73a8c8eefb04c4b8c9d8e5bab27 — both CLEAN, all three findings CLOSED, minimum-two-
+   review requirement SATISFIED, candidate READY_FOR_PRODUCT_OWNER_ACTIVATION_DECISION.
+6. This transaction: Product Owner activation decision executed, all three chapters Locked together,
+   activation commit created, branch pushed, main fast-forwarded to it.
+```
+
+### Activation changes
+
+```text
+docs/constitution/00-governance.md    v1.2: status Draft → Locked, approved_by null → Product
+  Owner, approved_at null → "2026-08-18T17:25:00+07:00", last_review null → "2026-08-18". Banner
+  and §3 header rewritten from "CANDIDATE, CHƯA active" to "ACTIVE" — §3's Mode A/Mode B substantive
+  content byte-unchanged from the reviewed candidate. Blob 5b594b099fd23c48fd33df688a9fff38061f7503
+  → 7224292b231a98d609d884a6d26f47222d0dd63d.
+docs/constitution/11-adr-process.md   v2.2: same lifecycle field changes. Banner rewritten to ACTIVE
+  — §11.5/§11.9 substantive content byte-unchanged from the reviewed candidate (which already
+  included the ADR031-ACT-B-MIN-02 wording fix). Blob 85dce3bff7e93929d2a79f6b9df5383f9b2a428d →
+  52de13d46e38e01cff9bffd7b5487dc07170ae2d.
+docs/constitution/12-approval-gates.md v1.6: same lifecycle field changes. Banner rewritten to ACTIVE
+  — wording-sync content byte-unchanged from the reviewed candidate. Blob
+  c88b7539e8ab24b1892f2bc412bb47b0ead43a74 → ec4502d7c6cf1d61fb42518318187379ac5162df.
+docs/templates/adr-template.md   NOT modified by this transaction — its already-reviewed content
+  (9-column evidence table, Mode A/B guidance) becomes the canonical active template as-is. Blob
+  unchanged: a66263f6d754800817b76660fd7130a01b62f191.
+docs/adr/ADR-031.md   NOT modified — Approved, immutable, verified byte-identical. Blob unchanged:
+  b45e15179be69e76176e3f3ba0516a4781375a2c.
+```
+
+### Files changed (this commit)
+
+```text
+docs/constitution/00-governance.md, 11-adr-process.md, 12-approval-gates.md   lifecycle fields +
+  banner wording only, as detailed above — zero substantive Mode A/Mode B semantic change from the
+  reviewed candidate content.
+docs/MANIFEST.md   manifest_version 10.172 → 10.173. "## Constitution" table's three rows collapsed
+  from dual main/branch CANDIDATE representation to a single authoritative Locked state each. The
+  "## ADR-031 Atomic Activation — CANDIDATE" section replaced with a compact "## ADR-031 Atomic
+  Governance Activation — COMPLETE" section (323 words, down from 1,300+ — P3-BUDGET-001 compaction
+  applied at the point the decision-bundle section's history is no longer needed inline): Mode A/
+  Mode B ACTIVE, all three chapters' final version/status/blob, ADR template and ADR-031 preserved
+  pointers, all four findings CLOSED, Phase-3 rules workflow MAY_RESUME, Phase 3 substantive
+  implementation still pending, LIVE still NOT_AUTHORIZED. Full step-by-step candidate history now
+  lives only in CHANGELOG (this entry + the four preceding branch entries).
+```
+
+### No scope expansion beyond the activation set
+
+```text
+docs/governance/execution-rules.md, docs/team/team.yaml,
+  docs/governance/phases/phase-3-rules.md, docs/architecture/, docs/domain/, docs/product/,
+  docs/phase-dod/, prototype/: UNCHANGED, verified byte-identical (git diff --quiet). The Phase-3
+  rules correction (P3-RULES-A-MAJ-01) is explicitly NOT performed here — only its workflow gating
+  condition (unambiguous reviewer-independence semantics) is now satisfied, resuming it is a
+  separate future transaction. No source code / architecture / domain / product mutation.
+```
+
+### Result
+
+```text
+ADR-031 Atomic Activation: COMPLETE. Mode A — DISTINCT_PRINCIPAL: ACTIVE. Mode B —
+  SAME_PRINCIPAL_DISTINCT_EXECUTION: ACTIVE. Chapter 0 v1.2 Locked, Chapter 11 v2.2 Locked, Chapter
+  12 v1.6 Locked — all three activated together, same commit, same Product Owner decision. ADR
+  template active as-is. ADR-031 unchanged/immutable. ADR031-B-MIN-01, ADR031-ACT-A-MAJ-01,
+  ADR031-ACT-B-MIN-01, ADR031-ACT-B-MIN-02: all CLOSED — zero open findings remain in the ADR-031
+  governance-activation chain.
+Phase-3 rules workflow: MAY_RESUME (a separate future transaction). Phase 3 substantive governed
+  implementation: still PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT. current_phase: unchanged,
+  "Phase 3 — Core Backend". LIVE: still NOT_AUTHORIZED.
+```
+
+### Validation
+
+```text
+git branch --show-current verified adr031-atomic-activation-candidate; git rev-parse HEAD verified
+  9c678e5c9c42a3a23664eba155a3116e5d615e8b before any edit; main verified unchanged at
+  48c3b4f1aa97a4242b25817becbde6c5a2236847; working tree clean. git diff --quiet confirmed
+  docs/adr/ADR-031.md, docs/templates/adr-template.md, docs/governance/execution-rules.md,
+  docs/team/team.yaml, and docs/governance/phases/phase-3-rules.md all byte-identical after the
+  edit — only the three Constitution chapters and MANIFEST.md changed. Each chapter's diff verified
+  to touch only frontmatter lifecycle fields and banner prose — zero change to Mode A/Mode B
+  substantive content already reviewed at boundary 2958bcf. manifest_version increment verified
+  (10.172 → 10.173).
+```
+
 ## [Unreleased] — 2026-08-18 — ADR-031 activation candidate: pin final review evidence (branch only)
 
 **Review-evidence recording — vai trò: `ADR-031 Activation Review Evidence Recorder`.** Records the
