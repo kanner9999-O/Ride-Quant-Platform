@@ -2,6 +2,94 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — Phase-3 rules v0.2: align acceptance authority and reviewer model
+
+**Bounded correction — vai trò: `Phase-3 Rules Bounded Correction Executor`.** Closes
+`P3-RULES-A-MAJ-01` (Major, Review A) on `docs/governance/phases/phase-3-rules.md`. Resumes the
+Phase-3 rules workflow now that ADR-031 activation has made reviewer-independence semantics
+unambiguous.
+
+### Baseline
+
+```text
+Starting HEAD: 22d6687ea9e24faa0be1bc3191109129da4caa36 (verified via git rev-parse HEAD before any
+  edit, working tree clean). phase-3-rules.md verified directly: version 0.1, operational_state
+  CANDIDATE, accepted_by/accepted_at null.
+```
+
+### Finding — P3-RULES-A-MAJ-01 (CLOSED_BY_BOUNDED_CORRECTION, PENDING_REVIEW_A_REREVIEW)
+
+```text
+Defect: §3's Product-Owner-acceptance sequence self-defined an outdated acceptance model. Step 3
+  hardcoded "Independent Review B (actor riêng biệt)" instead of referencing the review gate now
+  ACTIVE at Chapter 0 §3 / Chapter 11 §11.5 (v1.2/v2.2, Locked, ADR-031, 2026-08-18T17:25:00+07:00)
+  — Mode A (DISTINCT_PRINCIPAL) or Mode B (SAME_PRINCIPAL_DISTINCT_EXECUTION). Step 4 cited Chapter
+  12 §12.1 as if it were direct authority for phase-rule acceptance — incorrect; Chapter 12
+  orchestrates the Phase Approval Gate, not per-phase-rule acceptance. The actual direct authority
+  for requiring an accepted phase-rule artifact before substantive work is
+  docs/governance/phases/phase-rules-template.md §Mandatory rule.
+Fix: §3 step 3 now references Chapter 0 §3 / Chapter 11 §11.5 (Locked, ACTIVE) — Mode A or Mode B,
+  without redefining eligibility, and explicitly notes P3-IDENTITY-001 §8 still applies as a
+  mechanical pre-check before any review counts. Step 4 now cites phase-rules-template.md §Mandatory
+  rule as the direct authority, with Chapter 12 §12.1 described only as an analogous "criteria
+  defined before used" principle referenced by that template — not direct authority.
+  P3-IDENTITY-001 (§8, directly referenced from §3 step 3) corrected in the same pass: its own text
+  said "KHÔNG redefine Chapter 0 §3/Chapter 11 §11.5's distinct-actor authority" — stale after
+  activation (Chapter 0/11 are no longer distinct-actor-only). Replaced with "reviewer-independence
+  authority (Mode A/Mode B)" plus a note that Mode B verification includes checking the
+  execution-isolation evidence contract (ADR-031 §5), not just a registered alias.
+No scope broadening: the other six P3 controls, Gate-path controls, Retrospective requirement, Known
+  process risks, Deferred Global promotion candidates, and the ADR Scope Rule check are all
+  byte-equivalent — only the two paragraphs directly dependent on the outdated acceptance model
+  changed.
+Result: P3-RULES-A-MAJ-01 CLOSED_BY_BOUNDED_CORRECTION. Verdict PENDING_REVIEW_A_REREVIEW —
+  explicitly NOT claimed CLEAN or EFFECTIVE.
+```
+
+### Files changed
+
+```text
+docs/governance/phases/phase-3-rules.md   v0.1 → v0.2. §3 steps 3-4 rewritten (above);
+  P3-IDENTITY-001 §8 corrected (above); new v0.2 Change history entry added. operational_state
+  remains CANDIDATE, accepted_by/accepted_at remain null — unchanged. Blob
+  eb7bff69a3637658da04aee90787347bdd5d819b → d0e8e98a07924159ce392529ed1204437e4540a2.
+docs/MANIFEST.md   manifest_version 10.173 → 10.174. phase-3-rules.md row updated to v0.2 with the
+  bounded-correction summary and P3-RULES-A-MAJ-01 CLOSED_BY_BOUNDED_CORRECTION /
+  PENDING_REVIEW_A_REREVIEW disposition (300 words, within budget).
+```
+
+### No scope expansion
+
+```text
+docs/adr/ADR-031.md, docs/constitution/ (all chapters), docs/governance/execution-rules.md,
+  docs/team/team.yaml, docs/architecture/, docs/domain/, docs/product/, docs/phase-dod/, prototype/:
+  UNCHANGED, verified byte-identical (git diff --quiet). No Phase-3 implementation. No Phase-3 DoD
+  created. LIVE remains NOT_AUTHORIZED. operational_state remains CANDIDATE (not claimed EFFECTIVE).
+```
+
+### Result
+
+```text
+P3-RULES-A-MAJ-01: CLOSED_BY_BOUNDED_CORRECTION, PENDING_REVIEW_A_REREVIEW. Acceptance authority:
+  phase-rules-template.md §Mandatory rule (direct), Chapter 12 §12.1 (analogous principle only).
+  Reviewer model: Chapter 0 §3 / Chapter 11 §11.5, Mode A or Mode B, referenced not redefined. ADR-
+  031: unchanged. Constitution: unchanged. Phase 3 substantive implementation: still
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT. LIVE: still NOT_AUTHORIZED.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 22d6687ea9e24faa0be1bc3191109129da4caa36 before any edit;
+  phase-3-rules.md verified version 0.1/CANDIDATE/null/null before edit; git status --porcelain=v1
+  -uno verified working tree clean before any edit. git status --porcelain=v1 -uall confirmed clean
+  on docs/adr, docs/constitution, docs/governance/execution-rules.md, docs/team/team.yaml,
+  docs/architecture, docs/domain, docs/product, docs/phase-dod, prototype — only
+  docs/governance/phases/phase-3-rules.md and docs/MANIFEST.md changed. manifest_version increment
+  verified (10.173 → 10.174). Frontmatter verified: version 0.2, operational_state CANDIDATE,
+  accepted_by/accepted_at still null.
+```
+
 ## [Unreleased] — 2026-08-18 — ADR-031: activate reviewer execution governance model
 
 **Atomic governance activation — vai trò: `ADR-031 Atomic Governance Activation Executor`.** Executes

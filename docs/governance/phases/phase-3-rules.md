@@ -1,7 +1,7 @@
 ---
 id: phase-3-rules
 title: "Phase 3 — Core Backend: Execution Rules"
-version: "0.1"
+version: "0.2"
 operational_state: CANDIDATE
 owner: Product Owner
 accepted_by: null
@@ -67,10 +67,22 @@ Trình tự bắt buộc TRƯỚC KHI operational_state chuyển EFFECTIVE:
   1. candidate authoring (transaction này);
   2. Review A (bounded, phạm vi toàn bộ candidate — architecture/authority
      class, đúng P3-REVIEW-001 §8 dưới, KHÔNG PHẢI mechanical);
-  3. Independent Review B (actor riêng biệt, đúng team.yaml resolution,
-     P3-IDENTITY-001 §8 dưới);
-  4. Product Owner acceptance decision (Chapter 12 §12.1, tường minh, KHÔNG
-     suy diễn từ im lặng);
+  3. Independent Review B, đúng review gate ACTIVE tại [Chapter 0
+     §3](../../constitution/00-governance.md) / [Chapter 11
+     §11.5](../../constitution/11-adr-process.md) (v1.2/v2.2, Locked,
+     [ADR-031](../../adr/ADR-031.md)) — Mode A (`DISTINCT_PRINCIPAL`) HOẶC
+     Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION`, execution-isolation
+     evidence contract). Tài liệu này KHÔNG redefine eligibility — CHỈ
+     tham chiếu; P3-IDENTITY-001 §8 dưới áp dụng mechanical pre-check
+     TRƯỚC KHI đếm review nào vào prerequisite;
+  4. Product Owner acceptance decision, tường minh, KHÔNG suy diễn từ im
+     lặng — yêu cầu trực tiếp "một phase rule artifact accepted TRƯỚC KHI
+     substantive work" đến từ [`phase-rules-template.md`](./phase-rules-template.md)
+     §Mandatory rule (authority trực tiếp cho CHÍNH yêu cầu này). Chapter
+     12 §12.1 CHỈ LÀ nguyên tắc tương tự "criteria defined before used"
+     được template đó tham chiếu làm minh họa — KHÔNG PHẢI authority trực
+     tiếp cho phase-rule acceptance (Chapter 12 tự thân orchestrate Phase
+     Approval Gate, KHÔNG phải per-phase-rule acceptance);
   5. deterministic acceptance + MANIFEST current-state recording (transaction
      riêng, mechanical, đúng G-TXN-003).
   CHỈ SAU (5), Phase 3 substantive governed implementation mới PERMITTED —
@@ -288,8 +300,13 @@ P3-IDENTITY-001  TRƯỚC KHI một review/evaluation result được tính vào
                  tại thời điểm đó CHỈ xảy ra vì diligence thủ công, KHÔNG
                  một mechanical gate (retrospective §8 mục 1).
                  Đây LÀ một Phase-3 operational pre-check — KHÔNG redefine
-                 Chapter 0 §3/Chapter 11 §11.5's distinct-actor authority,
-                 CHỈ thêm một bước verify mechanical TRƯỚC KHI đếm.
+                 Chapter 0 §3/Chapter 11 §11.5's reviewer-independence
+                 authority (Mode A `DISTINCT_PRINCIPAL` / Mode B
+                 `SAME_PRINCIPAL_DISTINCT_EXECUTION`, ACTIVE kể từ
+                 ADR-031), CHỈ thêm một bước verify mechanical TRƯỚC KHI
+                 đếm — với Mode B, bước này bao gồm verify execution-
+                 isolation evidence contract (ADR-031 §5) đã thỏa, KHÔNG
+                 CHỈ registered alias.
 ```
 
 ## 9. Prompt/efficiency controls
@@ -489,4 +506,32 @@ v0.1  2026-08-18  Author candidate — vai trò: `Phase 3 Execution Rules
       `EFFECTIVE`. `docs/governance/execution-rules.md` KHÔNG sửa
       (byte-identical, git diff empty). Phase 3 substantive governed
       implementation VẪN `PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT`.
+v0.2  2026-08-19  Bounded correction — vai trò: `Phase-3 Rules Bounded
+      Correction Executor`, đóng `P3-RULES-A-MAJ-01` (Major, Review A).
+      Defect: §3's acceptance sequence tự định nghĩa lỗi thời — bước 3
+      hardcode "Independent Review B (actor riêng biệt)" thay vì tham
+      chiếu review gate ACTIVE tại Chapter 0 §3/Chapter 11 §11.5 (nay
+      Mode A/Mode B, kể từ ADR-031 activation, 2026-08-18T17:25:00+07:00);
+      bước 4 cite Chapter 12 §12.1 NHƯ THỂ đó LÀ direct authority cho
+      phase-rule acceptance — SAI, Chapter 12 orchestrate Phase Approval
+      Gate, KHÔNG phải per-phase-rule acceptance; direct authority thật
+      LÀ `phase-rules-template.md` §Mandatory rule. Sửa: bước 3 nay tham
+      chiếu Chapter 0 §3/Chapter 11 §11.5 (Locked, ACTIVE, ADR-031) —
+      Mode A HOẶC Mode B, KHÔNG redefine eligibility tại đây; bước 4 cite
+      `phase-rules-template.md` §Mandatory rule LÀM direct authority,
+      Chapter 12 §12.1 CHỈ LÀ nguyên tắc tương tự tham chiếu minh họa.
+      `P3-IDENTITY-001` (§8, tham chiếu trực tiếp từ §3 bước 3) sửa tương
+      ứng — "distinct-actor authority" (stale) → "reviewer-independence
+      authority (Mode A/Mode B)", thêm execution-isolation-evidence-
+      contract note cho Mode B. KHÔNG broaden scope — bảy P3 control
+      khác, §Gate-path/§Retrospective/§Known process risks/§Deferred
+      Global promotion candidates/§ADR Scope Rule check KHÔNG chạm
+      (byte-equivalent ngoài hai đoạn trên). `operational_state:
+      CANDIDATE` (KHÔNG đổi), `accepted_by: null`, `accepted_at: null`
+      (KHÔNG đổi) — VẪN CHƯA Product Owner acceptance, CHƯA `EFFECTIVE`.
+      `P3-RULES-A-MAJ-01`: `CLOSED_BY_BOUNDED_CORRECTION`,
+      `PENDING_REVIEW_A_REREVIEW` — KHÔNG claim CLEAN. ADR-031/
+      Constitution/Global Execution Rules KHÔNG sửa (byte-identical, git
+      diff empty). Phase 3 substantive governed implementation VẪN
+      `PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT`.
 ```
