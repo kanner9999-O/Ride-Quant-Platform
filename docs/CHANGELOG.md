@@ -2,6 +2,95 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — Phase-3 rules v0.2: pin independent review evidence
+
+**Review-evidence recording — vai trò: `Phase-3 Rules Review Evidence Recorder`.** Records the
+already-completed Review A and Independent Review B evidence for `docs/governance/phases/
+phase-3-rules.md` v0.2, correcting a reviewer-attribution mislabel. Does not rerun either review,
+does not modify phase-3-rules.md semantics.
+
+### Baseline
+
+```text
+Starting HEAD: e69fe82ba3ce04ec642154ff70316a805547913a (verified via git rev-parse HEAD before any
+  edit, working tree clean). phase-3-rules.md verified directly: version 0.2, operational_state
+  CANDIDATE, accepted_by/accepted_at null, blob d0e8e98a07924159ce392529ed1204437e4540a2 — the exact
+  shared review boundary for both evidence records below. team.yaml verified: ChatGPT and Claude
+  (alias "Independent Review B") both resolve to AI Technical Architect, distinct principals.
+```
+
+### Evidence recorded
+
+```text
+Review A — marker P3_RULES_REVIEW_A_REREVIEW_FINAL, principal ChatGPT, role AI Technical Architect,
+  boundary e69fe82ba3ce04ec642154ff70316a805547913a, scope §3 + P3-IDENTITY-001 bounded re-review.
+  Result CLEAN. P3-RULES-A-MAJ-01: CLOSED. New Blocker/Major/Minor 0/0/0. Verdict
+  READY_FOR_INDEPENDENT_REVIEW_B. Recorded as historical evidence — not claimed
+  repository-resolvable before this transaction.
+Independent Review B — marker P3_RULES_INDEPENDENT_REVIEW_B_FINAL, principal Claude (alias
+  "Independent Review B"), role AI Technical Architect, same boundary. Independence mode corrected
+  to Mode A — DISTINCT_PRINCIPAL (ChatGPT + Claude) — the original request had mislabeled this
+  execution as ChatGPT/Mode B, which did not match the actual execution; team.yaml confirms ChatGPT
+  and Claude are the two distinct principals involved. Historical report preserved truthfully, not
+  rewritten as READY: content-level checks 1-8 all PASS, subject content CLEAN, historical final
+  readiness was WITHHELD at review time.
+Findings (review-process/evidence findings, not semantic defects in phase-3-rules.md):
+  P3-RULES-B-MAJ-01 — Review A's CLEAN result existed out-of-band but was not repository-resolvable
+    at Review-B time. CLOSED_BY_REVIEW_A_EVIDENCE_RECORDING.
+  P3-RULES-B-MAJ-02 — the original request incorrectly assigned Claude's execution as ChatGPT/Mode
+    B. CLOSED_BY_ATTRIBUTION_CORRECTION (correct classification: Claude + ChatGPT = Mode A —
+    DISTINCT_PRINCIPAL).
+Aggregation (recorded separately from both historical reports): Review A COMPLETE/ELIGIBLE/CLEAN;
+  Review B COMPLETE/ELIGIBLE/CONTENT_CLEAN; shared boundary
+  e69fe82ba3ce04ec642154ff70316a805547913a; independence SATISFIED via Mode A — DISTINCT_PRINCIPAL;
+  P3-RULES-A-MAJ-01 / P3-RULES-B-MAJ-01 / P3-RULES-B-MAJ-02 all CLOSED; new unresolved Blocker/Major:
+  0. Phase-3 Rules v0.2: READY_FOR_PRODUCT_OWNER_ACCEPTANCE_DECISION — explicitly NOT acceptance.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md   manifest_version 10.174 → 10.175. phase-3-rules.md row extended with the
+  "Review evidence pinned" block (both reviews, findings, aggregation) and the
+  READY_FOR_PRODUCT_OWNER_ACCEPTANCE_DECISION state (508 words, within budget).
+```
+
+### No scope expansion / no rerun / no acceptance
+
+```text
+docs/governance/phases/phase-3-rules.md, docs/constitution/ (all chapters), docs/adr/ADR-031.md,
+  docs/governance/execution-rules.md, docs/team/team.yaml, docs/architecture/, docs/domain/,
+  docs/product/, docs/phase-dod/: all UNCHANGED, verified byte-identical (git diff --quiet). Neither
+  review was rerun — both recorded as already-completed. operational_state remains CANDIDATE,
+  accepted_by/accepted_at remain null — no Product Owner acceptance claimed or performed. Phase 3
+  substantive governed implementation unaffected — still PENDING_PHASE3_EXECUTION_RULE_
+  ESTABLISHMENT. LIVE remains NOT_AUTHORIZED.
+```
+
+### Result
+
+```text
+P3-RULES-A-MAJ-01: CLOSED. P3-RULES-B-MAJ-01: CLOSED. P3-RULES-B-MAJ-02: CLOSED. Minimum-two-review
+  requirement: SATISFIED via Mode A — DISTINCT_PRINCIPAL (ChatGPT + Claude). Phase-3 rules v0.2:
+  READY_FOR_PRODUCT_OWNER_ACCEPTANCE_DECISION (not acceptance). operational_state: CANDIDATE
+  (unchanged). Phase 3 substantive implementation: still PENDING_PHASE3_EXECUTION_RULE_
+  ESTABLISHMENT. LIVE: still NOT_AUTHORIZED.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified e69fe82ba3ce04ec642154ff70316a805547913a before any edit;
+  phase-3-rules.md verified version 0.2/CANDIDATE/null/null and blob
+  d0e8e98a07924159ce392529ed1204437e4540a2 before edit; git status --porcelain=v1 -uno verified
+  working tree clean before any edit. team.yaml inspected directly to confirm ChatGPT and Claude
+  ("Independent Review B") as two distinct AI Technical Architect principals — the basis for the
+  Mode A attribution correction. git status --porcelain=v1 -uall confirmed clean on
+  phase-3-rules.md, all Constitution chapters, ADR-031, execution-rules.md, team.yaml,
+  architecture/domain/product/phase-dod — only docs/MANIFEST.md changed. manifest_version increment
+  verified (10.174 → 10.175).
+```
+
 ## [Unreleased] — 2026-08-19 — Phase-3 rules v0.2: align acceptance authority and reviewer model
 
 **Bounded correction — vai trò: `Phase-3 Rules Bounded Correction Executor`.** Closes
