@@ -2,6 +2,100 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — Phase-3 rules v0.2: record Product Owner acceptance
+
+**Mechanical lifecycle acceptance — vai trò: `Phase-3 Rules Mechanical Acceptance Recorder`.**
+Executes the Product Owner decision "ACCEPT PHASE-3 EXECUTION RULES V0.2" (2026-08-19T11:10:00+07:00).
+Mechanical current-state recording only — does not change rule semantics.
+
+### Baseline
+
+```text
+Starting HEAD: 6c72544fc9aa90939b6d2ed69240c980c4978834 (verified via git rev-parse HEAD before any
+  edit, working tree clean). phase-3-rules.md verified directly: version 0.2, operational_state
+  CANDIDATE, accepted_by/accepted_at null, blob d0e8e98a07924159ce392529ed1204437e4540a2 — the
+  reviewed semantic candidate, Review A + Independent Review B both COMPLETE/ELIGIBLE at this exact
+  boundary (recorded in the immediately preceding transaction).
+```
+
+### Acceptance transition
+
+```text
+Frontmatter: operational_state CANDIDATE → EFFECTIVE; accepted_by null → Product Owner; accepted_at
+  null → "2026-08-19T11:10:00+07:00". version stays "0.2" (pure mechanical acceptance, no bump,
+  same pattern as Chapter 11 §11.4's ADR-approval convention applied here).
+§1 Phase identity: one stale phrase updated — "Phase 3 substantive governed implementation:
+  PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT" is now explicitly scoped "TẠI thời điểm authoring"
+  (historical), with a new sentence stating the current PERMITTED_TO_BEGIN state post-acceptance.
+§2 Operational state: rewritten from "CANDIDATE (KHÔNG EFFECTIVE)... KHÔNG binding" to "EFFECTIVE...
+  nay binding cho mọi transaction Phase 3."
+§3 Product Owner acceptance: accepted_by/accepted_at updated; the five-step sequence marked COMPLETE
+  step-by-step (candidate authoring; Review A COMPLETE/ELIGIBLE/CLEAN at boundary
+  e69fe82ba3ce04ec642154ff70316a805547913a closing P3-RULES-A-MAJ-01; Independent Review B
+  COMPLETE/ELIGIBLE/CONTENT_CLEAN at the same boundary via Mode A — DISTINCT_PRINCIPAL closing
+  P3-RULES-B-MAJ-01/02; Product Owner decision quoted verbatim; this deterministic MANIFEST
+  recording); reviewed semantic boundary/blob pinned explicitly, kept separate from the resulting
+  lifecycle-record blob (G-ID-001); Phase 3 substantive governed implementation stated
+  PERMITTED_TO_BEGIN with explicit non-implications (not implementation complete, not DoD, not
+  module/package approval, not LIVE authorization).
+Change history: new v0.2 acceptance entry appended (mechanical, no version bump) — the existing v0.1
+  and v0.2-bounded-correction entries are historical records, preserved verbatim, not rewritten.
+No P3 control semantics touched: all seven controls (P3-CORRECTION-CHAIN-001, P3-TXN-001,
+  P3-VERIFY-001, P3-REVIEW-001, P3-BUDGET-001, P3-IDENTITY-001, P3-MODULE-BATCH-001) and all other
+  sections (Gate-path, Retrospective requirement, Known process risks, Deferred Global promotion
+  candidates, ADR Scope Rule check) are byte-equivalent — verified via diff, only lifecycle prose in
+  §1/§2/§3 plus frontmatter changed.
+Reviewed semantic blob d0e8e98a07924159ce392529ed1204437e4540a2 → resulting lifecycle-record blob
+  1929b43570719edc5012f672cc794e0448649c19 (G-ID-001: two distinct identities, not conflated).
+```
+
+### Files changed
+
+```text
+docs/governance/phases/phase-3-rules.md   as detailed above.
+docs/MANIFEST.md   manifest_version 10.175 → 10.176. phase-3-rules.md row extended with the Product
+  Owner acceptance disposition (620 words, within budget). Within the "## ADR-031 Atomic Governance
+  Activation — COMPLETE" section: the "Phase-3 rules workflow: MAY_RESUME" and "Phase 3 substantive
+  governed implementation: PENDING..." lines (accurate as of that 2026-08-18 transaction) relabeled
+  "(AS OF 2026-08-18 ADR-031 activation — HISTORICAL, superseded)" with a pointer to the
+  phase-3-rules.md row for current state (386 words, within budget).
+```
+
+### No scope expansion / no semantic change
+
+```text
+docs/adr/ADR-031.md, docs/constitution/ (all chapters), docs/governance/execution-rules.md,
+  docs/team/team.yaml, docs/architecture/, docs/domain/, docs/product/, docs/phase-dod/, prototype/,
+  source code: all UNCHANGED, verified byte-identical (git diff --quiet). Phase-3 DoD state
+  unaffected — still not created. No module/package approved. No LIVE authorization implied or
+  performed.
+```
+
+### Result
+
+```text
+Phase-3 Execution Rules: v0.2, EFFECTIVE. Product Owner decision: "ACCEPT PHASE-3 EXECUTION RULES
+  V0.2" (2026-08-19T11:10:00+07:00). Reviewed semantic boundary/blob pinned and kept distinct from
+  the resulting lifecycle-record blob. Phase-3 execution-rule establishment: COMPLETE. Phase-3
+  substantive governed implementation: PERMITTED_TO_BEGIN — not implementation complete, not DoD
+  established, not module/package approval, not LIVE authorization. LIVE: still NOT_AUTHORIZED.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 6c72544fc9aa90939b6d2ed69240c980c4978834 before any edit;
+  phase-3-rules.md verified version 0.2/CANDIDATE/null/null and blob
+  d0e8e98a07924159ce392529ed1204437e4540a2 before edit; git status --porcelain=v1 -uno verified
+  working tree clean before any edit. git diff confirmed only lifecycle-prose/frontmatter changed in
+  phase-3-rules.md — no P3 control semantics touched. git status --porcelain=v1 -uall confirmed
+  clean on docs/adr, docs/constitution, docs/governance/execution-rules.md, docs/team/team.yaml,
+  docs/architecture, docs/domain, docs/product, docs/phase-dod, prototype — only
+  docs/governance/phases/phase-3-rules.md and docs/MANIFEST.md changed. manifest_version increment
+  verified (10.175 → 10.176). Frontmatter verified: version 0.2, operational_state EFFECTIVE,
+  accepted_by Product Owner, accepted_at exact decision timestamp.
+```
+
 ## [Unreleased] — 2026-08-19 — Phase-3 rules v0.2: pin independent review evidence
 
 **Review-evidence recording — vai trò: `Phase-3 Rules Review Evidence Recorder`.** Records the

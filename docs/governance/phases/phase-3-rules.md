@@ -2,10 +2,10 @@
 id: phase-3-rules
 title: "Phase 3 — Core Backend: Execution Rules"
 version: "0.2"
-operational_state: CANDIDATE
+operational_state: EFFECTIVE
 owner: Product Owner
-accepted_by: null
-accepted_at: null
+accepted_by: Product Owner
+accepted_at: "2026-08-19T11:10:00+07:00"
 created_at: "2026-08-18"
 phase: 3
 phase_name: "Core Backend"
@@ -13,14 +13,14 @@ phase_name: "Core Backend"
 
 # Phase 3 — Core Backend: Execution Rules
 
-**Vai trò của tài liệu này:** per-phase operational execution rule CANDIDATE cho Phase 3 — Core Backend (Chapter 14 §14.3: "build ĐÚNG theo dependency graph ở `07-module-taxonomy.md`"), đúng khung `docs/governance/phases/phase-rules-template.md`. Document này được author TRƯỚC KHI Phase 3 substantive work bắt đầu, đúng template's mandatory rule (fail-closed "criteria defined before used"). **`operational_state: CANDIDATE`** — ruleset này CHƯA được Product Owner accept, CHƯA `EFFECTIVE`. Phase 3 substantive governed implementation VẪN `PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT` cho tới khi một transaction acceptance riêng biệt (Review A → Independent Review B → Product Owner decision → deterministic MANIFEST recording) đổi `operational_state` sang `EFFECTIVE`. Rule tại đây CÓ THỂ siết chặt (tighten) Global Execution Rules (`../execution-rules.md` v0.4) cho phạm vi Phase 3, NHƯNG KHÔNG BAO GIỜ override Global Rules hay bất kỳ authority cao hơn.
+**Vai trò của tài liệu này:** per-phase operational execution rule cho Phase 3 — Core Backend (Chapter 14 §14.3: "build ĐÚNG theo dependency graph ở `07-module-taxonomy.md`"), đúng khung `docs/governance/phases/phase-rules-template.md`. Document này được author TRƯỚC KHI Phase 3 substantive work bắt đầu, đúng template's mandatory rule (fail-closed "criteria defined before used"). **`operational_state: EFFECTIVE`** (kể từ Product Owner acceptance, 2026-08-19T11:10:00+07:00, §3 dưới) — ruleset này nay binding cho mọi transaction Phase 3. Phase 3 substantive governed implementation nay `PERMITTED_TO_BEGIN` — đây KHÔNG PHẢI Phase 3 DoD, KHÔNG PHẢI approval cho bất kỳ module/package nào, KHÔNG PHẢI LIVE authorization. Rule tại đây CÓ THỂ siết chặt (tighten) Global Execution Rules (`../execution-rules.md` v0.4) cho phạm vi Phase 3, NHƯNG KHÔNG BAO GIỜ override Global Rules hay bất kỳ authority cao hơn.
 
 ```text
 phase:              3
 phase_name:         Core Backend
-operational_state:  CANDIDATE
-accepted_by:        null
-accepted_at:        null
+operational_state:  EFFECTIVE
+accepted_by:        Product Owner
+accepted_at:        "2026-08-19T11:10:00+07:00"
 ```
 
 ## 1. Phase identity
@@ -45,48 +45,58 @@ Canonical dependency sequence (Chapter 14 §14.2 — quote nguyên văn,
 Phase 3 lifecycle (MANIFEST, xác nhận trực tiếp trước khi author file
   này): AUTHORIZED TO BEGIN (Product Owner decision 2026-08-18T14:17:00
   +07:00), current_phase = "Phase 3 — Core Backend". Phase 3 substantive
-  governed implementation: PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT —
-  chính là điều kiện file CANDIDATE này định thỏa mãn (SAU KHI accept).
+  governed implementation: PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT
+  TẠI thời điểm authoring — chính là điều kiện file này định thỏa mãn.
+  **Kể từ Product Owner acceptance (2026-08-19T11:10:00+07:00, §3
+  dưới): `PERMITTED_TO_BEGIN`.**
 ```
 
 ## 2. Operational state
 
 ```text
-operational_state: CANDIDATE (KHÔNG EFFECTIVE). Ruleset này KHÔNG binding
-  cho bất kỳ transaction Phase 3 nào cho tới khi Product Owner accept
-  tường minh VÀ MANIFEST record deterministic acceptance — đúng trình tự
-  §Change history/§13 dưới đây, KHÔNG được rút gọn.
+operational_state: EFFECTIVE (kể từ 2026-08-19T11:10:00+07:00). Ruleset
+  này nay binding cho mọi transaction Phase 3 — trình tự năm bước §3 dưới
+  đã hoàn tất ĐẦY ĐỦ, KHÔNG bước nào bị bỏ qua/gộp tắt.
 ```
 
 ## 3. Product Owner acceptance
 
 ```text
-accepted_by: null
-accepted_at: null
-Trình tự bắt buộc TRƯỚC KHI operational_state chuyển EFFECTIVE:
-  1. candidate authoring (transaction này);
+accepted_by: Product Owner
+accepted_at: "2026-08-19T11:10:00+07:00"
+Trình tự bắt buộc TRƯỚC KHI operational_state chuyển EFFECTIVE — ĐÃ HOÀN
+  TẤT ĐẦY ĐỦ:
+  1. candidate authoring (2026-08-18) — COMPLETE.
   2. Review A (bounded, phạm vi toàn bộ candidate — architecture/authority
-     class, đúng P3-REVIEW-001 §8 dưới, KHÔNG PHẢI mechanical);
+     class, đúng P3-REVIEW-001 §8 dưới, KHÔNG PHẢI mechanical) —
+     COMPLETE/ELIGIBLE/CLEAN tại boundary
+     `e69fe82ba3ce04ec642154ff70316a805547913a`, đóng
+     `P3-RULES-A-MAJ-01`.
   3. Independent Review B, đúng review gate ACTIVE tại [Chapter 0
      §3](../../constitution/00-governance.md) / [Chapter 11
      §11.5](../../constitution/11-adr-process.md) (v1.2/v2.2, Locked,
-     [ADR-031](../../adr/ADR-031.md)) — Mode A (`DISTINCT_PRINCIPAL`) HOẶC
-     Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION`, execution-isolation
-     evidence contract). Tài liệu này KHÔNG redefine eligibility — CHỈ
-     tham chiếu; P3-IDENTITY-001 §8 dưới áp dụng mechanical pre-check
-     TRƯỚC KHI đếm review nào vào prerequisite;
-  4. Product Owner acceptance decision, tường minh, KHÔNG suy diễn từ im
-     lặng — yêu cầu trực tiếp "một phase rule artifact accepted TRƯỚC KHI
-     substantive work" đến từ [`phase-rules-template.md`](./phase-rules-template.md)
-     §Mandatory rule (authority trực tiếp cho CHÍNH yêu cầu này). Chapter
-     12 §12.1 CHỈ LÀ nguyên tắc tương tự "criteria defined before used"
-     được template đó tham chiếu làm minh họa — KHÔNG PHẢI authority trực
-     tiếp cho phase-rule acceptance (Chapter 12 tự thân orchestrate Phase
-     Approval Gate, KHÔNG phải per-phase-rule acceptance);
-  5. deterministic acceptance + MANIFEST current-state recording (transaction
-     riêng, mechanical, đúng G-TXN-003).
-  CHỈ SAU (5), Phase 3 substantive governed implementation mới PERMITTED —
-  KHÔNG BƯỚC nào trong năm bước trên được bỏ qua/gộp tắt.
+     [ADR-031](../../adr/ADR-031.md)) — Mode A (`DISTINCT_PRINCIPAL`,
+     ChatGPT + Claude) — COMPLETE/ELIGIBLE/CONTENT_CLEAN, CÙNG boundary,
+     đóng `P3-RULES-B-MAJ-01`/`P3-RULES-B-MAJ-02`. Tài liệu này KHÔNG
+     redefine eligibility — CHỈ tham chiếu; P3-IDENTITY-001 §8 dưới đã áp
+     dụng mechanical pre-check.
+  4. Product Owner acceptance decision — nguyên văn "ACCEPT PHASE-3
+     EXECUTION RULES V0.2" (2026-08-19T11:10:00+07:00), tường minh, KHÔNG
+     suy diễn từ im lặng — đúng yêu cầu trực tiếp từ
+     [`phase-rules-template.md`](./phase-rules-template.md) §Mandatory
+     rule (authority trực tiếp cho CHÍNH yêu cầu này; Chapter 12 §12.1
+     CHỈ LÀ nguyên tắc tương tự "criteria defined before used" template
+     đó tham chiếu minh họa, KHÔNG PHẢI authority trực tiếp).
+  5. deterministic acceptance + MANIFEST current-state recording (chính
+     transaction này, mechanical, đúng G-TXN-003) — COMPLETE.
+  Reviewed semantic boundary/blob (KHÔNG đổi bởi acceptance, đúng G-ID-001
+    — reviewed semantic identity tách biệt khỏi resulting lifecycle-record
+    identity): boundary `e69fe82ba3ce04ec642154ff70316a805547913a`, blob
+    `d0e8e98a07924159ce392529ed1204437e4540a2`.
+  Phase 3 substantive governed implementation: `PERMITTED_TO_BEGIN` kể từ
+    boundary này — KHÔNG PHẢI Phase 3 implementation hoàn tất, KHÔNG PHẢI
+    Phase 3 DoD, KHÔNG PHẢI approval module/package nào, KHÔNG PHẢI LIVE
+    authorization.
 ```
 
 ## 4. Inherited Global Rules
@@ -534,4 +544,30 @@ v0.2  2026-08-19  Bounded correction — vai trò: `Phase-3 Rules Bounded
       Constitution/Global Execution Rules KHÔNG sửa (byte-identical, git
       diff empty). Phase 3 substantive governed implementation VẪN
       `PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT`.
+v0.2  2026-08-19  Product Owner acceptance — mechanical lifecycle
+      recording, vai trò: `Phase-3 Rules Mechanical Acceptance
+      Recorder`. Decision nguyên văn: "ACCEPT PHASE-3 EXECUTION RULES
+      V0.2." Reviewed semantic candidate v0.2 (Review A
+      COMPLETE/ELIGIBLE/CLEAN đóng `P3-RULES-A-MAJ-01`; Independent
+      Review B COMPLETE/ELIGIBLE/CONTENT_CLEAN đóng `P3-RULES-B-MAJ-01`/
+      `P3-RULES-B-MAJ-02`; independence SATISFIED via Mode A —
+      `DISTINCT_PRINCIPAL`, ChatGPT + Claude; CẢ HAI TẠI boundary
+      `e69fe82ba3ce04ec642154ff70316a805547913a`, blob
+      `d0e8e98a07924159ce392529ed1204437e4540a2`), accepted KHÔNG đổi
+      semantic content — CHỈ §1/§2/§3 lifecycle prose + frontmatter
+      cập nhật cho khớp state ĐÃ accepted. `operational_state:
+      CANDIDATE -> EFFECTIVE`, `accepted_by: null -> Product Owner`,
+      `accepted_at: null -> "2026-08-19T11:10:00+07:00"`. `version:
+      "0.2"` KHÔNG đổi (pure mechanical acceptance, cùng pattern
+      Chapter 11 §11.4's "không bump version cho pure approval," áp
+      dụng tương tự cho phase-rules artifact). Bảy P3 control
+      (P3-CORRECTION-CHAIN-001/P3-TXN-001/P3-VERIFY-001/P3-REVIEW-001/
+      P3-BUDGET-001/P3-IDENTITY-001/P3-MODULE-BATCH-001) VÀ mọi nội
+      dung khác byte-equivalent, KHÔNG chạm. ADR-031/Constitution/
+      Global Execution Rules/team.yaml KHÔNG sửa. Phase 3 substantive
+      governed implementation: `PENDING_PHASE3_EXECUTION_RULE_
+      ESTABLISHMENT` -> `PERMITTED_TO_BEGIN` — KHÔNG PHẢI Phase 3
+      implementation hoàn tất, KHÔNG PHẢI Phase 3 DoD, KHÔNG PHẢI
+      approval module/package nào, KHÔNG PHẢI LIVE authorization.
+      `LIVE` VẪN `NOT_AUTHORIZED`.
 ```
