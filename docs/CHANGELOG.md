@@ -2,6 +2,120 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — ADR-032 v0.2: record independent review evidence
+
+**Mechanical/evidence transaction only — vai trò: `ADR-032 Review Evidence Recorder`.** Records the
+completed Review A + Independent Review B evidence for ADR-032 v0.2. Does not change ADR decision
+semantics, does not approve ADR-032.
+
+### Baseline
+
+```text
+Starting HEAD: eae8641c4f410d396ee6f1f042e8305e95468b0a (verified via git rev-parse HEAD before any
+  edit; git status --porcelain=v1 -uno clean; branch main). Reviewed subject: docs/adr/ADR-032.md
+  v0.2. Reviewed semantic boundary eae8641c4f410d396ee6f1f042e8305e95468b0a; reviewed ADR blob
+  0c0af1523496b3b6fa0ce7f93d0d6692e03a789f — verified via `git hash-object docs/adr/ADR-032.md` and
+  `git show HEAD:docs/adr/ADR-032.md | git hash-object --stdin`, both matched exactly, before
+  recording anything (G-VERIFY-001).
+```
+
+### Independence-mode verification (before recording, per P3-VERIFY-001)
+
+```text
+Independent Review B's claimed independence mode (SAME_PRINCIPAL_DISTINCT_EXECUTION, Mode B) was
+  checked against its governing evidence contract (ADR-031 §5, Approved) before being recorded as
+  satisfying it — this is the first Mode B review recorded in this repository (all prior recorded
+  reviews in this session's history were Mode A, distinct principals). ADR-031 §5 point 10 explicitly
+  warns that a bare free-form label is NOT sufficient isolation evidence on its own. The supplied
+  "Isolation attestation: SATISFIED" was therefore recorded expanded into ADR-031 §5's own four
+  conditions (separate execution context, not nested within Review A, independently resolved
+  authority without treating Review A as ground truth, distinct execution identifier) rather than
+  transcribed as a bare label — framed explicitly as self-attestation (per §5's own "tự xác nhận
+  tường minh" model for workflow-generated-ID evidence), not as independently-verified fact beyond
+  what was supplied. Execution ID for Review B (ADR032-B-eae8641c-20260819T1510+0700) is a
+  deterministic workflow-generated ID per ADR-031 §5's explicit fallback (no provider-native session
+  ID was available/supplied) — recorded as such, not mischaracterized as cryptographic/provider-
+  native proof (ADR-031 §5: "KHÔNG BAO GIỜ được mô tả LÀ cryptographic/provider-native proof").
+  Review A's row records no distinct execution ID (none was supplied) — recorded as the reference
+  execution Review B's isolation attestation is measured against, not fabricated to match Review B's
+  format.
+```
+
+### Evidence recorded
+
+```text
+Review A (principal ChatGPT, role AI Technical Architect, "Review A + bounded re-review" against
+  v0.2's reviewed boundary): CLEAN. ADR032-A-MAJ-01 re-verified CLOSED (against the v0.2 §B.3
+  two-axis rewrite from the immediately preceding transaction). New Blocker/Major/Minor: 0/0/0.
+  Verdict: READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B (principal ChatGPT — same principal as Review A, Mode B
+  SAME_PRINCIPAL_DISTINCT_EXECUTION, execution ID ADR032-B-eae8641c-20260819T1510+0700, isolation
+  attestation SATISFIED as detailed above): CLEAN. ADR032-A-MAJ-01 independently re-verified CLOSED.
+  ADR Scope Rule classification (ADR_REQUIRED, Chapter 0 §4b) independently assessed and confirmed
+  JUSTIFIED. New Blocker/Major/Minor: 0/0/0. Verdict: READY_FOR_PRODUCT_OWNER_DECISION.
+Aggregation: Review A COMPLETE/ELIGIBLE/CLEAN; Independent Review B COMPLETE/ELIGIBLE/CLEAN (Mode B,
+  ADR-031 §5 execution-isolation evidence contract satisfied per the attestation above). Independent-
+  review requirement: SATISFIED. Unresolved Blocker: 0. Unresolved Major: 0. ADR032-A-MAJ-01: CLOSED
+  (supersedes the prior CLOSED_BY_BOUNDED_CORRECTION / PENDING_REVIEW_A_REREVIEW interim state — both
+  executions independently re-verified the v0.2 fix). ADR-032 v0.2: READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### ADR file changes (evidence bookkeeping only — decision content untouched)
+
+```text
+docs/adr/ADR-032.md: frontmatter reviewers: [] -> [ChatGPT] (Chapter 11 §11.4: reviewers field is
+  historical evidence, not decision content). "Independent reviews / Concerns / Risks noted" table
+  filled with the two rows above plus an aggregation paragraph. NOT changed: version (stays "0.2"),
+  status (stays Draft), approved_by/approved_at (stay null), §A/§B/§C/Decision/Alternatives/Scale
+  check/Consequences content (byte-unchanged) — no ADR decision semantics touched, no approval
+  performed. Blob 0c0af1523496b3b6fa0ce7f93d0d6692e03a789f -> ff4f82b0677ffb6e3f8c6109281ecb378d474ba4.
+```
+
+### Preserved (verified unchanged)
+
+```text
+market-reference-service: not implemented. market-data-ingestion: not modified (git diff --quiet on
+  go/**). Domain Contracts (instrument.md/venue.md/candle.md): not touched. Dependency graph
+  (module-registry.yaml): not touched. Structure/Regime Engine: not touched. LIVE: NOT_AUTHORIZED,
+  not referenced.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-032.md   reviewers frontmatter + Independent-reviews table + aggregation, as above.
+docs/MANIFEST.md   manifest_version 10.179 -> 10.180. ADR table row for ADR-032 rewritten to current
+  state (review evidence recorded, ADR032-A-MAJ-01 CLOSED, READY_FOR_PRODUCT_OWNER_DECISION) — full
+  history preserved in this CHANGELOG, per P3-BUDGET-001 compaction discipline. "Escalation status"
+  pointer under "## Phase 3 — Data Layer Batch 01" updated to reflect the new status.
+docs/CHANGELOG.md   this entry.
+```
+
+### Result
+
+```text
+ADR-032: v0.2, Draft, reviewers: [ChatGPT], approved_by/approved_at still null — NOT approved.
+  ADR032-A-MAJ-01: CLOSED. Independent-review requirement: SATISFIED (Mode B). ADR-032 v0.2:
+  READY_FOR_PRODUCT_OWNER_DECISION. Decision content (language, boundary, two-axis mechanism):
+  unchanged. No code changed. No Domain Contract touched. No dependency-graph change. Structure/
+  Regime: not touched. LIVE: NOT_AUTHORIZED.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified eae8641c4f410d396ee6f1f042e8305e95468b0a before any edit; git status
+  --porcelain=v1 -uno verified clean before any edit. git hash-object docs/adr/ADR-032.md verified
+  0c0af1523496b3b6fa0ce7f93d0d6692e03a789f matched the claimed reviewed blob exactly before recording
+  (both via working-tree hash-object and git show HEAD:... | hash-object --stdin). Post-edit blob
+  ff4f82b0677ffb6e3f8c6109281ecb378d474ba4 computed and pinned. git status --porcelain=v1 -uall
+  confirmed only docs/adr/ADR-032.md, docs/MANIFEST.md, docs/CHANGELOG.md changed — go/**, docs/
+  domain/**, docs/architecture/** (module-registry.yaml included), docs/constitution/** all clean
+  (git diff --quiet). manifest_version increment verified (10.179 -> 10.180). ADR-032 frontmatter
+  verified after edit: version "0.2" (unchanged), status Draft (unchanged), approved_by/approved_at
+  null (unchanged), reviewers: [ChatGPT] (the only frontmatter field changed).
+```
+
 ## [Unreleased] — 2026-08-19 — ADR-032 v0.2: pin bitemporal reference-resolution contract
 
 **Bounded correction, closes `ADR032-A-MAJ-01` (Major, Review A) — vai trò:
