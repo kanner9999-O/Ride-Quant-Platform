@@ -2,6 +2,100 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — ADR-032 v0.2: pin bitemporal reference-resolution contract
+
+**Bounded correction, closes `ADR032-A-MAJ-01` (Major, Review A) — vai trò:
+`ADR-032 Bitemporal Contract Correction Executor`.** Do not broaden ADR-032; correct only the
+temporal-parameter ambiguity in §B.3.
+
+### Baseline
+
+```text
+Starting HEAD: cf52d982e1ebcf4b13f3977ca694df928f7483ed (verified via git rev-parse HEAD before any
+  edit; git status --porcelain=v1 -uno clean; branch main). Subject: docs/adr/ADR-032.md, v0.1 Draft,
+  blob 327b34d730ea253f61248c7306c07607c4be9760.
+```
+
+### Finding and correction
+
+```text
+ADR032-A-MAJ-01: v0.1 §B.3 point 1 required a "point-in-time-bound" reference query with a single,
+  ambiguous temporal parameter. Chapter 5 (Locked) requires TWO independent axes — effective
+  applicability (§5.1 effective_time) and recorded-time/knowledge visibility (§5.2, disambiguated by
+  an opaque ordering position per §5.3 Replay Cursor where needed) — not one. A single parameter
+  conflates the two and can permit look-ahead: a fact's own effective_time does not bound what Ride
+  had actually recorded about it by a given historical point.
+
+Correction: §B.3 point 1 rewritten to require BOTH axes as separate, mandatory, independent query
+  inputs — (a) effective applicability (the effective market/reference time or interval the fact must
+  apply to) and (b) knowledge visibility boundary (recorded_time/Replay Cursor, including ordering
+  position per §5.3 where needed) — with the answer resolved deterministically from their
+  INTERSECTION: facts effective for the requested applicability AND facts visible at the supplied
+  knowledge/replay boundary. Explicitly stated: effective_time alone MUST NOT control visibility;
+  corrections recorded later MUST NOT appear in earlier Replay; current wall clock/live service state
+  MUST NOT be used; exact transport/API serialization remains deferred (unchanged from v0.1). Does
+  NOT invent the concrete calendar/session/precision algorithm (§C unchanged). "Known implementation
+  gap" note (market-data-ingestion's internal/reference.Provider) restated for the two-axis contract
+  and marked as a REQUIRED future bounded code alignment after ADR-032 approval — not performed now.
+  A v0.2 bounded-correction banner added under the H1 title recording what changed and why. §A's
+  Chapter 5 citation expanded to name §5.2/§5.3 explicitly (citation-accuracy only, not new content).
+  Decision summary / Scale check / Consequences prose updated to say "two-axis bitemporal query"
+  instead of the old ambiguous "point-in-time-bound" phrase, for internal consistency — no other
+  semantic change.
+```
+
+### Preserved (verified unchanged)
+
+```text
+Language decision: Go (§B.1, byte-unchanged). market-reference-service sole authority / market-data-
+  ingestion query-consumer-only boundary (§B.2, byte-unchanged). Dependency graph: module-registry.yaml
+  not touched. Domain Contracts: instrument.md/venue.md/candle.md not touched (git diff --quiet).
+  ADR status: still Draft, still unreviewed, still unapproved. Structure/Regime Engine: not touched,
+  not mentioned as touched. LIVE: NOT_AUTHORIZED, unchanged (this ADR has never referenced LIVE).
+  No code changed (go/market-data-ingestion/** untouched, verified git diff --quiet).
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-032.md   version "0.1" → "0.2", §B.3 point 1 rewritten (two-axis contract), "Known
+  implementation gap" note restated, v0.2 correction banner added, Decision/Scale-check/Consequences
+  prose updated for consistency, §A Chapter 5 citation expanded. Blob 327b34d730ea253f61248c7306c-
+  07607c4be9760 → 0c0af1523496b3b6fa0ce7f93d0d6692e03a789f.
+docs/MANIFEST.md   manifest_version 10.178 → 10.179. ADR table row for ADR-032 rewritten to current
+  state (v0.2, two-axis contract, ADR032-A-MAJ-01 disposition) — full v0.1 text superseded in-place
+  per P3-BUDGET-001 compaction discipline, not left duplicated; full history preserved here in
+  CHANGELOG. "Escalation status" pointer under "## Phase 3 — Data Layer Batch 01" updated to note the
+  v0.2 correction and ADR032-A-MAJ-01's disposition.
+docs/CHANGELOG.md   this entry.
+```
+
+### Result
+
+```text
+ADR-032: v0.2, Draft, unreviewed, unapproved. ADR032-A-MAJ-01: CLOSED_BY_BOUNDED_CORRECTION /
+  PENDING_REVIEW_A_REREVIEW — NOT claimed CLEAN; a fresh Review A pass against the v0.2 boundary is
+  required before Independent Review B or Product Owner approval can proceed. Effective applicability
+  and knowledge/Replay-Cursor visibility are now two separate, mandatory, independent query inputs,
+  resolved by deterministic intersection. Language decision, module boundary, dependency graph, and
+  Domain Contract semantics: all unchanged. No code changed. Structure/Regime: not touched.
+  LIVE: NOT_AUTHORIZED.
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified cf52d982e1ebcf4b13f3977ca694df928f7483ed before any edit; git status
+  --porcelain=v1 -uno verified clean before any edit. git hash-object docs/adr/ADR-032.md computed
+  before (327b34d730ea253f61248c7306c07607c4be9760) and after
+  (0c0af1523496b3b6fa0ce7f93d0d6692e03a789f) the edit, both pinned. git status --porcelain=v1 -uall
+  confirmed only docs/adr/ADR-032.md, docs/MANIFEST.md, docs/CHANGELOG.md changed — go/**, docs/
+  domain/**, docs/architecture/** (module-registry.yaml included), docs/constitution/** all clean
+  (git diff --quiet). manifest_version increment verified (10.178 → 10.179). ADR-032 frontmatter
+  verified: version "0.2", status Draft, approved_by/approved_at null, reviewers: [] — unchanged
+  lifecycle fields, only version bumped (bounded correction on a Draft candidate, not an approval).
+```
+
 ## [Unreleased] — 2026-08-19 — ADR-032 authored (Draft): Data Layer reference-resolution architecture
 
 **ADR authoring only, no code — vai trò: `ADR-032 Data Layer Reference Architecture Author`.**
