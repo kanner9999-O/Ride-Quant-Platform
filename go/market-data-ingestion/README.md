@@ -1,9 +1,12 @@
 # market-data-ingestion
 
-Phase 3 Data Layer Batch 01 implementation. Governed by `module-registry.yaml`
+Phase 3 Data Layer implementation (Batch 01 + the ADR-032-driven completion
+transaction that follows it). Governed by `module-registry.yaml`
 (`market-data-ingestion`), Package 1.3-A
-(`docs/architecture/engine/structure-regime-architecture.md` §2.2), and the
-Candle Domain Contract (`docs/domain/candle.md`, v0.4, Draft).
+(`docs/architecture/engine/structure-regime-architecture.md` §2.2), the
+Candle Domain Contract (`docs/domain/candle.md`, v0.4, Draft), and
+**ADR-032 v0.2 (Approved)** for the `internal/reference.Provider` two-axis
+bitemporal contract.
 
 ## Scope of this transaction
 
@@ -28,8 +31,22 @@ as narrow Go interfaces (ports) with only test-double implementations:
 
 - **`internal/reference.Provider`** — market-reference-service
   (venue/instrument identity resolution + calendar/session window
-  resolution). `internal/reference.Fake` is a 24/7, UTC-aligned test
-  double — explicitly not a real trading-calendar implementation.
+  resolution). **Aligned to ADR-032 v0.2 §B.3's two-axis bitemporal
+  contract**: `ResolveIdentity`/`WindowFor` each take an effective-
+  applicability instant plus a separate, mandatory `knowledgeCursor`
+  (recorded_time / Replay Cursor) parameter — callers pass
+  `RawFact.RecordedTime` as the knowledge cursor (`ingest/service.go`'s
+  `resolveScope`). `internal/reference.Fake` is a 24/7, UTC-aligned test
+  double — explicitly not a real trading-calendar implementation — but
+  DOES honor the two-axis contract for corrections registered via
+  `Fake.ReviseDuration`, letting this module's own tests
+  (`TestFakeWindowForLookAheadGuard`) prove the look-ahead guard
+  end-to-end without depending on `market-reference-service`'s package
+  (Go `internal/` visibility prevents that import anyway — see below).
+  `market-reference-service` (`go/market-reference-service/`) now exists
+  and implements the same contract for real against its own event store;
+  wiring `Provider` to a real client of it is a deployment-topology
+  decision (ADR-032 §B.3 point 3, still deferred) — see "Not built" below.
 - **`internal/publish.EventPublisher`** — the append boundary that would
   resolve `stream-registry.yaml` and allocate `sequence`/`producer_ref`
   atomically with append (Chapter 8 §8.3.2).
@@ -45,34 +62,20 @@ No real venue adapter exists either — `internal/ingest.Service` accepts
 already venue-adapter-normalized `RawFact` values; nothing in this module
 talks to a real exchange.
 
-## Deferred: market-reference-service itself
+## market-reference-service — now implemented (resolved by ADR-032)
 
-`market-reference-service` (the other module in this batch,
-`depends_on: []`) is **not implemented** in this transaction. Two
-independent, pre-existing blockers, neither invented here:
-
-1. **Language assignment does not resolve.** ADR-008 pins Python to
-   {Feature Engineering, Strategy, Decision logic, Backtest Engine} and Go
-   to {Market Data Ingestion, Risk Gateway, Execution Engine} — by
-   capability nature, not by name (`docs/engineering/monorepo.md` §4).
-   `market-reference-service`'s responsibility (authoritative
-   Instrument/Venue identity, precision/tick/lot metadata, trading
-   calendar/session — reference/master-data ownership) does not fit either
-   layer's stated rationale. This needs either a governed layer-application
-   decision or a new ADR — not a silent choice made in code.
-2. **Its own Domain Contracts are unresolved.** `docs/domain/instrument.md`
-   (v0.6, Draft, six correction rounds) and `docs/domain/venue.md` both
-   explicitly defer the concrete calendar/session/precision-resolution
-   mechanism to implementation time ("Phase 1, chưa author" — venue.md
-   §8/§17). Building `market-reference-service` now would mean inventing
-   that mechanism silently.
-
-**Escalation:** both points require a governance decision (ADR or a
-build-time ADR-008 layer-application ruling, plus resolution of the
-instrument/venue calendar/session/precision design) before
-`market-reference-service` can be built. `market-data-ingestion` depends on
-it only through `internal/reference.Provider`, so this deferral does not
-block `market-data-ingestion`'s own implementation.
+Batch 01 deferred `market-reference-service` (this module's only
+dependency) — its language allocation and reference-resolution contract
+shape did not resolve under existing authority at that time. **ADR-032 v0.2
+(Approved)** resolved both: language = Go (capability-nature grounds), and
+a two-axis bitemporal query contract (effective applicability + knowledge/
+Replay-Cursor visibility, resolved by deterministic intersection).
+`market-reference-service` is now implemented at `go/market-reference-service/`
+against that authority. `market-data-ingestion` still depends on it only
+through `internal/reference.Provider` — never on its package directly (Go's
+`internal/` visibility rules prevent that cross-module import even if this
+module wanted to, and `module-registry.yaml`'s dependency edge was never
+meant to imply a compile-time Go import in the first place).
 
 ## Implementation-level decisions made at this build transaction
 
@@ -102,7 +105,11 @@ apply here and are not architecture decisions:
 ## Not built (needs its own scoped transaction, not silently added here)
 
 - A real venue adapter (WS/REST) for any specific exchange.
-- A real `market-reference-service` client / implementation.
+- A real transport-level client wiring `internal/reference.Provider` to
+  `market-reference-service`'s `internal/query.Service` (in-process call
+  vs. network RPC — ADR-032 §B.3 point 3 explicitly defers this
+  deployment-topology choice; both modules exist now, but nothing wires
+  them together yet).
 - Real event-log/broker wiring (`stream-registry.yaml` + a real
   `EventPublisher`).
 - `CandleCurrentView` read-model projection (candle.md §7) — not required

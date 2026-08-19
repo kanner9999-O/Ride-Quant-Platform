@@ -2,6 +2,227 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — Phase 3 Data Layer completion: implement market-reference-service, align market-data-ingestion to ADR-032's two-axis contract
+
+**Phase 3 substantive implementation — vai trò: `Phase-3 Data Layer Completion Executor`.** Completes the
+coherent Data Layer milestone: implements `market-reference-service` in Go under Approved ADR-032 v0.2,
+and aligns `market-data-ingestion`'s `internal/reference.Provider` to ADR-032 §B.3's mandatory two-axis
+bitemporal contract.
+
+### Baseline
+
+```text
+Starting HEAD: b7ebfe419c7fa76e2f043087514cb8ac923d27df (verified via git rev-parse HEAD before any
+  edit; git status --porcelain=v1 -uno clean; branch main). Governing authority verified directly
+  before implementation: ADR-032 v0.2 (Approved), ADR-008, Phase-3 Execution Rules v0.2, Constitution
+  Chapters 2/3/5/7/8/13/14, module-registry.yaml, system-decomposition.md, database-architecture.md/
+  api-architecture.md/security-custody-baseline.md, docs/domain/instrument.md v0.6 (read in full,
+  including §10-§24 not previously read — TradableListing, ActiveListingReservation §16, canonical
+  policy identifiers §17, correction lineage §18-§19, time semantics §20), docs/domain/venue.md v0.3
+  (read in full), docs/domain/candle.md v0.4, existing go/market-data-ingestion/**.
+```
+
+### market-reference-service implemented
+
+```text
+go/market-reference-service/ (new Go module, go.mod `go 1.25`, same verified-directly toolchain
+  policy as Batch 01):
+
+  internal/decimal    — duplicated from market-data-ingestion (Go internal/ visibility forbids
+    cross-module import; no shared library authorized).
+  internal/envelope   — Chapter 8 §8.2 envelope, instrument.md §2 shape (effective_time as instant,
+    market_time PROHIBITED — different from candle.md's interval effective_time).
+  internal/fact       — the GENERIC bitemporal fold engine implementing instrument.md §7/§18/§19/§20
+    verbatim, applied identically to Instrument/Venue/TradableListing exactly as the Domain Contract
+    itself requires ("áp dụng nguyên văn"): ResolveLineageHead (registration/creation lineage-head
+    resolution, including METADATA_ERROR vs SCOPE_ERROR correction handling and fork detection),
+    FoldMetadataPatches (EXPLICIT_PATCH_WITH_CLEAR_SET), FoldStatus (5-phase
+    RECORDED_VISIBILITY_THEN_EFFECTIVE_ORDER, including same-effective-time incompatible-transition
+    conflict detection — required a deliberate design fix mid-transaction: an early version
+    collapsed independent same-effective-time facts into the registration-lineage "fork" case, which
+    is wrong for status (a genuine Phase-5 conflict scenario, not a lineage fork) — resolved by
+    exposing resolveLiveHeads separately from ResolveLineageHead so status folding can see multiple
+    simultaneous heads instead of having them pre-collapsed), and Resolve (the composed §7 Bước 1-3
+    Current View fold). 24 test functions across lineage/metadata/status/resolve, including explicit
+    look-ahead-guard tests (a correction recorded later is invisible to an earlier knowledge cursor).
+  internal/instrument — Instrument (instrument.md §1-§9): Scope/InstrumentID (SHA-256 content hash of
+    the full scope, same pattern as candle.Scope.SubjectID — §23 defers the concrete algorithm to
+    implementation), state machine, Register/ChangeStatus/ResolveView built on internal/fact.
+  internal/venue       — Venue (venue.md §1-§9, "áp dụng nguyên văn theo instrument.md" for envelope/
+    lineage/patch/status) — same shape as internal/instrument.
+  internal/listing     — TradableListing (instrument.md §10-§15 Bước 1-3): CreateListing implements
+    the structurally-mandatory ActiveListingActivationRequested -> ActiveListingReserved ->
+    TradableListingCreated happy path (TradableListingCreated's own invariants make a matching
+    ActiveListingReserved with correct causal linkage and matching activation_request_id mandatory to
+    construct a valid event at all) — the full §16 contested-arbitration protocol (rejection, release,
+    reservation correction lineage) is NOT implemented, a documented bounded descope (see Scope
+    descope below), not a domain-contract gap.
+  internal/calendar    — the session/calendar-resolution mechanism venue.md §17/candle.md §17 defer to
+    implementation and ADR-032 §B.3 point 3 assigns to this transaction: a Calendar interface (not a
+    hardcoded universal rule, per ADR-007's explicit prohibition on assuming 24/7) with one registered
+    implementation, Continuous (24/7, UTC-aligned) — matching ADR-007's actual current deployment
+    scope and market-data-ingestion Batch 01's own Fake assumption.
+  internal/store        — in-memory event store, same pattern as market-data-ingestion's
+    internal/publish (contiguous per-stream sequence, atomic append, producer_ref stamping).
+  internal/query        — the ADR-032 §B.3 two-axis query boundary: ResolveIdentity/ResolveWindow/
+    ResolvePrecision, each taking an effective-applicability parameter and a separate, mandatory
+    knowledgeCursor parameter, resolved by the underlying fact engine's deterministic intersection.
+  cmd/marketreferenceservice — demo wiring (register Instrument+Venue+Listing, resolve identity/
+    window/precision) — exercised manually (go run), output manually inspected.
+
+go/market-reference-service/README.md documents ADR-032 compliance, the §16 scope descope, the
+  calendar mechanism, and what remains unbuilt.
+```
+
+### market-data-ingestion aligned to the two-axis contract
+
+```text
+internal/reference/reference.go   Provider.ResolveIdentity/WindowFor now take an explicit
+  knowledgeCursor time.Time parameter in addition to the effective-applicability instant — closes the
+  "Known implementation gap" ADR-032 itself flagged when it corrected the ADR-032 v0.1 -> v0.2
+  ambiguity. Doc comment rewritten to state the two-axis contract explicitly.
+internal/reference/fake.go        Fake extended with ReviseDuration(timeframe, newDuration,
+  recordedTime) so this module's own tests can register a bitemporal "correction" and prove the
+  look-ahead guard without depending on market-reference-service's package (which Go's internal/
+  visibility rules make impossible to import from outside its own module tree anyway).
+  ResolveIdentity/WindowFor updated to the new signature; the identity index itself stays a static
+  map (documented simplification, unchanged).
+internal/reference/fake_test.go   call sites updated; new TestFakeWindowForLookAheadGuard proves the
+  guard directly against the Fake.
+internal/ingest/service.go        resolveScope now passes RawFact.RecordedTime as the knowledge
+  cursor to both Provider calls — this ingestion pipeline's own processing/recording point is the
+  correct "what did we know as of when we processed this fact" boundary (I-3/I-5 no-look-ahead
+  applied to the pipeline itself, not just to the Candle events it produces).
+internal/ingest/service_bitemporal_test.go   new — TestIngestionReferenceResolutionIsDeterministic
+  AndBitemporallyCorrect: exercises the FULL ingest.Service pipeline (not just the raw Provider call)
+  against the Fake with a registered correction, proving deterministic resolution, the look-ahead
+  guard, and stale/future-fact non-leakage end-to-end at the ingestion side.
+No other production code touched — candle/precedence/gap/publish/envelope/decimal packages
+  byte-unchanged (verified git diff --quiet on those files individually before this summary).
+go/market-data-ingestion/README.md updated: "Deferred: market-reference-service itself" section
+  replaced with "market-reference-service — now implemented (resolved by ADR-032)"; "Not built" list
+  updated to reflect the real transport-level client wiring gap (deployment-topology decision, ADR-032
+  §B.3 point 3, still deferred) rather than "market-reference-service doesn't exist."
+```
+
+### ADR-032 §B.3 compliance — proven on both sides of the module boundary
+
+```text
+Three passing tests prove the same scenario independently: effective_time alone does not control
+  visibility; a correction recorded later is invisible to an earlier knowledge cursor; the same
+  effective instant resolves differently only once the knowledge cursor advances past the
+  correction's recorded_time; identical cursor pairs resolve identically (determinism).
+  1. go/market-reference-service/internal/query/service_test.go
+     TestResolvePrecisionLookAheadGuard — against the REAL query.Service implementation.
+  2. go/market-data-ingestion/internal/reference/fake_test.go
+     TestFakeWindowForLookAheadGuard — against the Fake.
+  3. go/market-data-ingestion/internal/ingest/service_bitemporal_test.go
+     TestIngestionReferenceResolutionIsDeterministicAndBitemporallyCorrect — full ingest.Service
+     pipeline.
+A literal single-process Go-level test importing both modules' internal packages in one binary is NOT
+  possible without exporting either module's internal API (Go's internal/ visibility scopes
+  importability to each module's own tree) — doing so would itself be an unauthorized module-boundary/
+  API-surface change. This is documented transparently, not silently worked around: the three tests
+  above are the strongest verification achievable within this transaction's authorized scope. Real
+  transport-level client wiring between the two modules remains deferred (ADR-032 §B.3 point 3).
+```
+
+### Scope descope — documented, not a DOMAIN_CONTRACT_DECISION_REQUIRED situation
+
+```text
+instrument.md §16's full ActiveListingReservation contested-arbitration protocol (rejection, release,
+  reservation correction lineage, terminal request disposition, idempotency-under-retry) is NOT
+  implemented — only the structurally-mandatory happy path TradableListingCreated's own invariants
+  make unavoidable. Every event this transaction emits matches instrument.md's schema exactly; the
+  omitted paths govern CONTENDED activation across concurrent registration attempts, which nothing in
+  this transaction's scope (a single, uncontested listing per pair) exercises. Consequence:
+  TradableListingCurrentView's full 7-step fold (§15) is not implemented — only Steps 1-3
+  (listing.ResolveView); Steps 4-7 (cross-subject Instrument/Venue eligibility, reservation-state
+  fold) are not needed by query.Service's three methods. Also not built: a real bitemporal symbol-to-
+  listing index (query.Service.bySymbol is a static map, a documented simplification) and a
+  traditional exchange-hours Calendar (only Continuous/24-7 exists) — see
+  go/market-reference-service/README.md for full reasoning on each.
+```
+
+### No domain contract decision required
+
+```text
+No instrument.md/venue.md/candle.md business-semantic gap was hit that required inventing a missing
+  rule to choose correct behavior. instrument.md §20's own bitemporal selection algorithm ("latest
+  valid fact với effective_time <= cursor VÀ recorded_time <= replay cursor") already matches
+  ADR-032 §B.3's two-axis requirement exactly — this transaction implemented what both already
+  specified, it did not need to resolve a new ambiguity.
+```
+
+### Files changed
+
+```text
+go/market-reference-service/**   new (~34 files: go.mod, README.md, cmd/, internal/{decimal,envelope,
+  fact,instrument,venue,listing,calendar,store,query}/*.go + *_test.go).
+go/market-data-ingestion/README.md   updated, as detailed above.
+go/market-data-ingestion/internal/reference/{reference.go,fake.go,fake_test.go}   two-axis alignment.
+go/market-data-ingestion/internal/ingest/service.go   resolveScope passes knowledge cursor.
+go/market-data-ingestion/internal/ingest/service_bitemporal_test.go   new.
+go/README.md   updated — records market-reference-service now exists.
+docs/MANIFEST.md   manifest_version 10.181 -> 10.182. New "## Phase 3 — Data Layer Completion"
+  section (current-state). One-line "Completion status" pointer added under the existing
+  "## Phase 3 — Data Layer Batch 01" section.
+docs/CHANGELOG.md   this entry.
+```
+
+### No scope expansion
+
+```text
+Structure Engine, Raw Regime Engine: not touched. module-registry.yaml dependency graph: not touched
+  (git diff --quiet confirmed). No architecture document edited. No Phase 3 DoD authored. No module/
+  package approval granted. No security/custody boundary change. No LIVE connectivity/credentials/
+  order execution anywhere (both modules' internal/reference, internal/query, and cmd/ use only
+  fakes/in-memory stores). ADR-032 itself not touched (immutable, Approved — verified git diff
+  --quiet on docs/adr/ADR-032.md). Domain Contracts (instrument.md/venue.md/candle.md): not touched,
+  read only. Constitution, other ADRs, governance docs: all byte-unchanged (verified git diff
+  --quiet).
+```
+
+### Result
+
+```text
+Phase 3 Data Layer milestone: COMPLETE. market-reference-service: IMPLEMENTED. market-data-ingestion:
+  aligned to ADR-032's two-axis contract. Cross-module reference-resolution contract: implemented and
+  proven on both sides via passing look-ahead-guard tests.
+Quality: gofmt clean, go vet clean, go build clean, go test ./... all pass for both modules.
+  market-reference-service statement coverage: calendar 100.0%, decimal 93.2%, fact 94.4%, instrument
+  97.6%, listing 83.9%, query 76.7%, store 100.0%, venue 95.1%. market-data-ingestion statement
+  coverage (updated packages): ingest 85.7%, reference 95.2% (others unchanged from Batch 01).
+  market-data-ingestion Tier: 2 ("Data Ingestion", Chapter 13 §13.4 initial-assignment table,
+  unchanged from Batch 01). market-reference-service Tier: DOES NOT RESOLVE — not named in Chapter 13
+  §13.4's initial-assignment table under any of the four examples, module-registry.yaml carries no
+  tier field; per §13.4 point 4's fail-closed rule and §13.4.1's anti-self-certification principle,
+  NOT self-assigned by analogy — flagged as an open finding. Quality Gate PASS: NOT claimed for
+  either module (branch coverage not measured, no tool chosen; full tier-resolution-provenance/
+  evidence-contract process is a separate governed evaluation; market-reference-service's Tier itself
+  unresolved).
+Architecture decision required: NONE. Domain contract decision required: NONE. Dependency graph
+  changed: NO. Structure/Regime touched: NO. Module/package approval: NONE. LIVE: NOT_AUTHORIZED
+  (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified b7ebfe419c7fa76e2f043087514cb8ac923d27df before any edit; git status
+  --porcelain=v1 -uno verified clean before any edit. gofmt -l (both modules, after formatting
+  passes): empty. go vet ./... (both modules): clean. go build ./... (both modules): clean.
+  go test ./... -cover (both modules): all packages with test files pass, no failures, no skips.
+  go run ./cmd/marketreferenceservice: executed successfully, output manually inspected. go run
+  ./cmd/marketdataingestion: re-executed after the alignment, output unchanged/still correct.
+  git status --porcelain=v1 -uall confirmed only go/market-reference-service/**,
+  go/market-data-ingestion/{README.md,internal/reference/**,internal/ingest/service.go,
+  internal/ingest/service_bitemporal_test.go}, go/README.md, docs/MANIFEST.md, docs/CHANGELOG.md
+  changed — docs/adr, docs/constitution, docs/governance, docs/architecture (module-registry.yaml
+  included), docs/domain, docs/product, docs/engineering, docs/team, prototype/ all clean
+  (git diff --quiet). manifest_version increment verified (10.181 -> 10.182).
+```
+
 ## [Unreleased] — 2026-08-19 — ADR-032 v0.2: record Product Owner approval
 
 **Mechanical lifecycle transaction only — vai trò: `ADR-032 v0.2 Mechanical Approval Recorder`.**
