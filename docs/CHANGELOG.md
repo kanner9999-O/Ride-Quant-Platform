@@ -2,6 +2,111 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — ADR-032 authored (Draft): Data Layer reference-resolution architecture
+
+**ADR authoring only, no code — vai trò: `ADR-032 Data Layer Reference Architecture Author`.**
+Resolves, at architecture level, the two escalations raised by Phase 3 Data Layer Batch 01
+(previous entry): `market-reference-service`'s language allocation and its runtime boundary/
+reference-resolution contract with `market-data-ingestion`.
+
+### Baseline
+
+```text
+Starting HEAD: 1ffb2dfaf722f3258587e960ac186f18bef1ac9e (verified via git rev-parse HEAD before any
+  edit; git status --porcelain=v1 -uno clean; branch main). Authority inspected directly per task
+  instruction: ADR-008, Chapter 0 §4b, Constitution Chapters 2/3/5/7/8, module-registry.yaml,
+  system-decomposition.md, instrument.md, venue.md, candle.md, database-architecture.md,
+  api-architecture.md, security-custody-baseline.md (excerpts re-verified from the immediately
+  preceding Batch 01 transaction's own reconnaissance, still valid — no relevant authority changed
+  in between), and the current market-data-ingestion implementation (go/market-data-ingestion/).
+```
+
+### ADR authored
+
+```text
+docs/adr/ADR-032.md — status Draft, version "0.1", reviewers: [], approved_by/approved_at null,
+  depends_on: [ADR-008]. Structured into three explicit parts per task instruction:
+  A. Already-authoritative domain semantics (module-registry.yaml fields, ADR-008 rationale text,
+     Chapter 5/8/I-5/I-12, instrument.md/venue.md/candle.md cited as Draft — none redefined).
+  B. Architecture/runtime mechanism decided here:
+     B.1 Language = Go, justified by explicit Python-vs-Go evaluation against ADR-008's actual
+         capability-nature rationale (not name similarity) — Python's I-2/data-science rationale
+         does not apply at all; Go's I/O+reliability rationale partially applies; a secondary
+         same-language-consumer practical factor stated separately, not conflated with the ADR-008
+         analysis. Rust not evaluated/not introduced.
+     B.2 Boundary — market-reference-service sole authoritative owner (I-12); market-data-ingestion
+         query-consumer-only, no command/mutation path, no second source of truth; no
+         module-registry.yaml dependency edge added/changed.
+     B.3 Mechanism — point-in-time-bound query contract (Chapter 5 bitemporal model, I-2/I-3),
+         decision-relevant answers treated as I-5-observable dependencies requiring capture; API
+         shape/transport/internal calendar-session-precision algorithm explicitly deferred to
+         market-reference-service's own build transaction (Package 1.3-A execution-topology-
+         deferral precedent cited). Flags (does not fix) a gap in market-data-ingestion's already-
+         built internal/reference.Provider port (no explicit temporal-applicability parameter) as a
+         follow-up against this new authority, not a retroactive Batch 01 defect.
+  C. Unresolved Domain Contract issues explicitly deferred, not resolved: instrument.md/venue.md
+     Draft content and open correction history; venue.md §8/§17's concrete algorithm; candle.md's
+     missing envelope field for captured reference-data provenance (a possible future candle.md
+     correction, not made here — Domain Contract semantics not touched, per task constraint).
+  ADR Scope Rule (Chapter 0 §4b): recorded explicitly as ADR_REQUIRED — decision affects >1 module
+    (market-reference-service, market-data-ingestion) and is itself a cross-module runtime contract,
+    satisfying the ">1 module" clause on its own (disjunctive OR with "khó đảo ngược", consistent
+    with the reading already established across this repository's ADR-scope history).
+  Independent-reviews table left blank (candidate, no review yet). Scale check filled
+  (decision_still_valid: YES, reasoning: language/boundary choice scales with exchange/instrument
+  count by construction; point-in-time-bound querying is what keeps Decision Parity valid as scale
+  grows, not what threatens it).
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-032.md   new, status Draft, blob 327b34d730ea253f61248c7306c07607c4be9760.
+docs/MANIFEST.md   manifest_version 10.177 → 10.178. New row in "## ADR" table for ADR-032 (Draft,
+  summarized decision + explicit ADR Scope Rule justification). One-line "Escalation status" pointer
+  added under the existing "## Phase 3 — Data Layer Batch 01" section's Architecture/Contract
+  decision required paragraphs — records that ADR-032 (Draft) now addresses those two escalations at
+  architecture level, without rewriting or reinterpreting the original Batch 01 facts.
+docs/CHANGELOG.md   this entry.
+```
+
+### No scope expansion
+
+```text
+No code changed (go/market-data-ingestion/** untouched, verified git diff --quiet). No Domain
+  Contract semantics modified (instrument.md/venue.md/candle.md all byte-unchanged, verified). No
+  module-registry.yaml change (dependency graph unchanged, verified git diff --quiet). No Structure/
+  Regime Engine work. No LIVE connectivity/credentials referenced or implied. ADR-032 not approved,
+  not activated — status Draft only, no review recorded, Product Owner has not acted.
+```
+
+### Result
+
+```text
+ADR-032: authored, Draft, unreviewed, unapproved. Language recommendation: Go. Cross-module
+  boundary: market-reference-service sole authoritative owner / market-data-ingestion query-
+  consumer-only, no new dependency edge. Reference-resolution mechanism: point-in-time-bound query
+  contract shape decided; API shape/transport/internal algorithm deferred to market-reference-
+  service's own build transaction. Domain Contract semantics: unchanged. Dependency graph: unchanged.
+  Phase 3 Data Layer status: market-data-ingestion implemented (Batch 01, prior entry), market-
+  reference-service still not built — its two build-blocking escalations now have an architecture-
+  level Draft answer (ADR-032) but building cannot begin until ADR-032 itself is reviewed and
+  Approved. Structure/Regime touched: No. LIVE: NOT_AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 1ffb2dfaf722f3258587e960ac186f18bef1ac9e before any edit; git status
+  --porcelain=v1 -uno verified clean before any edit. git hash-object docs/adr/ADR-032.md computed
+  and pinned into MANIFEST (327b34d730ea253f61248c7306c07607c4be9760). git status --porcelain=v1
+  -uall confirmed only docs/adr/ADR-032.md (new), docs/MANIFEST.md, docs/CHANGELOG.md changed —
+  go/**, docs/domain/**, docs/architecture/** (including module-registry.yaml), docs/constitution/**
+  all clean (git diff --quiet / untracked-file check). manifest_version increment verified
+  (10.177 → 10.178). ADR-032 frontmatter verified: status Draft, version "0.1", approved_by/
+  approved_at null, reviewers: [].
+```
+
 ## [Unreleased] — 2026-08-19 — Phase 3 Data Layer Batch 01: implement market-data-ingestion, defer market-reference-service
 
 **First substantive Phase 3 implementation transaction — vai trò: `Phase-3 Data Layer Batch-01 Implementation Executor`.**
