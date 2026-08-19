@@ -2,6 +2,88 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — market-reference-service: bounded evidence correction to the formal Quality Gate evaluation (`P3-MR-QG-A-MAJ-01`)
+
+**Evidence-correction transaction only — vai trò: `market-reference-service QG Evidence
+Correction Executor`.** Corrects the interpretation recorded in the immediately-prior
+Chapter 13 Quality Gate evaluation entry below. Does not rerun or reinterpret the gate as
+PASS. Does not modify implementation code. Does not change Tier, dependency graph,
+`module-registry.yaml`, ADR-032, or any Domain Contract.
+
+### Baseline
+
+```text
+Starting HEAD: 72bf8b5166d66ab55b267302f332b29788d4fedc (verified via git rev-parse HEAD before
+  any edit; git status --porcelain=v1 -uno clean; branch main). Evaluated subject boundary
+  unchanged: go/market-reference-service/** at commit 86107adb8ab01ce28b3984ee9ebfa15163ee5c62.
+```
+
+### Finding
+
+```text
+The prior QG evidence entry correctly records overall FAIL — evidence, but its "QG overall
+  result" reasoning states the result is driven solely by the missing branch-coverage metric.
+  Chapter 13 establishes TWO independent missing-required-evidence conditions, not one:
+  1. Coverage: Tier 2 requires line >= 80% AND branch >= 80% independently (§13.3). Branch
+     coverage evidence is unavailable (no governed/accepted mechanism) -> FAIL — evidence.
+  2. I-13 / state-machine testing: §13.6 requires Property-based testing for a numerical/
+     state-machine boundary. The prior evidence already discloses that no property-based/fuzz
+     testing was performed, but treated this as a forward-looking improvement note rather than
+     an independent required-evidence failure driver -> also FAIL — evidence.
+```
+
+### Correction applied
+
+```text
+Corrected sub-results: Line coverage PASS — 91.8% (unchanged) / Branch coverage FAIL —
+  evidence (unchanged) / I-13 property-based evidence FAIL — evidence (was labeled "PARTIAL";
+  Chapter 13 has no PARTIAL outcome for missing required evidence) / Overall QG FAIL —
+  evidence (unchanged conclusion, corrected reasoning: TWO independent failure drivers, not
+  one — either alone is independently sufficient, co-occurrence does not compound the result).
+Explicitly not invalidated: existing deterministic/table-driven state-machine tests remain
+  valid, useful, PASSING evidence — they simply do not satisfy Chapter 13 §13.6's specific
+  "Property-based" test-category requirement for this boundary class.
+Method: additive bounded correction — a new "Evidence Correction — P3-MR-QG-A-MAJ-01"
+  subsection appended to the existing MANIFEST QG-evaluation section, plus a short correction-
+  notice banner at the top of that section pointing to it. The original evaluation text (Fresh
+  verification, Line coverage, Branch coverage, Other applicable dimensions, QG overall result,
+  Open findings) is preserved byte-for-byte as the historical record — not rewritten.
+```
+
+### Preserved unchanged
+
+```text
+gofmt CLEAN, go vet CLEAN, go build CLEAN, go test PASS (51 functions), line coverage 91.8%,
+  Correctness PASS, Determinism PASS, No-look-ahead/bitemporal PASS, I-12 PASS,
+  internal/envelope.EventRecordRef.IsZero untested (0.0%, non-gate-blocking improvement
+  finding). No implementation code changed (verified git diff --quiet -- go/). No
+  branch-coverage tool chosen or implied — Chapter 13 §13.14 defers tooling selection to
+  Engineering Foundation, not decided in this transaction. No property-based tests added —
+  subsequent remediation work, out of this transaction's scope. Tier unchanged. Dependency
+  graph unchanged. module-registry.yaml untouched.
+```
+
+### No scope expansion
+
+```text
+No implementation code changed. module-registry.yaml read-only. Tier unchanged. Dependency
+  graph unchanged. ADR-032 not touched. Domain Contracts not touched. Chapter 13 not touched.
+  Structure Engine/Raw Regime Engine not touched. market-reference-service NOT approved. Data
+  Layer NOT approved. QG NOT reinterpreted as PASS. LIVE not authorized, not referenced.
+```
+
+### Result
+
+```text
+P3-MR-QG-A-MAJ-01: CLOSED_BY_BOUNDED_EVIDENCE_CORRECTION / PENDING_REVIEW_A_REREVIEW.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only — verified via git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-19 — market-reference-service: formal Chapter 13 Quality Gate evaluation — FAIL — evidence
 
 **Evidence/evaluation transaction only — vai trò: `market-reference-service Formal Quality Gate

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.187"
+manifest_version: "10.188"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -2279,6 +2279,13 @@ Conclusion: ADR NOT REQUIRED. Per Chapter 13 §13.4 branch 1, the correct,
 
 ## Phase 3 — `market-reference-service` Formal Quality Gate Evaluation (Chapter 13 — `FAIL — evidence`, NOT a Product Owner rejection, NOT approval)
 
+**Correction notice (`P3-MR-QG-A-MAJ-01`, bounded evidence correction):** the "State-transition
+integrity (I-13)" entry and the "QG overall result" reasoning below are corrected by the
+**"Evidence Correction — `P3-MR-QG-A-MAJ-01`"** subsection at the end of this section. Original
+text below is preserved unmodified as the historical record of what was evaluated and when;
+the correction is additive, not a rewrite. See that subsection for the authoritative current
+interpretation.
+
 **Baseline:** branch `main`, HEAD `86107adb8ab01ce28b3984ee9ebfa15163ee5c62` (verified — matches required baseline, working tree clean before this transaction). **No implementation code touched** — verified `git diff --quiet -- go/` after evaluation. `module-registry.yaml` read-only (verified `git diff --quiet -- docs/architecture/module-registry.yaml`), blob `5586cdaeb890fa694a812526ba44751f4b0e1541`, `version: "1.2"`, `package_lifecycle: Consolidated Stable`.
 
 ```text
@@ -2443,6 +2450,54 @@ This is NOT a Product Owner rejection (Chapter 13 §13.1/§13.8: "Quality Gate f
 **No scope expansion:** no implementation code changed (verified `git diff --quiet -- go/`). `module-registry.yaml` read-only (verified `git diff --quiet`). Tier unchanged. Dependency graph unchanged. ADR-032 not touched. Domain Contracts not touched. Chapter 13 not touched. Structure Engine/Raw Regime Engine not touched. `market-reference-service` NOT approved. Data Layer NOT approved. LIVE not authorized, not referenced.
 
 **Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
+
+### Evidence Correction — `P3-MR-QG-A-MAJ-01` (bounded, `PENDING_REVIEW_A_REREVIEW`)
+
+```text
+Finding: the "QG overall result" above states the FAIL — evidence result is "driven
+  specifically by the missing branch-coverage metric." This is incomplete. Chapter 13 §13.6
+  requires Property-based testing "khi áp dụng" for numerical/state-machine boundaries (I-9,
+  I-13). The evidence above (Open finding #3; the "Other applicable dimensions" I-13 entry)
+  already disclosed that no property-based/fuzz testing was performed — but treated this as a
+  forward-looking improvement suggestion rather than as an independent required-evidence
+  failure driver. It is the latter: Chapter 13 §13.6's category requirement is not
+  discretionary once the boundary class applies, so its absence is itself a missing-required-
+  evidence condition under §13.3/§13.8, exactly like the missing branch-coverage metric.
+
+Corrected sub-results (does not alter any other measured PASS result above):
+  Line coverage:                  PASS — 91.8% (unchanged)
+  Branch coverage:                 FAIL — evidence (unchanged)
+  I-13 property-based evidence:    FAIL — evidence (was labeled "PARTIAL" above; corrected —
+                                    Chapter 13 §13.8 has no "PARTIAL" gate outcome for missing
+                                    required evidence, only PASS or FAIL — evidence)
+  Overall QG:                      FAIL — evidence (unchanged conclusion, corrected reasoning)
+
+Corrected failure drivers (TWO independent, co-equal conditions — not one):
+  1. Required branch-coverage metric unavailable (no governed/accepted mechanism in this
+     repository or environment).
+  2. Required I-13 Property-based evidence missing (Chapter 13 §13.6).
+  Either driver alone is independently sufficient for FAIL — evidence under §13.3/§13.8; their
+  co-occurrence does not compound the result (still a single FAIL — evidence outcome, not a
+  "double fail").
+
+Explicitly NOT invalidated by this correction: the existing deterministic/table-driven
+  state-machine tests (TestFoldStatusSameEffectiveTimeConflict and others) remain valid,
+  useful, PASSING evidence of correctness — they are not wrong and are not discarded. They
+  are simply not the specific "Property-based" test category Chapter 13 §13.6 names for this
+  boundary class, so they do not by themselves satisfy that category's evidence requirement.
+
+Unchanged by this correction: gofmt CLEAN, go vet CLEAN, go build CLEAN, go test PASS (51
+  functions), Line coverage 91.8%, Correctness PASS, Determinism PASS, No-look-ahead/
+  bitemporal PASS, I-12 PASS, internal/envelope.EventRecordRef.IsZero untested (0.0%,
+  non-gate-blocking improvement finding, unchanged). No implementation code changed in this
+  transaction. No branch-coverage tool chosen or implied (Chapter 13 §13.14 defers tooling
+  selection to Engineering Foundation — not decided here). No property-based tests added
+  (subsequent remediation work, not this transaction). Tier unchanged. Dependency graph
+  unchanged. module-registry.yaml untouched.
+
+Finding status: P3-MR-QG-A-MAJ-01: CLOSED_BY_BOUNDED_EVIDENCE_CORRECTION /
+  PENDING_REVIEW_A_REREVIEW
+```
 
 ## Decision Log
 
