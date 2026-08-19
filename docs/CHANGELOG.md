@@ -2,6 +2,118 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — market-reference-service: pin Quality Tier 2
+
+**Governed module-registry metadata amendment only — vai trò: `market-reference-service Tier-2
+Registry Recorder`.** Records the Product Owner-approved Quality Tier classification for
+`market-reference-service`. No implementation code modified. No Quality Gate run or claimed.
+
+### Baseline
+
+```text
+Starting HEAD: b3a7b30525b37356f947c204c28ed61c73325dc4 (verified via git rev-parse HEAD before any
+  edit; git status --porcelain=v1 -uno clean; branch main). Governing authority re-verified directly:
+  Chapter 13 §13.3/§13.4/§13.9, Chapter 7 module-registry authority, Chapter 0 §3/§4b, current
+  module-registry.yaml market-reference-service entry (unchanged since the prior candidate
+  transaction), the candidate evidence itself (docs/MANIFEST.md "## Phase 3 —
+  market-reference-service Quality Tier Classification (CANDIDATE)" section, authored at this exact
+  HEAD).
+```
+
+### Product Owner decision
+
+```text
+Exact decision: "APPROVE MARKET-REFERENCE-SERVICE TIER 2". Decision time: 2026-08-19T19:27:00+07:00.
+```
+
+### Registry amendment
+
+```text
+docs/architecture/module-registry.yaml: added ONE new field, quality_tier, to the
+  market-reference-service entry ONLY:
+    quality_tier: { tier: "Tier 2 — Supporting", approved_by: "Product Owner",
+                     approved_at: "2026-08-19T19:27:00+07:00" }
+  Coverage floor (>= 80% line AND >= 80% branch, independently, Chapter 13 §13.3) and additional
+  tier-triggered requirements (none for Tier 2 — Chaos Test is Tier 0-only, Parity Test is Tier
+  1-only) are deliberately NOT duplicated in the registry — both derive from Chapter 13 §13.4's own
+  Locked table for the pinned tier value (I-12: one authoritative source per concept; duplicating
+  the floor number in the registry would create a second place it could drift from Chapter 13).
+  "Field reference:" doc-comment block extended with one new entry documenting quality_tier's shape
+  and the "absence = unresolved, not Tier-3-default" semantics, consistent with how every other
+  field in this file is documented.
+  version: "1.1" -> "1.2"; package_lifecycle: Consolidated Stable -> candidate — this is a genuine
+  semantic field addition (a new authoritative fact about the module), not a mechanical/wording-only
+  change, so it follows the exact precedent this file already established for
+  custody-signing-service.phase.elaborated_by (v0.6 -> v0.7, see file's own header history): a
+  genuine content change reopens the consolidated baseline pending a future re-consolidation
+  transaction, it is not silently absorbed into the existing Consolidated Stable state.
+  New banner comment prepended (2026-08-19T19:27:00+07:00, Product Owner decision quoted verbatim,
+  full authority-path citation, explicit preserved-unchanged list, explicit non-implications list) —
+  same house style as every prior module-registry.yaml amendment banner in this file.
+```
+
+### Verified preserved (byte-identical)
+
+```text
+market-reference-service: module_id, module_type, responsibilities, owns_authoritative_state,
+  consumes, emits, depends_on, forbidden_dependencies, security_classification, phase, status,
+  notes — all unchanged (verified via targeted git diff review: only the new quality_tier line
+  appears as an addition to this module's block).
+All 25 other modules: byte-identical, untouched.
+Dependency graph: byte-equivalent — verified via YAML parse: 26 modules (unchanged), 65 depends_on
+  edges (unchanged).
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml   as detailed above.
+docs/MANIFEST.md   manifest_version 10.184 -> 10.185. "## Architecture" table's module-registry.yaml
+  row: version 1.1 -> 1.2, new sentence recording the Product Owner decision and the exact field
+  added. Prior "## Phase 3 — market-reference-service Quality Tier Classification (CANDIDATE)"
+  section title and its "Governance approval still required" paragraph updated to record the
+  approval and current RESOLVED state (Tier 2 — Supporting), while preserving the full original
+  candidate reasoning (rejected-tier analysis, ADR Scope Rule assessment) as the historical record
+  of how this classification was reached.
+docs/CHANGELOG.md   this entry.
+```
+
+### No scope expansion / scope prohibitions verified held
+
+```text
+go/** untouched (verified git diff --quiet -- go/). ADR-032 untouched. Domain Contracts untouched.
+  Chapter 13 untouched. Dependency graph byte-equivalent. Structure Engine/Raw Regime Engine not
+  touched. No Quality Gate run. No Quality Gate PASS claimed. No module/package approval granted
+  (Chapter 12 phase-approval is a separate, untouched authority — this is a Chapter 13 tier-metadata
+  fact only). LIVE not authorized, not referenced.
+```
+
+### Result
+
+```text
+market-reference-service Chapter 13 Quality Tier: RESOLVED — Tier 2 — Supporting, coverage floor
+  >= 80% line AND >= 80% branch (independently), no additional tier-triggered requirement. Pinned at
+  module-registry.yaml v1.2 (package_lifecycle: candidate, pending future re-consolidation).
+  QG has NOT yet run — this transaction records classification authority only, not gate evidence.
+  Module/package approval: none. Code changed: none. Dependency graph changed: no.
+  LIVE: NOT_AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified b3a7b30525b37356f947c204c28ed61c73325dc4 before any edit; git status
+  --porcelain=v1 -uno verified clean before any edit. python3 yaml.safe_load() confirmed
+  module-registry.yaml parses correctly post-edit: 26 modules, version "1.2", package_lifecycle
+  "candidate", market-reference-service.quality_tier present with the exact approved values, 65
+  total depends_on edges (unchanged). git diff reviewed line-by-line for module-entry-level changes:
+  only the single new quality_tier line appears as an addition; no other module-entry field
+  changed. git status --porcelain=v1 -uall confirmed only docs/architecture/module-registry.yaml,
+  docs/MANIFEST.md, docs/CHANGELOG.md changed — go/**, docs/adr, docs/constitution, docs/governance,
+  docs/domain, docs/product, docs/engineering, docs/team, prototype/ all clean (git diff --quiet).
+  manifest_version increment verified (10.184 -> 10.185).
+```
+
 ## [Unreleased] — 2026-08-19 — market-reference-service Quality Tier Classification: CANDIDATE authored
 
 **Governance/classification preparation only — vai trò: `Market Reference Quality Tier Candidate

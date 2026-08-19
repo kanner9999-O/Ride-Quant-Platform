@@ -1,5 +1,36 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# v1.2 semantic amendment (2026-08-19T19:27:00+07:00, Product Owner decision, vai trò:
+# `market-reference-service Tier-2 Registry Recorder`) -- Product Owner decision verbatim:
+# "APPROVE MARKET-REFERENCE-SERVICE TIER 2". Adds ONE new field, `quality_tier`, to the
+# `market-reference-service` entry ONLY -- pins its Chapter 13 §13.4 branch-1 quality-tier
+# classification (Tier 2 -- Supporting, coverage floor >= 80% line AND >= 80% branch
+# independently per Chapter 13 §13.3, no additional tier-triggered requirement -- Chaos
+# Test is Tier 0-only, Parity Test is Tier 1-only). Classification candidate + full
+# rejected-tier reasoning + ADR Scope Rule assessment (ADR NOT REQUIRED, Chapter 0 §4b --
+# neither the ">1 module" nor "khó đảo ngược" clause triggers for one module's own tier
+# field) authored in a prior transaction, recorded in MANIFEST/CHANGELOG; this transaction
+# only records the resulting Product Owner approval into this registry, per Chapter 13
+# §13.4 branch 1's own authority path ("Runtime module -> resolve tier từ
+# module-registry.yaml, Chapter 7 §7.5") -- no separate canonical-tier-designation-authority
+# chain needed (that machinery, §13.4.1, is for standalone artifacts without a canonical
+# owning module; this module already has one). `version: "1.1" -> "1.2"`; genuine semantic
+# field addition (a new authoritative fact, not mechanical/wording-only), so
+# `package_lifecycle: Consolidated Stable -> candidate` -- same precedent this file already
+# established for `custody-signing-service.phase.elaborated_by: null -> "1.2"` (v0.6 ->
+# v0.7 below): a genuine content change reopens the consolidated baseline pending a future
+# re-consolidation transaction, it is not silently absorbed into the existing Consolidated
+# Stable state. Preserved BYTE-IDENTICAL: module_id, module_type, responsibilities,
+# owns_authoritative_state, consumes, emits, depends_on, forbidden_dependencies,
+# security_classification, phase, status, notes -- of `market-reference-service` AND of
+# every other module (all 25 other modules untouched, dependency graph byte-equivalent, 65
+# depends_on edges unchanged, zero forbidden_dependencies violation). This transaction does
+# NOT: run or claim any Quality Gate result (coverage floor is now applicable once a formal
+# gate evaluation happens, but none has run); approve `market-reference-service` as a
+# module/package (Chapter 12 phase-approval is a separate authority); modify
+# `go/market-reference-service/**` or any other implementation code; modify ADR-032; modify
+# any Domain Contract; modify Chapter 13; authorize LIVE (unchanged, NOT_AUTHORIZED).
+#
 # CONSOLIDATED STABLE (package lifecycle, 2026-08-10, Product Owner decision,
 # vai trò: `Package 1.1 ADR-023 Alignment Mechanical Reconsolidation Executor`)
 # -- status: Draft, NOT Approved/Locked. Product Owner decision (verbatim, as
@@ -401,13 +432,27 @@
 #                               architecture
 #   status                     candidate (this document authors no module beyond `candidate`)
 #   notes                      deferred items / authority gaps / rationale, when applicable
+#   quality_tier                OPTIONAL, present only once a module's Chapter 13 §13.4
+#                               criticality classification has been Product-Owner-approved
+#                               (branch 1: "Runtime module -> resolve tier từ
+#                               module-registry.yaml", Chapter 7 §7.5) -- {tier,
+#                               approved_by, approved_at}. `tier` is one of the four Chapter
+#                               13 §13.4 tier names (exact string, e.g. "Tier 2 —
+#                               Supporting"); coverage floor and any additional
+#                               tier-triggered requirement (Chaos/Parity Test) are NOT
+#                               duplicated here -- both derive from Chapter 13 §13.4's own
+#                               Locked table for the pinned tier value (I-12: one
+#                               authoritative source per concept). Absence of this field on
+#                               a module means its tier is UNRESOLVED (Chapter 13 §13.4
+#                               point 4, fail-closed) -- absence is not "no tier"/"Tier 3
+#                               default," it is "not yet classified."
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "1.1"
+version: "1.2"
 status: Draft
 package: "1.1"
-package_lifecycle: Consolidated Stable
+package_lifecycle: candidate
 generated_at: "2026-08-10"
 
 modules:
@@ -434,6 +479,7 @@ modules:
     phase: { identified_in: "1.1", elaborated_by: "1.3-A" }
     status: candidate
     notes: "Root module — no Phase 1 dependency."
+    quality_tier: { tier: "Tier 2 — Supporting", approved_by: "Product Owner", approved_at: "2026-08-19T19:27:00+07:00" }
 
   - module_id: market-data-ingestion
     name: Market Data Ingestion
