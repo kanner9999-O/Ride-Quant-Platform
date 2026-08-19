@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.176"
+manifest_version: "10.177"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -130,8 +130,11 @@ Phase 3 substantive governed
   08-18 — HISTORICAL):           VẪN `PENDING_PHASE3_EXECUTION_RULE_ESTABLISHMENT` tại thời điểm đó
                                 — activation ADR-031 tự nó KHÔNG authorize Phase 3 substantive work
                                 (vẫn đúng nguyên tắc). Current state (SAU Product Owner acceptance
-                                2026-08-19T11:10:00+07:00): `PERMITTED_TO_BEGIN`, xem
-                                `governance/phases/phase-3-rules.md` row phía trên.
+                                2026-08-19T11:10:00+07:00): `PERMITTED_TO_BEGIN`. First substantive
+                                batch executed 2026-08-19 — xem "## Phase 3 — Data Layer Batch 01"
+                                section phía dưới (current state) VÀ
+                                `governance/phases/phase-3-rules.md` row phía trên (rules,
+                                byte-unchanged by the batch).
 LIVE:                            `NOT_AUTHORIZED` (unchanged).
 current_phase:                   KHÔNG đổi bởi transaction này — VẪN "Phase 3 — Core Backend".
 ```
@@ -1910,6 +1913,55 @@ authorize LIVE (KHÔNG suy diễn deployment/exchange-connectivity/
 ```
 
 **Xác nhận tường minh (G-VERIFY-001 áp dụng — verify trực tiếp, KHÔNG suy diễn từ memory):** `current_phase` frontmatter (line 7, file này) verify trực tiếp trước/sau edit. Phase 2 Approval Gate `PASSED` (boundary `7f94a5412ab04e6e48a5f47c4629f1680f2a5c62`), `P2-RETRO-001` `COMPLETE` (boundary `778559b527118a182973b09541c2373b197cd960`) verify lại từ chính section tương ứng phía trên trong file này VÀ từ frontmatter của chính retrospective document (byte-identical). `docs/constitution/14-roadmap.md` verify blob `f2cd722218bd80b40241e26530a1919811fedad9` trực tiếp (`git hash-object`), version `1.6`/`Locked` unchanged. `docs/governance/phases/` verify trực tiếp KHÔNG chứa `phase-3-rules.md`. ADR/Constitution/Domain Contract/architecture package/Phase 2 DoD/Phase 2 retrospective/Global Execution Rules (`governance/execution-rules.md`)/Phase 2 rules (`governance/phases/phase-2-rules.md`)/prototype/`docs/product/` KHÔNG sửa bởi transaction này (git status --porcelain=v1 -uall clean / git diff --quiet cho tất cả).
+
+## Phase 3 — Data Layer Batch 01 (`market-data-ingestion` implemented; `market-reference-service` deferred — first substantive Phase 3 implementation transaction, P3-MODULE-BATCH-001)
+
+**Baseline:** branch `main`, HEAD `8e3d5267e4b4bf92ef62177be36767989ebba335` (verified — matches required baseline, working tree clean before this transaction). Governing authority applied: `module-registry.yaml` (`market-data-ingestion`/`market-reference-service` entries, Data Layer section), `docs/architecture/engine/structure-regime-architecture.md` (Package 1.3-A, Consolidated Stable, §2.1/§2.2/§12/§13), `docs/domain/candle.md` v0.4 (Draft), Constitution Chapters 2/3/5/7/8 (Locked), `docs/adr/ADR-008.md` (Approved), `docs/engineering/{monorepo,coding-standard,naming,testing,error-handling,logging,config}.md`.
+
+```text
+market-data-ingestion:   IMPLEMENTED (go/market-data-ingestion/, module
+  github.com/kanner9999-O/Ride-Quant-Platform/go/market-data-ingestion).
+  Language: Go — direct existing authority (ADR-008 names "Market Data
+  Ingestion" explicitly). go.mod `go 1.25` — minimum verified directly
+  against https://go.dev/doc/devel/release at this transaction (official
+  policy: two newest major releases supported, currently 1.26/1.25; built/
+  tested locally with go1.26.6, installed via Homebrew this transaction).
+  Packages: internal/decimal (I-9 lossless decimal, no float round-trip),
+  internal/envelope (Chapter 8 §8.2 envelope, Draft/Envelope split so
+  sequence/stream_ref/producer_ref are publisher-assigned per §8.3.2, not
+  domain-assigned), internal/candle (Logical Candle Subject identity/state
+  machine/event drafts, candle.md §1-§6), internal/precedence (candle.md
+  §11 5-step duplicate/correction/fail-closed algorithm), internal/gap
+  (candle.md §12 missing-data handling, complete_zero_volume 5-condition
+  gate), internal/reference (market-reference-service dependency PORT —
+  interface only, no real implementation, Fake test double), internal/
+  publish (EventPublisher append-boundary PORT — interface only, in-memory
+  Memory test double), internal/ingest (orchestration service wiring the
+  above), cmd/marketdataingestion (demo wiring, fakes only, not a
+  deployable service). Full scope/decisions/gaps documented in
+  go/market-data-ingestion/README.md.
+market-reference-service: NOT BUILT — deferred, escalated (see below).
+Structure/Regime Engine touched: NO (forbidden this transaction, not touched).
+Dependency graph: UNCHANGED (module-registry.yaml not modified).
+Architecture docs: UNCHANGED (no doc edited to fit code).
+Phase 3 DoD: NOT created (not this transaction's authority).
+Module/package approval: NONE granted (this is implementation, not approval).
+LIVE: NOT_AUTHORIZED (unchanged) — no venue connectivity, credentials, or
+  order execution implemented anywhere in this batch; internal/reference
+  and cmd/ use only fakes.
+```
+
+**Architecture decision required (escalated, not silently decided):** `market-reference-service`'s implementation language does not resolve under existing authority. ADR-008 pins Python to {Feature Engineering, Strategy, Decision logic, Backtest Engine} and Go to {Market Data Ingestion, Risk Gateway, Execution Engine} by capability nature (`monorepo.md` §4 — name-similarity is explicitly not authority). `market-reference-service`'s responsibility (authoritative Instrument/Venue identity, precision/tick/lot metadata, trading calendar/session — reference/master-data ownership) fits neither layer's stated rationale. Needs either a governed ADR-008-layer-application ruling at this module's own build transaction, or a new ADR.
+
+**Contract decision required (escalated, not silently decided):** `market-reference-service`'s own Domain Contracts are unresolved authority to build against. `docs/domain/instrument.md` (v0.6, Draft, six correction rounds, still Draft/unapproved) and `docs/domain/venue.md` both explicitly defer the concrete trading-calendar/session/precision-resolution mechanism to implementation time (venue.md §8/§17: "Phase 1, chưa author"). Building `market-reference-service` now would mean inventing that mechanism silently, which this transaction is not authorized to do.
+
+**Quality:** applicable tier resolved via Chapter 13 §13.4's initial-assignment table (`module-registry.yaml` carries no `tier` field yet, so the table is authoritative per §13.4's own fallback text): "Tier 2 — Supporting: API layer, Data Ingestion" — floor ≥80% on line and branch coverage independently, no additional mandatory test category (Chaos/Parity apply to Tier 0/1 only). Executed genuinely: `gofmt -l` (0 files after one formatting pass), `go vet ./...` (clean), `go build ./...` (clean), `go test ./... -cover` — all 8 packages with test files pass, statement coverage: candle 96.6%, decimal 93.2%, gap 100.0%, ingest 85.7%, precedence 100.0%, publish 100.0%, reference 100.0% (envelope has no independent logic, no test file). **Quality Gate PASS is NOT claimed**: Go's stdlib `-cover` measures statement coverage only, not the independently-required branch-coverage metric (no branch-coverage tool is chosen/pinned anywhere in this repository), and a formal PASS requires the full tier-resolution-provenance/evidence-contract process (Chapter 13 §13.4.1/§13.4.2/§13.9) as its own governed evaluation — out of scope for an implementation transaction.
+
+**Not built (flagged, not silently added):** real venue adapter (WS/REST) for any exchange; real `market-reference-service` client; real event-log/broker wiring (`stream-registry.yaml` + a real `EventPublisher` — also independently confirmed absent by Package 1.3-A §13's own open-gaps list); `CandleCurrentView` read-model projection (not required by this batch, candle.md §7); venue/session-closed handling beyond the port shape (`reference.ErrSessionClosed`) — needs the `instrument-venue-reference` Domain Contract, which does not exist.
+
+**Files changed:** `go/market-data-ingestion/**` (new — go.mod, README.md, cmd/marketdataingestion/main.go, internal/{decimal,envelope,candle,precedence,gap,reference,publish,ingest}/*.go + *_test.go), `go/README.md` (updated — records the module now exists, records the market-reference-service deferral). `docs/MANIFEST.md`/`docs/CHANGELOG.md` (this transaction's bookkeeping). No other file touched — verified via `git status --porcelain=v1 -uall` / `git diff --quiet` scoped to tracked authority files (Constitution, ADR, Domain Contract, architecture, governance, Engineering Foundation all byte-unchanged).
+
+**No scope expansion:** Structure Engine, Raw Regime Engine, Feature Engine not touched. `module-registry.yaml` dependency graph not touched. No architecture document edited. No Phase 3 DoD authored. No module/package approval granted. No LIVE authorization implied or claimed.
 
 ## Decision Log
 
