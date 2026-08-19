@@ -2,6 +2,101 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-19 — ADR-032 v0.2: record Product Owner approval
+
+**Mechanical lifecycle transaction only — vai trò: `ADR-032 v0.2 Mechanical Approval Recorder`.**
+Records the Product Owner approval of ADR-032 v0.2. Does not change ADR decision semantics, does not
+implement code.
+
+### Baseline
+
+```text
+Starting HEAD: 38fc024a2b8a96772395d5a6ac584ca28c39db94 (verified via git rev-parse HEAD before any
+  edit; git status --porcelain=v1 -uno clean; branch main). docs/adr/ADR-032.md verified directly
+  before edit: version "0.2", status Draft, reviewers: [ChatGPT], approved_by/approved_at null, blob
+  ff4f82b0677ffb6e3f8c6109281ecb378d474ba4 (matches the evidence-recording boundary from the
+  immediately preceding transaction). Verified preconditions (re-checked directly, not from memory):
+  Review A COMPLETE/ELIGIBLE/CLEAN, Independent Review B COMPLETE/ELIGIBLE/CLEAN, independent-review
+  requirement SATISFIED, ADR032-A-MAJ-01 CLOSED, 0 unresolved Blocker, 0 unresolved Major.
+```
+
+### Product Owner decision
+
+```text
+Exact decision: "APPROVE ADR-032 V0.2". Decision time: 2026-08-19T15:32:00+07:00.
+```
+
+### Approval transition
+
+```text
+Frontmatter: status Draft -> Approved; approved_by null -> Product Owner; approved_at null ->
+  "2026-08-19T15:32:00+07:00". version stays "0.2" (pure mechanical approval, Chapter 11 §11.4/§11.6
+  — no bump, same pattern used for every prior ADR approval this session).
+Aggregation paragraph (Independent reviews section): the interim "This recording is evidence-only —
+  does NOT approve ADR-032; status remains Draft..." sentence — now factually stale — replaced with
+  the actual approval record: Product Owner decision quoted verbatim, approved_at, reviewed semantic
+  boundary/blob restated unchanged, resulting post-approval lifecycle-record blob distinguished
+  (G-ID-001), and the Chapter 11 §11.3 immutability notice. No decision content (§A/§B/§C/Decision/
+  Alternatives/Scale check/Consequences) touched — byte-identical except this lifecycle paragraph and
+  the frontmatter fields above.
+Reviewed semantic boundary/blob UNCHANGED: eae8641c4f410d396ee6f1f042e8305e95468b0a /
+  0c0af1523496b3b6fa0ce7f93d0d6692e03a789f — verified via git hash-object immediately before this
+  edit, matched exactly (G-VERIFY-001). Resulting post-approval lifecycle-record blob:
+  231c13362e15062fdc26a6ffe3199c99425b750c (G-ID-001: three distinct identities across this ADR's
+  lifecycle — v0.1 authoring blob, v0.2 correction blob, reviewed/evidence blob, and now this
+  approval blob — none conflated).
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-032.md   frontmatter (status/approved_by/approved_at) + aggregation-paragraph lifecycle
+  update, as above. Blob ff4f82b0677ffb6e3f8c6109281ecb378d474ba4 -> 231c13362e15062fdc26a6ffe3199c99425b750c.
+  Per Chapter 11 §11.3, this file is now immutable byte-for-byte.
+docs/MANIFEST.md   manifest_version 10.180 -> 10.181. ADR table row for ADR-032 rewritten to Approved
+  current-state (compacted per P3-BUDGET-001 — full step-by-step history across v0.1 authoring, v0.2
+  correction, and review-evidence recording preserved in this CHANGELOG's three preceding entries, not
+  duplicated in MANIFEST). "Escalation status" pointer under "## Phase 3 — Data Layer Batch 01"
+  updated to record the approval and its explicit non-implications.
+docs/CHANGELOG.md   this entry.
+```
+
+### Scope prohibition — verified held
+
+```text
+No market-reference-service implementation. No market-data-ingestion modification. No
+internal/reference.Provider alignment. No Domain Contract touched. No module-registry.yaml
+dependency-graph change. No Structure Engine/Raw Regime Engine touched. No LIVE authorization. No
+Phase 3 DoD change. No module/package approval. All verified via git diff --quiet on go/**,
+docs/domain/**, docs/architecture/** (module-registry.yaml included), docs/constitution/**.
+```
+
+### Result
+
+```text
+ADR-032: v0.2, Approved, approved_by Product Owner, approved_at 2026-08-19T15:32:00+07:00. Resulting
+  architecture authority (does NOT itself authorize implementation): market-reference-service
+  language = Go; market-reference-service remains sole authoritative owner of Instrument/Venue
+  identity, precision/tick/lot, calendar/session; market-data-ingestion remains query-consumer-only;
+  reference-resolution contract requires both effective-applicability and knowledge/Replay-Cursor
+  visibility, resolved by deterministic intersection; exact transport/API/internal algorithm remain
+  deferred. market-reference-service implementation: NOT authorized by this transaction — a separate
+  governed build transaction is required. LIVE: NOT_AUTHORIZED (unchanged).
+```
+
+### Validation
+
+```text
+git rev-parse HEAD verified 38fc024a2b8a96772395d5a6ac584ca28c39db94 before any edit; git status
+  --porcelain=v1 -uno verified clean before any edit. docs/adr/ADR-032.md verified directly before
+  edit: version 0.2/Draft/null/null, blob ff4f82b0677ffb6e3f8c6109281ecb378d474ba4. git status
+  --porcelain=v1 -uall confirmed only docs/adr/ADR-032.md, docs/MANIFEST.md, docs/CHANGELOG.md
+  changed — go/**, docs/domain/**, docs/architecture/**, docs/constitution/** all clean (git diff
+  --quiet). manifest_version increment verified (10.180 -> 10.181). ADR-032 frontmatter verified
+  after edit: version "0.2" (unchanged), status Approved, approved_by Product Owner, approved_at
+  "2026-08-19T15:32:00+07:00".
+```
+
 ## [Unreleased] — 2026-08-19 — ADR-032 v0.2: record independent review evidence
 
 **Mechanical/evidence transaction only — vai trò: `ADR-032 Review Evidence Recorder`.** Records the
