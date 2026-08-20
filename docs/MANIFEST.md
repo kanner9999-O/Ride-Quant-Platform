@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.196"
+manifest_version: "10.197"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -3499,6 +3499,161 @@ Files changed: go/market-reference-service/internal/decimal/decimal.go,
   go/market-reference-service/internal/listing/listing_test.go,
   go/market-reference-service/internal/query/service_test.go, docs/MANIFEST.md,
   docs/CHANGELOG.md — verified via git status --porcelain=v1 -uall, no other file touched.
+```
+
+## market-reference-service Branch-Coverage Remediation Resumed (post `P3-MR-DECIMAL-MAJ-01`)
+
+```text
+Baseline: branch main, HEAD 046f240ca3792bda709c8d757ca6b392ca3a3450 (verified via git
+  rev-parse HEAD before any edit; git status --porcelain=v1 -uno clean).
+
+Fresh branch baseline (measured BEFORE any test change, per this task's explicit "First
+  required action" — the historical 133/178 = 74.72% denominator was NOT reused, since
+  production code changed in P3-MR-DECIMAL-MAJ-01): gobco -branch, pinned
+  v1.3.5-0.20240924205308-2d21b14addca, invoked once per package (module-wide invocation still
+  panics: "checking multiple packages doesn't work yet," unchanged tool constraint), raw N/M
+  summed across all 9 authoritative production packages:
+    calendar 2/2, decimal 32/36, envelope 0/0, fact 45/52, instrument 7/10, listing 21/24,
+    query 29/38, store 2/2, venue 6/10 -> 144/174 = 82.76%.
+  This baseline was ALREADY above the Tier 2 80% floor — an incidental effect of
+  P3-MR-DECIMAL-MAJ-01's own regression tests (decimal/listing/query) plus the earlier I-13
+  remediation's effect on internal/fact. Denominator dropped from 178 to 174 versus the
+  historical formal QG boundary because production code changed (listing.go's ResolveView
+  restructuring), NOT because any branch was excluded from measurement.
+
+Packages prioritized (fresh measurement, not the old QG's priorities): internal/query (8
+  reachable gaps identified), internal/instrument and internal/venue (metadata-revision path
+  never exercised, weakest relative percentages at 70%/60%), internal/decimal/internal/listing
+  inspected and found to have ONLY structurally-unreachable remaining gaps (disclosed below,
+  not chased).
+
+Uncovered branches targeted and tests added (12 new test functions, 3 test files, ZERO
+  production code changed — no new defect discovered):
+  internal/instrument/instrument_test.go:
+    TestResolveViewAppliesMetadataRevision — forward-looking InstrumentMetadataRevised patch
+      (display_name) folds correctly; look-ahead guard (revision must not leak backward to an
+      earlier knowledge cursor) verified in the same test.
+  internal/venue/venue_test.go:
+    TestResolveViewAppliesMetadataRevision — same pattern for VenueMetadataRevised
+      (timezone_ref), including the look-ahead guard.
+    TestResolveViewUnknownVenueIDIsPendingCorrection — unknown/never-registered venue_id
+      fails closed (no panic, PENDING_CORRECTION), symmetric with listing's existing
+      TestResolveViewUnknownListingIDIsPendingCorrection.
+  internal/query/service_test.go:
+    TestResolveIdentityBeforeVenueEffectiveTime — query at an effective instant BEFORE the
+      venue's own registration effective_time (but AFTER it was recorded — isolates the
+      effective-time axis specifically from the already-covered knowledge-time axis) ->
+      ErrUnknownReference. (Caught and fixed a self-authored test bug during development: the
+      first draft accidentally set knowledgeCursor before the recording too, tripping the
+      wrong guard — re-verified against the actual gobco branch report before accepting it as
+      correct.)
+    TestResolveIdentityScopedToCorrectVenue — a second venue+instrument+listing sharing the
+      SAME raw venue_symbol must not cross-match; verified in BOTH directions (querying venue
+      A does not return venue B's listing, and querying venue B — whose listing is NOT first
+      in append order — correctly skips past venue A's non-matching listing rather than
+      relying on iteration order).
+    TestResolveIdentityIgnoresListingWithPendingCorrectionView — a candidate listing with a
+      PENDING_CORRECTION view (malformed metadata, exercising the now-fixed
+      P3-MR-DECIMAL-MAJ-01 path) is correctly skipped by resolveListingByVenueSymbol, not
+      misresolved or panicked on.
+    TestResolveWindowUnknownReference / TestResolvePrecisionUnknownReference — each method's
+      own findListingScope-not-found path -> ErrUnknownReference.
+    TestResolveWindowEmptySessionCalendarRef — a listing with an absent (empty string)
+      session_calendar_ref -> ErrUnknownReference.
+    TestResolveWindowUnregisteredCalendarBinding — session_calendar_ref pointing to a
+      calendar not present in the Resolver's bindings -> ErrNoCalendarBinding.
+    TestResolveWindowUnsupportedTimeframe — an unsupported timeframe string (calendar.
+      Continuous only defines 1m/5m/1h) -> ErrWindowNotResolved.
+
+Semantic cases covered (task's required category, all genuinely exercised, not
+  counter-padding): rejection/error paths (ErrUnknownReference/ErrNoCalendarBinding/
+  ErrWindowNotResolved, multiple distinct triggers), pending-correction paths (malformed
+  metadata, unknown venue_id), bitemporal visibility boundaries (effective-time axis isolated
+  from knowledge-time axis), conflicting/scoped facts (cross-venue symbol collision, both
+  directions), absent optional data (empty session_calendar_ref), unknown references (4
+  distinct call sites), deterministic fail-closed behavior throughout. Malformed-numeric-
+  metadata regression tests were NOT duplicated here — P3-MR-DECIMAL-MAJ-01's own transaction
+  already added 4 field-specific + 1 public-boundary test; this transaction's
+  TestResolveIdentityIgnoresListingWithPendingCorrectionView reuses that fixed behavior as a
+  NEW scoping-specific assertion (not a duplicate).
+
+New defect discovered: NONE. Full test suite (including all 12 new tests) re-run explicitly
+  by name, all PASS, zero FAIL/SKIP.
+
+Validation (fresh, this exact HEAD boundary):
+  gofmt -l .: empty output, CLEAN.
+  go vet ./...: exit 0, CLEAN.
+  go build ./...: exit 0, CLEAN.
+  go test ./...: all packages PASS, zero FAIL, zero SKIP.
+
+Fresh line coverage (regression evidence, `go test ./... -covermode=set -coverprofile=<p>
+  -coverpkg=./internal/...`; `go tool cover -func`): module-aggregate 97.1% (up from 92.3% at
+  the prior formal QG boundary — comfortably exceeds the 80% Tier 2 floor).
+
+Branch tool identity: github.com/rillig/gobco, pinned pseudo-version
+  v1.3.5-0.20240924205308-2d21b14addca, VCS commit 2d21b14addca7c3832fae8578c9bffda70331468
+  (P3-GOBC-PIN-A-MAJ-01 corrected identity — unchanged, re-used as-is).
+Branch invocation method: per-package `gobco -branch ./internal/<pkg>` (module-wide
+  invocation still panics — unchanged tool constraint, re-confirmed), raw numerator/
+  denominator summed across all 9 authoritative production packages — never averaged
+  percentages. Reproducibility re-confirmed (repeated runs on internal/query and
+  internal/instrument produced byte-identical Branch coverage N/M both times).
+
+Branch after (fresh, post-remediation): calendar 2/2, decimal 32/36, envelope 0/0, fact
+  45/52, instrument 8/10, listing 21/24, query 37/38, store 2/2, venue 8/10 ->
+  155/174 = 89.0805%.
+
+Remaining uncovered branches (disclosed, NOT chased — all structurally explainable, none
+  actionable without either a production change this transaction is not authorized to make,
+  or deliberately weakening test determinism, both prohibited):
+  internal/listing/listing.go:231,252 (Store.Append `err != nil`) and :392
+    (`out.Fields != nil`) — structurally unreachable: `*store.Memory.Append` unconditionally
+    returns nil error (Registry.Store is concretely typed `*store.Memory`, not an interface),
+    and `FoldMetadataPatches` always returns a non-nil map via `make()` — same findings
+    already disclosed in the paused-remediation transaction's own MANIFEST record.
+  internal/instrument/instrument.go:252 and internal/venue/venue.go:247 (`out.Fields != nil`)
+    — same non-nil-map invariant as listing's :392.
+  internal/instrument/instrument.go:222 and internal/venue/venue.go:218 (StatusChangedPayload
+    type-switch case, false side) — an artifact of gobco's type-switch instrumentation
+    granularity, not a correctness gap (the switch itself works correctly regardless).
+  internal/query/service.go:210 (`view.ViewState != fact.ViewValid` inside ResolvePrecision,
+    AFTER findListingScope already confirmed ViewValid at the identical (listingID, cursor)
+    pair) — structurally unreachable given ResolveView's determinism (same inputs, same
+    deterministic output on both calls); already disclosed in the prior formal QG evidence.
+  internal/decimal/decimal.go: 4 pre-existing gaps (isDigits/SetString internal edge cases,
+    MustFromString's panic path, UnmarshalText's error path) — pre-dating this transaction,
+    unrelated to P3-MR-DECIMAL-MAJ-01's fix, not chased given the module is already
+    comfortably above floor.
+  internal/fact/*: 7 pre-existing gaps, unchanged from the prior formal QG evidence — not
+    touched by this transaction's scope (query/instrument/venue packages only).
+
+Branch remediation status: BRANCH_REMEDIATION_READY_FOR_FORMAL_QG_REEVALUATION — 155/174 =
+  89.08% exceeds the Tier 2 80% floor with meaningful margin (measured with the governed
+  pinned mechanism, reproducible, complete for this subject — no unsupported constructs
+  present, re-confirmed unchanged from prior transactions).
+
+Formal Quality Gate: NOT rerun in this transaction. Historical result UNCHANGED: FAIL —
+  criteria (branch coverage 133/178 = 74.72% at implementation boundary
+  fd7bf5f2a75d2a0dee36eadd33a90fee332bb514) — that evidence entry is NOT overwritten or
+  reinterpreted. A fresh formal Chapter 13 QG re-evaluation, evaluating THIS new exact
+  implementation/test boundary (HEAD after this transaction), is a separate, future,
+  explicitly-authorized transaction — this transaction's numbers are remediation-readiness
+  evidence only, not formal QG evidence.
+
+P3-MR-DECIMAL-MAJ-01: unchanged, CLOSED_BY_PRODUCTION_FIX (not reopened or touched here).
+
+No scope expansion: Testing Convention untouched. Pinned gobco mechanism/identity unchanged.
+  Tier unchanged. Chapter 13 untouched. module-registry.yaml untouched. Dependency graph
+  unchanged. ADR-032 untouched. Domain Contracts untouched. No production implementation
+  semantics changed. No CI workflow added. No module/Data Layer approved. LIVE not
+  authorized.
+
+Files changed: go/market-reference-service/internal/instrument/instrument_test.go,
+  go/market-reference-service/internal/venue/venue_test.go,
+  go/market-reference-service/internal/query/service_test.go, docs/MANIFEST.md,
+  docs/CHANGELOG.md — verified via git status --porcelain=v1 -uall, no other file touched
+  (in particular: no production .go file, no go.mod/go.sum, no module-registry.yaml, no
+  Chapter 13, no Testing Convention, no ADR-032, no Domain Contract).
 ```
 
 ## Decision Log

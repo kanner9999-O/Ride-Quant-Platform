@@ -2,6 +2,82 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — market-reference-service: branch-coverage remediation resumed, exceeds Tier-2 floor
+
+**Test-remediation transaction only — vai trò: `market-reference-service Branch-Coverage
+Remediation Resumer`.** Resumes the paused branch-coverage remediation after
+P3-MR-DECIMAL-MAJ-01's closure. Does not rerun the formal Quality Gate. No production code
+changed; no new defect found.
+
+### Fresh baseline (measured before any test change)
+
+```text
+gobco -branch, per-package (module-wide invocation still panics), summed raw N/M across all
+  9 production packages: 144/174 = 82.76% — already above the Tier 2 80% floor, an incidental
+  effect of P3-MR-DECIMAL-MAJ-01's own regression tests. Historical 133/178 denominator was
+  correctly NOT reused (production code changed since that measurement).
+```
+
+### Remediation added
+
+```text
+12 new test functions across 3 test files, zero production code changed:
+  internal/instrument, internal/venue: metadata-revision fold + look-ahead guard (previously
+    untested end-to-end in either package); unknown venue_id fail-closed (venue's analogue of
+    listing's existing unknown-ID test).
+  internal/query: effective-time-axis boundary (isolated from the already-covered
+    knowledge-time axis; caught and fixed a self-authored test bug during development, re-
+    verified against gobco's actual branch report); cross-venue symbol-collision scoping in
+    both iteration directions; a PENDING_CORRECTION candidate listing (malformed metadata,
+    exercising the P3-MR-DECIMAL-MAJ-01 fix) correctly skipped, not misresolved; each
+    unknown-reference path (ResolveWindow/ResolvePrecision); empty session_calendar_ref;
+    unregistered calendar binding; unsupported timeframe.
+Malformed-numeric-metadata tests were not duplicated — those already exist from
+  P3-MR-DECIMAL-MAJ-01's own transaction.
+```
+
+### Validation
+
+```text
+gofmt CLEAN. go vet ./... CLEAN. go build ./... CLEAN. go test ./...: all PASS, zero
+  FAIL/SKIP — all 12 new tests re-run explicitly by name, all PASS. No new defect discovered.
+```
+
+### Fresh coverage after remediation
+
+```text
+Branch (gobco -branch, same per-package summed-raw-N/M method, reproducibility re-confirmed):
+  calendar 2/2, decimal 32/36, envelope 0/0, fact 45/52, instrument 8/10, listing 21/24,
+  query 37/38, store 2/2, venue 8/10 -> 155/174 = 89.08%.
+Line coverage (regression evidence): module-aggregate 97.1% (up from 92.3%).
+Remaining uncovered branches: all structurally explainable (Store.Append never errors given
+  the concrete *store.Memory type; FoldMetadataPatches always returns non-nil via make();
+  ResolvePrecision's redundant deterministic double-check; a handful of pre-existing
+  internal/decimal and internal/fact gaps unrelated to this transaction's scope) — disclosed,
+  not chased.
+```
+
+### Result
+
+```text
+BRANCH_REMEDIATION_READY_FOR_FORMAL_QG_REEVALUATION — 89.08% exceeds the Tier 2 80% floor
+  with meaningful margin. Formal Quality Gate NOT rerun; historical result unchanged: FAIL —
+  criteria (branch coverage 133/178 = 74.72% at boundary
+  fd7bf5f2a75d2a0dee36eadd33a90fee332bb514) — not overwritten. P3-MR-DECIMAL-MAJ-01 unchanged,
+  CLOSED_BY_PRODUCTION_FIX. Testing Convention, pinned gobco identity, Tier, Chapter 13,
+  module-registry.yaml, dependency graph, ADR-032, Domain Contracts all untouched. No
+  module/Data Layer approved. LIVE not authorized.
+```
+
+### Files changed
+
+```text
+go/market-reference-service/internal/instrument/instrument_test.go,
+  go/market-reference-service/internal/venue/venue_test.go,
+  go/market-reference-service/internal/query/service_test.go, docs/MANIFEST.md,
+  docs/CHANGELOG.md — verified via git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — market-reference-service: numeric metadata defect fix (`P3-MR-DECIMAL-MAJ-01`)
 
 **Production defect fix transaction — vai trò: `market-reference-service Numeric Metadata

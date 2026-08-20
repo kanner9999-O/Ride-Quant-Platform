@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kanner9999-O/Ride-Quant-Platform/go/market-reference-service/internal/envelope"
 	"github.com/kanner9999-O/Ride-Quant-Platform/go/market-reference-service/internal/fact"
 	"github.com/kanner9999-O/Ride-Quant-Platform/go/market-reference-service/internal/store"
 )
@@ -87,5 +88,56 @@ func TestResolveViewNotYetRegistered(t *testing.T) {
 	view := reg.ResolveView("ins_nonexistent", time.Now(), time.Now())
 	if view.ViewState == fact.ViewValid {
 		t.Fatalf("expected PENDING_CORRECTION/absent for unregistered subject, got VALID")
+	}
+}
+
+// TestResolveViewAppliesMetadataRevision proves ResolveView folds a
+// forward-looking InstrumentMetadataRevised patch (instrument.md §4) into
+// display_name — previously untested end-to-end (gobco -branch confirmed
+// the MetadataRevisedPayload type-switch case had never matched in this
+// package's own test run).
+func TestResolveViewAppliesMetadataRevision(t *testing.T) {
+	ctx := context.Background()
+	s := store.NewMemory("market-reference-service", "v0.1.0-dev", "test-run")
+	reg := NewRegistry(s)
+	scope := mkScope()
+	instrumentID := scope.InstrumentID()
+	t0 := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	if _, err := reg.Register(ctx, "evt-1", scope, "BTC/USDT Spot", t0, t0); err != nil {
+		t.Fatalf("Register error: %v", err)
+	}
+
+	revisedAt := t0.Add(time.Hour)
+	if _, err := s.Append(ctx, envelope.Draft{
+		EventID:          "evt-revise",
+		EventType:        EventTypeMetadataRevised,
+		EventContractRef: envelope.ContractRef{ContractID: ContractIDMetadataRevised, ContractVersion: contractVersion},
+		SchemaVersion:    payloadSchemaVersion,
+		RecordedTime:     revisedAt,
+		SubjectRef:       subjectRef(instrumentID, scope),
+		CausationRefs:    []envelope.EventRecordRef{},
+		RelatedEventRefs: []envelope.EventRecordRef{},
+		EffectiveTime:    revisedAt,
+	}, MetadataRevisedPayload{
+		InstrumentID:  instrumentID,
+		ChangedFields: map[string]string{"display_name": "Bitcoin / Tether Spot"},
+	}); err != nil {
+		t.Fatalf("append metadata revision: %v", err)
+	}
+
+	view := reg.ResolveView(instrumentID, revisedAt.Add(time.Minute), revisedAt.Add(time.Minute))
+	if view.ViewState != fact.ViewValid {
+		t.Fatalf("ViewState = %v, want VALID for a well-formed revision", view.ViewState)
+	}
+	if view.DisplayName != "Bitcoin / Tether Spot" {
+		t.Fatalf("DisplayName = %q, want revised value", view.DisplayName)
+	}
+
+	// A knowledge cursor before the revision was recorded must still see
+	// the original display_name — the revision must not leak backward.
+	before := reg.ResolveView(instrumentID, revisedAt.Add(time.Minute), revisedAt.Add(-time.Minute))
+	if before.DisplayName != "BTC/USDT Spot" {
+		t.Fatalf("DisplayName before revision recorded = %q, want original BTC/USDT Spot (look-ahead leak)", before.DisplayName)
 	}
 }

@@ -327,3 +327,205 @@ func TestResolvePrecisionMalformedMetadataFailsClosedNoPanic(t *testing.T) {
 		t.Fatalf("PriceIncrement before malformed patch = %s, want unchanged 0.01", before.PriceIncrement.String())
 	}
 }
+
+// TestResolveIdentityBeforeVenueEffectiveTime proves a query at an
+// effective instant BEFORE the venue's own registration effective_time
+// does not resolve — the registration itself is not yet effective, a
+// distinct temporal question from whether it is yet VISIBLE (already
+// covered by TestResolveIdentityNotYetVisibleAtKnowledgeCursor).
+func TestResolveIdentityBeforeVenueEffectiveTime(t *testing.T) {
+	f := setup(t)
+	t0 := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC) // venue's own RecordedTime/EffectiveTime, per setup()
+	beforeVenueEffective := t0.Add(-time.Hour)
+	afterVenueRecorded := t0.Add(time.Hour) // knowledge cursor AFTER recording — isolates the effective-time axis specifically, distinct from TestResolveIdentityNotYetVisibleAtKnowledgeCursor's knowledge-axis test
+	_, err := f.svc.ResolveIdentity(rawVenueID, "BTCUSDT", beforeVenueEffective, afterVenueRecorded)
+	if err != ErrUnknownReference {
+		t.Fatalf("got err=%v querying before the venue's own effective_time (but after it was recorded), want ErrUnknownReference", err)
+	}
+}
+
+// TestResolveIdentityScopedToCorrectVenue proves resolveListingByVenueSymbol
+// does not leak a symbol match across venues: a second venue+listing using
+// the SAME venue_symbol under a DIFFERENT venue must not be returned when
+// querying the first venue.
+func TestResolveIdentityScopedToCorrectVenue(t *testing.T) {
+	ctx := context.Background()
+	f := setup(t)
+	t0 := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	otherVenScope := venue.Scope{VenueIdentityRef: "kraken-spot", VenueType: "CENTRALIZED_EXCHANGE"}
+	otherVenRef, err := f.svc.Venues.Register(ctx, "ven-reg-2", otherVenScope, "Kraken", "UTC", "cal-crypto-247", "prec-default", t0, t0)
+	if err != nil {
+		t.Fatalf("Register second venue: %v", err)
+	}
+	otherInsScope := instrument.Scope{InstrumentIdentityRef: "eth-usdt", BaseAssetRef: "ETH", QuoteAssetRef: "USDT", InstrumentType: "SPOT"}
+	otherInsRef, err := f.svc.Instruments.Register(ctx, "ins-reg-2", otherInsScope, "ETH/USDT", t0, t0)
+	if err != nil {
+		t.Fatalf("Register second instrument: %v", err)
+	}
+	otherLstScope := listing.Scope{InstrumentID: otherInsScope.InstrumentID(), VenueID: otherVenScope.VenueID(), ListingID: "lst_2"}
+	if _, err := f.svc.Listings.CreateListing(ctx, listing.CreateListingInput{
+		Scope: otherLstScope, VenueSymbol: "BTCUSDT", // same raw symbol as fixture's listing, DIFFERENT venue
+		PriceIncrement: decimal.MustFromString("0.5"), QuantityIncrement: decimal.MustFromString("0.001"),
+		SessionCalendarRef: "cal-crypto-247", ActivationRequestID: listing.DeterministicActivationRequestID(otherLstScope),
+		InstrumentRegistered: otherInsRef, VenueRegistered: otherVenRef,
+		RecordedTime: t0, EffectiveTime: t0,
+		RequestEventID: "evt-req-2", ReservedEventID: "evt-res-2", CreatedEventID: "evt-created-2",
+	}); err != nil {
+		t.Fatalf("CreateListing (second venue): %v", err)
+	}
+
+	instant := time.Date(2026, 8, 19, 10, 0, 0, 0, time.UTC)
+	id, err := f.svc.ResolveIdentity(rawVenueID, "BTCUSDT", instant, instant.Add(time.Hour))
+	if err != nil {
+		t.Fatalf("ResolveIdentity error: %v", err)
+	}
+	if id.InstrumentID != f.instrumentID || id.VenueID != f.venueID {
+		t.Fatalf("got %+v, want original venue's identity {%s %s} — a same-symbol listing under a DIFFERENT venue must not match", id, f.instrumentID, f.venueID)
+	}
+
+	// The reverse direction: querying the SECOND venue's own raw identity
+	// must skip past the FIRST (non-matching-venue) listing — which is
+	// encountered first in append order — and correctly resolve the
+	// second listing instead, proving the scoping guard, not iteration
+	// order, decides the match.
+	id2, err := f.svc.ResolveIdentity("kraken-spot", "BTCUSDT", instant, instant.Add(time.Hour))
+	if err != nil {
+		t.Fatalf("ResolveIdentity (second venue) error: %v", err)
+	}
+	if id2.InstrumentID != otherInsScope.InstrumentID() || id2.VenueID != otherVenScope.VenueID() {
+		t.Fatalf("got %+v, want second venue's identity {%s %s}", id2, otherInsScope.InstrumentID(), otherVenScope.VenueID())
+	}
+}
+
+// TestResolveIdentityIgnoresListingWithPendingCorrectionView proves
+// resolveListingByVenueSymbol correctly SKIPS a candidate listing whose
+// Current View is not VALID (here: malformed metadata content, fail-closed
+// per P3-MR-DECIMAL-MAJ-01) rather than misresolving or panicking.
+func TestResolveIdentityIgnoresListingWithPendingCorrectionView(t *testing.T) {
+	ctx := context.Background()
+	f := setup(t)
+	instant := time.Date(2026, 8, 19, 10, 0, 0, 0, time.UTC)
+
+	patchEffectiveAt := instant.Add(-time.Hour)
+	patchRecordedAt := instant.Add(-30 * time.Minute)
+	if _, err := f.svc.Listings.Store.Append(ctx, buildListingMetadataDraft(f.listingScope, patchRecordedAt, patchEffectiveAt), listing.MetadataRevisedPayload{
+		ListingID:     f.listingScope.ListingID,
+		ChangedFields: map[string]string{"price_increment": "not-a-number"},
+	}); err != nil {
+		t.Fatalf("append malformed price_increment patch: %v", err)
+	}
+
+	_, err := f.svc.ResolveIdentity(rawVenueID, "BTCUSDT", instant, instant.Add(time.Hour)) // must not panic
+	if err != ErrUnknownReference {
+		t.Fatalf("got err=%v for a listing with a PENDING_CORRECTION view, want ErrUnknownReference (correctly skipped, not misresolved)", err)
+	}
+}
+
+// TestResolveWindowUnknownReference proves ResolveWindow's own
+// findListingScope-not-found path (distinct from ResolvePrecision's).
+func TestResolveWindowUnknownReference(t *testing.T) {
+	f := setup(t)
+	instant := time.Date(2026, 8, 19, 10, 0, 0, 0, time.UTC)
+	_, err := f.svc.ResolveWindow("ins_nonexistent", "ven_nonexistent", "1m", instant, instant.Add(time.Hour))
+	if err != ErrUnknownReference {
+		t.Fatalf("got err=%v for an unknown (instrumentID, venueID) pair, want ErrUnknownReference", err)
+	}
+}
+
+// TestResolvePrecisionUnknownReference mirrors the above for
+// ResolvePrecision's own findListingScope-not-found path.
+func TestResolvePrecisionUnknownReference(t *testing.T) {
+	f := setup(t)
+	instant := time.Date(2026, 8, 19, 10, 0, 0, 0, time.UTC)
+	_, err := f.svc.ResolvePrecision("ins_nonexistent", "ven_nonexistent", instant, instant.Add(time.Hour))
+	if err != ErrUnknownReference {
+		t.Fatalf("got err=%v for an unknown (instrumentID, venueID) pair, want ErrUnknownReference", err)
+	}
+}
+
+// TestResolveWindowEmptySessionCalendarRef proves a listing with an
+// absent/empty session_calendar_ref fails closed with ErrUnknownReference
+// rather than attempting to resolve an empty calendar reference.
+func TestResolveWindowEmptySessionCalendarRef(t *testing.T) {
+	ctx := context.Background()
+	f := setup(t)
+	t0 := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	insScope := instrument.Scope{InstrumentIdentityRef: "sol-usdt", BaseAssetRef: "SOL", QuoteAssetRef: "USDT", InstrumentType: "SPOT"}
+	insRef, err := f.svc.Instruments.Register(ctx, "ins-reg-3", insScope, "SOL/USDT", t0, t0)
+	if err != nil {
+		t.Fatalf("Register instrument: %v", err)
+	}
+	venScope := venue.Scope{VenueIdentityRef: "okx-spot", VenueType: "CENTRALIZED_EXCHANGE"}
+	venRef, err := f.svc.Venues.Register(ctx, "ven-reg-3", venScope, "OKX", "UTC", "cal-crypto-247", "prec-default", t0, t0)
+	if err != nil {
+		t.Fatalf("Register venue: %v", err)
+	}
+	lstScope := listing.Scope{InstrumentID: insScope.InstrumentID(), VenueID: venScope.VenueID(), ListingID: "lst_no_calendar"}
+	if _, err := f.svc.Listings.CreateListing(ctx, listing.CreateListingInput{
+		Scope: lstScope, VenueSymbol: "SOLUSDT",
+		PriceIncrement: decimal.MustFromString("0.01"), QuantityIncrement: decimal.MustFromString("0.1"),
+		SessionCalendarRef:   "", // deliberately absent
+		ActivationRequestID:  listing.DeterministicActivationRequestID(lstScope),
+		InstrumentRegistered: insRef, VenueRegistered: venRef,
+		RecordedTime: t0, EffectiveTime: t0,
+		RequestEventID: "evt-req-3", ReservedEventID: "evt-res-3", CreatedEventID: "evt-created-3",
+	}); err != nil {
+		t.Fatalf("CreateListing: %v", err)
+	}
+
+	_, err = f.svc.ResolveWindow(insScope.InstrumentID(), venScope.VenueID(), "1m", t0.Add(time.Hour), t0.Add(time.Hour))
+	if err != ErrUnknownReference {
+		t.Fatalf("got err=%v for empty session_calendar_ref, want ErrUnknownReference", err)
+	}
+}
+
+// TestResolveWindowUnregisteredCalendarBinding proves a listing whose
+// session_calendar_ref points to a calendar NOT registered in the
+// Resolver's bindings fails closed with ErrNoCalendarBinding.
+func TestResolveWindowUnregisteredCalendarBinding(t *testing.T) {
+	ctx := context.Background()
+	f := setup(t)
+	t0 := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	insScope := instrument.Scope{InstrumentIdentityRef: "ada-usdt", BaseAssetRef: "ADA", QuoteAssetRef: "USDT", InstrumentType: "SPOT"}
+	insRef, err := f.svc.Instruments.Register(ctx, "ins-reg-4", insScope, "ADA/USDT", t0, t0)
+	if err != nil {
+		t.Fatalf("Register instrument: %v", err)
+	}
+	venScope := venue.Scope{VenueIdentityRef: "bybit-spot", VenueType: "CENTRALIZED_EXCHANGE"}
+	venRef, err := f.svc.Venues.Register(ctx, "ven-reg-4", venScope, "Bybit", "UTC", "cal-unregistered", "prec-default", t0, t0)
+	if err != nil {
+		t.Fatalf("Register venue: %v", err)
+	}
+	lstScope := listing.Scope{InstrumentID: insScope.InstrumentID(), VenueID: venScope.VenueID(), ListingID: "lst_bad_calendar"}
+	if _, err := f.svc.Listings.CreateListing(ctx, listing.CreateListingInput{
+		Scope: lstScope, VenueSymbol: "ADAUSDT",
+		PriceIncrement: decimal.MustFromString("0.0001"), QuantityIncrement: decimal.MustFromString("1"),
+		SessionCalendarRef:   "cal-unregistered", // not in this test's Resolver bindings (only cal-crypto-247 is)
+		ActivationRequestID:  listing.DeterministicActivationRequestID(lstScope),
+		InstrumentRegistered: insRef, VenueRegistered: venRef,
+		RecordedTime: t0, EffectiveTime: t0,
+		RequestEventID: "evt-req-4", ReservedEventID: "evt-res-4", CreatedEventID: "evt-created-4",
+	}); err != nil {
+		t.Fatalf("CreateListing: %v", err)
+	}
+
+	_, err = f.svc.ResolveWindow(insScope.InstrumentID(), venScope.VenueID(), "1m", t0.Add(time.Hour), t0.Add(time.Hour))
+	if err != ErrNoCalendarBinding {
+		t.Fatalf("got err=%v for an unregistered session_calendar_ref, want ErrNoCalendarBinding", err)
+	}
+}
+
+// TestResolveWindowUnsupportedTimeframe proves an unsupported timeframe
+// string fails closed with ErrWindowNotResolved (calendar.Continuous's
+// TimeframeDurations only defines 1m/5m/1h).
+func TestResolveWindowUnsupportedTimeframe(t *testing.T) {
+	f := setup(t)
+	instant := time.Date(2026, 8, 19, 10, 0, 0, 0, time.UTC)
+	_, err := f.svc.ResolveWindow(f.instrumentID, f.venueID, "1d", instant, instant.Add(time.Hour))
+	if err != ErrWindowNotResolved {
+		t.Fatalf("got err=%v for an unsupported timeframe, want ErrWindowNotResolved", err)
+	}
+}
