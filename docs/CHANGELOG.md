@@ -2,6 +2,81 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — Go branch-coverage mechanism CANDIDATE (testing.md v0.3, not installed, not approved)
+
+**Engineering Foundation candidate-authoring transaction only — vai trò: `Go Branch-Coverage
+Mechanism Candidate Author`.** Addresses the sole remaining market-reference-service Chapter
+13 QG evidence gap (branch coverage). Selects/authors a CANDIDATE only — does not install,
+integrate, or pin a tool; does not rerun the QG; does not modify implementation code.
+
+### Baseline
+
+```text
+Starting HEAD: 72cd7191312205cd698b611b2bffbb4ac9cff7c7 (verified via git rev-parse HEAD before
+  any edit; git status --porcelain=v1 -uno clean; branch main).
+```
+
+### Authority inspected
+
+```text
+Chapter 0 §4b (ADR Scope Rule), Chapter 3 §3.2 (Engineering Foundation, line 44's Testing
+  Convention style/tooling carve-out), Chapter 13 §13.3/§13.8/§13.9/§13.14, Chapter 2 I-13,
+  docs/engineering/testing.md v0.2 Approved, docs/adr/ADR-030.md (inspected specifically for
+  its §1 Context's pattern-(a)-vs-pattern-(b) ADR-scope distinction, used as controlling
+  precedent).
+```
+
+### Candidates surveyed
+
+```text
+Rejected as statement/block proxies (verified directly, not from memory): native go tool
+  cover/covdata (all subcommands — golang/go#70306 native branch-coverage proposal confirmed
+  still Open/Incoming, no ETA), gocov (archived upstream + community fork), go-carpet,
+  go-test-coverage (vladopajic), goc, Courtney — none produce an independent branch/condition
+  metric. "gocov-branch" confirmed not to exist as an independently maintained project.
+Selected as CANDIDATE ONLY: gobco (github.com/rillig/gobco). Instruments boolean
+  sub-expressions in a temporary directory copy of the package, then runs the real `go test`
+  against the instrumented copy (verified in main.go) — a genuine condition/branch metric, not
+  statement coverage relabeled; original repository files never modified. BSD-2-Clause. Go
+  1.17+ (compatible with this repository's go 1.25/go1.26.6). Latest tag v1.3.4 (2024-03-08),
+  single-maintainer — disclosed as a maintenance-concentration risk, not disqualifying.
+Anti-gaming: instrumentation only adds non-semantic counters, same technique category this
+  repository already accepts for line coverage via go tool cover — not shadow/generated code
+  under Chapter 13 §13.3.
+```
+
+### ADR-scope disposition
+
+```text
+ADR_NOT_REQUIRED. Chapter 13 §13.3/§13.14 (Locked) explicitly defer "concrete tooling" to
+  Chapter 3 §3.2, which itself (line 44, Locked) already carves out Testing Convention's
+  style/tooling scope — ADR-030 §1 Context's own "pattern (b)" (existing Locked authority
+  already pre-resolves baseline-existence + scope boundary -> living convention authored
+  directly, no ADR), the opposite of "pattern (a)" ADR-030 needed for CI/CD (no equivalent
+  carve-out existed for that category). No Chapter 0 §4b trigger applies; ">1 module" is read
+  per ADR-030's own reasoning as covering new baseline-existence decisions, not tool selection
+  inside an already pre-authorized category; no hard-to-reverse lock-in in the candidate.
+```
+
+### Result
+
+```text
+docs/engineering/testing.md: version 0.2 -> 0.3, status Approved -> Draft, approved_by/
+  approved_at reset to null (v0.2's approval record preserved byte-for-byte as historical
+  evidence). New "Go branch-coverage mechanism — CANDIDATE" subsection added under
+  "Framework/tool selection." No tool installed, no go.mod/go.sum change, no CI workflow, no
+  Chapter 13 change, no module-registry.yaml change, no production/test code change, no QG
+  rerun (overall QG remains FAIL — evidence), no module/Data Layer approval, LIVE not
+  authorized. Pending Product Owner review/decision.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md, docs/engineering/testing.md — verified via
+  git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — market-reference-service: I-13 property-based evidence remediation (does not close the QG)
 
 **Evidence-remediation transaction only — vai trò: `market-reference-service I-13

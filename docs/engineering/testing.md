@@ -1,12 +1,12 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.2"
-status: Approved
+version: "0.3"
+status: Draft
 owner: Product Owner
 reviewers: []
-approved_by: Product Owner
-approved_at: "2026-08-12"
+approved_by: null
+approved_at: null
 created_at: "2026-08-12"
 last_review: null
 next_review: null
@@ -44,6 +44,8 @@ Không finding/residual nào từ Review B cần Product Owner acceptance
 **Nguyên tắc chi phối (Chapter 3 §3.2 + Chapter 13 §13.2, tái khẳng định KHÔNG redefine):** Testing Convention CHỈ quản lý style/tooling — test structure, naming, isolation mechanics, fixture/mocking guidance, ngôn ngữ idiom, local command convention, flaky-test tooling mechanics. Chapter 13 VẪN authority DUY NHẤT cho coverage percentage/tier, tier resolution, parity substance (I-2), determinism/reproducibility substance (I-2/I-3/I-12, Chapter 5), quality-gate pass/fail semantics, immutable gate evidence contract, flaky-test POLICY (§13.10), module criticality (Chapter 7 §7.5). Tài liệu này KHÔNG tạo domain/architecture acceptance semantics mới.
 
 **v0.2 — bounded correction (2026-08-12), đóng `EF-TEST-A-MAJ-01`/`EF-TEST-A-MIN-01`, vai trò: `Testing Convention v0.2 Bounded Correction Executor`.** Đóng `EF-TEST-A-MAJ-01` (§4 v0.1 nói module "cung cấp clock qua dependency injection/parameter khi cần test time-dependent logic" — đọc được như MANDATE một production-code API/design change CHỈ để thỏa testing convention, vượt ngoài Chapter 3 §3.2's boundary "style/tooling." Sửa: pin rõ Testing Convention CHỈ định nghĩa CÁCH dùng/control một seam ĐÃ tồn tại, KHÔNG BAO GIỜ bắt buộc production module tạo MỚI một DI pattern/parameter/interface/dependency CHỈ để thỏa convention; nếu deterministic testing KHÔNG đạt được mà KHÔNG đổi production design, đó LÀ một implementation/design gap PHẢI route qua authority sở hữu production design tương ứng VÀ tự rerun ADR Scope Rule nếu applicable, KHÔNG tự giải quyết tại `testing.md`). Đóng `EF-TEST-A-MIN-01` (§17 v0.1 tuyên bố "KHÔNG copy lại con số ngưỡng cụ thể" NHƯNG ngay sau đó liệt kê chính các con số đó — tự mâu thuẫn, duplicate policy text KHÔNG cần thiết. Sửa: bỏ hẳn con số, CHỈ giữ nguyên tắc "Chapter 13 §13.3/§13.4 LÀ authority DUY NHẤT," người đọc PHẢI resolve giá trị hiện hành trực tiếp từ Chapter 13). **KHÔNG đổi:** `ADR_NOT_REQUIRED` result, Chapter 3 style/tooling-only boundary, Chapter 13 quality-policy authority, test structure (§1), naming (§2), isolation (§3 phần còn lại), fixtures/factories (§5), mocking/stubbing (§6), unit/integration distinction (§7), contract/boundary testing (§8), Python guidance (§9), Go guidance (§10), test-data guidance (§11), flaky-test tooling mechanics (§12), local command convention (§13), reusable helpers (§14), Error Handling interaction (§15), Logging/Config boundaries (§16), quality-gate boundary (§18), framework/tool selection VẪN deferred, Non-goals. KHÔNG tạo ADR-030, KHÔNG chọn framework/vendor, KHÔNG introduce production DI architecture, KHÔNG chạm Chapter 3/Chapter 13/bất kỳ Approved ADR/convention nào. `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01` KHÔNG chạm. `status` VẪN `Draft`.
+
+**v0.3 — CANDIDATE amendment (2026-08-20), KHÔNG self-approved, vai trò: `Go Branch-Coverage Mechanism Candidate Author`.** `status: Approved → Draft` (mọi thay đổi SEMANTIC vào tài liệu Approved bắt buộc tăng version VÀ đi qua approval gate lại, đúng [Chapter 0 §5.1](../constitution/00-governance.md); `approved_by`/`approved_at` của v0.2 KHÔNG tự động phủ nội dung MỚI này — reset `null`, v0.2's approval record giữ nguyên nguyên vẹn phía trên LÀM historical evidence, KHÔNG bị ghi đè). Bổ sung MỘT subsection MỚI dưới "Framework/tool selection" (dưới) đề xuất một **CANDIDATE** (chưa chọn/chưa cài đặt/chưa tích hợp) cho cơ chế đo **Go branch-coverage** — khoảng trống evidence DUY NHẤT còn lại cho `market-reference-service`'s Chapter 13 Quality Gate sau khi line coverage VÀ I-13 property-based evidence đã có (`P3-MR-QG-A-MAJ-01` closure history, `docs/MANIFEST.md`). **ADR-scope check (chạy TRƯỚC KHI author, [Chapter 0 §4b](../constitution/00-governance.md)):** kết luận `ADR_NOT_REQUIRED` — xem "Go branch-coverage mechanism — CANDIDATE" dưới cho full reasoning; tóm tắt: [Chapter 3 §3.2](../constitution/03-engineering-principles.md) dòng 44 ĐÃ có carve-out tường minh cho Testing Convention ("chỉ quy định style/tooling... coverage/tier requirement đã có đầy đủ ở Chapter 13, không định nghĩa lại") VÀ [Chapter 13 §13.3](../constitution/13-quality-gates.md)/[§13.14](../constitution/13-quality-gates.md) tự nó khóa "không khóa tool/vendor cụ thể... defer Engineering Foundation" — đây LÀ pattern (b) đã dùng cho chính `testing.md` v0.1 ban đầu (existing Locked authority ĐÃ pre-resolve baseline-existence + scope boundary), KHÁC pattern (a) `ADR-030` phải dùng cho CI/CD (KHÔNG carve-out nào tồn tại cho CI/CD tại Chapter 3 §3.2 trước ADR-030) — verify trực tiếp `docs/adr/ADR-030.md` §1 Context xác nhận chính hai pattern này. Đây CHỈ LÀ candidate selection trong phạm vi "tooling" ĐÃ pre-authorized, KHÔNG PHẢI một baseline-existence decision mới, KHÔNG platform invariant/event schema/module taxonomy/governance-process change, KHÔNG supersede ADR đã Locked nào, KHÔNG hard-to-reverse lock-in (dev/test-time-only Go CLI tool, BSD-2-Clause, không vendor/infrastructure coupling). **KHÔNG đổi:** Chapter 13 coverage floor/tier/pass-fail semantics nào (§17/§18 dưới, KHÔNG đổi), `module-registry.yaml`, dependency graph, production/test code, CI/CD (`ci-cd.md`/`ADR-030`, KHÔNG chạm), §1–§16/§18/Non-goals/ADR-scope disposition gốc (byte-equivalent). KHÔNG cài đặt/tích hợp tool nào tại transaction này. KHÔNG rerun Quality Gate nào. KHÔNG approve module/Data Layer nào. KHÔNG authorize LIVE.
 
 ## 1. Test structure
 
@@ -437,6 +439,176 @@ Framework selection VẪN deferred — tài liệu này KHÔNG chọn pytest/
   trực tiếp KHÔNG có authority nào khác đã chọn trước, đúng `EF-VERIFY-001`.
 ```
 
+### Go branch-coverage mechanism — CANDIDATE (v0.3, pending Product Owner decision)
+
+```text
+[v0.3 bổ sung — vai trò: `Go Branch-Coverage Mechanism Candidate Author`.
+  Đây LÀ implementation-readiness transaction §"Framework/tool selection"
+  trên ĐÃ anticipate — GIỚI HẠN CHỈ Go branch-coverage MEASUREMENT
+  MECHANISM (Chapter 13 §13.3's second, hiện thiếu, coverage metric),
+  KHÔNG PHẢI general test framework selection (pytest/testify/gomock VẪN
+  deferred, KHÔNG chạm tại đây).]
+
+Vấn đề: market-reference-service Tier 2 yêu cầu line coverage >= 80% VÀ
+  branch coverage >= 80%, độc lập (§13.3, KHÔNG đổi). Line coverage VÀ
+  I-13 property-based evidence đã có (P3-MR-QG-A-MAJ-01 evidence
+  correction/remediation, MANIFEST). Gap CÒN LẠI DUY NHẤT: branch
+  coverage evidence — Go's built-in toolchain (verify trực tiếp
+  `go help testflag`/`go tool cover -h`/`go tool covdata -h`, tool
+  version go1.26.6 darwin/arm64) CHỈ đo statement/block coverage
+  (-covermode=set|count|atomic VÀ GOCOVERDIR-based `go tool covdata`,
+  KHÔNG subcommand nào tạo branch/condition metric độc lập). Verify
+  trực tiếp golang/go#70306 ("proposal: cmd/cover: support branch
+  coverage", mở 2024-11-12): VẪN `Open`/`Incoming`, KHÔNG assignee,
+  KHÔNG PR, KHÔNG ETA — native support KHÔNG tồn tại VÀ KHÔNG sắp có.
+
+Statement/block proxy — verify trực tiếp VÀ TỪ CHỐI (KHÔNG được tính LÀ
+  branch coverage dưới bất kỳ tên gọi nào):
+  - `go tool cover` / `go tool covdata` (mọi subcommand: textfmt,
+    percent, func, pkglist, merge, subtract, intersect, debugdump) —
+    statement/block granularity, KHÔNG branch/condition metric.
+  - `gocov` (github.com/axw/gocov, archived; fork cộng đồng
+    github.com/gwthm-in/gocov) + `gocov-html`/`gocov-xml` — convert/
+    report statement coverage, KHÔNG đo branch.
+  - `go-carpet` (github.com/msoap/go-carpet) — terminal visualizer cho
+    CHÍNH `go test -cover`'s statement coverage, KHÔNG branch metric
+    riêng.
+  - `go-test-coverage` (github.com/vladopajic/go-test-coverage),
+    `goc`, `Courtney` — threshold-gate/collection tool trên statement
+    coverage profile CÓ SẴN, KHÔNG tạo branch metric mới.
+  - "gocov-branch" — verify trực tiếp: KHÔNG tồn tại LÀM một project
+    được maintain độc lập, xác nhận lại kết luận đã ghi tại P3-MR
+    formal QG evaluation (MANIFEST).
+
+CANDIDATE mechanism được đề xuất: **gobco**
+  (github.com/rillig/gobco, tác giả Roland Illig). Đánh giá theo 10 tiêu
+  chí (verify trực tiếp GitHub repo/README/main.go/pkg.go.dev, KHÔNG từ
+  memory):
+  1. Available/maintained: tag gần nhất v1.3.4 (2024-03-08, 10 tag từ
+     2022-11-24); single-maintainer project, VẪN nhận commit activity
+     sau tag gần nhất — ghi nhận LÀ maintenance-concentration risk
+     tường minh, KHÔNG che giấu, KHÔNG LÀ lý do từ chối candidate (repo
+     tooling khác cùng lớp — testify/gomock — cũng thường single/small-
+     team-maintained, đúng pattern rủi ro chung của ecosystem này).
+  2. Đo branch thật, KHÔNG statement/block dưới tên khác: instrument
+     boolean sub-expression (so sánh, `&&`, `||`, `!`) VÀ track riêng
+     mỗi condition được evaluate `true` VÀ `false` trong khi chạy test
+     thật — đây LÀ condition/branch coverage, KHÔNG PHẢI statement
+     coverage đổi tên. Granularity CHẶT hơn floor bắt buộc (§13.3 CHỈ
+     yêu cầu branch, MC-DC "tùy chọn theo tier, không tính vào floor
+     bắt buộc") — dư, KHÔNG thiếu, KHÔNG vi phạm.
+  3. Go version/platform: yêu cầu Go 1.17+ (`go install
+     github.com/rillig/gobco@<version>`) — tương thích go.mod hiện tại
+     (`go 1.25`, build/test bằng go1.26.6). Generics/parser compat
+     PHẢI verify lại trực tiếp (chạy `gobco -help`/thử nghiệm) TẠI
+     transaction cài đặt tương lai — KHÔNG giả định tại candidate này.
+  4. Reproducibility/determinism: đo trên lần chạy test thật (qua
+     `go test` thật, KHÔNG mock kết quả) — output deterministic CHỪNG
+     NÀO chính test suite deterministic (đúng yêu cầu §13.2/I-2/I-3 ĐÃ
+     có, KHÔNG tạo rule mới). KHÔNG network access khi chạy (chỉ cần
+     network một lần LÚC `go install`, giống mọi Go module dependency).
+  5. Pin tool/version/content identity: Go module — pin được exact
+     module path + version tag + `go.sum` content hash, cùng cấp exact-
+     artifact rule Chapter 13 §13.9 đã yêu cầu cho mọi evidence khác
+     (tương tự cách evidence hiện tại đã pin "go version go1.26.6
+     darwin/arm64" chính xác).
+  6. Local execution/tương lai CI: chạy `gobco` CLI trực tiếp trong
+     package directory — instrument VÀO một temp directory riêng
+     (`os.TempDir()/gobco-<random>`, copy package source sang đó), gọi
+     `go test` THẬT trên bản copy đã instrument, KHÔNG sửa file gốc
+     trong repository — local execution NGAY tại transaction cài đặt
+     tương lai; CI suitability hợp lý (CLI đơn, exit-code/text output,
+     KHÔNG cần service ngoài) nhưng KHÔNG quyết định CI integration tại
+     đây (`ci-cd.md`/`ADR-030` authority riêng, KHÔNG chạm).
+  7. Output format cho Chapter 13 immutable evidence: text output có
+     tổng coverage (vd "Condition coverage: N/M") VÀ danh sách từng
+     condition chưa đạt (file/line/column/lần true/lần false) — đủ chi
+     tiết pin vào evidence entry (§13.9: subject identity, boundary,
+     input identity) giống format `go tool cover -func` hiện đang dùng
+     cho line coverage evidence.
+  8. Anti-gaming/authoritative-implementation (§13.3): instrumentation
+     copy source sang temp dir CHỈ để CHÈN counter quanh boolean sub-
+     expression — KHÔNG đổi control flow/logic, KHÔNG generate/mock
+     thay thế implementation thật, bản build/run vẫn LÀ authoritative
+     implementation cộng counter phi-semantic — cùng category kỹ thuật
+     với chính `go tool cover`'s source-to-source instrumentation
+     (repository ĐÃ chấp nhận cơ chế này cho line coverage) — KHÔNG
+     shadow code theo nghĩa §13.3 cấm. File gốc trong repository KHÔNG
+     bị sửa bởi chính hành động đo.
+  9. Maintenance/security/dependency impact: BSD-2-Clause (permissive,
+     rủi ro pháp lý thấp) — verify trực tiếp `LICENSE` file. Dev/test-
+     time-only dependency (KHÔNG production runtime dependency nào của
+     module bị ảnh hưởng — module vẫn "zero dependencies" ở production
+     path). Single-maintainer risk đã ghi tại điểm 1 — candidate note
+     này KHÔNG tự cài đặt gì, risk đó PHẢI cân nhắc lại TẠI transaction
+     cài đặt tương lai cùng bất kỳ candidate nào khác xuất hiện.
+  10. Alternative approach KHÔNG làm yếu branch metric của Chapter 13:
+     KHÔNG có — mọi alternative kiểm tra được (chấp nhận statement
+     coverage LÀM proxy, ước lượng branch từ statement, bỏ qua metric)
+     ĐỀU vi phạm trực tiếp §13.3's "không bù trừ giữa hai metric,
+     không dùng con số tổng hợp" VÀ "không estimate" — bị từ chối
+     tường minh, KHÔNG đề xuất tại đây.
+
+ADR-scope disposition (đầy đủ, chạy TRƯỚC khi author candidate này,
+  [Chapter 0 §4b](../constitution/00-governance.md)): **`ADR_NOT_REQUIRED`.**
+  Authority kiểm soát kết quả: [Chapter 13 §13.3](../constitution/13-quality-gates.md)
+  ("Không khóa tool/vendor cụ thể (defer §13.14)") VÀ
+  [Chapter 13 §13.14](../constitution/13-quality-gates.md) ("concrete
+  tooling... defer sang Engineering Foundation Chapter 3 §3.2") ĐÃ
+  Locked VÀ tự nó chỉ định CHÍNH Chapter 3 §3.2/Testing Convention LÀM
+  authority cho quyết định này — KHÔNG phải một chapter/ADR khác. Chapter
+  3 §3.2 dòng 44 (Locked v1.4) ĐÃ có carve-out tường minh: "Testing
+  Convention ở đây chỉ quy định style/tooling (framework, cấu trúc test
+  file, naming test case)" — một cơ chế đo coverage LÀ "tooling" theo
+  đúng nghĩa đó, KHÔNG PHẢI một baseline-existence question mới (Testing
+  Convention category đã tồn tại, `testing.md` v0.2 đã Approved). Đây
+  chính LÀ "pattern (b)" mà `docs/adr/ADR-030.md` §1 Context tự mô tả
+  ("existing Locked authority ĐÃ pre-resolve baseline-existence + scope
+  boundary → living convention author trực tiếp, KHÔNG ADR (Testing)")
+  — TƯƠNG PHẢN trực tiếp với "pattern (a)" ADR-030 phải dùng cho CI/CD
+  (KHÔNG carve-out tương tự tồn tại cho CI/CD tại Chapter 3 §3.2, buộc
+  ADR trước khi author `ci-cd.md`). Verify từng nhánh Chapter 0 §4b:
+  KHÔNG Platform Invariant nào đổi (Chapter 2, KHÔNG chạm); KHÔNG Event
+  Schema nào đổi; KHÔNG Module Taxonomy/dependency graph nào đổi
+  (`module-registry.yaml` KHÔNG chạm, cấm tường minh tại transaction
+  này); KHÔNG Governance/Approval process nào đổi (Chapter 12, KHÔNG
+  chạm); KHÔNG supersede ADR Locked nào (KHÔNG ADR nào hiện có về
+  coverage-measurement tooling); ">1 module HOẶC khó đảo ngược" — vế
+  ">1 module" đọc theo đúng tiền lệ `ADR-030` LÀ cho quyết định
+  baseline-existence/tạo authority cross-module MỚI (CI/CD's câu hỏi
+  "có nên có MỘT baseline chung bắt buộc"), KHÔNG PHẢI cho việc chọn
+  một tool CỤ THỂ bên trong một category ĐÃ pre-authorized từ trước (nếu
+  đọc ngược lại, MỌI amendment tương lai cho naming.md/coding-
+  standard.md/logging.md/config.md/error-handling.md/chính testing.md —
+  tất cả đều áp dụng xuyên >1 module theo bản chất Engineering
+  Foundation — sẽ ĐỀU tự động cần ADR, mâu thuẫn trực tiếp với
+  `ADR_NOT_REQUIRED` đã ghi nhận quán xuyên suốt lịch sử approval của
+  chính các category đó); vế "khó đảo ngược" — candidate KHÔNG có
+  hard-to-reverse lock-in (dev/test-time-only Go CLI, BSD-2-Clause,
+  KHÔNG vendor/infrastructure coupling, đổi sang candidate khác chỉ đổi
+  command được invoke, KHÔNG đổi schema/infrastructure) — khác hẳn loại
+  rủi ro "CI provider lock-in" mà chính `ADR-030` §6 cảnh báo riêng cho
+  CI/CD provider selection. Kết luận: `ADR_NOT_REQUIRED`, KHÔNG author
+  ADR tại transaction này.
+
+KHÔNG tại transaction này (candidate-only, tường minh):
+  - KHÔNG cài đặt/`go install` gobco (hay bất kỳ tool nào) vào bất kỳ
+    module Go nào trong repository.
+  - KHÔNG thêm `go.sum`/`go.mod` dependency nào.
+  - KHÔNG tạo/sửa CI workflow (`ci-cd.md`/`ADR-030` authority riêng,
+    KHÔNG chạm).
+  - KHÔNG rerun/reinterpret market-reference-service Quality Gate nào —
+    overall QG VẪN `FAIL — evidence` cho tới khi một formal
+    re-evaluation thật thực thi SAU KHI branch coverage thật đo được.
+  - KHÔNG đổi Chapter 13 coverage floor/tier/pass-fail semantics.
+  - KHÔNG approve module/Data Layer/Phase nào. KHÔNG authorize LIVE.
+  Chọn/pin/cài đặt chính thức mechanism này (hoặc bất kỳ candidate
+  khác xuất hiện sau) LÀ một transaction riêng biệt tương lai — PHẢI
+  tự verify trực tiếp lại toàn bộ 10 tiêu chí trên TẠI thời điểm đó
+  (candidate landscape/maintenance status CÓ THỂ đổi), VÀ tự rerun ADR
+  Scope Rule nếu bất kỳ fact nền tảng nào ở trên đổi.
+```
+
 ## Non-goals (KHÔNG chọn/redefine tại v0.1 này)
 
 ```text
@@ -588,4 +760,57 @@ ACCEPTANCE  2026-08-12  Product Owner lifecycle approval — mechanical,
       chọn framework/vendor, KHÔNG introduce production DI/API
       architecture, KHÔNG đóng `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01`,
       KHÔNG mở CI/CD, KHÔNG authorize Phase 2/LIVE.
+v0.3  2026-08-20  CANDIDATE amendment, KHÔNG self-approved — vai trò:
+      `Go Branch-Coverage Mechanism Candidate Author`. `status: Approved
+      → Draft`, `version: "0.2" → "0.3"`, `approved_by`/`approved_at`
+      reset `null` (v0.2's approval record giữ nguyên nguyên vẹn phía
+      trên LÀM historical evidence, KHÔNG bị ghi đè/rewrite). Bổ sung
+      MỘT subsection MỚI dưới "Framework/tool selection": "Go branch-
+      coverage mechanism — CANDIDATE," đề xuất **gobco**
+      (github.com/rillig/gobco) LÀM candidate mechanism cho gap evidence
+      DUY NHẤT còn lại trên market-reference-service's Chapter 13
+      Quality Gate (branch coverage — line coverage VÀ I-13 property-
+      based evidence đã có, `P3-MR-QG-A-MAJ-01`). Đánh giá đầy đủ 10
+      tiêu chí (maintained status, đo branch thật KHÔNG statement/block
+      proxy, Go version compat, reproducibility, pin exact identity,
+      local/CI execution, evidence-format sufficiency, anti-gaming/
+      authoritative-implementation compliance qua temp-dir source-to-
+      source instrumentation KHÔNG sửa file gốc, license/dependency
+      impact, KHÔNG alternative nào làm yếu branch metric) — verify
+      trực tiếp GitHub repo/README/main.go/pkg.go.dev VÀ golang/go#70306
+      (native branch-coverage proposal VẪN Open/Incoming, KHÔNG ETA),
+      KHÔNG từ memory. Từ chối tường minh mọi statement/block proxy đã
+      khảo sát (`go tool cover`/`covdata`, `gocov`, `go-carpet`,
+      `go-test-coverage`, `goc`, `Courtney`, "gocov-branch" không tồn
+      tại LÀM project riêng). ADR-scope check (chạy TRƯỚC khi author):
+      `ADR_NOT_REQUIRED` — [Chapter 13 §13.3](../constitution/13-quality-gates.md)/[§13.14](../constitution/13-quality-gates.md)
+      (Locked) tự defer "concrete tooling" cho Chapter 3 §3.2; Chapter 3
+      §3.2 dòng 44 (Locked v1.4) ĐÃ có carve-out tường minh cho Testing
+      Convention's "style/tooling" scope — pattern (b) `docs/adr/
+      ADR-030.md` §1 Context tự mô tả (existing Locked authority ĐÃ
+      pre-resolve baseline-existence + scope boundary → living
+      convention author trực tiếp, KHÔNG ADR), KHÁC pattern (a) ADR-030
+      phải dùng cho CI/CD (KHÔNG carve-out tương tự tồn tại). KHÔNG
+      Platform Invariant/Event Schema/Module Taxonomy/Governance-process
+      nào đổi, KHÔNG supersede ADR Locked nào, KHÔNG hard-to-reverse
+      lock-in (dev/test-time-only CLI, BSD-2-Clause). Vế ">1 module"
+      đọc theo tiền lệ ADR-030 LÀ cho baseline-existence decision MỚI,
+      KHÔNG PHẢI cho chọn tool bên trong category ĐÃ pre-authorized —
+      nếu không, mọi amendment tương lai cho bất kỳ Engineering
+      Foundation convention nào cũng sẽ tự động cần ADR, mâu thuẫn trực
+      tiếp lịch sử approval `ADR_NOT_REQUIRED` nhất quán của chính các
+      category đó. **KHÔNG cài đặt/tích hợp gobco (hay bất kỳ tool nào)
+      tại transaction này** — KHÔNG `go install`, KHÔNG `go.mod`/
+      `go.sum` dependency mới, KHÔNG CI workflow, KHÔNG rerun/
+      reinterpret Quality Gate nào (overall QG VẪN `FAIL — evidence`).
+      **KHÔNG đổi:** Chapter 13 coverage floor/tier/pass-fail semantics
+      nào, `module-registry.yaml`, dependency graph, production/test
+      code, `ci-cd.md`/`ADR-030` boundary, §1–§16/§18/Non-goals/
+      ADR-scope disposition gốc (byte-equivalent ngoài banner/lifecycle
+      metadata/change history này), Framework/tool selection's general
+      deferral (pytest/testify/gomock VẪN deferred). KHÔNG tạo ADR mới.
+      KHÔNG approve module/Data Layer/Phase nào. KHÔNG authorize LIVE.
+      `status` = `Draft` — not self-approved (`G-ORCH-002`), chờ Product
+      Owner review/decision (chấp nhận candidate, chọn candidate khác,
+      hoặc yêu cầu re-khảo sát).
 ```

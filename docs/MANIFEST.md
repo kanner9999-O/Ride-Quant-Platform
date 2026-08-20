@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.189"
+manifest_version: "10.190"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -280,7 +280,7 @@ current_phase:                   KHÔNG đổi bởi transaction này — VẪN 
 | engineering/logging.md | 0.3 | **Approved** (`approved_by: Product Owner`, `approved_at: 2026-08-11` — Product Owner decision "APPROVE LOGGING CONVENTION V0.3") | Product Owner | **APPROVAL — mechanical (2026-08-11), vai trò: `Mechanical Logging Convention Approval Recorder`.** Reviewed candidate v0.3 (bounded Review A final state Blocker 0/Major 0/Minor 0 — `EF-LOG-A-MAJ-01`/`EF-LOG-A-MAJ-02`/`EF-LOG-A-MAJ-03` tất cả `CLOSED`; Independent bounded Review B re-review trên đúng v0.3: New Blocker 0/New Major 0/New Minor 0, `READY_FOR_PRODUCT_OWNER_DECISION`), blob `b03f94699423edfafce010867506718e539a976b` → resulting post-approval lifecycle blob `27db535ce9fb91e202734c8c0e5de9ff4a498453` (G-ID-001: distinguished, KHÔNG conflate). `status: Draft → Approved`, `version: "0.3"` KHÔNG đổi (pure mechanical approval, KHÔNG bump). KHÔNG semantic content nào đổi (§1–§15 byte-equivalent, verified section-by-section). `ADR-027`/`ADR-026`/`naming.md`/`ADR-025`/`coding-standard.md`/`ADR-024`/`monorepo.md`/`ADR-008`/`module-registry.yaml` KHÔNG chạm (ADR-027 immutable, verified byte-identical). `ADR027-B-MIN-01` (residual riêng của `ADR-027`) VẪN `OPEN — accepted non-blocking`, KHÔNG chạm. Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable byte-for-byte như ADR; thay đổi SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule đúng §15. KHÔNG chọn logging library/vendor/backend/serialization format nào. KHÔNG tạo ADR-028. KHÔNG mở Config/Error Handling/Testing/CI-CD. KHÔNG authorize Phase 2/LIVE. |
 | engineering/config.md | 0.2 | **Approved** (`approved_by: Product Owner`, `approved_at: 2026-08-11` — Product Owner decision "APPROVE CONFIG CONVENTION V0.2 — ACCEPT EF-CONFIG-B-MIN-01 AS NON-BLOCKING RESIDUAL") | Product Owner | **APPROVAL — mechanical (2026-08-11), vai trò: `Config Convention v0.2 Mechanical Approval Recorder`.** Reviewed candidate v0.2 (bounded Review A re-review `CLEAN`, đóng `EF-CONFIG-A-MAJ-01`; Independent Review B trên đúng v0.2: New Blocker 0/New Major 0/New Minor 1 — `EF-CONFIG-B-MIN-01`, VALID non-blocking, `READY_FOR_PRODUCT_OWNER_DECISION`), blob `805bd9a351d1792e5d9283ea0f4989129aa36295` → resulting post-approval lifecycle blob `6c58dde51b915f81e3748d4dfa314a13c25e5ada` (G-ID-001: distinguished, KHÔNG conflate). `status: Draft → Approved`, `version: "0.2"` KHÔNG đổi (pure mechanical approval, KHÔNG bump). **Residual Minor `EF-CONFIG-B-MIN-01`: `OPEN — accepted non-blocking`** (candidate-identity/provenance wording stale "v0.1" tại mục "Non-goals" heading VÀ "ADR-scope disposition" — KHÔNG sửa, KHÔNG đóng tại transaction này). KHÔNG semantic content nào đổi (§1–§15 byte-equivalent). `ADR-028`/`ADR-017`/`account.md`/`ADR-027`/`logging.md`/`ADR-026`/`naming.md`/`ADR-025`/`coding-standard.md`/`ADR-024`/`monorepo.md`/`ADR-008`/`module-registry.yaml` KHÔNG chạm (ADR-028/ADR-017 immutable, verified byte-identical). Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable byte-for-byte như ADR; thay đổi SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule đúng §15. |
 | engineering/error-handling.md | 0.2 | **Approved** (`approved_by: Product Owner`, `approved_at: 2026-08-12` — Product Owner decision "APPROVE ERROR HANDLING CONVENTION V0.2 — ACCEPT EF-ERR-B-MIN-01 AS NON-BLOCKING RESIDUAL") | Product Owner | **APPROVAL — mechanical (2026-08-12), vai trò: `Error Handling Convention v0.2 Mechanical Approval Recorder`.** Reviewed candidate v0.2 (bounded Review A re-review `CLEAN`, đóng `EF-ERR-A-MAJ-01`; Independent Review B trên đúng v0.2: New Blocker 0/New Major 0/New Minor 1 — `EF-ERR-B-MIN-01`, VALID non-blocking, `READY_FOR_PRODUCT_OWNER_DECISION`), blob `10c1b259ec28bdfb0caa318ceffda81228a707da` → resulting post-approval lifecycle blob `d2b43a439f6447c44e49220ebdaf3041793b154c` (G-ID-001: distinguished, KHÔNG conflate). `status: Draft → Approved`, `version: "0.2"` KHÔNG đổi (pure mechanical approval, KHÔNG bump). **Residual Minor `EF-ERR-B-MIN-01`: `OPEN — accepted non-blocking`** (candidate/provenance wording stale "v0.1" tại nhiều mục KHÔNG đổi — KHÔNG sửa, KHÔNG đóng tại transaction này, đúng `G-REV-004`). KHÔNG semantic content nào đổi (§1–§15 byte-equivalent). `ADR-029`/`ADR-028`/`config.md`/`ADR-027`/`logging.md`/`ADR-026`/`naming.md`/`ADR-025`/`coding-standard.md`/`ADR-024`/`monorepo.md`/`ADR-008`/`ADR-017`/`module-registry.yaml` KHÔNG chạm (ADR-029 immutable, verified byte-identical). `EF-CONFIG-B-MIN-01` VẪN `OPEN — accepted non-blocking`, KHÔNG chạm. Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable byte-for-byte như ADR; thay đổi SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule. |
-| engineering/testing.md | 0.2 | **Approved** (`approved_by: Product Owner`, `approved_at: 2026-08-12` — Product Owner decision "APPROVE TESTING CONVENTION V0.2") | Product Owner | **APPROVAL — mechanical (2026-08-12), vai trò: `Testing Convention v0.2 Mechanical Approval Recorder`.** Reviewed candidate v0.2 (bounded Review A re-review `CLEAN`, đóng `EF-TEST-A-MAJ-01`/`EF-TEST-A-MIN-01`, New Blocker/Major/Minor 0/0/0; Independent Review B: New Blocker 0/New Major 0/New Minor 0, `ADR_NOT_REQUIRED` CONFIRMED, `READY_FOR_PRODUCT_OWNER_DECISION`), blob `0a325665f5ed011a7439fb8d3c349c3db79d50fa` → resulting post-approval lifecycle blob `43758067d17e38990ef25477dfa504ac4fc389a4` (G-ID-001: distinguished, KHÔNG conflate). `status: Draft → Approved`, `version: "0.2"` KHÔNG đổi (pure mechanical approval, KHÔNG bump). KHÔNG semantic content nào đổi (§1–§18 byte-equivalent). Không finding/residual nào từ Review B cần Product Owner acceptance riêng. `ADR-008`/`ADR-017`/`ADR-024`/`monorepo.md`/`ADR-025`/`coding-standard.md`/`ADR-026`/`naming.md`/`ADR-027`/`logging.md`/`ADR-028`/`config.md`/`ADR-029`/`error-handling.md`/`module-registry.yaml`/Chapter 3/Chapter 13 KHÔNG chạm (Chapter 3/13 Locked, verified byte-identical). `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01` VẪN `OPEN — accepted non-blocking`, KHÔNG chạm. Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable byte-for-byte như ADR; `ADR_NOT_REQUIRED` VẪN đúng (tài liệu KHÔNG dưới authority một ADR nào); thay đổi SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule. |
+| engineering/testing.md | 0.3 | **Draft** (reopened 2026-08-20 — CANDIDATE amendment, KHÔNG self-approved) | Product Owner | **v0.2 APPROVAL — mechanical (2026-08-12, historical, giữ nguyên), vai trò: `Testing Convention v0.2 Mechanical Approval Recorder`.** Reviewed candidate v0.2 (bounded Review A re-review `CLEAN`, đóng `EF-TEST-A-MAJ-01`/`EF-TEST-A-MIN-01`, New Blocker/Major/Minor 0/0/0; Independent Review B: New Blocker 0/New Major 0/New Minor 0, `ADR_NOT_REQUIRED` CONFIRMED, `READY_FOR_PRODUCT_OWNER_DECISION`), blob `0a325665f5ed011a7439fb8d3c349c3db79d50fa` → resulting post-approval lifecycle blob `43758067d17e38990ef25477dfa504ac4fc389a4` (G-ID-001: distinguished, KHÔNG conflate). `status: Draft → Approved`, `version: "0.2"` KHÔNG đổi (pure mechanical approval, KHÔNG bump). KHÔNG semantic content nào đổi (§1–§18 byte-equivalent). `ADR-008`/`ADR-017`/`ADR-024`/`monorepo.md`/`ADR-025`/`coding-standard.md`/`ADR-026`/`naming.md`/`ADR-027`/`logging.md`/`ADR-028`/`config.md`/`ADR-029`/`error-handling.md`/`module-registry.yaml`/Chapter 3/Chapter 13 KHÔNG chạm (Chapter 3/13 Locked, verified byte-identical). `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01` VẪN `OPEN — accepted non-blocking`, KHÔNG chạm. **v0.3 CANDIDATE amendment (2026-08-20, vai trò: `Go Branch-Coverage Mechanism Candidate Author`).** `status: Approved → Draft`, `version: "0.2" → "0.3"`, `approved_by`/`approved_at` reset `null` (v0.2 approval record phía trên giữ nguyên LÀM historical evidence, KHÔNG bị ghi đè), blob `fb03de88a238c09b1d879d90a3e22d5591a99842`. Bổ sung subsection "Go branch-coverage mechanism — CANDIDATE" đề xuất **gobco** (github.com/rillig/gobco) cho gap evidence DUY NHẤT còn lại trên market-reference-service's Chapter 13 QG (branch coverage) — ADR-scope check `ADR_NOT_REQUIRED` (Chapter 13 §13.3/§13.14 defer "concrete tooling" cho Chapter 3 §3.2 dòng 44's carve-out đã Locked; pattern (b) đúng `docs/adr/ADR-030.md` §1 Context, KHÔNG pattern (a) CI/CD phải dùng). KHÔNG cài đặt/tích hợp tool. KHÔNG `go.mod`/`go.sum` mới. KHÔNG rerun QG (overall VẪN `FAIL — evidence`). KHÔNG chạm Chapter 13 floor/tier/pass-fail, `module-registry.yaml`, dependency graph, production/test code, `ci-cd.md`/`ADR-030`. KHÔNG tạo ADR mới. `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01` KHÔNG chạm. `status` = `Draft`, chờ Product Owner review/decision. Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable byte-for-byte như ADR; thay đổi SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule. |
 | engineering/ci-cd.md | 0.1 | **Approved** (`approved_by: Product Owner`, `approved_at: 2026-08-13` — Product Owner decision "APPROVE CI/CD CONVENTION V0.1") | Product Owner | **APPROVAL — mechanical (2026-08-13), vai trò: `CI/CD Convention v0.1 Mechanical Approval Recorder`.** Reviewed candidate v0.1 (Review A Blocker 0/Major 0/Minor 0 `CLEAN`; Independent Review B Blocker 0/Major 0/Minor 0, `READY_FOR_PRODUCT_OWNER_DECISION`), blob `8fdfde56f6a7926b2290bca610cf7c5978cb2238` → resulting post-approval lifecycle blob `0ab1fe87b2e220322d0f7c9d50382573f405f1e2` (G-ID-001: distinguished, KHÔNG conflate). `status: Draft → Approved`, `version: "0.1"` KHÔNG đổi (pure mechanical approval, KHÔNG bump). KHÔNG semantic content nào đổi (§1–§15 byte-equivalent). Không finding/residual riêng nào từ CI/CD Convention cần Product Owner acceptance riêng. `ADR-030`/Chapter 12/13/`ADR-017`/`ADR-025`–`ADR-029`/`coding-standard.md`/`naming.md`/`logging.md`/`config.md`/`error-handling.md`/`testing.md`/`ADR-008`/`ADR-024`/`monorepo.md`/`module-registry.yaml` KHÔNG chạm (ADR-030 immutable, verified byte-identical). `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01` VẪN `OPEN — accepted non-blocking`, KHÔNG chạm. Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable byte-for-byte như ADR; thay đổi SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule. KHÔNG tạo workflow file/provider config/deployment configuration nào. KHÔNG authorize deployment/Phase 2/LIVE. |
 
 **Xác nhận tường minh (logging.md v0.1, 2026-08-11):** tài liệu KHÔNG Constitution chapter, KHÔNG ADR — `ADR-027` (Approved, immutable) VẪN authority cho baseline-existence decision, verified byte-identical (git diff empty). `module-registry.yaml`/mọi architecture package/ADR KHÔNG sửa. `ADR027-B-MIN-01` KHÔNG đóng tại đây. Phase 2 substantive work VẪN `NOT YET AUTHORIZED`, `LIVE` VẪN `NOT AUTHORIZED`, `current_phase` KHÔNG đổi.
@@ -2591,6 +2591,96 @@ Files changed (this remediation): docs/MANIFEST.md, docs/CHANGELOG.md,
   go/market-reference-service/internal/venue/venue_fuzz_test.go,
   go/market-reference-service/internal/listing/listing_fuzz_test.go — verified via
   `git status --porcelain=v1 -uall`, no other file touched.
+```
+
+## Go Branch-Coverage Mechanism Candidate (`testing.md` v0.3 — CANDIDATE, not installed, not approved)
+
+```text
+Baseline: branch main, HEAD 72cd7191312205cd698b611b2bffbb4ac9cff7c7 (verified via git
+  rev-parse HEAD before any edit; git status --porcelain=v1 -uno clean).
+
+Problem addressed: the sole remaining market-reference-service Chapter 13 QG evidence gap —
+  branch coverage measurement mechanism unavailable (line coverage PASS — 91.8% and I-13
+  property-based evidence REMEDIATED, both already recorded, P3-MR-QG-A-MAJ-01).
+
+Authority inspected directly (not from memory): Chapter 0 §4b (ADR Scope Rule), Chapter 3
+  §3.2 (Engineering Foundation, line 44's Testing Convention style/tooling carve-out), Chapter
+  13 §13.3/§13.8/§13.9/§13.14 (coverage semantics, fail-closed, evidence contract, tooling
+  defer), Chapter 2 I-13, docs/engineering/testing.md v0.2 Approved, docs/adr/ADR-030.md
+  (Cross-Module CI/CD Convention Baseline — inspected specifically for its §1 Context's
+  explicit pattern-(a)-vs-pattern-(b) ADR-scope distinction, used as the controlling precedent
+  for this transaction's own ADR-scope disposition).
+
+Candidates surveyed (verified directly via GitHub/README/source/pkg.go.dev, not memory):
+  Native Go toolchain (go tool cover / go tool covdata, all subcommands): statement/block only
+    — REJECTED as branch-coverage proxy. golang/go#70306 ("proposal: cmd/cover: support branch
+    coverage") verified: still Open/Incoming, no assignee, no PR, no ETA.
+  gocov (archived upstream axw/gocov; community fork gwthm-in/gocov), go-carpet (msoap/go-
+    carpet), go-test-coverage (vladopajic/go-test-coverage), goc, Courtney: all statement/block
+    coverage reporters/threshold-gates over the existing go test -cover profile — REJECTED as
+    branch-coverage proxies, none produce an independent branch/condition metric.
+  "gocov-branch": verified NOT to exist as an independently maintained project (consistent with
+    the prior QG evaluation's finding).
+  gobco (github.com/rillig/gobco, Roland Illig) — SELECTED AS CANDIDATE ONLY. Instruments
+    boolean sub-expressions (comparisons, &&, ||, !) in a temporary directory copy of the
+    package (verified in main.go: os.TempDir()/gobco-<random>, copyDir, then a real `go test`
+    invocation via exec.Command against the instrumented copy) — tracks true/false evaluation
+    of each condition independently, a genuine condition/branch metric, not statement coverage
+    relabeled. Original repository files are never modified by the measurement itself. BSD-2-
+    Clause license (verified via LICENSE file). Requires Go 1.17+ (compatible with this
+    repository's go.mod go 1.25 / go1.26.6 build toolchain). Latest tagged release v1.3.4
+    (2024-03-08, 10 tags since 2022-11-24) with continued post-tag commit activity — single-
+    maintainer project, disclosed explicitly as a maintenance-concentration risk, not hidden,
+    not treated as disqualifying (comparable risk profile to other small Go tooling projects).
+
+Anti-gaming assessment (Chapter 13 §13.3 — "authoritative implementation, not mock/generated/
+  shadow code"): gobco's instrumentation only inserts non-semantic counters around boolean
+  sub-expressions; it does not alter control flow or logic, and the instrumented copy is
+  behaviorally identical to the authoritative implementation plus counters — the same category
+  of technique this repository already accepts for line coverage via go tool cover's own
+  source-to-source instrumentation. Not shadow/generated code in the sense Chapter 13 §13.3
+  prohibits.
+
+ADR-scope disposition: ADR_NOT_REQUIRED. Controlling authority: Chapter 13 §13.3 ("Không khóa
+  tool/vendor cụ thể, defer §13.14") + §13.14 ("concrete tooling... defer sang Engineering
+  Foundation Chapter 3 §3.2"), both Locked, explicitly assign this exact decision space to
+  Chapter 3 §3.2 — which itself (line 44, Locked v1.4) already carves out Testing Convention's
+  scope as "style/tooling," pre-resolving both category-existence and scope boundary. This is
+  ADR-030 §1 Context's own named "pattern (b)" (existing Locked authority already pre-resolves
+  baseline-existence + scope boundary -> living convention authored directly, no ADR — the
+  same pattern testing.md v0.1 itself used) — the direct opposite of "pattern (a)," which
+  ADR-030 had to use for CI/CD precisely because Chapter 3 §3.2 carried no equivalent carve-out
+  for that category. None of Chapter 0 §4b's six ADR-Required triggers apply: no Platform
+  Invariant, Event Schema, Module Taxonomy/dependency-graph, or Governance/Approval-process
+  change; no Locked ADR superseded (none exists on coverage tooling); the ">1 module" clause is
+  read, consistent with ADR-030's own reasoning, as applying to NEW cross-module baseline-
+  existence decisions, not to selecting a tool inside an already-pre-authorized category
+  (otherwise every future amendment to any Engineering Foundation convention would also require
+  an ADR, contradicting this repository's own consistent ADR_NOT_REQUIRED history for
+  naming.md/coding-standard.md/logging.md/config.md/error-handling.md/testing.md itself); and
+  the candidate carries no hard-to-reverse lock-in (dev/test-time-only CLI, permissive license,
+  no vendor/infrastructure coupling) — unlike the CI-provider lock-in risk ADR-030 §6 flags
+  separately.
+
+Testing Convention changed: YES, semantically. version "0.2" -> "0.3", status Approved ->
+  Draft (Chapter 0 §5.1: any semantic change to an Approved living document requires a version
+  bump and a fresh approval-gate pass; the prior approval record cannot be presumed to cover
+  new content it never reviewed), approved_by/approved_at reset to null. v0.2's approval
+  record preserved byte-for-byte above as historical evidence, not overwritten. New content:
+  a top-of-document v0.3 banner + a new "Go branch-coverage mechanism — CANDIDATE" subsection
+  under "Framework/tool selection" + a new Change history v0.3 entry. §1-§16/§18/Non-goals/
+  original ADR-scope disposition/Framework-selection general deferral (pytest/testify/gomock)
+  unchanged, byte-equivalent.
+
+Chapter 13 changed: NO. Implementation/test code changed: NO. QG rerun: NO — overall QG
+  remains FAIL — evidence (branch coverage still unmeasured; this transaction proposes a
+  candidate mechanism only, it does not produce a measurement). Tier: unchanged. Dependency
+  graph: unchanged. module-registry.yaml: untouched. No dependency installed, no go.mod/go.sum
+  change, no CI workflow created. No module/Data Layer approved. LIVE: NOT_AUTHORIZED.
+
+Files changed: docs/MANIFEST.md, docs/CHANGELOG.md, docs/engineering/testing.md — verified via
+  git status --porcelain=v1 -uall, no other file touched (in particular: no go/** file, no
+  docs/architecture/module-registry.yaml, no docs/adr/** file, no docs/constitution/** file).
 ```
 
 ## Decision Log
