@@ -2,6 +2,102 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — gobco pin license-provenance bounded correction (`P3-GOBC-PIN-A-MAJ-01`)
+
+**License-provenance correction transaction only — vai trò: `gobco Pinning License-Provenance
+Bounded Corrector`.** Supersedes the prior v1.3.4 pin with an exact immutable commit whose
+LICENSE is resolvable in-tree, with zero mechanism drift. Does not rerun the formal Quality
+Gate; does not modify Testing Convention semantics or production/test code.
+
+### Baseline
+
+```text
+Starting HEAD: 0f7df9fe745ad7b56f8ad435d7e13f17b8cf216b (verified via git rev-parse HEAD
+  before any edit; git status --porcelain=v1 -uno clean; branch main).
+```
+
+### Finding
+
+```text
+The prior pin (v1.3.4) is a correct artifact identity, but its exact tagged source tree
+  contains no LICENSE file — BSD-2-Clause exists only in a later, untagged repository state.
+  Citing the later/default-branch LICENSE does not resolve that exact immutable artifact's own
+  license provenance. Not self-waived as non-blocking.
+```
+
+### Investigation
+
+```text
+Cloned github.com/rillig/gobco locally (avoiding rate-limited cached API responses). Commit
+  graph after v1.3.4: 4c9ea04 (tag) -> 4ed993b (version snapshot bump) -> 2d21b14 ("Add
+  license file", 2024-09-24, fixes upstream issue #37) -> ... -> 7a09995 (current master
+  HEAD). 2d21b14 diff: adds ONLY the LICENSE file (24 lines), nothing else.
+  `git diff v1.3.4..2d21b14 -- instrumenter.go main.go go.mod`: EMPTY — mechanism code
+  byte-identical to the reviewed v1.3.4. (The only mechanism-file change anywhere between
+  v1.3.4 and current master HEAD is a later, unrelated TestMain/EtcdMain integration-test
+  addition that does not touch markConds, the -branch flag, or branch/condition
+  instrumentation logic.) Conclusion: 2d21b14addca7c3832fae8578c9bffda70331468 is the minimal
+  suitable immutable commit — first with LICENSE in-tree, zero mechanism drift, linear
+  descendant of the v1.3.4 tag.
+```
+
+### Replacement pin
+
+```text
+Resolved via `go install github.com/rillig/gobco@2d21b14addca7c3832fae8578c9bffda70331468`
+  (isolated GOBIN, no production runtime dependency introduced).
+  Module path: github.com/rillig/gobco.
+  Resolved pseudo-version: v1.3.5-0.20240924205308-2d21b14addca (computed by Go itself).
+  VCS commit: 2d21b14addca7c3832fae8578c9bffda70331468.
+  Content checksum: h1:3brQV6wohXU5fg5vXgu76yyiaZYNJxwjh2mkXGMxCoI=.
+  go.mod checksum: h1:VvLaz1Pm73AQQ2JVBFWQz6BdZVSQg0YffxW3yXwEArM= (identical to v1.3.4's).
+  LICENSE blob: 780388e99819fe19b0fc86e8151d333889e54b23, confirmed present in-tree in the
+    downloaded module cache, content verified BSD-2-Clause, Copyright (c) 2024, Roland Illig.
+  Executable identity: gobco -version reports "1.3.5-snapshot"; go version -m confirms
+    matching module hash, built go1.26.6 darwin/arm64.
+```
+
+### Functional verification (re-run)
+
+```text
+Branch mode on internal/fact: exit 0, "Branch coverage: 45/52" — byte-identical to the
+  superseded pin's output (expected, mechanism identical). Default condition mode: "Condition
+  coverage: 50/62" — distinct numerator/denominator, confirmed again. Exit semantics: exit 0
+  regardless of coverage completeness (not a pass/fail signal), exit 0 on non-existent package
+  (silent), exit 2 on genuine parse error (re-verified via scratch broken package).
+  Reproducibility: two runs byte-identical (excluding go test's own timing line). Repository
+  source confirmed untouched throughout. Temp instrumentation confirmed outside the repository
+  via -keep. Applicability re-check: zero select/generics/goto in current
+  market-reference-service.
+```
+
+### Validation
+
+```text
+gofmt -l .: CLEAN. go vet ./...: CLEAN. go build ./...: CLEAN. go test ./...: all PASS, zero
+  FAIL/SKIP — no regression.
+```
+
+### Result
+
+```text
+Governed mechanism drift: NONE — core instrumentation mechanism byte-identical between the
+  superseded and replacement artifacts. Current evidence readiness: license provenance now
+  resolvable from the pinned artifact's own exact immutable source state; -branch semantics
+  unchanged; reproducibly buildable with current Go toolchain; applicable to current subject.
+P3-GOBC-PIN-A-MAJ-01: CLOSED_BY_BOUNDED_CORRECTION.
+Preserved: Testing Convention v0.4 Approved (untouched), gobco as approved mechanism,
+  explicit -branch mode, ADR_NOT_REQUIRED, Chapter 13/Tier/module-registry/dependency graph
+  unchanged, no implementation/test code changed, formal QG remains FAIL — evidence (NOT
+  rerun), LIVE remains NOT_AUTHORIZED.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only — verified via git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — gobco governed installation/pinning (Approved Testing Convention v0.4 mechanism)
 
 **Installation/pinning transaction only — vai trò: `Governed gobco Installation / Pinning

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.193"
+manifest_version: "10.194"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -2819,6 +2819,14 @@ Files changed: docs/MANIFEST.md, docs/CHANGELOG.md, docs/engineering/testing.md 
 
 ## gobco Governed Installation/Pinning (Approved Testing Convention v0.4 mechanism)
 
+**Correction notice (`P3-GOBC-PIN-A-MAJ-01`):** the exact pin recorded in this section
+(`v1.3.4`) is **superseded** by the "gobco Governed Installation/Pinning — License-Provenance
+Correction" section below — `v1.3.4`'s tagged source tree does not contain the LICENSE file,
+so its license provenance was not resolved from that exact immutable artifact. This section's
+content is preserved unmodified as the historical record of what was pinned and why; it is
+**no longer the pin to use for future QG evidence** — see the correction section for the
+current authoritative pin.
+
 ```text
 Baseline: branch main, HEAD e455e5210e7a4f49307cd70048230770693d1b52 (verified via git
   rev-parse HEAD before any edit; git status --porcelain=v1 -uno clean).
@@ -2970,6 +2978,117 @@ No production code changed. No test code changed. No go.mod/go.sum changed (veri
 Files changed: docs/MANIFEST.md, docs/CHANGELOG.md only — verified via
   `git status --porcelain=v1 -uall` (excluding pre-existing unrelated untracked .DS_Store/
   CLAUDE.md files present since before this session's work began).
+```
+
+## gobco Governed Installation/Pinning — License-Provenance Correction (`P3-GOBC-PIN-A-MAJ-01`)
+
+```text
+Baseline: branch main, HEAD 0f7df9fe745ad7b56f8ad435d7e13f17b8cf216b (verified via git
+  rev-parse HEAD before any edit; git status --porcelain=v1 -uno clean).
+
+Finding: the prior pin (v1.3.4, section above) is technically correct as an artifact
+  identity, but its exact tagged source tree contains no LICENSE file — BSD-2-Clause exists
+  only in a later, untagged repository state. Citing the later/default-branch LICENSE to
+  justify v1.3.4's license terms does not resolve that exact immutable artifact's own
+  provenance. This is a material gap in the Approved v0.4 candidate's license assumption and
+  is not self-waived here.
+
+Investigation (cloned github.com/rillig/gobco locally for reliable, rate-limit-free history
+  inspection — not relying on cached API responses):
+  Commit graph immediately after the v1.3.4 tag (linear, confirmed via
+  `git merge-base --is-ancestor v1.3.4 2d21b14`):
+    4c9ea04 (tag v1.3.4) -> 4ed993b ("Update version to snapshot") ->
+    2d21b14 ("Add license file", 2024-09-24T22:53:08+02:00, fixes upstream issue #37) -> ...
+    -> 7a09995 (current master HEAD, 2026-05-03, "Update GitHub workflow").
+  2d21b14 diff verified: `LICENSE | 24 ++++++++++++++++++++++++, 1 file changed, 24
+    insertions(+)` — ONLY adds the LICENSE file, touches nothing else.
+  `git diff v1.3.4..2d21b14 -- instrumenter.go main.go go.mod`: EMPTY — mechanism code is
+    byte-identical to the already-reviewed v1.3.4 at this exact commit. (The only mechanism-
+    file change anywhere between v1.3.4 and current master HEAD is in a later, unrelated
+    commit adding TestMain/EtcdMain integration-test support to instrumentTestMain — verified
+    via `git diff v1.3.4..HEAD -- instrumenter.go main.go go.mod`; markConds, the -branch
+    flag, and all branch/condition instrumentation logic are untouched by it.)
+  version.go at 2d21b14: `const version = "1.3.5-snapshot"`.
+  Conclusion: 2d21b14addca7c3832fae8578c9bffda70331468 is the minimal, most conservative
+    suitable immutable commit — first commit with the LICENSE in-tree, zero mechanism drift
+    from the reviewed v1.3.4 baseline, still a linear descendant of the v1.3.4 tag.
+
+Replacement immutable artifact — resolved and pinned via
+  `go install github.com/rillig/gobco@2d21b14addca7c3832fae8578c9bffda70331468`, installed
+  into an isolated GOBIN outside any module's go.mod (no production runtime dependency
+  introduced):
+  Module path:          github.com/rillig/gobco
+  Resolved pseudo-version: v1.3.5-0.20240924205308-2d21b14addca (computed by Go itself from
+    the commit's author timestamp and abbreviated hash — not asserted, verified via the
+    `go install` download line and `go mod download -json`).
+  VCS commit:            2d21b14addca7c3832fae8578c9bffda70331468
+  Content checksum (go.sum h1): h1:3brQV6wohXU5fg5vXgu76yyiaZYNJxwjh2mkXGMxCoI=
+  go.mod checksum:       h1:VvLaz1Pm73AQQ2JVBFWQz6BdZVSQg0YffxW3yXwEArM= (identical to
+    v1.3.4's — go.mod is byte-identical, confirmed above).
+  LICENSE blob identity: git blob 780388e99819fe19b0fc86e8151d333889e54b23 — confirmed present
+    in-tree in the downloaded module cache directory for this exact pinned pseudo-version
+    (`ls .../gobco@v1.3.5-.../LICENSE`), content verified BSD-2-Clause, Copyright (c) 2024,
+    Roland Illig.
+  Executable identity:  `gobco -version` reports "1.3.5-snapshot"; `go version -m` confirms
+    `mod github.com/rillig/gobco v1.3.5-0.20240924205308-2d21b14addca
+    h1:3brQV6wohXU5fg5vXgu76yyiaZYNJxwjh2mkXGMxCoI=`, built go1.26.6, GOOS=darwin,
+    GOARCH=arm64.
+  Build/install Go version: go1.26.6 darwin/arm64 (unchanged toolchain).
+
+Functional verification re-run against market-reference-service (HEAD unchanged at 0f7df9f;
+  no production/test code touched by this transaction):
+  Branch mode: `gobco -branch ./internal/fact` -> exit 0, "Branch coverage: 45/52" — byte-
+    identical output to the superseded v1.3.4 pin (expected, mechanism code identical).
+  Default condition mode, same package: "Condition coverage: 50/62" — distinct
+    numerator/denominator from branch mode, confirming the two-metric distinction still holds
+    with this artifact.
+  Output labeling: confirmed "Branch coverage"/"Condition coverage" labels switch correctly,
+    same as before.
+  Exit semantics: exit 0 on successful run regardless of coverage completeness (not a
+    pass/fail signal); exit 0 also on a non-existent package ("nothing to instrument," silent,
+    disclosed, unchanged); exit 2 confirmed on a genuine parse error via the same scratch
+    broken package used previously (re-verified directly, not assumed from the prior
+    transaction's report).
+  Reproducibility: two `-branch` runs on internal/fact produced byte-identical coverage output
+    (only go test's own timing line differed, as before).
+  Repository source files not modified: confirmed via `git status --porcelain=v1 -uall --
+    go/market-reference-service` clean before and after every run.
+  Temp instrumentation outside authoritative repo source: confirmed via `-keep` on a scratch
+    invocation (internal/decimal) — instrumented copy located under macOS's real $TMPDIR
+    (`/var/folders/.../T/gobco-<hash>/module-<hash>/...`), fully outside the repository;
+    removed after inspection.
+  Applicability (fresh re-check): zero select statements, zero generic type parameters, zero
+    goto statements in current market-reference-service — unchanged from the prior
+    transaction, re-confirmed directly rather than assumed.
+
+Validation: gofmt -l . CLEAN; go vet ./... CLEAN; go build ./... CLEAN; go test ./... all
+  PASS, zero FAIL/SKIP — installation caused no regression (no go.mod/go.sum/production file
+  touched).
+
+Governed mechanism drift: NONE. Core branch/condition instrumentation mechanism (markConds,
+  -branch flag, IfStmt/SwitchStmt/ForStmt handling, SelectStmt/generics non-support) is
+  byte-identical between the superseded v1.3.4 pin and this replacement artifact — confirmed
+  via direct diff, not assumed. Only the license-provenance gap changed (now resolved).
+
+Current evidence readiness: this pinned artifact's license provenance is now resolvable from
+  its own exact immutable source state (LICENSE present in-tree, blob identity pinned above).
+  Reviewed -branch semantics unchanged. Reproducibly buildable/runnable with the repository's
+  current Go toolchain (go1.26.6). Applicable to market-reference-service's current subject
+  (no unsupported constructs present).
+
+Preserved unchanged: Testing Convention v0.4 Approved status and semantic content (untouched
+  by this transaction); gobco remains the approved mechanism; explicit -branch mode remains
+  required; ADR_NOT_REQUIRED unchanged; Chapter 13 untouched; Tier unchanged; module-
+  registry.yaml untouched; dependency graph unchanged; no implementation/test code changed;
+  formal QG remains FAIL — evidence (NOT rerun in this transaction — the numbers above are
+  installation-validation evidence only, same boundary as the prior transaction); LIVE remains
+  NOT_AUTHORIZED.
+
+Finding status: P3-GOBC-PIN-A-MAJ-01: CLOSED_BY_BOUNDED_CORRECTION.
+
+Files changed: docs/MANIFEST.md, docs/CHANGELOG.md only — verified via
+  `git status --porcelain=v1 -uall`, no go/**, no docs/architecture/module-registry.yaml, no
+  docs/adr/**, no docs/constitution/**, no docs/engineering/testing.md touched.
 ```
 
 ## Decision Log
