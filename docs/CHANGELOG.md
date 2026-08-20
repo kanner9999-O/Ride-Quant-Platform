@@ -2,6 +2,75 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — Go branch-coverage candidate bounded correction (testing.md v0.4, `P3-GOBC-A-MAJ-01`)
+
+**Evidence-correction transaction only — vai trò: `Go Branch-Coverage Candidate Bounded
+Correction Executor`.** Corrects v0.3's conflation of gobco's default condition-coverage mode
+with the distinct Chapter-13 branch-coverage metric. gobco remains the candidate; no tool
+installed; no QG rerun; no implementation/test code changed.
+
+### Baseline
+
+```text
+Starting HEAD: 5b25231b0a42af3a894a7d3c7618fce1a5eae34f (verified via git rev-parse HEAD before
+  any edit; git status --porcelain=v1 -uno clean; branch main).
+```
+
+### Finding
+
+```text
+v0.3 described gobco's default mode (decomposes &&/||/! into atomic operands, tracks each
+  true/false independently — condition coverage) and treated its output as sufficient for
+  Chapter 13's branch-coverage floor. Verified directly against instrumenter.go's markConds
+  function and source comments: gobco's distinct -branch flag (`flags.BoolVar(&g.branch,
+  "branch", false, "cover branches, not conditions")`) instead instruments only the WHOLE
+  controlling condition of an IfStmt/SwitchStmt/ForStmt ("only the whole controlling condition
+  is instrumented" per source comment) — this is the metric Chapter 13 actually requires.
+  Condition coverage does not imply branch coverage for compound conditions: `if (a || b)` can
+  reach 100% atomic condition coverage across two test cases while the whole expression never
+  evaluates False (branch coverage only 50%).
+```
+
+### Correction applied
+
+```text
+Proposed mechanism corrected to: gobco run WITH -branch explicitly, never the default
+  invocation. Condition coverage and branch coverage stated as distinct, non-substitutable
+  metrics. Default-mode output explicitly barred from substituting for the Chapter-13 branch
+  metric. A future installation transaction must verify: exact -branch syntax (undocumented in
+  gobco's README, verified only from source here), version/content identity, branch-mode
+  numerator/denominator semantics, output format (printOutput() relabels to "Branch coverage:
+  N/M" under -branch — confirmed; full structural equivalence to default output NOT assumed),
+  exit-code semantics, and reproducibility against this repo's go1.26.6/go 1.25 toolchain.
+Limitation review: instrumenter supports IfStmt/SwitchStmt(both variants)/ForStmt in both
+  modes; no SelectStmt handling in either mode (confirms README's claim also holds for
+  -branch). Verified via grep across go/market-reference-service: zero select statements, zero
+  generic type parameters in the current subject — the select limitation does not affect
+  branch applicability/evidence completeness for market-reference-service at this boundary.
+  gobco's general Go-generics support could not be confirmed either way — recorded as an
+  installation-time fail-closed verification requirement for any future subject/change
+  introducing select or generics into gobco's intended scope, not waived.
+```
+
+### Result
+
+```text
+docs/engineering/testing.md: version 0.3 -> 0.4, status stays Draft (edited in place per
+  Chapter 0 §5.1, same convention testing.md's own v0.1 -> v0.2 correction used).
+ADR_NOT_REQUIRED PRESERVED — no new Chapter 0 §4b trigger discovered.
+gobco remains the candidate (not replaced) — only its required invocation mode corrected.
+P3-GOBC-A-MAJ-01: CLOSED_BY_BOUNDED_CORRECTION.
+No tool installed, no go.mod/go.sum change, no CI integration, no Chapter 13 change, no QG
+  rerun (remains FAIL — evidence), no implementation/test code changed, LIVE not authorized.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md, docs/engineering/testing.md — verified via
+  git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — Go branch-coverage mechanism CANDIDATE (testing.md v0.3, not installed, not approved)
 
 **Engineering Foundation candidate-authoring transaction only — vai trò: `Go Branch-Coverage

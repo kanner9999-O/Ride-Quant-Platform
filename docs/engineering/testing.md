@@ -1,7 +1,7 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -46,6 +46,8 @@ Không finding/residual nào từ Review B cần Product Owner acceptance
 **v0.2 — bounded correction (2026-08-12), đóng `EF-TEST-A-MAJ-01`/`EF-TEST-A-MIN-01`, vai trò: `Testing Convention v0.2 Bounded Correction Executor`.** Đóng `EF-TEST-A-MAJ-01` (§4 v0.1 nói module "cung cấp clock qua dependency injection/parameter khi cần test time-dependent logic" — đọc được như MANDATE một production-code API/design change CHỈ để thỏa testing convention, vượt ngoài Chapter 3 §3.2's boundary "style/tooling." Sửa: pin rõ Testing Convention CHỈ định nghĩa CÁCH dùng/control một seam ĐÃ tồn tại, KHÔNG BAO GIỜ bắt buộc production module tạo MỚI một DI pattern/parameter/interface/dependency CHỈ để thỏa convention; nếu deterministic testing KHÔNG đạt được mà KHÔNG đổi production design, đó LÀ một implementation/design gap PHẢI route qua authority sở hữu production design tương ứng VÀ tự rerun ADR Scope Rule nếu applicable, KHÔNG tự giải quyết tại `testing.md`). Đóng `EF-TEST-A-MIN-01` (§17 v0.1 tuyên bố "KHÔNG copy lại con số ngưỡng cụ thể" NHƯNG ngay sau đó liệt kê chính các con số đó — tự mâu thuẫn, duplicate policy text KHÔNG cần thiết. Sửa: bỏ hẳn con số, CHỈ giữ nguyên tắc "Chapter 13 §13.3/§13.4 LÀ authority DUY NHẤT," người đọc PHẢI resolve giá trị hiện hành trực tiếp từ Chapter 13). **KHÔNG đổi:** `ADR_NOT_REQUIRED` result, Chapter 3 style/tooling-only boundary, Chapter 13 quality-policy authority, test structure (§1), naming (§2), isolation (§3 phần còn lại), fixtures/factories (§5), mocking/stubbing (§6), unit/integration distinction (§7), contract/boundary testing (§8), Python guidance (§9), Go guidance (§10), test-data guidance (§11), flaky-test tooling mechanics (§12), local command convention (§13), reusable helpers (§14), Error Handling interaction (§15), Logging/Config boundaries (§16), quality-gate boundary (§18), framework/tool selection VẪN deferred, Non-goals. KHÔNG tạo ADR-030, KHÔNG chọn framework/vendor, KHÔNG introduce production DI architecture, KHÔNG chạm Chapter 3/Chapter 13/bất kỳ Approved ADR/convention nào. `EF-CONFIG-B-MIN-01`/`EF-ERR-B-MIN-01` KHÔNG chạm. `status` VẪN `Draft`.
 
 **v0.3 — CANDIDATE amendment (2026-08-20), KHÔNG self-approved, vai trò: `Go Branch-Coverage Mechanism Candidate Author`.** `status: Approved → Draft` (mọi thay đổi SEMANTIC vào tài liệu Approved bắt buộc tăng version VÀ đi qua approval gate lại, đúng [Chapter 0 §5.1](../constitution/00-governance.md); `approved_by`/`approved_at` của v0.2 KHÔNG tự động phủ nội dung MỚI này — reset `null`, v0.2's approval record giữ nguyên nguyên vẹn phía trên LÀM historical evidence, KHÔNG bị ghi đè). Bổ sung MỘT subsection MỚI dưới "Framework/tool selection" (dưới) đề xuất một **CANDIDATE** (chưa chọn/chưa cài đặt/chưa tích hợp) cho cơ chế đo **Go branch-coverage** — khoảng trống evidence DUY NHẤT còn lại cho `market-reference-service`'s Chapter 13 Quality Gate sau khi line coverage VÀ I-13 property-based evidence đã có (`P3-MR-QG-A-MAJ-01` closure history, `docs/MANIFEST.md`). **ADR-scope check (chạy TRƯỚC KHI author, [Chapter 0 §4b](../constitution/00-governance.md)):** kết luận `ADR_NOT_REQUIRED` — xem "Go branch-coverage mechanism — CANDIDATE" dưới cho full reasoning; tóm tắt: [Chapter 3 §3.2](../constitution/03-engineering-principles.md) dòng 44 ĐÃ có carve-out tường minh cho Testing Convention ("chỉ quy định style/tooling... coverage/tier requirement đã có đầy đủ ở Chapter 13, không định nghĩa lại") VÀ [Chapter 13 §13.3](../constitution/13-quality-gates.md)/[§13.14](../constitution/13-quality-gates.md) tự nó khóa "không khóa tool/vendor cụ thể... defer Engineering Foundation" — đây LÀ pattern (b) đã dùng cho chính `testing.md` v0.1 ban đầu (existing Locked authority ĐÃ pre-resolve baseline-existence + scope boundary), KHÁC pattern (a) `ADR-030` phải dùng cho CI/CD (KHÔNG carve-out nào tồn tại cho CI/CD tại Chapter 3 §3.2 trước ADR-030) — verify trực tiếp `docs/adr/ADR-030.md` §1 Context xác nhận chính hai pattern này. Đây CHỈ LÀ candidate selection trong phạm vi "tooling" ĐÃ pre-authorized, KHÔNG PHẢI một baseline-existence decision mới, KHÔNG platform invariant/event schema/module taxonomy/governance-process change, KHÔNG supersede ADR đã Locked nào, KHÔNG hard-to-reverse lock-in (dev/test-time-only Go CLI tool, BSD-2-Clause, không vendor/infrastructure coupling). **KHÔNG đổi:** Chapter 13 coverage floor/tier/pass-fail semantics nào (§17/§18 dưới, KHÔNG đổi), `module-registry.yaml`, dependency graph, production/test code, CI/CD (`ci-cd.md`/`ADR-030`, KHÔNG chạm), §1–§16/§18/Non-goals/ADR-scope disposition gốc (byte-equivalent). KHÔNG cài đặt/tích hợp tool nào tại transaction này. KHÔNG rerun Quality Gate nào. KHÔNG approve module/Data Layer nào. KHÔNG authorize LIVE.
+
+**v0.4 — bounded correction (2026-08-20), đóng `P3-GOBC-A-MAJ-01`, vai trò: `Go Branch-Coverage Candidate Bounded Correction Executor`.** v0.3's "Go branch-coverage mechanism — CANDIDATE" subsection conflated gobco's DEFAULT **condition coverage** mode (atomic boolean sub-expression true/false tracking — decomposes `&&`/`||`/`!` into independent operands) với gobco's distinct, explicit **`-branch`** flag mode (instruments CHỈ whole controlling condition của `if`/`switch`/`for`, KHÔNG decompose) — verify trực tiếp `instrumenter.go`'s `markConds` function (branch mode: `break` cho `UnaryExpr`/`BinaryExpr` case, KHÔNG unwrap negation/`&&`/`||`; condition mode: xóa `n` khỏi marked set, thêm operand(s) — `n.X` cho NOT, `n.X` VÀ `n.Y` cho LAND/LOR) VÀ code comment tự nó xác nhận: "In condition coverage mode (the default mode), only atomic boolean conditions are marked... In branch coverage mode, only the whole controlling condition is instrumented." v0.3 mô tả đúng cơ chế instrumentation (per-atomic-condition true/false, ví dụ output "Condition coverage: N/M") NHƯNG coi kết quả ĐÓ LÀ đủ cho Chapter 13's branch metric — SAI. Condition coverage KHÔNG suy ra được branch coverage cho compound condition: phản ví dụ trực tiếp — `if (a || b)` với 2 test case (a=T,b=F → whole=True; a=F,b=T → whole=True) đạt 100% atomic condition coverage (a cả T/F, b cả T/F) NHƯNG whole-expression KHÔNG BAO GIỜ đánh giá `False` — branch coverage CHỈ 50%. Hai metric ĐỘC LẬP, KHÔNG metric nào tự động suy ra metric kia. **Sửa (§"Go branch-coverage mechanism — CANDIDATE" dưới):** (1) proposed Chapter-13 mechanism LÀ gobco chạy VỚI `-branch` flag rõ ràng (KHÔNG default invocation); (2) condition coverage VÀ branch coverage LÀ hai metric tách biệt, KHÔNG thay thế cho nhau; (3) default condition-mode output TUYỆT ĐỐI KHÔNG được substitute LÀM Chapter-13 branch metric; (4) Chapter 13's branch floor CHỈ consume verified branch-mode (`-branch=true`) result; (5) transaction cài đặt/pin tương lai PHẢI verify trực tiếp: exact command (`gobco -branch`, cú pháp chính xác), tool version/content identity, branch-mode numerator/denominator semantics, output format (`printOutput()` đổi label thành "Branch coverage: N/M" khi `-branch=true`, verify trực tiếp lại tại thời điểm cài đặt — README hiện KHÔNG document flag này, CHỈ tồn tại trong source/flag definition, một install-time verification gap tường minh), exit-code semantics, VÀ reproducibility đối với go1.26.6/go.mod `go 1.25` hiện hành của repository — TRƯỚC KHI tool trở thành accepted evidence machinery. **Limitation review (verify trực tiếp `instrumenter.go`, KHÔNG đoán):** instrumenter xử lý `IfStmt`, `SwitchStmt` (cả expression VÀ type-switch variant), `ForStmt` condition — KHÔNG evidence nào cho `SelectStmt` handling trong cả hai mode (xác nhận lại README's tuyên bố "doesn't cover select statements," ĐÚNG cho cả branch mode). Verify trực tiếp market-reference-service's authoritative implementation hiện tại (`grep -rn "select {" go/market-reference-service`): **KHÔNG `select` statement nào tồn tại** trong subject hiện tại — unsupported construct này KHÔNG ảnh hưởng branch applicability/evidence completeness cho `market-reference-service` TẠI boundary hiện hành. Go-generics parsing support của chính gobco's AST-based instrumenter KHÔNG verify được rõ ràng từ documentation/source đã khảo sát tại transaction này (verify trực tiếp `grep -rnE` cho type-parameter syntax trong market-reference-service: **KHÔNG generic type parameter nào tồn tại** trong subject hiện tại, nên đây LÀ moot cho subject hiện tại — NHƯNG gobco's own generics support VẪN unresolved LÀ một fact chưa xác định được sạch sẽ) — ghi nhận LÀM **installation-time fail-closed verification requirement**: bất kỳ transaction cài đặt/pin tương lai nào, HOẶC bất kỳ thay đổi tương lai nào đưa `select` statement/generic type parameter vào market-reference-service (hay bất kỳ subject Go nào khác dự định dùng gobco), PHẢI tự verify lại trực tiếp gobco's generics/select support TRƯỚC KHI chấp nhận branch-mode result LÀM evidence — KHÔNG giả định support, KHÔNG tự waiver gap này. **KHÔNG đổi:** `ADR_NOT_REQUIRED` (correction này KHÔNG phát hiện §4b trigger mới nào — vẫn CHỈ LÀ làm rõ invocation-mode/limitation detail bên trong CÙNG một candidate tooling category ĐÃ pre-authorized, KHÔNG platform invariant/event schema/module taxonomy/governance-process/hard-to-reverse mới), `testing.md` `version: "0.3"` gốc's decision KHÔNG bị đảo ngược (gobco VẪN LÀ candidate, CHỈ invocation mode được làm rõ), `status` VẪN `Draft` (not self-approved, `G-ORCH-002`), Chapter 13 KHÔNG chạm, KHÔNG cài đặt tool, KHÔNG `go.mod`/`go.sum`, KHÔNG CI integration, QG VẪN `FAIL — evidence`, LIVE VẪN `NOT_AUTHORIZED`, §1–§16/§18/Non-goals/ADR-scope disposition gốc/Framework-selection general deferral KHÔNG chạm.
 
 ## 1. Test structure
 
@@ -490,13 +492,36 @@ CANDIDATE mechanism được đề xuất: **gobco**
      tường minh, KHÔNG che giấu, KHÔNG LÀ lý do từ chối candidate (repo
      tooling khác cùng lớp — testify/gomock — cũng thường single/small-
      team-maintained, đúng pattern rủi ro chung của ecosystem này).
-  2. Đo branch thật, KHÔNG statement/block dưới tên khác: instrument
-     boolean sub-expression (so sánh, `&&`, `||`, `!`) VÀ track riêng
-     mỗi condition được evaluate `true` VÀ `false` trong khi chạy test
-     thật — đây LÀ condition/branch coverage, KHÔNG PHẢI statement
-     coverage đổi tên. Granularity CHẶT hơn floor bắt buộc (§13.3 CHỈ
-     yêu cầu branch, MC-DC "tùy chọn theo tier, không tính vào floor
-     bắt buộc") — dư, KHÔNG thiếu, KHÔNG vi phạm.
+  2. [v0.4 sửa, đóng `P3-GOBC-A-MAJ-01`: v0.3 mô tả CHỈ default mode
+     rồi coi đủ cho branch floor — SAI, xem banner correction phía
+     trên cho full reasoning VÀ phản ví dụ.] gobco đo HAI metric TÁCH
+     BIỆT, verify trực tiếp `instrumenter.go`'s `markConds` function —
+     KHÔNG được dùng thay thế cho nhau:
+       - **Condition coverage (default, `-branch=false`)** — decompose
+         `&&`/`||`/`!` thành operand nguyên tử độc lập, track riêng mỗi
+         atomic boolean sub-expression `true`/`false`. Đây LÀ metric
+         gần với condition/MC-DC-style coverage — Chapter 13 §13.3 liệt
+         kê "Condition/MC-DC coverage LÀ tùy chọn theo tier, KHÔNG tính
+         vào floor bắt buộc." KHÔNG được dùng LÀM Chapter-13 branch
+         metric.
+       - **Branch coverage (`-branch=true`, cờ có thật, verify trực
+         tiếp code — `flags.BoolVar(&g.branch, "branch", false, "cover
+         branches, not conditions")`)** — CHỈ instrument whole
+         controlling condition của `IfStmt`/`SwitchStmt`/`ForStmt`
+         (source comment tự xác nhận: "In branch coverage mode, only
+         the whole controlling condition is instrumented") — đây MỚI
+         LÀ metric Chapter 13 §13.3 yêu cầu (đã evaluate cả `true` LẪN
+         `false` của CHÍNH nhánh quyết định).
+     Condition coverage KHÔNG suy ra branch coverage cho compound
+     condition — phản ví dụ trực tiếp: `if (a || b)` với 2 test case
+     (a=T,b=F → whole=`True`; a=F,b=T → whole=`True`) đạt 100% atomic
+     condition coverage (a cả T/F, b cả T/F) NHƯNG whole-expression
+     KHÔNG BAO GIỜ đánh giá `False` — branch coverage CHỈ 50%.
+     **Mechanism được đề xuất chính xác cho Chapter 13: gobco chạy VỚI
+     `-branch` flag** (KHÔNG default invocation). README hiện tại
+     (verify trực tiếp) KHÔNG document flag này — CHỈ tồn tại trong
+     source (`main.go` flag definition) — một install-time verification
+     gap tường minh, ghi nhận tại điểm 3/6 dưới, KHÔNG che giấu.
   3. Go version/platform: yêu cầu Go 1.17+ (`go install
      github.com/rillig/gobco@<version>`) — tương thích go.mod hiện tại
      (`go 1.25`, build/test bằng go1.26.6). Generics/parser compat
@@ -512,20 +537,57 @@ CANDIDATE mechanism được đề xuất: **gobco**
      artifact rule Chapter 13 §13.9 đã yêu cầu cho mọi evidence khác
      (tương tự cách evidence hiện tại đã pin "go version go1.26.6
      darwin/arm64" chính xác).
-  6. Local execution/tương lai CI: chạy `gobco` CLI trực tiếp trong
-     package directory — instrument VÀO một temp directory riêng
+  6. Local execution/tương lai CI: chạy `gobco -branch` CLI trực tiếp
+     trong package directory (KHÔNG default invocation, đúng điểm 2 đã
+     sửa) — instrument VÀO một temp directory riêng
      (`os.TempDir()/gobco-<random>`, copy package source sang đó), gọi
      `go test` THẬT trên bản copy đã instrument, KHÔNG sửa file gốc
      trong repository — local execution NGAY tại transaction cài đặt
      tương lai; CI suitability hợp lý (CLI đơn, exit-code/text output,
      KHÔNG cần service ngoài) nhưng KHÔNG quyết định CI integration tại
-     đây (`ci-cd.md`/`ADR-030` authority riêng, KHÔNG chạm).
-  7. Output format cho Chapter 13 immutable evidence: text output có
-     tổng coverage (vd "Condition coverage: N/M") VÀ danh sách từng
-     condition chưa đạt (file/line/column/lần true/lần false) — đủ chi
-     tiết pin vào evidence entry (§13.9: subject identity, boundary,
-     input identity) giống format `go tool cover -func` hiện đang dùng
-     cho line coverage evidence.
+     đây (`ci-cd.md`/`ADR-030` authority riêng, KHÔNG chạm). [v0.4 sửa:
+     exact flag syntax/spelling PHẢI verify trực tiếp lại (`gobco
+     -help`) TẠI transaction cài đặt tương lai, vì README hiện tại
+     KHÔNG document `-branch` — chỉ verify được từ source tại
+     candidate transaction này.]
+  7. Output format cho Chapter 13 immutable evidence: [v0.4 sửa] khi
+     chạy VỚI `-branch`, `printOutput()` (verify trực tiếp source) đổi
+     summary label từ "Condition coverage" thành **"Branch coverage:
+     N/M"** — evidence entry PHẢI pin rõ label/mode ĐÃ dùng (`-branch`
+     hay default) cùng với N/M, KHÔNG CHỈ con số trần, để tránh chính
+     defect `P3-GOBC-A-MAJ-01` vừa sửa lặp lại tại evidence thật; danh
+     sách từng controlling-condition chưa đạt (file/line/column/lần
+     true/lần false) đủ chi tiết pin vào evidence entry (§13.9: subject
+     identity, boundary, input identity) giống format `go tool cover
+     -func` hiện đang dùng cho line coverage evidence — exact output
+     format dưới `-branch` mode (có giữ cùng cấu trúc chi tiết như
+     default mode hay không) PHẢI verify trực tiếp lại TẠI transaction
+     cài đặt tương lai, KHÔNG giả định giống hệt default mode tại
+     candidate này.
+  11. **Limitation review (v0.4 bổ sung, verify trực tiếp
+     `instrumenter.go`, KHÔNG đoán):** instrumenter xử lý `IfStmt`,
+     `SwitchStmt` (cả expression VÀ type-switch variant), `ForStmt`
+     condition trong CẢ HAI mode — KHÔNG evidence nào cho `SelectStmt`
+     handling (xác nhận lại README's "doesn't cover select statements,"
+     ĐÚNG cho cả `-branch` mode). Verify trực tiếp market-reference-
+     service's authoritative implementation hiện tại
+     (`grep -rn "select {" go/market-reference-service`): **KHÔNG
+     `select` statement nào tồn tại** trong subject hiện tại —
+     unsupported construct này KHÔNG ảnh hưởng branch applicability/
+     evidence completeness cho `market-reference-service` TẠI boundary
+     hiện hành. Go-generics parsing support của chính gobco's AST-based
+     instrumenter KHÔNG verify được rõ ràng từ documentation/source đã
+     khảo sát (verify trực tiếp market-reference-service: KHÔNG generic
+     type parameter nào tồn tại trong subject hiện tại — moot cho
+     subject hiện tại, NHƯNG gobco's own generics support VẪN LÀ một
+     fact chưa xác định sạch sẽ) — ghi nhận LÀM **installation-time
+     fail-closed verification requirement**: bất kỳ transaction cài
+     đặt/pin tương lai, HOẶC bất kỳ thay đổi tương lai đưa `select`
+     statement/generic type parameter vào market-reference-service (hay
+     bất kỳ subject Go nào khác dự định dùng gobco), PHẢI tự verify lại
+     trực tiếp gobco's select/generics support TRƯỚC KHI chấp nhận
+     branch-mode result LÀM evidence — KHÔNG giả định support, KHÔNG tự
+     waiver gap này.
   8. Anti-gaming/authoritative-implementation (§13.3): instrumentation
      copy source sang temp dir CHỈ để CHÈN counter quanh boolean sub-
      expression — KHÔNG đổi control flow/logic, KHÔNG generate/mock
@@ -813,4 +875,55 @@ v0.3  2026-08-20  CANDIDATE amendment, KHÔNG self-approved — vai trò:
       `status` = `Draft` — not self-approved (`G-ORCH-002`), chờ Product
       Owner review/decision (chấp nhận candidate, chọn candidate khác,
       hoặc yêu cầu re-khảo sát).
+v0.4  2026-08-20  Bounded correction, đóng `P3-GOBC-A-MAJ-01` — vai trò:
+      `Go Branch-Coverage Candidate Bounded Correction Executor`. v0.3
+      conflated gobco's default **condition coverage** mode (atomic
+      boolean sub-expression true/false, verify trực tiếp
+      `instrumenter.go`'s `markConds`: decompose `&&`/`||`/`!`) với
+      gobco's distinct, explicit **`-branch`** flag mode (instrument
+      CHỈ whole controlling condition — `markConds`: `break` cho
+      `UnaryExpr`/`BinaryExpr`, KHÔNG decompose; source comment tự xác
+      nhận "In branch coverage mode, only the whole controlling
+      condition is instrumented") — rồi coi default-mode output đủ cho
+      Chapter 13's branch metric. SAI: condition coverage KHÔNG suy ra
+      branch coverage cho compound condition (phản ví dụ `if (a || b)`:
+      2 test case đạt 100% atomic condition coverage NHƯNG whole-
+      expression KHÔNG BAO GIỜ `False`, branch coverage CHỈ 50%). Sửa:
+      (1) mechanism đề xuất chính xác LÀ gobco chạy VỚI `-branch` flag,
+      KHÔNG default invocation; (2) condition coverage VÀ branch
+      coverage LÀ hai metric tách biệt, KHÔNG thay thế cho nhau; (3)
+      default condition-mode output TUYỆT ĐỐI KHÔNG substitute LÀM
+      Chapter-13 branch metric; (4) Chapter 13's branch floor CHỈ
+      consume verified branch-mode (`-branch=true`) result; (5)
+      transaction cài đặt/pin tương lai PHẢI verify trực tiếp exact
+      command/flag syntax (README KHÔNG document `-branch`, CHỈ tồn
+      tại trong source — install-time verification gap tường minh),
+      tool version/content identity, branch-mode numerator/denominator
+      semantics, output format (`printOutput()` đổi label thành "Branch
+      coverage: N/M" khi `-branch=true`, verify lại tại install-time),
+      exit-code semantics, reproducibility đối với go1.26.6/`go 1.25`
+      hiện hành — TRƯỚC KHI tool trở thành accepted evidence machinery.
+      Limitation review bổ sung (verify trực tiếp `instrumenter.go`):
+      instrumenter xử lý `IfStmt`/`SwitchStmt` (cả hai variant)/
+      `ForStmt` trong CẢ HAI mode, KHÔNG evidence nào cho `SelectStmt`
+      (xác nhận README's "doesn't cover select statements," đúng cho cả
+      branch mode). Verify trực tiếp market-reference-service hiện tại:
+      KHÔNG `select` statement, KHÔNG generic type parameter nào tồn
+      tại trong subject — unsupported constructs KHÔNG ảnh hưởng branch
+      applicability/evidence completeness cho subject hiện tại; gobco's
+      own generics-parsing support (tổng quát, KHÔNG riêng subject này)
+      VẪN chưa xác định sạch sẽ — ghi nhận LÀM installation-time
+      fail-closed verification requirement cho bất kỳ subject/thay đổi
+      tương lai nào đưa `select`/generic vào phạm vi dự định dùng gobco.
+      **KHÔNG đổi:** `ADR_NOT_REQUIRED` (correction này KHÔNG phát hiện
+      §4b trigger mới — CHỈ làm rõ invocation-mode/limitation detail
+      bên trong CÙNG một candidate tooling category ĐÃ pre-authorized),
+      gobco VẪN LÀ candidate (KHÔNG đổi candidate, CHỈ invocation mode
+      được làm rõ), `status` VẪN `Draft` (not self-approved,
+      `G-ORCH-002`), Chapter 13 KHÔNG chạm, KHÔNG cài đặt tool, KHÔNG
+      `go.mod`/`go.sum`, KHÔNG CI integration, QG VẪN `FAIL —
+      evidence`, LIVE VẪN `NOT_AUTHORIZED`, §1–§16/§18/Non-goals/
+      ADR-scope disposition gốc/Framework-selection general deferral
+      KHÔNG chạm. KHÔNG cài đặt gobco. KHÔNG rerun Quality Gate. KHÔNG
+      sửa implementation/test code nào.
 ```
