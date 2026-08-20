@@ -94,6 +94,65 @@ func TestIsZeroAndSign(t *testing.T) {
 	}
 }
 
+// TestZeroValueDecimalIsSafeNumericZero is the P3-MDI-DECIMAL-MAJ-01
+// regression test: the Go zero value Decimal{} (unscaled == nil, distinct
+// from the explicitly-constructed Zero) must behave as numeric zero for
+// every method, never nil-pointer-panic. Before the fix, IsZero/Sign/
+// String/Cmp/Equal/Add/Sub/MarshalText all dereferenced d.unscaled
+// directly and panicked on this exact value.
+func TestZeroValueDecimalIsSafeNumericZero(t *testing.T) {
+	var d Decimal // deliberately NOT decimal.Zero — the bare Go zero value
+
+	if !d.IsZero() {
+		t.Errorf("zero-value Decimal.IsZero() = false, want true")
+	}
+	if got := d.Sign(); got != 0 {
+		t.Errorf("zero-value Decimal.Sign() = %d, want 0", got)
+	}
+	if got := d.String(); got != "0" {
+		t.Errorf("zero-value Decimal.String() = %q, want %q", got, "0")
+	}
+	if !d.Equal(Zero) {
+		t.Errorf("zero-value Decimal does not Equal(Zero)")
+	}
+	if d.Cmp(Zero) != 0 {
+		t.Errorf("zero-value Decimal.Cmp(Zero) != 0")
+	}
+	if got := d.Add(MustFromString("1.5")); got.String() != "1.5" {
+		t.Errorf("zero-value Decimal.Add(1.5) = %q, want %q", got.String(), "1.5")
+	}
+	if got := MustFromString("1.5").Sub(d); got.String() != "1.5" {
+		t.Errorf("1.5.Sub(zero-value Decimal) = %q, want %q", got.String(), "1.5")
+	}
+	if text, err := d.MarshalText(); err != nil || string(text) != "0" {
+		t.Errorf("zero-value Decimal.MarshalText() = (%q, %v), want (\"0\", nil)", text, err)
+	}
+}
+
+// TestIsInitializedDistinguishesZeroValueFromParsedZero is the
+// P3-MDI-DECIMAL-MAJ-01 Part B regression test: IsInitialized must report
+// false for the uninitialized Go zero value and true for any successfully
+// parsed/constructed value, including a legitimately parsed numeric zero —
+// this is a presence check, not a value check.
+func TestIsInitializedDistinguishesZeroValueFromParsedZero(t *testing.T) {
+	var zeroValue Decimal
+	if zeroValue.IsInitialized() {
+		t.Errorf("Decimal{}.IsInitialized() = true, want false")
+	}
+	if !MustFromString("0").IsInitialized() {
+		t.Errorf(`MustFromString("0").IsInitialized() = false, want true`)
+	}
+	if !MustFromString("0.0").IsInitialized() {
+		t.Errorf(`MustFromString("0.0").IsInitialized() = false, want true`)
+	}
+	if !MustFromString("12.5").IsInitialized() {
+		t.Errorf(`MustFromString("12.5").IsInitialized() = false, want true`)
+	}
+	if !Zero.IsInitialized() {
+		t.Errorf("Zero.IsInitialized() = false, want true")
+	}
+}
+
 func TestMarshalUnmarshalText(t *testing.T) {
 	d := MustFromString("42.1234")
 	text, err := d.MarshalText()

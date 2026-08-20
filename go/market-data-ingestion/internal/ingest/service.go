@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/kanner9999-O/Ride-Quant-Platform/go/market-data-ingestion/internal/candle"
+	"github.com/kanner9999-O/Ride-Quant-Platform/go/market-data-ingestion/internal/decimal"
 	"github.com/kanner9999-O/Ride-Quant-Platform/go/market-data-ingestion/internal/envelope"
 	"github.com/kanner9999-O/Ride-Quant-Platform/go/market-data-ingestion/internal/precedence"
 	"github.com/kanner9999-O/Ride-Quant-Platform/go/market-data-ingestion/internal/publish"
@@ -29,6 +30,46 @@ import (
 // at the fact's instant (candle.md §12 case one — out of candle.md's own
 // scope, see reference.ErrSessionClosed).
 var ErrSessionClosed = reference.ErrSessionClosed
+
+// ErrInvalidOHLCV is returned when a RawFact/RawClosedFact's OHLCV carries
+// an uninitialized required field. candle.md §3-§5 declare open/high/low/
+// close/volume required on CandleObserved/CandleClosed/CandleCorrected — an
+// uninitialized Go zero-value decimal.Decimal (as distinct from a
+// legitimately parsed numeric zero, decimal.NewFromString("0")) must never
+// silently become a valid authoritative value. No existing candle.md §11
+// precedence outcome represents this situation (those outcomes govern
+// duplicate/correction/provenance semantics for well-formed payloads, not
+// malformed implementation input) — per Error Handling Convention §7, this
+// is therefore a genuine technical/input-boundary failure that fails
+// explicitly as a technical error rather than being invented as a new
+// domain/precedence semantic (P3-MDI-DECIMAL-MAJ-01).
+var ErrInvalidOHLCV = errors.New("ingest: OHLCV has an uninitialized required field")
+
+// validateOHLCV rejects an OHLCV whose required decimal fields were never
+// initialized (candle.OHLCV{} zero value or an individually-unset field) —
+// distinct from a legitimately parsed numeric zero, which
+// decimal.Decimal.IsInitialized reports true for. Called before any
+// authoritative event is published or precedence.Resolve is invoked, so an
+// uninitialized field never reaches publication, precedence comparison, or
+// lastFact.
+func validateOHLCV(ohlcv candle.OHLCV) error {
+	fields := []struct {
+		name string
+		v    decimal.Decimal
+	}{
+		{"open", ohlcv.Open},
+		{"high", ohlcv.High},
+		{"low", ohlcv.Low},
+		{"close", ohlcv.Close},
+		{"volume", ohlcv.Volume},
+	}
+	for _, f := range fields {
+		if !f.v.IsInitialized() {
+			return fmt.Errorf("%w: %s", ErrInvalidOHLCV, f.name)
+		}
+	}
+	return nil
+}
 
 // RawFact is a venue-adapter-normalized observation: already venue-neutral
 // (no raw exchange-specific fields, candle.md §13/§14), but not yet
@@ -138,6 +179,9 @@ func resolveFactIdentity(raw RawFact) precedence.Identity {
 // observations (candle.md §11 only governs closed-or-correction facts) —
 // every provisional observation is appended as-is (candle.md §9).
 func (s *Service) ObserveProvisional(ctx context.Context, raw RawFact) (envelope.EventRecordRef, error) {
+	if err := validateOHLCV(raw.OHLCV); err != nil {
+		return envelope.EventRecordRef{}, err
+	}
 	scope, err := s.resolveScope(ctx, raw)
 	if err != nil {
 		return envelope.EventRecordRef{}, err
@@ -153,6 +197,9 @@ func (s *Service) ObserveProvisional(ctx context.Context, raw RawFact) (envelope
 // CandleCorrected per Step 4. Duplicate (Steps 3/5) and fail-closed
 // (Steps 2/3/5) outcomes publish nothing.
 func (s *Service) IngestClosedFact(ctx context.Context, raw RawClosedFact) (Result, error) {
+	if err := validateOHLCV(raw.OHLCV); err != nil {
+		return Result{}, err
+	}
 	scope, err := s.resolveScope(ctx, raw.RawFact)
 	if err != nil {
 		return Result{}, err

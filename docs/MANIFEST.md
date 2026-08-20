@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.204"
+manifest_version: "10.205"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -4770,6 +4770,157 @@ This is NOT a Product Owner rejection (Chapter 13 §13.1/§13.8). No module or D
 **No scope expansion:** no implementation/test code changed (verified `git diff --quiet -- go/`, both before and after the temporary scratch-diagnostic investigation, which was created and removed within this transaction). `module-registry.yaml` read-only (verified `git diff --quiet`). Tier unchanged. Dependency graph unchanged. Authority boundary unchanged. ADR-032 not touched. Domain Contracts not touched. Chapter 13 not touched. Testing Convention not touched. `market-data-ingestion` NOT approved. Data Layer NOT approved. Phase 3 Approval Gate NOT opened. LIVE not authorized, not referenced.
 
 **Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
+
+## Phase 3 — `market-data-ingestion` Numerical-Precision Defect Remediation (`P3-MDI-DECIMAL-MAJ-01`, `CLOSED_BY_PRODUCTION_FIX`)
+
+**Bounded production-code remediation transaction — vai trò: `market-data-ingestion Numerical-Precision Defect Remediation Executor`.** Fixes the sole defect (`P3-MDI-DECIMAL-MAJ-01`, Major) that caused the immediately preceding formal Chapter 13 Quality Gate evaluation (boundary `6c9fac9a775b63ad36abd9ae0550d36eee777fec`, recorded at `d050a407e991e3514498ade892b6400f3d46f5c7`, "## Phase 3 — `market-data-ingestion` Formal Chapter 13 Quality Gate Evaluation" section above) to return `FAIL — criteria`. **Baseline:** branch `main`, HEAD `d050a407e991e3514498ade892b6400f3d46f5c7` (verified via `git rev-parse HEAD` before any edit; tree clean; `manifest_version` confirmed `"10.204"` at start). Does not perform a fresh formal Quality Gate re-evaluation (explicitly reserved as a separate future transaction, per this task's own instruction). Does not touch `module-registry.yaml`, ADR-032, candle.md, Chapter 13, Testing Convention, or `go/market-reference-service/**`.
+
+### Reproduce-before-fix (empirical confirmation, no scratch files retained)
+
+```text
+Created a temporary scratch test, go/market-data-ingestion/internal/precedence/zzz_scratch_repro_test.go,
+  constructing two candle.ClosedPayload values (one field left at decimal.Decimal{}'s Go zero
+  value, one legitimately parsed via decimal.MustFromString) and calling the unexported
+  payloadEqual(a, b) directly. Confirmed panic: "runtime error: invalid memory address or nil
+  pointer dereference" — reproducing the exact defect the prior formal QG discovered, against
+  the STARTING implementation, before any production edit. Deleted the scratch file
+  immediately after confirmation; git status --porcelain=v1 -uall -- go/ verified empty
+  (byte-identical to baseline) before any production change began.
+```
+
+### Production fix
+
+```text
+Part A+B (go/market-data-ingestion/internal/decimal/decimal.go) — Decimal-type-level
+  defense-in-depth hardening: added private safeUnscaled() (returns big.NewInt(0) when
+  d.unscaled == nil instead of dereferencing a nil pointer), routed through
+  rescale/IsZero/Sign/String; rescale's fast path now also requires d.unscaled != nil. Added
+  public IsInitialized() bool, distinguishing the Go zero value Decimal{} (unscaled == nil,
+  "never assigned") from a legitimately parsed numeric zero e.g. NewFromString("0")
+  (unscaled != nil, IsInitialized() == true) — a presence check, not a value check.
+Part C (go/market-data-ingestion/internal/ingest/service.go) — ingestion-boundary fail-closed
+  validation, the half that actually prevents incomplete data from becoming authoritative:
+  added var ErrInvalidOHLCV = errors.New(...) and func validateOHLCV(candle.OHLCV) error,
+  rejecting the first OHLCV field (open/high/low/close/volume) found with
+  !field.IsInitialized(), wrapped via fmt.Errorf("%w: %s", ErrInvalidOHLCV, fieldName).
+  Wired as the first statement in both ObserveProvisional and IngestClosedFact — before
+  resolveScope, before precedence.Resolve, before any Publisher.Publish call, before any
+  lastFact read or write.
+Deliberate scope decision: Part A/B alone would have been WRONG — it would silently convert
+  an uninitialized/missing required field into a valid numeric zero, violating candle.md
+  §3-§5's required-field semantics. Part C is what actually enforces those semantics; Part A/B
+  is defense-in-depth for the type itself. internal/precedence/precedence.go was NOT modified
+  in production (per this task's explicit preference) — the upstream fail-closed check in
+  service.go is sufficient, since validateOHLCV always runs before precedence.Resolve/
+  payloadEqual can be reached.
+Error representation: per Error Handling Convention §7's resolution order, no existing
+  candle.md §11 precedence Outcome/FailReason represents malformed/uninitialized input (those
+  outcomes govern duplicate/correction/provenance for well-formed payloads) — a bounded
+  technical sentinel error (ErrInvalidOHLCV) is therefore the correct representation, not a
+  new domain/precedence semantic invented inside this transaction.
+Zero semantics preserved: a legitimately parsed zero (e.g. decimal.NewFromString("0") for a
+  zero-volume bar) is NOT rejected — IsInitialized() reports true for it; only the
+  uninitialized Go zero value is rejected. Verified by dedicated regression tests (see below).
+```
+
+### Regression tests added
+
+```text
+go/market-data-ingestion/internal/decimal/decimal_test.go: TestZeroValueDecimalIsSafeNumericZero
+  (bare `var d Decimal` is safe numeric zero across IsZero/Sign/String/Equal/Cmp/Add/Sub/
+  MarshalText, no panic); TestIsInitializedDistinguishesZeroValueFromParsedZero (Decimal{}.
+  IsInitialized() == false; MustFromString("0")/("0.0")/("12.5")/Zero.IsInitialized() == true).
+go/market-data-ingestion/internal/ingest/service_test.go:
+  TestObserveProvisionalRejectsUninitializedRequiredFields (each of open/high/low/close/volume
+  individually unset -> ErrInvalidOHLCV, zero published records, no panic);
+  TestObserveProvisionalAcceptsLegitimateZeroValue (legitimate zero volume still accepted,
+  1 record published); TestIngestClosedFactRejectsUninitializedRequiredFieldsFirstFact (same
+  5-field sweep for a subject's first fact -> ErrInvalidOHLCV, zero published records, zero
+  lastFact entries created); TestIngestClosedFactRejectsUninitializedRequiredFieldsExistingFact
+  (the core regression: seeds a real accepted first-close fact for a subject, then sends a
+  second fact for the SAME subject with one field unset — reproducing the exact QG panic path
+  where precedence.Resolve would compare against the existing fact via payloadEqual — proves
+  it now fails closed with ErrInvalidOHLCV before precedence.Resolve is ever invoked, and that
+  the seeded fact/publication record is left untouched, for all 5 fields independently);
+  TestIngestClosedFactAcceptsLegitimateZeroValue (legitimate zero volume still accepted on the
+  closed-fact path, OutcomeEmitFirstClosed, 1 record published).
+All pre-existing tests re-run fresh and unchanged in behavior: internal/precedence's full
+  suite (TestResolveUnresolvedIdentityFailsClosed, TestResolveFirstCloseForSubject,
+  TestResolveStep3DuplicateIdenticalPayload, TestResolveStep3ProvenanceIntegrityViolation,
+  TestResolveStep4EmitsCorrected, TestResolveStep4NeverProducesSecondClosed,
+  TestResolveStep5DeclaredEquivalenceIsDuplicate, TestResolveStep5UndeclaredEquivalenceFailsClosed,
+  TestIdentityEqualAndZero), internal/ingest's pre-existing suite including the bitemporal
+  tests (TestIngestionReferenceResolutionIsDeterministicAndBitemporallyCorrect,
+  TestIngestionCannotSeeFutureIdentityCorrections) and the original 6 service tests — all
+  PASS, unchanged, well-formed candle.md §11 Step 3/4/5 precedence behavior fully preserved.
+```
+
+### Validation
+
+```text
+gofmt -l . -> empty (clean). go vet ./... -> clean. go build ./... -> clean.
+go test ./... -> ALL PASS across candle, decimal, envelope, gap, ingest, precedence, publish,
+  reference packages.
+Behavioral confirmation: (1) the exact QG-discovered panic no longer reproduces — confirmed
+  via the existing-fact regression test succeeding without panic for all 5 fields; (2)
+  malformed OHLCV fails before publication/precedence for both ObserveProvisional and
+  IngestClosedFact; (3) a legitimately parsed zero remains accepted and distinguishable from
+  an uninitialized field, via IsInitialized(); (4) no false CandleClosed/CandleCorrected is
+  ever published for malformed/incomplete OHLCV (record counts asserted exactly); (5) lastFact
+  is never mutated on invalid input (asserted directly for the first-fact case; implied for
+  the existing-fact case by the unchanged publication record count, since recordProcessed is
+  only ever called after a successful Publish).
+No float32/float64 introduced anywhere in this diff. market-reference-service/** untouched
+  (verified via git status/diff scoped to go/). module-registry.yaml untouched (read-only,
+  not in this transaction's diff). Dependency/authority graph unchanged — no module,
+  dependency edge, or authority boundary touched by this transaction.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED. This is a bounded implementation correction enforcing already-existing
+  candle.md §3-§5 required-field facts and already-existing Decimal-type well-definedness —
+  it does not create/modify a Platform Invariant, Event Schema, Module Taxonomy/dependency
+  edge, or governance process; does not affect more than one module; is fully reversible (a
+  local code-level fix); and does not supersede any Locked ADR. None of Chapter 0 §4b's six
+  disjunctive triggers fire.
+```
+
+### Bookkeeping: `P11-V13-A-MIN-01` / `P11-V13-REC-MIN-01` durably folded into evidence
+
+```text
+Per this task's explicit authorization to record already-completed deterministic verification
+  that had not yet been durably folded into QG evidence: P11-V13-A-MIN-01 = CLOSED,
+  P11-V13-REC-MIN-01 = CLOSED. Both were REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION as of
+  the "## Package 1.1 v1.3 Evidence-Fidelity Correction" section above; independently verified
+  at the market-data-ingestion Formal Chapter 13 Quality Gate Evaluation boundary
+  6c9fac9a775b63ad36abd9ae0550d36eee777fec (the evidence-fidelity corrections were present and
+  consistent, no re-review performed — pure bookkeeping, not a new review round). This is
+  bookkeeping only: no registry/evidence semantic content changes as a result.
+```
+
+### Finding-state summary and unchanged facts
+
+```text
+P3-MDI-DECIMAL-MAJ-01: CLOSED_BY_PRODUCTION_FIX (this transaction — production defect fixed,
+  regression tests added, all verification passed; NOT independently re-verified via a fresh
+  formal QG in this same transaction).
+P11-V13-A-MIN-01: CLOSED (bookkeeping, see above).
+P11-V13-REC-MIN-01: CLOSED (bookkeeping, see above).
+P3-MDI-TIER-B-MIN-01: unchanged, still OPEN — non-blocking (explicitly NOT touched by this
+  transaction).
+The historical formal Chapter 13 Quality Gate result for market-data-ingestion at boundary
+  6c9fac9a775b63ad36abd9ae0550d36eee777fec REMAINS `FAIL — criteria` — NOT overwritten, NOT
+  reinterpreted as PASS by this remediation. This transaction creates a NEW implementation
+  boundary (this commit) that requires a SEPARATE, future fresh formal Quality Gate
+  re-evaluation before any PASS can be claimed. Tier unchanged: Tier 2 — Supporting. Package
+  1.1 lifecycle unchanged: Consolidated Stable, version "1.3". No module/Data Layer/Phase 3
+  Approval Gate approved or rejected by this transaction. LIVE remains NOT_AUTHORIZED,
+  unreferenced.
+```
+
+**Files changed:** `go/market-data-ingestion/internal/decimal/decimal.go`, `decimal_test.go`, `go/market-data-ingestion/internal/ingest/service.go`, `service_test.go`, plus `docs/MANIFEST.md`/`docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; no unrelated formatting sweep, no generated files, no temporary diagnostic remains (scratch file created and deleted within this transaction, confirmed via `git status`/`git diff`).
 
 ## Decision Log
 

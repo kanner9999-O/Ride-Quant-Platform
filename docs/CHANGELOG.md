@@ -2,6 +2,112 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — market-data-ingestion: fix Decimal zero-value and incomplete-OHLCV panic (`P3-MDI-DECIMAL-MAJ-01`)
+
+**Bounded production-code remediation — vai trò: `market-data-ingestion Numerical-Precision
+Defect Remediation Executor`.** Fixes the sole defect that caused the immediately preceding
+formal Chapter 13 Quality Gate evaluation (see entry directly below) to return
+`FAIL — criteria`. Does not re-run the formal Quality Gate (separate future transaction).
+
+### Baseline
+
+```text
+Boundary: d050a407e991e3514498ade892b6400f3d46f5c7 (verified via git rev-parse HEAD before any
+  edit; tree clean; manifest_version confirmed "10.204" at start).
+```
+
+### Reproduce-before-fix
+
+```text
+Temporary scratch test (go/market-data-ingestion/internal/precedence/zzz_scratch_repro_test.go,
+  created then deleted within this transaction) confirmed the exact panic against the STARTING
+  implementation: "runtime error: invalid memory address or nil pointer dereference", calling
+  payloadEqual on an OHLCV pair where one field was left at decimal.Decimal{}'s Go zero value.
+  Repo verified byte-identical to baseline (git status --porcelain=v1 -uall -- go/ empty)
+  before any production edit began.
+```
+
+### Fixed — Major: `P3-MDI-DECIMAL-MAJ-01`
+
+```text
+Part A+B (internal/decimal/decimal.go): added private safeUnscaled() (nil-safe access to
+  d.unscaled, treats Go zero value as numeric zero), routed through rescale/IsZero/Sign/
+  String; added public IsInitialized() bool distinguishing "never assigned" from a
+  legitimately parsed numeric zero (presence check, not value check).
+Part C (internal/ingest/service.go): added ErrInvalidOHLCV + validateOHLCV(candle.OHLCV)
+  error, called as the FIRST statement in both ObserveProvisional and IngestClosedFact —
+  before resolveScope, before precedence.Resolve, before any publish, before any lastFact
+  read/write. This is the half that actually prevents incomplete data from becoming
+  authoritative — Part A/B alone would have silently converted a missing field into a valid
+  zero, violating candle.md §3-§5's required-field semantics.
+internal/precedence/precedence.go NOT modified in production: the upstream fail-closed check
+  is sufficient since validateOHLCV always runs before payloadEqual can be reached.
+Error representation: no existing candle.md §11 precedence Outcome represents malformed input
+  (those govern well-formed duplicate/correction/provenance semantics) — per Error Handling
+  Convention §7, a bounded technical sentinel (ErrInvalidOHLCV) is the correct representation.
+Zero semantics preserved: a legitimately parsed zero (e.g. zero-volume bar) is NOT rejected —
+  verified by dedicated regression tests.
+```
+
+### Regression tests added
+
+```text
+decimal_test.go: TestZeroValueDecimalIsSafeNumericZero, TestIsInitializedDistinguishesZeroValueFromParsedZero.
+service_test.go: TestObserveProvisionalRejectsUninitializedRequiredFields,
+  TestObserveProvisionalAcceptsLegitimateZeroValue,
+  TestIngestClosedFactRejectsUninitializedRequiredFieldsFirstFact,
+  TestIngestClosedFactRejectsUninitializedRequiredFieldsExistingFact (the core regression:
+  seeds a real accepted first-close fact, then sends a second fact for the same subject with
+  one field unset — reproducing the exact QG panic path via payloadEqual — proves it now
+  fails closed with ErrInvalidOHLCV instead of panicking, for all 5 required fields),
+  TestIngestClosedFactAcceptsLegitimateZeroValue.
+All pre-existing precedence/ingest/bitemporal tests re-run fresh, unchanged behavior, all PASS.
+```
+
+### Validation
+
+```text
+gofmt -l . empty · go vet ./... clean · go build ./... clean · go test ./... ALL PASS (every
+  package). No float32/float64 introduced. market-reference-service/** untouched.
+  module-registry.yaml untouched. Dependency/authority graph unchanged.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — bounded implementation correction enforcing already-existing candle.md
+  required-field facts; no Platform Invariant/Event Schema/Module Taxonomy/governance-process
+  change; not multi-module; fully reversible; does not supersede any Locked ADR.
+```
+
+### Bookkeeping (not a new review)
+
+```text
+P11-V13-A-MIN-01 = CLOSED, P11-V13-REC-MIN-01 = CLOSED — deterministic verification completed
+  at boundary 6c9fac9a775b63ad36abd9ae0550d36eee777fec, not previously durably folded into QG
+  evidence. Pure bookkeeping, no semantic content change. P3-MDI-TIER-B-MIN-01 unchanged, still
+  OPEN — non-blocking.
+```
+
+### Historical result preserved, next step
+
+```text
+The formal Quality Gate result at boundary 6c9fac9a775b63ad36abd9ae0550d36eee777fec REMAINS
+  FAIL — criteria, not overwritten. This fix creates a NEW implementation boundary requiring a
+  SEPARATE future fresh formal Quality Gate re-evaluation before any PASS can be claimed. Tier
+  unchanged (Tier 2 — Supporting). No module/Data Layer/Phase 3 Approval Gate approved. LIVE
+  remains NOT_AUTHORIZED.
+```
+
+### Files changed
+
+```text
+go/market-data-ingestion/internal/decimal/decimal.go, decimal_test.go,
+  go/market-data-ingestion/internal/ingest/service.go, service_test.go, docs/MANIFEST.md,
+  docs/CHANGELOG.md — verified via git status --porcelain=v1 -uall. No unrelated formatting
+  sweep, no generated files, no temporary diagnostic remains.
+```
+
 ## [Unreleased] — 2026-08-20 — market-data-ingestion: formal Chapter 13 Quality Gate — FAIL — criteria (numerical-precision defect found)
 
 **Evidence/evaluation transaction only — vai trò: `market-data-ingestion Formal Chapter 13
