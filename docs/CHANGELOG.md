@@ -2,6 +2,120 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — market-data-ingestion: formal Chapter 13 Quality Gate — FAIL — criteria (numerical-precision defect found)
+
+**Evidence/evaluation transaction only — vai trò: `market-data-ingestion Formal Chapter 13
+Quality Gate Evaluator`.** Performs one fresh formal Chapter 13 Quality Gate evaluation for
+market-data-ingestion at its Tier 2 — Supporting classification. Does not approve the
+module. Does not authorize LIVE. Discovers and records, but does not fix, a genuine defect.
+
+### Baseline
+
+```text
+Boundary: 6c9fac9a775b63ad36abd9ae0550d36eee777fec (verified via git rev-parse HEAD before
+  any edit; tree clean). Tier: module-registry.yaml v1.3, blob
+  2cdd36dabdbdc3b3360bfd293e678528d09c9bd3, market-data-ingestion.quality_tier = Tier 2 —
+  Supporting (unchanged, read-only). Testing Convention: v0.4 Approved, blob
+  00ad4f3f294514b9fc1423cffec22fca186e8b23 (unchanged, read-only).
+```
+
+### Coverage boundary and results
+
+```text
+7 authoritative production packages (cmd/marketdataingestion excluded as self-documented
+  non-deployable demo wiring; internal/envelope excluded — zero executable functions,
+  verified — coverage genuinely not applicable, not a testing gap).
+Line coverage: module-aggregate 92.8% — PASS (≥80%).
+Branch coverage (pinned gobco -branch, v1.3.5-0.20240924205308-2d21b14addca, re-verified
+  identity via go version -m; per-package raw sum, never averaged): candle 17/18, decimal
+  29/34, gap 6/6, ingest 20/28, precedence 12/12, publish 0/0, reference 9/10 →
+  93/108 = 86.11% — PASS (≥80%). Reproducibility confirmed via repeated runs.
+Test-effectiveness: 136 assertion statements across 52 top-level test functions, spot-
+  checked for substantive semantic assertions — PASS.
+```
+
+### I-13, ADR-032, bitemporal, I-12, I-11 — all PASS
+
+```text
+I-13: candle.md §1's state_machine fully covered by an exhaustive 9-case transition-matrix
+  test plus candle.md §11's 5-step precedence/correction algorithm's full test suite, all
+  re-run fresh — PASS.
+ADR-032: Provider interface's two-axis (effectiveInstant, knowledgeCursor) contract verified
+  correctly implemented and correctly called from ingest/service.go — PASS.
+Bitemporal/no-look-ahead: targeted look-ahead-guard tests re-run fresh — PASS.
+I-12: internal/ingest's lastFact map confirmed a disclosed local read cache, not a competing
+  source of truth — PASS.
+I-11 (Chapter 2's actual system-wide Scope, not the stale candidate shorthand): zero secret/
+  credential/network/auth code found via direct inspection — PASS (vacuous conformance,
+  disclosed).
+§13.12-D Security: N/A — no actual implemented isolation/custody/authorization boundary
+  exists in the current implementation (independently re-verified from code, not inferred
+  from the registry's trust_boundary_candidate label or prior review alone).
+```
+
+### §13.12-D Data quality / numerical precision — FAIL — criteria (defect found)
+
+```text
+market-data-ingestion has its OWN independent internal/decimal package — a separate copy
+  from market-reference-service's, never touched by that module's P3-MR-DECIMAL-MAJ-01 fix.
+  Verified via direct read: this copy's IsZero/Sign/String/rescale still dereference
+  unscaled without a nil check, unfixed.
+Reachability confirmed empirically via a temporary scratch diagnostic (created and removed
+  within this transaction — go/market-data-ingestion/** confirmed byte-identical before and
+  after, verified via git diff): internal/precedence.payloadEqual() calls .Equal() directly
+  on every OHLCV field, exercised on every IngestClosedFact call that finds an existing
+  prior fact (candle.md §11's core Step 3/4 algorithm — not a rare corner). Smallest
+  reproducible case: compare an OHLCV field left at its Go zero value against a legitimately
+  parsed one — panics "invalid memory address or nil pointer dereference".
+This IS "measured and failing" (FAIL — criteria), not missing evidence — decimal equality/
+  comparison behavior was directly tested and demonstrably does not meet the required
+  correctness bar. Not fixed in this transaction — recorded accurately, remediation stopped.
+Also flagged under Resilience (a correctness/fault-tolerance gap, not only a numerical-
+  precision one — panics rather than fails closed with a typed error).
+```
+
+### Other dimensions
+
+```text
+I-9: N/A (Chapter 2 Scope narrowly Position Ledger/Execution Engine/Risk Gateway, not
+  widened by §13.12-D's independent trigger, per Chapter 13 §13.5). Performance: N/A (no
+  authoritative budget exists). Observability: N/A (not on a production/operational path —
+  demo-only, no real deployment). Contract/schema compatibility: N/A (candle.md still Draft,
+  not published). Migration/rollback: N/A. Explainability/auditability (I-1): N/A (Scope is
+  Decision Pipeline, this module is not part of it).
+```
+
+### QG overall result
+
+```text
+FAIL — criteria. Coverage is NOT the failure driver (both metrics pass with margin). The
+  sole driver is the empirically-verified precedence.payloadEqual nil-pointer-panic defect
+  under §13.12-D Data quality/numerical precision (and its Resilience counterpart). Not a
+  Product Owner rejection. No module/Data Layer approved. No implementation/test code
+  changed by this evaluation (verified before and after, including around the temporary
+  diagnostic). Testing Convention/module-registry/Chapter 13/ADR-032/Domain Contracts
+  untouched. LIVE remains NOT_AUTHORIZED.
+```
+
+### Open findings
+
+```text
+1. internal/precedence.payloadEqual / internal/decimal zero-value nil-panic — the QG
+   failure driver; needs a future bounded defect-fix transaction (same pattern as
+   P3-MR-DECIMAL-MAJ-01, applied to this module's own independent decimal package copy),
+   followed by regression tests and a fresh formal QG re-evaluation.
+2. P3-MDI-TIER-B-MIN-01 (OPEN, non-blocking, unchanged) — this evaluation's own I-11
+   disposition correctly used Chapter 2's actual Scope, so the finding's underlying concern
+   did not materialize here, but the stale candidate prose itself remains open for a future
+   bounded correction.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only — verified via git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — Package 1.1 v1.3: correct PO decision evidence fidelity (`P11-V13-A-MIN-01`, `P11-V13-REC-MIN-01`)
 
 **Mechanical, non-semantic correction only — vai trò: `Package 1.1 v1.3 Evidence-Fidelity

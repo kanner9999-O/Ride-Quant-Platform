@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.203"
+manifest_version: "10.204"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -4402,6 +4402,374 @@ Files changed: docs/architecture/module-registry.yaml (commentary/provenance onl
   YAML semantic diff, verified), docs/MANIFEST.md, docs/CHANGELOG.md — verified via
   `git status --porcelain=v1 -uall`, no other file touched.
 ```
+
+## Phase 3 — `market-data-ingestion` Formal Chapter 13 Quality Gate Evaluation (`FAIL — criteria`, NOT a Product Owner rejection, NOT approval)
+
+**Baseline:** branch `main`, HEAD `6c9fac9a775b63ad36abd9ae0550d36eee777fec` (verified — matches required boundary, working tree clean before this transaction). **No implementation/test code changed by this evaluation** — verified `git status --porcelain=v1 -uall -- go/` empty and `git diff --quiet -- go/` both before and after all measurement/investigation work (including a temporary scratch diagnostic used to empirically verify a suspected defect, created and removed within this same transaction — repo confirmed byte-identical afterward). `module-registry.yaml` read-only (verified `git diff --quiet`), blob `2cdd36dabdbdc3b3360bfd293e678528d09c9bd3`, `version: "1.3"`, `status: Draft`, `package_lifecycle: Consolidated Stable`. `docs/engineering/testing.md` read-only, blob `00ad4f3f294514b9fc1423cffec22fca186e8b23`, `version: "0.4"`, `status: Approved`.
+
+**Evaluator:** this transaction, role `market-data-ingestion Formal Chapter 13 Quality Gate Evaluator`. No ADR-031 independence mode invoked — this is a formal Quality Gate evaluation, not Independent Review B. No provider-native session identifier fabricated.
+
+```text
+Subject:                 go/market-data-ingestion/** at commit 6c9fac9a775b63ad36abd9ae0550d36eee777fec
+                          go.mod: module github.com/kanner9999-O/Ride-Quant-Platform/go/market-data-ingestion, go 1.25
+Tier source:              module-registry.yaml v1.3 (Consolidated Stable, blob
+                          2cdd36dabdbdc3b3360bfd293e678528d09c9bd3) — market-data-ingestion.
+                          quality_tier: {tier: "Tier 2 — Supporting", approved_by: "Product
+                          Owner", approved_at: "2026-08-20T15:42+07:00"} (Chapter 13 §13.4
+                          branch 1: runtime module -> resolve tier from module-registry.yaml,
+                          Chapter 7 §7.5).
+Resolved tier:            Tier 2 — Supporting
+Coverage floors:          line >= 80% AND branch >= 80%, independently (Chapter 13 §13.3)
+Additional tier-triggered requirements: NONE (no Chaos Test [Tier 0-only], no Parity Test
+                          [Tier 1-only] — Tier 2 does not acquire either merely from being
+                          upstream of Decision-Pipeline engines, structure-engine/
+                          raw-regime-engine's direct depends_on notwithstanding).
+Testing Convention:       docs/engineering/testing.md v0.4, Approved, blob
+                          00ad4f3f294514b9fc1423cffec22fca186e8b23 — Approved mechanism:
+                          gobco, required measurement mode explicit -branch.
+```
+
+### Authoritative coverage boundary (resolved before measurement, `go list ./...`)
+
+```text
+9 packages total: cmd/marketdataingestion, internal/candle, internal/decimal,
+  internal/envelope, internal/gap, internal/ingest, internal/precedence, internal/publish,
+  internal/reference.
+EXCLUDED, with exact authority-based reason (verified directly, not assumed):
+  cmd/marketdataingestion — self-documented in its own package doc comment as "a
+    demonstration wiring... it is not a deployable service" (main.go:1-7) — not authoritative
+    production implementation, same exclusion basis already established for
+    market-reference-service's own cmd/ package in this repository's QG history.
+  internal/envelope — verified via direct source inspection: ZERO functions/methods exist in
+    this package (99 lines, pure type/struct declarations only) — genuinely NO executable
+    implementation to instrument (Chapter 13 §13.12-B's own "coverage not applicable ≠
+    coverage applicable but evidence missing" distinction — this is the former, not a testing
+    gap).
+INCLUDED (7 packages, the authoritative production coverage boundary): internal/candle,
+  internal/decimal, internal/gap, internal/ingest, internal/precedence, internal/publish,
+  internal/reference.
+```
+
+### Fresh baseline verification
+
+```text
+go version:                go1.26.6 darwin/arm64
+gofmt:                     `gofmt -l .` — empty output, CLEAN
+go vet:                    `go vet ./...` — exit 0, CLEAN
+go build:                  `go build ./...` — exit 0, CLEAN
+go test:                   `go test ./...` — 52 top-level test functions across candle,
+                           decimal, gap, ingest, precedence, publish, reference, ALL PASS,
+                           zero FAIL, zero SKIP.
+```
+
+### Line coverage — fresh, this exact boundary
+
+```text
+Command:                   `go test ./... -covermode=set -coverprofile=<profile>
+                           -coverpkg=./internal/...`; go1.26.6's built-in `go test -cover` /
+                           `go tool cover -func`.
+Module-aggregate line/statement coverage: 92.8% (computed fresh at commit
+                           6c9fac9a775b63ad36abd9ae0550d36eee777fec, over the 7-package
+                           authoritative boundary above).
+Per-package (own-package coverage, standard covermode): candle 96.6% · decimal 93.2% ·
+                           gap 100.0% · ingest 85.7% · precedence 100.0% · publish 100.0% ·
+                           reference 91.7%.
+Line coverage result:      PASS — 92.8% exceeds the 80% Tier 2 floor.
+```
+
+### Branch coverage — fresh, pinned governed `gobco -branch` mechanism
+
+```text
+Mechanism identity (re-verified directly at this boundary, not trusted from prompt/memory):
+  github.com/rillig/gobco, pinned pseudo-version v1.3.5-0.20240924205308-2d21b14addca, VCS
+  commit 2d21b14addca7c3832fae8578c9bffda70331468, content checksum
+  h1:3brQV6wohXU5fg5vXgu76yyiaZYNJxwjh2mkXGMxCoI= — confirmed via `go version -m` on the
+  actually-executed binary and `gobco -version` ("1.3.5-snapshot"); `-branch` flag confirmed
+  present via `-help`. Required mode: explicit -branch (default condition mode NOT used as
+  evidence).
+Invocation-model constraint (re-verified, unchanged): multi-package invocation still panics
+  ("checking multiple packages doesn't work yet") — per-package invocation used, raw
+  numerator/denominator summed across all 7 authoritative production packages, never
+  averaged percentages.
+Per-package raw results (`gobco -branch ./internal/<pkg>`, each run individually):
+  candle:      17/18
+  decimal:     29/34
+  gap:          6/6
+  ingest:      20/28
+  precedence:  12/12
+  publish:      0/0    (no if/switch/for controlling conditions in this package — verified;
+                        contributes zero to both numerator and denominator)
+  reference:    9/10
+Module-aggregate branch result: 93/108 = 86.1111% (deterministic sum, NOT an average of the
+  7 per-package percentages). Reproducibility confirmed — `gobco -branch` re-run a second
+  time on internal/ingest and internal/candle produced byte-identical Branch coverage N/M
+  both times.
+Branch coverage result:    PASS — 86.11% exceeds the 80% Tier 2 floor.
+```
+
+### Test-effectiveness evidence
+
+```text
+136 explicit assertion statements (`t.Fatalf`/`t.Errorf`/`t.Fatal`) across the 52 top-level
+  test functions in this coverage boundary (~2.6 assertions/test) — verified via direct
+  count, not assumed. Spot-checked representative tests (e.g.
+  TestIngestClosedFactProvenanceIntegrityViolation) confirm specific, meaningful semantic
+  assertions (exact outcome value, exact published-record count) — not execution-only/
+  assertion-free anti-gaming tests. Tier 2 does not inherit the Tier-0/Tier-1 mutation-
+  testing requirement (§13.3's last bullet is Tier 0/1-only); this substantive-assertion
+  check is the applicable Tier-2 evidence.
+Result: PASS.
+```
+
+### I-13 — State Transition Integrity
+
+```text
+Applicable: candle.md §1 declares an explicit `state_machine` block for the Logical Candle
+  Subject (states UNSEEN/PROVISIONAL/CLOSED, 5 declared transitions, `terminal_states: []`
+  with an explicit CLOSED->CLOSED self-transition semantic for CandleCorrected, candle.md's
+  own cited I-13 example).
+Evidence (re-run fresh): internal/candle/candle.go's `CanTransition(from, to State) bool`
+  implements exactly the 5 declared transitions. `TestCanTransition` (candle_test.go)
+  exhaustively tests ALL 9 (3x3) state pairs against the exact expected allowed/rejected set
+  — PASS. `TestCanTransitionRejectsClosedToProvisional` specifically verifies
+  `terminal_states: []` does NOT mean CLOSED can revert to PROVISIONAL — PASS.
+  `TestStateString` — PASS. candle.md §11's 5-step precedence/correction-ordering algorithm
+  (internal/precedence) re-run fresh: TestResolveFirstCloseForSubject,
+  TestResolveStep3DuplicateIdenticalPayload, TestResolveStep3ProvenanceIntegrityViolation,
+  TestResolveStep4EmitsCorrected, TestResolveStep4NeverProducesSecondClosed,
+  TestResolveStep5DeclaredEquivalenceIsDuplicate,
+  TestResolveStep5UndeclaredEquivalenceFailsClosed — ALL PASS.
+Result: PASS — real, executable, exhaustive evidence for both the state-machine transitions
+  and the correction-ordering/lineage rules, not code-inspection-only.
+```
+
+### §13.12-D Data quality / numerical precision — `FAIL — criteria` (defect found, see below)
+
+```text
+Applicable: market-data-ingestion owns authoritative Candle state and processes authoritative
+  OHLCV financial values (owns_authoritative_state: true; candle.md §3-§5 CandleObserved/
+  Closed/Corrected payloads) — §13.12-D's own trigger is satisfied directly, independent of
+  I-9's narrower §13.12-A declared Scope (see I-9 disposition below).
+Float-usage check: verified zero `float32`/`float64` usage anywhere in production code
+  (grep across all .go files, non-test) — OHLCV fields (Open/High/Low/Close/Volume) are all
+  `decimal.Decimal` (internal/candle/events.go), never float, matching I-9's spirit.
+Parsing path: internal/ingest's RawFact.OHLCV is a typed `candle.OHLCV` struct — this module's
+  own code never calls decimal.NewFromString on untrusted external input; a future venue
+  adapter (not yet built) is responsible for constructing valid Decimal values before calling
+  in.
+
+DEFECT DISCOVERED (verified empirically via a temporary scratch diagnostic, created and
+  removed within this same transaction — go/market-data-ingestion/** confirmed byte-identical
+  before and after): internal/decimal/decimal.go in THIS module is an independent copy of the
+  SAME package that had the P3-MR-DECIMAL-MAJ-01 nil-pointer-panic defect in
+  market-reference-service — that fix (internal/decimal/decimal.go's safeUnscaled() hardening)
+  was scoped ONLY to market-reference-service's copy and was NEVER applied here; this module's
+  own internal/decimal/decimal.go is UNCHANGED/unfixed (verified via direct read: IsZero/
+  Sign/String/rescale all dereference `d.unscaled` without a nil check, identical to the
+  pre-fix state).
+  Reachability (confirmed, not theoretical): internal/precedence/precedence.go's
+  `payloadEqual(a, b candle.ClosedPayload) bool` (lines 163-169) calls `.Equal()` directly on
+  every OHLCV field (Open/High/Low/Close/Volume) — called from `Resolve`'s Step 3/Step 4
+  duplicate/correction-detection logic (precedence.go:143,150), which is candle.md §11's
+  CORE algorithm, exercised on every `ingest.Service.IngestClosedFact` call that finds an
+  existing prior fact for the same subject — not a rare corner case.
+  Smallest reproducible case (verified via the temporary scratch diagnostic): construct a
+  candle.ClosedPayload `a` whose Volume field is left at its Go zero value (decimal.Decimal{},
+  unscaled == nil — e.g. a caller/adapter omission), and a candle.ClosedPayload `b` with a
+  legitimate, fully-parsed Volume (e.g. decimal.MustFromString("12.5")). Calling
+  `payloadEqual(a, b)` panics: "runtime error: invalid memory address or nil pointer
+  dereference" — confirmed reproducible. (A symmetric case, both sides zero-value, does NOT
+  panic — Go's math/big.Int.Cmp has an `x == y` pointer-identity fast path that both nil
+  pointers satisfy — but the realistic precedence-comparison shape, an incoming fact against
+  a legitimately-stored existing one, is the asymmetric case that panics.)
+  Governing authority: this violates the same requirement this task's own §13.12-D checklist
+  names explicitly — "decimal equality/comparison/copy behavior is correct where relevant" —
+  it is demonstrably NOT correct under a realistic, in-scope input shape.
+Edge-case checks performed (very large/small decimals, trailing zeros, near-precision-
+  boundary values, negative/invalid values, copy/serialization round trips — via
+  MarshalText/UnmarshalText and String()): all PASS for well-formed inputs (decimal_test.go's
+  existing TestNewFromString/TestAddNoFloatRoundTrip/TestMarshalUnmarshalText suite, re-run
+  fresh) — the defect is specific to the UNSET/zero-value case, not general decimal
+  arithmetic correctness.
+No instrument tick/lot authority invented here — market-reference-service remains
+  authoritative for that metadata; this dimension concerns only this module's own OHLCV
+  value-handling correctness.
+Result:                    FAIL — criteria. This was successfully measured/tested (not
+  missing evidence) and demonstrably fails: decimal equality/comparison behavior panics on a
+  realistic, reachable input shape within this module's own core authoritative algorithm.
+  NOT fixed in this transaction (evaluation-only, per explicit task constraint) — recorded
+  accurately, remediation stopped.
+```
+
+### I-9 — Numerical Precision (distinct from §13.12-D above)
+
+```text
+I-9's own declared Scope (Chapter 2) is narrowly "Position Ledger, Execution Engine, Risk
+  Gateway" — does NOT include market-data-ingestion. Chapter 13 §13.5 is explicit that gate
+  evaluation does not widen an invariant's own declared Scope, even though this module's
+  OHLCV handling is I-9-spirit-consistent (lossless decimal, never float) and even though
+  §13.12-D's independent trigger (above) DOES apply and DID find a genuine defect in exactly
+  this value-handling path. These are two separate, correctly-distinguished questions per
+  this task's own explicit instruction.
+Result: N/A (Scope does not include this module).
+```
+
+### I-11 — Secrets & Custody Isolation (system-wide Scope, resolved from Chapter 2's actual text)
+
+```text
+Chapter 2's actual I-11 Scope: "Toàn hệ thống, đặc biệt Execution Engine, Exchange Adapter"
+  (the ENTIRE system, especially those two) — system-wide, includes market-data-ingestion in
+  principle. Resolved directly, not from the stale narrower shorthand in earlier candidate
+  prose (P3-MDI-TIER-B-MIN-01, still OPEN, not remediated by this evaluation).
+Evidence (verified via direct code inspection, this exact boundary): zero secret/credential/
+  API-key/password/token/private-key handling anywhere in production code (grep, case-
+  insensitive, all non-test .go files — zero matches). Zero network client code (zero
+  net/http, tls, net.Dial usage). Zero authentication/authorization code (all "auth"/
+  "authority" text matches are the domain term "authoritative fact/data," not security
+  authentication — verified individually).
+Result:                    PASS (vacuous conformance, disclosed as such — there is no
+  credential-handling code path for I-11's prohibitions to apply to; zero violation is
+  possible because zero secret-adjacent code exists). Not silently marked N/A despite the
+  system-wide Scope including this module in principle, per this task's explicit instruction.
+```
+
+### §13.12-D Security (resolved independently from actual implementation, not from registry labels or prior review alone)
+
+```text
+Trigger: an actual implemented isolation/custody/authorization boundary. Verified via the
+  same direct code inspection as I-11 above: zero network ingress, zero external network
+  client, zero authentication, zero authorization, zero credential/secret handling, zero
+  custody, zero isolation/trust-enforcement code anywhere in this module's actual
+  implementation at this boundary.
+Registry label `security_classification: trust_boundary_candidate` is NOT used to infer
+  APPLICABLE (per this task's explicit instruction) — it anticipates a FUTURE boundary (the
+  module's own README/registry note: "External venue connection boundary — identification
+  only, no auth/isolation design, Package 1.2") that does not exist in the current
+  implementation. Prior review's non-blocking disposition is independently re-confirmed here
+  from the code itself, not merely cited.
+Result:                    N/A. Future re-evaluation trigger: once a real venue adapter with
+  actual network/credential/authentication code is built (currently out of scope — this
+  module accepts already-normalized RawFact values, per its own package doc), this dimension
+  MUST be re-resolved from that new implementation boundary, not assumed to remain N/A.
+```
+
+### ADR-032 authority boundary / market-reference-service dependency
+
+```text
+Verified fresh: internal/reference/reference.go's `Provider` interface — both `ResolveIdentity`
+  and `WindowFor` take (effectiveInstant, knowledgeCursor time.Time) as two separate mandatory
+  parameters (ADR-032 v0.2 §B.3 two-axis contract), documented as corrected under
+  P3-DL-A-MAJ-01. internal/ingest/service.go:106,110 confirmed passing `raw.Instant`
+  (effective) and `raw.RecordedTime` (knowledge) correctly to both calls. market-data-ingestion
+  depends only on this interface, never imports market-reference-service's package directly
+  (Go internal/ visibility rules structurally prevent it regardless). market-reference-service
+  remains sole authoritative owner of Instrument/Venue identity/precision/tick/lot/calendar/
+  session; market-data-ingestion remains query-consumer-only — unchanged, unaltered by this
+  evaluation.
+Result: PASS.
+```
+
+### No-look-ahead / bitemporal semantics
+
+```text
+Re-run fresh (not relying on old Batch-01/ADR-032 review results): TestFakeWindowForLookAheadGuard,
+  TestFakeResolveIdentityLookAheadGuard (internal/reference), TestIngestionReferenceResolutionIsDeterministicAndBitemporallyCorrect,
+  TestIngestionCannotSeeFutureIdentityCorrections (internal/ingest) — ALL PASS. These
+  demonstrate: a correction recorded later is invisible to an earlier knowledge cursor; no
+  current-wall-clock substitution for historical lookup (explicit cursor parameters only);
+  deterministic historical replay.
+Result: PASS.
+```
+
+### Other applicable Chapter 13 §13.12 dimensions
+
+```text
+Correctness / applicable invariant conformance:  Mixed — PASS on I-13/ADR-032/bitemporal/
+  I-12/I-11; FAIL — criteria on §13.12-D data quality (the precedence.payloadEqual defect
+  above is itself also a correctness gap in candle.md §11's core algorithm, not only a
+  numerical-precision-labeled finding).
+Determinism / reproducibility:  PASS — TestSubjectIDStableAcrossTimezone and the bitemporal
+  determinism tests re-confirmed fresh; the discovered defect is a deterministic,
+  reproducible panic (not a determinism VIOLATION — same input always panics the same way),
+  tracked separately under §13.12-D/Resilience, not here.
+I-12 (Single Source of Truth):  PASS — internal/ingest.Service's `lastFact` map is explicitly
+  self-documented (service.go:78-85) as a local read cache populated only from this
+  Service's own successful publishes, NOT a competing source of truth; a real distributed
+  implementation must rebuild it from the authoritative event log — disclosed limitation, not
+  a violation.
+Resilience / fault tolerance:  FAIL — criteria. The §13.12-D defect above IS a resilience
+  finding: core precedence/correction logic panics rather than failing closed with a typed
+  error, under a realistic (not contrived) input shape — directly contradicts the "explicit,
+  typed errors rather than panics" expectation this repository's prior QG evaluations (for
+  market-reference-service) established and relied on.
+Performance:  N/A — no authoritative performance budget exists anywhere for
+  market-data-ingestion (verified: no match in docs/architecture/ or docs/domain/ for
+  performance/budget/latency/throughput text referencing this module) — §13.12-D's own
+  trigger ("khi có authoritative performance budget áp dụng") does not fire.
+Observability / operational readiness:  N/A — this module is not currently on a production/
+  operational path (no real venue adapter, no real event-log/broker wiring, demo-only
+  cmd/marketdataingestion excluded from the coverage boundary above; LIVE not authorized) —
+  the §13.12-D trigger ("khi artifact nằm trên production/operational path") does not
+  currently fire; re-evaluate once real deployment wiring exists.
+Contract / schema compatibility (Chapter 10 §10.3):  N/A — candle.md remains `status: Draft`
+  (verified fresh, version "0.4"), not a formally governed PUBLISHED schema/contract artifact
+  in the Chapter 10 §10.3 sense — the §13.12-E trigger ("khi artifact publish contract/
+  schema") does not fire, same disposition as market-reference-service's own QG evaluations.
+Migration / rollback:  N/A — market-data-ingestion is not a migration artifact.
+Explainability / auditability (I-1):  N/A — I-1's own declared Scope is "Toàn bộ Decision
+  Pipeline," which this module (Data Layer, upstream of the Decision Pipeline) is not part
+  of.
+```
+
+### QG overall result
+
+```text
+FAIL — criteria.
+
+Reason: line coverage (92.8%) and branch coverage (86.11%, gobco -branch, per-package raw
+  sum) both independently exceed the Tier 2 80% floor — coverage itself is NOT the failure
+  driver here, unlike the two prior formal evaluations at earlier boundaries for
+  market-reference-service. I-13 state-transition evidence is real, executable, and
+  exhaustive — PASS. ADR-032 authority boundary, bitemporal/no-look-ahead, I-12, and I-11 all
+  PASS. §13.12-D Security and Performance/Observability/Contract-compatibility/Migration/
+  Auditability are all correctly N/A per their own declared triggers.
+
+The SOLE failure driver is §13.12-D Data quality/numerical precision (and its Resilience
+  counterpart): a genuine, empirically-verified, reproducible defect — internal/precedence's
+  payloadEqual() panics with a nil-pointer dereference when comparing an OHLCV field left at
+  its Go zero value against a legitimately-parsed one, reachable through candle.md §11's core
+  duplicate/correction-detection algorithm on the module's primary, most-frequently-exercised
+  code path. This was successfully measured and tested (not missing evidence) and
+  demonstrably does not meet the required criterion — hence FAIL — criteria, not FAIL —
+  evidence.
+
+This is NOT a Product Owner rejection (Chapter 13 §13.1/§13.8). No module or Data Layer is
+  approved or rejected by this result; Chapter 12 phase-approval remains a separate, untouched
+  authority. No remediation was performed inside this evaluation transaction — the defect was
+  recorded accurately and remediation was explicitly stopped, per this task's own instruction.
+```
+
+**Open findings (disclosed, not resolved by this evaluation):**
+
+```text
+1. internal/precedence.payloadEqual (via internal/decimal's unfixed Decimal zero-value
+   nil-pointer-panic) — the sole QG failure driver above. A future bounded defect-fix
+   transaction should apply the same remediation pattern already established for
+   market-reference-service under P3-MR-DECIMAL-MAJ-01: harden this module's OWN independent
+   internal/decimal/decimal.go copy (safeUnscaled()-style nil-safety), AND make the relevant
+   comparison/fold logic (internal/precedence, and any other OHLCV-consuming path) fail
+   closed on malformed/incomplete numeric input rather than panicking — followed by
+   regression tests and a fresh formal QG re-evaluation.
+2. P3-MDI-TIER-B-MIN-01 (OPEN, non-blocking, unchanged by this evaluation): stale earlier
+   candidate prose narrowing I-11's Scope — this evaluation's I-11 disposition above already
+   correctly used Chapter 2's actual system-wide Scope text, not the stale shorthand, so this
+   finding's own concern (a future QG using the wrong Scope) did NOT materialize here; the
+   finding itself remains open for a future bounded correction of that earlier prose.
+```
+
+**No scope expansion:** no implementation/test code changed (verified `git diff --quiet -- go/`, both before and after the temporary scratch-diagnostic investigation, which was created and removed within this transaction). `module-registry.yaml` read-only (verified `git diff --quiet`). Tier unchanged. Dependency graph unchanged. Authority boundary unchanged. ADR-032 not touched. Domain Contracts not touched. Chapter 13 not touched. Testing Convention not touched. `market-data-ingestion` NOT approved. Data Layer NOT approved. Phase 3 Approval Gate NOT opened. LIVE not authorized, not referenced.
+
+**Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
 
 ## Decision Log
 
