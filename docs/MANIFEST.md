@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.197"
+manifest_version: "10.198"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -3655,6 +3655,138 @@ Files changed: go/market-reference-service/internal/instrument/instrument_test.g
   (in particular: no production .go file, no go.mod/go.sum, no module-registry.yaml, no
   Chapter 13, no Testing Convention, no ADR-032, no Domain Contract).
 ```
+
+## Phase 3 — `market-reference-service` Formal Quality Gate Re-Evaluation (Chapter 13 — `PASS`)
+
+**Baseline:** branch `main`, HEAD `6ef9fb2f3b135784eacd077d6ca9331c19fb809c` (evaluated and recorded — verified before both the evaluation and this recording transaction; working tree clean). **No implementation code touched** by either the evaluation or this recording transaction — verified `git diff --quiet -- go/`. `module-registry.yaml` read-only (verified `git diff --quiet -- docs/architecture/module-registry.yaml`), blob `5586cdaeb890fa694a812526ba44751f4b0e1541`, unchanged. `docs/engineering/testing.md` read-only, blob `00ad4f3f294514b9fc1423cffec22fca186e8b23`, unchanged.
+
+**Evaluator:** the evaluation itself was performed by a prior, separate governed transaction (role: `Formal Quality Gate Executor`) at this exact HEAD; this transaction (role: `market-reference-service QG PASS Evidence Recorder`) records that already-completed evaluation's results as durable repository evidence — no evaluation work is re-performed or re-verified here beyond confirming the baseline HEAD matches. No specific named individual evaluator identity is available beyond these role labels; none is invented.
+
+```text
+Subject:                 go/market-reference-service/** at commit 6ef9fb2f3b135784eacd077d6ca9331c19fb809c
+Tier source:              module-registry.yaml v1.2 (blob 5586cdaeb890fa694a812526ba44751f4b0e1541) —
+                          market-reference-service.quality_tier: {tier: "Tier 2 — Supporting",
+                          approved_by: "Product Owner", approved_at: "2026-08-19T19:27:00+07:00"}
+                          (Chapter 13 §13.4 branch 1: runtime module -> resolve tier from
+                          module-registry.yaml, Chapter 7 §7.5).
+Resolved tier:            Tier 2 — Supporting
+Coverage floors:          line >= 80% AND branch >= 80%, independently (Chapter 13 §13.3)
+Additional tier-triggered requirements: NONE (no Chaos Test [Tier 0-only], no Parity Test
+                          [Tier 1-only])
+Testing Convention:       docs/engineering/testing.md v0.4, status Approved (approved_by:
+                          Product Owner, approved_at: 2026-08-20), blob
+                          00ad4f3f294514b9fc1423cffec22fca186e8b23 — Approved mechanism: gobco,
+                          required measurement mode: explicit -branch.
+```
+
+### Fresh verification (performed by the prior evaluation transaction, recorded here)
+
+```text
+go version:               go1.26.6 darwin/arm64
+gofmt:                    `gofmt -l .` — empty output, CLEAN
+go vet:                   `go vet ./...` — exit 0, CLEAN
+go build:                 `go build ./...` — exit 0, CLEAN
+go test:                  `go test ./...` — 77 top-level test functions across calendar,
+                          decimal, fact, instrument, listing, query, store, venue, ALL PASS,
+                          zero FAIL, zero SKIP.
+Targeted ADR-032 two-axis/look-ahead + state-transition + I-13 property/fuzz tests re-run
+  explicitly, all PASS (see prior "Branch-Coverage Remediation Resumed" and "I-13 Property-
+  Based Evidence Remediation" MANIFEST sections for the full enumerated test-function list —
+  not repeated here, per I-12).
+```
+
+### Line coverage
+
+```text
+Command:                  `go test ./... -covermode=set -coverprofile=<profile> -coverpkg=./internal/...`;
+                          go1.26.6's built-in `go test -cover` / `go tool cover -func`.
+Module-aggregate line/statement coverage: 97.1%.
+Per-package: calendar 100.0% · decimal 94.8% · fact 96.0% · instrument 100.0% ·
+  listing 97.1% · query 98.5% · store 100.0% · venue 100.0% · envelope 0.0% (disclosed,
+  unchanged, non-gate-blocking — module-aggregate applies at module level, Chapter 13 §13.4
+  branch 1, per prior evaluations' established reasoning).
+Line coverage result:     PASS — 97.1% exceeds the 80% Tier 2 floor.
+```
+
+### Branch coverage — pinned gobco -branch mechanism
+
+```text
+Mechanism:                github.com/rillig/gobco, pinned pseudo-version
+                          v1.3.5-0.20240924205308-2d21b14addca, VCS commit
+                          2d21b14addca7c3832fae8578c9bffda70331468, content checksum
+                          h1:3brQV6wohXU5fg5vXgu76yyiaZYNJxwjh2mkXGMxCoI= (P3-GOBC-PIN-A-MAJ-01
+                          corrected identity), required mode explicit -branch (default
+                          condition mode NOT used as evidence, per testing.md v0.4).
+Invocation method:         per-package (module-wide invocation panics — unchanged tool
+                          constraint, "checking multiple packages doesn't work yet"); raw
+                          numerator/denominator summed across all 9 authoritative production
+                          packages — never averaged percentages.
+Per-package raw results:  calendar 2/2, decimal 32/36, envelope 0/0, fact 45/52,
+                          instrument 8/10, listing 21/24, query 37/38, store 2/2, venue 8/10.
+Module-aggregate branch result: 155/174 = 89.0805%. Reproducibility re-confirmed (repeated
+                          runs on query/instrument byte-identical).
+Branch coverage result:   PASS — 89.0805% exceeds the 80% Tier 2 floor.
+```
+
+### I-13 and other applicable dimensions
+
+```text
+I-13 (state-transition integrity):  PASS — 7 property-based test functions +
+  3 FuzzIsValidTransitionNeverPanicsAndRespectsTerminal functions re-run fresh at this
+  boundary, all PASS, confirmed exercising the real fact.FoldStatus/ResolveLineageHead engine
+  against the real instrument/venue/listing.IsValidTransition functions — no shadow
+  re-implementation. Chapter 13 §13.6's Property-based test-category requirement satisfied
+  with real, currently-passing evidence.
+Correctness / invariant conformance:  PASS — 77 test functions pass, zero build/vet errors.
+Determinism / reproducibility:  PASS — repeat-query assertions re-confirmed; branch coverage
+  measurement itself independently reproducible.
+Bitemporal / no-look-ahead:  PASS — look-ahead-guard tests re-run fresh, all pass, including
+  the effective-time-axis test added during branch-coverage remediation.
+I-12 (Single Source of Truth):  PASS — query.Service reverse-scans the authoritative fact
+  log, unchanged.
+Numerical/reference-data correctness (within this module's own scope, I-9 Scope does not
+  include this module):  PASS (qualified) — decimal type, no float64 round-trip;
+  P3-MR-DECIMAL-MAJ-01's fail-closed fix confirmed present and regression-tested at this
+  boundary.
+Contract / schema compatibility:  N/A — no formally governed, published schema/contract
+  artifact exists yet for this module.
+Auditability / explainability (I-1):  N/A — I-1's Scope is "Toàn bộ Decision Pipeline," which
+  this module is not part of.
+Resilience / error behavior:  PASS (qualified) — explicit, typed errors; fail-closed fork
+  detection; the previously-found panic-reachable path (P3-MR-DECIMAL-MAJ-01) is now closed
+  and regression-tested. No Chaos Test performed or required — Tier 0-only.
+```
+
+### QG overall result
+
+```text
+PASS.
+
+Both required, independent coverage metrics exceed the Tier 2 floor (line 97.1%, branch
+  89.0805%). I-13 property-based evidence is present, passing, and exercises the real
+  authoritative implementation. All other applicable Chapter 13 dimensions PASS or are N/A
+  per their own declared Scope. Evidence is fully resolved, pinned, and reproducible — no
+  evidence-availability gap remains anywhere in this evaluation.
+
+Findings: No Blocker. No Major. Previously-disclosed, unchanged, non-blocking Minor
+  residuals: internal/envelope.EventRecordRef.IsZero untested (0.0% line coverage of a small
+  statement count); a handful of structurally-unreachable branch outcomes remain uncovered in
+  decimal/fact/instrument/listing/venue/query (store.Memory.Append never errors given its
+  concrete type; FoldMetadataPatches always returns non-nil via make(); ResolvePrecision's
+  deterministic double-check) — documented in the prior remediation transaction's own MANIFEST
+  record, unchanged at this boundary, not affecting the coverage floor.
+
+This PASS result satisfies Chapter 13's quality-gate eligibility evidence requirement for
+  Chapter 12 §12.2(5)'s use — it is NOT itself a Product Owner approval, NOT a module
+  approval, NOT a Data Layer approval, and NOT a LIVE authorization. Those remain separate,
+  untouched, Chapter 12 authorities.
+```
+
+**No scope expansion:** no implementation/test code changed by either the evaluation or this recording transaction (verified `git diff --quiet -- go/`). `module-registry.yaml` read-only. Tier unchanged. Dependency graph unchanged. ADR-032 not touched. Domain Contracts not touched. Chapter 13 not touched. Testing Convention not touched. `market-reference-service` NOT approved. Data Layer NOT approved. LIVE not authorized, not referenced.
+
+**Historical evidence preserved, not overwritten:** the prior formal QG evidence entries at earlier implementation boundaries — "Formal Quality Gate Evaluation (Chapter 13 — `FAIL — evidence`...)" (subject boundary `86107adb8ab01ce28b3984ee9ebfa15163ee5c62`) and "Fresh Formal Quality Gate Re-Evaluation (Chapter 13 — `FAIL — criteria`...)" (subject boundary `fd7bf5f2a75d2a0dee36eadd33a90fee332bb514`) — remain byte-for-byte unchanged above, exactly as Chapter 13 §13.9's "Historical immutability" requires: a fresh evaluation generates NEW evidence at the new boundary, it does not reinterpret or overwrite the old.
+
+**Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
 
 ## Decision Log
 

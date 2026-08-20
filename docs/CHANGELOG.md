@@ -2,6 +2,68 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — market-reference-service: formal Chapter 13 Quality Gate — PASS
+
+**Evidence/bookkeeping transaction only — vai trò: `market-reference-service QG PASS
+Evidence Recorder`.** Records an already-completed fresh formal Chapter 13 Quality Gate
+evaluation (performed by a separate prior transaction, role `Formal Quality Gate Executor`)
+as durable repository evidence. No tests rerun, no code changed by this recording
+transaction.
+
+### Baseline
+
+```text
+Evaluated/recorded HEAD: 6ef9fb2f3b135784eacd077d6ca9331c19fb809c (verified via git
+  rev-parse HEAD before this recording transaction; tree clean). Tier provenance verified:
+  module-registry.yaml blob 5586cdaeb890fa694a812526ba44751f4b0e1541, unchanged. Testing
+  Convention: testing.md v0.4 Approved, blob 00ad4f3f294514b9fc1423cffec22fca186e8b23,
+  unchanged.
+```
+
+### Result
+
+```text
+Tier 2 — Supporting. Line coverage 97.1% — PASS. Branch coverage (gobco -branch, pinned
+  v1.3.5-0.20240924205308-2d21b14addca, per-package raw sum, never averaged) 155/174 =
+  89.0805% — PASS. Validation: gofmt/go vet/go build CLEAN; go test 77 top-level functions,
+  ALL PASS, zero FAIL/SKIP. I-13 PASS (7 property tests + 3 fuzz functions, real
+  implementation). Correctness PASS. Determinism PASS. Bitemporal/no-look-ahead PASS. I-12
+  PASS. Numerical correctness PASS (qualified). Resilience PASS (qualified). Contract
+  compatibility N/A. Auditability N/A.
+
+QG overall: PASS. No Blocker. No Major. Previously-disclosed non-blocking Minor residuals
+  (envelope.IsZero untested; a handful of structurally-unreachable branch outcomes) remain
+  unchanged, not affecting the coverage floor.
+
+This PASS satisfies Chapter 13's quality-gate eligibility evidence for Chapter 12 §12.2(5) —
+  it is NOT a module approval, NOT a Data Layer approval, NOT a LIVE authorization. Those
+  remain separate, untouched, Chapter 12 authorities.
+```
+
+### Historical evidence preserved
+
+```text
+The prior FAIL — evidence (boundary 86107adb8ab01ce28b3984ee9ebfa15163ee5c62) and
+  FAIL — criteria (boundary fd7bf5f2a75d2a0dee36eadd33a90fee332bb514) formal QG entries in
+  docs/MANIFEST.md remain byte-for-byte unchanged — this is a NEW evidence entry at a NEW
+  boundary, not a reinterpretation or overwrite, per Chapter 13 §13.9's historical
+  immutability requirement.
+```
+
+### No scope expansion
+
+```text
+No implementation/test code changed. module-registry.yaml read-only. Tier unchanged. Chapter
+  13 not touched. Testing Convention not touched. ADR-032/Domain Contracts not touched.
+  market-reference-service NOT approved. Data Layer NOT approved. LIVE not authorized.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only — verified via git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — market-reference-service: branch-coverage remediation resumed, exceeds Tier-2 floor
 
 **Test-remediation transaction only — vai trò: `market-reference-service Branch-Coverage
