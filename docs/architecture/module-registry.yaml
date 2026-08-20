@@ -1,5 +1,67 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# CONSOLIDATED STABLE (package lifecycle, 2026-08-20T16:30+07:00 -- Product Owner decision
+# timestamp supplied at MINUTE precision only, NOT padded with a fabricated seconds field,
+# distinct from execution/commit time, vai trò: `Package 1.1 v1.3 Mechanical Reconsolidation
+# Recorder`) -- status: Draft, NOT Approved/Locked. Product Owner decision verbatim: "APPROVE
+# PACKAGE 1.1 V1.3 RECONSOLIDATION". Reviewed immutable semantic boundary:
+# e8cfe378a458de30fe062b0f200d8a4090daf985 (the v1.3 semantic-amendment commit itself --
+# market-data-ingestion.quality_tier Tier-2 pin -- same commit HEAD this transaction started
+# from, verified via git rev-parse HEAD before any edit). Parent semantic baseline:
+# b866bb8cf71a3df7b37b68badf227141c3082e90.
+#
+# Review evidence: bounded Review A (principal ChatGPT, role AI Technical Architect —
+# Review A, reviewed boundary e8cfe378a458de30fe062b0f200d8a4090daf985) Blocker 0/Major
+# 0/Minor 1 (`P11-V13-A-MIN-01` -- evidence-prose punctuation/typography fidelity issue in
+# how the PO tier decision was labeled "verbatim" elsewhere; does NOT affect tier value,
+# approval authority, approved_at, registry semantics, dependency graph, or reconsolidation
+# eligibility), READY_FOR_INDEPENDENT_REVIEW_B. Independent Review B (principal ChatGPT, role
+# AI Technical Architect, Mode B SAME_PRINCIPAL_DISTINCT_EXECUTION per ADR-031 §5, execution
+# reference `P11-V13-B-e8cfe378-20260820T1618+0700`, isolation attestation SATISFIED,
+# reviewed boundary e8cfe378a458de30fe062b0f200d8a4090daf985) Blocker 0/Major 0/Minor 1
+# (`P11-V13-A-MIN-01` CONFIRMED -- Minor/non-blocking, independently re-verified NOT to
+# require a separate remediation/re-review round before reconsolidation), final verdict
+# READY_FOR_PRODUCT_OWNER_RECONSOLIDATION -- Review B independently determined the registry
+# semantic delta is correct, the Tier-2 metadata is authoritative, the lifecycle reopening
+# (Consolidated Stable -> candidate at the prior amendment) was correct, and no Blocker/Major
+# exists. Independent-review requirement: SATISFIED.
+#
+# Mechanical lifecycle transaction -- `version: "1.3"` UNCHANGED (no content/architecture
+# change, pure lifecycle-state reconsolidation), `status: Draft` UNCHANGED,
+# `package_lifecycle: candidate -> Consolidated Stable`. **No semantic registry content
+# altered by this transaction** -- `market-data-ingestion.quality_tier` (tier "Tier 2 --
+# Supporting", approved_by "Product Owner", approved_at "2026-08-20T15:42+07:00") and
+# `market-reference-service.quality_tier` (tier "Tier 2 -- Supporting", approved_by "Product
+# Owner", approved_at "2026-08-19T19:27:00+07:00") both preserved byte-identical; every other
+# module_id/module_type/responsibilities/implements_capabilities/serves_contexts/
+# owns_authoritative_state/consumes/emits/depends_on/forbidden_dependencies/plugin_relation/
+# security_classification/phase/status/notes field, for all 26 modules, preserved
+# byte-identical; dependency graph preserved byte-equivalent (26 modules, 65 depends_on
+# edges, zero edge additions/removals, verified acyclic). Authority boundary unchanged:
+# market-reference-service remains sole authoritative owner of Instrument/Venue identity,
+# precision/tick/lot metadata, calendar/session; market-data-ingestion remains
+# query-consumer-only for those facts -- this reconsolidation grants NO new runtime
+# authority. **`P3-MDI-TIER-B-MIN-01` -- OPEN / non-blocking, carried forward, NOT silently
+# closed or erased by this transaction:** the earlier candidate's security-discussion prose
+# inaccurately narrows I-11's declared Scope to "Execution Engine, Exchange Adapter" --
+# Chapter 2's actual I-11 Scope is "toàn hệ thống, đặc biệt Execution Engine, Exchange
+# Adapter" (the ENTIRE system, especially those two). Does not change Tier 2, does not change
+# the current §13.12-D Security result, does not block this reconsolidation -- but must not
+# later be used to exclude `market-data-ingestion` from applicable §13.12-A/I-11 conformance.
+# NOT remediated by this mechanical transaction. **`P11-V13-A-MIN-01` -- Minor/non-blocking,
+# NOT claimed CLOSED** (no authorized prior review actually closed it; Review B confirmed it
+# non-blocking and not requiring a remediation round before reconsolidation, which is a
+# distinct disposition from CLOSED) -- carried forward as non-blocking evidence-fidelity
+# debt. This transaction does NOT: run or claim any Quality Gate result for
+# `market-data-ingestion` (Tier 2 coverage floor -- line >= 80% AND branch >= 80%
+# independently -- and all other applicable Chapter 13 dimensions, including §13.12-D data
+# quality/numerical precision and Security per I-11's actual Chapter 2 Scope, remain to be
+# formally evaluated in a separate future transaction); approve `market-data-ingestion` or
+# any other module/package (Chapter 12 phase-approval is a separate, untouched authority);
+# open Phase 3 Approval Gate; modify `go/**` or any other implementation code; modify
+# ADR-032; modify any Domain Contract; modify Chapter 13; authorize LIVE (unchanged,
+# NOT_AUTHORIZED).
+#
 # v1.3 semantic amendment (2026-08-20T15:42+07:00 -- Product Owner decision timestamp
 # supplied at MINUTE precision only, per the governed transaction request; NOT normalized/
 # padded with a fabricated ":00" seconds field -- written verbatim as
@@ -546,7 +608,7 @@ registry_id: phase-1-module-registry
 version: "1.3"
 status: Draft
 package: "1.1"
-package_lifecycle: candidate
+package_lifecycle: Consolidated Stable
 generated_at: "2026-08-10"
 
 modules:

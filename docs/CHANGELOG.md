@@ -2,6 +2,87 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — Package 1.1 v1.3: record Product Owner reconsolidation
+
+**Mechanical lifecycle transaction only — vai trò: `Package 1.1 v1.3 Mechanical
+Reconsolidation Recorder`.** Records the already-made Product Owner decision reconsolidating
+Package 1.1 module-registry.yaml v1.3 after the market-data-ingestion Tier-2 semantic
+amendment. No new architecture decision, no module semantic change, no Review A/B performed
+here, no Quality Gate run.
+
+### Baseline
+
+```text
+Starting HEAD: e8cfe378a458de30fe062b0f200d8a4090daf985 (verified via git rev-parse HEAD
+  before any edit; tree clean). Registry pre-edit: version "1.3", status Draft,
+  package_lifecycle candidate, blob 9a2b4e0141434eac8bf00314a42842dec03b81a8. 26 modules, 65
+  depends_on edges (both verified fresh). manifest_version pre-edit: "10.201" (verified,
+  matched expectation).
+```
+
+### Review evidence recorded
+
+```text
+Reviewed immutable semantic boundary: e8cfe378a458de30fe062b0f200d8a4090daf985 (parent
+  semantic baseline b866bb8cf71a3df7b37b68badf227141c3082e90).
+Bounded Review A: Blocker 0/Major 0/Minor 1 (P11-V13-A-MIN-01 — evidence-prose
+  punctuation/typography fidelity issue in how the PO tier decision was labeled "verbatim";
+  does not affect tier/authority/registry semantics/dependency graph/reconsolidation
+  eligibility). READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B: principal ChatGPT, Mode B (SAME_PRINCIPAL_DISTINCT_EXECUTION, ADR-031
+  §5), execution reference P11-V13-B-e8cfe378-20260820T1618+0700, isolation SATISFIED.
+  Blocker 0/Major 0/Minor 1 (P11-V13-A-MIN-01 CONFIRMED, non-blocking, no remediation round
+  required). READY_FOR_PRODUCT_OWNER_RECONSOLIDATION.
+```
+
+### Findings carried forward (neither closed nor erased)
+
+```text
+P11-V13-A-MIN-01: Minor/non-blocking, NOT claimed CLOSED (no authorized prior review
+  actually closed it) — carried as non-blocking evidence-fidelity debt.
+P3-MDI-TIER-B-MIN-01: still OPEN — not closed, not erased, not remediated by this mechanical
+  transaction (no Chapter 2/I-11 text or candidate prose touched here).
+```
+
+### Product Owner decision
+
+```text
+"APPROVE PACKAGE 1.1 V1.3 RECONSOLIDATION." Decision time: 2026-08-20T16:30+07:00 —
+  supplied at minute precision only, written verbatim, not padded with a fabricated seconds
+  field; distinct from and not substituted by this transaction's own execution/commit time.
+```
+
+### Registry amendment
+
+```text
+docs/architecture/module-registry.yaml: package_lifecycle: candidate -> Consolidated Stable
+  — the only field changed. version: "1.3" UNCHANGED (no bump — pure lifecycle transaction).
+  status: Draft UNCHANGED. generated_at preserved. Verified fresh: 26 modules (unchanged), 65
+  depends_on edges (unchanged), dependency graph acyclic,
+  market-data-ingestion.quality_tier and market-reference-service.quality_tier both
+  byte-identical/unchanged, every other module's semantic fields byte-identical/unchanged.
+```
+
+### Result
+
+```text
+Package 1.1 module-registry.yaml v1.3: Consolidated Stable. Distinct from and not conflated
+  with: market-data-ingestion's formal Chapter 13 Quality Gate (NOT YET EVALUATED, no PASS
+  claimed), market-data-ingestion module approval (NOT approved), Data Layer approval (NOT
+  approved), Phase 3 Approval Gate (NOT opened), LIVE authorization (NOT_AUTHORIZED,
+  unchanged). No implementation/test code changed. No dependency/taxonomy/authority change.
+  Authority boundary unchanged: market-reference-service remains sole authoritative owner of
+  Instrument/Venue identity/precision/calendar; market-data-ingestion remains
+  query-consumer-only.
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml, docs/MANIFEST.md, docs/CHANGELOG.md — verified via
+  git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — market-data-ingestion: pin Product Owner-approved Quality Tier 2
 
 **Mechanical registry-recording transaction only — vai trò: `market-data-ingestion Tier-2
