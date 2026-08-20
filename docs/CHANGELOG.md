@@ -2,6 +2,83 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — market-data-ingestion Quality Tier candidate: bounded correction (`P3-MDI-TIER-A-MAJ-01`, `P3-MDI-TIER-A-MIN-02`)
+
+**Bounded semantic correction only — vai trò: `market-data-ingestion Quality Tier Candidate
+Bounded Correction Executor`.** Closes exactly the two Review A findings against the
+market-data-ingestion Quality Tier candidate (boundary `7858b175365032aa0304158f819c801e4fb7d774`,
+Review A result `REVISION_REQUIRED`). Does not change the proposed tier, does not
+re-review, does not perform Independent Review B, does not approve.
+
+### Finding 1 — P3-MDI-TIER-A-MAJ-01 (Major)
+
+```text
+The candidate correctly kept I-9's own invariant-conformance Scope (§13.12-A) unwidened, but
+  did not separately address Chapter 13 §13.12-D, which resolves the Data quality/numerical-
+  precision quality DIMENSION from what the artifact actually handles, independent of I-9's
+  own declared Scope. market-data-ingestion owns authoritative Candle state, records
+  CandleObserved/Closed/Corrected facts, normalizes venue data, and processes authoritative
+  OHLCV values — §13.12-D's own trigger text is satisfied directly. Corrected: Data quality/
+  numerical precision is APPLICABLE under §13.12-D (a separate axis from §13.12-A/I-9, which
+  remains correctly unwidened). Lossless decimal handling is therefore relevant required
+  quality evidence for a future formal QG, not merely optional "I-9-spirit-consistent"
+  behavior. Tier impact: NONE — Tier 2 — Supporting unchanged; this corrects applicable QG
+  evidence obligations only.
+```
+
+### Finding 2 — P3-MDI-TIER-A-MIN-02 (Minor)
+
+```text
+The candidate's prose read as claiming no Decision-Pipeline module depends on
+  market-data-ingestion directly — factually incorrect: structure-engine.depends_on and
+  raw-regime-engine.depends_on both include market-data-ingestion, verified fresh in
+  module-registry.yaml (unchanged by this correction — only the candidate's own prose
+  describing an already-existing edge is corrected). Corrected: market-data-ingestion IS
+  directly upstream of Structure Engine and Raw Regime Engine, but direct dependency BY a
+  Decision-Pipeline engine != membership IN the Decision Pipeline — it does not itself
+  perform Structure/Regime/Feature/Strategy/Decision/Risk/Execution computation (candle.md
+  §16's ownership-boundary statement, already correctly cited, unchanged). Tier impact: NONE
+  — Tier 2 — Supporting unchanged; the dependency edges do not trigger Tier 1.
+```
+
+### Correction method
+
+```text
+Additive, per this repository's established convention (matching testing.md's own v0.1->v0.2
+  and the P3-MR-QG-A-MAJ-01 evidence correction): a correction banner + new "Bounded
+  Correction" subsection appended to the existing candidate section; the original reviewed
+  text (Review A's actual subject) is preserved byte-for-byte above, not rewritten. Section
+  title updated to reflect current review status.
+```
+
+### Preserved, not reopened
+
+```text
+Tier 0/1/3 rejected (Tier 1 rejection now reinforced, not weakened, by Finding 2's own
+  correction). Tier 2 proposed. I-2 does not trigger Tier 1 merely because candle.md cites
+  it. I-13 applicable. Security gate NOT APPLICABLE on the current implemented boundary
+  (future re-evaluation required once a real venue/credential boundary exists). ADR_NOT_
+  REQUIRED (independently re-verified for this correction itself). market-reference-service
+  remains sole authoritative owner for Instrument/Venue identity/precision/calendar;
+  market-data-ingestion remains consumer-only. Candidate remains CANDIDATE/UNAPPROVED.
+```
+
+### Result
+
+```text
+Finding status: P3-MDI-TIER-A-MAJ-01 and P3-MDI-TIER-A-MIN-02 both REMEDIATED_PENDING_
+  REREVIEW — NOT claimed CLOSED; closure requires independent bounded Review A re-review at
+  this new immutable boundary. module-registry.yaml NOT edited (verified byte-identical). No
+  implementation/test code changed. No dependency/taxonomy/authority change. No formal QG
+  run or claimed. No module/Data Layer approval. LIVE remains NOT_AUTHORIZED.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only — verified via git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — market-data-ingestion: Quality Tier Classification CANDIDATE (Tier 2 — Supporting, unapproved)
 
 **Candidate-authoring transaction only — vai trò: `market-data-ingestion Quality Tier

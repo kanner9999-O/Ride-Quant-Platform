@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.199"
+manifest_version: "10.200"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -3788,7 +3788,7 @@ This PASS result satisfies Chapter 13's quality-gate eligibility evidence requir
 
 **Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
 
-## Phase 3 — `market-data-ingestion` Quality Tier Classification (CANDIDATE — UNAPPROVED, pending Review A/Review B/Product Owner decision)
+## Phase 3 — `market-data-ingestion` Quality Tier Classification (CANDIDATE — UNAPPROVED; Review A returned `REVISION_REQUIRED`, both findings `REMEDIATED_PENDING_REREVIEW` — see "Bounded Correction" subsection below)
 
 **Baseline:** branch `main`, HEAD `bdad1c06c5e2fc5a11e69aa9012960cbea019502` (verified — matches required baseline, working tree clean before this transaction). **No implementation code touched by this transaction** — verified `git diff --quiet -- go/` after all edits. Governing authority verified directly, fresh (not copied from memory): Chapter 13 §§13.3/13.4/13.4.1/13.4.2/13.9/13.12 (full text re-read), Chapter 7 §7.0/§7.1/§7.4/§7.5, Chapter 2 I-2/I-3/I-4/I-6/I-7/I-9/I-10/I-11/I-12/I-13, `module-registry.yaml`'s current `market-data-ingestion` entry (re-verified directly: `module_type: runtime_service`, `owns_authoritative_state: true`, `depends_on: [market-reference-service]`, `security_classification: trust_boundary_candidate`, `status: candidate`, **zero `quality_tier:` field** — confirmed via direct grep, this is the first tier candidate ever authored for this specific module), `docs/domain/candle.md` (the Domain Contract governing this module's authoritative Candle subject), ADR-032 v0.2 (Data Layer boundary between `market-reference-service` and `market-data-ingestion`), Phase-3 execution rules (`P3-MODULE-BATCH-001` et al.).
 
@@ -4034,6 +4034,138 @@ Conclusion: ADR NOT REQUIRED. Per Chapter 13 §13.4 branch 1, the correct,
 ```
 
 **Explicit CANDIDATE / UNAPPROVED statement:** this classification is a **CANDIDATE only**. It is NOT approved. No Review A has been performed. No Review B has been performed. No Product Owner decision has been made. `module-registry.yaml` has **NOT** been edited — the `market-data-ingestion` entry's `quality_tier` field remains absent, exactly as it was before this transaction (verified `git diff --quiet -- docs/architecture/module-registry.yaml`). This transaction does not run, evaluate, or claim any Chapter 13 Quality Gate result for `market-data-ingestion` — it only prepares a tier-classification candidate for independent review.
+
+**Correction notice (`P3-MDI-TIER-A-MAJ-01`, `P3-MDI-TIER-A-MIN-02`):** Review A at this section's original boundary (`7858b175365032aa0304158f819c801e4fb7d774`) returned `REVISION_REQUIRED` with these two findings — the Tier-2 classification itself was **not** rejected. See the **"Bounded Correction — `P3-MDI-TIER-A-MAJ-01` / `P3-MDI-TIER-A-MIN-02`"** subsection below for the corrected semantics. The text above is preserved byte-for-byte as the historical record of what Review A actually reviewed — this is an additive correction, not a rewrite; the corrected subsection below supersedes, for current interpretation only, the I-9/§13.12 paragraph's silence on §13.12-D and the "rather than being depended upon by any Decision-Pipeline module directly" clause above.
+
+### Bounded Correction — `P3-MDI-TIER-A-MAJ-01` / `P3-MDI-TIER-A-MIN-02` (`REMEDIATED_PENDING_REREVIEW`)
+
+```text
+Review A boundary:        7858b175365032aa0304158f819c801e4fb7d774
+Review A result:           REVISION_REQUIRED (Tier-2 classification NOT rejected)
+Findings addressed:        P3-MDI-TIER-A-MAJ-01 (Major), P3-MDI-TIER-A-MIN-02 (Minor)
+
+--- Finding 1 — P3-MDI-TIER-A-MAJ-01 (Major) ---
+
+Problem: the original candidate correctly reasoned that I-9 invariant-conformance
+  (§13.12-A, which follows each invariant's own declared Scope) does not widen
+  merely because this module processes Candle data — I-9's own declared Scope
+  (Chapter 2) remains narrowly "Position Ledger, Execution Engine, Risk Gateway."
+  But the candidate incompletely handled Chapter 13 §13.12-D, which is a SEPARATE
+  applicability question from §13.12-A: §13.12-D resolves responsibility/boundary-
+  triggered quality-dimension applicability from what the artifact ACTUALLY
+  HANDLES, not from an invariant's own declared Scope.
+
+Corrected semantics (does NOT change tier; corrects applicable QG obligations
+  only):
+  §13.12-A / I-9 invariant-conformance scope: UNCHANGED, PRESERVED — I-9's own
+    declared Scope is not widened merely because this module processes Candle
+    data. This conclusion from the original candidate was correct and is not
+    reopened.
+  §13.12-D / Data quality — numerical precision: APPLICABLE. market-data-
+    ingestion (a) owns authoritative Candle state
+    (owns_authoritative_state: true, verified in module-registry.yaml,
+    unchanged); (b) records CandleObserved/CandleClosed/CandleCorrected facts
+    (candle.md §3-§5); (c) normalizes venue-specific market data into canonical
+    domain language (module-registry.yaml's own responsibilities field,
+    unchanged); (d) processes authoritative OHLCV financial values as part of
+    that recording/normalization. §13.12-D's own text ("Data quality / numerical
+    precision -> khi artifact xử lý authoritative hoặc financial data (I-9,
+    I-13)") is satisfied by (a)-(d) directly — this is a responsibility-boundary
+    trigger, independent of whether I-9's own narrower invariant-conformance
+    Scope (§13.12-A) separately includes this module (it does not, and that is
+    a different question, correctly answered above).
+  Consequence for evidence, NOT for tier: lossless decimal handling
+    (this module's existing `internal/decimal` usage for OHLCV, per its own
+    README — "Financial values (OHLCV) use internal/decimal... never round-
+    tripped through float64 at any step") is therefore RELEVANT REQUIRED
+    quality evidence once a formal Quality Gate evaluates this module — not
+    merely optional "I-9-spirit-consistent" behavior as the original candidate
+    text characterized it. A future formal Chapter 13 Quality Gate for
+    market-data-ingestion MUST evaluate the applicable data-quality/numerical-
+    precision dimension (§13.12-D) as part of its evidence set — this
+    transaction does not itself run or evaluate that gate.
+  Tier impact: NONE. Tier 2 — Supporting is UNCHANGED. §13.12-D's data-quality
+    trigger is a boundary-triggered quality DIMENSION (independent of tier,
+    exactly as §13.12-D/§13.4's own text separates tier-triggered gates (§13.12-
+    C: Chaos Test/Parity Test) from responsibility-triggered ones (§13.12-D) —
+    the same non-tier-elevating framing the original candidate already
+    correctly applied to I-12/I-13 above, now extended correctly to data
+    quality/numerical precision as well.
+
+--- Finding 2 — P3-MDI-TIER-A-MIN-02 (Minor) ---
+
+Problem: the original candidate's Tier-2-acceptance paragraph stated
+  market-data-ingestion is "depending on market-reference-service... rather
+  than being depended upon by any Decision-Pipeline module directly for
+  identity/precision/calendar authority" — as originally worded this reads (or
+  can be read) as a claim that no Decision-Pipeline module depends on
+  market-data-ingestion at all. That is factually incorrect at the current
+  registry boundary, verified fresh:
+    structure-engine.depends_on:    [market-data-ingestion]
+    raw-regime-engine.depends_on:   [market-data-ingestion]
+  (both verified directly via module-registry.yaml, unchanged by this
+  correction — no dependency edge is added, removed, or altered here, only the
+  candidate's own PROSE describing an already-existing edge is corrected).
+
+Corrected semantics (does NOT change tier; corrects a factual description
+  only):
+  market-data-ingestion IS directly upstream of Decision-Pipeline analytical
+    engines, including Structure Engine and Raw Regime Engine — both declare a
+    direct depends_on edge to market-data-ingestion in module-registry.yaml,
+    confirmed fresh at this correction's own baseline.
+  However: direct dependency BY a Decision-Pipeline engine != membership IN
+    the Decision Pipeline. Being a dependency target of Structure/Raw Regime
+    Engine means those engines consume this module's output (Candle events) —
+    it does not mean market-data-ingestion itself performs Structure, Regime,
+    Feature, Strategy, Decision, Risk, or Execution computation. It remains a
+    data-ingestion / authoritative-market-fact module; candle.md §16's own
+    "Không sở hữu... cơ chế invalidate/recompute cụ thể của Swing/Regime"
+    boundary statement (already correctly cited in the original candidate,
+    preserved unchanged) already establishes exactly this distinction — the
+    correction here is to the DEPENDENCY-DIRECTION description, not to the
+    computation-ownership conclusion, which was already correct and is not
+    reopened.
+  Tier impact: NONE. The direct dependency edges from structure-engine and
+    raw-regime-engine do NOT make market-data-ingestion Tier 1 — Tier 1's
+    defining trigger (I-2 Decision Parity / Parity Test at the Decision layer)
+    is about what a module DOES (produces a Decision), not about who consumes
+    its output. Tier 2 — Supporting is UNCHANGED.
+
+--- Preserved, not reopened (per this task's explicit instruction, no
+  contradicting evidence found) ---
+
+Tier 0 rejected — unchanged. Tier 1 rejected — unchanged (now reinforced, not
+  weakened, by Finding 2's own correction: direct dependency by Structure/Raw
+  Regime Engine explicitly does NOT trigger Tier 1). Tier 2 proposed —
+  unchanged. Tier 3 rejected — unchanged. I-2 does not turn this module into
+  Tier 1 merely because candle.md cites I-2 — unchanged. I-13 applicable —
+  unchanged. Security gate NOT APPLICABLE on the current implemented boundary,
+  future re-evaluation required when a real venue/network/auth/credential
+  boundary exists — unchanged. ADR_NOT_REQUIRED — unchanged (this correction
+  itself independently re-verified: no Platform Invariant/Event Schema/Module
+  Taxonomy/dependency-graph/Governance-process change, not hard-to-reverse, no
+  Locked ADR superseded — a bounded semantic correction to a CANDIDATE's own
+  prose is squarely within the same non-ADR disposition already established).
+  market-reference-service remains sole authoritative owner for Instrument/
+  Venue identity, precision/tick/lot, calendar/session — unchanged.
+  market-data-ingestion remains consumer-only for those authorities —
+  unchanged. Candidate remains CANDIDATE / UNAPPROVED — unchanged.
+
+Finding status: P3-MDI-TIER-A-MAJ-01: REMEDIATED_PENDING_REREVIEW.
+                P3-MDI-TIER-A-MIN-02: REMEDIATED_PENDING_REREVIEW.
+Neither finding is claimed CLOSED by this transaction — closure requires
+  independent bounded Review A re-review verifying both corrections at this
+  new immutable boundary. This transaction only authors the correction.
+
+Not touched by this correction: module-registry.yaml (no edit — verified
+  byte-identical via git hash-object before/after), go/** (no implementation/
+  test code touched), dependency graph (no edge added/removed/altered — only
+  the candidate's own prose describing an already-existing edge is corrected),
+  module taxonomy, ADR-032, Domain Contracts, Chapter 0/7/13, Phase 3 execution
+  rules, Testing Convention. No formal Quality Gate run or claimed. No module/
+  Data Layer approval. No Phase 3 Approval Gate opened. LIVE remains
+  NOT_AUTHORIZED.
+```
 
 **No scope expansion:** implementation code unchanged (verified `git diff --quiet -- go/`). `module-registry.yaml` unchanged (candidate only — not pinned; verified byte-identical via `git hash-object` before/after). Dependency graph unchanged. Module taxonomy unchanged (module_type/responsibilities/depends_on untouched). `market-reference-service`'s already-approved Tier 2 classification untouched. ADR-032 not touched. Domain Contracts not touched. Chapter 13/Chapter 7 not touched. Testing Convention not touched. Phase 3 execution rules not touched. Structure Engine/Raw Regime Engine not touched. `market-data-ingestion` NOT approved. Data Layer NOT approved. Phase 3 Approval Gate NOT opened. LIVE not authorized, not referenced.
 
