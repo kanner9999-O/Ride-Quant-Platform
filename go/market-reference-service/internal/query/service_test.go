@@ -282,3 +282,48 @@ func TestResolveIdentityLookAheadGuard(t *testing.T) {
 		t.Fatalf("got %+v on repeat query with identical cursor pair, want %+v (deterministic resolution)", repeat, afterRebrand)
 	}
 }
+
+// TestResolvePrecisionMalformedMetadataFailsClosedNoPanic is the
+// P3-MR-DECIMAL-MAJ-01 regression test at the PUBLIC query boundary:
+// malformed authoritative numeric metadata (a corrupted price_increment
+// patch) must never panic through ResolvePrecision, and must resolve to
+// ErrUnknownReference — the existing view.ViewState != fact.ViewValid
+// check in ResolvePrecision already routes there once listing.ResolveView
+// correctly reports the malformed field as PENDING_CORRECTION, requiring
+// no change to this package at all.
+func TestResolvePrecisionMalformedMetadataFailsClosedNoPanic(t *testing.T) {
+	ctx := context.Background()
+	f := setup(t)
+	instant := time.Date(2026, 8, 19, 10, 0, 0, 0, time.UTC)
+
+	// Effective BEFORE the query instant (so it is always eligible once
+	// visible) but RECORDED later — isolates the knowledge axis exactly
+	// like TestResolvePrecisionLookAheadGuard above.
+	patchEffectiveAt := instant.Add(-time.Hour)
+	patchRecordedAt := instant.Add(time.Hour)
+	if _, err := f.svc.Listings.Store.Append(ctx, buildListingMetadataDraft(f.listingScope, patchRecordedAt, patchEffectiveAt), listing.MetadataRevisedPayload{
+		ListingID:     f.listingScope.ListingID,
+		ChangedFields: map[string]string{"price_increment": "not-a-number"},
+	}); err != nil {
+		t.Fatalf("append malformed price_increment patch: %v", err)
+	}
+
+	// Knowledge cursor AFTER the malformed patch was recorded: it is now
+	// visible and effective — must not panic, must fail closed.
+	_, err := f.svc.ResolvePrecision(f.instrumentID, f.venueID, instant, patchRecordedAt.Add(time.Minute)) // must not panic
+	if err != ErrUnknownReference {
+		t.Fatalf("ResolvePrecision with malformed price_increment: got err=%v, want ErrUnknownReference", err)
+	}
+
+	// A query at a knowledge cursor BEFORE the malformed patch was recorded
+	// must still resolve the original, well-formed value — the malformed
+	// patch must not leak backward, exactly like any other correction
+	// (ADR-032 §B.3 look-ahead guard, unaffected by this fix).
+	before, err := f.svc.ResolvePrecision(f.instrumentID, f.venueID, instant, patchRecordedAt.Add(-time.Minute))
+	if err != nil {
+		t.Fatalf("ResolvePrecision before malformed patch was recorded: unexpected error %v", err)
+	}
+	if !before.PriceIncrement.Equal(decimal.MustFromString("0.01")) {
+		t.Fatalf("PriceIncrement before malformed patch = %s, want unchanged 0.01", before.PriceIncrement.String())
+	}
+}

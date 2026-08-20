@@ -301,6 +301,23 @@ func (r *Registry) ChangeStatus(ctx context.Context, eventID string, scope Scope
 
 func decimalFieldString(d decimal.Decimal) string { return d.String() }
 
+// parseOptionalDecimal parses fields[key] as a decimal when present.
+// Absence is a legitimate "not set" state (nil, nil error) — min_quantity/
+// min_notional are optional, clearable (instrument.md §11 whitelist).
+// Presence with unparseable content is a genuine malformed-metadata error,
+// never conflated with legitimate absence (P3-MR-DECIMAL-MAJ-01).
+func parseOptionalDecimal(fields map[string]string, key string) (*decimal.Decimal, error) {
+	s, ok := fields[key]
+	if !ok {
+		return nil, nil
+	}
+	v, err := decimal.NewFromString(s)
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
 // ResolveView implements instrument.md §15 Bước 1-3 (creation lineage
 // head, metadata patch fold, status fold) for one listing_id at the
 // supplied two-axis bitemporal cursor pair. Bước 4-7 (cross-subject
@@ -375,22 +392,32 @@ func (r *Registry) ResolveView(listingID string, effectiveCursor, knowledgeCurso
 	if out.Fields != nil {
 		view.VenueSymbol = out.Fields["venue_symbol"]
 		view.SessionCalendarRef = out.Fields["session_calendar_ref"]
-		if v, err := decimal.NewFromString(out.Fields["price_increment"]); err == nil {
-			view.PriceIncrement = v
+
+		priceIncrement, priceErr := decimal.NewFromString(out.Fields["price_increment"])
+		quantityIncrement, quantityErr := decimal.NewFromString(out.Fields["quantity_increment"])
+		minQuantity, minQuantityErr := parseOptionalDecimal(out.Fields, "min_quantity")
+		minNotional, minNotionalErr := parseOptionalDecimal(out.Fields, "min_notional")
+
+		// instrument.md §11 declares price_increment/quantity_increment/
+		// min_quantity/min_notional `type: decimal` — a resolved field value
+		// that fails to parse as one violates that declared type, it is not
+		// a domain state the two-value Current View model (§7: VALID/
+		// PENDING_CORRECTION only) can call VALID. Never silently return a
+		// broken/zero-valued field as if it were successfully resolved
+		// (error-handling.md §7's "no silent full-success" resolve order —
+		// PENDING_CORRECTION is the ALREADY-established representation for
+		// exactly this "not yet cleanly resolvable, a future same-subject
+		// correction can fix it" situation, instrument.md §19: metadata-
+		// patch facts are always same-subject -> AwaitingSameSubjectReplacement,
+		// the same class already used for status-fold conflicts, fact.Resolve).
+		if priceErr != nil || quantityErr != nil || minQuantityErr != nil || minNotionalErr != nil {
+			return View{ViewState: fact.ViewPendingCorrection, PendingClass: fact.AwaitingSameSubjectReplacement}
 		}
-		if v, err := decimal.NewFromString(out.Fields["quantity_increment"]); err == nil {
-			view.QuantityIncrement = v
-		}
-		if s, ok := out.Fields["min_quantity"]; ok {
-			if v, err := decimal.NewFromString(s); err == nil {
-				view.MinQuantity = &v
-			}
-		}
-		if s, ok := out.Fields["min_notional"]; ok {
-			if v, err := decimal.NewFromString(s); err == nil {
-				view.MinNotional = &v
-			}
-		}
+
+		view.PriceIncrement = priceIncrement
+		view.QuantityIncrement = quantityIncrement
+		view.MinQuantity = minQuantity
+		view.MinNotional = minNotional
 	}
 	return view
 }

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.195"
+manifest_version: "10.196"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -3340,6 +3340,166 @@ This is NOT a Product Owner rejection (Chapter 13 §13.1/§13.8). This is NOT an
 **No scope expansion:** no implementation code changed (verified `git diff --quiet -- go/`). `module-registry.yaml` read-only (verified `git diff --quiet`). Tier unchanged. Dependency graph unchanged. ADR-032 not touched. Domain Contracts not touched. Chapter 13 not touched. Testing Convention not touched. Structure Engine/Raw Regime Engine not touched. `market-reference-service` NOT approved. Data Layer NOT approved. LIVE not authorized, not referenced.
 
 **Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
+
+## market-reference-service Numeric Metadata Defect Fix (`P3-MR-DECIMAL-MAJ-01`)
+
+```text
+Baseline: branch main, HEAD 0b25283eab5b491096044b507292a085e83b129f (verified via git
+  rev-parse HEAD before any edit; git status --porcelain=v1 -uno clean).
+
+Defect identity: P3-MR-DECIMAL-MAJ-01 — discovered during the prior branch-coverage
+  remediation transaction while investigating "invalid precision/tick/lot/session inputs"
+  for internal/listing; that transaction stopped before writing a test that would have
+  triggered it and reported IMPLEMENTATION_DEFECT_DISCOVERED without modifying any code.
+
+Root cause (two contributing factors, both confirmed via direct source inspection and a
+  throwaway diagnostic reproduction, since removed — repo confirmed clean before this
+  transaction began):
+  1. internal/decimal/decimal.go: Decimal's methods (IsZero, Sign, String, and — via
+     rescale — Cmp/Add/Sub) dereferenced d.unscaled (*big.Int) without a nil check. The
+     Go zero value Decimal{} (unscaled == nil, distinct from the explicitly-constructed
+     Zero = Decimal{unscaled: big.NewInt(0)}) panicked with a nil pointer dereference on
+     every one of those methods — confirmed empirically before any fix was applied.
+  2. internal/listing/listing.go's ResolveView: when decimal.NewFromString failed for a
+     folded price_increment/quantity_increment/min_quantity/min_notional field value (e.g.
+     a metadata-revision patch supplying a malformed string), the corresponding View field
+     was silently left at that unsafe bare zero value instead of causing the view to fail
+     closed — the resolved View was still reported ViewState: ViewValid. query.Service.
+     ResolvePrecision propagates these fields directly into its public Precision return
+     value (service.go:213-218), so any caller invoking a Decimal method on the result
+     would panic — reachable via nothing more than an ordinary TradableListingMetadataRevised
+     append with malformed numeric content.
+
+Investigation performed (per task's required-investigation list, verified directly):
+  - internal/decimal/decimal.go — confirmed the nil-deref pattern precisely (see above).
+  - internal/listing/listing.go — confirmed ResolveView's exact field-population logic and
+    its silent-skip-on-parse-error behavior.
+  - internal/query/service.go — confirmed ResolvePrecision's existing
+    `view.ViewState != fact.ViewValid -> return Precision{}, ErrUnknownReference` guard
+    (line 210-211) already exists and would correctly reject a PENDING_CORRECTION view with
+    zero changes needed in this package, once ResolveView itself is fixed.
+  - internal/fact/resolve.go — confirmed ViewState has exactly two values (ViewValid,
+    ViewPendingCorrection, instrument.md §7) and PendingCorrectionClass already has
+    AwaitingSameSubjectReplacement, used elsewhere in this exact codebase (fact.Resolve's
+    own status.Conflict branch) for "same-subject, temporarily unresolvable, a future
+    correction can fix it" — precisely the situation malformed metadata content represents.
+  - docs/domain/instrument.md §11 — confirmed price_increment/quantity_increment/
+    min_quantity/min_notional are each declared `type: decimal` (required/optional per the
+    §12 revision whitelist) — a value that fails to parse as one violates the CONTRACT'S OWN
+    declared type; treating it as invalid is enforcing an existing constraint, not inventing
+    a new domain semantic.
+  - docs/engineering/error-handling.md §7 (v0.2 resolve order) — "(1) KHÔNG silent
+    full-success; (2) nếu Domain/Event/API contract hiện hành ĐÃ có representation/outcome
+    hợp lệ cho ĐÚNG tình huống đó... PHẢI dùng ĐÚNG representation đó" — confirms the
+    required resolution order: the existing PENDING_CORRECTION representation must be used
+    rather than inventing a new one, and the prior silent-success behavior directly violated
+    rule (1).
+  - Chapter 13 (correctness/resilience) — the prior formal QG's "Resilience: explicit,
+    typed errors... rather than panics" PASS(qualified) claim is corrected by this finding
+    (a real panic-reachable path existed, previously untested) — this transaction's fix
+    restores consistency with that claim; the formal QG itself is NOT rerun here.
+
+Conclusion: no new Domain Contract semantic, published API contract, or architecture
+  decision was required — the existing ViewValid/ViewPendingCorrection +
+  AwaitingSameSubjectReplacement model already covers this exact situation. ADR_OR_
+  CONTRACT_DECISION_REQUIRED does NOT apply.
+
+Fail-closed behavior selected and its authority:
+  ResolveView: if price_increment/quantity_increment (required) OR min_quantity/
+    min_notional (optional, when present) fail to parse as decimal, ResolveView now returns
+    View{ViewState: fact.ViewPendingCorrection, PendingClass: fact.AwaitingSameSubjectReplacement}
+    instead of a spuriously-VALID view carrying an unsafe field. Authority: instrument.md §7
+    (two-value view_state model) + §19 (metadata-patch facts are always same-subject ->
+    AwaitingSameSubjectReplacement) + error-handling.md §7 (no silent full-success; use an
+    existing representation before inventing one).
+  A new unexported helper, parseOptionalDecimal(fields, key), distinguishes legitimate
+    absence (key not present -> nil, nil error) from malformed presence (key present,
+    unparseable -> nil, error) — the two are never conflated, per this task's principle 2.
+  ResolvePrecision: UNCHANGED — its existing view.ViewState != fact.ViewValid check already
+    routes a PENDING_CORRECTION view to ErrUnknownReference correctly; no edit was needed or
+    made to internal/query/service.go.
+
+Decimal hardening (evaluated and performed, minimal/surgical, not a redesign): added a
+  private safeUnscaled() helper to internal/decimal/decimal.go that treats a nil unscaled
+  as big.NewInt(0); routed rescale/IsZero/Sign/String's direct dereferences through it.
+  rescale's existing fast-path (`if d.scale == scale return d unchanged`) was narrowed to
+  also require d.unscaled != nil, so the nil case still falls through to the safe
+  computation path. Decimal{} now behaves identically to Zero for every method (IsZero,
+  Sign, String, Cmp, Equal, Add, Sub, MarshalText) — verified via a new regression test.
+  This hardening does NOT excuse or substitute for the ResolveView fail-closed fix — malformed
+  metadata is still explicitly rejected into PENDING_CORRECTION, never silently coerced to a
+  valid-looking zero (task principle 2); the hardening only makes the TYPE's own zero value
+  safe as a general robustness property, independent of this specific defect's fix.
+
+Production files changed (2):
+  go/market-reference-service/internal/decimal/decimal.go — safeUnscaled() helper; rescale/
+    IsZero/Sign/String hardened.
+  go/market-reference-service/internal/listing/listing.go — ResolveView fail-closed fix;
+    parseOptionalDecimal() helper added.
+
+Test files changed (3):
+  go/market-reference-service/internal/decimal/decimal_test.go —
+    TestZeroValueDecimalIsSafeNumericZero (IsZero/Sign/String/Equal/Cmp/Add/Sub/MarshalText
+    on the bare zero value, all must not panic and must behave as numeric zero).
+  go/market-reference-service/internal/listing/listing_test.go —
+    TestResolveViewMalformedPriceIncrementFailsClosed,
+    TestResolveViewMalformedQuantityIncrementFailsClosed,
+    TestResolveViewMalformedMinQuantityFailsClosed,
+    TestResolveViewMalformedMinNotionalFailsClosed (each: malformed field -> no panic,
+    ViewPendingCorrection/AwaitingSameSubjectReplacement),
+    TestResolveViewValidOptionalFieldsUnaffected (well-formed min_quantity/min_notional
+    still resolve correctly; legitimate absence still nil, never confused with malformed
+    presence),
+    TestResolveViewMetadataRevisionAppliesToVenueSymbol (non-decimal metadata revision
+    unaffected by the fix),
+    TestResolveViewUnknownListingIDIsPendingCorrection (unrelated pending-correction path
+    unaffected, still fails closed, no panic).
+  go/market-reference-service/internal/query/service_test.go —
+    TestResolvePrecisionMalformedMetadataFailsClosedNoPanic (public-boundary regression: no
+    panic through ResolvePrecision; resolves to ErrUnknownReference once visible/effective;
+    a knowledge cursor before the malformed patch was recorded still resolves the original
+    well-formed value — ADR-032 look-ahead guard unaffected).
+
+Validation (fresh, this exact HEAD boundary):
+  gofmt -l .: empty output, CLEAN.
+  go vet ./...: exit 0, CLEAN.
+  go build ./...: exit 0, CLEAN.
+  go test ./...: all packages PASS, zero FAIL, zero SKIP (full suite, including all
+    pre-existing tests — no regression) — new regression tests re-run explicitly by name,
+    all PASS.
+
+Diagnostic-only coverage snapshot (NOT formal QG evidence, task explicitly permits
+  "diagnostic if useful"; formal QG is NOT rerun by this transaction):
+  Module-aggregate line coverage: 94.7% (informational; up from 92.3% as a side effect of
+    the new regression tests).
+  gobco -branch, touched packages only (informational, per-package raw N/M, NOT a
+    module-aggregate formal result): internal/decimal 32/36, internal/listing 21/24,
+    internal/query 29/38.
+
+Branch remediation status: EXPLICITLY PAUSED — this transaction did not continue generic
+  branch-coverage-padding work (prohibited); the diagnostic numbers above are an incidental
+  side effect of writing defect-regression tests, not a resumed remediation effort.
+
+Formal Quality Gate: NOT rerun. Historical result UNCHANGED: FAIL — criteria (branch
+  coverage 133/178 = 74.72% at implementation boundary fd7bf5f2a75d2a0dee36eadd33a90fee332bb514,
+  MANIFEST "Phase 3 — market-reference-service Fresh Formal Quality Gate Re-Evaluation"
+  section) — that evidence entry is NOT overwritten or reinterpreted by this transaction; a
+  fresh formal re-evaluation is a separate, future, explicitly-authorized transaction.
+
+Finding status: P3-MR-DECIMAL-MAJ-01: CLOSED_BY_PRODUCTION_FIX.
+
+No scope expansion: Testing Convention untouched. Pinned gobco mechanism/identity unchanged.
+  Tier unchanged. Chapter 13 untouched. module-registry.yaml untouched. Dependency graph
+  unchanged. ADR-032 untouched. Domain Contracts untouched (instrument.md consulted as
+  authority, not modified). No module/Data Layer approved. LIVE not authorized.
+
+Files changed: go/market-reference-service/internal/decimal/decimal.go,
+  go/market-reference-service/internal/decimal/decimal_test.go,
+  go/market-reference-service/internal/listing/listing.go,
+  go/market-reference-service/internal/listing/listing_test.go,
+  go/market-reference-service/internal/query/service_test.go, docs/MANIFEST.md,
+  docs/CHANGELOG.md — verified via git status --porcelain=v1 -uall, no other file touched.
+```
 
 ## Decision Log
 

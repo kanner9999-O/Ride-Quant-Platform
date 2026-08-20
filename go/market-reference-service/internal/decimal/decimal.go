@@ -23,6 +23,20 @@ type Decimal struct {
 // Zero is the additive identity.
 var Zero = Decimal{unscaled: big.NewInt(0), scale: 0}
 
+// safeUnscaled returns d's unscaled magnitude, treating the Go zero value
+// (Decimal{}, unscaled == nil — distinct from the explicitly-constructed
+// Zero above) as numeric zero instead of a nil pointer. Every method below
+// that touches d.unscaled goes through this so an unset Decimal is always
+// safely usable as zero, never a nil-dereference panic (P3-MR-DECIMAL-MAJ-01
+// — this does NOT excuse a caller from validating parsed input; it only
+// makes the type's own zero value well-defined, matching Zero's value).
+func (d Decimal) safeUnscaled() *big.Int {
+	if d.unscaled == nil {
+		return big.NewInt(0)
+	}
+	return d.unscaled
+}
+
 // NewFromString parses a decimal literal (e.g. "65432.10", "-0.001", "100")
 // directly from its digit string — no float conversion at any step.
 func NewFromString(s string) (Decimal, error) {
@@ -79,16 +93,16 @@ func isDigits(s string) bool {
 }
 
 func (d Decimal) rescale(scale int32) Decimal {
-	if d.scale == scale {
+	if d.scale == scale && d.unscaled != nil {
 		return d
 	}
 	diff := scale - d.scale
 	factor := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(absInt32(diff))), nil)
 	u := new(big.Int)
 	if diff > 0 {
-		u.Mul(d.unscaled, factor)
+		u.Mul(d.safeUnscaled(), factor)
 	} else {
-		u.Quo(d.unscaled, factor)
+		u.Quo(d.safeUnscaled(), factor)
 	}
 	return Decimal{unscaled: u, scale: scale}
 }
@@ -136,12 +150,12 @@ func (d Decimal) Equal(other Decimal) bool {
 
 // IsZero reports whether d represents the value zero.
 func (d Decimal) IsZero() bool {
-	return d.unscaled.Sign() == 0
+	return d.safeUnscaled().Sign() == 0
 }
 
 // Sign returns -1, 0, or 1 for negative, zero, or positive d.
 func (d Decimal) Sign() int {
-	return d.unscaled.Sign()
+	return d.safeUnscaled().Sign()
 }
 
 // String renders the canonical lossless decimal representation.
@@ -149,8 +163,8 @@ func (d Decimal) String() string {
 	if d.scale <= 0 {
 		return d.rescale(0).unscaled.String()
 	}
-	neg := d.unscaled.Sign() < 0
-	digits := new(big.Int).Abs(d.unscaled).String()
+	neg := d.safeUnscaled().Sign() < 0
+	digits := new(big.Int).Abs(d.safeUnscaled()).String()
 	for int32(len(digits)) <= d.scale {
 		digits = "0" + digits
 	}
