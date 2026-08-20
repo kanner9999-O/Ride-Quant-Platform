@@ -2,6 +2,75 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — Testing Convention v0.4: Product Owner approval (mechanical)
+
+**Mechanical lifecycle transaction only — vai trò: `Testing Convention v0.4 Mechanical
+Approval Recorder`.** Records the Product Owner approval decision for `docs/engineering/
+testing.md` v0.4. No semantic content changed; no tool installed; no Quality Gate rerun.
+
+### Baseline
+
+```text
+Starting HEAD: 2d4f7a7497873050b2da9defee0f91fa03d5613e (verified via git rev-parse HEAD
+  before any edit; git status --porcelain=v1 -uno clean; branch main).
+```
+
+### Decision
+
+```text
+Product Owner decision: "APPROVE TESTING CONVENTION V0.4."
+Decision time: 2026-08-20T09:22:00+07:00.
+Reviewed immutable boundary: HEAD 2d4f7a7497873050b2da9defee0f91fa03d5613e, testing.md blob
+  269ecaa0c6ee4780a81de0b8d18b9a98c2b136a7 -> resulting post-approval lifecycle blob
+  00ad4f3f294514b9fc1423cffec22fca186e8b23.
+Review A: COMPLETE/ELIGIBLE/CLEAN, closed P3-GOBC-A-MAJ-01, Blocker 0/Major 0/Minor 0,
+  ADR_NOT_REQUIRED confirmed.
+Independent Review B: COMPLETE/ELIGIBLE/CLEAN, Mode B (SAME_PRINCIPAL_DISTINCT_EXECUTION),
+  execution reference P3-GOBC-B-2d4f7a7-20260820T0904+0700, isolation attestation SATISFIED,
+  Blocker 0/Major 0/Minor 0, ADR_NOT_REQUIRED confirmed, READY_FOR_PRODUCT_OWNER_DECISION.
+Independent-review requirement: SATISFIED.
+```
+
+### Lifecycle transition
+
+```text
+docs/engineering/testing.md: status Draft -> Approved. version remains "0.4" (pure mechanical
+  approval, no bump). approved_by: null -> Product Owner. approved_at: null -> "2026-08-20".
+```
+
+### Preserved semantic content
+
+```text
+gobco remains the selected candidate mechanism; required invocation mode remains explicit
+  -branch; condition coverage and branch coverage remain distinct, non-substitutable metrics;
+  default gobco condition mode still cannot satisfy Chapter 13's branch floor; only verified
+  branch-mode evidence may satisfy the branch metric; future installation/pinning must still
+  verify exact tool version/content identity, exact command syntax, numerator/denominator
+  semantics, output format, exit semantics, and compatibility/reproducibility; SelectStmt
+  limitation remains disclosed; current market-reference-service applicability unchanged;
+  generics compatibility remains fail-closed/unresolved until installation-time verification;
+  Chapter 13 remains sole authority for coverage floors/QG semantics; ADR_NOT_REQUIRED
+  unchanged.
+```
+
+### No scope expansion
+
+```text
+No tool installed/pinned, no go.mod/go.sum/tool binary added, no CI workflow, no gobco
+  invocation semantics changed, Chapter 13 untouched, coverage floors untouched,
+  module-registry.yaml untouched, dependency graph untouched, no implementation/test code
+  changed, ADR-032 untouched, Domain Contracts untouched, Quality Gate NOT rerun, QG PASS NOT
+  claimed. market-reference-service's Chapter 13 QG remains FAIL — evidence. No module/Data
+  Layer approved. LIVE remains NOT_AUTHORIZED.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md, docs/engineering/testing.md — verified via
+  git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — Go branch-coverage candidate bounded correction (testing.md v0.4, `P3-GOBC-A-MAJ-01`)
 
 **Evidence-correction transaction only — vai trò: `Go Branch-Coverage Candidate Bounded
