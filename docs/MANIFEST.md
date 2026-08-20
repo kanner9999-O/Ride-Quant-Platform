@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.205"
+manifest_version: "10.206"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -4921,6 +4921,365 @@ The historical formal Chapter 13 Quality Gate result for market-data-ingestion a
 ```
 
 **Files changed:** `go/market-data-ingestion/internal/decimal/decimal.go`, `decimal_test.go`, `go/market-data-ingestion/internal/ingest/service.go`, `service_test.go`, plus `docs/MANIFEST.md`/`docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; no unrelated formatting sweep, no generated files, no temporary diagnostic remains (scratch file created and deleted within this transaction, confirmed via `git status`/`git diff`).
+
+## Phase 3 — `market-data-ingestion` Fresh Formal Chapter 13 Quality Gate Re-Evaluation (`PASS`, NOT an approval)
+
+**Fresh evaluation transaction — vai trò: `market-data-ingestion Fresh Formal Chapter 13 QG Re-Evaluator`.** Performs one fresh formal Chapter 13 Quality Gate evaluation at the post-remediation implementation boundary, re-measuring every dimension from scratch — no historical numbers carried forward. No provider-native session identifier fabricated; ADR-031 independence mode not applicable (this is a formal QG evaluation, not Independent Review B).
+
+**Baseline:** branch `main`, HEAD `596bdd4c74842cacb1506f7a16c2dd3a248fb6f5` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary). `manifest_version` confirmed `"10.205"` at start. Working tree clean before this transaction (only pre-existing untracked `.DS_Store` clutter present, unrelated). **No implementation/test code changed by this evaluation** — verified `git status --porcelain=v1 -uall -- go/` and `git diff --quiet -- go/` both before and after all measurement work. `module-registry.yaml` read-only, blob `2cdd36dabdbdc3b3360bfd293e678528d09c9bd3`, `version: "1.3"`, `status: Draft`, `package_lifecycle: Consolidated Stable`. `docs/engineering/testing.md` read-only, blob `00ad4f3f294514b9fc1423cffec22fca186e8b23`, `version: "0.4"`, `status: Approved`. `docs/domain/candle.md` read-only, blob `17c3f9412924de577558dd9bad41c769b45eba22`, `version: "0.4"`, `status: Draft`.
+
+```text
+Subject:                 go/market-data-ingestion/** at commit 596bdd4c74842cacb1506f7a16c2dd3a248fb6f5
+                          Tree identity: git rev-parse HEAD:go/market-data-ingestion =
+                          5654dfb96aefc8baf250834bf6b67165b2b5355b
+                          go.mod: module github.com/kanner9999-O/Ride-Quant-Platform/go/market-data-ingestion, go 1.25
+                          Go toolchain actually executed: go1.26.6 darwin/arm64
+Tier source:              module-registry.yaml v1.3 (Draft, package_lifecycle Consolidated
+                          Stable, blob 2cdd36dabdbdc3b3360bfd293e678528d09c9bd3) —
+                          market-data-ingestion.quality_tier: {tier: "Tier 2 — Supporting",
+                          approved_by: "Product Owner", approved_at: "2026-08-20T15:42+07:00"}
+                          (Chapter 13 §13.4 branch 1: runtime module -> module-registry.yaml).
+                          security_classification: trust_boundary_candidate (label only, not
+                          itself sufficient evidence — independently re-verified from code
+                          below).
+Resolved tier:            Tier 2 — Supporting
+Coverage floors:          line >= 80% AND branch >= 80%, independently (Chapter 13 §13.3)
+Additional tier-triggered requirements: NONE (no Tier-0 Chaos Test; no Tier-1 Parity Test
+                          merely because structure-engine/raw-regime-engine depend_on this
+                          module).
+Testing Convention:       docs/engineering/testing.md v0.4, Approved, blob
+                          00ad4f3f294514b9fc1423cffec22fca186e8b23 — approved mechanism:
+                          gobco, required measurement mode explicit -branch.
+```
+
+### Fresh baseline checks (clean tree, before any documentation edit)
+
+```text
+go version                 -> go1.26.6 darwin/arm64
+gofmt -l .                 -> empty (clean)
+go vet ./...                -> clean
+go build ./...              -> clean
+go test ./...                -> ALL PASS, every package (candle, decimal, envelope [no test
+                              files], gap, ingest, precedence, publish, reference); envelope
+                              and cmd/marketdataingestion report "[no test files]" — not a
+                              failure, consistent with their coverage-boundary exclusion below.
+```
+
+### Authoritative coverage boundary (resolved fresh, `go list ./...`)
+
+```text
+go list ./... resolves 9 packages: cmd/marketdataingestion, internal/candle, internal/decimal,
+  internal/envelope, internal/gap, internal/ingest, internal/precedence, internal/publish,
+  internal/reference.
+Re-inspected fresh (remediation changed internal/decimal and internal/ingest production
+  code) rather than blindly inheriting the prior boundary:
+cmd/marketdataingestion EXCLUDED: re-read in full — package doc comment still self-documents
+  "a demonstration wiring... it exists to show the pieces compose... it is not a deployable
+  service," unchanged by the remediation. Still demo/non-deployable wiring, not authoritative
+  production code.
+internal/envelope EXCLUDED: re-read in full — still contains only struct type definitions
+  (EventRecordRef, ContractRef, SubjectRef, EffectiveTime, SourceIdentity, StreamRef,
+  ProducerRef, Draft, Envelope), zero executable functions/methods, unchanged by the
+  remediation (this package was not touched). Coverage genuinely not applicable.
+Authoritative production-package boundary (unchanged from re-inspection, 7 packages):
+  internal/candle, internal/decimal, internal/gap, internal/ingest, internal/precedence,
+  internal/publish, internal/reference.
+```
+
+### Line coverage — fresh, this exact boundary
+
+```text
+Command: go test -coverprofile=<tmp>.out ./internal/candle/... ./internal/decimal/...
+  ./internal/gap/... ./internal/ingest/... ./internal/precedence/... ./internal/publish/...
+  ./internal/reference/... ; go tool cover -func=<tmp>.out
+Per-package (informational): candle 96.6%, decimal 94.9%, gap 100.0%, ingest 87.7%,
+  precedence 100.0%, publish 100.0%, reference 91.7% (of statements, per `go test -cover`).
+Module-aggregate (authoritative, go tool cover -func total line, statement-weighted — not an
+  average of package percentages): 93.6%.
+Tier-2 floor: >= 80%.
+Result: PASS (93.6% >= 80%, exceeds floor with margin; higher than the prior boundary's 92.8%
+  — remediation added tested code without degrading aggregate line coverage).
+```
+
+### Branch coverage — fresh, pinned governed `gobco -branch` mechanism
+
+```text
+Tool identity reproduced fresh (was not present in this session's environment/GOPATH; genuine
+  attempted reproduction, not an assumption): go install
+  github.com/rillig/gobco@v1.3.5-0.20240924205308-2d21b14addca. Verified via `go version -m`
+  on the resulting binary: mod github.com/rillig/gobco v1.3.5-0.20240924205308-2d21b14addca
+  h1:3brQV6wohXU5fg5vXgu76yyiaZYNJxwjh2mkXGMxCoI= — pseudo-version AND content checksum both
+  match the governed pin exactly. Built with go1.26.6 darwin/arm64. `gobco -help` confirms
+  `-branch` flag exists ("cover branches, not conditions"), matching the governed required
+  explicit mode. Re-confirmed (again, this exact binary): multi-package invocation panics
+  ("checking multiple packages doesn't work yet") — per-package invocation + raw-sum
+  aggregation is the correct, still-necessary methodology.
+Per-package (gobco -branch <pkg>, exact "Branch coverage: N/M" output, re-run twice for
+  internal/decimal and internal/ingest to confirm reproducibility — identical both times):
+  candle       17/18
+  decimal      32/36   (remediation added new branches: safeUnscaled nil-check paths,
+                         IsInitialized, rescale's tightened fast-path condition)
+  gap           6/6
+  ingest       26/34   (remediation added new branches: validateOHLCV's per-field loop/
+                         return, both call sites' new first-statement error checks)
+  precedence   12/12
+  publish       0/0    (no branching constructs in this package — 0/0 contributes zero to
+                         both numerator and denominator, not an invented 100%)
+  reference     9/10
+Aggregate (raw sum, never averaged): 17+32+6+26+12+0+9 = 102 covered;
+  18+36+6+34+12+0+10 = 116 total. 102/116 = 87.93%.
+Tier-2 floor: >= 80%.
+Result: PASS (87.93% >= 80%, exceeds floor with margin; higher than the prior boundary's
+  86.11% — remediation's new branches were themselves well-covered by the new regression
+  tests, not merely added without exercise).
+```
+
+### Test-effectiveness evidence
+
+```text
+59 top-level test functions (up from 52 at the prior boundary), 165 t.Fatalf/t.Errorf
+  assertion statements (up from 136) across the 7-package boundary. Spot-checked the 6 newly
+  added remediation test functions directly (not just counted): each asserts specific,
+  substantive semantics — errors.Is(err, ErrInvalidOHLCV) (not just err != nil), exact
+  published-record counts (0 or 1, never "don't care"), exact Outcome values
+  (OutcomeEmitFirstClosed), exact lastFact-map entry counts, and exact EventType on the one
+  surviving record in the existing-fact case (proving it's the untouched seed, not a
+  corruption). Execution-only assertions (no meaningful check) not found in the sample
+  inspected. PASS — substantive, not gamed.
+```
+
+### `P3-MDI-DECIMAL-MAJ-01` remediation — independently re-verified fresh (not cited from the fix transaction)
+
+```text
+Decimal zero-value behavior: TestZeroValueDecimalIsSafeNumericZero re-run fresh, PASS — bare
+  `var d Decimal` (unscaled == nil) confirmed safe for IsZero/Sign/String/Equal/Cmp/Add/Sub/
+  MarshalText, no panic, behaves as numeric zero throughout.
+Presence distinction: TestIsInitializedDistinguishesZeroValueFromParsedZero re-run fresh,
+  PASS — Decimal{}.IsInitialized() == false; MustFromString("0")/("0.0")/("12.5")/
+  Zero.IsInitialized() == true. Source-read confirmed IsInitialized() returns d.unscaled !=
+  nil only — no exposure/mutation path to the underlying *big.Int.
+No silent coercion, required-OHLCV fail-closed validation (both entry points, all 5 fields):
+  TestObserveProvisionalRejectsUninitializedRequiredFields and
+  TestIngestClosedFactRejectsUninitializedRequiredFieldsFirstFact re-run fresh, PASS for
+  open/high/low/close/volume independently — each returns/wraps ErrInvalidOHLCV, publishes
+  zero events, no panic; first-fact case additionally confirms zero lastFact entries created
+  (source-read confirmed: validateOHLCV runs before resolveScope/precedence.Resolve/Publish/
+  any lastFact access in both ObserveProvisional and IngestClosedFact).
+Existing-fact / core QG-panic-path regression:
+  TestIngestClosedFactRejectsUninitializedRequiredFieldsExistingFact re-run fresh, PASS for
+  all 5 fields — seeds a real accepted first-close fact, then sends a second fact for the SAME
+  subject with one field unset; confirms ErrInvalidOHLCV returned, exactly 1 published record
+  total (the untouched seed, EventType re-asserted == CandleClosed, no CandleCorrected/any
+  additional event), i.e. malformed input never reaches payloadEqual — the exact historical
+  panic path is now provably unreachable with malformed input, not merely asserted.
+Legitimate parsed zero: TestObserveProvisionalAcceptsLegitimateZeroValue and
+  TestIngestClosedFactAcceptsLegitimateZeroValue re-run fresh, PASS — a zero-volume bar
+  (decimal.MustFromString("0")) is accepted and published normally on both paths; no new
+  business rule rejecting numeric zero itself was found or introduced.
+Publisher/state-mutation: confirmed via the above — publisher record counts and lastFact
+  state are exactly as expected in every malformed-input case (0 records / 0 entries for
+  first-fact; unchanged 1 record for existing-fact), never silently mutated.
+```
+
+### §13.12-D Data quality / numerical precision — fresh result
+
+```text
+Applicable independently of I-9's narrower Scope (market-data-ingestion owns authoritative
+  Candle state, processes financial OHLCV) — re-confirmed as its own trigger, not inherited
+  from I-9.
+Full financial-value path inspected fresh: zero float32/float64 usage anywhere in production
+  code (grep -rn "float32\|float64" --include="*.go" ., excluding _test.go — only doc-comment
+  prohibition text matches, in decimal.go's own comments). Required OHLCV cannot be left
+  uninitialized and become authoritative (validateOHLCV, both entry points, re-verified
+  above). Legitimate parsed zero remains distinct from missing/uninitialized (IsInitialized,
+  re-verified above). Decimal comparison/arithmetic/rendering panic-safe (re-verified above).
+  Decimal equality across trailing-zero scales correct: TestCmpAndEqual re-run fresh, PASS
+  (1.50 == 1.5). Large/small values lossless and MarshalText/UnmarshalText lossless:
+  TestMarshalUnmarshalText re-run fresh, PASS. Invalid literals still fail explicitly:
+  TestNewFromString's error-case table re-run fresh, PASS (empty/trailing-dot/non-digit all
+  correctly error). Ingestion does not invent tick/lot metadata authority: confirmed
+  market-data-ingestion still queries reference.Provider only, never computes/asserts its own
+  tick/lot/precision values (unchanged by this remediation).
+Result: PASS. The prior boundary's sole failure driver (payloadEqual nil-pointer panic) is
+  now empirically confirmed fixed and regression-tested; no other numerical-precision gap
+  found in this fresh, independent inspection.
+```
+
+### Resilience / fault tolerance — fresh result
+
+```text
+No longer panics on incomplete required OHLCV: re-confirmed via the existing-fact regression
+  test succeeding without panic for all 5 fields (the exact historical panic scenario).
+Fails explicitly before authoritative side effects: validateOHLCV is the first statement in
+  both ObserveProvisional and IngestClosedFact, source-read-confirmed to run before
+  resolveScope, precedence.Resolve, Publisher.Publish, and any lastFact access.
+Preserves already-accepted state and publisher state: confirmed via record-count/lastFact
+  assertions above (unchanged on malformed input).
+Preserves normal behavior for well-formed facts: entire pre-existing precedence and ingest
+  test suite re-run fresh, all PASS, unchanged outcomes for
+  TestIngestClosedFactFirstCloseThenDuplicateThenCorrection,
+  TestIngestClosedFactUnresolvedIdentityFailsClosedAndPublishesNothing,
+  TestIngestClosedFactProvenanceIntegrityViolation, and the full internal/precedence suite
+  (TestResolveFirstCloseForSubject, TestResolveStep3DuplicateIdenticalPayload,
+  TestResolveStep3ProvenanceIntegrityViolation, TestResolveStep4EmitsCorrected,
+  TestResolveStep4NeverProducesSecondClosed, TestResolveStep5DeclaredEquivalenceIsDuplicate,
+  TestResolveStep5UndeclaredEquivalenceFailsClosed, TestIdentityEqualAndZero).
+Other applicable failure paths inspected, not only the repaired one:
+  TestIngestClosedFactUnresolvedIdentityFailsClosedAndPublishesNothing (unresolved identity)
+  and TestIngestClosedFactProvenanceIntegrityViolation (conflicting payload, same identity)
+  both still fail closed via precedence.OutcomeFailClosed, publish nothing — unaffected by
+  and independent of this remediation's validateOHLCV addition (both occur after the
+  now-passing validation gate).
+Result: PASS.
+```
+
+### I-13 — State Transition Integrity, fresh
+
+```text
+Re-inspected docs/domain/candle.md §1's state_machine (UNSEEN/PROVISIONAL/CLOSED,
+  terminal_states: []) directly. internal/candle/candle_test.go's TestCanTransition re-run
+  fresh, PASS — exhaustive 3x3 matrix over all (from, to) state pairs, confirming exactly the
+  6 valid transitions (UNSEEN->PROVISIONAL, UNSEEN->CLOSED, PROVISIONAL->PROVISIONAL,
+  PROVISIONAL->CLOSED, CLOSED->CLOSED correction-self-transition) and rejecting all others.
+  TestCanTransitionRejectsClosedToProvisional re-run fresh, PASS (terminal_states: [] does not
+  mean CLOSED can regress). candle.md §11's full 5-step precedence/duplicate/correction suite
+  (internal/precedence) re-run fresh, all PASS, unchanged by this remediation (precedence.go
+  was not modified in production).
+Result: PASS.
+```
+
+### I-9 — Numerical Precision (distinct from §13.12-D above)
+
+```text
+Chapter 2 §I-9's own declared Scope re-read fresh: "Position Ledger, Execution Engine, Risk
+  Gateway" — does not name market-data-ingestion, and is not widened merely because
+  §13.12-D's independent Data-quality trigger applies (Chapter 13 §13.5 — a gate evaluation
+  must not widen an invariant's own declared Scope).
+Result: N/A (outside declared Scope), kept explicitly distinct from the §13.12-D PASS above.
+```
+
+### I-11 — Secrets & Custody Isolation (system-wide Scope, resolved from Chapter 2's actual text)
+
+```text
+Chapter 2 §I-11's actual Scope re-read fresh: "Toàn hệ thống, đặc biệt Execution Engine,
+  Exchange Adapter" — system-wide, includes market-data-ingestion in principle (the stale
+  P3-MDI-TIER-B-MIN-01 candidate shorthand was NOT used to narrow this, per this task's
+  explicit instruction).
+Fresh grep across all non-test .go files for secrets/credentials/network/auth/custody
+  patterns (api[_-]?key|secret|password|private[_-]?key|token|credential|net/http|net\.Dial|
+  tls\.|oauth, case-insensitive): zero matches.
+Result: PASS (vacuous conformance, disclosed — zero credential/network code exists in this
+  implementation to violate the invariant).
+```
+
+### §13.12-D Security (resolved independently from actual implementation, not from registry labels)
+
+```text
+module-registry.yaml's security_classification: trust_boundary_candidate label re-confirmed
+  present but, per this task's explicit instruction, treated as insufficient by itself.
+  Independently inspected the actual implementation: zero real network/venue ingress, zero
+  auth/authorization code, zero credentials, zero isolation/custody/signing boundary anywhere
+  in go/market-data-ingestion/** (same grep as I-11 above, zero matches; cmd/marketdataingestion
+  confirmed demo-only, no real transport).
+Result: N/A, with evidence. Exact future trigger requiring re-evaluation: once a real venue
+  adapter with actual network/credential/authentication code is built (out of scope for this
+  and the prior transactions — this module accepts already-normalized RawFact values), this
+  dimension MUST be re-resolved from that new implementation boundary, not assumed N/A.
+```
+
+### ADR-032 authority boundary / market-reference-service dependency
+
+```text
+Re-read internal/reference/reference.go's package doc and Provider interface fresh:
+  ResolveIdentity and WindowFor both still take (effectiveInstant, knowledgeCursor time.Time)
+  as two separate mandatory parameters (ADR-032 v0.2 §B.3 two-axis contract), unchanged by
+  this remediation (internal/reference was not touched). internal/ingest/service.go's
+  resolveScope confirmed still passing raw.Instant (effective) and raw.RecordedTime
+  (knowledge) correctly to both calls. market-data-ingestion still depends only on this
+  interface, never imports market-reference-service's package directly. Authority unchanged:
+  market-reference-service sole owner of Instrument/Venue identity/precision/tick/lot/
+  calendar/session; market-data-ingestion query-consumer-only.
+Result: PASS.
+```
+
+### No-look-ahead / bitemporal semantics
+
+```text
+Re-run fresh: TestFakeWindowForLookAheadGuard, TestFakeResolveIdentityLookAheadGuard
+  (internal/reference), TestIngestionReferenceResolutionIsDeterministicAndBitemporallyCorrect,
+  TestIngestionCannotSeeFutureIdentityCorrections (internal/ingest) — ALL PASS, unchanged by
+  this remediation (internal/reference not touched; ingest's bitemporal call sites unchanged).
+Result: PASS.
+```
+
+### Other applicable Chapter 13 §13.12 dimensions
+
+```text
+Correctness / applicable invariant conformance: PASS — all applicable dimensions (I-13,
+  §13.12-D Data quality, Resilience, ADR-032, bitemporal, I-12, I-11) now PASS; no FAIL
+  remains at this boundary, unlike the prior evaluation.
+Determinism / reproducibility: PASS — TestSubjectIDStableAcrossTimezone and the bitemporal
+  determinism tests re-confirmed fresh; gobco -branch per-package results independently
+  re-run twice for the two remediated packages, identical both times.
+I-12 (Single Source of Truth): PASS — internal/ingest.Service's `lastFact` map still
+  self-documented (service.go comments) as a local read cache, not a competing source of
+  truth — unchanged by this remediation.
+Performance: N/A — no authoritative performance budget exists anywhere for
+  market-data-ingestion (re-verified: no match in docs/architecture/ or docs/domain/ for
+  performance/budget/latency/throughput text referencing this module).
+Observability / operational readiness: N/A — this module is still not on a production/
+  operational path (no real venue adapter, no real event-log/broker wiring, demo-only
+  cmd/marketdataingestion excluded from the coverage boundary above; LIVE not authorized) —
+  re-confirmed, not merely inherited.
+Contract / schema compatibility (Chapter 10 §10.3): N/A — candle.md remains `status: Draft`
+  (re-verified fresh, version "0.4", blob 17c3f9412924de577558dd9bad41c769b45eba22), not a
+  formally governed PUBLISHED schema/contract artifact.
+Migration / rollback: N/A — market-data-ingestion is not a migration artifact.
+Explainability / auditability (I-1): N/A — I-1's own declared Scope is "Toàn bộ Decision
+  Pipeline," which this module (Data Layer, upstream of the Decision Pipeline) is not part of.
+```
+
+### QG overall result
+
+```text
+PASS.
+
+Tier uniquely resolved: Tier 2 — Supporting. Line coverage 93.6% >= 80%. Branch coverage
+  (pinned gobco -branch, genuinely reproduced and re-verified this transaction, per-package
+  raw sum) 102/116 = 87.93% >= 80%. Applicable invariant conformance PASS (I-13, ADR-032,
+  bitemporal, I-12, I-11). §13.12-D Data quality/numerical precision PASS. Resilience PASS.
+  Every other applicable Chapter 13 dimension PASS or correctly N/A with stated trigger
+  reasoning (I-9, §13.12-D Security, Performance, Observability, Contract/schema, Migration,
+  Explainability). All required evidence resolved and pinned — no missing-evidence gap.
+
+This is a formal Chapter 13 Quality Gate PASS — eligibility evidence only. It does NOT
+  approve market-data-ingestion, does NOT approve Data Layer, does NOT open the Phase 3
+  Approval Gate, and does NOT authorize LIVE. No implementation/test code changed by this
+  evaluation transaction (verified before and after).
+```
+
+### Finding-state summary
+
+```text
+P3-MDI-DECIMAL-MAJ-01: CLOSED_BY_PRODUCTION_FIX (unchanged by this transaction — the fix
+  itself was recorded in the prior transaction; this QG independently re-verified its
+  behavior fresh, as required, and did not merely cite the fix commit message).
+P11-V13-A-MIN-01: CLOSED (unchanged, durable).
+P11-V13-REC-MIN-01: CLOSED (unchanged, durable).
+P3-MDI-TIER-B-MIN-01: OPEN — non-blocking, unchanged — NOT closed by this QG; its stale
+  candidate wording was NOT used to control the I-11 evaluation above (Chapter 2's actual
+  Scope text was used directly, same disposition as the prior evaluation).
+The historical formal QG result at boundary 6c9fac9a775b63ad36abd9ae0550d36eee777fec REMAINS
+  FAIL — criteria — NOT overwritten, NOT reinterpreted, permanently immutable evidence for its
+  own boundary. This fresh PASS is a separate, independent result for a separate, later
+  implementation boundary.
+```
+
+**No scope expansion:** no implementation/test code changed (verified `git diff --quiet -- go/`, before and after all measurement work, including gobco tool reproduction which touched only `/private/tmp/**` scratch paths and the local Go module cache, never this repository). `module-registry.yaml`, `docs/domain/candle.md`, `docs/adr/**`, `docs/constitution/**`, `docs/engineering/testing.md`, `docs/engineering/error-handling.md` all read-only (verified `git diff --quiet`). Tier unchanged. Dependency graph unchanged. Authority boundary unchanged. `market-data-ingestion` NOT approved. Data Layer NOT approved. Phase 3 Approval Gate NOT opened. LIVE not authorized, not referenced.
+
+**Evaluator:** this transaction, principal Claude (Claude Code CLI session), role `market-data-ingestion Fresh Formal Chapter 13 QG Re-Evaluator`. No independent-review execution reference — this is a formal Quality Gate evaluation, not Independent Review B; ADR-031 independence mode not invoked.
+
+**Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
 
 ## Decision Log
 

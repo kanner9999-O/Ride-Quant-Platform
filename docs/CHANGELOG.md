@@ -2,6 +2,140 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — market-data-ingestion: fresh formal Chapter 13 QG PASS (post-remediation)
+
+**Evidence/evaluation transaction only — vai trò: `market-data-ingestion Fresh Formal Chapter
+13 QG Re-Evaluator`.** Performs one fresh formal Chapter 13 Quality Gate evaluation at the
+post-remediation implementation boundary — no historical numbers carried forward. Does not
+approve the module. Does not authorize LIVE.
+
+### Baseline
+
+```text
+Boundary: 596bdd4c74842cacb1506f7a16c2dd3a248fb6f5 (verified via git rev-parse HEAD before
+  any edit; tree clean; manifest_version confirmed "10.205" at start). Tier:
+  module-registry.yaml v1.3, blob 2cdd36dabdbdc3b3360bfd293e678528d09c9bd3,
+  market-data-ingestion.quality_tier = Tier 2 — Supporting (unchanged, read-only). Testing
+  Convention: v0.4 Approved, blob 00ad4f3f294514b9fc1423cffec22fca186e8b23 (unchanged,
+  read-only).
+```
+
+### Coverage boundary and results
+
+```text
+Same 7 authoritative production packages, re-inspected fresh (remediation touched
+  internal/decimal and internal/ingest) — cmd/marketdataingestion still self-documented
+  demo/non-deployable; internal/envelope still zero executable functions.
+Line coverage: module-aggregate 93.6% (go tool cover -func total, statement-weighted) —
+  PASS (>=80%). Up from 92.8% at the prior boundary.
+Branch coverage (pinned gobco -branch, v1.3.5-0.20240924205308-2d21b14addca — reproduced
+  fresh this transaction via `go install`, identity verified via `go version -m`: pseudo-
+  version AND content checksum h1:3brQV6wohXU5fg5vXgu76yyiaZYNJxwjh2mkXGMxCoI= both match the
+  governed pin exactly; multi-package invocation re-confirmed to panic, per-package + raw-sum
+  aggregation used): candle 17/18, decimal 32/36, gap 6/6, ingest 26/34, precedence 12/12,
+  publish 0/0, reference 9/10 -> 102/116 = 87.93% — PASS (>=80%). Up from 86.11% — the
+  remediation's new branches (safeUnscaled/IsInitialized/validateOHLCV) are themselves
+  well-covered by the new regression tests. Reproducibility confirmed via repeated runs on
+  the two remediated packages.
+Test-effectiveness: 165 assertion statements across 59 top-level test functions (up from 136
+  across 52) — spot-checked the 6 new remediation tests directly, all substantive — PASS.
+```
+
+### `P3-MDI-DECIMAL-MAJ-01` remediation — independently re-verified fresh
+
+```text
+Not cited from the fix commit message — re-ran the regression suite directly this
+  transaction. Decimal zero-value safety (IsZero/Sign/String/Cmp/Equal/Add/Sub/MarshalText)
+  PASS. IsInitialized presence-distinction (uninitialized vs. legitimately parsed zero) PASS.
+  Required-OHLCV fail-closed validation on both ObserveProvisional and IngestClosedFact, all
+  5 fields, both first-fact and existing-fact cases — PASS, including the core regression
+  proving the exact historical payloadEqual panic path is now provably unreachable with
+  malformed input (seeded fact + malformed second fact for the same subject -> ErrInvalidOHLCV,
+  1 record total, unchanged EventType, no panic). Legitimate parsed zero (e.g. zero-volume
+  bar) still accepted on both paths — no new business rule against numeric zero itself.
+```
+
+### I-13, ADR-032, bitemporal, I-12, I-11 — all PASS, re-verified fresh
+
+```text
+I-13: candle.md §1's state_machine 9-case transition matrix plus candle.md §11's full
+  precedence suite, re-run fresh — PASS.
+ADR-032: Provider interface's two-axis contract re-verified correctly implemented/called —
+  PASS.
+Bitemporal/no-look-ahead: look-ahead-guard tests re-run fresh — PASS.
+I-12: lastFact still a disclosed local read cache, not a competing source of truth — PASS.
+I-11 (Chapter 2's actual system-wide Scope, not the stale P3-MDI-TIER-B-MIN-01 shorthand):
+  zero secret/credential/network/auth code found via direct fresh inspection — PASS (vacuous
+  conformance, disclosed).
+§13.12-D Security: N/A — still no actual implemented isolation/custody/authorization boundary
+  (re-verified from code, not from the registry's trust_boundary_candidate label alone).
+  Future trigger: real venue adapter with actual network/credential code.
+```
+
+### §13.12-D Data quality / numerical precision — PASS (defect fixed, re-verified)
+
+```text
+Applicable independently of I-9 (narrower Scope, unaffected). Full financial-value path
+  re-inspected fresh: zero float32/float64 anywhere in production code; required OHLCV cannot
+  become authoritative while uninitialized; legitimate zero remains distinct; decimal
+  comparison/arithmetic/rendering panic-safe; trailing-zero-scale equality correct; lossless
+  round-trip via MarshalText/UnmarshalText; invalid literals still fail explicitly; no
+  invented tick/lot authority. The prior boundary's sole failure driver is now empirically
+  confirmed fixed and regression-tested — no other numerical-precision gap found.
+```
+
+### Resilience — PASS
+
+```text
+No longer panics on incomplete required OHLCV (re-confirmed via the existing-fact regression
+  for all 5 fields). Fails explicitly before any authoritative side effect (validateOHLCV is
+  the first statement in both entry points, source-read-confirmed). Preserves already-accepted
+  state, publisher state, and normal well-formed-fact behavior (full pre-existing precedence/
+  ingest suite re-run fresh, unchanged). Other applicable failure paths (unresolved identity,
+  provenance-integrity conflict) inspected and confirmed still fail closed, unaffected by this
+  remediation.
+```
+
+### Other dimensions
+
+```text
+I-9: N/A (Chapter 2 Scope narrowly Position Ledger/Execution Engine/Risk Gateway, not widened
+  by §13.12-D's independent trigger, Chapter 13 §13.5). Correctness/invariant conformance:
+  PASS (no FAIL remains at this boundary). Determinism/reproducibility: PASS. Performance:
+  N/A (no budget). Observability: N/A (not on a production/operational path). Contract/schema
+  compatibility: N/A (candle.md still Draft). Migration/rollback: N/A.
+  Explainability/auditability (I-1): N/A (Scope is Decision Pipeline, this module is not part
+  of it).
+```
+
+### QG overall result
+
+```text
+PASS. Tier uniquely resolved (Tier 2 — Supporting). Line 93.6% and branch 87.93% both
+  independently exceed the Tier-2 80% floor. All applicable invariant/dimension results PASS
+  or correctly N/A with stated trigger reasoning. All required evidence resolved and pinned.
+  Eligibility evidence only — does NOT approve market-data-ingestion, does NOT approve Data
+  Layer, does NOT open Phase 3 Approval Gate, does NOT authorize LIVE. No implementation/test
+  code changed by this evaluation (verified before and after).
+```
+
+### Finding states
+
+```text
+P3-MDI-DECIMAL-MAJ-01 = CLOSED_BY_PRODUCTION_FIX (unchanged; independently re-verified fresh
+  this transaction, not merely cited). P11-V13-A-MIN-01 = CLOSED (unchanged).
+P11-V13-REC-MIN-01 = CLOSED (unchanged). P3-MDI-TIER-B-MIN-01 = OPEN — non-blocking
+  (unchanged, not closed by this QG, its stale wording did not control I-11 above). Historical
+  QG at 6c9fac9a775b63ad36abd9ae0550d36eee777fec REMAINS FAIL — criteria, immutable, not
+  overwritten — this is a separate, independent PASS for a separate, later boundary.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only — verified via git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — market-data-ingestion: fix Decimal zero-value and incomplete-OHLCV panic (`P3-MDI-DECIMAL-MAJ-01`)
 
 **Bounded production-code remediation — vai trò: `market-data-ingestion Numerical-Precision
