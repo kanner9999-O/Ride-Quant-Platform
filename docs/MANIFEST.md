@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.194"
+manifest_version: "10.195"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -3090,6 +3090,256 @@ Files changed: docs/MANIFEST.md, docs/CHANGELOG.md only — verified via
   `git status --porcelain=v1 -uall`, no go/**, no docs/architecture/module-registry.yaml, no
   docs/adr/**, no docs/constitution/**, no docs/engineering/testing.md touched.
 ```
+
+## Phase 3 — `market-reference-service` Fresh Formal Quality Gate Re-Evaluation (Chapter 13 — `FAIL — criteria`, NOT a Product Owner rejection, NOT approval)
+
+**Baseline:** branch `main`, HEAD `fd7bf5f2a75d2a0dee36eadd33a90fee332bb514` (verified — matches required baseline, working tree clean before this transaction). **No implementation code touched** — verified `git diff --quiet -- go/` after evaluation. `module-registry.yaml` read-only (verified `git diff --quiet -- docs/architecture/module-registry.yaml`), blob `5586cdaeb890fa694a812526ba44751f4b0e1541`, `version: "1.2"`, `status: Draft`, `package_lifecycle: Consolidated Stable` — unchanged from prior evaluations.
+
+```text
+Subject:                 go/market-reference-service/** at commit fd7bf5f2a75d2a0dee36eadd33a90fee332bb514
+Tier source:              module-registry.yaml v1.2 (blob 5586cdaeb890fa694a812526ba44751f4b0e1541) —
+                          market-reference-service.quality_tier: {tier: "Tier 2 — Supporting",
+                          approved_by: "Product Owner", approved_at: "2026-08-19T19:27:00+07:00"}
+                          (Chapter 13 §13.4 branch 1: runtime module -> resolve tier from
+                          module-registry.yaml, Chapter 7 §7.5). Verified fresh, not assumed.
+Resolved tier:            Tier 2 — Supporting
+Coverage floors:          line >= 80% AND branch >= 80%, independently (Chapter 13 §13.3)
+Additional tier-triggered requirements: NONE (no Chaos Test [Tier 0-only], no Parity Test
+                          [Tier 1-only])
+Testing Convention:       docs/engineering/testing.md v0.4, status Approved (approved_by:
+                          Product Owner, approved_at: 2026-08-20) — Approved mechanism: gobco,
+                          required measurement mode: explicit -branch.
+```
+
+### Fresh verification — tool identity/version, exact commands, results
+
+```text
+go version:               go1.26.6 darwin/arm64 (verified via `go version`)
+gofmt:                    `gofmt -l .` — empty output, CLEAN
+go vet:                   `go vet ./...` — exit 0, CLEAN
+go build:                 `go build ./...` — exit 0, CLEAN
+go test:                  `go test ./...` — 58 top-level test functions across 8 packages with
+                          test files (calendar, decimal, fact, instrument, listing, query,
+                          store, venue — including the 7 I-13 property-based test functions and
+                          3 FuzzIsValidTransitionNeverPanicsAndRespectsTerminal seed-corpus
+                          runs added since the last evaluation), ALL PASS, zero FAIL, zero SKIP.
+Targeted ADR-032 two-axis/look-ahead + state-transition tests re-run explicitly, all PASS:
+  TestResolveIdentityLookAheadGuard, TestResolvePrecisionLookAheadGuard,
+  TestResolveIdentityNotYetVisibleAtKnowledgeCursor,
+  TestResolveLineageHeadCorrectionRecordedLaterInvisibleToEarlierCursor,
+  TestFoldStatusCorrectionRecordedLaterInvisibleToEarlierReplay,
+  TestFoldStatusSameEffectiveTimeConflict, TestFoldStatusSequentialTransitions,
+  TestResolveLineageHeadScopeErrorTerminal, TestResolveLineageHeadMetadataErrorReplacement.
+```
+
+### Line coverage — fresh, this exact boundary
+
+```text
+Command:                  `go test ./... -covermode=set -coverprofile=<profile> -coverpkg=./internal/...`
+                          (module-aggregate profile), plus per-package `go test ./internal/<pkg>/... -cover`.
+                          Tool: go1.26.6's built-in `go test -cover` / `go tool cover -func`.
+Module-aggregate line/statement coverage: 92.3% (go tool cover -func total, computed fresh at
+                          this exact commit — up from 91.8% at the original evaluation, due to
+                          the I-13 property-based test additions increasing internal/fact's own
+                          coverage as a side effect).
+Per-package (own-package coverage, standard covermode):
+  calendar 100.0% · decimal 93.2% · fact 96.0% · instrument 97.6% · listing 83.9% ·
+  query 83.3% · store 100.0% · venue 95.1% · envelope 0.0% (see finding below, unchanged).
+Line coverage result:     PASS — module-aggregate (92.3%) exceeds the 80% floor. Chapter 13
+                          §13.4 resolves tier — and therefore the floor — at the MODULE level
+                          (branch 1: runtime module), not at a sub-module/per-package
+                          granularity Chapter 13 does not separately define.
+FINDING (disclosed, unchanged from prior evaluations): internal/envelope has ONE executable
+  function (EventRecordRef.IsZero, an equality comparison) and it is currently untested — 0.0%
+  of that package's own (small) statement count. Does not change the module-aggregate PASS
+  result above; recorded as a genuine, minor, non-gate-blocking coverage gap, not repaired
+  inside this evaluation per this task's explicit "evaluate only" instruction.
+```
+
+### Branch coverage — fresh, measured with the pinned approved mechanism (gobco -branch)
+
+```text
+Mechanism:                github.com/rillig/gobco, pinned pseudo-version
+                          v1.3.5-0.20240924205308-2d21b14addca, VCS commit
+                          2d21b14addca7c3832fae8578c9bffda70331468, content checksum
+                          h1:3brQV6wohXU5fg5vXgu76yyiaZYNJxwjh2mkXGMxCoI=, go.mod checksum
+                          h1:VvLaz1Pm73AQQ2JVBFWQz6BdZVSQg0YffxW3yXwEArM= (P3-GOBC-PIN-A-MAJ-01
+                          corrected identity — testing.md v0.4 authority).
+Required mode:            explicit `-branch` (default condition mode NOT used as evidence,
+                          per testing.md v0.4 §"Go branch-coverage mechanism — CANDIDATE").
+
+Invocation-model finding (verified directly, not assumed): passing multiple packages to a
+  single gobco invocation panics — `gobco -branch ./internal/calendar ./internal/decimal ...`
+  produces `panic: checking multiple packages doesn't work yet` (confirmed via stack trace at
+  main.(*gobco).parseArgs). This determines the correct reproducible full-module aggregation
+  method: gobco must be invoked ONCE PER PACKAGE, and the module-level result must be the SUM
+  of each package's raw numerator/denominator — never an average of per-package percentages
+  (per this task's explicit instruction, independently corroborated by the tool's own
+  single-package constraint).
+
+Per-package raw results (`gobco -branch ./internal/<pkg>` run individually for each of the 9
+  internal packages — cmd/marketreferenceservice excluded, no test files, not an authoritative-
+  implementation coverage-applicable artifact; test code itself excluded, consistent with
+  gobco's own default scope and Chapter 13 §13.3's "authoritative implementation" measurement
+  target):
+  calendar:    2/2
+  decimal:     29/34
+  envelope:    0/0    (no if/switch/for controlling conditions in this package — IsZero is a
+                       bare equality-comparison return, not a branch-controlling statement;
+                       correctly contributes zero to both numerator and denominator, consistent
+                       with the line-coverage finding above without double-penalizing it here)
+  fact:        45/52
+  instrument:  7/10
+  listing:     15/30
+  query:       27/38
+  store:       2/2
+  venue:       6/10
+
+Module-aggregate branch result: 133/178 = 74.7191...% (deterministic sum of covered branch
+  outcomes over total instrumented branch outcomes across all 9 authoritative production
+  packages — NOT an average of the 9 per-package percentages).
+
+Reproducibility: confirmed — `gobco -branch` re-run a second time on listing, query,
+  instrument, and venue produced byte-identical Branch coverage N/M results both times.
+
+Representative uncovered-branch detail (full listing/query output; other packages' individual
+  findings retained in raw gobco output, not reproduced in full here per §13.9's summary-with-
+  reproducible-command convention — the exact command above is itself sufficient to regenerate
+  the complete per-condition list deterministically):
+  internal/listing/listing.go:340:8  "rec.Payload.(type) == MetadataRevisedPayload" — 9x false, never true
+  internal/listing/listing.go:384:43 "ok" — 3x false, never true (error-decode branch never exercised)
+  internal/listing/listing.go:389:43 "ok" — 3x false, never true
+  internal/query/service.go:121:6    "rec.Envelope.EffectiveTime.After(effectiveInstant)" — 7x false, never true
+  internal/query/service.go:144:6    "p.Scope.VenueID != venueID || seen[p.Scope.ListingID]" — 7x false, never true
+  internal/query/service.go:235:6    "p.Scope.InstrumentID != instrumentID || p.Scope.VenueID != venueID || seen[...]" — 5x false, never true
+  (These are disclosed measured gaps, not silently fixed — per this task's explicit "evaluate
+  only, do not silently add tests or fix coverage deficits" instruction.)
+
+Branch coverage result:   FAIL — criteria. Measurement was successfully obtained (evidence IS
+                          fully resolved, pinned, and reproducible — this is NOT a
+                          FAIL — evidence condition); the measured module-aggregate value
+                          (74.72%) is below the Tier 2 80% floor. Per Chapter 13 §13.3, "đã đo,
+                          không đạt tiêu chí" applies — measured-and-below-threshold, not
+                          missing/unresolvable evidence.
+```
+
+### Completeness / fail-closed — unsupported-construct re-check
+
+```text
+Re-verified fresh (not from memory) against this exact HEAD, before consuming gobco evidence:
+  grep -rn "select {" --include="*.go" .          -> ZERO matches
+  grep -rnE generic-type-parameter-syntax          -> ZERO matches
+  grep -rnE "^\s*goto "                            -> ZERO matches
+gobco's own known unsupported construct (SelectStmt, in either condition or branch mode,
+  verified against the pinned commit's instrumenter.go) and its unresolved general Go-generics
+  support (disclosed, unchanged from the pinning transaction) do NOT affect this subject at
+  this boundary — the current authoritative implementation contains none of the constructs
+  gobco cannot measure. Completeness IS established: the branch-coverage evidence above is
+  complete for this subject, not partial/blocked. This is why the branch result above is
+  classified FAIL — criteria rather than FAIL — evidence.
+```
+
+### I-13 — property-based evidence, re-evaluated fresh
+
+```text
+Re-ran explicitly (not assumed from the remediation transaction's report):
+  go test ./internal/fact/... -run 'TestFoldStatusProperty|TestResolveLineageHeadProperty' -v
+    -> all 7 property test functions PASS (TestFoldStatusPropertySequentialOracleMatchesRealValidator,
+    TestFoldStatusPropertyOrderIndependence, TestFoldStatusPropertyTerminalStatesHaveNoOutgoingTransition,
+    TestFoldStatusPropertyFutureRecordedFactsNeverChangeEarlierReplay,
+    TestFoldStatusPropertySameEffectiveTimeConflictAlwaysFailsClosed,
+    TestResolveLineageHeadPropertyForkNeverSilentlyResolved,
+    TestResolveLineageHeadPropertySingleChainAlwaysResolvesToActualTerminus).
+  go test ./internal/{instrument,venue,listing}/... -run 'FuzzIsValidTransitionNeverPanicsAndRespectsTerminal' -v
+    -> all 3 Fuzz seed-corpus runs PASS.
+Confirmed these tests exercise the REAL, authoritative implementation directly: the property
+  tests call fact.FoldStatus / fact.ResolveLineageHead (the actual fold engine) against the
+  actual instrument.IsValidTransition / venue.IsValidTransition / listing.IsValidTransition
+  functions — no shadow/duplicate state-machine re-implementation (verified by inspecting
+  status_property_test.go's imports and call sites, unchanged since the remediation
+  transaction).
+I-13 result:               PASS. Chapter 13 §13.6's "Property-based" test-category requirement
+                          for numerical/state-machine boundaries is now satisfied with real,
+                          passing, currently-running evidence against the authoritative
+                          implementation — not merely disclosed as missing (prior evaluation)
+                          nor merely asserted (remediation transaction) but re-confirmed
+                          executing and passing at this exact fresh HEAD.
+```
+
+### Other applicable dimensions (per-dimension result, re-evaluated fresh, Chapter 13 §13.2/§13.5/§13.6)
+
+```text
+Correctness / invariant conformance:  PASS — 58 test functions pass, zero build/vet errors,
+  behavior matches instrument.md/venue.md fold algorithms as implemented (re-verified fresh).
+Determinism / reproducibility (I-2 substance re: repeatability, I-12):  PASS — identical
+  (effectiveInstant, knowledgeCursor) pairs re-verified to resolve identically
+  (TestResolveIdentityLookAheadGuard's repeat-query assertion, re-run); branch-coverage
+  measurement itself independently reproducible (see above); no wall-clock dependency in any
+  code path exercised by tests.
+No-look-ahead / bitemporal behavior (I-3 substance):  PASS — re-run explicit tests prove a
+  correction recorded later is invisible to an earlier knowledge cursor, and identical
+  effective instants resolve differently only once the knowledge cursor advances past the
+  correction's recorded_time.
+I-12 (Single Source of Truth) authority:  PASS — by design, query.Service reverse-scans the
+  authoritative fact log (unchanged, re-verified).
+State-transition integrity (I-13):  PASS (see dedicated section above).
+Numerical/reference-data correctness (within this module's own scope — I-9's own Chapter 2
+  Scope is "Position Ledger, Execution Engine, Risk Gateway," does NOT include this module):
+  PASS (qualified) — decimal (lossless, math/big-backed) used consistently, unchanged.
+Contract / schema compatibility (Chapter 10 §10.3):  N/A — no formally governed, published
+  schema/contract artifact exists yet for this module, unchanged.
+Auditability / explainability (I-1):  N/A — I-1's Scope is "Toàn bộ Decision Pipeline," which
+  this module is not part of, unchanged.
+Resilience / error behavior:  PASS (qualified) — explicit, typed errors, fail-closed fork
+  detection, unchanged. No Chaos Test performed or required — Tier 0-only.
+```
+
+### QG overall result
+
+```text
+FAIL — criteria.
+
+Reason: Chapter 13 §13.3's coverage-PASS rule requires line coverage >= floor AND branch
+  coverage >= floor, independently, with no substitution/inference/estimation permitted for
+  either metric. Line coverage evidence is present and exceeds the Tier 2 floor
+  (module-aggregate 92.3% >= 80%, PASS). Branch coverage evidence is ALSO now fully present,
+  pinned, and reproducible (module-aggregate 133/178 = 74.72%) — but measured BELOW the Tier 2
+  80% floor. Per §13.3/§13.8, this is a genuine measured shortfall (FAIL — criteria), distinct
+  from the prior evaluation's FAIL — evidence (which was driven by the total unavailability of
+  any branch-coverage measurement mechanism, now resolved). I-13 property-based evidence is
+  now PASS. All other applicable dimensions PASS or N/A as scoped. No evidence-availability gap
+  remains anywhere in this evaluation — the sole remaining blocker is the measured branch-
+  coverage shortfall itself.
+
+This is NOT a Product Owner rejection (Chapter 13 §13.1/§13.8). This is NOT an implementation
+  defect — nothing here indicates incorrect behavior; it indicates insufficient branch-covering
+  test exercise in specific packages (chiefly internal/listing 15/30=50% and internal/query
+  27/38=71%, and to a lesser extent internal/instrument 7/10=70% and internal/venue 6/10=60%).
+  No module or package is approved or rejected by this result; Chapter 12 phase-approval
+  remains a separate, untouched authority. This transaction evaluates only — no test was added,
+  no coverage deficit was fixed, per explicit scope discipline.
+```
+
+**Open findings (disclosed, not resolved by this evaluation):**
+
+```text
+1. Branch coverage module-aggregate (133/178 = 74.72%) is below the Tier 2 80% floor —
+   internal/listing (15/30) and internal/query (27/38) are the largest contributors to the
+   gap; a future bounded transaction would need to add meaningful branch-covering test cases
+   (exercising currently-untaken branch outcomes, e.g. listing.go's error-decode/type-switch
+   branches and query/service.go's negative-match/mismatch branches) before this gate can
+   produce a coverage PASS.
+2. internal/envelope.EventRecordRef.IsZero: untested (0.0% of a small statement count) —
+   unchanged from prior evaluations, candidate for a minor bounded correction, not fixed here.
+3. gobco's single-package-at-a-time invocation constraint ("checking multiple packages doesn't
+   work yet") means any future re-evaluation must repeat the same per-package invocation +
+   raw-count-summation procedure documented above — this is a tool-usage-mechanics fact, not a
+   governance gap, but worth flagging as a reproducibility-mechanics note for future evaluators.
+```
+
+**No scope expansion:** no implementation code changed (verified `git diff --quiet -- go/`). `module-registry.yaml` read-only (verified `git diff --quiet`). Tier unchanged. Dependency graph unchanged. ADR-032 not touched. Domain Contracts not touched. Chapter 13 not touched. Testing Convention not touched. Structure Engine/Raw Regime Engine not touched. `market-reference-service` NOT approved. Data Layer NOT approved. LIVE not authorized, not referenced.
+
+**Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
 
 ## Decision Log
 

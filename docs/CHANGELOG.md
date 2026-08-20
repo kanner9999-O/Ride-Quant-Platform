@@ -2,6 +2,106 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — market-reference-service: fresh formal Chapter 13 Quality Gate re-evaluation — FAIL — criteria
+
+**Evidence/evaluation transaction only — vai trò: `market-reference-service Formal QG
+Re-Evaluator`.** Performs one fresh formal Chapter 13 Quality Gate re-evaluation using the
+now-pinned gobco `-branch` mechanism for real branch-coverage measurement. Does not approve
+the module. Does not authorize LIVE.
+
+### Baseline
+
+```text
+Starting HEAD: fd7bf5f2a75d2a0dee36eadd33a90fee332bb514 (verified via git rev-parse HEAD
+  before any edit; git status --porcelain=v1 -uno clean; branch main). Tier provenance
+  verified fresh: module-registry.yaml blob 5586cdaeb890fa694a812526ba44751f4b0e1541,
+  market-reference-service.quality_tier = Tier 2 — Supporting (unchanged, read-only).
+```
+
+### Fresh verification
+
+```text
+go1.26.6 darwin/arm64. gofmt CLEAN. go vet CLEAN. go build CLEAN. go test ./...: 58 top-level
+  test functions (including 7 I-13 property-based tests + 3 fuzz functions), ALL PASS, zero
+  FAIL/SKIP. All targeted ADR-032/state-transition tests re-run explicitly, all PASS.
+```
+
+### Line coverage
+
+```text
+Module-aggregate 92.3% (up from 91.8%) — exceeds 80% Tier 2 floor. Result: PASS.
+internal/envelope.EventRecordRef.IsZero remains untested (0.0%, unchanged, non-blocking).
+```
+
+### Branch coverage — measured for the first time with the pinned gobco -branch mechanism
+
+```text
+Invocation-model finding: gobco panics on multi-package arguments ("checking multiple
+  packages doesn't work yet") — determines the aggregation method: invoke once per package,
+  sum raw numerator/denominator (never average percentages).
+Per-package raw results: calendar 2/2, decimal 29/34, envelope 0/0, fact 45/52,
+  instrument 7/10, listing 15/30, query 27/38, store 2/2, venue 6/10.
+Module-aggregate: 133/178 = 74.72% — reproducibility confirmed via repeated runs.
+Completeness re-check: zero select statements, zero generics, zero goto in current subject —
+  evidence is fully resolved and complete, not blocked by unsupported constructs.
+Result: FAIL — criteria (measured successfully; below the 80% floor — a genuine criteria
+  shortfall, not a missing-evidence condition).
+```
+
+### I-13 — re-evaluated fresh
+
+```text
+All 7 property-based test functions and 3 fuzz functions re-run explicitly, all PASS,
+  confirmed exercising the real fact.FoldStatus/ResolveLineageHead engine against the real
+  instrument/venue/listing.IsValidTransition functions. Chapter 13 §13.6 requirement now
+  satisfied with real, passing, currently-executing evidence. Result: PASS.
+```
+
+### Other applicable dimensions
+
+```text
+Correctness PASS, Determinism PASS, No-look-ahead/bitemporal PASS, I-12 PASS (all re-verified
+  fresh via targeted test re-runs, not copied from the prior evaluation). Numerical-
+  correctness-in-scope PASS(qualified), Contract-compatibility N/A, Auditability N/A,
+  Resilience PASS(qualified) — unchanged reasoning, re-confirmed applicable.
+```
+
+### QG overall result
+
+```text
+FAIL — criteria. Line coverage PASS (92.3%). Branch coverage FAIL — criteria (74.72% < 80%,
+  measured, not missing). I-13 PASS. All other applicable dimensions PASS/N/A. No evidence-
+  availability gap remains anywhere — the sole blocker is the measured branch-coverage
+  shortfall itself, concentrated in internal/listing (15/30) and internal/query (27/38).
+  Not a Product Owner rejection, not an implementation defect — no code changed, no test
+  added, no coverage deficit fixed (evaluate-only scope).
+```
+
+### Open findings
+
+```text
+1. Branch coverage shortfall (133/178 = 74.72% < 80% floor) — a future bounded transaction
+   would need meaningful branch-covering test cases before this gate can PASS.
+2. internal/envelope.EventRecordRef.IsZero untested (unchanged, non-blocking).
+3. gobco's single-package-at-a-time invocation constraint is a reproducibility-mechanics note
+   for future evaluators (documented procedure above).
+```
+
+### No scope expansion
+
+```text
+No implementation code changed. module-registry.yaml read-only. Tier unchanged. Dependency
+  graph unchanged. ADR-032 not touched. Domain Contracts not touched. Chapter 13 not touched.
+  Testing Convention not touched. market-reference-service NOT approved. Data Layer NOT
+  approved. LIVE not authorized, not referenced.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only — verified via git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — gobco pin license-provenance bounded correction (`P3-GOBC-PIN-A-MAJ-01`)
 
 **License-provenance correction transaction only — vai trò: `gobco Pinning License-Provenance
