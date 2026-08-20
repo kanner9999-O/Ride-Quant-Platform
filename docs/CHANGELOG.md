@@ -2,6 +2,132 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — ADR-033 v0.1: candidate Structure/Raw-Regime language allocation (Draft) + Data Layer milestone readiness
+
+**Governed architecture-authoring transaction — vai trò: `ADR-033 Structure/Raw-Regime
+Language Allocation Author`.** Authors `docs/adr/ADR-033.md` v0.1 (`Draft`), proposing Python
+for both `structure-engine` and `raw-regime-engine`. Does not approve the ADR, does not run
+Review A/Independent Review B, does not implement either module, does not modify
+`module-registry.yaml` or any Domain Contract/Constitution/other ADR file.
+
+### Baseline
+
+```text
+Boundary: 8a84768360554e30de6842e20af552f10add92ab (verified via git rev-parse HEAD before
+  any edit; tree clean; manifest_version confirmed "10.206" at start). docs/adr/ADR-033.md
+  confirmed absent before this transaction.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_REQUIRED (Chapter 0 §4b) — ">1 module" trigger (one shared language decision resolves
+  both structure-engine and raw-regime-engine) AND "khó đảo ngược"/hard-to-reverse trigger
+  (algorithm/test/tooling re-authoring cost), both independently satisfied.
+```
+
+### Decision authored
+
+```text
+structure-engine:   Python
+raw-regime-engine:  Python
+
+Rationale (ADR-008's own capability-nature test, not module-name similarity): both modules
+  are deterministic analytical-inference engines over canonical Candle facts, zero external
+  network/venue side effect (security_classification: none/not applicable, verified) — Go's
+  ADR-008 rationale (many-simultaneous-WS-connection concurrency/I-O/reliability) does not
+  describe either. Both require the same Research/Production single-code-path parity ADR-008
+  already used to allocate Python to Feature/Strategy/Decision/Backtest, reinforced by
+  ADR-032's explicit framing of Structure/Regime as part of the Decision Pipeline's
+  Research/Production dual-execution surface, and by Chapter 13 §13.4's illustrative Tier-1
+  table listing Structure/Regime Engine with a mandatory Parity Test cross-referencing I-2.
+I-2/parity consequence made explicit and binding: Python is NOT permission for a
+  research-only implementation plus a separate production reimplementation (Go or otherwise)
+  — the same authoritative code path must be reused across Replay/Backtest/Paper/Live for
+  each engine, per Chapter 3 §3.1 "One Authoritative Implementation per Business Capability."
+Independence preserved verbatim (ADR-014, controlling, unchanged): Structure Engine MUST NOT
+  consume Regime; Raw Regime Engine MUST NOT consume Structure; no dependency edge added;
+  raw-regime-engine.forbidden_dependencies = [structure-engine] unchanged. Language sharing
+  implies no shared process/state/authority — the modules remain architecturally distinct.
+Dependency graph, I/O contract boundary (consumes candle-closed/candle-corrected; emits per
+  swing.md/structure.md/regime.md, verified against source `id:` values), Quality Tier
+  (neither module carries a PO-approved quality_tier — not decided here), runtime topology,
+  framework/library choice, and Python runtime version are all explicitly out of scope and
+  carried forward unresolved, per this task's own instruction.
+```
+
+### Alternatives evaluated
+
+```text
+Option A — Python for both (SELECTED): strongest match to ADR-008's capability-nature test;
+  I-2-adjacent parity ergonomics; numerical ecosystem; consistent with Feature/Strategy/
+  Decision/Backtest direction. Risks (performance ceiling, numerical discipline, global-state
+  anti-pattern, undecided cross-language transport) with stated mitigations (deterministic
+  pure/core boundaries, version-pinned definitions, profiling-before-optimization, Rust
+  re-evaluation path preserved).
+Option B — Go for both: rejected — ADR-008's Go rationale (edge concurrency/I-O) does not
+  describe either module's zero-external-side-effect analytical profile.
+Option C — mixed languages: rejected — both engines share an identical capability-nature
+  profile; splitting would add tooling/parity complexity without a capability-nature
+  justification.
+Option D — Rust: rejected at this boundary — no measured sub-ms requirement exists; ADR-008's
+  own reservation condition not met; re-evaluation path remains available via a future ADR.
+```
+
+### Scale check
+
+```text
+current_scale: 2-3 venues, non-HFT (vài trăm ms), Phase 3 analytical-core not yet started,
+  LIVE not authorized.
+expected_scale: ~20 exchanges (ADR-008's own horizon), multiple strategies (count TBD),
+  Replay/Backtest/Paper/Live parity requirement, materially larger historical datasets.
+decision_still_valid: true — Python's suitability is an analytical-workload question, not a
+  latency-critical-path question; growth increases data volume/parity surface, not per-event
+  latency requirement for these two engines specifically. Sub-ms suitability NOT claimed;
+  ADR-008's Rust re-evaluation path remains available via a new ADR if a real measured sub-ms
+  requirement emerges later.
+```
+
+### Data Layer milestone readiness (recorded, NOT approval)
+
+```text
+DATA_LAYER_MILESTONE_READINESS = PASS at boundary 8a84768360554e30de6842e20af552f10add92ab —
+  basis independently re-verified from repository source (not copied from the governing
+  prompt): market-reference-service formal QG PASS (boundary
+  6ef9fb2f3b135784eacd077d6ca9331c19fb809c, line 97.1%, branch 155/174=89.0805%, current
+  executable subtree confirmed byte-identical via git diff --quiet); market-data-ingestion
+  formal QG PASS (boundary 596bdd4c74842cacb1506f7a16c2dd3a248fb6f5, line 93.6%, branch
+  102/116=87.93%, self-verified at recording time); authority/dependency graph coherent;
+  known infrastructure gaps (no real venue adapter/credentials/transport/broker/event-log
+  wiring for market-data-ingestion; no production transport/storage topology for
+  market-reference-service) explicitly deferred, non-blocking, NOT claimed closed.
+NEXT_TRANCHE_IMPLEMENTATION = BLOCKED_ON_ADR033_LANGUAGE_DECISION — Structure/Raw Regime
+  implementation remains blocked pending Product Owner approval of ADR-033 and its required
+  independent review sequence.
+This is milestone/dependency readiness evidence only — does NOT approve either Data Layer
+  module, does NOT approve Data Layer, does NOT open Phase 3 Approval Gate, does NOT
+  authorize LIVE.
+```
+
+### No scope expansion
+
+```text
+No code changed (go/** empty diff). module-registry.yaml unchanged — no dependency/authority/
+  Quality Tier change. docs/domain/**, docs/constitution/**, docs/engineering/**,
+  docs/governance/**, ADR-003/ADR-008/ADR-009/ADR-014/ADR-032 all unchanged (verified
+  git diff --quiet for each). No runtime-topology decision. No reviewer identity/review
+  result fabricated — Independent Reviews table in ADR-033.md is the unfilled template,
+  intentionally pending Review A.
+P3-MDI-TIER-B-MIN-01 unchanged, still OPEN — non-blocking, not duplicated into ADR-033.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-033.md (new), docs/MANIFEST.md, docs/CHANGELOG.md — verified via
+  git status --porcelain=v1 -uall. No other file touched.
+```
+
 ## [Unreleased] — 2026-08-20 — market-data-ingestion: fresh formal Chapter 13 QG PASS (post-remediation)
 
 **Evidence/evaluation transaction only — vai trò: `market-data-ingestion Fresh Formal Chapter

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.206"
+manifest_version: "10.207"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -5280,6 +5280,166 @@ The historical formal QG result at boundary 6c9fac9a775b63ad36abd9ae0550d36eee77
 **Evaluator:** this transaction, principal Claude (Claude Code CLI session), role `market-data-ingestion Fresh Formal Chapter 13 QG Re-Evaluator`. No independent-review execution reference — this is a formal Quality Gate evaluation, not Independent Review B; ADR-031 independence mode not invoked.
 
 **Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
+
+## ADR-033 v0.1 — Structure/Raw-Regime language allocation (`Draft`, candidate authoring — Data Layer milestone readiness recorded)
+
+**Governed semantic architecture-authoring transaction — vai trò: `ADR-033 Structure/Raw-Regime Language Allocation Author`.** Authors `docs/adr/ADR-033.md` v0.1 (`Draft`) proposing Python for both `structure-engine` and `raw-regime-engine`. Does not approve the ADR, does not perform Review A or Independent Review B, does not implement either module.
+
+**Baseline:** branch `main`, HEAD `8a84768360554e30de6842e20af552f10add92ab` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary). `manifest_version` confirmed `"10.206"` at start. `docs/adr/ADR-033.md` verified absent before this transaction (ADR-033 was available).
+
+```text
+ADR ID:                 ADR-033
+Version:                 "0.1"
+Status:                  Draft
+Content identity:        git hash-object docs/adr/ADR-033.md = e23a14b802fc289c3c7b0d7e5bddef98a55cdf51
+                          (289 lines)
+owner:                    Product Owner (final approval authority — unchanged, no approval
+                          granted or implied by this transaction)
+approved_by / approved_at: null / null
+reviewers:                [] (no review executed against this candidate)
+depends_on:               [ADR-008, ADR-014]
+supersedes:                [] (ADR-008 is extended/applied, not superseded)
+```
+
+### ADR Scope Rule
+
+```text
+ADR_REQUIRED, per Chapter 0 §4b — verified directly against the governing table (">1 module"
+  trigger AND "khó đảo ngược"/hard-to-reverse trigger, both independently satisfied): one
+  shared language-allocation decision resolves both structure-engine and raw-regime-engine
+  simultaneously (>1 module); the choice is materially expensive to reverse after either
+  engine's algorithm/tests/tooling is authored (hard-to-reverse). Reasoning recorded in full
+  inside ADR-033.md's Context section.
+```
+
+### Verified authorities (fresh source inspection, not copied from this task's prompt)
+
+```text
+ADR-008 (Approved): re-read in full — Python for Feature Engineering/Strategy/Decision
+  logic/Backtest Engine, Go for Market Data Ingestion/Risk Gateway/Execution Engine, Rust
+  reserved. Neither structure-engine nor raw-regime-engine named — both module_ids did not
+  exist at ADR-008's 2026-07-18 boundary.
+ADR-014 (Approved, controlling): re-read in full — Structure Engine and Raw Regime Engine
+  remain completely independent (neither consumes the other), carried forward unchanged from
+  ADR-003. Independence preserved verbatim in ADR-033 — no dependency edge added.
+ADR-032 (Approved, v0.2): re-read — explicitly frames "the Decision Pipeline's
+  Research/Production dual-execution surface (Structure/Regime/Feature/Strategy/Decision/
+  Backtest)" as the operative surface for ADR-008's Python rationale, and rules Go correct for
+  market-reference-service precisely because it is NOT part of that surface — cited as
+  precedent, not treated as itself deciding Structure/Regime's language.
+Chapter 0 §4b: re-read verbatim — table confirms both triggers cited above.
+Chapter 2 I-2: re-read — declared `Scope:` field is "Decision pipeline; cả 4 execution mode."
+  ADR-033 explicitly does NOT claim this field itself names Structure/Regime (would violate
+  Chapter 13 §13.5's prohibition on a decision widening a Locked invariant's own declared
+  Scope) — the decision rests on Chapter 3 §3.1's general "One Authoritative Implementation
+  per Business Capability" principle plus ADR-032/Chapter 13's framing instead.
+Chapter 3 §3.1: re-read — "One Authoritative Implementation per Business Capability" is a
+  general principle (not limited to Strategy/Decision) requiring exactly one authoritative
+  implementation per capability across all execution modes — directly supports ADR-033's "no
+  duplicate production port" consequence.
+Chapter 13 §13.4: re-read — illustrative Tier table lists "Structure Engine, Regime Engine"
+  under "Tier 1 — Core Logic," requiring a mandatory Parity Test explicitly cross-referencing
+  I-2. Cited in ADR-033 only as rationale-supporting context — does NOT assign or approve
+  either module's Quality Tier (verified: neither carries a Product-Owner-approved
+  `quality_tier` field in module-registry.yaml at this boundary).
+structure-regime-architecture.md (Package 1.3-A, v0.4, Draft): re-read §14 "Explicit
+  non-goals" verbatim — "KHÔNG chọn programming language/framework" — confirms language
+  selection was left open by that document, exactly the gap ADR-033 resolves. Dependency
+  table (§2) re-verified matching module-registry.yaml exactly: structure-engine.depends_on =
+  [market-data-ingestion], raw-regime-engine.depends_on = [market-data-ingestion],
+  raw-regime-engine.forbidden_dependencies = [structure-engine] — all carried forward
+  unchanged, not modified by ADR-033.
+module-registry.yaml: re-read structure-engine/raw-regime-engine entries directly — neither
+  carries a `quality_tier` field. `security_classification: none` for both (structure-engine)
+  / not applicable trust boundary (raw-regime-engine) — zero external side effect, confirmed.
+  File NOT modified by this transaction (verified `git diff --quiet -- docs/architecture/`).
+docs/domain/swing.md / structure.md / regime.md: re-read directly — consumes
+  (candle-closed, candle-corrected) and emits (swing-candidate-detected/swing-confirmed/
+  swing-invalidated/break-of-structure-detected/change-of-character-detected/
+  structure-fact-invalidated/structure-recomputed for Structure; regime-classified/
+  regime-fact-invalidated for Regime) verified via grep against actual `id:` values in each
+  file — matches ADR-033's stated I/O boundary exactly, unaltered.
+docs/engineering/coding-standard.md / monorepo.md: re-read — confirmed no authoritative
+  Python runtime version is currently pinned anywhere; ADR-033 does not invent one.
+docs/governance/phases/phase-3-rules.md: re-read — confirms Phase-3 DoD and canonical
+  gate-set declaration remain future governed work, no Approval Gate open condition met.
+```
+
+### Data Layer milestone readiness — recorded (NOT Data Layer approval)
+
+```text
+DATA_LAYER_MILESTONE_READINESS = PASS, at exact assessment boundary
+  8a84768360554e30de6842e20af552f10add92ab.
+
+Basis, each independently re-verified directly from repository source (P3-VERIFY-001), not
+  copied from this task's prompt:
+  - market-reference-service: formal Chapter 13 QG = PASS, evaluated subject boundary
+    6ef9fb2f3b135784eacd077d6ca9331c19fb809c, durable evidence commit
+    bdad1c06c5e2fc5a11e69aa9012960cbea019502 — confirmed via direct read of the "## Phase 3 —
+    `market-reference-service` Formal Quality Gate Re-Evaluation" MANIFEST section: line
+    coverage 97.1% PASS, branch coverage 155/174 = 89.0805% PASS, overall PASS. Current
+    executable subtree confirmed byte-identical to the QG subject: `git diff --quiet
+    6ef9fb2f3b135784eacd077d6ca9331c19fb809c HEAD -- go/market-reference-service/` — empty,
+    no diff.
+  - market-data-ingestion: formal Chapter 13 QG = PASS, evaluated subject boundary
+    596bdd4c74842cacb1506f7a16c2dd3a248fb6f5, durable evidence commit
+    8a84768360554e30de6842e20af552f10add92ab (the immediately preceding transaction in this
+    same session) — line coverage 93.6% PASS, branch coverage 102/116 = 87.93% PASS, overall
+    PASS, both self-verified at recording time.
+  - Authority/dependency graph coherent: market-reference-service sole owner of
+    Instrument/Venue identity/precision/tick/lot/calendar/session; market-data-ingestion
+    query-consumer-only; structure-engine/raw-regime-engine both depend_on
+    market-data-ingestion only, unchanged.
+  - Known infrastructure gaps (no real venue WS/REST adapter, no real external
+    credentials/connectivity, no concrete transport client to market-reference-service, no
+    real broker/event-log wiring, no CandleCurrentView materialization for
+    market-data-ingestion; no production transport/storage topology established for
+    market-reference-service) explicitly deferred and non-blocking for analytical-core
+    Structure/Raw-Regime authoring, PROVIDED future implementations use contract-bound input
+    ports and do not silently choose production infrastructure — carried forward accurately,
+    NOT claimed closed.
+
+This is a dependency/milestone readiness statement, NOT Data Layer approval. It does not
+  approve market-reference-service, does not approve market-data-ingestion, does not approve
+  Data Layer, does not open the Phase 3 Approval Gate, and does not authorize LIVE.
+
+NEXT_TRANCHE_IMPLEMENTATION = BLOCKED_ON_ADR033_LANGUAGE_DECISION — Structure Engine and Raw
+  Regime Engine implementation remains blocked pending Product Owner approval of ADR-033 (and
+  the independent review sequence required before that approval), per Chapter 14 §14.2's
+  binding order (Data Layer -> Structure Engine & Raw Regime Engine).
+```
+
+### No scope expansion — explicit verification
+
+```text
+No code changed (go/**, verified git status --porcelain=v1 -uall -- go/ empty, and
+  git diff --quiet -- go/ before/after this transaction). module-registry.yaml unchanged
+  (verified git diff --quiet -- docs/architecture/module-registry.yaml) — dependency graph,
+  forbidden_dependencies, and module authority all unchanged; no Quality Tier decided or
+  pinned for either module. docs/domain/** unchanged (verified git diff --quiet --
+  docs/domain/). docs/constitution/** unchanged. docs/engineering/** unchanged.
+  docs/governance/** unchanged. ADR-003/ADR-008/ADR-009/ADR-014/ADR-032 unchanged, byte-
+  identical (verified git diff --quiet for each). No runtime-topology decision made
+  (broker/RPC/deployment/transport/serialization all explicitly deferred inside ADR-033
+  itself). No reviewer identity or review result fabricated — the Independent Reviews table
+  in ADR-033.md is the unfilled template, intentionally pending.
+```
+
+### State summary
+
+```text
+P3-MDI-TIER-B-MIN-01: unchanged, still OPEN — non-blocking (not remediated, not duplicated
+  into an ADR-033 finding — the fresh market-data-ingestion QG already evaluated I-11 using
+  Chapter 2's actual system-wide Scope, so this finding's underlying concern did not
+  materialize there).
+Module approval state:      no module approved by this transaction.
+Data Layer approval state:  NOT approved (milestone readiness only, see above).
+Phase 3 Approval Gate:      NOT opened — Phase-3 DoD and canonical gate-set declaration
+  remain future governed work (docs/governance/phases/phase-3-rules.md, re-verified).
+LIVE:                        NOT_AUTHORIZED, unreferenced.
+```
+
+**Files changed:** `docs/adr/ADR-033.md` (new file), `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; no other file touched.
 
 ## Decision Log
 
