@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.188"
+manifest_version: "10.189"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -2497,6 +2497,100 @@ Unchanged by this correction: gofmt CLEAN, go vet CLEAN, go build CLEAN, go test
 
 Finding status: P3-MR-QG-A-MAJ-01: CLOSED_BY_BOUNDED_EVIDENCE_CORRECTION /
   PENDING_REVIEW_A_REREVIEW
+```
+
+### I-13 Property-Based Evidence Remediation (this transaction — does NOT close the QG)
+
+```text
+Implementation boundary evaluated by this remediation: go/market-reference-service/** at
+  commit 54bfef467a31e36d5ae01cf0093b0b4d4068c3a5 (no production code changed by this
+  transaction — see below — so the QG's originally-evaluated implementation boundary,
+  86107adb8ab01ce28b3984ee9ebfa15163ee5c62, remains behaviorally identical; the boundary
+  advances only because new test files were added on top of it).
+
+Addresses ONLY the I-13 property-based-evidence driver recorded above. Branch coverage
+  remains a SEPARATE, unaddressed, still-open FAIL — evidence driver — NOT in scope of this
+  transaction.
+
+Added (test code only, verified via git diff --stat -- go/market-reference-service: zero
+  production files touched):
+  - internal/fact/status_property_test.go (external `fact_test` package) — property-based
+    tests running fact.FoldStatus and fact.ResolveLineageHead (the real, authoritative fold
+    engine) against all three real, authoritative state machines
+    (instrument.IsValidTransition, venue.IsValidTransition, listing.IsValidTransition — never
+    a re-implementation of their rules):
+      TestFoldStatusPropertySequentialOracleMatchesRealValidator — generated random transition
+        sequences (300 trials/machine) must match sequential application of the real validator
+        (illegal transitions never become valid).
+      TestFoldStatusPropertyOrderIndependence — shuffled input order must not change the
+        result (200 trials/machine; same input/history + same cursor -> deterministic state).
+      TestFoldStatusPropertyTerminalStatesHaveNoOutgoingTransition — RETIRED/DELISTED must
+        have zero valid outgoing transitions, including malformed "to" values.
+      TestFoldStatusPropertyFutureRecordedFactsNeverChangeEarlierReplay — randomly generated
+        facts recorded after a knowledge cursor must never change that cursor's result (150
+        trials/machine; correction/replay ordering preserves valid transition semantics).
+      TestFoldStatusPropertySameEffectiveTimeConflictAlwaysFailsClosed — randomly paired
+        incompatible same-effective-time statuses always yield Conflict=true (150
+        trials/machine; malformed/conflicting histories fail closed).
+      TestResolveLineageHeadPropertyForkNeverSilentlyResolved /
+        TestResolveLineageHeadPropertySingleChainAlwaysResolvesToActualTerminus — generated
+        registration-lineage histories (150 trials each) never silently resolve a fork, and
+        always resolve a well-formed chain to its actual terminus.
+  - internal/instrument/instrument_fuzz_test.go, internal/venue/venue_fuzz_test.go,
+    internal/listing/listing_fuzz_test.go — native Go fuzz tests
+    (FuzzIsValidTransitionNeverPanicsAndRespectsTerminal) against each package's real
+    IsValidTransition: no input panics; the terminal state has no valid outgoing transition;
+    no status validly transitions to itself.
+
+Fresh validation (exact commands/results, this transaction):
+  gofmt -l . (bundled with go1.26.6): empty output, CLEAN.
+  go vet ./...: exit 0, CLEAN.
+  go build ./...: exit 0, CLEAN.
+  go test ./...: all packages PASS, zero FAIL, zero SKIP (calendar, decimal, fact — now
+    including the new property tests, instrument, listing, query, store, venue — now
+    including the new fuzz seed corpus, cmd/marketreferenceservice/envelope have no test
+    files, unchanged).
+  go test ./internal/fact/... -run 'TestFoldStatusProperty|TestResolveLineageHeadProperty' -v:
+    all 7 new property test functions PASS (21 sub-tests across the 3 real state machines for
+    the 5 per-machine properties, plus 2 lineage-level properties).
+  go test ./internal/{instrument,venue,listing}/... -run '^$' -fuzz
+    'FuzzIsValidTransitionNeverPanicsAndRespectsTerminal' -fuzztime 8s (run separately per
+    package): instrument 2,173,401 execs, venue 2,565,833 execs, listing 2,041,310 execs — ALL
+    PASS, zero crashers, zero new corpus files persisted to testdata/fuzz/ (persisted only on
+    a failing input, per Go's fuzzing model — none occurred).
+  Fresh line coverage (go test ./... -covermode=set -coverpkg=./internal/...; go tool cover
+    -func): module-aggregate 92.3% (up from 91.8% — the new property tests exercise
+    additional fact/instrument/venue/listing statement paths as a side effect, not a target of
+    this transaction). Per-package: fact 94.4% -> 96.0%, instrument 97.6% (unchanged), venue
+    95.1% (unchanged), listing 83.9% (unchanged), calendar/decimal/query/store unchanged,
+    envelope 0.0% (internal/envelope.EventRecordRef.IsZero — unchanged, still the disclosed
+    non-gate-blocking finding, not addressed by this transaction per its explicit scope).
+
+Defect discovered: NONE. All generated/fuzzed cases passed against the existing, unmodified
+  implementation — no IMPLEMENTATION_DEFECT_DISCOVERED condition arose.
+
+I-13 evidence status: REMEDIATED / PENDING FORMAL QG RE-EVALUATION. Meaningful property-based
+  and native-fuzz evidence now exists for the state-transition boundaries Chapter 13 §13.6
+  requires it for; this is disclosed as new evidence, not a self-declared PASS of the formal
+  gate.
+Branch coverage status: UNCHANGED — still FAIL — evidence (out of scope, not addressed).
+Overall QG status: UNCHANGED — still FAIL — evidence overall (branch coverage remains an
+  independently sufficient, unaddressed failure driver; Chapter 13 §13.3's coverage rule
+  requires BOTH metrics, and a formal re-evaluation, not a remediation transaction, is the
+  authority that can change the recorded overall QG result).
+
+No scope expansion: no production code changed (verified `git diff --stat -- go/`). Tier
+  unchanged. Dependency graph unchanged. module-registry.yaml untouched. Chapter 13 not
+  touched. ADR-032 not touched. Domain Contracts not touched. No branch-coverage tool
+  chosen/installed/pinned. `market-reference-service` NOT approved. Data Layer NOT approved.
+  QG NOT claimed PASS. LIVE not authorized, not referenced.
+
+Files changed (this remediation): docs/MANIFEST.md, docs/CHANGELOG.md,
+  go/market-reference-service/internal/fact/status_property_test.go,
+  go/market-reference-service/internal/instrument/instrument_fuzz_test.go,
+  go/market-reference-service/internal/venue/venue_fuzz_test.go,
+  go/market-reference-service/internal/listing/listing_fuzz_test.go — verified via
+  `git status --porcelain=v1 -uall`, no other file touched.
 ```
 
 ## Decision Log

@@ -2,6 +2,88 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — market-reference-service: I-13 property-based evidence remediation (does not close the QG)
+
+**Evidence-remediation transaction only — vai trò: `market-reference-service I-13
+Property-Based Evidence Remediator`.** Addresses ONLY the I-13 property-based-evidence gap
+recorded by `P3-MR-QG-A-MAJ-01`. Branch coverage remains a separate, unaddressed, still-open
+failure driver. Does not rerun or reinterpret the QG as PASS. Production code unchanged.
+
+### Baseline
+
+```text
+Starting HEAD: 54bfef467a31e36d5ae01cf0093b0b4d4068c3a5 (verified via git rev-parse HEAD before
+  any edit; git status --porcelain=v1 -uno clean; branch main). Prior evaluated implementation
+  boundary: go/market-reference-service/** at commit 86107adb8ab01ce28b3984ee9ebfa15163ee5c62
+  (unchanged — no production code touched by this transaction).
+```
+
+### Remediation applied
+
+```text
+Added property-based tests (internal/fact/status_property_test.go, external `fact_test`
+  package) exercising the real, authoritative fact.FoldStatus / fact.ResolveLineageHead fold
+  engine against all three real state machines (instrument/venue/listing IsValidTransition —
+  never a re-implementation): sequential-transition oracle matching (illegal transitions never
+  become valid), input-order independence (deterministic state), terminal-state exhaustion,
+  future-recorded-fact non-leakage (correction/replay ordering), same-effective-time
+  fail-closed conflict detection, and registration-lineage fork/chain-terminus resolution.
+Added native Go fuzz tests (internal/instrument/instrument_fuzz_test.go,
+  internal/venue/venue_fuzz_test.go, internal/listing/listing_fuzz_test.go) against each
+  package's real IsValidTransition — no-panic, terminal-state, and no-self-transition
+  properties.
+No shadow state machine was created; every property test calls the actual implementation.
+```
+
+### Fresh validation (exact commands/results)
+
+```text
+gofmt -l .: empty output, CLEAN.
+go vet ./...: exit 0, CLEAN.
+go build ./...: exit 0, CLEAN.
+go test ./...: all packages PASS, zero FAIL, zero SKIP.
+go test ./internal/fact/... -run 'TestFoldStatusProperty|TestResolveLineageHeadProperty' -v:
+  all 7 new property test functions PASS.
+go test ./internal/{instrument,venue,listing}/... -run '^$' -fuzz
+  'FuzzIsValidTransitionNeverPanicsAndRespectsTerminal' -fuzztime 8s (run per package):
+  instrument 2,173,401 execs, venue 2,565,833 execs, listing 2,041,310 execs — ALL PASS, zero
+  crashers.
+Fresh line coverage: module-aggregate 92.3% (up from 91.8%); fact 94.4% -> 96.0%; all other
+  packages unchanged; internal/envelope.EventRecordRef.IsZero remains untested (0.0%,
+  unchanged non-gate-blocking finding, out of this transaction's scope).
+Defect discovered: NONE.
+```
+
+### Result
+
+```text
+I-13 evidence status: REMEDIATED / PENDING FORMAL QG RE-EVALUATION.
+Branch coverage status: UNCHANGED — still FAIL — evidence.
+Overall QG status: UNCHANGED — still FAIL — evidence (a formal re-evaluation, not this
+  remediation transaction, is the authority that can change the recorded overall result).
+```
+
+### No scope expansion
+
+```text
+No production code changed (verified git diff --stat -- go/). Tier unchanged. Dependency
+  graph unchanged. module-registry.yaml untouched. Chapter 13 not touched. ADR-032 not
+  touched. Domain Contracts not touched. No branch-coverage tool chosen/installed/pinned.
+  market-reference-service NOT approved. Data Layer NOT approved. QG NOT claimed PASS. LIVE
+  not authorized, not referenced.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md,
+  go/market-reference-service/internal/fact/status_property_test.go,
+  go/market-reference-service/internal/instrument/instrument_fuzz_test.go,
+  go/market-reference-service/internal/venue/venue_fuzz_test.go,
+  go/market-reference-service/internal/listing/listing_fuzz_test.go — verified via
+  git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-19 — market-reference-service: bounded evidence correction to the formal Quality Gate evaluation (`P3-MR-QG-A-MAJ-01`)
 
 **Evidence-correction transaction only — vai trò: `market-reference-service QG Evidence
