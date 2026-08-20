@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.207"
+manifest_version: "10.208"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -5440,6 +5440,113 @@ LIVE:                        NOT_AUTHORIZED, unreferenced.
 ```
 
 **Files changed:** `docs/adr/ADR-033.md` (new file), `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; no other file touched.
+
+## ADR-033 v0.2 — Review A bounded correction (`Draft`, closes v0.1 defects `pending re-review`)
+
+**Bounded semantic correction transaction — vai trò: `ADR-033 Review A Bounded Correction Executor`.** Remediates exactly the two findings from ADR-033 v0.1's Review A. Does not redesign the language decision, does not perform Review A re-review or Independent Review B, does not approve ADR-033, does not implement either module.
+
+**Baseline:** branch `main`, HEAD `291c63a34c10c68d60b9d2752154ddcf46de69aa` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary). `manifest_version` confirmed `"10.207"` at start. `docs/adr/ADR-033.md` content identity confirmed `e23a14b802fc289c3c7b0d7e5bddef98a55cdf51` (v0.1) before this transaction.
+
+```text
+ADR:                  ADR-033
+Version:               "0.1" -> "0.2"
+Status:                Draft (unchanged)
+New content identity:  git hash-object docs/adr/ADR-033.md = cca9bbeeef102ed6d087ce2498a47c6f61a3ada8
+                        (326 lines)
+owner / approved_by / approved_at:  Product Owner / null / null (all unchanged)
+supersedes:             [] (unchanged)
+```
+
+### Review A provenance (historical evidence, recorded without fabrication)
+
+```text
+Reviewer principal:      ChatGPT
+Role:                    AI Technical Architect — Review A
+Reviewed boundary:       291c63a34c10c68d60b9d2752154ddcf46de69aa (ADR-033 v0.1)
+GitHub modification by reviewer: None
+Provider-native execution/session reference: not exposed/unavailable — NOT fabricated
+ADR-031 independence mode: not yet determined for the eventual A/B review pair (this was the
+                          primary Review A execution)
+Result:                  Blocker 0, Major 1, Minor 1 — final disposition REVISION_REQUIRED
+                          (Python/Python candidate language allocation itself was supported)
+```
+
+### Findings remediated
+
+```text
+ADR033-A-MAJ-01 (Major) — "Authoritative-implementation rule is over-constrained relative to
+  Locked Chapter 3 §3.1." v0.1's "I-2 / parity consequence" block (1) read as a blanket
+  prohibition on any second implementation existing at all, and (2) described the mitigation
+  as "one authoritative implementation/service instance," conflating the authoritative-
+  implementation concept with a runtime-instance-count limit. Corrected: the block now states
+  exactly ONE authoritative implementation/version per capability may produce authoritative
+  output (Chapter 3 §3.1's actual rule); explicitly PERMITS alternative/experimental/shadow/
+  migration/candidate-replacement implementations to exist concurrently, remaining
+  non-authoritative until parity validation + governance promotion; explicitly states Chapter
+  3 §3.1 does NOT limit runtime process/instance/replica count of the SAME authoritative
+  implementation (multiple replicas for horizontal scaling/HA explicitly compatible); the
+  "one authoritative implementation/service instance" phrase is removed and explicitly
+  disclaimed. The parallel Consequences bullet repeating the same over-constraint was
+  corrected identically. The Python/Python decision itself is explicitly NOT weakened — no
+  second AUTHORITATIVE Go (or other-language) implementation is authorized; only Chapter-3-
+  permitted non-authoritative concurrent implementations are no longer accidentally
+  prohibited.
+ADR033-A-MIN-02 (Minor) — "Draft ADR uses premature current-effect wording." v0.1's Data
+  Layer readiness section stated "This ADR resolves that gap" despite `status: Draft`,
+  `approved_by: null`, `approved_at: null`. Corrected to lifecycle-accurate wording: "If
+  approved by the Product Owner after the required review sequence... ADR-033's decision
+  will resolve that language-allocation gap" — until then the gap remains open and
+  NEXT_TRANCHE_IMPLEMENTATION = BLOCKED_ON_ADR033_LANGUAGE_DECISION stays the governed state
+  (unchanged from the prior transaction, re-affirmed here).
+```
+
+### Review-state prose updated (no eligibility-table fabrication)
+
+```text
+ADR-033.md's Independent Reviews section now records, in prose (NOT in the formal
+  eligibility table, which remains intentionally unfilled — no fabricated independence-mode/
+  execution-ID/isolation-attestation data recorded): the historical ChatGPT Review A
+  execution against the v0.1 boundary, its REVISION_REQUIRED result, both finding IDs, and
+  that this v0.2 bounded correction remediates them without itself independently verifying or
+  closing Review A. Finding state after this transaction:
+    ADR033-A-MAJ-01: REMEDIATED_PENDING_REVIEW_A_REREVIEW (NOT CLOSED by this executor)
+    ADR033-A-MIN-02: REMEDIATED_PENDING_REVIEW_A_REREVIEW (NOT CLOSED by this executor)
+Independent Review B: NOT YET EXECUTED.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Python/Python candidate language decision unchanged (verified: "structure-engine: Python",
+  "raw-regime-engine: Python" byte-identical in the Decision block). ADR-008 interpretation
+  unchanged. ADR-014 independence unchanged (Structure MUST NOT consume Regime, Regime MUST
+  NOT consume Structure — text byte-identical). Dependency graph unchanged
+  (structure-engine.depends_on=[market-data-ingestion], raw-regime-engine.depends_on=
+  [market-data-ingestion], raw-regime-engine.forbidden_dependencies=[structure-engine], all
+  unchanged text). No module-registry.yaml change (verified git diff --quiet). No Quality
+  Tier decided. No runtime-topology decision. No Domain Contract (candle/swing/structure/
+  regime)/Constitution/Engineering/Governance file touched (verified git diff --quiet for
+  each). ADR-003/ADR-008/ADR-009/ADR-014/ADR-032 all unchanged, byte-identical (verified).
+  No code changed (go/**, verified empty diff). Review A re-review NOT executed. Independent
+  Review B NOT executed. ADR-033 NOT approved.
+```
+
+### State summary
+
+```text
+Data Layer milestone readiness: DATA_LAYER_MILESTONE_READINESS = PASS, unchanged — still
+  milestone/dependency readiness only, not approval of either Data Layer module, Data Layer,
+  Phase 3, or LIVE.
+NEXT_TRANCHE_IMPLEMENTATION = BLOCKED_ON_ADR033_LANGUAGE_DECISION — unchanged, remains
+  blocked until Product Owner actually approves ADR-033.
+P3-MDI-TIER-B-MIN-01: unchanged, still OPEN — non-blocking (not touched by this transaction).
+Module approval state:      none.
+Data Layer approval state:  NOT approved.
+Phase 3 Approval Gate:       NOT opened.
+LIVE:                        NOT_AUTHORIZED, unreferenced.
+```
+
+**Files changed:** `docs/adr/ADR-033.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; no other file touched.
 
 ## Decision Log
 

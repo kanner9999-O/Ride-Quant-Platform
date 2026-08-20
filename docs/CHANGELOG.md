@@ -2,6 +2,87 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — ADR-033 v0.2: Review A bounded correction (align authoritative-implementation semantics with Chapter 3)
+
+**Bounded semantic correction — vai trò: `ADR-033 Review A Bounded Correction Executor`.**
+Remediates exactly the two findings from ADR-033 v0.1's Review A (ChatGPT, `REVISION_REQUIRED`
+— Blocker 0, Major 1, Minor 1). Does not redesign the language decision, does not run Review
+A re-review or Independent Review B, does not approve ADR-033.
+
+### Baseline
+
+```text
+Starting boundary: 291c63a34c10c68d60b9d2752154ddcf46de69aa (verified HEAD; manifest_version
+  "10.207" confirmed at start). ADR-033.md v0.1 content identity confirmed
+  e23a14b802fc289c3c7b0d7e5bddef98a55cdf51 before this transaction.
+Version: "0.1" -> "0.2". Status remains Draft. New content identity:
+  cca9bbeeef102ed6d087ce2498a47c6f61a3ada8.
+```
+
+### Fixed — Major: `ADR033-A-MAJ-01`
+
+```text
+v0.1's "I-2 / parity consequence" block overstated Locked Chapter 3 §3.1: read as a blanket
+  prohibition on any second implementation existing at all, and described the mitigation as
+  "one authoritative implementation/service instance" — conflating the authoritative-
+  implementation concept with a runtime-instance-count limit. Corrected: exactly ONE
+  authoritative implementation/version per capability may produce authoritative output
+  (Chapter 3 §3.1's actual rule); alternative/experimental/shadow/migration/candidate-
+  replacement implementations are explicitly PERMITTED to exist concurrently, remaining
+  non-authoritative until required parity validation and governance promotion complete;
+  Chapter 3 §3.1 explicitly does NOT limit the number of runtime processes/instances/replicas
+  of the SAME authoritative implementation — multiple replicas for horizontal scaling/HA are
+  explicitly compatible; the "one authoritative implementation/service instance" phrase is
+  removed and disclaimed. The parallel Consequences bullet repeating the same over-constraint
+  was corrected identically. The Python/Python decision is NOT weakened — no second
+  AUTHORITATIVE Go (or other-language) implementation is authorized by this correction; only
+  Chapter-3-permitted non-authoritative concurrent implementations are no longer accidentally
+  prohibited.
+```
+
+### Fixed — Minor: `ADR033-A-MIN-02`
+
+```text
+v0.1's Data Layer readiness section stated "This ADR resolves that gap" despite
+  status: Draft, approved_by: null, approved_at: null. Corrected to lifecycle-accurate
+  wording: the decision will resolve the gap IF/when Product Owner approval follows the
+  required review sequence — until then the gap remains open and
+  NEXT_TRANCHE_IMPLEMENTATION = BLOCKED_ON_ADR033_LANGUAGE_DECISION stays the governed state.
+```
+
+### Review-state prose updated
+
+```text
+Historical ChatGPT Review A execution (v0.1 boundary, REVISION_REQUIRED, both finding IDs)
+  recorded in prose only — the formal Independent Reviews eligibility table remains
+  intentionally unfilled (no fabricated independence-mode/execution-ID/isolation-attestation
+  data). Finding state: ADR033-A-MAJ-01 and ADR033-A-MIN-02 both
+  REMEDIATED_PENDING_REVIEW_A_REREVIEW — NOT CLOSED by this executor. Independent Review B
+  NOT YET EXECUTED.
+```
+
+### No scope expansion
+
+```text
+Python/Python candidate language unchanged. ADR-008 interpretation unchanged. ADR-014
+  independence unchanged (Structure/Regime mutual non-consumption, byte-identical text). No
+  dependency graph change. No module-registry.yaml change. No Quality Tier decided. No
+  runtime-topology decision. No Domain Contract/Constitution/Engineering/Governance file
+  touched. ADR-003/ADR-008/ADR-009/ADR-014/ADR-032 all unchanged, byte-identical. No code
+  changed. Review A re-review and Independent Review B both NOT executed. ADR-033 NOT
+  approved.
+Data Layer milestone readiness (DATA_LAYER_MILESTONE_READINESS = PASS) and
+  NEXT_TRANCHE_IMPLEMENTATION = BLOCKED_ON_ADR033_LANGUAGE_DECISION both unchanged.
+P3-MDI-TIER-B-MIN-01 unchanged, still OPEN — non-blocking, not touched.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-033.md, docs/MANIFEST.md, docs/CHANGELOG.md — verified via
+  git status --porcelain=v1 -uall. No other file touched.
+```
+
 ## [Unreleased] — 2026-08-20 — ADR-033 v0.1: candidate Structure/Raw-Regime language allocation (Draft) + Data Layer milestone readiness
 
 **Governed architecture-authoring transaction — vai trò: `ADR-033 Structure/Raw-Regime
