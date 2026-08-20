@@ -2,6 +2,76 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — market-data-ingestion: Quality Tier Classification CANDIDATE (Tier 2 — Supporting, unapproved)
+
+**Candidate-authoring transaction only — vai trò: `market-data-ingestion Quality Tier
+Classification Candidate Executor`.** Independently derives and proposes a Chapter 13
+Quality Tier candidate for `market-data-ingestion`. Does not approve the tier, does not
+perform Review A/B, does not run a formal Quality Gate.
+
+### Finding on prior MANIFEST state
+
+```text
+An earlier MANIFEST entry (Batch 01) informally stated "market-data-ingestion Tier
+  resolved... Tier 2" by citing Chapter 13 §13.4's initial-assignment table alone. This was
+  not a valid governed resolution: §13.4's own text states the initial-assignment table is
+  superseded by module-registry.yaml once the registry is active (it is, since Phase 1), and
+  the registry carries zero quality_tier field for this module (verified directly). This
+  transaction is the first proper governed candidate for this module's tier, correcting that
+  informal claim's standing additively (not rewriting the historical text).
+```
+
+### Independent analysis
+
+```text
+Tier 0 (Risk Gateway/Execution Engine/Position Ledger): REJECTED — no execution/custody
+  authority; observes/records market facts, does not act.
+Tier 1 (Strategy/Feature/Structure/Regime Engine): REJECTED — no Decision Pipeline
+  membership; candle.md §15's I-2 cross-reference requires this module's OWN output be
+  consistent across execution modes, which is distinct from I-2's own declared Scope
+  ("Decision pipeline; 4 execution modes") — does not widen that Scope (Chapter 13 §13.5).
+Tier 3 (Frontend): REJECTED trivially — no UI surface.
+Tier 2 (API layer, Data Ingestion): ACCEPTED — matches Tier 2's definition and is literally
+  named in Chapter 13's own initial-assignment table (corroborative, not resolving,
+  authority); structurally parallel to market-reference-service's own already-approved Tier
+  2 (same module-registry.yaml "Data Layer" grouping, depends_on that module rather than
+  being depended upon by the Decision Pipeline directly).
+I-13 applies (candle.md §1's explicit state_machine block). I-9 does not formally trigger
+  (Scope is Position Ledger/Execution Engine/Risk Gateway only). I-2 does not formally
+  trigger (see Tier 1 rejection). Security gate (I-4/I-7/I-11) does not currently trigger in
+  substance — registry flags security_classification: trust_boundary_candidate (not "none,"
+  a disclosed nuance vs. market-reference-service) but the current implementation has no
+  real venue-adapter/credential-handling substance yet (verified via this module's own
+  README).
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — all six Chapter 0 §4b clauses evaluated explicitly: no Platform
+  Invariant/Event Schema/Module Taxonomy/dependency-graph/Governance-process change; ">1
+  module" does not trigger (single-module registry fact); not hard-to-reverse (same
+  bounded-correction pattern used throughout this session); no Locked ADR superseded.
+```
+
+### Result
+
+```text
+Proposed tier: Tier 2 — Supporting. Coverage floor: line >=80% AND branch >=80%,
+  independently. No Chaos Test, no Parity Test. CANDIDATE / UNAPPROVED — no Review A, no
+  Review B, no Product Owner decision. module-registry.yaml NOT edited (verified byte-
+  identical via git hash-object before/after). No implementation/test code changed. No
+  dependency-graph/taxonomy/authority change. market-reference-service's already-approved
+  Tier 2 untouched. market-data-ingestion NOT approved. Data Layer NOT approved. Phase 3
+  Approval Gate NOT opened. LIVE not authorized.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only — verified via git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — market-reference-service: formal Chapter 13 Quality Gate — PASS
 
 **Evidence/bookkeeping transaction only — vai trò: `market-reference-service QG PASS

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.198"
+manifest_version: "10.199"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -3787,6 +3787,257 @@ This PASS result satisfies Chapter 13's quality-gate eligibility evidence requir
 **Historical evidence preserved, not overwritten:** the prior formal QG evidence entries at earlier implementation boundaries — "Formal Quality Gate Evaluation (Chapter 13 — `FAIL — evidence`...)" (subject boundary `86107adb8ab01ce28b3984ee9ebfa15163ee5c62`) and "Fresh Formal Quality Gate Re-Evaluation (Chapter 13 — `FAIL — criteria`...)" (subject boundary `fd7bf5f2a75d2a0dee36eadd33a90fee332bb514`) — remain byte-for-byte unchanged above, exactly as Chapter 13 §13.9's "Historical immutability" requires: a fresh evaluation generates NEW evidence at the new boundary, it does not reinterpret or overwrite the old.
 
 **Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's evidence/bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
+
+## Phase 3 — `market-data-ingestion` Quality Tier Classification (CANDIDATE — UNAPPROVED, pending Review A/Review B/Product Owner decision)
+
+**Baseline:** branch `main`, HEAD `bdad1c06c5e2fc5a11e69aa9012960cbea019502` (verified — matches required baseline, working tree clean before this transaction). **No implementation code touched by this transaction** — verified `git diff --quiet -- go/` after all edits. Governing authority verified directly, fresh (not copied from memory): Chapter 13 §§13.3/13.4/13.4.1/13.4.2/13.9/13.12 (full text re-read), Chapter 7 §7.0/§7.1/§7.4/§7.5, Chapter 2 I-2/I-3/I-4/I-6/I-7/I-9/I-10/I-11/I-12/I-13, `module-registry.yaml`'s current `market-data-ingestion` entry (re-verified directly: `module_type: runtime_service`, `owns_authoritative_state: true`, `depends_on: [market-reference-service]`, `security_classification: trust_boundary_candidate`, `status: candidate`, **zero `quality_tier:` field** — confirmed via direct grep, this is the first tier candidate ever authored for this specific module), `docs/domain/candle.md` (the Domain Contract governing this module's authoritative Candle subject), ADR-032 v0.2 (Data Layer boundary between `market-reference-service` and `market-data-ingestion`), Phase-3 execution rules (`P3-MODULE-BATCH-001` et al.).
+
+**Finding on current MANIFEST state (required by this task, disclosed precisely):** an earlier transaction in this MANIFEST's history (the "Phase 3 — Data Layer Batch 01" section, line ~2049) stated *"`market-data-ingestion` Tier resolved (Chapter 13 §13.4 initial-assignment table: 'Data Ingestion', Tier 2, floor ≥80%) — unchanged from Batch 01."* This was **not** a valid governed resolution under Chapter 13 §13.4's own text: *"initial assignment... KHÔNG phải competing authority với registry; khi registry active, mapping resolve từ registry"* — the registry is active (has existed since Phase 1) and, per direct verification above, carries **no `quality_tier` field** for this module. Per §13.4's own branch-1 authority chain, the initial-assignment table is superseded by the registry once the registry is active — it cannot itself constitute "resolution" without a governed candidate + approval that actually pins the field, exactly the same discipline this session already applied correctly to `market-reference-service` (whose own tier was properly candidate-authored, reviewed, and Product-Owner-approved before being pinned — never self-assigned by table lookup). This transaction corrects that informal, non-authoritative claim's standing — additively, not by rewriting the historical Batch-01 text — by being the first PROPER governed candidate for this module's tier. `market-data-ingestion`'s Chapter 13 tier is, as of this transaction's start, genuinely **UNRESOLVED** in the registry (§13.4 point 4: undefined tier applicability → fail-closed → eligibility incomplete, until a governed candidate is approved and pinned).
+
+```text
+module_id:              market-data-ingestion
+proposed tier:           Tier 2 — Supporting
+coverage floor:          >= 80% line AND >= 80% branch, independently
+                          (Chapter 13 §13.3's deterministic AND rule — neither
+                          metric alone is sufficient)
+additional Tier requirements: NONE tier-triggered — no Chaos Test (Tier 0
+                          only, §13.4/§13.12-C), no Parity Test (Tier 1
+                          only, decision-pipeline responsibility). Boundary-
+                          triggered gates independent of tier (§13.12-D)
+                          assessed on their own merits, NOT as tier-elevating
+                          factors:
+                            I-12 (Single Source of Truth, universal Scope,
+                              §13.5-A) — applies; this module owns_authoritative_state:
+                              true for the Candle subject, and candle.md itself is
+                              built on I-3 append-only/no-repaint discipline.
+                            I-13 (State Transition Integrity) — applies; candle.md
+                              §1 has an explicit `state_machine:` block (UNSEEN ->
+                              PROVISIONAL -> CLOSED, with CLOSED -> CLOSED
+                              self-transition for CandleCorrected, candle.md's own
+                              cited I-13 example), matching the same "Scope is
+                              illustrative/non-exhaustive" reasoning already
+                              established for market-reference-service's Instrument/
+                              Venue/TradableListing state machines.
+                            I-9 (Numerical Precision) — does NOT formally trigger.
+                              I-9's own declared Scope (Chapter 2) is narrowly
+                              "Position Ledger, Execution Engine, Risk Gateway."
+                              Chapter 13 §13.5 is explicit that a gate evaluation
+                              does not widen an invariant's own declared Scope —
+                              even though this module already stores OHLCV as
+                              lossless decimal (I-9-spirit-consistent implementation
+                              choice, per this module's own README, not a formal
+                              I-9 gate obligation).
+                            I-2 (Decision Parity) — does NOT formally trigger, and
+                              this is NOT the same question as candle.md §15's own
+                              explicit I-2 cross-reference ("Cả bốn execution mode
+                              tiêu thụ đúng cùng envelope và payload... (I-2)").
+                              §15 uses I-2 to require that this module's OWN output
+                              (the Candle event stream) be identical across all 4
+                              execution modes — a data-consistency precondition
+                              this module must uphold. I-2's own declared Scope in
+                              Chapter 2 (§47-61) is explicitly "Decision pipeline;
+                              cả 4 execution mode" — the DECISION layer itself
+                              (Strategy/Structure/Regime/Feature Engines), which
+                              this module is upstream of, not part of. Tier 1's
+                              defining trigger is a Parity Test comparing Replay
+                              against Live AT THE DECISION layer specifically —
+                              this module produces no Decision for such a test to
+                              compare. Citing I-2 as a data-consistency discipline
+                              this module must respect does not widen I-2's own
+                              declared Scope to include this module for TIER
+                              purposes (same non-widening principle as I-9 above).
+                            Security (I-4/I-7/I-11, §13.12-D) — does NOT currently
+                              trigger in substance, though flagged for future
+                              attention: registry declares
+                              security_classification: trust_boundary_candidate
+                              (NOT "none," unlike market-reference-service's own
+                              entry) with an explicit registry note "External venue
+                              connection boundary — security classification
+                              identification only, no auth/isolation design
+                              (Package 1.2)." Verified directly against this
+                              module's own README: "No real venue adapter exists
+                              either — internal/ingest.Service accepts already
+                              venue-adapter-normalized RawFact values; nothing in
+                              this module talks to a real exchange" — the CURRENT
+                              authoritative implementation has no actual isolation/
+                              custody/authorization boundary substance (I-4's Scope
+                              is Strategy/Decision/Risk/Execution; I-7's Scope is
+                              Plugins; I-11's Scope is Execution Engine/Exchange
+                              Adapter — none currently apply to this module's real
+                              implementation). This is a genuinely different,
+                              disclosed nuance from market-reference-service's
+                              plain security_classification: none — worth Product
+                              Owner's separate awareness (a future real venue
+                              adapter could change this), but does NOT block or
+                              alter this tier candidate, which is a separate,
+                              orthogonal axis from the security gate (§13.12-D vs
+                              §13.12-C).
+authority basis:          Chapter 13 §13.4 branch 1 ("Runtime module -> resolve
+                          tier từ module-registry.yaml, Chapter 7 §7.5") —
+                          market-data-ingestion already has a canonical module
+                          identity in Chapter 7's taxonomy (module_type:
+                          runtime_service, registered), so branch 3's standalone-
+                          artifact canonical-tier-designation-authority apparatus
+                          (§13.4.1, anti-self-certification chain) does NOT apply
+                          — that machinery exists specifically for artifacts
+                          WITHOUT a canonical owning module. Branch 1's own
+                          authority is module-registry.yaml itself — once a
+                          properly-governed transaction pins a tier field into
+                          this module's registry entry, the registry's own
+                          version/content identity becomes the tier-resolution
+                          provenance (Chapter 13 §13.9's branch-1 tier-source
+                          bullet).
+```
+
+**Why adjacent tiers rejected (explicit reasoning against Tier 0/1/2/3 definitions, not analogy alone):**
+
+```text
+Tier 0 — Critical (Risk Gateway, Execution Engine, Position Ledger)
+  REJECTED: Tier 0's defining characteristic is direct financial-action/custody
+  authority — modules that execute orders, move money, or gate real-time risk
+  decisions. market-data-ingestion has none of this: no execution authority
+  (does not call exchanges, per its own README — "internal/ingest.Service
+  accepts already venue-adapter-normalized RawFact values"), no custody
+  authority, no order/position/risk decision ownership. It observes and records
+  market facts (Candle observed/closed/corrected) — an input/normalization
+  layer, not an action-taking one. A data-quality error here is serious
+  (garbage-in-garbage-out for everything downstream) but is not itself a
+  financial action.
+
+Tier 1 — Core Logic (Strategy Engine, Feature Engine, Structure Engine,
+  Regime Engine)
+  REJECTED: Tier 1's defining characteristic is Decision Pipeline membership,
+  specifically I-2 Decision Parity applicability, which is why Tier 1 mandates
+  a Parity Test comparing Replay against Live AT THE DECISION LAYER.
+  market-data-ingestion does not produce a Decision — it is Data Layer,
+  upstream of the Decision Pipeline (Structure/Regime/Feature/Strategy Engines
+  consume the Candle events it produces, per candle.md §16's own explicit
+  "Không sở hữu... cơ chế invalidate/recompute cụ thể của Swing/Regime" boundary
+  statement). candle.md §15's own I-2 cross-reference is about this module's
+  OWN output being consistent across execution modes (a precondition for
+  Decision Parity to hold downstream), not about this module itself being part
+  of the Decision layer subject to a Parity Test. A wide blast radius (every
+  downstream Decision-Pipeline module ultimately depends on Candle data) does
+  not, by itself, move an observation/normalization layer into the
+  Decision-Pipeline tier — Chapter 13's tier scheme classifies by the NATURE of
+  an artifact's responsibility, not by how many consumers depend on it.
+
+Tier 3 — UI (Frontend)
+  REJECTED trivially: market-data-ingestion is a backend runtime service with
+  no UI surface.
+
+Tier 2 — Supporting (API layer, Data Ingestion) — ACCEPTED
+  market-data-ingestion's actual nature (a foundational, supporting,
+  observation/normalization runtime service that the Decision Pipeline
+  consumes but that does not itself decide or execute) matches Tier 2's own
+  definition, AND its explicitly named example in Chapter 13's own initial-
+  assignment table is literally "Data Ingestion" — this module's own category
+  name, not a mere analogy. This match is corroborative context, not the
+  resolving authority itself (per §13.4, the table is superseded by the active
+  registry) — the resolving basis remains the independent criticality analysis
+  above (execution/custody authority for T0; Decision-Pipeline/Parity-Test
+  applicability for T1 — both absent here) plus this module's structural
+  position: registered under module-registry.yaml's own "Data Layer" section
+  grouping (same grouping as market-reference-service, already-approved Tier
+  2), and depending on market-reference-service (depends_on edge, unchanged by
+  this transaction) rather than being depended upon by any Decision-Pipeline
+  module directly for identity/precision/calendar authority — a
+  supporting-infrastructure role structurally parallel to market-reference-
+  service's own already-approved classification.
+```
+
+**Assessment against the task's required participation checklist:**
+
+```text
+Custody:                       NO — no credential/signing authority anywhere in
+                                the current implementation (I-11's Scope,
+                                Execution Engine/Exchange Adapter, does not
+                                currently apply in substance — see security-gate
+                                discussion above).
+Execution:                     NO — does not call exchanges, does not place
+                                orders (README: "nothing in this module talks
+                                to a real exchange").
+Direct financial action:       NO.
+Decision Pipeline core logic:  NO — upstream input/normalization layer,
+                                candle.md §16 explicitly disclaims ownership of
+                                downstream Swing/Regime invalidate/recompute
+                                logic.
+I-2 Decision Parity scope:     NO, formally — candle.md §15 cites I-2 as a
+                                data-consistency discipline this module upholds,
+                                not as membership in I-2's own declared
+                                Decision-Pipeline Scope (see reasoning above).
+Supporting/reference/data-
+  ingestion infrastructure:    YES — this is precisely this module's own
+                                nature and Chapter 13's own literal category
+                                name for it.
+```
+
+**Dependency and authority boundaries (verified unchanged, not altered by this classification):**
+
+```text
+market-reference-service remains the sole authoritative owner (ADR-032 v0.2,
+  I-12) of Instrument/Venue identity, precision/tick/lot metadata, calendar/
+  session — unchanged; this transaction does not touch market-reference-
+  service's already-approved Tier 2 classification or any of its authority.
+market-data-ingestion remains a query-consumer of that authority only —
+  module-registry.yaml's depends_on: [market-reference-service] edge is
+  read-only-verified, unchanged, and this classification does not require or
+  imply any new dependency edge, authority transfer, or module_type/
+  responsibilities change. A quality-tier classification is a per-module
+  registry FACT (analogous to security_classification or module_type), not a
+  taxonomy or dependency-graph decision — verified consistent with how
+  market-reference-service's own tier was classified without touching its
+  dependency graph.
+```
+
+**Exact artifact/version/boundary this classification applies to:** the `market-data-ingestion` **module_id** as registered in `module-registry.yaml` (Chapter 7 §7.5 authority) — a module-level classification (Chapter 13 §13.4 branch 1), not pinned to one Go-code commit. The module's current implementation, as of this transaction's baseline HEAD (`bdad1c06c5e2fc5a11e69aa9012960cbea019502`, `go/market-data-ingestion/**`), is the executable-implementation trigger that would make coverage evidence applicable once this tier is approved (Chapter 13 §13.12-B) — but the tier assignment itself binds to the module identity, re-evaluated per new gate-evaluation boundaries, not re-classified per commit (§13.9's historical-immutability rule).
+
+**ADR Scope Rule assessment (Chapter 0 §4b) — explicit, all six clauses evaluated:**
+
+```text
+Platform Invariant change:        does NOT trigger. No invariant in Chapter 2
+  is added, removed, or redefined by this classification.
+Event Schema change:              does NOT trigger. No event/contract shape
+  changes.
+Module Taxonomy / dependency-graph change: does NOT trigger. module_type
+  (runtime_service), responsibilities, depends_on all unchanged — a tier field
+  is quality-metadata (Chapter 13's own domain), not taxonomy (Chapter 7's
+  three-type scheme) or a dependency edge.
+Governance / Approval process change: does NOT trigger. This candidate uses
+  the EXISTING module-registry.yaml quality-metadata mechanism and the
+  EXISTING Review A / Review B / Product Owner decision pattern already
+  established and used for market-reference-service's own tier — no new
+  process is invented.
+">1 module" OR "hard to reverse" clause (disjunctive OR, one sufficient):
+  ">1 module" does NOT trigger — this classification is a data fact about
+    exactly ONE module (market-data-ingestion's own tier field in its own
+    registry entry); it does not change any OTHER module's requirements,
+    dependency edges, or taxonomy. Same reasoning already applied and
+    accepted for market-reference-service's own tier classification.
+  "khó đảo ngược" (hard-to-reverse) does NOT trigger — tier classifications
+    are explicitly correctable via the same bounded-correction pattern used
+    throughout this session's governance history — a straightforward
+    re-declaration, not a structural/schema/invariant change.
+Supersede a Locked ADR:            does NOT trigger. No existing Locked ADR
+  addresses market-data-ingestion's quality tier; ADR-032 v0.2 addresses
+  language allocation and the Data Layer boundary/two-axis contract, not
+  quality-tier classification, and is not touched or superseded here.
+Conclusion: ADR NOT REQUIRED. Per Chapter 13 §13.4 branch 1, the correct,
+  minimum path is a governed classification candidate through the existing
+  module-registry.yaml quality-metadata mechanism itself (this section) —
+  NOT a new ADR, and NOT branch 3's standalone canonical-tier-designation-
+  authority apparatus (§13.4.1), which does not apply to a module with an
+  existing canonical registry identity. This is NOT invented merely because
+  the tier was unresolved — it is the same disposition independently
+  re-derived from the same governing text already applied to
+  market-reference-service's own classification.
+```
+
+**Explicit CANDIDATE / UNAPPROVED statement:** this classification is a **CANDIDATE only**. It is NOT approved. No Review A has been performed. No Review B has been performed. No Product Owner decision has been made. `module-registry.yaml` has **NOT** been edited — the `market-data-ingestion` entry's `quality_tier` field remains absent, exactly as it was before this transaction (verified `git diff --quiet -- docs/architecture/module-registry.yaml`). This transaction does not run, evaluate, or claim any Chapter 13 Quality Gate result for `market-data-ingestion` — it only prepares a tier-classification candidate for independent review.
+
+**No scope expansion:** implementation code unchanged (verified `git diff --quiet -- go/`). `module-registry.yaml` unchanged (candidate only — not pinned; verified byte-identical via `git hash-object` before/after). Dependency graph unchanged. Module taxonomy unchanged (module_type/responsibilities/depends_on untouched). `market-reference-service`'s already-approved Tier 2 classification untouched. ADR-032 not touched. Domain Contracts not touched. Chapter 13/Chapter 7 not touched. Testing Convention not touched. Phase 3 execution rules not touched. Structure Engine/Raw Regime Engine not touched. `market-data-ingestion` NOT approved. Data Layer NOT approved. Phase 3 Approval Gate NOT opened. LIVE not authorized, not referenced.
+
+**Files changed:** `docs/MANIFEST.md`/`docs/CHANGELOG.md` only (this transaction's bookkeeping) — no other file touched, verified via `git status --porcelain=v1 -uall`.
 
 ## Decision Log
 
