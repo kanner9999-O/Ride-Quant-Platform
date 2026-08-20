@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.192"
+manifest_version: "10.193"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -2815,6 +2815,161 @@ No tool installed/pinned. No go.mod/go.sum/tool binary added. No CI workflow add
 
 Files changed: docs/MANIFEST.md, docs/CHANGELOG.md, docs/engineering/testing.md — verified via
   git status --porcelain=v1 -uall, no other file touched.
+```
+
+## gobco Governed Installation/Pinning (Approved Testing Convention v0.4 mechanism)
+
+```text
+Baseline: branch main, HEAD e455e5210e7a4f49307cd70048230770693d1b52 (verified via git
+  rev-parse HEAD before any edit; git status --porcelain=v1 -uno clean).
+
+Authority: docs/engineering/testing.md v0.4, status Approved (approved_by: Product Owner,
+  approved_at: 2026-08-20). Approved mechanism: gobco. Required measurement mode: explicit
+  -branch. Chapter 13 remains sole authority for coverage floors/QG semantics — unchanged by
+  this transaction.
+
+Storage convention note: no existing repository file/schema is dedicated to tool-pin
+  metadata (verified directly: docs/engineering/ contains no tool-pinning file; Chapter 13
+  §13.14 reserves "storage/schema và filename cụ thể" of authoritative tool metadata for
+  Engineering Foundation, not invented here) — pin identity is recorded in MANIFEST.md, this
+  repository's existing I-12 single-source-of-truth ledger for current version/state of
+  ADRs/conventions/module-registry alike, rather than inventing a new file/schema unilaterally
+  inside a bounded installation transaction.
+
+Pre-install verification (all performed fresh, not assumed from prior candidate review):
+  1. Current gobco tag state: verified via GitHub tags API and pkg.go.dev versions page —
+     v1.3.4 (2024-03-08) remains the latest published tag; no new tag since v0.4's candidate
+     survey. No drift.
+  2. Candidate version availability: v1.3.4 downloadable via `go install
+     github.com/rillig/gobco@v1.3.4` — confirmed by actually running it (below).
+  3. Exact module path: github.com/rillig/gobco (confirmed via go.mod at the v1.3.4 tag and
+     via `go version -m` on the built binary).
+  4. License: BSD-2-Clause text exists on the repository's current default branch, but — new
+     finding, not previously disclosed at this precision — the v1.3.4 TAGGED source tree
+     itself (verified via GitHub Contents API at ref=v1.3.4) contains NO LICENSE file; `git
+     log --follow -- LICENSE` shows the LICENSE file was added in a commit dated
+     2024-09-24T20:53:08Z — about 6.5 months AFTER the v1.3.4 tag (2024-03-08) — with no tag
+     cut since that addition. This independently explains and corroborates pkg.go.dev's own
+     "License: None detected" notice for this exact module version (observed during the prior
+     candidate-review transaction, previously unresolved as to cause — now explained). The
+     BSD-2-Clause terms are real and apply to the current repository state, but are not
+     present in-tree at the specific immutable version being pinned below. Disclosed as a
+     residual, non-blocking finding for this bounded transaction — NOT resolved by inventing
+     a waiver; visible to Product Owner/governance if stricter per-artifact license-file
+     presence is required by future policy. Does not change the core mechanism/semantics
+     approved in v0.4, so this is not treated as GOVERNED_MECHANISM_DRIFT.
+  5. Source at the exact selected version: verified directly (not from master/HEAD) —
+     instrumenter.go and main.go fetched at the v1.3.4 git ref specifically.
+  6. -branch mode existence/semantics at v1.3.4: CONFIRMED identical to the reviewed v0.4
+     semantics — `flags.BoolVar(&g.branch, "branch", false, "cover branches, not
+     conditions")`; markConds: branch=true skips UnaryExpr/BinaryExpr decomposition (only the
+     whole controlling condition instrumented), branch=false decomposes NOT/LAND/LOR into
+     atomic operands (condition coverage) — verified at the v1.3.4 tag's own instrumenter.go,
+     not master.
+  7. Unsupported constructs at v1.3.4: SelectStmt — no handling found in instrumenter.go at
+     this tag (consistent with README and prior verification). Generic type parameters
+     (TypeParams/IndexExpr/IndexListExpr) — no explicit handling found in instrumenter.go at
+     this tag either; gobco's general generics compatibility remains unresolved (same
+     disclosed fail-closed status as the prior transaction — not newly discovered, re-
+     confirmed).
+  8. Go toolchain compatibility: gobco's own go.mod at v1.3.4 declares `go 1.16` (minimum) —
+     fully compatible with this repository's go1.26.6 build toolchain / go.mod `go 1.25`
+     (Go's backward-compatibility guarantee; confirmed by successfully building/running it,
+     below).
+
+Landscape check result: NO material difference from the Approved v0.4 assumptions on the
+  core mechanism (tag, -branch flag, semantics, unsupported constructs) — the one new,
+  disclosed nuance is the license-file/tag-timing finding above, judged non-blocking and not
+  GOVERNED_MECHANISM_DRIFT (core measurement mechanism unchanged and re-verified byte-for-byte
+  identical in behavior).
+
+Exact pin (installed via `go install github.com/rillig/gobco@v1.3.4` into an isolated GOBIN,
+  outside any module's go.mod — no production runtime dependency introduced):
+  Module path:        github.com/rillig/gobco
+  Pinned version:      v1.3.4
+  Content checksum (go.sum h1): h1:4weHt9u2CyTOnEJ/7z6fAcHZvJHy1pNXm8danDh3TA8=
+  go.mod checksum:     h1:VvLaz1Pm73AQQ2JVBFWQz6BdZVSQg0YffxW3yXwEArM=
+  Underlying VCS commit: 4c9ea04be46fdf4ee7d40f7bba782f83d0397731 (refs/tags/v1.3.4) — verified
+    via `go mod download -json github.com/rillig/gobco@v1.3.4`.
+  Executable identity: gobco -version reports "1.3.4"; `go version -m <binary>` confirms
+    `mod github.com/rillig/gobco v1.3.4 h1:4weHt9u2CyTOnEJ/7z6fAcHZvJHy1pNXm8danDh3TA8=`,
+    built with go1.26.6, GOOS=darwin, GOARCH=arm64.
+  Build/install Go version: go1.26.6 darwin/arm64 (this repository's current build toolchain).
+
+Functional verification (run directly against market-reference-service, HEAD e455e52):
+  Invocation: `gobco -branch ./internal/fact` from the module root — ran successfully (exit 0).
+  Branch mode output: "Branch coverage: 45/52" — label confirmed "Branch coverage," matching
+    the reviewed v0.4 semantics exactly (printOutput() relabeling confirmed empirically, not
+    only from source reading).
+  Default (condition) mode, same package: `gobco ./internal/fact` — "Condition coverage:
+    50/62" — DISTINCT numerator AND denominator from branch mode (52 whole controlling
+    conditions vs 62 atomic sub-conditions), empirically proving the two metrics are not
+    interchangeable, corroborating P3-GOBC-A-MAJ-01's finding on this exact repository's code.
+  Numerator/denominator semantics: match the reviewed mechanism — branch mode counts whole
+    controlling conditions (IfStmt/SwitchStmt/ForStmt), condition mode counts atomic boolean
+    sub-expressions.
+  Exit semantics: exit 0 on successful run REGARDLESS of whether coverage is complete (0 does
+    NOT mean "coverage passed" — only "tool ran without crashing"; confirmed by running against
+    packages with incomplete branch coverage, still exit 0). Exit 0 also observed for a
+    non-existent package argument (prints "nothing to instrument," does NOT signal via exit
+    code — a silent-failure-mode finding, disclosed). Exit 2 observed on a genuine Go parse
+    error (gobco panics on unparseable source) — confirmed via a deliberately broken throwaway
+    scratch package outside this repository. CONCLUSION: any future evidence-machinery use of
+    gobco MUST parse the "Branch coverage: N/M" text output to determine actual coverage —
+    exit code alone is insufficient and must never be treated as a pass/fail signal.
+  Reproducibility: ran `gobco -branch ./internal/fact` twice — the "Branch coverage: 45/52"
+    line and every individual condition line were byte-identical across both runs; only `go
+    test`'s own reported wall-clock duration line differed (expected, non-coverage-content
+    noise, not pinned as evidence).
+  Repository source files not modified: confirmed via `git status --porcelain=v1 -uall --
+    go/market-reference-service` before and after every run above — clean throughout.
+  Temp instrumentation does not become authoritative source: confirmed empirically (not only
+    from source reading) via `-keep` on a scratch invocation (internal/decimal) — the
+    instrumented copy lived under macOS's real $TMPDIR (`/var/folders/.../T/gobco-<hash>/
+    module-<hash>/...`), fully outside the repository; diffed against the repository's actual
+    internal/decimal/decimal.go and found only non-semantic `GobcoCover(...)` counter-wrapping
+    around existing boolean expressions (e.g. `strings.HasPrefix(s, "-")` unchanged, merely
+    wrapped) — confirms the anti-gaming/authoritative-implementation claim empirically, not
+    only theoretically. Temp directory removed after inspection.
+
+Applicability verification (fresh re-check against current market-reference-service, HEAD
+  e455e52, via grep across go/market-reference-service):
+  SelectStmt: ZERO select statements found in the current authoritative implementation.
+  Generics/type-parameter constructs: ZERO generic type parameters found.
+  Other unsupported control-flow (goto): ZERO goto statements found.
+  Result: current market-reference-service evidence readiness — the mechanism's disclosed
+    unsupported constructs do NOT affect this subject at this boundary; completeness for this
+    exact subject IS established for the constructs it currently contains. (gobco's general
+    generics-parsing support remains an unresolved, disclosed fail-closed item for any FUTURE
+    subject/change that introduces generics — not blocking now, per the prior transaction's
+    same disclosure, re-confirmed unchanged.)
+
+Validation (installation itself did not regress the module — no go.mod/go.sum/production file
+  touched by this transaction):
+  gofmt -l .: empty output, CLEAN.
+  go vet ./...: exit 0, CLEAN.
+  go build ./...: exit 0, CLEAN.
+  go test ./...: all packages PASS, zero FAIL, zero SKIP (unchanged from prior transaction —
+    no test/production code touched here).
+
+Formal Quality Gate: NOT rerun in this transaction. The "Branch coverage: 45/52" /
+  "Condition coverage: 50/62" numbers obtained above are installation-validation/smoke-test
+  evidence ONLY — they do NOT constitute the formal Chapter 13 branch-coverage result (not
+  module-aggregate, not run across all packages, not pinned as gate evidence under §13.9's
+  full evidence-contract requirements). market-reference-service's existing formal QG result
+  remains unchanged: FAIL — evidence, pending a separate, future, fresh QG transaction that
+  evaluates the then-current exact implementation boundary using this pinned mechanism.
+
+No production code changed. No test code changed. No go.mod/go.sum changed (verified
+  `git diff --quiet -- go/market-reference-service/go.mod go/market-reference-service/go.sum`
+  and `git diff --quiet -- go/`). No CI workflow added. No Testing Convention semantic content
+  changed (docs/engineering/testing.md untouched by this transaction). No Chapter 13 change.
+  No Tier change. No module-registry.yaml change. No dependency-graph change. No ADR-032
+  change. No Domain Contract change. No module/Data Layer approved. LIVE: NOT_AUTHORIZED.
+
+Files changed: docs/MANIFEST.md, docs/CHANGELOG.md only — verified via
+  `git status --porcelain=v1 -uall` (excluding pre-existing unrelated untracked .DS_Store/
+  CLAUDE.md files present since before this session's work began).
 ```
 
 ## Decision Log
