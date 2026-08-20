@@ -1,5 +1,69 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# v1.3 semantic amendment (2026-08-20T15:42+07:00 -- Product Owner decision timestamp
+# supplied at MINUTE precision only, per the governed transaction request; NOT normalized/
+# padded with a fabricated ":00" seconds field -- written verbatim as
+# "2026-08-20T15:42+07:00", a valid ISO-8601 representation omitting the seconds component,
+# distinct from execution/commit time, vai trò: `market-data-ingestion Tier-2 Registry
+# Recorder`) -- Product Owner decision verbatim: "APPROVE MARKET-DATA-INGESTION TIER 2 --
+# SUPPORTING". Adds ONE new field, `quality_tier`, to the `market-data-ingestion` entry ONLY
+# -- pins its Chapter 13 §13.4 branch-1 quality-tier classification (Tier 2 -- Supporting,
+# coverage floor >= 80% line AND >= 80% branch independently per Chapter 13 §13.3, no
+# additional tier-triggered requirement -- Chaos Test is Tier 0-only, Parity Test is Tier
+# 1-only). Classification candidate (HEAD 7858b175365032aa0304158f819c801e4fb7d774) + full
+# rejected-tier reasoning + ADR Scope Rule assessment (ADR NOT REQUIRED) authored in a prior
+# transaction; Review A found `REVISION_REQUIRED` (`P3-MDI-TIER-A-MAJ-01` Major,
+# `P3-MDI-TIER-A-MIN-02` Minor); both closed by a bounded correction (HEAD
+# b866bb8cf71a3df7b37b68badf227141c3082e90) distinguishing Chapter 13 §13.12-A (I-9's own
+# invariant-conformance Scope, correctly unwidened) from §13.12-D (Data quality/numerical
+# precision, APPLICABLE -- this module owns authoritative Candle state and processes
+# authoritative OHLCV values) and correcting the candidate's dependency-direction prose
+# (structure-engine/raw-regime-engine both directly depends_on this module -- direct
+# dependency BY a Decision-Pipeline engine != membership IN the Decision Pipeline, does NOT
+# trigger Tier 1); bounded Review A re-review CLOSED both findings,
+# `READY_FOR_INDEPENDENT_REVIEW_B`; Independent Review B (Mode B
+# `SAME_PRINCIPAL_DISTINCT_EXECUTION`, principal ChatGPT, execution reference
+# `P3-MDI-TIER-B-b866bb8-20260820T1534+0700`, ADR-031 §5 isolation attestation) independently
+# supported Tier 2 -- Supporting, independently confirmed both prior findings CLOSED, Blocker
+# 0/Major 0/Minor 1 (`P3-MDI-TIER-B-MIN-01`, non-blocking -- see below), verdict
+# `READY_FOR_PRODUCT_OWNER_TIER_DECISION`. Full evidence detail recorded in
+# `docs/MANIFEST.md`/`docs/CHANGELOG.md`; this transaction only records the resulting Product
+# Owner approval into this registry, per Chapter 13 §13.4 branch 1's own authority path
+# ("Runtime module -> resolve tier từ module-registry.yaml, Chapter 7 §7.5") -- no separate
+# canonical-tier-designation-authority chain needed (§13.4.1 is for standalone artifacts
+# without a canonical owning module; this module already has one). `version: "1.2" -> "1.3"`;
+# genuine semantic field addition (a new authoritative fact, not mechanical/wording-only), so
+# `package_lifecycle: Consolidated Stable -> candidate` -- same precedent this file already
+# established for `market-reference-service.quality_tier`'s own v1.1 -> v1.2 amendment below:
+# a genuine content change reopens the consolidated baseline pending a future
+# re-consolidation transaction, it is not silently absorbed into the existing Consolidated
+# Stable state. **`P3-MDI-TIER-B-MIN-01` — OPEN / non-blocking, carried forward, NOT silently
+# closed by this transaction:** Review B found the (preserved, unmodified by this transaction)
+# candidate's security-discussion prose inaccurately narrows I-11's declared Scope to
+# "Execution Engine, Exchange Adapter" -- Chapter 2's actual I-11 Scope text is "Toàn hệ
+# thống, đặc biệt Execution Engine, Exchange Adapter" (the ENTIRE system, especially those
+# two) -- a narrower paraphrase than the invariant's own declared Scope. Review B determined
+# this does NOT change Tier 2, does NOT change the current §13.12-D Security result (still
+# NOT APPLICABLE in substance on the current implemented boundary, per the bounded
+# correction's own preserved reasoning), and does NOT block this Product Owner tier decision
+# -- but must NOT be used later to exclude `market-data-ingestion` from applicable
+# §13.12-A/I-11 conformance once a real venue/credential boundary exists. This mechanical
+# registry-recording transaction does NOT perform this Minor's semantic remediation (no
+# repository rule requires correction as part of recording) -- it remains OPEN, tracked in
+# `docs/MANIFEST.md`, for a future bounded correction. Preserved BYTE-IDENTICAL:
+# `market-reference-service.quality_tier` (unchanged); module_id, module_type,
+# responsibilities, owns_authoritative_state, consumes, emits, depends_on,
+# forbidden_dependencies, security_classification, phase, status, notes -- of
+# `market-data-ingestion` AND of every other module (all 25 other modules untouched,
+# dependency graph byte-equivalent, 26 modules, 65 depends_on edges, zero edge
+# additions/removals/forbidden_dependencies violations). This transaction does NOT: run or
+# claim any Quality Gate result (coverage floor is now applicable once a formal gate
+# evaluation happens, but none has run at this new tier boundary); approve
+# `market-data-ingestion` as a module/package (Chapter 12 phase-approval is a separate,
+# untouched authority); modify `go/market-data-ingestion/**` or any other implementation
+# code; modify ADR-032; modify any Domain Contract; modify Chapter 13; authorize LIVE
+# (unchanged, NOT_AUTHORIZED).
+#
 # CONSOLIDATED STABLE (package lifecycle, 2026-08-19T22:02:00+07:00, Product Owner decision,
 # vai trò: `Package 1.1 v1.2 Mechanical Reconsolidation Recorder`) -- status: Draft, NOT
 # Approved/Locked. Product Owner decision verbatim: "APPROVE PACKAGE 1.1 V1.2
@@ -479,10 +543,10 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "1.2"
+version: "1.3"
 status: Draft
 package: "1.1"
-package_lifecycle: Consolidated Stable
+package_lifecycle: candidate
 generated_at: "2026-08-10"
 
 modules:
@@ -530,6 +594,7 @@ modules:
     phase: { identified_in: "1.1", elaborated_by: "1.3-A" }
     status: candidate
     notes: "External venue connection boundary — security classification identification only, no auth/isolation design (Package 1.2)."
+    quality_tier: { tier: "Tier 2 — Supporting", approved_by: "Product Owner", approved_at: "2026-08-20T15:42+07:00" }
 
   # ---------------------------------------------------------------------
   # Structure / Regime (independent, per ADR-003/ADR-014)

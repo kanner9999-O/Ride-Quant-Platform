@@ -2,6 +2,92 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — market-data-ingestion: pin Product Owner-approved Quality Tier 2
+
+**Mechanical registry-recording transaction only — vai trò: `market-data-ingestion Tier-2
+Registry Recorder`.** Records the already-made Product Owner decision approving
+market-data-ingestion's Chapter 13 Quality Tier as durable registry/MANIFEST evidence. Does
+not re-decide the tier, does not perform Review A/B, does not run a Quality Gate.
+
+### Baseline
+
+```text
+Starting boundary: b866bb8cf71a3df7b37b68badf227141c3082e90 (verified HEAD before any edit;
+  tree clean). module-registry.yaml pre-edit: version "1.2", package_lifecycle Consolidated
+  Stable, blob 5586cdaeb890fa694a812526ba44751f4b0e1541; market-data-ingestion had zero
+  quality_tier field (verified fresh). manifest_version pre-edit: "10.200" (verified,
+  matched expectation).
+```
+
+### Review history recorded
+
+```text
+Original candidate: 7858b175365032aa0304158f819c801e4fb7d774. Review A: REVISION_REQUIRED
+  (P3-MDI-TIER-A-MAJ-01 Major, P3-MDI-TIER-A-MIN-02 Minor). Bounded correction:
+  b866bb8cf71a3df7b37b68badf227141c3082e90. Bounded Review A re-review: both findings
+  CLOSED, READY_FOR_INDEPENDENT_REVIEW_B. Independent Review B: principal ChatGPT, Mode B
+  (SAME_PRINCIPAL_DISTINCT_EXECUTION, ADR-031 §5), execution reference
+  P3-MDI-TIER-B-b866bb8-20260820T1534+0700, reviewed boundary
+  b866bb8cf71a3df7b37b68badf227141c3082e90, Blocker 0/Major 0/Minor 1
+  (P3-MDI-TIER-B-MIN-01, non-blocking), independently supported Tier 2 — Supporting,
+  independently confirmed both prior findings CLOSED, READY_FOR_PRODUCT_OWNER_TIER_DECISION.
+```
+
+### P3-MDI-TIER-B-MIN-01 carried forward (OPEN, not silently closed)
+
+```text
+The preserved candidate's security-discussion paragraph narrows I-11's declared Scope to
+  "Execution Engine, Exchange Adapter" when Chapter 2's actual I-11 Scope is the entire
+  system, especially those two — does not change Tier 2, does not change the current
+  §13.12-D Security result (still NOT APPLICABLE in substance, no real venue/credential
+  boundary exists yet), does not block this tier decision — but must not later be used to
+  exclude market-data-ingestion from applicable §13.12-A/I-11 conformance. Not remediated by
+  this mechanical recording transaction; remains OPEN, tracked in MANIFEST for a future
+  bounded correction.
+```
+
+### Product Owner decision
+
+```text
+"APPROVE MARKET-DATA-INGESTION TIER 2 — SUPPORTING." Decision time: 2026-08-20T15:42+07:00
+  — supplied at minute precision only, written verbatim, NOT padded with a fabricated
+  seconds field; distinct from and not substituted by this transaction's execution/commit
+  time.
+```
+
+### Registry amendment
+
+```text
+docs/architecture/module-registry.yaml: market-data-ingestion.quality_tier added
+  ({tier: "Tier 2 — Supporting", approved_by: "Product Owner",
+  approved_at: "2026-08-20T15:42+07:00"}) — the only new field, no other module touched.
+  version: "1.2" -> "1.3" (genuine semantic amendment). package_lifecycle: Consolidated
+  Stable -> candidate (reopened, same precedent as market-reference-service's own v1.1 ->
+  v1.2 amendment). status: Draft unchanged. generated_at preserved. Verified fresh: 26
+  modules (unchanged), 65 depends_on edges (unchanged), dependency graph acyclic,
+  market-reference-service.quality_tier and every other module's semantic fields
+  byte-identical/unchanged.
+```
+
+### Result
+
+```text
+market-data-ingestion Chapter 13 Quality Tier: RESOLVED — Tier 2 — Supporting, pinned in
+  module-registry.yaml v1.3. This is NOT a Quality Gate PASS (none run at this new tier
+  boundary) and NOT a module/Data Layer/Phase 3 Approval Gate/LIVE authorization — all
+  remain separate, untouched, unauthorized. No implementation/test code changed. No
+  dependency/taxonomy/authority change. Authority boundary unchanged: market-reference-
+  service remains sole authoritative owner of Instrument/Venue identity/precision/calendar;
+  market-data-ingestion remains query-consumer only.
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml, docs/MANIFEST.md, docs/CHANGELOG.md — verified via
+  git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — market-data-ingestion Quality Tier candidate: bounded correction (`P3-MDI-TIER-A-MAJ-01`, `P3-MDI-TIER-A-MIN-02`)
 
 **Bounded semantic correction only — vai trò: `market-data-ingestion Quality Tier Candidate
