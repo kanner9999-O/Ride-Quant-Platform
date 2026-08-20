@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.202"
+manifest_version: "10.203"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -4314,6 +4314,93 @@ No scope expansion (this reconsolidation transaction specifically): implementati
 
 Files changed: docs/architecture/module-registry.yaml, docs/MANIFEST.md, docs/CHANGELOG.md
   only — verified via `git status --porcelain=v1 -uall`.
+```
+
+## Package 1.1 v1.3 Evidence-Fidelity Correction (`P11-V13-A-MIN-01`, `P11-V13-REC-MIN-01`)
+
+**Mechanical, non-semantic correction — vai trò: `Package 1.1 v1.3 Evidence-Fidelity Correction Executor`.** Corrects Product-Owner-decision quotation-fidelity debt in existing evidence prose. Does not alter any Product Owner decision, `quality_tier` value, `approved_by`, `approved_at`, registry version/lifecycle, module semantics, dependencies, or authority. Additive only — historical renderings are preserved below unmodified, not rewritten.
+
+```text
+Starting boundary:        67dc33abe9a0f1838338629091e1ab0fcaaef3f6 (verified HEAD before
+  any edit; working tree clean; manifest_version "10.202" verified matching expectation).
+
+Authoritative exact decision strings (established here as current evidence interpretation):
+  Tier decision:            APPROVE MARKET-DATA-INGESTION TIER 2 — SUPPORTING
+  Reconsolidation decision: APPROVE PACKAGE 1.1 V1.3 RECONSOLIDATION
+  (Both use the actual em dash the Product Owner's text contains, and carry no trailing
+  punctuation inside the quotation — exactly as supplied.)
+
+P11-V13-A-MIN-01 (Minor, non-blocking, previously confirmed by Review A and Independent
+  Review B, not previously CLOSED): verified directly — the deviations are:
+    docs/architecture/module-registry.yaml (v1.3 semantic-amendment banner, preserved
+      unmodified above): "Product Owner decision verbatim: \"APPROVE MARKET-DATA-INGESTION
+      TIER 2 -- SUPPORTING\"" — uses ASCII `--` in place of the actual em dash, while
+      labeling the rendering "verbatim." Corrected via the new banner prepended above (this
+      transaction) stating the authoritative exact string and explicitly marking the older
+      rendering as non-literal for current interpretation — the older banner text itself is
+      NOT edited/rewritten, it remains historical record.
+    docs/MANIFEST.md line 4202 (Product Owner Decision — Tier 2 subsection, preserved
+      unmodified): "Product Owner decision: \"APPROVE MARKET-DATA-INGESTION TIER 2 —
+      SUPPORTING.\"" — has a terminal period INSIDE the quotation, not supplied by the
+      Product Owner.
+    docs/CHANGELOG.md line 133 (matching entry, preserved unmodified): same
+      terminal-period-inside-quotation deviation.
+  None of these deviations were ever claimed to be architecturally significant — Review B
+  already classified this Minor as non-blocking/non-semantic. This transaction remediates
+  the evidence-fidelity debt mechanically now that a second, same-class discrepancy
+  (P11-V13-REC-MIN-01) has appeared, per this task's explicit authorization to do so.
+
+P11-V13-REC-MIN-01 (new, Minor, mechanical evidence-fidelity only, non-semantic — first
+  identified in this transaction): verified directly — the deviations are:
+    docs/MANIFEST.md line 4272 (Package 1.1 v1.3 Reconsolidation subsection, preserved
+      unmodified): "Product Owner decision: \"APPROVE PACKAGE 1.1 V1.3 RECONSOLIDATION.\""
+      — terminal period inside the quotation, not supplied by the Product Owner.
+    docs/CHANGELOG.md line 50 (matching entry, preserved unmodified): same
+      terminal-period-inside-quotation deviation.
+  (docs/MANIFEST.md's Architecture-table row for module-registry.yaml, line 175, already
+  quotes this decision correctly — "APPROVE PACKAGE 1.1 V1.3 RECONSOLIDATION" with no
+  trailing period inside the quotation — verified directly, not touched, needs no
+  correction.)
+
+Historical evidence preserved, not erased or rewritten: every deviant rendering identified
+  above remains present, byte-for-byte, at its original location in this MANIFEST, in
+  CHANGELOG.md, and in module-registry.yaml's own historical banner — git history and these
+  preserved renderings remain the authoritative historical record of what earlier
+  transactions actually wrote. This correction section supersedes them for CURRENT evidence
+  interpretation only: any future reader resolving "what did the Product Owner actually
+  decide" should use the two authoritative exact strings recorded at the top of this
+  section, not the deviant historical renderings.
+
+Semantic impact: NONE. Product Owner decisions unchanged. quality_tier values unchanged
+  (market-data-ingestion and market-reference-service both verified byte-identical).
+  approved_by/approved_at unchanged. module-registry.yaml version ("1.3"), status ("Draft"),
+  and package_lifecycle ("Consolidated Stable") all unchanged — verified fresh. Module count
+  (26), depends_on edge count (65), and dependency-graph acyclicity unchanged — verified
+  fresh. Authority boundary unchanged: market-reference-service remains sole authoritative
+  owner of Instrument/Venue identity/precision/tick/lot/calendar/session;
+  market-data-ingestion remains query-consumer-only.
+
+P3-MDI-TIER-B-MIN-01: explicitly NOT touched by this transaction — remains OPEN /
+  non-blocking. It concerns a separate SEMANTIC wording issue (I-11's declared Chapter 2
+  Scope being narrowed in earlier candidate prose), not a quotation-fidelity issue, and this
+  task explicitly excludes it from this correction's scope. A future
+  market-data-ingestion Quality Gate must evaluate Security applicability using Chapter 2's
+  actual I-11 Scope, not the stale candidate shorthand.
+
+Finding status: P11-V13-A-MIN-01: REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION.
+                P11-V13-REC-MIN-01: REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION.
+Neither finding is self-certified CLOSED by this transaction — closure requires a separate
+  deterministic verification of exactly these two findings, per this task's explicit
+  instruction (no full Review A/B round required unless that verification finds a new
+  Major/Blocker or semantic change).
+
+market-data-ingestion formal Chapter 13 Quality Gate: still NOT YET EVALUATED — unaffected
+  by this evidence-only correction. No module/Data Layer/Phase 3 Approval Gate approval. No
+  Quality Gate result introduced or claimed. LIVE remains NOT_AUTHORIZED.
+
+Files changed: docs/architecture/module-registry.yaml (commentary/provenance only — zero
+  YAML semantic diff, verified), docs/MANIFEST.md, docs/CHANGELOG.md — verified via
+  `git status --porcelain=v1 -uall`, no other file touched.
 ```
 
 ## Decision Log

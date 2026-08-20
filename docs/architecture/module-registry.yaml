@@ -1,5 +1,32 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# Evidence-fidelity correction (2026-08-20, vai trò: `Package 1.1 v1.3 Evidence-Fidelity
+# Correction Executor`) -- mechanical, non-semantic. Corrects `P11-V13-A-MIN-01` (Review
+# A/Independent Review B-confirmed Minor, non-blocking): the "v1.2 semantic amendment"
+# banner below labels a rendering "Product Owner decision verbatim" that uses ASCII `--` in
+# place of the actual em dash the Product Owner's decision text contains -- that specific
+# historical rendering is NOT a literal-verbatim quotation and is superseded, for CURRENT
+# evidence interpretation only, by the exact string below. The historical banner text is
+# preserved byte-for-byte beneath this correction, unmodified -- this is an additive
+# correction, not a rewrite; git history remains the authoritative historical record. No
+# YAML module data (version/status/package_lifecycle/quality_tier, for this or any module)
+# is touched by this correction -- verified byte-identical before/after.
+#
+# Authoritative exact decision strings (current evidence interpretation):
+#   Tier decision:            APPROVE MARKET-DATA-INGESTION TIER 2 — SUPPORTING
+#   Reconsolidation decision: APPROVE PACKAGE 1.1 V1.3 RECONSOLIDATION
+# (Both reproduced here with the actual em dash and with no trailing punctuation inside the
+# quotation, matching exactly what the Product Owner supplied in each governed transaction.)
+#
+# `P11-V13-A-MIN-01`: REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION -- NOT self-certified
+# CLOSED by this transaction; a separate deterministic verification decides closure.
+# `P11-V13-REC-MIN-01` (new, same class -- a separate terminal-period-inside-quotation
+# deviation found in docs/MANIFEST.md and docs/CHANGELOG.md's own reconsolidation-decision
+# renderings, not in this registry file): REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION --
+# full detail in docs/MANIFEST.md's own additive correction section, not duplicated here.
+# `P3-MDI-TIER-B-MIN-01` (separate, semantic, I-11 Scope wording in earlier candidate prose)
+# is UNTOUCHED by this correction -- remains OPEN / non-blocking, NOT remediated here.
+#
 # CONSOLIDATED STABLE (package lifecycle, 2026-08-20T16:30+07:00 -- Product Owner decision
 # timestamp supplied at MINUTE precision only, NOT padded with a fabricated seconds field,
 # distinct from execution/commit time, vai trò: `Package 1.1 v1.3 Mechanical Reconsolidation

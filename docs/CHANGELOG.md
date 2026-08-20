@@ -2,6 +2,62 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-20 — Package 1.1 v1.3: correct PO decision evidence fidelity (`P11-V13-A-MIN-01`, `P11-V13-REC-MIN-01`)
+
+**Mechanical, non-semantic correction only — vai trò: `Package 1.1 v1.3 Evidence-Fidelity
+Correction Executor`.** Corrects Product-Owner-decision quotation-fidelity debt. Does not
+alter any Product Owner decision, tier, approval timestamp, registry lifecycle, module
+semantics, dependency, or authority. Additive only — no historical entry is rewritten.
+
+### Authoritative exact decision strings
+
+```text
+Tier decision:            APPROVE MARKET-DATA-INGESTION TIER 2 — SUPPORTING
+Reconsolidation decision: APPROVE PACKAGE 1.1 V1.3 RECONSOLIDATION
+```
+
+### Deviations found (verified directly, preserved unmodified at their original locations)
+
+```text
+P11-V13-A-MIN-01 (previously confirmed by Review A/Independent Review B, not previously
+  CLOSED): docs/architecture/module-registry.yaml's v1.3 banner labels a rendering
+  "verbatim" that uses ASCII "--" instead of the actual em dash; docs/MANIFEST.md line 4202
+  and this CHANGELOG's own market-data-ingestion Tier-2 entry both have a terminal period
+  inside the quotation of the Tier decision, not supplied by the Product Owner.
+P11-V13-REC-MIN-01 (new, first identified here): docs/MANIFEST.md line 4272 and this
+  CHANGELOG's own Package 1.1 v1.3 reconsolidation entry both have a terminal period inside
+  the quotation of the reconsolidation decision, not supplied by the Product Owner.
+  (docs/MANIFEST.md's Architecture-table row for module-registry.yaml already quotes this
+  decision correctly — no correction needed there.)
+```
+
+### Result
+
+```text
+Historical renderings preserved byte-for-byte at their original locations — not erased, not
+  rewritten, not falsely claimed to have always been correct. This entry establishes the two
+  authoritative exact strings above for current evidence interpretation. No Product Owner
+  decision changed. No quality_tier/approved_by/approved_at changed (both modules verified
+  byte-identical). module-registry.yaml version "1.3", status Draft, package_lifecycle
+  Consolidated Stable all unchanged. 26 modules, 65 depends_on edges, dependency graph
+  acyclic — all unchanged. Authority boundary unchanged. No implementation/test code
+  changed. No Quality Gate run or claimed. No module/Data Layer/Phase 3 Approval Gate
+  approval. LIVE remains NOT_AUTHORIZED.
+
+Finding status: P11-V13-A-MIN-01 and P11-V13-REC-MIN-01 both
+  REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION — neither self-certified CLOSED; closure
+  requires a separate deterministic verification. P3-MDI-TIER-B-MIN-01 explicitly NOT
+  touched — remains OPEN/non-blocking (separate semantic I-11-Scope wording issue, out of
+  this correction's scope).
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml (commentary/provenance only, zero YAML semantic
+  diff), docs/MANIFEST.md, docs/CHANGELOG.md — verified via git status --porcelain=v1 -uall.
+```
+
 ## [Unreleased] — 2026-08-20 — Package 1.1 v1.3: record Product Owner reconsolidation
 
 **Mechanical lifecycle transaction only — vai trò: `Package 1.1 v1.3 Mechanical
