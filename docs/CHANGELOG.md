@@ -2,6 +2,90 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-21 — raw-regime-engine: fix evidence reference conflict detection
+
+**Narrowly bounded remediation — one residual defect only.** Fixes exactly `P3-RGE-EVID-A-MIN-05`'s residual: `normalize_evidence`'s same-`EventRecordRef` conflict detection compared only `.ohlcv`, silently missing conflicts on `scope`/`recorded_time`/`is_correction`. Does not touch the five findings already `CLOSED` by prior deterministic verification (`P3-RGE-POLICY-A-MAJ-01`, `P3-RGE-TIME-A-MAJ-02`, `P3-RGE-DEF-A-MAJ-03`, `P3-RGE-VIEW-A-MAJ-04`, `P3-RGE-THRESH-A-MIN-06`). Does not implement new dimensions, choose production formulas/thresholds, assign Quality Tier, run formal Chapter 13 QG, or touch `structure-engine`.
+
+### Baseline
+
+```text
+Starting HEAD: 73a7ad5e02000220b85a73902bcbb58b5085890d (verified; tree clean;
+  manifest_version "10.214" confirmed at start).
+```
+
+### Fixed — Minor (residual): `P3-RGE-EVID-A-MIN-05`
+
+```text
+One EventRecordRef must resolve exactly one authoritative CandleFact representation — the
+  prior fix only compared `.ohlcv`, so two CandleFact objects sharing a ref but differing in
+  scope, recorded_time, or is_correction passed silently (last-write-wins) whenever OHLCV
+  happened to match. Changed the comparison to full CandleFact structural equality
+  (`existing != candle` — CandleFact is a frozen dataclass, so `!=` already compares every
+  field: scope, ohlcv, recorded_time, ref, is_correction — ref is already guaranteed equal,
+  being the dict key). Same ref + fully identical CandleFact still dedupes to one; same ref +
+  ANY differing field now raises EvidenceReferenceConflictError. expected_count cardinality
+  checking and §8a canonical evidence ordering both unchanged.
+```
+
+### Regression tests added (6 required scenarios)
+
+```text
+Fully identical CandleFact under a shared ref dedupes successfully. Same ref + different
+  OHLCV -> conflict (pre-existing, retained). Same ref + same OHLCV but different
+  recorded_time -> conflict (NEW, closes the exact gap). Same ref + same OHLCV but different
+  scope -> conflict (NEW). Same ref + same OHLCV but different is_correction -> conflict
+  (NEW). Valid, collision-free evidence still produces exactly expected_count refs
+  (unaffected-regression check).
+```
+
+### Tests / checks (fresh, clean-room, unchanged lock file)
+
+```text
+ruff format --check . -> clean; ruff check . -> All checks passed; mypy --strict -> Success,
+  no issues (9 source files); pytest tests/ -v -> 59 passed (up from 56 — 3 new regressions;
+  all prior tests remain green). Re-verified from a second clean-room venv built only from
+  requirements-dev.lock.txt + pyproject.toml (--no-deps) -> pip check clean, identical
+  results (no new dependency). Informational coverage (NON-FORMAL/INFORMATIONAL ONLY, Tier
+  unresolved) -> 98% (unchanged).
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — narrow bounded correction enforcing regime.md §8a's already-existing
+  evidence-integrity requirement, under-implemented by the prior fix (OHLCV-only comparison
+  instead of full CandleFact equality). No Domain/Event semantic changed, no dependency graph
+  change, no authority change, no runtime-topology decision, no security/custody boundary, no
+  production formula/threshold selected, no new dimension. No GOVERNED_DECISION_REQUIRED
+  triggered.
+```
+
+### State summary
+
+```text
+Raw Regime Engine: remediated (residual evidence-integrity gap fixed), tested, NOT approved,
+  Quality Tier UNRESOLVED, no formal Chapter 13 QG.
+Structure Engine: unchanged (verified git diff --quiet -- python/structure-engine/).
+Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+### Finding states
+
+```text
+P3-RGE-EVID-A-MIN-05: REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION (not self-CLOSED).
+P3-RGE-POLICY-A-MAJ-01, P3-RGE-TIME-A-MAJ-02, P3-RGE-DEF-A-MAJ-03, P3-RGE-VIEW-A-MAJ-04,
+  P3-RGE-THRESH-A-MIN-06: unchanged, remain CLOSED.
+```
+
+### Files changed
+
+```text
+python/raw-regime-engine/src/raw_regime_engine/regime.py,
+  python/raw-regime-engine/tests/test_regime.py, docs/MANIFEST.md, docs/CHANGELOG.md —
+  verified via git status --porcelain=v1 -uall; python/structure-engine/** verified
+  byte-unchanged; no other file touched. manifest_version "10.214" -> "10.215".
+```
+
 ## [Unreleased] — 2026-08-21 — raw-regime-engine: remediate contract semantic defects
 
 **Bounded remediation batch — six verified findings from the first raw-regime-engine build.** Fixes exactly `P3-RGE-POLICY-A-MAJ-01`, `P3-RGE-TIME-A-MAJ-02`, `P3-RGE-DEF-A-MAJ-03`, `P3-RGE-VIEW-A-MAJ-04`, `P3-RGE-EVID-A-MIN-05`, `P3-RGE-THRESH-A-MIN-06`. Does not implement new Regime dimensions, choose production formulas/thresholds, assign Quality Tier, run formal Chapter 13 QG, or touch `structure-engine`. All six recorded `REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION` — none self-closed.

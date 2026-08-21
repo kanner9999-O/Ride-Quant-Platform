@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.214"
+manifest_version: "10.215"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -6550,6 +6550,111 @@ P3-MDI-TIER-B-MIN-01:                     unchanged, still OPEN — non-blocking
 **Finding states:** `P3-RGE-POLICY-A-MAJ-01`, `P3-RGE-TIME-A-MAJ-02`, `P3-RGE-DEF-A-MAJ-03`, `P3-RGE-VIEW-A-MAJ-04`, `P3-RGE-EVID-A-MIN-05`, `P3-RGE-THRESH-A-MIN-06`: all `REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION` — none self-CLOSED.
 
 **Files changed:** `python/raw-regime-engine/src/raw_regime_engine/{__init__,regime,errors}.py`, `python/raw-regime-engine/tests/{conftest,test_regime}.py`, `python/raw-regime-engine/README.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `python/structure-engine/**` verified byte-unchanged (`git diff --quiet`); no other file touched. `manifest_version` `"10.213"` → `"10.214"`.
+
+**Independent deterministic verification (external to this executor's own transactions):** subsequently closed five of the six findings above — `P3-RGE-POLICY-A-MAJ-01`, `P3-RGE-TIME-A-MAJ-02`, `P3-RGE-DEF-A-MAJ-03`, `P3-RGE-VIEW-A-MAJ-04`, `P3-RGE-THRESH-A-MIN-06` all transition to `CLOSED`. `P3-RGE-EVID-A-MIN-05` was found to have a residual defect (below) and remains open pending the narrow fix that follows.
+
+## `raw-regime-engine` — narrow fix, evidence reference conflict detection (`P3-RGE-EVID-A-MIN-05` residual — `REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION`, NOT self-CLOSED; five prior findings CLOSED, untouched)
+
+**Narrowly bounded remediation — one residual defect only.** Fixes exactly `P3-RGE-EVID-A-MIN-05`'s residual: `normalize_evidence`'s same-`EventRecordRef` conflict detection compared only `.ohlcv`, missing conflicts on `scope`/`recorded_time`/`is_correction`. Does not touch `P3-RGE-POLICY-A-MAJ-01`, `P3-RGE-TIME-A-MAJ-02`, `P3-RGE-DEF-A-MAJ-03`, `P3-RGE-VIEW-A-MAJ-04`, `P3-RGE-THRESH-A-MIN-06` (all `CLOSED` by prior deterministic verification). Does not implement new Regime dimensions, choose production formulas/thresholds, assign Quality Tier, run formal Chapter 13 QG, or touch `structure-engine`.
+
+**Baseline:** branch `main`, HEAD `73a7ad5e02000220b85a73902bcbb58b5085890d` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; working tree clean — only pre-existing untracked `.DS_Store` clutter present). `manifest_version` confirmed `"10.214"` at start.
+
+### Fixed — Minor (residual): `P3-RGE-EVID-A-MIN-05`
+
+```text
+normalize_evidence's same-ref conflict check compared `existing.ohlcv != candle.ohlcv` only —
+  insufficient, since one EventRecordRef must resolve exactly one authoritative CandleFact
+  representation across ALL its semantic/event-record fields, not just OHLCV. Two CandleFact
+  objects sharing a ref but differing in scope, recorded_time, or is_correction previously
+  passed silently (last-write-wins) as long as ohlcv happened to match.
+Fix: changed the comparison to `existing != candle` — full CandleFact structural equality.
+  CandleFact is a frozen dataclass (scope, ohlcv, recorded_time, ref, is_correction), so `!=`
+  already compares every field in one complete check (ref is already guaranteed equal, being
+  the dict key this comparison is keyed on). Same ref + fully identical CandleFact still
+  dedupes to one (legitimate duplicate representation, e.g. redelivery); same ref + ANY
+  differing field now raises EvidenceReferenceConflictError, fail-closed. expected_count
+  cardinality checking and canonical evidence ordering (§8a) both unchanged — this fix is
+  scoped exclusively to the conflict-detection comparison.
+```
+
+### Regression tests added (6 required scenarios, `test_regime.py`)
+
+```text
+1. same ref + fully identical CandleFact (scope/ohlcv/recorded_time/is_correction all equal)
+   -> dedupes successfully, exactly window_candle_count refs.
+2. same ref + different OHLCV -> EvidenceReferenceConflictError (pre-existing case, still
+   covered, renamed for clarity alongside the new ones).
+3. same ref + same OHLCV but different recorded_time -> EvidenceReferenceConflictError (NEW —
+   this is exactly the gap the residual defect left open).
+4. same ref + same OHLCV but different scope -> EvidenceReferenceConflictError (NEW).
+5. same ref + same OHLCV but different is_correction -> EvidenceReferenceConflictError (NEW).
+6. valid evidence (no collision) still produces exactly expected_count refs — unaffected
+   regression check, confirms cardinality checking was not weakened by this fix.
+```
+
+### Tests / checks executed (fresh, clean-room)
+
+```text
+Fresh venv (python3.13 -m venv .venv), pip install -e ".[dev]", then:
+  ruff format --check .   -> 10 files already formatted (clean)
+  ruff check .             -> All checks passed!
+  mypy (--strict)          -> Success: no issues found in 9 source files
+  pytest tests/ -v         -> 59 passed (up from 56 — 3 new regressions; all 56 prior tests
+    remain green, unchanged behavior for every other path).
+Separately re-verified via a second clean-room venv built ONLY from
+  requirements-dev.lock.txt + pyproject.toml (--no-deps, no resolver freedom): pip check ->
+  No broken requirements found; ruff/mypy/pytest all identical results (lock file unchanged —
+  no new dependency).
+Informational coverage (NON-FORMAL / INFORMATIONAL ONLY — Tier unresolved, no formal
+  Chapter 13 QG claimed): coverage run -m pytest && coverage report -> 98% statement
+  coverage across src/ (unchanged from the prior remediation batch).
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — narrow bounded correction enforcing regime.md §8a's already-existing
+  "one EventRecordRef resolves exactly one authoritative Candle fact" evidence-integrity
+  requirement, which the prior fix under-implemented (OHLCV-only comparison instead of full
+  CandleFact equality). No Domain/Event semantic changed, no dependency graph change, no
+  module authority change, no runtime-topology decision, no security/custody boundary, no
+  production formula/threshold selected, no new Regime dimension. No
+  GOVERNED_DECISION_REQUIRED triggered.
+```
+
+### No scope expansion — explicit verification
+
+```text
+structure-engine unchanged (verified git diff --quiet -- python/structure-engine/). The five
+  prior findings' own fixes (canonical policy identifiers, recorded_time causality,
+  RegimeDefinition immutability, RegimeCurrentView schema, threshold label completeness) are
+  untouched — verified by reading the diff for this transaction covers exactly
+  normalize_evidence's conflict-detection line and its docstring, plus the new test
+  functions; no other function/class edited. docs/domain/**, docs/adr/**,
+  docs/constitution/**, docs/architecture/module-registry.yaml, go/** all unchanged (verified
+  git diff --quiet for each).
+```
+
+### Finding states
+
+```text
+P3-RGE-EVID-A-MIN-05: REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION (not self-CLOSED).
+P3-RGE-POLICY-A-MAJ-01, P3-RGE-TIME-A-MAJ-02, P3-RGE-DEF-A-MAJ-03, P3-RGE-VIEW-A-MAJ-04,
+  P3-RGE-THRESH-A-MIN-06: unchanged, remain CLOSED.
+```
+
+### State summary
+
+```text
+Raw Regime Engine implementation state:  remediated (residual evidence-integrity gap fixed),
+  tested, NOT approved, NOT formally Quality-Gated (Tier UNRESOLVED).
+Structure Engine implementation state:   unchanged — remains implemented, tested, NOT
+  approved, NOT formally Quality-Gated (Tier unresolved).
+Phase 3 Approval Gate:                    NOT opened.
+LIVE:                                      NOT_AUTHORIZED, unreferenced.
+```
+
+**Files changed:** `python/raw-regime-engine/src/raw_regime_engine/regime.py`, `python/raw-regime-engine/tests/test_regime.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `python/structure-engine/**` verified byte-unchanged (`git diff --quiet`); no other file touched. `manifest_version` `"10.214"` → `"10.215"`.
 
 ## Decision Log
 

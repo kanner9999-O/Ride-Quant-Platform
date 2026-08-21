@@ -3,6 +3,7 @@ from __future__ import annotations
 import dataclasses
 import pathlib
 import re
+from datetime import timedelta
 from decimal import Decimal
 
 import pytest
@@ -28,6 +29,7 @@ from raw_regime_engine import (
     OHLCV,
     AnalysisWindow,
     CandleFact,
+    CandleScope,
     DecimalPrecisionPolicy,
     RegimeClassified,
     RegimeCurrentView,
@@ -519,6 +521,12 @@ def test_classified_fact_evidence_refs_match_canonical_normalization(
 
 
 # --- Finding 5 (P3-RGE-EVID-A-MIN-05): evidence cardinality/integrity ------
+#
+# One EventRecordRef must resolve exactly one authoritative CandleFact
+# representation: same ref + a CandleFact differing in ANY semantic/
+# event-record field (scope, ohlcv, recorded_time, is_correction — ref is
+# already equal by construction) fails closed. The comparison is full
+# CandleFact structural equality, never narrowed to OHLCV alone.
 
 
 def test_normalize_evidence_valid_window_produces_exact_cardinality(allocator: SequenceAllocator) -> None:
@@ -527,11 +535,18 @@ def test_normalize_evidence_valid_window_produces_exact_cardinality(allocator: S
     assert len(refs) == 3
 
 
-def test_normalize_evidence_duplicate_identical_representation_collapses_when_valid(
+def test_normalize_evidence_same_ref_fully_identical_candle_dedupes(
     allocator: SequenceAllocator,
 ) -> None:
     candles = [candle_at(allocator, i, high="10", low="9") for i in range(3)]
-    duplicate_of_first = CandleFact(candles[0].scope, candles[0].ohlcv, candles[0].recorded_time, candles[0].ref)
+    duplicate_of_first = CandleFact(
+        candles[0].scope,
+        candles[0].ohlcv,
+        candles[0].recorded_time,
+        candles[0].ref,
+        candles[0].is_correction,
+    )
+    assert duplicate_of_first == candles[0]  # fully identical representation, not merely same ref
     refs = normalize_evidence([*candles, duplicate_of_first], expected_count=3)
     assert len(refs) == 3
     assert refs == tuple(c.ref for c in candles)
@@ -545,13 +560,60 @@ def test_normalize_evidence_insufficient_unique_evidence_fails_closed(allocator:
         normalize_evidence([*candles, duplicate_of_first], expected_count=4)
 
 
-def test_normalize_evidence_conflicting_content_under_same_ref_fails_closed(allocator: SequenceAllocator) -> None:
+def test_normalize_evidence_same_ref_different_ohlcv_fails_closed(allocator: SequenceAllocator) -> None:
     candles = [candle_at(allocator, i, high="10", low="9") for i in range(3)]
     conflicting = CandleFact(
         candles[0].scope,
         OHLCV(Decimal("999"), Decimal("999"), Decimal("999"), Decimal("999"), Decimal("1")),
         candles[0].recorded_time,
         candles[0].ref,  # same ref, different OHLCV content
+    )
+    with pytest.raises(EvidenceReferenceConflictError):
+        normalize_evidence([*candles, conflicting], expected_count=3)
+
+
+def test_normalize_evidence_same_ref_same_ohlcv_different_recorded_time_fails_closed(
+    allocator: SequenceAllocator,
+) -> None:
+    candles = [candle_at(allocator, i, high="10", low="9") for i in range(3)]
+    conflicting = CandleFact(
+        candles[0].scope,
+        candles[0].ohlcv,
+        candles[0].recorded_time + timedelta(seconds=1),  # only recorded_time differs
+        candles[0].ref,
+    )
+    with pytest.raises(EvidenceReferenceConflictError):
+        normalize_evidence([*candles, conflicting], expected_count=3)
+
+
+def test_normalize_evidence_same_ref_same_ohlcv_different_scope_fails_closed(allocator: SequenceAllocator) -> None:
+    candles = [candle_at(allocator, i, high="10", low="9") for i in range(3)]
+    conflicting = CandleFact(
+        CandleScope(
+            "OTHER-INSTRUMENT",
+            candles[0].scope.venue_id,
+            candles[0].scope.timeframe,
+            candles[0].scope.window_start,
+            candles[0].scope.window_end,
+        ),
+        candles[0].ohlcv,
+        candles[0].recorded_time,
+        candles[0].ref,  # only scope differs
+    )
+    with pytest.raises(EvidenceReferenceConflictError):
+        normalize_evidence([*candles, conflicting], expected_count=3)
+
+
+def test_normalize_evidence_same_ref_same_ohlcv_different_is_correction_fails_closed(
+    allocator: SequenceAllocator,
+) -> None:
+    candles = [candle_at(allocator, i, high="10", low="9") for i in range(3)]
+    conflicting = CandleFact(
+        candles[0].scope,
+        candles[0].ohlcv,
+        candles[0].recorded_time,
+        candles[0].ref,
+        not candles[0].is_correction,  # only is_correction differs
     )
     with pytest.raises(EvidenceReferenceConflictError):
         normalize_evidence([*candles, conflicting], expected_count=3)

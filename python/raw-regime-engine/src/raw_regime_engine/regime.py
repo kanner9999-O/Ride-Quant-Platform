@@ -413,19 +413,25 @@ def normalize_evidence(candles: Sequence[CandleFact], *, expected_count: int) ->
     normalizes to the same output tuple (regime.md §8b identity).
 
     Fails closed (`EvidenceReferenceConflictError`) if the same ref is
-    supplied more than once with conflicting Candle content — never silently
-    resolved via last-write-wins. Fails closed (`EvidenceCardinalityError`)
-    if, after dedup, the normalized evidence does not contain exactly
-    `expected_count` unique refs — the caller must never publish
-    `candle_evidence_refs` with a cardinality that silently differs from
-    what was actually computed over.
+    supplied more than once with a `CandleFact` that differs in ANY
+    semantic/event-record field (`scope`, `ohlcv`, `recorded_time`,
+    `is_correction` — `ref` is already equal by construction of this check)
+    — one `EventRecordRef` must resolve exactly one authoritative
+    `CandleFact` representation; a mismatch on any single field is never
+    silently resolved via last-write-wins, and this is never narrowed to an
+    OHLCV-only comparison. `CandleFact` is a frozen dataclass, so full
+    structural equality (`!=`) already compares every field at once. Fails
+    closed (`EvidenceCardinalityError`) if, after dedup, the normalized
+    evidence does not contain exactly `expected_count` unique refs — the
+    caller must never publish `candle_evidence_refs` with a cardinality that
+    silently differs from what was actually computed over.
     """
     deduped: dict[EventRecordRef, CandleFact] = {}
     for candle in candles:
         existing = deduped.get(candle.ref)
-        if existing is not None and existing.ohlcv != candle.ohlcv:
+        if existing is not None and existing != candle:
             raise EvidenceReferenceConflictError(
-                f"ref {candle.ref!r} resolves to conflicting Candle content ({existing.ohlcv!r} vs {candle.ohlcv!r})"
+                f"ref {candle.ref!r} resolves to conflicting Candle content ({existing!r} vs {candle!r})"
             )
         deduped[candle.ref] = candle
     ordered = sorted(deduped.values(), key=_evidence_sort_key)
