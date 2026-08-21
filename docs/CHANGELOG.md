@@ -2,6 +2,102 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-21 — structure-engine: implement authoritative Swing/Structure core (first Python module)
+
+**Phase-3 module implementation batch.** Implements `python/structure-engine/` — the
+authoritative Swing/Structure analytical core, under ADR-033's now-Approved Python
+allocation. First Python module built in the repository. Does not implement
+`raw-regime-engine`. Not approved; Quality Tier unresolved; no formal Chapter 13 QG claimed.
+
+### Baseline
+
+```text
+Starting HEAD: 075986ddff90946692051e3fffea33d8e159552f (verified; tree clean;
+  manifest_version "10.209" confirmed at start).
+```
+
+### First-Python-build obligation
+
+```text
+Official Python version/support status verified fresh (https://devguide.python.org/versions/,
+  fetched live at 2026-08-21, not from memory). Selected minimum: Python >= 3.13 (Bugfix
+  phase, EOL Oct 2029 — longest non-prerelease runway). Actual interpreter validated
+  against: Python 3.13.6 (exact match).
+Minimal tooling pinned (current PyPI releases verified fresh via `pip index versions`):
+  ruff==0.16.4 (format + lint), mypy==2.3.1 (--strict), pytest==9.1.1. Zero runtime
+  dependencies — stdlib decimal.Decimal provides lossless arithmetic; no NumPy/Pandas/
+  Polars/TA-Lib/Pydantic added. Plain PEP 621 pyproject.toml, no third-party package
+  manager needed. python/README.md updated (stale "no module built yet" statement).
+```
+
+### Implementation
+
+```text
+python/structure-engine/src/structure_engine/: identity.py (deterministic opaque subject
+  ids), envelope.py (Chapter 8 event-record shapes), publish.py (in-process per-stream
+  sequence allocator, bounded ADR-009 stand-in — no stream-registry infrastructure
+  invented), candle.py (authoritative Candle input), swing.py (SwingEngine — full revision
+  lifecycle: candidate/confirm/market_evolution-invalidate/upstream_correction-invalidate
+  + re-derive, streaming and historical-direct paths sharing one algorithm), structure.py
+  (StructureEngine — BOS/CHoCH decision tables, break criterion wick/close x strict/
+  inclusive, §6a 8-criterion total order via lexicographic tuple sort, dependency-forward
+  correction cascade over one linear per-subject fact chain), errors.py (bounded technical
+  sentinels).
+One authoritative implementation per Chapter 3 §3.1 — no execution-mode-specific business-
+  logic copies; the same code path serves Replay/Backtest/Paper/Live.
+Swing behaviors: candidate/confirm/invalidate (both causes), wick/close basis,
+  first/last-occurrence equal-level tie policy, revision lifecycle + correction
+  re-derivation (three branches per swing.md §10), dedup/idempotency, out-of-order/
+  non-monotonic-time fail-closed, historical direct path, deterministic replay.
+Structure behaviors: BOS (first + continuation), CHoCH, strict/inclusive comparison,
+  §6a total-order tie-break (verified: most-recent pivot wins), revision-qualified
+  independent consumption, dependency-forward cascade (both invalidation branches,
+  chained propagation, exactly one StructureRecomputed per cascade), no-repaint (frozen
+  dataclasses), dedup, valid-absence.
+```
+
+### Tests / checks (fresh, clean-room)
+
+```text
+Fresh venv, pip install -e ".[dev]": ruff format --check . -> clean; ruff check . -> All
+  checks passed; mypy --strict -> Success, no issues (11 source files); pytest tests/ -v
+  -> 34 passed (18 Swing + 16 Structure). Informational coverage (NON-FORMAL /
+  INFORMATIONAL ONLY, Tier unresolved) -> 96% statement coverage.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — module-local implementation of already-governed authority (ADR-033,
+  swing.md/structure.md, Chapter 3 §3.1). No new/changed Event/Domain Contract semantic,
+  no dependency graph change, no authority transfer, no cross-module semantic contract, no
+  runtime-topology decision, no security/custody boundary. Domain-Contract-deferred
+  algorithm choices (identity derivation, tie-break operationalization, correction-window
+  model, stream-registry-version constant) pinned as documented, bounded module-local
+  interpretations, not governance decisions. No GOVERNED_DECISION_REQUIRED triggered.
+```
+
+### No scope expansion
+
+```text
+raw-regime-engine not implemented. go/** unchanged. docs/adr/**, docs/domain/**,
+  docs/constitution/**, docs/governance/** unchanged. docs/architecture/module-registry.yaml
+  unchanged — no Quality Tier assigned, no dependency/authority change. No runtime topology
+  chosen. No binary float32/float64 authoritative price path (decimal.Decimal throughout).
+Data Layer milestone readiness (DATA_LAYER_MILESTONE_READINESS = PASS) unchanged. Phase 3
+  Approval Gate NOT opened. LIVE remains NOT_AUTHORIZED. P3-MDI-TIER-B-MIN-01 unchanged,
+  still OPEN — non-blocking.
+```
+
+### Files changed
+
+```text
+python/structure-engine/** (new: pyproject.toml, .gitignore, README.md, src/structure_engine/
+  {__init__,identity,envelope,publish,candle,swing,structure,errors}.py,
+  tests/{conftest,test_swing,test_structure}.py), python/README.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md — verified via git status --porcelain=v1 -uall. No other file touched.
+```
+
 ## [Unreleased] — 2026-08-21 — ADR-033 v0.2: Product Owner Approval (Structure/Raw-Regime language allocation now effective)
 
 **Atomic mechanical approval-recording transaction.** Product Owner decision: "APPROVE
