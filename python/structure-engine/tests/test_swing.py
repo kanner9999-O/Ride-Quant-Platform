@@ -3,7 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
-from conftest import candle_at
+from conftest import INSTRUMENT, TIMEFRAME, VENUE, candle_at
 
 from structure_engine import (
     SequenceAllocator,
@@ -13,6 +13,7 @@ from structure_engine import (
     SwingEngine,
     SwingEvent,
     SwingInvalidated,
+    SwingScope,
 )
 from structure_engine.errors import (
     DuplicateCandleConflictError,
@@ -367,3 +368,125 @@ class TestScopedOrdering:
         engine.ingest_candle(candle_at(allocator, 0, high="100", low="90", recorded_offset_seconds=1000))
         with pytest.raises(NonMonotonicRecordedTimeError):
             engine.ingest_candle(candle_at(allocator, 1, high="100", low="90", recorded_offset_seconds=0))
+
+
+def _pivot_scope(
+    allocator: SequenceAllocator, index: int, *, high: str, low: str, definition_version: str
+) -> SwingScope:
+    """The HIGH-direction SwingScope for the pivot candle at `index` — used to
+    query engine.swing_state/swing_revision without depending on any emitted
+    event (some of these tests assert NO event was ever emitted)."""
+    subject_id = candle_at(allocator, index, high=high, low=low).scope.subject_id
+    return SwingScope(INSTRUMENT, VENUE, TIMEFRAME, "HIGH", subject_id, definition_version)
+
+
+class TestHistoricalRevisionLifecycle:
+    """P3-STR-SWG-A-MAJ-01 residual: historical mode must never create an
+    internal CANDIDATE lifecycle revision — a potential pivot that has not
+    reached CONFIRMED stays semantically UNSEEN (swing.md §1)."""
+
+    def test_incomplete_pivot_has_no_event_and_no_lifecycle_state(self, allocator: SequenceAllocator) -> None:
+        engine = SwingEngine(wick_definition(left_count=2, right_count=3), allocator, historical=True)
+        # pivot @ index2 (110): left evidence complete, right evidence
+        # incomplete (only 1 of 3 required right-side candles present).
+        series = [("100", "90"), ("105", "95"), ("110", "100"), ("100", "90")]
+        events: list[SwingEvent] = []
+        for i, (high, low) in enumerate(series):
+            events += engine.ingest_candle(candle_at(allocator, i, high=high, low=low))
+        assert events == []
+        scope = _pivot_scope(allocator, 2, high="110", low="100", definition_version="swd-1")
+        assert engine.swing_state(scope) is None
+        assert engine.swing_revision(scope) is None
+
+    def test_market_evolution_before_complete_evidence_emits_nothing_and_creates_no_state(
+        self, allocator: SequenceAllocator
+    ) -> None:
+        engine = SwingEngine(wick_definition(left_count=2, right_count=3), allocator, historical=True)
+        # index4 (115) breaks past pivot @ index2 (110) while sitting inside
+        # its own fixed right-evidence window (indices 3,4,5) -> that window
+        # can never satisfy, no matter what index5 eventually is.
+        series = [
+            ("100", "90"),
+            ("105", "95"),
+            ("110", "100"),
+            ("100", "90"),
+            ("115", "105"),
+            ("100", "90"),
+        ]
+        events: list[SwingEvent] = []
+        for i, (high, low) in enumerate(series):
+            events += engine.ingest_candle(candle_at(allocator, i, high=high, low=low))
+        assert events == []
+        scope = _pivot_scope(allocator, 2, high="110", low="100", definition_version="swd-1")
+        assert engine.swing_state(scope) is None
+        assert engine.swing_revision(scope) is None
+
+    def test_correction_restoring_evidence_confirms_as_revision_1_with_no_fabricated_invalidation(
+        self, allocator: SequenceAllocator
+    ) -> None:
+        engine = SwingEngine(wick_definition(left_count=2, right_count=3), allocator, historical=True)
+        series = [
+            ("100", "90"),
+            ("105", "95"),
+            ("110", "100"),
+            ("100", "90"),
+            ("115", "105"),  # will be corrected below
+            ("100", "90"),
+        ]
+        facts = []
+        events: list[SwingEvent] = []
+        for i, (high, low) in enumerate(series):
+            fact = candle_at(allocator, i, high=high, low=low)
+            facts.append(fact)
+            events += engine.ingest_candle(fact)
+        assert events == []
+        pivot_ref = facts[2].ref
+        left_refs = [facts[0].ref, facts[1].ref]
+
+        corrected = candle_at(allocator, 4, high="100", low="90", is_correction=True, recorded_offset_seconds=600)
+        events2 = engine.ingest_candle(corrected)
+        right_refs = [facts[3].ref, corrected.ref, facts[5].ref]
+
+        assert not any(isinstance(e, SwingInvalidated) for e in events2)
+        confirmed = [e for e in events2 if isinstance(e, SwingConfirmed) and e.scope.direction == "HIGH"]
+        assert len(confirmed) == 1
+        assert confirmed[0].swing_revision == 1
+        assert pivot_ref in confirmed[0].causation_refs
+        for ref in left_refs:
+            assert ref in confirmed[0].causation_refs
+        for ref in right_refs:
+            assert ref in confirmed[0].causation_refs
+
+    def test_historical_confirmed_revision_then_correction_emits_real_invalidation_and_revision_2(
+        self, allocator: SequenceAllocator
+    ) -> None:
+        engine = SwingEngine(wick_definition(), allocator, historical=True)
+        series = [("100", "90"), ("105", "95"), ("110", "100"), ("105", "95"), ("100", "90")]
+        events: list[SwingEvent] = []
+        for i, (high, low) in enumerate(series):
+            events += engine.ingest_candle(candle_at(allocator, i, high=high, low=low))
+        confirmed1 = next(e for e in events if isinstance(e, SwingConfirmed) and e.scope.direction == "HIGH")
+        assert confirmed1.swing_revision == 1
+
+        corrected = candle_at(allocator, 2, high="112", low="100", is_correction=True, recorded_offset_seconds=600)
+        events2 = engine.ingest_candle(corrected)
+        invalidated = [e for e in events2 if isinstance(e, SwingInvalidated) and e.scope.direction == "HIGH"]
+        confirmed2 = [e for e in events2 if isinstance(e, SwingConfirmed) and e.scope.direction == "HIGH"]
+        assert len(invalidated) == 1
+        assert invalidated[0].swing_revision == 1
+        assert invalidated[0].invalidation_cause == "upstream_correction"
+        assert len(confirmed2) == 1
+        assert confirmed2[0].swing_revision == 2
+        assert invalidated[0].ref in confirmed2[0].causation_refs
+        assert confirmed2[0].scope.swing_id == confirmed1.scope.swing_id
+
+    def test_streaming_candidate_still_creates_internal_lifecycle_state(self, allocator: SequenceAllocator) -> None:
+        """Non-historical streaming behavior is unaffected by this fix — a
+        genuine CANDIDATE lifecycle revision is still tracked."""
+        engine = SwingEngine(wick_definition(), allocator)
+        series = [("100", "90"), ("105", "95"), ("110", "100")]
+        for i, (high, low) in enumerate(series):
+            engine.ingest_candle(candle_at(allocator, i, high=high, low=low))
+        scope = _pivot_scope(allocator, 2, high="110", low="100", definition_version="swd-1")
+        assert engine.swing_state(scope) == "CANDIDATE"
+        assert engine.swing_revision(scope) == 1

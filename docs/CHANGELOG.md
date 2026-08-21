@@ -2,6 +2,97 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-21 — structure-engine: fix historical Swing revision lifecycle
+
+**Narrowly bounded remediation — one residual defect only.** Fixes exactly
+`P3-STR-SWG-A-MAJ-01`'s residual: historical mode silently created an internal CANDIDATE
+lifecycle revision despite suppressing the corresponding event, permitting a fabricated
+revision-2 with no real prior `SwingInvalidated` to reference. Does not touch the six
+findings already deterministically CLOSED. Does not implement `raw-regime-engine`. Does
+not assign Quality Tier. Does not run formal Chapter 13 QG.
+
+### Baseline
+
+```text
+Starting HEAD: dd29f18058873cb775a0572447596bb7b3c49c9b (verified; tree clean;
+  manifest_version "10.211" confirmed at start).
+```
+
+### Six prior findings — CLOSED
+
+```text
+P3-STR-CONSUME-A-MAJ-02, P3-STR-DEF-A-MAJ-03, P3-STR-ORDER-A-MAJ-04,
+  P3-STR-SCOPE-A-MAJ-05, P3-PYBASE-A-MAJ-06, P3-PYBASE-A-MIN-07: recorded CLOSED by the
+  preceding deterministic verification. Not reopened, not redesigned — every file those
+  findings touched is verified byte-identical (git diff --quiet) in this transaction.
+```
+
+### Fixed — Major (residual): `P3-STR-SWG-A-MAJ-01`
+
+```text
+src/structure_engine/swing.py, `_emit_candidate`'s historical branch: previously wrote an
+  authoritative-lifecycle `_SwingState(state="CANDIDATE", ...)` placeholder even though no
+  event was ever emitted, letting a later market_evolution/correction sequence advance to
+  revision 2 with no real prior SwingInvalidated to reference. Now returns [] without
+  writing anything to self._swings — no internal CANDIDATE revision is ever created in
+  historical mode; a potential pivot not yet CONFIRMED stays semantically UNSEEN.
+  `_advance`/`_recompute_after_correction` already recompute left/right satisfaction fresh
+  on every call, so once full evidence genuinely exists the existing `existing is None`
+  branch fires the direct UNSEEN -> CONFIRMED path on its own, with correct revision 1 and
+  no fabricated invalidation. `_emit_confirmed` unchanged (already persists real state
+  unconditionally) — a historical revision that DOES reach CONFIRMED continues to support
+  normal correction/invalidation exactly as before. Streaming (non-historical) candidate
+  behavior completely unchanged.
+```
+
+### Regression tests added (`TestHistoricalRevisionLifecycle`, 5 tests)
+
+```text
+Incomplete historical pivot -> no event, no lifecycle state. Market-evolution-disqualified
+  historical pivot (window permanently fails) -> no event, no state. Correction restoring
+  that evidence -> SwingConfirmed revision 1, zero fabricated invalidations, causation
+  contains pivot + full left/right evidence. Historical CONFIRMED revision 1 then a
+  pivot-changing correction -> real SwingInvalidated revision 1 + real SwingConfirmed
+  revision 2 referencing it. Streaming engine still creates real CANDIDATE lifecycle state
+  (unaffected by this fix).
+```
+
+### Tests / checks (fresh, clean-room, from committed lock state)
+
+```text
+pip check -> No broken requirements found; ruff format --check . -> clean; ruff check . ->
+  All checks passed; mypy --strict -> Success, no issues; pytest tests/ -v -> 59 passed (up
+  from 54 — 5 new regressions; all 29 Structure tests remain green, unchanged). Informational
+  coverage (NON-FORMAL/INFORMATIONAL ONLY, Tier unresolved) -> 96% (swing.py itself 96% ->
+  98%).
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — bounded implementation correction enforcing already-existing swing.md
+  §1 lifecycle authority (UNSEEN -> CONFIRMED; every revision N+1 causally references a
+  real SwingInvalidated of revision N). No Domain/Event semantic changed, no dependency
+  graph change, no module authority change, no runtime-topology decision, no
+  security/custody boundary. No GOVERNED_DECISION_REQUIRED triggered.
+```
+
+### Finding states
+
+```text
+P3-STR-SWG-A-MAJ-01: REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION (not self-CLOSED).
+P3-STR-CONSUME-A-MAJ-02, P3-STR-DEF-A-MAJ-03, P3-STR-ORDER-A-MAJ-04,
+  P3-STR-SCOPE-A-MAJ-05, P3-PYBASE-A-MAJ-06, P3-PYBASE-A-MIN-07: CLOSED.
+```
+
+### Files changed
+
+```text
+python/structure-engine/src/structure_engine/swing.py, tests/test_swing.py,
+  docs/MANIFEST.md, docs/CHANGELOG.md — verified via git status --porcelain=v1 -uall. No
+  other file touched.
+```
+
 ## [Unreleased] — 2026-08-21 — structure-engine: remediate contract and Python-baseline defects
 
 **Bounded remediation batch.** Fixes seven verified findings from the first structure-engine

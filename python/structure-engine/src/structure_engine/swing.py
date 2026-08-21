@@ -515,14 +515,25 @@ class SwingEngine:
         left_refs = tuple(c.ref for c in candles[pivot_idx - self.definition.left_count : pivot_idx])
 
         if self._historical:
-            self._swings[scope.swing_id] = _SwingState(
-                pivot_index=pivot_idx,
-                revision=revision,
-                state="CANDIDATE",
-                candidate_ref=None,
-                active_ref=None,
-                pivot_price=pivot_price,
-            )
+            # swing.md §1: historical/backtest ingestion goes UNSEEN ->
+            # CONFIRMED directly. A potential pivot that has not yet
+            # accumulated full right-side evidence must remain semantically
+            # UNSEEN — no authoritative fact, no lifecycle revision — never
+            # an internal CANDIDATE placeholder (P3-STR-SWG-A-MAJ-01: storing
+            # one here let a later market_evolution/correction sequence
+            # fabricate a revision > 1 with no real prior SwingInvalidated to
+            # causally reference). Emitting nothing and persisting nothing is
+            # sufficient: `_advance`/`_recompute_after_correction` always
+            # recompute left/right satisfaction fresh from the current candle
+            # data on every call, so once full evidence genuinely exists, the
+            # direct UNSEEN -> CONFIRMED path (`_emit_confirmed` with
+            # `candidate_ref=None`, taken from the `existing is None` branch
+            # of `_advance`) fires correctly on its own, with revision 1 and
+            # no fabricated invalidation. A revision that DOES become
+            # authoritatively CONFIRMED is unconditionally persisted by
+            # `_emit_confirmed` below (not gated by `_historical`), so real
+            # subsequent corrections/invalidations of an actually-existing
+            # historical revision are unaffected — see `_emit_confirmed`.
             return []
 
         ref = self._allocator.next_ref(self._stream_id)

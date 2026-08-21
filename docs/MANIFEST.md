@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.211"
+manifest_version: "10.212"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -6037,6 +6037,164 @@ P3-MDI-TIER-B-MIN-01:   unchanged, still OPEN — non-blocking.
 ```
 
 **Files changed:** `python/structure-engine/pyproject.toml`, `python/structure-engine/requirements-dev.lock.txt` (new), `python/structure-engine/README.md`, `python/structure-engine/src/structure_engine/{errors,structure,swing}.py`, `python/structure-engine/tests/{conftest,test_swing,test_structure}.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; no other file touched.
+
+## `structure-engine` — narrow fix, historical Swing revision lifecycle (`P3-STR-SWG-A-MAJ-01` residual — `REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION`, NOT self-CLOSED; prior six findings recorded CLOSED)
+
+**Narrowly bounded remediation — one residual defect only.** Fixes exactly `P3-STR-SWG-A-MAJ-01`'s residual: historical mode was silently creating an internal CANDIDATE lifecycle revision despite suppressing the corresponding event, permitting a fabricated revision-2 with no real prior `SwingInvalidated` to causally reference. Does not touch the six findings already deterministically CLOSED. Does not implement `raw-regime-engine`. Does not assign Quality Tier. Does not run formal Chapter 13 QG.
+
+**Baseline:** branch `main`, HEAD `dd29f18058873cb775a0572447596bb7b3c49c9b` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; working tree clean). `manifest_version` confirmed `"10.211"` at start.
+
+### Six previously-remediated findings — now recorded CLOSED by the preceding deterministic verification
+
+```text
+P3-STR-CONSUME-A-MAJ-02, P3-STR-DEF-A-MAJ-03, P3-STR-ORDER-A-MAJ-04,
+  P3-STR-SCOPE-A-MAJ-05, P3-PYBASE-A-MAJ-06, P3-PYBASE-A-MIN-07: CLOSED.
+Not reopened, not redesigned — verified byte-identical: git diff --quiet on every file
+  those six findings touched (pyproject.toml, requirements-dev.lock.txt, README.md,
+  structure.py, errors.py, conftest.py, test_structure.py) confirms zero change in this
+  transaction.
+```
+
+### Exact lifecycle fix
+
+```text
+File: python/structure-engine/src/structure_engine/swing.py, `_emit_candidate`'s
+  historical branch.
+
+Before: when self._historical is True and a potential pivot's left evidence is
+  satisfied (right not yet complete), `_emit_candidate` returned [] (no event) BUT still
+  wrote self._swings[scope.swing_id] = _SwingState(state="CANDIDATE", revision=revision,
+  active_ref=None, ...) — an authoritative-lifecycle placeholder existed with no
+  authoritative fact behind it.
+
+After: the historical branch now returns [] WITHOUT writing anything to self._swings.
+  No internal CANDIDATE revision is ever created in historical mode. A potential pivot
+  that has not reached CONFIRMED remains semantically UNSEEN — `_advance` and
+  `_recompute_after_correction` always recompute left/right satisfaction fresh from
+  current candle data on every call (both are already stateless with respect to a given
+  swing_id's satisfaction — no cached intermediate conclusion was ever needed), so once
+  full evidence genuinely exists (directly, or after a correction), the existing
+  `existing is None` branch of `_advance`/`_recompute_after_correction` fires
+  `_emit_confirmed(revision=1, candidate_ref=None, prior_invalidation_ref=None)` on its
+  own — the direct UNSEEN -> CONFIRMED path, unchanged, with no fabricated invalidation
+  and no incorrect revision number.
+  `_emit_confirmed` itself was NOT changed — it already persists a real _SwingState
+  unconditionally (not gated by `_historical`) whenever an actual SwingConfirmed fires, so
+  a historical revision that DOES become authoritatively CONFIRMED continues to support
+  normal correction/invalidation/re-derivation exactly as before (verified by regression
+  test 4 below — this required NO additional code change, since the invalidation-then-
+  new-revision codepath in `_recompute_after_correction` reads/writes self._swings
+  directly and was never the source of the defect).
+  Streaming (non-historical) `_emit_candidate` behavior is completely unchanged — it still
+  emits SwingCandidateDetected and persists a real CANDIDATE _SwingState (verified by
+  regression test 5).
+```
+
+### Regression tests added (`python/structure-engine/tests/test_swing.py`, new `TestHistoricalRevisionLifecycle` class, 5 tests)
+
+```text
+1. test_incomplete_pivot_has_no_event_and_no_lifecycle_state — historical partial-left-
+   valid pivot: zero events emitted; engine.swing_state()/swing_revision() both None.
+2. test_market_evolution_before_complete_evidence_emits_nothing_and_creates_no_state —
+   a later candle breaks past the pivot while inside its own fixed right-evidence window
+   (permanently disqualifying it): zero events; still no lifecycle state.
+3. test_correction_restoring_evidence_confirms_as_revision_1_with_no_fabricated_invalidation
+   — same setup as #2, then the disqualifying candle is corrected away: exactly one
+   SwingConfirmed, revision == 1, zero SwingInvalidated ever emitted across the whole
+   sequence, causation_refs contains the pivot ref + all left/right evidence refs (the
+   direct UNSEEN -> CONFIRMED causation shape).
+4. test_historical_confirmed_revision_then_correction_emits_real_invalidation_and_revision_2
+   — a historical revision that DID reach CONFIRMED, then a pivot-value-changing
+   correction: real SwingInvalidated revision 1 emitted (invalidation_cause
+   upstream_correction), real SwingConfirmed revision 2 emitted, revision 2's
+   causation_refs contains the revision-1 invalidation's ref, same swing_id preserved.
+5. test_streaming_candidate_still_creates_internal_lifecycle_state — non-historical
+   engine: swing_state()/swing_revision() correctly report "CANDIDATE"/1 after a
+   streaming candidate, proving normal streaming CANDIDATE behavior is completely
+   unaffected by this fix.
+Also added helper `_pivot_scope` (constructs a SwingScope for a given pivot index/high/
+  low without depending on any emitted event, needed since several of these tests assert
+  NO event was ever emitted).
+```
+
+### Tests / checks (fresh, clean-room, from committed lock state — unchanged from the prior transaction)
+
+```text
+rm -rf .venv, rebuild venv, pip install --upgrade pip==25.2, pip install --no-deps -r
+  requirements-dev.lock.txt, pip install -e . --no-deps:
+  pip check                 -> No broken requirements found.
+  ruff format --check .     -> 12 files already formatted (clean)
+  ruff check .              -> All checks passed!
+  mypy (--strict)           -> Success: no issues found in 11 source files
+  pytest tests/ -v          -> 59 passed (test_swing.py: 30, test_structure.py: 29 — up
+                                from 54 total; +5 new regressions, all Structure tests
+                                remain green, unchanged in count/content)
+Informational coverage (NON-FORMAL / INFORMATIONAL ONLY — Quality Tier still unresolved,
+  no formal Chapter 13 QG claimed): 96% statement coverage across src/ (638 stmts, 23
+  missed — swing.py itself improved from 96% to 98%, consistent with removing dead
+  placeholder-state code and adding tests that exercise more branches).
+```
+
+### Explicit verification against the task's checklist
+
+```text
+No revision > 1 exists without a prior authoritative SwingInvalidated: verified directly
+  by regression tests 3 (revision 1, no prior invalidation needed or fabricated — none
+  existed) and 4 (revision 2, real prior invalidation referenced) — the exact defect
+  scenario (revision 2 with no real prior invalidation) is now structurally impossible,
+  since no _SwingState is ever created for a never-confirmed historical revision.
+Historical path remains UNSEEN -> CONFIRMED: unchanged, re-verified (regression 3 and the
+  pre-existing TestHistoricalDirectPath test, both still green).
+Streaming candidate semantics unchanged: verified directly (regression 5; all pre-existing
+  TestCandidateConfirmInvalidate/TestPriceBasisAndEqualLevel/TestRevisionAndCorrection
+  tests still green, byte-identical assertions).
+Structure tests remain green: all 29 test_structure.py tests pass, unchanged in count
+  (structure.py itself was not touched by this transaction).
+No contract/ADR/registry/dependency change: docs/domain/**, docs/adr/**,
+  docs/architecture/module-registry.yaml, docs/constitution/**, docs/governance/** all
+  unchanged (verified git diff --quiet); requirements-dev.lock.txt/pyproject.toml
+  unchanged (verified git diff --quiet) — no dependency change of any kind.
+No Raw Regime implementation: python/raw-regime-engine/ still does not exist (verified).
+No Tier assignment: module-registry.yaml unchanged, no quality_tier touched.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — this is a bounded implementation correction enforcing already-existing
+  swing.md §1 lifecycle authority (UNSEEN -> CONFIRMED for historical ingestion; every
+  revision N+1 must causally reference an actual SwingInvalidated of revision N) — no
+  contract semantic changed, only an internal-state-tracking defect corrected to match
+  the semantics already governing this module. No Domain/Event semantic changed, no
+  dependency graph change, no module authority change, no runtime-topology decision, no
+  security/custody boundary touched. No GOVERNED_DECISION_REQUIRED escalation triggered.
+```
+
+### Finding-state summary
+
+```text
+P3-STR-SWG-A-MAJ-01:      REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION (NOT self-CLOSED)
+P3-STR-CONSUME-A-MAJ-02:  CLOSED (preceding deterministic verification)
+P3-STR-DEF-A-MAJ-03:      CLOSED (preceding deterministic verification)
+P3-STR-ORDER-A-MAJ-04:    CLOSED (preceding deterministic verification)
+P3-STR-SCOPE-A-MAJ-05:    CLOSED (preceding deterministic verification)
+P3-PYBASE-A-MAJ-06:       CLOSED (preceding deterministic verification)
+P3-PYBASE-A-MIN-07:       CLOSED (preceding deterministic verification)
+```
+
+### State summary
+
+```text
+Structure Engine:      remediated (residual fix), tested, still NOT approved, Tier still
+  UNRESOLVED, no formal Chapter 13 QG.
+Raw Regime Engine:      NOT implemented.
+Data Layer state:       unchanged (DATA_LAYER_MILESTONE_READINESS = PASS, readiness-only).
+Phase 3 Approval Gate:  NOT opened.
+LIVE:                    NOT_AUTHORIZED, unreferenced.
+P3-MDI-TIER-B-MIN-01:   unchanged, still OPEN — non-blocking.
+```
+
+**Files changed:** `python/structure-engine/src/structure_engine/swing.py`, `python/structure-engine/tests/test_swing.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; no other file touched.
 
 ## Decision Log
 
