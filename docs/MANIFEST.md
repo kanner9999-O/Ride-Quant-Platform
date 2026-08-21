@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.216"
+manifest_version: "10.217"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -6907,6 +6907,152 @@ module-registry.yaml unchanged (verified git diff --quiet). structure-engine imp
 ```
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.215"` → `"10.216"`.
+
+## Structure Engine Tier-1 classification candidate — Review A finding `P3-STR-TIER-A-MIN-01` bounded factual/evidence correction (`REMEDIATED_PENDING_BOUNDED_REVIEW_A_REREVIEW` — NOT self-CLOSED)
+
+**Narrowly bounded factual/evidence correction — does not alter the Structure Tier-1 classification reasoning itself.** Corrects exactly one Review A finding against the Structure Engine Tier Classification Candidate authored above: the candidate's own "Implementation status context" section stated a now-stale Structure remediation status.
+
+### Review A record (before correction)
+
+```text
+Principal:                     ChatGPT
+Role:                          AI Technical Architect — Review A
+Review boundary:               716791728ff4f792ee25fdb57f650ab6b11ec3ac
+Provider-native execution/
+  session ID:                  unavailable / not exposed (not fabricated)
+Workflow audit reference:      P3-STR-TIER-A-71679172-20260821T1639+0700
+Result:                        Blocker 0 / Major 0 / Minor 1
+Disposition:                   REVISION_REQUIRED
+```
+
+**Finding `P3-STR-TIER-A-MIN-01` (Minor):** the Tier-1 classification itself is semantically correct and unchanged by this finding. The sole defect: the candidate's implementation-status prose stated `P3-STR-SWG-A-MAJ-01` remains pending external verification and Structure is 6/7 findings CLOSED.
+
+### Independent factual verification performed (this transaction — does not trust the finding assertion alone)
+
+```text
+Direct source inspection at boundary 716791728ff4f792ee25fdb57f650ab6b11ec3ac:
+  python/structure-engine/src/structure_engine/swing.py — `_emit_candidate`'s historical
+    branch (`if self._historical: return []`) confirmed to emit NO SwingCandidateDetected
+    AND persist NOTHING to `self._swings` — the `_SwingState` write only happens in the
+    non-historical branch below it. `_emit_confirmed` confirmed UNCONDITIONAL (not gated by
+    `self._historical`) — a genuine historical CONFIRMED revision is always persisted.
+    `_advance`'s `existing is None` branch confirmed to route a freshly-satisfied historical
+    pivot straight to `_emit_confirmed(..., revision=1, candidate_ref=None,
+    prior_invalidation_ref=None)`. `_recompute_after_correction` confirmed to compute
+    `next_revision = (existing.revision + 1) if existing is not None else 1` — a revision > 1
+    is only ever produced when a REAL persisted `_SwingState` exists.
+  python/structure-engine/tests/test_swing.py — `TestHistoricalRevisionLifecycle` (5 tests)
+    inspected directly and RE-RUN fresh (fresh venv, pip install -e ".[dev]", pytest tests/
+    -v): all 59 tests pass (12 files formatted, ruff check clean, mypy --strict clean, 11
+    source files). The 5 tests independently exercise: incomplete historical pivot -> no
+    event, no lifecycle state; market-evolution-before-complete-evidence -> same (no event,
+    no state); correction restoring evidence -> SwingConfirmed revision 1, zero fabricated
+    invalidations; a REAL historical CONFIRMED revision 1, corrected -> genuine
+    SwingInvalidated(revision=1) + genuine SwingConfirmed(revision=2) referencing the real
+    invalidation ref; streaming (non-historical) CANDIDATE lifecycle state unaffected
+    (regression preserved).
+
+Conclusion: direct inspection SUPPORTS closure — every required invariant (historical
+  incomplete pivot creates no SwingCandidateDetected; historical path does not persist an
+  internal CANDIDATE revision/state; semantic lifecycle remains UNSEEN until direct
+  CONFIRMED; direct historical confirmation begins at revision 1; a real previously-CONFIRMED
+  revision can still be invalidated and replaced through normal correction lineage; no
+  revision N+1 is created from a silent/nonexistent prior revision) is verified true against
+  current source and passing tests, independent of the finding's own assertion.
+
+P3-STR-SWG-A-MAJ-01 = CLOSED (verified this transaction, not self-asserted by the prior
+  remediation transaction that first fixed it).
+Structure remediation finding set: 7/7 CLOSED — CLEAN.
+```
+
+### Correction applied (additive current-state clarification — historical entries NOT rewritten)
+
+```text
+The historical remediation-transaction entries above (this file, sections titled
+  "structure-engine — bounded remediation batch..." and "structure-engine — narrow fix,
+  historical Swing revision lifecycle...") remain byte-unchanged — they accurately described
+  Structure's remediation state AT THEIR OWN historical transaction boundaries (when
+  P3-STR-SWG-A-MAJ-01's residual fix had just been applied and not yet externally verified).
+  They are NOT rewritten.
+
+This is a current-state clarification superseding ONLY the Structure Tier Candidate section's
+  own "Implementation status context" prose above, which is now STALE as of the independent
+  verification performed in this transaction:
+
+  SUPERSEDED (stale, as of this transaction): "6 of 7 CLOSED... The 7th (P3-STR-SWG-A-MAJ-01)
+    ... remains recorded REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION, NOT yet externally
+    closed."
+
+  CURRENT, VERIFIED STATE (this transaction): P3-STR-SWG-A-MAJ-01 = CLOSED. Structure
+    remediation finding set = 7/7 CLOSED = CLEAN (P3-STR-CONSUME-A-MAJ-02,
+    P3-STR-DEF-A-MAJ-03, P3-STR-ORDER-A-MAJ-04, P3-STR-SCOPE-A-MAJ-05, P3-PYBASE-A-MAJ-06,
+    P3-PYBASE-A-MIN-07, P3-STR-SWG-A-MAJ-01 — all CLOSED).
+```
+
+### Structure Tier candidate — preserved unchanged
+
+```text
+proposed_quality_tier:  "Tier 1 — Core Logic"                          (unchanged)
+candidate_state:        CANDIDATE / UNAPPROVED                          (unchanged)
+Affirmative Tier-1 reasoning (5 points), Tier 0 rejection, Tier 2 rejection, Tier 3
+  rejection, Tier-1 gate consequences if later approved, ADR Scope Rule result
+  (ADR_NOT_REQUIRED) — ALL preserved byte-identical, none re-authored or re-argued by this
+  correction. Current registry-authoritative Structure Quality Tier remains UNRESOLVED — this
+  correction does not write quality_tier to module-registry.yaml and does not approve
+  anything.
+```
+
+### Validation
+
+```text
+Fresh, from python/structure-engine's own committed reproducible environment: pip check ->
+  No broken requirements found; ruff format --check . -> 12 files already formatted; ruff
+  check . -> All checks passed; mypy --strict -> Success, no issues (11 source files);
+  pytest tests/ -v -> 59 passed (0 failed, 0 skipped). Verification venv discarded after use
+  (not committed) — verified git status --porcelain=v1 -uall -- python/structure-engine/
+  shows no changes.
+```
+
+### ADR Scope Rule
+
+```text
+Not re-run — this transaction changes no architecture/authority content, only corrects a
+  factual bookkeeping statement about remediation-finding status. No Domain/Event/Module
+  Taxonomy/dependency-graph/Platform Invariant/authority change. ADR_NOT_REQUIRED (unchanged
+  from the candidate transaction this corrects).
+```
+
+### Finding state
+
+```text
+P3-STR-TIER-A-MIN-01: REMEDIATED_PENDING_BOUNDED_REVIEW_A_REREVIEW (NOT self-CLOSED — awaits
+  a bounded Review A re-review of exactly this correction).
+```
+
+### State summary (preserved)
+
+```text
+Structure Quality Tier:    UNRESOLVED (authoritative) / "Tier 1 — Core Logic" PROPOSED only.
+Structure Engine:           implemented / remediation set CLEAN (7/7 CLOSED, this
+                             correction) / NOT approved / no formal Chapter 13 QG.
+Raw Regime Engine:           implemented / remediation set CLEAN (6/6 CLOSED, prior
+                             transaction) / Quality Tier UNRESOLVED.
+Phase 3 Approval Gate:       NOT opened.
+LIVE:                         NOT_AUTHORIZED.
+```
+
+### No scope expansion — explicit verification
+
+```text
+module-registry.yaml unchanged (verified git diff --quiet). python/structure-engine/**
+  unchanged (verified git diff --quiet — the verification venv built during this transaction
+  was discarded, not committed). python/raw-regime-engine/** unchanged (verified git diff
+  --quiet). docs/domain/**, docs/adr/**, docs/constitution/**, docs/governance/**, go/** all
+  unchanged. No Quality Tier assigned/approved. No formal Chapter 13 Quality Gate performed.
+  Structure Engine not approved at any level.
+```
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.216"` → `"10.217"`.
 
 ## Decision Log
 

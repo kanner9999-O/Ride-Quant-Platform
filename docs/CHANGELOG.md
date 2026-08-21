@@ -2,6 +2,91 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-21 — structure-engine: correct Tier candidate evidence status
+
+**Narrowly bounded factual/evidence correction — does not alter the Structure Tier-1 classification reasoning.** Corrects Review A finding `P3-STR-TIER-A-MIN-01` against the Structure Engine Tier Classification Candidate: its "Implementation status context" prose stated a now-stale Structure remediation status (6 of 7 findings CLOSED, `P3-STR-SWG-A-MAJ-01` pending external verification).
+
+### Review A (before correction)
+
+```text
+Principal: ChatGPT. Role: AI Technical Architect — Review A. Review boundary:
+  716791728ff4f792ee25fdb57f650ab6b11ec3ac. Provider-native execution/session ID: unavailable
+  / not exposed (not fabricated). Workflow audit reference:
+  P3-STR-TIER-A-71679172-20260821T1639+0700. Result: Blocker 0 / Major 0 / Minor 1.
+  Disposition: REVISION_REQUIRED.
+```
+
+### Independent factual verification (this transaction — finding assertion not trusted alone)
+
+```text
+Direct inspection of python/structure-engine/src/structure_engine/swing.py at boundary
+  716791728ff4f792ee25fdb57f650ab6b11ec3ac confirmed: `_emit_candidate`'s historical branch
+  emits no SwingCandidateDetected and persists no internal state; `_emit_confirmed` is
+  unconditional (not historical-gated) — a genuine historical CONFIRMED revision is always
+  persisted; a freshly-satisfied historical pivot routes directly to
+  `_emit_confirmed(revision=1, candidate_ref=None, ...)`; `_recompute_after_correction` only
+  produces revision > 1 when a real persisted `_SwingState` exists. Re-ran
+  TestHistoricalRevisionLifecycle (5 tests) plus the full suite fresh (clean venv, pip
+  install -e ".[dev]"): 59 passed, ruff/mypy clean. Every required invariant (no fabricated
+  CANDIDATE state, UNSEEN until direct CONFIRMED, revision-1 direct confirmation, genuine
+  correction lineage on a real prior CONFIRMED, no revision from a silent/nonexistent prior)
+  verified true against current source and passing tests.
+
+Result: P3-STR-SWG-A-MAJ-01 = CLOSED (verified this transaction). Structure remediation
+  finding set: 7/7 CLOSED — CLEAN.
+```
+
+### Correction applied (additive — historical entries not rewritten)
+
+```text
+Prior remediation-transaction entries (this file and MANIFEST.md) remain byte-unchanged —
+  accurate at their own historical transaction boundaries. This is a current-state
+  clarification superseding only the Tier Candidate's own stale "6 of 7 CLOSED / pending"
+  status statement: current, verified state is 7/7 CLOSED, Structure remediation set CLEAN.
+```
+
+### Tier candidate — preserved unchanged
+
+```text
+proposed_quality_tier = "Tier 1 — Core Logic"; candidate_state = CANDIDATE / UNAPPROVED —
+  unchanged. Affirmative reasoning, Tier 0/2/3 rejections, Tier-1 gate consequences, ADR
+  Scope Rule result (ADR_NOT_REQUIRED) all preserved byte-identical. Current
+  registry-authoritative Structure Quality Tier remains UNRESOLVED; module-registry.yaml not
+  written to; nothing approved.
+```
+
+### Validation
+
+```text
+pip check clean; ruff format --check clean; ruff check clean; mypy --strict clean (11 source
+  files); pytest 59 passed. Verification venv discarded, not committed —
+  python/structure-engine/** verified byte-unchanged.
+```
+
+### Finding state
+
+```text
+P3-STR-TIER-A-MIN-01: REMEDIATED_PENDING_BOUNDED_REVIEW_A_REREVIEW (not self-CLOSED).
+```
+
+### State summary
+
+```text
+Structure Quality Tier: UNRESOLVED (authoritative) / Tier 1 PROPOSED only. Structure Engine:
+  implemented / remediation set CLEAN (7/7 CLOSED) / NOT approved / no formal QG. Raw Regime
+  Engine: implemented / remediation set CLEAN (6/6 CLOSED) / Tier UNRESOLVED. Phase 3
+  Approval Gate NOT opened. LIVE NOT_AUTHORIZED.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md — verified via git status --porcelain=v1 -uall;
+  docs/architecture/module-registry.yaml, python/structure-engine/**,
+  python/raw-regime-engine/** all verified byte-unchanged; no other file touched.
+  manifest_version "10.216" -> "10.217".
+```
+
 ## [Unreleased] — 2026-08-21 — structure-engine: author Tier-1 classification candidate
 
 **Bookkeeping + governed classification-candidate authoring — no code, no registry write.** Two parts: (1) audit-only closure bookkeeping for the last open Raw Regime finding, verified externally; (2) a Quality Tier classification CANDIDATE for `structure-engine` (`Tier 1 — Core Logic`), reasoning/evidence only — not written to `module-registry.yaml`, not approved, no formal Chapter 13 QG run, Structure Engine not approved.
