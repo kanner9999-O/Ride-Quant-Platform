@@ -2,6 +2,79 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-21 — ADR-033 v0.2: Product Owner Approval (Structure/Raw-Regime language allocation now effective)
+
+**Atomic mechanical approval-recording transaction.** Product Owner decision: "APPROVE
+ADR-033 V0.2" (verbatim), decision timestamp `2026-08-21T07:56+07:00`. Does not
+review/reinterpret the decision, does not implement either module, does not modify
+architecture semantics.
+
+### Baseline
+
+```text
+Starting HEAD: b74cbb9be9dedf0104d097851549a6874f7db077 (verified; tree clean;
+  manifest_version "10.208" confirmed at start).
+Reviewed Draft boundary: b74cbb9be9dedf0104d097851549a6874f7db077.
+Reviewed Draft blob: cca9bbeeef102ed6d087ce2498a47c6f61a3ada8.
+```
+
+### Review eligibility (Mode B, Chapter 11 §11.5 satisfied)
+
+```text
+Review A (bounded re-review): ChatGPT, AI Technical Architect — Review A bounded re-review,
+  execution ID ADR033-A-b74cbb9-REVIEWA-REREVIEW, boundary b74cbb9be9dedf0104d097851549a6874f7db077
+  — ADR033-A-MAJ-01 = CLOSED, ADR033-A-MIN-02 = CLOSED, new B/M/m 0/0/0,
+  disposition READY_FOR_INDEPENDENT_REVIEW_B.
+Review B (Independent Architecture Review B): ChatGPT, AI Technical Architect — Independent
+  Architecture Review B, execution ID ADR033-B-b74cbb9-20260820T2336+0700, same boundary,
+  isolation attestation SATISFIED (ran separately from Review A, independently inspected the
+  same immutable boundary, independently resolved repository authority, did not use Review
+  A's reasoning as ground truth) — ADR033-A-MAJ-01 = CONFIRMED_CLOSED, ADR033-A-MIN-02 =
+  CONFIRMED_CLOSED, new B/M/m 0/0/0, verdict READY_FOR_PRODUCT_OWNER_DECISION.
+ADR-031 mode: SAME_PRINCIPAL_DISTINCT_EXECUTION for both. Minimum-two-review requirement:
+  SATISFIED. Unresolved ADR-033 findings: Blocker 0, Major 0, Minor 0.
+```
+
+### Atomic frontmatter transition
+
+```text
+status: Draft -> Approved. approved_by: null -> Product Owner. approved_at: null ->
+  "2026-08-21T07:56+07:00". reviewers: [] -> [ChatGPT]. version remains "0.2" (unchanged).
+depends_on/addresses/resolves/supersedes all unchanged. No superseded_by added.
+Resulting approved ADR blob: 2fb3e10153f865cdefa6d0d84b73dc6af3e9f1f2 (differs from the
+  reviewed Draft blob — the approval-recording edit is itself part of this same atomic
+  transaction). docs/adr/ADR-033.md is now immutable byte-for-byte from this commit onward
+  (Chapter 11 §11.3) — any future semantic change requires a new ADR.
+```
+
+### Effective decision
+
+```text
+structure-engine: Python (now authoritative). raw-regime-engine: Python (now authoritative).
+Language-allocation blocker removed: NEXT_TRANCHE_IMPLEMENTATION transitions
+  BLOCKED_ON_ADR033_LANGUAGE_DECISION -> READY_FOR_GOVERNED_STRUCTURE_RAW_REGIME_IMPLEMENTATION.
+DATA_LAYER_MILESTONE_READINESS = PASS unchanged, preserved.
+```
+
+### No scope expansion
+
+```text
+No code/registry/domain/constitution/engineering/governance/other-ADR change (verified
+  git diff --quiet for every forbidden path). Dependency graph unchanged
+  (structure-engine.depends_on=[market-data-ingestion], raw-regime-engine.depends_on=
+  [market-data-ingestion], raw-regime-engine.forbidden_dependencies=[structure-engine]). No
+  Quality Tier assigned to either module. No Python version/tooling/framework/transport
+  chosen. No module approved. No Data Layer approved. Phase 3 Approval Gate NOT opened. LIVE
+  NOT authorized. P3-MDI-TIER-B-MIN-01 unchanged, still OPEN — non-blocking.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-033.md, docs/MANIFEST.md, docs/CHANGELOG.md — verified via
+  git status --porcelain=v1 -uall. No other file touched.
+```
+
 ## [Unreleased] — 2026-08-20 — ADR-033 v0.2: Review A bounded correction (align authoritative-implementation semantics with Chapter 3)
 
 **Bounded semantic correction — vai trò: `ADR-033 Review A Bounded Correction Executor`.**
