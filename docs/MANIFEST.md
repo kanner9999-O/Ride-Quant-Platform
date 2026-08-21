@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.212"
+manifest_version: "10.213"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -6195,6 +6195,174 @@ P3-MDI-TIER-B-MIN-01:   unchanged, still OPEN — non-blocking.
 ```
 
 **Files changed:** `python/structure-engine/src/structure_engine/swing.py`, `python/structure-engine/tests/test_swing.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; no other file touched.
+
+## `raw-regime-engine` — second Python module build (`python/raw-regime-engine/**`, analytical core implemented — NOT approved, NOT formally Quality-Gated)
+
+**Phase-3 module implementation batch — vai trò: implicit executor for this transaction.** Implements the authoritative Raw Regime analytical core (`volatility`/`directional_persistence` dimensions, `docs/domain/regime.md`) for `raw-regime-engine` under ADR-033's Approved Python allocation, reusing `structure-engine`'s already-verified first-Python-build toolchain baseline with its own independent reproducible environment evidence. Does not modify `structure-engine`. Does not assign Quality Tier. Does not run formal Chapter 13 QG. Does not modify `module-registry.yaml`, any Domain Contract, any Constitution chapter, or any ADR.
+
+**Baseline:** branch `main`, HEAD `15084236b56e2469af15d4fad9b61edd04cfc75b` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; working tree clean — only pre-existing untracked `.DS_Store` clutter present). `manifest_version` confirmed `"10.212"` at start.
+
+```text
+Fresh authority re-verified before implementation: ADR-033 (Approved) — Python authoritative
+  for both structure-engine and raw-regime-engine. ADR-014 (controlling, unchanged) —
+  Structure/Regime structurally independent, neither consumes the other. module-registry.yaml
+  raw-regime-engine entry re-read directly: module_type=compute_engine,
+  depends_on=[market-data-ingestion], forbidden_dependencies=[structure-engine], no
+  quality_tier field, status=candidate — all preserved unchanged, none touched. regime.md
+  (v0.2, Draft) read in full as the primary new authority for this build.
+```
+
+### Toolchain baseline reused (not re-derived)
+
+```text
+Python >= 3.13 (same validated compatibility-floor rationale as structure-engine — corrected
+  per P3-PYBASE-A-MIN-07, not a "longest support runway" claim). ruff==0.16.4, mypy==2.3.1,
+  pytest==9.1.1, setuptools==84.0.0 — all re-verified as still-current on this machine's
+  toolchain at build time, reused unchanged (no cosmetic bump). Own independent
+  requirements-dev.lock.txt generated via a FRESH venv built specifically for this module
+  (not copied from structure-engine's own lock file, even though both currently resolve to
+  identical transitive versions). Zero runtime dependencies; decimal.Decimal (stdlib) used
+  for every authoritative numerical value (computed_metric, OHLCV, threshold boundaries) —
+  never binary float.
+```
+
+### The formula boundary — no canonical formula or threshold invented
+
+```text
+regime.md §19 deliberately does not select a concrete metric formula or production threshold
+  values. The engine is generic over an injected MetricFormula (formula_id +
+  compute(evidence) -> Decimal) and an explicit, immutable RegimeDefinition/
+  RegimeDimensionDefinition supplying window_candle_count, class_thresholds (caller-supplied
+  Decimal boundaries), threshold_comparison_policy (strict/inclusive), warm_up_policy,
+  gap_policy, and decimal_precision_policy (stdlib decimal rounding mode only).
+  FormulaMismatchError raised fail-closed if the supplied formula's own formula_id does not
+  match the definition's pinned metric_formula_id — no global formula registry exists or is
+  invented. Only clearly test-prefixed formula_id values (test-high-low-range-v1,
+  test-sum-close-v1) exist anywhere in this build, confined to tests/conftest.py, never
+  documented as production-canonical. class_thresholds labels are validated against
+  regime.md's own closed per-dimension vocabulary (a domain fact, not a threshold value):
+  volatility: LOW|NORMAL|HIGH|EXTREME; directional_persistence:
+  NON_DIRECTIONAL|DIRECTIONAL|TRANSITIONAL.
+```
+
+### Implementation scope
+
+```text
+python/raw-regime-engine/src/raw_regime_engine/:
+  identity.py   deterministic opaque subject-id derivation (SHA-256) — duplicated, not
+                imported, from structure-engine's own identity.py (ADR-014 independence is
+                structural; each Python module is independently built/deployed, Chapter 3
+                §3.1 — same precedent as market-reference-service's own independent copy of
+                a Go decimal package originally duplicated from market-data-ingestion).
+  envelope.py   Chapter 8 §8.2 event-record identity shapes — duplicated, not imported.
+  publish.py    in-process per-stream contiguous sequence allocator (ADR-009) — duplicated,
+                not imported; same bounded stand-in role as structure-engine's own.
+  candle.py     authoritative Candle input (CandleScope/OHLCV/CandleFact) — duplicated, not
+                imported; no pivot/wick-vs-close helpers (Raw Regime never does pivot
+                comparison; a MetricFormula reads OHLCV fields directly).
+  regime.py     RegimeScope (five-field identity — instrument_id/venue_id/timeframe/
+                regime_dimension/regime_definition_version; analysis_window explicitly NOT
+                identity), ThresholdBand/DecimalPrecisionPolicy/RegimeDimensionDefinition/
+                RegimeDefinition (fail-closed validation of both canonical policy-identifier
+                strings and per-dimension label vocabulary), MetricFormula (Protocol),
+                RegimeClassified/RegimeFactInvalidated (envelope-inheritance for the
+                invalidation's scope/window_start/window_end, byte-for-byte from the
+                invalidated fact), normalize_evidence (regime.md §8a — six-criterion strict
+                lexicographic order: window_start ASC, window_end ASC, stream_id ASC,
+                registry_version ASC, sequence ASC only-if-stream-tied, event_id ASC; dedup
+                by ref), RegimeEngine (one instance per five-field subject; rolling window —
+                every completed window of window_candle_count contiguous candles emits
+                exactly one RegimeClassified per regime.md §9, even when class repeats the
+                previous window's — no historical/streaming split, unlike Swing, since
+                regime.md mandates identical behavior in both modes; warm-up and
+                non-contiguous-evidence are both valid absence, never an error; unconditional
+                invalidate+replace on any correction touching a classified window's evidence,
+                even when computed_metric/class stay identical, since evidence lineage
+                changed; multiple overlapping windows sharing a corrected candle are each
+                corrected independently, no dependency-forward cascade), RegimeCurrentView
+                (non-authoritative, fed events one at a time by an external caller — before
+                first fact: no row; after: VALID or PENDING_CORRECTION only, target window
+                resolved as max window_end/window_start BEFORE excluding anything
+                invalidated, per regime.md §11's anti-regression rule — never falls back to
+                an older still-valid window; RegimeLineageError raised fail-closed on any
+                lineage-fork/skip/double-invalidation/out-of-order-replacement).
+  errors.py     duplicated OutOfOrderCorrectionError/NonMonotonicRecordedTimeError/
+                DuplicateCandleConflictError/OutOfOrderCandleError/ForeignScopeError, plus
+                two new: FormulaMismatchError, RegimeLineageError.
+```
+
+### Tests / checks executed (fresh, clean-room)
+
+```text
+Fresh venv (python3.13 -m venv .venv), pip install -e ".[dev]", then:
+  ruff format --check .   -> 9 files already formatted (clean)
+  ruff check .             -> All checks passed!
+  mypy (--strict)          -> Success: no issues found in 9 source files
+  pytest tests/ -v         -> 28 passed (warm-up, every-window-emits incl. identical-class,
+    both dimensions, strict/inclusive threshold boundary, decimal precision rounding modes,
+    formula-id mismatch fail-closed, test-only formula injection, label-vocabulary
+    validation, evidence-normalization order-independence, duplicate-computation
+    idempotency, correction invalidate+replace incl. unchanged-class and
+    multi-window-overlap, four RegimeCurrentView lineage-invariant rejections,
+    pending-correction-then-valid, never-falls-back-to-older-window, historical cadence,
+    per-scope ordering isolation, foreign-scope fail-closed x2, deterministic replay,
+    no-Structure-import, subject-id determinism)
+Separately re-verified via a second clean-room venv built ONLY from
+  requirements-dev.lock.txt + pyproject.toml (--no-deps, no resolver freedom): pip check ->
+  No broken requirements found; ruff/mypy/pytest all identical results.
+Informational coverage (NON-FORMAL / INFORMATIONAL ONLY — raw-regime-engine's Quality Tier
+  is unresolved, no formal Chapter 13 QG claimed): coverage run -m pytest && coverage report
+  -> 97% statement coverage across src/ (368 stmts, 25 missed — mostly defensive branches:
+  __post_init__ validation guards, mypy-narrowing assertions, unreachable classify() fallback).
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — module-local implementation of already-governed authority (ADR-033's
+  language decision, regime.md's existing Domain Contract semantics, Chapter 3 §3.1's
+  authoritative-implementation rule). No new/changed Event or Domain Contract semantic, no
+  dependency graph change, no authority transfer, no cross-module semantic contract, no
+  runtime-topology decision, no security/custody boundary, and — critically — no concrete
+  production formula or threshold value was selected. Where regime.md explicitly deferred a
+  concrete mechanism (subject-id derivation, ascending-threshold-band classification scan,
+  rolling-window cadence model, registry_version stand-in constant), this transaction pinned
+  one bounded, documented interpretation in code — disclosed in
+  python/raw-regime-engine/README.md — not a governance decision. No
+  GOVERNED_DECISION_REQUIRED escalation triggered during implementation.
+```
+
+### No scope expansion — explicit verification
+
+```text
+structure-engine unchanged (verified git diff --quiet -- python/structure-engine/). go/**,
+  docs/adr/**, docs/domain/**, docs/constitution/**, docs/governance/**,
+  docs/architecture/module-registry.yaml all unchanged (verified git diff --quiet for each) —
+  no Quality Tier assigned, no dependency/authority change. raw-regime-engine imports nothing
+  from structure_engine (verified by source-tree scan, enforced by a dedicated regression
+  test). No runtime topology chosen (no broker/RPC/HTTP/Go<->Python transport/deployment/
+  process topology/real event log/venue connectivity/credentials/stream registry). No binary
+  float32/float64 authoritative value path (stdlib decimal.Decimal throughout). No Python
+  version/formatter/linter/package-manager/lockfile/framework choice beyond what is recorded
+  above (all reused from structure-engine's baseline, re-verified current, not re-derived).
+```
+
+### State summary
+
+```text
+Raw Regime Engine implementation state:  analytical core implemented (engine semantics only —
+  no production RegimeDefinition/MetricFormula instance exists or is claimed), tested, NOT
+  approved, NOT formally Quality-Gated (Tier UNRESOLVED).
+Structure Engine implementation state:   unchanged by this transaction — remains
+  implemented, tested, NOT approved, NOT formally Quality-Gated (Tier unresolved).
+Data Layer state:                         unchanged (DATA_LAYER_MILESTONE_READINESS = PASS,
+  still readiness-only, not approval).
+Phase 3 Approval Gate:                    NOT opened.
+LIVE:                                      NOT_AUTHORIZED, unreferenced.
+P3-MDI-TIER-B-MIN-01:                     unchanged, still OPEN — non-blocking.
+```
+
+**Files changed:** `python/raw-regime-engine/**` (new: `pyproject.toml`, `.gitignore`, `README.md`, `requirements-dev.lock.txt`, `src/raw_regime_engine/{__init__,identity,envelope,publish,candle,regime,errors}.py`, `tests/{conftest,test_regime}.py`), `python/README.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `python/structure-engine/**` verified byte-unchanged (`git diff --quiet`); no other file touched. `manifest_version` `"10.212"` → `"10.213"`.
 
 ## Decision Log
 

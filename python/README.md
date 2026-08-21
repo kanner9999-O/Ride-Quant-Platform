@@ -7,3 +7,4 @@ Root cho module có ngôn ngữ triển khai = Python (ADR-008: Feature Engineer
 ## Modules
 
 - [`structure-engine/`](./structure-engine/) — Swing pivot / BOS / CHoCH structure inference (`structure.md`, `swing.md`). See its own `README.md` for build/test instructions.
+- [`raw-regime-engine/`](./raw-regime-engine/) — `volatility` / `directional_persistence` regime classification directly over Candle facts (`regime.md`), structurally independent of `structure-engine` ([ADR-014](../docs/adr/ADR-014.md)). See its own `README.md` for build/test instructions.

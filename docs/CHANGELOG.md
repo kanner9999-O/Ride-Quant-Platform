@@ -2,6 +2,83 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-21 — raw-regime-engine: implement authoritative regime core
+
+**Phase-3 module implementation batch — second independent Python module.** Implements the authoritative Raw Regime analytical core (`volatility`/`directional_persistence` dimensions, `docs/domain/regime.md`) under ADR-033's Approved Python allocation, reusing `structure-engine`'s already-verified toolchain baseline with its own independent reproducible environment evidence. Does not modify `structure-engine`. Does not assign Quality Tier. Does not run formal Chapter 13 QG.
+
+### Baseline
+
+```text
+Starting HEAD: 15084236b56e2469af15d4fad9b61edd04cfc75b (verified; tree clean;
+  manifest_version "10.212" confirmed at start). ADR-033 (Approved)/ADR-014 (controlling)
+  re-verified; module-registry.yaml's raw-regime-engine entry re-read directly —
+  depends_on=[market-data-ingestion], forbidden_dependencies=[structure-engine], no
+  quality_tier — all preserved unchanged.
+```
+
+### Added — `python/raw-regime-engine/**` (new module)
+
+```text
+RegimeScope (five-field identity, analysis_window explicitly excluded), RegimeDefinition/
+  RegimeDimensionDefinition/ThresholdBand/DecimalPrecisionPolicy (generic over an injected
+  MetricFormula — no canonical ATR/ADX/efficiency-ratio/etc. formula or production threshold
+  invented anywhere; FormulaMismatchError fail-closed on formula_id mismatch; no global
+  formula registry), RegimeClassified/RegimeFactInvalidated (envelope-inherited
+  scope/window_start/window_end on invalidation), normalize_evidence (regime.md §8a
+  six-criterion canonical lexicographic order), RegimeEngine (one rolling-window algorithm
+  shared identically by streaming and historical/backtest — every completed window emits
+  exactly one fact per regime.md §9, even when class repeats; unconditional invalidate+
+  replace on any correction touching classified evidence, even when computed_metric/class
+  stay identical; independent correction of each overlapping window, no dependency-forward
+  cascade), RegimeCurrentView (non-authoritative, VALID/PENDING_CORRECTION only, target
+  window resolved before excluding invalidated facts per §11's anti-regression rule,
+  RegimeLineageError fail-closed on lineage-fork/skip/double-invalidation).
+Package structure mirrors structure-engine's established pattern (identity/envelope/publish/
+  candle/errors + one core module), duplicated rather than imported (ADR-014 independence is
+  structural — each Python module is independently built/deployed).
+```
+
+### Tests / checks (fresh, clean-room, own independently-generated lock file)
+
+```text
+ruff format --check . -> clean; ruff check . -> All checks passed; mypy --strict -> Success,
+  no issues (9 source files); pytest tests/ -v -> 28 passed. Re-verified from a second
+  clean-room venv built only from requirements-dev.lock.txt + pyproject.toml (--no-deps) ->
+  pip check clean, identical results. Informational coverage (NON-FORMAL/INFORMATIONAL ONLY,
+  Tier unresolved) -> 97%.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — module-local implementation of already-governed authority (ADR-033's
+  language decision, regime.md's existing Domain Contract semantics, Chapter 3 §3.1's
+  authoritative-implementation rule). No new/changed Event or Domain Contract semantic, no
+  dependency graph change, no authority transfer, no cross-module semantic contract, no
+  runtime-topology decision, no security/custody boundary, no production formula/threshold
+  selected. No GOVERNED_DECISION_REQUIRED triggered.
+```
+
+### State summary
+
+```text
+Raw Regime Engine: analytical core implemented (engine semantics only), tested, NOT
+  approved, Quality Tier UNRESOLVED, no formal Chapter 13 QG.
+Structure Engine: unchanged (verified git diff --quiet -- python/structure-engine/).
+Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+### Files changed
+
+```text
+python/raw-regime-engine/** (new: pyproject.toml, .gitignore, README.md,
+  requirements-dev.lock.txt, src/raw_regime_engine/{__init__,identity,envelope,publish,
+  candle,regime,errors}.py, tests/{conftest,test_regime}.py), python/README.md,
+  docs/MANIFEST.md, docs/CHANGELOG.md — verified via git status --porcelain=v1 -uall;
+  python/structure-engine/** verified byte-unchanged; no other file touched.
+  manifest_version "10.212" -> "10.213".
+```
+
 ## [Unreleased] — 2026-08-21 — structure-engine: fix historical Swing revision lifecycle
 
 **Narrowly bounded remediation — one residual defect only.** Fixes exactly
