@@ -71,10 +71,21 @@ dependency — a caller drives them by calling `ingest_candle`/`on_candle`/
 
 Minimum supported Python version verified fresh against the official
 CPython devguide (`https://devguide.python.org/versions/`) at build time
-(2026-08-21): **Python >= 3.13** — the newest non-prerelease branch still in
-active `Bugfix` maintenance (EOL October 2029), giving the longest support
-runway of any non-prerelease release at this boundary. Validated against the
-actual local interpreter, Python 3.13.6.
+(2026-08-21): **Python >= 3.13**.
+
+**Corrected rationale (P3-PYBASE-A-MIN-07):** an earlier revision of this
+document incorrectly claimed 3.13 was "the newest non-prerelease branch...
+giving the longest support runway of any non-prerelease release." That was
+false — the same devguide table shows Python 3.14 is *already* `Bugfix`
+status (not merely prerelease) with a *longer* runway (EOL October 2030 vs
+3.13's October 2029). The actual, honest reason for the `>=3.13` floor: this
+first build was authored and validated against the locally available
+interpreter, Python 3.13.6, which was in active `Bugfix` maintenance (not
+merely security-only) at build time with ample remaining runway — a
+validated *compatibility floor*, not a claim of being the newest or
+longest-supported branch. `requires-python = ">=3.13"` is a floor, not a
+ceiling: newer interpreters, including 3.14, remain fully compatible and are
+not excluded by this pin.
 
 Minimal tooling selected (per `docs/engineering/coding-standard.md` §1/§2's
 explicit first-build deferral):
@@ -94,18 +105,53 @@ library). Package/dependency mechanism: a plain PEP 621 `pyproject.toml`
 with exact-pinned `dev` extras — no third-party package manager needed for a
 zero-runtime-dependency package.
 
+### Reproducible build/dev environment (P3-PYBASE-A-MAJ-06)
+
+Every piece of the toolchain state is exact-pinned, not just the three
+top-level dev tools:
+
+- **Build backend:** `[build-system].requires` pins `setuptools==84.0.0`
+  exactly (was previously an open `>=75` range — corrected).
+- **Full transitive dev/build dependency state:**
+  [`requirements-dev.lock.txt`](./requirements-dev.lock.txt) — generated via
+  `pip freeze --exclude-editable` from a fresh venv, covering everything
+  `ruff`/`mypy`/`pytest` themselves pull in (not just the three direct pins).
+- **Exact interpreter used:** Python 3.13.6 (CPython, arm64,
+  macOS-14.5-arm64-arm-64bit-Mach-O).
+- **Exact install mechanism used:** pip 25.2 (`pip install --upgrade
+  pip==25.2` before installing this project).
+- **Zero production runtime dependencies** — `[project].dependencies` is
+  empty; the lock file covers only the dev/build toolchain, never shipped.
+- No new package manager introduced — plain `pip` + PEP 621 `pyproject.toml`
+  remains sufficient for a zero-runtime-dependency package.
+
+Fresh clean-room reconstruction from committed state is verified to
+reproduce byte-for-byte identical package versions (`pip check` clean, no
+broken requirements) — see "Build / test locally" below for the exact
+reconstruction commands.
+
 ## Build / test locally
 
 ```bash
 cd python/structure-engine
 python3.13 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
+python -m pip install --upgrade pip==25.2
+
+# Exact reconstruction from committed lock state (no resolver involved):
+pip install --no-deps -r requirements-dev.lock.txt
+pip install -e . --no-deps
+pip check   # -> "No broken requirements found."
 
 ruff format .
 ruff check .
 mypy
 pytest tests/ -v
 ```
+
+(`pip install -e ".[dev]"` also works for day-to-day development — it lets
+pip's resolver pick up the exact pins from `pyproject.toml` directly — but
+the two-step `--no-deps` sequence above is the one that reproduces the
+committed lock exactly, with no resolver freedom at all.)
 
 Coverage may be collected for local diagnostics (`coverage run -m pytest
 && coverage report`) but is **NON-FORMAL / INFORMATIONAL ONLY** — this

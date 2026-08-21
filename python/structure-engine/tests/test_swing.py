@@ -256,3 +256,114 @@ class TestDecimalEdgeValuesAndAbsence:
         series = [("100", "90"), ("101", "91"), ("102", "92"), ("103", "93"), ("104", "94")]
         events = feed(engine, allocator, series)
         assert not any(isinstance(e, SwingConfirmed) and e.scope.direction == "HIGH" for e in events)
+
+
+class TestCausalLineage:
+    """P3-STR-SWG-A-MAJ-01: swing.md §3/§4/§5 causation invariants."""
+
+    def test_candidate_causation_includes_pivot_candle_fact(self, allocator: SequenceAllocator) -> None:
+        engine = SwingEngine(wick_definition(), allocator)
+        series = [("100", "90"), ("105", "95"), ("110", "100")]
+        pivot_ref = None
+        events: list[SwingEvent] = []
+        for i, (high, low) in enumerate(series):
+            fact = candle_at(allocator, i, high=high, low=low)
+            if i == 2:
+                pivot_ref = fact.ref
+            events += engine.ingest_candle(fact)
+        candidate = next(e for e in events if isinstance(e, SwingCandidateDetected) and e.scope.direction == "HIGH")
+        assert pivot_ref is not None
+        assert pivot_ref in candidate.causation_refs
+
+    def test_confirmed_via_candidate_causation_includes_pivot_and_candidate(self, allocator: SequenceAllocator) -> None:
+        engine = SwingEngine(wick_definition(), allocator)
+        series = [("100", "90"), ("105", "95"), ("110", "100"), ("105", "95"), ("100", "90")]
+        pivot_ref = None
+        events: list[SwingEvent] = []
+        for i, (high, low) in enumerate(series):
+            fact = candle_at(allocator, i, high=high, low=low)
+            if i == 2:
+                pivot_ref = fact.ref
+            events += engine.ingest_candle(fact)
+        candidate = next(e for e in events if isinstance(e, SwingCandidateDetected) and e.scope.direction == "HIGH")
+        confirmed = next(e for e in events if isinstance(e, SwingConfirmed) and e.scope.direction == "HIGH")
+        assert pivot_ref is not None
+        assert pivot_ref in confirmed.causation_refs
+        assert candidate.ref in confirmed.causation_refs
+
+    def test_confirmed_revision_gt_1_causation_includes_prior_invalidation(self, allocator: SequenceAllocator) -> None:
+        engine = SwingEngine(wick_definition(), allocator)
+        series = [("100", "90"), ("105", "95"), ("110", "100"), ("105", "95"), ("100", "90")]
+        feed(engine, allocator, series)
+        corrected = candle_at(allocator, 2, high="112", low="100", is_correction=True, recorded_offset_seconds=600)
+        events2 = engine.ingest_candle(corrected)
+        invalidated = next(e for e in events2 if isinstance(e, SwingInvalidated))
+        confirmed2 = next(e for e in events2 if isinstance(e, SwingConfirmed))
+        assert confirmed2.swing_revision == 2
+        assert invalidated.ref in confirmed2.causation_refs
+
+    def test_invalidated_upstream_correction_causation_includes_both_refs(self, allocator: SequenceAllocator) -> None:
+        engine = SwingEngine(wick_definition(), allocator)
+        series = [("100", "90"), ("105", "95"), ("110", "100"), ("105", "95"), ("100", "90")]
+        events = feed(engine, allocator, series)
+        confirmed = next(e for e in events if isinstance(e, SwingConfirmed) and e.scope.direction == "HIGH")
+        corrected = candle_at(allocator, 2, high="112", low="100", is_correction=True, recorded_offset_seconds=600)
+        events2 = engine.ingest_candle(corrected)
+        invalidated = next(e for e in events2 if isinstance(e, SwingInvalidated))
+        # causation must carry BOTH the exact fact being invalidated AND the
+        # exact CandleCorrected causing it — never only recorded_time.
+        assert confirmed.ref in invalidated.causation_refs
+        assert corrected.ref in invalidated.causation_refs
+
+    def test_critical_restoration_after_market_evolution_then_correction(self, allocator: SequenceAllocator) -> None:
+        """candidate rev1 -> market_evolution SwingInvalidated rev1 ->
+        CandleCorrected removes the market-evolution violation -> swing
+        becomes valid again as revision 2, causally linked to the rev1
+        SwingInvalidated -- no fabricated invalidation in the restoring pass.
+        """
+        engine = SwingEngine(wick_definition(left_count=2, right_count=3), allocator)
+        series = [("100", "90"), ("105", "95"), ("110", "100"), ("115", "105")]
+        events = feed(engine, allocator, series)
+        invalidated1 = next(e for e in events if isinstance(e, SwingInvalidated) and e.scope.direction == "HIGH")
+        assert invalidated1.invalidation_cause == "market_evolution"
+        assert invalidated1.swing_revision == 1
+
+        corrected = candle_at(allocator, 3, high="108", low="98", is_correction=True, recorded_offset_seconds=600)
+        events2 = engine.ingest_candle(corrected)
+        # Narrow to events belonging to the SAME swing_id under test (pivot @
+        # index2). The correction may incidentally also affect an unrelated
+        # candidate that had briefly formed at index3 itself before its own
+        # value changed — that is legitimate, independent behavior, not part
+        # of this restoration case.
+        same_swing = [
+            e
+            for e in events2
+            if e.scope.direction == "HIGH"
+            and e.scope.pivot_candle_subject_id == invalidated1.scope.pivot_candle_subject_id
+        ]
+        assert len(same_swing) == 1
+        restored = same_swing[0]
+        assert isinstance(restored, SwingCandidateDetected)
+        assert restored.swing_revision == 2
+        assert invalidated1.ref in restored.causation_refs
+
+
+class TestScopedOrdering:
+    """P3-STR-ORDER-A-MAJ-04: no invented global ordering across scopes."""
+
+    def test_independent_scopes_do_not_share_recorded_time_ordering(self, allocator: SequenceAllocator) -> None:
+        engine = SwingEngine(wick_definition(), allocator)
+        # scope A (default instrument) receives a LATER recorded_time first.
+        engine.ingest_candle(candle_at(allocator, 5, high="100", low="90", recorded_offset_seconds=100_000))
+        # independent scope B (different instrument) then receives an
+        # EARLIER recorded_time -- must NOT fail merely because scope A's
+        # last-seen recorded_time was later.
+        engine.ingest_candle(
+            candle_at(allocator, 0, high="100", low="90", recorded_offset_seconds=0, instrument_id="ETH-USDT")
+        )
+
+    def test_same_scope_non_monotonic_still_fails_closed(self, allocator: SequenceAllocator) -> None:
+        engine = SwingEngine(wick_definition(), allocator)
+        engine.ingest_candle(candle_at(allocator, 0, high="100", low="90", recorded_offset_seconds=1000))
+        with pytest.raises(NonMonotonicRecordedTimeError):
+            engine.ingest_candle(candle_at(allocator, 1, high="100", low="90", recorded_offset_seconds=0))

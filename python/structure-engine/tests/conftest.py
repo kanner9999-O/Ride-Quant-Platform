@@ -28,12 +28,17 @@ def candle_at(
     volume: str = "1",
     is_correction: bool = False,
     recorded_offset_seconds: int = 0,
+    instrument_id: str = INSTRUMENT,
+    venue_id: str = VENUE,
+    timeframe: str = TIMEFRAME,
 ) -> CandleFact:
     """Builds one authoritative candle-closed/candle-corrected fact at a
-    deterministic one-minute window, indexed by `index`."""
+    deterministic one-minute window, indexed by `index`. Defaults to the
+    module's single (instrument, venue, timeframe) scope; pass overrides to
+    build a fact belonging to a different/independent scope."""
     window_start = datetime(2026, 1, 1, tzinfo=UTC) + timedelta(minutes=index)
     window_end = window_start + timedelta(minutes=1)
-    scope = CandleScope(INSTRUMENT, VENUE, TIMEFRAME, window_start, window_end)
+    scope = CandleScope(instrument_id, venue_id, timeframe, window_start, window_end)
     close_v = close if close is not None else high
     open_v = open_ if open_ is not None else close_v
     ohlcv = OHLCV(Decimal(open_v), Decimal(high), Decimal(low), Decimal(close_v), Decimal(volume))

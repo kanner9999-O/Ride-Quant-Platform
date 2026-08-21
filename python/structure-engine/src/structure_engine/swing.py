@@ -167,6 +167,13 @@ class _SwingState:
     candidate_ref: EventRecordRef | None
     active_ref: EventRecordRef | None
     pivot_price: Decimal
+    #: The ref of the most recent SwingInvalidated emitted for THIS revision
+    #: (None if the revision has never been invalidated, or if it was
+    #: invalidated silently in historical mode with nothing ever emitted).
+    #: Retained even after `state` becomes INVALIDATED so a later correction
+    #: that restores eligibility can causally link the new revision back to
+    #: it (swing.md §1a rule 5) instead of fabricating a fresh invalidation.
+    last_invalidation_ref: EventRecordRef | None = None
 
 
 class SwingEngine:
@@ -190,15 +197,21 @@ class SwingEngine:
         self._stream_id = stream_id
         self._candles: dict[_CandleKey, list[CandleFact]] = {}
         self._candle_pos: dict[_CandleKey, dict[str, int]] = {}
-        self._last_recorded_time: datetime | None = None
+        #: Ordering discipline is bounded to its own applicable Candle
+        #: stream/scope (instrument_id, venue_id, timeframe) — NOT a global
+        #: cross-scope clock. Two independent scopes may freely interleave
+        #: in any relative recorded_time order; only ordering WITHIN the
+        #: same scope is enforced (Chapter 8 §8.3.3 / ADR-009 — no invented
+        #: global total order across independent streams).
+        self._last_recorded_time: dict[_CandleKey, datetime] = {}
         self._swings: dict[str, _SwingState] = {}
 
     # -- public API ---------------------------------------------------
 
     def ingest_candle(self, fact: CandleFact) -> list[SwingEvent]:
         """Ingest one authoritative candle-closed or candle-corrected fact."""
-        self._check_recorded_time(fact.recorded_time)
         key = (fact.scope.instrument_id, fact.scope.venue_id, fact.scope.timeframe)
+        self._check_recorded_time(key, fact.recorded_time)
         candles = self._candles.setdefault(key, [])
         positions = self._candle_pos.setdefault(key, {})
         subject_id = fact.scope.subject_id
@@ -232,7 +245,7 @@ class SwingEngine:
         rc, lc = self.definition.right_count, self.definition.left_count
         for direction in _DIRECTIONS:
             for pivot_idx in range(max(0, idx - rc), min(len(candles), idx + lc + 1)):
-                events.extend(self._recompute_after_correction(key, pivot_idx, direction, fact.recorded_time))
+                events.extend(self._recompute_after_correction(key, pivot_idx, direction, fact.ref, fact.recorded_time))
         return events
 
     def _ingest_new_subject(
@@ -339,7 +352,11 @@ class SwingEngine:
                         ref=ref,
                     )
                 )
-            self._swings[scope.swing_id] = replace(existing, state="INVALIDATED", active_ref=None)
+                self._swings[scope.swing_id] = replace(
+                    existing, state="INVALIDATED", active_ref=None, last_invalidation_ref=ref
+                )
+            else:
+                self._swings[scope.swing_id] = replace(existing, state="INVALIDATED", active_ref=None)
         return events
 
     def _advance(
@@ -388,7 +405,12 @@ class SwingEngine:
         return []
 
     def _recompute_after_correction(
-        self, key: _CandleKey, pivot_idx: int, direction: Direction, recorded_time: datetime
+        self,
+        key: _CandleKey,
+        pivot_idx: int,
+        direction: Direction,
+        correction_ref: EventRecordRef,
+        recorded_time: datetime,
     ) -> list[SwingEvent]:
         candles = self._candles[key]
         if pivot_idx >= len(candles):
@@ -416,7 +438,9 @@ class SwingEngine:
         events: list[SwingEvent] = []
         prior_invalidation_ref: EventRecordRef | None = None
         if was_active and existing is not None:
-            causation = (existing.active_ref,) if existing.active_ref is not None else ()
+            # Genuinely new invalidation this pass: causation carries BOTH the
+            # exact fact being invalidated AND the exact CandleCorrected that
+            # caused it (swing.md §5 invariant) — never just recorded_time.
             if existing.active_ref is not None:
                 ref = self._allocator.next_ref(self._stream_id)
                 events.append(
@@ -424,13 +448,25 @@ class SwingEngine:
                         scope=scope,
                         swing_revision=existing.revision,
                         invalidation_cause="upstream_correction",
-                        causation_refs=causation,
+                        causation_refs=(existing.active_ref, correction_ref),
                         recorded_time=recorded_time,
                         ref=ref,
                     )
                 )
                 prior_invalidation_ref = ref
-            self._swings[scope.swing_id] = replace(existing, state="INVALIDATED", active_ref=None)
+                self._swings[scope.swing_id] = replace(
+                    existing, state="INVALIDATED", active_ref=None, last_invalidation_ref=ref
+                )
+            else:
+                self._swings[scope.swing_id] = replace(existing, state="INVALIDATED", active_ref=None)
+        elif existing is not None and existing.state == "INVALIDATED" and new_status != "NONE":
+            # Restoration case: this revision was already terminal (e.g. a
+            # market_evolution invalidation while still CANDIDATE) and a
+            # LATER correction now makes it valid again. The new revision
+            # must causally reference the SAME prior invalidation that
+            # terminated the old one — never fabricate a fresh one here,
+            # since nothing new is being invalidated by THIS correction.
+            prior_invalidation_ref = existing.last_invalidation_ref
 
         if new_status == "NONE":
             return events
@@ -490,7 +526,10 @@ class SwingEngine:
             return []
 
         ref = self._allocator.next_ref(self._stream_id)
-        causation = list(left_refs)
+        # swing.md §3 invariant: causation_refs must contain exactly one ref
+        # to the authoritative pivot Candle fact, plus left-side evidence,
+        # plus (revision > 1) the prior SwingInvalidated.
+        causation: list[EventRecordRef] = [pivot_fact.ref, *left_refs]
         if prior_invalidation_ref is not None:
             causation.append(prior_invalidation_ref)
         event = SwingCandidateDetected(
@@ -531,11 +570,18 @@ class SwingEngine:
         right_refs = tuple(c.ref for c in candles[pivot_idx + 1 : pivot_idx + 1 + self.definition.right_count])
 
         ref = self._allocator.next_ref(self._stream_id)
-        causation: list[EventRecordRef]
+        # swing.md §4 invariant: causation_refs must ALWAYS include the pivot
+        # Candle fact; if this confirmation went through CANDIDATE, it must
+        # ALSO include that SwingCandidateDetected; the historical/direct
+        # UNSEEN -> CONFIRMED path includes its full authoritative Candle
+        # evidence instead (no candidate event exists to reference); revision
+        # > 1 additionally includes the prior SwingInvalidated.
+        causation: list[EventRecordRef] = [pivot_fact.ref]
         if candidate_ref is not None:
-            causation = [candidate_ref]
+            causation.append(candidate_ref)
         else:
-            causation = [pivot_fact.ref, *left_refs, *right_refs]
+            causation.extend(left_refs)
+            causation.extend(right_refs)
         if prior_invalidation_ref is not None:
             causation.append(prior_invalidation_ref)
 
@@ -563,9 +609,10 @@ class SwingEngine:
 
     # -- ordering discipline ------------------------------------------------
 
-    def _check_recorded_time(self, recorded_time: datetime) -> None:
-        if self._last_recorded_time is not None and recorded_time < self._last_recorded_time:
+    def _check_recorded_time(self, key: _CandleKey, recorded_time: datetime) -> None:
+        last = self._last_recorded_time.get(key)
+        if last is not None and recorded_time < last:
             raise NonMonotonicRecordedTimeError(
-                f"recorded_time {recorded_time} precedes last-seen {self._last_recorded_time}"
+                f"recorded_time {recorded_time} precedes last-seen {last} for scope {key}"
             )
-        self._last_recorded_time = recorded_time
+        self._last_recorded_time[key] = recorded_time

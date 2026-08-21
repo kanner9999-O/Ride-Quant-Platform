@@ -40,3 +40,12 @@ class OutOfOrderCandleError(StructureEngineError):
     """A candle was submitted with window_start earlier than the last-seen
     candle for the same (instrument, venue, timeframe) scope.
     """
+
+
+class ForeignScopeError(StructureEngineError):
+    """A fact was submitted whose (instrument_id, venue_id, timeframe) — or
+    swing_definition_version dependency — does not match this engine's own
+    scope. Structure fails closed rather than silently ingesting a
+    foreign-scope fact (structure.md §13 — Structure scope is not global
+    state).
+    """

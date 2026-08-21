@@ -17,10 +17,10 @@ from typing import Literal
 
 from .candle import CandleFact, PriceBasis
 from .envelope import EventRecordRef
-from .errors import DuplicateCandleConflictError, OutOfOrderCorrectionError
+from .errors import DuplicateCandleConflictError, ForeignScopeError, OutOfOrderCorrectionError
 from .identity import deterministic_id
 from .publish import SequenceAllocator
-from .swing import Direction, SwingConfirmed, SwingInvalidated
+from .swing import Direction, EqualLevelPolicy, SwingConfirmed, SwingInvalidated
 
 Orientation = Literal["UNDETERMINED", "NEUTRAL", "BULLISH", "BEARISH"]
 ComparisonPolicy = Literal["strict", "inclusive"]
@@ -46,16 +46,30 @@ _REGISTRY_VERSION = "v0"
 
 @dataclass(frozen=True, slots=True)
 class StructureDefinition:
-    """structure.md §9 policy — pinned, not hardcoded to one trading philosophy."""
+    """structure.md §9 policy — pinned, not hardcoded to one trading philosophy.
+
+    All six fields structure.md §9 declares are explicitly required — none
+    default silently, so every StructureDefinition instance is a complete,
+    self-describing pin, never an accidental partial one.
+    """
 
     structure_definition_version: str
     depends_on_swing_definition_version: str
     break_price_basis: PriceBasis
     comparison_policy: ComparisonPolicy
+    equal_level_policy: EqualLevelPolicy
+    relevant_swing_selection_policy: str
 
     def __post_init__(self) -> None:
         if not self.depends_on_swing_definition_version:
             raise ValueError("depends_on_swing_definition_version must be set")
+        if self.relevant_swing_selection_policy != RELEVANT_SWING_SELECTION_POLICY:
+            raise ValueError(
+                "unsupported relevant_swing_selection_policy: "
+                f"{self.relevant_swing_selection_policy!r} — this implementation only "
+                f"supports the canonical structure.md §6a policy: "
+                f"{RELEVANT_SWING_SELECTION_POLICY!r} (fail-closed, no invented policy)"
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -198,7 +212,22 @@ class StructureEngine:
         self._allocator = allocator
         self._orientation: Orientation = "UNDETERMINED"
         self._eligible: dict[tuple[str, Direction], _EligibleSwing] = {}
+        #: Currently-consumed (swing_id, swing_revision) pairs — REMOVABLE:
+        #: a pair leaves this set the moment the BOS/CHoCH fact that consumed
+        #: it is itself invalidated (structure.md §6a "consumed" is scoped to
+        #: "while the fact that consumed it remains effective", not
+        #: permanent).
         self._consumed: set[tuple[str, int]] = set()
+        #: Permanent record of every SwingConfirmed ever observed, keyed by
+        #: (swing_id, swing_revision) — retained even after the revision is
+        #: consumed or invalidated, so a later StructureFactInvalidated can
+        #: restore the exact Eligible Swing (all 8 total-order fields)
+        #: without needing to re-receive the original SwingConfirmed.
+        self._swing_metadata: dict[tuple[str, int], _EligibleSwing] = {}
+        #: (swing_id, swing_revision) pairs whose OWN SwingInvalidated has
+        #: fired — permanently excluded from restoration, regardless of what
+        #: happens to any Structure fact that once consumed them.
+        self._swing_invalidated: set[tuple[str, int]] = set()
         self._chain: list[_ChainEntry] = []
         self._fact_index: dict[EventRecordRef, int] = {}
         self._fact_pivot_price: dict[EventRecordRef, Decimal] = {}
@@ -209,15 +238,36 @@ class StructureEngine:
     def current_orientation(self) -> Orientation:
         return self._orientation
 
+    # -- scope isolation (structure.md §13 — no global state) ------------
+
+    def _check_scope(self, instrument_id: str, venue_id: str, timeframe: str) -> None:
+        if (instrument_id, venue_id, timeframe) != (
+            self.scope.instrument_id,
+            self.scope.venue_id,
+            self.scope.timeframe,
+        ):
+            raise ForeignScopeError(
+                f"fact scope (instrument_id={instrument_id!r}, venue_id={venue_id!r}, "
+                f"timeframe={timeframe!r}) does not match engine scope "
+                f"(instrument_id={self.scope.instrument_id!r}, venue_id={self.scope.venue_id!r}, "
+                f"timeframe={self.scope.timeframe!r})"
+            )
+
+    def _check_swing_definition(self, swing_definition_version: str) -> None:
+        if swing_definition_version != self.definition.depends_on_swing_definition_version:
+            raise ForeignScopeError(
+                f"swing_definition_version {swing_definition_version!r} does not match this "
+                f"engine's depends_on_swing_definition_version "
+                f"{self.definition.depends_on_swing_definition_version!r}"
+            )
+
     # -- Swing-side ingestion --------------------------------------------
 
     def on_swing_confirmed(self, event: SwingConfirmed) -> None:
-        if event.scope.swing_definition_version != self.definition.depends_on_swing_definition_version:
-            return
-        if (event.scope.swing_id, event.swing_revision) in self._consumed:
-            return
-        key = (event.scope.swing_id, event.scope.direction)
-        self._eligible[key] = _EligibleSwing(
+        self._check_scope(event.scope.instrument_id, event.scope.venue_id, event.scope.timeframe)
+        self._check_swing_definition(event.scope.swing_definition_version)
+        swing_key = (event.scope.swing_id, event.swing_revision)
+        metadata = _EligibleSwing(
             swing_id=event.scope.swing_id,
             swing_revision=event.swing_revision,
             direction=event.scope.direction,
@@ -226,27 +276,36 @@ class StructureEngine:
             swing_confirmed_event_ref=event.ref,
             swing_confirmed_recorded_time=event.recorded_time,
         )
+        self._swing_metadata[swing_key] = metadata
+        if swing_key in self._consumed:
+            return
+        slot_key = (event.scope.swing_id, event.scope.direction)
+        self._eligible[slot_key] = metadata
 
     def on_swing_invalidated(self, event: SwingInvalidated) -> list[StructureEvent]:
-        if event.scope.swing_definition_version != self.definition.depends_on_swing_definition_version:
-            return []
-        key = (event.scope.swing_id, event.scope.direction)
-        eligible = self._eligible.get(key)
+        self._check_scope(event.scope.instrument_id, event.scope.venue_id, event.scope.timeframe)
+        self._check_swing_definition(event.scope.swing_definition_version)
+        slot_key = (event.scope.swing_id, event.scope.direction)
+        swing_key = (event.scope.swing_id, event.swing_revision)
+        eligible = self._eligible.get(slot_key)
         if eligible is not None and eligible.swing_revision == event.swing_revision:
-            del self._eligible[key]
+            del self._eligible[slot_key]
+            self._swing_invalidated.add(swing_key)
             return []
-        if (event.scope.swing_id, event.swing_revision) in self._consumed:
+        if swing_key in self._consumed:
+            self._swing_invalidated.add(swing_key)
             for idx, entry in enumerate(self._chain):
                 if entry.invalidated:
                     continue
                 ref = entry.fact.broken_swing_ref
                 if ref.swing_id == event.scope.swing_id and ref.swing_revision == event.swing_revision:
-                    return self._cascade(idx, "swing_invalidated", event.ref, event.recorded_time)
+                    return self._cascade(idx, "swing_invalidated", event.ref, event.recorded_time, restore_direct=False)
         return []
 
     # -- Candle-side ingestion --------------------------------------------
 
     def on_candle(self, fact: CandleFact) -> list[StructureEvent]:
+        self._check_scope(fact.scope.instrument_id, fact.scope.venue_id, fact.scope.timeframe)
         subject_id = fact.scope.subject_id
         if subject_id in self._candles:
             old = self._candles[subject_id]
@@ -368,12 +427,35 @@ class StructureEngine:
             events.extend(self._cascade(idx, "breaking_candle_corrected", None, recorded_time))
         return events
 
+    def _restore_if_valid(self, ref: BrokenSwingRef) -> None:
+        """structure.md §6a: (swing_id, swing_revision) is ineligible only
+        while the BOS/CHoCH that consumed it remains effective — once that
+        fact is invalidated, the exact same revision becomes Eligible again,
+        PROVIDED the Swing revision itself was never separately invalidated.
+        A newer valid revision of the same swing_id already occupying the
+        eligible slot always takes precedence (never overwritten by an older
+        restored revision).
+        """
+        key = (ref.swing_id, ref.swing_revision)
+        if key in self._swing_invalidated:
+            return
+        metadata = self._swing_metadata.get(key)
+        if metadata is None:
+            return
+        self._consumed.discard(key)
+        slot_key = (ref.swing_id, ref.direction)
+        current = self._eligible.get(slot_key)
+        if current is None or current.swing_revision <= ref.swing_revision:
+            self._eligible[slot_key] = metadata
+
     def _cascade(
         self,
         direct_idx: int,
         direct_cause: StructureInvalidationCause,
         direct_cause_ref: EventRecordRef | None,
         recorded_time: datetime,
+        *,
+        restore_direct: bool = True,
     ) -> list[StructureEvent]:
         events: list[StructureEvent] = []
         prior_ref: EventRecordRef | None = direct_cause_ref
@@ -397,6 +479,16 @@ class StructureEngine:
             events.append(fact)
             entry.invalidated = True
             prior_ref = ref
+            # Direct fact invalidated because ITS OWN broken Swing revision
+            # was invalidated -> do NOT restore (nothing left to restore, the
+            # Swing itself is gone). Every other case (direct fact
+            # invalidated for breaking_candle_corrected, and every chained
+            # descendant regardless of the direct cause) restores its
+            # consumed Swing, since chaining never implies that fact's OWN
+            # broken Swing revision was itself invalidated.
+            should_restore = restore_direct if i == direct_idx else True
+            if should_restore:
+                self._restore_if_valid(entry.fact.broken_swing_ref)
 
         cascade_refs = tuple(e.ref for e in events)
         justifying: OrientationFact | None = None

@@ -2,6 +2,148 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-21 — structure-engine: remediate contract and Python-baseline defects
+
+**Bounded remediation batch.** Fixes seven verified findings from the first structure-engine
+build: `P3-STR-SWG-A-MAJ-01`, `P3-STR-CONSUME-A-MAJ-02`, `P3-STR-DEF-A-MAJ-03`,
+`P3-STR-ORDER-A-MAJ-04`, `P3-STR-SCOPE-A-MAJ-05`, `P3-PYBASE-A-MAJ-06`, `P3-PYBASE-A-MIN-07`.
+Does not implement `raw-regime-engine`. Does not perform formal Chapter 13 QG. Does not
+assign Quality Tier. All seven findings recorded as `REMEDIATED_PENDING_DETERMINISTIC_
+VERIFICATION` — none self-CLOSED.
+
+### Baseline
+
+```text
+Starting HEAD: 4df4de09f4788de67af99a49feded08259e6189b (verified; tree clean;
+  manifest_version "10.210" confirmed at start).
+```
+
+### Fixed — Major: `P3-STR-SWG-A-MAJ-01` (Swing causal lineage)
+
+```text
+SwingCandidateDetected causation now always includes the pivot Candle fact ref (was
+  missing). SwingConfirmed causation always includes the pivot ref; CANDIDATE->CONFIRMED
+  path additionally includes the SwingCandidateDetected ref (was candidate_ref alone,
+  without the pivot ref). SwingInvalidated(upstream_correction) causation now includes
+  BOTH the invalidated event AND the exact CandleCorrected ref (was missing the
+  correction ref — _recompute_after_correction now takes an explicit correction_ref
+  parameter instead of only recorded_time). Critical restoration case fixed: new
+  _SwingState.last_invalidation_ref, retained across CANDIDATE/CONFIRMED -> INVALIDATED,
+  so a later correction that restores eligibility links the new revision to the SAME
+  prior invalidation rather than fabricating one.
+```
+
+### Fixed — Major: `P3-STR-CONSUME-A-MAJ-02` (consumed Swing eligibility)
+
+```text
+`_consumed` semantics corrected from permanent to scoped-to-effective, matching
+  structure.md §6a's own stated rule verbatim. New `_swing_metadata` (permanent
+  per-revision record) + `_swing_invalidated` (permanent block-list for revisions whose
+  OWN SwingInvalidated fired) + `_restore_if_valid` helper: a consumed (swing_id,
+  revision) becomes eligible again the moment the fact that consumed it is itself
+  invalidated, unless the revision itself was separately invalidated. `_cascade` gained
+  `restore_direct` — the direct fact in the swing_invalidated-cause case does not
+  restore; every other case (breaking_candle_corrected, all chained descendants) does.
+```
+
+### Fixed — Major: `P3-STR-DEF-A-MAJ-03` (StructureDefinition contract)
+
+```text
+Added the two structure.md §9 fields that were missing: equal_level_policy and
+  relevant_swing_selection_policy. All six fields now required, no defaults.
+  relevant_swing_selection_policy validated fail-closed against the existing canonical
+  RELEVANT_SWING_SELECTION_POLICY constant — no new policy invented.
+```
+
+### Fixed — Major: `P3-STR-ORDER-A-MAJ-04` (no invented global ordering)
+
+```text
+SwingEngine._last_recorded_time changed from a single global datetime to a
+  dict[_CandleKey, datetime] keyed by (instrument_id, venue_id, timeframe) — ordering
+  discipline bounded to its own applicable Candle stream/scope, never a cross-scope/
+  global clock (Chapter 8 §8.3.3 / ADR-009).
+```
+
+### Fixed — Major: `P3-STR-SCOPE-A-MAJ-05` (Structure scope isolation)
+
+```text
+New ForeignScopeError + _check_scope/_check_swing_definition helpers, applied as the
+  first validation in on_swing_confirmed, on_swing_invalidated, and on_candle (the last
+  of which previously had no scope check at all). Foreign instrument_id/venue_id/
+  timeframe, or mismatched swing_definition_version, now raises instead of silently
+  ingesting or silently skipping.
+```
+
+### Fixed — Major: `P3-PYBASE-A-MAJ-06` (reproducible Python baseline)
+
+```text
+[build-system].requires exact-pinned: setuptools==84.0.0 (was open >=75). New
+  requirements-dev.lock.txt commits the full transitive dev/build dependency state (pip
+  freeze from a fresh venv) — 12 packages, not just the 3 top-level pins. Zero production
+  runtime dependencies preserved. No new package manager. Exact interpreter (Python
+  3.13.6) and install mechanism (pip 25.2) recorded. ruff/mypy/pytest re-verified fresh —
+  all three still current PyPI releases, not bumped for cosmetic freshness. Fresh
+  clean-room reconstruction verified byte-for-byte identical; pip check clean.
+```
+
+### Fixed — Minor: `P3-PYBASE-A-MIN-07` (Python rationale factual correction)
+
+```text
+requires-python = ">=3.13" unchanged. Removed the false claim that 3.13 has "the longest
+  support runway" — re-verified fresh: Python 3.14 is already Bugfix status with a longer
+  runway (EOL Oct 2030 vs 3.13's Oct 2029). Corrected rationale: 3.13 was selected as the
+  actual local/validated interpreter for this first build (a compatibility floor), not a
+  claim of being newest/longest-supported; newer interpreters remain compatible.
+```
+
+### Tests / checks (fresh, clean-room, from committed lock state)
+
+```text
+rm -rf .venv; rebuild; pip install --upgrade pip==25.2; pip install --no-deps -r
+  requirements-dev.lock.txt; pip install -e . --no-deps; pip check -> No broken
+  requirements found; ruff format --check . -> clean; ruff check . -> All checks passed;
+  mypy --strict -> Success, no issues; pytest tests/ -v -> 54 passed (up from 34 — 20 new
+  regression tests across all seven findings). Informational coverage (NON-FORMAL/
+  INFORMATIONAL ONLY, Tier unresolved) -> 96%.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — every fix is a bounded implementation correction enforcing
+  already-existing Swing/Structure/Coding-Standard authority. No Domain/Event semantic
+  changed, no dependency graph change, no module authority change, no runtime-topology
+  decision, no security/custody boundary touched. No GOVERNED_DECISION_REQUIRED triggered.
+```
+
+### No scope expansion
+
+```text
+raw-regime-engine not implemented. Formal Chapter 13 QG not performed. Quality Tier not
+  assigned. go/**, docs/adr/**, docs/domain/**, docs/constitution/**, docs/governance/**,
+  docs/architecture/module-registry.yaml all unchanged. Top-level python/README.md
+  unchanged (stale claim existed only in python/structure-engine/README.md).
+Data Layer milestone readiness unchanged. Phase 3 Approval Gate not opened. LIVE remains
+  NOT_AUTHORIZED. P3-MDI-TIER-B-MIN-01 unchanged, still OPEN — non-blocking.
+```
+
+### Finding states
+
+```text
+P3-STR-SWG-A-MAJ-01, P3-STR-CONSUME-A-MAJ-02, P3-STR-DEF-A-MAJ-03, P3-STR-ORDER-A-MAJ-04,
+  P3-STR-SCOPE-A-MAJ-05, P3-PYBASE-A-MAJ-06, P3-PYBASE-A-MIN-07: all
+  REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION — none self-CLOSED.
+```
+
+### Files changed
+
+```text
+python/structure-engine/pyproject.toml, requirements-dev.lock.txt (new), README.md,
+  src/structure_engine/{errors,structure,swing}.py, tests/{conftest,test_swing,
+  test_structure}.py, docs/MANIFEST.md, docs/CHANGELOG.md — verified via
+  git status --porcelain=v1 -uall. No other file touched.
+```
+
 ## [Unreleased] — 2026-08-21 — structure-engine: implement authoritative Swing/Structure core (first Python module)
 
 **Phase-3 module implementation batch.** Implements `python/structure-engine/` — the
