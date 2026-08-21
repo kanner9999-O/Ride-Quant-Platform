@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.213"
+manifest_version: "10.214"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -6363,6 +6363,193 @@ P3-MDI-TIER-B-MIN-01:                     unchanged, still OPEN — non-blocking
 ```
 
 **Files changed:** `python/raw-regime-engine/**` (new: `pyproject.toml`, `.gitignore`, `README.md`, `requirements-dev.lock.txt`, `src/raw_regime_engine/{__init__,identity,envelope,publish,candle,regime,errors}.py`, `tests/{conftest,test_regime}.py`), `python/README.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `python/structure-engine/**` verified byte-unchanged (`git diff --quiet`); no other file touched. `manifest_version` `"10.212"` → `"10.213"`.
+
+## `raw-regime-engine` — bounded remediation batch, six verified findings (`REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION` — NOT self-CLOSED)
+
+**Bounded remediation transaction.** Fixes exactly `P3-RGE-POLICY-A-MAJ-01`, `P3-RGE-TIME-A-MAJ-02`, `P3-RGE-DEF-A-MAJ-03`, `P3-RGE-VIEW-A-MAJ-04`, `P3-RGE-EVID-A-MIN-05`, `P3-RGE-THRESH-A-MIN-06`. Does not implement new Regime dimensions. Does not choose production metric formulas/thresholds. Does not assign Quality Tier. Does not perform formal Chapter 13 QG. Does not modify `structure-engine`.
+
+**Baseline:** branch `main`, HEAD `7c13c6473cbca7ae8615c5f2d3108effd7c44241` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; working tree clean — only pre-existing untracked `.DS_Store` clutter present). `manifest_version` confirmed `"10.213"` at start. Fresh authority re-read: `regime.md`, `candle.md`, Chapter 8 (`08-event-model.md`), Chapter 5 (`05-time-model.md`), ADR-014, ADR-033, `module-registry.yaml`'s `raw-regime-engine` entry (unchanged: `depends_on: [market-data-ingestion]`, `forbidden_dependencies: [structure-engine]`, no `quality_tier`), `coding-standard.md`, `testing.md`, `phase-3-rules.md`, and the entire existing `python/raw-regime-engine/**` tree.
+
+### Fixed — Major: `P3-RGE-POLICY-A-MAJ-01` (canonical policy identifiers)
+
+```text
+CANDLE_EVIDENCE_NORMALIZATION_POLICY and CURRENT_VIEW_SELECTION_POLICY previously held
+  abbreviated, implementation-invented identifiers instead of regime.md §6's exact canonical
+  strings. Replaced verbatim with:
+    current_view_selection_policy: analysis_window_end_desc_then_window_start_desc_then_
+      recorded_time_asc_then_stream_id_asc_then_registry_version_asc_then_sequence_asc_
+      then_event_id_asc
+    candle_evidence_normalization_policy: window_start_asc_then_window_end_asc_then_
+      stream_id_asc_then_registry_version_asc_then_sequence_asc_then_event_id_asc
+  No alias, no second canonical spelling — RegimeDefinition.__post_init__ still fails closed
+  on any other value (unchanged validation logic, only the constant values changed).
+```
+
+### Fixed — Major: `P3-RGE-TIME-A-MAJ-02` (authoritative recorded_time causality)
+
+```text
+RegimeClassified/RegimeFactInvalidated.recorded_time was previously copied directly from the
+  triggering CandleFact.recorded_time — violating regime.md §3/§4's strict causal-floor
+  invariants. Introduced RecordedTimeSource Protocol (next_after(strict_floor) -> datetime),
+  injected into RegimeEngine's constructor. The engine computes the exact causal floor per
+  case (original: max evidence recorded_time; invalidation: max(invalidated fact's
+  recorded_time, causing CandleCorrected's recorded_time); replacement: the invalidation's
+  own recorded_time), asks the provider, and independently validates result > floor itself —
+  raising the new RecordedTimeSourceViolationError (fail-closed) if the provider ever
+  violates this. No wall-clock/runtime implementation added to production core (remains a
+  future, separate concern) — only a bounded injection point plus a TEST-ONLY
+  FixedDeltaTimeSource (floor + fixed microsecond delta). Overlapping-window corrections
+  computed in one on_candle call each independently satisfy their own causal chain (no
+  shared/global clock invented) — per-window ordering only, matching §10's existing
+  no-cascade design.
+```
+
+### Fixed — Major: `P3-RGE-DEF-A-MAJ-03` (RegimeDefinition immutable snapshot)
+
+```text
+RegimeDefinition previously stored the caller's own `dimensions` dict/Mapping directly — a
+  mutable surface leaking through a frozen dataclass. Now defensively copies the caller's
+  mapping at construction and exposes it only via a read-only types.MappingProxyType view
+  (object.__setattr__ inside __post_init__, the standard frozen-dataclass post-init-
+  normalization technique) — neither post-construction mutation of the caller's original
+  dict, nor attempted mutation of the exposed view, can alter an accepted instance.
+  RegimeDefinition now REQUIRES exactly the two B2 dimensions (volatility,
+  directional_persistence) — missing or unknown-extra dimension both rejected
+  (set-equality check against a fixed required-dimension constant). Added
+  content_identity() — a deterministic SHA-256 fingerprint (via the existing
+  deterministic_id helper) over the full canonical content, INCLUDING
+  regime_definition_version — same content always produces the same identity, any field
+  change produces a different one; explicit __hash__ delegates to it (frozen dataclass would
+  otherwise be unhashable once `dimensions` became a MappingProxyType). No definition
+  registry/storage/lifecycle authority invented — content_identity is verification evidence
+  only, does not replace regime_definition_version's role as the opaque contract-pinned
+  semantic version (regime.md §19/§20 registry question remains deferred, unchanged).
+```
+
+### Fixed — Major: `P3-RGE-VIEW-A-MAJ-04` (RegimeCurrentView schema conformance)
+
+```text
+RegimeViewResult previously exposed window_start/window_end unconditionally (including on a
+  PENDING_CORRECTION row) and omitted regime_subject_id/scope/last_recorded_time entirely.
+  Rewrote the row shape to match regime.md §5/§11 exactly: regime_subject_id, scope,
+  view_state, last_recorded_time always present; class_label/computed_metric/
+  analysis_window (new AnalysisWindow(window_start, window_end) type)/lineage_head_fact_ref
+  present ONLY when view_state=="VALID", explicitly None when "PENDING_CORRECTION" (the
+  projection still tracks window bounds internally, in _ViewWindowState, to resolve
+  target-window selection — just never exposes them on a pending public row).
+  last_recorded_time reflects the establishing fact's recorded_time when VALID, the
+  invalidation's recorded_time when PENDING_CORRECTION (tracked per-window, updated on every
+  on_regime_classified/on_regime_invalidated call). Replaced the previous partial
+  (window_end, window_start)-only target-window tie-break with regime.md §11's COMPLETE
+  7-criterion deterministic total order (window_end DESC, window_start DESC, recorded_time
+  ASC, stream_id ASC, registry_version ASC, sequence ASC only-if-stream-tied, event_id ASC),
+  applied to every window candidate's current lineage head, evaluated BEFORE excluding
+  anything invalidated — preserves the existing anti-regression guarantee (never falls back
+  to an older still-valid window) while now honoring the contract's full ordering, not just
+  the two-criterion subset that happened to be sufficient given per-window key uniqueness.
+```
+
+### Fixed — Minor: `P3-RGE-EVID-A-MIN-05` (evidence cardinality/integrity)
+
+```text
+normalize_evidence previously deduped by ref via silent last-write-wins and never validated
+  the resulting cardinality against what the caller actually expected. Added a required
+  `expected_count` keyword parameter: after dedup, if len(result) != expected_count, raises
+  the new EvidenceCardinalityError (fail-closed) — the engine always calls this with
+  window_candle_count, so it can never silently compute over N Candle objects while
+  publishing a candle_evidence_refs of a different cardinality. Added conflict detection: if
+  the same EventRecordRef appears more than once with DIFFERING Candle content (OHLCV
+  mismatch), raises the new EvidenceReferenceConflictError instead of silently keeping
+  whichever candle happened to be inserted last into the dedup dict.
+```
+
+### Fixed — Minor: `P3-RGE-THRESH-A-MIN-06` (threshold definition completeness)
+
+```text
+RegimeDefinition.__post_init__ previously only checked that each configured label belonged
+  to its dimension's allowed set — never that the FULL set was covered exactly once.
+  Strengthened to: set(labels_used) == allowed AND len(labels_used) == len(allowed) — this
+  single check simultaneously rejects a missing label (set mismatch), a duplicate label (set
+  matches but length doesn't), and an extra/unrecognized label (set mismatch). volatility
+  must now provide exactly {LOW, NORMAL, HIGH, EXTREME}; directional_persistence exactly
+  {NON_DIRECTIONAL, DIRECTIONAL, TRANSITIONAL} — each exactly once. Ascending threshold-bound
+  validation and the single mandatory open-ended final band (unchanged logic in
+  RegimeDimensionDefinition.__post_init__) are preserved exactly as before. No production
+  threshold VALUE invented or changed.
+```
+
+### Tests / checks executed (fresh, clean-room)
+
+```text
+Fresh venv (python3.13 -m venv .venv), pip install -e ".[dev]", then:
+  ruff format --check .   -> 10 files already formatted (clean)
+  ruff check .             -> All checks passed!
+  mypy (--strict)          -> Success: no issues found in 9 source files
+  pytest tests/ -v         -> 56 passed (28 pre-existing regression tests updated for the new
+    RegimeEngine(..., time_source) constructor signature/normalize_evidence(...,
+    expected_count=...) API + 28 new tests covering: canonical policy literals
+    (exact/previous-invented-rejected/one-char-mismatch-rejected), original/invalidation/
+    replacement recorded_time strict causal chain, invalid time-provider fail-closed,
+    overlapping-window corrections' independent causal chains, RegimeDefinition defensive
+    copy / read-only view / content-identity equality-and-divergence / hash /
+    both-dimensions-required (missing + extra rejected), threshold label-set completeness
+    (missing/duplicate/extra all rejected), RegimeCurrentView full VALID schema, PENDING_
+    CORRECTION field-absence, last_recorded_time transitions across VALID->PENDING-> VALID,
+    reconstruction-from-full-event-replay determinism, evidence cardinality fail-closed,
+    evidence reference-content-conflict fail-closed, duplicate-identical-evidence
+    collapse-when-valid).
+Separately re-verified via a second clean-room venv built ONLY from
+  requirements-dev.lock.txt + pyproject.toml (--no-deps, no resolver freedom): pip check ->
+  No broken requirements found; ruff/mypy/pytest all identical results (lock file unchanged
+  — no new dependency introduced, only stdlib types.MappingProxyType/hashlib-equivalent
+  reuse of the existing deterministic_id helper).
+Informational coverage (NON-FORMAL / INFORMATIONAL ONLY — Tier unresolved, no formal
+  Chapter 13 QG claimed): coverage run -m pytest && coverage report -> 98% statement
+  coverage across src/ (up from 97% pre-remediation; 590 stmts, 23 missed — mostly
+  defensive branches: __post_init__ validation guards, mypy-narrowing assertions,
+  unreachable classify() fallback).
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — every fix enforces already-governed regime.md/Chapter 8/Chapter 5
+  semantics that the first build had implemented incorrectly or incompletely; no new/changed
+  Event or Domain Contract semantic, no dependency graph change, no authority transfer, no
+  cross-module semantic contract, no runtime-topology decision, no security/custody
+  boundary, no production Regime Definition/formula selection. No new Regime dimension
+  added. No GOVERNED_DECISION_REQUIRED escalation triggered during remediation.
+```
+
+### No scope expansion — explicit verification
+
+```text
+structure-engine unchanged (verified git diff --quiet -- python/structure-engine/). go/**,
+  docs/adr/**, docs/domain/**, docs/constitution/**, docs/governance/**,
+  docs/architecture/module-registry.yaml all unchanged (verified git diff --quiet for each).
+  No new Regime dimension, no production formula/threshold chosen, no Quality Tier assigned,
+  no formal Chapter 13 QG performed. raw-regime-engine still imports nothing from
+  structure_engine (verified by source-tree scan, enforced by the existing regression test).
+```
+
+### State summary
+
+```text
+Raw Regime Engine implementation state:  remediated (six findings fixed, engine semantics
+  only — no production RegimeDefinition/MetricFormula instance exists or is claimed),
+  tested, NOT approved, NOT formally Quality-Gated (Tier UNRESOLVED).
+Structure Engine implementation state:   unchanged — remains implemented, tested, NOT
+  approved, NOT formally Quality-Gated (Tier unresolved).
+Data Layer state:                         unchanged (DATA_LAYER_MILESTONE_READINESS = PASS,
+  still readiness-only, not approval).
+Phase 3 Approval Gate:                    NOT opened.
+LIVE:                                      NOT_AUTHORIZED, unreferenced.
+P3-MDI-TIER-B-MIN-01:                     unchanged, still OPEN — non-blocking.
+```
+
+**Finding states:** `P3-RGE-POLICY-A-MAJ-01`, `P3-RGE-TIME-A-MAJ-02`, `P3-RGE-DEF-A-MAJ-03`, `P3-RGE-VIEW-A-MAJ-04`, `P3-RGE-EVID-A-MIN-05`, `P3-RGE-THRESH-A-MIN-06`: all `REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION` — none self-CLOSED.
+
+**Files changed:** `python/raw-regime-engine/src/raw_regime_engine/{__init__,regime,errors}.py`, `python/raw-regime-engine/tests/{conftest,test_regime}.py`, `python/raw-regime-engine/README.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `python/structure-engine/**` verified byte-unchanged (`git diff --quiet`); no other file touched. `manifest_version` `"10.213"` → `"10.214"`.
 
 ## Decision Log
 

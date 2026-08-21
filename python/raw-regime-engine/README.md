@@ -69,23 +69,33 @@ src/raw_regime_engine/
                  bounded stand-in for the stream-registry.yaml infrastructure that does
                  not exist yet (Phase 1)
   candle.py      authoritative Candle input (CandleScope/OHLCV/CandleFact)
-  regime.py      RegimeDefinition/RegimeDimensionDefinition/ThresholdBand/
-                 DecimalPrecisionPolicy/MetricFormula/RegimeScope/
-                 RegimeClassified/RegimeFactInvalidated/RegimeEngine/
+  regime.py      RegimeDefinition (immutable snapshot, defensive-copied dimensions,
+                 content_identity()/__hash__)/RegimeDimensionDefinition/ThresholdBand/
+                 DecimalPrecisionPolicy/MetricFormula/RecordedTimeSource/RegimeScope/
+                 RegimeClassified/RegimeFactInvalidated/RegimeEngine/AnalysisWindow/
                  RegimeCurrentView/RegimeViewResult
-  errors.py      explicit technical failure modes (Error Handling Convention §7),
-                 plus FormulaMismatchError/RegimeLineageError specific to Raw Regime
+  errors.py      explicit technical failure modes (Error Handling Convention §7):
+                 FormulaMismatchError/RegimeLineageError/RecordedTimeSourceViolationError/
+                 EvidenceCardinalityError/EvidenceReferenceConflictError specific to Raw
+                 Regime, plus the shared ordering/scope/duplicate sentinels
 tests/
-  conftest.py     candle/definition/formula test fixtures (TEST-ONLY MetricFormula
-                  implementations, clearly labeled — never production-canonical)
+  conftest.py     candle/definition/formula/time-source test fixtures (TEST-ONLY
+                  MetricFormula and RecordedTimeSource implementations, clearly
+                  labeled — never production-canonical)
   test_regime.py  warm-up/every-window-emits, both dimensions, threshold boundary
                   (strict/inclusive), decimal precision, formula-id mismatch,
-                  evidence normalization (order-independence), duplicate-computation
-                  idempotency, correction invalidate+replace (incl. unchanged-class
-                  and multi-window-overlap cases), RegimeCurrentView lineage
-                  invariants/pending-correction/no-fallback, historical cadence,
-                  per-scope ordering/foreign-scope, deterministic replay, no
-                  Structure import
+                  canonical policy-identifier literals (exact/rejected/one-char-
+                  mismatch), recorded_time causal-floor chain (original < invalidation
+                  < replacement) + fail-closed time-provider validation, evidence
+                  normalization (order-independence, cardinality, reference-conflict
+                  fail-closed), duplicate-computation idempotency, correction
+                  invalidate+replace (incl. unchanged-class and multi-window-overlap
+                  cases), RegimeDefinition immutability/content-identity/two-dimension
+                  requirement, threshold label-set completeness, RegimeCurrentView full
+                  schema/pending-field-absence/last_recorded_time transitions/
+                  lineage invariants/pending-correction/no-fallback/reconstruction,
+                  historical cadence, per-scope ordering/foreign-scope, deterministic
+                  replay, no Structure import
 ```
 
 **Why this package duplicates `identity.py`/`envelope.py`/`publish.py`/
@@ -104,6 +114,61 @@ historical mode), Raw Regime has no historical/streaming split at all:
 `regime.md` §9 requires every completed window to emit a fact regardless of
 mode, so there is exactly one algorithm, used identically for
 Replay/Backtest/Paper/Live (Chapter 3 §3.1).
+
+## Recorded-time causality (injected, never fabricated)
+
+`RegimeClassified`/`RegimeFactInvalidated`'s own `recorded_time` is **never**
+copied from Candle `recorded_time` — regime.md §3/§4 require strict causal
+floors: an original fact's `recorded_time` must be later than the latest
+evidence Candle's; an invalidation's must be later than both the fact it
+targets and the causing `CandleCorrected`; a replacement's must be later than
+its own invalidation. `RegimeEngine` asks an injected `RecordedTimeSource`
+(`next_after(strict_floor) -> datetime`) for each value and independently
+validates `result > strict_floor` itself, raising
+`RecordedTimeSourceViolationError` if the provider ever violates that
+contract — the provider is never trusted blindly, and the engine never
+fabricates knowledge time by adding an arbitrary delta to Candle time inside
+production core. A real wall-clock/runtime implementation of this Protocol
+lives outside this analytical core, exactly like broker/RPC concerns; tests
+use a `FixedDeltaTimeSource` (`floor + a fixed small delta`), clearly marked
+TEST-ONLY and never documented as production time authority.
+
+## RegimeDefinition: immutable snapshot, not a registry
+
+`RegimeDefinition` defensively copies its caller-supplied `dimensions`
+mapping at construction and exposes it only through a read-only
+`MappingProxyType` view — neither mutating the caller's original mapping
+afterward, nor attempting to mutate the exposed view, can alter an accepted
+definition. It requires **exactly** the two B2 dimensions
+(`volatility`/`directional_persistence`) — missing or extra/unknown
+dimensions are rejected — and each dimension's `class_thresholds` must cover
+its full contract-mandated label enum exactly once (no missing/duplicate/
+extra label). `content_identity()` returns a deterministic SHA-256
+fingerprint over the full canonical content (including
+`regime_definition_version`) for external run-manifest evidence — this is
+verification evidence only, **not** a replacement for
+`regime_definition_version`, and this module still invents no definition
+registry/storage/lifecycle authority (that remains deferred by regime.md
+§19/§20).
+
+## RegimeCurrentView: exact §5/§11 row schema
+
+A materialized row exposes `regime_subject_id`, `scope`, `view_state`,
+`last_recorded_time`, plus `class_label`/`computed_metric`/
+`analysis_window`/`lineage_head_fact_ref` — all four of the latter present
+**only** when `view_state == "VALID"` and explicitly `None` when
+`PENDING_CORRECTION` (the contract does not expose a window/class for a
+pending row; the projection retains window bounds internally only, to
+resolve target-window selection). `last_recorded_time` reflects the latest
+visible event applied to the view — the establishing fact's `recorded_time`
+when `VALID`, the invalidation's `recorded_time` when `PENDING_CORRECTION`.
+Target-window selection applies regime.md §11's complete 7-criterion
+deterministic total order (`window_end` DESC, `window_start` DESC,
+`recorded_time` ASC, `stream_id` ASC, `registry_version` ASC, `sequence` ASC
+only-if-stream-tied, `event_id` ASC) across every window ever classified —
+evaluated **before** excluding anything invalidated, so the view never
+silently falls back to an older, still-valid window when the newest one is
+pending correction.
 
 ## First-Python-build toolchain reused (this module reuses, not re-derives, structure-engine's baseline)
 
@@ -171,9 +236,9 @@ the two-step `--no-deps` sequence above is the one that reproduces the
 committed lock exactly, with no resolver freedom at all.)
 
 Coverage may be collected for local diagnostics (`coverage run -m pytest &&
-coverage report`) but is **NON-FORMAL / INFORMATIONAL ONLY** (97% at build
-time) — this module's Quality Tier is unresolved, so no formal Chapter 13
-Quality Gate result can be claimed for it yet.
+coverage report`) but is **NON-FORMAL / INFORMATIONAL ONLY** (98% as of the
+`P3-RGE-*` remediation batch) — this module's Quality Tier is unresolved, so
+no formal Chapter 13 Quality Gate result can be claimed for it yet.
 
 ## ADR Scope Rule
 
@@ -190,11 +255,24 @@ mechanism (subject-id derivation, the ascending-threshold-band classification
 scan, the rolling-window cadence model), this module pins one bounded,
 documented interpretation in code, not a governance decision.
 
+## Remediation history
+
+A bounded remediation batch fixed six verified findings against the first
+build: `P3-RGE-POLICY-A-MAJ-01` (implementation-invented policy identifiers
+replaced with regime.md §6's exact canonical strings), `P3-RGE-TIME-A-MAJ-02`
+(recorded_time causality — injected `RecordedTimeSource`, described above),
+`P3-RGE-DEF-A-MAJ-03` (`RegimeDefinition` immutable-snapshot rework,
+described above), `P3-RGE-VIEW-A-MAJ-04` (`RegimeCurrentView` §5/§11 schema
+conformance, described above), `P3-RGE-EVID-A-MIN-05` (evidence
+cardinality/reference-conflict fail-closed checks in `normalize_evidence`),
+`P3-RGE-THRESH-A-MIN-06` (exact per-dimension label-set enforcement). All six
+recorded `REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION` — none self-closed.
+
 ## Current state (as of this build)
 
-- Raw Regime Engine: implemented (engine semantics only) — no production
-  `RegimeDefinition`/`MetricFormula` instance exists or is claimed; those
-  remain externally unresolved configuration.
+- Raw Regime Engine: implemented and remediated (engine semantics only) — no
+  production `RegimeDefinition`/`MetricFormula` instance exists or is
+  claimed; those remain externally unresolved configuration.
 - Raw Regime Quality Tier: **UNRESOLVED** — not assigned in this transaction.
 - Structure Engine: unchanged by this transaction — remains implemented, not
   Product-Owner-approved, Quality Tier unresolved.

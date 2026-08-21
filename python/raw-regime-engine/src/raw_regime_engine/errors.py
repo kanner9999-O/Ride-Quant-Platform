@@ -70,3 +70,30 @@ class RegimeLineageError(RawRegimeEngineError):
     target the current lineage head, a fact was invalidated more than once,
     or a replacement arrived before its own invalidation became visible.
     """
+
+
+class RecordedTimeSourceViolationError(RawRegimeEngineError):
+    """The injected `RecordedTimeSource` returned a knowledge time that is
+    not strictly later than the causal floor it was given
+    (`next_after(strict_floor) -> datetime` must satisfy `result >
+    strict_floor` — regime.md's recorded_time causality invariants on
+    `RegimeClassified`/`RegimeFactInvalidated`, §3/§4). The engine never
+    fabricates knowledge time itself; it fails closed instead of silently
+    accepting a non-causal value from the provider.
+    """
+
+
+class EvidenceCardinalityError(RawRegimeEngineError):
+    """After regime.md §8a canonical normalization/dedup,
+    `candle_evidence_refs` did not contain exactly `window_candle_count`
+    unique authoritative Candle refs. Never silently computed over N Candle
+    objects while publishing fewer/more than N evidence refs.
+    """
+
+
+class EvidenceReferenceConflictError(RawRegimeEngineError):
+    """The same `EventRecordRef` was supplied as Candle evidence more than
+    once with conflicting Candle content (different OHLCV under the same
+    ref) — an integrity violation the engine refuses to silently resolve via
+    last-write-wins.
+    """

@@ -2,6 +2,137 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-21 — raw-regime-engine: remediate contract semantic defects
+
+**Bounded remediation batch — six verified findings from the first raw-regime-engine build.** Fixes exactly `P3-RGE-POLICY-A-MAJ-01`, `P3-RGE-TIME-A-MAJ-02`, `P3-RGE-DEF-A-MAJ-03`, `P3-RGE-VIEW-A-MAJ-04`, `P3-RGE-EVID-A-MIN-05`, `P3-RGE-THRESH-A-MIN-06`. Does not implement new Regime dimensions, choose production formulas/thresholds, assign Quality Tier, run formal Chapter 13 QG, or touch `structure-engine`. All six recorded `REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION` — none self-closed.
+
+### Baseline
+
+```text
+Starting HEAD: 7c13c6473cbca7ae8615c5f2d3108effd7c44241 (verified; tree clean;
+  manifest_version "10.213" confirmed at start). Fresh authority re-read: regime.md,
+  candle.md, Chapter 8, Chapter 5, ADR-014, ADR-033, module-registry.yaml's raw-regime-engine
+  entry (unchanged), coding-standard.md, testing.md, phase-3-rules.md.
+```
+
+### Fixed — Major: `P3-RGE-POLICY-A-MAJ-01` (canonical policy identifiers)
+
+```text
+Replaced abbreviated, implementation-invented CANDLE_EVIDENCE_NORMALIZATION_POLICY/
+  CURRENT_VIEW_SELECTION_POLICY constants with regime.md §6's exact canonical strings,
+  verbatim. No alias, no second canonical spelling. RegimeDefinition still fails closed on
+  any other value.
+```
+
+### Fixed — Major: `P3-RGE-TIME-A-MAJ-02` (authoritative recorded_time causality)
+
+```text
+RegimeClassified/RegimeFactInvalidated.recorded_time no longer copied from Candle
+  recorded_time. New injected RecordedTimeSource Protocol (next_after(strict_floor) ->
+  datetime); RegimeEngine computes the exact regime.md §3/§4 causal floor per case (original:
+  max evidence recorded_time; invalidation: max(invalidated fact, causing CandleCorrected);
+  replacement: the invalidation itself) and independently validates result > floor, raising
+  the new RecordedTimeSourceViolationError (fail-closed) otherwise. No production wall-clock
+  mechanism added to core; TEST-ONLY FixedDeltaTimeSource added for tests. Overlapping-window
+  corrections each satisfy their own independent causal chain — no global clock invented.
+```
+
+### Fixed — Major: `P3-RGE-DEF-A-MAJ-03` (RegimeDefinition immutable snapshot)
+
+```text
+RegimeDefinition now defensively copies its caller-supplied dimensions mapping and exposes it
+  only via a read-only types.MappingProxyType — post-construction mutation of either the
+  caller's original mapping or the exposed view cannot alter an accepted instance. Now
+  requires exactly the two B2 dimensions (missing or extra rejected). Added
+  content_identity() (deterministic SHA-256 over full canonical content, including
+  regime_definition_version) plus a matching __hash__ — verification evidence only, does not
+  replace regime_definition_version's role as the opaque contract-pinned version. No
+  definition registry/storage authority invented.
+```
+
+### Fixed — Major: `P3-RGE-VIEW-A-MAJ-04` (RegimeCurrentView schema conformance)
+
+```text
+RegimeViewResult rewritten to match regime.md §5/§11 exactly: regime_subject_id/scope/
+  view_state/last_recorded_time always present; class_label/computed_metric/analysis_window
+  (new AnalysisWindow type)/lineage_head_fact_ref present ONLY when VALID, explicitly None
+  when PENDING_CORRECTION. last_recorded_time reflects the establishing fact when VALID, the
+  invalidation when PENDING_CORRECTION. Target-window selection now applies regime.md §11's
+  COMPLETE 7-criterion deterministic total order (not just the two-criterion subset that
+  happened to suffice before), still evaluated before excluding anything invalidated
+  (anti-regression preserved).
+```
+
+### Fixed — Minor: `P3-RGE-EVID-A-MIN-05` (evidence cardinality/integrity)
+
+```text
+normalize_evidence now requires an expected_count parameter and raises the new
+  EvidenceCardinalityError (fail-closed) if post-dedup cardinality differs — never silently
+  publishes fewer/more refs than were actually computed over. Raises the new
+  EvidenceReferenceConflictError if the same ref appears with conflicting Candle content,
+  instead of silently resolving via dict last-write-wins.
+```
+
+### Fixed — Minor: `P3-RGE-THRESH-A-MIN-06` (threshold definition completeness)
+
+```text
+RegimeDefinition now requires each dimension's class_thresholds to cover its full
+  contract-mandated label set exactly once — rejects missing, duplicate, and extra/
+  unrecognized labels in one combined set-and-length check. Ascending threshold-bound
+  validation and the mandatory single open-ended final band unchanged. No production
+  threshold value invented or changed.
+```
+
+### Tests / checks (fresh, clean-room, unchanged lock file)
+
+```text
+ruff format --check . -> clean; ruff check . -> All checks passed; mypy --strict -> Success,
+  no issues (9 source files); pytest tests/ -v -> 56 passed (28 pre-existing regressions
+  updated for the new constructor/API signatures + 28 new tests across all six findings).
+  Re-verified from a second clean-room venv built only from requirements-dev.lock.txt +
+  pyproject.toml (--no-deps) -> pip check clean, identical results (lock file unchanged — no
+  new dependency). Informational coverage (NON-FORMAL/INFORMATIONAL ONLY, Tier unresolved)
+  -> 98% (up from 97%).
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — every fix enforces already-governed regime.md/Chapter 8/Chapter 5
+  semantics the first build implemented incorrectly/incompletely. No new/changed Event or
+  Domain Contract semantic, no dependency graph change, no authority transfer, no
+  cross-module semantic contract, no runtime-topology decision, no security/custody
+  boundary, no production formula/threshold selected, no new Regime dimension. No
+  GOVERNED_DECISION_REQUIRED triggered.
+```
+
+### State summary
+
+```text
+Raw Regime Engine: remediated (six findings fixed, engine semantics only), tested, NOT
+  approved, Quality Tier UNRESOLVED, no formal Chapter 13 QG.
+Structure Engine: unchanged (verified git diff --quiet -- python/structure-engine/).
+Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+### Finding states
+
+```text
+P3-RGE-POLICY-A-MAJ-01, P3-RGE-TIME-A-MAJ-02, P3-RGE-DEF-A-MAJ-03, P3-RGE-VIEW-A-MAJ-04,
+  P3-RGE-EVID-A-MIN-05, P3-RGE-THRESH-A-MIN-06: REMEDIATED_PENDING_DETERMINISTIC_
+  VERIFICATION (not self-CLOSED).
+```
+
+### Files changed
+
+```text
+python/raw-regime-engine/src/raw_regime_engine/{__init__,regime,errors}.py,
+  python/raw-regime-engine/tests/{conftest,test_regime}.py,
+  python/raw-regime-engine/README.md, docs/MANIFEST.md, docs/CHANGELOG.md — verified via git
+  status --porcelain=v1 -uall; python/structure-engine/** verified byte-unchanged; no other
+  file touched. manifest_version "10.213" -> "10.214".
+```
+
 ## [Unreleased] — 2026-08-21 — raw-regime-engine: implement authoritative regime core
 
 **Phase-3 module implementation batch — second independent Python module.** Implements the authoritative Raw Regime analytical core (`volatility`/`directional_persistence` dimensions, `docs/domain/regime.md`) under ADR-033's Approved Python allocation, reusing `structure-engine`'s already-verified toolchain baseline with its own independent reproducible environment evidence. Does not modify `structure-engine`. Does not assign Quality Tier. Does not run formal Chapter 13 QG.

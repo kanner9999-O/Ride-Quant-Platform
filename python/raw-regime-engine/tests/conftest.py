@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
@@ -33,6 +34,37 @@ TIMEFRAME = "1m"
 @pytest.fixture
 def allocator() -> SequenceAllocator:
     return SequenceAllocator(module_id="raw-regime-engine", implementation_version="0.1.0", run_id="test-run")
+
+
+@dataclass
+class FixedDeltaTimeSource:
+    """TEST-ONLY `RecordedTimeSource` — returns `strict_floor + delta`.
+
+    Never production knowledge-time authority: a real implementation of this
+    Protocol (wall-clock/runtime allocation) lives outside this analytical
+    core (regime.md's own "analytical core only" boundary).
+    """
+
+    delta: timedelta = field(default_factory=lambda: timedelta(microseconds=1))
+
+    def next_after(self, strict_floor: datetime) -> datetime:
+        return strict_floor + self.delta
+
+
+class NonCausalTimeSource:
+    """TEST-ONLY deliberately-broken `RecordedTimeSource` — returns the
+    floor unchanged, violating the required `result > strict_floor`
+    invariant, to exercise the engine's own fail-closed validation
+    (`RecordedTimeSourceViolationError`). Never production time authority.
+    """
+
+    def next_after(self, strict_floor: datetime) -> datetime:
+        return strict_floor
+
+
+@pytest.fixture
+def time_source() -> FixedDeltaTimeSource:
+    return FixedDeltaTimeSource()
 
 
 def candle_at(
@@ -144,11 +176,16 @@ def make_definition(
     volatility: RegimeDimensionDefinition | None = None,
     directional_persistence: RegimeDimensionDefinition | None = None,
 ) -> RegimeDefinition:
-    dimensions: dict[str, RegimeDimensionDefinition] = {}
-    if volatility is not None:
-        dimensions["volatility"] = volatility
-    if directional_persistence is not None:
-        dimensions["directional_persistence"] = directional_persistence
+    """`RegimeDefinition` requires BOTH dimensions (P3-RGE-DEF-A-MAJ-03) —
+    this helper always supplies a default for whichever one the caller does
+    not explicitly override, so existing single-dimension-focused test
+    scenarios keep working unchanged."""
+    dimensions: dict[str, RegimeDimensionDefinition] = {
+        "volatility": volatility if volatility is not None else volatility_definition(),
+        "directional_persistence": (
+            directional_persistence if directional_persistence is not None else directional_persistence_definition()
+        ),
+    }
     return RegimeDefinition(
         regime_definition_version=version,
         dimensions=dimensions,
