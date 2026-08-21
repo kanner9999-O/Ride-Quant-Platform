@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.215"
+manifest_version: "10.216"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -6655,6 +6655,258 @@ LIVE:                                      NOT_AUTHORIZED, unreferenced.
 ```
 
 **Files changed:** `python/raw-regime-engine/src/raw_regime_engine/regime.py`, `python/raw-regime-engine/tests/test_regime.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `python/structure-engine/**` verified byte-unchanged (`git diff --quiet`); no other file touched. `manifest_version` `"10.214"` → `"10.215"`.
+
+## Raw Regime — external deterministic verification closure (`P3-RGE-EVID-A-MIN-05` → `CLOSED`; audit-only bookkeeping)
+
+**Audit-only bookkeeping transaction — records a verification result already completed externally, does not perform the verification itself.** Records closure of the sole remaining open Raw Regime post-build finding.
+
+```text
+Finding:                       P3-RGE-EVID-A-MIN-05
+Result:                        CLOSED
+Verification boundary:         e0c4e3128622e56e6483cab780f458a1710b4c08
+Verifier principal:            ChatGPT
+Verifier role:                 AI Technical Architect — bounded deterministic/semantic
+                                verifier (Chapter 0 §3 role eligibility)
+Provider-native execution/
+  session ID:                  unavailable / not exposed (not fabricated — Chapter 0 §3
+                                distinguishes principal-level role eligibility from
+                                execution/session identity; only principal identity is
+                                recorded here, consistent with that boundary)
+Audit-only workflow reference: P3-RGE-EVID-VERIFY-e0c4e312-20260821T1548+0700
+```
+
+**Source/test inspection verified (at the pinned boundary above):**
+
+```text
+- normalize_evidence's same-ref conflict check uses full CandleFact structural equality
+  (`existing != candle`) — not narrowed to OHLCV.
+- A fully identical CandleFact under a shared ref dedupes successfully (does not raise).
+- Same ref + differing scope, OHLCV, recorded_time, or is_correction each independently
+  raises EvidenceReferenceConflictError (fail-closed) — verified for all four fields, not
+  merely OHLCV.
+- expected_count cardinality checking and §8a canonical evidence ordering are unchanged by
+  the fix — confirmed unaltered.
+```
+
+**Resulting Raw Regime finding-set state:**
+
+```text
+P3-RGE-POLICY-A-MAJ-01:    CLOSED (unchanged, prior verification)
+P3-RGE-TIME-A-MAJ-02:      CLOSED (unchanged, prior verification)
+P3-RGE-DEF-A-MAJ-03:       CLOSED (unchanged, prior verification)
+P3-RGE-VIEW-A-MAJ-04:      CLOSED (unchanged, prior verification)
+P3-RGE-EVID-A-MIN-05:      CLOSED (this bookkeeping entry)
+P3-RGE-THRESH-A-MIN-06:    CLOSED (unchanged, prior verification)
+
+Raw Regime post-build remediation set: CLEAN — all six findings CLOSED.
+```
+
+This bookkeeping entry does **not** itself constitute a formal Chapter 13 Quality Gate, does **not** assign Quality Tier, does **not** approve `raw-regime-engine`, and does **not** modify `module-registry.yaml` or any implementation file. Raw Regime Quality Tier remains **UNRESOLVED**.
+
+## Structure Engine — Quality Tier Classification CANDIDATE (`Tier 1 — Core Logic`, `CANDIDATE / UNAPPROVED` — no registry write, no approval, no formal QG)
+
+**Governed classification-candidate authoring transaction — vai trò: `Structure Engine Tier Classification Candidate Author`.** Authors reasoning/evidence for a proposed Quality Tier classification of `structure-engine` only. Does not modify `module-registry.yaml`. Does not approve the Tier. Does not run formal Chapter 13 QG. Does not approve Structure Engine at any level.
+
+**Baseline:** branch `main`, HEAD `e0c4e3128622e56e6483cab780f458a1710b4c08` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; working tree clean — only pre-existing untracked `.DS_Store` clutter present). `manifest_version` confirmed `"10.215"` at start.
+
+**Authority inspected fresh (G-VERIFY-001 — this prompt is not treated as authority):** `docs/constitution/13-quality-gates.md` (v1.7, Locked), `docs/constitution/07-module-taxonomy.md` (v2.2, Locked), `docs/constitution/00-governance.md` (v1.2, Locked), `docs/architecture/module-registry.yaml`, `docs/adr/ADR-033.md` (Approved), `docs/adr/ADR-014.md` (Approved), `docs/domain/swing.md`, `docs/domain/structure.md`, `docs/architecture/engine/structure-regime-architecture.md`, `python/structure-engine/**`.
+
+### Current registry facts verified directly (`module-registry.yaml`, `structure-engine` entry)
+
+```text
+module_id:                structure-engine
+module_type:               compute_engine
+owns_authoritative_state:  true
+depends_on:                [market-data-ingestion]
+forbidden_dependencies:    []  (empty — the forbidden_dependencies constraint exists on
+                            raw-regime-engine's own entry [structure-engine], not the
+                            reverse; structure-engine's own entry declares none)
+security_classification:   none
+status:                     candidate
+quality_tier field:        ABSENT — no such key exists in this entry.
+
+=> Current authoritative Structure Engine Quality Tier: UNRESOLVED.
+No effective Tier is inferred before Product Owner approval — Chapter 13 §13.4's
+"tier-resolution chain," branch 1, requires the tier to resolve from module-registry.yaml
+itself for a runtime module; an absent field means unresolved, not a default.
+```
+
+### Candidate classification
+
+```text
+module:              structure-engine
+proposed_quality_tier: "Tier 1 — Core Logic"
+candidate_state:      CANDIDATE / UNAPPROVED
+```
+
+### Affirmative reasoning (independent evaluation, not a copy of Chapter 13's initial table alone)
+
+```text
+1. Structure Engine owns authoritative analytical facts — Swing (candidate/confirmed/
+   invalidated) and Structure (BreakOfStructureDetected/ChangeOfCharacterDetected/
+   StructureFactInvalidated/StructureRecomputed), verified directly in
+   structure-regime-architecture.md §4 and swing.md/structure.md — owns_authoritative_state:
+   true confirmed in the registry entry above.
+2. It is a deterministic Type 1 Compute Engine (module_type: compute_engine, module-registry
+   + structure-regime-architecture.md §4 "không external side effect") — no broker, no order
+   submission, no credential/custody access (security_classification: none, verified).
+3. Its authoritative facts are consumed by Feature Engine as the sole selective fan-in point
+   (feature-engine.depends_on: [structure-engine, raw-regime-engine], verified in
+   structure-regime-architecture.md §6/§9), propagating onward toward Context/Strategy/
+   Decision per ADR-003/ADR-014's pipeline framing — an error in Structure's authoritative
+   BOS/CHoCH facts is therefore capable of materially changing decision-relevant market
+   interpretation downstream, even though Structure itself never touches execution.
+4. ADR-033 (Approved) requires exactly one authoritative Structure implementation, reused
+   unmodified across Replay/Backtest/Paper/Live (Chapter 3 §3.1), and explicitly grounds part
+   of its own reasoning in "Chapter 13's own Tier-1/Parity-Test cross-reference for these
+   exact two modules" [structure-engine, raw-regime-engine] (ADR-033.md, verified directly)
+   — i.e. ADR-033's own approved text already treats Structure as sitting on the Tier-1/
+   Parity-Test analytical surface, independent of this candidate's own reasoning.
+5. Chapter 13 §13.4's initial-assignment table places "Structure Engine" explicitly under
+   "Tier 1 — Core Logic" (verified directly, row: "Strategy Engine, Feature Engine, Structure
+   Engine, Regime Engine"). Chapter 13 §13.4 itself states this initial-assignment column is
+   "ánh xạ hiện hành... KHÔNG phải competing authority với registry; khi registry active,
+   mapping resolve từ registry" — because module-registry.yaml is active (Phase 1+), this
+   table row is supporting evidence for this candidate's reasoning, explicitly NOT a
+   substitute for an approved quality_tier registry field. This candidate does not treat
+   Chapter 13's table as self-executing.
+```
+
+### Explicit rejected-tier analysis
+
+```text
+Tier 0 — Critical: REJECTED.
+  Chapter 13 §13.4's initial assignment for Tier 0 is exactly [Risk Gateway, Execution
+  Engine, Position Ledger] — verified directly. Structure Engine owns none of: Risk
+  approval/gating authority, execution authority, Order submission, external side effects,
+  Position Ledger authority, or kill-switch/control authority (I-8 scope, Chapter 13 §13.5).
+  Structure's failure mode is corruption of an ANALYTICAL/decision INPUT — serious, but it
+  does not itself cross the irreversible execution/control boundary that defines Tier 0's
+  actual responsibilities (Risk Gateway's approve/reject gating, Execution Engine's order
+  submission, Position Ledger's authoritative balance state). "No external side effect" is
+  NOT used here as an automatic Tier-0 exclusion by itself — the exclusion is grounded in
+  Structure's absence of any of the specific Tier-0 responsibilities Chapter 13 §13.4 and
+  §13.6 (Chaos Test: exchange timeout/partial fill/duplicate order/order reject — none of
+  which apply to an engine with no exchange/order interaction at all) actually enumerate.
+
+Tier 2 — Supporting: REJECTED.
+  Chapter 13 §13.4's initial assignment for Tier 2 is exactly [API layer, Data Ingestion] —
+  verified directly, both ingress/plumbing responsibilities with no authoritative analytical
+  fact ownership of their own. Structure Engine is not merely ingress/API/support plumbing —
+  it owns authoritative Core Logic facts (Swing/BOS/CHoCH) whose semantics directly determine
+  decision-relevant interpretation for every downstream consumer (reasoning point 3 above).
+  Its criticality is materially above a Data Ingestion/API-layer module: a Structure defect
+  corrupts INTERPRETATION of market structure itself, not merely delivery/transport of raw
+  data that a downstream consumer must still interpret independently.
+
+Tier 3 — UI: REJECTED.
+  Structure Engine is a backend Type 1 Compute Engine (module_type: compute_engine, verified)
+  with no frontend/UI responsibility of any kind — Chapter 13 §13.4's Tier 3 initial
+  assignment ("Frontend") and E2E-over-unit-test framing do not apply to this module's
+  responsibility at all. Trivially inapplicable, not a close call.
+```
+
+### Tier-1 consequences IF Product Owner later approves this candidate (recorded, not claimed as met)
+
+```text
+This candidate does NOT waive, reinterpret, or prematurely claim ANY of the following as
+PASS. Current informational coverage from implementation transactions (96% at structure-
+engine's own build/remediation time, recorded in prior MANIFEST entries) is explicitly NOT a
+formal Quality Gate result and does not substitute for any item below.
+
+If Product Owner later approves Tier 1 — Core Logic and it is written into
+module-registry.yaml, the formal Structure Engine Chapter 13 Quality Gate must apply, at
+minimum, Chapter 13's Tier-1 requirements (§13.3–§13.4, §13.6, §13.12):
+  - line coverage >= 90% (§13.3–§13.4, Tier 1 floor);
+  - branch coverage >= 90%, evaluated INDEPENDENTLY from line coverage — no averaging/
+    compensation between the two metrics (§13.3, deterministic coverage-PASS rule);
+  - Tier 0/1 test-effectiveness evidence (mutation testing or an accepted equivalent per
+    §13.3 — Chapter 13 locks the REQUIREMENT for such evidence; concrete tooling/threshold
+    is deferred to Engineering Foundation, §13.14, not decided by this candidate);
+  - mandatory Tier-1 Parity Test (§13.4/§13.6/§13.12(C) — "Replay khớp Live tại tầng
+    Decision," cross-ref I-2) — applicability for a Compute Engine feeding the Decision
+    pipeline indirectly via Feature/Context still requires this evidence per the Tier-1 gate
+    trigger, not waived by this candidate.
+  - Per §13.8 (fail-closed semantics): if any required evidence above is unavailable at
+    formal gate time, the result is FAIL — evidence (eligibility incomplete), never a default
+    PASS and never treated as equivalent to a Product Owner rejection.
+```
+
+### ADR Scope Rule (Chapter 0 §4b, run explicitly)
+
+```text
+Result: ADR_NOT_REQUIRED.
+
+Reasoning against the Chapter 0 §4b table (verified directly — "ADR Required": Platform
+Invariant add/change · Event Schema change · Module Taxonomy/dependency-graph change ·
+Governance/Approval process change · decision affecting >1 module or hard-to-reverse ·
+modifying/superseding a Locked ADR):
+  - This candidate classifies exactly ONE existing runtime module (structure-engine) already
+    present in module-registry.yaml — no module is added, removed, or retyped.
+  - No Module Taxonomy change (Chapter 7's three-type taxonomy, or structure-engine's
+    module_type: compute_engine, are both untouched) and no dependency-graph change
+    (depends_on/forbidden_dependencies both verified unchanged and untouched by this
+    transaction).
+  - No Domain/Event Contract change (swing.md/structure.md/candle.md untouched).
+  - No Platform Invariant change (Chapter 2 untouched).
+  - No authority transfer and no new cross-module architecture decision — this candidate
+    does not decide anything for Feature/Context/Strategy/Decision.
+  - Chapter 13 §13.4 itself already delegates "module cụ thể nào thuộc tier nào" to
+    module-registry.yaml via governance approval (Chapter 7 §7.5) — populating that field is
+    NOT itself an ADR-Required category by Chapter 0 §4b's own table; it is a registry-fact
+    resolved through the existing module-registry governance/approval path, not a new
+    architecture decision requiring a fresh ADR.
+  - A Tier value is revisable later via a new classification decision without re-authoring
+    any algorithm, test suite, or parity evidence from scratch — unlike ADR-033's
+    implementation-language allocation (explicitly "hard to reverse" per ADR-033's own text,
+    verified above), a Tier classification is NOT the same hard-to-reverse class.
+  - This transaction itself does not even write to module-registry.yaml — it authors
+    reasoning/evidence only, strengthening (not weakening) the ADR_NOT_REQUIRED conclusion.
+
+No GOVERNED_DECISION_REQUIRED escalation triggered.
+```
+
+### Implementation status context (recorded accurately — not conflating semantic-verification cleanliness with Tier approval or QG eligibility)
+
+```text
+Structure analytical core:      implemented (Swing/Structure, python/structure-engine/**).
+  Remediation history: an initial 7-finding remediation batch was applied and 6 of those 7
+  findings (P3-STR-CONSUME-A-MAJ-02, P3-STR-DEF-A-MAJ-03, P3-STR-ORDER-A-MAJ-04,
+  P3-STR-SCOPE-A-MAJ-05, P3-PYBASE-A-MAJ-06, P3-PYBASE-A-MIN-07) are recorded CLOSED by prior
+  deterministic verification. The 7th (P3-STR-SWG-A-MAJ-01) required a narrow residual fix,
+  which — per direct MANIFEST re-verification at this transaction's own boundary — remains
+  recorded `REMEDIATED_PENDING_DETERMINISTIC_VERIFICATION`, NOT yet externally closed. This
+  candidate records that fact precisely rather than asserting full closure; it does not
+  affect Tier-classification reasoning (criticality classification of a module is independent
+  of its own remediation-closure status), but it is recorded here so downstream readers do
+  not infer Structure's remediation set is fully CLEAN the way Raw Regime's now is.
+Structure module approval:      NOT approved.
+Structure formal QG:            NOT run.
+Structure Quality Tier:         UNRESOLVED before this candidate; "Tier 1 — Core Logic"
+                                  PROPOSED only (CANDIDATE / UNAPPROVED) — not written to
+                                  module-registry.yaml, not effective.
+Raw Regime Engine:               implemented; post-build remediation set CLEAN (all six
+                                  findings CLOSED, this transaction's own bookkeeping
+                                  section above); Quality Tier UNRESOLVED.
+Data Layer state:                unchanged (DATA_LAYER_MILESTONE_READINESS = PASS,
+                                  readiness-only, not approval).
+Phase 3 Approval Gate:           NOT opened.
+LIVE:                             NOT_AUTHORIZED, unreferenced.
+```
+
+### No scope expansion — explicit verification
+
+```text
+module-registry.yaml unchanged (verified git diff --quiet). structure-engine implementation
+  unchanged (verified git diff --quiet -- python/structure-engine/). raw-regime-engine
+  implementation unchanged (verified git diff --quiet -- python/raw-regime-engine/).
+  docs/domain/**, docs/adr/**, docs/constitution/**, docs/governance/**, go/** all unchanged
+  (verified git diff --quiet for each). No Quality Tier assigned to any module. No formal
+  Chapter 13 Quality Gate performed. Structure Engine not approved at any level. Phase 3
+  Approval Gate not opened. LIVE not authorized.
+```
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.215"` → `"10.216"`.
 
 ## Decision Log
 
