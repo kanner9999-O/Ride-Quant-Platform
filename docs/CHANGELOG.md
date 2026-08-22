@@ -2,6 +2,62 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-22 — structure-engine: record approved Tier-1 classification
+
+**Mechanical registry-recording transaction.** Records the Product Owner's already-made decision on the Structure Engine Quality Tier classification into `module-registry.yaml`. Does not re-run or re-validate upstream Review A/Review B independence — those were completed and consolidated upstream of this transaction. Does not approve Structure Engine as a module, run formal Chapter 13 QG, open the Phase 3 Approval Gate, authorize LIVE, or reconsolidate Package 1.1.
+
+### Product Owner decision
+
+```text
+"APPROVE STRUCTURE-ENGINE TIER 1 — CORE LOGIC." Decision authority: Product Owner. Decision
+  date: 2026-08-22 — exact clock time NOT supplied; recorded as a date-only ISO-8601 value,
+  no fabricated hour/minute/second component. Scope: Quality Tier classification ONLY — does
+  not approve the module, does not constitute Chapter 13 QG PASS, does not open Phase 3
+  Approval Gate, does not authorize LIVE, does not approve Raw Regime Tier, does not
+  reconsolidate Package 1.1.
+```
+
+### Registry amendment
+
+```text
+docs/architecture/module-registry.yaml: structure-engine.quality_tier = {tier: "Tier 1 —
+  Core Logic", approved_by: "Product Owner", approved_at: "2026-08-22"} added — the ONE new
+  field on the ONE module; no other field touched. version: "1.3" -> "1.4" (genuine semantic
+  amendment, same precedent as market-reference-service/market-data-ingestion's own
+  quality_tier amendments). package_lifecycle: Consolidated Stable -> candidate (reopened,
+  same precedent). status: Draft unchanged. Verified: 26 modules unchanged, dependency graph
+  unchanged, market-reference-service.quality_tier and market-data-ingestion.quality_tier
+  both byte-identical, raw-regime-engine still has no quality_tier field.
+```
+
+### Resulting Tier-1 consequences (recorded, none evaluated/claimed PASS)
+
+```text
+line coverage >= 90% AND branch coverage >= 90% independently; Tier 0/1 test-effectiveness
+  evidence (mutation testing or accepted equivalent); mandatory Tier-1 Parity Test; all other
+  Chapter 13 dimensions applicable to a Tier-1 runtime Compute Engine. Prior informational
+  coverage (96%) is explicitly NOT formal Chapter 13 Quality Gate evidence.
+```
+
+### State summary
+
+```text
+Structure Engine: implemented, remediation set 7/7 CLOSED — CLEAN, NOT approved as a module,
+  formal Chapter 13 QG NOT run. Structure Quality Tier: RESOLVED — Tier 1 — Core Logic.
+Raw Regime Engine: implemented, remediation set CLEAN, Quality Tier UNRESOLVED (own governed
+  sequence not yet begun).
+Package 1.1: candidate (reopened) — NOT reconsolidated by this transaction.
+Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml, docs/MANIFEST.md, docs/CHANGELOG.md — verified via
+  git status --porcelain=v1 -uall; python/structure-engine/**, python/raw-regime-engine/**
+  verified byte-unchanged; no other file touched. manifest_version "10.217" -> "10.218".
+```
+
 ## [Unreleased] — 2026-08-21 — structure-engine: correct Tier candidate evidence status
 
 **Narrowly bounded factual/evidence correction — does not alter the Structure Tier-1 classification reasoning.** Corrects Review A finding `P3-STR-TIER-A-MIN-01` against the Structure Engine Tier Classification Candidate: its "Implementation status context" prose stated a now-stale Structure remediation status (6 of 7 findings CLOSED, `P3-STR-SWG-A-MAJ-01` pending external verification).
