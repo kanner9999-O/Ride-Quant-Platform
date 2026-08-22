@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.218"
+manifest_version: "10.219"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -7151,6 +7151,254 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 ```
 
 **Files changed:** `docs/architecture/module-registry.yaml`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `python/structure-engine/**`, `python/raw-regime-engine/**` verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.217"` → `"10.218"`.
+
+## Raw Regime Engine — Quality Tier Classification CANDIDATE (`Tier 1 — Core Logic`, `CANDIDATE / UNAPPROVED` — no registry write, no approval, no formal QG)
+
+**Governed classification-candidate authoring transaction — vai trò: `Raw Regime Engine Tier Classification Candidate Author`.** Authors reasoning/evidence for a proposed Quality Tier classification of `raw-regime-engine` only. Does not modify `module-registry.yaml`. Does not approve the Tier. Does not run formal Chapter 13 QG. Does not approve Raw Regime Engine at any level. Does not reconsolidate Package 1.1. Does not open the Phase 3 Approval Gate. Does not authorize LIVE.
+
+**Baseline:** branch `main`, HEAD `c09ff7370a7e573cf7c71b20aa372300895aec0d` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; working tree clean — only pre-existing untracked `.DS_Store` clutter present). `manifest_version` confirmed `"10.218"` at start.
+
+**Authority inspected fresh (G-VERIFY-001 — this prompt is not treated as authority):** `docs/constitution/13-quality-gates.md` (§13.3, §13.4, §13.12), `docs/constitution/00-governance.md` (§4b), `docs/architecture/module-registry.yaml` (both `structure-engine` and `raw-regime-engine` entries), `docs/architecture/engine/structure-regime-architecture.md`, `docs/domain/regime.md`, `docs/adr/ADR-014.md` (Approved, unchanged), `docs/adr/ADR-033.md` (Approved, unchanged), `python/raw-regime-engine/**` (source tree, confirmed no `structure_engine` import), and Raw Regime's own remediation-finding history recorded in this file.
+
+### Current registry facts verified directly
+
+```text
+docs/architecture/module-registry.yaml: version "1.4", status Draft, package "1.1",
+  package_lifecycle candidate (all as left by the prior structure-engine Tier-1 recording
+  transaction; verified unchanged before this candidate is authored).
+
+structure-engine.quality_tier: {tier: "Tier 1 — Core Logic", approved_by: "Product Owner",
+  approved_at: "2026-08-22"} — verified present, RESOLVED, unchanged by this transaction.
+
+raw-regime-engine: module_type: compute_engine; owns_authoritative_state: true;
+  depends_on: [market-data-ingestion]; forbidden_dependencies: [structure-engine];
+  security_classification: none; status: candidate; quality_tier field: ABSENT.
+
+=> Current authoritative Raw Regime Engine Quality Tier: UNRESOLVED. No effective Tier is
+  inferred before Product Owner approval — Chapter 13 §13.4's tier-resolution chain, branch
+  1, requires the tier to resolve from module-registry.yaml itself for a runtime module; an
+  absent field means unresolved, not a default.
+```
+
+### Candidate classification
+
+```text
+module:                raw-regime-engine
+current_authoritative_tier: UNRESOLVED
+proposed_quality_tier: "Tier 1 — Core Logic"
+candidate_state:       CANDIDATE / UNAPPROVED
+```
+
+### Authority rule (module-registry.yaml is the tier-resolution authority)
+
+```text
+Chapter 13 §13.4 branch 1: "Runtime module -> resolve tier từ module-registry.yaml"
+(Chapter 7 §7.5). Once the registry is active (confirmed: version "1.4", Phase 1+), it is
+  the sole authoritative source for "module cụ thể nào thuộc tier nào" — Chapter 13's own
+  §13.4 "initial assignment" table is explicitly NOT a competing authority once registry is
+  active ("khi registry active, mapping resolve từ registry," verified directly in Chapter
+  13 §13.4's own text). This candidate does not create authoritative tier resolution by
+  itself — only Product Owner approval recorded into module-registry.yaml does that.
+```
+
+### Supporting-only evidence — Chapter 13 §13.4 initial-assignment table
+
+```text
+Verified directly: "Tier 1 — Core Logic | Strategy Engine, Feature Engine, Structure Engine,
+  Regime Engine | >= 90% | Bắt buộc Parity Test." "Regime Engine" names raw-regime-engine —
+  this row is supporting evidence for this candidate's reasoning, explicitly NOT a substitute
+  for an approved quality_tier registry field (same treatment already applied to
+  structure-engine's own Tier-1 candidate, for consistency across the two Chapter 13-named
+  Regime/Structure engines).
+```
+
+### Semantic rationale for Tier 1 (independently inspected, not blindly copied)
+
+```text
+1. raw-regime-engine owns authoritative analytical state (owns_authoritative_state: true,
+   verified) — RegimeClassified/RegimeFactInvalidated facts (regime.md §3/§4) are
+   authoritative, deterministic classifications (volatility, directional_persistence)
+   derived directly from canonical Candle facts, not provisional/derived-only read-model
+   output.
+2. It is a deterministic Type 1 Compute Engine (module_type: compute_engine, verified;
+   structure-regime-architecture.md confirms "không external side effect" for this module
+   class) — no broker, no order submission, no credential/custody access
+   (security_classification: none, verified).
+3. Its authoritative Regime facts (trending/ranging/volatile-equivalent classification via
+   volatility/directional_persistence) are consumed downstream as core analytical context —
+   structure-regime-architecture.md §6/§9 confirms Feature Engine is the sole selective
+   fan-in from BOTH structure-engine and raw-regime-engine
+   (feature-engine.depends_on: [structure-engine, raw-regime-engine], verified), propagating
+   onward toward Context/Strategy/Decision. An error in Raw Regime's authoritative
+   classification is therefore capable of materially changing decision-relevant market
+   interpretation downstream, on exactly the same structural basis already established for
+   structure-engine's own Tier-1 candidate.
+4. Chapter 13 §13.4's initial-assignment table places "Regime Engine" under Tier 1 directly
+   (verified above) — treated as supporting evidence only, per the Authority rule above.
+```
+
+### Explicit rejected-tier analysis
+
+```text
+Tier 0 — Critical: REJECTED.
+  Chapter 13 §13.4's initial assignment for Tier 0 is exactly [Risk Gateway, Execution
+  Engine, Position Ledger] — verified directly. raw-regime-engine owns none of: Risk
+  approval/gating authority, execution authority, Order submission, external side effects,
+  Position Ledger authority, or kill-switch/control authority. Its failure mode is
+  corruption of an ANALYTICAL/decision INPUT — serious, but it does not itself cross the
+  irreversible execution/control boundary that defines Tier 0's actual responsibilities.
+  Same reasoning structure already independently verified for structure-engine's own Tier-0
+  rejection, applied here on raw-regime-engine's own verified facts
+  (security_classification: none, no exchange/order interaction of any kind).
+
+Tier 2 — Supporting: REJECTED.
+  Chapter 13 §13.4's initial assignment for Tier 2 is exactly [API layer, Data Ingestion] —
+  verified directly, both ingress/plumbing responsibilities with no authoritative analytical
+  fact ownership of their own. raw-regime-engine is not infrastructure/support plumbing — it
+  owns authoritative core analytical facts (volatility/directional_persistence
+  classification) whose semantics directly determine decision-relevant interpretation for
+  every downstream consumer (reasoning point 3 above). Its criticality is materially above a
+  Data Ingestion/API-layer module: a Raw Regime defect corrupts INTERPRETATION of market
+  condition itself, not merely delivery/transport of raw data that a downstream consumer
+  must still interpret independently.
+
+Tier 3 — UI: REJECTED.
+  raw-regime-engine is a backend Type 1 Compute Engine (module_type: compute_engine,
+  verified) with no frontend/UI responsibility of any kind. Trivially inapplicable, not a
+  close call.
+```
+
+### Independence constraint — Structure/Regime independence preserved, not touched
+
+```text
+Verified directly, unchanged by this transaction: raw-regime-engine.depends_on =
+  [market-data-ingestion]; raw-regime-engine.forbidden_dependencies = [structure-engine].
+  This candidate does not weaken, reinterpret, or amend ADR-014/ADR-033 independence
+  semantics in any way — both ADRs verified `status: Approved`, byte-unchanged. No
+  Structure-aware Raw Regime dependency created or implied. This Tier candidate evaluates
+  raw-regime-engine's OWN criticality in isolation; it does not compare, merge, or create any
+  dependency relationship between the two engines' classifications (each resolves
+  independently per Chapter 13 §13.4, exactly as structure-engine's own Tier-1 candidate and
+  subsequent approval already did not create a Regime dependency either).
+```
+
+### Tier-1 consequences IF Product Owner later approves this candidate (recorded, not evaluated/claimed PASS)
+
+```text
+This candidate does NOT waive, reinterpret, or prematurely claim ANY of the following as
+PASS. Prior informational coverage from implementation transactions (98% at raw-regime-
+engine's own build/remediation time, recorded in prior MANIFEST entries) is explicitly NOT a
+formal Quality Gate result and does not substitute for any item below.
+
+If Product Owner later approves Tier 1 — Core Logic and it is written into
+module-registry.yaml, the formal Raw Regime Engine Chapter 13 Quality Gate must apply, at
+minimum, Chapter 13's Tier-1 requirements (§13.3–§13.4, §13.6, §13.12):
+  - line coverage >= 90% (§13.3–§13.4, Tier 1 floor);
+  - branch coverage >= 90%, evaluated INDEPENDENTLY from line coverage — no averaging/
+    compensation between the two metrics (§13.3, deterministic coverage-PASS rule);
+  - Tier 0/1 test-effectiveness evidence (mutation testing or an accepted equivalent per
+    §13.3 — Chapter 13 locks the REQUIREMENT for such evidence; concrete tooling/threshold
+    is deferred to Engineering Foundation, §13.14, not decided by this candidate);
+  - mandatory Tier-1 Parity Test (§13.4/§13.6/§13.12(C) — "Replay khớp Live tại tầng
+    Decision," cross-ref I-2);
+  - every other Chapter 13 dimension applicable per §13.12's trigger rules for a Tier-1
+    runtime Compute Engine.
+  - Per §13.8 (fail-closed semantics): if any required evidence above is unavailable at
+    formal gate time, the result is FAIL — evidence (eligibility incomplete), never a default
+    PASS and never treated as equivalent to a Product Owner rejection.
+```
+
+### Current implementation/remediation context (verified from source/evidence before recording, no fabricated finding IDs)
+
+```text
+Raw Regime Engine implementation: present (python/raw-regime-engine/src/raw_regime_engine/
+  {__init__,identity,envelope,publish,candle,regime,errors}.py, verified directly present on
+  disk at this boundary). Source-tree scan confirms no `import structure_engine` / `from
+  structure_engine` statement anywhere (verified via grep — only prose/comment mentions
+  explaining independence, matching the existing `test_no_structure_engine_import`
+  regression already in the committed test suite).
+Raw Regime remediation finding set — verified directly against this file's own prior,
+  independently-verified bookkeeping (not re-derived, not invented): P3-RGE-POLICY-A-MAJ-01,
+  P3-RGE-TIME-A-MAJ-02, P3-RGE-DEF-A-MAJ-03, P3-RGE-VIEW-A-MAJ-04, P3-RGE-EVID-A-MIN-05,
+  P3-RGE-THRESH-A-MIN-06 — all six recorded CLOSED (see "## Raw Regime — external
+  deterministic verification closure" section above, this file). Raw Regime post-build
+  remediation set: 6/6 CLOSED — CLEAN.
+Raw Regime module: NOT approved (Chapter 12 phase-approval remains a separate, untouched
+  authority). Formal Chapter 13 QG: NOT run for Raw Regime at any tier boundary.
+```
+
+### ADR Scope Rule (Chapter 0 §4b, run explicitly)
+
+```text
+Result: ADR_NOT_REQUIRED.
+
+Reasoning against the Chapter 0 §4b table (verified directly — "ADR Required": Platform
+Invariant add/change · Event Schema change · Module Taxonomy/dependency-graph change ·
+Governance/Approval process change · decision affecting >1 module or hard-to-reverse ·
+modifying/superseding a Locked ADR):
+  - This candidate classifies exactly ONE existing runtime module (raw-regime-engine)
+    already present in module-registry.yaml — no module is added, removed, or retyped.
+  - No Module Taxonomy change and no dependency-graph change — depends_on/
+    forbidden_dependencies both verified unchanged and untouched by this transaction.
+  - No Domain/Event Contract change (regime.md untouched).
+  - No Platform Invariant change (Chapter 2 untouched).
+  - No authority transfer, no cross-module runtime semantic change — this candidate does not
+    decide anything for Feature/Context/Strategy/Decision, and does not touch ADR-014's
+    Structure/Regime independence.
+  - No Locked ADR amended or superseded (ADR-014/ADR-033 both verified byte-unchanged,
+    status: Approved).
+  - Chapter 13 §13.4 itself already delegates "module cụ thể nào thuộc tier nào" to
+    module-registry.yaml via governance approval — populating that field (a separate future
+    transaction, not this one) is NOT itself an ADR-Required category; it is a registry-fact
+    resolved through the existing module-registry governance/approval path, not a new
+    architecture decision requiring a fresh ADR (same conclusion already independently
+    reached for structure-engine's own Tier-1 candidate).
+  - This transaction itself does not even write to module-registry.yaml — it authors
+    reasoning/evidence only, strengthening (not weakening) the ADR_NOT_REQUIRED conclusion.
+
+No GOVERNED_DECISION_REQUIRED escalation triggered.
+```
+
+### Explicit exclusions (candidate authoring only)
+
+```text
+This transaction does NOT: resolve authoritative tier; approve Tier 1; modify
+module-registry.yaml; run formal Chapter 13 QG; approve Raw Regime Engine as a module;
+change implementation; change the dependency graph; change module taxonomy; change Domain/
+Event Contracts; modify ADR-014 or ADR-033; reconsolidate Package 1.1; open the Phase 3
+Approval Gate; authorize LIVE.
+```
+
+### No scope expansion — explicit verification
+
+```text
+module-registry.yaml unchanged (verified git diff --quiet). raw-regime-engine implementation
+  unchanged (verified git diff --quiet -- python/raw-regime-engine/). structure-engine
+  implementation unchanged (verified git diff --quiet -- python/structure-engine/).
+  docs/domain/**, docs/adr/**, docs/constitution/**, docs/governance/**, go/** all unchanged
+  (verified git diff --quiet for each). structure-engine.quality_tier unchanged
+  (Tier 1 — Core Logic, Product-Owner-approved 2026-08-22). market-reference-service and
+  market-data-ingestion quality_tier both unchanged. Package 1.1 lifecycle unchanged
+  (candidate — not reconsolidated by this transaction). No Quality Tier assigned to Raw
+  Regime. No formal Chapter 13 Quality Gate performed. Raw Regime Engine not approved at any
+  level. Phase 3 Approval Gate not opened. LIVE not authorized.
+```
+
+### State summary
+
+```text
+Structure Engine:            implemented; remediation set 7/7 CLOSED — CLEAN; NOT approved;
+                               Quality Tier RESOLVED — Tier 1 — Core Logic (unchanged).
+Raw Regime Engine:            implemented; remediation set 6/6 CLOSED — CLEAN; NOT approved;
+                               Quality Tier UNRESOLVED before this candidate; "Tier 1 — Core
+                               Logic" PROPOSED only (CANDIDATE / UNAPPROVED) — not written to
+                               module-registry.yaml, not effective.
+Package 1.1:                  candidate (unchanged) — NOT reconsolidated by this transaction.
+Phase 3 Approval Gate:        NOT opened.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.218"` → `"10.219"`.
 
 ## Decision Log
 
