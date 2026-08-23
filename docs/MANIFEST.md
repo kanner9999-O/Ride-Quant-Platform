@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.220"
+manifest_version: "10.221"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -7589,6 +7589,120 @@ module-registry.yaml unchanged (verified git diff --quiet). feature-engine.depen
 ```
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.219"` → `"10.220"`.
+
+## `raw-regime-engine` Quality Tier — Product Owner decision recorded, `module-registry.yaml` amended (Tier 1 — Core Logic, mechanical registry recording only)
+
+**Mechanical registry-recording transaction — vai trò: `Raw Regime Engine Tier-1 Registry Recorder`.** Records an already-made Product Owner decision into `module-registry.yaml`. Does not re-run or re-evaluate upstream Review A/Review B or their bounded re-reviews (those were completed and consolidated upstream of this transaction). Does not approve Raw Regime Engine as a module. Does not run formal Chapter 13 QG. Does not reconsolidate Package 1.1. Does not open Phase 3 Approval Gate. Does not authorize LIVE.
+
+```text
+Starting boundary: 57c732eef227a6c2615a870b8056c87e607d60de (verified HEAD before any edit;
+  branch main; working tree clean; manifest_version "10.220" verified matching expectation).
+  module-registry.yaml verified matching expected starting state: version "1.4", status
+  Draft, package "1.1", package_lifecycle candidate; structure-engine.quality_tier verified
+  unchanged (Tier 1 — Core Logic, approved_at "2026-08-22"); raw-regime-engine verified with
+  no quality_tier field (module_type: compute_engine, owns_authoritative_state: true,
+  depends_on: [market-data-ingestion], forbidden_dependencies: [structure-engine],
+  security_classification: none — all unchanged, none altered by this transaction).
+
+Upstream review/consolidation state (audit/current-state facts only — not re-proven or
+  re-executed by this recorder):
+  Original Tier candidate boundary:     3cc0c77859ebc2f82cec9046a1d494533f25cb46
+  Correction boundary:                  57c732eef227a6c2615a870b8056c87e607d60de
+  Consolidated finding remediated:      P3-RGE-TIER-CONS-MAJ-01
+  Bounded Review A re-review:           P3-RGE-TIER-CONS-MAJ-01 = CLOSED
+  Independent bounded Review B re-review: P3-RGE-TIER-CONS-MAJ-01 = CLOSED
+  Final findings consolidation:         Blocker 0 / Major 0 / Minor 0
+  Final candidate state before PO decision: CLEAN / READY_FOR_PRODUCT_OWNER_TIER_DECISION
+
+Product Owner decision: "APPROVE RAW-REGIME-ENGINE TIER 1 — CORE LOGIC." Decision authority:
+  Product Owner. Decision time: 2026-08-23T08:57:00+07:00 — supplied at this exact
+  timestamp for this decision boundary, written verbatim, not substituted with another
+  timestamp; explicitly distinct from this transaction's own execution/commit time, which is
+  not substituted for it.
+
+Decision scope (explicit): this Product Owner decision approves ONLY the Raw Regime Engine
+  Quality Tier classification. It does NOT approve Raw Regime Engine as a module, does NOT
+  constitute Chapter 13 Quality Gate PASS, does NOT approve any historical coverage result,
+  does NOT reconsolidate Package 1.1, does NOT open the Phase 3 Approval Gate, does NOT
+  authorize LIVE, does NOT alter Raw Regime responsibilities, does NOT alter Structure/Raw-
+  Regime independence, and does NOT assign a Tier to any future Structure-aware Regime
+  concept.
+
+Registry amendment (this transaction): docs/architecture/module-registry.yaml
+  `raw-regime-engine.quality_tier: {tier: "Tier 1 — Core Logic", approved_by: "Product
+  Owner", approved_at: "2026-08-23T08:57:00+07:00"}` added — the ONE new field on the ONE
+  module; no other field on raw-regime-engine or any other module touched. `version: "1.4"
+  -> "1.5"` (genuine semantic amendment — same established precedent as market-reference-
+  service/market-data-ingestion/structure-engine's own quality_tier amendments).
+  `package_lifecycle: candidate -> candidate` — UNCHANGED, no lifecycle transition: Package
+  1.1 was ALREADY `candidate` (reopened by the prior structure-engine Tier-1 semantic
+  amendment) and this transaction does not reconsolidate it. `status: Draft` unchanged.
+  `generated_at` preserved unchanged. Verified fresh, before and after: 26 modules
+  (unchanged), dependency graph unchanged (raw-regime-engine's own depends_on =
+  [market-data-ingestion] and forbidden_dependencies = [structure-engine] both
+  byte-identical; no edge added/removed anywhere), market-reference-service.quality_tier
+  byte-identical, market-data-ingestion.quality_tier byte-identical,
+  structure-engine.quality_tier byte-identical, every other module's semantic fields
+  byte-identical/unchanged.
+
+Current classification state: raw-regime-engine's Chapter 13 Quality Tier is now
+  authoritatively RESOLVED — Tier 1 — Core Logic — pinned in module-registry.yaml v1.5 (no
+  longer CANDIDATE/UNRESOLVED), because Chapter 13 §13.4 branch 1 resolves runtime-module
+  tier directly from module-registry.yaml. This is NOT a Quality Gate PASS (none has been
+  run at this new tier boundary) and NOT a module/package/Data Layer approval (Chapter 12
+  phase-approval remains a separate, untouched authority) and NOT a Phase 3 Approval Gate
+  opening and NOT a LIVE authorization.
+
+Resulting Tier-1 consequences (recorded, none evaluated/claimed PASS by this transaction):
+  line coverage >= 90% AND branch coverage >= 90%, both independently (no averaging/
+  compensation between the two metrics, Chapter 13 §13.3); Tier 0/1 test-effectiveness
+  evidence (mutation testing or an accepted equivalent, tooling/threshold deferred to
+  Engineering Foundation §13.14); mandatory Tier-1 Parity Test (Chapter 13 §13.4/§13.6/
+  §13.12(C)); invariant conformance and other §13.12 applicability dimensions (data-quality/
+  numerical-precision, etc.) where their own trigger conditions are met. Prior informational
+  coverage (98%, recorded at raw-regime-engine's own build/remediation transactions) is
+  explicitly NOT formal Chapter 13 Quality Gate evidence and is not treated as satisfying any
+  of the above.
+
+Structure/Raw Regime independence: unchanged and unaffected by this decision — the two
+  modules resolving to the SAME Tier name is a criticality-classification coincidence, not
+  architectural coupling; raw-regime-engine.forbidden_dependencies = [structure-engine]
+  remains exactly as before, verified unchanged; no Structure dependency added; ADR-014/
+  ADR-033 independence semantics untouched.
+
+No scope expansion (this recording transaction specifically): implementation code unchanged
+  (verified `git diff --quiet -- python/raw-regime-engine/` and `git diff --quiet --
+  python/structure-engine/`). No test file touched. Dependency graph unchanged. Module
+  taxonomy unchanged (module_type/responsibilities/consumes/emits/depends_on/
+  forbidden_dependencies untouched for raw-regime-engine and all 25 other modules). No
+  future/deferred Structure-aware Regime module or Tier created — the existing "DEFERRED
+  COVERAGE" note on raw-regime-engine's own entry is unchanged, byte-identical. ADR-014/
+  ADR-033 not touched. Domain Contracts (regime.md/swing.md/structure.md/candle.md) not
+  touched. Chapter 0/7/13 not touched. Testing Convention not touched. `raw-regime-engine`
+  module NOT approved. `structure-engine` module NOT approved (unchanged, remains a separate,
+  untouched authority from its own prior Tier decision). Data Layer unchanged. Phase 3
+  Approval Gate NOT opened. LIVE not authorized, not referenced.
+
+Files changed: docs/architecture/module-registry.yaml, docs/MANIFEST.md, docs/CHANGELOG.md
+  only — verified via `git status --porcelain=v1 -uall`.
+```
+
+### State summary
+
+```text
+Structure Engine:            implemented; remediation set 7/7 CLOSED — CLEAN; NOT approved
+                               as a module; Quality Tier RESOLVED — Tier 1 — Core Logic
+                               (unchanged); formal Chapter 13 QG NOT run.
+Raw Regime Engine:            implemented; remediation set 6/6 CLOSED — CLEAN; NOT approved
+                               as a module; Quality Tier RESOLVED — Tier 1 — Core Logic
+                               (module-registry.yaml v1.5, Product-Owner-approved
+                               2026-08-23T08:57:00+07:00); formal Chapter 13 QG NOT run.
+Package 1.1:                  candidate (unchanged by this transaction) — NOT reconsolidated.
+Phase 3 Approval Gate:        NOT opened.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+**Files changed:** `docs/architecture/module-registry.yaml`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `python/structure-engine/**`, `python/raw-regime-engine/**` verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.220"` → `"10.221"`.
 
 ## Decision Log
 

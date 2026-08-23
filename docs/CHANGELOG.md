@@ -2,6 +2,84 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-23 — raw-regime-engine: record approved Tier-1 classification
+
+**Mechanical registry-recording transaction.** Records the Product Owner's already-made decision on the Raw Regime Engine Quality Tier classification into `module-registry.yaml`. Does not re-run or re-evaluate upstream Review A/Review B or their bounded re-reviews — those were completed and consolidated upstream of this transaction. Does not approve Raw Regime Engine as a module, run formal Chapter 13 QG, reconsolidate Package 1.1, open the Phase 3 Approval Gate, or authorize LIVE.
+
+### Upstream final review state (audit facts only, not re-proven here)
+
+```text
+Original Tier candidate boundary: 3cc0c77859ebc2f82cec9046a1d494533f25cb46. Correction
+  boundary: 57c732eef227a6c2615a870b8056c87e607d60de. Consolidated finding remediated:
+  P3-RGE-TIER-CONS-MAJ-01. Bounded Review A re-review: CLOSED. Independent bounded Review B
+  re-review: CLOSED. Final findings consolidation: Blocker 0 / Major 0 / Minor 0 — CLEAN.
+  Final upstream disposition: READY_FOR_PRODUCT_OWNER_TIER_DECISION.
+```
+
+### Product Owner decision
+
+```text
+"APPROVE RAW-REGIME-ENGINE TIER 1 — CORE LOGIC." Decision authority: Product Owner. Decision
+  time: 2026-08-23T08:57:00+07:00. Scope: Quality Tier classification ONLY — does not
+  approve the module, does not constitute Chapter 13 QG PASS, does not approve any
+  historical coverage result, does not reconsolidate Package 1.1, does not open Phase 3
+  Approval Gate, does not authorize LIVE, does not alter Raw Regime responsibilities or
+  Structure/Raw-Regime independence, does not assign a Tier to any future Structure-aware
+  Regime concept.
+```
+
+### Registry amendment
+
+```text
+docs/architecture/module-registry.yaml: raw-regime-engine.quality_tier = {tier: "Tier 1 —
+  Core Logic", approved_by: "Product Owner", approved_at: "2026-08-23T08:57:00+07:00"} added
+  — the ONE new field on the ONE module; no other field touched. version: "1.4" -> "1.5"
+  (genuine semantic amendment). package_lifecycle: candidate -> candidate — UNCHANGED, no
+  lifecycle transition (Package 1.1 was already reopened to `candidate` by the prior
+  structure-engine Tier-1 amendment; this transaction does not reconsolidate it). status:
+  Draft unchanged. Verified: 26 modules unchanged, dependency graph unchanged,
+  raw-regime-engine.depends_on = [market-data-ingestion] and forbidden_dependencies =
+  [structure-engine] both byte-identical, market-reference-service/market-data-ingestion/
+  structure-engine quality_tier all byte-identical.
+```
+
+### Resulting Tier-1 consequences (recorded, none evaluated/claimed PASS)
+
+```text
+line coverage >= 90% AND branch coverage >= 90% independently; Tier 0/1 test-effectiveness
+  evidence; mandatory Tier-1 Parity Test; invariant conformance and other §13.12
+  applicability dimensions where triggered. Prior informational coverage (98%) is explicitly
+  NOT formal Chapter 13 Quality Gate evidence.
+```
+
+### Independence preserved
+
+```text
+Structure and Raw Regime resolving to the same Tier name is a criticality-classification
+  coincidence, not architectural coupling — raw-regime-engine.forbidden_dependencies =
+  [structure-engine] unchanged; ADR-014/ADR-033 independence semantics untouched.
+```
+
+### State summary
+
+```text
+Structure Engine: implemented, remediation set 7/7 CLOSED — CLEAN, NOT approved as a
+  module, Quality Tier RESOLVED (Tier 1 — Core Logic, unchanged), formal QG NOT run.
+Raw Regime Engine: implemented, remediation set 6/6 CLOSED — CLEAN, NOT approved as a
+  module, Quality Tier RESOLVED — Tier 1 — Core Logic (module-registry.yaml v1.5), formal
+  QG NOT run.
+Package 1.1: candidate (unchanged), NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+LIVE: NOT_AUTHORIZED.
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml, docs/MANIFEST.md, docs/CHANGELOG.md — verified via
+  git status --porcelain=v1 -uall; python/structure-engine/**, python/raw-regime-engine/**
+  verified byte-unchanged; no other file touched. manifest_version "10.220" -> "10.221".
+```
+
 ## [Unreleased] — 2026-08-23 — raw-regime-engine: correct Tier candidate downstream topology
 
 **Narrowly bounded remediation — corrects stale downstream-architecture reasoning only; does not alter the Tier conclusion.** Corrects consolidated finding `P3-RGE-TIER-CONS-MAJ-01` against the Raw Regime Engine Quality Tier Classification Candidate: its reasoning incorrectly described Feature Engine as the "sole downstream fan-in" and used a stale/incomplete Feature dependency list.

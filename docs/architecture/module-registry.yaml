@@ -632,7 +632,7 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "1.4"
+version: "1.5"
 status: Draft
 package: "1.1"
 package_lifecycle: candidate
@@ -735,6 +735,7 @@ modules:
       registration (Chapter 4 §4.2, Product Owner + Domain Contract authoring decision), out of
       Package 1.1 scope. Raw Regime Engine module above covers ONLY the already-registered
       raw-regime-analysis context.
+    quality_tier: { tier: "Tier 1 — Core Logic", approved_by: "Product Owner", approved_at: "2026-08-23T08:57:00+07:00" }
 
   # P13B-IRB-MAJ-01/MAJ-02/MAJ-03 bounded correction (2026-08-04, v0.3 -> v0.4): confirmed
   # Package 1.3-B Review A/Independent Review B findings against feature.md/context.md
