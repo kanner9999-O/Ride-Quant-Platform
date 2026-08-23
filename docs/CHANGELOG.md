@@ -2,6 +2,99 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-23 — structure-engine: formal Chapter 13 Quality Gate — FAIL — evidence
+
+**Formal, read-only Chapter 13 Quality Gate evaluation.** Evaluator: Claude, AI Technical Architect (resolved against `docs/team/team.yaml`, P3-IDENTITY-001). Evaluation boundary: `5b2b44f2263fc69af8c03578692796e63bafb5df`. Resolved Tier: Tier 1 — Core Logic (Chapter 13 §13.4 branch 1, `module-registry.yaml` v1.5). Does not modify implementation/registry. Does not approve the module. Does not open Phase 3 Approval Gate. Does not authorize LIVE. Does not remediate findings.
+
+### Test execution (fresh, this transaction)
+
+```text
+Clean-room reconstruction from committed requirements-dev.lock.txt: pip check clean. ruff
+  format --check . -> 12 files formatted (ruff 0.16.4). ruff check . -> All checks passed.
+  mypy (--strict) -> Success, 11 source files (mypy 2.3.1). pytest tests/ -v -> 59 passed, 0
+  failed, single deterministic run (pytest 9.1.1, Python 3.13.6). Last implementation change:
+  15084236b56e2469af15d4fad9b61edd04cfc75b (2026-08-21) — verified no commit since has
+  touched python/structure-engine/**.
+```
+
+### Coverage / test-effectiveness / Parity — `FAIL — evidence`
+
+```text
+Line coverage: FAIL — evidence. No coverage-measurement tool (coverage.py) exists in
+  structure-engine's committed toolchain (absent from pyproject.toml/lock; not installed in
+  clean-room reconstruction) — introducing new, ungoverned tooling inside a formal QG
+  transaction is not performed (mirrors the still-unresolved Go gobco branch-coverage
+  situation for market-reference-service).
+Branch coverage: FAIL — evidence (same root cause, independently required metric).
+Tier 0/1 test-effectiveness evidence: FAIL — evidence. No mutation-testing/accepted-
+  equivalent mechanism exists or is accepted for any module (Chapter 13 §13.14 defers
+  tooling/threshold to Engineering Foundation, unresolved). 59/59 pass count is not equated
+  with test effectiveness.
+Tier-1 Parity Test: FAIL — evidence. No Decision-layer implementation/harness exists
+  anywhere in this repository yet (Chapter 14 §14.2 sequence places Decision several stages
+  downstream) — "Replay khớp Live tại tầng Decision" evidence cannot be produced. Applicable
+  (Tier 1 triggers it), not fabricated via an ad-hoc harness.
+```
+
+### Other dimensions — evidence gathered, all PASS
+
+```text
+I-1 Explainability (Structure's own causal-chain contribution): PASS — causation_refs
+  verified on every event, TestCausalLineage (5 tests) passing.
+I-3 No Repaint/No Look-Ahead: PASS — ordering/out-of-order/non-monotonic-time rejection
+  verified, TestOrderingDiscipline/TestScopedOrdering/TestDeterministicReplay/
+  TestHistoricalRevisionLifecycle all passing.
+I-6 Fail-Safe by Scope (scope-isolation form): PASS — TestStructureScopeIsolation (7 tests).
+I-12 Single Source of Truth: PASS — TestDeterministicReplay confirms rebuild determinism.
+I-13 State Transition Integrity: PASS (semantic guarantees via example-based tests), with
+  one non-blocking Minor evidence-gap finding (property-based/concurrent-transition
+  technique not used — see findings).
+Data quality / numerical precision (§13.12(D) trigger): PASS — Decimal-only, no float
+  round-trip, TestDecimalEdgeValues(*) passing.
+Security/Performance/Observability/Compatibility/Migration: NOT TRIGGERED (no boundary,
+  budget, production path, contract change, or migration applicable at this boundary).
+```
+
+### Findings (not remediated in this transaction)
+
+```text
+P3-STR-QG-EVID-01 (blocking): line coverage — no accepted coverage-measurement tool exists.
+P3-STR-QG-EVID-02 (blocking): branch coverage — same root cause, independent metric.
+P3-STR-QG-EVID-03 (blocking): Tier 0/1 test-effectiveness — no accepted mechanism exists.
+P3-STR-QG-EVID-04 (blocking): Tier-1 Parity Test — no Decision-layer harness exists yet.
+P3-STR-QG-MIN-01 (non-blocking): I-13's property-based/concurrent-transition verification
+  technique not used (example-based tests only) — semantic guarantees still pass.
+```
+
+### Overall result
+
+```text
+FAIL — evidence. Four required-evidence dimensions cannot be produced from any accepted,
+  reproducible, governed mechanism at this boundary (Chapter 13 §13.8 fail-closed semantics)
+  — not a Product Owner rejection, not a defect claim; every evaluable dimension passed
+  cleanly.
+```
+
+### State summary
+
+```text
+Structure Engine: implemented, remediation 7/7 CLOSED — CLEAN, Quality Tier RESOLVED (Tier
+  1 — Core Logic, unchanged), formal Chapter 13 QG result FAIL — evidence, NOT approved.
+Raw Regime Engine: implemented, remediation 6/6 CLOSED — CLEAN, Quality Tier RESOLVED (Tier
+  1 — Core Logic), formal QG NOT run (separate evaluation required).
+Package 1.1: candidate (unchanged), NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+LIVE: NOT_AUTHORIZED.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only — verified via git status --porcelain=v1 -uall;
+  docs/architecture/module-registry.yaml, python/structure-engine/**,
+  python/raw-regime-engine/** all verified byte-unchanged. manifest_version
+  "10.221" -> "10.222".
+```
+
 ## [Unreleased] — 2026-08-23 — raw-regime-engine: record approved Tier-1 classification
 
 **Mechanical registry-recording transaction.** Records the Product Owner's already-made decision on the Raw Regime Engine Quality Tier classification into `module-registry.yaml`. Does not re-run or re-evaluate upstream Review A/Review B or their bounded re-reviews — those were completed and consolidated upstream of this transaction. Does not approve Raw Regime Engine as a module, run formal Chapter 13 QG, reconsolidate Package 1.1, open the Phase 3 Approval Gate, or authorize LIVE.

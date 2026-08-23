@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.221"
+manifest_version: "10.222"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -7703,6 +7703,257 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 ```
 
 **Files changed:** `docs/architecture/module-registry.yaml`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `python/structure-engine/**`, `python/raw-regime-engine/**` verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.220"` → `"10.221"`.
+
+## `structure-engine` — Formal Chapter 13 Quality Gate Evaluation: `FAIL — evidence`
+
+**Formal, read-only Chapter 13 Quality Gate evaluation — vai trò: `Formal Chapter 13 Quality Gate Evaluator`.** Read-only with respect to `python/**`/`docs/domain/**`/`docs/adr/**`/`docs/constitution/**`/`docs/architecture/**`/`docs/engineering/**`/`docs/governance/**`. Does not modify implementation. Does not modify `module-registry.yaml`. Does not approve the module. Does not open Phase 3 Approval Gate. Does not authorize LIVE. Does not remediate findings.
+
+**Evaluator identity (P3-IDENTITY-001, resolved against `docs/team/team.yaml`):** principal `Claude`, registered role `AI Technical Architect`. Provider-native execution/session ID: unavailable / not exposed — not fabricated.
+
+```text
+Evaluation boundary:    5b2b44f2263fc69af8c03578692796e63bafb5df (verified HEAD before any
+  read; branch main; working tree clean; manifest_version "10.221" verified;
+  module-registry.yaml version "1.5"/package_lifecycle candidate verified).
+Subject:                structure-engine (python/structure-engine/**).
+Authority inspected fresh: 13-quality-gates.md (v1.7 Locked, blob 4bb697f3b43b0874a080015ef0
+  ce6ca53de729f4), 02-platform-invariants.md (v3.1 Locked), 07-module-taxonomy.md (v2.2
+  Locked), 05-time-model.md (v2.4 Locked), phase-3-rules.md (v0.2 EFFECTIVE), testing.md,
+  module-registry.yaml, structure-regime-architecture.md, swing.md (blob 5bbe666ff40420987
+  6a721b1e01cb9ac62011062), structure.md (blob 78964dfb6852bbac3fa1e034d64b4fc8031c3fef),
+  ADR-014.md (blob b2e5757102c360756f1649c93fa8cb61bf931f69, Approved), ADR-033.md (blob
+  2fb3e10153f865cdefa6d0d84b73dc6af3e9f1f2, Approved), python/structure-engine/**.
+```
+
+### Tier resolution (Chapter 13 §13.4 branch 1)
+
+```text
+tier_resolution_branch:   runtime module
+module-registry identity: version "1.5", blob (git hash-object) verified at evaluation
+  boundary; structure-engine entry: module_type compute_engine, owns_authoritative_state
+  true, depends_on [market-data-ingestion], security_classification none, quality_tier
+  {tier: "Tier 1 — Core Logic", approved_by: "Product Owner", approved_at: "2026-08-22"}
+  (verified directly, unchanged since prior recording transaction).
+Resolved Tier:             Tier 1 — Core Logic.
+Applicable coverage floor: line >= 90% AND branch >= 90%, independently (§13.3).
+Criteria/policy version:   Chapter 13 v1.7 (Locked, blob above).
+```
+
+### Implementation identity / freshness (P3-VERIFY-001)
+
+```text
+Last commit touching python/structure-engine/**: 15084236b56e2469af15d4fad9b61edd04cfc75b
+  (2026-08-21T11:25:25+07:00, "structure-engine: fix historical Swing revision lifecycle").
+  Verified via `git log -- python/structure-engine/` that NO commit since then has touched
+  this path — current source at the evaluation boundary is identical to that commit's
+  content; this is the last semantic implementation-change boundary.
+Module version: 0.1.0 (pyproject.toml, unchanged). Python >=3.13, interpreter used: 3.13.6
+  (CPython, arm64). Toolchain: ruff==0.16.4, mypy==2.3.1, pytest==9.1.1, setuptools==84.0.0
+  — all reconstructed from the committed `requirements-dev.lock.txt` via a FRESH venv
+  (`pip install --no-deps -r requirements-dev.lock.txt && pip install -e . --no-deps`),
+  `pip check` -> "No broken requirements found." Tests re-run FRESH in this transaction (not
+  reused from prior historical records) per P3-VERIFY-001's executable-evidence clause.
+```
+
+### Gate applicability (§13.12, resolved independently — not blanket-applied)
+
+```text
+A. Universal (invariant conformance, per each invariant's own declared Scope):
+   Applicable: I-1 Explainability, I-3 No Repaint/No Look-Ahead (both name "Structure"
+   explicitly in Scope), I-6 Fail-Safe by Scope (all Compute Engines), I-12 Single Source of
+   Truth (whole system), I-13 State Transition Integrity (Swing/Structure both declare
+   explicit state machines in swing.md/structure.md).
+   Not applicable (Scope does not name Structure/Compute-Engine-of-this-kind): I-4, I-5 (no
+   non-deterministic/mutable-over-time external dependency — Structure consumes only
+   already-recorded Candle events), I-7, I-8, I-9 (Scope explicitly Position Ledger/
+   Execution/Risk Gateway only), I-10, I-11 (security_classification: none, verified).
+B. Executable-implementation-triggered (coverage): TRIGGERED — authoritative executable
+   implementation exists, coverage boundary resolvable (src/), applicable tier resolved
+   (Tier 1). Required: line coverage, branch coverage, Tier 0/1 test-effectiveness evidence.
+C. Tier-triggered: Parity Test TRIGGERED (Tier 1, §13.4/§13.12(C)).
+D. Responsibility/boundary-triggered: Data-quality/numerical-precision TRIGGERED (Structure
+   processes authoritative Candle OHLCV price data, computes pivot-price comparisons —
+   I-9/I-13 broader §13.12(D) trigger, distinct from I-9's own narrower Scope line above).
+   Security: NOT TRIGGERED (no isolation/custody/authorization boundary —
+   security_classification: none, verified). Performance: NOT TRIGGERED (no authoritative
+   performance budget exists for this module, verified — no MANIFEST/architecture record of
+   one). Observability: NOT TRIGGERED (module not on any production/operational path — no
+   runtime topology/deployment exists yet, ADR-033's own "analytical core only" scope).
+E. Lifecycle-triggered: Compatibility NOT TRIGGERED (no contract/schema publish/change in
+   this evaluation). Migration/rollback NOT APPLICABLE (not a migration artifact).
+```
+
+### Test execution (fresh, this transaction; exact commands/versions)
+
+```text
+cd python/structure-engine && python3.13 -m venv .venv-qg (discarded after use, not
+  committed) && pip install --upgrade pip==25.2 && pip install --no-deps -r
+  requirements-dev.lock.txt && pip install -e . --no-deps
+pip check                 -> No broken requirements found.
+ruff format --check .     -> 12 files already formatted (ruff 0.16.4).
+ruff check .              -> All checks passed! (ruff 0.16.4).
+mypy                      -> Success: no issues found in 11 source files (mypy 2.3.1,
+                              --strict per pyproject.toml [tool.mypy]).
+pytest tests/ -v          -> 59 passed, 0 failed, 0 skipped, single run, no retry
+                              (pytest 9.1.1). Includes TestCausalLineage (5),
+                              TestOrderingDiscipline (3), TestScopedOrdering (2),
+                              TestDeterministicReplay (1), TestStructureScopeIsolation (7),
+                              TestCorrectionCascade (2), TestConsumedSwingRestoration (3),
+                              TestHistoricalRevisionLifecycle (5), TestDecimalEdgeValues(*)
+                              (2 classes), TestNoRawRegimeConsumption (1), and others.
+Not retried-until-green — single deterministic pass, consistent with §13.10.
+```
+
+### Line and branch coverage — `FAIL — evidence`
+
+```text
+No coverage-measurement tool exists in structure-engine's committed, accepted toolchain:
+  `coverage` (coverage.py) is absent from pyproject.toml's [project.optional-dependencies].
+  dev, absent from requirements-dev.lock.txt, and confirmed NOT installed in the fresh
+  clean-room reconstruction from that lock file (`python -c "import coverage"` ->
+  ModuleNotFoundError). No `.coveragerc`/coverage config exists anywhere in the module. Per
+  this evaluation's own governing instruction and Chapter 13 §13.9's evidence-immutability
+  contract, introducing a new, previously-ungoverned tool inside a formal QG transaction is
+  not performed — the same acceptance discipline already established for Go branch coverage
+  (`testing.md`'s gobco CANDIDATE saga, still Draft/not installed for market-reference-
+  service) applies symmetrically here: no equivalent acceptance transaction has ever
+  occurred for a Python coverage mechanism in this repository.
+Result: line coverage = FAIL — evidence. branch coverage = FAIL — evidence (independently
+  required per §13.3; not inferred from line coverage, not estimated).
+Numerator/denominator: not producible from currently-accepted, reproducible tooling.
+```
+
+### Tier 0/1 test-effectiveness evidence — `FAIL — evidence`
+
+```text
+Chapter 13 §13.3 requires test-effectiveness evidence (mutation testing or an accepted
+  equivalent) for Tier 0/1 subjects, but explicitly defers the concrete tooling/threshold to
+  Engineering Foundation (§13.14) — verified directly: no such tooling/threshold has been
+  reviewed/accepted for ANY module in this repository (`testing.md` contains no Python
+  mutation-testing mechanism discussion at all, mirroring the still-unresolved Go
+  branch-coverage situation). No mutation-testing tool is installed or present in
+  structure-engine's environment. High test-PASS count (59/59) is explicitly NOT equated
+  with test effectiveness (§13.3's own anti-gaming text).
+Result: FAIL — evidence. No accepted mechanism exists to produce this evidence.
+```
+
+### Tier-1 Parity Test — `FAIL — evidence`
+
+```text
+Chapter 13 §13.4/§13.12(C) mandates a Parity Test for Tier 1 — "Replay khớp Live tại tầng
+  Decision" (cross-ref I-2) — evidence must be produced AT THE DECISION LAYER. Verified
+  directly: no Decision Engine / Decision-layer implementation or execution-mode parity
+  harness exists anywhere in this repository at this Phase 3 boundary (Chapter 14 §14.2's
+  canonical dependency sequence places Decision several stages downstream of Structure/
+  Regime — Feature Engine, Context Projection, Strategy all also not yet built). This is
+  "parity requirement applicable but evidence unavailable" (the infrastructure needed to
+  produce it does not exist yet) — explicitly NOT "not applicable under direct authority"
+  (Tier 1 does trigger this requirement) and NOT invented via an ad-hoc harness inside this
+  QG transaction.
+Result: FAIL — evidence.
+```
+
+### Other applicable dimensions — evidence gathered
+
+```text
+I-1 Explainability: PASS (for Structure's own causal-chain contribution — full
+  Decision-level trace-completeness cannot be evaluated until Decision exists, but that is
+  outside Structure's own Scope obligation). Every SwingCandidateDetected/SwingConfirmed/
+  SwingInvalidated/BreakOfStructureDetected/ChangeOfCharacterDetected/
+  StructureFactInvalidated/StructureRecomputed carries causation_refs; TestCausalLineage (5
+  tests, swing.py) verifies pivot/candidate/prior-invalidation causation content directly —
+  all pass.
+I-3 No Repaint/No Look-Ahead: PASS. Out-of-order candle/correction rejection
+  (OutOfOrderCandleError/OutOfOrderCorrectionError), non-monotonic recorded_time rejection,
+  no future-candle use in window computation — verified via TestOrderingDiscipline (3),
+  TestScopedOrdering (2), TestDeterministicReplay (1), TestHistoricalRevisionLifecycle (5),
+  all passing.
+I-6 Fail-Safe by Scope: PASS (scope-isolation form — code-level foreign-scope fail-closed
+  behavior). TestStructureScopeIsolation (7 tests: foreign instrument/venue/timeframe
+  rejection on on_candle/on_swing_confirmed/on_swing_invalidated) all pass. Broader
+  operational fault-injection (I-6's own named Verification technique) is not applicable in
+  the same form to a pure in-process library with no I/O boundary — noted, not claimed.
+I-12 Single Source of Truth: PASS. Structure's own event log is its sole authoritative
+  source; TestDeterministicReplay confirms rebuild determinism (two fresh engines, same
+  input, same output).
+I-13 State Transition Integrity: PASS (semantic guarantees), with one Minor evidence-gap
+  finding (see Findings) — swing.md/structure.md's declared state machines are exercised by
+  TestRevisionAndCorrection, TestConsumedSwingRestoration, TestCorrectionCascade,
+  TestNoRepaintAndDedup (illegal-transition/correction/restoration/replay-reconstruction
+  scenarios), all passing — but via example-based tests, not the property-based/concurrent-
+  transition TECHNIQUE Chapter 2 §I-13 names as its own Verification method.
+Data quality / numerical precision (§13.12(D) trigger): PASS. decimal.Decimal used
+  throughout (no float round-trip) — TestDecimalEdgeValues (structure) and
+  TestDecimalEdgeValuesAndAbsence (swing) verify lossless decimal handling directly, both
+  pass.
+```
+
+### Findings
+
+```text
+P3-STR-QG-EVID-01 (blocking): Gate dimension: line coverage (§13.3/B). Concern: no accepted,
+  reproducible coverage-measurement tool exists in structure-engine's committed toolchain.
+  Evidence: coverage.py absent from pyproject.toml/lock; not installed in clean-room
+  reconstruction. Risk: cannot verify test breadth against the Tier-1 90% floor. Required
+  follow-up: a separate governed transaction must select/review/accept a Python
+  coverage-measurement mechanism (ADR-scope-checked per the existing Go gobco precedent)
+  before this dimension can be re-evaluated.
+P3-STR-QG-EVID-02 (blocking): Gate dimension: branch coverage (§13.3/B). Concern: same root
+  cause as EVID-01 — no mechanism exists; branch coverage is an independently required
+  metric, never inferred from line coverage. Evidence/Risk/Follow-up: same as EVID-01.
+P3-STR-QG-EVID-03 (blocking): Gate dimension: Tier 0/1 test-effectiveness (§13.3). Concern:
+  no mutation-testing/accepted-equivalent mechanism exists or is installed; Chapter 13
+  §13.14 defers concrete tooling/threshold, none yet accepted for any module. Risk: 59/59
+  test-pass count cannot demonstrate defect-catching effectiveness. Required follow-up: a
+  separate governed transaction must select/accept a test-effectiveness mechanism.
+P3-STR-QG-EVID-04 (blocking): Gate dimension: Tier-1 Parity Test (§13.4/§13.12(C), I-2).
+  Concern: no Decision-layer implementation/harness exists to produce "Replay khớp Live tại
+  tầng Decision" evidence. Risk: cannot verify parity requirement at all until Decision
+  exists. Required follow-up: this dimension can only be evaluated once Decision Engine
+  (Chapter 14 §14.2 sequence) exists and a parity harness is built — not fabricable now.
+P3-STR-QG-MIN-01 (non-blocking, Minor): Gate dimension: I-13 State Transition Integrity
+  verification technique. Concern: I-13's own Verification clause names "Property-based
+  test trên transition graph authoritative" and "concurrent transition test" — structure-
+  engine's suite uses example-based tests only, no hypothesis-style property-based tests, no
+  concurrent-transition test (module is single-threaded in-process, no concurrency model
+  exists). Evidence: semantic guarantees ARE exercised and pass via example-based tests;
+  the specific named technique is absent. Risk: lower confidence in exhaustive
+  transition-graph coverage than a property-based approach would provide. Required
+  follow-up: consider property-based tests (e.g. Hypothesis) for the Swing/Structure state
+  machines in a future, separate remediation transaction — non-blocking to this result,
+  which already fails on other grounds.
+```
+
+### Overall formal Chapter 13 Quality Gate result
+
+```text
+FAIL — evidence.
+
+Rationale: four required-evidence dimensions (line coverage, branch coverage,
+test-effectiveness, Tier-1 Parity Test) cannot currently be produced from any accepted,
+reproducible, governed mechanism at this repository boundary. Per Chapter 13 §13.8's
+fail-closed semantics, missing required evidence means the gate cannot PASS — this is
+explicitly NOT a Product Owner rejection and NOT a claim that the implementation is
+defective; every dimension that COULD be evaluated (invariant conformance, ruff/mypy/pytest,
+decimal precision) passed cleanly. This result does not remediate anything and is not itself
+a finding-closure or approval action.
+```
+
+### State summary (unchanged by this evaluation)
+
+```text
+Structure Engine:            implemented; remediation set 7/7 CLOSED — CLEAN; Quality Tier
+                               RESOLVED — Tier 1 — Core Logic (unchanged); formal Chapter 13
+                               QG result: FAIL — evidence (this transaction); NOT approved
+                               as a module.
+Raw Regime Engine:            implemented; remediation set 6/6 CLOSED — CLEAN; Quality Tier
+                               RESOLVED — Tier 1 — Core Logic; formal Chapter 13 QG NOT run
+                               (separate, untouched evaluation, own exact boundary required).
+Package 1.1:                  candidate (unchanged) — NOT reconsolidated by this transaction.
+Phase 3 Approval Gate:        NOT opened.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1 -uall`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.221"` → `"10.222"`.
 
 ## Decision Log
 
