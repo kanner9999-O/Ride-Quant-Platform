@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.219"
+manifest_version: "10.220"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -7399,6 +7399,196 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 ```
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.218"` → `"10.219"`.
+
+## Raw Regime Tier candidate — consolidated finding `P3-RGE-TIER-CONS-MAJ-01` bounded remediation (downstream-topology correction; `REMEDIATED_PENDING_BOUNDED_REREVIEW` — NOT self-CLOSED)
+
+**Narrowly bounded remediation — corrects stale downstream-architecture reasoning only; does not alter the Tier conclusion.** Corrects exactly one consolidated finding against the Raw Regime Engine Quality Tier Classification Candidate authored above. The candidate section above is preserved byte-unchanged (historical record of the reasoning as originally authored); this section is an additive current-state correction superseding its stale downstream-topology statement.
+
+### Upstream review/consolidation record
+
+```text
+Candidate/reviewed boundary:    3cc0c77859ebc2f82cec9046a1d494533f25cb46
+ADR-031 review-pair mode:       Mode A — DISTINCT_PRINCIPAL
+Review A principal:             ChatGPT, role AI Technical Architect — Review A
+Review A finding:               P3-RGE-TIER-A-MAJ-01
+Review B principal:             Claude, role AI Technical Architect
+Review B finding:                P3-RGE-TIER-B-MAJ-01
+Consolidation determination:    Review A and Review B independently identified the SAME
+                                  substantive root cause — the candidate's downstream-
+                                  architecture description was stale/incomplete.
+Canonical consolidated identity: P3-RGE-TIER-CONS-MAJ-01 (Major)
+
+Review B also raised two Minor observations, consolidated without amplifying scope:
+  P3-RGE-TIER-B-MIN-01: CONSOLIDATED_AS_NON_ACTIONABLE_SEPARATE_FINDING — the candidate's
+    Tier reasoning was already materially grounded in Raw-Regime-specific authority; the
+    Structure-precedent wording noted here is cleaned up below AS PART OF this same
+    P3-RGE-TIER-CONS-MAJ-01 remediation, not as independent remediation scope.
+  P3-RGE-TIER-B-MIN-02: CONSOLIDATED_AS_FUTURE_WATCH_NOTE_NOT_CURRENT_DEFECT — "Structure-
+    aware Regime" is currently unregistered/deferred (module-registry.yaml's own
+    "DEFERRED COVERAGE" note, unchanged) and creates no present ambiguity in
+    raw-regime-engine's own Tier resolution; not a current defect.
+
+The individual historical review findings (P3-RGE-TIER-A-MAJ-01, P3-RGE-TIER-B-MAJ-01) are
+  preserved as historical review outputs, not erased or pretended not to have existed —
+  they are recorded here as the provenance of the consolidated identity
+  P3-RGE-TIER-CONS-MAJ-01, which is the identity this remediation transaction closes-out-
+  pending-rereview.
+```
+
+### Independent architecture-authority verification performed (this transaction — the consolidation's own wording is not trusted blindly)
+
+```text
+Verified directly at boundary 3cc0c77859ebc2f82cec9046a1d494533f25cb46:
+  docs/architecture/module-registry.yaml: feature-engine.depends_on = [market-data-ingestion,
+    structure-engine, raw-regime-engine] (confirmed exactly). context-aggregator.depends_on =
+    [market-data-ingestion, structure-engine, raw-regime-engine, feature-engine] (confirmed
+    exactly) — context-aggregator depends DIRECTLY on raw-regime-engine, independent of its
+    also depending on feature-engine.
+  docs/architecture/engine/feature-context-architecture.md §5 ("Điểm kiến trúc quan trọng,
+    ADR-014"): confirmed verbatim — "Context Aggregator fan-in trực tiếp từ structure-engine/
+    raw-regime-engine/feature-engine — KHÔNG route qua Feature Engine như một intermediary
+    bắt buộc" (Context Aggregator fans in directly from structure-engine/raw-regime-engine/
+    feature-engine — does NOT route through Feature Engine as a mandatory intermediary).
+  docs/adr/ADR-014.md (Approved, unchanged): confirmed "Canonical distinction" (§ pinned
+    verbatim) — Feature fan-in = computation/transformation/synthesis; Context fan-in =
+    as-of aggregation/snapshot assembly — two separate permitted direct-fan-in operations,
+    each independently Definition-pinned ("Definition-pinned direct fan-in," ADR-014 v0.2,
+    closing `IRB-ADR014-MAJ-01`).
+
+Conclusion: the consolidation's factual claim is verified true against direct repository
+  authority — Feature Engine is NOT raw-regime-engine's sole downstream fan-in point;
+  Context Aggregator independently and directly consumes authoritative Raw Regime facts,
+  and does not require them to be routed through Feature Engine.
+```
+
+### Correction applied (additive — the original candidate section above is NOT rewritten)
+
+```text
+SUPERSEDED (stale, as of this transaction): the candidate's semantic-rationale point 3 and
+  its Authority-rule paragraph, which described "Feature Engine as the sole downstream
+  fan-in point" and used an incomplete Feature-only downstream picture.
+
+CURRENT, CORRECTED REASONING (this transaction):
+
+  Raw Regime publishes authoritative analytical Regime facts (RegimeClassified/
+  RegimeFactInvalidated — volatility, directional_persistence) that may be consumed through
+  MULTIPLE Definition-pinned downstream paths, not exactly one:
+
+  - Feature Engine MAY consume authoritative Raw Regime facts directly for Feature
+    computation when the consuming feature_definition_version explicitly authorizes and
+    pins that input (ADR-014 "Definition-pinned direct fan-in"; feature-engine.depends_on
+    includes raw-regime-engine, verified).
+  - Context Aggregator MAY INDEPENDENTLY consume authoritative Raw Regime facts directly for
+    Context snapshot aggregation when the consuming context_definition_version explicitly
+    authorizes and pins that input (context-aggregator.depends_on includes
+    raw-regime-engine directly, verified) — Context does NOT have to receive Regime through
+    Feature Engine as an intermediary (feature-context-architecture.md §5, verified
+    verbatim above).
+
+  Raw Regime therefore has direct downstream decision relevance through BOTH Feature
+  computation AND Context aggregation — two separate, independently Definition-pinned
+  fan-in operations (ADR-014's own "Canonical distinction"), not a single Feature-only
+  chokepoint. These downstream facts eventually influence Strategy/Decision interpretation,
+  but Raw Regime itself still owns no Risk/Execution/order/custody/control authority — this
+  part of the original reasoning is UNCHANGED and remains correct.
+```
+
+### Structure-precedent wording cleanup (same bounded remediation, no new finding/no Tier change)
+
+```text
+Removed reliance, in this corrected reasoning, on phrases that treated structure-engine's
+  own already-decided Tier candidate as evidentiary support for raw-regime-engine's Tier
+  (e.g. "on exactly the same structural basis already established for structure-engine's
+  own Tier-1 candidate," "Same reasoning structure already independently verified for
+  structure-engine's own Tier-0 rejection"). The Tier-1 conclusion for raw-regime-engine now
+  stands on raw-regime-engine's OWN: authoritative Regime-fact ownership
+  (owns_authoritative_state: true); deterministic analytical semantics (Type 1 Compute
+  Engine, security_classification: none); downstream Feature AND Context relevance
+  (corrected topology above); and absence of Tier-0 control authority (no Risk/Execution/
+  Order/Position-Ledger/kill-switch authority, verified unchanged from the original
+  candidate's own Tier-0 rejection paragraph, which remains valid and is not corrected by
+  this finding). Structure Engine is mentioned only as adjacent architecture context (both
+  are Chapter 13-named Tier-1 analytical engines feeding the same Feature/Context surface),
+  never as proof of Raw Regime's own Tier. This is wording cleanup folded into
+  P3-RGE-TIER-CONS-MAJ-01 — it creates no separate finding and changes no Tier value.
+```
+
+### Structure-aware Regime — scope note (non-normative, no new defect/decision)
+
+```text
+Non-normative factual-precision note only: this candidate, both as originally authored and
+  as corrected here, concerns ONLY the already-registered `raw-regime-engine` module and
+  `raw-regime-analysis` context. "Structure-aware Regime" remains exactly as
+  module-registry.yaml's own existing "DEFERRED COVERAGE" note already states — no
+  capability_id/domain_context_id registered for it today, blocked on a future Domain
+  Context/Capability registration decision, out of Package 1.1 scope. This transaction does
+  NOT register it, classify it, assign it a Tier, change raw-regime-engine's scope, or alter
+  any dependency graph edge. (Consolidated disposition: P3-RGE-TIER-B-MIN-02, above.)
+```
+
+### Tier result — unchanged (verified, not re-decided)
+
+```text
+proposed_quality_tier:        "Tier 1 — Core Logic"     (UNCHANGED)
+candidate_state:               CANDIDATE / UNAPPROVED    (UNCHANGED)
+current_authoritative_tier:   UNRESOLVED                 (UNCHANGED — module-registry.yaml
+                                verified byte-unchanged by this transaction; raw-regime-engine
+                                still has no quality_tier field)
+Tier 0/2/3 rejection paragraphs from the original candidate: UNCHANGED, still valid, not
+  touched by this correction (they did not rely on the stale downstream-topology claim).
+```
+
+### ADR Scope Rule
+
+```text
+Not re-run in substance — this transaction corrects candidate bookkeeping/provenance to
+  match EXISTING ADR-014 and module-registry.yaml authority; it introduces no new
+  architecture decision, no dependency-graph change, no Domain/Event Contract change, no
+  Module Taxonomy change, no authority transfer. ADR_NOT_REQUIRED (unchanged from the
+  candidate transaction this corrects).
+```
+
+### Finding state
+
+```text
+P3-RGE-TIER-CONS-MAJ-01: REMEDIATED_PENDING_BOUNDED_REREVIEW (NOT self-CLOSED — reviewers,
+  not this remediation executor, close review findings; awaits ONE bounded Review A
+  re-review followed by ONE separate, independent bounded Review B re-review of this exact
+  correction at this new immutable boundary).
+```
+
+### State summary (preserved)
+
+```text
+Raw Regime Engine:            implemented; remediation set 6/6 CLOSED — CLEAN; NOT approved;
+                               Quality Tier UNRESOLVED before Product Owner decision; "Tier 1
+                               — Core Logic" PROPOSED only (CANDIDATE / UNAPPROVED, unchanged
+                               by this correction) — not written to module-registry.yaml.
+Structure Engine:              implemented; remediation set 7/7 CLOSED — CLEAN; NOT approved;
+                               Quality Tier RESOLVED — Tier 1 — Core Logic (unchanged,
+                               untouched by this transaction).
+Package 1.1:                   candidate (unchanged) — NOT reconsolidated by this transaction.
+Phase 3 Approval Gate:        NOT opened.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### No scope expansion — explicit verification
+
+```text
+module-registry.yaml unchanged (verified git diff --quiet). feature-engine.depends_on and
+  context-aggregator.depends_on unchanged (verified — this transaction only READS them for
+  correction evidence, writes nothing). raw-regime-engine.depends_on =
+  [market-data-ingestion], forbidden_dependencies = [structure-engine], both verified
+  unchanged. structure-engine.quality_tier unchanged (Tier 1 — Core Logic, untouched).
+  market-reference-service/market-data-ingestion quality_tier unchanged. python/**, go/**,
+  docs/domain/**, docs/adr/**, docs/constitution/**, docs/governance/**,
+  docs/architecture/engine/** all unchanged (verified git diff --quiet for each). No Quality
+  Tier assigned/approved. No formal Chapter 13 Quality Gate performed. Raw Regime Engine not
+  approved at any level. Package 1.1 not reconsolidated. Phase 3 Approval Gate not opened.
+  LIVE not authorized.
+```
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1 -uall`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.219"` → `"10.220"`.
 
 ## Decision Log
 
