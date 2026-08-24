@@ -35,3 +35,14 @@ class ProducerRef:
     module_id: str
     implementation_version: str
     run_id: str
+
+
+@dataclass(frozen=True, slots=True)
+class EventContractRef:
+    """Direct Contract Pin (Chapter 8 §8.2.5): `{contract_id, contract_version}`.
+    Every authoritative event pins the exact immutable Event Contract
+    snapshot it was produced/consumed under — never inferred, never a range.
+    """
+
+    contract_id: str
+    contract_version: str

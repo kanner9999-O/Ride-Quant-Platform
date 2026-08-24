@@ -11,14 +11,24 @@ ineligible Swing. Never consumes Structure `BreakOfStructureDetected`/
 — only re-uses `structure.md` §6a's total-order *methodology*, as
 feature.md §9a itself requires.
 
-Sign convention for `distance_representation="signed"`: `reference_price -
-pivot_price` — the standard mathematical signed difference between two
-scalar values. feature.md leaves this convention unpinned; this module pins
-one bounded, documented arithmetic convention (not a fabricated
-directional/price-action interpretation) — the same "module pins one
-bounded mechanism where the contract defers to configuration" pattern
-already used throughout this codebase (e.g. Structure's equal-level
-tie-break, Regime's threshold-band scan).
+`distance_representation="signed"`: feature.md §6/§7.3 leaves the sign
+orientation of `signed` genuinely unpinned — no authoritative convention
+exists anywhere in the Domain Contract for which direction is positive.
+This engine does NOT invent one; it fails closed
+(`UnsupportedDistanceRepresentationError`) at construction time for
+`signed`, and only computes `distance_representation="absolute"` (an
+unambiguous, orientation-independent magnitude).
+
+Contract qualification: feature.md §14 pins the closed set of upstream
+contract IDs Feature may consume for this path (`candle-closed`/
+`candle-corrected` for the reference Candle, `swing-confirmed`/
+`swing-invalidated` for the Swing side) — every ingested fact's
+`event_contract_ref.contract_id` is validated against this fixed set,
+fail-closed otherwise. (feature.md §6 scopes the definition-level
+`upstream_contract_refs` field to the two metric feature types only — this
+path has no per-definition contract-version pin to validate against, so
+only the fixed §14 contract-ID set is enforced here, not a specific
+version.)
 """
 
 from __future__ import annotations
@@ -29,6 +39,13 @@ from decimal import Decimal
 
 from .candle import CandleFact
 from .contracts import (
+    CANDLE_CLOSED_CONTRACT_ID,
+    CANDLE_CORRECTED_CONTRACT_ID,
+    FEATURE_COMPUTED_CONTRACT_ID,
+    FEATURE_EVENT_CONTRACT_VERSION,
+    FEATURE_FACT_INVALIDATED_CONTRACT_ID,
+    SWING_CONFIRMED_CONTRACT_ID,
+    SWING_INVALIDATED_CONTRACT_ID,
     FeatureComputed,
     FeatureDefinition,
     FeatureEvent,
@@ -36,7 +53,7 @@ from .contracts import (
     FeatureScope,
     RecordedTimeSource,
 )
-from .envelope import EventRecordRef
+from .envelope import EventContractRef, EventRecordRef
 from .errors import (
     DuplicateCandleConflictError,
     EvidenceCardinalityError,
@@ -47,11 +64,17 @@ from .errors import (
     OutOfOrderCandleError,
     OutOfOrderCorrectionError,
     RecordedTimeSourceViolationError,
+    UnauthorizedUpstreamContractError,
+    UnsupportedDistanceRepresentationError,
 )
 from .publish import SequenceAllocator
 from .swing_input import SwingConfirmedFact, SwingInvalidatedFact
 
 _REGISTRY_VERSION = "v0"
+_OUTPUT_CONTRACT_REF = EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, FEATURE_EVENT_CONTRACT_VERSION)
+_INVALIDATION_CONTRACT_REF = EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_EVENT_CONTRACT_VERSION)
+_ALLOWED_CANDLE_CONTRACT_IDS = frozenset({CANDLE_CLOSED_CONTRACT_ID, CANDLE_CORRECTED_CONTRACT_ID})
+_ALLOWED_SWING_CONTRACT_IDS = frozenset({SWING_CONFIRMED_CONTRACT_ID, SWING_INVALIDATED_CONTRACT_ID})
 
 
 @dataclass(slots=True)
@@ -112,6 +135,12 @@ class SwingDistanceFeatureEngine:
             definition.feature_definition_version
         ):
             raise ValueError("scope does not match definition")
+        if definition.distance_representation == "signed":
+            raise UnsupportedDistanceRepresentationError(
+                "distance_representation='signed' has no authoritative sign-orientation convention pinned "
+                "anywhere in feature.md §6/§7.3 — this engine does not invent one; only "
+                "distance_representation='absolute' is currently computable"
+            )
         self.scope = scope
         self.definition = definition
         self._allocator = allocator
@@ -139,6 +168,22 @@ class SwingDistanceFeatureEngine:
             or candle.scope.timeframe != self.scope.timeframe
         ):
             raise ForeignScopeError(f"candle scope {candle.scope!r} does not match engine scope {self.scope!r}")
+
+    @staticmethod
+    def _check_candle_contract(candle: CandleFact) -> None:
+        if candle.event_contract_ref.contract_id not in _ALLOWED_CANDLE_CONTRACT_IDS:
+            raise UnauthorizedUpstreamContractError(
+                f"candle event_contract_ref.contract_id={candle.event_contract_ref.contract_id!r} is not one of "
+                f"{sorted(_ALLOWED_CANDLE_CONTRACT_IDS)!r} (feature.md §14)"
+            )
+
+    @staticmethod
+    def _check_swing_contract(contract_ref: EventContractRef) -> None:
+        if contract_ref.contract_id not in _ALLOWED_SWING_CONTRACT_IDS:
+            raise UnauthorizedUpstreamContractError(
+                f"swing event_contract_ref.contract_id={contract_ref.contract_id!r} is not one of "
+                f"{sorted(_ALLOWED_SWING_CONTRACT_IDS)!r} (feature.md §14)"
+            )
 
     def _check_candle_recorded_time(self, recorded_time: datetime) -> None:
         if self._last_candle_recorded_time is not None and recorded_time < self._last_candle_recorded_time:
@@ -180,16 +225,34 @@ class SwingDistanceFeatureEngine:
             raise InvalidSwingEligibilityInputError(
                 f"expected swing_direction={self.definition.swing_direction!r}, got {fact.direction!r}"
             )
+        self._check_swing_contract(fact.event_contract_ref)
         self._check_swing_recorded_time(fact.recorded_time)
 
         existing = self._swings.get(fact.swing_id)
-        if existing is not None and existing.revision >= fact.swing_revision:
-            if existing.revision == fact.swing_revision and existing.ref == fact.ref:
-                return []  # duplicate computation idempotency
-            raise InvalidSwingEligibilityInputError(
-                f"swing_id {fact.swing_id!r} revision did not advance: existing revision "
-                f"{existing.revision!r}, received {fact.swing_revision!r}"
-            )
+        if existing is not None and existing.ref == fact.ref:
+            return []  # duplicate delivery of the identical authoritative event
+
+        # swing.md §1a: swing_revision starts at 1 and a revision N+1 is only valid
+        # once revision N has been EXPLICITLY invalidated in this engine's own
+        # tracked state — Feature independently enforces this ordering, never
+        # trusting that the producer's own causation chain alone is sufficient.
+        if existing is None:
+            if fact.swing_revision != 1:
+                raise InvalidSwingEligibilityInputError(
+                    f"swing_id {fact.swing_id!r} first-seen revision must be 1, got {fact.swing_revision!r}"
+                )
+        else:
+            if not existing.invalidated:
+                raise InvalidSwingEligibilityInputError(
+                    f"swing_id {fact.swing_id!r} revision {fact.swing_revision!r} received before revision "
+                    f"{existing.revision!r} was explicitly invalidated"
+                )
+            if fact.swing_revision != existing.revision + 1:
+                raise InvalidSwingEligibilityInputError(
+                    f"swing_id {fact.swing_id!r} revision must advance by exactly one: expected "
+                    f"{existing.revision + 1!r}, got {fact.swing_revision!r}"
+                )
+
         self._swings[fact.swing_id] = _SwingState(
             revision=fact.swing_revision,
             invalidated=False,
@@ -198,7 +261,11 @@ class SwingDistanceFeatureEngine:
             recorded_time=fact.recorded_time,
             ref=fact.ref,
         )
-        return []
+        # feature.md §9a: a newly-visible Swing revision may resolve a Feature
+        # window that was left PENDING_CORRECTION because no eligible Swing existed
+        # at the time it was invalidated — re-evaluate every currently-pending
+        # window now that this revision is visible.
+        return self._reattempt_pending_windows(fact.recorded_time)
 
     def on_swing_invalidated(self, invalidation: SwingInvalidatedFact) -> list[FeatureEvent]:
         state = self._swings.get(invalidation.swing_id)
@@ -207,6 +274,7 @@ class SwingDistanceFeatureEngine:
                 f"SwingInvalidated targets ({invalidation.swing_id!r}, {invalidation.swing_revision!r}), which is "
                 "not the current non-invalidated revision tracked by this engine"
             )
+        self._check_swing_contract(invalidation.event_contract_ref)
         self._check_swing_recorded_time(invalidation.recorded_time)
         state.invalidated = True
 
@@ -221,17 +289,26 @@ class SwingDistanceFeatureEngine:
 
     def on_candle(self, fact: CandleFact) -> list[FeatureEvent]:
         self._check_candle_scope(fact)
+        self._check_candle_contract(fact)
         subject_id = fact.scope.subject_id
         existing_index = self._candle_index.get(subject_id)
 
         if existing_index is not None:
             existing = self._candles[existing_index]
-            if existing.ohlcv == fact.ohlcv:
-                return []  # duplicate computation idempotency
+            if existing.ref == fact.ref:
+                if existing.ohlcv != fact.ohlcv:
+                    raise EvidenceReferenceConflictError(
+                        f"candle ref {fact.ref!r} resolves to conflicting OHLCV content ({existing.ohlcv!r} vs "
+                        f"{fact.ohlcv!r})"
+                    )
+                return []  # duplicate delivery of the identical authoritative event
             if not fact.is_correction:
                 raise DuplicateCandleConflictError(
-                    f"candle {subject_id!r} resubmitted with different content but is_correction=False"
+                    f"candle {subject_id!r} resubmitted with a different ref but is_correction=False"
                 )
+            # A distinct correction ref MUST enter lineage even when the recomputed
+            # value/payload is unchanged (feature.md §3 "no shortcut") — dedup is
+            # keyed on ref identity only, never on value/content equality.
             self._check_candle_recorded_time(fact.recorded_time)
             self._candles[existing_index] = fact
             self._candle_by_window[(fact.scope.window_start, fact.scope.window_end)] = fact
@@ -252,11 +329,19 @@ class SwingDistanceFeatureEngine:
 
     # -- eligible-swing selection (feature.md §9a) --------------------------
 
-    def _select_eligible_swing(self, reference_cutoff: datetime) -> tuple[str, _SwingState] | None:
+    def _select_eligible_swing(self, reference_cutoff: datetime, cursor: datetime) -> tuple[str, _SwingState] | None:
+        """`cursor` is the explicit, machine-enforced computation cursor `R`
+        (feature.md §9a step 2) — the recorded_time of whichever event is
+        triggering THIS evaluation. A Swing is a candidate only if it is
+        BOTH recorded-time visible at `R` AND effective-time eligible; never
+        one condition alone (feature.md §12 "hai điều kiện ĐỘC LẬP").
+        """
         candidates = [
             (swing_id, state)
             for swing_id, state in self._swings.items()
-            if not state.invalidated and state.pivot_effective_time[0] < reference_cutoff
+            if not state.invalidated
+            and state.recorded_time <= cursor
+            and state.pivot_effective_time[0] < reference_cutoff
         ]
         if not candidates:
             return None
@@ -287,10 +372,9 @@ class SwingDistanceFeatureEngine:
 
     def _compute_distance(self, candle: CandleFact, state: _SwingState) -> Decimal:
         assert self.definition.reference_price_field is not None
+        assert self.definition.distance_representation == "absolute"
         reference_price = candle.ohlcv.field(self.definition.reference_price_field)
-        raw = reference_price - state.pivot_price
-        if self.definition.distance_representation == "absolute":
-            raw = abs(raw)
+        raw = abs(reference_price - state.pivot_price)
         return self.definition.decimal_precision_policy.apply(raw)
 
     # -- computation orchestration -------------------------------------------
@@ -303,7 +387,7 @@ class SwingDistanceFeatureEngine:
         correction_recorded_time: datetime | None,
     ) -> list[FeatureEvent]:
         key = (candle.scope.window_start, candle.scope.window_end)
-        winner = self._select_eligible_swing(candle.scope.window_end)
+        winner = self._select_eligible_swing(candle.scope.window_end, candle.recorded_time)
         existing = self._lineage.get(key)
 
         if winner is None:
@@ -354,6 +438,7 @@ class SwingDistanceFeatureEngine:
             causation_refs=normalized_refs,
             recorded_time=recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
+            event_contract_ref=_OUTPUT_CONTRACT_REF,
         )
         self._lineage[key] = _WindowLineage(head_fact=fact, invalidated=False, used_swing_id=swing_id)
         return [fact]
@@ -380,6 +465,7 @@ class SwingDistanceFeatureEngine:
             causation_refs=(existing.head_fact.ref, correction_ref),
             recorded_time=invalidation_recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
+            event_contract_ref=_INVALIDATION_CONTRACT_REF,
         )
         events: list[FeatureEvent] = [invalidation]
         events.extend(
@@ -398,7 +484,12 @@ class SwingDistanceFeatureEngine:
     ) -> list[FeatureEvent]:
         existing = self._lineage[key]
         normalized_refs = self._normalize_evidence(candle, state.ref, state.pivot_effective_time)
-        recorded_time = self._next_recorded_time(invalidation_recorded_time)
+        # Floor on ALL of: the invalidation this replaces, AND both pieces of its own
+        # evidence's recorded_time — a replacement triggered by a newly-visible Swing
+        # revision (§9a reattempt) must not be recorded_time-earlier than that Swing's
+        # own recorded_time, even if it happens to exceed the older invalidation floor.
+        floor = max(invalidation_recorded_time, candle.recorded_time, state.recorded_time)
+        recorded_time = self._next_recorded_time(floor)
         value = self._compute_distance(candle, state)
         replacement = FeatureComputed(
             scope=self.scope,
@@ -411,6 +502,7 @@ class SwingDistanceFeatureEngine:
             causation_refs=(*normalized_refs, invalidation_ref),
             recorded_time=recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
+            event_contract_ref=_OUTPUT_CONTRACT_REF,
         )
         self._lineage[key] = _WindowLineage(head_fact=replacement, invalidated=False, used_swing_id=swing_id)
         return [replacement]
@@ -433,6 +525,7 @@ class SwingDistanceFeatureEngine:
             causation_refs=(lineage.head_fact.ref, correction_ref),
             recorded_time=invalidation_recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
+            event_contract_ref=_INVALIDATION_CONTRACT_REF,
         )
         lineage.invalidated = True
         lineage.pending_invalidation_ref = invalidation.ref
@@ -440,10 +533,45 @@ class SwingDistanceFeatureEngine:
         events: list[FeatureEvent] = [invalidation]
 
         candle = self._candle_by_window[key]
-        winner = self._select_eligible_swing(candle.scope.window_end)
+        winner = self._select_eligible_swing(candle.scope.window_end, invalidation_recorded_time)
         if winner is not None:
             swing_id, state = winner
             events.extend(
                 self._emit_replacement_only(key, candle, swing_id, state, invalidation.ref, invalidation_recorded_time)
+            )
+        return events
+
+    def _reattempt_pending_windows(self, cursor: datetime) -> list[FeatureEvent]:
+        """feature.md §9a: re-evaluate every window still PENDING_CORRECTION
+        (invalidated, no replacement yet emitted) now that `cursor` — the
+        recorded_time of the Swing confirmation that just became visible —
+        may make a previously-unavailable eligible Swing selectable. Bounded
+        scope: only reattempts windows that ALREADY have a lineage entry
+        (an existing prior computation later invalidated); never a
+        retroactive scan of Candle windows that never had any lineage at
+        all (same deliberate scope boundary as `_invalidate_and_reattempt`).
+        """
+        events: list[FeatureEvent] = []
+        for key, lineage in list(self._lineage.items()):
+            if not lineage.invalidated:
+                continue
+            candle = self._candle_by_window.get(key)
+            if candle is None:
+                continue
+            winner = self._select_eligible_swing(candle.scope.window_end, cursor)
+            if winner is None:
+                continue
+            assert lineage.pending_invalidation_ref is not None
+            assert lineage.pending_invalidation_recorded_time is not None
+            swing_id, state = winner
+            events.extend(
+                self._emit_replacement_only(
+                    key,
+                    candle,
+                    swing_id,
+                    state,
+                    lineage.pending_invalidation_ref,
+                    lineage.pending_invalidation_recorded_time,
+                )
             )
         return events

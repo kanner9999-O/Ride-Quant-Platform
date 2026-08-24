@@ -20,7 +20,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Literal
 
-from .envelope import EventRecordRef
+from .envelope import EventContractRef, EventRecordRef
 
 SwingDirection = Literal["HIGH", "LOW"]
 
@@ -43,6 +43,7 @@ class SwingConfirmedFact:
     pivot_effective_time: tuple[datetime, datetime]
     recorded_time: datetime
     ref: EventRecordRef
+    event_contract_ref: EventContractRef
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,3 +57,4 @@ class SwingInvalidatedFact:
     swing_revision: int
     recorded_time: datetime
     ref: EventRecordRef
+    event_contract_ref: EventContractRef

@@ -16,8 +16,14 @@ from conftest import (
     regime_invalidated_at,
 )
 
-from feature_engine import RegimePassthroughFeatureEngine, SequenceAllocator
-from feature_engine.errors import DefinitionVersionMismatchError, FeatureLineageError, RegimeDimensionMismatchError
+from feature_engine import EventContractRef, RegimePassthroughFeatureEngine, SequenceAllocator
+from feature_engine.errors import (
+    DefinitionVersionMismatchError,
+    EvidenceReferenceConflictError,
+    FeatureLineageError,
+    RegimeDimensionMismatchError,
+    UnauthorizedUpstreamContractError,
+)
 
 
 def _engine(
@@ -67,6 +73,37 @@ def test_regime_volatility_wrong_definition_version_rejected(
     )
     with pytest.raises(DefinitionVersionMismatchError):
         engine.on_regime_classified(fact)
+
+
+# --- P3-FEATURE-A-MAJ-02 remediation: contract qualification -----------------
+
+
+def test_unauthorized_regime_contract_id_fails_closed(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    fact = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    bad = dataclasses.replace(fact, event_contract_ref=EventContractRef("regime-current-view", "v1"))
+    with pytest.raises(UnauthorizedUpstreamContractError):
+        engine.on_regime_classified(bad)
+
+
+# --- P3-FEATURE-A-MAJ-05 remediation: same-ref-different-content fails closed
+
+
+def test_regime_same_ref_different_content_fails_closed(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    fact = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    engine.on_regime_classified(fact)
+    conflicting = dataclasses.replace(fact, computed_metric=Decimal("9.9"))
+    with pytest.raises(EvidenceReferenceConflictError):
+        engine.on_regime_classified(conflicting)
 
 
 # --- 4. Directional persistence pass-through --------------------------------

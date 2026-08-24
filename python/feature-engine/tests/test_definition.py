@@ -3,9 +3,18 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from conftest import RangeFormula, feature_scope, make_candle_definition, make_decimal_policy, make_distance_definition
+from conftest import (
+    CONTRACT_VERSION,
+    RangeFormula,
+    feature_scope,
+    make_candle_definition,
+    make_decimal_policy,
+    make_distance_definition,
+)
 
 from feature_engine import (
+    CANDLE_CLOSED_CONTRACT_ID,
+    CANDLE_CORRECTED_CONTRACT_ID,
     CORRECTION_POLICY,
     CURRENT_VIEW_SELECTION_POLICY,
     EFFECTIVE_WINDOW_POLICY,
@@ -13,7 +22,9 @@ from feature_engine import (
     ELIGIBLE_SWING_SELECTION_POLICY,
     INPUT_NORMALIZATION_POLICY,
     MISSING_INPUT_POLICY,
+    REGIME_CLASSIFIED_CONTRACT_ID,
     WARM_UP_POLICY,
+    EventContractRef,
     FeatureDefinition,
     InvalidFeatureDefinitionError,
 )
@@ -67,12 +78,20 @@ def _base_kwargs() -> dict[str, Any]:
     }
 
 
+def _candle_contract_refs() -> tuple[EventContractRef, ...]:
+    return (
+        EventContractRef(CANDLE_CLOSED_CONTRACT_ID, CONTRACT_VERSION),
+        EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+
+
 def test_dual_upstream_source_rejected() -> None:
     with pytest.raises(InvalidFeatureDefinitionError):
         FeatureDefinition(
             **_base_kwargs(),
             feature_type="volatility_metric",
             upstream_source="candle",
+            upstream_contract_refs=_candle_contract_refs(),
             window_candle_count=3,
             formula_id=RangeFormula.formula_id,
             required_upstream_definition_version="rgd-1",  # regime-only field set alongside candle path
@@ -90,13 +109,43 @@ def test_missing_required_field_rejected_window_candle_count_absent() -> None:
             **_base_kwargs(),
             feature_type="volatility_metric",
             upstream_source="candle",
+            upstream_contract_refs=_candle_contract_refs(),
             formula_id=RangeFormula.formula_id,
         )
 
 
 def test_missing_required_field_rejected_regime_definition_version_absent() -> None:
     with pytest.raises(InvalidFeatureDefinitionError):
-        FeatureDefinition(**_base_kwargs(), feature_type="volatility_metric", upstream_source="regime")
+        FeatureDefinition(
+            **_base_kwargs(),
+            feature_type="volatility_metric",
+            upstream_source="regime",
+            upstream_contract_refs=(EventContractRef(REGIME_CLASSIFIED_CONTRACT_ID, CONTRACT_VERSION),),
+        )
+
+
+# --- P3-FEATURE-A-MAJ-02 remediation: upstream_contract_refs -----------------
+
+
+def test_upstream_contract_refs_required_for_metric_type() -> None:
+    with pytest.raises(InvalidFeatureDefinitionError):
+        FeatureDefinition(
+            **_base_kwargs(),
+            feature_type="volatility_metric",
+            upstream_source="regime",
+            required_upstream_definition_version="rgd-1",
+        )
+
+
+def test_upstream_contract_refs_wrong_contract_id_for_upstream_source_rejected() -> None:
+    with pytest.raises(InvalidFeatureDefinitionError):
+        FeatureDefinition(
+            **_base_kwargs(),
+            feature_type="volatility_metric",
+            upstream_source="regime",
+            upstream_contract_refs=(EventContractRef(CANDLE_CLOSED_CONTRACT_ID, CONTRACT_VERSION),),
+            required_upstream_definition_version="rgd-1",
+        )
 
 
 def test_contradictory_type_specific_fields_rejected_distance_field_on_metric() -> None:

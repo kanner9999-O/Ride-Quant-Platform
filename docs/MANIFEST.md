@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.223"
+manifest_version: "10.224"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -8082,6 +8082,109 @@ Runtime dependencies: ZERO ([project].dependencies empty). decimal.Decimal
 ### Next governed action (not performed in this transaction)
 
 One independent, read-only post-build Review A of this Feature Engine implementation, at the resulting immutable commit boundary. Context Aggregator implementation does not start until that review's state is appropriately resolved. LIVE remains NOT_AUTHORIZED.
+
+## `feature-engine` — Bounded Remediation (six confirmed Review A Major findings; `REMEDIATED_PENDING_BOUNDED_REREVIEW` — NOT self-CLOSED)
+
+**Baseline:** branch `main`, HEAD `9452e8341516c25f2b4e576921c75751df1894d4` (verified — matches required starting boundary; working tree clean; `manifest_version "10.223"` verified; `module-registry.yaml` version `"1.5"`/`package_lifecycle: candidate` verified). Vai trò: `Feature Engine Bounded Remediation Executor`. Bounded correction only — does not modify Domain Contracts/ADRs/Constitution/governance/`module-registry.yaml`/dependency graph/Structure/Raw-Regime code, does not classify Quality Tier, does not run a formal Chapter 13 Quality Gate, does not authorize LIVE. Authority re-verified fresh (G-VERIFY-001/P3-VERIFY-001): `execution-rules.md` v0.4, `phase-3-rules.md` v0.2, `feature.md` (full), `swing.md` §1a, Chapter 8 §8.2.5, ADR-014.
+
+```text
+P3-FEATURE-A-MAJ-01 (signed distance): removed the invented `reference_price
+  - pivot_price` sign-orientation claim — feature.md §6/§7.3 pins no
+  convention. `SwingDistanceFeatureEngine` now fails closed
+  (UnsupportedDistanceRepresentationError) at construction for
+  distance_representation="signed"; "absolute" (unambiguous magnitude)
+  remains fully computable and unaffected.
+P3-FEATURE-A-MAJ-02 (contract/envelope qualification): implemented
+  FeatureDefinition.upstream_contract_refs (feature.md §6, validated
+  fail-closed against the upstream_source-appropriate closed contract-ID
+  set) for the two metric feature types; RegimePassthroughFeatureEngine/
+  CandleWindowFeatureEngine validate every incoming fact's
+  event_contract_ref against it. distance_to_last_confirmed_swing has no
+  equivalent per-definition field in feature.md §6 (not invented);
+  SwingDistanceFeatureEngine instead validates incoming Candle/Swing facts'
+  contract_id against feature.md §14's own fixed enumeration.
+  FeatureComputed/FeatureFactInvalidated (all three engines) now carry
+  event_contract_ref pinned to feature.md §3/§4's own contract IDs, with a
+  bounded contract_version stand-in (FEATURE_EVENT_CONTRACT_VERSION="v0",
+  mirroring the existing stream_ref.registry_version stand-in — no Event
+  Contract version registry exists yet, Phase 1). No new Event Contract
+  semantics invented.
+P3-FEATURE-A-MAJ-03 (formula injection): re-verified, not re-implemented —
+  the Candle-formula boundary was already fail-closed by construction in
+  the first build (UnsupportedFeatureFormulaError at construction on
+  formula_id mismatch, no arbitrary callable/plugin path). No caller-
+  supplied executable formula is treated as production authorization.
+P3-FEATURE-A-MAJ-04 (Swing revisions): SwingDistanceFeatureEngine.
+  on_swing_confirmed now enforces swing.md §1a directly — a revision N+1 is
+  accepted only after this engine has itself seen an explicit
+  SwingInvalidated for revision N, and only at exactly N+1 (no skip). A
+  newly-visible replacement revision now triggers re-evaluation of every
+  window left PENDING_CORRECTION (no eligible Swing existed at invalidation
+  time) — previously only on_swing_invalidated's own immediate reattempt
+  ran, missing swings that become visible later via on_swing_confirmed.
+P3-FEATURE-A-MAJ-05 (same-reference conflicts): CandleWindowFeatureEngine/
+  SwingDistanceFeatureEngine's on_candle dedup was value-equality-based
+  (silently dropped a distinct correction ref whose recomputed OHLCV
+  happened to match) — now ref-identity-only: same ref decides duplicate
+  delivery (content mismatch on same ref fails closed,
+  EvidenceReferenceConflictError), any distinct ref marked is_correction
+  always enters lineage regardless of value equality.
+  RegimePassthroughFeatureEngine's existing ref-based dedup additionally
+  gained the missing same-ref-different-content fail-closed check (was
+  previously unchecked).
+P3-FEATURE-A-MAJ-06 (recorded-time eligibility): SwingDistanceFeatureEngine.
+  _select_eligible_swing now takes an explicit `cursor` parameter (the
+  recorded_time of whichever event — reference Candle, Swing invalidation,
+  or newly-visible Swing confirmation — is triggering the evaluation) and
+  independently checks `SwingConfirmed.recorded_time <= cursor` before the
+  effective-time filter, at every call site — previously relied implicitly
+  on in-memory ingestion order rather than a machine-enforced cursor.
+```
+
+### Validation (fresh venv, this transaction; clean-room reconstruction independently re-verified)
+
+```text
+ruff format --check . -> clean (ruff 0.16.4). ruff check . -> All checks passed!
+mypy (--strict) -> Success: no issues found in 21 source files (mypy 2.3.1).
+pytest tests/ -v -> 73 passed, 0 failed (71 pre-existing + regression tests
+  added for all six findings; pytest 9.1.1, Python 3.13.6).
+pip check (clean-room, reconstructed from requirements-dev.lock.txt) -> No
+  broken requirements found. Zero runtime dependencies (unchanged). No
+  float( in src/ (only .timestamp() sort-key usage, pre-existing pattern).
+  No datetime.now()/time.time() domain decision.
+```
+
+**Files changed:** `python/feature-engine/src/feature_engine/{__init__,candle,candle_window,contracts,envelope,errors,regime_input,regime_passthrough,swing_distance,swing_input}.py`, `python/feature-engine/tests/{conftest,test_candle_window,test_current_view,test_definition,test_evidence,test_regime_passthrough,test_swing_distance}.py`, `python/feature-engine/README.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain` scoped to `python/feature-engine/**`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**`, `go/**` all verified byte-unchanged (`git diff --quiet`). `requirements-dev.lock.txt` regenerated, byte-identical (no dependency change). `manifest_version` `"10.223"` → `"10.224"`.
+
+### Finding state
+
+```text
+P3-FEATURE-A-MAJ-01: REMEDIATED_PENDING_BOUNDED_REREVIEW
+P3-FEATURE-A-MAJ-02: REMEDIATED_PENDING_BOUNDED_REREVIEW
+P3-FEATURE-A-MAJ-03: REMEDIATED_PENDING_BOUNDED_REREVIEW (re-verified fail-closed, unchanged behavior)
+P3-FEATURE-A-MAJ-04: REMEDIATED_PENDING_BOUNDED_REREVIEW
+P3-FEATURE-A-MAJ-05: REMEDIATED_PENDING_BOUNDED_REREVIEW
+P3-FEATURE-A-MAJ-06: REMEDIATED_PENDING_BOUNDED_REREVIEW
+None self-CLOSED — bounded re-review (scope limited to these six findings) is the required next governed action.
+```
+
+### State summary (unchanged by this transaction)
+
+```text
+Feature Engine Quality Tier: UNRESOLVED. Feature Engine module approval:
+  NONE. Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+Structure Engine's own formal Chapter 13 QG (boundary
+  5b2b44f2263fc69af8c03578692796e63bafb5df): unchanged, remains
+  FAIL — evidence. Raw Regime Engine's formal QG: NOT run (separate).
+module-registry.yaml / dependency graph / Domain Contracts / ADRs /
+  Constitution / governance: all unchanged.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval
+  Gate: NOT opened. LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Bounded read-only Review A re-review of only these six findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001 (bounded semantic correction → bounded semantic re-review). No new Review A/B on unrelated parts of `feature-engine`.
 
 ## Decision Log
 

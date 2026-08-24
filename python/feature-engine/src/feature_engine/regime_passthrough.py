@@ -13,6 +13,9 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from .contracts import (
+    FEATURE_COMPUTED_CONTRACT_ID,
+    FEATURE_EVENT_CONTRACT_VERSION,
+    FEATURE_FACT_INVALIDATED_CONTRACT_ID,
     FeatureComputed,
     FeatureDefinition,
     FeatureEvent,
@@ -21,14 +24,16 @@ from .contracts import (
     RecordedTimeSource,
     normalize_input_facts,
 )
-from .envelope import EventRecordRef
+from .envelope import EventContractRef, EventRecordRef
 from .errors import (
     DefinitionVersionMismatchError,
+    EvidenceReferenceConflictError,
     FeatureLineageError,
     ForeignScopeError,
     NonMonotonicRecordedTimeError,
     RecordedTimeSourceViolationError,
     RegimeDimensionMismatchError,
+    UnauthorizedUpstreamContractError,
 )
 from .publish import SequenceAllocator
 from .regime_input import RegimeClassifiedFact, RegimeFactInvalidatedFact
@@ -37,6 +42,8 @@ _DIMENSION_BY_FEATURE_TYPE = {
     "volatility_metric": "volatility",
     "directional_persistence_metric": "directional_persistence",
 }
+_OUTPUT_CONTRACT_REF = EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, FEATURE_EVENT_CONTRACT_VERSION)
+_INVALIDATION_CONTRACT_REF = EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_EVENT_CONTRACT_VERSION)
 
 
 @dataclass(slots=True)
@@ -44,6 +51,7 @@ class _WindowLineage:
     head_fact: FeatureComputed
     invalidated: bool
     last_evidence_ref: EventRecordRef
+    last_evidence_fact: RegimeClassifiedFact
     pending_invalidation_ref: EventRecordRef | None = None
     pending_invalidation_recorded_time: datetime | None = None
 
@@ -88,6 +96,14 @@ class RegimePassthroughFeatureEngine:
         ):
             raise ForeignScopeError("regime fact scope does not match this Feature engine's own scope")
 
+    def _check_contract(self, event_contract_ref: EventContractRef) -> None:
+        assert self.definition.upstream_contract_refs is not None
+        if event_contract_ref not in self.definition.upstream_contract_refs:
+            raise UnauthorizedUpstreamContractError(
+                f"regime fact event_contract_ref={event_contract_ref!r} is not one of "
+                f"definition.upstream_contract_refs={self.definition.upstream_contract_refs!r}"
+            )
+
     def _check_recorded_time(self, recorded_time: datetime) -> None:
         if self._last_input_recorded_time is not None and recorded_time < self._last_input_recorded_time:
             raise NonMonotonicRecordedTimeError(
@@ -105,6 +121,7 @@ class RegimePassthroughFeatureEngine:
 
     def on_regime_classified(self, fact: RegimeClassifiedFact) -> list[FeatureEvent]:
         self._check_scope(fact.instrument_id, fact.venue_id, fact.timeframe)
+        self._check_contract(fact.event_contract_ref)
         if fact.regime_dimension != self._expected_dimension:
             raise RegimeDimensionMismatchError(
                 f"expected regime_dimension={self._expected_dimension!r}, got {fact.regime_dimension!r}"
@@ -122,7 +139,12 @@ class RegimePassthroughFeatureEngine:
             return self._emit_original(key, fact)
         if not existing.invalidated:
             if fact.ref == existing.last_evidence_ref:
-                return []  # duplicate computation idempotency
+                if fact != existing.last_evidence_fact:
+                    raise EvidenceReferenceConflictError(
+                        f"ref {fact.ref!r} resolves to conflicting RegimeClassified content "
+                        f"({existing.last_evidence_fact!r} vs {fact!r})"
+                    )
+                return []  # duplicate delivery of the identical authoritative event
             raise FeatureLineageError(
                 f"received a new RegimeClassified for window {key!r} whose current lineage head is not "
                 "pending correction — a replacement must be preceded by RegimeFactInvalidated"
@@ -130,6 +152,7 @@ class RegimePassthroughFeatureEngine:
         return self._emit_replacement(key, fact, existing)
 
     def on_regime_invalidated(self, invalidation: RegimeFactInvalidatedFact) -> list[FeatureEvent]:
+        self._check_contract(invalidation.event_contract_ref)
         self._check_recorded_time(invalidation.recorded_time)
         match_key: tuple[datetime, datetime] | None = None
         for key, state in self._lineage.items():
@@ -160,8 +183,11 @@ class RegimePassthroughFeatureEngine:
             causation_refs=normalized_refs,
             recorded_time=recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
+            event_contract_ref=_OUTPUT_CONTRACT_REF,
         )
-        self._lineage[key] = _WindowLineage(head_fact=feature_fact, invalidated=False, last_evidence_ref=fact.ref)
+        self._lineage[key] = _WindowLineage(
+            head_fact=feature_fact, invalidated=False, last_evidence_ref=fact.ref, last_evidence_fact=fact
+        )
         return [feature_fact]
 
     def _emit_invalidation(
@@ -180,6 +206,7 @@ class RegimePassthroughFeatureEngine:
             causation_refs=(state.head_fact.ref, invalidation.ref),
             recorded_time=recorded_time,
             ref=ref,
+            event_contract_ref=_INVALIDATION_CONTRACT_REF,
         )
         state.invalidated = True
         state.pending_invalidation_ref = ref
@@ -207,6 +234,9 @@ class RegimePassthroughFeatureEngine:
             causation_refs=(*normalized_refs, existing.pending_invalidation_ref),
             recorded_time=recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
+            event_contract_ref=_OUTPUT_CONTRACT_REF,
         )
-        self._lineage[key] = _WindowLineage(head_fact=replacement, invalidated=False, last_evidence_ref=fact.ref)
+        self._lineage[key] = _WindowLineage(
+            head_fact=replacement, invalidated=False, last_evidence_ref=fact.ref, last_evidence_fact=fact
+        )
         return [replacement]

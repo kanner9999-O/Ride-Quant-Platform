@@ -21,6 +21,9 @@ from typing import Protocol
 
 from .candle import CandleFact
 from .contracts import (
+    FEATURE_COMPUTED_CONTRACT_ID,
+    FEATURE_EVENT_CONTRACT_VERSION,
+    FEATURE_FACT_INVALIDATED_CONTRACT_ID,
     FeatureComputed,
     FeatureDefinition,
     FeatureEvent,
@@ -29,17 +32,22 @@ from .contracts import (
     RecordedTimeSource,
     normalize_input_facts,
 )
-from .envelope import EventRecordRef
+from .envelope import EventContractRef, EventRecordRef
 from .errors import (
     DuplicateCandleConflictError,
+    EvidenceReferenceConflictError,
     ForeignScopeError,
     NonMonotonicRecordedTimeError,
     OutOfOrderCandleError,
     OutOfOrderCorrectionError,
     RecordedTimeSourceViolationError,
+    UnauthorizedUpstreamContractError,
     UnsupportedFeatureFormulaError,
 )
 from .publish import SequenceAllocator
+
+_OUTPUT_CONTRACT_REF = EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, FEATURE_EVENT_CONTRACT_VERSION)
+_INVALIDATION_CONTRACT_REF = EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_EVENT_CONTRACT_VERSION)
 
 
 class FeatureFormula(Protocol):
@@ -117,6 +125,14 @@ class CandleWindowFeatureEngine:
         ):
             raise ForeignScopeError(f"candle scope {candle.scope!r} does not match engine scope {self.scope!r}")
 
+    def _check_contract(self, candle: CandleFact) -> None:
+        assert self.definition.upstream_contract_refs is not None
+        if candle.event_contract_ref not in self.definition.upstream_contract_refs:
+            raise UnauthorizedUpstreamContractError(
+                f"candle event_contract_ref={candle.event_contract_ref!r} is not one of "
+                f"definition.upstream_contract_refs={self.definition.upstream_contract_refs!r}"
+            )
+
     def _check_recorded_time(self, recorded_time: datetime) -> None:
         if self._last_recorded_time is not None and recorded_time < self._last_recorded_time:
             raise NonMonotonicRecordedTimeError(
@@ -134,17 +150,26 @@ class CandleWindowFeatureEngine:
 
     def on_candle(self, fact: CandleFact) -> list[FeatureEvent]:
         self._check_scope(fact)
+        self._check_contract(fact)
         subject_id = fact.scope.subject_id
         existing_index = self._candle_index.get(subject_id)
 
         if existing_index is not None:
             existing = self._candles[existing_index]
-            if existing.ohlcv == fact.ohlcv:
-                return []  # duplicate computation idempotency
+            if existing.ref == fact.ref:
+                if existing.ohlcv != fact.ohlcv:
+                    raise EvidenceReferenceConflictError(
+                        f"candle ref {fact.ref!r} resolves to conflicting OHLCV content ({existing.ohlcv!r} vs "
+                        f"{fact.ohlcv!r})"
+                    )
+                return []  # duplicate delivery of the identical authoritative event
             if not fact.is_correction:
                 raise DuplicateCandleConflictError(
-                    f"candle {subject_id!r} resubmitted with different content but is_correction=False"
+                    f"candle {subject_id!r} resubmitted with a different ref but is_correction=False"
                 )
+            # A distinct correction ref MUST enter lineage even when the recomputed
+            # value/payload is unchanged (feature.md §3 "no shortcut") — dedup is
+            # keyed on ref identity only, never on value/content equality.
             self._check_recorded_time(fact.recorded_time)
             self._candles[existing_index] = fact
             return self._reevaluate_windows_covering(existing_index, fact.ref, fact.recorded_time)
@@ -219,6 +244,7 @@ class CandleWindowFeatureEngine:
             causation_refs=normalized_refs,
             recorded_time=recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
+            event_contract_ref=_OUTPUT_CONTRACT_REF,
         )
         self._lineage[key] = _WindowLineage(head_fact=fact)
         return [fact]
@@ -242,6 +268,7 @@ class CandleWindowFeatureEngine:
             causation_refs=(existing.head_fact.ref, correction_ref),
             recorded_time=invalidation_recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
+            event_contract_ref=_INVALIDATION_CONTRACT_REF,
         )
 
         normalized_refs = normalize_input_facts(
@@ -264,6 +291,7 @@ class CandleWindowFeatureEngine:
             causation_refs=(*normalized_refs, invalidation.ref),
             recorded_time=replacement_recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
+            event_contract_ref=_OUTPUT_CONTRACT_REF,
         )
         self._lineage[key] = _WindowLineage(head_fact=replacement)
         return [invalidation, replacement]

@@ -30,7 +30,9 @@ def test_normalize_input_facts_order_independent(allocator: SequenceAllocator) -
 
 def test_normalize_input_facts_duplicate_identical_collapses(allocator: SequenceAllocator) -> None:
     candles = [candle_at(allocator, i, high="10", low="9") for i in range(3)]
-    duplicate = CandleFact(candles[0].scope, candles[0].ohlcv, candles[0].recorded_time, candles[0].ref)
+    duplicate = CandleFact(
+        candles[0].scope, candles[0].ohlcv, candles[0].recorded_time, candles[0].ref, candles[0].event_contract_ref
+    )
     refs = normalize_input_facts(
         [*candles, duplicate], effective_time=_candle_key, ref_of=lambda c: c.ref, expected_count=3
     )
@@ -54,6 +56,7 @@ def test_evidence_conflict_same_ref_different_candle_payload_rejected(allocator:
         OHLCV(Decimal("999"), Decimal("999"), Decimal("999"), Decimal("999"), Decimal("1")),
         candles[0].recorded_time,
         candles[0].ref,
+        candles[0].event_contract_ref,
     )
     with pytest.raises(EvidenceReferenceConflictError):
         normalize_input_facts(

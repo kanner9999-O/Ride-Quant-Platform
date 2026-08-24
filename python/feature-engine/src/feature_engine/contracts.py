@@ -17,7 +17,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Literal, Protocol
 
-from .envelope import EventRecordRef
+from .envelope import EventContractRef, EventRecordRef
 from .errors import EvidenceCardinalityError, EvidenceReferenceConflictError, InvalidFeatureDefinitionError
 from .identity import deterministic_id
 
@@ -25,6 +25,29 @@ FeatureType = Literal["volatility_metric", "directional_persistence_metric", "di
 UpstreamSource = Literal["candle", "regime"]
 SwingDirection = Literal["HIGH", "LOW"]
 DistanceRepresentation = Literal["signed", "absolute"]
+
+# feature.md §14's exact, closed upstream-contract-ID vocabulary — no contract ID is
+# invented beyond what the Domain Contract itself already enumerates. Feature's own
+# output contract IDs are feature.md §3/§4's own `id:` fields, verbatim.
+CANDLE_CLOSED_CONTRACT_ID = "candle-closed"
+CANDLE_CORRECTED_CONTRACT_ID = "candle-corrected"
+SWING_CONFIRMED_CONTRACT_ID = "swing-confirmed"
+SWING_INVALIDATED_CONTRACT_ID = "swing-invalidated"
+REGIME_CLASSIFIED_CONTRACT_ID = "regime-classified"
+REGIME_FACT_INVALIDATED_CONTRACT_ID = "regime-fact-invalidated"
+FEATURE_COMPUTED_CONTRACT_ID = "feature-computed"
+FEATURE_FACT_INVALIDATED_CONTRACT_ID = "feature-fact-invalidated"
+
+_CANDLE_CONTRACT_IDS = frozenset({CANDLE_CLOSED_CONTRACT_ID, CANDLE_CORRECTED_CONTRACT_ID})
+_REGIME_CONTRACT_IDS = frozenset({REGIME_CLASSIFIED_CONTRACT_ID, REGIME_FACT_INVALIDATED_CONTRACT_ID})
+_SWING_CONTRACT_IDS = frozenset({SWING_CONFIRMED_CONTRACT_ID, SWING_INVALIDATED_CONTRACT_ID})
+
+# Bounded stand-in for Feature's own outbound `event_contract_ref.contract_version` —
+# stream-registry.yaml/a real Event Contract version authority does not exist yet
+# (Phase 1, same "not yet authored" note feature.md §2 itself makes for
+# stream_ref/producer_ref) — mirrors the `_REGISTRY_VERSION = "v0"` bounded stand-in
+# already used throughout this module for `stream_ref.registry_version`.
+FEATURE_EVENT_CONTRACT_VERSION = "v0"
 
 # feature.md §6 "Giá trị canonical mặc định" — the exact canonical policy
 # identifier strings pinned by the Domain Contract itself. Validated
@@ -143,6 +166,7 @@ class FeatureDefinition:
     input_normalization_policy: str
     # volatility_metric / directional_persistence_metric only:
     upstream_source: UpstreamSource | None = None
+    upstream_contract_refs: tuple[EventContractRef, ...] | None = None
     required_upstream_definition_version: str | None = None
     window_candle_count: int | None = None
     formula_id: str | None = None
@@ -189,7 +213,11 @@ class FeatureDefinition:
             self.eligible_swing_effective_cutoff_policy,
             self.required_swing_definition_version,
         )
-        metric_only_fields = (self.upstream_source, self.required_upstream_definition_version)
+        metric_only_fields = (
+            self.upstream_source,
+            self.upstream_contract_refs,
+            self.required_upstream_definition_version,
+        )
 
         if self.feature_type in ("volatility_metric", "directional_persistence_metric"):
             if any(field is not None for field in distance_only_fields) or self.normalization_policy is not None:
@@ -198,6 +226,19 @@ class FeatureDefinition:
                 )
             if self.upstream_source is None:
                 raise InvalidFeatureDefinitionError("upstream_source is required for this feature_type")
+            if not self.upstream_contract_refs:
+                raise InvalidFeatureDefinitionError(
+                    "upstream_contract_refs is required (non-empty) for volatility_metric/"
+                    "directional_persistence_metric (feature.md §6)"
+                )
+            allowed_contract_ids = _CANDLE_CONTRACT_IDS if self.upstream_source == "candle" else _REGIME_CONTRACT_IDS
+            for contract_ref in self.upstream_contract_refs:
+                if contract_ref.contract_id not in allowed_contract_ids:
+                    raise InvalidFeatureDefinitionError(
+                        f"upstream_contract_refs contains contract_id={contract_ref.contract_id!r}, not valid for "
+                        f"upstream_source={self.upstream_source!r} (must be one of {sorted(allowed_contract_ids)!r} "
+                        "— feature.md §6: 'PHẢI khớp đúng upstream_source đã chọn, không được trộn')"
+                    )
             if self.upstream_source == "candle":
                 if self.required_upstream_definition_version is not None:
                     raise InvalidFeatureDefinitionError(
@@ -270,6 +311,7 @@ class FeatureComputed:
     causation_refs: tuple[EventRecordRef, ...]
     recorded_time: datetime
     ref: EventRecordRef
+    event_contract_ref: EventContractRef
 
 
 InvalidationCause = Literal["candle_corrected", "regime_fact_invalidated", "swing_invalidated"]
@@ -289,6 +331,7 @@ class FeatureFactInvalidated:
     causation_refs: tuple[EventRecordRef, ...]
     recorded_time: datetime
     ref: EventRecordRef
+    event_contract_ref: EventContractRef
 
 
 FeatureEvent = FeatureComputed | FeatureFactInvalidated

@@ -114,5 +114,25 @@ class ProhibitedInputError(FeatureEngineError):
 class InvalidSwingEligibilityInputError(FeatureEngineError):
     """A Swing fact was submitted that cannot be evaluated for eligibility
     under feature.md §9a — e.g. it does not match this engine's configured
-    scope/`swing_definition_version`/`swing_direction`.
+    scope/`swing_definition_version`/`swing_direction`, or its
+    `swing_revision` does not advance exactly by one after an explicit
+    invalidation of the prior revision (swing.md §1a).
+    """
+
+
+class UnsupportedDistanceRepresentationError(FeatureEngineError):
+    """`distance_representation="signed"` was requested, but no
+    authoritative sign-orientation convention exists in feature.md §6/§7.3
+    (the contract leaves it an open enum value with no pinned semantics) —
+    this engine never invents one; only `distance_representation="absolute"`
+    (unambiguous magnitude, no orientation dependency) is computable.
+    """
+
+
+class UnauthorizedUpstreamContractError(FeatureEngineError):
+    """An upstream fact's `event_contract_ref` (Chapter 8 §8.2.5) does not
+    match any entry in the `FeatureDefinition`'s own pinned
+    `upstream_contract_refs` (feature.md §6) — an input's contract
+    qualification is never inferred/assumed, only exact-matched against
+    definition-pinned authority.
     """

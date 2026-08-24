@@ -15,13 +15,22 @@ this package never imports either (see `identity.py`'s module docstring).
 from .candle import OHLCV, CandleFact, CandleScope
 from .candle_window import CandleWindowFeatureEngine, FeatureFormula
 from .contracts import (
+    CANDLE_CLOSED_CONTRACT_ID,
+    CANDLE_CORRECTED_CONTRACT_ID,
     CORRECTION_POLICY,
     CURRENT_VIEW_SELECTION_POLICY,
     EFFECTIVE_WINDOW_POLICY,
     ELIGIBLE_SWING_EFFECTIVE_CUTOFF_POLICY,
     ELIGIBLE_SWING_SELECTION_POLICY,
+    FEATURE_COMPUTED_CONTRACT_ID,
+    FEATURE_EVENT_CONTRACT_VERSION,
+    FEATURE_FACT_INVALIDATED_CONTRACT_ID,
     INPUT_NORMALIZATION_POLICY,
     MISSING_INPUT_POLICY,
+    REGIME_CLASSIFIED_CONTRACT_ID,
+    REGIME_FACT_INVALIDATED_CONTRACT_ID,
+    SWING_CONFIRMED_CONTRACT_ID,
+    SWING_INVALIDATED_CONTRACT_ID,
     WARM_UP_POLICY,
     DecimalPrecisionPolicy,
     FeatureComputed,
@@ -33,7 +42,7 @@ from .contracts import (
     normalize_input_facts,
 )
 from .current_view import EffectiveWindow, FeatureCurrentView, FeatureViewResult
-from .envelope import EventRecordRef, ProducerRef, StreamRef
+from .envelope import EventContractRef, EventRecordRef, ProducerRef, StreamRef
 from .errors import (
     DefinitionVersionMismatchError,
     DuplicateCandleConflictError,
@@ -50,6 +59,8 @@ from .errors import (
     ProhibitedInputError,
     RecordedTimeSourceViolationError,
     RegimeDimensionMismatchError,
+    UnauthorizedUpstreamContractError,
+    UnsupportedDistanceRepresentationError,
     UnsupportedFeatureFormulaError,
 )
 from .publish import SequenceAllocator
@@ -59,14 +70,23 @@ from .swing_distance import SwingDistanceFeatureEngine
 from .swing_input import SwingConfirmedFact, SwingInvalidatedFact
 
 __all__ = [
+    "CANDLE_CLOSED_CONTRACT_ID",
+    "CANDLE_CORRECTED_CONTRACT_ID",
     "CORRECTION_POLICY",
     "CURRENT_VIEW_SELECTION_POLICY",
     "EFFECTIVE_WINDOW_POLICY",
     "ELIGIBLE_SWING_EFFECTIVE_CUTOFF_POLICY",
     "ELIGIBLE_SWING_SELECTION_POLICY",
+    "FEATURE_COMPUTED_CONTRACT_ID",
+    "FEATURE_EVENT_CONTRACT_VERSION",
+    "FEATURE_FACT_INVALIDATED_CONTRACT_ID",
     "INPUT_NORMALIZATION_POLICY",
     "MISSING_INPUT_POLICY",
     "OHLCV",
+    "REGIME_CLASSIFIED_CONTRACT_ID",
+    "REGIME_FACT_INVALIDATED_CONTRACT_ID",
+    "SWING_CONFIRMED_CONTRACT_ID",
+    "SWING_INVALIDATED_CONTRACT_ID",
     "WARM_UP_POLICY",
     "CandleFact",
     "CandleScope",
@@ -75,6 +95,7 @@ __all__ = [
     "DefinitionVersionMismatchError",
     "DuplicateCandleConflictError",
     "EffectiveWindow",
+    "EventContractRef",
     "EventRecordRef",
     "EvidenceCardinalityError",
     "EvidenceReferenceConflictError",
@@ -107,6 +128,8 @@ __all__ = [
     "SwingConfirmedFact",
     "SwingDistanceFeatureEngine",
     "SwingInvalidatedFact",
+    "UnauthorizedUpstreamContractError",
+    "UnsupportedDistanceRepresentationError",
     "UnsupportedFeatureFormulaError",
     "normalize_input_facts",
 ]

@@ -2,6 +2,76 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-24 — feature-engine: bounded remediation of six Review A Major findings
+
+**Bounded correction only** (`P3-FEATURE-A-MAJ-01` through `-06`). Baseline HEAD `9452e8341516c25f2b4e576921c75751df1894d4`. Does not modify Domain Contracts/ADRs/Constitution/`module-registry.yaml`/dependency graph/Structure/Raw-Regime code. Does not classify Quality Tier, run a formal Quality Gate, or authorize LIVE. All six findings recorded `REMEDIATED_PENDING_BOUNDED_REREVIEW` — none self-closed.
+
+### Fixed
+
+```text
+MAJ-01 (signed distance): removed the invented "reference_price - pivot_price"
+  sign-orientation claim — no such convention is pinned in feature.md §6/§7.3.
+  SwingDistanceFeatureEngine now fails closed
+  (UnsupportedDistanceRepresentationError) at construction for
+  distance_representation="signed"; "absolute" is unaffected and remains
+  fully computable.
+MAJ-02 (contract/envelope qualification): implemented
+  FeatureDefinition.upstream_contract_refs (feature.md §6) for the two
+  metric feature types, validated fail-closed against each fact's
+  event_contract_ref; distance_to_last_confirmed_swing validates against
+  feature.md §14's own fixed contract-ID enumeration instead (no
+  per-definition field exists for it in the Domain Contract). All Feature
+  outputs (FeatureComputed/FeatureFactInvalidated, all three engines) now
+  carry event_contract_ref pinned to feature.md §3/§4's own contract IDs,
+  with a bounded contract_version stand-in (mirroring the existing
+  stream_ref.registry_version stand-in). No new Event Contract semantics
+  invented.
+MAJ-03 (formula injection): re-verified — the Candle-formula boundary was
+  already fail-closed by construction; unchanged.
+MAJ-04 (Swing revisions): swing.md §1a's revision-sequencing rule is now
+  independently enforced by this engine — a revision N+1 is accepted only
+  after this engine has itself seen an explicit invalidation of revision N,
+  and only at exactly N+1. A newly-visible replacement revision now
+  re-evaluates every window left PENDING_CORRECTION, not only via
+  SwingInvalidated's own immediate reattempt.
+MAJ-05 (same-reference conflicts): Candle dedup (both Candle-consuming
+  engines) is now ref-identity-only — same ref decides duplicate delivery
+  (content mismatch on the same ref fails closed), any distinct correction
+  ref always enters lineage regardless of whether the recomputed value is
+  unchanged. Regime pass-through's dedup gained the equivalent
+  same-ref-different-content fail-closed check.
+MAJ-06 (recorded-time eligibility): Swing eligibility's recorded-time
+  visibility check now takes an explicit, machine-enforced computation
+  cursor parameter at every call site, instead of relying on in-memory
+  ingestion order.
+```
+
+### Test execution (fresh, this transaction; clean-room reconstruction independently re-verified)
+
+```text
+ruff format --check . -> clean. ruff check . -> All checks passed. mypy --strict
+  -> Success, 21 source files. pytest tests/ -v -> 73 passed, 0 failed (17
+  new regression tests covering all six findings). pip check (clean-room) ->
+  No broken requirements found.
+```
+
+### Files changed
+
+```text
+python/feature-engine/src/feature_engine/{__init__,candle,candle_window,
+  contracts,envelope,errors,regime_input,regime_passthrough,swing_distance,
+  swing_input}.py, python/feature-engine/tests/{conftest,test_candle_window,
+  test_current_view,test_definition,test_evidence,test_regime_passthrough,
+  test_swing_distance}.py, python/feature-engine/README.md,
+  docs/MANIFEST.md, docs/CHANGELOG.md. module-registry.yaml/structure-engine/
+  raw-regime-engine/go all byte-unchanged. manifest_version "10.223" ->
+  "10.224".
+```
+
+### Next governed action (not performed here)
+
+Bounded read-only Review A re-review of only these six findings, at the resulting immutable boundary — scope limited to this delta.
+
 ## [Unreleased] — 2026-08-24 — feature-engine: implement authoritative Feature core
 
 **Initial implementation only.** Vai trò: `Feature Engine Initial Implementation Executor`. Baseline HEAD `7e209cf0e28918df543f641605997aa33b93bd48` (verified). Does not approve the module, classify Quality Tier, run a formal Chapter 13 Quality Gate, or modify `module-registry.yaml`/Domain Contracts/ADRs/Constitution. Does not implement Context Aggregator/Strategy/Decision/Risk/Execution. Does not authorize LIVE.

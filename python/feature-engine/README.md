@@ -76,7 +76,8 @@ fabricated formula decision.
 | `volatility_metric` | `candle` (`CandleWindowFeatureEngine`) | FULLY_IMPLEMENTED (generic engine; fails closed for any `formula_id` without an injected, authorized `FeatureFormula`) |
 | `directional_persistence_metric` | `regime` | FULLY_IMPLEMENTED |
 | `directional_persistence_metric` | `candle` | FULLY_IMPLEMENTED (same formula-boundary note as above) |
-| `distance_to_last_confirmed_swing` | swing + candle | FULLY_IMPLEMENTED |
+| `distance_to_last_confirmed_swing` (`absolute`) | swing + candle | FULLY_IMPLEMENTED |
+| `distance_to_last_confirmed_swing` (`signed`) | swing + candle | FAIL_CLOSED_PENDING_AUTHORITY — no authoritative sign-orientation convention exists in feature.md §6/§7.3; `SwingDistanceFeatureEngine` fails closed (`UnsupportedDistanceRepresentationError`) at construction rather than inventing one (P3-FEATURE-A-MAJ-01 remediation). |
 
 ## Package layout
 
@@ -97,19 +98,26 @@ src/feature_engine/
                            (RegimeClassifiedFact/RegimeFactInvalidatedFact) — not an import
                            of raw_regime_engine
   contracts.py            FeatureScope/DecimalPrecisionPolicy/FeatureDefinition (exhaustive
-                           __post_init__ validation)/FeatureComputed/FeatureFactInvalidated/
-                           RecordedTimeSource/normalize_input_facts (§8a generic evidence
-                           normalization)/the four exact canonical policy identifier strings
+                           __post_init__ validation, incl. upstream_contract_refs)/
+                           FeatureComputed/FeatureFactInvalidated (both carry
+                           event_contract_ref)/RecordedTimeSource/normalize_input_facts (§8a
+                           generic evidence normalization)/the four exact canonical policy
+                           identifier strings/the closed upstream+output contract-ID vocabulary
   regime_passthrough.py   RegimePassthroughFeatureEngine — volatility_metric/
                            directional_persistence_metric over RegimeClassified, verbatim
-                           pass-through of computed_metric with no reclassification
+                           pass-through of computed_metric with no reclassification,
+                           contract-ref-qualified inputs, ref-identity-only dedup
   candle_window.py        FeatureFormula protocol + CandleWindowFeatureEngine — rolling
                            fixed-cardinality Candle window, deterministic evidence order,
-                           fail-closed formula boundary
+                           fail-closed formula boundary, contract-ref-qualified inputs,
+                           ref-identity-only dedup
   swing_distance.py        SwingDistanceFeatureEngine — feature.md §9a's 5-step eligible-
-                           Swing filter pipeline + 8-criterion total order, Decimal-only
-                           signed/absolute distance arithmetic, independent per-stream
-                           recorded-time monotonicity (Candle vs Swing)
+                           Swing filter pipeline (explicit computation-cursor recorded-time
+                           check) + 8-criterion total order, Decimal-only absolute-only
+                           distance arithmetic (signed fails closed), independent per-stream
+                           recorded-time monotonicity (Candle vs Swing), swing.md §1a
+                           revision-sequencing enforcement, pending-window reattempt on
+                           newly-visible replacement revisions
   current_view.py         FeatureCurrentView — feature.md §11's 7-criterion total order;
                            no row before first computation; PENDING_CORRECTION never falls
                            back to an older valid window
@@ -171,9 +179,47 @@ window_start < reference_cutoff` (half-open; a Swing exactly at `window_end`
 is **ineligible**), (4) latest valid revision, (5) not invalidated — all five
 filter steps run before the 8-criterion total order, which never resurrects
 an effective-time-ineligible Swing even via its own tie-break criteria.
-Signed distance is `reference_price - pivot_price` (the standard
-mathematical signed difference) — one bounded, non-fabricated arithmetic
-convention, not an invented directional/price-action interpretation.
+Recorded-time visibility (step 2) is checked against an explicit,
+machine-enforced computation cursor `R` — the recorded_time of whichever
+event (reference Candle, Swing invalidation, or newly-confirmed Swing
+revision) is triggering the evaluation — never inferred from in-memory
+ingestion order (P3-FEATURE-A-MAJ-06 remediation). Only
+`distance_representation="absolute"` is computable; `"signed"` fails closed
+at construction (see "Signed-distance boundary" below).
+
+## Signed-distance boundary
+
+feature.md §6/§7.3 leaves `distance_representation="signed"`'s sign
+orientation genuinely unpinned — no authoritative convention exists for
+which direction is positive. `SwingDistanceFeatureEngine` does not invent
+one: it fails closed (`UnsupportedDistanceRepresentationError`) at
+construction time for `signed`, and only computes
+`distance_representation="absolute"` (an unambiguous, orientation-
+independent magnitude). A prior build of this module computed `signed` as
+`reference_price - pivot_price` — that was an invented convention with no
+authority pin and has been removed (P3-FEATURE-A-MAJ-01 remediation).
+
+## Contract qualification (`feature.md` §6/§14, Chapter 8 §8.2.5)
+
+Every authoritative event Feature consumes or emits carries an
+`event_contract_ref` (`{contract_id, contract_version}`). `FeatureDefinition.
+upstream_contract_refs` (feature.md §6, scoped to `volatility_metric`/
+`directional_persistence_metric`) pins the exact upstream contract(s) a
+given definition authorizes — `RegimePassthroughFeatureEngine`/
+`CandleWindowFeatureEngine` validate every incoming fact's
+`event_contract_ref` against it, failing closed
+(`UnauthorizedUpstreamContractError`) otherwise. `distance_to_last_
+confirmed_swing` has no equivalent per-definition field in feature.md §6
+(deliberately not invented here); `SwingDistanceFeatureEngine` instead
+validates each incoming Candle/Swing fact's `event_contract_ref.contract_id`
+against feature.md §14's own fixed, closed contract-ID enumeration.
+`FeatureComputed`/`FeatureFactInvalidated` outputs from all three engines
+carry `event_contract_ref` pinned to feature.md §3/§4's own contract IDs
+(`feature-computed`/`feature-fact-invalidated`) with a bounded
+`contract_version` stand-in (`FEATURE_EVENT_CONTRACT_VERSION = "v0"`,
+mirroring the existing `stream_ref.registry_version` stand-in — no real
+Event Contract version registry exists yet, Phase 1). P3-FEATURE-A-MAJ-02
+remediation.
 
 ## First-Python-build toolchain reused
 
@@ -227,9 +273,33 @@ principle, Event Model, and Feature/Context architecture. No new Platform
 Invariant, Event Schema, module taxonomy, dependency-graph change,
 cross-module contract, governance-process change, or hard-to-reverse choice
 was introduced. Where `feature.md` explicitly defers a concrete mechanism
-(warm-up/missing-input/effective-window policy values, the signed-distance
-arithmetic convention), this module pins one bounded, documented
-interpretation in code, not a governance decision.
+(warm-up/missing-input/effective-window policy values), this module pins one
+bounded, documented interpretation in code, not a governance decision. Where
+`feature.md` pins no mechanism at all (the `signed` sign orientation), this
+build fails closed rather than inventing one (see "Signed-distance boundary"
+above).
+
+## Remediation history
+
+A bounded remediation batch fixed six verified Review A Major findings
+against the first build (`9452e8341516c25f2b4e576921c75751df1894d4`):
+`P3-FEATURE-A-MAJ-01` (removed the invented `signed` sign-orientation
+convention; fails closed instead), `P3-FEATURE-A-MAJ-02`
+(`upstream_contract_refs` + `event_contract_ref` envelope field implemented
+across all three engines and both output event types), `P3-FEATURE-A-MAJ-03`
+(the Candle-formula injection boundary was already fail-closed by
+construction in the first build — re-verified, not re-implemented),
+`P3-FEATURE-A-MAJ-04` (Swing `swing_revision` N+1 now requires this engine's
+own explicit invalidation of revision N first, exactly one revision at a
+time; newly-visible replacement revisions now re-evaluate any
+PENDING_CORRECTION window), `P3-FEATURE-A-MAJ-05` (Candle/Regime dedup is
+ref-identity-only now, never value-equality — a same-ref/different-content
+resubmission fails closed instead of silently overwriting, and a
+distinct-ref correction always enters lineage even when its recomputed value
+is unchanged), `P3-FEATURE-A-MAJ-06` (Swing eligibility's recorded-time
+visibility check now takes an explicit computation cursor parameter at every
+call site instead of relying on in-memory ingestion order). All six recorded
+`REMEDIATED_PENDING_BOUNDED_REREVIEW` — none self-closed.
 
 ## Current state (as of this build)
 

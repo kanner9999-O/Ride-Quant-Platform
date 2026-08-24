@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 
-from .envelope import EventRecordRef
+from .envelope import EventContractRef, EventRecordRef
 from .identity import deterministic_id
 
 
@@ -75,4 +75,5 @@ class CandleFact:
     ohlcv: OHLCV
     recorded_time: datetime
     ref: EventRecordRef
+    event_contract_ref: EventContractRef
     is_correction: bool = False

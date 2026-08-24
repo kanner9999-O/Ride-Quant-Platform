@@ -3,10 +3,20 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-from conftest import BASE, feature_scope
+from conftest import BASE, CONTRACT_VERSION, feature_scope
 
-from feature_engine import FeatureCurrentView, FeatureScope, SequenceAllocator
+from feature_engine import (
+    FEATURE_COMPUTED_CONTRACT_ID,
+    FEATURE_FACT_INVALIDATED_CONTRACT_ID,
+    EventContractRef,
+    FeatureCurrentView,
+    FeatureScope,
+    SequenceAllocator,
+)
 from feature_engine.contracts import FeatureComputed, FeatureFactInvalidated
+
+_COMPUTED_CONTRACT_REF = EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, CONTRACT_VERSION)
+_INVALIDATED_CONTRACT_REF = EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_ID, CONTRACT_VERSION)
 
 
 def _window(index: int) -> tuple[datetime, datetime]:
@@ -36,6 +46,7 @@ def _computed(
         causation_refs=(input_ref,),
         recorded_time=end + timedelta(minutes=recorded_offset_minutes),
         ref=allocator.next_ref("feature"),
+        event_contract_ref=_COMPUTED_CONTRACT_REF,
     )
 
 
@@ -55,6 +66,7 @@ def _invalidated(
         causation_refs=(target.ref,),
         recorded_time=target.recorded_time + timedelta(minutes=recorded_offset_minutes),
         ref=allocator.next_ref("feature"),
+        event_contract_ref=_INVALIDATED_CONTRACT_REF,
     )
 
 

@@ -8,6 +8,8 @@ from decimal import Decimal
 import pytest
 
 from feature_engine import (
+    CANDLE_CLOSED_CONTRACT_ID,
+    CANDLE_CORRECTED_CONTRACT_ID,
     CORRECTION_POLICY,
     CURRENT_VIEW_SELECTION_POLICY,
     EFFECTIVE_WINDOW_POLICY,
@@ -16,10 +18,15 @@ from feature_engine import (
     INPUT_NORMALIZATION_POLICY,
     MISSING_INPUT_POLICY,
     OHLCV,
+    REGIME_CLASSIFIED_CONTRACT_ID,
+    REGIME_FACT_INVALIDATED_CONTRACT_ID,
+    SWING_CONFIRMED_CONTRACT_ID,
+    SWING_INVALIDATED_CONTRACT_ID,
     WARM_UP_POLICY,
     CandleFact,
     CandleScope,
     DecimalPrecisionPolicy,
+    EventContractRef,
     FeatureCurrentView,
     FeatureDefinition,
     FeatureEvent,
@@ -37,6 +44,11 @@ INSTRUMENT = "BTC-USDT"
 VENUE = "binance-spot"
 TIMEFRAME = "1m"
 BASE = datetime(2026, 1, 1, tzinfo=UTC)
+
+# Test-fixture-pinned upstream contract_version — a FeatureDefinition's own
+# choice of which immutable contract snapshot it authorizes; distinct from
+# feature_engine's internal FEATURE_EVENT_CONTRACT_VERSION output stand-in.
+CONTRACT_VERSION = "v1"
 
 
 @pytest.fixture
@@ -84,6 +96,7 @@ def candle_at(
     instrument_id: str = INSTRUMENT,
     venue_id: str = VENUE,
     timeframe: str = TIMEFRAME,
+    event_contract_ref: EventContractRef | None = None,
 ) -> CandleFact:
     window_start = BASE + timedelta(minutes=index)
     window_end = window_start + timedelta(minutes=1)
@@ -93,7 +106,10 @@ def candle_at(
     ohlcv = OHLCV(Decimal(open_v), Decimal(high), Decimal(low), Decimal(close_v), Decimal(volume))
     recorded_time = window_end + timedelta(seconds=recorded_offset_seconds)
     ref = allocator.next_ref("candle")
-    return CandleFact(scope, ohlcv, recorded_time, ref, is_correction=is_correction)
+    if event_contract_ref is None:
+        contract_id = CANDLE_CORRECTED_CONTRACT_ID if is_correction else CANDLE_CLOSED_CONTRACT_ID
+        event_contract_ref = EventContractRef(contract_id, CONTRACT_VERSION)
+    return CandleFact(scope, ohlcv, recorded_time, ref, event_contract_ref, is_correction=is_correction)
 
 
 def swing_confirmed_at(
@@ -109,10 +125,13 @@ def swing_confirmed_at(
     instrument_id: str = INSTRUMENT,
     venue_id: str = VENUE,
     timeframe: str = TIMEFRAME,
+    event_contract_ref: EventContractRef | None = None,
 ) -> SwingConfirmedFact:
     pivot_start = BASE + timedelta(minutes=pivot_index)
     pivot_end = pivot_start + timedelta(minutes=1)
     recorded_time = pivot_end + timedelta(minutes=recorded_offset_minutes)
+    if event_contract_ref is None:
+        event_contract_ref = EventContractRef(SWING_CONFIRMED_CONTRACT_ID, CONTRACT_VERSION)
     return SwingConfirmedFact(
         instrument_id=instrument_id,
         venue_id=venue_id,
@@ -125,6 +144,7 @@ def swing_confirmed_at(
         pivot_effective_time=(pivot_start, pivot_end),
         recorded_time=recorded_time,
         ref=allocator.next_ref("swing"),
+        event_contract_ref=event_contract_ref,
     )
 
 
@@ -134,12 +154,16 @@ def swing_invalidated_at(
     swing_id: str,
     swing_revision: int,
     recorded_time: datetime,
+    event_contract_ref: EventContractRef | None = None,
 ) -> SwingInvalidatedFact:
+    if event_contract_ref is None:
+        event_contract_ref = EventContractRef(SWING_INVALIDATED_CONTRACT_ID, CONTRACT_VERSION)
     return SwingInvalidatedFact(
         swing_id=swing_id,
         swing_revision=swing_revision,
         recorded_time=recorded_time,
         ref=allocator.next_ref("swing"),
+        event_contract_ref=event_contract_ref,
     )
 
 
@@ -154,10 +178,13 @@ def regime_classified_at(
     instrument_id: str = INSTRUMENT,
     venue_id: str = VENUE,
     timeframe: str = TIMEFRAME,
+    event_contract_ref: EventContractRef | None = None,
 ) -> RegimeClassifiedFact:
     window_start = BASE + timedelta(minutes=index)
     window_end = window_start + timedelta(minutes=1)
     recorded_time = window_end + timedelta(seconds=recorded_offset_seconds)
+    if event_contract_ref is None:
+        event_contract_ref = EventContractRef(REGIME_CLASSIFIED_CONTRACT_ID, CONTRACT_VERSION)
     return RegimeClassifiedFact(
         instrument_id=instrument_id,
         venue_id=venue_id,
@@ -169,16 +196,24 @@ def regime_classified_at(
         window_end=window_end,
         recorded_time=recorded_time,
         ref=allocator.next_ref("regime"),
+        event_contract_ref=event_contract_ref,
     )
 
 
 def regime_invalidated_at(
-    allocator: SequenceAllocator, *, invalidated_fact_ref: object, recorded_time: datetime
+    allocator: SequenceAllocator,
+    *,
+    invalidated_fact_ref: object,
+    recorded_time: datetime,
+    event_contract_ref: EventContractRef | None = None,
 ) -> RegimeFactInvalidatedFact:
+    if event_contract_ref is None:
+        event_contract_ref = EventContractRef(REGIME_FACT_INVALIDATED_CONTRACT_ID, CONTRACT_VERSION)
     return RegimeFactInvalidatedFact(
         invalidated_fact_ref=invalidated_fact_ref,  # type: ignore[arg-type]
         recorded_time=recorded_time,
         ref=allocator.next_ref("regime"),
+        event_contract_ref=event_contract_ref,
     )
 
 
@@ -211,6 +246,10 @@ def make_regime_definition(
         feature_definition_version=version,
         feature_type=feature_type,  # type: ignore[arg-type]
         upstream_source="regime",
+        upstream_contract_refs=(
+            EventContractRef(REGIME_CLASSIFIED_CONTRACT_ID, CONTRACT_VERSION),
+            EventContractRef(REGIME_FACT_INVALIDATED_CONTRACT_ID, CONTRACT_VERSION),
+        ),
         required_upstream_definition_version=regime_dimension_version,
         unit="ratio",
         decimal_precision_policy=make_decimal_policy(digits),
@@ -236,6 +275,10 @@ def make_candle_definition(
         feature_definition_version=version,
         feature_type=feature_type,  # type: ignore[arg-type]
         upstream_source="candle",
+        upstream_contract_refs=(
+            EventContractRef(CANDLE_CLOSED_CONTRACT_ID, CONTRACT_VERSION),
+            EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+        ),
         window_candle_count=window_candle_count,
         formula_id=formula_id,
         unit="price",
@@ -253,7 +296,7 @@ def make_distance_definition(
     *,
     version: str = "fd-distance-1",
     swing_direction: str = "HIGH",
-    distance_representation: str = "signed",
+    distance_representation: str = "absolute",
     reference_price_field: str = "close",
     swing_definition_version: str = "swd-1",
     digits: int = 2,

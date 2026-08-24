@@ -14,7 +14,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Literal
 
-from .envelope import EventRecordRef
+from .envelope import EventContractRef, EventRecordRef
 
 RegimeDimension = Literal["volatility", "directional_persistence"]
 
@@ -36,6 +36,7 @@ class RegimeClassifiedFact:
     window_end: datetime
     recorded_time: datetime
     ref: EventRecordRef
+    event_contract_ref: EventContractRef
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,3 +49,4 @@ class RegimeFactInvalidatedFact:
     invalidated_fact_ref: EventRecordRef
     recorded_time: datetime
     ref: EventRecordRef
+    event_contract_ref: EventContractRef
