@@ -2,6 +2,58 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-25 — ADR-034 v0.2 (Draft): bounded correction, three findings
+
+**Bounded correction only** — not a Review A re-review, not an approval, no `feature.md`/implementation touched. Baseline HEAD `e87070989c3d54380533d2aaf0897ff9877b58c9`.
+
+### Fixed
+
+```text
+P3-ADR034-A-MAJ-01 (temporal visibility boundary): the new invalidation_cause
+  is now legal only when the winning SwingConfirmed (a) was NOT visible at
+  the original computation cursor R_original, (b) IS visible at the later
+  cursor R_later, (c) wins §9a's total order at R_later, and (d) the
+  previously-used Swing remains valid/non-invalidated at R_later. A Swing
+  already visible at R_original but wrongly omitted is explicitly excluded
+  (that is a computation defect, not eligible-selection supersession). Also
+  states this cause is implementation-gated on proving R_original, and
+  explicitly assigns that gap to P3-FEATURE-A-MAJ-06's separate scope
+  without solving it here.
+P3-ADR034-A-MIN-01 (immutable evidence identity): replaced "current
+  feature-engine implementation" with pinned exact identities — feature.md
+  v0.2 (blob 2262adf9253ea20c8d817d1066f50c4353d2d35d), swing.md v0.2 (blob
+  5bbe666ff404209876a721b1e01cb9ac62011062), and the implementation defect
+  boundary (commit d728f682d3310d8735763269a228cc248f61bf5d,
+  swing_distance.py blob f4d9643780245218361b9ef1540e1727407e3753,
+  _preempt_settled_window lines 677-708).
+P3-ADR034-A-MIN-02 (scale check): expected_scale zeros are retained (not
+  replaced with a speculative projection) but now explicitly justified
+  against each of the strategy/exchange/plugin axes as a per-Feature-subject,
+  cardinality-independent semantic.
+```
+
+### Provenance note
+
+```text
+The three findings were supplied by ID/description in the governing task
+  prompt without an accompanying Review A execution artifact. No reviewer
+  identity/execution/result was fabricated to attribute them; each finding's
+  underlying claim was instead independently re-verified directly against
+  ADR-034.md v0.1's actual content before remediation.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-034.md ("0.1" -> "0.2", status Draft unchanged), docs/MANIFEST.md,
+  docs/CHANGELOG.md. manifest_version "10.226" -> "10.227". No other file
+  touched.
+```
+
+### Next governed action (not performed here)
+
+Bounded Review-A re-review of ADR-034 v0.2 against exactly these three findings, at the resulting immutable boundary.
+
 ## [Unreleased] — 2026-08-24 — ADR-034 v0.1 (Draft): new FeatureFactInvalidated invalidation_cause candidate
 
 **ADR-authoring transaction only** — not a Feature remediation round, no code/Domain Contract touched. Baseline HEAD `d728f682d3310d8735763269a228cc248f61bf5d`.

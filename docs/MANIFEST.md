@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.226"
+manifest_version: "10.227"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -8437,6 +8437,119 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 Independent read-only Review A of `ADR-034` at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"), not a bounded correction re-review. Does not itself authorize `feature.md` amendment, `feature-engine` remediation, or Product Owner approval.
 
 **Files changed:** `docs/adr/ADR-034.md` (new file), `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## ADR-034 v0.2 — bounded correction (`Draft`, closes three v0.1 findings `pending re-review`)
+
+**Bounded semantic correction transaction — vai trò: `ADR-034 Bounded Correction Executor`.** Remediates exactly the three findings named in the governing task prompt (`P3-ADR034-A-MAJ-01`, `P3-ADR034-A-MIN-01`, `P3-ADR034-A-MIN-02`). Does not redesign the decision, does not perform Review A re-review or Independent Review B, does not approve ADR-034, does not modify `feature.md` or implementation.
+
+**Baseline:** branch `main`, HEAD `e87070989c3d54380533d2aaf0897ff9877b58c9` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean). `manifest_version` confirmed `"10.226"` at start. `docs/adr/ADR-034.md` content identity confirmed `9250497c0d604df35091e08cefcbf897756fcc52` (v0.1, `status: Draft`) before this transaction.
+
+```text
+ADR:                   ADR-034
+Version:                "0.1" -> "0.2"
+Status:                 Draft (unchanged)
+New content identity:   git hash-object docs/adr/ADR-034.md = eb0b4f42d83f8beaabcd08733256206f7e65d8a8
+                         (95 lines)
+owner / approved_by / approved_at:  Product Owner / null / null (all unchanged)
+supersedes:              [] (unchanged)
+```
+
+### Finding provenance — recorded honestly, no fabricated reviewer identity
+
+```text
+P3-ADR034-A-MAJ-01/-MIN-01/-MIN-02 were supplied by finding ID + description in the governing
+  task prompt, not accompanied by a Review A execution artifact (no reviewer principal,
+  execution ID, review boundary, or independence-mode evidence was provided or available to
+  this transaction). Per G-VERIFY-001/P3-VERIFY-001 ("prompt assertion alone is not
+  evidence"), this transaction did NOT fabricate a "Review A provenance" record (no invented
+  reviewer identity/execution/result block, unlike ADR-033 v0.2's genuine historical ChatGPT
+  Review A evidence). Instead, each finding's underlying claim was independently re-verified
+  directly against ADR-034.md v0.1's actual committed content before remediation (below) —
+  the findings are recorded here as verified-true defects in v0.1, with provenance of WHO
+  raised them left unattributed/unknown rather than invented. ADR-034's own formal Independent
+  Reviews eligibility table remains the unfilled template — still zero completed Review A/B
+  executions recorded.
+```
+
+### Findings remediated
+
+```text
+P3-ADR034-A-MAJ-01 (temporal visibility boundary) — v0.1's Decision used "newly-visible
+  SwingConfirmed" without machine-pinning old/new knowledge cuts, and did not distinguish a
+  genuinely not-yet-visible Swing from one that was already visible at the original cursor but
+  wrongly omitted (a different problem class: computation defect, not eligible-selection
+  supersession). Verified true by direct re-read of v0.1's Decision paragraph (no R_original/
+  R_later distinction existed). Corrected: Decision's core semantic sentence now states four
+  explicit conditions (a)-(d) — not visible at R_original, visible at R_later, wins §9a at
+  R_later, previously-used Swing remains valid/non-invalidated at R_later — plus a new binding
+  rule making condition (a) load-bearing and explicitly excluding the
+  already-visible-but-omitted case from this cause (that case is a correctness defect, must
+  never be represented via this invalidation_cause). A new "Evidence prerequisite" binding
+  rule states this cause is implementation-gated on proving R_original, explicitly assigns
+  that unresolved gap to P3-FEATURE-A-MAJ-06's separate, already-open scope, and does NOT
+  itself define/add any computation-cursor field — MAJ-06 is not solved here, per the
+  governing task's explicit instruction.
+P3-ADR034-A-MIN-01 (immutable evidence identity) — v0.1 said "The current feature-engine
+  implementation labels this transition..." — mutable wording for decision-relevant evidence.
+  Verified true by direct re-read. Corrected: pinned docs/domain/feature.md identity
+  (version "0.2", blob 2262adf9253ea20c8d817d1066f50c4353d2d35d), docs/domain/swing.md
+  identity (version "0.2", blob 5bbe666ff404209876a721b1e01cb9ac62011062), and the exact
+  implementation defect boundary (commit d728f682d3310d8735763269a228cc248f61bf5d,
+  python/feature-engine/src/feature_engine/swing_distance.py blob
+  f4d9643780245218361b9ef1540e1727407e3753, function _preempt_settled_window lines 677-708,
+  defect at line 696/699) — re-verified directly against the current tree (all three
+  identities confirmed unchanged/matching at this transaction's own boundary). Also
+  distinguishes, by exact line number, the neighboring correctly-labeled swing_invalidated
+  usage in _invalidate_and_reattempt (line 615) as unrelated/unaffected. No large source
+  excerpt copied — identities and line numbers only.
+P3-ADR034-A-MIN-02 (scale check) — v0.1's expected_scale zeros (strategy/exchange/plugin)
+  were left unexplained against those specific axes. Verified true by direct re-read (reason
+  text argued only ADR-009/ADR-014/module-count/dependency-graph non-impact, never addressed
+  why strategy/exchange/plugin count doesn't matter). Corrected: reason text now explicitly
+  ties cardinality-independence to each of the three expected_scale axes (per-Feature-subject
+  semantic, growth increases subject/event COUNT not the semantic itself) and states why the
+  zeros are retained rather than replaced with a speculative non-zero projection this ADR has
+  no authority to assert. decision_still_valid remains true; Scale check structure preserved.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/domain/feature.md unchanged (verified git diff --quiet -- docs/domain/). No other Domain
+  Contract touched. No implementation/test file touched (verified git diff --quiet --
+  python/). module-registry.yaml unchanged. Constitution/governance unchanged. No existing
+  Approved ADR mutated (verified git diff --quiet -- docs/adr/ADR-001.md ... ADR-033.md, all
+  33 byte-identical). ADR_REQUIRED classification, the narrow new-cause semantic,
+  distance_to_last_confirmed_swing-only scope, direct causation binding, mutual exclusion with
+  swing_invalidated, append-only invalidate-and-replace, absence of a generic correction
+  framework, and absence of any Feature-to-Feature/Structure/Raw-Regime/Context ownership
+  change are all unchanged in substance from v0.1 (verified by direct re-read of the retained
+  paragraphs). Independent Reviews eligibility table still unfilled — no Review A re-review or
+  Independent Review B performed or recorded as complete. ADR-034 NOT approved: `status:
+  Draft`, `approved_by: null`, `approved_at: null` (unchanged).
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction corrects the ADR candidate only; the
+  three-step future sequence (ADR approval -> feature.md amendment -> feature-engine
+  remediation -> Review-A re-review of MAJ-04) is unchanged and none of its steps were
+  performed here.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+module-registry.yaml / dependency graph / other Domain Contracts / other ADRs / Constitution
+  / governance: all unchanged.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Bounded Review-A re-review of `ADR-034` v0.2 against exactly these three findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001 ("bounded semantic correction -> bounded semantic re-review, CHỈ phạm vi đã chạm"). Does not itself authorize `feature.md` amendment, `feature-engine` remediation, or Product Owner approval.
+
+**Files changed:** `docs/adr/ADR-034.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 
