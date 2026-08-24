@@ -46,9 +46,33 @@ TIMEFRAME = "1m"
 BASE = datetime(2026, 1, 1, tzinfo=UTC)
 
 # Test-fixture-pinned upstream contract_version — a FeatureDefinition's own
-# choice of which immutable contract snapshot it authorizes; distinct from
-# feature_engine's internal FEATURE_EVENT_CONTRACT_VERSION output stand-in.
+# choice of which immutable contract snapshot it authorizes; injected by the
+# test caller, never invented by feature_engine itself.
 CONTRACT_VERSION = "v1"
+
+# Test-fixture-pinned OUTPUT contract_version — the exact, genuine identity a
+# caller authorizes for THIS engine's own outbound FeatureComputed/
+# FeatureFactInvalidated event_contract_ref (P3-FEATURE-A-MAJ-02 remediation:
+# feature_engine never invents this itself, e.g. the former "v0" stand-in).
+FEATURE_OUTPUT_CONTRACT_VERSION = "fv1"
+
+
+def authorized_candle_contract_refs(version: str = CONTRACT_VERSION) -> frozenset[EventContractRef]:
+    return frozenset(
+        {
+            EventContractRef(CANDLE_CLOSED_CONTRACT_ID, version),
+            EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, version),
+        }
+    )
+
+
+def authorized_swing_contract_refs(version: str = CONTRACT_VERSION) -> frozenset[EventContractRef]:
+    return frozenset(
+        {
+            EventContractRef(SWING_CONFIRMED_CONTRACT_ID, version),
+            EventContractRef(SWING_INVALIDATED_CONTRACT_ID, version),
+        }
+    )
 
 
 @pytest.fixture

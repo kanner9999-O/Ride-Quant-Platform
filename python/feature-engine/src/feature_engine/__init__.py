@@ -13,7 +13,7 @@ this package never imports either (see `identity.py`'s module docstring).
 """
 
 from .candle import OHLCV, CandleFact, CandleScope
-from .candle_window import CandleWindowFeatureEngine, FeatureFormula
+from .candle_window import CandleWindowFeatureEngine
 from .contracts import (
     CANDLE_CLOSED_CONTRACT_ID,
     CANDLE_CORRECTED_CONTRACT_ID,
@@ -23,7 +23,6 @@ from .contracts import (
     ELIGIBLE_SWING_EFFECTIVE_CUTOFF_POLICY,
     ELIGIBLE_SWING_SELECTION_POLICY,
     FEATURE_COMPUTED_CONTRACT_ID,
-    FEATURE_EVENT_CONTRACT_VERSION,
     FEATURE_FACT_INVALIDATED_CONTRACT_ID,
     INPUT_NORMALIZATION_POLICY,
     MISSING_INPUT_POLICY,
@@ -40,6 +39,7 @@ from .contracts import (
     FeatureScope,
     RecordedTimeSource,
     normalize_input_facts,
+    resolve_output_contract_refs,
 )
 from .current_view import EffectiveWindow, FeatureCurrentView, FeatureViewResult
 from .envelope import EventContractRef, EventRecordRef, ProducerRef, StreamRef
@@ -60,6 +60,7 @@ from .errors import (
     RecordedTimeSourceViolationError,
     RegimeDimensionMismatchError,
     UnauthorizedUpstreamContractError,
+    UnresolvedOutputContractAuthorityError,
     UnsupportedDistanceRepresentationError,
     UnsupportedFeatureFormulaError,
 )
@@ -78,7 +79,6 @@ __all__ = [
     "ELIGIBLE_SWING_EFFECTIVE_CUTOFF_POLICY",
     "ELIGIBLE_SWING_SELECTION_POLICY",
     "FEATURE_COMPUTED_CONTRACT_ID",
-    "FEATURE_EVENT_CONTRACT_VERSION",
     "FEATURE_FACT_INVALIDATED_CONTRACT_ID",
     "INPUT_NORMALIZATION_POLICY",
     "MISSING_INPUT_POLICY",
@@ -105,7 +105,6 @@ __all__ = [
     "FeatureEngineError",
     "FeatureEvent",
     "FeatureFactInvalidated",
-    "FeatureFormula",
     "FeatureLineageError",
     "FeatureScope",
     "FeatureViewResult",
@@ -129,7 +128,9 @@ __all__ = [
     "SwingDistanceFeatureEngine",
     "SwingInvalidatedFact",
     "UnauthorizedUpstreamContractError",
+    "UnresolvedOutputContractAuthorityError",
     "UnsupportedDistanceRepresentationError",
     "UnsupportedFeatureFormulaError",
     "normalize_input_facts",
+    "resolve_output_contract_refs",
 ]

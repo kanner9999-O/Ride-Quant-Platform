@@ -2,6 +2,86 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-24 — feature-engine: bounded remediation Round 2, five still-open Review A Major findings
+
+**Bounded correction only** (`P3-FEATURE-A-MAJ-02` through `-06`; `-01` re-confirmed `CLOSED`, untouched). Baseline HEAD `039358e5856168fe14557e194e50133d4fbf7cf8`. A fresh, independent re-review found MAJ-02/-03/-04/-06 not actually closed by the Round 1 remediation's real code despite Round 1's own report claiming closure, and MAJ-05 partially closed (Regime path only). Does not modify Domain Contracts/ADRs/Constitution/`module-registry.yaml`/dependency graph/Structure/Raw-Regime code. Does not classify Quality Tier, run a formal Quality Gate, or authorize LIVE. All five findings recorded `REMEDIATED_PENDING_BOUNDED_REREVIEW` — none self-closed.
+
+### Fixed
+
+```text
+MAJ-02 (contract/envelope authority): removed the fabricated "v0" stand-in
+  for Feature's own outbound event_contract_ref.contract_version
+  (FEATURE_EVENT_CONTRACT_VERSION) — RegimePassthroughFeatureEngine/
+  SwingDistanceFeatureEngine now require the caller to inject a genuine,
+  non-empty output contract_version at construction, failing closed
+  (UnresolvedOutputContractAuthorityError) on empty input.
+  SwingDistanceFeatureEngine previously validated only
+  event_contract_ref.contract_id for its Candle/Swing inputs, accepting any
+  contract_version merely because contract_id matched — now takes required,
+  caller-injected authorized {contract_id, contract_version} sets and
+  exact-matches the full ref. The pre-existing, cross-engine
+  _REGISTRY_VERSION="v0" internal tie-break stand-in is explicitly NOT
+  touched (documented scope boundary, README.md) — not feature-engine-local,
+  requires cross-engine registry-version modeling this transaction has no
+  authority to invent.
+MAJ-03 (formula injection): Round 1's "already fail-closed" claim was wrong
+  — a caller-supplied FeatureFormula was executed whenever its own
+  formula_id string happened to match, which is not authorization. The
+  FeatureFormula injection Protocol has been removed entirely;
+  CandleWindowFeatureEngine's constructor now unconditionally fails closed
+  (UnsupportedFeatureFormulaError) for every construction attempt.
+MAJ-04 (Swing correction propagation): Round 1's reattempt only covered
+  windows currently PENDING_CORRECTION, silently leaving windows that had
+  already settled VALID on a lower-priority alternate Swing permanently
+  stale once the preferred Swing's corrected revision later arrived. Every
+  window with a lineage entry is now re-evaluated on each newly-visible
+  Swing revision; a settled window is invalidated and replaced again if the
+  deterministic total-order winner changes (the
+  A -> invalidate -> B(temporary) -> A(N+1)-wins sequence).
+MAJ-05 (immutable-reference integrity): SwingDistanceFeatureEngine's Swing
+  ingestion never compared prior content for a redelivered ref at all, and
+  its Candle-side check (and the now-removed CandleWindowFeatureEngine's)
+  compared only OHLCV, not the complete fact. Both now perform a full
+  consumer-side-fact equality check before any dedup/routing/lineage logic
+  — any difference (recorded_time, contract qualification, revision,
+  payload) fails closed; a distinct ref still always enters lineage when the
+  value is unchanged.
+MAJ-06 (computation cursor): the prior "explicit cursor" was in fact always
+  derived internally from the triggering event's own recorded_time
+  (candle.recorded_time in on_candle; the Swing event's own recorded_time in
+  the reattempt paths) — exactly the substitution the finding prohibits.
+  on_candle/on_swing_confirmed/on_swing_invalidated now take `cursor` as a
+  required keyword argument threaded through every internal
+  eligibility/recomputation path, with no internal fallback.
+```
+
+### Test execution (fresh, this transaction)
+
+```text
+ruff format --check . -> 22 files already formatted. ruff check . -> All
+  checks passed. mypy --strict -> Success, 21 source files. pytest tests/ -v
+  -> 77 passed, 0 failed (test_candle_window.py rewritten; new regression
+  tests added for MAJ-02/-04/-05/-06 in test_swing_distance.py and
+  test_regime_passthrough.py).
+```
+
+### Files changed
+
+```text
+python/feature-engine/src/feature_engine/{__init__,candle_window,contracts,
+  errors,regime_passthrough,swing_distance}.py,
+  python/feature-engine/tests/{conftest,test_candle_window,
+  test_regime_passthrough,test_swing_distance}.py,
+  python/feature-engine/README.md, docs/MANIFEST.md, docs/CHANGELOG.md.
+  module-registry.yaml/structure-engine/raw-regime-engine/go/Domain
+  Contracts/ADRs/Constitution/governance all byte-unchanged. manifest_version
+  "10.224" -> "10.225".
+```
+
+### Next governed action (not performed here)
+
+Bounded read-only Review A re-review of only `P3-FEATURE-A-MAJ-02` through `-06`, at the resulting immutable boundary — scope limited to this delta. `P3-FEATURE-A-MAJ-01` not in scope (already `CLOSED`).
+
 ## [Unreleased] — 2026-08-24 — feature-engine: bounded remediation of six Review A Major findings
 
 **Bounded correction only** (`P3-FEATURE-A-MAJ-01` through `-06`). Baseline HEAD `9452e8341516c25f2b4e576921c75751df1894d4`. Does not modify Domain Contracts/ADRs/Constitution/`module-registry.yaml`/dependency graph/Structure/Raw-Regime code. Does not classify Quality Tier, run a formal Quality Gate, or authorize LIVE. All six findings recorded `REMEDIATED_PENDING_BOUNDED_REREVIEW` — none self-closed.

@@ -13,9 +13,6 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from .contracts import (
-    FEATURE_COMPUTED_CONTRACT_ID,
-    FEATURE_EVENT_CONTRACT_VERSION,
-    FEATURE_FACT_INVALIDATED_CONTRACT_ID,
     FeatureComputed,
     FeatureDefinition,
     FeatureEvent,
@@ -23,6 +20,7 @@ from .contracts import (
     FeatureScope,
     RecordedTimeSource,
     normalize_input_facts,
+    resolve_output_contract_refs,
 )
 from .envelope import EventContractRef, EventRecordRef
 from .errors import (
@@ -42,8 +40,6 @@ _DIMENSION_BY_FEATURE_TYPE = {
     "volatility_metric": "volatility",
     "directional_persistence_metric": "directional_persistence",
 }
-_OUTPUT_CONTRACT_REF = EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, FEATURE_EVENT_CONTRACT_VERSION)
-_INVALIDATION_CONTRACT_REF = EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_EVENT_CONTRACT_VERSION)
 
 
 @dataclass(slots=True)
@@ -69,6 +65,7 @@ class RegimePassthroughFeatureEngine:
         allocator: SequenceAllocator,
         time_source: RecordedTimeSource,
         *,
+        feature_event_contract_version: str,
         stream_id: str = "feature",
     ) -> None:
         if definition.feature_type not in _DIMENSION_BY_FEATURE_TYPE:
@@ -79,6 +76,9 @@ class RegimePassthroughFeatureEngine:
             definition.feature_definition_version
         ):
             raise ValueError("scope does not match definition")
+        self._output_contract_ref, self._invalidation_contract_ref = resolve_output_contract_refs(
+            feature_event_contract_version
+        )
         self.scope = scope
         self.definition = definition
         self._expected_dimension = _DIMENSION_BY_FEATURE_TYPE[definition.feature_type]
@@ -183,7 +183,7 @@ class RegimePassthroughFeatureEngine:
             causation_refs=normalized_refs,
             recorded_time=recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
-            event_contract_ref=_OUTPUT_CONTRACT_REF,
+            event_contract_ref=self._output_contract_ref,
         )
         self._lineage[key] = _WindowLineage(
             head_fact=feature_fact, invalidated=False, last_evidence_ref=fact.ref, last_evidence_fact=fact
@@ -206,7 +206,7 @@ class RegimePassthroughFeatureEngine:
             causation_refs=(state.head_fact.ref, invalidation.ref),
             recorded_time=recorded_time,
             ref=ref,
-            event_contract_ref=_INVALIDATION_CONTRACT_REF,
+            event_contract_ref=self._invalidation_contract_ref,
         )
         state.invalidated = True
         state.pending_invalidation_ref = ref
@@ -234,7 +234,7 @@ class RegimePassthroughFeatureEngine:
             causation_refs=(*normalized_refs, existing.pending_invalidation_ref),
             recorded_time=recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
-            event_contract_ref=_OUTPUT_CONTRACT_REF,
+            event_contract_ref=self._output_contract_ref,
         )
         self._lineage[key] = _WindowLineage(
             head_fact=replacement, invalidated=False, last_evidence_ref=fact.ref, last_evidence_fact=fact

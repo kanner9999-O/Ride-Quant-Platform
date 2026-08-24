@@ -22,11 +22,14 @@ class InvalidFeatureDefinitionError(FeatureEngineError):
 
 
 class UnsupportedFeatureFormulaError(FeatureEngineError):
-    """The `FeatureFormula` supplied to a candle-path engine does not match
-    the `FeatureDefinition`'s own pinned `formula_id` — feature.md leaves
-    concrete Candle-derived formulas unresolved (no canonical ATR/stdev/
-    realized-volatility/etc.), so this engine never guesses; it fails closed
-    instead of silently substituting or inventing one.
+    """Raised unconditionally by `CandleWindowFeatureEngine`'s constructor
+    (P3-FEATURE-A-MAJ-03) — feature.md leaves concrete Candle-derived
+    formulas unresolved (no canonical ATR/stdev/realized-volatility/etc.),
+    and no current repository authority pins an immutable executable
+    identity + parameters for any `formula_id`. A caller-supplied callable
+    matched only by a `formula_id` string equality check is not real
+    authorization, so this engine no longer accepts one at all — it fails
+    closed instead of executing arbitrary caller-supplied code.
     """
 
 
@@ -131,8 +134,21 @@ class UnsupportedDistanceRepresentationError(FeatureEngineError):
 
 class UnauthorizedUpstreamContractError(FeatureEngineError):
     """An upstream fact's `event_contract_ref` (Chapter 8 §8.2.5) does not
-    match any entry in the `FeatureDefinition`'s own pinned
-    `upstream_contract_refs` (feature.md §6) — an input's contract
-    qualification is never inferred/assumed, only exact-matched against
-    definition-pinned authority.
+    exact-match (contract_id AND contract_version) any entry in the
+    caller-injected authoritative contract set for this engine — an input's
+    contract qualification is never inferred/assumed from `contract_id`
+    alone, and never accepted merely because `contract_id` matches while
+    `contract_version` is arbitrary (P3-FEATURE-A-MAJ-02).
+    """
+
+
+class UnresolvedOutputContractAuthorityError(FeatureEngineError):
+    """The caller did not supply a genuine, non-empty
+    `event_contract_ref.contract_version` for this engine's own outbound
+    `FeatureComputed`/`FeatureFactInvalidated` events. `stream-registry.yaml`/
+    a real Event Contract version authority does not exist yet in this
+    repository (Phase 1, not yet authored) — this engine never invents a
+    stand-in value (e.g. `"v0"`) for its own authoritative emission; if no
+    genuine version is injected, it fails closed here instead
+    (P3-FEATURE-A-MAJ-02).
     """

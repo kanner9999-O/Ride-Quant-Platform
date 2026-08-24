@@ -18,7 +18,12 @@ from decimal import Decimal
 from typing import Literal, Protocol
 
 from .envelope import EventContractRef, EventRecordRef
-from .errors import EvidenceCardinalityError, EvidenceReferenceConflictError, InvalidFeatureDefinitionError
+from .errors import (
+    EvidenceCardinalityError,
+    EvidenceReferenceConflictError,
+    InvalidFeatureDefinitionError,
+    UnresolvedOutputContractAuthorityError,
+)
 from .identity import deterministic_id
 
 FeatureType = Literal["volatility_metric", "directional_persistence_metric", "distance_to_last_confirmed_swing"]
@@ -42,12 +47,17 @@ _CANDLE_CONTRACT_IDS = frozenset({CANDLE_CLOSED_CONTRACT_ID, CANDLE_CORRECTED_CO
 _REGIME_CONTRACT_IDS = frozenset({REGIME_CLASSIFIED_CONTRACT_ID, REGIME_FACT_INVALIDATED_CONTRACT_ID})
 _SWING_CONTRACT_IDS = frozenset({SWING_CONFIRMED_CONTRACT_ID, SWING_INVALIDATED_CONTRACT_ID})
 
-# Bounded stand-in for Feature's own outbound `event_contract_ref.contract_version` —
-# stream-registry.yaml/a real Event Contract version authority does not exist yet
-# (Phase 1, same "not yet authored" note feature.md §2 itself makes for
-# stream_ref/producer_ref) — mirrors the `_REGISTRY_VERSION = "v0"` bounded stand-in
-# already used throughout this module for `stream_ref.registry_version`.
-FEATURE_EVENT_CONTRACT_VERSION = "v0"
+# P3-FEATURE-A-MAJ-02 remediation: no fabricated stand-in value (e.g. the
+# former `FEATURE_EVENT_CONTRACT_VERSION = "v0"`) is invented for Feature's
+# own outbound `event_contract_ref.contract_version` anymore. `stream-
+# registry.yaml`/a real Event Contract version authority does not exist yet
+# in this repository (Phase 1, not yet authored) — each computation engine
+# now requires the caller to inject the genuine, non-empty contract version
+# it authorizes at construction time (mirroring how `SequenceAllocator`'s
+# `module_id`/`implementation_version`/`run_id` are already caller-supplied,
+# never invented) and fails closed
+# (`UnresolvedOutputContractAuthorityError`) if none is supplied — see
+# `candle_window.py`/`swing_distance.py`/`regime_passthrough.py`.
 
 # feature.md §6 "Giá trị canonical mặc định" — the exact canonical policy
 # identifier strings pinned by the Domain Contract itself. Validated
@@ -78,6 +88,26 @@ CORRECTION_POLICY = "always_invalidate_and_replace_no_shortcut"  # feature.md §
 
 _REGISTRY_VERSION = "v0"  # bounded stand-in for stream-registry.yaml (Phase 1, does not exist yet)
 _OHLC_FIELDS = frozenset({"open", "high", "low", "close"})
+
+
+def resolve_output_contract_refs(feature_event_contract_version: str) -> tuple[EventContractRef, EventContractRef]:
+    """P3-FEATURE-A-MAJ-02 remediation — the single place every computation
+    engine resolves its own outbound `(FeatureComputed, FeatureFactInvalidated)`
+    `event_contract_ref`s. `feature_event_contract_version` is the exact,
+    genuine, immutable contract-version identity the CALLER authorizes for
+    this engine's own output (never invented here) — fails closed
+    (`UnresolvedOutputContractAuthorityError`) if empty, rather than
+    defaulting to a fabricated stand-in.
+    """
+    if not feature_event_contract_version:
+        raise UnresolvedOutputContractAuthorityError(
+            "feature_event_contract_version must be a genuine, non-empty contract-version identity — "
+            "no stand-in value is invented for Feature's own outbound event_contract_ref (P3-FEATURE-A-MAJ-02)"
+        )
+    return (
+        EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, feature_event_contract_version),
+        EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_ID, feature_event_contract_version),
+    )
 
 
 @dataclass(frozen=True, slots=True)

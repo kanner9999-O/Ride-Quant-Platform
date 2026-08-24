@@ -7,6 +7,7 @@ from decimal import Decimal
 import pytest
 from conftest import (
     BASE,
+    FEATURE_OUTPUT_CONTRACT_VERSION,
     FixedDeltaTimeSource,
     feature_scope,
     make_regime_definition,
@@ -23,6 +24,7 @@ from feature_engine.errors import (
     FeatureLineageError,
     RegimeDimensionMismatchError,
     UnauthorizedUpstreamContractError,
+    UnresolvedOutputContractAuthorityError,
 )
 
 
@@ -31,7 +33,21 @@ def _engine(
 ) -> RegimePassthroughFeatureEngine:
     definition = make_regime_definition(feature_type=feature_type, regime_dimension_version="rgd-1")
     scope = feature_scope(feature_type, version=definition.feature_definition_version)
-    return RegimePassthroughFeatureEngine(scope, definition, allocator, time_source)
+    return RegimePassthroughFeatureEngine(
+        scope, definition, allocator, time_source, feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION
+    )
+
+
+# --- P3-FEATURE-A-MAJ-02 remediation: output contract-version authority ------
+
+
+def test_output_contract_version_must_be_genuine_non_empty(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    definition = make_regime_definition(regime_dimension_version="rgd-1")
+    scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
+    with pytest.raises(UnresolvedOutputContractAuthorityError):
+        RegimePassthroughFeatureEngine(scope, definition, allocator, time_source, feature_event_contract_version="")
 
 
 # --- 3. Regime volatility pass-through ---------------------------------------
