@@ -2,6 +2,89 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-24 — feature-engine: implement authoritative Feature core
+
+**Initial implementation only.** Vai trò: `Feature Engine Initial Implementation Executor`. Baseline HEAD `7e209cf0e28918df543f641605997aa33b93bd48` (verified). Does not approve the module, classify Quality Tier, run a formal Chapter 13 Quality Gate, or modify `module-registry.yaml`/Domain Contracts/ADRs/Constitution. Does not implement Context Aggregator/Strategy/Decision/Risk/Execution. Does not authorize LIVE.
+
+### Added
+
+```text
+python/feature-engine/ (new package, feature_engine). Language: Python — ADR-008's
+  "Feature Engineering" layer pin applied to feature-engine's own
+  implements_capabilities: [feature-engineering] registry entry (literal text match,
+  resolved via this build transaction per monorepo.md §4; no new ADR). ADR Scope Rule:
+  ADR_NOT_REQUIRED (Chapter 0 §4b).
+Three founding feature.md types (closed enum), all FULLY_IMPLEMENTED:
+  volatility_metric (regime pass-through + generic Candle-window path),
+  directional_persistence_metric (regime pass-through + generic Candle-window path,
+  continuous value, no Bullish/Bearish/price-action reinterpretation),
+  distance_to_last_confirmed_swing (feature.md §9a 5-step eligible-Swing filter
+  pipeline + 8-criterion total order, Decimal-only signed/absolute arithmetic).
+Optional non-authoritative FeatureCurrentView (feature.md §11, 7-criterion total
+  order) — no row before first computation, PENDING_CORRECTION never falls back to
+  an older valid window.
+Deterministic evidence normalization (feature.md §8a, generalized over
+  Candle/Swing/Regime), append-only correction/invalidation lineage (no fork, no
+  skip), strict recorded_time causal-floor injection (RecordedTimeSource, never
+  fabricated), no look-ahead — Swing eligibility applies a strict effective-time
+  cutoff independent from recorded-time visibility, tracked on an independent axis
+  per upstream stream (Candle vs Swing) since they are independent producer streams.
+Consumes ONLY CandleClosed/CandleCorrected, SwingConfirmed/SwingInvalidated,
+  RegimeClassified/RegimeFactInvalidated (own consumer-side views —
+  swing_input.py/regime_input.py — not importing structure_engine/raw_regime_engine).
+  Does not consume CandleObserved/CandleCurrentView/SwingCandidateDetected/
+  SwingCurrentView/any Structure BOS-CHoCH-orientation event/RegimeCurrentView/any
+  Context/Strategy/Decision/Risk/Execution state.
+```
+
+### Known, honest limitation — no fabricated formula
+
+```text
+feature.md does not pin a concrete Candle-derived metric formula. The Candle-window
+  path (CandleWindowFeatureEngine) is generic over an injected FeatureFormula
+  (formula_id + compute), failing closed (UnsupportedFeatureFormulaError) at
+  construction time on any formula_id mismatch — no arbitrary callable/plugin
+  execution path exists. Only test-*-prefixed formulas exist in this repository; no
+  production formula is claimed or invented. Regime-source and Swing-distance paths
+  do not depend on this and are fully implemented.
+```
+
+### Test execution (fresh, this transaction; clean-room reconstruction independently re-verified)
+
+```text
+ruff format --check . -> clean (ruff 0.16.4). ruff check . -> All checks passed.
+mypy --strict -> Success, 21 source files (mypy 2.3.1). pytest tests/ -v -> 56 passed,
+  0 failed (pytest 9.1.1, Python 3.13.6). pip check (clean-room, reconstructed from
+  requirements-dev.lock.txt) -> No broken requirements found. Zero runtime
+  dependencies. decimal.Decimal used exclusively for authoritative numerical values
+  (no float). No datetime.now()/time.time() domain decision.
+```
+
+### State summary
+
+```text
+Feature Engine: implemented (engine semantics only), Quality Tier UNRESOLVED, no
+  formal Chapter 13 QG, NOT approved as a module.
+Structure Engine: unchanged — formal Chapter 13 QG result remains FAIL — evidence
+  (boundary 5b2b44f2263fc69af8c03578692796e63bafb5df), not remediated here.
+Raw Regime Engine: unchanged — formal QG NOT run (separate evaluation required).
+Package 1.1: candidate (unchanged), NOT reconsolidated. Phase 3 Approval Gate: NOT
+  opened. LIVE: NOT_AUTHORIZED.
+```
+
+### Files changed
+
+```text
+python/feature-engine/** (new). docs/MANIFEST.md (manifest_version "10.222" ->
+  "10.223"), docs/CHANGELOG.md (this entry). No other file touched — verified via
+  `git add -n .` / `git diff --quiet` on module-registry.yaml, python/structure-
+  engine/**, python/raw-regime-engine/**, go/**.
+```
+
+### Next governed action (not performed here)
+
+One independent, read-only post-build Review A of this implementation at the resulting immutable boundary. Context Aggregator implementation does not start until that review's state is appropriately resolved.
+
 ## [Unreleased] — 2026-08-23 — structure-engine: formal Chapter 13 Quality Gate — FAIL — evidence
 
 **Formal, read-only Chapter 13 Quality Gate evaluation.** Evaluator: Claude, AI Technical Architect (resolved against `docs/team/team.yaml`, P3-IDENTITY-001). Evaluation boundary: `5b2b44f2263fc69af8c03578692796e63bafb5df`. Resolved Tier: Tier 1 — Core Logic (Chapter 13 §13.4 branch 1, `module-registry.yaml` v1.5). Does not modify implementation/registry. Does not approve the module. Does not open Phase 3 Approval Gate. Does not authorize LIVE. Does not remediate findings.

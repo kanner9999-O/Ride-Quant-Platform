@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.222"
+manifest_version: "10.223"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -7954,6 +7954,134 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 ```
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1 -uall`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.221"` → `"10.222"`.
+
+## `feature-engine` — Initial Implementation (Feature Engine core; Quality Tier UNRESOLVED, module NOT approved, no formal Quality Gate)
+
+**Baseline:** branch `main`, HEAD `7e209cf0e28918df543f641605997aa33b93bd48` (verified — matches required starting boundary; working tree clean before this transaction; `manifest_version "10.222"` verified; `module-registry.yaml` version `"1.5"`/`package_lifecycle: candidate` verified). This is implementation only — vai trò `Feature Engine Initial Implementation Executor` — does not approve the module, does not classify Quality Tier, does not run a formal Chapter 13 Quality Gate, does not modify `module-registry.yaml`/Domain Contracts/ADRs/Constitution, does not implement Context Aggregator/Strategy/Decision/Risk/Execution, does not authorize LIVE.
+
+**Authority verified fresh (not trusted from memory, G-VERIFY-001/P3-VERIFY-001):** `14-roadmap.md` §14.2 canonical Phase 3 sequence (Data Layer → Structure/Raw Regime → **Feature Engine** → Context Projection → Strategy → Decision → Risk Gateway → Execution → Quality Gate → Approval Gate); `phase-3-rules.md`; `module-registry.yaml`'s `feature-engine` entry (byte-exact: `module_type: compute_engine`, `implements_capabilities: [feature-engineering]`, `depends_on: [market-data-ingestion, structure-engine, raw-regime-engine]`, no `quality_tier` field); `docs/domain/feature.md` (full, v0.2 Draft); `docs/adr/ADR-008.md` (Approved — "Python cho Feature Engineering, Strategy, Decision logic, Backtest Engine"); `docs/engineering/monorepo.md` §4; Chapters 2/3/5/6/7/8/13/14; `structure-regime-architecture.md`, `feature-context-architecture.md`; `candle.md`/`swing.md`/`structure.md`/`regime.md`; ADR-009/ADR-014/ADR-033; `python/structure-engine/**`/`python/raw-regime-engine/**` (style reference only, not imported).
+
+```text
+Language resolution:   Python. Basis: ADR-008 pins "Feature Engineering" at
+  layer/capability level (Approved). feature-engine's own registry entry
+  (implements_capabilities: [feature-engineering]) is a literal, unambiguous
+  match to that text — resolved via THIS build transaction per
+  monorepo.md §4's transfer mechanism (module_id name-similarity alone is
+  explicitly NOT authority; this is a direct capability-text match, not a
+  name-similarity inference). No new `language` field added to
+  module-registry.yaml (not this transaction's authority).
+ADR Scope Rule (Chapter 0 §4b): ADR_NOT_REQUIRED. Implements one
+  already-registered module under the already-existing boundary/dependency
+  graph, feature.md Domain Contract, ADR-014 fan-in semantics, ADR-008
+  language principle, Event Model, and Feature/Context architecture. No new
+  Platform Invariant, Event Schema, module taxonomy, dependency-graph
+  change, cross-module contract, governance-process change, or
+  hard-to-reverse choice introduced.
+```
+
+### Implementation scope
+
+```text
+feature-engine:  IMPLEMENTED (python/feature-engine/, package
+  feature_engine). Authoritative for FeatureComputed/FeatureFactInvalidated
+  across exactly the three founding feature.md types (closed enum):
+  volatility_metric, directional_persistence_metric,
+  distance_to_last_confirmed_swing. Optional non-authoritative
+  FeatureCurrentView projection (feature.md §11) implemented, fed
+  externally, never wired automatically into any engine.
+  Consumes ONLY: CandleClosed/CandleCorrected (own CandleFact view),
+  SwingConfirmed/SwingInvalidated (own swing_input.py view, NOT importing
+  structure_engine), RegimeClassified/RegimeFactInvalidated (own
+  regime_input.py view, NOT importing raw_regime_engine). Does not consume
+  CandleObserved/CandleCurrentView/SwingCandidateDetected/SwingCurrentView/
+  any Structure BOS/CHoCH/orientation event/RegimeCurrentView/any Context/
+  Strategy/Decision/Risk/Execution state — module-level depends_on is
+  treated as a dependency-graph fact only, not per-event authorization
+  (verified directly by test_boundaries.py's static checks against the
+  committed source tree).
+Per-path status:
+  volatility_metric / regime            FULLY_IMPLEMENTED
+  volatility_metric / candle            FULLY_IMPLEMENTED (generic engine;
+                                          fails closed, no formula invented —
+                                          see formula boundary below)
+  directional_persistence_metric / regime  FULLY_IMPLEMENTED
+  directional_persistence_metric / candle  FULLY_IMPLEMENTED (same
+                                          formula-boundary note)
+  distance_to_last_confirmed_swing         FULLY_IMPLEMENTED (feature.md
+                                          §9a 5-step eligible-Swing filter
+                                          pipeline + 8-criterion total
+                                          order, Decimal-only signed/
+                                          absolute distance arithmetic)
+Formula authority limitation (honest, not fabricated): feature.md does not
+  pin a concrete Candle-derived formula (ATR/stdev/realized-volatility/
+  variance/momentum/slope/RSI/directional-count/return-aggregation or any
+  other). CandleWindowFeatureEngine is generic over an injected
+  FeatureFormula (formula_id + compute(evidence) -> Decimal), fails closed
+  (UnsupportedFeatureFormulaError) at construction time if the supplied
+  formula_id does not match the FeatureDefinition's pinned formula_id — no
+  arbitrary callable/plugin execution path exists. Only test-*-prefixed
+  formulas exist anywhere in this repository; no production formula is
+  claimed or invented.
+Domain semantic invented: No. Where feature.md explicitly defers a concrete
+  mechanism (warm_up_policy/missing_input_policy/effective_window_policy
+  values, the signed-distance-representation arithmetic convention
+  `reference_price - pivot_price`), this module pins ONE bounded, documented
+  module-local interpretation in code — not a governance decision, and not
+  a fabricated directional/price-action interpretation.
+Files created: python/feature-engine/{README.md, pyproject.toml,
+  .gitignore, requirements-dev.lock.txt}, src/feature_engine/{__init__.py,
+  identity.py, envelope.py, publish.py, candle.py, swing_input.py,
+  regime_input.py, errors.py, contracts.py, regime_passthrough.py,
+  candle_window.py, swing_distance.py, current_view.py}, tests/{conftest.py,
+  test_definition.py, test_regime_passthrough.py, test_candle_window.py,
+  test_swing_distance.py, test_current_view.py, test_evidence.py,
+  test_boundaries.py}.
+Structure Engine / Raw Regime Engine touched: NO (byte-unchanged, verified
+  `git diff --quiet` on both paths).
+module-registry.yaml / dependency graph: UNCHANGED (not modified).
+Domain Contracts / ADRs / Constitution / governance docs: UNCHANGED.
+Feature Engine Quality Tier: UNRESOLVED (registry carries no quality_tier
+  field for feature-engine; NOT classified by this transaction — a separate
+  governed Quality Tier sequence is required, even though Chapter 13's
+  initial-assignment map lists Feature Engine informatively in Tier 1).
+Formal Chapter 13 Quality Gate for feature-engine: NOT run (out of scope).
+feature-engine module approval: NONE granted (implementation only).
+Structure Engine's own formal Chapter 13 QG (boundary
+  5b2b44f2263fc69af8c03578692796e63bafb5df): UNCHANGED — remains
+  FAIL — evidence; those four findings are NOT remediated, closed, or
+  reclassified as Feature defects by this transaction.
+Raw Regime Engine's formal Chapter 13 QG: NOT run (separate, untouched,
+  own exact-boundary evaluation required).
+Package 1.1: candidate (unchanged) — NOT reconsolidated by this transaction.
+Phase 3 Approval Gate: NOT opened.
+LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Validation (fresh venv, this transaction; clean-room reconstruction independently re-verified from the committed lock file)
+
+```text
+Python 3.13.6 (CPython, arm64, macOS). pip 25.2. Toolchain (unchanged from
+  structure-engine/raw-regime-engine baseline): ruff==0.16.4, mypy==2.3.1,
+  pytest==9.1.1, setuptools==84.0.0 (build backend).
+ruff format --check .   -> all files formatted, clean.
+ruff check .             -> All checks passed!
+mypy (--strict, files=[src, tests] per pyproject.toml)  -> Success: no
+  issues found in 21 source files.
+pytest tests/ -v         -> 56 passed, 0 failed.
+pip check (clean-room, reconstructed from requirements-dev.lock.txt via
+  `pip install --no-deps -r requirements-dev.lock.txt && pip install -e .
+  --no-deps`)  -> No broken requirements found.
+Runtime dependencies: ZERO ([project].dependencies empty). decimal.Decimal
+  (stdlib) used exclusively for authoritative numerical values — verified no
+  `float(` in src/. No `datetime.now()`/`time.time()` domain decision
+  anywhere in src/ (verified by test_boundaries.py + direct grep).
+```
+
+**Files changed:** `python/feature-engine/**` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git add -n .`/`git status --porcelain`; `docs/architecture/module-registry.yaml`, `python/structure-engine/**`, `python/raw-regime-engine/**`, `go/**` all verified byte-unchanged (`git diff --quiet` for each); no tracked cache/venv/egg-info artifact staged (`.gitignore` verified to exclude `.venv/`, `__pycache__/`, `*.egg-info/`). `manifest_version` `"10.222"` → `"10.223"`.
+
+### Next governed action (not performed in this transaction)
+
+One independent, read-only post-build Review A of this Feature Engine implementation, at the resulting immutable commit boundary. Context Aggregator implementation does not start until that review's state is appropriately resolved. LIVE remains NOT_AUTHORIZED.
 
 ## Decision Log
 
