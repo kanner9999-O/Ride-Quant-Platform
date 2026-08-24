@@ -2,6 +2,60 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-24 — ADR-034 v0.1 (Draft): new FeatureFactInvalidated invalidation_cause candidate
+
+**ADR-authoring transaction only** — not a Feature remediation round, no code/Domain Contract touched. Baseline HEAD `d728f682d3310d8735763269a228cc248f61bf5d`.
+
+### Added
+
+```text
+docs/adr/ADR-034.md (Draft, v0.1, unapproved): authorizes a new
+  FeatureFactInvalidated.invalidation_cause semantic — a settled Feature fact
+  invalidated because a newly-visible, higher-priority SwingConfirmed (first
+  confirmation or corrected revision N+1) now wins feature.md §9a's
+  deterministic Eligible-Swing total order, while the Swing fact the
+  invalidated fact actually used remains valid and non-invalidated. Fixes
+  the causal-fidelity violation confirmed in the current feature-engine
+  Round-2 code: the B-based-fact-preempted-by-A(N+1) transition is currently
+  labeled invalidation_cause="swing_invalidated" while citing a
+  SwingConfirmed (not a SwingInvalidated) in causation_refs.
+
+Scope classification: ADR_REQUIRED per Chapter 0 §4b's "Event Schema"
+  trigger, confirmed independently sufficient (disjunctive, not conjunctive)
+  by direct ADR-025 precedent. This corrects a narrower, conjunctive reading
+  reached in this session's immediately prior transaction on the same
+  underlying gap.
+
+Four alternatives evaluated (keep swing_invalidated; suppress the
+  invalidation/replacement; reuse an unrelated existing cause; add one
+  narrowly-scoped new cause) — only the fourth preserves causal fidelity
+  without a generic correction framework or new Feature-to-Feature
+  dependency. Working semantic name: eligible_swing_selection_superseded
+  (final identifier deferred to the follow-on feature.md amendment).
+```
+
+### Not performed in this transaction
+
+```text
+No Review A/B, no Product Owner decision, no feature.md edit, no
+  feature-engine implementation/test change, no P3-FEATURE-A-MAJ-04
+  remediation. This MANIFEST/CHANGELOG entry does not adopt any Review-A
+  finding-state characterization beyond what the prior "feature-engine —
+  Bounded Remediation Round 2" entry already recorded (no re-review evidence
+  exists at this boundary).
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-034.md (new), docs/MANIFEST.md, docs/CHANGELOG.md.
+manifest_version "10.225" -> "10.226". No other file touched.
+```
+
+### Next governed action (not performed here)
+
+Independent read-only Review A of ADR-034 at the resulting immutable boundary.
+
 ## [Unreleased] — 2026-08-24 — feature-engine: bounded remediation Round 2, five still-open Review A Major findings
 
 **Bounded correction only** (`P3-FEATURE-A-MAJ-02` through `-06`; `-01` re-confirmed `CLOSED`, untouched). Baseline HEAD `039358e5856168fe14557e194e50133d4fbf7cf8`. A fresh, independent re-review found MAJ-02/-03/-04/-06 not actually closed by the Round 1 remediation's real code despite Round 1's own report claiming closure, and MAJ-05 partially closed (Regime path only). Does not modify Domain Contracts/ADRs/Constitution/`module-registry.yaml`/dependency graph/Structure/Raw-Regime code. Does not classify Quality Tier, run a formal Quality Gate, or authorize LIVE. All five findings recorded `REMEDIATED_PENDING_BOUNDED_REREVIEW` — none self-closed.

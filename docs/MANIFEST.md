@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.225"
+manifest_version: "10.226"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -8325,6 +8325,118 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval
 ### Next governed action (not performed in this transaction)
 
 Bounded read-only Review A re-review of only `P3-FEATURE-A-MAJ-02` through `-06`, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001 (bounded semantic correction → bounded semantic re-review). No new Review A/B on unrelated parts of `feature-engine`; `P3-FEATURE-A-MAJ-01` not in scope (already `CLOSED`).
+
+## ADR-034 v0.1 — Feature Eligible-Swing Selection Supersession, new `FeatureFactInvalidated.invalidation_cause` (`Draft`, candidate authoring only)
+
+**Governed semantic architecture-authoring transaction — vai trò: `ADR-034 Candidate Author Executor`.** Authors `docs/adr/ADR-034.md` v0.1 (`Draft`) authorizing a new `FeatureFactInvalidated.invalidation_cause` semantic for the case where a settled Feature fact must be invalidated because a newly-visible corrected `SwingConfirmed` — not a `SwingInvalidated` — changes `feature.md` §9a's deterministic Eligible-Swing winner. Does not approve the ADR, does not perform Review A or Independent Review B, does not modify `feature.md`, does not touch `feature-engine` implementation/tests, does not remediate `P3-FEATURE-A-MAJ-04` or any other finding.
+
+**Baseline:** branch `main`, HEAD `d728f682d3310d8735763269a228cc248f61bf5d` (verified via `git rev-parse HEAD` before any edit; matches required starting boundary; tracked tree clean). `manifest_version` confirmed `"10.225"` at start. `docs/adr/ADR-033.md` confirmed the highest existing ADR (`ADR-034.md` verified absent before this transaction).
+
+```text
+ADR ID:                  ADR-034
+Version:                  "0.1"
+Status:                   Draft
+Content identity:         git hash-object docs/adr/ADR-034.md = 9250497c0d604df35091e08cefcbf897756fcc52
+                           (77 lines)
+owner:                     Product Owner (final approval authority — unchanged, no approval
+                           granted or implied by this transaction)
+approved_by / approved_at: null / null
+reviewers:                 [] (no review executed against this candidate)
+depends_on:                [] (informed by, but not structurally dependent on, ADR-009/
+                           ADR-014 — neither is superseded or amended; both remain unchanged)
+supersedes:                []
+```
+
+### ADR Scope Rule
+
+```text
+ADR_REQUIRED, per Chapter 0 §4b — "thay đổi Event Schema" trigger, verified independently
+  sufficient (disjunctive, not conjunctive) by direct Approved-ADR precedent: ADR-025 states
+  "Một update CHỈ được phép proceed KHÔNG CẦN ADR mới khi nó KHÔNG thỏa BẤT KỲ vế ADR Required
+  nào (Platform Invariant/Event Schema/Module Taxonomy/dependency graph/Governance
+  process/>1 module/khó đảo ngược/supersede ADR Locked)". `invalidation_cause` is a closed-enum
+  payload field of the authoritative `FeatureFactInvalidated` event (feature.md §4); adding a
+  legally distinct value changes that event's schema. Chapter 8 §8.2's statement that the Event
+  Contract (feature.md) owns payload schema/semantic content determines WHERE the content is
+  authored, not WHICH governance process authorizes changing it — ownership-of-content and
+  process-requirement are different axes (ADR-033 itself treats "event schema" as inclusive of
+  Domain-Contract-owned field-level schema when disclaiming its own scope). This corrects a
+  narrower, conjunctive reading recorded in this session's immediately prior transaction (the
+  "ADR_NOT_REQUIRED" conclusion on the same underlying gap) — re-derived here against direct
+  ADR-025 precedent not previously weighed to this depth; no higher-authority rule was found
+  that reopens the ADR_NOT_REQUIRED reading.
+```
+
+### Verified authorities (fresh source inspection, not copied from this task's prompt)
+
+```text
+Chapter 0 §4b (00-governance.md, Locked v1.2): re-read verbatim — ADR Scope Rule table.
+ADR-025 (Approved): re-read the exact clause establishing the disjunctive-OR test across all
+  ADR Scope Rule branches, including Event Schema independent of >1-module/hard-to-reverse.
+Chapter 8 §8.2 (08-event-model.md, Locked v4.8): re-read verbatim — envelope vs. payload
+  authority split ("Chapter 8 sở hữu envelope... Event Contract của event_type sở hữu payload
+  schema/semantic... Chapter 8 KHÔNG định nghĩa payload của bất kỳ domain event cụ thể nào").
+Chapter 11 (11-adr-process.md, Locked v2.2): re-read — ADR identity/immutability/metadata
+  contract; template fields confirmed against docs/templates/adr-template.md.
+ADR-009 (Approved): re-read — causation_refs/ordering model (P_global/P_run, causal
+  precedence) unchanged and unaffected; ADR-034 operates entirely within this already-locked
+  causation model, adds no new ordering semantic.
+ADR-014 (Approved): re-read — Feature computation fan-in boundary, Definition-pinned direct
+  fan-in; unaffected — ADR-034 adds no new upstream contract or fan-in role.
+ADR-033 (Approved): re-read in full to confirm highest existing ADR number and to source the
+  "event schema... Domain Contract... field-level schema" phrasing cited above.
+feature.md §2/§4/§9a (Draft v0.2): re-read verbatim — FeatureFactInvalidated payload/
+  invariants (three-value invalidation_cause enum, causation_refs cause-type binding), §9a's
+  5-step filter pipeline + 8-criterion total order.
+swing.md correction/revision semantics (§1a/§10, Draft v0.2): re-read verbatim — revision N+1
+  requires explicit invalidation of N; pivot_effective_time invariant across revisions of the
+  same swing_id.
+Current feature-engine code (swing_distance.py, this session's own Round-2 authorship):
+  re-inspected directly as defect evidence — `_preempt_settled_window` stamps
+  invalidation_cause="swing_invalidated" while citing the new winning SwingConfirmed's own ref
+  in causation_refs, confirming the causal-fidelity violation this ADR authorizes fixing.
+docs/templates/adr-template.md: re-read — ADR-034.md structure/fields verified conformant.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/domain/feature.md unchanged (verified git diff --quiet -- docs/domain/). No other
+  Domain Contract touched. No implementation/test file touched (verified git diff --quiet --
+  python/). module-registry.yaml unchanged. Constitution/governance unchanged. No existing
+  Approved ADR mutated (verified git diff --quiet -- docs/adr/ADR-001.md ... ADR-033.md, all
+  33 prior ADR files byte-identical). ADR-034.md's Independent Reviews table is the unfilled
+  template — no reviewer identity or review result fabricated. ADR-034 not approved: `status:
+  Draft`, `approved_by: null`, `approved_at: null`.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains open pending the three-step sequence ADR-034 identifies
+  (ADR approval -> bounded feature.md amendment -> bounded feature-engine remediation ->
+  bounded Review-A re-review) — this transaction records the ADR candidate only, no finding
+  state transition performed here. This MANIFEST does NOT adopt this task's stated
+  "MAJ-03 CLOSED / MAJ-02,04,05,06 OPEN / REVISION_REQUIRED" characterization as recorded
+  fact — no Review A re-review evidence for that specific state exists in this repository at
+  this boundary (G-VERIFY-001: prompt assertion alone is not evidence); the Finding-state
+  table recorded in the prior "feature-engine — Bounded Remediation Round 2" section
+  (REMEDIATED_PENDING_BOUNDED_REREVIEW for MAJ-02/-03/-04/-05/-06) stands unchanged and
+  unverified-superseded until an actual Review A re-review transaction records otherwise.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+module-registry.yaml / dependency graph / other Domain Contracts / other ADRs / Constitution
+  / governance: all unchanged.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Independent read-only Review A of `ADR-034` at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"), not a bounded correction re-review. Does not itself authorize `feature.md` amendment, `feature-engine` remediation, or Product Owner approval.
+
+**Files changed:** `docs/adr/ADR-034.md` (new file), `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 
