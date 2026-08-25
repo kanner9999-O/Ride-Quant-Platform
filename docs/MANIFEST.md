@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.232"
+manifest_version: "10.233"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -9129,6 +9129,131 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 Independent read-only Review A (ChatGPT) of `ADR-035`, at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"). Does not itself perform Review B or any implementation.
 
 **Files changed:** `docs/adr/ADR-035.md` (new file), `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## ADR-035 v0.2 — bounded correction (`Draft`, closes three v0.1 findings `pending re-review`)
+
+**Bounded semantic correction transaction — vai trò: `ADR-035 Bounded Correction Executor`.** Remediates exactly `P3-ADR035-A-MAJ-01`, `P3-ADR035-A-MAJ-02`, `P3-ADR035-A-MIN-01` against ADR-035 v0.1. Does not perform Review A/B, approval, `feature.md` amendment, or implementation.
+
+**Baseline:** branch `main`, HEAD `e5622dc481906098d554f86ef3e9fc3472fa8454` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean). `manifest_version` confirmed `"10.232"` at start. `docs/adr/ADR-035.md` confirmed `version: "0.1"`, `status: Draft`, content identity `11ef70e00531581b97da082927a0d5002df8c51a` before this transaction. `docs/adr/ADR-034.md` re-verified `version: "0.3"`, `status: Approved`, content identity `038425a423d0d2ca65f550c708399e165dfeaba4` (unchanged, immutable). `docs/domain/feature.md` re-verified `version: "0.3"`, `status: Draft`, content identity `0d39f8fbbfc593c8ca812a7a5a1f6745049cdada` (unchanged).
+
+```text
+ADR:                   ADR-035
+Version:                "0.1" -> "0.2"
+Status:                 Draft (unchanged)
+New content identity:   git hash-object docs/adr/ADR-035.md = def9114b12d81a3f2d1c3849efbeb51494336c29
+                         (153 lines)
+owner / approved_by / approved_at:  Product Owner / null / null (all unchanged)
+supersedes:              [] (unchanged)
+```
+
+### Finding provenance — recorded honestly, no fabricated reviewer identity
+
+```text
+The three findings were supplied by ID/description in the governing task prompt, without an
+  accompanying Review A execution artifact (no reviewer principal, execution ID, review
+  boundary, or independence-mode evidence provided or available). Per G-VERIFY-001/
+  P3-VERIFY-001, no fabricated "Review A provenance" record was created. Each finding's
+  underlying claim was independently re-verified directly against ADR-035.md v0.1's actual
+  committed text AND against Chapter 5 §5.3/§5.4, Chapter 8 §8.2/§8.3.4/§8.5, and feature.md
+  §6/§14/§18 (re-read fresh, not trusted from prior-session memory) before remediation:
+  - MAJ-01 confirmed true: v0.1 explicitly stated computation_cursor was "deliberately not"
+    an instance of Chapter 8's canonical schema — directly contradicting feature.md §18's own
+    "áp dụng, không định nghĩa lại... ordering/replay cursor mechanics (Chapter 5/Chapter 8)"
+    text, and Chapter 8 §8.4's own "dùng CÙNG canonical schema §8.5" reuse precedent for
+    exactly this problem class (decision_context_cursor). Also confirmed v0.1's claim that
+    feature_definition_version/§14 identifies a stream universe was unsupported — §14 lists
+    Event Contract IDs, not streams; §6 pins computation semantics only.
+  - MAJ-02 confirmed true: v0.1's only visibility rule was
+    "SwingConfirmed.recorded_time <= computation_cursor.recorded_time" — a timestamp-only
+    test, contradicting Chapter 5 §5.3's own explicit statement that timestamp alone is
+    insufficient when an ordering position is needed to disambiguate the boundary.
+  - MIN-01 confirmed true: v0.1's Alternative 2 cited "ADR-034 Alternative 2's identical
+    rejection logic" — direct re-read of ADR-034.md confirms its actual Alternative 2 text is
+    "Suppress the B -> A(N+1) invalidation/replacement entirely... Rejected — reintroduces
+    P3-FEATURE-A-MAJ-04 itself" — an unrelated rejection, not an artifact-minimality argument.
+```
+
+### Findings remediated
+
+```text
+P3-ADR035-A-MAJ-01 (authoritative cursor representation / stream universe): removed the
+  locally-invented, deliberately-non-Chapter-8 computation_cursor schema. computation_cursor's
+  value is now the canonical Chapter 8 §8.5 Replay Cursor verbatim — all five required fields
+  (recorded_time, input_contract_ref, stream_registry_version, lifecycle_frontier,
+  stream_positions). A new "Feature Definition vs Input Contract" paragraph states explicitly
+  that feature_definition_version pins computation semantics (§6) while a Feature-scoped Input
+  Contract instance (Chapter 8 §8.3.4) — a distinct artifact — must be pinned to select the
+  stream universe; feature.md §14's closed contract-ID enumeration is confirmed NOT a
+  stream-identifying artifact. A new "Fail-closed consequence" paragraph states explicitly:
+  since stream-registry.yaml and any Feature-scoped Input Contract do not yet exist as
+  persistently resolvable artifacts (§8.1.1), computation_cursor's schema is authorized now
+  but no Feature event may CLAIM it as durable evidence satisfying ADR-034's fail-closed
+  prerequisite until those artifacts genuinely exist — Chapter 8 is not amended, no artificial
+  bounded stand-in is invented to paper over the gap. The unsupported fixed "1-2 stream"
+  cardinality claim is removed from both §Decision and the Scale check's reasoning, replaced
+  with "cardinality = exactly included_streams of the pinned Input Contract, valid at its
+  lifecycle_frontier — never a fixed count."
+P3-ADR035-A-MAJ-02 (position participates in visibility): replaced the timestamp-only
+  visibility rule with a full three-leg predicate — (1) stream-universe membership (event's
+  stream in the pinned Input Contract's included_streams, valid at lifecycle_frontier, Chapter
+  8 §8.3.5 Retained-in-Universe semantics), (2) in-stream sequence position
+  (event.sequence <= cursor.stream_positions[stream_id], no cross-stream comparison, Chapter 8
+  §8.3.3), (3) recorded-time boundary (event.recorded_time <= cursor.recorded_time, Chapter 5
+  §5.3). States explicitly this predicate applies to R_original/R_later and ADR-034's
+  conditions (a)/(b), and explicitly states this refines proof mechanics under Chapter 5/8
+  authority WITHOUT altering ADR-034's causal-supersession decision, its four conditions,
+  causation_refs binding, or mutual exclusion with swing_invalidated — none of which were
+  touched. Added Lifecycle -> Cursor relational invariant (Chapter 8 §8.5.2, applied verbatim,
+  previously missing). Consequences updated: the follow-on feature.md amendment must also
+  align §9a step 2/§12's cursor-visibility text with this same three-leg predicate.
+P3-ADR035-A-MIN-01 (inaccurate historical cross-reference): removed the false "ADR-034
+  Alternative 2's identical rejection logic" citation from the (renumbered) provenance-artifact
+  alternative. The minimality rationale now stands on its own footing (no correctness benefit
+  to a separate artifact class when the information fits directly on the fact that needs it,
+  Chapter 8 §8.4's own choice for Decision cited instead) with an explicit parenthetical note
+  clarifying ADR-034's actual Alternative 2 was a different, unrelated rejection (suppressing
+  the B -> A(N+1) invalidation/replacement).
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/domain/feature.md unchanged (verified git diff --quiet -- docs/domain/). No
+  implementation/test file touched (verified git diff --quiet -- python/). module-
+  registry.yaml unchanged. Constitution/governance unchanged — Chapter 8 (Locked) NOT
+  touched; this correction makes computation_cursor's VALUE the canonical Chapter 8 schema by
+  reference/reuse, it does not edit docs/constitution/08-event-model.md itself (verified
+  git diff --quiet -- docs/constitution/). No existing Approved ADR mutated (verified
+  git diff --quiet for docs/adr/ADR-001.md through ADR-034.md, all 34 prior ADR files
+  byte-identical). ADR_REQUIRED classification, required durable cursor evidence on
+  FeatureComputed/FeatureFactInvalidated, per-fact original/replacement cursor independence,
+  append-only semantics, the history-preserving implementation consequence, and the
+  no-global-total-order constraint are all unchanged in substance from v0.1 (verified by
+  direct re-read of the retained paragraphs). Independent Reviews eligibility table still
+  unfilled — no Review A re-review or Independent Review B performed or recorded as complete.
+  ADR-035 NOT approved: `status: Draft`, `approved_by: null`, `approved_at: null` (unchanged).
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — unaffected by this transaction.
+P3-FEATURE-A-MAJ-06: remains OPEN — this transaction corrects the architecture candidate
+  only; no finding state transition performed here.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+module-registry.yaml / dependency graph / other Domain Contracts / other ADRs / Constitution
+  / governance: all unchanged.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Bounded Review-A re-review of `ADR-035` v0.2 against exactly these three findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001 ("bounded semantic correction -> bounded semantic re-review, CHỈ phạm vi đã chạm"). Does not itself authorize `feature.md` amendment, `feature-engine` implementation, or Product Owner approval.
+
+**Files changed:** `docs/adr/ADR-035.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

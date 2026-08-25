@@ -2,6 +2,56 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-25 — ADR-035 v0.2 (Draft): bounded correction, three findings
+
+**Bounded correction only** — not a Review A re-review, not an approval, no `feature.md`/implementation touched. Baseline HEAD `e5622dc481906098d554f86ef3e9fc3472fa8454`.
+
+### Fixed
+
+```text
+P3-ADR035-A-MAJ-01 (authoritative cursor representation / stream universe): removed the
+  locally-invented computation_cursor schema (v0.1 explicitly avoided Chapter 8's canonical
+  schema, contradicting feature.md §18's own "áp dụng, không định nghĩa lại" cursor-mechanics
+  deferral and Chapter 8 §8.4's "dùng CÙNG canonical schema" reuse precedent). computation_
+  cursor's value is now the canonical Chapter 8 §8.5 Replay Cursor verbatim — recorded_time,
+  input_contract_ref, stream_registry_version, lifecycle_frontier, stream_positions — selected
+  via a Feature-scoped Input Contract instance, not feature_definition_version/§14 (confirmed
+  not a stream-identifying artifact). New fail-closed statement: computation_cursor cannot
+  claim durable evidence until Stream Registry/Input Contract artifacts genuinely exist
+  (§8.1.1) — Chapter 8 is not amended, no artificial stand-in invented. Unsupported fixed
+  "1-2 stream" cardinality claim removed.
+P3-ADR035-A-MAJ-02 (position participates in visibility): replaced the timestamp-only
+  visibility test with a full three-leg predicate (stream-universe membership, in-stream
+  sequence position, recorded-time boundary — no cross-stream comparison), applied to
+  R_original/R_later and ADR-034's conditions (a)/(b). Explicitly does not alter ADR-034's own
+  causal-supersession decision. Added the missing Lifecycle -> Cursor relational invariant.
+  Consequences updated so the follow-on feature.md amendment also aligns §9a/§12 with this
+  predicate.
+P3-ADR035-A-MIN-01 (inaccurate historical cross-reference): removed the false "ADR-034
+  Alternative 2's identical rejection logic" citation — ADR-034's actual Alternative 2 rejected
+  suppressing the B -> A(N+1) invalidation/replacement, an unrelated decision. Minimality
+  rationale now stands on its own footing.
+```
+
+### Provenance note
+
+```text
+No Review A/B execution artifact was supplied to this transaction. No reviewer identity was
+  fabricated to attribute these findings — each was independently re-verified against
+  ADR-035.md v0.1's actual text and Chapter 5/8/feature.md's actual text before correcting it.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-035.md ("0.1" -> "0.2", status Draft unchanged), docs/MANIFEST.md,
+  docs/CHANGELOG.md. manifest_version "10.232" -> "10.233". No other file touched.
+```
+
+### Next governed action (not performed here)
+
+Bounded Review-A re-review of ADR-035 v0.2 against exactly these three findings.
+
 ## [Unreleased] — 2026-08-25 — ADR-035 v0.1 (Draft): Feature Computation Cursor architecture candidate
 
 **ADR-authoring transaction only** — resolves `P3-FEATURE-A-MAJ-06`'s durable-evidence architecture prerequisite, unblocking ADR-034's already-Approved `eligible_swing_selection_superseded` cause. No `feature.md`/implementation/other-ADR touched. Baseline HEAD `07eb8ecf475cdb6ab6ef7ac6f63283520c99111a`.
