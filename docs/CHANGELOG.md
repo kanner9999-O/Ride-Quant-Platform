@@ -2,6 +2,44 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-25 — ADR-035 v0.2: Product Owner Approval (`Approved`)
+
+**Atomic mechanical approval-recording transaction.** Product Owner decision (verbatim): `APPROVE ADR-035 v0.2 at boundary e881bcf39ae1ebde70668e30273eed89dbe3dabb`, recorded `2026-08-25T23:51:46+07:00`. Baseline HEAD `e881bcf39ae1ebde70668e30273eed89dbe3dabb`.
+
+### Approved
+
+```text
+ADR-035 "Feature Computation Cursor — Canonical Chapter 8 Replay Cursor as
+  Durable Evidence for Authoritative Feature Facts" — status Draft ->
+  Approved, version "0.2" unchanged, approved_by Product Owner, reviewers
+  [ChatGPT, Claude]. Review A (ChatGPT) and Review B (Claude, alias
+  "Independent Review B") both CLEAN at final boundary, 0 Blocker/0
+  Major/0 Minor, Mode A (DISTINCT_PRINCIPAL) independence — minimum-two-
+  review requirement satisfied. Multi-round review history preserved
+  truthfully in the ADR's own Independent Reviews table (Review A:
+  e5622dc -> 07d7319 -> e881bcf; Review B: 07d7319 -> e881bcf) rather than
+  collapsed into a single boundary. docs/adr/ADR-035.md is now immutable
+  byte-for-byte from this commit onward (Chapter 11 §11.3).
+
+Effective decision: computation_cursor — a required FeatureComputed/
+  FeatureFactInvalidated payload field whose value type is the canonical
+  Chapter 8 §8.5 Replay Cursor — is now AUTHORIZED. Does not itself amend
+  feature.md, implement feature-engine, or close P3-FEATURE-A-MAJ-04/
+  P3-FEATURE-A-MAJ-06.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-035.md (Draft -> Approved, blob dd4e627aa06af0ad824e89c61cb7ab8e4cb05999),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.234" -> "10.235".
+No other file touched.
+```
+
+### Next governed action (not performed here)
+
+A bounded `feature.md` amendment implementing ADR-035's now-Approved computation-cursor architecture.
+
 ## [Unreleased] — 2026-08-25 — ADR-035 v0.2: mechanical Scale-check factual correction
 
 **Mechanical correction only** — no change to Decision, canonical Replay Cursor schema, visibility predicate, fail-closed rules, Alternatives, or Consequences. Baseline HEAD `07d7319350ecfccae021b2e3523519615ec0a58c`.
