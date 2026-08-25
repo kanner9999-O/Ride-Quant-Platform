@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.227"
+manifest_version: "10.228"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -8548,6 +8548,114 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 ### Next governed action (not performed in this transaction)
 
 Bounded Review-A re-review of `ADR-034` v0.2 against exactly these three findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001 ("bounded semantic correction -> bounded semantic re-review, CHỈ phạm vi đã chạm"). Does not itself authorize `feature.md` amendment, `feature-engine` remediation, or Product Owner approval.
+
+**Files changed:** `docs/adr/ADR-034.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## ADR-034 v0.3 — bounded correction, round 2 (`Draft`, closes the single still-OPEN finding `pending re-review`)
+
+**Bounded semantic correction transaction — vai trò: `ADR-034 Bounded Correction Round 2 Executor`.** Remediates exactly `P3-ADR034-A-MAJ-01`, the single still-OPEN finding named in the governing task prompt. Does not redesign the decision, does not perform Review A re-review or Independent Review B, does not approve ADR-034, does not modify `feature.md` or implementation. `P3-ADR034-A-MIN-01`/`P3-ADR034-A-MIN-02`'s v0.2 substantive fixes are unchanged.
+
+**Baseline:** branch `main`, HEAD `a6704f0503f8a0722a4770b7e9c21d15f133b160` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean). `manifest_version` confirmed `"10.227"` at start. `docs/adr/ADR-034.md` content identity confirmed `eb0b4f42d83f8beaabcd08733256206f7e65d8a8` (v0.2, `status: Draft`) before this transaction.
+
+```text
+ADR:                   ADR-034
+Version:                "0.2" -> "0.3"
+Status:                 Draft (unchanged)
+New content identity:   git hash-object docs/adr/ADR-034.md = e914d4d0ff6a7dffe313b21f1133888c9a6aadba
+                         (101 lines)
+owner / approved_by / approved_at:  Product Owner / null / null (all unchanged)
+supersedes:              [] (unchanged)
+```
+
+### Finding provenance — recorded honestly, no fabricated reviewer identity
+
+```text
+P3-ADR034-A-MAJ-01 (round 2) was supplied by finding ID + description in the governing task
+  prompt, again without an accompanying Review A execution artifact (no reviewer principal,
+  execution ID, review boundary, or independence-mode evidence provided or available). Per
+  G-VERIFY-001/P3-VERIFY-001, no fabricated "Review A provenance" record was created. The
+  underlying claim WAS independently re-verified directly against ADR-034.md v0.2's actual
+  committed text before remediation: v0.2's "Evidence prerequisite" bullet did in fact state an
+  implementation "MAY emit it only from a position where it can independently and
+  deterministically reconstruct R_original from its own already-tracked internal state at the
+  moment of the original computation (e.g. an in-process engine instance that itself recorded
+  the cursor it used for that exact fact)" — confirmed to permit ephemeral/in-process-only
+  evidence as sufficient, exactly the loophole the finding describes.
+  The task prompt's own characterization that P3-ADR034-A-MIN-01/-MIN-02 are "now CLOSED" was
+  NOT propagated into a self-declared closure by this executor (consistent with the standing
+  convention throughout this session that a correction executor never self-closes a finding —
+  only a Review A/B execution does); this MANIFEST records only that no further gap against
+  MIN-01/MIN-02 was identified in this round's task or by this executor's own re-inspection,
+  and that their v0.2 substantive fixes were left unaltered.
+```
+
+### Finding remediated
+
+```text
+P3-ADR034-A-MAJ-01 (round 2 — ephemeral-evidence loophole in the temporal visibility
+  boundary): v0.2 already correctly pinned R_original, R_later, "winner not visible at
+  R_original", "winner visible and selected at R_later", "previously-used Swing still valid at
+  R_later", and the already-visible-but-omitted = computation-defect distinction — ALL
+  preserved unchanged in v0.3. The remaining gap: v0.2's "Evidence prerequisite" bullet gated
+  emission on an implementation being able to reconstruct R_original from its own
+  "already-tracked internal state" — permitting purely ephemeral, process-local, in-memory
+  evidence as sufficient authorization for authoritative emission. Corrected: the new cause now
+  MUST fail closed unless R_original is provable from durable, replay-reconstructable
+  authoritative evidence (survives process restart, independently reconstructable by any
+  execution mode from the authoritative event log alone) — process-local memory alone is
+  explicitly stated as NOT sufficient. The cause is now explicitly labeled semantically
+  authorized by this ADR but operationally NOT EMITTABLE until that durable-evidence
+  prerequisite exists; every implementation must fail closed until then, with no exception for
+  in-process state. A new explicit requirement pins that Live/Replay/Backtest/Paper Trading
+  must be able to establish the identical eligibility from the identical durable evidence
+  (feature.md §13 mode parity), not from one mode's private runtime memory. This ADR still does
+  NOT decide how R_original is persisted or add any cursor field — that remains
+  P3-FEATURE-A-MAJ-06's separate, already-open authority/implementation scope, explicitly
+  reiterated as out of bounds here. The Consequences section's step (2) wording was
+  correspondingly tightened from "gated on satisfying the evidence prerequisite" to "not
+  emittable until [MAJ-06-scoped transaction] establishes ... durably, replay-reconstructably".
+  The v0.2 banner's own "closes" self-assertion for all three findings was also corrected to
+  "addressed/remediated pending re-review" (a correction executor does not self-close), and a
+  new v0.3 banner was added describing this round's fix without self-closing it either.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/domain/feature.md unchanged (verified git diff --quiet -- docs/domain/). No other Domain
+  Contract touched. No implementation/test file touched (verified git diff --quiet --
+  python/). module-registry.yaml unchanged. Constitution/governance unchanged. No existing
+  Approved ADR mutated (verified git diff --quiet -- docs/adr/ADR-001.md ... ADR-033.md, all
+  33 byte-identical). ADR_REQUIRED classification, the new-cause semantic (conditions
+  (a)-(d)), distance_to_last_confirmed_swing-only scope, direct causation binding, mutual
+  exclusion with swing_invalidated, append-only invalidate-and-replace, Alternatives
+  considered, and Structure/Raw-Regime/Context/Strategy ownership boundaries are all unchanged
+  in substance from v0.2 (verified by direct re-read of the retained paragraphs — only the
+  "Evidence prerequisite" bullet, the Consequences step-(2) clause, and the version-history
+  banners were edited). Independent Reviews eligibility table still unfilled — no Review A
+  re-review or Independent Review B performed or recorded as complete. ADR-034 NOT approved:
+  `status: Draft`, `approved_by: null`, `approved_at: null` (unchanged).
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction corrects the ADR candidate only; the
+  three-step future sequence (ADR approval -> feature.md amendment -> feature-engine
+  remediation -> Review-A re-review of MAJ-04) is unchanged and none of its steps were
+  performed here.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+module-registry.yaml / dependency graph / other Domain Contracts / other ADRs / Constitution
+  / governance: all unchanged.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Bounded Review-A re-review of `ADR-034` v0.3 against exactly `P3-ADR034-A-MAJ-01`, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. Does not itself authorize `feature.md` amendment, `feature-engine` remediation, or Product Owner approval.
 
 **Files changed:** `docs/adr/ADR-034.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 

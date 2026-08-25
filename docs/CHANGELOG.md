@@ -2,6 +2,63 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-25 — ADR-034 v0.3 (Draft): bounded correction round 2, one finding
+
+**Bounded correction only** — not a Review A re-review, not an approval, no `feature.md`/implementation touched. Baseline HEAD `a6704f0503f8a0722a4770b7e9c21d15f133b160`.
+
+### Fixed
+
+```text
+P3-ADR034-A-MAJ-01 (round 2 — ephemeral-evidence loophole): v0.2's "Evidence
+  prerequisite" bullet permitted emission based on an implementation's own
+  ephemeral/in-process-only tracked state ("already-tracked internal
+  state"). Removed: the new invalidation_cause now MUST fail closed unless
+  R_original is provable from durable, replay-reconstructable authoritative
+  evidence — process-local memory alone is explicitly insufficient. The
+  cause is now labeled semantically authorized but operationally NOT
+  EMITTABLE until that durable-evidence prerequisite exists, and explicitly
+  requires Live/Replay/Backtest/Paper Trading to establish the same
+  eligibility from the same durable evidence (feature.md §13 mode parity).
+  Still does not decide how R_original is persisted or add any field —
+  remains P3-FEATURE-A-MAJ-06's separate scope, reiterated as out of bounds.
+  R_original/R_later, the four conditions (a)-(d), and the
+  already-visible-but-omitted = computation-defect distinction from v0.2 are
+  all preserved unchanged.
+```
+
+### Also corrected
+
+```text
+The v0.2 version-history banner's "closes" self-assertion for all three
+  prior findings was replaced with "addressed/remediated pending re-review"
+  — a bounded-correction executor does not self-close a finding, consistent
+  with this session's standing convention. A new v0.3 banner records this
+  round's fix, also without self-closing it. P3-ADR034-A-MIN-01/-MIN-02's
+  v0.2 substantive fixes are unchanged; no further gap against either was
+  identified in this round.
+```
+
+### Provenance note
+
+```text
+The finding was supplied by ID/description in the governing task prompt
+  without an accompanying review artifact. No reviewer identity was
+  fabricated to attribute it; the underlying claim was independently
+  re-verified against ADR-034.md v0.2's actual committed text before fixing.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-034.md ("0.2" -> "0.3", status Draft unchanged),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.227" ->
+  "10.228". No other file touched.
+```
+
+### Next governed action (not performed here)
+
+Bounded Review-A re-review of ADR-034 v0.3 against exactly `P3-ADR034-A-MAJ-01`, at the resulting immutable boundary.
+
 ## [Unreleased] — 2026-08-25 — ADR-034 v0.2 (Draft): bounded correction, three findings
 
 **Bounded correction only** — not a Review A re-review, not an approval, no `feature.md`/implementation touched. Baseline HEAD `e87070989c3d54380533d2aaf0897ff9877b58c9`.
