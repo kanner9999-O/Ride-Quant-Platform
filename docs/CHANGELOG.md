@@ -2,6 +2,42 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-25 — feature.md v0.3: mechanical factual correction (closure-scope wording)
+
+**Mechanical correction only** — no semantic change to the new `eligible_swing_selection_superseded` cause, its four conditions, `causation_refs` binding, mutual exclusion, or the durable-evidence fail-closed rule. Baseline HEAD `bc7f5953fab48fa70d8ec2c0ff4b614684d076da`.
+
+### Fixed
+
+```text
+§4 branch (d)'s inline parenthetical read "đóng P3-FEATURE-A-MAJ-04" — too broad. Approved
+  ADR-034 §Consequences states the overall P3-FEATURE-A-MAJ-04 remains OPEN until the Domain
+  Contract amendment, implementation remediation, and a bounded Review-A re-review all
+  complete. Corrected to "đóng Event-Schema gap trong P3-FEATURE-A-MAJ-04", matching the
+  document's own intro banner, which already used the correctly-scoped phrasing.
+```
+
+### Provenance note
+
+```text
+No Review A/B execution artifact was supplied to this transaction. Per instruction, no
+  reviewer identity/execution/disposition was fabricated to attribute this correction — the
+  underlying factual claim was independently re-verified against feature.md v0.3's actual text
+  and ADR-034's actual §Consequences text before correcting it.
+```
+
+### Files changed
+
+```text
+docs/domain/feature.md (version "0.3" unchanged, status Draft unchanged, blob
+  9563d1917077229e159bc844d2b36441514d3fc7 -> 0d39f8fbbfc593c8ca812a7a5a1f6745049cdada),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.230" -> "10.231". ADR-034 and all
+  other files verified byte-unchanged.
+```
+
+### Next governed action (not performed here)
+
+Deterministic verification (ChatGPT) of this mechanical correction.
+
 ## [Unreleased] — 2026-08-25 — feature.md v0.3 (Draft candidate): implements ADR-034
 
 **Bounded Domain Contract amendment — candidate pending Review A/B, NOT an approval.** Implements Approved ADR-034's `FeatureFactInvalidated.invalidation_cause` semantic. Baseline HEAD `ba0262e64159bb367deb5092c03fb390fdb8bc85`.

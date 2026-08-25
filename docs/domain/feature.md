@@ -189,9 +189,10 @@ description: >
   (c) swing_invalidated — SwingInvalidated ảnh hưởng SwingConfirmed ref trong input_fact_refs
       (áp dụng CHỈ cho distance_to_last_confirmed_swing khi Swing đã chọn bị invalidate);
   (d) eligible_swing_selection_superseded — một SwingConfirmed MỚI (v0.3, ADR-034 Approved,
-      đóng P3-FEATURE-A-MAJ-04) thắng §9a's deterministic Eligible-Swing total order tại một
-      computation cursor R_later, TRONG KHI Swing mà FeatureComputed đang bị invalidate thực sự
-      dùng VẪN valid/non-invalidated tại R_later (áp dụng CHỈ cho distance_to_last_confirmed_swing).
+      đóng Event-Schema gap trong P3-FEATURE-A-MAJ-04) thắng §9a's deterministic Eligible-Swing
+      total order tại một computation cursor R_later, TRONG KHI Swing mà FeatureComputed đang
+      bị invalidate thực sự dùng VẪN valid/non-invalidated tại R_later (áp dụng CHỈ cho
+      distance_to_last_confirmed_swing).
       KHÁC (c): (c) áp dụng khi Swing ĐANG DÙNG tự nó nhận SwingInvalidated; (d) áp dụng khi
       Swing ĐANG DÙNG vẫn hợp lệ nhưng bị một SwingConfirmed khác, tốt hơn theo total order,
       vượt qua — xem §9a cuối mục cho cross-reference đầy đủ.

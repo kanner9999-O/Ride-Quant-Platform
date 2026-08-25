@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.230"
+manifest_version: "10.231"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -8920,6 +8920,95 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 ### Next governed action (not performed in this transaction)
 
 Independent read-only Review A (ChatGPT) of the `feature.md` v0.3 Domain Contract delta, at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"). Does not itself perform Review B or `feature-engine` implementation remediation.
+
+**Files changed:** `docs/domain/feature.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## `feature.md` v0.3 — mechanical factual correction (`Draft`, still candidate — closure-scope wording only)
+
+**Mechanical factual correction transaction — vai trò: `Feature v0.3 Mechanical Factual Correction Executor`.** Corrects exactly one premature-closure phrase in `feature.md` §4 branch (d). Does not alter the new enum identifier, the four `R_original`/`R_later` conditions, `causation_refs` binding, mutual exclusion, the durable-evidence fail-closed rule, §9a's algorithm/cross-reference, or any other contract semantic. Does not modify `ADR-034`, does not remediate `feature-engine`, does not close `P3-FEATURE-A-MAJ-04` or `P3-FEATURE-A-MAJ-06`.
+
+**Baseline:** branch `main`, HEAD `bc7f5953fab48fa70d8ec2c0ff4b614684d076da` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean). `manifest_version` confirmed `"10.230"` at start. `docs/domain/feature.md` confirmed `version: "0.3"`, `status: Draft`, content identity `9563d1917077229e159bc844d2b36441514d3fc7` before this transaction. `docs/adr/ADR-034.md` re-verified `version: "0.3"`, `status: Approved`, content identity `038425a423d0d2ca65f550c708399e165dfeaba4` (unchanged, immutable per Chapter 11 §11.3).
+
+```text
+Domain Contract:        feature.md
+Version:                 "0.3" -> "0.3" (unchanged — mechanical wording fix only, no version
+                          bump per this correction's own scope; the document already carries
+                          v0.3 from the prior amendment transaction, and this correction does
+                          not introduce a new reviewable semantic candidate)
+Status:                  Draft (unchanged)
+Blob before:              9563d1917077229e159bc844d2b36441514d3fc7
+Blob after:               0d39f8fbbfc593c8ca812a7a5a1f6745049cdada
+                          (670 lines)
+owner / approved_by / approved_at / reviewers:  all unchanged
+```
+
+### Review-evidence honesty note (G-VERIFY-001/P3-VERIFY-001 — no fabrication)
+
+```text
+No Review A/B execution artifact (reviewer identity, execution ID, boundary, Concern/Risk/
+  Recommendation content) was supplied to or available within this transaction — unlike the
+  ADR-034 v0.3 approval transaction earlier in this session, where actual review content was
+  transferred and independently cross-checked. Per this task's own explicit instruction not to
+  fabricate new review execution evidence, this MANIFEST entry does NOT assert that a specific
+  Review A/B execution occurred, and does NOT invent reviewer principal/execution-ID/
+  disposition data for one. What IS recorded: the specific factual defect (§4 branch (d)'s
+  parenthetical "đóng P3-FEATURE-A-MAJ-04" overstated closure — Approved ADR-034 §Consequences
+  states the OVERALL P3-FEATURE-A-MAJ-04 remains OPEN until the Domain Contract amendment,
+  required implementation remediation gated on P3-FEATURE-A-MAJ-06, and a bounded Review-A
+  re-review all complete; only the Event-Schema gap within it is closed by this amendment) was
+  independently re-verified true by this executor via direct re-read of both feature.md v0.3's
+  actual text and ADR-034's actual §Consequences text before correcting it — the correction's
+  substance was verified, not merely the label "mechanical" trusted at face value.
+```
+
+### Exact text replacement
+
+```text
+Before: "đóng P3-FEATURE-A-MAJ-04) thắng §9a's deterministic Eligible-Swing total order..."
+After:  "đóng Event-Schema gap trong P3-FEATURE-A-MAJ-04) thắng §9a's deterministic
+        Eligible-Swing total order..."
+(Line-wrap reflow of the same paragraph, no additional wording change, to keep the
+  paragraph's existing ~90-char line width consistent with the rest of §4's description
+  block.)
+Note: the document's own intro banner (added in the prior amendment transaction) already used
+  the correctly-scoped phrasing "đóng `P3-FEATURE-A-MAJ-04`'s Event-Schema gap" — only §4
+  branch (d)'s inline parenthetical carried the overreaching wording; verified via grep that
+  no other occurrence of "MAJ-04" in feature.md required correction.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ADR-034.md unchanged (verified git diff --quiet -- docs/adr/ADR-034.md); all other
+  ADRs unchanged. docs/domain/swing.md and every other Domain Contract unchanged (verified
+  git diff --quiet -- docs/domain/, excluding feature.md). No implementation/test file touched
+  (verified git diff --quiet -- python/). module-registry.yaml unchanged. Constitution/
+  governance unchanged. feature.md's only diff is the four-line paragraph shown above — the
+  new enum identifier (eligible_swing_selection_superseded), all five §4 invariants added in
+  the prior transaction, causation_refs binding, mutual exclusion with swing_invalidated, the
+  durable-evidence fail-closed rule, §9a's cross-reference paragraph, and the v0.3 intro
+  banner are all byte-identical to the prior transaction's content (verified by direct
+  re-read). feature.md remains status: Draft, approved_by: null, approved_at: null.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction corrects wording only; the Event-Schema
+  gap component is addressed by feature.md v0.3's semantic content (unchanged by this
+  correction), but overall closure still requires feature-engine implementation remediation
+  and a bounded Review-A re-review, neither performed here.
+P3-FEATURE-A-MAJ-06: remains OPEN and untouched.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Deterministic verification (ChatGPT) of this mechanical correction — confirming the diff is exactly the wording fix described and nothing else. Does not itself start `feature-engine` implementation remediation.
 
 **Files changed:** `docs/domain/feature.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
