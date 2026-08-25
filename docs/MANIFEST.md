@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.228"
+manifest_version: "10.229"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -8656,6 +8656,146 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 ### Next governed action (not performed in this transaction)
 
 Bounded Review-A re-review of `ADR-034` v0.3 against exactly `P3-ADR034-A-MAJ-01`, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. Does not itself authorize `feature.md` amendment, `feature-engine` remediation, or Product Owner approval.
+
+**Files changed:** `docs/adr/ADR-034.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## ADR-034 v0.3 — Product Owner Approval (`Approved` — new FeatureFactInvalidated invalidation_cause semantic now effective)
+
+**Atomic mechanical approval-recording transaction — Product Owner decision: `APPROVE ADR-034 v0.3 at boundary 646c37c1d1d9bac5bbffe68324ff3e5a3e9fc35b` (verbatim), decision timestamp `2026-08-25T11:54:00+07:00`.** Does not review/reinterpret the decision, does not amend `feature.md`, does not implement `feature-engine`, does not remediate `P3-FEATURE-A-MAJ-04`.
+
+**Baseline:** branch `main`, HEAD `646c37c1d1d9bac5bbffe68324ff3e5a3e9fc35b` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean). `manifest_version` confirmed `"10.228"` at start. `docs/adr/ADR-034.md` reviewed Draft state confirmed before edit: `version: "0.3"`, `status: Draft`, `owner: Product Owner`, `approved_by: null`, `approved_at: null`, content identity `e914d4d0ff6a7dffe313b21f1133888c9a6aadba`.
+
+```text
+Reviewed Draft semantic boundary:  646c37c1d1d9bac5bbffe68324ff3e5a3e9fc35b
+Reviewed Draft blob:                e914d4d0ff6a7dffe313b21f1133888c9a6aadba
+Resulting approved ADR blob:        038425a423d0d2ca65f550c708399e165dfeaba4
+  (necessarily differs from the reviewed Draft blob — the approval-recording
+  edit itself, part of the same atomic Chapter 11 §11.6 transaction, adds
+  the review-eligibility evidence and frontmatter transition below, plus a
+  lifecycle-accuracy correction to the now-stale "Accepted risks" sentence)
+```
+
+### Review-record provenance (G-VERIFY-001 — verified, not merely restated)
+
+```text
+The Review A/B records were supplied as inspectable content (not a bare summary) in the
+  governing task prompt for this transaction. Each specific claim within them was checked
+  directly against docs/adr/ADR-034.md v0.3's actual committed text before being trusted:
+  - Review A's stated reason (durable/replay-reconstructable-evidence fail-closed requirement;
+    "semantically authorized but operationally NOT EMITTABLE"; mode-parity requirement) matches
+    the "Evidence prerequisite" bullet verbatim in substance.
+  - Review B's five verification points (ADR_REQUIRED/Event Schema reasoning; the
+    _preempt_settled_window defect citing the winning SwingConfirmed; R_original/R_later
+    conditions (a)-(d) + already-visible-but-omitted distinction; no persisted cursor field /
+    MAJ-06 not solved; distance-only/append-only/mutual-exclusion/no-ownership-expansion scope;
+    Alternatives/Scale/pinned identities) each independently cross-checked true against the
+    file's actual content.
+  - Both reviewer principals (ChatGPT, Claude/"Independent Review B" alias) resolved against
+    docs/team/team.yaml: both registered role AI Technical Architect; team.yaml's own
+    alias_note confirms "Independent Review B" is the established governance identifier for
+    actor Claude acting as the second independent reviewer, satisfying Chapter 0 §3/Chapter 11
+    §11.5's "hai actor identity khác nhau" requirement together with ChatGPT.
+  - Review boundary cited by both (646c37c1d1d9bac5bbffe68324ff3e5a3e9fc35b) matches this
+    transaction's own verified starting HEAD.
+No provider-native session ID fabricated for either review — both recorded N/A for Execution
+  ID/Isolation attestation where Mode A (DISTINCT_PRINCIPAL) does not require them, per the
+  ADR template's own guidance ("với Mode A, ghi N/A — không bắt buộc, principal đã khác nhau").
+```
+
+### Atomic frontmatter transition (Chapter 11 §11.3/§11.6/§11.9)
+
+```text
+version:        "0.3" -> "0.3"     (unchanged)
+status:         Draft -> Approved
+approved_by:    null -> Product Owner
+approved_at:    null -> "2026-08-25T11:54:00+07:00"
+reviewers:      [] -> [ChatGPT, Claude]
+last_review:    null -> "2026-08-25"
+depends_on / addresses / resolves / supersedes:  [] / [] / [] / []   (all unchanged)
+No `superseded_by` added. docs/adr/ADR-034.md is now immutable byte-for-byte from this
+  commit onward, per Chapter 11 §11.3 — any future semantic change requires a NEW ADR.
+The "Accepted risks" sentence was corrected from Draft-lifecycle wording ("independent review
+  has not yet occurred") to reflect that both reviews completed CLEAN — a lifecycle-accuracy
+  correction required by the approval recording itself, not a decision-semantic change.
+```
+
+### Review eligibility evidence (both reviews against the same boundary)
+
+```text
+Review A — bounded re-review of P3-ADR034-A-MAJ-01:
+  Principal:        ChatGPT
+  Role:              AI Technical Architect
+  Execution ID:      N/A (Mode A — not required)
+  Boundary:          646c37c1d1d9bac5bbffe68324ff3e5a3e9fc35b
+  Result:            P3-ADR034-A-MAJ-01 = CLOSED; P3-ADR034-A-MIN-01/-MIN-02 confirmed
+                      remain CLOSED (unaltered from v0.2)
+  New Blocker/Major/Minor: 0 / 0 / 0
+  Disposition:       CLEAN — ready for Review B
+
+Review B — Independent Review B:
+  Principal:         Claude (registered alias: "Independent Review B", docs/team/team.yaml)
+  Role:              AI Technical Architect
+  Execution ID:      N/A (Mode A — not required)
+  Boundary:          646c37c1d1d9bac5bbffe68324ff3e5a3e9fc35b
+  Isolation attestation: fresh independent read-only inspection; did not adopt Review A's
+                      reasoning as ground truth
+  Result:            independently re-verified ADR_REQUIRED reasoning, the pinned
+                      implementation defect, R_original/R_later conditions (a)-(d), the
+                      durable-evidence rule's non-solution of MAJ-06, scope/ownership
+                      boundaries, and Alternatives/Scale/pinned identities — all correct
+  New Blocker/Major/Minor: 0 / 0 / 0
+  Verdict:           CLEAN. Review B does not itself approve ADR-034.
+
+ADR-031 independence mode: DISTINCT_PRINCIPAL (Mode A) — two distinct principal identities
+  (ChatGPT, Claude/"Independent Review B" alias), both AI Technical Architect.
+Review A = COMPLETE / ELIGIBLE / CLEAN. Review B = COMPLETE / ELIGIBLE / CLEAN.
+Minimum-two-review requirement (Chapter 11 §11.5): SATISFIED.
+P3-ADR034-A-MAJ-01 = CLOSED. P3-ADR034-A-MIN-01 = CLOSED. P3-ADR034-A-MIN-02 = CLOSED.
+Unresolved ADR-034 findings at this boundary: Blocker 0, Major 0, Minor 0.
+```
+
+### Effective decision
+
+```text
+FeatureFactInvalidated.invalidation_cause: a new value (working name
+  eligible_swing_selection_superseded, final identifier deferred to the feature.md amendment)
+  is now AUTHORIZED for feature_type=distance_to_last_confirmed_swing, scoped exactly as ADR-
+  034 v0.3 §Decision pins — including that it remains semantically authorized but operationally
+  NOT EMITTABLE until a separate P3-FEATURE-A-MAJ-06-scoped transaction establishes durable,
+  replay-reconstructable proof of R_original. This approval does NOT itself amend feature.md,
+  does NOT implement feature-engine, and does NOT close P3-FEATURE-A-MAJ-04.
+Preserved unchanged by this approval: ADR_REQUIRED classification rationale; ADR-009 ordering/
+  causation model; ADR-014 Feature/Context fan-in boundary; distance_to_last_confirmed_swing-
+  only scope; mutual exclusion with swing_invalidated; append-only invalidate-and-replace;
+  Structure/Raw-Regime/Context/Strategy ownership boundaries.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/domain/feature.md unchanged (verified git diff --quiet -- docs/domain/). No
+implementation/test file touched (verified git diff --quiet -- python/). module-registry.yaml
+  unchanged. Constitution/governance unchanged. No other ADR touched — all 33 prior ADRs
+  byte-identical (verified git diff --quiet for docs/adr/ADR-001.md through ADR-033.md).
+  ADR-034's own version NOT bumped beyond "0.3". No Quality Tier assigned. No Quality Gate run.
+  No package/gate state changed. LIVE NOT authorized.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN. ADR-034 approval unblocks, but does not perform, the next
+  governed step: a bounded feature.md amendment implementing this now-Approved semantic.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+A bounded `feature.md` amendment implementing ADR-034's now-Approved semantic (§4 enum value + invariants/causation-pin rule), per its own Consequences section — not performed here.
 
 **Files changed:** `docs/adr/ADR-034.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 

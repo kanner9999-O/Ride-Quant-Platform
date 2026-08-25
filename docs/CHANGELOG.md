@@ -2,6 +2,46 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-25 — ADR-034 v0.3: Product Owner Approval (`Approved`)
+
+**Atomic mechanical approval-recording transaction.** Product Owner decision (verbatim): `APPROVE ADR-034 v0.3 at boundary 646c37c1d1d9bac5bbffe68324ff3e5a3e9fc35b`, recorded `2026-08-25T11:54:00+07:00`. Baseline HEAD `646c37c1d1d9bac5bbffe68324ff3e5a3e9fc35b`.
+
+### Approved
+
+```text
+ADR-034 "Feature Eligible-Swing Selection Supersession — New
+  FeatureFactInvalidated.invalidation_cause" — status Draft -> Approved,
+  version "0.3" unchanged, approved_by Product Owner, reviewers
+  [ChatGPT, Claude]. Review A (ChatGPT) and Review B (Claude, alias
+  "Independent Review B") both CLEAN, 0 Blocker/0 Major/0 Minor, Mode A
+  (DISTINCT_PRINCIPAL) independence per ADR-031/Chapter 11 §11.5 —
+  minimum-two-review requirement satisfied. Both review records were
+  supplied as inspectable content and independently cross-checked against
+  ADR-034.md v0.3's actual text before being trusted (G-VERIFY-001), not
+  taken as a bare assertion. docs/adr/ADR-034.md is now immutable
+  byte-for-byte from this commit onward (Chapter 11 §11.3).
+
+Effective decision: a new FeatureFactInvalidated.invalidation_cause value
+  is now AUTHORIZED for feature_type=distance_to_last_confirmed_swing,
+  remaining semantically authorized but operationally NOT EMITTABLE until a
+  separate P3-FEATURE-A-MAJ-06-scoped transaction establishes durable,
+  replay-reconstructable proof of R_original. This approval does not itself
+  amend feature.md, implement feature-engine, or close
+  P3-FEATURE-A-MAJ-04.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-034.md (Draft -> Approved, blob 038425a423d0d2ca65f550c708399e165dfeaba4),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.228" -> "10.229".
+No other file touched.
+```
+
+### Next governed action (not performed here)
+
+A bounded `feature.md` amendment implementing ADR-034's now-Approved semantic.
+
 ## [Unreleased] — 2026-08-25 — ADR-034 v0.3 (Draft): bounded correction round 2, one finding
 
 **Bounded correction only** — not a Review A re-review, not an approval, no `feature.md`/implementation touched. Baseline HEAD `a6704f0503f8a0722a4770b7e9c21d15f133b160`.
