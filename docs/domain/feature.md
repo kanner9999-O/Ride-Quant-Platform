@@ -1,7 +1,7 @@
 ---
 id: feature
 title: Feature
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -31,6 +31,8 @@ Cộng một **read model tùy chọn** (`FeatureCurrentView`) — projection ti
 **Ba concept lặp lại, học trực tiếp từ `regime.md` v0.2 (đã qua review đầy đủ)** — tài liệu này áp dụng ngay từ v0.1 các bài học đã trả giá ở Package 0.2-B2, không lặp lại lỗi: (a) `FeatureFactInvalidated` PHẢI kế thừa `subject_ref`/`effective_time` từ fact bị invalidate, không tự khai báo độc lập (đóng trước IRB-B2-MAJ-02-style defect); (b) `input_fact_refs` là tập toán học, normalize theo lexicographic order trước khi tính identity/hash/dedup (đóng trước IRB-B2-MAJ-01-style defect); (c) `FeatureCurrentView` dùng no-row semantics trước fact đầu tiên, `view_state` chỉ có `VALID`/`PENDING_CORRECTION`, không có `UNAVAILABLE` (đóng trước RA-B2-MIN-01-style defect); (d) mọi canonical policy identifier chỉ khai báo ĐÚNG MỘT NƠI trong tài liệu (đóng trước IRB-B2-MIN-01-style defect).
 
 **v0.2 xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`** (cùng một defect, một correction): eligible-Swing selection cho `distance_to_last_confirmed_swing` (§9a v0.1) thiếu một **effective-time cutoff filter** tường minh — một Swing có `pivot_effective_time.window_start` xảy ra CÙNG LÚC hoặc SAU reference Candle's `effective_time.window_end` có thể bị chọn nhầm chỉ vì nó recorded-time visible tại cursor, vi phạm bitemporal correctness ([Chapter 5](../constitution/05-time-model.md)) — "recorded-time visible" KHÔNG tương đương "effective-time eligible". v0.2 pin canonical cutoff decision `eligible_swing_effective_cutoff_policy: REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE` (§6) và viết lại §9a thành một **ordered filter pipeline 5 bước tường minh** — effective-time eligibility LUÔN là một filter chạy TRƯỚC candidate ordering, không bao giờ để total order hợp thức hóa một Swing effective muộn hơn (§9a, §12, §13).
+
+**v0.3 implement [ADR-034](../adr/ADR-034.md) (Approved) — đóng `P3-FEATURE-A-MAJ-04`'s Event-Schema gap:** `FeatureFactInvalidated.invalidation_cause` (§4) được bổ sung giá trị thứ tư, `eligible_swing_selection_superseded`, cho đúng MỘT tình huống ADR-034 xác định: một `SwingConfirmed` MỚI — KHÔNG visible tại computation cursor `R_original` của chính `FeatureComputed` đang bị invalidate, nhưng visible VÀ thắng §9a's deterministic total order tại một cursor `R_later` sau đó — khiến winner đổi, TRONG KHI Swing mà fact đó đang dùng vẫn valid/non-invalidated (KHÁC `swing_invalidated`, vốn CHỈ áp dụng khi chính Swing đang dùng nhận `SwingInvalidated`). CHỈ áp dụng cho `distance_to_last_confirmed_swing`; loại trừ lẫn nhau với `swing_invalidated`; một Swing đã visible tại `R_original` nhưng KHÔNG được computation gốc chọn (dù nó lẽ ra thắng total order) KHÔNG BAO GIỜ đủ điều kiện cho cause này — đó là computation/integrity defect của chính `FeatureComputed` gốc, một lớp vấn đề khác hoàn toàn (§4). `causation_refs` PHẢI trỏ `FeatureComputed` đang bị invalidate VÀ winning `SwingConfirmed`, KHÔNG BAO GIỜ một `SwingInvalidated` giả định. Cause này ĐỊNH NGHĨA SEMANTIC bởi v0.3 nhưng **operationally KHÔNG EMITTABLE** trừ khi `R_original` chứng minh được từ durable, replay-reconstructable authoritative evidence sống sót qua process restart và tái tạo được độc lập bởi mọi execution mode (Live/Backtest/Paper Trading/Replay) — process-local/ephemeral memory một mình KHÔNG đủ. v0.3 KHÔNG định nghĩa/thêm một computation-cursor field nào để thỏa điều kiện này, và KHÔNG tuyên bố `P3-FEATURE-A-MAJ-06` đã giải quyết — cơ chế persist/prove `R_original` thuộc phạm vi governed riêng (ADR-034 §Consequences). §9a bổ sung một cross-reference ngắn nối total-order re-evaluation với cause này (§9a cuối mục).
 
 ## 1. Logical Feature Subject — `kind: entity`
 
@@ -185,7 +187,14 @@ description: >
       regime.md §10) ảnh hưởng RegimeClassified ref trong input_fact_refs (áp dụng khi
       feature_type dùng upstream_source: regime);
   (c) swing_invalidated — SwingInvalidated ảnh hưởng SwingConfirmed ref trong input_fact_refs
-      (áp dụng CHỈ cho distance_to_last_confirmed_swing khi Swing đã chọn bị invalidate).
+      (áp dụng CHỈ cho distance_to_last_confirmed_swing khi Swing đã chọn bị invalidate);
+  (d) eligible_swing_selection_superseded — một SwingConfirmed MỚI (v0.3, ADR-034 Approved,
+      đóng P3-FEATURE-A-MAJ-04) thắng §9a's deterministic Eligible-Swing total order tại một
+      computation cursor R_later, TRONG KHI Swing mà FeatureComputed đang bị invalidate thực sự
+      dùng VẪN valid/non-invalidated tại R_later (áp dụng CHỈ cho distance_to_last_confirmed_swing).
+      KHÁC (c): (c) áp dụng khi Swing ĐANG DÙNG tự nó nhận SwingInvalidated; (d) áp dụng khi
+      Swing ĐANG DÙNG vẫn hợp lệ nhưng bị một SwingConfirmed khác, tốt hơn theo total order,
+      vượt qua — xem §9a cuối mục cho cross-reference đầy đủ.
   Là event MỚI, append-only (I-3) — không mutate record gốc.
   **Envelope binding bắt buộc:** `subject_ref` và `effective_time` của chính event này KHÔNG
   được khai báo độc lập — chúng PHẢI kế thừa nguyên vẹn từ `invalidated_fact_ref` (fact F đang
@@ -195,14 +204,19 @@ invariants:
   - "envelope.effective_time PHẢI BẰNG HỆT effective_window của invalidated_fact_ref (F) — [window_start, window_end) giống hệt, không sai lệch dù chỉ một trong hai biên. Cấm target một fact đúng subject nhưng SAI window."
   - "payload.invalidated_fact_ref PHẢI resolve đúng CHÍNH XÁC bản ghi event F — dùng event_record_ref (Chapter 8 §8.2.3: canonical locator + event_id verification field)."
   - "invalidation_cause PHẢI khớp đúng loại upstream contract mà Feature Definition (§6) của feature_type này thực sự khai báo — cấm dùng regime_fact_invalidated cho một feature_type chỉ dùng upstream_source: candle, và tương tự cho các cause khác."
-  - "causation_refs PHẢI trỏ: invalidated_fact_ref (FeatureComputed đang bị invalidate — bắt buộc, đúng một, PHẢI trùng chính xác payload.invalidated_fact_ref); VÀ event authoritative là nguyên nhân trực tiếp (CandleCorrected/RegimeFactInvalidated/SwingInvalidated tùy invalidation_cause)."
+  - "causation_refs PHẢI trỏ: invalidated_fact_ref (FeatureComputed đang bị invalidate — bắt buộc, đúng một, PHẢI trùng chính xác payload.invalidated_fact_ref); VÀ event authoritative là nguyên nhân trực tiếp (CandleCorrected/RegimeFactInvalidated/SwingInvalidated/winning SwingConfirmed tùy invalidation_cause)."
   - "invalidated_fact_ref PHẢI trỏ một FeatureComputed CHƯA từng nhận FeatureFactInvalidated khác — một fact chỉ bị invalidate đúng một lần."
   - "Đúng một FeatureComputed có thể trỏ supersedes_fact_ref về invalidated_fact_ref này (§3 rule 6 — cấm fork)."
   - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_fact_ref VÀ muộn hơn recorded_time của event gây ra nó."
   - "Replay tại cursor trước recorded_time của invalidation KHÔNG được thấy invalidation này (chống look-ahead)."
+  - "invalidation_cause = eligible_swing_selection_superseded (v0.3, ADR-034 Approved) CHỈ hợp lệ khi feature_type = distance_to_last_confirmed_swing (§7.3, §9a) — cấm dùng cho volatility_metric/directional_persistence_metric, vốn không có khái niệm Eligible-Swing selection."
+  - "invalidation_cause = eligible_swing_selection_superseded CHỈ hợp lệ khi CẢ BỐN điều kiện sau đều đúng — ĐÚNG BỐN, không phải một điều kiện đơn lẻ nào đủ: (a) winning SwingConfirmed KHÔNG visible tại computation cursor R_original mà FeatureComputed đang bị invalidate đã dùng để tính (tức KHÔNG thỏa SwingConfirmed.recorded_time <= R_original tại thời điểm đó, §9a bước 2/§12); (b) winning SwingConfirmed CÓ visible tại computation cursor R_later đang trigger re-evaluation này (SwingConfirmed.recorded_time <= R_later); (c) winning SwingConfirmed thỏa đầy đủ §9a's 5-bước filter pipeline VÀ thắng §9a's 8-tiêu-chí total order, cả hai đánh giá tại R_later; (d) Swing mà FeatureComputed đang bị invalidate thực sự đã dùng VẪN valid, KHÔNG nhận SwingInvalidated, tại R_later. Một SwingConfirmed ĐÃ visible tại R_original (recorded_time <= R_original) nhưng KHÔNG được computation gốc chọn — kể cả khi nó lẽ ra đã thắng total order tại R_original — KHÔNG BAO GIỜ đủ điều kiện cho cause này: đó là một computation/integrity defect của chính FeatureComputed gốc (§9a's deterministic algorithm không được áp dụng đúng tại R_original), một lớp vấn đề hoàn toàn khác temporal supersession, và KHÔNG BAO GIỜ được biểu diễn, che giấu, hay 'rửa' qua invalidation_cause này."
+  - "invalidation_cause = eligible_swing_selection_superseded VÀ swing_invalidated LOẠI TRỪ LẪN NHAU cho cùng một invalidation của cùng một FeatureComputed: swing_invalidated áp dụng khi Swing ĐANG DÙNG tự nó nhận một SwingInvalidated; eligible_swing_selection_superseded áp dụng khi Swing ĐANG DÙNG vẫn valid/non-invalidated nhưng bị vượt qua bởi một SwingConfirmed khác thắng total order. Một implementation KHÔNG BAO GIỜ được phát cả hai cause cho cùng một invalidation."
+  - "Khi invalidation_cause = eligible_swing_selection_superseded, causation_refs PHẢI trỏ: invalidated_fact_ref (FeatureComputed đang bị invalidate) VÀ event_record_ref của winning SwingConfirmed (Swing MỚI thắng total order tại R_later) — KHÔNG BAO GIỜ trỏ một SwingInvalidated giả định cho cause này, vì Swing đang dùng không hề bị invalidate."
+  - "invalidation_cause = eligible_swing_selection_superseded được ĐỊNH NGHĨA SEMANTIC bởi Domain Contract này nhưng operationally KHÔNG EMITTABLE trừ khi R_original — computation cursor của chính FeatureComputed đang bị invalidate — chứng minh được từ durable, replay-reconstructable authoritative evidence: bằng chứng sống sót qua process restart, và bất kỳ execution mode nào (Live/Backtest/Paper Trading/Replay, §13 mode parity) đều tự tái tạo độc lập được từ authoritative event log, KHÔNG phụ thuộc private in-memory state của một process cụ thể. Process-local/ephemeral memory một mình KHÔNG đủ bằng chứng. Tài liệu này KHÔNG định nghĩa/thêm một computation-cursor field nào để thỏa điều kiện này, và KHÔNG tuyên bố cơ chế đó đã có sẵn — persist/prove R_original thuộc phạm vi governed riêng (ADR-034 §Consequences), ngoài phạm vi sửa đổi v0.3 này. Cho tới khi prerequisite đó tồn tại, implementation PHẢI fail-closed cho MỌI trường hợp — không có ngoại lệ cho việc tự tracking cursor trong bộ nhớ riêng của chính nó."
 payload:
   invalidated_fact_ref: {type: event_record_ref, required: true}
-  invalidation_cause: {type: enum, values: [candle_corrected, regime_fact_invalidated, swing_invalidated], required: true}
+  invalidation_cause: {type: enum, values: [candle_corrected, regime_fact_invalidated, swing_invalidated, eligible_swing_selection_superseded], required: true}
   invalidation_reason: {type: string, required: false}
 ```
 
@@ -532,6 +546,8 @@ Kết quả bắt buộc:
 So sánh tiêu chí 1 đến 8 theo đúng thứ tự; tiêu chí đầu tiên khác nhau quyết định; các tiêu chí sau KHÔNG được đánh giá; `sequence` chỉ so trong cùng stream identity — cấm so sánh xuyên stream. **Total order này CHỈ chạy trên tập đã qua filter pipeline ở trên — không bao giờ được áp dụng cho một ứng viên chưa qua bước 3 (effective-time cutoff), dù ứng viên đó thắng theo tiêu chí 1 (`pivot_effective_time.window_start DESC`).**
 
 **Không có Eligible Swing nào tồn tại** (chưa có Swing nào qua được cả 5 bước lọc — kể cả trường hợp có Swing recorded-time visible nhưng effective-time ineligible như Swing B ở ví dụ trên): `distance_to_last_confirmed_swing` KHÔNG được compute — valid absence, không phát `FeatureComputed` (§7 warm-up/missing-input).
+
+**Winner supersession sau khi Feature đã compute — cross-reference tới §4 (`eligible_swing_selection_superseded`, v0.3, ADR-034 Approved):** thuật toán 5-bước-lọc + 8-tiêu-chí total order ở trên áp dụng MỖI LẦN computation chạy — kể cả khi đó là một RE-EVALUATION của một window đã có `FeatureComputed` `VALID` từ trước, không chỉ lần tính gốc. Nếu, tại một computation cursor `R_later` sau đó, một `SwingConfirmed` MỚI (KHÔNG visible tại computation cursor gốc `R_original` của `FeatureComputed` đang xét) nay thỏa cả 5 bước lọc VÀ thắng total order — TRONG KHI Swing mà `FeatureComputed` đó đang dùng vẫn valid/non-invalidated — kết quả winner đã đổi mà Swing đang dùng KHÔNG hề bị invalidate. Đây CHÍNH XÁC là trường hợp §4's `invalidation_cause: eligible_swing_selection_superseded` (KHÁC `swing_invalidated`, vốn chỉ áp dụng khi Swing đang dùng tự nó bị invalidate) — xem §4 cho bốn điều kiện bắt buộc đầy đủ và ràng buộc durable-evidence fail-closed. Một Swing đã visible tại `R_original` nhưng KHÔNG được computation gốc chọn KHÔNG BAO GIỜ đủ điều kiện cho cause này dù nó lẽ ra thắng total order tại thời điểm đó — đó là defect của chính computation gốc, không phải temporal supersession (§4).
 
 ## 10. Feature-to-Feature dependency — deferred (B3 KHÔNG author)
 

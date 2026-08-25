@@ -2,6 +2,54 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-25 — feature.md v0.3 (Draft candidate): implements ADR-034
+
+**Bounded Domain Contract amendment — candidate pending Review A/B, NOT an approval.** Implements Approved ADR-034's `FeatureFactInvalidated.invalidation_cause` semantic. Baseline HEAD `ba0262e64159bb367deb5092c03fb390fdb8bc85`.
+
+### Added
+
+```text
+FeatureFactInvalidated.invalidation_cause (§4): fourth enum value
+  eligible_swing_selection_superseded — pinned verbatim as ADR-034's own
+  working name. Applies ONLY to distance_to_last_confirmed_swing, and ONLY
+  when all four ADR-034 conditions hold: (a) winning SwingConfirmed NOT
+  visible at R_original (the invalidated fact's own original computation
+  cursor); (b) IS visible at the later cursor R_later; (c) passes §9a's
+  filter pipeline and wins §9a's total order at R_later; (d) the Swing
+  actually used remains valid/non-invalidated at R_later. A Swing already
+  visible at R_original but not selected by the original computation NEVER
+  qualifies — that is a computation/integrity defect, not this cause.
+  Mutually exclusive with swing_invalidated. causation_refs must cite the
+  invalidated fact and the winning SwingConfirmed, never a fabricated
+  SwingInvalidated.
+
+Durable-evidence fail-closed boundary preserved exactly from ADR-034: the
+  cause is semantically defined here but operationally NOT EMITTABLE unless
+  R_original is provable from durable, replay-reconstructable authoritative
+  evidence (process-local memory alone is insufficient). Does not define or
+  add any computation-cursor field, and does not claim P3-FEATURE-A-MAJ-06
+  is solved.
+
+§9a: minimal cross-reference paragraph added connecting total-order
+  re-evaluation of an already-VALID window to §4's new cause.
+
+Version-history banner: new "v0.3 implement ADR-034 (Approved)" paragraph
+  added after the existing v0.2 banner.
+```
+
+### Files changed
+
+```text
+docs/domain/feature.md ("0.2" -> "0.3", status Draft unchanged, blob
+  9563d1917077229e159bc844d2b36441514d3fc7), docs/MANIFEST.md,
+  docs/CHANGELOG.md. manifest_version "10.229" -> "10.230". No implementation
+  file touched. ADR-034 and all prior ADRs verified byte-unchanged.
+```
+
+### Next governed action (not performed here)
+
+Independent read-only Review A (ChatGPT) of the feature.md v0.3 Domain Contract delta.
+
 ## [Unreleased] — 2026-08-25 — ADR-034 v0.3: Product Owner Approval (`Approved`)
 
 **Atomic mechanical approval-recording transaction.** Product Owner decision (verbatim): `APPROVE ADR-034 v0.3 at boundary 646c37c1d1d9bac5bbffe68324ff3e5a3e9fc35b`, recorded `2026-08-25T11:54:00+07:00`. Baseline HEAD `646c37c1d1d9bac5bbffe68324ff3e5a3e9fc35b`.

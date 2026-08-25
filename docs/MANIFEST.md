@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.229"
+manifest_version: "10.230"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -8798,6 +8798,130 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 A bounded `feature.md` amendment implementing ADR-034's now-Approved semantic (§4 enum value + invariants/causation-pin rule), per its own Consequences section — not performed here.
 
 **Files changed:** `docs/adr/ADR-034.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## `feature.md` v0.3 — implements ADR-034 (`Draft`, candidate amendment pending Review A/B — NOT an approval)
+
+**Bounded semantic Domain Contract amendment transaction — vai trò: `Feature Domain Contract ADR-034 Amendment Executor`.** Implements Approved `ADR-034`'s new `FeatureFactInvalidated.invalidation_cause` semantic in `feature.md` §4 (plus a minimal §9a cross-reference). Does not modify `ADR-034` or any prior ADR, does not touch implementation/tests, does not remediate `swing_distance.py`, does not close `P3-FEATURE-A-MAJ-04`, does not perform Review A/B or approve this amendment.
+
+**Baseline:** branch `main`, HEAD `ba0262e64159bb367deb5092c03fb390fdb8bc85` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean). `manifest_version` confirmed `"10.229"` at start. `docs/adr/ADR-034.md` re-verified `version: "0.3"`, `status: Approved`, content identity `038425a423d0d2ca65f550c708399e165dfeaba4` (unchanged, immutable per Chapter 11 §11.3). `docs/domain/feature.md` reviewed Draft state confirmed before edit: `version: "0.2"`, `status: Draft`, content identity `2262adf9253ea20c8d817d1066f50c4353d2d35d`.
+
+```text
+Domain Contract:        feature.md
+Version:                 "0.2" -> "0.3"
+Status:                  Draft (unchanged — this is a candidate amendment, not an approval)
+New content identity:    git hash-object docs/domain/feature.md = 9563d1917077229e159bc844d2b36441514d3fc7
+                          (669 lines)
+owner / approved_by / approved_at:  Product Owner / null / null (all unchanged)
+reviewers:                [] (unchanged — no review executed against this candidate)
+```
+
+### Exact new enum identifier
+
+```text
+eligible_swing_selection_superseded — pinned verbatim as ADR-034's own working name, no
+  alternative spelling required by any directly-verified repository naming convention
+  (feature.md's existing enum members — candle_corrected, regime_fact_invalidated,
+  swing_invalidated — are all lower_snake_case past-tense-neutral descriptive phrases;
+  eligible_swing_selection_superseded matches that convention exactly).
+```
+
+### Semantic/invariant changes (feature.md §4, plus §9a cross-reference)
+
+```text
+description (d): added a fourth invalidation_cause branch, distinguished explicitly from (c)
+  swing_invalidated — (c) applies when the Swing IN USE is itself invalidated; (d) applies
+  when the Swing IN USE remains valid but a different, newly-visible SwingConfirmed now wins
+  §9a's total order.
+
+New invariant 1 (scope): eligible_swing_selection_superseded valid ONLY for
+  feature_type = distance_to_last_confirmed_swing — volatility_metric/
+  directional_persistence_metric excluded (no Eligible-Swing selection concept exists there).
+
+New invariant 2 (four conditions, ADR-034 verbatim): valid ONLY when ALL FOUR hold at once —
+  (a) winning SwingConfirmed NOT visible at R_original (the invalidated FeatureComputed's own
+  original computation cursor); (b) IS visible at R_later (the re-evaluation cursor); (c)
+  passes §9a's 5-step filter pipeline AND wins §9a's 8-criterion total order at R_later; (d)
+  the Swing actually used by the invalidated fact remains valid/non-invalidated at R_later.
+  Explicitly states a SwingConfirmed already visible at R_original but not selected by the
+  original computation NEVER qualifies for this cause under any circumstance — that is a
+  computation/integrity defect of the original FeatureComputed, a different problem class,
+  and must never be laundered through this invalidation_cause (ADR-034's exact framing,
+  preserved verbatim in substance).
+
+New invariant 3 (mutual exclusion): eligible_swing_selection_superseded and swing_invalidated
+  are mutually exclusive for the same invalidation — an implementation must never emit both.
+
+New invariant 4 (causation_refs binding): when this cause is used, causation_refs MUST point
+  to the invalidated_fact_ref AND the winning SwingConfirmed's event_record_ref — MUST NOT
+  cite a fabricated SwingInvalidated, since the Swing in use was never invalidated (this is
+  the exact causal-fidelity gap ADR-034 was authored to close).
+
+New invariant 5 (durable-evidence fail-closed boundary, preserved exactly from ADR-034):
+  the cause is SEMANTICALLY DEFINED by this Domain Contract but operationally NOT EMITTABLE
+  unless R_original is provable from durable, replay-reconstructable authoritative evidence —
+  survives process restart, independently reconstructable by any execution mode (Live/
+  Backtest/Paper Trading/Replay, §13 mode parity) from the authoritative event log alone.
+  Process-local/ephemeral memory alone is explicitly insufficient. Explicitly states this
+  amendment does NOT define/add any computation-cursor field and does NOT claim
+  P3-FEATURE-A-MAJ-06 is solved — that persistence/proof mechanism remains separate governed
+  scope (ADR-034 §Consequences), out of bounds here. Implementation MUST fail closed for
+  every case until that separate prerequisite exists.
+
+payload.invalidation_cause enum: [candle_corrected, regime_fact_invalidated,
+  swing_invalidated] -> [candle_corrected, regime_fact_invalidated, swing_invalidated,
+  eligible_swing_selection_superseded].
+
+§9a cross-reference (minimal, added directly before §10, feature.md's own existing section
+  boundary): connects the total-order re-evaluation algorithm to §4's new cause — states the
+  5-step-filter + 8-criterion total order runs on every re-evaluation of an already-VALID
+  window, not only the original computation, and that a newly-visible SwingConfirmed winning
+  at R_later while the Swing in use remains valid is exactly §4's new cause — restating the
+  already-visible-but-omitted exclusion from the consumer's (§9a's) side, not introducing a
+  new rule.
+
+Version-history banner: a new "v0.3 implement ADR-034 (Approved)" paragraph added directly
+  after the existing v0.2 banner in the document's intro, summarizing the amendment and its
+  durable-evidence boundary — consistent with this document's own established banner pattern
+  (mirrors the existing v0.2 RA-B3-MAJ-01/IRB-B3-MAJ-01 banner immediately above it).
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ADR-034.md unchanged (verified git diff --quiet -- docs/adr/ADR-034.md); all 33
+  other ADRs unchanged (verified git diff --quiet for docs/adr/ADR-001.md through ADR-033.md).
+docs/domain/swing.md and every other Domain Contract unchanged (verified git diff --quiet --
+  docs/domain/, excluding feature.md). No implementation/test file touched (verified
+  git diff --quiet -- python/). module-registry.yaml unchanged. Constitution/governance
+  unchanged. feature.md's §1/§2/§3/§5-§8/§9 (steps 1-2 filter pipeline text, unchanged)/§9a
+  (5-step filter + 8-criterion total order, unchanged except the new cross-reference
+  paragraph appended at the section's end)/§10-§20 all otherwise byte-identical — only the
+  intro banner, §4's description/invariants/payload.invalidation_cause, and the new §9a
+  cross-reference paragraph were touched. feature.md remains status: Draft, approved_by: null,
+  approved_at: null — this is a candidate amendment pending Review A/B, NOT an approval.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction authors the Domain Contract amendment
+  only; feature-engine implementation remediation (swing_distance.py emitting the new cause)
+  remains separate, future, and still gated on P3-FEATURE-A-MAJ-06's durable-evidence
+  prerequisite per ADR-034 — not performed here.
+P3-FEATURE-A-MAJ-06: remains OPEN and untouched — this amendment explicitly does not define,
+  add, or decide a computation-cursor persistence mechanism.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Independent read-only Review A (ChatGPT) of the `feature.md` v0.3 Domain Contract delta, at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"). Does not itself perform Review B or `feature-engine` implementation remediation.
+
+**Files changed:** `docs/domain/feature.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 
