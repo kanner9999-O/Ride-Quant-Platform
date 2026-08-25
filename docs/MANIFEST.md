@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.231"
+manifest_version: "10.232"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -9011,6 +9011,124 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 Deterministic verification (ChatGPT) of this mechanical correction — confirming the diff is exactly the wording fix described and nothing else. Does not itself start `feature-engine` implementation remediation.
 
 **Files changed:** `docs/domain/feature.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## ADR-035 v0.1 — Feature Computation Cursor architecture candidate (`Draft`, candidate authoring — resolves `P3-FEATURE-A-MAJ-06`'s durable-evidence prerequisite)
+
+**Governed semantic architecture-authoring transaction — vai trò: `ADR-035 Author / P3-FEATURE-A-MAJ-06 Cursor-Evidence Architecture Executor`.** Authors `docs/adr/ADR-035.md` v0.1 (`Draft`) resolving the architecture prerequisite behind `P3-FEATURE-A-MAJ-06`: how Feature computation cursor `R` is represented as durable, replay-reconstructable authoritative evidence, unblocking ADR-034's already-Approved `eligible_swing_selection_superseded` cause. Does not approve the ADR, does not perform Review A or Independent Review B, does not modify `feature.md`, does not touch `feature-engine` implementation/tests, does not remediate `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06`.
+
+**Baseline:** branch `main`, HEAD `07eb8ecf475cdb6ab6ef7ac6f63283520c99111a` (verified via `git rev-parse HEAD` before any edit; matches required starting boundary; tracked tree clean). `manifest_version` confirmed `"10.231"` at start. `docs/adr/ADR-035.md` verified absent before this transaction (ADR-034 confirmed the highest existing ADR, ADR-035 was available). `docs/adr/ADR-034.md` re-verified `version: "0.3"`, `status: Approved`, content identity `038425a423d0d2ca65f550c708399e165dfeaba4` (unchanged, immutable). `docs/domain/feature.md` re-verified `version: "0.3"`, `status: Draft`, content identity `0d39f8fbbfc593c8ca812a7a5a1f6745049cdada`.
+
+```text
+ADR ID:                  ADR-035
+Version:                  "0.1"
+Status:                   Draft
+Content identity:         git hash-object docs/adr/ADR-035.md = 11ef70e00531581b97da082927a0d5002df8c51a
+                           (128 lines)
+owner:                     Product Owner (final approval authority — unchanged, no approval
+                           granted or implied by this transaction)
+approved_by / approved_at: null / null
+reviewers:                 [] (no review executed against this candidate)
+depends_on:                [] (informed by, but not structurally dependent on, ADR-009/
+                           ADR-014/ADR-034 — none superseded or amended; all remain unchanged)
+supersedes:                []
+```
+
+### ADR Scope Rule
+
+```text
+ADR_REQUIRED, per Chapter 0 §4b — "thay đổi Event Schema" trigger, same disjunctive-OR
+  reading ADR-034 established (ADR-025 precedent). A durable Feature computation cursor
+  requires adding required payload structure to FeatureComputed/FeatureFactInvalidated —
+  an Event-Schema change to authoritative Feature events. Direct verification (not
+  assumption) confirmed no non-schema-changing option closes the gap: recorded_time is a
+  distinct axis (append time, not evaluation-boundary time) and is the exact substitution
+  ADR-034 already forbids; input_fact_refs/causation_refs record only facts that WERE
+  selected, never the boundary determining what was visible-but-rejected (the winning-later
+  SwingConfirmed that triggers eligible_swing_selection_superseded is, by construction,
+  absent from the original fact's input_fact_refs); no in-memory/process-local value can be
+  durable by definition.
+```
+
+### Verified authorities (fresh source inspection, not copied from this task's prompt)
+
+```text
+Chapter 5 (05-time-model.md, Locked v2.4): re-read §5.1/§5.3/§5.4 verbatim — Replay Cursor =
+  Recorded Time boundary + opaque ordering position (§5.3); recorded_time is knowledge-axis,
+  distinct from any evaluation-boundary cursor; no global total order (§5.4, cross-referenced
+  to ADR-009).
+Chapter 8 (08-event-model.md, Locked v4.8): re-read §8.2/§8.4/§8.5 verbatim — envelope-vs-
+  payload authority split (§8.2, same split ADR-034 already relied on); Decision's
+  decision_context_cursor (§8.4) as direct, already-Locked precedent for "durable knowledge-
+  boundary evidence on an authoritative fact," including its own explicit reasoning for why
+  it needs input_contract_ref/stream_registry_version/lifecycle_frontier (Decision's evolvable,
+  versioned, multi-stream Input Contract universe) — confirmed this reasoning does NOT
+  transfer to Feature, whose upstream surface (feature.md §14) is closed/fixed directly by
+  the Domain Contract itself, not a separate evolvable registry artifact; canonical
+  replay_cursor schema (§8.5) and its §8.5.1/§8.5.2 cardinality/relational-invariant tables,
+  used as the direct model for this ADR's new Cursor->Fact/Position->Cursor invariants.
+ADR-009 (Approved): re-read §2.3 verbatim — P_stream/P_causation/no-global-total-order model,
+  confirms stream_positions must stay a bounded per-stream map, never a cross-stream ordinal.
+ADR-014 (Approved): re-read — Feature fan-in boundary; confirmed unaffected, no new upstream
+  contract/role added.
+ADR-034 (Approved, v0.3): re-read in full — the exact durable-evidence prerequisite text this
+  ADR resolves, and the exact R_original/R_later/four-condition semantic this ADR's cursor
+  evidence must make provable.
+feature.md (Draft v0.3): re-read §3/§4/§9a/§12/§13 verbatim — §12's "hai điều kiện ĐỘC LẬP"
+  confirms recorded-time visibility applies to EVERY Feature input across all three founding
+  feature types (not only distance_to_last_confirmed_swing), directly supporting this ADR's
+  choice to make computation_cursor universal rather than feature-type-scoped; §14's closed
+  six-contract-ID upstream enumeration, used as the basis for rejecting Decision-scale
+  multi-stream cursor machinery as over-engineered for Feature.
+Current feature-engine code (swing_distance.py, contracts.py, this session's own prior
+  authorship): re-inspected directly as ground-truth defect evidence — confirmed FeatureComputed
+  carries no cursor field; confirmed on_candle's identical-ref dedup (`return []`) short-
+  circuits before any as-of recomputation path; confirmed _SwingState retains only the
+  current revision and on_swing_invalidated destructively mutates `state.invalidated = True`
+  in place, with no history preserved for an earlier-cursor query.
+docs/templates/adr-template.md: re-read — ADR-035.md structure/fields verified conformant.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/domain/feature.md unchanged (verified git diff --quiet -- docs/domain/). No
+  implementation/test file touched (verified git diff --quiet -- python/). module-
+  registry.yaml unchanged. Constitution/governance unchanged — Chapter 8 (Locked) NOT
+  touched; computation_cursor is designed as a feature.md-owned payload field, explicitly
+  NOT an instance of Chapter 8's envelope-level decision_context_cursor/replay_cursor
+  schema, so no Chapter 8 amendment is implied or required by this decision. No existing
+  Approved ADR mutated (verified git diff --quiet for docs/adr/ADR-001.md through
+  ADR-034.md, all 34 prior ADR files byte-identical). ADR-034's decision, new invalidation
+  cause, Eligible-Swing ordering (feature.md §9a), Feature subject identity (§1), Feature-
+  to-Feature dependency (§10, still deferred), module dependency graph, and every ownership
+  boundary are all unaffected — this ADR adds a new, independent payload-evidence decision,
+  it does not amend, reinterpret, or reopen ADR-034. ADR-035.md's Independent Reviews table
+  is the unfilled template — no reviewer identity or review result fabricated. ADR-035 not
+  approved: `status: Draft`, `approved_by: null`, `approved_at: null`.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — unaffected by this transaction; ADR-035 authoring is a
+  new, independent architecture decision, not a step in MAJ-04's own remediation sequence.
+P3-FEATURE-A-MAJ-06: remains OPEN — this transaction authors the architecture candidate that,
+  once Approved and implemented per its own Consequences ordering, resolves MAJ-06's
+  underlying prerequisite; no finding state transition performed here.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+module-registry.yaml / dependency graph / other Domain Contracts / other ADRs / Constitution
+  / governance: all unchanged.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Independent read-only Review A (ChatGPT) of `ADR-035`, at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"). Does not itself perform Review B or any implementation.
+
+**Files changed:** `docs/adr/ADR-035.md` (new file), `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

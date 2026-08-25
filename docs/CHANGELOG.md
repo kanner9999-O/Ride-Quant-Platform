@@ -2,6 +2,66 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-25 — ADR-035 v0.1 (Draft): Feature Computation Cursor architecture candidate
+
+**ADR-authoring transaction only** — resolves `P3-FEATURE-A-MAJ-06`'s durable-evidence architecture prerequisite, unblocking ADR-034's already-Approved `eligible_swing_selection_superseded` cause. No `feature.md`/implementation/other-ADR touched. Baseline HEAD `07eb8ecf475cdb6ab6ef7ac6f63283520c99111a`.
+
+### Added
+
+```text
+docs/adr/ADR-035.md (Draft, v0.1, unapproved): authorizes a new required
+  FeatureComputed/FeatureFactInvalidated payload field, computation_cursor
+  — {recorded_time, stream_positions} — a bounded, Feature-Domain-Contract-
+  owned evidence structure modeled on Chapter 5 §5.3's Replay Cursor
+  principle but deliberately NOT an instance of Chapter 8's Decision-scoped
+  decision_context_cursor/replay_cursor schema (Chapter 8 stays Locked,
+  untouched). R_original for an invalidated FeatureComputed is read
+  directly off that fact's own computation_cursor; R_later is read off the
+  FeatureFactInvalidated's own computation_cursor — both durable, both
+  independently reconstructable by any execution mode from the
+  authoritative event log alone.
+
+Two new relational invariants, directly modeled on Chapter 8 §8.5.2's
+  existing Cursor->Decision / Position->Cursor pattern: cursor.recorded_time
+  <= fact.recorded_time; every stream_positions entry must resolve to an
+  event with recorded_time <= cursor.recorded_time (anti-look-ahead).
+
+Implementation consequence pinned as an architecture requirement (not a
+  mandated data structure): engine-internal upstream state must be
+  cursor-aware/history-preserving — ingesting a later Swing revision/
+  invalidation must never destroy the ability to answer an earlier-cursor
+  query. Ground-truth defects confirmed by direct code inspection:
+  identical-Candle-ref dedup short-circuits before as-of recomputation;
+  _SwingState retains only the current revision and is destructively
+  mutated in place.
+
+Scope classification: ADR_REQUIRED per Chapter 0 §4b's Event Schema
+  trigger, same disjunctive-OR reading ADR-034 established. Six
+  alternatives evaluated and rejected: a separate provenance artifact/
+  stream; deriving cursor from recorded_time/input_fact_refs/
+  causation_refs; overloading correlation_id/invalidation_reason;
+  process-local memory alone; a new global cross-stream sequence.
+```
+
+### Not performed in this transaction
+
+```text
+No Review A/B, no Product Owner decision, no feature.md edit, no
+  feature-engine implementation/test change, no P3-FEATURE-A-MAJ-04/-06
+  remediation. ADR-034 verified byte-identical and Approved throughout.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-035.md (new), docs/MANIFEST.md, docs/CHANGELOG.md.
+manifest_version "10.231" -> "10.232". No other file touched.
+```
+
+### Next governed action (not performed here)
+
+Independent read-only Review A (ChatGPT) of ADR-035 at the resulting immutable boundary.
+
 ## [Unreleased] — 2026-08-25 — feature.md v0.3: mechanical factual correction (closure-scope wording)
 
 **Mechanical correction only** — no semantic change to the new `eligible_swing_selection_superseded` cause, its four conditions, `causation_refs` binding, mutual exclusion, or the durable-evidence fail-closed rule. Baseline HEAD `bc7f5953fab48fa70d8ec2c0ff4b614684d076da`.
