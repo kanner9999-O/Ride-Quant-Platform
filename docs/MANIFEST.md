@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.233"
+manifest_version: "10.234"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -9252,6 +9252,109 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 ### Next governed action (not performed in this transaction)
 
 Bounded Review-A re-review of `ADR-035` v0.2 against exactly these three findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001 ("bounded semantic correction -> bounded semantic re-review, CHỈ phạm vi đã chạm"). Does not itself authorize `feature.md` amendment, `feature-engine` implementation, or Product Owner approval.
+
+**Files changed:** `docs/adr/ADR-035.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## ADR-035 v0.2 — mechanical Scale-check factual correction (`Draft`, still candidate — `P3-ADR035-B-MAJ-01`)
+
+**Mechanical factual correction transaction — vai trò: `ADR-035 Scale-Check Factual Correction Executor`.** Corrects exactly one unsupported cardinality claim in ADR-035 v0.2's Scale check `reason` text. Does not alter Decision, canonical Replay Cursor schema, visibility predicate, fail-closed rules, Alternatives, Consequences, or implementation requirements. Does not perform Review A/B, approval, `feature.md` amendment, implementation, or create another ADR.
+
+**Baseline:** branch `main`, HEAD `07d7319350ecfccae021b2e3523519615ec0a58c` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean). `manifest_version` confirmed `"10.233"` at start. `docs/adr/ADR-035.md` confirmed `version: "0.2"`, `status: Draft`, content identity `def9114b12d81a3f2d1c3849efbeb51494336c29` before this transaction. `docs/adr/ADR-034.md` re-verified `version: "0.3"`, `status: Approved`, content identity `038425a423d0d2ca65f550c708399e165dfeaba4` (unchanged, immutable).
+
+```text
+ADR:                   ADR-035
+Version:                "0.2" -> "0.2" (unchanged — mechanical Scale-check wording fix only,
+                        no version bump per this correction's own scope, consistent with the
+                        feature.md v0.3 mechanical-correction precedent earlier this session)
+Status:                 Draft (unchanged)
+Blob before:             def9114b12d81a3f2d1c3849efbeb51494336c29
+Blob after:              f651039a970d5ac355c14904b4ad461cd2f777e9
+                         (163 lines)
+owner / approved_by / approved_at / reviewers:  all unchanged
+```
+
+### Finding provenance — recorded honestly, no fabricated reviewer identity
+
+```text
+P3-ADR035-B-MAJ-01 (Independent Review B) was supplied by finding ID/description in the
+  governing task prompt, without an accompanying inspectable Review B artifact (no reviewer
+  principal, execution ID, review boundary, isolation attestation, or independence-mode
+  evidence supplied or available). Per this task's own explicit instruction and
+  G-VERIFY-001/P3-VERIFY-001, no Review B provenance record (identity/verdict) was fabricated
+  to attribute this finding. The underlying factual claim WAS independently re-verified before
+  correcting it: re-read Chapter 8 §8.5.3 fresh (not trusted from prior-session memory) —
+  confirmed it defines a cursor's stream universe purely as the intersection of (streams the
+  pinned Input Contract selects) ∩ (streams existing/activated at the cursor boundary) ∩
+  (streams resolvable in the pinned stream_registry_version), with NO numeric/cardinality cap
+  anywhere in that definition. Confirmed ADR-035 v0.2's own Scale-check text asserted TWO
+  unsupported bounds not derivable from that section: "NOT total platform stream count" and
+  "can never grow to include the platform's total stream count" — both false as stated;
+  Chapter 8 imposes no such prohibition, and ADR-009's no-global-total-order decision (re-read
+  fresh, §2.3) constrains ORDERING STRUCTURE (no single sequence number spanning multiple
+  streams), not per-stream-entry COUNT — a different axis conflated in the prior text. Also
+  confirmed the prior text's claim that feature.md §14 keeps any pinned Input Contract "narrow
+  in practice" was unsupported — §14 (re-read) constrains upstream Event Contract TYPES a
+  feature_type may consume, not stream-INSTANCE cardinality of a separately-authored Input
+  Contract; the two are not the same axis.
+```
+
+### Finding remediated
+
+```text
+P3-ADR035-B-MAJ-01 (Scale-check unsupported cardinality bound): removed both false claims
+  ("NOT total platform stream count"; "can never grow to include the platform's total stream
+  count") and the unsupported "feature.md §14... stay narrow in practice" claim. Corrected
+  reasoning now states, per the task's exact five required points: (1) stream_positions
+  cardinality is determined by the cursor's stream universe as Chapter 8 §8.5.3 defines it;
+  (2) ADR-035 imposes no independent numeric upper bound; (3) depending on a future Input
+  Contract, that cardinality could in principle equal the platform's then-current total
+  relevant stream count; (4) rejecting a global cross-stream ordinal (Alternative 7) does NOT
+  imply a bound on the number of per-stream positions — it is a structural rejection, not a
+  cardinality one; (5) the decision remains scale-valid because the representation scales with
+  the selected cursor universe and introduces no new global ordering mechanism, stream,
+  module, or dependency edge — not because cardinality is capped. feature.md §14 is now
+  correctly described as constraining Event Contract TYPES, not stream-instance cardinality.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Diff scoped to exactly the Scale check `reason` YAML string — verified via direct git diff
+  inspection: no line outside `**Scale check:**`'s code block changed. Decision (§Decision,
+  including the canonical replay_cursor schema, "Feature Definition vs Input Contract"
+  paragraph, fail-closed consequence paragraph), the full three-leg visibility predicate
+  (`P3-ADR035-A-MAJ-02`'s fix), the Cursor->Fact/Position->Cursor/Lifecycle->Cursor relational
+  invariants, the implementation consequence, append-only/determinism paragraph, and all seven
+  Alternatives are byte-identical to v0.2's prior state (verified by direct re-read). `expected_
+  scale`/`current_scale`/`decision_still_valid: true` YAML keys unchanged — only the `reason`
+  prose string was edited. docs/domain/feature.md unchanged (verified git diff --quiet --
+  docs/domain/). No implementation/test file touched (verified git diff --quiet -- python/).
+  module-registry.yaml unchanged. Constitution/governance unchanged — Chapter 8/ADR-009 read
+  fresh for verification, neither file touched (verified git diff --quiet -- docs/constitution/
+  docs/adr/ADR-009.md). No existing Approved ADR mutated (verified git diff --quiet for
+  docs/adr/ADR-001.md through ADR-034.md, all 34 prior ADR files byte-identical). ADR-035 NOT
+  approved: `status: Draft`, `approved_by: null`, `approved_at: null`, `reviewers: []`
+  (unchanged). No new ADR file created.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — unaffected by this transaction.
+P3-FEATURE-A-MAJ-06: remains OPEN — this transaction corrects the architecture candidate's
+  Scale-check reasoning only; no finding state transition performed here.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+module-registry.yaml / dependency graph / other Domain Contracts / other ADRs / Constitution
+  / governance: all unchanged.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Deterministic verification (ChatGPT) of this mechanical correction — confirming the diff is exactly the Scale-check reasoning fix described and nothing else.
 
 **Files changed:** `docs/adr/ADR-035.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 

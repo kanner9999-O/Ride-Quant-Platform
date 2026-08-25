@@ -2,6 +2,52 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-25 — ADR-035 v0.2: mechanical Scale-check factual correction
+
+**Mechanical correction only** — no change to Decision, canonical Replay Cursor schema, visibility predicate, fail-closed rules, Alternatives, or Consequences. Baseline HEAD `07d7319350ecfccae021b2e3523519615ec0a58c`.
+
+### Fixed
+
+```text
+Scale check `reason` claimed stream_positions "NOT total platform stream count" and "can
+  never grow to include the platform's total stream count" — both unsupported. Chapter 8
+  §8.5.3 (re-read fresh) defines a cursor's stream universe purely as the intersection of
+  Input-Contract-selected/activated/registry-resolvable streams, with no cardinality cap;
+  ADR-009's no-global-total-order decision constrains ordering STRUCTURE, not per-stream
+  entry COUNT — a different axis the prior text conflated. Also removed the unsupported
+  claim that feature.md §14 keeps any pinned Input Contract "narrow in practice" — §14
+  constrains upstream Event Contract TYPES, not stream-instance cardinality.
+
+Corrected reasoning states: cardinality is determined by the pinned Input Contract's valid
+  stream universe (§8.5.3); this ADR imposes no independent numeric bound; cardinality
+  could in principle equal the platform's total relevant stream count depending on a
+  future Input Contract; rejecting a global cross-stream ordinal (Alternative 7) is a
+  structural rejection, not a cardinality one; the decision stays scale-valid because the
+  representation scales with the selected cursor universe and adds no new global ordering
+  mechanism, stream, module, or dependency edge.
+```
+
+### Provenance note
+
+```text
+No inspectable Review B artifact was supplied to this transaction; no reviewer identity or
+  verdict was fabricated to attribute the finding. The underlying claim was independently
+  re-verified against Chapter 8 §8.5.3 and ADR-009's actual text before correcting it.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-035.md (version "0.2" unchanged, status Draft unchanged, blob
+  def9114b12d81a3f2d1c3849efbeb51494336c29 -> f651039a970d5ac355c14904b4ad461cd2f777e9),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.233" -> "10.234". ADR-034 and
+  all other files verified byte-unchanged.
+```
+
+### Next governed action (not performed here)
+
+Deterministic verification (ChatGPT) of this mechanical correction.
+
 ## [Unreleased] — 2026-08-25 — ADR-035 v0.2 (Draft): bounded correction, three findings
 
 **Bounded correction only** — not a Review A re-review, not an approval, no `feature.md`/implementation touched. Baseline HEAD `e5622dc481906098d554f86ef3e9fc3472fa8454`.
