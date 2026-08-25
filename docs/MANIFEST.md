@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.235"
+manifest_version: "10.236"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -9494,6 +9494,137 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 A bounded `feature.md` amendment implementing ADR-035's now-Approved computation-cursor architecture (§3/§4 payload field, §9a/§12 visibility-predicate alignment), per its own Consequences section — not performed here.
 
 **Files changed:** `docs/adr/ADR-035.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## `feature.md` v0.4 — implements ADR-035 (`Draft`, candidate amendment pending Review A/B — NOT an approval)
+
+**Bounded semantic Domain Contract amendment transaction — vai trò: `Feature Domain Contract ADR-035 Amendment Executor`.** Implements Approved `ADR-035`'s computation-cursor decision in `feature.md` §3/§4 payload, plus the §9a/§12 visibility-predicate alignment ADR-035's own Consequences required. Does not modify `ADR-034`/`ADR-035` (both frozen), does not touch implementation/tests, does not author Stream Registry/Input Contract artifacts, does not remediate `swing_distance.py`, does not close `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06`, does not perform Review A/B or approve this amendment.
+
+**Baseline:** branch `main`, HEAD `09745d1777e910ebd8ffd26da2a7bbb74a6abbf4` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean). `manifest_version` confirmed `"10.235"` at start. `docs/adr/ADR-035.md` re-verified `version: "0.2"`, `status: Approved`, content identity `dd4e627aa06af0ad824e89c61cb7ab8e4cb05999` (unchanged, immutable per Chapter 11 §11.3). `docs/adr/ADR-034.md` re-verified `version: "0.3"`, `status: Approved`, content identity `038425a423d0d2ca65f550c708399e165dfeaba4` (unchanged, immutable). `docs/domain/feature.md` reviewed Draft state confirmed before edit: `version: "0.3"`, `status: Draft`, content identity `0d39f8fbbfc593c8ca812a7a5a1f6745049cdada`.
+
+```text
+Domain Contract:        feature.md
+Version:                 "0.3" -> "0.4"
+Status:                  Draft (unchanged — this is a candidate amendment, not an approval)
+New content identity:    git hash-object docs/domain/feature.md = 24302c6e6ac96b2a2685f6b3e18f3805b152e81b
+                          (704 lines)
+owner / approved_by / approved_at:  Product Owner / null / null (all unchanged)
+reviewers:                [] (unchanged — no review executed against this candidate)
+```
+
+### Exact `computation_cursor` schema representation
+
+```text
+computation_cursor: {type: replay_cursor, required: true, ...} — added to BOTH §3
+  FeatureComputed and §4 FeatureFactInvalidated payload. Value type is Chapter 8 §8.5's
+  canonical Replay Cursor shape (recorded_time, input_contract_ref, stream_registry_version,
+  lifecycle_frontier, stream_positions) referenced by type name only ("replay_cursor") —
+  mirroring how input_fact_refs already references event_record_ref as an externally-owned
+  canonical shape (Chapter 8 §8.2.3) without re-nesting its fields inline. feature.md does
+  NOT re-declare the five sub-fields as a locally-owned nested YAML block, consistent with
+  §18's "áp dụng, không định nghĩa lại... ordering/replay cursor mechanics" boundary.
+```
+
+### §4 R_original/R_later binding
+
+```text
+The eligible_swing_selection_superseded four-condition invariant now defines, verbatim:
+  R_original := payload.computation_cursor of the FeatureComputed being invalidated
+                (payload.invalidated_fact_ref, §3)
+  R_later    := payload.computation_cursor of THIS FeatureFactInvalidated itself (§4)
+Both conditions (a)/(b) now reference §12's full three-leg visibility predicate by name
+  ("theo predicate đó") rather than restating a scalar recorded_time comparison. Conditions
+  (c)/(d), causation_refs binding, mutual exclusion with swing_invalidated, and the defect-
+  vs-supersession distinction are all preserved byte-equivalent in substance (only the (a)/(b)
+  visibility mechanics were rewritten). The "operationally NOT EMITTABLE" invariant is updated
+  to state the schema gap is now closed (v0.4) while the artifact-resolvability gap (genuine
+  Stream Registry/Feature-scoped Input Contract) remains open, per ADR-035's own fail-closed
+  consequence — the cause remains NOT emittable today.
+```
+
+### §9a/§12 visibility changes
+
+```text
+§12 "Input eligibility" is the SINGLE canonical source for the new full three-leg predicate
+  (stream-universe membership under the pinned Input Contract/lifecycle_frontier; in-stream
+  sequence position, no cross-stream comparison; recorded-time boundary) — replacing the
+  prior scalar "input.recorded_time <= computation cursor" condition (a). A new "Fail-closed
+  prerequisite" paragraph states the schema exists but the predicate is unprovable until
+  Stream Registry/Input Contract artifacts are genuinely resolvable (Chapter 8 §8.1.1).
+§9a step 2 rewritten from "S.recorded_time <= R" to "S visible tại R theo §12's predicate" —
+  cross-references §12, does not repeat the three legs verbatim. Step 3 (effective-time
+  cutoff) and the unchanged 8-criterion total order are untouched. The worked example
+  (Swing A/B) keeps its existing R20/R30/R100 recorded_time-only numbers, with an added
+  disclaimer that this illustrates only the recorded_time leg of the full predicate — no
+  concrete Input Contract/stream-universe content was invented for the example.
+§13's "No look-ahead qua batch recomputation" bullet and one "recorded-time visible" phrase
+  in §9a's "no eligible Swing" sentence were updated to "full cursor visible (§12)" for
+  internal consistency with the redefined condition (a) — same underlying concept, corrected
+  terminology only, no new rule introduced.
+§8b gained one clarifying sentence: computation_cursor is explicitly NOT part of computation
+  identity/dedup — two computations with identical normalized input_fact_refs remain the same
+  identity regardless of differing computation_cursor values.
+§9's "Mười invariant bắt buộc" summary (now "Mười một") gained item 11: original and
+  replacement facts each pin an independent computation_cursor, mirroring the new §3/§4
+  invariant already stated there.
+```
+
+### Preserved boundaries — explicit verification
+
+```text
+computation_cursor NOT added to subject identity (§1, untouched) or to §8b's computation
+  identity tuple (explicitly excluded by the new clarifying sentence, not silently omitted).
+No Stream Registry or Input Contract artifact authored; input_contract_ref/stream_registry_
+version/lifecycle_frontier/stream_positions remain abstract, type-referenced fields with no
+  concrete stream set, contract_id, or registry content chosen anywhere in this diff.
+No storage/history implementation mechanism dictated — the §3 "implementation consequence"
+  concept from ADR-035 itself is not repeated as a new feature.md invariant (that remains
+  ADR-035's own architecture-requirement language, not a Domain Contract obligation beyond
+  what §3/§4's payload/invariants above already state).
+eligible_swing_selection_superseded is NOT claimed operationally enabled — the "operationally
+  KHÔNG EMITTABLE" invariant (§4) is explicitly preserved and updated to reflect the
+  still-open artifact-resolvability gap, not removed or weakened.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ADR-034.md and docs/adr/ADR-035.md unchanged (verified git diff --quiet for both) —
+  both remain Approved, frozen. All 34 other ADRs unaffected (not touched by this
+  transaction's diff at all — verified git status --porcelain scoped to exactly
+  docs/domain/feature.md, docs/MANIFEST.md, docs/CHANGELOG.md). No implementation/test file
+  touched (verified git diff --quiet -- python/). docs/domain/swing.md and every other
+  Domain Contract unchanged (verified git diff --quiet -- docs/domain/, excluding
+  feature.md). module-registry.yaml unchanged. Constitution/governance unchanged (Chapter 5/
+  Chapter 8 referenced extensively, not edited — verified git diff --quiet --
+  docs/constitution/). feature.md's §1/§2/§5/§6/§7/§10/§11/§14-§20 all otherwise byte-
+  identical — only the intro banner; §3/§4's payload/invariants; §8b's one clarifying
+  sentence; §9's invariant-count header + new item 11; §9a's intro/step-2/step-3-reference/
+  worked-example-disclaimer/no-eligible-Swing phrase; §12's full rewrite; and §13's one
+  bullet were touched. feature.md remains status: Draft, approved_by: null, approved_at:
+  null — this is a candidate amendment pending Review A/B, NOT an approval.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction authors the Domain Contract amendment
+  only; feature-engine implementation remediation remains separate, future work, still
+  gated on P3-FEATURE-A-MAJ-06's artifact-resolvability prerequisite per ADR-035.
+P3-FEATURE-A-MAJ-06: remains OPEN — the schema gap ADR-035 identified is now closed at the
+  Domain Contract level (this transaction), but the artifact-resolvability gap (genuine
+  Stream Registry/Feature-scoped Input Contract) remains entirely unaddressed, as required.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Independent read-only Review A (ChatGPT) of the `feature.md` v0.4 Domain Contract delta, at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"). Does not itself perform Review B or `feature-engine` implementation remediation.
+
+**Files changed:** `docs/domain/feature.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

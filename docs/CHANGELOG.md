@@ -2,6 +2,72 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — feature.md v0.4 (Draft candidate): implements ADR-035
+
+**Bounded Domain Contract amendment — candidate pending Review A/B, NOT an approval.** Implements Approved ADR-035's computation-cursor decision. Baseline HEAD `09745d1777e910ebd8ffd26da2a7bbb74a6abbf4`.
+
+### Added
+
+```text
+computation_cursor (§3 FeatureComputed, §4 FeatureFactInvalidated): new required payload
+  field on both events, every original and replacement fact. Value type is Chapter 8 §8.5's
+  canonical Replay Cursor, referenced by type name only (no local re-declaration of its five
+  sub-fields), consistent with §18's "áp dụng, không định nghĩa lại" boundary.
+
+§4's eligible_swing_selection_superseded invariant now defines R_original/R_later precisely
+  as the invalidated FeatureComputed's own computation_cursor and this FeatureFactInvalidated's
+  own computation_cursor, respectively — replacing the prior informal binding. Conditions
+  (a)/(b) now reference §12's full visibility predicate instead of a scalar recorded_time
+  comparison. The "operationally NOT EMITTABLE" invariant is updated: schema gap now closed
+  (v0.4), artifact-resolvability gap (genuine Stream Registry/Input Contract) remains open —
+  the cause is still not emittable.
+
+§8b: one clarifying sentence — computation_cursor is explicitly NOT part of computation
+  identity/dedup.
+```
+
+### Changed
+
+```text
+§12 "Input eligibility": condition (a) rewritten from scalar "input.recorded_time <=
+  computation cursor" to the full three-leg predicate (stream-universe membership under the
+  pinned Input Contract/lifecycle_frontier; in-stream sequence position, no cross-stream
+  comparison; recorded-time boundary) — defined ONCE here, cross-referenced elsewhere. New
+  "Fail-closed prerequisite" paragraph states the schema exists but the predicate is
+  unprovable until Stream Registry/Input Contract artifacts are genuinely resolvable.
+§9a step 2 rewritten to reference §12's predicate instead of restating
+  "S.recorded_time <= R"; step 3 (effective-time cutoff) and the 8-criterion total order are
+  untouched. Worked example kept its existing recorded_time-only numbers with an added
+  disclaimer clarifying it illustrates only one leg of the full predicate.
+§13 and one §9a phrase updated from "recorded-time visible" to "full cursor visible (§12)"
+  for internal consistency with the redefined condition (a).
+§9's correction-lineage invariant summary ("Mười" -> "Mười một"): added item 11, mirroring
+  the new §3/§4 invariant that original/replacement facts each pin an independent
+  computation_cursor.
+```
+
+### Preserved (explicit verification)
+
+```text
+computation_cursor NOT added to subject identity or computation identity/dedup. No Stream
+  Registry or Input Contract artifact authored — all referenced fields remain abstract,
+  type-only. No storage/history implementation mechanism dictated.
+  eligible_swing_selection_superseded is NOT claimed operationally enabled.
+```
+
+### Files changed
+
+```text
+docs/domain/feature.md ("0.3" -> "0.4", status Draft unchanged, blob
+  0d39f8fbbfc593c8ca812a7a5a1f6745049cdada -> 24302c6e6ac96b2a2685f6b3e18f3805b152e81b),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.235" -> "10.236". ADR-034/ADR-035
+  verified byte-unchanged (both remain Approved, frozen). No implementation file touched.
+```
+
+### Next governed action (not performed here)
+
+Independent read-only Review A (ChatGPT) of the feature.md v0.4 Domain Contract delta.
+
 ## [Unreleased] — 2026-08-25 — ADR-035 v0.2: Product Owner Approval (`Approved`)
 
 **Atomic mechanical approval-recording transaction.** Product Owner decision (verbatim): `APPROVE ADR-035 v0.2 at boundary e881bcf39ae1ebde70668e30273eed89dbe3dabb`, recorded `2026-08-25T23:51:46+07:00`. Baseline HEAD `e881bcf39ae1ebde70668e30273eed89dbe3dabb`.

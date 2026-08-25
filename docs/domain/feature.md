@@ -1,7 +1,7 @@
 ---
 id: feature
 title: Feature
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -33,6 +33,8 @@ Cộng một **read model tùy chọn** (`FeatureCurrentView`) — projection ti
 **v0.2 xử lý `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`** (cùng một defect, một correction): eligible-Swing selection cho `distance_to_last_confirmed_swing` (§9a v0.1) thiếu một **effective-time cutoff filter** tường minh — một Swing có `pivot_effective_time.window_start` xảy ra CÙNG LÚC hoặc SAU reference Candle's `effective_time.window_end` có thể bị chọn nhầm chỉ vì nó recorded-time visible tại cursor, vi phạm bitemporal correctness ([Chapter 5](../constitution/05-time-model.md)) — "recorded-time visible" KHÔNG tương đương "effective-time eligible". v0.2 pin canonical cutoff decision `eligible_swing_effective_cutoff_policy: REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE` (§6) và viết lại §9a thành một **ordered filter pipeline 5 bước tường minh** — effective-time eligibility LUÔN là một filter chạy TRƯỚC candidate ordering, không bao giờ để total order hợp thức hóa một Swing effective muộn hơn (§9a, §12, §13).
 
 **v0.3 implement [ADR-034](../adr/ADR-034.md) (Approved) — đóng `P3-FEATURE-A-MAJ-04`'s Event-Schema gap:** `FeatureFactInvalidated.invalidation_cause` (§4) được bổ sung giá trị thứ tư, `eligible_swing_selection_superseded`, cho đúng MỘT tình huống ADR-034 xác định: một `SwingConfirmed` MỚI — KHÔNG visible tại computation cursor `R_original` của chính `FeatureComputed` đang bị invalidate, nhưng visible VÀ thắng §9a's deterministic total order tại một cursor `R_later` sau đó — khiến winner đổi, TRONG KHI Swing mà fact đó đang dùng vẫn valid/non-invalidated (KHÁC `swing_invalidated`, vốn CHỈ áp dụng khi chính Swing đang dùng nhận `SwingInvalidated`). CHỈ áp dụng cho `distance_to_last_confirmed_swing`; loại trừ lẫn nhau với `swing_invalidated`; một Swing đã visible tại `R_original` nhưng KHÔNG được computation gốc chọn (dù nó lẽ ra thắng total order) KHÔNG BAO GIỜ đủ điều kiện cho cause này — đó là computation/integrity defect của chính `FeatureComputed` gốc, một lớp vấn đề khác hoàn toàn (§4). `causation_refs` PHẢI trỏ `FeatureComputed` đang bị invalidate VÀ winning `SwingConfirmed`, KHÔNG BAO GIỜ một `SwingInvalidated` giả định. Cause này ĐỊNH NGHĨA SEMANTIC bởi v0.3 nhưng **operationally KHÔNG EMITTABLE** trừ khi `R_original` chứng minh được từ durable, replay-reconstructable authoritative evidence sống sót qua process restart và tái tạo được độc lập bởi mọi execution mode (Live/Backtest/Paper Trading/Replay) — process-local/ephemeral memory một mình KHÔNG đủ. v0.3 KHÔNG định nghĩa/thêm một computation-cursor field nào để thỏa điều kiện này, và KHÔNG tuyên bố `P3-FEATURE-A-MAJ-06` đã giải quyết — cơ chế persist/prove `R_original` thuộc phạm vi governed riêng (ADR-034 §Consequences). §9a bổ sung một cross-reference ngắn nối total-order re-evaluation với cause này (§9a cuối mục).
+
+**v0.4 implement [ADR-035](../adr/ADR-035.md) (Approved) — durable computation-cursor evidence:** `FeatureComputed` (§3) và `FeatureFactInvalidated` (§4) mỗi cái bổ sung một payload field bắt buộc mới, `computation_cursor` — giá trị là canonical [Chapter 8](../constitution/08-event-model.md) §8.5 Replay Cursor NGUYÊN VẸN (`recorded_time`, `input_contract_ref`, `stream_registry_version`, `lifecycle_frontier`, `stream_positions`), KHÔNG một schema Feature-local nào khác — Feature tiếp tục "áp dụng, không định nghĩa lại" đúng §18's authority boundary đã khóa. `input_contract_ref` chọn một Feature-scoped Input Contract instance (Chapter 8 §8.3.4) — nội dung cụ thể của Input Contract đó (`included_streams`/`merge_policy`/`frontier_policy`) VẪN deferred, cùng trạng thái deferral đã dùng xuyên suốt cho `stream_ref.registry_version`/`producer_ref` (Phase 1, chưa author). `computation_cursor` bắt buộc trên MỌI `FeatureComputed` (gốc lẫn replacement, mỗi fact pin cursor riêng của chính nó) và MỌI `FeatureFactInvalidated`. `R_original` (§4's `eligible_swing_selection_superseded`, ADR-034) nay resolve chính xác thành `computation_cursor` của `FeatureComputed` đang bị invalidate; `R_later` resolve thành `computation_cursor` của chính `FeatureFactInvalidated` đó. §12 định nghĩa lại "input eligibility" condition (a) thành full cursor visibility predicate (ba nhánh: stream-universe membership, in-stream sequence position, recorded-time boundary — KHÔNG so sánh sequence xuyên stream) thay vì scalar `recorded_time <= R` — §9a bước 2 và §4's causal-fidelity invariant đều tham chiếu về đúng MỘT định nghĩa này tại §12, không lặp lại. `computation_cursor` KHÔNG PHẢI một phần computation identity/dedup (§8b, không đổi). Cause `eligible_swing_selection_superseded` VẪN operationally KHÔNG EMITTABLE — v0.4 chỉ đóng schema gap ADR-035 xác định; artifact-resolvability gap (Stream Registry/Feature-scoped Input Contract chưa tồn tại persistently resolvable, Chapter 8 §8.1.1) VẪN mở, thuộc `P3-FEATURE-A-MAJ-06`'s phạm vi implementation riêng, KHÔNG đóng ở v0.4 này.
 
 ## 1. Logical Feature Subject — `kind: entity`
 
@@ -151,6 +153,9 @@ invariants:
   - "Replacement fact PHẢI dùng ĐÚNG CÙNG (feature_subject_id, effective_window) với fact bị supersede — không được đổi window khi correction (đóng rule 3)."
   - "input_fact_refs của replacement PHẢI phản ánh ancestry ĐÃ SỬA — không được giữ nguyên ref cũ đã không còn authoritative (đóng rule 8)."
   - "KHÔNG có shortcut khi value không đổi: nếu một upstream correction ảnh hưởng input_fact_refs, cặp FeatureFactInvalidated + replacement PHẢI phát sinh — kể cả khi value cuối cùng giữ nguyên sau khi tính lại — đúng nguyên tắc `regime.md` §10."
+  - "payload.computation_cursor PHẢI có mặt trên MỌI FeatureComputed — computation gốc lẫn replacement, KHÔNG NGOẠI LỆ — giá trị là canonical Replay Cursor (Chapter 8 §8.5), applied nguyên vẹn KHÔNG định nghĩa lại (Chapter 5 §5.3/Chapter 8 §8.4-§8.5, §18 authority boundary): computation_cursor.input_contract_ref pin một Feature-scoped Input Contract instance (Chapter 8 §8.3.4); computation_cursor.stream_registry_version, computation_cursor.lifecycle_frontier, computation_cursor.stream_positions đúng §8.5.1's cardinality (v0.4, ADR-035 Approved)."
+  - "computation_cursor.recorded_time PHẢI <= envelope.recorded_time của CHÍNH FeatureComputed này (Cursor → Fact, Chapter 8 §8.5.2 áp dụng nguyên vẹn) — một fact khẳng định đã evaluate as-of một cursor SAU thời điểm chính nó được ghi là invalid."
+  - "computation_cursor của một FeatureComputed replacement ĐỘC LẬP với computation_cursor của fact nó supersede — mỗi computation, gốc hay replacement, pin đúng cursor CHÍNH XÁC nó dùng để evaluate, KHÔNG kế thừa/sao chép cursor của fact trước đó."
 payload:
   feature_subject_id: {type: string, required: true}
   feature_type: {type: enum, values: [volatility_metric, directional_persistence_metric, distance_to_last_confirmed_swing], required: true}
@@ -163,6 +168,7 @@ payload:
     window_end: {type: timestamp, required: true}
   input_fact_refs: {type: array, items: event_record_ref, required: true}
   supersedes_fact_ref: {type: event_record_ref, required: false, description: "VẮNG MẶT cho original computation; BẮT BUỘC cho correction replacement — xem invariants."}
+  computation_cursor: {type: replay_cursor, required: true, description: "canonical Chapter 8 §8.5 Replay Cursor (recorded_time/input_contract_ref/stream_registry_version/lifecycle_frontier/stream_positions — shape owned by Chapter 8, applied here, not redefined). Pin R_original cho §4's eligible_swing_selection_superseded. Xem §12 cho full visibility predicate và ADR-035 (Approved) cho decision đầy đủ. KHÔNG PHẢI một phần computation identity (§8b)."}
 ```
 
 ## 4. `FeatureFactInvalidated` — `kind: event`
@@ -211,14 +217,16 @@ invariants:
   - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_fact_ref VÀ muộn hơn recorded_time của event gây ra nó."
   - "Replay tại cursor trước recorded_time của invalidation KHÔNG được thấy invalidation này (chống look-ahead)."
   - "invalidation_cause = eligible_swing_selection_superseded (v0.3, ADR-034 Approved) CHỈ hợp lệ khi feature_type = distance_to_last_confirmed_swing (§7.3, §9a) — cấm dùng cho volatility_metric/directional_persistence_metric, vốn không có khái niệm Eligible-Swing selection."
-  - "invalidation_cause = eligible_swing_selection_superseded CHỈ hợp lệ khi CẢ BỐN điều kiện sau đều đúng — ĐÚNG BỐN, không phải một điều kiện đơn lẻ nào đủ: (a) winning SwingConfirmed KHÔNG visible tại computation cursor R_original mà FeatureComputed đang bị invalidate đã dùng để tính (tức KHÔNG thỏa SwingConfirmed.recorded_time <= R_original tại thời điểm đó, §9a bước 2/§12); (b) winning SwingConfirmed CÓ visible tại computation cursor R_later đang trigger re-evaluation này (SwingConfirmed.recorded_time <= R_later); (c) winning SwingConfirmed thỏa đầy đủ §9a's 5-bước filter pipeline VÀ thắng §9a's 8-tiêu-chí total order, cả hai đánh giá tại R_later; (d) Swing mà FeatureComputed đang bị invalidate thực sự đã dùng VẪN valid, KHÔNG nhận SwingInvalidated, tại R_later. Một SwingConfirmed ĐÃ visible tại R_original (recorded_time <= R_original) nhưng KHÔNG được computation gốc chọn — kể cả khi nó lẽ ra đã thắng total order tại R_original — KHÔNG BAO GIỜ đủ điều kiện cho cause này: đó là một computation/integrity defect của chính FeatureComputed gốc (§9a's deterministic algorithm không được áp dụng đúng tại R_original), một lớp vấn đề hoàn toàn khác temporal supersession, và KHÔNG BAO GIỜ được biểu diễn, che giấu, hay 'rửa' qua invalidation_cause này."
+  - "invalidation_cause = eligible_swing_selection_superseded CHỈ hợp lệ khi CẢ BỐN điều kiện sau đều đúng — ĐÚNG BỐN, không phải một điều kiện đơn lẻ nào đủ. R_original := payload.computation_cursor của CHÍNH FeatureComputed đang bị invalidate (payload.invalidated_fact_ref, §3); R_later := payload.computation_cursor của CHÍNH FeatureFactInvalidated này (§3/§4, v0.4, ADR-035 Approved). Visibility của một event tại một cursor R được xác định bởi full cursor visibility predicate đã pin DUY NHẤT tại §12 (KHÔNG lặp lại ở đây) — KHÔNG BAO GIỜ một scalar recorded_time-only test: (a) winning SwingConfirmed KHÔNG visible tại R_original theo predicate đó (thất bại ít nhất một trong ba nhánh §12); (b) winning SwingConfirmed CÓ visible tại R_later theo predicate đó (thỏa CẢ BA nhánh §12); (c) winning SwingConfirmed thỏa đầy đủ §9a's 5-bước filter pipeline (bước 2 dùng đúng predicate §12) VÀ thắng §9a's 8-tiêu-chí total order, cả hai đánh giá tại R_later; (d) Swing mà FeatureComputed đang bị invalidate thực sự đã dùng VẪN valid, KHÔNG nhận SwingInvalidated, tại R_later. Một SwingConfirmed ĐÃ visible tại R_original theo predicate đó nhưng KHÔNG được computation gốc chọn — kể cả khi nó lẽ ra đã thắng total order tại R_original — KHÔNG BAO GIỜ đủ điều kiện cho cause này: đó là một computation/integrity defect của chính FeatureComputed gốc (§9a's deterministic algorithm không được áp dụng đúng tại R_original), một lớp vấn đề hoàn toàn khác temporal supersession, và KHÔNG BAO GIỜ được biểu diễn, che giấu, hay 'rửa' qua invalidation_cause này."
   - "invalidation_cause = eligible_swing_selection_superseded VÀ swing_invalidated LOẠI TRỪ LẪN NHAU cho cùng một invalidation của cùng một FeatureComputed: swing_invalidated áp dụng khi Swing ĐANG DÙNG tự nó nhận một SwingInvalidated; eligible_swing_selection_superseded áp dụng khi Swing ĐANG DÙNG vẫn valid/non-invalidated nhưng bị vượt qua bởi một SwingConfirmed khác thắng total order. Một implementation KHÔNG BAO GIỜ được phát cả hai cause cho cùng một invalidation."
   - "Khi invalidation_cause = eligible_swing_selection_superseded, causation_refs PHẢI trỏ: invalidated_fact_ref (FeatureComputed đang bị invalidate) VÀ event_record_ref của winning SwingConfirmed (Swing MỚI thắng total order tại R_later) — KHÔNG BAO GIỜ trỏ một SwingInvalidated giả định cho cause này, vì Swing đang dùng không hề bị invalidate."
-  - "invalidation_cause = eligible_swing_selection_superseded được ĐỊNH NGHĨA SEMANTIC bởi Domain Contract này nhưng operationally KHÔNG EMITTABLE trừ khi R_original — computation cursor của chính FeatureComputed đang bị invalidate — chứng minh được từ durable, replay-reconstructable authoritative evidence: bằng chứng sống sót qua process restart, và bất kỳ execution mode nào (Live/Backtest/Paper Trading/Replay, §13 mode parity) đều tự tái tạo độc lập được từ authoritative event log, KHÔNG phụ thuộc private in-memory state của một process cụ thể. Process-local/ephemeral memory một mình KHÔNG đủ bằng chứng. Tài liệu này KHÔNG định nghĩa/thêm một computation-cursor field nào để thỏa điều kiện này, và KHÔNG tuyên bố cơ chế đó đã có sẵn — persist/prove R_original thuộc phạm vi governed riêng (ADR-034 §Consequences), ngoài phạm vi sửa đổi v0.3 này. Cho tới khi prerequisite đó tồn tại, implementation PHẢI fail-closed cho MỌI trường hợp — không có ngoại lệ cho việc tự tracking cursor trong bộ nhớ riêng của chính nó."
+  - "invalidation_cause = eligible_swing_selection_superseded được ĐỊNH NGHĨA SEMANTIC bởi Domain Contract này VÀ nay có payload field durable để mang bằng chứng (computation_cursor, §3/§4, v0.4, ADR-035 Approved) — nhưng VẪN operationally KHÔNG EMITTABLE cho tới khi computation_cursor's input_contract_ref/stream_registry_version/lifecycle_frontier resolve tới các artifact THẬT SỰ persistently resolvable (Chapter 8 §8.1.1): Stream Registry và Feature-scoped Input Contract instance chưa tồn tại trong repository này (Phase 1, chưa author). Cho tới khi các artifact đó tồn tại, một computation_cursor value CÓ THỂ populate được về mặt schema NHƯNG KHÔNG PHẢI proof — implementation PHẢI fail-closed cho MỌI trường hợp, không có ngoại lệ. Process-local/ephemeral memory một mình VẪN KHÔNG đủ bằng chứng dù computation_cursor field đã tồn tại — field chỉ là nơi CHỨA bằng chứng, không TỰ ĐỘNG LÀ bằng chứng nếu nội dung nó tham chiếu không resolve được thật sự. Tài liệu này KHÔNG author Stream Registry hay Input Contract artifact nào, KHÔNG chọn nội dung cụ thể của chúng — persist/prove các artifact đó thuộc phạm vi governed riêng (ADR-035 §Consequences), ngoài phạm vi sửa đổi v0.4 này. Bất kỳ execution mode nào (Live/Backtest/Paper Trading/Replay, §13 mode parity) đều PHẢI tự tái tạo được cùng kết quả visibility từ CÙNG authoritative evidence (event log + resolvable Stream Registry/Input Contract) khi các artifact đó tồn tại — không được suy diễn từ private in-memory state của một process cụ thể."
+  - "payload.computation_cursor PHẢI có mặt trên MỌI FeatureFactInvalidated, KHÔNG NGOẠI LỆ — cùng canonical Replay Cursor shape (Chapter 8 §8.5) như §3. computation_cursor.recorded_time PHẢI <= envelope.recorded_time của CHÍNH FeatureFactInvalidated này (Cursor → Fact, Chapter 8 §8.5.2 áp dụng nguyên vẹn), đối xứng invariant tương ứng ở §3."
 payload:
   invalidated_fact_ref: {type: event_record_ref, required: true}
   invalidation_cause: {type: enum, values: [candle_corrected, regime_fact_invalidated, swing_invalidated, eligible_swing_selection_superseded], required: true}
   invalidation_reason: {type: string, required: false}
+  computation_cursor: {type: replay_cursor, required: true, description: "canonical Chapter 8 §8.5 Replay Cursor — pin R_later, computation cursor mà re-evaluation dẫn tới invalidation này đã dùng. Xem §12 cho full visibility predicate và ADR-035 (Approved) cho decision đầy đủ. KHÔNG PHẢI một phần computation identity (§8b)."}
 ```
 
 ## 5. `FeatureCurrentView` — `kind: read_model` (optional, recommended)
@@ -404,6 +412,8 @@ Computation identity cho một `FeatureComputed`:
 
 **`value` là KẾT QUẢ, KHÔNG phải một phần identity** — hai computation với cùng input tuple PHẢI cho cùng kết quả (determinism), nhưng identity được xác lập bởi input tuple đã normalize, không phải output.
 
+**`computation_cursor` (§3/§4, v0.4) cũng KHÔNG phải một phần computation identity** — hai computation với cùng input tuple đã normalize PHẢI được coi là cùng một computation identity bất kể `computation_cursor` khác nhau (ví dụ do thời điểm evaluate khác nhau dẫn tới cùng một tập input đã resolve) — dedup rule dưới đây vẫn áp dụng nguyên vẹn, không mở rộng thêm điều kiện.
+
 **Dedup rule:**
 
 ```text
@@ -444,7 +454,7 @@ F2
   → F3, supersedes_fact_ref = F2   (KHÔNG được supersedes_fact_ref = F1 — cấm nhảy cóc)
 ```
 
-**Mười invariant bắt buộc** (đã pin tại §3/§4, tổng hợp lại đây):
+**Mười một invariant bắt buộc** (đã pin tại §3/§4, tổng hợp lại đây):
 
 1. Original fact không có `supersedes_fact_ref`.
 2. Replacement fact bắt buộc có `supersedes_fact_ref`.
@@ -456,6 +466,7 @@ F2
 8. Replacement pin ancestry ĐÃ SỬA — không giữ ref cũ không còn authoritative.
 9. Mọi lineage member lịch sử giữ nguyên trong log — append-only (I-3), không mutate.
 10. Một fact đã invalidate **không bao giờ** bị tái sử dụng ngầm — `FeatureCurrentView` (§5, §11) phải loại trừ nó tường minh.
+11. (v0.4, ADR-035 Approved) Mỗi fact — gốc hay replacement — pin `computation_cursor` ĐỘC LẬP của chính nó, KHÔNG kế thừa/sao chép cursor của fact nó supersede hay của fact nó thay thế.
 
 **Một upstream correction có thể ảnh hưởng NHIỀU Feature fact overlapping cùng lúc** (ví dụ một Candle correction nằm trong evidence window của nhiều computation point liên tiếp). Với MỖI fact bị ảnh hưởng: **invalidate đúng fact đó → phát replacement ĐỘC LẬP cho đúng window đó** — **KHÔNG có dependency-forward ordering giữa các window độc lập**, trừ khi một Feature-to-Feature dependency thực sự được author tường minh (§10, B3 KHÔNG author dependency này).
 
@@ -476,7 +487,7 @@ eligible_swing_effective_cutoff_policy = REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE (
 
 KHÔNG dùng: batch completion time; wall clock hiện tại; Swing recorded mới nhất bất kể effective time; cutoff tự chọn ở tầng implementation; `FeatureCurrentView`'s time.
 
-**Eligible-Swing filter pipeline — cho một computation tại reference Candle `C`, cursor recorded-time `R`, một `SwingConfirmed S` là ứng viên hợp lệ CHỈ KHI cả 5 điều kiện dưới đây đều đúng, đánh giá THEO ĐÚNG THỨ TỰ này:**
+**Eligible-Swing filter pipeline — cho một computation tại reference Candle `C`, computation cursor `R` (§12's canonical `computation_cursor` — Chapter 8 §8.5 Replay Cursor, v0.4, ADR-035 Approved), một `SwingConfirmed S` là ứng viên hợp lệ CHỈ KHI cả 5 điều kiện dưới đây đều đúng, đánh giá THEO ĐÚNG THỨ TỰ này:**
 
 ```text
 1. Identity/scope match
@@ -486,8 +497,11 @@ KHÔNG dùng: batch completion time; wall clock hiện tại; Swing recorded m�
    S.swing_definition_version         == required_swing_definition_version (§6)
    S.swing_direction                  == swing_direction đã pin (§6)
 
-2. Recorded-time visibility (swing.md §7 — không look-ahead)
-   S.recorded_time <= R
+2. Full cursor visibility (v0.4 — §12's canonical predicate, Chapter 8 §8.3.4/§8.3.5/§8.5,
+   ADR-035 Approved; swing.md §7 — không look-ahead)
+   S visible tại R theo ĐÚNG BA nhánh §12 pin (stream-universe membership + in-stream
+   sequence position + recorded-time boundary) — KHÔNG một scalar S.recorded_time <= R
+   test đơn lẻ
 
 3. Effective-time cutoff (MỚI — v0.2, đóng RA-B3-MAJ-01/IRB-B3-MAJ-01)
    S.pivot_effective_time.window_start < C.effective_time.window_end
@@ -500,11 +514,13 @@ KHÔNG dùng: batch completion time; wall clock hiện tại; Swing recorded m�
    KHÔNG có SwingInvalidated visible tại R cho ĐÚNG cặp (swing_id, swing_revision) của S (swing.md §5)
 ```
 
-Một ứng viên KHÔNG qua được bước nào thì bị loại NGAY — không đánh giá các bước sau, không đưa vào total order. Bước 3 áp dụng ĐỘC LẬP với bước 2 — một Swing qua được bước 2 (recorded-time visible) vẫn có thể bị loại ở bước 3 (effective-time ineligible), và ngược lại đây là lý do bước 3 phải tồn tại như một bước riêng chứ không gộp vào bước 2.
+Một ứng viên KHÔNG qua được bước nào thì bị loại NGAY — không đánh giá các bước sau, không đưa vào total order. Bước 3 áp dụng ĐỘC LẬP với bước 2 — một Swing qua được bước 2 (full cursor visible theo §12) vẫn có thể bị loại ở bước 3 (effective-time ineligible), và ngược lại đây là lý do bước 3 phải tồn tại như một bước riêng chứ không gộp vào bước 2.
 
 **Không loại trừ Swing "đã dùng làm broken_swing_ref"** — đây là khác biệt tường minh so với `structure.md` §6a (nơi một Swing đã consume thì không đủ điều kiện lần nữa cho BOS/CHoCH); Feature chỉ đo khoảng cách, không "tiêu thụ" Swing theo nghĩa Structure — cùng một Swing có thể là Eligible Swing cho Feature bất kể Structure đã dùng nó làm break level hay chưa. (Điều kiện này không liên quan và không thay đổi bởi effective-time cutoff ở trên.)
 
 **Ví dụ bắt buộc (normative, đóng `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`):**
+
+(Ví dụ dưới đây minh họa CHỈ nhánh `recorded_time` của bước 2's full predicate — R20/R30/R100 là shorthand cho `computation_cursor.recorded_time` trong một trường hợp đơn giản, không tranh chấp stream-universe/in-stream-position; quy tắc authoritative đầy đủ tại §12 vẫn là CẢ BA nhánh, không chỉ `recorded_time`.)
 
 ```text
 Reference Candle C:
@@ -521,15 +537,16 @@ Swing B:
 Historical batch cursor: R100
 
 Kết quả bắt buộc:
-  Swing A → ELIGIBLE   (bước 2: R20 <= R100 OK; bước 3: T8 < T10 OK)
+  Swing A → ELIGIBLE   (bước 2: R20 <= R100 OK — VÀ hai nhánh còn lại của §12 giả định thỏa
+                        cho ví dụ đơn giản này; bước 3: T8 < T10 OK)
   Swing B → REJECTED   (bước 2: R30 <= R100 OK; bước 3: T15 < T10 FAIL — T15 >= T10)
 
-→ CẢ HAI đều recorded-time visible tại cursor R100 (bước 2 pass), nhưng Swing B vẫn bị loại
+→ CẢ HAI đều full-cursor-visible tại cursor R100 (bước 2 pass), nhưng Swing B vẫn bị loại
   vì effective-time ineligible (bước 3 fail). Total order (dưới đây) KHÔNG BAO GIỜ chạy tới
   Swing B vì nó đã bị loại từ bước 3 — total order chỉ thấy tập {Swing A}.
 ```
 
-**Correction-recorded-old-pivot — "recorded muộn hơn không có nghĩa effective muộn hơn":** một Swing revision được recorded SAU (correction) vẫn có thể eligible nếu chính revision đó thỏa cả 5 bước — cụ thể: `revised S.recorded_time <= R` VÀ `revised S.pivot_effective_time.window_start < reference_cutoff` VÀ đây là revision hợp lệ hiện tại (bước 4) VÀ không bị invalidate (bước 5). Ví dụ: một correction tới Swing A phát sinh recorded_time = R50 (sau R20 gốc) nhưng pivot vẫn `window_start = T8` (không đổi effective time) — revision mới này vẫn eligible tại cursor R100, thay thế revision cũ theo đúng correction lineage (swing.md). Ngược lại, một correction dời pivot tới `T15` (>= T10) sẽ khiến chính Swing đó chuyển từ eligible sang ineligible tại bước 3 — bất kể recorded_time của correction là gì. **"Recorded muộn hơn" và "effective muộn hơn" là hai trục độc lập** — bitemporal correctness đòi hỏi đánh giá riêng biệt, không suy luận trục này từ trục kia.
+**Correction-recorded-old-pivot — "recorded muộn hơn không có nghĩa effective muộn hơn":** một Swing revision được recorded SAU (correction) vẫn có thể eligible nếu chính revision đó thỏa cả 5 bước — cụ thể: `revised S` full-cursor-visible tại R theo §12's predicate (bước 2) VÀ `revised S.pivot_effective_time.window_start < reference_cutoff` VÀ đây là revision hợp lệ hiện tại (bước 4) VÀ không bị invalidate (bước 5). Ví dụ: một correction tới Swing A phát sinh recorded_time = R50 (sau R20 gốc) nhưng pivot vẫn `window_start = T8` (không đổi effective time) — revision mới này vẫn eligible tại cursor R100, thay thế revision cũ theo đúng correction lineage (swing.md). Ngược lại, một correction dời pivot tới `T15` (>= T10) sẽ khiến chính Swing đó chuyển từ eligible sang ineligible tại bước 3 — bất kể recorded_time của correction là gì. **"Recorded muộn hơn" và "effective muộn hơn" là hai trục độc lập** — bitemporal correctness đòi hỏi đánh giá riêng biệt, không suy luận trục này từ trục kia.
 
 **Total order khi nhiều ứng viên ĐÃ QUA CẢ 5 BƯỚC LỌC trên vẫn thỏa cùng điều kiện — 8 tiêu chí, lexicographic nghiêm ngặt (không đổi so với v0.1, giống hệt bảng `structure.md` §6a):**
 
@@ -546,7 +563,7 @@ Kết quả bắt buộc:
 
 So sánh tiêu chí 1 đến 8 theo đúng thứ tự; tiêu chí đầu tiên khác nhau quyết định; các tiêu chí sau KHÔNG được đánh giá; `sequence` chỉ so trong cùng stream identity — cấm so sánh xuyên stream. **Total order này CHỈ chạy trên tập đã qua filter pipeline ở trên — không bao giờ được áp dụng cho một ứng viên chưa qua bước 3 (effective-time cutoff), dù ứng viên đó thắng theo tiêu chí 1 (`pivot_effective_time.window_start DESC`).**
 
-**Không có Eligible Swing nào tồn tại** (chưa có Swing nào qua được cả 5 bước lọc — kể cả trường hợp có Swing recorded-time visible nhưng effective-time ineligible như Swing B ở ví dụ trên): `distance_to_last_confirmed_swing` KHÔNG được compute — valid absence, không phát `FeatureComputed` (§7 warm-up/missing-input).
+**Không có Eligible Swing nào tồn tại** (chưa có Swing nào qua được cả 5 bước lọc — kể cả trường hợp có Swing full cursor visible (bước 2, §12) nhưng effective-time ineligible như Swing B ở ví dụ trên): `distance_to_last_confirmed_swing` KHÔNG được compute — valid absence, không phát `FeatureComputed` (§7 warm-up/missing-input).
 
 **Winner supersession sau khi Feature đã compute — cross-reference tới §4 (`eligible_swing_selection_superseded`, v0.3, ADR-034 Approved):** thuật toán 5-bước-lọc + 8-tiêu-chí total order ở trên áp dụng MỖI LẦN computation chạy — kể cả khi đó là một RE-EVALUATION của một window đã có `FeatureComputed` `VALID` từ trước, không chỉ lần tính gốc. Nếu, tại một computation cursor `R_later` sau đó, một `SwingConfirmed` MỚI (KHÔNG visible tại computation cursor gốc `R_original` của `FeatureComputed` đang xét) nay thỏa cả 5 bước lọc VÀ thắng total order — TRONG KHI Swing mà `FeatureComputed` đó đang dùng vẫn valid/non-invalidated — kết quả winner đã đổi mà Swing đang dùng KHÔNG hề bị invalidate. Đây CHÍNH XÁC là trường hợp §4's `invalidation_cause: eligible_swing_selection_superseded` (KHÁC `swing_invalidated`, vốn chỉ áp dụng khi Swing đang dùng tự nó bị invalidate) — xem §4 cho bốn điều kiện bắt buộc đầy đủ và ràng buộc durable-evidence fail-closed. Một Swing đã visible tại `R_original` nhưng KHÔNG được computation gốc chọn KHÔNG BAO GIỜ đủ điều kiện cho cause này dù nó lẽ ra thắng total order tại thời điểm đó — đó là defect của chính computation gốc, không phải temporal supersession (§4).
 
@@ -604,14 +621,31 @@ market_time                    — PROHIBITED (§2)
 
 **Correction visibility:** `FeatureFactInvalidated` và replacement `FeatureComputed` đều có `recorded_time` mới; replay tại cursor trước đó chỉ thấy fact gốc — không backfill giả vờ đã biết sớm hơn thực tế.
 
-**Input eligibility — v0.2, đóng `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`: hai điều kiện ĐỘC LẬP, cả hai PHẢI đúng cho MỌI Feature input, không điều kiện nào thay thế được điều kiện kia:**
+**Input eligibility — v0.4, đóng schema gap của `P3-FEATURE-A-MAJ-06` (ADR-035, Approved): hai điều kiện ĐỘC LẬP, cả hai PHẢI đúng cho MỌI Feature input, không điều kiện nào thay thế được điều kiện kia:**
 
 ```text
-(a) input.recorded_time <= computation cursor      — recorded-time visibility (đã có từ v0.1)
+(a) input visible tại computation_cursor      — full cursor visibility (v0.4, thay thế
+                                                 scalar recorded-time-only test của v0.1-v0.3)
 (b) input effective time thỏa cutoff riêng của feature_type đó, pin tại Feature Definition (§6)
 ```
 
-`(a)` một mình KHÔNG đủ — một input recorded-time visible vẫn có thể effective-time ineligible (§9a ví dụ bắt buộc: Swing B). Với `distance_to_last_confirmed_swing`, `(b)` cụ thể là: `Eligible Swing.pivot_effective_time.window_start < reference Candle.effective_time.window_end` (§9a bước 3, `eligible_swing_effective_cutoff_policy`). Quy tắc chung **"không có input nào vượt quá `effective_window.window_end` hoặc replay cursor được dùng làm evidence"** PHẢI được đọc CÙNG với `(b)` — đây không phải một rule đứng riêng mơ hồ, mà tham chiếu đúng cutoff cụ thể mà Feature Definition của feature_type đó đã pin (§6/§9a cho `distance_to_last_confirmed_swing`; §7.1/§7.2 cho `volatility_metric`/`directional_persistence_metric` — evidence window chỉ dùng Candle/Regime fact có effective time không vượt quá `window_candle_count`/`upstream_source` đã pin).
+**`computation_cursor`** (§3/§4 payload, bắt buộc trên mọi `FeatureComputed`/`FeatureFactInvalidated`) là canonical [Chapter 8](../constitution/08-event-model.md) §8.5 Replay Cursor NGUYÊN VẸN — Feature áp dụng, không định nghĩa lại (§18) — gồm `recorded_time`, `input_contract_ref` (pin một Feature-scoped Input Contract instance, Chapter 8 §8.3.4), `stream_registry_version`, `lifecycle_frontier`, `stream_positions`.
+
+**`(a)` full cursor visibility — DUY NHẤT định nghĩa tại đây; §9a bước 2 và §4's `eligible_swing_selection_superseded` invariant CHỈ tham chiếu, không lặp lại chuỗi:** một upstream event `E` visible tại một `computation_cursor` R khi và chỉ khi CẢ BA nhánh sau đều đúng (KHÔNG một scalar `recorded_time`-only test):
+
+```text
+1. E.stream_id thuộc stream universe hợp lệ của R — tức E.stream_id ∈ R.input_contract_ref's
+   included_streams, VÀ stream đó valid tại R.lifecycle_frontier (Chapter 8 §8.3.5
+   Retained-in-Universe — một stream đã retire vẫn thuộc universe tới terminal_position,
+   không bị loại ngầm);
+2. E.sequence <= R.stream_positions[E.stream_id] — CHỈ so trong-stream, KHÔNG BAO GIỜ so
+   sequence xuyên hai stream khác nhau (Chapter 8 §8.3.3);
+3. E.recorded_time <= R.recorded_time (Chapter 5 §5.3's recorded-time boundary).
+```
+
+Một nhánh thất bại → `E` KHÔNG visible tại R. `(a)` một mình KHÔNG đủ — một input full-cursor-visible vẫn có thể effective-time ineligible (§9a ví dụ bắt buộc: Swing B). Với `distance_to_last_confirmed_swing`, `(b)` cụ thể là: `Eligible Swing.pivot_effective_time.window_start < reference Candle.effective_time.window_end` (§9a bước 3, `eligible_swing_effective_cutoff_policy`). Quy tắc chung **"không có input nào vượt quá `effective_window.window_end` hoặc replay cursor được dùng làm evidence"** PHẢI được đọc CÙNG với `(b)` — đây không phải một rule đứng riêng mơ hồ, mà tham chiếu đúng cutoff cụ thể mà Feature Definition của feature_type đó đã pin (§6/§9a cho `distance_to_last_confirmed_swing`; §7.1/§7.2 cho `volatility_metric`/`directional_persistence_metric` — evidence window chỉ dùng Candle/Regime fact có effective time không vượt quá `window_candle_count`/`upstream_source` đã pin).
+
+**Fail-closed prerequisite (chưa đóng, ADR-035 §Consequences):** `computation_cursor`'s schema tồn tại từ v0.4, nhưng `(a)`'s full predicate chỉ chứng minh được KHI `input_contract_ref`/`stream_registry_version`/`lifecycle_frontier` resolve tới artifact THẬT SỰ persistently resolvable (Chapter 8 §8.1.1) — Stream Registry và Feature-scoped Input Contract chưa tồn tại trong repository này (Phase 1, chưa author). Tài liệu này KHÔNG author các artifact đó. Process-local/ephemeral memory một mình VẪN KHÔNG đủ bằng chứng cho `(a)`, dù `computation_cursor` field đã tồn tại về schema.
 
 ## 13. No repaint và mode parity
 
@@ -621,7 +655,7 @@ market_time                    — PROHIBITED (§2)
 - **Cursor-correct pending correction** — replay giữa invalidation và replacement thấy đúng `PENDING_CORRECTION` (§11), không âm thầm dùng giá trị cũ.
 - **Cùng một chuỗi computation xuyên Backtest/Replay/Paper/Live** — deterministic given `(feature_definition_version, upstream causal ancestry)` — bắt buộc SINH RA đủ MỌI computation point giống nhau ở mọi mode.
 - **Warm-up/missing-input deterministic** — áp dụng đồng nhất mọi mode.
-- **No look-ahead qua batch recomputation — v0.2, đóng `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`:** historical Backtest/Replay tại một recorded cursor MUỘN (ví dụ nạp lại toàn bộ lịch sử tại cursor R100) PHẢI reconstruct MỖI Feature fact chỉ dùng input thỏa **CẢ HAI** điều kiện tại đúng computation cursor của CHÍNH fact đó (§12): recorded-time visible VÀ effective-time eligible. Việc một Swing/Candle/Regime fact được nhìn thấy trong batch tại cursor muộn (recorded-time visible) **KHÔNG BAO GIỜ** cho phép nó "nhảy vào" một computation point SỚM HƠN mà nó effective-time ineligible tại điểm đó (§9a — Swing B trong ví dụ bắt buộc vẫn bị loại dù cursor batch là R100). Bảo đảm này ĐỘC LẬP với mode — Live/Paper/Replay/Backtest đều PHẢI cho cùng một tập Eligible Swing tại cùng một computation point, không có "batch mode advantage" nhìn thấy trước.
+- **No look-ahead qua batch recomputation — v0.2, đóng `RA-B3-MAJ-01`/`IRB-B3-MAJ-01`; v0.4 cập nhật nhánh (a) theo full cursor visibility:** historical Backtest/Replay tại một cursor MUỘN (ví dụ nạp lại toàn bộ lịch sử tại `computation_cursor` với `recorded_time` R100) PHẢI reconstruct MỖI Feature fact chỉ dùng input thỏa **CẢ HAI** điều kiện tại đúng `computation_cursor` của CHÍNH fact đó (§12): full cursor visible (§12) VÀ effective-time eligible. Việc một Swing/Candle/Regime fact được nhìn thấy trong batch tại cursor muộn (full cursor visible) **KHÔNG BAO GIỜ** cho phép nó "nhảy vào" một computation point SỚM HƠN mà nó effective-time ineligible tại điểm đó (§9a — Swing B trong ví dụ bắt buộc vẫn bị loại dù cursor batch là R100). Bảo đảm này ĐỘC LẬP với mode — Live/Paper/Replay/Backtest đều PHẢI cho cùng một tập Eligible Swing tại cùng một computation point, không có "batch mode advantage" nhìn thấy trước.
 - **Rounding/threshold boundary deterministic** — `decimal_precision_policy` (§6) pin cùng definition version, cùng kết quả mọi mode; `value` luôn kiểu `decimal` (I-9, không float).
 
 ## 14. Input contracts — chỉ authoritative facts thực sự cần
