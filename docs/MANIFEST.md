@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.238"
+manifest_version: "10.239"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -9837,6 +9837,141 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 Independent read-only Review A (ChatGPT) of `ADR-036`, at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"). Does not itself perform Review B, does not author `stream-registry.yaml`, and does not perform any implementation.
 
 **Files changed:** `docs/adr/ADR-036.md` (new file), `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## ADR-036 v0.2 — bounded correction (`Draft`, closes two Major + two Minor v0.1 findings `pending re-review`)
+
+**Bounded semantic correction transaction — vai trò: `ADR-036 v0.1 Bounded Correction Executor`.** Remediates exactly the four findings named in the governing task prompt from ChatGPT Review A (`P3-ADR036-A-MAJ-01`, `P3-ADR036-A-MAJ-02`, `P3-ADR036-A-MIN-01`, `P3-ADR036-A-MIN-02`). Does not perform Review B, Product Owner approval, registry authoring, Input Contract authoring, implementation, Quality Gate, Tier, package/gate transition, or create ADR-037.
+
+**Baseline:** branch `main`, HEAD `7c073b1261e40142886707dfdab28c5459e8bfb2` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean except pre-existing unrelated untracked `.DS_Store` clutter). `manifest_version` confirmed `"10.238"` at start. `docs/adr/ADR-036.md` content identity confirmed `899ce6c283160232b5435fbfe1c2fd970777c605` (v0.1, `status: Draft`) before this transaction. `docs/constitution/08-event-model.md` re-read §8.3.1/§8.3.5 in full (Locked v4.8, unchanged). `docs/constitution/07-module-taxonomy.md` re-read §7.0–§7.5 in full (Locked v2.2, unchanged). `docs/constitution/11-adr-process.md` re-read §11.4/§11.5/§11.9 in full (Locked v2.2, unchanged). `docs/adr/ADR-009.md` re-verified `status: Approved`, content identity `2667b860ee5568979a3853e0c6703d0c873d45d0` (unchanged). `docs/architecture/module-registry.yaml` re-read in full — confirmed exactly 25 registered modules, none carrying stream-lifecycle/registry-governance responsibility. `docs/adr/ADR-023.md`/`contract-compatibility-authority`'s entry re-read as the direct precedent for "ADR decides a new module identity/taxonomy, module-registry.yaml registration follows as a separate mechanical Declaration-tier transaction."
+
+```text
+ADR:                   ADR-036
+Version:                "0.1" -> "0.2"
+Status:                 Draft (unchanged)
+New content identity:   git hash-object docs/adr/ADR-036.md = d4915b14aa55d5c4efd8f2ef855961f26dd194aa
+                         (120 lines)
+owner / approved_by / approved_at:  Product Owner / null / null (all unchanged)
+depends_on:             [] -> ["ADR-009"] (P3-ADR036-A-MIN-01)
+supersedes:              [] (unchanged)
+```
+
+### Finding provenance — recorded honestly, no fabricated reviewer identity
+
+```text
+P3-ADR036-A-MAJ-01/-MAJ-02/-MIN-01/-MIN-02 were supplied by finding ID + description in the
+  governing task prompt, attributed to a ChatGPT Review A execution referenced by the task but
+  whose execution artifact (principal identity, execution ID, review boundary, independence-
+  mode evidence) was not itself supplied to or independently re-verifiable by this transaction.
+  Per G-VERIFY-001/P3-VERIFY-001, this transaction did NOT fabricate or embellish that
+  provenance record — each finding's underlying claim was independently re-verified directly
+  against ADR-036.md v0.1's actual committed text and against Chapter 8 §8.3.5/Chapter 7 §7.1/
+  Chapter 11 §11.4 before remediation (below). ADR-036's own Independent Reviews eligibility
+  table remains the unfilled template — still zero completed Review A/B executions recorded
+  there; this is a bounded correction of a Draft candidate, not a review-execution record.
+```
+
+### Findings remediated
+
+```text
+P3-ADR036-A-MAJ-01 (Genesis protected-stream decision incomplete) — v0.1's Decision inherited
+  the two ADR-009-mandated protected streams "not redecided," merely recommended/proposed
+  stream_id names, and explicitly deferred initial writer authority to a future Genesis
+  Registry authoring transaction. Verified true by direct re-read of v0.1's item 2/8 paragraph
+  and by direct re-read of Chapter 8 §8.3.5 ("Genesis Registry ... phải: định nghĩa đúng MỘT
+  canonical Logical Lifecycle Stream; định nghĩa đúng MỘT canonical Audit Stream; định nghĩa
+  writer authority ban đầu") — confirming initial writer authority for both protected streams
+  is Stream Registry architecture authority the Genesis Registry itself must already carry,
+  not a fact a later mechanical instantiation transaction may invent. Corrected: Decision now
+  pins, as the ADR's own decision rather than a recommendation, `stream_id: platform-lifecycle`
+  for the canonical Lifecycle Stream (reusing Chapter 8's own consistent illustrative
+  convention) and `stream_id: platform-audit` for the canonical Audit Stream (originated here,
+  no prior Chapter 8 example existed). Writer authority resolved against current
+  module-registry.yaml authority (all 25 registered modules re-read) — confirmed none,
+  including the four analytical writer modules this same ADR names, carry stream-lifecycle/
+  registry-governance among their registered Chapter 3 §3.1 responsibilities; assigning it to
+  an existing module (e.g. market-data-ingestion, as the earliest-running candidate) would be
+  an unregistered secondary responsibility bypassing responsibility ownership, the exact
+  god-module pattern Chapter 7 §7.2's guardrail forbids. ADR-036 therefore itself establishes a
+  new dedicated module, `stream-registry-authority` (Type 3 Runtime Service, Chapter 7 §7.1),
+  as initial writer authority for both protected streams (one module holding writer authority
+  over two distinct streams is already Chapter-8-§8.3.1-legal and is the same pattern this ADR
+  already uses for structure-engine), and states its Declaration-tier module-registry.yaml
+  registration as a required post-approval Consequence (new step 4, mirroring the ADR-023/
+  contract-compatibility-authority precedent) — not performed by this ADR, and no second ADR
+  created to complete it. Protected-stream cardinality/never-retire/handoff semantics (Chapter
+  8 §8.3.5) are explicitly preserved, unchanged.
+P3-ADR036-A-MAJ-02 (Decision text duplicated Event Contract eligibility authority) — v0.1's
+  Decision table's "Carries" column enumerated exact event-type names per stream (e.g.
+  CandleObserved/CandleClosed/CandleCorrected/CandleDataGapObserved), while the same ADR
+  separately (correctly) stated Event Contract allowed_streams exclusively owns event-to-stream
+  eligibility — a direct internal contradiction. Verified true by direct re-read of the v0.1
+  Decision table and item 6 paragraph. Corrected: removed all event-type-name enumeration from
+  the Decision table, replaced the column with a "Domain family (bounded purpose only)" label
+  explicitly marked as not an eligibility list; item 6's prose strengthened to state neither
+  this column nor the future stream-registry.yaml may enumerate event-type eligibility, which
+  remains exclusively each event type's own future Event Contract allowed_streams declaration.
+P3-ADR036-A-MIN-01 (ADR dependency metadata) — v0.1's frontmatter left depends_on: [] despite
+  the Decision materially building on Approved ADR-009's ordering/protected-stream/registry/
+  lifecycle model (Chapter 11 §11.4: "depends_on: dependency phải Approved trước approval
+  boundary"). Verified true by direct re-read of v0.1 frontmatter. Corrected: depends_on now
+  ["ADR-009"]. ADR-035 deliberately NOT added — per the governing task's own instruction and
+  this ADR's own Context, ADR-035 motivated discovery of the gap but ADR-036 stands as
+  independent platform architecture, not a structural amendment of ADR-035.
+P3-ADR036-A-MIN-02 (incorrect cross-reference) — v0.1's Scope-classification paragraph cited
+  "Chapter 8 §4b" while linking to constitution/00-governance.md (Chapter 0's own file) —
+  wrong chapter number for a real §4b that lives in Chapter 0. Verified true by direct re-read
+  and by confirming §4b's actual location in 00-governance.md. Corrected: citation now reads
+  "Chapter 0 §4b". The substantive ADR_REQUIRED classification is unchanged — this ADR is
+  reclassified as independently satisfying both the Event-Model trigger (unchanged from v0.1)
+  and, as of this correction's new module-identity decision, the Module Taxonomy trigger too
+  (disjunctive-OR, same ADR-025 reading pattern), never as a reason to author a second ADR.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/domain/feature.md unchanged (verified git diff --quiet -- docs/domain/). No
+  implementation/test file touched (verified git diff --quiet -- python/ go/). No
+  docs/architecture/stream-registry.yaml or Feature Input Contract authored (neither exists).
+  module-registry.yaml unchanged — the new stream-registry-authority module identity is
+  DECIDED by ADR-036 but NOT registered by this transaction (explicit Consequence, deferred).
+  Constitution/governance unchanged (verified git diff --quiet -- docs/constitution/). No
+  existing Approved ADR mutated (verified git diff --quiet for docs/adr/ADR-001.md through
+  ADR-035.md, all 35 prior ADR files byte-identical). The five-analytical-stream topology
+  (module-per-writer-per-fact-family, no instrument/venue/timeframe partitioning), per-stream
+  contiguous sequence, no global total order, stable/non-reusable identities, Stream-Registry-
+  vs-Event-Contract authority separation, no grandfathering of code placeholders, and the
+  fail-closed Feature prerequisite are all preserved unchanged in substance from v0.1 (verified
+  by direct re-read of the retained paragraphs) — this correction did not touch the topology
+  decision, only the protected-stream completion, the eligibility-duplication removal, and the
+  two metadata/citation fixes named above. ADR-036's Independent Reviews table still the
+  unfilled template — no reviewer identity or review result fabricated. ADR-036 NOT approved:
+  `status: Draft`, `approved_by: null`, `approved_at: null` (unchanged). P3-FEATURE-A-MAJ-04/
+  MAJ-06 not touched — no finding state transition performed.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction corrects the ADR candidate only.
+P3-FEATURE-A-MAJ-06: remains OPEN — unaffected; ADR-036 approval still alone does not unblock
+  Feature code per its own (renumbered) Consequences sequencing.
+market-data-ingestion / structure-engine / raw-regime-engine / feature-engine: unaffected — no
+  code, tests, Domain Contract, or Quality Tier/Gate state touched.
+module-registry.yaml / dependency graph / other Domain Contracts / other ADRs / Constitution /
+  governance: all unchanged. The new stream-registry-authority module remains architecturally
+  decided-but-unregistered pending the required post-approval Declaration-tier transaction.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Bounded Review-A re-review of `ADR-036` v0.2 against exactly these four findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001 ("bounded semantic correction -> bounded semantic re-review, CHỈ phạm vi đã chạm"). Does not itself perform Review B, registry/Input-Contract authoring, or Product Owner approval.
+
+**Files changed:** `docs/adr/ADR-036.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

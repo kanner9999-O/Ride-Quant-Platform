@@ -2,6 +2,82 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — ADR-036 v0.2 (Draft): bounded correction, two Major + two Minor findings
+
+**Bounded correction only** — not a Review A re-review, not an approval, no registry/Input-Contract/`feature.md`/implementation touched. Baseline HEAD `7c073b1261e40142886707dfdab28c5459e8bfb2`.
+
+### Fixed
+
+```text
+P3-ADR036-A-MAJ-01 (Genesis protected-stream decision incomplete): the Decision
+  now pins, as the ADR's own decision rather than a recommendation/deferral,
+  stream_id "platform-lifecycle" for the canonical Lifecycle Stream and
+  stream_id "platform-audit" for the canonical Audit Stream, and resolves
+  initial writer authority for BOTH against current module-registry.yaml
+  authority — confirmed none of the 25 registered modules (including the four
+  analytical writer modules this ADR itself names) carry stream-lifecycle/
+  registry-governance responsibility, so assigning an existing module would
+  bypass Chapter 3 §3.1 responsibility ownership. ADR-036 therefore
+  establishes a new dedicated module, stream-registry-authority (Type 3
+  Runtime Service, Chapter 7 §7.1), as initial writer authority for both
+  protected streams, with its Declaration-tier module-registry.yaml
+  registration recorded as a required post-approval Consequence (new step 4,
+  mirroring the ADR-023/contract-compatibility-authority precedent) — not
+  performed by this ADR, no second ADR created. Protected-stream cardinality/
+  never-retire/handoff semantics unchanged.
+P3-ADR036-A-MAJ-02 (Decision text duplicated Event Contract eligibility
+  authority): removed the Decision table's exact event-type enumeration
+  ("Carries" column listing CandleObserved/SwingConfirmed/etc.), replaced with
+  a "Domain family (bounded purpose only)" label explicitly marked as not an
+  eligibility list; item 6 strengthened to state neither this ADR's table nor
+  the future stream-registry.yaml may enumerate event-type eligibility —
+  that remains exclusively each event type's own future Event Contract
+  allowed_streams declaration.
+P3-ADR036-A-MIN-01 (dependency metadata): depends_on: [] -> ["ADR-009"]
+  (Chapter 11 §11.4). ADR-035 deliberately not added — it motivated
+  discovery of the gap but ADR-036 stands as independent architecture.
+P3-ADR036-A-MIN-02 (citation): "Chapter 8 §4b" -> "Chapter 0 §4b" (§4b
+  actually lives in Chapter 0's own file). Substantive ADR_REQUIRED
+  classification unchanged; now additionally noted as independently
+  satisfying the Module Taxonomy trigger too (disjunctive-OR), given the new
+  module-identity decision.
+```
+
+### Preserved
+
+```text
+The five-analytical-stream topology (module-per-writer-per-fact-family, no
+  instrument/venue/timeframe partitioning), per-stream contiguous sequence,
+  no global total order, stable/non-reusable identities, Stream-Registry-vs-
+  Event-Contract authority separation, no grandfathering of code placeholders,
+  and the fail-closed Feature prerequisite are all unchanged in substance.
+```
+
+### Provenance note
+
+```text
+The four findings were supplied by ID/description in the governing task
+  prompt (attributed to a ChatGPT Review A execution) without an accompanying
+  execution artifact independently verifiable by this transaction. No
+  reviewer identity/execution/result was fabricated; each finding's
+  underlying claim was instead independently re-verified directly against
+  ADR-036.md v0.1's actual content and against Chapter 8 §8.3.5/Chapter 7
+  §7.1/Chapter 11 §11.4 before remediation.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-036.md ("0.1" -> "0.2", status Draft unchanged, blob
+  899ce6c283160232b5435fbfe1c2fd970777c605 -> d4915b14aa55d5c4efd8f2ef855961f26dd194aa),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.238" -> "10.239".
+  No other file touched.
+```
+
+### Next governed action (not performed here)
+
+Bounded Review-A re-review of ADR-036 v0.2 against exactly these four findings, at the resulting immutable boundary.
+
 ## [Unreleased] — 2026-08-26 — ADR-036 v0.1 (Draft): Genesis Stream Registry topology candidate
 
 **ADR-authoring transaction only** — platform prerequisite architecture for the missing concrete Stream Registry topology/writer authority behind the Phase-3 core analytical chain (`market-data-ingestion → structure-engine → raw-regime-engine → feature-engine`). Not justified by "MAJ-06 needs another ADR" — independently triggered by the missing concrete Stream Registry authority itself. No `feature.md`/implementation/other-ADR touched, no `stream-registry.yaml`/Input Contract authored. Baseline HEAD `17fec42385fd66deae65d19586db4c9392ebb15b`.
