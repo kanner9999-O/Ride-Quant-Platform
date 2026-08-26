@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.246"
+manifest_version: "10.247"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -10671,6 +10671,81 @@ Package 1.1: `Consolidated Stable` (unchanged). Phase 3 Approval Gate: NOT opene
 ChatGPT Review A of the concrete Genesis Stream Registry, at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"). Does not itself perform Review B, author the Feature Input Contract, or perform any implementation.
 
 **Files changed:** `docs/architecture/stream-registry.yaml` (new file), `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Genesis Stream Registry v0.1 — Product Owner Approval (`Approved` — concrete Genesis Stream Registry now effective)
+
+**Atomic mechanical approval-recording transaction — vai trò: `Genesis Stream Registry v0.1 Mechanical Approval Recorder`.** Product Owner decision (verbatim): `APPROVE GENESIS STREAM REGISTRY V0.1 AT BOUNDARY d3010f894a3cde3ecc25ffca153105ddb7344b29`, recorded `2026-08-26T15:55+07:00`. Does not modify ADR-036 or any ADR, Constitution/governance, `module-registry.yaml`, `system-decomposition.md`, Domain Contracts, Input Contracts, Feature code/tests, Tier/QG/gates, or LIVE state.
+
+**Baseline:** branch `main`, HEAD `d3010f894a3cde3ecc25ffca153105ddb7344b29` (verified via `git rev-parse HEAD`; matches exact required reviewed candidate boundary; tree clean bar unrelated untracked `.DS_Store`). `manifest_version` confirmed `"10.246"` at start. `docs/architecture/stream-registry.yaml` reviewed Draft state confirmed before edit: `version: "0.1"`, `status: Draft`, `registry_version: v1`, content identity `d2515aae23f02710b73a6370299353d366494b2c`. `docs/adr/ADR-036.md` re-verified `version: "0.3"`, `status: Approved`, content identity `bfd75b3010d04826763ae6b98602b4f9443561c3` (unchanged). `docs/team/team.yaml` re-read fresh: `ChatGPT`/`Claude` both `AI Technical Architect`, `Claude` carries alias `Independent Review B`, two distinct principal identities (Mode A eligible). `docs/governance/execution-rules.md` re-verified `version: "0.5"`, `operational_state: EFFECTIVE`.
+
+```text
+Reviewed semantic candidate identity (G-ID-001): commit d3010f894a3cde3ecc25ffca153105ddb7344b29,
+  content identity d2515aae23f02710b73a6370299353d366494b2c
+Resulting lifecycle-record identity (G-ID-001, distinct):
+  content identity 995ea25d2f59018edb023619a15985f9924fc760
+document version:  "0.1" -> "0.1" (unchanged)
+registry_version:  v1 -> v1 (unchanged)
+status:            Draft -> Approved
+```
+
+### Review eligibility evidence
+
+```text
+Review A — ChatGPT, AI Technical Architect: 0 Blocker / 0 Major / 0 Minor, CLEAN,
+  READY_FOR_INDEPENDENT_REVIEW_B.
+Review B — Claude (alias: Independent Review B), AI Technical Architect, Mode A
+  DISTINCT_PRINCIPAL relative to ChatGPT per ADR-031: 0 Blocker / 0 Major / 0 Minor,
+  CLEAN, READY_FOR_PRODUCT_OWNER_DECISION. Execution/session reference: N/A -- not
+  available, none fabricated.
+Minimum-two-review requirement (Chapter 11 §11.5, applied by direct analogy to this
+  Phase-1-design-spec artifact): SATISFIED.
+```
+
+### Preserved seven-stream semantic verification (script-checked)
+
+```text
+schema_version, registry_id, registry_version (v1), and all seven `streams` entries
+  (stream_id, status, protected, writer_authority.module_id, sequence_policy,
+  genesis_position) verified byte-for-byte equal between the reviewed candidate and the
+  post-approval file (parsed both via yaml.safe_load and diffed the `streams` list
+  directly — equal). Only `status` and the added lifecycle fields
+  (reviewers/approved_by/approved_at/last_review/next_review) plus a compact approval
+  banner comment changed.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ADR-036.md unchanged (verified git diff --quiet -- docs/adr/ADR-036.md). No other
+  ADR touched — all 36 ADR files byte-identical. No Constitution/governance file touched.
+  docs/architecture/module-registry.yaml and docs/architecture/system-decomposition.md
+  unchanged (verified git diff --quiet for both). No Domain Contract/Input Contract
+  touched. No implementation/test file touched (verified git diff --quiet -- python/ go/).
+  No Quality Tier assigned. No Quality Gate run. No gate/LIVE state changed.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — approval of the Genesis Stream Registry alone does not
+  perform any step of MAJ-04's own remediation sequence.
+P3-FEATURE-A-MAJ-06: remains OPEN — same reason; per ADR-036's own Consequences, the
+  Feature-scoped Input Contract and Feature implementation remediation still have not
+  occurred.
+market-data-ingestion / structure-engine / raw-regime-engine / feature-engine /
+  stream-registry-authority: unaffected, unreferenced beyond their already-registered
+  identity.
+Package 1.1: `Consolidated Stable` (unchanged). Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT deterministic verification of this approval transaction, at the resulting immutable commit boundary. Does not itself author the Feature-scoped Input Contract or perform any implementation.
+
+**Files changed:** `docs/architecture/stream-registry.yaml`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

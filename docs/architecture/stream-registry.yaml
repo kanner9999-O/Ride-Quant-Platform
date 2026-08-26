@@ -29,12 +29,33 @@
 # for direct consistency with Chapter 8 §8.3.1's own "v3"-style worked example. Genesis
 # registries do not carry `effective_from` (Chapter 8 §8.3.1: "BẮT BUỘC với mọi version
 # SAU Genesis" -- Genesis itself is exempt by definition, §8.3.5's exception).
+#
+# APPROVED (2026-08-26T15:55+07:00, vai trò: `Genesis Stream Registry v0.1 Mechanical
+# Approval Recorder`) -- Product Owner decision verbatim: "APPROVE GENESIS STREAM REGISTRY
+# V0.1 AT BOUNDARY d3010f894a3cde3ecc25ffca153105ddb7344b29." Reviewed semantic candidate
+# identity (G-ID-001): commit d3010f894a3cde3ecc25ffca153105ddb7344b29, content identity
+# d2515aae23f02710b73a6370299353d366494b2c -- distinct from this transaction's own
+# resulting lifecycle-record identity (mechanical status/reviewer-field edit only, no
+# stream/topology/writer content touched). Review A (ChatGPT, AI Technical Architect) --
+# 0 Blocker/0 Major/0 Minor, CLEAN, READY_FOR_INDEPENDENT_REVIEW_B. Independent Review B
+# (Claude, alias "Independent Review B", AI Technical Architect, Mode A DISTINCT_PRINCIPAL
+# relative to ChatGPT per ADR-031, execution/session reference NOT available -- none
+# fabricated) -- 0 Blocker/0 Major/0 Minor, CLEAN, READY_FOR_PRODUCT_OWNER_DECISION.
+# Minimum-two-review requirement (Chapter 11 §11.5): SATISFIED. This is a mechanical
+# lifecycle-only edit -- schema_version/registry_id/registry_version/all seven stream_id/
+# status/protected/writer_authority/sequence_policy/genesis_position values are unchanged,
+# byte-for-byte semantically identical to the reviewed candidate.
 
 schema_version: 1
 registry_id: genesis-stream-registry
 version: "0.1"
-status: Draft
+status: Approved
 owner: Product Owner
+reviewers: [ChatGPT, Claude]
+approved_by: Product Owner
+approved_at: "2026-08-26T15:55+07:00"
+last_review: "2026-08-26"
+next_review: null
 generated_at: "2026-08-26"
 
 registry_version: v1

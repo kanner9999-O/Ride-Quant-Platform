@@ -2,6 +2,44 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — Genesis Stream Registry v0.1: Product Owner Approval (`Approved`)
+
+**Atomic mechanical approval-recording transaction.** Product Owner decision (verbatim): `APPROVE GENESIS STREAM REGISTRY V0.1 AT BOUNDARY d3010f894a3cde3ecc25ffca153105ddb7344b29`, recorded `2026-08-26T15:55+07:00`. Baseline HEAD `d3010f894a3cde3ecc25ffca153105ddb7344b29`.
+
+### Approved
+
+```text
+docs/architecture/stream-registry.yaml -- status Draft -> Approved, version "0.1"
+  and registry_version "v1" unchanged, reviewers [ChatGPT, Claude], approved_by
+  Product Owner. Review A (ChatGPT) and Review B (Claude, alias "Independent
+  Review B") both CLEAN, 0 Blocker/0 Major/0 Minor, Mode A (DISTINCT_PRINCIPAL)
+  independence -- minimum-two-review requirement satisfied. Review B
+  execution/session reference recorded N/A (not available, none fabricated).
+
+All seven streams (schema_version, registry_id, registry_version, and every
+  stream_id/status/protected/writer_authority/sequence_policy/genesis_position)
+  verified byte-for-byte unchanged from the reviewed candidate -- only status
+  and lifecycle-evidence fields/banner changed.
+
+Effective decision: the concrete Genesis Stream Registry is now AUTHORIZED as
+  the authoritative stream-registry.yaml instance. Does not itself author the
+  Feature-scoped Input Contract, implement feature-engine, or close
+  P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06.
+```
+
+### Files changed
+
+```text
+docs/architecture/stream-registry.yaml (Draft -> Approved, blob
+  d2515aae23f02710b73a6370299353d366494b2c -> 995ea25d2f59018edb023619a15985f9924fc760),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.246" -> "10.247".
+  No other file touched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT deterministic verification of this approval transaction.
+
 ## [Unreleased] — 2026-08-26 — Genesis Stream Registry v0.1 (Draft): `stream-registry.yaml` authored, instantiates Approved ADR-036
 
 **Phase-1-design-spec authoring transaction only** — concrete mechanical instantiation of Approved ADR-036 v0.3, not a new architecture decision, not a new ADR. Baseline HEAD `7512c6a3dbd3aa714d54fadb0db16b0d5233343d`.
