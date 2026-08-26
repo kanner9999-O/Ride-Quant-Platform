@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.242"
+manifest_version: "10.243"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -10375,6 +10375,98 @@ Package 1.1: `candidate` (unchanged). Phase 3 Approval Gate: NOT opened. LIVE: N
 ChatGPT Review A of this bounded Package 1.1 semantic alignment, at the resulting immutable commit boundary. Does not itself perform Review B, package reconsolidation, Stream Registry/Input Contract authoring, or Feature implementation.
 
 **Files changed:** `docs/architecture/module-registry.yaml`, `docs/architecture/system-decomposition.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Package 1.1 v1.5 — ADR-036 Alignment Bounded Correction (`candidate`, closes two non-blocking Review-B Minors `pending re-review`)
+
+**Bounded semantic correction transaction — vai trò: `Package 1.1 ADR-036 Alignment Bounded Correction Executor`.** Remediates exactly the two Independent Review B Minor findings named in the governing task prompt against the ADR-036 Package 1.1 alignment (`P11-ADR036-ALIGN-B-MIN-01`, `P11-ADR036-ALIGN-B-MIN-02`). Does not modify `module-registry.yaml` or `ADR-036`, does not reconsolidate Package 1.1, does not author Stream Registry/Input Contract artifacts, does not implement code, does not run a Quality Gate, does not classify Tier, does not change gates/LIVE, and does not create another ADR.
+
+**Baseline:** branch `main`, HEAD `0390a554b7ce2d1c398764af7418b5f857b742d2` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean except pre-existing unrelated untracked `.DS_Store` clutter). `manifest_version` confirmed `"10.242"` at start. `docs/architecture/module-registry.yaml` re-verified `version: "1.6"`, `status: Draft`, `package_lifecycle: candidate`, content identity `b4b7b609befdfe63fad4c18f33e94223ea608795` (unchanged throughout). `docs/architecture/system-decomposition.md` confirmed `version: "1.4"`, `status: Draft`, content identity `b8e075af28c673fd6d59c415799557acc0bc63c7` before this transaction. `docs/adr/ADR-036.md` re-verified `version: "0.3"`, `status: Approved`, content identity `bfd75b3010d04826763ae6b98602b4f9443561c3` (unchanged, immutable per Chapter 11 §11.3). Chapter 8 §8.4.1 (Append-and-Revalidate / canonical Audit Stream preservation-fact rule) re-read fresh in full — confirmed it locks only the OUTCOME (an immutable preservation fact must be written on stream retirement/event ineligibility at a registry transition) via a dedicated future Event Contract (§8.4.1 point 6), and explicitly leaves the concrete trigger/interaction mechanism to a future Decision/Audit Domain Contract — NOT decided by ADR-036 or by Chapter 8 itself. Current `system-decomposition.md` §8/§15 re-read in full before drafting.
+
+```text
+File                                    Version      Status   Content identity
+docs/architecture/system-decomposition.md 1.4 -> 1.5   Draft    b8e075af28c673fd6d59c415799557acc0bc63c7 ->
+                                                                 fa7b49c3619e341d52ee5cef46add681a908d877
+docs/architecture/module-registry.yaml    1.6 (unchanged)       b4b7b609befdfe63fad4c18f33e94223ea608795 (unchanged)
+docs/adr/ADR-036.md                       0.3 Approved (unchanged) bfd75b3010d04826763ae6b98602b4f9443561c3 (unchanged)
+```
+
+### Findings remediated
+
+```text
+P11-ADR036-ALIGN-B-MIN-01 (§15 stale current-state framing) — §15's title reads as the
+  current governing "Package review and consolidation conditions" section, but its entire
+  body was a single frozen v0.5/v0.6 narrative (26/26 module completeness, "ba Decision
+  REQUIRED," Review B module count 26, candidate v0.6, Decision 8 consolidation language,
+  and a verbatim historical Product Owner quote) with no framing distinguishing it from the
+  CURRENT v1.5 candidate's own consolidation status. Verified true by direct re-read.
+  Corrected: added a new "CURRENT (v1.5 candidate...)" block immediately after the §15
+  header stating the current 27-module inventory, the current five ADR-required Decisions
+  (1, 2, 8, 9, 10), that `package_lifecycle` remains `candidate` (unchanged), and that
+  current consolidation requires a fresh Review A + Independent Review B round applicable to
+  THIS corrected v1.5 candidate followed by an explicit Product Owner reconsolidation
+  decision — explicitly stating the v0.5/v0.6 evidence below does NOT itself satisfy this.
+  The pre-existing text block is now introduced by an explicit "HISTORICAL — v0.5/v0.6
+  Package 1.1 consolidation cycle evidence (frozen...)" label. The historical block's own
+  counts (26/26, module count = 26, "ba Decision REQUIRED") and its verbatim Product Owner
+  quote ("I approve consolidation of Package 1.1 v0.6...") are preserved byte-for-byte,
+  unmodified, per the task's explicit instruction not to modernize old counts or alter the
+  verbatim historical quote.
+P11-ADR036-ALIGN-B-MIN-02 (§8 overstated `consumes: []` justification) — the prior note
+  claimed the module "KHÔNG cần tiêu thụ event/query/command từ bất kỳ module khác để kích
+  hoạt trách nhiệm đó" as a blanket statement covering BOTH responsibilities ADR-036 assigns
+  this module, but Chapter 8 §8.4.1 (re-read fresh) shows the canonical Audit Stream
+  preservation-fact responsibility's trigger/interaction mechanism is explicitly NOT decided
+  by any existing authority — treating it as self-evidently no-input overstated ADR-036's
+  actual scope. Verified true by direct re-read of §8.4.1's own text (locks OUTCOME + a
+  future dedicated Event Contract, not a trigger mechanism). Corrected: registry
+  `consumes: []` left unchanged; the note now states `consumes: []` reflects only that no
+  Approved authority currently pins an inbound contract category and Package 1.1 does not
+  invent one; explicitly distinguishes Genesis/Lifecycle bootstrap self-initiation (module
+  authors its own boundary, not a response to inbound input) from ongoing Audit-Stream
+  preservation-fact authoring (Chapter 8 §8.4.1); states explicitly that ADR-036 does NOT
+  decide the ongoing trigger/interaction mechanism for Audit-Stream preservation facts; and
+  does not claim an inbound category is required either — the mechanism is left explicitly
+  unresolved until an authorized design/contract establishes it.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/architecture/module-registry.yaml unchanged (verified git diff --quiet --
+  docs/architecture/module-registry.yaml). docs/adr/ADR-036.md unchanged (verified git diff
+  --quiet -- docs/adr/ADR-036.md) — no other ADR touched either (verified git diff --quiet --
+  docs/adr/). No Constitution/governance file touched. No context-map.yaml touched. No Domain
+  Contract touched. No implementation/test file touched (verified git diff --quiet --
+  python/ go/). No docs/architecture/stream-registry.yaml or Feature Input Contract authored.
+  All module identities, taxonomy, authority, dependencies, tallies, Decision 10, and §13's
+  module count are unchanged in substance from v1.4 (verified by direct re-read of the
+  retained paragraphs) — this correction touched only the two named passages (§8's exception
+  note, §15's framing) plus the version bump. No architecture choice made by this correction.
+  Package 1.1 `package_lifecycle` remains `candidate` (unchanged — no reconsolidation
+  performed, none implied). ADR-036 not re-approved/re-reviewed; Product Owner decision
+  unchanged. Both findings recorded as remediated pending bounded re-review, not self-closed.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction is a bounded documentation-wording
+  correction only.
+P3-FEATURE-A-MAJ-06: remains OPEN — same reason; ADR-036's own Consequences ordering
+  (Stream Registry authoring, then Feature Input Contract, then implementation) is unaffected.
+module-registry.yaml / dependency graph / other Domain Contracts / other ADRs / Constitution /
+  governance: all unchanged.
+Package 1.1: `candidate` (unchanged). Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED,
+  unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT bounded Review-A re-review of these two corrected passages, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. Does not itself perform Review B, package reconsolidation, or Stream Registry/Input Contract authoring.
+
+**Files changed:** `docs/architecture/system-decomposition.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

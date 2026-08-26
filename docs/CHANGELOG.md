@@ -2,6 +2,45 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — Package 1.1 v1.5: ADR-036 alignment bounded correction, two Review-B Minors
+
+**Bounded correction only** — not a Review A/B round, not a reconsolidation, no module-registry.yaml/ADR-036/implementation touched. Baseline HEAD `0390a554b7ce2d1c398764af7418b5f857b742d2`.
+
+### Fixed
+
+```text
+P11-ADR036-ALIGN-B-MIN-01 (§15 stale current-state framing): §15 read as the current
+  governing consolidation-conditions section but its entire body was a frozen v0.5/v0.6
+  narrative (26/26, "ba Decision REQUIRED," module count 26, candidate v0.6). Added a new
+  "CURRENT (v1.5 candidate)" block stating the current 27-module inventory, the current
+  five ADR-required Decisions (1, 2, 8, 9, 10), package_lifecycle remains candidate, and
+  that current consolidation requires a fresh Review A + Independent Review B round on
+  this corrected candidate plus an explicit Product Owner reconsolidation decision. The
+  pre-existing block is now explicitly labeled "HISTORICAL — v0.5/v0.6 ... evidence
+  (frozen...)" — its counts and verbatim Product Owner quote preserved byte-for-byte,
+  unmodified.
+P11-ADR036-ALIGN-B-MIN-02 (§8 overstated consumes: [] justification): narrowed the claim
+  that stream-registry-authority needs no inbound category to trigger EITHER of its two
+  responsibilities. consumes: [] left unchanged; note now distinguishes Genesis/Lifecycle
+  bootstrap self-initiation (module authors its own boundary) from ongoing canonical Audit
+  Stream preservation-fact authoring (Chapter 8 §8.4.1), and states explicitly that ADR-036
+  does NOT decide the trigger/interaction mechanism for the latter — left unresolved,
+  neither required nor ruled out, until an authorized design/contract establishes it.
+```
+
+### Files changed
+
+```text
+docs/architecture/system-decomposition.md ("1.4" -> "1.5", status Draft unchanged, blob
+  b8e075af28c673fd6d59c415799557acc0bc63c7 -> fa7b49c3619e341d52ee5cef46add681a908d877),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.242" -> "10.243".
+  module-registry.yaml and ADR-036.md verified byte-identical. No other file touched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT bounded Review-A re-review of these two corrected passages.
+
 ## [Unreleased] — 2026-08-26 — Package 1.1 v1.4/v1.6: ADR-036 alignment (`candidate`, module-registry transcription)
 
 **Governed semantic module-registry alignment — EXACT mechanical transcription of Approved ADR-036, not a new architecture decision, not a new ADR.** Baseline HEAD `afc4b48039ee6910693bbf8853ec8df075f2ed80`.

@@ -1,7 +1,7 @@
 ---
 id: system-decomposition
 title: "Package 1.1 — System Decomposition & Module Registry"
-version: "1.4"
+version: "1.5"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -422,7 +422,11 @@ I-12 conformance: mỗi domain concept resolve đúng MỘT authoritative module
 
 **Ngoại lệ tường minh (`context-aggregator`, `emits: [event, query]`, P13B-IRB-MAJ-03 correction, 2026-08-04):** `context-aggregator` là Projection duy nhất phát `event` — `MarketContextSnapshot`/`MarketContextFactInvalidated` (context.md §3/§4). `event` ở đây là **append-only projection snapshot/invalidation record** (immutable, cursor-bounded, lineage-preserving) — KHÔNG phải authoritative domain fact theo nghĩa Chapter 7 §7.4 cấm ("phát sinh authoritative domain fact"). Ranh giới: `owns_authoritative_state: false` KHÔNG đổi — Context KHÔNG trở thành authoritative source cho Structure/Regime/Feature hay bất kỳ domain concept nào khác; nó chỉ ghi nhận CHÍNH bản ghi snapshot của nó (record integrity), không tuyên bố sở hữu domain state nó tổng hợp. Xem `docs/architecture/engine/feature-context-architecture.md` cho elaboration đầy đủ.
 
-**Ngoại lệ tường minh (`stream-registry-authority`, `consumes: []`, ADR-036 v0.3 Approved alignment, 2026-08-26):** `stream-registry-authority` là `runtime_service` DUY NHẤT KHÔNG khai báo bất kỳ inbound contract category nào (`consumes: []`) — mọi `runtime_service` khác khai báo ít nhất một category. Lý do: module này là bootstrap/control-plane root cho Genesis Stream Registry (Chapter 8 §8.3.5's Genesis Registry exception) — nó tự khởi tạo/authoritatively author lifecycle boundary trên chính hai protected stream nó sở hữu, KHÔNG cần tiêu thụ `event`/`query`/`command` từ bất kỳ module khác để kích hoạt trách nhiệm đó (không giống `account-service`/`strategy-engine`/`plugin-release-manager` — các orchestration/boundary module tiêu thụ `command` từ bên ngoài). `emits: [event]` KHÔNG đổi — phản ánh đúng stream lifecycle-boundary/audit-preservation fact ADR-036 assigns to it, cùng convention `mọi module authoritative emit event`. KHÔNG existing Approved authority yêu cầu một inbound contract category cho module này — không invented ở đây. Xem [ADR-036](../adr/ADR-036.md) v0.3 cho quyết định đầy đủ.
+**Ngoại lệ tường minh (`stream-registry-authority`, `consumes: []`, ADR-036 v0.3 Approved alignment, 2026-08-26; justification narrowed 2026-08-26 per `P11-ADR036-ALIGN-B-MIN-02`):** `stream-registry-authority` là `runtime_service` DUY NHẤT KHÔNG khai báo bất kỳ inbound contract category nào (`consumes: []`) — mọi `runtime_service` khác khai báo ít nhất một category. Registry `consumes: []` KHÔNG đổi — nghĩa CHÍNH XÁC là: KHÔNG một Approved authority nào hiện tại pin một inbound contract category cụ thể cho module này, và Package 1.1 KHÔNG tự invent một category nào chỉ để lấp chỗ trống (`event`/`query`/`command` đều KHÔNG được claim). Phân biệt bắt buộc giữa hai trách nhiệm ADR-036 giao module này, KHÔNG đánh đồng làm một:
+- **Genesis/Lifecycle bootstrap self-initiation:** tự khởi tạo/authoritatively author Genesis Registry và lifecycle boundary (activation/retirement/writer-handoff/registry-version-transition) trên canonical Lifecycle Stream — một hành động module TỰ author theo Chapter 8 §8.3.5's Genesis Registry exception, không phải phản hồi một inbound event/query/command từ module khác.
+- **Ongoing canonical Audit Stream preservation-fact authoring (Chapter 8 §8.4.1):** §8.4.1 khóa OUTCOME — một immutable preservation fact phải được ghi khi stream đích retire hoặc event không còn eligible tại một registry transition — nhưng KHÔNG khóa CƠ CHẾ cụ thể mà module này nhận biết/được thông báo điều kiện đó xảy ra. **ADR-036 KHÔNG quyết định cơ chế trigger/interaction này** cho preservation facts — đây vẫn là một gap Decision/Audit Domain Contract + dedicated Event Contract chưa authored (§8.4.1 điểm 6). Ghi chú này KHÔNG tuyên bố một inbound category LÀ cần thiết cho cơ chế đó, cũng KHÔNG tuyên bố nó KHÔNG cần thiết — cơ chế trigger/interaction VẪN unresolved cho tới khi một authorized design/contract thiết lập nó.
+
+`emits: [event]` KHÔNG đổi — phản ánh đúng stream lifecycle-boundary/audit-preservation fact ADR-036 assigns to it, cùng convention `mọi module authoritative emit event`. Xem [ADR-036](../adr/ADR-036.md) v0.3 và Chapter 8 §8.4.1 cho quyết định đầy đủ.
 
 **Ngoại lệ tường minh (`backtest-orchestrator`, `consumes: [event, query]`, ADR-019 v0.2 Approved alignment, 2026-08-06):** `backtest-orchestrator` LÀ `runtime_service` DUY NHẤT khác (cùng `decision-authority-service`) nay directly query-answerable — `consumes` mở rộng `[event]` → `[event, query]` để nhận query request từ `command-query-api-surface` (edge mới, cùng transaction), trả lời bằng một non-authoritative correlation view compose từ Decision fact (`decision-authority-service`) VÀ RiskEvaluation fact (`risk-gateway`) ĐÃ tồn tại, bằng run identity (ADR-018, Approved). Precedent trực tiếp: `decision-authority-service` (CÙNG `module_type`, CÙNG `consumes: [event, query]`/`emits: [event]` shape, CÙNG kết hợp authoritative-adjacent role + query-answerable, KHÔNG `hybrid`) — mạnh hơn so sánh chéo với module `projection` (vốn dùng `emits: [query]` thay vì `consumes: [event, query]`, một pattern KHÁC `module_type`). Ranh giới: `owns_authoritative_state: deferred` KHÔNG đổi — `backtest-orchestrator` KHÔNG trở thành authoritative source cho Decision hay RiskEvaluation; nó CHỈ correlate/fold fact ĐÃ ghi nhận, KHÔNG rewrite/re-author/replace/derive nội dung authoritative của chúng, KHÔNG author một fact/entity/event mới nào. `emits` (`[event]`), `module_type` (`runtime_service`), `hybrid` (`null`) KHÔNG đổi. Xem [ADR-019](../adr/ADR-019.md) v0.2 §2 cho quyết định đầy đủ.
 
@@ -804,6 +808,34 @@ KHÔNG redefine domain entity, domain invariant, product behavior, use-case outc
 ```
 
 ## 15. Package review and consolidation conditions
+
+**CURRENT (v1.5 candidate, 2026-08-26, sau `P11-ADR036-ALIGN-B-MIN-01`/`P11-ADR036-ALIGN-B-MIN-02` bounded correction) — consolidation status, added by `Package 1.1 ADR-036 Alignment Bounded Correction Executor`, KHÔNG sửa/rewrite block lịch sử phía dưới:**
+
+```text
+Current inventory:             27 module (§4).
+Current ADR-required decisions: Decision 1, Decision 2, Decision 8, Decision 9, Decision 10
+                                 (§12) — all RESOLVED/Approved individually; Package 1.1
+                                 consolidation readiness is a SEPARATE condition from any
+                                 single Decision's own ADR-Approved status (§12's own
+                                 Consequence text per Decision, unchanged).
+Current package_lifecycle:      candidate (UNCHANGED by this correction — was already
+                                 candidate before ADR-036 alignment, remains candidate; no
+                                 Consolidated Stable baseline exists at this boundary to
+                                 revert from or return to).
+Current consolidation
+  requirement:                  A fresh Review A + Independent Review B round applicable to
+                                 THIS corrected v1.5 candidate (covering the ADR-036
+                                 alignment — Decision 10, the new stream-registry-authority
+                                 module, and this transaction's own §8/§15 corrections),
+                                 Blocker 0/Major 0/Minor 0, followed by an explicit Product
+                                 Owner reconsolidation decision naming this exact candidate
+                                 boundary — NEITHER has occurred yet. The v0.5/v0.6 review/
+                                 consolidation evidence recorded below is HISTORICAL — it
+                                 applied to a materially earlier, 25/26-module candidate and
+                                 does NOT itself satisfy this current requirement.
+```
+
+**HISTORICAL — v0.5/v0.6 Package 1.1 consolidation cycle evidence (frozen at the time it was recorded; module counts, Decision counts, and the Product Owner quote below are preserved byte-for-byte and are NOT current-state facts):**
 
 ```text
 Review A scope:            Module completeness (26/26 bounded, no god module); taxonomy
