@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.245"
+manifest_version: "10.246"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -10577,6 +10577,100 @@ ChatGPT deterministic verification of this reconsolidation transaction, at the r
 **Next governed action (not performed here):** ChatGPT deterministic verification of this clarification transaction.
 
 **Files changed:** `docs/governance/execution-rules.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Genesis Stream Registry v0.1 — `stream-registry.yaml` authored (`Draft`, concrete mechanical instantiation of Approved ADR-036, NOT a new architecture decision, NOT a new ADR)
+
+**Governed Phase-1-design-spec authoring transaction — vai trò: `Genesis Stream Registry Authoring Executor`.** Authors `docs/architecture/stream-registry.yaml` v0.1 (`Draft`, new file) — the concrete Genesis Stream Registry Chapter 8 §8.3.1/§8.3.5 requires, instantiating Approved ADR-036 v0.3's already-decided topology/protected-stream identities/initial writer authority. Introduces no new topology/writer decision, no new module/capability/context/dependency, no Event Contract eligibility content, no partitioning dimension, no implementation transport.
+
+**Baseline:** branch `main`, HEAD `7512c6a3dbd3aa714d54fadb0db16b0d5233343d` (verified via `git rev-parse HEAD`; tree clean bar unrelated untracked `.DS_Store`). `manifest_version` `"10.245"` confirmed. `docs/architecture/stream-registry.yaml` verified absent before this transaction (`find` returns nothing). `docs/adr/ADR-036.md` re-verified `version: "0.3"`, `status: Approved`, content identity `bfd75b3010d04826763ae6b98602b4f9443561c3` (unchanged, immutable per Chapter 11 §11.3). `docs/architecture/module-registry.yaml` re-verified `version: "1.6"`, `status: Draft`, `package_lifecycle: Consolidated Stable`, unchanged. `docs/governance/execution-rules.md` re-verified `version: "0.5"`, `operational_state: EFFECTIVE`, unchanged. Chapter 8 §8.3.1 (registry schema example, condition 5's verifiability-not-a-field rule), §8.3.5 (Genesis Registry exception, protected-stream requirement, "representation cuối cùng thuộc Phase 1 design spec"), and ADR-009 (§2.6 Genesis Registry protected-stream cardinality) re-read fresh in full before drafting.
+
+```text
+File:                docs/architecture/stream-registry.yaml (new)
+Content identity:    git hash-object docs/architecture/stream-registry.yaml = d2515aae23f02710b73a6370299353d366494b2c
+                      (92 lines)
+Document version:    "0.1", status: Draft, owner: Product Owner
+Genesis identity:    registry_version: v1 (this transaction's own choice — ADR-036 §item 5
+                      explicitly left the literal value to this authoring transaction;
+                      chosen for direct consistency with Chapter 8 §8.3.1's own "v3"-style
+                      worked example)
+effective_from:       absent (correct — Chapter 8 §8.3.1: required for every version AFTER
+                      Genesis; Genesis itself is exempt, §8.3.5's exception)
+```
+
+### Seven-stream table (transcribed, no new decision)
+
+```text
+stream_id                       writer_authority.module_id     protected  genesis_position  sequence_policy
+market-data-ingestion-candle    market-data-ingestion          —          0                 contiguous
+structure-engine-swing          structure-engine                —          0                 contiguous
+structure-engine-structure      structure-engine                —          0                 contiguous
+raw-regime-engine-regime        raw-regime-engine               —          0                 contiguous
+feature-engine-feature          feature-engine                  —          0                 contiguous
+platform-lifecycle              stream-registry-authority       true       0                 contiguous
+platform-audit                  stream-registry-authority       true       0                 contiguous
+```
+
+### Mechanical validation (script-verified before commit)
+
+```text
+Unique stream_id:            7 of 7, zero duplicates (script-checked).
+Writer authority:            exactly one module_id per stream (single-key
+                              writer_authority dict, script-checked); every module_id
+                              (market-data-ingestion/structure-engine/raw-regime-engine/
+                              feature-engine/stream-registry-authority) verified to exist
+                              in module-registry.yaml's current 27-module set.
+Protected streams:            exactly {platform-lifecycle, platform-audit}, script-checked
+                              against the `protected: true` field — no other stream marked.
+genesis_position:             all seven == 0 (script-checked).
+sequence_policy:               all seven == "contiguous" (script-checked).
+allowed_event_types:          absent from the file (string-searched, not present) — Event
+                              Contract eligibility deliberately NOT duplicated here (Chapter
+                              8 §8.3.1's one-way declaration rule).
+Partitioning dimensions:       no instrument/venue/timeframe/subject_ref keyword present
+                              anywhere in the file (string-searched) — topology remains
+                              exactly the module-per-writer-per-fact-family model ADR-036
+                              decided, no hidden scoping introduced.
+ADR-036 blob:                 re-verified byte-identical (bfd75b3010d04826763ae6b98602b4f9443561c3)
+                              — git diff --quiet -- docs/adr/ADR-036.md.
+```
+
+### No scope expansion — explicit verification
+
+```text
+No ADR touched — all 36 ADR files byte-identical (verified git diff --quiet -- docs/adr/).
+  No Constitution/governance file touched (Chapter 8/ADR-009 referenced, not edited). No
+  module-registry.yaml/system-decomposition.md touched — no new module/capability/context/
+  dependency introduced by this transaction; the five analytical streams' writer authority
+  is already the four existing modules, and stream-registry-authority is already registered
+  (v1.6, Consolidated Stable) — this file only concretizes stream-level facts, it does not
+  re-register anything. No Domain Contract touched. No implementation/test file touched
+  (verified git diff --quiet -- python/ go/). No Feature Input Contract authored. No Tier
+  assigned, no Quality Gate run, no gate/LIVE state changed.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction authors prerequisite architecture
+  instantiation only, per ADR-036's own Consequences ordering.
+P3-FEATURE-A-MAJ-06: remains OPEN — same reason; the Feature-scoped Input Contract (ADR-036
+  Consequences step 6) and Feature implementation remediation (step 7) still have not
+  occurred; this transaction alone does not unblock Feature code.
+market-data-ingestion / structure-engine / raw-regime-engine / feature-engine /
+  stream-registry-authority: unaffected — no module field changed, no code/test touched.
+module-registry.yaml / system-decomposition.md / dependency graph / other Domain Contracts /
+  other ADRs / Constitution / governance: all unchanged.
+Package 1.1: `Consolidated Stable` (unchanged). Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT Review A of the concrete Genesis Stream Registry, at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"). Does not itself perform Review B, author the Feature Input Contract, or perform any implementation.
+
+**Files changed:** `docs/architecture/stream-registry.yaml` (new file), `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

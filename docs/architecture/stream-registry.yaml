@@ -1,0 +1,92 @@
+# Stream Registry — Genesis (Chapter 8 §8.3.1/§8.3.5)
+#
+# Authoritative source for stream identity, topology, writer authority, lifecycle, and
+# sequence policy (Chapter 8 §8.3.1). Event Contract owns event-to-stream eligibility
+# (`allowed_streams`) exclusively -- deliberately NOT represented here (Chapter 8 §8.3.1's
+# one-way declaration rule; duplicating eligibility here would violate I-12).
+#
+# This is the Genesis Registry -- Chapter 8 §8.3.5's single root-exception artifact, the
+# only registry version permitted to exist without a prior activation boundary on the
+# canonical Lifecycle Stream. It concretely instantiates the topology, protected-stream
+# identities, and initial writer authority already decided by Approved ADR-036 v0.3
+# (docs/adr/ADR-036.md) -- module-per-writer-per-fact-family topology for the five
+# analytical streams, `platform-lifecycle`/`platform-audit` as the two protected streams,
+# `stream-registry-authority` as their initial writer authority. No new architecture
+# decision is made by this file; it is a mechanical transcription (same precedent already
+# recorded for module-registry.yaml's own contract-compatibility-authority/ADR-023 and
+# stream-registry-authority/ADR-036 alignments).
+#
+# `protected: true` marks the two streams Chapter 8 §8.3.5 requires to survive every
+# registry transition (retirement invariant does not apply to them) -- concrete
+# representation of that protection is explicitly Phase 1 design spec per §8.3.5's own
+# closing line ("Representation cuối cùng thuộc Phase 1 design spec"), decided here.
+#
+# `writer_authority.module_id` resolves against docs/architecture/module-registry.yaml
+# (Chapter 7 §7.5) -- every value below is verified to exist there at authoring time.
+#
+# `registry_version: v1` is this Genesis Registry's own immutable identifier -- ADR-036
+# left the exact literal value to this authoring transaction (ADR-036 §"item 5"), chosen
+# for direct consistency with Chapter 8 §8.3.1's own "v3"-style worked example. Genesis
+# registries do not carry `effective_from` (Chapter 8 §8.3.1: "BẮT BUỘC với mọi version
+# SAU Genesis" -- Genesis itself is exempt by definition, §8.3.5's exception).
+
+schema_version: 1
+registry_id: genesis-stream-registry
+version: "0.1"
+status: Draft
+owner: Product Owner
+generated_at: "2026-08-26"
+
+registry_version: v1
+
+streams:
+  - stream_id: market-data-ingestion-candle
+    status: active
+    writer_authority:
+      module_id: market-data-ingestion
+    sequence_policy: contiguous
+    genesis_position: 0
+
+  - stream_id: structure-engine-swing
+    status: active
+    writer_authority:
+      module_id: structure-engine
+    sequence_policy: contiguous
+    genesis_position: 0
+
+  - stream_id: structure-engine-structure
+    status: active
+    writer_authority:
+      module_id: structure-engine
+    sequence_policy: contiguous
+    genesis_position: 0
+
+  - stream_id: raw-regime-engine-regime
+    status: active
+    writer_authority:
+      module_id: raw-regime-engine
+    sequence_policy: contiguous
+    genesis_position: 0
+
+  - stream_id: feature-engine-feature
+    status: active
+    writer_authority:
+      module_id: feature-engine
+    sequence_policy: contiguous
+    genesis_position: 0
+
+  - stream_id: platform-lifecycle
+    status: active
+    protected: true
+    writer_authority:
+      module_id: stream-registry-authority
+    sequence_policy: contiguous
+    genesis_position: 0
+
+  - stream_id: platform-audit
+    status: active
+    protected: true
+    writer_authority:
+      module_id: stream-registry-authority
+    sequence_policy: contiguous
+    genesis_position: 0

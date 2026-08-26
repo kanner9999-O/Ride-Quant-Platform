@@ -2,6 +2,50 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — Genesis Stream Registry v0.1 (Draft): `stream-registry.yaml` authored, instantiates Approved ADR-036
+
+**Phase-1-design-spec authoring transaction only** — concrete mechanical instantiation of Approved ADR-036 v0.3, not a new architecture decision, not a new ADR. Baseline HEAD `7512c6a3dbd3aa714d54fadb0db16b0d5233343d`.
+
+### Added
+
+```text
+docs/architecture/stream-registry.yaml (Draft, v0.1, new file): the concrete Genesis
+  Stream Registry Chapter 8 §8.3.1/§8.3.5 requires. registry_version: v1 (this
+  transaction's own choice, Chapter 8 §8.3.1 "v3"-style convention; ADR-036 left the
+  literal value to this transaction). Seven active streams, genesis_position: 0,
+  sequence_policy: contiguous throughout: market-data-ingestion-candle
+  (market-data-ingestion), structure-engine-swing (structure-engine),
+  structure-engine-structure (structure-engine), raw-regime-engine-regime
+  (raw-regime-engine), feature-engine-feature (feature-engine), and the two
+  protected: true streams platform-lifecycle/platform-audit (both writer authority
+  stream-registry-authority). No effective_from (correct -- Genesis-exempt, Chapter
+  8 §8.3.1). No allowed_event_types (Event Contract eligibility stays exclusively
+  with Event Contract, Chapter 8 §8.3.1's one-way declaration rule). No instrument/
+  venue/timeframe/subject_ref partitioning -- topology exactly as ADR-036 decided.
+```
+
+### Mechanically validated
+
+```text
+7 unique stream_id, zero duplicates. Exactly one writer_authority.module_id per
+  stream, every value resolves against module-registry.yaml's current 27-module
+  set. Protected streams exactly {platform-lifecycle, platform-audit}. All seven
+  genesis_position == 0, all sequence_policy == contiguous. ADR-036.md verified
+  byte-identical throughout.
+```
+
+### Files changed
+
+```text
+docs/architecture/stream-registry.yaml (new), docs/MANIFEST.md, docs/CHANGELOG.md.
+  manifest_version "10.245" -> "10.246". No ADR/Constitution/module-registry.yaml/
+  system-decomposition.md/Domain Contract/code touched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT Review A of the concrete Genesis Stream Registry.
+
 ## [Unreleased] — 2026-08-26 — Global Execution Rules v0.5: Semantic-Sufficiency Clarification (interpretation only, no new rule ID/ADR)
 
 **Bounded clarification transaction.** Product Owner decision (verbatim): `APPROVE GLOBAL EXECUTION RULES V0.5 SEMANTIC-SUFFICIENCY CLARIFICATION AT BOUNDARY edfa1e2c9f30b8bc9fdf389f9821bf787587b04c, WITH NO NEW GOVERNANCE PROCESS, NO NEW RULE ID, AND NO ADR`. Baseline HEAD `edfa1e2c9f30b8bc9fdf389f9821bf787587b04c`.
