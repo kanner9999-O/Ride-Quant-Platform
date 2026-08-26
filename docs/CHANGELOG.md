@@ -2,6 +2,48 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — ADR-036 v0.3: Product Owner Approval (`Approved`)
+
+**Atomic mechanical approval-recording transaction.** Product Owner decision (verbatim): `APPROVE ADR-036 v0.3 at boundary 0c4754f2d17cd617db8a01af3d11b6ab46f9ad94`, recorded `2026-08-26T10:44+07:00`. Baseline HEAD `0c4754f2d17cd617db8a01af3d11b6ab46f9ad94`.
+
+### Approved
+
+```text
+ADR-036 "Genesis Stream Registry Topology — Phase-3 Core Analytical Chain
+  Writer Authority" — status Draft -> Approved, version "0.3" unchanged,
+  approved_by Product Owner, reviewers [ChatGPT, Claude]. Review A
+  (ChatGPT) and Review B (Claude, alias "Independent Review B") both
+  CLEAN at the same final boundary (0c4754f2), 0 Blocker/0 Major/0 Minor,
+  Mode A (DISTINCT_PRINCIPAL) independence — minimum-two-review
+  requirement satisfied. All six prior findings across v0.1/v0.2
+  (P3-ADR036-A-MAJ-01/-MAJ-02/-MIN-01/-MIN-02/-MIN-03/-MIN-04) recorded
+  CLOSED. Review B's execution/session reference recorded N/A (not
+  available, none fabricated). docs/adr/ADR-036.md is now immutable
+  byte-for-byte from this commit onward (Chapter 11 §11.3).
+
+Effective decision: the Genesis Stream Registry topology for the Phase-3
+  core analytical chain is now AUTHORIZED — the five-analytical-stream
+  module-per-writer topology, the two protected streams
+  (platform-lifecycle/platform-audit) with the new stream-registry-
+  authority module as their initial writer authority, and the
+  Event-Contract-vs-Stream-Registry authority boundary. Does not itself
+  register stream-registry-authority in module-registry.yaml, author
+  stream-registry.yaml/an Input Contract, implement feature-engine, or
+  close P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-036.md (Draft -> Approved, blob bfd75b3010d04826763ae6b98602b4f9443561c3),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.240" -> "10.241".
+No other file touched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT deterministic verification of this ADR-036 approval transaction.
+
 ## [Unreleased] — 2026-08-26 — ADR-036 v0.3 (Draft): bounded correction, two Minor findings
 
 **Bounded correction only** — not a Review A re-review, not an approval, no module-registry.yaml/registry/Input-Contract/implementation touched. Baseline HEAD `0f492ee805752f82f63f221f0f68ec0e86d2e5b3`.

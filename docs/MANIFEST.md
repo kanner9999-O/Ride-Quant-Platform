@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.240"
+manifest_version: "10.241"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -10078,6 +10078,153 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 ### Next governed action (not performed in this transaction)
 
 Bounded Review-A re-review of `ADR-036` v0.3 against exactly these two findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. Does not itself perform Review B, module-registry alignment, registry/Input-Contract authoring, or Product Owner approval.
+
+**Files changed:** `docs/adr/ADR-036.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## ADR-036 v0.3 — Product Owner Approval (`Approved` — Genesis Stream Registry Topology architecture now effective)
+
+**Atomic mechanical approval-recording transaction — Product Owner decision: `APPROVE ADR-036 v0.3 at boundary 0c4754f2d17cd617db8a01af3d11b6ab46f9ad94` (verbatim), decision timestamp `2026-08-26T10:44+07:00`.** Does not review/reinterpret the decision, does not start module-registry alignment, Stream Registry authoring, Input Contract work, Feature implementation, Tier/QG/package/gate/LIVE work, or ADR-037.
+
+**Baseline:** branch `main`, HEAD `0c4754f2d17cd617db8a01af3d11b6ab46f9ad94` (verified via `git rev-parse HEAD` before any edit; matches exact required approved boundary; tracked tree clean except pre-existing unrelated untracked `.DS_Store` clutter). `manifest_version` confirmed `"10.240"` at start. `docs/adr/ADR-036.md` reviewed Draft state confirmed before edit: `version: "0.3"`, `status: Draft`, `owner: Product Owner`, `reviewers: []`, `approved_by: null`, `approved_at: null`, `depends_on: ["ADR-009"]`, content identity `51fd6b8630d934a0789ec596262edb7afcd8f6a4`. `docs/adr/ADR-009.md` re-verified `status: Approved` (unchanged, immutable). `docs/team/team.yaml` re-read fresh: `ChatGPT` and `Claude` both registered role `AI Technical Architect`; `Claude` carries registered alias `Independent Review B`; both confirmed distinct principal identities per the file's own explicit note ("ChatGPT là actor 1, Claude/'Independent Review B' là actor 2").
+
+```text
+Reviewed Draft semantic boundary:  0c4754f2d17cd617db8a01af3d11b6ab46f9ad94
+Reviewed Draft blob:                51fd6b8630d934a0789ec596262edb7afcd8f6a4
+Resulting approved ADR blob:        bfd75b3010d04826763ae6b98602b4f9443561c3
+  (necessarily differs from the reviewed Draft blob — the approval-recording
+  edit itself, part of the same atomic Chapter 11 §11.6 transaction, adds
+  the review-eligibility evidence/table population and frontmatter
+  transition below; no Decision/Context/Alternatives/Consequences/Scale
+  text touched — verified by direct diff, only frontmatter fields and the
+  previously-empty Independent Reviews table/its trailing note changed)
+```
+
+### Review-record provenance (G-VERIFY-001 — verified, not merely restated)
+
+```text
+The Review A/B evidence was supplied by the governing task prompt as a disposition summary
+  (principal, role, boundary, disposition, isolation attestation), not as inspectable raw
+  execution transcripts. Per G-VERIFY-001/P3-VERIFY-001, this transaction did not fabricate
+  execution/session identifiers beyond what was supplied, and cross-checked what COULD be
+  verified directly against this repository's own history before trusting the rest:
+  - The six named finding IDs (P3-ADR036-A-MAJ-01/-MAJ-02/-MIN-01/-MIN-02/-MIN-03/-MIN-04)
+    match exactly the six findings this session's own three prior "ADR-036 — bounded
+    correction" transactions (v0.1->v0.2, v0.2->v0.3) recorded and remediated — verified
+    against those transactions' own recorded content in this MANIFEST.
+  - Both reviewer principals (ChatGPT, Claude/"Independent Review B" alias) resolved fresh
+    against docs/team/team.yaml: both registered role AI Technical Architect; team.yaml's own
+    alias_note confirms "Independent Review B" is the established governance identifier for
+    actor Claude acting as the second independent reviewer, and that ChatGPT/Claude are two
+    distinct principal identities (Mode A DISTINCT_PRINCIPAL eligible).
+  - Review B's execution/session reference was stated by the task as "not available" — this
+    transaction recorded that honestly (N/A, none fabricated) rather than inventing one.
+  - Both reviews' final boundary is the single exact v0.3 boundary supplied
+    (0c4754f2d17cd617db8a01af3d11b6ab46f9ad94) — recorded as a single boundary in ADR-036.md's
+    own Independent Reviews table, consistent with the task's own framing that both final
+    dispositions apply at that exact boundary (unlike ADR-035's multi-hop table, no
+    intermediate boundary was supplied here to preserve for either reviewer's final entry).
+No provider-native session ID fabricated for either review — both recorded N/A for Execution
+  ID/Isolation attestation where Mode A (DISTINCT_PRINCIPAL) does not require them, per the
+  task's explicit instruction not to fabricate a Review B execution/session reference.
+```
+
+### Atomic frontmatter transition (Chapter 11 §11.3/§11.6/§11.9)
+
+```text
+version:        "0.3" -> "0.3"     (unchanged)
+status:         Draft -> Approved
+approved_by:    null -> Product Owner
+approved_at:    null -> "2026-08-26T10:44+07:00"
+reviewers:      [] -> [ChatGPT, Claude]
+last_review:    null -> "2026-08-26"
+depends_on:     ["ADR-009"] (unchanged) / addresses / resolves / supersedes:  [] / [] / []
+  (all unchanged)
+No `superseded_by` added. docs/adr/ADR-036.md is now immutable byte-for-byte from this commit
+  onward, per Chapter 11 §11.3 — any future semantic change requires a NEW ADR.
+```
+
+### Review eligibility evidence
+
+```text
+Review A — ChatGPT, AI Technical Architect:
+  Progressed across v0.1 (found P3-ADR036-A-MAJ-01/-MAJ-02/-MIN-01/-MIN-02) and v0.2 (found
+  P3-ADR036-A-MIN-03/-MIN-04) — all six findings CLOSED by this session's own bounded
+  correction transactions. Final applicability boundary
+  0c4754f2d17cd617db8a01af3d11b6ab46f9ad94 (v0.3): disposition CLEAN, 0 Blocker / 0 Major /
+  0 Minor outstanding.
+
+Review B — Claude (alias: Independent Review B), AI Technical Architect:
+  Fresh independent read-only execution at the same v0.3 boundary
+  (0c4754f2d17cd617db8a01af3d11b6ab46f9ad94); Review A's six closed findings used only as
+  locators pointing at the corrected passages, conclusions on Decision/Alternatives/
+  Consequences/Scale independently re-derived, not adopted as ground truth. Independently
+  verified the seven-stream topology, protected-stream identity/writer-authority decision, the
+  stream-registry-authority module rationale/Chapter 7 §7.2 guardrail reasoning, the
+  Event-Contract-eligibility boundary, depends_on: ["ADR-009"], and the Chapter 0 §4b
+  classification. No execution/session reference available/supplied — recorded N/A, none
+  fabricated. Disposition: CLEAN, 0 Blocker / 0 Major / 0 Minor, READY_FOR_PRODUCT_OWNER_DECISION.
+
+ADR-031 independence mode: DISTINCT_PRINCIPAL (Mode A) — two distinct principal identities.
+Review A = COMPLETE / ELIGIBLE / CLEAN. Review B = COMPLETE / ELIGIBLE / CLEAN.
+Minimum-two-review requirement (Chapter 11 §11.5): SATISFIED.
+P3-ADR036-A-MAJ-01/-MAJ-02/-MIN-01/-MIN-02/-MIN-03/-MIN-04: all CLOSED.
+Unresolved ADR-036 findings at this boundary: Blocker 0, Major 0, Minor 0.
+No accepted risk recorded or required — both final reviews are CLEAN.
+```
+
+### Effective decision
+
+```text
+The Genesis Stream Registry topology for the Phase-3 core analytical chain is now
+  AUTHORIZED exactly as ADR-036 v0.3's Decision/Alternatives/Consequences sections pin: the
+  five-stream module-per-writer-per-fact-family analytical topology; the two protected
+  streams platform-lifecycle/platform-audit with stream-registry-authority (new Type 3
+  Runtime Service) as their initial writer authority; the Event-Contract-vs-Stream-Registry
+  authority boundary; and the 8-step Consequences follow-on ordering. This approval does NOT
+  itself register stream-registry-authority in module-registry.yaml, does NOT author
+  stream-registry.yaml or any Feature Input Contract, does NOT implement feature-engine, and
+  does NOT close P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06.
+Preserved unchanged by this approval: ADR-009's ordering/protected-stream/registry model
+  (Approved, untouched); ADR-034/ADR-035's own decisions (Approved, untouched); Chapter 7/
+  Chapter 8 (Locked, untouched — reused by reference only); module-registry.yaml (unchanged —
+  stream-registry-authority remains decided-but-unregistered); Structure/Raw-Regime/Context
+  ownership boundaries; module dependency graph.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/domain/feature.md unchanged (verified git diff --quiet -- docs/domain/). No
+  implementation/test file touched (verified git diff --quiet -- python/ go/). No
+  docs/architecture/stream-registry.yaml or Feature Input Contract authored (neither exists).
+  module-registry.yaml unchanged (verified git diff --quiet --
+  docs/architecture/module-registry.yaml). Constitution/governance unchanged (Chapter 0/
+  Chapter 7/Chapter 8/ADR-009 referenced, not edited). No other ADR touched — all 35 prior ADR
+  files byte-identical (verified git diff --quiet for docs/adr/ADR-001.md through ADR-035.md).
+  ADR-036's own version NOT bumped beyond "0.3". No Quality Tier assigned. No Quality Gate run.
+  No package/gate state changed. LIVE NOT authorized.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — ADR-036 approval is platform-prerequisite architecture
+  only; it does not itself perform any step of MAJ-04's own remediation sequence.
+P3-FEATURE-A-MAJ-06: remains OPEN — same reason; per ADR-036's own Consequences, approval
+  alone does not unblock Feature code (module-registry alignment, Stream Registry authoring,
+  and the Feature-scoped Input Contract must still follow, in that order).
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+module-registry.yaml / dependency graph / other Domain Contracts / other ADRs / Constitution /
+  governance: all unchanged.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT deterministic verification of this ADR-036 approval transaction (frontmatter transition, review-evidence table population, MANIFEST/CHANGELOG consistency) at the resulting immutable commit boundary. Does not itself start module-registry alignment, Stream Registry/Input Contract authoring, or Feature implementation.
 
 **Files changed:** `docs/adr/ADR-036.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
