@@ -2,6 +2,69 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — ADR-036 v0.3 (Draft): bounded correction, two Minor findings
+
+**Bounded correction only** — not a Review A re-review, not an approval, no module-registry.yaml/registry/Input-Contract/implementation touched. Baseline HEAD `0f492ee805752f82f63f221f0f68ec0e86d2e5b3`.
+
+### Fixed
+
+```text
+P3-ADR036-A-MIN-03 (inaccurate module count): "none of the 25 modules
+  currently in module-registry.yaml" -> "none of the modules currently
+  registered in module-registry.yaml" — a fresh count found 26 module_id
+  entries, not 25. Removes the volatile hard-coded cardinality; the
+  underlying conclusion (no registered module owns the required
+  protected-stream control-plane responsibility) is unchanged and remains
+  independently verified true at the correct count.
+P3-ADR036-A-MIN-04 (inaccurate follow-on classification): the required
+  post-approval stream-registry-authority registration was called a
+  "separate, mechanical governed transaction" — reworded (Decision item
+  2/8 and Consequences step 4) to "a separate governed semantic
+  module-registry alignment: an EXACT mechanical transcription of Approved
+  ADR-036, containing no new architecture choice," matching the exact
+  terminology module-registry.yaml already records for the analogous
+  ADR-023/contract-compatibility-authority precedent, citing Chapter 7
+  §7.5, and stating the transcription remains subject to the applicable
+  package-lifecycle/review rules for that registry (not a license to
+  bypass them). No ADR-037 introduced or implied.
+```
+
+### Preserved
+
+```text
+Seven-stream topology; protected stream IDs platform-lifecycle/
+  platform-audit; stream-registry-authority identity/Type-3/
+  responsibilities/depends_on: []; five analytical streams/writers; Event
+  Contract authority boundary; depends_on: ["ADR-009"]; Chapter 0 §4b
+  classification — all unchanged in substance.
+```
+
+### Provenance note
+
+```text
+The two findings were supplied by ID/description in the governing task
+  prompt (attributed to a ChatGPT Review A execution) without an
+  accompanying execution artifact independently verifiable by this
+  transaction. No reviewer identity/execution/result was fabricated; each
+  finding's underlying claim was instead independently re-verified
+  directly against ADR-036.md v0.2's actual content, a fresh
+  module-registry.yaml module_id count, and module-registry.yaml's own
+  recorded ADR-023 precedent language.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-036.md ("0.2" -> "0.3", status Draft unchanged, blob
+  d4915b14aa55d5c4efd8f2ef855961f26dd194aa -> 51fd6b8630d934a0789ec596262edb7afcd8f6a4),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.239" -> "10.240".
+  No other file touched.
+```
+
+### Next governed action (not performed here)
+
+Bounded Review-A re-review of ADR-036 v0.3 against exactly these two findings, at the resulting immutable boundary.
+
 ## [Unreleased] — 2026-08-26 — ADR-036 v0.2 (Draft): bounded correction, two Major + two Minor findings
 
 **Bounded correction only** — not a Review A re-review, not an approval, no registry/Input-Contract/`feature.md`/implementation touched. Baseline HEAD `7c073b1261e40142886707dfdab28c5459e8bfb2`.
