@@ -41,9 +41,22 @@
 # feature-context-architecture.md §4.6 v0.5. included_streams/merge_policy/
 # causal_closure_policy/contract_id/contract_version/late_arrival_behavior/
 # buffer_limit_policy: unchanged.
+#
+# v0.4 third bounded correction (2026-08-26, closes P3-FEATURE-FRONTIER-A-MAJ-01/-MAJ-02
+# round 3, final normal correction): mechanism now includes a registry-contract equality
+# gate (active_registry_at(L_before) must equal stream_registry_version exactly; mismatch
+# = fail-safe/defer until a matching contract version is authored, never a retry);
+# stream_registry_version/recorded_time cursor derivation completed (Registry -> Contract
+# and Lifecycle -> Cursor invariants satisfied explicitly). completeness_rule/
+# incomplete_frontier_behavior corrected: a causation_ref can never legitimately point to a
+# not-yet-committed event (removed as an outcome) -- unresolvable/no-record references are
+# now an immediate integrity-violation fail-safe, same as event_id mismatch. Full
+# rationale: feature-context-architecture.md §4.6 v0.6. included_streams/merge_policy/
+# causal_closure_policy/contract_id/contract_version/late_arrival_behavior/
+# buffer_limit_policy: unchanged.
 
 schema_version: 1
-version: "0.3"
+version: "0.4"
 status: Draft
 owner: Product Owner
 generated_at: "2026-08-26"
@@ -62,11 +75,11 @@ merge_policy:
   concurrent_tie_break: [stream_id, sequence]
 
 frontier_policy:
-  mechanism: lifecycle-bracketed-direct-log-read
-  completeness_rule: gap-free-prefix-fixed-point-causal-closure-certified-lifecycle-bracket
+  mechanism: registry-pinned-lifecycle-bracketed-direct-log-read
+  completeness_rule: gap-free-prefix-fixed-point-causal-closure-under-certified-registry-lifecycle-bracket
   late_arrival_behavior: defer-to-later-cursor
   buffer_limit_policy: fail-safe-abort-no-authoritative-output-on-resource-exhaustion
-  incomplete_frontier_behavior: fixed-point-extend-or-integrity-fail-safe-or-lifecycle-race-retry
+  incomplete_frontier_behavior: integrity-fail-safe-or-lifecycle-race-retry-or-registry-mismatch-defer
 
 causal_closure_policy:
   mode: declared-state-dependencies

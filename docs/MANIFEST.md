@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.250"
+manifest_version: "10.251"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -11087,6 +11087,139 @@ Package 1.1: Consolidated Stable (unchanged). Phase 3 Approval Gate: NOT opened.
 ### Next governed action (not performed in this transaction)
 
 ChatGPT second bounded Review-A re-review of these two findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. Does not itself perform Review B, author any Event Contract, or implement `feature-engine`.
+
+**Files changed:** `docs/architecture/input-contracts/feature-candle-input.yaml`, `feature-regime-input.yaml`, `feature-swing-distance-input.yaml`, `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Feature Frontier — third bounded correction, final normal round (`Draft`, closes two Major Review-A findings round 3 `pending re-review`)
+
+**Bounded semantic correction transaction — vai trò: `Feature Frontier Third Bounded Correction Executor`.** Remediates exactly the two ChatGPT Review A findings named in the governing task prompt against the v0.3 candidate (`P3-FEATURE-FRONTIER-A-MAJ-01`, `P3-FEATURE-FRONTIER-A-MAJ-02`), round 3 — this is the final normal correction round; per the governing task's own instruction, a fourth normal correction is not authorized if this round does not stabilize (any further finding routes to `P3-CORRECTION-CHAIN-001` root-cause consolidation instead, not performed here).
+
+**Baseline:** branch `main`, HEAD `dc804bcd2ed826a11e07a467fb871caa677bf8b0` (verified via `git rev-parse HEAD`; matches exact required boundary; tree clean bar unrelated untracked `.DS_Store`). `manifest_version` `"10.250"` confirmed. All three Input Contracts confirmed `version: "0.3"`, `status: Draft` before edit. `feature-context-architecture.md` confirmed `version: "0.5"`, `status: Draft` before edit. Chapter 8 §8.2.3 (causation_refs Chapter-6-owned semantic, external-non-state carve-out), §8.3.4, §8.3.5 (validation-chain pattern), §8.5.1-§8.5.3 (cursor cardinality and Position→Cursor/Lifecycle→Cursor/Registry→Contract relational invariants), Chapter 6 §6.7 (causation_refs = direct domain causal predecessor semantic), and ADR-009 re-read fresh before drafting.
+
+### ADR scope/inflation check (run first, per task instruction)
+
+```text
+Result: ADR_NOT_REQUIRED. The registry-contract equality gate reuses only already-Locked
+  Chapter 8 §8.3.1 active_registry_at()/§8.5's exact-pin rule for stream_registry_version —
+  no new authority, no new field. The completed recorded_time derivation reuses only
+  already-Locked §8.5.2 Position->Cursor/Lifecycle->Cursor relational invariants — both
+  already existed in the table, this correction simply satisfies both instead of one. The
+  corrected causation classification reuses only Chapter 6 §6.7's already-Locked
+  causal-predecessor semantic and Chapter 8 §8.3.5's own event_id-mismatch validation-chain
+  pattern, generalized to causation_refs. No new authoritative event/schema, no new module
+  responsibility, no dependency-graph change, no Locked/Approved invariant changed.
+```
+
+### Findings remediated
+
+```text
+P3-FEATURE-FRONTIER-A-MAJ-01 (round 3: canonical cursor invariants still incomplete) —
+  verified true by direct re-read of v0.3's §4.6: cursor.stream_registry_version was set
+  from the independently-computed active_registry_at(L_before) rather than sourced from the
+  selected Input Contract's own pin, with no explicit equality gate between the two; and
+  cursor.recorded_time = max(position events only), omitting the Lifecycle -> Cursor
+  relation (lifecycle_event.recorded_time <= cursor.recorded_time) Chapter 8 §8.5.2 already
+  requires. Corrected: new step 2a registry-contract equality gate — active_registry_at
+  (L_before) MUST equal InputContract.stream_registry_version exactly; mismatch is a
+  fail-safe/defer condition (this contract instance is inapplicable at this frontier,
+  waiting on a separate governed authoring action for a matching contract version — NEVER a
+  same-protocol retry, NEVER a cursor rewritten to a different registry while keeping the
+  old contract reference). cursor.stream_registry_version now sourced directly from
+  InputContract.stream_registry_version. cursor.recorded_time now derived as max(position
+  events' recorded_time, resolved lifecycle event's recorded_time) when
+  lifecycle_frontier.position.kind = event — satisfying both §8.5.2 relations explicitly;
+  when kind = genesis, the Lifecycle -> Cursor relation holds vacuously (no lifecycle event
+  exists to compare), preserved without inventing a synthetic event or wall-clock value.
+P3-FEATURE-FRONTIER-A-MAJ-02 (round 3: causation_ref resolution still allowed an implicit
+  "wait for future creation" outcome) — verified true by direct re-read of v0.3's case 1/
+  outcome (c) text ("target position does not yet exist in the log... FAIL-SAFE-DEFER-TO-
+  NEXT-TRIGGER"). Corrected: case 1 now requires the referenced event to ALREADY exist and
+  tuple-verify in the log before extension is legitimate (Chapter 6 §6.7: causation_refs are
+  direct domain causal predecessors — the cause must already exist for the effect to have
+  been produced, so a causation_ref can never legitimately name a genuinely future event).
+  Case 3 now explicitly absorbs "no record at all" alongside event_id mismatch — both are
+  immediate integrity-violation fail-safes, never a defer-and-wait outcome. The fixed-point
+  algorithm now yields exactly TWO outcomes: (a) apply at the fixed point, or (b) immediate
+  integrity-violation fail-safe — the prior third "defer to next trigger" causal-closure
+  outcome is removed entirely.
+```
+
+### Registry-contract equality behavior (exact)
+
+```text
+Step 2a (new): registry_version := active_registry_at(L_before); if registry_version !=
+  InputContract.stream_registry_version -> FAIL-SAFE/DEFER, no cursor, no authoritative
+  output, NOT a retry (retrying the identical protocol cannot change which registry is
+  active) -- resolution requires a separate governed transaction authoring/selecting an
+  Input Contract version that pins the currently-active registry. cursor is never emitted
+  pinning a registry the selected contract does not itself pin.
+```
+
+### Cursor recorded_time derivation (exact, including lifecycle frontier)
+
+```text
+kind: event   -> cursor.recorded_time = max(recorded_time of each stream_positions[s]'s
+                  resolved event, recorded_time of the lifecycle event L_before resolves
+                  to) -- satisfies Position->Cursor AND Lifecycle->Cursor (§8.5.2) by
+                  construction.
+kind: genesis -> cursor.recorded_time = max(recorded_time of each stream_positions[s]'s
+                  resolved event) only -- Lifecycle->Cursor holds vacuously (no lifecycle
+                  event exists), Chapter 8's own Genesis carve-out preserved, no synthetic
+                  value invented.
+```
+
+### Corrected three-way causation classification
+
+```text
+1. VALID IN-SCOPE CAUSE, OUTSIDE CURRENT CUT: referenced event ALREADY EXISTS and
+   tuple-verifies (locator resolves, event_id matches) but sequence > current
+   stream_positions[stream_id] -> bounded extend (direct read of that specific position) +
+   recurse into its own causation_refs.
+2. VALID EXTERNAL NON-STATE CAUSE: existence/committed proof only (Chapter 8 §8.3.4's
+   carve-out, unchanged) -- never extended, never counted incomplete.
+3. UNRESOLVABLE OR MISMATCHED REFERENCE: no record at (stream_id, sequence) OR event_id
+   mismatch -> immediate integrity violation, fail-safe (I-6) -- never "wait for future
+   creation" (removed as an outcome, round 3).
+```
+
+### Preserved (script-verified, byte-for-byte on the named fields)
+
+```text
+All three: contract_id, contract_version (v1), included_streams, merge_policy,
+  causal_closure_policy, late_arrival_behavior, buffer_limit_policy — verified unchanged
+  via parsed-YAML diff against the v0.3 candidate (all True). The closed MIN-01 correction
+  untouched. Event-Contract fail-closed gap unchanged. stream-registry.yaml/
+  module-registry.yaml/system-decomposition.md/feature.md/any ADR/code/tests: unmodified
+  (git diff --quiet for all). package_lifecycle remains candidate.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ (all 36 files), docs/domain/, docs/constitution/, docs/governance/, docs/team/,
+  docs/architecture/stream-registry.yaml, module-registry.yaml, system-decomposition.md,
+  python/, go/: all verified byte-identical (git diff --quiet for each path). No Event
+  Contract authored. No feature-engine implementation/test touched. No Tier assigned, no
+  Quality Gate run, no gate/LIVE state changed.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction corrects prerequisite design only.
+P3-FEATURE-A-MAJ-06: remains OPEN — same reason; Feature implementation remediation (ADR-036
+  Consequences step 7) still has not occurred.
+Package 1.3-B (feature-context-architecture.md): package_lifecycle candidate (unchanged) —
+  fresh Review A + Independent Review B + Product Owner reconsolidation still required.
+Package 1.1: Consolidated Stable (unchanged). Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT third bounded Review-A re-review of these two findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. This is the final normal correction round for these findings — if a further semantic defect is found, the next governed action is `P3-CORRECTION-CHAIN-001` root-cause consolidation, not a fourth bounded correction. Does not itself perform Review B, author any Event Contract, or implement `feature-engine`.
 
 **Files changed:** `docs/architecture/input-contracts/feature-candle-input.yaml`, `feature-regime-input.yaml`, `feature-swing-distance-input.yaml`, `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 

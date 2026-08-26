@@ -2,6 +2,67 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — Feature Frontier: third bounded correction, final normal round (two Major, round 3)
+
+**Bounded correction only, final normal round for these findings** — not a Feature implementation round, not a new ADR. Baseline HEAD `dc804bcd2ed826a11e07a467fb871caa677bf8b0`.
+
+### Fixed
+
+```text
+P3-FEATURE-FRONTIER-A-MAJ-01 (round 3, canonical cursor invariants incomplete): added a
+  registry-contract equality gate -- active_registry_at(L_before) must equal
+  InputContract.stream_registry_version exactly; mismatch is fail-safe/defer (contract
+  inapplicable at this frontier, waits on a new governed contract version, never a
+  same-protocol retry, never a cursor rewritten to a different registry while keeping the
+  old contract reference). cursor.stream_registry_version now sourced directly from the
+  contract's own pin. cursor.recorded_time now derived as max(position events'
+  recorded_time, resolved lifecycle event's recorded_time) when kind: event -- satisfying
+  BOTH Chapter 8 §8.5.2's Position->Cursor and Lifecycle->Cursor relations; when kind:
+  genesis, the Lifecycle->Cursor relation holds vacuously, no synthetic value invented.
+P3-FEATURE-FRONTIER-A-MAJ-02 (round 3, causation_ref resolution still allowed an implicit
+  "wait for future creation" outcome): case 1 now requires the referenced event to
+  ALREADY exist and tuple-verify before extension is legitimate (Chapter 6 §6.7: a
+  causation_ref's cause must already exist for the effect to have been produced). Case 3
+  now explicitly absorbs "no record at all" alongside event_id mismatch -- both are
+  immediate integrity-violation fail-safes. Fixed-point algorithm now yields exactly two
+  outcomes -- apply at the fixed point, or immediate integrity-violation fail-safe -- the
+  prior third "defer to next trigger" causal-closure outcome is removed entirely.
+```
+
+### Preserved
+
+```text
+All three contract_id/contract_version (v1)/included_streams/merge_policy/
+  causal_closure_policy/late_arrival_behavior/buffer_limit_policy; the closed MIN-01
+  correction; the Event-Contract fail-closed gap; stream-registry.yaml/
+  module-registry.yaml/system-decomposition.md/feature.md/any ADR/code/tests (all
+  unmodified); package_lifecycle remains candidate.
+```
+
+### ADR scope-check result
+
+```text
+ADR_NOT_REQUIRED -- registry-contract equality gate and completed recorded_time
+  derivation reuse only already-Locked Chapter 8 §8.3.1/§8.5.2 machinery; corrected
+  causation classification reuses only Chapter 6 §6.7's causal-predecessor semantic and
+  Chapter 8 §8.3.5's own validation-chain pattern. No new authority.
+```
+
+### Files changed
+
+```text
+docs/architecture/input-contracts/feature-candle-input.yaml ("0.3" -> "0.4"),
+  feature-regime-input.yaml ("0.3" -> "0.4"), feature-swing-distance-input.yaml
+  ("0.3" -> "0.4"), docs/architecture/engine/feature-context-architecture.md
+  ("0.5" -> "0.6"), docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version
+  "10.250" -> "10.251". No ADR/Constitution/stream-registry.yaml/module-registry.yaml/
+  system-decomposition.md/Domain Contract/code touched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT third bounded Review-A re-review of these two findings. This is the final normal correction round — a further finding routes to P3-CORRECTION-CHAIN-001 root-cause consolidation, not a fourth bounded correction.
+
 ## [Unreleased] — 2026-08-26 — Feature Frontier: second bounded correction, two Major (round 2)
 
 **Bounded correction only** — not a Feature implementation round, not a new ADR. Baseline HEAD `cb3f4db1f281a9edd722cff7304741cec6cc0386`.
