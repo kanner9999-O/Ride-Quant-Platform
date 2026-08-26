@@ -1,7 +1,7 @@
 ---
 id: system-decomposition
 title: "Package 1.1 — System Decomposition & Module Registry"
-version: "1.3"
+version: "1.4"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 ---
 
 # Package 1.1 — System Decomposition & Module Registry
+
+**CANDIDATE (package lifecycle, 2026-08-26, vai trò: `Package 1.1 ADR-036 Alignment Executor`) — artifact status: Draft, KHÔNG Approved/Locked.** Package 1.1 v1.3 → v1.4 (`system-decomposition.md`, parity mirror của `module-registry.yaml` v1.5 → v1.6): genuine semantic registry change — EXACT mechanical transcription của [ADR-036](../adr/ADR-036.md) v0.3 (`Approved`, 2026-08-26T10:44+07:00, `approved_by: Product Owner`) — Genesis Stream Registry Topology, protected-stream (`platform-lifecycle`/`platform-audit`) initial writer-authority placement, KHÔNG một quyết định kiến trúc mới, KHÔNG một ADR mới. ĐÚNG MỘT thay đổi: một module mới đăng ký — `stream-registry-authority` (`module_type: runtime_service`, `owns_authoritative_state: true`, `depends_on: []`, `forbidden_dependencies: []`, `implements_capabilities: []`, `serves_contexts: []` — KHÔNG existing context-map.yaml capability/Domain Context nào invented, cùng empty-field convention như `contract-compatibility-authority`/`command-query-api-surface`; §4/§5.1/§12 Decision 10 cho mirror đầy đủ). ZERO dependency edge thêm/bớt trên BẤT KỲ module hiện có nào — `stream-registry-authority` là một root mới, `depends_on: []`, không runtime module nào khác được sửa. Graph safety (script-verified, DFS toàn 27-module graph): module count 26 → 27, zero edge mới, zero edge xóa, zero duplicate edge, full graph VẪN acyclic, zero forbidden_dependencies violation. Mọi module khác — MỌI field KHÔNG đổi. Cùng tiền lệ v1.1 → v1.2 (ADR-023 alignment)/v0.9 → v1.0 (ADR-021 alignment) — một genuine architectural/semantic change, KHÔNG một bounded parity/wording correction, `package_lifecycle` VẪN `candidate` (đã là `candidate` trước transaction này — KHÔNG revert cần thiết, KHÔNG Consolidated Stable nào bị mất). Transaction này KHÔNG reconsolidate — một Review A + Independent Review B + Product Owner consolidation decision RIÊNG BIỆT vẫn cần thiết trước khi Package 1.1 có thể trở lại `Consolidated Stable` với baseline v1.4 này. **Preserved unchanged:** mọi module khác — identity/taxonomy/dependency/forbidden_dependencies/contract-category/authority/phase; five-analytical-stream topology (ADR-036, KHÔNG đăng ký tại module-registry.yaml — writer authority của chúng ĐÃ là bốn module hiện có: `market-data-ingestion`/`structure-engine`/`raw-regime-engine`/`feature-engine`, KHÔNG module mới nào cho chúng); Event Contract `allowed_streams` eligibility authority (Chapter 8 §8.3.1, KHÔNG chạm, KHÔNG redefine tại registry này). Registration này LÀ Declaration-tier architecture only — KHÔNG `stream-registry.yaml` nào authored, KHÔNG Feature Input Contract nào authored, KHÔNG `feature-engine` implementation nào thực hiện tại transaction này. `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06` VẪN `OPEN` — registration alone KHÔNG unblock Feature code (ADR-036's own Consequences ordering). `ADR-036` KHÔNG sửa bởi transaction này. `ADR-037` KHÔNG tạo. KHÔNG authorize implementation/Gate 2/Phase 2/LIVE.
 
 **CONSOLIDATED STABLE (package lifecycle, 2026-08-10, Product Owner decision, vai trò: `Package 1.1 ADR-023 Alignment Mechanical Reconsolidation Executor`) — artifact status: Draft, KHÔNG Approved/Locked.** Product Owner đã quyết định nguyên văn (as supplied in the transaction request): "APPROVE PACKAGE 1.1 ADR-023 ALIGNMENT RECONSOLIDATION." Decision date: 2026-08-10 (exact clock time KHÔNG được cung cấp — date-only metadata, KHÔNG một giá trị giả định nào được invent). Review evidence: Review A `CLEAN`; Independent Review B initial alignment review Blocker 0/Major 0/Minor 1 (`P11-ADR023-B-MIN-01`), đóng bởi bounded parity correction (`system-decomposition.md` v1.2 → v1.3); Review A bounded re-review `CLEAN`; Independent Review B bounded re-review `CLEAN`, `P11-ADR023-B-MIN-01` CLOSED; final readiness Blocker 0/Major 0/Minor 0, READY FOR PRODUCT OWNER RECONSOLIDATION. Mechanical lifecycle transaction — `version: "1.3"` UNCHANGED (no content/architecture change), `package_lifecycle: candidate → Consolidated Stable`. `module-registry.yaml` consolidates song song tại đúng phiên bản ĐÃ reviewed của nó, `"1.1"` — HAI phiên bản KHÔNG normalize thành một số chung, mỗi file ghi ĐÚNG version đã review. **Preserved unchanged (byte-identical, transaction này CHỈ đổi lifecycle prose/field):** `contract-compatibility-authority` (`module_type: compute_engine`, `owns_authoritative_state: true`, `depends_on: []`, `implements_capabilities: []`, `serves_contexts: []`, `consumes: []`, `emits: [event]`); 25 module hiện có; 26-module inventory; 65 depends_on edge; graph VẪN acyclic; zero forbidden_dependencies violation; §6 six-module exception set; §7 tally `16 + 9 + 1 = 26`; A+B responsibility colocation; Part C exclusion; Declaration-tier registration only — `module identity ≠ evaluator grant`, `Declaration → Grant → Enforcement → Verification`, `granted ⊆ declared`. KHÔNG evaluator Grant nào issue, KHÔNG Compatibility Result nào tạo, Package 1.4 (`api-architecture.md`) KHÔNG sửa, ADR-023/ADR-022 KHÔNG sửa, ADR-024 KHÔNG tạo. `QG-P14-E-EVID-01`/`G2-RDY-BLK-03` VẪN `OPEN`, Phase 1 Quality Gate VẪN `FAIL — evidence`, Gate 2 VẪN `CLOSED`, Phase 2 VẪN `NOT AUTHORIZED` — reconsolidation KHÔNG tạo evaluator authorization/evidence. `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi — `Consolidated Stable` LÀ package lifecycle/readiness state, KHÔNG có nghĩa artifact `Approved`/`Locked` (Chapter 0 §7.1). KHÔNG authorize implementation/Gate 2/Phase 2/LIVE.
 
@@ -103,7 +105,7 @@ Package 1.1 KHÔNG redefine domain entities, domain invariants, product behavior
 
 ## 4. Official module inventory
 
-**26 module** (v1.2 — 25→26, `contract-compatibility-authority` đăng ký theo ADR-023 v0.5 Approved, Declaration-tier evaluator placement; v0.5 — 23→25, `custody-signing-service` + `exchange-adapter` đăng ký theo ADR-017 v0.2 Approved, Option C split) — xem `module-registry.yaml` cho định nghĩa đầy đủ từng field. Tóm tắt:
+**27 module** (v1.4 — 26→27, `stream-registry-authority` đăng ký theo ADR-036 v0.3 Approved, protected-stream initial writer-authority placement; v1.2 — 25→26, `contract-compatibility-authority` đăng ký theo ADR-023 v0.5 Approved, Declaration-tier evaluator placement; v0.5 — 23→25, `custody-signing-service` + `exchange-adapter` đăng ký theo ADR-017 v0.2 Approved, Option C split) — xem `module-registry.yaml` cho định nghĩa đầy đủ từng field. Tóm tắt:
 
 | module_id | Taxonomy | Owns authoritative state | Elaborated by |
 |---|---|---|---|
@@ -133,44 +135,49 @@ Package 1.1 KHÔNG redefine domain entities, domain invariants, product behavior
 | `review-evidence-service` | projection | No | 1.5 |
 | `ux-application-shell` | runtime_service | No | 1.6 |
 | `contract-compatibility-authority` | compute_engine (ADR-023 v0.5 Approved, Declaration-tier only — Grant deferred) | Yes (Grant-conditional Compatibility Result issuance only, §12 below) | 1.4 |
+| `stream-registry-authority` | runtime_service (ADR-036 v0.3 Approved, §12 Decision 10) | Yes (exclusive writer authority for the two Genesis-protected control-plane streams only, §4 "Bounded scope note" below) | *(unassigned)* |
 
-**Taxonomy tally (v1.2 — script-verified against `module-registry.yaml`, exhaustive/mutually-exclusive, sums to 26; updated for ADR-023 v0.5 alignment):**
+**Taxonomy tally (v1.4 — script-verified against `module-registry.yaml`, exhaustive/mutually-exclusive, sums to 27; updated for ADR-036 v0.3 alignment):**
 
 ```text
 compute_engine   6   structure-engine, raw-regime-engine, feature-engine, strategy-plugin-host,
                       decision-evaluation-engine, contract-compatibility-authority
 projection       4   context-aggregator, position-projection, replay-integration-service,
                       review-evidence-service
-runtime_service  16  market-reference-service, market-data-ingestion, account-service,
+runtime_service  17  market-reference-service, market-data-ingestion, account-service,
                       custody-signing-service, exchange-adapter, strategy-engine,
                       plugin-release-manager, decision-authority-service,
                       risk-gateway, execution-engine, execution-result-processor,
                       fill-processor, backtest-orchestrator, paper-execution-boundary,
-                      command-query-api-surface, ux-application-shell
-total            26
+                      command-query-api-surface, ux-application-shell,
+                      stream-registry-authority
+total            27
 ```
 
-**State-authority tally (v1.2 — separate dimension — DO NOT overlap with taxonomy tally above; script-verified, exhaustive/mutually-exclusive, sums to 26; updated for ADR-023 v0.5 alignment):**
+**State-authority tally (v1.4 — separate dimension — DO NOT overlap with taxonomy tally above; script-verified, exhaustive/mutually-exclusive, sums to 27; updated for ADR-036 v0.3 alignment):**
 
 ```text
-owns_authoritative_state: true      16  market-reference-service, market-data-ingestion,
+owns_authoritative_state: true      17  market-reference-service, market-data-ingestion,
                                          structure-engine, raw-regime-engine, feature-engine,
                                          account-service, custody-signing-service,
                                          exchange-adapter, strategy-engine,
                                          plugin-release-manager, decision-authority-service,
                                          risk-gateway, execution-engine,
                                          execution-result-processor, fill-processor,
-                                         contract-compatibility-authority
+                                         contract-compatibility-authority,
+                                         stream-registry-authority
 owns_authoritative_state: false     9   context-aggregator, strategy-plugin-host,
                                          decision-evaluation-engine, position-projection,
                                          replay-integration-service, paper-execution-boundary,
                                          command-query-api-surface, review-evidence-service,
                                          ux-application-shell
 owns_authoritative_state: deferred  1   backtest-orchestrator
-total                                26
+total                                27
 ```
 
 **Bounded scope note (v1.2, `contract-compatibility-authority`):** `owns_authoritative_state: true` reflects the module's Declaration-tier design as sole authority for its own Compatibility Result — it does NOT mean an operational Grant currently exists. Registration alone confers NO permission to actually create a Compatibility Result (Chapter 9 §9.6 Declaration ≠ Grant, `granted ⊆ declared`); the evaluator Grant remains unresolved, deferred to a future governed transaction (ADR-023 §9).
+
+**Bounded scope note (v1.4, `stream-registry-authority`):** `owns_authoritative_state: true` reflects sole writer authority ONLY for the two Genesis-protected control-plane streams (canonical Lifecycle Stream `platform-lifecycle`, canonical Audit Stream `platform-audit`) and the stream-lifecycle-boundary/audit-preservation facts ADR-036 assigns to this module (Chapter 8 §8.3.1/§8.3.5/§8.4.1). It does NOT extend to: the five analytical streams' topology or writer authority (already decided by ADR-036, unchanged — held by `market-data-ingestion`/`structure-engine`/`raw-regime-engine`/`feature-engine`, not by this module); the concrete `stream-registry.yaml` artifact's own content authority (Chapter 8 §8.3.1, a separate future authoring transaction); or Event Contract `allowed_streams` eligibility (Chapter 8 §8.3.1, stays exclusively with each event type's own Event Contract). `phase.elaborated_by: unassigned` — no later Phase 1 sub-package (1.2–1.6) currently elaborates this module's detailed architecture; left honestly unresolved rather than invented, same convention as `exchange-adapter` (§11).
 
 **Bounded scope note (v0.5):** `custody-signing-service`'s `true` là CHỈ cho credential-binding/signing-operational state (KHÔNG raw secret material — ngoài Domain Contract scope). `exchange-adapter`'s `true` là CHỈ cho raw venue-interaction evidence trực tiếp chứng kiến (KHÔNG platform ExecutionObservation/ExecutionResult — `execution-result-processor` VẪN authority đó, KHÔNG đổi). Cả hai KHÔNG mở rộng ý nghĩa `true` ngoài phạm vi hẹp đã định nghĩa tại ADR-017 §3.1/§3.2a.
 
@@ -305,9 +312,19 @@ contract-compatibility-authority (root — depends_on: [] — ADR-023 v0.5 Appro
                                     edge. ZERO existing module's depends_on/
                                     forbidden_dependencies edited by this addition.
                                     forbidden_dependencies: [])
+
+stream-registry-authority (root — depends_on: [] — ADR-036 v0.3 Approved. Exclusive
+                                    writer authority for the two Genesis-protected
+                                    control-plane streams (platform-lifecycle,
+                                    platform-audit) — a bootstrap/control-plane root
+                                    per Chapter 8 §8.3.5's Genesis Registry exception,
+                                    not a dependent of any of the four analytical
+                                    writer modules it is independent from. ZERO
+                                    existing module's depends_on/forbidden_dependencies
+                                    edited by this addition. forbidden_dependencies: [])
 ```
 
-Validated (script-checked before commit, §13): 26 unique `module_id`; every `depends_on`/`forbidden_dependencies` reference resolves to an existing `module_id`; zero cycles in the `depends_on` graph; zero module has the same ID in both `depends_on` and `forbidden_dependencies`.
+Validated (script-checked before commit, §13): 27 unique `module_id`; every `depends_on`/`forbidden_dependencies` reference resolves to an existing `module_id`; zero cycles in the `depends_on` graph; zero module has the same ID in both `depends_on` and `forbidden_dependencies`.
 
 ### 5.2 Diagram (illustrative only — §5.1 is normative)
 
@@ -374,7 +391,7 @@ Structure Engine   Raw Regime Engine        (độc lập)
 
 ## 6. Responsibility and ownership boundaries
 
-Mỗi module trong `module-registry.yaml` khai báo tường minh `responsibilities` (sở hữu/tính toán gì), `emits`/`consumes` (publish/tiêu thụ loại contract gì), `forbidden_dependencies` (KHÔNG được phụ thuộc gì), và `owns_authoritative_state` (có phải nguồn thật duy nhất hay không, I-12). Không module nào generic — mỗi entry map trực tiếp về đúng một `capability_id`/`domain_context_id` đã đăng ký (§4.2), TRỪ SÁU module cross-cutting: ba module routing/read/presentation layer thuần túy (`command-query-api-surface`, `review-evidence-service`, `ux-application-shell` — không domain authority), hai module (v0.5) `custody-signing-service`/`exchange-adapter` — KHÔNG có `capability_id`/`domain_context_id` đăng ký tại `context-map.yaml` cho custody/signing/venue-adapter responsibility (đúng nguyên tắc đã dùng cho `raw-regime-engine`'s "Structure-aware Regime" deferral, §11 — Domain Context/Capability identity là thẩm quyền Chapter 4 §4.2, KHÔNG phải module-registry's để tự invent), VÀ module thứ sáu (v1.2, ADR-023 v0.5 Approved) `contract-compatibility-authority` — KHÔNG có `capability_id`/`domain_context_id` đăng ký tại `context-map.yaml` cho Package 1.4 compatibility-evaluation responsibility, cùng nguyên tắc: Domain Context/Capability identity là thẩm quyền Chapter 4 §4.2, Package 1.1 KHÔNG tự invent một capability/context mới cho responsibility này (`implements_capabilities: []`, `serves_contexts: []`, KHÔNG registry field nào khác đổi).
+Mỗi module trong `module-registry.yaml` khai báo tường minh `responsibilities` (sở hữu/tính toán gì), `emits`/`consumes` (publish/tiêu thụ loại contract gì), `forbidden_dependencies` (KHÔNG được phụ thuộc gì), và `owns_authoritative_state` (có phải nguồn thật duy nhất hay không, I-12). Không module nào generic — mỗi entry map trực tiếp về đúng một `capability_id`/`domain_context_id` đã đăng ký (§4.2), TRỪ BẢY module cross-cutting: ba module routing/read/presentation layer thuần túy (`command-query-api-surface`, `review-evidence-service`, `ux-application-shell` — không domain authority), hai module (v0.5) `custody-signing-service`/`exchange-adapter` — KHÔNG có `capability_id`/`domain_context_id` đăng ký tại `context-map.yaml` cho custody/signing/venue-adapter responsibility (đúng nguyên tắc đã dùng cho `raw-regime-engine`'s "Structure-aware Regime" deferral, §11 — Domain Context/Capability identity là thẩm quyền Chapter 4 §4.2, KHÔNG phải module-registry's để tự invent), module thứ sáu (v1.2, ADR-023 v0.5 Approved) `contract-compatibility-authority` — KHÔNG có `capability_id`/`domain_context_id` đăng ký tại `context-map.yaml` cho Package 1.4 compatibility-evaluation responsibility, cùng nguyên tắc: Domain Context/Capability identity là thẩm quyền Chapter 4 §4.2, Package 1.1 KHÔNG tự invent một capability/context mới cho responsibility này (`implements_capabilities: []`, `serves_contexts: []`, KHÔNG registry field nào khác đổi), VÀ module thứ bảy (v1.4, ADR-036 v0.3 Approved) `stream-registry-authority` — KHÔNG có `capability_id`/`domain_context_id` đăng ký tại `context-map.yaml` cho Stream Registry control-plane/lifecycle-boundary responsibility, cùng nguyên tắc: platform control-plane authority không phải một Business Capability/Domain Context (Chapter 4 §4.2), Package 1.1 KHÔNG tự invent một capability/context mới cho responsibility này (`implements_capabilities: []`, `serves_contexts: []`, KHÔNG registry field nào khác đổi).
 
 **Ngoại lệ tường minh (`review-evidence-service`, `responsibilities` +1, ADR-020 v0.1 Approved alignment, 2026-08-06):** `review-evidence-service` gains một trách nhiệm thứ hai, mirror nguyên văn từ `module-registry.yaml`: "Performs the non-authoritative, interval-bounded VIEW-002 / UC-003 Research verification existence check over existing Decision, RiskEvaluation, Execution Intent, Order and ExecutionResult facts, producing a workflow-visible PASSED / FAILED / INDETERMINATE query result without recomputing or replacing source authority." Bốn module nguồn của năm stream đó (Decision → `decision-authority-service`; RiskEvaluation VÀ Execution Intent → `risk-gateway`, CÙNG một module; Order → `execution-engine`; ExecutionResult → `execution-result-processor`) ĐÃ CÓ SẴN trong `review-evidence-service.depends_on` (registry fact, KHÔNG đổi) — ZERO dependency edge mới cần thiết ở tầng `review-evidence-service`. `command-query-api-surface.depends_on` ĐÃ chứa `review-evidence-service` từ Package 1.4 v0.1 (đang phục vụ SCR-008/SCR-009/VIEW-004) — ZERO edge mới cần thiết ở tầng API Surface. Ranh giới: existence-check LÀ một phép kiểm tra hiện diện/vắng mặt trên fact ĐÃ ghi nhận, KHÔNG PHẢI một recomputation của Decision/Risk/Execution logic — `owns_authoritative_state: false` KHÔNG đổi, `review-evidence-service` KHÔNG BAO GIỜ trở thành authoritative cho bất kỳ fact nào trong năm stream trên; các authority đó VẪN nguyên trạng tại `decision-authority-service`/`risk-gateway`/`execution-engine`/`execution-result-processor`. `consumes` (`[event]`), `emits` (`[query]`), `module_type` (`projection`), `hybrid` (`null`), `depends_on`, `forbidden_dependencies` KHÔNG đổi. VIEW-003's computation ownership KHÔNG resolve bởi thay đổi này — VẪN một scope conflict tường minh riêng (ADR-020 §4/§12), KHÔNG chạm tại đây. Xem [ADR-020](../adr/ADR-020.md) v0.1 §5–§9 cho quyết định đầy đủ.
 
@@ -387,7 +404,7 @@ Mỗi module trong `module-registry.yaml` khai báo tường minh `responsibilit
 Dùng ĐÚNG state-authority tally đã pin tại §4 (P11-A-MIN-01 correction) — KHÔNG lặp lại con số riêng ở đây (tránh hai nguồn lệch nhau, I-12):
 
 ```text
-owns_authoritative_state: true      16  (xem §4 cho danh sách đầy đủ)
+owns_authoritative_state: true      17  (xem §4 cho danh sách đầy đủ)
 owns_authoritative_state: false     9   (xem §4 — KHÔNG chỉ bốn Projection; gồm cả
                                          strategy-plugin-host/decision-evaluation-engine/
                                          paper-execution-boundary/command-query-api-surface/
@@ -395,7 +412,7 @@ owns_authoritative_state: false     9   (xem §4 — KHÔNG chỉ bốn Projecti
 owns_authoritative_state: deferred  1   backtest-orchestrator (DD-001)
 ```
 
-I-12 conformance: mỗi domain concept resolve đúng MỘT authoritative module — không hai module nào cùng claim `owns_authoritative_state: true` cho cùng một `serves_contexts` entry (script-checked, §13). `custody-signing-service`/`exchange-adapter` (v0.5, ADR-017 v0.2) mỗi module `true` CHỈ trong phạm vi hẹp riêng (credential-binding/signing-operational state; raw venue-interaction evidence trực tiếp chứng kiến — §4 "Bounded scope note") — KHÔNG overlap lẫn nhau, KHÔNG overlap với bất kỳ authority nào khác (đặc biệt `execution-result-processor`'s ExecutionResult authority, KHÔNG đổi). Bốn module taxonomy `projection` (`context-aggregator`, `position-projection`, `replay-integration-service`, `review-evidence-service`) KHÔNG BAO GIỜ trở thành authoritative source thay module gốc (Chapter 7 §7.4 — preserved) — đây là tập con của nhóm `owns_authoritative_state: false` (9 module), KHÔNG đồng nhất với toàn bộ nhóm đó.
+I-12 conformance: mỗi domain concept resolve đúng MỘT authoritative module — không hai module nào cùng claim `owns_authoritative_state: true` cho cùng một `serves_contexts` entry (script-checked, §13). `custody-signing-service`/`exchange-adapter` (v0.5, ADR-017 v0.2) mỗi module `true` CHỈ trong phạm vi hẹp riêng (credential-binding/signing-operational state; raw venue-interaction evidence trực tiếp chứng kiến — §4 "Bounded scope note") — KHÔNG overlap lẫn nhau, KHÔNG overlap với bất kỳ authority nào khác (đặc biệt `execution-result-processor`'s ExecutionResult authority, KHÔNG đổi). `stream-registry-authority` (v1.4, ADR-036 v0.3) `true` CHỈ trong phạm vi hẹp riêng (writer authority for the two Genesis-protected control-plane streams only — §4 "Bounded scope note") — KHÔNG overlap với bất kỳ authority nào khác (đặc biệt các stream analytical topology, VẪN thuộc bốn module engine hiện có, KHÔNG đổi). Bốn module taxonomy `projection` (`context-aggregator`, `position-projection`, `replay-integration-service`, `review-evidence-service`) KHÔNG BAO GIỜ trở thành authoritative source thay module gốc (Chapter 7 §7.4 — preserved) — đây là tập con của nhóm `owns_authoritative_state: false` (9 module), KHÔNG đồng nhất với toàn bộ nhóm đó.
 
 ## 8. Event/command/query interaction categories
 
@@ -404,6 +421,8 @@ I-12 conformance: mỗi domain concept resolve đúng MỘT authoritative module
 **v0.5 (ADR-017 v0.2 Approved):** `custody-signing-service` consumes `[command, query]` (bounded signing request; credential-binding/eligibility check) và emits `[event, query]` (signing outcome — category chỉ, KHÔNG field-level schema, forbidden per ADR-017 §3.3). `exchange-adapter` consumes `[command]` (execution/submission request — MỘT contract boundary riêng biệt khỏi Execution Engine's PAPER contract với `paper-execution-boundary`, ADR-017 §8.1, KHÔNG field-level authored tại Package 1.1 hay ADR-017) và emits `[event]` (raw venue-interaction evidence — category chỉ, ADR-017 §3.2a).
 
 **Ngoại lệ tường minh (`context-aggregator`, `emits: [event, query]`, P13B-IRB-MAJ-03 correction, 2026-08-04):** `context-aggregator` là Projection duy nhất phát `event` — `MarketContextSnapshot`/`MarketContextFactInvalidated` (context.md §3/§4). `event` ở đây là **append-only projection snapshot/invalidation record** (immutable, cursor-bounded, lineage-preserving) — KHÔNG phải authoritative domain fact theo nghĩa Chapter 7 §7.4 cấm ("phát sinh authoritative domain fact"). Ranh giới: `owns_authoritative_state: false` KHÔNG đổi — Context KHÔNG trở thành authoritative source cho Structure/Regime/Feature hay bất kỳ domain concept nào khác; nó chỉ ghi nhận CHÍNH bản ghi snapshot của nó (record integrity), không tuyên bố sở hữu domain state nó tổng hợp. Xem `docs/architecture/engine/feature-context-architecture.md` cho elaboration đầy đủ.
+
+**Ngoại lệ tường minh (`stream-registry-authority`, `consumes: []`, ADR-036 v0.3 Approved alignment, 2026-08-26):** `stream-registry-authority` là `runtime_service` DUY NHẤT KHÔNG khai báo bất kỳ inbound contract category nào (`consumes: []`) — mọi `runtime_service` khác khai báo ít nhất một category. Lý do: module này là bootstrap/control-plane root cho Genesis Stream Registry (Chapter 8 §8.3.5's Genesis Registry exception) — nó tự khởi tạo/authoritatively author lifecycle boundary trên chính hai protected stream nó sở hữu, KHÔNG cần tiêu thụ `event`/`query`/`command` từ bất kỳ module khác để kích hoạt trách nhiệm đó (không giống `account-service`/`strategy-engine`/`plugin-release-manager` — các orchestration/boundary module tiêu thụ `command` từ bên ngoài). `emits: [event]` KHÔNG đổi — phản ánh đúng stream lifecycle-boundary/audit-preservation fact ADR-036 assigns to it, cùng convention `mọi module authoritative emit event`. KHÔNG existing Approved authority yêu cầu một inbound contract category cho module này — không invented ở đây. Xem [ADR-036](../adr/ADR-036.md) v0.3 cho quyết định đầy đủ.
 
 **Ngoại lệ tường minh (`backtest-orchestrator`, `consumes: [event, query]`, ADR-019 v0.2 Approved alignment, 2026-08-06):** `backtest-orchestrator` LÀ `runtime_service` DUY NHẤT khác (cùng `decision-authority-service`) nay directly query-answerable — `consumes` mở rộng `[event]` → `[event, query]` để nhận query request từ `command-query-api-surface` (edge mới, cùng transaction), trả lời bằng một non-authoritative correlation view compose từ Decision fact (`decision-authority-service`) VÀ RiskEvaluation fact (`risk-gateway`) ĐÃ tồn tại, bằng run identity (ADR-018, Approved). Precedent trực tiếp: `decision-authority-service` (CÙNG `module_type`, CÙNG `consumes: [event, query]`/`emits: [event]` shape, CÙNG kết hợp authoritative-adjacent role + query-answerable, KHÔNG `hybrid`) — mạnh hơn so sánh chéo với module `projection` (vốn dùng `emits: [query]` thay vì `consumes: [event, query]`, một pattern KHÁC `module_type`). Ranh giới: `owns_authoritative_state: deferred` KHÔNG đổi — `backtest-orchestrator` KHÔNG trở thành authoritative source cho Decision hay RiskEvaluation; nó CHỈ correlate/fold fact ĐÃ ghi nhận, KHÔNG rewrite/re-author/replace/derive nội dung authoritative của chúng, KHÔNG author một fact/entity/event mới nào. `emits` (`[event]`), `module_type` (`runtime_service`), `hybrid` (`null`) KHÔNG đổi. Xem [ADR-019](../adr/ADR-019.md) v0.2 §2 cho quyết định đầy đủ.
 
@@ -690,12 +709,37 @@ Decision 9 — Package 1.4 Trigger E compatibility-evaluator Declaration-tier pl
                    (§15), CHƯA thực hiện tại transaction này. Registration alone KHÔNG close
                    `QG-P14-E-EVID-01`/Trigger E — evaluator Grant VÀ Compatibility Result
                    VẪN CẦN transaction governed riêng biệt sau ADR-023.
+
+Decision 10 — Genesis Stream Registry Topology protected-stream initial writer-authority
+              placement: đăng ký một module mới (stream-registry-authority), taxonomy Type 3
+              Runtime Service, `owns_authoritative_state: true`, ZERO dependency edge (v1.4):
+  Classification:  ADR REQUIRED.
+  Rule applied:    Governance §4b — thêm module mới với published responsibility riêng LÀ
+                   "Module Taxonomy/dependency graph" change → Required, đúng nguyên tắc đã
+                   áp dụng cho Decision 1/Decision 8/Decision 9.
+  Status (v1.4):   **RESOLVED** — [ADR-036](../adr/ADR-036.md) v0.3, `Approved` (Product
+                   Owner, 2026-08-26T10:44+07:00) — "APPROVE ADR-036 V0.3 AT BOUNDARY
+                   0c4754f2d17cd617db8a01af3d11b6ab46f9ad94." ADR-036 §"Protected streams"
+                   định nghĩa CHÍNH XÁC registry-impact scope mà transaction v1.4 này thực
+                   hiện — KHÔNG mở rộng ngoài đó (KHÔNG stream-registry.yaml authored, KHÔNG
+                   Feature Input Contract authored, ZERO dependency edge trên bất kỳ module
+                   hiện có nào).
+  Consequence:     ADR gate condition cho Decision 10 nay THỎA — NHƯNG một mình ADR Approved
+                   KHÔNG đủ cho Package 1.1 v1.4 `Consolidated Stable`; cùng nguyên tắc đã
+                   áp dụng cho Decision 1/Decision 8/Decision 9 — package_lifecycle VẪN
+                   `candidate` (đã là `candidate` trước transaction này), một vòng Review A +
+                   Independent Review B + Product Owner consolidation decision MỚI trên
+                   chính candidate v1.4 này là bắt buộc (§15), CHƯA thực hiện tại transaction
+                   này. Registration alone KHÔNG unblock `P3-FEATURE-A-MAJ-04`/
+                   `P3-FEATURE-A-MAJ-06` — concrete `stream-registry.yaml` authoring VÀ
+                   Feature-scoped Input Contract VẪN CẦN transaction governed riêng biệt sau
+                   ADR-036, đúng thứ tự Consequences của chính ADR-036.
 ```
 
 ## 13. Quality-gate applicability
 
 ```text
-Trigger A (universal invariant conformance):        ÁP DỤNG cho toàn bộ 26 module — mọi
+Trigger A (universal invariant conformance):        ÁP DỤNG cho toàn bộ 27 module — mọi
                                                       responsibility/dependency-direction
                                                       claim trong module-registry.yaml phải
                                                       conform I-1..I-13 by design (đã tự-

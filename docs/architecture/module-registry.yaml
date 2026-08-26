@@ -632,7 +632,7 @@
 
 schema_version: 1
 registry_id: phase-1-module-registry
-version: "1.5"
+version: "1.6"
 status: Draft
 package: "1.1"
 package_lifecycle: candidate
@@ -1327,3 +1327,22 @@ modules:
     phase: { identified_in: "1.1", elaborated_by: "1.4" }
     status: candidate
     notes: "ADR-023 v0.5 (Approved, 2026-08-10) Declaration-tier registration only -- evaluator Grant NOT yet issued (module identity != evaluator grant, Declaration -> Grant -> Enforcement -> Verification, granted subset declared per Chapter 9 §9.6), NO operational permission exists yet to create a Compatibility Result. implements_capabilities/serves_contexts intentionally empty -- no existing context-map.yaml capability/Domain Context registered for this responsibility, and this module is not a candidate to invent one (same empty-field convention as command-query-api-surface). consumes: [] / depends_on: [] intentionally: the Package 1.4 published-contract artifact and the pinned compatibility-policy root are resolved via MANIFEST identity/applicability authority (ADR-022 §5.2, same reading pattern as ADR-022 §8/ADR-023 §8) -- NOT a runtime module dependency or consumes contract-category edge. emits: [event] reflects the eventual, Grant-conditional authoritative Compatibility Result issuance (Chapter 10 §10.4) -- same emits convention as other compute_engine/owns_authoritative_state: true modules (structure-engine/raw-regime-engine/feature-engine). Taxonomy: Type 1 Compute Engine (Chapter 7 §7.1) -- deterministic transform, no external side effect, no runtime interaction/orchestration/coordination/control responsibility (ADR-023 v0.4 root-cause correction, OPTION_A_COMPUTE_ENGINE). This module does NOT own runtime activation/enforcement coordination (ADR-023 §3.0a Part C, out of scope), Package 1.4 routing/exposure, compatibility-policy identity/version authority (ADR-022 §5.2, unchanged), evaluator Grant authority or Grant applicability authority (still unresolved, deferred to a future governed Grant transaction, ADR-023 §9), Decision/Risk/Execution semantics, or Plugin release/runtime compatibility."
+
+  - module_id: stream-registry-authority
+    name: Stream Registry Authority
+    module_type: runtime_service
+    hybrid: null
+    responsibilities:
+      - "Exclusive writer authority for the two Genesis-protected control-plane streams (canonical Lifecycle Stream `platform-lifecycle`, canonical Audit Stream `platform-audit`); sole authority permitted to author stream lifecycle boundaries (Genesis activation, stream activation/retirement, writer-authority handoff, registry-version transition) on the Lifecycle Stream, and audit-preservation facts on the Audit Stream, per Chapter 8 §8.3.1/§8.3.5/§8.4.1."
+    implements_capabilities: []
+    serves_contexts: []
+    owns_authoritative_state: true
+    consumes: []
+    emits: [event]
+    depends_on: []
+    forbidden_dependencies: []
+    plugin_relation: none
+    security_classification: none
+    phase: { identified_in: "1.1", elaborated_by: null }
+    status: candidate
+    notes: "ADR-036 v0.3 (Approved, 2026-08-26T10:44+07:00) Declaration-tier registration -- governed semantic module-registry alignment, EXACT mechanical transcription of the Approved ADR, containing no new architecture choice (same precedent already recorded above for contract-compatibility-authority/ADR-023). implements_capabilities/serves_contexts intentionally empty -- no existing context-map.yaml capability/Domain Context registered for this responsibility, and this module is not a candidate to invent one (same empty-field convention as contract-compatibility-authority/command-query-api-surface). consumes: [] intentionally -- no existing Approved authority requires a declared inbound contract category for this module; not invented here. depends_on: [] -- ADR-036 assigns this module no dependency on any existing module (it is a bootstrap/control-plane root, writing the two protected streams every other module's lifecycle/audit facts may ultimately rely on, per Chapter 8 §8.3.5's Genesis Registry exception); no dependency edge added to any existing module by this transaction. emits: [event] reflects the stream lifecycle-boundary and audit-preservation facts ADR-036 assigns to this module -- same emits convention as other owns_authoritative_state: true modules. Taxonomy: Type 3 Runtime Service (Chapter 7 §7.1) -- owns runtime coordination/control responsibility over Stream Registry lifecycle boundaries (ADR-036 §\"Protected streams\", OPTION selected there after confirming no existing registered module carries this responsibility). This module does NOT own Stream Registry topology/writer-authority decisions for the five analytical streams (ADR-036, already decided, unchanged), does NOT own the concrete `stream-registry.yaml` artifact's content (Chapter 8 §8.3.1, a separate future authoring transaction), does NOT own Event Contract `allowed_streams` eligibility (Chapter 8 §8.3.1, stays with each event type's own Event Contract), and does NOT own Feature/Structure/Raw-Regime/Decision/Execution domain semantics. `elaborated_by: null` -- no later Phase 1 sub-package (1.2-1.6) currently assigned to elaborate this module's detailed architecture; phase field left honestly unresolved rather than invented."

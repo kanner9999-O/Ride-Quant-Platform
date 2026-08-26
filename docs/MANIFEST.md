@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.241"
+manifest_version: "10.242"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -10227,6 +10227,154 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 ChatGPT deterministic verification of this ADR-036 approval transaction (frontmatter transition, review-evidence table population, MANIFEST/CHANGELOG consistency) at the resulting immutable commit boundary. Does not itself start module-registry alignment, Stream Registry/Input Contract authoring, or Feature implementation.
 
 **Files changed:** `docs/adr/ADR-036.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Package 1.1 v1.4/v1.6 — ADR-036 Alignment (`candidate`, genuine semantic registry change — EXACT mechanical transcription of Approved ADR-036, NOT a new architecture decision)
+
+**Governed semantic module-registry alignment transaction — vai trò: `Package 1.1 ADR-036 Alignment Executor`.** Transcribes Approved `ADR-036` v0.3's protected-stream initial writer-authority decision into `module-registry.yaml` (authoritative registry) and `system-decomposition.md` (parity mirror). Not a new architecture decision, not a new ADR (per ADR-036 §"Protected streams"/Consequences step 4's own framing, and the same precedent `module-registry.yaml` already records for `contract-compatibility-authority`/ADR-023: "genuine semantic registry change — EXACT mechanical transcription... NOT a new architecture decision, NOT a new ADR"). Does not start Stream Registry authoring, Input Contract work, Feature implementation, Tier/QG/package-reconsolidation/gate/LIVE work, or create ADR-037.
+
+**Baseline:** branch `main`, HEAD `afc4b48039ee6910693bbf8853ec8df075f2ed80` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean except pre-existing unrelated untracked `.DS_Store` clutter). `manifest_version` confirmed `"10.241"` at start. `docs/adr/ADR-036.md` re-verified `version: "0.3"`, `status: Approved`, content identity `bfd75b3010d04826763ae6b98602b4f9443561c3` (unchanged, immutable per Chapter 11 §11.3). `docs/architecture/module-registry.yaml` confirmed `version: "1.5"`, `status: Draft`, `package_lifecycle: candidate`, content identity `5594a5b514947406046124c95f6df174afe9dfa1` before this transaction — 26 `module_id:` entries (fresh count). `docs/architecture/system-decomposition.md` confirmed `version: "1.3"`, `status: Draft`, content identity `e0d8f8d605cfa608b2524f7295e2360b454e59f3` before this transaction. Chapter 7 §7.1/§7.5, Chapter 8 §8.3.1/§8.3.5, and the ADR-023/`contract-compatibility-authority` precedent block (`module-registry.yaml` lines ~1312-1329, and `system-decomposition.md`'s own recorded "genuine semantic registry change — EXACT mechanical transcription of Approved ADR-023" banner) re-read fresh before drafting.
+
+```text
+File                                    Version      Status   Content identity
+docs/architecture/module-registry.yaml   1.5 -> 1.6   Draft    5594a5b514947406046124c95f6df174afe9dfa1 ->
+                                                                 b4b7b609befdfe63fad4c18f33e94223ea608795
+docs/architecture/system-decomposition.md 1.3 -> 1.4   Draft    e0d8f8d605cfa608b2524f7295e2360b454e59f3 ->
+                                                                 b8e075af28c673fd6d59c415799557acc0bc63c7
+package_lifecycle: candidate (unchanged — module-registry.yaml was already `candidate`,
+  no Consolidated Stable baseline existed to revert from at this boundary)
+```
+
+### New module entry (transcribed from ADR-036 v0.3, no new architecture choice)
+
+```text
+module_id:                  stream-registry-authority
+name:                       Stream Registry Authority
+module_type:                runtime_service
+hybrid:                     null
+responsibilities:           exclusive writer authority for canonical platform-lifecycle and
+                             platform-audit; owns authoring of the Chapter-8 stream lifecycle
+                             boundaries and audit-preservation facts ADR-036 assigns to it
+owns_authoritative_state:   true (bounded — the two protected streams only, §4 "Bounded scope
+                             note" in system-decomposition.md v1.4)
+implements_capabilities:    []  (no existing context-map.yaml capability for platform
+                             control-plane responsibility; not invented here)
+serves_contexts:            []  (same reason)
+consumes:                   []  (no existing Approved authority requires a declared inbound
+                             contract category; not invented here — verified the module is
+                             the only runtime_service with consumes: [], a genuine, correctly-
+                             noted exception per system-decomposition.md §8)
+emits:                      [event]
+depends_on:                 []  (bootstrap/control-plane root, Chapter 8 §8.3.5 Genesis
+                             Registry exception — no dependency edge added to any existing
+                             module)
+forbidden_dependencies:     []
+plugin_relation:            none
+security_classification:    none
+phase:                      { identified_in: "1.1", elaborated_by: null }
+status:                     candidate
+quality_tier:                absent — UNRESOLVED, unchanged convention
+```
+
+### Mechanical validation (script-verified before commit)
+
+```text
+Module count:              26 -> 27 unique module_id (script-checked, zero duplicates).
+Dependency resolution:      every depends_on/forbidden_dependencies reference across all 27
+                             modules resolves to an existing module_id — zero unresolved.
+Cycle check:                full 27-module graph DFS — zero cycles, graph remains acyclic.
+Duplicate dependency:       zero module has a duplicate entry within its own depends_on list;
+                             zero module has the same ID in both depends_on and
+                             forbidden_dependencies.
+Existing edges unchanged:   diffed all 26 pre-existing modules' depends_on/
+                             forbidden_dependencies against the pre-transaction registry —
+                             ZERO field changed on any existing module; total depends_on edge
+                             count unchanged at 65 (new module contributes zero edges).
+Registry/decomposition parity: stream-registry-authority's module-registry.yaml fields
+                             (module_type, owns_authoritative_state, consumes, emits,
+                             depends_on, forbidden_dependencies, phase) match exactly what
+                             system-decomposition.md §4/§5.1/§6/§7/§8/§12 Decision 10 record.
+ADR-036 blob:               re-verified byte-identical (bfd75b3010d04826763ae6b98602b4f9443561c3)
+                             — verified via git diff --quiet -- docs/adr/ADR-036.md.
+```
+
+### system-decomposition.md parity mirror — sections touched
+
+```text
+New top-of-file CANDIDATE banner (2026-08-26, `Package 1.1 ADR-036 Alignment Executor`) —
+  historical banners above/below preserved byte-for-byte, untouched.
+§4 Official module inventory: "26 module" -> "27 module" (parenthetical updated); new table
+  row for stream-registry-authority (Elaborated by: unassigned); Taxonomy tally relabeled
+  v1.2 -> v1.4, runtime_service 16 -> 17, total 26 -> 27; State-authority tally relabeled
+  v1.2 -> v1.4, true 16 -> 17, total 26 -> 27; new "Bounded scope note (v1.4,
+  stream-registry-authority)" added, mirroring the contract-compatibility-authority pattern.
+§5.1 Dependency graph (text form, normative): new stream-registry-authority root block added
+  (depends_on: [], forbidden_dependencies: []); "Validated" sentence 26 -> 27 unique
+  module_id. §5.2 diagram (illustrative only) intentionally NOT touched — same precedent as
+  contract-compatibility-authority's own addition (isolated root, zero edges, never depicted).
+§6 Responsibility/ownership boundaries: cross-cutting exception count "TRỪ SÁU" -> "TRỪ BẢY",
+  stream-registry-authority added as the seventh exception (no capability_id/domain_context_id
+  for platform control-plane responsibility, same Chapter 4 §4.2 non-invention principle).
+§7 Authority/source-of-truth map: true tally mirror 16 -> 17 (references §4, no duplicated
+  figure per I-12); added a bounded-scope cross-reference sentence for
+  stream-registry-authority, same pattern as custody-signing-service/exchange-adapter.
+§8 Event/command/query interaction categories: new "Ngoại lệ tường minh" note for
+  stream-registry-authority's consumes: [] (the only runtime_service with no declared inbound
+  category) — explains the bootstrap/control-plane rationale, does not weaken the general rule.
+§12 ADR Scope Rule evaluation: new "Decision 10" entry added, mirroring Decision 9's exact
+  structure (Classification: ADR REQUIRED; Rule applied: Governance §4b Module Taxonomy
+  trigger; Status: RESOLVED, ADR-036 v0.3 Approved; Consequence: registration alone does not
+  reconsolidate Package 1.1 nor unblock P3-FEATURE-A-MAJ-04/-06).
+§13 Quality-gate applicability: Trigger A module count 26 -> 27.
+§15 Package review and consolidation conditions: intentionally NOT touched — that block is a
+  frozen historical evidentiary narrative of the specific v0.5/v0.6 Independent Review B
+  execution (module count = 26/25 references there describe what THAT review actually
+  verified at the time), not a live current-state description; same precedent already
+  established when contract-compatibility-authority (the 26th module) was added without
+  touching this section either.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ADR-036.md unchanged (verified git diff --quiet -- docs/adr/ADR-036.md). No other ADR
+  touched — all 36 ADR files byte-identical (verified git diff --quiet -- docs/adr/). No
+  Constitution/governance file touched (verified git diff --quiet -- docs/constitution/). No
+  context-map.yaml touched (verified git diff --quiet -- docs/architecture/context-map.yaml —
+  no capability/Domain Context invented for this module, per its own
+  implements_capabilities: []/serves_contexts: [] fields). No Domain Contract touched
+  (verified git diff --quiet -- docs/domain/). No implementation/test file touched (verified
+  git diff --quiet -- python/ go/). No docs/architecture/stream-registry.yaml or Feature Input
+  Contract authored (neither exists). No Quality Tier assigned to stream-registry-authority
+  (absent field, UNRESOLVED, unchanged convention). No formal Quality Gate run. Package 1.1
+  `package_lifecycle` remains `candidate` (unchanged — no reconsolidation performed). LIVE
+  remains NOT_AUTHORIZED, unreferenced.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction is platform-prerequisite registry
+  alignment only; it performs no step of MAJ-04's own remediation sequence.
+P3-FEATURE-A-MAJ-06: remains OPEN — same reason; per ADR-036's own Consequences, concrete
+  Stream Registry authoring and the Feature-scoped Input Contract must still follow before
+  Feature code is unblocked.
+market-data-ingestion / structure-engine / raw-regime-engine / feature-engine: unaffected — no
+  field of any of these four modules changed; their own writer authority over the five
+  analytical streams (ADR-036) is unaffected by this transaction (they are not registered as
+  separate streams in module-registry.yaml — stream identity lives in the future concrete
+  stream-registry.yaml, per Chapter 8 §8.3.1, out of this transaction's scope).
+Other 25 pre-existing modules: unaffected — verified zero field changed on any of them.
+Package 1.1: `candidate` (unchanged). Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED,
+  unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT Review A of this bounded Package 1.1 semantic alignment, at the resulting immutable commit boundary. Does not itself perform Review B, package reconsolidation, Stream Registry/Input Contract authoring, or Feature implementation.
+
+**Files changed:** `docs/architecture/module-registry.yaml`, `docs/architecture/system-decomposition.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

@@ -2,6 +2,58 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — Package 1.1 v1.4/v1.6: ADR-036 alignment (`candidate`, module-registry transcription)
+
+**Governed semantic module-registry alignment — EXACT mechanical transcription of Approved ADR-036, not a new architecture decision, not a new ADR.** Baseline HEAD `afc4b48039ee6910693bbf8853ec8df075f2ed80`.
+
+### Added
+
+```text
+docs/architecture/module-registry.yaml (1.5 -> 1.6, Draft, package_lifecycle: candidate
+  unchanged): registers exactly one new module, stream-registry-authority
+  (module_type: runtime_service, owns_authoritative_state: true — bounded to the
+  two Genesis-protected control-plane streams only, consumes: [], emits: [event],
+  depends_on: [], forbidden_dependencies: [], phase.elaborated_by: null, status:
+  candidate, no quality_tier). Transcribes ADR-036 v0.3's protected-stream initial
+  writer-authority decision (canonical Lifecycle Stream platform-lifecycle,
+  canonical Audit Stream platform-audit) — no new architecture choice made here.
+
+docs/architecture/system-decomposition.md (1.3 -> 1.4, Draft): parity mirror —
+  new CANDIDATE alignment banner; §4 inventory 26 -> 27 module (new row +
+  taxonomy/state-authority tallies runtime_service 16 -> 17, true 16 -> 17,
+  totals 26 -> 27, new bounded-scope note); §5.1 dependency graph adds the new
+  root (depends_on: [], zero edge on any existing module), validated-count
+  26 -> 27; §6 cross-cutting exception count "SÁU" -> "BẢY"; §7 authority tally
+  mirror 16 -> 17; §8 new exception note for the module's consumes: [] (only
+  runtime_service with no declared inbound category); §12 new "Decision 10"
+  (ADR REQUIRED, RESOLVED by ADR-036 v0.3 Approved). §5.2 diagram and §15's
+  frozen historical review-evidence narrative intentionally untouched, same
+  precedent as the contract-compatibility-authority/ADR-023 alignment.
+```
+
+### Mechanically validated
+
+```text
+27 unique module_id, zero duplicates. All depends_on/forbidden_dependencies
+  references resolve. Full 27-module graph acyclic. Zero existing module's
+  depends_on/forbidden_dependencies changed; total edge count unchanged at 65.
+  Registry/decomposition parity confirmed for the new module and every
+  directly-derived count. ADR-036.md verified byte-identical throughout.
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml, docs/architecture/system-decomposition.md,
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.241" -> "10.242".
+  No other file touched — ADR-036 and all other ADRs, Constitution, context-map,
+  Domain Contracts, and code/tests untouched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT Review A of this bounded Package 1.1 semantic alignment.
+
 ## [Unreleased] — 2026-08-26 — ADR-036 v0.3: Product Owner Approval (`Approved`)
 
 **Atomic mechanical approval-recording transaction.** Product Owner decision (verbatim): `APPROVE ADR-036 v0.3 at boundary 0c4754f2d17cd617db8a01af3d11b6ab46f9ad94`, recorded `2026-08-26T10:44+07:00`. Baseline HEAD `0c4754f2d17cd617db8a01af3d11b6ab46f9ad94`.
