@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.236"
+manifest_version: "10.237"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -9623,6 +9623,99 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 ### Next governed action (not performed in this transaction)
 
 Independent read-only Review A (ChatGPT) of the `feature.md` v0.4 Domain Contract delta, at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"). Does not itself perform Review B or `feature-engine` implementation remediation.
+
+**Files changed:** `docs/domain/feature.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## `feature.md` v0.5 — bounded correction (`Draft`, closes `P3-FEATURE-DC-A-MAJ-01` `pending re-review`)
+
+**Bounded semantic correction transaction — vai trò: `Feature Domain Contract v0.4 Bounded Correction Executor`.** Remediates exactly `P3-FEATURE-DC-A-MAJ-01` against `feature.md` v0.4. Does not perform Review B, approval, implementation remediation, Quality Gate, Tier classification, or create another ADR.
+
+**Baseline:** branch `main`, HEAD `bd9688925e48278fcc0dda9ed7dcc975f123edd5` (verified via `git rev-parse HEAD` before any edit; matches exact required boundary; tracked tree clean). `manifest_version` confirmed `"10.236"` at start. `docs/domain/feature.md` confirmed `version: "0.4"`, `status: Draft`, content identity `24302c6e6ac96b2a2685f6b3e18f3805b152e81b` before this transaction. `docs/adr/ADR-035.md` re-verified `version: "0.2"`, `status: Approved`, content identity `dd4e627aa06af0ad824e89c61cb7ab8e4cb05999` (unchanged, immutable). `docs/adr/ADR-034.md` re-verified `version: "0.3"`, `status: Approved`, content identity `038425a423d0d2ca65f550c708399e165dfeaba4` (unchanged, immutable).
+
+```text
+Domain Contract:        feature.md
+Version:                 "0.4" -> "0.5"
+Status:                  Draft (unchanged)
+New content identity:    git hash-object docs/domain/feature.md = bbf4a4dea3e52821855c15264fddf5489c36191f
+                          (712 lines)
+owner / approved_by / approved_at / reviewers:  all unchanged
+```
+
+### Finding provenance — recorded honestly, no fabricated reviewer identity
+
+```text
+P3-FEATURE-DC-A-MAJ-01 was supplied by finding ID/description in the governing task prompt,
+  without an accompanying Review A execution artifact (no reviewer principal, execution ID,
+  review boundary, or independence-mode evidence provided or available). Per G-VERIFY-001/
+  P3-VERIFY-001, no fabricated "Review A provenance" record was created. The underlying claim
+  was independently re-verified before correcting it: re-read swing.md §7 fresh — confirmed
+  its own "Replay cursor visibility" rule is recorded-time-only
+  ("tại một cursor recorded_time T, replay chỉ được thấy các Swing event có recorded_time <= T"),
+  and confirmed §1a/§5/§9/§11 all cite this same §7 rule for their own visibility language —
+  swing.md has no three-leg predicate anywhere. Confirmed feature.md v0.4's §9a step 4/step 5
+  used bare "visible tại R" citing swing.md §1a/§5 respectively, with no explicit statement
+  that this "visible" means §12's full predicate rather than swing.md §7's weaker recorded-
+  time-only rule — the ambiguity was real, not a false-positive finding.
+```
+
+### Finding remediated
+
+```text
+P3-FEATURE-DC-A-MAJ-01 (dual visibility meaning in §9a's filter pipeline): §9a step 4
+  ("S = revision hợp lệ MỚI NHẤT của swing_id đó, visible tại R (swing.md §1a)") and step 5
+  ("KHÔNG có SwingInvalidated visible tại R ... (swing.md §5)") now explicitly say
+  "full-cursor-visible tại R theo §12" and explicitly state swing.md §1a/§5 own revision-
+  lineage/matching and invalidation semantics ONLY, NOT Feature's computation-cursor
+  visibility rule. Step 4 additionally reworded to "TRONG SỐ các revision full-cursor-visible
+  tại R" to make explicit that latest-revision selection operates only over the
+  already-visibility-filtered candidate set, not latest-then-check-visible (a stricter,
+  more precise reading, not a scope change). A new single convention paragraph was added
+  directly after the filter-pipeline code block, stating that EVERY "visible tại R" shorthand
+  in §9a (Bước 2/4/5, and any other brief reference) resolves to §12's full three-leg
+  predicate, never swing.md §7's recorded-time-only rule — with one explicit exception for
+  text that names a different time axis (pivot_effective_time at step 3, or a correction's
+  own recorded_time in the "Correction-recorded-old-pivot" paragraph, both already unrelated
+  to computation-cursor visibility and untouched). No other step, invariant, schema field, or
+  cross-reference was touched.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ADR-034.md and docs/adr/ADR-035.md unchanged (verified git diff --quiet for both) —
+  both remain Approved, frozen. All 34 ADRs unaffected (transaction diff scoped to exactly
+  docs/domain/feature.md, docs/MANIFEST.md, docs/CHANGELOG.md — verified git status
+  --porcelain). No implementation/test file touched (verified git diff --quiet -- python/).
+  docs/domain/swing.md and every other Domain Contract unchanged (verified git diff --quiet
+  -- docs/domain/, excluding feature.md) — swing.md itself is read as evidence, not edited.
+  module-registry.yaml unchanged. Constitution/governance unchanged. Subject identity (§1),
+  computation identity/dedup (§8b), computation_cursor schema (§3/§4 payload), §12's
+  three-leg predicate itself, step 3's effective-time cutoff, the 8-criterion total order,
+  ADR-034's four supersession conditions/causation binding/mutual exclusion, and the
+  fail-closed artifact-resolvability boundary are all byte-identical to v0.4 (verified by
+  direct re-read — the diff touches only the version-history banner, §9a steps 4/5's wording,
+  and one new convention paragraph). feature.md remains status: Draft, approved_by: null,
+  approved_at: null — this is a bounded correction candidate pending Review A re-review, NOT
+  an approval.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — unaffected by this transaction.
+P3-FEATURE-A-MAJ-06: remains OPEN — this transaction corrects Domain Contract wording only;
+  the artifact-resolvability gap (genuine Stream Registry/Feature-scoped Input Contract)
+  remains entirely unaddressed, as required.
+Structure Engine / Raw Regime Engine / Context: unaffected, unreferenced.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Bounded Review-A re-review of `feature.md` v0.5 against exactly `P3-FEATURE-DC-A-MAJ-01`, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001 ("bounded semantic correction -> bounded semantic re-review, CHỈ phạm vi đã chạm"). Does not itself authorize `feature-engine` implementation remediation or Product Owner approval.
 
 **Files changed:** `docs/domain/feature.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 

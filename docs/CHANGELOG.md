@@ -2,6 +2,58 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — feature.md v0.5: bounded correction (dual visibility meaning)
+
+**Bounded correction only** — not a Review A re-review, not an approval, no implementation/ADR/swing.md touched. Baseline HEAD `bd9688925e48278fcc0dda9ed7dcc975f123edd5`.
+
+### Fixed
+
+```text
+P3-FEATURE-DC-A-MAJ-01: v0.4 correctly rewrote §9a step 2 to use §12's full three-leg
+  computation-cursor visibility predicate, but steps 4 and 5 still used bare "visible tại R"
+  citing swing.md §1a/§5 — whose own §7 replay-visibility rule is recorded-time-only
+  (event.recorded_time <= T), weaker than and distinct from §12's predicate since ADR-035.
+  The pipeline risked carrying two different "visible" meanings across one 5-step sequence.
+
+Corrected: step 4/step 5 now explicitly say "full-cursor-visible tại R theo §12" and state
+  that swing.md §1a/§5 own revision-lineage/matching and invalidation semantics ONLY, not
+  Feature's computation-cursor visibility rule. Step 4 also reworded to select the latest
+  revision AMONG already-visibility-filtered candidates (a more precise, not broader,
+  reading). A new single convention paragraph pins that every "visible tại R" shorthand in
+  §9a resolves to §12's predicate, with one explicit exception for text naming a different
+  time axis (pivot_effective_time, or a correction's own recorded_time).
+```
+
+### Preserved
+
+```text
+§12's predicate itself, step 3's effective-time cutoff, the 8-criterion total order,
+  ADR-034's four supersession conditions/causation binding/mutual exclusion, and the
+  fail-closed artifact-resolvability boundary are all unchanged. Subject identity,
+  computation identity/dedup, and the computation_cursor schema are untouched.
+```
+
+### Provenance note
+
+```text
+No Review A execution artifact was supplied to this transaction. No reviewer identity was
+  fabricated to attribute the finding — the underlying claim was independently re-verified
+  against swing.md §7's actual text (and its citation from §1a/§5/§9/§11) before fixing it.
+```
+
+### Files changed
+
+```text
+docs/domain/feature.md ("0.4" -> "0.5", status Draft unchanged, blob
+  24302c6e6ac96b2a2685f6b3e18f3805b152e81b -> bbf4a4dea3e52821855c15264fddf5489c36191f),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.236" -> "10.237". ADR-034/ADR-035
+  and swing.md verified byte-unchanged.
+```
+
+### Next governed action (not performed here)
+
+Bounded Review-A re-review of feature.md v0.5 against exactly P3-FEATURE-DC-A-MAJ-01.
+
 ## [Unreleased] — 2026-08-26 — feature.md v0.4 (Draft candidate): implements ADR-035
 
 **Bounded Domain Contract amendment — candidate pending Review A/B, NOT an approval.** Implements Approved ADR-035's computation-cursor decision. Baseline HEAD `09745d1777e910ebd8ffd26da2a7bbb74a6abbf4`.
