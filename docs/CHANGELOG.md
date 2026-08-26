@@ -2,6 +2,61 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — Global Execution Rules v0.5: Semantic-Sufficiency Clarification (interpretation only, no new rule ID/ADR)
+
+**Bounded clarification transaction.** Product Owner decision (verbatim): `APPROVE GLOBAL EXECUTION RULES V0.5 SEMANTIC-SUFFICIENCY CLARIFICATION AT BOUNDARY edfa1e2c9f30b8bc9fdf389f9821bf787587b04c, WITH NO NEW GOVERNANCE PROCESS, NO NEW RULE ID, AND NO ADR`. Baseline HEAD `edfa1e2c9f30b8bc9fdf389f9821bf787587b04c`.
+
+### Added
+
+```text
+docs/governance/execution-rules.md ("0.4" -> "0.5", operational_state
+  EFFECTIVE unchanged): new NON-NORMATIVE INTERPRETATION — Semantic
+  Sufficiency block immediately after G-REV-001..004 (no new G-* rule ID)
+  clarifying, without creating a new gate: (1) G-REV-001/G-REV-004
+  optimize for real semantic risk reduction, not zero-Minor documents;
+  (2) absence of unresolved Blocker/Major does not itself approve an
+  artifact -- all existing lifecycle/independent-review/PO requirements
+  still apply; (3) documentation-only issues (wording/formatting/
+  historical labeling/duplicated non-authoritative prose) should not by
+  default trigger a standalone correction/re-review when higher
+  authority already resolves the semantics; (4) such an issue may be
+  carried forward or folded into an already-required future transaction
+  when safe (G-TXN-003 precedent); (5) escalation remains appropriate
+  when authority/contract/implementation behavior/auditability/
+  reproducibility/safety could be misstated, or PO explicitly requires
+  correction; (6) zero Minor is not an additional exit criterion unless
+  a higher-authority rule requires it; (7) does not weaken G-REV-002,
+  Independent Review B, or Blocker/Major remediation.
+
+Motivating lesson (v0.5 change-history entry): the ADR-036/Package 1.1
+  alignment sequence's repeated documentation-only correction rounds
+  produced more process churn than the actual semantic risk warranted.
+```
+
+### Preserved
+
+```text
+G-REV-001..004 wording, every other rule ID/wording (G-AUTH/G-VERIFY/
+  G-ADR/G-TXN/G-BUDGET/G-ID/G-QG/G-PHASE/G-ORCH), the Authority hierarchy,
+  ADR Scope Rule, review eligibility, and lifecycle gates -- all
+  unchanged, byte-identical (diff-verified: only the two frontmatter
+  fields version/accepted_at were replaced, everything else pure
+  addition). No ADR authored.
+```
+
+### Files changed
+
+```text
+docs/governance/execution-rules.md (blob 8ab2af23391dcc5ae72405fbe8675644bd0f6699
+  -> da21da32cf59bfc9acf387d6239ef9e57c1cd68c), docs/MANIFEST.md,
+  docs/CHANGELOG.md. manifest_version "10.244" -> "10.245". No other
+  file touched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT deterministic verification of this clarification transaction.
+
 ## [Unreleased] — 2026-08-26 — Package 1.1 ADR-036 alignment: Product Owner reconsolidation (`Consolidated Stable`)
 
 **Atomic mechanical reconsolidation-recording transaction.** Product Owner decision (verbatim): `APPROVE PACKAGE 1.1 ADR-036 ALIGNMENT RECONSOLIDATION AT BOUNDARY 2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a`, recorded `2026-08-26T14:52+07:00`. Baseline HEAD `2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a`.

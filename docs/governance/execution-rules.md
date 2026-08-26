@@ -1,11 +1,11 @@
 ---
 id: execution-rules
 title: "Ride Quant Platform — Global Execution Rules"
-version: "0.4"
+version: "0.5"
 operational_state: EFFECTIVE
 owner: Product Owner
 accepted_by: Product Owner
-accepted_at: "2026-08-11"
+accepted_at: "2026-08-26"
 created_at: "2026-08-09"
 ---
 
@@ -112,6 +112,37 @@ G-REV-003   Independent Review B PHẢI giữ độc lập THẬT SỰ — KHÔN
 G-REV-004   Dừng correction churn khi KHÔNG có Major/Blocker mới phát sinh — một
             chuỗi bounded-correction-trên-bounded-correction vô hạn LÀ một process
             defect, cần dừng lại VÀ đánh giá lại root cause thay vì tiếp tục vá.
+```
+
+### NON-NORMATIVE INTERPRETATION — Semantic Sufficiency
+
+**KHÔNG một rule ID mới nào được tạo ở đây.** Đây là diễn giải Product Owner-approved cho cách áp dụng `G-REV-001`/`G-REV-004` đã tồn tại — KHÔNG tạo Governance/Approval process mới, KHÔNG đổi severity taxonomy, KHÔNG đổi review eligibility, KHÔNG đổi lifecycle gate, KHÔNG đổi ADR Scope Rule (Constitution Chapter 0 §4b, KHÔNG chạm), KHÔNG đổi Product Owner authority.
+
+```text
+1. G-REV-001 + G-REV-004 tối ưu cho semantic risk reduction THẬT SỰ, KHÔNG
+   phải cho prose hoàn hảo hay zero-Minor document — mục tiêu là loại đúng
+   rủi ro có thật, KHÔNG phải một con số Minor bằng không.
+2. Absence of unresolved Blocker/Major KHÔNG tự nó approve một artifact —
+   MỌI lifecycle/independent-review/Product Owner requirement hiện có VẪN
+   áp dụng nguyên vẹn, KHÔNG rule nào ở đây bypass chúng.
+3. Một finding CHỈ thuộc documentation (wording/formatting/historical
+   labeling/duplicated hoặc non-authoritative prose) KHÔNG nên tự động kích
+   hoạt một standalone correction/re-review transaction riêng theo mặc định
+   KHI higher authority (Constitution/Approved ADR/MANIFEST) ĐÃ resolve đúng
+   semantics — churn thêm không giảm rủi ro thật.
+4. Một finding như vậy CÓ THỂ carry-forward hoặc fold vào một transaction
+   tương lai ĐÃ required sẵn, khi an toàn (đúng `G-TXN-003`'s fold
+   precedent, KHÔNG đổi).
+5. Escalation VẪN đúng đắn khi issue CÓ THỂ misstate authority thật,
+   contract/implementation behavior, auditability/reproducibility, safety,
+   HOẶC khi Product Owner tường minh yêu cầu sửa — điểm 3/4 KHÔNG áp dụng
+   cho các trường hợp này.
+6. Zero Minor KHÔNG phải một ADR/package/review exit criterion bổ sung TRỪ
+   KHI một rule higher-authority tường minh yêu cầu vậy — không suy diễn
+   ngầm một ngưỡng mới.
+7. Diễn giải này KHÔNG làm yếu `G-REV-002`, Independent Review B, hay bất kỳ
+   yêu cầu remediate Blocker/Major nào — chỉ áp dụng cho phạm vi
+   documentation-only, non-blocking Minor đã mô tả ở điểm 3.
 ```
 
 ## G-BUDGET — Prompt budgets
@@ -289,4 +320,40 @@ v0.4  2026-08-11  Bounded semantic correction cho `G-ORCH-004`, đóng
       rule ID nào renumber, KHÔNG rule orchestration mới nào thêm, KHÔNG
       đổi transaction/review/ADR policy. accepted_by: Product Owner,
       accepted_at: 2026-08-11.
+v0.5  2026-08-26  Semantic-Sufficiency Clarification — vai trò: `Global
+      Execution Rules v0.5 Semantic-Sufficiency Clarification Executor`.
+      Product Owner decision nguyên văn: "APPROVE GLOBAL EXECUTION RULES
+      V0.5 SEMANTIC-SUFFICIENCY CLARIFICATION AT BOUNDARY
+      edfa1e2c9f30b8bc9fdf389f9821bf787587b04c, WITH NO NEW GOVERNANCE
+      PROCESS, NO NEW RULE ID, AND NO ADR." Motivating lesson: the ADR-036/
+      Package 1.1 alignment sequence (ADR-036 v0.1→v0.3 bounded corrections,
+      the Package 1.1 alignment transaction, then its own v1.4→v1.5 bounded
+      correction for two non-blocking Review-B Minors, then reconsolidation)
+      showed a pattern of documentation-only/non-blocking findings each
+      triggering a full standalone bounded-correction-plus-re-review round,
+      consistent with `G-REV-001`/`G-REV-004`'s letter but producing more
+      process churn than the actual semantic risk warranted. Adds a
+      NON-NORMATIVE INTERPRETATION — Semantic Sufficiency block immediately
+      after `G-REV-001..004` (no new `G-*` rule ID) clarifying, WITHOUT
+      creating a new gate: (1) `G-REV-001`/`G-REV-004` optimize for real
+      semantic risk reduction, not perfect prose or zero-Minor documents;
+      (2) absence of unresolved Blocker/Major does NOT itself approve an
+      artifact, all existing lifecycle/independent-review/Product Owner
+      requirements still apply; (3) a documentation-only issue should not
+      by default trigger a standalone correction/re-review transaction when
+      higher authority already resolves the correct semantics; (4) such an
+      issue may be carried forward or folded into an already-required
+      future transaction when safe (`G-TXN-003` precedent); (5) escalation
+      remains appropriate when the issue can misstate real authority,
+      contract/implementation behavior, auditability/reproducibility,
+      safety, or when Product Owner explicitly requires correction; (6)
+      zero Minor is NOT an additional ADR/package/review exit criterion
+      unless a higher-authority rule explicitly requires it; (7) this
+      interpretation does not weaken `G-REV-002`, Independent Review B, or
+      any Blocker/Major remediation requirement. This is a clarification of
+      EXISTING rules, NOT a new process — `G-REV-001..004` wording, all
+      other rule IDs/wording, the Authority hierarchy, ADR Scope Rule,
+      review eligibility, and lifecycle gates are all unchanged, byte-
+      identical. No ADR authored. accepted_by: Product Owner, accepted_at:
+      2026-08-26.
 ```
