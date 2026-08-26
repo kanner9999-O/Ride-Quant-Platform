@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.243"
+manifest_version: "10.244"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -10467,6 +10467,104 @@ Package 1.1: `candidate` (unchanged). Phase 3 Approval Gate: NOT opened. LIVE: N
 ChatGPT bounded Review-A re-review of these two corrected passages, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. Does not itself perform Review B, package reconsolidation, or Stream Registry/Input Contract authoring.
 
 **Files changed:** `docs/architecture/system-decomposition.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Package 1.1 ADR-036 Alignment — Product Owner Reconsolidation (`Consolidated Stable` — mechanical lifecycle transaction only)
+
+**Atomic mechanical reconsolidation-recording transaction — vai trò: `Package 1.1 ADR-036 Alignment Mechanical Reconsolidation Recorder`.** Product Owner decision (verbatim): `APPROVE PACKAGE 1.1 ADR-036 ALIGNMENT RECONSOLIDATION AT BOUNDARY 2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a`, recorded `2026-08-26T14:52+07:00`. Does not alter module identities, taxonomy, responsibilities, `consumes`/`emits`, dependencies, tallies, §8/§15 semantics, Decision 10, `ADR-036`, any other ADR/governance/Domain Contract/code, Feature findings, Tier/QG/gate, Stream Registry/Input Contract, or LIVE state.
+
+**Baseline:** branch `main`, HEAD `2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a` (verified via `git rev-parse HEAD` before any edit; matches exact required reviewed candidate boundary; tracked tree clean except pre-existing unrelated untracked `.DS_Store` clutter). `manifest_version` confirmed `"10.243"` at start. `docs/architecture/module-registry.yaml` confirmed `version: "1.6"`, `status: Draft`, `package_lifecycle: candidate`, content identity `b4b7b609befdfe63fad4c18f33e94223ea608795` before this transaction. `docs/architecture/system-decomposition.md` confirmed `version: "1.5"`, `status: Draft`, content identity `fa7b49c3619e341d52ee5cef46add681a908d877` before this transaction. `docs/adr/ADR-036.md` re-verified `version: "0.3"`, `status: Approved`, content identity `bfd75b3010d04826763ae6b98602b4f9443561c3` (unchanged, immutable). `docs/team/team.yaml` re-read fresh: `ChatGPT` and `Claude` both registered role `AI Technical Architect`; `Claude` carries registered alias `Independent Review B`; both distinct principal identities (Mode A `DISTINCT_PRINCIPAL` eligible).
+
+```text
+File                                       Version (unchanged)   package_lifecycle          Content identity
+docs/architecture/module-registry.yaml      1.6, status Draft     candidate -> Consolidated  b4b7b609befdfe63fad4c18f33e94223ea608795 ->
+                                                                    Stable                    5b7c50488578cb204ca5304d4e62bdcdc81ed6e3
+docs/architecture/system-decomposition.md   1.5, status Draft     (n/a — top-of-file banner  fa7b49c3619e341d52ee5cef46add681a908d877 ->
+                                                                    records the decision)      526b0ddec51b3b6ba0187f5701d39c39f89d30ef
+```
+
+### Review-record provenance (G-VERIFY-001 — verified, not merely restated)
+
+```text
+Both P11-ADR036-ALIGN-B-MIN-01 and P11-ADR036-ALIGN-B-MIN-02 match exactly the two findings
+  this session's own "Package 1.1 v1.5 — ADR-036 Alignment Bounded Correction" transaction
+  (immediately preceding this one, HEAD 0390a55 -> 2c77a7b) recorded and remediated —
+  verified against that transaction's own recorded content in this MANIFEST. Both reviewer
+  principals (ChatGPT, Claude/"Independent Review B" alias) resolved fresh against
+  docs/team/team.yaml. Review B's execution/session reference was stated by the governing
+  task as "not available" — recorded honestly as N/A, none fabricated. Both bounded reviews
+  are recorded at the single exact reviewed boundary supplied
+  (2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a) — no intermediate boundary fabricated.
+```
+
+### Atomic lifecycle transition (mechanical only — Chapter 0 §7.1 package-lifecycle/artifact-status separation)
+
+```text
+module-registry.yaml:       version "1.6" -> "1.6" (unchanged); status Draft -> Draft
+                             (unchanged); package_lifecycle candidate -> Consolidated Stable.
+system-decomposition.md:    version "1.5" -> "1.5" (unchanged); status Draft -> Draft
+                             (unchanged); new top-of-file CONSOLIDATED STABLE banner records
+                             the same lifecycle transition (this file has no separate
+                             package_lifecycle YAML field — lifecycle state is recorded in
+                             prose banner, per this file's own established convention).
+No module_id/module_type/responsibilities/implements_capabilities/serves_contexts/
+  owns_authoritative_state/consumes/emits/depends_on/forbidden_dependencies/plugin_relation/
+  security_classification/phase/status/notes field changed on ANY of the 27 modules
+  (script-verified: parsed old vs. new module-registry.yaml, `modules` list byte-for-byte
+  equal). `Consolidated Stable` is a package lifecycle/readiness state (Chapter 0 §7.1) — it
+  does NOT mean either artifact is `Approved`/`Locked`; `status: Draft` unchanged on both.
+```
+
+### Review eligibility evidence
+
+```text
+Review A — ChatGPT, AI Technical Architect: bounded re-review at boundary
+  2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a — both P11-ADR036-ALIGN-B-MIN-01 and
+  P11-ADR036-ALIGN-B-MIN-02 CLOSED, zero new Blocker/Major, disposition PASS.
+Review B — Claude (alias: Independent Review B), AI Technical Architect: bounded re-review at
+  the same boundary — both findings CLOSED, zero new Blocker/Major, disposition
+  BOUNDED_REVIEW_CLEAN, READY_FOR_PRODUCT_OWNER_RECONSOLIDATION. Execution/session reference:
+  N/A — not available, none fabricated.
+ADR-031 independence mode: DISTINCT_PRINCIPAL (Mode A) — two distinct principal identities.
+Independent-review requirement (minimum two): SATISFIED.
+P11-ADR036-ALIGN-B-MIN-01/-MIN-02: both CLOSED. Unresolved findings at this boundary:
+  Blocker 0, Major 0, Minor 0.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ADR-036.md unchanged (verified git diff --quiet -- docs/adr/ADR-036.md). No other
+  ADR touched — all 36 ADR files byte-identical (verified git diff --quiet -- docs/adr/). No
+  Constitution/governance file touched. No context-map.yaml touched. No Domain Contract
+  touched. No implementation/test file touched (verified git diff --quiet -- python/ go/).
+  No docs/architecture/stream-registry.yaml or Feature Input Contract authored. All 27
+  modules' semantic fields verified byte-identical (script-checked). §8/§15 prose, Decision
+  10, and all §4/§7 tallies in system-decomposition.md unchanged in substance — only the new
+  top-of-file lifecycle banner added. No Quality Tier assigned. No Quality Gate run. No
+  package/gate state changed beyond package_lifecycle itself. LIVE NOT authorized.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — reconsolidation is a mechanical lifecycle-state
+  transition only; it performs no step of MAJ-04's own remediation sequence.
+P3-FEATURE-A-MAJ-06: remains OPEN — same reason; per ADR-036's own Consequences, concrete
+  Stream Registry authoring and the Feature-scoped Input Contract must still follow before
+  Feature code is unblocked. Reconsolidation does not accelerate or alter that ordering.
+Structure Engine / Raw Regime Engine / Context / all other modules: unaffected, unreferenced.
+Package 1.1: `Consolidated Stable` (module-registry.yaml's own field) — both artifacts remain
+  `status: Draft`, `approved_by`/`approved_at` not applicable to Package 1.1 itself (Chapter
+  0 §7.1 separation). Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT deterministic verification of this reconsolidation transaction, at the resulting immutable commit boundary. Does not itself start Stream Registry/Input Contract authoring or Feature implementation.
+
+**Files changed:** `docs/architecture/module-registry.yaml`, `docs/architecture/system-decomposition.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

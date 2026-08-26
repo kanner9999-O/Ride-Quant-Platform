@@ -1,5 +1,38 @@
 # Module Registry — Package 1.1 (Phase 1, System Decomposition & Module Registry)
 #
+# CONSOLIDATED STABLE (package lifecycle, 2026-08-26T14:52+07:00 -- Product Owner decision
+# timestamp supplied at MINUTE precision only, NOT padded with a fabricated seconds field,
+# distinct from execution/commit time, vai trò: `Package 1.1 ADR-036 Alignment Mechanical
+# Reconsolidation Recorder`) -- status: Draft, NOT Approved/Locked. Product Owner decision
+# verbatim: "APPROVE PACKAGE 1.1 ADR-036 ALIGNMENT RECONSOLIDATION AT BOUNDARY
+# 2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a." Reviewed immutable semantic boundary:
+# 2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a (the v1.5/v1.6 bounded-correction commit itself --
+# closes P11-ADR036-ALIGN-B-MIN-01/P11-ADR036-ALIGN-B-MIN-02 -- same commit HEAD this
+# transaction started from, verified via git rev-parse HEAD before any edit).
+#
+# Review evidence: bounded Review A (principal ChatGPT, role AI Technical Architect,
+# reviewed boundary 2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a) -- both
+# P11-ADR036-ALIGN-B-MIN-01 and P11-ADR036-ALIGN-B-MIN-02 CLOSED, zero new Blocker/Major,
+# PASS. Independent Review B (principal Claude, alias "Independent Review B", role AI
+# Technical Architect, Mode A DISTINCT_PRINCIPAL relative to ChatGPT per ADR-031, reviewed
+# boundary 2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a, execution/session reference NOT
+# available -- none fabricated) -- both findings CLOSED, zero new Blocker/Major, disposition
+# BOUNDED_REVIEW_CLEAN, READY_FOR_PRODUCT_OWNER_RECONSOLIDATION. Independent-review
+# requirement: SATISFIED.
+#
+# Mechanical lifecycle transaction -- `version: "1.6"` UNCHANGED (no content/architecture
+# change, pure lifecycle-state reconsolidation), `status: Draft` UNCHANGED,
+# `package_lifecycle: candidate -> Consolidated Stable`. **No semantic registry content
+# altered by this transaction** -- `stream-registry-authority` and every other module_id's
+# fields (module_type/responsibilities/implements_capabilities/serves_contexts/
+# owns_authoritative_state/consumes/emits/depends_on/forbidden_dependencies/plugin_relation/
+# security_classification/phase/status/notes, all 27 modules) preserved byte-identical.
+# `system-decomposition.md` consolidates in parallel at its own reviewed version, `"1.5"` --
+# two files, each records its own correct version, no cross-file normalization (same
+# precedent this file already established). `QG-P14-E-EVID-01`/`G2-RDY-BLK-03` unaffected --
+# reconsolidation does NOT authorize implementation/Gate 2/Phase 2/LIVE, does NOT author
+# stream-registry.yaml/Feature Input Contract, does NOT touch P3-FEATURE-A-MAJ-04/-06.
+#
 # Evidence-fidelity correction (2026-08-20, vai trò: `Package 1.1 v1.3 Evidence-Fidelity
 # Correction Executor`) -- mechanical, non-semantic. Corrects `P11-V13-A-MIN-01` (Review
 # A/Independent Review B-confirmed Minor, non-blocking): the "v1.2 semantic amendment"
@@ -635,7 +668,7 @@ registry_id: phase-1-module-registry
 version: "1.6"
 status: Draft
 package: "1.1"
-package_lifecycle: candidate
+package_lifecycle: Consolidated Stable
 generated_at: "2026-08-10"
 
 modules:

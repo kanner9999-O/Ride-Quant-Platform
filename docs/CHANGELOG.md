@@ -2,6 +2,43 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — Package 1.1 ADR-036 alignment: Product Owner reconsolidation (`Consolidated Stable`)
+
+**Atomic mechanical reconsolidation-recording transaction.** Product Owner decision (verbatim): `APPROVE PACKAGE 1.1 ADR-036 ALIGNMENT RECONSOLIDATION AT BOUNDARY 2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a`, recorded `2026-08-26T14:52+07:00`. Baseline HEAD `2c77a7bc525bdb0f7f754a9bc44877bd9bf7987a`.
+
+### Approved (lifecycle only)
+
+```text
+module-registry.yaml (version "1.6" unchanged, status Draft unchanged):
+  package_lifecycle candidate -> Consolidated Stable.
+system-decomposition.md (version "1.5" unchanged, status Draft unchanged):
+  new top-of-file banner records the same reconsolidation decision.
+
+Review A (ChatGPT) and Review B (Claude, alias "Independent Review B") both
+  bounded-re-reviewed at boundary 2c77a7bc — P11-ADR036-ALIGN-B-MIN-01 and
+  P11-ADR036-ALIGN-B-MIN-02 both CLOSED, zero new Blocker/Major, Mode A
+  (DISTINCT_PRINCIPAL) independence satisfied. Review B execution/session
+  reference recorded N/A (not available, none fabricated).
+
+No module identity/taxonomy/responsibility/consumes/emits/dependency/tally/
+  Decision-10/§8/§15-semantic content changed — script-verified all 27
+  modules' fields byte-identical before/after. ADR-036 untouched, frozen.
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml (blob b4b7b609befdfe63fad4c18f33e94223ea608795 ->
+  5b7c50488578cb204ca5304d4e62bdcdc81ed6e3), docs/architecture/system-decomposition.md
+  (blob fa7b49c3619e341d52ee5cef46add681a908d877 -> 526b0ddec51b3b6ba0187f5701d39c39f89d30ef),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.243" -> "10.244".
+  No other file touched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT deterministic verification of this reconsolidation transaction.
+
 ## [Unreleased] — 2026-08-26 — Package 1.1 v1.5: ADR-036 alignment bounded correction, two Review-B Minors
 
 **Bounded correction only** — not a Review A/B round, not a reconsolidation, no module-registry.yaml/ADR-036/implementation touched. Baseline HEAD `0390a554b7ce2d1c398764af7418b5f857b742d2`.
