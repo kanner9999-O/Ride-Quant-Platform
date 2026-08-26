@@ -1,0 +1,51 @@
+# Input Contract — Feature Candle profile (Chapter 8 §8.3.4)
+#
+# Feature-scoped Input Contract instance for feature_type IN {volatility_metric,
+# directional_persistence_metric} WHEN the pinned feature_definition_version selects
+# upstream_source: candle (feature.md §6/§7.1-§7.2/§14). Selection is made entirely by
+# Feature Definition semantics (feature.md §6's upstream_source field) — this Input
+# Contract does NOT replace or duplicate feature_definition_version; it only supplies
+# the cross-mode input scope + merge + frontier semantics feature.md's own
+# computation_cursor.input_contract_ref (ADR-035, Approved) pins.
+#
+# Derivation, not invention: feature.md §14's own authoritative upstream enumeration
+# lists exactly candle-closed/candle-corrected for this path — this contract's
+# included_streams is the direct, mechanical transcription of that enumeration onto
+# Approved ADR-036's stream topology (docs/architecture/stream-registry.yaml v0.1,
+# registry_version v1). No new architecture decision is made by this file.
+#
+# Event Contract eligibility (which event TYPES may target market-data-ingestion-candle)
+# is deliberately NOT represented here (Chapter 8 §8.3.1's one-way declaration rule) —
+# that remains exclusively each event type's own Event Contract, not yet authored in
+# this repository (same class of gap already flagged for computation_cursor's own
+# fail-closed prerequisite, feature.md §12/ADR-035 §Consequences).
+
+schema_version: 1
+version: "0.1"
+status: Draft
+owner: Product Owner
+generated_at: "2026-08-26"
+
+input_contract_ref:
+  contract_id: feature-candle-input
+  contract_version: v1
+
+stream_registry_version: v1
+
+included_streams:
+  - market-data-ingestion-candle
+
+merge_policy:
+  algorithm: deterministic-causal-topological-order
+  concurrent_tie_break: [stream_id, sequence]
+
+frontier_policy:
+  mechanism: committed-stream-position-vector
+  completeness_rule: all-included-streams-gap-free-committed-prefix
+  late_arrival_behavior: defer-to-later-cursor
+  buffer_limit_policy: unbounded-defer-fail-safe
+  incomplete_frontier_behavior: defer-or-fail-safe-no-speculative-apply
+
+causal_closure_policy:
+  mode: declared-state-dependencies
+  dependency_authority: per_effect_event_contract

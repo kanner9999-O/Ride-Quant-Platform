@@ -1,7 +1,7 @@
 ---
 id: feature-context-architecture
 title: "Package 1.3-B — Feature & Context Engine Architecture"
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 ---
 
 # Package 1.3-B — Feature & Context Engine Architecture
+
+**CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-26, vai trò: `Feature Input Contract + Frontier Design Executor`) — artifact status: Draft, KHÔNG Approved/Locked.** v0.2 → v0.3: genuine semantic addition, NOT a bounded parity/wording correction — new §4.6 "Feature-scoped Input Contract selection và frontier design" (Chapter 8 §8.3.4 — mechanical Phase-1 instantiation of Approved ADR-036 Consequences step 6, no new architecture decision: the contract-selection mapping is fully derived from already-Approved `feature.md` §6/§14, and `included_streams` is fully derived from Approved `ADR-036`'s topology as concretized in Approved `docs/architecture/stream-registry.yaml` v0.1); §13's `stream-registry.yaml / producer_ref resolution` gap entry updated to reflect that `stream-registry.yaml` and three Feature-scoped Input Contract Drafts now exist (artifact-existence half resolved), while `stream_ref`/`producer_ref` code population, Event Contract authoring, and Context's own Input Contract remain explicitly open. Three new concrete artifacts created: `docs/architecture/input-contracts/feature-candle-input.yaml`, `feature-regime-input.yaml`, `feature-swing-distance-input.yaml` (all Draft, v1, `stream_registry_version: v1`). `feature.md`/`context.md`/`module-registry.yaml`/`system-decomposition.md`/any ADR: NOT modified. Does not implement `feature-engine`, does not author any Event Contract, does not close `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06`. `package_lifecycle` reverts to `candidate` — a fresh Review A + Independent Review B + Product Owner reconsolidation round on this exact candidate is required before this baseline returns to `Consolidated Stable`, same precedent already established for `system-decomposition.md`'s own ADR-023/ADR-036 alignment cycles.
 
 **CONSOLIDATED STABLE (package lifecycle, 2026-08-04, Product Owner decision) — artifact status: Draft, KHÔNG Approved/Locked.** Package 1.3-B v0.2 đạt `Consolidated Stable` SAU Review A CLEAN (Blocker 0/Major 0/Minor 1) + Independent Review B REVISE (Blocker 0/Major 3/Minor 1) trên v0.1 → bounded correction tại HEAD `71007bf1063c012001eb34465f41c0ce4905b7cf` (đóng `P13B-IRB-MAJ-01`/`P13B-IRB-MAJ-02`/`P13B-IRB-MAJ-03`/`P13B-A-MIN-01`/`P13B-IRB-MIN-01`) → final bounded verification CLEAN (mọi Major finding đóng, không Minor nào còn cần correction) + Product Owner consolidation decision (2026-08-04, §15). `Consolidated Stable` LÀ package lifecycle/readiness state (Chapter 0 §7.1) — KHÔNG có nghĩa artifact `Approved`/`Locked`; `status: Draft`, `approved_by: null`, `approved_at: null` KHÔNG đổi, đúng package-lifecycle/artifact-lifecycle separation đã dùng nhất quán trong toàn bộ session này (cùng pattern Package 0.2-B4/Package 1.1/Package 1.3-A). **Open gap bảo lưu tường minh, KHÔNG blocking:** `context.md` dùng khuôn "authoritative event record" cho `MarketContextSnapshot` trong khi `context-aggregator` vẫn `module_type: projection`, `owns_authoritative_state: false`, rebuildable, KHÔNG authoritative source cho upstream hay business domain state — tension này KHÔNG được resolve bởi consolidation này, xem §13. Consolidation quyết định này KHÔNG chọn một Context authority model mới.
 
@@ -185,6 +187,86 @@ implicit fallback inputs are prohibited.
 ```
 
 Feature Engine KHÔNG có một quyền chung để đọc mọi Structure/Regime event ở cấp LAYER — chỉ những gì `feature_definition_version` cụ thể đã pin (ADR-014 "Feature" clause; `feature-engine.depends_on` ở §2 là connectivity RANH GIỚI, KHÔNG phải authorization tự động cho mọi input).
+
+### 4.6 Feature-scoped Input Contract selection và frontier design (Chapter 8 §8.3.4 — instantiates Approved ADR-036 Consequences step 6)
+
+**Not a new architecture decision.** This subsection is a mechanical Phase-1 design-spec instantiation of already-Approved authority: which Feature-scoped Input Contract instance applies to which `feature_type`/`upstream_source` combination is already fully determined by `feature.md` §6/§14 (Approved-scope Domain Contract semantics, unchanged), and which streams each contract may include is already fully determined by Approved `ADR-036`'s topology, concretized in Approved `docs/architecture/stream-registry.yaml` v0.1 (`registry_version: v1`). This subsection only records the resulting mapping and the minimum frontier/completeness design Chapter 8 §8.3.4 requires every Input Contract to declare.
+
+**Contract selection — derived, not chosen, from `feature.md` §6/§14:**
+
+```text
+feature_type ∈ {volatility_metric, directional_persistence_metric}
+  AND upstream_source: candle   → input_contract_ref: {contract_id: feature-candle-input,
+                                   contract_version: v1}
+                                   included_streams: [market-data-ingestion-candle]
+
+feature_type ∈ {volatility_metric, directional_persistence_metric}
+  AND upstream_source: regime   → input_contract_ref: {contract_id: feature-regime-input,
+                                   contract_version: v1}
+                                   included_streams: [raw-regime-engine-regime]
+
+feature_type = distance_to_last_confirmed_swing
+                                 → input_contract_ref: {contract_id: feature-swing-distance-input,
+                                   contract_version: v1}
+                                   included_streams: [market-data-ingestion-candle,
+                                   structure-engine-swing]
+```
+
+`upstream_source: candle` and `upstream_source: regime` are mutually exclusive on the same `feature_definition_version` (`feature.md` §6: "PHẢI chọn ĐÚNG MỘT") — a Feature Definition never pins more than one Input Contract. Concrete artifacts: `docs/architecture/input-contracts/feature-candle-input.yaml`, `feature-regime-input.yaml`, `feature-swing-distance-input.yaml` (all `status: Draft`, `stream_registry_version: v1` pinned to the Approved Genesis registry). All three use `merge_policy: {algorithm: deterministic-causal-topological-order, concurrent_tie_break: [stream_id, sequence]}` — Chapter 8's own single mandated interleave algorithm (ADR-009 §2.1/§2.3), not a per-contract choice — and `causal_closure_policy: {mode: declared-state-dependencies, dependency_authority: per_effect_event_contract}`, the model ADR-009 §2.4 itself exemplifies as the mechanism for an apply set spanning multiple event types/Event Contract versions (exactly Feature's situation: Candle/Swing/Regime each have their own Event Contract). **Open gap, explicitly not closed here:** `declared-state-dependencies` classification requires each consumed event type's own Event Contract to exist and declare state-dependency classification — Candle/Swing/Regime/Feature Event Contracts are not yet authored in this repository. Until they exist, this policy is correctly *pinned as architecture* but not yet *operationally provable* — the same fail-closed posture `computation_cursor` already carries (`feature.md` §12, `ADR-035` Approved): implementation must fail-closed, not assume the classification silently.
+
+**Frontier/completeness design (minimum required by Chapter 8 §8.3.4, no invented numeric threshold):**
+
+```text
+mechanism:                    committed-stream-position-vector — cursor.stream_positions is
+                               an explicit per-stream committed-position vector over exactly
+                               the contract's included_streams (Chapter 8 §8.5.3's stream-
+                               universe intersection), never a single global sequence/order
+                               (ADR-009 §2.1/§2.3, unchanged).
+completeness_rule:            all-included-streams-gap-free-committed-prefix — a frontier is
+                               complete only when every included stream's committed position
+                               represents a contiguous, gap-free prefix (Chapter 8 §8.3.2's
+                               per-stream contiguous-sequence invariant, applied per stream,
+                               never inferred from wall clock).
+in-scope causal prerequisites: per causal_closure_policy above, every in-scope causation_ref
+                               must be cursor-visible AND applied before its effect (Chapter 8
+                               §8.3.4's in-scope rule) before authoritative-apply; unresolved
+                               in-scope prerequisite at a claimed-complete cursor is an
+                               integrity violation, fail-safe (I-6), never treated as complete.
+late_arrival_behavior:        defer-to-later-cursor — a later-appended event never mutates an
+                               already-issued cursor or an already-authoritative fact; it
+                               becomes visible only to a subsequent computation's own cursor,
+                               handled entirely through feature.md's own existing correction/
+                               invalidation lineage (§9, append-only invalidate-and-replace) —
+                               no new correction mechanism introduced here.
+incomplete_frontier_behavior: defer-or-fail-safe-no-speculative-apply — when frontier
+                               completeness cannot be proven, the processor MUST buffer/defer
+                               or fail-safe (I-6); speculative apply against an incomplete
+                               frontier is prohibited in every execution mode.
+buffer_limit_policy:          unbounded-defer-fail-safe — deliberately NO numeric buffer/
+                               watermark threshold: Chapter 8 §8.3.4 permits watermark/bounded-
+                               lateness mechanisms only when their clock/frontier source is
+                               itself pinned, eventized, and replay-reproducible (no such
+                               eventized frontier signal exists in this repository today) —
+                               inventing an arbitrary number here would be exactly the
+                               unauthoritative-placeholder pattern ADR-036 already rejected for
+                               stream identity. If a bounded-lateness mechanism becomes an
+                               actual operational need, it is a separate future governed
+                               design (a genuinely new, numerically-justified choice), not
+                               invented in this Phase-1 design spec.
+lifecycle_frontier / registry
+  applicability:               unchanged from Chapter 8 §8.5/§8.5.1-§8.5.3 and ADR-009 §2.6 —
+                               computation_cursor.lifecycle_frontier and .stream_registry_version
+                               are applied exactly as already Locked/Approved, not redefined
+                               here; this subsection adds no new field and no new relational
+                               invariant beyond what §8.5.1/§8.5.2 already require.
+cross-mode parity:            Live/Backtest/Paper/Replay all pin the same
+                               {input_contract_ref, stream_registry_version} for a given
+                               computation (Chapter 8 §8.3.4's cross-mode requirement,
+                               `feature.md` §17, unchanged) — no mode-specific contract
+                               variant is introduced.
+```
+
+**Scope containment:** this subsection does not modify `feature.md`, does not author or modify any Event Contract, does not implement `feature-engine`, and does not close `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06` — per `ADR-036`'s own Consequences ordering, Feature implementation remediation (canonical `computation_cursor` population, history-preserving as-of state, restart/replay tests, `eligible_swing_selection_superseded` emission) remains a separate, still-pending governed transaction.
 
 ## 5. Module boundary — Context Aggregator
 
@@ -589,9 +671,20 @@ ADR-009 ordering protocol implementation:  cùng gap Package 1.3-A §13 — Pack
   chỉ áp dụng nguyên tắc (per-stream contiguous sequence + explicit causation), KHÔNG
   author protocol cụ thể.
 
-stream-registry.yaml / producer_ref resolution:  cùng gap Package 1.3-A §13 —
-  stream_ref/producer_ref của feature-computed/market-context-snapshot resolve từ
-  stream-registry.yaml (Chapter 8 §8.3.1, Phase 1, CHƯA author) — KHÔNG author tại đây.
+stream-registry.yaml / producer_ref resolution — PARTIALLY addressed (v0.3, KHÔNG fully
+  resolved): `docs/architecture/stream-registry.yaml` v0.1 (Approved) và ba Feature-scoped
+  Input Contract Draft (`docs/architecture/input-contracts/feature-*.yaml`, §4.6 trên) nay
+  tồn tại và persistently resolvable (Chapter 8 §8.1.1) — resolves the artifact-existence
+  half of this gap for Feature's `included_streams`/`stream_registry_version`. **VẪN mở:**
+  (a) `stream_ref.registry_version`/`producer_ref` population in actual
+  `market-data-ingestion`/`structure-engine`/`raw-regime-engine`/`feature-engine` code
+  (`"v0"`/flat placeholders identified by ADR-036, not yet replaced — Phase 3 implementation,
+  KHÔNG author tại đây); (b) Candle/Swing/Regime/Feature Event Contracts still not authored
+  (needed for `causal_closure_policy: declared-state-dependencies` to be operationally
+  provable, §4.6); (c) Context Aggregator's own `producer_ref`/`stream_ref` resolution —
+  Context has no Feature-scoped Input Contract of its own, still fully open, unchanged by
+  this correction. Same gap Package 1.3-A §13 also carries for market-data-ingestion/
+  structure-engine/raw-regime-engine's own producer_ref population.
 
 Feature Definition dual-path ambiguity (feature.md §20, author-level note, KHÔNG governance
   OQ):  khi upstream_source: regime, liệu Feature Definition có cần convert unit/

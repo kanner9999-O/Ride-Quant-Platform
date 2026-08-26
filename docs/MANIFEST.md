@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.247"
+manifest_version: "10.248"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -10746,6 +10746,104 @@ Package 1.1: `Consolidated Stable` (unchanged). Phase 3 Approval Gate: NOT opene
 ChatGPT deterministic verification of this approval transaction, at the resulting immutable commit boundary. Does not itself author the Feature-scoped Input Contract or perform any implementation.
 
 **Files changed:** `docs/architecture/stream-registry.yaml`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Feature Input Contracts + Frontier Design v0.1 — ADR-036 Consequences step 6 (`Draft`, Phase-1 design-spec instantiation, NOT a new ADR)
+
+**Governed Phase-1-design-spec authoring transaction — vai trò: `Feature Input Contract + Frontier Design Executor`.** Authors three Feature-scoped Input Contract Draft instances under `docs/architecture/input-contracts/` plus a compact contract-selection mapping and frontier/completeness design in `docs/architecture/engine/feature-context-architecture.md` (v0.2 → v0.3) — implementing ADR-036 Consequences step 6. Mechanical instantiation of already-Approved authority (`feature.md` §6/§14, `ADR-009`, `ADR-036`, `stream-registry.yaml` v0.1) — no new architecture decision, no new ADR.
+
+**Baseline:** branch `main`, HEAD `af3c9326be99b53b9b64332d6a4e40f5a1ebc978` (verified via `git rev-parse HEAD`; tree clean bar unrelated untracked `.DS_Store`). `manifest_version` `"10.247"` confirmed. `docs/architecture/input-contracts/` verified absent before this transaction. `docs/adr/ADR-036.md` re-verified `version: "0.3"`, `status: Approved`, unchanged. `docs/architecture/stream-registry.yaml` re-verified `version: "0.1"`, `status: Approved`, `registry_version: v1`, unchanged. `docs/domain/feature.md` re-verified `version: "0.5"`, `status: Draft`, unchanged. `docs/architecture/engine/feature-context-architecture.md` confirmed `version: "0.2"`, `status: Draft` before edit. `docs/governance/execution-rules.md` re-verified `version: "0.5"`, unchanged.
+
+### ADR scope/inflation check (run first, per task instruction)
+
+```text
+Result: ADR_NOT_REQUIRED. Contract-selection mapping is a direct, mechanical derivation
+  from feature.md §6/§14's own already-Approved-scope enumeration (upstream_source: candle
+  | regime enum; distance_to_last_confirmed_swing's fixed dual-stream profile) — no new
+  choice made. included_streams is a direct transcription of Approved ADR-036's topology.
+  merge_policy.algorithm is Chapter 8/ADR-009's single already-Locked interleave algorithm,
+  not a per-contract choice. causal_closure_policy mode is a Phase-1-design-spec choice
+  Chapter 8 §8.3.4 explicitly delegates, versioned/reversible at Input-Contract-version
+  granularity (§8.1.1) — not hard-to-reverse, not Locked-semantic-changing. frontier_policy
+  is exactly the "Phase 1 design specification" Chapter 8 §8.3.4 explicitly commissions
+  (per-stream committed frontier, completeness rule, late-arrival, buffer/fail-safe
+  behavior). No Locked/Approved semantic, Event Schema, module authority/dependency, or
+  ADR-009 invariant is changed. No unresolved architectural choice required a STOP.
+```
+
+### Contract selection and frontier design summary
+
+```text
+feature-candle-input v1          included_streams: [market-data-ingestion-candle]
+feature-regime-input v1          included_streams: [raw-regime-engine-regime]
+feature-swing-distance-input v1  included_streams: [market-data-ingestion-candle,
+                                  structure-engine-swing]
+All three: stream_registry_version: v1 (Genesis); merge_policy algorithm
+  deterministic-causal-topological-order, concurrent_tie_break [stream_id, sequence];
+  causal_closure_policy mode declared-state-dependencies, dependency_authority
+  per_effect_event_contract; frontier_policy mechanism committed-stream-position-vector,
+  completeness_rule all-included-streams-gap-free-committed-prefix, late_arrival_behavior
+  defer-to-later-cursor, buffer_limit_policy unbounded-defer-fail-safe (no invented
+  numeric threshold), incomplete_frontier_behavior defer-or-fail-safe-no-speculative-apply.
+Open, explicitly not closed: declared-state-dependencies classification requires
+  Candle/Swing/Regime/Feature Event Contracts, none authored yet — same fail-closed
+  posture computation_cursor already carries (feature.md §12, ADR-035).
+```
+
+```text
+File                                                          Content identity
+docs/architecture/input-contracts/feature-candle-input.yaml    69f76275246c68dd478ae46d39471934461ba6b1
+docs/architecture/input-contracts/feature-regime-input.yaml    9567a83b4e7bcb6938a9b23464b81cdf903b2825
+docs/architecture/input-contracts/feature-swing-distance-input.yaml  2c55e5e73ca624af21fb78ec8a10c10bcb9d57a2
+docs/architecture/engine/feature-context-architecture.md       "0.2" -> "0.3", package_lifecycle
+  Consolidated Stable -> candidate (reverted, genuine semantic addition), blob
+  794a0f2e8832c61a137f0f60e69701f90a0e81fe
+```
+
+### Mechanical validation
+
+```text
+All three Input Contract YAML files parse (yaml.safe_load); every included_streams value
+  resolves against stream-registry.yaml's current 7 stream_id set; stream_registry_version
+  == v1 on all three, matching the Approved Genesis registry_version exactly; no
+  allowed_event_types/Event Contract eligibility content present in any file; no
+  instrument/venue/timeframe partitioning; contract_version pinned as "v1" (exact, no
+  range) on all three, per §8.5's exact-pin rule.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ADR-036.md and all 36 ADR files byte-identical (verified git diff --quiet --
+  docs/adr/). docs/architecture/stream-registry.yaml, module-registry.yaml, and
+  system-decomposition.md unchanged (verified git diff --quiet for all three). No
+  Constitution/governance file touched. docs/domain/feature.md and all other Domain
+  Contracts unchanged. No implementation/test file touched (verified git diff --quiet --
+  python/ go/). No Tier assigned, no Quality Gate run, no gate/LIVE state changed.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction authors prerequisite design only.
+P3-FEATURE-A-MAJ-06: remains OPEN — per ADR-036's own Consequences, Feature implementation
+  remediation (step 7) still has not occurred; this transaction alone does not unblock
+  Feature code.
+market-data-ingestion / structure-engine / raw-regime-engine / feature-engine /
+  stream-registry-authority: unaffected — no module field, code, or test touched.
+Package 1.3-B (feature-context-architecture.md): package_lifecycle candidate (reverted
+  from Consolidated Stable) — a fresh Review A + Independent Review B + Product Owner
+  reconsolidation round is required before this baseline returns to Consolidated Stable.
+Package 1.1: Consolidated Stable (unchanged). Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT Review A of the Feature Input Contract/frontier candidate, at the resulting immutable commit boundary. Does not itself perform Review B, author any Event Contract, or implement `feature-engine`.
+
+**Files changed:** `docs/architecture/input-contracts/feature-candle-input.yaml` (new), `docs/architecture/input-contracts/feature-regime-input.yaml` (new), `docs/architecture/input-contracts/feature-swing-distance-input.yaml` (new), `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

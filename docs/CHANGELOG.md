@@ -2,6 +2,71 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — Feature Input Contracts + Frontier Design (Draft): ADR-036 Consequences step 6
+
+**Phase-1-design-spec authoring transaction only** — mechanical instantiation of already-Approved feature.md/ADR-009/ADR-036/stream-registry.yaml, not a new architecture decision, not a new ADR. Baseline HEAD `af3c9326be99b53b9b64332d6a4e40f5a1ebc978`.
+
+### Added
+
+```text
+docs/architecture/input-contracts/feature-candle-input.yaml (Draft, v1):
+  included_streams [market-data-ingestion-candle] -- for feature_type IN
+  {volatility_metric, directional_persistence_metric} with upstream_source: candle.
+
+docs/architecture/input-contracts/feature-regime-input.yaml (Draft, v1):
+  included_streams [raw-regime-engine-regime] -- same feature_type set with
+  upstream_source: regime.
+
+docs/architecture/input-contracts/feature-swing-distance-input.yaml (Draft, v1):
+  included_streams [market-data-ingestion-candle, structure-engine-swing] -- for
+  feature_type = distance_to_last_confirmed_swing.
+
+All three: stream_registry_version: v1 (Genesis, exact pin); merge_policy
+  deterministic-causal-topological-order / [stream_id, sequence] tie-break (Chapter
+  8/ADR-009's single mandated algorithm); causal_closure_policy
+  declared-state-dependencies / per_effect_event_contract (ADR-009 §2.4's own
+  exemplified mechanism); frontier_policy with NO invented numeric buffer/watermark
+  -- committed-stream-position-vector mechanism, gap-free-committed-prefix
+  completeness, defer-to-later-cursor late-arrival (routed through feature.md's
+  existing correction/invalidation lineage, no new mechanism), unbounded-defer-fail-
+  safe buffer policy, defer-or-fail-safe-no-speculative-apply incomplete-frontier
+  behavior.
+
+docs/architecture/engine/feature-context-architecture.md ("0.2" -> "0.3",
+  package_lifecycle Consolidated Stable -> candidate, reverted): new §4.6 records the
+  contract-selection mapping (derived from feature.md §6/§14, not chosen) and the
+  frontier design above; §13's stream-registry.yaml/producer_ref gap entry updated --
+  artifact-existence half now resolved (stream-registry.yaml + these three contracts
+  exist), stream_ref/producer_ref code population, Event Contract authoring, and
+  Context's own Input Contract remain explicitly open.
+```
+
+### ADR scope-check result
+
+```text
+ADR_NOT_REQUIRED -- contract selection is a direct derivation from already-Approved
+  feature.md §6/§14; included_streams transcribes Approved ADR-036's topology;
+  merge_policy is Chapter 8/ADR-009's single already-Locked algorithm; frontier_policy
+  is exactly the Phase-1 design specification Chapter 8 §8.3.4 delegates. No Locked/
+  Approved semantic, Event Schema, module authority/dependency, or ADR-009 invariant
+  changed.
+```
+
+### Files changed
+
+```text
+docs/architecture/input-contracts/feature-candle-input.yaml (new),
+  feature-regime-input.yaml (new), feature-swing-distance-input.yaml (new),
+  docs/architecture/engine/feature-context-architecture.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md. manifest_version "10.247" -> "10.248". No ADR/Constitution/
+  stream-registry.yaml/module-registry.yaml/system-decomposition.md/Domain
+  Contract/code touched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT Review A of the Feature Input Contract/frontier candidate.
+
 ## [Unreleased] — 2026-08-26 — Genesis Stream Registry v0.1: Product Owner Approval (`Approved`)
 
 **Atomic mechanical approval-recording transaction.** Product Owner decision (verbatim): `APPROVE GENESIS STREAM REGISTRY V0.1 AT BOUNDARY d3010f894a3cde3ecc25ffca153105ddb7344b29`, recorded `2026-08-26T15:55+07:00`. Baseline HEAD `d3010f894a3cde3ecc25ffca153105ddb7344b29`.
