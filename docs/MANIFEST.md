@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.237"
+manifest_version: "10.238"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -9718,6 +9718,125 @@ Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate
 Bounded Review-A re-review of `feature.md` v0.5 against exactly `P3-FEATURE-DC-A-MAJ-01`, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001 ("bounded semantic correction -> bounded semantic re-review, CHỈ phạm vi đã chạm"). Does not itself authorize `feature-engine` implementation remediation or Product Owner approval.
 
 **Files changed:** `docs/domain/feature.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## ADR-036 v0.1 — Genesis Stream Registry Topology, Phase-3 core analytical chain (`Draft`, candidate authoring — platform prerequisite architecture, NOT a Feature finding closure)
+
+**Governed semantic architecture-authoring transaction — vai trò: `ADR-036 Author / Genesis Stream Registry Topology Executor`.** Authors `docs/adr/ADR-036.md` v0.1 (`Draft`) deciding the initial canonical Stream Registry topology and writer-authority assignment for the Phase-3 core analytical chain (`market-data-ingestion → structure-engine → raw-regime-engine → feature-engine`): one logical stream per writer-module-owned authoritative fact family (5 non-protected streams), inherited protected Lifecycle/Audit streams (writer authority deferred to Genesis Registry authoring), stable/non-reusable stream identity, genesis-position semantics, and the Stream-Registry-vs-Event-Contract authority boundary. This is platform prerequisite architecture only — does not implement code, does not author `stream-registry.yaml`, does not author a Feature Input Contract, does not modify `feature.md`, does not approve the ADR, does not perform Review A or Independent Review B, and does not close `P3-FEATURE-A-MAJ-04` or `P3-FEATURE-A-MAJ-06`.
+
+**Baseline:** branch `main`, HEAD `17fec42385fd66deae65d19586db4c9392ebb15b` (verified via `git rev-parse HEAD` before any edit; matches exact required starting boundary; tracked tree clean except pre-existing unrelated untracked `.DS_Store`/`CLAUDE.md` clutter). `manifest_version` confirmed `"10.237"` at start. `docs/adr/ADR-036.md` verified absent before this transaction (ADR-035 confirmed the highest existing ADR). `docs/domain/feature.md` re-verified `version: "0.5"`, `status: Draft`, content identity `bbf4a4dea3e52821855c15264fddf5489c36191f` (unchanged). `docs/adr/ADR-009.md` re-verified `status: Approved`, content identity `2667b860ee5568979a3853e0c6703d0c873d45d0` (unchanged, immutable). `docs/adr/ADR-035.md` re-verified `version: "0.2"`, `status: Approved`, content identity `dd4e627aa06af0ad824e89c61cb7ab8e4cb05999` (unchanged, immutable). `docs/architecture/module-registry.yaml` re-read, content identity `5594a5b514947406046124c95f6df174afe9dfa1` (unchanged, Draft/`candidate`, unaffected). No `docs/architecture/stream-registry.yaml` exists anywhere in the repository (verified via `find`) — confirming the gap this ADR is prerequisite to closing is real, not assumed.
+
+```text
+ADR ID:                   ADR-036
+Version:                  "0.1"
+Status:                   Draft
+Content identity:         git hash-object docs/adr/ADR-036.md = 899ce6c283160232b5435fbfe1c2fd970777c605
+                           (111 lines)
+owner:                     Product Owner (final approval authority — unchanged, no approval
+                           granted or implied by this transaction)
+approved_by / approved_at: null / null
+reviewers:                 [] (no review executed against this candidate)
+depends_on:                [] (informed by, but not structurally dependent on, ADR-009/
+                           ADR-035 — neither superseded or amended; both remain unchanged)
+supersedes:                []
+```
+
+### ADR Scope Rule
+
+```text
+ADR_REQUIRED, per Chapter 0 §4b — independently triggered by the `>1 module`/hard-to-reverse
+  Event-Model-change tests (Chapter 8 §8.3.1's own text: "creating/deleting/splitting a
+  stream, or changing writer authority, is an Event-Model change -> ADR Required"), NOT by
+  "P3-FEATURE-A-MAJ-06 needs another ADR" (explicitly rejected as sufficient justification
+  per this task's own instruction). Direct verification confirmed no already-Approved
+  authority pins the concrete stream identities/topology/writers needed: Chapter 8 §8.3.1/
+  §8.5 and ADR-009 §6 explicitly defer concrete topology/writer/genesis mechanics to "Phase 1
+  design specification"; no stream-registry.yaml exists (verified via `find`); no ADR 001-035
+  addresses this. Affects four already-registered modules simultaneously and is hard to
+  reverse once event data accumulates under a chosen topology.
+```
+
+### Verified authorities (fresh source inspection, not copied from this task's prompt)
+
+```text
+Chapter 8 (08-event-model.md, Locked v4.8): re-read §8.3.1 (Stream Registry sole authority
+  for identity/topology/writer/lifecycle/sequence/genesis; Event Contract owns only
+  allowed_streams eligibility, no duplication), §8.3.2 (per-stream contiguous sequence,
+  single-writer, atomic allocation), §8.3.3 (no global total order, no cross-stream sequence
+  comparison), §8.3.5 (protected Lifecycle Stream and Audit Stream, cannot be retired), §8.4/
+  §8.5 (platform-lifecycle used consistently as the Lifecycle Stream's illustrative example
+  stream_id across every worked example — confirmed via targeted grep at lines 23/231/581/
+  596/601/647/680/682/697/735/749 — but NOT stated anywhere as an explicitly Locked mandatory
+  literal string; no existing literal example name found for the Audit Stream concept).
+ADR-009 (Approved): re-read §2.1 (per-stream contiguous sequence), §2.3 (no global total
+  order model, stream_positions must stay a bounded per-stream map), §2.4 (Input Contract
+  cross-mode, explicitly out of this ADR's decision scope), §2.6 (Genesis Registry defines
+  exactly one canonical Lifecycle Stream and one canonical Audit Stream, both protected — no
+  literal name pinned by ADR-009 either, only the existence/cardinality requirement), §5
+  (Scale check: exchange 20, strategy 50, stream "hàng trăm" — confirmed this is a
+  platform-wide total, not a per-analytical-module figure, used directly as this ADR's own
+  Scale check basis), §6 (concrete registry/topology mechanics explicitly deferred to Phase 1
+  design spec — confirms no already-Approved authority forecloses this decision).
+ADR-035 (Approved, v0.2): re-read Consequences/fail-closed rule — confirmed computation_cursor
+  requires a genuinely persistently-resolvable Stream Registry/Input Contract before ADR-034's
+  invalidation cause can actually be emitted; this is the exact prerequisite gap ADR-036
+  exists to unblock (without itself closing it).
+module-registry.yaml (Draft v1.5, package_lifecycle candidate): re-read entries for
+  market-reference-service, market-data-ingestion, structure-engine, raw-regime-engine,
+  feature-engine — confirmed each of the four writer modules already holds
+  owns_authoritative_state: true and is the sole registered implementation of its capability
+  (Chapter 3 §3.1), directly supporting one-writer-per-stream = one-module-per-stream.
+Current implementation code (ground-truth evidence only, never treated as architecture
+  authority): go/market-data-ingestion/internal/publish/memory.go (`fakeStreamID =
+  "candle-events-fake"`, explicitly commented placeholder single-stream topology);
+  python/raw-regime-engine/.../regime.py (`stream_id: str = "regime"`, flat default);
+  python/structure-engine/.../swing.py (`stream_id: str = "swing"`, flat default) vs.
+  python/structure-engine/.../structure.py `_structure_stream_id()` (`f"structure:
+  {structure_subject_id}"`, subject-scoped) — confirmed internally inconsistent within the
+  SAME module; python/feature-engine/.../regime_passthrough.py and swing_distance.py (both
+  `stream_id: str = "feature"`, flat default). This inconsistency is direct evidence no
+  existing convention is even internally self-consistent, reinforcing ADR_REQUIRED.
+docs/templates/adr-template.md: re-read — ADR-036.md structure/fields verified conformant.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/domain/feature.md unchanged (verified git diff --quiet -- docs/domain/). No
+  implementation/test file touched (verified git diff --quiet -- python/ go/). module-
+  registry.yaml unchanged. Constitution/governance unchanged — Chapter 8 (Locked) NOT
+  touched, NOT amended; this ADR inherits Chapter 8/ADR-009's protected-stream semantics
+  without redefining them. No existing Approved ADR mutated (verified git diff --quiet for
+  docs/adr/ADR-001.md through ADR-035.md, all 35 prior ADR files byte-identical). No
+  stream-registry.yaml authored (still does not exist). No Feature Input Contract authored.
+  No stream topology approved: `status: Draft`, `approved_by: null`, `approved_at: null`.
+  ADR-036.md's Independent Reviews table is the unfilled template — no reviewer identity or
+  review result fabricated. P3-FEATURE-A-MAJ-04/MAJ-06 not touched — no finding state
+  transition performed.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — unaffected; ADR-036 authoring is an independent
+  platform-prerequisite architecture decision, not a step in MAJ-04's own remediation.
+P3-FEATURE-A-MAJ-06: remains OPEN — this transaction authors prerequisite topology
+  architecture only; ADR-036 approval alone does not unblock Feature code (see ADR-036's own
+  Consequences 7-step follow-on ordering); no finding state transition performed here.
+market-data-ingestion / structure-engine / raw-regime-engine: unaffected — no code, tests,
+  Domain Contract, or Quality Tier/Gate state touched for any of the four writer modules.
+module-registry.yaml / dependency graph / other Domain Contracts / other ADRs / Constitution
+  / governance: all unchanged.
+Package 1.1: candidate (unchanged) — NOT reconsolidated. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Independent read-only Review A (ChatGPT) of `ADR-036`, at the resulting immutable commit boundary — architecture/authority-class review per P3-REVIEW-001 ("new architecture/authority/contract semantics -> full governed review"). Does not itself perform Review B, does not author `stream-registry.yaml`, and does not perform any implementation.
+
+**Files changed:** `docs/adr/ADR-036.md` (new file), `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

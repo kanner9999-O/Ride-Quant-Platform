@@ -2,6 +2,67 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — ADR-036 v0.1 (Draft): Genesis Stream Registry topology candidate
+
+**ADR-authoring transaction only** — platform prerequisite architecture for the missing concrete Stream Registry topology/writer authority behind the Phase-3 core analytical chain (`market-data-ingestion → structure-engine → raw-regime-engine → feature-engine`). Not justified by "MAJ-06 needs another ADR" — independently triggered by the missing concrete Stream Registry authority itself. No `feature.md`/implementation/other-ADR touched, no `stream-registry.yaml`/Input Contract authored. Baseline HEAD `17fec42385fd66deae65d19586db4c9392ebb15b`.
+
+### Added
+
+```text
+docs/adr/ADR-036.md (Draft, v0.1, unapproved): decides the minimum Genesis
+  Registry topology as one logical stream per writer-module-owned
+  authoritative fact family — market-data-ingestion-candle,
+  structure-engine-swing, structure-engine-structure,
+  raw-regime-engine-regime, feature-engine-feature (5 non-protected
+  streams) — each with exactly one writer authority, the module already
+  registered in module-registry.yaml as sole owner of that fact family.
+
+Inherits, without redefining, the two ADR-009-mandated protected streams
+  (canonical Lifecycle Stream, canonical Audit Stream); recommends
+  (does not mandate) reusing Chapter 8's own recurring illustrative name
+  "platform-lifecycle" and proposes "platform-audit" for the Audit Stream,
+  deferring their writer-authority assignment to the future Genesis
+  Registry authoring transaction.
+
+Pins: stable/non-reusable stream identity + genesis_position: 0 for all
+  five new streams; stream_ref.registry_version resolution path once a
+  concrete Genesis Registry exists (no real data migration needed — Phase
+  3 development only, no production event log); the Stream-Registry-vs-
+  Event-Contract authority boundary (registry never duplicates
+  allowed_streams eligibility); unchanged per-stream contiguous/
+  single-writer sequence, no cross-stream comparison/global ordinal;
+  explicit non-grandfathering of existing "v0"/flat/subject-scoped
+  stream_id placeholders found in market-data-ingestion/structure-engine/
+  raw-regime-engine/feature-engine code.
+
+Four alternatives evaluated and rejected: scope-partitioned streams
+  (module + instrument/venue/timeframe — stream-count explosion against
+  ADR-009 §5's platform-wide "hàng trăm" scale envelope); one shared
+  analytical stream (violates single-writer-per-stream); preserving
+  current arbitrary caller-supplied stream IDs as authority (unauthoritative,
+  internally inconsistent even within structure-engine itself).
+```
+
+### Not performed in this transaction
+
+```text
+No Review A/B, no Product Owner decision, no stream-registry.yaml or
+  Feature Input Contract authored, no feature.md/code/test change, no
+  P3-FEATURE-A-MAJ-04/-06 remediation or closure. ADR-009/ADR-035 verified
+  byte-identical and Approved throughout.
+```
+
+### Files changed
+
+```text
+docs/adr/ADR-036.md (new), docs/MANIFEST.md, docs/CHANGELOG.md.
+manifest_version "10.237" -> "10.238". No other file touched.
+```
+
+### Next governed action (not performed here)
+
+Independent read-only Review A (ChatGPT) of ADR-036 at the resulting immutable boundary. Does not itself perform Review B or author the registry.
+
 ## [Unreleased] — 2026-08-26 — feature.md v0.5: bounded correction (dual visibility meaning)
 
 **Bounded correction only** — not a Review A re-review, not an approval, no implementation/ADR/swing.md touched. Baseline HEAD `bd9688925e48278fcc0dda9ed7dcc975f123edd5`.
