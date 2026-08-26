@@ -1,7 +1,7 @@
 ---
 id: feature-context-architecture
 title: "Package 1.3-B — Feature & Context Engine Architecture"
-version: "0.4"
+version: "0.5"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,8 @@ depends_on: ["00-governance", "02-platform-invariants", "03-engineering-principl
 ---
 
 # Package 1.3-B — Feature & Context Engine Architecture
+
+**CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-26, vai trò: `Feature Frontier Second Bounded Correction Executor`) — artifact status: Draft, KHÔNG Approved/Locked.** v0.4 → v0.5: second bounded semantic correction, closes ChatGPT Review A findings `P3-FEATURE-FRONTIER-A-MAJ-01`, `P3-FEATURE-FRONTIER-A-MAJ-02` on the v0.4 candidate; `MIN-01` (already closed at v0.4) untouched. **MAJ-01** (v0.4's per-stream direct reads were not certified coherent with a single registry/lifecycle boundary, and implicitly assumed simultaneity): §4.6 no longer describes the per-stream reads as happening "at the same instant" — they are explicitly sequential. Adds a lifecycle-frontier BRACKET certification protocol reusing only already-Locked Chapter 8 §8.3.1 `active_registry_at`/§8.5.1 `lifecycle_frontier` machinery: read `platform-lifecycle` position before capture (`L_before`), lock `registry_version = active_registry_at(L_before)`, perform the per-stream reads + causal closure, then read `platform-lifecycle` again (`L_after`); if `L_after == L_before` the cut is certified coherent (no registry/lifecycle transition occurred anywhere across the sequential capture); if not, the ENTIRE capture is discarded and retried from the start — deterministic fail-safe/retry, never an invalid cursor, never a numeric race-timeout field, no new coordinator service. **MAJ-02** (single-extension shortcut did not handle transitive dependencies and conflated "not yet committed" with "broken reference"): replaced with a fixed-point iterative closure — every extension recurses into the newly-included event's own causation_refs until no unresolved in-scope dependency remains; termination is guaranteed (not assumed) because Chapter 8 §8.3.4 already Locks `P_global` as a mandatory, finite, acyclic DAG. Three causation_ref cases now explicitly distinguished (Chapter 8 §8.2.3/§8.3.4/§8.3.5's own validation-chain pattern, not invented): (1) valid in-scope cause outside the cut → bounded extend + recurse; (2) valid external non-state cause → existence-proof only, per already-Locked §8.3.4 carve-out, never extended; (3) broken/unresolvable canonical reference (locator resolves to nothing, or to a mismatched event_id) → immediate integrity-violation fail-safe (I-6), never "wait for next trigger." Authoritative-apply is permitted only at the fixed point. **Preserved unchanged:** all three `contract_id`/`contract_version: v1`/`stream_registry_version: v1`/`included_streams`/`merge_policy`/`causal_closure_policy`; the v0.4 `MIN-01` correction; the Event-Contract fail-closed gap; `late_arrival_behavior`/`buffer_limit_policy` values; `feature.md`/`module-registry.yaml`/`system-decomposition.md`/any ADR (all unmodified); `package_lifecycle` remains `candidate`. ADR scope re-check: `ADR_NOT_REQUIRED` — the bracket protocol and fixed-point closure reuse only already-Locked Chapter 8 machinery (`active_registry_at`, `lifecycle_frontier`, DAG/acyclicity, existing validation-chain pattern), introduce no new authoritative event/schema, no new module responsibility, no dependency-graph change, and remain squarely within ADR-009's own delegated Phase-1 design space. Does not implement `feature-engine`, does not author any Event Contract, does not close `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06`.
 
 **CANDIDATE (package lifecycle, reverted from Consolidated Stable, 2026-08-26, vai trò: `Feature Input Contract / Frontier Bounded Correction Executor`) — artifact status: Draft, KHÔNG Approved/Locked.** v0.3 → v0.4: bounded semantic correction, closes ChatGPT Review A findings `P3-FEATURE-FRONTIER-A-MAJ-01`, `P3-FEATURE-FRONTIER-A-MAJ-02`, `P3-FEATURE-FRONTIER-A-MIN-01` on the v0.3 candidate. **MAJ-01** (frontier "complete" was defined merely as gap-free per-stream prefixes, no evidentiary basis for closure against delivery lag): §4.6 now specifies committed-position evidence as a direct, synchronous read against each included stream's own authoritative log at cut-capture instant (Chapter 8 §8.1's already-Locked source-vs-transport separation, applied — no new authority), makes the dual-stream swing-distance cut provably safe (independent per-stream reads, P_run governed only by causation_refs/tie-break, never read-timing), and specifies exact `computation_cursor` capture (`stream_positions`, `recorded_time = max(...)`, `lifecycle_frontier` via the same discipline) — no separate coordinator/checkpoint service introduced. **MAJ-02** (`incomplete_frontier_behavior`/`buffer_limit_policy` used ambiguous "or"/unbounded values): pinned to exactly one deterministic protocol — bounded single-position extension read, then either cut extends and applies, or FAIL-SAFE-DEFER-TO-NEXT-TRIGGER (no timer/counter/numeric buffer); authoritative computation semantics explicitly distinguished from operational resource exhaustion (crash/abort, no alternate success path, identical across all four execution modes). **MIN-01** (`feature.md` incorrectly called "Approved"): corrected to `feature.md` `status: Draft` (Package 0.2-B3 `Consolidated Stable` package-readiness state, Chapter 0 §7.1 — distinct from artifact Approved/Locked, not conflated). **Preserved unchanged:** all three `contract_id`/`contract_version: v1`/`stream_registry_version: v1`/`included_streams`/`merge_policy`/`causal_closure_policy`; the Event-Contract fail-closed gap; `late_arrival_behavior`; `feature.md`/`module-registry.yaml`/`system-decomposition.md`/any ADR (all unmodified); `package_lifecycle` remains `candidate`. ADR scope re-check: `ADR_NOT_REQUIRED` — no new authoritative event/schema, no new module responsibility (feature-engine's `consumes: [event]` unchanged, no `query` category added), no dependency-graph change; frontier-capture design remains squarely the Chapter 8 §8.3.4-delegated Phase-1 design space, versioned/reversible at Input-Contract-version granularity. Does not implement `feature-engine`, does not author any Event Contract, does not close `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06`.
 
@@ -216,111 +218,179 @@ feature_type = distance_to_last_confirmed_swing
 
 `upstream_source: candle` and `upstream_source: regime` are mutually exclusive on the same `feature_definition_version` (`feature.md` §6, Draft-status Domain Contract, Consolidated Stable package readiness: "PHẢI chọn ĐÚNG MỘT") — a Feature Definition never pins more than one Input Contract. Concrete artifacts: `docs/architecture/input-contracts/feature-candle-input.yaml`, `feature-regime-input.yaml`, `feature-swing-distance-input.yaml` (all `status: Draft`, `stream_registry_version: v1` pinned to the Approved Genesis registry). All three use `merge_policy: {algorithm: deterministic-causal-topological-order, concurrent_tie_break: [stream_id, sequence]}` — Chapter 8's own single mandated interleave algorithm (ADR-009 §2.1/§2.3), not a per-contract choice — and `causal_closure_policy: {mode: declared-state-dependencies, dependency_authority: per_effect_event_contract}`, the model ADR-009 §2.4 itself exemplifies as the mechanism for an apply set spanning multiple event types/Event Contract versions (exactly Feature's situation: Candle/Swing/Regime each have their own Event Contract). **Open gap, explicitly not closed here:** `declared-state-dependencies` classification requires each consumed event type's own Event Contract to exist and declare state-dependency classification — Candle/Swing/Regime/Feature Event Contracts are not yet authored in this repository. Until they exist, this policy is correctly *pinned as architecture* but not yet *operationally provable* — the same fail-closed posture `computation_cursor` already carries (`feature.md` §12, `ADR-035` Approved): implementation must fail-closed, not assume the classification silently.
 
-**Frontier certification — what proves a cut is closed (v0.4, closes `P3-FEATURE-FRONTIER-A-MAJ-01`):** Chapter 8 §8.3.4's own worked example shows the actual hazard is not "does each stream have a gap" (§8.3.2 already guarantees that structurally for any range a reader has consumed — atomic sequence allocation with append forbids gaps) — the hazard is *delivery lag*: a consumer's locally-cached view of "the latest position I've seen for stream X" can be **stale** relative to the stream's true current committed head, because an event can be durably committed to the authoritative log before it is delivered to a given consumer through whatever transport/notification layer that consumer uses. Chapter 8 §8.1 already Locks the fix in general form — **"Authoritative source duy nhất: event log, KHÔNG phải transport."** This subsection applies that already-Locked separation to frontier capture, introducing no new authority:
+**Frontier certification — what proves a cut is closed (v0.4; v0.5 adds lifecycle/registry-race certification, closes `P3-FEATURE-FRONTIER-A-MAJ-01`):** Chapter 8 §8.3.4's own worked example shows the actual hazard is not "does each stream have a gap" (§8.3.2 already guarantees that structurally for any range a reader has consumed — atomic sequence allocation with append forbids gaps) — the hazard is *delivery lag*: a consumer's locally-cached view of "the latest position I've seen for stream X" can be **stale** relative to the stream's true current committed head, because an event can be durably committed to the authoritative log before it is delivered to a given consumer through whatever transport/notification layer that consumer uses. Chapter 8 §8.1 already Locks the fix in general form — **"Authoritative source duy nhất: event log, KHÔNG phải transport."** This subsection applies that already-Locked separation to frontier capture, introducing no new authority. **v0.5 correction:** the per-stream reads below are necessarily **sequential, not simultaneous** — this subsection no longer describes them as happening at "the same instant"; instead, a lifecycle-frontier bracket (below) certifies that no registry/lifecycle transition occurred anywhere across the whole sequential capture:
 
 ```text
 Committed-position evidence: a stream's committed position for a given cut is defined as
   the sequence value obtained by a DIRECT, SYNCHRONOUS read against that stream's own
-  authoritative append-only log at the exact instant of cut-capture — never a cached,
-  asynchronously-delivered, or notification-derived value. The read target is the log
-  itself (Chapter 8 §8.1's already-Locked authoritative source); no separate delivery/
-  transport/notification layer is treated as authoritative for position determination,
-  regardless of what transport a consumer otherwise uses operationally. This requires no
-  new module, no new consumes:[query] contract category on feature-engine (module-registry.
-  yaml unchanged, not touched by this transaction), and no new authoritative artifact — it
-  specifies WHICH already-authoritative source (log, not transport) frontier capture must
-  resolve against, per §8.1's own source-vs-transport distinction.
-Why this closes the delivery-lag hazard by construction, not by inference: a direct
+  authoritative append-only log — never a cached, asynchronously-delivered, or
+  notification-derived value. The read target is the log itself (Chapter 8 §8.1's already-
+  Locked authoritative source); no separate delivery/transport/notification layer is
+  treated as authoritative for position determination, regardless of what transport a
+  consumer otherwise uses operationally. This requires no new module, no new
+  consumes:[query] contract category on feature-engine (module-registry.yaml unchanged,
+  not touched by this transaction), and no new authoritative artifact — it specifies WHICH
+  already-authoritative source (log, not transport) frontier capture must resolve against,
+  per §8.1's own source-vs-transport distinction.
+Why direct reads close the delivery-lag hazard by construction, not by inference: a direct
   synchronous read of a stream's own log returns that stream's TRUE current committed head
   at read time — there is no intermediate layer whose lag could make the returned value
   stale relative to the log itself. This is definitional, not probabilistic — no buffering,
   waiting, or numeric margin is needed to "probably" avoid the hazard Chapter 8's example
   illustrates, because the hazard requires an intermediate delivery layer with independent
-  latency, and there is none between "the read" and "the log" in this design.
-Certified/closed cut construction (single- and multi-stream, including the dual-stream
-  swing-distance case): at cut-capture time, the processor performs one direct synchronous
-  read PER stream in included_streams (for feature-swing-distance-input: one read against
-  market-data-ingestion-candle, one read against structure-engine-swing), recording each
-  stream's returned sequence into stream_positions. Each read is independently self-proving
-  (per the paragraph above) — the cut's validity does NOT depend on the relative timing or
-  ordering between the two reads, because P_run (the actual authoritative apply order) is
-  governed exclusively by causation_refs + concurrent_tie_break on (stream_id, sequence)
-  (Chapter 8 §8.3.4 — recorded_time is never the primary cross-stream ordering key), never
-  by which read happened to complete first. A later Replay issuing the identical two direct
-  reads against the identical (stream_id, sequence) ranges reconstructs an identical
-  stream_positions vector and an identical P_run — this is what makes the dual-stream case
-  provably safe: no code path in this design lets read-timing or transport-delivery order
-  affect the resulting semantic cut.
-computation_cursor capture from the cut: cursor.stream_positions = the vector of directly-
-  read positions above, scoped exactly to included_streams (Chapter 8 §8.5.3). cursor.
-  recorded_time = max(recorded_time of the event each stream_positions[s] resolves to) —
-  anchored to real, already-committed event metadata (never wall clock), trivially
-  satisfying §8.5.2's Position → Cursor invariant (position_event.recorded_time ≤ cursor.
-  recorded_time) with equality on at least one stream. cursor.lifecycle_frontier is captured
-  by the SAME direct-read discipline against the canonical Lifecycle Stream (platform-
-  lifecycle) at the same cut-capture instant — this does not redefine §8.5's own Dedicated
-  Lifecycle Frontier design (still not part of included_streams, unchanged), it only applies
-  the same evidentiary discipline to the field §8.5.1 already requires. cursor.
-  stream_registry_version = v1 (unchanged, §8.5.2's Registry → Contract invariant). No
-  separate coordinator/checkpoint SERVICE is introduced or required — each stream's own
-  authoritative log is self-sufficient as its own frontier source; "checkpoint capture" is
-  the direct read itself, satisfying Chapter 8 §8.3.4's "coordinator/checkpoint" design
-  requirement without adding a new component.
+  latency, and there is none between "the read" and "the log" in this design. This closes
+  the PER-STREAM staleness hazard; it does NOT by itself certify that the whole multi-read
+  capture is coherent with a single registry/lifecycle boundary — that is a SEPARATE hazard
+  (below), because the reads are sequential in real time.
+
+Lifecycle/registry-transition race — the hazard v0.4 did not address: between the FIRST and
+  LAST of a sequential multi-stream read, a lifecycle activation/retirement/writer-handoff
+  event could be appended on the canonical Lifecycle Stream. If uncertified, the resulting
+  stream_positions vector could straddle two different registry versions (e.g., a stream
+  read early under registry v_k, another read after v_(k+1) activated) — a cut that is not
+  provably a snapshot of any single coherent registry state. Certification protocol
+  (reusing only already-Locked Chapter 8 §8.3.1/§8.3.5 machinery — `active_registry_at`,
+  §8.5.1's `lifecycle_frontier` field — no new authority, no new coordinator service):
+
+  1. L_before := direct synchronous read of platform-lifecycle's current position
+     (Chapter 8 §8.5: {stream_id: platform-lifecycle, position: {kind, sequence}}).
+  2. registry_version := active_registry_at(L_before) — the exact already-Locked §8.3.1
+     function, computed once, locked for the remainder of this capture attempt.
+  3. For each stream in included_streams (sequential direct reads, per the certified-
+     position-evidence paragraph above): read current position into stream_positions[s];
+     confirm s is `active` under registry_version (Chapter 8 §8.3.1's own eligibility-
+     validation rule — "xác nhận stream tồn tại và active trong đúng version đó"). If s is
+     NOT active under registry_version, the cut cannot be constructed — integrity/topology
+     mismatch, fail-safe (I-6), no cursor produced.
+  4. Run causal-closure fixed-point resolution (below) — may extend stream_positions with
+     further same-included-stream reads; never touches platform-lifecycle.
+  5. L_after := a second direct synchronous read of platform-lifecycle's current position,
+     performed AFTER step 4 completes (closure may itself take sequential time).
+  6. Certification check: L_after must equal L_before EXACTLY ({stream_id, position.kind,
+     position.sequence} all equal). If equal → the capture is CERTIFIED: no lifecycle event
+     was appended anywhere across the entire sequential capture window, so every read in
+     steps 3-4 is provably a snapshot under the SAME single registry_version computed in
+     step 2 — cursor.lifecycle_frontier := L_before, cursor.stream_registry_version :=
+     registry_version (Chapter 8 §8.5.2's Registry → Lifecycle / Registry → Contract
+     invariants, satisfied by construction, not asserted). If L_after != L_before → RACE
+     DETECTED.
+  Race outcome (deterministic, not an invalid cursor, per task instruction): the entire
+    capture attempt (steps 1-6) is discarded — no partial cursor, no stale
+    stream_registry_version, no cursor emitted at all for this attempt — and the SAME
+    protocol is retried from step 1. This is a bounded structural retry of a deterministic
+    algorithm (not a numeric retry counter, not a wall-clock wait, not a watermark) — if
+    retries keep racing indefinitely under sustained lifecycle churn, that manifests as the
+    SAME operational resource-exhaustion class already defined below (never a distinct
+    "race-timeout" numeric field, never an alternate success semantic). No wall-clock
+    inference at any step — every decision above resolves against directly-read,
+    already-committed log/lifecycle content.
+
+computation_cursor capture from a CERTIFIED cut: cursor.stream_positions = the closed
+  (fixed-point, see below) vector of directly-read positions, scoped exactly to
+  included_streams (Chapter 8 §8.5.3). cursor.recorded_time = max(recorded_time of the
+  event each stream_positions[s] resolves to) — anchored to real, already-committed event
+  metadata (never wall clock), trivially satisfying §8.5.2's Position → Cursor invariant
+  with equality on at least one stream. cursor.lifecycle_frontier = L_before (= L_after,
+  post-certification) — this does not redefine §8.5's own Dedicated Lifecycle Frontier
+  design (platform-lifecycle still not part of included_streams, unchanged), it applies the
+  same evidentiary discipline plus the bracket certification above to the field §8.5.1
+  already requires. cursor.stream_registry_version = registry_version from step 2 (= "v1"
+  today, the only registry version that exists — §8.5.2's Registry → Contract invariant).
+  No separate coordinator/checkpoint SERVICE is introduced or required — each stream's own
+  authoritative log, plus the already-existing canonical Lifecycle Stream, are jointly
+  self-sufficient as the frontier source; "checkpoint capture" is the bracketed reads
+  themselves, satisfying Chapter 8 §8.3.4's "coordinator/checkpoint" design requirement
+  without adding a new component or module.
 ```
 
-**Deterministic incomplete-frontier and buffer behavior (v0.4, closes `P3-FEATURE-FRONTIER-A-MAJ-02`) — exactly ONE authoritative behavior, no "or":**
+**Deterministic causal closure — fixed point, not single-extension (v0.4; v0.5 replaces the single-extension shortcut, closes `P3-FEATURE-FRONTIER-A-MAJ-02`):**
 
 ```text
-in-scope causal-prerequisite resolution: after the direct-read cut above, the processor
-  inspects the in-scope causation_refs of the events the cut makes visible (per
-  causal_closure_policy: declared-state-dependencies/per_effect_event_contract). If an
-  in-scope causation_ref points to a position NOT within the current cut, the processor
-  performs exactly one BOUNDED extension: a direct synchronous read of the SPECIFIC stream
-  position(s) the unresolved causation_ref(s) name (never an open-ended re-poll, never a
-  wait/sleep loop) and re-evaluates.
-Exactly one deterministic outcome, no alternative path:
-  (a) the extension read resolves the prerequisite → the cut is extended to include it,
-      stream_positions updated, cursor recomputed from the extended cut (still fully
-      evidenced per the certification above) — authoritative-apply proceeds.
-  (b) the extension read confirms the prerequisite genuinely does not yet exist in the
-      log (not a delivery-lag artifact — a direct read against the authoritative source
-      itself, per the certification above) → FAIL-SAFE-DEFER-TO-NEXT-TRIGGER: the
-      processor emits NO authoritative FeatureComputed/FeatureFactInvalidated for this
-      trigger, performs no partial or speculative apply, and simply lets this computation
-      be naturally re-attempted at the next authoritative trigger event on any of the
-      contract's included_streams for the same subject — no timer, no retry counter, no
-      numeric buffer/watermark. This is the ONLY incomplete-frontier outcome; "buffer/
-      defer" and "fail-safe" are the SAME single deterministic action here, not two
-      alternatives an implementation may pick between.
-Authoritative computation semantics vs. operational resource exhaustion — explicitly
-  distinguished, per task instruction: the protocol above never waits indefinitely or
-  accumulates unbounded state as part of its AUTHORITATIVE semantics — every read is
-  direct and immediately resolves. Operational resource exhaustion (e.g., a process
-  crashing or running out of memory while attempting these reads) is a SEPARATE,
-  infrastructure-level failure class: on resource exhaustion, the process aborts without
-  emitting authoritative output — identical to any process crash — and restart re-attempts
-  the SAME deterministic protocol from scratch. Resource exhaustion never creates an
-  alternate "successful" computation semantic, never differs by execution mode, and is not
-  itself a contract-level policy value (no numeric field is added for it — it is ordinary
-  process/infrastructure failure handling, out of Input Contract authority).
-Cross-mode identity: Live/Backtest/Paper/Replay all execute the identical direct-read-and-
-  extend-or-fail-safe-defer protocol against the identical log — none of the four modes has
-  a distinct incomplete-frontier code path, satisfying Chapter 8 §8.3.4's cross-mode
-  requirement (`feature.md` §17, unchanged) at the frontier-protocol level, not only at the
-  contract-pin level.
+Three causation_ref cases — distinguished, never conflated (Chapter 8 §8.2.3/§8.3.4/§8.3.5's
+  own already-Locked validation-chain pattern applied here, not invented):
+  1. VALID CAUSE, OUTSIDE current cut: a causation_ref of an event already inside the cut
+     names a real position not yet in stream_positions. → extend: a direct synchronous read
+     of that SPECIFIC named (stream_id, sequence) — never an open-ended poll — then
+     re-evaluate the newly-included event's OWN causation_refs the same way (iterate).
+  2. VALID EXTERNAL NON-STATE CAUSE: a causation_ref pointing outside included_streams
+     entirely (Chapter 8 §8.3.4's external-non-state-cause carve-out). Per already-Locked
+     rule: requires ONLY an immutable committed/existence proof (tuple consistency, §8.2.3)
+     — no stream_position, no cursor-visibility requirement, does NOT participate in
+     frontier completeness, payload MUST NOT be read. Never resolved via extension (case 1);
+     never treated as unresolved/incomplete.
+  3. BROKEN/UNRESOLVABLE CANONICAL REFERENCE: the causation_ref's (stream_id, sequence,
+     event_id) locator resolves to no record, or resolves to a record whose event_id does
+     NOT match (Chapter 8 §8.3.5's own validation-chain pattern: "xác minh khớp
+     event_ref.event_id — mismatch là integrity violation", applied identically here to
+     causation_refs) → INTEGRITY VIOLATION, fail-safe (I-6) IMMEDIATELY. This is corruption/
+     defect evidence, NOT a not-yet-committed position — it must NEVER be treated as "wait
+     for next trigger." Distinguishing case 3 from case 1's "not yet at that position" is
+     itself a direct-read outcome: case 1's read target position is beyond the stream's
+     current committed tail (position does not exist YET, log tail is genuinely shorter);
+     case 3's read target position DOES exist within the stream's committed range but fails
+     locator/event_id verification (a real, present, wrong/corrupt record).
+
+Fixed-point resolution algorithm: starting from the certified initial cut (previous block),
+  repeat: for every in-scope causation_ref (case 1, per causal_closure_policy:
+  declared-state-dependencies/per_effect_event_contract) of every event currently visible
+  in stream_positions, resolve it (extend + recurse into its own causation_refs) until NO
+  event newly added by an extension has any unresolved in-scope causation_ref remaining.
+  Authoritative-apply is permitted ONLY at this fixed point — never mid-iteration, never
+  speculatively on a partially-closed cut.
+Termination is guaranteed, not assumed: Chapter 8 §8.3.4 already Locks P_global (the
+  platform-wide causation + per-stream-sequence graph) as a MANDATORY DAG — no cycles are
+  permitted to exist (an append that would create one is rejected at append time, an
+  existing-data cycle is itself an integrity violation, fail-safe). Since every event's
+  causation_refs set is finite (§8.2.3: "zero-to-many", enumerable) and P_global is
+  acyclic, the transitive in-scope closure of any starting event is a finite set — the
+  iteration above visits each such node at most once and halts. This is not an open-ended
+  polling loop; it is a bounded traversal of an already-Locked-acyclic, already-finite
+  graph.
+Exactly one deterministic outcome after the iteration halts, no alternative path:
+  (a) fixed point reached with zero unresolved in-scope prerequisites (only case-1
+      extensions along the way, all resolved; case-2 external causes verified by existence
+      proof only) → authoritative-apply proceeds on the fully-closed cut.
+  (b) an iteration step encounters case 3 (broken/unresolvable reference) → INTEGRITY
+      VIOLATION, fail-safe (I-6) immediately — no cursor produced, no authoritative output,
+      distinct from and never downgraded to outcome (c).
+  (c) an iteration step encounters case 1 whose target position does not yet exist in the
+      log (genuinely not-yet-committed, verified by the same direct-read discipline) →
+      FAIL-SAFE-DEFER-TO-NEXT-TRIGGER: no authoritative output for this trigger, no partial/
+      speculative apply, naturally re-attempted at the next authoritative trigger event on
+      any of the contract's included_streams for the same subject — no timer, no retry
+      counter, no numeric buffer/watermark.
+  These three outcomes are exhaustive and mutually exclusive — never presented as
+  alternatives an implementation may pick between; each concrete situation maps to exactly
+  one of (a)/(b)/(c) by direct-read evidence, not by choice.
+
+Authoritative computation semantics vs. operational resource exhaustion — unchanged from
+  v0.4, explicitly distinguished: none of (a)/(b)/(c) above waits indefinitely or
+  accumulates unbounded state as AUTHORITATIVE semantics — every step is a direct read or a
+  bounded, DAG-guaranteed-finite traversal. Operational resource exhaustion (a process
+  crashing or running out of memory while attempting these reads/iterations, or racing
+  persistently per the lifecycle-bracket protocol above) is a SEPARATE, infrastructure-level
+  failure class: the process aborts without emitting authoritative output — identical to any
+  process crash — and restart re-attempts the SAME deterministic protocol from scratch. It
+  never creates an alternate "successful" computation semantic, never differs by execution
+  mode, and is not itself a contract-level policy value.
+Cross-mode identity: Live/Backtest/Paper/Replay all execute the identical lifecycle-
+  bracketed capture + fixed-point closure protocol against the identical log — none of the
+  four modes has a distinct incomplete-frontier or causal-closure code path, satisfying
+  Chapter 8 §8.3.4's cross-mode requirement (`feature.md` §17, unchanged) at the frontier-
+  protocol level, not only at the contract-pin level.
 ```
 
-**Unchanged from v0.3 (not touched by this correction):** `mechanism`/`completeness_rule` field NAMES in the three Input Contract YAML files are updated to carry the certified-cut/bounded-extension semantics above (values below); `late_arrival_behavior: defer-to-later-cursor` (feature.md's existing correction/invalidation lineage, §9, unchanged — this value was never ambiguous, not part of either finding); `lifecycle_frontier`/`stream_registry_version` application (Chapter 8 §8.5/§8.5.1-§8.5.3, ADR-009 §2.6, unchanged, not redefined); `contract_id`/`contract_version: v1`/`stream_registry_version: v1`/`included_streams`/`merge_policy`/`causal_closure_policy` on all three contracts (unchanged); the Event-Contract fail-closed gap above (unchanged, still open).
+**Unchanged from v0.4 (not touched by this correction):** `late_arrival_behavior: defer-to-later-cursor` (feature.md's existing correction/invalidation lineage, §9, unchanged — never part of either finding); `contract_id`/`contract_version: v1`/`stream_registry_version: v1`/`included_streams`/`merge_policy`/`causal_closure_policy` on all three contracts (unchanged); the Event-Contract fail-closed gap above (unchanged, still open); the v0.4 MIN-01 correction (feature.md correctly cited as Draft/Consolidated-Stable, not Approved — untouched by this transaction).
 
-**Corrected Input Contract `frontier_policy` values (all three files, `contract_version` remains `v1` — this is a document-draft-revision correction, not a new contract instance; `mechanism`/`completeness_rule`/`incomplete_frontier_behavior`/`buffer_limit_policy` change value, `late_arrival_behavior` unchanged):**
+**Corrected Input Contract `frontier_policy` values (all three files, `contract_version` remains `v1` — this is a document-draft-revision correction, not a new contract instance; `mechanism`/`completeness_rule`/`incomplete_frontier_behavior` change value, `late_arrival_behavior`/`buffer_limit_policy` unchanged from v0.4):**
 
 ```yaml
 frontier_policy:
-  mechanism: direct-log-read-committed-position
-  completeness_rule: gap-free-committed-prefix-and-resolved-in-scope-causal-closure
+  mechanism: lifecycle-bracketed-direct-log-read
+  completeness_rule: gap-free-prefix-fixed-point-causal-closure-certified-lifecycle-bracket
   late_arrival_behavior: defer-to-later-cursor
   buffer_limit_policy: fail-safe-abort-no-authoritative-output-on-resource-exhaustion
-  incomplete_frontier_behavior: bounded-causal-closure-extend-then-fail-safe-defer-to-next-trigger
+  incomplete_frontier_behavior: fixed-point-extend-or-integrity-fail-safe-or-lifecycle-race-retry
 ```
 
 **Scope containment:** this subsection does not modify `feature.md`, does not author or modify any Event Contract, does not implement `feature-engine`, and does not close `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06` — per `ADR-036`'s own Consequences ordering, Feature implementation remediation (canonical `computation_cursor` population, history-preserving as-of state, restart/replay tests, `eligible_swing_selection_superseded` emission) remains a separate, still-pending governed transaction.

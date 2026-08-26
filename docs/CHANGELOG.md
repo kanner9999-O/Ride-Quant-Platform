@@ -2,6 +2,68 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — Feature Frontier: second bounded correction, two Major (round 2)
+
+**Bounded correction only** — not a Feature implementation round, not a new ADR. Baseline HEAD `cb3f4db1f281a9edd722cff7304741cec6cc0386`.
+
+### Fixed
+
+```text
+P3-FEATURE-FRONTIER-A-MAJ-01 (v0.2's per-stream reads assumed the "same instant", no
+  certification against a racing registry/lifecycle transition): §4.6 now states the
+  per-stream reads are sequential, not simultaneous, and adds a lifecycle_frontier
+  BRACKET protocol -- read platform-lifecycle before capture (L_before), lock
+  registry_version = active_registry_at(L_before) (Chapter 8 §8.3.1's own function),
+  perform per-stream reads + causal closure, read platform-lifecycle again (L_after);
+  match certifies the cut, mismatch discards the entire attempt and retries the same
+  deterministic protocol (never an invalid cursor, no numeric race-timeout field). Each
+  included stream also confirmed active under the locked registry_version. No new
+  coordinator service.
+P3-FEATURE-FRONTIER-A-MAJ-02 (single-extension shortcut missed transitive dependencies,
+  conflated "not yet committed" with "broken reference"): replaced with fixed-point
+  iterative closure -- every extension recurses into the newly-included event's own
+  causation_refs until no unresolved in-scope dependency remains; termination guaranteed
+  by Chapter 8 §8.3.4's already-Locked P_global DAG requirement. Three causation_ref
+  cases distinguished: (1) valid in-scope cause outside cut -> bounded extend + recurse;
+  (2) valid external non-state cause -> existence-proof only, never extended; (3) broken/
+  unresolvable canonical reference -> immediate integrity-violation fail-safe, never
+  "wait for next trigger."
+```
+
+### Preserved
+
+```text
+All three contract_id/contract_version (v1)/stream_registry_version (v1)/
+  included_streams/merge_policy/causal_closure_policy/late_arrival_behavior/
+  buffer_limit_policy; the already-closed MIN-01 correction; the Event-Contract
+  fail-closed gap; feature.md/module-registry.yaml/system-decomposition.md/any ADR
+  (all unmodified); package_lifecycle remains candidate.
+```
+
+### ADR scope-check result
+
+```text
+ADR_NOT_REQUIRED -- lifecycle-bracket protocol and fixed-point closure reuse only
+  already-Locked Chapter 8 machinery (active_registry_at, lifecycle_frontier,
+  P_global-must-be-DAG, §8.3.5's own event_id-mismatch validation pattern); no new
+  authoritative event/schema, no new module responsibility, no dependency-graph change.
+```
+
+### Files changed
+
+```text
+docs/architecture/input-contracts/feature-candle-input.yaml ("0.2" -> "0.3"),
+  feature-regime-input.yaml ("0.2" -> "0.3"), feature-swing-distance-input.yaml
+  ("0.2" -> "0.3"), docs/architecture/engine/feature-context-architecture.md
+  ("0.4" -> "0.5"), docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version
+  "10.249" -> "10.250". No ADR/Constitution/stream-registry.yaml/module-registry.yaml/
+  system-decomposition.md/Domain Contract/code touched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT second bounded Review-A re-review of these two findings.
+
 ## [Unreleased] — 2026-08-26 — Feature Input Contracts + Frontier Design: bounded correction, two Major + one Minor
 
 **Bounded correction only** — not a Feature implementation round, not a new ADR. Baseline HEAD `849f036943e52412c0c2432e46d63a09f1232dc1`.

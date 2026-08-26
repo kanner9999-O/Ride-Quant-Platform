@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.249"
+manifest_version: "10.250"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -10961,6 +10961,132 @@ Package 1.1: Consolidated Stable (unchanged). Phase 3 Approval Gate: NOT opened.
 ### Next governed action (not performed in this transaction)
 
 ChatGPT bounded Review-A re-review of these three findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. Does not itself perform Review B, author any Event Contract, or implement `feature-engine`.
+
+**Files changed:** `docs/architecture/input-contracts/feature-candle-input.yaml`, `feature-regime-input.yaml`, `feature-swing-distance-input.yaml`, `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Feature Frontier — second bounded correction (`Draft`, closes two Major Review-A findings round 2 `pending re-review`)
+
+**Bounded semantic correction transaction — vai trò: `Feature Frontier Second Bounded Correction Executor`.** Remediates exactly the two ChatGPT Review A findings named in the governing task prompt against the v0.2 candidate (`P3-FEATURE-FRONTIER-A-MAJ-01`, `P3-FEATURE-FRONTIER-A-MAJ-02`), round 2. Does not touch the already-closed `MIN-01` wording except unavoidable adjacent context; does not broaden into Feature implementation; does not author a new ADR.
+
+**Baseline:** branch `main`, HEAD `cb3f4db1f281a9edd722cff7304741cec6cc0386` (verified via `git rev-parse HEAD`; matches exact required boundary; tree clean bar unrelated untracked `.DS_Store`). `manifest_version` `"10.249"` confirmed. All three Input Contracts confirmed `version: "0.2"`, `status: Draft` before edit. `feature-context-architecture.md` confirmed `version: "0.4"`, `status: Draft` before edit. Chapter 8 §8.2.3 (causation_refs, external-non-state carve-out), §8.3.4 (P_global DAG requirement, in-scope/external causation rule), §8.3.5 (validation-chain pattern, event_id mismatch = integrity violation), §8.5.1-§8.5.3 (lifecycle_frontier cardinality/relational invariants), and ADR-009 re-read fresh before drafting.
+
+### ADR scope/inflation check (run first, per task instruction)
+
+```text
+Result: ADR_NOT_REQUIRED. The lifecycle-bracket certification protocol reuses only
+  already-Locked Chapter 8 §8.3.1 active_registry_at()/§8.5.1 lifecycle_frontier machinery
+  — two additional reads of the ALREADY-authoritative, ALREADY-existing canonical Lifecycle
+  Stream, not a new artifact, not a new module, not a new coordinator service. The
+  fixed-point causal-closure algorithm reuses only already-Locked §8.3.4 in-scope/external
+  causation rules and §8.3.5's own event_id-mismatch validation-chain pattern, applied to
+  causation_refs generally rather than invented. Termination is guaranteed by §8.3.4's own
+  already-Locked P_global-must-be-a-DAG invariant, not a new assumption. No new
+  authoritative event/schema, no new module responsibility (module-registry.yaml
+  untouched), no dependency-graph change (system-decomposition.md untouched), no Locked/
+  Approved invariant changed. Remains within ADR-009's delegated Phase-1 design space,
+  versioned/reversible at Input-Contract-version granularity.
+```
+
+### Findings remediated
+
+```text
+P3-FEATURE-FRONTIER-A-MAJ-01 (v0.2's per-stream reads implicitly assumed the "same
+  instant" and had no certification against a registry/lifecycle transition racing the
+  capture) — verified true by direct re-read of v0.2's §4.6 text ("at the same cut-capture
+  instant"). Corrected: §4.6 now explicitly states the per-stream reads are sequential, not
+  simultaneous, and adds a lifecycle-frontier BRACKET protocol — read platform-lifecycle
+  before capture (L_before), lock registry_version = active_registry_at(L_before) (Chapter
+  8 §8.3.1's own function), perform per-stream reads + causal closure, read
+  platform-lifecycle again (L_after); L_after == L_before certifies the cut coherent under
+  a single registry version; mismatch discards the ENTIRE attempt and retries the same
+  deterministic protocol from the start (never an invalid cursor, never a numeric
+  race-timeout field). Each included stream is also confirmed `active` under the locked
+  registry_version (Chapter 8 §8.3.1's eligibility-validation rule). No new coordinator
+  service — the reads are against the already-existing canonical Lifecycle Stream.
+P3-FEATURE-FRONTIER-A-MAJ-02 (v0.2's single-bounded-extension shortcut did not handle
+  transitive dependencies and conflated "not yet committed" with "broken reference") —
+  verified true by direct re-read. Corrected: replaced with fixed-point iterative closure —
+  every extension recurses into the newly-included event's own causation_refs until no
+  unresolved in-scope dependency remains; authoritative-apply permitted only at the fixed
+  point. Termination guaranteed by Chapter 8 §8.3.4's already-Locked P_global DAG
+  requirement (finite, acyclic, per-event causation_refs enumerable) — not assumed. Three
+  causation_ref cases now explicitly distinguished: (1) valid in-scope cause outside the
+  cut -> bounded extend + recurse; (2) valid external non-state cause -> existence-proof
+  only (Chapter 8 §8.3.4's own carve-out), never extended, never counted incomplete; (3)
+  broken/unresolvable canonical reference (locator resolves to nothing, or to a mismatched
+  event_id -- Chapter 8 §8.3.5's own validation-chain pattern applied here) -> immediate
+  integrity-violation fail-safe (I-6), never "wait for next trigger."
+```
+
+### Lifecycle-race certification (exact protocol)
+
+```text
+1. L_before := direct read of platform-lifecycle's current position.
+2. registry_version := active_registry_at(L_before) (Chapter 8 §8.3.1, unchanged function).
+3. Per included stream (sequential direct reads): capture position; confirm stream active
+   under registry_version; if not active -> fail-safe, no cursor.
+4. Fixed-point causal closure (below) -- extends stream_positions within included_streams
+   only; never touches platform-lifecycle.
+5. L_after := direct read of platform-lifecycle's current position, AFTER step 4.
+6. L_after == L_before -> CERTIFIED: cursor.lifecycle_frontier = L_before,
+   cursor.stream_registry_version = registry_version. L_after != L_before -> RACE: discard
+   entire attempt, retry from step 1 (bounded structural retry, not a numeric counter; a
+   sustained race manifests as ordinary operational resource exhaustion, not a distinct
+   policy value).
+```
+
+### Fixed-point causal-closure algorithm (exact semantics)
+
+```text
+Iterate: for every in-scope causation_ref of every event visible in stream_positions,
+  resolve it (case 1: extend + recurse into ITS causation_refs; case 2: external non-state,
+  existence-proof only, never extended; case 3: broken reference, immediate integrity
+  fail-safe) until no newly-added event has an unresolved in-scope causation_ref. Exactly
+  one of three outcomes after the iteration halts: (a) fixed point reached, zero unresolved
+  -> authoritative-apply proceeds; (b) case 3 encountered -> integrity-violation fail-safe,
+  immediate, no cursor; (c) case-1 target genuinely not yet in the log -> fail-safe-defer-
+  to-next-trigger, no timer/counter/watermark. Mutually exclusive, exhaustive, never a
+  choice.
+```
+
+### Preserved (script-verified, byte-for-byte on the named fields)
+
+```text
+All three: contract_id, contract_version (v1), stream_registry_version (v1),
+  included_streams, merge_policy, causal_closure_policy, late_arrival_behavior,
+  buffer_limit_policy — verified unchanged via parsed-YAML diff against the v0.2
+  candidate (all True). The v0.4 MIN-01 correction untouched. Event-Contract fail-closed
+  gap unchanged. feature.md/module-registry.yaml/system-decomposition.md/any ADR:
+  unmodified (git diff --quiet for all). package_lifecycle remains candidate.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ (all 36 files), docs/domain/, docs/constitution/, docs/governance/, docs/team/,
+  docs/architecture/stream-registry.yaml, module-registry.yaml, system-decomposition.md,
+  python/, go/: all verified byte-identical (git diff --quiet for each path). No Event
+  Contract authored. No feature-engine implementation/test touched. No Tier assigned, no
+  Quality Gate run, no gate/LIVE state changed.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction corrects prerequisite design only.
+P3-FEATURE-A-MAJ-06: remains OPEN — same reason; Feature implementation remediation (ADR-036
+  Consequences step 7) still has not occurred.
+Package 1.3-B (feature-context-architecture.md): package_lifecycle candidate (unchanged) —
+  fresh Review A + Independent Review B + Product Owner reconsolidation still required.
+Package 1.1: Consolidated Stable (unchanged). Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT second bounded Review-A re-review of these two findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. Does not itself perform Review B, author any Event Contract, or implement `feature-engine`.
 
 **Files changed:** `docs/architecture/input-contracts/feature-candle-input.yaml`, `feature-regime-input.yaml`, `feature-swing-distance-input.yaml`, `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 

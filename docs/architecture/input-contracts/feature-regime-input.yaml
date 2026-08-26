@@ -30,9 +30,20 @@
 # invented numeric watermark). Full rationale: feature-context-architecture.md §4.6 v0.4.
 # included_streams/merge_policy/causal_closure_policy/contract_id/contract_version:
 # unchanged.
+#
+# v0.3 second bounded correction (2026-08-26, closes P3-FEATURE-FRONTIER-A-MAJ-01/-MAJ-02
+# round 2): mechanism now certifies the (necessarily sequential) per-stream reads against a
+# lifecycle_frontier BRACKET (read platform-lifecycle before and after capture, reject/retry
+# on mismatch -- detects a registry/lifecycle transition racing the capture); completeness_
+# rule/incomplete_frontier_behavior now require fixed-point (not single-extension) causal
+# closure, with broken/unresolvable canonical references treated as immediate integrity-
+# violation fail-safe, distinct from genuinely not-yet-committed positions. Full rationale:
+# feature-context-architecture.md §4.6 v0.5. included_streams/merge_policy/
+# causal_closure_policy/contract_id/contract_version/late_arrival_behavior/
+# buffer_limit_policy: unchanged.
 
 schema_version: 1
-version: "0.2"
+version: "0.3"
 status: Draft
 owner: Product Owner
 generated_at: "2026-08-26"
@@ -51,11 +62,11 @@ merge_policy:
   concurrent_tie_break: [stream_id, sequence]
 
 frontier_policy:
-  mechanism: direct-log-read-committed-position
-  completeness_rule: gap-free-committed-prefix-and-resolved-in-scope-causal-closure
+  mechanism: lifecycle-bracketed-direct-log-read
+  completeness_rule: gap-free-prefix-fixed-point-causal-closure-certified-lifecycle-bracket
   late_arrival_behavior: defer-to-later-cursor
   buffer_limit_policy: fail-safe-abort-no-authoritative-output-on-resource-exhaustion
-  incomplete_frontier_behavior: bounded-causal-closure-extend-then-fail-safe-defer-to-next-trigger
+  incomplete_frontier_behavior: fixed-point-extend-or-integrity-fail-safe-or-lifecycle-race-retry
 
 causal_closure_policy:
   mode: declared-state-dependencies
