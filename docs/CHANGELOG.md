@@ -2,6 +2,68 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-26 — Feature Input Contracts + Frontier Design: bounded correction, two Major + one Minor
+
+**Bounded correction only** — not a Feature implementation round, not a new ADR. Baseline HEAD `849f036943e52412c0c2432e46d63a09f1232dc1`.
+
+### Fixed
+
+```text
+P3-FEATURE-FRONTIER-A-MAJ-01 (frontier completeness lacked real evidentiary basis):
+  feature-context-architecture.md §4.6 now specifies committed-position evidence as a
+  direct, synchronous read against each included stream's own authoritative log at
+  cut-capture instant (Chapter 8 §8.1's source-vs-transport separation, applied -- no
+  new authority), making the dual-stream swing-distance cut provably safe (independent
+  per-stream reads, P_run governed only by causation_refs/tie-break, never read-timing)
+  and specifying exact computation_cursor capture (stream_positions, recorded_time =
+  max(...), lifecycle_frontier via the same discipline) -- no separate coordinator/
+  checkpoint service introduced.
+P3-FEATURE-FRONTIER-A-MAJ-02 (ambiguous incomplete/buffer values): pinned to exactly
+  one deterministic protocol -- bounded single-position extension read, then either the
+  cut extends and applies, or FAIL-SAFE-DEFER-TO-NEXT-TRIGGER (no timer/counter/numeric
+  buffer, no speculative apply). Authoritative computation semantics explicitly
+  distinguished from operational resource exhaustion (ordinary abort/restart, no
+  alternate success path, identical across all four execution modes).
+P3-FEATURE-FRONTIER-A-MIN-01 (feature.md mislabeled Approved): corrected to feature.md
+  status Draft, with Package 0.2-B3's Consolidated Stable package-readiness state
+  (Chapter 0 §7.1) explicitly distinguished from artifact Approved/Locked.
+```
+
+### Preserved
+
+```text
+All three contract_id/contract_version (v1)/stream_registry_version (v1)/
+  included_streams/merge_policy/causal_closure_policy; late_arrival_behavior; the
+  Event-Contract fail-closed gap; feature.md/module-registry.yaml/
+  system-decomposition.md/any ADR (all unmodified); package_lifecycle remains
+  candidate.
+```
+
+### ADR scope-check result
+
+```text
+ADR_NOT_REQUIRED -- no new authoritative event/schema, no new module responsibility
+  (feature-engine's consumes: [event] unchanged, no query category added), no
+  dependency-graph change; frontier-capture design stays within ADR-009's own
+  delegated Phase-1 design space, versioned/reversible at Input-Contract-version
+  granularity.
+```
+
+### Files changed
+
+```text
+docs/architecture/input-contracts/feature-candle-input.yaml ("0.1" -> "0.2"),
+  feature-regime-input.yaml ("0.1" -> "0.2"), feature-swing-distance-input.yaml
+  ("0.1" -> "0.2"), docs/architecture/engine/feature-context-architecture.md
+  ("0.3" -> "0.4"), docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version
+  "10.248" -> "10.249". No ADR/Constitution/stream-registry.yaml/module-registry.yaml/
+  system-decomposition.md/Domain Contract/code touched.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT bounded Review-A re-review of these three findings.
+
 ## [Unreleased] — 2026-08-26 — Feature Input Contracts + Frontier Design (Draft): ADR-036 Consequences step 6
 
 **Phase-1-design-spec authoring transaction only** — mechanical instantiation of already-Approved feature.md/ADR-009/ADR-036/stream-registry.yaml, not a new architecture decision, not a new ADR. Baseline HEAD `af3c9326be99b53b9b64332d6a4e40f5a1ebc978`.

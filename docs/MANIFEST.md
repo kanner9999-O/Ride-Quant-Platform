@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.248"
+manifest_version: "10.249"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -10844,6 +10844,125 @@ Package 1.1: Consolidated Stable (unchanged). Phase 3 Approval Gate: NOT opened.
 ChatGPT Review A of the Feature Input Contract/frontier candidate, at the resulting immutable commit boundary. Does not itself perform Review B, author any Event Contract, or implement `feature-engine`.
 
 **Files changed:** `docs/architecture/input-contracts/feature-candle-input.yaml` (new), `docs/architecture/input-contracts/feature-regime-input.yaml` (new), `docs/architecture/input-contracts/feature-swing-distance-input.yaml` (new), `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Feature Input Contracts + Frontier Design — bounded correction (`Draft`, closes two Major + one Minor Review-A findings `pending re-review`)
+
+**Bounded semantic correction transaction — vai trò: `Feature Input Contract / Frontier Bounded Correction Executor`.** Remediates exactly the three ChatGPT Review A findings named in the governing task prompt against the v0.1 candidate (`P3-FEATURE-FRONTIER-A-MAJ-01`, `P3-FEATURE-FRONTIER-A-MAJ-02`, `P3-FEATURE-FRONTIER-A-MIN-01`). Does not broaden into Feature implementation or a full architecture re-review; does not author ADR-037.
+
+**Baseline:** branch `main`, HEAD `849f036943e52412c0c2432e46d63a09f1232dc1` (verified via `git rev-parse HEAD`; matches exact required boundary; tree clean bar unrelated untracked `.DS_Store`). `manifest_version` `"10.248"` confirmed. All three Input Contracts confirmed `version: "0.1"`, `status: Draft` before edit. `feature-context-architecture.md` confirmed `version: "0.3"`, `status: Draft` before edit. Chapter 8 §8.3.4 (completeness/frontier semantics, coordinator/checkpoint delegation), §8.1 (authoritative source vs. transport), ADR-009 §2.4/§2.5/§6, `feature.md` v0.5 (status re-confirmed Draft), Approved `stream-registry.yaml` v0.1, and Global Execution Rules v0.5 re-read fresh before drafting.
+
+### ADR scope/inflation check (run first, per task instruction)
+
+```text
+Result: ADR_NOT_REQUIRED (task's STOP conditions not triggered). The correction does not
+  introduce a new authoritative event/schema (no new event type, no envelope field), does
+  not introduce a new runtime module responsibility (feature-engine's module-registry.yaml
+  entry, consumes: [event], is untouched — frontier capture specifies WHICH already-
+  authoritative source (event log, per Chapter 8 §8.1) position determination must resolve
+  against, not a new query/consumption category), does not change the dependency graph
+  (module-registry.yaml/system-decomposition.md untouched), and stays within ADR-009's own
+  delegated Phase-1 design space for frontier/coordinator/checkpoint (§8.3.4's own text:
+  "Phase 1 phải tạo architecture/design specification cho... coordinator/checkpoint"). The
+  correction is versioned/reversible at Input-Contract-version granularity (§8.1.1), not a
+  hard-to-reverse platform decision.
+```
+
+### Findings remediated
+
+```text
+P3-FEATURE-FRONTIER-A-MAJ-01 (frontier completeness lacked real evidentiary basis) — v0.1's
+  completeness_rule was "gap-free-committed-prefix" alone, which only restates §8.3.2's
+  already-structural per-stream integrity guarantee and does not establish HOW a consumer
+  proves its locally-observed position is not stale relative to the true committed head
+  (Chapter 8 §8.3.4's own delivery-lag hazard). Verified true by direct re-read of v0.1's
+  §4.6 and Chapter 8 §8.3.4's worked example. Corrected: feature-context-architecture.md
+  §4.6 now specifies committed-position evidence as a direct, synchronous read against each
+  included stream's own authoritative log at cut-capture instant — applying Chapter 8 §8.1's
+  already-Locked source-vs-transport separation, introducing no new authority. Specifies
+  exact certified-cut construction for both single- and dual-stream contracts (the
+  swing-distance case is provably safe because each stream's read is independently
+  self-proving and P_run depends only on causation_refs/tie-break, never read-timing), exact
+  computation_cursor capture (stream_positions from the reads, recorded_time = max(...),
+  lifecycle_frontier via the same discipline), and confirms no separate coordinator/
+  checkpoint service is needed (each stream's own log is self-sufficient).
+P3-FEATURE-FRONTIER-A-MAJ-02 (ambiguous incomplete/buffer values) — v0.1's
+  incomplete_frontier_behavior ("defer-or-fail-safe-no-speculative-apply") and
+  buffer_limit_policy ("unbounded-defer-fail-safe") both left an implementation free to
+  choose between alternatives / had no bound at all. Verified true by direct re-read.
+  Corrected: pinned to exactly one deterministic protocol — a single bounded extension read
+  for any unresolved in-scope causal prerequisite, then either the cut extends and applies,
+  or FAIL-SAFE-DEFER-TO-NEXT-TRIGGER (no timer/counter/numeric buffer, no speculative apply)
+  — the only incomplete-frontier outcome. Authoritative computation semantics explicitly
+  distinguished from operational resource exhaustion (ordinary process abort/restart, no
+  alternate success path, identical across Live/Backtest/Paper/Replay).
+P3-FEATURE-FRONTIER-A-MIN-01 (feature.md mislabeled Approved) — v0.1's §4.6 called
+  feature.md §6/§14 "Approved-scope"/"already-Approved authority." Verified true by direct
+  re-read of feature.md's actual frontmatter (version "0.5", status Draft). Corrected: both
+  occurrences now correctly state feature.md remains status Draft, with Package 0.2-B3's
+  Consolidated Stable package-readiness state (Chapter 0 §7.1) explicitly distinguished from
+  artifact-level Approved/Locked, not conflated. feature.md itself not modified.
+```
+
+### Frontier certification / cursor-capture semantics (summary)
+
+```text
+mechanism:                    direct-log-read-committed-position — one direct synchronous
+                               read per included stream at cut-capture instant; the log
+                               itself (not transport/notification) is the authoritative
+                               source (Chapter 8 §8.1).
+completeness_rule:            gap-free-committed-prefix-and-resolved-in-scope-causal-closure
+computation_cursor capture:   stream_positions = the direct-read vector; recorded_time =
+                               max(resolved event recorded_time); lifecycle_frontier = same
+                               discipline against platform-lifecycle; stream_registry_version
+                               = v1 (unchanged).
+incomplete_frontier_behavior: bounded-causal-closure-extend-then-fail-safe-defer-to-next-trigger
+buffer_limit_policy:          fail-safe-abort-no-authoritative-output-on-resource-exhaustion
+                               (no numeric threshold; resource exhaustion is a separate,
+                               infrastructure-level failure class, never an alternate
+                               success semantic).
+late_arrival_behavior:        defer-to-later-cursor (unchanged, feature.md §9 lineage).
+```
+
+### Preserved (script-verified, byte-for-byte on the named fields)
+
+```text
+All three: input_contract_ref.contract_id, contract_version (v1), stream_registry_version
+  (v1), included_streams, merge_policy, causal_closure_policy — verified unchanged via
+  parsed-YAML diff against the v0.1 candidate (all True). late_arrival_behavior unchanged.
+  Event-Contract fail-closed gap unchanged. feature.md/module-registry.yaml/
+  system-decomposition.md/any ADR: unmodified (git diff --quiet for all). package_lifecycle
+  remains candidate (was already candidate, not Consolidated Stable, at this boundary).
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ (all 36 files), docs/domain/, docs/constitution/, docs/governance/, docs/team/,
+  docs/architecture/stream-registry.yaml, module-registry.yaml, system-decomposition.md,
+  python/, go/: all verified byte-identical (git diff --quiet for each path). No Event
+  Contract authored. No feature-engine implementation/test touched. No Tier assigned, no
+  Quality Gate run, no gate/LIVE state changed.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE.
+  Formal Chapter 13 Quality Gate for feature-engine: NOT run.
+P3-FEATURE-A-MAJ-04: remains OPEN — this transaction corrects prerequisite design only.
+P3-FEATURE-A-MAJ-06: remains OPEN — same reason; Feature implementation remediation (ADR-036
+  Consequences step 7) still has not occurred.
+Package 1.3-B (feature-context-architecture.md): package_lifecycle candidate (unchanged) —
+  fresh Review A + Independent Review B + Product Owner reconsolidation still required.
+Package 1.1: Consolidated Stable (unchanged). Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT bounded Review-A re-review of these three findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. Does not itself perform Review B, author any Event Contract, or implement `feature-engine`.
+
+**Files changed:** `docs/architecture/input-contracts/feature-candle-input.yaml`, `feature-regime-input.yaml`, `feature-swing-distance-input.yaml`, `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 
