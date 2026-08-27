@@ -11,7 +11,7 @@ concepts — never redefined per engine.
 from __future__ import annotations
 
 import decimal
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
@@ -22,6 +22,8 @@ from .errors import (
     EvidenceCardinalityError,
     EvidenceReferenceConflictError,
     InvalidFeatureDefinitionError,
+    RegistryContractMismatchError,
+    UnresolvedComputationCursorAuthorityError,
     UnresolvedOutputContractAuthorityError,
 )
 from .identity import deterministic_id
@@ -108,6 +110,200 @@ def resolve_output_contract_refs(feature_event_contract_version: str) -> tuple[E
         EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, feature_event_contract_version),
         EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_ID, feature_event_contract_version),
     )
+
+
+@dataclass(frozen=True, slots=True)
+class InputContractRef:
+    """Chapter 8 §8.3.4 Input Contract identity — `{contract_id, contract_version}`.
+    Distinct from `EventContractRef` (Chapter 8 §8.2.5 Event Contract identity):
+    Chapter 8 §8.3.1 keeps Stream Registry/Input Contract authority and Event
+    Contract authority strictly separate (I-12) — never conflated here.
+    """
+
+    contract_id: str
+    contract_version: str
+
+
+@dataclass(frozen=True, slots=True)
+class LifecyclePosition:
+    """Chapter 8 §8.5 replay-cursor `lifecycle_frontier.position` — `kind` is
+    `"genesis"` (no lifecycle event visible yet, Chapter 8 §8.3.5's Genesis
+    Registry exception) or `"event"` (resolves to a committed lifecycle event).
+    """
+
+    kind: Literal["genesis", "event"]
+    sequence: int
+
+
+@dataclass(frozen=True, slots=True)
+class LifecycleFrontier:
+    """Chapter 8 §8.5's Dedicated Lifecycle Frontier — `{stream_id, position}`
+    on the canonical Lifecycle Stream. Never part of `included_streams` (§8.5's
+    own rationale for choosing Dedicated Lifecycle Frontier over folding the
+    control stream into every Input Contract) — this module does not redefine
+    that design, only carries the value through.
+    """
+
+    stream_id: str
+    position: LifecyclePosition
+
+
+def _stream_position(stream_positions: Mapping[str, int], stream_id: str) -> int | None:
+    return stream_positions.get(stream_id)
+
+
+def is_visible_at_cursor(
+    ref: EventRecordRef,
+    recorded_time: datetime,
+    *,
+    included_streams: frozenset[str],
+    stream_positions: Mapping[str, int],
+    cursor_recorded_time: datetime,
+) -> bool:
+    """feature.md §12(a) — the complete three-branch cursor visibility
+    predicate (ADR-035, Approved), applied identically everywhere Feature
+    checks whether an upstream event is visible at a computation cursor.
+    NEVER a scalar `recorded_time`-only test (the v0.1-v0.3 shortcut §12
+    explicitly supersedes). All three branches must hold:
+
+    1. stream-universe membership — `ref.stream_id` is one of the Input
+       Contract's own `included_streams` (retirement/Retained-in-Universe
+       tracking is out of scope here: current authoritative topology has
+       zero retired streams, Genesis-only — Feature does not and must not
+       consume `platform-lifecycle` events itself, feature.md §14's closed
+       consumption list, so it cannot track retirement independently).
+    2. in-stream sequence position — `ref.sequence <= stream_positions[ref.stream_id]`,
+       compared ONLY within the same stream (Chapter 8 §8.3.3 — never a
+       cross-stream sequence comparison).
+    3. recorded-time boundary — `recorded_time <= cursor_recorded_time`
+       (Chapter 5 §5.3).
+    """
+    if ref.stream_id not in included_streams:
+        return False
+    position = _stream_position(stream_positions, ref.stream_id)
+    if position is None or ref.sequence > position:
+        return False
+    return recorded_time <= cursor_recorded_time
+
+
+@dataclass(frozen=True, slots=True)
+class ComputationCursor:
+    """feature.md §12 / ADR-035 (Approved) — the canonical Chapter 8 §8.5
+    Replay Cursor NGUYÊN VẸN (applied, never redefined, §18's authority
+    boundary): `recorded_time`, `input_contract_ref`, `stream_registry_version`,
+    `lifecycle_frontier`, `stream_positions`. Every `FeatureComputed`/
+    `FeatureFactInvalidated` pins exactly one of these, captured independently
+    at its own evaluation — never inherited/copied from the fact it supersedes
+    or the invalidation it replaces (feature.md §3/§4).
+    """
+
+    recorded_time: datetime
+    input_contract_ref: InputContractRef
+    stream_registry_version: str
+    lifecycle_frontier: LifecycleFrontier
+    stream_positions: Mapping[str, int]
+
+
+@dataclass(frozen=True, slots=True)
+class EvaluationFrontier:
+    """Caller-certified per-trigger computation frontier (P3-FEATURE-A-MAJ-06).
+
+    Mirrors this module's existing `RecordedTimeSource`/explicit-`cursor`
+    doctrine, extended to the complete cursor: this engine NEVER constructs
+    `stream_positions`/`lifecycle_frontier` itself (no direct log-read
+    capability of its own) — a caller/orchestrator that has actually
+    performed `feature-context-architecture.md` §4.6's lifecycle-bracketed,
+    registry-pinned direct-log-read certification protocol supplies this
+    whole, exactly as it already does for `recorded_time` alone. No silent
+    fallback to `trigger_event.recorded_time`/an invented registry
+    value/an incomplete Feature-local surrogate exists anywhere this type
+    is consumed.
+    """
+
+    recorded_time: datetime
+    stream_registry_version: str
+    lifecycle_frontier: LifecycleFrontier
+    stream_positions: Mapping[str, int]
+
+
+def resolve_computation_cursor(
+    frontier: EvaluationFrontier,
+    *,
+    input_contract_ref: InputContractRef,
+    expected_stream_registry_version: str,
+) -> ComputationCursor:
+    """The single place every computation engine assembles its own outbound
+    `computation_cursor` from a caller-supplied `EvaluationFrontier` plus this
+    engine's own bound Input Contract identity (P3-FEATURE-A-MAJ-06).
+
+    Fails closed (`RegistryContractMismatchError`) if the frontier's own
+    `stream_registry_version` does not exactly equal the registry version this
+    engine's bound Input Contract pins — Chapter 8 §8.5's exact-pin rule: an
+    Input Contract bound to one registry version is never silently rebased
+    onto another. This is the registry-contract equality gate
+    `feature-context-architecture.md` §4.6 requires: mismatch means this
+    Input Contract instance is no longer applicable at the caller's certified
+    frontier — resolution requires a separate governed transaction
+    authoring/selecting a matching Input Contract version, never a retry of
+    this call with the same arguments.
+    """
+    if frontier.stream_registry_version != expected_stream_registry_version:
+        raise RegistryContractMismatchError(
+            f"frontier.stream_registry_version={frontier.stream_registry_version!r} does not match this engine's "
+            f"bound Input Contract stream_registry_version={expected_stream_registry_version!r} — this Input "
+            "Contract instance is not applicable at the caller's certified frontier (Chapter 8 §8.5 exact-pin); "
+            "fails closed rather than silently rebasing the cursor onto a different registry"
+        )
+    return ComputationCursor(
+        recorded_time=frontier.recorded_time,
+        input_contract_ref=input_contract_ref,
+        stream_registry_version=frontier.stream_registry_version,
+        lifecycle_frontier=frontier.lifecycle_frontier,
+        stream_positions=frontier.stream_positions,
+    )
+
+
+def resolve_input_contract_ref(input_contract_ref: InputContractRef) -> InputContractRef:
+    """Fails closed (`UnresolvedComputationCursorAuthorityError`) if the
+    caller does not supply a genuine, non-empty Feature-scoped Input Contract
+    identity — this module never invents a stand-in `input_contract_ref`
+    (P3-FEATURE-A-MAJ-06, same discipline as `resolve_output_contract_refs`).
+    """
+    if not input_contract_ref.contract_id or not input_contract_ref.contract_version:
+        raise UnresolvedComputationCursorAuthorityError(
+            "input_contract_ref must be a genuine, non-empty {contract_id, contract_version} identity — no "
+            "stand-in value is invented for computation_cursor.input_contract_ref (P3-FEATURE-A-MAJ-06)"
+        )
+    return input_contract_ref
+
+
+def resolve_stream_registry_version(stream_registry_version: str) -> str:
+    """Fails closed (`UnresolvedComputationCursorAuthorityError`) if the
+    caller does not supply a genuine, non-empty registry version — this
+    module never invents a stand-in (e.g. the former `_REGISTRY_VERSION =
+    "v0"`) for `computation_cursor.stream_registry_version`.
+    """
+    if not stream_registry_version:
+        raise UnresolvedComputationCursorAuthorityError(
+            "stream_registry_version must be a genuine, non-empty registry version identity — no stand-in value "
+            "is invented for computation_cursor.stream_registry_version (P3-FEATURE-A-MAJ-06)"
+        )
+    return stream_registry_version
+
+
+def resolve_included_streams(included_streams: frozenset[str]) -> frozenset[str]:
+    """Fails closed (`UnresolvedComputationCursorAuthorityError`) if the
+    caller does not supply the genuine, non-empty `included_streams` set the
+    bound Feature-scoped Input Contract actually declares — used only for the
+    stream-universe-membership branch of `is_visible_at_cursor` (feature.md
+    §12(a) branch 1); never invented, never defaulted to "every stream seen."
+    """
+    if not included_streams:
+        raise UnresolvedComputationCursorAuthorityError(
+            "included_streams must be a genuine, non-empty set of stream_ids taken from the bound Feature-scoped "
+            "Input Contract's own included_streams — no stand-in value is invented (P3-FEATURE-A-MAJ-06)"
+        )
+    return included_streams
 
 
 @dataclass(frozen=True, slots=True)
@@ -329,6 +525,10 @@ class FeatureComputed:
     """feature.md §3 — one completed valid computation point. Emitted for
     EVERY completed valid computation point, even when `value` repeats the
     previous point's — no "no-op if unchanged" shortcut.
+
+    `computation_cursor` (P3-FEATURE-A-MAJ-06, ADR-035 Approved) is REQUIRED
+    on every instance, gốc lẫn replacement — captured independently at this
+    exact computation, never inherited/copied from the fact it supersedes.
     """
 
     scope: FeatureScope
@@ -342,15 +542,26 @@ class FeatureComputed:
     recorded_time: datetime
     ref: EventRecordRef
     event_contract_ref: EventContractRef
+    computation_cursor: ComputationCursor
 
 
-InvalidationCause = Literal["candle_corrected", "regime_fact_invalidated", "swing_invalidated"]
+InvalidationCause = Literal[
+    "candle_corrected",
+    "regime_fact_invalidated",
+    "swing_invalidated",
+    "eligible_swing_selection_superseded",
+]
 
 
 @dataclass(frozen=True, slots=True)
 class FeatureFactInvalidated:
     """feature.md §4 — `scope`/`window_start`/`window_end` are inherited
     byte-for-byte from the invalidated fact, never independently declared.
+
+    `computation_cursor` (P3-FEATURE-A-MAJ-06, ADR-035 Approved) pins
+    `R_later` for `eligible_swing_selection_superseded` (ADR-034) — captured
+    independently at this invalidation's own evaluation, never copied from
+    the fact being invalidated.
     """
 
     scope: FeatureScope
@@ -362,6 +573,7 @@ class FeatureFactInvalidated:
     recorded_time: datetime
     ref: EventRecordRef
     event_contract_ref: EventContractRef
+    computation_cursor: ComputationCursor
 
 
 FeatureEvent = FeatureComputed | FeatureFactInvalidated

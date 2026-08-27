@@ -8,8 +8,11 @@ import pytest
 from conftest import (
     BASE,
     FEATURE_OUTPUT_CONTRACT_VERSION,
+    INPUT_CONTRACT_REF,
+    STREAM_REGISTRY_VERSION,
     FixedDeltaTimeSource,
     feature_scope,
+    frontier_at,
     make_regime_definition,
     only_computed,
     only_invalidated,
@@ -34,7 +37,13 @@ def _engine(
     definition = make_regime_definition(feature_type=feature_type, regime_dimension_version="rgd-1")
     scope = feature_scope(feature_type, version=definition.feature_definition_version)
     return RegimePassthroughFeatureEngine(
-        scope, definition, allocator, time_source, feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION
+        scope,
+        definition,
+        allocator,
+        time_source,
+        feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+        input_contract_ref=INPUT_CONTRACT_REF,
+        stream_registry_version=STREAM_REGISTRY_VERSION,
     )
 
 
@@ -47,7 +56,15 @@ def test_output_contract_version_must_be_genuine_non_empty(
     definition = make_regime_definition(regime_dimension_version="rgd-1")
     scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
     with pytest.raises(UnresolvedOutputContractAuthorityError):
-        RegimePassthroughFeatureEngine(scope, definition, allocator, time_source, feature_event_contract_version="")
+        RegimePassthroughFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version="",
+            input_contract_ref=INPUT_CONTRACT_REF,
+            stream_registry_version=STREAM_REGISTRY_VERSION,
+        )
 
 
 # --- 3. Regime volatility pass-through ---------------------------------------
@@ -60,7 +77,11 @@ def test_regime_volatility_correct_dimension_and_version_accepted(
     fact = regime_classified_at(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
-    computed = only_computed(engine.on_regime_classified(fact)[0])
+    computed = only_computed(
+        engine.on_regime_classified(
+            fact, cursor=frontier_at(fact.recorded_time)
+        )[0]
+    )
     assert computed.value == Decimal("1.50")
     assert computed.input_fact_refs == (fact.ref,)
 
@@ -77,7 +98,7 @@ def test_regime_volatility_wrong_dimension_rejected(
         regime_definition_version="rgd-1",
     )
     with pytest.raises(RegimeDimensionMismatchError):
-        engine.on_regime_classified(fact)
+        engine.on_regime_classified(fact, cursor=frontier_at(fact.recorded_time))
 
 
 def test_regime_volatility_wrong_definition_version_rejected(
@@ -88,7 +109,7 @@ def test_regime_volatility_wrong_definition_version_rejected(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-2"
     )
     with pytest.raises(DefinitionVersionMismatchError):
-        engine.on_regime_classified(fact)
+        engine.on_regime_classified(fact, cursor=frontier_at(fact.recorded_time))
 
 
 # --- P3-FEATURE-A-MAJ-02 remediation: contract qualification -----------------
@@ -103,7 +124,7 @@ def test_unauthorized_regime_contract_id_fails_closed(
     )
     bad = dataclasses.replace(fact, event_contract_ref=EventContractRef("regime-current-view", "v1"))
     with pytest.raises(UnauthorizedUpstreamContractError):
-        engine.on_regime_classified(bad)
+        engine.on_regime_classified(bad, cursor=frontier_at(bad.recorded_time))
 
 
 # --- P3-FEATURE-A-MAJ-05 remediation: same-ref-different-content fails closed
@@ -116,10 +137,10 @@ def test_regime_same_ref_different_content_fails_closed(
     fact = regime_classified_at(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
-    engine.on_regime_classified(fact)
+    engine.on_regime_classified(fact, cursor=frontier_at(fact.recorded_time))
     conflicting = dataclasses.replace(fact, computed_metric=Decimal("9.9"))
     with pytest.raises(EvidenceReferenceConflictError):
-        engine.on_regime_classified(conflicting)
+        engine.on_regime_classified(conflicting, cursor=frontier_at(conflicting.recorded_time))
 
 
 # --- 4. Directional persistence pass-through --------------------------------
@@ -136,7 +157,11 @@ def test_directional_persistence_continuous_value_no_reinterpretation(
         regime_dimension="directional_persistence",
         regime_definition_version="rgd-1",
     )
-    computed = only_computed(engine.on_regime_classified(fact)[0])
+    computed = only_computed(
+        engine.on_regime_classified(
+            fact, cursor=frontier_at(fact.recorded_time)
+        )[0]
+    )
     assert computed.value == Decimal("0.42")
     field_names = {f.name for f in dataclasses.fields(computed)}
     assert not field_names & {"direction", "label", "orientation", "class_label"}
@@ -152,8 +177,8 @@ def test_dedup_identical_computation_identity_emits_once(
     fact = regime_classified_at(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
-    assert len(engine.on_regime_classified(fact)) == 1
-    assert engine.on_regime_classified(fact) == []
+    assert len(engine.on_regime_classified(fact, cursor=frontier_at(fact.recorded_time))) == 1
+    assert engine.on_regime_classified(fact, cursor=frontier_at(fact.recorded_time)) == []
 
 
 def test_same_value_different_windows_emits_separately(
@@ -166,8 +191,16 @@ def test_same_value_different_windows_emits_separately(
     fact1 = regime_classified_at(
         allocator, 1, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
-    computed0 = only_computed(engine.on_regime_classified(fact0)[0])
-    computed1 = only_computed(engine.on_regime_classified(fact1)[0])
+    computed0 = only_computed(
+        engine.on_regime_classified(
+            fact0, cursor=frontier_at(fact0.recorded_time)
+        )[0]
+    )
+    computed1 = only_computed(
+        engine.on_regime_classified(
+            fact1, cursor=frontier_at(fact1.recorded_time)
+        )[0]
+    )
     assert computed0.ref != computed1.ref
     assert computed0.window_start != computed1.window_start
 
@@ -182,12 +215,20 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
     original_input = regime_classified_at(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
-    original = only_computed(engine.on_regime_classified(original_input)[0])
+    original = only_computed(
+        engine.on_regime_classified(
+            original_input, cursor=frontier_at(original_input.recorded_time)
+        )[0]
+    )
 
     invalidation_input = regime_invalidated_at(
         allocator, invalidated_fact_ref=original_input.ref, recorded_time=original.recorded_time + timedelta(minutes=5)
     )
-    invalidation = only_invalidated(engine.on_regime_invalidated(invalidation_input)[0])
+    invalidation = only_invalidated(
+        engine.on_regime_invalidated(
+            invalidation_input, cursor=frontier_at(invalidation_input.recorded_time)
+        )[0]
+    )
     assert invalidation.invalidated_fact_ref == original.ref
 
     replacement_input = regime_classified_at(
@@ -198,7 +239,11 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
         regime_definition_version="rgd-1",
         recorded_offset_seconds=600,
     )
-    replacement = only_computed(engine.on_regime_classified(replacement_input)[0])
+    replacement = only_computed(
+        engine.on_regime_classified(
+            replacement_input, cursor=frontier_at(replacement_input.recorded_time)
+        )[0]
+    )
     assert replacement.value == original.value == Decimal("1.50")
     assert replacement.supersedes_fact_ref == original.ref
     assert replacement.ref != original.ref
@@ -211,11 +256,19 @@ def test_causal_chain_original_lt_invalidation_lt_replacement(
     original_input = regime_classified_at(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
-    original = only_computed(engine.on_regime_classified(original_input)[0])
+    original = only_computed(
+        engine.on_regime_classified(
+            original_input, cursor=frontier_at(original_input.recorded_time)
+        )[0]
+    )
     invalidation_input = regime_invalidated_at(
         allocator, invalidated_fact_ref=original_input.ref, recorded_time=original.recorded_time + timedelta(minutes=5)
     )
-    invalidation = only_invalidated(engine.on_regime_invalidated(invalidation_input)[0])
+    invalidation = only_invalidated(
+        engine.on_regime_invalidated(
+            invalidation_input, cursor=frontier_at(invalidation_input.recorded_time)
+        )[0]
+    )
     replacement_input = regime_classified_at(
         allocator,
         0,
@@ -224,7 +277,11 @@ def test_causal_chain_original_lt_invalidation_lt_replacement(
         regime_definition_version="rgd-1",
         recorded_offset_seconds=600,
     )
-    replacement = only_computed(engine.on_regime_classified(replacement_input)[0])
+    replacement = only_computed(
+        engine.on_regime_classified(
+            replacement_input, cursor=frontier_at(replacement_input.recorded_time)
+        )[0]
+    )
     assert original.recorded_time < invalidation.recorded_time < replacement.recorded_time
 
 
@@ -238,12 +295,12 @@ def test_lineage_no_skip_replacement_without_invalidation_rejected(
     original_input = regime_classified_at(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
-    engine.on_regime_classified(original_input)
+    engine.on_regime_classified(original_input, cursor=frontier_at(original_input.recorded_time))
     different_input = regime_classified_at(
         allocator, 0, computed_metric="2.0", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
     with pytest.raises(FeatureLineageError):
-        engine.on_regime_classified(different_input)
+        engine.on_regime_classified(different_input, cursor=frontier_at(different_input.recorded_time))
 
 
 def test_lineage_no_fork_double_invalidation_rejected(
@@ -253,11 +310,15 @@ def test_lineage_no_fork_double_invalidation_rejected(
     original_input = regime_classified_at(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
-    original = only_computed(engine.on_regime_classified(original_input)[0])
+    original = only_computed(
+        engine.on_regime_classified(
+            original_input, cursor=frontier_at(original_input.recorded_time)
+        )[0]
+    )
     invalidation_input = regime_invalidated_at(
         allocator, invalidated_fact_ref=original_input.ref, recorded_time=original.recorded_time + timedelta(minutes=5)
     )
-    engine.on_regime_invalidated(invalidation_input)
+    engine.on_regime_invalidated(invalidation_input, cursor=frontier_at(invalidation_input.recorded_time))
     replacement_input = regime_classified_at(
         allocator,
         0,
@@ -266,14 +327,14 @@ def test_lineage_no_fork_double_invalidation_rejected(
         regime_definition_version="rgd-1",
         recorded_offset_seconds=600,
     )
-    engine.on_regime_classified(replacement_input)
+    engine.on_regime_classified(replacement_input, cursor=frontier_at(replacement_input.recorded_time))
 
     # Targeting the now-superseded original ref again must fail — lineage head has moved on.
     stale_invalidation = regime_invalidated_at(
         allocator, invalidated_fact_ref=original_input.ref, recorded_time=original.recorded_time + timedelta(minutes=10)
     )
     with pytest.raises(FeatureLineageError):
-        engine.on_regime_invalidated(stale_invalidation)
+        engine.on_regime_invalidated(stale_invalidation, cursor=frontier_at(stale_invalidation.recorded_time))
 
 
 # --- 16. Causal ordering ------------------------------------------------------
@@ -284,4 +345,33 @@ def test_invalidation_before_original_rejected(allocator: SequenceAllocator, tim
     bogus_ref = allocator.next_ref("regime")
     invalidation_input = regime_invalidated_at(allocator, invalidated_fact_ref=bogus_ref, recorded_time=BASE)
     with pytest.raises(FeatureLineageError):
-        engine.on_regime_invalidated(invalidation_input)
+        engine.on_regime_invalidated(invalidation_input, cursor=frontier_at(invalidation_input.recorded_time))
+
+
+# --- P3-FEATURE-A-MAJ-06 remediation: durable computation_cursor -------------
+
+
+def test_feature_computed_and_invalidated_carry_full_computation_cursor(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    fact = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    r = fact.recorded_time + timedelta(hours=1)
+    computed = only_computed(engine.on_regime_classified(fact, cursor=frontier_at(r))[0])
+    cursor = computed.computation_cursor
+    assert cursor.recorded_time == r
+    assert cursor.recorded_time != fact.recorded_time  # never a fallback to the trigger event's own recorded_time
+    assert cursor.input_contract_ref == INPUT_CONTRACT_REF
+    assert cursor.stream_registry_version == STREAM_REGISTRY_VERSION
+
+    invalidation_input = regime_invalidated_at(
+        allocator, invalidated_fact_ref=fact.ref, recorded_time=computed.recorded_time + timedelta(minutes=5)
+    )
+    r_later = invalidation_input.recorded_time + timedelta(hours=1)
+    invalidation = only_invalidated(
+        engine.on_regime_invalidated(invalidation_input, cursor=frontier_at(r_later))[0]
+    )
+    assert invalidation.computation_cursor.recorded_time == r_later
+    assert invalidation.computation_cursor != computed.computation_cursor

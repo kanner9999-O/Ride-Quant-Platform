@@ -152,3 +152,38 @@ class UnresolvedOutputContractAuthorityError(FeatureEngineError):
     genuine version is injected, it fails closed here instead
     (P3-FEATURE-A-MAJ-02).
     """
+
+
+class UnresolvedComputationCursorAuthorityError(FeatureEngineError):
+    """The caller did not supply a genuine, non-empty `input_contract_ref`,
+    `stream_registry_version`, or `included_streams` at construction —
+    `computation_cursor` (P3-FEATURE-A-MAJ-06, ADR-035 Approved) is never
+    populated from an invented/fabricated identity; this engine fails
+    closed instead.
+    """
+
+
+class RegistryContractMismatchError(FeatureEngineError):
+    """A caller-supplied `EvaluationFrontier.stream_registry_version` does
+    not exactly equal this engine's bound Input Contract's own pinned
+    registry version (Chapter 8 §8.5 exact-pin rule; `feature-context-
+    architecture.md` §4.6's registry-contract equality gate,
+    P3-FEATURE-FRONTIER-A-MAJ-01). The bound Input Contract instance is not
+    applicable at the caller's certified frontier — resolution requires a
+    separate governed transaction, never a retry with the same arguments,
+    and the cursor is never silently rebased onto a different registry.
+    """
+
+
+class EligibleSwingComputationDefectError(FeatureEngineError):
+    """A candidate Swing that would otherwise win the deterministic total
+    order at `R_later` was ALREADY full-cursor-visible (feature.md §12(a))
+    at `R_original` but was not selected by the original computation. Per
+    ADR-034 (Approved), this is NEVER representable as
+    `eligible_swing_selection_superseded` — it is a computation/integrity
+    defect of the ORIGINAL `FeatureComputed` (its own §9a total-order
+    evaluation was not applied correctly at `R_original`), a completely
+    different problem class from temporal supersession. This engine fails
+    closed and loud rather than silently emitting, hiding, or "laundering"
+    the defect through the supersession cause.
+    """

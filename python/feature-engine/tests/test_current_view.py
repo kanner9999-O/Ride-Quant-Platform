@@ -3,20 +3,43 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-from conftest import BASE, CONTRACT_VERSION, feature_scope
+from conftest import (
+    BASE,
+    CONTRACT_VERSION,
+    INCLUDED_STREAMS,
+    INPUT_CONTRACT_REF,
+    STREAM_REGISTRY_VERSION,
+    feature_scope,
+)
 
 from feature_engine import (
     FEATURE_COMPUTED_CONTRACT_ID,
     FEATURE_FACT_INVALIDATED_CONTRACT_ID,
+    ComputationCursor,
     EventContractRef,
     FeatureCurrentView,
     FeatureScope,
+    LifecycleFrontier,
+    LifecyclePosition,
     SequenceAllocator,
 )
 from feature_engine.contracts import FeatureComputed, FeatureFactInvalidated
 
 _COMPUTED_CONTRACT_REF = EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, CONTRACT_VERSION)
 _INVALIDATED_CONTRACT_REF = EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_ID, CONTRACT_VERSION)
+
+# `FeatureCurrentView` is a pure projection over `.scope`/window/lineage fields
+# only — it never reads `computation_cursor` — so a single fixed test-fixture
+# value here is sufficient for every fact constructed in this file.
+_CURSOR = ComputationCursor(
+    recorded_time=BASE,
+    input_contract_ref=INPUT_CONTRACT_REF,
+    stream_registry_version=STREAM_REGISTRY_VERSION,
+    lifecycle_frontier=LifecycleFrontier(
+        stream_id="platform-lifecycle", position=LifecyclePosition(kind="genesis", sequence=0)
+    ),
+    stream_positions=dict.fromkeys(INCLUDED_STREAMS, 10**9),
+)
 
 
 def _window(index: int) -> tuple[datetime, datetime]:
@@ -47,6 +70,7 @@ def _computed(
         recorded_time=end + timedelta(minutes=recorded_offset_minutes),
         ref=allocator.next_ref("feature"),
         event_contract_ref=_COMPUTED_CONTRACT_REF,
+        computation_cursor=_CURSOR,
     )
 
 
@@ -67,6 +91,7 @@ def _invalidated(
         recorded_time=target.recorded_time + timedelta(minutes=recorded_offset_minutes),
         ref=allocator.next_ref("feature"),
         event_contract_ref=_INVALIDATED_CONTRACT_REF,
+        computation_cursor=_CURSOR,
     )
 
 

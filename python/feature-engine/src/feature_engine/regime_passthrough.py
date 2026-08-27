@@ -5,6 +5,14 @@ Exposes a Raw Regime `RegimeClassified.computed_metric` verbatim (after
 Feature's own `decimal_precision_policy` normalization only) — never
 reclassifies it, never enriches `directional_persistence_metric` into a
 Bullish/Bearish/price-action interpretation.
+
+Computation cursor (P3-FEATURE-A-MAJ-06, ADR-035 Approved): `on_regime_
+classified`/`on_regime_invalidated` both take an explicit, required
+`cursor: EvaluationFrontier` keyword argument — the caller-certified
+computation frontier captured verbatim, together with this engine's own
+bound `input_contract_ref`, into every emitted fact's `computation_cursor`.
+This engine never substitutes a process-local datetime, an invented
+registry value, or an incomplete Feature-local surrogate.
 """
 
 from __future__ import annotations
@@ -13,14 +21,20 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from .contracts import (
+    ComputationCursor,
+    EvaluationFrontier,
     FeatureComputed,
     FeatureDefinition,
     FeatureEvent,
     FeatureFactInvalidated,
     FeatureScope,
+    InputContractRef,
     RecordedTimeSource,
     normalize_input_facts,
+    resolve_computation_cursor,
+    resolve_input_contract_ref,
     resolve_output_contract_refs,
+    resolve_stream_registry_version,
 )
 from .envelope import EventContractRef, EventRecordRef
 from .errors import (
@@ -66,6 +80,8 @@ class RegimePassthroughFeatureEngine:
         time_source: RecordedTimeSource,
         *,
         feature_event_contract_version: str,
+        input_contract_ref: InputContractRef,
+        stream_registry_version: str,
         stream_id: str = "feature",
     ) -> None:
         if definition.feature_type not in _DIMENSION_BY_FEATURE_TYPE:
@@ -79,6 +95,8 @@ class RegimePassthroughFeatureEngine:
         self._output_contract_ref, self._invalidation_contract_ref = resolve_output_contract_refs(
             feature_event_contract_version
         )
+        self._input_contract_ref = resolve_input_contract_ref(input_contract_ref)
+        self._stream_registry_version = resolve_stream_registry_version(stream_registry_version)
         self.scope = scope
         self.definition = definition
         self._expected_dimension = _DIMENSION_BY_FEATURE_TYPE[definition.feature_type]
@@ -119,7 +137,26 @@ class RegimePassthroughFeatureEngine:
             )
         return candidate
 
-    def on_regime_classified(self, fact: RegimeClassifiedFact) -> list[FeatureEvent]:
+    def _resolve_cursor(self, frontier: EvaluationFrontier) -> ComputationCursor:
+        """P3-FEATURE-A-MAJ-06: the single place this engine assembles its own
+        outbound `computation_cursor` from a caller-supplied `EvaluationFrontier`
+        — fails closed (`RegistryContractMismatchError`) if the frontier's
+        registry version does not match this engine's bound Input Contract.
+        """
+        return resolve_computation_cursor(
+            frontier,
+            input_contract_ref=self._input_contract_ref,
+            expected_stream_registry_version=self._stream_registry_version,
+        )
+
+    def on_regime_classified(
+        self, fact: RegimeClassifiedFact, *, cursor: EvaluationFrontier
+    ) -> list[FeatureEvent]:
+        """`cursor` is the explicit, caller-certified `EvaluationFrontier`
+        (P3-FEATURE-A-MAJ-06) captured verbatim into this fact's own
+        `computation_cursor` — never implicitly derived from
+        `fact.recorded_time`.
+        """
         self._check_scope(fact.instrument_id, fact.venue_id, fact.timeframe)
         self._check_contract(fact.event_contract_ref)
         if fact.regime_dimension != self._expected_dimension:
@@ -136,7 +173,7 @@ class RegimePassthroughFeatureEngine:
         key = (fact.window_start, fact.window_end)
         existing = self._lineage.get(key)
         if existing is None:
-            return self._emit_original(key, fact)
+            return self._emit_original(key, fact, cursor)
         if not existing.invalidated:
             if fact.ref == existing.last_evidence_ref:
                 if fact != existing.last_evidence_fact:
@@ -149,9 +186,16 @@ class RegimePassthroughFeatureEngine:
                 f"received a new RegimeClassified for window {key!r} whose current lineage head is not "
                 "pending correction — a replacement must be preceded by RegimeFactInvalidated"
             )
-        return self._emit_replacement(key, fact, existing)
+        return self._emit_replacement(key, fact, existing, cursor)
 
-    def on_regime_invalidated(self, invalidation: RegimeFactInvalidatedFact) -> list[FeatureEvent]:
+    def on_regime_invalidated(
+        self, invalidation: RegimeFactInvalidatedFact, *, cursor: EvaluationFrontier
+    ) -> list[FeatureEvent]:
+        """`cursor` is the explicit, caller-certified `EvaluationFrontier`
+        (P3-FEATURE-A-MAJ-06) captured verbatim into this invalidation's own
+        `computation_cursor` — never implicitly derived from
+        `invalidation.recorded_time`.
+        """
         self._check_contract(invalidation.event_contract_ref)
         self._check_recorded_time(invalidation.recorded_time)
         match_key: tuple[datetime, datetime] | None = None
@@ -164,9 +208,11 @@ class RegimePassthroughFeatureEngine:
                 f"RegimeFactInvalidated targets {invalidation.invalidated_fact_ref!r}, which is not the current "
                 "evidence for any non-invalidated window in this engine"
             )
-        return self._emit_invalidation(match_key, invalidation)
+        return self._emit_invalidation(match_key, invalidation, cursor)
 
-    def _emit_original(self, key: tuple[datetime, datetime], fact: RegimeClassifiedFact) -> list[FeatureEvent]:
+    def _emit_original(
+        self, key: tuple[datetime, datetime], fact: RegimeClassifiedFact, cursor: EvaluationFrontier
+    ) -> list[FeatureEvent]:
         normalized_refs = normalize_input_facts(
             [fact], effective_time=lambda f: (f.window_start, f.window_end), ref_of=lambda f: f.ref, expected_count=1
         )
@@ -184,6 +230,7 @@ class RegimePassthroughFeatureEngine:
             recorded_time=recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._output_contract_ref,
+            computation_cursor=self._resolve_cursor(cursor),
         )
         self._lineage[key] = _WindowLineage(
             head_fact=feature_fact, invalidated=False, last_evidence_ref=fact.ref, last_evidence_fact=fact
@@ -191,7 +238,10 @@ class RegimePassthroughFeatureEngine:
         return [feature_fact]
 
     def _emit_invalidation(
-        self, key: tuple[datetime, datetime], invalidation: RegimeFactInvalidatedFact
+        self,
+        key: tuple[datetime, datetime],
+        invalidation: RegimeFactInvalidatedFact,
+        cursor: EvaluationFrontier,
     ) -> list[FeatureEvent]:
         state = self._lineage[key]
         floor = max(state.head_fact.recorded_time, invalidation.recorded_time)
@@ -207,6 +257,7 @@ class RegimePassthroughFeatureEngine:
             recorded_time=recorded_time,
             ref=ref,
             event_contract_ref=self._invalidation_contract_ref,
+            computation_cursor=self._resolve_cursor(cursor),
         )
         state.invalidated = True
         state.pending_invalidation_ref = ref
@@ -214,7 +265,11 @@ class RegimePassthroughFeatureEngine:
         return [inv]
 
     def _emit_replacement(
-        self, key: tuple[datetime, datetime], fact: RegimeClassifiedFact, existing: _WindowLineage
+        self,
+        key: tuple[datetime, datetime],
+        fact: RegimeClassifiedFact,
+        existing: _WindowLineage,
+        cursor: EvaluationFrontier,
     ) -> list[FeatureEvent]:
         normalized_refs = normalize_input_facts(
             [fact], effective_time=lambda f: (f.window_start, f.window_end), ref_of=lambda f: f.ref, expected_count=1
@@ -235,6 +290,7 @@ class RegimePassthroughFeatureEngine:
             recorded_time=recorded_time,
             ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._output_contract_ref,
+            computation_cursor=self._resolve_cursor(cursor),
         )
         self._lineage[key] = _WindowLineage(
             head_fact=replacement, invalidated=False, last_evidence_ref=fact.ref, last_evidence_fact=fact

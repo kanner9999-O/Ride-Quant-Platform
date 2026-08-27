@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -26,12 +26,16 @@ from feature_engine import (
     CandleFact,
     CandleScope,
     DecimalPrecisionPolicy,
+    EvaluationFrontier,
     EventContractRef,
     FeatureCurrentView,
     FeatureDefinition,
     FeatureEvent,
     FeatureScope,
     FeatureViewResult,
+    InputContractRef,
+    LifecycleFrontier,
+    LifecyclePosition,
     RegimeClassifiedFact,
     RegimeFactInvalidatedFact,
     SequenceAllocator,
@@ -55,6 +59,46 @@ CONTRACT_VERSION = "v1"
 # FeatureFactInvalidated event_contract_ref (P3-FEATURE-A-MAJ-02 remediation:
 # feature_engine never invents this itself, e.g. the former "v0" stand-in).
 FEATURE_OUTPUT_CONTRACT_VERSION = "fv1"
+
+# Test-fixture-pinned computation_cursor authority (P3-FEATURE-A-MAJ-06): the
+# caller-injected Feature-scoped Input Contract identity + registry version +
+# stream universe a test engine is constructed against — never invented by
+# feature_engine itself, mirroring FEATURE_OUTPUT_CONTRACT_VERSION above.
+STREAM_REGISTRY_VERSION = "reg-v1"
+INPUT_CONTRACT_REF = InputContractRef(contract_id="feature-input-contract", contract_version="v1")
+INCLUDED_STREAMS = frozenset({"candle", "swing", "regime"})
+
+# An "effectively unbounded" per-stream sequence ceiling — most tests only
+# care about recorded_time-driven visibility, not the stream-position edge
+# itself (which gets its own focused tests with an explicit override below).
+_UNBOUNDED_SEQUENCE = 10**9
+
+
+def frontier_at(
+    recorded_time: datetime,
+    *,
+    stream_registry_version: str = STREAM_REGISTRY_VERSION,
+    stream_positions: Mapping[str, int] | None = None,
+    lifecycle_frontier: LifecycleFrontier | None = None,
+) -> EvaluationFrontier:
+    """TEST-ONLY helper constructing a caller-certified `EvaluationFrontier`
+    (P3-FEATURE-A-MAJ-06) — never a bare `datetime` cursor. Defaults to an
+    unbounded stream-position ceiling and a genesis lifecycle frontier so
+    existing tests that only exercise `recorded_time`-driven visibility do
+    not need to think about stream positions/lifecycle frontier at all.
+    """
+    if stream_positions is None:
+        stream_positions = dict.fromkeys(INCLUDED_STREAMS, _UNBOUNDED_SEQUENCE)
+    if lifecycle_frontier is None:
+        lifecycle_frontier = LifecycleFrontier(
+            stream_id="platform-lifecycle", position=LifecyclePosition(kind="genesis", sequence=0)
+        )
+    return EvaluationFrontier(
+        recorded_time=recorded_time,
+        stream_registry_version=stream_registry_version,
+        lifecycle_frontier=lifecycle_frontier,
+        stream_positions=stream_positions,
+    )
 
 
 def authorized_candle_contract_refs(version: str = CONTRACT_VERSION) -> frozenset[EventContractRef]:
