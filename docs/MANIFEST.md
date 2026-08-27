@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.260"
+manifest_version: "10.261"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -12163,6 +12163,295 @@ Not specified by the governing task — this transaction does not begin determin
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 **Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.259` → `10.260`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above); `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06` transition OPEN-derived "REMEDIATED — PENDING REVIEW" → `CLOSED` (Product Owner decision, this transaction).
+
+## Feature Engine — Quality Tier Classification CANDIDATE (`Tier 1 — Core Logic`, `CANDIDATE / UNAPPROVED` — no registry write, no approval, no formal QG)
+
+**Governed classification-candidate authoring transaction — vai trò: `Feature Engine Quality Tier Classification Candidate Author`.** Authors reasoning/evidence for a proposed Quality Tier classification of `feature-engine` only. Does not modify `module-registry.yaml`. Does not perform Review A. Does not perform Independent Review B. Does not run or record the formal Chapter 13 Quality Gate. Does not approve the Feature module. Does not authorize LIVE. Does not start Context Aggregator.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `e66b9441f480b8184604926dbc4e083dac439068` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.260"` at start.
+
+**Authority inspected fresh (this prompt is not treated as authority):** `docs/constitution/02-platform-invariants.md`, `docs/constitution/03-engineering-principles.md`, `docs/constitution/07-module-taxonomy.md`, `docs/constitution/13-quality-gates.md` (v1.7, Locked — §13.3, §13.4, §13.4.1/§13.4.2, §13.12), `docs/architecture/module-registry.yaml`, `docs/architecture/system-decomposition.md`, `docs/domain/feature.md`, `docs/architecture/engine/feature-context-architecture.md`, `python/feature-engine/README.md`, `python/feature-engine/src/feature_engine/**`, and this session's own prior `structure-engine`/`raw-regime-engine` Quality Tier Classification candidate + Product-Owner-approval MANIFEST sections (precedent, not blindly copied).
+
+### Current registry facts verified directly (`module-registry.yaml`, `feature-engine` entry)
+
+```text
+module_id:                feature-engine
+module_type:               compute_engine
+owns_authoritative_state:  true
+consumes:                  [event]
+emits:                     [event]
+depends_on:                [market-data-ingestion, structure-engine, raw-regime-engine]
+forbidden_dependencies:    []  (empty)
+security_classification:   none
+status:                     candidate
+quality_tier field:        ABSENT — no such key exists in this entry.
+
+=> Current authoritative Feature Engine Quality Tier: UNRESOLVED.
+No effective Tier is inferred before Product Owner approval — Chapter 13 §13.4's
+tier-resolution chain, branch 1, requires the tier to resolve from module-registry.yaml
+itself for a runtime module; an absent field means unresolved, not a default (Chapter 13
+§13.4 point 4, fail-closed — "absence is not 'no tier'/'Tier 3 default,' it is 'not yet
+classified'," per module-registry.yaml's own field-reference comment, verified directly).
+Both of feature-engine's own upstream dependencies already carry an approved quality_tier:
+  structure-engine.quality_tier:   {tier: "Tier 1 — Core Logic", approved_by: "Product
+                                     Owner", approved_at: "2026-08-22"}
+  raw-regime-engine.quality_tier:  {tier: "Tier 1 — Core Logic", approved_by: "Product
+                                     Owner", approved_at: "2026-08-23T08:57:00+07:00"}
+market-data-ingestion.quality_tier (feature-engine's third dependency) is already approved
+  {tier: "Tier 2 — Supporting", approved_by: "Product Owner", approved_at:
+  "2026-08-20T15:42+07:00"} — recorded for completeness, not itself part of this
+  candidate's own criticality reasoning (feature-engine does not directly consume Candle
+  facts through market-data-ingestion's own module boundary for the Swing/Regime paths;
+  see README.md's own dependency-vs-consumption distinction, quoted below).
+```
+
+### Candidate classification
+
+```text
+module:                feature-engine
+proposed_quality_tier: "Tier 1 — Core Logic"
+candidate_state:       CANDIDATE / UNAPPROVED
+```
+
+### Affirmative reasoning (independent evaluation, not a copy of Chapter 13's initial table alone)
+
+```text
+1. Feature Engine owns authoritative analytical facts — FeatureComputed/FeatureFactInvalidated
+   (feature.md §3/§4) — verified directly: `owns_authoritative_state: true` in the registry
+   entry above, and feature.md's own framing ("một giá trị số học hoặc phân loại
+   deterministic, authoritative, tính từ authoritative upstream fact... theo một Feature
+   Definition đã pin"). The non-authoritative FeatureCurrentView projection (feature.md §11)
+   does not change this — it is an additional read-model, not a substitute for the
+   authoritative fact stream.
+2. It is a deterministic Type 1 Compute Engine (module_type: compute_engine, verified; README.md
+   "no broker, no RPC/HTTP... no venue connectivity") — no order submission, no credential/
+   custody access (security_classification: none, verified), no external side effect of any
+   kind. Every engine (RegimePassthroughFeatureEngine/CandleWindowFeatureEngine/
+   SwingDistanceFeatureEngine) is pure, in-process, holds no network dependency (README.md,
+   verified directly).
+3. Feature Engine transforms authoritative Candle/Swing/Regime evidence — CandleClosed/
+   CandleCorrected, SwingConfirmed/SwingInvalidated, RegimeClassified/RegimeFactInvalidated
+   (feature.md §14's exact closed input list, verified) — into Feature outputs consumed
+   downstream: `depends_on: [market-data-ingestion, structure-engine, raw-regime-engine]`
+   (verified above) places it directly downstream of both already-Tier-1 analytical engines,
+   and feature.md's own document-role statement (line 17, verified directly) names Feature
+   Engine as "điểm fan-in CÓ KIỂM SOÁT duy nhất từ Structure/Raw Regime/Candle sang giá trị
+   deterministic, strategy-consumable" — i.e. Feature Engine's own stated purpose is to be the
+   analytical bridge feeding Context/Strategy/Decision (ADR-003/ADR-014's pipeline framing,
+   same framing already used for structure-engine's/raw-regime-engine's own Tier-1 reasoning).
+4. Feature Engine must satisfy determinism/no-look-ahead/no-repaint/parity requirements —
+   verified directly in feature.md: "envelope.recorded_time PHẢI muộn hơn recorded_time của
+   input fact mới nhất... KHÔNG được compute trước khi đủ evidence tồn tại (§7, chống
+   look-ahead)" (feature.md, invariant list); "Deterministic replay (mode parity): với cùng
+   feature_definition_version và cùng input causal ancestry, Live/Backtest/Paper Trading/
+   Replay PHẢI cho ra cùng tập fact, cùng input_fact_refs normalized" (feature.md §9a/§13
+   framing, verified directly — line 440); "value PHẢI dùng kiểu decimal — CẤM binary float —
+   khi cần exact deterministic parity (I-9)" (feature.md, verified). These are exactly the
+   class of requirement Chapter 13 §13.4/§13.6 ties to the Tier-1 mandatory Parity Test
+   ("Replay khớp Live tại tầng Decision," cross-ref I-2) and to I-2/I-3 invariant conformance
+   (§13.5) — not a Tier-2/Tier-3-level expectation.
+5. An error in Feature Engine's authoritative output (e.g. a wrong `distance_to_last_
+   confirmed_swing`/`volatility_metric`/`directional_persistence_metric` value, or an
+   incorrectly-timed invalidation/replacement) is capable of materially altering downstream
+   Context/Strategy/Decision behavior, since Feature is the analytical value Strategy actually
+   consumes — even though Feature itself never touches execution, custody, or risk directly
+   (module_type/security_classification both verified to exclude any such responsibility).
+6. Chapter 13 §13.4's initial-assignment table places "Feature Engine" explicitly under
+   "Tier 1 — Core Logic" (verified directly, row: "Strategy Engine, Feature Engine, Structure
+   Engine, Regime Engine"). Chapter 13 §13.4 itself states this initial-assignment column is
+   "ánh xạ hiện hành... KHÔNG phải competing authority với registry; khi registry active,
+   mapping resolve từ registry" — because module-registry.yaml is active (Phase 1+), this
+   table row is supporting evidence for this candidate's reasoning, explicitly NOT a
+   substitute for an approved quality_tier registry field. This candidate does not treat
+   Chapter 13's table as self-executing — exactly the same non-self-executing treatment
+   already applied to structure-engine's/raw-regime-engine's own Tier-1 candidates.
+7. Direct precedent: both of Feature Engine's own upstream analytical dependencies —
+   structure-engine and raw-regime-engine — carry the identical criticality shape (compute_
+   engine, owns_authoritative_state: true, no external side effect, feeds the same downstream
+   pipeline) and are ALREADY Product-Owner-approved Tier 1 — Core Logic (verified in registry
+   facts above). Feature Engine's own criticality profile is not lower than either of these —
+   it sits one hop further downstream in the same analytical chain, consuming their exact
+   authoritative output.
+```
+
+### Explicit rejected-tier analysis
+
+```text
+Tier 0 — Critical: REJECTED.
+  Chapter 13 §13.4's initial assignment for Tier 0 is exactly [Risk Gateway, Execution
+  Engine, Position Ledger] — verified directly. Feature Engine owns none of: Risk approval/
+  gating authority, execution authority, Order submission, external side effects, Position
+  Ledger authority, or kill-switch/control authority (I-8 scope, Chapter 13 §13.5). Feature's
+  Tier-0-specific Chaos Test requirement (§13.4/§13.6: exchange timeout, partial fill,
+  duplicate order, order reject) is categorically inapplicable — Feature Engine has no
+  exchange/order interaction of any kind (security_classification: none, module_type:
+  compute_engine, verified). Feature's failure mode is corruption of an ANALYTICAL/decision
+  INPUT — serious, but it does not itself cross the irreversible execution/control boundary
+  that defines Tier 0's actual responsibilities. "Downstream trading can be affected" is NOT
+  used here as automatic Tier-0 evidence, per the governing task's own explicit instruction —
+  the exclusion is grounded in Feature's absence of any of the specific Tier-0 responsibilities
+  Chapter 13 actually enumerates, exactly the same non-inflationary standard already applied
+  to structure-engine's own Tier-0 rejection.
+
+Tier 1 — Core Logic: SUPPORTED (see affirmative reasoning above). Not re-stated here to
+  avoid duplication.
+
+Tier 2 — Supporting: REJECTED.
+  Chapter 13 §13.4's initial assignment for Tier 2 is exactly [API layer, Data Ingestion] —
+  verified directly, both ingress/plumbing responsibilities with no authoritative analytical
+  fact ownership of their own. Feature Engine is not merely ingress/API/support plumbing — it
+  owns authoritative Core Logic facts (FeatureComputed/FeatureFactInvalidated) whose semantics
+  directly determine the analytical value Strategy/Decision actually consumes (affirmative
+  reasoning points 1/3/5 above). "No external side effect" and the presence of currently
+  fail-closed/unsupported paths (Candle-derived formula pending genuine formula authority;
+  signed swing-distance pending an authoritative sign convention — both verified directly in
+  README.md's "Per-feature-type / per-path implementation status" table) are NOT used here as
+  automatic Tier-2 evidence, per the governing task's own explicit instruction: these are
+  implementation/capability-availability facts about what is CURRENTLY buildable, not evidence
+  about the module's criticality WHEN its authoritative behavior is executed. The
+  fully-implemented paths (Regime pass-through, Swing-distance absolute) already exercise the
+  exact same determinism/no-look-ahead/parity-bearing Core Logic responsibility analyzed above
+  — a module is not downgraded to Tier 2 for declining to invent unauthorized behavior on its
+  incomplete paths rather than shipping it. Feature Engine's criticality is materially above a
+  Data Ingestion/API-layer module: a Feature defect corrupts the ANALYTICAL VALUE itself, not
+  merely delivery/transport of raw data a downstream consumer must still interpret
+  independently.
+
+Tier 3 — UI: REJECTED.
+  Feature Engine is a backend Type 1 Compute Engine (module_type: compute_engine, verified)
+  with no frontend/UI responsibility of any kind — Chapter 13 §13.4's Tier 3 initial
+  assignment ("Frontend") and E2E-over-unit-test framing do not apply to this module's
+  responsibility at all. Trivially inapplicable, not a close call.
+```
+
+### Tier-1 consequences IF Product Owner later approves this candidate (recorded, not claimed as met)
+
+```text
+This candidate does NOT waive, reinterpret, or prematurely claim ANY of the following as
+PASS. The currently-reported 145 passing tests (feature-engine's own pytest suite, most
+recent authority-boundary correction round) are explicitly NOT formal Chapter 13 Quality
+Gate evidence and do not substitute for any item below — no PASS/FAIL per quality dimension
+is declared by this candidate transaction.
+
+If Product Owner later approves Tier 1 — Core Logic and it is written into
+module-registry.yaml, the formal Feature Engine Chapter 13 Quality Gate must apply, at
+minimum, Chapter 13's Tier-1 requirements (§13.3–§13.4, §13.6, §13.12):
+  - line coverage >= 90% (§13.3–§13.4, Tier 1 floor);
+  - branch coverage >= 90%, evaluated INDEPENDENTLY from line coverage — no averaging/
+    compensation between the two metrics (§13.3, deterministic coverage-PASS rule);
+  - both metrics measured on the authoritative implementation only (§13.3) — the two
+    permanently fail-closed paths (Candle-derived formula; signed swing-distance) have no
+    executable authoritative behavior to measure coverage against beyond their own fail-closed
+    branch, and do not themselves satisfy or waive the floor for the paths that ARE
+    authoritative and implemented;
+  - Tier 0/1 test-effectiveness evidence (mutation testing or an accepted equivalent per
+    §13.3 — Chapter 13 locks the REQUIREMENT for such evidence; concrete tooling/threshold is
+    deferred to Engineering Foundation, §13.14, not decided by this candidate);
+  - mandatory Tier-1 Parity Test (§13.4/§13.6/§13.12(C) — "Replay khớp Live tại tầng
+    Decision," cross-ref I-2) — feature.md's own "Deterministic replay (mode parity)"
+    requirement (verified above) is exactly this gate's substance; applicability for a
+    Compute Engine feeding the Decision pipeline indirectly via Context/Strategy still
+    requires this evidence per the Tier-1 gate trigger, not waived by this candidate.
+  - Per §13.8 (fail-closed semantics): if any required evidence above is unavailable at
+    formal gate time, the result is FAIL — evidence (eligibility incomplete), never a default
+    PASS and never treated as equivalent to a Product Owner rejection.
+```
+
+### ADR Scope Rule (Chapter 0 §4b, run explicitly)
+
+```text
+Result: ADR_NOT_REQUIRED.
+
+Reasoning against the Chapter 0 §4b table (verified directly — "ADR Required": Platform
+Invariant add/change · Event Schema change · Module Taxonomy/dependency-graph change ·
+Governance/Approval process change · decision affecting >1 module or hard-to-reverse ·
+modifying/superseding a Locked ADR):
+  - This candidate classifies exactly ONE existing runtime module (feature-engine) already
+    present in module-registry.yaml — no module is added, removed, or retyped.
+  - No Module Taxonomy change (Chapter 7's three-type taxonomy, or feature-engine's
+    module_type: compute_engine, are both untouched) and no dependency-graph change
+    (depends_on/forbidden_dependencies both verified unchanged and untouched by this
+    transaction).
+  - No Domain/Event Contract change (feature.md/swing.md/structure.md/regime.md untouched).
+  - No Platform Invariant change (Chapter 2 untouched).
+  - No authority transfer and no new cross-module architecture decision — this candidate does
+    not decide anything for Context/Strategy/Decision.
+  - Chapter 13 §13.4 itself already delegates "module cụ thể nào thuộc tier nào" to
+    module-registry.yaml via governance approval (Chapter 7 §7.5) — populating that field is
+    NOT itself an ADR-Required category by Chapter 0 §4b's own table; it is a registry-fact
+    resolved through the existing module-registry governance/approval path, not a new
+    architecture decision requiring a fresh ADR.
+  - A Tier value is revisable later via a new classification decision without re-authoring any
+    algorithm, test suite, or parity evidence from scratch — not a hard-to-reverse-class
+    decision.
+  - This transaction itself does not even write to module-registry.yaml — it authors
+    reasoning/evidence only, strengthening (not weakening) the ADR_NOT_REQUIRED conclusion.
+  - Direct authority (Chapter 13 §13.4's own text, module-registry.yaml's own field-reference
+    comment, and this session's own already-approved structure-engine/raw-regime-engine
+    Tier-1 precedent) does not contradict this — no genuinely new durable architecture choice
+    is required.
+
+No GOVERNED_DECISION_REQUIRED escalation triggered.
+```
+
+### Implementation status context (recorded accurately — not conflating semantic-verification cleanliness with Tier approval or QG eligibility)
+
+```text
+Feature analytical core:        implemented (Regime pass-through + Swing-distance absolute
+  paths fully implemented, verified in README.md's own status table; Candle-derived-formula
+  path and signed-distance path both permanently fail closed pending separate governed
+  authority — recorded as capability-availability facts, not tier-relevant defects).
+Feature remediation history:     P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06 CLOSED (Product
+  Owner decision, prior MANIFEST section, reviewed boundary
+  e5c5ce08b4f041cebfd8fd0976bad73433703419, mechanical recorder commit
+  e66b9441f480b8184604926dbc4e083dac439068).
+Feature module approval:        NOT approved.
+Feature formal QG:              NOT run.
+Feature Quality Tier:           UNRESOLVED before this candidate; "Tier 1 — Core Logic"
+                                  PROPOSED only (CANDIDATE / UNAPPROVED) — not written to
+                                  module-registry.yaml, not effective.
+Feature Input Contract/Frontier
+  package:                       Consolidated Stable (unchanged, unaffected by this
+                                  transaction).
+Structure Engine / Raw Regime
+  Engine:                        unchanged by this transaction; both already Quality Tier
+                                  RESOLVED — Tier 1 — Core Logic (unaffected, untouched).
+Phase 3 Approval Gate:           NOT opened.
+LIVE:                             NOT_AUTHORIZED, unreferenced.
+```
+
+### No scope expansion — explicit verification
+
+```text
+module-registry.yaml unchanged (verified git diff --quiet). feature-engine implementation/
+  tests unchanged (verified git diff --quiet -- python/feature-engine/). docs/adr/**,
+  docs/domain/**, docs/constitution/**, docs/governance/**, docs/architecture/system-
+  decomposition.md, docs/architecture/engine/feature-context-architecture.md, structure-
+  engine/raw-regime-engine/go packages all unchanged (verified git diff --quiet for each). No
+  Quality Tier assigned to any module. No formal Chapter 13 Quality Gate performed. Feature
+  Engine not approved at any level. Context Aggregator not started. LIVE not authorized.
+  Files touched, confirmed via `git status --porcelain=v1`: docs/MANIFEST.md,
+  docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (authoritative, unchanged) / "Tier 1 — Core Logic"
+  PROPOSED only (CANDIDATE / UNAPPROVED).
+Formal Chapter 13 Quality Gate for feature-engine: NOT RUN (unchanged).
+Feature module approval: NOT APPROVED (unchanged).
+LIVE: NOT_AUTHORIZED (unchanged).
+Feature Input Contract/Frontier package: Consolidated Stable (unchanged).
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT bounded Review A of this candidate, then Independent Review B, then a separate Product Owner tier decision, then (if approved) a separate mechanical/semantic `module-registry.yaml` recorder transaction — none performed here, none collapsed into this transaction.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**` both verified byte-unchanged (`git diff --quiet` for each); no other file touched.
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.260` → `10.261`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above) — this transaction records a CANDIDATE proposal only, not an approved tier.
 
 ## Decision Log
 

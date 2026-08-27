@@ -2,6 +2,80 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-27 — Feature Engine: Quality Tier Classification CANDIDATE (Tier 1 — Core Logic, unapproved)
+
+**Candidate-authoring transaction only — vai trò: `Feature Engine Quality Tier Classification Candidate Author`.** Independently derives and proposes a Chapter 13 Quality Tier candidate for `feature-engine`. Does not modify `module-registry.yaml`, does not approve the tier, does not perform Review A/B, does not run a formal Quality Gate, does not approve the Feature module, does not authorize LIVE.
+
+### Registry facts verified directly
+
+```text
+feature-engine: module_type compute_engine, owns_authoritative_state true, depends_on
+  [market-data-ingestion, structure-engine, raw-regime-engine], security_classification
+  none, status candidate, quality_tier field ABSENT => Quality Tier UNRESOLVED (registry
+  authoritative). Both of feature-engine's own upstream analytical dependencies already
+  carry an approved quality_tier: structure-engine and raw-regime-engine are both Tier 1 —
+  Core Logic (Product Owner approved 2026-08-22/2026-08-23).
+```
+
+### Independent analysis
+
+```text
+Tier 0 (Risk Gateway/Execution Engine/Position Ledger): REJECTED — no execution/custody/
+  order/kill-switch authority; Tier-0 Chaos Test criteria (exchange timeout, partial fill,
+  duplicate order, order reject) are categorically inapplicable; downstream trading impact
+  alone is not used as Tier-0 evidence.
+Tier 1 (Strategy/Feature/Structure/Regime Engine): ACCEPTED — owns authoritative
+  FeatureComputed/FeatureFactInvalidated facts; deterministic, no-look-ahead, mode-parity
+  requirements verified directly in feature.md (recorded_time causality, "Deterministic
+  replay (mode parity)," Decimal-only exact parity for I-9); direct precedent from its own
+  two upstream dependencies (structure-engine, raw-regime-engine), both already Tier 1.
+Tier 2 (API layer, Data Ingestion): REJECTED — Feature Engine is not ingress/plumbing; it
+  owns authoritative Core Logic facts. Currently fail-closed/unimplemented paths
+  (Candle-derived formula pending authority; signed swing-distance pending sign convention)
+  are capability-availability facts, not evidence for a lower criticality tier — the
+  fully-implemented paths (Regime pass-through, Swing-distance absolute) already exercise
+  the same Core Logic responsibility.
+Tier 3 (Frontend): REJECTED trivially — module_type compute_engine, no UI surface at all.
+```
+
+### Chapter 13 consequences if later approved (not evaluated here)
+
+```text
+Tier 1 floor: line coverage >= 90% AND branch coverage >= 90% (independent metrics, no
+  averaging); Tier 0/1 test-effectiveness evidence required; mandatory Parity Test (§13.4/
+  §13.6/§13.12(C)). The currently-reported 145 passing tests are explicitly NOT formal
+  Chapter 13 Quality Gate evidence. No PASS/FAIL per dimension declared by this transaction.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — classifies one existing module already in module-registry.yaml; no
+  taxonomy/dependency-graph/Domain-Contract/Platform-Invariant change; tier is a
+  registry-fact resolved through the existing module-registry governance path, not a new
+  architecture decision. This transaction does not even write to module-registry.yaml.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.260" -> "10.261". No other file
+  touched — module-registry.yaml and python/feature-engine/** both verified byte-unchanged.
+```
+
+### State (unchanged by this transaction)
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (authoritative) / "Tier 1 — Core Logic" PROPOSED
+  only (CANDIDATE / UNAPPROVED). Formal Chapter 13 Quality Gate: NOT RUN. Feature module
+  approval: NOT APPROVED. LIVE: NOT_AUTHORIZED. Feature Input Contract/Frontier package:
+  Consolidated Stable.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT bounded Review A, then Independent Review B, then a separate Product Owner tier decision, then (if approved) a separate mechanical `module-registry.yaml` recorder transaction.
+
 ## [Unreleased] — 2026-08-27 — Feature Engine Remediation Closure: Product Owner decision, `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06` CLOSED (mechanical recording transaction only)
 
 **Mechanical closure-recording transaction — no implementation/architecture change.** Reviewed remediation boundary (unchanged by this transaction, NOT the same as this recorder commit): `e5c5ce08b4f041cebfd8fd0976bad73433703419` (round-5 correction commit).
