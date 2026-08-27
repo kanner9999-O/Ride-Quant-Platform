@@ -19,7 +19,13 @@ from conftest import (
     regime_invalidated_at,
 )
 
-from feature_engine import EvaluationFrontier, EventContractRef, RegimePassthroughFeatureEngine, SequenceAllocator
+from feature_engine import (
+    EvaluationFrontier,
+    EventContractRef,
+    RegimePassthroughFeatureEngine,
+    ResolvedInputContract,
+    SequenceAllocator,
+)
 from feature_engine.errors import (
     DefinitionVersionMismatchError,
     EvidenceReferenceConflictError,
@@ -27,6 +33,7 @@ from feature_engine.errors import (
     RegimeDimensionMismatchError,
     RegistryContractMismatchError,
     UnauthorizedUpstreamContractError,
+    UnresolvedComputationCursorAuthorityError,
     UnresolvedOutputContractAuthorityError,
 )
 
@@ -423,3 +430,33 @@ def test_regime_classified_retry_after_invalid_frontier_is_deterministic(
     )
 
     assert computed == clean_computed
+
+
+def test_unverified_plain_authority_cannot_be_supplied_to_regime_engine_as_if_verified(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Review-A round-3 residual B, framed at the engine boundary: a
+    hand-built `ResolvedInputContract` carrying plausible-but-fabricated
+    content-identity strings must never be accepted by
+    `RegimePassthroughFeatureEngine` as though it were genuine, resolver-
+    issued authority.
+    """
+    unverified = ResolvedInputContract(
+        feature_computation_profile="regime",
+        input_contract_ref=REGIME_INPUT_CONTRACT.input_contract_ref,
+        stream_registry_version=REGIME_INPUT_CONTRACT.stream_registry_version,
+        included_streams=REGIME_INPUT_CONTRACT.included_streams,
+        input_contract_content_id="unverified-hand-built-guess",
+        stream_registry_content_id="unverified-hand-built-guess",
+    )
+    definition = make_regime_definition(regime_dimension_version="rgd-1")
+    scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        RegimePassthroughFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            resolved_input_contract=unverified,
+        )

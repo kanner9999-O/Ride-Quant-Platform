@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.256"
+manifest_version: "10.257"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -11731,6 +11731,106 @@ A subsequent bounded Review A round against this second correction remains a sep
 **Files changed:** `python/feature-engine/src/feature_engine/{contracts.py, swing_distance.py, regime_passthrough.py, __init__.py, authority_resolver.py (new)}`; `python/feature-engine/tests/{conftest.py, test_swing_distance.py, test_regime_passthrough.py}`; `docs/MANIFEST.md`; `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 **Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.255` → `10.256`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above).
+
+## Feature Engine Implementation Remediation — Bounded Correction Round 3 (ChatGPT THIRD bounded Review A authority-resolution residual on `P3-FEATURE-A-MAJ-06`)
+
+**Bounded implementation-remediation CORRECTION transaction, round 3 — vai trò: `Feature Engine Implementation Remediator` (correction pass).** ChatGPT's THIRD bounded Review A of the prior correction commit (`b53f9e2d4475af00320df55c97fd88f8468d0e1a`) disposed `THIRD BOUNDED REVIEW A: NOT CLEAN — MAJ-06 REMAINS OPEN; MAJ-04 REMAINS OPEN ONLY BY MAJ-06 DEPENDENCY` — one final authority-resolution residual (two related gaps) against `P3-FEATURE-A-MAJ-06`. No new Blocker/Major/qualifying Minor finding ID created. All prior round-1/round-2 residuals (history-preservation, cursor relational invariants, failure atomicity, real logical stream IDs, etc.) are explicitly confirmed CLOSED and untouched by this transaction. Does NOT perform Review A, does NOT perform Independent Review B, does NOT classify Tier, does NOT run the formal Chapter 13 Quality Gate, does NOT approve the Feature module, does NOT authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `b53f9e2d4475af00320df55c97fd88f8468d0e1a` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. Authority re-read directly from `docs/adr/ADR-034.md`, `docs/adr/ADR-035.md`, `docs/domain/feature.md`, `docs/constitution/08-event-model.md` §8.1.1, `docs/architecture/stream-registry.yaml`, and both consuming `docs/architecture/input-contracts/feature-*.yaml` files.
+
+```text
+Residual A (Stream Registry semantics, not only bytes): `authority_resolver.py` previously
+  hashed the Stream Registry's bytes and stopped -- it never proved the Input Contract's own
+  claimed `stream_registry_version` actually equals that exact resolved Registry's own
+  `registry_version`, nor that every declared `included_stream` genuinely exists in that
+  Registry's own stream set. Fixed: the resolver now additionally parses `registry_version`
+  and the full `stream_id:` set from the Stream Registry artifact, and fails closed
+  (`UnresolvedComputationCursorAuthorityError`) if the Input Contract's `stream_registry_
+  version` does not EXACTLY equal the resolved Registry's own `registry_version`, or if any
+  `included_stream` is not declared there -- never silently rewritten, never resolved by
+  picking a different registry version to make the contract fit.
+Residual B (non-empty fake content IDs are not proof): a caller could previously construct a
+  `ResolvedInputContract` with `input_contract_content_id="fabricated"` (or any other
+  non-empty string) and have it accepted as authority, since the only check was
+  non-emptiness. Fixed: new `VerifiedInputContractAuthority` (contracts.py) -- a frozen
+  dataclass SUBCLASS of `ResolvedInputContract`, adding no new fields -- whose own
+  `__post_init__` independently re-validates that BOTH content-identity fields are
+  well-formed content-identity digests (64 lowercase hex characters, this module's own
+  SHA-256-hex identity scheme) every time an instance is constructed, including via
+  `dataclasses.replace`. `resolve_input_contract_authority` (the sole legitimate
+  construction path every engine uses) now returns this type, not the bare candidate;
+  `resolve_computation_cursor`'s own parameter type was tightened to require it. This does
+  not, by itself, prove a digest matches any SPECIFIC file's bytes (no in-core filesystem
+  access, preserved) -- genuine, file-accurate proof still comes from always obtaining this
+  type via `authority_resolver.py`'s filesystem-backed resolver, which computes real digests
+  directly from the artifact bytes it just read AND performs Residual A's cross-artifact
+  check before returning.
+```
+
+```text
+Canonical persisted Replay Cursor schema: UNCHANGED -- still exactly `recorded_time`/
+  `input_contract_ref`/`stream_registry_version`/`lifecycle_frontier`/`stream_positions`
+  (Chapter 8 §8.5.1/ADR-035). No content-identity/provenance field was added to
+  `ComputationCursor`; the two `*_content_id` fields remain exclusively on the
+  implementation-level `ResolvedInputContract`/`VerifiedInputContractAuthority` resolver-
+  evidence types, never on any persisted authoritative event payload.
+Input Contract artifact lifecycle discipline: unchanged -- the Input Contract YAML files
+  remain `status: Draft`; the resolver reads whatever content currently exists, asserting no
+  particular artifact-level status; no artifact content modified by this transaction.
+MAJ-04: the currently-correct behavioral path (A1 -> invalidated -> B VALID -> A2 invalid
+  R_later fails with zero contamination -> SAME A2 valid retry -> eligible_swing_selection_
+  superseded -> replacement using A2) was re-run unchanged and re-verified passing against
+  the corrected verified-authority type -- no behavioral code in `swing_distance.py` required
+  any edit this round (only the authority type it already threaded through was strengthened).
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/, docs/domain/, docs/constitution/, docs/governance/, docs/team/, docs/architecture/
+  stream-registry.yaml, module-registry.yaml, system-decomposition.md, all three Feature Input
+  Contract YAML files, docs/architecture/engine/feature-context-architecture.md, structure-
+  engine/raw-regime-engine/go packages: all verified byte-identical (`git diff --quiet` for
+  each path). `authority_resolver.py` continues to READ these files at runtime only, never
+  writes to them. ADR classification re-checked: `ADR_NOT_REQUIRED` -- cross-artifact resolver
+  validation and the unresolved-vs-verified authority subtype are both implementation
+  mechanisms implementing already-decided Chapter 8/ADR-035 semantics; no new durable
+  architecture decision was discovered. Files touched, confirmed via
+  `git status --porcelain=v1`: python/feature-engine/src/feature_engine/{contracts.py,
+  authority_resolver.py, __init__.py}, python/feature-engine/tests/{test_swing_distance.py,
+  test_regime_passthrough.py, test_authority_resolver.py (new)}, docs/MANIFEST.md,
+  docs/CHANGELOG.md -- no other file touched. `swing_distance.py`/`regime_passthrough.py`/
+  `conftest.py` required NO change this round -- engine constructors already accepted the
+  base `ResolvedInputContract` type, and `VerifiedInputContractAuthority` is a subtype, so
+  every existing call site remains valid unchanged.
+```
+
+### State summary
+
+```text
+P3-FEATURE-A-MAJ-04: REMEDIATED — PENDING REVIEW (not closed by this transaction).
+P3-FEATURE-A-MAJ-06: REMEDIATED — PENDING REVIEW (not closed by this transaction).
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE (NOT
+  APPROVED, unchanged). Formal Chapter 13 Quality Gate for feature-engine: NOT RUN (unchanged).
+  LIVE: NOT_AUTHORIZED (unchanged, unreferenced by this transaction).
+```
+
+### Validation
+
+```text
+Commands run (from python/feature-engine, `.venv` active):
+  `python -m pytest -q` -> 133 passed.
+  `python -m ruff check .` -> All checks passed!
+  `python -m mypy` -> Success: no issues found in 23 source files.
+```
+
+### Next governed action (not performed in this transaction)
+
+A subsequent bounded Review A round against this third correction remains a separate, not-yet-initiated transaction.
+
+**Files changed:** `python/feature-engine/src/feature_engine/{contracts.py, authority_resolver.py, __init__.py}`; `python/feature-engine/tests/{test_swing_distance.py, test_regime_passthrough.py, test_authority_resolver.py (new)}`; `docs/MANIFEST.md`; `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.256` → `10.257`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above).
 
 ## Decision Log
 

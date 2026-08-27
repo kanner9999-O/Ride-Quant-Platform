@@ -11,6 +11,7 @@ concepts — never redefined per engine.
 from __future__ import annotations
 
 import decimal
+import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -299,22 +300,17 @@ FeatureComputationProfile = Literal["distance_to_last_confirmed_swing", "regime"
 
 @dataclass(frozen=True, slots=True)
 class ResolvedInputContract:
-    """A single VERIFIED authority unit binding `input_contract_ref`, its own
-    pinned `stream_registry_version`, `included_streams`, the exact Feature
-    computation profile it applies to, AND verifiable content-identity proof
-    for both source artifacts (Review-A round-2 residual 1) — never merely
-    three-or-four mutually-consistent free-form strings. Chapter 8 §8.1.1
-    requires referenced authority to be versioned, immutable-once-referenced,
-    persistently resolvable, and verifiable BY CONTENT IDENTITY; the two
-    `*_content_id` fields are that content-identity evidence.
-
-    This dataclass carries no default-authoritative table anywhere in this
-    module — a value is only genuine if produced by an actual resolver that
-    read the real artifacts (see `authority_resolver.py`'s
-    `resolve_input_contract_authority_from_repository`, the filesystem-backed
-    default every test/caller in this repository uses). `resolve_input_
-    contract_authority` (below) validates STRUCTURE/completeness only; it
-    never re-derives or duplicates the artifacts' own semantic content.
+    """A caller-supplied CANDIDATE authority unit binding `input_contract_ref`,
+    its own claimed `stream_registry_version`, `included_streams`, the exact
+    Feature computation profile it applies to, AND claimed content-identity
+    proof for both source artifacts — never itself sufficient authority.
+    `resolve_input_contract_authority` (below) is the only legitimate path
+    from a value of this type to the actually-trusted
+    `VerifiedInputContractAuthority` subtype every engine stores internally;
+    it re-validates every field, and independently re-validates that both
+    `*_content_id` fields are well-formed content-identity digests (Review-A
+    round-3 residual B) — a non-empty but fabricated/arbitrary string (e.g.
+    `"fabricated"`) is never sufficient on its own.
     """
 
     feature_computation_profile: FeatureComputationProfile
@@ -323,6 +319,56 @@ class ResolvedInputContract:
     included_streams: frozenset[str]
     input_contract_content_id: str
     stream_registry_content_id: str
+
+
+# Chapter 8 §8.1.1's "verifiable by content identity" clause: this module's
+# own SHA-256-hex-digest identity scheme (`authority_resolver.py` computes
+# `hashlib.sha256(artifact_bytes).hexdigest()`) — exactly 64 lowercase hex
+# characters. A `VerifiedInputContractAuthority`'s content-identity fields
+# must match this shape; this does not, by itself, prove a digest matches
+# any SPECIFIC file's bytes (no in-core filesystem access, Review-A round-2
+# residual 1's own framing) — it closes the narrower, concrete gap that a
+# non-empty-but-arbitrary string (e.g. `"fabricated"`) was previously
+# indistinguishable from genuine resolver output (Review-A round-3
+# residual B). Genuine, file-accurate proof comes from always obtaining a
+# `VerifiedInputContractAuthority` via `authority_resolver.py`'s
+# filesystem-backed resolver, which computes these digests directly from
+# the artifact bytes it just read.
+_CONTENT_ID_PATTERN = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _is_well_formed_content_id(value: str) -> bool:
+    return bool(_CONTENT_ID_PATTERN.fullmatch(value))
+
+
+@dataclass(frozen=True, slots=True)
+class VerifiedInputContractAuthority(ResolvedInputContract):
+    """The ONLY type a computation engine actually trusts as its own bound
+    Input Contract authority (Review-A round-3 residual B) — obtaining an
+    instance ALWAYS re-validates, in `__post_init__`, that `input_contract_
+    content_id`/`stream_registry_content_id` are well-formed content-identity
+    digests, never merely non-empty strings. `resolve_input_contract_
+    authority` is the sole legitimate constructor path every engine uses;
+    `authority_resolver.py`'s filesystem-backed resolver constructs this type
+    directly, having just computed genuine digests from the real artifact
+    bytes it read AND cross-validated the Input Contract's own claimed
+    `stream_registry_version`/`included_streams` against that exact resolved
+    Stream Registry artifact (never against a hardcoded duplicate table).
+    """
+
+    def __post_init__(self) -> None:
+        if not _is_well_formed_content_id(self.input_contract_content_id):
+            raise UnresolvedComputationCursorAuthorityError(
+                f"input_contract_content_id={self.input_contract_content_id!r} is not a well-formed content-"
+                "identity digest (64 lowercase hex characters) — a non-empty but fabricated/arbitrary string is "
+                "never sufficient content-identity proof (Review-A round-3 residual B)"
+            )
+        if not _is_well_formed_content_id(self.stream_registry_content_id):
+            raise UnresolvedComputationCursorAuthorityError(
+                f"stream_registry_content_id={self.stream_registry_content_id!r} is not a well-formed content-"
+                "identity digest (64 lowercase hex characters) — a non-empty but fabricated/arbitrary string is "
+                "never sufficient content-identity proof (Review-A round-3 residual B)"
+            )
 
 
 # Chapter 8 §8.5.3 — a `StreamPositionProof.sequence` equal to this value
@@ -340,30 +386,30 @@ def resolve_input_contract_authority(
     candidate: ResolvedInputContract,
     *,
     required_profile: FeatureComputationProfile,
-) -> ResolvedInputContract:
+) -> VerifiedInputContractAuthority:
     """The single place an engine validates its own bound Input Contract
-    authority (Review-A round-2 residual 1). This module performs no
-    filesystem/GitHub I/O itself and keeps NO duplicate copy of Input
-    Contract/Stream Registry semantics — genuine resolution against the
-    real, current artifacts is the injected `candidate`'s own
-    responsibility (dependency injection; see `authority_resolver.py`'s
+    authority (Review-A round-2 residual 1 / round-3 residual B). This
+    module performs no filesystem/GitHub I/O itself and keeps NO duplicate
+    copy of Input Contract/Stream Registry semantics — genuine resolution
+    (including the cross-artifact Registry <-> Contract check) against the
+    real, current artifacts is the injected `candidate`'s own responsibility
+    (dependency injection; see `authority_resolver.py`'s
     `resolve_input_contract_authority_from_repository` for the default,
-    filesystem-backed resolver). This function validates only that the
-    supplied authority is STRUCTURALLY complete and applicable:
+    filesystem-backed resolver). This function validates that the supplied
+    authority is STRUCTURALLY complete and applicable:
 
     - `candidate.feature_computation_profile` must equal `required_profile`
       (`InputContractIdentityMismatchError` otherwise) — a genuine authority
       object resolved for the WRONG profile is never accepted merely
       because it is otherwise well-formed.
     - every identity field (`input_contract_ref.contract_id`/
-      `contract_version`, `stream_registry_version`, `included_streams`) AND
-      every content-identity field (`input_contract_content_id`,
-      `stream_registry_content_id`) must be genuine and non-empty
-      (`UnresolvedComputationCursorAuthorityError` otherwise) — a
-      caller-constructed object whose semantic literals merely happen to
-      look right is NEVER sufficient without accompanying, verifiable
-      content-identity evidence for BOTH the Input Contract and the Stream
-      Registry artifacts it claims to have been resolved from.
+      `contract_version`, `stream_registry_version`, `included_streams`)
+      must be genuine and non-empty (`UnresolvedComputationCursorAuthorityError`
+      otherwise).
+    - constructing the returned `VerifiedInputContractAuthority` independently
+      re-validates that both content-identity fields are well-formed content-
+      identity digests, never merely non-empty (Review-A round-3 residual B)
+      — raises `UnresolvedComputationCursorAuthorityError` itself if not.
     """
     if candidate.feature_computation_profile != required_profile:
         raise InputContractIdentityMismatchError(
@@ -384,25 +430,20 @@ def resolve_input_contract_authority(
             "included_streams must be a genuine, non-empty set of stream_ids resolved from the bound "
             "Feature-scoped Input Contract's own included_streams"
         )
-    if not candidate.input_contract_content_id:
-        raise UnresolvedComputationCursorAuthorityError(
-            "input_contract_content_id must be a genuine, non-empty, verifiable content identity for the "
-            "resolved Input Contract artifact (Chapter 8 §8.1.1) — a caller-constructed object is never "
-            "accepted on semantic-literal equality alone (Review-A round-2 residual 1)"
-        )
-    if not candidate.stream_registry_content_id:
-        raise UnresolvedComputationCursorAuthorityError(
-            "stream_registry_content_id must be a genuine, non-empty, verifiable content identity for the "
-            "resolved Stream Registry artifact (Chapter 8 §8.1.1) — a caller-constructed object is never "
-            "accepted on semantic-literal equality alone (Review-A round-2 residual 1)"
-        )
-    return candidate
+    return VerifiedInputContractAuthority(
+        feature_computation_profile=candidate.feature_computation_profile,
+        input_contract_ref=candidate.input_contract_ref,
+        stream_registry_version=candidate.stream_registry_version,
+        included_streams=candidate.included_streams,
+        input_contract_content_id=candidate.input_contract_content_id,
+        stream_registry_content_id=candidate.stream_registry_content_id,
+    )
 
 
 def resolve_computation_cursor(
     frontier: EvaluationFrontier,
     *,
-    resolved_input_contract: ResolvedInputContract,
+    resolved_input_contract: VerifiedInputContractAuthority,
 ) -> ComputationCursor:
     """The single place every computation engine assembles its own outbound
     `computation_cursor` from a caller-supplied, proof-carrying

@@ -15,8 +15,8 @@ this package never imports either (see `identity.py`'s module docstring).
 repository/configuration ADAPTER, explicitly outside the analytical core
 proper (`contracts.py`/`swing_distance.py`/`regime_passthrough.py`/
 `candle_window.py`/`current_view.py` never import it) — callers use it (or
-an equivalent resolver) to obtain the `ResolvedInputContract` a computation
-engine requires via dependency injection.
+an equivalent resolver) to obtain the `VerifiedInputContractAuthority` a
+computation engine requires via dependency injection.
 """
 
 from .authority_resolver import resolve_input_contract_authority_from_repository
@@ -56,6 +56,7 @@ from .contracts import (
     RecordedTimeSource,
     ResolvedInputContract,
     StreamPositionProof,
+    VerifiedInputContractAuthority,
     is_visible_at_cursor,
     normalize_input_facts,
     resolve_computation_cursor,
@@ -174,6 +175,7 @@ __all__ = [
     "UnresolvedOutputContractAuthorityError",
     "UnsupportedDistanceRepresentationError",
     "UnsupportedFeatureFormulaError",
+    "VerifiedInputContractAuthority",
     "is_visible_at_cursor",
     "normalize_input_facts",
     "resolve_computation_cursor",

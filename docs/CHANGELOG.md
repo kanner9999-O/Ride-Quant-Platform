@@ -2,6 +2,65 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-27 — Feature Engine Implementation Remediation: bounded correction round 3 (ChatGPT THIRD Review A authority-resolution residual on `P3-FEATURE-A-MAJ-06`)
+
+**Bounded correction of ChatGPT's THIRD bounded Review A residual** — disposition `THIRD BOUNDED REVIEW A: NOT CLEAN — MAJ-06 REMAINS OPEN; MAJ-04 REMAINS OPEN ONLY BY MAJ-06 DEPENDENCY`, one residual (two related gaps), no new finding ID. Baseline HEAD `b53f9e2d4475af00320df55c97fd88f8468d0e1a`.
+
+### Fixed
+
+```text
+Residual A: `authority_resolver.py` previously hashed the Stream Registry's bytes without
+  proving the Input Contract's claimed `stream_registry_version` equals the resolved
+  Registry's own `registry_version`, or that `included_streams` genuinely exist there. The
+  resolver now parses `registry_version` + the full stream_id set from the Registry artifact
+  and fails closed on either mismatch -- never silently rebased onto a different registry.
+Residual B: new `VerifiedInputContractAuthority` (a `ResolvedInputContract` subclass, no new
+  fields) whose `__post_init__` independently re-validates that both content-identity fields
+  are well-formed 64-hex-character digests -- a non-empty but fabricated string like
+  `"fabricated"` is now rejected, closing the gap where non-emptiness alone was accepted as
+  proof. `resolve_input_contract_authority` returns this type; `resolve_computation_cursor`'s
+  parameter type was tightened to require it.
+```
+
+### Tests
+
+```text
+New tests/test_authority_resolver.py: positive resolution of the real swing-distance/regime
+  authority (with shared registry content-identity, distinct contract content-identities),
+  registry_version mismatch fail-closed, unknown-included-stream fail-closed, contract
+  identity resolved from actual (temporary fixture) artifact content -- never caller
+  substituted, content-identity changes when artifact bytes change / stable when unchanged,
+  missing-artifact fail-closed (11 tests, using temporary tmp_path fixtures only -- no
+  authoritative docs mutated). Extended test_swing_distance.py/test_regime_passthrough.py:
+  fabricated (non-empty, wrong-format) content-ID rejection, wrong-length hex rejection,
+  unverified-plain-authority-cannot-be-supplied-as-if-verified for both engines. All prior
+  round-1/round-2 tests (historical as-of, MAJ-04 supersession, failure-atomicity retries)
+  re-verified passing unchanged. `pytest -q` -> 133 passed. `ruff check .` -> clean. `mypy`
+  (strict) -> clean, 23 source files.
+```
+
+### Files changed
+
+```text
+python/feature-engine/src/feature_engine/{contracts.py, authority_resolver.py, __init__.py};
+  python/feature-engine/tests/{test_swing_distance.py, test_regime_passthrough.py,
+  test_authority_resolver.py (new)}; docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version
+  "10.256" -> "10.257". No other file touched -- `swing_distance.py`/`regime_passthrough.py`/
+  `conftest.py` required no change this round.
+```
+
+### State (unchanged by this transaction)
+
+```text
+P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06: REMEDIATED — PENDING REVIEW (not closed). Feature
+  Quality Tier: UNRESOLVED. Formal Chapter 13 Quality Gate: NOT RUN. Feature module approval:
+  NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+### Next governed action (not performed here)
+
+A subsequent bounded Review A round against this third correction remains a separate, not-yet-initiated transaction.
+
 ## [Unreleased] — 2026-08-27 — Feature Engine Implementation Remediation: bounded correction round 2 (ChatGPT SECOND Review A residuals on `P3-FEATURE-A-MAJ-04` / `P3-FEATURE-A-MAJ-06`)
 
 **Bounded correction of ChatGPT's SECOND bounded Review A residuals** — disposition `SECOND BOUNDED REVIEW A: NOT CLEAN — MAJ-04 / MAJ-06 REMAIN OPEN`, two residuals (both against MAJ-06), no new finding ID. Baseline HEAD `94018d406e04e5f29053b1e245bf1fa80e7b4b6d`.
