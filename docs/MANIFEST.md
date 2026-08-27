@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.252"
+manifest_version: "10.253"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -11316,6 +11316,54 @@ Package 1.1: Consolidated Stable (unchanged, unaffected). Phase 3 Approval Gate:
 ### Next governed action (not performed in this transaction)
 
 Not specified by the governing task — this transaction does not begin a deterministic post-recorder review/verification task. Any future governed action (e.g. Feature implementation remediation per ADR-036's own Consequences ordering) remains a separate, not-yet-initiated transaction.
+
+**Files changed:** `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Feature Input Contract / Frontier Reconsolidation — mechanical audit-record correction (`Consolidated Stable` unchanged — wording-only fix)
+
+**Mechanical audit-record correction transaction — vai trò: `Feature Input Contract / Frontier Reconsolidation Recorder` (audit-correction pass).** Post-recorder deterministic verification found the reconsolidation banner in `feature-context-architecture.md` (commit `96db43dc68c81ea5173ec6108a1b52964b948b4c`) stated "all four preserved byte-identical by this transaction" — internally contradictory, since that same banner sits inside the one file the transaction intentionally modified (blob `2881181bbde3e08d82042702db56e67190500056` → `0353d8d02c694e5c2fb7973a07c4ac4250b2b05d`), and the sentence itself then says "ONLY this banner ... change." Classification: `MECHANICAL AUDIT-RECORD DEFECT` — NOT a Feature architecture/Input-Contract semantic defect, NOT a reopening of `P3-FEATURE-FRONTIER-A-MAJ-01`/`-MAJ-02`/`-MIN-01`, NOT `P3-CORRECTION-CHAIN-001`, NOT a new Review A/B/Product Owner reconsolidation.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `96db43dc68c81ea5173ec6108a1b52964b948b4c` via `git rev-parse HEAD` (no intervening commit); `git fetch origin main` confirmed `origin/main` at the identical SHA. Tracked tree clean bar unrelated untracked `.DS_Store`. `docs/MANIFEST.md`'s own prior reconsolidation section (line ~11226 above) and `docs/CHANGELOG.md`'s own prior entry were independently inspected and found to ALREADY state the fact accurately (feature-context-architecture.md's blob delta shown explicitly; the three Input Contract YAML files separately confirmed byte-identical) — neither repeats the false "all four byte-identical" claim, so neither required a factual correction; only `feature-context-architecture.md`'s own banner text contained the defect.
+
+```text
+File corrected:      docs/architecture/engine/feature-context-architecture.md
+Incorrect statement: "all four preserved byte-identical by this transaction; ONLY this
+                      banner + MANIFEST/CHANGELOG lifecycle prose change."
+Corrected statement: "all three Feature Input Contract YAML files were preserved
+                      byte-identical by this transaction. The reviewed semantic content of
+                      feature-context-architecture.md (version: "0.6", status: Draft,
+                      approved_by: null, approved_at: null) was preserved; this
+                      reconsolidation transaction modified that file only by adding this
+                      lifecycle-record banner -- its content identity therefore changed
+                      (blob 2881181... -> 0353d8d...), exactly as intended for a mechanical
+                      lifecycle recorder, consistent with MANIFEST.md/CHANGELOG.md's own
+                      already-accurate blob-delta records."
+Content identity:    0353d8d02c694e5c2fb7973a07c4ac4250b2b05d -> 0c08cd3518fd5d0aa97ba9d052c6bca587eb2162
+version/status:      "0.6"/Draft UNCHANGED. approved_by/approved_at: null/null UNCHANGED.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/architecture/input-contracts/feature-candle-input.yaml/feature-regime-input.yaml/
+  feature-swing-distance-input.yaml: verified byte-identical to boundary
+  ae49357a23bd0e13955e3b69a631774bdf93556b (git diff --quiet). docs/adr/ (all 36 files),
+  docs/domain/, docs/constitution/, docs/governance/, docs/team/,
+  docs/architecture/stream-registry.yaml, module-registry.yaml, system-decomposition.md,
+  python/, go/: all verified byte-identical. No semantic candidate content changed. No
+  code/test file touched. No Event Contract/Domain Contract/ADR/governance semantic
+  changed. Reviewed semantic boundary ae49357a23bd0e13955e3b69a631774bdf93556b unchanged.
+```
+
+### State summary (unchanged by this correction)
+
+```text
+package_lifecycle: Consolidated Stable (unchanged). Artifact-level status: Draft
+  (feature-context-architecture.md and all three Input Contracts, unchanged).
+P3-FEATURE-A-MAJ-04: OPEN (unchanged). P3-FEATURE-A-MAJ-06: OPEN (unchanged).
+Feature Tier: UNRESOLVED (unchanged). Feature Quality Gate: NOT RUN (unchanged).
+Feature module approval: NOT APPROVED (unchanged). LIVE: NOT_AUTHORIZED (unchanged).
+```
 
 **Files changed:** `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 

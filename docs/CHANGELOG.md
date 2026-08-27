@@ -2,6 +2,33 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-27 — Feature Input Contract / Frontier Reconsolidation: mechanical audit-record correction
+
+**Mechanical audit-record correction only** — not a semantic review, not a reopening of the closed candidate. Baseline HEAD `96db43dc68c81ea5173ec6108a1b52964b948b4c`.
+
+### Fixed
+
+```text
+feature-context-architecture.md's reconsolidation banner incorrectly stated "all four
+  preserved byte-identical by this transaction" -- self-contradictory, since that same
+  file was the one intentionally modified (blob 2881181... -> 0353d8d...). Corrected to
+  state the actual facts: all three Feature Input Contract YAML files were preserved
+  byte-identical; feature-context-architecture.md's reviewed semantic content (version
+  "0.6", status Draft, approved_by/approved_at null) was preserved, and this
+  reconsolidation transaction modified that file only by adding the lifecycle-record
+  banner, hence its own content identity changed. MANIFEST.md/CHANGELOG.md's own prior
+  records were inspected and found already accurate -- no correction needed there beyond
+  this additive entry.
+```
+
+### Files changed
+
+```text
+docs/architecture/engine/feature-context-architecture.md (blob
+  0353d8d02c694e5c2fb7973a07c4ac4250b2b05d -> 0c08cd3518fd5d0aa97ba9d052c6bca587eb2162),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.252" -> "10.253".
+```
+
 ## [Unreleased] — 2026-08-27 — Feature Input Contract / Frontier: Product Owner Reconsolidation (`Consolidated Stable`)
 
 **Atomic mechanical reconsolidation-recording transaction.** Product Owner decision (verbatim): `APPROVE FEATURE INPUT CONTRACT / FRONTIER RECONSOLIDATION AT BOUNDARY ae49357a23bd0e13955e3b69a631774bdf93556b`. Baseline HEAD `ae49357a23bd0e13955e3b69a631774bdf93556b` (fresh-verified against both local and `origin/main` before any edit).
