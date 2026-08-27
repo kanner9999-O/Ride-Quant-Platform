@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.251"
+manifest_version: "10.252"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -11222,6 +11222,102 @@ Package 1.1: Consolidated Stable (unchanged). Phase 3 Approval Gate: NOT opened.
 ChatGPT third bounded Review-A re-review of these two findings, at the resulting immutable commit boundary — scope limited to the delta, per P3-REVIEW-001. This is the final normal correction round for these findings — if a further semantic defect is found, the next governed action is `P3-CORRECTION-CHAIN-001` root-cause consolidation, not a fourth bounded correction. Does not itself perform Review B, author any Event Contract, or implement `feature-engine`.
 
 **Files changed:** `docs/architecture/input-contracts/feature-candle-input.yaml`, `feature-regime-input.yaml`, `feature-swing-distance-input.yaml`, `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+## Feature Input Contract / Frontier — Product Owner Reconsolidation (`Consolidated Stable` — mechanical lifecycle transaction only)
+
+**Atomic mechanical reconsolidation-recording transaction — vai trò: `Feature Input Contract / Frontier Reconsolidation Recorder`.** Product Owner decision (verbatim): `APPROVE FEATURE INPUT CONTRACT / FRONTIER RECONSOLIDATION AT BOUNDARY ae49357a23bd0e13955e3b69a631774bdf93556b`. Does not perform a new semantic review, does not change implementation/architecture semantics, does not modify Feature code/tests/Event Contract implementation, does not touch `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06`/ADR-035/ADR-036/Constitution/governance/Genesis Stream Registry/module-registry.yaml/system-decomposition.md/Domain Contracts/dependency graph, does not start a fourth Review-A round, does not create a new ADR, does not perform another Review A/B, does not classify Feature Quality Tier, does not run a Quality Gate, does not approve the Feature module, does not authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `ae49357a23bd0e13955e3b69a631774bdf93556b` via `git rev-parse HEAD` (matches the approved candidate boundary exactly — no intervening commit). `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence. Tracked tree clean (only pre-existing unrelated untracked `.DS_Store` clutter). Candidate artifact states verified fresh and matching the approved boundary: `docs/architecture/engine/feature-context-architecture.md` `version: "0.6"`, `status: Draft`; `docs/architecture/input-contracts/feature-candle-input.yaml`, `feature-regime-input.yaml`, `feature-swing-distance-input.yaml` each `version: "0.4"`, `status: Draft`. `manifest_version` confirmed `"10.251"` at start.
+
+```text
+Reviewed/approved candidate boundary: ae49357a23bd0e13955e3b69a631774bdf93556b (unchanged
+  by this transaction — a mechanical lifecycle-only recorder, not a new semantic candidate)
+docs/architecture/engine/feature-context-architecture.md:
+  version "0.6" -> "0.6" (unchanged); status Draft -> Draft (unchanged);
+  package_lifecycle candidate -> Consolidated Stable (new top-of-file banner records this)
+  content identity: 2881181bbde3e08d82042702db56e67190500056 ->
+                     0353d8d02c694e5c2fb7973a07c4ac4250b2b05d
+docs/architecture/input-contracts/feature-candle-input.yaml:    UNCHANGED (no
+  package_lifecycle concept exists for this artifact individually — Package 1.3-B's
+  lifecycle is tracked solely via feature-context-architecture.md's own banner, per
+  established repository convention; see below)
+docs/architecture/input-contracts/feature-regime-input.yaml:    UNCHANGED (same reason)
+docs/architecture/input-contracts/feature-swing-distance-input.yaml: UNCHANGED (same reason)
+```
+
+### Recorder-convention resolution (repository precedent, not invented)
+
+```text
+Inspected existing precedent: "Package 1.3-B" package-lifecycle state has, since its
+  original 2026-08-04 Consolidated Stable transaction (MANIFEST "## Architecture" table,
+  architecture/engine/feature-context-architecture.md row), always been tracked as a
+  SINGLE-FILE lifecycle state — a mechanical banner + `version`/`status` UNCHANGED pattern
+  on feature-context-architecture.md itself, exactly mirroring Package 1.1's own
+  reconsolidation transactions on module-registry.yaml/system-decomposition.md earlier this
+  session (e.g. "Package 1.1 v1.3 Reconsolidation," "Package 1.1 ADR-036 Alignment —
+  Product Owner Reconsolidation"). The three Feature Input Contract YAML files carry only
+  their own document-level `version`/`status` (no separate `package_lifecycle` field, no
+  prior "Consolidated Stable" concept established for them individually anywhere in this
+  session's history) — per the governing task's own explicit instruction not to conflate
+  package lifecycle with document-level approval, and not to silently convert Draft into
+  Approved, these three files are correctly left untouched by this reconsolidation. This
+  is the existing convention, applied — not a new lifecycle mechanism invented here.
+```
+
+### Review evidence recorded (additive — historical correction-round records preserved unmodified below and in CHANGELOG.md)
+
+```text
+Review A (ChatGPT, AI Technical Architect), boundary ae49357a23bd0e13955e3b69a631774bdf93556b:
+  P3-FEATURE-FRONTIER-A-MAJ-01 — CLOSED. P3-FEATURE-FRONTIER-A-MAJ-02 — CLOSED.
+  P3-FEATURE-FRONTIER-A-MIN-01 — CLOSED. New Blocker: 0. New Major: 0. Qualifying/open
+  Minor: 0. Disposition: THIRD BOUNDED REVIEW A: CLEAN.
+Independent Review B (Claude, alias "Independent Review B", AI Technical Architect,
+  ADR-031 Mode A DISTINCT_PRINCIPAL relative to ChatGPT, isolation attested), same boundary:
+  P3-FEATURE-FRONTIER-A-MAJ-01 — CLOSED. P3-FEATURE-FRONTIER-A-MAJ-02 — CLOSED.
+  P3-FEATURE-FRONTIER-A-MIN-01 — CLOSED. New Blocker: 0. New Major: 0. Qualifying Minor: 0.
+  Disposition: CLEAN — READY_FOR_PRODUCT_OWNER_RECONSOLIDATION.
+Minimum-two-review requirement (Chapter 11 §11.5, applied by direct analogy to this
+  Phase-1-design-spec candidate, same precedent as every prior Input-Contract/frontier
+  review round this session): SATISFIED.
+Product Owner reconsolidation decision (verbatim): "APPROVE FEATURE INPUT CONTRACT /
+  FRONTIER RECONSOLIDATION AT BOUNDARY ae49357a23bd0e13955e3b69a631774bdf93556b."
+All three correction-round histories (round 1: P3-FEATURE-FRONTIER-A-MAJ-01/-MAJ-02/-MIN-01
+  original findings; round 2: MAJ-01/MAJ-02 re-findings; round 3: MAJ-01/MAJ-02 final
+  findings) remain preserved, unmodified, in their own prior MANIFEST sections above and in
+  CHANGELOG.md — this transaction does not rewrite, collapse, or erase any of them.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/ (all 36 files), docs/domain/, docs/constitution/, docs/governance/, docs/team/,
+  docs/architecture/stream-registry.yaml, module-registry.yaml, system-decomposition.md,
+  python/, go/: all verified byte-identical (git diff --quiet for each path). All three
+  Input Contract YAML files verified byte-identical (git diff --quiet). No Feature
+  implementation/test file touched. No Event Contract authored/modified. No Tier assigned,
+  no Quality Gate run, no Feature module approval granted, no LIVE authorization.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE
+  (NOT APPROVED). Formal Chapter 13 Quality Gate for feature-engine: NOT RUN.
+P3-FEATURE-A-MAJ-04: remains OPEN.
+P3-FEATURE-A-MAJ-06: remains OPEN.
+Package 1.3-B (feature-context-architecture.md): package_lifecycle now Consolidated
+  Stable. Both artifacts (feature-context-architecture.md and the three Input Contracts)
+  remain status: Draft (Chapter 0 §7.1 package-lifecycle/artifact-status separation,
+  unchanged, not conflated).
+Package 1.1: Consolidated Stable (unchanged, unaffected). Phase 3 Approval Gate: NOT
+  opened. LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Not specified by the governing task — this transaction does not begin a deterministic post-recorder review/verification task. Any future governed action (e.g. Feature implementation remediation per ADR-036's own Consequences ordering) remains a separate, not-yet-initiated transaction.
+
+**Files changed:** `docs/architecture/engine/feature-context-architecture.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 ## Decision Log
 

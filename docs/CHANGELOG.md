@@ -2,6 +2,43 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-27 — Feature Input Contract / Frontier: Product Owner Reconsolidation (`Consolidated Stable`)
+
+**Atomic mechanical reconsolidation-recording transaction.** Product Owner decision (verbatim): `APPROVE FEATURE INPUT CONTRACT / FRONTIER RECONSOLIDATION AT BOUNDARY ae49357a23bd0e13955e3b69a631774bdf93556b`. Baseline HEAD `ae49357a23bd0e13955e3b69a631774bdf93556b` (fresh-verified against both local and `origin/main` before any edit).
+
+### Approved (lifecycle only)
+
+```text
+docs/architecture/engine/feature-context-architecture.md (version "0.6" unchanged, status
+  Draft unchanged): new top-of-file banner records package_lifecycle
+  candidate -> Consolidated Stable.
+
+Three Feature Input Contract YAML files: UNCHANGED (no package_lifecycle concept exists
+  for them individually -- Package 1.3-B's lifecycle is tracked solely via
+  feature-context-architecture.md's own banner, per established repository convention).
+
+Review A (ChatGPT) and Independent Review B (Claude, alias "Independent Review B") both
+  disposed CLEAN at boundary ae49357a -- P3-FEATURE-FRONTIER-A-MAJ-01/-MAJ-02/-MIN-01 all
+  CLOSED, zero new Blocker/Major, zero qualifying Minor, Mode A (DISTINCT_PRINCIPAL)
+  independence satisfied.
+
+No architecture/implementation semantic changed -- script/diff-verified byte-identical for
+  all three Input Contracts and every other repository path outside the recorder scope.
+```
+
+### Files changed
+
+```text
+docs/architecture/engine/feature-context-architecture.md (blob
+  2881181bbde3e08d82042702db56e67190500056 -> 0353d8d02c694e5c2fb7973a07c4ac4250b2b05d),
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.251" -> "10.252".
+  No other file touched.
+```
+
+### Next governed action (not performed here)
+
+Not specified by the governing task — no deterministic post-recorder review/verification begun in this transaction.
+
 ## [Unreleased] — 2026-08-26 — Feature Frontier: third bounded correction, final normal round (two Major, round 3)
 
 **Bounded correction only, final normal round for these findings** — not a Feature implementation round, not a new ADR. Baseline HEAD `dc804bcd2ed826a11e07a467fb871caa677bf8b0`.
