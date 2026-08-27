@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import inspect
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
@@ -24,10 +25,10 @@ from feature_engine import (
     EvaluationFrontier,
     EventContractRef,
     RegimePassthroughFeatureEngine,
-    ResolvedInputContract,
     SequenceAllocator,
     StaticInputContractAuthorityProvider,
 )
+from feature_engine.contracts import ResolvedInputContract, VerifiedInputContractAuthority, _seal_verified_authority
 from feature_engine.errors import (
     DefinitionVersionMismatchError,
     EvidenceReferenceConflictError,
@@ -79,8 +80,9 @@ def _invalid_frontier(recorded_time: datetime) -> EvaluationFrontier:
     version`) used to prove Review-A round-2 residual 2's failure-atomicity
     requirement for this engine too. Built by mutating a VALID frontier's
     own plain field directly — never by mutating `REGIME_INPUT_CONTRACT`
-    itself, which now rejects ANY field mutation via its own internal
-    field-binding check (Review-A round-4).
+    itself, which (as a `VerifiedInputContractAuthority`) has no public
+    constructor at all, so `dataclasses.replace` on it always raises
+    `TypeError` (Review-A round-5).
     """
     return dataclasses.replace(_frontier_at(recorded_time), stream_registry_version="not-the-real-registry-version")
 
@@ -452,8 +454,8 @@ def test_regime_classified_retry_after_invalid_frontier_is_deterministic(
 def test_unverified_plain_authority_cannot_be_supplied_to_regime_engine_as_if_verified(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    """Review-A round-4: a hand-built `ResolvedInputContract` — NOT the
-    verified subtype, never produced by any resolver — wrapped in a provider
+    """Negative test 6: a hand-built `ResolvedInputContract` — NOT the
+    verified type, never produced by any resolver — wrapped in a provider
     that hands it back verbatim, must never be accepted by
     `RegimePassthroughFeatureEngine` as though it were genuine, resolver-
     issued authority. The engine itself independently rejects a provider
@@ -483,9 +485,9 @@ def test_unverified_plain_authority_cannot_be_supplied_to_regime_engine_as_if_ve
 def test_valid_looking_fake_sha_digests_cannot_be_supplied_to_regime_engine_as_if_verified(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    """Review-A round-4's own literal residual example: `"a" * 64`/`"b" * 64`
-    are syntactically valid SHA-256 hex, but were never computed from any
-    resolved artifact. SHA-256 SHAPE != SHA-256 PROVENANCE.
+    """Negative test 6 (variant): `"a" * 64`/`"b" * 64` are syntactically
+    valid SHA-256 hex, but were never computed from any resolved artifact.
+    SHA-256 SHAPE != SHA-256 PROVENANCE.
     """
     fake_but_well_formed = ResolvedInputContract(
         feature_computation_profile="regime",
@@ -508,12 +510,104 @@ def test_valid_looking_fake_sha_digests_cannot_be_supplied_to_regime_engine_as_i
         )
 
 
-def test_mutated_verified_regime_authority_rejected() -> None:
-    """A genuinely resolver-issued regime authority, mutated via
-    `dataclasses.replace`, must never remain/re-become accepted as genuine
-    verified authority without going through fresh artifact resolution.
+def test_mutated_verified_regime_authority_rejected_structurally() -> None:
+    """A genuinely resolver-issued regime authority cannot be turned into a
+    different-but-still-accepted authority via `dataclasses.replace` at
+    all — `replace()` itself calls `VerifiedInputContractAuthority`'s own
+    disabled public constructor, so ANY field change raises `TypeError`
+    structurally (Review-A round-5).
+    """
+    with pytest.raises(TypeError):
+        dataclasses.replace(REGIME_INPUT_CONTRACT, included_streams=frozenset({"an-invented-stream"}))
+    with pytest.raises(TypeError):
+        dataclasses.replace(REGIME_INPUT_CONTRACT, stream_registry_version="v99")
+
+
+def test_verified_regime_authority_not_exported_from_public_package() -> None:
+    """Negative test 1: neither `VerifiedInputContractAuthority` nor its
+    resolver-internal precursor `ResolvedInputContract` is part of
+    `feature_engine`'s own public surface.
+    """
+    import feature_engine
+
+    assert not hasattr(feature_engine, "VerifiedInputContractAuthority")
+    assert not hasattr(feature_engine, "ResolvedInputContract")
+    assert "VerifiedInputContractAuthority" not in feature_engine.__all__
+    assert "ResolvedInputContract" not in feature_engine.__all__
+
+
+def test_directly_fabricated_verified_type_cannot_be_supplied_to_regime_engine() -> None:
+    """Negative test 2: directly constructing `VerifiedInputContractAuthority`
+    — even with a fully genuine-looking field set plus Review-A's own
+    literal residual example `"a" * 64`/`"b" * 64` — raises `TypeError`
+    structurally, before any field is ever inspected.
+    """
+    with pytest.raises(TypeError):
+        VerifiedInputContractAuthority(
+            feature_computation_profile="regime",
+            input_contract_ref=REGIME_INPUT_CONTRACT.input_contract_ref,
+            stream_registry_version=REGIME_INPUT_CONTRACT.stream_registry_version,
+            included_streams=REGIME_INPUT_CONTRACT.included_streams,
+            input_contract_content_id="a" * 64,
+            stream_registry_content_id="b" * 64,
+        )
+
+
+def test_static_provider_cannot_launder_fabricated_regime_authority(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Negative test 3: `StaticInputContractAuthorityProvider` remains
+    public, but wrapping a caller-manufactured "authority-shaped" object in
+    it is still rejected by the engine's own `isinstance` check — there is
+    no supported way to construct a genuine `VerifiedInputContractAuthority`
+    to wrap in the first place.
+    """
+    fabricated = ResolvedInputContract(
+        feature_computation_profile="regime",
+        input_contract_ref=REGIME_INPUT_CONTRACT.input_contract_ref,
+        stream_registry_version=REGIME_INPUT_CONTRACT.stream_registry_version,
+        included_streams=REGIME_INPUT_CONTRACT.included_streams,
+        input_contract_content_id="a" * 64,
+        stream_registry_content_id="b" * 64,
+    )
+    laundering_provider = StaticInputContractAuthorityProvider(fabricated)  # type: ignore[arg-type]
+    definition = make_regime_definition(regime_dimension_version="rgd-1")
+    scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        RegimePassthroughFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            input_contract_authority_provider=laundering_provider,
+        )
+
+
+def test_regime_engine_constructor_requires_provider_not_bare_authority_value() -> None:
+    """Negative test 4: `RegimePassthroughFeatureEngine`'s own constructor
+    signature exposes an `input_contract_authority_provider` parameter typed
+    `InputContractAuthorityProvider` — never a `resolved_input_contract`/
+    `ResolvedInputContract`/`VerifiedInputContractAuthority` parameter.
+    """
+    signature = inspect.signature(RegimePassthroughFeatureEngine.__init__)
+    assert "input_contract_authority_provider" in signature.parameters
+    assert "resolved_input_contract" not in signature.parameters
+    assert not hasattr(REGIME_INPUT_CONTRACT, "resolve")
+
+
+def test_empty_regime_content_id_fails_closed_via_resolver_factory() -> None:
+    """Resolver-level field validation (moved off the now fully-disabled
+    `VerifiedInputContractAuthority` public constructor, Review-A round-5) —
+    retargeted directly at the sole legitimate entrypoint,
+    `_seal_verified_authority`, which `authority_resolver.py` alone calls.
     """
     with pytest.raises(UnresolvedComputationCursorAuthorityError):
-        dataclasses.replace(REGIME_INPUT_CONTRACT, included_streams=frozenset({"an-invented-stream"}))
-    with pytest.raises(UnresolvedComputationCursorAuthorityError):
-        dataclasses.replace(REGIME_INPUT_CONTRACT, stream_registry_version="v99")
+        _seal_verified_authority(
+            feature_computation_profile=REGIME_INPUT_CONTRACT.feature_computation_profile,
+            input_contract_ref=REGIME_INPUT_CONTRACT.input_contract_ref,
+            stream_registry_version=REGIME_INPUT_CONTRACT.stream_registry_version,
+            included_streams=REGIME_INPUT_CONTRACT.included_streams,
+            input_contract_content_id="",
+            stream_registry_content_id=REGIME_INPUT_CONTRACT.stream_registry_content_id,
+        )

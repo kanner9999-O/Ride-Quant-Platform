@@ -19,8 +19,12 @@ request their own bound authority through an injected
 `InputContractAuthorityProvider` (`contracts.py`), and
 `FilesystemInputContractAuthorityResolver`/`StaticInputContractAuthorityProvider`
 (`authority_resolver.py`) are the supported implementations of that
-Protocol; no engine accepts an already-resolved authority VALUE directly
-(Review-A round-4).
+Protocol; no engine accepts an already-resolved authority VALUE directly.
+`VerifiedInputContractAuthority`/`ResolvedInputContract` (`contracts.py`) are
+deliberately NOT exported here (Review-A round-5) — they are resolver-
+internal implementation types, never part of this package's own public
+construction surface; `VerifiedInputContractAuthority` additionally has no
+public constructor at all (see its own docstring in `contracts.py`).
 """
 
 from .authority_resolver import (
@@ -63,9 +67,7 @@ from .contracts import (
     LifecycleFrontierProof,
     LifecyclePosition,
     RecordedTimeSource,
-    ResolvedInputContract,
     StreamPositionProof,
-    VerifiedInputContractAuthority,
     is_visible_at_cursor,
     normalize_input_facts,
     resolve_computation_cursor,
@@ -172,7 +174,6 @@ __all__ = [
     "RegimeFactInvalidatedFact",
     "RegimePassthroughFeatureEngine",
     "RegistryContractMismatchError",
-    "ResolvedInputContract",
     "SequenceAllocator",
     "StaticInputContractAuthorityProvider",
     "StreamPositionProof",
@@ -186,7 +187,6 @@ __all__ = [
     "UnresolvedOutputContractAuthorityError",
     "UnsupportedDistanceRepresentationError",
     "UnsupportedFeatureFormulaError",
-    "VerifiedInputContractAuthority",
     "is_visible_at_cursor",
     "normalize_input_facts",
     "resolve_computation_cursor",

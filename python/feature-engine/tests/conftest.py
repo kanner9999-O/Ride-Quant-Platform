@@ -38,14 +38,13 @@ from feature_engine import (
     LifecyclePosition,
     RegimeClassifiedFact,
     RegimeFactInvalidatedFact,
-    ResolvedInputContract,
     SequenceAllocator,
     StreamPositionProof,
     SwingConfirmedFact,
     SwingInvalidatedFact,
     resolve_input_contract_authority_from_repository,
 )
-from feature_engine.contracts import FeatureComputed, FeatureFactInvalidated
+from feature_engine.contracts import FeatureComputed, FeatureFactInvalidated, VerifiedInputContractAuthority
 
 INSTRUMENT = "BTC-USDT"
 VENUE = "binance-spot"
@@ -96,7 +95,7 @@ _UNBOUNDED_SEQUENCE = 10**9
 def frontier_at(
     recorded_time: datetime,
     *,
-    resolved_input_contract: ResolvedInputContract = SWING_DISTANCE_INPUT_CONTRACT,
+    resolved_input_contract: VerifiedInputContractAuthority = SWING_DISTANCE_INPUT_CONTRACT,
     stream_positions: Mapping[str, StreamPositionProof] | None = None,
     lifecycle_frontier: LifecycleFrontierProof | None = None,
 ) -> EvaluationFrontier:

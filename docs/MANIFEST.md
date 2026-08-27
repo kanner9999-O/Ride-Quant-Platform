@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.258"
+manifest_version: "10.259"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -11961,6 +11961,138 @@ A subsequent bounded Review A round against this fourth correction remains a sep
 **Files changed:** `python/feature-engine/src/feature_engine/{contracts.py, authority_resolver.py, swing_distance.py, regime_passthrough.py, __init__.py}`; `python/feature-engine/tests/{test_swing_distance.py, test_regime_passthrough.py}`; `docs/MANIFEST.md`; `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 **Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.257` → `10.258`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above).
+
+## Feature Engine Authority API Closure — Bounded Correction Round 5 (ChatGPT FIFTH bounded Review A field-binding-is-not-provenance residual on `P3-FEATURE-A-MAJ-06`)
+
+**Bounded implementation-remediation CORRECTION transaction, round 5 — vai trò: `Feature Engine Implementation Remediator` (correction pass).** ChatGPT's FIFTH bounded Review A of the prior correction commit (round 4, `df01047b86abcaaa886da588acce55c4c980818c`) disposed `FIFTH BOUNDED REVIEW A: NOT CLEAN — MAJ-06 REMAINS OPEN; MAJ-04 REMAINS OPEN ONLY BY MAJ-06 DEPENDENCY` — one final residual against `P3-FEATURE-A-MAJ-06`: round-4's `VerifiedInputContractAuthority._field_binding` was a caller-supplied dataclass constructor argument whose value was a deterministic, UNKEYED SHA-256 hash over the object's own substantive fields, with the algorithm itself present in this module's own importable source. A normal caller could therefore compute that exact digest themselves (`_compute_field_binding`'s own published formula) and hand it back in as a plain, ordinary constructor argument — `VerifiedInputContractAuthority(..., input_contract_content_id="a"*64, stream_registry_content_id="b"*64, _field_binding=<caller-computed correct binding>)` — obtaining an instance whose `__post_init__` succeeded despite no actual artifact resolution ever having occurred, then wrapping it in `StaticInputContractAuthorityProvider` and having the engine accept it. Verbatim finding framing: "FIELD-BINDING CHECKSUM != RESOLVER PROVENANCE." No new Blocker/Major/qualifying Minor finding ID created. All prior round-1 through round-4 residuals are explicitly confirmed CLOSED and untouched by this transaction. Does NOT perform Review A, does NOT perform Independent Review B, does NOT classify Tier, does NOT run the formal Chapter 13 Quality Gate, does NOT approve the Feature module, does NOT authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `df01047b86abcaaa886da588acce55c4c980818c` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts.
+
+```text
+Residual (checksum consistency is not resolver provenance): round-4's `_field_binding` +
+  `_compute_field_binding` mechanism only ever proved internal field-CONSISTENCY (all fields
+  bound together, tamper-evident against `dataclasses.replace`) -- it never proved WHO
+  constructed the object, because no keyed/secret element existed anywhere in the computation.
+  A caller with ordinary read access to this module's own source (never reflection/memory
+  access -- plain importable Python) could reimplement the identical formula and produce a
+  matching `_field_binding` for entirely invented field values, including the governing task's
+  own literal example `"a"*64`/`"b"*64` content-identity digests. Fixed by DELETING the
+  `_field_binding` field and `_compute_field_binding` function entirely -- per the governing
+  task's own explicit instruction, adding a different caller-computable hash/token in its place
+  would only move the identical defect one level deeper, not close it.
+Fix (structural constructor closure, not a checksum): `VerifiedInputContractAuthority`
+  (contracts.py) is no longer a subclass of `ResolvedInputContract` and no longer carries any
+  binding/checksum field at all -- its own `__init__` is now explicitly overridden to
+  unconditionally raise `TypeError` regardless of what arguments are supplied, so calling
+  `VerifiedInputContractAuthority(...)` directly through its public, importable name NEVER
+  succeeds, for ANY field values, well-formed or not. The only place an instance is ever
+  actually built is the new module-private `_construct_verified_authority` (bypasses the
+  disabled `__init__` via `object.__new__` + `object.__setattr__` per field -- the same
+  technique a frozen dataclass's own generated `__init__` already uses internally), called
+  exclusively by `_seal_verified_authority` (also module-private, unchanged call signature),
+  which is itself called exclusively by `authority_resolver.py`'s filesystem-backed resolver
+  AFTER genuine artifact resolution + round-3 cross-artifact validation + real-bytes hashing.
+  A direct structural consequence: `dataclasses.replace(...)` on a genuine instance now ALSO
+  always raises `TypeError` (since `replace()` itself calls the type's own disabled
+  constructor) -- mutation-safety is now a structural property, not a re-checked invariant.
+Fix (public-surface removal): `VerifiedInputContractAuthority`/`ResolvedInputContract` are no
+  longer exported through `feature_engine.__init__` at all (`__all__`/import block both
+  updated) -- a normal caller who only imports `feature_engine` has no name whatsoever to
+  attempt authority construction with. `StaticInputContractAuthorityProvider` remains public
+  (still a legitimate way to inject an already-resolved value obtained via the filesystem
+  resolver) -- it cannot be used to launder a fabricated object into engine-accepted authority,
+  because there is no supported way to construct a genuine `VerifiedInputContractAuthority` to
+  wrap in the first place (new regression test confirms this explicitly for both engines).
+```
+
+```text
+Canonical persisted Replay Cursor schema: UNCHANGED -- still exactly `recorded_time`/
+  `input_contract_ref`/`stream_registry_version`/`lifecycle_frontier`/`stream_positions`
+  (Chapter 8 §8.5.1/ADR-035). No content-identity/provenance field was ever added to
+  `ComputationCursor`; content-identity remains resolver-level implementation evidence only.
+Input Contract artifact lifecycle discipline: unchanged -- Input Contract YAML files remain
+  `status: Draft`; no artifact content modified by this transaction.
+Engine constructors: UNCHANGED this round -- `SwingDistanceFeatureEngine`/
+  `RegimePassthroughFeatureEngine` already required an injected `InputContractAuthorityProvider`
+  (round-4) and already independently `isinstance`-checked the provider's return value against
+  `VerifiedInputContractAuthority` before trusting it; that isinstance check now additionally
+  benefits from the type being unforgeable at all, closing the residual without any change to
+  `swing_distance.py`/`regime_passthrough.py`'s own logic.
+MAJ-04: the currently-correct behavioral path (A1 -> invalidated -> B VALID -> A2 invalid
+  R_later fails with zero contamination -> SAME A2 valid retry -> eligible_swing_selection_
+  superseded -> replacement using A2) was re-run unchanged and re-verified passing -- no MAJ-04
+  behavioral code required any edit this round.
+Negative tests added/passing (both engines): verified-authority type not exported from the
+  public package (`hasattr`/`__all__` checks); direct `VerifiedInputContractAuthority(...)`
+  fabrication rejected with `TypeError` before any field is inspected;
+  `StaticInputContractAuthorityProvider` cannot launder a fabricated `ResolvedInputContract`
+  into engine-accepted authority; both engine constructor signatures inspected via
+  `inspect.signature` to confirm `input_contract_authority_provider: InputContractAuthorityProvider`
+  is required and no `resolved_input_contract`/bare-value parameter exists, plus confirmation a
+  bare authority value has no `.resolve()` method; provider-returns-wrong-type and
+  provider-returns-wrong-profile fail-closed regression preserved; `dataclasses.replace` on a
+  genuine authority now raises `TypeError` for every field (structural, not per-field-checked).
+  Resolver-level field validation (empty/fabricated/wrong-length content ids, empty registry
+  version, empty included_streams) retargeted directly at `_seal_verified_authority` -- the sole
+  legitimate constructor -- since `dataclasses.replace` on the now fully-disabled public type no
+  longer reaches that validation logic at all.
+Positive tests confirmed: `FilesystemInputContractAuthorityResolver().resolve(...)` (and the
+  underlying `resolve_input_contract_authority_from_repository`) for both
+  `distance_to_last_confirmed_swing` and `regime` produce authority accepted by their respective
+  engines; all round-3 resolver regression tests (`test_authority_resolver.py`, real-bytes
+  hashing, Registry version mismatch rejection, included-stream-absent rejection,
+  content-identity changes with bytes / stable when unchanged) preserved, mechanically updated
+  only to import `VerifiedInputContractAuthority` from `feature_engine.contracts` instead of the
+  now-removed public re-export, and re-verified passing.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/, docs/domain/, docs/constitution/, docs/governance/, docs/team/, docs/architecture/
+  stream-registry.yaml, module-registry.yaml, system-decomposition.md, all three Feature Input
+  Contract YAML files, docs/architecture/engine/feature-context-architecture.md, structure-
+  engine/raw-regime-engine/go packages: all verified byte-identical (`git diff --quiet` for
+  each path). ADR classification re-checked: `ADR_NOT_REQUIRED` -- deleting a caller-computable
+  checksum field and disabling a type's public constructor are implementation/API encapsulation
+  mechanisms implementing already-decided Chapter 8/ADR-035 authority requirements; no new
+  durable architecture decision was discovered. Files touched, confirmed via
+  `git status --porcelain=v1`: python/feature-engine/src/feature_engine/{contracts.py,
+  __init__.py}, python/feature-engine/tests/{conftest.py, test_authority_resolver.py,
+  test_swing_distance.py, test_regime_passthrough.py}, docs/MANIFEST.md, docs/CHANGELOG.md --
+  no other file touched. `swing_distance.py`/`regime_passthrough.py`/`authority_resolver.py`
+  required NO functional change this round (only internal import/doc-comment consistency was
+  verified, not edited) -- both engines already called an injected provider and already
+  isinstance-checked its result; `authority_resolver.py`'s own `_seal_verified_authority` call
+  signature was already unchanged-compatible with the new constructor.
+```
+
+### State summary
+
+```text
+P3-FEATURE-A-MAJ-04: REMEDIATED — PENDING REVIEW (not closed by this transaction).
+P3-FEATURE-A-MAJ-06: REMEDIATED — PENDING REVIEW (not closed by this transaction).
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE (NOT
+  APPROVED, unchanged). Formal Chapter 13 Quality Gate for feature-engine: NOT RUN (unchanged).
+  LIVE: NOT_AUTHORIZED (unchanged, unreferenced by this transaction).
+```
+
+### Validation
+
+```text
+Commands run (from python/feature-engine, `.venv` active):
+  `python -m pytest -q` -> 145 passed.
+  `python -m ruff check .` -> All checks passed!
+  `python -m mypy` -> Success: no issues found in 23 source files.
+```
+
+### Next governed action (not performed in this transaction)
+
+A subsequent bounded Review A round against this fifth correction remains a separate, not-yet-initiated transaction.
+
+**Files changed:** `python/feature-engine/src/feature_engine/{contracts.py, __init__.py}`; `python/feature-engine/tests/{conftest.py, test_authority_resolver.py, test_swing_distance.py, test_regime_passthrough.py}`; `docs/MANIFEST.md`; `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.258` → `10.259`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above).
 
 ## Decision Log
 

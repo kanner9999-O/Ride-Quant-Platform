@@ -11,7 +11,6 @@ concepts — never redefined per engine.
 from __future__ import annotations
 
 import decimal
-import hashlib
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
@@ -324,9 +323,9 @@ class ResolvedInputContract:
 # characters. A `VerifiedInputContractAuthority`'s content-identity fields
 # must match this shape; this does not, by itself, prove a digest matches
 # any SPECIFIC file's bytes (no in-core filesystem access, Review-A round-2
-# residual 1's own framing) — it is a secondary sanity check, never the
-# verification mechanism itself (Review-A round-4 — see `_field_binding`
-# below for the actual mechanism).
+# residual 1's own framing) — it is a secondary sanity check only. The
+# actual boundary (Review-A round-5) is that `VerifiedInputContractAuthority`
+# has no public constructor at all — see the class docstring below.
 _CONTENT_ID_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -334,121 +333,112 @@ def _is_well_formed_content_id(value: str) -> bool:
     return bool(_CONTENT_ID_PATTERN.fullmatch(value))
 
 
-def _compute_field_binding(
+@dataclass(frozen=True, slots=True)
+class VerifiedInputContractAuthority:
+    """The ONLY type a computation engine actually trusts as its own bound
+    Input Contract authority.
+
+    Review-A round-5 residual: an earlier version of this type accepted a
+    caller-supplied `_field_binding` field — a deterministic, UNKEYED
+    SHA-256 digest over the object's own substantive fields, re-verified in
+    `__post_init__` on every construction. That mechanism only ever proved
+    internal field-CONSISTENCY, never resolver PROVENANCE: since the hash
+    algorithm has no secret and lives in this module's own importable
+    source, a normal caller could compute that exact same digest themselves
+    and hand it back in as a plain constructor argument, producing an
+    instance whose internal check passed despite no actual artifact
+    resolution ever having occurred (FIELD-BINDING CHECKSUM != RESOLVER
+    PROVENANCE — the same shape-vs-provenance defect one level deeper).
+    That field and its check are deleted entirely here rather than replaced
+    with a different caller-computable token/hash, which would only move
+    the identical defect deeper again.
+
+    Instead, this type's own public constructor is disabled structurally:
+    calling `VerifiedInputContractAuthority(...)` — with ANY arguments,
+    including a fully genuine-looking field set — always raises `TypeError`
+    (`__init__`, below), before any field is ever inspected. This type is
+    also never exported through `feature_engine.__init__` — it is not part
+    of this package's public surface. The only place an instance is ever
+    actually built is `_construct_verified_authority` (module-private,
+    below), called exclusively by `_seal_verified_authority` (also
+    module-private), which is itself called exclusively by
+    `authority_resolver.py`'s filesystem-backed resolver AFTER it has
+    genuinely read and cross-validated the real Input Contract/Stream
+    Registry artifacts and computed real content-identity digests from
+    their actual bytes.
+
+    Every computation engine requests its own bound authority through an
+    injected `InputContractAuthorityProvider` (below), never by accepting an
+    already-resolved value as a constructor argument — there is no normal,
+    supported path by which a caller can invent field values (however
+    plausible or well-formed) and obtain an instance any engine will
+    accept. `dataclasses.replace()` on a genuine instance is, for the same
+    structural reason, also always rejected: `replace()` itself calls this
+    type's own (disabled) constructor.
+
+    This is an API/semantic encapsulation boundary, not a defense against
+    hostile code with reflection/memory access (Review-A round-5 explicitly
+    does not require the latter) — module-private construction is
+    sufficient.
+    """
+
+    feature_computation_profile: FeatureComputationProfile
+    input_contract_ref: InputContractRef
+    stream_registry_version: str
+    included_streams: frozenset[str]
+    input_contract_content_id: str
+    stream_registry_content_id: str
+
+    def __init__(self, *_args: object, **_kwargs: object) -> None:
+        raise TypeError(
+            "VerifiedInputContractAuthority has no public constructor — genuine verified authority is only ever "
+            "produced internally by authority_resolver.py, after actual Input Contract/Stream Registry artifact "
+            "resolution (Review-A round-5). Obtain authority through an InputContractAuthorityProvider, e.g. "
+            "FilesystemInputContractAuthorityResolver().resolve(profile), instead of constructing this type "
+            "directly — and note that dataclasses.replace(...) on an existing instance is rejected for the same "
+            "reason, since it too calls this constructor."
+        )
+
+
+def _construct_verified_authority(
+    *,
     feature_computation_profile: FeatureComputationProfile,
     input_contract_ref: InputContractRef,
     stream_registry_version: str,
     included_streams: frozenset[str],
     input_contract_content_id: str,
     stream_registry_content_id: str,
-) -> str:
-    """Binds ALL of a `VerifiedInputContractAuthority`'s substantive fields
-    together into one digest, re-verified in `__post_init__` on EVERY
-    construction (including via `dataclasses.replace`) — Review-A round-4's
-    own required outcome: "SHA-256 shape != SHA-256 provenance." A candidate
-    whose fields are individually well-formed but were never bound together
-    by this exact computation (i.e. never actually produced by
-    `authority_resolver.py` reading and cross-validating the real artifacts)
-    fails this check; a `dataclasses.replace()` that alters ANY single field
-    — including swapping in a fabricated-but-well-formed content-identity
-    digest while leaving everything else genuine — invalidates the binding,
-    because the recomputed digest over the NEW field values no longer
-    matches the STALE, unchanged `_field_binding` copied from the original.
-
-    This is NOT a cryptographic signature against a determined adversary
-    with source-code access (no secret key is used, and none is claimed to
-    be needed — Review-A round-4 explicitly does not require defending
-    against arbitrary Python code with reflection/source access). It closes
-    the concrete, NORMAL-PATH gap: a plain caller cannot promote unresolved
-    data into trusted authority merely by matching field shape, and cannot
-    mutate an already-verified authority's fields via the ordinary,
-    supported `dataclasses.replace()` API and have the result still pass.
+) -> VerifiedInputContractAuthority:
+    """The ONLY place a `VerifiedInputContractAuthority` instance is ever
+    actually built (Review-A round-5). Bypasses the type's own disabled
+    public `__init__` the same way a frozen dataclass's OWN generated
+    `__init__` always does internally (`object.__new__` + `object.
+    __setattr__` per field, since frozen instances reject ordinary attribute
+    assignment) — this is a standard, well-understood pattern, not a hack.
+    Module-private; called exclusively by `_seal_verified_authority`
+    immediately below, which performs all actual field validation first.
     """
-    joined = "|".join(
-        [
-            feature_computation_profile,
-            input_contract_ref.contract_id,
-            input_contract_ref.contract_version,
-            stream_registry_version,
-            ",".join(sorted(included_streams)),
-            input_contract_content_id,
-            stream_registry_content_id,
-        ]
-    )
-    return hashlib.sha256(joined.encode("utf-8")).hexdigest()
-
-
-@dataclass(frozen=True, slots=True)
-class VerifiedInputContractAuthority(ResolvedInputContract):
-    """The ONLY type a computation engine actually trusts as its own bound
-    Input Contract authority (Review-A round-3 residual B / round-4). This
-    type is never constructed directly by ordinary engine callers: no
-    computation engine accepts a bare `ResolvedInputContract`/
-    `VerifiedInputContractAuthority` VALUE at all anymore (Review-A round-4)
-    — engines instead request their own authority through an injected
-    `InputContractAuthorityProvider`, and only `authority_resolver.py`'s
-    private `_seal_verified_authority` factory (used exclusively by its own
-    filesystem-backed resolution logic, after it has actually read and
-    cross-validated the real artifacts) legitimately constructs one.
-
-    `__post_init__` re-validates, on EVERY construction (fresh or via
-    `dataclasses.replace`):
-    - both content-identity fields are well-formed content-identity digests
-      (secondary sanity check, never merely non-empty strings);
-    - `_field_binding` matches a freshly recomputed digest over this exact
-      instance's OWN current field values (`_compute_field_binding`, above)
-      — the actual verification mechanism. A hand-built instance (even one
-      supplying two independently well-formed-looking SHA-256 strings) has
-      no way to also supply a matching `_field_binding` without
-      reimplementing this exact, private computation — which only
-      `authority_resolver.py` does, immediately after genuine resolution.
-    """
-
-    _field_binding: str = ""
-
-    def __post_init__(self) -> None:
-        if not _is_well_formed_content_id(self.input_contract_content_id):
-            raise UnresolvedComputationCursorAuthorityError(
-                f"input_contract_content_id={self.input_contract_content_id!r} is not a well-formed content-"
-                "identity digest (64 lowercase hex characters) — a non-empty but fabricated/arbitrary string is "
-                "never sufficient content-identity proof (Review-A round-3 residual B)"
-            )
-        if not _is_well_formed_content_id(self.stream_registry_content_id):
-            raise UnresolvedComputationCursorAuthorityError(
-                f"stream_registry_content_id={self.stream_registry_content_id!r} is not a well-formed content-"
-                "identity digest (64 lowercase hex characters) — a non-empty but fabricated/arbitrary string is "
-                "never sufficient content-identity proof (Review-A round-3 residual B)"
-            )
-        expected_binding = _compute_field_binding(
-            self.feature_computation_profile,
-            self.input_contract_ref,
-            self.stream_registry_version,
-            self.included_streams,
-            self.input_contract_content_id,
-            self.stream_registry_content_id,
-        )
-        if self._field_binding != expected_binding:
-            raise UnresolvedComputationCursorAuthorityError(
-                "VerifiedInputContractAuthority's internal field binding does not match its own current field "
-                "values — either this object was never produced by genuine artifact resolution (SHA-256 SHAPE "
-                "is not SHA-256 PROVENANCE), or it was mutated after resolution (e.g. via dataclasses.replace) "
-                "without going through fresh resolution. Obtain a fresh instance via authority_resolver.py's "
-                "InputContractAuthorityProvider instead (Review-A round-4)"
-            )
+    instance = object.__new__(VerifiedInputContractAuthority)
+    object.__setattr__(instance, "feature_computation_profile", feature_computation_profile)
+    object.__setattr__(instance, "input_contract_ref", input_contract_ref)
+    object.__setattr__(instance, "stream_registry_version", stream_registry_version)
+    object.__setattr__(instance, "included_streams", included_streams)
+    object.__setattr__(instance, "input_contract_content_id", input_contract_content_id)
+    object.__setattr__(instance, "stream_registry_content_id", stream_registry_content_id)
+    return instance
 
 
 class InputContractAuthorityProvider(Protocol):
     """Every computation engine requests its own bound Input Contract
-    authority through this Protocol at construction time (Review-A
-    round-4) — rather than accepting an already-resolved value directly,
-    which would let a caller "promote" arbitrary, unresolved data into
-    trusted authority merely by matching field shape. A provider's
-    `.resolve(profile)` is trusted to have ACTUALLY performed genuine
-    artifact resolution for that exact profile — the same class of trust
-    this module already places in an injected `RecordedTimeSource`/
-    `SequenceAllocator`. The default, filesystem-backed implementation
-    (`FilesystemInputContractAuthorityResolver`) lives in
-    `authority_resolver.py`, explicitly outside this analytical core.
+    authority through this Protocol at construction time — rather than
+    accepting an already-resolved value directly, which would let a caller
+    "promote" arbitrary, unresolved data into trusted authority merely by
+    matching field shape. A provider's `.resolve(profile)` is trusted to
+    have ACTUALLY performed genuine artifact resolution for that exact
+    profile — the same class of trust this module already places in an
+    injected `RecordedTimeSource`/`SequenceAllocator`. The default,
+    filesystem-backed implementation (`FilesystemInputContractAuthorityResolver`)
+    lives in `authority_resolver.py`, explicitly outside this analytical core.
     """
 
     def resolve(self, profile: FeatureComputationProfile) -> VerifiedInputContractAuthority: ...
@@ -474,13 +464,13 @@ def _seal_verified_authority(
     input_contract_content_id: str,
     stream_registry_content_id: str,
 ) -> VerifiedInputContractAuthority:
-    """The ONLY factory that computes a correct `_field_binding` and
-    constructs a `VerifiedInputContractAuthority` (Review-A round-4) — used
-    exclusively by `authority_resolver.py`'s filesystem-backed resolver,
-    immediately after it has read the real artifacts, cross-validated
-    Registry <-> Contract semantics, and computed genuine content-identity
-    digests from the actual bytes. Deliberately private (not exported via
-    `__init__.py`) — no other module constructs verified authority.
+    """The ONLY factory that produces a genuine `VerifiedInputContractAuthority`
+    (Review-A round-5) — used exclusively by `authority_resolver.py`'s
+    filesystem-backed resolver, immediately after it has read the real
+    artifacts, cross-validated Registry <-> Contract semantics, and computed
+    genuine content-identity digests from the actual bytes. Deliberately
+    private (not exported via `__init__.py`) — no other module constructs
+    verified authority.
     """
     if not feature_computation_profile:
         raise UnresolvedComputationCursorAuthorityError("feature_computation_profile must be genuine and non-empty")
@@ -494,22 +484,25 @@ def _seal_verified_authority(
         )
     if not included_streams:
         raise UnresolvedComputationCursorAuthorityError("included_streams must be a genuine, non-empty set")
-    binding = _compute_field_binding(
-        feature_computation_profile,
-        input_contract_ref,
-        stream_registry_version,
-        included_streams,
-        input_contract_content_id,
-        stream_registry_content_id,
-    )
-    return VerifiedInputContractAuthority(
+    if not _is_well_formed_content_id(input_contract_content_id):
+        raise UnresolvedComputationCursorAuthorityError(
+            f"input_contract_content_id={input_contract_content_id!r} is not a well-formed content-identity "
+            "digest (64 lowercase hex characters) — a non-empty but fabricated/arbitrary string is never "
+            "sufficient content-identity proof"
+        )
+    if not _is_well_formed_content_id(stream_registry_content_id):
+        raise UnresolvedComputationCursorAuthorityError(
+            f"stream_registry_content_id={stream_registry_content_id!r} is not a well-formed content-identity "
+            "digest (64 lowercase hex characters) — a non-empty but fabricated/arbitrary string is never "
+            "sufficient content-identity proof"
+        )
+    return _construct_verified_authority(
         feature_computation_profile=feature_computation_profile,
         input_contract_ref=input_contract_ref,
         stream_registry_version=stream_registry_version,
         included_streams=included_streams,
         input_contract_content_id=input_contract_content_id,
         stream_registry_content_id=stream_registry_content_id,
-        _field_binding=binding,
     )
 
 

@@ -2,6 +2,77 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-27 — Feature Engine Authority API Closure: bounded correction round 5 (ChatGPT FIFTH Review A field-binding-is-not-provenance residual on `P3-FEATURE-A-MAJ-06`)
+
+**Bounded correction of ChatGPT's FIFTH bounded Review A residual** — disposition `FIFTH BOUNDED REVIEW A: NOT CLEAN — MAJ-06 REMAINS OPEN; MAJ-04 REMAINS OPEN ONLY BY MAJ-06 DEPENDENCY`, one residual, no new finding ID. Baseline HEAD `df01047b86abcaaa886da588acce55c4c980818c`.
+
+### Fixed
+
+```text
+Residual: round-4's `VerifiedInputContractAuthority._field_binding` was a caller-supplied
+  constructor argument holding a deterministic, UNKEYED SHA-256 digest over the object's own
+  fields, computed by a formula published in this module's own importable source. A normal
+  caller could reimplement that exact formula and hand back a matching binding for entirely
+  invented field values -- including the governing task's own literal `"a"*64`/`"b"*64`
+  example -- producing an instance whose internal check passed despite no actual artifact
+  resolution ever occurring. FIELD-BINDING CHECKSUM != RESOLVER PROVENANCE. Fixed by DELETING
+  the `_field_binding` field/`_compute_field_binding` function entirely (adding a different
+  caller-computable token would only move the defect deeper) and instead disabling
+  `VerifiedInputContractAuthority`'s own public constructor structurally: `__init__` now always
+  raises `TypeError` regardless of arguments. The only construction path is the new
+  module-private `_construct_verified_authority` (bypasses the disabled `__init__` via
+  `object.__new__`/`object.__setattr__`, the same technique frozen dataclasses use internally),
+  called exclusively by `_seal_verified_authority`, itself called exclusively by
+  `authority_resolver.py` after genuine artifact resolution. `dataclasses.replace(...)` on a
+  genuine instance now also always raises `TypeError` (it calls the same disabled constructor)
+  -- mutation-safety is now structural. `VerifiedInputContractAuthority`/`ResolvedInputContract`
+  are also no longer exported through `feature_engine.__init__` at all.
+```
+
+### Tests
+
+```text
+New negative tests (Swing + Regime): verified-authority type not exported from the public
+  package; direct `VerifiedInputContractAuthority(...)` fabrication rejected with `TypeError`;
+  `StaticInputContractAuthorityProvider` cannot launder a fabricated `ResolvedInputContract`
+  into engine-accepted authority; engine constructor signatures inspected to confirm they
+  require `InputContractAuthorityProvider` and expose no bare-value parameter; provider-wrong-
+  type/provider-wrong-profile fail-closed regression preserved; `dataclasses.replace` on a
+  genuine authority now raises `TypeError` for every field. Resolver-level field validation
+  (empty/fabricated/wrong-length content ids, empty registry version, empty included_streams)
+  retargeted directly at `_seal_verified_authority` (the sole legitimate constructor), since
+  `dataclasses.replace` on the disabled public type no longer reaches that logic. Positive:
+  `FilesystemInputContractAuthorityResolver`/`resolve_input_contract_authority_from_repository`
+  for both profiles still produce authority each engine accepts. All round-1/2/3/4 tests
+  (historical as-of, MAJ-04 supersession, failure-atomicity retries, cross-artifact resolver
+  validation) re-verified passing unchanged, mechanically updated only to import
+  `VerifiedInputContractAuthority` from `feature_engine.contracts` instead of the removed public
+  re-export. `pytest -q` -> 145 passed. `ruff check .` -> clean. `mypy` (strict) -> clean, 23
+  source files.
+```
+
+### Files changed
+
+```text
+python/feature-engine/src/feature_engine/{contracts.py, __init__.py}; python/feature-engine/
+  tests/{conftest.py, test_authority_resolver.py, test_swing_distance.py,
+  test_regime_passthrough.py}; docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.258"
+  -> "10.259". No other file touched -- `swing_distance.py`/`regime_passthrough.py`/
+  `authority_resolver.py` required no functional change this round.
+```
+
+### State (unchanged by this transaction)
+
+```text
+P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06: REMEDIATED — PENDING REVIEW (not closed). Feature
+  Quality Tier: UNRESOLVED. Formal Chapter 13 Quality Gate: NOT RUN. Feature module approval:
+  NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+### Next governed action (not performed here)
+
+A subsequent bounded Review A round against this fifth correction remains a separate, not-yet-initiated transaction.
+
 ## [Unreleased] — 2026-08-27 — Feature Engine Implementation Remediation: bounded correction round 4 (ChatGPT FOURTH Review A verified-authority-boundary residual on `P3-FEATURE-A-MAJ-06`)
 
 **Bounded correction of ChatGPT's FOURTH bounded Review A residual** — disposition `FOURTH BOUNDED REVIEW A: NOT CLEAN — MAJ-06 REMAINS OPEN; MAJ-04 REMAINS OPEN ONLY BY MAJ-06 DEPENDENCY`, one residual, no new finding ID. Baseline HEAD `08933031c8e119c42a12425b83bfbbf1e3ae3ae6`.

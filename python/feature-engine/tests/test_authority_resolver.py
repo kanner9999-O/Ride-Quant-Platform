@@ -4,8 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from feature_engine import InputContractRef, VerifiedInputContractAuthority
+from feature_engine import InputContractRef
 from feature_engine.authority_resolver import resolve_input_contract_authority_from_repository
+from feature_engine.contracts import VerifiedInputContractAuthority
 from feature_engine.errors import UnresolvedComputationCursorAuthorityError
 
 _DEFAULT_SWING_INCLUDED_STREAMS = ("market-data-ingestion-candle", "structure-engine-swing")
