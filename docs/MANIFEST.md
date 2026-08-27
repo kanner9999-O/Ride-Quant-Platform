@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.255"
+manifest_version: "10.256"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -11622,6 +11622,115 @@ A subsequent bounded Review A round against this correction remains a separate, 
 **Files changed:** `python/feature-engine/src/feature_engine/{contracts.py, errors.py, swing_distance.py, regime_passthrough.py, __init__.py}`; `python/feature-engine/tests/{conftest.py, test_swing_distance.py, test_regime_passthrough.py, test_current_view.py}`; `docs/MANIFEST.md`; `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 **Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.254` → `10.255`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above).
+
+## Feature Engine Implementation Remediation — Bounded Correction Round 2 (ChatGPT SECOND bounded Review A residuals on `P3-FEATURE-A-MAJ-04` / `P3-FEATURE-A-MAJ-06`)
+
+**Bounded implementation-remediation CORRECTION transaction, round 2 — vai trò: `Feature Engine Implementation Remediator` (correction pass).** ChatGPT's SECOND bounded Review A of the prior correction commit (`94018d406e04e5f29053b1e245bf1fa80e7b4b6d`) disposed `SECOND BOUNDED REVIEW A: NOT CLEAN — MAJ-04 / MAJ-06 REMAIN OPEN` — two residuals identified, both against `P3-FEATURE-A-MAJ-06`, with `P3-FEATURE-A-MAJ-04` remaining dependent on MAJ-06's own closure. No new Blocker/Major/qualifying Minor finding ID created. Does NOT perform Review A, does NOT perform Independent Review B, does NOT classify Tier, does NOT run the formal Chapter 13 Quality Gate, does NOT approve the Feature module, does NOT authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `94018d406e04e5f29053b1e245bf1fa80e7b4b6d` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. Authority re-read directly from `docs/adr/ADR-034.md`, `docs/adr/ADR-035.md`, `docs/domain/feature.md`, `docs/constitution/05-time-model.md`, `docs/constitution/08-event-model.md` §8.1.1/§8.5.1/§8.5.2, `docs/architecture/stream-registry.yaml`, and all three `docs/architecture/input-contracts/feature-*.yaml` files.
+
+```text
+Residual 1 (real authoritative artifact resolution still missing): `_KNOWN_STREAM_REGISTRIES`/
+  `_KNOWN_INPUT_CONTRACTS` were hardcoded Python literal tables mechanically copied from the
+  repository YAML artifacts -- happening to match at the reviewed boundary is not equivalent to
+  resolving authoritative artifacts (Chapter 8 §8.1.1: versioned, immutable-once-referenced,
+  persistently resolvable, verifiable BY CONTENT IDENTITY). Fixed:
+  - `ResolvedInputContract` (contracts.py) gained two REQUIRED content-identity fields,
+    `input_contract_content_id`/`stream_registry_content_id` -- non-empty, verifiable proof for
+    BOTH source artifacts; `resolve_input_contract_authority` now validates STRUCTURE/
+    completeness only (profile match + every identity/content-identity field non-empty) and
+    keeps NO duplicate authoritative table of any kind -- `_KNOWN_STREAM_REGISTRIES`/
+    `_KNOWN_INPUT_CONTRACTS` REMOVED entirely.
+  - New `resolved_input_contract: ResolvedInputContract` is now a REQUIRED (non-optional)
+    constructor argument on both `SwingDistanceFeatureEngine`/`RegimePassthroughFeatureEngine`
+    -- dependency injection is mandatory, never a hardcoded engine-side default.
+  - New `authority_resolver.py` (explicitly OUTSIDE the analytical core -- `contracts.py`/
+    `swing_distance.py`/`regime_passthrough.py`/`candle_window.py`/`current_view.py` never
+    import it) provides `resolve_input_contract_authority_from_repository(profile)`, the
+    default filesystem-backed "verified factory": reads the ACTUAL current Input Contract YAML
+    + Stream Registry YAML off disk (dependency-free line scanner, no PyYAML -- this package
+    pins zero runtime dependencies), and computes a SHA-256 of each artifact's own complete
+    file bytes as that artifact's verifiable content identity. Test fixtures
+    (`SWING_DISTANCE_INPUT_CONTRACT`/`REGIME_INPUT_CONTRACT`, conftest.py) now call this
+    resolver directly against the real repository files, rather than constructing hardcoded
+    literal values.
+  - Artifact-state discipline preserved: the Input Contract YAML files remain `status: Draft`
+    (package `Consolidated Stable` is a distinct dimension, Chapter 0 §7.1) -- this resolver
+    reads whatever content currently exists, asserting no particular artifact-level status.
+Residual 2 (rejected cursor/frontier attempts not state-atomic): `on_swing_confirmed`/
+  `on_swing_invalidated`/`on_candle` (swing_distance.py) and `on_regime_classified`/
+  `on_regime_invalidated` (regime_passthrough.py) previously mutated dedup/history/lineage
+  state BEFORE the cursor was certified (certification happened lazily, only when a
+  FeatureComputed/FeatureFactInvalidated was actually being constructed deep inside emission) --
+  a cursor-rejected transaction could leave Swing history/Candle cache/invalidation state
+  partially committed, permanently losing a required transaction on retry (identical-ref dedup
+  would then short-circuit a valid retry to `[]`). Fixed: every public ingestion method now
+  calls `self._resolve_cursor(cursor)` as its OWN FIRST STATEMENT -- before any domain-input
+  validation, before any recorded-time monotonicity mutation, before any append/cache/lineage
+  mutation. `resolve_computation_cursor`/`resolve_input_contract_authority` are both pure
+  functions of their own arguments (no engine mutable state read or written), so this
+  preflight is deterministic and 100% equivalent to the cursor check that already existed deep
+  inside emission -- a rejected frontier now raises before touching ANY state, and the exact
+  same authoritative event retried later with a valid frontier is processed exactly as a first
+  attempt would be (no sequence/ref allocation, no dedup/lineage/history state committed by the
+  rejected attempt).
+```
+
+```text
+MAJ-04 dependency: the existing ADR-034 condition-1 defect check and `eligible_swing_selection_
+  superseded` emission in `_preempt_settled_window` are unchanged in behavior; a new test
+  demonstrates the exact required sequence -- A1 -> A1 invalidated -> B becomes VALID winner ->
+  A2 first attempted with an invalid R_later -> fails with no Swing-history contamination ->
+  the SAME A2 retried at a valid R_later -> eligible_swing_selection_superseded -> replacement
+  using A2 -- with the retry's full output proven byte-for-byte identical (frozen-dataclass
+  equality) to a clean engine that only ever saw the valid attempt.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/, docs/domain/, docs/constitution/, docs/governance/, docs/team/, docs/architecture/
+  stream-registry.yaml, module-registry.yaml, system-decomposition.md, all three Feature Input
+  Contract YAML files, docs/architecture/engine/feature-context-architecture.md, structure-
+  engine/raw-regime-engine/go packages: all verified byte-identical (`git diff --quiet` for
+  each path). `authority_resolver.py` READS these files at runtime but never writes to them,
+  never duplicates their semantic content in Python literals, and is not itself part of the
+  analytical core. ADR classification re-checked: `ADR_NOT_REQUIRED` -- the authority resolver/
+  protocol and the preflight-before-mutation ordering are both implementation mechanisms; no
+  new durable architecture decision was discovered. Files touched, confirmed via
+  `git status --porcelain=v1`: python/feature-engine/src/feature_engine/{contracts.py,
+  swing_distance.py, regime_passthrough.py, __init__.py, authority_resolver.py (new)},
+  python/feature-engine/tests/{conftest.py, test_swing_distance.py, test_regime_passthrough.py},
+  docs/MANIFEST.md, docs/CHANGELOG.md -- no other file touched (`errors.py`/`test_current_view.py`
+  required no change this round -- all needed error types already existed from round 1).
+```
+
+### State summary
+
+```text
+P3-FEATURE-A-MAJ-04: REMEDIATED — PENDING REVIEW (not closed by this transaction).
+P3-FEATURE-A-MAJ-06: REMEDIATED — PENDING REVIEW (not closed by this transaction).
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE (NOT
+  APPROVED, unchanged). Formal Chapter 13 Quality Gate for feature-engine: NOT RUN (unchanged).
+  LIVE: NOT_AUTHORIZED (unchanged, unreferenced by this transaction).
+```
+
+### Validation
+
+```text
+Commands run (from python/feature-engine, `.venv` active):
+  `python -m pytest -q` -> 117 passed.
+  `python -m ruff check .` -> All checks passed!
+  `python -m mypy` -> Success: no issues found in 22 source files.
+```
+
+### Next governed action (not performed in this transaction)
+
+A subsequent bounded Review A round against this second correction remains a separate, not-yet-initiated transaction.
+
+**Files changed:** `python/feature-engine/src/feature_engine/{contracts.py, swing_distance.py, regime_passthrough.py, __init__.py, authority_resolver.py (new)}`; `python/feature-engine/tests/{conftest.py, test_swing_distance.py, test_regime_passthrough.py}`; `docs/MANIFEST.md`; `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.255` → `10.256`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above).
 
 ## Decision Log
 

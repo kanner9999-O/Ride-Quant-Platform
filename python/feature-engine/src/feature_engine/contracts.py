@@ -300,115 +300,101 @@ FeatureComputationProfile = Literal["distance_to_last_confirmed_swing", "regime"
 @dataclass(frozen=True, slots=True)
 class ResolvedInputContract:
     """A single VERIFIED authority unit binding `input_contract_ref`, its own
-    pinned `stream_registry_version`, `included_streams`, and the exact
-    Feature computation profile it applies to (Review-A residual 2) — never
-    three independently-supplied, merely-mutually-consistent free-form
-    strings. `resolve_input_contract_authority` (below) is the only
-    legitimate way to obtain a value of this type that an engine will accept.
+    pinned `stream_registry_version`, `included_streams`, the exact Feature
+    computation profile it applies to, AND verifiable content-identity proof
+    for both source artifacts (Review-A round-2 residual 1) — never merely
+    three-or-four mutually-consistent free-form strings. Chapter 8 §8.1.1
+    requires referenced authority to be versioned, immutable-once-referenced,
+    persistently resolvable, and verifiable BY CONTENT IDENTITY; the two
+    `*_content_id` fields are that content-identity evidence.
+
+    This dataclass carries no default-authoritative table anywhere in this
+    module — a value is only genuine if produced by an actual resolver that
+    read the real artifacts (see `authority_resolver.py`'s
+    `resolve_input_contract_authority_from_repository`, the filesystem-backed
+    default every test/caller in this repository uses). `resolve_input_
+    contract_authority` (below) validates STRUCTURE/completeness only; it
+    never re-derives or duplicates the artifacts' own semantic content.
     """
 
     feature_computation_profile: FeatureComputationProfile
     input_contract_ref: InputContractRef
     stream_registry_version: str
     included_streams: frozenset[str]
+    input_contract_content_id: str
+    stream_registry_content_id: str
 
 
-# Mechanical transcription of the approved Genesis Stream Registry
-# (`docs/architecture/stream-registry.yaml`, `registry_version: v1`) — the
-# closed set of stream identities that registry version actually resolves.
-# No new architecture decision; kept in sync with that file by construction
-# (both are direct, static transcriptions of the same Approved artifact).
-_KNOWN_STREAM_REGISTRIES: dict[str, frozenset[str]] = {
-    "v1": frozenset(
-        {
-            "market-data-ingestion-candle",
-            "structure-engine-swing",
-            "structure-engine-structure",
-            "raw-regime-engine-regime",
-            "feature-engine-feature",
-            "platform-lifecycle",
-            "platform-audit",
-        }
-    ),
-}
-
-# Mechanical transcription of every stream's own `genesis_position` in the
-# approved Genesis Stream Registry (`stream-registry.yaml`, `registry_version:
-# v1`) — every one of the seven streams pins `genesis_position: 0`. A
-# `StreamPositionProof.sequence` equal to this value denotes "no event
-# committed to this stream yet" (Chapter 8 §8.5.3), the only case where
-# `event_recorded_time` proof may legitimately be absent.
+# Chapter 8 §8.5.3 — a `StreamPositionProof.sequence` equal to this value
+# denotes "no event committed to this stream yet" (every stream's own
+# `genesis_position`, per the Genesis Stream Registry's own topology), the
+# only case where `event_recorded_time` proof may legitimately be absent.
+# This is a structural Chapter-8 constant, not a copy of any artifact's own
+# content — unlike the removed `_KNOWN_STREAM_REGISTRIES`/`_KNOWN_INPUT_
+# CONTRACTS` tables, it does not encode any resolvable-artifact-specific
+# value and therefore is not itself a duplicated authority surface.
 _GENESIS_POSITION = 0
-
-# Mechanical transcription of the two currently-approved Feature-scoped Input
-# Contracts a live computation engine actually binds to
-# (`docs/architecture/input-contracts/feature-swing-distance-input.yaml`,
-# `feature-regime-input.yaml` — `feature-candle-input.yaml` has no consuming
-# engine: `CandleWindowFeatureEngine` is permanently fail-closed at
-# construction, P3-FEATURE-A-MAJ-03, and never reaches cursor resolution).
-# No new architecture decision — this table exists so that an engine can
-# reject a caller-supplied `ResolvedInputContract` that is merely internally
-# self-consistent but does not match the real, currently-approved identity
-# (Review-A residual 2's explicit requirement).
-_KNOWN_INPUT_CONTRACTS: dict[FeatureComputationProfile, ResolvedInputContract] = {
-    "distance_to_last_confirmed_swing": ResolvedInputContract(
-        feature_computation_profile="distance_to_last_confirmed_swing",
-        input_contract_ref=InputContractRef(
-            contract_id="feature-swing-distance-input", contract_version="v1"
-        ),
-        stream_registry_version="v1",
-        included_streams=frozenset({"market-data-ingestion-candle", "structure-engine-swing"}),
-    ),
-    "regime": ResolvedInputContract(
-        feature_computation_profile="regime",
-        input_contract_ref=InputContractRef(contract_id="feature-regime-input", contract_version="v1"),
-        stream_registry_version="v1",
-        included_streams=frozenset({"raw-regime-engine-regime"}),
-    ),
-}
 
 
 def resolve_input_contract_authority(
-    candidate: ResolvedInputContract | None,
+    candidate: ResolvedInputContract,
     *,
     required_profile: FeatureComputationProfile,
 ) -> ResolvedInputContract:
-    """The single place an engine resolves its own bound Input Contract
-    authority (Review-A residual 2). `candidate=None` (the default every
-    engine constructor uses) binds directly to the currently-approved
-    authority for `required_profile` — no invented placeholder is ever
-    substituted. A caller MAY inject an explicit `ResolvedInputContract`
-    (dependency-injection path for a future authority resolver/config
-    service), but it is accepted ONLY if it resolves to the SAME
-    currently-approved identity — an internally self-consistent but
-    unrecognized/invented triple (contract_id/contract_version/registry/
-    included_streams) fails closed here, never accepted merely because its
-    three parts happen to agree with each other.
+    """The single place an engine validates its own bound Input Contract
+    authority (Review-A round-2 residual 1). This module performs no
+    filesystem/GitHub I/O itself and keeps NO duplicate copy of Input
+    Contract/Stream Registry semantics — genuine resolution against the
+    real, current artifacts is the injected `candidate`'s own
+    responsibility (dependency injection; see `authority_resolver.py`'s
+    `resolve_input_contract_authority_from_repository` for the default,
+    filesystem-backed resolver). This function validates only that the
+    supplied authority is STRUCTURALLY complete and applicable:
+
+    - `candidate.feature_computation_profile` must equal `required_profile`
+      (`InputContractIdentityMismatchError` otherwise) — a genuine authority
+      object resolved for the WRONG profile is never accepted merely
+      because it is otherwise well-formed.
+    - every identity field (`input_contract_ref.contract_id`/
+      `contract_version`, `stream_registry_version`, `included_streams`) AND
+      every content-identity field (`input_contract_content_id`,
+      `stream_registry_content_id`) must be genuine and non-empty
+      (`UnresolvedComputationCursorAuthorityError` otherwise) — a
+      caller-constructed object whose semantic literals merely happen to
+      look right is NEVER sufficient without accompanying, verifiable
+      content-identity evidence for BOTH the Input Contract and the Stream
+      Registry artifacts it claims to have been resolved from.
     """
-    known = _KNOWN_INPUT_CONTRACTS[required_profile]
-    if candidate is None:
-        return known
     if candidate.feature_computation_profile != required_profile:
         raise InputContractIdentityMismatchError(
             f"supplied ResolvedInputContract.feature_computation_profile={candidate.feature_computation_profile!r} "
             f"does not match this engine's own required profile {required_profile!r}"
         )
-    registry_universe = _KNOWN_STREAM_REGISTRIES.get(candidate.stream_registry_version)
-    if registry_universe is None:
+    if not candidate.input_contract_ref.contract_id or not candidate.input_contract_ref.contract_version:
         raise UnresolvedComputationCursorAuthorityError(
-            f"stream_registry_version={candidate.stream_registry_version!r} does not resolve to any currently "
-            "approved Stream Registry (docs/architecture/stream-registry.yaml) — cannot be resolved"
+            "input_contract_ref must be a genuine, non-empty {contract_id, contract_version} identity — no "
+            "stand-in value is invented for computation_cursor.input_contract_ref"
         )
-    if not candidate.included_streams or not candidate.included_streams.issubset(registry_universe):
-        raise InputContractIdentityMismatchError(
-            f"included_streams={sorted(candidate.included_streams)!r} is not fully contained in the resolved "
-            f"registry {candidate.stream_registry_version!r}'s own stream universe {sorted(registry_universe)!r}"
+    if not candidate.stream_registry_version:
+        raise UnresolvedComputationCursorAuthorityError(
+            "stream_registry_version must be a genuine, non-empty registry version identity"
         )
-    if candidate != known:
-        raise InputContractIdentityMismatchError(
-            f"supplied ResolvedInputContract {candidate!r} does not match the currently-approved Input Contract "
-            f"identity {known!r} for profile {required_profile!r} — an internally self-consistent but "
-            "unrecognized authority triple is never accepted (Review-A residual 2)"
+    if not candidate.included_streams:
+        raise UnresolvedComputationCursorAuthorityError(
+            "included_streams must be a genuine, non-empty set of stream_ids resolved from the bound "
+            "Feature-scoped Input Contract's own included_streams"
+        )
+    if not candidate.input_contract_content_id:
+        raise UnresolvedComputationCursorAuthorityError(
+            "input_contract_content_id must be a genuine, non-empty, verifiable content identity for the "
+            "resolved Input Contract artifact (Chapter 8 §8.1.1) — a caller-constructed object is never "
+            "accepted on semantic-literal equality alone (Review-A round-2 residual 1)"
+        )
+    if not candidate.stream_registry_content_id:
+        raise UnresolvedComputationCursorAuthorityError(
+            "stream_registry_content_id must be a genuine, non-empty, verifiable content identity for the "
+            "resolved Stream Registry artifact (Chapter 8 §8.1.1) — a caller-constructed object is never "
+            "accepted on semantic-literal equality alone (Review-A round-2 residual 1)"
         )
     return candidate
 

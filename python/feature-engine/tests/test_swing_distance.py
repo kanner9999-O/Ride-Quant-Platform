@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -29,6 +29,7 @@ from conftest import (
 from feature_engine import (
     CANDLE_CORRECTED_CONTRACT_ID,
     ComputationCursor,
+    EvaluationFrontier,
     EventContractRef,
     InputContractRef,
     LifecycleFrontier,
@@ -57,7 +58,7 @@ def _engine(
     allocator: SequenceAllocator,
     time_source: FixedDeltaTimeSource,
     *,
-    resolved_input_contract: ResolvedInputContract | None = None,
+    resolved_input_contract: ResolvedInputContract = SWING_DISTANCE_INPUT_CONTRACT,
     **definition_kwargs: Any,
 ) -> SwingDistanceFeatureEngine:
     definition = make_distance_definition(**definition_kwargs)
@@ -72,6 +73,18 @@ def _engine(
         authorized_swing_contract_refs=authorized_swing_contract_refs(),
         resolved_input_contract=resolved_input_contract,
     )
+
+
+def _invalid_frontier(recorded_time: datetime) -> EvaluationFrontier:
+    """A deliberately malformed `EvaluationFrontier` (wrong `stream_registry_
+    version`, mismatched against this engine's own bound authority) — used
+    throughout the Review-A round-2 residual 2 failure-atomicity tests to
+    prove that rejecting a frontier never mutates engine state.
+    """
+    mismatched_contract = dataclasses.replace(
+        SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="not-the-real-registry-version"
+    )
+    return frontier_at(recorded_time, resolved_input_contract=mismatched_contract)
 
 
 # --- 7. Swing effective cutoff ------------------------------------------------
@@ -471,6 +484,7 @@ def test_output_contract_version_must_be_genuine_non_empty(
             feature_event_contract_version="",
             authorized_candle_contract_refs=authorized_candle_contract_refs(),
             authorized_swing_contract_refs=authorized_swing_contract_refs(),
+            resolved_input_contract=SWING_DISTANCE_INPUT_CONTRACT,
         )
 
 
@@ -905,44 +919,74 @@ def test_input_contract_profile_mismatch_fails_closed_at_construction(
         _engine(allocator, time_source, resolved_input_contract=REGIME_INPUT_CONTRACT)
 
 
-def test_unrecognized_input_contract_identity_fails_closed_at_construction(
+def test_invented_resolved_input_contract_without_content_identity_fails_closed(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    """Three internally mutually-consistent strings are NOT sufficient
-    authorization — an invented `ResolvedInputContract` that agrees with
-    itself but does not match the real, currently-approved identity for this
-    profile must fail closed (Review-A residual 2's explicit requirement).
+    """Review-A round-2 residual 1: a `ResolvedInputContract` whose semantic
+    literals are internally self-consistent (and even happen to equal the
+    real, currently-approved identity) is NOT sufficient authorization on
+    its own — genuine, non-empty content-identity proof for BOTH source
+    artifacts is required. A caller-constructed object supplying none is
+    rejected precisely because there is no longer any hardcoded duplicate
+    table to accidentally match against — only real resolution counts.
     """
-    invented = ResolvedInputContract(
-        feature_computation_profile="distance_to_last_confirmed_swing",
-        input_contract_ref=InputContractRef(contract_id="feature-input-contract", contract_version="v1"),
-        stream_registry_version="v1",
-        included_streams=frozenset({CANDLE_STREAM_ID, SWING_STREAM_ID}),
+    invented = dataclasses.replace(
+        SWING_DISTANCE_INPUT_CONTRACT, input_contract_content_id="", stream_registry_content_id=""
     )
-    with pytest.raises(InputContractIdentityMismatchError):
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
         _engine(allocator, time_source, resolved_input_contract=invented)
 
 
-def test_input_contract_unresolvable_registry_fails_closed_at_construction(
+def test_empty_input_contract_content_id_fails_closed_at_construction(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    unresolvable = dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="does-not-exist")
+    missing = dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, input_contract_content_id="")
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        _engine(allocator, time_source, resolved_input_contract=missing)
+
+
+def test_empty_stream_registry_content_id_fails_closed_at_construction(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    missing = dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, stream_registry_content_id="")
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        _engine(allocator, time_source, resolved_input_contract=missing)
+
+
+def test_empty_stream_registry_version_fails_closed_at_construction(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    unresolvable = dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="")
     with pytest.raises(UnresolvedComputationCursorAuthorityError):
         _engine(allocator, time_source, resolved_input_contract=unresolvable)
 
 
-def test_input_contract_streams_not_in_registry_fails_closed_at_construction(
+def test_empty_included_streams_fails_closed_at_construction(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    """`included_streams` containing a stream_id the pinned registry version
-    does not actually resolve must fail closed — "referenced registry cannot
-    be resolved or does not contain the selected streams."
+    empty = dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, included_streams=frozenset())
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        _engine(allocator, time_source, resolved_input_contract=empty)
+
+
+def test_resolved_authority_carries_genuine_content_identity(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """The default resolved authority actually used by every test engine
+    carries genuine, non-empty content-identity proof for both source
+    artifacts — real SHA-256 hex digests, not placeholder strings.
     """
-    bad = dataclasses.replace(
-        SWING_DISTANCE_INPUT_CONTRACT, included_streams=frozenset({CANDLE_STREAM_ID, "not-a-real-stream"})
-    )
-    with pytest.raises(InputContractIdentityMismatchError):
-        _engine(allocator, time_source, resolved_input_contract=bad)
+    from conftest import REGIME_INPUT_CONTRACT
+
+    for resolved in (SWING_DISTANCE_INPUT_CONTRACT, REGIME_INPUT_CONTRACT):
+        assert resolved.input_contract_content_id
+        assert resolved.stream_registry_content_id
+        assert len(resolved.input_contract_content_id) == 64  # SHA-256 hex digest length
+        assert len(resolved.stream_registry_content_id) == 64
+    # Both profiles are resolved from the SAME Stream Registry artifact.
+    assert SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id == REGIME_INPUT_CONTRACT.stream_registry_content_id
+    # But from DIFFERENT Input Contract artifacts.
+    assert SWING_DISTANCE_INPUT_CONTRACT.input_contract_content_id != REGIME_INPUT_CONTRACT.input_contract_content_id
 
 
 def test_no_fallback_to_trigger_event_recorded_time(
@@ -1181,31 +1225,18 @@ def test_wrong_lifecycle_stream_id_fails_closed(
         engine.on_candle(reference, cursor=wrong_stream)
 
 
-def test_included_stream_universe_mismatch_fails_closed_at_construction(
-    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
-) -> None:
-    """Correct contract/registry but a DIFFERENT (still-registry-valid)
-    included-stream universe than the real, currently-approved Input
-    Contract declares must still fail closed.
-    """
-    narrowed = dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, included_streams=frozenset({CANDLE_STREAM_ID}))
-    with pytest.raises(InputContractIdentityMismatchError):
-        _engine(allocator, time_source, resolved_input_contract=narrowed)
-
-
 def test_approved_swing_distance_and_regime_input_contracts_are_accepted(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
     """The real, currently-approved Input Contract identities for both live
-    profiles are accepted — both by omitting `resolved_input_contract`
-    entirely (the default) and by supplying them explicitly.
+    profiles, resolved via the actual filesystem-backed resolver, are
+    accepted — the regime authority is genuinely a DIFFERENT, rejected
+    identity for a swing-distance engine (wrong profile).
     """
     from conftest import REGIME_INPUT_CONTRACT
 
-    _engine(allocator, time_source)  # default -> swing-distance authority, must not raise
-    _engine(allocator, time_source, resolved_input_contract=SWING_DISTANCE_INPUT_CONTRACT)  # explicit, must not raise
+    _engine(allocator, time_source, resolved_input_contract=SWING_DISTANCE_INPUT_CONTRACT)  # must not raise
     with pytest.raises(InputContractIdentityMismatchError):
-        # sanity: the regime authority is genuinely a DIFFERENT, rejected identity here.
         _engine(allocator, time_source, resolved_input_contract=REGIME_INPUT_CONTRACT)
 
 
@@ -1353,3 +1384,244 @@ def test_used_swing_itself_invalidated_uses_swing_invalidated_cause(
     assert len(events) == 1  # invalidation only — no other eligible Swing exists
     invalidation = only_invalidated(events[0])
     assert invalidation.invalidation_cause == "swing_invalidated"
+
+
+# --- Review-A round-2 residual 2: failure atomicity -------------------------
+#
+# A rejected/invalid `EvaluationFrontier` must never leave the engine in a
+# state that changes the outcome of a later valid retry of the exact same
+# authoritative event — cursor certification happens at the public-method
+# boundary, BEFORE any state mutation (`_resolve_cursor(cursor)` as the
+# first statement of every public ingestion method).
+
+
+def _fresh_clean_engine() -> tuple[SwingDistanceFeatureEngine, SequenceAllocator]:
+    """A brand-new engine + allocator using the SAME `run_id`/`module_id`/
+    `implementation_version` as the `allocator` fixture — when driven through
+    an IDENTICAL sequence of successful operations, its own ref/event_id
+    allocation advances in perfect lockstep, making full dataclass equality
+    against the "contaminated-then-retried" engine's own output a valid,
+    exact proof of equivalence (not just field-by-field spot checks).
+    """
+    clean_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="test-run")
+    return _engine(clean_allocator, FixedDeltaTimeSource()), clean_allocator
+
+
+def test_swing_confirmed_supersession_retry_after_invalid_frontier_is_deterministic(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """The exact A1 -> A1 invalidated -> B becomes VALID winner -> A2 first
+    attempted with an invalid R_later -> fail with no state contamination ->
+    SAME A2 retried at a valid R_later -> eligible_swing_selection_superseded
+    -> replacement using A2 sequence (MAJ-04 dependency). The rejected
+    attempt allocates NO sequence/ref for Feature output and appends NOTHING
+    to Swing history, so the valid retry — and its full resulting output —
+    is byte-for-byte identical to a clean engine that only ever saw the
+    valid attempt.
+    """
+    engine = _engine(allocator, time_source)
+
+    swing_a1 = swing_confirmed_at(allocator, pivot_index=8, swing_id="A", swing_revision=1, pivot_price="100")
+    engine.on_swing_confirmed(swing_a1, cursor=frontier_at(swing_a1.recorded_time))
+    swing_b = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="B", swing_revision=1, pivot_price="80", recorded_offset_minutes=10
+    )
+    engine.on_swing_confirmed(swing_b, cursor=frontier_at(swing_b.recorded_time))
+
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    original = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
+    assert original.value == Decimal("5.00")
+
+    inv_a1 = swing_invalidated_at(allocator, swing_id="A", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    temp_events = engine.on_swing_invalidated(inv_a1, cursor=frontier_at(inv_a1.recorded_time))
+    temporary = only_computed(temp_events[1])
+    assert temporary.value == Decimal("25.00")
+
+    swing_a2 = swing_confirmed_at(
+        allocator, pivot_index=8, swing_id="A", swing_revision=2, pivot_price="103", recorded_offset_minutes=30
+    )
+
+    # 1. Invalid R_later must fail closed and must NOT contaminate Swing history.
+    with pytest.raises(RegistryContractMismatchError):
+        engine.on_swing_confirmed(swing_a2, cursor=_invalid_frontier(swing_a2.recorded_time))
+    latest_a = engine._latest_confirmation("A")
+    assert latest_a is not None
+    assert latest_a.revision == 1  # A2 was NOT appended by the rejected attempt
+
+    # 2. The SAME A2 event retried with a valid frontier succeeds normally.
+    preempt_events = engine.on_swing_confirmed(swing_a2, cursor=frontier_at(swing_a2.recorded_time))
+    assert len(preempt_events) == 2
+    invalidation = only_invalidated(preempt_events[0])
+    assert invalidation.invalidated_fact_ref == temporary.ref
+    assert invalidation.invalidation_cause == "eligible_swing_selection_superseded"
+    assert invalidation.causation_refs == (temporary.ref, swing_a2.ref)
+    final = only_computed(preempt_events[1])
+    assert final.supersedes_fact_ref == temporary.ref
+    assert final.value == Decimal("2.00")
+
+    # 3. Full equivalence against a clean engine that only ever saw the valid attempt.
+    clean_engine, clean_allocator = _fresh_clean_engine()
+    c_swing_a1 = swing_confirmed_at(clean_allocator, pivot_index=8, swing_id="A", swing_revision=1, pivot_price="100")
+    clean_engine.on_swing_confirmed(c_swing_a1, cursor=frontier_at(c_swing_a1.recorded_time))
+    c_swing_b = swing_confirmed_at(
+        clean_allocator, pivot_index=2, swing_id="B", swing_revision=1, pivot_price="80", recorded_offset_minutes=10
+    )
+    clean_engine.on_swing_confirmed(c_swing_b, cursor=frontier_at(c_swing_b.recorded_time))
+    c_reference = candle_at(clean_allocator, 10, high="110", low="90", close="105")
+    clean_engine.on_candle(c_reference, cursor=frontier_at(c_reference.recorded_time))
+    c_inv_a1 = swing_invalidated_at(
+        clean_allocator, swing_id="A", swing_revision=1, recorded_time=BASE + timedelta(minutes=20)
+    )
+    clean_engine.on_swing_invalidated(c_inv_a1, cursor=frontier_at(c_inv_a1.recorded_time))
+    c_swing_a2 = swing_confirmed_at(
+        clean_allocator, pivot_index=8, swing_id="A", swing_revision=2, pivot_price="103", recorded_offset_minutes=30
+    )
+    clean_preempt_events = clean_engine.on_swing_confirmed(c_swing_a2, cursor=frontier_at(c_swing_a2.recorded_time))
+    clean_invalidation = only_invalidated(clean_preempt_events[0])
+    clean_final = only_computed(clean_preempt_events[1])
+
+    assert invalidation == clean_invalidation
+    assert final == clean_final
+
+
+def test_swing_invalidated_retry_after_invalid_frontier_is_deterministic(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Submitting a SwingInvalidated first with an invalid frontier must fail
+    WITHOUT marking the targeted revision as invalidated — the exact same
+    invalidation retried afterward with a valid frontier produces normal
+    `swing_invalidated` behavior, identical to a clean engine.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    original = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
+
+    inv = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+
+    with pytest.raises(RegistryContractMismatchError):
+        engine.on_swing_invalidated(inv, cursor=_invalid_frontier(inv.recorded_time))
+    assert (inv.swing_id, inv.swing_revision) not in engine._swing_invalidations  # not poisoned by the rejection
+
+    events = engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
+    assert len(events) == 1
+    invalidation = only_invalidated(events[0])
+    assert invalidation.invalidation_cause == "swing_invalidated"
+    assert invalidation.invalidated_fact_ref == original.ref
+
+    clean_engine, clean_allocator = _fresh_clean_engine()
+    c_swing = swing_confirmed_at(clean_allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    clean_engine.on_swing_confirmed(c_swing, cursor=frontier_at(c_swing.recorded_time))
+    c_reference = candle_at(clean_allocator, 10, high="110", low="90", close="105")
+    clean_engine.on_candle(c_reference, cursor=frontier_at(c_reference.recorded_time))
+    c_inv = swing_invalidated_at(
+        clean_allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=20)
+    )
+    clean_events = clean_engine.on_swing_invalidated(c_inv, cursor=frontier_at(c_inv.recorded_time))
+    clean_invalidation = only_invalidated(clean_events[0])
+
+    assert invalidation == clean_invalidation
+
+
+def test_candle_original_retry_after_invalid_frontier_is_deterministic(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Submitting a brand-new Candle first with an invalid frontier must fail
+    WITHOUT entering it into Candle dedup/routing state — the exact same
+    Candle ref/content retried with a valid frontier is treated as a genuine
+    first-time ingestion, emitting `FeatureComputed` exactly as a clean
+    engine would.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    with pytest.raises(RegistryContractMismatchError):
+        engine.on_candle(reference, cursor=_invalid_frontier(reference.recorded_time))
+    assert engine._candle_index == {}  # rejected attempt did not enter Candle dedup state
+
+    events = engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+    assert len(events) == 1
+    computed = only_computed(events[0])
+    assert computed.value == Decimal("5.00")
+
+    clean_engine, clean_allocator = _fresh_clean_engine()
+    c_swing = swing_confirmed_at(clean_allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    clean_engine.on_swing_confirmed(c_swing, cursor=frontier_at(c_swing.recorded_time))
+    c_reference = candle_at(clean_allocator, 10, high="110", low="90", close="105")
+    clean_events = clean_engine.on_candle(c_reference, cursor=frontier_at(c_reference.recorded_time))
+    clean_computed = only_computed(clean_events[0])
+
+    assert computed == clean_computed
+
+
+def test_candle_correction_retry_after_invalid_frontier_is_deterministic(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Submitting a CandleCorrected first with an invalid frontier must fail
+    WITHOUT overwriting the cached Candle — the exact same correction ref/
+    content retried with a valid frontier invalidates-and-replaces exactly
+    once, identical to a clean engine.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    original = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
+
+    correction = dataclasses.replace(
+        reference,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=reference.recorded_time + timedelta(seconds=120),
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+
+    with pytest.raises(RegistryContractMismatchError):
+        engine.on_candle(correction, cursor=_invalid_frontier(correction.recorded_time))
+    # The rejected attempt must not have overwritten the cached Candle with the correction.
+    cached = engine._candles[engine._candle_index[reference.scope.subject_id]]
+    assert cached.ref == reference.ref
+
+    events = engine.on_candle(correction, cursor=frontier_at(correction.recorded_time))
+    assert len(events) == 2
+    replacement = only_computed(events[1])
+    assert replacement.value == original.value
+    assert replacement.supersedes_fact_ref == original.ref
+
+    clean_engine, clean_allocator = _fresh_clean_engine()
+    c_swing = swing_confirmed_at(clean_allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    clean_engine.on_swing_confirmed(c_swing, cursor=frontier_at(c_swing.recorded_time))
+    c_reference = candle_at(clean_allocator, 10, high="110", low="90", close="105")
+    clean_engine.on_candle(c_reference, cursor=frontier_at(c_reference.recorded_time))
+    c_correction = dataclasses.replace(
+        c_reference,
+        ref=clean_allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=c_reference.recorded_time + timedelta(seconds=120),
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+    clean_events = clean_engine.on_candle(c_correction, cursor=frontier_at(c_correction.recorded_time))
+    clean_replacement = only_computed(clean_events[1])
+
+    assert replacement == clean_replacement
+
+
+def test_invalid_frontier_rejected_even_when_no_output_would_result(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Even when NO eligible Swing exists (a valid absence that would
+    ordinarily emit nothing), a malformed frontier presented as the
+    certified computation frontier for this operation must still be
+    rejected at the public boundary — never allowed to slip through merely
+    because no lineage exists yet to trigger `_resolve_cursor` deep inside
+    emission.
+    """
+    engine = _engine(allocator, time_source)
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    with pytest.raises(RegistryContractMismatchError):
+        engine.on_candle(reference, cursor=_invalid_frontier(reference.recorded_time))
+    # Confirm the valid-absence path genuinely would have produced no output.
+    assert engine.on_candle(reference, cursor=frontier_at(reference.recorded_time)) == []

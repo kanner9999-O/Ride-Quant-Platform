@@ -25,6 +25,7 @@ from feature_engine.errors import (
     EvidenceReferenceConflictError,
     FeatureLineageError,
     RegimeDimensionMismatchError,
+    RegistryContractMismatchError,
     UnauthorizedUpstreamContractError,
     UnresolvedOutputContractAuthorityError,
 )
@@ -41,11 +42,23 @@ def _engine(
         allocator,
         time_source,
         feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+        resolved_input_contract=REGIME_INPUT_CONTRACT,
     )
 
 
 def _frontier_at(recorded_time: datetime) -> EvaluationFrontier:
     return frontier_at(recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+
+
+def _invalid_frontier(recorded_time: datetime) -> EvaluationFrontier:
+    """A deliberately malformed `EvaluationFrontier` (wrong `stream_registry_
+    version`) used to prove Review-A round-2 residual 2's failure-atomicity
+    requirement for this engine too.
+    """
+    mismatched_contract = dataclasses.replace(
+        REGIME_INPUT_CONTRACT, stream_registry_version="not-the-real-registry-version"
+    )
+    return frontier_at(recorded_time, resolved_input_contract=mismatched_contract)
 
 
 # --- P3-FEATURE-A-MAJ-02 remediation: output contract-version authority ------
@@ -63,6 +76,7 @@ def test_output_contract_version_must_be_genuine_non_empty(
             allocator,
             time_source,
             feature_event_contract_version="",
+            resolved_input_contract=REGIME_INPUT_CONTRACT,
         )
 
 
@@ -374,3 +388,38 @@ def test_feature_computed_and_invalidated_carry_full_computation_cursor(
     )
     assert invalidation.computation_cursor.recorded_time == r_later
     assert invalidation.computation_cursor != computed.computation_cursor
+
+
+# --- Review-A round-2 residual 2: failure atomicity -------------------------
+
+
+def test_regime_classified_retry_after_invalid_frontier_is_deterministic(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Submitting a RegimeClassified first with an invalid frontier must fail
+    WITHOUT entering lineage/dedup state — the exact same fact retried with a
+    valid frontier is treated as a genuine first-time ingestion, identical to
+    a clean engine that only ever saw the valid attempt.
+    """
+    engine = _engine(allocator, time_source)
+    fact = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+
+    with pytest.raises(RegistryContractMismatchError):
+        engine.on_regime_classified(fact, cursor=_invalid_frontier(fact.recorded_time))
+    assert engine._lineage == {}  # rejected attempt did not enter lineage state
+
+    computed = only_computed(engine.on_regime_classified(fact, cursor=_frontier_at(fact.recorded_time))[0])
+    assert computed.value == Decimal("1.50")
+
+    clean_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="test-run")
+    clean_engine = _engine(clean_allocator, FixedDeltaTimeSource())
+    c_fact = regime_classified_at(
+        clean_allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    clean_computed = only_computed(
+        clean_engine.on_regime_classified(c_fact, cursor=_frontier_at(c_fact.recorded_time))[0]
+    )
+
+    assert computed == clean_computed

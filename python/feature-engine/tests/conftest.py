@@ -34,7 +34,6 @@ from feature_engine import (
     FeatureEvent,
     FeatureScope,
     FeatureViewResult,
-    InputContractRef,
     LifecycleFrontierProof,
     LifecyclePosition,
     RegimeClassifiedFact,
@@ -44,6 +43,7 @@ from feature_engine import (
     StreamPositionProof,
     SwingConfirmedFact,
     SwingInvalidatedFact,
+    resolve_input_contract_authority_from_repository,
 )
 from feature_engine.contracts import FeatureComputed, FeatureFactInvalidated
 
@@ -73,26 +73,19 @@ CANDLE_STREAM_ID = "market-data-ingestion-candle"
 SWING_STREAM_ID = "structure-engine-swing"
 REGIME_STREAM_ID = "raw-regime-engine-regime"
 
-# Real, currently-approved Input Contract authority (Review-A residuals 2/3)
-# — mechanical transcription of `docs/architecture/input-contracts/feature-
-# swing-distance-input.yaml` / `feature-regime-input.yaml`, both
-# `stream_registry_version: v1`. These are the SAME values `_engine()`
-# helpers below bind to by default (omitting `resolved_input_contract`
-# entirely also resolves to these, since they are `feature_engine`'s own
-# closed, currently-approved authority table) — kept explicit here so tests
-# can assert on them and construct deliberate mismatches.
-SWING_DISTANCE_INPUT_CONTRACT = ResolvedInputContract(
-    feature_computation_profile="distance_to_last_confirmed_swing",
-    input_contract_ref=InputContractRef(contract_id="feature-swing-distance-input", contract_version="v1"),
-    stream_registry_version="v1",
-    included_streams=frozenset({CANDLE_STREAM_ID, SWING_STREAM_ID}),
+# Real, currently-approved Input Contract authority (Review-A round-2
+# residual 1) — resolved via the ACTUAL filesystem-backed resolver
+# (`authority_resolver.resolve_input_contract_authority_from_repository`)
+# reading the real, current `docs/architecture/input-contracts/feature-
+# swing-distance-input.yaml` / `feature-regime-input.yaml` +
+# `docs/architecture/stream-registry.yaml` off disk — never a hardcoded
+# duplicate literal table. Each carries genuine, verifiable content-identity
+# proof (`input_contract_content_id`/`stream_registry_content_id`, SHA-256 of
+# the real file bytes) for both source artifacts.
+SWING_DISTANCE_INPUT_CONTRACT = resolve_input_contract_authority_from_repository(
+    "distance_to_last_confirmed_swing"
 )
-REGIME_INPUT_CONTRACT = ResolvedInputContract(
-    feature_computation_profile="regime",
-    input_contract_ref=InputContractRef(contract_id="feature-regime-input", contract_version="v1"),
-    stream_registry_version="v1",
-    included_streams=frozenset({REGIME_STREAM_ID}),
-)
+REGIME_INPUT_CONTRACT = resolve_input_contract_authority_from_repository("regime")
 
 # An "effectively unbounded" per-stream sequence ceiling — most tests only
 # care about recorded_time-driven visibility, not the stream-position edge

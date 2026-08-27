@@ -31,14 +31,22 @@ for this feature_type, so the caller-injected authorized contract-ref set is
 the only available exact-identity authority — this engine never accepts a
 Candle contract_version the caller did not explicitly authorize.
 
-Input Contract authority (P3-FEATURE-A-MAJ-06, Review-A residual 2):
-`resolved_input_contract` binds `input_contract_ref`/`stream_registry_
-version`/`included_streams` as ONE verified unit (`ResolvedInputContract`,
-`contracts.py`), resolved against the closed, currently-approved authority
-table (`resolve_input_contract_authority`) — never three independently
-caller-supplied, merely mutually-consistent free-form strings. Omitting it
-(`None`, the default) binds directly to the currently-approved
-`feature-swing-distance-input` Input Contract.
+Input Contract authority (P3-FEATURE-A-MAJ-06, Review-A round-2 residual 1):
+`resolved_input_contract` is a REQUIRED constructor argument — a genuine,
+already-resolved `ResolvedInputContract` (`contracts.py`) binding
+`input_contract_ref`/`stream_registry_version`/`included_streams`/the exact
+Feature computation profile/verifiable content-identity proof for BOTH the
+Input Contract and Stream Registry artifacts it was resolved from. This
+engine performs no filesystem/GitHub I/O itself and keeps no duplicate copy
+of Input Contract/Stream Registry semantics — genuine resolution against the
+real, current artifacts is the caller's own responsibility (dependency
+injection; see `authority_resolver.py`'s
+`resolve_input_contract_authority_from_repository` for the default,
+filesystem-backed resolver this repository's own tests use).
+`resolve_input_contract_authority` (called at construction) validates only
+that the supplied object is structurally complete and matches this engine's
+own required profile — never accepted merely because its semantic literals
+happen to look right without accompanying content-identity evidence.
 
 Computation cursor (P3-FEATURE-A-MAJ-06, ADR-035 Approved): `on_candle`/
 `on_swing_confirmed`/`on_swing_invalidated` all take an explicit, required
@@ -244,7 +252,7 @@ class SwingDistanceFeatureEngine:
         feature_event_contract_version: str,
         authorized_candle_contract_refs: frozenset[EventContractRef],
         authorized_swing_contract_refs: frozenset[EventContractRef],
-        resolved_input_contract: ResolvedInputContract | None = None,
+        resolved_input_contract: ResolvedInputContract,
         stream_id: str = "feature",
     ) -> None:
         if definition.feature_type != "distance_to_last_confirmed_swing":
@@ -418,7 +426,16 @@ class SwingDistanceFeatureEngine:
         (P3-FEATURE-A-MAJ-06) used to re-evaluate Swing eligibility for
         every window once this fact becomes visible — never implicitly
         derived from `fact.recorded_time`.
+
+        Review-A round-2 residual 2: `cursor` is fully certified against this
+        engine's own bound authority BEFORE any state mutation below — a
+        rejected frontier leaves `_swing_confirmations`/`_swing_invalidations`/
+        `_last_swing_recorded_time` untouched, so the exact same authoritative
+        event retried later with a valid frontier is processed exactly as if
+        the rejected attempt had never happened (no sequence/ref allocation,
+        no dedup/lineage state, is committed by a rejected transaction).
         """
+        self._resolve_cursor(cursor)
         if (
             fact.instrument_id != self.scope.instrument_id
             or fact.venue_id != self.scope.venue_id
@@ -498,7 +515,14 @@ class SwingDistanceFeatureEngine:
         (P3-FEATURE-A-MAJ-06) used to immediately reattempt the
         just-invalidated window — never implicitly derived from
         `invalidation.recorded_time`.
+
+        Review-A round-2 residual 2: `cursor` is fully certified against this
+        engine's own bound authority BEFORE `_swing_invalidations` is
+        mutated — a rejected frontier leaves the targeted revision's
+        non-invalidated state untouched, so a valid retry of the exact same
+        invalidation is processed normally.
         """
+        self._resolve_cursor(cursor)
         existing = self._latest_confirmation(invalidation.swing_id)
         already_invalidated = existing is not None and (
             invalidation.swing_id,
@@ -534,7 +558,18 @@ class SwingDistanceFeatureEngine:
         substituted with `fact.recorded_time`. A live/real-time caller MAY
         choose to set `cursor.recorded_time = fact.recorded_time` explicitly,
         but that is a caller decision, never an engine default.
+
+        Review-A round-2 residual 2: `cursor` is fully certified against this
+        engine's own bound authority BEFORE `_candles`/`_candle_index`/
+        `_candle_by_window`/`_last_candle_recorded_time` are mutated — a
+        rejected frontier leaves Candle dedup/routing state untouched, so a
+        valid retry of the exact same Candle ref (original or correction) is
+        processed exactly as a first attempt would be. Validated even when
+        this specific call will end up producing no Feature output at all
+        (e.g. no eligible Swing) — the frontier is the certified computation
+        frontier for THIS operation regardless of what it ultimately yields.
         """
+        self._resolve_cursor(cursor)
         self._check_candle_scope(fact)
         self._check_candle_contract(fact)
         subject_id = fact.scope.subject_id

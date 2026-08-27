@@ -2,6 +2,71 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-27 — Feature Engine Implementation Remediation: bounded correction round 2 (ChatGPT SECOND Review A residuals on `P3-FEATURE-A-MAJ-04` / `P3-FEATURE-A-MAJ-06`)
+
+**Bounded correction of ChatGPT's SECOND bounded Review A residuals** — disposition `SECOND BOUNDED REVIEW A: NOT CLEAN — MAJ-04 / MAJ-06 REMAIN OPEN`, two residuals (both against MAJ-06), no new finding ID. Baseline HEAD `94018d406e04e5f29053b1e245bf1fa80e7b4b6d`.
+
+### Fixed
+
+```text
+Residual 1: removed the hardcoded `_KNOWN_STREAM_REGISTRIES`/`_KNOWN_INPUT_CONTRACTS` duplicate
+  authority tables entirely -- matching the repository's literals was not equivalent to
+  resolving authoritative artifacts (Chapter 8 §8.1.1). `ResolvedInputContract` now REQUIRES
+  `input_contract_content_id`/`stream_registry_content_id` (verifiable content-identity proof
+  for both source artifacts); `resolve_input_contract_authority` validates structure/
+  completeness only, keeping no duplicate copy of either artifact's semantic content. Both
+  engine constructors now REQUIRE `resolved_input_contract: ResolvedInputContract` (no more
+  optional engine-side default). New `authority_resolver.py` (explicitly outside the
+  analytical core) provides the default filesystem-backed resolver
+  (`resolve_input_contract_authority_from_repository`) -- a dependency-free line scanner that
+  reads the real Input Contract/Stream Registry YAML off disk and computes a SHA-256 of each
+  artifact's own bytes as its content identity. Test fixtures now call this resolver against
+  the real repository files.
+Residual 2: every public ingestion method (`on_swing_confirmed`/`on_swing_invalidated`/
+  `on_candle`/`on_regime_classified`/`on_regime_invalidated`) now calls `self._resolve_cursor
+  (cursor)` as its OWN FIRST STATEMENT, before any state mutation -- cursor certification
+  previously happened lazily, only once a Feature output was actually being constructed,
+  leaving Swing history/Candle cache/lineage state partially committed by a cursor-rejected
+  transaction (permanently losing a required retry to identical-ref dedup). A rejected
+  frontier now raises before touching any state; the exact same authoritative event retried
+  later with a valid frontier is processed exactly as a first attempt would be.
+```
+
+### Tests
+
+```text
++8 failure-atomicity tests across test_swing_distance.py (SwingConfirmed supersession retry
+  with full clean-engine equality proof, SwingInvalidated retry, Candle original retry, Candle
+  correction retry, no-output invalid-frontier rejection) and test_regime_passthrough.py
+  (RegimeClassified retry) + 6 new/rewritten Input Contract authority tests (missing content
+  identity, empty registry version/included_streams, genuine-content-identity assertion) +
+  conftest.py's `SWING_DISTANCE_INPUT_CONTRACT`/`REGIME_INPUT_CONTRACT` now resolved via the
+  real filesystem-backed resolver. `pytest -q` -> 117 passed. `ruff check .` -> clean. `mypy`
+  (strict) -> clean, 22 source files.
+```
+
+### Files changed
+
+```text
+python/feature-engine/src/feature_engine/{contracts.py, swing_distance.py,
+  regime_passthrough.py, __init__.py, authority_resolver.py (new)};
+  python/feature-engine/tests/{conftest.py, test_swing_distance.py, test_regime_passthrough.py};
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.255" -> "10.256". No other file
+  touched.
+```
+
+### State (unchanged by this transaction)
+
+```text
+P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06: REMEDIATED — PENDING REVIEW (not closed). Feature
+  Quality Tier: UNRESOLVED. Formal Chapter 13 Quality Gate: NOT RUN. Feature module approval:
+  NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+### Next governed action (not performed here)
+
+A subsequent bounded Review A round against this second correction remains a separate, not-yet-initiated transaction.
+
 ## [Unreleased] — 2026-08-27 — Feature Engine Implementation Remediation: bounded correction (ChatGPT Review A residuals on `P3-FEATURE-A-MAJ-04` / `P3-FEATURE-A-MAJ-06`)
 
 **Bounded correction of ChatGPT Review A residuals** against the prior remediation commit — disposition `BOUNDED REVIEW A: NOT CLEAN — MAJ-04 / MAJ-06 REMAIN OPEN`, six residuals, no new finding ID. Baseline HEAD `da502cfe7b5158d4f0d443b00f9823dda10403dd`.

@@ -6,13 +6,16 @@ Feature's own `decimal_precision_policy` normalization only) — never
 reclassifies it, never enriches `directional_persistence_metric` into a
 Bullish/Bearish/price-action interpretation.
 
-Input Contract authority (P3-FEATURE-A-MAJ-06, Review-A residual 2):
-`resolved_input_contract` binds `input_contract_ref`/`stream_registry_
-version`/`included_streams` as ONE verified unit (`ResolvedInputContract`,
-`contracts.py`), resolved against the closed, currently-approved authority
-table — never independently caller-supplied free-form strings. Omitting it
-(`None`, the default) binds directly to the currently-approved
-`feature-regime-input` Input Contract.
+Input Contract authority (P3-FEATURE-A-MAJ-06, Review-A round-2 residual 1):
+`resolved_input_contract` is a REQUIRED constructor argument — a genuine,
+already-resolved `ResolvedInputContract` (`contracts.py`) binding
+`input_contract_ref`/`stream_registry_version`/`included_streams`/the exact
+Feature computation profile/verifiable content-identity proof for BOTH the
+Input Contract and Stream Registry artifacts it was resolved from. This
+engine performs no filesystem/GitHub I/O itself and keeps no duplicate copy
+of Input Contract/Stream Registry semantics — see `authority_resolver.py`'s
+`resolve_input_contract_authority_from_repository` for the default,
+filesystem-backed resolver this repository's own tests use.
 
 Computation cursor (P3-FEATURE-A-MAJ-06, ADR-035 Approved): `on_regime_
 classified`/`on_regime_invalidated` both take an explicit, required
@@ -25,6 +28,12 @@ a process-local datetime, an invented registry value, or an incomplete
 Feature-local surrogate. Every emitted fact's own `recorded_time` floor
 additionally includes `cursor.recorded_time`, structurally guaranteeing
 Chapter 8 §8.5.2's Cursor -> Fact invariant.
+
+State atomicity (Review-A round-2 residual 2): `cursor` is fully certified
+against this engine's own bound authority at the top of `on_regime_
+classified`/`on_regime_invalidated`, BEFORE any lineage/dedup state is
+mutated — a rejected frontier leaves the engine exactly as it was, so a
+valid retry of the exact same authoritative event is processed normally.
 """
 
 from __future__ import annotations
@@ -93,7 +102,7 @@ class RegimePassthroughFeatureEngine:
         time_source: RecordedTimeSource,
         *,
         feature_event_contract_version: str,
-        resolved_input_contract: ResolvedInputContract | None = None,
+        resolved_input_contract: ResolvedInputContract,
         stream_id: str = "feature",
     ) -> None:
         if definition.feature_type not in _DIMENSION_BY_FEATURE_TYPE:
@@ -165,7 +174,11 @@ class RegimePassthroughFeatureEngine:
         (P3-FEATURE-A-MAJ-06) captured verbatim into this fact's own
         `computation_cursor` — never implicitly derived from
         `fact.recorded_time`.
+
+        Review-A round-2 residual 2: certified against this engine's own
+        bound authority BEFORE any lineage/dedup mutation below.
         """
+        self._resolve_cursor(cursor)
         self._check_scope(fact.instrument_id, fact.venue_id, fact.timeframe)
         self._check_contract(fact.event_contract_ref)
         if fact.regime_dimension != self._expected_dimension:
@@ -204,7 +217,11 @@ class RegimePassthroughFeatureEngine:
         (P3-FEATURE-A-MAJ-06) captured verbatim into this invalidation's own
         `computation_cursor` — never implicitly derived from
         `invalidation.recorded_time`.
+
+        Review-A round-2 residual 2: certified against this engine's own
+        bound authority BEFORE any lineage mutation below.
         """
+        self._resolve_cursor(cursor)
         self._check_contract(invalidation.event_contract_ref)
         self._check_recorded_time(invalidation.recorded_time)
         match_key: tuple[datetime, datetime] | None = None
