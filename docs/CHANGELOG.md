@@ -2,6 +2,79 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-27 — Feature Engine Implementation Remediation: bounded correction (ChatGPT Review A residuals on `P3-FEATURE-A-MAJ-04` / `P3-FEATURE-A-MAJ-06`)
+
+**Bounded correction of ChatGPT Review A residuals** against the prior remediation commit — disposition `BOUNDED REVIEW A: NOT CLEAN — MAJ-04 / MAJ-06 REMAIN OPEN`, six residuals, no new finding ID. Baseline HEAD `da502cfe7b5158d4f0d443b00f9823dda10403dd`.
+
+### Fixed
+
+```text
+Residual 1: replaced destructive single-current-revision `_swings` dict with append-only
+  `_swing_confirmations`/`_swing_invalidations` history + new `_swing_state_as_of(swing_id,
+  cursor)` reconstruction -- ADR-035's own "engine-internal upstream state must be cursor-
+  aware and history-preserving" consequence, now satisfied; a later invalidation/revision no
+  longer changes what an earlier-cursor query answers.
+Residual 2: `resolve_input_contract_ref`/`resolve_stream_registry_version`/
+  `resolve_included_streams` (syntactic non-empty checks only) replaced with new
+  `ResolvedInputContract` (one verified unit: profile + contract ref + registry version +
+  included_streams) resolved via `resolve_input_contract_authority()` against a closed,
+  internal table mechanically transcribed from the two live Input Contract YAML files +
+  Genesis Stream Registry -- an internally self-consistent but invented/wrong-profile/
+  wrong-universe identity now fails closed.
+Residual 3: test fixtures replaced invented `STREAM_REGISTRY_VERSION`/`INPUT_CONTRACT_REF`/
+  `INCLUDED_STREAMS` with the real, currently-approved `SWING_DISTANCE_INPUT_CONTRACT`/
+  `REGIME_INPUT_CONTRACT` and real logical stream_ids (`market-data-ingestion-candle`/
+  `structure-engine-swing`/`raw-regime-engine-regime`).
+Residual 4: `EvaluationFrontier` redesigned as proof-carrying (`StreamPositionProof`/
+  `LifecycleFrontierProof`, each with resolved `event_recorded_time` evidence, never added to
+  the persisted `ComputationCursor` schema) -- `resolve_computation_cursor` now enforces
+  Position -> Cursor, Lifecycle -> Cursor, and canonical Lifecycle Stream identity, fail-closed
+  (new `CursorRelationalInvariantViolationError`). Cursor -> Fact is now structurally
+  guaranteed: every emission site's recorded_time floor includes `cursor.recorded_time`.
+Residual 5: `stream_positions` key set must now exactly equal the bound Input Contract's
+  `included_streams` -- new `StreamPositionsUniverseMismatchError` on missing/extra keys.
+Residual 6: `resolve_computation_cursor` now snapshots `stream_positions` into an immutable
+  `MappingProxyType` at construction -- mutating the caller's own source mapping afterward can
+  no longer retroactively alter an already-emitted fact's cursor.
+MAJ-04 dependency: the existing ADR-034 condition-1 defect check and
+  `eligible_swing_selection_superseded` emission in `_preempt_settled_window` are unchanged in
+  behavior but now sit atop the corrected, durable MAJ-06 evidence path; a new test proves
+  R_later itself fails closed under a registry mismatch before any supersession is emitted.
+```
+
+### Tests
+
+```text
++~20 new/rewritten tests across test_swing_distance.py (historical as-of reconstruction x4,
+  cursor relational-invariant fail-closed cases x9, Input Contract authority fail-closed cases
+  x6, immutable-cursor-snapshot, Cursor->Fact with a far-future cursor), conftest.py gained
+  `SWING_DISTANCE_INPUT_CONTRACT`/`REGIME_INPUT_CONTRACT`/real stream_id constants and a
+  proof-carrying `frontier_at()`, test_regime_passthrough.py/test_current_view.py updated for
+  the new fixture shapes. `pytest -q` -> 109 passed. `ruff check .` -> clean. `mypy` (strict)
+  -> clean, 21 source files.
+```
+
+### Files changed
+
+```text
+python/feature-engine/src/feature_engine/{contracts.py, errors.py, swing_distance.py,
+  regime_passthrough.py, __init__.py}; python/feature-engine/tests/{conftest.py,
+  test_swing_distance.py, test_regime_passthrough.py, test_current_view.py}; docs/MANIFEST.md,
+  docs/CHANGELOG.md. manifest_version "10.254" -> "10.255". No other file touched.
+```
+
+### State (unchanged by this transaction)
+
+```text
+P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06: REMEDIATED — PENDING REVIEW (not closed). Feature
+  Quality Tier: UNRESOLVED. Formal Chapter 13 Quality Gate: NOT RUN. Feature module approval:
+  NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+### Next governed action (not performed here)
+
+A subsequent bounded Review A round against this correction remains a separate, not-yet-initiated transaction.
+
 ## [Unreleased] — 2026-08-27 — Feature Engine Implementation Remediation: `P3-FEATURE-A-MAJ-04` / `P3-FEATURE-A-MAJ-06` (REMEDIATED — PENDING INDEPENDENT REVIEW)
 
 **Bounded implementation-remediation transaction** — implements the two remaining OPEN Review A Major findings against the now-approved Genesis Stream Registry / Feature-scoped Input Contract topology. Not Review A, not Independent Review B, not a Tier classification, not the formal Chapter 13 Quality Gate, not module approval, not LIVE authorization. Baseline HEAD `3d6d03e1f0d2b2be43677cf70c2de830a7c3a5a3` (fresh-verified against both local and `origin/main` before any edit).

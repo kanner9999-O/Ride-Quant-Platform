@@ -8,11 +8,11 @@ from typing import Any
 import pytest
 from conftest import (
     BASE,
+    CANDLE_STREAM_ID,
     CONTRACT_VERSION,
     FEATURE_OUTPUT_CONTRACT_VERSION,
-    INCLUDED_STREAMS,
-    INPUT_CONTRACT_REF,
-    STREAM_REGISTRY_VERSION,
+    SWING_DISTANCE_INPUT_CONTRACT,
+    SWING_STREAM_ID,
     FixedDeltaTimeSource,
     authorized_candle_contract_refs,
     authorized_swing_contract_refs,
@@ -32,15 +32,21 @@ from feature_engine import (
     EventContractRef,
     InputContractRef,
     LifecycleFrontier,
+    LifecycleFrontierProof,
     LifecyclePosition,
+    ResolvedInputContract,
     SequenceAllocator,
+    StreamPositionProof,
     SwingDistanceFeatureEngine,
 )
 from feature_engine.errors import (
+    CursorRelationalInvariantViolationError,
     EligibleSwingComputationDefectError,
     EvidenceReferenceConflictError,
+    InputContractIdentityMismatchError,
     InvalidSwingEligibilityInputError,
     RegistryContractMismatchError,
+    StreamPositionsUniverseMismatchError,
     UnauthorizedUpstreamContractError,
     UnresolvedComputationCursorAuthorityError,
     UnsupportedDistanceRepresentationError,
@@ -51,9 +57,7 @@ def _engine(
     allocator: SequenceAllocator,
     time_source: FixedDeltaTimeSource,
     *,
-    input_contract_ref: InputContractRef = INPUT_CONTRACT_REF,
-    stream_registry_version: str = STREAM_REGISTRY_VERSION,
-    included_streams: frozenset[str] = INCLUDED_STREAMS,
+    resolved_input_contract: ResolvedInputContract | None = None,
     **definition_kwargs: Any,
 ) -> SwingDistanceFeatureEngine:
     definition = make_distance_definition(**definition_kwargs)
@@ -66,9 +70,7 @@ def _engine(
         feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
         authorized_candle_contract_refs=authorized_candle_contract_refs(),
         authorized_swing_contract_refs=authorized_swing_contract_refs(),
-        input_contract_ref=input_contract_ref,
-        stream_registry_version=stream_registry_version,
-        included_streams=included_streams,
+        resolved_input_contract=resolved_input_contract,
     )
 
 
@@ -469,9 +471,6 @@ def test_output_contract_version_must_be_genuine_non_empty(
             feature_event_contract_version="",
             authorized_candle_contract_refs=authorized_candle_contract_refs(),
             authorized_swing_contract_refs=authorized_swing_contract_refs(),
-            input_contract_ref=INPUT_CONTRACT_REF,
-            stream_registry_version=STREAM_REGISTRY_VERSION,
-            included_streams=INCLUDED_STREAMS,
         )
 
 
@@ -489,7 +488,7 @@ def test_candle_distinct_correction_ref_enters_lineage_even_when_value_unchanged
 
     correction = dataclasses.replace(
         reference,
-        ref=allocator.next_ref("candle"),
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
         recorded_time=reference.recorded_time + timedelta(seconds=120),
         is_correction=True,
         event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
@@ -551,6 +550,152 @@ def test_swing_same_ref_identical_redelivery_is_idempotent(
     assert engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time)) == []
 
 
+# --- Review-A residual 1: history-preserving as-of Swing state --------------
+#
+# `_swing_state_as_of` is this engine's own internal, append-only-history-backed
+# reconstruction of Eligible-Swing state at an arbitrary cursor (ADR-035
+# "Implementation consequence") — exercised directly here because no public
+# projection API exists for querying a HISTORICAL cursor (only the CURRENT
+# triggering cursor is exposed through `on_candle`/`on_swing_confirmed`/
+# `on_swing_invalidated`). This mirrors testing any other internal invariant
+# of a state machine that has no dedicated public query surface.
+
+
+def test_historical_invalidation_visibility_does_not_leak_backward(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """A LATER invalidation of a Swing revision must never retroactively
+    change what an EARLIER cursor query answers — engine-internal state must
+    be cursor-aware and history-preserving, never destructively overwritten.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+
+    r1 = swing.recorded_time + timedelta(minutes=5)
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    computed = only_computed(engine.on_candle(reference, cursor=frontier_at(r1))[0])
+    assert computed.value == Decimal("5.00")
+
+    r2 = r1 + timedelta(minutes=10)
+    inv = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=r2)
+    engine.on_swing_invalidated(inv, cursor=frontier_at(r2))
+
+    # Query AS OF r1 — strictly BEFORE the invalidation's own recorded_time.
+    state_at_r1 = engine._swing_state_as_of("s1", frontier_at(r1))
+    assert state_at_r1 is not None
+    assert state_at_r1.revision == 1
+    assert state_at_r1.ref == swing.ref
+
+
+def test_historical_revision_overwrite_does_not_erase_earlier_revision(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """After A1 -> invalidated -> A2 confirmed, a cursor query BEFORE A1's own
+    invalidation must still reconstruct revision 1 as the as-of state —
+    revision 2 must be invisible there, never having silently overwritten
+    revision 1's own historical record.
+    """
+    engine = _engine(allocator, time_source)
+    s1 = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", swing_revision=1, pivot_price="100")
+    engine.on_swing_confirmed(s1, cursor=frontier_at(s1.recorded_time))
+
+    inv = swing_invalidated_at(
+        allocator, swing_id="s1", swing_revision=1, recorded_time=s1.recorded_time + timedelta(minutes=10)
+    )
+    engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
+
+    s2 = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="s1", swing_revision=2, pivot_price="102", recorded_offset_minutes=20
+    )
+    engine.on_swing_confirmed(s2, cursor=frontier_at(s2.recorded_time))
+
+    r_before_invalidation = s1.recorded_time + timedelta(minutes=5)
+    state = engine._swing_state_as_of("s1", frontier_at(r_before_invalidation))
+    assert state is not None
+    assert state.revision == 1
+    assert state.pivot_price == Decimal("100")
+
+
+def test_cursor_between_invalidation_and_next_revision_neither_eligible(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """At a cursor where A1's invalidation IS visible but A2's confirmation is
+    NOT yet visible, swing_id `s1` must be eligible under NEITHER revision —
+    A1 invalid, A2 not yet confirmed as of this cursor.
+    """
+    engine = _engine(allocator, time_source)
+    s1 = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", swing_revision=1, pivot_price="100")
+    engine.on_swing_confirmed(s1, cursor=frontier_at(s1.recorded_time))
+
+    inv = swing_invalidated_at(
+        allocator, swing_id="s1", swing_revision=1, recorded_time=s1.recorded_time + timedelta(minutes=10)
+    )
+    engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
+
+    s2 = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="s1", swing_revision=2, pivot_price="102", recorded_offset_minutes=20
+    )
+    engine.on_swing_confirmed(s2, cursor=frontier_at(s2.recorded_time))
+
+    between = inv.recorded_time + timedelta(minutes=1)
+    assert between < s2.recorded_time
+    state = engine._swing_state_as_of("s1", frontier_at(between))
+    assert state is None
+
+
+def test_restart_rebuild_parity_same_cursor_answer_regardless_of_later_ingested_events(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Querying eligibility as-of cursor R must give the SAME answer whether
+    the engine has ALSO already ingested later events (a "live" engine that
+    kept running) or has ingested ONLY events up to R (a freshly "restarted"
+    engine reconstructing purely from durable history up to that boundary) —
+    the reconstruction depends only on the durable evidence visible at R,
+    never on how much MORE the process happens to already know. No
+    process-local-only shortcut.
+    """
+    # Same run_id on both allocators — the point is comparing byte-for-byte identical
+    # `EventRecordRef`s, isolating the assertion to the historical-reconstruction
+    # question rather than an incidental run-identity difference.
+    live_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="shared-run")
+    live_engine = _engine(live_allocator, FixedDeltaTimeSource())
+
+    restarted_allocator = SequenceAllocator(
+        module_id="feature-engine", implementation_version="0.1.0", run_id="shared-run"
+    )
+    restarted_engine = _engine(restarted_allocator, FixedDeltaTimeSource())
+
+    s1_live = swing_confirmed_at(live_allocator, pivot_index=2, swing_id="s1", swing_revision=1, pivot_price="100")
+    s1_restarted = swing_confirmed_at(
+        restarted_allocator, pivot_index=2, swing_id="s1", swing_revision=1, pivot_price="100"
+    )
+    live_engine.on_swing_confirmed(s1_live, cursor=frontier_at(s1_live.recorded_time))
+    restarted_engine.on_swing_confirmed(s1_restarted, cursor=frontier_at(s1_restarted.recorded_time))
+
+    r = s1_live.recorded_time + timedelta(minutes=5)
+
+    # The LIVE engine keeps going: ingest a later invalidation + replacement revision
+    # AFTER `r` — this must not change what a query AT `r` answers.
+    inv_live = swing_invalidated_at(
+        live_allocator, swing_id="s1", swing_revision=1, recorded_time=r + timedelta(minutes=10)
+    )
+    live_engine.on_swing_invalidated(inv_live, cursor=frontier_at(inv_live.recorded_time))
+    s2_live = swing_confirmed_at(
+        live_allocator, pivot_index=2, swing_id="s1", swing_revision=2, pivot_price="102", recorded_offset_minutes=20
+    )
+    live_engine.on_swing_confirmed(s2_live, cursor=frontier_at(s2_live.recorded_time))
+
+    # The RESTARTED engine never ingested anything past `r` at all.
+    live_state = live_engine._swing_state_as_of("s1", frontier_at(r))
+    restarted_state = restarted_engine._swing_state_as_of("s1", frontier_at(r))
+    assert live_state is not None
+    assert restarted_state is not None
+    assert live_state.revision == restarted_state.revision == 1
+    assert live_state.ref == restarted_state.ref
+    assert live_state.pivot_price == restarted_state.pivot_price == Decimal("100")
+
+
 # --- 18. Deterministic replay --------------------------------------------------
 
 
@@ -592,16 +737,16 @@ def test_feature_computed_and_invalidated_carry_full_computation_cursor(
     computed = only_computed(engine.on_candle(reference, cursor=frontier_at(r))[0])
     cursor = computed.computation_cursor
     assert cursor.recorded_time == r
-    assert cursor.input_contract_ref == INPUT_CONTRACT_REF
-    assert cursor.stream_registry_version == STREAM_REGISTRY_VERSION
+    assert cursor.input_contract_ref == SWING_DISTANCE_INPUT_CONTRACT.input_contract_ref
+    assert cursor.stream_registry_version == SWING_DISTANCE_INPUT_CONTRACT.stream_registry_version
     assert cursor.lifecycle_frontier == LifecycleFrontier(
         stream_id="platform-lifecycle", position=LifecyclePosition(kind="genesis", sequence=0)
     )
-    assert dict(cursor.stream_positions) == dict.fromkeys(INCLUDED_STREAMS, 10**9)
+    assert dict(cursor.stream_positions) == dict.fromkeys(SWING_DISTANCE_INPUT_CONTRACT.included_streams, 10**9)
 
     correction = dataclasses.replace(
         reference,
-        ref=allocator.next_ref("candle"),
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
         recorded_time=r + timedelta(seconds=120),
         is_correction=True,
         event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
@@ -609,8 +754,8 @@ def test_feature_computed_and_invalidated_carry_full_computation_cursor(
     invalidation = only_invalidated(engine.on_candle(correction, cursor=frontier_at(correction.recorded_time))[0])
     inv_cursor = invalidation.computation_cursor
     assert inv_cursor.recorded_time == correction.recorded_time
-    assert inv_cursor.input_contract_ref == INPUT_CONTRACT_REF
-    assert inv_cursor.stream_registry_version == STREAM_REGISTRY_VERSION
+    assert inv_cursor.input_contract_ref == SWING_DISTANCE_INPUT_CONTRACT.input_contract_ref
+    assert inv_cursor.stream_registry_version == SWING_DISTANCE_INPUT_CONTRACT.stream_registry_version
 
 
 def test_original_and_replacement_facts_have_distinct_computation_cursor(
@@ -624,7 +769,7 @@ def test_original_and_replacement_facts_have_distinct_computation_cursor(
 
     correction = dataclasses.replace(
         reference,
-        ref=allocator.next_ref("candle"),
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
         recorded_time=reference.recorded_time + timedelta(seconds=120),
         is_correction=True,
         event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
@@ -683,7 +828,11 @@ def test_stream_position_ceiling_excludes_swing_from_eligibility(
 
     below_ceiling = frontier_at(
         reference.recorded_time,
-        stream_positions={"candle": 10**9, "swing": swing.ref.sequence - 1, "regime": 10**9},
+        stream_positions={
+            CANDLE_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=reference.recorded_time),
+            # sequence - 1 == 0 == that stream's own genesis_position — no event yet, no proof needed.
+            SWING_STREAM_ID: StreamPositionProof(sequence=swing.ref.sequence - 1, event_recorded_time=None),
+        },
     )
     assert below_engine.on_candle(reference, cursor=below_ceiling) == []
 
@@ -691,7 +840,10 @@ def test_stream_position_ceiling_excludes_swing_from_eligibility(
     at_engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
     at_ceiling = frontier_at(
         reference.recorded_time,
-        stream_positions={"candle": 10**9, "swing": swing.ref.sequence, "regime": 10**9},
+        stream_positions={
+            CANDLE_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=reference.recorded_time),
+            SWING_STREAM_ID: StreamPositionProof(sequence=swing.ref.sequence, event_recorded_time=swing.recorded_time),
+        },
     )
     events = at_engine.on_candle(reference, cursor=at_ceiling)
     assert len(events) == 1
@@ -705,46 +857,92 @@ def test_lifecycle_frontier_captured_verbatim_in_computation_cursor(
     engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
     reference = candle_at(allocator, 10, high="110", low="90", close="105")
 
-    distinctive = LifecycleFrontier(
-        stream_id="platform-lifecycle", position=LifecyclePosition(kind="event", sequence=42)
+    distinctive_position = LifecyclePosition(kind="event", sequence=42)
+    distinctive_proof = LifecycleFrontierProof(
+        stream_id="platform-lifecycle",
+        position=distinctive_position,
+        event_recorded_time=reference.recorded_time,  # <= cursor.recorded_time, satisfies Lifecycle -> Cursor
     )
     computed = only_computed(
-        engine.on_candle(reference, cursor=frontier_at(reference.recorded_time, lifecycle_frontier=distinctive))[0]
+        engine.on_candle(
+            reference, cursor=frontier_at(reference.recorded_time, lifecycle_frontier=distinctive_proof)
+        )[0]
     )
-    assert computed.computation_cursor.lifecycle_frontier == distinctive
+    assert computed.computation_cursor.lifecycle_frontier == LifecycleFrontier(
+        stream_id="platform-lifecycle", position=distinctive_position
+    )
 
 
 def test_registry_mismatch_fails_closed_before_emission(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    engine = _engine(allocator, time_source, stream_registry_version=STREAM_REGISTRY_VERSION)
+    engine = _engine(allocator, time_source)
     swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
     engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
     reference = candle_at(allocator, 10, high="110", low="90", close="105")
-    mismatched = frontier_at(reference.recorded_time, stream_registry_version="a-different-registry-version")
+    mismatched_contract = dataclasses.replace(
+        SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="a-different-registry-version"
+    )
+    mismatched = frontier_at(reference.recorded_time, resolved_input_contract=mismatched_contract)
     with pytest.raises(RegistryContractMismatchError):
         engine.on_candle(reference, cursor=mismatched)
 
 
-def test_missing_input_contract_ref_fails_closed_at_construction(
+# --- Review-A residual 2: Input Contract authority is a single verified unit -
+
+
+def test_input_contract_profile_mismatch_fails_closed_at_construction(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    with pytest.raises(UnresolvedComputationCursorAuthorityError):
-        _engine(allocator, time_source, input_contract_ref=InputContractRef("", ""))
+    """A `ResolvedInputContract` resolved for the WRONG Feature computation
+    profile (here: the `regime` profile, supplied to a swing-distance engine)
+    must fail closed, even though it is itself a genuine, currently-approved
+    authority value — just not the one this engine requires.
+    """
+    from conftest import REGIME_INPUT_CONTRACT
+
+    with pytest.raises(InputContractIdentityMismatchError):
+        _engine(allocator, time_source, resolved_input_contract=REGIME_INPUT_CONTRACT)
 
 
-def test_missing_stream_registry_version_fails_closed_at_construction(
+def test_unrecognized_input_contract_identity_fails_closed_at_construction(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    with pytest.raises(UnresolvedComputationCursorAuthorityError):
-        _engine(allocator, time_source, stream_registry_version="")
+    """Three internally mutually-consistent strings are NOT sufficient
+    authorization — an invented `ResolvedInputContract` that agrees with
+    itself but does not match the real, currently-approved identity for this
+    profile must fail closed (Review-A residual 2's explicit requirement).
+    """
+    invented = ResolvedInputContract(
+        feature_computation_profile="distance_to_last_confirmed_swing",
+        input_contract_ref=InputContractRef(contract_id="feature-input-contract", contract_version="v1"),
+        stream_registry_version="v1",
+        included_streams=frozenset({CANDLE_STREAM_ID, SWING_STREAM_ID}),
+    )
+    with pytest.raises(InputContractIdentityMismatchError):
+        _engine(allocator, time_source, resolved_input_contract=invented)
 
 
-def test_missing_included_streams_fails_closed_at_construction(
+def test_input_contract_unresolvable_registry_fails_closed_at_construction(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
+    unresolvable = dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="does-not-exist")
     with pytest.raises(UnresolvedComputationCursorAuthorityError):
-        _engine(allocator, time_source, included_streams=frozenset())
+        _engine(allocator, time_source, resolved_input_contract=unresolvable)
+
+
+def test_input_contract_streams_not_in_registry_fails_closed_at_construction(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`included_streams` containing a stream_id the pinned registry version
+    does not actually resolve must fail closed — "referenced registry cannot
+    be resolved or does not contain the selected streams."
+    """
+    bad = dataclasses.replace(
+        SWING_DISTANCE_INPUT_CONTRACT, included_streams=frozenset({CANDLE_STREAM_ID, "not-a-real-stream"})
+    )
+    with pytest.raises(InputContractIdentityMismatchError):
+        _engine(allocator, time_source, resolved_input_contract=bad)
 
 
 def test_no_fallback_to_trigger_event_recorded_time(
@@ -765,6 +963,286 @@ def test_no_fallback_to_trigger_event_recorded_time(
     assert computed.computation_cursor.recorded_time == explicit_r
     assert computed.computation_cursor.recorded_time != reference.recorded_time
     assert computed.computation_cursor.recorded_time != swing.recorded_time
+
+
+# --- Review-A residual 4: Chapter 8 §8.5.2 relational invariants ------------
+
+
+def test_cursor_to_fact_invariant_holds_with_far_future_cursor(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Chapter 8 §8.5.2 Cursor -> Fact: `computation_cursor.recorded_time <=
+    FeatureComputed.recorded_time` must hold even when the caller-certified
+    cursor's own `recorded_time` is far LATER than every piece of upstream
+    evidence — the emitted fact's own recorded_time floor includes
+    `cursor.recorded_time` (never merely evidence-derived).
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    far_future = reference.recorded_time + timedelta(days=365)
+    assert far_future > reference.recorded_time and far_future > swing.recorded_time
+    computed = only_computed(engine.on_candle(reference, cursor=frontier_at(far_future))[0])
+    assert computed.computation_cursor.recorded_time <= computed.recorded_time
+    assert computed.recorded_time > far_future  # strictly later, per the existing RecordedTimeSource doctrine
+
+
+def test_missing_stream_positions_key_fails_closed(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """ADR-035's cardinality clause: `stream_positions` keys must be EXACTLY
+    the bound Input Contract's own `included_streams` — a missing key fails
+    closed, never treated as "unbounded"/"not applicable."
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    # SWING_STREAM_ID kept sufficient so the Swing is genuinely eligible and a fact
+    # would otherwise be emitted — the missing CANDLE_STREAM_ID key (irrelevant to
+    # eligibility itself) is what must trip the cardinality check before emission.
+    missing_key = frontier_at(
+        reference.recorded_time,
+        stream_positions={
+            SWING_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=swing.recorded_time)
+            # CANDLE_STREAM_ID deliberately omitted.
+        },
+    )
+    with pytest.raises(StreamPositionsUniverseMismatchError):
+        engine.on_candle(reference, cursor=missing_key)
+
+
+def test_extra_stream_positions_key_fails_closed(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """An extra `stream_positions` key beyond `included_streams` — an "all
+    streams seen" fallback — must also fail closed, not merely be ignored.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    extra_key = frontier_at(
+        reference.recorded_time,
+        stream_positions={
+            CANDLE_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=reference.recorded_time),
+            SWING_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=reference.recorded_time),
+            "raw-regime-engine-regime": StreamPositionProof(sequence=0, event_recorded_time=None),
+        },
+    )
+    with pytest.raises(StreamPositionsUniverseMismatchError):
+        engine.on_candle(reference, cursor=extra_key)
+
+
+def test_stream_position_event_recorded_after_cursor_fails_closed(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Chapter 8 §8.5.2 Position -> Cursor (anti-look-ahead): a
+    `stream_positions` proof whose resolved event `recorded_time` is AFTER
+    `cursor.recorded_time` must fail closed — a cursor cannot claim to have
+    already observed an event from its own future.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    # The bad proof sits on SWING_STREAM_ID's own position — `sequence` alone (used by
+    # eligibility's `is_visible_at_cursor`) is still sufficient for the Swing to be
+    # selected, so a fact would otherwise be emitted; the proof's own
+    # `event_recorded_time` is what must trip Position -> Cursor before emission.
+    from_the_future = frontier_at(
+        reference.recorded_time,
+        stream_positions={
+            CANDLE_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=reference.recorded_time),
+            SWING_STREAM_ID: StreamPositionProof(
+                sequence=10**9, event_recorded_time=reference.recorded_time + timedelta(days=1)
+            ),
+        },
+    )
+    with pytest.raises(CursorRelationalInvariantViolationError):
+        engine.on_candle(reference, cursor=from_the_future)
+
+
+def test_stream_position_missing_proof_for_non_genesis_sequence_fails_closed(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """A caller-provided integer position alone is not proof (Review-A
+    residual 4) — a non-zero `sequence` (not that stream's own
+    `genesis_position`) with no `event_recorded_time` proof fails closed.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    # SWING_STREAM_ID carries a non-genesis sequence (10**9, sufficient for eligibility
+    # via is_visible_at_cursor) but supplies no event_recorded_time proof at all.
+    unproven = frontier_at(
+        reference.recorded_time,
+        stream_positions={
+            CANDLE_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=reference.recorded_time),
+            SWING_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=None),
+        },
+    )
+    with pytest.raises(CursorRelationalInvariantViolationError):
+        engine.on_candle(reference, cursor=unproven)
+
+
+def test_lifecycle_event_recorded_after_cursor_fails_closed(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Chapter 8 §8.5.2 Lifecycle -> Cursor: a `lifecycle_frontier` whose
+    resolved lifecycle event `recorded_time` is AFTER `cursor.recorded_time`
+    must fail closed.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    lifecycle_from_the_future = frontier_at(
+        reference.recorded_time,
+        lifecycle_frontier=LifecycleFrontierProof(
+            stream_id="platform-lifecycle",
+            position=LifecyclePosition(kind="event", sequence=1),
+            event_recorded_time=reference.recorded_time + timedelta(days=1),
+        ),
+    )
+    with pytest.raises(CursorRelationalInvariantViolationError):
+        engine.on_candle(reference, cursor=lifecycle_from_the_future)
+
+
+def test_lifecycle_event_kind_requires_proof_fails_closed(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    unproven_event_kind = frontier_at(
+        reference.recorded_time,
+        lifecycle_frontier=LifecycleFrontierProof(
+            stream_id="platform-lifecycle",
+            position=LifecyclePosition(kind="event", sequence=1),
+            event_recorded_time=None,
+        ),
+    )
+    with pytest.raises(CursorRelationalInvariantViolationError):
+        engine.on_candle(reference, cursor=unproven_event_kind)
+
+
+def test_genesis_lifecycle_frontier_must_not_carry_fabricated_proof_fails_closed(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Chapter 8 §8.3.5's Genesis carve-out: no lifecycle event exists yet for
+    `kind: genesis`, so no `event_recorded_time` may be fabricated as if one
+    did.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    fabricated_genesis_proof = frontier_at(
+        reference.recorded_time,
+        lifecycle_frontier=LifecycleFrontierProof(
+            stream_id="platform-lifecycle",
+            position=LifecyclePosition(kind="genesis", sequence=0),
+            event_recorded_time=reference.recorded_time,
+        ),
+    )
+    with pytest.raises(CursorRelationalInvariantViolationError):
+        engine.on_candle(reference, cursor=fabricated_genesis_proof)
+
+
+def test_wrong_lifecycle_stream_id_fails_closed(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    wrong_stream = frontier_at(
+        reference.recorded_time,
+        lifecycle_frontier=LifecycleFrontierProof(
+            stream_id="not-the-lifecycle-stream",
+            position=LifecyclePosition(kind="genesis", sequence=0),
+            event_recorded_time=None,
+        ),
+    )
+    with pytest.raises(CursorRelationalInvariantViolationError):
+        engine.on_candle(reference, cursor=wrong_stream)
+
+
+def test_included_stream_universe_mismatch_fails_closed_at_construction(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Correct contract/registry but a DIFFERENT (still-registry-valid)
+    included-stream universe than the real, currently-approved Input
+    Contract declares must still fail closed.
+    """
+    narrowed = dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, included_streams=frozenset({CANDLE_STREAM_ID}))
+    with pytest.raises(InputContractIdentityMismatchError):
+        _engine(allocator, time_source, resolved_input_contract=narrowed)
+
+
+def test_approved_swing_distance_and_regime_input_contracts_are_accepted(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """The real, currently-approved Input Contract identities for both live
+    profiles are accepted — both by omitting `resolved_input_contract`
+    entirely (the default) and by supplying them explicitly.
+    """
+    from conftest import REGIME_INPUT_CONTRACT
+
+    _engine(allocator, time_source)  # default -> swing-distance authority, must not raise
+    _engine(allocator, time_source, resolved_input_contract=SWING_DISTANCE_INPUT_CONTRACT)  # explicit, must not raise
+    with pytest.raises(InputContractIdentityMismatchError):
+        # sanity: the regime authority is genuinely a DIFFERENT, rejected identity here.
+        _engine(allocator, time_source, resolved_input_contract=REGIME_INPUT_CONTRACT)
+
+
+# --- Review-A residual 6: immutable cursor snapshot -------------------------
+
+
+def test_mutating_caller_stream_positions_after_emission_does_not_mutate_cursor(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """A caller mutating the ORIGINAL mutable mapping it passed as
+    `stream_positions` after a fact has already been emitted must never
+    retroactively alter that fact's own persisted `computation_cursor`
+    (Review-A residual 6) — `resolve_computation_cursor` captures an
+    immutable snapshot at construction time.
+    """
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+
+    mutable_positions = {
+        CANDLE_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=reference.recorded_time),
+        SWING_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=reference.recorded_time),
+    }
+    computed = only_computed(
+        engine.on_candle(
+            reference, cursor=frontier_at(reference.recorded_time, stream_positions=mutable_positions)
+        )[0]
+    )
+    before = dict(computed.computation_cursor.stream_positions)
+
+    mutable_positions[CANDLE_STREAM_ID] = StreamPositionProof(sequence=1, event_recorded_time=reference.recorded_time)
+    mutable_positions["a-newly-injected-stream"] = StreamPositionProof(sequence=1, event_recorded_time=None)
+
+    assert dict(computed.computation_cursor.stream_positions) == before
+    with pytest.raises(TypeError):
+        computed.computation_cursor.stream_positions["a-newly-injected-stream"] = 1  # type: ignore[index]
 
 
 # --- P3-FEATURE-A-MAJ-04 remediation: eligible_swing_selection_superseded ----
@@ -807,7 +1285,7 @@ def test_registry_mismatch_during_supersession_fails_closed_before_emission(
     engine's own bound Input Contract — R_later fails closed exactly like any
     other cursor resolution (P3-FEATURE-A-MAJ-06), never a laundered emission.
     """
-    engine = _engine(allocator, time_source, stream_registry_version=STREAM_REGISTRY_VERSION)
+    engine = _engine(allocator, time_source)
 
     swing_a1 = swing_confirmed_at(allocator, pivot_index=8, swing_id="A", swing_revision=1, pivot_price="100")
     engine.on_swing_confirmed(swing_a1, cursor=frontier_at(swing_a1.recorded_time))
@@ -825,7 +1303,10 @@ def test_registry_mismatch_during_supersession_fails_closed_before_emission(
     swing_a2 = swing_confirmed_at(
         allocator, pivot_index=8, swing_id="A", swing_revision=2, pivot_price="103", recorded_offset_minutes=30
     )
-    mismatched = frontier_at(swing_a2.recorded_time, stream_registry_version="a-different-registry-version")
+    mismatched_contract = dataclasses.replace(
+        SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="a-different-registry-version"
+    )
+    mismatched = frontier_at(swing_a2.recorded_time, resolved_input_contract=mismatched_contract)
     with pytest.raises(RegistryContractMismatchError):
         engine.on_swing_confirmed(swing_a2, cursor=mismatched)
 

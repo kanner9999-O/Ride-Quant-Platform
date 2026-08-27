@@ -16,6 +16,7 @@ from feature_engine import (
     ELIGIBLE_SWING_EFFECTIVE_CUTOFF_POLICY,
     ELIGIBLE_SWING_SELECTION_POLICY,
     INPUT_NORMALIZATION_POLICY,
+    LIFECYCLE_STREAM_ID,
     MISSING_INPUT_POLICY,
     OHLCV,
     REGIME_CLASSIFIED_CONTRACT_ID,
@@ -34,11 +35,13 @@ from feature_engine import (
     FeatureScope,
     FeatureViewResult,
     InputContractRef,
-    LifecycleFrontier,
+    LifecycleFrontierProof,
     LifecyclePosition,
     RegimeClassifiedFact,
     RegimeFactInvalidatedFact,
+    ResolvedInputContract,
     SequenceAllocator,
+    StreamPositionProof,
     SwingConfirmedFact,
     SwingInvalidatedFact,
 )
@@ -60,13 +63,36 @@ CONTRACT_VERSION = "v1"
 # feature_engine never invents this itself, e.g. the former "v0" stand-in).
 FEATURE_OUTPUT_CONTRACT_VERSION = "fv1"
 
-# Test-fixture-pinned computation_cursor authority (P3-FEATURE-A-MAJ-06): the
-# caller-injected Feature-scoped Input Contract identity + registry version +
-# stream universe a test engine is constructed against — never invented by
-# feature_engine itself, mirroring FEATURE_OUTPUT_CONTRACT_VERSION above.
-STREAM_REGISTRY_VERSION = "reg-v1"
-INPUT_CONTRACT_REF = InputContractRef(contract_id="feature-input-contract", contract_version="v1")
-INCLUDED_STREAMS = frozenset({"candle", "swing", "regime"})
+# Real, currently-approved logical stream identities (Review-A residual 3) —
+# mechanical transcription of `docs/architecture/stream-registry.yaml`
+# (`registry_version: v1`) — never generic aliases like "candle"/"swing"/
+# "regime". Every `EventRecordRef` these fixtures allocate uses these exact
+# stream_ids, so `is_visible_at_cursor`'s stream-universe-membership branch
+# (feature.md §12(a)) is exercised against the real topology.
+CANDLE_STREAM_ID = "market-data-ingestion-candle"
+SWING_STREAM_ID = "structure-engine-swing"
+REGIME_STREAM_ID = "raw-regime-engine-regime"
+
+# Real, currently-approved Input Contract authority (Review-A residuals 2/3)
+# — mechanical transcription of `docs/architecture/input-contracts/feature-
+# swing-distance-input.yaml` / `feature-regime-input.yaml`, both
+# `stream_registry_version: v1`. These are the SAME values `_engine()`
+# helpers below bind to by default (omitting `resolved_input_contract`
+# entirely also resolves to these, since they are `feature_engine`'s own
+# closed, currently-approved authority table) — kept explicit here so tests
+# can assert on them and construct deliberate mismatches.
+SWING_DISTANCE_INPUT_CONTRACT = ResolvedInputContract(
+    feature_computation_profile="distance_to_last_confirmed_swing",
+    input_contract_ref=InputContractRef(contract_id="feature-swing-distance-input", contract_version="v1"),
+    stream_registry_version="v1",
+    included_streams=frozenset({CANDLE_STREAM_ID, SWING_STREAM_ID}),
+)
+REGIME_INPUT_CONTRACT = ResolvedInputContract(
+    feature_computation_profile="regime",
+    input_contract_ref=InputContractRef(contract_id="feature-regime-input", contract_version="v1"),
+    stream_registry_version="v1",
+    included_streams=frozenset({REGIME_STREAM_ID}),
+)
 
 # An "effectively unbounded" per-stream sequence ceiling — most tests only
 # care about recorded_time-driven visibility, not the stream-position edge
@@ -77,25 +103,36 @@ _UNBOUNDED_SEQUENCE = 10**9
 def frontier_at(
     recorded_time: datetime,
     *,
-    stream_registry_version: str = STREAM_REGISTRY_VERSION,
-    stream_positions: Mapping[str, int] | None = None,
-    lifecycle_frontier: LifecycleFrontier | None = None,
+    resolved_input_contract: ResolvedInputContract = SWING_DISTANCE_INPUT_CONTRACT,
+    stream_positions: Mapping[str, StreamPositionProof] | None = None,
+    lifecycle_frontier: LifecycleFrontierProof | None = None,
 ) -> EvaluationFrontier:
-    """TEST-ONLY helper constructing a caller-certified `EvaluationFrontier`
-    (P3-FEATURE-A-MAJ-06) — never a bare `datetime` cursor. Defaults to an
-    unbounded stream-position ceiling and a genesis lifecycle frontier so
-    existing tests that only exercise `recorded_time`-driven visibility do
-    not need to think about stream positions/lifecycle frontier at all.
+    """TEST-ONLY helper constructing a caller-certified, proof-carrying
+    `EvaluationFrontier` (P3-FEATURE-A-MAJ-06) — never a bare `datetime`
+    cursor, never a bare integer position map. Defaults to an unbounded
+    stream-position ceiling (with a matching `event_recorded_time` proof
+    exactly at `recorded_time`, trivially satisfying Position -> Cursor) and
+    a genesis lifecycle frontier so existing tests that only exercise
+    `recorded_time`-driven visibility do not need to think about stream
+    positions/lifecycle frontier proofs at all. `resolved_input_contract`
+    determines which stream universe `stream_positions` must exactly cover
+    (ADR-035's cardinality clause) — defaults to the swing-distance profile;
+    regime tests pass `resolved_input_contract=REGIME_INPUT_CONTRACT`.
     """
     if stream_positions is None:
-        stream_positions = dict.fromkeys(INCLUDED_STREAMS, _UNBOUNDED_SEQUENCE)
+        stream_positions = {
+            stream_id: StreamPositionProof(sequence=_UNBOUNDED_SEQUENCE, event_recorded_time=recorded_time)
+            for stream_id in resolved_input_contract.included_streams
+        }
     if lifecycle_frontier is None:
-        lifecycle_frontier = LifecycleFrontier(
-            stream_id="platform-lifecycle", position=LifecyclePosition(kind="genesis", sequence=0)
+        lifecycle_frontier = LifecycleFrontierProof(
+            stream_id=LIFECYCLE_STREAM_ID,
+            position=LifecyclePosition(kind="genesis", sequence=0),
+            event_recorded_time=None,
         )
     return EvaluationFrontier(
         recorded_time=recorded_time,
-        stream_registry_version=stream_registry_version,
+        stream_registry_version=resolved_input_contract.stream_registry_version,
         lifecycle_frontier=lifecycle_frontier,
         stream_positions=stream_positions,
     )
@@ -173,7 +210,7 @@ def candle_at(
     open_v = open_ if open_ is not None else close_v
     ohlcv = OHLCV(Decimal(open_v), Decimal(high), Decimal(low), Decimal(close_v), Decimal(volume))
     recorded_time = window_end + timedelta(seconds=recorded_offset_seconds)
-    ref = allocator.next_ref("candle")
+    ref = allocator.next_ref(CANDLE_STREAM_ID)
     if event_contract_ref is None:
         contract_id = CANDLE_CORRECTED_CONTRACT_ID if is_correction else CANDLE_CLOSED_CONTRACT_ID
         event_contract_ref = EventContractRef(contract_id, CONTRACT_VERSION)
@@ -211,7 +248,7 @@ def swing_confirmed_at(
         pivot_price=Decimal(pivot_price),
         pivot_effective_time=(pivot_start, pivot_end),
         recorded_time=recorded_time,
-        ref=allocator.next_ref("swing"),
+        ref=allocator.next_ref(SWING_STREAM_ID),
         event_contract_ref=event_contract_ref,
     )
 
@@ -230,7 +267,7 @@ def swing_invalidated_at(
         swing_id=swing_id,
         swing_revision=swing_revision,
         recorded_time=recorded_time,
-        ref=allocator.next_ref("swing"),
+        ref=allocator.next_ref(SWING_STREAM_ID),
         event_contract_ref=event_contract_ref,
     )
 
@@ -263,7 +300,7 @@ def regime_classified_at(
         window_start=window_start,
         window_end=window_end,
         recorded_time=recorded_time,
-        ref=allocator.next_ref("regime"),
+        ref=allocator.next_ref(REGIME_STREAM_ID),
         event_contract_ref=event_contract_ref,
     )
 
@@ -280,7 +317,7 @@ def regime_invalidated_at(
     return RegimeFactInvalidatedFact(
         invalidated_fact_ref=invalidated_fact_ref,  # type: ignore[arg-type]
         recorded_time=recorded_time,
-        ref=allocator.next_ref("regime"),
+        ref=allocator.next_ref(REGIME_STREAM_ID),
         event_contract_ref=event_contract_ref,
     )
 

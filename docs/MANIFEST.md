@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.254"
+manifest_version: "10.255"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -11500,6 +11500,128 @@ A subsequent bounded Review A round against this remediation (and, if that passe
 **Files changed:** `python/feature-engine/src/feature_engine/contracts.py`, `errors.py`, `swing_distance.py`, `regime_passthrough.py`, `__init__.py`; `python/feature-engine/tests/conftest.py`, `test_swing_distance.py`, `test_regime_passthrough.py`, `test_current_view.py`; `docs/MANIFEST.md`; `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 **Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.253` → `10.254`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above).
+
+## Feature Engine Implementation Remediation — Bounded Correction (ChatGPT Review A residuals on `P3-FEATURE-A-MAJ-04` / `P3-FEATURE-A-MAJ-06`)
+
+**Bounded implementation-remediation CORRECTION transaction — vai trò: `Feature Engine Implementation Remediator` (correction pass).** ChatGPT bounded Review A of the prior remediation commit (`da502cfe7b5158d4f0d443b00f9823dda10403dd`) disposed `BOUNDED REVIEW A: NOT CLEAN — MAJ-04 / MAJ-06 REMAIN OPEN` — six residuals identified, principally against `P3-FEATURE-A-MAJ-06`, with `P3-FEATURE-A-MAJ-04` remaining dependent on MAJ-06's own closure. No new Blocker/Major/qualifying Minor finding ID created for these — corrected as residuals of the existing two findings. Does NOT perform Review A, does NOT perform Independent Review B, does NOT classify Tier, does NOT run the formal Chapter 13 Quality Gate, does NOT approve the Feature module, does NOT authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `da502cfe7b5158d4f0d443b00f9823dda10403dd` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. Authority re-read directly from `docs/adr/ADR-034.md`, `docs/adr/ADR-035.md`, `docs/domain/feature.md`, `docs/constitution/05-time-model.md`, `docs/constitution/08-event-model.md` §8.5.1/§8.5.2/§8.3.5, `docs/architecture/stream-registry.yaml`, and all three `docs/architecture/input-contracts/feature-*.yaml` files.
+
+```text
+Residual 1 (history-preserving as-of state): `self._swings: dict[str, _SwingState]` was a
+  single-current-revision mutable dict, destructively overwritten on each new confirmation
+  and mutated in place on invalidation (`state.invalidated = True`) -- exactly ADR-035's own
+  named "Implementation consequence" gap. Fixed: replaced with append-only
+  `_swing_confirmations: dict[str, list[_SwingConfirmationRecord]]` (one immutable record per
+  ingested revision, never overwritten) and `_swing_invalidations: dict[tuple[str, int],
+  _SwingInvalidationRecord]` (at most one per (swing_id, revision), never overwritten). New
+  `_swing_state_as_of(swing_id, cursor)` reconstructs eligibility purely from this history via
+  the existing `is_visible_at_cursor` predicate -- the highest-revision confirmation visible
+  at `cursor`, unless its own matching invalidation is ALSO visible there. `_select_eligible_
+  swing` now calls this reconstruction instead of reading mutable current state directly.
+Residual 2 (Input Contract authority only syntactically non-empty): `resolve_input_contract_
+  ref`/`resolve_stream_registry_version`/`resolve_included_streams` validated non-emptiness
+  only -- three independently caller-supplied, merely mutually-consistent strings were
+  sufficient. Fixed: new `ResolvedInputContract` dataclass binds `feature_computation_profile`
+  + `input_contract_ref` + `stream_registry_version` + `included_streams` as ONE unit; new
+  `resolve_input_contract_authority()` resolves it against a closed, internal table
+  (`_KNOWN_INPUT_CONTRACTS`) mechanically transcribed from the two Input Contract YAML files a
+  live engine actually binds to (`feature-swing-distance-input`/`feature-regime-input`, both
+  `v1`) plus the Genesis Stream Registry's own stream universe (`_KNOWN_STREAM_REGISTRIES`) --
+  fails closed (`InputContractIdentityMismatchError`) on wrong profile, unrecognized identity,
+  or an included-stream universe not contained in the resolved registry; fails closed
+  (`UnresolvedComputationCursorAuthorityError`) if the registry version itself cannot be
+  resolved. Both engine constructors now take a single `resolved_input_contract: ResolvedInput
+  Contract | None = None` parameter (`None` binds directly to the real, currently-approved
+  authority) replacing the previous three independent string parameters.
+Residual 3 (tests used invented cursor authority): test fixtures previously used
+  `STREAM_REGISTRY_VERSION = "reg-v1"`/`INPUT_CONTRACT_REF = "feature-input-contract"`/
+  `INCLUDED_STREAMS = {"candle","swing","regime"}` -- none matching the real approved
+  artifacts. Fixed: `conftest.py` now defines `SWING_DISTANCE_INPUT_CONTRACT`/
+  `REGIME_INPUT_CONTRACT` as the exact currently-approved identities, and
+  `CANDLE_STREAM_ID`/`SWING_STREAM_ID`/`REGIME_STREAM_ID` as the real logical stream_ids
+  (`market-data-ingestion-candle`/`structure-engine-swing`/`raw-regime-engine-regime`) -- every
+  `EventRecordRef` fixtures allocate now uses these, not generic aliases.
+Residual 4 (canonical cursor relational invariants unenforced): `EvaluationFrontier` redesigned
+  as a PROOF-CARRYING structure (`StreamPositionProof`/`LifecycleFrontierProof`, each pairing a
+  claimed position/lifecycle-frontier with the resolved event's own `event_recorded_time`
+  evidence) -- these proof fields live ONLY on this implementation-level frontier type, never
+  added to the persisted `ComputationCursor` schema Chapter 8 §8.5.1 already closes.
+  `resolve_computation_cursor` now enforces, fail-closed
+  (`CursorRelationalInvariantViolationError`): Position -> Cursor (every proven stream-position
+  event recorded_time <= cursor.recorded_time; a non-genesis-position proof must actually be
+  supplied, a bare integer is not proof); Lifecycle -> Cursor (a proven lifecycle event
+  recorded_time <= cursor.recorded_time when `kind: event`; no fabricated proof permitted for
+  `kind: genesis`); canonical Lifecycle Stream identity (`lifecycle_frontier.stream_id ==
+  "platform-lifecycle"`, new `LIFECYCLE_STREAM_ID` constant). Cursor -> Fact
+  (`computation_cursor.recorded_time <= FeatureComputed/FeatureFactInvalidated.recorded_time`)
+  is now structurally guaranteed: every emitted fact's own recorded_time floor calculation
+  additionally includes `cursor.recorded_time`, in both `swing_distance.py` and
+  `regime_passthrough.py`, at every emission site (original/invalidation/replacement/
+  supersession).
+Residual 5 (stream_positions cardinality unenforced): `resolve_computation_cursor` now requires
+  `frozenset(frontier.stream_positions.keys()) == resolved_input_contract.included_streams`
+  EXACTLY -- new `StreamPositionsUniverseMismatchError` on any missing or extra key, no
+  "all streams seen" fallback.
+Residual 6 (nested cursor evidence mutable): `resolve_computation_cursor` now captures
+  `stream_positions` as an immutable `MappingProxyType` snapshot at construction, built from a
+  freshly-materialized plain dict -- never a reference to the caller's own mutable mapping.
+```
+
+```text
+MAJ-04 dependency: `_preempt_settled_window`'s existing ADR-034 condition-1 check (candidate
+  NOT visible at the existing fact's own R_original, read from that fact's persisted
+  `computation_cursor`) and its `eligible_swing_selection_superseded` emission were preserved
+  unchanged -- both now sit atop the corrected, durable, replay-reconstructable MAJ-06
+  evidence path above, satisfying ADR-034's own explicit prohibition on emitting this cause
+  from unverifiable/process-local proof. A new test additionally proves R_later itself fails
+  closed under a registry mismatch during an otherwise-valid supersession sequence, before any
+  emission occurs.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/adr/, docs/domain/, docs/constitution/, docs/governance/, docs/team/, docs/architecture/
+  stream-registry.yaml, module-registry.yaml, system-decomposition.md, all three Feature Input
+  Contract YAML files, docs/architecture/engine/feature-context-architecture.md, structure-
+  engine/raw-regime-engine/go packages: all verified byte-identical (`git diff --quiet` for
+  each path). ADR classification re-checked: `ADR_NOT_REQUIRED` -- history representation,
+  the Input Contract authority resolver/table, and the certified-frontier proof object are all
+  implementation mechanisms; no new durable architecture decision was discovered; the real
+  approved artifact identities were transcribed exactly, never invented or amended. Files
+  touched, confirmed via `git status --porcelain=v1`: python/feature-engine/src/feature_engine/
+  {contracts.py, errors.py, swing_distance.py, regime_passthrough.py, __init__.py},
+  python/feature-engine/tests/{conftest.py, test_swing_distance.py, test_regime_passthrough.py,
+  test_current_view.py}, docs/MANIFEST.md, docs/CHANGELOG.md -- no other file touched.
+```
+
+### State summary
+
+```text
+P3-FEATURE-A-MAJ-04: REMEDIATED — PENDING REVIEW (not closed by this transaction).
+P3-FEATURE-A-MAJ-06: REMEDIATED — PENDING REVIEW (not closed by this transaction).
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Feature Engine module approval: NONE (NOT
+  APPROVED, unchanged). Formal Chapter 13 Quality Gate for feature-engine: NOT RUN (unchanged).
+  LIVE: NOT_AUTHORIZED (unchanged, unreferenced by this transaction).
+```
+
+### Validation
+
+```text
+Commands run (from python/feature-engine, `.venv` active):
+  `python -m pytest -q` -> 109 passed.
+  `python -m ruff check .` -> All checks passed!
+  `python -m mypy` -> Success: no issues found in 21 source files.
+```
+
+### Next governed action (not performed in this transaction)
+
+A subsequent bounded Review A round against this correction remains a separate, not-yet-initiated transaction.
+
+**Files changed:** `python/feature-engine/src/feature_engine/{contracts.py, errors.py, swing_distance.py, regime_passthrough.py, __init__.py}`; `python/feature-engine/tests/{conftest.py, test_swing_distance.py, test_regime_passthrough.py, test_current_view.py}`; `docs/MANIFEST.md`; `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.254` → `10.255`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above).
 
 ## Decision Log
 

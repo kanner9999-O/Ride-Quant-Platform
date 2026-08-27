@@ -187,3 +187,34 @@ class EligibleSwingComputationDefectError(FeatureEngineError):
     closed and loud rather than silently emitting, hiding, or "laundering"
     the defect through the supersession cause.
     """
+
+
+class InputContractIdentityMismatchError(FeatureEngineError):
+    """A caller-supplied `ResolvedInputContract` does not match the
+    currently-approved Input Contract identity (`contract_id`/
+    `contract_version`/`stream_registry_version`/`included_streams`) known
+    for the engine's own required Feature computation profile (Review-A
+    residual 2 on `P3-FEATURE-A-MAJ-06`). Being merely internally
+    self-consistent — three mutually-agreeing but invented strings — is
+    explicitly NOT sufficient; this engine fails closed instead of accepting
+    an unrecognized authority triple.
+    """
+
+
+class StreamPositionsUniverseMismatchError(FeatureEngineError):
+    """A caller-supplied `EvaluationFrontier.stream_positions` key set is not
+    EXACTLY the bound Input Contract's own `included_streams` — a missing
+    stream, an extra stream, or an "all streams seen" fallback all fail
+    closed here (ADR-035's own cardinality clause, Review-A residual 5).
+    """
+
+
+class CursorRelationalInvariantViolationError(FeatureEngineError):
+    """A caller-supplied `EvaluationFrontier` violates one of Chapter 8
+    §8.5.2's relational invariants (Position -> Cursor, Lifecycle -> Cursor,
+    or the canonical Lifecycle Stream identity check), or supplies a
+    genesis lifecycle frontier together with a fabricated lifecycle-event
+    recorded_time proof (Review-A residual 4 on `P3-FEATURE-A-MAJ-06`). This
+    engine fails closed rather than emitting a `computation_cursor` whose
+    own fields are not mutually consistent.
+    """

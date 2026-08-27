@@ -15,14 +15,18 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
+from types import MappingProxyType
 from typing import Literal, Protocol
 
 from .envelope import EventContractRef, EventRecordRef
 from .errors import (
+    CursorRelationalInvariantViolationError,
     EvidenceCardinalityError,
     EvidenceReferenceConflictError,
+    InputContractIdentityMismatchError,
     InvalidFeatureDefinitionError,
     RegistryContractMismatchError,
+    StreamPositionsUniverseMismatchError,
     UnresolvedComputationCursorAuthorityError,
     UnresolvedOutputContractAuthorityError,
 )
@@ -195,6 +199,11 @@ class ComputationCursor:
     `FeatureFactInvalidated` pins exactly one of these, captured independently
     at its own evaluation — never inherited/copied from the fact it supersedes
     or the invalidation it replaces (feature.md §3/§4).
+
+    `stream_positions` is captured as an immutable `MappingProxyType` snapshot
+    at construction (`resolve_computation_cursor`, below) — a caller mutating
+    the source mapping it originally supplied must never retroactively alter
+    an already-emitted fact's own durable cursor evidence.
     """
 
     recorded_time: datetime
@@ -205,8 +214,51 @@ class ComputationCursor:
 
 
 @dataclass(frozen=True, slots=True)
+class StreamPositionProof:
+    """The resolved position for one stream PLUS the resolved evidence needed
+    to validate Chapter 8 §8.5.2's Position -> Cursor relational invariant
+    (`position_event.recorded_time <= cursor.recorded_time`) without this
+    engine performing any log read of its own (Review-A residual 4). The
+    certifying caller/orchestrator — the one that actually performed
+    `feature-context-architecture.md` §4.6's direct-log-read certification —
+    supplies both fields; this engine only validates the relation.
+
+    `event_recorded_time` is `None` ONLY when `sequence` denotes that this
+    stream has genuinely produced no event yet (i.e. `sequence` equals the
+    stream's own Genesis `genesis_position`) — a real, resolved absence, never
+    an omitted/forgotten proof for a position that does reference an event.
+    """
+
+    sequence: int
+    event_recorded_time: datetime | None
+
+
+@dataclass(frozen=True, slots=True)
+class LifecycleFrontierProof:
+    """Caller-certified lifecycle frontier PLUS the resolved evidence needed
+    to validate Chapter 8 §8.5.2's Lifecycle -> Cursor relational invariant
+    (Review-A residual 4). `event_recorded_time` is required and validated
+    when `position.kind == "event"`; it MUST be `None` for `kind == "genesis"`
+    (Chapter 8 §8.3.5's Genesis carve-out — no lifecycle event exists yet, so
+    none may be fabricated as evidence).
+    """
+
+    stream_id: str
+    position: LifecyclePosition
+    event_recorded_time: datetime | None
+
+
+# Chapter 8 §8.3.5 — the canonical Lifecycle Stream's own stable identity,
+# mechanically transcribed from the approved Genesis Stream Registry
+# (`docs/architecture/stream-registry.yaml`, `registry_version: v1`,
+# `stream_id: platform-lifecycle`, `protected: true`) — never invented.
+LIFECYCLE_STREAM_ID = "platform-lifecycle"
+
+
+@dataclass(frozen=True, slots=True)
 class EvaluationFrontier:
-    """Caller-certified per-trigger computation frontier (P3-FEATURE-A-MAJ-06).
+    """Caller-certified, PROOF-CARRYING per-trigger computation frontier
+    (P3-FEATURE-A-MAJ-06, Review-A residual 4/6).
 
     Mirrors this module's existing `RecordedTimeSource`/explicit-`cursor`
     doctrine, extended to the complete cursor: this engine NEVER constructs
@@ -218,92 +270,244 @@ class EvaluationFrontier:
     fallback to `trigger_event.recorded_time`/an invented registry
     value/an incomplete Feature-local surrogate exists anywhere this type
     is consumed.
+
+    Unlike the plain-integer `ComputationCursor.stream_positions` a
+    `FeatureComputed`/`FeatureFactInvalidated` ultimately persists, THIS
+    caller-supplied structure additionally carries the resolved-event-
+    recorded-time PROOF needed to validate Chapter 8 §8.5.2's Position/
+    Lifecycle -> Cursor relational invariants before authoritative emission
+    — a caller-provided integer map alone is not proof. That extra proof is
+    implementation-level only; it is deliberately never copied onto the
+    persisted `ComputationCursor` schema, which Chapter 8 §8.5.1 already
+    closes.
     """
 
     recorded_time: datetime
     stream_registry_version: str
-    lifecycle_frontier: LifecycleFrontier
-    stream_positions: Mapping[str, int]
+    lifecycle_frontier: LifecycleFrontierProof
+    stream_positions: Mapping[str, StreamPositionProof]
+
+    def plain_stream_positions(self) -> dict[str, int]:
+        """The plain `stream_id -> sequence` view used for `is_visible_at_cursor`
+        eligibility checks — proof fields are irrelevant to that predicate.
+        """
+        return {stream_id: proof.sequence for stream_id, proof in self.stream_positions.items()}
+
+
+FeatureComputationProfile = Literal["distance_to_last_confirmed_swing", "regime"]
+
+
+@dataclass(frozen=True, slots=True)
+class ResolvedInputContract:
+    """A single VERIFIED authority unit binding `input_contract_ref`, its own
+    pinned `stream_registry_version`, `included_streams`, and the exact
+    Feature computation profile it applies to (Review-A residual 2) — never
+    three independently-supplied, merely-mutually-consistent free-form
+    strings. `resolve_input_contract_authority` (below) is the only
+    legitimate way to obtain a value of this type that an engine will accept.
+    """
+
+    feature_computation_profile: FeatureComputationProfile
+    input_contract_ref: InputContractRef
+    stream_registry_version: str
+    included_streams: frozenset[str]
+
+
+# Mechanical transcription of the approved Genesis Stream Registry
+# (`docs/architecture/stream-registry.yaml`, `registry_version: v1`) — the
+# closed set of stream identities that registry version actually resolves.
+# No new architecture decision; kept in sync with that file by construction
+# (both are direct, static transcriptions of the same Approved artifact).
+_KNOWN_STREAM_REGISTRIES: dict[str, frozenset[str]] = {
+    "v1": frozenset(
+        {
+            "market-data-ingestion-candle",
+            "structure-engine-swing",
+            "structure-engine-structure",
+            "raw-regime-engine-regime",
+            "feature-engine-feature",
+            "platform-lifecycle",
+            "platform-audit",
+        }
+    ),
+}
+
+# Mechanical transcription of every stream's own `genesis_position` in the
+# approved Genesis Stream Registry (`stream-registry.yaml`, `registry_version:
+# v1`) — every one of the seven streams pins `genesis_position: 0`. A
+# `StreamPositionProof.sequence` equal to this value denotes "no event
+# committed to this stream yet" (Chapter 8 §8.5.3), the only case where
+# `event_recorded_time` proof may legitimately be absent.
+_GENESIS_POSITION = 0
+
+# Mechanical transcription of the two currently-approved Feature-scoped Input
+# Contracts a live computation engine actually binds to
+# (`docs/architecture/input-contracts/feature-swing-distance-input.yaml`,
+# `feature-regime-input.yaml` — `feature-candle-input.yaml` has no consuming
+# engine: `CandleWindowFeatureEngine` is permanently fail-closed at
+# construction, P3-FEATURE-A-MAJ-03, and never reaches cursor resolution).
+# No new architecture decision — this table exists so that an engine can
+# reject a caller-supplied `ResolvedInputContract` that is merely internally
+# self-consistent but does not match the real, currently-approved identity
+# (Review-A residual 2's explicit requirement).
+_KNOWN_INPUT_CONTRACTS: dict[FeatureComputationProfile, ResolvedInputContract] = {
+    "distance_to_last_confirmed_swing": ResolvedInputContract(
+        feature_computation_profile="distance_to_last_confirmed_swing",
+        input_contract_ref=InputContractRef(
+            contract_id="feature-swing-distance-input", contract_version="v1"
+        ),
+        stream_registry_version="v1",
+        included_streams=frozenset({"market-data-ingestion-candle", "structure-engine-swing"}),
+    ),
+    "regime": ResolvedInputContract(
+        feature_computation_profile="regime",
+        input_contract_ref=InputContractRef(contract_id="feature-regime-input", contract_version="v1"),
+        stream_registry_version="v1",
+        included_streams=frozenset({"raw-regime-engine-regime"}),
+    ),
+}
+
+
+def resolve_input_contract_authority(
+    candidate: ResolvedInputContract | None,
+    *,
+    required_profile: FeatureComputationProfile,
+) -> ResolvedInputContract:
+    """The single place an engine resolves its own bound Input Contract
+    authority (Review-A residual 2). `candidate=None` (the default every
+    engine constructor uses) binds directly to the currently-approved
+    authority for `required_profile` — no invented placeholder is ever
+    substituted. A caller MAY inject an explicit `ResolvedInputContract`
+    (dependency-injection path for a future authority resolver/config
+    service), but it is accepted ONLY if it resolves to the SAME
+    currently-approved identity — an internally self-consistent but
+    unrecognized/invented triple (contract_id/contract_version/registry/
+    included_streams) fails closed here, never accepted merely because its
+    three parts happen to agree with each other.
+    """
+    known = _KNOWN_INPUT_CONTRACTS[required_profile]
+    if candidate is None:
+        return known
+    if candidate.feature_computation_profile != required_profile:
+        raise InputContractIdentityMismatchError(
+            f"supplied ResolvedInputContract.feature_computation_profile={candidate.feature_computation_profile!r} "
+            f"does not match this engine's own required profile {required_profile!r}"
+        )
+    registry_universe = _KNOWN_STREAM_REGISTRIES.get(candidate.stream_registry_version)
+    if registry_universe is None:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"stream_registry_version={candidate.stream_registry_version!r} does not resolve to any currently "
+            "approved Stream Registry (docs/architecture/stream-registry.yaml) — cannot be resolved"
+        )
+    if not candidate.included_streams or not candidate.included_streams.issubset(registry_universe):
+        raise InputContractIdentityMismatchError(
+            f"included_streams={sorted(candidate.included_streams)!r} is not fully contained in the resolved "
+            f"registry {candidate.stream_registry_version!r}'s own stream universe {sorted(registry_universe)!r}"
+        )
+    if candidate != known:
+        raise InputContractIdentityMismatchError(
+            f"supplied ResolvedInputContract {candidate!r} does not match the currently-approved Input Contract "
+            f"identity {known!r} for profile {required_profile!r} — an internally self-consistent but "
+            "unrecognized authority triple is never accepted (Review-A residual 2)"
+        )
+    return candidate
 
 
 def resolve_computation_cursor(
     frontier: EvaluationFrontier,
     *,
-    input_contract_ref: InputContractRef,
-    expected_stream_registry_version: str,
+    resolved_input_contract: ResolvedInputContract,
 ) -> ComputationCursor:
     """The single place every computation engine assembles its own outbound
-    `computation_cursor` from a caller-supplied `EvaluationFrontier` plus this
-    engine's own bound Input Contract identity (P3-FEATURE-A-MAJ-06).
+    `computation_cursor` from a caller-supplied, proof-carrying
+    `EvaluationFrontier` plus this engine's own bound `ResolvedInputContract`
+    (P3-FEATURE-A-MAJ-06). Enforces, fail-closed, every Chapter 8 §8.5.2
+    relational invariant ADR-035 inherits verbatim — never merely a
+    syntactic non-empty check (Review-A residuals 2/4/5/6):
 
-    Fails closed (`RegistryContractMismatchError`) if the frontier's own
-    `stream_registry_version` does not exactly equal the registry version this
-    engine's bound Input Contract pins — Chapter 8 §8.5's exact-pin rule: an
-    Input Contract bound to one registry version is never silently rebased
-    onto another. This is the registry-contract equality gate
-    `feature-context-architecture.md` §4.6 requires: mismatch means this
-    Input Contract instance is no longer applicable at the caller's certified
-    frontier — resolution requires a separate governed transaction
-    authoring/selecting a matching Input Contract version, never a retry of
-    this call with the same arguments.
+    - **Registry -> Contract**: `frontier.stream_registry_version` must
+      exactly equal `resolved_input_contract.stream_registry_version`
+      (`RegistryContractMismatchError` otherwise — never silently rebased).
+    - **stream_positions universe** (ADR-035's own cardinality clause): the
+      supplied `stream_positions` keys must be EXACTLY
+      `resolved_input_contract.included_streams` — no missing key, no extra
+      key (`StreamPositionsUniverseMismatchError` otherwise).
+    - **Position -> Cursor**: every proven `event_recorded_time` in
+      `stream_positions` must be `<= frontier.recorded_time`
+      (`CursorRelationalInvariantViolationError` otherwise).
+    - **Lifecycle -> Cursor** + lifecycle stream identity: `lifecycle_frontier
+      .stream_id` must equal the canonical `LIFECYCLE_STREAM_ID`; for
+      `kind == "event"`, its proven `event_recorded_time` must be present and
+      `<= frontier.recorded_time`; for `kind == "genesis"`, no
+      `event_recorded_time` may be supplied at all — Chapter 8 §8.3.5's
+      Genesis carve-out is never satisfied by a fabricated lifecycle event
+      (`CursorRelationalInvariantViolationError` otherwise).
+
+    `stream_positions` is captured as an immutable snapshot
+    (`MappingProxyType`) at this exact point — mutating the caller's own
+    source mapping afterward can never retroactively alter the resulting
+    `ComputationCursor` (Review-A residual 6).
     """
-    if frontier.stream_registry_version != expected_stream_registry_version:
+    if frontier.stream_registry_version != resolved_input_contract.stream_registry_version:
         raise RegistryContractMismatchError(
             f"frontier.stream_registry_version={frontier.stream_registry_version!r} does not match this engine's "
-            f"bound Input Contract stream_registry_version={expected_stream_registry_version!r} — this Input "
-            "Contract instance is not applicable at the caller's certified frontier (Chapter 8 §8.5 exact-pin); "
-            "fails closed rather than silently rebasing the cursor onto a different registry"
+            f"bound Input Contract stream_registry_version={resolved_input_contract.stream_registry_version!r} — "
+            "this Input Contract instance is not applicable at the caller's certified frontier (Chapter 8 §8.5 "
+            "exact-pin); fails closed rather than silently rebasing the cursor onto a different registry"
         )
+    if frozenset(frontier.stream_positions.keys()) != resolved_input_contract.included_streams:
+        raise StreamPositionsUniverseMismatchError(
+            f"frontier.stream_positions keys {sorted(frontier.stream_positions.keys())!r} do not exactly equal "
+            f"the bound Input Contract's own included_streams {sorted(resolved_input_contract.included_streams)!r} "
+            "(ADR-035's cardinality clause: no missing stream, no extra stream, never an \"all streams seen\" "
+            "fallback)"
+        )
+    for stream_id, proof in frontier.stream_positions.items():
+        if proof.sequence != _GENESIS_POSITION and proof.event_recorded_time is None:
+            raise CursorRelationalInvariantViolationError(
+                f"stream_positions[{stream_id!r}] references sequence {proof.sequence!r} (not that stream's own "
+                f"genesis_position {_GENESIS_POSITION!r}) but supplies no resolved event_recorded_time proof — a "
+                "caller-provided integer position alone is not proof (Review-A residual 4)"
+            )
+        if proof.event_recorded_time is not None and proof.event_recorded_time > frontier.recorded_time:
+            raise CursorRelationalInvariantViolationError(
+                f"stream_positions[{stream_id!r}] resolves to an event recorded at "
+                f"{proof.event_recorded_time!r}, which is AFTER cursor.recorded_time {frontier.recorded_time!r} — "
+                "Chapter 8 §8.5.2 Position -> Cursor invariant violated (anti-look-ahead)"
+            )
+    if frontier.lifecycle_frontier.stream_id != LIFECYCLE_STREAM_ID:
+        raise CursorRelationalInvariantViolationError(
+            f"lifecycle_frontier.stream_id={frontier.lifecycle_frontier.stream_id!r} is not the canonical "
+            f"Lifecycle Stream {LIFECYCLE_STREAM_ID!r} (Chapter 8 §8.3.5)"
+        )
+    if frontier.lifecycle_frontier.position.kind == "event":
+        proof_time = frontier.lifecycle_frontier.event_recorded_time
+        if proof_time is None:
+            raise CursorRelationalInvariantViolationError(
+                "lifecycle_frontier.position.kind == 'event' requires a resolved event_recorded_time proof — "
+                "none was supplied"
+            )
+        if proof_time > frontier.recorded_time:
+            raise CursorRelationalInvariantViolationError(
+                f"lifecycle_frontier's resolved event recorded_time {proof_time!r} is AFTER "
+                f"cursor.recorded_time {frontier.recorded_time!r} — Chapter 8 §8.5.2 Lifecycle -> Cursor "
+                "invariant violated"
+            )
+    elif frontier.lifecycle_frontier.event_recorded_time is not None:
+        raise CursorRelationalInvariantViolationError(
+            "lifecycle_frontier.position.kind == 'genesis' must not carry a fabricated event_recorded_time — "
+            "Chapter 8 §8.3.5's Genesis carve-out means no lifecycle event exists yet to prove"
+        )
+    stream_positions = MappingProxyType(frontier.plain_stream_positions())
     return ComputationCursor(
         recorded_time=frontier.recorded_time,
-        input_contract_ref=input_contract_ref,
+        input_contract_ref=resolved_input_contract.input_contract_ref,
         stream_registry_version=frontier.stream_registry_version,
-        lifecycle_frontier=frontier.lifecycle_frontier,
-        stream_positions=frontier.stream_positions,
+        lifecycle_frontier=LifecycleFrontier(
+            stream_id=frontier.lifecycle_frontier.stream_id, position=frontier.lifecycle_frontier.position
+        ),
+        stream_positions=stream_positions,
     )
-
-
-def resolve_input_contract_ref(input_contract_ref: InputContractRef) -> InputContractRef:
-    """Fails closed (`UnresolvedComputationCursorAuthorityError`) if the
-    caller does not supply a genuine, non-empty Feature-scoped Input Contract
-    identity — this module never invents a stand-in `input_contract_ref`
-    (P3-FEATURE-A-MAJ-06, same discipline as `resolve_output_contract_refs`).
-    """
-    if not input_contract_ref.contract_id or not input_contract_ref.contract_version:
-        raise UnresolvedComputationCursorAuthorityError(
-            "input_contract_ref must be a genuine, non-empty {contract_id, contract_version} identity — no "
-            "stand-in value is invented for computation_cursor.input_contract_ref (P3-FEATURE-A-MAJ-06)"
-        )
-    return input_contract_ref
-
-
-def resolve_stream_registry_version(stream_registry_version: str) -> str:
-    """Fails closed (`UnresolvedComputationCursorAuthorityError`) if the
-    caller does not supply a genuine, non-empty registry version — this
-    module never invents a stand-in (e.g. the former `_REGISTRY_VERSION =
-    "v0"`) for `computation_cursor.stream_registry_version`.
-    """
-    if not stream_registry_version:
-        raise UnresolvedComputationCursorAuthorityError(
-            "stream_registry_version must be a genuine, non-empty registry version identity — no stand-in value "
-            "is invented for computation_cursor.stream_registry_version (P3-FEATURE-A-MAJ-06)"
-        )
-    return stream_registry_version
-
-
-def resolve_included_streams(included_streams: frozenset[str]) -> frozenset[str]:
-    """Fails closed (`UnresolvedComputationCursorAuthorityError`) if the
-    caller does not supply the genuine, non-empty `included_streams` set the
-    bound Feature-scoped Input Contract actually declares — used only for the
-    stream-universe-membership branch of `is_visible_at_cursor` (feature.md
-    §12(a) branch 1); never invented, never defaulted to "every stream seen."
-    """
-    if not included_streams:
-        raise UnresolvedComputationCursorAuthorityError(
-            "included_streams must be a genuine, non-empty set of stream_ids taken from the bound Feature-scoped "
-            "Input Contract's own included_streams — no stand-in value is invented (P3-FEATURE-A-MAJ-06)"
-        )
-    return included_streams
 
 
 @dataclass(frozen=True, slots=True)

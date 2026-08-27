@@ -6,9 +6,7 @@ from decimal import Decimal
 from conftest import (
     BASE,
     CONTRACT_VERSION,
-    INCLUDED_STREAMS,
-    INPUT_CONTRACT_REF,
-    STREAM_REGISTRY_VERSION,
+    SWING_DISTANCE_INPUT_CONTRACT,
     feature_scope,
 )
 
@@ -33,12 +31,12 @@ _INVALIDATED_CONTRACT_REF = EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_I
 # value here is sufficient for every fact constructed in this file.
 _CURSOR = ComputationCursor(
     recorded_time=BASE,
-    input_contract_ref=INPUT_CONTRACT_REF,
-    stream_registry_version=STREAM_REGISTRY_VERSION,
+    input_contract_ref=SWING_DISTANCE_INPUT_CONTRACT.input_contract_ref,
+    stream_registry_version=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_version,
     lifecycle_frontier=LifecycleFrontier(
         stream_id="platform-lifecycle", position=LifecyclePosition(kind="genesis", sequence=0)
     ),
-    stream_positions=dict.fromkeys(INCLUDED_STREAMS, 10**9),
+    stream_positions=dict.fromkeys(SWING_DISTANCE_INPUT_CONTRACT.included_streams, 10**9),
 )
 
 

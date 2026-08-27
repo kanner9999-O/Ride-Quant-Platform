@@ -6,13 +6,25 @@ Feature's own `decimal_precision_policy` normalization only) — never
 reclassifies it, never enriches `directional_persistence_metric` into a
 Bullish/Bearish/price-action interpretation.
 
+Input Contract authority (P3-FEATURE-A-MAJ-06, Review-A residual 2):
+`resolved_input_contract` binds `input_contract_ref`/`stream_registry_
+version`/`included_streams` as ONE verified unit (`ResolvedInputContract`,
+`contracts.py`), resolved against the closed, currently-approved authority
+table — never independently caller-supplied free-form strings. Omitting it
+(`None`, the default) binds directly to the currently-approved
+`feature-regime-input` Input Contract.
+
 Computation cursor (P3-FEATURE-A-MAJ-06, ADR-035 Approved): `on_regime_
 classified`/`on_regime_invalidated` both take an explicit, required
-`cursor: EvaluationFrontier` keyword argument — the caller-certified
-computation frontier captured verbatim, together with this engine's own
-bound `input_contract_ref`, into every emitted fact's `computation_cursor`.
-This engine never substitutes a process-local datetime, an invented
-registry value, or an incomplete Feature-local surrogate.
+`cursor: EvaluationFrontier` keyword argument — the caller-certified,
+proof-carrying computation frontier captured, together with this engine's
+own bound Input Contract authority, into every emitted fact's
+`computation_cursor`, after every Chapter 8 §8.5.2 relational invariant has
+been verified (`resolve_computation_cursor`). This engine never substitutes
+a process-local datetime, an invented registry value, or an incomplete
+Feature-local surrogate. Every emitted fact's own `recorded_time` floor
+additionally includes `cursor.recorded_time`, structurally guaranteeing
+Chapter 8 §8.5.2's Cursor -> Fact invariant.
 """
 
 from __future__ import annotations
@@ -23,18 +35,18 @@ from datetime import datetime
 from .contracts import (
     ComputationCursor,
     EvaluationFrontier,
+    FeatureComputationProfile,
     FeatureComputed,
     FeatureDefinition,
     FeatureEvent,
     FeatureFactInvalidated,
     FeatureScope,
-    InputContractRef,
     RecordedTimeSource,
+    ResolvedInputContract,
     normalize_input_facts,
     resolve_computation_cursor,
-    resolve_input_contract_ref,
+    resolve_input_contract_authority,
     resolve_output_contract_refs,
-    resolve_stream_registry_version,
 )
 from .envelope import EventContractRef, EventRecordRef
 from .errors import (
@@ -54,6 +66,7 @@ _DIMENSION_BY_FEATURE_TYPE = {
     "volatility_metric": "volatility",
     "directional_persistence_metric": "directional_persistence",
 }
+_REQUIRED_INPUT_CONTRACT_PROFILE: FeatureComputationProfile = "regime"
 
 
 @dataclass(slots=True)
@@ -80,8 +93,7 @@ class RegimePassthroughFeatureEngine:
         time_source: RecordedTimeSource,
         *,
         feature_event_contract_version: str,
-        input_contract_ref: InputContractRef,
-        stream_registry_version: str,
+        resolved_input_contract: ResolvedInputContract | None = None,
         stream_id: str = "feature",
     ) -> None:
         if definition.feature_type not in _DIMENSION_BY_FEATURE_TYPE:
@@ -95,8 +107,9 @@ class RegimePassthroughFeatureEngine:
         self._output_contract_ref, self._invalidation_contract_ref = resolve_output_contract_refs(
             feature_event_contract_version
         )
-        self._input_contract_ref = resolve_input_contract_ref(input_contract_ref)
-        self._stream_registry_version = resolve_stream_registry_version(stream_registry_version)
+        self._resolved_input_contract = resolve_input_contract_authority(
+            resolved_input_contract, required_profile=_REQUIRED_INPUT_CONTRACT_PROFILE
+        )
         self.scope = scope
         self.definition = definition
         self._expected_dimension = _DIMENSION_BY_FEATURE_TYPE[definition.feature_type]
@@ -140,14 +153,10 @@ class RegimePassthroughFeatureEngine:
     def _resolve_cursor(self, frontier: EvaluationFrontier) -> ComputationCursor:
         """P3-FEATURE-A-MAJ-06: the single place this engine assembles its own
         outbound `computation_cursor` from a caller-supplied `EvaluationFrontier`
-        — fails closed (`RegistryContractMismatchError`) if the frontier's
-        registry version does not match this engine's bound Input Contract.
+        — fails closed if any Chapter 8 §8.5.2 relational invariant does not
+        hold against this engine's own bound Input Contract authority.
         """
-        return resolve_computation_cursor(
-            frontier,
-            input_contract_ref=self._input_contract_ref,
-            expected_stream_registry_version=self._stream_registry_version,
-        )
+        return resolve_computation_cursor(frontier, resolved_input_contract=self._resolved_input_contract)
 
     def on_regime_classified(
         self, fact: RegimeClassifiedFact, *, cursor: EvaluationFrontier
@@ -216,7 +225,11 @@ class RegimePassthroughFeatureEngine:
         normalized_refs = normalize_input_facts(
             [fact], effective_time=lambda f: (f.window_start, f.window_end), ref_of=lambda f: f.ref, expected_count=1
         )
-        recorded_time = self._next_recorded_time(fact.recorded_time)
+        # Chapter 8 §8.5.2 Cursor -> Fact (Review-A residual 4): the floor includes
+        # cursor.recorded_time, structurally guaranteeing computation_cursor.recorded_time
+        # <= FeatureComputed.recorded_time.
+        floor = max(fact.recorded_time, cursor.recorded_time)
+        recorded_time = self._next_recorded_time(floor)
         value = self.definition.decimal_precision_policy.apply(fact.computed_metric)
         feature_fact = FeatureComputed(
             scope=self.scope,
@@ -244,7 +257,7 @@ class RegimePassthroughFeatureEngine:
         cursor: EvaluationFrontier,
     ) -> list[FeatureEvent]:
         state = self._lineage[key]
-        floor = max(state.head_fact.recorded_time, invalidation.recorded_time)
+        floor = max(state.head_fact.recorded_time, invalidation.recorded_time, cursor.recorded_time)
         recorded_time = self._next_recorded_time(floor)
         ref = self._allocator.next_ref(self._stream_id)
         inv = FeatureFactInvalidated(
@@ -276,7 +289,8 @@ class RegimePassthroughFeatureEngine:
         )
         assert existing.pending_invalidation_recorded_time is not None
         assert existing.pending_invalidation_ref is not None
-        recorded_time = self._next_recorded_time(existing.pending_invalidation_recorded_time)
+        floor = max(existing.pending_invalidation_recorded_time, cursor.recorded_time)
+        recorded_time = self._next_recorded_time(floor)
         value = self.definition.decimal_precision_policy.apply(fact.computed_metric)
         replacement = FeatureComputed(
             scope=self.scope,
