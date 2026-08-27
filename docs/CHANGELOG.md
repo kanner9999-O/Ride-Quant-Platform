@@ -2,6 +2,56 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-27 — Feature Engine Remediation Closure: Product Owner decision, `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06` CLOSED (mechanical recording transaction only)
+
+**Mechanical closure-recording transaction — no implementation/architecture change.** Reviewed remediation boundary (unchanged by this transaction, NOT the same as this recorder commit): `e5c5ce08b4f041cebfd8fd0976bad73433703419` (round-5 correction commit).
+
+### Review evidence recorded
+
+```text
+ChatGPT bounded Review A, boundary e5c5ce08b4f041cebfd8fd0976bad73433703419:
+  P3-FEATURE-A-MAJ-04 CLOSED, P3-FEATURE-A-MAJ-06 CLOSED, new Blocker 0, new Major 0,
+  qualifying new Minor 0. Disposition: SIXTH BOUNDED REVIEW A: CLEAN — READY FOR INDEPENDENT
+  REVIEW B.
+Claude Independent Review B, same boundary: P3-FEATURE-A-MAJ-04 CLOSED, P3-FEATURE-A-MAJ-06
+  CLOSED, new Blocker 0, new Major 0, qualifying Minor 0. Disposition: INDEPENDENT REVIEW B:
+  CLEAN — READY_FOR_PRODUCT_OWNER_REMEDIATION_DECISION. Independently re-executed: pytest 145
+  passed, ruff clean, mypy clean (23 source files).
+Product Owner decision (verbatim): "APPROVE FEATURE ENGINE REMEDIATION CLOSURE AT BOUNDARY
+  e5c5ce08b4f041cebfd8fd0976bad73433703419. P3-FEATURE-A-MAJ-04: CLOSED. P3-FEATURE-A-MAJ-06:
+  CLOSED."
+```
+
+### Fixed
+
+```text
+No implementation change — this is a governance-recording transaction only. All five prior
+  remediation-round entries (bounded corrections round 1-5) remain preserved, unmodified,
+  below in this file and in docs/MANIFEST.md's own prior sections.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.259" -> "10.260". No other file
+  touched — no python/feature-engine/**, ADR, Domain Contract, Constitution, Stream Registry,
+  module-registry, system-decomposition, or feature-context-architecture.md file modified.
+```
+
+### State (after this transaction)
+
+```text
+P3-FEATURE-A-MAJ-04: CLOSED (Product Owner decision). P3-FEATURE-A-MAJ-06: CLOSED (Product
+  Owner decision). Closure is finding-level only. Feature Quality Tier: UNRESOLVED (unchanged).
+  Formal Chapter 13 Quality Gate: NOT RUN (unchanged). Feature module approval: NOT APPROVED
+  (unchanged). LIVE: NOT_AUTHORIZED (unchanged). Feature Input Contract/Frontier package:
+  Consolidated Stable (unchanged).
+```
+
+### Next governed action (not performed here)
+
+Not specified by the governing task — Tier classification, Chapter 13 Quality Gate, and Feature module approval each remain separate, not-yet-initiated transactions.
+
 ## [Unreleased] — 2026-08-27 — Feature Engine Authority API Closure: bounded correction round 5 (ChatGPT FIFTH Review A field-binding-is-not-provenance residual on `P3-FEATURE-A-MAJ-06`)
 
 **Bounded correction of ChatGPT's FIFTH bounded Review A residual** — disposition `FIFTH BOUNDED REVIEW A: NOT CLEAN — MAJ-06 REMAINS OPEN; MAJ-04 REMAINS OPEN ONLY BY MAJ-06 DEPENDENCY`, one residual, no new finding ID. Baseline HEAD `df01047b86abcaaa886da588acce55c4c980818c`.

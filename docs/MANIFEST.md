@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.259"
+manifest_version: "10.260"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -12093,6 +12093,76 @@ A subsequent bounded Review A round against this fifth correction remains a sepa
 **Files changed:** `python/feature-engine/src/feature_engine/{contracts.py, __init__.py}`; `python/feature-engine/tests/{conftest.py, test_authority_resolver.py, test_swing_distance.py, test_regime_passthrough.py}`; `docs/MANIFEST.md`; `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
 
 **Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.258` → `10.259`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above).
+
+## Feature Engine Remediation Closure — Product Owner Decision (`P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06` CLOSED — mechanical recording transaction only)
+
+**Atomic mechanical closure-recording transaction — vai trò: `Feature Engine Remediation Closure Recorder`.** Product Owner decision (verbatim): `APPROVE FEATURE ENGINE REMEDIATION CLOSURE AT BOUNDARY e5c5ce08b4f041cebfd8fd0976bad73433703419. P3-FEATURE-A-MAJ-04: CLOSED. P3-FEATURE-A-MAJ-06: CLOSED.` Records only the already-made governance decision — does NOT perform implementation work, does NOT perform Review A, does NOT perform Independent Review B, does NOT classify Feature Quality Tier, does NOT run or record the formal Chapter 13 Quality Gate, does NOT approve the Feature module, does NOT authorize LIVE, does NOT start Context Aggregator. This transaction does not itself create a new semantic implementation boundary — the reviewed remediation boundary remains exactly `e5c5ce08b4f041cebfd8fd0976bad73433703419` (the round-5 correction commit); this recorder commit is never to be reinterpreted as that boundary.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `e5c5ce08b4f041cebfd8fd0976bad73433703419` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.259"` at start.
+
+### Review evidence recorded (additive — historical remediation-round records preserved unmodified above and in CHANGELOG.md)
+
+```text
+ChatGPT bounded Review A, reviewed boundary e5c5ce08b4f041cebfd8fd0976bad73433703419:
+  P3-FEATURE-A-MAJ-04 — CLOSED. P3-FEATURE-A-MAJ-06 — CLOSED. New Blocker: 0. New Major: 0.
+  Qualifying new Minor: 0. Disposition: SIXTH BOUNDED REVIEW A: CLEAN — READY FOR INDEPENDENT
+  REVIEW B.
+Claude Independent Review B, same reviewed boundary e5c5ce08b4f041cebfd8fd0976bad73433703419:
+  P3-FEATURE-A-MAJ-04 — CLOSED. P3-FEATURE-A-MAJ-06 — CLOSED. New Blocker: 0. New Major: 0.
+  Qualifying Minor: 0. Disposition: INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_
+  REMEDIATION_DECISION. Independently re-executed: pytest -> 145 passed; ruff -> All checks
+  passed; mypy -> Success, no issues found in 23 source files.
+Minimum-two-review requirement (Chapter 11 §11.5): SATISFIED.
+Product Owner closure decision (verbatim): "APPROVE FEATURE ENGINE REMEDIATION CLOSURE AT
+  BOUNDARY e5c5ce08b4f041cebfd8fd0976bad73433703419. P3-FEATURE-A-MAJ-04: CLOSED.
+  P3-FEATURE-A-MAJ-06: CLOSED."
+Closure authority: Product Owner. Closure applies specifically to reviewed remediation
+  boundary e5c5ce08b4f041cebfd8fd0976bad73433703419 (round-5 correction commit) — this
+  recorder transaction's own commit is a separate, later, purely mechanical audit-recording
+  commit, never itself the reviewed implementation boundary.
+All five prior remediation-round histories (round 1 through round 5, each of their own
+  "REMEDIATED — PENDING REVIEW" records, plus every intervening Review-A residual finding
+  and its own remediation) remain preserved, unmodified, in their own prior MANIFEST
+  sections above and in CHANGELOG.md — this transaction does not rewrite, collapse, or erase
+  any of them (append-only/auditable history).
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/** (all implementation and test files), docs/adr/, docs/domain/,
+  docs/constitution/, docs/governance/, docs/team/, docs/architecture/stream-registry.yaml,
+  module-registry.yaml, system-decomposition.md, all Feature Input Contract YAML files,
+  docs/architecture/engine/feature-context-architecture.md, structure-engine/raw-regime-
+  engine/go packages: all verified byte-identical (`git diff --quiet` for each path). No
+  implementation/architecture semantic change authorized or made. No Tier assigned, no
+  Quality Gate run, no Feature module approval granted, no LIVE authorization, no Context
+  Aggregator started. Files touched, confirmed via `git status --porcelain=v1`:
+  docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+P3-FEATURE-A-MAJ-04: CLOSED (Product Owner decision, this transaction; reviewed boundary
+  e5c5ce08b4f041cebfd8fd0976bad73433703419).
+P3-FEATURE-A-MAJ-06: CLOSED (Product Owner decision, this transaction; same reviewed
+  boundary). Closure is finding-level only — it does not itself constitute module approval,
+  does not constitute Chapter 13 Quality Gate execution, and does not resolve Feature Quality
+  Tier.
+Feature Engine Quality Tier: UNRESOLVED (unchanged). Formal Chapter 13 Quality Gate for
+  feature-engine: NOT RUN (unchanged). Feature Engine module approval: NONE (NOT APPROVED,
+  unchanged). LIVE: NOT_AUTHORIZED (unchanged). Feature Input Contract/Frontier package:
+  Consolidated Stable (unchanged, unaffected by this transaction).
+```
+
+### Next governed action (not performed in this transaction)
+
+Not specified by the governing task — this transaction does not begin deterministic post-recorder verification, Tier classification, or the formal Chapter 13 Quality Gate. Any such future governed action remains a separate, not-yet-initiated transaction.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; no other file touched.
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.259` → `10.260`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged (see State summary above); `P3-FEATURE-A-MAJ-04`/`P3-FEATURE-A-MAJ-06` transition OPEN-derived "REMEDIATED — PENDING REVIEW" → `CLOSED` (Product Owner decision, this transaction).
 
 ## Decision Log
 
