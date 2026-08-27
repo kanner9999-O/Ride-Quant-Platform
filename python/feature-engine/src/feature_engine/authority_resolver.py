@@ -8,11 +8,21 @@ does NOT need filesystem/GitHub access" framing). It is the "repository/
 configuration adapter" a caller/orchestrator uses to actually resolve
 `docs/architecture/input-contracts/feature-*.yaml` +
 `docs/architecture/stream-registry.yaml` into a genuine, content-identity-
-bearing, CROSS-ARTIFACT-VALIDATED `VerifiedInputContractAuthority` that a
-computation engine then accepts via dependency injection
-(`resolve_input_contract_authority`, `contracts.py`, re-validates STRUCTURE/
-content-identity FORMAT only — it never re-reads or duplicates these
-artifacts).
+bearing, CROSS-ARTIFACT-VALIDATED `VerifiedInputContractAuthority`.
+
+Review-A round-4: a computation engine no longer accepts an already-resolved
+authority VALUE at all — it requests one through an injected
+`InputContractAuthorityProvider` (`contracts.py`), calling `.resolve(profile)`
+itself at construction time. `FilesystemInputContractAuthorityResolver`
+(below) is the default implementation of that Protocol, wrapping
+`resolve_input_contract_authority_from_repository`; `StaticInputContract
+AuthorityProvider` wraps an already-resolved value (obtained via that same
+function) for callers who resolved once and want to inject a stable
+provider into multiple engine instances without repeating filesystem I/O.
+Only this module's own private `contracts._seal_verified_authority` factory
+legitimately constructs a `VerifiedInputContractAuthority` — it is called
+here, immediately after reading and cross-validating the real artifacts,
+never by any other module.
 
 Deliberately dependency-free (no PyYAML) — this package pins zero runtime
 dependencies (`pyproject.toml`). A minimal, explicit line scanner extracts
@@ -44,16 +54,16 @@ assert, upgrade, or rely on any particular artifact-level status.
 from __future__ import annotations
 
 import hashlib
+from dataclasses import dataclass
 from pathlib import Path
 
 from .contracts import (
     FeatureComputationProfile,
     InputContractRef,
     VerifiedInputContractAuthority,
-    resolve_input_contract_authority,
+    _seal_verified_authority,
 )
-from .contracts import ResolvedInputContract as _ResolvedInputContractCandidate
-from .errors import UnresolvedComputationCursorAuthorityError
+from .errors import InputContractIdentityMismatchError, UnresolvedComputationCursorAuthorityError
 
 _REPO_ROOT_MARKER = "docs"
 
@@ -198,7 +208,7 @@ def resolve_input_contract_authority_from_repository(
             "streams that genuinely exist in its own pinned registry"
         )
 
-    candidate = _ResolvedInputContractCandidate(
+    return _seal_verified_authority(
         feature_computation_profile=profile,
         input_contract_ref=InputContractRef(contract_id=contract_id, contract_version=contract_version),
         stream_registry_version=stream_registry_version,
@@ -206,4 +216,43 @@ def resolve_input_contract_authority_from_repository(
         input_contract_content_id=hashlib.sha256(contract_bytes).hexdigest(),
         stream_registry_content_id=hashlib.sha256(registry_bytes).hexdigest(),
     )
-    return resolve_input_contract_authority(candidate, required_profile=profile)
+
+
+@dataclass(frozen=True, slots=True)
+class FilesystemInputContractAuthorityResolver:
+    """The default `InputContractAuthorityProvider` (`contracts.py`) — every
+    `.resolve(profile)` call reads the real Input Contract/Stream Registry
+    artifacts off disk and resolves fresh, genuinely-verified authority for
+    that exact profile. Optionally pinned to a fixed `repo_root` (used by
+    this repository's own tests to point at a temporary fixture tree).
+    """
+
+    repo_root: Path | None = None
+
+    def resolve(self, profile: FeatureComputationProfile) -> VerifiedInputContractAuthority:
+        return resolve_input_contract_authority_from_repository(profile, repo_root=self.repo_root)
+
+
+@dataclass(frozen=True, slots=True)
+class StaticInputContractAuthorityProvider:
+    """A trivial `InputContractAuthorityProvider` (`contracts.py`) wrapping
+    an ALREADY-resolved `VerifiedInputContractAuthority` — useful for a
+    caller (or this repository's own test fixtures) that resolved authority
+    once, e.g. via `resolve_input_contract_authority_from_repository` at
+    process/test-module start, and wants to inject a stable provider into
+    multiple engine instances without repeating filesystem I/O on every
+    construction. `.resolve(profile)` returns the wrapped value only if its
+    own profile matches the request; otherwise fails closed — a static
+    provider can never be substituted for the wrong engine's authority.
+    """
+
+    authority: VerifiedInputContractAuthority
+
+    def resolve(self, profile: FeatureComputationProfile) -> VerifiedInputContractAuthority:
+        if self.authority.feature_computation_profile != profile:
+            raise InputContractIdentityMismatchError(
+                f"this provider's own wrapped authority has feature_computation_profile="
+                f"{self.authority.feature_computation_profile!r}, which does not match the requested profile "
+                f"{profile!r}"
+            )
+        return self.authority

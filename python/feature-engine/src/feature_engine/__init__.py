@@ -14,12 +14,20 @@ this package never imports either (see `identity.py`'s module docstring).
 `authority_resolver.py` is the one exception to "no filesystem I/O": it is a
 repository/configuration ADAPTER, explicitly outside the analytical core
 proper (`contracts.py`/`swing_distance.py`/`regime_passthrough.py`/
-`candle_window.py`/`current_view.py` never import it) — callers use it (or
-an equivalent resolver) to obtain the `VerifiedInputContractAuthority` a
-computation engine requires via dependency injection.
+`candle_window.py`/`current_view.py` never import it) — computation engines
+request their own bound authority through an injected
+`InputContractAuthorityProvider` (`contracts.py`), and
+`FilesystemInputContractAuthorityResolver`/`StaticInputContractAuthorityProvider`
+(`authority_resolver.py`) are the supported implementations of that
+Protocol; no engine accepts an already-resolved authority VALUE directly
+(Review-A round-4).
 """
 
-from .authority_resolver import resolve_input_contract_authority_from_repository
+from .authority_resolver import (
+    FilesystemInputContractAuthorityResolver,
+    StaticInputContractAuthorityProvider,
+    resolve_input_contract_authority_from_repository,
+)
 from .candle import OHLCV, CandleFact, CandleScope
 from .candle_window import CandleWindowFeatureEngine
 from .contracts import (
@@ -49,6 +57,7 @@ from .contracts import (
     FeatureEvent,
     FeatureFactInvalidated,
     FeatureScope,
+    InputContractAuthorityProvider,
     InputContractRef,
     LifecycleFrontier,
     LifecycleFrontierProof,
@@ -60,7 +69,6 @@ from .contracts import (
     is_visible_at_cursor,
     normalize_input_facts,
     resolve_computation_cursor,
-    resolve_input_contract_authority,
     resolve_output_contract_refs,
 )
 from .current_view import EffectiveWindow, FeatureCurrentView, FeatureViewResult
@@ -142,7 +150,9 @@ __all__ = [
     "FeatureLineageError",
     "FeatureScope",
     "FeatureViewResult",
+    "FilesystemInputContractAuthorityResolver",
     "ForeignScopeError",
+    "InputContractAuthorityProvider",
     "InputContractIdentityMismatchError",
     "InputContractRef",
     "InvalidFeatureDefinitionError",
@@ -164,6 +174,7 @@ __all__ = [
     "RegistryContractMismatchError",
     "ResolvedInputContract",
     "SequenceAllocator",
+    "StaticInputContractAuthorityProvider",
     "StreamPositionProof",
     "StreamPositionsUniverseMismatchError",
     "StreamRef",
@@ -179,7 +190,6 @@ __all__ = [
     "is_visible_at_cursor",
     "normalize_input_facts",
     "resolve_computation_cursor",
-    "resolve_input_contract_authority",
     "resolve_input_contract_authority_from_repository",
     "resolve_output_contract_refs",
 ]

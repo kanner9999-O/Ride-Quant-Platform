@@ -6,16 +6,17 @@ Feature's own `decimal_precision_policy` normalization only) — never
 reclassifies it, never enriches `directional_persistence_metric` into a
 Bullish/Bearish/price-action interpretation.
 
-Input Contract authority (P3-FEATURE-A-MAJ-06, Review-A round-2 residual 1):
-`resolved_input_contract` is a REQUIRED constructor argument — a genuine,
-already-resolved `ResolvedInputContract` (`contracts.py`) binding
-`input_contract_ref`/`stream_registry_version`/`included_streams`/the exact
-Feature computation profile/verifiable content-identity proof for BOTH the
-Input Contract and Stream Registry artifacts it was resolved from. This
-engine performs no filesystem/GitHub I/O itself and keeps no duplicate copy
-of Input Contract/Stream Registry semantics — see `authority_resolver.py`'s
-`resolve_input_contract_authority_from_repository` for the default,
-filesystem-backed resolver this repository's own tests use.
+Input Contract authority (P3-FEATURE-A-MAJ-06, Review-A round-4): this engine
+does NOT accept an already-resolved authority VALUE at all — a caller could
+otherwise "promote" arbitrary, unresolved data into trusted authority merely
+by matching field shape. Instead, `input_contract_authority_provider:
+InputContractAuthorityProvider` is a REQUIRED constructor argument; at
+construction this engine itself calls `input_contract_authority_provider.
+resolve(profile)` and trusts whatever `VerifiedInputContractAuthority` comes
+back. This engine performs no filesystem/GitHub I/O itself and keeps no
+duplicate copy of Input Contract/Stream Registry semantics — see
+`authority_resolver.py`'s `FilesystemInputContractAuthorityResolver` for the
+default, filesystem-backed implementation this repository's own tests use.
 
 Computation cursor (P3-FEATURE-A-MAJ-06, ADR-035 Approved): `on_regime_
 classified`/`on_regime_invalidated` both take an explicit, required
@@ -50,11 +51,11 @@ from .contracts import (
     FeatureEvent,
     FeatureFactInvalidated,
     FeatureScope,
+    InputContractAuthorityProvider,
     RecordedTimeSource,
-    ResolvedInputContract,
+    VerifiedInputContractAuthority,
     normalize_input_facts,
     resolve_computation_cursor,
-    resolve_input_contract_authority,
     resolve_output_contract_refs,
 )
 from .envelope import EventContractRef, EventRecordRef
@@ -63,10 +64,12 @@ from .errors import (
     EvidenceReferenceConflictError,
     FeatureLineageError,
     ForeignScopeError,
+    InputContractIdentityMismatchError,
     NonMonotonicRecordedTimeError,
     RecordedTimeSourceViolationError,
     RegimeDimensionMismatchError,
     UnauthorizedUpstreamContractError,
+    UnresolvedComputationCursorAuthorityError,
 )
 from .publish import SequenceAllocator
 from .regime_input import RegimeClassifiedFact, RegimeFactInvalidatedFact
@@ -102,7 +105,7 @@ class RegimePassthroughFeatureEngine:
         time_source: RecordedTimeSource,
         *,
         feature_event_contract_version: str,
-        resolved_input_contract: ResolvedInputContract,
+        input_contract_authority_provider: InputContractAuthorityProvider,
         stream_id: str = "feature",
     ) -> None:
         if definition.feature_type not in _DIMENSION_BY_FEATURE_TYPE:
@@ -116,9 +119,21 @@ class RegimePassthroughFeatureEngine:
         self._output_contract_ref, self._invalidation_contract_ref = resolve_output_contract_refs(
             feature_event_contract_version
         )
-        self._resolved_input_contract = resolve_input_contract_authority(
-            resolved_input_contract, required_profile=_REQUIRED_INPUT_CONTRACT_PROFILE
-        )
+        self._resolved_input_contract = input_contract_authority_provider.resolve(_REQUIRED_INPUT_CONTRACT_PROFILE)
+        if not isinstance(self._resolved_input_contract, VerifiedInputContractAuthority):
+            raise UnresolvedComputationCursorAuthorityError(
+                f"input_contract_authority_provider.resolve({_REQUIRED_INPUT_CONTRACT_PROFILE!r}) returned "
+                f"{type(self._resolved_input_contract).__name__!r}, not a genuine VerifiedInputContractAuthority "
+                "— a provider is never trusted merely because it returned an object with plausible-looking "
+                "fields (Review-A round-4); unresolved/plain data is never accepted as if it were verified"
+            )
+        if self._resolved_input_contract.feature_computation_profile != _REQUIRED_INPUT_CONTRACT_PROFILE:
+            raise InputContractIdentityMismatchError(
+                f"input_contract_authority_provider.resolve({_REQUIRED_INPUT_CONTRACT_PROFILE!r}) returned "
+                f"authority for feature_computation_profile="
+                f"{self._resolved_input_contract.feature_computation_profile!r} instead — a misbehaving "
+                "provider is never trusted merely because it otherwise returned a well-formed object"
+            )
         self.scope = scope
         self.definition = definition
         self._expected_dimension = _DIMENSION_BY_FEATURE_TYPE[definition.feature_type]

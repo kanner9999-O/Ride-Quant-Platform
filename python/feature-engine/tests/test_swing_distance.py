@@ -31,12 +31,14 @@ from feature_engine import (
     ComputationCursor,
     EvaluationFrontier,
     EventContractRef,
+    InputContractAuthorityProvider,
     InputContractRef,
     LifecycleFrontier,
     LifecycleFrontierProof,
     LifecyclePosition,
     ResolvedInputContract,
     SequenceAllocator,
+    StaticInputContractAuthorityProvider,
     StreamPositionProof,
     SwingDistanceFeatureEngine,
 )
@@ -54,15 +56,35 @@ from feature_engine.errors import (
 )
 
 
+@dataclasses.dataclass(frozen=True)
+class _FixedAuthorityProvider:
+    """TEST-ONLY `InputContractAuthorityProvider` that returns WHATEVER
+    object it was constructed with, verbatim, regardless of type — used to
+    prove that a genuine computation engine independently rejects a
+    provider that hands back unresolved/plain data instead of a real
+    `VerifiedInputContractAuthority` (Review-A round-4).
+    """
+
+    authority: object
+
+    def resolve(self, profile: object) -> Any:
+        return self.authority
+
+
 def _engine(
     allocator: SequenceAllocator,
     time_source: FixedDeltaTimeSource,
     *,
-    resolved_input_contract: ResolvedInputContract = SWING_DISTANCE_INPUT_CONTRACT,
+    input_contract_authority_provider: InputContractAuthorityProvider | None = None,
     **definition_kwargs: Any,
 ) -> SwingDistanceFeatureEngine:
     definition = make_distance_definition(**definition_kwargs)
     scope = feature_scope("distance_to_last_confirmed_swing", version=definition.feature_definition_version)
+    provider = (
+        input_contract_authority_provider
+        if input_contract_authority_provider is not None
+        else StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT)
+    )
     return SwingDistanceFeatureEngine(
         scope,
         definition,
@@ -71,7 +93,7 @@ def _engine(
         feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
         authorized_candle_contract_refs=authorized_candle_contract_refs(),
         authorized_swing_contract_refs=authorized_swing_contract_refs(),
-        resolved_input_contract=resolved_input_contract,
+        input_contract_authority_provider=provider,
     )
 
 
@@ -79,12 +101,13 @@ def _invalid_frontier(recorded_time: datetime) -> EvaluationFrontier:
     """A deliberately malformed `EvaluationFrontier` (wrong `stream_registry_
     version`, mismatched against this engine's own bound authority) — used
     throughout the Review-A round-2 residual 2 failure-atomicity tests to
-    prove that rejecting a frontier never mutates engine state.
+    prove that rejecting a frontier never mutates engine state. Built by
+    mutating a VALID frontier's own plain `stream_registry_version` field
+    directly — never by mutating `SWING_DISTANCE_INPUT_CONTRACT` itself,
+    which (as a `VerifiedInputContractAuthority`) now rejects ANY field
+    mutation via its own internal field-binding check (Review-A round-4).
     """
-    mismatched_contract = dataclasses.replace(
-        SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="not-the-real-registry-version"
-    )
-    return frontier_at(recorded_time, resolved_input_contract=mismatched_contract)
+    return dataclasses.replace(frontier_at(recorded_time), stream_registry_version="not-the-real-registry-version")
 
 
 # --- 7. Swing effective cutoff ------------------------------------------------
@@ -484,7 +507,7 @@ def test_output_contract_version_must_be_genuine_non_empty(
             feature_event_contract_version="",
             authorized_candle_contract_refs=authorized_candle_contract_refs(),
             authorized_swing_contract_refs=authorized_swing_contract_refs(),
-            resolved_input_contract=SWING_DISTANCE_INPUT_CONTRACT,
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
         )
 
 
@@ -894,10 +917,9 @@ def test_registry_mismatch_fails_closed_before_emission(
     swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
     engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
     reference = candle_at(allocator, 10, high="110", low="90", close="105")
-    mismatched_contract = dataclasses.replace(
-        SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="a-different-registry-version"
+    mismatched = dataclasses.replace(
+        frontier_at(reference.recorded_time), stream_registry_version="a-different-registry-version"
     )
-    mismatched = frontier_at(reference.recorded_time, resolved_input_contract=mismatched_contract)
     with pytest.raises(RegistryContractMismatchError):
         engine.on_candle(reference, cursor=mismatched)
 
@@ -908,15 +930,20 @@ def test_registry_mismatch_fails_closed_before_emission(
 def test_input_contract_profile_mismatch_fails_closed_at_construction(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    """A `ResolvedInputContract` resolved for the WRONG Feature computation
-    profile (here: the `regime` profile, supplied to a swing-distance engine)
-    must fail closed, even though it is itself a genuine, currently-approved
-    authority value — just not the one this engine requires.
+    """A `VerifiedInputContractAuthority` resolved for the WRONG Feature
+    computation profile (here: the `regime` profile, supplied to a
+    swing-distance engine) must fail closed, even though it is itself a
+    genuine, currently-approved authority value — just not the one this
+    engine requires.
     """
     from conftest import REGIME_INPUT_CONTRACT
 
     with pytest.raises(InputContractIdentityMismatchError):
-        _engine(allocator, time_source, resolved_input_contract=REGIME_INPUT_CONTRACT)
+        _engine(
+            allocator,
+            time_source,
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
+        )
 
 
 def test_invented_resolved_input_contract_without_content_identity_fails_closed(
@@ -973,11 +1000,12 @@ def test_wrong_length_hex_content_id_fails_closed_at_construction() -> None:
 def test_unverified_plain_authority_cannot_be_supplied_to_swing_engine_as_if_verified(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    """Review-A round-3 residual B, framed at the engine boundary: a
-    hand-built `ResolvedInputContract` carrying plausible-but-fabricated
-    content-identity strings must never be accepted by
+    """Review-A round-4: a hand-built `ResolvedInputContract` — NOT the
+    verified subtype, never produced by any resolver — wrapped in a provider
+    that hands it back verbatim, must never be accepted by
     `SwingDistanceFeatureEngine` as though it were genuine, resolver-issued
-    authority.
+    authority. The engine itself independently rejects a provider that
+    returns anything other than a genuine `VerifiedInputContractAuthority`.
     """
     unverified = ResolvedInputContract(
         feature_computation_profile="distance_to_last_confirmed_swing",
@@ -988,23 +1016,95 @@ def test_unverified_plain_authority_cannot_be_supplied_to_swing_engine_as_if_ver
         stream_registry_content_id="unverified-hand-built-guess",
     )
     with pytest.raises(UnresolvedComputationCursorAuthorityError):
-        _engine(allocator, time_source, resolved_input_contract=unverified)
+        _engine(allocator, time_source, input_contract_authority_provider=_FixedAuthorityProvider(unverified))
 
 
-def test_empty_stream_registry_version_fails_closed_at_construction(
+def test_valid_looking_fake_sha_digests_cannot_be_supplied_to_swing_engine_as_if_verified(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    unresolvable = dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="")
+    """Review-A round-4's own literal residual example: `"a" * 64`/`"b" * 64`
+    are syntactically valid SHA-256 hex, but were never computed from any
+    resolved artifact — a plain `ResolvedInputContract` carrying them, with
+    otherwise plausible/correct-looking semantic fields, must still be
+    rejected. SHA-256 SHAPE != SHA-256 PROVENANCE.
+    """
+    fake_but_well_formed = ResolvedInputContract(
+        feature_computation_profile="distance_to_last_confirmed_swing",
+        input_contract_ref=SWING_DISTANCE_INPUT_CONTRACT.input_contract_ref,
+        stream_registry_version=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_version,
+        included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
+        input_contract_content_id="a" * 64,
+        stream_registry_content_id="b" * 64,
+    )
     with pytest.raises(UnresolvedComputationCursorAuthorityError):
-        _engine(allocator, time_source, resolved_input_contract=unresolvable)
+        _engine(
+            allocator, time_source, input_contract_authority_provider=_FixedAuthorityProvider(fake_but_well_formed)
+        )
 
 
-def test_empty_included_streams_fails_closed_at_construction(
+def test_directly_fabricated_verified_type_cannot_be_supplied_to_swing_engine(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    empty = dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, included_streams=frozenset())
+    """Even if `VerifiedInputContractAuthority` remains publicly
+    constructible, directly constructing one with fake-but-well-formed SHA
+    values (no genuine `_field_binding`) cannot create authority the engine
+    accepts — `__post_init__` itself rejects it before it can ever reach the
+    engine.
+    """
+    from feature_engine.contracts import VerifiedInputContractAuthority
+
     with pytest.raises(UnresolvedComputationCursorAuthorityError):
-        _engine(allocator, time_source, resolved_input_contract=empty)
+        VerifiedInputContractAuthority(
+            feature_computation_profile="distance_to_last_confirmed_swing",
+            input_contract_ref=SWING_DISTANCE_INPUT_CONTRACT.input_contract_ref,
+            stream_registry_version=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_version,
+            included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
+            input_contract_content_id="a" * 64,
+            stream_registry_content_id="b" * 64,
+        )
+
+
+def test_mutated_verified_authority_input_contract_identity_rejected() -> None:
+    """Take a genuinely resolver-issued authority and alter its
+    `input_contract_ref` via `dataclasses.replace` — the resulting object's
+    internal field binding no longer matches its own (mutated) field values,
+    so it can never remain/re-become accepted as genuine verified authority
+    without going through fresh artifact resolution.
+    """
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        dataclasses.replace(
+            SWING_DISTANCE_INPUT_CONTRACT, input_contract_ref=InputContractRef("invented-contract-id", "v99")
+        )
+
+
+def test_mutated_verified_authority_registry_version_rejected() -> None:
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="v99")
+
+
+def test_mutated_verified_authority_included_streams_rejected() -> None:
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, included_streams=frozenset({"an-invented-stream"}))
+
+
+def test_mutated_verified_authority_input_contract_content_id_rejected() -> None:
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, input_contract_content_id="c" * 64)
+
+
+def test_mutated_verified_authority_stream_registry_content_id_rejected() -> None:
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, stream_registry_content_id="d" * 64)
+
+
+def test_empty_stream_registry_version_fails_closed_at_construction() -> None:
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="")
+
+
+def test_empty_included_streams_fails_closed_at_construction() -> None:
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        dataclasses.replace(SWING_DISTANCE_INPUT_CONTRACT, included_streams=frozenset())
 
 
 def test_resolved_authority_carries_genuine_content_identity(
@@ -1273,9 +1373,17 @@ def test_approved_swing_distance_and_regime_input_contracts_are_accepted(
     """
     from conftest import REGIME_INPUT_CONTRACT
 
-    _engine(allocator, time_source, resolved_input_contract=SWING_DISTANCE_INPUT_CONTRACT)  # must not raise
+    _engine(
+        allocator,
+        time_source,
+        input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
+    )  # must not raise
     with pytest.raises(InputContractIdentityMismatchError):
-        _engine(allocator, time_source, resolved_input_contract=REGIME_INPUT_CONTRACT)
+        _engine(
+            allocator,
+            time_source,
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
+        )
 
 
 # --- Review-A residual 6: immutable cursor snapshot -------------------------
@@ -1372,10 +1480,9 @@ def test_registry_mismatch_during_supersession_fails_closed_before_emission(
     swing_a2 = swing_confirmed_at(
         allocator, pivot_index=8, swing_id="A", swing_revision=2, pivot_price="103", recorded_offset_minutes=30
     )
-    mismatched_contract = dataclasses.replace(
-        SWING_DISTANCE_INPUT_CONTRACT, stream_registry_version="a-different-registry-version"
+    mismatched = dataclasses.replace(
+        frontier_at(swing_a2.recorded_time), stream_registry_version="a-different-registry-version"
     )
-    mismatched = frontier_at(swing_a2.recorded_time, resolved_input_contract=mismatched_contract)
     with pytest.raises(RegistryContractMismatchError):
         engine.on_swing_confirmed(swing_a2, cursor=mismatched)
 

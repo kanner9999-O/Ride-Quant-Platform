@@ -2,6 +2,73 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-27 — Feature Engine Implementation Remediation: bounded correction round 4 (ChatGPT FOURTH Review A verified-authority-boundary residual on `P3-FEATURE-A-MAJ-06`)
+
+**Bounded correction of ChatGPT's FOURTH bounded Review A residual** — disposition `FOURTH BOUNDED REVIEW A: NOT CLEAN — MAJ-06 REMAINS OPEN; MAJ-04 REMAINS OPEN ONLY BY MAJ-06 DEPENDENCY`, one residual, no new finding ID. Baseline HEAD `08933031c8e119c42a12425b83bfbbf1e3ae3ae6`.
+
+### Fixed
+
+```text
+Residual: unresolved-to-verified promotion was possible by SHA-256 shape alone, not
+  provenance -- `resolve_input_contract_authority(candidate, required_profile=...)` promoted
+  ANY caller-constructed `ResolvedInputContract` to `VerifiedInputContractAuthority` once
+  profile matched and both content-identity fields merely matched the SHA-256 hex regex,
+  never proving those digests came from any actually-resolved artifact. Fixed via two
+  combined mechanisms: (1) new `_compute_field_binding(...)` (contracts.py) hashes all six
+  substantive authority fields together; `VerifiedInputContractAuthority._field_binding` is
+  independently recomputed and checked in `__post_init__` on every construction (including
+  via `dataclasses.replace`), rejecting any instance whose stored binding does not match its
+  own current field values -- an API/semantic tampering deterrent, not a cryptographic
+  signature against source-level adversaries. (2) the old public `resolve_input_contract_
+  authority` promotion function was removed entirely; the only legitimate construction path
+  is now `authority_resolver.py`'s private `_seal_verified_authority(...)`, called exclusively
+  after real filesystem artifact resolution + round-3 cross-artifact validation + real-bytes
+  hashing. Both `SwingDistanceFeatureEngine`/`RegimePassthroughFeatureEngine` no longer accept
+  a bare `resolved_input_contract` value -- they require an injected
+  `input_contract_authority_provider: InputContractAuthorityProvider` (new Protocol) and call
+  `.resolve(profile)` themselves, then `isinstance`-check the result is a genuine
+  `VerifiedInputContractAuthority` before trusting it.
+```
+
+### Tests
+
+```text
+New negative tests (Swing + Regime): fabricated non-empty content ids via a dishonest
+  `_FixedAuthorityProvider`; valid-looking-shape fake SHA digests via a hand-built
+  `ResolvedInputContract`; direct `VerifiedInputContractAuthority(...)` fabrication with
+  fake-but-well-formed SHA values and no `_field_binding`, rejected inside its own
+  `__post_init__`; five mutation tests (input contract identity, registry version, included
+  streams, both content ids) applying `dataclasses.replace` to a genuinely resolver-issued
+  authority, each rejected. Positive tests: `resolve_input_contract_authority_from_repository`
+  for both `distance_to_last_confirmed_swing` and `regime` produce authority accepted by their
+  respective engines via `StaticInputContractAuthorityProvider`. All round-1/2/3 tests
+  (historical as-of, MAJ-04 supersession, failure-atomicity retries, cross-artifact resolver
+  validation in test_authority_resolver.py) re-verified passing unchanged. `pytest -q` -> 142
+  passed. `ruff check .` -> clean. `mypy` (strict) -> clean, 23 source files.
+```
+
+### Files changed
+
+```text
+python/feature-engine/src/feature_engine/{contracts.py, authority_resolver.py,
+  swing_distance.py, regime_passthrough.py, __init__.py}; python/feature-engine/tests/
+  {test_swing_distance.py, test_regime_passthrough.py}; docs/MANIFEST.md, docs/CHANGELOG.md.
+  manifest_version "10.257" -> "10.258". No other file touched -- `test_authority_resolver.py`/
+  `conftest.py` required no change this round.
+```
+
+### State (unchanged by this transaction)
+
+```text
+P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06: REMEDIATED — PENDING REVIEW (not closed). Feature
+  Quality Tier: UNRESOLVED. Formal Chapter 13 Quality Gate: NOT RUN. Feature module approval:
+  NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+### Next governed action (not performed here)
+
+A subsequent bounded Review A round against this fourth correction remains a separate, not-yet-initiated transaction.
+
 ## [Unreleased] — 2026-08-27 — Feature Engine Implementation Remediation: bounded correction round 3 (ChatGPT THIRD Review A authority-resolution residual on `P3-FEATURE-A-MAJ-06`)
 
 **Bounded correction of ChatGPT's THIRD bounded Review A residual** — disposition `THIRD BOUNDED REVIEW A: NOT CLEAN — MAJ-06 REMAINS OPEN; MAJ-04 REMAINS OPEN ONLY BY MAJ-06 DEPENDENCY`, one residual (two related gaps), no new finding ID. Baseline HEAD `b53f9e2d4475af00320df55c97fd88f8468d0e1a`.

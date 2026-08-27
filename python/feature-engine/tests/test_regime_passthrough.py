@@ -3,6 +3,7 @@ from __future__ import annotations
 import dataclasses
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import Any
 
 import pytest
 from conftest import (
@@ -25,6 +26,7 @@ from feature_engine import (
     RegimePassthroughFeatureEngine,
     ResolvedInputContract,
     SequenceAllocator,
+    StaticInputContractAuthorityProvider,
 )
 from feature_engine.errors import (
     DefinitionVersionMismatchError,
@@ -38,6 +40,21 @@ from feature_engine.errors import (
 )
 
 
+@dataclasses.dataclass(frozen=True)
+class _FixedAuthorityProvider:
+    """TEST-ONLY `InputContractAuthorityProvider` that returns WHATEVER
+    object it was constructed with, verbatim, regardless of type — used to
+    prove that a genuine computation engine independently rejects a
+    provider that hands back unresolved/plain data instead of a real
+    `VerifiedInputContractAuthority` (Review-A round-4).
+    """
+
+    authority: object
+
+    def resolve(self, profile: object) -> Any:
+        return self.authority
+
+
 def _engine(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource, feature_type: str = "volatility_metric"
 ) -> RegimePassthroughFeatureEngine:
@@ -49,7 +66,7 @@ def _engine(
         allocator,
         time_source,
         feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
-        resolved_input_contract=REGIME_INPUT_CONTRACT,
+        input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
     )
 
 
@@ -60,12 +77,12 @@ def _frontier_at(recorded_time: datetime) -> EvaluationFrontier:
 def _invalid_frontier(recorded_time: datetime) -> EvaluationFrontier:
     """A deliberately malformed `EvaluationFrontier` (wrong `stream_registry_
     version`) used to prove Review-A round-2 residual 2's failure-atomicity
-    requirement for this engine too.
+    requirement for this engine too. Built by mutating a VALID frontier's
+    own plain field directly — never by mutating `REGIME_INPUT_CONTRACT`
+    itself, which now rejects ANY field mutation via its own internal
+    field-binding check (Review-A round-4).
     """
-    mismatched_contract = dataclasses.replace(
-        REGIME_INPUT_CONTRACT, stream_registry_version="not-the-real-registry-version"
-    )
-    return frontier_at(recorded_time, resolved_input_contract=mismatched_contract)
+    return dataclasses.replace(_frontier_at(recorded_time), stream_registry_version="not-the-real-registry-version")
 
 
 # --- P3-FEATURE-A-MAJ-02 remediation: output contract-version authority ------
@@ -83,7 +100,7 @@ def test_output_contract_version_must_be_genuine_non_empty(
             allocator,
             time_source,
             feature_event_contract_version="",
-            resolved_input_contract=REGIME_INPUT_CONTRACT,
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
         )
 
 
@@ -435,11 +452,12 @@ def test_regime_classified_retry_after_invalid_frontier_is_deterministic(
 def test_unverified_plain_authority_cannot_be_supplied_to_regime_engine_as_if_verified(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    """Review-A round-3 residual B, framed at the engine boundary: a
-    hand-built `ResolvedInputContract` carrying plausible-but-fabricated
-    content-identity strings must never be accepted by
+    """Review-A round-4: a hand-built `ResolvedInputContract` — NOT the
+    verified subtype, never produced by any resolver — wrapped in a provider
+    that hands it back verbatim, must never be accepted by
     `RegimePassthroughFeatureEngine` as though it were genuine, resolver-
-    issued authority.
+    issued authority. The engine itself independently rejects a provider
+    that returns anything other than a genuine `VerifiedInputContractAuthority`.
     """
     unverified = ResolvedInputContract(
         feature_computation_profile="regime",
@@ -458,5 +476,44 @@ def test_unverified_plain_authority_cannot_be_supplied_to_regime_engine_as_if_ve
             allocator,
             time_source,
             feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
-            resolved_input_contract=unverified,
+            input_contract_authority_provider=_FixedAuthorityProvider(unverified),
         )
+
+
+def test_valid_looking_fake_sha_digests_cannot_be_supplied_to_regime_engine_as_if_verified(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Review-A round-4's own literal residual example: `"a" * 64`/`"b" * 64`
+    are syntactically valid SHA-256 hex, but were never computed from any
+    resolved artifact. SHA-256 SHAPE != SHA-256 PROVENANCE.
+    """
+    fake_but_well_formed = ResolvedInputContract(
+        feature_computation_profile="regime",
+        input_contract_ref=REGIME_INPUT_CONTRACT.input_contract_ref,
+        stream_registry_version=REGIME_INPUT_CONTRACT.stream_registry_version,
+        included_streams=REGIME_INPUT_CONTRACT.included_streams,
+        input_contract_content_id="a" * 64,
+        stream_registry_content_id="b" * 64,
+    )
+    definition = make_regime_definition(regime_dimension_version="rgd-1")
+    scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        RegimePassthroughFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            input_contract_authority_provider=_FixedAuthorityProvider(fake_but_well_formed),
+        )
+
+
+def test_mutated_verified_regime_authority_rejected() -> None:
+    """A genuinely resolver-issued regime authority, mutated via
+    `dataclasses.replace`, must never remain/re-become accepted as genuine
+    verified authority without going through fresh artifact resolution.
+    """
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        dataclasses.replace(REGIME_INPUT_CONTRACT, included_streams=frozenset({"an-invented-stream"}))
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        dataclasses.replace(REGIME_INPUT_CONTRACT, stream_registry_version="v99")
