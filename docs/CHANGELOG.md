@@ -2,6 +2,90 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-28 — Feature Engine: Formal Chapter 13 QG Evidence Bounded Correction (I-1/I-13 disposition fidelity — additive, original evidence preserved)
+
+**Bounded, additive correction of the formal Chapter 13 Quality Gate evidence recorded at commit `20ebd2dff43992fb7dbce2cf04fe37184ee0983e`.** Corrects exactly two semantic defects found by ChatGPT bounded Review A. Does not modify implementation/tests, does not install any coverage/mutation/property-based/parity tooling, does not approve the module, does not open the Phase 3 Approval Gate, does not authorize LIVE. The original QG evidence section remains preserved byte-unchanged as historical evidence; this is a superseding correction of its I-1/I-13 interpretation and finding inventory only. **Overall result remains `FAIL — evidence` — not converted to PASS.**
+
+### P3-FEATURE-QG-A-MAJ-01 — I-13 disposition contradiction
+
+```text
+Original evidence recorded I-13 as PASS (semantic guarantees) with a Minor gap, while
+  admitting the invariant's own mandatory Verification (property-based transition-graph test,
+  concurrent-transition test) is entirely absent. Chapter 13 §13.5 requires each applicable
+  invariant to pass the EXACT Verification Chapter 2 defines — a different technique
+  (example-based tests) demonstrating the same semantic guarantee does not substitute for it;
+  §13.8 requires fail-closed treatment of missing required evidence. Corrected: I-13 State
+  Transition Integrity -> FAIL — evidence. The prior separate "Property-based testing" finding
+  (P3-FEATURE-QG-EVID-07) is retargeted, not duplicated, to represent this exact I-13 evidence
+  failure. State: REMEDIATED — PENDING RE-REVIEW (not self-closed).
+```
+
+### P3-FEATURE-QG-A-MAJ-02 — I-1 partial-evidence PASS
+
+```text
+Original evidence recorded I-1 as PASS based only on Feature-local causation_refs/
+  input_fact_refs/computation_cursor evidence. I-1's own declared Scope is the WHOLE Decision
+  Pipeline (Structure/Regime/Feature -> Strategy -> Decision -> Risk Gateway -> Execution),
+  and its Verification requires 100% production Decision/Risk Action trace completeness — the
+  original evidence itself already acknowledged this cannot currently be evaluated (Decision/
+  Risk/Execution do not exist yet). Under §13.8, that acknowledged gap must resolve to FAIL —
+  evidence, not a Feature-scoped PASS. Corrected: I-1 Explainability -> FAIL — evidence.
+  Feature-local causation evidence remains supporting/partial, not sufficient alone. New
+  finding: P3-FEATURE-QG-EVID-08 (I-1, FAIL — evidence). State: REMEDIATED — PENDING
+  RE-REVIEW (not self-closed).
+```
+
+### I-6 remediation-criteria clarification (wording only — disposition unchanged)
+
+```text
+I-6's own FAIL — evidence disposition is unchanged. Clarified that adding a
+  ForeignScopeError-triggering unit test is NOT automatically sufficient to close I-6 — a
+  genuine future re-evaluation must apply Chapter 2 I-6's actual Verification (fault
+  injection for the applicable scope, correct blast radius, fail-safe behavior, risk-not-
+  increased assertion where applicable). Such tests remain supporting evidence only.
+```
+
+### Corrected, de-duplicated blocking-evidence inventory
+
+```text
+EVID-01 line coverage, EVID-02 branch coverage, EVID-03 Tier 0/1 test-effectiveness, EVID-04
+  Tier-1 Parity/I-2, EVID-05 I-5, EVID-06 I-6 (all unchanged, FAIL — evidence). EVID-07
+  corrected to represent I-13 State Transition Integrity — FAIL — evidence (was a
+  contradictory PASS + separate property-based finding, now one finding). EVID-08 new: I-1
+  Explainability/auditability — FAIL — evidence. MIN-01 (I-3 technique gap) remains separate
+  and non-blocking, unaffected.
+```
+
+### Dispositions preserved unchanged
+
+```text
+I-2/Parity FAIL — evidence; I-3 PASS; I-4/I-7/I-8/I-9/I-10 NOT APPLICABLE; I-5 FAIL —
+  evidence; I-6 FAIL — evidence (wording clarified); I-11 PASS; I-12 PASS; Security NOT
+  TRIGGERED; Data quality/numerical precision PASS; Performance/Observability/Compatibility/
+  Migration NOT APPLICABLE.
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only. manifest_version "10.264" -> "10.265". No other
+  file touched — module-registry.yaml and python/feature-engine/** both verified
+  byte-unchanged.
+```
+
+### State (unchanged by this correction)
+
+```text
+Feature Engine Quality Tier: RESOLVED — Tier 1 — Core Logic. Formal Chapter 13 QG: FAIL —
+  evidence (unchanged overall result; corrected evidence inventory). Feature module
+  approval: NOT APPROVED. Phase 3 Approval Gate: NOT opened. Context Aggregator: NOT
+  started. Package 1.1: Consolidated Stable. LIVE: NOT_AUTHORIZED.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT re-review of this correction, then Independent Review B, remain separate, not-yet-initiated transactions — not performed here.
+
 ## [Unreleased] — 2026-08-28 — Feature Engine: Formal Chapter 13 Quality Gate Evaluation — `FAIL — evidence`
 
 **Formal, read-only Chapter 13 Quality Gate evaluation — vai trò: `Formal Chapter 13 Quality Gate Evaluator`.** Evaluates the existing authoritative `feature-engine` implementation exactly as it exists at boundary `8374db364fd08c1592f2ae918d01e9ec3e95b131` (authoritative implementation itself last changed at `e5c5ce08b4f041cebfd8fd0976bad73433703419`). Does not modify implementation/tests, does not modify `module-registry.yaml`, does not approve the module, does not open the Phase 3 Approval Gate, does not authorize LIVE, does not remediate any finding.
