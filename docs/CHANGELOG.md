@@ -2,6 +2,78 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-28 — Testing Convention v0.6: Python Coverage Candidate Bounded Correction (`P3-PY-COV-A-MIN-01` closed — numerical-policy duplication removed)
+
+**Bounded semantic correction — vai trò: `Python QG Coverage Candidate Bounded Correction Executor`.** Corrects the one non-blocking Minor confirmed by ChatGPT bounded Review A and Independent Review B against the v0.5 Python coverage candidate. Does not change the candidate mechanism (coverage.py), does not redo tool research, does not install/pin anything, does not measure Feature coverage, does not close EVID-01/EVID-02, does not rerun Feature QG, does not approve Testing Convention, does not perform a Product Owner decision.
+
+### `P3-PY-COV-A-MIN-01`
+
+```text
+v0.5's Python coverage candidate copied Chapter 13's numerical Tier-1 floor into Testing
+  Convention ("line coverage >= 90% VÀ branch coverage >= 90%" and "floor 90% CỦA CHÍNH
+  Chapter 13") while its own ADR-scope bullet simultaneously — and falsely — claimed no such
+  number was duplicated. This re-violated the SSOT rule Testing Convention's own prior
+  EF-TEST-A-MIN-01 finding already established. Corrected: both source paragraphs now
+  reference "the applicable floor resolved directly from Chapter 13 §13.3/§13.4" instead of
+  restating the literal number; the ADR-scope bullet's self-verification claim is corrected
+  to match the now-true post-correction state. The illustrative --fail-under CLI-mechanics
+  demo was also re-verified with threshold values (72, 99) sharing no digits with any real
+  Chapter 13 tier floor, removing any residual coincidental appearance of a real number.
+State: REMEDIATED — PENDING RE-REVIEW (not self-closed).
+```
+
+### Version/lifecycle
+
+```text
+testing.md: version "0.5" -> "0.6"; status Draft -> Draft; approved_by/approved_at remain
+  null (not self-approved). v0.5's own candidate record, including the confirmed Minor, is
+  preserved additively in Change History.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — run fresh for this correction, not inherited. The correction stays
+  entirely within the same already-reversible tooling candidate; no new architecture/tool
+  decision, no Platform Invariant/Event Schema/Module Taxonomy/Governance-process change, no
+  Locked ADR superseded.
+```
+
+### Unchanged (verified)
+
+```text
+coverage.py remains the candidate mechanism (no re-research). Arc-based branch model,
+  independent percent_statements_covered/percent_branches_covered metrics, blended
+  percent_covered prohibition, explicit --branch/branch=True requirement,
+  source=feature_engine boundary, coverage json evidence requirement, native --fail-under
+  prohibition as an independent Chapter-13 gate, installation-time verification contract,
+  Python/pytest compatibility findings, reproducibility requirements, and the alternatives
+  analysis are all unchanged. The existing Go branch-coverage candidate/history (gobco,
+  P3-GOBC-A-MAJ-01 closure) is byte-unchanged, including its own separate, out-of-scope,
+  already-approved Tier-2-floor mention — not touched by this correction.
+```
+
+### Files changed
+
+```text
+docs/engineering/testing.md, docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version
+  "10.266" -> "10.267". No other file touched — python/feature-engine/**, pyproject.toml,
+  requirements-dev.lock.txt, and module-registry.yaml all verified byte-unchanged. No tool
+  installed or pinned.
+```
+
+### State (unchanged by this correction, except P3-PY-COV-A-MIN-01)
+
+```text
+P3-FEATURE-QG-EVID-01/-EVID-02: FAIL — evidence (not closed/remediated). Feature Engine
+  Quality Tier: RESOLVED — Tier 1 — Core Logic. Feature formal Chapter 13 QG: FAIL —
+  evidence (not rerun). Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT re-review of the corrected v0.6 candidate text, then a subsequent independent review confirming P3-PY-COV-A-MIN-01 CLOSED, then a separate Product Owner decision, then (if approved) a separate installation/pinning transaction, then a separate formal Feature Engine Chapter 13 QG re-evaluation.
+
 ## [Unreleased] — 2026-08-28 — Testing Convention v0.5: Python Line+Branch Coverage Mechanism CANDIDATE (`coverage.py`, unapproved, not installed)
 
 **Bounded semantic candidate-authoring transaction — vai trò: `Python QG Coverage Mechanism Candidate Author`.** Authors a Python line+branch coverage measurement-mechanism candidate targeting the tooling prerequisite for `feature-engine`'s formal Chapter 13 QG findings `P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02`. Does not install/pin any tool, does not measure Feature Engine coverage, does not close either finding, does not rerun the Feature QG, does not approve the module, does not authorize LIVE.

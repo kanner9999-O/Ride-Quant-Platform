@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.266"
+manifest_version: "10.267"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -13545,6 +13545,137 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 ChatGPT bounded Review A of this candidate, then Independent Review B, then a separate Product Owner decision on the candidate, then — if approved — a separate installation/pinning transaction (applying the full installation-time verification contract above), then a separate formal Feature Engine Chapter 13 Quality Gate re-evaluation. None performed here, none collapsed into this transaction.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**` both verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.265"` → `"10.266"`.
+
+## Testing Convention v0.6 — Python Coverage Candidate Bounded Correction (`P3-PY-COV-A-MIN-01` closed — numerical-policy duplication removed, candidate mechanism unchanged)
+
+**Bounded semantic correction transaction — vai trò: `Python QG Coverage Candidate Bounded Correction Executor`.** Corrects exactly the one non-blocking Minor finding confirmed by both ChatGPT bounded Review A and Independent Review B against the v0.5 Python coverage candidate authored in `docs/engineering/testing.md`. Does NOT change the selected candidate mechanism (coverage.py). Does NOT redo tool research. Does NOT install or pin coverage.py. Does NOT measure Feature Engine coverage. Does NOT close `P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02`. Does NOT rerun Feature Engine Chapter 13 QG. Does NOT approve Testing Convention. Does NOT perform a Product Owner decision. Does NOT authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `b212ca8d31576c713d61fad0339861b06d98ca50` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.266"` at start. `docs/engineering/testing.md` confirmed matching expected starting state: `version: "0.5"`, `status: Draft`, `approved_by: null`, `approved_at: null`; candidate mechanism confirmed unchanged as `coverage.py`, state `CANDIDATE / UNAPPROVED`.
+
+### Review evidence
+
+```text
+ChatGPT bounded Review A, v0.5 Python coverage candidate: BOUNDED REVIEW A:
+  READY_FOR_INDEPENDENT_REVIEW_B — COVERAGE.PY CANDIDATE SUPPORTED; 0 Blocker / 0 Major / 1
+  non-blocking Minor. Finding: P3-PY-COV-A-MIN-01.
+Independent Review B — Claude, registered alias "Independent Review B", role AI Technical
+  Architect, ADR-031 Mode A DISTINCT_PRINCIPAL: P3-PY-COV-A-MIN-01 CONFIRMED, no new
+  Blocker/Major/qualifying Minor. Disposition: INDEPENDENT REVIEW B: READY_FOR_BOUNDED_
+  CORRECTION_OR_PRODUCT_OWNER_DECISION. Independently confirmed: coverage.py mechanism is
+  semantically fit; the line/branch JSON-field strategy (percent_statements_covered/
+  percent_branches_covered, never percent_covered) is valid; ADR_NOT_REQUIRED is correct;
+  candidate lifecycle is correct; no implementation/dependency/CI change occurred.
+Minimum-two-review requirement (Chapter 11 §11.5): SATISFIED.
+```
+
+### `P3-PY-COV-A-MIN-01` — numerical-policy duplication / evidence-fidelity contradiction
+
+```text
+Confirmed defect: v0.5's Python coverage candidate copied Chapter 13's numerical Tier-1
+  coverage floor directly into Testing Convention — occurrences equivalent to "line coverage
+  >= 90% VÀ branch coverage >= 90%" (in the candidate's own "Vấn đề" opening paragraph) and
+  "floor 90% CỦA CHÍNH Chapter 13" (in the installation-time verification contract's pass/
+  fail guidance). The same candidate's own ADR-scope-reasoning bullet SIMULTANEOUSLY asserted
+  "không con số 90%/Tier 1 nào bị lặp lại" ("no 90%/Tier-1 number is duplicated") — a
+  self-verification claim that was factually FALSE the moment those other two occurrences
+  existed in the same document. Testing Convention's own prior `EF-TEST-A-MIN-01` finding
+  (§17, v0.1 -> v0.2) already established the exact SSOT rule this defect re-violated:
+  Chapter 13 is the sole authority for numerical coverage thresholds; Testing Convention must
+  never copy the literal value.
+Correction applied: both source paragraphs rewritten to remove the literal numerical floor,
+  replaced with an authority reference equivalent to "the applicable line-coverage and
+  branch-coverage floors MUST be resolved directly from Chapter 13 §13.3/§13.4 at evaluation
+  time" (opening paragraph) and "compare each independent metric against its applicable floor
+  resolved directly from Chapter 13 §13.3/§13.4" (installation-time contract). The ADR-scope
+  bullet's self-verification claim is corrected to accurately reflect the post-correction
+  state (verified true only now that the two source duplications are removed) — it no longer
+  asserts something the surrounding text itself contradicted. The illustrative `--fail-under`
+  CLI-mechanics demonstration inside the "Exit-code behavior" evaluation criterion was
+  additionally re-verified with threshold values (72, 99) chosen to share no digits with any
+  actual Chapter 13 tier floor (60/80/90/95), eliminating any residual coincidental
+  appearance of a real threshold value inside an unrelated tool-behavior illustration.
+State: P3-PY-COV-A-MIN-01: REMEDIATED — PENDING RE-REVIEW (NOT self-closed by this
+  transaction — only a subsequent Review A re-review and independent review may validate
+  closure).
+```
+
+### ADR Scope Rule (Chapter 0 §4b, run fresh for this correction — not inherited)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: this correction removes duplicated policy text and fixes a false self-
+  verification claim entirely WITHIN the same already-reversible Testing Convention tooling
+  candidate (Chapter 3 §3.2's own tooling carve-out, unchanged) — it introduces no new
+  architecture/tool decision, selects no different mechanism, changes no Platform Invariant/
+  Event Schema/Module Taxonomy/dependency-graph/Governance-process, and supersedes no Locked
+  ADR. The correction is strictly narrower in scope than the original v0.5 candidate
+  authoring, which itself already concluded ADR_NOT_REQUIRED under fresh Chapter 0 §4b
+  analysis — this bounded correction re-confirms, not merely inherits, that conclusion.
+```
+
+### Version/lifecycle
+
+```text
+docs/engineering/testing.md: version "0.5" -> "0.6"; status Draft -> Draft (unchanged);
+  approved_by null -> null (unchanged); approved_at null -> null (unchanged) — NOT
+  self-approved by this transaction. v0.5's own candidate record (including the confirmed
+  Minor) is preserved additively in Change History — not erased, not rewritten to pretend
+  v0.5 never had the defect.
+```
+
+### What remains unchanged (verified)
+
+```text
+Candidate mechanism: coverage.py (package identity `coverage`, github.com/coveragepy/
+  coveragepy) — UNCHANGED, no re-research performed. Arc-based branch model UNCHANGED.
+  Independent metrics percent_statements_covered/percent_branches_covered UNCHANGED. Blended
+  percent_covered prohibition UNCHANGED. Explicit --branch/branch=True requirement
+  UNCHANGED. source=feature_engine authoritative-source boundary UNCHANGED (no omission of
+  authoritative Feature production code). coverage json machine-readable evidence
+  requirement UNCHANGED. Native --fail-under prohibition as independent Chapter-13 gate
+  UNCHANGED. Installation-time fail-closed verification contract UNCHANGED in substance
+  (only the numerical-floor reference within it corrected). Python 3.13/pytest 9.1.1
+  compatibility findings UNCHANGED. Reproducibility requirements UNCHANGED. Alternatives
+  analysis (pytest-cov, slipcover, manual instrumentation, estimation — all rejected)
+  UNCHANGED. ADR_NOT_REQUIRED disposition for the original candidate UNCHANGED. The existing
+  Go branch-coverage mechanism/history (gobco candidate, `P3-GOBC-A-MAJ-01` closure evidence)
+  verified byte-unchanged — including its own pre-existing, separately-approved, out-of-scope
+  Tier-2-floor mention, which this bounded correction does NOT touch (P3-PY-COV-A-MIN-01 was
+  confirmed specifically against the v0.5 Python candidate, not the Go section).
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/**, pyproject.toml, requirements-dev.lock.txt, CI/CD workflows,
+  docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**,
+  docs/architecture/input-contracts/**, docs/architecture/stream-registry.yaml: all verified
+  byte-identical (`git diff --quiet` for each path). No tool installed or pinned. No Feature
+  Engine coverage measured. No Feature Chapter 13 QG rerun. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/engineering/testing.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:          version "0.6", status Draft, CANDIDATE / UNAPPROVED (coverage.py
+                              unchanged) — v0.5's own candidate record (including the
+                              confirmed Minor) preserved historically.
+P3-PY-COV-A-MIN-01:           REMEDIATED — PENDING RE-REVIEW.
+P3-FEATURE-QG-EVID-01:        FAIL — evidence (unchanged — NOT closed/remediated).
+P3-FEATURE-QG-EVID-02:        FAIL — evidence (unchanged — NOT closed/remediated).
+Feature Engine Quality Tier:  RESOLVED — Tier 1 — Core Logic (unchanged).
+Feature formal Chapter 13 QG: FAIL — evidence (unchanged, not rerun).
+Feature module approval:      NOT APPROVED.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT re-review of this correction against the corrected v0.6 candidate text, then a subsequent independent review confirming `P3-PY-COV-A-MIN-01` CLOSED, then a separate Product Owner decision on the candidate as a whole, then (if approved) a separate installation/pinning transaction, then a separate formal Feature Engine Chapter 13 Quality Gate re-evaluation. None performed here.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**` both verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.266"` → `"10.267"`.
 
 ## Decision Log
 
