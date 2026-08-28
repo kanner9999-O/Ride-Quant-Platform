@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.263"
+manifest_version: "10.264"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -12750,6 +12750,445 @@ The formal Feature Engine Chapter 13 Quality Gate, as its own separate, not-yet-
 **Files changed:** `docs/architecture/module-registry.yaml`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `python/feature-engine/**`, `docs/architecture/system-decomposition.md` verified byte-unchanged (`git diff --quiet` for each); no other file touched.
 
 **Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.262` → `10.263`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged from the prior transaction (see State summary above) — only Package 1.1's own `package_lifecycle` field transitions, from `candidate` to `Consolidated Stable`.
+
+## `feature-engine` — Formal Chapter 13 Quality Gate Evaluation: `FAIL — evidence`
+
+**Formal, read-only Chapter 13 Quality Gate evaluation — vai trò: `Formal Chapter 13 Quality Gate Evaluator`.** Read-only with respect to `python/**`/`docs/domain/**`/`docs/adr/**`/`docs/constitution/**`/`docs/architecture/**`/`docs/engineering/**`/`docs/governance/**`. Does not modify implementation. Does not modify `module-registry.yaml`. Does not approve the module. Does not open the Phase 3 Approval Gate. Does not authorize LIVE. Does not remediate findings. Does not start Context Aggregator.
+
+**Evaluator identity (P3-IDENTITY-001, resolved against `docs/team/team.yaml`):** principal `Claude`, registered role `AI Technical Architect`. Provider-native execution/session ID: unavailable / not exposed — not fabricated.
+
+```text
+Evaluation boundary:    8374db364fd08c1592f2ae918d01e9ec3e95b131 (verified HEAD before any
+  read; branch main; matches origin/main; working tree clean bar unrelated untracked
+  .DS_Store/CLAUDE.md/go/prototype clutter; manifest_version "10.263" verified;
+  module-registry.yaml version "1.7"/package_lifecycle Consolidated Stable verified).
+Authoritative Feature implementation boundary: e5c5ce08b4f041cebfd8fd0976bad73433703419
+  (verified via `git log -- python/feature-engine/`: this is the last commit touching that
+  path; zero commits between it and the evaluation boundary above touch
+  python/feature-engine/** — every intervening commit is a governance/documentation
+  transaction, per P3-VERIFY-001, not misrepresented as an implementation change).
+Subject:                feature-engine (python/feature-engine/src/feature_engine/**).
+Authority inspected fresh: 13-quality-gates.md (v1.7 Locked, blob
+  4bb697f3b43b0874a080015ef0ce6ca53de729f4 — byte-identical to the blob cited at
+  structure-engine's own formal QG, confirming no Chapter 13 change since), 02-platform-
+  invariants.md (v3.1 Locked), 03-engineering-principles.md (v1.4 Locked), 05-time-model.md
+  (v2.4 Locked), 07-module-taxonomy.md (v2.2 Locked), 08-event-model.md, testing.md (v0.4
+  Approved, blob 00ad4f3f294514b9fc1423cffec22fca186e8b23), phase-3-rules.md (v0.2
+  EFFECTIVE), module-registry.yaml (v1.7, blob 8535f92efeb76ffb226791d201dc0b3fb71f06c0),
+  feature.md (v0.5 Draft, blob bbf4a4dea3e52821855c15264fddf5489c36191f),
+  feature-context-architecture.md (v0.6 Draft, blob 0c08cd3518fd5d0aa97ba9d052c6bca587eb2162),
+  feature-swing-distance-input.yaml (blob 094e684d2e1eccc289abb1f95dd2566e59d001d7),
+  feature-regime-input.yaml (blob fa35bd65814a5f839a60a85d011df53f4a964ab1),
+  python/feature-engine/README.md, python/feature-engine/pyproject.toml,
+  python/feature-engine/src/**, python/feature-engine/tests/**. Prior structure-engine
+  formal QG (this MANIFEST, boundary 5b2b44f2263fc69af8c03578692796e63bafb5df) used ONLY as
+  process/evidence-format precedent — every applicability conclusion below independently
+  re-derived for feature-engine's own actual Scope/architecture, not copied.
+```
+
+### Tier resolution (Chapter 13 §13.4 branch 1)
+
+```text
+tier_resolution_branch:   runtime module
+module-registry identity: version "1.7", blob 8535f92efeb76ffb226791d201dc0b3fb71f06c0
+  (verified at evaluation boundary); feature-engine entry: module_type compute_engine,
+  owns_authoritative_state true, depends_on [market-data-ingestion, structure-engine,
+  raw-regime-engine], security_classification none, quality_tier {tier: "Tier 1 — Core
+  Logic", approved_by: "Product Owner", approved_at: "2026-08-28T08:33+07:00"} (verified
+  directly, unchanged since the prior semantic-amendment/reconsolidation transactions).
+Resolved Tier:             Tier 1 — Core Logic.
+Applicable coverage floor: line >= 90% AND branch >= 90%, independently (§13.3).
+Criteria/policy version:   Chapter 13 v1.7 (Locked, blob above).
+```
+
+### Implementation identity / freshness (P3-VERIFY-001)
+
+```text
+Last commit touching python/feature-engine/**: e5c5ce08b4f041cebfd8fd0976bad73433703419
+  (2026-08-27, "feature-engine: close field-binding-checksum-is-not-provenance gap (Review A
+  round 5)"). Verified via `git log -- python/feature-engine/` that NO commit since then has
+  touched this path — current source at the evaluation boundary is byte-identical to that
+  commit's content; this is the last semantic implementation-change boundary. Every
+  intervening commit (Product Owner closure recorder, Tier candidate, Tier semantic
+  amendment, Package 1.1 reconsolidation) is a documentation/governance-only transaction —
+  verified `git diff --quiet -- python/feature-engine/` clean across all of them.
+Module version: 0.1.0 (pyproject.toml, unchanged). Python >=3.13, interpreter used: 3.13.6
+  (CPython, arm64). Toolchain: ruff==0.16.4, mypy==2.3.1, pytest==9.1.1, setuptools==84.0.0
+  — all reconstructed from the committed `requirements-dev.lock.txt` via a FRESH venv
+  (`pip install --no-deps -r requirements-dev.lock.txt && pip install -e . --no-deps`),
+  `pip check` -> "No broken requirements found." Tests/lint/type-check re-run FRESH in this
+  transaction (not reused from any prior historical record) per P3-VERIFY-001's
+  executable-evidence clause — the previously-reported 145-pass result from the round-5
+  implementation transaction is explicitly NOT treated as this evaluation's own evidence.
+```
+
+### Gate applicability (§13.12, resolved independently — not blanket-applied)
+
+```text
+A. Universal (invariant conformance, per each invariant's own declared Scope): see per-
+   invariant table below.
+B. Executable-implementation-triggered (coverage): TRIGGERED — authoritative executable
+   implementation exists (python/feature-engine/src/feature_engine/**, 13 files, 3,469
+   lines, verified `wc -l`), coverage boundary resolvable, applicable tier resolved (Tier
+   1). Required: line coverage, branch coverage, Tier 0/1 test-effectiveness evidence.
+   Coverage boundary explicitly includes the permanently fail-closed CandleWindowFeatureEngine
+   path (candle_window.py) — a fail-closed production path is still authoritative executable
+   implementation, not excluded to inflate any eventual percentage.
+C. Tier-triggered: Parity Test TRIGGERED (Tier 1, §13.4/§13.12(C)).
+D. Responsibility/boundary-triggered: Data-quality/numerical-precision TRIGGERED (Feature
+   processes authoritative Candle/Swing/Regime-derived values and produces Decimal Feature
+   values — distinct trigger from I-9's own narrower invariant Scope, see below). Security:
+   NOT TRIGGERED (no isolation/custody/authorization boundary — security_classification:
+   none, verified; zero credential/secret-handling code anywhere in src/feature_engine/*.py,
+   verified via direct grep). Performance: NOT TRIGGERED (no authoritative performance
+   budget exists for this module anywhere in current architecture/MANIFEST authority,
+   verified via grep — §13.7's own conditional trigger not met). Observability: NOT
+   APPLICABLE (module not on any production/operational path — no deployment/runtime
+   topology artifact of any kind exists ANYWHERE in the repository at this boundary,
+   verified via repository-wide search; this is a definitively RESOLVED fact, not an
+   unresolved applicability question, so NOT APPLICABLE is correct, not FAIL — evidence).
+E. Lifecycle-triggered: Compatibility NOT TRIGGERED (this evaluation transaction does not
+   publish or change any contract/schema — Feature's own feature-computed/feature-fact-
+   invalidated Event Contracts are unchanged at this boundary; not re-testing historical
+   contract changes). Migration/rollback NOT APPLICABLE (not a migration artifact).
+```
+
+### Test execution (fresh, this transaction; exact commands/versions)
+
+```text
+cd python/feature-engine && python3.13 -m venv .venv-qg (discarded after use, not
+  committed) && pip install --upgrade pip==25.2 && pip install --no-deps -r
+  requirements-dev.lock.txt && pip install -e . --no-deps
+pip check                 -> No broken requirements found.
+ruff format --check .     -> 6 files would be reformatted (contracts.py,
+                              regime_passthrough.py, swing_distance.py, tests/conftest.py,
+                              tests/test_regime_passthrough.py, tests/test_swing_distance.py),
+                              18 files already formatted (ruff 0.16.4). Recorded as a
+                              supporting engineering signal only — NOT a Chapter 13 gate
+                              dimension, does not substitute for or affect any dimension
+                              below.
+ruff check .              -> All checks passed! (ruff 0.16.4).
+mypy                      -> Success: no issues found in 23 source files (mypy 2.3.1,
+                              --strict per pyproject.toml [tool.mypy]).
+pytest tests/ -v          -> 145 passed, 0 failed, 0 skipped, single run, no retry
+                              (pytest 9.1.1; 145 tests collected across 8 test files:
+                              test_authority_resolver, test_boundaries, test_candle_window,
+                              test_current_view, test_definition, test_evidence,
+                              test_regime_passthrough, test_swing_distance).
+Not retried-until-green — single deterministic pass, consistent with §13.10.
+```
+
+### Line and branch coverage — `FAIL — evidence`
+
+```text
+No coverage-measurement tool exists in feature-engine's committed, accepted toolchain:
+  `coverage` (coverage.py)/`pytest-cov` are absent from pyproject.toml's
+  [project.optional-dependencies].dev, absent from requirements-dev.lock.txt, and confirmed
+  NOT installed in the fresh clean-room reconstruction from that lock file
+  (`python -c "import coverage"` -> ModuleNotFoundError; same for pytest_cov). No
+  `.coveragerc`/coverage config exists anywhere in the module. `testing.md` (v0.4, verified
+  fresh) contains ZERO discussion of any Python coverage-measurement mechanism anywhere in
+  its full text (only a still-Draft/not-installed Go branch-coverage CANDIDATE, gobco, for
+  a different, Go-language subject) — no equivalent acceptance transaction has ever occurred
+  for a Python coverage mechanism for ANY module in this repository, symmetric to
+  structure-engine's own identical prior finding.
+Result: line coverage = FAIL — evidence. branch coverage = FAIL — evidence (independently
+  required per §13.3; not inferred from line coverage, not estimated).
+Numerator/denominator: not producible from currently-accepted, reproducible tooling.
+```
+
+### Tier 0/1 test-effectiveness evidence — `FAIL — evidence`
+
+```text
+Chapter 13 §13.3 requires test-effectiveness evidence (mutation testing or an accepted
+  equivalent) for Tier 0/1 subjects, but explicitly defers the concrete tooling/threshold to
+  Engineering Foundation (§13.14). Verified directly: no such tooling/threshold has been
+  reviewed/accepted for ANY module in this repository (`testing.md` contains no Python
+  mutation-testing mechanism discussion at all). No mutation-testing tool (`mutmut`,
+  `cosmic-ray`, or equivalent) is installed or present in feature-engine's environment
+  (confirmed absent from lock file and clean-room reconstruction). High test-PASS count
+  (145/145) is explicitly NOT equated with test effectiveness (§13.3's own anti-gaming text).
+Result: FAIL — evidence. No accepted mechanism exists to produce this evidence.
+```
+
+### Tier-1 Parity Test — `FAIL — evidence`
+
+```text
+Chapter 13 §13.4/§13.12(C) mandates a Parity Test for Tier 1 — "Replay khớp Live tại tầng
+  Decision" (cross-ref I-2) — evidence must be produced AT THE DECISION LAYER, across
+  execution modes (Replay/Backtest/Paper/Live). Verified directly: no Decision Engine /
+  Decision-layer implementation, Context Aggregator, or Strategy module exists anywhere in
+  this repository at this Phase 3 boundary (Chapter 14 §14.2's canonical dependency sequence
+  places Decision several stages downstream of Feature — verified via directory search under
+  `python/`/`go/`, no such modules exist). The existing `test_deterministic_replay_same_
+  input_different_engine_instances` test is explicitly NOT equated with this requirement —
+  it demonstrates only in-process, SAME-execution-mode functional determinism (two
+  independently constructed engine instances, byte-for-byte identical input, single process),
+  never a cross-execution-mode (Replay vs Backtest vs Paper vs Live) Decision-layer
+  comparison. This is "parity requirement applicable but evidence unavailable" (the
+  infrastructure needed to produce it does not exist yet) — explicitly NOT "not applicable
+  under direct authority" (Tier 1 does trigger this requirement) and NOT invented via an
+  ad-hoc harness inside this QG transaction. LIVE remains NOT_AUTHORIZED regardless — this
+  finding is never interpreted as a step toward authorizing it.
+Result: FAIL — evidence.
+```
+
+### Invariant conformance (§13.5, each resolved independently from its own declared Scope)
+
+```text
+I-1 Explainability — Scope explicitly names "Feature" (Decision Pipeline: Structure/Regime/
+  Feature -> Strategy -> Decision -> Risk Gateway -> Execution). Applicable. Evidence:
+  FeatureComputed/FeatureFactInvalidated both carry causation_refs/computation_cursor;
+  FeatureComputed additionally carries input_fact_refs/supersedes_fact_ref. causation_refs
+  CONTENT is directly asserted in tests (test_settled_valid_window_preempted_by_higher_
+  priority_corrected_revision: `invalidation.causation_refs == (temporary.ref, swing_a2.ref)`,
+  both the original and supersession-retry variants). PASS for Feature's own causal-chain
+  contribution — full Decision-pipeline-level 100% trace-completeness cannot be evaluated
+  until Decision exists, which is outside Feature's own Scope obligation to provide alone.
+I-2 Decision Parity — Scope is the Decision-emitting stage across 4 execution modes; Feature
+  Engine does not itself emit a Decision. NOT independently re-assessed as a duplicate
+  §13.5 conformance line here — I-2's substance for a Tier-1 analytical module is the exact
+  purpose of the dedicated Tier-1 Parity Test mechanism (§13.4/§13.12(C)) evaluated above:
+  FAIL — evidence. Reporting it twice under two headings would risk inconsistent results for
+  the same underlying substance (I-12 Single Source of Truth, Chapter 13 §13.13).
+I-3 No Repaint/No Look-Ahead — Scope explicitly names "Feature" (Compute Engines producing
+  time-ordered output). Applicable. Evidence: look-ahead-audit-style cursor-visibility tests,
+  all passing — test_swing_recorded_after_computation_cursor_excluded,
+  test_historical_invalidation_visibility_does_not_leak_backward,
+  test_restart_rebuild_parity_same_cursor_answer_regardless_of_later_ingested_events,
+  test_cursor_between_invalidation_and_next_revision_neither_eligible,
+  test_explicit_cursor_independent_of_candle_and_swing_recorded_time. PASS. Non-blocking
+  Minor evidence gap: NonMonotonicRecordedTimeError/OutOfOrderCandleError/
+  OutOfOrderCorrectionError fail-closed code paths exist (swing_distance.py:357,364,616,618;
+  regime_passthrough.py:164, verified via direct grep) but are NEVER exercised by any test
+  anywhere in the suite (verified: zero matches for these error names in tests/*.py) — does
+  not overturn the PASS above since I-3's own named Verification technique (look-ahead audit)
+  is independently satisfied by the cursor-visibility tests, but recorded honestly as a gap.
+I-4 Strategy Isolation — Scope: Strategy Engine, Decision Engine, Risk Gateway, Execution
+  Engine only. Feature Engine not named, no such responsibility exists. NOT APPLICABLE.
+I-5 Decision-Time Observable Dependency — Scope: "Mọi input non-deterministic hoặc mutable-
+  over-time dùng trong Decision Pipeline." Applicable — feature-engine's own
+  InputContractAuthorityProvider mechanism (FilesystemInputContractAuthorityResolver reading
+  Input Contract/Stream Registry YAML off disk) is exactly the class of mutable-over-time
+  configuration dependency this invariant addresses; this mechanism did not exist at
+  structure-engine's own prior formal QG boundary, so this is a genuinely new applicability
+  finding, independently derived, not copied from precedent. Architecturally, filesystem
+  resolution happens at engine-construction ("preparation") time — `on_candle`/
+  `on_swing_confirmed`/`on_swing_invalidated` never perform filesystem I/O themselves
+  (verified via source inspection) — consistent in principle with I-5's Replay-preparation/
+  Replay-execution separation. However: (a) no self-contained-replay test exists that
+  constructs an engine, cuts filesystem/network access, and confirms event processing still
+  succeeds; (b) the persisted `ComputationCursor` schema intentionally carries no content-
+  identity checksum for the Input Contract/Stream Registry dependency (by explicit prior
+  governance decision preserving Chapter 8 §8.5.1's exact 5-field schema) — a later replay
+  requesting the same `input_contract_ref`/`stream_registry_version` identity string has no
+  persisted checksum to detect silently-changed underlying bytes. Required verification
+  (self-contained replay test) is absent. FAIL — evidence.
+I-6 Fail-Safe by Scope — Scope: "Mọi Compute Engine, Projection, Runtime Service" —
+  universal, applies to Feature Engine. Applicable. `ForeignScopeError` is raised in FOUR
+  locations (current_view.py:84, regime_passthrough.py:152, swing_distance.py:337,456 —
+  verified via direct grep) — the module's own established fail-closed scope-isolation
+  mechanism. Verified via full-suite grep: ZERO tests exercise `ForeignScopeError` anywhere
+  in the test suite, and zero tests reference "scope" mismatch/isolation by any name — unlike
+  structure-engine's own `TestStructureScopeIsolation` (7 passing tests covering this exact
+  scenario for that module). FAIL — evidence — the fail-closed code path exists but has no
+  test evidence proving it actually triggers correctly. This is a genuinely different
+  disposition from structure-engine's own PASS on this dimension, independently derived from
+  feature-engine's own actual test suite, not copied from precedent.
+I-7 Plugin Non-Bypass — Scope: Plugins (Strategy, AI Decision Advisor...) only. NOT
+  APPLICABLE.
+I-8 Kill Switch / Circuit Breaker — Scope: Risk Gateway, Execution Engine, every Exchange
+  Adapter. NOT APPLICABLE.
+I-9 Numerical Precision — Scope explicitly: "Position Ledger, Execution Engine, Risk Gateway
+  — ranh giới (boundary) giữa Feature Engine (analytical float được phép) và Execution/
+  Ledger (bắt buộc lossless decimal từ đầu đến cuối)" — Feature Engine is EXPLICITLY named as
+  sitting OUTSIDE I-9's own binding Scope (the "analytical float permitted" side of the named
+  boundary). NOT APPLICABLE as a direct §13.5 invariant-conformance line — I-9's own Scope
+  does not bind Feature Engine's conformance obligation, regardless of the separate §13.12(D)
+  Data-quality/numerical-precision responsibility-trigger assessed below (different authority
+  axis, per this evaluation's own explicit instruction not to conflate the two).
+I-10 Idempotent Execution Effect — Scope: Execution Engine, Exchange Adapter. NOT
+  APPLICABLE.
+I-11 Secrets & Custody Isolation — Scope: "Toàn hệ thống, đặc biệt Execution Engine, Exchange
+  Adapter" — WHOLE-SYSTEM Scope (universal), not narrowed merely because Feature Engine lacks
+  a custody boundary, per this evaluation's own explicit instruction. Applicable.
+  Verification: access-control audit. Evidence: full source grep for
+  secret/credential/api_key/private_key/password patterns across all of
+  src/feature_engine/*.py returns zero real matches (one incidental doc-comment use of the
+  word "secret," describing that the (removed) field-binding hash algorithm has none — not
+  actual credential-handling code). Feature Engine has zero credential/secret-access code
+  anywhere in its scope, consistent with I-11's own prohibited-behavior list. PASS.
+I-12 Single Source of Truth — Scope: whole system (runtime event log + authoritative
+  documentation). Applicable. Evidence: test_deterministic_replay_same_input_different_
+  engine_instances and test_restart_rebuild_parity_same_cursor_answer_regardless_of_later_
+  ingested_events both confirm rebuild/reconstruction determinism from the same durable
+  evidence, independent of process-local state. PASS (own-event-log rebuild-determinism
+  sense — explicitly NOT the same claim as cross-execution-mode I-2 parity, kept distinct
+  per this evaluation's own explicit instruction).
+I-13 State Transition Integrity — Scope: entities with an explicit state machine declared in
+  a Domain Contract. feature.md's own `state_machine` block declares an explicit
+  UNCOMPUTED -> COMPUTED (self-transition) Feature Subject state machine — applicable.
+  Semantic guarantees (VALID/PENDING_CORRECTION lifecycle, invalidation, replacement,
+  supersession) are extensively exercised via passing example-based tests
+  (test_settled_valid_window_preempted_by_higher_priority_corrected_revision,
+  test_pending_window_resolved_by_newly_visible_replacement_revision,
+  test_historical_revision_overwrite_does_not_erase_earlier_revision, and others) — PASS for
+  the semantic guarantee itself. The invariant's own named Verification technique
+  ("Property-based test trên transition graph authoritative," "concurrent transition test")
+  is entirely absent — no property-based testing framework is installed anywhere (hypothesis
+  confirmed absent), no concurrency model exists (single-threaded in-process, same as
+  structure-engine's own prior finding). Non-blocking Minor evidence gap recorded (mirrors
+  this repository's own precedent treatment of the identical situation for structure-engine).
+  See the separate "Property-based testing" dimension below for this evaluation's own
+  independent, stricter treatment of that specific missing-evidence category as its own
+  FAIL — evidence line.
+```
+
+### Other §13.12 dimensions
+
+```text
+Deterministic replay / observable dependency (§13.6, cross-ref I-2/I-3/I-5): the existing
+  "deterministic replay" test demonstrates only in-process, same-execution-mode functional
+  determinism — genuine cross-execution-mode Decision-level parity/observable-dependency
+  evidence (I-2, I-5) remains unproduced; see the I-5 and Tier-1 Parity Test dispositions
+  above (both FAIL — evidence). The test's name is explicitly not equated with full I-2/I-5
+  compliance, per this evaluation's own governing instruction.
+Property-based testing (§13.6, numerical/state-machine-boundary trigger): I-13's own
+  declared state-machine boundary TRIGGERS this category (I-9's own narrower Scope does not
+  trigger it for Feature, per the boundary text above). No property-based testing framework
+  is installed or used anywhere in the test suite (`hypothesis` confirmed absent from lock
+  file and clean-room venv reconstruction) — every existing test is example-based, none
+  relabeled. FAIL — evidence.
+Security (§13.12(D)): responsibility-trigger (isolation/custody/authorization boundary) is
+  NOT met — security_classification: none (registry-verified), zero external venue/custody/
+  credential side effect anywhere in the implementation (verified via source grep). NOT
+  TRIGGERED. Kept explicitly distinct from I-11 invariant-conformance above (which DID apply
+  as a universal invariant and PASSED) — two separate authority axes, per this evaluation's
+  own governing instruction not to conflate them.
+Data quality / numerical precision (§13.12(D)): TRIGGERED — Feature Engine processes
+  authoritative Candle/Swing/Regime-derived values and produces Decimal Feature values
+  (feature.md's own explicit Decimal-only requirement — distinct trigger from I-9's own
+  narrower invariant Scope, which excludes Feature, kept separate per this evaluation's own
+  instruction). Evidence: `decimal.Decimal` used throughout every source file handling
+  numeric values; zero `float(...)` calls found anywhere in src/feature_engine/*.py except
+  `.timestamp()` calls used purely for deterministic tie-break sort-key ordering (never for
+  value representation) — verified via direct source grep. PASS.
+Performance (§13.7): no authoritative Feature Engine performance budget (pinned baseline,
+  explicit budget, owner, reproducible benchmark dataset/config) exists anywhere in current
+  architecture/MANIFEST authority — verified via repository-wide grep, none found. NOT
+  APPLICABLE (§13.7's own conditional trigger not met — not fabricated).
+Observability (§13.12(D)): Feature Engine is not on any production/operational path — no
+  deployment/runtime topology artifact of any kind exists ANYWHERE in the repository at this
+  boundary (verified via repository-wide search for deployment artifacts, none found). This
+  is a definitively RESOLVED fact (the entire platform has no runtime/production topology
+  yet, Phase 3 Core Backend scope), not an unresolved applicability question — NOT APPLICABLE
+  is the correct disposition, not FAIL — evidence, per this evaluation's own explicit
+  resolved-vs-unresolved distinction.
+Schema/contract compatibility (§13.12(E)): this QG evaluation transaction itself does not
+  publish or change any contract/schema — Feature's own feature-computed/feature-fact-
+  invalidated Event Contracts are unchanged at this evaluation boundary. The lifecycle-
+  category trigger (§10/§13.12(E)) is not met by this evaluation; historical contract
+  changes are not re-tested merely because Feature consumes contracts. NOT APPLICABLE.
+Migration/rollback (§13.12(E)): Feature Engine is not a migration artifact. NOT APPLICABLE
+  (not fabricated).
+```
+
+### Findings
+
+```text
+P3-FEATURE-QG-EVID-01: Gate dimension: line coverage (§13.3/B). Concern: no accepted,
+  reproducible coverage-measurement tool exists in feature-engine's committed toolchain.
+  Evidence: coverage.py/pytest-cov absent from pyproject.toml/lock; not installed in
+  clean-room reconstruction; testing.md discusses zero Python coverage mechanism. Risk:
+  cannot verify test breadth against the Tier-1 90% floor. Required follow-up: a separate
+  governed transaction must select/review/accept a Python coverage-measurement mechanism
+  before this dimension can be re-evaluated.
+P3-FEATURE-QG-EVID-02: Gate dimension: branch coverage (§13.3/B). Concern: same root cause
+  as EVID-01 — no mechanism exists; branch coverage is an independently required metric,
+  never inferred from line coverage. Evidence/Risk/Follow-up: same as EVID-01.
+P3-FEATURE-QG-EVID-03: Gate dimension: Tier 0/1 test-effectiveness (§13.3). Concern: no
+  mutation-testing/accepted-equivalent mechanism exists or is installed; Chapter 13 §13.14
+  defers concrete tooling/threshold, none yet accepted for any module. Risk: 145/145
+  test-pass count cannot demonstrate defect-catching effectiveness. Required follow-up: a
+  separate governed transaction must select/accept a test-effectiveness mechanism.
+P3-FEATURE-QG-EVID-04: Gate dimension: Tier-1 Parity Test (§13.4/§13.12(C), I-2). Concern:
+  no Decision-layer implementation/harness exists to produce "Replay khớp Live tại tầng
+  Decision" evidence. Risk: cannot verify parity requirement at all until Decision exists.
+  Required follow-up: this dimension can only be evaluated once Decision Engine (Chapter 14
+  §14.2 sequence) exists and a parity harness is built — not fabricable now.
+P3-FEATURE-QG-EVID-05: Gate dimension: I-5 Decision-Time Observable Dependency. Concern: no
+  self-contained-replay test exists proving event processing succeeds with filesystem/
+  network access cut after Input Contract/Stream Registry resolution; persisted
+  ComputationCursor carries no content-identity checksum for that dependency. Risk: a later
+  replay requesting the same registry-version identity could silently resolve different
+  underlying bytes with no detection mechanism. Required follow-up: a separate governed
+  transaction must design and evidence a self-contained-replay test for this dependency (or
+  an equivalent content-addressed persisted-evidence mechanism), scoped to this exact
+  concern only — not a reopening of the round-4/5 authority-boundary work.
+P3-FEATURE-QG-EVID-06: Gate dimension: I-6 Fail-Safe by Scope. Concern: ForeignScopeError
+  (4 raise sites: current_view.py, regime_passthrough.py, swing_distance.py x2) has zero
+  test coverage anywhere in the suite. Risk: cannot verify the module's own foreign-scope
+  fail-closed behavior actually triggers correctly. Required follow-up: a separate bounded
+  test-addition transaction should add scope-isolation tests mirroring structure-engine's
+  own TestStructureScopeIsolation pattern — implementation change not performed here.
+P3-FEATURE-QG-EVID-07: Gate dimension: Property-based testing (§13.6, I-13 state-machine
+  boundary). Concern: no property-based testing framework installed; every existing test is
+  example-based. Risk: lower confidence in exhaustive Feature-subject transition-graph
+  coverage than a property-based approach would provide. Required follow-up: a separate
+  governed transaction must select/accept a Python property-based testing mechanism (e.g.
+  Hypothesis, following the same acceptance discipline as any other new tool) before this
+  evidence can be produced.
+P3-FEATURE-QG-MIN-01 (non-blocking, Minor): Gate dimension: I-3 No Repaint/No Look-Ahead
+  verification technique. Concern: NonMonotonicRecordedTimeError/OutOfOrderCandleError/
+  OutOfOrderCorrectionError fail-closed code paths exist but are never exercised by any
+  test. Evidence: I-3's own named look-ahead-audit technique IS otherwise satisfied via the
+  cursor-visibility test suite, so this does not overturn I-3's own PASS. Risk: lower
+  confidence that these specific fail-closed guards behave as intended under actual
+  out-of-order input. Required follow-up: consider adding direct tests for these three error
+  paths in a future, separate, non-blocking test-addition transaction.
+```
+
+### Overall formal Chapter 13 Quality Gate result
+
+```text
+FAIL — evidence.
+
+Rationale: seven required-evidence dimensions (line coverage, branch coverage,
+Tier 0/1 test-effectiveness, Tier-1 Parity Test, I-5 Decision-Time Observable Dependency,
+I-6 Fail-Safe by Scope, property-based testing) cannot currently be produced from any
+accepted, reproducible, governed mechanism, or lack qualifying test evidence, at this
+repository boundary. Per Chapter 13 §13.8's fail-closed semantics, missing required evidence
+means the gate cannot PASS — this is explicitly NOT a Product Owner rejection and NOT a
+claim that the implementation is defective; every dimension that COULD be evaluated with
+currently accepted tooling and genuinely has qualifying evidence (I-1 own-contribution, I-3
+look-ahead audit, I-11 access-control audit, I-12 rebuild-determinism, I-13 semantic
+guarantees, data-quality/numerical-precision, ruff, mypy, 145/145 pytest) passed cleanly.
+Two of the seven failed dimensions (I-5, I-6) are genuinely new findings independently
+derived for feature-engine's own actual architecture/test suite — not copied from the
+structure-engine precedent, which does not share the same Input-Contract-authority
+mechanism and did pass its own scope-isolation dimension via tests feature-engine does not
+have an equivalent of. This result does not remediate anything and is not itself a
+finding-closure or approval action.
+```
+
+### State summary (unchanged by this evaluation)
+
+```text
+Feature Engine:                implemented; P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06: CLOSED
+                                 (unchanged, prior Product Owner decision); Quality Tier
+                                 RESOLVED — Tier 1 — Core Logic (unchanged); formal Chapter
+                                 13 QG result: FAIL — evidence (this transaction); NOT
+                                 approved as a module.
+Structure Engine / Raw Regime
+  Engine:                        unchanged, unreferenced by this evaluation.
+Package 1.1:                    Consolidated Stable (unchanged) — NOT reconsolidated/altered
+                                 by this transaction.
+Phase 3 Approval Gate:          NOT opened.
+Context Aggregator:             NOT started by this transaction.
+LIVE:                            NOT_AUTHORIZED, unreferenced.
+```
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**`, all other implementation/test/Constitution/ADR/Domain-Contract/Input-Contract files verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.263"` → `"10.264"`.
 
 ## Decision Log
 

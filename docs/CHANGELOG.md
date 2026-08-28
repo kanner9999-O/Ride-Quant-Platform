@@ -2,6 +2,107 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-28 — Feature Engine: Formal Chapter 13 Quality Gate Evaluation — `FAIL — evidence`
+
+**Formal, read-only Chapter 13 Quality Gate evaluation — vai trò: `Formal Chapter 13 Quality Gate Evaluator`.** Evaluates the existing authoritative `feature-engine` implementation exactly as it exists at boundary `8374db364fd08c1592f2ae918d01e9ec3e95b131` (authoritative implementation itself last changed at `e5c5ce08b4f041cebfd8fd0976bad73433703419`). Does not modify implementation/tests, does not modify `module-registry.yaml`, does not approve the module, does not open the Phase 3 Approval Gate, does not authorize LIVE, does not remediate any finding.
+
+### Tier resolution
+
+```text
+Runtime module -> module-registry.yaml v1.7 -> feature-engine.quality_tier: Tier 1 — Core
+  Logic (approved_by Product Owner, approved_at 2026-08-28T08:33+07:00). Coverage floor:
+  line >= 90% AND branch >= 90%, independently (§13.3).
+```
+
+### Fresh test execution
+
+```text
+Fresh clean-room venv from requirements-dev.lock.txt (Python 3.13.6, pytest 9.1.1, ruff
+  0.16.4, mypy 2.3.1). pytest tests/ -> 145 passed, 0 failed, single run. ruff check . ->
+  All checks passed! ruff format --check . -> 6 files would be reformatted (supporting
+  signal only, not a Chapter 13 dimension). mypy --strict -> Success, 23 source files.
+```
+
+### Required-evidence dimensions — all FAIL — evidence
+
+```text
+Line coverage: no Python coverage tool (coverage.py/pytest-cov) pinned or installed anywhere
+  in the accepted toolchain; testing.md contains zero Python coverage-mechanism discussion.
+Branch coverage: same root cause, independently required, never inferred from line coverage.
+Tier 0/1 test-effectiveness: no mutation-testing/accepted-equivalent mechanism exists or is
+  installed; 145/145 pass count is explicitly not equated with test effectiveness.
+Tier-1 Parity Test: no Decision Engine/Context Aggregator/Strategy module exists anywhere in
+  the repository yet — the existing "deterministic replay" test demonstrates only in-process,
+  same-execution-mode functional determinism, never cross-mode Decision-layer parity.
+I-5 Decision-Time Observable Dependency: feature-engine's own InputContractAuthorityProvider
+  (filesystem-resolved Input Contract/Stream Registry) is a mutable-over-time dependency with
+  no self-contained-replay test and no persisted content-identity checksum on the
+  authoritative ComputationCursor — a genuinely new finding vs. structure-engine's own prior
+  QG, which has no equivalent mechanism.
+I-6 Fail-Safe by Scope: ForeignScopeError is raised in four locations across the
+  implementation but has zero test coverage anywhere in the suite — unlike structure-engine's
+  own passing TestStructureScopeIsolation, this is a genuinely different, independently
+  derived disposition for feature-engine.
+Property-based testing (I-13 state-machine boundary): no property-based framework (e.g.
+  Hypothesis) is installed; every test is example-based.
+```
+
+### Dimensions that PASS or are NOT APPLICABLE
+
+```text
+PASS: I-1 Explainability (Feature's own causal-chain contribution, causation_refs content
+  directly asserted in tests); I-3 No Repaint/No Look-Ahead (look-ahead-audit-style
+  cursor-visibility tests, with a non-blocking Minor gap on untested out-of-order error
+  paths); I-11 Secrets & Custody (zero credential-handling code, whole-system Scope not
+  narrowed); I-12 Single Source of Truth (rebuild-determinism tests); I-13 State Transition
+  Integrity (extensive example-based semantic guarantees, non-blocking Minor gap on the
+  missing property-based technique specifically); Data quality/numerical precision
+  (Decimal-only throughout, zero float value representation).
+NOT APPLICABLE: I-4, I-7, I-8, I-10 (Scope names other modules only); I-9 (Feature Engine
+  explicitly named outside I-9's own binding Scope — "analytical float permitted" side);
+  Security §13.12(D) (no isolation/custody/authorization boundary — distinct from I-11,
+  which did apply and passed); Performance §13.7 (no authoritative budget exists); Observability
+  §13.12(D) (no production/operational path/deployment topology exists anywhere in the
+  repository yet — a resolved fact, not an unresolved question); Schema/contract
+  compatibility and Migration/rollback §13.12(E) (not triggered by this evaluation).
+I-2 Decision Parity is not re-assessed as a duplicate §13.5 line — its substance for a
+  Tier-1 analytical module is the dedicated Tier-1 Parity Test dimension above (FAIL —
+  evidence), to avoid inconsistent duplicate results for the same underlying substance.
+```
+
+### Overall result
+
+```text
+FAIL — evidence. Seven required-evidence dimensions cannot currently be produced from any
+  accepted, reproducible, governed mechanism, or lack qualifying test evidence. Per Chapter
+  13 §13.8's fail-closed semantics, this is not a Product Owner rejection and not a claim
+  the implementation is defective — every dimension with currently accepted tooling and
+  genuine qualifying evidence passed cleanly. Findings recorded: P3-FEATURE-QG-EVID-01
+  through -07 (blocking), P3-FEATURE-QG-MIN-01 (non-blocking).
+```
+
+### Files changed
+
+```text
+docs/MANIFEST.md, docs/CHANGELOG.md only. manifest_version "10.263" -> "10.264". No other
+  file touched — module-registry.yaml and python/feature-engine/** both verified
+  byte-unchanged.
+```
+
+### State (unchanged by this evaluation)
+
+```text
+Feature Engine Quality Tier: RESOLVED — Tier 1 — Core Logic (unchanged). Formal Chapter 13
+  QG: FAIL — evidence (this transaction's own result). Feature module approval: NOT
+  APPROVED. Phase 3 Approval Gate: NOT opened. Context Aggregator: NOT started. LIVE:
+  NOT_AUTHORIZED. Package 1.1: Consolidated Stable (unchanged). P3-FEATURE-A-MAJ-04/
+  P3-FEATURE-A-MAJ-06: CLOSED (unchanged).
+```
+
+### Next governed action (not performed here)
+
+Separate, bounded, governed transactions to: (1) select/accept a Python coverage-measurement mechanism; (2) select/accept a Python branch-coverage mechanism; (3) select/accept a test-effectiveness (mutation-testing or equivalent) mechanism; (4) select/accept a Python property-based testing mechanism; (5) add scope-isolation tests for `ForeignScopeError`; (6) design a self-contained-replay test (or equivalent) for the Input Contract/Stream Registry dependency; (7) build the Decision-layer Parity Test harness once Decision Engine exists. None performed in this evaluation.
+
 ## [Unreleased] — 2026-08-28 — Package 1.1 v1.7 Mechanical Lifecycle Reconsolidation (`Consolidated Stable` — NOT a semantic amendment)
 
 **Mechanical lifecycle reconsolidation transaction — vai trò: `Package 1.1 v1.7 Mechanical Lifecycle Reconsolidation Recorder`.** Records the Product Owner's approved reconsolidation of Package 1.1 after the Feature-Engine Tier-1 semantic amendment passed both independent reviews. Does not make any new architecture decision, does not alter any Module Registry semantic field, does not change any Quality Tier, does not perform Review A/B, does not run formal Chapter 13 QG, does not approve the Feature module, does not open the Phase 3 Approval Gate, does not authorize LIVE, does not start Context Aggregator.
