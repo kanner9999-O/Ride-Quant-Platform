@@ -1,7 +1,7 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.6"
+version: "0.7"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -15,7 +15,9 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 
 # Engineering Foundation — Testing Convention
 
-**CANDIDATE bounded correction (2026-08-28), KHÔNG self-approved — status: Draft → Draft.** Đóng `P3-PY-COV-A-MIN-01` — vai trò: `Python QG Coverage Candidate Bounded Correction Executor`. ChatGPT bounded Review A của v0.5 candidate xác nhận: `BOUNDED REVIEW A: READY_FOR_INDEPENDENT_REVIEW_B — COVERAGE.PY CANDIDATE SUPPORTED; 0 Blocker/0 Major/1 non-blocking Minor` (`P3-PY-COV-A-MIN-01`). Independent Review B (Claude, alias "Independent Review B," Mode A `DISTINCT_PRINCIPAL`) độc lập CONFIRMED cùng finding, disposition `INDEPENDENT REVIEW B: READY_FOR_BOUNDED_CORRECTION_OR_PRODUCT_OWNER_DECISION` — đồng thời confirm coverage.py mechanism semantically fit, line/branch JSON-field strategy valid, `ADR_NOT_REQUIRED` đúng, candidate lifecycle đúng, KHÔNG implementation/dependency/CI change nào xảy ra. **Defect (`P3-PY-COV-A-MIN-01`):** v0.5's Python coverage candidate copy lại Chapter 13's numerical Tier-1 coverage floor (`line coverage >= 90% VÀ branch coverage >= 90%`, VÀ "floor 90% CỦA CHÍNH Chapter 13") vào chính candidate text — vi phạm SSOT nguyên tắc `EF-TEST-A-MIN-01` đã khóa trước đó cho toàn bộ tài liệu này (Chapter 13 LÀ authority DUY NHẤT cho coverage percentage/floor, KHÔNG được duplicate). v0.5's own ADR-scope bullet ĐỒNG THỜI tự khẳng định "không con số 90%/Tier 1 nào bị lặp lại" — một self-verification claim SAI, vì chính hai đoạn văn khác trong CÙNG candidate LẠI có con số đó. **Sửa (v0.6):** bỏ hẳn con số ngưỡng cụ thể khỏi "Vấn đề" paragraph VÀ installation-time verification contract (cả hai nay tham chiếu NGƯỢC "applicable floor mà CHÍNH Chapter 13 §13.3/§13.4 định nghĩa," KHÔNG lặp lại con số); sửa ADR-scope bullet's self-verification claim để nay ĐÚNG SỰ THẬT sau khi hai nguồn duplicate đã sửa. **KHÔNG đổi:** candidate mechanism (VẪN coverage.py, KHÔNG chọn lại/nghiên cứu lại tool nào khác), arc-based branch model, `percent_statements_covered`/`percent_branches_covered` LÀM hai metric độc lập, `percent_covered` (blended) VẪN cấm dùng thay thế cho một trong hai, yêu cầu `--branch`/`branch=True` tường minh, `source=feature_engine` authoritative-source boundary, KHÔNG omit code khó đo, `coverage json` machine-readable evidence, native `--fail-under` VẪN cấm dùng LÀM Chapter-13 independent gate, installation-time fail-closed verification contract (nội dung KHÔNG đổi ngoài việc bỏ con số 90%), Python/pytest compatibility findings, reproducibility requirements, alternatives analysis, `ADR_NOT_REQUIRED` disposition. `status` VẪN `Draft` (KHÔNG tự approve), `approved_by`/`approved_at` VẪN `null`. KHÔNG cài đặt/pin `coverage`, KHÔNG đo Feature Engine coverage, KHÔNG close/remediate `P3-FEATURE-QG-EVID-01`/`-EVID-02` (VẪN `FAIL — evidence`), KHÔNG rerun Feature Chapter 13 QG, KHÔNG chạm Go branch-coverage mechanism/history (gobco, `P3-GOBC-A-MAJ-01` closure, byte-equivalent), KHÔNG approve Testing Convention, KHÔNG Product Owner decision, KHÔNG authorize LIVE. `P3-PY-COV-A-MIN-01`: `REMEDIATED — PENDING RE-REVIEW` — KHÔNG self-closed, CHỈ Review A re-review + independent review tiếp theo mới validate closure. **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này** (KHÔNG kế thừa mù kết luận trước): `ADR_NOT_REQUIRED` — correction CHỈ xóa duplicate policy text/sửa một self-verification claim SAI bên trong CÙNG một reversible Testing Convention tooling candidate ĐÃ pre-authorized, KHÔNG giới thiệu bất kỳ architecture/tool decision MỚI nào, KHÔNG Platform Invariant/Event Schema/Module Taxonomy/Governance-process change, KHÔNG supersede ADR Locked nào.
+**CANDIDATE evidence-fidelity correction (2026-08-28), KHÔNG self-approved — status: Draft → Draft.** Bounded remediation của `P3-PY-COV-A-MIN-02` (KHÔNG PHẢI self-closure — executor KHÔNG có thẩm quyền tự đóng finding của chính mình) — vai trò: `Testing Convention v0.6 Finding-State Evidence Correction Executor`. **Review evidence chain (ghi tách biệt, KHÔNG gộp thành executor self-closure):** (1) v0.6's own executor transaction (correction commit `f1fa149a95a6fc4c01a5eb48ff8be588f8c39ba8`) recorded, đúng sự thật tại thời điểm đó, `P3-PY-COV-A-MIN-01: REMEDIATED — PENDING RE-REVIEW`, KHÔNG self-closed — executor KHÔNG có thẩm quyền tự đóng finding của chính mình. (2) SAU đó, một ChatGPT bounded Review A re-review riêng biệt, tại CÙNG boundary `f1fa149a95a6fc4c01a5eb48ff8be588f8c39ba8`, độc lập kết luận: boundary/scope CLEAN, VÀ `P3-PY-COV-A-MIN-01`'s substantive remediation VALIDATED (numerical policy literals đã được xóa đúng khỏi CURRENT normative Python coverage mechanism text, Chapter 13 §13.3/§13.4 LẠI LÀ authority DUY NHẤT, coverage.py semantics KHÔNG đổi) — NHƯNG cùng review này phát hiện MỘT finding MỚI, `P3-PY-COV-A-MIN-02` (Minor / qualifying evidence-lifecycle inconsistency): v0.6's own correction record, dù thân bài đúng ("REMEDIATED — PENDING RE-REVIEW... KHÔNG self-closed"), LẠI đồng thời dùng ngôn ngữ đóng-finding tương đương "Đóng `P3-PY-COV-A-MIN-01`"/"closed" tại banner mở đầu, tiêu đề MANIFEST/CHANGELOG, VÀ nhiều inline correction-annotation — một audit/lifecycle contradiction (cùng một authoritative record đồng thời tuyên bố CLOSED VÀ REMEDIATED-PENDING-RE-REVIEW/NOT-SELF-CLOSED). **Independent Review B cho CHÍNH re-review này CHƯA thực hiện** — KHÔNG tuyên bố toàn bộ A/B closure chain cho `P3-PY-COV-A-MIN-01` đã hoàn tất tại transaction này. **Sửa (v0.7):** xóa mọi ngôn ngữ "đóng"/"closed" khỏi banner mở đầu v0.6, ba inline correction-annotation, VÀ Change History v0.6 entry — thay bằng "bounded remediation"/"remediation applied," tường minh phân biệt "executor đã implement remediation" KHỎI "review đã validate/đóng finding." Lịch sử v0.5's defect VÀ v0.6's own nguyên văn "REMEDIATED — PENDING RE-REVIEW" KHÔNG bị xóa/viết lại — chỉ phần ngôn ngữ mở đầu/tiêu đề mâu thuẫn được sửa. **KHÔNG đổi:** candidate mechanism (VẪN coverage.py), line coverage semantics, arc-based branch semantics, `percent_statements_covered`/`percent_branches_covered`, `percent_covered` prohibition, `--branch` requirement tường minh, `source=feature_engine` boundary, omit/exclusion policy, `coverage json` evidence contract, `--fail-under` treatment, Python/pytest compatibility conclusions, installation-time fail-closed verification contract, alternatives assessment, `ADR_NOT_REQUIRED` substantive conclusion. `version: "0.6" → "0.7"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null` (KHÔNG tự approve v0.7). KHÔNG cài đặt/pin `coverage`, KHÔNG đo Feature Engine coverage, KHÔNG rerun Feature Chapter 13 QG (`P3-FEATURE-QG-EVID-01`/`-EVID-02` VẪN `FAIL — evidence`), KHÔNG Independent Review B, KHÔNG Product Owner decision, KHÔNG authorize LIVE. `P3-PY-COV-A-MIN-02`: `REMEDIATED — PENDING RE-REVIEW` — KHÔNG self-closed. **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**: `ADR_NOT_REQUIRED` — thuần audit/evidence lifecycle wording bên trong CÙNG một Draft Testing Convention candidate, KHÔNG giới thiệu architecture/tool/contract/governance-process decision nào.
+
+**CANDIDATE bounded correction (2026-08-28), KHÔNG self-approved — status: Draft → Draft.** Bounded remediation của `P3-PY-COV-A-MIN-01` (KHÔNG PHẢI self-closure — executor KHÔNG có thẩm quyền tự đóng finding của chính mình, CHỈ Review A re-review + independent review tiếp theo mới validate closure) — vai trò: `Python QG Coverage Candidate Bounded Correction Executor`. ChatGPT bounded Review A của v0.5 candidate xác nhận: `BOUNDED REVIEW A: READY_FOR_INDEPENDENT_REVIEW_B — COVERAGE.PY CANDIDATE SUPPORTED; 0 Blocker/0 Major/1 non-blocking Minor` (`P3-PY-COV-A-MIN-01`). Independent Review B (Claude, alias "Independent Review B," Mode A `DISTINCT_PRINCIPAL`) độc lập CONFIRMED cùng finding, disposition `INDEPENDENT REVIEW B: READY_FOR_BOUNDED_CORRECTION_OR_PRODUCT_OWNER_DECISION` — đồng thời confirm coverage.py mechanism semantically fit, line/branch JSON-field strategy valid, `ADR_NOT_REQUIRED` đúng, candidate lifecycle đúng, KHÔNG implementation/dependency/CI change nào xảy ra. **Defect (`P3-PY-COV-A-MIN-01`):** v0.5's Python coverage candidate copy lại Chapter 13's numerical Tier-1 coverage floor (`line coverage >= 90% VÀ branch coverage >= 90%`, VÀ "floor 90% CỦA CHÍNH Chapter 13") vào chính candidate text — vi phạm SSOT nguyên tắc `EF-TEST-A-MIN-01` đã khóa trước đó cho toàn bộ tài liệu này (Chapter 13 LÀ authority DUY NHẤT cho coverage percentage/floor, KHÔNG được duplicate). v0.5's own ADR-scope bullet ĐỒNG THỜI tự khẳng định "không con số 90%/Tier 1 nào bị lặp lại" — một self-verification claim SAI, vì chính hai đoạn văn khác trong CÙNG candidate LẠI có con số đó. **Sửa (v0.6):** bỏ hẳn con số ngưỡng cụ thể khỏi "Vấn đề" paragraph VÀ installation-time verification contract (cả hai nay tham chiếu NGƯỢC "applicable floor mà CHÍNH Chapter 13 §13.3/§13.4 định nghĩa," KHÔNG lặp lại con số); sửa ADR-scope bullet's self-verification claim để nay ĐÚNG SỰ THẬT sau khi hai nguồn duplicate đã sửa. **KHÔNG đổi:** candidate mechanism (VẪN coverage.py, KHÔNG chọn lại/nghiên cứu lại tool nào khác), arc-based branch model, `percent_statements_covered`/`percent_branches_covered` LÀM hai metric độc lập, `percent_covered` (blended) VẪN cấm dùng thay thế cho một trong hai, yêu cầu `--branch`/`branch=True` tường minh, `source=feature_engine` authoritative-source boundary, KHÔNG omit code khó đo, `coverage json` machine-readable evidence, native `--fail-under` VẪN cấm dùng LÀM Chapter-13 independent gate, installation-time fail-closed verification contract (nội dung KHÔNG đổi ngoài việc bỏ con số 90%), Python/pytest compatibility findings, reproducibility requirements, alternatives analysis, `ADR_NOT_REQUIRED` disposition. `status` VẪN `Draft` (KHÔNG tự approve), `approved_by`/`approved_at` VẪN `null`. KHÔNG cài đặt/pin `coverage`, KHÔNG đo Feature Engine coverage, KHÔNG close/remediate `P3-FEATURE-QG-EVID-01`/`-EVID-02` (VẪN `FAIL — evidence`), KHÔNG rerun Feature Chapter 13 QG, KHÔNG chạm Go branch-coverage mechanism/history (gobco, `P3-GOBC-A-MAJ-01` closure, byte-equivalent), KHÔNG approve Testing Convention, KHÔNG Product Owner decision, KHÔNG authorize LIVE. `P3-PY-COV-A-MIN-01`: `REMEDIATED — PENDING RE-REVIEW` — KHÔNG self-closed, CHỈ Review A re-review + independent review tiếp theo mới validate closure. **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này** (KHÔNG kế thừa mù kết luận trước): `ADR_NOT_REQUIRED` — correction CHỈ xóa duplicate policy text/sửa một self-verification claim SAI bên trong CÙNG một reversible Testing Convention tooling candidate ĐÃ pre-authorized, KHÔNG giới thiệu bất kỳ architecture/tool decision MỚI nào, KHÔNG Platform Invariant/Event Schema/Module Taxonomy/Governance-process change, KHÔNG supersede ADR Locked nào.
 
 **CANDIDATE (2026-08-28), KHÔNG self-approved — status: Approved → Draft.** `status: Approved → Draft` (mọi thay đổi SEMANTIC vào tài liệu Approved bắt buộc tăng version VÀ đi qua approval gate lại, đúng [Chapter 0 §5.1](../constitution/00-governance.md); `approved_by`/`approved_at` của v0.4 KHÔNG tự động phủ nội dung MỚI này — reset `null`, v0.4's approval record giữ nguyên nguyên vẹn phía dưới LÀM historical evidence, KHÔNG bị ghi đè), vai trò: `Python QG Coverage Mechanism Candidate Author`. Bổ sung MỘT subsection MỚI dưới "Framework/tool selection" (dưới, cùng vị trí Go branch-coverage candidate) đề xuất một **CANDIDATE** (chưa chọn/chưa cài đặt/chưa tích hợp) cho cơ chế đo **Python line coverage VÀ branch coverage** — khoảng trống evidence được xác nhận tại `feature-engine`'s formal Chapter 13 Quality Gate (`P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02`, `docs/MANIFEST.md`). **ADR-scope check (chạy TRƯỚC KHI author, [Chapter 0 §4b](../constitution/00-governance.md)):** kết luận `ADR_NOT_REQUIRED` — xem "Python line+branch coverage mechanism — CANDIDATE" dưới cho full reasoning, cùng pattern (b) đã dùng cho `testing.md`'s own v0.1 baseline VÀ cho v0.3's Go branch-coverage candidate: [Chapter 3 §3.2](../constitution/03-engineering-principles.md) đã có carve-out tường minh cho Testing Convention tooling, VÀ [Chapter 13 §13.3](../constitution/13-quality-gates.md)/[§13.14](../constitution/13-quality-gates.md) tự nó khóa "không khóa tool/vendor cụ thể... defer Engineering Foundation." Đây CHỈ LÀ candidate selection trong phạm vi "tooling" ĐÃ pre-authorized, KHÔNG PHẢI một baseline-existence decision mới, KHÔNG platform invariant/event schema/module taxonomy/governance-process change, KHÔNG supersede ADR đã Locked nào, KHÔNG hard-to-reverse lock-in (dev/test-time-only Python package, Apache-2.0, zero additional runtime dependency tại Python >=3.13 — verify trực tiếp PyPI metadata dưới). **KHÔNG đổi:** Chapter 13 coverage floor/tier/pass-fail semantics nào (§17/§18 dưới, KHÔNG đổi), `module-registry.yaml`, dependency graph, `feature-engine` production/test code, `P3-FEATURE-QG-EVID-01`/`-EVID-02` (KHÔNG closed/remediated tại đây — Feature formal QG VẪN `FAIL — evidence`), the existing Go branch-coverage mechanism/history (gobco candidate, `P3-GOBC-A-MAJ-01` closure) — byte-equivalent, KHÔNG re-opened, KHÔNG normalized into a cross-language "same tool" claim. KHÔNG cài đặt/pin tool nào tại transaction này. KHÔNG đo Feature Engine coverage. KHÔNG rerun Quality Gate nào. KHÔNG approve module/Data Layer nào. KHÔNG authorize LIVE. KHÔNG start Context Aggregator.
 
@@ -687,7 +689,8 @@ KHÔNG tại transaction này (candidate-only, tường minh):
   test framework selection (pytest ĐÃ pin sẵn tại feature-engine's own pyproject.toml —
   không phải quyết định của transaction này — KHÔNG chạm).]
 
-[v0.6 sửa, đóng `P3-PY-COV-A-MIN-01`: v0.5 copy lại con số ngưỡng cụ thể của Chapter 13
+[v0.6 sửa (bounded remediation, KHÔNG self-closure — xem finding state chính thức tại
+  Change History dưới): v0.5 copy lại con số ngưỡng cụ thể của Chapter 13
   (line >= 90% VÀ branch >= 90%) vào chính đoạn văn dưới đây — duplicate policy text KHÔNG
   cần thiết, đúng lỗi EF-TEST-A-MIN-01 đã sửa trước đó (§17 trên) NHƯNG lặp lại tại candidate
   section mới này. Sửa: bỏ hẳn con số, CHỈ tham chiếu ngược Chapter 13 §13.3/§13.4 LÀM
@@ -819,9 +822,9 @@ CANDIDATE mechanism được đề xuất: **coverage.py** (PyPI package `covera
       ("Separate fail_under option for branch and statement coverage," nedbat/coveragepy,
       mở 2021-04-29, VẪN `Open`, KHÔNG assignee, KHÔNG PR) — `coverage report
       --fail-under=MIN` CHỈ áp dụng cho MỘT ngưỡng DUY NHẤT trên CHÍNH `percent_covered`
-      BLENDED value ([v0.6 sửa, đóng `P3-PY-COV-A-MIN-01`: minh họa lại VỚI ngưỡng số
-      KHÔNG trùng bất kỳ Chapter-13 tier floor nào (60/80/90/95), tránh MỌI khả năng đọc
-      nhầm thành policy assertion] verify trực tiếp thực nghiệm, re-run tại v0.6:
+      BLENDED value ([v0.6 sửa (bounded remediation, KHÔNG self-closure): minh họa lại VỚI
+      ngưỡng số KHÔNG trùng bất kỳ Chapter-13 tier floor nào (60/80/90/95), tránh MỌI khả
+      năng đọc nhầm thành policy assertion] verify trực tiếp thực nghiệm, re-run tại v0.6:
       `--fail-under=72` trên toy module có blended 88% -> PASS (exit code 0, vì 88 > 72,
       minh họa ngưỡng bất kỳ, KHÔNG PHẢI Chapter-13 floor); `--fail-under=99` (ngưỡng minh
       họa khác, cũng KHÔNG PHẢI Chapter-13 floor) -> "Coverage failure: total of 88 is less
@@ -951,7 +954,7 @@ ADR-scope disposition (đầy đủ, chạy TRƯỚC khi author candidate này, 
     infrastructure/production dependency nào).
   - Chapter 13 §13.4's tier/floor VÀ §13.8's pass/fail semantics KHÔNG bị candidate này
     redefine — candidate CHỈ định nghĩa CƠ CHẾ ĐO, KHÔNG định nghĩa lại ngưỡng/tier/pass-
-    fail. [v0.6 sửa, đóng `P3-PY-COV-A-MIN-01`: v0.5's bullet này tuyên bố "không con số
+    fail. [v0.6 sửa (bounded remediation, KHÔNG self-closure): v0.5's bullet này tuyên bố "không con số
     90%/Tier 1 nào bị lặp lại" trong khi CHÍNH candidate text ở trên (đoạn "Vấn đề" VÀ
     installation-time verification contract dưới) LẠI thực sự lặp lại con số đó — self-
     verification claim SAI, ChatGPT Review A + Independent Review B confirmed
@@ -1391,8 +1394,10 @@ v0.5  2026-08-28  CANDIDATE amendment, KHÔNG self-approved — vai trò:
       reopen, KHÔNG normalize cross-language). `module-registry.yaml`
       KHÔNG chạm. §1–§16/§18/Non-goals/v0.1–v0.4 banners/Go
       branch-coverage subsection KHÔNG chạm (byte-equivalent).
-v0.6  2026-08-28  Bounded correction, đóng `P3-PY-COV-A-MIN-01` — vai trò:
-      `Python QG Coverage Candidate Bounded Correction Executor`.
+v0.6  2026-08-28  Bounded remediation of `P3-PY-COV-A-MIN-01` (KHÔNG
+      self-closure — executor KHÔNG có thẩm quyền tự đóng finding của
+      chính mình) — vai trò: `Python QG Coverage Candidate Bounded
+      Correction Executor`.
       ChatGPT bounded Review A trên v0.5: `READY_FOR_INDEPENDENT_
       REVIEW_B — COVERAGE.PY CANDIDATE SUPPORTED; 0 Blocker/0 Major/1
       non-blocking Minor` (`P3-PY-COV-A-MIN-01`). Independent Review B
@@ -1435,4 +1440,57 @@ v0.6  2026-08-28  Bounded correction, đóng `P3-PY-COV-A-MIN-01` — vai trò:
       Aggregator, KHÔNG chạm `module-registry.yaml`/implementation/
       test/CI. `P3-PY-COV-A-MIN-01`: `REMEDIATED — PENDING RE-REVIEW`
       — KHÔNG self-closed.
+v0.7  2026-08-28  Evidence-fidelity correction, bounded remediation of
+      `P3-PY-COV-A-MIN-02` (KHÔNG self-closure) — vai trò: `Testing
+      Convention v0.6 Finding-State Evidence Correction Executor`.
+      Review evidence chain (recorded separately, KHÔNG gộp thành
+      executor self-closure): v0.6's own executor transaction (commit
+      f1fa149a95a6fc4c01a5eb48ff8be588f8c39ba8) correctly recorded
+      `P3-PY-COV-A-MIN-01: REMEDIATED — PENDING RE-REVIEW`, KHÔNG
+      self-closed. A subsequent, separate ChatGPT bounded Review A
+      re-review at the SAME boundary independently concluded:
+      boundary/scope CLEAN, `P3-PY-COV-A-MIN-01`'s substantive
+      remediation VALIDATED (numerical policy literals correctly
+      removed from the current normative Python coverage candidate
+      text, Chapter 13 §13.3/§13.4 again the sole numerical-floor
+      authority, coverage.py semantics unchanged) — NHƯNG identified
+      ONE new finding, `P3-PY-COV-A-MIN-02` (Minor / qualifying
+      evidence-lifecycle inconsistency): v0.6's own correction record,
+      while its body correctly stated "REMEDIATED — PENDING RE-REVIEW
+      ... KHÔNG self-closed," SIMULTANEOUSLY used closure-equivalent
+      language ("Đóng `P3-PY-COV-A-MIN-01`"/"closed") in its opening
+      banner, MANIFEST/CHANGELOG headings, and several inline
+      correction annotations — an audit/lifecycle self-contradiction
+      (the same authoritative record simultaneously claiming CLOSED
+      and REMEDIATED-PENDING-RE-REVIEW/NOT-SELF-CLOSED). Independent
+      Review B for THIS re-review has NOT yet been performed — the
+      full A/B closure chain for `P3-PY-COV-A-MIN-01` is NOT claimed
+      complete by this transaction. Correction: removed all
+      "đóng"/"closed" language from v0.6's opening banner, three
+      inline correction annotations, and its Change History entry —
+      replaced with "bounded remediation"/"remediation applied,"
+      explicitly distinguishing "executor implemented remediation"
+      from "review validated/closed the finding." v0.5's original
+      defect and v0.6's own verbatim "REMEDIATED — PENDING RE-REVIEW"
+      state are NOT erased/rewritten — only the contradictory opening/
+      heading language is corrected. `version: "0.6" → "0.7"`, `status`
+      VẪN `Draft`, `approved_by`/`approved_at` VẪN `null` (v0.7 KHÔNG
+      tự approve). ADR Scope Rule chạy LẠI TỪ ĐẦU cho chính correction
+      này -> `ADR_NOT_REQUIRED` (thuần audit/evidence lifecycle
+      wording bên trong CÙNG một Draft candidate, KHÔNG architecture/
+      tool/contract/governance-process decision mới). **KHÔNG đổi:**
+      candidate mechanism (VẪN coverage.py), line coverage semantics,
+      arc-based branch semantics, `percent_statements_covered`/
+      `percent_branches_covered`, `percent_covered` prohibition,
+      `--branch` requirement, `source=feature_engine` boundary, omit/
+      exclusion policy, `coverage json` evidence contract, `--fail-
+      under` treatment, Python/pytest compatibility conclusions,
+      installation-time fail-closed verification contract, alternatives
+      assessment, `ADR_NOT_REQUIRED` substantive conclusion. KHÔNG cài
+      đặt/pin `coverage`, KHÔNG đo feature-engine coverage, KHÔNG rerun
+      feature-engine's Chapter 13 QG (`P3-FEATURE-QG-EVID-01`/
+      `-EVID-02` VẪN `FAIL — evidence`), KHÔNG Independent Review B,
+      KHÔNG Product Owner decision, KHÔNG authorize LIVE, KHÔNG chạm
+      `module-registry.yaml`/implementation/test/CI. `P3-PY-COV-A-
+      MIN-02`: `REMEDIATED — PENDING RE-REVIEW` — KHÔNG self-closed.
 ```

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.267"
+manifest_version: "10.268"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -13546,7 +13546,7 @@ ChatGPT bounded Review A of this candidate, then Independent Review B, then a se
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**` both verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.265"` → `"10.266"`.
 
-## Testing Convention v0.6 — Python Coverage Candidate Bounded Correction (`P3-PY-COV-A-MIN-01` closed — numerical-policy duplication removed, candidate mechanism unchanged)
+## Testing Convention v0.6 — Python Coverage Candidate Bounded Remediation (`P3-PY-COV-A-MIN-01` bounded remediation applied, NOT self-closed — numerical-policy duplication removed, candidate mechanism unchanged)
 
 **Bounded semantic correction transaction — vai trò: `Python QG Coverage Candidate Bounded Correction Executor`.** Corrects exactly the one non-blocking Minor finding confirmed by both ChatGPT bounded Review A and Independent Review B against the v0.5 Python coverage candidate authored in `docs/engineering/testing.md`. Does NOT change the selected candidate mechanism (coverage.py). Does NOT redo tool research. Does NOT install or pin coverage.py. Does NOT measure Feature Engine coverage. Does NOT close `P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02`. Does NOT rerun Feature Engine Chapter 13 QG. Does NOT approve Testing Convention. Does NOT perform a Product Owner decision. Does NOT authorize LIVE.
 
@@ -13676,6 +13676,140 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 ChatGPT re-review of this correction against the corrected v0.6 candidate text, then a subsequent independent review confirming `P3-PY-COV-A-MIN-01` CLOSED, then a separate Product Owner decision on the candidate as a whole, then (if approved) a separate installation/pinning transaction, then a separate formal Feature Engine Chapter 13 Quality Gate re-evaluation. None performed here.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**` both verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.266"` → `"10.267"`.
+
+## Testing Convention v0.7 — Finding-State Evidence Correction (`P3-PY-COV-A-MIN-02` bounded remediation applied, NOT self-closed — executor-closure/review-validation language corrected)
+
+**Extremely bounded evidence/lifecycle-fidelity correction transaction — vai trò: `Testing Convention v0.6 Finding-State Evidence Correction Executor`.** Corrects exactly one finding, `P3-PY-COV-A-MIN-02`, identified by a subsequent ChatGPT bounded Review A re-review of the v0.6 correction (`f1fa149a95a6fc4c01a5eb48ff8be588f8c39ba8`). Does NOT modify the coverage.py mechanism. Does NOT modify coverage measurement semantics. Does NOT redo tool research. Does NOT install/pin coverage.py. Does NOT measure Feature coverage. Does NOT rerun Feature QG. Does NOT perform Independent Review B. Does NOT perform a Product Owner decision.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `f1fa149a95a6fc4c01a5eb48ff8be588f8c39ba8` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.267"` at start. `docs/engineering/testing.md` confirmed matching expected starting state: `version: "0.6"`, `status: Draft`, `approved_by: null`, `approved_at: null`; candidate mechanism confirmed unchanged as `coverage.py`.
+
+### Review evidence chain (recorded separately — NOT collapsed into executor self-closure)
+
+```text
+Step 1 — v0.6 executor transaction (commit f1fa149a95a6fc4c01a5eb48ff8be588f8c39ba8):
+  correctly recorded, at the time it was true, P3-PY-COV-A-MIN-01: REMEDIATED — PENDING
+  RE-REVIEW, explicitly NOT self-closed — the executor has no authority to close a finding
+  it is itself remediating.
+Step 2 — ChatGPT bounded Review A re-review, same boundary (f1fa149a95a6fc4c01a5eb48ff8be
+  588f8c39ba8), SEPARATE transaction from Step 1: boundary/scope CLEAN.
+  P3-PY-COV-A-MIN-01 substantive remediation: VALIDATED — the numerical policy literals were
+  correctly removed from the current normative Python coverage mechanism text, Chapter 13
+  §13.3/§13.4 is again the sole numerical-floor authority, and coverage.py semantics remain
+  unchanged. This validation is Review A's own independent conclusion, not a restatement of
+  the executor's own claim.
+  New finding identified by this SAME Review A re-review: P3-PY-COV-A-MIN-02 (Minor /
+  qualifying evidence-lifecycle inconsistency) — see below.
+Step 3 (this transaction) — bounded remediation of P3-PY-COV-A-MIN-02 only.
+Independent Review B for the Step-2 re-review: NOT YET PERFORMED. The full Review-A/
+  Independent-Review-B closure chain for P3-PY-COV-A-MIN-01 is explicitly NOT claimed
+  complete by this transaction — only Review A's own substantive-remediation validation is
+  recorded, as its own separate, distinct evidence.
+```
+
+### `P3-PY-COV-A-MIN-02` — audit/lifecycle self-contradiction (executor-closure vs. review-validation language)
+
+```text
+Confirmed defect: the v0.6 correction transaction's own audit surfaces — the opening
+  Testing Convention banner, the docs/MANIFEST.md section heading, the docs/CHANGELOG.md
+  heading, and several inline correction annotations inside testing.md's own candidate
+  text — used closure-equivalent language ("Đóng `P3-PY-COV-A-MIN-01`" / "P3-PY-COV-A-MIN-01
+  closed") to describe the SAME transaction whose own body correctly recorded
+  `P3-PY-COV-A-MIN-01: REMEDIATED — PENDING RE-REVIEW ... NOT self-closed`. The same
+  authoritative record therefore simultaneously claimed CLOSED and REMEDIATED-PENDING-RE-
+  REVIEW/NOT-SELF-CLOSED — an audit/lifecycle contradiction, and a genuine evidence-fidelity
+  defect distinct from P3-PY-COV-A-MIN-01's own original numerical-duplication substance.
+Correction applied: every current-surface occurrence of executor closure-language for
+  P3-PY-COV-A-MIN-01 was rewritten to distinguish "implementation of remediation" from
+  "review validation / finding closure" — specifically: testing.md's opening v0.6 banner
+  (now "Bounded remediation của P3-PY-COV-A-MIN-01 (KHÔNG PHẢI self-closure...)"), three
+  inline `[v0.6 sửa...]` correction annotations, testing.md's own v0.6 Change History entry
+  opening line, and this MANIFEST's own v0.6 section heading (now "bounded remediation
+  applied, NOT self-closed"). docs/CHANGELOG.md's v0.6 heading corrected identically (see
+  CHANGELOG.md's own additive entry for this transaction). None of these corrections alter
+  the substantive facts already recorded — P3-PY-COV-A-MIN-01's original v0.5 defect and its
+  v0.6 "REMEDIATED — PENDING RE-REVIEW" state are preserved exactly as originally recorded;
+  only the contradictory closure-equivalent phrasing surrounding them is removed. The
+  Step-2 Review A re-review evidence above (substantive remediation VALIDATED) is recorded
+  as its own separate, freshly-obtained review evidence — never retroactively presented as
+  if the v0.6 executor itself had closed the finding.
+State: P3-PY-COV-A-MIN-02: REMEDIATED — PENDING RE-REVIEW (NOT self-closed by this
+  transaction — only a subsequent Review A re-review and independent review may validate
+  closure).
+```
+
+### ADR Scope Rule (Chapter 0 §4b, run fresh for this correction)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: this correction is purely audit/evidence-lifecycle wording inside the same Draft
+  Testing Convention candidate — it changes no coverage.py mechanism/tool selection, no
+  measurement semantics, no Platform Invariant/Event Schema/Module Taxonomy/dependency-
+  graph/Governance-process, and supersedes no Locked ADR. Strictly narrower in scope than
+  even the v0.6 correction itself, which already independently concluded ADR_NOT_REQUIRED.
+```
+
+### Version/lifecycle
+
+```text
+docs/engineering/testing.md: version "0.6" -> "0.7"; status Draft -> Draft (unchanged);
+  approved_by null -> null (unchanged); approved_at null -> null (unchanged) — v0.7 NOT
+  self-approved by this transaction. v0.5's and v0.6's own historical records (including
+  both confirmed Minors) are preserved additively in Change History.
+```
+
+### What remains unchanged (verified)
+
+```text
+Candidate mechanism: coverage.py — UNCHANGED, no re-research. Line coverage semantics,
+  arc-based branch semantics, percent_statements_covered/percent_branches_covered,
+  percent_covered prohibition, explicit --branch/branch=True requirement,
+  source=feature_engine boundary, omit/exclusion policy, coverage json evidence contract,
+  --fail-under treatment, Python/pytest compatibility conclusions, installation-time
+  fail-closed verification contract, alternatives assessment, and the ADR_NOT_REQUIRED
+  substantive conclusion are all UNCHANGED — this transaction touches wording/lifecycle
+  framing only, never substance.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/**, pyproject.toml, requirements-dev.lock.txt, CI/CD workflows,
+  docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**,
+  docs/architecture/input-contracts/**, docs/architecture/stream-registry.yaml: all verified
+  byte-identical (`git diff --quiet` for each path). No tool installed or pinned. No Feature
+  Engine coverage measured. No Feature Chapter 13 QG rerun. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/engineering/testing.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:          version "0.7", status Draft, CANDIDATE / UNAPPROVED
+                              (coverage.py unchanged) — v0.5/v0.6 historical records
+                              preserved.
+P3-PY-COV-A-MIN-01:           REMEDIATED — PENDING RE-REVIEW (substantive remediation
+                              VALIDATED by a separate ChatGPT Review A re-review; Independent
+                              Review B for that re-review NOT yet performed; NOT closed by
+                              any transaction to date).
+P3-PY-COV-A-MIN-02:           REMEDIATED — PENDING RE-REVIEW.
+P3-FEATURE-QG-EVID-01:        FAIL — evidence (unchanged).
+P3-FEATURE-QG-EVID-02:        FAIL — evidence (unchanged).
+Feature Engine Quality Tier:  RESOLVED — Tier 1 — Core Logic (unchanged).
+Feature formal Chapter 13 QG: FAIL — evidence (unchanged, not rerun).
+Feature module approval:      NOT APPROVED.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Independent Review B of the Step-2 Review A re-review (confirming or contesting both
+`P3-PY-COV-A-MIN-01`'s substantive-remediation validation and this transaction's own
+`P3-PY-COV-A-MIN-02` correction), then a separate Product Owner decision on the candidate as
+a whole, then (if approved) a separate installation/pinning transaction, then a separate
+formal Feature Engine Chapter 13 Quality Gate re-evaluation. None performed here.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**` both verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.267"` → `"10.268"`.
 
 ## Decision Log
 

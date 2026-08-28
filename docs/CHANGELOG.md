@@ -2,7 +2,76 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
-## [Unreleased] — 2026-08-28 — Testing Convention v0.6: Python Coverage Candidate Bounded Correction (`P3-PY-COV-A-MIN-01` closed — numerical-policy duplication removed)
+## [Unreleased] — 2026-08-28 — Testing Convention v0.7: Finding-State Evidence Correction (`P3-PY-COV-A-MIN-02` bounded remediation applied, NOT self-closed)
+
+**Extremely bounded evidence/lifecycle-fidelity correction — vai trò: `Testing Convention v0.6 Finding-State Evidence Correction Executor`.** Corrects `P3-PY-COV-A-MIN-02`, identified by a subsequent ChatGPT bounded Review A re-review of the v0.6 correction. Does not modify coverage.py, coverage semantics, or install/measure anything; does not perform Independent Review B; does not perform a Product Owner decision.
+
+### Review evidence chain (recorded separately, not collapsed into executor self-closure)
+
+```text
+v0.6 executor transaction: correctly recorded P3-PY-COV-A-MIN-01 REMEDIATED — PENDING
+  RE-REVIEW, NOT self-closed (executor has no authority to close its own remediation).
+Separate ChatGPT bounded Review A re-review (same boundary): boundary/scope CLEAN;
+  P3-PY-COV-A-MIN-01 substantive remediation VALIDATED (numerical literals correctly
+  removed, Chapter 13 again sole floor authority, coverage.py semantics unchanged). Same
+  review identified a NEW finding: P3-PY-COV-A-MIN-02.
+Independent Review B for this re-review: NOT yet performed — the full A/B closure chain for
+  P3-PY-COV-A-MIN-01 is not claimed complete.
+```
+
+### `P3-PY-COV-A-MIN-02`
+
+```text
+The v0.6 correction's own audit surfaces (opening banner, MANIFEST/CHANGELOG headings,
+  inline correction annotations) used closure-equivalent language ("Đóng
+  P3-PY-COV-A-MIN-01"/"closed") while the SAME transaction's body correctly recorded
+  "REMEDIATED — PENDING RE-REVIEW ... NOT self-closed" — an audit/lifecycle self-
+  contradiction. Corrected: every current-surface occurrence rewritten to distinguish
+  "implementation of remediation" from "review validation/closure." Original v0.5 defect
+  and v0.6's own REMEDIATED — PENDING RE-REVIEW state are preserved unchanged — only the
+  contradictory closure phrasing is removed.
+State: REMEDIATED — PENDING RE-REVIEW (not self-closed).
+```
+
+### Version/lifecycle and ADR Scope Rule
+
+```text
+testing.md: version "0.6" -> "0.7"; status Draft -> Draft; approved_by/approved_at remain
+  null. ADR_NOT_REQUIRED (run fresh) — purely audit/evidence-lifecycle wording, no
+  mechanism/tool/semantic change.
+```
+
+### Unchanged (verified)
+
+```text
+coverage.py mechanism, line/branch measurement semantics, independent metric fields,
+  blended-percentage prohibition, --branch requirement, source boundary, installation-time
+  verification contract, alternatives assessment, and ADR_NOT_REQUIRED substantive
+  conclusion are all unchanged — wording/lifecycle framing only.
+```
+
+### Files changed
+
+```text
+docs/engineering/testing.md, docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version
+  "10.267" -> "10.268". No other file touched. No tool installed or pinned.
+```
+
+### State (unchanged except P3-PY-COV-A-MIN-02)
+
+```text
+P3-PY-COV-A-MIN-01: REMEDIATED — PENDING RE-REVIEW (substantive remediation VALIDATED by a
+  separate Review A re-review; not closed by any transaction to date). P3-FEATURE-QG-EVID-
+  01/-EVID-02: FAIL — evidence. Feature Engine Quality Tier: RESOLVED — Tier 1 — Core
+  Logic. Feature formal Chapter 13 QG: FAIL — evidence (not rerun). Feature module
+  approval: NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+### Next governed action (not performed here)
+
+Independent Review B of the Review A re-review (confirming/contesting both the P3-PY-COV-A-MIN-01 substantive-remediation validation and this transaction's own P3-PY-COV-A-MIN-02 correction), then a separate Product Owner decision, then (if approved) installation/pinning, then a separate formal Feature Engine Chapter 13 QG re-evaluation.
+
+## [Unreleased] — 2026-08-28 — Testing Convention v0.6: Python Coverage Candidate Bounded Remediation (`P3-PY-COV-A-MIN-01` bounded remediation applied, NOT self-closed — numerical-policy duplication removed)
 
 **Bounded semantic correction — vai trò: `Python QG Coverage Candidate Bounded Correction Executor`.** Corrects the one non-blocking Minor confirmed by ChatGPT bounded Review A and Independent Review B against the v0.5 Python coverage candidate. Does not change the candidate mechanism (coverage.py), does not redo tool research, does not install/pin anything, does not measure Feature coverage, does not close EVID-01/EVID-02, does not rerun Feature QG, does not approve Testing Convention, does not perform a Product Owner decision.
 
