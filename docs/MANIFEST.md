@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.262"
+manifest_version: "10.263"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -12652,6 +12652,104 @@ Deterministic verification of the two Minor corrections above, then Package 1.1 
 **Files changed:** `docs/architecture/module-registry.yaml`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `python/feature-engine/**` verified byte-unchanged (`git diff --quiet`); no other file touched.
 
 **Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.261` → `10.262`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier now RESOLVED — Tier 1 — Core Logic (see State summary above); QG/module-approval/LIVE states unchanged.
+
+## Package 1.1 v1.7 Reconsolidation — Product Owner Decision (`Consolidated Stable` — mechanical lifecycle transaction only)
+
+**Atomic mechanical reconsolidation-recording transaction — vai trò: `Package 1.1 v1.7 Mechanical Lifecycle Reconsolidation Recorder`.** Product Owner decision (verbatim): `APPROVE PACKAGE 1.1 V1.7 RECONSOLIDATION AT BOUNDARY 07e8e8920ea980450426a29e3413d2395a4ca2c8`, recorded `2026-08-28T09:34+07:00`. Does not make any new architecture decision. Does not alter any Module Registry semantic field. Does not change any Quality Tier. Does not perform Review A. Does not perform Independent Review B. Does not run or record the formal Feature Engine Chapter 13 Quality Gate. Does not approve the Feature module. Does not open the Phase 3 Approval Gate. Does not authorize LIVE. Does not start Context Aggregator.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `07e8e8920ea980450426a29e3413d2395a4ca2c8` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.262"` at start. `module-registry.yaml` confirmed matching expected starting state: `version: "1.7"`, `status: Draft`, `package_lifecycle: candidate`; `feature-engine.quality_tier` confirmed exactly `{tier: "Tier 1 — Core Logic", approved_by: "Product Owner", approved_at: "2026-08-28T08:33+07:00"}`, unchanged since the prior semantic amendment.
+
+### Three distinct governance/evidence boundaries (not to be conflated)
+
+```text
+Semantic amendment boundary (reviewed content — the v1.7 Feature-Engine-Tier-1 registry fact):
+  07e8e8920ea980450426a29e3413d2395a4ca2c8
+Tier-candidate boundary (parent of the semantic amendment, unchanged reference):
+  d6322cd8c075817389d99aa843555eb222819b16
+Mechanical lifecycle reconsolidation recorder boundary (this transaction's own commit):
+  a separate, later commit — never reinterpreted as the semantic amendment boundary above.
+```
+
+### Review evidence recorded
+
+```text
+ChatGPT bounded Review A, reviewed semantic boundary 07e8e8920ea980450426a29e3413d2395a4ca2c8:
+  P3-FEATURE-TIER-A-MIN-01 — CLOSED. P3-FEATURE-TIER-A-MIN-02 — CLOSED. Blocker 0. Major 0.
+  Qualifying Minor 0. Disposition: BOUNDED REVIEW A: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+Claude Independent Review B, same reviewed semantic boundary:
+  P3-FEATURE-TIER-A-MIN-01 — CLOSED. P3-FEATURE-TIER-A-MIN-02 — CLOSED. Blocker 0. Major 0.
+  Qualifying new Minor 0. Disposition: INDEPENDENT REVIEW B: CLEAN —
+  READY_FOR_PRODUCT_OWNER_PACKAGE_1_1_RECONSOLIDATION_DECISION.
+Minimum-two-review requirement (Chapter 11 §11.5): SATISFIED.
+Product Owner reconsolidation decision (verbatim): "APPROVE PACKAGE 1.1 V1.7
+  RECONSOLIDATION AT BOUNDARY 07e8e8920ea980450426a29e3413d2395a4ca2c8." Decision authority:
+  Product Owner. Decision timestamp: 2026-08-28T09:34+07:00 (minute precision as supplied —
+  no seconds field fabricated).
+```
+
+### Atomic lifecycle transition (mechanical only — Chapter 0 §7.1 package-lifecycle/artifact-status separation)
+
+```text
+module-registry.yaml: version "1.7" -> "1.7" (UNCHANGED — this transaction introduces no
+  semantic registry content, so no version bump); status "Draft" -> "Draft" (UNCHANGED);
+  package_lifecycle "candidate" -> "Consolidated Stable".
+No module_id/module_type/responsibilities/implements_capabilities/serves_contexts/
+  owns_authoritative_state/consumes/emits/depends_on/forbidden_dependencies/plugin_relation/
+  security_classification/phase/status/notes/quality_tier field changed on ANY of the 27
+  modules (script-verified: parsed old vs. new module-registry.yaml via PyYAML, `modules`
+  list byte-for-byte equal, zero per-module field differences found). `feature-engine.
+  quality_tier` verified byte-identical: `{tier: "Tier 1 — Core Logic", approved_by:
+  "Product Owner", approved_at: "2026-08-28T08:33+07:00"}` — untouched, exactly as recorded
+  by the prior semantic amendment. `Consolidated Stable` is a package lifecycle/readiness
+  state (Chapter 0 §7.1) — it does NOT mean the artifact is `Approved`/`Locked`; `status:
+  Draft` unchanged.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/architecture/system-decomposition.md unchanged (verified `git diff --quiet`) — this
+  semantic amendment affected Module Registry only; system-decomposition.md was not part of
+  the reviewed v1.7 semantic delta and is correctly left untouched. python/feature-engine/**,
+  tests, docs/domain/**, docs/constitution/**, docs/adr/**, docs/architecture/
+  input-contracts/**, docs/architecture/stream-registry.yaml, docs/architecture/engine/
+  feature-context-architecture.md, structure-engine/raw-regime-engine/go packages: all
+  verified byte-identical (`git diff --quiet` for each path). No Quality Tier changed. No
+  Quality Gate run. No package/gate state changed beyond `package_lifecycle` itself. Feature
+  module not approved. Phase 3 Approval Gate not opened. Context Aggregator not started.
+  LIVE not authorized. Files touched, confirmed via `git status --porcelain=v1`:
+  docs/architecture/module-registry.yaml, docs/MANIFEST.md, docs/CHANGELOG.md — no other
+  file touched.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier: RESOLVED — Tier 1 — Core Logic (module-registry.yaml v1.7,
+  unchanged by this transaction, Product-Owner-approved 2026-08-28T08:33+07:00).
+P3-FEATURE-TIER-A-MIN-01: CLOSED (Review A + Independent Review B, this transaction's own
+  reviewed boundary).
+P3-FEATURE-TIER-A-MIN-02: CLOSED (same).
+P3-FEATURE-A-MAJ-04: CLOSED (unchanged, prior Product Owner decision).
+P3-FEATURE-A-MAJ-06: CLOSED (unchanged, prior Product Owner decision).
+Feature Input Contract/Frontier package: Consolidated Stable (unchanged, unaffected).
+Package 1.1: `Consolidated Stable` (module-registry.yaml's own field) — artifact remains
+  `status: Draft`; `approved_by`/`approved_at` not applicable to Package 1.1 itself (Chapter
+  0 §7.1 separation).
+Formal Feature Engine Chapter 13 Quality Gate: NOT RUN.
+Feature module approval: NOT APPROVED.
+Phase 3 Approval Gate: NOT opened.
+Context Aggregator: NOT started by this transaction.
+LIVE: NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+The formal Feature Engine Chapter 13 Quality Gate, as its own separate, not-yet-initiated governed sequence — this transaction performs no step of that evaluation.
+
+**Files changed:** `docs/architecture/module-registry.yaml`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `python/feature-engine/**`, `docs/architecture/system-decomposition.md` verified byte-unchanged (`git diff --quiet` for each); no other file touched.
+
+**Resulting MANIFEST transition (authoritative tại atomic recording boundary — commit này):** `manifest_version` `10.262` → `10.263`. `current_phase` KHÔNG đổi — VẪN `"Phase 3 — Core Backend"`. Feature Tier/QG/module-approval/LIVE states unchanged from the prior transaction (see State summary above) — only Package 1.1's own `package_lifecycle` field transitions, from `candidate` to `Consolidated Stable`.
 
 ## Decision Log
 

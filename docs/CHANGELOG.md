@@ -2,6 +2,65 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-28 — Package 1.1 v1.7 Mechanical Lifecycle Reconsolidation (`Consolidated Stable` — NOT a semantic amendment)
+
+**Mechanical lifecycle reconsolidation transaction — vai trò: `Package 1.1 v1.7 Mechanical Lifecycle Reconsolidation Recorder`.** Records the Product Owner's approved reconsolidation of Package 1.1 after the Feature-Engine Tier-1 semantic amendment passed both independent reviews. Does not make any new architecture decision, does not alter any Module Registry semantic field, does not change any Quality Tier, does not perform Review A/B, does not run formal Chapter 13 QG, does not approve the Feature module, does not open the Phase 3 Approval Gate, does not authorize LIVE, does not start Context Aggregator.
+
+### Three distinct boundaries (not conflated)
+
+```text
+Semantic amendment boundary (reviewed content): 07e8e8920ea980450426a29e3413d2395a4ca2c8
+Tier-candidate boundary (unchanged parent reference): d6322cd8c075817389d99aa843555eb222819b16
+Mechanical reconsolidation recorder commit: this transaction's own separate commit
+```
+
+### Review evidence
+
+```text
+ChatGPT bounded Review A (reviewed semantic boundary 07e8e8920...): P3-FEATURE-TIER-A-MIN-01
+  CLOSED, P3-FEATURE-TIER-A-MIN-02 CLOSED, 0 Blocker/Major/qualifying-Minor. Disposition:
+  BOUNDED REVIEW A: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+Claude Independent Review B (same boundary): both Minors CLOSED, 0 Blocker/Major/qualifying-
+  new-Minor. Disposition: INDEPENDENT REVIEW B: CLEAN —
+  READY_FOR_PRODUCT_OWNER_PACKAGE_1_1_RECONSOLIDATION_DECISION.
+Product Owner decision (verbatim): "APPROVE PACKAGE 1.1 V1.7 RECONSOLIDATION AT BOUNDARY
+  07e8e8920ea980450426a29e3413d2395a4ca2c8." Timestamp: 2026-08-28T09:34+07:00.
+```
+
+### Atomic lifecycle transition (mechanical only)
+
+```text
+module-registry.yaml: version "1.7" -> "1.7" (UNCHANGED, no semantic content introduced);
+  status "Draft" -> "Draft" (UNCHANGED); package_lifecycle "candidate" -> "Consolidated
+  Stable". Script-verified (PyYAML parse, before vs. after): 27 modules, zero per-module
+  field differences; feature-engine.quality_tier byte-identical {tier: "Tier 1 — Core
+  Logic", approved_by: "Product Owner", approved_at: "2026-08-28T08:33+07:00"}; all other
+  modules' quality_tier and every other semantic field unchanged; dependency graph
+  unchanged.
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml, docs/MANIFEST.md, docs/CHANGELOG.md.
+  manifest_version "10.262" -> "10.263". system-decomposition.md and
+  python/feature-engine/** both verified byte-unchanged — no other file touched.
+```
+
+### State (after this transaction)
+
+```text
+Feature Engine Quality Tier: RESOLVED — Tier 1 — Core Logic (unchanged by this transaction).
+  P3-FEATURE-TIER-A-MIN-01/-MIN-02: CLOSED. Package 1.1: Consolidated Stable (status: Draft
+  unchanged). Formal Feature Engine Chapter 13 QG: NOT RUN. Feature module approval: NOT
+  APPROVED. Phase 3 Approval Gate: NOT opened. Context Aggregator: NOT started. LIVE:
+  NOT_AUTHORIZED. P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06: CLOSED (unchanged).
+```
+
+### Next governed action (not performed here)
+
+The formal Feature Engine Chapter 13 Quality Gate, as its own separate, not-yet-initiated governed sequence.
+
 ## [Unreleased] — 2026-08-28 — Feature Engine Tier-1 Module Registry Semantic Amendment (genuine registry fact addition — NOT a mechanical recorder)
 
 **Semantic Module Registry amendment — vai trò: `Feature Engine Tier-1 Module Registry Semantic Amendment Executor`.** Records the Product Owner's approved Feature-Engine Quality Tier decision as a genuine new authoritative `module-registry.yaml` fact (Chapter 13 §13.4 branch 1) — explicitly classified as a semantic amendment, not mechanical recording, correcting the prior candidate's own mischaracterization (`P3-FEATURE-TIER-A-MIN-02`). Does not perform Review A/B. Does not run formal Chapter 13 QG. Does not approve the Feature module. Does not authorize LIVE. Does not reconsolidate Package 1.1.
