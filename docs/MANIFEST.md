@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.265"
+manifest_version: "10.266"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -13403,6 +13403,148 @@ LIVE:                         NOT_AUTHORIZED, unreferenced.
 ```
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**`, all other implementation/test/Constitution/ADR/Domain-Contract/Input-Contract files verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.264"` → `"10.265"`.
+
+## Testing Convention v0.5 — Python Line+Branch Coverage Mechanism CANDIDATE (`coverage.py`, `CANDIDATE / UNAPPROVED` — no tool installed, no Feature coverage measured, no QG rerun)
+
+**Bounded semantic candidate-authoring transaction — vai trò: `Python QG Coverage Mechanism Candidate Author`.** Authors ONE bounded Python line+branch coverage measurement-mechanism candidate in `docs/engineering/testing.md`, targeting the mechanism prerequisite for `feature-engine`'s formal Chapter 13 QG findings `P3-FEATURE-QG-EVID-01` (line coverage) and `P3-FEATURE-QG-EVID-02` (branch coverage). Does NOT install or pin the candidate tool. Does NOT measure Feature Engine coverage. Does NOT modify Feature Engine implementation or tests. Does NOT close EVID-01/EVID-02. Does NOT rerun the Feature Engine Chapter 13 Quality Gate. Does NOT approve Feature Engine. Does NOT open the Phase 3 Approval Gate. Does NOT authorize LIVE. Does NOT start Context Aggregator.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `7572076c35d8e07fd29599dfde5dff9d26885db5` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.265"` at start. `docs/engineering/testing.md` confirmed matching expected starting state: `version: "0.4"`, `status: Approved`, `approved_by: Product Owner`, `approved_at: "2026-08-20"`. Governed state confirmed: `feature-engine` Quality Tier RESOLVED — Tier 1 — Core Logic; Package 1.1 Consolidated Stable; Feature formal Chapter 13 QG FAIL — evidence; Feature module NOT APPROVED; Phase 3 Approval Gate NOT OPENED; LIVE NOT_AUTHORIZED; Context Aggregator NOT STARTED.
+
+**Authority inspected fresh:** `docs/constitution/00-governance.md` (v1.2 Locked) §4b/§5.1/§7/§8; `docs/constitution/03-engineering-principles.md` (v1.4 Locked) §3.2; `docs/constitution/13-quality-gates.md` (v1.7 Locked) §13.3/§13.4/§13.8/§13.9/§13.14; `docs/engineering/testing.md` v0.4 in full, including the existing Go branch-coverage mechanism CANDIDATE history and its own ADR-scope disposition; `python/feature-engine/pyproject.toml`, `requirements-dev.lock.txt`, `src/feature_engine/**`, `tests/**` (read-only). Candidate research performed via primary upstream documentation (coverage.py's own ReadTheDocs pages, PyPI package metadata, GitHub issue tracker) and direct empirical verification in an isolated scratch venv located outside this repository (created, exercised, and discarded — never installed into `python/feature-engine` or any tracked path).
+
+### ADR Scope Rule (Chapter 0 §4b, run fresh — not copied from the Go gobco result)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: Chapter 13 §13.3 ("không khóa tool/vendor cụ thể, defer §13.14") and §13.14
+  ("concrete tooling... defer to Engineering Foundation Chapter 3 §3.2") are both Locked and
+  themselves designate Chapter 3 §3.2/Testing Convention as the authority for this decision.
+  Chapter 3 §3.2 (Locked v1.4) already carves out Testing Convention as owning style/tooling
+  only — a coverage-measurement mechanism is "tooling" in exactly that sense; the baseline
+  category (Testing Convention exists, tooling is its scope) is already established (v0.2
+  Approved, v0.4's own Go candidate already used this identical pattern). No Platform
+  Invariant, Event Schema, Module Taxonomy/dependency-graph, or Governance/Approval-process
+  change; no Locked ADR superseded; no hard-to-reverse lock-in (dev/test-time-only Python
+  package, Apache-2.0, zero transitive dependency at Python >=3.13, switching candidates
+  later only changes the invoked command + JSON fields read, never schema/infrastructure).
+  ">1 module" read per the same precedent already applied to gobco: selecting coverage.py
+  for feature-engine does not bind structure-engine/raw-regime-engine to the same tool —
+  each module's own future coverage-evidence transaction may independently re-verify/
+  re-select, per §13.14's own "no tool/vendor lock" text. No Chapter 13 floor/tier/pass-fail
+  semantic is redefined by the candidate (verified: no 90%/Tier-1 number is duplicated in the
+  candidate text — every threshold reference points back to Chapter 13, never restated).
+  Transaction installs nothing, measures nothing, reruns no QG — strengthens, not weakens,
+  ADR_NOT_REQUIRED. No GOVERNED_DECISION_REQUIRED escalation triggered.
+```
+
+### Living-document lifecycle
+
+```text
+docs/engineering/testing.md: version "0.4" -> "0.5"; status Approved -> Draft; approved_by
+  Product Owner -> null; approved_at "2026-08-20" -> null (Chapter 0 §5.1: semantic amendment
+  to an Approved living document requires a version bump and re-entry into the approval
+  gate). v0.4's own approval record (Review A/Independent Review B CLEAN, Product Owner
+  "APPROVE TESTING CONVENTION V0.4," 2026-08-20T09:22:00+07:00) is preserved byte-unchanged
+  below the new v0.5 banner as historical evidence — not rewritten, not erased. v0.5 is NOT
+  self-approved by this transaction.
+```
+
+### Candidate mechanism and research summary
+
+```text
+Targeted findings: P3-FEATURE-QG-EVID-01 (line coverage, FAIL — evidence) and
+  P3-FEATURE-QG-EVID-02 (branch coverage, FAIL — evidence) — mechanism prerequisite only;
+  neither finding is closed or remediated by this transaction.
+Candidate mechanism: coverage.py (PyPI package `coverage`, github.com/coveragepy/
+  coveragepy, latest verified release 7.15.4). Evaluated against all 20 governing criteria
+  via primary upstream docs + empirical scratch-venv verification (full reasoning recorded
+  in testing.md's own new subsection — not duplicated verbatim here, per I-12).
+Critical anti-conflation finding (new, not present in the Go gobco candidate): coverage.py's
+  own `coverage json` output exposes THREE percentage fields per file/total —
+  `percent_statements_covered` (line-only), `percent_branches_covered` (branch-only), and
+  `percent_covered` (BLENDED line+branch combined) — verified empirically via a toy-module
+  experiment (88% blended vs. 93.75% line-only vs. 75.0% branch-only on the same run). Only
+  the two independent fields may ever be used as Chapter 13's two required metrics; the
+  blended field and the default TEXT report's single "Cover" column must never be substituted
+  for either. Native `--fail-under` applies only to the blended value (confirmed via GitHub
+  Issue #1152, "Separate fail_under option for branch and statement coverage," open since
+  2021-04-29, no assignee/PR) — a future install transaction must self-compute pass/fail from
+  the two independent JSON fields against Chapter 13's own floor, never from the tool's own
+  CLI exit code.
+Branch semantics: arc-based (line-to-line transition pairs), single measurement mode (no
+  condition-vs-branch mode ambiguity, unlike gobco) — whole-controlling-condition granularity,
+  matching exactly the class of metric Chapter 13 §13.3 requires for the mandatory floor
+  (distinct from optional Condition/MC-DC coverage).
+Compatibility: empirically verified against Python 3.13.6 and pytest 9.1.1 — feature-engine's
+  own exact current toolchain versions. The one non-trivial syntax construct feature-engine's
+  own source actually uses beyond ordinary Python (PEP 695 generic function syntax,
+  `contracts.py`'s `normalize_input_facts[T]`) was empirically reproduced in a toy module and
+  measured correctly, no parse failure.
+License/dependency/maintenance: Apache-2.0; zero transitive runtime dependency at Python
+  >=3.13 (verified via PyPI `requires_dist` — the sole conditional dependency, `tomli`, does
+  not apply above Python 3.11); de-facto Python ecosystem coverage standard, materially
+  healthier maintenance profile than gobco's single-maintainer project.
+Alternatives evaluated and rejected: pytest-cov (adds a plugin layer wrapping the same
+  underlying engine; not chosen for the simpler direct-invocation pattern, not permanently
+  excluded); slipcover (smaller community, not an ecosystem default); manual/ad-hoc
+  sys.settrace instrumentation and line-to-branch estimation (both explicitly rejected, same
+  reasoning already applied to the Go candidate's own rejected alternatives).
+```
+
+### Installation-time verification contract (recorded in testing.md, referenced here)
+
+```text
+Any future install/pin transaction must freshly verify, fail-closed if unresolved: exact
+  package/tool identity and pinned version; Python 3.13 compatibility at install time; current
+  feature-engine pytest-version compatibility; exact line- and branch-coverage invocation;
+  numerator/denominator field names (percent_statements_covered/percent_branches_covered,
+  not percent_covered); branch semantics unchanged (arc-based, not condition-decomposition);
+  source/omit boundary scoped to python/feature-engine/src/feature_engine/** only (never
+  tests/, never excluding difficult authoritative code to inflate the metric); machine-
+  readable JSON output; that Chapter 13 pass/fail is self-computed from the two independent
+  fields, never from coverage.py's own --fail-under exit code; reproducibility in a clean
+  venv; and re-scan for any new unsupported Python construct added to feature-engine since
+  this candidate was authored.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/**, pyproject.toml, requirements-dev.lock.txt, CI/CD workflows,
+  docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**,
+  docs/architecture/input-contracts/**, docs/architecture/stream-registry.yaml, Feature/
+  Context architecture: all verified byte-identical (`git diff --quiet` for each path). No
+  tool installed or pinned anywhere in the repository (all research/experimentation performed
+  in a scratch venv outside the repository, created and discarded, never touching any tracked
+  path). No Feature Engine coverage measured. No Feature Chapter 13 QG rerun. Existing Go
+  branch-coverage mechanism/history in testing.md (gobco candidate, `P3-GOBC-A-MAJ-01`
+  closure evidence) verified byte-unchanged. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/engineering/testing.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:          version "0.5", status Draft, CANDIDATE / UNAPPROVED (Python
+                              coverage mechanism only) — v0.4's own approval record preserved
+                              historically; existing Go branch-coverage candidate unaffected.
+P3-FEATURE-QG-EVID-01:        FAIL — evidence (unchanged — NOT closed/remediated).
+P3-FEATURE-QG-EVID-02:        FAIL — evidence (unchanged — NOT closed/remediated).
+Feature Engine Quality Tier:  RESOLVED — Tier 1 — Core Logic (unchanged).
+Feature formal Chapter 13 QG: FAIL — evidence (unchanged, not rerun).
+Feature module approval:      NOT APPROVED.
+Phase 3 Approval Gate:        NOT opened.
+Context Aggregator:           NOT started.
+Package 1.1:                  Consolidated Stable (unchanged, unaffected).
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+ChatGPT bounded Review A of this candidate, then Independent Review B, then a separate Product Owner decision on the candidate, then — if approved — a separate installation/pinning transaction (applying the full installation-time verification contract above), then a separate formal Feature Engine Chapter 13 Quality Gate re-evaluation. None performed here, none collapsed into this transaction.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**` both verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.265"` → `"10.266"`.
 
 ## Decision Log
 

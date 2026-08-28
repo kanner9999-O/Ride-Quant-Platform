@@ -2,6 +2,77 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-28 — Testing Convention v0.5: Python Line+Branch Coverage Mechanism CANDIDATE (`coverage.py`, unapproved, not installed)
+
+**Bounded semantic candidate-authoring transaction — vai trò: `Python QG Coverage Mechanism Candidate Author`.** Authors a Python line+branch coverage measurement-mechanism candidate targeting the tooling prerequisite for `feature-engine`'s formal Chapter 13 QG findings `P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02`. Does not install/pin any tool, does not measure Feature Engine coverage, does not close either finding, does not rerun the Feature QG, does not approve the module, does not authorize LIVE.
+
+### Living-document lifecycle
+
+```text
+docs/engineering/testing.md: version "0.4" -> "0.5"; status Approved -> Draft; approved_by/
+  approved_at reset to null (Chapter 0 §5.1 — semantic amendment to an Approved living
+  document). v0.4's own approval record is preserved byte-unchanged as historical evidence.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — run fresh, not copied from the prior Go gobco result. Chapter 13 §13.3/
+  §13.14 (Locked) delegate coverage-tooling selection to Chapter 3 §3.2/Testing Convention;
+  no Platform Invariant/Event Schema/Module Taxonomy/dependency-graph/Governance-process
+  change; no Locked ADR superseded; no hard-to-reverse lock-in.
+```
+
+### Candidate mechanism: coverage.py
+
+```text
+PyPI package `coverage` (github.com/coveragepy/coveragepy, verified latest 7.15.4).
+  Evaluated against 20 criteria via primary upstream documentation and empirical
+  verification in an isolated scratch venv OUTSIDE this repository (created, exercised,
+  discarded — nothing installed into python/feature-engine).
+Critical anti-conflation finding (new vs. the Go candidate): `coverage json` exposes THREE
+  percentage fields — percent_statements_covered (line-only), percent_branches_covered
+  (branch-only), and percent_covered (BLENDED line+branch) — verified empirically (88%
+  blended vs. 93.75% line vs. 75.0% branch on the same experimental run). Only the two
+  independent fields may serve as Chapter 13's two required metrics; the blended field and
+  the default text report's single "Cover" column must never substitute for either. Native
+  --fail-under applies only to the blended value (confirmed via GitHub Issue #1152, open
+  since 2021-04-29) — a future install transaction must self-compute pass/fail from the two
+  independent fields, never from the tool's own exit code.
+Branch semantics: arc-based, single measurement mode (no condition-vs-branch ambiguity
+  unlike gobco) — whole-controlling-condition granularity, matching Chapter 13's required
+  metric class. Empirically verified Python 3.13.6 + pytest 9.1.1 compatibility (feature-
+  engine's own exact toolchain), including correct handling of the one PEP 695 generic-
+  function syntax construct feature-engine's source actually uses. Apache-2.0 license, zero
+  transitive dependency at Python >=3.13, de-facto ecosystem standard.
+Alternatives evaluated and rejected: pytest-cov (unnecessary plugin layer over the same
+  engine), slipcover (smaller community, not an ecosystem default), manual sys.settrace
+  instrumentation, and line-to-branch estimation (both explicitly rejected).
+```
+
+### Files changed
+
+```text
+docs/engineering/testing.md, docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version
+  "10.265" -> "10.266". No other file touched — python/feature-engine/**, pyproject.toml,
+  requirements-dev.lock.txt, and module-registry.yaml all verified byte-unchanged. No tool
+  installed or pinned anywhere in the repository.
+```
+
+### State (unchanged by this transaction)
+
+```text
+P3-FEATURE-QG-EVID-01/-EVID-02: FAIL — evidence (not closed/remediated). Feature Engine
+  Quality Tier: RESOLVED — Tier 1 — Core Logic. Feature formal Chapter 13 QG: FAIL —
+  evidence (not rerun). Feature module approval: NOT APPROVED. Phase 3 Approval Gate: NOT
+  opened. Context Aggregator: NOT started. Package 1.1: Consolidated Stable. LIVE:
+  NOT_AUTHORIZED.
+```
+
+### Next governed action (not performed here)
+
+ChatGPT bounded Review A, then Independent Review B, then a separate Product Owner decision on the candidate, then (if approved) a separate installation/pinning transaction applying the installation-time verification contract, then a separate formal Feature Engine Chapter 13 QG re-evaluation.
+
 ## [Unreleased] — 2026-08-28 — Feature Engine: Formal Chapter 13 QG Evidence Bounded Correction (I-1/I-13 disposition fidelity — additive, original evidence preserved)
 
 **Bounded, additive correction of the formal Chapter 13 Quality Gate evidence recorded at commit `20ebd2dff43992fb7dbce2cf04fe37184ee0983e`.** Corrects exactly two semantic defects found by ChatGPT bounded Review A. Does not modify implementation/tests, does not install any coverage/mutation/property-based/parity tooling, does not approve the module, does not open the Phase 3 Approval Gate, does not authorize LIVE. The original QG evidence section remains preserved byte-unchanged as historical evidence; this is a superseding correction of its I-1/I-13 interpretation and finding inventory only. **Overall result remains `FAIL — evidence` — not converted to PASS.**

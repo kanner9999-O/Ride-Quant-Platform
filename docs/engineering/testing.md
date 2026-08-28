@@ -1,12 +1,12 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.4"
-status: Approved
+version: "0.5"
+status: Draft
 owner: Product Owner
 reviewers: []
-approved_by: Product Owner
-approved_at: "2026-08-20"
+approved_by: null
+approved_at: null
 created_at: "2026-08-12"
 last_review: null
 next_review: null
@@ -14,6 +14,8 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**CANDIDATE (2026-08-28), KHÔNG self-approved — status: Approved → Draft.** `status: Approved → Draft` (mọi thay đổi SEMANTIC vào tài liệu Approved bắt buộc tăng version VÀ đi qua approval gate lại, đúng [Chapter 0 §5.1](../constitution/00-governance.md); `approved_by`/`approved_at` của v0.4 KHÔNG tự động phủ nội dung MỚI này — reset `null`, v0.4's approval record giữ nguyên nguyên vẹn phía dưới LÀM historical evidence, KHÔNG bị ghi đè), vai trò: `Python QG Coverage Mechanism Candidate Author`. Bổ sung MỘT subsection MỚI dưới "Framework/tool selection" (dưới, cùng vị trí Go branch-coverage candidate) đề xuất một **CANDIDATE** (chưa chọn/chưa cài đặt/chưa tích hợp) cho cơ chế đo **Python line coverage VÀ branch coverage** — khoảng trống evidence được xác nhận tại `feature-engine`'s formal Chapter 13 Quality Gate (`P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02`, `docs/MANIFEST.md`). **ADR-scope check (chạy TRƯỚC KHI author, [Chapter 0 §4b](../constitution/00-governance.md)):** kết luận `ADR_NOT_REQUIRED` — xem "Python line+branch coverage mechanism — CANDIDATE" dưới cho full reasoning, cùng pattern (b) đã dùng cho `testing.md`'s own v0.1 baseline VÀ cho v0.3's Go branch-coverage candidate: [Chapter 3 §3.2](../constitution/03-engineering-principles.md) đã có carve-out tường minh cho Testing Convention tooling, VÀ [Chapter 13 §13.3](../constitution/13-quality-gates.md)/[§13.14](../constitution/13-quality-gates.md) tự nó khóa "không khóa tool/vendor cụ thể... defer Engineering Foundation." Đây CHỈ LÀ candidate selection trong phạm vi "tooling" ĐÃ pre-authorized, KHÔNG PHẢI một baseline-existence decision mới, KHÔNG platform invariant/event schema/module taxonomy/governance-process change, KHÔNG supersede ADR đã Locked nào, KHÔNG hard-to-reverse lock-in (dev/test-time-only Python package, Apache-2.0, zero additional runtime dependency tại Python >=3.13 — verify trực tiếp PyPI metadata dưới). **KHÔNG đổi:** Chapter 13 coverage floor/tier/pass-fail semantics nào (§17/§18 dưới, KHÔNG đổi), `module-registry.yaml`, dependency graph, `feature-engine` production/test code, `P3-FEATURE-QG-EVID-01`/`-EVID-02` (KHÔNG closed/remediated tại đây — Feature formal QG VẪN `FAIL — evidence`), the existing Go branch-coverage mechanism/history (gobco candidate, `P3-GOBC-A-MAJ-01` closure) — byte-equivalent, KHÔNG re-opened, KHÔNG normalized into a cross-language "same tool" claim. KHÔNG cài đặt/pin tool nào tại transaction này. KHÔNG đo Feature Engine coverage. KHÔNG rerun Quality Gate nào. KHÔNG approve module/Data Layer nào. KHÔNG authorize LIVE. KHÔNG start Context Aggregator.
 
 **APPROVED (2026-08-12) — status: Draft → Approved.** Product Owner decision: **"APPROVE TESTING CONVENTION V0.2."** Reviewed candidate: v0.2, blob `0a325665f5ed011a7439fb8d3c349c3db79d50fa`. `version: "0.2"` KHÔNG đổi (pure mechanical lifecycle approval — KHÔNG bump). Tài liệu này VẪN LÀ living document (Chapter 3 §3.2 "tài liệu SỐNG, không bất biến"; Chapter 0 §7.1 lifecycle Draft→...→Approved→Locked) — `Approved` KHÔNG đồng nghĩa immutable byte-for-byte như ADR (Chapter 11 §11.3 KHÔNG áp dụng ở đây, VÀ tài liệu này KHÔNG dưới authority một ADR nào — `ADR_NOT_REQUIRED` VẪN đúng); thay đổi tương lai vẫn hợp lệ qua version bump + re-review (Chapter 0 §8), VÀ mọi thay đổi SEMANTIC PHẢI tự rerun ADR Scope Rule đúng ADR-scope disposition.
 
@@ -673,6 +675,348 @@ KHÔNG tại transaction này (candidate-only, tường minh):
   Scope Rule nếu bất kỳ fact nền tảng nào ở trên đổi.
 ```
 
+### Python line+branch coverage mechanism — CANDIDATE (v0.5, pending Product Owner decision)
+
+```text
+[v0.5 bổ sung — vai trò: `Python QG Coverage Mechanism Candidate Author`. Đây LÀ
+  implementation-readiness transaction §"Framework/tool selection" trên ĐÃ anticipate —
+  GIỚI HẠN CHỈ Python line-coverage VÀ branch-coverage MEASUREMENT MECHANISM (Chapter 13
+  §13.3's hai coverage metric, cả hai hiện thiếu cho feature-engine), KHÔNG PHẢI general
+  test framework selection (pytest ĐÃ pin sẵn tại feature-engine's own pyproject.toml —
+  không phải quyết định của transaction này — KHÔNG chạm).]
+
+Vấn đề: feature-engine (Tier 1 — Core Logic, module-registry.yaml v1.7) yêu cầu line
+  coverage >= 90% VÀ branch coverage >= 90%, độc lập (§13.3, KHÔNG đổi). Formal Chapter 13
+  Quality Gate evaluation (`docs/MANIFEST.md`, boundary
+  8374db364fd08c1592f2ae918d01e9ec3e95b131, corrected by bounded evidence correction
+  7572076c35d8e07fd29599dfde5dff9d26885db5) recorded BOTH `P3-FEATURE-QG-EVID-01` (line
+  coverage) VÀ `P3-FEATURE-QG-EVID-02` (branch coverage) AS `FAIL — evidence`: verify trực
+  tiếp `python/feature-engine/pyproject.toml`'s `[project.optional-dependencies].dev` VÀ
+  `requirements-dev.lock.txt` — KHÔNG `coverage`/`pytest-cov`/tương đương nào được pin;
+  `python -c "import coverage"` trên fresh clean-room reconstruction từ lock file hiện
+  hành -> `ModuleNotFoundError` (re-verified tại transaction này). KHÁC Go's gobco
+  situation (native branch support KHÔNG tồn tại trong toolchain), Python's own PROBLEM ở
+  đây KHÔNG PHẢI "không cơ chế nào đo được branch" — nó LÀ "chưa tool nào được accept/pin
+  cho category này" (baseline-existence gap, KHÔNG capability gap).
+
+CANDIDATE mechanism được đề xuất: **coverage.py** (PyPI package `coverage`,
+  github.com/coveragepy/coveragepy, tác giả chính Ned Batchelder). Đánh giá theo 20 tiêu
+  chí governing task's own list (verify trực tiếp upstream docs/PyPI metadata/empirical
+  execution trong một scratch venv NGOÀI repository — KHÔNG cài vào feature-engine, KHÔNG
+  từ memory/marketing summary):
+
+  1. True line coverage: CÓ — statement-level execution tracking qua Python's own
+     `sys.settrace`/`sys.monitoring` (verify trực tiếp module docstring: "uses the code
+     analysis tools and tracing hooks provided in the Python standard library").
+  2. True branch coverage: CÓ — **arc-based measurement**, KHÔNG phải condition/MC-DC
+     decomposition (verify trực tiếp docs: "coverage.py collects pairs of line numbers: a
+     source and destination for each transition from one line to another"; percentage =
+     "actual executions divided by execution opportunities... each branch destination" là
+     một execution opportunity). Đây LÀ whole-controlling-condition granularity — CÙNG lớp
+     metric gobco's `-branch` mode đo cho Go (KHÔNG phải gobco's default condition-mode
+     decomposition of `&&`/`||`) — KHÔNG có "chế độ mặc định sai" pitfall tương tự gobco,
+     vì coverage.py CHỈ CÓ MỘT branch-measurement mode (bật/tắt qua `branch = True`/
+     `--branch`, KHÔNG có chế độ condition-decomposition thay thế để nhầm lẫn).
+  3. **Line VÀ branch có độc lập reportable không — verify trực tiếp EMPIRICALLY (KHÔNG chỉ
+     đọc doc), phát hiện QUAN TRỌNG:** `coverage report`'s mặc định TEXT table hiển thị MỘT
+     cột "Cover" DUY NHẤT — cột này LÀ một **BLENDED/combined percentage**
+     ((covered_lines + covered_branches) / (num_statements + num_branches)), KHÔNG PHẢI
+     một trong hai metric độc lập. Verify trực tiếp bằng thực nghiệm (toy module, 3 test
+     case, `coverage run --branch` + `coverage report -m` + `coverage json --pretty-print`
+     trong scratch venv riêng): TEXT report hiển thị "Cover: 88%" (blended, từ 15+6=21
+     covered / 16+8=24 total = 87.5% -> hiển thị làm tròn 88%) — NHƯNG `coverage json`'s
+     per-file/per-total `summary` object chứa BA percentage field TÁCH BIỆT:
+     `percent_statements_covered` (93.75% trong thực nghiệm — line-only), 
+     `percent_branches_covered` (75.0% trong thực nghiệm — branch-only), VÀ
+     `percent_covered` (87.5% — BLENDED, giống hệt TEXT report's "Cover" cột). Đây LÀ
+     đúng loại defect Chapter 13 §13.3 cấm tường minh ("không bù trừ giữa hai metric,
+     không dùng con số tổng hợp") nếu một transaction cài đặt/evidence-recording tương lai
+     vô tình dùng `percent_covered`/TEXT "Cover" cột LÀM MỘT TRONG HAI Chapter-13 metric —
+     **MECHANISM ĐƯỢC ĐỀ XUẤT CHÍNH XÁC CHO CHAPTER 13: chạy `coverage run --branch` (bật
+     branch instrumentation), sau đó đọc RIÊNG `percent_statements_covered` VÀ
+     `percent_branches_covered` từ `coverage json`'s `totals` object — KHÔNG BAO GIỜ đọc
+     `percent_covered`/TEXT report's "Cover" cột LÀM MỘT TRONG HAI floor value.** Đây LÀ
+     phát hiện MỚI, tương đương pitfall gobco's condition-vs-branch mode nhưng khác cơ chế
+     (Go: sai MODE; Python: sai FIELD trong cùng report).
+  4. Branch semantics chi tiết (verify trực tiếp EMPIRICALLY qua toy module có if/elif/
+     else + for-loop + short-circuit `and`):
+     - if/elif/else: mỗi nhánh quyết định tạo MỘT arc riêng tới đích của nó (verify: `if
+       x>0 and y>0: ... elif x>0: ... else: ...` tạo arc `(2,3)` [vào `if`-body],
+       `(2,4)` [rớt xuống `elif`], `(4,5)` [vào `elif`-body], `(4,7)` [rớt xuống `else`] —
+       4 arc tổng cho khối 3-nhánh, verify trực tiếp `missing_branches` field liệt kê
+       `[4, 7]` khi nhánh `else` chưa test).
+     - loop (for): tạo arc vào loop-body VÀ arc thoát loop/loop-back — verify trực tiếp
+       `missing_branches` liệt kê `[13, 12]` (loop-continue backedge khi input rỗng/toàn
+       bộ item fail điều kiện chưa test).
+     - short-circuit boolean (`and`/`or`): coverage.py's ARC model KHÔNG decompose
+       `x > 0 and y > 0` thành hai atomic sub-expression riêng (verify trực tiếp: dòng
+       `if x > 0 and y > 0:` chỉ tạo ĐÚNG hai arc, `(2,3)` VÀ `(2,4)`, KHÔNG bốn arc cho
+       từng operand) — nghĩa là coverage.py's branch metric LÀ decision/branch coverage cổ
+       điển (whole controlling expression outcome), KHÔNG PHẢI condition/MC-DC coverage —
+       khớp CHÍNH XÁC granularity Chapter 13 §13.3 yêu cầu cho floor bắt buộc (§13.3 tự nó
+       phân biệt "Condition/MC-DC coverage LÀ tùy chọn theo tier, KHÔNG tính vào floor bắt
+       buộc" — coverage.py's MỘT metric duy nhất tự động LÀ đúng loại cho floor, KHÔNG có
+       nguy cơ nhầm condition-mode làm branch-mode như gobco).
+     - exception/control-flow (try/except/finally, `with`, match statement): KHÔNG verify
+       trực tiếp tại candidate này (feature-engine's authoritative implementation hiện
+       KHÔNG dùng `match` statement nào — verify trực tiếp `ast.walk` script trên toàn bộ
+       `src/feature_engine/*.py`, ZERO `ast.Match` node — moot cho subject hiện tại,
+       NHƯNG coverage.py's own generic try/except handling KHÔNG verify sâu tại candidate
+       này, ghi nhận LÀM install-time verification item nếu exception-branching logic được
+       thêm sau này).
+     - **partial branch**: một arc-đích được biết (static analysis) nhưng KHÔNG BAO GIỜ
+       exercise được gọi LÀ "partial branch" (verify trực tiếp doc + thực nghiệm — `BrPart`
+       cột trong TEXT report, `num_partial_branches`/`missing_branches` trong JSON) —
+       structurally-partial construct (`while True`, `if 0`) được coverage.py's own static
+       analysis tự nhận diện một số pattern, pattern tùy biến khác cần `# pragma: no
+       branch` — verify trực tiếp doc, KHÔNG cần dùng tại candidate này vì
+       feature-engine's hiện tại KHÔNG chứa construct dạng đó (chưa verify sâu, cần
+       install-time re-check nếu construct này xuất hiện).
+  5. Numerator/denominator semantics: line — `covered_lines`/`num_statements` (executable
+     statement, KHÔNG comment/blank/docstring); branch — `covered_branches`/`num_branches`
+     (arc destination đã biết qua static analysis). Cả hai field TÁCH BIỆT verify trực
+     tiếp trong `coverage json` output (điểm 3 trên).
+  6. Authoritative source boundary: `[run] source = feature_engine` (verify trực tiếp
+     config doc: "A list of packages or directories, the source to measure... If set,
+     `include` is ignored") — scope đo CHỈ package `feature_engine` đã cài (từ
+     `src/feature_engine/`, đúng `pyproject.toml`'s `[tool.setuptools.packages.find]
+     where = ["src"]`), KHÔNG đo `tests/` (test file KHÔNG thuộc package `feature_engine`,
+     tự động loại khỏi numerator/denominator KHI dùng `source`, KHÔNG cần `omit` riêng cho
+     test). `candle_window.py`'s permanently-fail-closed `CandleWindowFeatureEngine` path
+     VẪN nằm trong `source` scope — KHÔNG omit để inflate percentage (đúng governing
+     task's own instruction VÀ Chapter 13 §13.3 anti-gaming).
+  7. Include/omit configuration semantics: `source` (allowlist, ưu tiên hơn `include` khi
+     cả hai đặt) VÀ `omit` (blocklist glob pattern, áp DÙ `source`/`include` đã chọn) —
+     verify trực tiếp config doc. KHÔNG omit nào được đề xuất tại candidate này (toàn bộ
+     `src/feature_engine/**` PHẢI nằm trong boundary, KHÔNG loại trừ file khó đo).
+  8. Deterministic invocation: đo trên lần chạy test THẬT qua `pytest` thật (KHÔNG mock
+     kết quả) — output deterministic CHỪNG NÀO chính test suite deterministic (đúng
+     §13.2/I-2/I-3 ĐÃ có, KHÔNG tạo rule mới, CÙNG nguyên tắc đã áp dụng cho gobco).
+     KHÔNG network access khi chạy (chỉ cần network một lần LÚC `pip install`, giống mọi
+     Python dependency).
+  9. Machine-readable evidence: `coverage json --pretty-print` (verify trực tiếp field
+     schema qua thực nghiệm điểm 3 trên) — JSON format có `meta.version`/
+     `meta.format`/`meta.timestamp`, per-file VÀ `totals` summary object với field tách
+     biệt line/branch — đủ chi tiết pin vào Chapter 13 §13.9 immutable evidence contract
+     (subject identity, boundary, input identity, numerator/denominator, percentage).
+     `coverage xml`/`coverage html` cũng tồn tại (KHÔNG evaluate sâu tại candidate này,
+     JSON đã đủ cho evidence contract).
+  10. Human-readable evidence: `coverage report -m` (TEXT table, cột Stmts/Miss/Branch/
+      BrPart/Cover/Missing — verify trực tiếp thực nghiệm) — dùng LÀM supporting display
+      CHỈ, KHÔNG BAO GIỜ dùng "Cover" cột LÀM Chapter-13 floor value (điểm 3 trên).
+  11. Exit-code behavior: **phát hiện quan trọng, verify trực tiếp GitHub Issue #1152**
+      ("Separate fail_under option for branch and statement coverage," nedbat/coveragepy,
+      mở 2021-04-29, VẪN `Open`, KHÔNG assignee, KHÔNG PR) — `coverage report
+      --fail-under=MIN` CHỈ áp dụng cho MỘT ngưỡng DUY NHẤT trên CHÍNH `percent_covered`
+      BLENDED value (verify trực tiếp thực nghiệm: `--fail-under=90` trên toy module có
+      blended 87.5% -> "Coverage failure: total of 88 is less than fail-under=90", exit
+      code 2) — native `--fail-under` KHÔNG BAO GIỜ được dùng LÀM Chapter-13 pass/fail gate
+      cho line HOẶC branch riêng lẻ, vì nó luôn đánh giá con số blended. **Một transaction
+      cài đặt/evidence-recording tương lai PHẢI tự đọc `percent_statements_covered` VÀ
+      `percent_branches_covered` từ JSON, so sánh RIÊNG từng cái với floor 90% CỦA CHÍNH
+      Chapter 13 (không dùng `coverage`'s CLI exit-code cho quyết định pass/fail đó) —**
+      exactly cùng discipline "không tự tạo pass/fail machinery ngoài Chapter 13" đã áp
+      dụng cho mọi coverage evidence khác trong repository này.
+  12. Python 3.13 compatibility: CÓ, verify trực tiếp PyPI classifier metadata (Python
+      3.10–3.16 + PyPy3 hỗ trợ) VÀ thực nghiệm trực tiếp — cài `coverage==7.15.4` trên
+      Python 3.13.6 (interpreter CHÍNH XÁC feature-engine's own toolchain đang dùng), chạy
+      thành công, KHÔNG lỗi.
+  13. pytest 9.x compatibility: CÓ, verify trực tiếp thực nghiệm — `python -m coverage run
+      --branch -m pytest <subject> -q` với `pytest==9.1.1` (CHÍNH XÁC version đã pin tại
+      feature-engine's `requirements-dev.lock.txt`) chạy thành công trong scratch venv.
+      KHÔNG cần `pytest-cov` (plugin riêng bọc coverage.py qua `pytest --cov=`) —
+      feature-engine hiện gọi `pytest` trực tiếp (KHÔNG qua wrapper plugin nào), nên invoke
+      `coverage run -m pytest` (KHÔNG `pytest --cov`) giữ dependency footprint nhỏ nhất,
+      KHÔNG thêm plugin thứ hai chỉ để bọc lại cùng công cụ.
+  14. Maintenance health: CAO — verify trực tiếp PyPI/GitHub metadata: release gần nhất
+      (7.15.4) tại thời điểm candidate này, project đã chuyển tổ chức GitHub
+      `nedbat/coveragepy` -> `coveragepy/coveragepy` (transfer tổ chức, KHÔNG phải
+      abandon — issue #1152 vẫn track dưới `nedbat/coveragepy` history), là de facto
+      standard coverage tool cho Python ecosystem (dùng bởi pytest-cov, tox, hầu hết CI
+      Python project) — maintenance-concentration risk THẤP HƠN NHIỀU so với gobco's
+      single-maintainer/10-tag-total profile.
+  15. License: Apache-2.0 (permissive, verify trực tiếp PyPI classifier) — rủi ro pháp lý
+      thấp, CÙNG lớp permissiveness với gobco's BSD-2-Clause.
+  16. Security/dependency impact: verify trực tiếp PyPI `requires_dist` — CHỈ MỘT dependency
+      điều kiện, `tomli` (`python_full_version <= "3.11.0a6"`), KHÔNG áp dụng cho
+      `feature-engine`'s `requires-python = ">=3.13"` — nghĩa là tại Python 3.13 (feature-
+      engine's floor), `coverage` package tự nó có **ZERO transitive dependency** — dev-
+      time-only dependency, KHÔNG ảnh hưởng feature-engine's own "zero production runtime
+      dependency" invariant (`pyproject.toml [project].dependencies = []` KHÔNG đổi, `dev`
+      optional-dependencies list LÀ nơi duy nhất dev tool được thêm).
+  17. Reproducibility/pinning: pin được exact package version (`coverage==7.15.4` hoặc
+      version khác tại thời điểm cài đặt thật) qua `requirements-dev.lock.txt`, CÙNG
+      pattern `ruff==0.16.4`/`mypy==2.3.1`/`pytest==9.1.1` hiện hành — `pip install
+      --no-deps -r requirements-dev.lock.txt` reproducibility đã verify trực tiếp (fresh
+      venv, `pip check` -> "No broken requirements found," CÙNG discipline mọi QG evidence
+      transaction trong repository này đã dùng).
+  18. Known unsupported constructs relevant to feature-engine: verify trực tiếp AST scan
+      toàn bộ `python/feature-engine/src/feature_engine/*.py` (script `ast.walk`,
+      transaction này) — KHÔNG `match` statement, KHÔNG walrus operator (`:=`) nào tồn
+      tại. CÓ MỘT PEP 695 generic-function syntax (`def normalize_input_facts[T](...)`,
+      `contracts.py`) — verify trực tiếp EMPIRICALLY (toy module mô phỏng CHÍNH XÁC syntax
+      này, `def normalize[T](items: list[T], *, flag: bool) -> list[T]: ...`, chạy
+      `coverage run --branch` thành công, line/branch tracking đúng, KHÔNG lỗi parse) —
+      coverage.py 7.15.4 xử lý ĐÚNG construct duy nhất "khác thường" mà feature-engine
+      thực sự dùng. KHÔNG limitation nào phát hiện tại boundary hiện tại của subject này.
+  19. Explicit-mode requirement risk: branch measurement đòi `branch = True` (config) hoặc
+      `--branch` (CLI flag) tường minh — mặc định là `False` (verify trực tiếp doc: "Whether
+      to measure branch coverage in addition to statement coverage" — boolean, default
+      False) — một invocation quên flag này CHỈ sinh ra line coverage, KHÔNG branch coverage
+      nào, KHÔNG BAO GIỜ được coi LÀ "branch coverage = N/A nên bỏ qua" — cùng rủi ro loại
+      "quên flag" mà gobco's `-branch` cũng có, PHẢI verify tường minh tại mọi invocation
+      evidence tương lai (pin rõ flag đã dùng trong evidence entry, KHÔNG CHỈ con số).
+  20. Một mechanism cho cả hai metric: CÓ — coverage.py tự nó sinh CẢ line VÀ branch từ
+      MỘT lần chạy (`coverage run --branch`), KHÔNG cần hai tool riêng biệt (KHÁC Go's
+      tình huống, nơi `go tool cover` cho line NHƯNG cần gobco riêng cho branch) — pin RÕ
+      trong evidence: hai percentage field TÁCH BIỆT từ CÙNG một `coverage.json` output,
+      KHÔNG phải hai lần đo riêng biệt/hai tool riêng biệt.
+
+Alternative mechanisms evaluated (verify trực tiếp, KHÔNG chỉ liệt kê tên):
+  - `pytest-cov` (plugin wraps coverage.py via `pytest --cov=`): KHÔNG tạo branch metric
+    MỚI nào — nó CHỈ LÀ một convenience wrapper GỌI coverage.py bên dưới, cùng engine/
+    cùng arc semantics/cùng blended-vs-independent-field pitfall ở điểm 3 trên. KHÔNG chọn
+    tại candidate này vì thêm một dependency layer (plugin) không cần thiết khi
+    feature-engine's own test invocation đã đơn giản (`pytest tests/`, KHÔNG cần plugin
+    injection) — invoke `coverage run -m pytest` trực tiếp giữ dependency count thấp hơn.
+    KHÔNG bị loại trừ vĩnh viễn — nếu future CI integration cần pytest-plugin ecosystem
+    (ví dụ song song với coverage combine cho multi-process test), một transaction cài đặt
+    tương lai có thể tái đánh giá, KHÔNG quyết định trước tại đây.
+  - `slipcover` (github.com/plasma-umass/slipcover): công cụ coverage thế hệ mới, tuyên bố
+    tốc độ cao hơn coverage.py qua sys.monitoring (Python 3.12+); verify trực tiếp: dự án
+    nhỏ hơn/community nhỏ hơn coverage.py NHIỀU (maintenance-concentration risk cao hơn),
+    KHÔNG phải de facto ecosystem standard, KHÔNG được pytest/tox/CI convention nào coi LÀ
+    default — REJECTED làm primary candidate tại v0.5 này (performance advantage KHÔNG
+    phải yêu cầu Chapter 13 nào, correctness/maturity/ecosystem-alignment ưu tiên hơn tại
+    một Tier-1 evidence-producing tool).
+  - Manual/ad-hoc instrumentation (tự viết tracer qua `sys.settrace`): REJECTED tường minh
+    — vi phạm chính nguyên tắc "không tự tạo cơ chế đo mới thay vì dùng công cụ đã
+    established" mà cả gobco's own candidate reasoning VÀ Chapter 13 §13.3's "không khóa
+    tool cụ thể NHƯNG PHẢI có cơ chế reproducible" đều ngụ ý — tái phát minh một coverage
+    engine LÀ hard-to-reverse VÀ high-maintenance-burden hơn hẳn dùng ecosystem-standard
+    tool.
+  - "Ước lượng/suy diễn branch coverage từ line coverage" (không dùng tool riêng nào): TỪ
+    CHỐI tường minh — vi phạm trực tiếp §13.3 "không estimate," CÙNG lý do gobco's
+    candidate đã từ chối approach tương tự cho Go.
+
+ADR-scope disposition (đầy đủ, chạy TRƯỚC khi author candidate này, chạy LẠI TỪ ĐẦU, KHÔNG
+  copy kết luận Go): **`ADR_NOT_REQUIRED`.**
+  Authority kiểm soát kết quả: [Chapter 13 §13.3](../constitution/13-quality-gates.md)
+  ("Không khóa tool/vendor cụ thể (defer §13.14)") VÀ
+  [Chapter 13 §13.14](../constitution/13-quality-gates.md) ("concrete tooling... defer
+  sang Engineering Foundation Chapter 3 §3.2") ĐÃ Locked VÀ tự nó chỉ định CHÍNH Chapter 3
+  §3.2/Testing Convention LÀM authority cho quyết định này — KHÔNG phải một chapter/ADR
+  khác. Chapter 3 §3.2 dòng 44 (Locked v1.4) ĐÃ có carve-out tường minh: "Testing
+  Convention ở đây chỉ quy định style/tooling (framework, cấu trúc test file, naming test
+  case)" — một cơ chế đo coverage LÀ "tooling" theo đúng nghĩa đó, KHÔNG PHẢI một
+  baseline-existence question mới (Testing Convention category đã tồn tại, `testing.md`
+  v0.2 đã Approved, v0.4's Go candidate đã dùng CHÍNH pattern này). Verify từng nhánh
+  Chapter 0 §4b riêng cho quyết định NÀY (KHÔNG suy diễn từ Go's kết luận):
+  - KHÔNG Platform Invariant nào đổi (Chapter 2, KHÔNG chạm) — coverage measurement KHÔNG
+    phải invariant, KHÔNG redefine I-2/I-3/I-9/I-13 substance.
+  - KHÔNG Event Schema nào đổi — KHÔNG Domain Contract/`docs/domain/**` chạm.
+  - KHÔNG Module Taxonomy/dependency graph nào đổi — `module-registry.yaml` KHÔNG chạm,
+    cấm tường minh tại transaction này; `feature-engine`'s `depends_on`/
+    `forbidden_dependencies` KHÔNG đổi (candidate KHÔNG phải một module, KHÔNG phải một
+    dependency edge).
+  - KHÔNG Governance/Approval process nào đổi (Chapter 12, KHÔNG chạm).
+  - KHÔNG supersede ADR Locked nào (KHÔNG ADR nào hiện có về Python coverage-measurement
+    tooling).
+  - ">1 module HOẶC khó đảo ngược" — vế ">1 module": đọc theo ĐÚNG tiền lệ đã dùng cho
+    gobco's own candidate (`ADR-030`'s "pattern (a)" LÀ cho baseline-existence/cross-module
+    authority MỚI, KHÔNG PHẢI cho chọn MỘT tool cụ thể bên trong category ĐÃ pre-authorized)
+    — chọn coverage.py CHO feature-engine hiện tại KHÔNG tự động ràng buộc bất kỳ module
+    Python khác nào (structure-engine/raw-regime-engine) phải dùng CÙNG tool — mỗi module's
+    own future coverage-evidence transaction có thể tự re-verify/re-select độc lập, đúng
+    §13.14's "không khóa tool/vendor cụ thể." Vế "khó đảo ngược": KHÔNG hard-to-reverse
+    lock-in (dev/test-time-only Python package, Apache-2.0, zero-dependency tại Python
+    >=3.13, đổi sang candidate khác chỉ đổi lệnh invoke + field JSON đọc, KHÔNG đổi schema/
+    infrastructure/production dependency nào).
+  - Chapter 13 §13.4's tier/floor VÀ §13.8's pass/fail semantics KHÔNG bị candidate này
+    redefine — candidate CHỈ định nghĩa CƠ CHẾ ĐO, KHÔNG định nghĩa lại ngưỡng/tier/pass-
+    fail (verify trực tiếp: không con số 90%/Tier 1 nào bị lặp lại/redefine trong candidate
+    text trên — mọi tham chiếu ngưỡng đều trỏ NGƯỢC về Chapter 13, KHÔNG duplicate).
+  - Transaction này KHÔNG cài đặt/pin tool, KHÔNG đo Feature coverage, KHÔNG rerun QG —
+    strictly bounded candidate-authoring, củng cố (KHÔNG làm yếu) kết luận
+    `ADR_NOT_REQUIRED`.
+  Kết luận: `ADR_NOT_REQUIRED`, KHÔNG author ADR tại transaction này. KHÔNG
+    GOVERNED_DECISION_REQUIRED escalation triggered.
+
+Installation-time verification contract (BẮT BUỘC cho bất kỳ transaction cài đặt/pin
+  tương lai — fail-closed nếu bất kỳ mục nào KHÔNG resolve được):
+  - exact package/tool identity (`coverage` trên PyPI, KHÔNG nhầm với package khác cùng
+    tên trên index khác);
+  - exact pinned version (verify trực tiếp lại — candidate landscape/latest release CÓ
+    THỂ đổi giữa candidate-authoring và install-time);
+  - upstream/content identity nơi thực tế được (PyPI wheel hash/sha256, `pip download`
+    verify);
+  - Python 3.13 compatibility (re-verify tại version cài đặt thật, KHÔNG giả định version
+    tại candidate này vẫn còn support tương đương);
+  - current feature-engine test-runner compatibility (`pytest` version hiện hành tại
+    thời điểm cài đặt, có thể khác `9.1.1` nếu lock file đã update);
+  - exact line-coverage invocation (`coverage run --source=feature_engine -m pytest ...`
+    hoặc cú pháp tương đương, verify lại syntax);
+  - exact branch-coverage invocation (`--branch`/`branch = True`, verify lại flag/config
+    key CHƯA đổi tên/semantics giữa version);
+  - numerator/denominator semantics (`percent_statements_covered`/`percent_branches_
+    covered` field name/meaning CHƯA đổi giữa version — verify lại JSON schema `meta.
+    format` version);
+  - branch semantics (arc-based, whole-controlling-condition — verify lại KHÔNG đổi sang
+    condition-decomposition mặc định ở version mới);
+  - include/source boundary (`source = feature_engine` scope CHÍNH XÁC package đã cài,
+    KHÔNG lẫn `tests/`);
+  - omit/exclusion rules (KHÔNG omit file authoritative nào chỉ để tăng %, mọi `# pragma:
+    no cover`/`no branch` nếu dùng PHẢI có lý do tường minh, KHÔNG dùng để né code khó đo);
+  - output format (`coverage json` schema field names CHƯA đổi — re-verify `meta.format`
+    version number tại thời điểm cài đặt);
+  - machine-readable artifact (JSON file thật được tạo, KHÔNG chỉ TEXT report);
+  - exit semantics (KHÔNG dùng `--fail-under`/CLI exit code LÀM Chapter-13 pass/fail —
+    self-computed comparison từ JSON field, verify lại field vẫn tồn tại);
+  - reproducibility trong clean environment (fresh venv, `pip install --no-deps -r
+    requirements-dev.lock.txt`, `pip check` -> "No broken requirements found," CÙNG
+    discipline mọi QG evidence transaction khác);
+  - unsupported Python construct liên quan tới feature-engine tại THỜI ĐIỂM cài đặt (re-
+    scan AST — implementation CÓ THỂ đã thêm `match`/walrus/construct mới kể từ candidate
+    này được author);
+  - bằng chứng KHÔNG limitation tool nào làm denominator KHÔNG đầy đủ cho subject hiện tại
+    (re-verify PEP 695 generics/bất kỳ construct mới nào).
+  Nếu bất kỳ mục nào KHÔNG resolve được tại thời điểm cài đặt -> fail-closed, KHÔNG chấp
+  nhận tool LÀM evidence machinery cho tới khi resolve xong.
+
+KHÔNG tại transaction này (candidate-only, tường minh):
+  - KHÔNG cài đặt/`pip install coverage` (hay bất kỳ tool nào) vào `python/feature-engine`
+    hay bất kỳ module Python nào trong repository (mọi thực nghiệm ở trên chạy trong một
+    scratch venv NGOÀI repository, KHÔNG commit, KHÔNG ảnh hưởng `pyproject.toml`/
+    `requirements-dev.lock.txt`).
+  - KHÔNG thêm dependency nào vào `pyproject.toml`/`requirements-dev.lock.txt`.
+  - KHÔNG đo Feature Engine coverage thật — KHÔNG con số % nào được tạo ra cho
+    `feature-engine` tại transaction này.
+  - KHÔNG tạo/sửa CI workflow (`ci-cd.md`/`ADR-030` authority riêng, KHÔNG chạm).
+  - KHÔNG close/remediate `P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02` — cả hai VẪN
+    `FAIL — evidence`, KHÔNG tự động resolve bởi việc có một candidate.
+  - KHÔNG rerun/reinterpret feature-engine's own Chapter 13 Quality Gate — overall QG VẪN
+    `FAIL — evidence` cho tới khi một formal re-evaluation thật thực thi SAU KHI line VÀ
+    branch coverage thật đo được TỪ tool đã cài đặt/pin chính thức.
+  - KHÔNG đổi Chapter 13 coverage floor/tier/pass-fail semantics.
+  - KHÔNG approve module/Data Layer/Phase nào. KHÔNG authorize LIVE. KHÔNG start Context
+    Aggregator.
+  - KHÔNG chạm existing Go branch-coverage mechanism/history (gobco candidate,
+    `P3-GOBC-A-MAJ-01` closure evidence, §"Go branch-coverage mechanism — CANDIDATE" phía
+    trên) — byte-equivalent, KHÔNG reopen, KHÔNG normalize Python choice thành Go choice
+    hay ngược lại (hai ngôn ngữ, hai candidate độc lập, KHÔNG một tool nào bắt buộc dùng
+    xuyên cả hai).
+  Chọn/pin/cài đặt chính thức mechanism này (hoặc bất kỳ candidate khác xuất hiện sau) LÀ
+  một transaction riêng biệt tương lai — PHẢI tự verify trực tiếp lại toàn bộ 20 tiêu chí
+  trên VÀ installation-time verification contract ở trên TẠI thời điểm đó (candidate
+  landscape/maintenance status/version CÓ THỂ đổi), VÀ tự rerun ADR Scope Rule nếu bất kỳ
+  fact nền tảng nào ở trên đổi.
+
+CANDIDATE ≠ APPROVED/ACCEPTED ≠ INSTALLED ≠ PINNED ≠ QUALIFYING QG EVIDENCE. Mechanism đề
+  xuất tại đây KHÔNG được dùng LÀM Feature QG evidence cho tới khi toàn bộ governance chain
+  (Product Owner decision trên chính candidate này, installation-time verification contract
+  ở trên, VÀ một formal QG re-evaluation riêng biệt) hoàn tất.
+```
+
 ## Non-goals (KHÔNG chọn/redefine tại v0.1 này)
 
 ```text
@@ -961,4 +1305,63 @@ ACCEPTANCE  2026-08-20T09:22:00+07:00  Product Owner lifecycle approval
       — `Approved` KHÔNG immutable byte-for-byte như ADR;
       `ADR_NOT_REQUIRED` VẪN đúng; thay đổi SEMANTIC tương lai VẪN
       PHẢI tự rerun ADR Scope Rule.
+v0.5  2026-08-28  CANDIDATE amendment, KHÔNG self-approved — vai trò:
+      `Python QG Coverage Mechanism Candidate Author`. `status: Approved
+      → Draft`, `version: "0.4" → "0.5"`, `approved_by`/`approved_at`
+      reset `null` (v0.4's approval record giữ nguyên nguyên vẹn phía
+      trên LÀM historical evidence, KHÔNG bị ghi đè). ADR Scope Rule
+      chạy LẠI TỪ ĐẦU (KHÔNG copy kết luận Go) -> `ADR_NOT_REQUIRED`.
+      Bổ sung MỘT subsection MỚI dưới "Framework/tool selection":
+      "Python line+branch coverage mechanism — CANDIDATE" — targets
+      feature-engine's formal Chapter 13 QG findings
+      `P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02` (line/branch
+      coverage FAIL — evidence, `docs/MANIFEST.md`, boundary
+      8374db364fd08c1592f2ae918d01e9ec3e95b131). CANDIDATE mechanism:
+      **coverage.py** (PyPI `coverage`, github.com/coveragepy/
+      coveragepy) — evaluated against 20 criteria via primary
+      upstream documentation AND empirical verification in an isolated
+      scratch venv (outside the repository, discarded after use, no
+      module/tool ever installed into `python/feature-engine`). Key
+      findings: (1) arc-based branch measurement, single mode (no
+      condition-vs-branch mode pitfall unlike gobco); (2) **critical
+      anti-conflation finding** — `coverage json`'s `percent_covered`
+      field is a BLENDED line+branch percentage, DISTINCT from the
+      separately-reportable `percent_statements_covered`/
+      `percent_branches_covered` fields — only the latter two may ever
+      be used as Chapter 13's two independent metrics, verified via a
+      toy-module experiment; (3) native `--fail-under` applies only to
+      the blended percentage (verified via GitHub Issue #1152, "Separate
+      fail_under option for branch and statement coverage," open since
+      2021-04-29, no assignee/PR) — a future install transaction must
+      self-compute pass/fail from the two independent JSON fields, never
+      from the tool's own CLI exit code; (4) empirically verified
+      Python 3.13.6 + pytest 9.1.1 compatibility (feature-engine's own
+      exact toolchain versions) and correct handling of the one PEP 695
+      generic-function syntax construct feature-engine's own source
+      actually uses (`contracts.py`'s `normalize_input_facts[T]`); (5)
+      Apache-2.0 license, zero transitive runtime dependency at Python
+      >=3.13 (verified via PyPI `requires_dist`), de-facto Python
+      ecosystem standard (materially healthier maintenance profile than
+      gobco's single-maintainer status). Alternatives evaluated and
+      rejected: `pytest-cov` (adds a plugin layer wrapping the same
+      engine, not chosen for this simpler invocation pattern, not
+      permanently excluded); `slipcover` (smaller community, not an
+      ecosystem default); manual/ad-hoc `sys.settrace` instrumentation
+      and line-to-branch estimation (both explicitly rejected, same
+      reasoning as the Go candidate's own rejections). Installation-time
+      verification contract defined (fail-closed if any item unresolved
+      at future install time). **KHÔNG** cài đặt/pin `coverage` (hay bất
+      kỳ tool nào) vào bất kỳ module Python nào trong repository, KHÔNG
+      thêm dependency vào `pyproject.toml`/`requirements-dev.lock.txt`,
+      KHÔNG đo feature-engine coverage thật, KHÔNG tạo/sửa CI workflow,
+      KHÔNG close/remediate `P3-FEATURE-QG-EVID-01`/`-EVID-02` (VẪN
+      `FAIL — evidence`), KHÔNG rerun feature-engine's Chapter 13 QG
+      (overall VẪN `FAIL — evidence`), KHÔNG đổi Chapter 13 floor/tier/
+      pass-fail semantics, KHÔNG approve module/Phase nào, KHÔNG
+      authorize LIVE, KHÔNG start Context Aggregator, KHÔNG chạm existing
+      Go branch-coverage mechanism/history (gobco candidate,
+      `P3-GOBC-A-MAJ-01` closure evidence — byte-equivalent, KHÔNG
+      reopen, KHÔNG normalize cross-language). `module-registry.yaml`
+      KHÔNG chạm. §1–§16/§18/Non-goals/v0.1–v0.4 banners/Go
+      branch-coverage subsection KHÔNG chạm (byte-equivalent).
 ```
