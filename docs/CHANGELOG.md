@@ -2,6 +2,97 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-28 — Feature Engine Tier-1 Module Registry Semantic Amendment (genuine registry fact addition — NOT a mechanical recorder)
+
+**Semantic Module Registry amendment — vai trò: `Feature Engine Tier-1 Module Registry Semantic Amendment Executor`.** Records the Product Owner's approved Feature-Engine Quality Tier decision as a genuine new authoritative `module-registry.yaml` fact (Chapter 13 §13.4 branch 1) — explicitly classified as a semantic amendment, not mechanical recording, correcting the prior candidate's own mischaracterization (`P3-FEATURE-TIER-A-MIN-02`). Does not perform Review A/B. Does not run formal Chapter 13 QG. Does not approve the Feature module. Does not authorize LIVE. Does not reconsolidate Package 1.1.
+
+### Three distinct boundaries (not conflated)
+
+```text
+Tier candidate boundary:          d6322cd8c075817389d99aa843555eb222819b16
+Product Owner decision:           "APPROVE FEATURE-ENGINE TIER 1 — CORE LOGIC AT BOUNDARY
+                                    d6322cd8c075817389d99aa843555eb222819b16" (2026-08-28T08:33+07:00)
+Registry semantic amendment:      this transaction's own separate commit
+```
+
+### Review evidence
+
+```text
+ChatGPT bounded Review A (boundary d6322cd8...): READY_FOR_INDEPENDENT_REVIEW_B — Tier 1
+  candidate SUPPORTED; 0 Blocker/Major; 2 non-blocking Minors (P3-FEATURE-TIER-A-MIN-01,
+  P3-FEATURE-TIER-A-MIN-02).
+Claude Independent Review B (same boundary): READY_FOR_PRODUCT_OWNER_TIER_DECISION — Tier 1
+  SUPPORTED; 0 Blocker/Major/qualifying-new-Minor; both existing Minors independently
+  confirmed Minor/non-blocking.
+```
+
+### Registry amendment
+
+```text
+feature-engine.quality_tier: {tier: "Tier 1 — Core Logic", approved_by: "Product Owner",
+  approved_at: "2026-08-28T08:33+07:00"} added — the ONE new field on the ONE module.
+module-registry.yaml version "1.6" -> "1.7" (genuine semantic amendment, same precedent as
+  structure-engine's/raw-regime-engine's own quality_tier writes). package_lifecycle
+  "Consolidated Stable" -> "candidate" (reopened — genuine content change, not absorbed
+  silently). status: Draft unchanged. No other module's quality_tier or semantics touched;
+  dependency graph unchanged; 27 modules before and after.
+```
+
+### `P3-FEATURE-TIER-A-MIN-01` correction (additive, historical candidate text preserved)
+
+```text
+The prior candidate's parenthetical claiming feature-engine "does not directly consume
+  Candle facts... for the Swing/Regime paths" is inaccurate for the Swing-distance path:
+  feature-engine DOES directly consume CandleClosed/CandleCorrected on that path via the
+  market-data-ingestion-candle stream (feature-swing-distance-input.yaml's included_streams;
+  SwingDistanceFeatureEngine's own reference-price consumption, both verified directly). Does
+  not change the approved Tier 1 conclusion, which rests on independent load-bearing
+  reasoning untouched by this narrow correction. State: REMEDIATED — PENDING DETERMINISTIC
+  VERIFICATION (not self-closed).
+```
+
+### `P3-FEATURE-TIER-A-MIN-02` correction (additive, historical candidate text preserved)
+
+```text
+The prior candidate/CHANGELOG described the eventual registry write as a "mechanical
+  recorder" — inaccurate under this repository's own established precedent (structure-
+  engine's/raw-regime-engine's own quality_tier writes were both genuine semantic
+  amendments: version bump + package_lifecycle reopening). Corrected: this transaction is
+  the separate SEMANTIC amendment step; Package 1.1 lifecycle correctly reopens to
+  `candidate`; reconsolidation remains a separate future governed transaction. State:
+  REMEDIATED — PENDING DETERMINISTIC VERIFICATION (not self-closed).
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — records a Product-Owner-approved value inside Chapter 13's existing
+  tier-resolution mechanism; no Platform Invariant/Event Schema/Module Taxonomy/dependency-
+  graph/governance-process change; no Locked ADR superseded.
+```
+
+### Files changed
+
+```text
+docs/architecture/module-registry.yaml, docs/MANIFEST.md, docs/CHANGELOG.md.
+  manifest_version "10.261" -> "10.262". No other file touched —
+  python/feature-engine/** verified byte-unchanged.
+```
+
+### State (after this transaction)
+
+```text
+Feature Engine Quality Tier: RESOLVED — Tier 1 — Core Logic (module-registry.yaml v1.7).
+  Formal Chapter 13 QG: NOT RUN. Feature module approval: NOT APPROVED. LIVE:
+  NOT_AUTHORIZED. Context Aggregator: NOT started. Package 1.1: candidate (reopened, NOT
+  reconsolidated). Feature Input Contract/Frontier package: Consolidated Stable (unchanged).
+  P3-FEATURE-A-MAJ-04/P3-FEATURE-A-MAJ-06: CLOSED (unchanged).
+```
+
+### Next governed action (not performed here)
+
+Deterministic verification of the two Minor corrections, then Package 1.1 reconsolidation (separate Product Owner decision + separate recorder), then the formal Feature Engine Chapter 13 Quality Gate as its own separate sequence.
+
 ## [Unreleased] — 2026-08-27 — Feature Engine: Quality Tier Classification CANDIDATE (Tier 1 — Core Logic, unapproved)
 
 **Candidate-authoring transaction only — vai trò: `Feature Engine Quality Tier Classification Candidate Author`.** Independently derives and proposes a Chapter 13 Quality Tier candidate for `feature-engine`. Does not modify `module-registry.yaml`, does not approve the tier, does not perform Review A/B, does not run a formal Quality Gate, does not approve the Feature module, does not authorize LIVE.
