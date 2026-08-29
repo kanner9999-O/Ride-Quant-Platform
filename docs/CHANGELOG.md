@@ -2,6 +2,66 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-29 — feature-engine: Formal Chapter 13 Coverage Evidence Evaluation (EVID-01/EVID-02 CLOSED; new COV-01 OPEN — FAIL — criteria, branch below Tier-1 floor; overall Feature QG still FAIL)
+
+**Formal, evidence-only Chapter 13 coverage evaluation — vai trò: `Feature Engine Formal Chapter 13 Coverage Evidence Evaluator`.** Addresses ONLY line coverage (`P3-FEATURE-QG-EVID-01`) and branch coverage (`P3-FEATURE-QG-EVID-02`) using the Approved/installed/pinned `coverage.py` 7.16.0 mechanism (Testing Convention v0.7). NOT a full Feature QG re-evaluation — EVID-03 through EVID-08 and MIN-01 untouched. Does not modify Feature source/tests/tooling pins/testing.md/module-registry.yaml. Does not remediate branch coverage. Does not approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — records formal evidence via already-approved/installed tooling; closes
+  two pre-existing evidence-availability findings and opens one narrowly-scoped criteria
+  finding strictly derived from Chapter 13's own pre-existing numerical floor. No new
+  mechanism selection, no new architecture responsibility.
+```
+
+### Formal measurement (fresh clean-room venv; repeated twice, byte-identical both times)
+
+```text
+python 3.13.6, pytest 9.1.1, coverage 7.16.0. Baseline: 145 passed, 0 failed (no coverage
+  instrumentation). Formal: `coverage erase` -> `coverage run --branch --source=feature_engine
+  -m pytest tests/ -q` -> `coverage json` -> `coverage report -m`, run twice from an
+  equivalent clean state — all fields identical both times (deterministic).
+Line (independent):   1001/1077 statements covered = 92.94336118848653% -> PASS (floor 90%).
+Branch (independent): 243/316 branches covered = 76.89873417721519% -> FAIL — criteria
+  (floor 90%). Blended `percent_covered` (89.30366116295764%) recorded but never used for
+  either gate. Numbers exactly match the prior installation-time smoke cross-check — no
+  material discrepancy.
+```
+
+### Finding-state transitions
+
+```text
+P3-FEATURE-QG-EVID-01 (line coverage evidence-availability): CLOSED — formal evidence now
+  exists; metric itself also independently PASSES.
+P3-FEATURE-QG-EVID-02 (branch coverage evidence-availability): CLOSED — formal evidence now
+  exists; metric itself independently FAILS its own criterion (tracked separately below).
+P3-FEATURE-QG-COV-01 (NEW, confirmed previously unused): "Feature Engine branch coverage
+  below applicable Tier-1 floor" — blocking Quality Gate criteria failure, State
+  OPEN — FAIL — criteria (evidence exists, criterion unmet — explicitly not FAIL —
+  evidence). No separate line-coverage criteria finding (line passes).
+P3-FEATURE-QG-EVID-03 through -EVID-08, P3-FEATURE-QG-MIN-01: unchanged, out of scope.
+```
+
+### Overall result
+
+```text
+Formal Feature Chapter 13 Quality Gate: FAIL — unchanged overall. Two evidence blockers
+  closed, one new branch-coverage criteria finding opened, five other blocking evidence
+  dimensions (EVID-03..EVID-08) remain untouched. Feature module NOT approved. Phase 3
+  Approval Gate NOT opened. LIVE NOT_AUTHORIZED.
+```
+
+### No scope expansion
+
+```text
+Files touched: docs/MANIFEST.md, docs/CHANGELOG.md only (`git status --porcelain=v1`).
+  testing.md, pyproject.toml, requirements-dev.lock.txt, src/**, tests/**, constitution/**,
+  adr/**, module-registry.yaml all verified byte-unchanged.
+```
+
+**manifest_version:** `"10.271"` → `"10.272"`.
+
 ## [Unreleased] — 2026-08-29 — feature-engine: coverage.py Governed Installation & Pinning (tooling prerequisite installed — EVID-01/EVID-02 remain FAIL — evidence)
 
 **Governed installation/pinning transaction — vai trò: `Feature Engine coverage.py Governed Installation & Pinning Executor`.** Installs and pins the Product-Owner-approved `coverage.py` mechanism (Testing Convention v0.7) into `python/feature-engine`'s dev tooling, executing the full installation-time fail-closed verification contract. This is NOT the formal Feature Engine Chapter 13 Quality Gate re-evaluation. Does not close EVID-01/EVID-02, approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE. Does not modify Feature source/tests or the Approved testing.md.

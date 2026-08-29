@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.271"
+manifest_version: "10.272"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -14268,6 +14268,295 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 A separate, formally-governed Feature Engine Chapter 13 Quality Gate evidence/re-evaluation transaction — consuming genuine, immutably-pinned line/branch coverage evidence produced via this now-installed `coverage.py` mechanism — remains the next step toward resolving `P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02`. Not performed here.
 
 **Files changed:** `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/engineering/testing.md`, `docs/architecture/module-registry.yaml`, `python/feature-engine/src/**`, `python/feature-engine/tests/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.270"` → `"10.271"`.
+
+## `feature-engine` — Formal Chapter 13 Coverage Evidence Evaluation (`P3-FEATURE-QG-EVID-01`/`-EVID-02` CLOSED — evidence now exists; new `P3-FEATURE-QG-COV-01` OPEN — `FAIL — criteria`, branch below Tier-1 floor; overall Feature Chapter 13 QG still `FAIL`)
+
+**Formal, evidence-only Chapter 13 coverage evaluation — vai trò: `Feature Engine Formal Chapter 13 Coverage Evidence Evaluator`.** Addresses ONLY `P3-FEATURE-QG-EVID-01` (line coverage) and `P3-FEATURE-QG-EVID-02` (branch coverage), using the now-Approved/installed/pinned `coverage.py` mechanism (Testing Convention v0.7). NOT a full Feature Engine Chapter 13 QG re-evaluation — `P3-FEATURE-QG-EVID-03` through `-EVID-08` and `P3-FEATURE-QG-MIN-01` are untouched. Does NOT modify `python/feature-engine/src/**`/`tests/**`, `pyproject.toml`, `requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml`. Does NOT remediate branch coverage. Does NOT approve Feature Engine. Does NOT open the Phase 3 Approval Gate. Does NOT authorize LIVE. Does NOT start Context Aggregator.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `a7a34014bcf153534572ef1441b7a128a203555e` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.271"` at start.
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: this transaction records formal evidence produced via an already-reviewed,
+  Product-Owner-Approved, already-installed/pinned tooling mechanism (Testing Convention
+  v0.7, coverage.py 7.16.0), closes two pre-existing evidence-availability findings, and
+  opens one narrowly-scoped criteria finding strictly derived from Chapter 13's own
+  pre-existing numerical floor. No new mechanism selection, no new architecture
+  responsibility, no cross-module dependency, no governance-process change, no
+  hard-to-reverse decision. No new §4b trigger discovered.
+```
+
+### Authority re-verified fresh (exact identities, no mutable references)
+
+```text
+Testing Convention:  docs/engineering/testing.md, version "0.7", status Approved,
+  approved_by Product Owner, approved_at "2026-08-28", blob
+  06b0fef8b707f428809c3528a831a39be6b513db — byte-identical to the value recorded at the
+  prior installation transaction; confirmed unchanged throughout this transaction
+  (`git diff --quiet` before and after).
+Chapter 13:          docs/constitution/13-quality-gates.md, version "1.7", status Locked,
+  blob 4bb697f3b43b0874a080015ef0ce6ca53de729f4 — unchanged since every prior QG-adjacent
+  transaction in this MANIFEST. Applicable floor resolved DIRECTLY from this document's own
+  §13.3/§13.4 text (not from Testing Convention, not from any cached MANIFEST number):
+  Tier 1 — Core Logic requires line coverage >= 90% AND branch coverage >= 90%,
+  independently, never averaged, never via the blended `percent_covered` field.
+Module Registry:     docs/architecture/module-registry.yaml, version "1.7", status Draft,
+  package_lifecycle Consolidated Stable, blob 8535f92efeb76ffb226791d201dc0b3fb71f06c0 —
+  confirmed via fresh `git hash-object`. NOTE (transparency, not a STOP-worthy authority-drift
+  event): this transaction's own task text mislabeled this exact blob as "current semantic
+  version: 1.6"; direct `git log`/`git show <commit>:<path> | git hash-object --stdin`
+  cross-reference against commits `07e8e8920ea980450426a29e3413d2395a4ca2c8` (blob
+  `70e6afcc3bb7402d177443bc0b2c0d5ba09cc0e9`, version "1.7"/`candidate`) and
+  `8374db364fd08c1592f2ae918d01e9ec3e95b131` (blob `8535f92efeb76ffb226791d201dc0b3fb71f06c0`,
+  version "1.7"/`Consolidated Stable` — matching the current live file exactly) confirms the
+  blob's actual, unambiguous content identity is version "1.7", not "1.6". The blob hash
+  itself (the load-bearing identity) matched exactly; only a text label was wrong. Verified,
+  correct value "1.7" used as authoritative throughout this transaction; no real authority
+  drift occurred.
+feature-engine quality_tier (verified directly, unchanged): `{ tier: "Tier 1 — Core Logic",
+  approved_by: "Product Owner", approved_at: "2026-08-28T08:33+07:00" }`.
+```
+
+### Subject identity / evaluation boundary (P3-VERIFY-001)
+
+```text
+Repository evaluation boundary:        a7a34014bcf153534572ef1441b7a128a203555e (confirmed
+  HEAD == origin/main before any read).
+Authoritative Feature implementation
+  semantic boundary:                   e5c5ce08b4f041cebfd8fd0976bad73433703419 — confirmed
+  via `git log e5c5ce08b4f041cebfd8fd0976bad73433703419..a7a34014bcf153534572ef1441b7a128a203555e
+  -- python/feature-engine/src/ python/feature-engine/tests/` returning empty: ZERO commits
+  have touched src/tests since that boundary through this evaluation boundary.
+Authoritative implementation path:     python/feature-engine/src/** — tree hash
+  256421344a48a6c9d4ef72f81eb82b27dbedfc50 (`git rev-parse HEAD:python/feature-engine/src`),
+  14 source `.py` files.
+Authoritative test path:               python/feature-engine/tests/** — tree hash
+  0b0379ccb77b36993652ad9ec6c9dec477ef6670
+  (`git rev-parse HEAD:python/feature-engine/tests`), 9 `.py` files (8 `test_*.py` +
+  `conftest.py`).
+pyproject.toml:                        blob 29ad519fa4d2801abffb991ceea2f6035f5c9684,
+  confirms `coverage==7.16.0` present in `[project.optional-dependencies].dev`.
+requirements-dev.lock.txt:             blob 95aa7e358f600058180741e205560ea1e834005a,
+  confirms `coverage==7.16.0` present at its pinned alphabetical position.
+```
+
+### Tool identity — freshly re-confirmed, not silently replaced
+
+```text
+Distribution: `coverage` (PyPI), version 7.16.0 — confirmed via `pip show coverage` inside a
+  FRESH clean-room venv built from the current, unchanged lock file (see below): "Version:
+  7.16.0". pyproject.toml pin `coverage==7.16.0` and lock pin `coverage==7.16.0` both
+  unchanged since the prior installation transaction. Previously-recorded, immutable
+  artifact identity (this transaction's own clean-room `pip install` used the local
+  resolver/cache and did not itself re-download a standalone wheel file to re-hash;
+  distribution+version identity was independently re-confirmed instead): artifact
+  `coverage-7.16.0-cp313-cp313-macosx_11_0_arm64.whl`, SHA-256
+  `0598aadae641f30a0796b75b45c0b9c5de8619bd5cfb251bb0cc254e86e6dd13`, as immutably recorded
+  in the prior "coverage.py Governed Installation & Pinning" MANIFEST section above —
+  cited by reference, not re-fabricated; version identity (7.16.0, the load-bearing fact)
+  independently re-verified fresh in this transaction.
+```
+
+### Clean-room environment reconstruction (fresh, this transaction)
+
+```text
+rm -rf <fresh venv> && python3.13 -m venv <fresh venv> && pip install --upgrade pip==25.2 &&
+  pip install --no-deps -r requirements-dev.lock.txt && pip install -e . --no-deps
+  (all output/venv directed to a scratch location outside the tracked repository).
+Result: `pip check` -> "No broken requirements found." Python 3.13.6 (CPython, arm64).
+  `coverage.__version__` -> 7.16.0. `pytest --version` -> pytest 9.1.1. No coverage or
+  unrelated dependency upgraded beyond what requirements-dev.lock.txt already pins.
+```
+
+### Baseline test validity (fresh, no coverage instrumentation)
+
+```text
+Command: `python -m pytest tests/ -q` (from python/feature-engine, clean-room venv).
+Result: 145 passed in 0.11s. 0 failures, 0 unexpected skips. No test/source modification
+  performed at any point in this transaction.
+```
+
+### §13.3 anti-gaming pre-check (fresh, this transaction)
+
+```text
+Static AST scan of every tests/test_*.py FunctionDef named test_* lacking both an
+  ast.Assert node and a `with pytest.raises(...)` context: 142 total AST-level test_
+  function definitions found; exactly ONE flagged with neither assertion nor exception
+  context: tests/test_definition.py::test_valid_definitions_accepted (body: two bare calls,
+  `make_candle_definition()` / `make_distance_definition()`, no explicit assert). Assessed
+  as a minor, non-material "construction does not raise" smoke check — it duplicates
+  coverage already independently provided by dozens of other genuinely-assertive tests using
+  the same factory functions — not material execution-only padding, not grounds for a
+  fail-closed STOP; documented transparently here, not remediated (out of scope: this
+  transaction does not modify tests/**).
+Test-count reconciliation: pytest --collect-only/-q authoritatively reports "145 tests
+  collected" against the AST scan's 142 FunctionDef nodes. Reconciled: exactly one
+  parametrized function, tests/test_definition.py::test_subject_id_any_field_difference_
+  different_id (`@pytest.mark.parametrize("kwargs", [...4 cases...])`), expands from 1
+  AST-level FunctionDef into 4 pytest-collected items — a net +3, exactly accounting for
+  142 -> 145. No other discrepancy exists; the suite's assertion composition otherwise
+  consists of meaningful semantic-assertion / expected-exception tests, satisfying §13.3's
+  anti-gaming requirement.
+```
+
+### Formal measurement — run 1 (fresh, this transaction)
+
+```text
+Working directory: python/feature-engine (clean-room venv from above). Output directed to
+  an isolated COVERAGE_FILE and JSON path outside the tracked repository.
+Commands: `coverage erase` -> `coverage run --branch --source=feature_engine -m pytest
+  tests/ -q` -> `coverage json --pretty-print -o <scratch path>` -> `coverage report -m`.
+Test result: 145 passed, 0 failed (identical to the baseline above).
+Line (independent):   num_statements 1077, covered_lines 1001, missing_lines 76,
+  percent_statements_covered 92.94336118848653.
+Branch (independent): num_branches 316, covered_branches 243, missing_branches 73,
+  num_partial_branches 73, percent_branches_covered 76.89873417721519.
+Blended (recorded, NEVER used for either Chapter 13 gate): percent_covered
+  (BLENDED / NOT A CHAPTER 13 INDEPENDENT COVERAGE METRIC) 89.30366116295764.
+```
+
+### Formal measurement — run 2, reproducibility (fresh, equivalent clean state)
+
+```text
+Identical command sequence re-run from an equivalent clean state (fresh COVERAGE_FILE/JSON
+  path, same clean-room venv, `coverage erase` first). Test result: 145 passed, 0 failed.
+Field-by-field JSON comparison, run 1 vs run 2: num_statements, covered_lines,
+  missing_lines, percent_statements_covered, num_branches, covered_branches,
+  missing_branches, num_partial_branches, percent_branches_covered, percent_covered — ALL
+  IDENTICAL. Deterministic: YES.
+Cross-check (illustrative only, NOT copied into this record as the controlling value)
+  against the installation-time smoke numbers already on file (statements 1001/1077 ≈
+  92.94336118848653%; branches 243/316 ≈ 76.89873417721519%): the freshly-reproduced formal
+  values match EXACTLY, subject/config/tool identities unchanged — no material discrepancy,
+  no investigation-triggering STOP required. The formal measurement above (run 1/run 2) is
+  the controlling evidence, independently reproduced in this transaction, not a copy of the
+  smoke record.
+```
+
+### Chapter 13 §13.3/§13.4 PASS/FAIL determination (independent, per-metric, never averaged)
+
+```text
+Applicable floor (Tier 1 — Core Logic, resolved directly from Chapter 13 §13.3/§13.4 above):
+  line >= 90% AND branch >= 90%, independently.
+Line:    percent_statements_covered 92.94336118848653% >= 90% -> PASS.
+Branch:  percent_branches_covered 76.89873417721519% >= 90% -> FAIL — criteria.
+Overall coverage dimension: FAIL — criteria (BOTH must pass; branch does not). Never
+  averaged; `percent_covered` (89.30366116295764%, blended) never used for this
+  determination.
+```
+
+### Finding-ID collision check (before creating any new finding)
+
+```text
+Repository-wide search (docs/MANIFEST.md, docs/CHANGELOG.md, and repository-wide grep) for
+  the ID "P3-FEATURE-QG-COV-01" prior to this transaction: zero matches. Confirmed UNUSED.
+```
+
+### Finding-state transitions
+
+```text
+P3-FEATURE-QG-EVID-01 (line coverage evidence-availability): CLOSED. Formal, reproducible,
+  immutable line-coverage evidence now exists (this transaction's run 1/run 2 above). This
+  closes ONLY the evidence-availability defect — it is not, by itself, a re-statement of the
+  Feature module's approval status. (The line metric itself also independently PASSES the
+  Tier-1 floor, recorded above, but that is a separate fact from this closure.)
+P3-FEATURE-QG-EVID-02 (branch coverage evidence-availability): CLOSED. Formal, reproducible,
+  immutable branch-coverage evidence now exists. Same evidence-availability-vs-criterion
+  distinction as EVID-01: this closure does NOT mean the branch metric passed — it means the
+  evidence itself is no longer missing. The metric's own criterion outcome is tracked
+  separately by the new finding immediately below.
+P3-FEATURE-QG-COV-01 (NEW): Gate dimension: branch coverage criterion (§13.3/§13.4, Tier 1).
+  Title: "Feature Engine branch coverage below applicable Tier-1 floor." Classification:
+  blocking Quality Gate criteria failure. State: OPEN — FAIL — criteria (explicitly NOT
+  "FAIL — evidence" — qualifying evidence now exists; the criterion itself is unmet).
+  Evidence: covered_branches 243 / num_branches 316 = percent_branches_covered
+  76.89873417721519%, against the applicable floor >= 90% (Chapter 13 v1.7 Locked, blob
+  4bb697f3b43b0874a080015ef0ce6ca53de729f4, §13.3/§13.4). Tier-resolution provenance:
+  module-registry.yaml version "1.7" (blob 8535f92efeb76ffb226791d201dc0b3fb71f06c0),
+  feature-engine quality_tier { tier: "Tier 1 — Core Logic", approved_by: "Product Owner",
+  approved_at: "2026-08-28T08:33+07:00" }. Subject/tool/config identity: as recorded in the
+  "Subject identity" and "Tool identity" sections above (evaluation boundary
+  a7a34014bcf153534572ef1441b7a128a203555e, coverage==7.16.0, Python 3.13.6, pytest 9.1.1).
+  Required follow-up: a separate, bounded branch-coverage-remediation transaction (test
+  additions only, no production-code changes needed to satisfy the coverage floor itself)
+  must raise branch coverage to >= 90% and re-measure; NOT performed in this transaction
+  (explicitly out of scope).
+Line coverage does NOT fall below its floor (92.94336118848653% >= 90%) — no separate line
+  criteria finding created.
+P3-FEATURE-QG-EVID-03 through P3-FEATURE-QG-EVID-08, P3-FEATURE-QG-MIN-01: UNCHANGED,
+  explicitly out of scope for this transaction — untouched, no contradiction exposed
+  requiring a fail-closed STOP.
+```
+
+### Overall Formal Feature Chapter 13 Quality Gate result (unchanged: still FAIL)
+
+```text
+FAIL — UNCHANGED as the overall result. Two previously-missing-evidence blockers
+  (EVID-01, EVID-02) are now CLOSED by this transaction's formal, reproducible evidence, and
+  the line-coverage criterion independently PASSES — but a new, narrowly-scoped criteria
+  finding (P3-FEATURE-QG-COV-01, branch coverage below the Tier-1 floor) is now OPEN, and
+  five other blocking evidence dimensions (P3-FEATURE-QG-EVID-03 through -EVID-08) remain
+  entirely untouched and unresolved, out of scope for this transaction. The overall Formal
+  Feature Chapter 13 Quality Gate therefore remains FAIL. This transaction does not approve
+  Feature Engine, does not open the Phase 3 Approval Gate, and does not authorize LIVE.
+```
+
+### No scope expansion — explicit verification
+
+```text
+docs/engineering/testing.md, python/feature-engine/pyproject.toml, python/feature-engine/
+  requirements-dev.lock.txt, python/feature-engine/src/**, python/feature-engine/tests/**,
+  docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**,
+  Input Contracts, Stream Registry, CI/CD workflows, any Go module, Context Aggregator: all
+  verified byte-identical (`git diff --quiet` for each path) both before and after this
+  transaction. No coverage remediation performed. No full Feature QG re-evaluation
+  performed. Feature module not approved. Phase 3 Approval Gate not opened. Context
+  Aggregator not started. LIVE not authorized. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+  Temporary `.coverage`/`coverage.json` artifacts (both runs) were generated and inspected
+  entirely outside the tracked repository and are not present in `git status`.
+```
+
+### Raw evidence artifact note (§13.9)
+
+```text
+No canonical `docs/evidence/**` path exists in this repository and none is invented here.
+  Per existing repository precedent, this committed MANIFEST entry itself IS the immutable,
+  resolvable formal evidence record for P3-FEATURE-QG-EVID-01/-EVID-02 closure and for
+  P3-FEATURE-QG-COV-01's opening evidence. The transient generated `coverage.json` files
+  (run 1, run 2) are supporting artifacts only, held outside the tracked repository — no
+  uncommitted transient file is claimed as itself a resolvable repository artifact; every
+  §13.9-required value is recorded directly, numerically, in this committed record.
+```
+
+### State summary
+
+```text
+Feature Engine Quality Tier:  RESOLVED — Tier 1 — Core Logic (unchanged).
+P3-FEATURE-QG-EVID-01:        CLOSED (evidence now available; line metric independently
+                               PASSES — 92.94336118848653% >= 90%).
+P3-FEATURE-QG-EVID-02:        CLOSED (evidence now available; branch metric independently
+                               FAILS its own criterion — see P3-FEATURE-QG-COV-01).
+P3-FEATURE-QG-COV-01:         OPEN — FAIL — criteria (NEW; branch coverage
+                               76.89873417721519% < 90% Tier-1 floor).
+P3-FEATURE-QG-EVID-03..-08,
+  P3-FEATURE-QG-MIN-01:       UNCHANGED (out of scope).
+Formal Feature Chapter 13 QG: FAIL (unchanged overall result — remaining blocking dimensions
+                               EVID-03..EVID-08 plus the new COV-01 criteria finding).
+Feature module approval:      NOT APPROVED.
+Phase 3 Approval Gate:        NOT opened.
+Context Aggregator:           NOT started.
+Package 1.1:                  Consolidated Stable (unchanged).
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+A separate, bounded branch-coverage-remediation transaction (test additions only, targeting the specific missing branches enumerated in this transaction's own `coverage report -m` output) must raise `feature-engine`'s branch coverage to >= 90% and re-measure before `P3-FEATURE-QG-COV-01` can close. Independently, the five remaining blocking evidence dimensions (`P3-FEATURE-QG-EVID-03` through `-EVID-08`: test-effectiveness, Tier-1 Parity Test, I-5, I-6, property-based testing) each require their own separate governed transactions before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. Neither performed here.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/engineering/testing.md`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.271"` → `"10.272"`.
 
 ## Decision Log
 
