@@ -2,11 +2,11 @@
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
 version: "0.7"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-08-28"
 created_at: "2026-08-12"
 last_review: null
 next_review: null
@@ -14,6 +14,59 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**v0.7 APPROVAL — mechanical (2026-08-28T21:12:00+07:00), vai trò: `Testing Convention v0.7 Mechanical Approval Recorder`.** Product Owner decision (verbatim): **"APPROVE TESTING CONVENTION V0.7 AT BOUNDARY 79fd8e6b91b82ca5e05748c8c79f9140bab81867. PYTHON LINE+BRANCH COVERAGE MECHANISM: coverage.py. P3-PY-COV-A-MIN-01: CLOSED. P3-PY-COV-A-MIN-02: CLOSED."** Decision time: `2026-08-28T21:12+07:00` (recorded here at full precision; `approved_at` frontmatter field uses this document's existing date-only convention, `"2026-08-28"`, per prior v0.2/v0.4 approval precedent). Reviewed immutable boundary: HEAD `79fd8e6b91b82ca5e05748c8c79f9140bab81867` (the v0.7 finding-state evidence correction commit). `status: Draft → Approved`, `approved_by: null → Product Owner`, `approved_at: null → "2026-08-28"`. `version` KHÔNG bump (pure mechanical lifecycle approval, đúng Chapter 0 §8) — VẪN `"0.7"`.
+
+**Review evidence tại approval này (completed chain, recorded — không phải recorder self-closure):**
+
+```text
+ChatGPT bounded Review A re-review, boundary 79fd8e6b91b82ca5e05748c8c79f9140bab81867:
+  Disposition: BOUNDED REVIEW A RE-REVIEW: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+  P3-PY-COV-A-MIN-01: CLOSED (Review A validation). P3-PY-COV-A-MIN-02: CLOSED (Review A
+  validation). New Blocker 0 / New Major 0 / New qualifying Minor 0.
+Independent Review B — Claude, role AI Technical Architect / alias "Independent Review B",
+  ADR-031 Mode A DISTINCT_PRINCIPAL, same boundary: Disposition: INDEPENDENT REVIEW B:
+  CLEAN — READY_FOR_PRODUCT_OWNER_DECISION. P3-PY-COV-A-MIN-01: CLOSED. P3-PY-COV-A-MIN-02:
+  CLOSED. New Blocker 0 / New Major 0 / New qualifying Minor 0. ADR_NOT_REQUIRED: CONFIRMED.
+Independent-review requirement (Chapter 11 §11.5, minimum two): SATISFIED.
+Evidence chain (this recorder only records the already-completed result — closure is NOT
+  attributed to this recorder): executor remediation (v0.6 -> v0.7) -> Review A validation
+  -> Independent Review B validation -> Product Owner approval decision -> this mechanical
+  recorder.
+```
+
+**KHÔNG semantic content nào đổi tại approval này** (§1–§18/Framework-tool-selection/Go
+branch-coverage subsection/Python coverage-mechanism subsection/Non-goals/ADR-scope
+disposition/tất cả v0.1–v0.7 banner phía trên byte-equivalent ngoài chính banner approval
+này VÀ frontmatter lifecycle field) — coverage.py VẪN mechanism đã chọn (measurement model,
+arc-based branch semantics, `percent_statements_covered`/`percent_branches_covered`
+independent metrics, `percent_covered` blended prohibition, `--branch`/`branch=True`
+requirement tường minh, `source=feature_engine` boundary, omit/exclusion rules,
+`--fail-under` treatment, installation-time fail-closed verification contract, alternatives
+analysis, `ADR_NOT_REQUIRED` reasoning, Chapter 13 authority references — TẤT CẢ KHÔNG đổi).
+
+**Distinction — mechanism-selection approval ≠ installation ≠ measurement ≠ QG evidence:**
+Testing Convention v0.7 nay `Approved`; Python line+branch coverage mechanism SELECTION
+(coverage.py) nay `APPROVED by Product Owner làm governed mechanism`. NHƯNG: `coverage`
+package VẪN **NOT INSTALLED** (KHÔNG tồn tại trong `pyproject.toml`/
+`requirements-dev.lock.txt`); `coverage` version VẪN **NOT YET PINNED** bởi bất kỳ
+transaction cài đặt nào; qualifying Feature Engine coverage evidence VẪN **NOT YET
+PRODUCED**. Approval này KHÔNG tự cài đặt, KHÔNG pin, KHÔNG verify, KHÔNG đo, KHÔNG close
+Feature QG coverage evidence nào.
+
+**Approval này KHÔNG:** cài đặt/pin `coverage` (hay bất kỳ tool nào), thêm
+`pyproject.toml`/`requirements-dev.lock.txt` dependency nào, tạo/sửa CI workflow, đo Feature
+Engine coverage thật, close/remediate `P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02` (VẪN
+`FAIL — evidence`), rerun feature-engine's Chapter 13 Quality Gate (VẪN `FAIL — evidence`),
+approve Feature Engine module, authorize LIVE, chạm
+`python/feature-engine/**`/`docs/constitution/**`/`docs/adr/**`/
+`docs/architecture/module-registry.yaml`/Domain Contract/Input Contract/Stream Registry
+nào. Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable byte-for-byte như ADR
+(Chapter 11 §11.3 KHÔNG áp dụng); `ADR_NOT_REQUIRED` VẪN đúng (tài liệu KHÔNG dưới authority
+một ADR nào); thay đổi SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule. Lịch sử
+v0.5/v0.6/v0.7's own candidate/remediation record (bao gồm cả hai Minor đã CONFIRMED rồi
+CLOSED) giữ nguyên nguyên vẹn phía dưới LÀM historical evidence, KHÔNG bị ghi đè/viết lại
+để giả vờ đã Approved sớm hơn thời điểm thật.
 
 **CANDIDATE evidence-fidelity correction (2026-08-28), KHÔNG self-approved — status: Draft → Draft.** Bounded remediation của `P3-PY-COV-A-MIN-02` (KHÔNG PHẢI self-closure — executor KHÔNG có thẩm quyền tự đóng finding của chính mình) — vai trò: `Testing Convention v0.6 Finding-State Evidence Correction Executor`. **Review evidence chain (ghi tách biệt, KHÔNG gộp thành executor self-closure):** (1) v0.6's own executor transaction (correction commit `f1fa149a95a6fc4c01a5eb48ff8be588f8c39ba8`) recorded, đúng sự thật tại thời điểm đó, `P3-PY-COV-A-MIN-01: REMEDIATED — PENDING RE-REVIEW`, KHÔNG self-closed — executor KHÔNG có thẩm quyền tự đóng finding của chính mình. (2) SAU đó, một ChatGPT bounded Review A re-review riêng biệt, tại CÙNG boundary `f1fa149a95a6fc4c01a5eb48ff8be588f8c39ba8`, độc lập kết luận: boundary/scope CLEAN, VÀ `P3-PY-COV-A-MIN-01`'s substantive remediation VALIDATED (numerical policy literals đã được xóa đúng khỏi CURRENT normative Python coverage mechanism text, Chapter 13 §13.3/§13.4 LẠI LÀ authority DUY NHẤT, coverage.py semantics KHÔNG đổi) — NHƯNG cùng review này phát hiện MỘT finding MỚI, `P3-PY-COV-A-MIN-02` (Minor / qualifying evidence-lifecycle inconsistency): v0.6's own correction record, dù thân bài đúng ("REMEDIATED — PENDING RE-REVIEW... KHÔNG self-closed"), LẠI đồng thời dùng ngôn ngữ đóng-finding tương đương "Đóng `P3-PY-COV-A-MIN-01`"/"closed" tại banner mở đầu, tiêu đề MANIFEST/CHANGELOG, VÀ nhiều inline correction-annotation — một audit/lifecycle contradiction (cùng một authoritative record đồng thời tuyên bố CLOSED VÀ REMEDIATED-PENDING-RE-REVIEW/NOT-SELF-CLOSED). **Independent Review B cho CHÍNH re-review này CHƯA thực hiện** — KHÔNG tuyên bố toàn bộ A/B closure chain cho `P3-PY-COV-A-MIN-01` đã hoàn tất tại transaction này. **Sửa (v0.7):** xóa mọi ngôn ngữ "đóng"/"closed" khỏi banner mở đầu v0.6, ba inline correction-annotation, VÀ Change History v0.6 entry — thay bằng "bounded remediation"/"remediation applied," tường minh phân biệt "executor đã implement remediation" KHỎI "review đã validate/đóng finding." Lịch sử v0.5's defect VÀ v0.6's own nguyên văn "REMEDIATED — PENDING RE-REVIEW" KHÔNG bị xóa/viết lại — chỉ phần ngôn ngữ mở đầu/tiêu đề mâu thuẫn được sửa. **KHÔNG đổi:** candidate mechanism (VẪN coverage.py), line coverage semantics, arc-based branch semantics, `percent_statements_covered`/`percent_branches_covered`, `percent_covered` prohibition, `--branch` requirement tường minh, `source=feature_engine` boundary, omit/exclusion policy, `coverage json` evidence contract, `--fail-under` treatment, Python/pytest compatibility conclusions, installation-time fail-closed verification contract, alternatives assessment, `ADR_NOT_REQUIRED` substantive conclusion. `version: "0.6" → "0.7"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null` (KHÔNG tự approve v0.7). KHÔNG cài đặt/pin `coverage`, KHÔNG đo Feature Engine coverage, KHÔNG rerun Feature Chapter 13 QG (`P3-FEATURE-QG-EVID-01`/`-EVID-02` VẪN `FAIL — evidence`), KHÔNG Independent Review B, KHÔNG Product Owner decision, KHÔNG authorize LIVE. `P3-PY-COV-A-MIN-02`: `REMEDIATED — PENDING RE-REVIEW` — KHÔNG self-closed. **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**: `ADR_NOT_REQUIRED` — thuần audit/evidence lifecycle wording bên trong CÙNG một Draft Testing Convention candidate, KHÔNG giới thiệu architecture/tool/contract/governance-process decision nào.
 
@@ -679,7 +732,7 @@ KHÔNG tại transaction này (candidate-only, tường minh):
   Scope Rule nếu bất kỳ fact nền tảng nào ở trên đổi.
 ```
 
-### Python line+branch coverage mechanism — CANDIDATE (v0.5, pending Product Owner decision)
+### Python line+branch coverage mechanism — APPROVED (v0.5 candidate content, mechanism selection APPROVED by Product Owner via Testing Convention v0.7 approval, 2026-08-28 — installation/pinning/measurement still separately governed, see approval banner above)
 
 ```text
 [v0.5 bổ sung — vai trò: `Python QG Coverage Mechanism Candidate Author`. Đây LÀ
@@ -1493,4 +1546,46 @@ v0.7  2026-08-28  Evidence-fidelity correction, bounded remediation of
       KHÔNG Product Owner decision, KHÔNG authorize LIVE, KHÔNG chạm
       `module-registry.yaml`/implementation/test/CI. `P3-PY-COV-A-
       MIN-02`: `REMEDIATED — PENDING RE-REVIEW` — KHÔNG self-closed.
+v0.7 APPROVAL — mechanical (2026-08-28T21:12:00+07:00), vai trò: `Testing
+      Convention v0.7 Mechanical Approval Recorder`. Product Owner
+      decision (verbatim): "APPROVE TESTING CONVENTION V0.7 AT BOUNDARY
+      79fd8e6b91b82ca5e05748c8c79f9140bab81867. PYTHON LINE+BRANCH
+      COVERAGE MECHANISM: coverage.py. P3-PY-COV-A-MIN-01: CLOSED.
+      P3-PY-COV-A-MIN-02: CLOSED." Reviewed immutable boundary: HEAD
+      79fd8e6b91b82ca5e05748c8c79f9140bab81867. Review evidence: ChatGPT
+      bounded Review A re-review — CLEAN — READY_FOR_INDEPENDENT_
+      REVIEW_B, P3-PY-COV-A-MIN-01/-MIN-02 CLOSED (Review A validation),
+      0 new Blocker/Major/qualifying Minor. Independent Review B —
+      Claude/"Independent Review B", Mode A `DISTINCT_PRINCIPAL` — CLEAN
+      — READY_FOR_PRODUCT_OWNER_DECISION, P3-PY-COV-A-MIN-01/-MIN-02
+      CLOSED, 0 new Blocker/Major/qualifying Minor, `ADR_NOT_REQUIRED`
+      CONFIRMED. Independent-review requirement SATISFIED. `status:
+      Draft → Approved`, `approved_by: null → Product Owner`,
+      `approved_at: null → "2026-08-28"` (full decision time
+      2026-08-28T21:12+07:00 recorded in the approval banner/MANIFEST/
+      CHANGELOG, date-only frontmatter convention preserved). `version`
+      KHÔNG bump — VẪN `"0.7"` (pure mechanical lifecycle approval).
+      KHÔNG semantic content nào đổi (§1–§18/Framework-tool-selection/Go
+      branch-coverage subsection/Python coverage-mechanism subsection/
+      Non-goals/ADR-scope disposition/v0.1–v0.7 banners phía trên
+      byte-equivalent ngoài chính banner approval này, frontmatter
+      lifecycle field, VÀ Python coverage subsection's own header label
+      đổi từ "CANDIDATE... pending Product Owner decision" thành
+      "APPROVED... mechanism selection APPROVED... installation/
+      pinning/measurement still separately governed" — pure lifecycle-
+      wording sync, KHÔNG substantive change) — coverage.py mechanism
+      selection nay Approved; package VẪN NOT INSTALLED, version VẪN
+      NOT YET PINNED, qualifying Feature coverage evidence VẪN NOT YET
+      PRODUCED. Go branch-coverage mechanism/history (gobco candidate)
+      KHÔNG chạm — VẪN riêng, chưa Product Owner decision. Approval này
+      KHÔNG cài đặt/pin `coverage`, KHÔNG thêm dependency, KHÔNG tạo/sửa
+      CI, KHÔNG đo feature-engine coverage, KHÔNG close/remediate
+      `P3-FEATURE-QG-EVID-01`/`-EVID-02` (VẪN `FAIL — evidence`), KHÔNG
+      rerun feature-engine's Chapter 13 QG (VẪN `FAIL — evidence`),
+      KHÔNG approve Feature Engine module, KHÔNG authorize LIVE, KHÔNG
+      chạm `python/feature-engine/**`/`module-registry.yaml`/
+      Constitution/ADR/Domain Contract/Input Contract/Stream Registry
+      nào. Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable
+      byte-for-byte như ADR; `ADR_NOT_REQUIRED` VẪN đúng; thay đổi
+      SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule.
 ```

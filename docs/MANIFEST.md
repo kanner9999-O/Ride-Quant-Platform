@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.268"
+manifest_version: "10.269"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -13810,6 +13810,131 @@ a whole, then (if approved) a separate installation/pinning transaction, then a 
 formal Feature Engine Chapter 13 Quality Gate re-evaluation. None performed here.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**` both verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.267"` → `"10.268"`.
+
+## Testing Convention v0.7 — Product Owner Approval (mechanical lifecycle recorder only — coverage.py mechanism selection APPROVED; not installed, not pinned, no Feature evidence produced)
+
+**Purely mechanical Product Owner approval-recording transaction — vai trò: `Testing Convention v0.7 Mechanical Approval Recorder`.** Records an approval decision already made. Does NOT change Testing Convention substantive semantics. Does NOT redo Review A or Review B. Does NOT modify the selected coverage mechanism. Does NOT install or pin coverage.py. Does NOT measure Feature Engine coverage. Does NOT close Feature QG evidence findings. Does NOT rerun Feature Engine Chapter 13 QG. Does NOT approve Feature Engine. Does NOT authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `79fd8e6b91b82ca5e05748c8c79f9140bab81867` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.268"` at start. `docs/engineering/testing.md` confirmed matching expected starting state: `version: "0.7"`, `status: Draft`, `approved_by: null`, `approved_at: null`; `coverage` package confirmed absent from `python/feature-engine/pyproject.toml`/`requirements-dev.lock.txt` (CANDIDATE / NOT INSTALLED / NOT PINNED, unchanged from prior transactions).
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE TESTING CONVENTION V0.7 AT BOUNDARY 79fd8e6b91b82ca5e05748c8c79f9140bab81867.
+PYTHON LINE+BRANCH COVERAGE MECHANISM: coverage.py.
+P3-PY-COV-A-MIN-01: CLOSED.
+P3-PY-COV-A-MIN-02: CLOSED.
+
+Decision time: 2026-08-28T21:12+07:00 (recorded at this precision; the frontmatter
+  approved_at field uses this document's existing date-only convention, "2026-08-28",
+  per prior v0.2/v0.4 approval precedent — no fabricated seconds).
+Approved immutable boundary: 79fd8e6b91b82ca5e05748c8c79f9140bab81867 (the v0.7
+  finding-state evidence correction commit — this recorder's own commit is a separate,
+  later, purely mechanical commit, never itself the approved boundary).
+```
+
+### Completed review chain (recorded — closure attributed to the chain, not to this recorder)
+
+```text
+ChatGPT bounded Review A re-review, boundary 79fd8e6b91b82ca5e05748c8c79f9140bab81867:
+  Disposition: BOUNDED REVIEW A RE-REVIEW: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+  P3-PY-COV-A-MIN-01: CLOSED (Review A validation). P3-PY-COV-A-MIN-02: CLOSED (Review A
+  validation). New Blocker 0 / New Major 0 / New qualifying Minor 0.
+Independent Review B — Claude, registered alias "Independent Review B", role AI Technical
+  Architect, ADR-031 Mode A DISTINCT_PRINCIPAL, same boundary: Disposition: INDEPENDENT
+  REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION. P3-PY-COV-A-MIN-01: CLOSED.
+  P3-PY-COV-A-MIN-02: CLOSED. New Blocker 0 / New Major 0 / New qualifying Minor 0.
+  ADR_NOT_REQUIRED: CONFIRMED.
+Minimum-two-independent-review requirement (Chapter 11 §11.5): SATISFIED.
+Evidence chain (this recorder only records the already-completed result): executor
+  remediation (v0.5 candidate -> v0.6 bounded remediation -> v0.7 finding-state correction)
+  -> Review A validation -> Independent Review B validation -> Product Owner approval
+  decision -> this mechanical recorder. Closure of P3-PY-COV-A-MIN-01/-MIN-02 is NOT
+  attributed to this recorder transaction.
+```
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: this transaction is a purely mechanical lifecycle-approval recorder. The
+  semantic tooling decision (coverage.py as the Python line+branch coverage mechanism) was
+  already reviewed (ChatGPT Review A + Independent Review B, both CLEAN) and is now being
+  recorded as Product-Owner-approved at an already-immutable boundary — no new architecture/
+  tooling/contract/governance-process decision is introduced by the act of recording an
+  approval. No Platform Invariant/Event Schema/Module Taxonomy/dependency-graph change; no
+  Locked ADR superseded.
+```
+
+### Mechanical lifecycle transition
+
+```text
+docs/engineering/testing.md: version "0.7" -> "0.7" (UNCHANGED — pure mechanical approval,
+  Chapter 0 §8, no version bump); status Draft -> Approved; approved_by null -> Product
+  Owner; approved_at null -> "2026-08-28". No v0.8 created.
+Python line+branch coverage mechanism subsection header: lifecycle-wording synced from
+  "CANDIDATE (v0.5, pending Product Owner decision)" to "APPROVED (v0.5 candidate content,
+  mechanism selection APPROVED..., installation/pinning/measurement still separately
+  governed)" — pure lifecycle-state label sync, verified NO change to: measurement model,
+  branch arc semantics, independent JSON metrics, blended-percent prohibition, source
+  boundary, omit/exclusion rules, --branch requirement, --fail-under treatment,
+  installation-time verification contract, alternatives analysis, ADR_NOT_REQUIRED
+  reasoning, or Chapter 13 authority references (`git diff` for this section reviewed line
+  by line to confirm only the heading label changed).
+Existing Go branch-coverage mechanism/history (gobco candidate) verified UNTOUCHED — remains
+  its own separate, still-pending-Product-Owner-decision item, not addressed by this
+  transaction.
+```
+
+### coverage.py state after approval (precise distinction)
+
+```text
+Testing Convention v0.7: APPROVED.
+Python line+branch coverage mechanism SELECTION: coverage.py — APPROVED by Product Owner as
+  the governed mechanism.
+coverage.py package: NOT INSTALLED (absent from pyproject.toml/requirements-dev.lock.txt,
+  verified via git diff --quiet on both files).
+coverage.py version: NOT YET PINNED by any repository installation transaction.
+Qualifying Feature Engine coverage evidence: NOT YET PRODUCED.
+This approval does NOT install, pin, verify, measure, or close any Feature QG coverage
+  evidence finding.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/**, pyproject.toml, requirements-dev.lock.txt, CI/CD workflows,
+  docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**,
+  docs/architecture/input-contracts/**, docs/architecture/stream-registry.yaml: all verified
+  byte-identical (`git diff --quiet` for each path). No tool installed or pinned. No Feature
+  Engine coverage measured. No Feature Chapter 13 QG rerun. No Feature module approval. No
+  LIVE authorization. Files touched, confirmed via `git status --porcelain=v1`:
+  docs/engineering/testing.md, docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:          version "0.7", status Approved, approved_by Product Owner,
+                              approved_at "2026-08-28" (full decision time
+                              2026-08-28T21:12+07:00). Python coverage mechanism selection
+                              (coverage.py) APPROVED; NOT installed; NOT pinned.
+P3-PY-COV-A-MIN-01:           CLOSED (completed Review A + Independent Review B chain,
+                              accepted by Product Owner decision).
+P3-PY-COV-A-MIN-02:           CLOSED (same).
+P3-FEATURE-QG-EVID-01:        FAIL — evidence (unchanged — NOT closed/remediated).
+P3-FEATURE-QG-EVID-02:        FAIL — evidence (unchanged — NOT closed/remediated).
+Feature Engine Quality Tier:  RESOLVED — Tier 1 — Core Logic (unchanged).
+Feature formal Chapter 13 QG: FAIL — evidence (unchanged, not rerun).
+Feature module approval:      NOT APPROVED.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+A separate installation/pinning transaction for `coverage.py` (applying the full installation-time verification contract already recorded in `testing.md`), then a separate formal Feature Engine Chapter 13 Quality Gate re-evaluation once qualifying line/branch coverage evidence exists. None performed here.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**` both verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.268"` → `"10.269"`.
 
 ## Decision Log
 

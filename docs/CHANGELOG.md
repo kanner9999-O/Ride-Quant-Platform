@@ -2,6 +2,82 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-28 — Testing Convention v0.7: Product Owner Approval (mechanical — coverage.py mechanism selection APPROVED, not installed/pinned)
+
+**Purely mechanical Product Owner approval-recording transaction — vai trò: `Testing Convention v0.7 Mechanical Approval Recorder`.** Records an already-made approval decision. Does not change substantive semantics, does not redo Review A/B, does not modify the coverage mechanism, does not install/pin coverage.py, does not measure Feature coverage, does not close Feature QG evidence findings, does not rerun Feature QG, does not approve Feature Engine, does not authorize LIVE.
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE TESTING CONVENTION V0.7 AT BOUNDARY 79fd8e6b91b82ca5e05748c8c79f9140bab81867.
+PYTHON LINE+BRANCH COVERAGE MECHANISM: coverage.py.
+P3-PY-COV-A-MIN-01: CLOSED.
+P3-PY-COV-A-MIN-02: CLOSED.
+Decision time: 2026-08-28T21:12+07:00 (frontmatter approved_at uses date-only convention,
+  "2026-08-28", per prior precedent).
+```
+
+### Completed review chain
+
+```text
+ChatGPT bounded Review A re-review (same boundary): CLEAN — READY_FOR_INDEPENDENT_REVIEW_B;
+  P3-PY-COV-A-MIN-01/-MIN-02 CLOSED (Review A validation); 0 new Blocker/Major/qualifying
+  Minor.
+Independent Review B (Claude/"Independent Review B", Mode A DISTINCT_PRINCIPAL): CLEAN —
+  READY_FOR_PRODUCT_OWNER_DECISION; P3-PY-COV-A-MIN-01/-MIN-02 CLOSED; 0 new Blocker/Major/
+  qualifying Minor; ADR_NOT_REQUIRED CONFIRMED.
+Closure of both findings is attributed to this completed review + Product Owner decision
+  chain — not to this mechanical recorder.
+```
+
+### Mechanical lifecycle transition
+
+```text
+testing.md: version "0.7" -> "0.7" (unchanged, no bump); status Draft -> Approved;
+  approved_by null -> Product Owner; approved_at null -> "2026-08-28". Python coverage
+  mechanism subsection header lifecycle-synced from "CANDIDATE... pending Product Owner
+  decision" to "APPROVED..." — pure label sync, no change to measurement model, branch
+  semantics, independent metrics, blended-percent prohibition, source boundary, --branch
+  requirement, --fail-under treatment, installation-time verification contract,
+  alternatives analysis, or ADR_NOT_REQUIRED reasoning. Existing Go branch-coverage
+  candidate (gobco) untouched — remains its own separate, still-pending item.
+```
+
+### coverage.py state after approval
+
+```text
+Mechanism selection: APPROVED. Package: NOT INSTALLED. Version: NOT YET PINNED. Qualifying
+  Feature Engine coverage evidence: NOT YET PRODUCED. This approval does not install, pin,
+  verify, measure, or close any Feature QG coverage evidence.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — purely mechanical lifecycle recorder for an already-reviewed decision;
+  no new architecture/tooling/governance-process decision introduced.
+```
+
+### Files changed
+
+```text
+docs/engineering/testing.md, docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version
+  "10.268" -> "10.269". No other file touched. No tool installed or pinned.
+```
+
+### State (after this transaction)
+
+```text
+P3-PY-COV-A-MIN-01/-MIN-02: CLOSED. P3-FEATURE-QG-EVID-01/-EVID-02: FAIL — evidence
+  (unchanged). Feature Engine Quality Tier: RESOLVED — Tier 1 — Core Logic. Feature formal
+  Chapter 13 QG: FAIL — evidence (not rerun). Feature module approval: NOT APPROVED. LIVE:
+  NOT_AUTHORIZED.
+```
+
+### Next governed action (not performed here)
+
+A separate installation/pinning transaction for coverage.py (applying the installation-time verification contract already recorded), then a separate formal Feature Engine Chapter 13 QG re-evaluation once qualifying coverage evidence exists.
+
 ## [Unreleased] — 2026-08-28 — Testing Convention v0.7: Finding-State Evidence Correction (`P3-PY-COV-A-MIN-02` bounded remediation applied, NOT self-closed)
 
 **Extremely bounded evidence/lifecycle-fidelity correction — vai trò: `Testing Convention v0.6 Finding-State Evidence Correction Executor`.** Corrects `P3-PY-COV-A-MIN-02`, identified by a subsequent ChatGPT bounded Review A re-review of the v0.6 correction. Does not modify coverage.py, coverage semantics, or install/measure anything; does not perform Independent Review B; does not perform a Product Owner decision.
