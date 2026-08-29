@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.270"
+manifest_version: "10.271"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -14061,6 +14061,213 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 Deterministic re-verification of these three corrections, then a separate installation/pinning transaction for `coverage.py`, then a separate formal Feature Engine Chapter 13 Quality Gate re-evaluation once qualifying coverage evidence exists. None performed here.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/architecture/module-registry.yaml`, `python/feature-engine/**` both verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.269"` → `"10.270"`.
+
+## `feature-engine` — coverage.py Governed Installation & Pinning (tooling prerequisite installed — `P3-FEATURE-QG-EVID-01`/`-EVID-02` remain `FAIL — evidence`, formal QG NOT rerun)
+
+**Governed installation/pinning transaction — vai trò: `Feature Engine coverage.py Governed Installation & Pinning Executor`.** Installs and pins the Product-Owner-approved Python line+branch coverage mechanism (Testing Convention v0.7, `coverage.py`) into `python/feature-engine`'s dev tooling, and executes the full installation-time fail-closed verification contract already defined by that Approved convention. This is NOT the formal Feature Engine Chapter 13 Quality Gate re-evaluation. Does NOT close `P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02`. Does NOT approve Feature Engine. Does NOT open the Phase 3 Approval Gate. Does NOT authorize LIVE. Does NOT modify `python/feature-engine/src/**`/`tests/**`. Does NOT modify Approved `docs/engineering/testing.md`.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `dc5188a69b8d5b877d41e02961b461785df7c44a` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.270"` at start. `docs/engineering/testing.md` confirmed unchanged: `version: "0.7"`, `status: Approved`, `approved_by: Product Owner`, `approved_at: "2026-08-28"` — byte-identical throughout this transaction (`git diff --quiet` confirmed). Approved semantic boundary confirmed: `79fd8e6b91b82ca5e05748c8c79f9140bab81867`. Feature implementation semantic boundary confirmed unchanged: `e5c5ce08b4f041cebfd8fd0976bad73433703419` (verified `git diff --quiet -- python/feature-engine/src/ python/feature-engine/tests/` before and after this transaction).
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: the mechanism selection (coverage.py) is already reviewed (ChatGPT Review A +
+  Independent Review B, both CLEAN) and Product-Owner-approved in Testing Convention v0.7.
+  This transaction performs only the governed installation/pinning already anticipated by
+  that approval — a dev/test-only tooling dependency addition inside one existing module,
+  introducing no new architecture responsibility, no cross-module dependency, no
+  governance-process change, and no hard-to-reverse platform decision. No new §4b trigger
+  discovered during installation.
+```
+
+### Exact pin — freshly verified, not reused from candidate-time research
+
+```text
+Package/distribution identity: `coverage` (PyPI), upstream project coverage.py/coveragepy
+  (github.com/coveragepy/coveragepy, author Ned Batchelder and 263 others).
+Chosen version: 7.16.0 — freshly verified at installation time via PyPI JSON API AND
+  independent `pip download`; this is NEWER than the v0.5 candidate's own historical
+  research finding (7.15.4) — the candidate's prior release number was correctly NOT
+  reused blindly. Release status: "Development Status :: 5 - Production/Stable" (verified
+  directly from the installed wheel's own METADATA file). Reason selected: current latest
+  stable release on PyPI at this transaction's boundary, matching the already-approved
+  upstream project identity exactly.
+Artifact identity: `coverage-7.16.0-cp313-cp313-macosx_11_0_arm64.whl` (the wheel pip itself
+  resolved for this exact interpreter/platform) — SHA-256
+  `0598aadae641f30a0796b75b45c0b9c5de8619bd5cfb251bb0cc254e86e6dd13`, independently computed
+  via `shasum -a 256` on the actual downloaded file (via `pip download coverage==7.16.0
+  --no-deps` in an isolated scratch directory outside this repository) — this hash was NOT
+  copied from a fetched summary alone; it was recomputed directly and matches.
+License: Apache-2.0 — verified directly from the installed wheel's own `METADATA` file
+  (`License: Apache-2.0`), matching the expected class from the prior candidate review; no
+  mismatch found.
+```
+
+### Python/pytest compatibility (freshly verified, not assumed)
+
+```text
+python3.13 --version -> Python 3.13.6 (the actual interpreter used for this transaction).
+feature-engine pyproject.toml requires-python -> ">=3.13" (unchanged, verified fresh).
+coverage 7.16.0's own wheel METADATA `Requires-Python: >=3.10` -> compatible.
+requirements-dev.lock.txt pytest pin, freshly re-read -> `pytest==9.1.1` (unchanged since
+  candidate-time research — verified fresh, not assumed). coverage 7.16.0 installed and
+  exercised successfully alongside this exact pytest version in a clean-room venv.
+```
+
+### Dependency impact (freshly inspected for the exact chosen release)
+
+```text
+coverage 7.16.0's own wheel METADATA `Requires-Dist: tomli; python_full_version <=
+  "3.11.0a6" and extra == "toml"` — this conditional does NOT apply at Python 3.13
+  (feature-engine's own floor) -> ZERO transitive runtime dependency introduced. Verified
+  empirically: `pip list` in the clean-room reconstruction shows no new package beyond
+  `coverage` itself compared to the pre-existing lock set. `[project].dependencies` in
+  pyproject.toml remains `[]` (untouched) — coverage added ONLY to
+  `[project.optional-dependencies].dev`, never to production dependencies.
+```
+
+### Pinning applied
+
+```text
+python/feature-engine/pyproject.toml: [project.optional-dependencies].dev gains exactly one
+  new entry, "coverage==7.16.0", appended after the existing "pytest==9.1.1" entry — no
+  other line changed, no existing pin loosened, no unrelated dependency touched.
+python/feature-engine/requirements-dev.lock.txt: gains exactly one new line,
+  "coverage==7.16.0", inserted at the correct case-insensitive alphabetical position
+  (between "ast_serialize==0.8.0" and "iniconfig==2.3.0", matching the file's existing
+  sort convention, i.e. pip freeze's own canonical-name ordering) — no other line changed.
+```
+
+### Clean-room reproducibility (verified twice — isolated scratch venv, then directly from the real edited lock file)
+
+```text
+Command: `python3.13 -m venv <fresh venv> && pip install --upgrade pip==25.2 && pip install
+  --no-deps -r requirements-dev.lock.txt && pip install -e . --no-deps` — matching this
+  repository's own established lock-reconstruction convention (identical to every prior QG
+  evaluation/candidate-authoring transaction in this MANIFEST).
+Result (both runs): installation succeeded; `pip check` -> "No broken requirements found.";
+  installed `coverage` version confirmed exactly `7.16.0` via `coverage.__version__`; `pip
+  list` showed no unplanned package drift (exact pre-existing package set plus `coverage`
+  itself only). Second run performed directly against the real, edited
+  `python/feature-engine/pyproject.toml`/`requirements-dev.lock.txt` (not merely the scratch
+  copy) to confirm the actual committed pin reproduces identically.
+Supporting engineering checks re-run against the same clean-room build: `ruff check .` ->
+  All checks passed!; `mypy` -> Success: no issues found in 23 source files; `pytest -q` ->
+  145 passed — confirming the new dev dependency introduces no regression to the existing
+  toolchain.
+```
+
+### Coverage semantics verification (freshly re-verified against the exact pinned release)
+
+```text
+Explicit branch mode: `coverage help run` confirms `--branch` flag unchanged — "Measure
+  branch coverage in addition to statement coverage," default remains off; branch
+  measurement is never silently enabled.
+Line metric identity: `coverage json`'s `totals.percent_statements_covered` field
+  confirmed present, computed as `covered_lines / num_statements` (independent metric).
+Branch metric identity: `totals.percent_branches_covered` field confirmed present,
+  computed as `covered_branches / num_branches` (independent metric).
+Blended-metric anti-conflation: `totals.percent_covered` confirmed still a BLENDED
+  combined metric ((covered_lines+covered_branches)/(num_statements+num_branches)) —
+  explicitly NOT used as either independent Chapter 13 metric anywhere in this transaction.
+Branch semantics: arc-based (source->destination line-pair) model confirmed unchanged —
+  the real smoke run's own `missing_branches`/`Missing` column output (e.g.
+  `authority_resolver.py`'s `99->109`) directly demonstrates whole-controlling-condition
+  arc tracking, not condition/MC-DC decomposition.
+Source boundary: `--source=feature_engine` confirmed via `coverage help run`
+  (`--source=SRC1,SRC2,... A list of directories or importable names of code to measure`);
+  the smoke run's own text report lists only `src/feature_engine/*.py` files — `tests/`
+  never entered the measured set.
+Omit/exclusion policy: `coverage debug config` shows `exclude_also: -none-` and the
+  built-in default `exclude_list` pattern (`# pragma: no cover`/case variants) only — no
+  custom omit/exclusion configured; direct source grep confirms ZERO `pragma: no cover`/
+  `pragma: no branch`/`TYPE_CHECKING` markers exist anywhere in
+  `python/feature-engine/src/feature_engine/*.py` — nothing is excluded, no authoritative
+  code hidden to inflate the metric.
+Unsupported/current syntax: fresh AST scan (this and the prior transaction) confirms
+  feature-engine's source contains no `match` statement, no walrus operator, and exactly
+  one PEP 695 generic-function construct (`contracts.py`'s `normalize_input_facts[T]`) —
+  the real smoke run measured `contracts.py` successfully (89% shown in the text report,
+  310 statements/108 branches tracked) with no parse error, directly confirming
+  compatibility with the ACTUAL source and the ACTUAL pinned version (stronger evidence
+  than the candidate-time toy-module reproduction).
+JSON/machine-readable evidence: `coverage json` confirmed to emit `meta.format`/
+  `meta.version`/`meta.timestamp`/`meta.branch_coverage` plus per-file and `totals`
+  objects with all fields needed for future immutable Chapter 13 evidence.
+Human-readable report: `coverage report -m` confirmed available; its blended "Cover"
+  column is explicitly NOT used as either Chapter 13 metric anywhere in this transaction.
+--fail-under behavior: `coverage help report` confirms unchanged — "Exit with a status of
+  2 if the total coverage is less than MIN" — still a SINGLE blended-value gate, no
+  independently-configurable line/branch thresholds have been added in this release. Per
+  Testing Convention v0.7's own approved design, this native mechanism is NOT used as
+  Chapter-13 pass/fail machinery; any future formal QG evidence transaction must
+  self-compute pass/fail from `percent_statements_covered`/`percent_branches_covered`
+  against the applicable floor resolved directly from Chapter 13 §13.3/§13.4 (numerical
+  floor value intentionally NOT copied into this record, per existing SSOT discipline).
+Network/runtime independence: installation itself required network access (PyPI fetch,
+  standard for any Python package); actual measurement/test execution (`coverage run`)
+  performed entirely offline once installed — no external runtime service dependency
+  introduced.
+```
+
+### Installation-time compatibility smoke run — INSTALLATION-TIME SMOKE ONLY, NOT FORMAL CHAPTER 13 QG EVIDENCE
+
+```text
+Command: `python -m coverage run --branch --source=feature_engine -m pytest tests/ -q`,
+  followed by `coverage report -m` and `coverage json`.
+Result: 145 passed, 0 failed (identical to the existing, already-recorded pytest baseline).
+  num_statements 1077, covered_lines 1001, percent_statements_covered 92.94336118848653.
+  num_branches 316, covered_branches 243, percent_branches_covered 76.89873417721519.
+  percent_covered (BLENDED, NOT a Chapter 13 metric) 89.30366116295764.
+Repeated FOUR times total (three in an isolated scratch venv, once directly against the
+  real, edited repository files) — all four runs produced byte-identical
+  num_statements/covered_lines/num_branches/covered_branches/percentages. Deterministic:
+  YES.
+This smoke result is explicitly NOT the formal immutable Chapter 13 Quality Gate evidence
+  record — it is installation-time compatibility verification only. `P3-FEATURE-QG-EVID-01`
+  and `P3-FEATURE-QG-EVID-02` are NOT closed by this transaction; a separate, formally-
+  governed QG evidence transaction must independently consume (or re-produce) qualifying
+  evidence before either finding may be evaluated for closure.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**: verified byte-identical
+  (`git diff --quiet` for each path) — this transaction installs tooling only, no
+  production/test code touched. docs/engineering/testing.md: verified byte-identical — no
+  Approved-convention semantic modification occurred or was necessary. docs/constitution/**,
+  docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**, Input Contracts,
+  Stream Registry, CI/CD workflows, any Go module, Context Aggregator: all verified
+  byte-identical. Files touched, confirmed via `git status --porcelain=v1`:
+  python/feature-engine/pyproject.toml, python/feature-engine/requirements-dev.lock.txt,
+  docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:          version "0.7", status Approved, approved_by Product Owner,
+                              approved_at "2026-08-28" (unchanged).
+coverage.py:                 INSTALLED and PINNED — python/feature-engine dev tooling only,
+                              version 7.16.0, zero transitive runtime dependency at Python
+                              >=3.13.
+P3-FEATURE-QG-EVID-01:        FAIL — evidence (tooling prerequisite now installed/pinned;
+                              formal qualifying line-coverage evidence still pending a
+                              separate, formally-governed QG evidence transaction).
+P3-FEATURE-QG-EVID-02:        FAIL — evidence (same, branch coverage).
+Feature Engine Quality Tier:  RESOLVED — Tier 1 — Core Logic (unchanged).
+Feature formal Chapter 13 QG: FAIL — evidence (unchanged, NOT rerun by this transaction).
+Feature module approval:      NOT APPROVED.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+A separate, formally-governed Feature Engine Chapter 13 Quality Gate evidence/re-evaluation transaction — consuming genuine, immutably-pinned line/branch coverage evidence produced via this now-installed `coverage.py` mechanism — remains the next step toward resolving `P3-FEATURE-QG-EVID-01`/`P3-FEATURE-QG-EVID-02`. Not performed here.
+
+**Files changed:** `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/engineering/testing.md`, `docs/architecture/module-registry.yaml`, `python/feature-engine/src/**`, `python/feature-engine/tests/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.270"` → `"10.271"`.
 
 ## Decision Log
 

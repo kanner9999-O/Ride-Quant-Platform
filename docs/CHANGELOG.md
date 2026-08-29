@@ -2,6 +2,89 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-29 — feature-engine: coverage.py Governed Installation & Pinning (tooling prerequisite installed — EVID-01/EVID-02 remain FAIL — evidence)
+
+**Governed installation/pinning transaction — vai trò: `Feature Engine coverage.py Governed Installation & Pinning Executor`.** Installs and pins the Product-Owner-approved `coverage.py` mechanism (Testing Convention v0.7) into `python/feature-engine`'s dev tooling, executing the full installation-time fail-closed verification contract. This is NOT the formal Feature Engine Chapter 13 Quality Gate re-evaluation. Does not close EVID-01/EVID-02, approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE. Does not modify Feature source/tests or the Approved testing.md.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — mechanism already reviewed and Product-Owner-approved; this transaction
+  performs only the governed installation/pinning already anticipated by that approval.
+```
+
+### Exact pin (freshly verified, not reused from candidate-time research)
+
+```text
+coverage==7.16.0 (PyPI `coverage`, github.com/coveragepy/coveragepy) — newer than the v0.5
+  candidate's own historical finding (7.15.4), correctly re-verified fresh rather than
+  reused. Artifact: coverage-7.16.0-cp313-cp313-macosx_11_0_arm64.whl, SHA-256
+  0598aadae641f30a0796b75b45c0b9c5de8619bd5cfb251bb0cc254e86e6dd13 (independently
+  downloaded and recomputed via shasum, not copied from a summary). License: Apache-2.0
+  (verified from the actual wheel METADATA). Requires-Python >=3.10 (compatible with
+  feature-engine's >=3.13). Zero transitive runtime dependency at Python 3.13 (the only
+  conditional dependency, tomli, does not apply above Python 3.11).
+```
+
+### Pinning applied
+
+```text
+pyproject.toml: [project.optional-dependencies].dev gains "coverage==7.16.0" (dev/test
+  tooling only — [project].dependencies remains []).
+requirements-dev.lock.txt: gains "coverage==7.16.0" at the correct alphabetical position.
+No other line changed in either file.
+```
+
+### Verification performed
+
+```text
+Clean-room install (twice: isolated scratch venv, then directly from the real edited lock
+  file) -> pip check: No broken requirements found; installed version exactly 7.16.0; no
+  unplanned package drift. ruff check/mypy/pytest re-run clean (145 passed) against the
+  same build. Branch mode (--branch), independent metrics
+  (percent_statements_covered/percent_branches_covered), blended-metric prohibition
+  (percent_covered), arc-based branch model, source=feature_engine boundary, omit/exclusion
+  policy (none configured; zero pragma markers in source), PEP 695 generic-syntax
+  compatibility (contracts.py measured successfully), JSON/human-readable output, and
+  --fail-under behavior (still a single blended-value gate, not used as Chapter-13 gate)
+  all freshly re-verified against the exact pinned release.
+```
+
+### Installation-time compatibility smoke run — INSTALLATION-TIME SMOKE ONLY, NOT FORMAL CHAPTER 13 QG EVIDENCE
+
+```text
+coverage run --branch --source=feature_engine -m pytest tests/ -q -> 145 passed.
+percent_statements_covered 92.94336118848653 (1001/1077). percent_branches_covered
+76.89873417721519 (243/316). percent_covered (blended, not a Chapter 13 metric)
+89.30366116295764. Repeated four times (three scratch, one against the real edited files)
+— byte-identical every time. Deterministic: Yes. NOT the formal QG evidence record —
+EVID-01/EVID-02 are not closed by this transaction.
+```
+
+### Files changed
+
+```text
+python/feature-engine/pyproject.toml, python/feature-engine/requirements-dev.lock.txt,
+  docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version "10.270" -> "10.271". No other
+  file touched — testing.md, module-registry.yaml, and Feature src/tests all verified
+  byte-unchanged.
+```
+
+### State (after this transaction)
+
+```text
+coverage.py: INSTALLED and PINNED (7.16.0, dev tooling only). P3-FEATURE-QG-EVID-01/-EVID-
+  02: FAIL — evidence (tooling prerequisite now met; qualifying evidence still pending a
+  separate, formally-governed QG evidence transaction). Feature Engine Quality Tier:
+  RESOLVED — Tier 1 — Core Logic. Feature formal Chapter 13 QG: FAIL — evidence (not
+  rerun). Feature module approval: NOT APPROVED. LIVE: NOT_AUTHORIZED. Testing Convention:
+  version "0.7", status Approved (unchanged).
+```
+
+### Next governed action (not performed here)
+
+A separate, formally-governed Feature Engine Chapter 13 Quality Gate evidence/re-evaluation transaction, consuming genuine immutably-pinned coverage evidence produced via this now-installed mechanism.
+
 ## [Unreleased] — 2026-08-29 — Testing Convention v0.7 Approval Recorder: Bounded Correction (deterministic post-approval verification findings)
 
 **Bounded mechanical/evidence correction — vai trò: `Testing Convention v0.7 Approval Recorder Bounded Correction Executor`.** Corrects three deterministic post-approval verification findings against the v0.7 approval recorder (`a75b5db796ee14ca6e24ed23f903429da371edcc`). Does not change coverage.py mechanism semantics, does not redo Review A/B or the Product Owner decision, does not install/pin/measure anything.
