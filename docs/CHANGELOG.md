@@ -2,6 +2,42 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-29 — feature-engine: Formal Coverage Evidence Count-Fidelity Correction (`P3-FEATURE-QG-COV-A-MIN-01` — REMEDIATED — PENDING BOUNDED RE-VERIFICATION)
+
+**Bounded, docs-only evidence-fidelity correction — vai trò: `Feature Engine Formal Coverage Evidence Count-Fidelity Correction Executor`.** Corrects ONLY `P3-FEATURE-QG-COV-A-MIN-01`: prose in the prior formal coverage evidence transaction incorrectly described the range `P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08` (six findings — test-effectiveness, Tier-1 Parity/I-2, I-5, I-6, I-13/property-based transition evidence, I-1) as "five" blocking dimensions. No coverage rerun, no branch-coverage remediation, no measurement change, no finding-identity/state change, no Feature implementation/test change.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — wording-only evidence-count correction; no semantic/governance/tooling
+  decision involved.
+```
+
+### Correction
+
+```text
+docs/MANIFEST.md and docs/CHANGELOG.md: "five other/remaining blocking evidence dimensions
+  (EVID-03..EVID-08 / through -EVID-08)" corrected to "six other/remaining blocking evidence
+  findings (P3-FEATURE-QG-EVID-03 through P3-FEATURE-QG-EVID-08)" in every sentence making a
+  cardinality claim. No finding identity, state, or measurement was altered.
+```
+
+### Preserved unchanged (verified)
+
+```text
+P3-FEATURE-QG-EVID-01: CLOSED. P3-FEATURE-QG-EVID-02: CLOSED. P3-FEATURE-QG-COV-01:
+  OPEN — FAIL — criteria. P3-FEATURE-QG-EVID-03 through -08, P3-FEATURE-QG-MIN-01:
+  unchanged. Line evidence 1001/1077 = 92.94336118848653% PASS; branch evidence 243/316 =
+  76.89873417721519% FAIL — criteria; blended 89.30366116295764% still unused for gating.
+  Testing Convention v0.7/Chapter 13 v1.7/Module Registry v1.7: byte-unchanged. Formal
+  Feature Chapter 13 QG: FAIL (unchanged). Feature module: NOT APPROVED. LIVE:
+  NOT_AUTHORIZED.
+```
+
+**P3-FEATURE-QG-COV-A-MIN-01:** REMEDIATED — PENDING BOUNDED RE-VERIFICATION (not self-closed).
+
+**manifest_version:** `"10.272"` → `"10.273"`.
+
 ## [Unreleased] — 2026-08-29 — feature-engine: Formal Chapter 13 Coverage Evidence Evaluation (EVID-01/EVID-02 CLOSED; new COV-01 OPEN — FAIL — criteria, branch below Tier-1 floor; overall Feature QG still FAIL)
 
 **Formal, evidence-only Chapter 13 coverage evaluation — vai trò: `Feature Engine Formal Chapter 13 Coverage Evidence Evaluator`.** Addresses ONLY line coverage (`P3-FEATURE-QG-EVID-01`) and branch coverage (`P3-FEATURE-QG-EVID-02`) using the Approved/installed/pinned `coverage.py` 7.16.0 mechanism (Testing Convention v0.7). NOT a full Feature QG re-evaluation — EVID-03 through EVID-08 and MIN-01 untouched. Does not modify Feature source/tests/tooling pins/testing.md/module-registry.yaml. Does not remediate branch coverage. Does not approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE.
@@ -47,9 +83,9 @@ P3-FEATURE-QG-EVID-03 through -EVID-08, P3-FEATURE-QG-MIN-01: unchanged, out of 
 
 ```text
 Formal Feature Chapter 13 Quality Gate: FAIL — unchanged overall. Two evidence blockers
-  closed, one new branch-coverage criteria finding opened, five other blocking evidence
-  dimensions (EVID-03..EVID-08) remain untouched. Feature module NOT approved. Phase 3
-  Approval Gate NOT opened. LIVE NOT_AUTHORIZED.
+  closed, one new branch-coverage criteria finding opened, six other blocking evidence
+  findings (P3-FEATURE-QG-EVID-03 through P3-FEATURE-QG-EVID-08) remain untouched. Feature
+  module NOT approved. Phase 3 Approval Gate NOT opened. LIVE NOT_AUTHORIZED.
 ```
 
 ### No scope expansion

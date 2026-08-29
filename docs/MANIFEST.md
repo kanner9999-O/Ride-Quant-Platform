@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.272"
+manifest_version: "10.273"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -14497,8 +14497,8 @@ FAIL — UNCHANGED as the overall result. Two previously-missing-evidence blocke
   (EVID-01, EVID-02) are now CLOSED by this transaction's formal, reproducible evidence, and
   the line-coverage criterion independently PASSES — but a new, narrowly-scoped criteria
   finding (P3-FEATURE-QG-COV-01, branch coverage below the Tier-1 floor) is now OPEN, and
-  five other blocking evidence dimensions (P3-FEATURE-QG-EVID-03 through -EVID-08) remain
-  entirely untouched and unresolved, out of scope for this transaction. The overall Formal
+  six other blocking evidence findings (P3-FEATURE-QG-EVID-03 through P3-FEATURE-QG-EVID-08)
+  remain entirely untouched and unresolved, out of scope for this transaction. The overall Formal
   Feature Chapter 13 Quality Gate therefore remains FAIL. This transaction does not approve
   Feature Engine, does not open the Phase 3 Approval Gate, and does not authorize LIVE.
 ```
@@ -14554,9 +14554,135 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 
 ### Next governed action (not performed in this transaction)
 
-A separate, bounded branch-coverage-remediation transaction (test additions only, targeting the specific missing branches enumerated in this transaction's own `coverage report -m` output) must raise `feature-engine`'s branch coverage to >= 90% and re-measure before `P3-FEATURE-QG-COV-01` can close. Independently, the five remaining blocking evidence dimensions (`P3-FEATURE-QG-EVID-03` through `-EVID-08`: test-effectiveness, Tier-1 Parity Test, I-5, I-6, property-based testing) each require their own separate governed transactions before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. Neither performed here.
+A separate, bounded branch-coverage-remediation transaction (test additions only, targeting the specific missing branches enumerated in this transaction's own `coverage report -m` output) must raise `feature-engine`'s branch coverage to >= 90% and re-measure before `P3-FEATURE-QG-COV-01` can close. Independently, the six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`: test-effectiveness, Tier-1 Parity Test / I-2, I-5, I-6, I-13 / property-based transition evidence, I-1) each require their own separate governed transactions before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. Neither performed here.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/engineering/testing.md`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.271"` → `"10.272"`.
+
+## `feature-engine` Formal Coverage Evidence — Count-Fidelity Correction (`P3-FEATURE-QG-COV-A-MIN-01` — `REMEDIATED — PENDING BOUNDED RE-VERIFICATION`, NOT self-closed)
+
+**Bounded, docs-only evidence-fidelity correction — vai trò: `Feature Engine Formal Coverage Evidence Count-Fidelity Correction Executor`.** Corrects ONLY `P3-FEATURE-QG-COV-A-MIN-01` (an arithmetic/audit-semantic count defect in the formal coverage evidence transaction's own prose). Does NOT modify Feature implementation or tests. Does NOT rerun coverage. Does NOT remediate branch coverage. Does NOT change the formal line/branch measurements. Does NOT change `P3-FEATURE-QG-COV-01` semantics. Does NOT re-evaluate the full Feature Chapter 13 Quality Gate. Does NOT approve Feature Engine. Does NOT authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `313d25891ea1157645f5f8c9e4084ca8c7760f6e` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.272"` at start.
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: this transaction corrects only an evidence-count wording defect in already-
+  recorded formal coverage evidence prose — no semantic/governance/tooling decision is
+  involved, no finding identity/state changes, no measurement changes.
+```
+
+### P3-FEATURE-QG-COV-A-MIN-01 — exact defect
+
+```text
+Classification: qualifying Minor — evidence/audit count-fidelity inconsistency.
+Defect: the formal coverage evidence transaction (commit
+  313d25891ea1157645f5f8c9e4084ca8c7760f6e) correctly identified
+  P3-FEATURE-QG-EVID-03 through P3-FEATURE-QG-EVID-08 as the remaining unresolved/
+  out-of-scope blocking findings, but multiple sentences in docs/MANIFEST.md and
+  docs/CHANGELOG.md described that range's cardinality as "five other blocking evidence
+  dimensions" / "five remaining blocking evidence dimensions" (historical quotation of the
+  prior defect, not the current blocker count). The range EVID-03/EVID-04/EVID-05/EVID-06/
+  EVID-07/EVID-08 contains SIX findings, not five — an arithmetic and audit-semantic error.
+```
+
+### Correction applied
+
+```text
+docs/MANIFEST.md: two sentences corrected — the "Overall Formal Feature Chapter 13 Quality
+  Gate result" section ("five other blocking evidence dimensions (P3-FEATURE-QG-EVID-03
+  through -EVID-08)" -> "six other blocking evidence findings (P3-FEATURE-QG-EVID-03 through
+  P3-FEATURE-QG-EVID-08)") and the "Next governed action" section ("the five remaining
+  blocking evidence dimensions (`P3-FEATURE-QG-EVID-03` through `-EVID-08`: test-
+  effectiveness, Tier-1 Parity Test, I-5, I-6, property-based testing)" -> "the six remaining
+  blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`: test-
+  effectiveness, Tier-1 Parity Test / I-2, I-5, I-6, I-13 / property-based transition
+  evidence, I-1)").
+docs/CHANGELOG.md: one sentence corrected in the "Overall result" section ("five other
+  blocking evidence dimensions (EVID-03..EVID-08)" -> "six other blocking evidence findings
+  (P3-FEATURE-QG-EVID-03 through P3-FEATURE-QG-EVID-08)").
+Wording preference applied: "findings" used in place of "dimensions" where the sentence
+  refers to the six individually-tracked evidence-finding IDs, per this correction's own
+  governing instruction — each ID is an individually tracked evidence finding, not a single
+  aggregate dimension.
+No other sentence referencing "P3-FEATURE-QG-EVID-03" through "-EVID-08" without an explicit
+  numeric-count claim required correction (e.g. "UNCHANGED, explicitly out of scope" /
+  "untouched, out of scope" phrasings elsewhere in both files carry no cardinality claim and
+  were left as-is).
+```
+
+### Finding-identity/state preservation — explicit verification
+
+```text
+P3-FEATURE-QG-EVID-03: test-effectiveness evidence — identity/state UNCHANGED.
+P3-FEATURE-QG-EVID-04: Tier-1 Parity / I-2 — identity/state UNCHANGED.
+P3-FEATURE-QG-EVID-05: I-5 — identity/state UNCHANGED.
+P3-FEATURE-QG-EVID-06: I-6 — identity/state UNCHANGED.
+P3-FEATURE-QG-EVID-07: I-13 / property-based transition evidence — identity/state UNCHANGED.
+P3-FEATURE-QG-EVID-08: I-1 — identity/state UNCHANGED.
+None of the six were closed, remediated, renamed, merged, or reclassified by this
+  transaction — only the aggregate-count prose describing their range was corrected.
+P3-FEATURE-QG-EVID-01: CLOSED (unchanged).
+P3-FEATURE-QG-EVID-02: CLOSED (unchanged).
+P3-FEATURE-QG-COV-01: OPEN — FAIL — criteria (unchanged; semantics/evidence untouched).
+P3-FEATURE-QG-MIN-01: unchanged.
+```
+
+### Formal coverage evidence preserved unchanged (not re-measured, not re-derived)
+
+```text
+Repository evaluation boundary: a7a34014bcf153534572ef1441b7a128a203555e (unchanged).
+Chapter 13: version "1.7", blob 4bb697f3b43b0874a080015ef0ce6ca53de729f4 (unchanged,
+  verified byte-identical).
+Module Registry: version "1.7", blob 8535f92efeb76ffb226791d201dc0b3fb71f06c0 (unchanged,
+  verified byte-identical).
+Feature Tier: Tier 1 — Core Logic (unchanged).
+Testing Convention: v0.7, Approved, blob 06b0fef8b707f428809c3528a831a39be6b513db
+  (unchanged, verified byte-identical).
+coverage.py: 7.16.0 (unchanged, not re-run in this transaction).
+Formal line evidence: covered_lines 1001 / num_statements 1077 = percent_statements_covered
+  92.94336118848653% -> PASS (unchanged).
+Formal branch evidence: covered_branches 243 / num_branches 316 = percent_branches_covered
+  76.89873417721519% -> FAIL — criteria (unchanged).
+Blended percent_covered 89.30366116295764% — remains explicitly NOT USED for either
+  independent Chapter 13 coverage decision (unchanged).
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/engineering/
+  testing.md, docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml,
+  docs/domain/**, CI/CD workflows, any Go module, Context Aggregator: all verified
+  byte-identical (`git diff --quiet` for each path). No coverage rerun. No branch-coverage
+  remediation. No full Feature QG re-evaluation. Feature module not approved. LIVE not
+  authorized. Files touched, confirmed via `git status --porcelain=v1`: docs/MANIFEST.md,
+  docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+P3-FEATURE-QG-COV-A-MIN-01:   REMEDIATED — PENDING BOUNDED RE-VERIFICATION (NOT self-closed
+                               by this transaction).
+P3-FEATURE-QG-EVID-01:        CLOSED (unchanged).
+P3-FEATURE-QG-EVID-02:        CLOSED (unchanged).
+P3-FEATURE-QG-COV-01:         OPEN — FAIL — criteria (unchanged).
+P3-FEATURE-QG-EVID-03..-08:   UNCHANGED (out of scope; identities/states untouched).
+P3-FEATURE-QG-MIN-01:         UNCHANGED.
+Formal Feature Chapter 13 QG: FAIL (unchanged).
+Feature module approval:      NOT APPROVED.
+Phase 3 Approval Gate:        NOT opened.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Independent Review B / bounded re-verification of this count-fidelity correction remains pending before `P3-FEATURE-QG-COV-A-MIN-01` may be closed. Separately, unchanged from the prior transaction: a bounded branch-coverage-remediation transaction must raise branch coverage to >= 90% to close `P3-FEATURE-QG-COV-01`, and the six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transactions. None performed here.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/engineering/testing.md`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.272"` → `"10.273"`.
 
 ## Decision Log
 
