@@ -15,7 +15,7 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 
 # Engineering Foundation — Testing Convention
 
-**v0.7 APPROVAL — mechanical (2026-08-28T21:12:00+07:00), vai trò: `Testing Convention v0.7 Mechanical Approval Recorder`.** Product Owner decision (verbatim): **"APPROVE TESTING CONVENTION V0.7 AT BOUNDARY 79fd8e6b91b82ca5e05748c8c79f9140bab81867. PYTHON LINE+BRANCH COVERAGE MECHANISM: coverage.py. P3-PY-COV-A-MIN-01: CLOSED. P3-PY-COV-A-MIN-02: CLOSED."** Decision time: `2026-08-28T21:12+07:00` (recorded here at full precision; `approved_at` frontmatter field uses this document's existing date-only convention, `"2026-08-28"`, per prior v0.2/v0.4 approval precedent). Reviewed immutable boundary: HEAD `79fd8e6b91b82ca5e05748c8c79f9140bab81867` (the v0.7 finding-state evidence correction commit). `status: Draft → Approved`, `approved_by: null → Product Owner`, `approved_at: null → "2026-08-28"`. `version` KHÔNG bump (pure mechanical lifecycle approval, đúng Chapter 0 §8) — VẪN `"0.7"`.
+**v0.7 APPROVAL — mechanical (2026-08-28T21:12+07:00), vai trò: `Testing Convention v0.7 Mechanical Approval Recorder`.** Product Owner decision (verbatim): **"APPROVE TESTING CONVENTION V0.7 AT BOUNDARY 79fd8e6b91b82ca5e05748c8c79f9140bab81867. PYTHON LINE+BRANCH COVERAGE MECHANISM: coverage.py. P3-PY-COV-A-MIN-01: CLOSED. P3-PY-COV-A-MIN-02: CLOSED."** Decision time: `2026-08-28T21:12+07:00` (recorded here at full precision; `approved_at` frontmatter field uses this document's existing date-only convention, `"2026-08-28"`, per prior v0.2/v0.4 approval precedent). Reviewed immutable boundary: HEAD `79fd8e6b91b82ca5e05748c8c79f9140bab81867` (the v0.7 finding-state evidence correction commit). `status: Draft → Approved`, `approved_by: null → Product Owner`, `approved_at: null → "2026-08-28"`. `version` KHÔNG bump (pure mechanical lifecycle approval, đúng Chapter 0 §8) — VẪN `"0.7"`.
 
 **Review evidence tại approval này (completed chain, recorded — không phải recorder self-closure):**
 
@@ -1546,7 +1546,7 @@ v0.7  2026-08-28  Evidence-fidelity correction, bounded remediation of
       KHÔNG Product Owner decision, KHÔNG authorize LIVE, KHÔNG chạm
       `module-registry.yaml`/implementation/test/CI. `P3-PY-COV-A-
       MIN-02`: `REMEDIATED — PENDING RE-REVIEW` — KHÔNG self-closed.
-v0.7 APPROVAL — mechanical (2026-08-28T21:12:00+07:00), vai trò: `Testing
+v0.7 APPROVAL — mechanical (2026-08-28T21:12+07:00), vai trò: `Testing
       Convention v0.7 Mechanical Approval Recorder`. Product Owner
       decision (verbatim): "APPROVE TESTING CONVENTION V0.7 AT BOUNDARY
       79fd8e6b91b82ca5e05748c8c79f9140bab81867. PYTHON LINE+BRANCH
@@ -1576,8 +1576,10 @@ v0.7 APPROVAL — mechanical (2026-08-28T21:12:00+07:00), vai trò: `Testing
       wording sync, KHÔNG substantive change) — coverage.py mechanism
       selection nay Approved; package VẪN NOT INSTALLED, version VẪN
       NOT YET PINNED, qualifying Feature coverage evidence VẪN NOT YET
-      PRODUCED. Go branch-coverage mechanism/history (gobco candidate)
-      KHÔNG chạm — VẪN riêng, chưa Product Owner decision. Approval này
+      PRODUCED. Go branch-coverage mechanism/history (gobco candidate,
+      already Product-Owner-approved as part of Testing Convention v0.4,
+      2026-08-20) KHÔNG chạm — out of scope and unchanged by this Python
+      approval recorder, KHÔNG reopen `P3-GOBC-A-MAJ-01`. Approval này
       KHÔNG cài đặt/pin `coverage`, KHÔNG thêm dependency, KHÔNG tạo/sửa
       CI, KHÔNG đo feature-engine coverage, KHÔNG close/remediate
       `P3-FEATURE-QG-EVID-01`/`-EVID-02` (VẪN `FAIL — evidence`), KHÔNG
@@ -1588,4 +1590,42 @@ v0.7 APPROVAL — mechanical (2026-08-28T21:12:00+07:00), vai trò: `Testing
       nào. Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable
       byte-for-byte như ADR; `ADR_NOT_REQUIRED` VẪN đúng; thay đổi
       SEMANTIC tương lai VẪN PHẢI tự rerun ADR Scope Rule.
+v0.7 bounded correction (2026-08-29), của `P3-PY-COV-REC-A-MAJ-01`/
+      `P3-PY-COV-REC-A-MIN-01`/`P3-PY-COV-REC-A-MIN-02` — vai trò:
+      `Testing Convention v0.7 Approval Recorder Bounded Correction
+      Executor`. Ba deterministic post-approval verification finding:
+      (a) `P3-PY-COV-REC-A-MAJ-01` — `docs/MANIFEST.md`'s Engineering
+      Foundation registry row for `engineering/testing.md` VẪN ghim
+      `0.4`/v0.4-decision (SSOT current-state pin stale, Chapter 0
+      §5b) trong khi tài liệu này ĐÃ ở `0.7`/Approved — sửa: registry
+      row's Version/Status columns nay ghim `0.7`/v0.7-decision, lịch
+      sử v0.4 giữ nguyên KHÔNG xóa; (b) `P3-PY-COV-REC-A-MIN-01` —
+      v0.7 APPROVAL banner/Change-History entry fabricate giây
+      (`2026-08-28T21:12:00+07:00`) KHÔNG được Product Owner cung cấp
+      — sửa thành đúng precision `2026-08-28T21:12+07:00`; (c)
+      `P3-PY-COV-REC-A-MIN-02` — v0.7 APPROVAL Change-History entry
+      tuyên bố SAI rằng gobco "VẪN riêng, chưa Product Owner decision"
+      — SAI VÌ gobco ĐÃ được Product Owner approve làm một phần của
+      Testing Convention v0.4 (2026-08-20) — sửa thành "out of scope
+      and unchanged by this Python approval recorder," KHÔNG reopen
+      `P3-GOBC-A-MAJ-01`, KHÔNG đổi gobco semantics/installation
+      state/QG evidence/artifact nào. `version: "0.7" → "0.7"`
+      (KHÔNG đổi), `status` VẪN `Approved`, `approved_by` VẪN `Product
+      Owner`, `approved_at` VẪN `"2026-08-28"` — KHÔNG tạo v0.8.
+      **KHÔNG đổi:** coverage.py selection, arc-based branch semantics,
+      `percent_statements_covered`/`percent_branches_covered`,
+      `percent_covered` prohibition, `--branch`/`branch=True`
+      requirement, `source=feature_engine` boundary, omit/exclusion
+      rules, `--fail-under` treatment, installation-time verification
+      contract, alternatives assessment, Chapter 13 authority,
+      `ADR_NOT_REQUIRED` substantive reasoning. `P3-PY-COV-A-MIN-01`/
+      `P3-PY-COV-A-MIN-02` VẪN `CLOSED` (unchanged). KHÔNG cài đặt/pin
+      `coverage`, KHÔNG đo Feature coverage, KHÔNG rerun Feature
+      Chapter 13 QG (`P3-FEATURE-QG-EVID-01`/`-EVID-02` VẪN `FAIL —
+      evidence`), KHÔNG redo Review A/Independent Review B/Product
+      Owner decision. Cả ba finding: `REMEDIATED — PENDING
+      DETERMINISTIC RE-VERIFICATION` — KHÔNG self-declare CLEAN.
+      **ADR Scope Rule chạy LẠI TỪ ĐẦU**: `ADR_NOT_REQUIRED` — thuần
+      mechanical/evidence correction/SSOT fidelity, KHÔNG architecture/
+      tooling/governance-process decision mới.
 ```

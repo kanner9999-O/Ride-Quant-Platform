@@ -2,6 +2,70 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-29 — Testing Convention v0.7 Approval Recorder: Bounded Correction (deterministic post-approval verification findings)
+
+**Bounded mechanical/evidence correction — vai trò: `Testing Convention v0.7 Approval Recorder Bounded Correction Executor`.** Corrects three deterministic post-approval verification findings against the v0.7 approval recorder (`a75b5db796ee14ca6e24ed23f903429da371edcc`). Does not change coverage.py mechanism semantics, does not redo Review A/B or the Product Owner decision, does not install/pin/measure anything.
+
+### `P3-PY-COV-REC-A-MAJ-01` — MANIFEST SSOT pin stale
+
+```text
+The Engineering Foundation registry row for engineering/testing.md still pinned "0.4" as
+  the current version/status, conflicting with testing.md's own "0.7"/Approved state and
+  Governance §5b's MANIFEST-as-SSOT rule. Corrected: registry row now pins "0.7"/Approved
+  with the exact v0.7 decision text/time; v0.2-v0.4 history preserved, v0.5-v0.7 history
+  added additively.
+State: REMEDIATED — PENDING DETERMINISTIC RE-VERIFICATION.
+```
+
+### `P3-PY-COV-REC-A-MIN-01` — fabricated seconds
+
+```text
+testing.md's v0.7 approval banner/Change History recorded "2026-08-28T21:12:00+07:00" —
+  seconds precision never supplied by the Product Owner (exact text: "2026-08-28T21:12+07:00").
+  Corrected both occurrences in testing.md; MANIFEST/CHANGELOG's own v0.7 sections verified
+  already correct.
+State: REMEDIATED — PENDING DETERMINISTIC RE-VERIFICATION.
+```
+
+### `P3-PY-COV-REC-A-MIN-02` — false gobco lifecycle claim
+
+```text
+The v0.7 recorder falsely stated gobco (Go branch-coverage candidate) was "still-pending"
+  Product Owner decision — false, since Testing Convention v0.4 (2026-08-20) already
+  approved it. Corrected in testing.md, MANIFEST, and this file to state gobco's history is
+  "out of scope and unchanged by this Python approval recorder." P3-GOBC-A-MAJ-01 not
+  reopened; no gobco semantics/state changed.
+State: REMEDIATED — PENDING DETERMINISTIC RE-VERIFICATION.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — mechanical/evidence/SSOT-fidelity correction only, no new architecture/
+  tooling/governance-process decision.
+```
+
+### Unchanged
+
+```text
+Testing Convention: version "0.7", status Approved, approved_by/approved_at unchanged. No
+  v0.8. Approved semantic boundary remains 79fd8e6b91b82ca5e05748c8c79f9140bab81867
+  (unmoved). coverage.py mechanism/semantics, P3-PY-COV-A-MIN-01/-MIN-02 (CLOSED),
+  P3-FEATURE-QG-EVID-01/-EVID-02 (FAIL — evidence), Feature Tier, Feature QG, Feature
+  module approval, and LIVE all unchanged.
+```
+
+### Files changed
+
+```text
+docs/engineering/testing.md, docs/MANIFEST.md, docs/CHANGELOG.md. manifest_version
+  "10.269" -> "10.270". No other file touched. No tool installed or pinned.
+```
+
+### Next governed action (not performed here)
+
+Deterministic re-verification of these three corrections, then a separate installation/pinning transaction for coverage.py, then a separate formal Feature Engine Chapter 13 QG re-evaluation.
+
 ## [Unreleased] — 2026-08-28 — Testing Convention v0.7: Product Owner Approval (mechanical — coverage.py mechanism selection APPROVED, not installed/pinned)
 
 **Purely mechanical Product Owner approval-recording transaction — vai trò: `Testing Convention v0.7 Mechanical Approval Recorder`.** Records an already-made approval decision. Does not change substantive semantics, does not redo Review A/B, does not modify the coverage mechanism, does not install/pin coverage.py, does not measure Feature coverage, does not close Feature QG evidence findings, does not rerun Feature QG, does not approve Feature Engine, does not authorize LIVE.
@@ -40,7 +104,8 @@ testing.md: version "0.7" -> "0.7" (unchanged, no bump); status Draft -> Approve
   semantics, independent metrics, blended-percent prohibition, source boundary, --branch
   requirement, --fail-under treatment, installation-time verification contract,
   alternatives analysis, or ADR_NOT_REQUIRED reasoning. Existing Go branch-coverage
-  candidate (gobco) untouched — remains its own separate, still-pending item.
+  candidate (gobco, already Product-Owner-approved as part of Testing Convention v0.4,
+  2026-08-20) untouched — out of scope and unchanged by this Python approval recorder.
 ```
 
 ### coverage.py state after approval
