@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.273"
+manifest_version: "10.274"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -14680,9 +14680,151 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 
 ### Next governed action (not performed in this transaction)
 
-Independent Review B / bounded re-verification of this count-fidelity correction remains pending before `P3-FEATURE-QG-COV-A-MIN-01` may be closed. Separately, unchanged from the prior transaction: a bounded branch-coverage-remediation transaction must raise branch coverage to >= 90% to close `P3-FEATURE-QG-COV-01`, and the six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transactions. None performed here.
+CORRECTED by a later transaction (see "`feature-engine` Formal Coverage Evidence — Review-Prerequisite Correction" below, `P3-FEATURE-QG-COV-A-MIN-02`): this sentence originally asserted "Independent Review B / bounded re-verification of this count-fidelity correction remains pending before `P3-FEATURE-QG-COV-A-MIN-01` may be closed" — an unsupported governance prerequisite (Chapter 0 §3's two-independent-review requirement binds only ADR decisions and approval-gate documents, neither of which this bounded, `ADR_NOT_REQUIRED` evidence-fidelity correction is). Bounded re-verification of this correction has since completed; `P3-FEATURE-QG-COV-A-MIN-01` is CLOSED — see the later section for the controlling current state. Separately, unchanged from the prior transaction: a bounded branch-coverage-remediation transaction must raise branch coverage to >= 90% to close `P3-FEATURE-QG-COV-01`, and the six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transactions. None performed here.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/engineering/testing.md`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.272"` → `"10.273"`.
+
+## `feature-engine` Formal Coverage Evidence — Review-Prerequisite Correction (`P3-FEATURE-QG-COV-A-MIN-01` — `CLOSED — bounded re-verification`; `P3-FEATURE-QG-COV-A-MIN-02` — `REMEDIATED — PENDING BOUNDED RE-VERIFICATION`, NOT self-closed)
+
+**Bounded, docs-only evidence/governance-fidelity correction — vai trò: `Feature Formal Coverage Evidence Review-Prerequisite Correction Executor`.** Records the completed bounded re-verification result for the count-fidelity correction (closing `P3-FEATURE-QG-COV-A-MIN-01`) and corrects ONE newly-identified defect found by that same bounded re-verification: `P3-FEATURE-QG-COV-A-MIN-02` — a false/unsupported governance prerequisite (Independent Review B) asserted in that correction's own "Next governed action" prose. Does NOT modify coverage measurements. Does NOT rerun coverage. Does NOT start branch-coverage remediation. Does NOT perform Independent Review B. Does NOT modify Feature source/tests/dependencies. Does NOT re-evaluate the full Feature Chapter 13 Quality Gate.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `606c81b30396f0558b32ba7751dcb6f76ca2bfa3` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.273"` at start.
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: current-evidence/governance wording correction only — no semantic architecture/
+  tooling decision, no finding-identity change, no measurement change.
+```
+
+### Governance authority re-verified fresh (Chapter 0 §3, not assumed from the task text alone)
+
+```text
+docs/constitution/00-governance.md, version "1.2", status Locked, blob
+  7224292b231a98d609d884a6d26f47222d0dd63d (freshly confirmed via `git hash-object`).
+§3 "Decision Workflow," Review gate bắt buộc (v1.2, ACTIVE): "Trước khi Product Owner quyết
+  một ADR hoặc tài liệu thuộc approval gate, phải có tối thiểu hai independent reviews" —
+  the minimum-two-independent-review requirement is textually scoped to (a) a Product Owner
+  decision on an ADR, or (b) a document subject to an approval gate. This bounded, docs-only
+  evidence-fidelity correction is neither: it is not an ADR decision and not a semantic
+  living-document approval-gate transaction — its own ADR Scope Rule result is
+  ADR_NOT_REQUIRED (confirmed fresh above, and originally correctly resolved the same way by
+  the count-fidelity correction transaction itself). No other clause in this document
+  extends the two-independent-review requirement to bounded evidence/bookkeeping
+  corrections. The prior transaction's "Next governed action" sentence asserting Independent
+  Review B as a prerequisite for closing `P3-FEATURE-QG-COV-A-MIN-01` was therefore an
+  unsupported governance claim, not grounded in this authority.
+```
+
+### Bounded re-verification result — `P3-FEATURE-QG-COV-A-MIN-01`
+
+```text
+Result: CLOSED — bounded re-verification (NOT self-closure by this executor transaction;
+  closure is attributed to the completed bounded re-verification of commit
+  606c81b30396f0558b32ba7751dcb6f76ca2bfa3, per the review result supplied to this
+  transaction).
+Validated by that re-verification: P3-FEATURE-QG-EVID-03 through P3-FEATURE-QG-EVID-08
+  correctly total SIX findings (re-confirmed by direct enumeration: EVID-03, EVID-04,
+  EVID-05, EVID-06, EVID-07, EVID-08); the current formal-coverage-evidence prose's
+  cardinality is now correct ("six," not "five"); the surviving "five other blocking
+  evidence dimensions" / "five remaining blocking evidence dimensions" text fragments that
+  remain in this MANIFEST are confirmed to appear ONLY inside that correction's own "exact
+  defect" / "correction applied" quotation of the prior defective wording — clearly labelled
+  as historical-defect quotation, not a current blocker-count assertion; coverage
+  measurements (line/branch/blended) and all finding states (EVID-01/-02 CLOSED, COV-01
+  OPEN — FAIL — criteria, EVID-03..-08/MIN-01 unchanged) were preserved byte-for-byte by that
+  correction, as required.
+```
+
+### `P3-FEATURE-QG-COV-A-MIN-02` — exact defect
+
+```text
+Classification: qualifying Minor — false/unsupported governance prerequisite in evidence
+  prose.
+Defect: the count-fidelity correction transaction (commit
+  606c81b30396f0558b32ba7751dcb6f76ca2bfa3) added, in its own "Next governed action"
+  section, the sentence: "Independent Review B / bounded re-verification of this
+  count-fidelity correction remains pending before `P3-FEATURE-QG-COV-A-MIN-01` may be
+  closed." This incorrectly introduced Independent Review B as a closure prerequisite for a
+  docs-only evidence-fidelity finding. That requirement is not established by the governing
+  correction task (which required only `P3-FEATURE-QG-COV-A-MIN-01`: `REMEDIATED — PENDING
+  BOUNDED RE-VERIFICATION`, never Independent Review B) nor by Chapter 0 §3 (scoped to ADR
+  decisions and approval-gate documents only, confirmed fresh above).
+```
+
+### Correction applied
+
+```text
+docs/MANIFEST.md: the defective sentence in the count-fidelity correction's own "Next
+  governed action" section is marked CORRECTED in place (historical-integrity preserving —
+  the surrounding section's measurements/state-summary facts, which were true statements
+  about that transaction's own point-in-time scope, are left untouched) and now points to
+  this section as the controlling current state. This section itself records the truthful
+  current wording: bounded re-verification of the count-fidelity correction has completed;
+  `P3-FEATURE-QG-COV-A-MIN-01`: CLOSED. `P3-FEATURE-QG-COV-A-MIN-02` is recorded separately,
+  immediately below, as its own new finding — NOT self-closed by this transaction.
+docs/CHANGELOG.md: corresponding current-state entry added (see top of file) — no
+  Independent Review B prerequisite asserted anywhere for this correction.
+```
+
+### Formal coverage evidence — unchanged (not re-measured, not re-derived)
+
+```text
+Repository evaluation boundary: a7a34014bcf153534572ef1441b7a128a203555e (unchanged).
+Chapter 13: version "1.7", blob 4bb697f3b43b0874a080015ef0ce6ca53de729f4 (unchanged).
+Module Registry: version "1.7", blob 8535f92efeb76ffb226791d201dc0b3fb71f06c0 (unchanged).
+Testing Convention: v0.7, Approved, blob 06b0fef8b707f428809c3528a831a39be6b513db
+  (unchanged).
+Feature Tier: Tier 1 — Core Logic (unchanged). coverage.py: 7.16.0 (unchanged, not re-run).
+P3-FEATURE-QG-EVID-01: CLOSED (unchanged). P3-FEATURE-QG-EVID-02: CLOSED (unchanged).
+P3-FEATURE-QG-COV-01: OPEN — FAIL — criteria (unchanged; semantics/evidence untouched).
+Line:    covered_lines 1001 / num_statements 1077 = 92.94336118848653% -> PASS (unchanged).
+Branch:  covered_branches 243 / num_branches 316 = 76.89873417721519% -> FAIL — criteria
+  (unchanged).
+Blended: percent_covered 89.30366116295764% — remains explicitly NOT USED for either
+  independent Chapter 13 coverage decision (unchanged).
+P3-FEATURE-QG-EVID-03 through P3-FEATURE-QG-EVID-08 (six findings — test-effectiveness,
+  Tier-1 Parity/I-2, I-5, I-6, I-13/property-based transition evidence, I-1): identities/
+  states UNCHANGED, out of scope for this transaction. P3-FEATURE-QG-MIN-01: unchanged.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/engineering/
+  testing.md, docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml,
+  docs/domain/**, CI/CD workflows, any Go module, Context Aggregator: all verified
+  byte-identical (`git diff --quiet` for each path). No coverage rerun. No branch-coverage
+  remediation. No Independent Review B performed. No full Feature QG re-evaluation. Feature
+  module not approved. LIVE not authorized. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary (current, controlling)
+
+```text
+P3-FEATURE-QG-COV-A-MIN-01:   CLOSED — bounded re-verification.
+P3-FEATURE-QG-COV-A-MIN-02:   REMEDIATED — PENDING BOUNDED RE-VERIFICATION (NOT self-closed
+                               by this transaction).
+P3-FEATURE-QG-EVID-01:        CLOSED (unchanged).
+P3-FEATURE-QG-EVID-02:        CLOSED (unchanged).
+P3-FEATURE-QG-COV-01:         OPEN — FAIL — criteria (unchanged).
+P3-FEATURE-QG-EVID-03..-08:   UNCHANGED (six findings, out of scope; identities/states
+                               untouched).
+P3-FEATURE-QG-MIN-01:         UNCHANGED.
+Formal Feature Chapter 13 QG: FAIL (unchanged).
+Feature module approval:      NOT APPROVED.
+Phase 3 Approval Gate:        NOT opened.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Bounded re-verification of `P3-FEATURE-QG-COV-A-MIN-02` (this correction) remains the next step before it may close — NOT Independent Review B, per the governance-authority verification above. Independently, unchanged from prior transactions: a bounded, test-only branch-coverage-remediation transaction must raise `feature-engine`'s branch coverage to >= 90% to close `P3-FEATURE-QG-COV-01`, and the six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transactions before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. None performed here.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/engineering/testing.md`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.273"` → `"10.274"`.
 
 ## Decision Log
 

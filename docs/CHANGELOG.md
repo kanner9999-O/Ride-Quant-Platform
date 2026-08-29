@@ -2,6 +2,53 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-29 — feature-engine: Formal Coverage Evidence Review-Prerequisite Correction (`P3-FEATURE-QG-COV-A-MIN-01` CLOSED; `P3-FEATURE-QG-COV-A-MIN-02` REMEDIATED — PENDING BOUNDED RE-VERIFICATION)
+
+**Bounded, docs-only evidence/governance-fidelity correction — vai trò: `Feature Formal Coverage Evidence Review-Prerequisite Correction Executor`.** Records the completed bounded re-verification closing `P3-FEATURE-QG-COV-A-MIN-01`, and corrects a newly-found defect, `P3-FEATURE-QG-COV-A-MIN-02`: the prior correction's "Next governed action" prose falsely asserted Independent Review B as a prerequisite for that closure. No coverage rerun, no branch-coverage remediation, no Independent Review B performed, no measurement/finding-identity change, no Feature source/test/dependency change.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — current-evidence/governance wording correction only; no semantic
+  architecture/tooling decision.
+```
+
+### Governance authority (fresh-read)
+
+```text
+docs/constitution/00-governance.md v1.2 Locked, blob 7224292b231a98d609d884a6d26f47222d0dd63d
+  — §3's minimum-two-independent-review requirement is textually scoped to ADR decisions and
+  approval-gate documents only. This bounded, ADR_NOT_REQUIRED evidence-fidelity correction
+  is neither, so Independent Review B was never a valid prerequisite for its closure.
+```
+
+### Result
+
+```text
+P3-FEATURE-QG-COV-A-MIN-01: CLOSED — bounded re-verification (not self-closed; attributed to
+  the completed bounded re-verification of commit 606c81b30396f0558b32ba7751dcb6f76ca2bfa3,
+  which confirmed EVID-03..EVID-08 = six findings, current cardinality now correct,
+  historical "five" text remains only as clearly-labelled defect quotation, and all
+  coverage measurements/finding states were preserved).
+P3-FEATURE-QG-COV-A-MIN-02 (NEW): false Independent Review B prerequisite corrected in
+  docs/MANIFEST.md's "Next governed action" prose. State: REMEDIATED — PENDING BOUNDED
+  RE-VERIFICATION (not self-closed).
+```
+
+### Preserved unchanged (verified)
+
+```text
+P3-FEATURE-QG-EVID-01: CLOSED. P3-FEATURE-QG-EVID-02: CLOSED. P3-FEATURE-QG-COV-01:
+  OPEN — FAIL — criteria. P3-FEATURE-QG-EVID-03 through -08 (six findings), P3-FEATURE-QG-
+  MIN-01: unchanged. Line 1001/1077 = 92.94336118848653% PASS; branch 243/316 =
+  76.89873417721519% FAIL — criteria; blended 89.30366116295764% still unused for gating.
+  Testing Convention v0.7/Chapter 13 v1.7/Module Registry v1.7: byte-unchanged. Formal
+  Feature Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT
+  opened. LIVE: NOT_AUTHORIZED.
+```
+
+**manifest_version:** `"10.273"` → `"10.274"`.
+
 ## [Unreleased] — 2026-08-29 — feature-engine: Formal Coverage Evidence Count-Fidelity Correction (`P3-FEATURE-QG-COV-A-MIN-01` — REMEDIATED — PENDING BOUNDED RE-VERIFICATION)
 
 **Bounded, docs-only evidence-fidelity correction — vai trò: `Feature Engine Formal Coverage Evidence Count-Fidelity Correction Executor`.** Corrects ONLY `P3-FEATURE-QG-COV-A-MIN-01`: prose in the prior formal coverage evidence transaction incorrectly described the range `P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08` (six findings — test-effectiveness, Tier-1 Parity/I-2, I-5, I-6, I-13/property-based transition evidence, I-1) as "five" blocking dimensions. No coverage rerun, no branch-coverage remediation, no measurement change, no finding-identity/state change, no Feature implementation/test change.
