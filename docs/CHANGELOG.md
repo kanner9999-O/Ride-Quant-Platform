@@ -2,6 +2,76 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-30 — feature-engine: Branch Coverage Remediation Candidate (`P3-FEATURE-QG-COV-01` — REMEDIATION IMPLEMENTED — PENDING REVIEW AND FORMAL COVERAGE RE-EVALUATION, test-only)
+
+**Bounded, test-only remediation transaction — vai trò: `Feature Engine Branch Coverage Remediation Candidate Implementer`.** Adds 48 meaningful, semantically-justified tests (145 -> 193 total) exercising previously-uncovered authoritative Feature Engine branch outcomes across `authority_resolver.py`, `candle.py`, `candle_window.py`, `current_view.py`, `regime_passthrough.py`, `swing_distance.py`. Does not modify `src/**`, coverage tooling/pins, or the Chapter 13 floor. Does not close `P3-FEATURE-QG-COV-01` — a remediation candidate for Review A, not formal QG evidence.
+
+### Prior evidence-correction state (recorded additively)
+
+```text
+P3-FEATURE-QG-COV-A-MIN-01: CLOSED — bounded re-verification (unchanged).
+P3-FEATURE-QG-COV-A-MIN-02: CLOSED — bounded re-verification (unchanged).
+```
+
+### Remediation
+
+```text
+Missing-branch analysis via coverage.py's machine-readable JSON (not line-percentage
+  guessing) identified the actual uncovered branch arcs and their semantic meaning in each
+  file before any test was written. 47 branches legitimately targeted and closed:
+  authority_resolver.py (5, incl. a justified direct private-helper test of
+  _find_repo_root's fail-closed repo-root-discovery guard), candle.py (4, OHLCV.field()'s
+  open/high/low/unsupported-name paths), candle_window.py (3, constructor ValueError
+  guards), current_view.py (6, ForeignScopeError + four FeatureLineageError guards),
+  regime_passthrough.py (7, constructor guards + profile-mismatch + ForeignScopeError +
+  NonMonotonicRecordedTimeError + RecordedTimeSourceViolationError), swing_distance.py (22,
+  constructor guards, ForeignScopeError x2, wrong swing definition/direction,
+  NonMonotonicRecordedTimeError x2, RecordedTimeSourceViolationError,
+  EvidenceReferenceConflictError, DuplicateCandleConflictError, OutOfOrderCorrectionError,
+  OutOfOrderCandleError, idempotent redelivery, lineage-skip continue branch).
+4 swing_distance.py branches explicitly left uncovered and documented: 2 provably
+  unreachable via the public API (verified by direct source analysis, not fabricated
+  hacks), 2 genuinely reachable but judged unnecessary given the already-comfortable margin
+  over the floor — left for a future bounded transaction.
+Several new tests factually overlap P3-FEATURE-QG-MIN-01's named error paths
+  (NonMonotonicRecordedTimeError/OutOfOrderCandleError/OutOfOrderCorrectionError) and
+  P3-FEATURE-QG-EVID-06's cited ForeignScopeError raise sites — recorded as supporting
+  evidence only, neither finding closed by this transaction.
+```
+
+### Verification
+
+```text
+pytest tests/ -q -> 193 passed, 0 failed. ruff check src tests -> All checks passed!
+mypy src tests --strict -> Success, no issues (24 source files; two new type errors from
+  using NonCausalTimeSource fixed by widening two test-helper signatures to the existing
+  RecordedTimeSource Protocol — test-file typing only, no behavior change).
+```
+
+### Post-remediation diagnostic coverage — DIAGNOSTIC ONLY, NOT FORMAL CHAPTER 13 QG EVIDENCE (reproduced twice, byte-identical)
+
+```text
+Line:   covered_lines 1048 / num_statements 1077 = 97.30733519034355% -> PASS (floor 90%).
+Branch: covered_branches 290 / num_branches 316 = 91.77215189873418% -> PASS (floor 90%,
+  margin of 5 branches above the 285/316 threshold). Blended percent_covered
+  96.05168700646088% recorded but never used for gating. Deterministic across 2 runs.
+Historical FORMAL evidence (boundary a7a34014bcf153534572ef1441b7a128a203555e, branch
+  76.89873417721519% FAIL — criteria) remains unchanged and unrewritten — this is a
+  separate, clearly-labelled diagnostic measurement only.
+```
+
+### Finding state
+
+```text
+P3-FEATURE-QG-COV-01: REMEDIATION IMPLEMENTED — PENDING REVIEW AND FORMAL COVERAGE
+  RE-EVALUATION (not closed — only a separate formal evidence re-evaluation may close a
+  criteria finding). P3-FEATURE-QG-EVID-01/-02: CLOSED (unchanged). P3-FEATURE-QG-EVID-03
+  through -08 (six findings), P3-FEATURE-QG-MIN-01: unchanged. Formal Feature Chapter 13
+  QG: FAIL (unchanged). Feature module: NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+**manifest_version:** `"10.274"` → `"10.275"`.
+
 ## [Unreleased] — 2026-08-29 — feature-engine: Formal Coverage Evidence Review-Prerequisite Correction (`P3-FEATURE-QG-COV-A-MIN-01` CLOSED; `P3-FEATURE-QG-COV-A-MIN-02` REMEDIATED — PENDING BOUNDED RE-VERIFICATION)
 
 **Bounded, docs-only evidence/governance-fidelity correction — vai trò: `Feature Formal Coverage Evidence Review-Prerequisite Correction Executor`.** Records the completed bounded re-verification closing `P3-FEATURE-QG-COV-A-MIN-01`, and corrects a newly-found defect, `P3-FEATURE-QG-COV-A-MIN-02`: the prior correction's "Next governed action" prose falsely asserted Independent Review B as a prerequisite for that closure. No coverage rerun, no branch-coverage remediation, no Independent Review B performed, no measurement/finding-identity change, no Feature source/test/dependency change.

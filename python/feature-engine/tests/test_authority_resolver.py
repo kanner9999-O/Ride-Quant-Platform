@@ -5,7 +5,11 @@ from pathlib import Path
 import pytest
 
 from feature_engine import InputContractRef
-from feature_engine.authority_resolver import resolve_input_contract_authority_from_repository
+from feature_engine.authority_resolver import (
+    FilesystemInputContractAuthorityResolver,
+    _find_repo_root,
+    resolve_input_contract_authority_from_repository,
+)
 from feature_engine.contracts import VerifiedInputContractAuthority
 from feature_engine.errors import UnresolvedComputationCursorAuthorityError
 
@@ -218,3 +222,83 @@ def test_missing_stream_registry_artifact_fails_closed(tmp_path: Path) -> None:
     (repo / "docs/architecture/stream-registry.yaml").unlink()
     with pytest.raises(UnresolvedComputationCursorAuthorityError):
         resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+
+
+# --- P3-FEATURE-QG-COV-01 remediation --------------------------------------
+#
+# `_find_repo_root` is a private, module-internal helper: every test above
+# supplies an explicit `repo_root=`, which bypasses it entirely, and the two
+# "real artifact" tests at the top of this file rely on it finding the real
+# repository root by walking up from this installed package's own file
+# location — a path that always genuinely contains a `docs/` directory, so
+# the "not found" fail-closed raise is never reached through the public
+# function. Testing it directly is justified: it is the sole fail-closed
+# guard for repository-root auto-discovery, it is unreachable via the public
+# `resolve_input_contract_authority_from_repository` API once `repo_root` is
+# supplied (which every other test in this suite does), and this is a
+# genuine, real failure this helper must produce for a start path with no
+# `docs/`-containing ancestor — never a fabricated or monkeypatched scenario.
+
+
+def test_find_repo_root_raises_when_no_docs_ancestor_exists(tmp_path: Path) -> None:
+    start = tmp_path / "definitely" / "not" / "a" / "repository" / "checkout"
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="could not locate repository root"):
+        _find_repo_root(start)
+
+
+def test_missing_contract_id_field_fails_closed(tmp_path: Path) -> None:
+    """`_extract_scalar` returning `None` for a required Input Contract
+    scalar (here: the whole `input_contract_ref.contract_id` line is
+    absent) must fail closed via the "did not resolve a complete identity"
+    guard — every other fixture in this file always supplies a complete
+    contract, so this scalar-extraction failure path was never exercised.
+    """
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    contract_path.write_text(contract_path.read_text().replace("  contract_id: feature-swing-distance-input\n", ""))
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="did not resolve a complete"):
+        resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+
+
+def test_empty_included_streams_block_fails_closed(tmp_path: Path) -> None:
+    """`_extract_included_streams` returning an empty `frozenset` (the
+    `included_streams:` key is entirely absent from the artifact) must also
+    fail closed via the same "did not resolve a complete identity" guard —
+    a distinct extraction failure from the missing-scalar case above.
+    """
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    text = contract_path.read_text()
+    included_block_start = text.index("included_streams:")
+    merge_policy_start = text.index("merge_policy:")
+    contract_path.write_text(text[:included_block_start] + text[merge_policy_start:])
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="did not resolve a complete"):
+        resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+
+
+def test_missing_registry_version_field_fails_closed(tmp_path: Path) -> None:
+    """The Stream Registry's own `registry_version`/`stream_id` identity
+    resolving incomplete (here: `registry_version:` absent) is a distinct
+    fail-closed guard from the Input Contract's own identity check above —
+    every other fixture always supplies a complete registry.
+    """
+    repo = _write_fake_repo(tmp_path)
+    registry_path = repo / "docs/architecture/stream-registry.yaml"
+    registry_path.write_text(registry_path.read_text().replace("registry_version: v1\n", ""))
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="did not resolve a complete"):
+        resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+
+
+def test_filesystem_resolver_delegates_to_module_function(tmp_path: Path) -> None:
+    """`FilesystemInputContractAuthorityResolver.resolve()` — the default
+    `InputContractAuthorityProvider` every computation engine in this
+    package is constructed with in production — is never itself
+    instantiated/called anywhere else in this suite (every other test calls
+    the module-level function directly). Proves the thin wrapper genuinely
+    delegates to, and returns exactly, the same result.
+    """
+    repo = _write_fake_repo(tmp_path)
+    resolver = FilesystemInputContractAuthorityResolver(repo_root=repo)
+    resolved = resolver.resolve("distance_to_last_confirmed_swing")
+    direct = resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+    assert resolved == direct

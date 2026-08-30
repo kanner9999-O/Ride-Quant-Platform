@@ -11,9 +11,13 @@ from conftest import (
     BASE,
     FEATURE_OUTPUT_CONTRACT_VERSION,
     REGIME_INPUT_CONTRACT,
+    SWING_DISTANCE_INPUT_CONTRACT,
     FixedDeltaTimeSource,
+    NonCausalTimeSource,
     feature_scope,
     frontier_at,
+    make_candle_definition,
+    make_distance_definition,
     make_regime_definition,
     only_computed,
     only_invalidated,
@@ -24,6 +28,7 @@ from conftest import (
 from feature_engine import (
     EvaluationFrontier,
     EventContractRef,
+    RecordedTimeSource,
     RegimePassthroughFeatureEngine,
     SequenceAllocator,
     StaticInputContractAuthorityProvider,
@@ -33,6 +38,10 @@ from feature_engine.errors import (
     DefinitionVersionMismatchError,
     EvidenceReferenceConflictError,
     FeatureLineageError,
+    ForeignScopeError,
+    InputContractIdentityMismatchError,
+    NonMonotonicRecordedTimeError,
+    RecordedTimeSourceViolationError,
     RegimeDimensionMismatchError,
     RegistryContractMismatchError,
     UnauthorizedUpstreamContractError,
@@ -57,7 +66,7 @@ class _FixedAuthorityProvider:
 
 
 def _engine(
-    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource, feature_type: str = "volatility_metric"
+    allocator: SequenceAllocator, time_source: RecordedTimeSource, feature_type: str = "volatility_metric"
 ) -> RegimePassthroughFeatureEngine:
     definition = make_regime_definition(feature_type=feature_type, regime_dimension_version="rgd-1")
     scope = feature_scope(feature_type, version=definition.feature_definition_version)
@@ -611,3 +620,141 @@ def test_empty_regime_content_id_fails_closed_via_resolver_factory() -> None:
             input_contract_content_id="",
             stream_registry_content_id=REGIME_INPUT_CONTRACT.stream_registry_content_id,
         )
+
+
+# --- Constructor/runtime rejection guards (P3-FEATURE-QG-COV-01 remediation) -
+#
+# The tests below exercise real, independent rejection paths never reached
+# by any existing test: three constructor validation guards (a caller could
+# misconfigure feature_type/upstream_source/scope even though every
+# existing test always builds a self-consistent regime Definition/scope via
+# `_engine`'s own `make_regime_definition`+`feature_scope` pairing), a
+# misbehaving-provider identity check, this engine's own `ForeignScopeError`
+# scope-isolation guard (P3-FEATURE-QG-EVID-06's own cited raise site,
+# regime_passthrough.py:152 — recorded here as a factual overlap; this test
+# alone is supporting evidence only, not a claim that EVID-06 is closed),
+# and the two causal-ordering guards (`NonMonotonicRecordedTimeError` is one
+# of the three error paths named by P3-FEATURE-QG-MIN-01 — recorded here as
+# a factual overlap, not a claim that MIN-01 is closed).
+
+
+def test_wrong_feature_type_for_regime_engine_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    definition = make_distance_definition()
+    scope = feature_scope("distance_to_last_confirmed_swing", version=definition.feature_definition_version)
+    with pytest.raises(ValueError, match="unsupported feature_type for regime pass-through"):
+        RegimePassthroughFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
+        )
+
+
+def test_wrong_upstream_source_for_regime_engine_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """A definition with a correct `feature_type` ("volatility_metric") but
+    `upstream_source="candle"` (a genuinely self-consistent candle-window
+    Definition — `FeatureDefinition.__post_init__` itself requires
+    `upstream_contract_refs` to match `upstream_source`, so a candle
+    Definition is used verbatim rather than mutating a regime one) must be
+    rejected by the second guard.
+    """
+    definition = make_candle_definition(feature_type="volatility_metric")
+    scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
+    with pytest.raises(ValueError, match="requires upstream_source='regime'"):
+        RegimePassthroughFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
+        )
+
+
+def test_scope_definition_mismatch_for_regime_engine_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    definition = make_regime_definition(feature_type="volatility_metric")
+    scope = feature_scope("volatility_metric", version="a-different-version-than-the-definition")
+    with pytest.raises(ValueError, match="scope does not match definition"):
+        RegimePassthroughFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
+        )
+
+
+def test_engine_own_profile_check_rejects_mismatched_authority(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """A provider that returns a genuine `VerifiedInputContractAuthority`,
+    but one resolved for the WRONG `feature_computation_profile` (here: the
+    swing-distance profile, injected into an engine that requires
+    "regime"), must be rejected — a well-formed object alone is not trust.
+    `StaticInputContractAuthorityProvider.resolve()` already pre-validates
+    its own wrapped authority's profile, so `_FixedAuthorityProvider`
+    (defined above, returns whatever it is given regardless of the
+    requested profile) is used to isolate and exercise THIS engine's own
+    independent `feature_computation_profile` guard instead.
+    """
+    definition = make_regime_definition(feature_type="volatility_metric")
+    scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
+    with pytest.raises(InputContractIdentityMismatchError):
+        RegimePassthroughFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            input_contract_authority_provider=_FixedAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
+        )
+
+
+def test_foreign_scope_regime_fact_rejected(allocator: SequenceAllocator, time_source: FixedDeltaTimeSource) -> None:
+    engine = _engine(allocator, time_source)
+    fact = regime_classified_at(
+        allocator,
+        0,
+        computed_metric="1.5",
+        regime_dimension="volatility",
+        regime_definition_version="rgd-1",
+        instrument_id="ETH-USDT",
+    )
+    with pytest.raises(ForeignScopeError):
+        engine.on_regime_classified(fact, cursor=_frontier_at(fact.recorded_time))
+
+
+def test_non_monotonic_recorded_time_rejected(allocator: SequenceAllocator, time_source: FixedDeltaTimeSource) -> None:
+    engine = _engine(allocator, time_source)
+    first = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    engine.on_regime_classified(first, cursor=_frontier_at(first.recorded_time))
+    earlier = regime_classified_at(
+        allocator,
+        1,
+        computed_metric="1.6",
+        regime_dimension="volatility",
+        regime_definition_version="rgd-1",
+        recorded_offset_seconds=-3600,
+    )
+    with pytest.raises(NonMonotonicRecordedTimeError):
+        engine.on_regime_classified(earlier, cursor=_frontier_at(earlier.recorded_time))
+
+
+def test_non_causal_time_source_rejected(allocator: SequenceAllocator) -> None:
+    engine = _engine(allocator, NonCausalTimeSource())
+    fact = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    with pytest.raises(RecordedTimeSourceViolationError):
+        engine.on_regime_classified(fact, cursor=_frontier_at(fact.recorded_time))

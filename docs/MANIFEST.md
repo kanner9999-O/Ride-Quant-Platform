@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.274"
+manifest_version: "10.275"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -14825,6 +14825,312 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 Bounded re-verification of `P3-FEATURE-QG-COV-A-MIN-02` (this correction) remains the next step before it may close — NOT Independent Review B, per the governance-authority verification above. Independently, unchanged from prior transactions: a bounded, test-only branch-coverage-remediation transaction must raise `feature-engine`'s branch coverage to >= 90% to close `P3-FEATURE-QG-COV-01`, and the six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transactions before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. None performed here.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/engineering/testing.md`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.273"` → `"10.274"`.
+
+## `feature-engine` — Branch Coverage Remediation Candidate (`P3-FEATURE-QG-COV-01`: `REMEDIATION IMPLEMENTED — PENDING REVIEW AND FORMAL COVERAGE RE-EVALUATION`, test-only, NOT itself formal QG evidence)
+
+**Bounded, test-only remediation transaction — vai trò: `Feature Engine Branch Coverage Remediation Candidate Implementer`.** Implements meaningful, semantically-justified tests exercising previously-uncovered authoritative Feature Engine branch outcomes, targeting `P3-FEATURE-QG-COV-01` (branch coverage below the applicable Tier-1 floor). Does NOT modify `python/feature-engine/src/**` (byte-identical, verified). Does NOT change coverage tooling/configuration/pins. Does NOT lower or bypass the Chapter 13 floor. Does NOT add omit/no-cover/no-branch exclusions. Does NOT close `P3-FEATURE-QG-COV-01` itself — this is a remediation CANDIDATE for Review A, not the formal Chapter 13 coverage re-evaluation.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `ed6d83222ce37587910e19bb5cd5a3c23ad7553f` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.274"` at start.
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: bounded internal test-only remediation — no production contract/architecture/
+  dependency/governance semantic change. python/feature-engine/src/** verified byte-
+  identical before and after (`git diff --quiet`). No new test dependency introduced;
+  pyproject.toml/requirements-dev.lock.txt verified byte-identical.
+```
+
+### Prior evidence-correction state (recorded additively, not attributed to this executor)
+
+```text
+Bounded re-verification of commit ed6d83222ce37587910e19bb5cd5a3c23ad7553f is now CLEAN.
+P3-FEATURE-QG-COV-A-MIN-01: CLOSED — bounded re-verification (unchanged from the prior
+  transaction's own record; not re-attributed here).
+P3-FEATURE-QG-COV-A-MIN-02: CLOSED — bounded re-verification. No Independent Review B was
+  required to close either docs-only correction finding (Chapter 0 §3's two-independent-
+  review requirement binds only ADR decisions and approval-gate documents, per the fresh
+  governance-authority verification already recorded in the immediately preceding MANIFEST
+  section).
+```
+
+### Formal finding being remediated (unchanged identity, re-cited not re-measured)
+
+```text
+P3-FEATURE-QG-COV-01: "Feature Engine branch coverage below applicable Tier-1 floor."
+Formal evidence boundary: a7a34014bcf153534572ef1441b7a128a203555e.
+Formal evidence-recording commit: 313d25891ea1157645f5f8c9e4084ca8c7760f6e.
+Formal line evidence (unchanged, historical): covered_lines 1001 / num_statements 1077 =
+  92.94336118848653% -> PASS.
+Formal branch evidence (unchanged, historical): covered_branches 243 / num_branches 316 =
+  76.89873417721519% -> FAIL — criteria.
+Blended percent_covered 89.30366116295764% (historical) — remains explicitly NOT USED as
+  either independent Chapter 13 coverage decision.
+Applicable floor (Chapter 13 v1.7 Locked, blob 4bb697f3b43b0874a080015ef0ce6ca53de729f4,
+  §13.3/§13.4, resolved fresh from Chapter 13 itself, not from Testing Convention or this
+  task's own text): Tier 1 — Core Logic, line >= 90% AND branch >= 90%, independently.
+Tier-resolution provenance (unchanged): module-registry.yaml version "1.7", blob
+  8535f92efeb76ffb226791d201dc0b3fb71f06c0; feature-engine quality_tier { tier: "Tier 1 —
+  Core Logic", approved_by: "Product Owner", approved_at: "2026-08-28T08:33+07:00" }.
+```
+
+### Baseline re-confirmation (fresh, this transaction, before any test edit)
+
+```text
+Fresh clean-room venv reconstructed from the current, unchanged requirements-dev.lock.txt
+  (python3.13 -m venv, pip install --no-deps -r requirements-dev.lock.txt, pip install -e .
+  --no-deps). pip check -> No broken requirements found. Python 3.13.6, coverage 7.16.0,
+  pytest 9.1.1 — all unchanged from the formal evidence transaction.
+Baseline test suite (before any test edit): 145 passed, 0 failed.
+Baseline formal-measurement reproduction (coverage erase; coverage run --branch
+  --source=feature_engine -m pytest tests/ -q; coverage json; coverage report -m):
+  num_statements 1077, covered_lines 1001, percent_statements_covered 92.94336118848653;
+  num_branches 316, covered_branches 243, percent_branches_covered 76.89873417721519 —
+  byte-identical to the formally-recorded evidence at boundary
+  a7a34014bcf153534572ef1441b7a128a203555e; no material discrepancy, confirming the current
+  boundary is a valid remediation baseline. Per-file missing-branch arcs extracted from the
+  machine-readable JSON (not inferred from the line-only text report) to identify actual
+  uncovered branch targets and their semantic meaning before writing any test.
+```
+
+### Missing-branch analysis and remediation targets (semantic, per file)
+
+```text
+authority_resolver.py (5 branches targeted, all legitimate): repository-root auto-discovery
+  fail-closed path (_find_repo_root, tested directly as a justified private-helper exercise
+  — unreachable via the public function once repo_root is supplied, which every other test
+  does); two distinct "incomplete artifact identity" fail-closed causes (missing
+  contract_id scalar; missing included_streams block); Stream Registry incomplete-identity
+  fail-closed cause (missing registry_version); FilesystemInputContractAuthorityResolver's
+  own .resolve() delegation (never previously instantiated/called in this suite).
+candle.py (4 branches, all legitimate): OHLCV.field()'s "open"/"high"/"low" branches and its
+  unsupported-name rejection — production code only ever calls .field("close"); direct,
+  meaningful behavior tests of a small public dataclass method.
+candle_window.py (3 branches, all legitimate): the three independent construction-time
+  ValueError guards (wrong feature_type, wrong upstream_source, scope/definition mismatch)
+  that exist BEFORE the permanent fail-closed raise every existing test reaches.
+current_view.py (6 branches, all legitimate — I-13 state-machine integrity / candidate
+  ForeignScopeError raise site cited by P3-FEATURE-QG-EVID-06, factual overlap only, not a
+  closure claim): ForeignScopeError; duplicate-original-for-already-computed-window;
+  replacement-with-wrong-supersedes-ref; replacement-before-invalidation;
+  invalidation-with-wrong-target-ref; double-invalidation.
+regime_passthrough.py (7 branches, all legitimate): three construction-time ValueError
+  guards (wrong feature_type, wrong upstream_source, scope mismatch); the engine's own
+  independent feature_computation_profile mismatch check (isolated from
+  StaticInputContractAuthorityProvider's own pre-validation using the existing
+  _FixedAuthorityProvider test double, which returns its wrapped value regardless of the
+  requested profile); ForeignScopeError (P3-FEATURE-QG-EVID-06 raise site, factual overlap
+  only); NonMonotonicRecordedTimeError and RecordedTimeSourceViolationError
+  (P3-FEATURE-QG-MIN-01 named error paths, factual overlap only, MIN-01 NOT closed here).
+swing_distance.py (22 branches targeted and closed; 4 branches identified as NOT
+  legitimately test-only-coverable and explicitly left uncovered, documented below): six
+  construction-time InvalidFeatureDefinitionError/ValueError guards; the engine's own
+  independent profile-mismatch check (same _FixedAuthorityProvider isolation technique);
+  ForeignScopeError (candle side and swing side — swing_distance.py:456/337 are two of
+  P3-FEATURE-QG-EVID-06's four cited raise sites, factual overlap only); wrong
+  swing_definition_version / wrong swing_direction rejections; invalid swing-invalidation
+  target rejection; NonMonotonicRecordedTimeError (candle side and swing side) and
+  RecordedTimeSourceViolationError (P3-FEATURE-QG-MIN-01 named error paths, factual overlap
+  only); direct exercise of _swing_state_as_of's "never-confirmed swing_id" contract
+  (justified: unreachable via the public API because _select_eligible_swing only ever
+  queries swing_ids already present as dict keys, which are always populated non-empty in
+  the same setdefault+append statement — this is a legitimate argument-value combination on
+  a real private method, not a fabricated internal-state hack); EvidenceReferenceConflictError
+  via a deliberately-constructed colliding candle/swing ref; candle idempotent-redelivery
+  no-op (mirrors the existing swing-side equivalent test); DuplicateCandleConflictError;
+  OutOfOrderCorrectionError and OutOfOrderCandleError (P3-FEATURE-QG-MIN-01 named error
+  paths, factual overlap only); the on_swing_invalidated lineage-reattempt loop's own
+  `continue` branch for a window that used a DIFFERENT swing (two-window scenario).
+```
+
+### Branches explicitly identified as NOT legitimately coverable in this bounded, test-only transaction
+
+```text
+swing_distance.py:672-673 (_normalize_evidence's `len(set(refs)) != 2` EvidenceCardinalityError
+  guard): provably unreachable given the function's own structure — `refs` is always derived
+  from exactly the same two input refs (candle.ref, swing_ref) already compared for equality
+  by the immediately-preceding guard (line 659-660, EvidenceReferenceConflictError); if those
+  two refs are equal, line 659 already raises first; if they differ, `len(set(refs))` is
+  always exactly 2. No legitimate test input can reach line 673 without violating the
+  function's own real call contract (fabricating a >2-item internal list) — verified by
+  direct source analysis, not merely assumed.
+swing_distance.py:891-892 (_reevaluate_all_windows's `if candle is None: continue` guard):
+  provably unreachable given a structural invariant verified by direct source analysis —
+  every `_lineage[key]` entry is created only via `_emit_original`/`_emit_replacement_only`/
+  etc., all reachable only from `on_candle`, which unconditionally sets
+  `_candle_by_window[key] = fact` BEFORE ever calling into recompute — so every lineage key
+  always has a matching `_candle_by_window` entry. Reaching this branch would require
+  directly mutating engine-private internal state to violate this invariant, which is
+  exactly the "monkeypatches/hacks that bypass the actual control-flow semantics solely to
+  hit a branch" this transaction's own governing instructions prohibit.
+swing_distance.py:705-722 and 896-897 (the `_recompute` existing-invalidated-with-a-fresh-
+  candle-triggered-winner path, and `_reevaluate_all_windows`'s own still-pending/no-winner
+  continue path): both ARE genuinely reachable via legitimate event sequences (verified by
+  source analysis — e.g. a Swing confirmed with a cursor that does not yet make it visible,
+  later becoming visible to a subsequent Candle-triggered recompute), but constructing a
+  minimal, unambiguous, non-fragile test for the exact sequence was judged materially more
+  complex/risk-prone than the other 22 targets in this file, and — per this transaction's own
+  arithmetic margin (243 + 47 legitimately-covered = 290/316 = 91.77%, already 5 branches
+  clear of the 285/316 floor) — was not necessary to reach the Tier-1 floor. Left uncovered
+  and explicitly documented here as a candidate for a FUTURE bounded test-addition
+  transaction, not fabricated or forced in this one.
+```
+
+### Domain/governance fidelity — no invented semantics
+
+```text
+Every new test exercises an ALREADY-CODED, already-authoritative validation guard or error
+  path — exact exception types and exact message substrings already present in
+  `python/feature-engine/src/feature_engine/*.py`'s own source (each cross-referenced to its
+  own feature.md/ADR-034/ADR-035/Chapter 8 citation already present in that source's own
+  docstrings/comments). No new expected behavior was invented to manufacture a branch test;
+  no ambiguous or missing-authority branch was encountered requiring a STOP.
+```
+
+### Anti-gaming / test quality (§13.3, fresh AST scan across the full updated suite)
+
+```text
+Every new/materially-changed test contains an explicit semantic assertion (`assert ...`,
+  including exact exception-message substring matches via `pytest.raises(..., match=...)`)
+  or a `pytest.raises(SpecificErrorType)` context — verified via a fresh AST scan of every
+  `tests/test_*.py` FunctionDef named `test_*` for the presence of an `ast.Assert` node or a
+  `with ... raises(...)` context. Result: 190 AST-level test function definitions (193
+  pytest-collected — the same pre-existing +3 gap from one `@pytest.mark.parametrize`
+  expansion in test_definition.py, already reconciled in the formal coverage evidence
+  transaction); exactly ONE flagged function with neither — the SAME pre-existing
+  `test_definition.py::test_valid_definitions_accepted` already documented as a minor,
+  non-material observation in that prior transaction; ZERO of the 48 new tests added in this
+  transaction are flagged. No bare execution-only test, no `assert True`, no unrelated
+  assertion, no duplicated coverage-inflation test, no mock of the authoritative
+  implementation under test, no test-only production hook, no control-flow-bypassing
+  monkeypatch, no new `# pragma: no cover`/`# pragma: no branch`, no coverage
+  omit/exclude-rule change, no test deletion, no weakened assertion, no skip/xfail gaming.
+```
+
+### Test verification (fresh, this transaction)
+
+```text
+python -m pytest tests/ -q            -> 193 passed, 0 failed (145 original + 48 new).
+python -m pytest tests/ --collect-only -q -> 193 tests collected.
+ruff check src tests                  -> All checks passed!
+ruff format --check <this transaction's own touched test files>: fully formatted after two
+  ruff-check line-length fixes and several ruff-format-suggested reflows in this
+  transaction's own new lines only. `ruff format --check src tests` (unbounded) still
+  reports the SAME 3 pre-existing src/** formatting deviations already noted as a
+  non-blocking supporting signal in the prior installation transaction's MANIFEST record
+  (contracts.py:555, regime_passthrough.py:185, swing_distance.py:539) plus pre-existing,
+  untouched formatting in tests/conftest.py and in this transaction's own touched test files
+  at line ranges verified to fall OUTSIDE every newly-inserted block (confirmed via diff
+  hunk position relative to each file's own insertion point) — none of these pre-existing
+  deviations were introduced or touched by this transaction, and production source
+  (src/**) was never reformatted, preserving byte-identity.
+mypy src tests                        -> Success: no issues found in 24 source files
+  (mypy 2.3.1, --strict). Two new type errors introduced by using NonCausalTimeSource with
+  the existing `_engine` test helpers (originally typed to FixedDeltaTimeSource only) were
+  fixed by widening those two helpers' own `time_source` parameter type to the already-
+  exported `RecordedTimeSource` Protocol (the actual, correct structural type both time
+  sources satisfy) — a test-file-only typing correction, not a behavior change.
+```
+
+### Post-remediation diagnostic coverage — REMEDIATION VALIDATION / DIAGNOSTIC ONLY, NOT FORMAL CHAPTER 13 QG EVIDENCE (repeated twice, byte-identical)
+
+```text
+Commands (fresh clean-room venv, isolated COVERAGE_FILE per run): coverage erase; coverage
+  run --branch --source=feature_engine -m pytest tests/ -q; coverage json --pretty-print -o
+  <scratch path>; coverage report -m.
+Run 1: 193 passed, 0 failed. num_statements 1077, covered_lines 1048, missing_lines 29,
+  percent_statements_covered 97.30733519034355. num_branches 316, covered_branches 290,
+  missing_branches 26, num_partial_branches 26, percent_branches_covered 91.77215189873418.
+  percent_covered (BLENDED, NOT a Chapter 13 metric) 96.05168700646088.
+Run 2: 193 passed, 0 failed. Field-by-field comparison against Run 1 — num_statements,
+  covered_lines, missing_lines, percent_statements_covered, num_branches, covered_branches,
+  missing_branches, num_partial_branches, percent_branches_covered, percent_covered — ALL
+  IDENTICAL. Deterministic: YES.
+Applicable authoritative floor (Chapter 13 §13.3/§13.4, Tier 1 — Core Logic): line >= 90% AND
+  branch >= 90%, independently, never averaged, blended percent_covered never used.
+Line diagnostic result:   97.30733519034355% >= 90% -> PASS (diagnostic).
+Branch diagnostic result: 91.77215189873418% >= 90% -> PASS (diagnostic) — margin of 5
+  covered branches above the 285/316 floor threshold (290 achieved).
+Per-file diagnostic detail: authority_resolver.py 100% (34/34 branches), candle.py 100%
+  (8/8), candle_window.py 100% (6/6), current_view.py 100% (18/18), regime_passthrough.py
+  100% (36/36), swing_distance.py 96.2% (102/106, 4 branches explicitly left uncovered and
+  documented above), contracts.py UNCHANGED at 89% (89/108) — not touched by this bounded
+  transaction (its own 22 missing branches were not needed to reach the floor and remain
+  fully available for a future remediation transaction if ever required).
+These diagnostic values are explicitly NOT formal Chapter 13 Quality Gate evidence — a
+  separate, formally-governed re-evaluation transaction (mirroring the process already used
+  for the original P3-FEATURE-QG-EVID-01/-EVID-02 closure) must independently reproduce and
+  record qualifying evidence before P3-FEATURE-QG-COV-01 may be closed.
+```
+
+### Finding state after this remediation candidate
+
+```text
+P3-FEATURE-QG-COV-01: REMEDIATION IMPLEMENTED — PENDING REVIEW AND FORMAL COVERAGE
+  RE-EVALUATION (NOT closed by this transaction, even though diagnostic branch coverage
+  already exceeds the floor — only a separate formal evidence re-evaluation may close a
+  criteria finding).
+Historical distinction preserved: prior FORMAL evidence at boundary
+  a7a34014bcf153534572ef1441b7a128a203555e (commit 313d25891ea1157645f5f8c9e4084ca8c7760f6e)
+  remains exactly as recorded — branch 243/316 = 76.89873417721519%, FAIL — criteria — never
+  rewritten as if it had passed. This transaction's own diagnostic values (290/316 =
+  91.77215189873418%) are a SEPARATE, current, test-only-remediation-candidate measurement,
+  clearly labelled as such, not a retroactive correction of the historical formal record.
+P3-FEATURE-QG-EVID-01: CLOSED (unchanged).
+P3-FEATURE-QG-EVID-02: CLOSED (unchanged).
+P3-FEATURE-QG-EVID-03 through P3-FEATURE-QG-EVID-08 (six findings): UNCHANGED, out of scope.
+P3-FEATURE-QG-MIN-01: UNCHANGED — several of this transaction's new tests factually overlap
+  its named error paths (NonMonotonicRecordedTimeError, OutOfOrderCandleError,
+  OutOfOrderCorrectionError) but this is recorded as supporting evidence only; MIN-01's own
+  governed disposition is not touched or closed by this transaction.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**: verified byte-identical (`git diff --quiet`) before and after
+  this transaction. python/feature-engine/pyproject.toml, requirements-dev.lock.txt: verified
+  byte-identical — coverage.py remains 7.16.0, pytest remains 9.1.1, ruff remains 0.16.4,
+  mypy remains 2.3.1; no new test dependency added. docs/engineering/testing.md,
+  docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**,
+  CI/CD workflows, any Go module, Context Aggregator: all verified byte-identical. No
+  coverage pragma/exclusion added. No test deleted. No existing assertion weakened. No
+  skip/xfail gaming introduced. Files touched, confirmed via `git status --porcelain=v1`:
+  python/feature-engine/tests/test_candle.py (new),
+  python/feature-engine/tests/test_authority_resolver.py,
+  python/feature-engine/tests/test_candle_window.py,
+  python/feature-engine/tests/test_current_view.py,
+  python/feature-engine/tests/test_regime_passthrough.py,
+  python/feature-engine/tests/test_swing_distance.py, docs/MANIFEST.md, docs/CHANGELOG.md —
+  no other file touched.
+```
+
+### State summary
+
+```text
+P3-FEATURE-QG-COV-A-MIN-01:   CLOSED — bounded re-verification (unchanged, recorded
+                               additively, not attributed to this executor).
+P3-FEATURE-QG-COV-A-MIN-02:   CLOSED — bounded re-verification (unchanged, same).
+P3-FEATURE-QG-COV-01:         REMEDIATION IMPLEMENTED — PENDING REVIEW AND FORMAL COVERAGE
+                               RE-EVALUATION (NOT closed).
+P3-FEATURE-QG-EVID-01:        CLOSED (unchanged).
+P3-FEATURE-QG-EVID-02:        CLOSED (unchanged).
+P3-FEATURE-QG-EVID-03..-08:   UNCHANGED (six findings, out of scope).
+P3-FEATURE-QG-MIN-01:         UNCHANGED (factual test-overlap noted, not closed).
+Formal Feature Chapter 13 QG: FAIL (unchanged — this transaction produces a remediation
+                               candidate only, not formal evidence).
+Feature module approval:      NOT APPROVED.
+Phase 3 Approval Gate:        NOT opened.
+Context Aggregator:           NOT started.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Review A (and, if the Chapter 0 §3 review gate applies to whatever governed transaction eventually acts on this candidate, Independent Review B) of this test-only remediation candidate; if accepted, a separate, formally-governed Feature Engine Chapter 13 coverage evidence re-evaluation (mirroring the process already used for the original EVID-01/EVID-02 closure) must independently reproduce and record qualifying branch-coverage evidence before `P3-FEATURE-QG-COV-01` may close. Independently, unchanged: the six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transactions before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. Neither performed here.
+
+**Files changed:** `python/feature-engine/tests/test_candle.py` (new), `python/feature-engine/tests/test_authority_resolver.py`, `python/feature-engine/tests/test_candle_window.py`, `python/feature-engine/tests/test_current_view.py`, `python/feature-engine/tests/test_regime_passthrough.py`, `python/feature-engine/tests/test_swing_distance.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.274"` → `"10.275"`.
 
 ## Decision Log
 

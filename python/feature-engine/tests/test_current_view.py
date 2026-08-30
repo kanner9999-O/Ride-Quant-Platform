@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from decimal import Decimal
 
+import pytest
 from conftest import (
     BASE,
     CONTRACT_VERSION,
@@ -22,6 +23,7 @@ from feature_engine import (
     SequenceAllocator,
 )
 from feature_engine.contracts import FeatureComputed, FeatureFactInvalidated
+from feature_engine.errors import FeatureLineageError, ForeignScopeError
 
 _COMPUTED_CONTRACT_REF = EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, CONTRACT_VERSION)
 _INVALIDATED_CONTRACT_REF = EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_ID, CONTRACT_VERSION)
@@ -154,3 +156,81 @@ def test_pending_correction_resolves_on_replacement(allocator: SequenceAllocator
     assert result.view_state == "VALID"
     assert result.value == Decimal("1.50")
     assert result.lineage_head_fact_ref == replacement.ref
+
+
+# --- Scope/lineage rejection guards (P3-FEATURE-QG-COV-01 remediation) -----
+#
+# Every test above only ever feeds `FeatureCurrentView` events that
+# genuinely belong to its own construction scope, in the exact valid
+# lineage order (original -> invalidation -> replacement) — so none of
+# `_check_scope`'s `ForeignScopeError` or the four `on_feature_computed`/
+# `on_feature_invalidated` lineage-mismatch `FeatureLineageError` guards
+# were ever triggered. Each guard below is feature.md §5/§11's own
+# UNCOMPUTED -> COMPUTED state-machine integrity check (I-13) — a caller
+# violating lineage order/scope must be rejected, never silently accepted.
+
+
+def test_foreign_scope_event_rejected(allocator: SequenceAllocator) -> None:
+    scope = feature_scope("volatility_metric", version="fd-1")
+    other_scope = feature_scope("volatility_metric", version="fd-2")
+    view = FeatureCurrentView(scope)
+    foreign_fact = _computed(allocator, other_scope, 0)
+    with pytest.raises(ForeignScopeError):
+        view.on_feature_computed(foreign_fact)
+
+
+def test_duplicate_original_computation_for_same_window_rejected(allocator: SequenceAllocator) -> None:
+    scope = feature_scope("volatility_metric", version="fd-1")
+    view = FeatureCurrentView(scope)
+    first = _computed(allocator, scope, 0)
+    view.on_feature_computed(first)
+    second_original = _computed(allocator, scope, 0, value="2.00", recorded_offset_minutes=1)
+    with pytest.raises(FeatureLineageError, match="original FeatureComputed for already-computed window"):
+        view.on_feature_computed(second_original)
+
+
+def test_replacement_with_wrong_supersedes_ref_rejected(allocator: SequenceAllocator) -> None:
+    scope = feature_scope("volatility_metric", version="fd-1")
+    view = FeatureCurrentView(scope)
+    original = _computed(allocator, scope, 0)
+    view.on_feature_computed(original)
+    invalidation = _invalidated(allocator, scope, original)
+    view.on_feature_invalidated(invalidation)
+    bogus_replacement = _computed(allocator, scope, 0, value="1.50", supersedes=object(), recorded_offset_minutes=2)
+    with pytest.raises(FeatureLineageError, match="does not match the current"):
+        view.on_feature_computed(bogus_replacement)
+
+
+def test_replacement_before_invalidation_rejected(allocator: SequenceAllocator) -> None:
+    scope = feature_scope("volatility_metric", version="fd-1")
+    view = FeatureCurrentView(scope)
+    original = _computed(allocator, scope, 0)
+    view.on_feature_computed(original)
+    premature_replacement = _computed(
+        allocator, scope, 0, value="1.50", supersedes=original.ref, recorded_offset_minutes=1
+    )
+    with pytest.raises(FeatureLineageError, match="arrived before its invalidation"):
+        view.on_feature_computed(premature_replacement)
+
+
+def test_invalidation_with_wrong_target_ref_rejected(allocator: SequenceAllocator) -> None:
+    scope = feature_scope("volatility_metric", version="fd-1")
+    view = FeatureCurrentView(scope)
+    original = _computed(allocator, scope, 0)
+    view.on_feature_computed(original)
+    unrelated = _computed(allocator, scope, 1, recorded_offset_minutes=1)
+    bogus_invalidation = _invalidated(allocator, scope, unrelated)
+    with pytest.raises(FeatureLineageError, match="does not match the current lineage head"):
+        view.on_feature_invalidated(bogus_invalidation)
+
+
+def test_double_invalidation_rejected(allocator: SequenceAllocator) -> None:
+    scope = feature_scope("volatility_metric", version="fd-1")
+    view = FeatureCurrentView(scope)
+    original = _computed(allocator, scope, 0)
+    view.on_feature_computed(original)
+    invalidation = _invalidated(allocator, scope, original)
+    view.on_feature_invalidated(invalidation)
+    second_invalidation = _invalidated(allocator, scope, original, recorded_offset_minutes=2)
+    with pytest.raises(FeatureLineageError, match="already invalidated"):
+        view.on_feature_invalidated(second_invalidation)

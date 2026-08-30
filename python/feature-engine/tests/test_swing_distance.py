@@ -15,11 +15,13 @@ from conftest import (
     SWING_DISTANCE_INPUT_CONTRACT,
     SWING_STREAM_ID,
     FixedDeltaTimeSource,
+    NonCausalTimeSource,
     authorized_candle_contract_refs,
     authorized_swing_contract_refs,
     candle_at,
     feature_scope,
     frontier_at,
+    make_candle_definition,
     make_distance_definition,
     only_computed,
     only_invalidated,
@@ -37,6 +39,7 @@ from feature_engine import (
     LifecycleFrontier,
     LifecycleFrontierProof,
     LifecyclePosition,
+    RecordedTimeSource,
     SequenceAllocator,
     StaticInputContractAuthorityProvider,
     StreamPositionProof,
@@ -45,10 +48,17 @@ from feature_engine import (
 from feature_engine.contracts import ResolvedInputContract, VerifiedInputContractAuthority, _seal_verified_authority
 from feature_engine.errors import (
     CursorRelationalInvariantViolationError,
+    DuplicateCandleConflictError,
     EligibleSwingComputationDefectError,
     EvidenceReferenceConflictError,
+    ForeignScopeError,
     InputContractIdentityMismatchError,
+    InvalidFeatureDefinitionError,
     InvalidSwingEligibilityInputError,
+    NonMonotonicRecordedTimeError,
+    OutOfOrderCandleError,
+    OutOfOrderCorrectionError,
+    RecordedTimeSourceViolationError,
     RegistryContractMismatchError,
     StreamPositionsUniverseMismatchError,
     UnauthorizedUpstreamContractError,
@@ -74,7 +84,7 @@ class _FixedAuthorityProvider:
 
 def _engine(
     allocator: SequenceAllocator,
-    time_source: FixedDeltaTimeSource,
+    time_source: RecordedTimeSource,
     *,
     input_contract_authority_provider: InputContractAuthorityProvider | None = None,
     **definition_kwargs: Any,
@@ -511,6 +521,344 @@ def test_output_contract_version_must_be_genuine_non_empty(
             authorized_swing_contract_refs=authorized_swing_contract_refs(),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
         )
+
+
+# --- Constructor validation guards (P3-FEATURE-QG-COV-01 remediation) -------
+#
+# Every existing constructor test above supplies a fully self-consistent,
+# valid Definition/scope/authorized-contract-ref combination (via `_engine`
+# or by hand) — none of them exercise the six independent construction-time
+# rejection guards below, each raising BEFORE the Input Contract authority
+# is even resolved.
+
+
+def test_wrong_feature_type_for_swing_engine_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    definition = make_candle_definition()
+    scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
+    with pytest.raises(ValueError, match="unsupported feature_type"):
+        SwingDistanceFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            authorized_candle_contract_refs=authorized_candle_contract_refs(),
+            authorized_swing_contract_refs=authorized_swing_contract_refs(),
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
+        )
+
+
+def test_scope_definition_mismatch_for_swing_engine_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    definition = make_distance_definition()
+    scope = feature_scope("distance_to_last_confirmed_swing", version="a-different-version-than-the-definition")
+    with pytest.raises(ValueError, match="scope does not match definition"):
+        SwingDistanceFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            authorized_candle_contract_refs=authorized_candle_contract_refs(),
+            authorized_swing_contract_refs=authorized_swing_contract_refs(),
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
+        )
+
+
+def test_empty_authorized_candle_contract_refs_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    definition = make_distance_definition()
+    scope = feature_scope("distance_to_last_confirmed_swing", version=definition.feature_definition_version)
+    with pytest.raises(InvalidFeatureDefinitionError, match="authorized_candle_contract_refs must be non-empty"):
+        SwingDistanceFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            authorized_candle_contract_refs=frozenset(),
+            authorized_swing_contract_refs=authorized_swing_contract_refs(),
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
+        )
+
+
+def test_unsupported_candle_contract_id_in_authorized_set_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    definition = make_distance_definition()
+    scope = feature_scope("distance_to_last_confirmed_swing", version=definition.feature_definition_version)
+    with pytest.raises(InvalidFeatureDefinitionError, match="unsupported contract_id"):
+        SwingDistanceFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            authorized_candle_contract_refs=frozenset({EventContractRef("candle-observed", CONTRACT_VERSION)}),
+            authorized_swing_contract_refs=authorized_swing_contract_refs(),
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
+        )
+
+
+def test_empty_authorized_swing_contract_refs_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    definition = make_distance_definition()
+    scope = feature_scope("distance_to_last_confirmed_swing", version=definition.feature_definition_version)
+    with pytest.raises(InvalidFeatureDefinitionError, match="authorized_swing_contract_refs must be non-empty"):
+        SwingDistanceFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            authorized_candle_contract_refs=authorized_candle_contract_refs(),
+            authorized_swing_contract_refs=frozenset(),
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
+        )
+
+
+def test_unsupported_swing_contract_id_in_authorized_set_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    definition = make_distance_definition()
+    scope = feature_scope("distance_to_last_confirmed_swing", version=definition.feature_definition_version)
+    with pytest.raises(InvalidFeatureDefinitionError, match="unsupported contract_id"):
+        SwingDistanceFeatureEngine(
+            scope,
+            definition,
+            allocator,
+            time_source,
+            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            authorized_candle_contract_refs=authorized_candle_contract_refs(),
+            authorized_swing_contract_refs=frozenset({EventContractRef("swing-candidate-detected", CONTRACT_VERSION)}),
+            input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
+        )
+
+
+def test_engine_own_profile_check_rejects_mismatched_authority(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`StaticInputContractAuthorityProvider.resolve()` already pre-validates
+    its own wrapped authority's profile (see
+    `test_input_contract_profile_mismatch_fails_closed_at_construction`
+    above, which exercises THAT check) — so it never reaches this engine's
+    OWN internal `feature_computation_profile` guard (line 297-298). Using
+    `_FixedAuthorityProvider`, which returns whatever it is given
+    regardless of the requested profile, isolates and exercises the
+    engine's own independent check instead.
+    """
+    from conftest import REGIME_INPUT_CONTRACT
+
+    with pytest.raises(InputContractIdentityMismatchError):
+        _engine(
+            allocator, time_source, input_contract_authority_provider=_FixedAuthorityProvider(REGIME_INPUT_CONTRACT)
+        )
+
+
+# --- Scope/causal-ordering rejection guards (P3-FEATURE-QG-COV-01 remediation)
+#
+# `NonMonotonicRecordedTimeError`/`OutOfOrderCandleError`/
+# `OutOfOrderCorrectionError` are the exact three error paths named by
+# `P3-FEATURE-QG-MIN-01` — recorded here as a factual overlap; these tests
+# alone are supporting evidence only, not a claim that MIN-01 is closed.
+# `ForeignScopeError` (candle side) is one of the four raise sites cited by
+# `P3-FEATURE-QG-EVID-06` — same factual-overlap caveat, not a claim of
+# EVID-06 closure.
+
+
+def test_foreign_scope_candle_rejected(allocator: SequenceAllocator, time_source: FixedDeltaTimeSource) -> None:
+    engine = _engine(allocator, time_source)
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    foreign_scope = dataclasses.replace(reference.scope, instrument_id="ETH-USDT")
+    foreign = dataclasses.replace(reference, scope=foreign_scope)
+    with pytest.raises(ForeignScopeError):
+        engine.on_candle(foreign, cursor=frontier_at(foreign.recorded_time))
+
+
+def test_foreign_scope_swing_confirmed_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    foreign = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", instrument_id="ETH-USDT")
+    with pytest.raises(ForeignScopeError):
+        engine.on_swing_confirmed(foreign, cursor=frontier_at(foreign.recorded_time))
+
+
+def test_wrong_swing_definition_version_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    fact = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="s1", swing_definition_version="not-the-pinned-version"
+    )
+    with pytest.raises(InvalidSwingEligibilityInputError, match="expected swing_definition_version"):
+        engine.on_swing_confirmed(fact, cursor=frontier_at(fact.recorded_time))
+
+
+def test_wrong_swing_direction_rejected(allocator: SequenceAllocator, time_source: FixedDeltaTimeSource) -> None:
+    engine = _engine(allocator, time_source)  # default swing_direction="HIGH"
+    fact = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", direction="LOW")
+    with pytest.raises(InvalidSwingEligibilityInputError, match="expected swing_direction"):
+        engine.on_swing_confirmed(fact, cursor=frontier_at(fact.recorded_time))
+
+
+def test_invalid_swing_invalidation_target_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Invalidating a swing_id/revision this engine never confirmed must be
+    rejected — never silently accepted as a no-op.
+    """
+    engine = _engine(allocator, time_source)
+    inv = swing_invalidated_at(allocator, swing_id="never-confirmed", swing_revision=1, recorded_time=BASE)
+    with pytest.raises(InvalidSwingEligibilityInputError, match="not the current non-invalidated revision"):
+        engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
+
+
+def test_non_monotonic_candle_recorded_time_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    first = candle_at(allocator, 10, high="110", low="90", close="105")
+    engine.on_candle(first, cursor=frontier_at(first.recorded_time))
+    earlier = candle_at(allocator, 20, high="120", low="95", close="110", recorded_offset_seconds=-3600)
+    assert earlier.recorded_time < first.recorded_time
+    with pytest.raises(NonMonotonicRecordedTimeError):
+        engine.on_candle(earlier, cursor=frontier_at(earlier.recorded_time))
+
+
+def test_non_monotonic_swing_recorded_time_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    first = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", recorded_offset_minutes=100)
+    engine.on_swing_confirmed(first, cursor=frontier_at(first.recorded_time))
+    earlier = swing_confirmed_at(allocator, pivot_index=3, swing_id="s2", recorded_offset_minutes=-100)
+    assert earlier.recorded_time < first.recorded_time
+    with pytest.raises(NonMonotonicRecordedTimeError):
+        engine.on_swing_confirmed(earlier, cursor=frontier_at(earlier.recorded_time))
+
+
+def test_non_causal_time_source_rejected(allocator: SequenceAllocator) -> None:
+    engine = _engine(allocator, NonCausalTimeSource())
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    with pytest.raises(RecordedTimeSourceViolationError):
+        engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+
+
+def test_swing_state_as_of_unknown_swing_id_returns_none(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_swing_state_as_of`'s own `if not records: return None` guard is
+    unreachable via the public API: `_select_eligible_swing` only ever
+    queries `swing_id`s already present as keys in `_swing_confirmations`
+    (populated together with a non-empty record list, in the same
+    `setdefault(...).append(...)` statement, in `on_swing_confirmed`) — so
+    a key with an empty/absent record list can never occur through any
+    public method sequence. This directly, minimally exercises the private
+    method's own documented "no confirmation ever recorded for this
+    swing_id" contract with a swing_id that is valid input but genuinely
+    never confirmed — not a fabricated internal-state hack.
+    """
+    engine = _engine(allocator, time_source)
+    assert engine._swing_state_as_of("never-confirmed-swing-id", frontier_at(BASE)) is None
+
+
+def test_evidence_reference_conflict_when_candle_and_swing_refs_collide(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_normalize_evidence`'s own ref-collision guard: a genuine (if
+    contrived) case where the Swing's own `EventRecordRef` happens to
+    collide with the reference Candle's `EventRecordRef` — evidence refs
+    must always be exactly two distinct events.
+    """
+    engine = _engine(allocator, time_source)
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    colliding_swing = dataclasses.replace(
+        swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100"), ref=reference.ref
+    )
+    engine.on_swing_confirmed(colliding_swing, cursor=frontier_at(colliding_swing.recorded_time))
+    with pytest.raises(EvidenceReferenceConflictError):
+        engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+
+
+def test_candle_identical_redelivery_is_idempotent(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Mirrors `test_swing_same_ref_identical_redelivery_is_idempotent` for
+    the Candle side: byte-for-byte identical redelivery of the same
+    `EventRecordRef` (not a correction, not conflicting content) is a
+    silent no-op — never re-enters lineage/dedup logic.
+    """
+    engine = _engine(allocator, time_source)
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    events = engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+    assert events == []  # no eligible Swing yet — valid absence
+    replay = engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+    assert replay == []
+
+
+def test_candle_resubmitted_different_ref_without_correction_flag_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+    resubmitted = dataclasses.replace(candle_at(allocator, 10, high="111", low="90", close="106"), is_correction=False)
+    with pytest.raises(DuplicateCandleConflictError):
+        engine.on_candle(resubmitted, cursor=frontier_at(resubmitted.recorded_time))
+
+
+def test_first_seen_candle_marked_as_correction_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    correction = candle_at(allocator, 10, high="110", low="90", close="105", is_correction=True)
+    with pytest.raises(OutOfOrderCorrectionError):
+        engine.on_candle(correction, cursor=frontier_at(correction.recorded_time))
+
+
+def test_out_of_order_candle_window_start_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _engine(allocator, time_source)
+    later = candle_at(allocator, 10, high="110", low="90", close="105")
+    engine.on_candle(later, cursor=frontier_at(later.recorded_time))
+    earlier_window = candle_at(allocator, 5, high="108", low="92", close="100", recorded_offset_seconds=3600)
+    with pytest.raises(OutOfOrderCandleError):
+        engine.on_candle(earlier_window, cursor=frontier_at(earlier_window.recorded_time))
+
+
+def test_lineage_reevaluation_skips_window_not_using_the_invalidated_swing(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`on_swing_invalidated` re-attempts every lineage window using the
+    invalidated Swing's ref — a SEPARATE window that settled on a
+    DIFFERENT Swing must be skipped (`continue`), not touched.
+    """
+    engine = _engine(allocator, time_source)
+    swing_a = swing_confirmed_at(allocator, pivot_index=2, swing_id="A", pivot_price="100")
+    engine.on_swing_confirmed(swing_a, cursor=frontier_at(swing_a.recorded_time))
+    window_one = candle_at(allocator, 10, high="110", low="90", close="105")
+    engine.on_candle(window_one, cursor=frontier_at(window_one.recorded_time))
+
+    swing_b = swing_confirmed_at(allocator, pivot_index=20, swing_id="B", pivot_price="200")
+    engine.on_swing_confirmed(swing_b, cursor=frontier_at(swing_b.recorded_time))
+    window_two = candle_at(allocator, 30, high="210", low="190", close="205")
+    engine.on_candle(window_two, cursor=frontier_at(window_two.recorded_time))
+
+    inv_a = swing_invalidated_at(allocator, swing_id="A", swing_revision=1, recorded_time=BASE + timedelta(hours=1))
+    events = engine.on_swing_invalidated(inv_a, cursor=frontier_at(inv_a.recorded_time))
+    # Only window_one (which used A) is invalidated -- window_two (which used B) is
+    # skipped entirely, never re-touched, never re-emitted.
+    assert len(events) == 1
+    assert only_invalidated(events[0]).window_start == window_one.scope.window_start
 
 
 # --- P3-FEATURE-A-MAJ-05 remediation: dedup is ref-identity-only -------------
