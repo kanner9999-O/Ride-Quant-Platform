@@ -2,6 +2,50 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-30 — feature-engine: Branch Coverage Diagnostic Breakdown Fidelity Correction (`P3-FEATURE-QG-COV-B-MIN-01` — REMEDIATED — PENDING BOUNDED RE-REVIEW)
+
+**Bounded, docs-only diagnostic evidence-fidelity correction — vai trò: `Feature Engine Branch Coverage Diagnostic Breakdown Fidelity Corrector`.** Corrects `P3-FEATURE-QG-COV-B-MIN-01`, found by Independent Review B of the branch-coverage remediation candidate (`f13689630e4c25d0c014933ed1812b04b7e0517c`): its per-file diagnostic branch breakdown's covered-branch numerators summed to 293, not the recorded aggregate 290, and its contracts.py figure ("89% (89/108)") was internally wrong (89/108=82.4%, not 89%) and inconsistent with its own stated 22-missing-branches claim (108-89=19). No production code, test, dependency, tooling, or coverage-config change; no formal QG re-evaluation; `P3-FEATURE-QG-COV-01` not closed.
+
+### Review record
+
+```text
+Bounded Review A: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B (Blocker 0, Major 0, Minor 0).
+Independent Review B (Claude, AI Technical Architect, ADR-031 Mode A DISTINCT_PRINCIPAL):
+  CLEAN — READY_FOR_PRODUCT_OWNER_DECISION, with one new qualifying finding
+  (P3-FEATURE-QG-COV-B-MIN-01), bounded-corrected by this transaction.
+```
+
+### Fresh diagnostic re-verification (DIAGNOSTIC ONLY, NOT FORMAL CHAPTER 13 QG EVIDENCE)
+
+```text
+Fresh clean-room venv, coverage 7.16.0/pytest 9.1.1 (unchanged). 193 passed, 0 failed.
+Aggregate reproduced exactly: line 1048/1077=97.30733519034355%; branch 290/316=
+91.77215189873418%. No material discrepancy from the candidate's own recorded aggregate.
+```
+
+### Corrected per-file branch breakdown (JSON-sourced, reconciles exactly with the aggregate)
+
+```text
+authority_resolver.py 34/34 (100%). candle.py 8/8 (100%). candle_window.py 6/6 (100%).
+current_view.py 18/18 (100%). regime_passthrough.py 36/36 (100%). swing_distance.py
+102/106 (96.22641509433963%, 4 missing). contracts.py 86/108 (79.62962962962963%, 22
+missing) — CORRECTED from the defective "89% (89/108)"; UNCHANGED coverage state, only its
+disclosure was wrong. Sums: covered 290, total 316, missing 26 — exact match to aggregate.
+```
+
+### Finding state
+
+```text
+P3-FEATURE-QG-COV-B-MIN-01: REMEDIATED — PENDING BOUNDED RE-REVIEW (not self-closed).
+P3-FEATURE-QG-COV-A-MIN-01/-MIN-02: CLOSED — bounded re-verification (unchanged).
+P3-FEATURE-QG-COV-01: REMEDIATION IMPLEMENTED — PENDING REVIEW AND FORMAL COVERAGE
+  RE-EVALUATION (unchanged, not closed). Historical formal evidence (243/316 FAIL —
+  criteria) unchanged. EVID-01/-02: CLOSED. EVID-03 through -08, MIN-01: unchanged.
+  Formal Feature Chapter 13 QG: FAIL. Feature module: NOT APPROVED. LIVE: NOT_AUTHORIZED.
+```
+
+**manifest_version:** `"10.275"` → `"10.276"`.
+
 ## [Unreleased] — 2026-08-30 — feature-engine: Branch Coverage Remediation Candidate (`P3-FEATURE-QG-COV-01` — REMEDIATION IMPLEMENTED — PENDING REVIEW AND FORMAL COVERAGE RE-EVALUATION, test-only)
 
 **Bounded, test-only remediation transaction — vai trò: `Feature Engine Branch Coverage Remediation Candidate Implementer`.** Adds 48 meaningful, semantically-justified tests (145 -> 193 total) exercising previously-uncovered authoritative Feature Engine branch outcomes across `authority_resolver.py`, `candle.py`, `candle_window.py`, `current_view.py`, `regime_passthrough.py`, `swing_distance.py`. Does not modify `src/**`, coverage tooling/pins, or the Chapter 13 floor. Does not close `P3-FEATURE-QG-COV-01` — a remediation candidate for Review A, not formal QG evidence.

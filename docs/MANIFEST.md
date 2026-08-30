@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.275"
+manifest_version: "10.276"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -15052,12 +15052,20 @@ Applicable authoritative floor (Chapter 13 §13.3/§13.4, Tier 1 — Core Logic)
 Line diagnostic result:   97.30733519034355% >= 90% -> PASS (diagnostic).
 Branch diagnostic result: 91.77215189873418% >= 90% -> PASS (diagnostic) — margin of 5
   covered branches above the 285/316 floor threshold (290 achieved).
-Per-file diagnostic detail: authority_resolver.py 100% (34/34 branches), candle.py 100%
-  (8/8), candle_window.py 100% (6/6), current_view.py 100% (18/18), regime_passthrough.py
-  100% (36/36), swing_distance.py 96.2% (102/106, 4 branches explicitly left uncovered and
-  documented above), contracts.py UNCHANGED at 89% (89/108) — not touched by this bounded
-  transaction (its own 22 missing branches were not needed to reach the floor and remain
-  fully available for a future remediation transaction if ever required).
+Per-file diagnostic detail (CORRECTED — see "Branch Coverage Diagnostic Breakdown Fidelity
+  Correction" section below, `P3-FEATURE-QG-COV-B-MIN-01`; original per-file prose here
+  contained an internal arithmetic inconsistency — covered-branch numerators summed to 293,
+  not the aggregate 290, and its contracts.py figure, "89% (89/108)", was both
+  mathematically wrong (89/108 = 82.4%, not 89%) and inconsistent with its own stated "22
+  missing branches" (108-89=19, not 22) — the corrected section below is the controlling
+  per-file record): authority_resolver.py 100% (34/34), candle.py 100% (8/8),
+  candle_window.py 100% (6/6), current_view.py 100% (18/18), regime_passthrough.py 100%
+  (36/36), swing_distance.py 96.23% (102/106, 4 branches explicitly left uncovered and
+  documented above), contracts.py UNCHANGED at 79.62962962962963% (86/108, 22 missing) — not
+  touched by this bounded transaction (its own 22 missing branches were not needed to reach
+  the floor and remain fully available for a future remediation transaction if ever
+  required). These seven files' covered/total/missing branch counts sum exactly to the
+  aggregate above (290/316/26).
 These diagnostic values are explicitly NOT formal Chapter 13 Quality Gate evidence — a
   separate, formally-governed re-evaluation transaction (mirroring the process already used
   for the original P3-FEATURE-QG-EVID-01/-EVID-02 closure) must independently reproduce and
@@ -15131,6 +15139,160 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 Review A (and, if the Chapter 0 §3 review gate applies to whatever governed transaction eventually acts on this candidate, Independent Review B) of this test-only remediation candidate; if accepted, a separate, formally-governed Feature Engine Chapter 13 coverage evidence re-evaluation (mirroring the process already used for the original EVID-01/EVID-02 closure) must independently reproduce and record qualifying branch-coverage evidence before `P3-FEATURE-QG-COV-01` may close. Independently, unchanged: the six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transactions before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. Neither performed here.
 
 **Files changed:** `python/feature-engine/tests/test_candle.py` (new), `python/feature-engine/tests/test_authority_resolver.py`, `python/feature-engine/tests/test_candle_window.py`, `python/feature-engine/tests/test_current_view.py`, `python/feature-engine/tests/test_regime_passthrough.py`, `python/feature-engine/tests/test_swing_distance.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.274"` → `"10.275"`.
+
+## `feature-engine` Branch Coverage Diagnostic Breakdown — Fidelity Correction (`P3-FEATURE-QG-COV-B-MIN-01` — `REMEDIATED — PENDING BOUNDED RE-REVIEW`, NOT self-closed)
+
+**Bounded, docs-only diagnostic evidence-fidelity correction — vai trò: `Feature Engine Branch Coverage Diagnostic Breakdown Fidelity Corrector`.** Corrects ONLY `P3-FEATURE-QG-COV-B-MIN-01`, a qualifying Minor found by Independent Review B of the branch-coverage remediation candidate (commit `f13689630e4c25d0c014933ed1812b04b7e0517c`): an internal arithmetic inconsistency in that candidate's own per-file diagnostic branch-coverage disclosure. Does NOT modify production code. Does NOT modify tests. Does NOT add tests. Does NOT change coverage configuration/tooling. Does NOT perform the formal Chapter 13 coverage re-evaluation. Does NOT close `P3-FEATURE-QG-COV-01`. Does NOT make the Product Owner decision.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `f13689630e4c25d0c014933ed1812b04b7e0517c` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.275"` at start.
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: bounded diagnostic evidence-fidelity correction only — corrects an internal
+  arithmetic disclosure defect in already-recorded diagnostic prose; no production code, no
+  test, no tooling/dependency, no coverage configuration, and no semantic/architecture
+  decision is touched.
+```
+
+### Review record for the remediation candidate (recorded, not re-performed)
+
+```text
+Bounded Review A (candidate f13689630e4c25d0c014933ed1812b04b7e0517c): CLEAN —
+  READY_FOR_INDEPENDENT_REVIEW_B. Blocker 0, Major 0, qualifying Minor 0.
+Independent Review B: reviewer Claude, role AI Technical Architect / Independent Review B,
+  ADR-031 Mode A — DISTINCT_PRINCIPAL. Final disposition: INDEPENDENT REVIEW B: CLEAN —
+  READY_FOR_PRODUCT_OWNER_DECISION, with one new qualifying finding:
+  P3-FEATURE-QG-COV-B-MIN-01. This MANIFEST section performs the bounded correction of that
+  finding — it does not re-perform, re-score, or supersede Review A or Independent Review B
+  themselves.
+```
+
+### `P3-FEATURE-QG-COV-B-MIN-01` — exact defect
+
+```text
+Classification: qualifying Minor — diagnostic evidence/disclosure arithmetic inconsistency.
+Defect: the remediation candidate's own "Post-remediation diagnostic coverage" section
+  recorded an internally consistent aggregate (covered_branches 290, num_branches 316,
+  missing_branches 26, percent_branches_covered 91.77215189873418) but a per-file breakdown
+  whose covered-branch numerators (34+8+6+18+36+102+89 = 293) did NOT sum to that aggregate
+  (290) — a discrepancy of 3. Additionally, the disclosed contracts.py figure, "89% (89/108)",
+  was independently, internally wrong on its own terms: 89/108 = 82.4074...%, not 89%; and
+  its own stated "22 missing branches" contradicts 108-89=19, not 22. The correct
+  contracts.py values were never freshly re-derived from the actual coverage.py JSON output
+  at candidate-authoring time — they were transcribed incorrectly.
+```
+
+### Fresh diagnostic re-verification (this transaction; CORRECTION VERIFICATION / DIAGNOSTIC ONLY — NOT FORMAL CHAPTER 13 QG EVIDENCE)
+
+```text
+Environment: fresh clean-room venv reconstructed from the current, unchanged
+  requirements-dev.lock.txt (python3.13 -m venv, pip install --no-deps -r
+  requirements-dev.lock.txt, pip install -e . --no-deps). pip check -> No broken
+  requirements found. Python 3.13.6, coverage 7.16.0, pytest 9.1.1 — identical to the
+  candidate's own recorded tool identity; no dependency/tooling change.
+Command: coverage erase; coverage run --branch --source=feature_engine -m pytest tests/ -q;
+  coverage json --pretty-print -o <scratch path>; coverage report -m.
+Test result: 193 passed, 0 failed — identical to the candidate's own recorded result (145
+  original + 48 new, unchanged).
+Aggregate (reproduced exactly, byte-identical to the candidate's own recorded aggregate):
+  num_statements 1077, covered_lines 1048, percent_statements_covered 97.30733519034355;
+  num_branches 316, covered_branches 290, missing_branches 26, num_partial_branches 26,
+  percent_branches_covered 91.77215189873418; percent_covered (BLENDED, NOT a Chapter 13
+  metric) 96.05168700646088. No material discrepancy from the candidate's own recorded
+  aggregate — this transaction's fresh measurement is a genuine reproduction, not a
+  re-invention.
+```
+
+### Corrected, fresh, JSON-sourced per-file branch breakdown (controlling record)
+
+```text
+File                          Covered / Total   Missing   percent_branches_covered
+authority_resolver.py         34 / 34            0        100.0
+candle.py                      8 / 8             0        100.0
+candle_window.py               6 / 6             0        100.0
+current_view.py                18 / 18           0        100.0
+regime_passthrough.py          36 / 36           0        100.0
+swing_distance.py              102 / 106         4        96.22641509433963
+contracts.py                   86 / 108          22       79.62962962962963
+Sum covered branches (7 files): 34+8+6+18+36+102+86 = 290.
+Sum total branches (7 files):   34+8+6+18+36+106+108 = 316.
+Sum missing branches (7 files): 0+0+0+0+0+4+22 = 26.
+Reconciliation against the aggregate (covered_branches 290, num_branches 316,
+  missing_branches 26): PASS — exact match on all three counts. Every value above was read
+  directly from this transaction's own freshly-generated coverage.py JSON output
+  (`files.<path>.summary.{covered_branches,num_branches,missing_branches,
+  percent_branches_covered}`), never reconstructed by subtraction from the aggregate alone,
+  per this correction's own governing instruction.
+```
+
+### contracts.py correction
+
+```text
+Before (defective, candidate's own prose): "UNCHANGED at 89% (89/108)" — internally
+  inconsistent (89/108 != 89%) and inconsistent with the candidate's own separately-stated
+  "22 missing branches" (108-89=19, not 22).
+After (corrected, fresh JSON-verified): covered_branches 86, num_branches 108,
+  missing_branches 22, percent_branches_covered 79.62962962962963%. 108-86=22, consistent.
+  UNCHANGED by the branch-coverage remediation candidate itself (contracts.py was never
+  touched by that transaction; this correction only fixes the DISCLOSURE of its
+  already-existing, always-unchanged coverage state).
+Exact source of corrected value: this transaction's own fresh
+  `coverage json --pretty-print` output, `files["src/feature_engine/contracts.py"].summary`,
+  read directly — not derived by subtraction, not copied from this correction task's own
+  "expected consistency result" text without independent verification (that expected value
+  was independently reproduced, not merely trusted).
+```
+
+### Historical formal evidence — explicitly preserved, not touched
+
+```text
+Formal evidence boundary a7a34014bcf153534572ef1441b7a128a203555e (commit
+  313d25891ea1157645f5f8c9e4084ca8c7760f6e): branch coverage 243/316 = 76.89873417721519%,
+  FAIL — criteria — UNCHANGED, never rewritten as PASS. The diagnostic/formal distinction
+  remains explicit: this correction only fixes a DIAGNOSTIC disclosure defect in the
+  remediation candidate's own supporting evidence, never the historical formal QG record.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/engineering/
+  testing.md, docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml,
+  docs/domain/**, CI/CD workflows: all verified byte-identical (`git diff --quiet` for each
+  path). No test added/modified/deleted. No production code changed. No dependency/tooling
+  changed. No coverage configuration changed. No formal Chapter 13 coverage re-evaluation
+  performed. `P3-FEATURE-QG-COV-01` not closed. No Product Owner decision made. Files
+  touched, confirmed via `git status --porcelain=v1`: docs/MANIFEST.md, docs/CHANGELOG.md —
+  no other file touched.
+```
+
+### State summary
+
+```text
+P3-FEATURE-QG-COV-B-MIN-01:   REMEDIATED — PENDING BOUNDED RE-REVIEW (NOT self-closed by
+                               this transaction).
+P3-FEATURE-QG-COV-A-MIN-01:   CLOSED — bounded re-verification (unchanged).
+P3-FEATURE-QG-COV-A-MIN-02:   CLOSED — bounded re-verification (unchanged).
+P3-FEATURE-QG-COV-01:         REMEDIATION IMPLEMENTED — PENDING REVIEW AND FORMAL COVERAGE
+                               RE-EVALUATION (unchanged, NOT closed).
+P3-FEATURE-QG-EVID-01:        CLOSED (unchanged).
+P3-FEATURE-QG-EVID-02:        CLOSED (unchanged).
+P3-FEATURE-QG-EVID-03..-08:   UNCHANGED (six findings, out of scope).
+P3-FEATURE-QG-MIN-01:         UNCHANGED.
+Formal Feature Chapter 13 QG: FAIL (unchanged).
+Feature module approval:      NOT APPROVED.
+Phase 3 Approval Gate:        NOT opened.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Bounded re-review of this correction (confirming the corrected per-file breakdown reconciles with the aggregate and that contracts.py's figures are fresh-JSON-verified) is the next step before `P3-FEATURE-QG-COV-B-MIN-01` may close. Independently, unchanged: a separate, formally-governed Feature Engine Chapter 13 coverage evidence re-evaluation remains required before `P3-FEATURE-QG-COV-01` may close, and the six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transactions. None performed here.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.275"` → `"10.276"`.
 
 ## Decision Log
 
