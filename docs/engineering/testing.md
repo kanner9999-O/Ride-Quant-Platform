@@ -1,7 +1,7 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.8"
+version: "0.9"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,8 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**CANDIDATE bounded correction (2026-08-31), KHÔNG self-approved — status: Draft → Draft.** Bounded remediation của bốn Review A findings trên v0.8's "Python test-effectiveness mechanism — CANDIDATE" subsection (KHÔNG PHẢI self-closure — executor KHÔNG có thẩm quyền tự đóng finding của chính mình, CHỈ Review A re-review + Independent Review B tiếp theo mới validate closure) — vai trò: `Python Test-Effectiveness Candidate Bounded Correction Executor`. `version: "0.8" → "0.9"`, `status` VẪN `Draft` (KHÔNG tự approve), `approved_by`/`approved_at` VẪN `null`/`null`. **Findings remediated (full detail tại subsection dưới):** `P3-PY-MUT-A-MAJ-01` (v0.8's authoritative-sounding `mutation score >= 80%` threshold removed, replaced with `TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED` and an explicit 9-step governed sequence — mechanism approval → install/pin → governed NON-GATING baseline measurement → analyze mutant population/survivors/equivalents/blind spots → separate threshold proposal → fresh ADR Scope Rule → review → Product Owner decision → threshold-bearing formal evidence; explicit rule against inferring a Tier-0 threshold from Feature Engine's future Tier-1 baseline; explicit note that this candidate's own `ADR_NOT_REQUIRED` mechanism-selection disposition does NOT extend to any future numeric-threshold proposal, which must independently re-run Chapter 0 §4b at its own boundary). `P3-PY-MUT-A-MAJ-02` (mutation-surface completeness — corrected the v0.8 claim that only bare module-level statements are omitted; disclosed, with exact source citations from `mutmut`'s own `file_mutation.py`, that decorated functions/methods are excluded from mutation UNLESS the decorator is exactly one `@staticmethod`/`@classmethod`, that `@property`-decorated methods are structurally excluded [feature-engine's own `candle.py:32`/`contracts.py:619` verified as concrete instances], and that `@dataclass`-synthesized `__init__`/`__eq__`/`__repr__`/`__hash__` methods are invisible to mutmut's AST-based parser entirely — plus a new formal mutation-surface completeness contract requiring an exact inventory of mutation-capable functions, omitted behavior with individual reasons, and any qualifying equivalent test-effectiveness evidence, with an explicit fail-closed rule that mere disclosure of omitted behavior is NOT sufficient for a PASS disposition). `P3-PY-MUT-A-MAJ-03` (metric/status/denominator contract — removed the claim that mutmut 3.7.0 itself defines the mutation-score formula as built-in semantics, redefining it as a Ride-owned, independently-versioned metric contract inspired by but not bound to mutmut's own `badge` formula; corrected the disclosed status taxonomy from seven to the complete ten categories verified directly from `status_by_exit_code`, including `not_checked` and `caught_by_type_check`, both of which are tracked internally by mutmut but OMITTED from `export-cicd-stats`'s own JSON output — corrected the false implication that the JSON alone proves the complete denominator; added a full status-reconciliation requirement, `not_checked == 0`, governed treatment of `caught_by_type_check`, a raw-denominator-by-default rule for equivalent mutants with a governed-adjustment mechanism, deterministic-reproduction-before-credit for timeouts, and a corrected, precise meaning of `skipped` distinct from pragma/regex mutant-generation exclusion). `P3-PY-MUT-A-MIN-01` (removed the duplicated literal "Tier-1 coverage floor (90%)" from the (now-removed) threshold rationale paragraph — the applicable Tier-1 coverage floor is referenced only by resolving it directly from Chapter 13, never restated numerically in this document). **Finding states:** all four `REMEDIATED — PENDING BOUNDED RE-REVIEW` — NOT self-closed. **KHÔNG đổi:** mutmut VẪN candidate mechanism đề xuất (KHÔNG chọn lại/nghiên cứu lại tool nào khác — Review A's findings đều LÀ contract/evidence defects, KHÔNG PHẢI evidence mutmut bị disqualify), `ADR_NOT_REQUIRED` mechanism-selection disposition (unchanged, re-affirmed distinct from the future threshold-proposal's own separate ADR Scope Rule requirement above), coverage.py mechanism (byte-equivalent, KHÔNG chạm), `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`), `P3-FEATURE-QG-EVID-04` through `-08` (unchanged), overall Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`), LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/chạy `mutmut`. KHÔNG tạo baseline data nào. KHÔNG chọn threshold nào. KHÔNG Review A self-closure. KHÔNG Product Owner decision. **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**: `ADR_NOT_REQUIRED` — correction CHỈ sửa contract/evidence-definition text bên trong CÙNG một reversible Testing Convention tooling candidate ĐÃ pre-authorized, KHÔNG giới thiệu architecture/tool/governance-process decision MỚI nào, KHÔNG chọn threshold nào (threshold explicitly deferred, not decided, by this very correction).
 
 **CANDIDATE (2026-08-31), KHÔNG self-approved — status: Approved → Draft.** `status: Approved → Draft` (mọi thay đổi SEMANTIC vào tài liệu Approved bắt buộc tăng version VÀ đi qua approval gate lại, đúng [Chapter 0 §5.1](../constitution/00-governance.md); `approved_by`/`approved_at` của v0.7 KHÔNG tự động phủ nội dung MỚI này — reset `null`, v0.7's approval record giữ nguyên nguyên vẹn phía dưới LÀM historical evidence, KHÔNG bị ghi đè), vai trò: `Python Test-Effectiveness Mechanism Candidate Author`. Bổ sung MỘT subsection MỚI dưới "Framework/tool selection" (dưới, cùng vị trí Go branch-coverage candidate VÀ Python coverage mechanism) đề xuất một **CANDIDATE** (chưa chọn/chưa cài đặt/chưa tích hợp/chưa đo) cho cơ chế đo **test-effectiveness** (mutation testing) — mechanism-selection prerequisite Chapter 13 §13.3 tự nó yêu cầu cho Tier 0/1, resolving `P3-FEATURE-QG-EVID-03`'s cited baseline-existence gap. **ADR-scope check (chạy TRƯỚC KHI author, [Chapter 0 §4b](../constitution/00-governance.md)):** kết luận `ADR_NOT_REQUIRED` — xem "Python test-effectiveness mechanism — CANDIDATE" dưới cho full reasoning, cùng pattern (b) đã dùng cho gobco (v0.3/v0.4) VÀ coverage.py (v0.5–v0.7): [Chapter 3 §3.2](../constitution/03-engineering-principles.md) đã có carve-out tường minh cho Testing Convention tooling, VÀ [Chapter 13 §13.3](../constitution/13-quality-gates.md)/[§13.14](../constitution/13-quality-gates.md) tự nó khóa "không khóa tool/vendor cụ thể... defer Engineering Foundation" cho ĐÚNG category này. **KHÔNG đổi:** Chapter 13 coverage floor/tier/pass-fail semantics nào, `module-registry.yaml`, dependency graph, `feature-engine` production/test code, existing coverage.py mechanism (§"Python line+branch coverage mechanism — APPROVED" dưới, byte-equivalent, KHÔNG re-opened), `P3-FEATURE-QG-EVID-03` (KHÔNG closed tại đây — VẪN `FAIL — evidence`), overall Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`), LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/pin tool nào tại transaction này. KHÔNG chạy mutation testing thật. KHÔNG rerun Quality Gate nào. KHÔNG approve module/Data Layer nào. KHÔNG authorize LIVE. KHÔNG start Context Aggregator.
 
@@ -1102,7 +1104,7 @@ CANDIDATE ≠ APPROVED/ACCEPTED ≠ INSTALLED ≠ PINNED ≠ QUALIFYING QG EVIDE
   ở trên, VÀ một formal QG re-evaluation riêng biệt) hoàn tất.
 ```
 
-### Python test-effectiveness mechanism — CANDIDATE (v0.8, pending Product Owner decision)
+### Python test-effectiveness mechanism — CANDIDATE (v0.8 content, bounded-corrected v0.9 — `P3-PY-MUT-A-MAJ-01`/`-MAJ-02`/`-MAJ-03`/`-MIN-01` `REMEDIATED — PENDING BOUNDED RE-REVIEW`, pending Product Owner decision)
 
 ```text
 [v0.8 addition — role: `Python Test-Effectiveness Mechanism Candidate Author`. This is the
@@ -1231,69 +1233,236 @@ CANDIDATE mechanism proposed: **mutmut** (PyPI package `mutmut`, version `3.7.0`
      fails, proving mutation activation genuinely reaches the test suite (a real, built-in
      self-check against the "mutants are silently never exercised, everything looks
      survived or killed for the wrong reason" failure mode) — only THEN does real mutation
-     testing (f) run. Mutation is **function-level** in mutmut 3+ (verified directly,
-     README: "mutmut 2... has a different execution model" — module-level/top-level
-     statement mutation is a legacy mutmut-2 model, NOT what this candidate proposes) — an
-     explicit scope limitation, not silently assumed complete: bare module-level statements
-     outside any function/method body are NOT mutated by mutmut 3.x. Verified directly
-     against feature-engine's current authoritative source (`grep`-level structural check,
-     this candidate): production logic lives inside dataclass methods/functions/class
-     bodies; the only genuinely bare module-level statements are constant/policy-object
-     assignments (e.g. `WARM_UP_POLICY = ...`) — install-time re-verification required to
-     confirm this remains true and to catalogue exactly which lines fall outside
-     function-level mutation scope, so the eventual evidence record can disclose that
-     boundary explicitly rather than silently.
-  6. Machine-readable evidence: `mutmut export-cicd-stats` writes
-     `mutants/mutmut-cicd-stats.json` (verified directly from `__main__.py`) with, at
-     minimum, integer fields `killed`, `survived`, `total`, `no_tests`, `skipped`,
-     `suspicious`, `timeout`, `check_was_interrupted_by_user`, `segfault` — sufficiently
-     structured to pin into a Chapter 13 §13.9 immutable evidence entry (subject identity,
-     boundary, raw counts, computed score), the same evidentiary role `coverage json` plays
-     for the coverage mechanism.
-  7. Metric semantics — mutation score (verified directly from mutmut's own `badge` command
-     source, the only place mutmut itself defines a percentage formula):
-     `tested = total - skipped`; `score = 0 if tested <= 0 else (killed + timeout) / tested
-     * 100`. This candidate proposes adopting this EXACT formula (not inventing a
-     different one) as the Chapter-13-facing mutation-effectiveness percentage, with
-     `killed`+`timeout` in the numerator (both represent the mutant being caught — a
-     timeout is treated as "the mutated code hung/exceeded the timeout budget," which any
-     real CI/test run would also treat as a failure, i.e. functionally caught) and
-     `skipped` excluded from the denominator entirely (intentionally-excluded lines,
-     subject to the anti-gaming exclusion-justification rule below — never a free way to
-     inflate the score).
-  8. Treatment of surviving / equivalent-or-invalid / timeout-or-error mutants (verified
-     directly from mutmut's own `status_by_exit_code` mapping in `__main__.py` — the
-     complete, real taxonomy, not an assumed/simplified one):
-     - `killed` / `timeout`: contribute to the numerator (§ above) — genuine, positive
-       effectiveness evidence.
+     testing (f) run.
+  5a. **Mutation-surface limitations — [v0.9 bounded correction, `P3-PY-MUT-A-MAJ-02`:
+      v0.8 disclosed ONLY bare module-level statements as an omission and claimed this was
+      the extent of the gap ("the only genuinely bare module-level statements are
+      constant/policy-object assignments") — Review A found this materially incomplete.
+      Corrected, broader disclosure below, each point independently re-verified directly
+      against mutmut's own source, not assumed.]** Mutation is **function-level** in
+      mutmut 3+ (verified directly, README: "mutmut 2... has a different execution model").
+      The complete set of surface gaps found by direct source inspection
+      (`src/mutmut/mutation/file_mutation.py`), none previously disclosed except the first:
+      - **Bare module-level statements** (outside any function/method body) are not
+        mutated — e.g. constant/policy-object assignments such as `WARM_UP_POLICY = ...`.
+      - **Decorated functions/methods are excluded UNLESS the decorator is EXACTLY one of
+        `@staticmethod`/`@classmethod` (a single decorator only)** — verified directly,
+        `file_mutation.py` comments in full: "decorators are executed when the function is
+        defined, so we don't want to mutate their arguments and cause exceptions,"
+        "`@property` decorators break the trampoline signature assignment," and the code's
+        own explicit check `if isinstance(node, cst.FunctionDef) and len(node.decorators):
+        ... if len(node.decorators) == 1: decorator = node.decorators[0].decorator; if
+        isinstance(decorator, cst.Name) and decorator.value in ("staticmethod",
+        "classmethod"): <allow>` — anything else (a bare `@property`, any custom
+        decorator, or a function carrying MORE than one decorator even if one of them is
+        `@staticmethod`/`@classmethod`) causes mutmut to skip generating a trampoline for
+        that function ENTIRELY — no mutants are produced for its body at all, silently,
+        with no corresponding "no_tests"/"skipped" record (it never becomes a mutation
+        candidate in the first place). Verified directly against feature-engine's current
+        authoritative source (`grep -rn "^\s*@" src/feature_engine/*.py`, excluding
+        `@dataclass`): exactly two `@property` methods exist —
+        `candle.py:32` (`CandleScope.subject_id`) and `contracts.py:619`
+        (`FeatureScope.feature_subject_id`) — BOTH entirely outside mutmut's mutation
+        surface under this rule (exact line numbers subject to drift at
+        install/measurement time; re-verify fresh). One `@staticmethod`
+        (`swing_distance.py:655`, `_normalize_evidence`) IS within scope (single
+        `@staticmethod` decorator, matches the allowed pattern exactly).
+      - **`@dataclass`-synthesized methods are structurally invisible to mutmut, not
+        merely skipped** — reasoned directly from CPython's own `dataclasses` module
+        semantics (not requiring further external verification, this is standard,
+        deterministic stdlib behavior) combined with confirming mutmut has no
+        dataclass-specific handling anywhere in its source (verified directly, no
+        `dataclass`/`__init__`/"synthesiz"/"generated" target-mutation logic found in
+        `file_mutation.py`): `@dataclass`-decorated classes (feature-engine uses
+        `@dataclass(frozen=True, slots=True)` for nearly every data type —
+        `CandleScope`, `OHLCV`, `CandleFact`, `FeatureDefinition`, `FeatureScope`,
+        `ComputationCursor`, and others) have their `__init__`/`__eq__`/`__repr__`/
+        `__hash__` bodies BUILT AND `exec()`-ED DYNAMICALLY by the `dataclasses` stdlib
+        module at class-creation time — this generated code is NEVER present as literal
+        text in the `.py` source file mutmut's `libcst`-based parser reads, so no AST node
+        for it ever exists to mutate. This is explicitly NOT counted as a coverage gap in
+        AUTHORITATIVE business logic (the generated code is stdlib-guaranteed-correct
+        dataclass mechanics, not module-owned behavior) — but it MUST be disclosed as part
+        of an honest mutation-surface inventory, not silently omitted, and it means
+        equality/construction-validation behavior for these types is NOT exercisable via
+        this mechanism at all (any correctness evidence for that behavior must come from
+        elsewhere — e.g. the existing example-based tests already asserting on
+        equality/identity — never claimed to be covered by mutation evidence).
+      - **`__post_init__` methods ARE within scope** (written as literal source, no
+        decorator applied in this codebase's usage) — the majority of feature-engine's
+        most safety-critical validation logic (`FeatureDefinition.__post_init__`'s
+        extensive `if .../raise InvalidFeatureDefinitionError` guard chain) IS mutable and
+        IS a high-value mutation target, unaffected by the gaps above.
+      - Lambdas, comprehension-internal expressions, and `async def` functions were NOT
+        found in feature-engine's current authoritative source at candidate-authoring time
+        (verified directly, `grep`) — their own mutmut compatibility is therefore
+        UNRESOLVED/moot for the CURRENT subject, not asserted supported, and requires
+        install/measurement-time re-verification if any such construct is added later.
+      Install/measurement-time re-verification required (not performed here): a fresh,
+      exact re-scan of feature-engine's THEN-current source for every decorator, every
+      `@dataclass`-decorated class, every bare module-level statement, and any
+      lambda/comprehension/`async` construct introduced since this candidate was authored
+      — the inventory above is a point-in-time disclosure, not a standing guarantee.
+  5b. **Formal mutation-surface completeness contract — [v0.9 addition, `P3-PY-MUT-A-MAJ-02`
+      correction: merely disclosing the omissions above is NOT sufficient for a PASS
+      disposition; a positive, exhaustive inventory contract is required].** Any FUTURE
+      formal test-effectiveness evidence transaction for a Tier 0/1 subject MUST produce
+      and pin, as part of its own immutable evidence record, an EXACT inventory of:
+      - every authoritative source file in the evaluated scope (e.g.
+        `python/feature-engine/src/feature_engine/*.py`, exact tree hash);
+      - every function/method that IS within mutmut's mutation surface (mutation-capable),
+        by exact qualified name;
+      - every unit of authoritative behavior that is NOT mutated, by exact qualified
+        name/line, categorized by the SPECIFIC reason (bare module-level statement;
+        excluded decorator per §5a; `@dataclass`-synthesized method; any other construct
+        found not-yet-cataloged at that time) — a blanket "some code is not mutated"
+        disclosure does NOT satisfy this contract; each omission must be individually,
+        exactly identified;
+      - for each such omission, whether QUALIFYING equivalent test-effectiveness evidence
+        exists for that specific behavior from a DIFFERENT accepted mechanism (e.g. a
+        direct, meaningful unit test asserting on the exact behavior in question — cited
+        by exact test name, not merely "coverage exists" since coverage evidence alone is
+        explicitly insufficient test-effectiveness evidence per Chapter 13 §13.3's own
+        governing principle) — if none exists, the omission is an OPEN gap, not a
+        disclosed-and-therefore-acceptable one.
+      **Fail-closed rule:** if any behavior-bearing authoritative logic falls outside
+      mutmut's mutation surface AND no accepted equivalent test-effectiveness evidence is
+      pinned for it, the formal evidence transaction MUST NOT declare the test-
+      effectiveness dimension `PASS` on the strength of the measured mutation score alone
+      — it must record the gap as an explicit, named residual (e.g. a new/updated finding)
+      rather than silently treating full disclosure as sufficient. This applies regardless
+      of how favorable the measured mutation score is on the covered surface.
+  6. **[v0.9 bounded correction, `P3-PY-MUT-A-MAJ-03` part 1]** Machine-readable evidence —
+     CORRECTED: v0.8 claimed `mutmut export-cicd-stats`'s JSON output
+     (`mutants/mutmut-cicd-stats.json`) was "sufficiently structured" evidence on its own.
+     Verified directly, more precisely, against `__main__.py`'s own internal `Stats`
+     dataclass (fields `not_checked`/`caught_by_type_check` DO exist there, lines
+     ~629/~639) versus the `export_cicd_stats`/JSON-writing code path (lines ~1200-1203):
+     the exported JSON carries ONLY `killed`, `survived`, `total`, `no_tests`, `skipped`,
+     `suspicious`, `timeout`, `check_was_interrupted_by_user`, `segfault` — it OMITS
+     `not_checked` and `caught_by_type_check`, both of which mutmut's own internal `Stats`
+     object tracks and both of which can be non-zero contributors to `total`. Only the
+     human-readable CLI summary line (verified directly, `__main__.py`: `f"{(s.total -
+     s.not_checked)}/{s.total} 🎉 {s.killed} 🫥 {s.no_tests} ⏰ {s.timeout} 🤔
+     {s.suspicious} 🙁 {s.survived} 🔇 {s.skipped} 🧙 {s.caught_by_type_check}"`) exposes
+     the full set. **CORRECTED conclusion: `export-cicd-stats`'s own JSON file alone does
+     NOT prove the complete denominator** — a formal evidence transaction must NOT assume
+     `killed+survived+no_tests+skipped+suspicious+timeout+check_was_interrupted_by_user
+     +segfault == total`; it must independently capture (from the CLI summary output, or a
+     from a version of mutmut/an invocation that exports the full `Stats` object, verified
+     fresh at measurement time) `not_checked` and `caught_by_type_check` as well, and
+     explicitly reconcile ALL TEN categories against `total` (see item 8 below).
+  7. **[v0.9 bounded correction, `P3-PY-MUT-A-MAJ-03` part 2]** Metric semantics — CORRECTED:
+     v0.8 stated the `(killed + timeout) / (total - skipped) * 100` formula as though it
+     were built-in mutmut 3.7.0 semantics this repository merely "adopts." That framing is
+     corrected: mutmut's own `badge` CLI command happens to compute exactly this formula
+     today (verified directly from its source, `score = 0 if tested <= 0 else (killed +
+     timeout) / tested * 100` where `tested = total - skipped`) — but mutmut does not
+     document this as a stable, versioned public contract, and a future mutmut release
+     could change `badge`'s own internal formula without that being a breaking change from
+     mutmut's own perspective. **This document therefore defines the mutation-effectiveness
+     percentage as a Ride-owned, independently-versioned metric contract** (analogous to
+     how Chapter 13 §13.3 already defines `percent_statements_covered`/
+     `percent_branches_covered` as the governed coverage metrics rather than deferring to
+     whatever `coverage.py`'s own CLI happens to print) — inspired by, but not
+     definitionally bound to, mutmut's current `badge` formula:
+     `mutation_score = (killed + timeout) / (total - skipped) * 100` (`0` if
+     `total - skipped <= 0`). Any future mutmut version change to its OWN `badge` formula
+     does not silently change THIS repository's own metric contract — a formal evidence
+     transaction must compute this score itself from the raw per-category counts (item 8),
+     never merely quote mutmut's own CLI-printed badge/score value as if it were
+     self-certifying. `killed`+`timeout` in the numerator (both represent the mutant being
+     caught); `skipped` excluded from the denominator entirely (see item 9's exclusion-
+     justification requirement — never a free way to inflate the score); `no_tests`,
+     `suspicious`, `not_checked`, `caught_by_type_check`, `segfault`, and
+     `check_was_interrupted_by_user` are each explicitly NEITHER numerator NOR silently
+     excluded from scrutiny — see item 8's per-category treatment and item 8a's
+     reconciliation requirement.
+  8. **[v0.9 bounded correction, `P3-PY-MUT-A-MAJ-03` part 3 — complete taxonomy]** Treatment
+     of every mutant-status category (verified directly and EXHAUSTIVELY from mutmut's own
+     `status_by_exit_code` mapping in `__main__.py` — ALL TEN distinct status labels the
+     source actually produces, not the seven-of-ten subset v0.8 disclosed):
+     - `killed` / `timeout`: contribute to the numerator (item 7) — genuine, positive
+       effectiveness evidence. **Timeout-specific rule (corrected, was previously treated
+       as unconditionally positive):** a `timeout` verdict must NOT automatically count as
+       positive effectiveness evidence without further scrutiny — the exact
+       `timeout_constant`/`timeout_multiplier` configuration in force MUST be pinned in the
+       evidence record (these are explicitly documented by mutmut itself as "unstable
+       configs" that may change meaning between minor versions), and any mutant reported as
+       `timeout` MUST be deterministically, reproducibly re-confirmed (re-run in isolation)
+       before being credited — an unresolved/unreproduced timeout is `FAIL — evidence` for
+       that mutant, not a silent pass.
      - `survived`: contributes to the denominator only — a concrete, per-mutant, per-line
        "this exact behavior change is currently undetectable" finding. Each survived
        mutant on authoritative logic (not on an intentionally-excluded line) is an
        actionable defect in test coverage-of-behavior, to be triaged individually, never
        dismissed in bulk.
      - `no_tests`: a mutant with ZERO tests covering its line at all — distinct from
-       `survived` (which means tests DID run but none failed). Proposed treatment: recorded
-       and reported SEPARATELY, never silently merged into `survived` or excluded from the
-       evidence record — a non-zero `no_tests` count on a line coverage.py's own evidence
-       reports as covered would indicate a genuine INCONSISTENCY between the two
-       independent mechanisms (a cross-check value coverage.py evidence alone cannot
-       provide), which must be investigated, not silently accepted.
+       `survived` (which means tests DID run but none failed). Recorded and reported
+       SEPARATELY, never silently merged into `survived` or excluded from the evidence
+       record — a non-zero `no_tests` count on a line coverage.py's own evidence reports as
+       covered would indicate a genuine INCONSISTENCY between the two independent
+       mechanisms, which must be investigated, not silently accepted.
+     - `not_checked`: a mutant that was generated but never actually run/tested at all
+       (verified directly — the internal `Stats.not_checked` field, distinct from every
+       other category, omitted from the exported JSON per item 6). **Fail-closed rule:** a
+       formal evidence transaction MUST require `not_checked == 0` — any non-zero count
+       means the measurement is INCOMPLETE (mutants exist that were never evaluated at
+       all), and the run cannot be accepted as formal evidence until every mutant is
+       actually checked.
+     - `caught by type check`: a mutant filtered/caught by an OPTIONAL configured
+       `type_check_command` (mypy/pyrefly) BEFORE the test suite ever runs against it
+       (verified directly, README's "Filter generated mutants with type checker" feature).
+       This is NOT test-suite-based effectiveness evidence — it is type-checker-based.
+       **Governed rule:** a formal evidence transaction must EITHER (a) set
+       `type_check_command = []` (the feature disabled) so this category is structurally
+       impossible, and pin that config explicitly, OR (b) if enabled, explicitly and
+       separately report `caught_by_type_check` counts, never fold them into `killed`/
+       `timeout`'s test-based numerator, and document the type-checker version/config used
+       as part of the evidence's own pinned identity (mirroring the same version-pinning
+       discipline already required for `mutmut`/`coverage`/`pytest`).
      - **Equivalent mutants** (classic mutation-testing concept — a mutation that changes
        no observable behavior and therefore can NEVER be killed regardless of test
        quality): mutmut has NO automatic equivalent-mutant detector (verified directly —
-       no such feature documented/found in README/ARCHITECTURE/source). Proposed rule:
-       any mutant excluded from the score on an "equivalent" basis MUST be individually,
-       explicitly justified and recorded (which mutant, why it is behavior-preserving) —
-       blanket/unjustified "equivalent" claims are EXPLICITLY FORBIDDEN as an anti-gaming
-       rule, since silently reclassifying inconvenient survivors as "equivalent" without
-       proof is the best-documented gaming vector in mutation-testing practice generally.
-     - `suspicious` / `segfault` / `check_was_interrupted_by_user`: anomalous outcomes that
-       do NOT cleanly mean "caught" or "not caught." Proposed fail-closed rule: a formal
-       evidence run containing ANY non-zero count in these categories is NOT immediately
-       acceptable as complete evidence — each occurrence must be individually triaged
-       (re-run, root-caused) before the run's score may be treated as valid Chapter 13
-       evidence; a run is never silently treated as if these mutants were `killed` OR
-       `survived`.
+       no such feature documented/found in README/ARCHITECTURE/source); an "equivalent"
+       mutant simply appears as `survived` like any genuine gap. **Corrected denominator
+       rule:** equivalent mutants REMAIN IN THE RAW DENOMINATOR by default — no ad-hoc
+       denominator edits are permitted. Any removal of a specific mutant from the
+       denominator on an "equivalent" basis requires ALL of: a deterministic, reproducible,
+       exactly-pinned mutant identity (mutant name/id, exact mutated line/AST node, exact
+       mutmut version that generated it); an individually-recorded semantic justification
+       (why this exact change is provably behavior-preserving); and a governed adjustment
+       mechanism (a reviewed, recorded decision — never a silent, unreviewed exclusion by
+       the same executor who ran the measurement). Absent all three, a claimed-equivalent
+       mutant MUST be reported SEPARATELY as a disclosed candidate-equivalent, WITHOUT
+       changing the raw score — the raw, un-adjusted score is always the controlling
+       number unless a governed adjustment has been separately recorded.
+     - `suspicious` / `segfault` / `check was interrupted by user`: anomalous outcomes that
+       do NOT cleanly mean "caught" or "not caught." A formal evidence run containing ANY
+       non-zero count in these categories is NOT immediately acceptable as complete
+       evidence — each occurrence must be individually triaged (re-run, root-caused) before
+       the run's score may be treated as valid Chapter 13 evidence; a run is never silently
+       treated as if these mutants were `killed` OR `survived`.
+  8a. **Status reconciliation requirement — [v0.9 addition, `P3-PY-MUT-A-MAJ-03` part 4].**
+      A formal evidence transaction MUST independently capture all ten categories
+      (`killed`, `survived`, `no_tests`, `not_checked`, `skipped`, `suspicious`, `timeout`,
+      `caught_by_type_check`, `segfault`, `check_was_interrupted_by_user`) and verify
+      `sum(all ten) == total` EXACTLY. Any discrepancy means an undisclosed status category
+      exists (e.g. a mutmut version change introduces a new exit-code mapping) and the
+      measurement MUST NOT be accepted as complete evidence until reconciled. `skipped`
+      itself must be understood PRECISELY (corrected — v0.8 conflated it with pragma/regex
+      exclusion mechanics): `skipped`, as an exit-code-derived STATUS on a mutant that WAS
+      generated, is not automatically identical to the effect of `# pragma: no
+      mutate`/`do_not_mutate_patterns`/`only_mutate`/`do_not_mutate` (item 9) — those
+      pragma/config mechanisms can prevent a mutant from being GENERATED at all (never
+      entering `total` in the first place, with no status of any kind), which is a
+      DIFFERENT, EARLIER exclusion point than a generated mutant later receiving the
+      `skipped` STATUS. A formal evidence transaction must therefore separately pin (i) the
+      exact exclusion CONFIGURATION in force (every pragma/regex/file-level rule actually
+      present, individually justified per item 9) and (ii) the resulting EXCLUDED
+      mutation-surface inventory (which lines/functions never became mutants at all because
+      of that configuration) — both distinct from, and in addition to, the `skipped` status
+      count that appears inside `total`.
   9. Exclusions and anti-gaming rules (extends, does not duplicate, Chapter 13 §13.3's own
      anti-gaming clause by reference): `# pragma: no mutate` (single line), `# pragma: no
      mutate block` (indentation block, including whole function/class), `# pragma: no
@@ -1309,14 +1478,29 @@ CANDIDATE mechanism proposed: **mutmut** (PyPI package `mutmut`, version `3.7.0`
      No mutant may be resolved by mocking away the authoritative implementation under test,
      weakening an existing assertion, or adding a skip/xfail — same principles Chapter 13
      §13.3 already locks for coverage evidence, extended here by reference, not redefined.
-  10. Evidence/provenance required (§13.9-style pinning this candidate proposes for a
-      FUTURE formal evidence transaction — NOT produced here): subject identity/version
-      (source/test tree hashes), exact `mutmut` version/PyPI artifact identity (wheel
-      hash), exact `[tool.mutmut]` configuration content, exact command sequence, raw
-      `mutants/mutmut-cicd-stats.json` content, computed mutation score, per-category
-      counts (killed/timeout/survived/no_tests/skipped/suspicious/segfault/interrupted),
-      any individually-justified equivalent-mutant/exclusion list, evaluator identity,
-      measurement boundary/time, reproducibility confirmation (see below).
+  10. **[v0.9 bounded correction, `P3-PY-MUT-A-MAJ-03` part 5 — expanded evidence contract]**
+      Evidence/provenance required (§13.9-style pinning this candidate proposes for a
+      FUTURE formal evidence transaction — NOT produced here; corrected/expanded from
+      v0.8's own incomplete list to reflect items 5a/5b/6/7/8/8a above): subject identity
+      (exact evaluated source/test tree hashes); exact `mutmut` version/PyPI artifact
+      identity (wheel hash); exact `[tool.mutmut]` configuration content INCLUDING exact
+      `type_check_command` setting (empty, or pinned type-checker identity/version) and
+      exact `timeout_constant`/`timeout_multiplier` in force; exact command sequence;
+      confirmation the measurement started from a freshly-absent/deleted `mutants/`
+      directory (item 11); the raw mutant inventory identity (the complete generated-mutant
+      list/count BEFORE any status is applied — the true `total`, independently
+      cross-checked, not merely quoted from one JSON field); ALL TEN raw per-category
+      counts (item 8a's reconciliation, `sum == total` confirmed, `not_checked == 0`
+      confirmed); the computed Ride-owned mutation score (item 7's formula, self-computed,
+      never quoted from mutmut's own CLI badge/score output as self-certifying); the exact
+      exclusion configuration in force AND the resulting excluded mutation-surface
+      inventory (item 8a); the mutation-surface completeness inventory (item 5b) —
+      mutation-capable functions, excluded functions/behavior with individual reasons, and
+      any qualifying equivalent-effectiveness evidence for each exclusion; any
+      individually-justified equivalent-mutant adjustment record (item 8, with mutant
+      identity + justification + governed-decision reference — raw score reported
+      regardless); evaluator identity; measurement boundary/time; reproducibility
+      confirmation (item 11).
   11. Reproducibility caveat SPECIFIC to mutation testing (not shared with coverage.py):
       `mutmut run` is INCREMENTAL by default — it reuses cached `.meta` results from the
       `mutants/` working directory across runs, re-testing only mutants in functions whose
@@ -1327,32 +1511,91 @@ CANDIDATE mechanism proposed: **mutmut** (PyPI package `mutmut`, version `3.7.0`
       document) — an incremental/cached partial result MUST NOT be accepted as formal
       Chapter 13 evidence, and must be explicitly labeled non-formal if produced for any
       other purpose (e.g. local development).
-  12. Fail-closed behavior when measurement is incomplete/irreproducible (extends Chapter 13
-      §13.8 by reference, does not redefine it): missing `mutmut-cicd-stats.json` output,
-      a `check was interrupted by user`/non-zero `segfault`/non-zero unresolved
-      `suspicious` count, an incremental (non-fresh) run, or a `mutmut` version/pin that
-      cannot be reconstructed exactly at measurement time -> `FAIL — evidence`, never a
-      default pass, exactly Chapter 13 §13.8's own already-locked semantics.
+  12. **[v0.9 expanded, `P3-PY-MUT-A-MAJ-03` part 6]** Fail-closed behavior when measurement
+      is incomplete/irreproducible (extends Chapter 13 §13.8 by reference, does not
+      redefine it) — ANY of the following -> `FAIL — evidence`, never a default pass,
+      exactly Chapter 13 §13.8's own already-locked semantics: missing raw status output
+      (JSON and/or CLI-summary, item 6); the ten-category reconciliation (item 8a) not
+      exactly equal to `total`; non-zero `not_checked`; non-zero unresolved
+      `suspicious`/`segfault`/`check_was_interrupted_by_user`; an ungoverned non-zero
+      `caught_by_type_check` (item 8's governed rule not satisfied); an unresolved/
+      unreproduced `timeout` mutant (item 8's timeout-specific rule); an incremental
+      (non-fresh) run (item 11); behavior-bearing authoritative logic outside the mutation
+      surface without pinned qualifying equivalent evidence (item 5b's fail-closed rule);
+      or a `mutmut`/type-checker version/pin/config that cannot be reconstructed exactly at
+      measurement time.
 
-Proposed acceptance threshold/rule (Chapter 13 §13.3/§13.14 explicitly defers the NUMERIC
-  threshold to Engineering Foundation — THIS document, not Chapter 13, is the correct,
-  authoritative place to propose one; this is NOT a duplicate of any Chapter-13-owned
-  number): mutation score `(killed + timeout) / (total - skipped) * 100 >= 80%` for Tier
-  0/1 subjects, evaluated independently per subject (never blended across modules), NEVER
-  averaged with or substituted for the separate, Chapter-13-owned line/branch coverage
-  floor (§13.3/§13.4) — mutation-effectiveness and coverage remain two independent
-  dimensions, exactly as Chapter 13 already requires for line vs. branch. Rationale for
-  `80%`, NOT the same numeric value as the Tier-1 coverage floor (90%): mutation score is a
-  STRICTER signal by construction (a killed mutant requires a semantically-meaningful test
-  failure, not mere execution) and near-100% is frequently unreachable in practice due to
-  genuinely-equivalent mutants that no test suite can ever kill — `80%` is offered as a
-  commonly-cited starting baseline in general mutation-testing practice, explicitly NOT
-  derived from any repository-specific empirical measurement, because **zero** mutation
-  score data has ever been produced for ANY module in this repository (this candidate
-  performs no measurement). This number is a CANDIDATE STARTING POINT only, explicitly
-  subject to Product Owner decision and to recalibration once the first real,
-  formally-governed measurement transaction (not this one) produces actual data for
-  feature-engine.
+Acceptance threshold — **[v0.9 bounded correction, `P3-PY-MUT-A-MAJ-01`: v0.8 proposed an
+  authoritative-sounding numeric floor, `mutation score >= 80% for Tier 0/1`, directly in
+  this candidate — Review A found this premature: no baseline mutation-score data has ever
+  existed for ANY module in this repository, so an `80%` figure could not have been derived
+  from anything but general, non-repository-specific practice, yet it was presented
+  alongside this document's OTHER, genuinely-resolved numeric contracts (e.g. the metric
+  formula itself, item 7) in a way that risked being read as similarly settled. Corrected
+  below: the threshold is explicitly UNRESOLVED, with the exact governed sequence required
+  before one may be proposed.]**
+
+```text
+TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED.
+```
+
+No numeric mutation-score acceptance threshold is proposed by this candidate. Chapter 13
+  §13.3/§13.14 defers the numeric threshold to Engineering Foundation (this document would
+  be the correct, authoritative place to eventually pin one — not a duplicate of any
+  Chapter-13-owned number) — but Engineering Foundation itself must not invent a threshold
+  from zero repository-specific evidence merely because the deferral makes this document
+  the eligible venue. Required sequencing, explicit, none of which is performed by this
+  candidate:
+
+```text
+1. mechanism approval        (Product Owner decision on THIS candidate — mutmut selection,
+                               contract definitions in items 1-12/5a/5b/8a above)
+   -> 2. install/pin          (separate governed transaction; installation-time
+                               verification contract, item 3, re-verified fresh)
+   -> 3. governed NON-GATING
+      baseline measurement    (separate governed transaction; produces REAL, formally-
+                               pinned per-category counts for feature-engine per items
+                               6/8/8a/10 above; explicitly NON-GATING — does not, by
+                               itself, cause any Quality Gate PASS/FAIL determination)
+   -> 4. analyze mutant
+      population/survivors/
+      equivalents/blind spots (separate, dedicated analysis of the baseline's actual
+                               survived/no_tests/equivalent-candidate mutants and the
+                               mutation-surface completeness inventory, item 5b — genuine
+                               empirical grounding, not assumed)
+   -> 5. separate threshold
+      proposal                (a dedicated, evidence-grounded proposal — informed by step
+                               4's real data, not invented in advance of it)
+   -> 6. fresh ADR Scope Rule (re-run at step 5's own boundary — see disposition note
+                               below; not inherited from this candidate's own
+                               ADR_NOT_REQUIRED disposition)
+   -> 7. review                (Review A + Independent Review B on the threshold proposal
+                               itself)
+   -> 8. Product Owner
+      decision                 (on the threshold specifically)
+   -> 9. ONLY THEN: threshold-bearing formal evidence (a formal Chapter 13 test-
+                               effectiveness evaluation that actually gates PASS/FAIL
+                               against the now-approved threshold).
+```
+
+Explicit non-inference rule: Feature Engine's own eventual Tier-1 baseline measurement
+  (step 3, once it exists) MUST NOT be used to infer or calibrate a Tier-0 threshold —
+  Tier 0 (Risk Gateway, Execution Engine, Position Ledger, per Chapter 13 §13.4) carries a
+  materially different criticality/risk profile than Tier 1 (Core Logic), and mutation-
+  score achievability is plausibly domain/codebase-specific — any Tier-0 threshold
+  proposal requires its OWN baseline measurement on a Tier-0 subject, never a transplanted
+  number from Feature Engine's Tier-1 data. More generally, any cross-module or cross-tier
+  numeric threshold generalization is out of scope for a single-subject baseline and
+  requires its own dedicated evidence.
+
+ADR-scope disposition note (explicit, does not extend automatically): this candidate's own
+  `ADR_NOT_REQUIRED` disposition (mechanism SELECTION only) does not, and must not, apply
+  automatically to a future numeric-threshold proposal (step 5/6 above) — a proposal to pin
+  a cross-module or repository-wide numeric quality bar is a materially different decision
+  (potentially closer to a governance/quality-policy decision than a reversible tooling
+  choice) and MUST independently re-run Chapter 0 §4b's ADR Scope Rule at that future
+  transaction's own boundary, on its own facts, never by inheriting this candidate's
+  disposition.
 
 KHÔNG tại transaction này (candidate-only, tường minh):
   - KHÔNG cài đặt/`pip install mutmut` (hay bất kỳ mutation-testing tool nào) vào
@@ -1971,4 +2214,75 @@ v0.8  2026-08-31  CANDIDATE amendment, KHÔNG self-approved — vai trò:
       LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/pin tool nào. KHÔNG
       chạy mutation testing thật. KHÔNG rerun Quality Gate nào. KHÔNG
       approve module nào. KHÔNG authorize LIVE.
+
+v0.9  2026-08-31  Bounded correction of four Review A findings on
+      v0.8's Python test-effectiveness candidate (KHÔNG self-closure)
+      — vai trò: `Python Test-Effectiveness Candidate Bounded
+      Correction Executor`. `P3-PY-MUT-A-MAJ-01`: removed the
+      authoritative-sounding `mutation score >= 80%` threshold,
+      replaced with `TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED —
+      BASELINE/CALIBRATION REQUIRED` and an explicit 9-step governed
+      sequence (mechanism approval -> install/pin -> governed
+      NON-GATING baseline measurement -> analyze mutant population/
+      survivors/equivalents/blind spots -> separate threshold
+      proposal -> fresh ADR Scope Rule -> review -> Product Owner
+      decision -> threshold-bearing formal evidence); explicit
+      non-inference rule (Tier-0 threshold must not be inferred from
+      Feature Engine's future Tier-1 baseline); explicit note that
+      this candidate's own `ADR_NOT_REQUIRED` mechanism-selection
+      disposition does not extend to any future threshold proposal.
+      `P3-PY-MUT-A-MAJ-02`: corrected the mutation-surface disclosure
+      — decorated functions/methods excluded from mutation unless
+      exactly one `@staticmethod`/`@classmethod` decorator (verified
+      directly, `file_mutation.py`); `@property` methods (feature-
+      engine's own `candle.py:32`/`contracts.py:619`) structurally
+      excluded; `@dataclass`-synthesized `__init__`/`__eq__`/
+      `__repr__`/`__hash__` invisible to mutmut's AST parser entirely
+      (reasoned from CPython `dataclasses` semantics + confirmed no
+      special-case handling in mutmut source); added a formal
+      mutation-surface completeness contract (exact inventory of
+      mutation-capable functions, omitted behavior with individual
+      reasons, qualifying equivalent-effectiveness evidence) with an
+      explicit fail-closed rule — disclosure alone is not sufficient
+      for PASS. `P3-PY-MUT-A-MAJ-03`: removed the claim that mutmut
+      3.7.0 itself defines the mutation-score formula as built-in
+      semantics — redefined as a Ride-owned, independently-versioned
+      metric contract; corrected the disclosed status taxonomy from
+      seven to the complete ten categories verified directly from
+      `status_by_exit_code` (adding `not_checked`/`caught_by_type_
+      check`, both tracked internally by mutmut but OMITTED from
+      `export-cicd-stats`'s own JSON — corrected the false implication
+      that JSON alone proves the complete denominator); added a full
+      ten-category reconciliation requirement (`sum == total`),
+      `not_checked == 0`, governed treatment of `caught_by_type_
+      check`, a raw-denominator-by-default rule for equivalent
+      mutants with a governed-adjustment mechanism (never an ad-hoc
+      edit), deterministic-reproduction-before-credit for timeouts,
+      and a corrected, precise meaning of `skipped` distinct from
+      pragma/regex mutant-generation exclusion. `P3-PY-MUT-A-MIN-01`:
+      removed the duplicated literal "Tier-1 coverage floor (90%)"
+      from the (now-removed) threshold rationale — the applicable
+      Tier-1 coverage floor is referenced only by resolving it
+      directly from Chapter 13, never restated numerically here.
+      **Finding states:** all four `REMEDIATED — PENDING BOUNDED
+      RE-REVIEW` — NOT self-closed, only Review A re-review +
+      Independent Review B can validate closure. **KHÔNG đổi:**
+      mutmut VẪN candidate mechanism đề xuất (KHÔNG chọn lại tool
+      nào khác — findings are contract/evidence defects, not evidence
+      mutmut itself is disqualified), `ADR_NOT_REQUIRED` mechanism-
+      selection disposition (unchanged, re-affirmed distinct from any
+      future threshold-proposal's own separate ADR Scope Rule),
+      coverage.py mechanism (byte-equivalent, KHÔNG chạm),
+      `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`),
+      `P3-FEATURE-QG-EVID-04` through `-08` (unchanged), overall
+      Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval
+      (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`),
+      LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/chạy `mutmut`. KHÔNG
+      tạo baseline data nào. KHÔNG chọn threshold nào. `status` VẪN
+      `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. **ADR
+      Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**:
+      `ADR_NOT_REQUIRED` — correction CHỈ sửa contract/evidence-
+      definition text bên trong CÙNG một reversible candidate ĐÃ
+      pre-authorized, KHÔNG giới thiệu architecture/tool/governance-
+      process decision MỚI nào, KHÔNG chọn threshold nào.
 ```

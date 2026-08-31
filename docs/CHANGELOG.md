@@ -2,6 +2,59 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-31 — Testing Convention v0.9: Python Test-Effectiveness Candidate Bounded Correction (`P3-PY-MUT-A-MAJ-01`/`-MAJ-02`/`-MAJ-03`/`-MIN-01` REMEDIATED — PENDING BOUNDED RE-REVIEW)
+
+**Bounded correction transaction — vai trò: `Python Test-Effectiveness Candidate Bounded Correction Executor`.** Remediates four Review A findings on v0.8's mutmut candidate. Does not install/run mutmut, close the findings itself, change the selected mechanism, or close `P3-FEATURE-QG-EVID-03`.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — contract/evidence-definition text correction only, inside the same
+  pre-authorized reversible candidate; no threshold selected.
+```
+
+### Remediation summary
+
+```text
+MAJ-01 (threshold/ADR scope): removed authoritative "mutation score >= 80%" floor, replaced
+  with TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED plus an
+  explicit 9-step governed sequence (approval -> install/pin -> non-gating baseline ->
+  analysis -> threshold proposal -> fresh ADR Scope Rule -> review -> PO decision ->
+  gating evidence); explicit non-inference rule (no Tier-0 threshold from Feature Engine's
+  Tier-1 baseline); mechanism-selection ADR_NOT_REQUIRED does not extend to a future
+  threshold proposal.
+MAJ-02 (mutation-surface completeness): corrected the v0.8 claim that only bare
+  module-level statements are omitted -- disclosed, with exact mutmut source citations,
+  that decorated functions/methods (except exactly one @staticmethod/@classmethod) and
+  @dataclass-synthesized __init__/__eq__/__repr__/__hash__ are excluded from mutation
+  entirely (feature-engine's own candle.py:32/contracts.py:619 @property methods cited as
+  concrete instances); added a formal mutation-surface completeness contract with a
+  fail-closed rule -- disclosure alone is not sufficient for PASS.
+MAJ-03 (metric/status/denominator): redefined the mutation-score formula as a Ride-owned
+  versioned metric contract (not mutmut 3.7.0 built-in semantics); expanded the disclosed
+  status taxonomy from seven to the complete ten categories (adding not_checked/
+  caught_by_type_check, both omitted from export-cicd-stats's own JSON); added full
+  ten-category reconciliation, not_checked==0, governed caught_by_type_check treatment,
+  raw-denominator-by-default for equivalent mutants, deterministic timeout reproduction,
+  and a corrected meaning of skipped distinct from mutant-generation exclusion.
+MIN-01 (SSOT): removed the duplicated "Tier-1 coverage floor (90%)" literal; the floor is
+  now referenced only by resolving it directly from Chapter 13.
+```
+
+### Preserved unchanged
+
+```text
+mutmut remains the candidate mechanism (findings are contract defects, not disqualification
+  evidence). Existing coverage.py mechanism: byte-equivalent, untouched. P3-FEATURE-QG-
+  EVID-03: FAIL — evidence. P3-FEATURE-QG-EVID-04 through -08: unchanged. Formal Feature
+  Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED.
+```
+
+**Testing Convention:** `version "0.8" → "0.9"`, `status` remains `Draft`, `approved_by`/`approved_at` remain `null`/`null`.
+
+**manifest_version:** `"10.280"` → `"10.281"`.
+
 ## [Unreleased] — 2026-08-31 — Testing Convention v0.8: Python Test-Effectiveness Mechanism CANDIDATE (`mutmut`, CANDIDATE / UNAPPROVED — no tool installed, no measurement)
 
 **Bounded semantic candidate-authoring transaction — vai trò: `Python Test-Effectiveness Mechanism Candidate Author`.** Authors ONE bounded Python test-effectiveness (mutation testing) mechanism candidate, targeting the mechanism-selection prerequisite Chapter 13 §13.3 requires for Tier 0/1, resolving `P3-FEATURE-QG-EVID-03`'s cited baseline-existence gap. Does not install/pin the tool, measure Feature Engine effectiveness, modify Feature Engine code, close `P3-FEATURE-QG-EVID-03`, rerun the Feature QG, approve Feature Engine, or authorize LIVE. `docs/engineering/testing.md`: `version "0.7" → "0.8"`, `status Approved → Draft`, `approved_by`/`approved_at` reset to `null`/`null` (v0.7 approval record preserved unchanged as historical evidence).

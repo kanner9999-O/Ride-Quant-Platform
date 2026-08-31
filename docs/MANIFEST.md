@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.280"
+manifest_version: "10.281"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -15764,6 +15764,145 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 Review A, then Independent Review B, then a separate Product Owner decision on the candidate, then (if approved) a separate installation/pinning transaction applying the installation-time verification contract, then a separate formal Feature Engine test-effectiveness evidence measurement — before `P3-FEATURE-QG-EVID-03` may close. Independently, unchanged: `P3-FEATURE-QG-EVID-04` through `P3-FEATURE-QG-EVID-08` each require their own separate governed transactions before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.279"` → `"10.280"`.
+
+## Testing Convention v0.9 — Python Test-Effectiveness Candidate Bounded Correction (`P3-PY-MUT-A-MAJ-01`/`-MAJ-02`/`-MAJ-03`/`-MIN-01` `REMEDIATED — PENDING BOUNDED RE-REVIEW`, NOT self-closed)
+
+**Bounded correction transaction — vai trò: `Python Test-Effectiveness Candidate Bounded Correction Executor`.** Remediates four Review A findings on v0.8's "Python test-effectiveness mechanism — CANDIDATE" subsection. Does NOT install or run mutmut. Does NOT close the Review-A findings itself (Review A re-review + Independent Review B required first). Does NOT change the selected mechanism (mutmut 3.7.0 remains the candidate). Does NOT close `P3-FEATURE-QG-EVID-03`. Does NOT touch Feature source/tests, dependencies, CI, Chapter 13, module registry, architecture/domain authority, or the existing coverage.py mechanism.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `0a2a9afb2c67fc0a3606c09a4a9e82e85d087726` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.280"` at start. `docs/engineering/testing.md` confirmed starting state: `version: "0.8"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### ADR Scope Rule (Chapter 0 §4b, re-run fresh for this correction)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: correction only rewrites contract/evidence-definition text inside the same
+  reversible, already-pre-authorized Testing Convention tooling candidate — no
+  architecture/tool/governance-process decision, no threshold selected (the threshold is
+  explicitly deferred, not decided, by this very correction).
+```
+
+### Remediation — `P3-PY-MUT-A-MAJ-01` (threshold / ADR scope)
+
+```text
+Removed: the authoritative-sounding "mutation score >= 80% for Tier 0/1" proposed floor.
+Replaced with: `TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED`
+  and an explicit 9-step governed sequence: mechanism approval -> install/pin -> governed
+  NON-GATING baseline measurement -> analyze mutant population/survivors/equivalents/blind
+  spots -> separate threshold proposal -> fresh ADR Scope Rule -> review -> Product Owner
+  decision -> threshold-bearing formal evidence.
+Added: explicit non-inference rule (a future Tier-0 threshold must not be inferred from
+  Feature Engine's future Tier-1 baseline — different criticality/risk profile, requires
+  its own baseline); explicit note that this candidate's own `ADR_NOT_REQUIRED` mechanism-
+  selection disposition does NOT extend automatically to any future numeric-threshold
+  proposal, which must independently re-run Chapter 0 §4b at its own boundary.
+```
+
+### Remediation — `P3-PY-MUT-A-MAJ-02` (mutation-surface completeness)
+
+```text
+Corrected: v0.8 claimed only bare module-level statements were omitted from mutmut's
+  mutation surface. Disclosed, with exact source citations from mutmut's own
+  `file_mutation.py`: decorated functions/methods are excluded from mutation UNLESS the
+  decorator is exactly one `@staticmethod`/`@classmethod` (verified directly — comments
+  "decorators are executed when the function is defined..."/"@property decorators break
+  the trampoline signature assignment" plus the exact `len(node.decorators) == 1` check);
+  `@property`-decorated methods are structurally excluded — feature-engine's own
+  `candle.py:32` (`CandleScope.subject_id`) and `contracts.py:619`
+  (`FeatureScope.feature_subject_id`) verified as concrete instances; `@dataclass`-
+  synthesized `__init__`/`__eq__`/`__repr__`/`__hash__` methods are structurally invisible
+  to mutmut's `libcst`-based AST parser entirely (reasoned from CPython `dataclasses`
+  stdlib semantics, confirmed no dataclass-specific handling exists in mutmut source).
+  `__post_init__` methods (unaffected, no decorator applied in this codebase) confirmed
+  still within mutation scope — feature-engine's most safety-critical validation logic
+  remains mutable.
+Added: a formal mutation-surface completeness contract requiring an exact inventory
+  (authoritative source files; mutation-capable functions/methods; authoritative behavior
+  not mutated with individual reasons; qualifying equivalent test-effectiveness evidence
+  per omission) with an explicit fail-closed rule — mere disclosure of omitted behavior is
+  NOT sufficient for a PASS disposition; behavior-bearing logic outside the mutation
+  surface without pinned qualifying equivalent evidence must be recorded as an explicit
+  residual, never silently accepted.
+```
+
+### Remediation — `P3-PY-MUT-A-MAJ-03` (metric / status / denominator contract)
+
+```text
+Corrected: removed the claim that mutmut 3.7.0 itself defines the mutation-score formula
+  as built-in semantics — redefined as a Ride-owned, independently-versioned metric
+  contract (`mutation_score = (killed + timeout) / (total - skipped) * 100`), inspired by
+  but not definitionally bound to mutmut's own `badge` command formula (which mutmut does
+  not document as a stable public contract).
+Corrected: expanded the disclosed status taxonomy from seven to the complete ten
+  categories verified directly from `status_by_exit_code` in `__main__.py`: killed,
+  survived, no_tests, not_checked, skipped, suspicious, timeout, caught_by_type_check,
+  segfault, check_was_interrupted_by_user. Verified directly that `export-cicd-stats`'s own
+  JSON output OMITS `not_checked`/`caught_by_type_check` (both tracked in mutmut's internal
+  `Stats` dataclass, both exposed only via the CLI human-readable summary line) — corrected
+  the v0.8 implication that the JSON alone proves the complete denominator.
+Added: a full ten-category reconciliation requirement (`sum(all ten) == total`, exact);
+  `not_checked == 0` fail-closed rule; governed treatment of `caught_by_type_check` (either
+  `type_check_command = []` pinned, or explicit separate reporting, never folded into the
+  test-based numerator); a raw-denominator-by-default rule for equivalent mutants (no ad-hoc
+  edits — removal requires pinned mutant identity + semantic justification + a governed
+  adjustment mechanism, otherwise reported separately without changing the raw score);
+  deterministic-reproduction-before-credit for `timeout` mutants (pinned timeout config,
+  unresolved timeout -> FAIL — evidence for that mutant); a corrected, precise meaning of
+  `skipped` (a post-generation STATUS) distinct from pragma/regex configuration that
+  prevents mutant GENERATION entirely (an earlier, separate exclusion point) — both must be
+  separately pinned in formal evidence.
+```
+
+### Remediation — `P3-PY-MUT-A-MIN-01` (SSOT)
+
+```text
+Removed the duplicated literal "Tier-1 coverage floor (90%)" from the (now-removed)
+  threshold-rationale paragraph. The applicable Tier-1 coverage floor is now referenced
+  only via "resolved directly from Chapter 13" — never restated numerically in this
+  document. The two remaining "80%" occurrences in the corrected text are clearly-labelled
+  historical quotations of the v0.8 defect being corrected, not a live re-assertion.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/constitution/**,
+  docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**, CI/CD workflows, any
+  Go module, Context Aggregator, existing coverage.py mechanism (byte-equivalent): all
+  verified byte-identical (`git diff --quiet` for each path). mutmut not installed/run. No
+  baseline data generated. No threshold selected. `P3-FEATURE-QG-EVID-03` not closed. Files
+  touched, confirmed via `git status --porcelain=v1`: docs/engineering/testing.md,
+  docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:           version "0.8" → "0.9", status Draft → Draft (unchanged),
+                               approved_by/approved_at null/null (unchanged) — NOT
+                               self-approved.
+P3-PY-MUT-A-MAJ-01:            REMEDIATED — PENDING BOUNDED RE-REVIEW (NOT self-closed).
+P3-PY-MUT-A-MAJ-02:            REMEDIATED — PENDING BOUNDED RE-REVIEW (NOT self-closed).
+P3-PY-MUT-A-MAJ-03:            REMEDIATED — PENDING BOUNDED RE-REVIEW (NOT self-closed).
+P3-PY-MUT-A-MIN-01:            REMEDIATED — PENDING BOUNDED RE-REVIEW (NOT self-closed).
+Test-effectiveness mechanism:  mutmut — CANDIDATE / UNAPPROVED (unchanged; not
+                               disqualified — findings are contract/evidence defects, not
+                               tool-selection defects).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (explicit,
+                               corrected from v0.8's premature 80% figure).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+P3-FEATURE-QG-EVID-04..-08:    UNCHANGED (five findings, out of scope).
+Formal Feature Chapter 13 QG:  FAIL (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Review A re-review of this bounded correction, then Independent Review B, then — only if both are CLEAN — a Product Owner decision on the corrected candidate itself; separately, a dedicated future threshold-proposal transaction (steps 3-8 of the 9-step sequence above) once a governed, non-gating baseline measurement exists. Neither performed here.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.280"` → `"10.281"`.
 
 ## Decision Log
 
