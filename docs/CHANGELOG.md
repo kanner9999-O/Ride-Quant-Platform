@@ -2,6 +2,34 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-31 — `P3-FEATURE-QG-COV-B-MIN-01` — Product Owner Decision (`CLOSED — PRODUCT OWNER ACCEPTED`, mechanical recording only)
+
+**Mechanical Product Owner decision recorder — vai trò: `Governance Recorder`.** Records the Product Owner's ACCEPT decision closing `P3-FEATURE-QG-COV-B-MIN-01` (the diagnostic per-file branch-coverage disclosure arithmetic inconsistency, already corrected in the prior transaction). Does not close `P3-FEATURE-QG-COV-01`, does not change the Formal Feature Chapter 13 QG result, does not approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — mechanical recording of a Product Owner decision closing one docs-only
+  qualifying Minor finding; no architecture/dependency/tooling/governance-process change.
+```
+
+### Decision
+
+```text
+P3-FEATURE-QG-COV-B-MIN-01: ACCEPT -> CLOSED — PRODUCT OWNER ACCEPTED.
+```
+
+### Preserved unchanged
+
+```text
+P3-FEATURE-QG-COV-A-MIN-01/-MIN-02: CLOSED — bounded re-verification. P3-FEATURE-QG-COV-01:
+  REMEDIATION IMPLEMENTED — PENDING FORMAL COVERAGE RE-EVALUATION (not closed). EVID-01/-02:
+  CLOSED. EVID-03 through -08, MIN-01: unchanged. Formal Feature Chapter 13 QG: FAIL.
+  Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**manifest_version:** `"10.276"` → `"10.277"`.
+
 ## [Unreleased] — 2026-08-30 — feature-engine: Branch Coverage Diagnostic Breakdown Fidelity Correction (`P3-FEATURE-QG-COV-B-MIN-01` — REMEDIATED — PENDING BOUNDED RE-REVIEW)
 
 **Bounded, docs-only diagnostic evidence-fidelity correction — vai trò: `Feature Engine Branch Coverage Diagnostic Breakdown Fidelity Corrector`.** Corrects `P3-FEATURE-QG-COV-B-MIN-01`, found by Independent Review B of the branch-coverage remediation candidate (`f13689630e4c25d0c014933ed1812b04b7e0517c`): its per-file diagnostic branch breakdown's covered-branch numerators summed to 293, not the recorded aggregate 290, and its contracts.py figure ("89% (89/108)") was internally wrong (89/108=82.4%, not 89%) and inconsistent with its own stated 22-missing-branches claim (108-89=19). No production code, test, dependency, tooling, or coverage-config change; no formal QG re-evaluation; `P3-FEATURE-QG-COV-01` not closed.

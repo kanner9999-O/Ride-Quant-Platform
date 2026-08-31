@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.276"
+manifest_version: "10.277"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -15293,6 +15293,70 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 Bounded re-review of this correction (confirming the corrected per-file breakdown reconciles with the aggregate and that contracts.py's figures are fresh-JSON-verified) is the next step before `P3-FEATURE-QG-COV-B-MIN-01` may close. Independently, unchanged: a separate, formally-governed Feature Engine Chapter 13 coverage evidence re-evaluation remains required before `P3-FEATURE-QG-COV-01` may close, and the six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transactions. None performed here.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.275"` → `"10.276"`.
+
+## `P3-FEATURE-QG-COV-B-MIN-01` — Product Owner Decision (`CLOSED — PRODUCT OWNER ACCEPTED` — mechanical recording transaction only)
+
+**Mechanical Product Owner decision recorder — vai trò: `Governance Recorder`.** Records the Product Owner's ACCEPT decision for the already-completed bounded remediation/re-review of `P3-FEATURE-QG-COV-B-MIN-01`. Does not itself re-derive, re-verify, or re-review the correction's substance (already performed and recorded in the immediately preceding "Branch Coverage Diagnostic Breakdown — Fidelity Correction" section). Does not close `P3-FEATURE-QG-COV-01`. Does not change the Formal Feature Chapter 13 QG result. Does not approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `6b0237e0360b40e6d9a839fefc80dab1c2116d01` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.276"` at start. `P3-FEATURE-QG-COV-B-MIN-01` confirmed at its expected pre-decision state: `REMEDIATED — PENDING BOUNDED RE-REVIEW` (the immediately preceding section's own "State summary").
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: mechanical recording of a Product Owner decision closing one docs-only,
+  diagnostic-evidence-fidelity qualifying Minor finding — no architecture, dependency,
+  tooling, or governance-process change; no new mechanism selection; no hard-to-reverse
+  platform decision. No §4b trigger found.
+```
+
+### Product Owner decision
+
+```text
+Finding: P3-FEATURE-QG-COV-B-MIN-01 (qualifying Minor — diagnostic evidence/disclosure
+  arithmetic inconsistency in the branch-coverage remediation candidate's per-file
+  breakdown, corrected in the immediately preceding MANIFEST section: contracts.py
+  corrected to 86/108 = 79.62962962962963%, 22 missing; all seven files' covered/total/
+  missing branch counts now reconcile exactly with the aggregate 290/316/26).
+Decision: ACCEPT.
+Disposition: P3-FEATURE-QG-COV-B-MIN-01 -> CLOSED — PRODUCT OWNER ACCEPTED.
+```
+
+### State summary
+
+```text
+P3-FEATURE-QG-COV-B-MIN-01:   CLOSED — PRODUCT OWNER ACCEPTED.
+P3-FEATURE-QG-COV-A-MIN-01:   CLOSED — bounded re-verification (unchanged).
+P3-FEATURE-QG-COV-A-MIN-02:   CLOSED — bounded re-verification (unchanged).
+P3-FEATURE-QG-COV-01:         REMEDIATION IMPLEMENTED — PENDING FORMAL COVERAGE
+                               RE-EVALUATION (unchanged, NOT closed by this decision).
+P3-FEATURE-QG-EVID-01:        CLOSED (unchanged).
+P3-FEATURE-QG-EVID-02:        CLOSED (unchanged).
+P3-FEATURE-QG-EVID-03..-08:   UNCHANGED (six findings, out of scope).
+P3-FEATURE-QG-MIN-01:         UNCHANGED.
+Formal Feature Chapter 13 QG: FAIL (unchanged — this decision does not perform or imply a
+                               formal coverage re-evaluation).
+Feature module approval:      NOT APPROVED.
+Phase 3 Approval Gate:        NOT opened.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/engineering/
+  testing.md, docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml,
+  docs/domain/**, CI/CD workflows: all verified byte-identical (`git diff --quiet` for each
+  path). No formal Chapter 13 coverage re-evaluation performed. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+```
+
+### Next governed action (not performed in this transaction)
+
+A separate, formally-governed Feature Engine Chapter 13 coverage evidence re-evaluation remains required before `P3-FEATURE-QG-COV-01` may close. The six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transactions before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. Neither performed here.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.276"` → `"10.277"`.
 
 ## Decision Log
 
