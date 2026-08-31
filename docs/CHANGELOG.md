@@ -2,6 +2,33 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-31 — Testing Convention v0.12: Mutation-Surface Final Reconciliation Correction (`P3-PY-MUT-A-MAJ-02` REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW, aggregate unchanged)
+
+**Minimal evidence-fidelity correction — vai trò: `Mutation-Surface Final Reconciliation Correction Executor`.** Corrects a residual-naming omission: §5d and the equivalent MANIFEST prose named only two consequential residuals (`FeatureDefinition.__post_init__`, `DecimalPrecisionPolicy.apply`) before "nine smaller" methods, reconciling to 11, not the authoritative 12. The third intended residual, `DecimalPrecisionPolicy.__post_init__` (already correctly present in the twelve-item enumeration and already correctly counted in this document's own round-3 banner), was simply missing from the naming sentence. Now explicitly names all three residuals with `3 + 9 = 12` made explicit inline. Does not change the `10 classes / 12 methods` aggregate, the enumeration, or any round-2 mutation-surface semantic. Does not install/run mutmut, select a threshold, or close `P3-FEATURE-QG-EVID-03`.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — pure residual-naming/arithmetic-fidelity correction; no architecture/
+  tool/governance-process decision, no threshold selected, no semantic redesign.
+```
+
+### Preserved unchanged
+
+```text
+P3-PY-MUT-A-MAJ-01/-MAJ-03/-MIN-01: CLOSED (prior Review A re-review, not reopened). The
+  10-class/12-method aggregate, the twelve-item enumeration, the wholesale decorated-
+  class-skip finding, its 3.7.0-tag citation, and the non-decorated Engine-class contrast:
+  all unchanged. Threshold: UNRESOLVED — BASELINE/CALIBRATION REQUIRED.
+  P3-FEATURE-QG-EVID-03: FAIL — evidence. EVID-04 through -08: unchanged. Formal Feature
+  Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED.
+```
+
+**Testing Convention:** `version "0.11" → "0.12"`, `status` remains `Draft`, `approved_by`/`approved_at` remain `null`/`null`.
+
+**manifest_version:** `"10.283"` → `"10.284"`.
+
 ## [Unreleased] — 2026-08-31 — Testing Convention v0.11: Mutation-Surface Inventory Fidelity Correction, round 3 (`P3-PY-MUT-A-MAJ-02` REMEDIATED — PENDING BOUNDED RE-REVIEW, semantics unchanged)
 
 **Bounded evidence-fidelity correction — vai trò: `Mutation-Surface Inventory Fidelity Correction Executor`.** Corrects an arithmetic/inventory-count error in round 2's mutation-surface finding: round 2 stated "10 @dataclass classes / 13 methods" and separately "eight smaller" residuals (implying 11, inconsistent with itself). A fresh, independent `ast`-based re-count confirms the correct total is 12 methods across 10 classes (round 2's own twelve-item enumerated list was already correct in substance; only its stated aggregate was wrong). Corrected to "12 methods" / "nine smaller" (12 − 3 named residuals) throughout `docs/engineering/testing.md`, `docs/MANIFEST.md`, and `docs/CHANGELOG.md`. Does not reopen or redesign round 2's mutation-surface semantics (wholesale decorated-class skip, exact 3.7.0 tag citation, equivalent-evidence rule, suitability assessment — all unchanged). Does not install/run mutmut, select a threshold, or close `P3-FEATURE-QG-EVID-03`.

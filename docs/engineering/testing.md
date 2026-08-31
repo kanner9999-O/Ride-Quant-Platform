@@ -1,7 +1,7 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.11"
+version: "0.12"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,8 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**CANDIDATE evidence-fidelity correction round 4/final (2026-08-31), KHÔNG self-approved — status: Draft → Draft.** Minimal residual-naming correction of `P3-PY-MUT-A-MAJ-02` (KHÔNG PHẢI a reopening/redesign of round 2's mutation-surface semantics, KHÔNG PHẢI a change to the round-3-corrected `10 classes / 12 methods` aggregate or the twelve-item enumeration) — vai trò: `Mutation-Surface Final Reconciliation Correction Executor`. `version: "0.11" → "0.12"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. **Defect:** §5d (and MANIFEST's equivalent "Resulting Feature Engine mutation-surface inventory"/"mutmut candidate-suitability assessment" prose) named only TWO consequential residuals — `FeatureDefinition.__post_init__` and `DecimalPrecisionPolicy.apply` — immediately before "alongside nine smaller dataclass-hosted methods," which reconciles to `2 + 9 = 11`, not the authoritative `12`. Independently re-verified: the intended THIRD named residual, `DecimalPrecisionPolicy.__post_init__` (that same policy's own construction-time validation — already present and correctly named in the twelve-item enumeration itself, §5a-i, and already correctly counted as "3 individually-named residuals" in this document's own round-3 banner and Change History text above), was simply missing from §5d's/MANIFEST's own prose sentence naming the residuals individually. **Correction:** §5d, and the two equivalent MANIFEST paragraphs, now explicitly name all three residuals (`FeatureDefinition.__post_init__`, `DecimalPrecisionPolicy.apply`, `DecimalPrecisionPolicy.__post_init__`) before "alongside nine smaller dataclass-hosted methods," with the arithmetic `3 + 9 = 12` made explicit inline. **KHÔNG đổi:** the `10 classes / 12 methods` aggregate, the twelve-item enumeration, the wholesale decorated-class-skip semantics, the exact `3.7.0`-tag provenance, §5b's completeness contract, §5c's equivalent-effectiveness rule, §5d's own suitability conclusion, the `UNRESOLVED — BASELINE/CALIBRATION REQUIRED` threshold state, `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01` (CLOSED, untouched, not reopened), coverage.py mechanism (byte-equivalent), `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`), `P3-FEATURE-QG-EVID-04` through `-08` (unchanged), overall Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`), LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/chạy `mutmut`. KHÔNG tạo baseline data nào. KHÔNG chọn threshold nào. KHÔNG Review A self-closure. KHÔNG Product Owner decision. **Finding state:** `P3-PY-MUT-A-MAJ-02`: `REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW` — NOT self-closed. **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**: `ADR_NOT_REQUIRED` — pure residual-naming/arithmetic-fidelity correction, KHÔNG giới thiệu architecture/tool/governance-process decision MỚI nào, KHÔNG chọn threshold nào, KHÔNG redesign mutation-surface semantics.
 
 **CANDIDATE evidence-fidelity correction round 3 (2026-08-31), KHÔNG self-approved — status: Draft → Draft.** Bounded arithmetic/inventory-count correction of `P3-PY-MUT-A-MAJ-02`'s STILL-remaining round-2 defect (KHÔNG PHẢI a reopening/redesign of the already-corrected mutation-surface semantics from round 2) — vai trò: `Mutation-Surface Inventory Fidelity Correction Executor`. `version: "0.10" → "0.11"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. **Defect:** v0.10's own corrected inventory (§5a-i) stated "10 `@dataclass` classes / 13 methods excluded" and, separately, "alongside eight smaller dataclass-hosted methods" (implying 3 named + 8 = 11, inconsistent with both the stated "13" and the enumerated list itself) — v0.10's own explicit twelve-item enumerated list (verified via a fresh, independent `ast`-based re-count at this correction's own boundary: `authority_resolver.py: FilesystemInputContractAuthorityResolver.resolve`, `StaticInputContractAuthorityProvider.resolve`; `candle.py: CandleScope.subject_id`, `OHLCV.field`; `contracts.py: EvaluationFrontier.plain_stream_positions`, `VerifiedInputContractAuthority.__init__`, `FeatureScope.feature_subject_id`, `DecimalPrecisionPolicy.__post_init__`, `DecimalPrecisionPolicy.apply`, `FeatureDefinition.__post_init__`; `publish.py: SequenceAllocator.next_ref`, `SequenceAllocator.producer_ref`) sums to exactly TWELVE methods, not thirteen — a simple arithmetic/counting error, not a semantic or technical defect in the mutation-surface finding itself (the WHOLESALE decorated-class-skip behavior, its exact source citation at the pinned `3.7.0` tag, and every named individual method are all unchanged and correct). **Correction:** every occurrence of "13 methods"/"13 hand-written methods" corrected to "12"; "eight smaller...methods" corrected to "nine smaller...methods" (12 total − 3 individually-named residuals = 9), across `docs/engineering/testing.md` (this document's own banner/§5a-i/§5d/Change History), `docs/MANIFEST.md`, and `docs/CHANGELOG.md`. **KHÔNG đổi:** the wholesale decorated-class-skip semantics, the exact `3.7.0`-tag source citation, the twelve-item method enumeration itself (only its OWN stated total was wrong), the three individually-named consequential residuals (`DecimalPrecisionPolicy.__post_init__`/`.apply`, `FeatureDefinition.__post_init__`), the non-decorated Engine-class contrast, §5b/§5c/§5d's own substantive rules, the `UNRESOLVED — BASELINE/CALIBRATION REQUIRED` threshold state, `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01` (CLOSED, untouched, not reopened), coverage.py mechanism (byte-equivalent), `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`), `P3-FEATURE-QG-EVID-04` through `-08` (unchanged), overall Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`), LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/chạy `mutmut`. KHÔNG tạo baseline data nào. KHÔNG chọn threshold nào. KHÔNG Review A self-closure. KHÔNG Product Owner decision. **Finding state:** `P3-PY-MUT-A-MAJ-02`: `REMEDIATED — PENDING BOUNDED RE-REVIEW` — NOT self-closed. **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**: `ADR_NOT_REQUIRED` — pure arithmetic/count-fidelity correction, KHÔNG giới thiệu architecture/tool/governance-process decision MỚI nào, KHÔNG chọn threshold nào, KHÔNG redesign mutation-surface semantics.
 
@@ -1108,7 +1110,7 @@ CANDIDATE ≠ APPROVED/ACCEPTED ≠ INSTALLED ≠ PINNED ≠ QUALIFYING QG EVIDE
   ở trên, VÀ một formal QG re-evaluation riêng biệt) hoàn tất.
 ```
 
-### Python test-effectiveness mechanism — CANDIDATE (v0.8 content, bounded-corrected v0.9/v0.10/v0.11 — `P3-PY-MUT-A-MAJ-02` `REMEDIATED — PENDING BOUNDED RE-REVIEW` [v0.11: inventory-count fidelity correction only, semantics unchanged]; `-MAJ-01`/`-MAJ-03`/`-MIN-01` CLOSED by prior Review A re-review, unchanged/not reopened; pending Product Owner decision)
+### Python test-effectiveness mechanism — CANDIDATE (v0.8 content, bounded-corrected v0.9/v0.10/v0.11/v0.12 — `P3-PY-MUT-A-MAJ-02` `REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW` [v0.11/v0.12: inventory-count fidelity corrections only, semantics unchanged]; `-MAJ-01`/`-MAJ-03`/`-MIN-01` CLOSED by prior Review A re-review, unchanged/not reopened; pending Product Owner decision)
 
 ```text
 [v0.8 addition — role: `Python Test-Effectiveness Mechanism Candidate Author`. This is the
@@ -1423,9 +1425,12 @@ CANDIDATE mechanism proposed: **mutmut** (PyPI package `mutmut`, version `3.7.0`
       unfixed-in-any-released-version limitation of the exact pinned tool (`3.7.0`, latest
       published release at this correction's own boundary) — it is NOT a minor or cosmetic
       gap: it removes `FeatureDefinition.__post_init__` (feature-engine's single largest,
-      most safety-critical validation guard chain) and `DecimalPrecisionPolicy.apply`
-      (the actual Decimal rounding/precision computation) from mutmut's reach entirely,
-      alongside nine smaller dataclass-hosted methods. This is a genuine, material defect
+      most safety-critical validation guard chain), `DecimalPrecisionPolicy.apply`
+      (the actual Decimal rounding/precision computation), and
+      `DecimalPrecisionPolicy.__post_init__` (that same policy's own construction-time
+      validation) from mutmut's reach entirely, alongside nine smaller dataclass-hosted
+      methods (3 individually-named + 9 = 12, reconciling exactly with the corrected
+      10-class/12-method inventory, §5a-i). This is a genuine, material defect
       in mutmut's current suitability for FULLY covering feature-engine's authoritative
       behavior, and must never be minimized or silently waived. However, it does NOT
       render mutmut unsuitable as a PRIMARY candidate outright: verified directly (§5a-i),
@@ -2498,4 +2503,44 @@ v0.11 2026-08-31  Evidence-fidelity correction of `P3-PY-MUT-A-MAJ-02`
       KHÔNG giới thiệu architecture/tool/governance-process decision
       MỚI nào, KHÔNG chọn threshold nào, KHÔNG redesign mutation-
       surface semantics.
+
+v0.12 2026-08-31  Minimal residual-naming correction of
+      `P3-PY-MUT-A-MAJ-02` — NOT a reopening/redesign of round 2's
+      mutation-surface semantics, NOT a change to the round-3
+      `10 classes / 12 methods` aggregate — vai trò:
+      `Mutation-Surface Final Reconciliation Correction Executor`.
+      Defect: §5d (and MANIFEST's equivalent prose) named only two
+      consequential residuals (`FeatureDefinition.__post_init__`,
+      `DecimalPrecisionPolicy.apply`) before "alongside nine smaller
+      dataclass-hosted methods" — reconciling to 11, not 12. The
+      third intended residual, `DecimalPrecisionPolicy.__post_init__`
+      (already correctly present in the twelve-item enumeration
+      itself and already correctly counted as "3 individually-named
+      residuals" in this document's own round-3 banner/Change
+      History text), was simply missing from §5d's own naming
+      sentence. Corrected: §5d and the two equivalent MANIFEST
+      paragraphs now name all three residuals explicitly
+      (`FeatureDefinition.__post_init__`, `DecimalPrecisionPolicy.
+      apply`, `DecimalPrecisionPolicy.__post_init__`) before "nine
+      smaller," with `3 + 9 = 12` made explicit inline. **Finding
+      state:** `P3-PY-MUT-A-MAJ-02`: `REMEDIATED — PENDING FINAL
+      BOUNDED RE-REVIEW` — NOT self-closed. **KHÔNG đổi:** the
+      `10 classes / 12 methods` aggregate, the twelve-item
+      enumeration, the wholesale decorated-class-skip semantics, the
+      `3.7.0`-tag provenance, §5b/§5c/§5d's own substantive rules,
+      `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01` (CLOSED, not
+      reopened), the `UNRESOLVED — BASELINE/CALIBRATION REQUIRED`
+      threshold state, coverage.py mechanism (byte-equivalent),
+      `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`),
+      `P3-FEATURE-QG-EVID-04` through `-08` (unchanged), overall
+      Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval
+      (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`),
+      LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/chạy `mutmut`.
+      KHÔNG tạo baseline data nào. KHÔNG chọn threshold nào. `status`
+      VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`.
+      **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**:
+      `ADR_NOT_REQUIRED` — pure residual-naming/arithmetic-fidelity
+      correction, KHÔNG giới thiệu architecture/tool/governance-
+      process decision MỚI nào, KHÔNG chọn threshold nào, KHÔNG
+      redesign mutation-surface semantics.
 ```

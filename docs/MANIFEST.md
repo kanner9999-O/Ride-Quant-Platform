@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.283"
+manifest_version: "10.284"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -15968,9 +15968,10 @@ Decorated CLASSES (not just decorated functions) are skipped WHOLESALE by mutmut
   FeatureScope.feature_subject_id, DecimalPrecisionPolicy.__post_init__,
   DecimalPrecisionPolicy.apply, FeatureDefinition.__post_init__), publish.py
   (SequenceAllocator.next_ref, SequenceAllocator.producer_ref). DecimalPrecisionPolicy.apply
-  (the actual Decimal rounding/precision computation) and FeatureDefinition.__post_init__
+  (the actual Decimal rounding/precision computation), DecimalPrecisionPolicy.__post_init__
+  (that same policy's own construction-time validation), and FeatureDefinition.__post_init__
   (feature-engine's single largest, most safety-critical validation guard chain) are the
-  most consequential named residuals. By direct contrast, the classes carrying the
+  three most consequential named residuals. By direct contrast, the classes carrying the
   majority of feature-engine's actual orchestration/state-machine logic are NOT
   @dataclass-decorated and are unaffected: SwingDistanceFeatureEngine (23 methods),
   RegimePassthroughFeatureEngine (11 methods), FeatureCurrentView (5 methods),
@@ -16002,9 +16003,11 @@ Not fabricated favorable or unfavorable in advance — weighed against the corre
   inventory. The wholesale decorated-class skip is a real, currently-unfixed-in-any-
   released-version, material limitation of the exact pinned tool (3.7.0) — it removes
   feature-engine's single most safety-critical validation chain (FeatureDefinition.
-  __post_init__) and its Decimal rounding logic (DecimalPrecisionPolicy.apply) from
-  mutmut's reach entirely, alongside nine smaller dataclass-hosted methods. This must
-  never be minimized or silently waived. It does NOT, however, render mutmut unsuitable
+  __post_init__), its Decimal rounding logic (DecimalPrecisionPolicy.apply), and that
+  same policy's own construction-time validation (DecimalPrecisionPolicy.__post_init__)
+  from mutmut's reach entirely, alongside nine smaller dataclass-hosted methods (3 named
+  + 9 = 12). This must never be minimized or silently waived. It does NOT, however,
+  render mutmut unsuitable
   as a primary candidate outright: the classes carrying the clear majority of
   feature-engine's actual orchestration/state-machine logic remain fully within mutmut's
   mutation surface, unaffected. Conclusion: mutmut REMAINS a viable PRIMARY candidate for
@@ -16148,6 +16151,88 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 Review A re-review of `P3-PY-MUT-A-MAJ-02` (covering both round 2's mutation-surface semantics and this round-3 arithmetic correction), then Independent Review B, then — only if both are CLEAN — a Product Owner decision on the corrected candidate as a whole. Not performed here.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.282"` → `"10.283"`.
+
+## Testing Convention v0.12 — Mutation-Surface Final Reconciliation Correction (`P3-PY-MUT-A-MAJ-02` `REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW`, NOT self-closed; semantics/aggregate unchanged from round 3)
+
+**Minimal evidence-fidelity correction transaction — vai trò: `Mutation-Surface Final Reconciliation Correction Executor`.** Corrects a residual-naming omission in `P3-PY-MUT-A-MAJ-02`'s round-3-corrected prose. Does NOT change the `10 classes / 12 methods` aggregate, the twelve-item enumeration, or any round-2 mutation-surface semantic (wholesale decorated-class skip, exact `3.7.0` tag citation, equivalent-evidence rule, suitability assessment). Does NOT install/run mutmut. Does NOT select a threshold. Does NOT close `P3-FEATURE-QG-EVID-03`.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `2fa6878fccfe8b16e65181114c44639942f95009` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.283"` at start. `docs/engineering/testing.md` confirmed starting state: `version: "0.11"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### ADR Scope Rule (Chapter 0 §4b, re-run fresh for this correction)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: pure residual-naming/arithmetic-fidelity correction — no architecture/tool/
+  governance-process decision, no threshold selected, no mutation-surface semantic
+  redesign.
+```
+
+### Independent re-verification performed before writing anything
+
+```text
+Re-read §5d's exact current wording directly (not from memory): it named only
+  FeatureDefinition.__post_init__ and DecimalPrecisionPolicy.apply immediately before
+  "alongside nine smaller dataclass-hosted methods" — 2 + 9 = 11, not the authoritative
+  12. Cross-checked against §5a-i's own twelve-item enumeration (already correct,
+  unchanged since round 3) and this document's own round-3 top banner/Change History
+  text (which already correctly said "three individually-named consequential residuals"
+  and listed all three, including DecimalPrecisionPolicy.__post_init__) — confirming the
+  omission was localized specifically to §5d's own naming sentence (and the two
+  equivalent MANIFEST paragraphs from the round-2 section), not a deeper inconsistency.
+```
+
+### Correction applied
+
+```text
+§5d (testing.md) and the two equivalent MANIFEST paragraphs ("Resulting Feature Engine
+  mutation-surface inventory" and "mutmut candidate-suitability assessment," both from
+  the round-2 section) now explicitly name all three residuals —
+  FeatureDefinition.__post_init__, DecimalPrecisionPolicy.apply, and
+  DecimalPrecisionPolicy.__post_init__ — before "alongside nine smaller dataclass-hosted
+  methods," with the arithmetic 3 + 9 = 12 made explicit inline in each location.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/constitution/**,
+  docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**, CI/CD workflows, any
+  Go module, Context Aggregator, existing coverage.py mechanism: all verified byte-identical
+  (`git diff --quiet` for each path). mutmut not installed/run. No baseline data generated.
+  No threshold selected. `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01` not reopened/touched.
+  `P3-FEATURE-QG-EVID-03` not closed. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/engineering/testing.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:           version "0.11" → "0.12", status Draft → Draft (unchanged),
+                               approved_by/approved_at null/null (unchanged) — NOT
+                               self-approved.
+P3-PY-MUT-A-MAJ-01:            CLOSED (unchanged, prior Review A re-review — NOT reopened).
+P3-PY-MUT-A-MAJ-02:            REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW (NOT
+                               self-closed; residual naming now reconciles exactly:
+                               3 named + 9 smaller = 12).
+P3-PY-MUT-A-MAJ-03:            CLOSED (unchanged, prior Review A re-review — NOT reopened).
+P3-PY-MUT-A-MIN-01:            CLOSED (unchanged, prior Review A re-review — NOT reopened).
+Test-effectiveness mechanism:  mutmut — CANDIDATE / UNAPPROVED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+P3-FEATURE-QG-EVID-04..-08:    UNCHANGED (five findings, out of scope).
+Formal Feature Chapter 13 QG:  FAIL (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Final Review A re-review of `P3-PY-MUT-A-MAJ-02` (covering round 2's mutation-surface semantics plus rounds 3/4's arithmetic/naming corrections), then Independent Review B, then — only if both are CLEAN — a Product Owner decision on the corrected candidate as a whole. Not performed here.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.283"` → `"10.284"`.
 
 ## Decision Log
 
