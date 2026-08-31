@@ -2,6 +2,59 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-31 — Testing Convention v0.8: Python Test-Effectiveness Mechanism CANDIDATE (`mutmut`, CANDIDATE / UNAPPROVED — no tool installed, no measurement)
+
+**Bounded semantic candidate-authoring transaction — vai trò: `Python Test-Effectiveness Mechanism Candidate Author`.** Authors ONE bounded Python test-effectiveness (mutation testing) mechanism candidate, targeting the mechanism-selection prerequisite Chapter 13 §13.3 requires for Tier 0/1, resolving `P3-FEATURE-QG-EVID-03`'s cited baseline-existence gap. Does not install/pin the tool, measure Feature Engine effectiveness, modify Feature Engine code, close `P3-FEATURE-QG-EVID-03`, rerun the Feature QG, approve Feature Engine, or authorize LIVE. `docs/engineering/testing.md`: `version "0.7" → "0.8"`, `status Approved → Draft`, `approved_by`/`approved_at` reset to `null`/`null` (v0.7 approval record preserved unchanged as historical evidence).
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — same pattern as the gobco (v0.3/v0.4) and coverage.py (v0.5–v0.7)
+  candidates: Chapter 3 §3.2's Testing Convention tooling carve-out plus Chapter 13
+  §13.3/§13.14's own explicit tool-agnostic deferral for test-effectiveness mechanism
+  selection.
+```
+
+### Selected mechanism and alternatives
+
+```text
+Selected: mutmut (PyPI `mutmut` 3.7.0) — verified directly from PyPI JSON metadata and
+  GitHub source, not installed/run, not from memory. Rejected: cosmic-ray (8.7.0, MIT,
+  13 transitive dependencies incl. aiohttp/sqlalchemy/gitpython, distributed-worker
+  architecture disproportionate to feature-engine's size) and mutpy (unmaintained, last
+  release 0.6.1, requires_python >=3.3, no Python 3.13 compatibility basis). mutmut:
+  actively maintained, explicit Python 3.13 classifier, lean dependency footprint reusing
+  already-approved coverage.py/mypy tooling.
+```
+
+### Candidate definition (full detail in testing.md)
+
+```text
+Mutation-score formula (verified directly from mutmut's own `badge` source):
+  (killed + timeout) / (total - skipped) * 100. Full mutant-status taxonomy verified
+  directly from status_by_exit_code (killed/survived/timeout/no_tests/skipped/suspicious/
+  segfault/interrupted). Function-level-only mutation scope (mutmut 3.x, explicit
+  limitation). mutate_only_covered_lines proposed DISABLED for formal evidence (keeps
+  coverage/mutation-effectiveness evidence independent). Anti-gaming rules for pragma/regex
+  exclusions and "equivalent mutant" claims (individually justified, never blanket).
+  Fail-closed treatment of suspicious/segfault/interrupted results and incremental
+  (non-fresh) runs. Proposed INITIAL threshold: mutation score >= 80% for Tier 0/1 —
+  Chapter 13 defers this exact number to Engineering Foundation (not a duplicate of any
+  Chapter-13-owned figure); explicitly a candidate starting point, zero repository
+  measurement data exists, pending Product Owner decision and future recalibration.
+```
+
+### Preserved unchanged
+
+```text
+Existing coverage.py mechanism (byte-equivalent, not re-opened). P3-FEATURE-QG-EVID-03:
+  FAIL — evidence (unchanged). P3-FEATURE-QG-EVID-04 through -08: unchanged. Formal Feature
+  Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED.
+```
+
+**manifest_version:** `"10.279"` → `"10.280"`.
+
 ## [Unreleased] — 2026-08-31 — `P3-FEATURE-QG-COV-01` — Product Owner Decision (`CLOSED — PRODUCT OWNER ACCEPTED`, mechanical recording only)
 
 **Mechanical Product Owner decision recorder — vai trò: `Governance Recorder`.** Records the Product Owner's ACCEPT decision for the already formally-closed `P3-FEATURE-QG-COV-01` (evidence pinned in commit `99c16b9d46698028bc44d1bb54659288a11df380`). Does not re-run/replace the formal evidence, does not begin remediation of any other finding, does not change the overall Formal Feature Chapter 13 QG result, approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE.

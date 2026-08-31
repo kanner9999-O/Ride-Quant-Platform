@@ -1,12 +1,12 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.7"
-status: Approved
+version: "0.8"
+status: Draft
 owner: Product Owner
 reviewers: []
-approved_by: Product Owner
-approved_at: "2026-08-28"
+approved_by: null
+approved_at: null
 created_at: "2026-08-12"
 last_review: null
 next_review: null
@@ -14,6 +14,8 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**CANDIDATE (2026-08-31), KHÔNG self-approved — status: Approved → Draft.** `status: Approved → Draft` (mọi thay đổi SEMANTIC vào tài liệu Approved bắt buộc tăng version VÀ đi qua approval gate lại, đúng [Chapter 0 §5.1](../constitution/00-governance.md); `approved_by`/`approved_at` của v0.7 KHÔNG tự động phủ nội dung MỚI này — reset `null`, v0.7's approval record giữ nguyên nguyên vẹn phía dưới LÀM historical evidence, KHÔNG bị ghi đè), vai trò: `Python Test-Effectiveness Mechanism Candidate Author`. Bổ sung MỘT subsection MỚI dưới "Framework/tool selection" (dưới, cùng vị trí Go branch-coverage candidate VÀ Python coverage mechanism) đề xuất một **CANDIDATE** (chưa chọn/chưa cài đặt/chưa tích hợp/chưa đo) cho cơ chế đo **test-effectiveness** (mutation testing) — mechanism-selection prerequisite Chapter 13 §13.3 tự nó yêu cầu cho Tier 0/1, resolving `P3-FEATURE-QG-EVID-03`'s cited baseline-existence gap. **ADR-scope check (chạy TRƯỚC KHI author, [Chapter 0 §4b](../constitution/00-governance.md)):** kết luận `ADR_NOT_REQUIRED` — xem "Python test-effectiveness mechanism — CANDIDATE" dưới cho full reasoning, cùng pattern (b) đã dùng cho gobco (v0.3/v0.4) VÀ coverage.py (v0.5–v0.7): [Chapter 3 §3.2](../constitution/03-engineering-principles.md) đã có carve-out tường minh cho Testing Convention tooling, VÀ [Chapter 13 §13.3](../constitution/13-quality-gates.md)/[§13.14](../constitution/13-quality-gates.md) tự nó khóa "không khóa tool/vendor cụ thể... defer Engineering Foundation" cho ĐÚNG category này. **KHÔNG đổi:** Chapter 13 coverage floor/tier/pass-fail semantics nào, `module-registry.yaml`, dependency graph, `feature-engine` production/test code, existing coverage.py mechanism (§"Python line+branch coverage mechanism — APPROVED" dưới, byte-equivalent, KHÔNG re-opened), `P3-FEATURE-QG-EVID-03` (KHÔNG closed tại đây — VẪN `FAIL — evidence`), overall Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`), LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/pin tool nào tại transaction này. KHÔNG chạy mutation testing thật. KHÔNG rerun Quality Gate nào. KHÔNG approve module/Data Layer nào. KHÔNG authorize LIVE. KHÔNG start Context Aggregator.
 
 **v0.7 APPROVAL — mechanical (2026-08-28T21:12+07:00), vai trò: `Testing Convention v0.7 Mechanical Approval Recorder`.** Product Owner decision (verbatim): **"APPROVE TESTING CONVENTION V0.7 AT BOUNDARY 79fd8e6b91b82ca5e05748c8c79f9140bab81867. PYTHON LINE+BRANCH COVERAGE MECHANISM: coverage.py. P3-PY-COV-A-MIN-01: CLOSED. P3-PY-COV-A-MIN-02: CLOSED."** Decision time: `2026-08-28T21:12+07:00` (recorded here at full precision; `approved_at` frontmatter field uses this document's existing date-only convention, `"2026-08-28"`, per prior v0.2/v0.4 approval precedent). Reviewed immutable boundary: HEAD `79fd8e6b91b82ca5e05748c8c79f9140bab81867` (the v0.7 finding-state evidence correction commit). `status: Draft → Approved`, `approved_by: null → Product Owner`, `approved_at: null → "2026-08-28"`. `version` KHÔNG bump (pure mechanical lifecycle approval, đúng Chapter 0 §8) — VẪN `"0.7"`.
 
@@ -1100,6 +1102,290 @@ CANDIDATE ≠ APPROVED/ACCEPTED ≠ INSTALLED ≠ PINNED ≠ QUALIFYING QG EVIDE
   ở trên, VÀ một formal QG re-evaluation riêng biệt) hoàn tất.
 ```
 
+### Python test-effectiveness mechanism — CANDIDATE (v0.8, pending Product Owner decision)
+
+```text
+[v0.8 addition — role: `Python Test-Effectiveness Mechanism Candidate Author`. This is the
+  mechanism-selection prerequisite Chapter 13 §13.3's own "Test-effectiveness cho Tier 0/1"
+  clause anticipates ("mechanism được chấp nhận: mutation testing hoặc tương đương... ngưỡng
+  cụ thể + tooling defer Engineering Foundation, §13.14") — resolves
+  `P3-FEATURE-QG-EVID-03`'s cited baseline-existence gap (no test-effectiveness mechanism
+  has ever been reviewed/accepted for any module in this repository). Scope is LIMITED to
+  mechanism + proposed threshold selection — NOT installation, NOT measurement, NOT finding
+  closure.]
+
+Problem: Chapter 13 §13.3 requires Tier 0/1 subjects to carry test-effectiveness evidence —
+  "coverage number KHÔNG thể chứng minh test bắt được lỗi" — because a high line/branch
+  coverage percentage (feature-engine's own formal evidence: line 97.31%, branch 91.77%,
+  both now `PASS`, `P3-FEATURE-QG-COV-01` `CLOSED`) proves only that code was EXECUTED, never
+  that a test would FAIL if the code's behavior were wrong. Chapter 13 owns the REQUIREMENT
+  (evidence must exist); it explicitly does NOT own the mechanism or numeric threshold
+  (§13.14: "concrete tooling, CI operator, coverage/mutation ngưỡng số vượt tier floor" —
+  deferred to Engineering Foundation). `P3-FEATURE-QG-EVID-03` (feature-engine, Tier 1 —
+  Core Logic, module-registry.yaml v1.7) was recorded `FAIL — evidence` at feature-engine's
+  formal Chapter 13 QG evaluation precisely because no such mechanism has ever been
+  reviewed/accepted for ANY module in this repository — a baseline-existence gap, not a
+  capability gap (mutation testing IS a mature, widely-available Python technique).
+
+ADR Scope Rule (Chapter 0 §4b, checked fresh, BEFORE authoring): `ADR_NOT_REQUIRED` — same
+  pattern (b) already established for the Go branch-coverage candidate (v0.3/v0.4) and the
+  Python coverage candidate (v0.5–v0.7): Chapter 3 §3.2 (Locked v1.4) already carves out
+  Testing Convention tooling selection as reversible, and Chapter 13 §13.3/§13.14 itself
+  locks "không khóa tool/vendor cụ thể... defer Engineering Foundation" for this EXACT
+  category (test-effectiveness mechanism). This is a candidate selection inside
+  pre-authorized "tooling" scope, not a new baseline-existence decision, not a Platform
+  Invariant/Event Schema/Module Taxonomy/governance-process change, not a supersession of
+  any Locked ADR, and not a hard-to-reverse lock-in (dev/test-time-only Python package,
+  BSD-3-Clause-style license — verified directly from the upstream LICENSE file, not
+  assumed — zero NEW runtime-adjacent coupling: every dependency it pulls in is either
+  already approved in this repository — `coverage`/`pytest` — or a small, dev-only,
+  test-time-only package). No production code/architecture/dependency-graph/module-Tier
+  change results from authoring this candidate.
+
+CANDIDATE mechanism proposed: **mutmut** (PyPI package `mutmut`, version `3.7.0` at
+  candidate-authoring time, github.com/boxed/mutmut, author Anders Hovmöller and
+  contributors). Verified directly from upstream PyPI JSON metadata, GitHub source
+  (`state.py`/`__main__.py`/`ARCHITECTURE.rst`/`README.rst`) and the repository's own actual
+  toolchain — NOT from memory/marketing summary, and NOT installed/run in this transaction
+  (per this task's own explicit prohibition):
+
+  1. What it is: a **mutation testing** system — generates small, deliberate,
+     behavior-changing edits ("mutants") to the authoritative source (e.g. `<` -> `<=`,
+     integer literal `+1`, `break` <-> `continue`), re-runs the real test suite against each
+     mutant, and records whether any test failed ("killed" the mutant) or none did
+     ("survived"). A survived mutant is concrete, actionable evidence that some specific
+     behavior change is currently undetectable by the test suite — the exact class of
+     evidence coverage percentage cannot provide (Chapter 13 §13.3's own stated gap).
+  2. Alternatives compared (NOT assumed mutation testing is automatically best; NOT assumed
+     mutmut is automatically best mutation tool):
+     - **cosmic-ray** (PyPI `cosmic-ray`, version `8.7.0`, MIT license, verified via PyPI
+       JSON `classifiers`) — a credible, actively-maintained (GitHub `pushed_at`
+       2026-08-09, non-archived) alternative with a distributed worker/session-database
+       architecture (SQLite via `sqlalchemy`) intended for large-scale, cluster-distributed
+       mutation runs. Rejected for this candidate: its own `requires_dist` pulls in 13
+       transitive dependencies (`aiohttp`, `sqlalchemy`, `gitpython`, `stevedore`, `rich`,
+       `anybadge`, ...) — a materially heavier dev-dependency footprint than the module's
+       current toolchain (`ruff`/`mypy`/`pytest`/`coverage`, all dependency-light), with no
+       corresponding benefit for a single, ~1,100-statement Python package (feature-engine)
+       that does not need distributed/clustered execution. It also has no direct
+       coverage.py-integration feature comparable to mutmut's `mutate_only_covered_lines`.
+     - **mutpy** (PyPI `mutpy`) — verified directly: latest release `0.6.1`,
+       `requires_python >=3.3`, no release since. Rejected: effectively unmaintained,
+       predates Python's own AST module changes across 3.4-3.13 and this repository's
+       `requires-python = ">=3.13"` floor; no credible basis to expect it parses/mutates
+       current Python 3.13 syntax (PEP 695 generics, `match`, etc.) correctly.
+     - **mutmut** (selected) — actively maintained (GitHub `pushed_at` 2026-08-17, more
+       recent than cosmic-ray's own last push at candidate-authoring time; 1,411 GitHub
+       stars vs. cosmic-ray's 654, verified via GitHub API, cited only as a maintenance-
+       signal, NOT as a correctness argument on its own), explicit `Programming Language ::
+       Python :: 3.13` classifier, lean dependency footprint (`click`, `coverage>=7.3.0`,
+       `libcst`, `pytest>=6.2.5`, `setproctitle`, `textual`; `toml` only on
+       `python_full_version < "3.11"`, moot for this repository's `>=3.13` floor) — verified
+       directly via `requires_dist` in PyPI JSON metadata, not assumed. Genuine synergy
+       with this repository's ALREADY-approved/installed/pinned `coverage.py` mechanism
+       (Testing Convention v0.7, `P3-FEATURE-QG-EVID-01`/`-EVID-02` `CLOSED`): mutmut can
+       optionally consume `coverage.py` data (`mutate_only_covered_lines`) and can filter
+       mutants via `mypy`/`pyrefly` (feature-engine's own `mypy --strict` is already pinned)
+       — reuses already-accepted tooling rather than introducing an unrelated new stack.
+  3. Compatibility with current toolchain (verified directly against
+     `python/feature-engine/pyproject.toml`/`requirements-dev.lock.txt`, unchanged by this
+     transaction): `requires_python >=3.10` (repository floor `>=3.13`, compatible);
+     `coverage>=7.3.0` (repository pin `coverage==7.16.0`, compatible);
+     `pytest>=6.2.5` (repository pin `pytest==9.1.1`, compatible). No version conflict found
+     against any currently-pinned dependency. `requires fork support` (README, verbatim) —
+     macOS and Linux both provide `fork`; mutmut's own README documents it auto-disables
+     `setproctitle` on macOS specifically because of a known fork-safety issue with that one
+     dependency, implying macOS is an explicitly-supported, already-encountered platform —
+     Windows requires WSL (moot: this repository's own engineering environment in this
+     session, and every prior QG-adjacent transaction's clean-room venv, has run on
+     macOS/Linux). NOT verified at this candidate: exact behavior under this repository's
+     own CI runner OS (no CI/CD workflow exists yet in this repository — `ci-cd.md`/
+     `ADR-030` authority, untouched — install-time verification item.
+  4. Authoritative source/test scope (proposed, mirrors the already-approved coverage.py
+     boundary — NOT a new boundary decision): `[tool.mutmut] source_paths =
+     ["src/feature_engine"]`, tests discovered from `tests/` (mutmut's own default test-
+     directory discovery, verified via README: "run pytest on tests in the 'tests' or
+     'test' folder"). No `only_mutate`/`do_not_mutate` file-level exclusion proposed — the
+     full authoritative `src/feature_engine/**` surface (including the permanently
+     fail-closed `CandleWindowFeatureEngine` path, same anti-gaming principle already
+     applied to the coverage.py boundary) is proposed in scope, mirroring Chapter 13
+     §13.3's "coverage phải đo trên authoritative implementation" anti-gaming principle
+     extended by reference (not redefined) to mutation evidence.
+     `mutate_only_covered_lines` is proposed **DISABLED** (the mutmut default) for FORMAL
+     evidence specifically — verified directly: if enabled, a line coverage.py reports as
+     uncovered is silently never mutated at all (no mutant generated, not even a "no
+     tests" result), which would let a coverage gap silently vanish from the mutation-score
+     denominator rather than surfacing as an explicit, separately-visible signal. Keeping
+     line/branch coverage evidence (§13.3, already `CLOSED`) and mutation-effectiveness
+     evidence (this candidate) fully independent — never letting one silently mask the
+     other — is judged more consistent with §13.3's own "hai metric độc lập, không bù trừ"
+     principle than the modest performance gain `mutate_only_covered_lines` would provide
+     for a package this size (302-statement largest file, `contracts.py`).
+  5. Deterministic/reproducible execution contract (verified directly from
+     `ARCHITECTURE.rst`): a `mutmut run` proceeds through five fixed phases — (a) generate
+     mutants into a `mutants/` working directory (copy of `source_paths`, never mutates the
+     tracked source in place); (b) collect a baseline test list/timing; (c) load any prior
+     cached `.meta` results; (d) run a **clean-test baseline** (all mutants disabled) which
+     must fully pass, verifying the test setup itself is not already broken; (e) run a
+     **forced-fail sanity check** (every mutant forced to raise) verifying at least one test
+     fails, proving mutation activation genuinely reaches the test suite (a real, built-in
+     self-check against the "mutants are silently never exercised, everything looks
+     survived or killed for the wrong reason" failure mode) — only THEN does real mutation
+     testing (f) run. Mutation is **function-level** in mutmut 3+ (verified directly,
+     README: "mutmut 2... has a different execution model" — module-level/top-level
+     statement mutation is a legacy mutmut-2 model, NOT what this candidate proposes) — an
+     explicit scope limitation, not silently assumed complete: bare module-level statements
+     outside any function/method body are NOT mutated by mutmut 3.x. Verified directly
+     against feature-engine's current authoritative source (`grep`-level structural check,
+     this candidate): production logic lives inside dataclass methods/functions/class
+     bodies; the only genuinely bare module-level statements are constant/policy-object
+     assignments (e.g. `WARM_UP_POLICY = ...`) — install-time re-verification required to
+     confirm this remains true and to catalogue exactly which lines fall outside
+     function-level mutation scope, so the eventual evidence record can disclose that
+     boundary explicitly rather than silently.
+  6. Machine-readable evidence: `mutmut export-cicd-stats` writes
+     `mutants/mutmut-cicd-stats.json` (verified directly from `__main__.py`) with, at
+     minimum, integer fields `killed`, `survived`, `total`, `no_tests`, `skipped`,
+     `suspicious`, `timeout`, `check_was_interrupted_by_user`, `segfault` — sufficiently
+     structured to pin into a Chapter 13 §13.9 immutable evidence entry (subject identity,
+     boundary, raw counts, computed score), the same evidentiary role `coverage json` plays
+     for the coverage mechanism.
+  7. Metric semantics — mutation score (verified directly from mutmut's own `badge` command
+     source, the only place mutmut itself defines a percentage formula):
+     `tested = total - skipped`; `score = 0 if tested <= 0 else (killed + timeout) / tested
+     * 100`. This candidate proposes adopting this EXACT formula (not inventing a
+     different one) as the Chapter-13-facing mutation-effectiveness percentage, with
+     `killed`+`timeout` in the numerator (both represent the mutant being caught — a
+     timeout is treated as "the mutated code hung/exceeded the timeout budget," which any
+     real CI/test run would also treat as a failure, i.e. functionally caught) and
+     `skipped` excluded from the denominator entirely (intentionally-excluded lines,
+     subject to the anti-gaming exclusion-justification rule below — never a free way to
+     inflate the score).
+  8. Treatment of surviving / equivalent-or-invalid / timeout-or-error mutants (verified
+     directly from mutmut's own `status_by_exit_code` mapping in `__main__.py` — the
+     complete, real taxonomy, not an assumed/simplified one):
+     - `killed` / `timeout`: contribute to the numerator (§ above) — genuine, positive
+       effectiveness evidence.
+     - `survived`: contributes to the denominator only — a concrete, per-mutant, per-line
+       "this exact behavior change is currently undetectable" finding. Each survived
+       mutant on authoritative logic (not on an intentionally-excluded line) is an
+       actionable defect in test coverage-of-behavior, to be triaged individually, never
+       dismissed in bulk.
+     - `no_tests`: a mutant with ZERO tests covering its line at all — distinct from
+       `survived` (which means tests DID run but none failed). Proposed treatment: recorded
+       and reported SEPARATELY, never silently merged into `survived` or excluded from the
+       evidence record — a non-zero `no_tests` count on a line coverage.py's own evidence
+       reports as covered would indicate a genuine INCONSISTENCY between the two
+       independent mechanisms (a cross-check value coverage.py evidence alone cannot
+       provide), which must be investigated, not silently accepted.
+     - **Equivalent mutants** (classic mutation-testing concept — a mutation that changes
+       no observable behavior and therefore can NEVER be killed regardless of test
+       quality): mutmut has NO automatic equivalent-mutant detector (verified directly —
+       no such feature documented/found in README/ARCHITECTURE/source). Proposed rule:
+       any mutant excluded from the score on an "equivalent" basis MUST be individually,
+       explicitly justified and recorded (which mutant, why it is behavior-preserving) —
+       blanket/unjustified "equivalent" claims are EXPLICITLY FORBIDDEN as an anti-gaming
+       rule, since silently reclassifying inconvenient survivors as "equivalent" without
+       proof is the best-documented gaming vector in mutation-testing practice generally.
+     - `suspicious` / `segfault` / `check_was_interrupted_by_user`: anomalous outcomes that
+       do NOT cleanly mean "caught" or "not caught." Proposed fail-closed rule: a formal
+       evidence run containing ANY non-zero count in these categories is NOT immediately
+       acceptable as complete evidence — each occurrence must be individually triaged
+       (re-run, root-caused) before the run's score may be treated as valid Chapter 13
+       evidence; a run is never silently treated as if these mutants were `killed` OR
+       `survived`.
+  9. Exclusions and anti-gaming rules (extends, does not duplicate, Chapter 13 §13.3's own
+     anti-gaming clause by reference): `# pragma: no mutate` (single line), `# pragma: no
+     mutate block` (indentation block, including whole function/class), `# pragma: no
+     mutate start`/`end` (arbitrary line range), and `do_not_mutate_patterns`
+     (source-text regex) all exist (verified directly from README) and are each,
+     individually, powerful enough to silently shrink the evaluated surface. Proposed
+     rule: any such exclusion used in a future formal-evidence transaction must carry an
+     explicit, individually-recorded justification (mirrors the existing coverage.py
+     omit-rule anti-gaming discipline already established in this document) — no exclusion
+     merely to raise the score, no exclusion of authoritative business logic, only
+     exclusions of genuinely non-behavioral code (e.g. logging-message text mutations, per
+     mutmut's own documented `do_not_mutate_patterns` example) if and when actually used.
+     No mutant may be resolved by mocking away the authoritative implementation under test,
+     weakening an existing assertion, or adding a skip/xfail — same principles Chapter 13
+     §13.3 already locks for coverage evidence, extended here by reference, not redefined.
+  10. Evidence/provenance required (§13.9-style pinning this candidate proposes for a
+      FUTURE formal evidence transaction — NOT produced here): subject identity/version
+      (source/test tree hashes), exact `mutmut` version/PyPI artifact identity (wheel
+      hash), exact `[tool.mutmut]` configuration content, exact command sequence, raw
+      `mutants/mutmut-cicd-stats.json` content, computed mutation score, per-category
+      counts (killed/timeout/survived/no_tests/skipped/suspicious/segfault/interrupted),
+      any individually-justified equivalent-mutant/exclusion list, evaluator identity,
+      measurement boundary/time, reproducibility confirmation (see below).
+  11. Reproducibility caveat SPECIFIC to mutation testing (not shared with coverage.py):
+      `mutmut run` is INCREMENTAL by default — it reuses cached `.meta` results from the
+      `mutants/` working directory across runs, re-testing only mutants in functions whose
+      source changed (verified directly, `ARCHITECTURE.rst`/README "dependency and config
+      changes" section). Proposed fail-closed rule: a FORMAL evidence measurement MUST
+      start from an absent/deleted `mutants/` directory (a genuine full run, exactly
+      analogous to coverage.py's own `coverage erase` discipline already required in this
+      document) — an incremental/cached partial result MUST NOT be accepted as formal
+      Chapter 13 evidence, and must be explicitly labeled non-formal if produced for any
+      other purpose (e.g. local development).
+  12. Fail-closed behavior when measurement is incomplete/irreproducible (extends Chapter 13
+      §13.8 by reference, does not redefine it): missing `mutmut-cicd-stats.json` output,
+      a `check was interrupted by user`/non-zero `segfault`/non-zero unresolved
+      `suspicious` count, an incremental (non-fresh) run, or a `mutmut` version/pin that
+      cannot be reconstructed exactly at measurement time -> `FAIL — evidence`, never a
+      default pass, exactly Chapter 13 §13.8's own already-locked semantics.
+
+Proposed acceptance threshold/rule (Chapter 13 §13.3/§13.14 explicitly defers the NUMERIC
+  threshold to Engineering Foundation — THIS document, not Chapter 13, is the correct,
+  authoritative place to propose one; this is NOT a duplicate of any Chapter-13-owned
+  number): mutation score `(killed + timeout) / (total - skipped) * 100 >= 80%` for Tier
+  0/1 subjects, evaluated independently per subject (never blended across modules), NEVER
+  averaged with or substituted for the separate, Chapter-13-owned line/branch coverage
+  floor (§13.3/§13.4) — mutation-effectiveness and coverage remain two independent
+  dimensions, exactly as Chapter 13 already requires for line vs. branch. Rationale for
+  `80%`, NOT the same numeric value as the Tier-1 coverage floor (90%): mutation score is a
+  STRICTER signal by construction (a killed mutant requires a semantically-meaningful test
+  failure, not mere execution) and near-100% is frequently unreachable in practice due to
+  genuinely-equivalent mutants that no test suite can ever kill — `80%` is offered as a
+  commonly-cited starting baseline in general mutation-testing practice, explicitly NOT
+  derived from any repository-specific empirical measurement, because **zero** mutation
+  score data has ever been produced for ANY module in this repository (this candidate
+  performs no measurement). This number is a CANDIDATE STARTING POINT only, explicitly
+  subject to Product Owner decision and to recalibration once the first real,
+  formally-governed measurement transaction (not this one) produces actual data for
+  feature-engine.
+
+KHÔNG tại transaction này (candidate-only, tường minh):
+  - KHÔNG cài đặt/`pip install mutmut` (hay bất kỳ mutation-testing tool nào) vào
+    `python/feature-engine` hay bất kỳ module Python nào trong repository — mọi fact ở
+    trên verify trực tiếp qua PyPI JSON API/GitHub source/README/ARCHITECTURE.rst từ bên
+    ngoài repository, KHÔNG cài vào bất kỳ venv nào tại transaction này, KHÔNG commit,
+    KHÔNG ảnh hưởng `pyproject.toml`/`requirements-dev.lock.txt`.
+  - KHÔNG thêm dependency nào vào `pyproject.toml`/`requirements-dev.lock.txt`.
+  - KHÔNG chạy mutation testing thật — KHÔNG mutation score nào được tạo ra cho
+    feature-engine tại transaction này.
+  - KHÔNG tạo/sửa CI workflow (`ci-cd.md`/`ADR-030` authority riêng, KHÔNG chạm).
+  - KHÔNG close/remediate `P3-FEATURE-QG-EVID-03` — VẪN `FAIL — evidence`, KHÔNG tự động
+    resolve bởi việc có một candidate.
+  - KHÔNG rerun/reinterpret feature-engine's own Chapter 13 Quality Gate — overall QG VẪN
+    `FAIL` cho tới khi ALL blocking evidence dimensions (`P3-FEATURE-QG-EVID-03` through
+    `P3-FEATURE-QG-EVID-08`) đều resolve.
+  - KHÔNG đổi Chapter 13 coverage floor/tier/pass-fail semantics, module Tier, hay
+    `module-registry.yaml`.
+  - KHÔNG chạm existing coverage.py mechanism (Testing Convention §"Python line+branch
+    coverage mechanism — APPROVED" trên) — byte-equivalent, KHÔNG re-opened.
+  - KHÔNG approve module/Data Layer/Phase nào. KHÔNG authorize LIVE. KHÔNG start Context
+    Aggregator.
+  Chọn/pin/cài đặt chính thức mechanism này (hoặc bất kỳ candidate khác xuất hiện sau) LÀ
+  một transaction riêng biệt tương lai — PHẢI tự verify trực tiếp lại toàn bộ 12 mục trên
+  TẠI thời điểm đó (candidate landscape/maintenance status/version CÓ THỂ đổi), VÀ tự rerun
+  ADR Scope Rule nếu bất kỳ fact nền tảng nào ở trên đổi.
+
+CANDIDATE ≠ APPROVED/ACCEPTED ≠ INSTALLED ≠ PINNED ≠ QUALIFYING QG EVIDENCE. Mechanism đề
+  xuất tại đây KHÔNG được dùng LÀM Feature QG evidence cho tới khi toàn bộ governance chain
+  (Product Owner decision trên chính candidate này, installation-time verification contract
+  ở trên, VÀ một formal QG re-evaluation riêng biệt) hoàn tất.
+```
+
 ## Non-goals (KHÔNG chọn/redefine tại v0.1 này)
 
 ```text
@@ -1628,4 +1914,61 @@ v0.7 bounded correction (2026-08-29), của `P3-PY-COV-REC-A-MAJ-01`/
       **ADR Scope Rule chạy LẠI TỪ ĐẦU**: `ADR_NOT_REQUIRED` — thuần
       mechanical/evidence correction/SSOT fidelity, KHÔNG architecture/
       tooling/governance-process decision mới.
+
+v0.8  2026-08-31  CANDIDATE amendment, KHÔNG self-approved — vai trò:
+      `Python Test-Effectiveness Mechanism Candidate Author`. `status:
+      Approved → Draft`, `approved_by`/`approved_at`: `Product Owner`/
+      `"2026-08-28"` → `null`/`null` (v0.7's approval record giữ
+      nguyên nguyên vẹn phía trên LÀM historical evidence, KHÔNG bị
+      ghi đè). Bổ sung MỘT subsection MỚI, "Python test-effectiveness
+      mechanism — CANDIDATE," dưới "Framework/tool selection" — resolves
+      the mechanism-selection prerequisite Chapter 13 §13.3 requires
+      for Tier 0/1 test-effectiveness evidence, targeting
+      `P3-FEATURE-QG-EVID-03`'s cited baseline-existence gap
+      (no test-effectiveness mechanism ever reviewed/accepted for any
+      module in this repository). CANDIDATE mechanism proposed:
+      **mutmut** (PyPI `mutmut` 3.7.0) — compared directly against
+      **cosmic-ray** (8.7.0, MIT, rejected: 13 transitive dependencies
+      incl. `aiohttp`/`sqlalchemy`/`gitpython`, distributed-worker
+      architecture disproportionate to a single ~1,100-statement
+      package) and **mutpy** (rejected: unmaintained, last release
+      0.6.1, `requires_python >=3.3`, no credible Python 3.13
+      compatibility). All facts verified directly from upstream PyPI
+      JSON metadata and GitHub source (`state.py`/`__main__.py`/
+      `ARCHITECTURE.rst`/`README.rst`) — NOT installed/run (explicit
+      task prohibition). Candidate defines: mutation-score formula
+      `(killed + timeout) / (total - skipped) * 100` (verified
+      directly from mutmut's own `badge` command source, not
+      invented); full mutant-status taxonomy (killed/survived/
+      timeout/no_tests/skipped/suspicious/segfault/interrupted,
+      verified directly from `status_by_exit_code`); function-level-
+      only mutation scope limitation (mutmut 3.x, explicit, not
+      silently assumed complete); `mutate_only_covered_lines`
+      proposed DISABLED for formal evidence (keeps coverage and
+      mutation-effectiveness evidence independent, no silent overlap);
+      anti-gaming rules for pragma/regex exclusions and "equivalent
+      mutant" claims (individually justified, never blanket);
+      fail-closed treatment of suspicious/segfault/interrupted
+      results and of incremental (non-fresh) runs. Proposes an
+      INITIAL numeric threshold, `>= 80%` mutation score for Tier
+      0/1 (Chapter 13 §13.3/§13.14 explicitly defers this exact
+      number to Engineering Foundation — this document, not a
+      duplicate of any Chapter-13-owned figure), explicitly labelled
+      a candidate starting point pending Product Owner decision and
+      recalibration once real measurement data exists (zero
+      measurement performed here). **ADR Scope Rule chạy TRƯỚC KHI
+      author**: `ADR_NOT_REQUIRED` — same pattern (b) as gobco
+      (v0.3/v0.4) and coverage.py (v0.5–v0.7): Chapter 3 §3.2's
+      Testing Convention tooling carve-out plus Chapter 13 §13.3/
+      §13.14's own explicit tool-agnostic deferral for this exact
+      category. **KHÔNG đổi:** Chapter 13 coverage floor/tier/
+      pass-fail semantics, `module-registry.yaml`, dependency graph,
+      feature-engine production/test code, existing coverage.py
+      mechanism (byte-equivalent, KHÔNG re-opened),
+      `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`), overall
+      Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval
+      (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`),
+      LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/pin tool nào. KHÔNG
+      chạy mutation testing thật. KHÔNG rerun Quality Gate nào. KHÔNG
+      approve module nào. KHÔNG authorize LIVE.
 ```

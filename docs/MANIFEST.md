@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.279"
+manifest_version: "10.280"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -15621,6 +15621,149 @@ python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-eng
 The six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transaction before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. None performed here.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.278"` → `"10.279"`.
+
+## Testing Convention v0.8 — Python Test-Effectiveness Mechanism CANDIDATE (`mutmut`, `CANDIDATE / UNAPPROVED` — no tool installed, no measurement, `P3-FEATURE-QG-EVID-03` unchanged)
+
+**Bounded semantic candidate-authoring transaction — vai trò: `Python Test-Effectiveness Mechanism Candidate Author`.** Authors ONE bounded Python test-effectiveness (mutation testing) mechanism candidate in `docs/engineering/testing.md`, targeting the mechanism-selection prerequisite Chapter 13 §13.3 requires for Tier 0/1, resolving `P3-FEATURE-QG-EVID-03`'s cited baseline-existence gap. Does NOT install or pin the candidate tool. Does NOT measure Feature Engine test effectiveness. Does NOT modify Feature Engine implementation or tests. Does NOT close `P3-FEATURE-QG-EVID-03`. Does NOT rerun the Feature Engine Chapter 13 Quality Gate. Does NOT approve Feature Engine. Does NOT open the Phase 3 Approval Gate. Does NOT authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `919b0b193e4440b5b39f69169c6765a0b565ac47` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.279"` at start. Authority re-read fresh: Chapter 13 (v1.7 Locked, blob `4bb697f3b43b0874a080015ef0ce6ca53de729f4`), Chapter 0 (v1.2 Locked, blob `7224292b231a98d609d884a6d26f47222d0dd63d`), Chapter 3 (v1.4 Locked, blob `a3fb309725d948bc61dad82a57d13a25d90ab280`), `docs/engineering/testing.md` confirmed starting state: `version: "0.7"`, `status: Approved`, `approved_by: Product Owner`, `approved_at: "2026-08-28"`, `docs/architecture/module-registry.yaml` (v1.7, blob `8535f92efeb76ffb226791d201dc0b3fb71f06c0`, unchanged) — feature-engine `quality_tier: Tier 1 — Core Logic`.
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh before authoring)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: same pattern (b) already established for the Go branch-coverage candidate
+  (v0.3/v0.4) and the Python coverage candidate (v0.5–v0.7) — Chapter 3 §3.2 (Locked)
+  carves out Testing Convention tooling as reversible, and Chapter 13 §13.3/§13.14 itself
+  locks "does not lock a specific tool/vendor... defer Engineering Foundation" for this
+  exact category (test-effectiveness mechanism). Candidate selection inside pre-authorized
+  tooling scope — no Platform Invariant/Event Schema/Module Taxonomy/governance-process
+  change, no supersession of any Locked ADR, no hard-to-reverse lock-in (dev/test-time-only
+  Python package, BSD-3-Clause-style license verified directly from upstream LICENSE, zero
+  new dependency beyond what is already approved/pinned or small/dev-only).
+```
+
+### Selected mechanism and alternatives
+
+```text
+Selected: mutmut (PyPI `mutmut`, version 3.7.0 at candidate-authoring time,
+  github.com/boxed/mutmut) — verified directly from PyPI JSON metadata and GitHub source
+  (state.py/__main__.py/ARCHITECTURE.rst/README.rst), NOT installed/run (explicit task
+  prohibition), NOT from memory.
+Alternatives compared:
+  cosmic-ray (PyPI `cosmic-ray` 8.7.0, MIT license) — actively maintained, credible, but
+    REJECTED: 13 transitive dependencies (aiohttp, sqlalchemy, gitpython, stevedore, rich,
+    anybadge, ...), distributed worker/session-database architecture disproportionate to a
+    single ~1,100-statement package (feature-engine), no coverage.py-integration feature
+    comparable to mutmut's mutate_only_covered_lines.
+  mutpy (PyPI `mutpy`) — REJECTED: unmaintained, latest release 0.6.1,
+    requires_python >=3.3, no credible basis for Python 3.13 compatibility (predates
+    multiple Python AST changes).
+  mutmut selected: actively maintained (GitHub pushed_at 2026-08-17, more recent than
+    cosmic-ray's; 1,411 stars vs 654, cited only as a maintenance signal, not a correctness
+    argument), explicit Python 3.13 classifier, lean dependency footprint (click,
+    coverage>=7.3.0, libcst, pytest>=6.2.5, setproctitle, textual — toml only on
+    python<3.11, moot for this repository's >=3.13 floor), genuine synergy with the
+    already-approved/installed coverage.py mechanism and mypy --strict (already pinned).
+```
+
+### Compatibility with current toolchain
+
+```text
+requires_python >=3.10 (repository floor >=3.13, compatible). coverage>=7.3.0 (repository
+  pin coverage==7.16.0, compatible). pytest>=6.2.5 (repository pin pytest==9.1.1,
+  compatible). No version conflict found against any currently-pinned dependency. Requires
+  POSIX fork support (macOS/Linux both provide it; Windows requires WSL, moot — this
+  repository's own clean-room venvs have run on macOS/Linux throughout this entire
+  session). NOT verified: behavior under a future CI runner (no CI/CD workflow exists yet —
+  ci-cd.md/ADR-030 authority, untouched — flagged as an install-time verification item.
+```
+
+### Candidate definition summary (full detail in `docs/engineering/testing.md`)
+
+```text
+Authoritative source/test scope: [tool.mutmut] source_paths = ["src/feature_engine"],
+  tests/ (mutmut default discovery). mutate_only_covered_lines proposed DISABLED for formal
+  evidence (keeps coverage and mutation-effectiveness evidence independent, no silent
+  overlap between the two mechanisms).
+Deterministic/reproducible execution contract: fixed 5-phase run (generate mutants into a
+  mutants/ working copy, collect baseline, load prior cache, clean-test baseline check,
+  forced-fail sanity check) verified directly from ARCHITECTURE.rst — a real, built-in
+  self-check against silently-inert mutation runs. Function-level-only mutation scope in
+  mutmut 3.x (explicit limitation, not silently assumed complete) — install-time
+  re-verification required to catalogue exactly which feature-engine lines fall outside
+  function-level scope (bare module-level constant/policy-object assignments).
+Machine-readable evidence: `mutmut export-cicd-stats` -> mutants/mutmut-cicd-stats.json,
+  fields killed/survived/total/no_tests/skipped/suspicious/timeout/
+  check_was_interrupted_by_user/segfault — verified directly from __main__.py, not assumed.
+Metric semantics / proposed acceptance rule: mutation score = (killed + timeout) /
+  (total - skipped) * 100 (verified directly from mutmut's own `badge` command source, the
+  formula mutmut itself defines — not invented). Proposed INITIAL threshold: >= 80% for
+  Tier 0/1, evaluated independently, never blended with the separate Chapter-13-owned
+  line/branch coverage floor. Chapter 13 §13.3/§13.14 explicitly defers this exact number
+  to Engineering Foundation (this document, not a duplicate of any Chapter-13-owned
+  figure) — explicitly labelled a candidate starting point, not repository-empirically
+  derived (zero mutation-score data exists for any module in this repository), pending
+  Product Owner decision and recalibration once real measurement data exists.
+Mutant-status taxonomy (verified directly from status_by_exit_code in __main__.py):
+  killed/timeout contribute to the numerator (caught); survived contributes to the
+  denominator only (actionable per-mutant gap); no_tests recorded separately (a genuine
+  coverage-mechanism cross-check signal, never merged into survived); equivalent-mutant
+  exclusions require individual, explicit justification (blanket claims forbidden,
+  anti-gaming); suspicious/segfault/check_was_interrupted_by_user require individual
+  triage before a run counts as complete evidence — never silently folded into
+  killed/survived.
+Exclusions/anti-gaming: `# pragma: no mutate`/`no mutate block`/`no mutate start/end`,
+  `do_not_mutate_patterns` regex all exist and each require individual, explicit
+  justification if used — no exclusion merely to raise the score, no exclusion of
+  authoritative business logic, extends (does not duplicate) Chapter 13 §13.3's own
+  anti-gaming clause by reference.
+Reproducibility caveat specific to mutation testing: mutmut run is incremental by default
+  (cached .meta results) — formal evidence measurements must start from an absent/deleted
+  mutants/ directory (a genuine full run), analogous to coverage.py's own `coverage erase`
+  discipline. An incremental/cached partial result must not be accepted as formal evidence.
+Fail-closed behavior: missing JSON output, non-zero unresolved suspicious/segfault/
+  interrupted counts, an incremental (non-fresh) run, or an unreconstructable tool
+  version/pin -> FAIL — evidence, extending (not redefining) Chapter 13 §13.8.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/constitution/**,
+  docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**, CI/CD workflows, any
+  Go module, Context Aggregator: all verified byte-identical (`git diff --quiet` for each
+  path). No tool installed/pinned. No Feature Engine measurement performed. `P3-FEATURE-QG-
+  EVID-03` not closed. Files touched, confirmed via `git status --porcelain=v1`:
+  docs/engineering/testing.md, docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:          version "0.7" → "0.8", status Approved → Draft, approved_by/
+                              approved_at Product Owner/"2026-08-28" → null/null (v0.7's
+                              approval record preserved unchanged above as historical
+                              evidence).
+Test-effectiveness mechanism: mutmut — CANDIDATE / UNAPPROVED (not installed, not
+                              measured).
+P3-FEATURE-QG-EVID-03:        FAIL — evidence (unchanged — candidate authored, not
+                              installed/measured/closed).
+P3-FEATURE-QG-EVID-04..-08:   UNCHANGED (five findings, out of scope).
+Existing coverage.py mechanism: unchanged, byte-equivalent, not re-opened.
+Feature engine Quality Tier:  RESOLVED — Tier 1 — Core Logic (unchanged).
+Formal Feature Chapter 13 QG: FAIL (unchanged).
+Feature module approval:      NOT APPROVED.
+Phase 3 Approval Gate:        NOT opened.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Review A, then Independent Review B, then a separate Product Owner decision on the candidate, then (if approved) a separate installation/pinning transaction applying the installation-time verification contract, then a separate formal Feature Engine test-effectiveness evidence measurement — before `P3-FEATURE-QG-EVID-03` may close. Independently, unchanged: `P3-FEATURE-QG-EVID-04` through `P3-FEATURE-QG-EVID-08` each require their own separate governed transactions before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.279"` → `"10.280"`.
 
 ## Decision Log
 
