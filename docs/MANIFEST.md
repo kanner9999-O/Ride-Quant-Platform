@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.281"
+manifest_version: "10.282"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -15903,6 +15903,160 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 Review A re-review of this bounded correction, then Independent Review B, then — only if both are CLEAN — a Product Owner decision on the corrected candidate itself; separately, a dedicated future threshold-proposal transaction (steps 3-8 of the 9-step sequence above) once a governed, non-gating baseline measurement exists. Neither performed here.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.280"` → `"10.281"`.
+
+## Testing Convention v0.10 — Mutation-Surface Bounded Correction, round 2 (`P3-PY-MUT-A-MAJ-02` `REMEDIATED — PENDING BOUNDED RE-REVIEW`, NOT self-closed; `-MAJ-01`/`-MAJ-03`/`-MIN-01` CLOSED by prior Review A re-review, NOT reopened)
+
+**Bounded correction transaction — vai trò: `Mutation-Surface Bounded Correction Executor`.** Remediates `P3-PY-MUT-A-MAJ-02` ONLY (round 2 — a new, deeper defect found in the SAME finding after Review A re-review closed `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01` from round 1). Does NOT reopen or modify the three closed findings. Does NOT install or run mutmut. Does NOT select a numeric threshold. Does NOT close `P3-FEATURE-QG-EVID-03`. Does NOT touch Feature source/tests, dependencies, CI, Chapter 13, module registry, or architecture/domain authority.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `ee2dd560cc070de1b32f84182f3edb924350e5c0` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.281"` at start. `docs/engineering/testing.md` confirmed starting state: `version: "0.9"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### ADR Scope Rule (Chapter 0 §4b, re-run fresh for this correction)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: correction only rewrites mutation-surface factual/contract text inside the same
+  reversible, already-pre-authorized Testing Convention tooling candidate — no
+  architecture/tool/governance-process decision, no threshold selected.
+```
+
+### Independent fact-verification performed before writing anything
+
+```text
+The task's own premise (decorated ClassDef, including @dataclass, is skipped wholesale)
+  was independently re-verified rather than taken on faith, per this repository's own
+  established "verify trực tiếp, không assume" discipline. First re-check, against
+  mutmut's GitHub `main` branch, APPEARED to contradict the premise (a comment there reads
+  "A decorated class is still recursed into..."). Escalated to checking the EXACT PINNED
+  release tag `3.7.0` (commit 4f1208093517575a9402b99cfdcc7dea54c40e67) directly — this
+  confirmed the task's premise exactly: `main` has already silently diverged ahead of the
+  `3.7.0` release with an unreleased fix (corroborated by upstream issue
+  boxed/mutmut#558, filed and confirmed against 3.7.0's own shipped code, and its
+  associated fix work) — `3.7.0` itself, the exact version this candidate pins, contains
+  the unconditional `if isinstance(node, cst.ClassDef) and len(node.decorators): return
+  True` wholesale-class-skip. Verified directly via PyPI JSON metadata that `3.7.0`
+  remains the latest published release at this correction's own boundary — no fixed
+  version is yet available to pin. This is the specific methodological lesson carried
+  forward into the corrected text: any future re-verification of this candidate must pin
+  to the exact released tag/wheel, never to a repository's mutable default/`main`
+  reference.
+```
+
+### Corrected decorated-class semantics
+
+```text
+Decorated CLASSES (not just decorated functions) are skipped WHOLESALE by mutmut 3.7.0 —
+  a separate, more severe rule than the function-level exclusion: any cst.ClassDef
+  carrying one or more decorators has its entire body skipped from AST traversal, with no
+  exception analogous to the function-level @staticmethod/@classmethod carve-out. Because
+  returning True from this check stops libcst visitor descent into that node's children,
+  every statement inside a decorated class — including hand-written methods carrying no
+  decorator of their own (e.g. __post_init__) — is silently never visited, never evaluated
+  for mutation. The @staticmethod/@classmethod exception in the function-level check only
+  has an opportunity to apply when traversal actually reaches that FunctionDef node in the
+  first place — which never happens for any method declared inside an already-skipped
+  decorated class.
+```
+
+### Resulting Feature Engine mutation-surface inventory
+
+```text
+10 @dataclass-decorated classes carrying 13 hand-written methods are entirely outside
+  mutmut 3.7.0's mutation surface: authority_resolver.py
+  (FilesystemInputContractAuthorityResolver.resolve, StaticInputContractAuthorityProvider.
+  resolve), candle.py (CandleScope.subject_id, OHLCV.field), contracts.py
+  (EvaluationFrontier.plain_stream_positions, VerifiedInputContractAuthority.__init__,
+  FeatureScope.feature_subject_id, DecimalPrecisionPolicy.__post_init__,
+  DecimalPrecisionPolicy.apply, FeatureDefinition.__post_init__), publish.py
+  (SequenceAllocator.next_ref, SequenceAllocator.producer_ref). DecimalPrecisionPolicy.apply
+  (the actual Decimal rounding/precision computation) and FeatureDefinition.__post_init__
+  (feature-engine's single largest, most safety-critical validation guard chain) are the
+  most consequential named residuals. By direct contrast, the classes carrying the
+  majority of feature-engine's actual orchestration/state-machine logic are NOT
+  @dataclass-decorated and are unaffected: SwingDistanceFeatureEngine (23 methods),
+  RegimePassthroughFeatureEngine (11 methods), FeatureCurrentView (5 methods),
+  CandleWindowFeatureEngine (1 method) — verified directly via ast-based inspection of
+  the current authoritative source.
+```
+
+### Equivalent-effectiveness rule (corrected)
+
+```text
+An ordinary example-based unit test — even one that directly, meaningfully asserts on the
+  exact omitted behavior — is explicitly NOT, by itself, sufficient qualifying equivalent
+  test-effectiveness evidence for behavior outside mutmut's mutation surface (corrected
+  from v0.9's own, looser standard). A passing assertion on correct input/output proves a
+  test CAN pass, never that it WOULD FAIL if the logic were subtly wrong. Qualifying
+  equivalent evidence now requires EITHER a separately reviewed/accepted test-
+  effectiveness mechanism capable of reaching that specific code, OR governed,
+  deterministic, reproducible perturbation/fault-injection evidence — a documented,
+  pinned demonstration that a specific, deliberately-introduced defect is actually
+  detected by the existing test suite. Absent one of these two, the omitted behavior
+  (including FeatureDefinition.__post_init__ and DecimalPrecisionPolicy.apply/
+  __post_init__) remains an OPEN, fail-closed gap.
+```
+
+### mutmut candidate-suitability assessment
+
+```text
+Not fabricated favorable or unfavorable in advance — weighed against the corrected
+  inventory. The wholesale decorated-class skip is a real, currently-unfixed-in-any-
+  released-version, material limitation of the exact pinned tool (3.7.0) — it removes
+  feature-engine's single most safety-critical validation chain (FeatureDefinition.
+  __post_init__) and its Decimal rounding logic (DecimalPrecisionPolicy.apply) from
+  mutmut's reach entirely, alongside eight smaller dataclass-hosted methods. This must
+  never be minimized or silently waived. It does NOT, however, render mutmut unsuitable
+  as a primary candidate outright: the classes carrying the clear majority of
+  feature-engine's actual orchestration/state-machine logic remain fully within mutmut's
+  mutation surface, unaffected. Conclusion: mutmut REMAINS a viable PRIMARY candidate for
+  the majority of feature-engine's behavior-bearing surface, but the dataclass-hosted gap
+  is a material, named, currently-OPEN limitation requiring future resolution via (a) a
+  released, fixed mutmut version re-verified at that time, (b) the corrected
+  equivalent-evidence mechanism applied individually per named gap, or (c) an explicit,
+  un-waived residual finding carried forward — never silently treated as covered.
+  Recorded here for RE-REVIEW, not resolved; selecting between (a)/(b)/(c) is deferred to
+  a future governed transaction.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/constitution/**,
+  docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**, CI/CD workflows, any
+  Go module, Context Aggregator, existing coverage.py mechanism: all verified byte-identical
+  (`git diff --quiet` for each path). mutmut not installed/run. No baseline data generated.
+  No threshold selected. `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01` not reopened/touched.
+  `P3-FEATURE-QG-EVID-03` not closed. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/engineering/testing.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:           version "0.9" → "0.10", status Draft → Draft (unchanged),
+                               approved_by/approved_at null/null (unchanged) — NOT
+                               self-approved.
+P3-PY-MUT-A-MAJ-01:            CLOSED (unchanged, prior Review A re-review — NOT reopened).
+P3-PY-MUT-A-MAJ-02:            REMEDIATED — PENDING BOUNDED RE-REVIEW (NOT self-closed).
+P3-PY-MUT-A-MAJ-03:            CLOSED (unchanged, prior Review A re-review — NOT reopened).
+P3-PY-MUT-A-MIN-01:            CLOSED (unchanged, prior Review A re-review — NOT reopened).
+Test-effectiveness mechanism:  mutmut — CANDIDATE / UNAPPROVED (unchanged; not
+                               disqualified — see suitability assessment above).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+P3-FEATURE-QG-EVID-04..-08:    UNCHANGED (five findings, out of scope).
+Formal Feature Chapter 13 QG:  FAIL (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Review A re-review of this round-2 correction, then Independent Review B, then — only if both are CLEAN — a Product Owner decision on the corrected candidate as a whole; separately, resolution of the named dataclass-hosted mutation-surface gaps (option (a)/(b)/(c) above) once a governed baseline measurement or fixed tool version exists. Neither performed here.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.281"` → `"10.282"`.
 
 ## Decision Log
 

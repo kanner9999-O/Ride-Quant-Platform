@@ -2,6 +2,59 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-31 — Testing Convention v0.10: Mutation-Surface Bounded Correction, round 2 (`P3-PY-MUT-A-MAJ-02` REMEDIATED — PENDING BOUNDED RE-REVIEW)
+
+**Bounded correction transaction — vai trò: `Mutation-Surface Bounded Correction Executor`.** Remediates `P3-PY-MUT-A-MAJ-02` ONLY (a new, deeper defect in the same finding after Review A re-review closed `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01`, which are NOT reopened). Does not install/run mutmut, select a threshold, or close `P3-FEATURE-QG-EVID-03`.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — mutation-surface factual/contract text correction only, inside the same
+  pre-authorized reversible candidate; no threshold selected.
+```
+
+### Corrected decorated-class semantics
+
+```text
+Decorated CLASSES (not just decorated functions) are skipped WHOLESALE by mutmut 3.7.0 --
+  verified directly against the EXACT pinned release tag (3.7.0, commit
+  4f1208093517575a9402b99cfdcc7dea54c40e67), not the mutable `main` branch (which had
+  already silently diverged with an unreleased fix -- the root cause of v0.9's own error).
+  `_skip_node_and_children` contains an unconditional ClassDef-decorator check with no
+  exception -- hand-written methods with no decorator of their own (e.g. __post_init__)
+  inside a decorated class are silently never visited for mutation. PyPI confirms 3.7.0
+  remains the latest published release; no fixed version exists to pin yet.
+```
+
+### Resulting Feature Engine inventory / equivalent-evidence rule / suitability
+
+```text
+10 @dataclass classes / 13 methods excluded, naming DecimalPrecisionPolicy.__post_init__/
+  .apply and FeatureDefinition.__post_init__ explicitly as the most consequential
+  residuals -- contrasted against the non-decorated Engine classes (SwingDistance
+  FeatureEngine 23 methods, RegimePassthroughFeatureEngine 11, FeatureCurrentView 5,
+  CandleWindowFeatureEngine 1) carrying the majority of orchestration logic, unaffected.
+  Equivalent-effectiveness rule corrected: an ordinary example-based unit test is NOT
+  sufficient by itself -- requires a separately-accepted mechanism or governed
+  deterministic perturbation/fault-injection evidence. Suitability assessment (not
+  fabricated either direction): mutmut remains a viable primary candidate for the
+  majority of feature-engine's surface; the dataclass-hosted gap is material, named, and
+  currently open -- recorded for RE-REVIEW, not resolved.
+```
+
+### Preserved unchanged
+
+```text
+P3-PY-MUT-A-MAJ-01/-MAJ-03/-MIN-01: CLOSED (prior Review A re-review, not reopened).
+Threshold: UNRESOLVED — BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03: FAIL —
+  evidence. EVID-04 through -08: unchanged. Formal Feature Chapter 13 QG: FAIL. Feature
+  module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Testing Convention:** `version "0.9" → "0.10"`, `status` remains `Draft`, `approved_by`/`approved_at` remain `null`/`null`.
+
+**manifest_version:** `"10.281"` → `"10.282"`.
+
 ## [Unreleased] — 2026-08-31 — Testing Convention v0.9: Python Test-Effectiveness Candidate Bounded Correction (`P3-PY-MUT-A-MAJ-01`/`-MAJ-02`/`-MAJ-03`/`-MIN-01` REMEDIATED — PENDING BOUNDED RE-REVIEW)
 
 **Bounded correction transaction — vai trò: `Python Test-Effectiveness Candidate Bounded Correction Executor`.** Remediates four Review A findings on v0.8's mutmut candidate. Does not install/run mutmut, close the findings itself, change the selected mechanism, or close `P3-FEATURE-QG-EVID-03`.

@@ -1,7 +1,7 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.9"
+version: "0.10"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,8 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**CANDIDATE bounded correction round 2 (2026-08-31), KHÔNG self-approved — status: Draft → Draft.** Bounded remediation của `P3-PY-MUT-A-MAJ-02` ONLY (round 2 — a NEW, deeper defect found in the SAME finding after Review A re-review closed `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01` from round 1; those three are NOT reopened/touched here) — vai trò: `Mutation-Surface Bounded Correction Executor`. `version: "0.9" → "0.10"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. **Defect:** v0.9's own §5a correction, while it added the function-level decorator exclusion, INCORRECTLY concluded hand-written `__post_init__` methods inside `@dataclass` classes remain mutation-capable — v0.9's own verification had (without noticing) been performed against mutmut's mutable `main` branch HEAD rather than the exact pinned `3.7.0` release tag, and `main` had already silently diverged ahead of `3.7.0` with an unreleased fix. Re-verified THIS time directly against the exact git tag `3.7.0` (commit `4f1208093517575a9402b99cfdcc7dea54c40e67`): `_skip_node_and_children` contains an UNCONDITIONAL `if isinstance(node, cst.ClassDef) and len(node.decorators): return True` — ANY decorated class (including plain `@dataclass`) has its ENTIRE body skipped from traversal, wholesale, with no exception analogous to the function-level `@staticmethod`/`@classmethod` carve-out; hand-written methods with no decorator of their own (`__post_init__` included) are silently never visited. **Correction:** §5a rewritten to state the wholesale class-level skip as the dominant, more severe rule (function-level exclusion is a separate, narrower rule); §5a-i added — the corrected, exact Feature Engine mutation-surface inventory (10 `@dataclass` classes / 13 methods excluded, naming `DecimalPrecisionPolicy.__post_init__`/`DecimalPrecisionPolicy.apply`/`FeatureDefinition.__post_init__` explicitly, contrasted against the non-decorated Engine classes — `SwingDistanceFeatureEngine`/`RegimePassthroughFeatureEngine`/`FeatureCurrentView`/`CandleWindowFeatureEngine` — carrying the majority of actual orchestration logic, unaffected); §5b (completeness contract) updated to reference the corrected inventory and name the three residuals explicitly as currently-open, not hypothetical; §5c added — corrected the equivalent-evidence fallback (an ordinary example-based unit test, even a meaningful one, is explicitly NOT sufficient by itself; requires either a separately-accepted mechanism or governed deterministic perturbation/fault-injection evidence proving defect detection); §5d added — a bounded, non-fabricated mutmut candidate-suitability reassessment (material, named, currently-open gap on dataclass-hosted validation/utility logic; majority of orchestration logic remains fully mutation-capable; conclusion recorded for RE-REVIEW, not resolved). **Finding state:** `P3-PY-MUT-A-MAJ-02`: `REMEDIATED — PENDING BOUNDED RE-REVIEW` — NOT self-closed. **KHÔNG đổi/KHÔNG reopen:** `P3-PY-MUT-A-MAJ-01`/`P3-PY-MUT-A-MAJ-03`/`P3-PY-MUT-A-MIN-01` (all three CLOSED by the prior Review A re-review, untouched, not reopened by this transaction), the `UNRESOLVED — BASELINE/CALIBRATION REQUIRED` threshold state (unchanged, no numeric threshold selected here), the Ride-owned metric/status contract (§6-§12, unchanged), mutmut VẪN candidate mechanism đề xuất (KHÔNG chọn lại tool nào khác — see §5d, this is a named limitation, not a disqualification), coverage.py mechanism (byte-equivalent, KHÔNG chạm), `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`), `P3-FEATURE-QG-EVID-04` through `-08` (unchanged), overall Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`), LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/chạy `mutmut`. KHÔNG tạo baseline data nào. KHÔNG chọn threshold nào. KHÔNG Review A self-closure. KHÔNG Product Owner decision. **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**: `ADR_NOT_REQUIRED` — correction CHỈ sửa mutation-surface factual/contract text bên trong CÙNG một reversible Testing Convention tooling candidate ĐÃ pre-authorized, KHÔNG giới thiệu architecture/tool/governance-process decision MỚI nào, KHÔNG chọn threshold nào.
 
 **CANDIDATE bounded correction (2026-08-31), KHÔNG self-approved — status: Draft → Draft.** Bounded remediation của bốn Review A findings trên v0.8's "Python test-effectiveness mechanism — CANDIDATE" subsection (KHÔNG PHẢI self-closure — executor KHÔNG có thẩm quyền tự đóng finding của chính mình, CHỈ Review A re-review + Independent Review B tiếp theo mới validate closure) — vai trò: `Python Test-Effectiveness Candidate Bounded Correction Executor`. `version: "0.8" → "0.9"`, `status` VẪN `Draft` (KHÔNG tự approve), `approved_by`/`approved_at` VẪN `null`/`null`. **Findings remediated (full detail tại subsection dưới):** `P3-PY-MUT-A-MAJ-01` (v0.8's authoritative-sounding `mutation score >= 80%` threshold removed, replaced with `TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED` and an explicit 9-step governed sequence — mechanism approval → install/pin → governed NON-GATING baseline measurement → analyze mutant population/survivors/equivalents/blind spots → separate threshold proposal → fresh ADR Scope Rule → review → Product Owner decision → threshold-bearing formal evidence; explicit rule against inferring a Tier-0 threshold from Feature Engine's future Tier-1 baseline; explicit note that this candidate's own `ADR_NOT_REQUIRED` mechanism-selection disposition does NOT extend to any future numeric-threshold proposal, which must independently re-run Chapter 0 §4b at its own boundary). `P3-PY-MUT-A-MAJ-02` (mutation-surface completeness — corrected the v0.8 claim that only bare module-level statements are omitted; disclosed, with exact source citations from `mutmut`'s own `file_mutation.py`, that decorated functions/methods are excluded from mutation UNLESS the decorator is exactly one `@staticmethod`/`@classmethod`, that `@property`-decorated methods are structurally excluded [feature-engine's own `candle.py:32`/`contracts.py:619` verified as concrete instances], and that `@dataclass`-synthesized `__init__`/`__eq__`/`__repr__`/`__hash__` methods are invisible to mutmut's AST-based parser entirely — plus a new formal mutation-surface completeness contract requiring an exact inventory of mutation-capable functions, omitted behavior with individual reasons, and any qualifying equivalent test-effectiveness evidence, with an explicit fail-closed rule that mere disclosure of omitted behavior is NOT sufficient for a PASS disposition). `P3-PY-MUT-A-MAJ-03` (metric/status/denominator contract — removed the claim that mutmut 3.7.0 itself defines the mutation-score formula as built-in semantics, redefining it as a Ride-owned, independently-versioned metric contract inspired by but not bound to mutmut's own `badge` formula; corrected the disclosed status taxonomy from seven to the complete ten categories verified directly from `status_by_exit_code`, including `not_checked` and `caught_by_type_check`, both of which are tracked internally by mutmut but OMITTED from `export-cicd-stats`'s own JSON output — corrected the false implication that the JSON alone proves the complete denominator; added a full status-reconciliation requirement, `not_checked == 0`, governed treatment of `caught_by_type_check`, a raw-denominator-by-default rule for equivalent mutants with a governed-adjustment mechanism, deterministic-reproduction-before-credit for timeouts, and a corrected, precise meaning of `skipped` distinct from pragma/regex mutant-generation exclusion). `P3-PY-MUT-A-MIN-01` (removed the duplicated literal "Tier-1 coverage floor (90%)" from the (now-removed) threshold rationale paragraph — the applicable Tier-1 coverage floor is referenced only by resolving it directly from Chapter 13, never restated numerically in this document). **Finding states:** all four `REMEDIATED — PENDING BOUNDED RE-REVIEW` — NOT self-closed. **KHÔNG đổi:** mutmut VẪN candidate mechanism đề xuất (KHÔNG chọn lại/nghiên cứu lại tool nào khác — Review A's findings đều LÀ contract/evidence defects, KHÔNG PHẢI evidence mutmut bị disqualify), `ADR_NOT_REQUIRED` mechanism-selection disposition (unchanged, re-affirmed distinct from the future threshold-proposal's own separate ADR Scope Rule requirement above), coverage.py mechanism (byte-equivalent, KHÔNG chạm), `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`), `P3-FEATURE-QG-EVID-04` through `-08` (unchanged), overall Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`), LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/chạy `mutmut`. KHÔNG tạo baseline data nào. KHÔNG chọn threshold nào. KHÔNG Review A self-closure. KHÔNG Product Owner decision. **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**: `ADR_NOT_REQUIRED` — correction CHỈ sửa contract/evidence-definition text bên trong CÙNG một reversible Testing Convention tooling candidate ĐÃ pre-authorized, KHÔNG giới thiệu architecture/tool/governance-process decision MỚI nào, KHÔNG chọn threshold nào (threshold explicitly deferred, not decided, by this very correction).
 
@@ -1104,7 +1106,7 @@ CANDIDATE ≠ APPROVED/ACCEPTED ≠ INSTALLED ≠ PINNED ≠ QUALIFYING QG EVIDE
   ở trên, VÀ một formal QG re-evaluation riêng biệt) hoàn tất.
 ```
 
-### Python test-effectiveness mechanism — CANDIDATE (v0.8 content, bounded-corrected v0.9 — `P3-PY-MUT-A-MAJ-01`/`-MAJ-02`/`-MAJ-03`/`-MIN-01` `REMEDIATED — PENDING BOUNDED RE-REVIEW`, pending Product Owner decision)
+### Python test-effectiveness mechanism — CANDIDATE (v0.8 content, bounded-corrected v0.9, bounded-corrected again v0.10 — `P3-PY-MUT-A-MAJ-02` round 2 `REMEDIATED — PENDING BOUNDED RE-REVIEW`; `-MAJ-01`/`-MAJ-03`/`-MIN-01` CLOSED by prior Review A re-review, unchanged/not reopened; pending Product Owner decision)
 
 ```text
 [v0.8 addition — role: `Python Test-Effectiveness Mechanism Candidate Author`. This is the
@@ -1234,104 +1236,213 @@ CANDIDATE mechanism proposed: **mutmut** (PyPI package `mutmut`, version `3.7.0`
      self-check against the "mutants are silently never exercised, everything looks
      survived or killed for the wrong reason" failure mode) — only THEN does real mutation
      testing (f) run.
-  5a. **Mutation-surface limitations — [v0.9 bounded correction, `P3-PY-MUT-A-MAJ-02`:
-      v0.8 disclosed ONLY bare module-level statements as an omission and claimed this was
-      the extent of the gap ("the only genuinely bare module-level statements are
-      constant/policy-object assignments") — Review A found this materially incomplete.
-      Corrected, broader disclosure below, each point independently re-verified directly
-      against mutmut's own source, not assumed.]** Mutation is **function-level** in
+  5a. **Mutation-surface limitations — [v0.10 bounded correction, `P3-PY-MUT-A-MAJ-02`
+      round 2: v0.9 correctly added the function-level decorator exclusion but INCORRECTLY
+      claimed hand-written methods (specifically `__post_init__`) inside `@dataclass`
+      classes remain mutation-capable. Re-verified, this time against the EXACT git tag
+      `3.7.0` (commit `4f1208093517575a9402b99cfdcc7dea54c40e67`) — NOT the mutable `main`
+      branch HEAD v0.9 was actually read from, which had already silently diverged ahead of
+      the pinned release; this v0.9-vs-tag mismatch is itself the root cause of the
+      defect, and is the specific methodological lesson carried forward: any future
+      re-verification of this candidate MUST pin to the exact released tag/wheel, never to
+      a repository's default/`main` branch reference.]** Mutation is **function-level** in
       mutmut 3+ (verified directly, README: "mutmut 2... has a different execution model").
-      The complete set of surface gaps found by direct source inspection
-      (`src/mutmut/mutation/file_mutation.py`), none previously disclosed except the first:
+      The complete set of surface gaps, verified directly against
+      `src/mutmut/mutation/file_mutation.py` AT THE EXACT `3.7.0` TAG:
       - **Bare module-level statements** (outside any function/method body) are not
         mutated — e.g. constant/policy-object assignments such as `WARM_UP_POLICY = ...`.
-      - **Decorated functions/methods are excluded UNLESS the decorator is EXACTLY one of
-        `@staticmethod`/`@classmethod` (a single decorator only)** — verified directly,
-        `file_mutation.py` comments in full: "decorators are executed when the function is
-        defined, so we don't want to mutate their arguments and cause exceptions,"
-        "`@property` decorators break the trampoline signature assignment," and the code's
-        own explicit check `if isinstance(node, cst.FunctionDef) and len(node.decorators):
-        ... if len(node.decorators) == 1: decorator = node.decorators[0].decorator; if
-        isinstance(decorator, cst.Name) and decorator.value in ("staticmethod",
-        "classmethod"): <allow>` — anything else (a bare `@property`, any custom
-        decorator, or a function carrying MORE than one decorator even if one of them is
-        `@staticmethod`/`@classmethod`) causes mutmut to skip generating a trampoline for
-        that function ENTIRELY — no mutants are produced for its body at all, silently,
-        with no corresponding "no_tests"/"skipped" record (it never becomes a mutation
-        candidate in the first place). Verified directly against feature-engine's current
-        authoritative source (`grep -rn "^\s*@" src/feature_engine/*.py`, excluding
-        `@dataclass`): exactly two `@property` methods exist —
-        `candle.py:32` (`CandleScope.subject_id`) and `contracts.py:619`
-        (`FeatureScope.feature_subject_id`) — BOTH entirely outside mutmut's mutation
-        surface under this rule (exact line numbers subject to drift at
-        install/measurement time; re-verify fresh). One `@staticmethod`
-        (`swing_distance.py:655`, `_normalize_evidence`) IS within scope (single
-        `@staticmethod` decorator, matches the allowed pattern exactly).
-      - **`@dataclass`-synthesized methods are structurally invisible to mutmut, not
-        merely skipped** — reasoned directly from CPython's own `dataclasses` module
-        semantics (not requiring further external verification, this is standard,
-        deterministic stdlib behavior) combined with confirming mutmut has no
-        dataclass-specific handling anywhere in its source (verified directly, no
-        `dataclass`/`__init__`/"synthesiz"/"generated" target-mutation logic found in
-        `file_mutation.py`): `@dataclass`-decorated classes (feature-engine uses
-        `@dataclass(frozen=True, slots=True)` for nearly every data type —
-        `CandleScope`, `OHLCV`, `CandleFact`, `FeatureDefinition`, `FeatureScope`,
-        `ComputationCursor`, and others) have their `__init__`/`__eq__`/`__repr__`/
-        `__hash__` bodies BUILT AND `exec()`-ED DYNAMICALLY by the `dataclasses` stdlib
-        module at class-creation time — this generated code is NEVER present as literal
-        text in the `.py` source file mutmut's `libcst`-based parser reads, so no AST node
-        for it ever exists to mutate. This is explicitly NOT counted as a coverage gap in
-        AUTHORITATIVE business logic (the generated code is stdlib-guaranteed-correct
-        dataclass mechanics, not module-owned behavior) — but it MUST be disclosed as part
-        of an honest mutation-surface inventory, not silently omitted, and it means
-        equality/construction-validation behavior for these types is NOT exercisable via
-        this mechanism at all (any correctness evidence for that behavior must come from
-        elsewhere — e.g. the existing example-based tests already asserting on
-        equality/identity — never claimed to be covered by mutation evidence).
-      - **`__post_init__` methods ARE within scope** (written as literal source, no
-        decorator applied in this codebase's usage) — the majority of feature-engine's
-        most safety-critical validation logic (`FeatureDefinition.__post_init__`'s
-        extensive `if .../raise InvalidFeatureDefinitionError` guard chain) IS mutable and
-        IS a high-value mutation target, unaffected by the gaps above.
+      - **Decorated CLASSES are skipped WHOLESALE, together with their entire subtree —
+        this is a SEPARATE, MORE SEVERE rule than the function-level one, and it is the
+        rule that actually governs `@dataclass`.** Verified directly, `file_mutation.py`
+        at the pinned `3.7.0` tag, `_skip_node_and_children`, the exact two checks in
+        sequence:
+        ```text
+        if isinstance(node, cst.FunctionDef) and len(node.decorators):
+            if len(node.decorators) == 1:
+                decorator = node.decorators[0].decorator
+                if isinstance(decorator, cst.Name) and decorator.value in ("staticmethod", "classmethod"):
+                    return False
+            return True
+        if isinstance(node, cst.ClassDef) and len(node.decorators):
+            return True
+        ```
+        The SECOND check is unconditional: ANY `cst.ClassDef` carrying one or more
+        decorators — `@dataclass`, `@dataclass(frozen=True, slots=True)`, or any other
+        class decorator, with NO exception analogous to the function rule's
+        `@staticmethod`/`@classmethod` carve-out — causes `_skip_node_and_children` to
+        return `True` for the CLASS NODE ITSELF. Because `on_visit` returns `False`
+        whenever `_skip_node_and_children` returns `True` (standard libcst visitor
+        semantics: returning `False` from `on_visit` stops descent into that node's
+        children), the traversal NEVER DESCENDS INTO A DECORATED CLASS'S BODY AT ALL —
+        every statement inside it, including hand-written methods that carry NO decorator
+        of their own (e.g. `__post_init__`), is silently never visited, never evaluated
+        for mutation, and produces no mutant of any kind. **Corrected conclusion: the
+        `@staticmethod`/`@classmethod` exception in the FunctionDef-level check only has
+        an opportunity to apply when traversal actually REACHES that FunctionDef node in
+        the first place** — which never happens for any method, static, class, or
+        instance, declared inside a decorated class, because the enclosing `ClassDef`
+        check already stopped traversal one level up. The exception is not overridden or
+        bypassed by anything special about `@staticmethod`/`@classmethod`; it is simply
+        never reached. (Corroborating external evidence, not the primary basis for this
+        correction: upstream issue `boxed/mutmut#558`, "Decorated classes are skipped
+        wholesale, which removes @dataclass bodies from mutation," filed and confirmed
+        against `3.7.0`'s own shipped code — cites a real measurement of 62% of one
+        codebase's statements becoming unreachable this way. A fix exists on mutmut's
+        `main` branch post-dating the `3.7.0` release, but — verified directly via PyPI
+        JSON metadata at this correction's own boundary — `3.7.0` remains the latest
+        published release; no fixed version is yet available to pin.)
+      - **`@dataclass`-synthesized methods (`__init__`/`__eq__`/`__repr__`/`__hash__`,
+        auto-generated by the `dataclasses` stdlib module, never present as literal
+        source text) were already, separately, structurally invisible to mutmut
+        regardless of the ClassDef-skip rule above** (reasoned directly from CPython's own
+        `dataclasses` semantics, unchanged from the prior correction round) — this remains
+        true, but is now clearly a NARROWER sub-case of the broader wholesale-class-skip
+        finding immediately above, not the only mechanism excluding dataclass behavior.
       - Lambdas, comprehension-internal expressions, and `async def` functions were NOT
         found in feature-engine's current authoritative source at candidate-authoring time
         (verified directly, `grep`) — their own mutmut compatibility is therefore
         UNRESOLVED/moot for the CURRENT subject, not asserted supported, and requires
         install/measurement-time re-verification if any such construct is added later.
       Install/measurement-time re-verification required (not performed here): a fresh,
-      exact re-scan of feature-engine's THEN-current source for every decorator, every
-      `@dataclass`-decorated class, every bare module-level statement, and any
-      lambda/comprehension/`async` construct introduced since this candidate was authored
-      — the inventory above is a point-in-time disclosure, not a standing guarantee.
-  5b. **Formal mutation-surface completeness contract — [v0.9 addition, `P3-PY-MUT-A-MAJ-02`
-      correction: merely disclosing the omissions above is NOT sufficient for a PASS
-      disposition; a positive, exhaustive inventory contract is required].** Any FUTURE
-      formal test-effectiveness evidence transaction for a Tier 0/1 subject MUST produce
-      and pin, as part of its own immutable evidence record, an EXACT inventory of:
+      exact re-scan, AT THE THEN-CURRENT EXACT PINNED TAG (never `main`/`latest`), of
+      feature-engine's THEN-current source for every decorated class, every decorated
+      function, every bare module-level statement, and any lambda/comprehension/`async`
+      construct introduced since this candidate was authored — the inventory above is a
+      point-in-time disclosure, not a standing guarantee.
+  5a-i. **Corrected Feature Engine mutation-surface inventory — [v0.10 addition,
+        `P3-PY-MUT-A-MAJ-02` round 2].** Verified directly via `ast`-based inspection of
+        `python/feature-engine/src/feature_engine/*.py` at this correction's own boundary
+        (exact tree hash re-verifiable via `git rev-parse HEAD:python/feature-engine/src`):
+        **every `@dataclass`-decorated class carrying at least one hand-written method** —
+        ALL of the following are entirely OUTSIDE mutmut 3.7.0's mutation surface under
+        the wholesale-class-skip rule above (10 classes, 13 methods total):
+        `authority_resolver.py: FilesystemInputContractAuthorityResolver.resolve`,
+        `authority_resolver.py: StaticInputContractAuthorityProvider.resolve`,
+        `candle.py: CandleScope.subject_id`, `candle.py: OHLCV.field`,
+        `contracts.py: EvaluationFrontier.plain_stream_positions`,
+        `contracts.py: VerifiedInputContractAuthority.__init__`,
+        `contracts.py: FeatureScope.feature_subject_id`,
+        **`contracts.py: DecimalPrecisionPolicy.__post_init__`**,
+        **`contracts.py: DecimalPrecisionPolicy.apply`** (the actual Decimal
+        rounding/precision computation logic — high-value, behavior-bearing, and NOT
+        mutation-capable),
+        **`contracts.py: FeatureDefinition.__post_init__`** (CORRECTED from v0.9's claim:
+        this is NOT mutable — it is the single largest, most safety-critical validation
+        guard chain in feature-engine, entirely outside mutmut's surface),
+        `publish.py: SequenceAllocator.next_ref`, `publish.py: SequenceAllocator.
+        producer_ref`. All `@dataclass`-decorated classes WITHOUT any hand-written method
+        (field-only records — `CandleFact`, `InputContractRef`, `LifecyclePosition`,
+        `LifecycleFrontier`, `ComputationCursor`, `StreamPositionProof`,
+        `LifecycleFrontierProof`, `ResolvedInputContract`, `FeatureComputed`,
+        `FeatureFactInvalidated`, `EffectiveWindow`, `_ViewWindowState`,
+        `FeatureViewResult`, `EventRecordRef`, `StreamRef`, `ProducerRef`,
+        `EventContractRef`, `RegimeClassifiedFact`, `RegimeFactInvalidatedFact`,
+        `_WindowLineage` [x2, two modules], `_SwingConfirmationRecord`,
+        `_SwingInvalidationRecord`, `_SwingState`, `SwingConfirmedFact`,
+        `SwingInvalidatedFact`) were already unaffected either way (no hand-written body
+        to mutate regardless of this rule).
+        **By direct contrast, the classes carrying the actual bulk of feature-engine's
+        orchestration/state-machine logic are NOT `@dataclass`-decorated and are
+        UNAFFECTED by this gap** — verified directly: `swing_distance.py:
+        SwingDistanceFeatureEngine` (23 methods — `on_candle`/`on_swing_confirmed`/
+        `on_swing_invalidated`/`_recompute`/`_emit_original`/`_emit_replacement_only`/
+        `_invalidate_and_reattempt`/`_reevaluate_all_windows`/etc., the exact methods
+        targeted by this repository's own branch-coverage remediation transaction),
+        `regime_passthrough.py: RegimePassthroughFeatureEngine` (11 methods),
+        `current_view.py: FeatureCurrentView` (5 methods),
+        `candle_window.py: CandleWindowFeatureEngine` (1 method, its own permanent
+        fail-closed constructor) — all plain (non-decorated) classes, fully within
+        mutmut's mutation surface, unaffected by the wholesale-class-skip rule.
+  5b. **Formal mutation-surface completeness contract — [v0.9 addition, retained;
+      v0.10 update: the inventory this contract requires must now explicitly include
+      §5a-i's decorated-class findings, not just decorated-function findings].** Any
+      FUTURE formal test-effectiveness evidence transaction for a Tier 0/1 subject MUST
+      produce and pin, as part of its own immutable evidence record, an EXACT inventory
+      of:
       - every authoritative source file in the evaluated scope (e.g.
         `python/feature-engine/src/feature_engine/*.py`, exact tree hash);
       - every function/method that IS within mutmut's mutation surface (mutation-capable),
         by exact qualified name;
       - every unit of authoritative behavior that is NOT mutated, by exact qualified
         name/line, categorized by the SPECIFIC reason (bare module-level statement;
-        excluded decorator per §5a; `@dataclass`-synthesized method; any other construct
-        found not-yet-cataloged at that time) — a blanket "some code is not mutated"
-        disclosure does NOT satisfy this contract; each omission must be individually,
-        exactly identified;
+        excluded decorated function per §5a; excluded DECORATED CLASS per §5a
+        [wholesale-skip — the now-corrected, dominant exclusion mechanism]; any other
+        construct found not-yet-cataloged at that time) — a blanket "some code is not
+        mutated" disclosure does NOT satisfy this contract; each omission must be
+        individually, exactly identified;
       - for each such omission, whether QUALIFYING equivalent test-effectiveness evidence
-        exists for that specific behavior from a DIFFERENT accepted mechanism (e.g. a
-        direct, meaningful unit test asserting on the exact behavior in question — cited
-        by exact test name, not merely "coverage exists" since coverage evidence alone is
-        explicitly insufficient test-effectiveness evidence per Chapter 13 §13.3's own
-        governing principle) — if none exists, the omission is an OPEN gap, not a
-        disclosed-and-therefore-acceptable one.
-      **Fail-closed rule:** if any behavior-bearing authoritative logic falls outside
-      mutmut's mutation surface AND no accepted equivalent test-effectiveness evidence is
+        exists for that specific behavior (see §5c's corrected, stricter rule below) — if
+        none exists, the omission is an OPEN gap, not a disclosed-and-therefore-acceptable
+        one.
+      **Fail-closed rule (unchanged):** if any behavior-bearing authoritative logic falls
+      outside mutmut's mutation surface AND no accepted qualifying equivalent evidence is
       pinned for it, the formal evidence transaction MUST NOT declare the test-
       effectiveness dimension `PASS` on the strength of the measured mutation score alone
-      — it must record the gap as an explicit, named residual (e.g. a new/updated finding)
-      rather than silently treating full disclosure as sufficient. This applies regardless
-      of how favorable the measured mutation score is on the covered surface.
+      — it must record the gap as an explicit, named residual, regardless of how favorable
+      the measured mutation score is on the covered surface. Given §5a-i's corrected
+      inventory, this rule is now KNOWN to bind, at minimum, `FeatureDefinition.
+      __post_init__` and `DecimalPrecisionPolicy.apply`/`__post_init__` — three
+      specifically-named, currently-open gaps, not a hypothetical future possibility.
+  5c. **Equivalent-effectiveness fallback — [v0.10 bounded correction,
+      `P3-PY-MUT-A-MAJ-02` round 2: v0.9 allowed "a direct, meaningful unit test asserting
+      on the exact behavior in question" to count as qualifying equivalent evidence for an
+      omitted mutation target. Corrected: this is NOT sufficient by itself.]** An ordinary
+      example-based unit test — even one that directly, meaningfully asserts on the exact
+      omitted behavior — is explicitly NOT, by itself, sufficient test-effectiveness
+      evidence for behavior outside mutmut's mutation surface. The reason is the same one
+      Chapter 13 §13.3 already applies to coverage generally: a passing assertion on
+      CORRECT input/output proves the test CAN pass, never that it WOULD FAIL if the
+      underlying logic were subtly wrong — which is exactly the gap test-effectiveness
+      evidence exists to close, and exactly what an un-mutated code path can never
+      demonstrate merely by being asserted on. Corrected rule: for behavior-bearing
+      authoritative logic outside mutmut's mutation surface (per §5a-i), qualifying
+      equivalent test-effectiveness evidence requires EITHER:
+      - a SEPARATELY reviewed and accepted test-effectiveness mechanism capable of
+        reaching that specific code (e.g. a future mutation-testing tool/mode that does
+        traverse into decorated classes, itself independently evaluated and accepted
+        through this document's own governed candidate process — never assumed,
+        never substituted in without its own review); OR
+      - governed, deterministic, reproducible PERTURBATION/FAULT-INJECTION evidence:
+        a test (or test suite) that deliberately, explicitly introduces a SPECIFIC,
+        documented behavioral defect into the target logic (e.g. via a controlled,
+        reviewed, temporary local modification for the purpose of the check, or an
+        injected fault double at a boundary the design already exposes) and PROVES the
+        existing test suite detects it — i.e., a hand-run, documented, reproducible
+        analogue of exactly what a mutant-kill proves, with the specific defect
+        introduced, the detecting test identified, and the result pinned as evidence,
+        not merely asserted to exist.
+      Absent one of these two, the omitted behavior remains an OPEN, fail-closed gap —
+      an ordinary passing unit test on `FeatureDefinition.__post_init__` or
+      `DecimalPrecisionPolicy.apply`, however well-written, does NOT close this gap by
+      itself.
+  5d. **Mutmut candidate-suitability reassessment — [v0.10 addition, `P3-PY-MUT-A-MAJ-02`
+      round 2 — not a favorable conclusion assumed in advance; weighed against §5a-i's own
+      corrected inventory].** The wholesale decorated-class skip is a real, currently-
+      unfixed-in-any-released-version limitation of the exact pinned tool (`3.7.0`, latest
+      published release at this correction's own boundary) — it is NOT a minor or cosmetic
+      gap: it removes `FeatureDefinition.__post_init__` (feature-engine's single largest,
+      most safety-critical validation guard chain) and `DecimalPrecisionPolicy.apply`
+      (the actual Decimal rounding/precision computation) from mutmut's reach entirely,
+      alongside eight smaller dataclass-hosted methods. This is a genuine, material defect
+      in mutmut's current suitability for FULLY covering feature-engine's authoritative
+      behavior, and must never be minimized or silently waived. However, it does NOT
+      render mutmut unsuitable as a PRIMARY candidate outright: verified directly (§5a-i),
+      the classes carrying the clear majority of feature-engine's actual orchestration/
+      state-machine logic — `SwingDistanceFeatureEngine` (23 methods),
+      `RegimePassthroughFeatureEngine` (11 methods), `FeatureCurrentView` (5 methods),
+      `CandleWindowFeatureEngine` — are NOT `@dataclass`-decorated and remain fully within
+      mutmut's mutation surface, unaffected by this gap. **Conclusion (bounded, not
+      fabricated either direction):** mutmut REMAINS a viable PRIMARY candidate for the
+      majority of feature-engine's behavior-bearing surface, but the dataclass-hosted
+      validation/utility gap (§5a-i, §5b's now-specifically-named residuals) is a MATERIAL,
+      NAMED, currently-OPEN limitation that any future formal evidence transaction MUST
+      either (a) close via a released, fixed mutmut version re-verified against this exact
+      gap at that time, (b) close via §5c's governed equivalent-evidence mechanism applied
+      individually to each named gap, or (c) carry forward as an explicit, un-waived
+      residual finding — never silently treated as covered. This is recorded here for
+      RE-REVIEW, not resolved — selecting between (a)/(b)/(c) is a decision for a future
+      governed transaction (candidate installation or a dedicated gap-remediation
+      transaction), not this bounded correction.
   6. **[v0.9 bounded correction, `P3-PY-MUT-A-MAJ-03` part 1]** Machine-readable evidence —
      CORRECTED: v0.8 claimed `mutmut export-cicd-stats`'s JSON output
      (`mutants/mutmut-cicd-stats.json`) was "sufficiently structured" evidence on its own.
@@ -2285,4 +2396,62 @@ v0.9  2026-08-31  Bounded correction of four Review A findings on
       definition text bên trong CÙNG một reversible candidate ĐÃ
       pre-authorized, KHÔNG giới thiệu architecture/tool/governance-
       process decision MỚI nào, KHÔNG chọn threshold nào.
+
+v0.10 2026-08-31  Bounded correction of `P3-PY-MUT-A-MAJ-02` ONLY
+      (round 2 — a new, deeper defect in the same finding found after
+      Review A re-review closed `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/
+      `-MIN-01` from round 1; those three NOT reopened) — vai trò:
+      `Mutation-Surface Bounded Correction Executor`. Defect: v0.9's
+      own correction had verified mutmut's mutation-surface semantics
+      against the mutable `main` branch HEAD rather than the exact
+      pinned `3.7.0` release tag, and `main` had already silently
+      diverged ahead of `3.7.0` with an unreleased fix — v0.9
+      therefore incorrectly concluded hand-written `__post_init__`
+      methods inside `@dataclass` classes remain mutation-capable.
+      Re-verified directly against the exact git tag `3.7.0` (commit
+      `4f1208093517575a9402b99cfdcc7dea54c40e67`):
+      `_skip_node_and_children` contains an unconditional
+      `if isinstance(node, cst.ClassDef) and len(node.decorators):
+      return True` — any decorated class, `@dataclass` included, has
+      its entire body skipped from traversal wholesale, no exception
+      analogous to the function-level `@staticmethod`/`@classmethod`
+      carve-out; hand-written methods with no decorator of their own
+      are silently never visited. Corrected: §5a rewritten (wholesale
+      class-level skip stated as the dominant, more severe rule);
+      §5a-i added (corrected exact Feature Engine inventory — 10
+      `@dataclass` classes / 13 methods excluded, naming
+      `DecimalPrecisionPolicy.__post_init__`/`.apply` and
+      `FeatureDefinition.__post_init__` explicitly, contrasted
+      against the non-decorated Engine classes carrying the majority
+      of orchestration logic, unaffected); §5b updated to name the
+      three residuals as currently-open, not hypothetical; §5c added
+      (equivalent-effectiveness fallback corrected — an ordinary
+      example-based unit test, even a meaningful one, is NOT
+      sufficient by itself; requires a separately-accepted mechanism
+      or governed deterministic perturbation/fault-injection evidence
+      proving defect detection); §5d added (bounded, non-fabricated
+      mutmut candidate-suitability reassessment — material named gap
+      on dataclass-hosted logic, majority of orchestration logic
+      remains fully mutation-capable, recorded for RE-REVIEW, not
+      resolved). **Finding state:** `P3-PY-MUT-A-MAJ-02`:
+      `REMEDIATED — PENDING BOUNDED RE-REVIEW` — NOT self-closed.
+      **KHÔNG đổi/KHÔNG reopen:** `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/
+      `-MIN-01` (CLOSED by prior Review A re-review, untouched), the
+      `UNRESOLVED — BASELINE/CALIBRATION REQUIRED` threshold state
+      (unchanged, no threshold selected), the Ride-owned metric/
+      status contract (unchanged), mutmut VẪN candidate mechanism
+      (not disqualified — a named limitation, not disqualification),
+      coverage.py mechanism (byte-equivalent, KHÔNG chạm),
+      `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`),
+      `P3-FEATURE-QG-EVID-04` through `-08` (unchanged), overall
+      Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval
+      (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`),
+      LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/chạy `mutmut`. KHÔNG
+      tạo baseline data nào. KHÔNG chọn threshold nào. `status` VẪN
+      `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. **ADR
+      Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**:
+      `ADR_NOT_REQUIRED` — correction CHỈ sửa mutation-surface
+      factual/contract text bên trong CÙNG một reversible candidate
+      ĐÃ pre-authorized, KHÔNG giới thiệu architecture/tool/
+      governance-process decision MỚI nào, KHÔNG chọn threshold nào.
 ```
