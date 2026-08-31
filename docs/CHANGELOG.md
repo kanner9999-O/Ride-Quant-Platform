@@ -2,6 +2,36 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-31 — `P3-FEATURE-QG-COV-01` — Product Owner Decision (`CLOSED — PRODUCT OWNER ACCEPTED`, mechanical recording only)
+
+**Mechanical Product Owner decision recorder — vai trò: `Governance Recorder`.** Records the Product Owner's ACCEPT decision for the already formally-closed `P3-FEATURE-QG-COV-01` (evidence pinned in commit `99c16b9d46698028bc44d1bb54659288a11df380`). Does not re-run/replace the formal evidence, does not begin remediation of any other finding, does not change the overall Formal Feature Chapter 13 QG result, approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — mechanical recording of a Product Owner decision accepting an already
+  formally-closed, already-evidenced coverage finding; no architecture/dependency/tooling/
+  governance-process change.
+```
+
+### Decision
+
+```text
+P3-FEATURE-QG-COV-01: ACCEPT -> CLOSED — PRODUCT OWNER ACCEPTED. Formal evidence unchanged:
+  193 passed; line 1048/1077=97.30733519034355% PASS; branch 290/316=91.77215189873418%
+  PASS (independent, Tier-1 floor 90%); historical FAIL evidence (243/316) preserved.
+```
+
+### Preserved unchanged
+
+```text
+Formal Feature Chapter 13 QG: FAIL. P3-FEATURE-QG-EVID-03 through -08, P3-FEATURE-QG-MIN-01:
+  unchanged. Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE:
+  NOT_AUTHORIZED.
+```
+
+**manifest_version:** `"10.278"` → `"10.279"`.
+
 ## [Unreleased] — 2026-08-31 — feature-engine: Formal Coverage Re-Evaluation Evidence — PASS (`P3-FEATURE-QG-COV-01` CLOSED — FORMAL COVERAGE RE-EVALUATION PASS)
 
 **Formal, evidence-recording coverage re-evaluation — vai trò: `Formal Feature Engine Coverage Evidence Recorder`.** Independently reproduces (twice, deterministic) the formal Chapter 13 coverage measurement on the approved branch-coverage remediation state and records immutable §13.9 evidence, closing `P3-FEATURE-QG-COV-01`. A prior read-only, uncommitted evaluation of the same boundary is explicitly NOT treated as formal evidence — only this commit is. No production/test/dependency/tooling/config/Chapter-13/Tier change. Overall Feature Chapter 13 QG explicitly NOT inferred PASS from this coverage closure alone.

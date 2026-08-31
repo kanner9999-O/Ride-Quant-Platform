@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.278"
+manifest_version: "10.279"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -15558,6 +15558,69 @@ LIVE:                          NOT_AUTHORIZED, unreferenced.
 The six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transaction — test-effectiveness mechanism selection, Tier-1 Parity Test infrastructure (requires Decision Engine to exist), a self-contained-replay test or content-addressed persisted-evidence mechanism for I-5, scope-isolation tests for I-6, a Python property-based testing mechanism for I-13, and full-Decision-Pipeline trace-completeness evidence for I-1 — before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. None performed here.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.277"` → `"10.278"`.
+
+## `P3-FEATURE-QG-COV-01` — Product Owner Decision (`CLOSED — PRODUCT OWNER ACCEPTED` — mechanical recording transaction only)
+
+**Mechanical Product Owner decision recorder — vai trò: `Governance Recorder`.** Records the Product Owner's ACCEPT decision for the already formally-closed `P3-FEATURE-QG-COV-01` (formal evidence pinned in the immediately preceding "Formal Coverage Re-Evaluation Evidence: `PASS`" section). Does not re-run or replace the formal evidence. Does not begin remediation of any other finding. Does not change the overall Formal Feature Chapter 13 QG result, approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `99c16b9d46698028bc44d1bb54659288a11df380` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.278"` at start. `P3-FEATURE-QG-COV-01` confirmed at its expected pre-decision state: `CLOSED — FORMAL COVERAGE RE-EVALUATION PASS` (the immediately preceding section's own "State summary").
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: mechanical recording of a Product Owner decision accepting an already formally-
+  closed, already-evidenced coverage finding — no architecture, dependency, tooling, or
+  governance-process change; no new mechanism selection; no hard-to-reverse decision.
+```
+
+### Product Owner decision
+
+```text
+Finding: P3-FEATURE-QG-COV-01 (formally closed by fresh, reproduced, immutable §13.9
+  evidence in commit 99c16b9d46698028bc44d1bb54659288a11df380: line 1048/1077 =
+  97.30733519034355% PASS; branch 290/316 = 91.77215189873418% PASS; both evaluated
+  independently against the Tier-1 90% floor; historical FAIL evidence, 243/316 at boundary
+  a7a34014bcf153534572ef1441b7a128a203555e, preserved unchanged).
+Decision: ACCEPT.
+Disposition: P3-FEATURE-QG-COV-01 -> CLOSED — PRODUCT OWNER ACCEPTED.
+```
+
+### State summary
+
+```text
+P3-FEATURE-QG-COV-01:         CLOSED — PRODUCT OWNER ACCEPTED.
+P3-FEATURE-QG-COV-A-MIN-01:   CLOSED — bounded re-verification (unchanged).
+P3-FEATURE-QG-COV-A-MIN-02:   CLOSED — bounded re-verification (unchanged).
+P3-FEATURE-QG-COV-B-MIN-01:   CLOSED — Product Owner Accepted (unchanged).
+P3-FEATURE-QG-EVID-01:        CLOSED (unchanged).
+P3-FEATURE-QG-EVID-02:        CLOSED (unchanged).
+P3-FEATURE-QG-EVID-03..-08:   UNCHANGED (six findings, out of scope).
+P3-FEATURE-QG-MIN-01:         UNCHANGED.
+Formal Feature Chapter 13 QG: FAIL (unchanged — coverage dimension closure does not
+                               constitute overall QG PASS).
+Feature module approval:      NOT APPROVED.
+Phase 3 Approval Gate:        NOT opened.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/engineering/
+  testing.md, docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml,
+  docs/domain/**, CI/CD workflows: all verified byte-identical (`git diff --quiet` for each
+  path). No formal evidence re-run or replaced. No other finding's remediation begun. Files
+  touched, confirmed via `git status --porcelain=v1`: docs/MANIFEST.md, docs/CHANGELOG.md —
+  no other file touched.
+```
+
+### Next governed action (not performed in this transaction)
+
+The six remaining blocking evidence findings (`P3-FEATURE-QG-EVID-03` through `P3-FEATURE-QG-EVID-08`) each require their own separate governed transaction before the overall Formal Feature Chapter 13 Quality Gate can be re-evaluated toward PASS. None performed here.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.278"` → `"10.279"`.
 
 ## Decision Log
 
