@@ -2,6 +2,33 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-31 — Testing Convention v0.11: Mutation-Surface Inventory Fidelity Correction, round 3 (`P3-PY-MUT-A-MAJ-02` REMEDIATED — PENDING BOUNDED RE-REVIEW, semantics unchanged)
+
+**Bounded evidence-fidelity correction — vai trò: `Mutation-Surface Inventory Fidelity Correction Executor`.** Corrects an arithmetic/inventory-count error in round 2's mutation-surface finding: round 2 stated "10 @dataclass classes / 13 methods" and separately "eight smaller" residuals (implying 11, inconsistent with itself). A fresh, independent `ast`-based re-count confirms the correct total is 12 methods across 10 classes (round 2's own twelve-item enumerated list was already correct in substance; only its stated aggregate was wrong). Corrected to "12 methods" / "nine smaller" (12 − 3 named residuals) throughout `docs/engineering/testing.md`, `docs/MANIFEST.md`, and `docs/CHANGELOG.md`. Does not reopen or redesign round 2's mutation-surface semantics (wholesale decorated-class skip, exact 3.7.0 tag citation, equivalent-evidence rule, suitability assessment — all unchanged). Does not install/run mutmut, select a threshold, or close `P3-FEATURE-QG-EVID-03`.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — pure arithmetic/count-fidelity correction; no architecture/tool/
+  governance-process decision, no threshold selected, no semantic redesign.
+```
+
+### Preserved unchanged
+
+```text
+P3-PY-MUT-A-MAJ-01/-MAJ-03/-MIN-01: CLOSED (prior Review A re-review, not reopened). The
+  wholesale decorated-class-skip finding, its 3.7.0-tag citation, the twelve-item method
+  enumeration, the three named residuals (DecimalPrecisionPolicy.__post_init__/.apply,
+  FeatureDefinition.__post_init__), and the non-decorated Engine-class contrast: all
+  unchanged. Threshold: UNRESOLVED — BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03:
+  FAIL — evidence. EVID-04 through -08: unchanged. Formal Feature Chapter 13 QG: FAIL.
+  Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Testing Convention:** `version "0.10" → "0.11"`, `status` remains `Draft`, `approved_by`/`approved_at` remain `null`/`null`.
+
+**manifest_version:** `"10.282"` → `"10.283"`.
+
 ## [Unreleased] — 2026-08-31 — Testing Convention v0.10: Mutation-Surface Bounded Correction, round 2 (`P3-PY-MUT-A-MAJ-02` REMEDIATED — PENDING BOUNDED RE-REVIEW)
 
 **Bounded correction transaction — vai trò: `Mutation-Surface Bounded Correction Executor`.** Remediates `P3-PY-MUT-A-MAJ-02` ONLY (a new, deeper defect in the same finding after Review A re-review closed `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01`, which are NOT reopened). Does not install/run mutmut, select a threshold, or close `P3-FEATURE-QG-EVID-03`.
@@ -29,7 +56,7 @@ Decorated CLASSES (not just decorated functions) are skipped WHOLESALE by mutmut
 ### Resulting Feature Engine inventory / equivalent-evidence rule / suitability
 
 ```text
-10 @dataclass classes / 13 methods excluded, naming DecimalPrecisionPolicy.__post_init__/
+10 @dataclass classes / 12 methods excluded, naming DecimalPrecisionPolicy.__post_init__/
   .apply and FeatureDefinition.__post_init__ explicitly as the most consequential
   residuals -- contrasted against the non-decorated Engine classes (SwingDistance
   FeatureEngine 23 methods, RegimePassthroughFeatureEngine 11, FeatureCurrentView 5,

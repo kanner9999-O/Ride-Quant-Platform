@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.282"
+manifest_version: "10.283"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -15960,7 +15960,7 @@ Decorated CLASSES (not just decorated functions) are skipped WHOLESALE by mutmut
 ### Resulting Feature Engine mutation-surface inventory
 
 ```text
-10 @dataclass-decorated classes carrying 13 hand-written methods are entirely outside
+10 @dataclass-decorated classes carrying 12 hand-written methods are entirely outside
   mutmut 3.7.0's mutation surface: authority_resolver.py
   (FilesystemInputContractAuthorityResolver.resolve, StaticInputContractAuthorityProvider.
   resolve), candle.py (CandleScope.subject_id, OHLCV.field), contracts.py
@@ -16003,7 +16003,7 @@ Not fabricated favorable or unfavorable in advance — weighed against the corre
   released-version, material limitation of the exact pinned tool (3.7.0) — it removes
   feature-engine's single most safety-critical validation chain (FeatureDefinition.
   __post_init__) and its Decimal rounding logic (DecimalPrecisionPolicy.apply) from
-  mutmut's reach entirely, alongside eight smaller dataclass-hosted methods. This must
+  mutmut's reach entirely, alongside nine smaller dataclass-hosted methods. This must
   never be minimized or silently waived. It does NOT, however, render mutmut unsuitable
   as a primary candidate outright: the classes carrying the clear majority of
   feature-engine's actual orchestration/state-machine logic remain fully within mutmut's
@@ -16057,6 +16057,97 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 Review A re-review of this round-2 correction, then Independent Review B, then — only if both are CLEAN — a Product Owner decision on the corrected candidate as a whole; separately, resolution of the named dataclass-hosted mutation-surface gaps (option (a)/(b)/(c) above) once a governed baseline measurement or fixed tool version exists. Neither performed here.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.281"` → `"10.282"`.
+
+## Testing Convention v0.11 — Mutation-Surface Inventory Fidelity Correction, round 3 (`P3-PY-MUT-A-MAJ-02` `REMEDIATED — PENDING BOUNDED RE-REVIEW`, NOT self-closed; semantics unchanged from round 2)
+
+**Bounded evidence-fidelity correction transaction — vai trò: `Mutation-Surface Inventory Fidelity Correction Executor`.** Corrects an arithmetic/inventory-count error in `P3-PY-MUT-A-MAJ-02`'s round-2 correction. Does NOT reopen or redesign the round-2 mutation-surface semantics (wholesale decorated-class skip, exact `3.7.0` tag citation, equivalent-evidence rule, suitability assessment — all unchanged). Does NOT install/run mutmut. Does NOT select a threshold. Does NOT close `P3-FEATURE-QG-EVID-03`.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `ad3e8df084c833abd3f2902e9e9bb02927a5f7b1` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.282"` at start. `docs/engineering/testing.md` confirmed starting state: `version: "0.10"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### ADR Scope Rule (Chapter 0 §4b, re-run fresh for this correction)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: pure arithmetic/count-fidelity correction — no architecture/tool/governance-
+  process decision, no threshold selected, no mutation-surface semantic redesign.
+```
+
+### Independent re-verification performed before writing anything
+
+```text
+Fresh, independent `ast`-based re-count of python/feature-engine/src/feature_engine/*.py
+  at this correction's own boundary confirmed the task's claim exactly: 10 @dataclass-
+  decorated classes carry hand-written methods, summing to 12 methods total (not 13):
+  authority_resolver.py (FilesystemInputContractAuthorityResolver.resolve,
+  StaticInputContractAuthorityProvider.resolve — 2), candle.py (CandleScope.subject_id,
+  OHLCV.field — 2), contracts.py (EvaluationFrontier.plain_stream_positions,
+  VerifiedInputContractAuthority.__init__, FeatureScope.feature_subject_id,
+  DecimalPrecisionPolicy.__post_init__, DecimalPrecisionPolicy.apply,
+  FeatureDefinition.__post_init__ — 6), publish.py (SequenceAllocator.next_ref,
+  SequenceAllocator.producer_ref — 2). Sum: 2+2+6+2 = 12. Round 2's own explicit
+  twelve-item enumerated list was already correct in substance; only its own stated
+  aggregate ("13") and the separately-stated "eight smaller" residual count (implying 11,
+  itself inconsistent with the stated 13) were wrong — a simple arithmetic error, not a
+  technical/semantic defect in the underlying finding.
+```
+
+### Correction applied
+
+```text
+Every "13 methods"/"13 hand-written methods" occurrence corrected to "12"; "eight
+  smaller...methods" corrected to "nine smaller...methods" (12 total − 3 individually-
+  named residuals = 9). Corrected across: docs/engineering/testing.md (top banner's
+  historical description of round 2, §5a-i inventory statement, §5d suitability
+  paragraph, round-2 Change History entry — 4 occurrences), docs/MANIFEST.md (round-2
+  section's inventory statement and suitability paragraph — 2 occurrences),
+  docs/CHANGELOG.md (round-2 entry's inventory statement — 1 occurrence). The twelve-item
+  method enumeration itself, the three individually-named consequential residuals
+  (DecimalPrecisionPolicy.__post_init__/.apply, FeatureDefinition.__post_init__), the
+  non-decorated Engine-class contrast, and every substantive mutation-surface/equivalent-
+  evidence/suitability rule from round 2 are unchanged — only the two miscounted
+  aggregate numbers were wrong and are now corrected.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/constitution/**,
+  docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**, CI/CD workflows, any
+  Go module, Context Aggregator, existing coverage.py mechanism: all verified byte-identical
+  (`git diff --quiet` for each path). mutmut not installed/run. No baseline data generated.
+  No threshold selected. `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01` not reopened/touched.
+  `P3-FEATURE-QG-EVID-03` not closed. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/engineering/testing.md, docs/MANIFEST.md,
+  docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:           version "0.10" → "0.11", status Draft → Draft (unchanged),
+                               approved_by/approved_at null/null (unchanged) — NOT
+                               self-approved.
+P3-PY-MUT-A-MAJ-01:            CLOSED (unchanged, prior Review A re-review — NOT reopened).
+P3-PY-MUT-A-MAJ-02:            REMEDIATED — PENDING BOUNDED RE-REVIEW (NOT self-closed;
+                               inventory count now reconciled: 10 classes / 12 methods).
+P3-PY-MUT-A-MAJ-03:            CLOSED (unchanged, prior Review A re-review — NOT reopened).
+P3-PY-MUT-A-MIN-01:            CLOSED (unchanged, prior Review A re-review — NOT reopened).
+Test-effectiveness mechanism:  mutmut — CANDIDATE / UNAPPROVED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+P3-FEATURE-QG-EVID-04..-08:    UNCHANGED (five findings, out of scope).
+Formal Feature Chapter 13 QG:  FAIL (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Review A re-review of `P3-PY-MUT-A-MAJ-02` (covering both round 2's mutation-surface semantics and this round-3 arithmetic correction), then Independent Review B, then — only if both are CLEAN — a Product Owner decision on the corrected candidate as a whole. Not performed here.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.282"` → `"10.283"`.
 
 ## Decision Log
 
