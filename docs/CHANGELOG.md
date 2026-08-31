@@ -2,6 +2,48 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-08-31 — feature-engine: Formal Coverage Re-Evaluation Evidence — PASS (`P3-FEATURE-QG-COV-01` CLOSED — FORMAL COVERAGE RE-EVALUATION PASS)
+
+**Formal, evidence-recording coverage re-evaluation — vai trò: `Formal Feature Engine Coverage Evidence Recorder`.** Independently reproduces (twice, deterministic) the formal Chapter 13 coverage measurement on the approved branch-coverage remediation state and records immutable §13.9 evidence, closing `P3-FEATURE-QG-COV-01`. A prior read-only, uncommitted evaluation of the same boundary is explicitly NOT treated as formal evidence — only this commit is. No production/test/dependency/tooling/config/Chapter-13/Tier change. Overall Feature Chapter 13 QG explicitly NOT inferred PASS from this coverage closure alone.
+
+### Authority (unchanged, re-verified fresh)
+
+```text
+Chapter 13 v1.7 Locked (blob 4bb697f3b43b0874a080015ef0ce6ca53de729f4). Module Registry v1.7
+  (blob 8535f92efeb76ffb226791d201dc0b3fb71f06c0) — feature-engine Tier 1 — Core Logic.
+Testing Convention v0.7 Approved (blob 06b0fef8b707f428809c3528a831a39be6b513db) —
+  coverage.py. pyproject.toml/requirements-dev.lock.txt: coverage==7.16.0, pytest==9.1.1
+  (unchanged).
+```
+
+### Formal measurement (fresh clean-room venv, reproduced twice, byte-identical)
+
+```text
+193 passed, 0 failed. Line: 1048/1077 = 97.30733519034355% -> PASS (floor 90%). Branch:
+  290/316 = 91.77215189873418% -> PASS (floor 90%), missing branches 26. Blended
+  96.05168700646088% recorded, non-governing. Both criteria evaluated independently, never
+  averaged. No material discrepancy from the prior (non-evidentiary) read-only evaluation.
+```
+
+### Finding transition
+
+```text
+P3-FEATURE-QG-COV-01: CLOSED — FORMAL COVERAGE RE-EVALUATION PASS. Historical FAIL —
+  criteria evidence (boundary a7a34014bcf153534572ef1441b7a128a203555e, 243/316 =
+  76.89873417721519%) preserved unchanged, never overwritten.
+```
+
+### Governance preserved
+
+```text
+Formal Feature Chapter 13 QG: FAIL (unchanged). P3-FEATURE-QG-EVID-03 through -08 (six
+  findings), P3-FEATURE-QG-MIN-01: unchanged. EVID-01/-02, COV-A-MIN-01/-02, COV-B-MIN-01:
+  CLOSED (unchanged). Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED.
+```
+
+**manifest_version:** `"10.277"` → `"10.278"`.
+
 ## [Unreleased] — 2026-08-31 — `P3-FEATURE-QG-COV-B-MIN-01` — Product Owner Decision (`CLOSED — PRODUCT OWNER ACCEPTED`, mechanical recording only)
 
 **Mechanical Product Owner decision recorder — vai trò: `Governance Recorder`.** Records the Product Owner's ACCEPT decision closing `P3-FEATURE-QG-COV-B-MIN-01` (the diagnostic per-file branch-coverage disclosure arithmetic inconsistency, already corrected in the prior transaction). Does not close `P3-FEATURE-QG-COV-01`, does not change the Formal Feature Chapter 13 QG result, does not approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE.
