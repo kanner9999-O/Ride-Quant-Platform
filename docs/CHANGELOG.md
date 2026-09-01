@@ -2,6 +2,45 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-01 — feature-engine: mutmut Installation Evidence Fidelity Correction (`P3-PY-MUT-INSTALL-A-MIN-01` REMEDIATED — PENDING BOUNDED RE-REVIEW)
+
+**Bounded, docs-only evidence-fidelity correction — vai trò: `mutmut Installation Evidence Fidelity Correction Executor`.** Corrects two factual mismatches in the prior mutmut installation transaction's own evidence prose (below). Does not run mutation testing, alter the actual lock/pyproject.toml (byte-identical, correct installation), or touch Testing Convention v0.12.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — pure evidence-fidelity correction of already-committed prose; installed/
+  pinned tooling state untouched and byte-identical.
+```
+
+### Corrections
+
+```text
+A. Dependency count: independently re-verified via git diff of requirements-dev.lock.txt
+  against the parent commit — exactly 12 new lines added (mutmut + 11 transitive
+  dependencies: click, libcst, linkify-it-py, markdown-it-py, mdit-py-plugins, mdurl,
+  mutmut, platformdirs, PyYAML-ft, rich, setproctitle, textual), not 11/10 as previously
+  stated. Corrected at every occurrence in docs/MANIFEST.md and the prior CHANGELOG entry.
+B. Default-vs-governed config wording: corrected the claim that all nine pinned
+  [tool.mutmut] values are mutmut 3.7.0's own defaults. source_paths=["src/feature_engine"]
+  and pytest_add_cli_args_test_selection=["tests/"] are Ride-explicit measurement-scope
+  choices (mutmut's own default for both is []); the other seven keys
+  (mutate_only_covered_lines, type_check_command, timeout_constant, timeout_multiplier,
+  only_mutate, do_not_mutate, do_not_mutate_patterns) ARE genuine mutmut defaults, pinned
+  explicitly. No config value changed.
+```
+
+### Preserved unchanged
+
+```text
+mutmut 3.7.0: INSTALLED + PINNED. TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED —
+  BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03: FAIL — evidence. Formal Feature
+  Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED.
+```
+
+**manifest_version:** `"10.286"` → `"10.287"`.
+
 ## [Unreleased] — 2026-09-01 — feature-engine: mutmut Governed Installation & Pinning (tooling prerequisite installed — P3-FEATURE-QG-EVID-03 remains FAIL — evidence, no mutation executed)
 
 **Governed installation/pinning transaction — vai trò: `Feature Python Test-Effectiveness Installation Executor`.** Installs and pins the Product-Owner-approved `mutmut 3.7.0` mechanism (Testing Convention v0.12) into `python/feature-engine`'s dev tooling, and pins its governed measurement-boundary configuration. Does not run mutation testing, calculate a mutation score, or close `P3-FEATURE-QG-EVID-03`. Does not modify Feature source/tests or the Approved testing.md.
@@ -27,9 +66,11 @@ mutmut==3.7.0 (PyPI `mutmut`, github.com/boxed/mutmut) — still the latest publ
 ### Dependency impact
 
 ```text
-11 new dev-only packages: mutmut==3.7.0, click==8.5.0, libcst==1.9.0, PyYAML-ft==8.0.0,
-  setproctitle==1.3.7, textual==8.2.8, platformdirs==4.11.5, markdown-it-py==4.2.0,
-  mdit-py-plugins==0.6.1, mdurl==0.1.2, linkify-it-py==2.2.0, rich==15.0.0. Existing pins
+12 new dev-only packages (mutmut + 11 transitive dependencies) [CORRECTED — see
+  P3-PY-MUT-INSTALL-A-MIN-01 correction entry above]: mutmut==3.7.0, click==8.5.0,
+  libcst==1.9.0, PyYAML-ft==8.0.0, setproctitle==1.3.7, textual==8.2.8,
+  platformdirs==4.11.5, markdown-it-py==4.2.0, mdit-py-plugins==0.6.1, mdurl==0.1.2,
+  linkify-it-py==2.2.0, rich==15.0.0. Existing pins
   (pytest==9.1.1, coverage==7.16.0, ruff==0.16.4, mypy==2.3.1) unchanged/not upgraded —
   confirmed "already satisfied" against mutmut's own >=6.2.5/>=7.3.0 constraints.
   [project].dependencies remains [] — no runtime dependency added.
@@ -39,12 +80,14 @@ mutmut==3.7.0 (PyPI `mutmut`, github.com/boxed/mutmut) — still the latest publ
 
 ```text
 [tool.mutmut]: source_paths=["src/feature_engine"],
-  pytest_add_cli_args_test_selection=["tests/"], mutate_only_covered_lines=false,
-  type_check_command=[], timeout_constant=1.0, timeout_multiplier=15.0, only_mutate=[],
-  do_not_mutate=[], do_not_mutate_patterns=[] — verified directly against the pinned
-  3.7.0 tag's own configuration.py; every value is mutmut's own default, pinned
-  explicitly per Testing Convention v0.12's own governed contract so a future baseline
-  does not depend on ambiguous local defaults.
+  pytest_add_cli_args_test_selection=["tests/"] (Ride-explicit measurement-scope choices,
+  NOT upstream defaults [CORRECTED — P3-PY-MUT-INSTALL-A-MIN-01 part B] — mutmut's own
+  default for both is `[]`), plus mutate_only_covered_lines=false, type_check_command=[],
+  timeout_constant=1.0, timeout_multiplier=15.0, only_mutate=[], do_not_mutate=[],
+  do_not_mutate_patterns=[] (these seven ARE mutmut's own documented defaults) — verified
+  directly against the pinned 3.7.0 tag's own configuration.py, pinned explicitly per
+  Testing Convention v0.12's own governed contract so a future baseline does not depend on
+  ambiguous local defaults.
 ```
 
 ### Config-parsing verification (no mutation executed)
