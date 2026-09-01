@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.285"
+manifest_version: "10.286"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -16329,6 +16329,217 @@ LIVE:                            NOT_AUTHORIZED, unreferenced.
 A separate, governed install/pin transaction (applying mutmut's own installation-time verification contract), followed by a separate, explicitly NON-GATING baseline measurement transaction for feature-engine, followed by the dedicated threshold-proposal sequence (analysis -> proposal -> fresh ADR Scope Rule -> review -> Product Owner decision) — all required before `P3-FEATURE-QG-EVID-03` may close. None performed here.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.284"` → `"10.285"`.
+
+## `feature-engine` — mutmut Governed Installation & Pinning (tooling prerequisite installed — `P3-FEATURE-QG-EVID-03` remains `FAIL — evidence`, no mutation executed, threshold still UNRESOLVED)
+
+**Governed installation/pinning transaction — vai trò: `Feature Python Test-Effectiveness Installation Executor`.** Installs and pins the Product-Owner-approved Python test-effectiveness mechanism (Testing Convention v0.12, `mutmut 3.7.0`) into `python/feature-engine`'s dev tooling, and pins its governed measurement-boundary configuration. Does NOT run mutation testing or produce a mutation baseline. Does NOT establish or calculate a mutation score. Does NOT close `P3-FEATURE-QG-EVID-03`. Does NOT modify `python/feature-engine/src/**`/`tests/**`. Does NOT modify Approved `docs/engineering/testing.md`.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `7341a44e44bb9a79ffb8d0de69f78eca90f96942` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.285"` at start. `docs/engineering/testing.md` confirmed unchanged: `version: "0.12"`, `status: Approved`, `approved_by: Product Owner`, `approved_at: "2026-09-01"` — byte-identical throughout this transaction (`git diff --quiet` confirmed). Feature implementation/test identity confirmed unchanged: src tree `256421344a48a6c9d4ef72f81eb82b27dbedfc50`, tests tree `98a10b206b80ec3e3c9c30acc8a6f03fdf3a4d92` (both verified before and after this transaction).
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: the mechanism/contract selection (mutmut 3.7.0) is already reviewed (Review A +
+  Independent Review B, both CLEAN) and Product-Owner-approved in Testing Convention v0.12.
+  This transaction performs only the governed installation/pinning already anticipated by
+  that approval — a dev/test-only tooling dependency addition inside one existing module,
+  introducing no new architecture responsibility, no cross-module dependency, no
+  governance-process change, and no hard-to-reverse platform decision. No new §4b trigger
+  discovered during installation.
+```
+
+### Exact pin — freshly verified, not reused from candidate-time research
+
+```text
+Package/distribution identity: `mutmut` (PyPI), upstream project boxed/mutmut
+  (github.com/boxed/mutmut), author Anders Hovmöller and contributors.
+Chosen version: 3.7.0 — freshly re-verified at installation time via PyPI JSON API AND
+  independent `pip download`; still the latest published release (unchanged since
+  candidate-authoring — no newer version exists). License: BSD-3-Clause (verified directly
+  from the installed wheel's own METADATA file, `License-Expression: BSD-3-Clause` —
+  matches the LICENSE-file-based determination made at candidate time).
+Artifact identity: `mutmut-3.7.0-py3-none-any.whl` — SHA-256
+  `1d2f9a1bfa4a474b2213df6b17223150b492bf4a85af0eda4fb322297337fb32`, independently
+  computed via `shasum -a 256` on the actual downloaded file (`pip download mutmut==3.7.0
+  --no-deps` in an isolated scratch directory outside this repository) — matches PyPI's
+  own reported digest exactly; not merely copied from a fetched summary.
+Requires-Python: `>=3.10` (verified directly from wheel METADATA) — compatible with
+  feature-engine's own `>=3.13` floor.
+```
+
+### Compatibility with existing pinned toolchain (freshly verified, not assumed)
+
+```text
+python3.13 --version -> Python 3.13.6 (the actual interpreter used for this transaction).
+mutmut 3.7.0's own `Requires-Dist`: click>=8.0.0, coverage>=7.3.0, libcst>=1.8.5,
+  pytest>=6.2.5, setproctitle>=1.1.0, textual>=1.0.0, toml>=0.10.2 (only for
+  python_full_version<3.11, moot at this repository's >=3.13 floor) — verified directly
+  from wheel METADATA.
+Existing pins re-verified compatible, NOT upgraded: `pytest==9.1.1` (>=6.2.5 satisfied),
+  `coverage==7.16.0` (>=7.3.0 satisfied) — confirmed via a constrained install
+  (`pip install mutmut==3.7.0 -c <current-lock-as-constraints>` in an isolated scratch
+  venv) that both existing pins were reported "already satisfied," never touched.
+Fork/platform requirement (verified directly, mutmut's own README): mutmut requires POSIX
+  `fork` support; macOS and Linux both provide it (Windows requires WSL, moot — every
+  clean-room venv in this repository's own history has run on macOS/Linux). mutmut's own
+  `use_setproctitle` config defaults to `False` on macOS specifically (documented
+  fork-safety workaround for `setproctitle` on that one platform) — no override configured,
+  default behavior accepted.
+No dependency conflict: `pip check` -> "No broken requirements found." in the final
+  clean-room reconstruction from the updated lock file.
+```
+
+### Dependency impact (freshly resolved for the exact chosen release)
+
+```text
+11 new packages introduced, all dev/test-only (never added to `[project].dependencies`,
+  which remains `[]`): mutmut==3.7.0 itself, plus its transitive closure resolved with
+  existing pins held constant (verified via constrained install): click==8.5.0,
+  libcst==1.9.0, PyYAML-ft==8.0.0 (pulled by libcst>=1.8.5), setproctitle==1.3.7,
+  textual==8.2.8, platformdirs==4.11.5, markdown-it-py==4.2.0, mdit-py-plugins==0.6.1,
+  mdurl==0.1.2, linkify-it-py==2.2.0, rich==15.0.0 (all pulled transitively by
+  textual>=1.0.0's own dependency tree). Zero existing pin changed value.
+```
+
+### Pinning applied
+
+```text
+python/feature-engine/pyproject.toml: [project.optional-dependencies].dev gains exactly
+  one new entry, "mutmut==3.7.0", appended after the existing "coverage==7.16.0" entry —
+  no other line changed, no existing pin loosened. A new [tool.mutmut] section pins the
+  approved governed measurement boundary (see below) — no other section changed.
+python/feature-engine/requirements-dev.lock.txt: gains exactly 11 new lines (mutmut and
+  its 10 new transitive dependencies, listed above), inserted at the correct
+  case-insensitive alphabetical position matching the file's existing sort convention — no
+  existing line's version value changed.
+```
+
+### Governed mutmut configuration — exact keys/defaults verified directly against the pinned `3.7.0` tag's `configuration.py` (`_load_config`/`Config` dataclass), not assumed from README alone
+
+```text
+[tool.mutmut]
+source_paths = ["src/feature_engine"]                  (mirrors the coverage.py boundary)
+pytest_add_cli_args_test_selection = ["tests/"]         (explicit test-selection scope)
+mutate_only_covered_lines = false                       (mutmut's own default; pinned
+                                                          explicitly per Testing Convention
+                                                          v0.12's own §5a-i rationale —
+                                                          keeps coverage and mutation-
+                                                          effectiveness evidence
+                                                          independent, never silently
+                                                          overlapping)
+type_check_command = []                                 (mutmut's own default; pinned
+                                                          explicitly — no type-checker
+                                                          mutant-filtering, avoids
+                                                          `caught_by_type_check` entirely)
+timeout_constant = 1.0                                   (mutmut's own default, pinned)
+timeout_multiplier = 15.0                                (mutmut's own default, pinned)
+only_mutate = []                                         (mutmut's own default, pinned —
+                                                          no inclusion-only restriction)
+do_not_mutate = []                                       (mutmut's own default, pinned —
+                                                          no file-level exclusion)
+do_not_mutate_patterns = []                              (mutmut's own default, pinned —
+                                                          no regex-based exclusion)
+Every value above is mutmut 3.7.0's own documented default — pinned EXPLICITLY, not left
+  implicit, so a future baseline measurement does not depend on ambiguous local defaults
+  that could silently change across a future mutmut version (per Testing Convention
+  v0.12's own governed contract). No exclusion of any kind configured — the full
+  authoritative src/feature_engine/** surface (subject to mutmut 3.7.0's own already-
+  disclosed wholesale-decorated-class-skip limitation, Testing Convention v0.12 §5a/§5a-i,
+  unchanged) is in scope.
+```
+
+### Config-parsing verification — WITHOUT launching mutation execution
+
+```text
+Fresh clean-room venv reconstructed from the updated lock file
+  (`pip install --no-deps -r requirements-dev.lock.txt && pip install -e . --no-deps`).
+  `pip check` -> No broken requirements found. `pip show mutmut` -> Version 3.7.0.
+`mutmut --version` (run from python/feature-engine, the real pinned config in place) ->
+  "mutmut, version 3.7.0" — this command necessarily loads and parses the full
+  `[tool.mutmut]` TOML config as a side effect of mutmut's own CLI startup (verified
+  directly: WITHOUT a valid config, this exact command instead raises
+  `FileNotFoundError: Could not figure out where the code to mutate is` — reproduced
+  empirically in an isolated scratch directory with no config present, confirming this is
+  a genuine parse-success signal, not a no-op). Zero `mutants/` directory created by this
+  command (verified directly, `ls`) — config loading alone performs no mutation-related
+  filesystem work.
+Additionally, direct read-only Python introspection
+  (`from mutmut.configuration import Config; Config.ensure_loaded(); Config.get()`)
+  confirms every pinned field resolves to EXACTLY the intended value:
+  source_paths=[PosixPath('src/feature_engine')],
+  pytest_add_cli_args_test_selection=['tests/'], mutate_only_covered_lines=False,
+  type_check_command=[], timeout_constant=1.0, timeout_multiplier=15.0, only_mutate=[],
+  do_not_mutate=[], do_not_mutate_patterns=[]. `mutmut --help` confirms the mutation-
+  executing command is `run` (a distinct subcommand from `--version`/config loading) —
+  `mutmut run` was NEVER invoked at any point in this transaction.
+```
+
+### Supporting engineering checks re-run against the same clean-room build
+
+```text
+`python -m pytest tests/ -q` -> 193 passed, 0 failed — confirming the new dev dependency
+  introduces no regression to the existing test suite.
+`ruff check src tests` -> All checks passed!
+`mypy src tests` -> Success: no issues found in 24 source files.
+Existing coverage.py mechanism verified UNAFFECTED: `coverage erase` -> `coverage run
+  --branch --source=feature_engine -m pytest tests/ -q` -> `coverage report` reproduces
+  the EXACT same totals as before this transaction (1077 statements/29 missing, 316
+  branches/26 partial, TOTAL 96%) — byte-identical to the already-CLOSED
+  `P3-FEATURE-QG-COV-01` formal evidence; coverage.py mechanism/configuration untouched by
+  this transaction.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**: verified byte-identical
+  (`git diff --quiet` for each path) — this transaction installs tooling/config only, no
+  production/test code touched. docs/engineering/testing.md: verified byte-identical — no
+  Approved-convention semantic modification occurred or was necessary. docs/constitution/**,
+  docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**, Input Contracts,
+  Stream Registry, CI/CD workflows, any Go module, Context Aggregator: all verified
+  byte-identical. No `mutmut run` executed anywhere. No `mutants/` directory created or
+  retained anywhere in the tracked repository (confirmed via `git status --porcelain=v1`,
+  which shows no untracked `mutants/` path). No mutation score calculated. No survivor/
+  equivalent analysis performed. No threshold proposed. Files touched, confirmed via
+  `git status --porcelain=v1`: python/feature-engine/pyproject.toml,
+  python/feature-engine/requirements-dev.lock.txt, docs/MANIFEST.md, docs/CHANGELOG.md —
+  no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:           version "0.12", status Approved, approved_by Product Owner,
+                               approved_at "2026-09-01" (unchanged).
+mutmut:                       INSTALLED and PINNED — python/feature-engine dev tooling
+                               only, version 3.7.0, 11 new dev-only packages, zero runtime
+                               dependency added ([project].dependencies remains []).
+Governed mutmut config:       PINNED explicitly in pyproject.toml (source_paths,
+                               pytest_add_cli_args_test_selection,
+                               mutate_only_covered_lines, type_check_command,
+                               timeout_constant, timeout_multiplier, only_mutate,
+                               do_not_mutate, do_not_mutate_patterns) — parser-verified,
+                               no mutation executed.
+Test-effectiveness threshold: UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged —
+                               this transaction establishes ONLY mutmut 3.7.0 =
+                               INSTALLED + PINNED, no evidence).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (mechanism now installed/pinned; qualifying
+                               Feature test-effectiveness evidence still pending a
+                               separate, formally-governed NON-GATING baseline
+                               measurement transaction, then a threshold-proposal chain).
+Feature engine Quality Tier:  RESOLVED — Tier 1 — Core Logic (unchanged).
+Feature formal Chapter 13 QG: FAIL (unchanged, NOT rerun by this transaction).
+Feature module approval:      NOT APPROVED.
+LIVE:                          NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+A separate, explicitly NON-GATING baseline measurement transaction — running `mutmut run` for the first time against feature-engine's authoritative source using this now-installed/pinned configuration, and recording the resulting per-category counts as diagnostic (not gate-determining) data — remains the next step, followed by the dedicated threshold-proposal sequence (analyze mutant population/survivors/equivalents/blind spots -> separate threshold proposal -> fresh ADR Scope Rule -> review -> Product Owner decision) before `P3-FEATURE-QG-EVID-03` may ever close. Not performed here.
+
+**Files changed:** `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` — verified via `git status --porcelain=v1`; `docs/engineering/testing.md`, `docs/architecture/module-registry.yaml`, `python/feature-engine/src/**`, `python/feature-engine/tests/**` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.285"` → `"10.286"`.
 
 ## Decision Log
 

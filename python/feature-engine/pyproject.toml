@@ -11,6 +11,7 @@ dev = [
     "mypy==2.3.1",
     "pytest==9.1.1",
     "coverage==7.16.0",
+    "mutmut==3.7.0",
 ]
 
 [build-system]
@@ -34,3 +35,14 @@ files = ["src", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.mutmut]
+source_paths = ["src/feature_engine"]
+pytest_add_cli_args_test_selection = ["tests/"]
+mutate_only_covered_lines = false
+type_check_command = []
+timeout_constant = 1.0
+timeout_multiplier = 15.0
+only_mutate = []
+do_not_mutate = []
+do_not_mutate_patterns = []

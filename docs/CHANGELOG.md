@@ -2,6 +2,84 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-01 — feature-engine: mutmut Governed Installation & Pinning (tooling prerequisite installed — P3-FEATURE-QG-EVID-03 remains FAIL — evidence, no mutation executed)
+
+**Governed installation/pinning transaction — vai trò: `Feature Python Test-Effectiveness Installation Executor`.** Installs and pins the Product-Owner-approved `mutmut 3.7.0` mechanism (Testing Convention v0.12) into `python/feature-engine`'s dev tooling, and pins its governed measurement-boundary configuration. Does not run mutation testing, calculate a mutation score, or close `P3-FEATURE-QG-EVID-03`. Does not modify Feature source/tests or the Approved testing.md.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — mechanism/contract already reviewed and Product-Owner-approved; this
+  transaction performs only the governed installation/pinning already anticipated by that
+  approval.
+```
+
+### Exact pin (freshly verified, not reused from candidate-time research)
+
+```text
+mutmut==3.7.0 (PyPI `mutmut`, github.com/boxed/mutmut) — still the latest published
+  release at installation time. Artifact: mutmut-3.7.0-py3-none-any.whl, SHA-256
+  1d2f9a1bfa4a474b2213df6b17223150b492bf4a85af0eda4fb322297337fb32 (independently
+  downloaded and recomputed via shasum). License: BSD-3-Clause (verified from wheel
+  METADATA). Requires-Python >=3.10 (compatible with feature-engine's >=3.13).
+```
+
+### Dependency impact
+
+```text
+11 new dev-only packages: mutmut==3.7.0, click==8.5.0, libcst==1.9.0, PyYAML-ft==8.0.0,
+  setproctitle==1.3.7, textual==8.2.8, platformdirs==4.11.5, markdown-it-py==4.2.0,
+  mdit-py-plugins==0.6.1, mdurl==0.1.2, linkify-it-py==2.2.0, rich==15.0.0. Existing pins
+  (pytest==9.1.1, coverage==7.16.0, ruff==0.16.4, mypy==2.3.1) unchanged/not upgraded —
+  confirmed "already satisfied" against mutmut's own >=6.2.5/>=7.3.0 constraints.
+  [project].dependencies remains [] — no runtime dependency added.
+```
+
+### Governed mutmut configuration (all mutmut 3.7.0 defaults, pinned explicitly)
+
+```text
+[tool.mutmut]: source_paths=["src/feature_engine"],
+  pytest_add_cli_args_test_selection=["tests/"], mutate_only_covered_lines=false,
+  type_check_command=[], timeout_constant=1.0, timeout_multiplier=15.0, only_mutate=[],
+  do_not_mutate=[], do_not_mutate_patterns=[] — verified directly against the pinned
+  3.7.0 tag's own configuration.py; every value is mutmut's own default, pinned
+  explicitly per Testing Convention v0.12's own governed contract so a future baseline
+  does not depend on ambiguous local defaults.
+```
+
+### Config-parsing verification (no mutation executed)
+
+```text
+`mutmut --version` -> "mutmut, version 3.7.0", run from python/feature-engine with the
+  real pinned config in place — this necessarily parses the full [tool.mutmut] config as
+  a side effect (reproduced the FileNotFoundError failure mode with no config present, to
+  confirm this is a genuine parse-success signal). Zero mutants/ directory created.
+  Direct Python introspection (Config.get()) confirms every field resolves exactly as
+  pinned. `mutmut --help` confirms `run` is the distinct mutation-executing subcommand —
+  never invoked in this transaction.
+```
+
+### Supporting checks (clean-room reconstruction)
+
+```text
+pytest tests/ -q -> 193 passed. ruff check -> All checks passed! mypy -> Success, 24
+  files. coverage.py mechanism verified UNAFFECTED — reproduces the exact same totals as
+  the already-CLOSED P3-FEATURE-QG-COV-01 formal evidence (1077 stmts/29 missing, 316
+  branches/26 partial).
+```
+
+### State / preserved unchanged
+
+```text
+mutmut: INSTALLED and PINNED (dev-only). TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED —
+  BASELINE/CALIBRATION REQUIRED (unchanged). P3-FEATURE-QG-EVID-03: FAIL — evidence
+  (unchanged — mechanism installed, evidence still pending a separate NON-GATING baseline
+  transaction). Formal Feature Chapter 13 QG: FAIL. Feature module: NOT APPROVED. LIVE:
+  NOT_AUTHORIZED.
+```
+
+**manifest_version:** `"10.285"` → `"10.286"`.
+
 ## [Unreleased] — 2026-09-01 — Testing Convention v0.12: Product Owner Approval (mechanical lifecycle recorder only — mutmut 3.7.0 mechanism/contract APPROVED; not installed, threshold UNRESOLVED)
 
 **Mechanical Product Owner approval recorder — vai trò: `Testing Convention v0.12 Mechanical Approval Recorder`.** Records the Product Owner's ACCEPT decision on the Python Tier-0/1 test-effectiveness mechanism candidate (`mutmut 3.7.0`) and its Ride-owned evidence/status/reconciliation, mutation-surface completeness, and equivalent-effectiveness fallback contracts, reviewed at boundary `d2e6cd8ea58d034ab791ec4c7b35bedce54ae8fc` (Review A CLEAN, Independent Review B CLEAN, all four findings VALIDLY CLOSED, zero new findings). Does not install/pin mutmut, perform mutation testing, establish a threshold, produce/accept a baseline, close `P3-FEATURE-QG-EVID-03`, or approve Feature Engine/LIVE.
