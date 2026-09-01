@@ -2,11 +2,11 @@
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
 version: "0.12"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-09-01"
 created_at: "2026-08-12"
 last_review: null
 next_review: null
@@ -14,6 +14,33 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**v0.12 APPROVAL — mechanical (2026-09-01), vai trò: `Testing Convention v0.12 Mechanical Approval Recorder`.** Product Owner decision: **ACCEPT** the Python Tier-0/1 test-effectiveness mechanism candidate reviewed at boundary `d2e6cd8ea58d034ab791ec4c7b35bedce54ae8fc` — `mutmut 3.7.0`, together with the Ride-owned mutation evidence/status/reconciliation contract, the fail-closed mutation-surface completeness contract, and the equivalent-effectiveness fallback contract (§5a–§5d/§6–§12 of the "Python test-effectiveness mechanism — CANDIDATE" subsection below). (No single verbatim Product Owner quote was supplied for this decision — recorded here as the structured ACCEPT scope actually given, not fabricated as an exact quotation.) Decision time: `2026-09-01`. Reviewed immutable boundary: HEAD `d2e6cd8ea58d034ab791ec4c7b35bedce54ae8fc` (the v0.12 final reconciliation correction commit). `status: Draft → Approved`, `approved_by: null → Product Owner`, `approved_at: null → "2026-09-01"`. `version` KHÔNG bump (pure mechanical lifecycle approval, đúng Chapter 0 §8, same precedent as v0.4/v0.7) — VẪN `"0.12"`.
+
+**Review evidence tại approval này (completed chain, recorded — không phải recorder self-closure):**
+
+```text
+Bounded Review A (final, cumulative across all v0.9-v0.12 remediation rounds):
+  Disposition: BOUNDED REVIEW A RE-REVIEW: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B, same boundary:
+  P3-PY-MUT-A-MAJ-01: VALIDLY CLOSED.
+  P3-PY-MUT-A-MAJ-02: VALIDLY CLOSED.
+  P3-PY-MUT-A-MAJ-03: VALIDLY CLOSED.
+  P3-PY-MUT-A-MIN-01: VALIDLY CLOSED.
+  New findings: none.
+  Disposition: INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+Independent-review requirement (Chapter 11 §11.5, minimum two): SATISFIED.
+Evidence chain (this recorder only records the already-completed result — closure is NOT
+  attributed to this recorder): executor candidate authoring (v0.8) -> three bounded
+  correction rounds (v0.9/v0.10/v0.11/v0.12) -> Review A final re-review -> Independent
+  Review B validation -> Product Owner ACCEPT decision -> this mechanical recorder.
+```
+
+**KHÔNG semantic content nào đổi tại approval này** (§1–§18/Framework-tool-selection/Go branch-coverage subsection/Python coverage-mechanism subsection/"Python test-effectiveness mechanism — CANDIDATE" subsection's own substantive content/Non-goals/ADR-scope disposition/tất cả v0.8–v0.12 banner phía dưới byte-equivalent ngoài chính banner approval này VÀ frontmatter lifecycle field) — mutmut 3.7.0 VẪN mechanism đã chọn (wholesale decorated-class-skip semantics, exact `3.7.0`-tag provenance, the corrected 10-class/12-method mutation-surface inventory, the Ride-owned metric/status-reconciliation contract, the equivalent-effectiveness fallback rule, the suitability reassessment — TẤT CẢ KHÔNG đổi).
+
+**Distinction — mechanism-selection/contract approval ≠ threshold ≠ installation ≠ measurement ≠ QG evidence:** Testing Convention nay `Approved` (v0.12); Python test-effectiveness mechanism SELECTION (`mutmut`) VÀ its evidence/status/completeness/equivalent-effectiveness contracts nay `APPROVED by Product Owner làm governed mechanism/contract`. NHƯNG: `TEST_EFFECTIVENESS_THRESHOLD` VẪN `UNRESOLVED — BASELINE/CALIBRATION REQUIRED` — KHÔNG numeric threshold nào được approve tại quyết định này; `mutmut` package VẪN **NOT INSTALLED** (KHÔNG tồn tại trong `pyproject.toml`/`requirements-dev.lock.txt`); qualifying Feature Engine test-effectiveness evidence VẪN **NOT YET PRODUCED**. Approval này KHÔNG tự cài đặt, KHÔNG pin, KHÔNG verify, KHÔNG đo, KHÔNG establish threshold, KHÔNG close Feature QG test-effectiveness evidence nào.
+
+**Approval này KHÔNG:** cài đặt/pin `mutmut` (hay bất kỳ tool nào), thêm `pyproject.toml`/`requirements-dev.lock.txt` dependency nào, tạo/sửa CI workflow, đo Feature Engine mutation score thật, tạo/accept một Feature mutation baseline nào, establish một gating threshold nào, close/remediate `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`), rerun feature-engine's Chapter 13 Quality Gate (overall VẪN `FAIL`), approve Feature Engine module, open Phase 3 Approval Gate, authorize LIVE, chạm `python/feature-engine/**`/`docs/constitution/**`/`docs/adr/**`/`docs/architecture/module-registry.yaml`/Domain Contract/Input Contract/Stream Registry nào. Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable byte-for-byte như ADR (Chapter 11 §11.3 KHÔNG áp dụng); `ADR_NOT_REQUIRED` VẪN đúng (tài liệu KHÔNG dưới authority một ADR nào); thay đổi SEMANTIC tương lai (bao gồm một threshold proposal tương lai) VẪN PHẢI tự rerun ADR Scope Rule. Lịch sử v0.8–v0.12's own candidate/remediation record (bao gồm cả bốn finding đã CONFIRMED rồi CLOSED — `P3-PY-MUT-A-MAJ-01`/`-MAJ-02`/`-MAJ-03`/`-MIN-01`) giữ nguyên nguyên vẹn phía dưới LÀM historical evidence, KHÔNG bị ghi đè/viết lại để giả vờ đã Approved sớm hơn thời điểm thật.
 
 **CANDIDATE evidence-fidelity correction round 4/final (2026-08-31), KHÔNG self-approved — status: Draft → Draft.** Minimal residual-naming correction of `P3-PY-MUT-A-MAJ-02` (KHÔNG PHẢI a reopening/redesign of round 2's mutation-surface semantics, KHÔNG PHẢI a change to the round-3-corrected `10 classes / 12 methods` aggregate or the twelve-item enumeration) — vai trò: `Mutation-Surface Final Reconciliation Correction Executor`. `version: "0.11" → "0.12"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. **Defect:** §5d (and MANIFEST's equivalent "Resulting Feature Engine mutation-surface inventory"/"mutmut candidate-suitability assessment" prose) named only TWO consequential residuals — `FeatureDefinition.__post_init__` and `DecimalPrecisionPolicy.apply` — immediately before "alongside nine smaller dataclass-hosted methods," which reconciles to `2 + 9 = 11`, not the authoritative `12`. Independently re-verified: the intended THIRD named residual, `DecimalPrecisionPolicy.__post_init__` (that same policy's own construction-time validation — already present and correctly named in the twelve-item enumeration itself, §5a-i, and already correctly counted as "3 individually-named residuals" in this document's own round-3 banner and Change History text above), was simply missing from §5d's/MANIFEST's own prose sentence naming the residuals individually. **Correction:** §5d, and the two equivalent MANIFEST paragraphs, now explicitly name all three residuals (`FeatureDefinition.__post_init__`, `DecimalPrecisionPolicy.apply`, `DecimalPrecisionPolicy.__post_init__`) before "alongside nine smaller dataclass-hosted methods," with the arithmetic `3 + 9 = 12` made explicit inline. **KHÔNG đổi:** the `10 classes / 12 methods` aggregate, the twelve-item enumeration, the wholesale decorated-class-skip semantics, the exact `3.7.0`-tag provenance, §5b's completeness contract, §5c's equivalent-effectiveness rule, §5d's own suitability conclusion, the `UNRESOLVED — BASELINE/CALIBRATION REQUIRED` threshold state, `P3-PY-MUT-A-MAJ-01`/`-MAJ-03`/`-MIN-01` (CLOSED, untouched, not reopened), coverage.py mechanism (byte-equivalent), `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`), `P3-FEATURE-QG-EVID-04` through `-08` (unchanged), overall Feature Chapter 13 QG (VẪN `FAIL`), Feature module approval (VẪN `NOT APPROVED`), Phase 3 Approval Gate (VẪN `NOT OPENED`), LIVE (VẪN `NOT_AUTHORIZED`). KHÔNG cài đặt/chạy `mutmut`. KHÔNG tạo baseline data nào. KHÔNG chọn threshold nào. KHÔNG Review A self-closure. KHÔNG Product Owner decision. **Finding state:** `P3-PY-MUT-A-MAJ-02`: `REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW` — NOT self-closed. **ADR Scope Rule chạy LẠI TỪ ĐẦU cho CHÍNH correction này**: `ADR_NOT_REQUIRED` — pure residual-naming/arithmetic-fidelity correction, KHÔNG giới thiệu architecture/tool/governance-process decision MỚI nào, KHÔNG chọn threshold nào, KHÔNG redesign mutation-surface semantics.
 
@@ -1110,7 +1137,7 @@ CANDIDATE ≠ APPROVED/ACCEPTED ≠ INSTALLED ≠ PINNED ≠ QUALIFYING QG EVIDE
   ở trên, VÀ một formal QG re-evaluation riêng biệt) hoàn tất.
 ```
 
-### Python test-effectiveness mechanism — CANDIDATE (v0.8 content, bounded-corrected v0.9/v0.10/v0.11/v0.12 — `P3-PY-MUT-A-MAJ-02` `REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW` [v0.11/v0.12: inventory-count fidelity corrections only, semantics unchanged]; `-MAJ-01`/`-MAJ-03`/`-MIN-01` CLOSED by prior Review A re-review, unchanged/not reopened; pending Product Owner decision)
+### Python test-effectiveness mechanism — APPROVED (v0.8 candidate content, bounded-corrected v0.9/v0.10/v0.11/v0.12, mechanism/contract selection APPROVED by Product Owner via Testing Convention v0.12 approval, 2026-09-01 — `P3-PY-MUT-A-MAJ-01`/`-MAJ-02`/`-MAJ-03`/`-MIN-01` all `VALIDLY CLOSED`; installation/pinning/threshold-calibration/measurement still separately governed, see approval banner above)
 
 ```text
 [v0.8 addition — role: `Python Test-Effectiveness Mechanism Candidate Author`. This is the
@@ -2543,4 +2570,46 @@ v0.12 2026-08-31  Minimal residual-naming correction of
       correction, KHÔNG giới thiệu architecture/tool/governance-
       process decision MỚI nào, KHÔNG chọn threshold nào, KHÔNG
       redesign mutation-surface semantics.
+
+v0.12 APPROVAL — mechanical (2026-09-01), vai trò: `Testing
+      Convention v0.12 Mechanical Approval Recorder`. Product Owner
+      decision: ACCEPT the Python Tier-0/1 test-effectiveness
+      mechanism candidate (mutmut 3.7.0) reviewed at boundary
+      d2e6cd8ea58d034ab791ec4c7b35bedce54ae8fc, together with the
+      Ride-owned mutation evidence/status/reconciliation contract,
+      the fail-closed mutation-surface completeness contract, and
+      the equivalent-effectiveness fallback contract. Review
+      evidence: Bounded Review A (final, cumulative) — CLEAN —
+      READY_FOR_INDEPENDENT_REVIEW_B; Independent Review B —
+      P3-PY-MUT-A-MAJ-01/-MAJ-02/-MAJ-03/-MIN-01 all VALIDLY CLOSED,
+      new findings none — CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+      `status: Draft → Approved`, `approved_by: null → Product
+      Owner`, `approved_at: null → "2026-09-01"`. `version` KHÔNG
+      bump (pure mechanical lifecycle approval, đúng Chapter 0 §8) —
+      VẪN `"0.12"`. **KHÔNG semantic content nào đổi tại approval
+      này** (§1–§18/Framework-tool-selection/Go branch-coverage
+      subsection/Python coverage-mechanism subsection/Python
+      test-effectiveness mechanism subsection's own substantive
+      content/Non-goals/ADR-scope disposition byte-equivalent ngoài
+      chính banner approval này VÀ frontmatter lifecycle field) —
+      mutmut 3.7.0 VẪN mechanism đã chọn, wholesale decorated-
+      class-skip semantics VẪN đúng, 10-class/12-method inventory
+      VẪN đúng, Ride-owned metric/status contract VẪN đúng,
+      equivalent-effectiveness fallback rule VẪN đúng, suitability
+      reassessment VẪN đúng — TẤT CẢ KHÔNG đổi. **Distinction:**
+      mechanism/contract approval ≠ threshold ≠ installation ≠
+      measurement ≠ QG evidence — `TEST_EFFECTIVENESS_THRESHOLD` VẪN
+      `UNRESOLVED — BASELINE/CALIBRATION REQUIRED`, KHÔNG numeric
+      threshold nào được approve; `mutmut` VẪN NOT INSTALLED; Feature
+      Engine test-effectiveness evidence VẪN NOT YET PRODUCED.
+      **Approval này KHÔNG:** cài đặt/pin `mutmut`, thêm dependency
+      nào, tạo/sửa CI workflow, đo Feature Engine mutation score
+      thật, tạo/accept một Feature mutation baseline nào, establish
+      một gating threshold nào, close/remediate
+      `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`), rerun Feature
+      Chapter 13 Quality Gate (VẪN `FAIL`), approve Feature Engine
+      module, open Phase 3 Approval Gate, authorize LIVE, chạm
+      `python/feature-engine/**`/`docs/constitution/**`/
+      `docs/adr/**`/`docs/architecture/module-registry.yaml`/Domain
+      Contract/Input Contract/Stream Registry nào.
 ```

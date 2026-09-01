@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.284"
+manifest_version: "10.285"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -16233,6 +16233,102 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 Final Review A re-review of `P3-PY-MUT-A-MAJ-02` (covering round 2's mutation-surface semantics plus rounds 3/4's arithmetic/naming corrections), then Independent Review B, then — only if both are CLEAN — a Product Owner decision on the corrected candidate as a whole. Not performed here.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.283"` → `"10.284"`.
+
+## Testing Convention v0.12 — Product Owner Approval (mechanical lifecycle recorder only — Python test-effectiveness mechanism `mutmut 3.7.0` + contract APPROVED; not installed, not pinned, no Feature evidence produced, threshold remains UNRESOLVED)
+
+**Mechanical Product Owner approval recorder — vai trò: `Testing Convention v0.12 Mechanical Approval Recorder`.** Records the Product Owner's ACCEPT decision on the Python Tier-0/1 test-effectiveness mechanism candidate (`mutmut 3.7.0`) reviewed at boundary `d2e6cd8ea58d034ab791ec4c7b35bedce54ae8fc`, together with its Ride-owned mutation evidence/status/reconciliation contract, fail-closed mutation-surface completeness contract, and equivalent-effectiveness fallback contract. Does NOT install/pin mutmut. Does NOT perform mutation testing. Does NOT establish a gating threshold. Does NOT produce/accept a Feature mutation baseline. Does NOT close `P3-FEATURE-QG-EVID-03`. Does NOT make overall Feature QG PASS. Does NOT approve Feature Engine, open the Phase 3 Approval Gate, or authorize LIVE.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `d2e6cd8ea58d034ab791ec4c7b35bedce54ae8fc` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.284"` at start. `docs/engineering/testing.md` confirmed starting state: `version: "0.12"`, `status: Draft`, `approved_by: null`, `approved_at: null`.
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: mechanical recording of a Product Owner decision accepting an already-reviewed
+  (Review A CLEAN, Independent Review B CLEAN, all four findings VALIDLY CLOSED, zero new
+  findings), reversible Engineering Foundation tooling candidate — no architecture,
+  dependency, tooling installation, or governance-process change; no numeric threshold
+  selected; no hard-to-reverse decision.
+```
+
+### Product Owner decision
+
+```text
+Decision: ACCEPT.
+Subject: Testing Convention v0.12; Python Tier-0/1 test-effectiveness mechanism candidate
+  mutmut 3.7.0; the Ride-owned mutation evidence/status/reconciliation contract; the
+  fail-closed mutation-surface completeness contract; the equivalent-effectiveness
+  fallback contract (that ordinary passing unit tests alone do not qualify); the current
+  decorated-class limitation handling (disclosed, named, fail-closed — not silently
+  waived).
+Explicitly NOT accepted: no numeric mutation-score threshold. Preserved exactly:
+  TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED.
+```
+
+### Review evidence (completed chain, recorded — not this recorder's own closure)
+
+```text
+Bounded Review A (final, cumulative across v0.9-v0.12 remediation rounds): BOUNDED
+  REVIEW A RE-REVIEW: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B, same boundary: P3-PY-MUT-A-MAJ-01: VALIDLY CLOSED.
+  P3-PY-MUT-A-MAJ-02: VALIDLY CLOSED. P3-PY-MUT-A-MAJ-03: VALIDLY CLOSED.
+  P3-PY-MUT-A-MIN-01: VALIDLY CLOSED. New findings: none.
+  Disposition: INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+Independent-review requirement (Chapter 11 §11.5, minimum two): SATISFIED.
+```
+
+### Lifecycle transition applied
+
+```text
+docs/engineering/testing.md: version "0.12" (unchanged — pure mechanical lifecycle
+  approval, Chapter 0 §8, same precedent as v0.4/v0.7), status Draft -> Approved,
+  approved_by null -> Product Owner, approved_at null -> "2026-09-01". A new
+  "v0.12 APPROVAL — mechanical" banner inserted at the top of the document (above the
+  v0.12-round-4 correction banner, which is preserved unchanged below as historical
+  evidence). The "Python test-effectiveness mechanism" subsection header updated from
+  "CANDIDATE" to "APPROVED," mirroring the existing coverage.py subsection's own header
+  precedent. Historical v0.8-v0.12 candidate/remediation record preserved byte-identical
+  below the new banner, not overwritten or backdated.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/constitution/**,
+  docs/adr/**, docs/architecture/module-registry.yaml, docs/domain/**, CI/CD workflows, any
+  Go module, Context Aggregator, existing coverage.py mechanism: all verified byte-identical
+  (`git diff --quiet` for each path). mutmut not installed/pinned. No baseline
+  produced/accepted. No threshold established. `P3-FEATURE-QG-EVID-03` not closed. Files
+  touched, confirmed via `git status --porcelain=v1`: docs/engineering/testing.md,
+  docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+Testing Convention:            version "0.12" (unchanged), status Draft -> Approved,
+                                approved_by Product Owner, approved_at "2026-09-01".
+Test-effectiveness mechanism:  mutmut 3.7.0 — APPROVED by Product Owner as governed
+                                mechanism/contract. NOT installed, NOT pinned.
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged,
+                                NOT approved by this decision).
+P3-PY-MUT-A-MAJ-01/-02/-03/
+  MIN-01:                       CLOSED (unchanged, prior Review A/Independent Review B —
+                                recorded separately from this Product Owner acceptance).
+P3-FEATURE-QG-EVID-03:          FAIL — evidence (unchanged).
+P3-FEATURE-QG-EVID-04..-08:     UNCHANGED (five findings, out of scope).
+Formal Feature Chapter 13 QG:   FAIL (unchanged).
+Feature module approval:        NOT APPROVED.
+Phase 3 Approval Gate:          NOT opened.
+LIVE:                            NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+A separate, governed install/pin transaction (applying mutmut's own installation-time verification contract), followed by a separate, explicitly NON-GATING baseline measurement transaction for feature-engine, followed by the dedicated threshold-proposal sequence (analysis -> proposal -> fresh ADR Scope Rule -> review -> Product Owner decision) — all required before `P3-FEATURE-QG-EVID-03` may close. None performed here.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.284"` → `"10.285"`.
 
 ## Decision Log
 

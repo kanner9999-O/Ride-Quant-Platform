@@ -2,6 +2,48 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-01 — Testing Convention v0.12: Product Owner Approval (mechanical lifecycle recorder only — mutmut 3.7.0 mechanism/contract APPROVED; not installed, threshold UNRESOLVED)
+
+**Mechanical Product Owner approval recorder — vai trò: `Testing Convention v0.12 Mechanical Approval Recorder`.** Records the Product Owner's ACCEPT decision on the Python Tier-0/1 test-effectiveness mechanism candidate (`mutmut 3.7.0`) and its Ride-owned evidence/status/reconciliation, mutation-surface completeness, and equivalent-effectiveness fallback contracts, reviewed at boundary `d2e6cd8ea58d034ab791ec4c7b35bedce54ae8fc` (Review A CLEAN, Independent Review B CLEAN, all four findings VALIDLY CLOSED, zero new findings). Does not install/pin mutmut, perform mutation testing, establish a threshold, produce/accept a baseline, close `P3-FEATURE-QG-EVID-03`, or approve Feature Engine/LIVE.
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — mechanical recording of a Product Owner decision on an already-reviewed
+  reversible tooling candidate; no architecture/dependency/governance-process change.
+```
+
+### Decision
+
+```text
+ACCEPT: Testing Convention v0.12; mutmut 3.7.0 mechanism candidate; Ride-owned mutation
+  evidence/status/reconciliation contract; fail-closed mutation-surface completeness
+  contract; equivalent-effectiveness fallback contract; current decorated-class
+  limitation handling. NOT accepted: any numeric mutation-score threshold —
+  TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED preserved
+  exactly.
+```
+
+### Lifecycle transition
+
+```text
+version "0.12" (unchanged — pure mechanical approval), status Draft -> Approved,
+  approved_by null -> Product Owner, approved_at null -> "2026-09-01". Historical
+  v0.8-v0.12 candidate/remediation record preserved byte-identical below the new
+  approval banner.
+```
+
+### Preserved unchanged
+
+```text
+P3-PY-MUT-A-MAJ-01/-02/-03/-MIN-01: CLOSED (recorded separately from this acceptance).
+  P3-FEATURE-QG-EVID-03: FAIL — evidence. EVID-04 through -08: unchanged. Formal Feature
+  Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED.
+```
+
+**manifest_version:** `"10.284"` → `"10.285"`.
+
 ## [Unreleased] — 2026-08-31 — Testing Convention v0.12: Mutation-Surface Final Reconciliation Correction (`P3-PY-MUT-A-MAJ-02` REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW, aggregate unchanged)
 
 **Minimal evidence-fidelity correction — vai trò: `Mutation-Surface Final Reconciliation Correction Executor`.** Corrects a residual-naming omission: §5d and the equivalent MANIFEST prose named only two consequential residuals (`FeatureDefinition.__post_init__`, `DecimalPrecisionPolicy.apply`) before "nine smaller" methods, reconciling to 11, not the authoritative 12. The third intended residual, `DecimalPrecisionPolicy.__post_init__` (already correctly present in the twelve-item enumeration and already correctly counted in this document's own round-3 banner), was simply missing from the naming sentence. Now explicitly names all three residuals with `3 + 9 = 12` made explicit inline. Does not change the `10 classes / 12 methods` aggregate, the enumeration, or any round-2 mutation-surface semantic. Does not install/run mutmut, select a threshold, or close `P3-FEATURE-QG-EVID-03`.
