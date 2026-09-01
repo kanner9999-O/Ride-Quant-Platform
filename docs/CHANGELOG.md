@@ -76,7 +76,7 @@ mutmut==3.7.0 (PyPI `mutmut`, github.com/boxed/mutmut) — still the latest publ
   [project].dependencies remains [] — no runtime dependency added.
 ```
 
-### Governed mutmut configuration (all mutmut 3.7.0 defaults, pinned explicitly)
+### Governed mutmut configuration — Ride-explicit scope + explicitly pinned upstream defaults [heading CORRECTED — P3-PY-MUT-INSTALL-A-MIN-01 final residual: previously read "(all mutmut 3.7.0 defaults, pinned explicitly)," contradicting the body immediately below]
 
 ```text
 [tool.mutmut]: source_paths=["src/feature_engine"],

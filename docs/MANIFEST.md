@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.287"
+manifest_version: "10.288"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -16652,6 +16652,80 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 Bounded re-review of this evidence-fidelity correction, then — independently, unchanged from the prior transaction — a separate, explicitly NON-GATING baseline measurement transaction, then the dedicated threshold-proposal sequence, before `P3-FEATURE-QG-EVID-03` may ever close. Neither performed here.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.286"` → `"10.287"`.
+
+## `feature-engine` mutmut Installation — Final Evidence Label Correction (`P3-PY-MUT-INSTALL-A-MIN-01` `REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW`, NOT self-closed)
+
+**Minimal, docs-only label correction — vai trò: `mutmut Installation Final Evidence Label Correction Executor`.** Corrects one remaining residual of `P3-PY-MUT-INSTALL-A-MIN-01`: `docs/CHANGELOG.md`'s section heading, "Governed mutmut configuration (all mutmut 3.7.0 defaults, pinned explicitly)," still contradicted the corrected body immediately below it (which already distinguished Ride-explicit measurement-scope choices from genuine upstream defaults, per the prior correction commit). Does NOT run mutation testing. Does NOT alter any config value, the actual lock/pyproject.toml, or Testing Convention v0.12.
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `290ab38cb96594117eb9f34cbc78c1dea7aad632` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.287"` at start.
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: single heading-wording correction in already-committed evidence prose — no
+  architecture/tool/dependency/governance-process change; installed/pinned tooling state
+  untouched and byte-identical.
+```
+
+### Independent re-verification performed before writing anything
+
+```text
+Searched both docs/CHANGELOG.md and docs/MANIFEST.md for any live heading/label claiming
+  all nine [tool.mutmut] values are mutmut defaults. Found exactly one remaining
+  contradiction: docs/CHANGELOG.md's own section heading, "### Governed mutmut
+  configuration (all mutmut 3.7.0 defaults, pinned explicitly)" — the body immediately
+  below it (already corrected in the prior transaction) explicitly states
+  source_paths/pytest_add_cli_args_test_selection are Ride-explicit choices, not
+  defaults, directly contradicting this heading. docs/MANIFEST.md's equivalent heading
+  ("### Governed mutmut configuration — exact keys/defaults verified directly against the
+  pinned `3.7.0` tag's `configuration.py`...") was already factually neutral — verified
+  directly, no correction needed there.
+```
+
+### Correction applied
+
+```text
+docs/CHANGELOG.md heading corrected to: "### Governed mutmut configuration —
+  Ride-explicit scope + explicitly pinned upstream defaults" — factually neutral, matches
+  the already-corrected body below it. No config value or technical semantics altered.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/pyproject.toml, python/feature-engine/requirements-dev.lock.txt,
+  python/feature-engine/src/**, python/feature-engine/tests/**, docs/engineering/
+  testing.md, docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml,
+  docs/domain/**, CI/CD workflows, any Go module, Context Aggregator: all verified
+  byte-identical (`git diff --quiet` for each path). mutmut installation/pin state
+  unchanged (still 3.7.0, still the 12-package delta = mutmut + 11 transitive). No
+  `mutmut run` executed. No mutation score produced. No baseline created. No threshold
+  proposed. `P3-FEATURE-QG-EVID-03` not closed. Files touched, confirmed via
+  `git status --porcelain=v1`: docs/CHANGELOG.md, docs/MANIFEST.md — no other file
+  touched.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-INSTALL-A-MIN-01:    REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW (NOT
+                                self-closed).
+mutmut:                        INSTALLED + PINNED (unchanged — version 3.7.0, 12-package
+                                delta = mutmut + 11 transitive, unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+Final bounded re-review of this evidence-fidelity correction chain (covering both prior parts A/B and this residual heading fix), then — independently, unchanged — a separate, explicitly NON-GATING baseline measurement transaction, then the dedicated threshold-proposal sequence, before `P3-FEATURE-QG-EVID-03` may ever close. Neither performed here.
+
+**Files changed:** `docs/CHANGELOG.md`, `docs/MANIFEST.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.287"` → `"10.288"`.
 
 ## Decision Log
 
