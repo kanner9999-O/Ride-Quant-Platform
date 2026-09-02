@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.290"
+manifest_version: "10.291"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -16907,8 +16907,8 @@ Qualifying equivalent-effectiveness evidence for the 12 excluded methods: NONE e
 
 ```text
 Because mutmut aborted during its own internal "Running clean tests" phase, BEFORE
-  generating or evaluating a single mutant, mutation execution never reached real mutant
-  testing. No valid baseline score exists. Mutants were generated during Phase 1
+  evaluating/testing a single generated mutant, mutation execution never reached real
+  mutant testing. No valid baseline score exists. Mutants were generated during Phase 1
   ("Generating mutants" — 14 files), but zero were ever run against real mutation
   testing, and the generated-mutant population/status snapshot was NOT captured or
   retained before this transaction's own cleanup of the aborted run's `mutants/` working
@@ -16927,6 +16927,8 @@ BASELINE STATUS: INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged by this correct
 
 ### Discrepancy note — `P3-PY-MUT-INSTALL-A-MIN-01`'s actual current state (verified, not assumed from this task's own text)
 
+**[SUPERSEDED — STALE AS OF THIS TRANSACTION'S OWN BOUNDARY. See "Baseline Evidence Final Wording Correction" annotation immediately below. The `REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW` state described in the paragraph below was accurate AT THE ORIGINAL BASELINE-ATTEMPT BOUNDARY (commit `79c2f8ad...` and earlier) — it is preserved here unedited as the historical record of what was true at that time. It is NOT the current state.]**
+
 ```text
 This task's own instructions asserted "Preserve: P3-PY-MUT-INSTALL-A-MIN-01: CLOSED —
   Review A final validation." Verified directly against this MANIFEST's own most recent
@@ -16939,6 +16941,8 @@ This task's own instructions asserted "Preserve: P3-PY-MUT-INSTALL-A-MIN-01: CLO
   this repository's own fail-closed, verify-before-record discipline, and flags this
   mismatch transparently rather than silently adopting either claim.
 ```
+
+**Current truth (as of this transaction, superseding the paragraph above):** `P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final bounded validation`. Review A has since completed the final bounded re-review referenced above and closed the finding; that closure was mechanically recorded in the "Feature Mutation Baseline Blocker Remediation" section below (commit `edb866f8...`). The `REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW` wording above remains correct as a description of the state AT THAT EARLIER BOUNDARY and is not rewritten as though it had already been closed then.
 
 ### No scope expansion — explicit verification
 
@@ -17128,6 +17132,107 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 ```
 
 **Files changed:** `python/feature-engine/tests/test_definition.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.289"` → `"10.290"`.
+
+## `feature-engine` — Baseline Evidence Final Wording Correction (`P3-PY-MUT-BASELINE-A-MAJ-01` → `CLOSED — Review A bounded re-review`; `P3-PY-MUT-BASELINE-A-MIN-01` residual wording fixed, remains `REMEDIATED — PENDING FINAL REVIEW A RE-REVIEW`)
+
+**Minimal, docs-only correction — vai trò: `Baseline Evidence Final Wording Correction Executor`.** Records Review A's bounded re-review disposition closing `P3-PY-MUT-BASELINE-A-MAJ-01` (the test-isolation remediation is accepted, unchanged, not reopened). Fixes two residual wording defects in `P3-PY-MUT-BASELINE-A-MIN-01`'s own already-corrected prose: (1) an internally contradictory sentence in the "Complete status reconciliation" paragraph, and (2) a stale discrepancy note about `P3-PY-MUT-INSTALL-A-MIN-01`'s state that predates its own closure. Does not modify tests/source/tooling, does not run mutmut, does not self-close MIN-01.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `edb866f8eda9b045cae0378cd78c3b4ed12b2032` via `git rev-parse HEAD`; `origin/main` confirmed at the identical SHA after `git fetch origin main --quiet`.
+
+### ADR Scope Rule (checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: recording an already-completed external reviewer disposition and correcting
+  two evidence-wording defects in existing docs prose. No test/source/tooling/governance-
+  process/threshold change.
+```
+
+### Residual 1 — contradictory baseline wording, corrected
+
+```text
+Prior sentence (P3-PY-MUT-BASELINE-A-MIN-01's own correction, "Complete status
+  reconciliation — NOT PRODUCED" section above): "Because mutmut aborted during its own
+  internal 'Running clean tests' phase, BEFORE generating or evaluating a single mutant,
+  ..." — internally contradicted by the very next sentence in the same paragraph,
+  "Mutants were generated during Phase 1."
+Corrected, in place, to: "...BEFORE evaluating/testing a single generated mutant,
+  mutation execution never reached real mutant testing." Preserves every underlying fact
+  unchanged: mutant generation occurred (Phase 1, 14 files); real mutation testing never
+  began; no generated-population/status snapshot was retained before cleanup; exact
+  total/not_checked counts are unavailable from preserved evidence; no baseline score
+  exists; no rerun is performed to reconstruct any count.
+```
+
+### Residual 2 — stale installation discrepancy note, annotated
+
+```text
+The historical "Discrepancy note" (section above, from the original NON-GATING baseline
+  attempt) stated P3-PY-MUT-INSTALL-A-MIN-01's "actual current recorded state" was
+  `REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW`, with no closure record existing at that
+  time. That was TRUE at that transaction's own boundary (commit 79c2f8ad... and
+  earlier) and is preserved unedited as the historical record — NOT rewritten as though
+  closure had already happened then. A new annotation immediately below it now states
+  the CURRENT truth unambiguously: P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final
+  bounded validation, closed by the intervening "Feature Mutation Baseline Blocker
+  Remediation" transaction (commit edb866f8...), which mechanically recorded Review A's
+  own disposition.
+```
+
+### Review A disposition recorded — `P3-PY-MUT-BASELINE-A-MAJ-01`
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: CLOSED — Review A bounded re-review. The test-isolation
+  remediation applied in the "Feature Mutation Baseline Blocker Remediation" transaction
+  (commit edb866f8..., python/feature-engine/tests/test_definition.py's
+  test_subject_id_any_field_difference_different_id copying the parametrized dict before
+  popping "version") is accepted as-is by Review A's bounded re-review. Not reopened, not
+  modified, not re-verified in this transaction (this is recording of Review A's own
+  completed authority, not executor re-validation).
+```
+
+### Finding states after this correction
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: CLOSED — Review A bounded re-review.
+P3-PY-MUT-BASELINE-A-MIN-01: REMEDIATED — PENDING FINAL REVIEW A RE-REVIEW (residual
+  wording corrected above; NOT self-closed — awaiting Review A's own final re-review).
+P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final bounded validation (unchanged,
+  preserved from the prior transaction).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/MANIFEST.md changed (confirmed via `git status --porcelain=v1`).
+python/feature-engine/tests/test_definition.py, python/feature-engine/src/**,
+  pyproject.toml, requirements-dev.lock.txt, docs/engineering/testing.md,
+  docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml, CI/CD
+  workflows, any Go module: all verified byte-identical (`git diff --quiet` for each
+  path). `mutmut run` was NOT executed. No mutation score calculated. No survivor/
+  equivalent analysis performed. No threshold proposed. `P3-FEATURE-QG-EVID-03` not
+  closed. Overall Feature Chapter 13 QG not rerun.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01:   CLOSED — Review A bounded re-review.
+P3-PY-MUT-BASELINE-A-MIN-01:   REMEDIATED — PENDING FINAL REVIEW A RE-REVIEW.
+P3-PY-MUT-INSTALL-A-MIN-01:    CLOSED — Review A final bounded validation.
+mutmut:                        INSTALLED + PINNED (unchanged — version 3.7.0, config
+                                unchanged, verified byte-identical).
+Baseline attempt:               INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged — no rerun
+                                performed).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Files changed:** `docs/MANIFEST.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.290"` → `"10.291"`.
 
 ## Decision Log
 

@@ -2,6 +2,27 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-02 — feature-engine: Baseline Evidence Final Wording Correction (`P3-PY-MUT-BASELINE-A-MAJ-01` CLOSED — Review A bounded re-review; `P3-PY-MUT-BASELINE-A-MIN-01` residual wording fixed)
+
+**Minimal, docs-only correction — vai trò: `Baseline Evidence Final Wording Correction Executor`.** Records Review A's bounded re-review closing `P3-PY-MUT-BASELINE-A-MAJ-01` (test-isolation remediation accepted as-is, not reopened). Fixes two residual wording defects in `P3-PY-MUT-BASELINE-A-MIN-01`'s prose: an internally contradictory "BEFORE generating or evaluating a single mutant" sentence (corrected to "BEFORE evaluating/testing a single generated mutant," since mutants WERE generated but never evaluated) and a stale discrepancy note about `P3-PY-MUT-INSTALL-A-MIN-01`'s state (annotated with current truth — `CLOSED — Review A final bounded validation` — without rewriting the historical record of what was true at the earlier boundary). No test/source/tooling change; `mutmut run` not executed.
+
+### Finding states
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: CLOSED — Review A bounded re-review.
+P3-PY-MUT-BASELINE-A-MIN-01: REMEDIATED — PENDING FINAL REVIEW A RE-REVIEW.
+P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final bounded validation (unchanged).
+```
+
+### Preserved unchanged
+
+```text
+mutmut 3.7.0: INSTALLED + PINNED. Baseline attempt: INCOMPLETE — NON-GATING DIAGNOSTIC
+  (not rerun). TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED.
+  P3-FEATURE-QG-EVID-03: FAIL — evidence. Formal Feature Chapter 13 QG: FAIL. Feature
+  module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
 ## [Unreleased] — 2026-09-02 — feature-engine: Feature Mutation Baseline Blocker Remediation (`P3-PY-MUT-BASELINE-A-MAJ-01`/`-MIN-01` REMEDIATED — PENDING REVIEW A RE-REVIEW; `P3-PY-MUT-INSTALL-A-MIN-01` CLOSED)
 
 **Bounded remediation — vai trò: `Feature Mutation Baseline Blocker Remediation Executor`.** Fixes the test-isolation defect that blocked the mutmut baseline attempt, corrects the baseline's own evidence wording, and mechanically records Review A's closure of the mutmut installation finding. Does not rerun `mutmut run`, compute a mutation score, or close `P3-FEATURE-QG-EVID-03`.
