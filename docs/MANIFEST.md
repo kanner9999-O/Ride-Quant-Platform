@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.288"
+manifest_version: "10.289"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -16726,6 +16726,264 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 Final bounded re-review of this evidence-fidelity correction chain (covering both prior parts A/B and this residual heading fix), then — independently, unchanged — a separate, explicitly NON-GATING baseline measurement transaction, then the dedicated threshold-proposal sequence, before `P3-FEATURE-QG-EVID-03` may ever close. Neither performed here.
 
 **Files changed:** `docs/CHANGELOG.md`, `docs/MANIFEST.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.287"` → `"10.288"`.
+
+## `feature-engine` — mutmut NON-GATING Baseline Attempt: `INCOMPLETE — NON-GATING DIAGNOSTIC` (blocked by pre-existing test-isolation defect, new finding `P3-PY-MUT-BASELINE-A-MAJ-01` OPEN; `P3-FEATURE-QG-EVID-03` remains `FAIL — evidence`)
+
+**Governed, explicitly NON-GATING mutation-testing baseline attempt — vai trò: `Feature Engine NON-GATING Mutation Baseline Executor`.** Attempts sequencing step 3 (mechanism approval → install/pin → **NON-GATING baseline measurement** → later analysis → later threshold proposal) for feature-engine using the already-Approved/installed/pinned `mutmut 3.7.0`. The run did NOT complete — mutmut's own internal pre-mutation sanity phase ("Running clean tests") failed due to a pre-existing test-isolation defect, independently root-caused below. Result: `INCOMPLETE — NON-GATING DIAGNOSTIC`. Does NOT close `P3-FEATURE-QG-EVID-03`. Does NOT establish a threshold. Does NOT modify Feature source/tests/tooling/config (the defect is recorded, not remediated, per this task's own explicit instruction).
+
+**Fresh boundary verification (before any edit):** `main` HEAD confirmed exactly `6ec9f89a9ae80a8ba6fb3be5144cc78082349f06` via `git rev-parse HEAD`; `git fetch origin main` confirmed `origin/main` at the identical SHA — no divergence, no intervening commit. Tracked tree clean bar unrelated untracked `.DS_Store`/`CLAUDE.md`/`go/`/`prototype/` artifacts. `manifest_version` confirmed `"10.288"` at start. No pre-existing `mutants/` directory confirmed absent before any execution.
+
+### ADR Scope Rule (Chapter 0 §4b, checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: governed measurement execution using already-reviewed, Product-Owner-approved,
+  already-installed/pinned tooling — explicitly non-gating, no threshold decision, no
+  architecture/governance-process change. Recording a blocking test-quality finding
+  discovered during measurement does not itself require an ADR.
+```
+
+### Pinned subject/tool/config identities (fresh, this transaction)
+
+```text
+Repository evaluation boundary:  6ec9f89a9ae80a8ba6fb3be5144cc78082349f06.
+python/feature-engine/src tree:  256421344a48a6c9d4ef72f81eb82b27dbedfc50 (unchanged
+  since the last genuine implementation change, e5c5ce08b4f041cebfd8fd0976bad73433703419).
+python/feature-engine/tests tree: 98a10b206b80ec3e3c9c30acc8a6f03fdf3a4d92 (unchanged
+  since the branch-coverage remediation candidate).
+pyproject.toml blob:             14165cfa2952aee8dd9fc1ea1d83b8ab73fd7d43.
+requirements-dev.lock.txt blob:  b2b86edd62bfc24cf0e81cde06543905f3c3d528.
+docs/engineering/testing.md blob: 208f26ef123129d329ff4907e036e52054ba0757 (version
+  "0.12", status Approved, approved_by Product Owner, approved_at "2026-09-01" — unchanged).
+Python: 3.13.6 (CPython, arm64, Darwin 23.5.0). mutmut: 3.7.0. pytest: 9.1.1.
+  coverage: 7.16.0 — all verified via fresh clean-room `pip show`/`pip check` ("No broken
+  requirements found.") reconstructed from the unchanged, current lock file.
+Effective [tool.mutmut] runtime configuration (verified via direct Config.get()
+  introspection, not assumed from the TOML text alone): source_paths=
+  [PosixPath('src/feature_engine')], pytest_add_cli_args_test_selection=['tests/'],
+  mutate_only_covered_lines=False, type_check_command=[], timeout_constant=1.0,
+  timeout_multiplier=15.0, only_mutate=[], do_not_mutate=[], do_not_mutate_patterns=[] —
+  EXACT match to the governed configuration, no drift.
+```
+
+### Fresh-run proof
+
+```text
+No pre-existing mutants/ directory confirmed absent before any command ran.
+Normal suite run FIRST, independently of mutmut: `python -m pytest tests/ -q` -> 193
+  passed, 0 failed — confirmed passing BEFORE any mutation-related command executed.
+`mutmut run` then executed exactly once, from a directory with no prior mutants/ state,
+  no reused cache, no `.meta` reuse (first-ever run for this repository).
+```
+
+### What mutmut actually did (verbatim phase log, condensed)
+
+```text
+Phase 1, "Generating mutants": completed in ~3.5s — 14 files mutated, 0 ignored, 0
+  unmodified (all 14 source files in python/feature-engine/src/feature_engine/ were
+  copied into a fresh mutants/ working directory; "ignored"/"unmodified" both zero,
+  consistent with no pragma-based file-level exclusions configured).
+Phase 2, "Running stats": completed (collects which tests cover which mutants).
+Phase 3, "Running clean tests" (mutmut's own internal sanity check — ALL mutants
+  disabled, re-running the FULL test suite against the unmutated copy, to verify the
+  test setup itself is not already broken BEFORE any real mutation testing begins):
+  FAILED. Exactly one test failed:
+  tests/test_definition.py::test_subject_id_any_field_difference_different_id[kwargs3]
+  -> AssertionError: assert '<hash>' != '<hash>' (BOTH sides identical, both showing
+  feature_definition_version='fd-1' — the SECOND scope was never actually constructed
+  with version='fd-2' as the test intends).
+mutmut's own output: "1 failed, 45 passed in 0.99s" / "Failed to run clean test" — mutmut
+  aborted immediately at this phase. NO mutant was ever tested. Phases 4 (forced-fail
+  sanity check) and 5 (real mutation testing) NEVER RAN.
+```
+
+### Independent root-cause diagnosis (read-only investigation, no remediation performed)
+
+```text
+The SAME test passes cleanly under a normal, single, direct `pytest tests/ -q` invocation
+  (verified above: 193 passed, including this exact test). The failure is REPRODUCIBLE
+  ONLY under multi-invocation-same-process execution — independently confirmed via a
+  minimal, isolated repro (NOT via another mutmut run): calling `pytest.main([...,
+  'tests/test_definition.py::test_subject_id_any_field_difference_different_id'])` TWICE
+  in the SAME Python process. Result: run 1 -> "4 passed"; run 2 (same process) -> "3
+  passed, 1 failed", with the failing case's own captured `kwargs` shown as `{}` (empty).
+Root cause (verified directly against the actual test source,
+  tests/test_definition.py, the `@pytest.mark.parametrize("kwargs", [...])` decorator):
+  the fourth parametrize case is the dict literal `{"version": "fd-2"}` — a MODULE-LEVEL
+  object constructed ONCE at test-module import time and reused, by pytest's own
+  parametrize machinery, as long as the module stays imported in that process. The test
+  body calls `kwargs.pop("version", "fd-1")` — `dict.pop` REMOVES the key IN PLACE. On a
+  single ordinary `pytest` invocation this runs once, so the mutation is never observed.
+  mutmut's own architecture (verified directly, ARCHITECTURE.rst — already documented in
+  Testing Convention v0.12 §5a) runs the FULL test suite multiple times within ONE
+  long-lived process before real mutation testing begins (stats collection, then this
+  clean-test phase, then a forced-fail phase) — the SAME imported test module and its
+  SAME parametrize dict object persist across all of these. The stats-collection phase's
+  own run already popped "version" out of the shared dict; by the time the clean-test
+  phase re-ran the identical test, `kwargs` was already `{}`, so `kwargs.pop("version",
+  "fd-1")` fell back to the default "fd-1" for BOTH `base` and `other`, making the two
+  constructed scopes identical and the inequality assertion spuriously fail.
+This is a genuine, PRE-EXISTING test-isolation defect in feature-engine's own test suite
+  — not a mutmut bug, not a defect introduced by this transaction, and not something this
+  transaction is authorized to fix (per this task's own explicit "if measurement exposes
+  a need to modify tests... STOP" instruction). It directly violates this repository's own
+  Testing Convention §3 "Test isolation" principle ("tránh hidden shared mutable state
+  (global/module-level state bị một test sửa và ảnh hưởng test khác mà KHÔNG explicit
+  setup/teardown)") — invisible under this repository's own historical exclusive use of
+  single-invocation `pytest` runs (every prior QG/coverage/branch-remediation transaction
+  in this MANIFEST), but now exposed by mutmut's own multi-invocation-per-process
+  architecture, which no coverage.py-based transaction ever exercised.
+```
+
+### New finding
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: Feature Engine test suite — pre-existing test-isolation
+  defect (shared mutable parametrize argument mutated in place by
+  `dict.pop()`), blocking the NON-GATING mutmut baseline measurement.
+Classification: Major (blocking — prevents ANY mutation-testing evidence, partial or
+  complete, from being produced for feature-engine).
+Exact location: python/feature-engine/tests/test_definition.py,
+  `test_subject_id_any_field_difference_different_id`, the `kwargs.pop("version",
+  "fd-1")` call operating on the module-level, list-literal-embedded parametrize dict
+  `{"version": "fd-2"}`.
+Evidence: independently reproduced via a minimal two-invocation-same-process repro
+  (recorded above), root-caused precisely, not merely observed as a one-off failure.
+Required follow-up (NOT performed in this transaction): a separate, bounded
+  test-remediation transaction must fix this exact defect (e.g., operate on a local copy
+  of `kwargs`, or read the value without mutating the shared dict, or restructure the
+  parametrize list to avoid a shared mutable object) — scoped ONLY to this one test
+  function, verified to still pass under both a normal single pytest invocation AND a
+  multi-invocation-same-process repro — before any future mutmut baseline attempt.
+State: OPEN — not remediated, not waived, not silently worked around in this transaction.
+```
+
+### Fresh mutation-surface inventory (re-scanned at THIS exact boundary, not copied from history)
+
+```text
+Independently re-scanned via a fresh `ast`-based walk of
+  python/feature-engine/src/feature_engine/*.py at this transaction's own boundary
+  (src tree 256421344a48a6c9d4ef72f81eb82b27dbedfc50 — unchanged since the historical
+  inventory was recorded, so an identical result is the CORRECT fresh finding, not an
+  uninspected copy):
+10 `@dataclass`-decorated classes carrying 12 hand-written methods remain entirely
+  outside mutmut 3.7.0's mutation surface (wholesale decorated-class skip, Testing
+  Convention v0.12 §5a/§5a-i, unchanged): authority_resolver.py
+  (FilesystemInputContractAuthorityResolver.resolve, StaticInputContractAuthorityProvider.
+  resolve), candle.py (CandleScope.subject_id, OHLCV.field), contracts.py
+  (EvaluationFrontier.plain_stream_positions, VerifiedInputContractAuthority.__init__,
+  FeatureScope.feature_subject_id, DecimalPrecisionPolicy.__post_init__,
+  DecimalPrecisionPolicy.apply, FeatureDefinition.__post_init__), publish.py
+  (SequenceAllocator.next_ref, SequenceAllocator.producer_ref) — identical set, same
+  count, re-confirmed not merely assumed.
+Non-decorated classes carrying the majority of orchestration/state-machine logic remain
+  fully within the mutation surface, re-confirmed unaffected: candle_window.py
+  CandleWindowFeatureEngine (1 method), contracts.py InputContractAuthorityProvider/
+  RecordedTimeSource (1 method each, Protocol stub bodies — no real logic to mutate,
+  moot), current_view.py FeatureCurrentView (5 methods), regime_passthrough.py
+  RegimePassthroughFeatureEngine (11 methods), swing_distance.py
+  SwingDistanceFeatureEngine (23 methods).
+Decorator re-scan (fresh, excluding @dataclass): exactly the same three non-dataclass
+  decorators as historically recorded — candle.py:32 `@property`, contracts.py:619
+  `@property`, swing_distance.py:655 `@staticmethod` (this one within scope, single
+  decorator matching the allowed exception, on a non-decorated class).
+Lambda/comprehension/async re-scan: none found (unchanged, moot for the current subject).
+Pragma/config-exclusion re-scan: zero `# pragma: no mutate` markers of any kind found
+  anywhere in src/feature_engine/*.py; `only_mutate`/`do_not_mutate`/
+  `do_not_mutate_patterns` all confirmed empty (§ above) — no exclusion of any kind is
+  configured or was ever reached (the run aborted before any mutant was evaluated).
+Qualifying equivalent-effectiveness evidence for the 12 excluded methods: NONE exists —
+  unchanged from Testing Convention v0.12's own §5c finding; ordinary passing unit tests
+  already exist for several of these methods (e.g. FeatureDefinition.__post_init__'s
+  validation guards are exercised by existing tests) but do NOT qualify as equivalent
+  test-effectiveness evidence per §5c's own governed rule (a passing assertion never
+  proves a test would catch a subtly-wrong change). All 12 remain a named, OPEN gap,
+  unchanged and not newly closed by this transaction.
+```
+
+### Complete status reconciliation — NOT PRODUCED
+
+```text
+Because mutmut aborted during its own internal "Running clean tests" phase, BEFORE
+  generating or evaluating a single mutant, NONE of the ten status categories (killed,
+  survived, no_tests, not_checked, skipped, suspicious, timeout, caught_by_type_check,
+  segfault, check_was_interrupted_by_user) have ANY value to report — not zero-with-
+  meaning, but genuinely UNMEASURED. `total` itself was never established as a tested
+  quantity (mutants were generated during Phase 1, but zero were ever run). The
+  reconciliation equation `sum(all ten) == total` and the `not_checked == 0`/
+  `caught_by_type_check == 0` checks are therefore INAPPLICABLE — there is no dataset to
+  reconcile. No raw diagnostic mutation score is computed (numerator and denominator are
+  both undefined). No survivor count. No no_tests count. No timeout/anomaly to triage
+  (zero mutants were ever executed, so zero timeouts/anomalies of any kind occurred).
+BASELINE STATUS: INCOMPLETE — NON-GATING DIAGNOSTIC.
+```
+
+### Discrepancy note — `P3-PY-MUT-INSTALL-A-MIN-01`'s actual current state (verified, not assumed from this task's own text)
+
+```text
+This task's own instructions asserted "Preserve: P3-PY-MUT-INSTALL-A-MIN-01: CLOSED —
+  Review A final validation." Verified directly against this MANIFEST's own most recent
+  record of that finding (immediately preceding section, "mutmut Installation Final
+  Evidence Label Correction"): its actual current recorded state is `REMEDIATED — PENDING
+  FINAL BOUNDED RE-REVIEW`, NOT `CLOSED`. No Review A/Independent Review B/Product Owner
+  record exists anywhere in this MANIFEST closing it. This transaction does NOT overwrite
+  the task's incorrect premise into the governance record — it preserves the ACTUAL,
+  verified state (`REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW`) below, consistent with
+  this repository's own fail-closed, verify-before-record discipline, and flags this
+  mismatch transparently rather than silently adopting either claim.
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/engineering/
+  testing.md, docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml,
+  docs/domain/**, CI/CD workflows, any Go module, Context Aggregator: all verified
+  byte-identical (`git diff --quiet` for each path) — the defect discovered above was
+  recorded, NOT remediated; zero test/source/config/dependency change performed. The
+  transient `mutants/` working directory generated by the aborted run was deleted and
+  confirmed absent — never committed, never left as untracked repository state (confirmed
+  via `git status --porcelain=v1`). No mutation score calculated. No threshold proposed.
+  No survivor/equivalent analysis performed (none was possible — zero mutants were ever
+  evaluated). `P3-FEATURE-QG-EVID-03` not closed. Overall Feature Chapter 13 QG not
+  rerun. Files touched, confirmed via `git status --porcelain=v1`: docs/MANIFEST.md,
+  docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+mutmut baseline attempt:       INCOMPLETE — NON-GATING DIAGNOSTIC (blocked before any
+                                mutant was evaluated).
+P3-PY-MUT-BASELINE-A-MAJ-01:   OPEN (new finding — pre-existing test-isolation defect,
+                                not remediated here).
+P3-PY-MUT-INSTALL-A-MIN-01:    REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW (unchanged;
+                                NOT "CLOSED" — see discrepancy note above).
+mutmut:                        INSTALLED + PINNED (unchanged — version 3.7.0, config
+                                unchanged, verified byte-identical throughout).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged —
+                                no valid baseline data was produced).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged — no qualifying evidence
+                                produced; the blocking defect above must be fixed first).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+A separate, bounded test-remediation transaction must fix `P3-PY-MUT-BASELINE-A-MAJ-01`
+(the `test_subject_id_any_field_difference_different_id` shared-parametrize-dict-mutation
+defect in `tests/test_definition.py`) — verified to pass under both a normal single
+`pytest` invocation AND a multi-invocation-same-process repro — before this NON-GATING
+mutmut baseline may be re-attempted. Only after a genuinely complete baseline run (full
+ten-category reconciliation, `not_checked == 0`, timeout mutants individually
+reconfirmed) exists may the later analysis/threshold-proposal sequence begin. Neither
+performed here.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.288"` → `"10.289"`.
 
 ## Decision Log
 

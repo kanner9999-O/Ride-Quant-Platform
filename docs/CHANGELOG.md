@@ -2,6 +2,71 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-02 — feature-engine: mutmut NON-GATING Baseline Attempt — `INCOMPLETE — NON-GATING DIAGNOSTIC` (new finding `P3-PY-MUT-BASELINE-A-MAJ-01` OPEN)
+
+**Governed, explicitly NON-GATING mutation-testing baseline attempt for feature-engine — vai trò: `Feature Engine NON-GATING Mutation Baseline Executor`.** Sequencing step 3 (mechanism approval → install/pin → **baseline measurement** → later analysis → later threshold proposal), using the already-Approved/installed/pinned `mutmut 3.7.0`. The run did NOT complete: mutmut's own internal "Running clean tests" sanity phase failed before any mutant was ever generated-and-tested, due to a genuine, pre-existing test-isolation defect independently root-caused (not introduced, not remediated, here).
+
+### What happened
+
+```text
+`pytest tests/ -q` run directly, independently of mutmut, FIRST: 193 passed — confirmed
+  clean going in. `mutmut run` then executed exactly once (first-ever run, no prior
+  mutants/ or cache state). It generated mutants for all 14 source files successfully,
+  then FAILED during its own "Running clean tests" phase (full suite re-run, all mutants
+  disabled — mutmut's own pre-mutation sanity gate):
+  tests/test_definition.py::test_subject_id_any_field_difference_different_id[kwargs3]
+  failed with two IDENTICAL hashes, where they should differ.
+Root cause (independently confirmed via a minimal two-invocation-same-process repro,
+  outside of mutmut): the test's `@pytest.mark.parametrize("kwargs", [...])` case
+  `{"version": "fd-2"}` is a single module-level dict object reused across repeated
+  imports of the test module within one process; the test body's `kwargs.pop("version",
+  "fd-1")` mutates it IN PLACE. A normal, single `pytest` invocation only exercises this
+  once, so the defect is invisible there (consistent with the 193-passed result above).
+  mutmut's own architecture re-runs the full suite multiple times within one long-lived
+  process before real mutation testing begins — by the second run the dict was already
+  emptied, so both compared scopes silently defaulted to the same version, and the
+  inequality assertion spuriously failed.
+No mutant was ever tested. Phases beyond "Running clean tests" never ran. All ten mutmut
+  status categories, `total`, and the Ride-owned raw diagnostic mutation score are
+  therefore UNDEFINED, not zero-with-meaning — no score was computed or invented.
+```
+
+### New finding
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01 (Major, OPEN): pre-existing test-isolation defect in
+  python/feature-engine/tests/test_definition.py::
+  test_subject_id_any_field_difference_different_id (shared mutable parametrize dict
+  mutated via `.pop()`), blocking any mutmut baseline measurement. Violates Testing
+  Convention §3's own test-isolation principle. NOT remediated in this transaction, per
+  its own explicit "if measurement exposes a need to modify tests... STOP" instruction.
+  Requires a separate, bounded test-remediation transaction before any future baseline
+  re-attempt.
+```
+
+### Also recorded
+
+```text
+Fresh mutation-surface re-scan performed (not copied from history) — confirmed identical
+  to the historical record: 10 @dataclass classes / 12 hand-written methods remain
+  outside mutmut's mutation surface. Stray `mutants/` working directory left by the
+  aborted run was found and deleted; repository confirmed fully clean before this write.
+  Discrepancy noted and preserved: this task's own stated premise
+  "P3-PY-MUT-INSTALL-A-MIN-01: CLOSED" does not match this MANIFEST's actual recorded
+  state, `REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW` — the actual state is preserved
+  as-is, not overwritten.
+```
+
+### Preserved unchanged
+
+```text
+mutmut 3.7.0: INSTALLED + PINNED, config byte-identical. TEST_EFFECTIVENESS_THRESHOLD:
+  UNRESOLVED — BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03: FAIL — evidence.
+  Formal Feature Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval
+  Gate: NOT opened. LIVE: NOT_AUTHORIZED. No source/test/config/dependency file changed
+  (docs-only: docs/MANIFEST.md, docs/CHANGELOG.md).
+```
+
 ## [Unreleased] — 2026-09-01 — feature-engine: mutmut Installation Evidence Fidelity Correction (`P3-PY-MUT-INSTALL-A-MIN-01` REMEDIATED — PENDING BOUNDED RE-REVIEW)
 
 **Bounded, docs-only evidence-fidelity correction — vai trò: `mutmut Installation Evidence Fidelity Correction Executor`.** Corrects two factual mismatches in the prior mutmut installation transaction's own evidence prose (below). Does not run mutation testing, alter the actual lock/pyproject.toml (byte-identical, correct installation), or touch Testing Convention v0.12.
