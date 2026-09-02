@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.292"
+manifest_version: "10.293"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -17332,6 +17332,358 @@ ten-category status baseline (or, if any new anomaly arises, an honest
 performed in this transaction.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.291"` → `"10.292"`.
+
+## `feature-engine` — NON-GATING Mutation Baseline Re-attempt: `INCOMPLETE — NON-GATING DIAGNOSTIC` (new finding `P3-PY-MUT-BASELINE-B-MAJ-01` OPEN; `P3-FEATURE-QG-EVID-03` remains `FAIL — evidence`)
+
+**Fresh, governed, explicitly NON-GATING mutation-testing baseline re-attempt — vai trò: `Feature Engine NON-GATING Mutation Baseline Re-attempt Executor`.** Re-attempts sequencing step 3 (mechanism approval → install/pin → **NON-GATING baseline** → later analysis → later threshold proposal) now that both prior blockers (`P3-PY-MUT-BASELINE-A-MAJ-01`, `P3-PY-MUT-BASELINE-A-MIN-01`) are `CLOSED`/`VALIDLY CLOSED`. The run progressed further than the first attempt — it passed "Running clean tests" (confirming the MAJ-01 test-isolation fix is genuinely effective) — but aborted during mutmut's own internal "Running forced fail test" sanity phase, before real mutation testing began. Result: `INCOMPLETE — NON-GATING DIAGNOSTIC`. Does not close `P3-FEATURE-QG-EVID-03`. Does not establish a threshold. Does not modify Feature source/tests/tooling/config.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `8426ebd16711390d0fb6d7c3b56603b80fccf3ff` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. Tracked tree clean bar the same pre-existing unrelated untracked clutter. Preconditions independently verified: `P3-PY-MUT-BASELINE-A-MAJ-01` CLOSED + VALIDLY CLOSED; `P3-PY-MUT-BASELINE-A-MIN-01` CLOSED + VALIDLY CLOSED; `P3-PY-MUT-INSTALL-A-MIN-01` CLOSED; mutmut 3.7.0 INSTALLED + PINNED; threshold still `UNRESOLVED — BASELINE/CALIBRATION REQUIRED`; no pre-existing `mutants/` directory.
+
+### ADR Scope Rule (checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: governed re-measurement using already-reviewed, closed-finding, installed/pinned
+  tooling — explicitly non-gating, no threshold decision, no architecture/governance-
+  process change. Recording a newly discovered execution anomaly does not itself require
+  an ADR.
+```
+
+### Pinned subject/tool/config identities (fresh, this transaction)
+
+```text
+Repository evaluation boundary:  8426ebd16711390d0fb6d7c3b56603b80fccf3ff.
+python/feature-engine/src tree:  256421344a48a6c9d4ef72f81eb82b27dbedfc50 (unchanged
+  since the last genuine implementation change — identical across every prior baseline
+  attempt this track).
+python/feature-engine/tests tree: 6cfe8097b061870493cd44d711d79cd9e04a538c (changed from
+  the first baseline attempt's 98a10b2..., reflecting the MAJ-01 test-isolation fix
+  committed at edb866f8...).
+pyproject.toml blob:             14165cfa2952aee8dd9fc1ea1d83b8ab73fd7d43 (unchanged).
+requirements-dev.lock.txt blob:  b2b86edd62bfc24cf0e81cde06543905f3c3d528 (unchanged).
+docs/engineering/testing.md blob: 208f26ef123129d329ff4907e036e52054ba0757 (v0.12
+  Approved, unchanged).
+Python: 3.13.6 (CPython, arm64, Darwin 23.5.0). mutmut: 3.7.0. pytest: 9.1.1.
+  coverage: 7.16.0 — verified via fresh clean-room `pip show`/`pip check` ("No broken
+  requirements found.") reconstructed from the unchanged, current lock file.
+Effective [tool.mutmut] runtime configuration (verified via direct Config.get()
+  introspection): source_paths=[PosixPath('src/feature_engine')],
+  pytest_add_cli_args_test_selection=['tests/'], mutate_only_covered_lines=False,
+  type_check_command=[], timeout_constant=1.0, timeout_multiplier=15.0, only_mutate=[],
+  do_not_mutate=[], do_not_mutate_patterns=[] — EXACT match to the governed
+  configuration, no drift, no ad-hoc exclusion.
+```
+
+### Pre-mutation verification (required gate, both passed)
+
+```text
+`python -m pytest tests/ -q` -> 193 passed, 0 failed.
+Same-process repeated-invocation isolation check on the previously-blocking test: a
+  single Python process called `pytest.main(["-q", "tests/test_definition.py::
+  test_subject_id_any_field_difference_different_id"])` SEVEN times in sequence. All
+  seven invocations returned exit code 0 ("4 passed" each time) — the MAJ-01 fix holds
+  under the exact condition that broke it originally.
+Both gates passed; proceeded to execute mutmut.
+```
+
+### Fresh-run proof
+
+```text
+No pre-existing mutants/ directory confirmed absent immediately before execution.
+Exactly one fresh `mutmut run` executed — first-ever run since the MAJ-01/MIN-01 fixes,
+  no reused cache, no `.meta` reuse, no prior mutant result of any kind.
+```
+
+### `mutmut run` — exit/result (verbatim phase log, condensed)
+
+```text
+Phase 1, "Generating mutants": completed in 4028ms — 14 files mutated, 0 ignored, 0
+  unmodified.
+Phase 2, "Running stats": completed successfully.
+Phase 3, "Running clean tests": PASSED (unlike the first baseline attempt — direct,
+  positive confirmation that the P3-PY-MUT-BASELINE-A-MAJ-01 test-isolation fix is
+  effective under mutmut's own real multi-invocation-same-process execution, not merely
+  under the isolated repro used to verify the fix).
+Phase 4, "Running forced fail test": ABORTED. mutmut sets `MUTANT_UNDER_TEST=fail` and
+  re-invokes pytest with the identical args used in phases 2-3
+  (['--rootdir=.', '--tb=native', '-x', '-q', '-p', 'no:randomly', '-p', 'no:random-order',
+  'tests/']). This invocation returned pytest exit code 4 (pytest's own ExitCode.
+  USAGE_ERROR), which mutmut's execute_pytest() treats as fatal:
+  mutmut.__main__.BadTestExecutionCommandsException: "Failed to run pytest with args:
+  [...]. If your config sets debug=true, the original pytest error should be above."
+  (raised at mutmut/__main__.py:449, propagated through run_tests -> run_forced_fail ->
+  run_forced_fail_test -> _run -> run, uncaught, terminating the process). Because
+  Config.get().debug is False (governed default, not enabled), the underlying pytest
+  usage-error detail was NOT printed by mutmut itself — this is an mutmut-internal
+  output-suppression behavior, not a gap in this transaction's own investigation.
+Phase 5 (real mutation testing): NEVER RAN. Zero mutants were ever evaluated.
+```
+
+### Independent diagnostic investigation (read-only, no remediation performed)
+
+```text
+To characterize the anomaly without performing a second full `mutmut run` (prohibited —
+  "No full second baseline run is allowed"), the exact in-process call sequence was
+  reproduced using mutmut's own PytestRunner class and run_forced_fail_test function
+  directly (not the `mutmut run` CLI): after a passing clean-tests-equivalent invocation,
+  calling run_forced_fail_test(runner) did NOT reproduce the BadTestExecutionCommandsException
+  — instead it hit mutmut's OTHER forced-fail failure path ("FAILED: Unable to force test
+  failures", SystemExit(1)), because MUTANT_UNDER_TEST=fail does not, by itself, cause any
+  test in this suite to fail when invoked outside the full `_run()` orchestration
+  (specifically outside `collect_or_load_stats`, which runs additional stats-loading/
+  association-checking logic before the clean-tests phase in the real flow). This
+  confirms the anomaly is order/state-dependent on mutmut's full internal orchestration
+  and not trivially reproducible via a shortcut — consistent with it being a genuine
+  mutmut-internal architecture issue rather than an artifact of this investigation's own
+  method. Further isolation was not pursued beyond this point, per this task's explicit
+  "STOP. Record the finding; do not remediate" instruction and the prohibition on a
+  second full baseline run — this is not a Feature Engine source/test defect (no
+  production or test file is implicated by the traceback; the failure is entirely within
+  mutmut's own `execute_pytest`/`run_forced_fail_test` call path).
+```
+
+### CRITICAL — snapshot-before-cleanup (performed exactly as required)
+
+```text
+Immediately upon the abort, BEFORE any deletion or modification of `mutants/`, the
+  following evidence was extracted and verified:
+  1. Full generated mutant population: all 14 per-file `.meta` files under
+     mutants/src/feature_engine/*.py.meta, copied byte-for-byte to scratch
+     (baseline-evidence-2/meta-src/).
+  2. Every `.meta` file: 14/14 copied and parsed (see below).
+  3. `mutmut-stats.json`: present, copied to scratch (baseline-evidence-2/
+     mutmut-stats.json) — contains tests_by_mangled_function_name,
+     duration_by_test, function_hashes, function_dependencies, config_fingerprint,
+     watched_file_hashes, git_commit (the "Running stats" phase's own output; not
+     per-mutant execution results, since none were ever run).
+  4. CI/CD export: `mutmut export-cicd-stats` run (read-only against the existing
+     on-disk `.meta` state, does not alter results) -> "Saved CI/CD stats to
+     mutants/mutmut-cicd-stats.json"; copied to scratch. Content: killed=0,
+     survived=0, total=1531, no_tests=0, skipped=0, suspicious=0, timeout=0,
+     check_was_interrupted_by_user=0, segfault=0 — independently cross-checked
+     against the .meta-based reconciliation below (matches on every category the
+     export exposes; export omits not_checked/caught_by_type_check as previously
+     documented in Testing Convention v0.9-v0.12).
+  5. Exact sorted mapping mutant_id -> raw exit code -> normalized status: computed
+     from all 14 .meta files' `exit_code_by_key` (all values `null`, i.e. Python
+     `None`, since zero mutants were ever executed against real mutation testing).
+     mutmut's own status_by_exit_code maps `None -> "not checked"` (verified
+     directly against mutmut/__main__.py's own status_by_exit_code dict, not
+     assumed) — every one of the 1531 generated mutants therefore maps to
+     `not_checked`. Full canonical sorted JSON mapping saved to scratch
+     (baseline-evidence-2/sorted-mapping.json).
+  6. SHA-256 of that sorted mapping: `ba300bd5739122fa17d6bcf36901453817c611c5f167c7e4a72d0d2891de8c81`.
+  7. Total mutant count: 1531 (sum of per-file counts below).
+  8. All ten status counts (see reconciliation below).
+Only after all of the above was extracted and verified was `mutants/` deleted
+  (`rm -rf mutants` inside python/feature-engine/), then confirmed absent and the
+  repository tree confirmed fully clean via `git status --porcelain=v1` and
+  `git diff --quiet -- .`. `mutants/` was never committed.
+```
+
+### Ten-status reconciliation (complete — all mutants generated, zero evaluated)
+
+```text
+Per-file generated-mutant counts (sum of exit_code_by_key keys per .meta file):
+  __init__.py: 0, authority_resolver.py: 134, candle.py: 0, candle_window.py: 28,
+  contracts.py: 217, current_view.py: 104, envelope.py: 0, errors.py: 0, identity.py: 8,
+  publish.py: 0, regime_input.py: 0, regime_passthrough.py: 286, swing_distance.py: 754,
+  swing_input.py: 0. TOTAL = 1531.
+Ten-category counts: killed=0, survived=0, no_tests=0, not_checked=1531, skipped=0,
+  suspicious=0, timeout=0, caught_by_type_check=0, segfault=0,
+  check_was_interrupted_by_user=0.
+Reconciliation equation: 0+0+0+1531+0+0+0+0+0+0 = 1531 = total (1531). sum == total: TRUE.
+not_checked == 0 (required for COMPLETE): FALSE (not_checked = 1531) — because mutation
+  execution aborted before Phase 5 ("real mutation testing") ever began; every generated
+  mutant remains in its initial, never-evaluated state. Explicitly explained, not merely
+  flagged: the abort occurred in Phase 4 ("Running forced fail test"), strictly BEFORE
+  any individual mutant is ever dispatched for testing — so 100% of the generated
+  population is, correctly and expectedly, `not_checked`.
+caught_by_type_check == 0 (expected, since type_check_command=[]): TRUE.
+Timeout handling: N/A — zero timeouts occurred (zero mutants were ever executed against
+  the pinned timeout config). No individual mutant reruns required or performed.
+Other anomalies (suspicious/segfault/check_was_interrupted_by_user/unexpected
+  caught_by_type_check/unresolved exit code): all zero among the 1531 generated mutants
+  — the sole anomaly this transaction encountered is the run's own abort during Phase 4,
+  fully documented above with exact traceback, file, and line number.
+```
+
+### Raw NON-GATING mutation score — NOT COMPUTED
+
+```text
+Not calculated: the required preconditions (baseline run completes; ten-category
+  reconciliation complete; not_checked == 0; timeout treatment resolved) are not met —
+  specifically not_checked == 1531, not 0. Per this task's own instruction, no score is
+  computed when reconciliation is incomplete. No comparison against 80%, 90%, or any
+  other acceptance number was made or is applicable (none is approved).
+Survivor count: 0 (of 1531 generated, 0 evaluated, so 0 confirmed survivors — not "no
+  survivors observed" in the sense of a clean pass, but genuinely none were ever tested).
+Survivor identities: N/A — none exist to enumerate.
+no_tests count: 0. no_tests identities: N/A — none exist to enumerate.
+```
+
+### New finding
+
+```text
+P3-PY-MUT-BASELINE-B-MAJ-01: mutmut 3.7.0's own internal "Running forced fail test"
+  sanity phase aborts with mutmut.__main__.BadTestExecutionCommandsException (pytest
+  exit code 4 / USAGE_ERROR) when re-invoking pytest with MUTANT_UNDER_TEST=fail and the
+  identical CLI args that succeeded in the immediately preceding "Running clean tests"
+  phase, within the same long-lived mutmut process. Occurs AFTER Phase 3 ("Running clean
+  tests") now passes cleanly (confirming P3-PY-MUT-BASELINE-A-MAJ-01's fix holds), and
+  BEFORE Phase 5 (real mutation testing) ever begins — blocking any mutation-testing
+  evidence, partial or complete, from being produced.
+Classification: Major (blocking).
+Exact location of the failure: mutmut/__main__.py:449 (execute_pytest, exit_code == 4
+  check), reached via run_forced_fail_test (mutmut/__main__.py:675) -> run_forced_fail
+  (:492) -> run_tests (:484) -> execute_pytest (:449), triggered from _run (:1425) during
+  `mutmut run`. NOT a defect in Feature Engine's own source or tests — the traceback
+  implicates only mutmut's own internal call chain; independent diagnostic reproduction
+  (above) confirms the anomaly is order/state-dependent on mutmut's own orchestration
+  logic (specifically state established during collect_or_load_stats before the
+  forced-fail phase runs), not on anything in this repository's code.
+Evidence: full traceback captured verbatim (above); independent partial reproduction via
+  direct PytestRunner/run_forced_fail_test invocation (confirms the anomaly is
+  state-dependent, though the exact exit-code-4 usage-error path was not fully isolated
+  without performing a second full `mutmut run`, which is prohibited in this
+  transaction).
+Required follow-up (NOT performed in this transaction): further diagnosis of this
+  mutmut-internal anomaly (e.g., checking for an upstream mutmut issue matching this
+  symptom, as was done for the earlier decorated-class-skip bug; determining whether
+  `Config.get().debug=true` in an isolated, non-tracked diagnostic copy would reveal the
+  underlying pytest usage-error message) is reserved for a separate, bounded
+  investigation transaction. No Feature source, test, or mutmut config change is
+  authorized based on this finding alone until that investigation completes.
+State: OPEN — not remediated, not waived.
+```
+
+### Current mutation-surface inventory (independently re-verified via REAL generated-mutant data, not merely re-scanned via `ast`)
+
+```text
+Unlike prior transactions (which re-scanned source via a fresh `ast` walk), this
+  transaction additionally cross-validates the inventory directly against the mutant
+  population mutmut itself generated (the 1531 mutants captured above) — strictly
+  stronger evidence than static re-scanning alone, since it reflects mutmut 3.7.0's
+  actual live behavior at this exact boundary, not an inference about it.
+Direct confirmation: candle.py and publish.py generated ZERO mutants each — both files
+  consist entirely of @dataclass-decorated classes (CandleScope, OHLCV in candle.py;
+  SequenceAllocator in publish.py), confirming the wholesale decorated-class-skip bug
+  (mutmut/__main__.py's `_skip_node_and_children`, `if isinstance(node, cst.ClassDef)
+  and len(node.decorators): return True`) is independently reconfirmed still present and
+  unconditional at this exact boundary (mutmut version and source both unchanged).
+  contracts.py (217 mutants) contains no mutant keys matching feature_subject_id,
+  post_init, plain_stream_positions, or apply — confirming EvaluationFrontier.
+  plain_stream_positions, VerifiedInputContractAuthority.__init__, FeatureScope.
+  feature_subject_id, DecimalPrecisionPolicy.__post_init__/apply, and FeatureDefinition.
+  __post_init__ remain excluded. authority_resolver.py (134 mutants) contains no mutant
+  keys for FilesystemInputContractAuthorityResolver.resolve/StaticInputContractAuthority
+  Provider.resolve specifically (its 134 mutants come from other, non-dataclass
+  module-level functions in the same file: _extract_included_streams,
+  _extract_registry_stream_ids, _extract_scalar, _find_repo_root,
+  resolve_input_contract_authority_from_repository). Exactly the same 10-class/12-method
+  exclusion set as every prior scan this track — unchanged, independently reconfirmed via
+  a strictly stronger evidentiary method than before.
+Newly and explicitly noted this transaction: envelope.py, regime_input.py, swing_input.py
+  (0 mutants each) are ALSO entirely @dataclass(frozen=True, slots=True)-decorated and
+  thus fully excluded from the mutation surface — but independently confirmed via fresh
+  `ast` inspection to contain ZERO hand-written methods of any kind (pure field-only data
+  carriers: EventRecordRef, StreamRef, ProducerRef, EventContractRef, RegimeClassifiedFact,
+  RegimeFactInvalidatedFact, SwingConfirmedFact, SwingInvalidatedFact). Their exclusion
+  therefore contributes NO omitted authoritative behavior (there is no hand-written logic
+  to omit), consistent with — and now explicitly confirming, rather than merely assuming
+  — why these classes were never part of the historical 10-class/12-method inventory.
+  errors.py (0 mutants) consists entirely of plain exception subclasses with empty
+  bodies — zero mutable logic regardless of decoration status. __init__.py (0 mutants)
+  is a pure re-export module.
+Omitted authoritative behavior (unchanged from every prior scan, 10 classes / 12
+  methods): FilesystemInputContractAuthorityResolver.resolve, StaticInputContractAuthorityProvider.
+  resolve, CandleScope.subject_id, OHLCV.field, EvaluationFrontier.plain_stream_positions,
+  VerifiedInputContractAuthority.__init__, FeatureScope.feature_subject_id,
+  DecimalPrecisionPolicy.__post_init__, DecimalPrecisionPolicy.apply, FeatureDefinition.
+  __post_init__, SequenceAllocator.next_ref, SequenceAllocator.producer_ref.
+Qualifying equivalent-effectiveness evidence: NONE exists for any of the 12 — unchanged
+  from every prior transaction. Ordinary passing unit tests exist for several (e.g.
+  FeatureDefinition.__post_init__'s validation guards) but do NOT qualify as
+  equivalent-effectiveness evidence per Testing Convention v0.12 §5c's own governed rule.
+  All 12 remain a named, OPEN gap, not newly closed by this transaction.
+```
+
+### Evidence sufficiency — no storage-schema gap this transaction
+
+```text
+Unlike the general case anticipated by this task's own instructions (a large survivor/
+  anomaly population needing individual per-mutant description), this run's actual
+  outcome is simpler: ALL 1531 generated mutants share the SAME status (not_checked, zero
+  evaluated) for the SAME reason (the run aborted in Phase 4, before Phase 5 ever
+  dispatched any mutant). There are zero survivors, zero no_tests, zero skipped, zero
+  suspicious, zero timeout, zero caught_by_type_check, zero segfault, zero interrupted,
+  and zero unresolved-status mutants requiring individual identification — the entire
+  non-evaluated population is uniform and fully characterized by its aggregate count
+  (1531), per-file breakdown (above), and the SHA-256 of its full sorted mapping. No new
+  storage schema is required to represent this evidence faithfully; this transaction does
+  NOT invoke the "STOP after measurement, report storage limitation" fallback because no
+  diagnostic detail would be lost by the existing governance-record representation.
+```
+
+### Result classification
+
+```text
+BASELINE STATUS: INCOMPLETE — NON-GATING DIAGNOSTIC (run aborted during Phase 4,
+  "Running forced fail test," before real mutation testing began; ten-category
+  reconciliation is arithmetically complete — sum == total — but not_checked != 0, so the
+  COMPLETE-baseline requirement is not met). The snapshot actually captured (1531
+  generated mutants, all not_checked, cryptographically summarized) is retained and
+  reported in full above — no count is represented as intrinsically undefined; the exact
+  total and all ten category counts ARE known and preserved, unlike the first baseline
+  attempt (where the population/status snapshot was not captured before cleanup).
+```
+
+### No scope expansion — explicit verification
+
+```text
+python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  pyproject.toml, python/feature-engine/requirements-dev.lock.txt, docs/engineering/
+  testing.md, docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml,
+  docs/domain/**, CI/CD workflows, any Go module: all verified byte-identical
+  (`git diff --quiet` for each path). The transient `mutants/` working directory was
+  deleted ONLY AFTER full evidence capture (per the CRITICAL rule above) and confirmed
+  absent — never committed, never left as untracked repository state. No mutation score
+  calculated. No threshold proposed. No survivor/equivalent analysis performed (none was
+  possible — zero mutants were ever evaluated). `P3-FEATURE-QG-EVID-03` not closed.
+  Overall Feature Chapter 13 QG not rerun. Feature Engine not approved. Phase 3 gate not
+  opened. LIVE not authorized. Files touched, confirmed via `git status --porcelain=v1`:
+  docs/MANIFEST.md, docs/CHANGELOG.md — no other file touched.
+```
+
+### State summary
+
+```text
+mutmut baseline re-attempt:    INCOMPLETE — NON-GATING DIAGNOSTIC (blocked in Phase 4,
+                                before any mutant was evaluated; 1531 mutants generated
+                                and fully accounted for as not_checked).
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN (new finding — mutmut-internal forced-fail-phase
+                                anomaly, not a Feature Engine source/test defect).
+P3-PY-MUT-BASELINE-A-MAJ-01:   CLOSED (Review A + Independent Review B) — unchanged,
+                                and its fix independently reconfirmed effective (Phase 3
+                                "Running clean tests" now passes).
+P3-PY-MUT-BASELINE-A-MIN-01:   CLOSED (Review A + Independent Review B) — unchanged.
+P3-PY-MUT-INSTALL-A-MIN-01:    CLOSED — Review A final bounded validation — unchanged.
+mutmut:                        INSTALLED + PINNED (unchanged — version 3.7.0, config
+                                unchanged, verified byte-identical throughout).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged —
+                                still no valid COMPLETE baseline has been produced).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action (not performed in this transaction)
+
+A separate, bounded investigation transaction should characterize `P3-PY-MUT-BASELINE-B-MAJ-01` more precisely (e.g., searching for a matching upstream mutmut issue, or reproducing with `debug=true` in an isolated, non-tracked diagnostic copy to surface the underlying pytest usage-error text) before any future baseline re-attempt, OR a future re-attempt may simply be tried again first (this anomaly's determinism across repeated `mutmut run` invocations has not yet been established, since only one fresh run is permitted per baseline transaction). Neither performed here.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.292"` → `"10.293"`.
 
 ## Decision Log
 

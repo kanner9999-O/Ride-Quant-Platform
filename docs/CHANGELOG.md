@@ -2,6 +2,63 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-02 — feature-engine: NON-GATING Mutation Baseline Re-attempt — `INCOMPLETE — NON-GATING DIAGNOSTIC` (new finding `P3-PY-MUT-BASELINE-B-MAJ-01` OPEN)
+
+**Fresh, governed, explicitly NON-GATING mutation-testing baseline re-attempt — vai trò: `Feature Engine NON-GATING Mutation Baseline Re-attempt Executor`.** Re-attempts sequencing step 3 now that both prior blockers are closed. Progress: the run passed "Running clean tests" this time (confirming the `P3-PY-MUT-BASELINE-A-MAJ-01` fix holds under mutmut's own real execution), but aborted during mutmut's own internal "Running forced fail test" sanity phase — `mutmut.__main__.BadTestExecutionCommandsException` (pytest exit code 4 / USAGE_ERROR) — before any mutant was ever evaluated.
+
+### What happened
+
+```text
+Pre-mutation gates passed: `pytest tests/ -q` -> 193 passed; the previously-blocking test
+  invoked 7 times via same-process pytest.main() -> all 7 passed. mutmut run then
+  generated 1531 mutants across 14 files, passed "Running clean tests," then aborted in
+  "Running forced fail test" with BadTestExecutionCommandsException at
+  mutmut/__main__.py:449. Not a Feature Engine source/test defect — traceback implicates
+  only mutmut's own internal call chain (run_forced_fail_test -> run_forced_fail ->
+  run_tests -> execute_pytest). Independent partial reproduction confirms the anomaly is
+  state-dependent on mutmut's own orchestration, not trivially reproducible via a
+  shortcut.
+Full evidence snapshot captured BEFORE any cleanup: all 14 .meta files, mutmut-stats.json,
+  export-cicd-stats.json (cross-checked, matches), and a sorted mutant_id->status mapping
+  (SHA-256 ba300bd5739122fa17d6bcf36901453817c611c5f167c7e4a72d0d2891de8c81). Total: 1531
+  mutants generated, ALL not_checked (zero evaluated) — reconciliation sum == total
+  (1531 == 1531) TRUE; not_checked == 0 FALSE, so the run does not qualify as COMPLETE.
+  mutants/ deleted only after evidence capture; repo confirmed clean.
+```
+
+### New finding
+
+```text
+P3-PY-MUT-BASELINE-B-MAJ-01 (Major, OPEN): mutmut 3.7.0's "Running forced fail test"
+  phase aborts with a pytest USAGE_ERROR (exit code 4) when re-invoking pytest with
+  MUTANT_UNDER_TEST=fail using the same args that just succeeded in "Running clean
+  tests," within the same long-lived process. Blocks any mutation-testing evidence.
+  Requires a separate, bounded investigation transaction before further remediation.
+```
+
+### Mutation-surface inventory — reconfirmed via real generated-mutant data
+
+```text
+Cross-validated the historical 10-class/12-method exclusion set directly against the
+  1531 generated mutants (not just static re-scanning): candle.py and publish.py
+  generated zero mutants each (fully @dataclass-decorated), contracts.py's 217 mutants
+  and authority_resolver.py's 134 mutants contain no keys for any of the 12 excluded
+  methods — independently reconfirmed unchanged. Also newly confirmed: envelope.py,
+  regime_input.py, swing_input.py (0 mutants each) are dataclasses with ZERO hand-written
+  methods, so their exclusion contributes no omitted authoritative behavior.
+```
+
+### Preserved unchanged
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01/-MIN-01: CLOSED (unchanged). P3-PY-MUT-INSTALL-A-MIN-01:
+  CLOSED (unchanged). mutmut 3.7.0: INSTALLED + PINNED. TEST_EFFECTIVENESS_THRESHOLD:
+  UNRESOLVED — BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03: FAIL — evidence.
+  Formal Feature Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval
+  Gate: NOT opened. LIVE: NOT_AUTHORIZED. Docs-only change; no test/source/tooling
+  modification; no mutation score computed.
+```
+
 ## [Unreleased] — 2026-09-02 — feature-engine: Mutation Baseline Review Closure Recorder (`P3-PY-MUT-BASELINE-A-MAJ-01`/`-MIN-01` both CLOSED; Independent Review B CLEAN)
 
 **Mechanical governance-recording transaction — vai trò: `Mutation Baseline Review Closure Recorder`.** Records the completed Review A and Independent Review B dispositions on the mutation-baseline blocker remediation chain (`79c2f8ad...` → `edb866f8...` → `b86b5c1a...`). Recording of external reviewer authority only — no new remediation, no re-verification, no mutation testing run.
