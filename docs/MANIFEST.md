@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.291"
+manifest_version: "10.292"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -17193,6 +17193,8 @@ P3-PY-MUT-BASELINE-A-MAJ-01: CLOSED — Review A bounded re-review. The test-iso
 
 ### Finding states after this correction
 
+**[SUPERSEDED — as of the "Mutation Baseline Review Closure Recorder" transaction below (commit chain ending `b86b5c1a...` reviewed and closed). The `PENDING FINAL REVIEW A RE-REVIEW` state for `P3-PY-MUT-BASELINE-A-MIN-01` below was accurate at THIS transaction's own boundary; it is preserved unedited as historical record. Current truth is recorded in the closure-recorder section below: both baseline findings are now `CLOSED`.]**
+
 ```text
 P3-PY-MUT-BASELINE-A-MAJ-01: CLOSED — Review A bounded re-review.
 P3-PY-MUT-BASELINE-A-MIN-01: REMEDIATED — PENDING FINAL REVIEW A RE-REVIEW (residual
@@ -17233,6 +17235,103 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 ```
 
 **Files changed:** `docs/MANIFEST.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.290"` → `"10.291"`.
+
+## `feature-engine` — Mutation Baseline Review Closure Recorder (Review A + Independent Review B: `P3-PY-MUT-BASELINE-A-MAJ-01` + `P3-PY-MUT-BASELINE-A-MIN-01` both `CLOSED`; `INDEPENDENT REVIEW B: CLEAN — READY_FOR_NON_GATING_BASELINE_REATTEMPT`)
+
+**Mechanical governance-recording transaction — vai trò: `Mutation Baseline Review Closure Recorder`.** Records the completed Review A and Independent Review B dispositions on the Feature Engine mutation-baseline blocker remediation chain (`79c2f8ad84d00b899e4353dcfb939f33a27a8625` → `edb866f8eda9b045cae0378cd78c3b4ed12b2032` → `b86b5c1abf30b5883257d17e1a42de74c8cd9ccb`). This is recording of external reviewer authority, NOT executor self-closure and NOT re-verification of the underlying remediation. Does not run `mutmut run`, create a new baseline, compute a mutation score, analyze survivors/equivalents, propose a threshold, close `P3-FEATURE-QG-EVID-03`, or approve Feature Engine.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `b86b5c1abf30b5883257d17e1a42de74c8cd9ccb` via `git rev-parse HEAD`; `origin/main` confirmed at the identical SHA after `git fetch origin main --quiet`.
+
+### ADR Scope Rule (checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: mechanical recording of already-completed external reviewer dispositions
+  (Review A + Independent Review B) closing two findings on a docs-only remediation
+  chain. No test/source/tooling/governance-process/threshold change; no new measurement.
+```
+
+### Review A final dispositions (recorded)
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: CLOSED — Review A bounded re-review.
+P3-PY-MUT-BASELINE-A-MIN-01: CLOSED — Review A final bounded re-review.
+Review A overall: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+```
+
+### Independent Review B dispositions (recorded independently)
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: VALIDLY CLOSED.
+P3-PY-MUT-BASELINE-A-MIN-01: VALIDLY CLOSED.
+New Review-B findings: NONE.
+INDEPENDENT REVIEW B: CLEAN — READY_FOR_NON_GATING_BASELINE_REATTEMPT.
+```
+
+### Installation finding — preserved, not reopened
+
+```text
+P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final bounded validation (unchanged from
+  the prior transaction; not reinterpreted here).
+```
+
+### Finding states after this recording (current, authoritative)
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: CLOSED — Review A bounded re-review; VALIDLY CLOSED per
+  Independent Review B.
+P3-PY-MUT-BASELINE-A-MIN-01: CLOSED — Review A final bounded re-review; VALIDLY CLOSED
+  per Independent Review B.
+P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final bounded validation (preserved).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/MANIFEST.md and docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1`). python/feature-engine/src/**,
+  python/feature-engine/tests/**, python/feature-engine/pyproject.toml,
+  python/feature-engine/requirements-dev.lock.txt, docs/engineering/testing.md,
+  docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml, CI/CD
+  workflows, any Go module: all verified byte-identical (`git diff --quiet` for each
+  path). `mutmut run` was NOT executed. No new baseline created. No mutation score
+  calculated. No survivor/equivalent analysis performed. No threshold proposed.
+  `P3-FEATURE-QG-EVID-03` not closed. Feature Engine not approved. Overall Feature
+  Chapter 13 QG not rerun.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01:   CLOSED (Review A + Independent Review B).
+P3-PY-MUT-BASELINE-A-MIN-01:   CLOSED (Review A + Independent Review B).
+P3-PY-MUT-INSTALL-A-MIN-01:    CLOSED — Review A final bounded validation (unchanged).
+mutmut:                        INSTALLED + PINNED (unchanged — version 3.7.0, config
+                                unchanged, verified byte-identical).
+Historical first baseline attempt: INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged — the
+                                blocking defects underlying it are now remediated and
+                                fully closed, but this historical attempt itself was not
+                                rerun or retroactively revalued).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged —
+                                no valid baseline measurement has yet been produced).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+### Next governed action
+
+Both blocking findings are now closed and independently validated. The next governed
+transaction is a fresh NON-GATING mutation-baseline re-attempt for feature-engine, using
+the now-remediated test suite — expected to proceed past the "Running clean tests" phase
+that previously aborted the first attempt, and to produce a genuine, fully reconciled
+ten-category status baseline (or, if any new anomaly arises, an honest
+`INCOMPLETE — NON-GATING DIAGNOSTIC` report per the same fail-closed discipline). Not
+performed in this transaction.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.291"` → `"10.292"`.
 
 ## Decision Log
 

@@ -2,6 +2,40 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-02 — feature-engine: Mutation Baseline Review Closure Recorder (`P3-PY-MUT-BASELINE-A-MAJ-01`/`-MIN-01` both CLOSED; Independent Review B CLEAN)
+
+**Mechanical governance-recording transaction — vai trò: `Mutation Baseline Review Closure Recorder`.** Records the completed Review A and Independent Review B dispositions on the mutation-baseline blocker remediation chain (`79c2f8ad...` → `edb866f8...` → `b86b5c1a...`). Recording of external reviewer authority only — no new remediation, no re-verification, no mutation testing run.
+
+### Review A final dispositions
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: CLOSED — Review A bounded re-review.
+P3-PY-MUT-BASELINE-A-MIN-01: CLOSED — Review A final bounded re-review.
+Review A overall: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+```
+
+### Independent Review B dispositions
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: VALIDLY CLOSED.
+P3-PY-MUT-BASELINE-A-MIN-01: VALIDLY CLOSED.
+New Review-B findings: NONE.
+INDEPENDENT REVIEW B: CLEAN — READY_FOR_NON_GATING_BASELINE_REATTEMPT.
+```
+
+### Preserved unchanged
+
+```text
+P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final bounded validation (unchanged, not
+  reopened). mutmut 3.7.0: INSTALLED + PINNED. Historical first baseline attempt:
+  INCOMPLETE — NON-GATING DIAGNOSTIC (not rerun). TEST_EFFECTIVENESS_THRESHOLD:
+  UNRESOLVED — BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03: FAIL — evidence.
+  Formal Feature Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval
+  Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+Next governed transaction: a fresh NON-GATING mutation-baseline re-attempt for feature-engine.
+
 ## [Unreleased] — 2026-09-02 — feature-engine: Baseline Evidence Final Wording Correction (`P3-PY-MUT-BASELINE-A-MAJ-01` CLOSED — Review A bounded re-review; `P3-PY-MUT-BASELINE-A-MIN-01` residual wording fixed)
 
 **Minimal, docs-only correction — vai trò: `Baseline Evidence Final Wording Correction Executor`.** Records Review A's bounded re-review closing `P3-PY-MUT-BASELINE-A-MAJ-01` (test-isolation remediation accepted as-is, not reopened). Fixes two residual wording defects in `P3-PY-MUT-BASELINE-A-MIN-01`'s prose: an internally contradictory "BEFORE generating or evaluating a single mutant" sentence (corrected to "BEFORE evaluating/testing a single generated mutant," since mutants WERE generated but never evaluated) and a stale discrepancy note about `P3-PY-MUT-INSTALL-A-MIN-01`'s state (annotated with current truth — `CLOSED — Review A final bounded validation` — without rewriting the historical record of what was true at the earlier boundary). No test/source/tooling change; `mutmut run` not executed.
