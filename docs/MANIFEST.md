@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.293"
+manifest_version: "10.294"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -17421,6 +17421,8 @@ Phase 5 (real mutation testing): NEVER RAN. Zero mutants were ever evaluated.
 
 ### Independent diagnostic investigation (read-only, no remediation performed)
 
+**[CORRECTED — `P3-PY-MUT-BASELINE-B-A-MIN-01`. The paragraph below's confident claims — "consistent with it being a genuine mutmut-internal architecture issue" and "this is not a Feature Engine source/test defect" — were UNSUPPORTED AT THE TIME they were written: the partial reproduction described below did NOT actually reach or characterize the real failure mechanism (it hit a different, unrelated forced-fail code path instead). The correct framing at that point should have been `ROOT CAUSE UNRESOLVED`, not an affirmative claim in either direction. This paragraph is preserved unedited as an accurate record of what was and was not established at that boundary. The actual, evidence-backed root cause — since identified — is recorded in the "mutmut Forced-Fail Root-Cause Investigation" section below.]**
+
 ```text
 To characterize the anomaly without performing a second full `mutmut run` (prohibited —
   "No full second baseline run is allowed"), the exact in-process call sequence was
@@ -17524,6 +17526,8 @@ no_tests count: 0. no_tests identities: N/A — none exist to enumerate.
 
 ### New finding
 
+**[CORRECTED — `P3-PY-MUT-BASELINE-B-A-MIN-01`. The sentence below, "NOT a defect in Feature Engine's own source or tests," was an UNSUPPORTED affirmative attribution at the time it was written — the investigation available at that boundary had not isolated the real failure mechanism. Preserved unedited as historical record; see the "mutmut Forced-Fail Root-Cause Investigation" section below for the now evidence-backed classification and full causal chain, which DOES implicate a Ride-side conftest.py pattern as a necessary triggering condition, even though the actual malfunction is classified as mutmut's own defect.]**
+
 ```text
 P3-PY-MUT-BASELINE-B-MAJ-01: mutmut 3.7.0's own internal "Running forced fail test"
   sanity phase aborts with mutmut.__main__.BadTestExecutionCommandsException (pytest
@@ -17556,6 +17560,8 @@ Required follow-up (NOT performed in this transaction): further diagnosis of thi
   authorized based on this finding alone until that investigation completes.
 State: OPEN — not remediated, not waived.
 ```
+
+**Current truth (as of this transaction, superseding the "NOT a defect" sentence above):** root cause IDENTIFIED — see below. `P3-PY-MUT-BASELINE-B-MAJ-01` classified `MUTMUT_3_7_INTERNAL_DEFECT`, state updated to `ROOT CAUSE IDENTIFIED — PENDING REVIEW A`.
 
 ### Current mutation-surface inventory (independently re-verified via REAL generated-mutant data, not merely re-scanned via `ast`)
 
@@ -17684,6 +17690,250 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 A separate, bounded investigation transaction should characterize `P3-PY-MUT-BASELINE-B-MAJ-01` more precisely (e.g., searching for a matching upstream mutmut issue, or reproducing with `debug=true` in an isolated, non-tracked diagnostic copy to surface the underlying pytest usage-error text) before any future baseline re-attempt, OR a future re-attempt may simply be tried again first (this anomaly's determinism across repeated `mutmut run` invocations has not yet been established, since only one fresh run is permitted per baseline transaction). Neither performed here.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.292"` → `"10.293"`.
+
+## `feature-engine` — mutmut Forced-Fail Root-Cause Investigation (`P3-PY-MUT-BASELINE-B-MAJ-01` → `ROOT CAUSE IDENTIFIED — PENDING REVIEW A`, classification `MUTMUT_3_7_INTERNAL_DEFECT`; `P3-PY-MUT-BASELINE-B-A-MIN-01` → `REMEDIATED — PENDING REVIEW A`)
+
+**Bounded diagnostic investigation — vai trò: `mutmut Forced-Fail Root-Cause Investigator`.** Identifies the actual underlying cause of pytest exit code 4 during mutmut 3.7.0's "Running forced fail test" phase (`P3-PY-MUT-BASELINE-B-MAJ-01`), and corrects the prior transaction's unsupported attribution claims (`P3-PY-MUT-BASELINE-B-A-MIN-01`). Performed entirely in an isolated `git worktree` scratch checkout of the exact boundary commit — the tracked repository was never modified. Enabled `Config.get().debug = True` at runtime, in the diagnostic process only, never persisted to the committed `pyproject.toml`. Did NOT execute real mutation testing (Phase 5 never reached) and did NOT perform a second full `mutmut run` (reproduced the exact pre-mutation orchestration via mutmut's own internal functions directly, per this task's required 13-step sequence). No remediation performed.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `72e838e624c6b0020b95a7d9456febbf800709d4` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. Diagnostic worktree created via `git worktree add --detach <scratch> 72e838e624c6b0020b95a7d9456febbf800709d4`, confirmed at the exact same SHA; `src` tree `256421344a48a6c9d4ef72f81eb82b27dbedfc50`, `tests` tree `6cfe8097b061870493cd44d711d79cd9e04a538c`, `pyproject.toml` blob `14165cfa2952aee8dd9fc1ea1d83b8ab73fd7d43`, `requirements-dev.lock.txt` blob `b2b86edd62bfc24cf0e81cde06543905f3c3d528` all confirmed identical to the tracked boundary. mutmut 3.7.0 / pytest 9.1.1 / Python 3.13.6 (Darwin arm64) confirmed via the same clean-room venv used in the prior baseline transactions. Effective `[tool.mutmut]` config confirmed unchanged (all 9 governed keys). Worktree removed and scratch `mutants/` deleted after evidence capture; tracked repository confirmed untouched throughout (`git status --porcelain=v1` unchanged, `HEAD` unchanged) at the close of the investigation.
+
+### ADR Scope Rule (checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: bounded, read-only diagnostic investigation in an isolated scratch worktree,
+  correcting an evidence-attribution defect in prior governance prose. No test/source/
+  tooling/governance-process/threshold change; no mutation testing executed.
+```
+
+### Diagnostic reproduction sequence (exact, mirrors `mutmut/__main__.py`'s `_run()` through Phase 4 only)
+
+```text
+1.  os.environ["MUTANT_UNDER_TEST"] = "mutant_generation".
+2.  Config.ensure_loaded(); Config.get().debug = True set AFTER loading (runtime-only
+    override — the loaded Config dataclass instance is mutable; nothing written to disk).
+3.  makedirs("mutants", exist_ok=True).
+4.  copy_src_dir() — real mutmut internal function, called directly.
+5.  copy_also_copy_files() — real mutmut internal function, called directly.
+6.  setup_source_paths() — real mutmut internal function, called directly.
+7.  store_lines_covered_by_tests() — real mutmut internal function, called directly.
+8.  create_mutants(max_children) — real mutmut internal function; generated 1531 mutants
+    across 14 files (identical population size to the second baseline attempt, confirming
+    an unchanged, faithful reproduction).
+9.  runner = PytestRunner() — real mutmut class, constructed directly.
+10. runner.prepare_main_test_run().
+11. collect_or_load_stats(runner, mutants_caught_by_type_checker={},
+    apply_config_invalidation=True) — real mutmut internal function, called directly.
+12. collect_source_file_mutation_data(mutant_names=()) +
+    _check_test_to_mutant_associations(...) — real mutmut internal functions.
+13. MUTANT_UNDER_TEST="" ; runner.run_tests(mutant_name=None,
+    tests=tests_for_mutant_names(())) — "Running clean tests" equivalent.
+    RESULT: exit code 0 (193 passed) — matches the second baseline attempt exactly.
+14. run_forced_fail_test(runner) — real mutmut function, called directly, with
+    Config.get().debug already True — THE PHASE UNDER INVESTIGATION.
+STOPPED immediately after step 14's outcome was captured. No code path corresponding to
+  Phase 5 (mutant dispatch / os.wait() child-process loop) was ever reached or called.
+```
+
+### Raw underlying pytest exit-4 cause — IDENTIFIED
+
+```text
+With Config.get().debug = True, mutmut's own CatchOutput class (mutmut/__main__.py:~695)
+  has a documented behavior: `start()` immediately calls `self.stop()` when
+  Config.get().debug is True, meaning debug mode makes CatchOutput a NO-OP — all output
+  that mutmut normally swallows (including pytest's own raw output) prints directly and
+  uncaptured. This is what surfaced the previously-hidden real error.
+The raw pytest output captured, verbatim:
+
+  ImportError while loading conftest '<worktree>/python/feature-engine/mutants/tests/conftest.py'.
+  tests/conftest.py:84: in <module>
+      SWING_DISTANCE_INPUT_CONTRACT = resolve_input_contract_authority_from_repository(
+  .../mutmut/mutation/trampoline.py:140: in _trampoline_wrapper
+      return trampoline(*args, **kwargs)
+  .../mutmut/mutation/trampoline.py:56: in trampoline
+      raise MutmutProgrammaticFailException(
+  E   mutmut.__main__.MutmutProgrammaticFailException: Verifying setup. At least one
+      test should fail if mutations cause errors.
+
+  python -m pytest  "-vv" "--rootdir=." "--tb=native" "-x" "-q" "-p" "no:randomly" "-p"
+    "no:random-order" "tests/"
+      exit code 4
+
+Pytest phase where it occurs: conftest/plugin load (specifically, conftest.py MODULE
+  IMPORT during pytest's collection startup) — NOT CLI/config parse, NOT test collection
+  proper, NOT fixture/setup within a test, NOT test execution. Pytest classifies a
+  conftest.py ImportError as a collection-time configuration failure and exits with code
+  4 (USAGE_ERROR) rather than code 1 (TESTS_FAILED), because the failure occurs before
+  pytest has anything resembling a "test" to mark failed — this is standard, correct
+  pytest behavior for a broken conftest.py, not itself an anomaly.
+Exact implicated Ride-side file/line: python/feature-engine/tests/conftest.py:84-86 —
+  `SWING_DISTANCE_INPUT_CONTRACT = resolve_input_contract_authority_from_repository(
+  "distance_to_last_confirmed_swing")` and the following `REGIME_INPUT_CONTRACT = ...`
+  line — both MODULE-LEVEL (eager, at-import-time) calls to a mutation-instrumented
+  ("trampolined") function from authority_resolver.py, made once so every test in the
+  module can reuse the same real, filesystem-verified Input Contract authority object
+  (per the file's own comment: "Real, currently-approved Input Contract authority
+  (Review-A round-2 residual 1) — resolved via the ACTUAL filesystem-backed resolver...
+  never a hardcoded duplicate literal table"). This is a deliberate, previously-reviewed
+  Ride test-design choice (compute-once-at-module-scope for a shared, disk-verified
+  fixture value), not a defect in itself.
+Exact implicated mutmut-side file/function: mutmut/mutation/trampoline.py:50-56
+  (`trampoline()`'s unconditional check: `if mutant_under_test == "fail": raise
+  MutmutProgrammaticFailException(...)`— fires on the FIRST call to ANY trampolined
+  function while MUTANT_UNDER_TEST=fail, with NO distinction between a call originating
+  from a test body versus a call originating from conftest.py's own module-level import
+  code) and mutmut/__main__.py:449 (`execute_pytest()`'s unconditional
+  `if exit_code == 4: raise BadTestExecutionCommandsException(params)` — treats ANY
+  exit-code-4 as an unrecoverable, fatal "bad test execution commands" condition, without
+  inspecting WHETHER that exit code 4 was actually caused by mutmut's OWN just-injected
+  MutmutProgrammaticFailException (in which case the forced-fail check has, in substance,
+  succeeded — a mutation-sensitive failure DID occur — just not in the specific shape
+  execute_pytest's exit-code check expects).
+Notably, mutmut's own source contains direct evidence its authors were aware of this
+  exact category of risk: the comment immediately preceding the `run_forced_fail_test(
+  runner)` call in `_run()` (mutmut/__main__.py, ~line 1424) reads: "this can't be the
+  first thing, because it can fail deep inside pytest/django setup and then everything is
+  destroyed" — acknowledging that forced-fail verification CAN fail during setup/collection
+  rather than during a normal test body, yet `execute_pytest`'s handling of that
+  acknowledged case is to crash with an opaque, generic exception rather than to
+  recognize the specific pattern (an ImportError whose cause is
+  MutmutProgrammaticFailException) as a valid, if unusually-surfaced, positive signal.
+MUTANT_UNDER_TEST value during the failing invocation: "fail" (set explicitly by
+  run_forced_fail_test before calling run_forced_fail() -> run_tests(...)).
+cwd during the failing invocation: `<worktree>/python/feature-engine/mutants/` (mutmut's
+  own `change_cwd("mutants")` context manager, entered inside run_tests()).
+sys.path/import identity: pytest collected `tests/conftest.py` from within the `mutants/`
+  working copy, which imports `feature_engine` from the SAME `mutants/src/feature_engine`
+  mutated copy (via setup_source_paths()'s sys.path manipulation) — i.e., the exact same
+  import identity mutmut uses for every other phase, no discrepancy found.
+```
+
+### Isolation performed to determine causation
+
+```text
+The diagnostic reproduction (13-step sequence above) independently, deterministically
+  reproduces BOTH the exact same BadTestExecutionCommandsException AND — critically, with
+  debug=True — the full underlying pytest ImportError/MutmutProgrammaticFailException
+  chain that was previously suppressed. This is a complete, first-hand isolation: the
+  exact file (tests/conftest.py), exact line (84), exact triggering call
+  (resolve_input_contract_authority_from_repository, itself confirmed mutation-
+  instrumented — 134 mutants generated for authority_resolver.py in the second baseline
+  attempt), exact mutmut-side trampoline logic (trampoline.py:50-56, unconditional raise
+  on MUTANT_UNDER_TEST=="fail"), and exact mutmut-side exit-code handling
+  (__main__.py:449, unconditional raise on exit_code==4) were all directly observed, not
+  inferred from the top-level traceback alone (which only ever showed the OUTER
+  BadTestExecutionCommandsException, never the inner ImportError/
+  MutmutProgrammaticFailException chain — that inner chain was only made visible by this
+  transaction's runtime debug=True override).
+```
+
+### Root-cause classification
+
+```text
+MUTMUT_3_7_INTERNAL_DEFECT.
+
+Reasoning: the actual malfunction — mutmut aborting the ENTIRE run with an opaque,
+  generic BadTestExecutionCommandsException instead of correctly recognizing that its
+  OWN just-injected MutmutProgrammaticFailException (raised by its OWN trampoline code,
+  exactly as designed) successfully caused a failure, satisfying the forced-fail sanity
+  check's actual purpose — is squarely within mutmut's own code (trampoline.py:50-56's
+  context-blind raise, combined with __main__.py:449's context-blind exit-code-4
+  handling). mutmut's own source comment (quoted above) shows its authors anticipated
+  forced-fail COULD fail "deep inside pytest/django setup," yet the implemented handling
+  for that acknowledged case is an uncontrolled crash, not graceful recognition. This is
+  not a version-specific pytest incompatibility (pytest correctly and predictably reports
+  exit code 4 for a broken conftest.py, per its own documented ExitCode semantics — no
+  pytest-side bug is implicated) and not a Ride-side config integration defect (the
+  governed `[tool.mutmut]` config is not implicated at all — no config key controls this
+  behavior).
+
+Distinguishing evidence: mutmut vs Ride-side —
+  RIDE-SIDE CONTRIBUTION (necessary triggering condition, not itself a defect):
+    tests/conftest.py:84-86's module-scope, eager call to a mutation-instrumented
+    function is what causes the injected MutmutProgrammaticFailException to surface
+    during conftest COLLECTION rather than during an ordinary test body — this specific
+    code STRUCTURE (compute-once-at-import-time) is what exposes mutmut's blind spot in
+    THIS codebase. It is a legitimate, previously-reviewed Ride test-design pattern (see
+    the file's own "Review-A round-2 residual 1" comment), not a bug — a codebase that
+    only called mutation-instrumented functions lazily, inside fixtures/test bodies,
+    would likely not trigger this specific manifestation.
+  MUTMUT-SIDE DEFECT (the actual malfunction): mutmut's trampoline unconditionally raises
+    on ANY covered-function call while MUTANT_UNDER_TEST=fail, with no awareness of
+    WHERE that call originates (test body vs. conftest/module import), and
+    execute_pytest's exit-code-4 handling is unconditionally fatal, with no inspection of
+    WHETHER the exit code 4 was actually caused by mutmut's own injected exception (a
+    condition it could in principle detect, e.g. by checking whether a
+    MutmutProgrammaticFailException appears in the captured pytest output before raising
+    BadTestExecutionCommandsException). The crash-instead-of-recognize behavior is
+    entirely mutmut's own code's responsibility, and mutmut's own source comment shows
+    this failure mode was a known, named risk category to its own authors that was not,
+    in fact, adequately handled.
+Comparison to upstream: not pursued via live network lookup in this transaction (no
+  WebFetch/WebSearch was used); the classification above rests entirely on direct,
+  first-hand source-level evidence at the exact pinned 3.7.0 tag (already installed in
+  the governed clean-room venv), consistent with this track's established discipline of
+  never treating mutable upstream `main` as authority for 3.7.0's own pinned behavior.
+```
+
+### Finding states after this investigation
+
+```text
+P3-PY-MUT-BASELINE-B-MAJ-01: ROOT CAUSE IDENTIFIED — PENDING REVIEW A. Classification:
+  MUTMUT_3_7_INTERNAL_DEFECT. NOT self-closed — awaiting Review A's own disposition.
+P3-PY-MUT-BASELINE-B-A-MIN-01: REMEDIATED — PENDING REVIEW A. The prior transaction's
+  unsupported "not a Feature Engine source/test defect" / "genuine mutmut-internal
+  architecture issue" attributions (recorded before the real root cause was isolated)
+  are corrected via the superseding annotations above; the historical prose is preserved
+  unedited, not rewritten. NOT self-closed — awaiting Review A's own disposition.
+```
+
+### No governed config/tool/source/test change — explicit verification
+
+```text
+Only docs/MANIFEST.md and docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1` against the tracked repository, which was never entered
+  by any diagnostic command — all diagnostic work occurred inside an isolated
+  `git worktree` at $SCRATCH/diag-checkout, removed via `git worktree remove --force`
+  after evidence capture). python/feature-engine/src/**, python/feature-engine/tests/**,
+  python/feature-engine/pyproject.toml (the diagnostic Config.debug=True override was
+  applied via direct attribute mutation on the loaded, in-memory Config dataclass
+  instance at runtime — never written to the worktree's or the tracked repo's
+  pyproject.toml file, confirmed via `git diff --quiet` inside the worktree before its
+  removal), python/feature-engine/requirements-dev.lock.txt, docs/engineering/
+  testing.md, docs/constitution/**, docs/adr/**, docs/architecture/module-registry.yaml,
+  CI/CD workflows, any Go module: all verified byte-identical in the real tracked
+  repository. No mutmut version change. No pytest version change. No exclusion change.
+  No baseline rerun (this transaction did not execute `mutmut run`, only mutmut's own
+  internal functions called directly, stopping before Phase 5). No real mutant
+  evaluation — confirmed: the diagnostic script's own final printed line is "STOPPING
+  HERE -- Phase 5 (real mutant dispatch) intentionally never reached," and no code path
+  corresponding to child-process mutant dispatch was ever invoked.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-BASELINE-B-MAJ-01:   ROOT CAUSE IDENTIFIED — PENDING REVIEW A
+                                (MUTMUT_3_7_INTERNAL_DEFECT).
+P3-PY-MUT-BASELINE-B-A-MIN-01: REMEDIATED — PENDING REVIEW A.
+P3-PY-MUT-BASELINE-A-MAJ-01:   CLOSED (Review A + Independent Review B) — unchanged.
+P3-PY-MUT-BASELINE-A-MIN-01:   CLOSED (Review A + Independent Review B) — unchanged.
+P3-PY-MUT-INSTALL-A-MIN-01:    CLOSED — Review A final bounded validation — unchanged.
+Second baseline attempt result: INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged — this
+                                transaction did not rerun or reinterpret the baseline
+                                measurement itself; the 1531-mutant snapshot and its
+                                SHA-256 remain exactly as previously recorded).
+mutmut:                        INSTALLED + PINNED (unchanged — version 3.7.0, config
+                                unchanged, verified byte-identical throughout).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.293"` → `"10.294"`.
 
 ## Decision Log
 

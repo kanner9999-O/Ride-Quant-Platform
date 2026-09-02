@@ -2,6 +2,62 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — feature-engine: mutmut Forced-Fail Root-Cause Investigation (`P3-PY-MUT-BASELINE-B-MAJ-01` root cause IDENTIFIED — `MUTMUT_3_7_INTERNAL_DEFECT`)
+
+**Bounded diagnostic investigation — vai trò: `mutmut Forced-Fail Root-Cause Investigator`.** Identifies the actual underlying cause of pytest exit code 4 during mutmut 3.7.0's "Running forced fail test" phase. Performed entirely in an isolated `git worktree` scratch checkout — tracked repository never modified. `Config.debug=True` enabled at runtime only (never persisted). No real mutation testing executed; no second full `mutmut run` performed (mutmut's own internal functions called directly, reproducing `_run()` through Phase 4 only).
+
+### Root cause — IDENTIFIED
+
+```text
+With debug=True, mutmut's CatchOutput becomes a no-op (its own start() calls stop()
+  immediately when Config.get().debug is True), surfacing the previously-hidden real
+  pytest error: an ImportError while loading tests/conftest.py, caused by
+  mutmut.__main__.MutmutProgrammaticFailException raised from mutmut's own trampoline
+  (mutmut/mutation/trampoline.py:56) during conftest.py:84's MODULE-LEVEL, eager call to
+  resolve_input_contract_authority_from_repository (a mutation-instrumented function).
+  Pytest correctly reports a conftest ImportError as exit code 4 (USAGE_ERROR). mutmut's
+  own execute_pytest() (mutmut/__main__.py:449) unconditionally treats ANY exit code 4 as
+  a fatal BadTestExecutionCommandsException, without recognizing that its OWN just-
+  injected exception was the actual cause — despite mutmut's own source comment
+  acknowledging forced-fail "can fail deep inside pytest/django setup."
+```
+
+### Classification: `MUTMUT_3_7_INTERNAL_DEFECT`
+
+```text
+The Ride-side conftest.py pattern (eager, module-scope call to a mutation-instrumented
+  function, to share one real filesystem-verified fixture value across the whole test
+  module — a deliberate, previously-reviewed design choice) is the NECESSARY TRIGGERING
+  CONDITION, not itself a defect. The actual malfunction — crashing the entire run with
+  an opaque exception instead of recognizing its own injected failure as a valid
+  forced-fail signal — is squarely mutmut's own code's responsibility (trampoline.py's
+  context-blind raise + __main__.py's context-blind exit-code-4 handling).
+```
+
+### Finding states
+
+```text
+P3-PY-MUT-BASELINE-B-MAJ-01: ROOT CAUSE IDENTIFIED — PENDING REVIEW A
+  (MUTMUT_3_7_INTERNAL_DEFECT). Not self-closed.
+P3-PY-MUT-BASELINE-B-A-MIN-01: REMEDIATED — PENDING REVIEW A. Corrects the prior
+  transaction's unsupported "not a Feature Engine defect" / "mutmut-internal
+  architecture issue" attributions (recorded before the real root cause was isolated) via
+  superseding annotations — historical prose preserved unedited, not rewritten. Not
+  self-closed.
+```
+
+### Preserved unchanged
+
+```text
+Second baseline attempt: INCOMPLETE — NON-GATING DIAGNOSTIC (1531-mutant snapshot,
+  SHA-256 ba300bd5..., unchanged). P3-PY-MUT-BASELINE-A-MAJ-01/-MIN-01: CLOSED.
+  P3-PY-MUT-INSTALL-A-MIN-01: CLOSED. mutmut 3.7.0: INSTALLED + PINNED.
+  TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED.
+  P3-FEATURE-QG-EVID-03: FAIL — evidence. Formal Feature Chapter 13 QG: FAIL. Feature
+  module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+  Docs-only; no test/source/tooling modification; no real mutant evaluation.
+```
+
 ## [Unreleased] — 2026-09-02 — feature-engine: NON-GATING Mutation Baseline Re-attempt — `INCOMPLETE — NON-GATING DIAGNOSTIC` (new finding `P3-PY-MUT-BASELINE-B-MAJ-01` OPEN)
 
 **Fresh, governed, explicitly NON-GATING mutation-testing baseline re-attempt — vai trò: `Feature Engine NON-GATING Mutation Baseline Re-attempt Executor`.** Re-attempts sequencing step 3 now that both prior blockers are closed. Progress: the run passed "Running clean tests" this time (confirming the `P3-PY-MUT-BASELINE-A-MAJ-01` fix holds under mutmut's own real execution), but aborted during mutmut's own internal "Running forced fail test" sanity phase — `mutmut.__main__.BadTestExecutionCommandsException` (pytest exit code 4 / USAGE_ERROR) — before any mutant was ever evaluated.
