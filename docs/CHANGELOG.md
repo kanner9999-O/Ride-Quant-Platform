@@ -2,6 +2,60 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-02 — feature-engine: Feature Mutation Baseline Blocker Remediation (`P3-PY-MUT-BASELINE-A-MAJ-01`/`-MIN-01` REMEDIATED — PENDING REVIEW A RE-REVIEW; `P3-PY-MUT-INSTALL-A-MIN-01` CLOSED)
+
+**Bounded remediation — vai trò: `Feature Mutation Baseline Blocker Remediation Executor`.** Fixes the test-isolation defect that blocked the mutmut baseline attempt, corrects the baseline's own evidence wording, and mechanically records Review A's closure of the mutmut installation finding. Does not rerun `mutmut run`, compute a mutation score, or close `P3-FEATURE-QG-EVID-03`.
+
+### MAJ-01 fix
+
+```text
+python/feature-engine/tests/test_definition.py::
+  test_subject_id_any_field_difference_different_id now copies the parametrized dict
+  before popping ("version"), instead of mutating the shared, module-level parametrize
+  case object in place. Verified: `pytest tests/ -q` -> 193 passed; the affected test
+  invoked FIVE times via `pytest.main(...)` within a single Python process -> all five
+  passed (the exact condition that previously failed on repetition); `ruff check src
+  tests` -> all checks passed; `mypy src tests` -> no issues in 24 files. No parameter
+  case, expected behavior, production source, or coverage intent changed.
+```
+
+### MIN-01 correction
+
+```text
+Corrected the prior baseline record's wording: rather than framing the ten mutmut status
+  categories/total as intrinsically undefined, the record now states that mutation
+  execution never reached real mutant testing, no valid baseline score exists, the
+  generated-mutant population/status snapshot was not captured/retained before cleanup,
+  and the exact generated total/not_checked counts are therefore unavailable from
+  preserved evidence — not invented or reconstructed by an extra run. Historical
+  `INCOMPLETE — NON-GATING DIAGNOSTIC` result unchanged.
+```
+
+### Installation finding bookkeeping
+
+```text
+P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final bounded validation, recorded
+  mechanically as reviewer authority (not executor self-closure), superseding the prior
+  "REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW" state.
+```
+
+### Finding states
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: REMEDIATED — PENDING REVIEW A RE-REVIEW.
+P3-PY-MUT-BASELINE-A-MIN-01: REMEDIATED — PENDING REVIEW A RE-REVIEW.
+P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final bounded validation.
+```
+
+### Preserved unchanged
+
+```text
+mutmut 3.7.0: INSTALLED + PINNED. Baseline attempt: INCOMPLETE — NON-GATING DIAGNOSTIC
+  (not rerun). TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED.
+  P3-FEATURE-QG-EVID-03: FAIL — evidence. Formal Feature Chapter 13 QG: FAIL. Feature
+  module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
 ## [Unreleased] — 2026-09-02 — feature-engine: mutmut NON-GATING Baseline Attempt — `INCOMPLETE — NON-GATING DIAGNOSTIC` (new finding `P3-PY-MUT-BASELINE-A-MAJ-01` OPEN)
 
 **Governed, explicitly NON-GATING mutation-testing baseline attempt for feature-engine — vai trò: `Feature Engine NON-GATING Mutation Baseline Executor`.** Sequencing step 3 (mechanism approval → install/pin → **baseline measurement** → later analysis → later threshold proposal), using the already-Approved/installed/pinned `mutmut 3.7.0`. The run did NOT complete: mutmut's own internal "Running clean tests" sanity phase failed before any mutant was ever generated-and-tested, due to a genuine, pre-existing test-isolation defect independently root-caused (not introduced, not remediated, here).

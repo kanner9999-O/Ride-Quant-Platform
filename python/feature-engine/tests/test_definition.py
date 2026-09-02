@@ -49,8 +49,9 @@ def test_subject_id_same_five_fields_same_id() -> None:
 )
 def test_subject_id_any_field_difference_different_id(kwargs: dict[str, str]) -> None:
     base = feature_scope("volatility_metric", version="fd-1")
-    version = kwargs.pop("version", "fd-1")
-    other = feature_scope("volatility_metric", version=version, **kwargs)
+    local_kwargs = dict(kwargs)
+    version = local_kwargs.pop("version", "fd-1")
+    other = feature_scope("volatility_metric", version=version, **local_kwargs)
     assert base.feature_subject_id != other.feature_subject_id
 
 

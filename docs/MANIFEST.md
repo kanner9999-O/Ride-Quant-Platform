@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.289"
+manifest_version: "10.290"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -16903,19 +16903,26 @@ Qualifying equivalent-effectiveness evidence for the 12 excluded methods: NONE e
 
 ### Complete status reconciliation — NOT PRODUCED
 
+**[CORRECTED — see `P3-PY-MUT-BASELINE-A-MIN-01` remediation, "Feature Mutation Baseline Blocker Remediation" section below. Original wording below is struck through in effect; the corrected framing is authoritative.]**
+
 ```text
 Because mutmut aborted during its own internal "Running clean tests" phase, BEFORE
-  generating or evaluating a single mutant, NONE of the ten status categories (killed,
-  survived, no_tests, not_checked, skipped, suspicious, timeout, caught_by_type_check,
-  segfault, check_was_interrupted_by_user) have ANY value to report — not zero-with-
-  meaning, but genuinely UNMEASURED. `total` itself was never established as a tested
-  quantity (mutants were generated during Phase 1, but zero were ever run). The
-  reconciliation equation `sum(all ten) == total` and the `not_checked == 0`/
-  `caught_by_type_check == 0` checks are therefore INAPPLICABLE — there is no dataset to
-  reconcile. No raw diagnostic mutation score is computed (numerator and denominator are
-  both undefined). No survivor count. No no_tests count. No timeout/anomaly to triage
-  (zero mutants were ever executed, so zero timeouts/anomalies of any kind occurred).
-BASELINE STATUS: INCOMPLETE — NON-GATING DIAGNOSTIC.
+  generating or evaluating a single mutant, mutation execution never reached real mutant
+  testing. No valid baseline score exists. Mutants were generated during Phase 1
+  ("Generating mutants" — 14 files), but zero were ever run against real mutation
+  testing, and the generated-mutant population/status snapshot was NOT captured or
+  retained before this transaction's own cleanup of the aborted run's `mutants/` working
+  directory. The exact generated `total` count and any per-category counts (including
+  `not_checked`) are therefore UNAVAILABLE from preserved evidence — not because they are
+  intrinsically undefined as a concept, but because no snapshot of them was taken before
+  cleanup. No such count may be invented, estimated, or reconstructed after the fact, and
+  none is reconstructed by running mutmut again (this transaction does NOT rerun mutmut).
+  The reconciliation equation `sum(all ten) == total` and the `not_checked == 0`/
+  `caught_by_type_check == 0` checks were never evaluated — there is no preserved dataset
+  to reconcile. No raw diagnostic mutation score is computed. No survivor count. No
+  no_tests count. No timeout/anomaly requiring triage was ever observed (mutation testing
+  itself never began).
+BASELINE STATUS: INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged by this correction).
 ```
 
 ### Discrepancy note — `P3-PY-MUT-INSTALL-A-MIN-01`'s actual current state (verified, not assumed from this task's own text)
@@ -16956,10 +16963,13 @@ python/feature-engine/src/**, python/feature-engine/tests/**, python/feature-eng
 ```text
 mutmut baseline attempt:       INCOMPLETE — NON-GATING DIAGNOSTIC (blocked before any
                                 mutant was evaluated).
-P3-PY-MUT-BASELINE-A-MAJ-01:   OPEN (new finding — pre-existing test-isolation defect,
-                                not remediated here).
-P3-PY-MUT-INSTALL-A-MIN-01:    REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW (unchanged;
-                                NOT "CLOSED" — see discrepancy note above).
+P3-PY-MUT-BASELINE-A-MAJ-01:   REMEDIATED — PENDING REVIEW A RE-REVIEW (see "Feature
+                                Mutation Baseline Blocker Remediation" section below).
+P3-PY-MUT-BASELINE-A-MIN-01:   REMEDIATED — PENDING REVIEW A RE-REVIEW (evidence-wording
+                                finding; see remediation section below).
+P3-PY-MUT-INSTALL-A-MIN-01:    CLOSED — Review A final bounded validation (see
+                                remediation section below; supersedes the prior
+                                "REMEDIATED — PENDING FINAL BOUNDED RE-REVIEW" state).
 mutmut:                        INSTALLED + PINNED (unchanged — version 3.7.0, config
                                 unchanged, verified byte-identical throughout).
 Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged —
@@ -16984,6 +16994,140 @@ reconfirmed) exists may the later analysis/threshold-proposal sequence begin. Ne
 performed here.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `python/feature-engine/pyproject.toml`, `python/feature-engine/requirements-dev.lock.txt`, `docs/engineering/testing.md`, `docs/constitution/**`, `docs/adr/**`, `docs/architecture/module-registry.yaml` all verified byte-unchanged (`git diff --quiet` for each); no other file touched. `manifest_version` `"10.288"` → `"10.289"`.
+
+## `feature-engine` — Feature Mutation Baseline Blocker Remediation (`P3-PY-MUT-BASELINE-A-MAJ-01` + `P3-PY-MUT-BASELINE-A-MIN-01` → `REMEDIATED — PENDING REVIEW A RE-REVIEW`; `P3-PY-MUT-INSTALL-A-MIN-01` → `CLOSED — Review A final bounded validation`)
+
+**Bounded remediation transaction — vai trò: `Feature Mutation Baseline Blocker Remediation Executor`.** Fixes the exact test-isolation defect identified as `P3-PY-MUT-BASELINE-A-MAJ-01` and corrects the aborted-baseline evidence wording identified as `P3-PY-MUT-BASELINE-A-MIN-01`. Mechanically records Review A's already-completed disposition closing `P3-PY-MUT-INSTALL-A-MIN-01`. Does NOT rerun `mutmut run`, does NOT compute a mutation score, does NOT close either baseline finding itself (both left `PENDING REVIEW A RE-REVIEW`), does NOT close `P3-FEATURE-QG-EVID-03`.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `79c2f8ad84d00b899e4353dcfb939f33a27a8625` via `git rev-parse HEAD`; `origin/main` confirmed at the identical SHA after `git fetch origin main --quiet`. Tracked tree clean bar the same pre-existing unrelated untracked clutter as every prior transaction this track.
+
+### ADR Scope Rule (checked fresh)
+
+```text
+Result: ADR_NOT_REQUIRED.
+Reasoning: bounded fix of a single test-isolation defect (no production-code, contract,
+  or architecture change), an evidence-wording correction, and mechanical recording of an
+  already-completed external reviewer disposition. No governance-process or threshold
+  change.
+```
+
+### MAJ-01 — test isolation fix
+
+```text
+Exact change, python/feature-engine/tests/test_definition.py,
+  test_subject_id_any_field_difference_different_id:
+
+  BEFORE:
+    version = kwargs.pop("version", "fd-1")
+    other = feature_scope("volatility_metric", version=version, **kwargs)
+
+  AFTER:
+    local_kwargs = dict(kwargs)
+    version = local_kwargs.pop("version", "fd-1")
+    other = feature_scope("volatility_metric", version=version, **local_kwargs)
+
+The fix operates on a local copy of the parametrize-supplied dict; the shared,
+  module-level parametrize case object `{"version": "fd-2"}` is never mutated. No
+  parameter case changed, no expected-behavior change, no production source touched, no
+  change to feature_scope semantics or this test's coverage intent (still asserts
+  subject-id divergence on each of the four single-field-difference cases).
+```
+
+### Required verification (all performed fresh, this transaction)
+
+```text
+1. Normal full suite: `python -m pytest tests/ -q` -> 193 passed, 0 failed.
+2. Same-process repeated-invocation proof (the actual bug-reproducing condition — NOT
+   substituted with separate shell processes): a single Python process called
+   `pytest.main(["-q", "tests/test_definition.py::
+   test_subject_id_any_field_difference_different_id"])` FIVE times in sequence within
+   that one process. Result: all five invocations returned exit code 0 ("4 passed" each
+   time), including runs 2-5 which are exactly the condition under which the pre-fix
+   defect reproduced (run 2 previously showed "3 passed, 1 failed" with an emptied shared
+   `kwargs` dict). Post-fix, no degradation across any repetition.
+3. `ruff check src tests` -> "All checks passed!"
+4. `mypy src tests` -> "Success: no issues found in 24 source files".
+```
+
+### MIN-01 — aborted-baseline evidence wording correction
+
+```text
+Corrected the "Complete status reconciliation — NOT PRODUCED" prose in the prior
+  ("Feature Engine NON-GATING Baseline Attempt") section above, in place, with a
+  cross-reference marker. Prior wording incorrectly framed the ten mutmut status
+  categories and `total` as "genuinely UNMEASURED"/"intrinsically... undefined" in an
+  absolute, conceptual sense. Corrected framing (now authoritative): mutation execution
+  never reached real mutant testing; no valid baseline score exists; mutants WERE
+  generated (Phase 1, 14 files) but the generated-mutant population/status snapshot was
+  NOT captured or retained before this repository's own required cleanup of the aborted
+  run's `mutants/` working directory; the exact generated `total` and any per-category
+  counts (including `not_checked`) are therefore UNAVAILABLE FROM PRESERVED EVIDENCE, not
+  because no such data ever existed at any point in time. No count is invented,
+  estimated, or reconstructed by this transaction, and none is reconstructed by rerunning
+  mutmut (not performed here). Historical BASELINE STATUS `INCOMPLETE — NON-GATING
+  DIAGNOSTIC` is UNCHANGED by this wording correction.
+```
+
+### Installation finding bookkeeping — `P3-PY-MUT-INSTALL-A-MIN-01`
+
+```text
+Recording Review A's own already-completed disposition, per this task's explicit
+  instruction that this is "recording reviewer authority, NOT executor self-closure":
+  P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final bounded validation.
+This supersedes the prior recorded state (`REMEDIATED — PENDING FINAL BOUNDED
+  RE-REVIEW`), which this same MANIFEST previously flagged as a discrepancy against an
+  earlier task's incorrect "CLOSED" premise (see the "Discrepancy note" in the section
+  above) — that earlier discrepancy is now resolved: Review A has since completed the
+  final bounded re-review and closed the finding, and this transaction mechanically
+  records that authority's own disposition rather than asserting closure on its own
+  authority.
+```
+
+### Finding states after this remediation
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01: REMEDIATED — PENDING REVIEW A RE-REVIEW (test-isolation fix
+  applied and verified per the required checks above; NOT self-closed — awaiting Review
+  A's own re-review before any closure).
+P3-PY-MUT-BASELINE-A-MIN-01: REMEDIATED — PENDING REVIEW A RE-REVIEW (evidence-wording
+  correction applied above; NOT self-closed — awaiting Review A's own re-review before
+  any closure).
+P3-PY-MUT-INSTALL-A-MIN-01: CLOSED — Review A final bounded validation (recorded above).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only python/feature-engine/tests/test_definition.py, docs/MANIFEST.md, and
+  docs/CHANGELOG.md changed (confirmed via `git status --porcelain=v1`).
+python/feature-engine/src/**, pyproject.toml, requirements-dev.lock.txt,
+  docs/engineering/testing.md, docs/constitution/**, docs/adr/**,
+  docs/architecture/module-registry.yaml, docs/domain/**, CI/CD workflows, any Go module:
+  all verified byte-identical (`git diff --quiet` for each path). `mutmut run` was NOT
+  executed in this transaction (no `mutants/` directory was ever created here). No
+  mutation score calculated. No survivor/equivalent analysis performed. No threshold
+  proposed. `P3-FEATURE-QG-EVID-03` not closed. Overall Feature Chapter 13 QG not rerun.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-01:   REMEDIATED — PENDING REVIEW A RE-REVIEW.
+P3-PY-MUT-BASELINE-A-MIN-01:   REMEDIATED — PENDING REVIEW A RE-REVIEW.
+P3-PY-MUT-INSTALL-A-MIN-01:    CLOSED — Review A final bounded validation.
+mutmut:                        INSTALLED + PINNED (unchanged — version 3.7.0, config
+                                unchanged, verified byte-identical).
+Baseline attempt:               INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged — this
+                                transaction did not rerun the baseline).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Files changed:** `python/feature-engine/tests/test_definition.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.289"` → `"10.290"`.
 
 ## Decision Log
 
