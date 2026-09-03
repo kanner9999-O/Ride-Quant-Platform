@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.294"
+manifest_version: "10.295"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -17934,6 +17934,197 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 ```
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.293"` → `"10.294"`.
+
+## `feature-engine` — Python Mutation Compatibility Remediation Candidate (Testing Convention `v0.12 Approved → v0.13 Draft`; `P3-PY-MUT-BASELINE-B-MAJ-01` → `ROOT CAUSE VALIDATED — REMEDIATION CANDIDATE AUTHORED — PENDING REVIEW A`; `P3-PY-MUT-BASELINE-B-A-MIN-01` → `CLOSED`)
+
+**Governed candidate-authoring transaction — vai trò: `Python Mutation Compatibility Remediation Candidate Author`.** Authors ONE compatibility-remediation CANDIDATE (Testing Convention `v0.13 Draft`) for the validated `P3-PY-MUT-BASELINE-B-MAJ-01` defect (`MUTMUT_3_7_INTERNAL_DEFECT`), and mechanically records Review A + Independent Review B's already-completed root-cause-validation dispositions. Does NOT implement any remediation, does NOT modify Feature production/test/config/dependency files, does NOT install a new tool version, does NOT run real mutants, does NOT propose a threshold, does NOT close `P3-FEATURE-QG-EVID-03`, does NOT self-approve v0.13.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `e44aaa7f9ec6cfbb7b7aa2c3386892fd688ce9b5` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. `manifest_version` confirmed `"10.294"` at start.
+
+### Reviewed authority recorded (external, mechanical recording only)
+
+```text
+ROOT-CAUSE INVESTIGATION REVIEW A: CLEAN — ROOT CAUSE VALIDATED; TOOLING REMEDIATION
+  REQUIRED.
+Independent Review B, same boundary:
+  P3-PY-MUT-BASELINE-B-MAJ-01: ROOT CAUSE VALIDATED — REMEDIATION REQUIRED.
+  P3-PY-MUT-BASELINE-B-A-MIN-01: VALIDLY CLOSED.
+  INDEPENDENT REVIEW B: CLEAN — ROOT CAUSE VALIDATED; TOOLING REMEDIATION REQUIRED.
+```
+
+### ADR Scope Rule (run fresh for this transaction; NOT assumed inherited)
+
+```text
+Result (THIS transaction — authoring a Draft, unapproved, unimplemented candidate):
+  ADR_NOT_REQUIRED. Proposal only; nothing in the operative engineering system changes
+  today (no wrapper module created, no invocation path changed, no tool version/config
+  changed, no threshold added).
+Explicit non-inheritance flag: this result does NOT automatically extend to a future
+  INSTALLATION of the selected candidate. Ride-owned code that intercepts/monkeypatches
+  a third-party tool's own runtime execution behavior is a NEW CLASS of artifact this
+  repository has not previously governed (categorically different from prior tool
+  SELECTION/PINNING/config-VALUE decisions in this track). A future, separate,
+  installation transaction MUST independently re-run the ADR Scope Rule at its own
+  boundary — it is plausible, though not decided here, that installing a runtime
+  tool-behavior interception mechanism crosses into ADR_REQUIRED.
+```
+
+### Alternatives considered (full detail in `docs/engineering/testing.md` v0.13 banner; summarized here)
+
+```text
+Option A (Ride-side test compatibility workaround): honestly classified as a
+  compatibility WORKAROUND, not a defect correction. Exact blast radius measured via
+  `grep -rc` across python/feature-engine/tests/*.py: SWING_DISTANCE_INPUT_CONTRACT 80
+  occurrences (conftest.py 2, test_current_view.py 4, test_regime_passthrough.py 2,
+  test_swing_distance.py 72), REGIME_INPUT_CONTRACT 42 occurrences (conftest.py 2,
+  test_regime_passthrough.py 30, test_swing_distance.py 10). TOTAL 122 reference sites
+  across 4 test files. REJECTED as preferred (large blast radius + real behavior-change
+  risk + does not correct an actual Ride defect); confirmed viable as a fallback only.
+Option B (Ride-owned mutmut 3.7.0 compatibility shim): SELECTED. Prototyped and proven
+  in an isolated scratch git worktree (evidence below).
+Option C (pinned patched/forked mutmut artifact): VIABLE IN PRINCIPLE — exact upstream
+  base tag `3.7.0` (commit `4f1208093517575a9402b99cfdcc7dea54c40e67`); minimal delta
+  would patch execute_pytest() equivalently to Option B, or more surgically gate
+  trampoline()'s forced-fail raise on pytest's own PYTEST_CURRENT_TEST env var. DEFERRED
+  — requires Ride to build/version/hash/host a forked package artifact, with permanent
+  upstream-divergence and fork-maintenance burden, for no benefit over Option B.
+Option D (disable/bypass forced-fail verification): REJECTED outright, no equivalent
+  safety proof sought or exists — would silently weaken the mechanism's own sanity
+  guarantee, creating false-positive-effectiveness risk. Not prototyped, per instruction.
+Option E (upgrade to a released fixed version): checked directly against PyPI (`pip
+  index versions mutmut`, live query against the real package index): latest published
+  release is still exactly `3.7.0` (full list 3.7.0 down to 0.0.1 — no newer release).
+  Classification: NOT CURRENTLY AVAILABLE.
+```
+
+### Scratch feasibility evidence (Option B; isolated `git worktree`, tracked repo never modified)
+
+```text
+Environment: `git worktree add --detach <scratch> e44aaa7f9ec6cfbb7b7aa2c3386892fd688ce9b5`,
+  same governed clean-room venv (mutmut 3.7.0 / pytest 9.1.1 / Python 3.13.6). Prototype
+  code lives only in scratch, never copied into the tracked repository, never committed.
+Design: monkeypatches mutmut.__main__.PytestRunner.execute_pytest (in-memory method
+  override against the officially installed, unmodified mutmut 3.7.0 package — no
+  mutmut file on disk edited). Captures the wrapped pytest.main() invocation's combined
+  stdout+stderr (hook-based detection via pytest_collectreport/pytest_exception_interact
+  was tried FIRST and empirically found NOT to fire for a conftest ImportError, since
+  pytest's own session-wrapping code raises this specific case as a UsageError before
+  either hook is reached — this negative result is itself part of the evidence trail,
+  not omitted). Returns non-zero (satisfying run_forced_fail_test's `== 0` check without
+  raising) ONLY if exit_code==4 AND MUTANT_UNDER_TEST=="fail" AND the captured output
+  contains the EXACT string "mutmut.__main__.MutmutProgrammaticFailException". Every
+  other exit-code-4 case (including during forced-fail without that exact string)
+  raises BadTestExecutionCommandsException exactly as unmodified upstream mutmut does.
+Proof captured (all six required items):
+  1. `pytest tests/ -q` unaffected: 193 passed.
+  2. Generation/stats/clean-tests phase unaffected: 1531 mutants generated (14 files,
+     identical to the second baseline attempt), clean-tests exit code 0 (193 passed).
+  3. Forced-fail phase now completes successfully: captured proof —
+     "[ride-shim] pytest exit 4 recognized as mutmut's own forced-fail sentinel
+     (mutmut.__main__.MutmutProgrammaticFailException surfaced during conftest import)
+     -- treating as a SUCCESSFUL forced-fail verification, not a usage error." followed
+     by "RESULT: run_forced_fail_test() completed WITHOUT raising -- forced-fail phase
+     SUCCEEDED."
+  4. Stopped immediately before Phase 5: harness's own final line, "STOPPING HERE --
+     Phase 5 (real mutant dispatch) intentionally never reached"; `mutmut run` itself
+     was never invoked, only mutmut's own internal functions directly.
+  5. Genuinely-invalid pytest args still correctly fail: two negative-control tests —
+     (a) `execute_pytest(['--this-flag-does-not-exist-xyz'])` with MUTANT_UNDER_TEST
+     unset: correctly raised BadTestExecutionCommandsException. (b) same invalid arg
+     with MUTANT_UNDER_TEST="fail" (sentinel string absent): ALSO correctly raised
+     BadTestExecutionCommandsException — proving the shim requires the exact sentinel
+     identity, not merely "exit code 4 during forced-fail."
+  6. No production behavior change: shim only monkeypatches mutmut's own class; zero
+     Feature Engine file read for modification; confirmed via `git diff --quiet` in the
+     scratch worktree before removal and against every protected path in the real
+     tracked repository afterward.
+Cleanup: prototype `mutants/` removed, `git worktree remove --force` applied, tracked
+  repository confirmed untouched (`git status`, `HEAD` unchanged) before this write-up.
+```
+
+### Selected candidate contract — Option B (full contract recorded in `docs/engineering/testing.md` v0.13; summarized here)
+
+```text
+Nature: a TOOL-MECHANISM COMPATIBILITY AMENDMENT to invocation of the already-approved
+  mutmut==3.7.0 mechanism — not a test workaround, not a different mechanism/version,
+  not a [tool.mutmut] config change.
+Scope: one small, Ride-owned Python wrapper module (exact path/identity/hash fixed at a
+  future, separate installation transaction), monkeypatching
+  PytestRunner.execute_pytest per the scratch-proven logic, then invoking mutmut's own
+  real CLI.
+Behavioral contract: returns non-zero instead of raising ONLY when exit_code==4 AND
+  MUTANT_UNDER_TEST=="fail" AND the exact sentinel string is present; identical to
+  unmodified mutmut 3.7.0 in every other case.
+Verification contract (at installation, not this transaction): re-run all six scratch
+  proofs against the actual installed artifact, plus a full ten-status sequencing
+  through to a genuinely COMPLETE (not_checked==0) baseline.
+Fail-closed: any unmatched exit-code-4 aborts exactly as today; a future sentinel-string
+  change in mutmut would simply stop the shim from firing, reverting to today's hard,
+  visible abort — never a silent mis-success.
+Provenance/versioning: independent version/content-hash identity fixed at installation,
+  cross-referenced against mutmut 3.7.0 and this exact defect chain.
+Upgrade/removal rule: once an official mutmut release fixes the defect (verified via the
+  same PyPI-check method plus source re-verification at the new tag), delete the
+  wrapper import and invoke mutmut directly again.
+Relationship to upstream: never modifies/forks/redistributes any mutmut file; pure
+  runtime method override against the unmodified PyPI wheel.
+Mutation-surface / ten-status contracts: UNCHANGED. Prior baseline evidence (1531-mutant
+  not_checked snapshot, SHA-256 ba300bd5739122fa17d6bcf36901453817c611c5f167c7e4a72d0d2891de8c81)
+  remains HISTORICAL ONLY, not reinterpreted or superseded.
+No numeric threshold added, proposed, or implied.
+```
+
+### Finding states after this transaction
+
+```text
+P3-PY-MUT-BASELINE-B-MAJ-01: ROOT CAUSE VALIDATED — REMEDIATION CANDIDATE AUTHORED —
+  PENDING REVIEW A. NOT closed.
+P3-PY-MUT-BASELINE-B-A-MIN-01: CLOSED — Review A validation; VALIDLY CLOSED —
+  Independent Review B.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/engineering/testing.md (blob 188241e69a4bd357d9b386cbad0388f1ff829a30),
+  docs/MANIFEST.md, and docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1`). python/feature-engine/src/**,
+  python/feature-engine/tests/**, python/feature-engine/pyproject.toml,
+  python/feature-engine/requirements-dev.lock.txt, docs/constitution/**, docs/adr/**,
+  docs/architecture/module-registry.yaml, CI/CD workflows, any Go module: all verified
+  byte-identical (`git diff --quiet` for each path). No wrapper module created in the
+  tracked repository. No mutmut version change. No real mutant dispatched. No new
+  baseline created. No mutation score calculated. No survivor analysis. No threshold
+  proposed. `P3-PY-MUT-BASELINE-B-MAJ-01` not closed. `P3-FEATURE-QG-EVID-03` not closed.
+```
+
+### State summary
+
+```text
+Testing Convention:            v0.12 Approved (preserved, historical) → v0.13 Draft
+                                (this candidate; approved_by/approved_at null/null).
+P3-PY-MUT-BASELINE-B-MAJ-01:   ROOT CAUSE VALIDATED — REMEDIATION CANDIDATE AUTHORED —
+                                PENDING REVIEW A.
+P3-PY-MUT-BASELINE-B-A-MIN-01: CLOSED — Review A validation; VALIDLY CLOSED —
+                                Independent Review B.
+P3-PY-MUT-BASELINE-A-MAJ-01:   CLOSED (unchanged). P3-PY-MUT-BASELINE-A-MIN-01: CLOSED
+                                (unchanged). P3-PY-MUT-INSTALL-A-MIN-01: CLOSED
+                                (unchanged).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged); no compatibility
+                                remediation installed yet.
+Second baseline attempt:       INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged; 1531-
+                                mutant snapshot remains historical diagnostic evidence).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** bounded Review A of the v0.13 compatibility-remediation candidate.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.294"` → `"10.295"`.
 
 ## Decision Log
 

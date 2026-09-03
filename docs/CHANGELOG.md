@@ -2,6 +2,69 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — feature-engine: Python Mutation Compatibility Remediation Candidate (Testing Convention `v0.12 Approved → v0.13 Draft`)
+
+**Governed candidate-authoring transaction — vai trò: `Python Mutation Compatibility Remediation Candidate Author`.** Authors ONE compatibility-remediation candidate (Testing Convention v0.13 Draft, `approved_by`/`approved_at` null) for the validated `P3-PY-MUT-BASELINE-B-MAJ-01` defect (`MUTMUT_3_7_INTERNAL_DEFECT`). Not implemented; mutmut 3.7.0 remains the installed/pinned mechanism, byte-identical.
+
+### Reviewed authority recorded
+
+```text
+ROOT-CAUSE INVESTIGATION REVIEW A: CLEAN — ROOT CAUSE VALIDATED; TOOLING REMEDIATION
+  REQUIRED. Independent Review B: P3-PY-MUT-BASELINE-B-MAJ-01 ROOT CAUSE VALIDATED —
+  REMEDIATION REQUIRED; P3-PY-MUT-BASELINE-B-A-MIN-01 VALIDLY CLOSED.
+  INDEPENDENT REVIEW B: CLEAN — ROOT CAUSE VALIDATED; TOOLING REMEDIATION REQUIRED.
+```
+
+### Alternatives considered and selection
+
+```text
+Option A (Ride-side conftest refactor): honest workaround, not a defect fix; 122
+  reference-site blast radius across 4 test files. REJECTED as preferred, viable as
+  fallback. Option B (Ride-owned mutmut compatibility shim, monkeypatching
+  PytestRunner.execute_pytest to recognize mutmut's own forced-fail sentinel exactly,
+  by identity, not by blanket exit-code-4 acceptance): SELECTED, proven in an isolated
+  scratch git worktree (all six required feasibility proofs captured, including two
+  negative-control tests confirming genuinely-invalid pytest args still fail correctly).
+  Option C (patched/forked mutmut, base tag 3.7.0 @ 4f1208093517575a9402b99cfdcc7dea54c40e67):
+  viable but deferred — permanent fork-maintenance burden for no benefit over B.
+  Option D (disable forced-fail check): rejected outright, no safety proof sought.
+  Option E (upgrade): checked live against PyPI — latest release still 3.7.0 — NOT
+  CURRENTLY AVAILABLE.
+```
+
+### ADR Scope Rule — run fresh, not inherited
+
+```text
+THIS transaction (authoring a Draft candidate): ADR_NOT_REQUIRED — proposal only,
+  nothing in the operative system changes today. Explicit non-inheritance flag: a
+  future INSTALLATION of Option B introduces a new class of artifact (Ride-owned
+  runtime interception of a third-party tool) not previously governed in this
+  repository, and MUST independently re-run the ADR Scope Rule at its own boundary —
+  plausibly ADR_REQUIRED, not decided here.
+```
+
+### Finding states
+
+```text
+P3-PY-MUT-BASELINE-B-MAJ-01: ROOT CAUSE VALIDATED — REMEDIATION CANDIDATE AUTHORED —
+  PENDING REVIEW A. Not closed.
+P3-PY-MUT-BASELINE-B-A-MIN-01: CLOSED — Review A validation; VALIDLY CLOSED —
+  Independent Review B.
+```
+
+### Preserved unchanged
+
+```text
+mutmut 3.7.0: INSTALLED + PINNED, no remediation installed. Second baseline attempt:
+  INCOMPLETE — NON-GATING DIAGNOSTIC (1531-mutant snapshot remains historical only).
+  TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED.
+  P3-FEATURE-QG-EVID-03: FAIL — evidence. Formal Feature Chapter 13 QG: FAIL. Feature
+  module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED. No
+  production/test/config/dependency file changed; no real mutant dispatched.
+```
+
+Next governed step: bounded Review A of the v0.13 compatibility-remediation candidate.
+
 ## [Unreleased] — 2026-09-03 — feature-engine: mutmut Forced-Fail Root-Cause Investigation (`P3-PY-MUT-BASELINE-B-MAJ-01` root cause IDENTIFIED — `MUTMUT_3_7_INTERNAL_DEFECT`)
 
 **Bounded diagnostic investigation — vai trò: `mutmut Forced-Fail Root-Cause Investigator`.** Identifies the actual underlying cause of pytest exit code 4 during mutmut 3.7.0's "Running forced fail test" phase. Performed entirely in an isolated `git worktree` scratch checkout — tracked repository never modified. `Config.debug=True` enabled at runtime only (never persisted). No real mutation testing executed; no second full `mutmut run` performed (mutmut's own internal functions called directly, reproducing `_run()` through Phase 4 only).
