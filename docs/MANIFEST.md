@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.308"
+manifest_version: "10.309"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -19798,6 +19798,204 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** bounded Review A re-validation of the durable baseline evidence artifact, followed by independent validation of `P3-PY-MUT-BASELINE-B-MAJ-01`'s remediation.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-001.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.307"` → `"10.308"`.
+
+## `feature-engine` — Mutation Baseline Calibration Analysis (Step-4; `P3-PY-MUT-BASELINE-A-MAJ-02` → `CLOSED — REVIEW A`; `P3-PY-MUT-BASELINE-B-MAJ-01` → `CLOSED — REVIEW A INDEPENDENT VALIDATION`; no threshold proposed)
+
+**Bounded analysis transaction — vai trò: `Feature Engine Mutation Baseline Calibration Analysis Executor`.** Performs the governed Step-4 analysis of the already-completed, durably-recorded Feature Engine mutation baseline (`feature-engine-mutation-baseline-001.json`, blob `978ebf92f89e5bd93ba112c1b8e4622835ea71ba`): full 369-survivor classification, mutation-surface blind-spot assessment of the 12 mutmut-excluded hand-written methods, and kill-validity investigation of the corrected 165-member `BadTestExecutionCommandsException` cohort. Does NOT modify baseline-001's raw evidence, does NOT change the baseline score, does NOT remove any candidate-equivalent from the denominator, does NOT propose or select a numeric threshold, does NOT modify production semantics to kill survivors, does NOT mark `P3-FEATURE-QG-EVID-03` PASS, does NOT rerun formal Chapter 13 QG, does NOT approve Feature Engine, open the Phase 3 gate, or authorize LIVE.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `4cecd03110dd7404e39807cfc1c43628d4af2c4a` via `git rev-parse HEAD`, matching this task's own expected boundary. Independently re-verified baseline-001's pinned values directly from the committed JSON (total 1531, killed 1162, survived 369, all other statuses 0, `mutation_score` 75.898105813194%, sorted-mapping SHA-256 `d69f0c1902d1c275bdb1db464eacbda35d6b2727fd4c5f5889c5c780add5e244`) against the task's own stated baseline authority — exact match, no premise mismatch found.
+
+### Review A dispositions folded in (externally-supplied; no prior record existed)
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-02: CLOSED — REVIEW A. Externally-supplied disposition:
+  Review A, at boundary 4cecd03110dd7404e39807cfc1c43628d4af2c4a, independently
+  validated the durable evidence artifact (blob
+  978ebf92f89e5bd93ba112c1b8e4622835ea71ba).
+P3-PY-MUT-BASELINE-B-MAJ-01: CLOSED — REVIEW A INDEPENDENT VALIDATION.
+  Externally-supplied disposition, same Review A pass.
+Stated Review A result: Blocker 0 / Major 0 / Minor 0 — FINAL BOUNDED REVIEW A
+  RE-VALIDATION: CLEAN. Externally-supplied.
+No prior record of either disposition existed in docs/MANIFEST.md or
+  docs/CHANGELOG.md before this transaction — this is their first recording,
+  folded into this already-required analysis transaction per the P3-TXN-001
+  default-fold lesson (no standalone review-evidence transaction created).
+```
+
+### Survivor analysis (all 369, repository-resolvable per-mutant)
+
+```text
+Methodology: exact per-survivor unified diffs reconstructed from the full
+  mutated source trees preserved in this session's own scratch state from the
+  original baseline run (_mutmut_orig vs. each specific _mutmut_N variant) —
+  NO mutation testing rerun performed for this section. Two-pass
+  classification: (1) 9 structural categories via token-level diffing;
+  (2) 5 materiality tags via AST-based raise/constructor/attribute-assignment
+  line-range analysis against the original function body. All 369 resolved;
+  zero unclassified.
+Structural categories: value_replaced_with_none 183, string_case_mutation 70,
+  string_literal_marker_mutation 59, call_argument_removed 25,
+  comparison_or_logical_operator_mutation 12, numeric_literal_mutation 10,
+  control_flow_statement_mutation 5, arithmetic_operator_mutation 3,
+  boolean_none_swap 2.
+Materiality tags: low_materiality_message_text 173,
+  constructed_object_field_not_independently_asserted 83,
+  needs_review_data_context 55, actionable_test_gap_candidate 55,
+  very_likely_equivalent_codec_case_insensitive 3.
+Rollup: 138 material concrete actionable test gaps (constructed-object-field +
+  actionable-logic categories); 173 low-priority message-text-only gaps
+  (NOT equivalents — a message-asserting test would kill them); 3 candidate-
+  equivalents (codec case-insensitivity) — NOT removed from the denominator,
+  pending Testing Convention v0.16's individually-pinned justification
+  requirement; 55 requiring individual/manual review.
+Duplicated/semantically-related pattern: 30 functions with >=3 survivors each
+  account for 345/369 (93.5%) of the total — dominated by __init__/constructor
+  and cursor/authority-sealing functions. Top: contracts.resolve_computation_cursor
+  (35), contracts._seal_verified_authority (24),
+  swing_distance.SwingDistanceFeatureEngine.__init__ (23).
+```
+
+### Mutation-surface blind-spot analysis (12 mutmut-excluded hand-written methods)
+
+```text
+Assessed directly from current source (not from ordinary-test claims, per the
+  hard rule carried forward from Testing Convention v0.12 SS5c: ordinary
+  passing unit tests are NOT equivalent mutation-effectiveness evidence).
+High-materiality, zero mutation coverage: authority_resolver.
+  StaticInputContractAuthorityProvider.resolve (inverts a fail-closed
+  profile-mismatch guard if mutated), candle.OHLCV.field (4-way field
+  dispatch), contracts.DecimalPrecisionPolicy.apply (the actual numeric
+  rounding computation), contracts.FeatureDefinition.__post_init__ (~15
+  independent fail-closed policy guards), contracts.
+  DecimalPrecisionPolicy.__post_init__ (boundary validation).
+Moderate materiality: authority_resolver.
+  FilesystemInputContractAuthorityResolver.resolve, candle.CandleScope.
+  subject_id, contracts.EvaluationFrontier.plain_stream_positions, contracts.
+  FeatureScope.feature_subject_id, publish.SequenceAllocator.next_ref,
+  publish.SequenceAllocator.producer_ref.
+High governance intent, low mutation surface: contracts.
+  VerifiedInputContractAuthority.__init__ (unconditional anti-construction
+  guard; already covered by ordinary tests for THAT property, which is not
+  mutation-effectiveness evidence).
+No qualifying mutation-effectiveness mechanism exists today for any of the 12.
+  What would qualify, per v0.16 (none created by this transaction): an
+  upstream mutmut fix removing the decorated-class limitation; a manually-
+  authored, individually-pinned fault-injection suite mirroring mutmut's own
+  operators; or a separate, independently-reported supplemental tool run
+  never silently merged into the baseline-001 aggregate. Recorded as an open,
+  named, bounded gap.
+```
+
+### Kill-validity cohort — 165 `BadTestExecutionCommandsException` occurrences
+
+```text
+Mechanism confirmed by direct mutmut 3.7.0 source inspection: a raised
+  BadTestExecutionCommandsException inside a forked child process (per-mutant
+  test worker) is uncaught, terminates the child via Python's default
+  unhandled-exception path at OS exit status 1 -- bitwise IDENTICAL to the
+  exit code mutmut records for a genuine, ordinary test-failure kill. This is
+  exactly why per-mutant identity was not recoverable from the aggregate
+  exit_code_by_key mapping.
+Diagnostic performed (bounded, NON-GATING, isolated): an 18-mutant stratified
+  sample from the 1162 killed population, re-run individually by exact mutant
+  name with debug=true, in a SEPARATE, disposable git worktree + throwaway
+  venv checked out at the same boundary (4cecd03110dd7404e39807cfc1c43628d4af2c4a)
+  -- removed after the diagnostic completed. Tracked repository HEAD/working
+  tree confirmed unchanged before and after (git status/git rev-parse HEAD).
+  baseline-001's pinned counts, score, and SHA-256 untouched throughout.
+Result: tests/conftest.py makes exactly two module-level (import-time) calls,
+  both to resolve_input_contract_authority_from_repository. All 6/6 sampled
+  authority_resolver.py mutants and 2/2 sampled contracts.py mutants in that
+  exact reachable call graph (_seal_verified_authority,
+  _construct_verified_authority) reproduced the crash pathway live; 0/10
+  sampled mutants from unrelated modules (swing_distance, regime_passthrough,
+  current_view, candle_window, identity) did -- confirming the cohort is
+  mechanistically CONFINED to this one call graph, not codebase-wide.
+Bounded upper-bound population: authority_resolver.py (134 total, 113 killed)
+  + the three named in-graph contracts.py helper functions (96 total, 71
+  killed) = at most 184 candidates -- comfortably above the corrected 165
+  cohort size (internally consistent).
+Disposition: exact full 165-identity enumeration NOT pursued in this
+  transaction (would require re-running up to 184 additional candidates,
+  disproportionate to a Step-4 analysis that explicitly does not propose a
+  threshold). Recorded, unresolved analysis gap: exact membership. Resolved,
+  not a guess: the mechanism, the exact scope boundary, and the calibration-
+  bias implication (authority_resolver.py / this contracts.py helper
+  subset's kill rate partly reflects a blunt collection-abort detection
+  channel, not uniformly fine-grained assertion coverage) -- a caveat a
+  future Step-5 threshold proposal must carry forward explicitly.
+```
+
+### Analysis artifact created
+
+```text
+New file: docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  baseline-001-analysis.md. One bounded markdown artifact (no new governance
+  framework invented) containing: the full 369-survivor per-mutant
+  classification table, the 12-method blind-spot assessment, the kill-
+  validity cohort investigation, and an explicit statement that empirical
+  calibration is now sufficient to proceed to a future Step-5 threshold
+  proposal, subject to three named, carried-forward caveats (the 138 material
+  actionable test gaps; the 12-method blind spot; the authority-resolution
+  kill-validity detection-channel caveat). Adjacent to, and does not modify,
+  feature-engine-mutation-baseline-001.json.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  baseline-001-analysis.md (new), docs/MANIFEST.md, docs/CHANGELOG.md changed
+  in the tracked repository (confirmed via `git status --porcelain=v1`).
+  python/feature-engine/src/**, python/feature-engine/tests/**,
+  python/feature-engine/tooling/**, pyproject.toml,
+  requirements-dev.lock.txt, docs/engineering/testing.md, Constitution, ADRs,
+  execution-rules.md, phase-3-rules.md, module-registry.yaml, CI/CD
+  workflows, any Go module, and feature-engine-mutation-baseline-001.json
+  itself: all verified byte-identical (`git diff --quiet` for each path).
+  The kill-validity diagnostic ran entirely inside a separate, disposable
+  git worktree + venv, removed after use -- zero footprint on the tracked
+  repository. No mutation-testing rerun affecting baseline-001. No
+  production/test/tooling semantics changed. No threshold proposed or
+  selected. No candidate-equivalent removed from the denominator.
+  P3-FEATURE-QG-EVID-03 not marked PASS. Formal Chapter 13 QG not rerun.
+  Feature Engine not approved. Phase 3 gate not opened. LIVE not authorized.
+```
+
+### State summary
+
+```text
+Analysis artifact:              docs/governance/mutation-baseline-evidence/
+                                feature-engine-mutation-baseline-001-analysis.md.
+P3-PY-MUT-BASELINE-A-MAJ-02:   CLOSED — REVIEW A.
+P3-PY-MUT-BASELINE-B-MAJ-01:   CLOSED — REVIEW A INDEPENDENT VALIDATION.
+Survivor classification:        369/369 classified; 138 material actionable
+                                test gaps, 173 low-priority message-text
+                                gaps, 3 candidate-equivalents (not removed),
+                                55 requiring individual review.
+Mutation-surface blind spots:   12 methods, 5 high-materiality, zero
+                                mutation coverage — open, named gap.
+Kill-validity cohort:           mechanism + scope boundary confirmed
+                                (<=184 candidates); exact 165-identity
+                                enumeration remains an unresolved, explicitly
+                                recorded gap.
+Empirical calibration:          sufficient to proceed to a future Step-5
+                                threshold proposal, subject to 3 named
+                                carried-forward caveats (not itself a
+                                threshold proposal).
+Compatibility shim:            INSTALLED (unchanged).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged, NOT marked PASS).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** a Step-5 mutation-effectiveness threshold proposal for Feature Engine, informed by this analysis's empirical findings and required to explicitly address the three carried-forward caveats.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-001-analysis.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.308"` → `"10.309"`.
 
 ## Decision Log
 

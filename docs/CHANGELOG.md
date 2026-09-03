@@ -2,6 +2,85 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — feature-engine: mutation baseline Step-4 calibration analysis (`P3-PY-MUT-BASELINE-A-MAJ-02` → CLOSED — REVIEW A; `P3-PY-MUT-BASELINE-B-MAJ-01` → CLOSED — REVIEW A INDEPENDENT VALIDATION; no threshold proposed)
+
+**Bounded analysis transaction — vai trò: `Feature Engine Mutation Baseline Calibration Analysis Executor`.** Analyzes the already-completed, durably-recorded baseline (`feature-engine-mutation-baseline-001.json`, blob `978ebf92f89e5bd93ba112c1b8e4622835ea71ba`) without rerunning mutation testing, modifying its raw evidence, or changing the score. Folds in externally-supplied Review A dispositions closing both prior findings (no prior record existed; first recording here, per the P3-TXN-001 default-fold lesson — no standalone review-evidence transaction created).
+
+### Survivor analysis (369/369, repository-resolvable)
+
+```text
+Reconstructed exact per-survivor diffs from preserved mutated source (no
+  rerun). 9 structural categories + 5 materiality tags, zero unclassified.
+  Rollup: 138 material concrete actionable test gaps, 173 low-priority
+  message-text-only gaps (not equivalents), 3 candidate-equivalents (codec
+  case-insensitivity -- NOT removed from the denominator, pending v0.16's
+  individually-pinned justification requirement), 55 requiring individual
+  review. 30 functions with >=3 survivors cover 345/369 (93.5%) -- dominated
+  by __init__/constructor and cursor/authority-sealing functions.
+```
+
+### Mutation-surface blind spots (12 mutmut-excluded hand-written methods)
+
+```text
+Assessed from current source, not from ordinary-test claims (hard rule
+  carried forward from Testing Convention v0.12 SS5c). 5 of 12 are
+  high-materiality with zero mutation coverage today (notably
+  StaticInputContractAuthorityProvider.resolve, OHLCV.field,
+  DecimalPrecisionPolicy.apply, FeatureDefinition.__post_init__). Recorded
+  as an open, named, bounded gap with three possible future qualifying
+  mechanisms -- none created by this transaction.
+```
+
+### Kill-validity cohort (165 `BadTestExecutionCommandsException` occurrences)
+
+```text
+Mechanism confirmed via direct mutmut 3.7.0 source inspection: a
+  BadTestExecutionCommandsException raised inside a forked per-mutant worker
+  is uncaught and terminates the child at OS exit status 1 -- bitwise
+  identical to a genuine test-failure kill, explaining why per-mutant
+  identity was unrecoverable from the aggregate mapping. A bounded, isolated,
+  NON-GATING 18-mutant diagnostic (separate disposable worktree + venv,
+  removed after use; tracked repo confirmed unchanged before/after) proved
+  the cohort is mechanistically confined to the exact call graph reachable
+  from tests/conftest.py's two module-level authority-resolution calls
+  (all 6/6 authority_resolver.py + 2/2 in-graph contracts.py samples
+  crashed; 0/10 samples from unrelated modules did). Bounded upper-bound
+  population: <=184 candidates (consistent with the 165 corrected count).
+  Exact full-165 identity enumeration recorded as an explicit, unresolved
+  analysis gap rather than guessed -- the mechanism, scope boundary, and
+  calibration-bias implication are resolved and documented instead.
+```
+
+### Analysis artifact created
+
+```text
+New: docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  baseline-001-analysis.md -- one bounded markdown artifact (full 369-survivor
+  table, 12-method blind-spot assessment, kill-validity investigation, and an
+  explicit "sufficient to proceed to Step-5, subject to 3 named caveats"
+  conclusion). Adjacent to, does not modify, feature-engine-mutation-baseline-
+  001.json.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-02:   CLOSED — REVIEW A.
+P3-PY-MUT-BASELINE-B-MAJ-01:   CLOSED — REVIEW A INDEPENDENT VALIDATION.
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** a Step-5 mutation-effectiveness threshold proposal for Feature Engine, required to explicitly address the three carried-forward caveats from this analysis.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-001-analysis.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.308"` → `"10.309"`.
+
+---
+
 ## [Unreleased] — 2026-09-03 — feature-engine: mutation baseline evidence remediation (`P3-PY-MUT-BASELINE-A-MAJ-02`, durable evidence artifact created)
 
 **Bounded evidence-remediation transaction — vai trò: `Feature Engine Mutation Baseline Evidence Remediation Executor`.** Remediates Review A finding `P3-PY-MUT-BASELINE-A-MAJ-02`: the completed baseline's per-mutant evidence was transient. Original evidence recovered byte-for-byte from scratch working state (not rerun); SHA-256 independently re-verified to match the already-recorded identity exactly.
