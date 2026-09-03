@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.300"
+manifest_version: "10.301"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -18700,6 +18700,100 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** a separate implementation transaction to install the already-approved FEATURE-ENGINE-ONLY compatibility shim.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.299"` → `"10.300"`.
+
+## Phase 3 Process Improvement Proposal #001 (Feature Engine / mutation-testing review cycle) — `PROPOSAL / NOT YET EFFECTIVE`
+
+**New governance/process-improvement proposal authored — vai trò: `Phase 3 Process Improvement Proposal Author`.** Creates `docs/governance/retrospectives/phase3-process-improvement-001.md`, capturing workflow lessons from the Feature Engine mutation-testing mechanism / compatibility-candidate review cycle (Testing Convention v0.8 through v0.16). Proposes three risk-based transaction classes (A/B/C), explicit semantic-lane/bookkeeping-lane separation, batched bounded-finding review, a list of automatable fail-closed deterministic governance checks, and a MANIFEST-scope-reduction target. `proposal_state: "PROPOSAL / NOT YET EFFECTIVE"`. This transaction does NOT silently change current governance, review requirements, approval authority, Quality Gates, or any existing Locked/Approved rule.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `6b7e915b8d05c494084d3a7a90317e737152d6fe` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. `manifest_version` confirmed `"10.300"` at start.
+
+### ADR Scope Rule (self-certification for the act of authoring this proposal)
+
+```text
+Result: ADR_NOT_REQUIRED — a non-effective retrospective/proposal artifact amends no
+  Constitution rule, no ADR, no Testing Convention, no execution-rules.md, no
+  phase-*-rules.md, no Quality Gate semantics, no module-registry.yaml, and no
+  approval-authority rule; it changes zero current governance simply by existing (per
+  the document's own explicit §8 adoption statement). Does NOT decide the ADR
+  classification of any future adoption transaction — that transaction must
+  independently re-run the ADR Scope Rule against its own actual proposed scope.
+```
+
+### Proposal content summary (full detail in the artifact itself)
+
+```text
+1. Three risk-based transaction classes: Class A (high-risk semantic/architecture/QG
+   mechanism — default Review A -> Independent Review B -> Product Owner), Class B
+   (tests/evidence/bounded remediation — risk-based review depth, not automatic full
+   Class-A chain), Class C (mechanical/bookkeeping/factual docs — deterministic
+   validation + fail-closed automation preferred over repeated semantic A+B review).
+   No current or past transaction is retroactively classified by this document.
+2. Explicit semantic-lane / bookkeeping-lane separation — a bookkeeping transaction
+   must never create, reinterpret, or close a semantic finding on its own authority;
+   it must fail closed on any premise mismatch against the actual governance record
+   (a discipline already practiced ad hoc earlier in this same review cycle when a
+   requested Product-Owner-approval-recording task was correctly blocked because the
+   required review-chain evidence was not yet actually present).
+3. Batch bounded findings within one review pass by default, with an explicit
+   exception preserved for cases where a discovered issue materially changes the
+   review surface itself.
+4. A list of automatable, fail-closed deterministic governance checks (HEAD/parent
+   SHA, exact changed-file scope, MANIFEST version transition, document lifecycle
+   consistency, finding-state consistency, stale-pending detection, review-evidence
+   presence before lifecycle approval, arithmetic/count consistency, protected-path
+   byte-identity, governance invariant checks, reviewed-boundary vs. evidence-
+   recording-boundary distinction) — automation must fail closed and must never
+   invent reviewer dispositions or Product Owner decisions. No implementation
+   performed; design only.
+5. Proposed MANIFEST-scope reduction (MANIFEST = current authoritative state/SSOT;
+   detailed historical narrative moves primarily to CHANGELOG/evidence artifacts/
+   review records/retrospectives) — migration NOT performed by this transaction.
+6. Explicit list of non-negotiable controls preserved: immutable review boundaries,
+   fail-closed evidence handling, independent Review A/B for Class-A semantics,
+   Product Owner as sole approval authority, separation of implementation/measurement/
+   threshold-calibration/approval, no self-approval, no fabricated review/decision
+   evidence, LIVE remains separately authorized.
+```
+
+### Explicit confirmation — proposal is NOT effective; no existing rule changed
+
+```text
+docs/governance/execution-rules.md, docs/governance/phases/phase-3-rules.md, every
+  Constitution chapter, every ADR, docs/engineering/testing.md, module-registry.yaml,
+  all implementation/test/CI files: all verified byte-identical (`git diff --quiet`
+  for each path). This document does NOT satisfy or substitute for P3-RETRO-001 (the
+  formal Phase 3 retrospective still separately required before Phase 4 substantive
+  work, per docs/governance/phases/phase-3-rules.md §12) — that retrospective remains
+  outstanding and unauthorized-to-skip. No mutation-compatibility shim installed. No
+  mutation baseline rerun. Feature Engine Chapter 13 QG state, approval state, and
+  LIVE authorization state all unchanged.
+```
+
+### State summary
+
+```text
+Proposal artifact:              docs/governance/retrospectives/
+                                phase3-process-improvement-001.md, blob
+                                fa7b2e6485fd202d094310d9bdc15777858460b3.
+Proposal state:                 PROPOSAL / NOT YET EFFECTIVE (adopted_by/adopted_at
+                                null/null).
+P3-RETRO-001:                   still outstanding, unaffected, not satisfied by this
+                                document.
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Compatibility shim:            NOT YET INSTALLED (unchanged).
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+                                APPROVED/INSTALLED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** independent architectural/governance review of whether and how to adopt this proposal. Not performed here.
+
+**Files changed:** `docs/governance/retrospectives/phase3-process-improvement-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.300"` → `"10.301"`.
 
 ## Decision Log
 

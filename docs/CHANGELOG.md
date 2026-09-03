@@ -2,6 +2,60 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — governance: Phase 3 Process Improvement Proposal #001 (`PROPOSAL / NOT YET EFFECTIVE`)
+
+**New governance/process-improvement proposal — vai trò: `Phase 3 Process Improvement Proposal Author`.** Adds `docs/governance/retrospectives/phase3-process-improvement-001.md`, capturing workflow lessons from the Feature Engine mutation-testing mechanism / compatibility-candidate review cycle (Testing Convention v0.8-v0.16). State: `PROPOSAL / NOT YET EFFECTIVE`. Does not change any current governance rule, review requirement, approval authority, or Quality Gate.
+
+### Proposal summary
+
+```text
+1. Three risk-based transaction classes (A: high-risk semantic/architecture/QG
+   mechanism, default full Review A -> Independent Review B -> Product Owner chain;
+   B: tests/evidence/bounded remediation, risk-based review depth; C: mechanical/
+   bookkeeping/factual docs, deterministic validation + fail-closed automation
+   preferred). No current transaction retroactively classified.
+2. Explicit semantic-lane / bookkeeping-lane separation -- a bookkeeping transaction
+   must never create, reinterpret, or close a semantic finding, and must fail closed
+   on any premise mismatch.
+3. Batch bounded findings within one review pass by default, with an explicit
+   exception for issues that materially change the review surface.
+4. A list of automatable, fail-closed deterministic governance checks (SHA/parent
+   verification, changed-file scope, MANIFEST version transition, lifecycle
+   consistency, finding-state consistency, stale-pending detection, review-evidence
+   presence before approval, arithmetic/count consistency, protected-path byte-
+   identity, reviewed-boundary vs. evidence-recording-boundary distinction) --
+   automation must never invent reviewer/PO decisions. Design only, not implemented.
+5. Proposed MANIFEST-scope reduction (MANIFEST = current state/SSOT; historical
+   narrative moves to CHANGELOG/evidence artifacts/retrospectives) -- migration not
+   performed here.
+6. Explicit preservation list: immutable review boundaries, fail-closed evidence,
+   independent Review A/B for Class-A semantics, Product Owner as sole approval
+   authority, separation of implementation/measurement/threshold/approval, no
+   self-approval, no fabricated evidence, LIVE remains separately authorized.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED -- a non-effective proposal amends no Constitution/ADR/Testing
+  Convention/execution-rules/phase-rules/QG semantics/module-registry/approval-
+  authority rule; changes zero current governance simply by existing. Does not decide
+  the ADR classification of any future adoption transaction.
+```
+
+### Confirmation
+
+```text
+Proposal is NOT effective. No existing governance rule changed -- execution-rules.md,
+  phase-3-rules.md, every Constitution chapter, every ADR, testing.md, module-
+  registry.yaml, and all implementation/test/CI files verified byte-identical. Does
+  NOT satisfy or substitute for P3-RETRO-001, which remains separately required
+  before Phase 4 substantive work. No shim installed; no baseline rerun; Feature QG,
+  approval state, and LIVE authorization all unchanged.
+```
+
+Next governed step: independent architectural/governance review of whether and how to adopt this proposal.
+
 ## [Unreleased] — 2026-09-03 — feature-engine: Testing Convention v0.16 Mechanical Approval (Product Owner: APPROVED)
 
 **Pure mechanical lifecycle transaction — vai trò: `Testing Convention v0.16 Mechanical Approval Recorder`.** Records the already-issued Product Owner approval of the Python Mutation Compatibility Candidate / Testing Convention v0.16, verbatim: **"APPROVE Python Mutation Compatibility Candidate / Testing Convention v0.16 at boundary 773bd9851fe6aa5023740d07db55b5337c9362d4."** Decision date: 2026-09-03.
