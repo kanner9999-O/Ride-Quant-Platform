@@ -2,6 +2,54 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — feature-engine: Python Mutation Compatibility Review Evidence Recorder (Review A + Independent Review B recorded; `P3-PY-MUT-COMPAT-A-MAJ-01`/`-MAJ-02`/`-MIN-01` all CLOSED)
+
+**Mechanical review-evidence recording — vai trò: `Python Mutation Compatibility Review Evidence Recorder`.** Records externally-completed Review A (ChatGPT) and Independent Review B (Claude) evidence for the v0.16 candidate at reviewed boundary `773bd9851fe6aa5023740d07db55b5337c9362d4`. Does not rerun/reinterpret either review; does not record Product Owner approval; does not install the shim or rerun the baseline. Testing Convention version NOT bumped (still "0.16", `status: Draft`, `approved_by`/`approved_at` still null/null).
+
+### Review A — ChatGPT
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — REVIEW A
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — REVIEW A
+P3-PY-MUT-COMPAT-A-MIN-01: CLOSED — REVIEW A FINAL VALIDATION
+Blocker 0 / Major 0 / Minor 0
+FINAL REVIEW A VALIDATION: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+```
+
+### Independent Review B — Claude (Mode A — DISTINCT_PRINCIPAL)
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — confirmed
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — confirmed
+P3-PY-MUT-COMPAT-A-MIN-01: no defect; date-fidelity correction validated
+Blocker 0 / Major 0 / Minor 0
+INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+### Finding states
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — Review A; confirmed Independent Review B.
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — Review A; confirmed Independent Review B.
+P3-PY-MUT-COMPAT-A-MIN-01: CLOSED — Review A final validation; confirmed Independent
+  Review B.
+```
+
+### Preserved unchanged
+
+```text
+Candidate scope: FEATURE-ENGINE-ONLY. Candidate ADR disposition: ADR_OPTIONAL — ADR
+  NOT AUTHORED. mutmut 3.7.0: INSTALLED + PINNED. Compatibility shim: NOT INSTALLED.
+  P3-PY-MUT-BASELINE-B-MAJ-01: OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+  APPROVED/INSTALLED. Second baseline attempt: INCOMPLETE — NON-GATING DIAGNOSTIC.
+  TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED.
+  P3-FEATURE-QG-EVID-03: FAIL — evidence. Formal Feature Chapter 13 QG: FAIL. Feature
+  module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED. No
+  production/test/config/dependency/CI file changed.
+```
+
+Next governed step: mechanically record the already-issued Product Owner approval of the reviewed semantic candidate at `773bd9851fe6aa5023740d07db55b5337c9362d4`.
+
 ## [Unreleased] — 2026-09-03 — feature-engine: Compatibility Candidate Date Fidelity Correction (Testing Convention `v0.15 Draft → v0.16 Draft`)
 
 **Mechanical evidence-fidelity correction — vai trò: `Compatibility Candidate Date Fidelity Correction Executor`.** Corrects `P3-PY-MUT-COMPAT-A-MIN-01`: v0.14's and v0.15's own banners asserted incorrect, future-dated transaction dates. Not a semantic redesign; does not alter candidate structure, scope, or ADR disposition.

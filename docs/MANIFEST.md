@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.298"
+manifest_version: "10.299"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -18504,6 +18504,98 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** Independent Review B of this candidate (per Review A's own `SEMANTICALLY CLEAN` disposition, now that the one required mechanical correction is complete).
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.297"` → `"10.298"`.
+
+## `feature-engine` — Python Mutation Compatibility Review Evidence Recorder (Testing Convention `v0.16 Draft`, unchanged; Review A `CLEAN — READY_FOR_INDEPENDENT_REVIEW_B`; Independent Review B `CLEAN — READY_FOR_PRODUCT_OWNER_DECISION`; `P3-PY-MUT-COMPAT-A-MAJ-01`/`-MAJ-02`/`-MIN-01` all `CLOSED`)
+
+**Mechanical review-evidence recording transaction — vai trò: `Python Mutation Compatibility Review Evidence Recorder`.** Records externally-completed Review A (ChatGPT) and Independent Review B (Claude) evidence for the v0.16 candidate at reviewed boundary `773bd9851fe6aa5023740d07db55b5337c9362d4`. Does NOT rerun or reinterpret either review. Does NOT record Product Owner approval. Does NOT install the shim or rerun the mutation baseline.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `773bd9851fe6aa5023740d07db55b5337c9362d4` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. Testing Convention confirmed `version: "0.16"`, `status: Draft`, `approved_by: null`, `approved_at: null`. `manifest_version` confirmed `"10.298"` at start.
+
+### Review A — ChatGPT (AI Technical Architect / Review A), reviewed boundary `773bd9851fe6aa5023740d07db55b5337c9362d4`
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — REVIEW A
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — REVIEW A
+P3-PY-MUT-COMPAT-A-MIN-01: CLOSED — REVIEW A FINAL VALIDATION
+Blocker 0 / Major 0 / Minor 0
+FINAL REVIEW A VALIDATION: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+Review A independently verified the v0.16 date-fidelity correction, exact boundary/
+  scope, unchanged compatibility semantics, and preserved governance state.
+```
+
+### Independent Review B — Claude (AI Technical Architect / Independent Review B), reviewed boundary `773bd9851fe6aa5023740d07db55b5337c9362d4`, ADR-031 mode `Mode A — DISTINCT_PRINCIPAL`, execution/session reference not available (none fabricated), isolation: fresh independent read-only execution
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — confirmed
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — confirmed
+P3-PY-MUT-COMPAT-A-MIN-01: no defect; date-fidelity correction validated
+Blocker 0 / Major 0 / Minor 0
+INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION
+Review B independently inspected and empirically validated the mutmut 3.7.0 call-site
+  authentication design, Chapter 0 §4b / Chapter 3 §3.2 ADR classification, MIN-01
+  dates, and preserved state.
+```
+
+### ADR Scope Rule (this transaction)
+
+```text
+Result: ADR_NOT_REQUIRED — mechanical governance/evidence recording only, no candidate
+  behavior/contract change.
+```
+
+### Finding states after this recording
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — Review A; confirmed Independent Review B.
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — Review A; confirmed Independent Review B.
+P3-PY-MUT-COMPAT-A-MIN-01: CLOSED — Review A final validation; confirmed Independent
+  Review B.
+Review A: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/engineering/testing.md (blob 50b4c1d2fd7dd352e54083b75c23b0c9c22927a9),
+  docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1`). python/feature-engine/src/**,
+  python/feature-engine/tests/**, python/feature-engine/pyproject.toml,
+  python/feature-engine/requirements-dev.lock.txt, docs/constitution/**, docs/adr/**,
+  docs/architecture/module-registry.yaml, CI/CD workflows, any Go module: all verified
+  byte-identical (`git diff --quiet` for each path). No shim installed. No mutation
+  baseline rerun. No Product Owner approval recorded. Testing Convention version NOT
+  bumped (still "0.16").
+```
+
+### State summary
+
+```text
+Testing Convention:            v0.16 Draft (unchanged — approved_by/approved_at still
+                                null/null; version NOT bumped).
+P3-PY-MUT-COMPAT-A-MAJ-01:     CLOSED — Review A; confirmed Independent Review B.
+P3-PY-MUT-COMPAT-A-MAJ-02:     CLOSED — Review A; confirmed Independent Review B.
+P3-PY-MUT-COMPAT-A-MIN-01:     CLOSED — Review A final validation; confirmed
+                                Independent Review B.
+Candidate scope:                FEATURE-ENGINE-ONLY (unchanged).
+Candidate ADR disposition:      ADR_OPTIONAL — ADR NOT AUTHORED (unchanged).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Compatibility shim:            NOT INSTALLED (unchanged).
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+                                APPROVED/INSTALLED (unchanged).
+Second baseline attempt:       INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged,
+                                historical only).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** mechanically record the already-issued Product Owner approval of the reviewed semantic candidate at `773bd9851fe6aa5023740d07db55b5337c9362d4`.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.298"` → `"10.299"`.
 
 ## Decision Log
 

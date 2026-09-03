@@ -15,6 +15,51 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 
 # Engineering Foundation — Testing Convention
 
+**REVIEW EVIDENCE RECORDED (2026-09-03), vai trò: `Python Mutation Compatibility Review Evidence Recorder`.** Mechanical recording of externally-completed Review A + Independent Review B evidence for the v0.16 candidate at reviewed boundary `773bd9851fe6aa5023740d07db55b5337c9362d4`. `version` VẪN `"0.16"` (NO bump — this transaction records already-completed review evidence only, it does not change candidate semantics). `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null` (Product Owner decision NOT recorded here). Does NOT rerun/reinterpret either review. Does NOT install the shim or rerun the mutation baseline.
+
+**Review A — ChatGPT (AI Technical Architect / Review A), reviewed boundary `773bd9851fe6aa5023740d07db55b5337c9362d4`:**
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — REVIEW A
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — REVIEW A
+P3-PY-MUT-COMPAT-A-MIN-01: CLOSED — REVIEW A FINAL VALIDATION
+
+Blocker 0 / Major 0 / Minor 0
+
+FINAL REVIEW A VALIDATION: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+```
+
+Review A independently verified the v0.16 date-fidelity correction, exact boundary/scope, unchanged compatibility semantics, and preserved governance state.
+
+**Independent Review B — Claude (AI Technical Architect / Independent Review B), reviewed boundary `773bd9851fe6aa5023740d07db55b5337c9362d4`, ADR-031 mode `Mode A — DISTINCT_PRINCIPAL`, execution/session reference: not available — none fabricated, isolation: fresh independent read-only execution:**
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — confirmed
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — confirmed
+P3-PY-MUT-COMPAT-A-MIN-01: no defect; date-fidelity correction validated
+
+Blocker 0 / Major 0 / Minor 0
+
+INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+Review B independently inspected and empirically validated the mutmut 3.7.0 call-site authentication design, Chapter 0 §4b / Chapter 3 §3.2 ADR classification, MIN-01 dates, and preserved state.
+
+**Finding states after this recording:**
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — Review A; confirmed Independent Review B.
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — Review A; confirmed Independent Review B.
+P3-PY-MUT-COMPAT-A-MIN-01: CLOSED — Review A final validation; confirmed Independent
+  Review B.
+Review A: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+**ADR Scope Rule for this transaction:** `ADR_NOT_REQUIRED` — mechanical governance/evidence recording only, no candidate behavior/contract change.
+
+**KHÔNG đổi bởi transaction này:** candidate scope VẪN `FEATURE-ENGINE-ONLY`; candidate ADR disposition VẪN `ADR_OPTIONAL — ADR NOT AUTHORED`; mutmut 3.7.0 VẪN `INSTALLED + PINNED`; compatibility shim VẪN `NOT INSTALLED`; `P3-PY-MUT-BASELINE-B-MAJ-01` VẪN `OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION APPROVED/INSTALLED`; second baseline attempt VẪN `INCOMPLETE — NON-GATING DIAGNOSTIC`; `TEST_EFFECTIVENESS_THRESHOLD` VẪN `UNRESOLVED — BASELINE/CALIBRATION REQUIRED`; `P3-FEATURE-QG-EVID-03` VẪN `FAIL — evidence`; overall Feature Chapter 13 QG VẪN `FAIL`; Feature module approval VẪN `NOT APPROVED`; Phase 3 Approval Gate VẪN `NOT opened`; LIVE VẪN `NOT_AUTHORIZED`. KHÔNG production source touched. KHÔNG test/pyproject/lock/CI change. KHÔNG ADR file created. KHÔNG real mutation run. Product Owner approval KHÔNG recorded here. **Next governed step:** mechanically record the already-issued Product Owner approval of the reviewed semantic candidate at `773bd9851fe6aa5023740d07db55b5337c9362d4`.
+
 **v0.16 CANDIDATE DATE FIDELITY CORRECTION (2026-09-03), KHÔNG self-approved — status: Draft → Draft.** `version: "0.15" → "0.16"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. vai trò: `Compatibility Candidate Date Fidelity Correction Executor`. ONE mechanical evidence-fidelity correction — NOT a semantic candidate redesign, NOT a reopening of any closed finding — of `P3-PY-MUT-COMPAT-A-MIN-01`: v0.14's and v0.15's own banners each asserted an incorrect, future-dated transaction date (`2026-09-04` and `2026-09-05` respectively). Independently re-verified against the actual GitHub commit timestamps: `89b27c12a5edce2dbb13be4bd07d4fcc3c14fb61` (v0.13) at `2026-09-03T02:56:31Z`, `76523210114bab7d56bc4305b0120696c13a1373` (v0.14) at `2026-09-03T03:12:30Z`, `31f985c39c08580cb0b19363d03c0794fe447335` (v0.15) at `2026-09-03T03:41:22Z` — all three transactions actually occurred on `2026-09-03`, not across three separate days. Corrected directly, in place, in both banners (a pure factual/date literal fix, consistent with this document's own round-3/round-4 precedent for arithmetic/count-fidelity corrections — not an annotation-based superseding, since no semantic reinterpretation is involved): `v0.14 CANDIDATE BOUNDED CORRECTION (2026-09-04)` → `(2026-09-03)`; `v0.15 CANDIDATE FINAL BOUNDED CORRECTION (2026-09-05)` → `(2026-09-03)`. The corresponding `docs/CHANGELOG.md` entry dates for both transactions are corrected identically. v0.13's own already-correct `2026-09-03` date is unchanged. Searched this candidate's full history for any other occurrence asserting v0.14/v0.15 happened on September 4/5 (including alternate date formats) — none found beyond the two banner headers and the two CHANGELOG entry headers already corrected.
 
 **Review A dispositions recorded (mechanical recording, not this executor's own authority):**
