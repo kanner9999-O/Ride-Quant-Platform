@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.304"
+manifest_version: "10.305"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -19193,6 +19193,149 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** Review A of the adoption-design candidate.
 
 **Files changed:** `docs/governance/retrospectives/phase3-process-improvement-001-adoption-design.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.303"` → `"10.304"`.
+
+## Phase 3 Process Improvement Adoption Design — Bounded Correction v0.2 (`ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE`, unchanged; `P3-PI-ADOPT-A-MAJ-01`/`-MAJ-02`/`-MIN-01` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`)
+
+**Bounded correction — vai trò: `Phase 3 Process Improvement Adoption Design v0.2 Bounded Correction Executor`.** Remediates three Review A findings on the adoption-design candidate v0.1. Does NOT activate governance. `design_version: "0.1" → "0.2"`, `design_state` VẪN `ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE`, `adopted_by`/`adopted_at` VẪN `null`/`null`.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `6302c9da1d878de3568902dbf02b1aa2cd74a23f` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. `manifest_version` confirmed `"10.304"` at start.
+
+### MAJ-01 — G-ORCH-005 removed, re-evaluated KEEP_NO_CHANGE
+
+```text
+Re-evaluated against the FULL relevant existing authority set (not G-ORCH's own
+  self-check alone): G-AUTH-002 (resolve real authority before acting on assumption),
+  G-ORCH's own pre-prompt self-check item 6 (am I creating an unnecessary review/
+  micro-transaction?), G-TXN-003/004 (fold permitted/required when safe, no scope-
+  smuggling), P3-TXN-001 (mandatory default fold with explicit named exceptions).
+  Together these already fully cover the observed failure mode — the incident was a
+  failure to APPLY these rules, not a gap in what they say. No genuinely uncovered
+  semantic gap demonstrated. Disposition: KEEP_NO_CHANGE. The v0.1 G-ORCH-005
+  candidate wording is REMOVED as a proposed effective delta; its four-question
+  content is retained only as non-binding orchestration guidance (§9), never as a
+  rule ID. v0.1's improper citation of "prior amendments needed no ADR" as authority
+  over Chapter 0 §4b is also removed — the disposition rests solely on rule content.
+```
+
+### MAJ-02 — unverified CLEAN claim removed, P3-VERIFY-001 complied with
+
+```text
+v0.1 asserted "Review A: CLEAN. Independent Review B: CLEAN." for proposal v0.3
+  while explicitly disclaiming re-verification — a prompt assertion alone, which
+  P3-VERIFY-001 prohibits treating as evidence. Direct re-check against
+  phase3-process-improvement-001.md v0.3's own §13 ("Finding states after this
+  correction") shows the ACTUAL recorded state at that boundary was
+  P3-PI-A-MAJ-01/-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW,
+  P3-PI-A-MIN-01: REMEDIATED — PENDING FINAL BOUNDED REVIEW A VALIDATION — directly
+  CONTRADICTING the "CLEAN" claim; v0.3's own text states "Next step: final bounded
+  Review A validation of v0.3." No external review artifact independently confirming
+  a CLEAN disposition is accessible or verifiable by this transaction. Corrected:
+  the unverified CLEAN claim is removed; this design candidate now proceeds solely
+  on the Product Owner's own explicit "ACCEPT ... FOR ADOPTION DESIGN" decision
+  (recorded verbatim, supplied directly as authoritative input, independent of the
+  proposal's own internal review-pending state), without fabricating a reviewer
+  disposition that is not actually recorded anywhere. No standalone Review Evidence
+  transaction created to "fix" this — the claim is corrected/qualified in place.
+```
+
+### MIN-01 — Mode B wording corrected
+
+```text
+Corrected the candidate team.yaml-note wording, which had inaccurately described
+  Mode B as "an independent execution of a different principal." Mode B
+  (SAME_PRINCIPAL_DISTINCT_EXECUTION, ADR-031 §4) means the SAME eligible principal
+  that performed Review A ALSO performs Independent Review B, through a genuinely
+  distinct, isolated execution/session (only when ADR-031 §5's execution-isolation
+  evidence contract is fully satisfied) — a different principal performing the
+  second review is Mode A, not Mode B. Since no concrete correctness need is
+  demonstrated for any team.yaml change (ADR-031 §8 already fully governs role
+  resolution independent of the alias text), the team.yaml note disposition is
+  reclassified from TIGHTEN_EXISTING/DEFERRED to a plain DEFER — no active candidate
+  wording is carried forward as a near-term proposal; team.yaml remains untouched.
+```
+
+### Adoption result recomputed
+
+```text
+Every item in the summary table now resolves to KEEP_NO_CHANGE, DEFER, or
+  TOOLING_FOLLOWUP: standalone Review Evidence elimination (KEEP_NO_CHANGE, unchanged
+  from v0.1), prompt-created-precondition (KEEP_NO_CHANGE, corrected from
+  TIGHTEN_EXISTING), Independent Review B identity core question (KEEP_NO_CHANGE,
+  unchanged), Independent Review B identity team.yaml note (DEFER, corrected from
+  TIGHTEN_EXISTING/DEFERRED), review purpose/compact metadata (KEEP_NO_CHANGE,
+  unchanged), automation (TOOLING_FOLLOWUP, unchanged), batch-findings advisory
+  practice (DEFER, unchanged). Explicit statement recorded: NO GOVERNANCE ACTIVATION
+  TRANSACTION REQUIRED. ADR Scope Rule re-run: no effective delta remains to
+  classify; consolidated disposition ADR_NOT_REQUIRED on that basis (not on any
+  "prior amendments" precedent basis, per MAJ-01's correction). Minimal future
+  sequence shortened to: no required transaction at all; the four-question
+  orchestration check retained only as non-binding guidance.
+```
+
+### Finding states after this correction
+
+```text
+P3-PI-ADOPT-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PI-ADOPT-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PI-ADOPT-A-MIN-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+Neither self-closed.
+```
+
+### ADR Scope Rule (this correction transaction itself)
+
+```text
+Result: ADR_NOT_REQUIRED — bounded correction of a non-effective adoption-design
+  candidate only; removes a proposed effective delta and corrects unverified
+  claims/wording, narrowing rather than expanding this document's own effect on
+  current governance.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/retrospectives/phase3-process-improvement-001-adoption-
+  design.md (blob 6867540b6c3979155a67094cfba4c31a84bfc283), docs/MANIFEST.md,
+  docs/CHANGELOG.md changed (confirmed via `git status --porcelain=v1`).
+  phase3-process-improvement-001.md v0.3 (the reviewed proposal), Constitution (all
+  chapters), every ADR, execution-rules.md, phase-3-rules.md, team.yaml,
+  testing.md, module-registry.yaml, all implementation/test/CI files: all verified
+  byte-identical (`git diff --quiet` for each path). No rule activated. No shim
+  installed. No mutation baseline rerun. Feature Engine Chapter 13 QG state, module
+  approval state, Phase 3 Approval Gate state, and LIVE authorization state all
+  unchanged.
+```
+
+### State summary
+
+```text
+Adoption-design artifact:       docs/governance/retrospectives/
+                                phase3-process-improvement-001-adoption-design.md
+                                v0.2, blob 6867540b6c3979155a67094cfba4c31a84bfc283.
+Adoption-design state:          ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE (unchanged;
+                                adopted_by/adopted_at still null/null).
+P3-PI-ADOPT-A-MAJ-01/-MAJ-02/  REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+  -MIN-01:
+Governance activation required: NONE (every item KEEP_NO_CHANGE/DEFER/
+                                TOOLING_FOLLOWUP).
+Reviewed proposal:              phase3-process-improvement-001.md v0.3, unchanged,
+                                still PROPOSAL / NOT YET EFFECTIVE, its own finding
+                                states untouched.
+P3-RETRO-001:                   still outstanding, unaffected.
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Compatibility shim:            NOT YET INSTALLED (unchanged).
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+                                APPROVED/INSTALLED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** bounded Review A re-review of adoption-design v0.2.
+
+**Files changed:** `docs/governance/retrospectives/phase3-process-improvement-001-adoption-design.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.304"` → `"10.305"`.
 
 ## Decision Log
 

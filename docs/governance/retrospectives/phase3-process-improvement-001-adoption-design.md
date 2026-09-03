@@ -2,7 +2,7 @@
 id: phase3-process-improvement-001-adoption-design
 title: "Phase 3 Process Improvement Proposal #001 — Adoption Design"
 document_type: adoption-design-candidate
-design_version: "0.1"
+design_version: "0.2"
 design_state: "ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE"
 authored_at: "2026-09-03"
 reviewed_proposal: "docs/governance/retrospectives/phase3-process-improvement-001.md"
@@ -18,11 +18,13 @@ adopted_at: null
 
 **State: `ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE`.**
 
+**v0.2 BOUNDED CORRECTION (2026-09-03), vai trò: `Phase 3 Process Improvement Adoption Design v0.2 Bounded Correction Executor`.** Remediates three Review A findings on v0.1: `P3-PI-ADOPT-A-MAJ-01` (v0.1 proposed a `G-ORCH-005` effective delta where existing G-AUTH/G-ORCH self-check/G-TXN-003-004/P3-TXN-001 already provide sufficient controlling semantics — the observed defect was failure to APPLY existing rules, not absence of another rule; v0.1's ADR reasoning also improperly cited "prior amendments needed no ADR" as authority over Chapter 0 §4b), `P3-PI-ADOPT-A-MAJ-02` (v0.1 recorded "Review A: CLEAN. Independent Review B: CLEAN." for proposal v0.3 while explicitly disclaiming re-verification — a prompt assertion alone, which P3-VERIFY-001 prohibits treating as evidence; direct re-check against the proposal's own last recorded state, §13 of v0.3, shows the actual disposition was `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW` / `PENDING FINAL BOUNDED REVIEW A VALIDATION`, NOT `CLEAN`), `P3-PI-ADOPT-A-MIN-01` (v0.1's team.yaml-note candidate wording described Mode B as "an independent execution of a different principal," which is backwards — ADR-031 Mode B is SAME principal as Review A, DISTINCT isolated execution). `design_version: "0.1" → "0.2"`. `design_state` VẪN `ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE`, `adopted_by`/`adopted_at` VẪN `null`/`null`. Does NOT activate governance. v0.1's text is corrected directly in place below (this document has never been Approved/effective) — recorded transparently in §12 Change history.
+
 **Vai trò của tài liệu này:** đây LÀ a design candidate for the MINIMUM effective delta needed to realize the accepted lessons of proposal v0.3 — KHÔNG the effective rule change itself, KHÔNG an ADR, KHÔNG a review-evidence recorder for the proposal (that already exists, separately, at the reviewed proposal's own boundary). This document does not edit `phase3-process-improvement-001.md`. Activating any item below requires a SEPARATE, future, governed transaction that itself performs whatever review depth its own actual semantic delta warrants.
 
 **Product Owner decision being folded into this same transaction (per the adopted lesson itself — no separate review-evidence/decision recorder), verbatim:** **"ACCEPT Phase 3 Process Improvement Proposal #001 v0.3 at boundary 8696e422fe41b5cf87bc0558444c3b0b2bc27bea FOR ADOPTION DESIGN. Do not activate any governance change yet."** Decision date: `2026-09-03`.
 
-**Reviewed proposal baseline (as supplied for this transaction, recorded here rather than in a standalone recorder):** `docs/governance/retrospectives/phase3-process-improvement-001.md` v0.3, boundary `8696e422fe41b5cf87bc0558444c3b0b2bc27bea`. Review A: `CLEAN`. Independent Review B: `CLEAN`. This design candidate does not itself re-verify or reinterpret either disposition — it takes v0.3, as reviewed and accepted for design purposes, as its starting baseline.
+**Reviewed proposal baseline — CORRECTED, `P3-PI-ADOPT-A-MAJ-02`:** `docs/governance/retrospectives/phase3-process-improvement-001.md` v0.3, boundary `8696e422fe41b5cf87bc0558444c3b0b2bc27bea`. v0.1 of this document asserted "Review A: CLEAN. Independent Review B: CLEAN." for v0.3 while explicitly disclaiming any re-verification — an unverified prompt assertion, which P3-VERIFY-001 prohibits presenting as a governance fact. Direct re-check against the proposal's own most recent recorded state (v0.3 §13, "Finding states after this correction") shows the ACTUAL disposition at this boundary is `P3-PI-A-MAJ-01`/`-MAJ-02`: `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`, `P3-PI-A-MIN-01`: `REMEDIATED — PENDING FINAL BOUNDED REVIEW A VALIDATION` — with v0.3's own text stating "Next step: final bounded Review A validation of v0.3." This directly CONTRADICTS the "CLEAN" claim; no external review artifact independently confirming a CLEAN disposition on v0.3 is accessible to or verifiable by this transaction. Corrected baseline: this design candidate does NOT assert Review A or Independent Review B reached any particular disposition on proposal v0.3 — it proceeds solely on the Product Owner's own explicit "ACCEPT ... FOR ADOPTION DESIGN" decision (recorded verbatim above, supplied directly as authoritative input to this transaction, independent of and not contingent on the proposal's own internal review-pending state), without fabricating or assuming a reviewer disposition that is not actually recorded anywhere.
 
 **What this decision does NOT do:** it does not activate any governance rule change, does not amend `execution-rules.md`/`phase-3-rules.md`/any Constitution chapter/any ADR/`team.yaml`/Testing Convention, does not close `P3-PI-A-MAJ-01`/`-MAJ-02`/`-MIN-01` on proposal v0.3 itself (those remain the proposal document's own finding states, untouched here), and does not authorize any future adoption transaction to skip its own required review.
 
@@ -81,47 +83,62 @@ Disposition: KEEP_NO_CHANGE. No effective rule text change is needed — the tar
 ## 3. Adoption question 2 — Prompt-created precondition
 
 ```text
+[CORRECTED, P3-PI-ADOPT-A-MAJ-01: v0.1's proposed G-ORCH-005 effective delta is
+  REMOVED. Re-evaluated against existing authority as a whole, not just G-ORCH's own
+  self-check item 6.]
+
 Question: does Global G-ORCH need one narrow tightening such as "A prompt-created
   precondition is not governance authority"?
 
-Findings: G-ORCH's own mandatory pre-prompt self-check (execution-rules.md, "Trước
-  MỌI governed executor/reviewer prompt") already includes, verbatim, item 6: "Tôi
-  có đang tạo một review/micro-transaction KHÔNG CẦN THIẾT không?" (am I creating an
-  unnecessary review/micro-transaction?). This is functionally close to the
-  proposal's lesson but does not explicitly name the SPECIFIC failure mode observed:
-  treating a precondition written into ONE'S OWN prompt/task design as if it were an
-  external authority requirement, rather than recognizing it as a self-imposed
-  constraint that can be redesigned.
+Findings, re-evaluated against the FULL relevant existing authority set (not G-ORCH
+  alone):
+  - G-AUTH-002: repository authority must always be resolved BEFORE memory/
+    assumption — before acting on a remembered/assumed fact, verify directly against
+    the current file. Already requires checking real authority before treating any
+    self-imposed assumption as binding.
+  - G-ORCH's own mandatory pre-prompt self-check, item 6, verbatim: "Tôi có đang tạo
+    một review/micro-transaction KHÔNG CẦN THIẾT không?" (am I creating an
+    unnecessary review/micro-transaction?) — already requires asking, before every
+    governed prompt, whether a new transaction is actually necessary.
+  - G-TXN-003/G-TXN-004: bookkeeping fold is already permitted/expected when safe;
+    a transaction must stay semantically mechanical, never smuggling scope under a
+    label — already covers the "don't manufacture unnecessary structure" principle
+    from both directions.
+  - P3-TXN-001: mandatory default fold, with EXPLICIT named exceptions for when a
+    standalone bookkeeping transaction is actually permitted — already gives the
+    exact "does higher authority actually require separation" test the proposal's
+    lesson was reaching for.
+  Together, this full set already covers the observed failure mode. The concrete
+  incident motivating the proposal's lesson (an approval-recording task's own
+  precondition triggering a standalone evidence-recording transaction) was a failure
+  to APPLY G-AUTH-002/G-ORCH item 6/P3-TXN-001 at that moment — verifying the
+  precondition's OWN authority before treating it as binding — not a gap in what
+  those rules already say. No genuinely uncovered semantic gap is demonstrated.
 
-Disposition: TIGHTEN_EXISTING — narrow, single-sentence candidate addition.
-  Target file/rule: docs/governance/execution-rules.md, `## G-ORCH` section, as a new
-    numbered rule `G-ORCH-005` (the section currently ends at `G-ORCH-004`).
-  Exact minimal candidate wording (verbatim, for a future adoption transaction to
-    consider — NOT activated here):
-    "G-ORCH-005  Một precondition do CHÍNH prompt/task design tạo ra KHÔNG PHẢI
-                 governance authority. Nếu một transaction fail closed CHỈ vì
-                 precondition tự đặt ra nghiêm hơn authority thực tế yêu cầu, phản
-                 ứng mặc định LÀ sửa lại prompt/process design đó — KHÔNG tự động
-                 tạo một transaction governed mới chỉ để thỏa mãn precondition tự
-                 tạo. Trước khi tạo transaction mới để thỏa một precondition fail
-                 closed, tự hỏi: (1) một rule cao hơn có THỰC SỰ yêu cầu tách biệt
-                 không? (2) transaction mới có giảm rủi ro semantic thật không?
-                 (3) bookkeeping có thể fold an toàn vào một transaction đã required
-                 sẵn không (đúng G-TXN-003/P3-TXN-001)? (4) mình có đang biến một
-                 chi tiết implementation của chính prompt/recorder thành một project
-                 rule không?"
-  This is a clarifying elaboration of self-check item 6 already listed under
-    G-ORCH, not a new taxonomy — it does not conflict with G-REV-001, G-TXN-003/004,
-    P3-TXN-001, P3-REVIEW-001, or P3-VERIFY-001, all of which it explicitly
-    cross-references rather than duplicates.
+Disposition: KEEP_NO_CHANGE. No G-ORCH-005 (or any other rule ID) is proposed. The
+  four-question self-check drafted in v0.1 remains useful as INFORMAL orchestration
+  guidance (restated in §9 below as advisory language, not a rule), but is not
+  proposed as new governance text, since G-AUTH-002 + G-ORCH item 6 + G-TXN-003/004
+  + P3-TXN-001 already fully cover it. This document does NOT rely on "prior
+  no-ADR amendments" as authority for this conclusion — the disposition rests
+  entirely on the CONTENT of the cited rules, not on precedent about what kind of
+  changes previously skipped an ADR (which would be circular reasoning over
+  Chapter 0 §4b, not a substitute for actually applying §4b's own criteria).
 ```
 
 ## 4. Adoption question 3 — Independent Review B identity
 
 ```text
+[CORRECTED, P3-PI-ADOPT-A-MIN-01: v0.1's candidate team.yaml-note wording described
+  Mode B as "an independent execution of a different principal," which is exactly
+  backwards. Corrected below. Disposition also corrected from TIGHTEN_EXISTING/
+  DEFERRED to a plain DEFER, per this task's own preference, since no concrete
+  correctness need is demonstrated — ADR-031 §8 already fully controls the actual
+  semantics.]
+
 Question: is a minimal clarification needed so that historical "Independent Review
   B" records still resolve to Claude, the role is not interpreted as requiring
-  Claude, and Mode B independent GPT execution remains eligible?
+  Claude, and Mode B remains eligible?
 
 Findings (team.yaml NOT modified in this transaction, read-only inspection):
   - ADR-031 §8 "Role-resolution semantics," verbatim disposition: "Eligibility LUÔN
@@ -131,6 +148,12 @@ Findings (team.yaml NOT modified in this transaction, read-only inspection):
     this exact question, that "Independent Review B" is a ROLE/FUNCTION resolved at
     each review boundary via Mode A or Mode B eligibility (Chapter 0 §3, Chapter 11
     §11.5) — never a fixed identity.
+  - Mode B, correctly restated (ADR-031 §4, "SAME_PRINCIPAL_DISTINCT_EXECUTION"):
+    Mode B means the SAME eligible principal that performed Review A ALSO performs
+    Independent Review B, through a genuinely DISTINCT, isolated execution/session
+    (only when ADR-031 §5's execution-isolation evidence contract is fully
+    satisfied) — NOT a different principal. A "different principal" performing
+    Independent Review B is Mode A (`DISTINCT_PRINCIPAL`), not Mode B.
   - team.yaml's own current alias_note on member "Claude" already states this alias
     is registered "theo đúng historical label đã dùng tại ADR-012/ADR-013 và các
     Package review transaction" and is explicitly "KHÔNG phải một actor/AI riêng
@@ -144,19 +167,16 @@ Findings (team.yaml NOT modified in this transaction, read-only inspection):
 Disposition: KEEP_NO_CHANGE for the core semantic question (ADR-031 §8 + Chapter 0
   §3 + Chapter 11 §11.5 already fully establish that the role is not bound to any
   fixed identity; no effective rule contradicts or needs to restate this).
-  TIGHTEN_EXISTING, DEFERRED (not designed as an immediate follow-up, only flagged
-  as a future candidate): team.yaml's own `aliases: ["Independent Review B"]` field
-  is a literal string-lookup mechanism that, if ever consulted mechanically by
-  future tooling without reading the surrounding alias_note, could be misapplied to
-  imply Claude is required. A minimal, future, non-ADR team.yaml clarification
-  (living document, not frozen) would add one sentence to the existing alias_note,
-  e.g.: "This alias resolves 'Independent Review B' to Claude for historical/Mode-A
-  records only; a Mode B independent execution of a different principal (e.g. an
-  isolated ChatGPT execution session satisfying ADR-031 §5) fulfills the same
-  workflow role without using or requiring this alias, and must instead pin its own
-  execution identity directly per ADR-031 §2/§5." NOT designed further and NOT made
-  in this transaction, per this task's own explicit instruction not to change
-  team.yaml here.
+  team.yaml readability note -> DEFER (not TIGHTEN_EXISTING). No concrete
+  correctness need is demonstrated: ADR-031 §8 already fully governs role
+  resolution independent of team.yaml's own alias text, and no cited rule or
+  observed incident shows the alias has actually caused a misresolution. If a
+  concrete correctness need is ever demonstrated (e.g. a real Mode B review with a
+  non-Claude principal that a future record or tool actually mis-resolves via this
+  alias), the corrected candidate wording, for reference only, would need to
+  describe Mode B accurately as "SAME principal as Review A + DISTINCT isolated
+  execution" — never "a different principal." NOT designed further and NOT made in
+  this transaction; team.yaml is not touched.
 ```
 
 ## 5. Adoption question 4 — Review purpose / compact metadata
@@ -201,123 +221,114 @@ Deterministic-tooling ideas (proposal v0.3 §8: SHA/parent verification, changed
   adoption, and NOT implemented in this transaction.
 ```
 
-## 7. Summary disposition table
+## 7. Summary disposition table (recomputed, v0.2)
 
 ```text
 Item                                          | Disposition
 Standalone Review Evidence elimination        | KEEP_NO_CHANGE
-Prompt-created-precondition (G-ORCH tighten)  | TIGHTEN_EXISTING (G-ORCH-005 candidate wording, §3)
+Prompt-created-precondition (G-ORCH tighten)  | KEEP_NO_CHANGE [CORRECTED from TIGHTEN_EXISTING — no G-ORCH-005 proposed, §3]
 Independent Review B identity (core question) | KEEP_NO_CHANGE
-Independent Review B identity (team.yaml note)| TIGHTEN_EXISTING, DEFERRED (not designed further, not made here)
+Independent Review B identity (team.yaml note)| DEFER [CORRECTED from TIGHTEN_EXISTING/DEFERRED — no concrete correctness need shown]
 Review purpose / compact metadata             | KEEP_NO_CHANGE
 Automated deterministic-check tooling         | TOOLING_FOLLOWUP (all items)
 Batch-findings advisory practice (proposal §7)| DEFER — advisory/soft, no rule text candidate identified; left as reviewer-diligence guidance only, not a rule
+
+Every item resolves to KEEP_NO_CHANGE, DEFER, or TOOLING_FOLLOWUP. No item proposes
+  an effective governance-text change. Therefore: NO GOVERNANCE ACTIVATION
+  TRANSACTION IS REQUIRED. Tooling remains a separate, future, engineering track
+  entirely outside this governance-adoption package.
 ```
 
 ## 8. ADR Scope Rule — run against the actual proposed future effective deltas
 
 ```text
-Delta 1: add G-ORCH-005 to docs/governance/execution-rules.md (§3 above).
-  Target file/rule: execution-rules.md, G-ORCH section (operational governance, NOT
-    a Constitution chapter, NOT an ADR).
-  Semantic effect: clarifies an existing self-check question (G-ORCH item 6) with
-    one explicit named failure mode and a four-question self-check; does not create
-    new approval authority, does not change WHO decides anything, does not add a
-    new Governance/Approval PROCESS (it tightens an existing pre-prompt discipline
-    check), does not touch any Platform Invariant/Event Schema/Module Taxonomy/
-    dependency graph, and is narrowly reversible (a single rule ID, removable by a
-    future correction if it proves unhelpful).
-  Classification: ADR_NOT_REQUIRED. Rationale: per Chapter 0 §4b's own table, this
-    falls under "typo/formatting"-adjacent narrow clarification of an ALREADY-
-    EXISTING self-check item, not "Governance/Approval process" change (it does not
-    alter who approves what, or the approval gate mechanism itself) and does not
-    affect >1 module in the architectural sense (it is a repo-wide PROCESS
-    discipline note, the same category execution-rules.md's own prior G-ORCH-004
-    amendment and multiple other G-* amendments in its own change history were
-    recorded under, each accepted directly by Product Owner without a prior ADR).
+[CORRECTED, P3-PI-ADOPT-A-MAJ-01: v0.1 identified two effective deltas (G-ORCH-005,
+  a deferred team.yaml note) and classified both ADR_NOT_REQUIRED, partly by citing
+  "prior amendments needed no ADR" as supporting rationale. That citation is
+  REMOVED as improper — precedent about what previously skipped an ADR is not
+  itself authority over Chapter 0 §4b; only §4b's own criteria (contract change,
+  >1 module, governance/approval process, hard-to-reverse, Platform Invariant/Event
+  Schema/Module Taxonomy) can classify a delta. Re-run below with that correction.]
 
-Delta 2 (deferred, not designed further, listed for completeness only): a future
-  one-sentence clarifying addition to team.yaml's existing Claude alias_note (§4
-  above).
-  Target file/rule: docs/team/team.yaml (living document, explicitly not frozen,
-    per its own header and its own established reverse-lookup-note precedent).
-  Semantic effect: clarifies, in prose, that the existing alias does not imply
-    Claude is mandatory for future Mode B Independent Review B instances — does not
-    change any role, eligibility rule, or approval mechanism; ADR-031 §8 already
-    controls the actual semantics being clarified.
-  Classification: ADR_NOT_REQUIRED. Rationale: team.yaml's own established amendment
-    pattern (its own file header: "living document, KHÔNG frozen") and its own
-    documented precedent (the F-04 Phase 0 Exit Readiness Audit reverse-lookup note
-    was added to team.yaml directly, without an ADR, specifically BECAUSE team.yaml
-    is not an ADR/Constitution-tier artifact) confirm this.
+No effective governance-text delta is proposed by this design candidate at all,
+  after §3/§4's corrections above (G-ORCH-005 removed; the team.yaml note DEFERRED,
+  not designed to any specific wording as an active candidate). Therefore there is
+  NO delta to run the ADR Scope Rule against.
 
-No other effective delta is proposed by this design candidate — every other
-  adoption question resolved to KEEP_NO_CHANGE, TOOLING_FOLLOWUP, or DEFER, none of
-  which involve any governance TEXT change requiring an ADR Scope Rule
-  classification of their own.
+If any new MANDATORY governance-process rule had remained proposed, it would need
+  to be classified ADR_REQUIRED per Chapter 0 §4b's own explicit "Governance/
+  Approval process" row — this document does not attempt to downgrade that
+  classification for any actually-proposed process rule. Since no such rule
+  survives this correction, that classification does not apply to anything in this
+  document.
 
-Consolidated adoption-package ADR disposition: ADR_NOT_REQUIRED.
-  This consolidated disposition covers ONLY the two deltas actually identified
-  above (both individually ADR_NOT_REQUIRED, neither touching Governance/Approval
-  process, Platform Invariants, Event Schema, Module Taxonomy/dependency graph, or
-  >1 module, and neither hard to reverse). A FUTURE adoption transaction that
-  actually authors either delta MUST independently re-run the ADR Scope Rule at its
-  own boundary against its own actual final wording — this document's disposition
-  does not bind that future re-run, per this track's own established discipline
-  throughout this entire review cycle (never assume a prior ADR Scope Rule result
-  automatically inherits to a later, distinct transaction).
+Consolidated adoption-package ADR disposition: ADR_NOT_REQUIRED — because there is
+  no governance activation delta of any kind in this design candidate to classify,
+  not because any specific proposed change was evaluated and found to fall under
+  Chapter 0 §4b's "ADR Not Required" row. NO GOVERNANCE ACTIVATION TRANSACTION IS
+  REQUIRED (§7). If a FUTURE transaction ever does propose an actual effective
+  delta (e.g. if a concrete correctness need for the team.yaml note is later
+  demonstrated, per §4), that future transaction MUST independently run the ADR
+  Scope Rule against its own actual final wording at its own boundary — this
+  document's disposition does not and cannot bind that future determination.
 ```
 
-## 9. Transaction minimization — shortest safe future sequence
+## 9. Transaction minimization — shortest safe future sequence (recomputed, v0.2)
 
 ```text
-Because nearly every adoption question resolved to KEEP_NO_CHANGE, TOOLING_FOLLOWUP,
-  or DEFER, the future effective-adoption sequence, if the Product Owner later
-  chooses to activate anything from this design, is SHORT:
+[CORRECTED: with G-ORCH-005 removed (§3) and the team.yaml note DEFERRED without an
+  active candidate wording (§4), NO governance-text delta remains proposed at all
+  (§7/§8). The shortest safe future sequence is therefore correspondingly shorter
+  than v0.1's.]
 
-Required only if Delta 1 (G-ORCH-005) is activated:
-  ONE bounded transaction: amend execution-rules.md's G-ORCH section (add
-    G-ORCH-005, bump execution-rules.md's own `version`, append its own Change
-    history entry per its established pattern), update MANIFEST's current-state
-    section for execution-rules.md's version in the SAME transaction (per P3-TXN-001
-    §11.6-style atomicity — no separate bookkeeping transaction), and close this
-    adoption-design candidate's own relevant item, ALL atomically. Review depth for
-    this ONE transaction is determined by G-REV-001/P3-REVIEW-001 AT THAT TIME (this
-    document does not presume a full Review A/Independent Review B chain is
-    mandatory — execution-rules.md's own change history shows several of its prior
-    G-* amendments were Product-Owner-accepted directly as narrow interpretive
-    clarifications; whether THIS addition warrants a bounded semantic re-review or
-    direct Product Owner acceptance is that future transaction's own determination,
-    not fixed here).
-  This is the ONE transaction genuinely identified as required BY existing authority
-    IF Delta 1 is adopted — because execution-rules.md is an EFFECTIVE, living
-    document and any semantic addition to it requires ITS OWN version bump and
-    acceptance record, per its own frontmatter lifecycle fields (`operational_state:
-    EFFECTIVE`, `accepted_by`/`accepted_at`) — this is not an invented governance
-    step, it is the document's own already-established amendment mechanism.
+NO GOVERNANCE ACTIVATION TRANSACTION IS REQUIRED. Every adoption question resolved
+  to KEEP_NO_CHANGE, DEFER, or TOOLING_FOLLOWUP — existing authority (G-AUTH-002,
+  G-ORCH item 6, G-TXN-003/004, P3-TXN-001, Chapter 11 §11.6, ADR-031 §8, G-REV-001/
+  003, G-ID-003, P3-IDENTITY-001) already fully covers everything this proposal
+  identified as a lesson. The corrective action for the observed defect (the
+  standalone review-evidence round-trip) is APPLYING these already-effective rules
+  more carefully in future transactions — restated here as informal orchestration
+  guidance (the four-question self-check from v0.1's §3, retained as advisory
+  language only, not as any rule ID), never as new governance text.
 
-Optional, deferred, NOT required for this adoption package to be considered
-  complete:
-  A future team.yaml clarifying-note transaction (Delta 2), only if/when Mode B is
-    actually used for Independent Review B with a non-Claude principal in practice
-    — no urgency, no rule currently blocks that scenario from working correctly
-    without the note (ADR-031 §8 already governs it); the note is a readability
-    improvement for future record-writers, not a correctness requirement.
+The informal orchestration guidance (non-binding, illustrative only, cross-
+  referencing already-effective rules — NOT a proposed rule):
+  Before creating a new governed transaction to satisfy a failed precondition, ask:
+  (1) does an existing higher-authority rule actually require separation
+      (G-AUTH-002: verify against real authority, don't assume)?
+  (2) does the new transaction reduce real semantic risk (G-ORCH item 6)?
+  (3) can the bookkeeping safely fold into an already-required transaction
+      (G-TXN-003, P3-TXN-001's default-fold rule)?
+  (4) is a self-imposed prompt/task-design detail being mistaken for a project
+      rule?
+
+Held in reserve only, NOT activated, NOT scheduled: IF a concrete correctness need
+  for a team.yaml clarifying note is ever demonstrated (§4), that would be its own
+  small, separate, future transaction — but none is proposed or required by this
+  design candidate as it stands.
 
 Explicitly NOT proposed, consistent with this task's own transaction-minimization
   instruction:
-  - No standalone Review Evidence transaction (question 1 resolved KEEP_NO_CHANGE —
-    the target atomic-fold behavior is already the default).
+  - No standalone Review Evidence transaction.
   - No separate bookkeeping transaction for this adoption-design candidate's own
     Product Owner acceptance — folded directly into this same transaction's own
-    frontmatter/§0 recording, above.
+    frontmatter/§0 recording.
   - No Review A/Independent Review B for any purely mechanical recording step.
-  - No duplicated or parallel governance taxonomy — every disposition above cites
-    and defers to existing rule IDs, never inventing a competing rule numbering
-    scheme.
+  - No duplicated or parallel governance taxonomy.
+  - No G-ORCH-005 or any other new rule ID.
 ```
 
-## 10. Explicit non-effect of this transaction
+## 10. Finding states after this correction
+
+```text
+P3-PI-ADOPT-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PI-ADOPT-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PI-ADOPT-A-MIN-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+Not self-closed. Next step: bounded Review A re-review of adoption-design v0.2.
+
+## 11. Explicit non-effect of this transaction
 
 ```text
 KHÔNG activates any governance rule change. KHÔNG amends execution-rules.md,
@@ -334,28 +345,45 @@ This document is `ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE`. `adopted_by`/
   applying whatever review depth its own actual semantic delta warrants.
 ```
 
-## 11. Change history
+## 12. Change history
 
 ```text
 v0.1  2026-09-03  Authored -- vai trò: `Phase 3 Process Improvement Adoption Design
-      Author`. Designs the minimum effective delta for proposal v0.3's five
-      adoption questions. Resolved: standalone Review Evidence elimination ->
-      KEEP_NO_CHANGE (P3-TXN-001 + Chapter 11 §11.6 already require atomic default
-      fold); prompt-created-precondition -> TIGHTEN_EXISTING, one candidate
-      G-ORCH-005 sentence proposed (not activated); Independent Review B identity
-      -> KEEP_NO_CHANGE at the core semantic level (ADR-031 §8 already establishes
-      role-not-identity), TIGHTEN_EXISTING/DEFERRED for an optional future
-      team.yaml readability note (not made here); review purpose/compact metadata
-      -> KEEP_NO_CHANGE (G-REV-001/003, G-ID-003, P3-IDENTITY-001 already cover
-      it); automation -> TOOLING_FOLLOWUP, all items, no governance text implicated.
-      Consolidated ADR disposition: ADR_NOT_REQUIRED for both identified deltas
-      (re-run required at actual future adoption boundary). Minimal future sequence:
-      at most ONE bounded transaction (execution-rules.md G-ORCH-005 addition +
-      atomic MANIFEST update), plus one optional/deferred team.yaml note — no
-      standalone Review Evidence transaction, no separate bookkeeping transaction,
-      no Review A/B for mechanical recording, no duplicated taxonomy. Product
-      Owner's "ACCEPT ... FOR ADOPTION DESIGN" decision folded into this same
-      transaction, not a separate recorder. `design_state: ADOPTION DESIGN
-      CANDIDATE / NOT EFFECTIVE`. `adopted_by`/`adopted_at`: null. Does not activate
-      any rule. Next governed step: Review A of this adoption-design candidate.
+      Author`. Designed the minimum effective delta for proposal v0.3's five
+      adoption questions. Proposed a G-ORCH-005 effective delta and a deferred
+      team.yaml note, both classified ADR_NOT_REQUIRED (partly citing prior-
+      amendment precedent); asserted "Review A: CLEAN. Independent Review B: CLEAN"
+      for v0.3 without re-verification; described Mode B inaccurately as involving
+      a different principal.
+
+v0.2  2026-09-03  Bounded correction -- vai trò: `Phase 3 Process Improvement
+      Adoption Design v0.2 Bounded Correction Executor`. Remediates three Review A
+      findings: `P3-PI-ADOPT-A-MAJ-01` (removed the G-ORCH-005 effective delta —
+      re-evaluated disposition KEEP_NO_CHANGE, since G-AUTH-002 + G-ORCH's own
+      self-check item 6 + G-TXN-003/004 + P3-TXN-001 already fully cover the
+      observed failure mode; removed "prior no-ADR amendments" as improper
+      authority over Chapter 0 §4b). `P3-PI-ADOPT-A-MAJ-02` (removed the unverified
+      "Review A: CLEAN / Independent Review B: CLEAN" claim for proposal v0.3 —
+      direct re-check against v0.3's own §13 shows the actual state was
+      `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`/`PENDING FINAL BOUNDED
+      REVIEW A VALIDATION`, not CLEAN; this design candidate now proceeds solely on
+      the Product Owner's own explicit decision, not on a fabricated reviewer
+      disposition). `P3-PI-ADOPT-A-MIN-01` (corrected Mode B wording to "SAME
+      principal as Review A + DISTINCT isolated execution"; reclassified the
+      team.yaml note from TIGHTEN_EXISTING/DEFERRED to a plain DEFER, since no
+      concrete correctness need is demonstrated). Recomputed §7's summary table:
+      every item now resolves to KEEP_NO_CHANGE, DEFER, or TOOLING_FOLLOWUP —
+      explicit statement added: `NO GOVERNANCE ACTIVATION TRANSACTION REQUIRED`.
+      Recomputed §8's ADR Scope Rule: no effective delta remains to classify;
+      consolidated disposition ADR_NOT_REQUIRED on that basis (not on a "prior
+      amendments" precedent basis). Recomputed §9's minimal future sequence:
+      shortened to no required transaction at all, with the four-question check
+      retained only as non-binding orchestration guidance. `design_version:
+      "0.1" -> "0.2"`. `design_state` VẪN `ADOPTION DESIGN CANDIDATE / NOT
+      EFFECTIVE`. `adopted_by`/`adopted_at` VẪN `null`/`null`. Finding states:
+      `P3-PI-ADOPT-A-MAJ-01`/`-MAJ-02`/`-MIN-01`: `REMEDIATED — PENDING BOUNDED
+      REVIEW A RE-REVIEW` — NOT self-closed. Does not activate any rule. Does not
+      touch team.yaml/execution-rules.md/any Constitution chapter/any ADR/Testing
+      Convention. Next governed step: bounded Review A re-review of adoption-design
+      v0.2.
 ```

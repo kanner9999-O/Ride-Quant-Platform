@@ -2,6 +2,58 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — governance: Phase 3 Process Improvement Adoption Design Bounded Correction v0.2
+
+**Bounded correction — vai trò: `Phase 3 Process Improvement Adoption Design v0.2 Bounded Correction Executor`.** Remediates three Review A findings on the adoption-design candidate v0.1. Does not activate governance. `design_version: "0.1" -> "0.2"`, state remains `ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE`.
+
+### Corrections
+
+```text
+P3-PI-ADOPT-A-MAJ-01: removed the proposed G-ORCH-005 effective delta. Re-evaluated
+  against G-AUTH-002 + G-ORCH's own self-check item 6 + G-TXN-003/004 + P3-TXN-001,
+  which already fully cover the observed failure mode -- the incident was a failure
+  to apply existing rules, not a gap in them. Disposition: KEEP_NO_CHANGE. Also
+  removed an improper citation of "prior amendments needed no ADR" as authority
+  over Chapter 0 Section 4b.
+P3-PI-ADOPT-A-MAJ-02: removed the unverified "Review A: CLEAN / Independent Review
+  B: CLEAN" claim for proposal v0.3. Direct re-check against v0.3's own recorded
+  finding states shows the actual disposition was REMEDIATED -- PENDING BOUNDED
+  REVIEW A RE-REVIEW / PENDING FINAL BOUNDED REVIEW A VALIDATION, not CLEAN. This
+  design candidate now proceeds solely on the Product Owner's own explicit decision,
+  never on a fabricated reviewer disposition, per P3-VERIFY-001.
+P3-PI-ADOPT-A-MIN-01: corrected Mode B wording to "SAME principal as Review A +
+  DISTINCT isolated execution" (v0.1 incorrectly described it as a different
+  principal). Reclassified the team.yaml note from TIGHTEN_EXISTING/DEFERRED to a
+  plain DEFER, since no concrete correctness need is demonstrated.
+```
+
+### Adoption result recomputed
+
+```text
+Every item now resolves to KEEP_NO_CHANGE, DEFER, or TOOLING_FOLLOWUP. Explicit
+  statement: NO GOVERNANCE ACTIVATION TRANSACTION REQUIRED. Consolidated ADR
+  disposition: ADR_NOT_REQUIRED, because no effective delta remains to classify.
+```
+
+### Finding states
+
+```text
+P3-PI-ADOPT-A-MAJ-01/-MAJ-02/-MIN-01: REMEDIATED — PENDING BOUNDED REVIEW A
+  RE-REVIEW. Neither self-closed.
+```
+
+### Preserved unchanged
+
+```text
+Reviewed proposal (v0.3): unchanged, still PROPOSAL / NOT YET EFFECTIVE. Constitution,
+  all ADRs, execution-rules.md, phase-3-rules.md, team.yaml, testing.md, module-
+  registry.yaml, all implementation/test/CI files verified byte-identical. No rule
+  activated; no shim installed; no baseline rerun; Feature QG/module approval/
+  Phase 3 gate/LIVE state unchanged.
+```
+
+Next governed step: bounded Review A re-review of adoption-design v0.2.
+
 ## [Unreleased] — 2026-09-03 — governance: Phase 3 Process Improvement Proposal #001 Adoption Design Candidate (`ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE`)
 
 **New adoption-design candidate — vai trò: `Phase 3 Process Improvement Adoption Design Author`.** Adds `docs/governance/retrospectives/phase3-process-improvement-001-adoption-design.md`, designing the minimum effective delta needed to realize proposal v0.3's accepted lessons. Does not edit the reviewed proposal. Does not activate any rule. Folds the Product Owner's "ACCEPT ... FOR ADOPTION DESIGN" decision into this same transaction, per the very lesson being adopted (no separate decision/evidence recorder).
