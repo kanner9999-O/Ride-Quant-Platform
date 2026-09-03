@@ -1,7 +1,7 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.14"
+version: "0.15"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,192 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**v0.15 CANDIDATE FINAL BOUNDED CORRECTION (2026-09-05), KHÔNG self-approved — status: Draft → Draft.** `version: "0.14" → "0.15"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. vai trò: `Python Mutation Compatibility Candidate Final Bounded Correction Executor`. Corrects the two remaining Review A residuals on the v0.14 candidate: `P3-PY-MUT-COMPAT-A-MAJ-01` (v0.14's marker proved only that the rebound subclass was constructed SOMEWHERE, not that it originated from mutmut's own real trampoline call site) and `P3-PY-MUT-COMPAT-A-MAJ-02` (v0.14 mischaracterized Chapter 3 §3.2 as a carve-out/exemption from the ADR Scope Rule, and used `ADR_NOT_REQUIRED` where `ADR_OPTIONAL — ADR NOT AUTHORED` is the correct classification). Does NOT implement the shim. v0.12 Approved and v0.13/v0.14 Draft history preserved unedited below, annotated (not rewritten) where superseded.
+
+**Review A dispositions being remediated (mechanically recorded, not this executor's own authority):**
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01 (residual): v0.14's invocation-local marker proved only that
+  `_StructuralForcedFailSentinel` was CONSTRUCTED during a pytest invocation -- it did
+  NOT prove that construction originated from mutmut's own real, nested `trampoline`
+  call site (wrap_in_trampoline -> mutmut_mutated -> trampoline,
+  mutmut/mutation/trampoline.py). Unrelated Python code (conftest, plugin, test helper)
+  can import the rebound name after installation and construct it directly, which would
+  set the v0.14 marker without ever going through the real trampoline.
+P3-PY-MUT-COMPAT-A-MAJ-02 (residual): v0.14 described Chapter 3 §3.2 as an established
+  "carve-out"/category of "governance escape" from the ADR Scope Rule, and classified
+  this candidate `ADR_NOT_REQUIRED` on that basis. Chapter 3 §3.2 establishes Testing
+  Convention as the AUTHORITY for testing style/tooling decisions -- it does not exempt
+  those decisions from Chapter 0 §4b. The correct classification for a materially
+  significant, single-module, no-contract-change, reversible internal testing-tool
+  behavior change is `ADR_OPTIONAL — ADR NOT AUTHORED`.
+```
+
+### MAJ-01 final correction — call-site-authenticated structural proof (code-object identity)
+
+```text
+New mechanism, layered on top of v0.14's subclass-rebind design (which remains in
+  place, unchanged):
+
+  1. At shim installation time, the exact CODE OBJECT of mutmut's own nested
+     `trampoline` function is derived and PINNED from the currently-installed mutmut
+     3.7.0 package: `trampoline` is defined inside `mutmut_mutated`, itself defined
+     inside `wrap_in_trampoline` (mutmut/mutation/trampoline.py). Nested function
+     definitions are compiled ONCE at module-compile time into the enclosing function's
+     own `co_consts` -- so this exact code object's identity is fixed and stable across
+     every one of mutmut's many calls to `wrap_in_trampoline` (one per mutated
+     function), for the lifetime of the process. Derivation walks
+     `wrap_in_trampoline.__code__.co_consts` for the nested code object named
+     `mutmut_mutated`, then walks THAT code object's own `co_consts` for the nested
+     code object matched by BOTH `co_name == "trampoline"` AND `co_filename` ending in
+     mutmut's own installed `mutation/trampoline.py` path -- name alone is never
+     sufficient (a same-named decoy function elsewhere would share the name but never
+     the code-object identity).
+  2. FAIL CLOSED: if this exact code object cannot be resolved at installation time
+     (e.g. mutmut's internal structure changes in a future version), the pinned
+     reference is `None`, and the marker can then NEVER be set True by any caller --
+     the shim falls back unconditionally to stock, unmodified mutmut fatal behavior.
+  3. `_StructuralForcedFailSentinel.__init__` inspects its IMMEDIATE CALLER's frame
+     (`sys._getframe(1)`) and compares `frame.f_code` BY IDENTITY (`is`, not equality,
+     not name matching) against the pinned trampoline code object. The invocation-local
+     marker is set True ONLY when that identity check passes.
+  4. Direct construction of the rebound exception from conftest/plugin/test/arbitrary
+     helper code -- even with `MUTANT_UNDER_TEST=="fail"` -- does NOT set the marker,
+     because the caller frame in that case is the calling code's OWN frame, never the
+     pinned trampoline code object.
+No stdout/stderr text matching, no exception-name string matching, no filename-only or
+  function-name-only matching is used as authoritative identity proof anywhere in this
+  design -- identity is established exclusively via Python code-object identity tied to
+  the exact, currently-installed mutmut 3.7.0 provenance.
+```
+
+### Required scratch proofs (isolated `git worktree`; all performed, ALL PASS, including the MANDATORY origin-spoof test)
+
+```text
+Environment: fresh isolated `git worktree add --detach <scratch>
+  76523210114bab7d56bc4305b0120696c13a1373`, same governed clean-room venv, tracked
+  repository never modified (confirmed via `git status`/`git diff --quiet` after
+  `git worktree remove --force`).
+
+Pin resolution confirmed: the exact `trampoline` code object was successfully derived
+  from the installed mutmut 3.7.0 package (co_name="trampoline",
+  co_filename=".../mutmut/mutation/trampoline.py", co_firstlineno=39) -- fail-closed
+  path (pin == None) was NOT exercised in this environment since resolution succeeded,
+  but is exercised structurally by construction whenever resolution fails (see MAJ-01
+  design point 2).
+
+1. Ordinary suite: 193 passed. PASS.
+2. Generation/stats/clean-tests unaffected: mutants generated, clean-tests exit code 0
+   (193 passed). PASS.
+3. Real mutmut trampoline forced-fail path still sets the marker TRUE and succeeds:
+   run_forced_fail_test(runner) completed WITHOUT raising -- captured proof: "[ride-
+   shim] pytest exit 4 authenticated as mutmut's own real, pinned nested trampoline
+   code object constructing its forced-fail sentinel during this exact invocation --
+   treating as a SUCCESSFUL forced-fail verification." Marker confirmed False
+   immediately after (reset). PASS.
+4. **MANDATORY ORIGIN-SPOOF TEST**: during a single pytest invocation with
+   MUTANT_UNDER_TEST="fail" (isolated temp cwd, no feature-engine conftest.py in the
+   collection path), a custom pytest plugin (a stand-in for unrelated conftest/plugin/
+   test code) (a) directly constructs the rebound
+   `mutmut.mutation.trampoline.MutmutProgrammaticFailException("decoy...")` WITHOUT
+   raising it -- confirmed via captured output showing the actual
+   `_StructuralForcedFailSentinel` instance was genuinely constructed -- then
+   (b) independently raises a genuine `pytest.UsageError("...")` from its own
+   `pytest_configure` hook, causing pytest to exit 4 through a totally unrelated path.
+   Required and confirmed: the caller-authenticated marker remained FALSE (the decoy
+   construction's caller frame was the plugin's own `pytest_configure` method, not the
+   pinned trampoline code object); the shim correctly raised
+   BadTestExecutionCommandsException; forced-fail was NOT accepted. PASS -- this is the
+   exact scenario v0.14's design was vulnerable to, and it is now closed.
+5. Real mutmut trampoline forced-fail (repeat, for regression confirmation): still sets
+   marker TRUE, still succeeds. PASS.
+6. Textual FQCN spoof (from the prior correction, re-verified unaffected by this
+   layer): invalid pytest arg embedding the sentinel's fully-qualified class name in
+   its own text, run from an isolated temp cwd: still correctly fatal
+   (BadTestExecutionCommandsException). PASS.
+7. Unrelated invalid-argument exit-4 (marker never set): still correctly fatal. PASS.
+8. Invalid pytest arg with MUTANT_UNDER_TEST unset: still correctly fatal. PASS.
+9. Marker confirmed invocation-local and reset between EVERY call in this sequence
+   (real success, origin-spoof, textual spoof, unrelated exit-4, unset-env invalid
+   arg) -- never observed True except immediately during the one genuine trampoline
+   invocation, always False before/after every other call. PASS.
+10. No production/test behavior modified: shim only rebinds a name inside mutmut's own
+    trampoline module and monkeypatches mutmut's own PytestRunner class; zero
+    feature_engine file read for modification. PASS.
+11. No Phase 5 dispatch: `mutmut run` itself never invoked; only mutmut's own internal
+    functions called directly, through run_forced_fail_test's own outcome only. PASS.
+
+ALL ITEMS: PASS, including the mandatory direct-construction + independent
+  unrelated-UsageError origin-spoof test.
+```
+
+### MAJ-02 final correction — ADR taxonomy corrected
+
+```text
+Selected scope UNCHANGED and reconfirmed: FEATURE-ENGINE-ONLY, not GLOBAL. The wrapper
+  applies only to python/feature-engine; no other module may inherit/reuse it by
+  default; cross-module adoption requires a separate governed decision with its own
+  fresh ADR Scope Rule run at that future boundary.
+
+ADR Scope Rule result CORRECTED: `ADR_OPTIONAL — ADR NOT AUTHORED` (was incorrectly
+  `ADR_NOT_REQUIRED` in v0.13/v0.14).
+
+Corrected reasoning, mapped explicitly to Chapter 0 §4b's own taxonomy:
+  - Materially significant internal testing-tool behavior change: YES -- this changes
+    HOW an already-approved measurement mechanism's own sanity-check phase is
+    interpreted, a substantive change to tooling behavior, not a trivial one.
+  - Affects one module only: YES -- python/feature-engine exclusively; no other
+    module's build/test/CI configuration is touched or referenced.
+  - Production/event/API/domain contract change: NONE.
+  - Dependency graph/invariant/governance-process change: NONE.
+  - Reversible: YES -- documented single-step removal (delete the wrapper import) the
+    moment an official upstream fix ships.
+  - Cross-module authority: NONE -- explicitly, contractually FEATURE-ENGINE-ONLY.
+  This combination -- materially significant + one module + no contract change --
+  maps DIRECTLY to Chapter 0 §4b's "ADR Optional: internal one-module change without
+  contract change but significant" category, not to a blanket ADR-exempt category.
+Corrected framing of Chapter 3 §3.2: Chapter 3 §3.2 establishes the Testing Convention
+  as the AUTHORITY responsible for testing style/tooling decisions -- it does NOT
+  exempt those decisions from Chapter 0 §4b's own ADR Scope Rule. Every prior
+  `ADR_NOT_REQUIRED`/`ADR_OPTIONAL` disposition in this document's own testing-tooling
+  history (gobco, coverage.py, mutmut's own original selection, this compatibility
+  candidate) was and remains a disposition REACHED BY APPLYING Chapter 0 §4b, under
+  Chapter 3 §3.2's authority to make that tooling decision in the first place -- never
+  a bypass of §4b itself. This document's own PRIOR occurrences of that framing (v0.13,
+  v0.14, and the original v0.8 candidate's own ADR-scope check) are historical
+  artifacts of this document's own evolving precision on this exact point and are
+  preserved unedited where they occur; this v0.15 correction does not retroactively
+  reclassify those PRIOR, ALREADY-CLOSED decisions (gobco/coverage.py/mutmut selection
+  itself remain settled, unchallenged, and out of scope for this correction) -- it
+  corrects ONLY this compatibility candidate's own, still-open, not-yet-approved
+  classification.
+No ADR is required to proceed, because the classification is Optional and this
+  candidate explicitly chooses: ADR NOT AUTHORED. This is a deliberate choice to
+  proceed without one, available specifically because the classification is Optional
+  (not because Optional is exempt from consideration) -- if Review A or a future
+  installation transaction determines the actual, real-world significance warrants
+  one, an ADR may still be authored later without contradicting this record.
+Explicit, deliberate non-inheritance flag, restated for the third time, precisely:
+  this `ADR_OPTIONAL — ADR NOT AUTHORED` disposition is SPECIFIC to (i) the
+  FEATURE-ENGINE-ONLY scope fixed here, and (ii) this transaction's own act of
+  authoring a Draft candidate without installing anything. A future installation
+  transaction, or any future proposal to extend this mechanism beyond feature-engine,
+  MUST independently re-run the ADR Scope Rule at its own boundary against its own
+  actual scope and actual installed state at that time -- and MAY reach a different
+  conclusion (including ADR_REQUIRED) depending on what has actually changed by then.
+```
+
+**Candidate state after this correction:**
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: REMEDIATED — PENDING FINAL BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-COMPAT-A-MAJ-02: REMEDIATED — PENDING FINAL BOUNDED REVIEW A RE-REVIEW.
+```
+
+Neither self-closed. Preserved, unchanged: `P3-PY-MUT-BASELINE-B-MAJ-01: OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION APPROVED/INSTALLED` (not closed by this correction). `P3-PY-MUT-BASELINE-B-A-MIN-01` remains `CLOSED`.
+
+**KHÔNG đổi bởi transaction này:** mutmut 3.7.0 VẪN the currently installed/pinned implementation, byte-identical; NO compatibility remediation is installed yet; second baseline attempt VẪN `INCOMPLETE — NON-GATING DIAGNOSTIC`, historical only; `TEST_EFFECTIVENESS_THRESHOLD` VẪN `UNRESOLVED — BASELINE/CALIBRATION REQUIRED`; `P3-FEATURE-QG-EVID-03` VẪN `FAIL — evidence`; overall Feature Chapter 13 QG VẪN `FAIL`; Feature module approval VẪN `NOT APPROVED`; Phase 3 Approval Gate VẪN `NOT opened`; LIVE VẪN `NOT_AUTHORIZED`. KHÔNG production source touched. KHÔNG test file touched/committed. KHÔNG wrapper module created. KHÔNG `pyproject.toml`/`requirements-dev.lock.txt`/CI change. KHÔNG ADR file created. KHÔNG real mutation run. KHÔNG mutation score calculated. KHÔNG survivor analysis. KHÔNG threshold proposed. Testing Convention v0.15 KHÔNG self-approved, KHÔNG sent to Review B. **Next governed step:** final bounded Review A re-review of this v0.15 correction.
 
 **v0.14 CANDIDATE BOUNDED CORRECTION (2026-09-04), KHÔNG self-approved — status: Draft → Draft.** `version: "0.13" → "0.14"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. vai trò: `Python Mutation Compatibility Candidate Bounded Correction Executor`. Bounded correction of BOTH Review A findings on the v0.13 candidate — `P3-PY-MUT-COMPAT-A-MAJ-01` (spoofable textual sentinel detection) and `P3-PY-MUT-COMPAT-A-MAJ-02` (unresolved ADR scope). Does NOT implement the shim. v0.12 Approved and v0.13 Draft history preserved unedited below as historical evidence, annotated (not rewritten) where superseded.
 
@@ -137,6 +323,8 @@ ALL 10 ITEMS: PASS. Explicit proof the v0.13 textual-spoof counterexample now fa
 ```
 
 ### MAJ-02 correction — exact ADR scope resolved: FEATURE-ENGINE-ONLY
+
+**[SUPERSEDED — `P3-PY-MUT-COMPAT-A-MAJ-02` (final residual). This section's own `ADR_NOT_REQUIRED` classification and its framing of Chapter 3 §3.2 as a "carve-out"/"governance escape" category were themselves corrected by Review A: Chapter 3 §3.2 establishes Testing Convention as the AUTHORITY for testing style/tooling decisions, but explicitly remains SUBJECT TO Chapter 0 §4b — it is not an exemption from the ADR Scope Rule. The correct classification for a materially significant, single-module, no-contract-change, reversible internal testing-tool behavior change is `ADR_OPTIONAL — ADR NOT AUTHORED` (Chapter 0 §4b's "ADR Optional" category), not `ADR_NOT_REQUIRED`. The FEATURE-ENGINE-ONLY scope determination itself (module-count criterion, no other module affected) remains correct and unchanged. Preserved unedited below as historical record of v0.14's own then-incorrect ADR taxonomy; current, authoritative disposition is recorded in the v0.15 banner above.]**
 
 ```text
 Selected scope: FEATURE-ENGINE-ONLY (not GLOBAL).
@@ -539,6 +727,8 @@ No numeric test-effectiveness threshold is added, proposed, or implied by this
 ```
 
 **ADR Scope Rule — run fresh for THIS semantic compatibility amendment, NOT assumed inherited from prior `ADR_NOT_REQUIRED` results in this track:**
+
+**[SUPERSEDED — `P3-PY-MUT-COMPAT-A-MAJ-02`. The `ADR_NOT_REQUIRED` result below is corrected to `ADR_OPTIONAL — ADR NOT AUTHORED` in the v0.15 banner above — this candidate is a materially significant internal testing-tool behavior change, correctly falling under Chapter 0 §4b's "ADR Optional" category (one module, no contract change, reversible, significant), not outside the ADR Scope Rule's reach entirely. Preserved unedited below as historical record.]**
 
 ```text
 Result (for THIS transaction -- authoring a Draft, unapproved, unimplemented

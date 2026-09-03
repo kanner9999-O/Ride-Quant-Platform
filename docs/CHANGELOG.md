@@ -2,6 +2,58 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-05 — feature-engine: Python Mutation Compatibility Candidate Final Bounded Correction (Testing Convention `v0.14 Draft → v0.15 Draft`)
+
+**Final bounded correction — vai trò: `Python Mutation Compatibility Candidate Final Bounded Correction Executor`.** Corrects the two remaining Review A residuals. Not implemented; mutmut 3.7.0 remains installed/pinned unchanged.
+
+### MAJ-01 — call-site-authenticated structural proof
+
+```text
+Layered on v0.14's subclass-rebind: the exact code object of mutmut's own nested
+  trampoline function is derived and pinned at shim-installation time (matched by both
+  co_name and co_filename, never name alone), fail-closed if unresolvable. The
+  sentinel subclass's __init__ authenticates its immediate caller frame by CODE-OBJECT
+  IDENTITY against this pin -- never by text, exception-name, or filename/function-name
+  matching alone. Direct construction from unrelated code no longer sets the marker.
+All scratch proofs pass, including the MANDATORY origin-spoof test: a plugin directly
+  constructs the rebound exception (confirmed constructed) WITHOUT raising it, then
+  independently raises a genuine pytest.UsageError -- marker stays FALSE, shim
+  correctly raises BadTestExecutionCommandsException, forced-fail is NOT accepted.
+  The exact v0.14 vulnerability is closed.
+```
+
+### MAJ-02 — ADR taxonomy corrected
+
+```text
+Scope unchanged: FEATURE-ENGINE-ONLY. Result corrected from ADR_NOT_REQUIRED to
+  ADR_OPTIONAL — ADR NOT AUTHORED, per Chapter 0 §4b's "internal one-module change
+  without contract change but significant" category. Chapter 3 §3.2 corrected to be
+  described as the AUTHORITY for testing-tooling decisions, not an exemption from the
+  ADR Scope Rule.
+```
+
+### Finding states
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: REMEDIATED — PENDING FINAL BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-COMPAT-A-MAJ-02: REMEDIATED — PENDING FINAL BOUNDED REVIEW A RE-REVIEW.
+Neither self-closed. P3-PY-MUT-BASELINE-B-MAJ-01 remains OPEN — BLOCKED UNTIL
+  COMPATIBILITY REMEDIATION APPROVED/INSTALLED.
+```
+
+### Preserved unchanged
+
+```text
+mutmut 3.7.0: INSTALLED + PINNED, no remediation installed. Second baseline attempt:
+  INCOMPLETE — NON-GATING DIAGNOSTIC (historical only). TEST_EFFECTIVENESS_THRESHOLD:
+  UNRESOLVED — BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03: FAIL — evidence.
+  Formal Feature Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval
+  Gate: NOT opened. LIVE: NOT_AUTHORIZED. No production/test/config/dependency/CI file
+  changed; no wrapper module created; no ADR authored; no real mutant dispatched.
+```
+
+Next governed step: final bounded Review A re-review of the v0.15 correction.
+
 ## [Unreleased] — 2026-09-04 — feature-engine: Python Mutation Compatibility Candidate Bounded Correction (Testing Convention `v0.13 Draft → v0.14 Draft`)
 
 **Bounded semantic correction — vai trò: `Python Mutation Compatibility Candidate Bounded Correction Executor`.** Corrects both Review A findings on the v0.13 candidate. Does not implement the shim; mutmut 3.7.0 remains installed/pinned unchanged.

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.296"
+manifest_version: "10.297"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -18273,6 +18273,127 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** bounded Review A re-review of the v0.14 correction.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.295"` → `"10.296"`.
+
+## `feature-engine` — Python Mutation Compatibility Candidate Final Bounded Correction (Testing Convention `v0.14 Draft → v0.15 Draft`; `P3-PY-MUT-COMPAT-A-MAJ-01`/`-MAJ-02` → `REMEDIATED — PENDING FINAL BOUNDED REVIEW A RE-REVIEW`)
+
+**Final bounded correction — vai trò: `Python Mutation Compatibility Candidate Final Bounded Correction Executor`.** Corrects the two remaining Review A residuals on the v0.14 candidate: `P3-PY-MUT-COMPAT-A-MAJ-01` (marker proved construction but not the real trampoline call-site origin) and `P3-PY-MUT-COMPAT-A-MAJ-02` (mischaracterized Chapter 3 §3.2 as an ADR exemption; `ADR_NOT_REQUIRED` should have been `ADR_OPTIONAL — ADR NOT AUTHORED`). Does NOT implement the shim. `P3-PY-MUT-BASELINE-B-MAJ-01` remains open, blocked.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `76523210114bab7d56bc4305b0120696c13a1373` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. `manifest_version` confirmed `"10.296"` at start.
+
+### MAJ-01 — call-site-authenticated structural proof (code-object identity)
+
+```text
+Layered on v0.14's subclass-rebind design: the exact CODE OBJECT of mutmut's own
+  nested `trampoline` function is derived and PINNED at shim-installation time
+  (wrap_in_trampoline -> mutmut_mutated -> trampoline, mutmut/mutation/trampoline.py),
+  matched by BOTH co_name=="trampoline" AND co_filename ending in the installed
+  mutation/trampoline.py path — name alone is never sufficient. FAIL CLOSED: if
+  unresolvable, pin is None and the marker can never be set (falls back to stock fatal
+  behavior). `_StructuralForcedFailSentinel.__init__` inspects its immediate caller
+  frame (`sys._getframe(1)`) and compares `frame.f_code` BY IDENTITY against the
+  pinned code object — never by name, text, or filename-only matching. Direct
+  construction from conftest/plugin/test/helper code does NOT set the marker, since
+  the caller frame in that case is never the pinned trampoline code object.
+```
+
+### Required scratch proofs (isolated `git worktree`; ALL PASS, including the MANDATORY origin-spoof test)
+
+```text
+Pin resolution confirmed against the installed mutmut 3.7.0 package (co_name=
+  "trampoline", co_filename=".../mutmut/mutation/trampoline.py", co_firstlineno=39).
+1. Ordinary suite: 193 passed. 2. Generation/stats/clean-tests unaffected. 3. Real
+   trampoline forced-fail still sets marker TRUE and succeeds ("[ride-shim] pytest
+   exit 4 authenticated as mutmut's own real, pinned nested trampoline code object
+   constructing its forced-fail sentinel..."); marker reset False after.
+4. MANDATORY ORIGIN-SPOOF TEST: a custom pytest plugin, during MUTANT_UNDER_TEST=
+   "fail", (a) directly constructs the rebound
+   mutmut.mutation.trampoline.MutmutProgrammaticFailException("decoy...") WITHOUT
+   raising it (confirmed constructed via captured output), then (b) independently
+   raises a genuine pytest.UsageError from pytest_configure, producing exit code 4
+   through an unrelated path. Required and confirmed: marker remained FALSE (caller
+   frame was the plugin's own method, not the pinned trampoline code object); shim
+   correctly raised BadTestExecutionCommandsException; forced-fail NOT accepted. PASS
+   — the exact v0.14 vulnerability is now closed.
+5-8. Regression re-checks: real trampoline success (repeat), textual FQCN spoof still
+   fatal, unrelated invalid-arg exit-4 still fatal, invalid arg with MUTANT_UNDER_TEST
+   unset still fatal — all PASS.
+9. Marker confirmed invocation-local, reset between every call in the full sequence.
+10. No production/test behavior modified. 11. No Phase 5 dispatch (mutmut run never
+   invoked).
+ALL ITEMS: PASS.
+```
+
+### MAJ-02 — ADR taxonomy corrected
+
+```text
+Scope UNCHANGED, reconfirmed: FEATURE-ENGINE-ONLY, not GLOBAL.
+Result CORRECTED: ADR_OPTIONAL — ADR NOT AUTHORED (was incorrectly ADR_NOT_REQUIRED).
+Reasoning mapped to Chapter 0 §4b: materially significant internal testing-tool
+  behavior change (YES) + one module only (YES, python/feature-engine exclusively) +
+  no production/event/API/domain contract change (NONE) + no dependency-graph/
+  invariant/governance-process change (NONE) + reversible (YES, single-step removal)
+  + no cross-module authority (NONE) → maps directly to Chapter 0 §4b's "ADR Optional:
+  internal one-module change without contract change but significant" category.
+Corrected framing: Chapter 3 §3.2 establishes Testing Convention as the AUTHORITY for
+  testing style/tooling decisions — it does NOT exempt those decisions from Chapter 0
+  §4b's own ADR Scope Rule. This candidate chooses ADR NOT AUTHORED because the
+  classification is Optional, not because Optional is exempt from consideration.
+Explicit non-inheritance flag restated: specific to FEATURE-ENGINE-ONLY scope and this
+  authoring act without installation; a future installation or cross-module extension
+  MUST independently re-run the ADR Scope Rule and may reach a different conclusion.
+```
+
+### Finding states after this correction
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: REMEDIATED — PENDING FINAL BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-COMPAT-A-MAJ-02: REMEDIATED — PENDING FINAL BOUNDED REVIEW A RE-REVIEW.
+Neither self-closed.
+P3-PY-MUT-BASELINE-B-MAJ-01: OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+  APPROVED/INSTALLED. Not closed by this correction.
+P3-PY-MUT-BASELINE-B-A-MIN-01: CLOSED (unchanged).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/engineering/testing.md (blob a9413d834354e2a1be32cfbf70d6f9a67d2de818),
+  docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1`). python/feature-engine/src/**,
+  python/feature-engine/tests/**, python/feature-engine/pyproject.toml,
+  python/feature-engine/requirements-dev.lock.txt, docs/constitution/**, docs/adr/**,
+  docs/architecture/module-registry.yaml, CI/CD workflows, any Go module: all verified
+  byte-identical (`git diff --quiet` for each path). No wrapper module created. No ADR
+  file created. No real mutant dispatched. No mutation score calculated. No survivor
+  analysis. No threshold proposed. `P3-PY-MUT-BASELINE-B-MAJ-01` not closed.
+  `P3-FEATURE-QG-EVID-03` not closed. Not sent to Review B.
+```
+
+### State summary
+
+```text
+Testing Convention:            v0.14 Draft → v0.15 Draft (approved_by/approved_at
+                                still null/null; not sent to Review B).
+P3-PY-MUT-COMPAT-A-MAJ-01:     REMEDIATED — PENDING FINAL BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-COMPAT-A-MAJ-02:     REMEDIATED — PENDING FINAL BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+                                APPROVED/INSTALLED.
+P3-PY-MUT-BASELINE-B-A-MIN-01: CLOSED (unchanged).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged); no compatibility
+                                remediation installed yet.
+Second baseline attempt:       INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged,
+                                historical only).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** final bounded Review A re-review of the v0.15 correction.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.296"` → `"10.297"`.
 
 ## Decision Log
 
