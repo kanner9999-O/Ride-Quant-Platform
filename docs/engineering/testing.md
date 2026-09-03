@@ -1,7 +1,7 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.15"
+version: "0.16"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -15,7 +15,26 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 
 # Engineering Foundation — Testing Convention
 
-**v0.15 CANDIDATE FINAL BOUNDED CORRECTION (2026-09-05), KHÔNG self-approved — status: Draft → Draft.** `version: "0.14" → "0.15"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. vai trò: `Python Mutation Compatibility Candidate Final Bounded Correction Executor`. Corrects the two remaining Review A residuals on the v0.14 candidate: `P3-PY-MUT-COMPAT-A-MAJ-01` (v0.14's marker proved only that the rebound subclass was constructed SOMEWHERE, not that it originated from mutmut's own real trampoline call site) and `P3-PY-MUT-COMPAT-A-MAJ-02` (v0.14 mischaracterized Chapter 3 §3.2 as a carve-out/exemption from the ADR Scope Rule, and used `ADR_NOT_REQUIRED` where `ADR_OPTIONAL — ADR NOT AUTHORED` is the correct classification). Does NOT implement the shim. v0.12 Approved and v0.13/v0.14 Draft history preserved unedited below, annotated (not rewritten) where superseded.
+**v0.16 CANDIDATE DATE FIDELITY CORRECTION (2026-09-03), KHÔNG self-approved — status: Draft → Draft.** `version: "0.15" → "0.16"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. vai trò: `Compatibility Candidate Date Fidelity Correction Executor`. ONE mechanical evidence-fidelity correction — NOT a semantic candidate redesign, NOT a reopening of any closed finding — of `P3-PY-MUT-COMPAT-A-MIN-01`: v0.14's and v0.15's own banners each asserted an incorrect, future-dated transaction date (`2026-09-04` and `2026-09-05` respectively). Independently re-verified against the actual GitHub commit timestamps: `89b27c12a5edce2dbb13be4bd07d4fcc3c14fb61` (v0.13) at `2026-09-03T02:56:31Z`, `76523210114bab7d56bc4305b0120696c13a1373` (v0.14) at `2026-09-03T03:12:30Z`, `31f985c39c08580cb0b19363d03c0794fe447335` (v0.15) at `2026-09-03T03:41:22Z` — all three transactions actually occurred on `2026-09-03`, not across three separate days. Corrected directly, in place, in both banners (a pure factual/date literal fix, consistent with this document's own round-3/round-4 precedent for arithmetic/count-fidelity corrections — not an annotation-based superseding, since no semantic reinterpretation is involved): `v0.14 CANDIDATE BOUNDED CORRECTION (2026-09-04)` → `(2026-09-03)`; `v0.15 CANDIDATE FINAL BOUNDED CORRECTION (2026-09-05)` → `(2026-09-03)`. The corresponding `docs/CHANGELOG.md` entry dates for both transactions are corrected identically. v0.13's own already-correct `2026-09-03` date is unchanged. Searched this candidate's full history for any other occurrence asserting v0.14/v0.15 happened on September 4/5 (including alternate date formats) — none found beyond the two banner headers and the two CHANGELOG entry headers already corrected.
+
+**Review A dispositions recorded (mechanical recording, not this executor's own authority):**
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — Review A final bounded re-review.
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — Review A final bounded re-review.
+Review A candidate state: SEMANTICALLY CLEAN — ONE MECHANICAL DATE-FIDELITY
+  CORRECTION REQUIRED BEFORE REVIEW B.
+```
+
+Neither MAJ-01 nor MAJ-02 is reinterpreted or reopened by this transaction — their substantive (call-site-authenticated structural detection; FEATURE-ENGINE-ONLY scope + `ADR_OPTIONAL — ADR NOT AUTHORED`) content from v0.15 stands entirely unchanged.
+
+**Finding state:** `P3-PY-MUT-COMPAT-A-MIN-01: REMEDIATED — PENDING FINAL REVIEW A VALIDATION` — NOT self-closed.
+
+**ADR Scope Rule (run fresh for this correction):** `ADR_NOT_REQUIRED` — pure factual/date audit correction, zero behavior or contract change, zero semantic change to the candidate's own structural design, scope, or ADR classification.
+
+**KHÔNG đổi bởi transaction này:** candidate scope VẪN `FEATURE-ENGINE-ONLY`; the compatibility candidate's own ADR disposition VẪN `ADR_OPTIONAL — ADR NOT AUTHORED` (unchanged, not re-litigated here); mutmut 3.7.0 VẪN the currently installed/pinned implementation, byte-identical; NO compatibility remediation is installed yet; second baseline attempt VẪN `INCOMPLETE — NON-GATING DIAGNOSTIC`, historical only; `TEST_EFFECTIVENESS_THRESHOLD` VẪN `UNRESOLVED — BASELINE/CALIBRATION REQUIRED`; `P3-FEATURE-QG-EVID-03` VẪN `FAIL — evidence`; `P3-PY-MUT-BASELINE-B-MAJ-01` VẪN `OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION APPROVED/INSTALLED`; overall Feature Chapter 13 QG VẪN `FAIL`; Feature module approval VẪN `NOT APPROVED`; Phase 3 Approval Gate VẪN `NOT opened`; LIVE VẪN `NOT_AUTHORIZED`. KHÔNG production source touched. KHÔNG test file touched/committed. KHÔNG wrapper module created. KHÔNG `pyproject.toml`/`requirements-dev.lock.txt`/CI change. KHÔNG ADR file created. KHÔNG real mutation run. KHÔNG mutation score calculated. KHÔNG threshold proposed. Testing Convention v0.16 KHÔNG self-approved, KHÔNG sent to Review B. **Next governed step:** Independent Review B of this candidate (per Review A's own `SEMANTICALLY CLEAN` disposition, now that the one required mechanical correction is complete).
+
+**v0.15 CANDIDATE FINAL BOUNDED CORRECTION (2026-09-03), KHÔNG self-approved — status: Draft → Draft.** `version: "0.14" → "0.15"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. vai trò: `Python Mutation Compatibility Candidate Final Bounded Correction Executor`. Corrects the two remaining Review A residuals on the v0.14 candidate: `P3-PY-MUT-COMPAT-A-MAJ-01` (v0.14's marker proved only that the rebound subclass was constructed SOMEWHERE, not that it originated from mutmut's own real trampoline call site) and `P3-PY-MUT-COMPAT-A-MAJ-02` (v0.14 mischaracterized Chapter 3 §3.2 as a carve-out/exemption from the ADR Scope Rule, and used `ADR_NOT_REQUIRED` where `ADR_OPTIONAL — ADR NOT AUTHORED` is the correct classification). Does NOT implement the shim. v0.12 Approved and v0.13/v0.14 Draft history preserved unedited below, annotated (not rewritten) where superseded.
 
 **Review A dispositions being remediated (mechanically recorded, not this executor's own authority):**
 
@@ -201,7 +220,7 @@ Neither self-closed. Preserved, unchanged: `P3-PY-MUT-BASELINE-B-MAJ-01: OPEN �
 
 **KHÔNG đổi bởi transaction này:** mutmut 3.7.0 VẪN the currently installed/pinned implementation, byte-identical; NO compatibility remediation is installed yet; second baseline attempt VẪN `INCOMPLETE — NON-GATING DIAGNOSTIC`, historical only; `TEST_EFFECTIVENESS_THRESHOLD` VẪN `UNRESOLVED — BASELINE/CALIBRATION REQUIRED`; `P3-FEATURE-QG-EVID-03` VẪN `FAIL — evidence`; overall Feature Chapter 13 QG VẪN `FAIL`; Feature module approval VẪN `NOT APPROVED`; Phase 3 Approval Gate VẪN `NOT opened`; LIVE VẪN `NOT_AUTHORIZED`. KHÔNG production source touched. KHÔNG test file touched/committed. KHÔNG wrapper module created. KHÔNG `pyproject.toml`/`requirements-dev.lock.txt`/CI change. KHÔNG ADR file created. KHÔNG real mutation run. KHÔNG mutation score calculated. KHÔNG survivor analysis. KHÔNG threshold proposed. Testing Convention v0.15 KHÔNG self-approved, KHÔNG sent to Review B. **Next governed step:** final bounded Review A re-review of this v0.15 correction.
 
-**v0.14 CANDIDATE BOUNDED CORRECTION (2026-09-04), KHÔNG self-approved — status: Draft → Draft.** `version: "0.13" → "0.14"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. vai trò: `Python Mutation Compatibility Candidate Bounded Correction Executor`. Bounded correction of BOTH Review A findings on the v0.13 candidate — `P3-PY-MUT-COMPAT-A-MAJ-01` (spoofable textual sentinel detection) and `P3-PY-MUT-COMPAT-A-MAJ-02` (unresolved ADR scope). Does NOT implement the shim. v0.12 Approved and v0.13 Draft history preserved unedited below as historical evidence, annotated (not rewritten) where superseded.
+**v0.14 CANDIDATE BOUNDED CORRECTION (2026-09-03), KHÔNG self-approved — status: Draft → Draft.** `version: "0.13" → "0.14"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. vai trò: `Python Mutation Compatibility Candidate Bounded Correction Executor`. Bounded correction of BOTH Review A findings on the v0.13 candidate — `P3-PY-MUT-COMPAT-A-MAJ-01` (spoofable textual sentinel detection) and `P3-PY-MUT-COMPAT-A-MAJ-02` (unresolved ADR scope). Does NOT implement the shim. v0.12 Approved and v0.13 Draft history preserved unedited below as historical evidence, annotated (not rewritten) where superseded.
 
 **Review A dispositions being remediated (mechanically recorded, not this executor's own authority):**
 

@@ -2,7 +2,63 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
-## [Unreleased] — 2026-09-05 — feature-engine: Python Mutation Compatibility Candidate Final Bounded Correction (Testing Convention `v0.14 Draft → v0.15 Draft`)
+## [Unreleased] — 2026-09-03 — feature-engine: Compatibility Candidate Date Fidelity Correction (Testing Convention `v0.15 Draft → v0.16 Draft`)
+
+**Mechanical evidence-fidelity correction — vai trò: `Compatibility Candidate Date Fidelity Correction Executor`.** Corrects `P3-PY-MUT-COMPAT-A-MIN-01`: v0.14's and v0.15's own banners asserted incorrect, future-dated transaction dates. Not a semantic redesign; does not alter candidate structure, scope, or ADR disposition.
+
+### Date defect and correction
+
+```text
+Independently re-verified via `git show -s --format='%H %cI'`: commits
+  89b27c12a5edce2dbb13be4bd07d4fcc3c14fb61 (v0.13), 76523210114bab7d56bc4305b0120696c13a1373
+  (v0.14), and 31f985c39c08580cb0b19363d03c0794fe447335 (v0.15) all occurred on
+  2026-09-03. Corrected v0.14's banner date (2026-09-04 -> 2026-09-03) and v0.15's
+  banner date (2026-09-05 -> 2026-09-03) directly in docs/engineering/testing.md, and
+  the corresponding CHANGELOG entry header dates for both. v0.13's already-correct
+  date is unchanged. No other date-claim occurrence found.
+```
+
+### Review A dispositions recorded
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — Review A final bounded re-review.
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — Review A final bounded re-review.
+Review A candidate state: SEMANTICALLY CLEAN — ONE MECHANICAL DATE-FIDELITY
+  CORRECTION REQUIRED BEFORE REVIEW B. Neither Major finding reinterpreted/reopened.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED — pure factual/date audit correction, zero behavior/contract change.
+```
+
+### Finding states
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — Review A final bounded re-review.
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — Review A final bounded re-review.
+P3-PY-MUT-COMPAT-A-MIN-01: REMEDIATED — PENDING FINAL REVIEW A VALIDATION. Not
+  self-closed. P3-PY-MUT-BASELINE-B-MAJ-01 remains OPEN — BLOCKED UNTIL
+  COMPATIBILITY REMEDIATION APPROVED/INSTALLED.
+```
+
+### Preserved unchanged
+
+```text
+Candidate scope: FEATURE-ENGINE-ONLY. Candidate ADR disposition: ADR_OPTIONAL — ADR
+  NOT AUTHORED. mutmut 3.7.0: INSTALLED + PINNED, no remediation installed. Second
+  baseline attempt: INCOMPLETE — NON-GATING DIAGNOSTIC (historical only).
+  TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED.
+  P3-FEATURE-QG-EVID-03: FAIL — evidence. Formal Feature Chapter 13 QG: FAIL. Feature
+  module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED. No
+  production/test/config/dependency/CI file changed; no wrapper module created; no ADR
+  authored; no real mutant dispatched.
+```
+
+Next governed step: Independent Review B of this candidate.
+
+## [Unreleased] — 2026-09-03 — feature-engine: Python Mutation Compatibility Candidate Final Bounded Correction (Testing Convention `v0.14 Draft → v0.15 Draft`)
 
 **Final bounded correction — vai trò: `Python Mutation Compatibility Candidate Final Bounded Correction Executor`.** Corrects the two remaining Review A residuals. Not implemented; mutmut 3.7.0 remains installed/pinned unchanged.
 
@@ -54,7 +110,7 @@ mutmut 3.7.0: INSTALLED + PINNED, no remediation installed. Second baseline atte
 
 Next governed step: final bounded Review A re-review of the v0.15 correction.
 
-## [Unreleased] — 2026-09-04 — feature-engine: Python Mutation Compatibility Candidate Bounded Correction (Testing Convention `v0.13 Draft → v0.14 Draft`)
+## [Unreleased] — 2026-09-03 — feature-engine: Python Mutation Compatibility Candidate Bounded Correction (Testing Convention `v0.13 Draft → v0.14 Draft`)
 
 **Bounded semantic correction — vai trò: `Python Mutation Compatibility Candidate Bounded Correction Executor`.** Corrects both Review A findings on the v0.13 candidate. Does not implement the shim; mutmut 3.7.0 remains installed/pinned unchanged.
 

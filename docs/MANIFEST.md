@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.297"
+manifest_version: "10.298"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -18394,6 +18394,116 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** final bounded Review A re-review of the v0.15 correction.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.296"` → `"10.297"`.
+
+## `feature-engine` — Compatibility Candidate Date Fidelity Correction (Testing Convention `v0.15 Draft → v0.16 Draft`; `P3-PY-MUT-COMPAT-A-MAJ-01`/`-MAJ-02` → `CLOSED`; `P3-PY-MUT-COMPAT-A-MIN-01` → `REMEDIATED — PENDING FINAL REVIEW A VALIDATION`)
+
+**Mechanical evidence-fidelity correction — vai trò: `Compatibility Candidate Date Fidelity Correction Executor`.** Corrects one factual defect (`P3-PY-MUT-COMPAT-A-MIN-01`): v0.14's and v0.15's own banners asserted incorrect, future-dated transaction dates (`2026-09-04`, `2026-09-05`). Mechanically records Review A's final bounded re-review closing `P3-PY-MUT-COMPAT-A-MAJ-01` and `P3-PY-MUT-COMPAT-A-MAJ-02`. Does NOT reinterpret/reopen either Major finding, does NOT alter candidate semantics, does NOT implement the shim.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `31f985c39c08580cb0b19363d03c0794fe447335` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. `manifest_version` confirmed `"10.297"` at start.
+
+### Date defect — independently re-verified against actual commit evidence
+
+```text
+git show -s --format='%H %cI' confirmed directly, this transaction:
+  89b27c12a5edce2dbb13be4bd07d4fcc3c14fb61 (v0.13): 2026-09-03T09:56:31+07:00
+    (== 2026-09-03T02:56:31Z).
+  76523210114bab7d56bc4305b0120696c13a1373 (v0.14): 2026-09-03T10:12:30+07:00
+    (== 2026-09-03T03:12:30Z).
+  31f985c39c08580cb0b19363d03c0794fe447335 (v0.15): 2026-09-03T10:41:22+07:00
+    (== 2026-09-03T03:41:22Z).
+All three transactions actually occurred on 2026-09-03. v0.14's and v0.15's own banner
+  headers incorrectly asserted 2026-09-04 and 2026-09-05 respectively.
+```
+
+### Corrections made (direct, in place — pure factual fix, not annotation-based)
+
+```text
+docs/engineering/testing.md:
+  "v0.14 CANDIDATE BOUNDED CORRECTION (2026-09-04)" -> "(2026-09-03)".
+  "v0.15 CANDIDATE FINAL BOUNDED CORRECTION (2026-09-05)" -> "(2026-09-03)".
+docs/CHANGELOG.md:
+  v0.14 entry header date: "2026-09-04" -> "2026-09-03".
+  v0.15 entry header date: "2026-09-05" -> "2026-09-03".
+v0.13's own already-correct "2026-09-03" date: confirmed UNCHANGED (not touched).
+Full candidate history searched (docs/engineering/testing.md, docs/CHANGELOG.md,
+  docs/MANIFEST.md) for any other occurrence asserting v0.14/v0.15 happened on
+  September 4/5, including alternate date formats ("September 4", "09/04", "Sep 4",
+  etc.): NONE found beyond the four occurrences already corrected above.
+```
+
+### Review A dispositions recorded (mechanical, not this executor's own authority)
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — Review A final bounded re-review.
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — Review A final bounded re-review.
+Review A candidate state: SEMANTICALLY CLEAN — ONE MECHANICAL DATE-FIDELITY
+  CORRECTION REQUIRED BEFORE REVIEW B.
+Neither Major finding reinterpreted or reopened — their substantive content (call-
+  site-authenticated structural detection; FEATURE-ENGINE-ONLY scope +
+  ADR_OPTIONAL — ADR NOT AUTHORED) stands entirely unchanged from v0.15.
+```
+
+### ADR Scope Rule (run fresh for this correction)
+
+```text
+Result: ADR_NOT_REQUIRED — pure factual/date audit correction, zero behavior or
+  contract change, zero semantic change to the candidate's own structural design,
+  scope, or ADR classification.
+```
+
+### Finding states after this correction
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — Review A final bounded re-review.
+P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — Review A final bounded re-review.
+P3-PY-MUT-COMPAT-A-MIN-01: REMEDIATED — PENDING FINAL REVIEW A VALIDATION. NOT
+  self-closed.
+P3-PY-MUT-BASELINE-B-MAJ-01: OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+  APPROVED/INSTALLED. Unchanged.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/engineering/testing.md (blob c01e637e195fbf414db2444c19925d3b2c7ae382),
+  docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1`). python/feature-engine/src/**,
+  python/feature-engine/tests/**, python/feature-engine/pyproject.toml,
+  python/feature-engine/requirements-dev.lock.txt, docs/constitution/**, docs/adr/**,
+  docs/architecture/module-registry.yaml, CI/CD workflows, any Go module: all verified
+  byte-identical (`git diff --quiet` for each path). No wrapper module created. No ADR
+  file created. No real mutant dispatched. No mutation score calculated. No threshold
+  proposed. `P3-FEATURE-QG-EVID-03` not closed. Not sent to Review B.
+```
+
+### State summary
+
+```text
+Testing Convention:            v0.15 Draft → v0.16 Draft (approved_by/approved_at
+                                still null/null; not sent to Review B).
+P3-PY-MUT-COMPAT-A-MAJ-01:     CLOSED — Review A final bounded re-review.
+P3-PY-MUT-COMPAT-A-MAJ-02:     CLOSED — Review A final bounded re-review.
+P3-PY-MUT-COMPAT-A-MIN-01:     REMEDIATED — PENDING FINAL REVIEW A VALIDATION.
+Candidate scope:                FEATURE-ENGINE-ONLY (unchanged).
+Candidate ADR disposition:      ADR_OPTIONAL — ADR NOT AUTHORED (unchanged).
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+                                APPROVED/INSTALLED.
+P3-PY-MUT-BASELINE-B-A-MIN-01: CLOSED (unchanged).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged); no compatibility
+                                remediation installed yet.
+Second baseline attempt:       INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged,
+                                historical only).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Independent Review B of this candidate (per Review A's own `SEMANTICALLY CLEAN` disposition, now that the one required mechanical correction is complete).
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.297"` → `"10.298"`.
 
 ## Decision Log
 
