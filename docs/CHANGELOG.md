@@ -2,6 +2,58 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — feature-engine: Testing Convention v0.16 Mechanical Approval (Product Owner: APPROVED)
+
+**Pure mechanical lifecycle transaction — vai trò: `Testing Convention v0.16 Mechanical Approval Recorder`.** Records the already-issued Product Owner approval of the Python Mutation Compatibility Candidate / Testing Convention v0.16, verbatim: **"APPROVE Python Mutation Compatibility Candidate / Testing Convention v0.16 at boundary 773bd9851fe6aa5023740d07db55b5337c9362d4."** Decision date: 2026-09-03.
+
+### Boundary distinction
+
+```text
+Reviewed semantic boundary: 773bd9851fe6aa5023740d07db55b5337c9362d4 (the actual v0.16
+  candidate content). Review-evidence recording boundary:
+  651bf4ec50100f71ec21c81670f8d1d1d9b41385 (docs-only recording of already-completed
+  Review A/B dispositions against the same semantic boundary -- not a new candidate,
+  not independently re-reviewed).
+```
+
+### Testing Convention lifecycle
+
+```text
+version: "0.16" (unchanged, no bump). status: Draft -> Approved. approved_by: null ->
+  Product Owner. approved_at: null -> "2026-09-03".
+```
+
+### State after approval
+
+```text
+Python Mutation Compatibility Candidate / Testing Convention v0.16: APPROVED --
+  Product Owner. Compatibility remediation implementation: APPROVED BUT NOT YET
+  INSTALLED. P3-PY-MUT-COMPAT-A-MAJ-01/-MAJ-02/-MIN-01: CLOSED.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED -- pure mechanical lifecycle recording of an already-issued PO
+  decision. Candidate ADR disposition unchanged: ADR_OPTIONAL — ADR NOT AUTHORED.
+  Candidate scope unchanged: FEATURE-ENGINE-ONLY.
+```
+
+### Preserved unchanged
+
+```text
+mutmut 3.7.0: INSTALLED + PINNED. Compatibility shim: NOT YET INSTALLED.
+  P3-PY-MUT-BASELINE-B-MAJ-01: OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+  APPROVED/INSTALLED (approval of the design alone does not close this). Second
+  baseline attempt: INCOMPLETE — NON-GATING DIAGNOSTIC. TEST_EFFECTIVENESS_THRESHOLD:
+  UNRESOLVED — BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03: FAIL — evidence.
+  Formal Feature Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval
+  Gate: NOT opened. LIVE: NOT_AUTHORIZED. No production/test/config/dependency/CI file
+  changed; no shim installed; no ADR created.
+```
+
+Next governed step: a separate implementation transaction to install the already-approved FEATURE-ENGINE-ONLY compatibility shim.
+
 ## [Unreleased] — 2026-09-03 — feature-engine: Python Mutation Compatibility Review Evidence Recorder (Review A + Independent Review B recorded; `P3-PY-MUT-COMPAT-A-MAJ-01`/`-MAJ-02`/`-MIN-01` all CLOSED)
 
 **Mechanical review-evidence recording — vai trò: `Python Mutation Compatibility Review Evidence Recorder`.** Records externally-completed Review A (ChatGPT) and Independent Review B (Claude) evidence for the v0.16 candidate at reviewed boundary `773bd9851fe6aa5023740d07db55b5337c9362d4`. Does not rerun/reinterpret either review; does not record Product Owner approval; does not install the shim or rerun the baseline. Testing Convention version NOT bumped (still "0.16", `status: Draft`, `approved_by`/`approved_at` still null/null).

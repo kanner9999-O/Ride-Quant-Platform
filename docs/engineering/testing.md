@@ -2,11 +2,11 @@
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
 version: "0.16"
-status: Draft
+status: Approved
 owner: Product Owner
 reviewers: []
-approved_by: null
-approved_at: null
+approved_by: Product Owner
+approved_at: "2026-09-03"
 created_at: "2026-08-12"
 last_review: null
 next_review: null
@@ -14,6 +14,44 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**v0.16 APPROVAL — mechanical (2026-09-03), vai trò: `Testing Convention v0.16 Mechanical Approval Recorder`.** Product Owner decision (verbatim): **"APPROVE Python Mutation Compatibility Candidate / Testing Convention v0.16 at boundary 773bd9851fe6aa5023740d07db55b5337c9362d4."** Decision date: `2026-09-03`.
+
+**Reviewed semantic candidate boundary:** `773bd9851fe6aa5023740d07db55b5337c9362d4` (the v0.16 date-fidelity correction commit — the actual, immutable candidate content this approval covers). **Review-evidence recording boundary:** `651bf4ec50100f71ec21c81670f8d1d1d9b41385` (the immediately-following, docs-only transaction that mechanically recorded Review A's and Independent Review B's already-completed dispositions against the SAME semantic boundary above — it introduced NO new semantic candidate content and was NOT itself independently re-reviewed as a separate candidate; it is canonical review-evidence recording only). `status: Draft → Approved`, `approved_by: null → Product Owner`, `approved_at: null → "2026-09-03"`. `version` KHÔNG bump (pure mechanical lifecycle approval, đúng Chapter 0 §8, same precedent as v0.4/v0.7/v0.12) — VẪN `"0.16"`.
+
+**Review evidence tại approval này (already completed, recorded — không phải recorder self-closure):**
+
+```text
+Review A — ChatGPT, reviewed boundary 773bd9851fe6aa5023740d07db55b5337c9362d4:
+  P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — REVIEW A.
+  P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — REVIEW A.
+  P3-PY-MUT-COMPAT-A-MIN-01: CLOSED — REVIEW A FINAL VALIDATION.
+  Blocker 0 / Major 0 / Minor 0.
+  FINAL REVIEW A VALIDATION: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B — Claude, same boundary, Mode A — DISTINCT_PRINCIPAL:
+  P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED — confirmed.
+  P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED — confirmed.
+  P3-PY-MUT-COMPAT-A-MIN-01: no defect; date-fidelity correction validated.
+  Blocker 0 / Major 0 / Minor 0.
+  INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+Independent-review requirement (Chapter 11 §11.5, minimum two): SATISFIED.
+```
+
+**State after this approval:**
+
+```text
+Python Mutation Compatibility Candidate / Testing Convention v0.16: APPROVED —
+  Product Owner.
+Compatibility remediation implementation: APPROVED BUT NOT YET INSTALLED.
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED. P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED.
+  P3-PY-MUT-COMPAT-A-MIN-01: CLOSED.
+```
+
+**KHÔNG semantic content nào đổi tại approval này** (candidate's own structural call-site-authentication design, FEATURE-ENGINE-ONLY scope, `ADR_OPTIONAL — ADR NOT AUTHORED` disposition, mutation-surface/ten-status contracts, all §-content from v0.13 through v0.16 byte-equivalent ngoài chính banner approval này VÀ frontmatter lifecycle field).
+
+**Distinction — candidate/mechanism-compatibility approval ≠ installation ≠ measurement ≠ threshold ≠ QG evidence:** Testing Convention nay `Approved` (v0.16) — the compatibility-remediation CANDIDATE (structural, call-site-authenticated shim design) is now Product-Owner-approved AS A DESIGN, scoped `FEATURE-ENGINE-ONLY`. NHƯNG: the shim itself is **NOT YET INSTALLED** (no wrapper module exists in the tracked repository); mutmut 3.7.0 remains the only actually-installed/pinned implementation, byte-identical; `TEST_EFFECTIVENESS_THRESHOLD` VẪN `UNRESOLVED — BASELINE/CALIBRATION REQUIRED`; `P3-PY-MUT-BASELINE-B-MAJ-01` VẪN `OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION APPROVED/INSTALLED` (approval of the DESIGN does not itself close this — installation is required first); second baseline attempt VẪN `INCOMPLETE — NON-GATING DIAGNOSTIC`; `P3-FEATURE-QG-EVID-03` VẪN `FAIL — evidence`. Approval này KHÔNG tự cài đặt, KHÔNG pin, KHÔNG verify install-time, KHÔNG đo, KHÔNG establish threshold, KHÔNG close Feature QG evidence nào.
+
+**Approval này KHÔNG:** cài đặt shim, thêm bất kỳ wrapper module/file nào vào tracked repository, đổi `pyproject.toml`/`requirements-dev.lock.txt`, tạo/sửa CI workflow, chạy `mutmut run` thật, dispatch mutant thật, đo mutation score thật, establish/calibrate threshold nào, close `P3-PY-MUT-BASELINE-B-MAJ-01` (VẪN `OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION APPROVED/INSTALLED`), close `P3-FEATURE-QG-EVID-03` (VẪN `FAIL — evidence`), rerun feature-engine's Chapter 13 Quality Gate (overall VẪN `FAIL`), approve Feature Engine module, mark Feature QG PASS, open Phase 3 Approval Gate, authorize LIVE, tạo ADR nào (candidate ADR disposition VẪN `ADR_OPTIONAL — ADR NOT AUTHORED`, KHÔNG upgraded to an actual authored ADR by this approval). Tài liệu VẪN LÀ living document — `Approved` KHÔNG immutable byte-for-byte như ADR (Chapter 11 §11.3 KHÔNG áp dụng); thay đổi SEMANTIC tương lai (bao gồm installation-time verification/threshold proposal tương lai) VẪN PHẢI tự rerun ADR Scope Rule tại boundary riêng của nó. Lịch sử v0.8–v0.16's own candidate/remediation record giữ nguyên nguyên vẹn phía dưới LÀM historical evidence, KHÔNG bị ghi đè/viết lại để giả vờ đã Approved sớm hơn thời điểm thật. **Next governed step:** a separate implementation transaction to install the already-approved FEATURE-ENGINE-ONLY compatibility shim.
 
 **REVIEW EVIDENCE RECORDED (2026-09-03), vai trò: `Python Mutation Compatibility Review Evidence Recorder`.** Mechanical recording of externally-completed Review A + Independent Review B evidence for the v0.16 candidate at reviewed boundary `773bd9851fe6aa5023740d07db55b5337c9362d4`. `version` VẪN `"0.16"` (NO bump — this transaction records already-completed review evidence only, it does not change candidate semantics). `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null` (Product Owner decision NOT recorded here). Does NOT rerun/reinterpret either review. Does NOT install the shim or rerun the mutation baseline.
 

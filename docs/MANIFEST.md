@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.299"
+manifest_version: "10.300"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -18596,6 +18596,110 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** mechanically record the already-issued Product Owner approval of the reviewed semantic candidate at `773bd9851fe6aa5023740d07db55b5337c9362d4`.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.298"` → `"10.299"`.
+
+## `feature-engine` — Testing Convention v0.16 Mechanical Approval Recorder (Product Owner: `APPROVED`; `status: Draft → Approved`)
+
+**Pure mechanical lifecycle transaction — vai trò: `Testing Convention v0.16 Mechanical Approval Recorder`.** Records the already-issued Product Owner approval of the Python Mutation Compatibility Candidate / Testing Convention v0.16. Does NOT reinterpret, rerun, or extend the decision.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `651bf4ec50100f71ec21c81670f8d1d1d9b41385` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`; parent of `651bf4ec...` confirmed exactly `773bd9851fe6aa5023740d07db55b5337c9362d4` via `git rev-parse HEAD~1`. Testing Convention confirmed `version: "0.16"`, `status: Draft`, `approved_by: null`, `approved_at: null`. `manifest_version` confirmed `"10.299"` at start. Repository records at `773bd985...` confirmed: Review A `Blocker 0/Major 0/Minor 0`, `FINAL REVIEW A VALIDATION: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B`; Independent Review B `Blocker 0/Major 0/Minor 0`, `INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION`, Mode A — DISTINCT_PRINCIPAL; all three compatibility findings recorded closed/validated.
+
+### Boundary distinction (explicit, per this task's own required contract)
+
+```text
+Reviewed semantic boundary:        773bd9851fe6aa5023740d07db55b5337c9362d4 (the
+  actual, immutable v0.16 candidate content this approval covers — the date-fidelity
+  correction commit).
+Review-evidence recording boundary: 651bf4ec50100f71ec21c81670f8d1d1d9b41385 (the
+  immediately-following, docs-only transaction that mechanically recorded Review A's
+  and Independent Review B's already-completed dispositions against the SAME semantic
+  boundary above — introduced NO new semantic candidate content, was NOT itself
+  independently re-reviewed as a separate candidate; canonical review-evidence
+  recording only).
+```
+
+### Product Owner decision (verbatim)
+
+```text
+"APPROVE Python Mutation Compatibility Candidate / Testing Convention v0.16 at
+  boundary 773bd9851fe6aa5023740d07db55b5337c9362d4."
+Decision date: 2026-09-03.
+```
+
+### Testing Convention lifecycle transition
+
+```text
+version: "0.16" (unchanged — pure mechanical lifecycle approval, no bump).
+status: Draft -> Approved.
+approved_by: null -> Product Owner.
+approved_at: null -> "2026-09-03".
+```
+
+### State after approval
+
+```text
+Python Mutation Compatibility Candidate / Testing Convention v0.16: APPROVED —
+  Product Owner.
+Compatibility remediation implementation: APPROVED BUT NOT YET INSTALLED.
+P3-PY-MUT-COMPAT-A-MAJ-01: CLOSED. P3-PY-MUT-COMPAT-A-MAJ-02: CLOSED.
+  P3-PY-MUT-COMPAT-A-MIN-01: CLOSED.
+```
+
+### ADR Scope Rule (this transaction)
+
+```text
+Result: ADR_NOT_REQUIRED — pure mechanical lifecycle recording of an already-issued
+  Product Owner decision. Candidate ADR disposition itself unchanged and preserved:
+  ADR_OPTIONAL — ADR NOT AUTHORED. Candidate scope unchanged and preserved:
+  FEATURE-ENGINE-ONLY.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/engineering/testing.md (blob 1b47ccd104c2a0f97c879534cb2e72f66e6d25e3),
+  docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1`). python/feature-engine/src/**,
+  python/feature-engine/tests/**, python/feature-engine/pyproject.toml,
+  python/feature-engine/requirements-dev.lock.txt, docs/constitution/**, docs/adr/**,
+  docs/architecture/module-registry.yaml, CI/CD workflows, any Go module: all verified
+  byte-identical (`git diff --quiet` for each path). No shim installed. No wrapper
+  module/file added. No `mutmut run` executed. No real mutant dispatched. No mutation
+  score calculated. No threshold established/calibrated. No ADR created.
+  `P3-PY-MUT-BASELINE-B-MAJ-01` not closed. `P3-FEATURE-QG-EVID-03` not closed. Feature
+  Engine not approved. Feature QG not marked PASS. Phase 3 gate not opened. LIVE not
+  authorized.
+```
+
+### State summary
+
+```text
+Testing Convention:            v0.16 Approved (approved_by: Product Owner,
+                                approved_at: "2026-09-03"; version unchanged "0.16").
+Compatibility candidate:        APPROVED — Product Owner.
+Compatibility remediation:      APPROVED BUT NOT YET INSTALLED.
+P3-PY-MUT-COMPAT-A-MAJ-01:     CLOSED.
+P3-PY-MUT-COMPAT-A-MAJ-02:     CLOSED.
+P3-PY-MUT-COMPAT-A-MIN-01:     CLOSED.
+Candidate scope:                FEATURE-ENGINE-ONLY (unchanged).
+Candidate ADR disposition:      ADR_OPTIONAL — ADR NOT AUTHORED (unchanged).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Compatibility shim:            NOT YET INSTALLED.
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+                                APPROVED/INSTALLED (unchanged — approval of the design
+                                alone does not close this; installation still required).
+Second baseline attempt:       INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged,
+                                historical only).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** a separate implementation transaction to install the already-approved FEATURE-ENGINE-ONLY compatibility shim.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.299"` → `"10.300"`.
 
 ## Decision Log
 
