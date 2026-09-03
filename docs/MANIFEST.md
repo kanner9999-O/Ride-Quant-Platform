@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.303"
+manifest_version: "10.304"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -19059,6 +19059,140 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** final bounded Review A validation of proposal v0.3.
 
 **Files changed:** `docs/governance/retrospectives/phase3-process-improvement-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.302"` → `"10.303"`.
+
+## Phase 3 Process Improvement Proposal #001 — Adoption Design Candidate (`ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE`)
+
+**New adoption-design candidate authored — vai trò: `Phase 3 Process Improvement Adoption Design Author`.** Creates `docs/governance/retrospectives/phase3-process-improvement-001-adoption-design.md`, designing the minimum effective delta needed to realize proposal v0.3's accepted lessons. Does NOT edit the reviewed v0.3 proposal. Does NOT activate any rule. Folds the Product Owner's acceptance-for-adoption-design decision into this same transaction as compact bookkeeping — no separate decision/review-evidence recorder created.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `8696e422fe41b5cf87bc0558444c3b0b2bc27bea` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. `manifest_version` confirmed `"10.303"` at start.
+
+### Product Owner decision (verbatim, folded into this transaction)
+
+```text
+"ACCEPT Phase 3 Process Improvement Proposal #001 v0.3 at boundary
+  8696e422fe41b5cf87bc0558444c3b0b2bc27bea FOR ADOPTION DESIGN. Do not activate any
+  governance change yet." Decision date: 2026-09-03.
+Baseline recorded: reviewed proposal v0.3, boundary 8696e422... Review A: CLEAN.
+  Independent Review B: CLEAN. Does not close any finding on the proposal itself.
+```
+
+### Adoption questions resolved (full detail in the adoption-design artifact)
+
+```text
+1. Standalone Review Evidence -> KEEP_NO_CHANGE. Chapter 11 §11.6 (ADR approval must
+   be one atomic documentation change including reviewer evidence + MANIFEST) and
+   P3-TXN-001 (mandatory default bookkeeping fold) already establish the target
+   Candidate -> Review A -> Independent Review B -> PO Decision -> ONE recorder
+   workflow as default. No new parallel workflow needed.
+2. Prompt-created precondition -> TIGHTEN_EXISTING. G-ORCH's existing self-check
+   item 6 ("am I creating an unnecessary review/micro-transaction?") is close but
+   does not name the specific failure mode. Candidate G-ORCH-005 wording drafted
+   (NOT activated): "a precondition created by the prompt/task design itself is not
+   governance authority," with a four-question self-check, cross-referencing
+   G-REV-001/G-TXN-003-004/P3-TXN-001 rather than duplicating them.
+3. Independent Review B identity -> KEEP_NO_CHANGE at the core semantic level.
+   ADR-031 §8 "Role-resolution semantics" already establishes eligibility belongs to
+   the principal, never the execution, and the role is resolved via Mode A/Mode B at
+   each review boundary — never a fixed identity. team.yaml's own current
+   alias_note on Claude already scopes the alias to historical/Mode-A resolution.
+   TIGHTEN_EXISTING/DEFERRED only: an optional future one-sentence team.yaml
+   readability note (not designed further, not made in this transaction, per
+   instruction not to touch team.yaml here).
+4. Review purpose/compact metadata -> KEEP_NO_CHANGE. Already fully covered by
+   G-REV-001, G-REV-003, G-ID-003, and P3-IDENTITY-001 individually.
+5. Automation -> TOOLING_FOLLOWUP for every item (SHA/parent verification,
+   changed-file scope, MANIFEST version transition, lifecycle consistency,
+   arithmetic consistency, protected-path byte-identity, boundary distinction,
+   approval-progression eligibility) — no governance text change required for any
+   of them; software-engineering task with its own code review, separate from this
+   governance-adoption track. Not implemented here.
+Batch-findings advisory practice (proposal §7) -> DEFER — advisory/soft, no rule
+   text candidate identified.
+```
+
+### ADR Scope Rule — run against actual proposed future effective deltas
+
+```text
+Delta 1 (execution-rules.md G-ORCH-005 candidate addition): ADR_NOT_REQUIRED — narrow
+  clarification of an existing self-check item, no new approval authority, no
+  Governance/Approval-process mechanism change, not >1-module architecture impact,
+  narrowly reversible; consistent with execution-rules.md's own prior G-* amendment
+  pattern (Product-Owner-accepted directly, no prior ADR).
+Delta 2 (deferred team.yaml readability note): ADR_NOT_REQUIRED — team.yaml is an
+  explicitly living, non-frozen document with its own established non-ADR amendment
+  precedent (F-04 reverse-lookup note).
+Consolidated adoption-package ADR disposition: ADR_NOT_REQUIRED. Binds only THIS
+  design candidate's own analysis — any future transaction that actually authors
+  either delta MUST independently re-run the ADR Scope Rule at its own boundary.
+No other effective delta is proposed (every other question resolved KEEP_NO_CHANGE/
+  TOOLING_FOLLOWUP/DEFER, none requiring an ADR Scope Rule classification of their
+  own).
+```
+
+### Minimal future adoption sequence
+
+```text
+At most ONE bounded transaction, IF Delta 1 is ever activated: amend
+  execution-rules.md's G-ORCH section (add G-ORCH-005, bump its own version, append
+  its own Change history entry), update MANIFEST's execution-rules.md current-state
+  reference in the SAME transaction (no separate bookkeeping transaction), review
+  depth determined by G-REV-001/P3-REVIEW-001 at that future time (not presumed to
+  require full Review A/Independent Review B here — execution-rules.md's own change
+  history shows several prior G-* amendments were Product-Owner-accepted directly).
+Optional, deferred, not required for this design to be considered complete: a
+  future team.yaml clarifying-note transaction (Delta 2), only if/when Mode B is
+  actually used for Independent Review B with a non-Claude principal in practice.
+Explicitly NOT proposed: standalone Review Evidence transaction; separate
+  bookkeeping transaction for this design candidate's own PO acceptance (folded
+  above); Review A/Independent Review B for mechanical recording; duplicated/
+  parallel governance taxonomy.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/retrospectives/phase3-process-improvement-001-adoption-
+  design.md (new, blob 5c9fb759a3360eee76a74b5fb2a35a9d0f43c4ca), docs/MANIFEST.md,
+  docs/CHANGELOG.md changed (confirmed via `git status --porcelain=v1`).
+  docs/governance/retrospectives/phase3-process-improvement-001.md (the reviewed
+  v0.3 proposal itself), Constitution (all chapters), every ADR,
+  docs/engineering/testing.md, docs/governance/execution-rules.md,
+  docs/governance/phases/phase-3-rules.md, docs/team/team.yaml, module-
+  registry.yaml, all implementation/test/CI files: all verified byte-identical
+  (`git diff --quiet` for each path). No rule activated. No shim installed. No
+  mutation baseline rerun. Feature Engine Chapter 13 QG state, module approval
+  state, Phase 3 Approval Gate state, and LIVE authorization state all unchanged.
+```
+
+### State summary
+
+```text
+Adoption-design artifact:       docs/governance/retrospectives/
+                                phase3-process-improvement-001-adoption-design.md
+                                v0.1, blob 5c9fb759a3360eee76a74b5fb2a35a9d0f43c4ca.
+Adoption-design state:          ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE (adopted_by/
+                                adopted_at null/null).
+Reviewed proposal:              phase3-process-improvement-001.md v0.3, unchanged,
+                                still PROPOSAL / NOT YET EFFECTIVE, its own finding
+                                states untouched.
+Consolidated ADR disposition:   ADR_NOT_REQUIRED (for the two identified deltas
+                                only; future re-run required).
+P3-RETRO-001:                   still outstanding, unaffected.
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Compatibility shim:            NOT YET INSTALLED (unchanged).
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+                                APPROVED/INSTALLED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Review A of the adoption-design candidate.
+
+**Files changed:** `docs/governance/retrospectives/phase3-process-improvement-001-adoption-design.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.303"` → `"10.304"`.
 
 ## Decision Log
 

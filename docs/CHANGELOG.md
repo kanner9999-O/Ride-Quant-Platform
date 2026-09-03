@@ -2,6 +2,59 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — governance: Phase 3 Process Improvement Proposal #001 Adoption Design Candidate (`ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE`)
+
+**New adoption-design candidate — vai trò: `Phase 3 Process Improvement Adoption Design Author`.** Adds `docs/governance/retrospectives/phase3-process-improvement-001-adoption-design.md`, designing the minimum effective delta needed to realize proposal v0.3's accepted lessons. Does not edit the reviewed proposal. Does not activate any rule. Folds the Product Owner's "ACCEPT ... FOR ADOPTION DESIGN" decision into this same transaction, per the very lesson being adopted (no separate decision/evidence recorder).
+
+### Adoption questions resolved
+
+```text
+1. Standalone Review Evidence -> KEEP_NO_CHANGE (Chapter 11 Section 11.6 +
+   P3-TXN-001 already default to atomic recording; target workflow Candidate ->
+   Review A -> Independent Review B -> PO Decision -> ONE recorder is already the
+   default).
+2. Prompt-created precondition -> TIGHTEN_EXISTING. Candidate G-ORCH-005 wording
+   drafted (not activated), extending G-ORCH's existing self-check item 6.
+3. Independent Review B identity -> KEEP_NO_CHANGE at the core level (ADR-031
+   Section 8 already establishes role-not-identity resolution via Mode A/B);
+   TIGHTEN_EXISTING/DEFERRED for an optional future team.yaml readability note
+   (not made here).
+4. Review purpose/compact metadata -> KEEP_NO_CHANGE (already covered by
+   G-REV-001/003, G-ID-003, P3-IDENTITY-001).
+5. Automation -> TOOLING_FOLLOWUP for all items; no governance text implicated.
+```
+
+### ADR Scope Rule
+
+```text
+Delta 1 (execution-rules.md G-ORCH-005 candidate): ADR_NOT_REQUIRED. Delta 2
+  (deferred team.yaml note): ADR_NOT_REQUIRED. Consolidated adoption-package
+  disposition: ADR_NOT_REQUIRED for these two identified deltas only -- any future
+  activating transaction must independently re-run the ADR Scope Rule.
+```
+
+### Minimal future adoption sequence
+
+```text
+At most ONE bounded transaction (execution-rules.md G-ORCH-005 addition + atomic
+  MANIFEST update, if ever activated), plus one optional/deferred team.yaml note.
+  No standalone Review Evidence transaction; no separate bookkeeping transaction;
+  no Review A/B for mechanical recording; no duplicated governance taxonomy.
+```
+
+### Preserved unchanged
+
+```text
+Reviewed proposal (phase3-process-improvement-001.md v0.3): unchanged, still
+  PROPOSAL / NOT YET EFFECTIVE, its own finding states untouched. Constitution, all
+  ADRs, testing.md, execution-rules.md, phase-3-rules.md, team.yaml, module-
+  registry.yaml, all implementation/test/CI files verified byte-identical. No rule
+  activated; no shim installed; no baseline rerun; Feature QG/module approval/
+  Phase 3 gate/LIVE state unchanged.
+```
+
+Next governed step: Review A of the adoption-design candidate.
+
 ## [Unreleased] — 2026-09-03 — governance: Phase 3 Process Improvement Proposal #001 v0.3 Final Bounded Correction
 
 **Final bounded correction — vai trò: `Phase 3 Process Improvement Proposal v0.3 Final Bounded Correction Executor`.** Incorporates final workflow lessons from the mutation-compatibility review cycle. Does not adopt any improvement. `proposal_version: "0.2" -> "0.3"`, state remains `PROPOSAL / NOT YET EFFECTIVE`.
