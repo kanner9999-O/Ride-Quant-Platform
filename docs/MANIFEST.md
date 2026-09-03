@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.302"
+manifest_version: "10.303"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -18920,6 +18920,145 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** bounded Review A re-review of v0.2.
 
 **Files changed:** `docs/governance/retrospectives/phase3-process-improvement-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.301"` → `"10.302"`.
+
+## Phase 3 Process Improvement Proposal #001 — Final Bounded Correction v0.3 (`PROPOSAL / NOT YET EFFECTIVE`, unchanged)
+
+**Final bounded correction — vai trò: `Phase 3 Process Improvement Proposal v0.3 Final Bounded Correction Executor`.** Incorporates final workflow lessons: eliminating the standalone Review-Evidence-recording transaction pattern as a default, correcting the actual chronology of the Testing Convention v0.16 approval sequence, naming "a prompt-created precondition is not governance authority," clarifying that "Independent Review B" is a workflow role (not a hard-coded identity), and stating review's primary purpose explicitly. `proposal_version: "0.2" → "0.3"`. `proposal_state` VẪN `PROPOSAL / NOT YET EFFECTIVE`. Does NOT adopt any improvement.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `18af56c1121f09480ea4c7d7eb5a1e5585e54a5c` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. `manifest_version` confirmed `"10.302"` at start.
+
+### Finding-state discrepancy caught before writing
+
+```text
+This task's own instructions stated "Keep: P3-PI-A-MAJ-01: CLOSED — REVIEW A" and
+  "P3-PI-A-MAJ-02: CLOSED — REVIEW A" as an already-established fact. Direct
+  verification against docs/MANIFEST.md (this document's own most recent v0.2
+  section) and the proposal file itself confirmed NO such external Review A closure
+  is actually recorded anywhere — the last recorded state for both findings is
+  REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW. Consistent with this proposal's
+  own non-negotiable "no fabricated review/decision evidence" control, this
+  transaction does NOT write a fabricated CLOSED disposition. Both findings are
+  carried forward unchanged.
+```
+
+### Chronology correction (item 2)
+
+```text
+Corrected sequence for the Testing Convention v0.16 Product Owner approval: Review A
+  completed -> Independent Review B completed -> Product Owner issued the decision ->
+  a first approval-recording attempt (this session's own executor) FAILED CLOSED
+  because its own stated preconditions required Review A/B dispositions to already
+  be repo-resolvable, which they were not yet -> a separate review-evidence-recording
+  transaction (commit 651bf4ec50100f71ec21c81670f8d1d1d9b41385) wrote those
+  already-issued dispositions into the repository -> the approval-recording
+  transaction then succeeded (commit 6b7e915b8d05c494084d3a7a90317e737152d6fe).
+  Correction: the Product Owner decision itself predates both commits; only its
+  SUCCESSFUL RECORDING was delayed. The evidence-recording transaction is identified
+  as a candidate avoidable bookkeeping/orchestration round-trip, not a step any
+  higher authority required to be standalone. Distinguished: "review evidence must
+  exist/be verifiable" is not the same requirement as "review evidence must have a
+  standalone prior commit."
+```
+
+### Standalone Review-Evidence elimination proposal (item 1) + prompt-precondition lesson (item 3)
+
+```text
+Proposed target default: Candidate -> Review A -> Independent Review B -> Product
+  Owner Decision -> ONE atomic mechanical lifecycle/decision recorder (verifying
+  reviewed boundary, required-review eligibility, recording minimum reviewer
+  metadata, recording the PO decision, performing the lifecycle update, and updating
+  MANIFEST/CHANGELOG atomically). Mapped to already-effective P3-TXN-001 (mandatory
+  default fold, narrow listed exceptions) — KEEP disposition, not a new rule; the gap
+  observed was in execution (a self-imposed prompt precondition), not authority.
+  Minimum review identity/boundary/independence metadata required by Chapter 0 §3/
+  Chapter 11 §11.5/ADR-031 is unchanged and unreduced — only the standalone
+  RECORDING TRANSACTION is targeted for elimination as a default, never review
+  traceability itself.
+"A prompt-created precondition is NOT governance authority" stated explicitly, with a
+  four-question orchestration self-check before spawning a new transaction to
+  satisfy a failed precondition. Mapped to G-REV-001, G-TXN-003/004, P3-TXN-001,
+  P3-REVIEW-001, P3-VERIFY-001 — no duplicate/conflicting taxonomy created.
+```
+
+### Reviewer-role clarification (item 4) + review purpose (item 5)
+
+```text
+Clarified: "Independent Review B" names a workflow role/function governed by
+  Chapter 0 §3/Chapter 11 §11.5/ADR-031 — not a hard-coded "Claude" identity. ADR-031
+  Mode A (DISTINCT_PRINCIPAL, e.g. Review A=ChatGPT/Independent Review B=Claude as
+  this cycle's own current example) and Mode B (SAME_PRINCIPAL_DISTINCT_EXECUTION,
+  with genuine execution-isolation evidence) both remain eligible. Independence not
+  weakened: Independent Review B must independently inspect the subject and must not
+  treat Review A's reasoning as ground truth (G-REV-003, unchanged); neither reviewer
+  holds veto; Product Owner remains sole approval authority.
+Review's primary purpose stated explicitly: cross-check semantic correctness, detect
+  defects/risks, reduce the probability a single reviewer misses a material issue —
+  review should reduce risk, not create bookkeeping churn. Minimum compact review
+  record specified (principal, boundary, independence mode, disposition, unresolved
+  finding IDs) — detailed reasoning not duplicated into MANIFEST by default.
+```
+
+### Finding states after this correction
+
+```text
+P3-PI-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW (carried forward
+  unchanged — no fabricated closure).
+P3-PI-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW (carried forward
+  unchanged — no fabricated closure).
+P3-PI-A-MIN-01: REMEDIATED — PENDING FINAL BOUNDED REVIEW A VALIDATION.
+Neither self-closed.
+```
+
+### ADR Scope Rule (re-run fresh for this correction)
+
+```text
+Result: ADR_NOT_REQUIRED — final bounded correction of a non-effective proposal
+  only; adds clarifying/corrective content without amending Constitution/ADR/Testing
+  Convention/execution-rules/phase-3-rules/QG semantics/module-registry, and without
+  expanding this document's own effect on current governance in any way.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/retrospectives/phase3-process-improvement-001.md (blob
+  840412d974a30ab6a57978a465e179ef5915789d), docs/MANIFEST.md, docs/CHANGELOG.md
+  changed (confirmed via `git status --porcelain=v1`). Constitution (all chapters),
+  every ADR, docs/engineering/testing.md, docs/governance/execution-rules.md,
+  docs/governance/phases/phase-3-rules.md, module-registry.yaml, all implementation/
+  test/CI files: all verified byte-identical (`git diff --quiet` for each path). No
+  shim installed. No mutation baseline rerun. Feature Engine Chapter 13 QG state,
+  module approval state, Phase 3 Approval Gate state, and LIVE authorization state
+  all unchanged. Proposal NOT adopted. Independent Review B NOT performed.
+```
+
+### State summary
+
+```text
+Proposal artifact:              docs/governance/retrospectives/
+                                phase3-process-improvement-001.md v0.3, blob
+                                840412d974a30ab6a57978a465e179ef5915789d.
+Proposal state:                 PROPOSAL / NOT YET EFFECTIVE (unchanged; adopted_by/
+                                adopted_at still null/null).
+P3-PI-A-MAJ-01/-MAJ-02:         REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PI-A-MIN-01:                 REMEDIATED — PENDING FINAL BOUNDED REVIEW A
+                                VALIDATION.
+P3-RETRO-001:                   still outstanding, unaffected.
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Compatibility shim:            NOT YET INSTALLED (unchanged).
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+                                APPROVED/INSTALLED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** final bounded Review A validation of proposal v0.3.
+
+**Files changed:** `docs/governance/retrospectives/phase3-process-improvement-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.302"` → `"10.303"`.
 
 ## Decision Log
 

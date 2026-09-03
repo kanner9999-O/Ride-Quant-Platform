@@ -2,6 +2,74 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — governance: Phase 3 Process Improvement Proposal #001 v0.3 Final Bounded Correction
+
+**Final bounded correction — vai trò: `Phase 3 Process Improvement Proposal v0.3 Final Bounded Correction Executor`.** Incorporates final workflow lessons from the mutation-compatibility review cycle. Does not adopt any improvement. `proposal_version: "0.2" -> "0.3"`, state remains `PROPOSAL / NOT YET EFFECTIVE`.
+
+### Corrections and additions
+
+```text
+Chronology correction: the Testing Convention v0.16 approval sequence was Review A
+  completed -> Independent Review B completed -> Product Owner decision issued -> a
+  first approval-recording attempt failed closed because its own prompt required
+  Review A/B dispositions to already be repo-resolvable -> a separate review-
+  evidence-recording transaction (651bf4ec...) wrote them in -> the approval
+  recording then succeeded (6b7e915...). The PO decision itself predates both
+  commits; only its successful recording was delayed. The evidence-recording
+  transaction is identified as a candidate avoidable bookkeeping round-trip, not a
+  required chronology step.
+Eliminate standalone Review-Evidence-recording as a default: target workflow is
+  Candidate -> Review A -> Independent Review B -> Product Owner Decision -> ONE
+  atomic lifecycle/decision recorder. Mapped to already-effective P3-TXN-001
+  (mandatory default fold) -- KEEP, not a new rule; minimum review identity/
+  boundary/independence metadata required by Chapter 0/Chapter 11/ADR-031 is
+  unchanged and unreduced.
+"A prompt-created precondition is not governance authority": explicit lesson with a
+  four-question orchestration self-check, mapped to G-REV-001/G-TXN-003-004/
+  P3-TXN-001/P3-REVIEW-001/P3-VERIFY-001.
+Clarified "Independent Review B" is a workflow role governed by Chapter 0 Section 3/
+  Chapter 11 Section 11.5/ADR-031 Mode A or Mode B -- not a hard-coded "Claude"
+  identity. Independence, veto-free peer-review status, and Product-Owner-sole-
+  authority all explicitly unchanged.
+Stated review's primary purpose explicitly (risk reduction, not bookkeeping) with a
+  compact minimum-review-record field list.
+```
+
+### Finding-state discrepancy caught before writing
+
+```text
+This task's own premise claimed P3-PI-A-MAJ-01/-MAJ-02 were already "CLOSED —
+  REVIEW A." Verified against the actual governance record: no such external
+  disposition exists anywhere. Consistent with this proposal's own "no fabricated
+  review/decision evidence" control, both findings are carried forward unchanged as
+  REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW rather than fabricating closure.
+```
+
+### Finding states
+
+```text
+P3-PI-A-MAJ-01/-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW (unchanged).
+P3-PI-A-MIN-01: REMEDIATED — PENDING FINAL BOUNDED REVIEW A VALIDATION.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED -- final bounded correction of a non-effective proposal, adds
+  clarifying content without expanding its effect on current governance.
+```
+
+### Preserved unchanged
+
+```text
+Proposal state: PROPOSAL / NOT YET EFFECTIVE, not adopted. Constitution, all ADRs,
+  testing.md, execution-rules.md, phase-3-rules.md, module-registry.yaml, all
+  implementation/test/CI files verified byte-identical. No shim installed; no
+  baseline rerun; Feature QG/module approval/Phase 3 gate/LIVE state unchanged.
+```
+
+Next governed step: final bounded Review A validation of proposal v0.3.
+
 ## [Unreleased] — 2026-09-03 — governance: Phase 3 Process Improvement Proposal #001 v0.2 Bounded Correction
 
 **Bounded correction — vai trò: `Phase 3 Process Improvement Proposal v0.2 Bounded Correction Executor`.** Remediates three Review A findings on `phase3-process-improvement-001.md` v0.1. Does not adopt the proposal. `proposal_version: "0.1" -> "0.2"`, state remains `PROPOSAL / NOT YET EFFECTIVE`, `adopted_by`/`adopted_at` remain null/null.

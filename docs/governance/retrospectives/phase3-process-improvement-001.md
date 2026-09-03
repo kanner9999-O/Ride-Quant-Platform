@@ -2,7 +2,7 @@
 id: phase3-process-improvement-001
 title: "Phase 3 Process Improvement Proposal #001 — Feature Engine / Mutation-Testing Review Cycle"
 document_type: process-improvement-proposal
-proposal_version: "0.2"
+proposal_version: "0.3"
 proposal_state: "PROPOSAL / NOT YET EFFECTIVE"
 authored_at: "2026-09-03"
 satisfies_rule: null
@@ -14,420 +14,458 @@ adopted_at: null
 
 **State: `PROPOSAL / NOT YET EFFECTIVE`.**
 
-**v0.2 BOUNDED CORRECTION (2026-09-03), vai trò: `Phase 3 Process Improvement Proposal v0.2 Bounded Correction Executor`.** Remediates three Review A findings on v0.1: `P3-PI-A-MAJ-01` (v0.1 read as proposing a PARALLEL governance taxonomy — Class A/B/C — without mapping it against already-effective controls, risking duplicate or conflicting authority), `P3-PI-A-MAJ-02` (v0.1's automation proposal hard-coded "Review A CLEAN + Independent Review B CLEAN" as a universal approval prerequisite, which is not what higher authority actually requires), `P3-PI-A-MIN-01` (v0.1's motivating narrative miscounted the compatibility-candidate correction chain as "three bounded semantic-correction rounds" when the actual sequence was two semantic-correction rounds, v0.14 and v0.15, plus one separate mechanical date-fidelity correction, v0.16). `proposal_version: "0.1" → "0.2"`. `proposal_state` VẪN `PROPOSAL / NOT YET EFFECTIVE`, `adopted_by`/`adopted_at` VẪN `null`/`null`. Does NOT adopt the proposal. v0.1's own text is corrected directly in place below (this document has never been Approved/effective and carries no immutable-history obligation analogous to an ADR or an already-approved Testing Convention banner) — the correction is recorded transparently in §12 Change history rather than by leaving v0.1's now-superseded prose standing.
+**v0.3 FINAL BOUNDED CORRECTION (2026-09-03), vai trò: `Phase 3 Process Improvement Proposal v0.3 Final Bounded Correction Executor`.** Incorporates the final workflow lessons from the mutation-compatibility review cycle: eliminating the standalone Review-Evidence-recording transaction pattern (§4), correcting the actual chronology/root cause of why that pattern occurred in this cycle (§2), naming "a prompt-created precondition is not governance authority" as an explicit lesson (§5), clarifying that "Independent Review B" is a workflow role governed by Chapter 0 §3/Chapter 11 §11.5/ADR-031 — not a hard-coded reviewer identity (§10), and stating review's primary purpose explicitly (§11). `proposal_version: "0.2" → "0.3"`. `proposal_state` VẪN `PROPOSAL / NOT YET EFFECTIVE`, `adopted_by`/`adopted_at` VẪN `null`/`null`. Does NOT adopt any improvement.
 
-**Vai trò của tài liệu này:** đây LÀ một process-improvement PROPOSAL, now reframed per Review A as a **gap analysis against existing effective controls** — KHÔNG một ADR, KHÔNG một Approval Gate, KHÔNG the formal `P3-RETRO-001` Phase 3 retrospective (that retrospective remains separately required, in full, before Phase 4 substantive work begins — this document does NOT satisfy it and is not a substitute for it), KHÔNG a Constitution/Testing Convention/execution-rules amendment, KHÔNG a Quality Gate/Review A/B rerun, and KHÔNG a retroactive reclassification of any already-completed transaction. This document identifies which already-effective controls already address the observed workflow pattern (`KEEP`), which could be applied more consistently (`TIGHTEN`), and which small number of items are not currently covered by any existing rule (`NEW GAP`) — for future, separate, governed consideration. Nothing in this document changes current governance by existing.
+**Finding-state note (verified against the actual governance record before writing, not assumed from this task's own text):** this task's own instructions stated "Keep: `P3-PI-A-MAJ-01: CLOSED — REVIEW A`" and "`P3-PI-A-MAJ-02: CLOSED — REVIEW A`" as an already-established fact to preserve. Direct verification against `docs/MANIFEST.md` and this document's own v0.2 content shows NO such external Review A closure disposition is actually recorded anywhere for either finding — the last recorded state for all three findings (§13) is `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`. Consistent with this document's own §12 non-negotiable control ("no fabricated review/decision evidence, ever"), this transaction does NOT write a "CLOSED — REVIEW A" disposition into the record that was never actually externally issued. `P3-PI-A-MAJ-01`/`P3-PI-A-MAJ-02` are carried forward unchanged as `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW` (their v0.2 remediation content is not reopened or altered by this transaction). `P3-PI-A-MIN-01` is updated to `REMEDIATED — PENDING FINAL BOUNDED REVIEW A VALIDATION` per this task's own instruction (a forward-looking label, not a fabricated closure claim).
 
-## 1. Motivating observation (evidence-based, corrected sequence)
+**Vai trò của tài liệu này:** đây LÀ một process-improvement PROPOSAL / gap analysis against existing effective controls — KHÔNG một ADR, KHÔNG một Approval Gate, KHÔNG the formal `P3-RETRO-001` Phase 3 retrospective (still separately required before Phase 4, not satisfied here), KHÔNG a Constitution/Testing Convention/execution-rules amendment, KHÔNG a Quality Gate/Review A/B rerun, KHÔNG a retroactive reclassification of any already-completed transaction, and KHÔNG an adoption of any improvement it discusses.
 
-```text
-The Feature Engine mutation-testing/compatibility-candidate cycle (Testing Convention
-  v0.8 through v0.16, docs/MANIFEST.md sections from the mutmut candidate-authoring
-  transaction through the v0.16 Product Owner approval) produced this sequence:
-  mechanism candidate authoring (v0.8); four evidence-fidelity correction rounds
-  (v0.9-v0.12); mechanical approval recording (v0.12 approval); installation; two
-  baseline attempts (one blocked by a test-isolation defect, one blocked by a distinct
-  mutmut-internal defect); a root-cause investigation; a compatibility-shim CANDIDATE
-  authoring transaction (v0.13); TWO bounded semantic-correction rounds addressing
-  Review A findings on that candidate (v0.14: textual-spoof detection -> structural
-  detection, plus an ADR-scope resolution; v0.15: structural detection ->
-  call-site-authenticated detection, plus an ADR-taxonomy correction); ONE separate,
-  purely MECHANICAL date-fidelity correction (v0.16, correcting two incorrect
-  transaction-date literals — not a semantic change); one review-evidence-recording
-  transaction; and one Product-Owner-approval-recording transaction.
-  [CORRECTED, P3-PI-A-MIN-01: v0.1 miscounted this as "three bounded semantic-
-  correction rounds," conflating the mechanical v0.16 date fix with the two genuine
-  semantic-correction rounds (v0.14, v0.15). There were exactly two semantic-
-  correction rounds on the compatibility candidate, not three.]
-
-Distinguishing avoidable churn from legitimately required separation:
-  - LEGITIMATELY REQUIRED separation, not avoidable churn: the review-evidence-
-    recording transaction and the Product-Owner-approval-recording transaction were
-    each necessarily separate from the v0.16 date-fix and from each other, because
-    each one's own content did not exist yet at the time the prior transaction ran —
-    Review A's and Independent Review B's dispositions were issued (externally) AFTER
-    v0.16 was authored, and the Product Owner's decision was issued AFTER that review
-    evidence existed. This is chronology-driven separation (the evidence a later
-    transaction records literally did not exist before), not process overhead, and is
-    exactly the case P3-TXN-001 already permits a bookkeeping transaction to be
-    separate ("independent evidence PHẢI tồn tại trước").
-  - CANDIDATE avoidable churn: the two-round v0.14/v0.15 semantic-correction sequence
-    on the SAME underlying detection-mechanism design (textual match -> structural
-    marker -> call-site-authenticated marker) is the kind of pattern
-    P3-CORRECTION-CHAIN-001 and G-REV-004 already exist to bound and interrupt. Two
-    rounds is well under P3-CORRECTION-CHAIN-001's three-round non-stabilization
-    trigger, so no existing rule was violated or shown insufficient here — but the
-    pattern is still worth naming as the concrete motivating case for §4 below (batch
-    findings within one bounded review where reasonably foreseeable).
-This observation is offered as MOTIVATION only, not as a graded audit of any
-  individual transaction's necessity, and no current or past transaction is
-  retroactively classified into any class/label by this document.
-```
-
-## 2. Existing effective-control mapping (`KEEP` / `TIGHTEN` / `NEW GAP`)
+## 1. Motivating observation (compatibility-candidate chronology, unchanged from v0.2 — verified correct)
 
 ```text
-[NEW, P3-PI-A-MAJ-01: added per Review A. Every substantive idea below is checked
-  against already-effective Global (`G-*`) and Phase-3 (`P3-*`) rules BEFORE being
-  carried forward as a proposal. Existing governance taxonomy and rule text control
-  on any conflict with this document's own wording — this mapping is descriptive, not
-  a redefinition of any cited rule.]
+The compatibility-candidate sequence: v0.13 candidate authoring; TWO bounded
+  semantic-correction rounds (v0.14: textual-spoof -> structural detection, plus an
+  ADR-scope resolution; v0.15: structural -> call-site-authenticated detection, plus
+  an ADR-taxonomy correction); ONE separate, purely MECHANICAL date-fidelity
+  correction (v0.16, two incorrect date literals — not a semantic change). This
+  sequence is unchanged from v0.2 and remains correct.
 
-Idea: risk-proportional review depth (three named tiers)
-  Existing authority: Global G-REV-001 ("review effort proportional to real semantic
-    risk, not transaction count") + P3-REVIEW-001's own four-row table (new
-    architecture/authority/contract semantics -> full Review A/B; bounded semantic
-    correction -> bounded semantic re-review, scope only; mechanical factual
-    correction -> deterministic verification; evidence/bookkeeping recording ->
-    validation only).
-  Disposition: KEEP. P3-REVIEW-001's table is THE controlling authority already —
-    this proposal's §3 below is relabeled as non-authoritative shorthand for that
-    same table, not a new taxonomy.
-
-Idea: bookkeeping must not create/reinterpret/close a semantic finding; fail closed
-  on premise mismatch
-  Existing authority: Global G-TXN-003/G-TXN-004 (deterministic bookkeeping fold is
-    permitted only while staying semantically mechanical; a "mechanical" transaction
-    that turns semantic must be relabeled, never silently expanded) + P3-VERIFY-001
-    (any transaction citing a review/QG/decision as input must verify it against the
-    original artifact, not assert it) + P3-REVIEW-001's own "THÊM" clause (a
-    recording/verification transaction that finds cited evidence contradicts the
-    assertion being recorded must stop and route to governed remediation, never
-    self-fix inside the recorder) + P3-TXN-001 (a bookkeeping transaction that itself
-    discovers a semantic conflict must route to P3-REVIEW-001, not "fix" the
-    evidence).
-  Disposition: KEEP. This is already fully covered, already-effective authority —
-    §4 below is retained only as a plain-language restatement citing these rules,
-    not a new rule.
-
-Idea: stop correction churn; batch findings within a bounded review's own scope
-  Existing authority: Global G-REV-004 (stop correction churn when no new
-    Major/Blocker) + P3-CORRECTION-CHAIN-001 (three non-stabilizing correction rounds
-    on any single artifact trigger a mandatory root-cause consolidation transaction,
-    not a fourth patch round).
-  Disposition: KEEP for the reactive circuit-breaker (already covered, unchanged).
-    NEW GAP for one narrow, PREVENTIVE piece: neither rule currently states a
-    reviewer-diligence expectation to actively probe for foreseeable adjacent
-    findings within an already-authorized bounded scope BEFORE round 1 closes,
-    rather than only intervening reactively after round 3 fails to stabilize. This
-    gap is advisory/soft (reviewer thoroughness is not mechanically enforceable) and
-    is retained in §4 as the one genuinely new, narrow candidate from this idea.
-
-Idea: automate deterministic checks (SHA/parent, changed-file scope, MANIFEST
-  version transition, lifecycle consistency, arithmetic consistency, protected-path
-  byte-identity, reviewed-boundary vs. evidence-recording-boundary distinction)
-  Existing authority: the underlying MANUAL verification requirement for most of
-    these items already exists (P3-VERIFY-001 for evidence/boundary/identity
-    verification; P3-IDENTITY-001 for reviewer/evaluator identity pre-check; G-ID-001
-    for the reviewed-semantic-identity vs. lifecycle-record-identity distinction;
-    G-ID-002 for exact-identity pinning). No existing rule mandates building AUTOMATED
-    TOOLING that performs these checks mechanically rather than relying on an
-    executor's per-transaction manual diligence.
-  Disposition: NEW GAP, narrowly scoped — the gap is "no tooling exists to automate
-    already-required manual checks," not "no rule requires the checks." §5 is
-    corrected accordingly (see §5 and `P3-PI-A-MAJ-02` correction below).
-
-Idea: MANIFEST = compact current-state SSOT; detailed history lives in
-  CHANGELOG/evidence artifacts/retrospectives
-  Existing authority: Global G-ID-003, verbatim: "MANIFEST ưu tiên compact
-    current-state resolution (exact version/status/blob hiện tại) — lịch sử chi tiết
-    thuộc CHỦ YẾU về CHANGELOG.md/evidence table, KHÔNG lặp lại toàn bộ history trong
-    mỗi MANIFEST row." Also relevant: P3-BUDGET-001's ≤1,500-word-per-edit guidance
-    for MANIFEST sections.
-  Disposition: KEEP — this is not a new proposal, it is ALREADY-EFFECTIVE Global
-    authority. §6 is reframed as an observation that G-ID-003 could be applied more
-    consistently in recent MANIFEST entries (a compliance/practice question, not an
-    authority gap), not as a new rule to invent.
-
-Idea: preserve independent review, Product Owner sole authority, phase separation,
-  no self-approval, no fabricated evidence, LIVE separately authorized
-  Existing authority: Constitution Chapter 11 §11.5 (independent-review minimum),
-    ADR-031 (Mode A `DISTINCT_PRINCIPAL` / Mode B `SAME_PRINCIPAL_DISTINCT_EXECUTION`
-    reviewer-independence mechanism), Chapter 12 (Product Owner as sole Approval Gate
-    authority), and the entire established pattern of this session's own transaction
-    history (implementation/measurement/threshold/approval kept as four distinct
-    steps, never collapsed).
-  Disposition: KEEP — §7 is retained as an explicit list purely so this proposal
-    itself never appears to weaken any of these, cross-referenced to the actual
-    controlling authority rather than restated as free-standing new principle.
+Distinguishing avoidable churn from legitimately required separation (unchanged from
+  v0.2): the two-round v0.14/v0.15 sequence on the same underlying detection-
+  mechanism design is the motivating case for §7's narrow advisory observation on
+  batching findings within one bounded review — well under
+  P3-CORRECTION-CHAIN-001's three-round trigger, so no existing rule was shown
+  insufficient, but the pattern is worth naming.
 ```
 
-## 3. Non-authoritative shorthand for P3-REVIEW-001's existing review-depth table
+## 2. Chronology correction: the review-evidence / approval-recording round-trip
 
 ```text
-[CORRECTED, P3-PI-A-MAJ-01: no longer presented as a new "Class A/B/C" taxonomy.]
+[NEW, v0.3, correcting the prior general characterization of "review-evidence
+  recording then approval recording" as if it were an ordinary, necessary two-step
+  chronology. The corrected, specific sequence for the Testing Convention v0.16
+  Product Owner approval was:]
 
-This document uses the labels "Class A / Class B / Class C" ONLY as informal,
-  non-authoritative shorthand for P3-REVIEW-001's own four existing rows (new
-  architecture/authority/contract semantics; bounded semantic correction; mechanical
-  factual correction; evidence/bookkeeping recording). Where this document's wording
-  and P3-REVIEW-001's actual text conflict in any way, P3-REVIEW-001 (and the Global
-  G-REV rules it implements) controls, without exception.
+  1. Review A completed (external, ChatGPT).
+  2. Independent Review B completed (external, Claude, Mode A -- DISTINCT_PRINCIPAL).
+  3. The Product Owner issued the approval decision.
+  4. A first approval-recording attempt (this task's own executor, same
+     conversation) FAILED CLOSED -- not because the Product Owner had not yet
+     decided, and not because Review A/B had not yet occurred, but because the
+     approval-recording task's own stated PRECONDITIONS required Review A's and
+     Independent Review B's dispositions to already be canonical/repo-resolvable
+     (i.e. already written into docs/MANIFEST.md or docs/engineering/testing.md) --
+     and at that moment they were not yet written into the repository, even though
+     the underlying reviews had already happened. This refusal is directly
+     observable in this same session's own transcript (the executor explicitly
+     checked docs/MANIFEST.md/testing.md, found no recorded Review A/Independent
+     Review B disposition, and reported the precondition failure rather than
+     fabricating or proceeding).
+  5. A SEPARATE review-evidence-recording transaction then wrote Review A's and
+     Independent Review B's already-issued dispositions into the repository
+     (commit 651bf4ec50100f71ec21c81670f8d1d1d9b41385).
+  6. THEN the approval-recording transaction succeeded, on its second attempt,
+     against the now-repo-resolvable evidence (commit
+     6b7e915b8d05c494084d3a7a90317e737152d6fe).
 
-Explicit statements required by Review A:
-  - These labels carry NO independent authority of their own; they exist only to aid
-    readability of this proposal's own §1/§4 discussion.
-  - Classification of any real transaction is based on its ACTUAL semantic delta —
-    what genuinely changed in architecture, authority, contract, security, or
-    Quality-Gate-mechanism terms — never on the transaction's own self-declared name
-    or label ("mechanical," "bounded," "bookkeeping").
-  - A transaction labeled "bounded remediation" that, in substance, changes
-    architecture, authority, contract, security, or Quality-Gate-mechanism semantics
-    CANNOT be downgraded to reduced review depth merely because of that label — it is
-    a Row-1 ("new architecture/authority/contract semantics -> full Review A/B")
-    change under P3-REVIEW-001 regardless of what it is called, and full independent
-    Review A + Review B remains required wherever P3-REVIEW-001 (or any higher
-    authority) actually requires it. This document proposes nothing that overrides
-    that.
+Correction: the Product Owner decision itself did NOT occur only after the
+  evidence-recording commit -- the decision (step 3) predates both commit 5 and
+  commit 6; only the SUCCESSFUL RECORDING of that decision was delayed until after
+  commit 5. Any prior characterization implying the PO decision itself was
+  chronologically gated on the evidence-recording commit is corrected here.
+
+Root-cause identification: the extra evidence-recording transaction (commit
+  651bf4ec...) is identified as a CANDIDATE AVOIDABLE bookkeeping/orchestration
+  round-trip, not a step any higher governance authority actually required to be a
+  separate, standalone transaction. Nothing in Chapter 0/Chapter 11/ADR-031 requires
+  review dispositions to be recorded in their OWN prior commit before an approval can
+  be recorded in the same transaction that also records them.
+
+Distinction (central to this correction):
+  "Review evidence must exist and be independently verifiable"
+    is NOT the same requirement as
+  "Review evidence must have its own standalone prior commit before an approval
+    transaction may record it."
+  The former is real, load-bearing governance authority (P3-VERIFY-001, P3-IDENTITY-
+  001, Chapter 11 §11.5). The latter is a stricter constraint this specific
+  approval-recording task's own prompt imposed on itself, not a requirement any
+  cited higher authority actually contains.
 ```
 
-## 4. Observation: batch findings within an already-authorized bounded review scope
+## 3. Existing effective-control mapping (`KEEP` / `TIGHTEN` / `NEW GAP`) — extended
 
 ```text
-[CORRECTED, P3-PI-A-MAJ-01: reframed as a narrow, advisory addition on top of
-  already-effective G-REV-004/P3-CORRECTION-CHAIN-001, not a new rule.]
+[Unchanged mappings from v0.2, retained: risk-proportional review depth -> KEEP
+  (P3-REVIEW-001/G-REV-001); bookkeeping fail-closed/no-self-close -> KEEP
+  (G-TXN-003/004, P3-VERIFY-001, P3-REVIEW-001's evidence-conflict clause,
+  P3-TXN-001); stop correction churn -> KEEP for the reactive circuit-breaker
+  (G-REV-004, P3-CORRECTION-CHAIN-001), NEW GAP only for the narrow preventive
+  batching observation (§7); automated deterministic checks -> NEW GAP, narrowly
+  scoped (tooling absent, not authority absent); MANIFEST-scope reduction -> KEEP
+  (G-ID-003, already-effective); non-negotiable-controls list -> KEEP.]
 
-Already-effective, unchanged: G-REV-004 (stop churn on zero new Major/Blocker) and
-  P3-CORRECTION-CHAIN-001 (mandatory root-cause consolidation after three
-  non-stabilizing rounds on one artifact) already bound and interrupt correction
-  churn reactively. This document proposes nothing to replace either.
+[NEW, v0.3, mapping items 1 and 3's lessons:]
 
-Narrow observed gap (advisory only, not a new binding rule): within a review that is
-  ALREADY authorized to inspect a given bounded scope, actively probing for
-  foreseeable adjacent findings before closing round 1 — rather than only reacting
-  after a subsequent round surfaces a residual — can avoid an otherwise-avoidable
-  round-trip. The compatibility-candidate detection-mechanism sequence (textual match
-  -> structural marker -> call-site-authenticated marker, v0.14/v0.15) is the
-  motivating case: two rounds, not three, so no existing circuit-breaker was
-  triggered or shown insufficient, but a single sufficiently thorough first pass
-  asking "does this authenticate the actual call site, or only that some
-  construction occurred" might have reached the final design directly.
+Idea: eliminate the standalone Review-Evidence-recording transaction; fold review
+  metadata into the eventual decision/lifecycle recorder by default
+  Existing authority: P3-TXN-001, verbatim disposition: "Khi một semantic
+    transaction đạt kết quả terminal hợp lệ, deterministic current-state bookkeeping
+    do CHÍNH kết quả đó gây ra PHẢI mặc định được ghi trong CÙNG transaction, KHI an
+    toàn VÀ reproducible... nay LÀ 'PHẢI fold TRỪ KHI có lý do'" (mandatory default
+    fold, reversed from Phase 2's permissive "CÓ THỂ fold"). P3-TXN-001 also lists the
+    exact narrow exceptions where a separate bookkeeping transaction IS permitted:
+    atomic recording cannot safely happen at once; independent evidence must exist
+    first; the bookkeeping itself discovers a semantic conflict; a higher rule
+    requires separation.
+  Disposition: KEEP -- P3-TXN-001 already requires exactly the fold this proposal
+    recommends (§4 below), by default, as of Phase 3. The gap observed in this
+    review cycle was in EXECUTION/practice (an approval-recording attempt's own
+    prompt imposed a precondition that then triggered a standalone bookkeeping
+    round-trip), not in authority — P3-TXN-001 was not violated (its "independent
+    evidence PHẢI tồn tại trước" exception literally permitted the separate
+    recording once precondition-checking discovered the evidence was not yet
+    written), but the PRECONDITION ITSELF was self-imposed and could have instead
+    been designed to allow atomic folding when the underlying evidence, though not
+    yet repo-written, was independently verifiable by other means (e.g. citing the
+    reviewer's own issued disposition directly, verified for internal consistency,
+    within the SAME transaction that also records the approval).
 
-Exception, explicitly preserved: where a discovered issue materially changes the
-  review surface itself (a fix reveals a class of attack the design did not
-  previously have, or a redesign opens genuinely new surface a prior pass could not
-  have anticipated because the design did not yet exist), a follow-up bounded review
-  round remains appropriate and is not discouraged. The observation is about avoiding
-  AVOIDABLE round-trips, not suppressing legitimate iterative discovery.
+Idea: "a prompt-created precondition is not governance authority" — orchestration
+  should not spawn a new governed transaction just to satisfy a precondition the
+  orchestrating prompt itself invented
+  Existing authority: G-REV-001 (review/process effort proportional to real semantic
+    risk, not transaction count), G-TXN-003/004 (fold is permitted and expected when
+    safe; a transaction must not smuggle scope expansion under a "mechanical" label,
+    but by the same logic must not manufacture unnecessary transactions under an
+    over-strict "mechanical" label either), P3-TXN-001 (mandatory default fold),
+    P3-REVIEW-001 (review depth proportional to actual change type), P3-VERIFY-001
+    (verify evidence against the real artifact — which does not itself require that
+    artifact to already be a prior repo commit, only that it be verifiable).
+  Disposition: KEEP as a lesson fully explainable by existing rules already cited
+    above; §5 below states it as an explicit orchestration self-check (four
+    questions) rather than inventing any new rule ID or taxonomy. No duplicate or
+    conflicting governance structure is created.
 ```
 
-## 5. Proposal: automated deterministic-check tooling (corrected approval-evidence criteria)
+## 4. Proposal: eliminate the standalone Review-Evidence-recording transaction as a default
 
 ```text
-[CORRECTED, P3-PI-A-MAJ-02: the approval-evidence check below no longer hard-codes
-  "Review A CLEAN + Independent Review B CLEAN" as a universal prerequisite.]
+[NEW, v0.3, implementing item 1.]
 
-Proposed automatable, fail-closed checks (tooling design only — not yet built, not
-  yet run; underlying manual requirement for most items already exists per §2's
-  mapping, this proposes automating enforcement of already-required checks):
-  - HEAD / parent SHA verification.
-  - Exact changed-file scope (`git status --porcelain` matches the transaction's own
-    declared expected-file list, no more, no less).
-  - MANIFEST version transition (increments by exactly the declared amount).
-  - Document lifecycle consistency (Approved <-> non-null approved_by/approved_at;
-    Draft <-> both null; a version bump on an Approved document resets both to null
-    unless the transaction IS the mechanical approval of that exact new version).
-  - Finding-state consistency (no finding simultaneously CLOSED and OPEN/PENDING in
-    the same current-state view, absent an explicit historical/superseded
-    annotation).
-  - Stale "PENDING REVIEW"/"PENDING VALIDATION" detection, for human attention only —
-    never auto-resolution.
-  - Package/count/arithmetic consistency (an inventory claiming "N items" actually
-    sums to N across its own enumerated list — this exact defect class recurred
-    multiple times in the mutmut mutation-surface inventory history, v0.10-v0.12).
-  - Protected-path byte-identity (`git diff --quiet` on declared "must not change"
-    paths, not merely asserted in prose).
-  - Governance invariant checks (fields a transaction claims to "preserve unchanged"
-    are actually verified unchanged, not merely repeated as text).
-  - Semantic reviewed boundary vs. evidence-recording boundary distinction (both SHAs
-    required and displayed distinctly, per G-ID-001's existing identity distinction).
-  - Approval-progression eligibility (CORRECTED — see below).
+Review is a risk-control/checking activity, not a separate governance deliverable in
+  its own right. A review's OUTPUT (disposition, boundary, identity, unresolved
+  findings) is audit metadata that must be recorded somewhere verifiable — it is not
+  itself a thing that needs its own dedicated lifecycle transaction merely to exist.
 
-Corrected approval-progression eligibility check: automation may verify that
-  progression from review to a Product Owner decision is ELIGIBLE by checking —
-    (a) the required, eligible independent reviews for this transaction's actual
-        classification (per P3-REVIEW-001/G-REV-001, not a hard-coded universal
-        two-review assumption) actually exist in the governance record;
-    (b) the exact reviewed boundary cited by each review matches the boundary the
-        approval decision is about to cite;
-    (c) reviewer identity/independence requirements resolve per P3-IDENTITY-001 and
-        ADR-031's Mode A/Mode B mechanism (not merely an unregistered execution-
-        identity label);
-    (d) the ACTUAL recorded dispositions — whatever they literally are, not a
-        hard-coded "CLEAN" string — permit progression under whatever standard
-        actually applies to this artifact/finding class;
-    (e) any unresolved finding is surfaced EXACTLY as recorded (severity, ID, state),
-        never summarized away or silently dropped;
-    (f) any accepted-non-blocking residual (e.g. a Minor the reviewer explicitly
-        deemed non-blocking) is routed for EXPLICIT Product Owner treatment — noted,
-        acknowledged, or otherwise dispositioned by the Product Owner — never
-        silently waved through by the automation itself.
-  Explicit statement (per the existing NON-NORMATIVE INTERPRETATION under
-  `execution-rules.md`'s G-REV section, point 6, cited not reinvented): zero Minor
-  findings / a "CLEAN" disposition is NOT a universal approval prerequisite unless
-  applicable higher authority explicitly requires it for that specific artifact class
-  — automation must check for WHATEVER the applicable standard actually is, not
-  assume "CLEAN" is always the bar.
-  Automation MUST NEVER auto-accept a residual finding on the Product Owner's behalf,
-  and MUST NEVER invent, infer, or fabricate a reviewer disposition or a Product
-  Owner decision — it may only verify that already-recorded dispositions are
-  internally consistent, correctly cited, and eligible to progress.
+Target default workflow for a decision requiring full independent review:
 
-This proposal does not specify a concrete implementation (script, CI job, or agent
-  skill) — that remains a separate, future, governed design decision.
+  Candidate -> Review A -> Independent Review B -> Product Owner Decision ->
+  ONE atomic mechanical lifecycle/decision recorder
+
+NOT the pattern this review cycle produced by default:
+
+  Review A -> Independent Review B -> Review Evidence Recorder (separate commit) ->
+  Product Owner -> Approval Recorder (separate commit)
+
+The final, atomic recorder should, when applicable:
+  - verify the reviewed semantic boundary (the exact SHA/blob the review(s) and the
+    decision are actually about, per G-ID-001/G-ID-002);
+  - verify that the required Review A / Independent Review B actually occurred and
+    are eligible (identity, independence mode, boundary match — P3-IDENTITY-001,
+    ADR-031);
+  - record only the MINIMUM reviewer metadata existing authority actually requires
+    (see §11's compact-record list) — not full reasoning transcripts by default;
+  - record the Product Owner's decision;
+  - perform the resulting lifecycle/current-state update (e.g. Draft -> Approved);
+  - update MANIFEST/CHANGELOG atomically, in the SAME transaction, where safe and
+    reproducible (per P3-TXN-001's own default-fold rule).
+
+Explicit rule proposed (restating P3-TXN-001's already-effective default in this
+  specific context, not creating a new rule):
+
+  Standalone review-evidence recording is NOT required by default.
+  Review metadata is audit metadata, not an independent governance deliverable.
+  Where safe and permitted by existing authority (P3-TXN-001's own listed
+    exceptions), minimum review metadata SHOULD be folded atomically into the
+    eventual decision/lifecycle-recording transaction.
+
+What this proposal does NOT remove: the minimum review identity/boundary/
+  independence metadata Chapter 0 §3, Chapter 11 §11.5, and ADR-031 require is
+  UNCHANGED and UNREDUCED. The improvement targeted here is elimination of the
+  STANDALONE REVIEW-EVIDENCE TRANSACTION as a default pattern — never elimination of
+  review traceability itself. A standalone recording transaction remains entirely
+  appropriate whenever P3-TXN-001's own exceptions actually apply (e.g. the evidence
+  genuinely must exist before an unrelated, already-scheduled transaction can safely
+  proceed).
 ```
 
-## 6. Observation: apply existing G-ID-003 more consistently (not a new proposal)
+## 5. Proposal: "a prompt-created precondition is not governance authority"
 
 ```text
-[CORRECTED, per §2 mapping: reclassified from "proposal" to "observation," since
-  G-ID-003 already states this exact target as already-effective Global authority.]
+[NEW, v0.3, implementing item 3.]
 
-Global G-ID-003, verbatim: "MANIFEST ưu tiên compact current-state resolution (exact
-  version/status/blob hiện tại) — lịch sử chi tiết thuộc CHỦ YẾU về CHANGELOG.md/
-  evidence table, KHÔNG lặp lại toàn bộ history trong mỗi MANIFEST row." This is
-  already the governing rule; this document invents no new one.
+A prompt-created precondition is NOT governance authority.
 
-Observation only: recent MANIFEST sections in the mutation-testing/compatibility-
-  candidate cycle (this document's own §1 motivating chain) carried substantial
-  historical-narrative prose alongside current-state facts. Whether that reflects an
-  actual G-ID-003 compliance gap, or reflects necessary provenance G-ID-003 itself
-  permits retaining, is a question for the artifact's own owners to assess — this
-  document does not adjudicate it and performs no MANIFEST migration itself.
+If a transaction fails only because the orchestration prompt imposed a STRICTER
+  precondition than existing repository authority actually requires, the default
+  response is to correct the prompt/process design — NOT to automatically create a
+  new governed transaction merely to satisfy the self-created precondition.
 
-Constraint restated (unchanged from G-ID-003 and P3-BUDGET-001): MANIFEST must retain
-  enough provenance (finding IDs, exact commit SHAs, exact blob hashes, exact
-  reviewer dispositions) to resolve current state deterministically without
-  reconstructing history from CHANGELOG — trimming narrative retelling is the target,
-  never the load-bearing identifiers current-state resolution depends on.
+Before spawning a new transaction to satisfy a failed precondition, orchestration
+  should ask:
+  1. Does an existing higher-authority rule actually require this separation
+     (cite the specific rule — e.g. P3-TXN-001's own listed exceptions)?
+  2. Does this new transaction reduce real semantic risk, or only satisfy a
+     self-imposed check?
+  3. Can the bookkeeping safely fold into a transaction that is already required
+     anyway (per P3-TXN-001's default-fold rule)?
+  4. Am I turning an implementation detail of my own prompt/recorder design into a
+     project rule that will now be repeated as if it were governance?
 
-No migration is performed by this document.
+If no cited authority actually requires separation, and safe folding is possible,
+  the corrected default is: do not create the micro-transaction — fix the
+  precondition/prompt design instead.
+
+This maps to, and creates no duplicate or conflicting taxonomy against: G-REV-001
+  (risk-proportional effort), G-TXN-003/G-TXN-004 (fold permitted/required when
+  safe, no scope-smuggling either direction), P3-TXN-001 (mandatory default fold,
+  narrow listed exceptions), P3-REVIEW-001 (review depth proportional to actual
+  change type), P3-VERIFY-001 (verify evidence against the real artifact — which
+  does not itself require the artifact to already be a prior repo commit).
 ```
 
-## 7. Non-negotiable controls, cross-referenced to actual controlling authority
+## 6. Non-authoritative shorthand for P3-REVIEW-001's existing review-depth table
 
 ```text
-This proposal does not weaken, and explicitly preserves:
-  - Immutable review boundaries — Chapter 11 §11.3/§11.5 and this session's own
-    established discipline (a reviewed SHA's content is never treated as
-    interchangeable with a later SHA without fresh review of the actual delta).
-  - Fail-closed evidence handling — P3-VERIFY-001, G-REV-003 (Independent Review B
-    must verify directly against the artifact, never rely on Review A's own
-    assertion).
-  - Full independent Review A + Review B wherever P3-REVIEW-001 (or higher authority)
-    actually requires it — unchanged, unshortened, not overridden by any label in
-    this document (see §3's explicit statement).
-  - Product Owner as the sole approval authority — Chapter 12; no automation,
-    tooling, or bookkeeping-lane process may ever substitute for or pre-empt an
-    actual Product Owner decision.
-  - Separation of implementation, measurement, threshold/calibration, and approval as
-    four distinct governed steps — this session's own established pattern throughout
-    the mutation-testing track; not collapsed or reordered by this proposal.
-  - No self-approval, at any classification level.
-  - No fabricated review/decision evidence, ever, under any automation or batching
-    rationale — explicit in §5's corrected automation criteria.
-  - Reviewer identity/independence — P3-IDENTITY-001, ADR-031 Mode A/Mode B.
-  - LIVE remains separately authorized — nothing in this proposal, if ever adopted,
-    would by itself move any module or system closer to LIVE authorization.
+[Unchanged from v0.2.] This document uses "Class A/B/C" only as informal,
+  non-authoritative shorthand for P3-REVIEW-001's own four existing rows. Where this
+  document's wording and P3-REVIEW-001's actual text conflict, P3-REVIEW-001 (and the
+  Global G-REV rules it implements) controls, without exception. Classification of
+  any real transaction is based on its ACTUAL semantic delta, never on a
+  transaction's self-declared name or label. A transaction labeled "bounded
+  remediation" that, in substance, changes architecture, authority, contract,
+  security, or Quality-Gate-mechanism semantics cannot be downgraded to reduced
+  review depth merely because of that label.
 ```
 
-## 8. Adoption
+## 7. Observation: batch findings within an already-authorized bounded review scope
+
+```text
+[Unchanged from v0.2.] Already-effective, unchanged: G-REV-004 and
+  P3-CORRECTION-CHAIN-001 already bound and interrupt correction churn reactively.
+  Narrow observed gap (advisory only): within a review already authorized to inspect
+  a given bounded scope, actively probing for foreseeable adjacent findings before
+  closing round 1 can avoid an otherwise-avoidable round-trip (motivating case: the
+  v0.14/v0.15 detection-mechanism sequence, §1). Exception preserved: a follow-up
+  round remains appropriate where a discovered issue materially changes the review
+  surface itself.
+```
+
+## 8. Proposal: automated deterministic-check tooling (corrected approval-evidence criteria)
+
+```text
+[Unchanged from v0.2, still current.] Proposed automatable, fail-closed checks:
+  HEAD/parent SHA verification; exact changed-file scope; MANIFEST version
+  transition; document lifecycle consistency; finding-state consistency; stale-
+  pending detection (human attention only); package/count/arithmetic consistency;
+  protected-path byte-identity; governance invariant checks; semantic reviewed
+  boundary vs. evidence-recording boundary distinction; and a corrected
+  approval-progression eligibility check verifying (a) required eligible independent
+  reviews exist for the transaction's actual classification, (b) reviewed boundary
+  matches across all cited dispositions, (c) identity/independence resolves per
+  P3-IDENTITY-001 + ADR-031, (d) the ACTUAL recorded dispositions (not an assumed
+  "CLEAN" string) permit progression, (e) unresolved findings are surfaced exactly,
+  (f) any accepted-non-blocking residual requires EXPLICIT Product Owner treatment.
+  Zero-Minor/CLEAN is NOT a universal prerequisite unless higher authority requires
+  it (execution-rules.md's own existing NON-NORMATIVE INTERPRETATION point 6).
+  Automation MUST NEVER auto-accept a residual or invent a disposition/decision. No
+  implementation performed; design only.
+```
+
+## 9. Observation: apply existing G-ID-003 more consistently (not a new proposal)
+
+```text
+[Unchanged from v0.2.] Global G-ID-003 already states MANIFEST should prioritize
+  compact current-state resolution, with detailed history living primarily in
+  CHANGELOG/evidence tables. This is already-effective authority, not a new
+  proposal. No migration performed here.
+```
+
+## 10. Clarification: "Independent Review B" is a workflow role, not a reviewer identity
+
+```text
+[NEW, v0.3, implementing item 4. Corrects any implicit reading, anywhere in this
+  cycle's own governance record, that "Independent Review B" means specifically and
+  only "Claude."]
+
+"Independent Review B" names a WORKFLOW ROLE/FUNCTION, not a mandatory reviewer
+  identity. Eligibility to fill that role is governed by Chapter 0 §3, Chapter 11
+  §11.5, and ADR-031 — never by this document, and never by any single prior
+  transaction's own choice of principal.
+
+ADR-031 defines two eligible modes:
+
+  Mode A -- DISTINCT_PRINCIPAL: two different eligible AI Technical Architect
+    principals perform Review A and Independent Review B. Example actually used in
+    this cycle: Review A = ChatGPT, Independent Review B = Claude.
+
+  Mode B -- SAME_PRINCIPAL_DISTINCT_EXECUTION: the SAME eligible principal may
+    perform both Review A and Independent Review B, through genuinely isolated
+    executions/sessions, ONLY when ADR-031's own execution-isolation evidence
+    contract (§5) is satisfied. Example: Review A = ChatGPT execution/session A,
+    Independent Review B = an independently isolated ChatGPT execution/session B.
+
+Therefore: Claude is a common, CURRENT Mode-A implementation of the Independent
+  Review B role in this repository's own recent practice — it is not a mandatory
+  reviewer identity, and a future transaction using Mode A with a different eligible
+  principal, or Mode B with genuine isolation evidence, is equally valid.
+
+This does NOT weaken independence. Independent Review B must independently inspect
+  the actual subject/artifact and must NOT treat Review A's own reasoning or
+  conclusion as ground truth (G-REV-003, unchanged). Review A and Independent Review
+  B remain peer technical reviews — neither holds veto power over the other. The
+  Product Owner remains the sole approval/rejection authority in all cases (Chapter
+  12) — nothing in this clarification shifts approval authority toward either
+  reviewer.
+```
+
+## 11. Review purpose (explicit statement)
+
+```text
+[NEW, v0.3, implementing item 5.]
+
+Primary purpose of Review A / Independent Review B: cross-check semantic
+  correctness, detect defects/risks, and reduce the probability that any single
+  reviewer misses a material issue. Review activity exists to REDUCE RISK — it
+  should not, by its own default recording pattern, CREATE bookkeeping churn (see
+  §§2/4/5 above).
+
+Minimum review record that should remain compact, per existing authority (P3-
+  IDENTITY-001, G-ID-003, P3-BUDGET-001):
+  - reviewer principal (and registered alias, per team.yaml, where applicable);
+  - review boundary (exact SHA/blob reviewed);
+  - independence mode, where applicable (Mode A / Mode B, per ADR-031);
+  - disposition (CLEAN, findings raised, etc.);
+  - unresolved finding IDs/states, if any.
+
+Detailed review reasoning is NOT duplicated into MANIFEST by default — it may remain
+  in the original review output/session history where available, with MANIFEST
+  carrying only the compact record above (consistent with G-ID-003's own compact-
+  current-state-resolution rule, §9).
+```
+
+## 12. Non-negotiable controls, cross-referenced to actual controlling authority
+
+```text
+[Unchanged from v0.2, restated with §10's clarification folded in.] This proposal
+  does not weaken, and explicitly preserves: immutable review boundaries (Chapter 11
+  §11.3/§11.5); fail-closed evidence handling (P3-VERIFY-001, G-REV-003); full
+  independent Review A + Independent Review B wherever P3-REVIEW-001 or higher
+  authority actually requires it, under either ADR-031 Mode A or Mode B (§10) —
+  unchanged, unshortened; Product Owner as the sole approval authority (Chapter 12);
+  separation of implementation/measurement/threshold-calibration/approval as four
+  distinct governed steps; no self-approval at any level; no fabricated review/
+  decision evidence, ever, under any automation, batching, or bookkeeping-fold
+  rationale (§4/§5's fold proposal never permits skipping an actual required
+  review — only eliminates a REDUNDANT standalone recording transaction for
+  ALREADY-issued dispositions); reviewer identity/independence per P3-IDENTITY-001 +
+  ADR-031; LIVE remains separately authorized.
+```
+
+## 13. Finding states after this correction
+
+```text
+P3-PI-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW. (Carried forward
+  unchanged from v0.2 — no external Review A closure disposition for this finding is
+  actually recorded anywhere in the governance record; not fabricated here. See the
+  finding-state note near the top of this document.)
+P3-PI-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW. (Same basis as
+  P3-PI-A-MAJ-01 above.)
+P3-PI-A-MIN-01: REMEDIATED — PENDING FINAL BOUNDED REVIEW A VALIDATION.
+```
+
+Not self-closed. Next step: final bounded Review A validation of v0.3.
+
+## 14. Adoption
 
 ```text
 This document is PROPOSAL / NOT YET EFFECTIVE.
-
 No current workflow, Constitution rule, ADR, Testing Convention, Quality Gate, or
 approval requirement changes merely because this proposal exists.
-
 Adoption requires a separate governed decision transaction after reviewing the
 proposal against existing authority and ADR Scope Rule.
 ```
 
-## 9. ADR Scope Rule check (self-certification, re-run fresh for this v0.2 correction)
+## 15. ADR Scope Rule check (self-certification, re-run fresh for this v0.3 correction)
 
 ```text
-This v0.2 correction remains a non-effective retrospective/proposal artifact — it
-  does not amend the Constitution, any ADR, the Testing Convention, `docs/governance/
-  execution-rules.md`, any `phase-*-rules.md`, Quality Gate semantics,
-  `module-registry.yaml`, or any approval-authority rule. It changes no current
-  review requirement, no current approval requirement, and no current Quality Gate
-  mechanism. The correction itself (reframing as a gap analysis, correcting the
-  automation criteria, correcting the motivating date-sequence claim) is strictly a
-  narrowing/clarifying edit of the document's own non-effective prose — it does not
-  expand this document's own effect on current governance in any way.
+This v0.3 correction remains a non-effective retrospective/proposal artifact. It
+  adds clarifying/corrective content (chronology correction, standalone-review-
+  evidence elimination proposal, prompt-precondition lesson, reviewer-role
+  clarification, review-purpose statement) — it does not amend the Constitution, any
+  ADR, the Testing Convention, execution-rules.md, any phase-*-rules.md, Quality Gate
+  semantics, module-registry.yaml, or any approval-authority rule, and it does not
+  expand this document's own effect on current governance in any way (per §14).
 Result: ADR_NOT_REQUIRED.
-This document does NOT decide the ADR classification of any future adoption
-  transaction — that transaction must independently re-run the ADR Scope Rule against
-  its own actual proposed scope at that time.
+Future adoption of any improvement discussed here must independently re-run the ADR
+  Scope Rule against the actual effective changes proposed at that time.
 ```
 
-## 10. Explicit non-scope of this transaction
+## 16. Explicit non-scope of this transaction
 
 ```text
 KHÔNG modifies Constitution, any ADR, Testing Convention, Phase 3 rules
   (docs/governance/phases/phase-3-rules.md), execution-rules.md, implementation code,
   tests, CI configuration, or module-registry.yaml.
-KHÔNG installs the mutation-compatibility shim.
-KHÔNG reruns the mutation baseline.
-KHÔNG changes Feature Engine's Chapter 13 Quality Gate state or approval state.
-KHÔNG authorizes LIVE.
-KHÔNG satisfies or substitutes for P3-RETRO-001 (the formal Phase 3 retrospective
-  required before Phase 4 substantive work) — that retrospective remains a separate,
-  future, required transaction, evaluating the full Phase 3 execution history against
-  the P1-RETRO-001/P2-RETRO-001 structural precedent plus Phase-3-specific controls
-  (P3-CORRECTION-CHAIN-001/P3-TXN-001/P3-VERIFY-001/P3-REVIEW-001/P3-BUDGET-001/
-  P3-IDENTITY-001/P3-MODULE-BATCH-001), per docs/governance/phases/phase-3-rules.md
-  §12.
+KHÔNG installs the mutation-compatibility shim. KHÔNG reruns the mutation baseline.
+KHÔNG changes Feature Engine's Chapter 13 Quality Gate state, module approval state,
+  Phase 3 Approval Gate state, or LIVE authorization state.
+KHÔNG satisfies or substitutes for P3-RETRO-001.
 KHÔNG retroactively classifies any already-completed transaction into any label used
   by this document.
-KHÔNG adopts this proposal.
+KHÔNG adopts this proposal or any improvement it discusses.
+KHÔNG performs Independent Review B or adoption in this transaction.
 ```
 
-## 11. Finding states after this correction
+## 17. Change history
 
 ```text
-P3-PI-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
-P3-PI-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
-P3-PI-A-MIN-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
-```
+v0.1  2026-09-03  Authored. Three risk-based classes without existing-control
+      mapping; hard-coded "Review A CLEAN + Independent Review B CLEAN"; miscounted
+      compatibility-candidate rounds as three. ADR_NOT_REQUIRED.
 
-Not self-closed. Next step: bounded Review A re-review of v0.2.
+v0.2  2026-09-03  Bounded correction. Added §-mapping against Global/Phase-3
+      authority (mostly KEEP); reframed classes as non-authoritative shorthand for
+      P3-REVIEW-001's existing table; corrected approval-progression criteria to
+      remove the hard-coded CLEAN+CLEAN requirement; corrected the compatibility-
+      candidate round count to two semantic rounds + one mechanical round.
+      P3-PI-A-MAJ-01/-MAJ-02/-MIN-01: REMEDIATED — PENDING BOUNDED REVIEW A
+      RE-REVIEW. ADR_NOT_REQUIRED.
 
-## 12. Change history
-
-```text
-v0.1  2026-09-03  Authored -- vai trò: `Phase 3 Process Improvement Proposal Author`.
-      Captured workflow lessons from the Feature Engine mutation-testing mechanism /
-      compatibility-candidate review cycle (Testing Convention v0.8-v0.16). Proposed
-      three risk-based transaction classes (A/B/C) without mapping them against
-      already-effective controls; an automation criterion hard-coding "Review A
-      CLEAN + Independent Review B CLEAN"; and a motivating narrative miscounting the
-      compatibility-candidate correction chain as three semantic-correction rounds.
-      `proposal_state: PROPOSAL / NOT YET EFFECTIVE`. ADR Scope Rule: ADR_NOT_REQUIRED.
-
-v0.2  2026-09-03  Bounded correction -- vai trò: `Phase 3 Process Improvement
-      Proposal v0.2 Bounded Correction Executor`. Remediates three Review A findings:
-      `P3-PI-A-MAJ-01` (added §2's explicit KEEP/TIGHTEN/NEW-GAP mapping against
-      Global G-REV-001/002/003/004, G-TXN-003/004, G-ID-001/002/003, P3-REVIEW-001,
-      P3-TXN-001, P3-VERIFY-001, P3-IDENTITY-001, P3-BUDGET-001,
-      P3-CORRECTION-CHAIN-001; reframed §3's Class A/B/C as non-authoritative
-      shorthand for P3-REVIEW-001's existing table, explicit that actual semantic
-      delta controls over any self-declared label; reframed §4/§6 as narrow/advisory
-      or non-proposals per the mapping). `P3-PI-A-MAJ-02` (§5 corrected: removed
-      "Review A CLEAN + Independent Review B CLEAN" as a hard-coded universal
-      approval-progression check; replaced with eligible-review-existence, boundary-
-      match, identity/independence, actual-disposition, unresolved-finding-surfacing,
-      and explicit-Product-Owner-treatment-of-residuals criteria; added explicit
-      "zero Minor/CLEAN is not a universal prerequisite unless higher authority
-      requires it" statement citing execution-rules.md's existing NON-NORMATIVE
-      INTERPRETATION point 6; explicit automation must never auto-accept a residual).
-      `P3-PI-A-MIN-01` (§1 corrected: two semantic-correction rounds, v0.14/v0.15, not
-      three; v0.16 was a separate mechanical date-fidelity correction; added explicit
-      distinction between chronology-driven legitimate transaction separation and the
-      one candidate avoidable-churn pattern). `proposal_version: "0.1" -> "0.2"`.
-      `proposal_state` VẪN `PROPOSAL / NOT YET EFFECTIVE`. `adopted_by`/`adopted_at`
-      VẪN `null`/`null`. Finding states: all three `REMEDIATED — PENDING BOUNDED
-      REVIEW A RE-REVIEW` — NOT self-closed. ADR Scope Rule re-run fresh for this
-      correction: ADR_NOT_REQUIRED. Does not adopt the proposal. Does not satisfy
-      P3-RETRO-001.
+v0.3  2026-09-03  Final bounded correction -- vai trò: `Phase 3 Process Improvement
+      Proposal v0.3 Final Bounded Correction Executor`. Adds: chronology correction
+      of the Testing Convention v0.16 approval sequence (Review A/B and the Product
+      Owner decision all predate the evidence-recording commit 651bf4ec...; only the
+      SUCCESSFUL RECORDING of the decision was delayed, until commit 6b7e915...; the
+      extra evidence-recording transaction identified as a candidate avoidable
+      bookkeeping round-trip, not a required chronology step); a proposal to
+      eliminate the standalone Review-Evidence-recording transaction as a default,
+      folding minimum review metadata into one atomic decision/lifecycle recorder by
+      default (mapped to already-effective P3-TXN-001, not a new rule); an explicit
+      "a prompt-created precondition is not governance authority" lesson with a
+      four-question orchestration self-check, mapped to G-REV-001/G-TXN-003-004/
+      P3-TXN-001/P3-REVIEW-001/P3-VERIFY-001; a clarification that "Independent
+      Review B" is a workflow role governed by Chapter 0 §3/Chapter 11 §11.5/ADR-031
+      Mode A or Mode B, NOT a hard-coded "Claude" identity; and an explicit statement
+      of review's primary purpose (risk reduction, not bookkeeping) with a compact
+      minimum-review-record field list. Verified against the actual governance
+      record that no external Review A closure for P3-PI-A-MAJ-01/-MAJ-02 is
+      actually recorded anywhere, despite this task's own stated premise to the
+      contrary — both findings carried forward unchanged as `REMEDIATED — PENDING
+      BOUNDED REVIEW A RE-REVIEW` rather than fabricating a "CLOSED — REVIEW A"
+      disposition. `P3-PI-A-MIN-01: REMEDIATED — PENDING FINAL BOUNDED REVIEW A
+      VALIDATION`. `proposal_version: "0.2" -> "0.3"`. `proposal_state` VẪN
+      `PROPOSAL / NOT YET EFFECTIVE`. `adopted_by`/`adopted_at` VẪN `null`/`null`.
+      Does not adopt any improvement. ADR Scope Rule: ADR_NOT_REQUIRED. Does not
+      perform Independent Review B or adoption. Does not satisfy P3-RETRO-001.
 ```
