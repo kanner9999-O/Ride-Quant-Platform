@@ -2,6 +2,75 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — feature-engine: fresh NON-GATING mutation baseline — COMPLETE (first-ever complete baseline; `P3-PY-MUT-BASELINE-B-MAJ-01` remediation confirmed)
+
+**Governed measurement transaction — vai trò: `Feature Engine Mutation Baseline Measurement Executor`.** Runs one fresh NON-GATING mutation baseline via `python -m tooling run` (the approved Testing Convention v0.16 shim entrypoint). First baseline attempt in this repository's history to complete fully: 1531/1531 mutants evaluated, complete ten-status reconciliation, `not_checked == 0`.
+
+### Execution result
+
+```text
+python -m pytest tests/ -q -> 193 passed, confirmed clean before measurement.
+Forced-fail sanity phase SUCCEEDED via the installed shim (both prior attempts
+  aborted here or earlier). Real mutant dispatch confirmed: all 1531 generated
+  mutants actually evaluated. Run completed to natural end, exit code 0.
+```
+
+### Ten-status reconciliation (independently verified via direct .meta inspection)
+
+```text
+killed=1162, survived=369, no_tests=0, not_checked=0, skipped=0, suspicious=0,
+  timeout=0, caught_by_type_check=0, segfault=0, check_was_interrupted_by_user=0.
+Raw exit-code distribution across all 1531 mutants: {1: 1162, 0: 369} -- no other
+  code occurs. Reconciliation: sum(all ten) = 1531 = total. not_checked == 0:
+  COMPLETE baseline. Sorted mapping SHA-256:
+  d69f0c1902d1c275bdb1db464eacbda35d6b2727fd4c5f5889c5c780add5e244.
+```
+
+### Notable observation (factual, no analysis performed)
+
+```text
+330 per-mutant test invocations raised BadTestExecutionCommandsException in their
+  own child process (a mutation genuinely breaking the conftest-imported code path
+  -- structurally the same failure shape as the original defect, but here caused by
+  an actual mutation, not mutmut's forced-fail sentinel; MUTANT_UNDER_TEST was that
+  mutant's own ID, not "fail", so the shim correctly did not accept it as success).
+  The resulting exit code 1 is mapped to "killed" by mutmut's own status table.
+  Recorded as observation only -- no survivor/kill-validity judgment made.
+```
+
+### Raw NON-GATING mutation-effectiveness metric
+
+```text
+NON-GATING BASELINE -- NOT A PASS/FAIL QUALITY-GATE RESULT.
+mutation_score = (killed + confirmed_timeout) / (total - skipped) * 100
+               = (1162 + 0) / (1531 - 0) * 100 = 75.8981%.
+Not compared against any threshold; no threshold approved; no Tier-0 threshold
+  inferred from this Tier-1 baseline.
+```
+
+### Finding state
+
+```text
+P3-PY-MUT-BASELINE-B-MAJ-01: REMEDIATED — PENDING INDEPENDENT VALIDATION. The
+  compatibility shim fix is demonstrated effective by this baseline's own evidence
+  (forced-fail phase now succeeds; complete real mutation testing occurred for the
+  first time). NOT self-closed -- independent reviewer authority preserved.
+```
+
+### Preserved unchanged
+
+```text
+Compatibility shim: INSTALLED (confirmed effective). mutmut 3.7.0: INSTALLED +
+  PINNED. TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED
+  (a complete baseline now exists, but no threshold proposed/approved).
+  P3-FEATURE-QG-EVID-03: FAIL — evidence (not marked PASS). Formal Feature Chapter
+  13 QG: FAIL (not rerun). Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT
+  opened. LIVE: NOT_AUTHORIZED. No production/test file changed; mutants/ deleted
+  only after full evidence capture, never committed.
+```
+
+Next governed step: independent validation/review of this baseline result and closure disposition for `P3-PY-MUT-BASELINE-B-MAJ-01`, followed by a separate future survivor/equivalent/blind-spot analysis and threshold-proposal sequence.
+
 ## [Unreleased] — 2026-09-03 — feature-engine: mutation compatibility shim INSTALLED (Testing Convention v0.16)
 
 **Implementation transaction — vai trò: `Feature Engine Mutation Compatibility Shim Implementation Executor`.** Implements the already-approved, FEATURE-ENGINE-ONLY mutmut 3.7.0 compatibility shim exactly per Testing Convention v0.16's approved design, fixing `P3-PY-MUT-BASELINE-B-MAJ-01` (`MUTMUT_3_7_INTERNAL_DEFECT`). No redesign; no baseline rerun; `P3-PY-MUT-BASELINE-B-MAJ-01` not closed.

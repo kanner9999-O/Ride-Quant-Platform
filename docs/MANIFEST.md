@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.306"
+manifest_version: "10.307"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -19464,6 +19464,212 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** a fresh NON-GATING mutation-baseline re-attempt for feature-engine using the now-installed compatibility shim (`python -m tooling run`, from `python/feature-engine/`), in a separate governed transaction.
 
 **Files changed:** `python/feature-engine/tooling/__init__.py`, `python/feature-engine/tooling/__main__.py`, `python/feature-engine/tooling/ride_mutmut_shim.py`, `python/feature-engine/tooling/tests/__init__.py`, `python/feature-engine/tooling/tests/test_ride_mutmut_shim.py` (all new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `pyproject.toml`, `requirements-dev.lock.txt`, `docs/engineering/testing.md`, Constitution, ADRs, `execution-rules.md`, `phase-3-rules.md`, `module-registry.yaml` all verified byte-unchanged. `manifest_version` `"10.305"` → `"10.306"`.
+
+## `feature-engine` — Fresh NON-GATING Mutation Baseline: `COMPLETE — NON-GATING BASELINE` (compatibility shim fix confirmed; `P3-PY-MUT-BASELINE-B-MAJ-01` → `REMEDIATED — PENDING INDEPENDENT VALIDATION`)
+
+**Governed measurement transaction — vai trò: `Feature Engine Mutation Baseline Measurement Executor`.** Runs ONE fresh NON-GATING mutation-testing baseline for feature-engine via the now-installed Testing Convention v0.16 compatibility shim (`python -m tooling run`, from `python/feature-engine/`). This is the FIRST baseline attempt in this repository's history to complete fully — 1531/1531 mutants evaluated, complete ten-status reconciliation, `not_checked == 0`. Does NOT establish a threshold, does NOT infer a Tier-0 threshold, does NOT mark `P3-FEATURE-QG-EVID-03` PASS, does NOT rerun formal Chapter 13 QG, does NOT approve Feature Engine, does NOT open Phase 3 gate, does NOT authorize LIVE. Does NOT self-close `P3-PY-MUT-BASELINE-B-MAJ-01` — records remediation evidence, preserving independent-reviewer authority for actual closure. Records this evidence atomically in this same transaction per `P3-TXN-001`'s default-fold rule.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `8d6293aca773757bc3b62cc0d3b80cba9e243954` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. Testing Convention confirmed `version: "0.16"`, `status: Approved`. Compatibility shim confirmed `INSTALLED` (`python/feature-engine/tooling/`). `P3-PY-MUT-BASELINE-B-MAJ-01` confirmed `OPEN` before this transaction. mutmut 3.7.0 confirmed installed/pinned, byte-identical `pyproject.toml`/`requirements-dev.lock.txt`.
+
+### Pinned identities
+
+```text
+Repository boundary:             8d6293aca773757bc3b62cc0d3b80cba9e243954.
+python/feature-engine/src tree:  256421344a48a6c9d4ef72f81eb82b27dbedfc50 (unchanged
+  since every prior baseline attempt — mutation-surface inventory identical).
+python/feature-engine/tests tree: 6cfe8097b061870493cd44d711d79cd9e04a538c (unchanged
+  since the MAJ-01 test-isolation fix).
+python/feature-engine/tooling tree: b99f6252058cbf5404751cf85d80c6745eebd03b (the
+  now-installed compatibility shim, unchanged from its own implementation commit).
+pyproject.toml blob:             14165cfa2952aee8dd9fc1ea1d83b8ab73fd7d43.
+requirements-dev.lock.txt blob:  b2b86edd62bfc24cf0e81cde06543905f3c3d528.
+docs/engineering/testing.md blob: 1b47ccd104c2a0f97c879534cb2e72f66e6d25e3 (v0.16
+  Approved, unchanged).
+Python 3.13.6 (Darwin arm64). mutmut 3.7.0. pytest 9.1.1. coverage 7.16.0 — verified
+  via fresh clean-room `pip show`/`pip check` from the unchanged, current lock file.
+Effective [tool.mutmut] runtime configuration: unchanged from all prior baseline
+  attempts (source_paths=["src/feature_engine"], pytest_add_cli_args_test_selection=
+  ["tests/"], mutate_only_covered_lines=false, type_check_command=[],
+  timeout_constant=1.0, timeout_multiplier=15.0, only_mutate=[], do_not_mutate=[],
+  do_not_mutate_patterns=[]).
+Command executed: `python -m tooling run` (the approved shim entrypoint — NOT bare
+  `mutmut run`), from python/feature-engine/, in a fresh clean-room venv rebuilt from
+  the current lock file.
+```
+
+### Pre-mutation verification and fresh-run proof
+
+```text
+`python -m pytest tests/ -q` -> 193 passed, 0 failed — confirmed clean immediately
+  before measurement. No pre-existing mutants/ directory before execution (confirmed
+  absent). Exactly one fresh `python -m tooling run` executed to completion (no
+  intentional interruption; the run was allowed to run to its natural end).
+```
+
+### Execution result — forced-fail sanity phase and real mutant dispatch
+
+```text
+Forced-fail sanity phase: SUCCEEDED via the installed shim (unlike both prior
+  baseline attempts, which aborted at this or an earlier phase). The run proceeded
+  past "Running clean tests" and "Running forced fail test" into REAL mutation
+  testing — the first time this has ever happened for feature-engine.
+Real mutants dispatched: YES — all 1531 generated mutants were actually evaluated
+  against the real test suite (confirmed both by the live progress counter reaching
+  1531/1531 and by direct inspection of all 14 .meta files' exit_code_by_key, none
+  of which remained null/None).
+Run completed to natural end, no interruption, no timeout, no crash of the overall
+  process (`python -m tooling run` exited 0).
+```
+
+### Notable process-level observation (factual only, no survivor analysis performed)
+
+```text
+During real mutant dispatch, 330 individual per-mutant test invocations raised
+  mutmut.__main__.BadTestExecutionCommandsException inside their own child process
+  (confirmed via direct log inspection, e.g. a mutation to authority_resolver.py
+  causing tests/test_authority_resolver.py's own targeted-subset invocation to fail
+  at conftest.py import time, pytest exit code 4) — structurally the SAME failure
+  shape as the original P3-PY-MUT-BASELINE-B-MAJ-01 defect, but here triggered by an
+  ACTUAL mutation breaking the conftest-imported code path, not by mutmut's own
+  forced-fail sentinel (MUTANT_UNDER_TEST was that mutant's own identifier, not
+  "fail", so the shim correctly did NOT accept it as success and raised exactly as
+  unmodified mutmut would). The child process's own uncaught exception produced exit
+  code 1, which mutmut's own status_by_exit_code table maps to "killed" ("internal
+  error in pytest means a kill," per mutmut's own source comment) — independently
+  confirmed via direct .meta inspection: every raw exit code across all 1531 mutants
+  is either 1 (killed, 1162 mutants) or 0 (survived, 369 mutants); no other raw exit
+  code occurs anywhere in the population. This is recorded as a factual observation
+  for the future survivor/blind-spot analysis step — NOT adjudicated here as either
+  a valid or spurious kill signal; no threshold, survivor classification, or
+  equivalent-mutant judgment is made in this transaction.
+```
+
+### Ten-status reconciliation — COMPLETE (independently verified via direct `.meta` inspection, not export-cicd-stats alone)
+
+```text
+export-cicd-stats (cross-check only, does not expose all ten categories): killed=1162,
+  survived=369, total=1531, no_tests=0, skipped=0, suspicious=0, timeout=0,
+  check_was_interrupted_by_user=0, segfault=0.
+Independent .meta-based reconciliation (all 14 files, raw exit_code_by_key values):
+  raw exit code distribution across all 1531 mutants: {1: 1162, 0: 369} — NO other
+  raw exit code occurs. Mapped via mutmut's own status_by_exit_code:
+  killed=1162, survived=369, no_tests=0, not_checked=0, skipped=0, suspicious=0,
+  timeout=0, caught_by_type_check=0, segfault=0, check_was_interrupted_by_user=0.
+Per-file breakdown (total/killed/survived): authority_resolver.py 134/113/21,
+  candle_window.py 28/16/12, contracts.py 217/144/73, current_view.py 104/82/22,
+  identity.py 8/6/2, regime_passthrough.py 286/215/71, swing_distance.py 754/586/168;
+  __init__.py/candle.py/envelope.py/errors.py/publish.py/regime_input.py/
+  swing_input.py: 0/0/0 (fully @dataclass-excluded or logic-free, unchanged from
+  every prior mutation-surface scan).
+Reconciliation equation: 1162+369+0+0+0+0+0+0+0+0 = 1531 = total (1531). sum == total:
+  TRUE.
+not_checked == 0: TRUE — every one of the 1531 generated mutants was actually
+  evaluated; this is a COMPLETE baseline, unlike both prior attempts.
+caught_by_type_check == 0: TRUE (expected, type_check_command=[]).
+Timeout handling: N/A — zero timeouts occurred; no individual mutant reruns required.
+Other anomalies (suspicious/segfault/check_was_interrupted_by_user/unexpected
+  caught_by_type_check): all zero.
+Sorted mutant_id -> raw_exit_code -> status mapping SHA-256:
+  d69f0c1902d1c275bdb1db464eacbda35d6b2727fd4c5f5889c5c780add5e244.
+```
+
+### Raw NON-GATING mutation-effectiveness metric — Ride-owned formula, per Testing Convention
+
+```text
+**NON-GATING BASELINE — NOT A PASS/FAIL QUALITY-GATE RESULT.**
+mutation_score = (killed + confirmed_timeout) / (total - skipped) * 100
+               = (1162 + 0) / (1531 - 0) * 100
+               = 75.8981...% (raw, unrounded denominator = full 1531; no equivalent-
+                 mutant candidates removed from the denominator; no timeout credited).
+This raw score is NOT compared against 80%, 90%, or any other acceptance number —
+  NO threshold is approved for this metric. No Tier-0 threshold is inferred from
+  this Feature Engine (Tier-1) baseline.
+```
+
+### Survivor population (factual count only — sufficient for future calibration/analysis, no analysis performed here)
+
+```text
+369 survived mutants total, full per-mutant identity/location preserved in the
+  sorted mapping (SHA-256 above) and the per-file breakdown (above). No survivor
+  classification, equivalent-mutant judgment, or blind-spot conclusion is drawn in
+  this transaction — that is explicitly reserved for a separate, future, governed
+  analysis transaction. Mutation-surface inventory (10 @dataclass classes / 12
+  hand-written methods excluded, unchanged since src tree is byte-identical to every
+  prior scan) remains a separate, already-documented, orthogonal gap — NOT conflated
+  with the 369 survivors above (survivors are mutants that WERE generated and
+  evaluated but not killed; the 12-method inventory is mutants that were never
+  generated at all, per mutmut's own dataclass-skip behavior).
+```
+
+### Evidence storage — no new schema invented
+
+```text
+Consistent with prior baseline transactions, no new persistent mutation-evidence
+  artifact path is created. The complete per-mutant raw evidence (all 1531 mutant
+  IDs, exit codes, statuses) is captured in the sorted mapping referenced by its
+  SHA-256 above; this MANIFEST record preserves the total/all-ten-category counts,
+  per-file breakdown, and reconciliation needed to resolve current state
+  deterministically without inventing new storage — the same discipline applied
+  throughout this track.
+```
+
+### Finding state — `P3-PY-MUT-BASELINE-B-MAJ-01`
+
+```text
+The compatibility shim fix is demonstrated effective by this transaction's own
+  evidence: the forced-fail sanity phase, which previously aborted the ENTIRE run
+  before any real mutant was ever evaluated (both prior baseline attempts), now
+  succeeds, and the run proceeds through complete, real mutation testing of all 1531
+  mutants with full ten-status reconciliation. This is NOT self-closed by this
+  executor — independent reviewer authority is preserved for actual closure.
+P3-PY-MUT-BASELINE-B-MAJ-01: REMEDIATED — PENDING INDEPENDENT VALIDATION.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1`). python/feature-engine/src/**,
+  python/feature-engine/tests/**, python/feature-engine/tooling/**,
+  python/feature-engine/pyproject.toml, python/feature-engine/requirements-dev.lock.txt,
+  docs/engineering/testing.md, docs/constitution/**, docs/adr/**,
+  docs/governance/execution-rules.md, docs/governance/phases/phase-3-rules.md,
+  docs/architecture/module-registry.yaml, CI/CD workflows, any Go module: all
+  verified byte-identical (`git diff --quiet` for each path). No production/test
+  semantics changed to improve mutation score. The transient `mutants/` working
+  directory was deleted ONLY AFTER full evidence capture, confirmed absent, never
+  committed. No threshold proposed. No Tier-0 threshold inferred.
+  `P3-FEATURE-QG-EVID-03` not marked PASS. Formal Chapter 13 QG not rerun. Feature
+  Engine not approved. Phase 3 gate not opened. LIVE not authorized.
+```
+
+### State summary
+
+```text
+Mutation baseline result:      COMPLETE — NON-GATING BASELINE (first-ever complete
+                                baseline for feature-engine; 1531/1531 mutants
+                                evaluated, not_checked==0).
+Raw mutation-effectiveness:     75.8981% (killed 1162 + confirmed_timeout 0) /
+                                (total 1531 - skipped 0) — diagnostic only, NOT a
+                                gate result, NOT compared to any threshold.
+P3-PY-MUT-BASELINE-B-MAJ-01:   REMEDIATED — PENDING INDEPENDENT VALIDATION (NOT
+                                self-closed).
+Compatibility shim:            INSTALLED (unchanged; confirmed effective by this
+                                measurement).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged
+                                — a complete baseline now exists, but no threshold
+                                proposal has been made or approved).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged, NOT marked PASS).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** independent validation/review of this baseline result and closure disposition for `P3-PY-MUT-BASELINE-B-MAJ-01`, followed by a separate, future, governed survivor/equivalent/blind-spot analysis and threshold-proposal sequence (per Testing Convention's own 9-step governed sequence) — not performed here.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.306"` → `"10.307"`.
 
 ## Decision Log
 
