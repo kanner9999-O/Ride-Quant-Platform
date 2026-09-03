@@ -2,6 +2,60 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — feature-engine: mutation baseline evidence remediation (`P3-PY-MUT-BASELINE-A-MAJ-02`, durable evidence artifact created)
+
+**Bounded evidence-remediation transaction — vai trò: `Feature Engine Mutation Baseline Evidence Remediation Executor`.** Remediates Review A finding `P3-PY-MUT-BASELINE-A-MAJ-02`: the completed baseline's per-mutant evidence was transient. Original evidence recovered byte-for-byte from scratch working state (not rerun); SHA-256 independently re-verified to match the already-recorded identity exactly.
+
+### Durable evidence artifact
+
+```text
+New: docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-
+  001.json -- a single, compact, machine-readable JSON artifact following the
+  repository's own existing one-subdirectory-per-evidence-category convention.
+  Contains: exact evaluated identities, tool identities, effective mutmut config,
+  command + fresh-run confirmation, all 1531 mutant identities with raw exit code
+  and mapped status, all ten aggregate status counts, reconciliation, the raw
+  Ride mutation-score result (75.8981%), all 369 exact survivor identities, and
+  the excluded mutation-surface inventory. Embedded mapping SHA-256 re-verified
+  to match exactly the identity already recorded at baseline time.
+```
+
+### Correction
+
+```text
+BadTestExecutionCommandsException cohort count corrected from 330 to 165 -- the
+  prior count double-counted each traceback's two textual mentions of the
+  exception class name. Exact per-mutant identities for this cohort are NOT
+  recoverable from the existing captured log (mutmut's own non-debug dispatch loop
+  does not print per-mutant identity); recovering them would require a new
+  debug-mode rerun, not performed here since original evidence was already
+  recovered. Recorded transparently as a residual evidence gap for future
+  blind-spot/kill-validity analysis.
+```
+
+### Finding states
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-VALIDATION.
+P3-PY-MUT-BASELINE-B-MAJ-01: REMEDIATED — PENDING INDEPENDENT VALIDATION
+  (unchanged, preserved until Review A independently validates the durable
+  evidence).
+```
+
+### Preserved unchanged
+
+```text
+Compatibility shim: INSTALLED. mutmut 3.7.0: INSTALLED + PINNED. No mutation
+  testing rerun; no production/test/tooling semantics changed; no shim redesign;
+  no survivor/equivalent analysis performed. TEST_EFFECTIVENESS_THRESHOLD:
+  UNRESOLVED — BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03: FAIL —
+  evidence (not marked PASS). Formal Feature Chapter 13 QG: FAIL (not rerun).
+  Feature module: NOT APPROVED. Phase 3 Approval Gate: NOT opened. LIVE:
+  NOT_AUTHORIZED.
+```
+
+Next governed step: bounded Review A re-validation of the durable baseline evidence artifact, followed by independent validation of `P3-PY-MUT-BASELINE-B-MAJ-01`'s remediation.
+
 ## [Unreleased] — 2026-09-03 — feature-engine: fresh NON-GATING mutation baseline — COMPLETE (first-ever complete baseline; `P3-PY-MUT-BASELINE-B-MAJ-01` remediation confirmed)
 
 **Governed measurement transaction — vai trò: `Feature Engine Mutation Baseline Measurement Executor`.** Runs one fresh NON-GATING mutation baseline via `python -m tooling run` (the approved Testing Convention v0.16 shim entrypoint). First baseline attempt in this repository's history to complete fully: 1531/1531 mutants evaluated, complete ten-status reconciliation, `not_checked == 0`.

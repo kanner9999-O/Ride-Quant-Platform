@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.307"
+manifest_version: "10.308"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -19523,6 +19523,8 @@ Run completed to natural end, no interruption, no timeout, no crash of the overa
 
 ### Notable process-level observation (factual only, no survivor analysis performed)
 
+**[COUNT CORRECTED — `P3-PY-MUT-BASELINE-A-MAJ-02`, see the durable-evidence-remediation section below. The "330" figure below double-counted each traceback's own two textual mentions of the exception class name; the exact, verified count is 165. Preserved unedited below as historical record of the original (miscounted) observation; current, authoritative count and full per-occurrence analysis are recorded in the durable evidence artifact referenced below.]**
+
 ```text
 During real mutant dispatch, 330 individual per-mutant test invocations raised
   mutmut.__main__.BadTestExecutionCommandsException inside their own child process
@@ -19670,6 +19672,132 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** independent validation/review of this baseline result and closure disposition for `P3-PY-MUT-BASELINE-B-MAJ-01`, followed by a separate, future, governed survivor/equivalent/blind-spot analysis and threshold-proposal sequence (per Testing Convention's own 9-step governed sequence) — not performed here.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.306"` → `"10.307"`.
+
+## `feature-engine` — Mutation Baseline Evidence Remediation (`P3-PY-MUT-BASELINE-A-MAJ-02` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-VALIDATION`; durable evidence artifact created; `330` count corrected to `165`)
+
+**Bounded evidence-remediation transaction — vai trò: `Feature Engine Mutation Baseline Evidence Remediation Executor`.** Remediates Review A finding `P3-PY-MUT-BASELINE-A-MAJ-02`: the completed baseline's per-mutant mapping/raw status evidence was transient (deleted with `mutants/`), leaving only a SHA-256 with no repository-resolvable bytes. Does NOT rerun mutation testing — the exact original evidence was recovered byte-for-byte from this session's own scratch working state and independently re-verified against the already-recorded SHA-256. Does NOT change Feature production/test/tooling semantics, redesign the shim, analyze/classify survivors or equivalents, adjudicate the exception cohort, mark `P3-FEATURE-QG-EVID-03` PASS, rerun formal Chapter 13 QG, approve Feature Engine, open Phase 3 gate, or authorize LIVE. Does NOT self-close any Review A finding.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `749de14b1f664d33c4a6a829118e9af72f9701ae` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`.
+
+### Recovery determination — original evidence recoverable byte-for-byte
+
+```text
+The complete per-mutant mapping generated during the baseline run (all 14 .meta
+  files' exit_code_by_key, plus the canonical sorted mutant_id->{exit_code,status}
+  mapping computed from them) was preserved in this session's own scratch working
+  state (created during the baseline transaction, before mutants/ was deleted from
+  the tracked repository). Independently re-verified: SHA-256 of the recovered
+  canonical sorted mapping = d69f0c1902d1c275bdb1db464eacbda35d6b2727fd4c5f5889c5c780add5e244
+  — EXACTLY matches the SHA-256 already recorded in the baseline's own MANIFEST
+  section. No mutation testing rerun was performed or required.
+```
+
+### Durable evidence artifact created
+
+```text
+New file: docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  baseline-001.json (blob 978ebf92f89e5bd93ba112c1b8e4622835ea71ba). A single,
+  compact, machine-readable JSON artifact — no general evidence framework or new
+  governance schema invented; this follows the repository's own existing
+  one-subdirectory-per-evidence-category convention already used by
+  docs/governance/compatibility-results/, docs/governance/quality-gate/, docs/
+  governance/bcc/, docs/governance/gate-review/, applied to exactly one new file
+  for this exact baseline.
+Contents (verified present, per this task's own minimum-field requirement):
+  exact evaluated repo/src/tests/tooling tree identities and pyproject/lock/
+  testing.md blobs; Python/mutmut/pytest/coverage identities; the full effective
+  [tool.mutmut] configuration (9 keys); exact command (`python -m tooling run`) and
+  fresh-run confirmation (mutants/ absent before, no cached verdicts, run completed
+  to natural end, exit code 0); all 1531 generated mutant identities with raw exit
+  code and mapped status for each; all ten aggregate status counts; total and
+  reconciliation (sum==total, not_checked==0, caught_by_type_check==0); raw Ride
+  mutation-score formula inputs and result (75.8981%); all 369 exact survivor
+  mutant identities; the excluded mutation-surface inventory (10 @dataclass
+  classes / 12 hand-written methods, plus the 7 files generating zero mutants and
+  why); and the re-verified, embedded SHA-256 of the sorted mapping (matches the
+  already-recorded identity exactly).
+```
+
+### `BadTestExecutionCommandsException` cohort — count corrected, exact identities not recoverable
+
+```text
+Corrected count: 165 (was incorrectly recorded as 330). The prior count double-
+  counted each traceback's own two textual mentions of the exception class name
+  (the "raise BadTestExecutionCommandsException(params)" line and the final
+  "mutmut.__main__.BadTestExecutionCommandsException: Failed to run pytest..."
+  line) — verified via `grep -c` on the unique final-exception-message text, which
+  correctly yields 165.
+Exact per-mutant identities for this cohort: NOT recoverable from the existing,
+  already-captured, non-rerun baseline log. mutmut 3.7.0's own non-debug per-mutant
+  dispatch loop does not print the mutant's own identifier alongside each test
+  invocation — only an aggregate progress counter. Recovering exact per-occurrence
+  identities would require a NEW debug-mode run, which is explicitly NOT performed
+  here (original evidence was already successfully recovered; no rerun is
+  warranted or permitted under that branch). This is recorded, transparently, as a
+  residual evidence gap for the future blind-spot/kill-validity analysis — not
+  fabricated, not silently dropped. What IS known and recorded in the durable
+  artifact: all 165 occurrences are an unknown subset of the 1162 mutants with raw
+  exit code 1 ("killed"), and one concrete confirmed example (a mutation to
+  authority_resolver.py breaking a targeted test subset at conftest.py import
+  time) is documented for orientation.
+```
+
+### Finding states after this remediation
+
+```text
+P3-PY-MUT-BASELINE-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-VALIDATION.
+  NOT self-closed.
+P3-PY-MUT-BASELINE-B-MAJ-01: REMEDIATED — PENDING INDEPENDENT VALIDATION
+  (unchanged — preserved until Review A independently validates the now-durable
+  baseline evidence).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-
+  001.json (new), docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1`). python/feature-engine/src/**,
+  python/feature-engine/tests/**, python/feature-engine/tooling/**,
+  pyproject.toml, requirements-dev.lock.txt, docs/engineering/testing.md,
+  Constitution, ADRs, execution-rules.md, phase-3-rules.md, module-registry.yaml,
+  CI/CD workflows, any Go module: all verified byte-identical (`git diff --quiet`
+  for each path). No mutation testing rerun. No production/test/tooling semantics
+  changed. No shim redesign. No survivor/equivalent analysis or classification
+  performed. No exception-cohort adjudication performed. `P3-FEATURE-QG-EVID-03`
+  not marked PASS. Formal Chapter 13 QG not rerun. Feature Engine not approved.
+  Phase 3 gate not opened. LIVE not authorized.
+```
+
+### State summary
+
+```text
+Durable evidence artifact:      docs/governance/mutation-baseline-evidence/
+                                feature-engine-mutation-baseline-001.json, blob
+                                978ebf92f89e5bd93ba112c1b8e4622835ea71ba.
+Embedded mapping SHA-256:       d69f0c1902d1c275bdb1db464eacbda35d6b2727fd4c5f5889c5c780add5e244
+                                (independently re-verified, matches exactly).
+P3-PY-MUT-BASELINE-A-MAJ-02:   REMEDIATED — PENDING BOUNDED REVIEW A RE-VALIDATION.
+P3-PY-MUT-BASELINE-B-MAJ-01:   REMEDIATED — PENDING INDEPENDENT VALIDATION
+                                (unchanged).
+BadTestExecutionCommandsException cohort: 165 (corrected from 330); exact
+                                per-mutant identities not recoverable without a
+                                rerun (not performed).
+Survivor count:                 369, all exact identities now repository-
+                                resolvable in the durable evidence artifact.
+Compatibility shim:            INSTALLED (unchanged).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged, NOT marked PASS).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** bounded Review A re-validation of the durable baseline evidence artifact, followed by independent validation of `P3-PY-MUT-BASELINE-B-MAJ-01`'s remediation.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-001.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.307"` → `"10.308"`.
 
 ## Decision Log
 
