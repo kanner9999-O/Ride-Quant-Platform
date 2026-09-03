@@ -2,6 +2,65 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — feature-engine: mutation compatibility shim INSTALLED (Testing Convention v0.16)
+
+**Implementation transaction — vai trò: `Feature Engine Mutation Compatibility Shim Implementation Executor`.** Implements the already-approved, FEATURE-ENGINE-ONLY mutmut 3.7.0 compatibility shim exactly per Testing Convention v0.16's approved design, fixing `P3-PY-MUT-BASELINE-B-MAJ-01` (`MUTMUT_3_7_INTERNAL_DEFECT`). No redesign; no baseline rerun; `P3-PY-MUT-BASELINE-B-MAJ-01` not closed.
+
+### Implementation
+
+```text
+New: python/feature-engine/tooling/ (__init__.py, __main__.py,
+  ride_mutmut_shim.py, tests/__init__.py, tests/test_ride_mutmut_shim.py) --
+  outside src/feature_engine and outside [tool.mutmut] source_paths, never itself a
+  mutation subject. ride_mutmut_shim.py implements exactly the approved design: a
+  pinned, call-site-authenticated (Python code-object identity) subclass of
+  mutmut's own MutmutProgrammaticFailException rebound into mutmut.mutation.
+  trampoline's namespace, plus a patched PytestRunner.execute_pytest that accepts
+  pytest exit code 4 as a successful forced-fail verification ONLY when the
+  genuine trampoline code object authenticated the sentinel's construction during
+  that exact invocation -- every other case, including direct/spoofed construction,
+  remains fatal exactly as unmodified mutmut. `python -m tooling <args>` installs
+  the shim then delegates to mutmut's own real CLI unchanged. No mutmut file
+  modified, forked, or redistributed. No file inside src/feature_engine, tests/,
+  pyproject.toml, or requirements-dev.lock.txt touched.
+```
+
+### Validation
+
+```text
+pytest tooling/tests/ -v -> 5 passed (pin resolution against the real installed
+  mutmut package; genuine trampoline path authenticated and accepted; direct/spoof
+  construction rejected; uninstall restores stock bindings; normal pytest exit
+  codes pass through unaffected). pytest tests/ -q (full governed Feature Engine
+  suite) -> 193 passed, unchanged. ruff check src tests tooling -> all checks
+  passed. python -m tooling --version -> confirms the entrypoint correctly
+  delegates to mutmut's own real, unmodified CLI (version 3.7.0) without executing
+  `run` -- no mutation baseline executed in this transaction.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_OPTIONAL — ADR NOT AUTHORED, consistent with Testing Convention v0.16's own
+  design-time classification, independently re-confirmed against the actual files
+  added: FEATURE-ENGINE-ONLY, no contract/dependency-graph change, reversible, no
+  cross-module authority.
+```
+
+### State after installation
+
+```text
+Compatibility remediation: INSTALLED (was APPROVED BUT NOT YET INSTALLED). mutmut
+  3.7.0: INSTALLED + PINNED, unchanged. P3-PY-MUT-BASELINE-B-MAJ-01: OPEN --
+  installing the shim does not itself close this finding. Mutation baseline: NOT
+  RERUN (second baseline attempt remains historical only). TEST_EFFECTIVENESS_
+  THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03:
+  FAIL — evidence. Formal Feature Chapter 13 QG: FAIL. Feature module: NOT
+  APPROVED. Phase 3 Approval Gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+Next governed step: a fresh NON-GATING mutation-baseline re-attempt for feature-engine using the now-installed compatibility shim, in a separate governed transaction.
+
 ## [Unreleased] — 2026-09-03 — governance: Phase 3 Process Improvement Adoption Design Bounded Correction v0.2
 
 **Bounded correction — vai trò: `Phase 3 Process Improvement Adoption Design v0.2 Bounded Correction Executor`.** Remediates three Review A findings on the adoption-design candidate v0.1. Does not activate governance. `design_version: "0.1" -> "0.2"`, state remains `ADOPTION DESIGN CANDIDATE / NOT EFFECTIVE`.

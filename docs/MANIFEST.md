@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.305"
+manifest_version: "10.306"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -19336,6 +19336,134 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** bounded Review A re-review of adoption-design v0.2.
 
 **Files changed:** `docs/governance/retrospectives/phase3-process-improvement-001-adoption-design.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.304"` → `"10.305"`.
+
+## `feature-engine` — Mutation Compatibility Shim INSTALLED (Testing Convention v0.16, `FEATURE-ENGINE-ONLY`; compatibility remediation `APPROVED BUT NOT YET INSTALLED` → `INSTALLED`)
+
+**Implementation transaction — vai trò: `Feature Engine Mutation Compatibility Shim Implementation Executor`.** Implements the already-approved, FEATURE-ENGINE-ONLY mutmut 3.7.0 compatibility shim exactly per Testing Convention v0.16's approved design (reviewed semantic boundary `773bd9851fe6aa5023740d07db55b5337c9362d4`), fixing `P3-PY-MUT-BASELINE-B-MAJ-01` (`MUTMUT_3_7_INTERNAL_DEFECT`). Does NOT redesign the mechanism, does NOT run the mutation baseline, does NOT close `P3-PY-MUT-BASELINE-B-MAJ-01`, does NOT establish a threshold, does NOT rerun Feature Chapter 13 QG, does NOT approve Feature Engine. Records the installation fact atomically in this same transaction per `P3-TXN-001`'s default-fold rule — no separate bookkeeping transaction.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `6001c02839d73ce62736177fd668010ca8ac803e` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. Testing Convention independently confirmed `version: "0.16"`, `status: Approved`, `approved_by: Product Owner`, `approved_at: "2026-09-03"`. `P3-PY-MUT-BASELINE-B-MAJ-01` independently confirmed still `OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION APPROVED/INSTALLED` before this transaction. mutmut 3.7.0 confirmed installed/pinned, byte-identical `pyproject.toml`/`requirements-dev.lock.txt`.
+
+### Implementation — exact match to the approved v0.16 design, no semantic deviation
+
+```text
+New files, python/feature-engine/tooling/ (FEATURE-ENGINE-ONLY; not part of the
+  feature_engine package distribution — outside [tool.setuptools.packages.find]
+  where=["src"] and outside [tool.mutmut] source_paths=["src/feature_engine"], so
+  never itself a mutation-testing subject):
+  __init__.py                    — package marker, scope note.
+  ride_mutmut_shim.py (blob 9f9dbcc71f013f4dc691e1b8db29eca05ef9a3c8) — the shim
+    itself, implementing the approved design exactly: (1) resolve_pinned_trampoline_
+    code_object() derives and pins mutmut's own nested trampoline code object
+    (wrap_in_trampoline -> mutmut_mutated -> trampoline) at import time, matched by
+    BOTH co_name=="trampoline" AND co_filename ending in mutation/trampoline.py —
+    fail-closed to None if unresolvable; (2) StructuralForcedFailSentinel, a
+    subclass of mutmut's own MutmutProgrammaticFailException, authenticates its
+    immediate caller frame by CODE-OBJECT IDENTITY (sys._getframe(1).f_code is
+    _PINNED_TRAMPOLINE_CODE) — never by text/name/filename matching; (3)
+    install_shim()/uninstall_shim() rebind mutmut.mutation.trampoline's own
+    MutmutProgrammaticFailException name and monkeypatch PytestRunner.
+    execute_pytest; (4) _patched_execute_pytest treats pytest exit code 4 as a
+    successful forced-fail verification ONLY when MUTANT_UNDER_TEST=="fail" AND the
+    marker fired during that exact invocation — every other case raises
+    BadTestExecutionCommandsException exactly as unmodified mutmut 3.7.0; (5)
+    main()/`if __name__ == "__main__"` installs the shim then invokes mutmut's own
+    real, unmodified CLI (`from mutmut.__main__ import cli; cli()`).
+  __main__.py                    — `python -m tooling <args>` entrypoint, delegating
+    to ride_mutmut_shim.main().
+  tests/__init__.py, tests/test_ride_mutmut_shim.py (blob
+    0647e73ebf682fb2734004e95286e79a24b1ee43) — dedicated shim test suite,
+    deliberately OUTSIDE tests/ (not part of the governed Feature Engine mutation-
+    testing suite; run via `pytest tooling/tests/` directly).
+No file inside src/feature_engine, the existing tests/ directory, pyproject.toml, or
+  requirements-dev.lock.txt was modified — the shim wraps the officially installed,
+  unmodified mutmut 3.7.0 PyPI wheel via runtime monkeypatching only, exactly as
+  designed; no mutmut file is edited, forked, or redistributed.
+```
+
+### Validation performed (this transaction, governed clean-room venv, mutmut 3.7.0 / pytest 9.1.1)
+
+```text
+1. `pytest tooling/tests/ -v` -> 5 passed:
+   - test_pin_resolves_against_installed_mutmut: the exact trampoline code object
+     resolves against the real installed mutmut package (co_name="trampoline",
+     co_filename ends in mutation/trampoline.py).
+   - test_genuine_trampoline_path_is_authenticated: calling mutmut's OWN REAL
+     wrap_in_trampoline-wrapped function with MUTANT_UNDER_TEST="fail" raises
+     StructuralForcedFailSentinel AND sets the marker True — the genuine mutmut
+     trampoline path is correctly accepted.
+   - test_direct_spoof_construction_is_rejected: constructing the rebound sentinel
+     directly from test code (never through the real trampoline), even with
+     MUTANT_UNDER_TEST="fail" active, leaves the marker False — spoofed/direct
+     construction is correctly rejected.
+   - test_uninstall_restores_stock_mutmut_bindings: uninstall_shim() restores
+     mutmut's own original exception binding and execute_pytest method exactly.
+   - test_normal_pytest_exit_codes_pass_through_unaffected: a normal passing suite
+     (exit code 0) passes through the patched execute_pytest unmodified.
+2. `pytest tests/ -q` (the full governed Feature Engine suite) -> 193 passed,
+   unchanged from before this transaction — no unrelated Feature Engine behavior
+   changed.
+3. `ruff check src tests tooling` -> All checks passed.
+4. `python -m tooling --version` -> "python -m tooling, version 3.7.0" (confirms the
+   entrypoint correctly installs the shim then delegates to mutmut's own real,
+   unmodified CLI). `python -m tooling --help` -> shows mutmut's own exact command
+   set (run/results/apply/browse/show/export-cicd-stats/tests-for-mutant/print-time-
+   estimates) — confirmed wiring is correct WITHOUT executing `run` (no mutation
+   baseline executed in this transaction, per instruction).
+5. Changed-file scope verified exactly: only python/feature-engine/tooling/ (new)
+   plus docs/MANIFEST.md/docs/CHANGELOG.md — confirmed via `git status
+   --porcelain=v1` and `git diff --quiet` on src/, tests/, pyproject.toml,
+   requirements-dev.lock.txt, docs/engineering/testing.md, Constitution, ADRs,
+   execution-rules.md, phase-3-rules.md, module-registry.yaml (all byte-identical).
+```
+
+### ADR Scope Rule (re-run fresh against the actual implementation delta)
+
+```text
+Result: ADR_OPTIONAL — ADR NOT AUTHORED (consistent with Testing Convention v0.16's
+  own design-time classification; independently re-confirmed against the concrete
+  files actually added). Materially significant internal testing-tool behavior
+  change; affects python/feature-engine exclusively (FEATURE-ENGINE-ONLY, confirmed
+  — the new tooling/ directory is not imported by, referenced by, or affects any
+  other module); no production/event/API/domain contract change; no dependency-
+  graph/invariant/governance-process change (pyproject.toml/lock file untouched, no
+  new dependency); reversible (uninstall_shim() restores stock mutmut exactly; the
+  wrapper can be deleted entirely to fully revert); no cross-module authority. This
+  implementation introduces no new architecture/contract/module-taxonomy change
+  beyond what v0.16's own design already classified — the actual code added matches
+  the approved design with no semantic deviation, so the design-time ADR disposition
+  carries forward unchanged upon independent re-check at this installation boundary.
+```
+
+### State after this installation
+
+```text
+Compatibility remediation:      INSTALLED (was: APPROVED BUT NOT YET INSTALLED).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged, byte-identical
+                                pyproject.toml/requirements-dev.lock.txt).
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN — installing the shim does NOT itself close
+                                this finding; closure requires a successful,
+                                complete NON-GATING mutation baseline re-attempt
+                                using the installed shim, reviewed on its own
+                                merits, in a separate future transaction.
+Mutation baseline:              NOT RERUN in this transaction (installation and
+                                baseline measurement are separate lifecycle facts,
+                                per this task's own explicit instruction). Second
+                                baseline attempt (1531-mutant not_checked snapshot,
+                                SHA-256 ba300bd5739122fa17d6bcf36901453817c611c5f167c7e4a72d0d2891de8c81)
+                                remains historical only, unchanged.
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED
+                                (unchanged — no baseline measured yet with the
+                                installed shim).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** a fresh NON-GATING mutation-baseline re-attempt for feature-engine using the now-installed compatibility shim (`python -m tooling run`, from `python/feature-engine/`), in a separate governed transaction.
+
+**Files changed:** `python/feature-engine/tooling/__init__.py`, `python/feature-engine/tooling/__main__.py`, `python/feature-engine/tooling/ride_mutmut_shim.py`, `python/feature-engine/tooling/tests/__init__.py`, `python/feature-engine/tooling/tests/test_ride_mutmut_shim.py` (all new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`, `python/feature-engine/tests/**`, `pyproject.toml`, `requirements-dev.lock.txt`, `docs/engineering/testing.md`, Constitution, ADRs, `execution-rules.md`, `phase-3-rules.md`, `module-registry.yaml` all verified byte-unchanged. `manifest_version` `"10.305"` → `"10.306"`.
 
 ## Decision Log
 
