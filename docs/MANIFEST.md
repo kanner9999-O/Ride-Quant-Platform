@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.301"
+manifest_version: "10.302"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -18794,6 +18794,132 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** independent architectural/governance review of whether and how to adopt this proposal. Not performed here.
 
 **Files changed:** `docs/governance/retrospectives/phase3-process-improvement-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.300"` → `"10.301"`.
+
+## Phase 3 Process Improvement Proposal #001 — Bounded Correction v0.2 (`PROPOSAL / NOT YET EFFECTIVE`, unchanged; `P3-PI-A-MAJ-01`/`-MAJ-02`/`-MIN-01` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`)
+
+**Bounded correction — vai trò: `Phase 3 Process Improvement Proposal v0.2 Bounded Correction Executor`.** Remediates three Review A findings on `docs/governance/retrospectives/phase3-process-improvement-001.md` v0.1. Does NOT adopt the proposal. `proposal_version: "0.1" → "0.2"`, `proposal_state` VẪN `PROPOSAL / NOT YET EFFECTIVE`, `adopted_by`/`adopted_at` VẪN `null`/`null`.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `04bae40152eba6613dcc8bb998325a239f5def1c` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. `manifest_version` confirmed `"10.301"` at start.
+
+### MAJ-01 — existing-control mapping added (KEEP/TIGHTEN/NEW GAP)
+
+```text
+Mapped every substantive idea in the proposal against already-effective authority
+  directly inspected in docs/governance/execution-rules.md and docs/governance/
+  phases/phase-3-rules.md: risk-proportional review depth -> KEEP (P3-REVIEW-001's
+  own existing four-row table + G-REV-001 already control; "Class A/B/C" reframed as
+  non-authoritative shorthand for that table, not a new taxonomy). Bookkeeping
+  fail-closed/no-self-close -> KEEP (G-TXN-003/004 + P3-VERIFY-001 + P3-REVIEW-001's
+  own "route to governed remediation on evidence conflict" clause + P3-TXN-001
+  already cover this). Stop correction churn -> KEEP for the reactive circuit-breaker
+  (G-REV-004 + P3-CORRECTION-CHAIN-001), NEW GAP only for one narrow, advisory
+  preventive practice (probe for foreseeable adjacent findings within an
+  already-authorized bounded scope before round 1 closes). Automated deterministic
+  checks -> NEW GAP, narrowly scoped (underlying manual requirement already exists
+  per P3-VERIFY-001/P3-IDENTITY-001/G-ID-001/002; the gap is absence of TOOLING, not
+  absence of a rule). MANIFEST-scope reduction -> KEEP (Global G-ID-003 already
+  states this exact target verbatim; reframed from "proposal" to "observation" about
+  applying an already-effective rule more consistently). Non-negotiable-controls list
+  -> KEEP, cross-referenced to Chapter 11 §11.5, ADR-031, Chapter 12, P3-IDENTITY-001.
+Explicit statements added: existing governance taxonomy/rules control on any
+  conflict; classification is based on actual semantic delta, never on a
+  transaction's self-declared label; a "bounded remediation" that in substance
+  changes architecture/authority/contract/security/QG-mechanism semantics cannot be
+  downgraded merely because of that label — full Review A/B remains required
+  wherever P3-REVIEW-001 or higher authority actually requires it.
+```
+
+### MAJ-02 — approval-evidence automation corrected
+
+```text
+Removed the hard-coded universal requirement "Review A CLEAN + Independent Review B
+  CLEAN" from the automation criteria. Replaced with: (a) required eligible
+  independent reviews for the transaction's actual classification exist; (b) exact
+  reviewed boundary matches across all cited dispositions; (c) reviewer identity/
+  independence resolves per P3-IDENTITY-001 + ADR-031 Mode A/B; (d) the ACTUAL
+  recorded dispositions (not an assumed "CLEAN" string) permit progression under
+  whatever standard actually applies; (e) unresolved findings are surfaced exactly,
+  never summarized away; (f) any accepted-non-blocking residual requires EXPLICIT
+  Product Owner treatment, never silent automation waiver.
+Explicit statement added, citing existing authority (not inventing new): "zero Minor
+  findings / CLEAN is NOT a universal approval prerequisite unless applicable higher
+  authority explicitly requires it" — cites execution-rules.md's own existing
+  NON-NORMATIVE INTERPRETATION point 6 verbatim in substance. Automation MUST NEVER
+  auto-accept a residual finding on the Product Owner's behalf.
+```
+
+### MIN-01 — motivation sequence corrected
+
+```text
+Corrected: the compatibility-candidate correction chain had TWO bounded semantic-
+  correction rounds (v0.14, v0.15), not three as v0.1 stated — v0.16 was a SEPARATE,
+  purely mechanical date-fidelity correction (two incorrect date literals), not a
+  third semantic round. Added an explicit distinction: the review-evidence-recording
+  and Product-Owner-approval-recording transactions were LEGITIMATELY required to be
+  separate (their own cited content did not exist yet when the prior transaction ran
+  — chronology-driven, exactly what P3-TXN-001 already permits), whereas the
+  two-round v0.14/v0.15 sequence on the same detection-mechanism design is offered as
+  the concrete motivating case for §4's narrow advisory observation (well under
+  P3-CORRECTION-CHAIN-001's three-round trigger — no existing rule was shown
+  insufficient).
+```
+
+### Finding states after this correction
+
+```text
+P3-PI-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PI-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PI-A-MIN-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+Neither self-closed.
+```
+
+### ADR Scope Rule (re-run fresh for this correction)
+
+```text
+Result: ADR_NOT_REQUIRED — bounded correction of a non-effective proposal only;
+  narrows/clarifies the document's own non-effective prose, does not expand its
+  effect on current governance in any way. Does not amend Constitution/ADR/Testing
+  Convention/execution-rules/phase-3-rules/QG semantics/module-registry.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/retrospectives/phase3-process-improvement-001.md (blob
+  176a6381b10319cfe729203ea297e0938ae02ed9), docs/MANIFEST.md, docs/CHANGELOG.md
+  changed (confirmed via `git status --porcelain=v1`). Constitution (all chapters),
+  every ADR, docs/engineering/testing.md, docs/governance/execution-rules.md,
+  docs/governance/phases/phase-3-rules.md, module-registry.yaml, all implementation/
+  test/CI files: all verified byte-identical (`git diff --quiet` for each path). No
+  shim installed. No mutation baseline rerun. Feature Engine Chapter 13 QG state,
+  approval state, and LIVE authorization state all unchanged. Proposal NOT adopted.
+```
+
+### State summary
+
+```text
+Proposal artifact:              docs/governance/retrospectives/
+                                phase3-process-improvement-001.md v0.2, blob
+                                176a6381b10319cfe729203ea297e0938ae02ed9.
+Proposal state:                 PROPOSAL / NOT YET EFFECTIVE (unchanged; adopted_by/
+                                adopted_at still null/null).
+P3-PI-A-MAJ-01/-MAJ-02/-MIN-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-RETRO-001:                   still outstanding, unaffected.
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Compatibility shim:            NOT YET INSTALLED (unchanged).
+P3-PY-MUT-BASELINE-B-MAJ-01:   OPEN — BLOCKED UNTIL COMPATIBILITY REMEDIATION
+                                APPROVED/INSTALLED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** bounded Review A re-review of v0.2.
+
+**Files changed:** `docs/governance/retrospectives/phase3-process-improvement-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.301"` → `"10.302"`.
 
 ## Decision Log
 

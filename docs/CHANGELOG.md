@@ -2,6 +2,58 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-03 — governance: Phase 3 Process Improvement Proposal #001 v0.2 Bounded Correction
+
+**Bounded correction — vai trò: `Phase 3 Process Improvement Proposal v0.2 Bounded Correction Executor`.** Remediates three Review A findings on `phase3-process-improvement-001.md` v0.1. Does not adopt the proposal. `proposal_version: "0.1" -> "0.2"`, state remains `PROPOSAL / NOT YET EFFECTIVE`, `adopted_by`/`adopted_at` remain null/null.
+
+### Corrections
+
+```text
+P3-PI-A-MAJ-01: added an explicit KEEP/TIGHTEN/NEW-GAP mapping of every proposal idea
+  against already-effective Global (G-REV-001/002/003/004, G-TXN-003/004,
+  G-ID-001/002/003) and Phase-3 (P3-REVIEW-001, P3-TXN-001, P3-VERIFY-001,
+  P3-IDENTITY-001, P3-BUDGET-001, P3-CORRECTION-CHAIN-001) authority. Most ideas
+  mapped to KEEP (already fully covered); reframed "Class A/B/C" as non-authoritative
+  shorthand for P3-REVIEW-001's own existing table, with an explicit statement that
+  actual semantic delta controls over any self-declared transaction label.
+P3-PI-A-MAJ-02: removed the hard-coded "Review A CLEAN + Independent Review B CLEAN"
+  universal approval-progression requirement; replaced with eligible-review-
+  existence, boundary-match, identity/independence, actual-disposition, unresolved-
+  finding-surfacing, and explicit-Product-Owner-residual-treatment criteria. Added
+  "zero Minor/CLEAN is not a universal prerequisite unless higher authority requires
+  it," citing execution-rules.md's own existing interpretation. Automation must never
+  auto-accept a residual.
+P3-PI-A-MIN-01: corrected the motivating sequence -- two semantic-correction rounds
+  (v0.14, v0.15), not three; v0.16 was a separate mechanical date-fidelity
+  correction. Distinguished chronology-driven legitimate transaction separation from
+  the one candidate avoidable-churn pattern.
+```
+
+### Finding states
+
+```text
+P3-PI-A-MAJ-01/-MAJ-02/-MIN-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+  Neither self-closed.
+```
+
+### ADR Scope Rule
+
+```text
+ADR_NOT_REQUIRED -- bounded correction of a non-effective proposal, narrows/clarifies
+  its own prose, does not expand its effect on current governance.
+```
+
+### Preserved unchanged
+
+```text
+Proposal state: PROPOSAL / NOT YET EFFECTIVE. Constitution, all ADRs, testing.md,
+  execution-rules.md, phase-3-rules.md, module-registry.yaml, all implementation/
+  test/CI files verified byte-identical. No shim installed; no baseline rerun;
+  Feature QG/approval/LIVE state unchanged; proposal not adopted.
+```
+
+Next governed step: bounded Review A re-review of v0.2.
+
 ## [Unreleased] — 2026-09-03 — governance: Phase 3 Process Improvement Proposal #001 (`PROPOSAL / NOT YET EFFECTIVE`)
 
 **New governance/process-improvement proposal — vai trò: `Phase 3 Process Improvement Proposal Author`.** Adds `docs/governance/retrospectives/phase3-process-improvement-001.md`, capturing workflow lessons from the Feature Engine mutation-testing mechanism / compatibility-candidate review cycle (Testing Convention v0.8-v0.16). State: `PROPOSAL / NOT YET EFFECTIVE`. Does not change any current governance rule, review requirement, approval authority, or Quality Gate.
