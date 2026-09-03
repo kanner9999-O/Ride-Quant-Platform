@@ -1,7 +1,7 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.13"
+version: "0.14"
 status: Draft
 owner: Product Owner
 reviewers: []
@@ -14,6 +14,236 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**v0.14 CANDIDATE BOUNDED CORRECTION (2026-09-04), KHÔNG self-approved — status: Draft → Draft.** `version: "0.13" → "0.14"`, `status` VẪN `Draft`, `approved_by`/`approved_at` VẪN `null`/`null`. vai trò: `Python Mutation Compatibility Candidate Bounded Correction Executor`. Bounded correction of BOTH Review A findings on the v0.13 candidate — `P3-PY-MUT-COMPAT-A-MAJ-01` (spoofable textual sentinel detection) and `P3-PY-MUT-COMPAT-A-MAJ-02` (unresolved ADR scope). Does NOT implement the shim. v0.12 Approved and v0.13 Draft history preserved unedited below as historical evidence, annotated (not rewritten) where superseded.
+
+**Review A dispositions being remediated (mechanically recorded, not this executor's own authority):**
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: Option B's forced-fail-success detection relied on matching
+  the TEXTUAL substring "mutmut.__main__.MutmutProgrammaticFailException" in captured
+  pytest stdout/stderr. Review A proved this is spoofable: any genuinely-invalid pytest
+  argument whose own error text happens to contain that substring (e.g. an unrecognized
+  CLI flag literally embedding the class name) would ALSO produce exit code 4 with that
+  substring present in output, and the v0.13 shim would have incorrectly classified it
+  as a successful forced-fail verification -- a false positive that could mask a genuine
+  usage error as if it were proof of mutation sensitivity.
+P3-PY-MUT-COMPAT-A-MAJ-02: v0.13 deferred the real ADR classification to a future
+  installation transaction without committing to an exact scope, leaving semantic scope
+  (module-local vs. cross-module/global) unresolved in a way that is not sufficient for
+  a candidate document.
+```
+
+### MAJ-01 correction — structural, non-textual sentinel proof
+
+```text
+Redesigned Option B's detection mechanism entirely. The NEW mechanism uses
+  invocation-local STRUCTURAL runtime evidence instead of any text inspection:
+
+  1. mutmut's own MutmutProgrammaticFailException (mutmut/__main__.py:172) remains the
+     authoritative exception type -- never redefined, never replaced outright.
+  2. A Ride-owned SUBCLASS of it is defined
+     (`_StructuralForcedFailSentinel(MutmutProgrammaticFailException)`). Subclassing
+     (not replacing) guarantees mutmut's own pre-existing
+     `except MutmutProgrammaticFailException: pass` handler
+     (mutmut/__main__.py:679, inside run_forced_fail_test) continues to catch it
+     correctly via isinstance, completely unchanged, in the (currently unreached, but
+     structurally possible) case where the exception ever propagates directly rather
+     than being converted to a pytest exit code.
+  3. The name `MutmutProgrammaticFailException` is rebound, ONLY inside
+     mutmut.mutation.trampoline's OWN module namespace, to point at this subclass.
+     Because `raise MutmutProgrammaticFailException(...)` inside trampoline.py's
+     `trampoline()` function (mutmut/mutation/trampoline.py:56) resolves that name via
+     Python's normal global-lookup rule against ITS OWN module `__dict__` at call time,
+     every future invocation of the real trampoline code, after this rebind, actually
+     constructs the Ride-owned subclass -- not merely something that LOOKS like it in
+     printed text.
+  4. The subclass's own `__init__` sets an invocation-local marker (a plain dict flag,
+     reset to False immediately before AND unconditionally after each individual
+     `pytest.main()` call inside `execute_pytest`) to True. This marker can ONLY become
+     True via the subclass actually being constructed -- i.e., via the REAL trampoline
+     code genuinely firing during THIS specific pytest invocation. No amount of printed
+     text, log output, or a plugin merely mentioning the class name can set it.
+  5. After pytest.main() returns exit code 4, forced-fail is classified SUCCESSFUL only
+     when MUTANT_UNDER_TEST=="fail" AND the marker is True for that exact invocation.
+     Every other exit-code-4 -- including one whose own text happens to contain the
+     sentinel's fully-qualified name -- is fatal (BadTestExecutionCommandsException),
+     byte-for-byte identical to unmodified upstream mutmut 3.7.0.
+  6. The marker is unconditionally reset both before and after every invocation (inside
+     a `try/finally`), so it can never leak state across separate pytest.main() calls.
+Confirmed via direct package inspection: mutmut's own installed package contains
+  EXACTLY one raise site (trampoline.py:56) and exactly one catch site
+  (__main__.py:679) for this exception class -- a single, clean interception point, no
+  other code path is affected by the rebind.
+```
+
+### Required scratch proofs for MAJ-01 — all 10 performed, ALL PASS
+
+```text
+Environment: fresh isolated `git worktree add --detach <scratch>
+  89b27c12a5edce2dbb13be4bd07d4fcc3c14fb61`, same governed clean-room venv, tracked
+  repository never modified (confirmed via `git status`/`git diff --quiet` after
+  `git worktree remove --force`).
+
+ 1. Ordinary suite: `pytest tests/ -q` equivalent (via runner.run_tests) -> 193 passed.
+    PASS.
+ 2. Generation/stats/clean-tests phase unaffected: 1531 mutants generated (14 files,
+    identical population to prior attempts); clean-tests exit code 0 (193 passed).
+    PASS.
+ 3. Real current conftest forced-fail path succeeds: run_forced_fail_test(runner)
+    completed WITHOUT raising -- captured proof: "[ride-shim] pytest exit 4
+    structurally proven to be caused by mutmut's own forced-fail sentinel (the real
+    trampoline code constructed _StructuralForcedFailSentinel during this exact
+    invocation) -- treating as a SUCCESSFUL forced-fail verification." PASS.
+ 4. Genuinely-invalid pytest arg (unrelated text), MUTANT_UNDER_TEST unset: correctly
+    raised BadTestExecutionCommandsException. PASS.
+ 5. **THE SPOOF COUNTEREXAMPLE, run from an isolated temp cwd with no
+    pyproject.toml/tests/conftest.py of its own (so the ONLY possible source of exit
+    code 4 is the deliberately-bad CLI flag itself, eliminating the confound of
+    pytest's own rootdir/testpaths-based conftest auto-discovery genuinely
+    re-triggering the real trampoline)**: invalid pytest arg
+    `--totally-bogus-mutmut.__main__.MutmutProgrammaticFailException-option`
+    (embedding the exact sentinel FQCN in its own text), with MUTANT_UNDER_TEST="fail":
+    correctly raised BadTestExecutionCommandsException. Marker confirmed False both
+    during and after this call -- the structural mechanism was never fooled by the
+    textual substring, unlike the v0.13 design, which would have returned success here.
+    PASS.
+ 6. Arbitrary unrelated test printing the exact sentinel string to stdout, then failing
+    on an ordinary, unrelated assertion (exit code 1, not 4), run from an isolated temp
+    cwd, with MUTANT_UNDER_TEST="fail" active: execute_pytest correctly returned 1,
+    unmodified -- the printed string never entered the classification logic at all
+    (gated on exit_code==4, never reached), and the marker remained False throughout.
+    PASS.
+ 7. Exit-4 during the forced-fail phase (MUTANT_UNDER_TEST="fail") from a second,
+    unrelated invalid CLI flag, again in an isolated temp cwd, with the structural
+    marker never set: correctly raised BadTestExecutionCommandsException. PASS.
+ 8. Structural marker confirmed invocation-local and reset between calls: explicitly
+    verified False immediately after item 3 (the one genuine success), and False again
+    after each of items 5, 6, 7 (all negative controls) -- never observed to persist
+    True across any two consecutive pytest.main() invocations. PASS.
+ 9. No Feature production/test behavior modified: the shim exclusively rebinds a name
+    inside mutmut's own trampoline module namespace and monkeypatches mutmut's own
+    PytestRunner class; zero feature_engine module read for modification. PASS.
+10. No real mutant dispatched: `mutmut run` itself was never invoked; only mutmut's own
+    internal functions were called directly, stopping immediately after
+    run_forced_fail_test's own outcome was captured -- Phase 5 (the child-process
+    mutant-dispatch loop) was never reached. PASS.
+
+ALL 10 ITEMS: PASS. Explicit proof the v0.13 textual-spoof counterexample now fails
+  closed: item 5 above is that exact counterexample (an invalid pytest argument whose
+  own text contains the sentinel's fully-qualified class name), and it correctly raises
+  BadTestExecutionCommandsException under the v0.14 structural design -- the false
+  positive Review A identified in v0.13 does NOT reproduce here.
+```
+
+### MAJ-02 correction — exact ADR scope resolved: FEATURE-ENGINE-ONLY
+
+```text
+Selected scope: FEATURE-ENGINE-ONLY (not GLOBAL).
+
+Explicit statements (per this task's own required contract for this branch):
+  - The wrapper, if ever installed, applies ONLY to python/feature-engine's own
+    mutmut invocation. It is not a repository-wide, shared, or default mutation-testing
+    entrypoint.
+  - No other module (present or future) may reuse this wrapper by default. There is
+    currently exactly one Python module in this repository using mutmut
+    (python/feature-engine); no other module's tooling is affected, referenced, or
+    assumed by this candidate.
+  - Any later cross-module adoption of this same compatibility mechanism (e.g. if a
+    second Python module were ever added and also chose mutmut) requires a SEPARATE,
+    freshly-governed decision -- including its own fresh ADR Scope Rule run at that
+    future boundary -- and is NOT authorized, implied, or pre-approved by this
+    candidate in any way.
+  - All v0.13 wording that could be read as implying cross-module/global invocation
+    authority (e.g. "governed mutation-testing transactions would invoke this wrapper")
+    is corrected via superseding annotations in place, above -- historical text
+    preserved unedited, not rewritten, with the FEATURE-ENGINE-ONLY scope now stated as
+    the current, authoritative truth.
+
+ADR Scope Rule run FRESH against this genuinely module-local scope (Chapter 0 §4b),
+  reasoning stated in full, NOT relying on "nothing installed yet" as the primary basis:
+
+  Result: ADR_NOT_REQUIRED.
+  Reasoning:
+    (a) Module-count criterion: Chapter 0 §4b's cross-module trigger ("affects >1
+        module") is not met -- scope is explicitly, contractually restricted to
+        python/feature-engine, the SAME single module mutmut is already installed
+        in and already governed for. No other module's build, test, or CI
+        configuration is touched, referenced, or affected.
+    (b) Existing carve-out: Chapter 3 §3.2's already-established, explicitly-cited
+        carve-out for Testing Convention tooling decisions (the SAME carve-out
+        already relied upon for gobco, coverage.py, and mutmut's own original
+        selection in this document) extends naturally to a narrowly-scoped
+        compatibility mechanism for an ALREADY-approved tool within that same
+        carve-out's own domain -- this is not a new category of governance escape,
+        it is the same carve-out applied to a compatibility concern of a mechanism
+        that carve-out already covers.
+    (c) Reversibility/blast radius: the mechanism is explicitly non-gating (does not
+        affect Feature QG pass/fail today), touches zero production code, is
+        removable via a documented single-step rule (delete the wrapper import) the
+        moment an official upstream fix ships, and does not introduce any new
+        persistent, cross-cutting platform capability -- it compensates for one
+        precisely-diagnosed, narrowly-scoped third-party tool defect.
+    (d) Vendor/lock-in: does not change or newly lock in a tool/vendor choice --
+        mutmut==3.7.0 remains the exact approved mechanism; this proposal concerns
+        HOW that already-approved tool is invoked within its own already-governed
+        module, not WHICH tool is approved.
+  This reasoning is the primary basis -- "nothing installed yet" is noted only as a
+  secondary, confirmatory fact (this transaction still authors a Draft, not an
+  installation), not as the reasoning's foundation.
+  Explicit, deliberate non-inheritance flag preserved from v0.13, restated precisely:
+  this ADR_NOT_REQUIRED result is SPECIFIC to (i) the FEATURE-ENGINE-ONLY scope just
+  fixed, AND (ii) this transaction's own act of authoring a Draft candidate. A future
+  installation transaction, OR any future proposal to extend this mechanism beyond
+  feature-engine, MUST independently re-run the ADR Scope Rule at its own boundary
+  against its own actual scope at that time.
+```
+
+### Revised candidate comparison (Options A/B/C re-evaluated after the MAJ-01 structural correction; not assumed unchanged)
+
+```text
+Option A (Ride-side test compatibility workaround): unchanged from v0.13's own
+  evaluation -- 122-reference-site blast radius across 4 test files, real
+  behavior-change risk, does not correct an actual Ride defect. Still REJECTED as
+  preferred; still confirmed viable as a fallback.
+Option B (Ride-owned mutmut 3.7.0 compatibility shim, structural design): REMAINS
+  SELECTED, re-justified on NEW grounds. The v0.13 design's preference for B was based
+  in part on an inadequately-justified "false-positive risk: NONE" claim (a spoofable
+  textual match); that specific justification is now WITHDRAWN and REPLACED with the
+  actual structural proof captured above (10/10 scratch items, including the exact
+  spoof counterexample now failing closed). B remains preferred for the SAME structural
+  reasons as v0.13 (zero test-file blast radius, zero production impact, zero package-
+  fork/upstream-divergence burden, trivial removal path) PLUS the new evidence that its
+  detection mechanism is now non-spoofable by construction -- not merely by unproven
+  assertion. B is not chosen by LOC count (the structural redesign is not meaningfully
+  smaller or larger than the v0.13 design) but because it is the only option combining
+  a precise defect fix, zero test/production footprint, and a scratch-proven,
+  structurally non-spoofable safety property.
+Option C (pinned patched/forked mutmut artifact): unchanged conclusion -- VIABLE IN
+  PRINCIPLE (same upstream base tag 3.7.0 @ 4f1208093517575a9402b99cfdcc7dea54c40e67;
+  the SAME structural fix -- gating trampoline()'s raise on PYTEST_CURRENT_TEST, or
+  patching execute_pytest equivalently to Option B's now-corrected logic -- could
+  equally be applied as a permanent upstream-style patch). Still DEFERRED: permanent
+  fork-maintenance/upstream-divergence burden for no benefit over B, since B achieves
+  the identical corrected behavior without owning a package fork.
+Option D (disable/bypass forced-fail verification): unchanged -- still REJECTED
+  outright, no equivalent safety proof exists or was sought.
+Option E (upgrade to a released fixed version): RECHECKED live against PyPI this
+  transaction (`pip index versions mutmut`): latest published release is STILL exactly
+  `3.7.0` (identical full version list to the prior check, 3.7.0 down to 0.0.1 -- no
+  newer release). Classification, reconfirmed: NOT CURRENTLY AVAILABLE.
+```
+
+**Finding states after this correction:**
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-COMPAT-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+```
+
+Neither self-closed. Preserved, unchanged: `P3-PY-MUT-BASELINE-B-MAJ-01: ROOT CAUSE VALIDATED — REMEDIATION CANDIDATE AUTHORED / BLOCKED UNTIL COMPATIBILITY REMEDIATION IS APPROVED` (not closed by this correction). `P3-PY-MUT-BASELINE-B-A-MIN-01` remains `CLOSED`.
+
+**KHÔNG đổi bởi transaction này:** mutmut 3.7.0 VẪN the currently installed/pinned implementation, byte-identical; NO compatibility remediation is installed yet; second baseline attempt VẪN `INCOMPLETE — NON-GATING DIAGNOSTIC`, historical only; `TEST_EFFECTIVENESS_THRESHOLD` VẪN `UNRESOLVED — BASELINE/CALIBRATION REQUIRED`; `P3-FEATURE-QG-EVID-03` VẪN `FAIL — evidence`; overall Feature Chapter 13 QG VẪN `FAIL`; Feature module approval VẪN `NOT APPROVED`; Phase 3 Approval Gate VẪN `NOT opened`; LIVE VẪN `NOT_AUTHORIZED`. KHÔNG production source touched. KHÔNG test file touched/committed. KHÔNG wrapper module created. KHÔNG `pyproject.toml`/`requirements-dev.lock.txt`/CI change. KHÔNG ADR file created/approved. KHÔNG real mutation run. KHÔNG mutation score calculated. KHÔNG threshold proposed. Testing Convention v0.14 KHÔNG self-approved, KHÔNG sent to Review B. **Next governed step:** bounded Review A re-review of this v0.14 correction.
 
 **v0.13 CANDIDATE (2026-09-03), KHÔNG self-approved — status: Approved → Draft.** `status: Approved → Draft` (semantic amendment to an Approved document requires version bump + fresh approval gate, [Chapter 0 §5.1](../constitution/00-governance.md); `approved_by`/`approved_at` of v0.12 reset to `null`/`null` for THIS document's own lifecycle fields — v0.12's own approval record is preserved unedited below as immutable historical evidence, NOT overwritten to look pre-approved), vai trò: `Python Mutation Compatibility Remediation Candidate Author`. Authors ONE governed compatibility-remediation **CANDIDATE** (not implemented, not installed) for the validated `P3-PY-MUT-BASELINE-B-MAJ-01` defect blocking the approved `mutmut==3.7.0` mechanism's own forced-fail sanity phase. Approved mechanism identity (`mutmut==3.7.0`) is UNCHANGED — this candidate proposes a narrow compatibility WRAPPER around invocation, not a different tool, not a different version, not a config change to `[tool.mutmut]`.
 
@@ -205,6 +435,8 @@ Scratch cleanup: prototype `mutants/` directory removed, `git worktree remove --
 
 **Comparison matrix (qualitative, all criteria required by this task):**
 
+**[SUPERSEDED — `P3-PY-MUT-COMPAT-A-MAJ-01`. This matrix's own "False-positive mutation-effectiveness risk: NONE" claim for Option B was NOT adequately justified at the time it was written — Option B's v0.13 design relied on matching a TEXTUAL substring in captured stdout/stderr, which Review A proved is spoofable by any genuinely-invalid pytest argument whose own error text happens to contain that substring (e.g. an unrecognized CLI flag literally named after the sentinel class). Preserved unedited as historical record of the v0.13 design's own (overstated) claim. The v0.14 banner above replaces Option B's detection mechanism with a structural, non-textual design and RE-JUSTIFIES the "NONE" classification with actual negative-control proof, including the exact spoof case Review A identified.]**
+
 ```text
 Criterion                          | A (test workaround) | B (Ride shim, SELECTED) | C (patched fork)      | D (disable check)      | E (upgrade)
 Semantic correctness               | Correct if done well | Correct, narrow, precise | Correct if done well  | INCORRECT (weakens gate) | N/A (unavailable)
@@ -238,7 +470,11 @@ Nature: a TOOL-MECHANISM COMPATIBILITY AMENDMENT to the invocation of the alread
   approved mutmut==3.7.0 mechanism -- NOT a test compatibility workaround (Option A),
   NOT a different mechanism, NOT a different pinned version, NOT a [tool.mutmut] config
   change. The approved mechanism identity (mutmut==3.7.0) is unchanged; only HOW it is
-  invoked in governed measurement transactions would change.
+  invoked in governed measurement transactions would change. **[SCOPE CORRECTED —
+  `P3-PY-MUT-COMPAT-A-MAJ-02`, see the v0.14 banner above: "governed measurement
+  transactions" here read as though scope were unresolved/potentially cross-module.
+  Current, authoritative scope is FEATURE-ENGINE-ONLY, fixed in v0.14 — this sentence is
+  preserved unedited as historical record of v0.13's own then-ambiguous wording.]**
 Exact scope: a single, small, Ride-owned Python wrapper module (exact repository path,
   package identity, and content hash to be fixed at INSTALLATION time, a separate,
   future, bounded transaction -- not created in this candidate-authoring transaction),
@@ -246,7 +482,9 @@ Exact scope: a single, small, Ride-owned Python wrapper module (exact repository
   mutmut.__main__.PytestRunner.execute_pytest with the logic proven in scratch above,
   and (c) then invokes mutmut's own real CLI (`from mutmut.__main__ import cli;
   cli()`). Governed mutation-testing transactions would invoke this wrapper instead of
-  the bare `mutmut` command; no other invocation path changes.
+  the bare `mutmut` command; no other invocation path changes. **[SCOPE CORRECTED —
+  see above annotation and the v0.14 banner: this wrapper is FEATURE-ENGINE-ONLY, not a
+  cross-module invocation path.]**
 Exact behavioral contract: for any pytest invocation `execute_pytest()` performs on
   mutmut's behalf, if and only if (exit_code == 4) AND
   (os.environ["MUTANT_UNDER_TEST"] == "fail") AND (the captured combined stdout+stderr

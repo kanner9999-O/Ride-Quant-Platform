@@ -2,6 +2,71 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: Python Mutation Compatibility Candidate Bounded Correction (Testing Convention `v0.13 Draft → v0.14 Draft`)
+
+**Bounded semantic correction — vai trò: `Python Mutation Compatibility Candidate Bounded Correction Executor`.** Corrects both Review A findings on the v0.13 candidate. Does not implement the shim; mutmut 3.7.0 remains installed/pinned unchanged.
+
+### MAJ-01 — structural, non-textual sentinel detection
+
+```text
+Replaced the spoofable textual-substring match with a structural mechanism: a
+  Ride-owned SUBCLASS of mutmut's own MutmutProgrammaticFailException is rebound only
+  inside mutmut.mutation.trampoline's own module namespace (its single raise site), so
+  the real trampoline code constructs the subclass; its __init__ sets an
+  invocation-local marker reset before/after every pytest.main() call. Forced-fail is
+  classified successful ONLY when MUTANT_UNDER_TEST=="fail" AND the marker fired for
+  that exact invocation -- never by inspecting captured text.
+All 10 required scratch proofs performed in an isolated git worktree, ALL PASS,
+  including the exact spoof counterexample Review A identified (an invalid pytest
+  argument embedding the sentinel's fully-qualified class name in its own text):
+  correctly raises BadTestExecutionCommandsException under the new design; the v0.13
+  false positive does not reproduce.
+```
+
+### MAJ-02 — ADR scope resolved: FEATURE-ENGINE-ONLY
+
+```text
+Selected scope: FEATURE-ENGINE-ONLY, not GLOBAL. Wrapper applies only to
+  python/feature-engine; no other module may reuse it by default; cross-module
+  adoption requires a separate governed decision. ADR Scope Rule run fresh against
+  this module-local scope: ADR_NOT_REQUIRED, reasoned primarily from the module-count
+  criterion, the existing Chapter 3 §3.2 Testing Convention tooling carve-out, and the
+  mechanism's non-gating/reversible/no-vendor-lock-in nature -- not from "nothing
+  installed yet."
+```
+
+### Revised comparison
+
+```text
+Option A: unchanged (122-reference blast radius, rejected as preferred). Option B
+  (structural): REMAINS SELECTED, re-justified on new grounds -- the withdrawn v0.13
+  "false-positive risk: NONE" claim is replaced with actual proof. Option C: unchanged,
+  deferred. Option D: unchanged, rejected. Option E: rechecked live against PyPI --
+  still 3.7.0, NOT CURRENTLY AVAILABLE.
+```
+
+### Finding states
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-COMPAT-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+Neither self-closed. P3-PY-MUT-BASELINE-B-MAJ-01 remains open, blocked pending
+  approval of a compatibility remediation.
+```
+
+### Preserved unchanged
+
+```text
+mutmut 3.7.0: INSTALLED + PINNED, no remediation installed. Second baseline attempt:
+  INCOMPLETE — NON-GATING DIAGNOSTIC (historical only). TEST_EFFECTIVENESS_THRESHOLD:
+  UNRESOLVED — BASELINE/CALIBRATION REQUIRED. P3-FEATURE-QG-EVID-03: FAIL — evidence.
+  Formal Feature Chapter 13 QG: FAIL. Feature module: NOT APPROVED. Phase 3 Approval
+  Gate: NOT opened. LIVE: NOT_AUTHORIZED. No production/test/config/dependency/CI file
+  changed; no wrapper module created; no ADR authored; no real mutant dispatched.
+```
+
+Next governed step: bounded Review A re-review of the v0.14 correction.
+
 ## [Unreleased] — 2026-09-03 — feature-engine: Python Mutation Compatibility Remediation Candidate (Testing Convention `v0.12 Approved → v0.13 Draft`)
 
 **Governed candidate-authoring transaction — vai trò: `Python Mutation Compatibility Remediation Candidate Author`.** Authors ONE compatibility-remediation candidate (Testing Convention v0.13 Draft, `approved_by`/`approved_at` null) for the validated `P3-PY-MUT-BASELINE-B-MAJ-01` defect (`MUTMUT_3_7_INTERNAL_DEFECT`). Not implemented; mutmut 3.7.0 remains the installed/pinned mechanism, byte-identical.

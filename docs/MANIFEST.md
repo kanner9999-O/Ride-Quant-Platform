@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.295"
+manifest_version: "10.296"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -18125,6 +18125,154 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** bounded Review A of the v0.13 compatibility-remediation candidate.
 
 **Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.294"` → `"10.295"`.
+
+## `feature-engine` — Python Mutation Compatibility Candidate Bounded Correction (Testing Convention `v0.13 Draft → v0.14 Draft`; `P3-PY-MUT-COMPAT-A-MAJ-01`/`-MAJ-02` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`)
+
+**Bounded semantic correction — vai trò: `Python Mutation Compatibility Candidate Bounded Correction Executor`.** Corrects both Review A findings on the v0.13 compatibility-remediation candidate: `P3-PY-MUT-COMPAT-A-MAJ-01` (spoofable textual sentinel detection) and `P3-PY-MUT-COMPAT-A-MAJ-02` (unresolved ADR scope). Does NOT implement the shim. `P3-PY-MUT-BASELINE-B-MAJ-01` remains open, blocked pending approval of a compatibility remediation.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `89b27c12a5edce2dbb13be4bd07d4fcc3c14fb61` via `git rev-parse HEAD`; `origin/main` confirmed identical after `git fetch origin main --quiet`. `manifest_version` confirmed `"10.295"` at start.
+
+### MAJ-01 — structural, non-textual sentinel proof (replaces spoofable text match)
+
+```text
+New mechanism: mutmut's own MutmutProgrammaticFailException remains authoritative;
+  a Ride-owned SUBCLASS is defined; the name is rebound ONLY inside
+  mutmut.mutation.trampoline's own module namespace, so trampoline.py's own
+  `raise MutmutProgrammaticFailException(...)` (its sole raise site, confirmed via
+  direct package inspection — exactly one raise site, one catch site in the entire
+  installed package) constructs the subclass after rebinding. The subclass's __init__
+  sets an invocation-local marker (reset before AND after every pytest.main() call,
+  inside try/finally) to True — provable ONLY by genuine construction, never by
+  printed/captured text. Forced-fail is classified successful only when
+  MUTANT_UNDER_TEST=="fail" AND the marker is True for that exact invocation; every
+  other exit-code-4 remains fatal, byte-for-byte identical to unmodified mutmut 3.7.0.
+```
+
+### Required scratch proofs (isolated `git worktree`; all 10 performed, ALL PASS)
+
+```text
+1. Ordinary suite: 193 passed. PASS.
+2. Generation/stats/clean-tests unaffected: 1531 mutants generated, clean-tests exit 0
+   (193 passed). PASS.
+3. Real conftest forced-fail path succeeds: run_forced_fail_test completed without
+   raising, structural marker proof captured. PASS.
+4. Genuinely-invalid pytest arg, MUTANT_UNDER_TEST unset: correctly fatal. PASS.
+5. THE SPOOF COUNTEREXAMPLE — invalid arg
+   `--totally-bogus-mutmut.__main__.MutmutProgrammaticFailException-option` (embedding
+   the exact sentinel FQCN), MUTANT_UNDER_TEST="fail", run from an isolated temp cwd
+   (eliminating the confound of pytest's own rootdir/testpaths-based conftest
+   auto-discovery genuinely re-triggering the real trampoline): correctly raised
+   BadTestExecutionCommandsException, marker confirmed False. PASS — the v0.13 false
+   positive does NOT reproduce under the v0.14 structural design.
+6. Unrelated test printing the exact sentinel string, failing on an ordinary assertion
+   (exit 1, not 4): execute_pytest correctly returned 1 unmodified; classification
+   logic never reached (gated on exit_code==4); marker remained False. PASS.
+7. Exit-4 during forced-fail from an unrelated invalid flag, marker never set:
+   correctly fatal. PASS.
+8. Structural marker confirmed invocation-local, reset between every call (False after
+   items 3, 5, 6, 7 individually). PASS.
+9. No Feature production/test behavior modified: shim only rebinds a name in mutmut's
+   own module and monkeypatches mutmut's own class; zero feature_engine file read for
+   modification. PASS.
+10. No real mutant dispatched: `mutmut run` never invoked; stopped immediately after
+    run_forced_fail_test's own outcome, before Phase 5. PASS.
+ALL 10 ITEMS: PASS.
+```
+
+### MAJ-02 — exact ADR scope resolved: FEATURE-ENGINE-ONLY
+
+```text
+Selected scope: FEATURE-ENGINE-ONLY, not GLOBAL. Explicitly stated: wrapper applies
+  only to python/feature-engine; no other module may reuse it by default; any later
+  cross-module adoption requires a separate governed decision with its own fresh ADR
+  Scope Rule; all v0.13 wording implying cross-module/global invocation authority
+  corrected via superseding annotations in testing.md (historical text preserved
+  unedited, not rewritten).
+ADR Scope Rule run FRESH against this module-local scope (Chapter 0 §4b):
+  Result: ADR_NOT_REQUIRED.
+  Reasoning (primary basis, NOT "nothing installed yet"): (a) module-count criterion
+    not met — scope explicitly restricted to python/feature-engine, the same single
+    module mutmut is already governed in; (b) Chapter 3 §3.2's existing Testing
+    Convention tooling carve-out (already relied on for gobco/coverage.py/mutmut
+    selection) extends naturally to a narrowly-scoped compatibility mechanism for an
+    already-approved tool within that same domain; (c) explicitly non-gating, zero
+    production impact, single-step removal rule, no new persistent cross-cutting
+    platform capability; (d) no vendor/tool lock-in change — mutmut==3.7.0 remains the
+    exact approved mechanism, only its invocation compensates for one precisely-
+    diagnosed defect.
+  Explicit non-inheritance flag preserved: specific to FEATURE-ENGINE-ONLY scope and
+  this authoring act; a future installation or cross-module extension MUST
+  independently re-run the ADR Scope Rule at its own boundary.
+```
+
+### Revised candidate comparison (not assumed unchanged)
+
+```text
+Option A: unchanged conclusion — 122-reference-site blast radius, real behavior-change
+  risk, does not fix an actual defect. REJECTED as preferred, viable fallback.
+Option B (structural design): REMAINS SELECTED, re-justified on new grounds — the
+  v0.13 "false-positive risk: NONE" claim is WITHDRAWN (was based on a spoofable
+  textual match) and REPLACED with actual structural proof (10/10 scratch items,
+  including the spoof counterexample now failing closed).
+Option C: unchanged conclusion — VIABLE IN PRINCIPLE (same base tag
+  4f1208093517575a9402b99cfdcc7dea54c40e67), DEFERRED — permanent fork burden for no
+  benefit over B.
+Option D: unchanged — REJECTED outright, no safety proof.
+Option E: RECHECKED live against PyPI this transaction (`pip index versions mutmut`):
+  still exactly 3.7.0 (identical version list). NOT CURRENTLY AVAILABLE, reconfirmed.
+```
+
+### Finding states after this correction
+
+```text
+P3-PY-MUT-COMPAT-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-COMPAT-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+Neither self-closed.
+P3-PY-MUT-BASELINE-B-MAJ-01: ROOT CAUSE VALIDATED — REMEDIATION CANDIDATE AUTHORED /
+  BLOCKED UNTIL COMPATIBILITY REMEDIATION IS APPROVED. Not closed by this correction.
+P3-PY-MUT-BASELINE-B-A-MIN-01: CLOSED (unchanged).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/engineering/testing.md (blob 0b3b7292bf3a86f59a7148b2e27c1ec8b4ef1fc0),
+  docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1`). python/feature-engine/src/**,
+  python/feature-engine/tests/**, python/feature-engine/pyproject.toml,
+  python/feature-engine/requirements-dev.lock.txt, docs/constitution/**, docs/adr/**,
+  docs/architecture/module-registry.yaml, CI/CD workflows, any Go module: all verified
+  byte-identical (`git diff --quiet` for each path). No wrapper module created. No ADR
+  file created/approved. No real mutant dispatched. No mutation score calculated. No
+  threshold proposed. `P3-PY-MUT-BASELINE-B-MAJ-01` not closed. `P3-FEATURE-QG-EVID-03`
+  not closed. Not sent to Review B.
+```
+
+### State summary
+
+```text
+Testing Convention:            v0.13 Draft → v0.14 Draft (approved_by/approved_at
+                                still null/null; not sent to Review B).
+P3-PY-MUT-COMPAT-A-MAJ-01:     REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-COMPAT-A-MAJ-02:     REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-BASELINE-B-MAJ-01:   ROOT CAUSE VALIDATED — REMEDIATION CANDIDATE AUTHORED /
+                                BLOCKED UNTIL COMPATIBILITY REMEDIATION IS APPROVED.
+P3-PY-MUT-BASELINE-B-A-MIN-01: CLOSED (unchanged).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged); no compatibility
+                                remediation installed yet.
+Second baseline attempt:       INCOMPLETE — NON-GATING DIAGNOSTIC (unchanged,
+                                historical only).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** bounded Review A re-review of the v0.14 correction.
+
+**Files changed:** `docs/engineering/testing.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.295"` → `"10.296"`.
 
 ## Decision Log
 
