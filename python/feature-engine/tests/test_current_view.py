@@ -96,6 +96,32 @@ def _invalidated(
     )
 
 
+def _computed_with_window(
+    allocator: SequenceAllocator,
+    scope: FeatureScope,
+    *,
+    window_start: datetime,
+    window_end: datetime,
+    value: str = "1.00",
+    recorded_offset_minutes: int = 0,
+) -> FeatureComputed:
+    input_ref = allocator.next_ref("candle")
+    return FeatureComputed(
+        scope=scope,
+        value=Decimal(value),
+        unit="price",
+        window_start=window_start,
+        window_end=window_end,
+        input_fact_refs=(input_ref,),
+        supersedes_fact_ref=None,
+        causation_refs=(input_ref,),
+        recorded_time=window_end + timedelta(minutes=recorded_offset_minutes),
+        ref=allocator.next_ref("feature"),
+        event_contract_ref=_COMPUTED_CONTRACT_REF,
+        computation_cursor=_CURSOR,
+    )
+
+
 # --- 19. FeatureCurrentView ----------------------------------------------------
 
 
@@ -262,3 +288,41 @@ def test_double_invalidation_rejected(allocator: SequenceAllocator) -> None:
     second_invalidation = _invalidated(allocator, scope, original, recorded_offset_minutes=2)
     with pytest.raises(FeatureLineageError, match="already invalidated"):
         view.on_feature_invalidated(second_invalidation)
+
+
+# --- P3-PY-MUT-STEP9-B remediation (EVID-03, actionable_test_gap_candidate) --
+
+
+def test_ordering_key_prefers_larger_window_start_when_window_end_ties(
+    allocator: SequenceAllocator,
+) -> None:
+    """feature.md §11's 7-criterion order's SECOND criterion (`-window_start`,
+    DESC) only has any observable effect when two candidate windows share the
+    same `window_end` (the first, dominant criterion) -- this scenario, two
+    independent windows ending at the same instant but with different
+    `window_start`s, is otherwise never exercised anywhere in this suite
+    (every other fixture uses `_window(index)`'s fixed 1-minute width, which
+    always gives distinct window_ends for distinct windows). This single
+    scenario distinguishes BOTH: (a) `_view_ordering_key`'s `-window_start`
+    negation being flipped to `+window_start` (which would invert the
+    tiebreak to prefer the SMALLER/earlier start), and (b) `current()`'s own
+    call passing `k[0]` (window_start) as the second positional argument
+    being corrupted to pass `k[1]` (window_end) instead (which would make
+    the tiebreak degenerate to comparing window_end against itself, falling
+    through to the wrong, later criterion).
+    """
+    scope = feature_scope("volatility_metric", version="fd-1")
+    view = FeatureCurrentView(scope)
+    shared_end = BASE + timedelta(minutes=10)
+
+    wide = _computed_with_window(allocator, scope, window_start=BASE, window_end=shared_end, value="1.00")
+    narrow = _computed_with_window(
+        allocator, scope, window_start=BASE + timedelta(minutes=5), window_end=shared_end, value="2.00"
+    )
+    view.on_feature_computed(wide)
+    view.on_feature_computed(narrow)
+
+    result = view.current()
+    assert result is not None
+    assert result.value == Decimal("2.00")
+    assert result.effective_window == EffectiveWindow(narrow.window_start, shared_end)

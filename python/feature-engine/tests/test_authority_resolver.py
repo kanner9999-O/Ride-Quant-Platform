@@ -97,6 +97,10 @@ def test_real_swing_distance_authority_resolves_successfully() -> None:
     assert resolved.included_streams == frozenset({"market-data-ingestion-candle", "structure-engine-swing"})
     assert len(resolved.input_contract_content_id) == 64
     assert len(resolved.stream_registry_content_id) == 64
+    # P3-PY-MUT-STEP9-B remediation (EVID-03, actionable_test_gap_candidate):
+    # the resolved authority's own `.feature_computation_profile` field was
+    # never independently asserted anywhere in this suite.
+    assert resolved.feature_computation_profile == "distance_to_last_confirmed_swing"
 
 
 def test_real_regime_authority_resolves_successfully() -> None:
@@ -107,6 +111,10 @@ def test_real_regime_authority_resolves_successfully() -> None:
     assert resolved.included_streams == frozenset({"raw-regime-engine-regime"})
     assert len(resolved.input_contract_content_id) == 64
     assert len(resolved.stream_registry_content_id) == 64
+    # P3-PY-MUT-STEP9-B remediation (EVID-03, actionable_test_gap_candidate):
+    # the resolved authority's own `.feature_computation_profile` field was
+    # never independently asserted anywhere in this suite.
+    assert resolved.feature_computation_profile == "regime"
 
 
 def test_both_real_profiles_share_the_same_registry_content_identity() -> None:
@@ -256,6 +264,21 @@ def test_missing_contract_id_field_fails_closed(tmp_path: Path) -> None:
     repo = _write_fake_repo(tmp_path)
     contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
     contract_path.write_text(contract_path.read_text().replace("  contract_id: feature-swing-distance-input\n", ""))
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="did not resolve a complete"):
+        resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+
+
+def test_missing_contract_version_field_fails_closed(tmp_path: Path) -> None:
+    """P3-PY-MUT-STEP9-B remediation (EVID-03, actionable_test_gap_candidate):
+    the completeness check `not contract_id or not contract_version or not
+    stream_registry_version or not included_streams` is a flat 4-way `or`
+    chain -- a partial mutation to `and` between the middle two terms would
+    only fail closed when BOTH contract_version and stream_registry_version
+    are missing together. A contract_version missing ALONE (stream_registry_
+    version still present) must independently fail closed."""
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    contract_path.write_text(contract_path.read_text().replace("  contract_version: v1\n", ""))
     with pytest.raises(UnresolvedComputationCursorAuthorityError, match="did not resolve a complete"):
         resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
 

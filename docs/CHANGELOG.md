@@ -2,6 +2,185 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: EVID-03 material-gap test remediation batch 2 (`actionable_test_gap_candidate`; NOT self-closed)
+
+**Bounded, test-only remediation — vai trò: `Feature Engine EVID-03 Material-Gap Test Remediation Batch 2`.** Strengthens/adds tests for the 87-mutant `actionable_test_gap_candidate` category only (distinct from Batch 1's 83-mutant `constructed_object_field_not_independently_asserted` category, which remains untouched here). No production code touched, no threshold change, no formal Step-9/QG transaction, no finding closed.
+
+**Discrepancy note (prompt assertion not backed by evidence):** `P3-PY-MUT-THRESH-A-MIN-03`, referenced in this task's own governance-preservation instructions, does NOT exist anywhere in the repository (`grep -rn` across `docs/` returns zero matches). Not fabricated or silently complied with — flagged here per this repository's standing discipline against treating prompt assertions as evidence.
+
+### Exact target population (87, resolved directly from the pinned Step-4 analysis)
+
+```text
+swing_distance._recompute (18), regime_passthrough._emit_replacement (5),
+  swing_distance._emit_replacement_only (5), swing_distance._reevaluate_
+  all_windows (5), regime_passthrough._emit_invalidation (4), swing_
+  distance._invalidate_and_reattempt (4), swing_distance._invalidate_and_
+  replace (4), swing_distance._preempt_settled_window (4), swing_distance.
+  on_candle (4), swing_distance.on_swing_invalidated (4), swing_distance.
+  on_swing_confirmed (3), swing_distance._select_eligible_swing (3),
+  swing_distance._total_order_key (2), swing_distance._emit_original (2),
+  contracts._seal_verified_authority (2), current_view.current (2),
+  current_view.on_feature_computed (2), swing_distance._normalize_
+  evidence (2), regime_passthrough.__init__ (2), swing_distance.__init__
+  (2), current_view._view_ordering_key (1), contracts.is_visible_at_
+  cursor (1), authority_resolver.resolve_input_contract_authority_from_
+  repository (1), regime_passthrough._check_scope (1), swing_distance.
+  _check_candle_recorded_time (1), swing_distance._check_candle_scope (1),
+  regime_passthrough._emit_original (1), contracts._construct_verified_
+  authority (1). Total: 87, matching the pinned analysis exactly.
+```
+
+### Tests strengthened/added
+
+```text
+tests/test_swing_distance.py: 21 new tests added, 2 existing tests
+  strengthened (test_candle_correction_while_window_pending_correction_
+  resolves_it: causation_refs assertion; test_recorded_time_floor_
+  reflects_each_argument_when_dominant: rebuilt with strict, non-tied
+  dominance per argument across _emit_original/_invalidate_and_replace/
+  _invalidate_and_reattempt/_preempt_settled_window). New tests cover:
+  recorded_time-floor argument dominance for _emit_replacement_only (via
+  the PENDING_CORRECTION-resolution branch, causally independent of the
+  candle/cursor unlike the other call sites); multi-window _reevaluate_
+  all_windows continuation past a still-pending/non-preemptable window;
+  on_swing_invalidated's own loop continuing past a non-matching window;
+  the pivot window_start-vs-end total-order criterion (constructed via
+  direct dataclass replacement -- differing pivot widths); _normalize_
+  evidence's sort ordering by swing pivot start (not end); candle dedup-
+  index correctness across distinct windows and after a correction;
+  _candle_by_window being correctly updated (not left None) after a
+  correction; partial or->and scope-check mutations (venue-only mismatch);
+  strict-vs-non-strict recorded_time/window_start boundary equality;
+  _seal_verified_authority's contract_id/contract_version or->and check.
+tests/test_regime_passthrough.py: 3 new tests -- venue-only foreign-scope
+  rejection; a second full invalidate/replace cycle proving the post-
+  replacement lineage state (head_fact/last_evidence_ref/last_evidence_
+  fact) is fresh, not stale; _emit_invalidation's 3-argument recorded_time
+  floor, each argument proven dominant in turn (constructed via the
+  distinction between an input fact's own recorded_time, which is
+  monotonicity-checked, and the EMITTED fact's own later-stamped
+  recorded_time).
+tests/test_authority_resolver.py: 1 new test -- a partial or->and
+  mutation on the artifact-completeness check (missing contract_version
+  alone, stream_registry_version still present).
+tests/test_contracts.py: 2 new tests -- is_visible_at_cursor's stream-
+  universe-membership branch, direct unit test (never exercised before:
+  every fixture-constructed ref already belongs to included_streams).
+tests/test_current_view.py: 1 new test -- the ordering-key's window_start
+  DESC tiebreak, only observable when two windows share the same
+  window_end (constructed via direct dataclass replacement).
+No brittle assertions added merely to match mutmut syntax and no
+  production semantics mutated to force a kill -- every new/strengthened
+  assertion proves a real domain-observable invariant, ordering guarantee,
+  or failure-mode boundary.
+```
+
+### Verification results
+
+```text
+Ordinary suite: 226 passed (was 196), 0 failed. tooling/tests/ (outside
+  governed suite): 5 passed, unaffected.
+ruff check tests/ src/: All checks passed (line-length/import-style
+  issues in this transaction's own new code found and fixed before
+  finalizing).
+ruff format --check: pre-existing drift (2 files) confirmed UNCHANGED
+  before/after this transaction via git-stash comparison -- not
+  introduced here, out of scope, not fixed.
+mypy (strict, 25 source files): Success, no issues found.
+Bounded NON-GATING mutation diagnostic (explicitly supporting-only, per
+  this task's own instruction -- NOT a formal Step-9 transaction): all 87
+  targeted mutant IDs re-run via `python -m tooling run` in a disposable
+  venv/mutants/ working directory (removed after capture).
+  Result: 78/87 killed, 9/87 survived (all 9 independently reasoned as
+  genuine equivalents/structurally-unreachable branches, not test gaps --
+  see below). Environment fully removed after evidence capture -- zero
+  footprint on the tracked repository.
+```
+
+### Targeted IDs left unresolved (reported explicitly, not forced) — all 9 are genuine equivalents or structurally-unreachable branches, none are ordinary test gaps
+
+```text
+swing_distance._recompute__mutmut_23 (assert `correction_ref is not None
+  and correction_recorded_time is not None` -> `or`): every real call site
+  passes both arguments as None together or non-None together, never
+  mixed -- provable equivalent (already identified in a prior transaction
+  this session).
+swing_distance._recompute__mutmut_46 (`used_swing_id` argument -> None in
+  the existing.invalidated replacement path): `_WindowLineage.used_swing_
+  id` is a dead-store field, written in two places, never read anywhere in
+  swing_distance.py (confirmed via exhaustive grep) -- same class of
+  defect as Batch 1's current_view dead-store-field equivalents.
+swing_distance._emit_original__mutmut_13, _emit_replacement_only__mutmut_
+  16, _preempt_settled_window__mutmut_20 (all: the winning Swing's own
+  `state.recorded_time` term removed from a `max(...)` floor that also
+  includes `cursor.recorded_time`): `_select_eligible_swing`/`_swing_
+  state_as_of` only ever return a Swing state that is cursor-visible
+  (feature.md SS12(a)), which structurally requires `state.recorded_time
+  <= cursor.recorded_time` for every reachable call -- `state.recorded_
+  time` can therefore never be the strict maximum once `cursor.recorded_
+  time` is also present in the same `max(...)`. Provable equivalent at
+  all three call sites.
+swing_distance._select_eligible_swing__mutmut_22 (`_total_order_key(item[
+  1], item[1])` instead of `(item[0], item[1])`, corrupting the swing_id
+  tiebreak criterion into a `_SwingState` object): `SequenceAllocator.
+  next_ref` allocates a strictly increasing, globally-unique sequence per
+  stream regardless of swing_id -- criterion 5 (`ref.sequence`) therefore
+  always discriminates between any two distinct Swing candidates before
+  the corrupted swing_id criterion (7) is ever reached; unreachable given
+  the allocator's own uniqueness guarantee.
+swing_distance.x__total_order_key__mutmut_3 (`-state.revision` -> `+state.
+  revision`, criterion 6 sign flip): same allocator-uniqueness argument --
+  criterion 5 (`ref.sequence`) always discriminates first, making
+  criterion 6 structurally unreachable as a tiebreak for any two distinct
+  candidates produced through the public API.
+swing_distance._reevaluate_all_windows__mutmut_6 (`if candle is None:
+  continue` -> `break`): `self._candle_by_window[key]` is populated
+  unconditionally whenever a lineage entry is created and never deleted --
+  `candle is None` is not reachable through any sequence of public-API
+  calls; a defensive branch over structurally-guaranteed state.
+current_view.xǁFeatureCurrentViewǁon_feature_computed__mutmut_19
+  (`_ViewWindowState(window_start=key[1], ...)` instead of `key[0]`):
+  `_ViewWindowState.window_start` is the SAME proven-dead-store field
+  established for Batch 1's `on_feature_computed__mutmut_9` (never read
+  anywhere in current_view.py) -- genuinely unkillable without an
+  unjustified production semantics change.
+```
+
+### State summary
+
+```text
+Tests strengthened/added:      5 files (0 new, 5 modified), 78/87 target
+                                identities empirically diagnostic-confirmed
+                                killed (NON-GATING, supporting only).
+Unresolved targets:             9/87, all reasoned equivalents/
+                                unreachable branches (reported, not
+                                forced; see above). Batch 1's own
+                                unresolved survivor (current_view.on_
+                                feature_computed__mutmut_29) remains
+                                unresolved and untouched by this batch.
+Formal Step-9 resolution:      NOT YET ESTABLISHED -- a separate, later
+                                formal measurement transaction is required
+                                to actually move EVID-03's own gate result;
+                                this transaction is test remediation only.
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, NOT closed).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+P3-PY-MUT-THRESH-A-MIN-02:     OPEN — MINOR / NON-BLOCKING (unchanged).
+P3-PY-MUT-THRESH-A-MIN-03:     does NOT exist in this repository (see
+                                discrepancy note above) -- not fabricated,
+                                not tracked as a real finding.
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Review A of this bounded test remediation (Batch 2), followed (if clean, and if separately authorized) by a fresh Step-9-style formal measurement to determine the actual updated raw score and 170-ID resolution count.
+
+**Files changed:** `python/feature-engine/tests/test_swing_distance.py`, `python/feature-engine/tests/test_regime_passthrough.py`, `python/feature-engine/tests/test_authority_resolver.py`, `python/feature-engine/tests/test_contracts.py`, `python/feature-engine/tests/test_current_view.py` (all modified, none new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.318"` → `"10.319"`.
+
+---
+
 ## [Unreleased] — 2026-09-04 — feature-engine: EVID-03 material-gap test remediation batch 1 (`constructed_object_field_not_independently_asserted`; NOT self-closed)
 
 **Bounded, test-only remediation — vai trò: `Feature Engine EVID-03 Material-Gap Test Remediation Batch 1`.** Strengthens/adds tests for the 83-mutant `constructed_object_field_not_independently_asserted` category only (not the separate 87-mutant `actionable_test_gap_candidate` category). No production code touched, no threshold change, no formal Step-9/QG transaction, no finding closed.

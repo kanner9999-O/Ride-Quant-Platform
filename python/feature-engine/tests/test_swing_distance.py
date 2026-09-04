@@ -1435,6 +1435,25 @@ def test_wrong_length_hex_content_id_fails_closed() -> None:
         )
 
 
+def test_input_contract_ref_missing_version_fails_closed() -> None:
+    """P3-PY-MUT-STEP9-B remediation (EVID-03, actionable_test_gap_candidate):
+    a partial `or`->`and` mutation on `not input_contract_ref.contract_id or
+    not input_contract_ref.contract_version` would only fail closed when
+    BOTH are empty -- contract_id present but contract_version genuinely
+    missing must independently fail closed."""
+    with pytest.raises(UnresolvedComputationCursorAuthorityError):
+        _seal_verified_authority(
+            feature_computation_profile=SWING_DISTANCE_INPUT_CONTRACT.feature_computation_profile,
+            input_contract_ref=dataclasses.replace(
+                SWING_DISTANCE_INPUT_CONTRACT.input_contract_ref, contract_version=""
+            ),
+            stream_registry_version=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_version,
+            included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
+            input_contract_content_id=SWING_DISTANCE_INPUT_CONTRACT.input_contract_content_id,
+            stream_registry_content_id=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id,
+        )
+
+
 def test_empty_stream_registry_version_fails_closed() -> None:
     with pytest.raises(UnresolvedComputationCursorAuthorityError):
         _seal_verified_authority(
@@ -2283,3 +2302,793 @@ def test_invalid_frontier_rejected_even_when_no_output_would_result(
         engine.on_candle(reference, cursor=_invalid_frontier(reference.recorded_time))
     # Confirm the valid-absence path genuinely would have produced no output.
     assert engine.on_candle(reference, cursor=frontier_at(reference.recorded_time)) == []
+
+
+# --- P3-PY-MUT-STEP9-B remediation (EVID-03, actionable_test_gap_candidate) --
+#
+# Batch 2: real logic/boundary/branch gaps identified by the Step-4 analysis
+# (call-argument-removed, comparison/logical-operator, control-flow,
+# numeric/arithmetic, and a handful of remaining value-replaced-with-None
+# items whose root cause is a genuinely untested branch or invariant, not a
+# constructor field). Each test below targets a specific, named mutant
+# cluster with a real domain-observable assertion.
+
+
+def test_candle_correction_while_window_pending_correction_resolves_it(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_recompute`'s `existing.invalidated` branch (a candle correction
+    arriving while its window is still `PENDING_CORRECTION` from a prior
+    Swing invalidation, with a newly-visible Swing now eligible) was never
+    exercised by any prior test -- confirmed via the Step-4 per-mutant
+    analysis (a whole untested branch, not merely a field)."""
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    original = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
+
+    inv = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    invalidation_events = engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
+    assert len(invalidation_events) == 1  # no eligible Swing yet -- genuinely PENDING_CORRECTION
+    invalidation = only_invalidated(invalidation_events[0])
+
+    # s2 is confirmed with a cursor whose recorded_time is still EARLIER than
+    # s2's own recorded_time -- s2 is not yet cursor-VISIBLE, so its own
+    # `_reevaluate_all_windows` call does not yet resolve the pending window
+    # (the window is left genuinely PENDING_CORRECTION until the later candle
+    # correction below, which supplies a cursor s2 IS visible at).
+    swing2 = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="s2", pivot_price="103", recorded_offset_minutes=25
+    )
+    engine.on_swing_confirmed(swing2, cursor=frontier_at(inv.recorded_time))
+    assert swing2.recorded_time > inv.recorded_time
+
+    correction = dataclasses.replace(
+        reference,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=swing2.recorded_time + timedelta(seconds=60),
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+    correction_events = engine.on_candle(correction, cursor=frontier_at(correction.recorded_time))
+    assert len(correction_events) == 1  # only the replacement -- the invalidation already happened
+    replacement = only_computed(correction_events[0])
+    assert replacement.value == Decimal("2.00")  # 105 - 103, using s2
+    assert replacement.supersedes_fact_ref == original.ref
+    # P3-PY-MUT-STEP9-B remediation (EVID-03, actionable_test_gap_candidate):
+    # the replacement's own causation_refs must include the ORIGINAL
+    # invalidation's own ref (the `existing.pending_invalidation_ref` this
+    # branch passes through to `_emit_replacement_only`), never a dropped/
+    # None value.
+    assert invalidation.ref in replacement.causation_refs
+
+
+def test_second_swing_invalidated_for_already_invalidated_revision_rejected(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """swing.md §1a: a revision is invalidated at most once -- a SECOND
+    `SwingInvalidated` targeting the SAME already-invalidated (swing_id,
+    revision) pair must be rejected, never silently accepted as a no-op."""
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+
+    inv = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
+
+    second_inv = swing_invalidated_at(
+        allocator, swing_id="s1", swing_revision=1, recorded_time=inv.recorded_time + timedelta(minutes=1)
+    )
+    with pytest.raises(InvalidSwingEligibilityInputError):
+        engine.on_swing_invalidated(second_inv, cursor=frontier_at(second_inv.recorded_time))
+
+
+def test_foreign_scope_candle_rejected_when_only_venue_differs(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_check_candle_scope`'s 3-condition OR must reject a mismatch on ANY
+    single field independently -- `test_foreign_scope_candle_rejected`
+    already covers instrument_id alone; this covers venue_id alone, which a
+    partial `or`->`and` mutation on the SECOND/THIRD condition does not."""
+    engine = _engine(allocator, time_source)
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    foreign_scope = dataclasses.replace(reference.scope, venue_id="a-different-venue")
+    foreign = dataclasses.replace(reference, scope=foreign_scope)
+    with pytest.raises(ForeignScopeError):
+        engine.on_candle(foreign, cursor=frontier_at(foreign.recorded_time))
+
+
+def test_foreign_scope_swing_confirmed_rejected_when_only_venue_differs(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`on_swing_confirmed`'s own inline scope-check 3-condition OR must
+    reject a venue_id-only mismatch independently of instrument_id/timeframe."""
+    engine = _engine(allocator, time_source)
+    foreign = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", venue_id="a-different-venue")
+    with pytest.raises(ForeignScopeError):
+        engine.on_swing_confirmed(foreign, cursor=frontier_at(foreign.recorded_time))
+
+
+def test_candle_recorded_time_exactly_equal_to_last_seen_is_not_out_of_order(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_check_candle_recorded_time` rejects STRICTLY earlier recorded_time
+    (`<`) -- a recorded_time exactly EQUAL to the last-seen candle's own
+    must be accepted, never rejected as if `<=` were the rule."""
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    first = candle_at(allocator, 10, high="110", low="90", close="105")
+    engine.on_candle(first, cursor=frontier_at(first.recorded_time))
+    # A distinct window (different subject_id) whose own recorded_time is
+    # EXACTLY EQUAL to the first candle's -- must be accepted, not rejected.
+    same_recorded_time = candle_at(
+        allocator, 11, high="120", low="100", close="115", recorded_offset_seconds=-60
+    )
+    assert same_recorded_time.recorded_time == first.recorded_time
+    engine.on_candle(same_recorded_time, cursor=frontier_at(same_recorded_time.recorded_time))  # must not raise
+
+
+def test_new_candle_window_start_exactly_equal_to_last_seen_is_not_out_of_order(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`on_candle`'s out-of-order guard rejects a NEW window's `window_start`
+    only when STRICTLY EARLIER than the last-seen candle's own -- exactly
+    EQUAL must be accepted, never rejected as if `<=` were the rule."""
+    engine = _engine(allocator, time_source)
+    first = candle_at(allocator, 10, high="110", low="90", close="105")
+    engine.on_candle(first, cursor=frontier_at(first.recorded_time))
+    same_start = dataclasses.replace(
+        first,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        scope=dataclasses.replace(first.scope, window_end=first.scope.window_end + timedelta(minutes=1)),
+        recorded_time=first.recorded_time + timedelta(minutes=1),
+    )
+    assert same_start.scope.window_start == first.scope.window_start
+    engine.on_candle(same_start, cursor=frontier_at(same_start.recorded_time))  # must not raise
+
+
+def test_select_eligible_swing_excludes_pivot_effective_time_exactly_at_cutoff(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_select_eligible_swing`'s own effective-cutoff filter is STRICTLY
+    before the reference cutoff (`<`) -- `pivot_effective_time[0]` exactly
+    EQUAL to the cutoff must be excluded, matching
+    `test_pivot_exactly_equal_window_end_rejected`'s own intent, but with
+    the Swing made fully cursor-VISIBLE first so the effective-cutoff
+    filter itself (not mere visibility) is what is being isolated."""
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=11, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    assert engine.on_candle(reference, cursor=frontier_at(swing.recorded_time + timedelta(minutes=1))) == []
+
+
+def test_invalidate_swing_used_by_a_replacement_only_window_reattempts_it(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """A window that reached its current head fact via `_emit_replacement_
+    only` (not `_emit_original`) must still be correctly reattempted when
+    the Swing it actually used is later invalidated -- proving `used_swing_
+    ref` on the replacement-only lineage state is genuinely the swing just
+    used, not a stale/corrupted value."""
+    engine = _engine(allocator, time_source)
+    swing_a = swing_confirmed_at(allocator, pivot_index=2, swing_id="A", pivot_price="100")
+    engine.on_swing_confirmed(swing_a, cursor=frontier_at(swing_a.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    original = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
+
+    inv_a = swing_invalidated_at(
+        allocator, swing_id="A", swing_revision=1, recorded_time=BASE + timedelta(minutes=20)
+    )
+    swing_b = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="B", pivot_price="103", recorded_offset_minutes=15
+    )
+    engine.on_swing_confirmed(swing_b, cursor=frontier_at(swing_b.recorded_time))
+    reattempt_events = engine.on_swing_invalidated(inv_a, cursor=frontier_at(inv_a.recorded_time))
+    assert len(reattempt_events) == 2  # invalidation of A-based fact + B-based replacement-only fact
+    replacement = only_computed(reattempt_events[1])
+    assert replacement.value == Decimal("2.00")  # 105 - 103, now using B (via _emit_replacement_only)
+    assert replacement.supersedes_fact_ref == original.ref
+
+    # B (the swing actually used by the replacement-only window) is NOW invalidated.
+    inv_b = swing_invalidated_at(
+        allocator, swing_id="B", swing_revision=1, recorded_time=swing_b.recorded_time + timedelta(minutes=20)
+    )
+    events = engine.on_swing_invalidated(inv_b, cursor=frontier_at(inv_b.recorded_time))
+    assert len(events) == 1  # invalidation only -- no other eligible Swing exists
+    invalidation = only_invalidated(events[0])
+    assert invalidation.invalidated_fact_ref == replacement.ref
+
+
+def test_recorded_time_floor_reflects_each_argument_when_dominant(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """Chapter 8 §8.5.2 Cursor -> Fact / candle-correction/reattempt floor
+    logic: every function that computes `recorded_time = _next_recorded_
+    time(max(a, b, c, ...))` must genuinely include EACH of its named
+    arguments in that computation -- proven here by making each argument,
+    in turn, the STRICT dominant (latest) value, with every other argument
+    (including cursor) deliberately kept smaller so no tie masks the
+    distinction, across `_emit_original`, `_invalidate_and_replace`, and
+    `_invalidate_and_reattempt`.
+
+    `state.recorded_time` (the winning Swing's own recorded_time) is
+    deliberately NOT exercised as a dominant candidate anywhere below: a
+    Swing can only ever be selected by `_select_eligible_swing` if it is
+    cursor-visible, which structurally requires `state.recorded_time <=
+    cursor.recorded_time` (feature.md §12(a), `is_visible_at_cursor`'s own
+    recorded-time branch) for EVERY reachable call -- so `state.recorded_
+    time` can never be the strict maximum once `cursor.recorded_time` is
+    also present in the same `max(...)`. This makes the `state.recorded_
+    time`-arg-removed mutants in `_emit_original`, `_emit_replacement_
+    only`, and `_preempt_settled_window` provable equivalents, not test
+    gaps (documented at each such mutant's own dedicated test below)."""
+    # _emit_original: candle.recorded_time dominant over BOTH state and a
+    # deliberately small cursor (tied to the swing's own small recorded_time,
+    # never to the candle's).
+    e1 = _engine(allocator, time_source)
+    s1 = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    e1.on_swing_confirmed(s1, cursor=frontier_at(s1.recorded_time))
+    late_candle = candle_at(allocator, 10, high="110", low="90", close="105", recorded_offset_seconds=999 * 60)
+    computed1 = only_computed(e1.on_candle(late_candle, cursor=frontier_at(s1.recorded_time))[0])
+    assert computed1.recorded_time > late_candle.recorded_time
+
+    # _invalidate_and_replace (via candle correction of a VALID window):
+    # existing.head_fact.recorded_time dominant. The original computation's
+    # own cursor/candle are kept small so the EMITTED head_fact's own
+    # stamped recorded_time (next_after(floor), strictly later than the raw
+    # candle recorded_time) is the largest of the three arguments; the
+    # correction's own recorded_time is set EQUAL to the original candle's
+    # (the minimum legal value under `_check_candle_recorded_time`'s
+    # monotonic, non-strict `<` guard), and its cursor is likewise small.
+    e3a = _engine(allocator, time_source)
+    s3a = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    e3a.on_swing_confirmed(s3a, cursor=frontier_at(s3a.recorded_time))
+    ref3a = candle_at(allocator, 10, high="110", low="90", close="105")
+    original3a = only_computed(e3a.on_candle(ref3a, cursor=frontier_at(s3a.recorded_time))[0])
+    assert original3a.recorded_time > ref3a.recorded_time
+    correction3a = dataclasses.replace(
+        ref3a,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=ref3a.recorded_time,
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+    events3a = e3a.on_candle(correction3a, cursor=frontier_at(ref3a.recorded_time))
+    invalidation3a = only_invalidated(events3a[0])
+    assert invalidation3a.recorded_time > original3a.recorded_time
+
+    # _invalidate_and_replace: correction_recorded_time dominant over a small
+    # existing head_fact and a small cursor.
+    e3b = _engine(allocator, time_source)
+    s3b = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    e3b.on_swing_confirmed(s3b, cursor=frontier_at(s3b.recorded_time))
+    ref3b = candle_at(allocator, 10, high="110", low="90", close="105")
+    e3b.on_candle(ref3b, cursor=frontier_at(s3b.recorded_time))
+    late_correction3b = dataclasses.replace(
+        ref3b,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=ref3b.recorded_time + timedelta(minutes=999),
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+    events3b = e3b.on_candle(late_correction3b, cursor=frontier_at(ref3b.recorded_time))
+    invalidation3b = only_invalidated(events3b[0])
+    assert invalidation3b.recorded_time > late_correction3b.recorded_time
+
+    # _invalidate_and_replace: cursor.recorded_time dominant over a small
+    # existing head_fact and a minimal (last-seen-equal) correction.
+    e3c = _engine(allocator, time_source)
+    s3c = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    e3c.on_swing_confirmed(s3c, cursor=frontier_at(s3c.recorded_time))
+    ref3c = candle_at(allocator, 10, high="110", low="90", close="105")
+    e3c.on_candle(ref3c, cursor=frontier_at(s3c.recorded_time))
+    correction3c = dataclasses.replace(
+        ref3c,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=ref3c.recorded_time,
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+    far_future_cursor3c = ref3c.recorded_time + timedelta(days=365)
+    events3c = e3c.on_candle(correction3c, cursor=frontier_at(far_future_cursor3c))
+    invalidation3c = only_invalidated(events3c[0])
+    assert invalidation3c.recorded_time > far_future_cursor3c
+    # `_emit_replacement_only`'s OWN floor must include `invalidation_
+    # recorded_time` -- here the just-computed invalidation's recorded_time
+    # is itself cursor-dominant (see above), so it structurally dominates
+    # `_emit_replacement_only`'s candle/state/cursor terms too; the
+    # replacement's recorded_time must therefore be STRICTLY later than the
+    # invalidation's own (one more `_next_recorded_time` tick), which only
+    # holds if `invalidation_recorded_time` is genuinely included in that
+    # second floor computation.
+    replacement3c = only_computed(events3c[1])
+    assert replacement3c.recorded_time > invalidation3c.recorded_time
+
+    # _invalidate_and_reattempt (via swing invalidation, no other eligible
+    # Swing so only the invalidation event is returned): lineage.head_fact.
+    # recorded_time dominant over a small invalidation input and small cursor.
+    e4a = _engine(allocator, time_source)
+    s4a = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    e4a.on_swing_confirmed(s4a, cursor=frontier_at(s4a.recorded_time))
+    candle4a = candle_at(allocator, 10, high="110", low="90", close="105", recorded_offset_seconds=999 * 60)
+    original4a = only_computed(e4a.on_candle(candle4a, cursor=frontier_at(s4a.recorded_time))[0])
+    inv4a = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=s4a.recorded_time)
+    events4a = e4a.on_swing_invalidated(inv4a, cursor=frontier_at(s4a.recorded_time))
+    assert len(events4a) == 1  # s1 was the only Swing -- no reattempt winner
+    invalidation4a = only_invalidated(events4a[0])
+    assert invalidation4a.recorded_time > original4a.recorded_time
+
+    # _invalidate_and_reattempt: correction_recorded_time (the invalidation
+    # input's own recorded_time) dominant over a small head_fact and cursor.
+    e4b = _engine(allocator, time_source)
+    s4b = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    e4b.on_swing_confirmed(s4b, cursor=frontier_at(s4b.recorded_time))
+    candle4b = candle_at(allocator, 10, high="110", low="90", close="105")
+    e4b.on_candle(candle4b, cursor=frontier_at(s4b.recorded_time))
+    late_inv4b = swing_invalidated_at(
+        allocator, swing_id="s1", swing_revision=1, recorded_time=s4b.recorded_time + timedelta(minutes=999)
+    )
+    events4b = e4b.on_swing_invalidated(late_inv4b, cursor=frontier_at(s4b.recorded_time))
+    invalidation4b = only_invalidated(events4b[0])
+    assert invalidation4b.recorded_time > late_inv4b.recorded_time
+
+    # _invalidate_and_reattempt: cursor.recorded_time dominant over a small
+    # head_fact and a minimal (last-seen-equal) invalidation input.
+    e4c = _engine(allocator, time_source)
+    s4c = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    e4c.on_swing_confirmed(s4c, cursor=frontier_at(s4c.recorded_time))
+    candle4c = candle_at(allocator, 10, high="110", low="90", close="105")
+    e4c.on_candle(candle4c, cursor=frontier_at(s4c.recorded_time))
+    inv4c = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=s4c.recorded_time)
+    far_future4c = s4c.recorded_time + timedelta(days=365)
+    events4c = e4c.on_swing_invalidated(inv4c, cursor=frontier_at(far_future4c))
+    invalidation4c = only_invalidated(events4c[0])
+    assert invalidation4c.recorded_time > far_future4c
+
+    # _preempt_settled_window: existing.head_fact.recorded_time dominant --
+    # the CURRENTLY-VALID fact (using Swing B) has a huge recorded_time,
+    # while the newly-preempting Swing A revision 2 (and the cursor that
+    # makes it visible) are both small.
+    e5a = _engine(allocator, time_source)
+    swing_a5a = swing_confirmed_at(allocator, pivot_index=8, swing_id="A", swing_revision=1, pivot_price="100")
+    e5a.on_swing_confirmed(swing_a5a, cursor=frontier_at(swing_a5a.recorded_time))
+    swing_b5a = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="B", swing_revision=1, pivot_price="80", recorded_offset_minutes=10
+    )
+    e5a.on_swing_confirmed(swing_b5a, cursor=frontier_at(swing_b5a.recorded_time))
+    ref5a = candle_at(allocator, 10, high="110", low="90", close="105", recorded_offset_seconds=999 * 60)
+    existing5a = only_computed(e5a.on_candle(ref5a, cursor=frontier_at(ref5a.recorded_time))[0])
+    inv_a5a = swing_invalidated_at(allocator, swing_id="A", swing_revision=1, recorded_time=swing_b5a.recorded_time)
+    e5a.on_swing_invalidated(inv_a5a, cursor=frontier_at(inv_a5a.recorded_time))
+    swing_a5a_rev2 = swing_confirmed_at(
+        allocator, pivot_index=8, swing_id="A", swing_revision=2, pivot_price="103", recorded_offset_minutes=5
+    )
+    preempt_events5a = e5a.on_swing_confirmed(swing_a5a_rev2, cursor=frontier_at(swing_a5a_rev2.recorded_time))
+    preempt_invalidation5a = only_invalidated(preempt_events5a[0])
+    assert preempt_invalidation5a.recorded_time > existing5a.recorded_time
+
+    # _preempt_settled_window: cursor.recorded_time dominant -- everything
+    # else (existing head_fact, preempting Swing's own recorded_time) small.
+    e5b = _engine(allocator, time_source)
+    swing_a5b = swing_confirmed_at(allocator, pivot_index=8, swing_id="A", swing_revision=1, pivot_price="100")
+    e5b.on_swing_confirmed(swing_a5b, cursor=frontier_at(swing_a5b.recorded_time))
+    swing_b5b = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="B", swing_revision=1, pivot_price="80", recorded_offset_minutes=10
+    )
+    e5b.on_swing_confirmed(swing_b5b, cursor=frontier_at(swing_b5b.recorded_time))
+    ref5b = candle_at(allocator, 10, high="110", low="90", close="105")
+    e5b.on_candle(ref5b, cursor=frontier_at(ref5b.recorded_time))
+    inv_a5b = swing_invalidated_at(allocator, swing_id="A", swing_revision=1, recorded_time=swing_b5b.recorded_time)
+    e5b.on_swing_invalidated(inv_a5b, cursor=frontier_at(inv_a5b.recorded_time))
+    swing_a5b_rev2 = swing_confirmed_at(
+        allocator, pivot_index=8, swing_id="A", swing_revision=2, pivot_price="103", recorded_offset_minutes=5
+    )
+    far_future_cursor5b = swing_a5b_rev2.recorded_time + timedelta(days=365)
+    preempt_events5b = e5b.on_swing_confirmed(swing_a5b_rev2, cursor=frontier_at(far_future_cursor5b))
+    preempt_invalidation5b = only_invalidated(preempt_events5b[0])
+    assert preempt_invalidation5b.recorded_time > far_future_cursor5b
+
+
+def test_emit_replacement_only_recorded_time_floor_via_pending_correction_resolution(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_emit_replacement_only`'s floor also includes `candle.recorded_time`
+    and `cursor.recorded_time` independently of `invalidation_recorded_time`
+    -- provable only via `_recompute`'s "existing.invalidated" branch (a NEW
+    candle correction resolving an already-PENDING_CORRECTION window),
+    where the fixed, already-past `pending_invalidation_recorded_time` is
+    causally unrelated to the fresh correction's own recorded_time/cursor
+    (unlike the `_invalidate_and_replace`/`_invalidate_and_reattempt` call
+    sites, where the invalidation event is freshly derived FROM the same
+    candle/cursor and so always dominates it)."""
+    # candle.recorded_time dominant.
+    ea = _engine(allocator, time_source)
+    swing_a = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    ea.on_swing_confirmed(swing_a, cursor=frontier_at(swing_a.recorded_time))
+    reference_a = candle_at(allocator, 10, high="110", low="90", close="105")
+    ea.on_candle(reference_a, cursor=frontier_at(reference_a.recorded_time))
+    inv_a = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    invalidation_events_a = ea.on_swing_invalidated(inv_a, cursor=frontier_at(inv_a.recorded_time))
+    assert len(invalidation_events_a) == 1  # genuinely PENDING_CORRECTION -- no eligible Swing yet
+    swing2_a = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="s2", pivot_price="103", recorded_offset_minutes=25
+    )
+    ea.on_swing_confirmed(swing2_a, cursor=frontier_at(inv_a.recorded_time))  # not yet visible -- window stays pending
+    late_correction_a = dataclasses.replace(
+        reference_a,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=swing2_a.recorded_time + timedelta(minutes=999),
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+    correction_events_a = ea.on_candle(late_correction_a, cursor=frontier_at(swing2_a.recorded_time))
+    assert len(correction_events_a) == 1  # only the replacement -- the invalidation already happened
+    replacement_a = only_computed(correction_events_a[0])
+    assert replacement_a.recorded_time > late_correction_a.recorded_time
+
+    # cursor.recorded_time dominant.
+    eb = _engine(allocator, time_source)
+    swing_b = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    eb.on_swing_confirmed(swing_b, cursor=frontier_at(swing_b.recorded_time))
+    reference_b = candle_at(allocator, 10, high="110", low="90", close="105")
+    eb.on_candle(reference_b, cursor=frontier_at(reference_b.recorded_time))
+    inv_b = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    eb.on_swing_invalidated(inv_b, cursor=frontier_at(inv_b.recorded_time))
+    swing2_b = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="s2", pivot_price="103", recorded_offset_minutes=25
+    )
+    eb.on_swing_confirmed(swing2_b, cursor=frontier_at(inv_b.recorded_time))
+    correction_b = dataclasses.replace(
+        reference_b,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=swing2_b.recorded_time + timedelta(seconds=1),
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+    far_future_cursor_b = correction_b.recorded_time + timedelta(days=365)
+    correction_events_b = eb.on_candle(correction_b, cursor=frontier_at(far_future_cursor_b))
+    replacement_b = only_computed(correction_events_b[0])
+    assert replacement_b.recorded_time > far_future_cursor_b
+
+
+def test_causation_refs_for_reattempt_and_preempt_replacements_are_asserted(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """The replacement fact's own `causation_refs` for the swing-invalidated
+    reattempt path and the eligible-swing-preemption path must include the
+    triggering invalidation's own `ref` -- not previously asserted for
+    either path (only the invalidation event's causation_refs was)."""
+    engine = _engine(allocator, time_source)
+    swing_a = swing_confirmed_at(allocator, pivot_index=8, swing_id="A", swing_revision=1, pivot_price="100")
+    engine.on_swing_confirmed(swing_a, cursor=frontier_at(swing_a.recorded_time))
+    swing_b = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="B", swing_revision=1, pivot_price="80", recorded_offset_minutes=10
+    )
+    engine.on_swing_confirmed(swing_b, cursor=frontier_at(swing_b.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+
+    inv_a1 = swing_invalidated_at(allocator, swing_id="A", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    temp_events = engine.on_swing_invalidated(inv_a1, cursor=frontier_at(inv_a1.recorded_time))
+    temp_invalidation = only_invalidated(temp_events[0])
+    temporary = only_computed(temp_events[1])
+    assert set(temporary.causation_refs) - set(temporary.input_fact_refs) == {temp_invalidation.ref}
+
+    swing_a2 = swing_confirmed_at(
+        allocator, pivot_index=8, swing_id="A", swing_revision=2, pivot_price="103", recorded_offset_minutes=30
+    )
+    preempt_events = engine.on_swing_confirmed(swing_a2, cursor=frontier_at(swing_a2.recorded_time))
+    preempt_invalidation = only_invalidated(preempt_events[0])
+    final = only_computed(preempt_events[1])
+    assert set(final.causation_refs) - set(final.input_fact_refs) == {preempt_invalidation.ref}
+
+
+def test_normalize_evidence_sort_key_breaks_tie_deterministically(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_normalize_evidence`'s custom sort key must be genuinely used (not
+    the default tuple ordering, which would attempt to compare two
+    unorderable `EventRecordRef` objects and crash) -- proven by a candle
+    window and a Swing pivot_effective_time that are IDENTICAL, a genuine
+    tie on the sort key's primary (start, end) criteria."""
+    engine = _engine(allocator, time_source)
+    # pivot_index=10 gives pivot_effective_time == candle_at(allocator, 10, ...)'s
+    # own (window_start, window_end) exactly -- a genuine tie.
+    swing = swing_confirmed_at(allocator, pivot_index=10, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105", recorded_offset_seconds=90)
+    assert swing.pivot_effective_time == (reference.scope.window_start, reference.scope.window_end)
+    computed = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
+    assert set(computed.input_fact_refs) == {reference.ref, swing.ref}
+
+
+def test_swing_revision_mismatch_message_states_the_expected_revision(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """The revision-skip rejection message must state the actual expected
+    next revision number -- a message-text-only mutation of the arithmetic
+    inside the f-string (not the rejection condition itself, which is
+    covered by `test_revision_skip_after_invalidation_rejected`) would
+    otherwise go undetected."""
+    engine = _engine(allocator, time_source)
+    swing1 = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", swing_revision=1, pivot_price="100")
+    engine.on_swing_confirmed(swing1, cursor=frontier_at(swing1.recorded_time))
+    inv1 = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    engine.on_swing_invalidated(inv1, cursor=frontier_at(inv1.recorded_time))
+    skipped = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="s1", swing_revision=3, pivot_price="102", recorded_offset_minutes=25
+    )
+    with pytest.raises(InvalidSwingEligibilityInputError, match=r"expected 2, got 3"):
+        engine.on_swing_confirmed(skipped, cursor=frontier_at(skipped.recorded_time))
+
+
+def test_reevaluate_all_windows_resolves_every_pending_window_not_just_the_first(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_reevaluate_all_windows`'s loop must genuinely CONTINUE past a
+    resolved/still-pending window to evaluate every remaining lineage
+    entry -- proven with TWO distinct PENDING_CORRECTION windows (inserted
+    in order window1, window2) that both become resolvable by the SAME new
+    Swing confirmation. Also proves the resolved replacement's own
+    causation_refs carry the real (not dropped) pending invalidation ref."""
+    engine = _engine(allocator, time_source)
+    swing_x = swing_confirmed_at(allocator, pivot_index=1, swing_id="X", pivot_price="100")
+    engine.on_swing_confirmed(swing_x, cursor=frontier_at(swing_x.recorded_time))
+
+    candle1 = candle_at(allocator, 5, high="110", low="90", close="105")
+    engine.on_candle(candle1, cursor=frontier_at(candle1.recorded_time))
+    candle2 = candle_at(allocator, 10, high="120", low="95", close="115")
+    engine.on_candle(candle2, cursor=frontier_at(candle2.recorded_time))
+
+    inv_x = swing_invalidated_at(allocator, swing_id="X", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    invalidation_events = engine.on_swing_invalidated(inv_x, cursor=frontier_at(inv_x.recorded_time))
+    assert len(invalidation_events) == 2  # both windows used swing X -- both become PENDING_CORRECTION
+    invalidation1 = only_invalidated(invalidation_events[0])
+    invalidation2 = only_invalidated(invalidation_events[1])
+
+    swing_y = swing_confirmed_at(
+        allocator, pivot_index=1, swing_id="Y", pivot_price="103", recorded_offset_minutes=20
+    )
+    resolve_events = engine.on_swing_confirmed(swing_y, cursor=frontier_at(swing_y.recorded_time))
+    assert len(resolve_events) == 2  # BOTH windows resolved, not just window1
+    replacement1 = only_computed(resolve_events[0])
+    replacement2 = only_computed(resolve_events[1])
+    assert replacement1.window_start == candle1.scope.window_start
+    assert replacement2.window_start == candle2.scope.window_start
+    assert invalidation1.ref in replacement1.causation_refs
+    assert invalidation2.ref in replacement2.causation_refs
+
+
+def test_reevaluate_all_windows_does_not_abandon_later_windows_when_first_still_pending(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """The `winner is None` guard for a still-PENDING_CORRECTION window must
+    `continue` to the NEXT lineage entry, never abandon the whole loop --
+    proven with window1 (stays pending: the new Swing's pivot start is not
+    eligible for its narrow cutoff) inserted BEFORE window2 (becomes
+    eligible for the same new Swing)."""
+    engine = _engine(allocator, time_source)
+    swing_x = swing_confirmed_at(allocator, pivot_index=1, swing_id="X", pivot_price="100")
+    engine.on_swing_confirmed(swing_x, cursor=frontier_at(swing_x.recorded_time))
+
+    candle1 = candle_at(allocator, 5, high="110", low="90", close="105")  # window_end = 6min
+    engine.on_candle(candle1, cursor=frontier_at(candle1.recorded_time))
+    candle2 = candle_at(allocator, 20, high="120", low="95", close="115")  # window_end = 21min
+    engine.on_candle(candle2, cursor=frontier_at(candle2.recorded_time))
+
+    inv_x = swing_invalidated_at(allocator, swing_id="X", swing_revision=1, recorded_time=BASE + timedelta(minutes=30))
+    invalidation_events = engine.on_swing_invalidated(inv_x, cursor=frontier_at(inv_x.recorded_time))
+    assert len(invalidation_events) == 2
+
+    # pivot_index=15 -> pivot_start=15min: NOT < window1's cutoff (6min, ineligible)
+    # but IS < window2's cutoff (21min, eligible).
+    swing_y = swing_confirmed_at(
+        allocator, pivot_index=15, swing_id="Y", pivot_price="103", recorded_offset_minutes=15
+    )
+    resolve_events = engine.on_swing_confirmed(swing_y, cursor=frontier_at(swing_y.recorded_time))
+    assert len(resolve_events) == 1  # window1 stays pending; window2 alone resolves
+    replacement = only_computed(resolve_events[0])
+    assert replacement.window_start == candle2.scope.window_start
+
+
+def test_reevaluate_all_windows_preempt_continues_past_a_non_preemptable_window(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """The "nothing better, skip" `continue` guard for an already-VALID
+    window must also continue to the NEXT lineage entry -- proven with
+    window1 (using Swing B, NOT preempted: the new Swing A's pivot start is
+    not eligible for window1's narrow cutoff) inserted BEFORE window2
+    (genuinely preempted by Swing A, which wins the total order there)."""
+    engine = _engine(allocator, time_source)
+    swing_b = swing_confirmed_at(allocator, pivot_index=1, swing_id="B", pivot_price="80")
+    engine.on_swing_confirmed(swing_b, cursor=frontier_at(swing_b.recorded_time))
+
+    candle1 = candle_at(allocator, 5, high="110", low="90", close="105")  # window_end = 6min
+    engine.on_candle(candle1, cursor=frontier_at(candle1.recorded_time))
+    candle2 = candle_at(allocator, 15, high="120", low="95", close="115")  # window_end = 16min
+    engine.on_candle(candle2, cursor=frontier_at(candle2.recorded_time))
+
+    # pivot_index=12 -> pivot_start=12min, pivot_end=13min > swing_b's pivot_end
+    # (2min) -- wins the total order (criterion 1: larger pivot window_end wins)
+    # wherever BOTH are eligible candidates. NOT eligible for window1's cutoff
+    # (6min <= 12min) -- window1 keeps using swing_b (nothing better). Its own
+    # recorded_time is kept AFTER window2's own original computation cursor
+    # (16min) so it was not already visible then (ADR-034 defect guard).
+    swing_a = swing_confirmed_at(
+        allocator, pivot_index=12, swing_id="A", pivot_price="103", recorded_offset_minutes=5
+    )
+    preempt_events = engine.on_swing_confirmed(swing_a, cursor=frontier_at(swing_a.recorded_time))
+    assert len(preempt_events) == 2  # window2 preempted (invalidation + replacement); window1 untouched
+    invalidation = only_invalidated(preempt_events[0])
+    replacement = only_computed(preempt_events[1])
+    assert invalidation.window_start == candle2.scope.window_start
+    assert replacement.window_start == candle2.scope.window_start
+    assert replacement.value == Decimal("12.00")  # 115 - 103, using swing A
+
+
+def test_on_swing_invalidated_reattempts_every_matching_window_not_just_the_first(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`on_swing_invalidated`'s own loop over lineage entries must `continue`
+    past a NON-matching entry (a different window using a DIFFERENT Swing)
+    to reach a LATER matching one, never abandon the whole loop on the
+    first mismatch -- window1 uses Swing "other" (never touched by this
+    invalidation) and is inserted BEFORE window2, which uses the Swing
+    actually being invalidated here."""
+    engine = _engine(allocator, time_source)
+    swing_other = swing_confirmed_at(allocator, pivot_index=1, swing_id="other", pivot_price="50")
+    engine.on_swing_confirmed(swing_other, cursor=frontier_at(swing_other.recorded_time))
+    candle1 = candle_at(allocator, 5, high="110", low="90", close="105")
+    engine.on_candle(candle1, cursor=frontier_at(candle1.recorded_time))
+
+    # pivot_index=8 -> pivot_end=9min > swing_other's pivot_end (2min) -- wins
+    # the total order for window2, where both are eligible candidates.
+    swing_x = swing_confirmed_at(
+        allocator, pivot_index=8, swing_id="X", pivot_price="100", recorded_offset_minutes=1
+    )
+    engine.on_swing_confirmed(swing_x, cursor=frontier_at(swing_x.recorded_time))
+    candle2 = candle_at(allocator, 10, high="120", low="95", close="115")
+    original2 = only_computed(engine.on_candle(candle2, cursor=frontier_at(candle2.recorded_time))[0])
+    assert original2.value == Decimal("15.00")  # |115 - 100|, using swing X, not "other"
+
+    inv_x = swing_invalidated_at(allocator, swing_id="X", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    events = engine.on_swing_invalidated(inv_x, cursor=frontier_at(inv_x.recorded_time))
+    # window2 (used X) is reattempted -- "other" is still eligible there, so
+    # this yields BOTH an invalidation and a replacement (falling back to
+    # "other"); window1 (used "other" all along) is untouched by either.
+    assert len(events) == 2
+    invalidation = only_invalidated(events[0])
+    replacement = only_computed(events[1])
+    assert invalidation.window_start == candle2.scope.window_start
+    assert replacement.window_start == candle2.scope.window_start
+    assert replacement.value == Decimal("65.00")  # |115 - 50|, falls back to "other"
+
+
+def test_total_order_key_prefers_pivot_window_start_not_end(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """feature.md §9a's total-order criterion 1 is the pivot's own
+    window_START (DESC) -- proven with two Swings whose pivot window WIDTHS
+    differ, so ordering by start vs. end genuinely diverges: Swing A's
+    pivot starts LATER (wins by start) but ends EARLIER (would lose by end)
+    than Swing B's wide pivot window."""
+    engine = _engine(allocator, time_source)
+    swing_b_base = swing_confirmed_at(allocator, pivot_index=5, swing_id="B", pivot_price="200")
+    swing_b = dataclasses.replace(
+        swing_b_base, pivot_effective_time=(swing_b_base.pivot_effective_time[0], BASE + timedelta(minutes=20))
+    )
+    swing_a = swing_confirmed_at(allocator, pivot_index=10, swing_id="A", pivot_price="100")
+    assert swing_a.pivot_effective_time[0] > swing_b.pivot_effective_time[0]  # A wins if ordered by start
+    assert swing_a.pivot_effective_time[1] < swing_b.pivot_effective_time[1]  # B would win if ordered by end
+    assert swing_b.recorded_time <= swing_a.recorded_time  # monotonic swing recorded_time order
+    engine.on_swing_confirmed(swing_b, cursor=frontier_at(swing_b.recorded_time))
+    engine.on_swing_confirmed(swing_a, cursor=frontier_at(swing_a.recorded_time))
+    reference = candle_at(allocator, 25, high="110", low="90", close="105")
+    computed = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
+    assert computed.value == Decimal("5.00")  # |105 - 100|, using A (wins by pivot window_start)
+
+
+def test_normalize_evidence_sort_orders_by_swing_pivot_start_not_end(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_normalize_evidence`'s internal sort item for the Swing's evidence is
+    `(swing_effective[0], swing_effective[1], swing_ref)` -- using pivot
+    window_START as the PRIMARY sort key. Proven via a wide Swing pivot
+    window whose start is well before the candle's own window_start but
+    whose END is well AFTER it: sorting by start (correct) keeps the Swing
+    first; sorting by end (a start<->end mix-up) would incorrectly move it
+    second."""
+    engine = _engine(allocator, time_source)
+    swing_base = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    swing = dataclasses.replace(
+        swing_base, pivot_effective_time=(swing_base.pivot_effective_time[0], BASE + timedelta(minutes=30))
+    )
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    assert swing.pivot_effective_time[0] < reference.scope.window_start
+    assert swing.pivot_effective_time[1] > reference.scope.window_start
+    computed = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
+    assert computed.input_fact_refs == (swing.ref, reference.ref)
+
+
+def test_correction_dedup_index_points_to_its_own_slot_not_a_prior_candle(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """After a candle correction is accepted, `self._candles[existing_index]`
+    must be updated to the CORRECTED fact itself -- proven by redelivering
+    the exact same correction again and expecting idempotent dedup (which
+    requires reading the corrected fact back, not a stale/`None` slot)."""
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+    correction = dataclasses.replace(
+        reference,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=reference.recorded_time + timedelta(minutes=1),
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+    engine.on_candle(correction, cursor=frontier_at(correction.recorded_time))
+    assert engine.on_candle(correction, cursor=frontier_at(correction.recorded_time)) == []
+
+
+def test_second_distinct_candle_window_dedup_uses_its_own_index_not_the_first(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_candle_index[subject_id]` for a brand-new (non-correction) candle
+    window must be set to that candle's OWN just-appended index -- proven
+    by redelivering the SECOND (distinct-window) candle's exact same fact
+    again and expecting idempotent dedup, not a dedup lookup that wrongly
+    resolves to the FIRST candle's slot (an off-by-one would misroute the
+    equality check and wrongly raise `DuplicateCandleConflictError`)."""
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    first = candle_at(allocator, 5, high="110", low="90", close="105")
+    engine.on_candle(first, cursor=frontier_at(first.recorded_time))
+    second = candle_at(allocator, 10, high="120", low="95", close="115")
+    engine.on_candle(second, cursor=frontier_at(second.recorded_time))
+    assert engine.on_candle(second, cursor=frontier_at(second.recorded_time)) == []
+
+
+def test_candle_by_window_after_correction_is_read_back_by_later_reattempt(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """After a candle correction, `self._candle_by_window[key]` must be
+    updated to the CORRECTED fact -- proven by a LATER Swing invalidation
+    that reattempts this exact window, which reads `_candle_by_window[key]`
+    back via `_invalidate_and_reattempt`; a stale/`None` entry would crash
+    or silently use the wrong candle."""
+    engine = _engine(allocator, time_source)
+    swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    reference = candle_at(allocator, 10, high="110", low="90", close="105")
+    engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+    correction = dataclasses.replace(
+        reference,
+        ref=allocator.next_ref(CANDLE_STREAM_ID),
+        recorded_time=reference.recorded_time + timedelta(minutes=1),
+        ohlcv=dataclasses.replace(reference.ohlcv, high=Decimal("130"), close=Decimal("125")),
+        is_correction=True,
+        event_contract_ref=EventContractRef(CANDLE_CORRECTED_CONTRACT_ID, CONTRACT_VERSION),
+    )
+    engine.on_candle(correction, cursor=frontier_at(correction.recorded_time))
+
+    inv = swing_invalidated_at(
+        allocator, swing_id="s1", swing_revision=1, recorded_time=correction.recorded_time + timedelta(minutes=5)
+    )
+    events = engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
+    assert len(events) == 1  # no other eligible Swing -- genuinely PENDING_CORRECTION
+    swing2 = swing_confirmed_at(
+        allocator, pivot_index=2, swing_id="s2", pivot_price="103", recorded_offset_minutes=20
+    )
+    resolve_events = engine.on_swing_confirmed(swing2, cursor=frontier_at(swing2.recorded_time))
+    replacement = only_computed(resolve_events[0])
+    assert replacement.value == Decimal("22.00")  # |125 - 103| -- the CORRECTED close, not the original 105

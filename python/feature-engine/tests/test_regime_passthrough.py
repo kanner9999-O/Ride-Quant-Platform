@@ -280,6 +280,7 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
     )
     assert original.scope == engine.scope
     assert original.unit == engine.definition.unit
+    assert original.window_start == original_input.window_start
     assert original.window_end == original_input.recorded_time
     assert original.causation_refs == original.input_fact_refs
     assert original.ref.stream_id == "feature"
@@ -796,3 +797,163 @@ def test_non_causal_time_source_rejected(allocator: SequenceAllocator) -> None:
     )
     with pytest.raises(RecordedTimeSourceViolationError):
         engine.on_regime_classified(fact, cursor=_frontier_at(fact.recorded_time))
+
+
+# --- P3-PY-MUT-STEP9-B remediation (EVID-03, actionable_test_gap_candidate) --
+
+
+def test_foreign_scope_regime_fact_rejected_when_only_venue_differs(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_check_scope`'s 3-condition OR must reject a mismatch on ANY single
+    field independently -- the existing instrument_id-only test does not
+    distinguish a partial `or`->`and` mutation on the venue/timeframe pair;
+    a venue_id-only mismatch does."""
+    engine = _engine(allocator, time_source)
+    fact = regime_classified_at(
+        allocator,
+        0,
+        computed_metric="1.5",
+        regime_dimension="volatility",
+        regime_definition_version="rgd-1",
+        venue_id="a-different-venue",
+    )
+    with pytest.raises(ForeignScopeError):
+        engine.on_regime_classified(fact, cursor=_frontier_at(fact.recorded_time))
+
+
+def test_second_correction_cycle_lineage_state_is_current_not_stale(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """After a replacement is accepted, the lineage state `_emit_replacement`
+    constructs (`head_fact`/`last_evidence_ref`/`last_evidence_fact`/
+    `invalidated`) must be the REPLACEMENT's own, current values -- proven
+    by running a SECOND full invalidate/replace cycle and a duplicate
+    redelivery, both of which would break if any of those fields were
+    stale/corrupted after the first replacement."""
+    engine = _engine(allocator, time_source)
+    original_input = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    original = only_computed(
+        engine.on_regime_classified(original_input, cursor=_frontier_at(original_input.recorded_time))[0]
+    )
+    inv1 = regime_invalidated_at(
+        allocator,
+        invalidated_fact_ref=original_input.ref,
+        recorded_time=original.recorded_time + timedelta(minutes=5),
+    )
+    engine.on_regime_invalidated(inv1, cursor=_frontier_at(inv1.recorded_time))
+    replacement_input = regime_classified_at(
+        allocator,
+        0,
+        computed_metric="1.5",
+        regime_dimension="volatility",
+        regime_definition_version="rgd-1",
+        recorded_offset_seconds=600,
+    )
+    replacement = only_computed(
+        engine.on_regime_classified(replacement_input, cursor=_frontier_at(replacement_input.recorded_time))[0]
+    )
+
+    # (1) A duplicate redelivery of the REPLACEMENT's own authoritative input
+    # must be idempotent -- this requires `last_evidence_ref`/`last_evidence_
+    # fact` on the post-replacement lineage state to be the replacement's
+    # own (not None, not the original's).
+    assert engine.on_regime_classified(replacement_input, cursor=_frontier_at(replacement_input.recorded_time)) == []
+
+    # (2) A SECOND invalidate/replace cycle must target the REPLACEMENT
+    # (not the original) -- this requires `head_fact` on the post-
+    # replacement lineage state to be the replacement's own.
+    inv2 = regime_invalidated_at(
+        allocator,
+        invalidated_fact_ref=replacement_input.ref,
+        recorded_time=replacement.recorded_time + timedelta(minutes=5),
+    )
+    invalidation2 = only_invalidated(engine.on_regime_invalidated(inv2, cursor=_frontier_at(inv2.recorded_time))[0])
+    assert invalidation2.invalidated_fact_ref == replacement.ref
+    assert invalidation2.window_start == replacement.window_start
+    assert invalidation2.window_end == replacement.window_end
+
+    replacement2_input = regime_classified_at(
+        allocator,
+        0,
+        computed_metric="1.5",
+        regime_dimension="volatility",
+        regime_definition_version="rgd-1",
+        recorded_offset_seconds=1200,
+    )
+    replacement2 = only_computed(
+        engine.on_regime_classified(replacement2_input, cursor=_frontier_at(replacement2_input.recorded_time))[0]
+    )
+    assert replacement2.supersedes_fact_ref == replacement.ref
+
+
+def test_emit_invalidation_recorded_time_floor_reflects_each_argument_when_dominant(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """`_emit_invalidation`'s `floor = max(state.head_fact.recorded_time,
+    invalidation.recorded_time, cursor.recorded_time)` must genuinely
+    include each of its three named arguments -- proven by making each, in
+    turn, the dominant (latest) value."""
+    # cursor.recorded_time dominant.
+    e1 = _engine(allocator, time_source)
+    original_input1 = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    original1 = only_computed(
+        e1.on_regime_classified(original_input1, cursor=_frontier_at(original_input1.recorded_time))[0]
+    )
+    inv1 = regime_invalidated_at(
+        allocator,
+        invalidated_fact_ref=original_input1.ref,
+        recorded_time=original1.recorded_time + timedelta(minutes=5),
+    )
+    far_future_cursor = inv1.recorded_time + timedelta(days=365)
+    invalidation1 = only_invalidated(e1.on_regime_invalidated(inv1, cursor=_frontier_at(far_future_cursor))[0])
+    assert invalidation1.recorded_time > far_future_cursor
+
+    # invalidation.recorded_time (the trigger fact's own recorded_time) dominant
+    # -- cursor is deliberately EARLIER than the invalidation input, so only
+    # this argument's own dominance (not a tie with cursor) can explain the
+    # floor genuinely reaching this value.
+    e2 = _engine(allocator, time_source)
+    original_input2 = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    original2 = only_computed(
+        e2.on_regime_classified(original_input2, cursor=_frontier_at(original_input2.recorded_time))[0]
+    )
+    late_inv = regime_invalidated_at(
+        allocator, invalidated_fact_ref=original_input2.ref, recorded_time=original2.recorded_time + timedelta(days=365)
+    )
+    invalidation2 = only_invalidated(
+        e2.on_regime_invalidated(late_inv, cursor=_frontier_at(original_input2.recorded_time))[0]
+    )
+    assert invalidation2.recorded_time > late_inv.recorded_time
+
+    # state.head_fact.recorded_time -- the EMITTED FeatureComputed's own
+    # stamped recorded_time (`next_after(floor)`, strictly later than the
+    # raw input `RegimeClassifiedFact.recorded_time`) -- dominant. Only the
+    # engine's own INPUT recorded_time is monotonicity-checked
+    # (`_check_recorded_time`), so a subsequent invalidation input may
+    # legitimately carry a recorded_time equal to the ORIGINAL INPUT's own
+    # (not the emitted fact's, later) recorded_time -- making head_fact's own
+    # recorded_time the genuine dominant value here.
+    e3 = _engine(allocator, time_source)
+    original_input3 = regime_classified_at(
+        allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
+    )
+    original3 = only_computed(
+        e3.on_regime_classified(original_input3, cursor=_frontier_at(original_input3.recorded_time))[0]
+    )
+    assert original3.recorded_time > original_input3.recorded_time
+    inv3 = regime_invalidated_at(
+        allocator,
+        invalidated_fact_ref=original_input3.ref,
+        recorded_time=original_input3.recorded_time,
+    )
+    invalidation3 = only_invalidated(
+        e3.on_regime_invalidated(inv3, cursor=_frontier_at(original_input3.recorded_time))[0]
+    )
+    assert invalidation3.recorded_time > original3.recorded_time
