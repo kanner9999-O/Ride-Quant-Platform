@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.316"
+manifest_version: "10.317"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -20974,6 +20974,146 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** deterministic re-validation of this correction (Review A re-review), followed by the same governed remediation path already identified (closing the 170 material-gap identities and/or the 12-method blind spot for EVID-03, plus separate governed evidence transactions for EVID-04 through EVID-08, before the overall Feature Chapter 13 QG can be re-evaluated toward PASS).
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-001-correction-001.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.315"` → `"10.316"`.
+
+## `feature-engine` — Chapter 13 Remediation Plan #001 (planning only; no finding closed)
+
+**Planning transaction — vai trò: `Feature Engine Chapter 13 Remediation Planner`.** Produces ONE evidence-grounded remediation plan for the six currently blocking Feature Engine Chapter 13 findings (`P3-FEATURE-QG-EVID-03` through `-08`). Planning only — does NOT implement tests/code/tooling, does NOT rerun mutation testing or QG, does NOT change threshold semantics, does NOT close any EVID finding, does NOT approve Feature Engine, open the Phase 3 gate, or authorize LIVE.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `2d6ab4040a9f48f59d8dd92b875b32dff159adee` via `git rev-parse HEAD`, matching this task's own expected boundary.
+
+### Six-row blocker classification
+
+```text
+EVID-03 (raw score / 170 material-gap IDs): ACTIONABLE_NOW. 0/170 killed;
+  75.898105813194% < 87.001959503592%. No design prerequisite -- ordinary
+  test-writing against already-pinned mutant IDs.
+EVID-03 (12-method blind spot, 5 high-materiality): NEEDS_GOVERNED_DESIGN_
+  OR_MECHANISM. Requires choosing among Testing Convention v0.16 SS5c's
+  three paths (accepted supplemental mechanism / governed fault-injection
+  evidence / explicit Product Owner risk-acceptance).
+EVID-04 (I-2 Decision Parity): BLOCKED_BY_EXTERNAL_DEPENDENCY. Confirmed
+  fresh: no Decision Engine/Strategy Plugin Host exists anywhere in the
+  repository (python/, go/ contain only feature-engine, raw-regime-engine,
+  structure-engine, market-data-ingestion, market-reference-service). I-2's
+  own Verification (cross-execution-mode canonical Decision hash
+  comparison) cannot be performed without it -- not fabricable now.
+EVID-05 (I-5 Decision-Time Observable Dependency): NEEDS_GOVERNED_DESIGN_
+  OR_MECHANISM, split into (a) a self-contained-replay test (ACTIONABLE_NOW,
+  test-only, exercises the already-cached-authority design) and (b) a
+  content-identity-checksum design gap -- independently confirmed by direct
+  code reading: ComputationCursor carries input_contract_ref/
+  stream_registry_version (identity/version strings) but no checksum field,
+  even though VerifiedInputContractAuthority DOES compute input_contract_
+  content_id/stream_registry_content_id at resolution time -- they are
+  simply never threaded into the persisted cursor. Part (b) is Event-
+  Schema-adjacent and MUST rerun Chapter 0 SS4b fresh before any
+  implementation transaction.
+EVID-06 (I-6 Fail-Safe by Scope): NEEDS_GOVERNED_DESIGN_OR_MECHANISM.
+  Correction made this transaction: EVID-06's original "zero test coverage"
+  premise is now STALE -- independently verified all 4 ForeignScopeError
+  raise sites now have ordinary example-based coverage (added as COV-01
+  branch-coverage remediation, self-documented in-code as "factual overlap
+  only, not a claim of EVID-06 closure"). Disposition unchanged (FAIL --
+  evidence) since I-6's actual Verification (fault injection + blast radius
+  + risk-not-increased assertion) remains entirely unaddressed, and Feature
+  Engine's own risk-model applicability under I-6 is itself an unresolved
+  interpretation question -- likely affecting every Compute-Engine-class
+  module identically (structure-engine, raw-regime-engine, feature-engine),
+  so plausibly ADR_REQUIRED under Chapter 0 SS4b's ">1 module" trigger.
+EVID-07 (I-13 / property-based evidence): NEEDS_GOVERNED_DESIGN_OR_
+  MECHANISM. Confirmed fresh: zero "hypothesis" (or any property-based
+  framework) references anywhere in testing.md or any pyproject.toml --
+  requires a full governed mechanism-selection sequence mirroring Testing
+  Convention v0.16's own already-completed mutmut precedent.
+EVID-08 (I-1 Explainability / trace completeness): BLOCKED_BY_EXTERNAL_
+  DEPENDENCY. Confirmed fresh: Strategy/Decision/Risk Gateway/Execution
+  Engine are all unbuilt -- a strict superset of EVID-04's own dependency
+  (Decision Engine alone). Feature-local causation evidence
+  (causation_refs/input_fact_refs/computation_cursor) already exists and
+  remains supporting-only, never sufficient alone, per the existing
+  recorded disposition.
+```
+
+### Dependency graph / critical path
+
+```text
+EVID-03(a), EVID-05(a): independent, ACTIONABLE_NOW, zero cross-dependency.
+EVID-03(b), EVID-05(b)-design, EVID-06-interpretation, EVID-07-candidate:
+  mutually independent governed design/decision tracks, workable in
+  parallel with each other and with EVID-03(a)/EVID-05(a).
+EVID-04: blocked on Decision Engine + Strategy Plugin Host existing
+  (Chapter 14 SS14.2 sequence) -- outside Feature Engine's own remediation
+  scope.
+EVID-08: blocked on the FULL Decision + Risk Gateway + Execution Engine
+  chain existing -- a strict superset of EVID-04's dependency; cannot
+  unblock before EVID-04 does. Longest pole in the critical path.
+```
+
+### Remediation plan artifact created
+
+```text
+New file: docs/governance/quality-gate/feature-engine-chapter13-
+  remediation-plan-001.md (blob 2ef49a0080fd2558a081614021bb5c081a6e0b58).
+  Contains: the six-row blocker matrix with exact evidence/semantic gap,
+  dependency, and closure condition per finding; the two evidence-fidelity
+  corrections found during this planning pass (EVID-06's stale "zero
+  coverage" premise; EVID-05's checksum gap independently confirmed by
+  code reading); the dependency graph/critical path; an ordered
+  remediation sequence; explicit parallelizable-work identification;
+  explicit stop/unblock conditions for EVID-04/EVID-08; an explicit
+  "not recommended" section (no threshold weakening, no same-process-
+  determinism substitution for parity, no ForeignScopeError-unit-test-
+  only closure for EVID-06); and the single recommended next governed
+  transaction (EVID-03(a) material-gap remediation, prioritized using the
+  Step-4 analysis's own duplication data: 22 of 30 material-gap-containing
+  functions each hold >=2 mutants, together covering 162/170 = 95%).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/quality-gate/feature-engine-chapter13-remediation-
+  plan-001.md (new), docs/MANIFEST.md, docs/CHANGELOG.md changed in the
+  tracked repository (confirmed via `git status --porcelain=v1`). All
+  mutation-baseline-evidence artifacts, python/feature-engine/src/**,
+  python/feature-engine/tests/**, python/feature-engine/tooling/**,
+  pyproject.toml, requirements-dev.lock.txt, docs/engineering/testing.md,
+  Constitution, docs/adr/**, execution-rules.md, phase-3-rules.md,
+  module-registry.yaml, CI/CD workflows, any Go module: all verified
+  byte-identical. No test/code/tooling implemented. No mutation testing or
+  QG rerun. No threshold semantics changed. No EVID finding closed.
+  Feature Engine not approved. Phase 3 gate not opened. LIVE not
+  authorized.
+```
+
+### State summary
+
+```text
+Remediation plan artifact:     docs/governance/quality-gate/feature-
+                                engine-chapter13-remediation-plan-001.md,
+                                blob 2ef49a0080fd2558a081614021bb5c081a6e0b58.
+EVID-03:                       ACTIONABLE_NOW (raw score/170 IDs) +
+                                NEEDS_GOVERNED_DESIGN_OR_MECHANISM (blind
+                                spot) -- OPEN, unchanged.
+EVID-04:                       BLOCKED_BY_EXTERNAL_DEPENDENCY -- OPEN, unchanged.
+EVID-05:                       NEEDS_GOVERNED_DESIGN_OR_MECHANISM (split
+                                a/b) -- OPEN, unchanged.
+EVID-06:                       NEEDS_GOVERNED_DESIGN_OR_MECHANISM -- OPEN,
+                                unchanged (stale "zero coverage" premise
+                                corrected; disposition unchanged).
+EVID-07:                       NEEDS_GOVERNED_DESIGN_OR_MECHANISM -- OPEN, unchanged.
+EVID-08:                       BLOCKED_BY_EXTERNAL_DEPENDENCY -- OPEN, unchanged.
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+Threshold lifecycle:           EFFECTIVE (unchanged).
+P3-PY-MUT-THRESH-A-MIN-02:     OPEN — MINOR / NON-BLOCKING (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** the single recommended transaction from this plan — a bounded, test-only remediation transaction closing as many of the 170 pinned `EVID-03` material-gap mutant identities as possible (prioritized by the top ~20-30 duplicated functions), followed by a fresh Step-9-style formal re-measurement.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.316"` → `"10.317"`.
 
 ## Decision Log
 

@@ -2,6 +2,63 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: Chapter 13 remediation plan #001 (planning only; no finding closed)
+
+**Planning transaction — vai trò: `Feature Engine Chapter 13 Remediation Planner`.** Produces one evidence-grounded remediation plan for the six blocking Feature Engine Chapter 13 findings (`P3-FEATURE-QG-EVID-03` through `-08`). Planning only — no tests/code/tooling implemented, no QG rerun, no threshold change, no finding closed.
+
+### Six-blocker classification
+
+```text
+EVID-03 (raw score/170 IDs): ACTIONABLE_NOW.
+EVID-03 (12-method blind spot): NEEDS_GOVERNED_DESIGN_OR_MECHANISM.
+EVID-04 (I-2 Decision Parity): BLOCKED_BY_EXTERNAL_DEPENDENCY -- confirmed
+  fresh, no Decision Engine/Strategy Plugin Host exists in the repository.
+EVID-05 (I-5): NEEDS_GOVERNED_DESIGN_OR_MECHANISM, split (a) self-contained
+  replay test (ACTIONABLE_NOW) and (b) content-identity-checksum design gap
+  in ComputationCursor (independently confirmed by code reading) -- must
+  rerun Chapter 0 SS4b fresh before implementation.
+EVID-06 (I-6): NEEDS_GOVERNED_DESIGN_OR_MECHANISM. Correction: the "zero
+  test coverage" premise is stale -- all 4 ForeignScopeError raise sites
+  now have ordinary coverage (COV-01 remediation); disposition unchanged
+  since the actual fault-injection/risk-not-increased Verification remains
+  unaddressed and Feature Engine's risk-model applicability under I-6 is
+  itself unresolved (possibly ADR_REQUIRED, likely affects >1 module).
+EVID-07 (I-13): NEEDS_GOVERNED_DESIGN_OR_MECHANISM -- confirmed fresh, no
+  property-based framework installed/approved anywhere.
+EVID-08 (I-1): BLOCKED_BY_EXTERNAL_DEPENDENCY -- confirmed fresh, full
+  Decision/Risk/Execution pipeline unbuilt (superset of EVID-04's dependency).
+```
+
+### Plan structure
+
+```text
+docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-
+  001.md -- six-row blocker matrix, dependency graph/critical path, ordered
+  remediation sequence, parallelizable-work identification, explicit
+  stop/unblock conditions for EVID-04/EVID-08, an explicit "not
+  recommended" section, and the single recommended next transaction:
+  EVID-03(a) material-gap remediation prioritized by the Step-4 analysis's
+  own duplication data (22 of 30 functions covering 162/170 = 95%).
+```
+
+### State summary
+
+```text
+EVID-03..08: OPEN, unchanged (classifications recorded above).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+Threshold lifecycle: EFFECTIVE (unchanged).
+P3-PY-MUT-THRESH-A-MIN-02: OPEN — MINOR / NON-BLOCKING (unchanged).
+Feature module approval: NOT APPROVED.
+Phase 3 Approval Gate: NOT opened.
+LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** the plan's single recommended transaction — a bounded, test-only remediation closing as many of the 170 pinned EVID-03 material-gap identities as possible, followed by a fresh Step-9-style formal re-measurement.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.316"` → `"10.317"`.
+
+---
+
 ## [Unreleased] — 2026-09-04 — feature-engine: Step-9 evidence fidelity bounded correction (`P3-PY-MUT-STEP9-VAL-MAJ-01`/`-MAJ-02`/`-MIN-01` → REMEDIATED — PENDING DETERMINISTIC RE-VALIDATION)
 
 **Bounded, additive evidence-fidelity correction — vai trò: `Step-9 Evidence Fidelity Bounded Correction Executor`.** Corrects three defects in Step-9's evidence interpretation without rerunning mutation testing or touching the original immutable artifact.
