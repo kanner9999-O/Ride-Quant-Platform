@@ -2,6 +2,60 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: threshold proposal 001 — Product Owner APPROVAL (mechanical) — `APPROVED — NOT YET EFFECTIVE / PENDING STEP 9`
+
+**Product Owner APPROVAL — mechanical, vai trò: `Feature Engine Threshold Product Owner Decision Recorder`.** Product Owner decision (verbatim): **"APPROVE Feature Engine Mutation-Effectiveness Threshold Proposal 001 at boundary fc8ded778e9feb4efb9d5bbebd19ef2e74b76757."** Decision date: `2026-09-04`. Mechanical recording only — no new semantic proposal content; the threshold number, two-part gate semantics, and 170-identity condition are unchanged.
+
+### Review evidence recorded (externally-completed, not self-closed)
+
+```text
+Review A — ChatGPT / AI Technical Architect: P3-PY-MUT-THRESH-A-MAJ-01
+  CLOSED, P3-PY-MUT-THRESH-A-MIN-01 CLOSED, P3-PY-MUT-THRESH-A-MIN-02 OPEN —
+  MINOR / NON-BLOCKING. Blocker 0/Major 0/Minor 1. CLEAN WITH NON-BLOCKING
+  MINOR — READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B — Claude / AI Technical Architect, ADR-031 Mode A —
+  DISTINCT_PRINCIPAL: independently confirmed MAJ-01/MIN-01 substantive
+  remediation and MIN-02 as real-but-non-blocking. Blocker 0/Major 0/Minor
+  1. CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+Independent-review requirement (Chapter 11 SS11.5, minimum two): SATISFIED.
+```
+
+### Approved gate (unchanged, restated for the decision record)
+
+```text
+1. Raw Ride mutation-effectiveness >= 87.001959503592% (display 87.0%).
+2. AND all 170 pinned material-gap mutant identities individually resolved
+   per proposal SS4.1.
+3. Mutation-surface completeness requirements (SS4.2) remain separately
+   applicable.
+Scope: Tier-1 / FEATURE-ENGINE-ONLY. ADR_SCOPE_DISPOSITION: ADR_OPTIONAL —
+  no ADR authored (unchanged).
+```
+
+`P3-PY-MUT-THRESH-A-MIN-02` carried forward, explicitly OPEN, non-blocking — not self-closed, proposal not altered to fix it.
+
+### State summary
+
+```text
+Product Owner decision: APPROVE, 2026-09-04.
+P3-PY-MUT-THRESH-A-MAJ-01: CLOSED — REVIEW A (confirmed Review B).
+P3-PY-MUT-THRESH-A-MIN-01: CLOSED — REVIEW A (confirmed Review B).
+P3-PY-MUT-THRESH-A-MIN-02: OPEN — MINOR / NON-BLOCKING.
+Threshold proposal lifecycle: APPROVED — NOT YET EFFECTIVE / PENDING STEP 9.
+TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED (not yet effective).
+P3-FEATURE-QG-EVID-03:   FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG: FAIL (unchanged).
+Feature module approval: NOT APPROVED.
+Phase 3 Approval Gate:   NOT opened.
+LIVE:                     NOT_AUTHORIZED.
+```
+
+**Next governed step:** Step 9 — a threshold-bearing formal Chapter 13 test-effectiveness evidence transaction for Feature Engine, evaluated against the now-approved 87.001959503592% two-part gate.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.313"` → `"10.314"`.
+
+---
+
 ## [Unreleased] — 2026-09-04 — feature-engine: threshold proposal bounded correction (`P3-PY-MUT-THRESH-A-MAJ-01`/`P3-PY-MUT-THRESH-A-MIN-01` → REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW; fresh `ADR_OPTIONAL`)
 
 **Bounded correction transaction — vai trò: `Feature Engine Threshold Proposal Bounded Correction Executor`.** Corrects the Step-5 threshold proposal per two Step-7 Review A findings: the aggregate-only gate did not enforce which survivors are closed (MAJOR), and an arithmetic/count error (MINOR). Does not activate the threshold, alter baseline-001, or touch production/test/tooling code.

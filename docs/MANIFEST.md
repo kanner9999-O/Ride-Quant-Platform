@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.313"
+manifest_version: "10.314"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -20505,6 +20505,125 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** bounded Review A re-review of this correction, followed (if clean) by Step 7 Independent Review B of the corrected threshold proposal.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.312"` → `"10.313"`.
+
+## `feature-engine` — Threshold Proposal 001 Product Owner APPROVAL (mechanical) — `APPROVED — NOT YET EFFECTIVE / PENDING STEP 9`
+
+**Product Owner APPROVAL — mechanical (2026-09-04), vai trò: `Feature Engine Threshold Product Owner Decision Recorder`.** Product Owner decision (verbatim): **"APPROVE Feature Engine Mutation-Effectiveness Threshold Proposal 001 at boundary fc8ded778e9feb4efb9d5bbebd19ef2e74b76757."** Decision date: `2026-09-04`. Reviewed semantic boundary: `fc8ded778e9feb4efb9d5bbebd19ef2e74b76757`. Reviewed/approved subject blob: `88a05b3337e6f88a04ccea7b15f30c225e3f461a`. This is mechanical decision/review-evidence recording only — no new semantic proposal content, no Review A/B performed by this transaction (both already externally completed and are recorded here, not self-closed).
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `fc8ded778e9feb4efb9d5bbebd19ef2e74b76757` via `git rev-parse HEAD`, matching this task's own expected boundary; subject file confirmed exactly blob `88a05b3337e6f88a04ccea7b15f30c225e3f461a` via `git rev-parse HEAD:<path>`, matching this task's own expected subject blob. Independently checked: no prior record of `P3-PY-MUT-THRESH-A-MAJ-01`/`-MIN-01`/`-MIN-02` closure or of this Product Owner decision existed in `docs/MANIFEST.md`/`docs/CHANGELOG.md` before this transaction — first recording.
+
+### Review evidence recorded (externally-completed dispositions, not recorder self-closure)
+
+```text
+Review A — ChatGPT / AI Technical Architect, reviewed boundary
+fc8ded778e9feb4efb9d5bbebd19ef2e74b76757:
+  P3-PY-MUT-THRESH-A-MAJ-01: CLOSED — REVIEW A.
+  P3-PY-MUT-THRESH-A-MIN-01: CLOSED — REVIEW A.
+  P3-PY-MUT-THRESH-A-MIN-02: OPEN — MINOR / NON-BLOCKING (documentation-
+    fidelity residual, not remediated/self-closed by this transaction).
+  Blocker 0 / Major 0 / Minor 1.
+  CLEAN WITH NON-BLOCKING MINOR — READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B — Claude / AI Technical Architect, same exact boundary
+and blob, ADR-031 Mode A — DISTINCT_PRINCIPAL (different reviewer principal
+from Review A -- satisfies ADR-031 SS3 independence eligibility directly; no
+execution-isolation evidence contract required, that is Mode B only):
+  P3-PY-MUT-THRESH-A-MAJ-01: CLOSED — independently confirmed substantive
+    remediation.
+  P3-PY-MUT-THRESH-A-MIN-01: CLOSED — independently confirmed substantive
+    remediation.
+  P3-PY-MUT-THRESH-A-MIN-02: independently confirmed real but non-blocking.
+  Blocker 0 / Major 0 / Minor 1.
+  CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+Independent-review requirement (Chapter 11 SS11.5, minimum two): SATISFIED.
+```
+
+### Approved gate (unchanged content, restated for the decision record)
+
+```text
+1. Raw Ride mutation-effectiveness >= 87.001959503592% (display: 87.0%).
+2. AND all 170 pinned material-gap mutant identities individually resolved
+   per proposal SS4.1 (killed in a fresh formal measurement, or
+   individually reclassified through a separate governed decision).
+3. Mutation-surface completeness requirements (SS4.2, Testing Convention
+   v0.16 SS5b/SS5c) remain separately applicable, not waived by 1+2.
+Scope: Tier-1 / FEATURE-ENGINE-ONLY. ADR_SCOPE_DISPOSITION: ADR_OPTIONAL —
+  no ADR authored (unchanged from Step 6's fresh re-derivation).
+```
+
+### `P3-PY-MUT-THRESH-A-MIN-02` — carried forward, explicitly OPEN, non-blocking
+
+```text
+A known, real, non-blocking documentation-fidelity Minor, independently
+  confirmed by both Review A and Review B. NOT self-closed by this
+  transaction; the approved semantic proposal is NOT altered to fix it, per
+  this task's own explicit instruction. Remains visible as an open item for
+  a future bounded correction. Did not block, and does not retroactively
+  unwind, this Product Owner approval.
+```
+
+### Proposal artifact updated (mechanical recording only)
+
+```text
+Modified in place: docs/governance/mutation-baseline-evidence/feature-
+  engine-mutation-threshold-proposal-001.md. Added: a Product Owner
+  APPROVAL banner at the top (STATUS line, verbatim decision, approved
+  boundary/blob, approved gate restatement, Review A/B evidence,
+  MIN-02 carry-forward note, state-after-approval, explicit KHÔNG list) and
+  a short update note in SS8 confirming Steps 6-8 complete without changing
+  any of SS8's preserved lifecycle bullets. The reviewed semantic content
+  (SS0-SS8: the 87.001959503592% two-part gate, the 170-identity SS4.1
+  condition, SS4.2 blind-spot condition, SS4.3 recalibration triggers, all
+  candidate analysis, all evidence citations) is otherwise byte-unchanged
+  from the reviewed/approved boundary.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  threshold-proposal-001.md (modified), docs/MANIFEST.md, docs/CHANGELOG.md
+  changed in the tracked repository (confirmed via `git status
+  --porcelain=v1`). feature-engine-mutation-baseline-001.json and
+  feature-engine-mutation-baseline-001-analysis.md both verified byte-
+  identical. python/feature-engine/src/**, python/feature-engine/tests/**,
+  python/feature-engine/tooling/**, pyproject.toml,
+  requirements-dev.lock.txt, docs/engineering/testing.md, Constitution,
+  docs/adr/**, execution-rules.md, phase-3-rules.md, module-registry.yaml,
+  CI/CD workflows, any Go module: all verified byte-identical. The
+  threshold number, two-part gate semantics, and 170-identity condition are
+  UNCHANGED (approved as reviewed, not modified). No mutation-testing
+  rerun. No production/test/tooling semantics changed. The
+  75.898105813194% baseline is NOT evaluated against the approved
+  threshold by this transaction. P3-FEATURE-QG-EVID-03 not marked PASS.
+  Formal Chapter 13 QG not rerun. Feature Engine not approved. Phase 3 gate
+  not opened. LIVE not authorized. P3-PY-MUT-THRESH-A-MIN-02 not
+  self-closed.
+```
+
+### State summary
+
+```text
+Product Owner decision:        APPROVE (verbatim recorded above), 2026-09-04.
+P3-PY-MUT-THRESH-A-MAJ-01:     CLOSED — REVIEW A (confirmed Review B).
+P3-PY-MUT-THRESH-A-MIN-01:     CLOSED — REVIEW A (confirmed Review B).
+P3-PY-MUT-THRESH-A-MIN-02:     OPEN — MINOR / NON-BLOCKING (carried forward).
+Threshold proposal lifecycle:  APPROVED — NOT YET EFFECTIVE / PENDING STEP 9.
+Threshold value/scope:         87.001959503592% (display 87.0%) + 170-
+                                identity SS4.1 condition, Tier-1/FEATURE-
+                                ENGINE-ONLY — unchanged, approved as reviewed.
+ADR_SCOPE_DISPOSITION:         ADR_OPTIONAL (unchanged, no ADR authored).
+TEST_EFFECTIVENESS_THRESHOLD:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED
+                                (not yet effective; Step 9 pending).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged, NOT marked PASS).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Step 9 — a threshold-bearing formal Chapter 13 test-effectiveness evidence transaction for Feature Engine, evaluated against the now-approved 87.001959503592% two-part gate.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.313"` → `"10.314"`.
 
 ## Decision Log
 

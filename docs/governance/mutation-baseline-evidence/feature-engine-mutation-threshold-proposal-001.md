@@ -1,6 +1,75 @@
 # Feature Engine Mutation-Effectiveness Threshold — Step-5 Proposal
 
-**STATUS: PROPOSAL / NOT EFFECTIVE / PENDING REVIEW AND PRODUCT OWNER DECISION**
+**STATUS: APPROVED — NOT YET EFFECTIVE / PENDING STEP 9**
+
+**Product Owner APPROVAL — mechanical (2026-09-04), vai trò: `Feature Engine Threshold Product Owner Decision Recorder`.** Product Owner decision (verbatim): **"APPROVE Feature Engine Mutation-Effectiveness Threshold Proposal 001 at boundary fc8ded778e9feb4efb9d5bbebd19ef2e74b76757."** Decision date: `2026-09-04`.
+
+**Approved semantic boundary:** `fc8ded778e9feb4efb9d5bbebd19ef2e74b76757` (the bounded-correction commit — the actual, immutable proposal content this approval covers). **Approved subject blob:** `88a05b3337e6f88a04ccea7b15f30c225e3f461a` (this file, at that boundary). This recording transaction introduces NO new semantic proposal content and was NOT itself independently re-reviewed as a separate candidate; it is mechanical decision/review-evidence recording only.
+
+**Approved gate (unchanged from the reviewed boundary, restated here for the approval record only):**
+
+```text
+1. Raw Ride mutation-effectiveness >= 87.001959503592% (display: 87.0%).
+2. AND all 170 pinned material-gap mutant identities individually resolved
+   per SS4.1 (killed in a fresh formal measurement, or individually
+   reclassified through a separate governed decision).
+3. Mutation-surface completeness requirements (SS4.2, Testing Convention
+   v0.16 SS5b/SS5c -- the 12-method/5-high-materiality blind spot) remain
+   separately applicable and are NOT waived by meeting 1+2.
+Scope: Tier-1 / FEATURE-ENGINE-ONLY. ADR_SCOPE_DISPOSITION: ADR_OPTIONAL —
+  no ADR authored.
+```
+
+**Review evidence at this approval (already completed, recorded — not recorder self-closure):**
+
+```text
+Review A — ChatGPT / AI Technical Architect, reviewed boundary
+fc8ded778e9feb4efb9d5bbebd19ef2e74b76757:
+  P3-PY-MUT-THRESH-A-MAJ-01: CLOSED — REVIEW A.
+  P3-PY-MUT-THRESH-A-MIN-01: CLOSED — REVIEW A.
+  P3-PY-MUT-THRESH-A-MIN-02: OPEN — MINOR / NON-BLOCKING (documentation-
+    fidelity residual; not remediated, not self-closed, not blocking this
+    approval; carried forward as a known open item, see below).
+  Blocker 0 / Major 0 / Minor 1.
+  CLEAN WITH NON-BLOCKING MINOR — READY_FOR_INDEPENDENT_REVIEW_B.
+Independent Review B — Claude / AI Technical Architect, same exact boundary
+and blob, ADR-031 Mode A — DISTINCT_PRINCIPAL (different reviewer principal
+from Review A; satisfies ADR-031 SS3 independence eligibility directly, no
+execution-isolation evidence contract required -- that applies to Mode B
+only):
+  P3-PY-MUT-THRESH-A-MAJ-01: CLOSED — independently confirmed substantive
+    remediation.
+  P3-PY-MUT-THRESH-A-MIN-01: CLOSED — independently confirmed substantive
+    remediation.
+  P3-PY-MUT-THRESH-A-MIN-02: independently confirmed real but non-blocking.
+  Blocker 0 / Major 0 / Minor 1.
+  CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+Independent-review requirement (Chapter 11 SS11.5, minimum two): SATISFIED.
+```
+
+**`P3-PY-MUT-THRESH-A-MIN-02` — carried forward, explicitly OPEN, non-blocking.** This is a known, real, non-blocking documentation-fidelity Minor, independently confirmed by both Review A and Review B as real-but-non-blocking. It is **not** self-closed by this recording transaction, and this transaction does **not** alter the approved semantic proposal to fix it — both per this task's own explicit instruction. It remains visible here as an open item for a future bounded correction, whenever one is warranted; it did not block, and does not retroactively unwind, this Product Owner approval.
+
+**State after this approval:**
+
+```text
+Feature Engine Mutation-Effectiveness Threshold Proposal 001: APPROVED —
+  Product Owner. Proposal content (SS0-SS8, the 87.001959503592% two-part
+  gate, the 170-identity SS4.1 condition, SS4.2/SS4.3 companion conditions)
+  UNCHANGED by this approval -- byte-identical below this banner except for
+  this recording section and the lifecycle-state note immediately following
+  it.
+Threshold status: APPROVED — NOT YET EFFECTIVE / PENDING STEP 9. Approval of
+  the PROPOSAL is not itself Step 9's threshold-bearing formal evidence
+  transaction -- the current 75.898105813194% baseline is NOT evaluated
+  against the now-approved 87.001959503592% figure by this transaction.
+P3-PY-MUT-THRESH-A-MAJ-01: CLOSED. P3-PY-MUT-THRESH-A-MIN-01: CLOSED.
+P3-PY-MUT-THRESH-A-MIN-02: OPEN — MINOR / NON-BLOCKING (unchanged, carried
+  forward).
+```
+
+**Approval này KHÔNG:** evaluate the existing 75.898105813194% baseline against the approved threshold, rerun mutation testing, rerun formal Chapter 13 QG, mark `P3-FEATURE-QG-EVID-03` PASS (VẪN `FAIL — evidence`), approve Feature Engine module, open Phase 3 Approval Gate, authorize LIVE, modify the threshold number/two-part gate semantics/170-identity condition, modify baseline-001 or the Step-4 analysis, modify Testing Convention v0.16, author or modify any ADR/Constitution chapter, touch any production/test/tooling code, or self-close `P3-PY-MUT-THRESH-A-MIN-02`. `TEST_EFFECTIVENESS_THRESHOLD` remains `UNRESOLVED` in the sense that it has not yet been established as the EFFECTIVE, QG-enforced number — that is exactly Step 9's own separate, subsequent action. **Next governed step:** Step 9 — a threshold-bearing formal Chapter 13 test-effectiveness evidence transaction for Feature Engine, evaluated against this now-approved 87.001959503592% two-part gate.
+
+---
 
 This document is a Step-5 threshold proposal under Testing Convention v0.16's
 governed 9-step sequence (mechanism approval → install/pin → baseline
@@ -421,11 +490,18 @@ No prior record of these two closure dispositions existed in
 `docs/MANIFEST.md` or `docs/CHANGELOG.md` before this transaction — this is
 their first recording.
 
-## 8. Lifecycle states preserved (unchanged by this proposal)
+## 8. Lifecycle states preserved
+
+**Update (Product Owner approval recorded above):** Steps 6 (ADR Scope Rule),
+7 (Review A + Independent Review B), and 8 (this Product Owner decision) are
+now all complete — the proposal itself is `APPROVED — NOT YET EFFECTIVE /
+PENDING STEP 9`. This does **not** change any of the states below; approving
+the *proposal* is not Step 9's own threshold-bearing formal evidence
+transaction, and none of the following is resolved until Step 9 completes:
 
 - `TEST_EFFECTIVENESS_THRESHOLD`: **UNRESOLVED — BASELINE/CALIBRATION
-  REQUIRED** (this proposal does not resolve it; only Step 9 could, after
-  Steps 6–8)
+  REQUIRED** (not yet established as the *effective*, QG-enforced number —
+  that is Step 9's own separate action)
 - `P3-FEATURE-QG-EVID-03`: **FAIL — evidence**
 - Feature Engine Chapter 13 Quality Gate: **FAIL**
 - Feature Engine approval status: **NOT APPROVED**
