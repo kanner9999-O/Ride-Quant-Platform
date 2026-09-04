@@ -1,0 +1,195 @@
+{
+  "schema_note": "Additive, evidence-fidelity correction/superseding-interpretation of feature-engine-mutation-step9-formal-evidence-001.json. Does NOT modify, overwrite, or rerun the original measurement -- that artifact remains immutable historical evidence. This artifact corrects three Review-A-identified defects in how the ORIGINAL result was interpreted/labeled and in the overall-QG provenance claim, reusing the exact same underlying, unchanged raw measurement data.",
+  "artifact_id": "feature-engine-mutation-step9-formal-evidence-001-correction-001",
+  "corrects_finding_ids": [
+    "P3-PY-MUT-STEP9-VAL-MAJ-01",
+    "P3-PY-MUT-STEP9-VAL-MAJ-02",
+    "P3-PY-MUT-STEP9-VAL-MIN-01"
+  ],
+  "original_artifact_reference": {
+    "path": "docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-001.json",
+    "blob": "08714d4a02d6f4637521c264ce1e25cb85313328",
+    "status": "IMMUTABLE HISTORICAL EVIDENCE -- not edited, not overwritten, not rerun by this correction",
+    "measurement_reused_unchanged": true
+  },
+  "no_rerun_confirmation": {
+    "mutation_testing_rerun": false,
+    "production_test_tooling_code_modified": false,
+    "reason": "This is a pure interpretation/labeling/provenance correction. All underlying measurement facts (total, killed, survived, ten-status breakdown, raw score, 170-ID resolution, blind-spot facts) are reused verbatim from the original artifact."
+  },
+  "validated_measurement_facts_unchanged": {
+    "total_mutants": 1531,
+    "killed": 1162,
+    "survived": 369,
+    "other_eight_raw_statuses_all_zero": true,
+    "not_checked": 0,
+    "raw_ride_score_percent": 75.898105813194,
+    "material_gap_170_resolution": {
+      "resolved": 0,
+      "still_survived": 170
+    },
+    "blind_spot_methods_excluded": 12,
+    "blind_spot_high_materiality": 5,
+    "qualifying_supplemental_evidence_found": false,
+    "feature_source_test_tooling_identities_unchanged": true,
+    "threshold_lifecycle": "EFFECTIVE (unchanged)"
+  },
+  "P3_PY_MUT_STEP9_VAL_MIN_01_correction": {
+    "defect": "The original artifact's `ten_status_counts` object contained 11 keys (the governed ten raw mutmut statuses PLUS a non-existent 11th 'confirmed_timeout' raw status). `confirmed_timeout` is not a raw mutmut exit-code-derived status -- it is a separately-governed timeout-credit concept the Ride-owned metric formula's NUMERATOR uses after deterministic reproduction/confirmation of a raw `timeout` status (Testing Convention v0.16 item 8's timeout-specific rule).",
+    "corrected_ten_status_counts": {
+      "killed": 1162,
+      "survived": 369,
+      "no_tests": 0,
+      "not_checked": 0,
+      "skipped": 0,
+      "suspicious": 0,
+      "timeout": 0,
+      "caught_by_type_check": 0,
+      "segfault": 0,
+      "check_was_interrupted_by_user": 0
+    },
+    "corrected_reconciliation": {
+      "sum_of_exactly_ten_categories": 1531,
+      "equals_total": true,
+      "not_checked_is_zero": true,
+      "caught_by_type_check_is_zero": true
+    },
+    "timeout_credit_treatment_kept_separate": {
+      "raw_timeout_status_count": 0,
+      "confirmed_timeout_credit_used_by_numerator": 0,
+      "note": "No raw `timeout` mutants occurred in this measurement, so no deterministic reproduction/confirmation step was needed or performed; confirmed_timeout=0 is reported here as separate numerator-credit bookkeeping only, never as an 11th raw status."
+    },
+    "raw_score_recomputed_same_formula": "(1162 killed + 0 confirmed_timeout) / (1531 total - 0 skipped) * 100 = 75.898105813194% -- UNCHANGED."
+  },
+  "P3_PY_MUT_STEP9_VAL_MAJ_01_correction": {
+    "defect": "The original artifact labeled all three approved-gate conditions FAIL \u2014 criteria, including condition 3 (mutation-surface completeness for the 5 high-materiality blind-spot methods). Chapter 13 SS13.8/SS13.9 distinguishes FAIL \u2014 criteria (a valid, complete measurement simply does not meet the bar) from FAIL \u2014 evidence (required evidence is missing/invalid/unresolvable). Condition 3 is the latter: no qualifying supplemental mutation-testing mechanism, governed deterministic fault-injection evidence, or explicit Product Owner risk-acceptance exists for any of the 5 high-materiality methods -- this is a genuine EVIDENCE GAP (nothing to measure against), not a measured-but-failing criterion.",
+    "corrected_gate_evaluation": {
+      "condition_1_raw_score": {
+        "required": ">= 87.001959503592%",
+        "measured": 75.898105813194,
+        "result": "FAIL \u2014 criteria",
+        "reasoning": "Valid, complete, reproducible measurement; simply below the approved threshold. UNCHANGED from the original artifact."
+      },
+      "condition_2_material_gap_170_resolution": {
+        "required": "170/170 individually resolved",
+        "measured": "0/170 resolved",
+        "result": "FAIL \u2014 criteria",
+        "reasoning": "Valid, complete measurement; 0 of the 170 pinned identities are killed/confirmed_timeout and no governed reclassification exists. UNCHANGED from the original artifact."
+      },
+      "condition_3_mutation_surface_completeness": {
+        "required": "qualifying evidence for all 5 high-materiality blind-spot methods, or explicit Product Owner risk-acceptance",
+        "measured": "no measurement possible -- these 5 methods are structurally outside mutmut 3.7.0's mutation surface, and no alternative qualifying evidence (mechanism/fault-injection/risk-acceptance) exists",
+        "result": "FAIL \u2014 evidence",
+        "reasoning": "CORRECTED from FAIL \u2014 criteria. This is not a measured-but-failing criterion; it is a required-evidence-missing condition per Chapter 13 SS13.8 ('required evidence thi\u1ebfu' -> gate FAIL, fail-closed). Nothing was measured against condition 3 because the code is unreachable by the accepted mechanism and no alternative evidence exists."
+      },
+      "overall_P3_FEATURE_QG_EVID_03": {
+        "result": "FAIL \u2014 evidence",
+        "corrected_from": "FAIL \u2014 criteria (original artifact)",
+        "reasoning": "Per Chapter 13 SS13.8's fail-closed semantics, a required-evidence-missing condition (condition 3) is dominant/controlling over criteria-level failures -- 'Missing gate != passed gate... fail-closed = eligibility incomplete'. The two independent criteria failures (conditions 1 and 2) are preserved explicitly, NOT erased or reinterpreted -- they remain individually FAIL \u2014 criteria in their own right, and would still cause the dimension to fail even if condition 3's evidence gap were somehow closed."
+      }
+    }
+  },
+  "P3_PY_MUT_STEP9_VAL_MAJ_02_correction": {
+    "defect": "The original artifact's `gate_evaluation.overall_...` narrative (recorded in docs/MANIFEST.md's own transaction text, not this JSON's own field) asserted 'no formal, repository-pinned evidence exists for Feature Engine on any Chapter-13 dimension OTHER than test-effectiveness' -- this is FALSE. The repository already contains CLOSED, PASS, Product-Owner-accepted formal coverage evidence.",
+    "freshly_resolved_authoritative_feature_qg_dimension_states": {
+      "P3_FEATURE_QG_EVID_01": {
+        "dimension": "Line coverage evidence-availability",
+        "state": "CLOSED",
+        "result": "PASS",
+        "evidence": "1048/1077 statements covered = 97.30733519034355% >= 90% floor",
+        "folded_into": "P3-FEATURE-QG-COV-01"
+      },
+      "P3_FEATURE_QG_EVID_02": {
+        "dimension": "Branch coverage evidence-availability",
+        "state": "CLOSED",
+        "result": "PASS",
+        "evidence": "290/316 branches covered = 91.77215189873418% >= 90% floor",
+        "folded_into": "P3-FEATURE-QG-COV-01"
+      },
+      "P3_FEATURE_QG_COV_01": {
+        "dimension": "Coverage (aggregate line+branch)",
+        "state": "CLOSED \u2014 PRODUCT OWNER ACCEPTED",
+        "result": "PASS",
+        "evidence_commit": "99c16b9d46698028bc44d1bb54659288a11df380",
+        "evidence_freshness_note": "The coverage-evidence commit (99c16b9d...) predates a small, subsequent, purely test-internal defensive-copy fix in tests/test_definition.py (dict.pop() on a shared parametrize kwargs -> local copy) that does not touch python/feature-engine/src at all and does not add/remove/alter any test case or assertion -- independently diffed and confirmed immaterial to line/branch coverage of src/feature_engine. Recorded transparently; COV-01 is NOT reopened or rerun by this correction (out of scope for this task)."
+      },
+      "P3_FEATURE_QG_EVID_03": {
+        "dimension": "Test-effectiveness (mutation testing)",
+        "state": "OPEN",
+        "result": "FAIL \u2014 evidence (corrected this transaction, see above)"
+      },
+      "P3_FEATURE_QG_EVID_04": {
+        "dimension": "Tier-1 Parity Test (Chapter 13 SS13.4/SS13.12(C), I-2 Decision Parity)",
+        "state": "OPEN",
+        "result": "FAIL \u2014 evidence",
+        "note": "UNCHANGED -- no formal evidence transaction has ever addressed this dimension; requires Decision Engine to exist per prior MANIFEST record."
+      },
+      "P3_FEATURE_QG_EVID_05": {
+        "dimension": "I-5 Decision-Time Observable Dependency",
+        "state": "OPEN",
+        "result": "FAIL \u2014 evidence",
+        "note": "UNCHANGED -- no formal evidence transaction has ever addressed this dimension."
+      },
+      "P3_FEATURE_QG_EVID_06": {
+        "dimension": "I-6 Fail-Safe by Scope (ForeignScopeError raise sites)",
+        "state": "OPEN",
+        "result": "FAIL \u2014 evidence",
+        "note": "UNCHANGED -- factual overlap with mutation-survivor analysis noted in prior transactions, but no formal SS13-evidence transaction has closed this dimension."
+      },
+      "P3_FEATURE_QG_EVID_07": {
+        "dimension": "I-13 State Transition Integrity / property-based transition evidence (retargeted from an earlier numerical/state-machine-boundary framing)",
+        "state": "OPEN",
+        "result": "FAIL \u2014 evidence",
+        "note": "UNCHANGED -- requires a Python property-based testing mechanism not yet selected/installed."
+      },
+      "P3_FEATURE_QG_EVID_08": {
+        "dimension": "I-1 Explainability / auditability",
+        "state": "OPEN",
+        "result": "FAIL \u2014 evidence",
+        "note": "UNCHANGED -- requires full-Decision-Pipeline trace-completeness evidence not yet produced."
+      },
+      "P3_FEATURE_QG_MIN_01": {
+        "dimension": "I-3 No Repaint / No Look-Ahead verification (non-blocking, Minor)",
+        "state": "OPEN \u2014 non-blocking",
+        "result": "N/A (Minor, does not block overall PASS by its own definition)",
+        "note": "UNCHANGED."
+      }
+    },
+    "corrected_overall_feature_chapter_13_qg": {
+      "result": "FAIL \u2014 evidence",
+      "unchanged_from_original_headline_conclusion": true,
+      "but_provenance_corrected": "The overall FAIL is NOT because 'no other dimension has any evidence' (false, per EVID-01/02/COV-01 above) -- it is because six SPECIFIC, individually-named blocking dimensions (EVID-03 through EVID-08) each independently have FAIL \u2014 evidence results, per Chapter 13 SS13.2's multi-dimension gate structure and SS13.8's fail-closed rule. COV-01 passing does not, and was never claimed by prior transactions to, offset these six.",
+      "blocking_findings": [
+        "P3-FEATURE-QG-EVID-03",
+        "P3-FEATURE-QG-EVID-04",
+        "P3-FEATURE-QG-EVID-05",
+        "P3-FEATURE-QG-EVID-06",
+        "P3-FEATURE-QG-EVID-07",
+        "P3-FEATURE-QG-EVID-08"
+      ],
+      "non_blocking_findings": [
+        "P3-FEATURE-QG-MIN-01"
+      ],
+      "closed_passing_findings": [
+        "P3-FEATURE-QG-EVID-01",
+        "P3-FEATURE-QG-EVID-02",
+        "P3-FEATURE-QG-COV-01"
+      ]
+    }
+  },
+  "finding_states_recorded_by_this_correction": {
+    "P3-PY-MUT-STEP9-VAL-MAJ-01": "REMEDIATED \u2014 PENDING DETERMINISTIC RE-VALIDATION",
+    "P3-PY-MUT-STEP9-VAL-MAJ-02": "REMEDIATED \u2014 PENDING DETERMINISTIC RE-VALIDATION",
+    "P3-PY-MUT-STEP9-VAL-MIN-01": "REMEDIATED \u2014 PENDING DETERMINISTIC RE-VALIDATION"
+  },
+  "not_self_closed": true,
+  "lifecycle_preserved": {
+    "approved_threshold_status": "EFFECTIVE (unchanged)",
+    "threshold_semantics_unchanged": true,
+    "product_owner_approval_unchanged": true,
+    "P3-PY-MUT-THRESH-A-MIN-02": "OPEN \u2014 MINOR / NON-BLOCKING (unchanged)",
+    "feature_engine_approval": "NOT APPROVED",
+    "phase_3_gate": "NOT OPENED",
+    "live": "NOT_AUTHORIZED"
+  }
+}

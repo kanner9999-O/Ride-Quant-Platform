@@ -2,6 +2,82 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: Step-9 evidence fidelity bounded correction (`P3-PY-MUT-STEP9-VAL-MAJ-01`/`-MAJ-02`/`-MIN-01` → REMEDIATED — PENDING DETERMINISTIC RE-VALIDATION)
+
+**Bounded, additive evidence-fidelity correction — vai trò: `Step-9 Evidence Fidelity Bounded Correction Executor`.** Corrects three defects in Step-9's evidence interpretation without rerunning mutation testing or touching the original immutable artifact.
+
+### Corrected EVID-03 decomposition
+
+```text
+Condition 3 (mutation-surface completeness, 5 high-materiality methods):
+  relabeled FAIL — criteria -> FAIL — evidence (no qualifying supplemental
+  mechanism/fault-injection/risk-acceptance evidence exists -- a genuine
+  evidence gap, per Chapter 13 SS13.8's fail-closed rule).
+Conditions 1 (raw score 75.898105813194%) and 2 (0/170 resolved) remain
+  FAIL — criteria, individually preserved.
+Overall P3-FEATURE-QG-EVID-03: FAIL — evidence (corrected from FAIL —
+  criteria), per SS13.8's "required evidence thiếu -> gate FAIL" rule.
+```
+
+### Corrected overall Feature QG provenance
+
+```text
+Removed the false "no other dimension has evidence" claim. Freshly
+  resolved: P3-FEATURE-QG-EVID-01/-02 CLOSED — PASS (line
+  97.30733519034355%, branch 91.77215189873418%), folded into
+  P3-FEATURE-QG-COV-01 (CLOSED — PRODUCT OWNER ACCEPTED, PASS, not
+  reopened/rerun). P3-FEATURE-QG-EVID-04 through -08 (Tier-1 Parity/I-2,
+  I-5, I-6, I-13, I-1): OPEN, FAIL — evidence each, UNCHANGED.
+  P3-FEATURE-QG-MIN-01 (I-3, non-blocking): UNCHANGED.
+Corrected overall Feature Chapter 13 QG: still FAIL — evidence (headline
+  unchanged) but now precisely because six named blocking dimensions
+  (EVID-03 through EVID-08) each fail independently -- not because no
+  other evidence exists at all.
+```
+
+### Corrected ten-status schema
+
+```text
+ten_status_counts corrected to exactly ten raw statuses (killed 1162,
+  survived 369, other eight 0) -- confirmed_timeout removed as a false
+  11th raw status, kept separately as numerator-credit bookkeeping (=0).
+  Reconciliation and raw score (75.898105813194%) unchanged.
+```
+
+### Artifact and bookkeeping
+
+```text
+New: docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  step9-formal-evidence-001-correction-001.json -- additive; the original
+  step9-formal-evidence-001.json is byte-identical, untouched.
+Threshold-proposal document: one paragraph's wording corrected
+  (no longer asserts all three components are FAIL — criteria); reviewed
+  gate definition (SS4/SS4.1/SS4.2) untouched.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-STEP9-VAL-MAJ-01: REMEDIATED — PENDING DETERMINISTIC RE-VALIDATION.
+P3-PY-MUT-STEP9-VAL-MAJ-02: REMEDIATED — PENDING DETERMINISTIC RE-VALIDATION.
+P3-PY-MUT-STEP9-VAL-MIN-01: REMEDIATED — PENDING DETERMINISTIC RE-VALIDATION.
+P3-FEATURE-QG-EVID-03: FAIL — evidence (corrected).
+P3-FEATURE-QG-COV-01: CLOSED — PRODUCT OWNER ACCEPTED, PASS (unchanged).
+P3-FEATURE-QG-EVID-04..-08: OPEN, FAIL — evidence, UNCHANGED.
+Formal Feature Chapter 13 QG: FAIL — evidence (headline unchanged, provenance corrected).
+Threshold lifecycle: EFFECTIVE (unchanged); Feature Engine still fails it.
+P3-PY-MUT-THRESH-A-MIN-02: OPEN — MINOR / NON-BLOCKING (unchanged).
+Feature module approval: NOT APPROVED.
+Phase 3 Approval Gate: NOT opened.
+LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** deterministic re-validation of this correction, followed by governed remediation transactions for EVID-03 through EVID-08 before the overall Feature Chapter 13 QG can be re-evaluated toward PASS.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-001-correction-001.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.315"` → `"10.316"`.
+
+---
+
 ## [Unreleased] — 2026-09-04 — feature-engine: Step 9 formal threshold-bearing mutation evidence (`P3-FEATURE-QG-EVID-03: FAIL — criteria`; threshold now EFFECTIVE)
 
 **Governed formal evidence transaction — vai trò: `Feature Engine Step-9 Formal Mutation Evidence / QG Executor`.** Runs one fresh, formal, reproducible mutation measurement for Feature Engine and evaluates it against the Product-Owner-approved threshold. No production/test/tooling code changed; no threshold altered; no equivalent/reclassification/risk-acceptance invented; Feature Engine not approved.

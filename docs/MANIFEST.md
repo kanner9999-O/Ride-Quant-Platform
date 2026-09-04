@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.315"
+manifest_version: "10.316"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -20807,6 +20807,173 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** a governed, evidence-grounded remediation plan for Feature Engine (closing the 170 material-gap identities and/or the 12-method blind spot, or a separately-governed threshold revision) — a new PASS attempt requires a fresh Step-9-style formal evidence transaction, never a reinterpretation of this one.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-001.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.314"` → `"10.315"`.
+
+## `feature-engine` — Step-9 Evidence Fidelity Bounded Correction (`P3-PY-MUT-STEP9-VAL-MAJ-01`/`-MAJ-02`/`-MIN-01` → REMEDIATED — PENDING DETERMINISTIC RE-VALIDATION)
+
+**Bounded, additive evidence-fidelity correction — vai trò: `Step-9 Evidence Fidelity Bounded Correction Executor`.** Corrects three defects in how the Step-9 formal mutation/QG evidence was interpreted and how the overall Feature QG provenance was described, WITHOUT rerunning mutation testing and WITHOUT modifying the original immutable Step-9 artifact. Does NOT touch production/test/tooling code, Testing Convention, Constitution, ADR, baseline-001, the Step-4 analysis, or the approved threshold semantics. Does NOT approve Feature Engine, open the Phase 3 gate, or authorize LIVE.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `3877a37e597c5e9c9af7dd38c34225ddb5bb2da4` via `git rev-parse HEAD`, matching this task's own expected boundary; original Step-9 artifact confirmed exactly blob `08714d4a02d6f4637521c264ce1e25cb85313328` via `git rev-parse HEAD:<path>`, matching this task's own expected preserved blob — left byte-identical, untouched throughout this transaction.
+
+### `P3-PY-MUT-STEP9-VAL-MAJ-01` — corrected EVID-03 fail-closed decomposition
+
+```text
+Corrected: condition 3 (mutation-surface completeness, the 5 high-
+  materiality blind-spot methods) relabeled from FAIL — criteria to
+  FAIL — evidence -- no qualifying supplemental mutation-testing
+  mechanism, governed deterministic fault-injection evidence, or explicit
+  Product Owner risk-acceptance exists for any of the 5, per Chapter 13
+  SS13.8's "required evidence thiếu -> gate FAIL" fail-closed rule --
+  this is a genuine evidence gap, not a measured-but-failing criterion.
+Conditions 1 (raw score, measured 75.898105813194%) and 2 (170-ID
+  resolution, 0/170) remain individually FAIL — criteria, unchanged and
+  explicitly preserved -- neither erased nor reinterpreted.
+Overall P3-FEATURE-QG-EVID-03 corrected: FAIL — evidence (was FAIL —
+  criteria) -- per Chapter 13 SS13.8, a required-evidence-missing
+  condition is dominant/controlling over criteria-level failures ("Missing
+  gate != passed gate... fail-closed = eligibility incomplete").
+```
+
+### `P3-PY-MUT-STEP9-VAL-MAJ-02` — corrected overall Feature QG provenance
+
+```text
+Removed the false claim that Feature Engine has no formal evidence on any
+  Chapter-13 dimension other than test-effectiveness. Freshly resolved,
+  directly from repository authority (not assumed from the prompt):
+  P3-FEATURE-QG-EVID-01 (line coverage): CLOSED — PASS (1048/1077 =
+    97.30733519034355%), folded into COV-01.
+  P3-FEATURE-QG-EVID-02 (branch coverage): CLOSED — PASS (290/316 =
+    91.77215189873418%), folded into COV-01.
+  P3-FEATURE-QG-COV-01 (aggregate coverage): CLOSED — PRODUCT OWNER
+    ACCEPTED, PASS, evidence commit 99c16b9d46698028bc44d1bb54659288a11df380.
+    Freshness note recorded transparently: that commit predates one small,
+    purely test-internal defensive-copy fix in tests/test_definition.py
+    (a shared parametrize kwargs dict .pop() -> local copy) -- diffed and
+    confirmed immaterial to src/feature_engine coverage; COV-01 itself is
+    NOT reopened or rerun (out of scope for this correction).
+  P3-FEATURE-QG-EVID-03 (test-effectiveness): OPEN, FAIL — evidence
+    (corrected above).
+  P3-FEATURE-QG-EVID-04 (Tier-1 Parity / I-2): OPEN, FAIL — evidence,
+    UNCHANGED (no formal evidence transaction has ever addressed it).
+  P3-FEATURE-QG-EVID-05 (I-5): OPEN, FAIL — evidence, UNCHANGED.
+  P3-FEATURE-QG-EVID-06 (I-6 Fail-Safe by Scope): OPEN, FAIL — evidence,
+    UNCHANGED.
+  P3-FEATURE-QG-EVID-07 (I-13 / property-based transition evidence): OPEN,
+    FAIL — evidence, UNCHANGED.
+  P3-FEATURE-QG-EVID-08 (I-1 Explainability): OPEN, FAIL — evidence,
+    UNCHANGED.
+  P3-FEATURE-QG-MIN-01 (I-3 No Repaint/No Look-Ahead, non-blocking Minor):
+    OPEN, non-blocking, UNCHANGED.
+Corrected overall Feature Chapter 13 QG: still FAIL — evidence (headline
+  conclusion UNCHANGED) but provenance corrected -- NOT because "no other
+  dimension has evidence" (false), but because six specific, individually-
+  named blocking dimensions (EVID-03 through EVID-08) each independently
+  carry a FAIL — evidence result, per Chapter 13 SS13.2's multi-dimension
+  structure and SS13.8's fail-closed rule. COV-01 passing does not offset
+  these six -- it was never claimed to by any prior transaction.
+```
+
+### `P3-PY-MUT-STEP9-VAL-MIN-01` — corrected ten-status schema
+
+```text
+Corrected: the original artifact's ten_status_counts object had 11 keys
+  (the governed ten raw mutmut statuses PLUS a non-existent 11th
+  "confirmed_timeout" raw status). confirmed_timeout is not a raw,
+  exit-code-derived mutmut status -- it is separately-governed numerator
+  credit the Ride-owned metric formula applies after deterministic
+  reproduction/confirmation of a raw `timeout` status.
+Corrected ten_status_counts (exactly ten keys): killed 1162, survived 369,
+  no_tests 0, not_checked 0, skipped 0, suspicious 0, timeout 0,
+  caught_by_type_check 0, segfault 0, check_was_interrupted_by_user 0.
+  Reconciliation: sum=1531=total, TRUE; not_checked==0, TRUE;
+  caught_by_type_check==0, explicitly retained.
+confirmed_timeout kept separately (=0, no raw timeouts occurred, no
+  reproduction step was needed) in metric/timeout-credit bookkeeping only.
+Raw score recomputed with the same formula, same inputs: UNCHANGED,
+  75.898105813194%.
+```
+
+### Additive correction artifact created
+
+```text
+New file: docs/governance/mutation-baseline-evidence/feature-engine-
+  mutation-step9-formal-evidence-001-correction-001.json (blob
+  1bf943e0db4c95669e1a77bea2fbc17c49614b6b) -- additive, does NOT modify
+  or overwrite the original feature-engine-mutation-step9-formal-evidence-
+  001.json (blob 08714d4a02d6f4637521c264ce1e25cb85313328, confirmed
+  byte-identical/untouched). Contains: no-rerun confirmation, unchanged
+  validated measurement facts, the corrected ten-status schema, the
+  corrected per-condition EVID-03 gate decomposition, the freshly-resolved
+  authoritative state of every Feature QG dimension (EVID-01 through
+  EVID-08, COV-01, MIN-01), the corrected overall-QG derivation, and the
+  three finding states (REMEDIATED — PENDING DETERMINISTIC RE-VALIDATION,
+  none self-closed).
+Threshold-proposal document updated (minimal bookkeeping wording only,
+  reviewed gate definition SS4/SS4.1/SS4.2 untouched -- confirmed via
+  diff, only the Step-9-update paragraph's wording changed): no longer
+  asserts all three gate components are FAIL — criteria; now states
+  conditions 1-2 are FAIL — criteria and condition 3 is FAIL — evidence,
+  with a pointer to this correction artifact.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  step9-formal-evidence-001-correction-001.json (new), docs/governance/
+  mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-
+  001.md (modified, one paragraph's wording only), docs/MANIFEST.md,
+  docs/CHANGELOG.md changed in the tracked repository (confirmed via
+  `git status --porcelain=v1`). feature-engine-mutation-step9-formal-
+  evidence-001.json, feature-engine-mutation-baseline-001.json, and
+  feature-engine-mutation-baseline-001-analysis.md all verified byte-
+  identical. python/feature-engine/src/**, python/feature-engine/tests/**,
+  python/feature-engine/tooling/**, pyproject.toml,
+  requirements-dev.lock.txt, docs/engineering/testing.md, Constitution,
+  docs/adr/**, execution-rules.md, phase-3-rules.md, module-registry.yaml,
+  CI/CD workflows, any Go module: all verified byte-identical. No
+  mutation-testing rerun (confirmed explicitly in the correction artifact
+  itself). No production/test/tooling code changed. No candidate-
+  equivalent removed from the denominator. No equivalent/reclassification/
+  risk-acceptance decision invented. The approved threshold's semantics
+  (SS4/SS4.1/SS4.2 of the proposal) unchanged. Product Owner approval
+  unchanged. P3-PY-MUT-THRESH-A-MIN-02 unchanged, still OPEN — MINOR /
+  NON-BLOCKING, not self-closed. Feature Engine not approved. Phase 3 gate
+  not opened. LIVE not authorized. Findings NOT self-closed.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-STEP9-VAL-MAJ-01:    REMEDIATED — PENDING DETERMINISTIC RE-VALIDATION.
+P3-PY-MUT-STEP9-VAL-MAJ-02:    REMEDIATED — PENDING DETERMINISTIC RE-VALIDATION.
+P3-PY-MUT-STEP9-VAL-MIN-01:    REMEDIATED — PENDING DETERMINISTIC RE-VALIDATION.
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (corrected from FAIL —
+                                criteria; conditions 1/2 individually
+                                preserved as FAIL — criteria beneath it).
+P3-FEATURE-QG-EVID-01/-02:     CLOSED — PASS (folded into COV-01).
+P3-FEATURE-QG-COV-01:          CLOSED — PRODUCT OWNER ACCEPTED, PASS
+                                (unchanged, not reopened/rerun).
+P3-FEATURE-QG-EVID-04..-08:    OPEN, FAIL — evidence each, UNCHANGED
+                                (six blocking dimensions total with EVID-03).
+P3-FEATURE-QG-MIN-01:          OPEN, non-blocking, UNCHANGED.
+Formal Feature Chapter 13 QG:  FAIL — evidence (headline unchanged,
+                                provenance now precise: six named blocking
+                                dimensions, not "no other evidence exists").
+Ten-status schema:             corrected to exactly ten raw statuses;
+                                confirmed_timeout kept as separate
+                                numerator-credit bookkeeping (=0).
+Raw score:                     75.898105813194% (unchanged, not rerun).
+Threshold lifecycle:           EFFECTIVE (unchanged); Feature Engine still
+                                FAILS it (unchanged conclusion).
+P3-PY-MUT-THRESH-A-MIN-02:     OPEN — MINOR / NON-BLOCKING (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** deterministic re-validation of this correction (Review A re-review), followed by the same governed remediation path already identified (closing the 170 material-gap identities and/or the 12-method blind spot for EVID-03, plus separate governed evidence transactions for EVID-04 through EVID-08, before the overall Feature Chapter 13 QG can be re-evaluated toward PASS).
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-001-correction-001.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.315"` → `"10.316"`.
 
 ## Decision Log
 
