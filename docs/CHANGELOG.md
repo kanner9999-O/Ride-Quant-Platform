@@ -2,6 +2,75 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: threshold proposal bounded correction (`P3-PY-MUT-THRESH-A-MAJ-01`/`P3-PY-MUT-THRESH-A-MIN-01` → REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW; fresh `ADR_OPTIONAL`)
+
+**Bounded correction transaction — vai trò: `Feature Engine Threshold Proposal Bounded Correction Executor`.** Corrects the Step-5 threshold proposal per two Step-7 Review A findings: the aggregate-only gate did not enforce which survivors are closed (MAJOR), and an arithmetic/count error (MINOR). Does not activate the threshold, alter baseline-001, or touch production/test/tooling code.
+
+### `P3-PY-MUT-THRESH-A-MAJ-01` — companion per-mutant-identity resolution condition added
+
+```text
+Root cause: killing 170 of the 174 low-priority survivors (leaving all 170
+  material survivors alive) also reaches 1332/1531 = 87.001959503592%,
+  satisfying the old aggregate-only gate while remediating none of the
+  identified material risk. The proposal's "only two paths to a future
+  PASS" claim was false under that reading.
+Correction: new SS4.1 "Material-gap identity-resolution condition" -- raw
+  score >=87.001959503592% is now NECESSARY BUT NOT SUFFICIENT; a future
+  formal evidence transaction MUST ALSO confirm, BY EXACT MUTANT IDENTITY,
+  that each of the 170 pinned material-gap mutants is either (a) killed in
+  a fresh measurement, or (b) individually reclassified through a separate
+  governed decision mirroring Testing Convention v0.16 item 8's
+  exactly-pinned-identity + justification + governed-adjustment pattern.
+  No adjustment to the raw denominator/score; this is an additional,
+  separately-tracked condition layered on the unchanged aggregate metric.
+```
+
+### `P3-PY-MUT-THRESH-A-MIN-01` — arithmetic and candidate-count corrected
+
+```text
+(1162 + 170) / 1531 x 100 = 87.001959503592...% (was incorrectly
+  86.9954%/86.995%). 12-decimal display convention applied, matching the
+  pinned baseline score. Explicit rounding semantics added: "87.0%" is
+  display-only; future comparisons use the full-precision figure. "Four
+  candidates" (SS3) corrected to "Five" (five were always listed).
+```
+
+### Fresh ADR Scope Rule re-run (not inherited)
+
+```text
+Re-run because the MAJOR correction changed the proposal's own
+  threshold-policy semantics. Specifically re-examined whether the new
+  per-identity mechanism (SS4.1) itself is a governance/approval-process
+  change -- resolved NO: it directly reuses Testing Convention v0.16 item
+  8's already-approved individually-pinned equivalent-mutant-adjustment
+  pattern, inventing no new review workflow/role/lifecycle stage. All other
+  SS4b triggers unchanged from Step 6. Result: ADR_SCOPE_DISPOSITION:
+  ADR_OPTIONAL (fresh, unchanged outcome). No ADR authored.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-THRESH-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-THRESH-A-MIN-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+Threshold proposal: 87.001959503592% (display 87.0%), Tier-1/FEATURE-
+  ENGINE-ONLY, now a two-part gate (aggregate + per-identity resolution) --
+  still PROPOSAL / NOT EFFECTIVE.
+ADR_SCOPE_DISPOSITION: ADR_OPTIONAL (freshly re-derived, unchanged).
+TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:   FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG: FAIL (unchanged).
+Feature module approval: NOT APPROVED.
+Phase 3 Approval Gate:   NOT opened.
+LIVE:                     NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of this correction, followed (if clean) by Step 7 Independent Review B of the corrected threshold proposal.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.312"` → `"10.313"`.
+
+---
+
 ## [Unreleased] — 2026-09-04 — feature-engine: threshold proposal Step 6 — fresh ADR Scope Rule classification (`ADR_OPTIONAL`, no ADR authored)
 
 **Bounded classification/bookkeeping transaction — vai trò: `Step 6 ADR Scope Rule Classifier`.** Performs one fresh Chapter 0 §4b ADR Scope Rule classification of the Feature Engine mutation-effectiveness threshold proposal, independently at this transaction's own boundary (not inherited from the compatibility mechanism candidate's prior disposition).

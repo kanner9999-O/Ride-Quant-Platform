@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.312"
+manifest_version: "10.313"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -20362,6 +20362,149 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** Step 7 — Review A + Independent Review B of the threshold proposal itself.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.311"` → `"10.312"`.
+
+## `feature-engine` — Threshold Proposal Bounded Correction (`P3-PY-MUT-THRESH-A-MAJ-01`/`P3-PY-MUT-THRESH-A-MIN-01` → REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW; fresh `ADR_OPTIONAL`)
+
+**Bounded correction transaction — vai trò: `Feature Engine Threshold Proposal Bounded Correction Executor`.** Corrects the Step-5 threshold proposal (`feature-engine-mutation-threshold-proposal-001.md`, previously blob `b4da2cc959e6f69d73aec14e0fabb2f1f8923b8c`) per two Step-7 Review A findings. Does NOT activate/approve 87.001959503592%, does NOT alter baseline-001 evidence or the 75.898105813194% raw score, does NOT remove any candidate-equivalent from the denominator, does NOT rerun mutation testing/QG, does NOT touch production/test/tooling code, does NOT mark `P3-FEATURE-QG-EVID-03` PASS, does NOT approve Feature Engine/open the Phase 3 gate/authorize LIVE, does NOT record a Product Owner decision.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `e93bc27cbe27e2ba0ff553832cbc5a5fe0849cde` via `git rev-parse HEAD`, matching this task's own expected boundary; subject file confirmed exactly blob `b4da2cc959e6f69d73aec14e0fabb2f1f8923b8c` via `git rev-parse HEAD:<path>`, matching this task's own expected subject blob.
+
+### `P3-PY-MUT-THRESH-A-MAJ-01` — remediated: companion per-mutant-identity resolution condition added
+
+```text
+Root cause: the proposal empirically anchored 87.0% to closing all 170
+  material actionable survivors, but the raw AGGREGATE score does not
+  identify WHICH survivors are killed -- e.g. killing 170 of the 174
+  low-priority survivors while leaving all 170 material survivors alive
+  also reaches 1332/1531 = 87.001959503592%, satisfying the aggregate gate
+  while remediating none of the identified material risk. The proposal's
+  own SS4 text ("closing the material gap population... are the only two
+  paths to a future PASS") was therefore false under the aggregate-only
+  reading.
+Correction: new SS4.1 "Material-gap identity-resolution condition" added.
+  Raw score >=87.001959503592% is now explicitly NECESSARY BUT NOT
+  SUFFICIENT -- any Step-9 (or later) formal evidence transaction MUST ALSO
+  separately confirm, BY EXACT MUTANT IDENTITY, that each of the 170 pinned
+  material-gap mutants (feature-engine-mutation-baseline-001-analysis.md
+  SS1.6) is resolved via either (a) killed in a fresh formal measurement, or
+  (b) individually reclassified through a SEPARATE governed decision
+  mirroring Testing Convention v0.16 item 8's exactly-pinned-identity +
+  individually-recorded-justification + governed-adjustment-mechanism
+  pattern (never a blanket/unreviewed claim, never satisfied merely by a
+  refactor removing the mutant without independent justification). A formal
+  evidence transaction meeting the aggregate figure WITHOUT this
+  per-identity confirmation must NOT be treated as satisfying the bar.
+  SS4's own text corrected to state the accurate two-part requirement
+  instead of the false "only two paths" framing.
+Preserved: no adjustment to the raw denominator or raw score; the 25
+  candidate-equivalents remain uncredited, unchanged; this is an ADDITIONAL
+  eligibility condition layered on the unchanged aggregate metric, not a
+  substitute for it.
+```
+
+### `P3-PY-MUT-THRESH-A-MIN-01` — remediated: arithmetic and candidate-count corrected
+
+```text
+Corrected: (1162 + 170) / 1531 x 100 = 87.001959503592423252775963422599...%
+  (was incorrectly stated as 86.9954...%/86.995%). Full precision recorded;
+  12-decimal-place display convention applied (87.001959503592%) matching
+  the pinned baseline score's own convention (75.898105813194%). Explicit
+  rounding semantics added: "87.0%" is a display rounding only -- any
+  future Step-9 comparison must use the full-precision figure or the
+  equivalent exact mutant-count form (killed >= 1332 at total = 1531).
+Corrected: SS3's "Four candidates" -> "Five candidates" (five candidates
+  1-5 are, and always were, individually listed and evaluated).
+```
+
+### Fresh ADR Scope Rule re-run (not inherited)
+
+```text
+Re-run rationale: the MAJOR correction changed the proposal's own
+  threshold-policy semantics (aggregate-only -> two-part aggregate +
+  per-identity gate), so Chapter 0 SS4b was re-derived fresh against the
+  corrected content, per this task's own instruction not to inherit the
+  pre-correction Step-6 classification mechanically.
+Specific re-examination: whether the new per-mutant-identity resolution
+  mechanism (SS4.1) itself constitutes a NEW governance/approval-process
+  change (more elaborate than a bare percentage). Resolved: NO -- SS4.1
+  is a direct, structurally identical application of Testing Convention
+  v0.16 item 8's ALREADY-approved individually-pinned equivalent-mutant-
+  adjustment pattern to a different (material-gap-closure) purpose; it
+  invents no new review workflow, role, lifecycle stage, or approval-gate
+  structure, and stays inside Chapter 13 SS13.14's existing Locked
+  delegation of numeric/evidentiary threshold detail to Testing Convention.
+All other SS4b triggers re-examined and unchanged from Step 6's original
+  conclusions (no Platform Invariant/Event Schema/Module Taxonomy change,
+  still single-module/Tier-1-only, still reversible via the same governed
+  9-step process, no Locked-ADR touched) -- still "significant but
+  reversible single-module internal change," if anything more clearly so
+  post-correction (closes a real enforcement loophole).
+Result: ADR_SCOPE_DISPOSITION: ADR_OPTIONAL (fresh, unchanged outcome).
+  No ADR-Required trigger met. No ADR authored.
+```
+
+### Analysis artifact corrected
+
+```text
+Modified in place (proposal output, not a historical transaction log --
+  corrected directly): docs/governance/mutation-baseline-evidence/
+  feature-engine-mutation-threshold-proposal-001.md. New blob (recorded in
+  this transaction's own commit). Top-of-document correction-history note
+  added, naming both finding IDs and their REMEDIATED -- PENDING BOUNDED
+  REVIEW A RE-REVIEW state explicitly (not self-closed). SS4 renumbered
+  (SS4.1 new material-gap identity condition; former SS4.1 blind-spot
+  condition -> SS4.2; former SS4.2 recalibration triggers -> SS4.3;
+  cross-references updated). SS6 ADR Scope Rule section re-run fresh, not
+  merely re-labeled. baseline-001.json and the Step-4 analysis untouched.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  threshold-proposal-001.md (modified), docs/MANIFEST.md, docs/CHANGELOG.md
+  changed in the tracked repository (confirmed via `git status
+  --porcelain=v1`). feature-engine-mutation-baseline-001.json and
+  feature-engine-mutation-baseline-001-analysis.md both verified byte-
+  identical. python/feature-engine/src/**, python/feature-engine/tests/**,
+  python/feature-engine/tooling/**, pyproject.toml,
+  requirements-dev.lock.txt, docs/engineering/testing.md, Constitution,
+  docs/adr/**, execution-rules.md, phase-3-rules.md, module-registry.yaml,
+  CI/CD workflows, any Go module: all verified byte-identical. No ADR file
+  created. No Review A/B performed by this transaction (that is Step 7,
+  separate). No threshold approved/activated. The 75.898105813194% raw
+  score not evaluated as PASS/FAIL. No numeric threshold value changed (the
+  87.001959503592% figure itself is corrected DISPLAY/arithmetic fidelity,
+  not a new number). No candidate-equivalent removed from the denominator.
+  No mutation-testing rerun. No production/test/tooling semantics changed.
+  P3-FEATURE-QG-EVID-03 not marked PASS. Formal Chapter 13 QG not rerun.
+  Feature Engine not approved. Phase 3 gate not opened. LIVE not
+  authorized. No Product Owner decision recorded. Findings NOT self-closed.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-THRESH-A-MAJ-01:     REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-THRESH-A-MIN-01:     REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+Threshold proposal:            87.001959503592% (display: 87.0%),
+                                Tier-1/FEATURE-ENGINE-ONLY, now a two-part
+                                gate (aggregate + SS4.1 per-identity
+                                resolution of the 170 pinned material-gap
+                                mutants) -- still PROPOSAL / NOT EFFECTIVE.
+ADR_SCOPE_DISPOSITION:         ADR_OPTIONAL (freshly re-derived; unchanged
+                                outcome; no ADR authored).
+TEST_EFFECTIVENESS_THRESHOLD:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged, NOT marked PASS).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** bounded Review A re-review of this correction, followed (if clean) by Step 7 Independent Review B of the corrected threshold proposal.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.312"` → `"10.313"`.
 
 ## Decision Log
 

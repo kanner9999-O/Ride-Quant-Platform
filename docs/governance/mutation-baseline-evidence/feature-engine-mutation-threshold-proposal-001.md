@@ -14,8 +14,27 @@ anything in this document.
 
 **Step 6 update:** a fresh Chapter 0 §4b ADR Scope Rule classification of
 this proposal has been performed (§6 below) — `ADR_OPTIONAL`, no ADR
-authored. Next governed step: Step 7 (Review A + Independent Review B of
-this proposal).
+authored.
+
+**Correction history:** bounded-corrected once, remediating two Step-7
+Review A findings (NOT self-closed — pending bounded Review A re-review):
+
+- `P3-PY-MUT-THRESH-A-MAJ-01`: **REMEDIATED — PENDING BOUNDED REVIEW A
+  RE-REVIEW.** The proposal's original aggregate-only gate did not enforce
+  that the specific 170 pinned material-gap survivors are the ones closed —
+  §4.1 adds a companion per-mutant-identity resolution condition that closes
+  this gap.
+- `P3-PY-MUT-THRESH-A-MIN-01`: **REMEDIATED — PENDING BOUNDED REVIEW A
+  RE-REVIEW.** Arithmetic corrected to `87.001959503592%` (was
+  `86.9954%`); "Four candidates" corrected to "Five" (§3).
+
+§6's ADR Scope Rule classification was re-run fresh against the corrected
+content, not inherited — still `ADR_OPTIONAL`. This document's content is
+corrected directly (not preserved-verbatim-and-annotated), since it is
+analysis/proposal output, not a historical transaction log; the correction's
+own narrative is recorded in `docs/MANIFEST.md`/`docs/CHANGELOG.md`. Next
+governed step: Step 7 (Review A + Independent Review B) of this corrected
+proposal.
 
 ## 0. Authority resolved directly (not restated from memory)
 
@@ -83,7 +102,7 @@ threshold-bearing formal evidence transaction, after Steps 6–8 complete.
 
 ## 3. Candidate thresholds evaluated
 
-Four candidates were computed and weighed. None was selected merely to make
+Five candidates were computed and weighed. None was selected merely to make
 the current baseline pass — candidate 1 is explicitly rejected for exactly
 that reason, and the recommended candidate (3) is **above** the current
 score, meaning Feature Engine would currently fail it.
@@ -117,17 +136,31 @@ aggressive for an initial threshold, but not the recommendation.
 
 ### Candidate 3 — 87.0% (close every currently-identified material actionable-test-gap survivor; RECOMMENDED)
 
-`(1162 killed + 170 material-gap survivors) / 1531 × 100 = 86.9954...%`
-(reported to three decimals: **86.995%**, stated as **87.0%**).
+`(1162 killed + 170 material-gap survivors) / 1531 × 100 =
+87.001959503592...%` (full precision:
+`87.00195950359242325277596342259960809928...%`; reported to the same
+12-decimal-place convention as the pinned baseline score
+(`75.898105813194%`): **87.001959503592%**, stated for readability as
+**87.0%**). Rounding semantics, made explicit for unambiguous future Step-9
+evaluation: **87.0%** is a display rounding of the exact computed figure
+above, never itself the literal pass/fail comparison value — any future
+formal evaluation must compare against the full-precision figure (or,
+equivalently, against the exact underlying mutant counts:
+`killed ≥ 1332` at the current `total = 1531`, recomputed fresh if the
+population changes), not against the rounded "87.0%" string.
 
 This number is directly, traceably derived from Step 4's own evidence: it is
-exactly the score Feature Engine would reach if every one of the 170
-individually-identified, individually-cited material actionable-test-gap
+exactly the *aggregate* score Feature Engine would reach if every one of the
+170 individually-identified, individually-cited material actionable-test-gap
 mutants (§1.4 of the analysis) were closed by new or strengthened tests,
 while explicitly NOT requiring closure of the 174 low-priority
 message-text-only/currently-unexercised gaps and NOT crediting any of the 25
 candidate-equivalents (which remain, correctly, uncredited survivors per
-Testing Convention v0.16 item 8's raw-denominator-by-default rule).
+Testing Convention v0.16 item 8's raw-denominator-by-default rule). **The
+aggregate percentage alone does not enforce that these specific 170 are the
+ones closed** — see §4's corrected companion eligibility condition (§4.1),
+added by bounded correction `P3-PY-MUT-THRESH-A-MAJ-01`, which closes that
+exact gap.
 
 This is more achievable than the raw gap count suggests: the analysis's own
 duplication finding (30 functions with ≥3 survivors cover 345/369, 93.5%)
@@ -167,9 +200,23 @@ than an interval chosen by inspection.
 ## 4. Recommended proposal
 
 > **Propose (NOT active): Feature Engine (Tier-1, FEATURE-ENGINE-ONLY scope)
-> raw mutation-effectiveness threshold = 87.0%**, computed as
+> raw mutation-effectiveness threshold = 87.0%** (full precision
+> `87.001959503592%`, per §3 Candidate 3's corrected arithmetic), computed as
 > `(killed + confirmed_timeout) / (total − skipped) × 100` per Testing
-> Convention v0.16 item 7's already-approved Ride-owned formula, unchanged.
+> Convention v0.16 item 7's already-approved Ride-owned formula, unchanged —
+> **AND**, as a co-equal, non-optional condition (§4.1), the 170 specific
+> material-gap mutant identities pinned in the Step-4 analysis must be
+> individually confirmed resolved, not merely offset in the aggregate count.
+
+**Corrected semantics (`P3-PY-MUT-THRESH-A-MAJ-01`):** this proposal is a
+**two-part gate**, not an aggregate-percentage-only gate. Review A correctly
+found that the aggregate formulation alone does not enforce *which* 170
+survivors are closed — an unrelated set of 170 kills (e.g., all 174
+low-priority survivors minus 4) would numerically reach 87.001959503592%
+while leaving every one of the 170 pinned material gaps exactly as they are
+today. §4.1 below closes this: raw score ≥87.001959503592% is **necessary
+but not sufficient**; the 170 pinned material-gap identities must **also**
+each be individually resolved.
 
 **Exact scope:** `python/feature-engine/src/feature_engine/**`, evaluated
 against the mutation surface and ten-status contract already defined in
@@ -181,31 +228,83 @@ non-inference rule, any such broader threshold requires its own independent
 baseline measurement and its own Step 1–9 sequence on that subject.
 
 **If the current Feature Engine score (75.898105813194%) remains below
-87.0% at the time this threshold becomes effective (post Step 9):** Feature
-Engine's test-effectiveness dimension would evaluate `FAIL` under Chapter 13,
-exactly as `P3-FEATURE-QG-EVID-03` already does today for the unrelated
-reason of the threshold being unresolved. This proposal does not soften,
-does not pre-emptively waive, and does not create any grace period for that
-outcome — closing the material gap population (or securing a governed
-threshold revision through this same proposal process) are the only two
-paths to a future PASS, and neither is decided by this document.
+87.001959503592%, or the 170 pinned material-gap identities remain
+unresolved, at the time this threshold becomes effective (post Step 9):**
+Feature Engine's test-effectiveness dimension would evaluate `FAIL` under
+Chapter 13, exactly as `P3-FEATURE-QG-EVID-03` already does today for the
+unrelated reason of the threshold being unresolved. This proposal does not
+soften, does not pre-emptively waive, and does not create any grace period
+for that outcome. **Corrected (`P3-PY-MUT-THRESH-A-MAJ-01`):** the original
+text here stated that closing the material-gap population or securing a
+governed threshold revision were "the only two paths to a future PASS" —
+this was imprecise, since the aggregate-only reading it implied is exactly
+what §4.1 forecloses. The accurate statement is: a future PASS requires
+**both** the aggregate raw score reaching ≥87.001959503592% **and** the 170
+pinned material-gap identities being individually resolved per §4.1 — or,
+separately, a governed revision of this threshold proposal itself through
+the same Step 1–9 process. Neither is decided by this document.
 
-### 4.1 Companion eligibility condition (explicitly proposed only, not effective)
+### 4.1 Material-gap identity-resolution condition (proposed, not effective — added by bounded correction `P3-PY-MUT-THRESH-A-MAJ-01`)
 
-**Proposed:** meeting the 87.0% raw score alone does not, by itself,
-constitute complete Tier-1 test-effectiveness evidence for Feature Engine.
-This restates — does not create — Testing Convention v0.16 §5b's existing
-fail-closed rule: a formal evidence transaction must record the 12-method
-mutation-surface blind spot (5 high-materiality) as a named, open residual
-unless, for each high-materiality method, EITHER (a) a separately-accepted
-supplemental mutation-testing mechanism reaching that code exists, or (b)
-governed deterministic fault-injection evidence per §5c exists, or (c) the
-Product Owner has separately and explicitly recorded a risk-acceptance
-decision naming that specific residual. Meeting the numeric threshold must
-never be read as silently satisfying this pre-existing, separate
-requirement.
+**Proposed:** meeting raw score ≥87.001959503592% alone does not, by itself,
+constitute Feature Engine meeting this proposed Tier-1 test-effectiveness
+bar. In addition, any Step-9 (or later) formal evidence transaction
+evaluating Feature Engine against this threshold MUST separately confirm,
+**by exact mutant identity**, that every one of the 170 material
+actionable-test-gap mutants pinned in
+`feature-engine-mutation-baseline-001-analysis.md`'s §1.6 per-mutant table
+(the `constructed_object_field_not_independently_asserted` and
+`actionable_test_gap_candidate` rows) is resolved via exactly one of:
 
-### 4.2 Proposed recalibration triggers (explicitly proposed only, not effective)
+- **(a) Killed.** A fresh, formal mutation measurement shows that exact
+  mutant ID now has status `killed` (or `confirmed_timeout`) — a new or
+  strengthened test now genuinely detects the mutation; or
+- **(b) Individually reclassified.** A SEPARATE, governed decision —
+  mirroring Testing Convention v0.16 item 8's individually-pinned
+  equivalent-mutant adjustment mechanism exactly: exact mutant identity +
+  specific semantic justification + a separate reviewed/recorded decision —
+  determines the mutant's underlying behavior has legitimately changed (e.g.
+  a reviewed refactor altered or removed the exact code path such that the
+  original material-gap classification no longer applies). This is never a
+  blanket, unreviewed claim, and never satisfied merely by "the mutant no
+  longer appears because the function was rewritten" without an
+  accompanying, independently-justified reason the rewrite is legitimate
+  engineering, not gap-avoidance.
+
+A formal evidence transaction that shows raw score ≥87.001959503592%
+**without** this per-identity confirmation MUST NOT be treated as satisfying
+Feature Engine's Tier-1 test-effectiveness bar under this proposal — it must
+instead transparently record exactly which of the 170 pinned identities
+remain unresolved (still `survived`, still classified material, not
+individually reclassified), and the overall dimension remains `FAIL`
+regardless of the aggregate percentage. **This directly forecloses
+`P3-PY-MUT-THRESH-A-MAJ-01`**: an aggregate ≥87.001959503592% achieved by
+killing a *different* set of survivors while leaving the 170 pinned material
+identities untouched does not satisfy this proposal.
+
+No adjustment is made to the raw denominator or the raw score by this
+condition — it is an *additional*, separately-tracked eligibility
+requirement layered on top of the unchanged aggregate metric, exactly as
+Testing Convention v0.16 item 8 already requires for any mutant-identity-
+level claim (raw score always controlling; individual-identity claims never
+silently substitute for it).
+
+### 4.2 Mutation-surface blind-spot eligibility condition (explicitly proposed only, not effective)
+
+**Proposed:** meeting the 87.001959503592% raw score and §4.1's per-identity
+condition together still does not, by itself, constitute complete Tier-1
+test-effectiveness evidence for Feature Engine. This restates — does not
+create — Testing Convention v0.16 §5b's existing fail-closed rule: a formal
+evidence transaction must record the 12-method mutation-surface blind spot
+(5 high-materiality) as a named, open residual unless, for each
+high-materiality method, EITHER (a) a separately-accepted supplemental
+mutation-testing mechanism reaching that code exists, or (b) governed
+deterministic fault-injection evidence per §5c exists, or (c) the Product
+Owner has separately and explicitly recorded a risk-acceptance decision
+naming that specific residual. Meeting the numeric threshold must never be
+read as silently satisfying this pre-existing, separate requirement.
+
+### 4.3 Proposed recalibration triggers (explicitly proposed only, not effective)
 
 **Proposed**, none currently triggered, none self-executing — each would
 require its own separate governed re-proposal transaction, not an automatic
@@ -248,27 +347,36 @@ without its own governed decision.
 - **No Tier-0 inference.** This proposal makes no claim about, and must not
   be cited for, any Tier-0 subject's threshold.
 
-## 6. `ADR_SCOPE_DISPOSITION` — Step 6 fresh classification
+## 6. `ADR_SCOPE_DISPOSITION` — fresh classification, re-run against the corrected proposal
 
 Testing Convention v0.16's own ADR-scope disposition note is explicit: the
 mechanism-selection candidate's `ADR_NOT_REQUIRED` disposition does **not**
 extend to a future numeric-threshold proposal, which must independently
-re-run Constitution Chapter 0 §4b's ADR Scope Rule at its own boundary. This
-section performs that fresh classification, as its own separate,
-subsequent governed transaction (Step 6), not inherited from Step 5.
+re-run Constitution Chapter 0 §4b's ADR Scope Rule at its own boundary.
 
-### 6.1 Trigger-by-trigger analysis (Chapter 0 §4b)
+**Re-run rationale (this correction):** the bounded correction closing
+`P3-PY-MUT-THRESH-A-MAJ-01` changed the proposal's own threshold-policy
+semantics — from a single aggregate-percentage gate to a two-part gate
+(aggregate percentage **AND** per-mutant-identity resolution of the 170
+pinned material gaps, §4.1). Per this task's own instruction, the prior
+Step-6 classification (performed against the pre-correction proposal) is
+**not** mechanically inherited. The trigger-by-trigger analysis below is
+re-derived fresh against the corrected proposal's actual current content,
+explicitly considering whether the added per-identity mechanism itself now
+crosses into new governance/approval-process territory.
 
-| §4b trigger | Applies to this proposal? | Reasoning |
+### 6.1 Trigger-by-trigger analysis (Chapter 0 §4b), re-derived fresh
+
+| §4b trigger | Applies to the corrected proposal? | Reasoning |
 |---|---|---|
-| Platform Invariant change | **No** | The proposal touches no I-1–I-13 invariant (`docs/constitution/02-platform-invariants.md`) — it is a test-effectiveness measurement parameter, not a domain/architecture invariant. |
-| Event Schema change | **No** | No event/fact schema, contract, or field is added, removed, or reinterpreted. |
-| Module Taxonomy/dependency-graph change | **No** | No edit to `module-registry.yaml` or any module dependency edge; Feature Engine's own module boundary is unchanged. |
-| Governance/Approval-process change | **No — this is the trigger requiring the most care, resolved from Chapter 13's own text, not precedent.** Chapter 13 §13.14 (Locked) explicitly, already defers "concrete tooling, CI operator, coverage/mutation **ngưỡng số vượt tier floor**" (numeric coverage/mutation thresholds beyond the tier floor) to Engineering Foundation/Testing Convention. This is pre-existing, Locked delegation of the *authority to set a specific numeric threshold* — not a decision this proposal is inventing. Filling that already-delegated slot with a specific, evidence-grounded number for one module is exercising already-granted authority, not creating new governance/approval-process machinery. (ADR-030's own ADR-scope-check reasoning, itself grounded in Chapter 3 §3.2/Chapter 13 §13.14 text rather than being cited as bare precedent, draws the same "existing Locked authority already pre-resolved → author directly, no ADR" distinction for Testing Convention content generally.) Testing Convention v0.16's own caution that a threshold proposal "closer to a governance/quality-policy decision" needs its own §4b re-run is specifically flagged for a **cross-module or repository-wide** threshold — this proposal is explicitly neither; it is Tier-1/FEATURE-ENGINE-ONLY. |
-| Decision affecting >1 module | **No** | Proposal §3/§4 explicitly, repeatedly scopes this to Feature Engine only and explicitly disclaims any Tier-0 or cross-module/cross-tier generalization, consistent with Testing Convention v0.16's own non-inference rule. |
-| Hard-to-reverse decision | **No** | The threshold is not a one-way architectural commitment: Testing Convention v0.16's own 9-step sequence (and this proposal's own §4.2 recalibration triggers) establish that a threshold is revisable via a symmetric, evidence-grounded re-proposal — the same governed mechanism that would set it can reset it. This contrasts with genuinely hard-to-reverse decisions (Event Schema, cross-module contracts) that cascade into other artifacts' own compatibility guarantees. |
-| Locked-ADR modification/supersession | **No** | No existing ADR addresses Feature Engine's (or any module's) mutation-effectiveness threshold; nothing is modified or superseded. |
-| **Alternative: significant but reversible single-module internal change** | **Yes** | The proposal is significant — once effective, it would be the actual number that determines a real Chapter 13 test-effectiveness PASS/FAIL outcome for Feature Engine, a genuine governance consequence, not cosmetic. It is confined to one module, changes no contract, and (per the row above) exercises already-delegated authority rather than creating new process. This is precisely §4b's own "ADR Optional" example: *"Thay đổi nội bộ một module không đổi contract nhưng ảnh hưởng đáng kể"* (an internal change to one module that does not change a contract but has significant impact). |
+| Platform Invariant change | **No** | Unchanged by the correction — no I-1–I-13 invariant (`docs/constitution/02-platform-invariants.md`) is touched by either the numeric figure or the new per-identity condition. |
+| Event Schema change | **No** | Unchanged — no event/fact schema, contract, or field is added, removed, or reinterpreted by tracking mutant identities for gate-evidence purposes. |
+| Module Taxonomy/dependency-graph change | **No** | Unchanged — no edit to `module-registry.yaml` or any dependency edge. |
+| Governance/Approval-process change | **No — re-examined specifically for the correction's added complexity, not just re-asserted.** The correction converts the gate from a single percentage into a hybrid aggregate-plus-per-identity gate (§4.1). This IS a more elaborate evidentiary requirement than a bare number, so it was re-examined on its own facts: is tracking 170 specific mutant identities and requiring a governed reclassification decision for any that are dropped a NEW governance mechanism, or an application of an EXISTING one? Testing Convention v0.16 item 8 (already-approved contract) already requires, for ANY claimed-equivalent-mutant adjustment, "a deterministic, reproducible, exactly-pinned mutant identity... an individually-recorded semantic justification... and a governed adjustment mechanism (a reviewed, recorded decision)" — §4.1's per-identity resolution rule is a direct, structurally identical application of this SAME already-established pattern to a different (material-gap-closure) purpose, not an invented new review workflow, role, lifecycle stage, or approval-gate structure. It refines what evidence Step 9 must produce within the SAME Chapter-13-delegated, Testing-Convention-owned framework (Chapter 13 §13.14, Locked, already defers exactly this class of numeric/evidentiary detail). Conclusion unchanged: no new governance/approval-process machinery is created. |
+| Decision affecting >1 module | **No** | Unchanged — the correction did not broaden scope; §4's scope language is explicitly still Tier-1/FEATURE-ENGINE-ONLY, and the 170 tracked identities are all Feature Engine's own mutants. |
+| Hard-to-reverse decision | **No — re-examined.** If anything, the correction makes the proposal MORE precisely defined and auditable (explicit full-precision comparison value, explicit per-identity resolution criteria), which does not increase reversal difficulty. The same symmetric, evidence-grounded re-proposal mechanism (§4.3) that could revise the aggregate figure can equally revise or drop the per-identity condition. |
+| Locked-ADR modification/supersession | **No** | Unchanged — no ADR is touched. |
+| **Alternative: significant but reversible single-module internal change** | **Yes, and if anything more clearly so post-correction.** The corrected gate is a MORE rigorous, more defensible single-module quality-evidence requirement (it closes a real enforcement loophole Review A correctly identified) — still confined to one module, still changes no contract, still exercises already-delegated authority via an already-established evidentiary pattern (item 8). Exact continued fit for §4b's own "ADR Optional" example. |
 
 ### 6.2 Classification
 
@@ -276,13 +384,17 @@ subsequent governed transaction (Step 6), not inherited from Step 5.
 ADR_SCOPE_DISPOSITION: ADR_OPTIONAL
 ```
 
-No ADR-Required trigger is met. `ADR_NOT_REQUIRED` would understate the
-decision's real significance (it is not cosmetic/typo/refactor-only — it
-will eventually gate a real Quality Gate PASS/FAIL dimension) and this task's
-own instruction requires classifying this as a new semantic decision rather
-than defaulting to the mechanism candidate's prior disposition. `ADR_OPTIONAL`
-is the textually-supported fit: single-module, contract-preserving,
-already-delegated authority, but genuinely significant.
+Freshly re-derived: no ADR-Required trigger is met by the corrected
+proposal, including under specific re-examination of whether the new
+per-mutant-identity resolution mechanism (§4.1) itself constitutes a
+governance/approval-process change — it does not, because it reuses Testing
+Convention v0.16 item 8's already-established individually-pinned
+equivalent-mutant-adjustment pattern rather than inventing new process.
+`ADR_NOT_REQUIRED` would still understate the decision's real significance
+(not cosmetic/typo/refactor-only — it will eventually gate a real Quality
+Gate PASS/FAIL dimension, now enforced more rigorously than before).
+`ADR_OPTIONAL` remains the textually-supported fit: single-module,
+contract-preserving, already-delegated authority, genuinely significant.
 
 **No ADR is authored by this transaction.** Per this task's own instruction,
 an `ADR_OPTIONAL` (or `ADR_NOT_REQUIRED`) classification means the next
