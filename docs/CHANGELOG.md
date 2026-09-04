@@ -2,6 +2,70 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: threshold proposal Step 6 — fresh ADR Scope Rule classification (`ADR_OPTIONAL`, no ADR authored)
+
+**Bounded classification/bookkeeping transaction — vai trò: `Step 6 ADR Scope Rule Classifier`.** Performs one fresh Chapter 0 §4b ADR Scope Rule classification of the Feature Engine mutation-effectiveness threshold proposal, independently at this transaction's own boundary (not inherited from the compatibility mechanism candidate's prior disposition).
+
+### §4b trigger-by-trigger analysis
+
+```text
+Platform Invariant / Event Schema / Module Taxonomy change: NO.
+Governance/Approval-process change: NO -- Chapter 13 SS13.14 (Locked)
+  already, explicitly defers numeric coverage/mutation thresholds beyond
+  the tier floor to Engineering Foundation/Testing Convention; filling that
+  already-delegated slot for one module exercises pre-granted authority,
+  it does not invent new process. v0.16's own caution about a threshold
+  "closer to governance/quality-policy" is flagged specifically for
+  CROSS-MODULE/REPOSITORY-WIDE thresholds -- this proposal is neither.
+Decision affecting >1 module: NO -- explicitly single-module scoped.
+Hard-to-reverse decision: NO -- revisable via the same governed 9-step
+  process that would set it.
+Locked-ADR modification/supersession: NO.
+Significant but reversible single-module internal change: YES -- exact
+  textual fit for SS4b's own "ADR Optional" example.
+```
+
+### Classification
+
+```text
+ADR_SCOPE_DISPOSITION: ADR_OPTIONAL.
+No ADR authored. Resolved fresh from Chapter 13 SS13.14's own Locked text
+  plus Chapter 0 SS4b's own table -- not from precedent alone. Next
+  governed step proceeds directly to Step 7 (Review A + Independent Review
+  B of the threshold proposal itself); a future reviewer/Product Owner
+  remains free to judge an ADR worthwhile at Step 7/8.
+```
+
+### Analysis artifact updated
+
+```text
+Modified in place: docs/governance/mutation-baseline-evidence/feature-
+  engine-mutation-threshold-proposal-001.md SS6 -- replaced the "PENDING
+  STEP 6" placeholder with the full trigger-by-trigger table and
+  classification, plus a top-of-document status note. The 87.0% numeric
+  proposal and all other content unchanged.
+```
+
+### State summary
+
+```text
+ADR_SCOPE_DISPOSITION: ADR_OPTIONAL (no ADR authored).
+Threshold proposal: 87.0%, Tier-1/FEATURE-ENGINE-ONLY -- unchanged, still
+  PROPOSAL / NOT EFFECTIVE.
+TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:   FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG: FAIL (unchanged).
+Feature module approval: NOT APPROVED.
+Phase 3 Approval Gate:   NOT opened.
+LIVE:                     NOT_AUTHORIZED.
+```
+
+**Next governed step:** Step 7 — Review A + Independent Review B of the threshold proposal itself.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.311"` → `"10.312"`.
+
+---
+
 ## [Unreleased] — 2026-09-04 — feature-engine: mutation-effectiveness threshold Step-5 proposal (PROPOSAL / NOT EFFECTIVE; `P3-PY-MUT-CAL-A-MAJ-01` / `P3-PY-MUT-CAL-A-MIN-01` → CLOSED — REVIEW A)
 
 **Bounded proposal transaction — vai trò: `Feature Engine Mutation-Effectiveness Threshold Proposal Author (Step 5)`.** Authors one evidence-grounded Step-5 threshold proposal per Testing Convention v0.16's governed 9-step sequence. Does not activate/approve/apply any threshold, does not evaluate the current baseline as PASS/FAIL, does not alter the raw score or denominator, and does not touch production/test/tooling semantics.

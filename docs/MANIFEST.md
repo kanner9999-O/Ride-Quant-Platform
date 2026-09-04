@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.311"
+manifest_version: "10.312"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -20247,6 +20247,121 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** Step 6 — a fresh ADR Scope Rule classification of this threshold proposal, at its own boundary, followed (per its outcome) by Step 7 Review A + Independent Review B of the proposal itself.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.310"` → `"10.311"`.
+
+## `feature-engine` — Threshold Proposal Step 6: Fresh ADR Scope Rule Classification (`ADR_OPTIONAL`, no ADR authored)
+
+**Bounded classification/bookkeeping transaction — vai trò: `Step 6 ADR Scope Rule Classifier`.** Performs ONE fresh Chapter 0 §4b ADR Scope Rule classification of the Feature Engine mutation-effectiveness threshold proposal, independently at this transaction's own boundary — does NOT inherit the compatibility mechanism candidate's prior `ADR_OPTIONAL`/`ADR_NOT_REQUIRED` reasoning. Does NOT Review A/B the proposal, does NOT approve/activate 87.0%, does NOT evaluate the current 75.898105813194% baseline as PASS/FAIL, does NOT change the numeric proposal, does NOT rerun mutation testing/QG, does NOT touch production/test/tooling code, does NOT approve Feature Engine/open Phase 3 gate/authorize LIVE, does NOT record a Product Owner decision.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `148c9865d7b99d3fa34182714f736fe92c6e0af0` via `git rev-parse HEAD`, matching this task's own expected boundary. Subject blob confirmed exactly `3812702ae5d76a39ed322ced377466376c54663b` via `git rev-parse HEAD:<path>`, matching this task's own expected subject blob.
+
+### §4b trigger-by-trigger analysis
+
+```text
+Platform Invariant change: NO -- touches no I-1..I-13 invariant.
+Event Schema change: NO -- no event/fact schema/contract/field touched.
+Module Taxonomy/dependency-graph change: NO -- module-registry.yaml and all
+  dependency edges untouched.
+Governance/Approval-process change: NO -- resolved from Chapter 13 SS13.14's
+  own Locked text, not precedent: SS13.14 already, explicitly defers
+  "concrete tooling, CI operator, coverage/mutation ngưỡng số vượt tier
+  floor" (numeric coverage/mutation thresholds beyond the tier floor) to
+  Engineering Foundation/Testing Convention. Filling that already-delegated
+  slot with one module's specific number exercises pre-granted authority; it
+  does not invent new governance/approval-process machinery. Testing
+  Convention v0.16's own caution that a threshold "closer to a governance/
+  quality-policy decision" needs its own SS4b re-run is specifically flagged
+  for a CROSS-MODULE or REPOSITORY-WIDE threshold -- this proposal is
+  explicitly neither (Tier-1/FEATURE-ENGINE-ONLY).
+Decision affecting >1 module: NO -- explicitly single-module scoped, no
+  Tier-0/cross-module generalization (consistent with v0.16's own
+  non-inference rule).
+Hard-to-reverse decision: NO -- the threshold is revisable via the same
+  symmetric, evidence-grounded 9-step process that would set it; not a
+  cascading architectural commitment like an Event Schema/cross-module
+  contract change.
+Locked-ADR modification/supersession: NO -- no existing ADR addresses any
+  module's mutation-effectiveness threshold; nothing modified/superseded.
+Alternative -- significant but reversible single-module internal change:
+  YES -- genuinely significant (will eventually gate a real Chapter 13
+  PASS/FAIL dimension for Feature Engine), confined to one module, changes
+  no contract, exercises already-delegated authority. Exact textual fit for
+  SS4b's own "ADR Optional" example ("thay đổi nội bộ một module không đổi
+  contract nhưng ảnh hưởng đáng kể").
+```
+
+### Classification
+
+```text
+ADR_SCOPE_DISPOSITION: ADR_OPTIONAL.
+Rationale: no ADR-Required trigger met; ADR_NOT_REQUIRED would understate
+  real significance (this is not cosmetic/typo/refactor-only); ADR_OPTIONAL
+  is the textually-supported fit per Chapter 0 SS4b's own table. Classified
+  independently at this transaction's own boundary, per this task's own
+  instruction NOT to inherit the compatibility mechanism candidate's prior
+  ADR_NOT_REQUIRED/ADR_OPTIONAL reasoning -- this is treated as a new
+  semantic decision, resolved fresh from Chapter 13 SS13.14's own Locked
+  text plus Chapter 0 SS4b's own table, not from precedent alone (ADR-030's
+  own scope-check reasoning was consulted as directly-on-point authoritative
+  interpretation of Testing Convention's existing delegation, not cited as
+  bare precedent overriding SS4b's text).
+No ADR authored by this transaction. Per this task's own instruction, an
+  ADR_OPTIONAL classification proceeds directly to Step 7 (Review A +
+  Independent Review B of the threshold proposal itself) -- a future
+  reviewer/Product Owner remains free to judge an ADR worthwhile at Step
+  7/8; that discretionary option is preserved, not exercised, here.
+```
+
+### Analysis artifact updated
+
+```text
+Modified in place (bookkeeping/classification only, minimal): docs/
+  governance/mutation-baseline-evidence/feature-engine-mutation-threshold-
+  proposal-001.md SS6 replaced ("PENDING STEP 6 FRESH CLASSIFICATION"
+  placeholder -> full trigger-by-trigger table + ADR_OPTIONAL classification
+  + rationale), plus a one-line top-of-document status update noting Step 6
+  completion and the Step 7 next-action. The 87.0% numeric proposal, its
+  scope, its companion eligibility condition/recalibration triggers, the
+  candidate-comparison analysis (SS3), and all other content unchanged.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  threshold-proposal-001.md (modified), docs/MANIFEST.md, docs/CHANGELOG.md
+  changed in the tracked repository (confirmed via `git status
+  --porcelain=v1`). feature-engine-mutation-baseline-001.json and
+  feature-engine-mutation-baseline-001-analysis.md both verified byte-
+  identical. python/feature-engine/src/**, python/feature-engine/tests/**,
+  python/feature-engine/tooling/**, pyproject.toml,
+  requirements-dev.lock.txt, docs/engineering/testing.md, Constitution,
+  docs/adr/**, execution-rules.md, phase-3-rules.md, module-registry.yaml,
+  CI/CD workflows, any Go module: all verified byte-identical. No ADR file
+  created. No Review A/B performed on the proposal. No threshold approved/
+  activated. The 75.898105813194% raw score not evaluated as PASS/FAIL. No
+  numeric proposal value changed. No mutation-testing rerun. No production/
+  test/tooling semantics changed. P3-FEATURE-QG-EVID-03 not marked PASS.
+  Formal Chapter 13 QG not rerun. Feature Engine not approved. Phase 3 gate
+  not opened. LIVE not authorized. No Product Owner decision recorded.
+```
+
+### State summary
+
+```text
+ADR_SCOPE_DISPOSITION:         ADR_OPTIONAL (no ADR authored).
+Threshold proposal:            87.0%, Tier-1/FEATURE-ENGINE-ONLY --
+                                unchanged, still PROPOSAL / NOT EFFECTIVE.
+TEST_EFFECTIVENESS_THRESHOLD:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged, NOT marked PASS).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Step 7 — Review A + Independent Review B of the threshold proposal itself.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.311"` → `"10.312"`.
 
 ## Decision Log
 

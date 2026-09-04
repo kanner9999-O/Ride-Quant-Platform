@@ -12,6 +12,11 @@ Steps 6–9 complete, `TEST_EFFECTIVENESS_THRESHOLD` remains
 75.898105813194% raw baseline is not evaluated as PASS or FAIL against
 anything in this document.
 
+**Step 6 update:** a fresh Chapter 0 §4b ADR Scope Rule classification of
+this proposal has been performed (§6 below) — `ADR_OPTIONAL`, no ADR
+authored. Next governed step: Step 7 (Review A + Independent Review B of
+this proposal).
+
 ## 0. Authority resolved directly (not restated from memory)
 
 - Testing Convention v0.16 (`docs/engineering/testing.md`), the governed
@@ -243,19 +248,49 @@ without its own governed decision.
 - **No Tier-0 inference.** This proposal makes no claim about, and must not
   be cited for, any Tier-0 subject's threshold.
 
-## 6. `ADR_SCOPE_DISPOSITION: PENDING STEP 6 FRESH CLASSIFICATION`
+## 6. `ADR_SCOPE_DISPOSITION` — Step 6 fresh classification
 
 Testing Convention v0.16's own ADR-scope disposition note is explicit: the
 mechanism-selection candidate's `ADR_NOT_REQUIRED` disposition does **not**
 extend to a future numeric-threshold proposal, which must independently
-re-run Constitution Chapter 0 §4b's ADR Scope Rule at its own boundary — Step
-6 of the 9-step sequence, performed as a separate, subsequent governed
-transaction, not this one. No ADR is authored by this transaction. No ADR
-Scope Rule classification is performed or asserted by this transaction.
+re-run Constitution Chapter 0 §4b's ADR Scope Rule at its own boundary. This
+section performs that fresh classification, as its own separate,
+subsequent governed transaction (Step 6), not inherited from Step 5.
+
+### 6.1 Trigger-by-trigger analysis (Chapter 0 §4b)
+
+| §4b trigger | Applies to this proposal? | Reasoning |
+|---|---|---|
+| Platform Invariant change | **No** | The proposal touches no I-1–I-13 invariant (`docs/constitution/02-platform-invariants.md`) — it is a test-effectiveness measurement parameter, not a domain/architecture invariant. |
+| Event Schema change | **No** | No event/fact schema, contract, or field is added, removed, or reinterpreted. |
+| Module Taxonomy/dependency-graph change | **No** | No edit to `module-registry.yaml` or any module dependency edge; Feature Engine's own module boundary is unchanged. |
+| Governance/Approval-process change | **No — this is the trigger requiring the most care, resolved from Chapter 13's own text, not precedent.** Chapter 13 §13.14 (Locked) explicitly, already defers "concrete tooling, CI operator, coverage/mutation **ngưỡng số vượt tier floor**" (numeric coverage/mutation thresholds beyond the tier floor) to Engineering Foundation/Testing Convention. This is pre-existing, Locked delegation of the *authority to set a specific numeric threshold* — not a decision this proposal is inventing. Filling that already-delegated slot with a specific, evidence-grounded number for one module is exercising already-granted authority, not creating new governance/approval-process machinery. (ADR-030's own ADR-scope-check reasoning, itself grounded in Chapter 3 §3.2/Chapter 13 §13.14 text rather than being cited as bare precedent, draws the same "existing Locked authority already pre-resolved → author directly, no ADR" distinction for Testing Convention content generally.) Testing Convention v0.16's own caution that a threshold proposal "closer to a governance/quality-policy decision" needs its own §4b re-run is specifically flagged for a **cross-module or repository-wide** threshold — this proposal is explicitly neither; it is Tier-1/FEATURE-ENGINE-ONLY. |
+| Decision affecting >1 module | **No** | Proposal §3/§4 explicitly, repeatedly scopes this to Feature Engine only and explicitly disclaims any Tier-0 or cross-module/cross-tier generalization, consistent with Testing Convention v0.16's own non-inference rule. |
+| Hard-to-reverse decision | **No** | The threshold is not a one-way architectural commitment: Testing Convention v0.16's own 9-step sequence (and this proposal's own §4.2 recalibration triggers) establish that a threshold is revisable via a symmetric, evidence-grounded re-proposal — the same governed mechanism that would set it can reset it. This contrasts with genuinely hard-to-reverse decisions (Event Schema, cross-module contracts) that cascade into other artifacts' own compatibility guarantees. |
+| Locked-ADR modification/supersession | **No** | No existing ADR addresses Feature Engine's (or any module's) mutation-effectiveness threshold; nothing is modified or superseded. |
+| **Alternative: significant but reversible single-module internal change** | **Yes** | The proposal is significant — once effective, it would be the actual number that determines a real Chapter 13 test-effectiveness PASS/FAIL outcome for Feature Engine, a genuine governance consequence, not cosmetic. It is confined to one module, changes no contract, and (per the row above) exercises already-delegated authority rather than creating new process. This is precisely §4b's own "ADR Optional" example: *"Thay đổi nội bộ một module không đổi contract nhưng ảnh hưởng đáng kể"* (an internal change to one module that does not change a contract but has significant impact). |
+
+### 6.2 Classification
 
 ```text
-ADR_SCOPE_DISPOSITION: PENDING STEP 6 FRESH CLASSIFICATION
+ADR_SCOPE_DISPOSITION: ADR_OPTIONAL
 ```
+
+No ADR-Required trigger is met. `ADR_NOT_REQUIRED` would understate the
+decision's real significance (it is not cosmetic/typo/refactor-only — it
+will eventually gate a real Quality Gate PASS/FAIL dimension) and this task's
+own instruction requires classifying this as a new semantic decision rather
+than defaulting to the mechanism candidate's prior disposition. `ADR_OPTIONAL`
+is the textually-supported fit: single-module, contract-preserving,
+already-delegated authority, but genuinely significant.
+
+**No ADR is authored by this transaction.** Per this task's own instruction,
+an `ADR_OPTIONAL` (or `ADR_NOT_REQUIRED`) classification means the next
+governed action is Step 7 (Review A + Independent Review B of the threshold
+proposal itself), not ADR authoring. A future reviewer or Product Owner
+remains free to judge, at Step 7 or Step 8, that an ADR would nonetheless be
+worthwhile — that discretionary option is preserved, not exercised, by this
+classification.
 
 ## 7. Review A disposition folded in (externally-supplied; no prior record existed)
 
