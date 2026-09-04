@@ -2,6 +2,76 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: Step-4 calibration analysis bounded correction (`P3-PY-MUT-CAL-A-MAJ-01` / `P3-PY-MUT-CAL-A-MIN-01` → REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW)
+
+**Bounded correction transaction — vai trò: `Step-4 Calibration Analysis Bounded Correction Executor`.** Corrects the Step-4 calibration analysis after two Review A findings: 55 survivors left as unresolved `needs_review_data_context` while the document concluded calibration was Step-5-ready (MAJOR), and an arithmetic error mixing all-authority_resolver.py-mutants with killed-only contracts.py mutants in the kill-cohort follow-up description (MINOR). Does not touch baseline-001's raw evidence, the 75.898105813194% score, or any production/test/tooling semantics.
+
+### `P3-PY-MUT-CAL-A-MAJ-01` — all 55 `needs_review_data_context` survivors individually resolved
+
+```text
+Each resolved by reading the original function, exhaustively grepping every
+  read site of the mutated value across the module/tests, and determining
+  observable semantic impact -- not guessed. Result: 32 -> actionable_test_
+  gap_candidate (including 2 latent-crash dead-store bugs in on_candle, one
+  whole untested _recompute branch spanning 7 mutant IDs, and an untested
+  swing.md SS1a "no double invalidation" guard); 22 -> candidate_equivalent
+  (9 proven dead-store fields, 6 truthiness-only booleans, 1 provably-
+  unreachable tiebreak position via SequenceAllocator's sequence-uniqueness
+  guarantee, others); 1 -> new low_materiality_but_real_observable_gap tag.
+  needs_review_data_context: 0 remaining. Zero equivalents removed from the
+  denominator (25 total, still counted as survivors).
+Updated 369-total materiality counts: low_materiality_message_text 173,
+  actionable_test_gap_candidate 87 (was 55), constructed_object_field_not_
+  independently_asserted 83, candidate_equivalent 22 + very_likely_
+  equivalent_codec_case_insensitive 3 = 25, low_materiality_but_real_
+  observable_gap 1, needs_review_data_context 0 (was 55).
+STEP-4 THRESHOLD READINESS: READY (not forced -- every item individually
+  evidenced; three carried-forward caveats preserved).
+```
+
+### `P3-PY-MUT-CAL-A-MIN-01` — kill-cohort candidate-set arithmetic corrected
+
+```text
+Corrected the Section 3.6 follow-up-diagnostic description from "134
+  authority_resolver.py + 71 contracts.py = 205" to the objectively correct
+  "113 KILLED authority_resolver.py + 71 killed in-graph contracts.py = 184"
+  -- the crash cohort is by definition a subset of the KILLED population
+  only, so the full 134 (which includes 21 survivors) was the wrong figure.
+  Section 3.4's own upper-bound table was already correct (184); only the
+  restated follow-up sentence in 3.6 contained the error. The full
+  184-mutant diagnostic itself was NOT run (not required for this
+  correction; the 165 cohort remains a non-blocker for Step-4 readiness).
+```
+
+### Analysis artifact corrected
+
+```text
+Modified in place: docs/governance/mutation-baseline-evidence/feature-
+  engine-mutation-baseline-001-analysis.md (analysis output, corrected
+  directly rather than preserved-verbatim-and-annotated, since it is not a
+  historical transaction log). A "Correction history" note added at the
+  top. feature-engine-mutation-baseline-001.json itself untouched.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-CAL-A-MAJ-01:  REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-CAL-A-MIN-01:  REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+Test-effectiveness threshold: UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:   FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG: FAIL (unchanged).
+Feature module approval: NOT APPROVED.
+Phase 3 Approval Gate:   NOT opened.
+LIVE:                     NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of this correction, followed (if clean) by a Step-5 mutation-effectiveness threshold proposal for Feature Engine.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-001-analysis.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.309"` → `"10.310"`.
+
+---
+
 ## [Unreleased] — 2026-09-03 — feature-engine: mutation baseline Step-4 calibration analysis (`P3-PY-MUT-BASELINE-A-MAJ-02` → CLOSED — REVIEW A; `P3-PY-MUT-BASELINE-B-MAJ-01` → CLOSED — REVIEW A INDEPENDENT VALIDATION; no threshold proposed)
 
 **Bounded analysis transaction — vai trò: `Feature Engine Mutation Baseline Calibration Analysis Executor`.** Analyzes the already-completed, durably-recorded baseline (`feature-engine-mutation-baseline-001.json`, blob `978ebf92f89e5bd93ba112c1b8e4622835ea71ba`) without rerunning mutation testing, modifying its raw evidence, or changing the score. Folds in externally-supplied Review A dispositions closing both prior findings (no prior record existed; first recording here, per the P3-TXN-001 default-fold lesson — no standalone review-evidence transaction created).

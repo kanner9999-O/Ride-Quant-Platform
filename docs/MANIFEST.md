@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.309"
+manifest_version: "10.310"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -19996,6 +19996,140 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** a Step-5 mutation-effectiveness threshold proposal for Feature Engine, informed by this analysis's empirical findings and required to explicitly address the three carried-forward caveats.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-001-analysis.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.308"` → `"10.309"`.
+
+## `feature-engine` — Mutation Baseline Step-4 Calibration Analysis Bounded Correction (`P3-PY-MUT-CAL-A-MAJ-01` / `P3-PY-MUT-CAL-A-MIN-01` → REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW)
+
+**Bounded correction transaction — vai trò: `Step-4 Calibration Analysis Bounded Correction Executor`.** Corrects the Step-4 calibration analysis (`feature-engine-mutation-baseline-001-analysis.md`, previously blob `e24a2df534400bdfb1e895acb2b837c3d366ebfd`) per two Review A findings. Does NOT modify baseline-001's raw evidence, does NOT change the 75.898105813194% raw score, does NOT rerun the mutation baseline, does NOT remove any candidate-equivalent from the denominator, does NOT propose/select a numeric threshold, does NOT mark `P3-FEATURE-QG-EVID-03` PASS, does NOT rerun formal Chapter 13 QG, does NOT approve Feature Engine, open the Phase 3 gate, or authorize LIVE.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `2862d46bb12d1b0fa47627f610e084efecd7b90f` via `git rev-parse HEAD`, matching this task's own expected boundary; subject file confirmed exactly blob `e24a2df534400bdfb1e895acb2b837c3d366ebfd` via `git rev-parse HEAD:<path>`, matching this task's own expected subject blob.
+
+### `P3-PY-MUT-CAL-A-MAJ-01` — remediated: all 55 `needs_review_data_context` survivors individually resolved
+
+```text
+Root cause: the original analysis left 55/369 survivors tagged
+  needs_review_data_context (explicitly unresolved by the automated pass)
+  while concluding calibration was sufficient for Step 5 -- Testing
+  Convention v0.16 requires individual triage of survived mutants on
+  authoritative logic before that conclusion is defensible.
+Correction: each of the 55 individually resolved by reading the exact
+  original function, exhaustively grepping every read site of the mutated
+  value/field across the module (and test file), and determining observable
+  semantic impact -- not by heuristic pattern-matching, not by guessing to
+  reach zero unresolved.
+Result: 32 resolved to actionable_test_gap_candidate (concrete, evidence-
+  traced gaps -- including 2 latent-crash dead-store corruptions in
+  on_candle, a whole untested _recompute branch spanning 7 mutant IDs with
+  one root cause, and an untested "invalidate an already-invalidated swing
+  revision" guard protecting a documented swing.md SS1a invariant); 22
+  resolved to candidate_equivalent (each individually proven via exhaustive
+  dataflow tracing: 9 pure dead-store fields, 6 truthiness-only boolean
+  reads where None/False are behaviorally identical at every site, 1
+  provably-unreachable tiebreak position given SequenceAllocator's
+  per-stream sequence-uniqueness guarantee, plus others); 1 resolved to a
+  new low_materiality_but_real_observable_gap tag (a genuine but
+  currently-unexercised behavior change, confirmed against the actual
+  production YAML artifacts). needs_review_data_context: 0 remaining.
+  Zero candidate-equivalents removed from the denominator (25 total now,
+  all still counted as survivors pending v0.16's individually-pinned
+  justification requirement).
+Updated aggregate materiality counts (369 total, unchanged denominator):
+  low_materiality_message_text 173, actionable_test_gap_candidate 87 (was
+  55), constructed_object_field_not_independently_asserted 83,
+  candidate_equivalent 22 (new tag) + very_likely_equivalent_codec_case_
+  insensitive 3 = 25 total equivalents, low_materiality_but_real_
+  observable_gap 1 (new tag), needs_review_data_context 0 (was 55).
+Threshold-readiness conclusion updated: STEP-4 THRESHOLD READINESS: READY
+  (three carried-forward caveats preserved and restated, per Section 4 of
+  the corrected artifact) -- not forced; every one of the 55 was resolved
+  with cited evidence, none guessed.
+```
+
+### `P3-PY-MUT-CAL-A-MIN-01` — remediated: kill-cohort candidate-set arithmetic corrected
+
+```text
+Root cause: Section 3.6's follow-up-diagnostic description incorrectly wrote
+  "re-run all 134 authority_resolver.py candidates plus the 71 in-graph
+  contracts.py candidates (205 total invocations...)" -- mixing the FULL
+  authority_resolver.py population (134, including 21 survivors) with the
+  KILLED-only contracts.py subset (71), when the actual objective is
+  identifying members of the 165 BadTestExecutionCommandsException cohort,
+  which is by definition a subset of the KILLED population only (survivors
+  cannot be crash-cohort members).
+Correction: corrected to the KILLED-only authority_resolver.py population
+  (113) + the KILLED in-graph contracts.py population (71: _seal_verified_
+  authority 20 + _construct_verified_authority 49 + _is_well_formed_
+  content_id 2) = 184 total invocations -- consistent with Section 3.4's
+  own already-correct upper-bound table, which was never wrong; only the
+  restated follow-up-diagnostic sentence in Section 3.6 contained the error.
+Not performed: the full 184-mutant diagnostic itself was NOT run in this
+  transaction (per this task's own explicit instruction: not required
+  unless individual survivor correction demanded it, and the 165 cohort is
+  not itself a Review A blocker for Step-4 readiness under the current
+  raw-score contract).
+```
+
+### Analysis artifact corrected
+
+```text
+Modified in place (analysis output, not a historical transaction log --
+  corrected directly rather than annotated/preserved verbatim, consistent
+  with fixing living documentation rather than a point-in-time record):
+  docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  baseline-001-analysis.md. New blob (to be recorded in this transaction's
+  own commit). A "Correction history" note added at the top of the document
+  pointing back to this MANIFEST section and the two closed Review A finding
+  IDs. baseline-001.json itself untouched (byte-identical, verified).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  baseline-001-analysis.md (modified), docs/MANIFEST.md, docs/CHANGELOG.md
+  changed in the tracked repository (confirmed via `git status
+  --porcelain=v1`). feature-engine-mutation-baseline-001.json,
+  python/feature-engine/src/**, python/feature-engine/tests/**,
+  python/feature-engine/tooling/**, pyproject.toml,
+  requirements-dev.lock.txt, docs/engineering/testing.md, Constitution,
+  ADRs, execution-rules.md, phase-3-rules.md, module-registry.yaml, CI/CD
+  workflows, any Go module: all verified byte-identical (`git diff --quiet`
+  for each path). No mutation-testing rerun. No production/test/tooling
+  semantics changed. The 75.898105813194% raw score unchanged. No
+  candidate-equivalent removed from the denominator. No threshold
+  proposed/selected. P3-FEATURE-QG-EVID-03 not marked PASS. Formal Chapter
+  13 QG not rerun. Feature Engine not approved. Phase 3 gate not opened.
+  LIVE not authorized.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-CAL-A-MAJ-01:        REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+P3-PY-MUT-CAL-A-MIN-01:        REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+Survivor classification:        369/369 classified, 0 unresolved (was 55
+                                unresolved before this correction). 170
+                                material actionable test gaps, 174
+                                low-priority-but-real gaps, 25 candidate-
+                                equivalents (none removed), 0 requiring
+                                further review.
+STEP-4 THRESHOLD READINESS:    READY (3 carried-forward caveats preserved).
+Kill-cohort candidate-set arithmetic: corrected to 184 (113 killed
+                                authority_resolver.py + 71 killed in-graph
+                                contracts.py); 165-cohort exact identities
+                                still unresolved (unchanged, non-blocking).
+Compatibility shim:            INSTALLED (unchanged).
+mutmut:                        3.7.0 INSTALLED + PINNED (unchanged).
+Test-effectiveness threshold:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged, NOT marked PASS).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** bounded Review A re-review of this correction, followed (if clean) by a Step-5 mutation-effectiveness threshold proposal for Feature Engine.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-001-analysis.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.309"` → `"10.310"`.
 
 ## Decision Log
 
