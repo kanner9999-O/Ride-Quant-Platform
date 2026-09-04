@@ -2,6 +2,75 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: mutation-effectiveness threshold Step-5 proposal (PROPOSAL / NOT EFFECTIVE; `P3-PY-MUT-CAL-A-MAJ-01` / `P3-PY-MUT-CAL-A-MIN-01` → CLOSED — REVIEW A)
+
+**Bounded proposal transaction — vai trò: `Feature Engine Mutation-Effectiveness Threshold Proposal Author (Step 5)`.** Authors one evidence-grounded Step-5 threshold proposal per Testing Convention v0.16's governed 9-step sequence. Does not activate/approve/apply any threshold, does not evaluate the current baseline as PASS/FAIL, does not alter the raw score or denominator, and does not touch production/test/tooling semantics.
+
+### Review A disposition folded in
+
+```text
+P3-PY-MUT-CAL-A-MAJ-01: CLOSED — REVIEW A.
+P3-PY-MUT-CAL-A-MIN-01: CLOSED — REVIEW A.
+New Blocker/Major/Minor: 0/0/0 — FINAL BOUNDED REVIEW A RE-REVIEW: CLEAN.
+STEP-4 THRESHOLD READINESS: READY (confirmed, consumed not re-established).
+```
+
+### Threshold proposal
+
+```text
+New: docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  threshold-proposal-001.md -- PROPOSAL / NOT EFFECTIVE / PENDING REVIEW AND
+  PRODUCT OWNER DECISION.
+Four candidates evaluated: ~76% (current-score rounding) REJECTED as
+  choosing a number merely to pass; 80% (generic, already once rejected as
+  non-repository-specific) considered as a possible floor, not
+  recommended; 87.0% (close all 170 individually-identified material
+  actionable-test-gap survivors; credit none of the 174 low-priority gaps
+  or 25 candidate-equivalents) RECOMMENDED; 98.4% (theoretical ceiling)
+  REJECTED as an anti-gaming risk.
+Recommended: 87.0% raw Ride-owned mutation-effectiveness metric, Tier-1/
+  FEATURE-ENGINE-ONLY scope only -- explicitly not generalized to Tier-0 or
+  any other module. Current 75.898105813194% is below this figure; stated,
+  not evaluated as PASS/FAIL by this transaction.
+Companion eligibility condition (proposed, not effective): meeting 87.0%
+  does not waive Testing Convention v0.16 SS5b's existing 12-method blind-
+  spot fail-closed rule.
+Companion recalibration triggers (proposed, not effective): mutmut
+  decorated-class fix, 165-cohort resolution revealing score inflation,
+  any change to the Ride-owned metric/ten-status/mutation-surface contracts.
+```
+
+### `ADR_SCOPE_DISPOSITION: PENDING STEP 6 FRESH CLASSIFICATION`
+
+```text
+Per Testing Convention v0.16's own ADR-scope disposition note, a future
+  numeric-threshold proposal must independently re-run Constitution
+  Chapter 0 SS4b's ADR Scope Rule at its own boundary (Step 6) -- not
+  inherited from the mechanism-selection candidate's ADR_NOT_REQUIRED
+  disposition. No ADR authored; no classification performed by this
+  transaction.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-CAL-A-MAJ-01: CLOSED — REVIEW A.
+P3-PY-MUT-CAL-A-MIN-01: CLOSED — REVIEW A.
+ADR_SCOPE_DISPOSITION: PENDING STEP 6 FRESH CLASSIFICATION.
+TEST_EFFECTIVENESS_THRESHOLD: UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged).
+P3-FEATURE-QG-EVID-03:   FAIL — evidence (unchanged).
+Formal Feature Chapter 13 QG: FAIL (unchanged).
+Feature module approval: NOT APPROVED.
+Phase 3 Approval Gate:   NOT opened.
+LIVE:                     NOT_AUTHORIZED.
+```
+
+**Next governed step:** Step 6 — a fresh ADR Scope Rule classification of this threshold proposal at its own boundary, followed by Step 7 Review A + Independent Review B of the proposal itself.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.310"` → `"10.311"`.
+
+---
+
 ## [Unreleased] — 2026-09-04 — feature-engine: Step-4 calibration analysis bounded correction (`P3-PY-MUT-CAL-A-MAJ-01` / `P3-PY-MUT-CAL-A-MIN-01` → REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW)
 
 **Bounded correction transaction — vai trò: `Step-4 Calibration Analysis Bounded Correction Executor`.** Corrects the Step-4 calibration analysis after two Review A findings: 55 survivors left as unresolved `needs_review_data_context` while the document concluded calibration was Step-5-ready (MAJOR), and an arithmetic error mixing all-authority_resolver.py-mutants with killed-only contracts.py mutants in the kill-cohort follow-up description (MINOR). Does not touch baseline-001's raw evidence, the 75.898105813194% score, or any production/test/tooling semantics.

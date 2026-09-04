@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.310"
+manifest_version: "10.311"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -20130,6 +20130,123 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** bounded Review A re-review of this correction, followed (if clean) by a Step-5 mutation-effectiveness threshold proposal for Feature Engine.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-baseline-001-analysis.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.309"` → `"10.310"`.
+
+## `feature-engine` — Mutation-Effectiveness Threshold Step-5 Proposal (PROPOSAL / NOT EFFECTIVE; `P3-PY-MUT-CAL-A-MAJ-01`/`P3-PY-MUT-CAL-A-MIN-01` → CLOSED — REVIEW A)
+
+**Bounded proposal transaction — vai trò: `Feature Engine Mutation-Effectiveness Threshold Proposal Author (Step 5)`.** Authors ONE evidence-grounded Step-5 threshold proposal per Testing Convention v0.16's governed 9-step sequence. Does NOT activate/approve/apply any threshold, does NOT evaluate the current baseline as PASS/FAIL, does NOT alter the 75.898105813194% raw score, does NOT remove any candidate-equivalent from the denominator, does NOT modify baseline-001 or the Step-4 analysis (except this transaction's own bookkeeping references), does NOT rerun mutation testing, does NOT touch Feature production/test/tooling semantics, does NOT mark `P3-FEATURE-QG-EVID-03` PASS, does NOT rerun formal Chapter 13 QG, does NOT approve Feature Engine/open the Phase 3 gate/authorize LIVE, does NOT record a Product Owner decision, and does NOT self-review/self-approve.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `b591e56d2dbf637322345f0acf3f58e04f13adf8` via `git rev-parse HEAD`, matching this task's own expected boundary. Independently re-verified subject blobs directly: `feature-engine-mutation-baseline-001.json` = `978ebf92f89e5bd93ba112c1b8e4622835ea71ba` (unchanged), `feature-engine-mutation-baseline-001-analysis.md` = `8915c66f2e65c1785cbbe2d88a100fcde0ccb156` (matches this task's own expected subject blob) — no premise mismatch found.
+
+### Review A disposition folded in (externally-supplied; no prior record existed)
+
+```text
+P3-PY-MUT-CAL-A-MAJ-01: CLOSED — REVIEW A. Externally-supplied disposition:
+  bounded Review A re-review of the Step-4 correction at boundary
+  b591e56d2dbf637322345f0acf3f58e04f13adf8.
+P3-PY-MUT-CAL-A-MIN-01: CLOSED — REVIEW A. Same re-review.
+New Blocker/Major/Minor: 0/0/0 — FINAL BOUNDED REVIEW A RE-REVIEW: CLEAN.
+STEP-4 THRESHOLD READINESS: READY (confirmed; this Step-5 transaction only
+  consumes this readiness state, does not itself re-establish it).
+No prior record of either closure disposition existed in docs/MANIFEST.md or
+  docs/CHANGELOG.md before this transaction -- first recording, folded into
+  this already-required Step-5 transaction per the P3-TXN-001 default-fold
+  rule (no standalone review-evidence transaction created).
+```
+
+### Threshold proposal authored
+
+```text
+New file: docs/governance/mutation-baseline-evidence/feature-engine-
+  mutation-threshold-proposal-001.md. Explicitly PROPOSAL / NOT EFFECTIVE /
+  PENDING REVIEW AND PRODUCT OWNER DECISION throughout.
+Four candidates evaluated: ~76% (current-score rounding) REJECTED as
+  choosing a number merely to pass; 80% (generic, the same figure v0.9
+  already rejected once as non-repository-specific) considered as a
+  possible minimum floor, not recommended; 87.0% (close all 170
+  individually-identified material actionable-test-gap survivors, credit
+  none of the 174 low-priority/currently-unexercised gaps, credit none of
+  the 25 candidate-equivalents) RECOMMENDED; 98.4% (theoretical ceiling,
+  everything but confirmed/candidate equivalents) REJECTED as an
+  anti-gaming risk (would incentivize brittle exact-message-text assertions
+  written only to move the score).
+Recommended: 87.0% raw Ride-owned mutation-effectiveness metric (item 7's
+  already-approved formula, unchanged), Tier-1/FEATURE-ENGINE-ONLY scope
+  exactly, explicitly NOT generalized to Tier-0 or any other module.
+  Current 75.898105813194% raw score is BELOW this proposed figure --
+  Feature Engine would FAIL the test-effectiveness dimension if/when this
+  threshold becomes effective, unless the material gaps are closed first;
+  this is stated, not evaluated as a PASS/FAIL determination by this
+  transaction.
+Companion eligibility condition proposed (not effective): meeting 87.0%
+  alone does not waive Testing Convention v0.16 SS5b's existing fail-closed
+  rule on the 12-method/5-high-materiality mutation-surface blind spot --
+  restated, not newly created.
+Companion recalibration triggers proposed (not effective): mutmut tool/
+  version change fixing the decorated-class limitation; resolution of the
+  165-cohort revealing material score inflation from the crash-detection
+  channel; any change to the Ride-owned metric/ten-status/mutation-surface
+  contracts themselves.
+```
+
+### `ADR_SCOPE_DISPOSITION: PENDING STEP 6 FRESH CLASSIFICATION`
+
+```text
+Testing Convention v0.16's own ADR-scope disposition note requires a future
+  numeric-threshold proposal to independently re-run Constitution Chapter 0
+  SS4b's ADR Scope Rule at its OWN boundary -- Step 6 of the 9-step
+  sequence, a separate, subsequent governed transaction. This transaction
+  does NOT inherit the mechanism-selection candidate's ADR_NOT_REQUIRED
+  disposition, does NOT author an ADR, and does NOT perform or assert any
+  ADR Scope Rule classification. Recorded exactly as required:
+  ADR_SCOPE_DISPOSITION: PENDING STEP 6 FRESH CLASSIFICATION.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  threshold-proposal-001.md (new), docs/MANIFEST.md, docs/CHANGELOG.md
+  changed in the tracked repository (confirmed via `git status
+  --porcelain=v1`). feature-engine-mutation-baseline-001.json and
+  feature-engine-mutation-baseline-001-analysis.md both verified byte-
+  identical (`git diff --quiet` for each) -- this proposal only REFERENCES
+  their already-recorded blobs, does not modify either. python/feature-
+  engine/src/**, python/feature-engine/tests/**, python/feature-engine/
+  tooling/**, pyproject.toml, requirements-dev.lock.txt, docs/engineering/
+  testing.md, Constitution, ADRs, execution-rules.md, phase-3-rules.md,
+  module-registry.yaml, CI/CD workflows, any Go module: all verified
+  byte-identical. No mutation-testing rerun. No production/test/tooling
+  semantics changed. The 75.898105813194% raw score unchanged. No
+  candidate-equivalent removed from the denominator. No threshold
+  activated/approved/applied. No ADR authored. No ADR Scope Rule
+  classification performed. No Product Owner decision recorded. No self-
+  review/self-approval. P3-FEATURE-QG-EVID-03 not marked PASS. Formal
+  Chapter 13 QG not rerun. Feature Engine not approved. Phase 3 gate not
+  opened. LIVE not authorized.
+```
+
+### State summary
+
+```text
+P3-PY-MUT-CAL-A-MAJ-01:        CLOSED — REVIEW A.
+P3-PY-MUT-CAL-A-MIN-01:        CLOSED — REVIEW A.
+Threshold proposal artifact:    docs/governance/mutation-baseline-evidence/
+                                feature-engine-mutation-threshold-proposal-
+                                001.md — PROPOSAL / NOT EFFECTIVE.
+Recommended figure:            87.0% raw mutation-effectiveness,
+                                Tier-1/FEATURE-ENGINE-ONLY only.
+ADR_SCOPE_DISPOSITION:         PENDING STEP 6 FRESH CLASSIFICATION.
+TEST_EFFECTIVENESS_THRESHOLD:  UNRESOLVED — BASELINE/CALIBRATION REQUIRED (unchanged; proposal is not activation).
+P3-FEATURE-QG-EVID-03:         FAIL — evidence (unchanged, NOT marked PASS).
+Formal Feature Chapter 13 QG:  FAIL (unchanged, NOT rerun).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Step 6 — a fresh ADR Scope Rule classification of this threshold proposal, at its own boundary, followed (per its outcome) by Step 7 Review A + Independent Review B of the proposal itself.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.310"` → `"10.311"`.
 
 ## Decision Log
 
