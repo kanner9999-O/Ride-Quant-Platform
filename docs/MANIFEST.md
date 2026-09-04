@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.314"
+manifest_version: "10.315"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -20624,6 +20624,189 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** Step 9 — a threshold-bearing formal Chapter 13 test-effectiveness evidence transaction for Feature Engine, evaluated against the now-approved 87.001959503592% two-part gate.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.313"` → `"10.314"`.
+
+## `feature-engine` — Step 9: Formal Threshold-Bearing Mutation-Effectiveness Evidence (`P3-FEATURE-QG-EVID-03: FAIL — criteria`; threshold now EFFECTIVE)
+
+**Governed formal evidence transaction — vai trò: `Feature Engine Step-9 Formal Mutation Evidence / QG Executor`.** Performs the Step-9 threshold-bearing formal mutation-effectiveness evidence transaction for Feature Engine (Tier-1/FEATURE-ENGINE-ONLY), evaluating the Product-Owner-approved gate (boundary `fc8ded778e9feb4efb9d5bbebd19ef2e74b76757`, blob `88a05b3337e6f88a04ccea7b15f30c225e3f461a`). Runs ONE fresh, formal, reproducible mutation measurement — NOT reused from baseline-001 — following Testing Convention v0.16's formal-measurement contract in full. Does NOT change production/test/tooling code, does NOT alter the approved threshold, does NOT remove any candidate-equivalent from the denominator, does NOT invent an equivalent/reclassification/risk-acceptance decision, does NOT self-approve Feature Engine, does NOT open the Phase 3 gate merely because Step 9 completes, does NOT authorize LIVE.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `1f9f177f0cc681147b6c0f42078597ab2e73f0dd` via `git rev-parse HEAD`, matching this task's own expected boundary. `python/feature-engine` last touched at commit `8d6293aca773757bc3b62cc0d3b80cba9e243954` (shim installation) — unchanged since; independently re-verified src/tests/tooling tree hashes and pyproject/lock/testing.md blobs are bit-identical to those recorded in `feature-engine-mutation-baseline-001.json`'s own `evaluated_identities`.
+
+### Formal measurement performed
+
+```text
+Fresh venv created (.step9venv, removed after evidence capture), dependencies
+  installed from requirements-dev.lock.txt, feature-engine installed
+  editable (--no-deps). Ordinary suite verified fresh: 193 passed (tests/),
+  5 passed (tooling/tests/, outside the governed mutation suite).
+mutants/ absent before the run (fresh venv/checkout state, no cached
+  verdicts). Command: `python -m tooling run` from python/feature-engine.
+  Forced-fail sanity: PASSED (shim correctly authenticated, zero "FAILED:
+  Unable to force test failures" occurrences). Run completed to natural
+  end, exit status 0, 55.45 mutations/second.
+Fresh ten-status counts: total 1531, killed 1162, survived 369, all other
+  eight categories 0. Reconciliation: sum(killed+survived)=1531=total,
+  TRUE; not_checked==0, TRUE.
+Raw score: (1162 + 0) / (1531 - 0) * 100 = 75.898105813194% -- bit-identical
+  to baseline-001's own recorded score.
+Reproducibility cross-check (independently performed, not assumed):
+  survivor mutant-ID SET identical to baseline-001 (369/369 match, 0 only-
+  in-orig, 0 only-in-new); full per-mutant exit_code/status comparison
+  across all 1531 mutants: 0 diffs. BadTestExecutionCommandsException
+  occurrence count: 165, identical to baseline-001's corrected count.
+  Recomputed sorted-mapping SHA-256 (5897f8f5...) differs from baseline-
+  001's own recorded SHA (d69f0c19...) due to a JSON serialization
+  formatting difference (verified, not a content difference -- 0 per-
+  mutant diffs) -- recorded transparently in the new artifact, not
+  silently reconciled.
+```
+
+### 170 material-gap identity resolution
+
+```text
+All 170 material-gap mutant IDs (constructed_object_field_not_
+  independently_asserted + actionable_test_gap_candidate, per feature-
+  engine-mutation-baseline-001-analysis.md SS1.6) individually cross-
+  referenced against the fresh mapping: 0 identity discontinuities (all
+  170 present, directly comparable -- production/test code unchanged since
+  baseline-001). Result: 0 killed, 0 confirmed_timeout, 170 still survived
+  (unresolved). 0 governed reclassification decisions applied or invented.
+  Condition 2 of the approved gate: FAIL — criteria (0/170 resolved).
+```
+
+### Mutation-surface completeness (12-method blind spot)
+
+```text
+Unchanged from the Step-4 analysis: 12 methods outside mutmut 3.7.0's
+  mutation surface, 5 assessed high-materiality. Checked for qualifying
+  Testing Convention v0.16 SS5c evidence: no separately-accepted
+  supplemental mutation-testing mechanism found; no governed deterministic
+  fault-injection evidence found; no explicit, separately-recorded Product
+  Owner risk-acceptance decision found for these 5 residuals. Ordinary
+  passing unit tests exist for these classes but are NOT treated as
+  qualifying, per SS5c's own rule. Condition 3 of the approved gate:
+  FAIL — criteria (named, pre-existing, open residual; not waived).
+```
+
+### Gate evaluation — `P3-FEATURE-QG-EVID-03`
+
+```text
+Condition 1 (raw score >= 87.001959503592%): FAIL — criteria. Measured
+  75.898105813194% -- measurement itself valid/complete/reproducible.
+Condition 2 (170/170 material-gap identities resolved): FAIL — criteria.
+  0/170 resolved -- measurement itself valid/complete.
+Condition 3 (mutation-surface completeness, SS4.2): FAIL — criteria.
+  0 of 5 high-materiality residuals have qualifying evidence.
+Overall P3-FEATURE-QG-EVID-03: FAIL — criteria (NOT FAIL — evidence for
+  this dimension -- the fresh measurement is fully valid, complete, and
+  reproducible; the approved criteria are simply not met).
+Overall Feature Engine Chapter 13 Quality Gate: FAIL — evidence at the
+  OVERALL level, independent of and in addition to EVID-03's own criteria-
+  failure -- per Chapter 13 SS13.2's multi-dimension gate structure and
+  SS13.8's fail-closed rule ("required evidence thiếu" -> gate FAIL), no
+  formal, repository-pinned evidence exists for Feature Engine on any
+  Chapter-13 dimension OTHER than test-effectiveness (correctness/
+  invariant conformance, determinism, parity, resilience, performance,
+  security/custody, data quality, contract compatibility, migration/
+  rollback, observability, explainability) -- the overall gate cannot
+  evaluate PASS regardless of EVID-03's own result. This is not a new
+  finding; it restates, with a concrete EVID-03 result attached for the
+  first time, the same "Formal Feature Chapter 13 QG: FAIL" state every
+  prior transaction in this thread has carried unchanged.
+```
+
+### Step 9 lifecycle — threshold now EFFECTIVE (distinct from Feature Engine passing it)
+
+```text
+Because this formal evidence transaction is itself valid and complete, the
+  approved Feature Engine threshold (87.001959503592% raw AND 170/170
+  material-gap identity resolution, Tier-1/FEATURE-ENGINE-ONLY) is now
+  recorded as EFFECTIVE current criteria -- this is DISTINCT from Feature
+  Engine passing it (it does not). TEST_EFFECTIVENESS_THRESHOLD updated
+  from UNRESOLVED to EFFECTIVE (with the exact criteria and current FAIL
+  result recorded together, never one without the other).
+```
+
+### Formal evidence artifact created
+
+```text
+New file: docs/governance/mutation-baseline-evidence/feature-engine-
+  mutation-step9-formal-evidence-001.json (blob
+  08714d4a02d6f4637521c264ce1e25cb85313328) -- a single, compact, machine-
+  readable JSON artifact, same one-subdirectory-per-evidence-category
+  convention as baseline-001.json; a SEPARATE, ADDITIVE artifact, does NOT
+  modify or supersede baseline-001's own historical evidence. Contains:
+  approved-gate restatement, measurement boundary/tool/config identities,
+  fresh-run confirmation, forced-fail sanity result, full ten-status counts
+  and reconciliation, raw score, reproducibility cross-checks against
+  baseline-001, the 170-ID resolution table (all still-survived IDs
+  listed), the 12-method blind-spot disposition, the per-condition gate
+  evaluation, and the full fresh sorted mutant-id-to-result mapping (all
+  1531 entries) for standalone reproducibility.
+Threshold-proposal document updated (bookkeeping only, reviewed SS0-SS8
+  gate definition untouched): docs/governance/mutation-baseline-evidence/
+  feature-engine-mutation-threshold-proposal-001.md STATUS line updated to
+  "APPROVED — EFFECTIVE (Step 9 complete); Feature Engine currently FAILS
+  this threshold", with a short pointer to the new evidence artifact and
+  its FAIL — criteria result. P3-PY-MUT-THRESH-A-MIN-02 untouched, still
+  OPEN — MINOR / NON-BLOCKING.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  step9-formal-evidence-001.json (new), docs/governance/mutation-baseline-
+  evidence/feature-engine-mutation-threshold-proposal-001.md (modified,
+  STATUS line only), docs/MANIFEST.md, docs/CHANGELOG.md changed in the
+  tracked repository (confirmed via `git status --porcelain=v1`).
+  feature-engine-mutation-baseline-001.json and feature-engine-mutation-
+  baseline-001-analysis.md both verified byte-identical.
+  python/feature-engine/src/**, python/feature-engine/tests/**,
+  python/feature-engine/tooling/**, pyproject.toml,
+  requirements-dev.lock.txt, docs/engineering/testing.md, Constitution,
+  docs/adr/**, execution-rules.md, phase-3-rules.md, module-registry.yaml,
+  CI/CD workflows, any Go module: all verified byte-identical (the
+  measurement venv/mutants/ working directory were transient, created and
+  removed entirely outside the tracked repository's own git-tracked
+  paths). No production/test/tooling code changed to affect the score. No
+  candidate-equivalent removed from the denominator. No equivalent/
+  reclassification/risk-acceptance decision invented. Feature Engine NOT
+  approved. Phase 3 gate NOT opened merely because Step 9 completed. LIVE
+  NOT authorized. P3-PY-MUT-THRESH-A-MIN-02 NOT self-closed, NOT fixed.
+```
+
+### State summary
+
+```text
+Formal evidence artifact:      docs/governance/mutation-baseline-evidence/
+                                feature-engine-mutation-step9-formal-
+                                evidence-001.json, blob
+                                08714d4a02d6f4637521c264ce1e25cb85313328.
+Fresh ten-status counts:       total 1531, killed 1162, survived 369, all
+                                other eight 0 -- bit-identical to baseline-001.
+Raw score:                     75.898105813194% (unchanged, independently
+                                reproduced).
+170-ID resolution:             0/170 resolved, 170/170 still survived.
+12-method blind spot:          unchanged, 5/5 high-materiality residuals
+                                still without qualifying evidence.
+P3-FEATURE-QG-EVID-03:         FAIL — criteria (all three gate components
+                                individually FAIL — criteria).
+Formal Feature Chapter 13 QG:  FAIL — evidence (overall level; other
+                                dimensions have no formal evidence at all).
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE — 87.001959503592% raw AND 170/170
+                                material-gap identity resolution
+                                (Tier-1/FEATURE-ENGINE-ONLY); Feature
+                                Engine currently FAILS this threshold.
+P3-PY-MUT-THRESH-A-MIN-02:     OPEN — MINOR / NON-BLOCKING (unchanged,
+                                carried forward, not self-closed).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** a governed, evidence-grounded remediation plan for Feature Engine (closing the 170 material-gap identities and/or the 12-method blind spot, or a separately-governed threshold revision) — a new PASS attempt requires a fresh Step-9-style formal evidence transaction, never a reinterpretation of this one.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-001.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.314"` → `"10.315"`.
 
 ## Decision Log
 

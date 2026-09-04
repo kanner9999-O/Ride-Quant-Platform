@@ -1,6 +1,10 @@
 # Feature Engine Mutation-Effectiveness Threshold — Step-5 Proposal
 
-**STATUS: APPROVED — NOT YET EFFECTIVE / PENDING STEP 9**
+**STATUS: APPROVED — EFFECTIVE (Step 9 complete); Feature Engine currently FAILS this threshold**
+
+**Step 9 update (2026-09-04):** the threshold defined below is now **EFFECTIVE** as the governed Tier-1/FEATURE-ENGINE-ONLY test-effectiveness criteria — a formal, fresh, reproducible measurement was performed and is recorded at
+`docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-001.json`
+(blob `08714d4a02d6f4637521c264ce1e25cb85313328`). **The threshold becoming effective is distinct from Feature Engine passing it**: the fresh measurement reproduced the historical raw score exactly (`75.898105813194%`, bit-identical survivor set to baseline-001) and found 0 of the 170 pinned material-gap identities resolved — Feature Engine currently **FAILS** all three required gate components (`FAIL — criteria` for each; see the evidence artifact's `gate_evaluation`). `P3-PY-MUT-THRESH-A-MIN-02` remains carried forward, `OPEN — MINOR / NON-BLOCKING`, untouched by this update. This note is bookkeeping only — the approved gate definition below (§4, §4.1, §4.2) is unchanged.
 
 **Product Owner APPROVAL — mechanical (2026-09-04), vai trò: `Feature Engine Threshold Product Owner Decision Recorder`.** Product Owner decision (verbatim): **"APPROVE Feature Engine Mutation-Effectiveness Threshold Proposal 001 at boundary fc8ded778e9feb4efb9d5bbebd19ef2e74b76757."** Decision date: `2026-09-04`.
 

@@ -2,6 +2,81 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: Step 9 formal threshold-bearing mutation evidence (`P3-FEATURE-QG-EVID-03: FAIL — criteria`; threshold now EFFECTIVE)
+
+**Governed formal evidence transaction — vai trò: `Feature Engine Step-9 Formal Mutation Evidence / QG Executor`.** Runs one fresh, formal, reproducible mutation measurement for Feature Engine and evaluates it against the Product-Owner-approved threshold. No production/test/tooling code changed; no threshold altered; no equivalent/reclassification/risk-acceptance invented; Feature Engine not approved.
+
+### Formal measurement
+
+```text
+Fresh venv, ordinary suite verified (193 + 5 passed), mutants/ absent
+  before run, `python -m tooling run`, forced-fail sanity PASSED, exit 0.
+Fresh ten-status counts: total 1531, killed 1162, survived 369, all other
+  eight 0. Reconciliation TRUE, not_checked==0. Raw score
+  75.898105813194% -- bit-identical to baseline-001 (independently
+  re-verified: identical 369-survivor ID set, 0 per-mutant diffs across
+  all 1531 mutants, identical 165-count BadTestExecutionCommandsException
+  cohort).
+```
+
+### 170 material-gap identity resolution and blind-spot check
+
+```text
+All 170 pinned material-gap IDs cross-referenced: 0 identity
+  discontinuities, 0 killed, 0 confirmed_timeout, 170 still survived
+  (unresolved). 0 reclassifications invented.
+12-method blind spot (5 high-materiality) unchanged: no qualifying
+  supplemental mechanism, fault-injection evidence, or Product Owner
+  risk-acceptance found for any of the 5.
+```
+
+### Gate evaluation
+
+```text
+Condition 1 (raw score >=87.001959503592%): FAIL — criteria (measured
+  75.898105813194%).
+Condition 2 (170/170 identities resolved): FAIL — criteria (0/170).
+Condition 3 (mutation-surface completeness): FAIL — criteria (0/5).
+P3-FEATURE-QG-EVID-03: FAIL — criteria overall (measurement itself valid/
+  complete/reproducible -- not FAIL — evidence for this dimension).
+Overall Feature Engine Chapter 13 QG: FAIL — evidence at the overall
+  level (Chapter 13 SS13.2/SS13.8 -- no formal evidence exists for any
+  other quality dimension for Feature Engine).
+Threshold lifecycle: now EFFECTIVE (87.001959503592% + 170-ID condition,
+  Tier-1/FEATURE-ENGINE-ONLY) -- distinct from Feature Engine passing it,
+  which it currently does not.
+```
+
+### Evidence artifact created
+
+```text
+New: docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  step9-formal-evidence-001.json -- a separate, additive artifact; does
+  not modify or supersede baseline-001's own historical evidence.
+Threshold-proposal document STATUS line updated (bookkeeping only,
+  reviewed gate definition untouched) to reflect Step 9 completion and
+  the FAIL result. P3-PY-MUT-THRESH-A-MIN-02 untouched, still OPEN —
+  MINOR / NON-BLOCKING.
+```
+
+### State summary
+
+```text
+P3-FEATURE-QG-EVID-03: FAIL — criteria.
+Formal Feature Chapter 13 QG: FAIL — evidence (overall level).
+TEST_EFFECTIVENESS_THRESHOLD: EFFECTIVE (Feature Engine currently FAILS it).
+P3-PY-MUT-THRESH-A-MIN-02: OPEN — MINOR / NON-BLOCKING (unchanged).
+Feature module approval: NOT APPROVED.
+Phase 3 Approval Gate: NOT opened.
+LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** a governed, evidence-grounded remediation plan for Feature Engine (closing the 170 material-gap identities and/or the 12-method blind spot, or a separately-governed threshold revision) — any future PASS attempt requires a fresh Step-9-style formal evidence transaction.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-001.json` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-threshold-proposal-001.md` (modified, STATUS line only), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.314"` → `"10.315"`.
+
+---
+
 ## [Unreleased] — 2026-09-04 — feature-engine: threshold proposal 001 — Product Owner APPROVAL (mechanical) — `APPROVED — NOT YET EFFECTIVE / PENDING STEP 9`
 
 **Product Owner APPROVAL — mechanical, vai trò: `Feature Engine Threshold Product Owner Decision Recorder`.** Product Owner decision (verbatim): **"APPROVE Feature Engine Mutation-Effectiveness Threshold Proposal 001 at boundary fc8ded778e9feb4efb9d5bbebd19ef2e74b76757."** Decision date: `2026-09-04`. Mechanical recording only — no new semantic proposal content; the threshold number, two-part gate semantics, and 170-identity condition are unchanged.
