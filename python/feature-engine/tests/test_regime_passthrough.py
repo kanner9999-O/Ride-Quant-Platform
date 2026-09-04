@@ -26,6 +26,8 @@ from conftest import (
 )
 
 from feature_engine import (
+    FEATURE_COMPUTED_CONTRACT_ID,
+    FEATURE_FACT_INVALIDATED_CONTRACT_ID,
     EvaluationFrontier,
     EventContractRef,
     RecordedTimeSource,
@@ -259,6 +261,14 @@ def test_same_value_different_windows_emits_separately(
 def test_correction_invalidate_and_replace_even_when_value_unchanged(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
+    # P3-PY-MUT-STEP9-A field-completeness remediation (EVID-03,
+    # constructed_object_field_not_independently_asserted): this scenario
+    # already exercises _emit_original, _emit_invalidation, and
+    # _emit_replacement in one disciplined original -> invalidate ->
+    # replace sequence -- every constructor-set field of all three emitted
+    # events is now independently asserted against its authoritative
+    # expected value below, not just `.value`/`.ref`/`.supersedes_fact_ref`
+    # as before.
     engine = _engine(allocator, time_source)
     original_input = regime_classified_at(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
@@ -267,6 +277,14 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
         engine.on_regime_classified(
             original_input, cursor=_frontier_at(original_input.recorded_time)
         )[0]
+    )
+    assert original.scope == engine.scope
+    assert original.unit == engine.definition.unit
+    assert original.window_end == original_input.recorded_time
+    assert original.causation_refs == original.input_fact_refs
+    assert original.ref.stream_id == "feature"
+    assert original.event_contract_ref == EventContractRef(
+        FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )
 
     invalidation_input = regime_invalidated_at(
@@ -278,6 +296,15 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
         )[0]
     )
     assert invalidation.invalidated_fact_ref == original.ref
+    assert invalidation.scope == engine.scope
+    assert invalidation.invalidation_cause == "regime_fact_invalidated"
+    assert invalidation.window_start == original.window_start
+    assert invalidation.window_end == original.window_end
+    assert invalidation.causation_refs == (original.ref, invalidation_input.ref)
+    assert invalidation.ref.stream_id == "feature"
+    assert invalidation.event_contract_ref == EventContractRef(
+        FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
+    )
 
     replacement_input = regime_classified_at(
         allocator,
@@ -295,6 +322,17 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
     assert replacement.value == original.value == Decimal("1.50")
     assert replacement.supersedes_fact_ref == original.ref
     assert replacement.ref != original.ref
+    assert replacement.scope == engine.scope
+    assert replacement.unit == engine.definition.unit
+    assert replacement.window_start == original.window_start
+    assert replacement.window_end == original.window_end
+    assert replacement.input_fact_refs == (replacement_input.ref,)
+    assert replacement.causation_refs == (*replacement.input_fact_refs, invalidation.ref)
+    assert replacement.ref.stream_id == "feature"
+    assert replacement.event_contract_ref == EventContractRef(
+        FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
+    )
+    assert replacement.computation_cursor.recorded_time == replacement_input.recorded_time
 
 
 def test_causal_chain_original_lt_invalidation_lt_replacement(

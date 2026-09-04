@@ -31,6 +31,8 @@ from conftest import (
 
 from feature_engine import (
     CANDLE_CORRECTED_CONTRACT_ID,
+    FEATURE_COMPUTED_CONTRACT_ID,
+    FEATURE_FACT_INVALIDATED_CONTRACT_ID,
     ComputationCursor,
     EvaluationFrontier,
     EventContractRef,
@@ -309,6 +311,11 @@ def test_signed_distance_representation_fails_closed_at_construction(
 def test_absolute_distance_computed_with_evidence_refs(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
+    # P3-PY-MUT-STEP9-A field-completeness remediation (EVID-03,
+    # constructed_object_field_not_independently_asserted): every
+    # constructor-set field of `_emit_original`'s returned `FeatureComputed`
+    # is now independently asserted against its authoritative expected
+    # value, not just `.value`/`.input_fact_refs` as before.
     absolute_engine = _engine(allocator, time_source, distance_representation="absolute")
     swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="110")
     absolute_engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
@@ -316,6 +323,13 @@ def test_absolute_distance_computed_with_evidence_refs(
     computed = only_computed(absolute_engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
     assert computed.value == Decimal("5.00")  # |105 - 110|
     assert set(computed.input_fact_refs) == {reference.ref, swing.ref}
+    assert computed.scope == absolute_engine.scope
+    assert computed.unit == absolute_engine.definition.unit
+    assert computed.causation_refs == computed.input_fact_refs
+    assert computed.ref.stream_id == "feature"
+    assert computed.event_contract_ref == EventContractRef(
+        FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
+    )
 
 
 def test_no_eligible_swing_is_valid_absence(allocator: SequenceAllocator, time_source: FixedDeltaTimeSource) -> None:
@@ -442,6 +456,18 @@ def test_settled_valid_window_preempted_by_higher_priority_corrected_revision(
     # because a SwingInvalidated targeting B was ever received.
     assert invalidation.invalidation_cause == "eligible_swing_selection_superseded"
     assert invalidation.causation_refs == (temporary.ref, swing_a2.ref)
+    # P3-PY-MUT-STEP9-A field-completeness remediation (EVID-03,
+    # constructed_object_field_not_independently_asserted): remaining
+    # constructor-set fields of `_preempt_settled_window`'s returned
+    # `FeatureFactInvalidated`, not previously asserted anywhere.
+    assert invalidation.scope == temporary.scope
+    assert invalidation.window_start == temporary.window_start
+    assert invalidation.window_end == temporary.window_end
+    assert invalidation.recorded_time >= swing_a2.recorded_time
+    assert invalidation.ref.stream_id == "feature"
+    assert invalidation.event_contract_ref == EventContractRef(
+        FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
+    )
     # ADR-035: R_later (this invalidation's own cursor) differs from R_original (temporary's own
     # cursor, captured independently at ITS OWN evaluation) — never inherited/copied.
     assert invalidation.computation_cursor != temporary.computation_cursor
@@ -867,6 +893,13 @@ def test_lineage_reevaluation_skips_window_not_using_the_invalidated_swing(
 def test_candle_distinct_correction_ref_enters_lineage_even_when_value_unchanged(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
+    # P3-PY-MUT-STEP9-A field-completeness remediation (EVID-03,
+    # constructed_object_field_not_independently_asserted): this scenario
+    # exercises BOTH `_invalidate_and_replace` (the invalidation) and
+    # `_emit_replacement_only` (the replacement) in one disciplined
+    # candle-correction sequence -- every constructor-set field of both
+    # emitted events is now independently asserted, not just
+    # `.value`/`.supersedes_fact_ref`/`.ref` as before.
     engine = _engine(allocator, time_source)
     swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
     engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
@@ -882,10 +915,31 @@ def test_candle_distinct_correction_ref_enters_lineage_even_when_value_unchanged
     )
     events = engine.on_candle(correction, cursor=frontier_at(correction.recorded_time))
     assert len(events) == 2
+    invalidation = only_invalidated(events[0])
+    assert invalidation.scope == original.scope
+    assert invalidation.invalidated_fact_ref == original.ref
+    assert invalidation.invalidation_cause == "candle_corrected"
+    assert invalidation.window_start == original.window_start
+    assert invalidation.window_end == original.window_end
+    assert invalidation.causation_refs == (original.ref, correction.ref)
+    assert invalidation.recorded_time >= correction.recorded_time
+    assert invalidation.ref.stream_id == "feature"
+    assert invalidation.event_contract_ref == EventContractRef(
+        FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
+    )
+
     replacement = only_computed(events[1])
     assert replacement.value == original.value
     assert replacement.supersedes_fact_ref == original.ref
     assert replacement.ref != original.ref
+    assert replacement.scope == original.scope
+    assert replacement.unit == original.unit
+    assert set(replacement.input_fact_refs) == {correction.ref, swing.ref}
+    assert replacement.causation_refs == (*replacement.input_fact_refs, invalidation.ref)
+    assert replacement.ref.stream_id == "feature"
+    assert replacement.event_contract_ref == EventContractRef(
+        FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
+    )
 
 
 def test_candle_same_ref_different_content_fails_closed(
@@ -1961,17 +2015,33 @@ def test_used_swing_itself_invalidated_uses_swing_invalidated_cause(
     the resulting invalidation must use `swing_invalidated` — never
     `eligible_swing_selection_superseded`, since no supersession occurred.
     """
+    # P3-PY-MUT-STEP9-A field-completeness remediation (EVID-03,
+    # constructed_object_field_not_independently_asserted): every
+    # constructor-set field of `_invalidate_and_reattempt`'s returned
+    # `FeatureFactInvalidated` is now independently asserted, not just
+    # `.invalidation_cause` as before.
     engine = _engine(allocator, time_source)
     swing = swing_confirmed_at(allocator, pivot_index=2, swing_id="s1", pivot_price="100")
     engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
     reference = candle_at(allocator, 10, high="110", low="90", close="105")
-    engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))
+    original = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
 
     inv = swing_invalidated_at(allocator, swing_id="s1", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
     events = engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
     assert len(events) == 1  # invalidation only — no other eligible Swing exists
     invalidation = only_invalidated(events[0])
     assert invalidation.invalidation_cause == "swing_invalidated"
+    assert invalidation.scope == original.scope
+    assert invalidation.invalidated_fact_ref == original.ref
+    assert invalidation.window_start == original.window_start
+    assert invalidation.window_end == original.window_end
+    assert invalidation.causation_refs == (original.ref, inv.ref)
+    assert invalidation.recorded_time >= inv.recorded_time
+    assert invalidation.ref.stream_id == "feature"
+    assert invalidation.event_contract_ref == EventContractRef(
+        FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
+    )
+    assert invalidation.computation_cursor.recorded_time == inv.recorded_time
 
 
 # --- Review-A round-2 residual 2: failure atomicity -------------------------

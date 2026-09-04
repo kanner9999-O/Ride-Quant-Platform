@@ -2,6 +2,78 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-04 — feature-engine: EVID-03 material-gap test remediation batch 1 (`constructed_object_field_not_independently_asserted`; NOT self-closed)
+
+**Bounded, test-only remediation — vai trò: `Feature Engine EVID-03 Material-Gap Test Remediation Batch 1`.** Strengthens/adds tests for the 83-mutant `constructed_object_field_not_independently_asserted` category only (not the separate 87-mutant `actionable_test_gap_candidate` category). No production code touched, no threshold change, no formal Step-9/QG transaction, no finding closed.
+
+**Evidence-fidelity note:** the task's own "known high-concentration examples" (`resolve_computation_cursor`, `_seal_verified_authority`) are factually wrong for this category — verified directly against the pinned analysis, both are 100% `low_materiality_message_text`/`actionable_test_gap_candidate`, zero in this category. The actual 83-ID population was resolved directly from the pinned table.
+
+### Tests strengthened/added
+
+```text
+tests/test_contracts.py (NEW): direct unit tests for resolve_output_
+  contract_refs (never called directly by any test before) -- 4 IDs.
+tests/test_current_view.py: strengthened 3 existing tests to assert every
+  FeatureViewResult field in both VALID and PENDING_CORRECTION branches --
+  13 IDs.
+tests/test_regime_passthrough.py: strengthened one disciplined original->
+  invalidate->replace scenario to assert every constructor field of all
+  three emitted events -- 26 IDs.
+tests/test_swing_distance.py: strengthened 4 existing scenario tests
+  (_emit_original, _invalidate_and_replace+_emit_replacement_only,
+  _invalidate_and_reattempt, _preempt_settled_window) to assert every
+  constructor-set field -- 40 IDs.
+No brittle assertions added merely to match mutmut syntax -- every
+  assertion proves real domain-observable semantics or the Chapter 8
+  SS8.5.2 recorded_time monotonicity invariant.
+```
+
+### Verification
+
+```text
+Ordinary suite: 196 passed (was 193), 0 failed. tooling/tests/: 5 passed.
+ruff check: All checks passed (two line-length issues in new code found
+  and fixed). ruff format drift (6 files): pre-existing, confirmed
+  unchanged via git-stash comparison, not introduced here.
+mypy (strict): Success, no issues found.
+Bounded NON-GATING mutation diagnostic (supporting only, not formal
+  Step-9): all 83 targeted IDs re-run in a disposable venv/mutants/
+  directory, removed after capture. Result: 82/83 killed, 1/83 survived.
+```
+
+### Unresolved (reported, not forced)
+
+```text
+current_view.on_feature_computed__mutmut_29 (state.invalidated=False->
+  None, replacement branch): genuine candidate-equivalent, confirmed both
+  analytically (exhaustive read-site grep, truthiness-only throughout) and
+  empirically (diagnostic confirms it still survives). Left unresolved --
+  closing it would require an unjustified production semantics change.
+```
+
+### State summary
+
+```text
+82/83 target identities diagnostic-confirmed killed (NON-GATING); 1/83
+  unresolved (reported).
+Formal Step-9 resolution NOT YET ESTABLISHED -- a separate formal
+  measurement transaction is required to move EVID-03's own gate result.
+TEST_EFFECTIVENESS_THRESHOLD: EFFECTIVE (unchanged).
+P3-FEATURE-QG-EVID-03: OPEN / blocking (unchanged, not closed).
+P3-FEATURE-QG-EVID-04..-08: OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+P3-PY-MUT-THRESH-A-MIN-02: OPEN — MINOR / NON-BLOCKING (unchanged).
+Feature module approval: NOT APPROVED.
+Phase 3 Approval Gate: NOT opened.
+LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of this bounded test remediation, followed by a fresh Step-9-style formal measurement (once authorized) to determine the actual updated raw score and 170-ID resolution count.
+
+**Files changed:** `python/feature-engine/tests/test_contracts.py` (new), `python/feature-engine/tests/test_current_view.py`, `python/feature-engine/tests/test_regime_passthrough.py`, `python/feature-engine/tests/test_swing_distance.py` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.317"` → `"10.318"`.
+
+---
+
 ## [Unreleased] — 2026-09-04 — feature-engine: Chapter 13 remediation plan #001 (planning only; no finding closed)
 
 **Planning transaction — vai trò: `Feature Engine Chapter 13 Remediation Planner`.** Produces one evidence-grounded remediation plan for the six blocking Feature Engine Chapter 13 findings (`P3-FEATURE-QG-EVID-03` through `-08`). Planning only — no tests/code/tooling implemented, no QG rerun, no threshold change, no finding closed.

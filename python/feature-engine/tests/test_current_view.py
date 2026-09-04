@@ -15,6 +15,7 @@ from feature_engine import (
     FEATURE_COMPUTED_CONTRACT_ID,
     FEATURE_FACT_INVALIDATED_CONTRACT_ID,
     ComputationCursor,
+    EffectiveWindow,
     EventContractRef,
     FeatureCurrentView,
     FeatureScope,
@@ -105,6 +106,13 @@ def test_no_row_before_first_computation(allocator: SequenceAllocator) -> None:
 
 
 def test_valid_after_first_computation(allocator: SequenceAllocator) -> None:
+    # P3-PY-MUT-STEP9-A field-completeness remediation (EVID-03,
+    # constructed_object_field_not_independently_asserted): every field of
+    # the returned `FeatureViewResult` is independently asserted against its
+    # authoritative expected value, not merely `view_state`/`value` as
+    # before -- `feature_subject_id`/`scope` are the view's own construction
+    # identity, `unit`/`effective_window` are carried verbatim from the head
+    # fact, and `last_recorded_time` is the head fact's own recorded_time.
     scope = feature_scope("volatility_metric", version="fd-1")
     view = FeatureCurrentView(scope)
     fact = _computed(allocator, scope, 0)
@@ -112,8 +120,13 @@ def test_valid_after_first_computation(allocator: SequenceAllocator) -> None:
     result = view.current()
     assert result is not None
     assert result.view_state == "VALID"
+    assert result.feature_subject_id == scope.feature_subject_id
+    assert result.scope == scope
     assert result.value == Decimal("1.00")
+    assert result.unit == fact.unit
+    assert result.effective_window == EffectiveWindow(fact.window_start, fact.window_end)
     assert result.lineage_head_fact_ref == fact.ref
+    assert result.last_recorded_time == fact.recorded_time
 
 
 def test_pending_correction_never_falls_back_to_older_window(allocator: SequenceAllocator) -> None:
@@ -129,12 +142,22 @@ def test_pending_correction_never_falls_back_to_older_window(allocator: Sequence
     invalidation = _invalidated(allocator, scope, newest)
     view.on_feature_invalidated(invalidation)
 
+    # P3-PY-MUT-STEP9-A field-completeness remediation (EVID-03): the
+    # PENDING_CORRECTION branch's own feature_subject_id/scope/
+    # last_recorded_time fields, previously unasserted, are exactly as
+    # authoritative as the VALID branch's -- last_recorded_time in
+    # particular must reflect the INVALIDATION's own recorded_time
+    # (`on_feature_invalidated`'s state mutation), not the superseded
+    # computation's.
     result = view.current()
     assert result is not None
     assert result.view_state == "PENDING_CORRECTION"
+    assert result.feature_subject_id == scope.feature_subject_id
+    assert result.scope == scope
     assert result.value is None
     assert result.effective_window is None
     assert result.lineage_head_fact_ref is None
+    assert result.last_recorded_time == invalidation.recorded_time
 
 
 def test_pending_correction_resolves_on_replacement(allocator: SequenceAllocator) -> None:
@@ -156,6 +179,11 @@ def test_pending_correction_resolves_on_replacement(allocator: SequenceAllocator
     assert result.view_state == "VALID"
     assert result.value == Decimal("1.50")
     assert result.lineage_head_fact_ref == replacement.ref
+    # P3-PY-MUT-STEP9-A field-completeness remediation (EVID-03):
+    # `on_feature_computed`'s replacement branch must reset
+    # `last_recorded_time` to the REPLACEMENT's own recorded_time, not
+    # leave the invalidation's (or the original's) stale value in place.
+    assert result.last_recorded_time == replacement.recorded_time
 
 
 # --- Scope/lineage rejection guards (P3-FEATURE-QG-COV-01 remediation) -----

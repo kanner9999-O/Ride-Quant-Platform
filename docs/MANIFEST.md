@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.317"
+manifest_version: "10.318"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -21114,6 +21114,146 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** the single recommended transaction from this plan — a bounded, test-only remediation transaction closing as many of the 170 pinned `EVID-03` material-gap mutant identities as possible (prioritized by the top ~20-30 duplicated functions), followed by a fresh Step-9-style formal re-measurement.
 
 **Files changed:** `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.316"` → `"10.317"`.
+
+## `feature-engine` — EVID-03 Material-Gap Test Remediation Batch 1 (`constructed_object_field_not_independently_asserted`; NOT self-closed)
+
+**Bounded, test-only remediation transaction — vai trò: `Feature Engine EVID-03 Material-Gap Test Remediation Batch 1`.** Strengthens/adds tests to close the Step-4-pinned `constructed_object_field_not_independently_asserted` material-gap population (83 mutant identities) only — does NOT touch the separate 87-mutant `actionable_test_gap_candidate` category, does NOT modify `python/feature-engine/src/**`, does NOT change threshold semantics, does NOT perform a formal Step-9/QG evidence transaction, does NOT close `P3-FEATURE-QG-EVID-03` or any of the 83 identities, does NOT approve Feature Engine, open the Phase 3 gate, or authorize LIVE.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `02e2c17c2b9fee1696d61589ef79d3dcdd460542` via `git rev-parse HEAD`, matching this task's own expected boundary.
+
+**Evidence-fidelity note (prompt assertion corrected):** the task's own "known high-concentration examples" (`resolve_computation_cursor: 35`, `_seal_verified_authority: 24`) are factually WRONG for this category — independently re-verified directly against the pinned analysis: both functions' survivors are classified `low_materiality_message_text` (57 combined) and `actionable_test_gap_candidate` (2), **zero** under `constructed_object_field_not_independently_asserted`. The actual 83-ID population and its per-function grouping were resolved directly from the pinned analysis table, not from the prompt's prose.
+
+### Exact target population (83, resolved directly from the pinned Step-4 analysis)
+
+```text
+swing_distance._invalidate_and_replace (12), current_view.current (10),
+regime_passthrough._emit_replacement (10), regime_passthrough._emit_
+invalidation (9), swing_distance._emit_replacement_only (7), swing_
+distance._invalidate_and_reattempt (7), swing_distance._preempt_settled_
+window (7), regime_passthrough._emit_original (6), swing_distance._emit_
+original (6), contracts.resolve_output_contract_refs (4), current_view.
+on_feature_computed (2), current_view.on_feature_invalidated (1), regime_
+passthrough.__init__ (1), swing_distance.__init__ (1). Total: 83, matching
+the pinned analysis exactly.
+```
+
+### Tests strengthened/added
+
+```text
+tests/test_contracts.py (NEW): 3 tests directly unit-testing
+  resolve_output_contract_refs (previously never called directly by any
+  test) -- closes all 4 contracts.py-category identities.
+tests/test_current_view.py: strengthened test_valid_after_first_
+  computation, test_pending_correction_never_falls_back_to_older_window,
+  test_pending_correction_resolves_on_replacement to assert every
+  FeatureViewResult field (feature_subject_id/scope/unit/effective_window/
+  last_recorded_time) against its authoritative expected value in both the
+  VALID and PENDING_CORRECTION branches.
+tests/test_regime_passthrough.py: strengthened test_correction_
+  invalidate_and_replace_even_when_value_unchanged (one disciplined
+  original -> invalidate -> replace scenario) to assert every constructor
+  field of all three emitted events (_emit_original/_emit_invalidation/
+  _emit_replacement).
+tests/test_swing_distance.py: strengthened test_absolute_distance_
+  computed_with_evidence_refs (_emit_original), test_candle_distinct_
+  correction_ref_enters_lineage_even_when_value_unchanged
+  (_invalidate_and_replace + _emit_replacement_only), test_used_swing_
+  itself_invalidated_uses_swing_invalidated_cause (_invalidate_and_
+  reattempt), test_settled_valid_window_preempted_by_higher_priority_
+  corrected_revision (_preempt_settled_window) -- each now asserts every
+  constructor-set field of its captured event(s) against authoritative
+  expected values (exact equality for identity/reference/enum fields;
+  `>=` monotonicity assertions, a genuine Chapter 8 SS8.5.2 invariant, for
+  recorded_time fields derived via floor+bump logic, never brittle exact
+  matches on internal timing arithmetic).
+No brittle assertions added merely to match mutmut syntax -- every new
+  assertion proves real public/domain-observable semantics (exact event
+  field values, or the recorded_time monotonicity invariant).
+```
+
+### Verification results
+
+```text
+Ordinary suite: 196 passed (was 193 -- +3 new tests in test_contracts.py),
+  0 failed. tooling/tests/ (outside governed suite): 5 passed, unaffected.
+ruff check tests/ src/: All checks passed (two line-length violations in
+  this transaction's own new code found and fixed before finalizing).
+ruff format --check: pre-existing drift (6 files) confirmed UNCHANGED
+  before/after this transaction via git stash comparison -- not
+  introduced here, out of scope, not fixed.
+mypy (strict, 25 source files): Success, no issues found.
+Bounded NON-GATING mutation diagnostic (explicitly supporting-only, per
+  this task's own instruction -- NOT a formal Step-9 transaction): all 83
+  targeted mutant IDs re-run individually via `python -m tooling run` in a
+  disposable venv/mutants/ working directory (removed after capture).
+  Result: 82/83 killed, 1/83 survived. Environment fully removed after
+  evidence capture -- zero footprint on the tracked repository.
+```
+
+### Targeted ID still unresolved (reported explicitly, not forced)
+
+```text
+current_view.xǁFeatureCurrentViewǁon_feature_computed__mutmut_29
+  (`state.invalidated = False` -> `None`, in the REPLACEMENT-processing
+  branch): a genuine, provable candidate-equivalent, independently
+  re-confirmed both analytically (exhaustive grep of every `.invalidated`
+  read site in current_view.py: lines 106/109/121/123/135, ALL truthiness-
+  only -- `if not state.invalidated:`/`if state.invalidated:`, never
+  `is`/`==` -- None and False are behaviorally identical at every site)
+  AND empirically (the bounded diagnostic above independently confirms
+  this specific ID survives even after this transaction's test
+  strengthening). Left unresolved per this task's own explicit
+  instruction: killing it would require changing production semantics
+  (e.g. an unjustified `is False` check) purely to satisfy a mutant, which
+  this transaction does not do.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only python/feature-engine/tests/test_contracts.py (new),
+  python/feature-engine/tests/test_current_view.py (modified),
+  python/feature-engine/tests/test_regime_passthrough.py (modified),
+  python/feature-engine/tests/test_swing_distance.py (modified),
+  docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via `git status
+  --porcelain=v1`). python/feature-engine/src/** verified byte-identical
+  (`git diff --quiet`). python/feature-engine/tooling/**, pyproject.toml,
+  requirements-dev.lock.txt, docs/engineering/testing.md, Constitution,
+  docs/adr/**, all mutation-baseline-evidence/quality-gate artifacts,
+  module-registry.yaml, CI/CD workflows, any Go module: all verified
+  byte-identical. No formal Step-9/QG evidence transaction performed or
+  recorded. No threshold semantics changed. No EVID-03 (or any of the 83
+  identities) self-closed. No Product Owner decision touched. No
+  EVID-04..08 work performed. Feature Engine not approved. Phase 3 gate
+  not opened. LIVE not authorized.
+```
+
+### State summary
+
+```text
+Tests strengthened/added:      4 files (1 new, 3 modified), 82/83 target
+                                identities empirically diagnostic-confirmed
+                                killed (NON-GATING, supporting only).
+Unresolved target:              1/83 (on_feature_computed__mutmut_29,
+                                genuine candidate-equivalent, reported not
+                                forced).
+Formal Step-9 resolution:      NOT YET ESTABLISHED -- a separate, later
+                                formal measurement transaction is required
+                                to actually move EVID-03's own gate result;
+                                this transaction is test remediation only.
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, NOT closed).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+P3-PY-MUT-THRESH-A-MIN-02:     OPEN — MINOR / NON-BLOCKING (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Review A of this bounded test remediation, followed (if clean, and if a second batch targeting the 87-mutant `actionable_test_gap_candidate` category is separately authorized) by a fresh Step-9-style formal measurement to determine the actual updated raw score and 170-ID resolution count.
+
+**Files changed:** `python/feature-engine/tests/test_contracts.py` (new), `python/feature-engine/tests/test_current_view.py`, `python/feature-engine/tests/test_regime_passthrough.py`, `python/feature-engine/tests/test_swing_distance.py` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.317"` → `"10.318"`.
 
 ## Decision Log
 
