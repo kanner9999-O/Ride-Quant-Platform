@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.319"
+manifest_version: "10.320"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -21462,6 +21462,194 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** Review A of this bounded test remediation (Batch 2), followed (if clean, and if separately authorized) by a fresh Step-9-style formal measurement to determine the actual updated raw score and 170-ID resolution count.
 
 **Files changed:** `python/feature-engine/tests/test_swing_distance.py`, `python/feature-engine/tests/test_regime_passthrough.py`, `python/feature-engine/tests/test_authority_resolver.py`, `python/feature-engine/tests/test_contracts.py`, `python/feature-engine/tests/test_current_view.py` (all modified, none new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.318"` → `"10.319"`.
+
+## `feature-engine` — Post-Remediation Mutation Diagnostic (NON-GATING; no finding disposition changed)
+
+**Diagnostic transaction — vai trò: `Feature Engine Post-Remediation Mutation Diagnostic Executor`.** One fresh, full, explicitly NON-GATING mutation diagnostic of the complete Feature Engine mutation population (all 1531 mutants) after EVID-03 test-remediation Batches 1 and 2 — establishes the actual current mutation state, does NOT perform a formal Step-9/QG transaction, does NOT change any gate/finding disposition, does NOT modify `python/feature-engine/src/**`/`tests/**`/`tooling/**`.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `a0e537a6b5f883d26b1fdf7e09499dfa82079419` via `git rev-parse HEAD`, matching this task's own expected boundary; `origin/main` fetched and confirmed identical (no drift).
+
+### Measurement boundary / tree identities
+
+```text
+repository_head_at_measurement:            a0e537a6b5f883d26b1fdf7e09499dfa82079419
+python_feature_engine_src_tree:            256421344a48a6c9d4ef72f81eb82b27dbedfc50
+                                            (IDENTICAL to baseline-001 and step9-formal-evidence-001)
+python_feature_engine_tests_tree:          1a1ba1a3d9413696218451d3eb5da9ebd4ac8f51
+                                            (CHANGED from step9's 6cfe8097b061870493cd44d711d79cd9e04a538c
+                                            -- Batches 1+2 modified tests)
+python_feature_engine_tooling_tree:        b99f6252058cbf5404751cf85d80c6745eebd03b (unchanged)
+pyproject_toml_blob / requirements-dev.lock.txt_blob / docs/engineering/testing.md_blob:
+                                            all identical to baseline-001/step9 (unchanged)
+testing_convention_version:                0.16, Approved (unchanged)
+tool_identities:                           python 3.13.6, mutmut 3.7.0, pytest 9.1.1, coverage 7.16.0
+                                            (identical to baseline-001/step9)
+```
+
+### Measurement (fresh, full population, no cached verdicts reused)
+
+```text
+mutants/ and .mutmut-cache absent before run (confirmed). Disposable venv
+  (.postremediation-venv, dependencies from requirements-dev.lock.txt,
+  feature-engine installed editable --no-deps) -- fully removed after
+  evidence capture, zero footprint on the tracked repository.
+Ordinary suite before mutation: 226 passed, 0 failed (tests/); 5 passed
+  (tooling/tests/, outside governed suite per testpaths).
+python -m tooling run (full population, no mutant-name filter) --
+  completed to natural end, exit status 0, 1531/1531 mutants dispatched.
+Ten-status counts: killed 1323, survived 208, no_tests 0, not_checked 0,
+  skipped 0, suspicious 0, timeout 0, confirmed_timeout 0,
+  caught_by_type_check 0, segfault 0, check_was_interrupted_by_user 0.
+Reconciliation: sum of ten categories (1323 + 208 = 1531) equals total
+  (1531). not_checked is zero.
+Raw mutation effectiveness metric: (killed + confirmed_timeout) /
+  (total - skipped) * 100 = (1323 + 0) / (1531 - 0) * 100 =
+  86.41410842586545%.
+```
+
+### Bad-test-execution-commands exception cohort cross-check
+
+```text
+165 transient BadTestExecutionCommandsException tracebacks observed
+  during this run (counted directly from raw captured output, verified
+  as paired raise+exception-message lines, 165 each). Identical in scale
+  to the bounded population estimate already established in feature-
+  engine-mutation-baseline-001-analysis.md SS3 (kill-validity cohort) --
+  the SAME already-diagnosed, non-biasing mechanism recurring, not a new
+  defect. mutmut's own run reconciled cleanly to natural end (exit 0,
+  exact ten-status sum, 0 not_checked) despite these occurrences,
+  consistent with the prior analysis's conclusion that this cohort does
+  not corrupt final per-mutant verdicts.
+```
+
+### Reproducibility cross-check against baseline-001 (full 1531-mutant population)
+
+```text
+baseline_001_total_killed_survived:        [1531, 1162, 369]
+this_diagnostic_total_killed_survived:     [1531, 1323, 208]
+mutant_id_set_identical_to_baseline_001:   true (0 identity discontinuity
+                                            anywhere in the full 1531-mutant
+                                            population -- confirms
+                                            src/feature_engine is genuinely
+                                            byte-identical, consistent with
+                                            the matching src tree hash)
+arithmetic_check:                          baseline killed (1162) +
+                                            newly-killed-among-baseline-
+                                            survivors (161 = 160 material +
+                                            1 incidental) = this
+                                            diagnostic's killed (1323).
+                                            Exact match -- no baseline-
+                                            killed mutant flipped to
+                                            survived anywhere.
+sorted_mapping_sha256_this_diagnostic:     e8d8d113490c0b85c040a5162cf8d7d72111dcde4f5264c9d1e1987f98721de3
+sorted_mapping_sha256_baseline_001:        d69f0c1902d1c275bdb1db464eacbda35d6b2727fd4c5f5889c5c780add5e244
+sha256_mismatch_explanation:               differ despite 0 per-mutant
+                                            content diffs (verified via
+                                            full dict comparison, not
+                                            assumed) -- JSON serialization
+                                            formatting difference between
+                                            this transaction's hashing
+                                            script and baseline-001's,
+                                            NOT a difference in any
+                                            underlying mutant-level result.
+```
+
+### Threshold comparison (SUPPORTING ONLY — no gate evaluation performed)
+
+```text
+approved_threshold_condition_1:  87.001959503592%
+measured_this_diagnostic:        86.41410842586545%
+meets_threshold:                 false
+gap_to_threshold:                0.587851077731547 percentage points below
+note:                            P3-FEATURE-QG-EVID-03's own PASS/FAIL is
+                                  NOT recorded by this diagnostic -- a
+                                  separate, formally authorized Step-9
+                                  transaction is required to move that
+                                  finding's own gate result.
+```
+
+### 170 material-gap IDs — cross-checked against Batches 1 and 2's own bounded diagnostics
+
+```text
+Killed: 160/170. Confirmed_timeout: 0/170. Still survived: 10/170.
+  Identity-discontinuous: 0/170.
+The 10 still-survived IDs are EXACTLY the union of Batch 1's one reported
+  unresolved ID and Batch 2's nine reported unresolved IDs:
+current_view.xǁFeatureCurrentViewǁon_feature_computed__mutmut_19
+current_view.xǁFeatureCurrentViewǁon_feature_computed__mutmut_29
+swing_distance.x__total_order_key__mutmut_3
+swing_distance.xǁSwingDistanceFeatureEngineǁ_emit_original__mutmut_13
+swing_distance.xǁSwingDistanceFeatureEngineǁ_emit_replacement_only__mutmut_16
+swing_distance.xǁSwingDistanceFeatureEngineǁ_preempt_settled_window__mutmut_20
+swing_distance.xǁSwingDistanceFeatureEngineǁ_recompute__mutmut_23
+swing_distance.xǁSwingDistanceFeatureEngineǁ_recompute__mutmut_46
+swing_distance.xǁSwingDistanceFeatureEngineǁ_reevaluate_all_windows__mutmut_6
+swing_distance.xǁSwingDistanceFeatureEngineǁ_select_eligible_swing__mutmut_22
+Full agreement between both batches' own bounded diagnostics and this
+  fresh full-population measurement -- no drift, no surprise survivors.
+No reclassification performed or recorded in this diagnostic.
+```
+
+### Incidental kills outside the 170 material set, by original Step-4 category
+
+```text
+Of the 199 baseline-001 survivors outside the 170 material set:
+value_replaced_with_none:  1 incidentally killed
+                            (swing_distance.on_swing_confirmed__mutmut_33
+                            -- likely a side effect of Batch 2's expanded
+                            on_swing_confirmed/on_swing_invalidated
+                            scenario coverage, not independently targeted)
+(all other categories):    0 incidentally killed
+Still survived outside the 170 set: 198/199. Identity-discontinuous: 0.
+```
+
+### Artifact
+
+```text
+docs/governance/mutation-baseline-evidence/feature-engine-mutation-post-
+  remediation-diagnostic-001.json (new, additive) -- full ten-status
+  counts/reconciliation, raw score, measurement_boundary tree/blob
+  identities, 170-ID resolution cross-check, incidental-kill breakdown,
+  full 1531-entry sorted mutant-ID-to-result mapping + its own SHA-256.
+Does NOT overwrite or modify feature-engine-mutation-baseline-001.json or
+  feature-engine-mutation-step9-formal-evidence-001.json -- both remain
+  historical, untouched.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  post-remediation-diagnostic-001.json (new), docs/MANIFEST.md, docs/
+  CHANGELOG.md changed (confirmed via `git status --porcelain=v1`).
+python/feature-engine/src/**, tests/**, tooling/** all verified byte-
+  identical (`git diff --quiet`) before and after this diagnostic --
+  the mutation run's own workspace was entirely disposable (mutants/,
+  .mutmut-cache, .postremediation-venv), created and destroyed within
+  this transaction, never committed. No formal Step-9/QG evidence
+  transaction performed or recorded. No threshold semantics changed. No
+  finding self-closed. No equivalent-mutant reclassification recorded.
+  No Product Owner decision touched. Feature Engine not approved. Phase
+  3 gate not opened. LIVE not authorized.
+```
+
+### State summary
+
+```text
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, NOT evaluated
+                                or closed by this diagnostic).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+P3-PY-MUT-THRESH-A-MIN-02:     OPEN — MINOR / NON-BLOCKING (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** if a formal Step-9 re-measurement is separately authorized, this diagnostic's own figures (86.41410842586545% raw, 160/170 material IDs resolved) indicate condition 1 and condition 2 would both still fail on the current evidence; a further bounded remediation batch targeting some/all of the 10 remaining material survivors (all reasoned equivalents per Batches 1/2's own analysis) or a governed equivalent-mutant reclassification decision would be required before a formal Step-9 transaction could plausibly pass.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-post-remediation-diagnostic-001.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.319"` → `"10.320"`.
 
 ## Decision Log
 

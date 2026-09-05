@@ -2,6 +2,110 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-05 — feature-engine: post-remediation mutation diagnostic (NON-GATING; no finding disposition changed)
+
+**Diagnostic transaction — vai trò: `Feature Engine Post-Remediation Mutation Diagnostic Executor`.** One fresh, full, explicitly NON-GATING mutation diagnostic of the complete Feature Engine mutation population (all 1531 mutants) after EVID-03 test-remediation Batches 1 and 2. NOT a formal Step-9/QG transaction — records no gate/finding disposition. No production/test/tooling changes; source is bit-identical to baseline-001/step9-formal-evidence-001, only tests have changed since those measurements.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `a0e537a6b5f883d26b1fdf7e09499dfa82079419` via `git rev-parse HEAD`, matching this task's own expected boundary; `origin/main` fetched and confirmed identical (no drift).
+
+### Measurement
+
+```text
+Fresh mutants directory (mutants/ and .mutmut-cache absent before run) in a
+  disposable venv (.postremediation-venv, removed after evidence capture).
+Ordinary suite before mutation: 226 passed, 0 failed (tests/); 5 passed
+  (tooling/tests/, outside governed suite).
+python -m tooling run (full population, no ID filter) -- completed to
+  natural end, exit 0, 1531/1531 dispatched.
+Ten-status counts: killed 1323, survived 208, all other 8 categories 0.
+Reconciliation: 1323 + 208 = 1531 = total. not_checked = 0.
+Bad-test-execution-commands exception cohort: 165 transient occurrences
+  during the run (counted directly from raw output) -- identical in scale
+  to the already-diagnosed, non-biasing mechanism documented in
+  feature-engine-mutation-baseline-001-analysis.md SS3; run reconciled
+  cleanly to natural end despite these, confirming no verdict corruption.
+Raw Ride score: (1323 + 0) / (1531 - 0) * 100 = 86.41410842586545%.
+Mutant ID set: EXACTLY identical to baseline-001's full 1531-mapping (0
+  identity discontinuity anywhere in the population) -- confirms
+  src/feature_engine is genuinely byte-identical, consistent with the
+  measured src tree hash matching baseline-001/step9 exactly.
+```
+
+### Threshold comparison (SUPPORTING ONLY — not a gate evaluation)
+
+```text
+Approved condition-1 threshold: 87.001959503592%.
+Measured this diagnostic:        86.41410842586545%.
+Gap:                              0.587851077731547 percentage points
+                                  below threshold.
+Does NOT meet the threshold. P3-FEATURE-QG-EVID-03's own PASS/FAIL is NOT
+  recorded here -- a separate, formally authorized Step-9 transaction is
+  required to move that finding's gate result.
+```
+
+### 170 material-gap IDs — cross-checked against Batches 1 and 2's own bounded diagnostics
+
+```text
+Killed: 160/170. Confirmed_timeout: 0/170. Still survived: 10/170.
+  Identity-discontinuous: 0/170.
+The 10 still-survived IDs are EXACTLY the union of Batch 1's one reported
+  unresolved ID (current_view.on_feature_computed__mutmut_29) and Batch
+  2's nine reported unresolved IDs (x__total_order_key__mutmut_3, _emit_
+  original__mutmut_13, _emit_replacement_only__mutmut_16, _preempt_
+  settled_window__mutmut_20, _recompute__mutmut_23, _recompute__mutmut_46,
+  _reevaluate_all_windows__mutmut_6, _select_eligible_swing__mutmut_22,
+  current_view.on_feature_computed__mutmut_19) -- full agreement between
+  both batches' own bounded diagnostics and this fresh full-population
+  measurement. No reclassification performed or recorded here.
+```
+
+### Incidental kills outside the 170 material set
+
+```text
+Of the 199 baseline-001 survivors outside the 170 material set: 1
+  incidentally killed (swing_distance.on_swing_confirmed__mutmut_33,
+  category value_replaced_with_none -- a likely side effect of Batch 2's
+  expanded on_swing_confirmed/on_swing_invalidated scenario coverage),
+  198 still survived, 0 identity-discontinuous.
+Arithmetic cross-check: baseline killed (1162) + newly-killed-among-
+  baseline-survivors (160 material + 1 incidental = 161) = this
+  diagnostic's killed (1323). Exact match -- no baseline-killed mutant
+  flipped to survived anywhere in the population.
+```
+
+### Artifact
+
+```text
+docs/governance/mutation-baseline-evidence/feature-engine-mutation-post-
+  remediation-diagnostic-001.json (new, additive) -- full ten-status
+  counts/reconciliation, raw score, measurement_boundary tree/blob
+  identities, 170-ID resolution cross-check, incidental-kill breakdown,
+  full 1531-entry sorted mutant-ID-to-result mapping + its own SHA-256.
+Does NOT overwrite or modify feature-engine-mutation-baseline-001.json or
+  feature-engine-mutation-step9-formal-evidence-001.json.
+```
+
+### State summary
+
+```text
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, NOT evaluated
+                                or closed by this diagnostic).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+P3-PY-MUT-THRESH-A-MIN-02:     OPEN — MINOR / NON-BLOCKING (unchanged).
+No equivalent-mutant reclassification recorded.
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** if a formal Step-9 re-measurement is separately authorized, this diagnostic's own figures (86.41410842586545% raw, 160/170 material IDs resolved) indicate condition 1 (raw score ≥ 87.001959503592%) and condition 2 (170/170 resolved) would both still fail on the current evidence; a further bounded remediation batch targeting some/all of the 10 remaining material survivors (all reasoned equivalents per Batches 1/2's own analysis) or a governed equivalent-mutant reclassification decision would be required before a formal Step-9 transaction could plausibly pass.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-post-remediation-diagnostic-001.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.319"` → `"10.320"`.
+
+---
+
 ## [Unreleased] — 2026-09-04 — feature-engine: EVID-03 material-gap test remediation batch 2 (`actionable_test_gap_candidate`; NOT self-closed)
 
 **Bounded, test-only remediation — vai trò: `Feature Engine EVID-03 Material-Gap Test Remediation Batch 2`.** Strengthens/adds tests for the 87-mutant `actionable_test_gap_candidate` category only (distinct from Batch 1's 83-mutant `constructed_object_field_not_independently_asserted` category, which remains untouched here). No production code touched, no threshold change, no formal Step-9/QG transaction, no finding closed.
