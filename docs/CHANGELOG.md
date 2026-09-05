@@ -2,6 +2,133 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-06 — feature-engine: material-gap mutant reclassification candidate 001 (CANDIDATE / NOT EFFECTIVE / PENDING REVIEW)
+
+**Planning / decision-candidate transaction — vai trò: `Feature Engine Material Mutant Reclassification Candidate Author`.** Authors one governed candidate proposing individual disposition of the 10 still-surviving material-gap mutant identities (per `feature-engine-mutation-post-remediation-diagnostic-001.json`). PLANNING ONLY — no production/test/tooling change, no reclassification made effective, no raw denominator/score change, no formal Step-9/QG evaluation.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `0d69b7750ff319423f4aa4afdebc6c25a662c06d` via `git rev-parse HEAD`, matching this task's own expected boundary; `origin/main` fetched and confirmed identical (no drift). `python/feature-engine/src` tree re-confirmed byte-identical to baseline-001/step9/diagnostic-001 (`256421344a48a6c9d4ef72f81eb82b27dbedfc50`).
+
+### Fresh Chapter 0 §4b ADR Scope Rule check (this decision only, not inherited from prior threshold-proposal work)
+
+```text
+Disposition: ADR_NOT_REQUIRED.
+Reasoning: applies the ALREADY-approved Testing Convention v0.16 item 8
+  equivalent-mutant adjustment mechanism to 10 specific, named identities --
+  does not add/change a Platform Invariant, Event Schema, Module Taxonomy,
+  or Governance/Approval process; affects only feature-engine's own
+  internal test-effectiveness bookkeeping; not hard to reverse (a future
+  transaction can reopen any single identity via a new governed decision).
+  Explicitly distinguished from the threshold PROPOSAL itself (a larger,
+  gate-formula-introducing decision, separately classified ADR_OPTIONAL at
+  Step 6) -- this candidate is narrower and does not touch the gate formula.
+```
+
+### Per-identity analysis (10/10, independently re-verified against current source)
+
+```text
+PROVABLY_EQUIVALENT (3):
+  current_view.on_feature_computed__mutmut_19 -- _ViewWindowState.
+    window_start dead-store field, never read anywhere in the repository
+    (repo-wide grep-verified, not merely "no current test reads it").
+  current_view.on_feature_computed__mutmut_29 -- state.invalidated=False->
+    None; all 3 read sites use pure truthiness (never is/==/isinstance
+    against False/None), so the two values are observationally identical.
+  swing_distance._recompute__mutmut_46 -- swing_id argument -> None, feeds
+    _WindowLineage.used_swing_id, a dead-store field written in exactly 2
+    places and read nowhere in the repository.
+
+STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE (7):
+  swing_distance.x__total_order_key__mutmut_3 (revision-tiebreak sign flip)
+    and swing_distance._select_eligible_swing__mutmut_22 (swing_id-tiebreak
+    corruption) -- both unreachable because ref.sequence (an earlier,
+    higher-priority tiebreak criterion) always discriminates first between
+    any two genuinely-distinct, authoritatively-sourced Swing candidates
+    sharing a stream_id, per docs/constitution/08-event-model.md SS8.3.2
+    (Locked Platform Invariant, "per-stream contiguous sequence") -- NOT
+    claimed equivalent, since a fabricated/malformed duplicate-sequence ref
+    pair could in principle reach the differing criterion.
+  swing_distance._emit_original__mutmut_13, _emit_replacement_only__
+    mutmut_16, _preempt_settled_window__mutmut_20 (all: state.recorded_time
+    removed from a max(...) floor that also includes cursor.recorded_time)
+    -- unreachable because every state reaching these 3 functions (across
+    all 7 call sites collectively) is sourced from _select_eligible_swing
+    using the SAME cursor later used in the floor, and is_visible_at_
+    cursor's current recorded-time branch REQUIRES state.recorded_time <=
+    cursor.recorded_time as a precondition of visibility itself.
+  swing_distance._recompute__mutmut_23 (assert and->or on paired
+    correction_ref/correction_recorded_time) -- unreachable because
+    _recompute's only 2 call sites (both inside on_candle, exhaustively
+    enumerated) always pass both arguments None-together or non-None-
+    together, never mixed. Explicitly NOT called equivalent merely because
+    current public callers don't reach the mismatched state, per this
+    task's own instruction -- reachability was assessed against the
+    complete, closed set of the private method's own call sites.
+  swing_distance._reevaluate_all_windows__mutmut_6 (candle-is-None guard,
+    continue->break) -- unreachable because every key ever inserted into
+    _lineage is, by construction (exhaustively traced across both
+    _lineage-writing sites and both _candle_by_window-writing sites, with
+    no deletion path for the latter anywhere in the module), also present
+    in _candle_by_window at all times thereafter.
+
+NOT_JUSTIFIED_FOR_RECLASSIFICATION: 0/10 -- no identity forced through.
+```
+
+### Artifact
+
+```text
+docs/governance/mutation-baseline-evidence/feature-engine-mutant-
+  reclassification-candidate-001.md (new) -- full per-identity analysis
+  (exact source location, original->mutated semantic, authoritative
+  supporting facts, classification, required assumptions, invalidating
+  future change) for all 10 IDs, plus the ADR scope check and explicit
+  invariance statements below. Status: CANDIDATE / NOT EFFECTIVE / PENDING
+  REVIEW.
+```
+
+### Explicit invariance (required, unaffected by this candidate)
+
+```text
+Diagnostic raw score:          86.41410842586545% (unchanged -- this
+                                candidate touches no ten-status count, no
+                                numerator, no denominator).
+Reclassification effect:       per Testing Convention v0.16 item 8,
+                                equivalent/unreachable mutants remain in the
+                                raw denominator by default -- even a fully
+                                accepted reclassification of all 10 affects
+                                ONLY condition 2 (170-ID material-gap
+                                resolution), never condition 1 (raw score).
+Remaining gap even if all 10 approved: ceil(0.87001959503592 * 1531) =
+                                1332; 1332 - 1323 (current killed) = 9 --
+                                condition 1 would still require at least 9
+                                additional genuine kills via further test
+                                remediation.
+Condition 3 (mutation-surface completeness / 5 high-materiality blind-spot
+  methods): remains unresolved, untouched by this candidate.
+```
+
+### State summary
+
+```text
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+All 10 IDs:                    still formally UNRESOLVED / still counted
+                                survived in every existing evidence
+                                artifact, pending a later, separately-
+                                recorded Review A decision.
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, not evaluated).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+No formal Step-9/QG evaluation performed.
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Review A of this candidate -- an independent reviewer accepts, rejects, or amends each of the 10 per-identity classifications before any may be marked resolved in a future formal Step-9/QG transaction.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.320"` → `"10.321"`.
+
+---
+
 ## [Unreleased] — 2026-09-05 — feature-engine: post-remediation mutation diagnostic (NON-GATING; no finding disposition changed)
 
 **Diagnostic transaction — vai trò: `Feature Engine Post-Remediation Mutation Diagnostic Executor`.** One fresh, full, explicitly NON-GATING mutation diagnostic of the complete Feature Engine mutation population (all 1531 mutants) after EVID-03 test-remediation Batches 1 and 2. NOT a formal Step-9/QG transaction — records no gate/finding disposition. No production/test/tooling changes; source is bit-identical to baseline-001/step9-formal-evidence-001, only tests have changed since those measurements.

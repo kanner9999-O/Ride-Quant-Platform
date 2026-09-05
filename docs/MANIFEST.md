@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.320"
+manifest_version: "10.321"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -21650,6 +21650,175 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** if a formal Step-9 re-measurement is separately authorized, this diagnostic's own figures (86.41410842586545% raw, 160/170 material IDs resolved) indicate condition 1 and condition 2 would both still fail on the current evidence; a further bounded remediation batch targeting some/all of the 10 remaining material survivors (all reasoned equivalents per Batches 1/2's own analysis) or a governed equivalent-mutant reclassification decision would be required before a formal Step-9 transaction could plausibly pass.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-post-remediation-diagnostic-001.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.319"` → `"10.320"`.
+
+## `feature-engine` — Material-Gap Mutant Reclassification Candidate 001 (CANDIDATE / NOT EFFECTIVE / PENDING REVIEW)
+
+**Planning / decision-candidate transaction — vai trò: `Feature Engine Material Mutant Reclassification Candidate Author`.** Authors one governed candidate proposing individual disposition of the 10 still-surviving material-gap mutant identities (per `feature-engine-mutation-post-remediation-diagnostic-001.json`). PLANNING ONLY — does not make any reclassification effective, does not modify `python/feature-engine/src/**`/`tests/**`/`tooling/**`, does not alter the raw denominator or score, does not perform a formal Step-9/QG evaluation.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `0d69b7750ff319423f4aa4afdebc6c25a662c06d` via `git rev-parse HEAD`, matching this task's own expected boundary; `origin/main` fetched and confirmed identical (no drift). `python/feature-engine/src` tree re-confirmed byte-identical to baseline-001/step9/diagnostic-001 (`256421344a48a6c9d4ef72f81eb82b27dbedfc50`) — the candidate's own source reading and the diagnostic's survivor identities analyze the exact same code.
+
+### Authority resolved
+
+```text
+Testing Convention v0.16 (docs/engineering/testing.md) item 8 -- the
+  equivalent-mutant adjustment rule this candidate applies: a governed
+  reclassification requires (1) a deterministic, reproducible, exactly-
+  pinned mutant identity, (2) an individually-recorded semantic
+  justification, (3) a governed adjustment mechanism (a reviewed, recorded
+  decision). This candidate supplies (1) and (2) for all 10 identities; it
+  does NOT itself supply (3) -- Review A, not yet performed -- hence
+  NOT EFFECTIVE.
+Approved Feature Engine mutation threshold proposal SS4.1 -- confirms
+  reclassification is one of two legitimate ways an individual material-gap
+  identity may be marked resolved (the other: killed/confirmed_timeout in a
+  fresh measurement) and that reclassification never touches condition 1's
+  raw score.
+feature-engine-mutation-baseline-001-analysis.md SS1.6 -- source of each
+  identity's original category/materiality and exact token-level diff.
+feature-engine-mutation-post-remediation-diagnostic-001.json -- source of
+  current survived-identity evidence (fresh, full 1531-mutant run).
+docs/constitution/08-event-model.md SS8.3.2 (Locked) -- "Per-stream
+  contiguous sequence": the authoritative platform invariant grounding the
+  two total-order-tiebreak identities, used instead of merely citing this
+  repository's own test-fixture SequenceAllocator.
+```
+
+### Fresh Chapter 0 §4b ADR Scope Rule check (this decision only, not inherited)
+
+```text
+Adds/changes Platform Invariant:        No.
+Changes Event Schema:                   No.
+Changes Module Taxonomy/dependency:     No.
+Changes Governance/Approval process:    No -- applies the ALREADY-approved
+                                         Testing Convention v0.16 item 8
+                                         mechanism to 10 specific, named
+                                         identities; invents no new review
+                                         workflow, role, lifecycle stage, or
+                                         approval-gate structure.
+Affects >1 module:                      No -- feature-engine only.
+Hard to reverse:                        No -- document-level candidate; a
+                                         future transaction can reopen any
+                                         single identity via a new governed
+                                         decision.
+Modifies/supersedes a Locked ADR:       No.
+Disposition:                            ADR_NOT_REQUIRED.
+Note:                                   explicitly distinguished from the
+                                         threshold PROPOSAL itself (Step 6:
+                                         ADR_OPTIONAL) -- that decision
+                                         introduced NEW gate conditions, a
+                                         materially larger-scoped change
+                                         than applying an existing per-
+                                         identity mechanism to ten IDs.
+```
+
+### Per-identity analysis (10/10, independently re-verified against current source — full detail in the artifact)
+
+```text
+PROVABLY_EQUIVALENT (3):
+  1. current_view.on_feature_computed__mutmut_19 (_ViewWindowState.
+     window_start=key[0]->key[1]): dead-store field, written once, read
+     nowhere in the repository (repo-wide grep-verified).
+  2. current_view.on_feature_computed__mutmut_29 (state.invalidated=
+     False->None): all 3 read sites use pure truthiness only -- False and
+     None are observationally identical at every one.
+  8. swing_distance._recompute__mutmut_46 (swing_id arg->None, feeds
+     _WindowLineage.used_swing_id): dead-store field, written in exactly 2
+     places, read nowhere in the repository.
+
+STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE (7):
+  3. swing_distance.x__total_order_key__mutmut_3 (revision-tiebreak sign
+     flip) and 10. _select_eligible_swing__mutmut_22 (swing_id-tiebreak
+     corruption): both unreachable because ref.sequence (an earlier,
+     higher-priority tiebreak criterion) always discriminates first between
+     two genuinely-distinct, authoritatively-sourced Swing candidates
+     sharing a stream_id, per Chapter 8 SS8.3.2's Locked per-stream
+     contiguous-sequence invariant -- NOT equivalent, since a fabricated/
+     malformed duplicate-sequence ref pair could in principle reach the
+     differing criterion.
+  4/5/6. _emit_original__mutmut_13, _emit_replacement_only__mutmut_16,
+     _preempt_settled_window__mutmut_20 (state.recorded_time removed from a
+     max(...) floor that also includes cursor.recorded_time): unreachable
+     because every state reaching these 3 functions (7 call sites total) is
+     sourced from _select_eligible_swing using the SAME cursor later used
+     in the floor, and is_visible_at_cursor's current recorded-time branch
+     REQUIRES state.recorded_time <= cursor.recorded_time as a precondition
+     of visibility itself.
+  7. _recompute__mutmut_23 (assert and->or on paired correction_ref/
+     correction_recorded_time): unreachable because _recompute's only 2
+     call sites (both inside on_candle, exhaustively enumerated) always
+     pass both arguments None-together or non-None-together, never mixed.
+     Explicitly NOT called equivalent merely because current public callers
+     don't reach the mismatched state -- reachability assessed against the
+     complete, closed set of the private method's own call sites.
+  9. _reevaluate_all_windows__mutmut_6 (candle-is-None guard, continue->
+     break): unreachable because every key ever inserted into _lineage is,
+     by construction (both _lineage-writing sites and both _candle_by_
+     window-writing sites exhaustively traced, no deletion path for the
+     latter exists anywhere in the module), also present in _candle_by_
+     window at all times thereafter.
+
+NOT_JUSTIFIED_FOR_RECLASSIFICATION: 0/10 -- no identity forced through; each
+  disposition is independent, and Review A may revert any single one
+  without affecting the other 9.
+```
+
+### Explicit invariance (required, unaffected by this candidate)
+
+```text
+diagnostic_raw_score:                86.41410842586545% (unchanged).
+reclassification_denominator_effect: none by default (Testing Convention
+                                      v0.16 item 8 -- equivalent/unreachable
+                                      mutants remain in the raw denominator
+                                      even once governedly reclassified).
+condition_1_gap_if_all_10_approved:  ceil(0.87001959503592 * 1531) = 1332;
+                                      1332 - 1323 (current killed) = 9 --
+                                      condition 1 would still require at
+                                      least 9 additional GENUINE kills via
+                                      further test remediation; this
+                                      candidate does not supply them.
+condition_3_status:                  unresolved, untouched by this
+                                      candidate (5 high-materiality
+                                      mutation-surface blind-spot methods,
+                                      no qualifying evidence).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutant-
+  reclassification-candidate-001.md (new), docs/MANIFEST.md, docs/
+  CHANGELOG.md changed (confirmed via `git status --porcelain=v1`).
+python/feature-engine/src/**, tests/**, tooling/** all verified byte-
+  identical (`git diff --quiet`). No mutation run performed in this
+  transaction (pure source-reading/analysis, no venv/mutants workspace
+  created). No formal Step-9/QG evidence transaction performed or
+  recorded. No threshold semantics changed. No finding self-closed. No
+  reclassification made effective -- all 10 IDs remain formally
+  UNRESOLVED/survived in every existing evidence artifact. No Product
+  Owner decision touched. Feature Engine not approved. Phase 3 gate not
+  opened. LIVE not authorized.
+```
+
+### State summary
+
+```text
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+All 10 IDs:                    still formally UNRESOLVED / still counted
+                                survived in every existing evidence
+                                artifact, pending a later, separately-
+                                recorded Review A decision.
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, not evaluated).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+No formal Step-9/QG evaluation performed.
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Review A of this candidate — an independent reviewer accepts, rejects, or amends each of the 10 per-identity classifications before any may be marked resolved in a future formal Step-9/QG transaction.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.320"` → `"10.321"`.
 
 ## Decision Log
 
