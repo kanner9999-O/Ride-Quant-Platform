@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.321"
+manifest_version: "10.322"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -21819,6 +21819,114 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** Review A of this candidate — an independent reviewer accepts, rejects, or amends each of the 10 per-identity classifications before any may be marked resolved in a future formal Step-9/QG transaction.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.320"` → `"10.321"`.
+
+## `feature-engine` — Reclassification Candidate 001 Bounded Correction (Review A findings; still CANDIDATE / NOT EFFECTIVE / PENDING REVIEW)
+
+**Bounded correction transaction — vai trò: `Mutant Reclassification Candidate 001 Bounded Correction Executor`.** Corrects `feature-engine-mutant-reclassification-candidate-001.md` per one Review A pass (`P3-PY-MUT-RECLASS-A-MAJ-01`, `-MIN-01`, `-MIN-02`). No source/tests/tooling change, no raw score/denominator/threshold/QG state change. All 10 proposed per-mutant classifications preserved unchanged.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `72c0db1221ad26437956aae2a6e56c1c03fb4649` via `git rev-parse HEAD`, matching this task's own expected boundary.
+
+### Findings remediated (not self-closed)
+
+```text
+P3-PY-MUT-RECLASS-A-MAJ-01 (governance lifecycle): REMEDIATED — PENDING
+  BOUNDED REVIEW A RE-REVIEW.
+  Defect: the candidate incorrectly treated Review A itself as the
+  sufficient "reviewed, recorded decision" Testing Convention v0.16 item 8
+  requires -- implying identities could resolve immediately after Review A.
+  Correction: a new SS0a states the governed lifecycle explicitly --
+  candidate -> Review A (reviewer recommendation, NOT approval authority)
+  -> Independent Review B (second, independent recommendation) -> Product
+  Owner decision (sole approve/reject authority, per docs/constitution/
+  00-governance.md SS3's review gate v1.2 ACTIVE -- minimum two independent
+  reviews required before any Product Owner decision) -> mechanical
+  recording/effectiveness. Every place implying (a) Review A alone
+  completes item-8 governance, (b) identities resolve immediately after
+  Review A, or (c) Review A is the final adjustment decision was corrected:
+  the intro paragraph, SS0's Testing Convention item-8 citation, the ADR
+  scope table's "Hard to reverse" row, SS3's summary sentence, SS5's
+  preserved-states block, and the next-governed-action section (renumbered
+  SS7, with a new SS6 recording these three findings). Candidate status
+  remains CANDIDATE / NOT EFFECTIVE / PENDING REVIEW; all 10 identities
+  remain formally unresolved.
+P3-PY-MUT-RECLASS-A-MIN-01 (cursor predicate factual wording): REMEDIATED
+  — PENDING BOUNDED REVIEW A RE-REVIEW.
+  Defect: SS2.4 stated is_visible_at_cursor returns True (trivially
+  visible) when ref.stream_id is outside included_streams -- factually
+  backwards.
+  Correction: re-verified directly against contracts.py:185-186 (`if ref.
+  stream_id not in included_streams: return False`) and corrected the
+  wording; the substantive recorded-time dominance proof (state.
+  recorded_time <= cursor.recorded_time by construction) is unchanged, and
+  the STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE
+  classification for mutmut_13 (and, by the same reasoning, mutmut_16/
+  mutmut_20) is unaffected.
+P3-PY-MUT-RECLASS-A-MIN-02 (_recompute reachability wording): REMEDIATED
+  — PENDING BOUNDED REVIEW A RE-REVIEW.
+  Defect: SS2.7 overclaimed "no execution path — public or private — can
+  invoke _recompute with a mismatched pair."
+  Correction: restated precisely -- the complete current production/module
+  call graph has exactly two _recompute call sites (both inside on_candle,
+  both pairing correction_ref/correction_recorded_time), but _recompute is
+  a plain Python method with no language-level access control; a direct
+  private invocation (e.g. from a test, bypassing on_candle) could
+  construct a mismatched pair. The claim is therefore that no call-graph
+  edge reachable from the three public entry points (on_swing_confirmed,
+  on_swing_invalidated, on_candle) produces one -- i.e. structural
+  unreachability under the current authoritative/public production state
+  space, NOT mathematical equivalence. The classification itself
+  (STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE) was
+  already correct and unchanged; only the overclaiming sentence was fixed.
+```
+
+### Preserved (unchanged by this correction — explicit verification)
+
+```text
+10-identity classification split:  3 PROVABLY_EQUIVALENT (#1 current_view.
+                                    on_feature_computed__mutmut_19, #2
+                                    on_feature_computed__mutmut_29, #8
+                                    swing_distance._recompute__mutmut_46),
+                                    7 STRUCTURALLY_UNREACHABLE_UNDER_
+                                    CURRENT_AUTHORITATIVE_STATE_SPACE (#3-7,
+                                    9, 10) -- verified byte-for-byte
+                                    unchanged in this correction.
+Identities effective/resolved:     0/10 (unchanged).
+ADR disposition:                   ADR_NOT_REQUIRED (unchanged).
+Diagnostic raw score:              86.41410842586545% (unchanged).
+Denominator:                       1531 (unchanged).
+Condition 1 gap:                   still >= 9 additional qualifying kills
+                                    even if all 10 were later approved.
+Condition 3 (mutation-surface completeness / blind-spot): unresolved,
+                                    untouched by this correction.
+TEST_EFFECTIVENESS_THRESHOLD:      EFFECTIVE (unchanged).
+P3-FEATURE-QG-EVID-03:              OPEN / blocking (unchanged, not
+                                    evaluated).
+P3-FEATURE-QG-EVID-04..-08:         OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG:     FAIL — evidence (unchanged).
+Feature module approval:           NOT APPROVED.
+Phase 3 Approval Gate:             NOT opened.
+LIVE:                               NOT_AUTHORIZED, unreferenced.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutant-
+  reclassification-candidate-001.md (modified), docs/MANIFEST.md, docs/
+  CHANGELOG.md changed (confirmed via `git status --porcelain=v1`).
+python/feature-engine/src/**, tests/**, tooling/** all verified byte-
+  identical (`git diff --quiet`). No mutation run performed (pure
+  source-reading/wording correction). No formal Step-9/QG evidence
+  transaction performed or recorded. No threshold semantics changed. No
+  finding self-closed -- all three recorded REMEDIATED — PENDING BOUNDED
+  REVIEW A RE-REVIEW, not CLOSED. No reclassification made effective. No
+  Product Owner decision touched. Feature Engine not approved. Phase 3
+  gate not opened. LIVE not authorized.
+```
+
+**Next governed step:** bounded Review A re-review of this correction, followed (per the corrected SS0a lifecycle) by Independent Review B and a Product Owner decision before any of the 10 identities may be marked resolved.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.321"` → `"10.322"`.
 
 ## Decision Log
 

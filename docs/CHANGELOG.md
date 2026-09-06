@@ -2,6 +2,78 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-06 — feature-engine: reclassification candidate 001 bounded correction (Review A findings; still CANDIDATE / NOT EFFECTIVE / PENDING REVIEW)
+
+**Bounded correction — vai trò: `Mutant Reclassification Candidate 001 Bounded Correction Executor`.** Corrects `feature-engine-mutant-reclassification-candidate-001.md` per one Review A pass (1 Major, 2 Minor). No source/tests/tooling change, no raw score/denominator/threshold/QG state change. Preserves all 10 proposed per-mutant classifications unchanged.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `72c0db1221ad26437956aae2a6e56c1c03fb4649` via `git rev-parse HEAD`, matching this task's own expected boundary.
+
+### Findings remediated
+
+```text
+P3-PY-MUT-RECLASS-A-MAJ-01 (governance lifecycle) — REMEDIATED — PENDING
+  BOUNDED REVIEW A RE-REVIEW. The candidate incorrectly treated Review A
+  itself as the sufficient "reviewed, recorded decision" Testing
+  Convention v0.16 item 8 requires. Corrected lifecycle, now stated
+  explicitly in the candidate's new SS0a: candidate -> Review A
+  (recommendation, not approval authority) -> Independent Review B
+  (second, independent recommendation) -> Product Owner decision (sole
+  approve/reject authority, per docs/constitution/00-governance.md SS3's
+  review gate v1.2 -- minimum two independent reviews required) ->
+  mechanical recording/effectiveness. Every place implying Review A alone
+  completes governance, that identities resolve immediately after Review
+  A, or that Review A is the final adjustment decision has been corrected
+  (intro, SS0's Testing Convention item-8 citation, the ADR scope table's
+  "Hard to reverse" row, SS3's summary, SS5's preserved-states block, and
+  SS7's next-action wording). Candidate status remains CANDIDATE / NOT
+  EFFECTIVE / PENDING REVIEW; all 10 identities remain unresolved.
+P3-PY-MUT-RECLASS-A-MIN-01 (cursor predicate factual wording) —
+  REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW. SS2.4 corrected:
+  is_visible_at_cursor returns False (not True) when ref.stream_id is
+  outside included_streams (re-verified directly against contracts.py:185-
+  186). The substantive recorded-time dominance proof is unchanged.
+P3-PY-MUT-RECLASS-A-MIN-02 (_recompute reachability wording) —
+  REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW. SS2.7 corrected to
+  state precisely: the complete current production/module call graph has
+  two _recompute call sites, both pairing the arguments, but a direct
+  private invocation (bypassing on_candle) could construct a mismatched
+  pair -- classification is structural unreachability under the current
+  authoritative/public production state space, NOT mathematical
+  equivalence. The classification itself
+  (STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE) was
+  already correct and is unchanged; only the overclaiming sentence was
+  corrected.
+```
+
+None of these three findings is self-closed by this transaction — each is
+recorded `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`, awaiting the
+same review pass's own re-review.
+
+### Preserved (unchanged by this correction)
+
+```text
+10-identity classification split:  3 PROVABLY_EQUIVALENT (#1, #2, #8), 7
+                                    STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_
+                                    AUTHORITATIVE_STATE_SPACE (#3-7, 9, 10)
+                                    -- verified byte-for-byte unchanged.
+Identities effective/resolved:     0/10 (unchanged).
+ADR disposition:                   ADR_NOT_REQUIRED (unchanged).
+Diagnostic raw score:              86.41410842586545% (unchanged).
+Denominator:                       1531 (unchanged).
+Condition 1 gap:                   still >= 9 additional qualifying kills.
+Condition 3 (mutation-surface blind spot): unresolved, untouched.
+P3-FEATURE-QG-EVID-03..-08:        OPEN / blocking (unchanged, untouched).
+Feature module approval:           NOT APPROVED.
+Phase 3 Approval Gate:             NOT opened.
+LIVE:                               NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed action:** bounded Review A re-review of this correction, followed (per the corrected SS0a lifecycle) by Independent Review B and a Product Owner decision before any of the 10 identities may be marked resolved.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.321"` → `"10.322"`.
+
+---
+
 ## [Unreleased] — 2026-09-06 — feature-engine: material-gap mutant reclassification candidate 001 (CANDIDATE / NOT EFFECTIVE / PENDING REVIEW)
 
 **Planning / decision-candidate transaction — vai trò: `Feature Engine Material Mutant Reclassification Candidate Author`.** Authors one governed candidate proposing individual disposition of the 10 still-surviving material-gap mutant identities (per `feature-engine-mutation-post-remediation-diagnostic-001.json`). PLANNING ONLY — no production/test/tooling change, no reclassification made effective, no raw denominator/score change, no formal Step-9/QG evaluation.

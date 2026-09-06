@@ -15,14 +15,51 @@ raw_denominator_changed: false
 raw_score_changed: false
 formal_step9_qg_evaluation_performed: false
 repository_head_at_authoring: 0d69b7750ff319423f4aa4afdebc6c25a662c06d
+repository_head_at_bounded_correction: 72c0db1221ad26437956aae2a6e56c1c03fb4649
+review_a_findings_remediated_pending_re_review:
+  - P3-PY-MUT-RECLASS-A-MAJ-01
+  - P3-PY-MUT-RECLASS-A-MIN-01
+  - P3-PY-MUT-RECLASS-A-MIN-02
 ```
 
-This document is a **candidate**. Nothing in it is effective until a separately
-recorded review decision (Review A of this candidate, per this task's own
-required next governed action) accepts, rejects, or amends each disposition
-below. No `P3-FEATURE-QG-EVID-03` identity is closed by this document. No
-raw score, denominator, or ten-status count is touched. No production, test,
-or tooling file is modified by this transaction.
+This document is a **candidate**. Per `docs/constitution/00-governance.md`
+§3's review gate (minimum two independent reviews required before a Product
+Owner decision, Product Owner alone holding approve/reject authority — see
+§0a below), nothing in it becomes effective through Review A alone. The
+governed lifecycle this document must move through is:
+
+```text
+candidate (this document)
+  -> Review A (reviewer recommendation -- NOT approval authority)
+  -> Independent Review B (second, independent reviewer recommendation)
+  -> Product Owner decision (the sole approve/reject authority)
+  -> mechanical recording / effectiveness (only after Product Owner approval)
+```
+
+No `P3-FEATURE-QG-EVID-03` identity is closed by this document. No raw
+score, denominator, or ten-status count is touched. No production, test, or
+tooling file is modified by this transaction. All 10 identities below
+remain formally **UNRESOLVED** until that full lifecycle completes.
+
+### 0a. Governance lifecycle correction (P3-PY-MUT-RECLASS-A-MAJ-01 remediation)
+
+Review A of an EARLIER version of this candidate found that it incorrectly
+treated Review A itself as the sufficient "reviewed, recorded decision" that
+Testing Convention v0.16 item 8 requires to make a reclassification usable
+for Condition 2. Corrected: per `docs/constitution/00-governance.md` §3,
+review gate v1.2 (ACTIVE), a minimum of **two independent reviews** is
+required before any Product Owner decision on a document of this kind, and
+"Product Owner là authority duy nhất approve/reject" (Product Owner is the
+sole approve/reject authority) — reviewers, including a Review A reviewer,
+are peers with no individual veto and no unilateral approval power. Every
+place in this document that previously implied (a) Review A alone completes
+Testing Convention item-8 governance, (b) an identity may become resolved
+immediately after Review A, or (c) Review A is the final adjustment
+decision, has been corrected below to reflect the lifecycle stated above.
+This document's own status remains `CANDIDATE / NOT EFFECTIVE / PENDING
+REVIEW` and all 10 identities remain unresolved after this correction —
+this is a wording/lifecycle-accuracy fix, not a substantive change to any
+of the 10 classifications or to the candidate's own effectiveness.
 
 ## 0. Authority resolved for this candidate
 
@@ -34,8 +71,12 @@ or tooling file is modified by this transaction.
   individually-recorded semantic justification...; and a governed adjustment
   mechanism (a reviewed, recorded decision...)." This candidate supplies the
   first two of these three for all 10 identities; it does **not** itself
-  constitute the third (the "reviewed, recorded decision" is Review A, not
-  yet performed) — hence `NOT EFFECTIVE`.
+  constitute the third. The "reviewed, recorded decision" this item requires
+  is the FULL governance lifecycle in §0a (Review A recommendation ->
+  Independent Review B recommendation -> Product Owner decision) — not
+  Review A alone, which is a reviewer recommendation, not approval
+  authority. None of that lifecycle has been performed yet — hence
+  `NOT EFFECTIVE`.
 - **Approved Feature Engine mutation threshold proposal §4.1** (material-gap
   identity-resolution condition) — defines the 170-ID population this
   candidate's 10 identities are drawn from, and confirms (per the proposal's
@@ -94,7 +135,7 @@ that introduced new numeric conditions into the gate formula):
 | Changes Module Taxonomy/dependency graph | No. |
 | Changes Governance/Approval process | No — applies the ALREADY-approved Testing Convention v0.16 item 8 mechanism to specific identities; does not invent a new review workflow, role, lifecycle stage, or approval-gate structure (identical reasoning already applied, for a materially larger change, in the threshold proposal's own correction record — see `feature-engine-mutation-threshold-proposal-001.md` line ~450). |
 | Affects >1 module | No — scoped entirely to `feature-engine`'s own internal test-effectiveness bookkeeping. |
-| Hard to reverse | No — this is a document-level classification candidate; even if a future Review A accepts it, a later transaction can reopen any single identity via a new governed decision (Testing Convention item 8 itself is a repeatable, per-identity mechanism, not a one-way ratchet). |
+| Hard to reverse | No — this is a document-level classification candidate; even if a future Product Owner decision (after both required independent reviews) accepts it, a later transaction can reopen any single identity via a new governed decision (Testing Convention item 8 itself is a repeatable, per-identity mechanism, not a one-way ratchet). |
 | Modifies/supersedes a Locked ADR | No — no ADR is touched. |
 
 **Disposition: `ADR_NOT_REQUIRED`.** This is a narrower application of an
@@ -286,12 +327,17 @@ and what future change would invalidate the classification.
   cursor_recorded_time=cursor.recorded_time)` returns `True`
   (`swing_distance.py:404-414`). `is_visible_at_cursor`'s current
   implementation (`contracts.py:159-190`) has exactly 3 branches: stream-
-  membership (returns `True`/trivially-visible if the stream is outside
-  `included_streams` — not applicable here since Swing's stream IS always in
-  `included_streams` for this profile), sequence-position, and finally
-  `return recorded_time <= cursor_recorded_time`. For the swing stream
-  (always inside `included_streams`), reaching `visible=True` REQUIRES this
-  third branch to hold, i.e. `record.recorded_time <= cursor.recorded_time`.
+  membership (**returns `False` — NOT visible — if `ref.stream_id` is
+  OUTSIDE `included_streams`**; this is a fail-closed guard, corrected here
+  per Review A `P3-PY-MUT-RECLASS-A-MIN-01` — an earlier revision of this
+  document incorrectly stated this branch returns `True`/trivially-visible
+  for a foreign stream; not applicable here regardless, since Swing's stream
+  IS always inside `included_streams` for this profile, so this `if` simply
+  does not trigger and execution proceeds to branches 2/3), sequence-
+  position, and finally `return recorded_time <= cursor_recorded_time`. For
+  the swing stream (always inside `included_streams`), reaching
+  `visible=True` REQUIRES this third branch to hold, i.e.
+  `record.recorded_time <= cursor.recorded_time`.
   The `_SwingState.recorded_time` field is copied verbatim from that same
   `record.recorded_time` (`swing_distance.py:431`). Therefore, for every
   `state` value that can ever reach `_emit_original`, `state.recorded_time
@@ -398,18 +444,34 @@ and what future change would invalidate the classification.
   There is no third call site, no keyword-only default that could be
   independently overridden, and `_recompute` is never re-exported or called
   from any other module (private, underscore-prefixed, not present in
-  `__init__.py`'s public surface). Under the CURRENT source, no execution
-  path — public or private — can invoke `_recompute` with a mismatched
-  pair.
+  `__init__.py`'s public surface). **Corrected per Review A
+  `P3-PY-MUT-RECLASS-A-MIN-02`** (an earlier revision of this document
+  overclaimed that "no execution path — public or private — can invoke
+  `_recompute` with a mismatched pair"; this overstated the proof): stated
+  precisely, the complete current production/module call graph has exactly
+  these two `_recompute` call sites, and both pair the arguments as
+  established above — but `_recompute` is a plain Python method with no
+  language-level access control; a DIRECT PRIVATE invocation (e.g., from a
+  test, a debugger, or a future internal helper calling
+  `engine._recompute(candle, correction_ref=x, correction_recorded_
+  time=None, cursor=c)` directly, bypassing `on_candle` entirely) COULD
+  construct a mismatched pair — nothing in the language or this module
+  prevents it. The claim is therefore NOT that a mismatched pair is
+  impossible to construct at all, but that no call graph edge reachable from
+  the CURRENT authoritative/public production entry points (`on_swing_
+  confirmed`, `on_swing_invalidated`, `on_candle` — the only three public
+  methods of this engine) ever produces one.
 - **Classification: `STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE`**
   (explicitly not claimed equivalent merely because "current public callers"
-  don't reach it — the claim here is stronger: reachability was assessed
-  against the COMPLETE, exhaustively-enumerated set of the private method's
-  own only two call sites, both intra-module and both hardcoded literal-
-  paired invocations; still classified as reachability-contingent, not
-  equivalent, because a future edit to `on_candle` — or a hypothetical third
-  call site — could break the pairing without touching this assert line
-  itself).
+  don't reach it — the claim here is stronger than that, but not absolute:
+  reachability was assessed against the COMPLETE, exhaustively-enumerated
+  set of the private method's own two call sites within the current
+  authoritative/public production state space, both intra-module and both
+  hardcoded literal-paired invocations; this is structural unreachability
+  under that current state space, NOT mathematical equivalence — a future
+  edit to `on_candle`, a hypothetical third production call site, OR a
+  direct private invocation (e.g., from a test) supplying a mismatched pair
+  would all make this mutation observable).
 - **Assumptions required:** no future call site to `_recompute` (public or
   private) ever supplies a mismatched pair.
 - **What would invalidate this:** any new call site to `_recompute`, or an
@@ -570,8 +632,9 @@ and what future change would invalidate the classification.
 **Count `NOT_JUSTIFIED_FOR_RECLASSIFICATION`: 0/10** — no identity was forced
 through; each of the 10 has an independently-verified, source-grounded
 argument distinguishing genuine dead/inert-value equivalence from
-reachability-contingent unreachability. If Review A finds any single
-argument above unpersuasive, that identity alone reverts to
+reachability-contingent unreachability. If Review A, Independent Review B,
+or the Product Owner finds any single argument above unpersuasive at any
+stage of the §0a lifecycle, that identity alone reverts to (or remains)
 `NOT_JUSTIFIED_FOR_RECLASSIFICATION` without affecting the other 9 — each
 disposition is independent per Testing Convention v0.16 item 8's own
 per-identity requirement.
@@ -620,9 +683,13 @@ be reached given the present call-graph discipline and/or the Chapter 8
 TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
 All 10 IDs above:              still formally UNRESOLVED / still counted as
                                 survived in every existing evidence artifact,
-                                until a later, separately-recorded Review A
-                                decision accepts some/all/none of the
-                                classifications proposed here.
+                                until the full §0a governance lifecycle
+                                (Review A recommendation -> Independent
+                                Review B recommendation -> Product Owner
+                                decision -> mechanical recording) completes
+                                and accepts some/all/none of the
+                                classifications proposed here. Review A
+                                alone cannot make any identity resolved.
 P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, not evaluated).
 P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
 Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
@@ -632,10 +699,44 @@ Phase 3 Approval Gate:         NOT opened.
 LIVE:                           NOT_AUTHORIZED, unreferenced.
 ```
 
-## 6. Next governed action
+## 6. Review A findings from the prior review pass, and this correction's disposition
 
-**Review A of this candidate** — an independent reviewer must accept,
-reject, or amend each of the 10 per-identity classifications above. Only
-after that recorded review decision may any of these 10 identities be
-marked resolved in a formal Step-9/QG transaction's material-gap condition.
-This document does not perform that review itself.
+```text
+P3-PY-MUT-RECLASS-A-MAJ-01 (governance lifecycle): REMEDIATED — PENDING
+  BOUNDED REVIEW A RE-REVIEW. Corrected every place implying Review A alone
+  completes Testing Convention item-8 governance, that identities may
+  become resolved immediately after Review A, or that Review A is the
+  final adjustment decision -- see §0a above and the corrected wording
+  throughout §0, the ADR scope table, §3, §5, and §7 below. Candidate
+  status remains CANDIDATE / NOT EFFECTIVE / PENDING REVIEW; all 10
+  identities remain unresolved.
+P3-PY-MUT-RECLASS-A-MIN-01 (cursor predicate factual wording): REMEDIATED
+  — PENDING BOUNDED REVIEW A RE-REVIEW. §2.4 corrected: is_visible_at_
+  cursor returns False (not True) when ref.stream_id is outside included_
+  streams. The substantive recorded-time dominance proof is unchanged.
+P3-PY-MUT-RECLASS-A-MIN-02 (_recompute reachability wording): REMEDIATED
+  — PENDING BOUNDED REVIEW A RE-REVIEW. §2.7 corrected: states precisely
+  that the complete current production/module call graph has two
+  _recompute call sites, both pairing the arguments, but a direct private
+  invocation could construct a mismatched pair -- classification is
+  structural unreachability under the current authoritative/public
+  production state space, NOT mathematical equivalence. Classification
+  itself (STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE)
+  was already correct and is unchanged; only the overclaiming sentence was
+  corrected.
+```
+
+None of these three findings is self-closed by this document — each remains
+open pending the bounded Review A re-review this correction itself requests
+(§7).
+
+## 7. Next governed action
+
+**Bounded Review A re-review of this correction** — the same review pass
+must re-examine whether `P3-PY-MUT-RECLASS-A-MAJ-01`,
+`P3-PY-MUT-RECLASS-A-MIN-01`, and `P3-PY-MUT-RECLASS-A-MIN-02` are now
+adequately remediated. Only after that re-review, followed by the full §0a
+lifecycle (Independent Review B recommendation, then a Product Owner
+decision), may any of these 10 identities be marked resolved in a formal
+Step-9/QG transaction's material-gap condition. This document does not
+perform that re-review, Review B, or the Product Owner decision itself.
