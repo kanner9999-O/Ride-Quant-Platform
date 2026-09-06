@@ -768,8 +768,13 @@ def test_foreign_scope_regime_fact_rejected(allocator: SequenceAllocator, time_s
         regime_definition_version="rgd-1",
         instrument_id="ETH-USDT",
     )
-    with pytest.raises(ForeignScopeError):
+    with pytest.raises(ForeignScopeError) as excinfo:
         engine.on_regime_classified(fact, cursor=_frontier_at(fact.recorded_time))
+    # P3-PY-MUT-COND1-A remediation: exact message content, not just
+    # exception type -- a caller reading this failure needs to know it is
+    # THIS engine's own scope guard that rejected the fact, not merely that
+    # some ForeignScopeError occurred.
+    assert str(excinfo.value) == "regime fact scope does not match this Feature engine's own scope"
 
 
 def test_non_monotonic_recorded_time_rejected(allocator: SequenceAllocator, time_source: FixedDeltaTimeSource) -> None:

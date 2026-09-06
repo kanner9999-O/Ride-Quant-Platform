@@ -16,8 +16,20 @@ from feature_engine.errors import UnsupportedFeatureFormulaError
 def test_candle_path_always_fails_closed_at_construction() -> None:
     definition = make_candle_definition()
     scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
-    with pytest.raises(UnsupportedFeatureFormulaError):
+    with pytest.raises(UnsupportedFeatureFormulaError) as excinfo:
         CandleWindowFeatureEngine(scope, definition)
+    # P3-PY-MUT-COND1-A remediation: exact message content -- the message is
+    # a static template (only formula_id is caller-supplied, pinned by the
+    # fixture default below), so an exact-string assertion here proves the
+    # complete failure reason (which formula_id, which invariant, which
+    # governing note), not merely that some exception of the right type
+    # occurred.
+    assert str(excinfo.value) == (
+        "Candle-derived formula computation is not authorized: no current repository authority pins an "
+        "immutable executable identity + parameters for formula_id='test-high-low-range-v1' "
+        "(feature.md §6/§7.1/§7.2) — this engine never executes a caller-supplied formula matched only by a "
+        "formula_id string. Fails closed per P3-FEATURE-A-MAJ-03."
+    )
 
 
 def test_candle_path_fails_closed_regardless_of_formula_id() -> None:
@@ -63,8 +75,12 @@ def test_wrong_upstream_source_for_candle_engine_rejected() -> None:
     """
     definition = make_regime_definition(feature_type="volatility_metric")
     scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
-    with pytest.raises(ValueError, match="requires upstream_source='candle'"):
+    with pytest.raises(ValueError) as excinfo:
         CandleWindowFeatureEngine(scope, definition)
+    # P3-PY-MUT-COND1-A remediation: exact message, not a substring match --
+    # a substring match cannot distinguish this static string from a
+    # wrapped/re-cased corruption of the same substring.
+    assert str(excinfo.value) == "CandleWindowFeatureEngine requires upstream_source='candle'"
 
 
 def test_scope_definition_mismatch_for_candle_engine_rejected() -> None:
@@ -74,5 +90,6 @@ def test_scope_definition_mismatch_for_candle_engine_rejected() -> None:
     """
     definition = make_candle_definition()
     scope = feature_scope("volatility_metric", version="a-different-version-than-the-definition")
-    with pytest.raises(ValueError, match="scope does not match definition"):
+    with pytest.raises(ValueError) as excinfo:
         CandleWindowFeatureEngine(scope, definition)
+    assert str(excinfo.value) == "scope does not match definition"

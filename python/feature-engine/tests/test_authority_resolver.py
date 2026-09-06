@@ -250,8 +250,16 @@ def test_missing_stream_registry_artifact_fails_closed(tmp_path: Path) -> None:
 
 def test_find_repo_root_raises_when_no_docs_ancestor_exists(tmp_path: Path) -> None:
     start = tmp_path / "definitely" / "not" / "a" / "repository" / "checkout"
-    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="could not locate repository root"):
+    with pytest.raises(UnresolvedComputationCursorAuthorityError) as excinfo:
         _find_repo_root(start)
+    # P3-PY-MUT-COND1-A remediation: exact message content -- the entire
+    # message (both the dynamic {start!r} clause and the static reason
+    # clause) is asserted, not merely a leading substring, so a case/marker
+    # corruption anywhere in the static second half is caught too.
+    assert str(excinfo.value) == (
+        f"could not locate repository root (no {'docs'!r} directory found above {start!r}) — "
+        "Input Contract/Stream Registry authority cannot be resolved from the filesystem"
+    )
 
 
 def test_missing_contract_id_field_fails_closed(tmp_path: Path) -> None:

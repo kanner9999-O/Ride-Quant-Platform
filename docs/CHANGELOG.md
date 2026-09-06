@@ -2,6 +2,116 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-06 — feature-engine: Condition-1 mutation score remediation batch 1 (NON-GATING diagnostic; 17/17 targeted survivors killed)
+
+**Bounded, test-only remediation — vai trò: `Feature Engine Condition-1 Mutation Score Remediation Executor`.** Strengthens 6 existing tests across 3 files to close 17 genuine observable message-content gaps (original Step-4 categories `low_materiality_message_text`, all in `string_case_mutation`/`string_literal_marker_mutation`/`value_replaced_with_none` sub-categories) drawn from the current non-material survivor pool (outside the now-resolved 170-ID Condition-2 set). NOT a formal Step-9/QG transaction. Does not modify the approved reclassification decision, the 10 reclassified identities' historical statuses, the raw denominator, or Condition 3's disposition.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `561cfc97a46b56af703636c6df8952977b63a527` via `git rev-parse HEAD`, matching this task's own expected boundary.
+
+### Target population (17, drawn from the current non-material survivor pool)
+
+```text
+candle_window.xǁCandleWindowFeatureEngineǁ__init__ mutmut_11/12/18/20/21/
+  22/23/24/25/26/27/28 (12 IDs) -- low_materiality_message_text
+  (string_case_mutation / string_literal_marker_mutation / value_replaced_
+  with_none) -- constructor validation-guard message text, never exercised
+  by an exact-content assertion before (only ValueError type / loose
+  substring `match=`, which XX-wrap and re-case mutations survive).
+authority_resolver.x__find_repo_root mutmut_3/4/5 (3 IDs) --
+  low_materiality_message_text (string_case_mutation /
+  string_literal_marker_mutation) -- repo-root-not-found message's static
+  second clause, previously covered only by a leading-substring `match=`.
+regime_passthrough.xǁRegimePassthroughFeatureEngineǁ_check_scope
+  mutmut_8/9 (2 IDs) -- low_materiality_message_text (string_case_mutation)
+  -- foreign-scope rejection message, previously covered only by exception
+  TYPE (`pytest.raises(ForeignScopeError)`), no message assertion at all.
+```
+
+All 17 independently re-verified via `python -m tooling show <id>` against
+current source before any test was written (not merely inferred from an
+older meta-src snapshot) — each is a genuine, real message-content gap:
+existing coverage checked exception type and/or a loose substring, never
+the complete, exact message text, so a case-swap/XX-wrap/marker corruption
+or a wholesale `None` substitution of the message survived undetected.
+
+### Tests strengthened (clustered by root cause, not one test per mutant)
+
+```text
+tests/test_candle_window.py: 3 existing tests strengthened --
+  test_wrong_upstream_source_for_candle_engine_rejected (exact message,
+  kills mutmut_11/12), test_scope_definition_mismatch_for_candle_engine_
+  rejected (exact message, kills mutmut_18), test_candle_path_always_
+  fails_closed_at_construction (exact message using the fixture's own
+  known formula_id, kills mutmut_20/21/22/23/24/25/26/27/28 -- 9 mutants
+  from ONE assertion, since any case/marker/None corruption anywhere in
+  the 4-sentence message breaks exact equality).
+tests/test_authority_resolver.py: 1 existing test strengthened --
+  test_find_repo_root_raises_when_no_docs_ancestor_exists (exact message
+  including both the dynamic {start!r} clause and the static reason
+  clause, kills mutmut_3/4/5).
+tests/test_regime_passthrough.py: 1 existing test strengthened --
+  test_foreign_scope_regime_fact_rejected (exact message, kills
+  mutmut_8/9).
+No brittle assertions added merely to match mutmut syntax -- each exact-
+  string assertion targets a STATIC message (no caller-varying content
+  beyond values the test itself controls and can predict), so asserting
+  the complete message is asserting real, stable, actionable failure
+  content (which guard rejected, why), not incidental formatting.
+```
+
+### Verification results
+
+```text
+Ordinary suite: 226 passed (unchanged count -- all strengthened, none
+  added), 0 failed. tooling/tests/: 5 passed.
+ruff check tests/ src/: All checks passed.
+ruff format --check: pre-existing drift (1 file, test_regime_passthrough.py)
+  confirmed UNCHANGED before/after via git-stash comparison -- not
+  introduced here.
+mypy (strict, 25 source files): Success, no issues found.
+Fresh-venv re-verification (separate disposable venv, removed after):
+  226 passed, 5 passed (tooling), ruff clean, mypy clean -- confirms no
+  environment-specific false pass.
+Bounded NON-GATING mutation diagnostic (supporting only, NOT a formal
+  Step-9 transaction): all 17 targeted IDs re-run individually via
+  `python -m tooling run` in a disposable venv/mutants/ directory (removed
+  after capture). Result: 17/17 KILLED, 0/17 survived.
+```
+
+### Governance preservation (explicit)
+
+```text
+Condition 2: SATISFIED (unchanged) -- 170/170 material identities remain
+  resolved per the approved reclassification decision; not reinterpreted
+  or reopened.
+The 10 governedly-reclassified identities' raw historical mutmut statuses:
+  UNCHANGED, untouched by this transaction.
+Raw denominator: 1531 (unchanged) -- no tool identity discontinuity
+  encountered; no fail-closed stop triggered.
+This bounded diagnostic's own 17/17 result is NOT recorded as a formal
+  Condition-1 PASS and no updated full-population raw score is computed or
+  claimed here -- a later full fresh measurement (all 1531 mutants) is
+  required to establish the actual updated raw score. This transaction
+  reports the bounded, targeted diagnostic result only (17/17 killed,
+  supporting evidence that at least 17 genuine gaps existed and are now
+  closed), not a formal full-population score.
+Condition 3 (mutation-surface completeness / blind spot): unresolved,
+  untouched by this transaction.
+EVID-03: OPEN / blocking (unchanged). EVID-04..-08: OPEN / blocking
+  (unchanged, untouched). Overall Feature Chapter 13 QG: FAIL — evidence
+  (unchanged).
+Feature module approval: NOT APPROVED. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+No formal Step-9/QG evaluation performed. No ADR created. No production
+  or tooling change.
+```
+
+**Next governed action:** Review A of this remediation batch.
+
+**Files changed:** `python/feature-engine/tests/test_candle_window.py`, `python/feature-engine/tests/test_authority_resolver.py`, `python/feature-engine/tests/test_regime_passthrough.py` (all modified, none new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.323"` → `"10.324"`.
+
+---
+
 ## [Unreleased] — 2026-09-06 — feature-engine: reclassification candidate 001 mechanical review/approval recording (APPROVED / EFFECTIVE FOR CONDITION 2 ONLY)
 
 **Mechanical review/approval recording transaction — vai trò: `Feature Engine Mutant Reclassification Approval Recorder`.** Records externally-completed Review A (ChatGPT), Independent Review B (Claude), and Product Owner approval for `feature-engine-mutant-reclassification-candidate-001.md` at reviewed boundary `261491709765eff5084d5d7289d2e4344e4f4273`. Does NOT reinterpret or re-review semantics. No source/tests/tooling change. No raw score/denominator/numerator change. No formal Step-9/QG evaluation. No ADR created.

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.323"
+manifest_version: "10.324"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -22045,6 +22045,125 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** none specific to this now-complete candidate lifecycle; the next Feature-Engine-level governed action is a further bounded test-remediation transaction targeting ≥9 additional genuine kills (Condition 1) and/or a governed resolution of the mutation-surface completeness blind spot (Condition 3) before a formal Step-9/QG transaction on `P3-FEATURE-QG-EVID-03` could plausibly pass.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.322"` → `"10.323"`.
+
+## `feature-engine` — Condition-1 Mutation Score Remediation Batch 1 (NON-GATING diagnostic; 17/17 targeted survivors killed)
+
+**Bounded, test-only remediation transaction — vai trò: `Feature Engine Condition-1 Mutation Score Remediation Executor`.** Strengthens 6 existing tests across 3 files to close 17 genuine observable message-content gaps drawn from the current non-material survivor pool (original Step-4 category `low_materiality_message_text`, outside the now-resolved 170-ID Condition-2 set). Does NOT modify `python/feature-engine/src/**`/`tooling/**`, does NOT reinterpret the approved reclassification decision, does NOT change the raw denominator, does NOT perform a formal Step-9/QG evaluation.
+
+**Fresh boundary verification (before any edit):** HEAD confirmed exactly `561cfc97a46b56af703636c6df8952977b63a527` via `git rev-parse HEAD`, matching this task's own expected boundary.
+
+### Target population (17, resolved directly from the Step-4 analysis + current diagnostic)
+
+```text
+candle_window.xǁCandleWindowFeatureEngineǁ__init__ mutmut_11/12/18/20/21/
+  22/23/24/25/26/27/28 (12 IDs) -- constructor validation-guard message
+  text (string_case_mutation / string_literal_marker_mutation /
+  value_replaced_with_none), previously covered only by exception type or
+  a loose substring `match=` that XX-wrap/re-case corruptions survive.
+authority_resolver.x__find_repo_root mutmut_3/4/5 (3 IDs) -- repo-root-
+  not-found message's static second clause (string_case_mutation /
+  string_literal_marker_mutation), previously covered only by a leading-
+  substring `match=`.
+regime_passthrough.xǁRegimePassthroughFeatureEngineǁ_check_scope
+  mutmut_8/9 (2 IDs) -- foreign-scope rejection message
+  (string_case_mutation), previously covered only by exception TYPE, no
+  message assertion at all.
+```
+
+Each of the 17 was independently re-verified via `python -m tooling show <id>` against current source (not inferred from an older snapshot) before any test was written.
+
+### Tests strengthened (clustered by root cause)
+
+```text
+tests/test_candle_window.py: 3 tests strengthened -- exact-message
+  assertions kill mutmut_11/12 (one test), mutmut_18 (one test), and
+  mutmut_20/21/22/23/24/25/26/27/28 (9 mutants from ONE exact-message
+  assertion on the 4-sentence UnsupportedFeatureFormulaError text, using
+  the test fixture's own known formula_id).
+tests/test_authority_resolver.py: 1 test strengthened -- exact-message
+  assertion (both the dynamic {start!r} clause and the static reason
+  clause) kills mutmut_3/4/5.
+tests/test_regime_passthrough.py: 1 test strengthened -- exact-message
+  assertion kills mutmut_8/9.
+No brittle assertions added merely to match mutmut syntax -- every
+  asserted message is a static template (no caller-varying content beyond
+  values the test itself controls), so exact-string assertion is asserting
+  real, stable, actionable failure content, not incidental formatting.
+```
+
+### Verification results
+
+```text
+Ordinary suite: 226 passed (unchanged count -- all strengthened, none
+  added), 0 failed. tooling/tests/: 5 passed.
+ruff check tests/ src/: All checks passed.
+ruff format --check: pre-existing drift (1 file, test_regime_passthrough.py)
+  confirmed UNCHANGED before/after via git-stash comparison.
+mypy (strict, 25 source files): Success, no issues found.
+Independent fresh-venv re-verification (separate disposable venv, removed
+  after): 226 passed, 5 passed (tooling), ruff clean, mypy clean.
+Bounded NON-GATING mutation diagnostic (supporting only, NOT a formal
+  Step-9 transaction): all 17 targeted IDs re-run via `python -m tooling
+  run` in a disposable venv/mutants/ directory (removed after capture).
+  Result: 17/17 KILLED, 0/17 survived.
+```
+
+### Governance preservation
+
+```text
+Condition 2: SATISFIED (unchanged) -- 170/170 material identities remain
+  resolved per the approved reclassification decision; not reinterpreted.
+The 10 governedly-reclassified identities' raw historical mutmut statuses:
+  UNCHANGED, untouched.
+Raw denominator: 1531 (unchanged) -- no tool identity discontinuity
+  encountered; no fail-closed stop triggered.
+This bounded diagnostic's own 17/17 result is NOT recorded as a formal
+  Condition-1 PASS and no updated full-population raw score is computed
+  or claimed -- a later full fresh measurement (all 1531 mutants) is
+  required to establish the actual updated raw score.
+Condition 3 (mutation-surface completeness / blind spot): unresolved,
+  untouched.
+EVID-03: OPEN / blocking (unchanged). EVID-04..-08: OPEN / blocking
+  (unchanged, untouched). Overall Feature Chapter 13 QG: FAIL — evidence
+  (unchanged).
+Feature module approval: NOT APPROVED. Phase 3 Approval Gate: NOT opened.
+  LIVE: NOT_AUTHORIZED, unreferenced.
+No formal Step-9/QG evaluation performed. No ADR created. No production
+  or tooling change.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only python/feature-engine/tests/test_candle_window.py, tests/test_
+  authority_resolver.py, tests/test_regime_passthrough.py (all modified,
+  none new), docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via
+  `git status --porcelain=v1`). python/feature-engine/src/**, tooling/**
+  all verified byte-identical (`git diff --quiet`). No mutation-testing
+  workspace (mutants/, .mutmut-cache, disposable venvs) left behind.
+```
+
+### State summary
+
+```text
+Condition 1:                    still requires a formal full re-measurement
+                                to confirm; this bounded diagnostic shows
+                                17/17 targeted genuine gaps closed
+                                (supporting evidence only).
+Condition 2:                    SATISFIED (unchanged).
+Condition 3:                    unresolved (unchanged).
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, NOT evaluated).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Review A of this remediation batch.
+
+**Files changed:** `python/feature-engine/tests/test_candle_window.py`, `python/feature-engine/tests/test_authority_resolver.py`, `python/feature-engine/tests/test_regime_passthrough.py` (all modified, none new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.323"` → `"10.324"`.
 
 ## Decision Log
 
