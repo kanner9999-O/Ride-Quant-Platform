@@ -1,13 +1,16 @@
 # Feature Engine — Material-Gap Mutant Reclassification Candidate 001
 
 ```yaml
-status: CANDIDATE / NOT EFFECTIVE / PENDING REVIEW
+status: APPROVED / EFFECTIVE FOR CONDITION 2 ONLY (10/10 material identities
+  individually resolved); CONDITION 1 (raw score) AND CONDITION 3 (mutation-
+  surface completeness) SEPARATELY UNRESOLVED
 artifact_id: feature-engine-mutant-reclassification-candidate-001
 created_for: >
-  Proposing individual disposition of the 10 still-surviving material-gap
+  Proposing (and, after the full governance lifecycle below, governedly
+  resolving) individual disposition of the 10 still-surviving material-gap
   mutant identities after EVID-03 test-remediation Batches 1+2, per
   feature-engine-mutation-post-remediation-diagnostic-001.json.
-transaction_kind: PLANNING / DECISION-CANDIDATE ONLY
+transaction_kind: PLANNING / DECISION-CANDIDATE, THEN MECHANICAL APPROVAL RECORDING
 production_changed: false
 tests_changed: false
 tooling_changed: false
@@ -16,30 +19,36 @@ raw_score_changed: false
 formal_step9_qg_evaluation_performed: false
 repository_head_at_authoring: 0d69b7750ff319423f4aa4afdebc6c25a662c06d
 repository_head_at_bounded_correction: 72c0db1221ad26437956aae2a6e56c1c03fb4649
-review_a_findings_remediated_pending_re_review:
+repository_head_at_approval_recording: 261491709765eff5084d5d7289d2e4344e4f4273
+review_a_findings_closed_bounded_re_review:
   - P3-PY-MUT-RECLASS-A-MAJ-01
   - P3-PY-MUT-RECLASS-A-MIN-01
   - P3-PY-MUT-RECLASS-A-MIN-02
 ```
 
-This document is a **candidate**. Per `docs/constitution/00-governance.md`
+This document began as a **candidate**. Per `docs/constitution/00-governance.md`
 §3's review gate (minimum two independent reviews required before a Product
 Owner decision, Product Owner alone holding approve/reject authority — see
-§0a below), nothing in it becomes effective through Review A alone. The
-governed lifecycle this document must move through is:
+§0a below), nothing in it became effective through Review A alone. The
+governed lifecycle this document has now moved through in full is:
 
 ```text
 candidate (this document)
-  -> Review A (reviewer recommendation -- NOT approval authority)
-  -> Independent Review B (second, independent reviewer recommendation)
-  -> Product Owner decision (the sole approve/reject authority)
-  -> mechanical recording / effectiveness (only after Product Owner approval)
+  -> Review A (ChatGPT -- reviewer recommendation, NOT approval authority) -- COMPLETE
+  -> Independent Review B (Claude -- second, independent recommendation) -- COMPLETE
+  -> Product Owner decision (the sole approve/reject authority) -- APPROVED
+  -> mechanical recording / effectiveness -- THIS TRANSACTION (§8-§11 below)
 ```
 
-No `P3-FEATURE-QG-EVID-03` identity is closed by this document. No raw
-score, denominator, or ten-status count is touched. No production, test, or
-tooling file is modified by this transaction. All 10 identities below
-remain formally **UNRESOLVED** until that full lifecycle completes.
+No `P3-FEATURE-QG-EVID-03` identity is closed by this document — this
+lifecycle resolves only the approved threshold proposal's §4.1 **Condition
+2** (material-gap identity resolution) for these 10 identities; it is one
+input into, not a substitute for, `P3-FEATURE-QG-EVID-03`'s own eventual
+formal Step-9/QG evaluation. No raw score, denominator, or ten-status count
+is touched. No production, test, or tooling file is modified by this
+transaction. All 10 identities below are now **RESOLVED FOR CONDITION 2
+ONLY**, per §8-§11 below — their raw mutmut `survived` status in every
+historical evidence artifact is unchanged and un-overwritten.
 
 ### 0a. Governance lifecycle correction (P3-PY-MUT-RECLASS-A-MAJ-01 remediation)
 
@@ -56,10 +65,16 @@ place in this document that previously implied (a) Review A alone completes
 Testing Convention item-8 governance, (b) an identity may become resolved
 immediately after Review A, or (c) Review A is the final adjustment
 decision, has been corrected below to reflect the lifecycle stated above.
-This document's own status remains `CANDIDATE / NOT EFFECTIVE / PENDING
-REVIEW` and all 10 identities remain unresolved after this correction —
-this is a wording/lifecycle-accuracy fix, not a substantive change to any
-of the 10 classifications or to the candidate's own effectiveness.
+At the boundary of that bounded-correction transaction
+(`72c0db1221ad26437956aae2a6e56c1c03fb4649`), this document's own status
+remained `CANDIDATE / NOT EFFECTIVE / PENDING REVIEW` and all 10 identities
+remained unresolved — this was a wording/lifecycle-accuracy fix, not a
+substantive change to any of the 10 classifications or to the candidate's
+own effectiveness at that time. That status has since been superseded: the
+bounded Review A re-review, Independent Review B, and the Product Owner
+decision recorded in §8-§10 below have now completed the full lifecycle
+this section describes, and the candidate's current status is stated at
+the top of this document.
 
 ## 0. Authority resolved for this candidate
 
@@ -69,14 +84,16 @@ of the 10 classifications or to the candidate's own effectiveness.
   specific mutant from the denominator on an 'equivalent' basis requires ALL
   of: a deterministic, reproducible, exactly-pinned mutant identity...; an
   individually-recorded semantic justification...; and a governed adjustment
-  mechanism (a reviewed, recorded decision...)." This candidate supplies the
-  first two of these three for all 10 identities; it does **not** itself
-  constitute the third. The "reviewed, recorded decision" this item requires
-  is the FULL governance lifecycle in §0a (Review A recommendation ->
-  Independent Review B recommendation -> Product Owner decision) — not
-  Review A alone, which is a reviewer recommendation, not approval
-  authority. None of that lifecycle has been performed yet — hence
-  `NOT EFFECTIVE`.
+  mechanism (a reviewed, recorded decision...)." This candidate supplied the
+  first two of these three for all 10 identities from the outset; the third
+  — the "reviewed, recorded decision" — is the FULL governance lifecycle in
+  §0a (Review A recommendation -> Independent Review B recommendation ->
+  Product Owner decision), not Review A alone, which is a reviewer
+  recommendation, not approval authority. That full lifecycle has now been
+  performed and recorded in §8-§10 below (Review A CLEAN, Independent
+  Review B CLEAN, Product Owner APPROVE) — the adjustment mechanism is
+  therefore satisfied, and all 10 identities are now resolved for Condition
+  2 only (§11).
 - **Approved Feature Engine mutation threshold proposal §4.1** (material-gap
   identity-resolution condition) — defines the 170-ID population this
   candidate's 10 identities are drawn from, and confirms (per the proposal's
@@ -118,6 +135,16 @@ recorded in `feature-engine-mutation-baseline-001.json`,
 `measurement_boundary`. Source has not changed since any of those
 measurements — the diagnostic's survivor identities and this candidate's own
 fresh source reading are analyzing the exact same code.
+
+Re-confirmed, fail-closed, at this approval-recording transaction's own
+boundary before recording anything below:
+
+```text
+git rev-parse HEAD                                          -> 261491709765eff5084d5d7289d2e4344e4f4273
+git rev-parse HEAD:python/feature-engine/src                -> 256421344a48a6c9d4ef72f81eb82b27dbedfc50 (unchanged)
+git rev-parse HEAD:docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md
+                                                              -> 57c2373942512b3f1e233cade8b3e1de794aa76d (matches expected candidate blob exactly)
+```
 
 ## 1. Fresh Chapter 0 §4b ADR Scope Rule check (this decision, not inherited)
 
@@ -628,16 +655,18 @@ and what future change would invalidate the classification.
 | 9 | `swing_distance._reevaluate_all_windows__mutmut_6` | `continue` -> `break` | `STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE` |
 | 10 | `swing_distance._select_eligible_swing__mutmut_22` | `_total_order_key(item[0],item[1])` -> `(item[1],item[1])` | `STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE` |
 
-**Count proposed reclassifiable (either category): 10/10.**
+**Count proposed reclassifiable (either category): 10/10 — all 10 now
+governedly APPROVED (Condition 2 only) per §8-§10 below.**
 **Count `NOT_JUSTIFIED_FOR_RECLASSIFICATION`: 0/10** — no identity was forced
 through; each of the 10 has an independently-verified, source-grounded
 argument distinguishing genuine dead/inert-value equivalence from
-reachability-contingent unreachability. If Review A, Independent Review B,
-or the Product Owner finds any single argument above unpersuasive at any
-stage of the §0a lifecycle, that identity alone reverts to (or remains)
-`NOT_JUSTIFIED_FOR_RECLASSIFICATION` without affecting the other 9 — each
-disposition is independent per Testing Convention v0.16 item 8's own
-per-identity requirement.
+reachability-contingent unreachability. Review A, Independent Review B, and
+the Product Owner each independently confirmed all 10 arguments persuasive
+(§8-§10) — none reverted to `NOT_JUSTIFIED_FOR_RECLASSIFICATION`. Each
+disposition remains independent per Testing Convention v0.16 item 8's own
+per-identity requirement, and any single identity could still be
+individually reopened by a future governed decision without affecting the
+other 9.
 
 **Exact split: 3 `PROVABLY_EQUIVALENT`** (#1, #2, #8 — dead-store or
 truthiness-only-consumed field values, never distinguishable by any
@@ -655,20 +684,20 @@ be reached given the present call-graph discipline and/or the Chapter 8
   denominator. No file in that artifact is modified.
 - **Reclassification does NOT change numerator/denominator/raw score.** Per
   Testing Convention v0.16 item 8, equivalent/unreachable mutants "REMAIN IN
-  THE RAW DENOMINATOR by default" even once governedly reclassified — a
-  reclassification decision (once actually made, which this candidate does
-  NOT do) affects ONLY the approved threshold proposal's §4.1 material-gap
-  identity-resolution condition (condition 2), never condition 1's raw
-  score computation, which is derived purely from `killed`/`confirmed_
-  timeout`/`total`/`skipped`.
-- **Even if all 10 are ultimately approved as individually resolved,
-  Condition 1 still needs at least 9 additional qualifying kills** at the
-  current 1531 denominator: `ceil(0.87001959503592 * 1531) = 1332`;
-  `1332 - 1323 (current killed) = 9`. Reclassification of these 10 IDs would
-  fully satisfy condition 2 (170/170 material-gap identities resolved) but
-  leaves condition 1 (raw score >= 87.001959503592%) requiring 9 more
-  genuine kills achieved through further test remediation — reclassification
-  is not a substitute for that work.
+  THE RAW DENOMINATOR by default" even once governedly reclassified — the
+  reclassification decision now recorded (§8-§11) affects ONLY the approved
+  threshold proposal's §4.1 material-gap identity-resolution condition
+  (condition 2), never condition 1's raw score computation, which is
+  derived purely from `killed`/`confirmed_timeout`/`total`/`skipped`.
+- **Now that all 10 are governedly approved as individually resolved for
+  Condition 2 (§11), Condition 1 still needs at least 9 additional
+  qualifying kills** at the current 1531 denominator:
+  `ceil(0.87001959503592 * 1531) = 1332`; `1332 - 1323 (current killed) =
+  9`. This approval fully satisfies condition 2 (170/170 material-gap
+  identities now resolved) but leaves condition 1 (raw score >=
+  87.001959503592%) requiring 9 more genuine kills achieved through
+  further test remediation — this reclassification approval is not a
+  substitute for that work.
 - **Mutation-surface completeness / blind-spot condition (condition 3)
   remains unresolved separately** — unaffected by, and out of scope for,
   this candidate. `feature-engine-mutation-baseline-001-analysis.md` §2's 12
@@ -677,66 +706,148 @@ be reached given the present call-graph discipline and/or the Chapter 8
   evidence, or recorded Product Owner risk-acceptance — this candidate does
   not touch that dimension at all.
 
-## 5. Preserved (unchanged by this candidate)
+## 5. Preserved (unchanged by the approval recorded in this document)
 
 ```text
 TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
-All 10 IDs above:              still formally UNRESOLVED / still counted as
-                                survived in every existing evidence artifact,
-                                until the full §0a governance lifecycle
-                                (Review A recommendation -> Independent
-                                Review B recommendation -> Product Owner
-                                decision -> mechanical recording) completes
-                                and accepts some/all/none of the
-                                classifications proposed here. Review A
-                                alone cannot make any identity resolved.
-P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, not evaluated).
+All 10 IDs above:              RESOLVED FOR CONDITION 2 ONLY (governed
+                                reclassification APPROVED, per §8-§11) --
+                                their raw mutmut `survived` status in every
+                                historical evidence artifact (baseline-001,
+                                step9-formal-evidence-001, post-remediation-
+                                diagnostic-001) is UNCHANGED and NOT
+                                overwritten; the raw denominator (1531) and
+                                numerator (killed=1323) are UNCHANGED; raw
+                                score remains 86.41410842586545%.
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, NOT evaluated or
+                                closed by this approval -- Condition 1 and
+                                Condition 3 remain separately unresolved).
 P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
 Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
-No formal Step-9/QG evaluation performed by this candidate.
+No formal Step-9/QG evaluation performed by this transaction.
+No mutation testing run by this transaction.
+No ADR created (ADR_NOT_REQUIRED, confirmed independently by both Review A
+  and Independent Review B).
 Feature module approval:       NOT APPROVED.
 Phase 3 Approval Gate:         NOT opened.
 LIVE:                           NOT_AUTHORIZED, unreferenced.
 ```
 
-## 6. Review A findings from the prior review pass, and this correction's disposition
+## 6. Review A findings from the bounded-correction review pass — now closed
 
 ```text
-P3-PY-MUT-RECLASS-A-MAJ-01 (governance lifecycle): REMEDIATED — PENDING
-  BOUNDED REVIEW A RE-REVIEW. Corrected every place implying Review A alone
-  completes Testing Convention item-8 governance, that identities may
-  become resolved immediately after Review A, or that Review A is the
-  final adjustment decision -- see §0a above and the corrected wording
-  throughout §0, the ADR scope table, §3, §5, and §7 below. Candidate
-  status remains CANDIDATE / NOT EFFECTIVE / PENDING REVIEW; all 10
-  identities remain unresolved.
-P3-PY-MUT-RECLASS-A-MIN-01 (cursor predicate factual wording): REMEDIATED
-  — PENDING BOUNDED REVIEW A RE-REVIEW. §2.4 corrected: is_visible_at_
-  cursor returns False (not True) when ref.stream_id is outside included_
-  streams. The substantive recorded-time dominance proof is unchanged.
-P3-PY-MUT-RECLASS-A-MIN-02 (_recompute reachability wording): REMEDIATED
-  — PENDING BOUNDED REVIEW A RE-REVIEW. §2.7 corrected: states precisely
-  that the complete current production/module call graph has two
-  _recompute call sites, both pairing the arguments, but a direct private
-  invocation could construct a mismatched pair -- classification is
-  structural unreachability under the current authoritative/public
-  production state space, NOT mathematical equivalence. Classification
-  itself (STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE)
-  was already correct and is unchanged; only the overclaiming sentence was
-  corrected.
+P3-PY-MUT-RECLASS-A-MAJ-01 (governance lifecycle): CLOSED — BOUNDED REVIEW
+  A RE-REVIEW. The bounded correction (repository HEAD
+  72c0db1221ad26437956aae2a6e56c1c03fb4649) corrected every place implying
+  Review A alone completes Testing Convention item-8 governance, that
+  identities may become resolved immediately after Review A, or that
+  Review A is the final adjustment decision -- see §0a above and the
+  corrected wording throughout §0, the ADR scope table, §3, and §5. Review
+  A's bounded re-review (§8 below) confirmed the correction adequate and
+  closed this finding.
+P3-PY-MUT-RECLASS-A-MIN-01 (cursor predicate factual wording): CLOSED —
+  BOUNDED REVIEW A RE-REVIEW. §2.4 corrected: is_visible_at_cursor returns
+  False (not True) when ref.stream_id is outside included_streams. The
+  substantive recorded-time dominance proof was unchanged. Review A's
+  bounded re-review confirmed the correction adequate and closed this
+  finding.
+P3-PY-MUT-RECLASS-A-MIN-02 (_recompute reachability wording): CLOSED —
+  BOUNDED REVIEW A RE-REVIEW. §2.7 corrected to state precisely that the
+  complete current production/module call graph has two _recompute call
+  sites, both pairing the arguments, but a direct private invocation could
+  construct a mismatched pair -- classification is structural
+  unreachability under the current authoritative/public production state
+  space, NOT mathematical equivalence. The classification itself
+  (STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE) was
+  already correct and unchanged; only the overclaiming sentence was
+  corrected. Review A's bounded re-review confirmed the correction
+  adequate and closed this finding.
 ```
 
-None of these three findings is self-closed by this document — each remains
-open pending the bounded Review A re-review this correction itself requests
-(§7).
+## 7. Fresh Chapter 0 §4b ADR Scope Rule re-check (approval-recording transaction)
 
-## 7. Next governed action
+```text
+Result: ADR_NOT_REQUIRED -- pure mechanical review/approval-recording of
+  an already-completed review lifecycle for a document-level, single-
+  module, reversible, non-invariant/non-schema/non-taxonomy-affecting
+  classification decision (identical reasoning as §1's original check).
+  Independently confirmed by both Review A and Independent Review B below.
+```
 
-**Bounded Review A re-review of this correction** — the same review pass
-must re-examine whether `P3-PY-MUT-RECLASS-A-MAJ-01`,
-`P3-PY-MUT-RECLASS-A-MIN-01`, and `P3-PY-MUT-RECLASS-A-MIN-02` are now
-adequately remediated. Only after that re-review, followed by the full §0a
-lifecycle (Independent Review B recommendation, then a Product Owner
-decision), may any of these 10 identities be marked resolved in a formal
-Step-9/QG transaction's material-gap condition. This document does not
-perform that re-review, Review B, or the Product Owner decision itself.
+## 8. Review A — ChatGPT (AI Technical Architect / Review A), bounded re-review at semantic boundary `261491709765eff5084d5d7289d2e4344e4f4273`
+
+```text
+P3-PY-MUT-RECLASS-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-RECLASS-A-MIN-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-RECLASS-A-MIN-02: CLOSED — BOUNDED REVIEW A RE-REVIEW
+Blocker 0 / Major 0 / Minor 0
+FINAL REVIEW A VALIDATION: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+```
+
+## 9. Independent Review B — Claude (AI Technical Architect / Independent Review B), same boundary/blob, ADR-031 mode `Mode A — DISTINCT_PRINCIPAL`, execution/session reference not available (none fabricated)
+
+```text
+All 10 classifications (§2.1-§2.10, §3) independently confirmed: 3
+  PROVABLY_EQUIVALENT (#1, #2, #8), 7
+  STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE (#3-7,
+  9, 10).
+P3-PY-MUT-RECLASS-A-MAJ-01: confirmed CLOSED.
+P3-PY-MUT-RECLASS-A-MIN-01: confirmed CLOSED.
+P3-PY-MUT-RECLASS-A-MIN-02: confirmed CLOSED.
+ADR_NOT_REQUIRED: confirmed.
+Blocker 0 / Major 0 / Minor 0
+INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+`ChatGPT` (Review A) and `Claude` (Independent Review B) are two distinct
+registered principals per `docs/team/team.yaml`, both holding role `AI
+Technical Architect`, peers with no individual veto — satisfying Mode A
+(`DISTINCT_PRINCIPAL`) independence per `docs/constitution/00-governance.md`
+§3 without requiring execution-isolation evidence (ADR-031 §5, Mode B).
+
+## 10. Product Owner decision (verbatim)
+
+```text
+"APPROVE Feature Engine Material Mutant Reclassification Candidate 001 at
+  boundary 261491709765eff5084d5d7289d2e4344e4f4273."
+```
+
+## 11. Effect of approval
+
+```text
+Candidate 001 mechanically transitions to APPROVED / EFFECTIVE reclassification
+  state for approved threshold Condition 2 ONLY.
+The 10 pinned material identities (§2.1-§2.10, §3) become INDIVIDUALLY
+  RESOLVED for Condition 2 (material-gap identity-resolution) --
+  3 PROVABLY_EQUIVALENT (#1 current_view.on_feature_computed__mutmut_19,
+  #2 on_feature_computed__mutmut_29, #8 swing_distance._recompute__
+  mutmut_46) and 7 STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_
+  STATE_SPACE (#3 x__total_order_key__mutmut_3, #4 _emit_original__
+  mutmut_13, #5 _emit_replacement_only__mutmut_16, #6 _preempt_settled_
+  window__mutmut_20, #7 _recompute__mutmut_23, #9 _reevaluate_all_
+  windows__mutmut_6, #10 _select_eligible_swing__mutmut_22).
+Their raw mutmut statuses in every historical evidence artifact
+  (feature-engine-mutation-baseline-001.json, feature-engine-mutation-
+  step9-formal-evidence-001.json, feature-engine-mutation-post-
+  remediation-diagnostic-001.json) are NOT changed and NOT overwritten --
+  each still records `survived` exactly as measured.
+Raw denominator: 1531 -- unchanged. Raw numerator (killed): 1323 --
+  unchanged. Raw score: 86.41410842586545% -- unchanged.
+Condition 1 (raw score >= 87.001959503592%): still UNMET -- still requires
+  at least 9 additional GENUINE kills (ceil(0.87001959503592 * 1531) =
+  1332; 1332 - 1323 = 9). Reclassification approval does not supply them.
+Condition 3 (mutation-surface completeness / 5 high-materiality blind-spot
+  methods): remains UNRESOLVED -- unaffected by this approval.
+```
+
+## 12. Next governed action
+
+None specific to this candidate — its own governed lifecycle (candidate ->
+Review A -> Independent Review B -> Product Owner decision -> mechanical
+recording) is now COMPLETE. The next FEATURE-ENGINE-level governed action,
+outside this candidate's own scope, is a further bounded test-remediation
+transaction targeting at least 9 additional genuine kills (Condition 1) and/
+or a governed resolution of the mutation-surface completeness blind spot
+(Condition 3) — only after both, together with this candidate's now-approved
+Condition 2, would a formal Step-9/QG transaction on `P3-FEATURE-QG-EVID-03`
+plausibly pass.

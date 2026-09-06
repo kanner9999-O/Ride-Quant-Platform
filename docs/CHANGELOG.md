@@ -2,6 +2,84 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-06 — feature-engine: reclassification candidate 001 mechanical review/approval recording (APPROVED / EFFECTIVE FOR CONDITION 2 ONLY)
+
+**Mechanical review/approval recording transaction — vai trò: `Feature Engine Mutant Reclassification Approval Recorder`.** Records externally-completed Review A (ChatGPT), Independent Review B (Claude), and Product Owner approval for `feature-engine-mutant-reclassification-candidate-001.md` at reviewed boundary `261491709765eff5084d5d7289d2e4344e4f4273`. Does NOT reinterpret or re-review semantics. No source/tests/tooling change. No raw score/denominator/numerator change. No formal Step-9/QG evaluation. No ADR created.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `261491709765eff5084d5d7289d2e4344e4f4273` via `git rev-parse HEAD`, matching this task's own expected boundary; candidate blob confirmed exactly `57c2373942512b3f1e233cade8b3e1de794aa76d`, matching this task's own expected candidate blob; `python/feature-engine/src` re-confirmed byte-identical to every prior measurement (`256421344a48a6c9d4ef72f81eb82b27dbedfc50`).
+
+### Review A — ChatGPT, bounded re-review at semantic boundary `261491709765eff5084d5d7289d2e4344e4f4273`
+
+```text
+P3-PY-MUT-RECLASS-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-RECLASS-A-MIN-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-RECLASS-A-MIN-02: CLOSED — BOUNDED REVIEW A RE-REVIEW
+Blocker 0 / Major 0 / Minor 0
+FINAL REVIEW A VALIDATION: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+```
+
+### Independent Review B — Claude, same boundary/blob, Mode A — DISTINCT_PRINCIPAL (execution/session reference not available, none fabricated)
+
+```text
+All 10 classifications independently confirmed: 3 PROVABLY_EQUIVALENT, 7
+  STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE.
+P3-PY-MUT-RECLASS-A-MAJ-01/-MIN-01/-MIN-02: confirmed CLOSED.
+ADR_NOT_REQUIRED: confirmed.
+Blocker 0 / Major 0 / Minor 0
+INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+`ChatGPT` and `Claude` are two distinct registered principals per `docs/team/team.yaml`, both holding role `AI Technical Architect`, satisfying Mode A (`DISTINCT_PRINCIPAL`) independence per `docs/constitution/00-governance.md` §3.
+
+### Product Owner decision (verbatim)
+
+```text
+"APPROVE Feature Engine Material Mutant Reclassification Candidate 001 at
+  boundary 261491709765eff5084d5d7289d2e4344e4f4273."
+```
+
+### Effect of approval
+
+```text
+Candidate 001 transitions to APPROVED / EFFECTIVE for approved threshold
+  Condition 2 ONLY. All 10 pinned material identities (3 PROVABLY_
+  EQUIVALENT, 7 STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_
+  STATE_SPACE) become individually resolved for Condition 2.
+Raw mutmut statuses in every historical evidence artifact (baseline-001,
+  step9-formal-evidence-001, post-remediation-diagnostic-001): UNCHANGED,
+  NOT overwritten -- each still records `survived`.
+Raw denominator: 1531 (unchanged). Raw numerator (killed): 1323
+  (unchanged). Raw score: 86.41410842586545% (unchanged).
+Condition 1 (raw score >= 87.001959503592%): still UNMET -- still requires
+  at least 9 additional genuine kills (ceil(0.87001959503592 * 1531) =
+  1332; 1332 - 1323 = 9).
+Condition 3 (mutation-surface completeness / 5 high-materiality blind-spot
+  methods): remains UNRESOLVED, unaffected by this approval.
+```
+
+### State summary
+
+```text
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+All 10 material IDs:           RESOLVED FOR CONDITION 2 ONLY (approved).
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, NOT evaluated
+                                or closed -- Condition 1 and Condition 3
+                                remain separately unresolved).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+No formal Step-9/QG evaluation performed. No mutation testing run. No ADR
+  created (ADR_NOT_REQUIRED, confirmed by both reviews).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed action:** none specific to this now-complete candidate lifecycle; the next Feature-Engine-level governed action is a further bounded test-remediation transaction targeting ≥9 additional genuine kills (Condition 1) and/or a governed resolution of the mutation-surface completeness blind spot (Condition 3) before a formal Step-9/QG transaction on `P3-FEATURE-QG-EVID-03` could plausibly pass.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.322"` → `"10.323"`.
+
+---
+
 ## [Unreleased] — 2026-09-06 — feature-engine: reclassification candidate 001 bounded correction (Review A findings; still CANDIDATE / NOT EFFECTIVE / PENDING REVIEW)
 
 **Bounded correction — vai trò: `Mutant Reclassification Candidate 001 Bounded Correction Executor`.** Corrects `feature-engine-mutant-reclassification-candidate-001.md` per one Review A pass (1 Major, 2 Minor). No source/tests/tooling change, no raw score/denominator/threshold/QG state change. Preserves all 10 proposed per-mutant classifications unchanged.

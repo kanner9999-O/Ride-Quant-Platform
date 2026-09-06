@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.322"
+manifest_version: "10.323"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -21927,6 +21927,124 @@ python/feature-engine/src/**, tests/**, tooling/** all verified byte-
 **Next governed step:** bounded Review A re-review of this correction, followed (per the corrected SS0a lifecycle) by Independent Review B and a Product Owner decision before any of the 10 identities may be marked resolved.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.321"` → `"10.322"`.
+
+## `feature-engine` — Mutant Reclassification Candidate 001 Mechanical Review/Approval Recorder (Review A `CLEAN — READY_FOR_INDEPENDENT_REVIEW_B`; Independent Review B `CLEAN — READY_FOR_PRODUCT_OWNER_DECISION`; Product Owner `APPROVED`; `P3-PY-MUT-RECLASS-A-MAJ-01`/`-MIN-01`/`-MIN-02` all `CLOSED`)
+
+**Mechanical review/approval recording transaction — vai trò: `Feature Engine Mutant Reclassification Approval Recorder`.** Records externally-completed Review A (ChatGPT), Independent Review B (Claude), and Product Owner approval for `feature-engine-mutant-reclassification-candidate-001.md` at reviewed boundary `261491709765eff5084d5d7289d2e4344e4f4273`. Does NOT reinterpret or re-review semantics — records existing external decisions only. No production/tests/tooling change. No raw score/denominator/numerator change. No formal Step-9/QG evaluation. No ADR created.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `261491709765eff5084d5d7289d2e4344e4f4273` via `git rev-parse HEAD`, matching this task's own expected boundary; `origin/main` fetched and confirmed identical (no drift). Candidate blob confirmed exactly `57c2373942512b3f1e233cade8b3e1de794aa76d` via `git rev-parse HEAD:docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md`, matching this task's own expected candidate blob exactly. `python/feature-engine/src` re-confirmed byte-identical to every prior measurement (`256421344a48a6c9d4ef72f81eb82b27dbedfc50`).
+
+### Review A — ChatGPT (AI Technical Architect / Review A), bounded re-review at semantic boundary `261491709765eff5084d5d7289d2e4344e4f4273`
+
+```text
+P3-PY-MUT-RECLASS-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-RECLASS-A-MIN-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-RECLASS-A-MIN-02: CLOSED — BOUNDED REVIEW A RE-REVIEW
+Blocker 0 / Major 0 / Minor 0
+FINAL REVIEW A VALIDATION: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+```
+
+### Independent Review B — Claude (AI Technical Architect / Independent Review B), same boundary/blob, ADR-031 mode `Mode A — DISTINCT_PRINCIPAL`, execution/session reference not available (none fabricated)
+
+```text
+All 10 classifications independently confirmed: 3 PROVABLY_EQUIVALENT
+  (current_view.on_feature_computed__mutmut_19, on_feature_computed__
+  mutmut_29, swing_distance._recompute__mutmut_46), 7 STRUCTURALLY_
+  UNREACHABLE_UNDER_CURRENT_AUTHORITATIVE_STATE_SPACE (x__total_order_
+  key__mutmut_3, _emit_original__mutmut_13, _emit_replacement_only__
+  mutmut_16, _preempt_settled_window__mutmut_20, _recompute__mutmut_23,
+  _reevaluate_all_windows__mutmut_6, _select_eligible_swing__mutmut_22).
+P3-PY-MUT-RECLASS-A-MAJ-01: confirmed CLOSED.
+P3-PY-MUT-RECLASS-A-MIN-01: confirmed CLOSED.
+P3-PY-MUT-RECLASS-A-MIN-02: confirmed CLOSED.
+ADR_NOT_REQUIRED: confirmed.
+Blocker 0 / Major 0 / Minor 0
+INDEPENDENT REVIEW B: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+`ChatGPT` (Review A) and `Claude` (Independent Review B) are two distinct registered principals per `docs/team/team.yaml`, both holding role `AI Technical Architect`, peers with no individual veto — satisfying Mode A (`DISTINCT_PRINCIPAL`) independence per `docs/constitution/00-governance.md` §3, without requiring execution-isolation evidence (ADR-031 §5, Mode B). No execution/session identifier fabricated.
+
+### Product Owner decision (verbatim)
+
+```text
+"APPROVE Feature Engine Material Mutant Reclassification Candidate 001 at
+  boundary 261491709765eff5084d5d7289d2e4344e4f4273."
+```
+
+### ADR Scope Rule (this transaction)
+
+```text
+Result: ADR_NOT_REQUIRED -- pure mechanical review/approval-recording of an
+  already-completed review lifecycle for a document-level, single-module,
+  reversible, non-invariant/non-schema/non-taxonomy-affecting
+  classification decision. Independently confirmed by both Review A and
+  Independent Review B.
+```
+
+### Effect of approval — mechanical transition, Condition 2 only
+
+```text
+Candidate 001 transitions to APPROVED / EFFECTIVE for approved threshold
+  Condition 2 ONLY. The 10 pinned material identities become individually
+  resolved for Condition 2 (material-gap identity-resolution):
+  3 PROVABLY_EQUIVALENT + 7 STRUCTURALLY_UNREACHABLE_UNDER_CURRENT_
+  AUTHORITATIVE_STATE_SPACE (full list in the candidate document's own
+  SS11).
+Raw mutmut statuses in every historical evidence artifact (feature-engine-
+  mutation-baseline-001.json, feature-engine-mutation-step9-formal-
+  evidence-001.json, feature-engine-mutation-post-remediation-diagnostic-
+  001.json): NOT changed, NOT overwritten -- each still records `survived`
+  exactly as measured.
+Raw denominator: 1531 (unchanged). Raw numerator (killed): 1323
+  (unchanged). Raw score: 86.41410842586545% (unchanged).
+Condition 1 (raw score >= 87.001959503592%): still UNMET -- still requires
+  at least 9 additional GENUINE kills (ceil(0.87001959503592 * 1531) =
+  1332; 1332 - 1323 = 9). This approval does not supply them.
+Condition 3 (mutation-surface completeness / 5 high-materiality blind-spot
+  methods): remains UNRESOLVED, unaffected by this approval.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutant-
+  reclassification-candidate-001.md (modified), docs/MANIFEST.md, docs/
+  CHANGELOG.md changed (confirmed via `git status --porcelain=v1`).
+python/feature-engine/src/**, tests/**, tooling/** all verified byte-
+  identical (`git diff --quiet`). No mutation run performed. No formal
+  Step-9/QG evidence transaction performed or recorded. No threshold
+  semantics changed. `P3-FEATURE-QG-EVID-03` NOT closed -- Condition 1 and
+  Condition 3 remain separately unresolved. `P3-FEATURE-QG-EVID-04..-08`
+  untouched. Feature Engine not approved. Phase 3 gate not opened. LIVE not
+  authorized. No ADR created.
+```
+
+### State summary
+
+```text
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+All 10 material IDs:           RESOLVED FOR CONDITION 2 ONLY (APPROVED --
+                                Review A CLEAN, Independent Review B CLEAN,
+                                Product Owner APPROVE).
+Raw denominator:                1531 (unchanged).
+Raw numerator (killed):         1323 (unchanged).
+Raw score:                      86.41410842586545% (unchanged).
+Condition 1:                    still UNMET -- >= 9 additional genuine
+                                kills still required.
+Condition 3:                    still UNRESOLVED (mutation-surface
+                                completeness blind spot).
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, NOT evaluated
+                                or closed).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** none specific to this now-complete candidate lifecycle; the next Feature-Engine-level governed action is a further bounded test-remediation transaction targeting ≥9 additional genuine kills (Condition 1) and/or a governed resolution of the mutation-surface completeness blind spot (Condition 3) before a formal Step-9/QG transaction on `P3-FEATURE-QG-EVID-03` could plausibly pass.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutant-reclassification-candidate-001.md` (modified), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.322"` → `"10.323"`.
 
 ## Decision Log
 
