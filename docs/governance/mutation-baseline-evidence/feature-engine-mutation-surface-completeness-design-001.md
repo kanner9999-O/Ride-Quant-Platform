@@ -1,7 +1,7 @@
 # Feature Engine — Mutation-Surface Completeness (Condition 3) Design Candidate 001
 
 ```yaml
-status: CANDIDATE / NOT EFFECTIVE / PENDING REVIEW
+status: APPROVED — DESIGN EFFECTIVE (Condition-3 fault-injection mechanism only) / IMPLEMENTATION NOT PERFORMED
 artifact_id: feature-engine-mutation-surface-completeness-design-001
 created_for: >
   Designing (not implementing) one governed mechanism to resolve EVID-03's
@@ -30,28 +30,70 @@ bounded_correction_001:
       status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
     - id: P3-PY-MUT-COND3-A-MIN-02
       status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+approval_recording_001:
+  recorded_at_repository_head: 35a4e5f281b38718602c2a0b4ef8ae08c7a76807
+  recorded_candidate_blob_before_recording: dfacc99acba9b53a3ad9b4167b2197a3226d2c2b
+  review_a:
+    reviewer: "ChatGPT — AI Technical Architect / Review A"
+    reviewed_boundary: 35a4e5f281b38718602c2a0b4ef8ae08c7a76807
+    performed_by: "external to this recording transaction — this transaction only transcribes the completed review's own closures"
+    closures:
+      - id: P3-PY-MUT-COND3-A-MAJ-01
+        status: "CLOSED — BOUNDED REVIEW A RE-REVIEW"
+      - id: P3-PY-MUT-COND3-A-MAJ-02
+        status: "CLOSED — BOUNDED REVIEW A RE-REVIEW"
+      - id: P3-PY-MUT-COND3-A-MAJ-03
+        status: "CLOSED — BOUNDED REVIEW A RE-REVIEW"
+      - id: P3-PY-MUT-COND3-A-MIN-01
+        status: "CLOSED — BOUNDED REVIEW A RE-REVIEW"
+      - id: P3-PY-MUT-COND3-A-MIN-02
+        status: "CLOSED — BOUNDED REVIEW A RE-REVIEW"
+    counts: { blocker: 0, major: 0, minor: 0 }
+    disposition: "CLEAN — READY_FOR_INDEPENDENT_REVIEW_B"
+  review_b:
+    reviewer_principal: "Claude"
+    role: "AI Technical Architect / Independent Review B"
+    adr_031_mode: "Mode A — DISTINCT_PRINCIPAL"
+    reviewed_boundary: 35a4e5f281b38718602c2a0b4ef8ae08c7a76807
+    reviewed_candidate_blob: dfacc99acba9b53a3ad9b4167b2197a3226d2c2b
+    counts: { blocker: 0, major: 0, minor: 0 }
+    disposition: "CLEAN — READY_FOR_PRODUCT_OWNER_DECISION"
+  product_owner_decision:
+    verbatim: "APPROVE Feature Engine Mutation-Surface Completeness (Condition 3) Design Candidate 001 at boundary 35a4e5f281b38718602c2a0b4ef8ae08c7a76807."
+    authority: "Product Owner — sole approval authority"
+  adr_disposition: "ADR_OPTIONAL — ADR NOT AUTHORED"
+  approved_scope: "Condition-3 deterministic fault-injection design/mechanism only"
 ```
 
-This document is a **design candidate**. It proposes a mechanism and, for
-each of the 5 named high-materiality methods, a concrete fault-class plan —
-it does **not** execute any fault injection, does not add or modify any
-test, and does not close `P3-FEATURE-QG-EVID-03` or any part of it. Nothing
-below is effective until a separately recorded review/approval decision
-accepts this design (or an amended version of it), and a **separate,
-later** implementation transaction actually authors and runs the harness
-against pinned source.
+This document was authored as a **design candidate**, proposing a mechanism
+and, for each of the 5 named high-materiality methods, a concrete
+fault-class plan. It has now been **approved** (recording below) — but the
+approval covers the DESIGN/MECHANISM only. It still does **not** execute
+any fault injection, does not add or modify any test, and does not close
+`P3-FEATURE-QG-EVID-03` or any part of it. A **separate, later**
+implementation transaction must still author the required tests, build
+the harness, and run it against pinned source before any Condition-3
+evidence exists.
 
-**Bounded correction 001 (this revision):** five findings from Review A of
-the original candidate (blob `6d3b9bd9c104e7b2617dffa36a784457fdf7b8b8`) are
-remediated below — an isolation-based mechanism replacing the original
-canonical-working-tree patch/restore approach (`MAJ-01`), a clean-control
-contract plus a widened, fail-closed verdict enum with strengthened
-activation proof (`MAJ-02`), a corrected call-path analysis and required new
-test surface for `FI-STATIC-PROVIDER-01` (`MAJ-03`), a corrected
-`FeatureDefinition.__post_init__` guard count of 27 (not 25) (`MIN-01`), and
-corrected `FI-DECIMAL-POSTINIT-02` test-readiness wording (`MIN-02`). Each
-finding is recorded as `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW` in
-the header above — none is self-closed by this transaction.
+**Bounded correction 001:** five findings from Review A of the original
+candidate (blob `6d3b9bd9c104e7b2617dffa36a784457fdf7b8b8`) were remediated
+— an isolation-based mechanism replacing the original canonical-working-
+tree patch/restore approach (`MAJ-01`), a clean-control contract plus a
+widened, fail-closed verdict enum with strengthened activation proof
+(`MAJ-02`), a corrected call-path analysis and required new test surface
+for `FI-STATIC-PROVIDER-01` (`MAJ-03`), a corrected `FeatureDefinition.
+__post_init__` guard count of 27 (not 25) (`MIN-01`), and corrected
+`FI-DECIMAL-POSTINIT-02` test-readiness wording (`MIN-02`).
+
+**Approval recording 001 (this revision, mechanical only — see §9):** the
+bounded correction's five findings were externally re-reviewed and closed
+(Review A), the corrected candidate was independently re-examined by a
+distinct review principal (Review B, ADR-031 Mode A —
+`DISTINCT_PRINCIPAL`), and the Product Owner recorded an explicit APPROVE
+decision at this exact boundary. This transaction performed none of those
+three reviews/decisions itself — it only mechanically transcribes their
+already-completed outcomes into this document, `docs/MANIFEST.md`, and
+`docs/CHANGELOG.md`. See §9 for the full recording.
 
 ## 0. Authority resolved
 
@@ -808,41 +850,168 @@ own exact, closed set, with `confirmed_timeout` pinned as a visibly
 separate, clearly-labeled supplemental field, never commingled as if an
 11th raw status.
 
-## 7. Preserved (unchanged by this design)
+## 7. Preserved (unaffected by the design/mechanism approval recorded in §8)
+
+The design/mechanism is now APPROVED (§8) — but approval of the mechanism
+itself changes none of the following. Condition 3 remains UNRESOLVED
+until the (now-approved) mechanism is actually implemented and EXECUTED
+against all 5 methods with a qualifying result each (§9):
 
 ```text
 Condition 1:                    evidence-ready (Checkpoint 002, raw score
                                 87.65512736773351%) -- NOT a formal PASS,
-                                unaffected by this design.
+                                unaffected by this approval.
 Condition 2:                    SATISFIED (170/170) -- unaffected.
-Condition 3:                    UNRESOLVED -- remains unresolved until this
-                                (or an amended) mechanism is reviewed,
-                                approved, AND EXECUTED against all 5
-                                methods with a qualifying result each.
-P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, not evaluated).
+Condition 3:                    UNRESOLVED -- the mechanism is now
+                                approved, but no fault has been executed
+                                and no evidence exists yet; remains
+                                unresolved until the implementation
+                                transaction (§9) EXECUTES all 5 methods'
+                                fault records with a qualifying result
+                                each.
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, not evaluated
+                                -- approving the design/mechanism does not
+                                close this finding).
 P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
 Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
 No formal Step-9/QG evaluation performed. No fault injection performed. No
-  production/test/tooling file modified. No ADR authored.
+  production/test/tooling file modified. ADR_OPTIONAL -- ADR NOT
+  AUTHORED (§8.4).
 Feature module approval:       NOT APPROVED.
 Phase 3 Approval Gate:         NOT opened.
 LIVE:                           NOT_AUTHORIZED, unreferenced.
 ```
 
-## 8. Next governed action
+## 8. Governance recording: bounded Review A re-review, Independent Review B, Product Owner decision, lifecycle transition
 
-**Bounded Review A re-review of this corrected design candidate.** The
-five findings remediated by bounded correction 001 (`P3-PY-MUT-COND3-A-
-MAJ-01/02/03`, `P3-PY-MUT-COND3-A-MIN-01/02`) are each recorded in the
-header as `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`, not
-self-closed — an independent reviewer must re-examine specifically
-whether each correction is adequate (the isolation-based mechanism, the
-clean-control/verdict-enum contract and strengthened activation proof, the
-corrected `FI-STATIC-PROVIDER-01` call-path analysis and its two required
-new tests, the corrected 27-guard count, and the corrected
-`FI-DECIMAL-POSTINIT-02` test-readiness wording) before any finding may be
-closed. Only after that re-review accepts (or further amends) this design
-may a SEPARATE, later implementation transaction author the proposed new
-tests, build the harness, execute the fault records, and pin the
-resulting evidence artifact toward Condition 3's resolution. This document
-performs none of that itself.
+This section is a **mechanical recording** of three externally-completed
+governance steps and the resulting lifecycle transition. This recording
+transaction did not itself perform any review or decide anything — it
+transcribes outcomes already reached elsewhere, at the exact reviewed
+boundary/blob, into this document.
+
+### 8.1 Bounded Review A re-review — recorded closures
+
+```text
+reviewer:            ChatGPT — AI Technical Architect / Review A
+reviewed_boundary:   35a4e5f281b38718602c2a0b4ef8ae08c7a76807
+
+P3-PY-MUT-COND3-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-COND3-A-MAJ-02: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-COND3-A-MAJ-03: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-COND3-A-MIN-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-COND3-A-MIN-02: CLOSED — BOUNDED REVIEW A RE-REVIEW
+
+Final counts:  Blocker 0 / Major 0 / Minor 0
+Disposition:   CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+```
+
+These five closures were reached by Review A itself, externally to this
+recording transaction; this document only records the outcome.
+
+### 8.2 Independent Review B — recorded outcome
+
+```text
+reviewer_principal:  Claude
+role:                AI Technical Architect / Independent Review B
+adr_031_mode:        Mode A — DISTINCT_PRINCIPAL
+reviewed_boundary:   35a4e5f281b38718602c2a0b4ef8ae08c7a76807
+reviewed_blob:       dfacc99acba9b53a3ad9b4167b2197a3226d2c2b
+```
+
+Independently confirmed, at the exact same boundary/blob as Review A:
+
+```text
+1.  The five-method inventory (StaticInputContractAuthorityProvider.
+    resolve, OHLCV.field, DecimalPrecisionPolicy.apply,
+    DecimalPrecisionPolicy.__post_init__, FeatureDefinition.__post_init__).
+2.  The deterministic isolated-checkout fault-injection mechanism (§2.1)
+    is sound.
+3.  The clean-control contract and its false-DETECTED prevention (§2.1a)
+    is sound.
+4.  The activation-proof/verdict contract (unique-match + expected-vs-
+    observed patched-file hash + single-hunk/single-file diff scope;
+    the five-way CONTROL_FAILED/INJECTION_FAILED/TEST_INFRA_ERROR/
+    SURVIVED/DETECTED verdict enum) is sound.
+5.  The Static-provider masking correction and its required direct-test
+    surface (§3.1, `P3-PY-MUT-COND3-A-MAJ-03` remediation) is sound.
+6.  The 27 FeatureDefinition.__post_init__ guard count (§3.5,
+    `P3-PY-MUT-COND3-A-MIN-01` remediation) is confirmed.
+7.  The ten planned fault classes (FI-STATIC-PROVIDER-01;
+    FI-OHLCV-FIELD-01/02; FI-DECIMAL-APPLY-01/02;
+    FI-DECIMAL-POSTINIT-01/02; FI-FEATUREDEF-01/02/03) are independently
+    accepted.
+8.  The five-of-five Condition-3 completion rule (§4 — no partial
+    aggregate) is accepted.
+9.  The seven lower-materiality residual treatment (§5 — not promoted,
+    not demoted, unchanged existing requirement) is accepted.
+10. The separation from the raw mutmut score/1531-mutant denominator and
+    from `confirmed_timeout` (§2.2, §6) is accepted.
+11. `ADR_OPTIONAL` (§1) is independently confirmed.
+
+Final counts:  Blocker 0 / Major 0 / Minor 0
+Disposition:   CLEAN — READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+### 8.3 Product Owner decision — recorded verbatim
+
+```text
+"APPROVE Feature Engine Mutation-Surface Completeness (Condition 3)
+Design Candidate 001 at boundary 35a4e5f281b38718602c2a0b4ef8ae08c7a76807."
+```
+
+The Product Owner is the sole approval authority for this decision.
+
+### 8.4 Lifecycle transition
+
+```text
+Before: CANDIDATE / NOT EFFECTIVE / PENDING REVIEW
+After:  APPROVED — DESIGN EFFECTIVE (Condition-3 fault-injection
+        mechanism only) / IMPLEMENTATION NOT PERFORMED
+```
+
+`ADR_OPTIONAL — ADR NOT AUTHORED` (unchanged from §1's own fresh Chapter 0
+§4b determination — no ADR approval is recorded or invented here).
+
+### 8.5 Approved mechanism scope — what is now approved for a later implementation transaction
+
+```text
+- Disposable isolated checkout per fault (§2.1).
+- Canonical checkout never fault-patched.
+- Exact pinned source/test/tooling identities, verified inside isolation.
+- Clean control (unmodified suite, full pass) before every fault.
+- Exactly one fault injected per isolation.
+- Expected patched-file hash + bounded (single-hunk/single-file) diff
+  activation proof.
+- Five-way verdict model: CONTROL_FAILED / INJECTION_FAILED /
+  TEST_INFRA_ERROR / SURVIVED / DETECTED.
+- DETECTED attribution restricted to node IDs that passed the control and
+  failed under the activated fault.
+- Machine-readable per-fault evidence (§2.1b schema).
+- The 10 planned fault IDs across the 5 high-materiality methods (§3).
+- The five-of-five Condition-3 completion rule (§4).
+```
+
+### 8.6 What this approval does NOT do
+
+```text
+Does NOT: implement the harness; add the required tests; execute any
+  fault; produce Condition-3 evidence; mark Condition 3 SATISFIED; mark
+  Condition 1 formal PASS; rerun formal Step-9/QG; close EVID-03; close
+  EVID-04..08; approve Feature Engine; open Phase 3 Approval Gate;
+  authorize LIVE.
+```
+
+## 9. Next governed action
+
+**Condition-3 implementation transaction.** With the design/mechanism now
+approved (§8), a SEPARATE, later transaction must: author the identified
+required new tests (2 for the static provider, 1 for decimal-apply's
+half-boundary case, 2 for decimal-post-init, 1 for the feature-definition
+boundary; plus the recommended-not-required dedicated decimal-apply-01
+attribution test), build the isolation-based harness per §2.1, execute
+the 10 planned fault records under the clean-control/verdict contract of
+§2.1a, and pin the resulting machine-readable evidence artifact — only
+then can Condition 3 be evaluated for resolution (all 5 methods must each
+have a qualifying `DETECTED` result, per §4). This document performs none
+of that itself.

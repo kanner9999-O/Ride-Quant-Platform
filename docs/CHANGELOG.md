@@ -2,6 +2,78 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-07 — feature-engine: Condition-3 design candidate 001 — Review A/B + Product Owner APPROVAL recorded (design/mechanism only; Condition 3 remains UNRESOLVED)
+
+**Mechanical review/approval recording transaction — vai trò: `Feature Engine Condition-3 Design Approval Recorder`.** Records bounded Review A re-review closures, Independent Review B (ADR-031 Mode A — `DISTINCT_PRINCIPAL`), and the Product Owner's APPROVE decision, then transitions the design's lifecycle state from `CANDIDATE / NOT EFFECTIVE / PENDING REVIEW` to `APPROVED — DESIGN EFFECTIVE (Condition-3 fault-injection mechanism only) / IMPLEMENTATION NOT PERFORMED`. This transaction performed none of the reviews/decisions itself — mechanical recording only. No harness, no source/tests/tooling change, no fault injection, no formal Step-9/QG run.
+
+**Fresh boundary verification:** HEAD confirmed exactly `35a4e5f281b38718602c2a0b4ef8ae08c7a76807`; candidate blob confirmed exactly `dfacc99acba9b53a3ad9b4167b2197a3226d2c2b` — both match expected boundary/blob.
+
+### Recorded Review A closures
+
+```text
+reviewer: ChatGPT — AI Technical Architect / Review A
+P3-PY-MUT-COND3-A-MAJ-01/02/03, MIN-01/02: each CLOSED — BOUNDED REVIEW A
+  RE-REVIEW.
+Counts: Blocker 0 / Major 0 / Minor 0.
+Disposition: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+```
+
+### Recorded Independent Review B
+
+```text
+reviewer_principal: Claude, role: AI Technical Architect / Independent
+  Review B, ADR-031 Mode A — DISTINCT_PRINCIPAL.
+Independently confirmed: five-method inventory; isolated-checkout
+  fault-injection mechanism; clean-control/false-DETECTED prevention;
+  activation-proof/verdict contract; Static-provider masking correction
+  and required direct tests; 27 FeatureDefinition guard count; ten
+  planned fault classes; five-of-five Condition-3 completion rule; seven
+  lower-materiality residual treatment; separation from raw mutmut
+  score/1531 denominator/confirmed_timeout; ADR_OPTIONAL.
+Counts: Blocker 0 / Major 0 / Minor 0.
+Disposition: CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Recorded Product Owner decision (verbatim)
+
+```text
+"APPROVE Feature Engine Mutation-Surface Completeness (Condition 3)
+Design Candidate 001 at boundary 35a4e5f281b38718602c2a0b4ef8ae08c7a76807."
+```
+
+### Lifecycle transition
+
+```text
+CANDIDATE / NOT EFFECTIVE / PENDING REVIEW -> APPROVED — DESIGN EFFECTIVE
+  (Condition-3 fault-injection mechanism only) / IMPLEMENTATION NOT
+  PERFORMED. ADR_OPTIONAL — ADR NOT AUTHORED (unchanged).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only the design candidate (same path, approval recorded in place), docs/
+  MANIFEST.md, docs/CHANGELOG.md changed. python/feature-engine/src/**,
+  tests/**, tooling/** verified byte-identical before/after. No harness,
+  no fault injection, no test authored, no formal Step-9/QG run.
+```
+
+### State summary (unaffected by this approval)
+
+```text
+Condition 1: evidence-ready / NOT formal PASS. Condition 2: SATISFIED.
+Condition 3: UNRESOLVED — mechanism approved but not yet executed;
+  remains unresolved until a separate implementation transaction runs it
+  against all 5 methods with a qualifying result each. EVID-03..08: OPEN
+  / blocking. Overall QG: FAIL — evidence. Feature module: NOT APPROVED.
+  Phase 3 gate: NOT opened. LIVE: NOT_AUTHORIZED. Checkpoint-002
+  confirmed_timeout note unmodified.
+```
+
+**Next governed step:** Condition-3 implementation transaction.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001.md` (approval recorded, blob `dfacc99acba9b53a3ad9b4167b2197a3226d2c2b` → `5bff762f6c28fe4deb98487fc55efcf815b0b020`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.328"` → `"10.329"`.
+
 ## [Unreleased] — 2026-09-07 — feature-engine: Condition-3 design candidate 001 bounded correction (Review A findings; DESIGN/DOCS ONLY)
 
 **Bounded correction transaction — vai trò: `Condition-3 Design 001 Bounded Correction Executor`.** Corrects five Review A findings against the Condition-3 mutation-surface-completeness design candidate. Design/docs correction only — no harness implemented, no source/tests/tooling modified, no fault injection executed.

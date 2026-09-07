@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.328"
+manifest_version: "10.329"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -22716,6 +22716,124 @@ Checkpoint-002 confirmed_timeout fidelity note remains forward-looking
 **Next governed step:** bounded Review A re-review of the corrected design candidate — an independent reviewer re-examines specifically whether each of the five remediations above is adequate before any finding may be closed. Only after that re-review accepts (or further amends) the design may a separate, later implementation transaction author the newly-identified required tests, build the isolation-based harness, execute the fault records, and pin the resulting evidence artifact toward Condition 3's resolution.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001.md` (corrected, blob `6d3b9bd9c104e7b2617dffa36a784457fdf7b8b8` → `dfacc99acba9b53a3ad9b4167b2197a3226d2c2b`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.327"` → `"10.328"`.
+
+## `feature-engine` — Condition-3 Design Candidate 001: Review A/B + Product Owner APPROVAL recorded (design/mechanism only; Condition 3 remains UNRESOLVED)
+
+**Mechanical review/approval recording transaction — vai trò: `Feature Engine Condition-3 Design Approval Recorder`.** Records three externally-completed governance steps into the Condition-3 mutation-surface-completeness design candidate: bounded Review A re-review closures, Independent Review B (ADR-031 Mode A — `DISTINCT_PRINCIPAL`), and the Product Owner's APPROVE decision — then mechanically transitions the design's own lifecycle state from `CANDIDATE / NOT EFFECTIVE / PENDING REVIEW` to `APPROVED — DESIGN EFFECTIVE (Condition-3 fault-injection mechanism only) / IMPLEMENTATION NOT PERFORMED`. This recording transaction did not itself perform any review or decide anything. No harness implemented, no source/tests/tooling modified, no fault injection executed, no formal Step-9/QG run.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `35a4e5f281b38718602c2a0b4ef8ae08c7a76807` via `git rev-parse HEAD`; candidate document blob confirmed exactly `dfacc99acba9b53a3ad9b4167b2197a3226d2c2b` via `git rev-parse HEAD:<path>` — both match this task's expected boundary/blob. No material drift.
+
+### Recorded Review A closures
+
+```text
+reviewer:            ChatGPT — AI Technical Architect / Review A
+reviewed_boundary:   35a4e5f281b38718602c2a0b4ef8ae08c7a76807
+
+P3-PY-MUT-COND3-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-COND3-A-MAJ-02: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-COND3-A-MAJ-03: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-COND3-A-MIN-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+P3-PY-MUT-COND3-A-MIN-02: CLOSED — BOUNDED REVIEW A RE-REVIEW
+
+Final counts:  Blocker 0 / Major 0 / Minor 0
+Disposition:   CLEAN — READY_FOR_INDEPENDENT_REVIEW_B
+Recorded, not performed, by this transaction -- Review A itself was
+  completed externally.
+```
+
+### Recorded Independent Review B
+
+```text
+reviewer_principal:  Claude
+role:                AI Technical Architect / Independent Review B
+adr_031_mode:        Mode A — DISTINCT_PRINCIPAL
+reviewed_boundary:   35a4e5f281b38718602c2a0b4ef8ae08c7a76807
+reviewed_blob:       dfacc99acba9b53a3ad9b4167b2197a3226d2c2b
+
+Independently confirmed: the five-method inventory; the deterministic
+  isolated-checkout fault-injection mechanism sound; the clean-control /
+  false-DETECTED prevention sound; the activation-proof/verdict contract
+  sound; the Static-provider masking correction/direct-test requirement
+  sound; the 27 FeatureDefinition guard count; the ten planned fault
+  classes independently accepted; the five-of-five Condition-3 completion
+  rule accepted; the seven lower-materiality residual treatment accepted;
+  the separation from raw mutmut score/1531 denominator/confirmed_timeout
+  accepted; ADR_OPTIONAL independently confirmed.
+
+Final counts:  Blocker 0 / Major 0 / Minor 0
+Disposition:   CLEAN — READY_FOR_PRODUCT_OWNER_DECISION
+```
+
+### Recorded Product Owner decision (verbatim)
+
+```text
+"APPROVE Feature Engine Mutation-Surface Completeness (Condition 3)
+Design Candidate 001 at boundary 35a4e5f281b38718602c2a0b4ef8ae08c7a76807."
+```
+
+Product Owner is the sole approval authority for this decision.
+
+### Lifecycle transition
+
+```text
+Before: CANDIDATE / NOT EFFECTIVE / PENDING REVIEW
+After:  APPROVED — DESIGN EFFECTIVE (Condition-3 fault-injection
+        mechanism only) / IMPLEMENTATION NOT PERFORMED
+ADR disposition: ADR_OPTIONAL — ADR NOT AUTHORED (no ADR approval
+  invented).
+Approved scope: the Condition-3 deterministic fault-injection design/
+  mechanism ONLY -- disposable isolated checkout per fault, canonical
+  checkout never fault-patched, exact pinned source/test/tooling
+  identities, clean control before every fault, exact one-fault
+  injection, expected-patched-file-hash + bounded-diff activation proof,
+  the five-way CONTROL_FAILED/INJECTION_FAILED/TEST_INFRA_ERROR/SURVIVED/
+  DETECTED verdict model, DETECTED attribution restricted to node IDs
+  passing control and failing under the activated fault, machine-readable
+  per-fault evidence, the 10 approved planned fault IDs across the 5
+  high-materiality methods, and the five-of-five Condition-3 completion
+  rule.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  surface-completeness-design-001.md (modified in place, same path),
+  docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via `git status
+  --porcelain=v1`). python/feature-engine/src/**, tests/**, tooling/**
+  verified byte-identical (`git diff --quiet`) before and after this
+  recording. No harness implemented. No fault injection executed. No test
+  authored. No formal Step-9/QG run. Feature Engine not approved. Phase 3
+  gate not opened. LIVE not authorized.
+```
+
+### State summary (this approval does NOT change any of the following)
+
+```text
+Condition 1:                    evidence-ready / NOT formal PASS
+                                (unaffected).
+Condition 2:                    SATISFIED (170/170) (unaffected).
+Condition 3:                    UNRESOLVED -- the mechanism is now
+                                approved, but no fault has been executed
+                                and no evidence exists; remains
+                                unresolved until a separate
+                                implementation transaction executes all 5
+                                methods' fault records with a qualifying
+                                result each.
+P3-FEATURE-QG-EVID-03..-08:     OPEN / blocking (unaffected -- approving
+                                the design/mechanism does not close
+                                EVID-03).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+Checkpoint-002 confirmed_timeout fidelity note remains forward-looking
+  only (unmodified).
+```
+
+**Next governed step:** Condition-3 implementation transaction — a separate, later transaction authors the identified required new tests, builds the isolation-based harness per §2.1, executes the 10 planned fault records under the clean-control/verdict contract, and pins the resulting machine-readable evidence artifact, before Condition 3 can be evaluated for resolution.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001.md` (approval recorded, blob `dfacc99acba9b53a3ad9b4167b2197a3226d2c2b` → `5bff762f6c28fe4deb98487fc55efcf815b0b020`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.328"` → `"10.329"`.
 
 ## Decision Log
 
