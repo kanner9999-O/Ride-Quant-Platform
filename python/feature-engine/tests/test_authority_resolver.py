@@ -3,15 +3,17 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from conftest import REGIME_INPUT_CONTRACT, SWING_DISTANCE_INPUT_CONTRACT
 
 from feature_engine import InputContractRef
 from feature_engine.authority_resolver import (
     FilesystemInputContractAuthorityResolver,
+    StaticInputContractAuthorityProvider,
     _find_repo_root,
     resolve_input_contract_authority_from_repository,
 )
 from feature_engine.contracts import VerifiedInputContractAuthority
-from feature_engine.errors import UnresolvedComputationCursorAuthorityError
+from feature_engine.errors import InputContractIdentityMismatchError, UnresolvedComputationCursorAuthorityError
 
 _DEFAULT_SWING_INCLUDED_STREAMS = ("market-data-ingestion-candle", "structure-engine-swing")
 _DEFAULT_REGISTRY_STREAM_IDS = (
@@ -335,3 +337,29 @@ def test_filesystem_resolver_delegates_to_module_function(tmp_path: Path) -> Non
     resolved = resolver.resolve("distance_to_last_confirmed_swing")
     direct = resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
     assert resolved == direct
+
+
+# --- Condition-3 mutation-surface-completeness design candidate 001,
+# FI-STATIC-PROVIDER-01 (`P3-PY-MUT-COND3-A-MAJ-03` remediation) ----------
+#
+# `StaticInputContractAuthorityProvider.resolve()` is called directly here,
+# never through either engine's constructor — both
+# `RegimePassthroughFeatureEngine.__init__` and
+# `SwingDistanceFeatureEngine.__init__` independently re-validate the
+# RETURNED authority's own `feature_computation_profile` after calling
+# `.resolve()`, raising the same `InputContractIdentityMismatchError`
+# regardless of whether the provider's own guard fired -- an engine-level
+# test therefore cannot distinguish this method's own behavior from that
+# downstream guard. These two tests isolate `.resolve()` itself.
+
+
+def test_static_provider_resolve_returns_wrapped_authority_for_matching_profile() -> None:
+    provider = StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT)
+    resolved = provider.resolve(SWING_DISTANCE_INPUT_CONTRACT.feature_computation_profile)
+    assert resolved is SWING_DISTANCE_INPUT_CONTRACT
+
+
+def test_static_provider_resolve_raises_for_mismatched_profile() -> None:
+    provider = StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT)
+    with pytest.raises(InputContractIdentityMismatchError):
+        provider.resolve(REGIME_INPUT_CONTRACT.feature_computation_profile)

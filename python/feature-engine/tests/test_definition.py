@@ -211,3 +211,16 @@ def test_non_canonical_policy_identifier_rejected() -> None:
 def test_valid_definitions_accepted() -> None:
     make_candle_definition()
     make_distance_definition()
+
+
+# --- Condition-3 mutation-surface-completeness design candidate 001,
+# FI-FEATUREDEF-03 -----------------------------------------------------------
+#
+# Every existing fixture uses `make_candle_definition`'s own
+# `window_candle_count` default (3) -- the valid boundary value 1 is never
+# directly constructed anywhere in this suite.
+
+
+def test_window_candle_count_of_one_is_valid_boundary() -> None:
+    definition = make_candle_definition(window_candle_count=1)
+    assert definition.window_candle_count == 1

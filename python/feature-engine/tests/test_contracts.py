@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from decimal import Decimal
 
 import pytest
 
 from feature_engine import (
     FEATURE_COMPUTED_CONTRACT_ID,
     FEATURE_FACT_INVALIDATED_CONTRACT_ID,
+    DecimalPrecisionPolicy,
     EventContractRef,
     EventRecordRef,
+    InvalidFeatureDefinitionError,
     UnresolvedOutputContractAuthorityError,
     resolve_output_contract_refs,
 )
@@ -90,3 +93,30 @@ def test_is_visible_at_cursor_accepts_stream_that_is_in_included_streams() -> No
         )
         is True
     )
+
+
+# --- Condition-3 mutation-surface-completeness design candidate 001,
+# DecimalPrecisionPolicy (FI-DECIMAL-APPLY-02, FI-DECIMAL-POSTINIT-01/02) --
+#
+# `DecimalPrecisionPolicy` is only ever constructed via `conftest.
+# make_decimal_policy(digits=2)` elsewhere in this suite -- always a
+# non-zero `digits` and always the valid `"ROUND_HALF_UP"` rounding mode,
+# always applied to "clean" decimal fixture values that never land on an
+# exact rounding half-boundary. These direct, isolated tests exercise the
+# construction-time boundary/membership guards and the rounding-mode-
+# sensitive branch of `.apply()` that the rest of the suite never reaches.
+
+
+def test_decimal_precision_policy_apply_rounds_half_up_at_exact_boundary() -> None:
+    policy = DecimalPrecisionPolicy(digits=2, rounding="ROUND_HALF_UP")
+    assert policy.apply(Decimal("1.005")) == Decimal("1.01")
+
+
+def test_decimal_precision_policy_digits_zero_is_valid_boundary() -> None:
+    policy = DecimalPrecisionPolicy(digits=0, rounding="ROUND_HALF_UP")
+    assert policy.digits == 0
+
+
+def test_decimal_precision_policy_invalid_rounding_mode_rejected() -> None:
+    with pytest.raises(InvalidFeatureDefinitionError):
+        DecimalPrecisionPolicy(digits=2, rounding="NOT_A_REAL_MODE")
