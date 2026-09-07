@@ -18,18 +18,28 @@ def test_candle_path_always_fails_closed_at_construction() -> None:
     scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
     with pytest.raises(UnsupportedFeatureFormulaError) as excinfo:
         CandleWindowFeatureEngine(scope, definition)
-    # P3-PY-MUT-COND1-A remediation: exact message content -- the message is
-    # a static template (only formula_id is caller-supplied, pinned by the
-    # fixture default below), so an exact-string assertion here proves the
-    # complete failure reason (which formula_id, which invariant, which
-    # governing note), not merely that some exception of the right type
-    # occurred.
-    assert str(excinfo.value) == (
+    message = str(excinfo.value)
+    # P3-PY-MUT-COND1-A-MAJ-01 remediation: independent semantic clauses,
+    # NOT a whole-message equality snapshot -- each assertion below is
+    # anchored (leading/trailing/cross-boundary-contiguous) so a case-swap
+    # or marker-wrap corruption of the underlying literal is still caught,
+    # without treating unrelated prose/punctuation as a single brittle
+    # contract.
+    #
+    # (1) Candle-derived computation is not authorized, no immutable
+    #     executable identity + parameters exists, AND the exact formula_id
+    #     this test itself controls is named.
+    assert message.startswith(
         "Candle-derived formula computation is not authorized: no current repository authority pins an "
         "immutable executable identity + parameters for formula_id='test-high-low-range-v1' "
-        "(feature.md §6/§7.1/§7.2) — this engine never executes a caller-supplied formula matched only by a "
-        "formula_id string. Fails closed per P3-FEATURE-A-MAJ-03."
     )
+    # (2) A caller-supplied formula matched only by a formula_id string is
+    #     never executed -- this sentence straddles two adjacent literals
+    #     in the source; requiring it as one contiguous run means a marker/
+    #     case corruption on EITHER side still breaks the match.
+    assert "this engine never executes a caller-supplied formula matched only by a formula_id string" in message
+    # (3) The fail-closed rationale, naming the governing finding.
+    assert message.endswith("formula_id string. Fails closed per P3-FEATURE-A-MAJ-03.")
 
 
 def test_candle_path_fails_closed_regardless_of_formula_id() -> None:

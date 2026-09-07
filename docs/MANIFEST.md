@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.324"
+manifest_version: "10.325"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -22164,6 +22164,118 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** Review A of this remediation batch.
 
 **Files changed:** `python/feature-engine/tests/test_candle_window.py`, `python/feature-engine/tests/test_authority_resolver.py`, `python/feature-engine/tests/test_regime_passthrough.py` (all modified, none new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.323"` → `"10.324"`.
+
+## `feature-engine` — Condition-1 Batch 1 Bounded Test-Quality Correction (Review A findings; 17/17 re-confirmed)
+
+**Bounded correction transaction — vai trò: `Condition-1 Batch 1 Bounded Test-Quality Correction Executor`.** Corrects `feature-engine`'s Condition-1 Mutation Score Remediation Batch 1 per one Review A pass (`P3-PY-MUT-COND1-A-MAJ-01`, `-MIN-01`). No production/tooling change. Preserves the bounded 17-ID target population and all governance states.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `974eb8182a64e0a35e79690a50c26900d14e9ad6` via `git rev-parse HEAD`, matching this task's own expected boundary.
+
+### Findings corrected (not self-closed)
+
+```text
+P3-PY-MUT-COND1-A-MAJ-01 (whole-message snapshot test-quality violation):
+  REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+  Defect: 9/17 kills (candle_window.__init__ mutmut_20-28) were derived
+  from ONE exact whole-string equality on the complete 4-sentence
+  UnsupportedFeatureFormulaError message -- non-contractual prose/
+  punctuation made an exact-match contract merely to kill message
+  mutants.
+  Correction: test_candle_path_always_fails_closed_at_construction now
+  asserts 3 independent, position-anchored semantic clauses --
+  (1) a `startswith` clause covering "not authorized" + "no immutable
+  executable identity/parameters exists" + the exact controlled
+  formula_id; (2) a cross-boundary `in` check for "this engine never
+  executes a caller-supplied formula matched only by a formula_id
+  string" (spans two adjacent source literals, so contiguity breaks
+  under a marker-wrap/case corruption on either side); (3) an `endswith`
+  clause covering the fail-closed rationale and P3-FEATURE-A-MAJ-03.
+  test_find_repo_root_raises_when_no_docs_ancestor_exists similarly
+  corrected to two anchored clauses (`startswith` for "repository root
+  not located / no docs ancestor / exact start path"; `endswith` for
+  "Input Contract/Stream Registry authority cannot be resolved").
+  Short, single-purpose messages left exact where the full string IS the
+  concise semantic reason (CandleWindowFeatureEngine requires upstream_
+  source='candle'; scope does not match definition; regime foreign-scope
+  rejection) -- unchanged, per this finding's own stated exception.
+P3-PY-MUT-COND1-A-MIN-01 (bookkeeping count): REMEDIATED — PENDING
+  BOUNDED REVIEW A RE-REVIEW.
+  Defect: prior batch's own report claimed "6 tests strengthened."
+  Correction: exact actual count is 5 tests strengthened (3 in
+  test_candle_window.py, 1 in test_authority_resolver.py, 1 in
+  test_regime_passthrough.py) -- corrected in this transaction's own
+  record; the prior batch's historical CHANGELOG/MANIFEST entries are
+  left byte-unchanged (not rewritten after the fact).
+```
+
+### Verification results
+
+```text
+Ordinary suite: 226 passed, 0 failed. tooling/tests/: 5 passed.
+ruff check tests/ src/: All checks passed.
+mypy (strict, 25 source files): Success, no issues found.
+Independent fresh-venv re-verification (separate disposable venv,
+  removed after): 226 passed, 5 passed (tooling), ruff clean, mypy clean.
+Bounded NON-GATING mutation diagnostic, the SAME exact 17 target IDs
+  re-run via `python -m tooling run` in a disposable venv/mutants/
+  directory (removed after capture):
+```
+
+```text
+🎉 authority_resolver.x__find_repo_root__mutmut_3
+🎉 authority_resolver.x__find_repo_root__mutmut_4
+🎉 authority_resolver.x__find_repo_root__mutmut_5
+🎉 candle_window.__init__ mutmut_11
+🎉 candle_window.__init__ mutmut_12
+🎉 candle_window.__init__ mutmut_18
+🎉 candle_window.__init__ mutmut_20
+🎉 candle_window.__init__ mutmut_21
+🎉 candle_window.__init__ mutmut_22
+🎉 candle_window.__init__ mutmut_23
+🎉 candle_window.__init__ mutmut_24
+🎉 candle_window.__init__ mutmut_25
+🎉 candle_window.__init__ mutmut_26
+🎉 candle_window.__init__ mutmut_27
+🎉 candle_window.__init__ mutmut_28
+🎉 regime_passthrough._check_scope mutmut_8
+🎉 regime_passthrough._check_scope mutmut_9
+Result: 17/17 KILLED, 0/17 survived -- identical to the original batch's
+  result, now achieved without any whole-message snapshot assertion.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only python/feature-engine/tests/test_candle_window.py, tests/test_
+  authority_resolver.py (both modified, none new), docs/MANIFEST.md,
+  docs/CHANGELOG.md changed (confirmed via `git status --porcelain=v1`).
+python/feature-engine/src/**, tooling/** all verified byte-identical
+  (`git diff --quiet`). No mutation-testing workspace (mutants/,
+  .mutmut-cache, disposable venvs) left behind. Neither finding
+  self-closed.
+```
+
+### State summary
+
+```text
+Condition 1:                    still NOT formally PASS (unchanged) --
+                                bounded, targeted, NON-GATING diagnostic
+                                result only (17/17).
+Condition 2:                    SATISFIED (unchanged).
+Condition 3:                    unresolved (unchanged).
+Raw denominator:                1531 (unchanged).
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, NOT evaluated).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `python/feature-engine/tests/test_candle_window.py`, `python/feature-engine/tests/test_authority_resolver.py` (both modified, none new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.324"` → `"10.325"`.
 
 ## Decision Log
 

@@ -2,6 +2,94 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-07 — feature-engine: Condition-1 batch 1 bounded test-quality correction (Review A findings; 17/17 re-confirmed)
+
+**Bounded correction — vai trò: `Condition-1 Batch 1 Bounded Test-Quality Correction Executor`.** Corrects Condition-1 Mutation Score Remediation Batch 1 per one Review A pass (1 Major, 1 Minor). No source/tooling change. Preserves the bounded 17-ID target population and all governance states.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `974eb8182a64e0a35e79690a50c26900d14e9ad6` via `git rev-parse HEAD`, matching this task's own expected boundary.
+
+### Findings corrected
+
+```text
+P3-PY-MUT-COND1-A-MAJ-01 (whole-message snapshot test-quality violation) —
+  REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW.
+  Defect: 9/17 kills (candle_window.__init__ mutmut_20-28) were derived
+  from ONE exact whole-string equality on the complete 4-sentence
+  UnsupportedFeatureFormulaError message -- non-contractual prose/
+  punctuation was made an exact-match contract merely to kill message
+  mutants, violating this batch's own stated test-quality requirement.
+  Correction: test_candle_path_always_fails_closed_at_construction now
+  asserts 3 independent, position-anchored semantic clauses instead --
+  (1) message.startswith(...) covering "not authorized" + "no immutable
+  executable identity/parameters" + the exact controlled formula_id;
+  (2) a cross-boundary `in` check for "this engine never executes a
+  caller-supplied formula matched only by a formula_id string" (spans two
+  adjacent source literals -- contiguity breaks under a marker-wrap/case
+  corruption on either side); (3) message.endswith(...) covering the
+  fail-closed rationale and P3-FEATURE-A-MAJ-03. Each anchor (start/
+  contiguous-middle/end) independently defeats XX-marker-wrap and case-
+  swap mutations without asserting the message as one indistinguishable
+  blob. test_find_repo_root_raises_when_no_docs_ancestor_exists similarly
+  corrected to two anchored clauses (startswith for the "repository root
+  not located, no docs ancestor, exact start path" clause; endswith for
+  "Input Contract/Stream Registry authority cannot be resolved").
+  Short, single-purpose messages left exact where the full string IS the
+  concise semantic reason (CandleWindowFeatureEngine requires upstream_
+  source='candle'; scope does not match definition; regime foreign-scope
+  rejection) -- unchanged, per this finding's own stated exception.
+  Rerun of the bounded 17-ID diagnostic: 17/17 still killed (see below) --
+  the test-quality correction did not reduce genuine kill coverage.
+P3-PY-MUT-COND1-A-MIN-01 (bookkeeping count) — REMEDIATED — PENDING
+  BOUNDED REVIEW A RE-REVIEW.
+  Defect: prior batch's own report claimed "6 tests strengthened."
+  Correction: exact actual count is 5 tests (3 in test_candle_window.py,
+  1 in test_authority_resolver.py, 1 in test_regime_passthrough.py) --
+  corrected here and in the batch's own historical record is left
+  byte-unchanged (historical CHANGELOG/MANIFEST entries are not rewritten
+  after the fact; this correction entry is the authoritative fix).
+```
+
+Neither finding is self-closed by this transaction — both recorded `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`.
+
+### Verification results
+
+```text
+Ordinary suite: 226 passed, 0 failed. tooling/tests/: 5 passed.
+ruff check tests/ src/: All checks passed.
+mypy (strict, 25 source files): Success, no issues found.
+Independent fresh-venv re-verification (separate disposable venv, removed
+  after): 226 passed, 5 passed (tooling), ruff clean, mypy clean.
+Bounded NON-GATING mutation diagnostic, same exact 17 target IDs re-run
+  via `python -m tooling run` in a disposable venv/mutants/ directory
+  (removed after capture): 17/17 KILLED, 0/17 survived -- identical
+  result to the original batch, now achieved without any whole-message
+  snapshot assertion.
+```
+
+### Preserved (unchanged by this correction)
+
+```text
+Condition 2:                   SATISFIED (unchanged).
+Raw denominator:                1531 (unchanged).
+Condition 1:                    still NOT formally PASS -- this remains a
+                                bounded, targeted, NON-GATING diagnostic
+                                result only.
+Condition 3:                    unresolved (unchanged).
+EVID-03:                        OPEN / blocking (unchanged).
+EVID-04..-08:                   OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG:  FAIL — evidence (unchanged).
+Feature module approval:        NOT APPROVED.
+Phase 3 Approval Gate:          NOT opened.
+LIVE:                            NOT_AUTHORIZED, unreferenced.
+No formal Step-9/QG evaluation performed. No production or tooling change.
+```
+
+**Next governed action:** bounded Review A re-review of this correction.
+
+**Files changed:** `python/feature-engine/tests/test_candle_window.py`, `python/feature-engine/tests/test_authority_resolver.py` (both modified, none new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.324"` → `"10.325"`.
+
+---
+
 ## [Unreleased] — 2026-09-06 — feature-engine: Condition-1 mutation score remediation batch 1 (NON-GATING diagnostic; 17/17 targeted survivors killed)
 
 **Bounded, test-only remediation — vai trò: `Feature Engine Condition-1 Mutation Score Remediation Executor`.** Strengthens 6 existing tests across 3 files to close 17 genuine observable message-content gaps (original Step-4 categories `low_materiality_message_text`, all in `string_case_mutation`/`string_literal_marker_mutation`/`value_replaced_with_none` sub-categories) drawn from the current non-material survivor pool (outside the now-resolved 170-ID Condition-2 set). NOT a formal Step-9/QG transaction. Does not modify the approved reclassification decision, the 10 reclassified identities' historical statuses, the raw denominator, or Condition 3's disposition.

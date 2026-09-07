@@ -252,14 +252,16 @@ def test_find_repo_root_raises_when_no_docs_ancestor_exists(tmp_path: Path) -> N
     start = tmp_path / "definitely" / "not" / "a" / "repository" / "checkout"
     with pytest.raises(UnresolvedComputationCursorAuthorityError) as excinfo:
         _find_repo_root(start)
-    # P3-PY-MUT-COND1-A remediation: exact message content -- the entire
-    # message (both the dynamic {start!r} clause and the static reason
-    # clause) is asserted, not merely a leading substring, so a case/marker
-    # corruption anywhere in the static second half is caught too.
-    assert str(excinfo.value) == (
-        f"could not locate repository root (no {'docs'!r} directory found above {start!r}) — "
-        "Input Contract/Stream Registry authority cannot be resolved from the filesystem"
-    )
+    message = str(excinfo.value)
+    # P3-PY-MUT-COND1-A-MAJ-01 remediation: independent semantic clauses,
+    # NOT a whole-message equality snapshot.
+    # (1) The repository root cannot be located because no `docs` ancestor
+    #     was found above the exact, test-controlled `start` path.
+    assert message.startswith(f"could not locate repository root (no {'docs'!r} directory found above {start!r}) — ")
+    # (2) Input Contract/Stream Registry authority cannot be resolved --
+    #     anchored at the end so a marker-wrap/case corruption of this
+    #     static clause is still caught.
+    assert message.endswith("Input Contract/Stream Registry authority cannot be resolved from the filesystem")
 
 
 def test_missing_contract_id_field_fails_closed(tmp_path: Path) -> None:
