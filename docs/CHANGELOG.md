@@ -2,6 +2,86 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-07 — feature-engine: Condition-3 implementation + official fault-injection evidence (9/10 DETECTED, 1/10 SURVIVED — Condition 3 remains UNRESOLVED)
+
+**Implementation & evidence transaction — vai trò: `Feature Engine Condition-3 Implementation & Evidence Executor`.** Implements the APPROVED Condition-3 design and executes its own official 10-fault evidence run. No `src/**` change. No mutmut run. No formal Step-9/QG evaluation.
+
+**Fresh boundary verification:** HEAD confirmed exactly `84a3f689a717ce572825d17470d7c34640b7fbbb`; design blob confirmed exactly `5bff762f6c28fe4deb98487fc55efcf815b0b020` — both matched expected.
+
+### Required tests added (6) and harness implemented
+
+```text
+tests/test_authority_resolver.py: 2 new direct StaticInputContractAuthority
+  Provider.resolve tests. tests/test_contracts.py: 3 new DecimalPrecision
+  Policy tests (1.005->1.01 half-boundary, digits=0 boundary, invalid-
+  rounding rejection). tests/test_definition.py: 1 new window_candle_
+  count=1 boundary test. Optional dedicated FI-DECIMAL-APPLY-01 test: NOT
+  added -- empirically confirmed unneeded (the half-boundary test already
+  detects it).
+python/feature-engine/tooling/fault_injection/: isolated-checkout harness
+  (git worktree per fault, clean-control gate, single-fault injection,
+  hash+diff-scope activation proof, five-way verdict classification,
+  unconditional isolation destruction + canonical-checkout-untouched
+  verification) + 10 bounded tooling tests. Found and fixed a real bug
+  during harness self-testing: PYTHONDONTWRITEBYTECODE=1 required to
+  prevent stale-.pyc false SURVIVED on same-second control->evidence runs.
+```
+
+### Verification (disposable `.implvenv` from requirements-dev.lock.txt)
+
+```text
+232 passed (226 + 6 new), 0 failed. tooling/tests/: 5 passed. tooling/
+  fault_injection/tests/: 10 passed. ruff check .: All checks passed.
+  ruff format --check .: 7 pre-existing drifted files unchanged (not
+  touched by this transaction); fault_injection/ itself clean. mypy
+  strict (src+tests, default scope): Success, 25 files. mypy strict
+  (tooling/fault_injection, explicit invocation): Success, 6 files.
+```
+
+### Official 10-fault evidence run
+
+```text
+implementation_boundary: dd580d6e027017c4bf74dcf5c0b0cbd7f24917b7 (src
+  tree unchanged: 256421344a48a6c9d4ef72f81eb82b27dbedfc50).
+FI-STATIC-PROVIDER-01/FI-OHLCV-FIELD-01/02/FI-DECIMAL-APPLY-01/02/
+  FI-DECIMAL-POSTINIT-01/02/FI-FEATUREDEF-01/03: DETECTED (9).
+FI-FEATUREDEF-02: SURVIVED -- honestly recorded, NOT remediated. Masked by
+  a separate, later `upstream_contract_refs`-required guard in the same
+  branch, analogous to the FI-STATIC-PROVIDER-01 masking bounded
+  correction 001 already fixed, not re-examined for this fault before
+  implementation. contracts.FeatureDefinition.__post_init__ still
+  qualifies (2 other DETECTED faults), but FI-FEATUREDEF-02 itself remains
+  an individually-named open residual for Review A to dispose of.
+All 5 methods have >=1 DETECTED fault -- evidence SUPPORTS the approved
+  five-of-five completion criterion, but is explicitly NOT recorded as
+  Condition 3 SATISFIED in this transaction.
+```
+
+### Evidence artifact
+
+```text
+docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  surface-completeness-evidence-001.json (new, additive; path confirmed
+  absent before writing). Never merged into mutmut raw statuses or the
+  1531-mutant denominator; never confirmed_timeout.
+```
+
+### State summary (preserved)
+
+```text
+Condition 1: evidence-ready / NOT formal PASS. Condition 2: SATISFIED.
+Condition 3: UNRESOLVED — evidence SUPPORTS but does not SATISFY;
+  pending Review A, including explicit disposition of the FI-FEATUREDEF-02
+  residual. EVID-03..08: OPEN / blocking. Overall QG: FAIL — evidence.
+  Feature module: NOT APPROVED. Phase 3 gate: NOT opened. LIVE:
+  NOT_AUTHORIZED. ADR_OPTIONAL — ADR NOT AUTHORED (fresh SS4b re-check:
+  unchanged). Checkpoint-002 confirmed_timeout note unmodified.
+```
+
+**Next governed step:** Review A of this implementation and its Condition-3 evidence.
+
+**Files changed:** `python/feature-engine/tests/test_authority_resolver.py`, `test_contracts.py`, `test_definition.py`, `python/feature-engine/tooling/fault_injection/**` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-evidence-001.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.329"` → `"10.330"`.
+
 ## [Unreleased] — 2026-09-07 — feature-engine: Condition-3 design candidate 001 — Review A/B + Product Owner APPROVAL recorded (design/mechanism only; Condition 3 remains UNRESOLVED)
 
 **Mechanical review/approval recording transaction — vai trò: `Feature Engine Condition-3 Design Approval Recorder`.** Records bounded Review A re-review closures, Independent Review B (ADR-031 Mode A — `DISTINCT_PRINCIPAL`), and the Product Owner's APPROVE decision, then transitions the design's lifecycle state from `CANDIDATE / NOT EFFECTIVE / PENDING REVIEW` to `APPROVED — DESIGN EFFECTIVE (Condition-3 fault-injection mechanism only) / IMPLEMENTATION NOT PERFORMED`. This transaction performed none of the reviews/decisions itself — mechanical recording only. No harness, no source/tests/tooling change, no fault injection, no formal Step-9/QG run.
