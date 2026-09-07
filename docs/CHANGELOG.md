@@ -2,6 +2,70 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-07 — feature-engine: Condition-3 design candidate 001 bounded correction (Review A findings; DESIGN/DOCS ONLY)
+
+**Bounded correction transaction — vai trò: `Condition-3 Design 001 Bounded Correction Executor`.** Corrects five Review A findings against the Condition-3 mutation-surface-completeness design candidate. Design/docs correction only — no harness implemented, no source/tests/tooling modified, no fault injection executed.
+
+**Fresh boundary verification:** HEAD confirmed exactly `8ca8833689e77d4a78c28795917dfa1842aec256`; candidate blob confirmed exactly `6d3b9bd9c104e7b2617dffa36a784457fdf7b8b8` — both match expected boundary.
+
+### Findings remediated
+
+```text
+MAJ-01: Canonical-tree patch/restore -> isolated disposable checkout
+  pinned to the governed boundary; canonical checkout never mutated.
+  Each fault: create isolation -> verify exact HEAD/src/tests/tooling
+  identities -> clean control -> apply one fault inside isolation only
+  -> evidence -> destroy isolation. Fails closed on isolation/identity
+  failure.
+MAJ-02: Added clean-control contract (unmodified suite must PASS in full
+  before any fault applied; CONTROL_FAILED aborts otherwise) and a
+  five-way verdict enum (CONTROL_FAILED / INJECTION_FAILED /
+  TEST_INFRA_ERROR / SURVIVED / DETECTED) -- infra/collection/timeout
+  failures can never be recorded as DETECTED. Activation proof
+  strengthened to exact expected-vs-observed patched-file hash + single-
+  hunk/single-file diff-scope confirmation.
+MAJ-03: Corrected FI-STATIC-PROVIDER-01 call-path analysis -- both
+  RegimePassthroughFeatureEngine and SwingDistanceFeatureEngine
+  independently re-validate the returned authority's own profile AFTER
+  provider.resolve(), raising the same exception regardless of which
+  guard fires; the two existing engine-level tests do NOT reliably
+  detect this fault. Added two REQUIRED new direct provider-level tests
+  isolating `.resolve()` from any engine's downstream validation.
+MIN-01: Corrected FeatureDefinition.__post_init__'s guard count from 25
+  to 27 (re-verified via direct grep count). Fault classes unchanged.
+MIN-02: Corrected FI-DECIMAL-POSTINIT-02 test-readiness wording -- broad
+  existing incidental detection DOES exist (every FeatureDefinition-
+  building fixture constructs a valid-rounding policy); the proposed
+  isolated direct test remains REQUIRED for clean attribution.
+All five findings recorded as REMEDIATED -- PENDING BOUNDED REVIEW A
+  RE-REVIEW; none self-closed.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only the design candidate (same path, corrected in place), docs/
+  MANIFEST.md, docs/CHANGELOG.md changed. python/feature-engine/src/**,
+  tests/**, tooling/** verified byte-identical before/after. No harness
+  implemented, no fault injection, no test authored, no ADR authored, no
+  finding self-closed.
+```
+
+### State summary (preserved)
+
+```text
+Deterministic fault injection remains selected. Exact five methods and
+  existing fault IDs preserved. ADR_OPTIONAL unchanged, no ADR authored.
+Condition 1: evidence-ready / NOT formal PASS. Condition 2: SATISFIED.
+Condition 3: UNRESOLVED. EVID-03..08: OPEN / blocking. Overall QG: FAIL —
+  evidence. Feature module: NOT APPROVED. Phase 3 gate: NOT opened. LIVE:
+  NOT_AUTHORIZED. Checkpoint-002 confirmed_timeout note unmodified.
+```
+
+**Next governed step:** bounded Review A re-review of the corrected design candidate.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001.md` (corrected, blob `6d3b9bd9c104e7b2617dffa36a784457fdf7b8b8` → `dfacc99acba9b53a3ad9b4167b2197a3226d2c2b`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.327"` → `"10.328"`.
+
 ## [Unreleased] — 2026-09-07 — feature-engine: mutation-surface completeness (Condition 3) design candidate 001 (DESIGN ONLY; not effective)
 
 **Design transaction — vai trò: `Feature Engine Condition-3 Mutation-Surface Completeness Design Author`.** Authors ONE governed design candidate proposing how to resolve Condition 3 (mutation-surface completeness) for the 5 high-materiality methods mutmut 3.7.0 structurally excludes from the Feature Engine mutation surface (`StaticInputContractAuthorityProvider.resolve`, `OHLCV.field`, `DecimalPrecisionPolicy.apply`, `DecimalPrecisionPolicy.__post_init__`, `FeatureDefinition.__post_init__`), per Testing Convention v0.16 §5b/§5c/§5d and the approved mutation threshold proposal §4.2. DESIGN ONLY — no `src/**`/`tests/**`/`tooling/**` change, no fault injection executed, no formal Step-9/QG evaluation, no closing of `P3-FEATURE-QG-EVID-03`.

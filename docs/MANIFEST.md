@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.327"
+manifest_version: "10.328"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -22617,6 +22617,105 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** Review A of this design candidate — an independent reviewer assesses the selected mechanism, the ADR-scope disposition, and each of the 5 per-method fault-class plans (including the 3 identified new-test requirements), and either accepts, rejects, or amends this design. Only after review/approval may a separate, later implementation transaction author the proposed new tests, build the harness, execute the fault records, and pin the resulting evidence artifact toward Condition 3's resolution.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.326"` → `"10.327"`.
+
+## `feature-engine` — Condition-3 Design Candidate 001 Bounded Correction (Review A findings; DESIGN/DOCS ONLY)
+
+**Bounded correction transaction — vai trò: `Condition-3 Design 001 Bounded Correction Executor`.** Corrects five Review A findings against the Condition-3 mutation-surface-completeness design candidate (`feature-engine-mutation-surface-completeness-design-001.md`, blob `6d3b9bd9c104e7b2617dffa36a784457fdf7b8b8`). Design/docs correction only — no harness implemented, no source/tests/tooling modified, no fault injection executed.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `8ca8833689e77d4a78c28795917dfa1842aec256` via `git rev-parse HEAD`; candidate document blob confirmed exactly `6d3b9bd9c104e7b2617dffa36a784457fdf7b8b8` via `git rev-parse HEAD:<path>` — both match this task's expected boundary/blob.
+
+### Findings remediated
+
+```text
+P3-PY-MUT-COND3-A-MAJ-01: Corrected the mechanism from canonical-working-
+  tree patch + post-run `git checkout --` restore to an isolated,
+  disposable checkout pinned to the governed boundary -- the canonical
+  checkout is never entered/mutated. Each fault execution now runs the
+  full sequence: create isolation -> verify exact HEAD/src/tests/tooling
+  tree identities inside isolation -> run clean control -> apply one
+  fault inside isolation only -> run evidence -> destroy isolation.
+  Fails closed (INJECTION_FAILED -- ISOLATION IDENTITY MISMATCH) if
+  isolation creation or identity verification fails.
+P3-PY-MUT-COND3-A-MAJ-02: Added a clean-control contract (the exact
+  unmodified suite must PASS in full, inside the same isolation, before
+  any fault is applied; CONTROL_FAILED aborts evidence otherwise) and a
+  five-way fail-closed verdict enum (CONTROL_FAILED / INJECTION_FAILED /
+  TEST_INFRA_ERROR / SURVIVED / DETECTED) -- DETECTED now requires
+  activation proof AND at least one node ID that passed in the control
+  but failed under the fault; infra/collection/timeout/harness failures
+  can never be recorded as DETECTED. Activation proof strengthened to an
+  exact expected-vs-observed patched-file hash plus single-hunk/single-
+  file diff-scope confirmation, not mere presence of new_string.
+P3-PY-MUT-COND3-A-MAJ-03: Corrected the FI-STATIC-PROVIDER-01 call-path
+  analysis -- independently re-verified in current source
+  (regime_passthrough.py ~lines 122-136, swing_distance.py ~lines
+  289-303) that both engines independently re-validate the returned
+  authority's own feature_computation_profile AFTER calling
+  provider.resolve(), raising the SAME InputContractIdentityMismatchError
+  regardless of which guard fires -- the original claim that a wrong-
+  profile authority "silently binds at the engine boundary" was
+  incorrect, and the two existing engine-level tests do NOT reliably
+  detect this fault. Added two REQUIRED new direct provider-level tests
+  isolating `.resolve()` from any engine's downstream validation
+  (matching-profile returns wrapped authority; mismatched-profile raises
+  InputContractIdentityMismatchError directly).
+P3-PY-MUT-COND3-A-MIN-01: Corrected FeatureDefinition.__post_init__'s
+  guard count from 25 to 27, re-verified via `sed -n '705,819p'
+  src/feature_engine/contracts.py | grep -c
+  "raise InvalidFeatureDefinitionError"` -> 27. Factual correction only;
+  the three representative fault classes (FI-FEATUREDEF-01/02/03) are
+  unchanged.
+P3-PY-MUT-COND3-A-MIN-02: Corrected FI-DECIMAL-POSTINIT-02
+  (`not in` -> `in`) test-readiness wording -- broad existing incidental
+  detection DOES exist (every FeatureDefinition-building fixture
+  constructs a valid-rounding DecimalPrecisionPolicy via
+  conftest.make_decimal_policy(), so the inversion would break nearly
+  the entire suite), correcting the original "no existing coverage"
+  claim. The proposed isolated direct test remains REQUIRED for a clean,
+  individually-attributable DETECTED record. FI-DECIMAL-POSTINIT-01
+  (digits=0 boundary) still requires its own new test, unchanged.
+All five findings recorded in the corrected candidate's own header as
+  REMEDIATED -- PENDING BOUNDED REVIEW A RE-REVIEW; none self-closed by
+  this transaction.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  surface-completeness-design-001.md (modified in place, same path),
+  docs/MANIFEST.md, docs/CHANGELOG.md changed (confirmed via `git status
+  --porcelain=v1`). python/feature-engine/src/**, tests/**, tooling/**
+  verified byte-identical (`git diff --quiet`) before and after this
+  correction. No harness implemented. No fault injection executed. No
+  test authored. No ADR authored. No finding self-closed. Feature Engine
+  not approved. Phase 3 gate not opened. LIVE not authorized.
+```
+
+### State summary (preserved, unchanged by this correction)
+
+```text
+Deterministic fault injection remains the selected Condition-3 path. The
+  exact five high-materiality methods and existing fault IDs are
+  preserved unchanged (only wording/test-surface/mechanism corrections
+  applied where a finding required it -- no fault ID renamed or dropped).
+ADR disposition:                ADR_OPTIONAL (unchanged); no ADR authored.
+Condition 1:                    evidence-ready / NOT formal PASS
+                                (unaffected).
+Condition 2:                    SATISFIED (170/170) (unaffected).
+Condition 3:                    UNRESOLVED (unaffected).
+P3-FEATURE-QG-EVID-03..-08:     OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+Checkpoint-002 confirmed_timeout fidelity note remains forward-looking
+  only (unmodified).
+```
+
+**Next governed step:** bounded Review A re-review of the corrected design candidate — an independent reviewer re-examines specifically whether each of the five remediations above is adequate before any finding may be closed. Only after that re-review accepts (or further amends) the design may a separate, later implementation transaction author the newly-identified required tests, build the isolation-based harness, execute the fault records, and pin the resulting evidence artifact toward Condition 3's resolution.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001.md` (corrected, blob `6d3b9bd9c104e7b2617dffa36a784457fdf7b8b8` → `dfacc99acba9b53a3ad9b4167b2197a3226d2c2b`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.327"` → `"10.328"`.
 
 ## Decision Log
 

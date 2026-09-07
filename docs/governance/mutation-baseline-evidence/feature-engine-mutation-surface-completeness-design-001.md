@@ -16,6 +16,20 @@ fault_injection_performed: false
 formal_step9_qg_evaluation_performed: false
 evid_03_closed: false
 repository_head_at_authoring: 5e8b1a884d67031c68596378c33e49d82c18532c
+bounded_correction_001:
+  applied_at_repository_head: 8ca8833689e77d4a78c28795917dfa1842aec256
+  corrected_candidate_blob_before_correction: 6d3b9bd9c104e7b2617dffa36a784457fdf7b8b8
+  reviewer_findings_addressed:
+    - id: P3-PY-MUT-COND3-A-MAJ-01
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+    - id: P3-PY-MUT-COND3-A-MAJ-02
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+    - id: P3-PY-MUT-COND3-A-MAJ-03
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+    - id: P3-PY-MUT-COND3-A-MIN-01
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+    - id: P3-PY-MUT-COND3-A-MIN-02
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
 ```
 
 This document is a **design candidate**. It proposes a mechanism and, for
@@ -26,6 +40,18 @@ below is effective until a separately recorded review/approval decision
 accepts this design (or an amended version of it), and a **separate,
 later** implementation transaction actually authors and runs the harness
 against pinned source.
+
+**Bounded correction 001 (this revision):** five findings from Review A of
+the original candidate (blob `6d3b9bd9c104e7b2617dffa36a784457fdf7b8b8`) are
+remediated below — an isolation-based mechanism replacing the original
+canonical-working-tree patch/restore approach (`MAJ-01`), a clean-control
+contract plus a widened, fail-closed verdict enum with strengthened
+activation proof (`MAJ-02`), a corrected call-path analysis and required new
+test surface for `FI-STATIC-PROVIDER-01` (`MAJ-03`), a corrected
+`FeatureDefinition.__post_init__` guard count of 27 (not 25) (`MIN-01`), and
+corrected `FI-DECIMAL-POSTINIT-02` test-readiness wording (`MIN-02`). Each
+finding is recorded as `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW` in
+the header above — none is self-closed by this transaction.
 
 ## 0. Authority resolved
 
@@ -87,7 +113,7 @@ mechanism decision).
 | Changes an Event Schema | No. |
 | Changes Module Taxonomy/dependency graph | No. |
 | Changes Governance/Approval process | **Borderline — resolved below.** §5c already defines WHAT qualifies as evidence; this design proposes a NEW, concrete, reusable EXECUTION MECHANISM (a harness pattern, a fault-ID naming convention, a machine-readable per-fault evidence schema) to actually PRODUCE that evidence for Feature Engine. It is a genuinely new artifact/process, not present anywhere in the repository today. |
-| Affects >1 module | Scoped explicitly to `feature-engine` only in this design; but the mechanism is generic enough (temporary source patch + governed suite run + restore) that it could be reused for structure-engine/raw-regime-engine's own dataclass-hosted methods in the future — a real, if not immediate, cross-module reusability concern. |
+| Affects >1 module | Scoped explicitly to `feature-engine` only in this design; but the mechanism is generic enough (isolated-checkout patch + clean-control-gated governed suite run, per §2.1) that it could be reused for structure-engine/raw-regime-engine's own dataclass-hosted methods in the future — a real, if not immediate, cross-module reusability concern. |
 | Hard to reverse | No — supplemental, additive evidence; produces no permanent code change; a future mutmut version fix (§5d path (a)) could make the whole mechanism moot without reversing anything. |
 | Modifies/supersedes a Locked ADR | No. |
 
@@ -134,82 +160,164 @@ Owner risk-acceptance (path (iii)) is available in principle but is
 explicitly NOT proposed here per this task's own instruction not to use it
 "merely for convenience" — these 5 methods carry genuine, non-trivial
 branching logic (comparison guards, 4-way dispatch, numeric rounding,
-~25-guard validation chain) that a hand-authored, reviewable fault-
+~27-guard validation chain) that a hand-authored, reviewable fault-
 injection harness CAN meaningfully exercise; risk-acceptance would be
 appropriate only if no such mechanism were feasible, which is not the case
 here.
 
-### 2.1 Mechanism shape (design only — no script exists yet)
+### 2.1 Mechanism shape — corrected: isolated checkout, not canonical-tree patch/restore (`P3-PY-MUT-COND3-A-MAJ-01` remediation)
 
-A NEW, Feature-Engine-scoped supplemental harness (proposed future location:
-`python/feature-engine/tooling/fault_injection/`, out of scope to create in
-this transaction) that, for each individually-pinned fault record:
+**Correction:** the original design patched the canonical working tree and
+relied on a post-run `git checkout -- <file>` as its safety boundary — that
+is not an acceptable primary control, since the canonical tree is genuinely
+mutated (however briefly) during the run, a crash between patch and
+restore would leave production source altered, and any concurrent read of
+the canonical tree during the window is reading corrupted source. The
+corrected mechanism never touches the canonical checkout at all.
 
-1. **Pins the exact boundary.** Records `repository_head`, the exact
-   target file's blob hash, and the exact target method's fully-qualified
-   name before touching anything.
-2. **Applies one exact, surgical source patch.** Each fault is specified as
-   an exact `(file, old_string, new_string)` triple (mirroring this
-   repository's own `Edit` tool semantics) — a single, minimal, AST-
-   meaningful token/operator/branch change, never a fuzzy or regex-based
-   substitution. **Fail-closed:** if `old_string` is not found VERBATIM
-   (and uniquely) in the current file, the harness aborts with a non-zero
-   exit and records the fault as `INJECTION_FAILED — SOURCE DRIFT`, never
-   silently skipping or approximating.
-3. **Proves activation.** Immediately after patching, the harness re-reads
-   the patched file and asserts the exact `new_string` is present at the
-   expected location (byte-for-byte) — proof the intended, and ONLY the
-   intended, fault is live, before any test runs.
-4. **Runs the governed ordinary test suite unmodified** (`pytest tests/
-   -q`, the SAME command and SAME test tree used for every other
-   Feature Engine evidence transaction in this program — never a bespoke
-   fault-specific test invocation that could be gamed) against the
-   patched working tree.
-5. **Records the verdict.** `DETECTED` if the suite reports any failure;
-   `SURVIVED` if the suite reports 226/226 (or whatever the then-current
-   ordinary count is) passing despite the live fault — an explicit,
-   named residual, exactly mirroring what a real `survived` mutmut status
-   would mean, but never merged into mutmut's own ten-status counts.
-6. **Restores unconditionally.** Whether `DETECTED`, `SURVIVED`, or
-   `INJECTION_FAILED`, the harness restores the exact original file
-   content (e.g. `git checkout -- <file>`, or a captured pre-patch byte
-   copy) and verifies `git diff --quiet -- <file>` confirms zero residual
-   modification BEFORE proceeding to the next fault or exiting — this is
-   the "leave no modified working-tree source after each run" requirement,
-   enforced by an explicit post-condition check, not merely by intent.
-7. **Emits one machine-readable record per fault** (proposed JSON shape):
-   ```json
-   {
-     "fault_id": "FI-OHLCV-FIELD-01",
-     "method": "candle.OHLCV.field",
-     "source_file": "src/feature_engine/candle.py",
-     "source_blob_before": "<git blob hash>",
-     "fault_class": "branch_swap",
-     "old_string": "...",
-     "new_string": "...",
-     "activation_confirmed": true,
-     "test_command": "pytest tests/ -q",
-     "detecting_tests": ["tests/test_candle.py::test_field_high_returns_high"],
-     "result": "DETECTED",
-     "restored_confirmed": true,
-     "repository_head_at_run": "<sha>"
-   }
-   ```
+A NEW, Feature-Engine-scoped supplemental harness (proposed future
+location: `python/feature-engine/tooling/fault_injection/`, out of scope
+to create in this transaction) that, for **each individual fault
+execution**, performs the full isolate → verify → control → inject →
+evidence → destroy sequence below — never reusing one isolation across
+multiple faults, so a fault's own patch can never leak into another
+fault's run:
+
+1. **Create a clean, disposable, isolated checkout.** E.g. `git worktree
+   add --detach <isolation_path> <pinned_boundary_sha>` (or an equivalent
+   full disposable clone) into a location entirely OUTSIDE the canonical
+   working tree (e.g. this program's scratchpad, never a path under the
+   tracked repository). The canonical checkout is never `cd`-ed into,
+   read for mutation purposes, or written to at any point in this
+   sequence — it is not "restored," it is simply never touched.
+2. **Verify exact identities inside the isolation, before anything else.**
+   Confirm, inside the ISOLATED checkout only: `git rev-parse HEAD`
+   equals the pinned governed boundary exactly; the `src`, `tests`, and
+   `tooling` subtree hashes (`git rev-parse HEAD:python/feature-engine/
+   src` etc.) equal the exact expected pinned tree identities; `git diff
+   --quiet` and `git status --porcelain` report a pristine, zero-diff
+   checkout. **Fail closed** — abort as `INJECTION_FAILED — ISOLATION
+   IDENTITY MISMATCH`, destroy the (already-suspect) isolation, and
+   record no verdict for this fault — if creation fails or ANY identity
+   does not match exactly.
+3. **Run the clean control, inside the same isolation, before injecting
+   anything.** Execute the exact unmodified governed suite (`pytest
+   tests/ -q`) against the pristine isolated checkout and require it to
+   PASS in full (e.g. 226/226, 0 failed, 0 collection errors). Record the
+   full set of passing node IDs — this is the reference set `DETECTED`
+   is measured against (§2.1 step 6). **If the control does not pass in
+   full, abort as `CONTROL_FAILED`** and record no `DETECTED`/`SURVIVED`
+   verdict for this fault — a pre-existing environment or fixture defect
+   must never be misattributed to the injected fault.
+4. **Apply exactly one fault, inside the isolation's own file only.** The
+   same exact `(file, old_string, new_string)` triple as before — a
+   single, minimal, AST-meaningful token/operator/branch change — but
+   written to the ISOLATED checkout's copy of the file. **Fail closed:**
+   if `old_string` is not found VERBATIM and uniquely in the isolated
+   file, abort as `INJECTION_FAILED — SOURCE DRIFT`, destroy the
+   isolation, record no `DETECTED`/`SURVIVED` verdict.
+5. **Prove activation — strengthened, not a mere substring check.** After
+   patching, the harness verifies ALL of: (a) `new_string` appears
+   exactly once at the expected location; (b) the patched file's exact
+   post-patch content hash (e.g. `sha256`, or the git blob hash the
+   isolated checkout would produce on `git add`) equals a hash computed
+   and pinned in the fault record BEFORE the run from the known-good
+   expected patched content — not merely "the substring is present
+   somewhere"; (c) `git diff` inside the isolation, against the pinned
+   boundary, shows EXACTLY one hunk in exactly the one target file — no
+   other file, and no other line in the target file, differs. Any
+   mismatch on (a)/(b)/(c) is `INJECTION_FAILED — ACTIVATION MISMATCH`,
+   never silently treated as activated.
+6. **Run the evidence suite, inside the same isolation** (identical
+   `pytest tests/ -q` command as the control). Classify the outcome
+   against the control's own recorded passing set (step 3) — never
+   against a hardcoded expected count, so environment-driven count drift
+   between the control and evidence run is itself detectable.
+7. **Classify one of five fail-closed verdicts (`P3-PY-MUT-COND3-A-MAJ-02`
+   remediation)** — see §2.1a below.
+8. **Destroy the isolation unconditionally**, regardless of verdict —
+   `git worktree remove --force <isolation_path>` (or delete the
+   disposable clone) — and, as defense-in-depth (never the primary
+   boundary — the canonical checkout was never mutated to begin with),
+   verify the canonical checkout's own `git status --porcelain`/`git diff
+   --quiet` are byte-identical to their state immediately before this
+   fault's sequence began.
+9. **Emit one machine-readable evidence record per fault** — schema in
+   §2.1a.
+
+### 2.1a Clean-control contract and fail-closed verdict enum (`P3-PY-MUT-COND3-A-MAJ-02` remediation)
+
+Exactly five outcomes, never conflated:
+
+| Verdict | Meaning | Recorded when |
+|---|---|---|
+| `CONTROL_FAILED` | The clean, unmodified suite did not fully pass inside this fault's own pristine isolation. | Step 3 fails. No fault applied. |
+| `INJECTION_FAILED` | The fault could not be applied exactly, or activation could not be proven exactly. | Step 2 (identity mismatch), step 4 (source drift), or step 5 (activation mismatch) fails. |
+| `TEST_INFRA_ERROR` | The evidence run itself failed for a reason NOT attributable to the injected behavior — pytest collection error, interpreter/tooling crash, a timeout with no relation to the fault's own logic, isolation corruption detected mid-run, etc. | Step 6 raises/errors outside of ordinary pass/fail test outcomes. **Never coerced into `DETECTED` or `SURVIVED`.** |
+| `DETECTED` | Activation proof (step 5) succeeded, the control (step 3) fully passed, collection in step 6 was clean, AND at least one node ID that PASSED in the control (step 3) FAILED in the evidence run (step 6). | The qualifying, positive Condition-3 outcome. |
+| `SURVIVED` | Activation proof succeeded, the control fully passed, collection was clean, but every node ID that passed in the control also passed in the evidence run. | An explicit, named residual — mirrors what a real mutmut `survived` status would mean for this fault, but is never merged into mutmut's own ten-status counts. |
+
+`DETECTED` and `SURVIVED` are the only two verdicts that constitute
+qualifying Condition-3 evidence for a fault; `CONTROL_FAILED`,
+`INJECTION_FAILED`, and `TEST_INFRA_ERROR` are all fail-closed
+non-evidence outcomes requiring the harness (or a human) to fix the
+underlying isolation/control/injection problem and re-run — none of the
+three may ever be recorded, reported, or rolled up as if it were
+`DETECTED`.
+
+**Detecting node IDs (audit attribution).** For a `DETECTED` verdict, the
+record's `detecting_test_node_ids` field lists ONLY node IDs that (a)
+passed in this fault's own control run and (b) failed in this fault's own
+evidence run — a node ID that also failed in the control (e.g. a
+pre-existing flaky test) is excluded, since its failure cannot be
+attributed to the injected fault. This closes the false-`DETECTED` risk
+the original design's "any failure at all" rule left open.
+
+### 2.1b Evidence record schema (corrected)
+
+```json
+{
+  "fault_id": "FI-OHLCV-FIELD-01",
+  "method": "candle.OHLCV.field",
+  "source_file": "src/feature_engine/candle.py",
+  "pinned_repository_head": "<sha, the governed boundary this fault runs against>",
+  "isolation_head_verified": "<sha, confirmed == pinned_repository_head inside isolation>",
+  "isolation_src_tree_verified": "<tree hash, confirmed == expected pinned tree>",
+  "isolation_tests_tree_verified": "<tree hash, confirmed == expected pinned tree>",
+  "isolation_tooling_tree_verified": "<tree hash, confirmed == expected pinned tree>",
+  "control_test_command": "pytest tests/ -q",
+  "control_result": "PASS",
+  "control_passed_node_id_count": 226,
+  "fault_class": "branch_swap",
+  "old_string": "...",
+  "new_string": "...",
+  "activation_new_string_unique_and_located": true,
+  "activation_expected_patched_file_sha256": "<pinned before the run>",
+  "activation_observed_patched_file_sha256": "<must equal expected>",
+  "activation_diff_single_hunk_single_file_confirmed": true,
+  "evidence_test_command": "pytest tests/ -q",
+  "verdict": "DETECTED",
+  "detecting_test_node_ids": ["tests/test_candle.py::test_field_high_returns_high"],
+  "isolation_destroyed_confirmed": true,
+  "canonical_checkout_never_touched_confirmed": true
+}
+```
 
 ### 2.2 How each mechanism requirement is met
 
 | Requirement | How this design satisfies it |
 |---|---|
-| Leaves production source unchanged during evidence execution | Step 6's unconditional restore + `git diff --quiet` post-check, per fault, not per batch. |
-| Deterministic/reproducible from an exact pinned boundary | Every fault record pins `repository_head`, source blob, exact `old_string`/`new_string` — re-running the SAME record against the SAME boundary reproduces the SAME patch byte-for-byte. |
+| Leaves production source unchanged during evidence execution | The canonical checkout is never entered or written to — every patch is applied inside a disposable isolated checkout only (§2.1 steps 1, 4, 8). |
+| Deterministic/reproducible from an exact pinned boundary | Every fault record pins the governed boundary sha, verified identities, and exact `old_string`/`new_string` — re-running the SAME record recreates the SAME isolation and the SAME patch byte-for-byte. |
 | Identifies each injected fault uniquely | `fault_id` naming convention `FI-{METHOD-SLUG}-{NN}`, pinned in the evidence record. |
-| Proves the fault was actually activated | Step 3's post-patch read-back-and-assert, recorded as `activation_confirmed`. |
-| Proves the governed ordinary suite distinguishes it | Step 4's UNMODIFIED `pytest tests/ -q` run against the SAME governed test tree used everywhere else — never a fault-specific bespoke check. |
-| Fails closed if injection cannot be applied exactly | Step 2's exact-match-or-abort rule. |
-| Leaves no modified working-tree source after each run | Step 6's explicit post-condition, checked per fault. |
-| Produces machine-readable per-method/per-fault evidence | §2.1 item 7's JSON record shape, one per fault, aggregable per method. |
+| Proves the fault was actually activated | §2.1 step 5's three-part check (unique match, exact expected file hash, single-hunk/single-file diff scope) — not a mere substring presence check. |
+| Proves the governed ordinary suite distinguishes it | §2.1 steps 3/6 — the SAME `pytest tests/ -q` command run twice inside the same isolation (control, then evidence), diffed against each other's node-ID sets. |
+| Fails closed if injection cannot be applied exactly | §2.1 steps 2/4/5's `INJECTION_FAILED` paths. |
+| Leaves no modified working-tree source after each run | Not applicable in the corrected design as a "restore" — the canonical tree is never modified in the first place; §2.1 step 8's isolation-destruction and defense-in-depth check confirm this. |
+| Produces machine-readable per-method/per-fault evidence | §2.1b's JSON record schema, one per fault, aggregable per method. |
 | Avoids changing the raw 1531-mutant denominator or Condition-1 score | The harness never invokes `mutmut`/`python -m tooling run`, never touches `mutants/`/`.mutmut-cache`, and its own results are written to a SEPARATE, distinctly-named evidence artifact, never merged into any `sorted_mutant_id_to_result_mapping` or `ten_status_counts`. |
 | Remains supplemental Condition-3 evidence only | Explicitly framed throughout as satisfying Testing Convention v0.16 §5c path (ii) for Condition 3 alone — never cited as, or convertible into, Condition-1 raw-score evidence. |
+| Avoids false `DETECTED` from infrastructure/environment failure | §2.1a's five-way verdict enum: `CONTROL_FAILED`/`INJECTION_FAILED`/`TEST_INFRA_ERROR` are structurally distinct from, and can never be coerced into, `DETECTED`. |
 
 ## 3. Per-method fault-class plans
 
@@ -247,34 +355,84 @@ evidence to record, and assumptions/invalidation triggers.
   exists to prevent.
 - **Injection boundary:** single comparison-operator token in the `if`
   condition; no other line touched.
-- **Expected observable distinguishing behavior:** constructing an engine
-  with a `StaticInputContractAuthorityProvider` wrapping the WRONG
-  profile's authority must raise `InputContractIdentityMismatchError`
-  under the original code; under the fault, no exception is raised and the
-  wrong authority is silently returned/bound.
-- **Existing test surface (no new test required):**
-  `tests/test_swing_distance.py` (~line 1901) and `tests/test_regime_
-  passthrough.py` (~line 731) each already construct a
+- **Expected observable distinguishing behavior (corrected —
+  `P3-PY-MUT-COND3-A-MAJ-03` remediation):** calling `provider.resolve
+  (profile)` DIRECTLY must return the exact wrapped authority for a
+  MATCHING profile, and must raise `InputContractIdentityMismatchError`
+  for a MISMATCHED profile, under the original code; under the fault
+  (`!=` -> `==`) both directions invert — a matching profile now raises,
+  and a mismatched profile is now silently returned. **Correction: this is
+  NOT necessarily observable at an ENGINE construction boundary.** Both
+  `RegimePassthroughFeatureEngine.__init__` (`regime_passthrough.py`,
+  ~lines 122-136) and `SwingDistanceFeatureEngine.__init__` (`swing_
+  distance.py`, ~lines 289-303) call `provider.resolve(_REQUIRED_
+  INPUT_CONTRACT_PROFILE)` and THEN independently re-validate, on their
+  own, `self._resolved_input_contract.feature_computation_profile !=
+  _REQUIRED_INPUT_CONTRACT_PROFILE`, raising the SAME
+  `InputContractIdentityMismatchError` if the RETURNED authority's own
+  profile does not match — this is an intentional, separate,
+  already-existing defense-in-depth guard (its own error message
+  explicitly reads "a misbehaving provider is never trusted merely
+  because it otherwise returned a well-formed object"). Under
+  `FI-STATIC-PROVIDER-01`, a mismatched-profile provider still returns the
+  WRONG (mismatched) authority object, which this DOWNSTREAM engine guard
+  then independently rejects with the SAME exception type — so the wrong
+  authority does NOT silently bind at the engine boundary either way, and
+  a test that only asserts `pytest.raises(InputContractIdentityMismatchError)`
+  around engine construction cannot distinguish the provider's own guard
+  firing from the engine's downstream guard firing instead.
+- **Existing test surface — corrected, existing engine-level tests are
+  INSUFFICIENT:** `tests/test_swing_distance.py` (~line 1897) and `tests/
+  test_regime_passthrough.py` (~line 731) each construct a
   `StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT)` /
   `StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT)`
-  passed to the WRONG engine type and assert `pytest.raises
-  (InputContractIdentityMismatchError)` — under `FI-STATIC-PROVIDER-01`
-  this assertion would fail to raise, so the existing suite already
-  detects this fault; no new test is proposed.
+  passed to the WRONG engine type and assert only `pytest.raises
+  (InputContractIdentityMismatchError)` with no message/origin check —
+  under `FI-STATIC-PROVIDER-01` this assertion STILL PASSES, because the
+  engine's own downstream guard (above) raises the identical exception
+  type regardless of which guard actually fired. These tests therefore do
+  **not** reliably detect this fault and must not be relied on as the sole
+  evidence. **New test surface REQUIRED**, isolating
+  `StaticInputContractAuthorityProvider.resolve` directly, bypassing any
+  engine's downstream re-validation entirely:
+  - `test_static_provider_resolve_returns_wrapped_authority_for_matching_profile`
+    — construct `StaticInputContractAuthorityProvider(SWING_DISTANCE_
+    INPUT_CONTRACT)` and call `.resolve(SWING_DISTANCE_INPUT_CONTRACT.
+    feature_computation_profile)` directly; assert the return value `is`
+    the exact wrapped `SWING_DISTANCE_INPUT_CONTRACT` object.
+  - `test_static_provider_resolve_raises_for_mismatched_profile`
+    — construct the same provider and call `.resolve(<a distinct, valid
+    profile the wrapped authority does NOT carry>)` directly; assert
+    `pytest.raises(InputContractIdentityMismatchError)`.
+  Under `FI-STATIC-PROVIDER-01`, calling `.resolve()` directly (no engine
+  in the loop) makes both directions immediately, unambiguously
+  observable: the first test's matching-profile call would unexpectedly
+  raise; the second test's mismatched-profile call would unexpectedly
+  return instead of raising. These two new tests are REQUIRED before
+  `FI-STATIC-PROVIDER-01` can be claimed `DETECTED`.
 - **Deterministic reproduction contract:** `old_string=
   "if self.authority.feature_computation_profile != profile:"`,
   `new_string="if self.authority.feature_computation_profile == profile:"`
   in `src/feature_engine/authority_resolver.py`, applied at the current
-  pinned source blob.
-- **Pass/fail criteria:** `DETECTED` iff at least one of the two named
-  existing tests fails under the fault; `SURVIVED` otherwise.
-- **Evidence to record:** the JSON record per §2.1 item 7, `detecting_
-  tests` listing both named tests if both fail.
-- **Assumptions/invalidation triggers:** assumes the two named tests are
-  not removed/weakened in a future transaction without a corresponding
-  fault-injection re-run; a future change to either engine's constructor
-  validation order that short-circuits BEFORE reaching `.resolve()` would
-  invalidate this specific detection path and require re-verification.
+  pinned source blob (inside the isolated checkout per §2.1, never the
+  canonical tree).
+- **Pass/fail criteria:** `DETECTED` iff at least one of the two NEW
+  direct-provider tests fails under the fault (per the §2.1a verdict
+  contract, cross-referenced against the control's passing set);
+  `SURVIVED` otherwise. Recorded `PLANNED, TESTS REQUIRED` in this design,
+  not a pre-judged outcome — the two engine-level tests may still be
+  listed as corroborating context but are never the primary
+  `detecting_test_node_ids` claim.
+- **Evidence to record:** the JSON record per §2.1b, once the two new
+  direct-provider tests exist.
+- **Assumptions/invalidation triggers:** assumes the two new direct-
+  provider tests call `.resolve()` without going through either engine's
+  constructor (otherwise the same masking this correction identifies
+  would reappear); a future change removing either engine's own
+  downstream re-validation guard would make the ORIGINAL engine-level
+  tests newly sufficient on their own, but would not itself invalidate
+  the new direct-provider tests, which remain the primary, unmasked
+  detection path regardless.
 
 ---
 
@@ -317,7 +475,7 @@ evidence to record, and assumptions/invalidation triggers.
   live simultaneously).
 - **Pass/fail criteria:** `DETECTED` iff the corresponding named test
   fails; `SURVIVED` otherwise.
-- **Evidence to record:** per §2.1 item 7, one record per fault ID.
+- **Evidence to record:** per §2.1b, one record per fault ID.
 - **Assumptions/invalidation triggers:** assumes the 5 OHLCV fixture
   values remain mutually distinct in `test_candle.py` (a future edit
   collapsing e.g. `high == low` would silently weaken `FI-OHLCV-FIELD-01`'s
@@ -393,7 +551,7 @@ evidence to record, and assumptions/invalidation triggers.
   proposed new test is actually authored in a later implementation
   transaction — this design records it as `PLANNED, TEST REQUIRED`, not a
   pre-judged outcome.
-- **Evidence to record:** per §2.1 item 7; FI-01's record should name
+- **Evidence to record:** per §2.1b; FI-01's record should name
   the DEDICATED new test as `detecting_tests[0]` once authored, with the
   broad incidental-detection set as corroborating context, not the primary
   claim.
@@ -439,23 +597,44 @@ evidence to record, and assumptions/invalidation triggers.
   rounding mode (e.g. `"NOT_A_REAL_MODE"`) must raise
   `InvalidFeatureDefinitionError` — both directions invert under the
   fault.
-- **Existing test surface:** **no existing test surface** —
-  `DecimalPrecisionPolicy` is only ever constructed via `conftest.
-  make_decimal_policy(digits=2)` (always non-zero digits, always the same
-  valid rounding string); no test anywhere directly constructs it with
-  `digits=0` or with an invalid `rounding`. **New tests proposed:**
-  `test_decimal_precision_policy_digits_zero_is_valid_boundary`
-  (constructs `DecimalPrecisionPolicy(digits=0, rounding="ROUND_HALF_UP")`,
-  asserts no exception) and `test_decimal_precision_policy_invalid_
-  rounding_mode_rejected` (constructs with `rounding="NOT_A_REAL_MODE"`,
-  asserts `InvalidFeatureDefinitionError`) — both REQUIRED before either
-  fault can be claimed `DETECTED`.
+- **Existing test surface — corrected per fault (`P3-PY-MUT-COND3-A-MIN-02`
+  remediation):**
+  - `FI-DECIMAL-POSTINIT-01`: **no existing test surface** —
+    `DecimalPrecisionPolicy` is only ever constructed via `conftest.
+    make_decimal_policy(digits=2)` (always non-zero digits); no test
+    anywhere directly constructs it with `digits=0`. **New test proposed:**
+    `test_decimal_precision_policy_digits_zero_is_valid_boundary`
+    (constructs `DecimalPrecisionPolicy(digits=0, rounding="ROUND_HALF_
+    UP")`, asserts no exception) — REQUIRED before this fault can be
+    claimed `DETECTED`.
+  - `FI-DECIMAL-POSTINIT-02`: **correction — broad existing incidental
+    detection DOES exist**, contrary to the original candidate's "no
+    existing coverage" claim. `conftest.make_decimal_policy()` always
+    constructs with `rounding="ROUND_HALF_UP"` — a VALID rounding mode —
+    and is itself called from `make_regime_definition`, `make_candle_
+    definition`, and `make_distance_definition` (all three `Feature
+    Definition`-building fixtures used pervasively across the suite).
+    Under the `not in -> in` inversion, EVERY one of these valid-rounding
+    constructions would begin raising `InvalidFeatureDefinitionError`
+    unexpectedly, so essentially the entire suite (not merely one test)
+    would fail — broad incidental existing detection is genuinely
+    present. The proposed direct, isolated test remains valuable/
+    REQUIRED regardless, because "226 unrelated tests failed" is not a
+    clean, individually-attributable `DETECTED` record: **new test
+    proposed:** `test_decimal_precision_policy_invalid_rounding_mode_
+    rejected` (constructs `DecimalPrecisionPolicy(digits=2,
+    rounding="NOT_A_REAL_MODE")`, asserts `InvalidFeatureDefinitionError`)
+    — REQUIRED as this fault's own clean, isolated `detecting_test_node_
+    ids` entry, with the broad incidental breakage recorded only as
+    corroborating context, mirroring the pattern already used for
+    `FI-DECIMAL-APPLY-01`.
 - **Deterministic reproduction contract:** exact `old_string`/`new_string`
-  pairs against `src/feature_engine/contracts.py`'s current pinned blob.
+  pairs against `src/feature_engine/contracts.py`'s current pinned blob
+  (inside the isolated checkout per §2.1).
 - **Pass/fail criteria:** `DETECTED` iff the corresponding new test fails
-  under the fault; `SURVIVED` otherwise. Recorded `PLANNED, TESTS
-  REQUIRED` in this design, not a pre-judged outcome.
-- **Evidence to record:** per §2.1 item 7, once the two new tests exist.
+  under the fault (per §2.1a); `SURVIVED` otherwise. Recorded `PLANNED,
+  TESTS REQUIRED` in this design, not a pre-judged outcome.
+- **Evidence to record:** per §2.1b, once the two new tests exist.
 - **Assumptions/invalidation triggers:** assumes `_VALID_ROUNDINGS` (the
   module-level frozenset of accepted `decimal` rounding-mode strings)
   remains non-empty and contains at least one mode distinguishable from
@@ -470,17 +649,21 @@ evidence to record, and assumptions/invalidation triggers.
   slots=True)`-decorated (`contracts.py`); empirically confirmed zero
   mutants (§1.1).
 - **Authoritative behavior/invariant protected:** current source (lines
-  703-813) — directly counted (not estimated): **25 independent
-  `raise InvalidFeatureDefinitionError(...)` fail-closed guard statements**
+  705-819) — directly re-counted for this correction (`P3-PY-MUT-COND3-A-
+  MIN-01` remediation) via `sed -n '705,819p' src/feature_engine/
+  contracts.py | grep -c "raise InvalidFeatureDefinitionError"`: **27
+  independent `raise InvalidFeatureDefinitionError(...)` fail-closed guard
+  statements** — corrects the original candidate's miscounted 25 —
   spanning non-empty-string checks, 6 exact-policy-string equality guards,
   and feature-type-specific (metric vs. distance) cross-field mutual-
   exclusivity/required-presence/allowed-value checks — "feature-engine's
   single largest, most safety-critical validation guard chain" (Testing
   Convention v0.16 §5d's own framing, independently re-confirmed by direct
-  count here). Representative (not exhaustive) fault coverage is proposed,
-  spanning 3 distinct guard SHAPES present in this method, per this task's
-  own "meaningful semantic corruption, not exhaustive mechanical coverage"
-  guidance:
+  count here). This is a factual inventory correction only; it does not
+  change which fault classes are proposed below — representative (not
+  exhaustive) fault coverage is proposed, spanning 3 distinct guard SHAPES
+  present in this method, per this task's own "meaningful semantic
+  corruption, not exhaustive mechanical coverage" guidance:
 - **Fault classes:**
   - `FI-FEATUREDEF-01` (policy-equality guard inversion): `self.
     correction_policy != CORRECTION_POLICY` -> `==` — inverts the guard so
@@ -538,7 +721,7 @@ evidence to record, and assumptions/invalidation triggers.
 - **Pass/fail criteria:** `DETECTED` iff the named (existing, for FI-01/
   FI-02) or new (for FI-03, once authored) test fails under the fault;
   `SURVIVED` otherwise.
-- **Evidence to record:** per §2.1 item 7, one record per fault ID.
+- **Evidence to record:** per §2.1b, one record per fault ID.
 - **Assumptions/invalidation triggers:** FI-01's broad detection depends
   on at least one construction-fixture test continuing to exist and run
   as part of the governed suite (trivially true — the entire suite would
@@ -562,21 +745,27 @@ the other 4 methods' clean results. This mirrors Testing Convention v0.16
 §5b's own "each omission must be individually, exactly identified" rule,
 applied at the method level for this specific gate.
 
-**Current status against this criterion (design time, no execution yet):**
+**Current status against this criterion (design time, no execution yet;
+corrected per Review A findings `MAJ-03`/`MIN-02`):**
 
 | Method | Fault(s) planned | Existing test surface | Status |
 |---|---|---|---|
-| `StaticInputContractAuthorityProvider.resolve` | FI-STATIC-PROVIDER-01 | Existing (2 tests) | Ready to run, no new test needed |
+| `StaticInputContractAuthorityProvider.resolve` | FI-STATIC-PROVIDER-01 | **Corrected:** existing engine-level tests do NOT isolate this defect (downstream engine re-validation masks it, §3.1); 2 new direct-provider tests required | Blocked on 2 new tests |
 | `OHLCV.field` | FI-OHLCV-FIELD-01/02 | Existing (5 tests) | Ready to run, no new test needed |
 | `DecimalPrecisionPolicy.apply` | FI-DECIMAL-APPLY-01/02 | 01: existing (incidental); 02: new test required | FI-01 ready; FI-02 blocked on new test |
-| `DecimalPrecisionPolicy.__post_init__` | FI-DECIMAL-POSTINIT-01/02 | New tests required (both) | Blocked on 2 new tests |
+| `DecimalPrecisionPolicy.__post_init__` | FI-DECIMAL-POSTINIT-01/02 | 01: no existing coverage, new test required; 02: **corrected** — broad existing incidental coverage exists (§3.4), but an isolated new test is still required for clean attribution | Blocked on 2 new tests (both required, for different reasons) |
 | `FeatureDefinition.__post_init__` | FI-FEATUREDEF-01/02/03 | 01/02: existing; 03: new test required | FI-01/02 ready; FI-03 blocked on new test |
 
 **None of the 5 methods currently has an EXECUTED, recorded `DETECTED`
 result** — this design only establishes readiness/blockers; a later,
 separate implementation transaction must (a) author the identified new
-tests, (b) build the harness, (c) execute all fault records, (d) pin the
-resulting evidence artifact, before Condition 3 can be marked resolved.
+tests (now 7 total: 2 for the static provider, 1 for decimal-apply's
+half-boundary case, 2 for decimal-post-init, 1 for the feature-definition
+boundary, plus the recommended-not-required dedicated decimal-apply-01
+attribution test), (b) build the isolation-based harness per §2.1, (c)
+execute all fault records against fresh clean-control-gated isolations,
+(d) pin the resulting evidence artifact, before Condition 3 can be marked
+resolved.
 
 ## 5. The 7 lower-materiality excluded methods — current authority requirement (not promoted, not demoted)
 
@@ -642,11 +831,18 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 
 ## 8. Next governed action
 
-**Review A of this design candidate** — an independent reviewer assesses
-the selected mechanism, the ADR-scope disposition, and each of the 5
-per-method fault-class plans (including the identified new-test
-requirements), and either accepts, rejects, or amends this design. Only
-after review/approval may a SEPARATE, later implementation transaction
-author the proposed new tests, build the harness, execute the fault
-records, and pin the resulting evidence artifact toward Condition 3's
-resolution. This document performs none of that itself.
+**Bounded Review A re-review of this corrected design candidate.** The
+five findings remediated by bounded correction 001 (`P3-PY-MUT-COND3-A-
+MAJ-01/02/03`, `P3-PY-MUT-COND3-A-MIN-01/02`) are each recorded in the
+header as `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`, not
+self-closed — an independent reviewer must re-examine specifically
+whether each correction is adequate (the isolation-based mechanism, the
+clean-control/verdict-enum contract and strengthened activation proof, the
+corrected `FI-STATIC-PROVIDER-01` call-path analysis and its two required
+new tests, the corrected 27-guard count, and the corrected
+`FI-DECIMAL-POSTINIT-02` test-readiness wording) before any finding may be
+closed. Only after that re-review accepts (or further amends) this design
+may a SEPARATE, later implementation transaction author the proposed new
+tests, build the harness, execute the fault records, and pin the
+resulting evidence artifact toward Condition 3's resolution. This document
+performs none of that itself.
