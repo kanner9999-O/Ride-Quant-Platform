@@ -2,6 +2,88 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-07 — feature-engine: mutation-surface completeness (Condition 3) design candidate 001 (DESIGN ONLY; not effective)
+
+**Design transaction — vai trò: `Feature Engine Condition-3 Mutation-Surface Completeness Design Author`.** Authors ONE governed design candidate proposing how to resolve Condition 3 (mutation-surface completeness) for the 5 high-materiality methods mutmut 3.7.0 structurally excludes from the Feature Engine mutation surface (`StaticInputContractAuthorityProvider.resolve`, `OHLCV.field`, `DecimalPrecisionPolicy.apply`, `DecimalPrecisionPolicy.__post_init__`, `FeatureDefinition.__post_init__`), per Testing Convention v0.16 §5b/§5c/§5d and the approved mutation threshold proposal §4.2. DESIGN ONLY — no `src/**`/`tests/**`/`tooling/**` change, no fault injection executed, no formal Step-9/QG evaluation, no closing of `P3-FEATURE-QG-EVID-03`.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `5e8b1a884d67031c68596378c33e49d82c18532c` via `git rev-parse HEAD`, matching this task's own expected boundary; `origin/main` fetched and confirmed identical.
+
+### Empirical re-verification (fresh, not trusted from prior summaries)
+
+```text
+All 5 target methods' host classes independently re-confirmed
+  @dataclass(frozen=True, slots=True)-decorated. A disposable mutant-
+  generation pass (.designvenv, destroyed after use) confirmed 0
+  `_mutmut_N` variants generated for any of the 5 methods, while ordinary
+  methods in the same files mutate normally. FeatureDefinition.
+  __post_init__ guard count re-counted directly from source: 25
+  independent raise statements (supersedes prior "~15" estimate).
+```
+
+### Selected mechanism
+
+```text
+Governed deterministic fault injection (Testing Convention v0.16 §5c path
+  (ii)) -- no accepted supplemental mutation-testing mechanism exists
+  today; Product Owner risk acceptance (path (iii)) explicitly NOT
+  proposed merely for convenience. Mechanism: exact pinned (file,
+  old_string, new_string) patch -> activation proof -> unmodified
+  governed suite run -> DETECTED/SURVIVED verdict -> unconditional
+  restore + git-diff-quiet post-condition -> machine-readable JSON
+  evidence per fault. Fails closed on source drift. Never touches
+  mutants/raw denominator/Condition-1 score; distinguished from
+  confirmed_timeout.
+```
+
+### Per-method fault classes and Condition-3 completion criterion
+
+```text
+5 methods, 10 fault IDs total (FI-STATIC-PROVIDER-01; FI-OHLCV-FIELD-01/
+  02; FI-DECIMAL-APPLY-01/02; FI-DECIMAL-POSTINIT-01/02; FI-FEATUREDEF-01/
+  02/03). Existing test surface sufficient for 6 of 10; 3 methods'
+  fault(s) block on newly-identified, not-yet-authored tests (dropped-
+  rounding-kwarg boundary value; digits=0 and invalid-rounding-mode
+  __post_init__ boundary/membership cases; window_candle_count=1
+  boundary). Condition 3 satisfied ONLY when all 5 methods each have a
+  recorded DETECTED result, once implemented/reviewed/executed -- no
+  partial aggregate. No fault executed in this design transaction.
+```
+
+### ADR Scope Rule (fresh Chapter 0 §4b check, not inherited)
+
+```text
+Disposition: ADR_OPTIONAL, analogous to the prior mutmut-compatibility-
+  shim candidate's own disposition. No ADR authored in this transaction
+  per instruction -- discretionary, not blocking.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  surface-completeness-design-001.md (new), docs/MANIFEST.md, docs/
+  CHANGELOG.md changed. python/feature-engine/src/**, tests/**,
+  tooling/** verified byte-identical before/after -- .designvenv/
+  mutants/.mutmut-cache disposable, destroyed, never committed. No fault
+  injection, no test authored, no formal Step-9/QG evidence, no ADR, no
+  finding self-closed. Feature Engine not approved. Phase 3 gate not
+  opened. LIVE not authorized.
+```
+
+### State summary (preserved)
+
+```text
+Condition 1: evidence-ready (Checkpoint 002, 87.65512736773351%) -- NOT a
+  formal PASS. Condition 2: SATISFIED (170/170). Condition 3: UNRESOLVED.
+P3-FEATURE-QG-EVID-03..-08: OPEN / blocking. Overall Feature Chapter 13
+  QG: FAIL — evidence. Feature module: NOT APPROVED. Phase 3 gate: NOT
+  opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of this design candidate.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.326"` → `"10.327"`.
+
 ## [Unreleased] — 2026-09-07 — feature-engine: full mutation checkpoint 002 (NON-GATING; raw score 87.65512736773351%, EVID-03 disposition unchanged)
 
 **Diagnostic transaction — vai trò: `Feature Engine Full Mutation Checkpoint Executor`.** One fresh, full, explicitly NON-GATING mutation checkpoint of the complete Feature Engine mutation population (all 1531 mutants) after Condition-1 Mutation Score Remediation Batch 1 + its bounded test-quality correction, and after the approved Condition-2 material-gap reclassification. NOT a formal Step-9/QG transaction — records no gate/finding disposition, even though the measured raw score numerically exceeds the approved threshold. No production/test/tooling changes.

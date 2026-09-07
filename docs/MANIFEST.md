@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.326"
+manifest_version: "10.327"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -22448,6 +22448,175 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** if a formal Step-9 transaction is separately authorized, this checkpoint's own figures (87.65512736773351% raw, Condition 2 satisfied) indicate condition 1 and condition 2 would both currently pass on this evidence, but condition 3 (mutation-surface completeness) remains unresolved and would need to be addressed (or a governed risk-acceptance recorded) before a formal Step-9/QG transaction could plausibly pass in full.
 
 **Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-full-checkpoint-002.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.325"` → `"10.326"`.
+
+## `feature-engine` — Mutation-Surface Completeness (Condition 3) Design Candidate 001 (DESIGN ONLY; not effective)
+
+**Design transaction — vai trò: `Feature Engine Condition-3 Mutation-Surface Completeness Design Author`.** Authors ONE governed design candidate proposing how to resolve Condition 3 (mutation-surface completeness) for the 5 high-materiality methods mutmut 3.7.0 structurally excludes from the Feature Engine mutation surface (`StaticInputContractAuthorityProvider.resolve`, `OHLCV.field`, `DecimalPrecisionPolicy.apply`, `DecimalPrecisionPolicy.__post_init__`, `FeatureDefinition.__post_init__`), per Testing Convention v0.16 §5b/§5c/§5d and the approved mutation threshold proposal §4.2. DESIGN ONLY — no `src/**`/`tests/**`/`tooling/**` change, no fault injection executed, no formal Step-9/QG evaluation, no closing of `P3-FEATURE-QG-EVID-03`.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `5e8b1a884d67031c68596378c33e49d82c18532c` via `git rev-parse HEAD`, matching this task's own expected boundary; `origin/main` fetched and confirmed identical (no drift).
+
+### Empirical re-verification (fresh, not trusted from prior summaries)
+
+```text
+All 5 target methods' host classes independently re-confirmed
+  @dataclass(frozen=True, slots=True)-decorated by direct source read.
+A disposable mutant-generation pass (.designvenv, destroyed after use, zero
+  tracked-repo footprint) confirmed 0 `_mutmut_N` variants generated for
+  any of the 5 methods, while ordinary methods in the same files mutate
+  normally -- the decorated-class exclusion is structural/tool-version-
+  specific, re-verified empirically, not re-asserted from baseline-001.
+FeatureDefinition.__post_init__ guard count re-counted directly from
+  source (lines 703-813): 25 independent
+  `raise InvalidFeatureDefinitionError(...)` statements (supersedes the
+  prior baseline analysis's "~15" estimate).
+```
+
+### Selected mechanism
+
+```text
+Governed deterministic fault injection (Testing Convention v0.16 §5c path
+  (ii)) -- no accepted supplemental mutation-testing mechanism exists
+  today (path (i) unavailable, not merely unexamined); Product Owner risk
+  acceptance (path (iii)) explicitly NOT proposed per this task's own
+  instruction not to use it merely for convenience.
+Mechanism shape: exact pinned (file, old_string, new_string) source patch
+  -> activation proof (post-patch read-back assertion) -> unmodified
+  governed suite run (`pytest tests/ -q`) -> DETECTED/SURVIVED verdict ->
+  unconditional restore + `git diff --quiet` post-condition -> one
+  machine-readable JSON evidence record per fault (unique fault_id,
+  activation_confirmed, detecting_tests, result). Fails closed if
+  old_string is not found verbatim/uniquely. Never invokes mutmut, never
+  touches mutants/raw denominator/Condition-1 score, never merged into any
+  ten-status count. Explicitly distinguished from `confirmed_timeout`.
+```
+
+### Per-method fault classes (planned, not yet executed)
+
+```text
+StaticInputContractAuthorityProvider.resolve: FI-STATIC-PROVIDER-01
+  (guard inversion != -> ==) -- existing test surface sufficient (2 tests
+  in test_swing_distance.py / test_regime_passthrough.py).
+OHLCV.field: FI-OHLCV-FIELD-01 (branch swap), FI-OHLCV-FIELD-02
+  (fail-closed bypass) -- existing test surface sufficient (5 tests in
+  test_candle.py, mutually distinct fixture values).
+DecimalPrecisionPolicy.apply: FI-DECIMAL-APPLY-01 (sign flip on
+  -self.digits, existing incidental coverage sufficient, dedicated new
+  test recommended for clean attribution); FI-DECIMAL-APPLY-02 (dropped
+  rounding= kwarg, NO existing coverage -- new test required at an exact
+  half-boundary value, e.g. Decimal("1.005")).
+DecimalPrecisionPolicy.__post_init__: FI-DECIMAL-POSTINIT-01 (boundary
+  flip digits<0 -> <=0), FI-DECIMAL-POSTINIT-02 (membership inversion not
+  in -> in) -- NO existing coverage for either; two new tests required
+  (digits=0 boundary; invalid rounding-mode rejection).
+FeatureDefinition.__post_init__: FI-FEATUREDEF-01 (policy-equality guard
+  inversion, existing coverage sufficient via any valid-construction
+  test), FI-FEATUREDEF-02 (cross-field OR->AND inversion, existing
+  coverage sufficient via the existing contradictory-fields test);
+  FI-FEATUREDEF-03 (window_candle_count boundary flip <1 -> <=1, NO
+  existing coverage -- new test required at window_candle_count=1).
+```
+
+### Condition-3 completion criterion (this design's own proposed gate)
+
+```text
+Satisfied ONLY when ALL FIVE high-materiality methods each have at least
+  one fault class with a recorded DETECTED result under this mechanism,
+  once implemented/reviewed/executed -- no partial aggregate, no
+  averaging. A single SURVIVED result on any one method is itself an
+  actionable gap requiring a strengthened test or a separate, explicit
+  Product Owner risk-acceptance -- never silently offset by the other 4
+  methods' clean results.
+No fault has actually been executed in this design transaction -- this
+  design only establishes per-method readiness/blockers (3 of 5 methods
+  block on newly-identified, not-yet-authored tests).
+```
+
+### ADR Scope Rule (fresh Chapter 0 §4b check for this design, not inherited)
+
+```text
+Disposition: ADR_OPTIONAL. No Platform Invariant/Event Schema/Module
+  Taxonomy/cross-module contract touched; fully reversible; but
+  introduces a genuinely new, reusable verification mechanism/artifact
+  (borderline "Governance/Approval process" trigger, and plausibly
+  cross-module-reusable in the future), analogous to the prior mutmut-
+  compatibility-shim candidate's own ADR_OPTIONAL disposition.
+Per this task's own instruction, no ADR authored in this transaction --
+  ADR_OPTIONAL is discretionary, not blocking; a future implementation
+  transaction may author one, or proceed directly under this design's own
+  review/approval.
+```
+
+### 7 lower-materiality residuals — restated, not promoted/demoted
+
+```text
+FilesystemInputContractAuthorityResolver.resolve, CandleScope.subject_id,
+  EvaluationFrontier.plain_stream_positions,
+  VerifiedInputContractAuthority.__init__, FeatureScope.
+  feature_subject_id, SequenceAllocator.next_ref, SequenceAllocator.
+  producer_ref remain individually-named, OPEN residuals under the SAME
+  §5b/§5c framework -- not exempted, not silently satisfied by this
+  design's 5-method scope, not required by this design's own completion
+  criterion. Closing them (if ever pursued) requires the SAME §5c-
+  qualifying evidence applied individually to each, per baseline-001's
+  §2, unchanged by this design.
+```
+
+### Checkpoint-002 evidence-fidelity note (recorded, NOT corrected)
+
+```text
+Checkpoint 002's ten_status_counts nests confirmed_timeout: 0 as a
+  sibling key alongside the governed ten raw mutmut statuses; per Testing
+  Convention v0.16 item 8a, confirmed_timeout is NOT one of the ten raw
+  statuses -- it is a separate supplemental field, non-blocking (value
+  correct, does not affect the ten-category sum) but a schema-
+  presentation imprecision. Checkpoint 002 is NOT modified for this, per
+  this task's own explicit instruction. Recorded here as a forward-
+  looking requirement: any future formal Step-9/QG evidence must present
+  the ten raw statuses as their own exact closed set, with
+  confirmed_timeout pinned as a visibly separate supplemental field.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  surface-completeness-design-001.md (new), docs/MANIFEST.md, docs/
+  CHANGELOG.md changed (confirmed via `git status --porcelain=v1`).
+python/feature-engine/src/**, tests/**, tooling/** all verified byte-
+  identical (`git diff --quiet`) before and after this design transaction
+  -- the empirical mutant-exclusion re-verification's own workspace
+  (.designvenv, mutants/, .mutmut-cache) was entirely disposable, created
+  and destroyed within this transaction, never committed. No fault
+  injection performed. No test authored. No formal Step-9/QG evidence
+  transaction performed or recorded. No ADR authored. No finding self-
+  closed. Feature Engine not approved. Phase 3 gate not opened. LIVE not
+  authorized.
+```
+
+### State summary
+
+```text
+Condition 1:                    evidence-ready (Checkpoint 002, raw score
+                                87.65512736773351%) -- NOT a formal PASS,
+                                unaffected by this design.
+Condition 2:                    SATISFIED (170/170) -- unaffected.
+Condition 3:                    UNRESOLVED -- remains unresolved until
+                                this (or an amended) mechanism is
+                                reviewed, approved, AND EXECUTED against
+                                all 5 methods with a qualifying result
+                                each.
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, not
+                                evaluated).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** Review A of this design candidate — an independent reviewer assesses the selected mechanism, the ADR-scope disposition, and each of the 5 per-method fault-class plans (including the 3 identified new-test requirements), and either accepts, rejects, or amends this design. Only after review/approval may a separate, later implementation transaction author the proposed new tests, build the harness, execute the fault records, and pin the resulting evidence artifact toward Condition 3's resolution.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-design-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.326"` → `"10.327"`.
 
 ## Decision Log
 
