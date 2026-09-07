@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.325"
+manifest_version: "10.326"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -22276,6 +22276,178 @@ LIVE:                           NOT_AUTHORIZED, unreferenced.
 **Next governed step:** bounded Review A re-review of this correction.
 
 **Files changed:** `python/feature-engine/tests/test_candle_window.py`, `python/feature-engine/tests/test_authority_resolver.py` (both modified, none new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.324"` → `"10.325"`.
+
+## `feature-engine` — Full Mutation Checkpoint 002 (NON-GATING; raw score 87.65512736773351%, EVID-03 disposition unchanged)
+
+**Diagnostic transaction — vai trò: `Feature Engine Full Mutation Checkpoint Executor`.** One fresh, full, explicitly NON-GATING mutation checkpoint of the complete Feature Engine mutation population (all 1531 mutants) after Condition-1 Mutation Score Remediation Batch 1 + its bounded test-quality correction, and after the approved Condition-2 material-gap reclassification. Does NOT perform a formal Step-9/QG transaction, does NOT change any gate/finding disposition (even though the measured raw score numerically exceeds the approved threshold), does NOT modify `python/feature-engine/src/**`/`tests/**`/`tooling/**`.
+
+**Fresh boundary verification (before any work):** HEAD confirmed exactly `8b3a683bf6c8ab211de783d5cf486a30317e9eaf` via `git rev-parse HEAD`, matching this task's own expected boundary; `origin/main` fetched and confirmed identical (no drift).
+
+### Pre-checks — exact identities
+
+```text
+repository_head_at_measurement:            8b3a683bf6c8ab211de783d5cf486a30317e9eaf
+python_feature_engine_src_tree:            256421344a48a6c9d4ef72f81eb82b27dbedfc50
+                                            (IDENTICAL to baseline-001, step9-
+                                            formal-evidence-001, and post-
+                                            remediation-diagnostic-001)
+python_feature_engine_tests_tree:          199819c741ed3a647f6f0d268ba0747c31fe3a1d
+                                            (CHANGED from post-remediation-
+                                            diagnostic-001's
+                                            1a1ba1a3d9413696218451d3eb5da9ebd4ac8f51
+                                            -- Condition-1 Batch 1 + its bounded
+                                            correction modified tests)
+python_feature_engine_tooling_tree:        b99f6252058cbf5404751cf85d80c6745eebd03b (unchanged)
+pyproject.toml / requirements-dev.lock.txt / docs/engineering/testing.md:
+                                            all identical to every prior measurement
+testing_convention_version:                0.16, Approved (unchanged)
+tool_identities:                           python 3.13.6, mutmut 3.7.0, pytest 9.1.1,
+                                            coverage 7.16.0 (identical to all prior
+                                            measurements)
+mutant_id_continuity:                      full 1531-ID set byte-for-byte identical
+                                            to baseline-001's -- 0 discontinuity, no
+                                            fail-closed stop required
+```
+
+### Measurement (fresh, full population, no cached verdicts reused)
+
+```text
+mutants/ and .mutmut-cache absent before run (confirmed). Disposable venv
+  (.checkpointvenv, dependencies from requirements-dev.lock.txt, feature-
+  engine installed editable --no-deps) -- fully removed after evidence
+  capture, zero footprint on the tracked repository.
+Ordinary suite before mutation: 226 passed, 0 failed (tests/); 5 passed
+  (tooling/tests/, outside governed suite per testpaths).
+python -m tooling run (full population, no mutant-name filter) --
+  completed to natural end, exit status 0, 1531/1531 mutants dispatched.
+Ten-status counts: killed 1342, survived 189, no_tests 0, not_checked 0,
+  skipped 0, suspicious 0, timeout 0, confirmed_timeout 0,
+  caught_by_type_check 0, segfault 0, check_was_interrupted_by_user 0.
+  (confirmed_timeout is tracked as its own field WITHIN the ten-status
+  schema, per instruction -- never treated as an 11th raw mutmut status.)
+Reconciliation: sum of ten categories (1342 + 189 = 1531) equals total
+  (1531). not_checked is zero -- usable checkpoint.
+Raw mutation effectiveness metric: (killed + confirmed_timeout) /
+  (total - skipped) * 100 = (1342 + 0) / (1531 - 0) * 100 =
+  87.65512736773351%.
+```
+
+### Bad-test-execution-commands exception cohort cross-check
+
+```text
+165 transient BadTestExecutionCommandsException tracebacks observed
+  during this run (counted directly from raw captured output, verified as
+  paired raise+exception-message lines, 165 each) -- identical in scale to
+  every prior measurement's own already-diagnosed, non-biasing mechanism
+  (feature-engine-mutation-baseline-001-analysis.md SS3). mutmut's own run
+  reconciled cleanly to natural end (exit 0, exact ten-status sum, 0
+  not_checked) despite these occurrences.
+```
+
+### Condition 1 — raw score vs approved threshold (SUPPORTING ONLY — no gate evaluation performed)
+
+```text
+approved_threshold_condition_1:  87.001959503592%
+measured_this_checkpoint:        87.65512736773351%
+meets_threshold_numerically:     true
+gap_to_threshold:                +0.6531678641415084 percentage points
+note:                            meeting the numeric threshold in this
+                                  NON-GATING checkpoint does NOT
+                                  constitute a P3-FEATURE-QG-EVID-03 PASS.
+                                  No formal Step-9/QG evaluation is
+                                  performed or implied. Condition 3
+                                  remains a separately required, unwaived
+                                  component of the approved gate.
+```
+
+### Prior 17-ID (Condition-1 Batch 1) cross-check in this full run
+
+```text
+All 17 targeted identities: KILLED (17/17), 0 survived -- consistent with
+  Batch 1's own bounded diagnostics (both the original batch and its
+  bounded test-quality correction).
+```
+
+### Incidental kills and regressions vs. post-remediation-diagnostic-001 (killed=1323, survived=208)
+
+```text
+Total newly killed: 19 (17 Condition-1-Batch-1-targeted + 2 incidental).
+Incidental kill IDs: regime_passthrough._check_scope__mutmut_6,
+  __mutmut_7 -- side effects of the SAME exact-message assertion
+  strengthened for the targeted mutmut_8/mutmut_9 in
+  test_foreign_scope_regime_fact_rejected.
+Regressions (previously killed -> now survived): 0 -- verified via full
+  comparison against post-remediation-diagnostic-001's complete
+  1531-entry mapping, not spot-checked.
+Arithmetic check: 208 (prior survived) - 19 (newly killed) = 189 (this
+  checkpoint's survived). Exact match.
+```
+
+### Condition 2 — the 10 governedly-reclassified identities' current raw status
+
+```text
+All 10 confirmed to still raw-survive in this fresh, independent
+  measurement -- exactly as expected, since src/feature_engine is
+  unchanged and reclassification is a governance-layer resolution, never
+  a change to raw mutmut behavior. Raw historical statuses NOT
+  overwritten; NOT removed from the raw denominator. Condition 2 (170/170
+  material identities resolved) remains SATISFIED, unaffected by this
+  checkpoint's numeric results.
+```
+
+### Artifact
+
+```text
+docs/governance/mutation-baseline-evidence/feature-engine-mutation-full-
+  checkpoint-002.json (new, additive) -- full ten-status counts/
+  reconciliation, raw score, measurement_boundary tree/blob identities,
+  17-ID and 10-ID cross-checks, incidental-kill/regression breakdown,
+  full 1531-entry sorted mutant-ID-to-result mapping + its own SHA-256.
+Does NOT overwrite baseline-001, step9-formal-evidence-001, post-
+  remediation-diagnostic-001, or the reclassification candidate/approval
+  artifact -- all remain historical, untouched.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Only docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  full-checkpoint-002.json (new), docs/MANIFEST.md, docs/CHANGELOG.md
+  changed (confirmed via `git status --porcelain=v1`).
+python/feature-engine/src/**, tests/**, tooling/** all verified byte-
+  identical (`git diff --quiet`) before and after this checkpoint -- the
+  mutation run's own workspace was entirely disposable (mutants/,
+  .mutmut-cache, .checkpointvenv), created and destroyed within this
+  transaction, never committed. No formal Step-9/QG evidence transaction
+  performed or recorded. No threshold semantics changed. No finding
+  self-closed. No equivalent-mutant reclassification recorded. No Product
+  Owner decision touched. Feature Engine not approved. Phase 3 gate not
+  opened. LIVE not authorized.
+```
+
+### State summary
+
+```text
+TEST_EFFECTIVENESS_THRESHOLD:  EFFECTIVE (unchanged).
+Condition 1:                    raw score numerically exceeds threshold in
+                                this NON-GATING checkpoint -- NOT recorded
+                                as formally PASS.
+Condition 2:                    SATISFIED (unchanged) -- 10 reclassified
+                                identities' raw statuses preserved exactly
+                                as historically recorded (survived).
+Condition 3:                    UNRESOLVED (unchanged, not attempted).
+P3-FEATURE-QG-EVID-03:         OPEN / blocking (unchanged, NOT marked
+                                PASS despite the numeric result above).
+P3-FEATURE-QG-EVID-04..-08:    OPEN / blocking (unchanged, untouched).
+Overall Feature Chapter 13 QG: FAIL — evidence (unchanged).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED, unreferenced.
+```
+
+**Next governed step:** if a formal Step-9 transaction is separately authorized, this checkpoint's own figures (87.65512736773351% raw, Condition 2 satisfied) indicate condition 1 and condition 2 would both currently pass on this evidence, but condition 3 (mutation-surface completeness) remains unresolved and would need to be addressed (or a governed risk-acceptance recorded) before a formal Step-9/QG transaction could plausibly pass in full.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-full-checkpoint-002.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other paths verified byte-unchanged (`git diff --quiet` for each). `manifest_version` `"10.325"` → `"10.326"`.
 
 ## Decision Log
 
