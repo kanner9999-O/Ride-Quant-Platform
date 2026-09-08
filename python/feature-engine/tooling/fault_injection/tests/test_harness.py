@@ -13,8 +13,10 @@ from pathlib import Path
 
 import pytest
 
+import tooling.fault_injection.harness as harness_module
 from tooling.fault_injection.faults import FaultSpec
 from tooling.fault_injection.harness import (
+    QUALIFYING_VERDICTS,
     PatchNotUniqueError,
     Verdict,
     _parse_pytest_rA_output,
@@ -213,3 +215,82 @@ def test_run_fault_injection_failed_when_old_string_absent(tmp_path: Path) -> No
     assert record.verdict is Verdict.INJECTION_FAILED
     assert "SOURCE DRIFT" in record.verdict_detail
     assert record.canonical_checkout_never_touched_confirmed is True
+
+
+# --- MAJ-01 remediation: a unique-before-patch `old_string` whose
+# `new_string` is NOT uniquely located after patch (because it already
+# occurs elsewhere, unrelated to the fault) must not be able to satisfy
+# activation -- this is exactly the FI-OHLCV-FIELD-01/02 regression Review A
+# found (a bare `count(new_string) >= 1` check was true-but-meaningless for
+# both, since their replacement return statements already existed
+# elsewhere). ------------------------------------------------------------
+
+
+def test_run_fault_injection_failed_when_new_string_not_unique_after_patch(tmp_path: Path) -> None:
+    repo_root, pinned_sha = _build_fixture_repo(tmp_path)
+    work_root = tmp_path / "isolations"
+    fe = repo_root / "python" / "feature-engine"
+    # `old_string` ("return a + b") is unique here, but the fault's
+    # `new_string` ("return a - b") already exists verbatim in an unrelated,
+    # untouched function -- exactly the shape that a `>= 1` check would
+    # wrongly wave through as "located".
+    (fe / "src" / "mypkg" / "__init__.py").write_text(
+        "def add(a, b):\n    return a + b\n\n\ndef already_present() -> int:\n    return a - b\n"
+    )
+    _git(["add", "-A"], cwd=repo_root)
+    _git(["commit", "-q", "-m", "add pre-existing new_string collision"], cwd=repo_root)
+    pinned_sha = _head_sha(repo_root)
+
+    fault = _fault(old_string="return a + b", new_string="return a - b")
+    record = run_fault(
+        fault,
+        repo_root=repo_root,
+        pinned_sha=pinned_sha,
+        work_root=work_root,
+        python_executable=sys.executable,
+    )
+
+    assert record.verdict is Verdict.INJECTION_FAILED
+    assert record.verdict not in QUALIFYING_VERDICTS
+    assert record.activation_new_string_unique_and_located is False
+    assert "new_string_located=False" in record.verdict_detail
+    assert record.canonical_checkout_never_touched_confirmed is True
+
+
+# --- MAJ-02 remediation: cleanup must fail closed ---------------------------
+
+
+def test_run_fault_cleanup_failure_forces_test_infra_error_not_a_qualifying_verdict(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo_root, pinned_sha = _build_fixture_repo(tmp_path)
+    work_root = tmp_path / "isolations"
+    fault = _fault(old_string="return a + b", new_string="return a - b")
+
+    real_destroy = harness_module._destroy_isolation
+
+    def _destroy_then_report_unconfirmed(repo_root: Path, isolation_path: Path) -> bool:
+        # Actually clean up the disposable worktree (so this test doesn't
+        # litter tmp_path with orphaned `git worktree` state), but report
+        # destruction as unconfirmed -- this is the only thing `run_fault`
+        # is meant to be able to observe.
+        real_destroy(repo_root, isolation_path)
+        return False
+
+    monkeypatch.setattr(harness_module, "_destroy_isolation", _destroy_then_report_unconfirmed)
+
+    record = run_fault(
+        fault,
+        repo_root=repo_root,
+        pinned_sha=pinned_sha,
+        work_root=work_root,
+        python_executable=sys.executable,
+    )
+
+    # Absent the MAJ-02 fix, this fault's covering test makes it DETECTED --
+    # cleanup failure must override that, never let it stand.
+    assert record.verdict is Verdict.TEST_INFRA_ERROR
+    assert record.verdict not in QUALIFYING_VERDICTS
+    assert record.isolation_destroyed_confirmed is False
+    assert "isolation destruction could not be confirmed" in record.verdict_detail
+    assert "DETECTED" in record.verdict_detail

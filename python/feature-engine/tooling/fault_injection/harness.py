@@ -348,7 +348,7 @@ def run_fault(
             record.verdict_detail = f"SOURCE DRIFT (isolation copy): {exc}"
             return record
         target_file.write_text(patched_content)
-        record.activation_new_string_unique_and_located = patched_content.count(fault.new_string) >= 1
+        record.activation_new_string_unique_and_located = patched_content.count(fault.new_string) == 1
 
         # Step 5: prove activation.
         observed_content = target_file.read_text()
@@ -415,4 +415,16 @@ def run_fault(
             raise IsolationError(
                 f"{fault.fault_id}: canonical checkout state changed during this fault's run — "
                 "refusing to continue silently"
+            )
+        if not destroyed and record.verdict in QUALIFYING_VERDICTS:
+            # Isolation destruction could not be confirmed -- a qualifying
+            # verdict computed inside a checkout whose disposal is unproven
+            # is not trustworthy evidence. Fail closed rather than let a
+            # DETECTED/SURVIVED verdict stand on an unconfirmed cleanup.
+            discarded_verdict = record.verdict
+            record.verdict = Verdict.TEST_INFRA_ERROR
+            record.verdict_detail = (
+                f"{fault.fault_id}: isolation destruction could not be confirmed after a "
+                f"{discarded_verdict.value} verdict — fail-closed, discarding the qualifying verdict "
+                f"(isolation_path={isolation_path})"
             )

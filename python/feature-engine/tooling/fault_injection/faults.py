@@ -44,16 +44,20 @@ APPROVED_FAULTS: tuple[FaultSpec, ...] = (
         method="candle.OHLCV.field",
         source_file="src/feature_engine/candle.py",
         fault_class="branch_swap",
-        old_string="            return self.high",
-        new_string="            return self.low",
+        old_string='        if name == "high":\n            return self.high',
+        new_string='        if name == "high":\n            return self.low',
     ),
     FaultSpec(
         fault_id="FI-OHLCV-FIELD-02",
         method="candle.OHLCV.field",
         source_file="src/feature_engine/candle.py",
         fault_class="fail_closed_bypass",
-        old_string='        raise ValueError(f"unsupported reference_price_field: {name!r}")',
-        new_string="        return self.close",
+        old_string=(
+            '        if name == "close":\n'
+            "            return self.close\n"
+            '        raise ValueError(f"unsupported reference_price_field: {name!r}")'
+        ),
+        new_string=('        if name == "close":\n            return self.close\n        return self.close'),
     ),
     FaultSpec(
         fault_id="FI-DECIMAL-APPLY-01",

@@ -224,3 +224,32 @@ def test_valid_definitions_accepted() -> None:
 def test_window_candle_count_of_one_is_valid_boundary() -> None:
     definition = make_candle_definition(window_candle_count=1)
     assert definition.window_candle_count == 1
+
+
+# --- MIN-01 remediation: FI-FEATUREDEF-02 residual --------------------------
+#
+# `test_contradictory_type_specific_fields_rejected_distance_field_on_metric`
+# above is unintentionally masked against FI-FEATUREDEF-02 (the OR->AND
+# cross-field-exclusion inversion): it omits `upstream_contract_refs`, so
+# even under the mutated (weakened) guard, the unrelated "upstream_contract_
+# refs is required" check still raises first -- the test passes for the
+# wrong reason and can never observe the OR/AND boundary it's meant to
+# guard. This test is otherwise a fully valid candle-upstream
+# volatility_metric (every field a real `make_candle_definition()` would
+# set) plus exactly one forbidden distance-only field and
+# `normalization_policy=None`, so only the cross-field exclusion itself can
+# raise.
+
+
+def test_distance_only_field_on_metric_rejected_even_when_every_other_field_is_valid() -> None:
+    with pytest.raises(InvalidFeatureDefinitionError):
+        FeatureDefinition(
+            **_base_kwargs(),
+            feature_type="volatility_metric",
+            upstream_source="candle",
+            upstream_contract_refs=_candle_contract_refs(),
+            window_candle_count=3,
+            formula_id=RangeFormula.formula_id,
+            eligible_swing_selection_policy=ELIGIBLE_SWING_SELECTION_POLICY,  # distance-only field
+            normalization_policy=None,
+        )
