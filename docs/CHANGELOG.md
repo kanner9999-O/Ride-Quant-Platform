@@ -2,6 +2,97 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — platform: `ADR-039` bounded Review A correction (`P3-ADR039-A-MAJ-01`/`-MAJ-02`/`-MIN-01` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Platform Event Contract Version-Artifact Authority Bounded Correction Executor`.** Remediates three Review A findings against `ADR-039` v0.1 (`Draft`). `P3-ADR039-A-MAJ-01`: the Decision text made the version-artifact canonical while simultaneously naming the owning Domain Contract "sole semantic authority" and the artifact a "thin transcription," contradicting Chapter 8 §8.2/§8.3.1's own authority table, and the illustrative YAML falsely implied `event_class`/`allowed_streams`/`merge_constraints` are already mechanically transcribable from current Domain Contracts (confirmed absent from `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md` by direct grep). `P3-ADR039-A-MAJ-02`: the Decision/Consequences text claimed §8.1.1 rule 4 (retention through the committed replay/audit horizon) was already satisfied by an "existing general repository-retention commitment" that does not exist — Chapter 10 §10.9 explicitly defers retention/archive protocol to Phase 1. `P3-ADR039-A-MIN-01`: direct path resolution was asserted without a canonical, path-safe, alias-free `contract_id`/`contract_version` grammar. Correction only — Option A's selection, `version: "0.1"`/`status: Draft`, `ADR_REQUIRED` classification, and the dedicated per-contract/per-version artifact concept all preserved unchanged. No ADR-040 authored.
+
+**Fresh boundary verification:** HEAD confirmed exactly `da7564b953fefc01779adde76982dc4abdf23f26`, identical to `origin/main`; ADR-039 blob confirmed exactly `59c3d13eaa52119d64e8eac50f5bea680fd41bc7` — no drift.
+
+### Corrected authority model (MAJ-01)
+
+```text
+The version-artifact file, once Published, is now the ONE complete,
+  self-contained authoritative snapshot of that exact Event Contract
+  version -- event_class/allowed_streams/merge_constraints/payload
+  shape/invariants all inlined, per Chapter 8 §8.3.1's own authority
+  table. Domain Contract role narrowed to broader domain-concept
+  authority and pre-publication drafting workspace only -- no longer
+  "sole semantic authority." Illustrative YAML corrected to state
+  event_class/allowed_streams/merge_constraints do not currently exist
+  for candle/swing/structure/regime/feature and require governed
+  authoring (not mechanical transcription) before first publication.
+```
+
+### Retention treatment (MAJ-02)
+
+```text
+Removed the false "inherits existing general repository-retention
+  commitment" claim. No platform-wide retention/archive policy exists
+  today (Chapter 10 §10.9 explicit deferral, Phase 1). Fail-closed
+  rule stated: version-artifacts may be authored/reviewed/Published
+  now (git-resident, commit-addressable part of rule 4 holds), but
+  MUST NOT become usable event_contract_ref targets for real,
+  persisted events until an authoritative retention/archive policy is
+  separately, governedly established. Alternative A's "satisfies all
+  five §8.1.1 conditions by construction" claim softened to rules
+  1/2/3/5 fully, rule 4 partial pending that prerequisite. Consequences
+  gained a new item (0): establishing that policy, ahead of items
+  (1)-(3).
+```
+
+### Canonical path/version grammar (MIN-01)
+
+```text
+contract_id reuses the existing Domain-Contract id: convention
+  verbatim. contract_version restricted to literal `v<positive
+  integer>`, no leading zero, no minor/patch segment. Resolution is
+  pure literal string substitution into the path template -- no
+  case-folding/normalization/alias table; non-canonical input fails
+  closed rather than being normalized. contract_version (ordering/
+  legibility identifier) explicitly distinguished from the artifact's
+  own git blob/content-hash identity (§8.1.1 rule 5).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-039.md (corrected in place, blob
+  59c3d13eaa52119d64e8eac50f5bea680fd41bc7 ->
+  ed95e4b6c2124bfe4856203516938c0962a00184 -- `git diff` confirms only
+  a new correction banner, the Decision/illustrative-YAML block,
+  Canonical authority/source, Resolution (+ new path-grammar
+  paragraph), Replay/audit retention, First authoritative version,
+  Alternative A's claim, the alternatives-summary line, and
+  Consequences changed; frontmatter, Context, Ground truth, Scope
+  classification, Immutability/non-reuse, Verifiable content identity,
+  Ownership-boundary-vs-schema_version, Later-evolution, Alternatives
+  B/C/D, the review table, and Scale check all byte-unchanged);
+  docs/MANIFEST.md; docs/CHANGELOG.md. Frontmatter unchanged
+  (version: "0.1", status: Draft, depends_on: []). No implementation,
+  no Product Owner decision, no redesign of Option A's selection.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR039-A-MAJ-01:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-ADR039-A-MAJ-02:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-ADR039-A-MIN-01:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-039 still only a Draft, not
+                                approved.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-039.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.345"` → `"10.346"`.
+
 ## [Unreleased] — 2026-09-08 — platform: `ADR-039` v0.1 authored (`Draft`) — Canonical Event Contract Version-Artifact Authority and Resolution Mechanism (resolves `feature.md` v0.6's fail-closed blocker's own mechanism gap, platform-wide, not Feature-specific)
 
 **Governed semantic architecture-authoring transaction — vai trò: `Platform Event Contract Version-Artifact Authority Authoring Executor`.** Authors `docs/adr/ADR-039.md` v0.1 (`Draft`), fixing the canonical authority/resolution mechanism for `event_contract_ref.contract_version` (Chapter 8 §8.2.5) — a gap confirmed platform-wide across every current Domain Contract, not specific to `ADR-037`/`ADR-038`, which are treated only as the Feature use-case that exposed it. Not approved. `feature.md`/`ADR-037`/`ADR-038`/`module-registry.yaml`/`context-map.yaml`/Constitution all untouched. No registry/artifacts created yet.
