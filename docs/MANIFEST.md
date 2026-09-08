@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.338"
+manifest_version: "10.339"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23876,6 +23876,89 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** Review A of `ADR-037` Draft (independent read-only assessment against Chapter 0/Chapter 8/Chapter 10/I-5/ADR-035 authority), followed by Independent Review B and a Product Owner decision.
 
 **Files changed:** `docs/adr/ADR-037.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `feature.md`/`contracts.py`/Chapter 8/ADR-035/Input Contract/Stream Registry artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.337"` → `"10.338"`.
+
+## ADR-037 — bounded Review A correction (`P3-ADR037-A-MAJ-01`; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Feature Engine ADR-037 Bounded Correction Executor`.** Remediates `P3-ADR037-A-MAJ-01`: `ADR-037`'s "Compatibility/versioning under Chapter 10" paragraph overstated Chapter-10 authority by asserting this change is breaking specifically on the backward-compatible axis and requires a literal major Feature Output Event Contract bump. Chapter 10 §10.3.1 evaluates breaking-or-not only relative to a direction the contract explicitly requires; absent that declaration, no default may be inferred. Correction only — no redesign of the selected architecture, no implementation, no Product Owner approval.
+
+**Fresh boundary verification:** HEAD confirmed exactly `7079b44ce083de1f13adc7143ab807454c605a29`, identical to `origin/main`; ADR-037 blob confirmed exactly `157451c70790ec82f450507c2b55427aa7e2a5f7` — no drift.
+
+### Compatibility-direction authority independently verified: none exists
+
+```text
+Searched feature.md, contracts.py, and every Event Contract-adjacent
+  artifact for a declared required backward/forward compatibility
+  direction governing the Feature Output Event Contracts -- confirmed
+  absent. Contrasted against Package 1.4's command-query-api-surface,
+  which DOES carry an explicit ADR-022-decided backward-only
+  declaration (api-architecture.md §8) -- no analogous declaration
+  exists for Feature's own events. This correction does not invent one.
+```
+
+### Corrected compatibility classification
+
+```text
+Forward compatibility: structurally unavailable -- a data-completeness
+  fact true regardless of reader policy (old-shaped events lack the
+  new required, no-fallback field entirely).
+Backward compatibility: left unasserted in either direction -- depends
+  on the old reader's own strictness policy, which no current artifact
+  declares.
+Compatibility certification (Chapter 10 §10.4 eligible=true/false):
+  recorded as BLOCKED on the absent compatibility-direction
+  declaration -- a downstream contract-authoring prerequisite, not
+  fabricated.
+```
+
+### Corrected versioning consequence
+
+```text
+The literal "major Feature Output Event Contract bump" claim is
+  removed. §10.3's breaking-change-requires-major-equivalent-bump rule
+  presupposes a change already classified breaking against a DECLARED
+  direction -- exactly what is currently missing. Retained: this
+  remains an Event Schema change under Chapter 0 §4b (ADR_REQUIRED,
+  independent of the Chapter-10 compatibility gap); implementation
+  MUST create/use a NEW Feature Output Event Contract/schema version
+  appropriate to the eventual governed classification -- never reuse
+  the current version identity. feature-engine itself still never
+  mints this version value.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-037.md (corrected in place, blob
+  157451c70790ec82f450507c2b55427aa7e2a5f7 ->
+  171ca9ad51e7986efbf8afe282f739d01e8fe098 -- `git diff` confirms only
+  the Compatibility/Consequences paragraphs plus a new correction
+  banner changed); docs/MANIFEST.md; docs/CHANGELOG.md. Frontmatter
+  unchanged (version: "0.1", status: Draft). No implementation, no
+  Product Owner approval, no redesign of Option 2/binding rules/
+  Alternatives/depends_on/Scale check.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR037-A-MAJ-01:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected, unrevisited).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-037 v0.1 Draft, corrected,
+                                NOT approved.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-037.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.338"` → `"10.339"`.
 
 ## Decision Log
 

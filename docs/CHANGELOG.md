@@ -2,6 +2,95 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: `ADR-037` bounded Review A correction (`P3-ADR037-A-MAJ-01` — Chapter 10 compatibility-direction overclaim corrected; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Feature Engine ADR-037 Bounded Correction Executor`.** Remediates `P3-ADR037-A-MAJ-01`: `ADR-037`'s "Compatibility/versioning under Chapter 10" paragraph overstated Chapter-10 authority by asserting this change is breaking specifically on the backward-compatible axis and requires a literal major Feature Output Event Contract bump. Chapter 10 §10.3.1 evaluates breaking-or-not only relative to a direction the contract explicitly requires; absent that declaration, no default may be inferred. Correction only — no redesign of the selected architecture, no implementation, no Product Owner approval. `version: "0.1"`, `status: Draft` unchanged per explicit instruction.
+
+**Fresh boundary verification:** HEAD confirmed exactly `7079b44ce083de1f13adc7143ab807454c605a29`, identical to `origin/main`; ADR-037 blob confirmed exactly `157451c70790ec82f450507c2b55427aa7e2a5f7` — no drift.
+
+### Compatibility-direction authority independently verified: none exists
+
+```text
+Searched feature.md, contracts.py, and every Event Contract-adjacent
+  artifact for a declared required backward/forward compatibility
+  direction governing the Feature Output Event Contracts (feature-
+  computed/feature-fact-invalidated) -- confirmed absent. Contrasted
+  against Package 1.4's command-query-api-surface, which DOES carry an
+  explicit ADR-022-decided backward-only declaration (api-
+  architecture.md §8) -- no analogous declaration exists for Feature's
+  own events. This correction does not invent one.
+```
+
+### Corrected compatibility classification
+
+```text
+Forward compatibility: stated as structurally unavailable -- a data-
+  completeness fact true regardless of reader policy (old-shaped
+  events lack the new required, no-fallback field entirely).
+Backward compatibility: left unasserted in either direction -- depends
+  on the old reader's own strictness policy (permissive vs strict),
+  which no current artifact declares; Chapter 10 §10.3.1 itself defers
+  format-specific reader rules to a Domain Contract/Phase 1 policy that
+  does not yet exist for these Event Contracts.
+Compatibility certification (Chapter 10 §10.4 eligible=true/false):
+  recorded as BLOCKED on the absent compatibility-direction
+  declaration -- a downstream contract-authoring prerequisite, not
+  fabricated.
+```
+
+### Corrected versioning consequence
+
+```text
+The literal "major Feature Output Event Contract bump" claim is
+  removed. §10.3's breaking-change-requires-major-equivalent-bump rule
+  is real authority, but presupposes a change already classified
+  breaking against a DECLARED direction -- exactly what is currently
+  missing. Retained: this remains an Event Schema change under Chapter
+  0 §4b (ADR_REQUIRED, independent of the Chapter-10 compatibility
+  gap); implementation MUST create/use a NEW Feature Output Event
+  Contract/schema version appropriate to the eventual governed
+  classification -- never reuse the current version identity.
+  feature-engine itself still never mints this version value
+  (unaffected P3-FEATURE-A-MAJ-02 discipline).
+```
+
+### Preserved (verified unchanged — `git diff` confirms only the two Compatibility/Consequences paragraphs, plus the new correction banner, changed)
+
+```text
+Selected Option 2; field name/shape (computation_dependency_content_
+  evidence); exact content-ID semantics; relational binding to each
+  fact's own computation_cursor; per-fact independent persistence;
+  Replay preparation resolve/recompute/compare/fail-closed flow;
+  EVID-05(a) preservation; canonical Chapter-8 Replay Cursor unchanged;
+  ADR-035 unchanged/depends_on; Alternatives 1/3/4A/4B; ADR_REQUIRED
+  Event-Schema classification; Scale check; lifecycle/QG states.
+  version: "0.1", status: Draft unchanged (no version bump, per
+  explicit instruction).
+```
+
+### Evidence artifact
+
+```text
+docs/adr/ADR-037.md corrected in place (blob
+  157451c70790ec82f450507c2b55427aa7e2a5f7 ->
+  171ca9ad51e7986efbf8afe282f739d01e8fe098).
+```
+
+### State summary (preserved)
+
+```text
+EVID-03: CLOSED/PASS (unaffected). EVID-05(a): SATISFIED (unaffected,
+  unrevisited). EVID-05(b): OPEN -- ADR-037 v0.1 Draft, corrected, NOT
+  approved. EVID-05 overall: OPEN / blocking (unaffected). EVID-04/06/
+  07/08: OPEN / blocking (unaffected). Overall Feature Chapter 13 QG:
+  FAIL — evidence (unaffected). Feature module: NOT APPROVED. Phase 3
+  gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-037.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.338"` → `"10.339"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: `ADR-037` v0.1 authored (`Draft`) — Feature Computation Dependency Content Identity Evidence (`P3-FEATURE-QG-EVID-05(b)` architecture, not approved)
 
 **Governed semantic architecture-authoring transaction — vai trò: `Feature Engine EVID-05(b) ADR-037 Authoring Executor`.** Authors `docs/adr/ADR-037.md` v0.1 (`Draft`), adopting the reviewed design candidate's Option 2 for `P3-FEATURE-QG-EVID-05(b)`: a new required `computation_dependency_content_evidence` payload value (`input_contract_content_id`, `stream_registry_content_id`) on `FeatureComputed`/`FeatureFactInvalidated`, sourced verbatim from `VerifiedInputContractAuthority`. ADR authoring only — not approved, no implementation, `EVID-05(b)`/`EVID-05` not closed.
