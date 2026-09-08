@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.339"
+manifest_version: "10.340"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23959,6 +23959,112 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** bounded Review A re-review of this correction.
 
 **Files changed:** `docs/adr/ADR-037.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.338"` → `"10.339"`.
+
+## ADR-037 v0.1 — Product Owner Approval (`Approved` — Feature Computation Dependency Content Identity Evidence architecture now effective)
+
+**Mechanical approval/lifecycle recording transaction — vai trò: `Feature Engine ADR-037 Approval Recording Executor`.** Records Review A's bounded re-review closure of `P3-ADR037-A-MAJ-01`, Independent Review B's own review, and the Product Owner's `APPROVE` decision — transitioning `ADR-037` from `Draft`/unreviewed to `Approved`. No semantic redesign; no production/schema/test change.
+
+**Fresh boundary verification:** HEAD confirmed exactly `69a1fee0ed1f286528dd97f6d63db733f7253150`, identical to `origin/main`; ADR-037 reviewed Draft blob confirmed exactly `171ca9ad51e7986efbf8afe282f739d01e8fe098` — no drift.
+
+### Review A recorded
+
+```text
+Principal: ChatGPT, AI Technical Architect / Review A. Reviewed
+  boundary/blob as above. Bounded re-review of P3-ADR037-A-MAJ-01
+  confirmed CLOSED. Blocker 0 / Major 0 / Minor 0.
+  CLEAN — READY_FOR_INDEPENDENT_REVIEW_B. Externally completed by
+  Review A; this transaction mechanically transcribes it.
+```
+
+### Independent Review B recorded
+
+```text
+Principal: Claude, AI Technical Architect / Independent Review B.
+  DISTINCT_PRINCIPAL (Mode A). Execution ID N/A (not fabricated).
+  Same reviewed boundary/blob. Independently verified I-5/Chapter-8
+  compliance, same-fact relational binding, original/replacement/
+  invalidation evidence independence, Replay preparation resolve/
+  recompute/compare/fail-closed semantics, EVID-05(a) preservation,
+  canonical Replay Cursor/ADR-035 unchanged, Option 2 as minimum
+  existing-authority architecture, ADR_REQUIRED via Event Schema, the
+  corrected Chapter-10 compatibility/versioning treatment, the
+  downstream compatibility-direction declaration as a valid
+  prerequisite, and Scale check/lifecycle-metadata integrity.
+  Separately noted the pre-existing review-evidence-recording gap
+  (Review A's closure completed externally but not yet transcribed) --
+  closed by this recording transaction, not by Review B itself.
+  Blocker 0 / Major 0 / Minor 0. CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE ADR-037 — Feature Computation Dependency Content Identity
+  Evidence at reviewed boundary 69a1fee0ed1f286528dd97f6d63db733f7253150.
+Recorded: 2026-09-08T13:44+07:00.
+```
+
+### ADR lifecycle transition applied
+
+```text
+status: Draft -> Approved. reviewers: [] -> [ChatGPT, Claude].
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-08T13:44+07:00. last_review -> 2026-09-08. version remains
+exactly "0.1". depends_on: [ADR-035] unchanged. addresses/resolves/
+supersedes unchanged (none invented). Reviewed semantic boundary/blob
+(69a1fee0ed1f286528dd97f6d63db733f7253150 /
+171ca9ad51e7986efbf8afe282f739d01e8fe098) recorded separately from,
+never confused with, the resulting lifecycle-record blob
+(3378aa06e33e79cf91c79d7a82c995ebd4217aec). Per Chapter 11 §11.3,
+ADR-037.md is now immutable byte-for-byte from this approval boundary.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-037.md (lifecycle transition in place,
+  blob 171ca9ad51e7986efbf8afe282f739d01e8fe098 ->
+  3378aa06e33e79cf91c79d7a82c995ebd4217aec); docs/MANIFEST.md;
+  docs/CHANGELOG.md. No semantic content changed -- `git diff` confirms
+  only frontmatter status/reviewers/approved_by/approved_at/
+  last_review, the review table, the Independence/PO-decision/
+  reviewed-boundary paragraphs, and Accepted risks changed. No
+  feature.md/contracts.py/production/schema/test change.
+```
+
+### Approval scope — explicit boundary
+
+```text
+This ADR approval resolves the architecture decision only. It does
+  NOT: amend feature.md; establish the missing compatibility-direction
+  declaration; mint the new Feature Output Event Contract/schema
+  version; modify production source/tests/tooling; implement the new
+  payload; close EVID-05(b); close EVID-05 overall; approve Feature
+  Engine; open the Phase-3 Approval Gate; authorize LIVE.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-037 now Approved, but
+                                implementation/domain-contract-
+                                amendment/compatibility-direction-
+                                declaration/test work remains entirely
+                                unperformed.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** establish the missing Feature Output Event Contract compatibility-direction declaration required by `ADR-037`'s Consequences step (1).
+
+**Files changed:** `docs/adr/ADR-037.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.339"` → `"10.340"`.
 
 ## Decision Log
 

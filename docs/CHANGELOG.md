@@ -2,6 +2,107 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: `ADR-037` v0.1 — Product Owner APPROVED (Review A/B recorded, `P3-ADR037-A-MAJ-01` CLOSED; ADR now immutable byte-for-byte)
+
+**Mechanical approval/lifecycle recording transaction — vai trò: `Feature Engine ADR-037 Approval Recording Executor`.** Records Review A's bounded re-review closure of `P3-ADR037-A-MAJ-01`, Independent Review B's own review, and the Product Owner's `APPROVE` decision — transitioning `ADR-037` from `Draft`/unreviewed to `Approved`. No semantic redesign; no production/schema/test change.
+
+**Fresh boundary verification:** HEAD confirmed exactly `69a1fee0ed1f286528dd97f6d63db733f7253150`, identical to `origin/main`; ADR-037 reviewed Draft blob confirmed exactly `171ca9ad51e7986efbf8afe282f739d01e8fe098` — no drift.
+
+### Review A recorded
+
+```text
+Principal: ChatGPT, AI Technical Architect / Review A. Reviewed boundary
+  69a1fee0ed1f286528dd97f6d63db733f7253150, blob
+  171ca9ad51e7986efbf8afe282f739d01e8fe098. Bounded re-review of
+  P3-ADR037-A-MAJ-01 (Chapter 10 compatibility-direction overclaim
+  correction) confirmed CLOSED. Counts: Blocker 0 / Major 0 / Minor 0.
+  Disposition: CLEAN — READY_FOR_INDEPENDENT_REVIEW_B. Externally
+  completed by Review A; this transaction mechanically transcribes it.
+```
+
+### Independent Review B recorded
+
+```text
+Principal: Claude, AI Technical Architect / Independent Review B.
+  Independence mode: DISTINCT_PRINCIPAL (Mode A, ADR-031 §5). Execution
+  ID: N/A (not fabricated -- Mode A does not require it). Reviewed
+  boundary 69a1fee0ed1f286528dd97f6d63db733f7253150, blob
+  171ca9ad51e7986efbf8afe282f739d01e8fe098. Independently verified: I-5/
+  Chapter-8 compliance; same-fact relational binding; original/
+  replacement/invalidation evidence independence; Replay preparation
+  resolve/recompute/compare/fail-closed semantics and its four failure
+  modes; EVID-05(a) preservation; canonical Replay Cursor/ADR-035
+  unchanged; Option 2 as minimum existing-authority architecture;
+  ADR_REQUIRED via Event Schema; the corrected Chapter-10 compatibility/
+  versioning treatment; the downstream compatibility-direction
+  declaration as a valid, correctly-scoped prerequisite; Scale check and
+  lifecycle-metadata integrity. Separately noted: Review A's closure of
+  P3-ADR037-A-MAJ-01 had been externally completed but not yet
+  mechanically transcribed into ADR-037.md -- a review-evidence-
+  recording gap this recording transaction (not Review B) closes.
+  Counts: Blocker 0 / Major 0 / Minor 0. Disposition:
+  CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE ADR-037 — Feature Computation Dependency Content Identity
+  Evidence at reviewed boundary 69a1fee0ed1f286528dd97f6d63db733f7253150.
+Recorded: 2026-09-08T13:44+07:00.
+```
+
+### ADR lifecycle transition applied
+
+```text
+status: Draft -> Approved. reviewers: [] -> [ChatGPT, Claude].
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-08T13:44+07:00. last_review -> 2026-09-08. version remains
+exactly "0.1". depends_on: [ADR-035] unchanged. addresses/resolves/
+supersedes unchanged (none invented). Reviewed semantic boundary/blob
+(commit 69a1fee0ed1f286528dd97f6d63db733f7253150, ADR-037.md content
+identity 171ca9ad51e7986efbf8afe282f739d01e8fe098) recorded separately
+from and never confused with the resulting lifecycle-record blob. Per
+Chapter 11 §11.3, ADR-037.md is now immutable byte-for-byte from this
+approval boundary forward.
+```
+
+### Evidence artifact
+
+```text
+docs/adr/ADR-037.md lifecycle transition applied in place (blob
+  171ca9ad51e7986efbf8afe282f739d01e8fe098 ->
+  3378aa06e33e79cf91c79d7a82c995ebd4217aec, the lifecycle-record
+  identity, distinct from the reviewed semantic Draft blob above).
+```
+
+### Approval scope — explicit boundary
+
+```text
+This ADR approval resolves the architecture decision only. It does
+  NOT: amend feature.md; establish the missing compatibility-direction
+  declaration; mint the new Feature Output Event Contract/schema
+  version; modify production source/tests/tooling; implement the new
+  payload; close EVID-05(b); close EVID-05 overall; approve Feature
+  Engine; open the Phase-3 Approval Gate; authorize LIVE.
+```
+
+### State summary (preserved)
+
+```text
+EVID-03: CLOSED/PASS (unaffected). EVID-05(a): SATISFIED (unaffected).
+  EVID-05(b): OPEN -- ADR-037 now Approved, but implementation/domain-
+  contract-amendment/compatibility-direction-declaration/test work
+  remains entirely unperformed. EVID-05 overall: OPEN / blocking
+  (unaffected). EVID-04/06/07/08: OPEN / blocking (unaffected). Overall
+  Feature Chapter 13 QG: FAIL — evidence (unaffected). Feature module:
+  NOT APPROVED. Phase 3 gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** establish the missing Feature Output Event Contract compatibility-direction declaration required by `ADR-037`'s Consequences step (1).
+
+**Files changed:** `docs/adr/ADR-037.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.339"` → `"10.340"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: `ADR-037` bounded Review A correction (`P3-ADR037-A-MAJ-01` — Chapter 10 compatibility-direction overclaim corrected; `Draft` unchanged, no version bump)
 
 **Bounded correction transaction — vai trò: `Feature Engine ADR-037 Bounded Correction Executor`.** Remediates `P3-ADR037-A-MAJ-01`: `ADR-037`'s "Compatibility/versioning under Chapter 10" paragraph overstated Chapter-10 authority by asserting this change is breaking specifically on the backward-compatible axis and requires a literal major Feature Output Event Contract bump. Chapter 10 §10.3.1 evaluates breaking-or-not only relative to a direction the contract explicitly requires; absent that declaration, no default may be inferred. Correction only — no redesign of the selected architecture, no implementation, no Product Owner approval. `version: "0.1"`, `status: Draft` unchanged per explicit instruction.
