@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.337"
+manifest_version: "10.338"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23748,6 +23748,134 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** a governed decision on whether to proceed to ADR authoring for the recommended Option 2 architecture.
 
 **Files changed:** `docs/governance/quality-gate/feature-engine-evid05b-content-identity-design-candidate-001.md` (updated in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; ADR-022/ADR-035/Constitution/feature.md/contracts.py verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.336"` → `"10.337"`.
+
+## ADR-037 v0.1 — Feature Computation Dependency Content Identity Evidence (`Draft`, candidate authoring — `P3-FEATURE-QG-EVID-05(b)` architecture)
+
+**Governed semantic architecture-authoring transaction — vai trò: `Feature Engine EVID-05(b) ADR-037 Authoring Executor`.** Authors `docs/adr/ADR-037.md` v0.1 (`Draft`) adopting the reviewed, twice-corrected design candidate's Option 2 for `P3-FEATURE-QG-EVID-05(b)`: a new required `computation_dependency_content_evidence` payload value (`input_contract_content_id`, `stream_registry_content_id`) on `FeatureComputed`/`FeatureFactInvalidated`, sourced verbatim from `VerifiedInputContractAuthority`. Does not approve the ADR, does not perform Review A or Independent Review B, does not modify `feature.md`, does not touch `feature-engine` implementation/tests, does not modify Chapter 8, does not edit/supersede ADR-035, does not close `EVID-05(b)` or `EVID-05`.
+
+**Fresh boundary verification:** branch `main`, HEAD confirmed exactly `122433cea77925414da8d223b07fce3efbcab72d`, identical to `origin/main` — no drift. Reviewed design candidate `docs/governance/quality-gate/feature-engine-evid05b-content-identity-design-candidate-001.md` content identity confirmed exactly `3a1378ab298220f678291e616e0aac4fc63a59f4`. `docs/adr/ADR-037.md` verified absent before this transaction (ADR-036 confirmed the highest existing ADR). `docs/adr/ADR-035.md` re-verified `status: Approved`, unchanged (cited in `depends_on`).
+
+### Decision encoded
+
+```text
+Keep canonical Chapter-8 replay_cursor / Feature computation_cursor
+  unchanged, byte-for-byte -- neither Chapter 8 §8.5's five-field
+  cardinality table nor ComputationCursor's shape is touched.
+Add one new REQUIRED sibling payload value on every FeatureComputed
+  and FeatureFactInvalidated: computation_dependency_content_evidence
+  {input_contract_content_id, stream_registry_content_id} -- content
+  identity evidence, never an ordering/visibility/cursor concept.
+Both values copied verbatim from the same VerifiedInputContractAuthority
+  instance already resolved/cached for that exact fact's own
+  computation -- no new hashing mechanism, no invented algorithm.
+```
+
+### Binding semantics recorded
+
+```text
+Exact artifact bytes determine content identity; logical version/name
+  alone insufficient; each fact independently persists its own
+  computation-time dependency evidence; original/replacement/
+  invalidation facts never inherit stale evidence from another
+  evaluation; evidence must correspond relationally to that SAME
+  fact's own computation_cursor.input_contract_ref/stream_registry_
+  version (malformed/mismatched evidence rejected, never accepted
+  merely because both fields are individually well-formed); Replay
+  preparation resolves the exact referenced artifacts, recomputes
+  content IDs, and compares to persisted evidence; missing artifact,
+  malformed evidence, reference mismatch, or content-ID mismatch fails
+  closed BEFORE Replay execution starts; Replay execution uses only
+  already-verified/materialized authority (EVID-05(a) preserved,
+  unrevisited); no process-local/cache/object identity qualifies as
+  durable evidence.
+```
+
+### Scope classification and Chapter 10 compatibility
+
+```text
+ADR Required -- Event Schema trigger, disjunctive per ADR-025/ADR-034/
+  ADR-035 precedent: adding one new required payload value to two
+  authoritative Feature events is the identical trigger class ADR-034
+  (invalidation_cause) and ADR-035 (computation_cursor) each
+  independently required an ADR for.
+Chapter 10 §10.3.1 explicit assessment: required-field-without-fallback
+  addition is classified BREAKING per Chapter 10's own minimal-
+  classification rule, regardless of Feature Engine's current zero-
+  production-events pre-production status (that status explains why no
+  live migration burden exists TODAY -- it does not waive the breaking
+  classification itself). Feature Output Event Contract version
+  (event_contract_ref.contract_version, §8.2.5) must bump (major) once
+  implemented; feature-engine itself never invents that version value
+  (P3-FEATURE-A-MAJ-02 discipline, unaffected) -- minting it is a
+  follow-on responsibility, not decided here.
+```
+
+### Alternatives preserved (per reviewed candidate, no re-analysis)
+
+```text
+1. Extend canonical replay_cursor itself -- rejected, platform-wide/
+   wrong scope (reopens Locked Chapter 8 §8.5).
+2. Feature sibling evidence (chosen).
+3. Redefine Input Contract/Stream Registry identity mechanism --
+   rejected, doesn't close the historical-comparison-point gap while
+   carrying >1-module blast radius.
+4A. Dedicated run/replay content-identity manifest -- NOT
+   constitutionally invalid (Chapter 8 §8.1.1 rule 5 explicitly
+   sanctions this general shape); rejected for CURRENT scope only,
+   because no such governed authority/ownership/lifecycle mechanism
+   exists anywhere in this repository today.
+4B. Extending governance MANIFEST.md into a runtime checksum authority
+   -- also not constitutionally invalid in principle; rejected for
+   current scope because it assigns MANIFEST a NEW runtime authority
+   role, per direct ADR-022 precedent (which itself explicitly declined
+   this exact runtime extension, reserving it for a future successor
+   ADR), not ordinary bookkeeping.
+```
+
+### `depends_on`
+
+```text
+depends_on: [ADR-035] -- ADR-037 clarifies/structures an evidence item
+  ADR-035's own "Fail-closed consequence" paragraph already named as
+  unmet (§8.1.1's five conditions, specifically rule 5 verifiable
+  content identity) without itself defining a mechanism; ADR-037's new
+  field is defined relationally in terms of computation_cursor's own
+  fields (ADR-035, unchanged). ADR-035 remains Approved, byte-for-byte
+  unmodified, not superseded -- no reverse reference created beyond
+  this depends_on.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-037.md (new); docs/MANIFEST.md;
+  docs/CHANGELOG.md only. feature.md, contracts.py, Chapter 8, ADR-035,
+  docs/architecture/stream-registry.yaml, and the Input Contract YAMLs
+  all verified byte-unchanged (`git diff --quiet` / absence of any
+  staged change). No implementation performed. No test authored or
+  modified. No mutation run. No formal Chapter-13 evaluation.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected, unrevisited).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-037 v0.1 Draft authored,
+                                NOT approved, NOT closed by this
+                                transaction.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of `ADR-037` Draft (independent read-only assessment against Chapter 0/Chapter 8/Chapter 10/I-5/ADR-035 authority), followed by Independent Review B and a Product Owner decision.
+
+**Files changed:** `docs/adr/ADR-037.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `feature.md`/`contracts.py`/Chapter 8/ADR-035/Input Contract/Stream Registry artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.337"` → `"10.338"`.
 
 ## Decision Log
 

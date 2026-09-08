@@ -2,6 +2,106 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: `ADR-037` v0.1 authored (`Draft`) — Feature Computation Dependency Content Identity Evidence (`P3-FEATURE-QG-EVID-05(b)` architecture, not approved)
+
+**Governed semantic architecture-authoring transaction — vai trò: `Feature Engine EVID-05(b) ADR-037 Authoring Executor`.** Authors `docs/adr/ADR-037.md` v0.1 (`Draft`), adopting the reviewed design candidate's Option 2 for `P3-FEATURE-QG-EVID-05(b)`: a new required `computation_dependency_content_evidence` payload value (`input_contract_content_id`, `stream_registry_content_id`) on `FeatureComputed`/`FeatureFactInvalidated`, sourced verbatim from `VerifiedInputContractAuthority`. ADR authoring only — not approved, no implementation, `EVID-05(b)`/`EVID-05` not closed.
+
+**Fresh boundary verification:** HEAD confirmed exactly `122433cea77925414da8d223b07fce3efbcab72d`, identical to `origin/main`; reviewed design candidate content identity confirmed exactly `3a1378ab298220f678291e616e0aac4fc63a59f4`; `docs/adr/ADR-037.md` verified absent before this transaction (ADR-036 confirmed the highest existing ADR) — no drift.
+
+### Decision encoded
+
+```text
+Keep canonical Chapter-8 replay_cursor / Feature computation_cursor
+  unchanged, byte-for-byte. Add one new REQUIRED sibling payload value
+  on every FeatureComputed and FeatureFactInvalidated:
+  computation_dependency_content_evidence {input_contract_content_id,
+  stream_registry_content_id} -- content-identity evidence, never an
+  ordering/visibility/cursor concept. Both values copied verbatim from
+  the same VerifiedInputContractAuthority instance already resolved/
+  cached for that exact fact's own computation.
+```
+
+### Binding semantics recorded
+
+```text
+Exact artifact bytes determine content identity; logical version/name
+  alone insufficient; each fact independently persists its own
+  computation-time dependency evidence; original/replacement/
+  invalidation facts never inherit stale evidence from another
+  evaluation; evidence must correspond relationally to that SAME
+  fact's own computation_cursor.input_contract_ref/stream_registry_
+  version; Replay preparation resolves the exact referenced artifacts,
+  recomputes content IDs, and compares to persisted evidence; missing
+  artifact, malformed evidence, reference mismatch, or content-ID
+  mismatch fails closed BEFORE Replay execution starts; Replay
+  execution uses only already-verified/materialized authority
+  (EVID-05(a) preserved, unrevisited); no process-local/cache/object
+  identity qualifies as durable evidence.
+```
+
+### Scope classification and Chapter 10 compatibility
+
+```text
+ADR Required -- Event Schema trigger, disjunctive per ADR-025/ADR-034/
+  ADR-035 precedent. Chapter 10 §10.3.1 explicit assessment: required-
+  field-without-fallback addition is classified BREAKING regardless of
+  Feature Engine's current zero-production-events pre-production
+  status (explains why no live migration burden exists TODAY -- does
+  not waive the classification itself). Feature Output Event Contract
+  version must bump (major) once implemented; feature-engine itself
+  never invents that version value -- minting it is a follow-on
+  responsibility, not decided here.
+```
+
+### Alternatives preserved (per reviewed candidate, no re-analysis)
+
+```text
+1. Extend canonical replay_cursor itself -- rejected, platform-wide/
+   wrong scope. 2. Feature sibling evidence -- chosen. 3. Redefine
+   Input Contract/Stream Registry identity mechanism -- rejected. 4A.
+   Dedicated run/replay content-identity manifest -- NOT
+   constitutionally invalid, rejected for CURRENT scope only (no such
+   governed mechanism exists today). 4B. Extending governance
+   MANIFEST.md into a runtime checksum authority -- also not
+   constitutionally invalid in principle, rejected for current scope
+   per direct ADR-022 precedent (which itself declined this exact
+   runtime extension).
+```
+
+### `depends_on`
+
+```text
+depends_on: [ADR-035] -- ADR-037 clarifies/structures an evidence item
+  ADR-035's own text already named as unmet without defining a
+  mechanism; the new field is defined relationally in terms of
+  computation_cursor's own fields. ADR-035 remains Approved, byte-for-
+  byte unmodified, not superseded.
+```
+
+### Evidence artifact
+
+```text
+docs/adr/ADR-037.md (new; content identity
+  157451c70790ec82f450507c2b55427aa7e2a5f7). feature.md, contracts.py,
+  Chapter 8, ADR-035, Input Contract/Stream Registry artifacts all
+  verified byte-unchanged.
+```
+
+### State summary (preserved)
+
+```text
+EVID-03: CLOSED/PASS (unaffected). EVID-05(a): SATISFIED (unaffected,
+  unrevisited). EVID-05(b): OPEN -- ADR-037 v0.1 Draft authored, NOT
+  approved, NOT closed. EVID-05 overall: OPEN / blocking (unaffected).
+  EVID-04/06/07/08: OPEN / blocking (unaffected). Overall Feature
+  Chapter 13 QG: FAIL — evidence (unaffected). Feature module: NOT
+  APPROVED. Phase 3 gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of `ADR-037` Draft, followed by Independent Review B and a Product Owner decision.
+
+**Files changed:** `docs/adr/ADR-037.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.337"` → `"10.338"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: EVID-05(b) design candidate 001 — Review A closure transcription (`P3-FEATURE-QG-EVID05B-A-MAJ-02: CLOSED — BOUNDED REVIEW A RE-REVIEW`; mechanical, no redesign)
 
 **Mechanical transcription transaction — vai trò: `Feature Engine EVID-05(b) Review-A Closure Transcription Executor`.** Records Review A's completed bounded re-review determination for `P3-FEATURE-QG-EVID05B-A-MAJ-02` into the existing EVID-05(b) design-candidate lineage. No redesign/re-analysis of Options 2/4A/4B; no ADR authored; no production/schema/test change; ADR-022/ADR-035/Constitution untouched.
