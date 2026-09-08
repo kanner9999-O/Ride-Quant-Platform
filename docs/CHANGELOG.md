@@ -2,6 +2,138 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: `P3-FEATURE-QG-EVID-03` CLOSED (Review A validated) + `EVID-05(a)` self-contained replay isolation test (evidence-ready)
+
+**Bookkeeping + bounded, test-only remediation transaction — vai trò: `Feature Engine EVID-05(a) Self-Contained Replay Test Executor`.** Records Review A's validation-closure of the formal Step-9 evidence-002 transaction, plus a nonblocking wording-fidelity note against that same artifact, then adds ONE test file proving `P3-FEATURE-QG-EVID-05(a)` (I-5 Decision-Time Observable Dependency — self-contained Replay execution). No `src/**`/tooling/dependency/CI/event-schema/persisted-cursor-checksum change. No mutation run. No formal Chapter-13 evaluation. `EVID-05` overall NOT closed (part (b), content-checksum persistence, remains a separate, unresolved schema-adjacent gap).
+
+**Fresh boundary verification:** HEAD before confirmed exactly `977c7e87507a382dd4a021673f1e582eaa85ff82` (`main` freshly pinned, local HEAD/`origin/main` identical, no drift).
+
+### Review A bookkeeping recorded
+
+```text
+P3-FEATURE-QG-EVID-03: CLOSED — PASS — REVIEW A VALIDATED, at formal
+  evidence boundary 977c7e87507a382dd4a021673f1e582eaa85ff82
+  (feature-engine-mutation-step9-formal-evidence-002.json).
+P3-PY-MUT-STEP9-002-A-MIN-01: OPEN — NONBLOCKING FIDELITY NOTE. The
+  phrase "confirmed_timeout ... WITHIN the ten-status schema" in
+  evidence-002's own confirmed_timeout_note is imprecise -- correct
+  interpretation: there are exactly ten raw mutmut statuses;
+  confirmed_timeout is separate supplemental numerator-credit
+  bookkeeping, not an eleventh raw status folded into the ten-status
+  object. Evidence-002 itself is NOT modified for this wording; the
+  correction is recorded here only.
+```
+
+### EVID-05(a) authority resolved
+
+```text
+Constitution I-5 (02-platform-invariants.md): Replay execution reads
+  only already-saved events + materialized/immutable artifacts;
+  external resolution is allowed only during Replay preparation, never
+  during Replay execution. feature-engine-chapter13-remediation-plan-
+  001.md's EVID-05 row splits this into (a) self-contained-replay test
+  (ACTIONABLE_NOW, test-only) and (b) persisted content-checksum design
+  gap (NEEDS_GOVERNED_DESIGN_OR_MECHANISM, schema-adjacent). This
+  transaction addresses ONLY (a).
+```
+
+### Runtime paths inspected
+
+```text
+authority_resolver.py is the ONLY module anywhere in src/feature_engine/
+  that performs filesystem I/O (confirmed by direct grep across the
+  whole src/ tree for open(/Path(/.read_text/.read_bytes/requests./
+  urllib/socket./http. -- zero other hits, and zero network-capable
+  calls anywhere). SwingDistanceFeatureEngine and
+  RegimePassthroughFeatureEngine each call `input_contract_authority_
+  provider.resolve(profile)` exactly once, in `__init__`, caching the
+  result as `self._resolved_input_contract`; every public runtime
+  handler (on_swing_confirmed/on_swing_invalidated/on_candle,
+  on_regime_classified/on_regime_invalidated) only ever reads that
+  cached attribute (via resolve_computation_cursor, a pure function
+  with no I/O of its own) -- never re-resolves. FeatureCurrentView
+  takes no authority provider and performs no I/O at all.
+  CandleWindowFeatureEngine always fails closed at construction
+  (P3-FEATURE-A-MAJ-03) and never processes events -- not in scope.
+```
+
+### Test added
+
+```text
+tests/test_replay_isolation.py (new):
+  test_external_access_cut_guards_the_real_reachable_boundary --
+  proves the installed guard actively intercepts Path.read_bytes/
+  read_text, builtins.open, socket.socket.connect, socket.create_
+  connection, AND the real production
+  resolve_input_contract_authority_from_repository() call path itself
+  (not a vacuous mock nobody calls).
+  test_replay_execution_is_self_contained_after_construction --
+  constructs SwingDistanceFeatureEngine + RegimePassthroughFeatureEngine
+  using already-materialized SWING_DISTANCE_INPUT_CONTRACT/REGIME_
+  INPUT_CONTRACT (resolved once, from the real repository, at conftest
+  module-import time), THEN installs the same external-access cut,
+  THEN exercises real public handlers end-to-end (swing confirm +
+  covering candle -> FeatureComputed value 5.00; regime classify ->
+  invalidate -> FeatureCurrentView projection to VALID then
+  PENDING_CORRECTION) and asserts genuinely correct results -- proving
+  no handler needs, or silently performs, further filesystem/network
+  access during replay execution. Sanity-verified: a deliberately
+  injected Path.read_bytes() call inside on_regime_classified was
+  confirmed to make this exact test fail with ExternalAccessCutError
+  before being reverted (production file restored byte-identical,
+  `git diff --quiet`).
+```
+
+### Verification
+
+```text
+tests/: 235 passed (233 + 2 new), 0 failed. tooling/tests/: 5 passed.
+  tooling/fault_injection/tests/: 22 passed. ruff check .: All checks
+  passed. ruff format --check .: 7 pre-existing drifted files
+  unchanged (test_replay_isolation.py itself already formatted). mypy
+  strict (src+tests, default scope): Success, 26 files.
+```
+
+### Scope discipline
+
+```text
+src/feature_engine/**, tooling/**, pyproject.toml, requirements-dev.
+  lock.txt, event schemas, and persisted cursor/checksum semantics all
+  verified byte-unchanged (`git diff --quiet`) before and after this
+  transaction. Fresh Chapter 0 §4b disposition: ADR_NOT_REQUIRED
+  (genuine test-only change, no production/schema modification).
+```
+
+### EVID-05(a) disposition
+
+```text
+Evidence-ready: the self-contained replay test genuinely proves Replay
+  execution isolation for both authority-consuming engines, exercised
+  through their real public handlers, with the external-access cut
+  independently proven active and sanity-verified against a real
+  injected violation. This transaction does not itself close EVID-05
+  (a) as a formal finding -- that is Review A's role -- and does not
+  close EVID-05 overall, since part (b) (persisted content-checksum)
+  remains entirely unaddressed.
+```
+
+### State summary (preserved)
+
+```text
+EVID-03: CLOSED — PASS — REVIEW A VALIDATED (this transaction).
+EVID-05(a): evidence-ready (this transaction; not self-closed).
+EVID-05 overall: OPEN / blocking (part (b) unresolved).
+EVID-04/06/07/08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval: NOT APPROVED. Phase 3 Approval Gate: NOT
+  opened. LIVE: NOT_AUTHORIZED. ADR_OPTIONAL / ADR_NOT_REQUIRED
+  (unchanged for this genuine test-only change).
+```
+
+**Next governed step:** Review A of this EVID-05(a) test transaction (and, separately, of the P3-FEATURE-QG-EVID-03 closure bookkeeping recorded here).
+
+**Files changed:** `python/feature-engine/tests/test_replay_isolation.py` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.332"` → `"10.333"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: Review A bounded closure of Condition-3 correction (MAJ-01/MAJ-02/MIN-01 CLOSED, Condition 3 SATISFIED) + fresh formal Step-9 evidence-002 (`P3-FEATURE-QG-EVID-03`: PASS — pending Review A validation)
 
 **Bookkeeping + formal Step-9 evidence transaction — vai trò: `Feature Engine Fresh Formal Step-9 Mutation Evidence Executor`.** Records Review A's already-completed bounded re-review closure of the Condition-3 implementation correction, then performs ONE fresh, independent, from-scratch formal Step-9/`P3-FEATURE-QG-EVID-03` mutation-effectiveness measurement against the current frozen boundary. No `src/**`/tests/tooling/pyproject/lockfile/testing-convention/threshold/reclassification/Condition-3-evidence change. No Phase-3 approval decision. No self-closure of the finding.
