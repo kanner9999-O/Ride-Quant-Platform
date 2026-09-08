@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.342"
+manifest_version: "10.343"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -24235,6 +24235,103 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** bounded Review A re-review of this correction.
 
 **Files changed:** `docs/adr/ADR-038.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.341"` → `"10.342"`.
+
+## ADR-038 v0.1 — Product Owner Approval (`Approved` — Feature Output Event Contract Compatibility Commitment now effective)
+
+**Mechanical approval/lifecycle recording transaction — vai trò: `Feature Engine ADR-038 Approval Recording Executor`.** Records Review A's bounded re-review closure of `P3-ADR038-A-MAJ-01`, Independent Review B's own review, and the Product Owner's `APPROVE` decision — transitioning `ADR-038` from `Draft`/unreviewed to `Approved`. No semantic redesign.
+
+**Fresh boundary verification:** HEAD confirmed exactly `a39faba0eafe2118d3ffa0f00b5fb66ce00f3742`, identical to `origin/main`; ADR-038 reviewed Draft blob confirmed exactly `c29ff8a08438c5e3934ba3ebf9cdc56ac703d036` — no drift.
+
+### Review A recorded
+
+```text
+Principal: ChatGPT, AI Technical Architect / Review A. Same reviewed
+  boundary/blob as above. Bounded re-review of P3-ADR038-A-MAJ-01
+  confirmed CLOSED. Blocker 0 / Major 0 / Minor 0.
+  CLEAN — READY_FOR_INDEPENDENT_REVIEW_B. Closure was externally
+  determined by Review A; repo transcription was pending until this
+  transaction.
+```
+
+### Independent Review B recorded
+
+```text
+Principal: Claude, AI Technical Architect / Independent Review B.
+  DISTINCT_PRINCIPAL (Mode A). Execution ID N/A (not fabricated). Same
+  reviewed boundary/blob. Independently verified the backward-only
+  decision, ADR_REQUIRED scope classification and real >1-module
+  impact, ADR-037 unchanged/Approved, depends_on: [ADR-037], the
+  commitment/concrete-delta-classification/Compatibility-Result
+  three-way distinction, no evaluator/grant/result mechanism, the
+  corrected reader-policy and immutable-binding treatments,
+  Alternatives 2/3's narrowed rejection, and Scale check/lifecycle-
+  metadata integrity. Blocker 0 / Major 0 / Minor 0.
+  CLEAN — READY_FOR_PRODUCT_OWNER_DECISION. Separately noted, as
+  bookkeeping only (not a substantive finding), the pending Review-A
+  transcription gap -- closed by this recording transaction, not by
+  Review B itself.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE ADR-038 — Feature Output Event Contract Compatibility
+  Commitment at reviewed boundary
+  a39faba0eafe2118d3ffa0f00b5fb66ce00f3742.
+Recorded: 2026-09-08T15:47+07:00.
+```
+
+### ADR lifecycle transition applied
+
+```text
+status: Draft -> Approved. reviewers: [] -> [ChatGPT, Claude].
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-08T15:47+07:00. last_review -> 2026-09-08. version remains
+exactly "0.1". depends_on: [ADR-037] unchanged. addresses/resolves/
+supersedes unchanged (none invented). Reviewed semantic boundary/blob
+recorded separately from, never confused with, the resulting
+lifecycle-record blob (ef931de871786ccd27119528b680d4d85e06c9f2). Per
+Chapter 11 §11.3, ADR-038.md is now immutable byte-for-byte from this
+approval boundary.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-038.md (lifecycle transition in place,
+  blob c29ff8a08438c5e3934ba3ebf9cdc56ac703d036 ->
+  ef931de871786ccd27119528b680d4d85e06c9f2); docs/MANIFEST.md;
+  docs/CHANGELOG.md. No semantic content changed -- `git diff`
+  confirms only frontmatter status/reviewers/approved_by/approved_at/
+  last_review, the review table, the Independence/PO-decision/
+  reviewed-boundary paragraphs, and Accepted risks changed.
+  Decision/Alternatives/Consequences/reader-policy semantics/
+  backward-only commitment/ADR-037 all byte-unchanged.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-038 now Approved, but the
+                                reader/format policy prerequisite,
+                                delta classification, feature.md
+                                amendment, and Event Contract/schema
+                                version minting all remain entirely
+                                unperformed.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** establish the Domain Contract/Phase-1 format-specific reader/schema compatibility policy for the Feature Output Event Contracts named as a prerequisite in `ADR-038`'s Consequences step (0).
+
+**Files changed:** `docs/adr/ADR-038.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.342"` → `"10.343"`.
 
 ## Decision Log
 

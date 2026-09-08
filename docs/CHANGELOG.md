@@ -2,6 +2,98 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: `ADR-038` v0.1 — Product Owner APPROVED (Review A/B recorded, `P3-ADR038-A-MAJ-01` CLOSED; ADR now immutable byte-for-byte)
+
+**Mechanical approval/lifecycle recording transaction — vai trò: `Feature Engine ADR-038 Approval Recording Executor`.** Records Review A's bounded re-review closure of `P3-ADR038-A-MAJ-01`, Independent Review B's own review, and the Product Owner's `APPROVE` decision — transitioning `ADR-038` from `Draft`/unreviewed to `Approved`. No semantic redesign; Decision/Alternatives/Consequences/reader-policy semantics/backward-only commitment/ADR-037 all unchanged.
+
+**Fresh boundary verification:** HEAD confirmed exactly `a39faba0eafe2118d3ffa0f00b5fb66ce00f3742`, identical to `origin/main`; ADR-038 reviewed Draft blob confirmed exactly `c29ff8a08438c5e3934ba3ebf9cdc56ac703d036` — no drift.
+
+### Review A recorded
+
+```text
+Principal: ChatGPT, AI Technical Architect / Review A. Reviewed
+  boundary a39faba0eafe2118d3ffa0f00b5fb66ce00f3742, blob
+  c29ff8a08438c5e3934ba3ebf9cdc56ac703d036. Bounded re-review of
+  P3-ADR038-A-MAJ-01 confirmed CLOSED. Blocker 0 / Major 0 / Minor 0.
+  CLEAN — READY_FOR_INDEPENDENT_REVIEW_B. Closure was externally
+  determined by Review A; repo transcription was pending until this
+  transaction.
+```
+
+### Independent Review B recorded
+
+```text
+Principal: Claude, AI Technical Architect / Independent Review B.
+  DISTINCT_PRINCIPAL (Mode A, ADR-031 §5). Execution ID: N/A (not
+  fabricated). Same reviewed boundary/blob. Independently verified:
+  the backward-only decision itself, ADR_REQUIRED scope classification
+  and the real >1-module feature-engine/context-aggregator impact;
+  ADR-037 unchanged/Approved, not re-litigated; depends_on: [ADR-037];
+  the commitment/concrete-delta-classification/Compatibility-Result
+  three-way distinction, decided here only for the first; no
+  evaluator/grant/policy-registry mechanism created; the corrected
+  reader-policy treatment (§10.3.1 rules deferred to an as-yet-
+  unauthored Domain Contract/Phase-1 policy, unknown-field tolerance
+  never assumed); the corrected immutable-binding treatment (§10.5,
+  backward-only framed around an advancing consumer); Alternatives
+  2/3's narrowed, delta-scoped rejection; Scale check and lifecycle-
+  metadata integrity. Blocker 0 / Major 0 / Minor 0.
+  CLEAN — READY_FOR_PRODUCT_OWNER_DECISION. Separately noted, as
+  bookkeeping only (not a substantive finding): the pending Review-A
+  transcription gap, closed by this recording transaction, not by
+  Review B itself.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE ADR-038 — Feature Output Event Contract Compatibility
+  Commitment at reviewed boundary
+  a39faba0eafe2118d3ffa0f00b5fb66ce00f3742.
+Recorded: 2026-09-08T15:47+07:00.
+```
+
+### ADR lifecycle transition applied
+
+```text
+status: Draft -> Approved. reviewers: [] -> [ChatGPT, Claude].
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-08T15:47+07:00. last_review -> 2026-09-08. version remains
+exactly "0.1". depends_on: [ADR-037] unchanged. addresses/resolves/
+supersedes unchanged (none invented). Reviewed semantic boundary/blob
+(a39faba0eafe2118d3ffa0f00b5fb66ce00f3742 /
+c29ff8a08438c5e3934ba3ebf9cdc56ac703d036) recorded separately from,
+never confused with, the resulting lifecycle-record blob
+(ef931de871786ccd27119528b680d4d85e06c9f2). Per Chapter 11 §11.3,
+ADR-038.md is now immutable byte-for-byte from this approval boundary.
+```
+
+### Evidence artifact
+
+```text
+docs/adr/ADR-038.md lifecycle transition applied in place (blob
+  c29ff8a08438c5e3934ba3ebf9cdc56ac703d036 ->
+  ef931de871786ccd27119528b680d4d85e06c9f2, the lifecycle-record
+  identity, distinct from the reviewed semantic Draft blob above).
+```
+
+### State summary (preserved)
+
+```text
+EVID-03: CLOSED/PASS (unaffected). EVID-05(a): SATISFIED (unaffected).
+  EVID-05(b): OPEN -- ADR-038 now Approved, but the reader/format
+  policy prerequisite, delta classification, feature.md amendment, and
+  Event Contract/schema version minting all remain entirely
+  unperformed. EVID-05 overall: OPEN / blocking (unaffected). EVID-04/
+  06/07/08: OPEN / blocking (unaffected). Overall Feature Chapter 13
+  QG: FAIL — evidence (unaffected). Feature module: NOT APPROVED.
+  Phase 3 gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** establish the Domain Contract/Phase-1 format-specific reader/schema compatibility policy for the Feature Output Event Contracts named as a prerequisite in `ADR-038`'s Consequences step (0).
+
+**Files changed:** `docs/adr/ADR-038.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.342"` → `"10.343"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: `ADR-038` bounded Review A correction (`P3-ADR038-A-MAJ-01` — assumed reader tolerance / overstated protection-absence corrected; `Draft` unchanged, no version bump)
 
 **Bounded correction transaction — vai trò: `Feature Engine ADR-038 Bounded Correction Executor`.** Remediates `P3-ADR038-A-MAJ-01`: `ADR-038`'s rationale treated an ungoverned tolerant-reader behavior as established fact and overstated the absence of existing consumer protection. Chapter 10 §10.3.1 reserves format-specific reader/schema rules to Domain Contract/Phase 1 authority not yet authored; §10.5 already establishes that an immutable consumer binding is unaffected by a provider publishing a newer contract version. Correction only — the `backward-only` decision is preserved, reframed as an explicit policy commitment. No implementation, no Product Owner approval.
