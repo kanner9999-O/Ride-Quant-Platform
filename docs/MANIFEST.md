@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.344"
+manifest_version: "10.345"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -24433,6 +24433,118 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** Review A of the Domain Contract alignment (`feature.md` v0.6).
 
 **Files changed:** `docs/domain/feature.md` (updated in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; ADR-037/ADR-038 verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.343"` → `"10.344"`.
+
+## ADR-039 v0.1 — Canonical Event Contract Version-Artifact Authority and Resolution Mechanism (`Draft`, candidate authoring — platform-wide, not Feature-specific)
+
+**Governed semantic architecture-authoring transaction — vai trò: `Platform Event Contract Version-Artifact Authority Authoring Executor`.** Authors `docs/adr/ADR-039.md` v0.1 (`Draft`), fixing the canonical authority/resolution mechanism for `event_contract_ref.contract_version` (Chapter 8 §8.2.5) — confirmed a platform-wide gap across every current Domain Contract, with `ADR-037`/`ADR-038` treated strictly as the Feature use-case that exposed it. Not approved. No registry/artifacts created yet.
+
+**Fresh boundary verification:** HEAD confirmed exactly `00cba7db7e1a3672646242591c24756294a72427`, identical to `origin/main`; `docs/adr/ADR-039.md` verified absent before this transaction — no drift.
+
+### Exact authority-gap proof
+
+```text
+Chapter 8 §8.2.5: every authoritative event must pin event_contract_ref
+  {contract_id, contract_version} to an exact, immutable Event Contract
+  snapshot, independent of schema_version. §8.1.1: Event Contract is a
+  named Referenced Authoritative Artifact requiring versioned/
+  immutable-once-referenced/non-reused-identifier/persistently-
+  resolvable/verifiable-content-identity.
+Confirmed: candle.md/swing.md/structure.md/regime.md/feature.md ALL
+  declare event_contract_ref required, NONE pin a concrete
+  contract_version anywhere. context-map.yaml pins contract_id only.
+  No dedicated Event Contract registry/artifact directory exists.
+```
+
+### Alternatives evaluated
+
+```text
+A. Dedicated immutable/versioned Event Contract artifacts, canonical
+   lookup by {contract_id, contract_version} -- CHOSEN. Reuses the
+   already-established docs/architecture/input-contracts/*.yaml
+   pattern; no new runtime service/evaluator/grant mechanism.
+B. Versioned snapshots inside/alongside the owning Domain Contract --
+   REJECTED: Domain Contracts are edited IN PLACE across their own
+   version history; a document's own version is a single axis
+   covering the WHOLE document, while §8.2.5 needs an INDEPENDENT
+   axis PER contract_id -- repeats §8.2.5's own "wrong field as
+   version proxy" mistake one level up.
+C. Git commit/blob/content identity directly as contract_version --
+   REJECTED as sole mechanism: no human-legible major/minor ordering
+   signal Chapter 10 §10.3 depends on; useful part incorporated into A.
+D. Governance MANIFEST.md as runtime resolution authority -- REJECTED
+   on the same grounds already established in ADR-038's own corrected
+   reasoning (ADR-022 precedent explicitly declined this exact
+   runtime-authority extension) -- larger here since §8.2.5 applies to
+   EVERY authoritative event platform-wide.
+```
+
+### Selected mechanism (full definition)
+
+```text
+docs/architecture/event-contracts/<contract_id>/<contract_version>.yaml
+  -- Domain Contract remains sole semantic authority; version-artifact
+  is a thin, frozen, machine-resolvable transcription. Resolution is a
+  direct path function (same pattern as {ADR-id} -> ADR-<NNN>.md).
+  Immutability/non-reuse: Draft -> Published, same discipline as ADR
+  approval (Chapter 11 §11.3). Content identity: git blob hash.
+  Retention: inherits existing repo-retention commitment. schema_version
+  untouched, independent axis. First-version and later-evolution rules
+  reuse the owning Domain Contract's own governance process and
+  Chapter 10's already-Locked classification -- no new versioning
+  scheme, evaluator, or grant mechanism invented.
+```
+
+### ADR scope rationale
+
+```text
+ADR_REQUIRED via BOTH independently-sufficient Chapter 0 §4b triggers:
+  >1-module (mandatory on every event any module appends) AND
+  hard-to-reverse (changing the mechanism later requires migrating
+  every historical event reference). NOT authored merely because
+  ADR-037/038 left follow-on work open (G-ADR-001/G-ADR-003) --
+  ADR-037/038 treated strictly as the exposing use-case for an
+  already-platform-wide, pre-existing gap.
+```
+
+### `depends_on`
+
+```text
+depends_on: [] -- derived independently from Chapter 8 §8.1.1/§8.2.5
+  and Chapter 10 directly; the gap predates and extends beyond
+  ADR-037/038 (every Domain Contract exhibits it). ADR-037/038 remain
+  Approved, unmodified.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-039.md (new); docs/MANIFEST.md;
+  docs/CHANGELOG.md only. feature.md, ADR-037, ADR-038,
+  module-registry.yaml, context-map.yaml, and Constitution all
+  verified byte-unchanged (`git diff --quiet`). No registry/artifacts
+  created. No production/test/tooling change.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-039 designs the missing
+                                mechanism but is itself only a Draft,
+                                not approved.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of `ADR-039` Draft.
+
+**Files changed:** `docs/adr/ADR-039.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `feature.md`/`ADR-037`/`ADR-038`/`module-registry.yaml`/`context-map.yaml`/Constitution verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.344"` → `"10.345"`.
 
 ## Decision Log
 

@@ -2,6 +2,154 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — platform: `ADR-039` v0.1 authored (`Draft`) — Canonical Event Contract Version-Artifact Authority and Resolution Mechanism (resolves `feature.md` v0.6's fail-closed blocker's own mechanism gap, platform-wide, not Feature-specific)
+
+**Governed semantic architecture-authoring transaction — vai trò: `Platform Event Contract Version-Artifact Authority Authoring Executor`.** Authors `docs/adr/ADR-039.md` v0.1 (`Draft`), fixing the canonical authority/resolution mechanism for `event_contract_ref.contract_version` (Chapter 8 §8.2.5) — a gap confirmed platform-wide across every current Domain Contract, not specific to `ADR-037`/`ADR-038`, which are treated only as the Feature use-case that exposed it. Not approved. `feature.md`/`ADR-037`/`ADR-038`/`module-registry.yaml`/`context-map.yaml`/Constitution all untouched. No registry/artifacts created yet.
+
+**Fresh boundary verification:** HEAD confirmed exactly `00cba7db7e1a3672646242591c24756294a72427`, identical to `origin/main`; `docs/adr/ADR-039.md` verified absent before this transaction — no drift.
+
+### Exact authority-gap proof
+
+```text
+Chapter 8 §8.2.5: every authoritative event must pin event_contract_ref
+  {contract_id, contract_version} to an exact, immutable Event Contract
+  snapshot, independent of schema_version. §8.1.1: Event Contract is a
+  named Referenced Authoritative Artifact requiring versioned/immutable-
+  once-referenced/non-reused-identifier/persistently-resolvable/
+  verifiable-content-identity.
+Confirmed: candle.md/swing.md/structure.md/regime.md/feature.md ALL
+  declare event_contract_ref required, NONE pin a concrete
+  contract_version anywhere. context-map.yaml pins contract_id only,
+  never contract_version, for every published_language relationship.
+  No dedicated Event Contract registry/artifact directory exists. Not
+  a Feature-specific gap -- predates and extends beyond ADR-037/038.
+```
+
+### Alternatives evaluated
+
+```text
+A. Dedicated immutable/versioned Event Contract artifacts, canonical
+   lookup by {contract_id, contract_version} -- CHOSEN. Satisfies all
+   five §8.1.1 conditions by construction; reuses the already-
+   established docs/architecture/input-contracts/*.yaml pattern
+   (applied to a new artifact class, not a new pattern); no new
+   runtime service/evaluator/grant mechanism.
+B. Versioned snapshots inside/alongside the owning Domain Contract --
+   REJECTED: Domain Contracts are edited IN PLACE across their own
+   version history (feature.md v0.1->v0.6 all live in one evolving
+   file); a Domain Contract's own document version is a single axis
+   covering the WHOLE document, while §8.2.5 needs INDEPENDENT axes
+   PER contract_id -- using the former as the latter repeats,
+   one level up, the exact "wrong field as version proxy" mistake
+   §8.2.5 already forbids for schema_version.
+C. Git commit/blob/content identity directly as contract_version --
+   REJECTED as sole mechanism: satisfies content-identity (§8.1.1
+   rule 5) automatically but carries no human-legible major/minor
+   ordering signal Chapter 10 §10.3 depends on, and doesn't resolve
+   which exact byte range of an in-place-edited Domain Contract to
+   hash (same conflation as B). Its useful part (blob-hash content
+   proof) is incorporated into option A anyway.
+D. Governance MANIFEST.md as runtime Event Contract resolution
+   authority -- REJECTED on the same grounds already established in
+   ADR-038's own corrected reasoning (MANIFEST's Chapter 0 §5b/§7
+   scope has no natural extension to a required, at-every-event
+   runtime dependency; ADR-022 precedent explicitly declined this
+   exact runtime-authority extension) -- an even larger responsibility
+   here than the content-identity case, since §8.2.5 applies to
+   EVERY authoritative event platform-wide.
+No materially better existing-authority option identified.
+```
+
+### Selected mechanism (full definition)
+
+```text
+Canonical authority: a dedicated per-{contract_id}/{contract_version}
+  file at docs/architecture/event-contracts/<contract_id>/
+  <contract_version>.yaml. Domain Contract remains sole authority for
+  SEMANTIC content; the version-artifact is a thin, frozen,
+  machine-resolvable transcription of exactly what §8.2.5 needs
+  (event_class/allowed_streams/merge_constraints/payload-shape
+  pointer) -- never a competing source of semantic truth.
+Resolution: {contract_id, contract_version} -> path, directly --
+  same pattern as {ADR-id} -> docs/adr/ADR-<NNN>.md today. No new
+  lookup table/runtime resolver component.
+Immutability/non-reuse: Draft -> Published lifecycle, same discipline
+  as ADR approval (Chapter 11 §11.3) -- Published = frozen byte-for-
+  byte; contract_version identifiers never reassigned to different
+  content once Published.
+Content identity: git blob hash of the file -- same mechanism already
+  used for every other Referenced Authoritative Artifact in this repo.
+Retention/resolvability: inherits the same repository-retention
+  commitment already extended to ADRs/Domain Contracts -- no new
+  policy invented.
+schema_version: untouched, independent axis, unchanged from §8.2.5 --
+  this ADR resolves contract_version resolution only.
+First version rule: first Published snapshot for a contract_id goes
+  through the SAME governance process as the owning Domain Contract
+  itself (Draft -> Review A/B -> PO decision) -- no new evaluator/
+  grant/self-certification path. Identifier chosen at publication
+  time, human-legible, monotonically ordered -- no literal format
+  mandated.
+Later evolution: new Published file per change, never edited in
+  place; major/minor-equivalent classification governed entirely by
+  Chapter 10 §10.3/§10.3.1 (already Locked) applied against the
+  owning Domain Contract's own declared compatibility_commitment --
+  no parallel versioning scheme invented.
+```
+
+### ADR scope rationale
+
+```text
+ADR_REQUIRED via BOTH independently-sufficient Chapter 0 §4b triggers:
+  >1-module (event_contract_ref is mandatory on every authoritative
+  event ANY current/future module appends -- broader than any single
+  producer/consumer edge) AND hard-to-reverse (once real events
+  persist event_contract_ref under a chosen mechanism, changing it
+  later requires reinterpreting/migrating every historical reference).
+NOT authored merely because ADR-037/038 left follow-on work open
+  (G-ADR-001/G-ADR-003) -- ADR-037/038 treated strictly as the Feature
+  use-case that exposed an already-platform-wide, pre-existing gap.
+```
+
+### `depends_on`
+
+```text
+depends_on: [] -- ADR-039's own decision content is derived
+  independently from Chapter 8 §8.1.1/§8.2.5 and Chapter 10 directly,
+  not from ADR-037/038's own decisions; the gap predates and extends
+  beyond both (every Domain Contract exhibits it, going back to
+  candle.md/swing.md/structure.md/regime.md, none of which cite
+  ADR-037/038 at all). ADR-037/038 remain Approved, unmodified,
+  unreferenced beyond citing ADR-038's own already-corrected Option-D
+  rejection reasoning as reusable precedent.
+```
+
+### Evidence artifact
+
+```text
+docs/adr/ADR-039.md (new; content identity
+  59c3d13eaa52119d64e8eac50f5bea680fd41bc7). feature.md, ADR-037,
+  ADR-038, module-registry.yaml, context-map.yaml, and Constitution
+  all verified byte-unchanged. No registry/artifacts created.
+```
+
+### State summary (preserved)
+
+```text
+ADR-037/ADR-038: Approved, immutable, unaffected. EVID-05(a):
+  SATISFIED (unaffected). EVID-05(b): OPEN -- ADR-039 designs the
+  missing mechanism but is itself only a Draft, not approved; no
+  registry/artifact/implementation performed. EVID-05 overall: OPEN /
+  blocking (unaffected). EVID-04/06/07/08: OPEN / blocking
+  (unaffected). Overall Feature Chapter 13 QG: FAIL — evidence
+  (unaffected). Feature module: NOT APPROVED. Phase 3 gate: NOT
+  opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of `ADR-039` Draft.
+
+**Files changed:** `docs/adr/ADR-039.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.344"` → `"10.345"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: `feature.md` v0.6 — implements `ADR-037`/`ADR-038`, BREAKING classification resolved directly from Locked Chapter 10 §10.3.1, Event Contract version FAIL CLOSED (blocker precisely reported)
 
 **Bounded versioned Domain Contract alignment transaction — vai trò: `Feature Engine ADR-037/038 Domain-Contract Alignment Executor`.** Creates `docs/domain/feature.md` v0.6 (`Draft`), transcribing already-Approved `ADR-037` (`computation_dependency_content_evidence`) and `ADR-038` (backward-only compatibility commitment) into `FeatureComputed`/`FeatureFactInvalidated`, without redesign. Applies Chapter 10 §10.3.1's own Locked, format-independent minimal classification rule directly to resolve an authority conflict with `ADR-038`'s own consequence prose, without editing or superseding `ADR-038`. No production/test/tooling change. No ADR authored.
