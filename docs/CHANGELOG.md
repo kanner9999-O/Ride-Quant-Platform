@@ -2,6 +2,132 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: Condition-3 implementation bounded correction — MAJ-01/MAJ-02/MIN-01 remediated, evidence-002 (10/10 DETECTED — Condition 3 remains UNRESOLVED, pending bounded Review A re-review)
+
+**Bounded correction transaction — vai trò: `Feature Engine Condition-3 Implementation Bounded Correction Executor`.** Corrects three Review A findings against the prior implementation/evidence transaction's own harness and tests (`P3-PY-MUT-COND3-IMPL-A-MAJ-01`, `-MAJ-02`, `-MIN-01`). No `src/**` change. No approved design semantics changed. Evidence-001 preserved byte-for-byte, not overwritten. No mutmut run. No formal Step-9/QG evaluation.
+
+**Fresh boundary verification:** HEAD before correction confirmed exactly `0e85b11fffd83579194fb8a4369ea82a1e2ca2b8`; historical implementation boundary confirmed exactly `dd580d6e027017c4bf74dcf5c0b0cbd7f24917b7`; evidence-001 blob confirmed exactly `abc55b0bcde38a2c9ed42865c08013b885250111` — all three matched expected.
+
+### MAJ-01 — activation-proof conformance
+
+```text
+Finding: activation_new_string_unique_and_located used
+  `count(new_string) >= 1`, false-to-label as "unique" for FI-OHLCV-
+  FIELD-01/02 -- both replacement return statements already existed
+  elsewhere in candle.py (empirically confirmed: patched-content count
+  was 2 for both, pre-correction).
+Correction: FI-OHLCV-FIELD-01/02's old_string/new_string now include
+  the preceding branch's `if name == "..."` line as context, keeping
+  identical fault_class/fault_id/method semantics while making
+  new_string genuinely unique post-patch (empirically confirmed: count
+  == 1 for both, post-correction). harness.py now enforces `== 1`.
+  Added tooling/fault_injection/tests/test_faults.py (parametrized
+  over all 10 APPROVED_FAULTS against the real source tree) +
+  test_harness.py::test_run_fault_injection_failed_when_new_string_
+  not_unique_after_patch (synthetic non-unique-new_string regression).
+Status: P3-PY-MUT-COND3-IMPL-A-MAJ-01: REMEDIATED — PENDING BOUNDED
+  REVIEW A RE-REVIEW.
+```
+
+### MAJ-02 — cleanup must fail closed
+
+```text
+Finding: if isolation destruction could not be confirmed, a computed
+  DETECTED/SURVIVED verdict was still returned unchanged.
+Correction: run_fault's `finally` block now overrides any qualifying
+  verdict (DETECTED/SURVIVED) to TEST_INFRA_ERROR when isolation_
+  destroyed_confirmed is False, leaving the pre-existing canonical-
+  checkout-state hard-fail untouched. Added test_harness.py::
+  test_run_fault_cleanup_failure_forces_test_infra_error_not_a_
+  qualifying_verdict (monkeypatched cleanup failure on an otherwise-
+  DETECTED fixture; asserts the final verdict is TEST_INFRA_ERROR).
+Status: P3-PY-MUT-COND3-IMPL-A-MAJ-02: REMEDIATED — PENDING BOUNDED
+  REVIEW A RE-REVIEW.
+```
+
+### MIN-01 — FI-FEATUREDEF-02 residual
+
+```text
+Finding: the existing distance-field-on-metric test omitted upstream_
+  contract_refs, so a separate, later, unrelated guard raised first
+  even under the design's own OR->AND mutation -- masking the cross-
+  field exclusion and producing evidence-001's sole SURVIVED result.
+Correction: added tests/test_definition.py::test_distance_only_field_
+  on_metric_rejected_even_when_every_other_field_is_valid -- an
+  otherwise fully-valid candle-upstream volatility_metric (every field
+  a real make_candle_definition() would set) plus exactly one
+  forbidden distance-only field and normalization_policy=None.
+  Empirically verified against a scratch-mutated copy of contracts.py:
+  the existing test still raises under the OR->AND mutation (masked,
+  for the wrong reason); this new test does NOT raise under the
+  mutation (correctly exposes FI-FEATUREDEF-02), and DOES raise
+  against the real, unmutated source.
+Status: P3-PY-MUT-COND3-IMPL-A-MIN-01: REMEDIATED — PENDING BOUNDED
+  REVIEW A RE-REVIEW.
+```
+
+### Verification (repository-local `python/feature-engine/.venv`)
+
+```text
+tests/: 233 passed (232 + 1 new), 0 failed. tooling/tests/: 5 passed
+  (mutmut==3.7.0 installed into .venv to satisfy tooling/ride_mutmut_
+  shim.py's import for collection only -- mutmut itself NOT invoked).
+  tooling/fault_injection/tests/: 22 passed (10 pre-existing + 2 new
+  harness tests + 10 new parametrized test_faults.py cases). ruff
+  check .: All checks passed. ruff format --check .: 7 pre-existing
+  drifted files unchanged (not touched by this transaction; none of
+  the 5 files this transaction changed are among them). mypy strict
+  (src+tests, default scope): Success, 25 files. mypy strict (tooling/
+  fault_injection, explicit invocation): Success, 7 files.
+```
+
+### Frozen correction implementation boundary + official 10-fault rerun
+
+```text
+New implementation boundary: c39a440469347c4df8500bf731417fb1adb4f858
+  (tooling/fault_injection/faults.py, harness.py, tests/test_
+  definition.py, tooling/fault_injection/tests/test_harness.py,
+  tooling/fault_injection/tests/test_faults.py (new) only -- src tree
+  confirmed byte-identical to evidence-001's own boundary:
+  256421344a48a6c9d4ef72f81eb82b27dbedfc50). No test/harness edits
+  made after freezing this boundary.
+All 10 faults DETECTED (FI-STATIC-PROVIDER-01, FI-OHLCV-FIELD-01/02,
+  FI-DECIMAL-APPLY-01/02, FI-DECIMAL-POSTINIT-01/02, FI-FEATUREDEF-
+  01/02/03) -- including FI-FEATUREDEF-02, evidence-001's sole
+  SURVIVED residual, now DETECTED via the MIN-01 test. All 5 methods
+  have >=1 DETECTED fault. One isolated `git worktree` checkout per
+  fault, all 10 destroyed-confirmed, all 10 canonical-checkout-
+  untouched-confirmed. Honestly recorded, not fabricated.
+```
+
+### Evidence artifact
+
+```text
+docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  surface-completeness-evidence-002.json (new, additive; path
+  confirmed absent before writing). evidence-001.json preserved byte-
+  for-byte, NOT modified or overwritten. Never merged into mutmut raw
+  statuses or the 1531-mutant denominator; never confirmed_timeout.
+```
+
+### State summary (preserved)
+
+```text
+Condition 1: evidence-ready / NOT formal PASS. Condition 2: SATISFIED.
+Condition 3: UNRESOLVED — this corrected evidence supports 10/10
+  DETECTED, but is NOT recorded as Condition 3 SATISFIED in this
+  transaction; pending bounded Review A re-review of the MAJ-01/
+  MAJ-02/MIN-01 corrections themselves. EVID-03..08: OPEN / blocking.
+  Overall QG: FAIL — evidence. Feature module: NOT APPROVED. Phase 3
+  gate: NOT opened. LIVE: NOT_AUTHORIZED. ADR_OPTIONAL — ADR NOT
+  AUTHORED (unchanged). Checkpoint-002 confirmed_timeout note
+  unmodified.
+```
+
+**Next governed step:** Bounded Review A re-review of this correction (MAJ-01/MAJ-02/MIN-01 remediations, the frozen correction boundary, and the 10/10 DETECTED evidence-002 rerun).
+
+**Files changed:** `python/feature-engine/tests/test_definition.py`, `python/feature-engine/tooling/fault_injection/faults.py`, `python/feature-engine/tooling/fault_injection/harness.py`, `python/feature-engine/tooling/fault_injection/tests/test_harness.py`, `python/feature-engine/tooling/fault_injection/tests/test_faults.py` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-evidence-002.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.330"` → `"10.331"`.
+
 ## [Unreleased] — 2026-09-07 — feature-engine: Condition-3 implementation + official fault-injection evidence (9/10 DETECTED, 1/10 SURVIVED — Condition 3 remains UNRESOLVED)
 
 **Implementation & evidence transaction — vai trò: `Feature Engine Condition-3 Implementation & Evidence Executor`.** Implements the APPROVED Condition-3 design and executes its own official 10-fault evidence run. No `src/**` change. No mutmut run. No formal Step-9/QG evaluation.

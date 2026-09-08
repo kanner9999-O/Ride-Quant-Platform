@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.330"
+manifest_version: "10.331"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23032,6 +23032,126 @@ Checkpoint-002 confirmed_timeout fidelity note remains forward-looking
 **Next governed step:** Review A of this implementation and its Condition-3 evidence — an independent reviewer assesses the harness's own fidelity to the approved design, the 6 added tests, the 9 DETECTED verdicts, and explicitly disposes of the FI-FEATUREDEF-02 SURVIVED residual (strengthened test vs. Product Owner risk-acceptance) before Condition 3 can be marked resolved.
 
 **Files changed:** `python/feature-engine/tests/test_authority_resolver.py`, `test_contracts.py`, `test_definition.py`, `python/feature-engine/tooling/fault_injection/**` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-evidence-001.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.329"` → `"10.330"`.
+
+## [Unreleased] — 2026-09-08 — feature-engine: Condition-3 implementation bounded correction 002 — MAJ-01/MAJ-02/MIN-01 remediated, evidence-002 (10/10 DETECTED)
+
+**Bounded correction transaction — vai trò: `Feature Engine Condition-3 Implementation Bounded Correction Executor`.** Corrects three Review A findings against the prior implementation/evidence transaction's own harness and tests only (`P3-PY-MUT-COND3-IMPL-A-MAJ-01`, `-MAJ-02`, `-MIN-01`). No `src/**` change, no approved-design-semantics change, evidence-001 preserved byte-for-byte (not overwritten), no mutmut run, no formal Step-9/QG evaluation.
+
+**Fresh boundary verification:** HEAD before correction confirmed exactly `0e85b11fffd83579194fb8a4369ea82a1e2ca2b8`; historical implementation boundary confirmed exactly `dd580d6e027017c4bf74dcf5c0b0cbd7f24917b7`; evidence-001 blob confirmed exactly `abc55b0bcde38a2c9ed42865c08013b885250111` — all matched expected.
+
+### Corrections made
+
+```text
+MAJ-01 (activation-proof conformance): activation_new_string_unique_
+  and_located's `count(new_string) >= 1` check was false-to-label as
+  "unique" for FI-OHLCV-FIELD-01/02 (empirically confirmed count == 2,
+  pre-correction, for both). FI-OHLCV-FIELD-01/02's old_string/
+  new_string now include the preceding branch's `if name == "..."`
+  line as context -- identical fault_class/fault_id/method, but
+  new_string is now genuinely unique post-patch (count == 1, post-
+  correction, for both). harness.py now enforces `== 1`, not `>= 1`.
+MAJ-02 (cleanup must fail closed): a DETECTED/SURVIVED verdict was
+  previously returned unchanged even when isolation destruction could
+  not be confirmed. run_fault's `finally` block now overrides any
+  qualifying verdict to TEST_INFRA_ERROR when isolation_destroyed_
+  confirmed is False; the pre-existing canonical-checkout-state hard-
+  fail is untouched.
+MIN-01 (FI-FEATUREDEF-02 residual): the existing distance-field-on-
+  metric test omitted upstream_contract_refs, so a separate, later,
+  unrelated guard masked the design's own OR->AND cross-field-
+  exclusion mutation. Added a new, otherwise fully-valid candle-
+  upstream volatility_metric definition (matching make_candle_
+  definition()'s own shape) plus exactly one forbidden distance-only
+  field and normalization_policy=None -- empirically verified against
+  a scratch-mutated copy of contracts.py to raise only against the
+  real source, not under the mutation-masked-by-nothing-else scenario.
+```
+
+### New tests added (4)
+
+```text
+tooling/fault_injection/tests/test_faults.py (new): parametrized over
+  all 10 APPROVED_FAULTS against the real source tree, proving each
+  fault's new_string is uniquely located post-patch.
+tooling/fault_injection/tests/test_harness.py: +2 -- non-unique-
+  new_string-after-patch rejection (synthetic fixture); cleanup-
+  failure-forces-TEST_INFRA_ERROR (monkeypatched _destroy_isolation).
+tests/test_definition.py: +1 -- test_distance_only_field_on_metric_
+  rejected_even_when_every_other_field_is_valid (MIN-01 unmasked
+  test).
+```
+
+### Verification (repository-local `python/feature-engine/.venv`)
+
+```text
+tests/: 233 passed (232 + 1 new). tooling/tests/: 5 passed (mutmut==
+  3.7.0 installed into .venv for tooling/ride_mutmut_shim.py import
+  only -- mutmut itself NOT invoked). tooling/fault_injection/tests/:
+  22 passed (10 + 2 new + 10 new parametrized). ruff check .: All
+  checks passed. ruff format --check .: 7 pre-existing drifted files
+  unchanged, none of the 5 files this transaction touched among them.
+  mypy strict (src+tests, default scope): Success, 25 files. mypy
+  strict (tooling/fault_injection, explicit): Success, 7 files.
+```
+
+### Frozen correction implementation boundary + official 10-fault rerun
+
+```text
+New implementation boundary: c39a440469347c4df8500bf731417fb1adb4f858.
+  src tree confirmed byte-identical to evidence-001's own boundary:
+  256421344a48a6c9d4ef72f81eb82b27dbedfc50. No test/harness edits made
+  after freezing this boundary.
+All 10 faults DETECTED: FI-STATIC-PROVIDER-01, FI-OHLCV-FIELD-01/02,
+  FI-DECIMAL-APPLY-01/02, FI-DECIMAL-POSTINIT-01/02, FI-FEATUREDEF-
+  01/02/03 -- including FI-FEATUREDEF-02, evidence-001's sole SURVIVED
+  residual, now DETECTED. All 5 methods have >=1 DETECTED fault. One
+  isolated `git worktree` checkout per fault; all 10 destroyed-
+  confirmed; all 10 canonical-checkout-untouched-confirmed. Honestly
+  recorded, not fabricated.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: python/feature-engine/tests/test_definition.py;
+  python/feature-engine/tooling/fault_injection/faults.py; harness.py;
+  tests/test_harness.py; tests/test_faults.py (new); docs/governance/
+  mutation-baseline-evidence/feature-engine-mutation-surface-
+  completeness-evidence-002.json (new, additive -- evidence-001.json
+  preserved byte-for-byte, not modified/overwritten); docs/MANIFEST.md;
+  docs/CHANGELOG.md. python/feature-engine/src/** verified byte-
+  identical (`git diff --quiet`) before and after this transaction. No
+  mutmut invoked, no mutants/.mutmut-cache touched. No formal Step-9/QG
+  evaluation performed. Fresh Chapter 0 §4b re-check for this
+  correction: remains exactly within the approved Feature-only design's
+  own scope -- no new ADR-required trigger introduced --
+  `ADR_OPTIONAL — ADR NOT AUTHORED` preserved unchanged.
+```
+
+### State summary (preserved)
+
+```text
+Condition 1:                    evidence-ready / NOT formal PASS
+                                (unaffected).
+Condition 2:                    SATISFIED (unaffected).
+Condition 3:                    UNRESOLVED -- this corrected evidence
+                                supports 10/10 DETECTED, but is NOT
+                                recorded as SATISFIED in this
+                                transaction; pending bounded Review A
+                                re-review of the MAJ-01/MAJ-02/MIN-01
+                                corrections themselves.
+P3-FEATURE-QG-EVID-03..-08:     OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+Checkpoint-002 confirmed_timeout fidelity note remains forward-looking
+  only (unmodified).
+```
+
+**Next governed step:** Bounded Review A re-review of this correction (MAJ-01/MAJ-02/MIN-01 remediations, the frozen correction boundary, and the 10/10 DETECTED evidence-002 rerun).
+
+**Files changed:** `python/feature-engine/tests/test_definition.py`, `python/feature-engine/tooling/fault_injection/faults.py`, `python/feature-engine/tooling/fault_injection/harness.py`, `python/feature-engine/tooling/fault_injection/tests/test_harness.py`, `python/feature-engine/tooling/fault_injection/tests/test_faults.py` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-evidence-002.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.330"` → `"10.331"`.
 
 ## Decision Log
 
