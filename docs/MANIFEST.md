@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.336"
+manifest_version: "10.337"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23697,6 +23697,57 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** bounded Review A re-review of this correction.
 
 **Files changed:** `docs/governance/quality-gate/feature-engine-evid05b-content-identity-design-candidate-001.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; ADR-022/ADR-035/Chapter 0/Chapter 8/feature.md/contracts.py verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.335"` → `"10.336"`.
+
+## [Unreleased] — 2026-09-08 — feature-engine: EVID-05(b) design candidate 001 — Review A closure transcription (`P3-FEATURE-QG-EVID05B-A-MAJ-02: CLOSED — BOUNDED REVIEW A RE-REVIEW`; mechanical, no redesign)
+
+**Mechanical transcription transaction — vai trò: `Feature Engine EVID-05(b) Review-A Closure Transcription Executor`.** Records Review A's completed bounded re-review determination for `P3-FEATURE-QG-EVID05B-A-MAJ-02` into the existing EVID-05(b) design-candidate lineage. No redesign/re-analysis of Options 2/4A/4B; no ADR authored; no production/schema/test change; ADR-022/ADR-035/Constitution untouched.
+
+**Fresh boundary verification:** `main` freshly pinned; local HEAD confirmed exactly `84483fcb65d075ba86e7ba95f477e4cd5cd709dc`, identical to `origin/main`; candidate blob confirmed exactly `594914f97aad73321211ad2dc7e0a84580f43613` — no drift.
+
+### Recorded
+
+```text
+P3-FEATURE-QG-EVID05B-A-MAJ-02: CLOSED — BOUNDED REVIEW A RE-REVIEW.
+Both findings against this candidate (-MAJ-01, -MAJ-02) are now closed.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/governance/quality-gate/feature-engine-evid05b-
+  content-identity-design-candidate-001.md (updated in place, blob
+  594914f97aad73321211ad2dc7e0a84580f43613 ->
+  3a1378ab298220f678291e616e0aac4fc63a59f4 — `git diff` confirms only
+  the finding-status lines (top banner, frontmatter, §5) changed;
+  §1-§4 authority/options/recommendation/ADR-scope content byte-
+  identical); docs/MANIFEST.md; docs/CHANGELOG.md. No ADR authored,
+  no feature.md/contracts.py/production/schema/test change, ADR-022/
+  ADR-035/Constitution byte-unchanged.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID05B-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+                                (unaffected).
+P3-FEATURE-QG-EVID05B-A-MAJ-02: CLOSED — BOUNDED REVIEW A RE-REVIEW
+                                (this transaction).
+P3-FEATURE-QG-EVID-05(b) / EVID-05 overall: NOT closed by this
+                                transcription — remain separate,
+                                unperformed governed decisions.
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** a governed decision on whether to proceed to ADR authoring for the recommended Option 2 architecture.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-evid05b-content-identity-design-candidate-001.md` (updated in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; ADR-022/ADR-035/Constitution/feature.md/contracts.py verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.336"` → `"10.337"`.
 
 ## Decision Log
 

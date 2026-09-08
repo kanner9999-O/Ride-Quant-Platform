@@ -2,6 +2,57 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: EVID-05(b) design candidate 001 — Review A closure transcription (`P3-FEATURE-QG-EVID05B-A-MAJ-02: CLOSED — BOUNDED REVIEW A RE-REVIEW`; mechanical, no redesign)
+
+**Mechanical transcription transaction — vai trò: `Feature Engine EVID-05(b) Review-A Closure Transcription Executor`.** Records Review A's completed bounded re-review determination for `P3-FEATURE-QG-EVID05B-A-MAJ-02` into the existing EVID-05(b) design-candidate lineage. No redesign/re-analysis of Options 2/4A/4B; no ADR authored; no production/schema/test change; ADR-022/ADR-035/Constitution untouched.
+
+**Fresh boundary verification:** `main` freshly pinned; local HEAD confirmed exactly `84483fcb65d075ba86e7ba95f477e4cd5cd709dc`, identical to `origin/main`; candidate blob confirmed exactly `594914f97aad73321211ad2dc7e0a84580f43613` — no drift.
+
+### Recorded
+
+```text
+P3-FEATURE-QG-EVID05B-A-MAJ-02: CLOSED — BOUNDED REVIEW A RE-REVIEW.
+Both findings against this candidate (-MAJ-01, -MAJ-02) are now closed.
+```
+
+### Preserved (verified unchanged, `git diff` confirms only status-transcription lines touched)
+
+```text
+Recommendation: Option 2 (computation_dependency_content_evidence
+  sibling field). ADR-scope result: ADR_REQUIRED (Event Schema).
+  Options 1/2/3/4A/4B analysis (§2), recommendation rationale (§3), and
+  the Chapter 0 §4b rerun (§4) are byte-identical to before this
+  transcription -- only the finding-status lines (banner, frontmatter,
+  §5) changed.
+```
+
+### Evidence artifact
+
+```text
+docs/governance/quality-gate/feature-engine-evid05b-content-identity-
+  design-candidate-001.md updated in place (candidate blob
+  594914f97aad73321211ad2dc7e0a84580f43613 ->
+  3a1378ab298220f678291e616e0aac4fc63a59f4).
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID05B-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+  (unaffected). P3-FEATURE-QG-EVID05B-A-MAJ-02: CLOSED — BOUNDED
+  REVIEW A RE-REVIEW (this transaction). P3-FEATURE-QG-EVID-05(b) and
+  EVID-05 overall: NOT closed by this transcription -- remain separate,
+  unperformed governed decisions. EVID-03: CLOSED/PASS (unaffected).
+  EVID-05(a): SATISFIED (unaffected). EVID-04/06/07/08: OPEN / blocking
+  (unaffected). Overall Feature Chapter 13 QG: FAIL — evidence
+  (unaffected). Feature module: NOT APPROVED. Phase 3 gate: NOT opened.
+  LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** a governed decision on whether to proceed to ADR authoring for the recommended Option 2 architecture.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-evid05b-content-identity-design-candidate-001.md` (updated in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.336"` → `"10.337"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: EVID-05(b) design candidate 001 bounded correction 002 (`P3-FEATURE-QG-EVID05B-A-MAJ-01` CLOSED; `-MAJ-02` remediated: splits Option 4 into 4A/4B, reverts recommendation to Option 2, `ADR_OPTIONAL` → `ADR_REQUIRED`; DESIGN ONLY)
 
 **Bounded correction transaction — vai trò: `Feature Engine EVID-05(b) Content-Identity Design Correction Executor`.** Records `P3-FEATURE-QG-EVID05B-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW` and remediates a new finding, `P3-FEATURE-QG-EVID05B-A-MAJ-02`: correction 001 wrongly assumed Chapter 8's permitted "run manifest" pattern automatically means governance `docs/MANIFEST.md`, and wrongly classified assigning MANIFEST.md a new runtime content-identity-mapping responsibility as an ordinary row extension. Design-only correction: no ADR authored, no production/schema/test/MANIFEST.md implementation, `EVID-05` still not closed.

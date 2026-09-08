@@ -3,10 +3,12 @@
 > **Bounded correction 002 — `P3-FEATURE-QG-EVID05B-A-MAJ-02`**, addressed/remediated pending Review A re-review (not self-closed by this correction transaction). Records **`P3-FEATURE-QG-EVID05B-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW`** (correction 001's Option-4 addition and per-fact-duplication correction were validated). **New finding this transaction remediates:** correction 001 wrongly assumed Chapter 8's permitted "run manifest" pattern automatically means governance `docs/MANIFEST.md`, and wrongly classified assigning `MANIFEST.md` a new runtime content-identity-mapping responsibility as an ordinary row extension / "no new mechanism." **Corrected:** Option 4 is split into **4A** (a genuinely new dedicated run/replay content-identity manifest — no such mechanism is claimed to exist) and **4B** (extending governance `MANIFEST.md`'s authority, now honestly assessed as assigning it a NEW authoritative responsibility, not bookkeeping) — both fully re-assessed against Chapter 0/I-12 and the direct **ADR-022** precedent (§1, §2); the recommendation reverts from Option 4 back to **Option 2**, based on current repository authority rather than hypothetical future infrastructure (§3); Chapter 0 §4b is rerun against Option 2 independently, yielding **`ADR_REQUIRED`** (Event Schema) again — not inherited from correction 001's `ADR_OPTIONAL` (§4). **No change to:** the finding this candidate addresses (`P3-FEATURE-QG-EVID-05(b)`), `EVID-05(a)`'s `SATISFIED` disposition, ADR-035 (still not edited/superseded/reopened), or the `DESIGN ONLY` transaction kind — no ADR authored, no production/schema/test implementation, `EVID-05` still not closed.
 >
 > `P3-FEATURE-QG-EVID05B-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW`
-> `P3-FEATURE-QG-EVID05B-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID05B-A-MAJ-02: CLOSED — BOUNDED REVIEW A RE-REVIEW`
+
+> **Review A closure transcription** (mechanical, no redesign/re-analysis performed): Review A has completed bounded re-review of correction 002 and determined `P3-FEATURE-QG-EVID05B-A-MAJ-02: CLOSED — BOUNDED REVIEW A RE-REVIEW`. Both findings against this candidate (`-MAJ-01`, `-MAJ-02`) are now closed. This transcription does not alter the recommended architecture (Option 2, `computation_dependency_content_evidence`), does not change the `ADR_REQUIRED` result, and does not itself close `P3-FEATURE-QG-EVID-05(b)` or `EVID-05` overall — those remain separate, unperformed governed decisions (ADR authoring, then implementation).
 
 ```yaml
-status: CANDIDATE / NOT EFFECTIVE — ADR_REQUIRED (reverted to Option 2), PENDING BOUNDED REVIEW A RE-REVIEW
+status: CANDIDATE / NOT EFFECTIVE — ADR_REQUIRED (Option 2) — P3-FEATURE-QG-EVID05B-A-MAJ-01/-MAJ-02 BOTH CLOSED (BOUNDED REVIEW A RE-REVIEW)
 artifact_id: feature-engine-evid05b-content-identity-design-candidate-001
 created_for: >
   Designing (not implementing, not authoring the ADR) one governed
@@ -33,7 +35,14 @@ bounded_correction_002:
   corrected_candidate_blob_before_correction: 9b1aab7ce0d89d3615e89bd206a881ffce49e2af
   reviewer_findings_addressed:
     - id: P3-FEATURE-QG-EVID05B-A-MAJ-02
-      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+      status: "CLOSED — BOUNDED REVIEW A RE-REVIEW"
+review_a_closure_transcription:
+  applied_at_repository_head: 84483fcb65d075ba86e7ba95f477e4cd5cd709dc
+  transcribed_candidate_blob_before_transcription: 594914f97aad73321211ad2dc7e0a84580f43613
+  transaction_kind: MECHANICAL TRANSCRIPTION ONLY — no redesign/re-analysis
+  reviewer_findings_addressed:
+    - id: P3-FEATURE-QG-EVID05B-A-MAJ-02
+      status: "CLOSED — BOUNDED REVIEW A RE-REVIEW"
 ```
 
 ## 0. Preserved lifecycle state (unchanged by this candidate)
@@ -219,6 +228,10 @@ precedent citation). EVID-05 not closed; EVID-05(a)'s SATISFIED
 disposition is unaffected and unrevisited.
 P3-FEATURE-QG-EVID05B-A-MAJ-01: recorded CLOSED — BOUNDED REVIEW A
   RE-REVIEW.
-P3-FEATURE-QG-EVID05B-A-MAJ-02: recorded REMEDIATED here but NOT
-  self-closed — closure is a Review A re-review determination.
+P3-FEATURE-QG-EVID05B-A-MAJ-02: recorded CLOSED — BOUNDED REVIEW A
+  RE-REVIEW (mechanical transcription of Review A's own completed
+  determination; not self-closed by any design/analysis performed in
+  this repository). P3-FEATURE-QG-EVID-05(b) and EVID-05 overall are
+  NOT closed by this transcription — both remain separate, unperformed
+  governed decisions.
 ```
