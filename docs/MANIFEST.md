@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.343"
+manifest_version: "10.344"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -24332,6 +24332,107 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** establish the Domain Contract/Phase-1 format-specific reader/schema compatibility policy for the Feature Output Event Contracts named as a prerequisite in `ADR-038`'s Consequences step (0).
 
 **Files changed:** `docs/adr/ADR-038.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.342"` → `"10.343"`.
+
+## feature.md v0.6 — implements ADR-037/ADR-038, BREAKING classification resolved directly from Locked Chapter 10 §10.3.1, Event Contract version FAIL CLOSED
+
+**Bounded versioned Domain Contract alignment transaction — vai trò: `Feature Engine ADR-037/038 Domain-Contract Alignment Executor`.** Creates `docs/domain/feature.md` v0.6 (`Draft`), transcribing already-Approved `ADR-037` and `ADR-038` into `FeatureComputed`/`FeatureFactInvalidated`, without redesign. Applies Chapter 10 §10.3.1's own Locked, format-independent minimal classification rule directly, resolving an authority conflict with `ADR-038`'s own consequence prose without editing or superseding `ADR-038`.
+
+**Fresh boundary verification:** HEAD confirmed exactly `d01b604d394a8e74ce5b26189e31a2ea3a8e818a`, identical to `origin/main`; `feature.md` confirmed exactly `version: "0.5"`, `status: Draft`, content identity `bbf4a4dea3e52821855c15264fddf5489c36191f` — no drift. `ADR-037`/`ADR-038` re-verified `Approved`, immutable, unchanged.
+
+### Authority-resolution result — ADR-038 vs Locked Chapter 10 §10.3.1
+
+```text
+Chapter 10 §10.3.1's own minimal classification rule ("required
+  element, no fallback -> breaking") applied DIRECTLY to
+  computation_dependency_content_evidence -- format-independent, no
+  reader/format-policy prerequisite needed. Result: BREAKING.
+ADR-038's own Compatibility/Consequences prose, applied to THIS
+  specific delta as suggesting classification is blocked pending an
+  absent reader/format policy, is authority ONE TIER LOWER than
+  Chapter 10's own direct Locked rule (Constitution/Locked governance
+  > Approved ADR; G-AUTH-003, "Authority cao hơn LUÔN thắng",
+  docs/governance/execution-rules.md). Resolved in feature.md's own
+  v0.6 banner text -- ADR-038 NOT edited, NOT superseded, remains
+  Approved/immutable; its backward-only DECISION unchanged. Only the
+  subsidiary classification-blocking interpretation, as applied here,
+  is superseded in application by the higher-authority Locked rule.
+```
+
+### Backward-only declaration + field/binding semantics (transcribed, no redesign)
+
+```text
+feature-computed/feature-fact-invalidated each carry an explicit
+  compatibility_commitment: backward_only declaration (ADR-038).
+computation_dependency_content_evidence {input_contract_content_id,
+  stream_registry_content_id} -- required on every FeatureComputed
+  (original + replacement) and every FeatureFactInvalidated. Sourced
+  verbatim from the same VerifiedInputContractAuthority instance used
+  for that fact's own computation; must correspond relationally to
+  that same fact's own computation_cursor; each fact pins independent
+  evidence, never inherited. Replay preparation: resolve -> recompute
+  -> compare -> fail closed on missing artifact/malformed evidence/
+  reference mismatch/content-ID mismatch, before Replay execution
+  starts. Replay execution remains self-contained -- EVID-05(a)
+  unaffected. Canonical Chapter 8 §8.5 Replay Cursor/ComputationCursor
+  untouched.
+```
+
+### Event Contract/schema version — FAIL CLOSED (blocker reported, not fabricated)
+
+```text
+No exact authoritative pre-change baseline contract_version/
+  schema_version exists anywhere in this repository -- confirmed
+  absent (feature.md §2 only declares fields required, never pins a
+  value; context-map.yaml pins only contract_id; test-only fixture
+  constant is explicitly NOT authority). Pre-existing, repo-wide gap
+  identical across every Domain Contract -- not newly discovered.
+v0.6 does NOT mint a contract_version -- would fabricate a nonexistent
+  predecessor or a fake SemVer bump. Minting a concrete identity, and
+  the still-missing Event-Contract-version-registry mechanism, remain
+  follow-on work, out of scope here.
+```
+
+### Fresh ADR Scope Gate (G-ADR-001..004 / Chapter 0 §4b)
+
+```text
+Result: ADR_NOT_REQUIRED -- implements already-Approved ADR-037/
+  ADR-038 plus a direct application of Locked Chapter-10
+  classification; no new independent architecture decision. The
+  version-identity-minting gap is a pre-existing, repo-wide, already-
+  known Phase-1 deferral (same class as Stream Registry/Input
+  Contract), not a newly discovered decision requiring a new ADR
+  (G-ADR-001). No ADR-039 authored.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/domain/feature.md (updated in place, blob
+  bbf4a4dea3e52821855c15264fddf5489c36191f ->
+  fcdb052484a00400a575dbf6baba3a7f99ae42de, version "0.5" -> "0.6",
+  status Draft unchanged); docs/MANIFEST.md; docs/CHANGELOG.md.
+  ADR-037/ADR-038 verified byte-unchanged (`git diff --quiet`). No
+  ADR authored/edited. No production/test/tooling change.
+```
+
+### State summary (preserved)
+
+```text
+ADR-037/ADR-038:                Approved, immutable, unaffected.
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN (unaffected — version minting and
+                                implementation remain unperformed).
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of the Domain Contract alignment (`feature.md` v0.6).
+
+**Files changed:** `docs/domain/feature.md` (updated in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; ADR-037/ADR-038 verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.343"` → `"10.344"`.
 
 ## Decision Log
 
