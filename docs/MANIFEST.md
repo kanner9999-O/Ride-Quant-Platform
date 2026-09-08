@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.340"
+manifest_version: "10.341"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -24065,6 +24065,95 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** establish the missing Feature Output Event Contract compatibility-direction declaration required by `ADR-037`'s Consequences step (1).
 
 **Files changed:** `docs/adr/ADR-037.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.339"` → `"10.340"`.
+
+## ADR-038 v0.1 — Feature Output Event Contract Compatibility Commitment (`Draft`, candidate authoring — resolves ADR-037's named prerequisite)
+
+**Governed semantic architecture-authoring transaction — vai trò: `Feature Engine ADR-038 Authoring Executor`.** Authors `docs/adr/ADR-038.md` v0.1 (`Draft`), deciding the Feature Output Event Contracts' (`feature-computed`/`feature-fact-invalidated`) compatibility commitment: **backward-only**. Not approved; ADR-037/`feature.md`/`contracts.py` untouched; no implementation, no Compatibility Result/evaluator mechanism created.
+
+**Fresh boundary verification:** HEAD confirmed exactly `94b2e847f84878c9b1b003e46c1908de8efb28b3`, identical to `origin/main`; ADR-037 lifecycle blob confirmed exactly `3378aa06e33e79cf91c79d7a82c995ebd4217aec`; `docs/adr/ADR-038.md` verified absent before this transaction — no drift.
+
+### Governance gate — not a gap→ADR inference
+
+```text
+Chapter 10 §10.3.1 defines the valid compatibility-commitment choice
+  space but does not select one for any specific contract. No existing
+  alignment/grant/configuration resolves it for Feature (confirmed
+  absent). module-registry.yaml confirms context-aggregator.depends_on
+  includes feature-engine; context.md §7.3/§8 confirms context-
+  aggregator directly consumes both FeatureComputed and
+  FeatureFactInvalidated. Chapter 0 §4b's >1-module trigger
+  independently sufficient. Result: ADR_REQUIRED.
+```
+
+### Four-option analysis and selected commitment
+
+```text
+1. Backward-only (CHOSEN) -- protects the real, already-registered
+   context-aggregator dependency against the class of change this
+   repository has already used three consecutive times for these
+   events (ADR-034/035/037, each a required-no-fallback field
+   addition).
+2. Forward-only -- REJECTED, structurally undischargeable given the
+   established required-no-fallback evolution pattern.
+3. Bidirectional -- REJECTED, inherits forward-only's impossibility.
+4. Explicit no-commitment -- not constitutionally invalid, but
+   REJECTED: a real registered consumer exists with no other governed
+   protection.
+ADR-022 cited as precedent/process evidence only -- NOT authority for
+  this decision; reasoning derived independently from Feature's own
+  consumer topology and evolutionary history.
+```
+
+### Three Chapter-10 concepts distinguished
+
+```text
+1. Compatibility commitment (§10.3.1) -- decided by this ADR only.
+2. Compatibility classification of a concrete schema delta -- NOT
+   decided here; ADR-037's own field addition not classified, ADR-037
+   not amended.
+3. Compatibility Result (§10.4) -- NOT decided here, out of scope
+   entirely.
+```
+
+### `depends_on`
+
+```text
+depends_on: [ADR-037] -- ADR-038 resolves a named, required
+  prerequisite ADR-037's own Consequences step (1) explicitly flagged
+  but did not itself define. ADR-037 remains Approved, byte-for-byte
+  unmodified, not superseded.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-038.md (new); docs/MANIFEST.md;
+  docs/CHANGELOG.md only. ADR-037, feature.md, contracts.py, and all
+  production/test/tooling artifacts verified byte-unchanged. No
+  implementation. No Compatibility Result/evaluator/grant/policy-
+  registry mechanism created. No Event Contract/schema version minted.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-038 addresses one named
+                                ADR-037 prerequisite but is itself only
+                                a Draft, not approved.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of `ADR-038` Draft.
+
+**Files changed:** `docs/adr/ADR-038.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; ADR-037/feature.md/contracts.py verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.340"` → `"10.341"`.
 
 ## Decision Log
 

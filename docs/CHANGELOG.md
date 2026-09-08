@@ -2,6 +2,104 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: `ADR-038` v0.1 authored (`Draft`) — Feature Output Event Contract Compatibility Commitment (backward-only, resolving ADR-037's named prerequisite)
+
+**Governed semantic architecture-authoring transaction — vai trò: `Feature Engine ADR-038 Authoring Executor`.** Authors `docs/adr/ADR-038.md` v0.1 (`Draft`), deciding the Feature Output Event Contracts' (`feature-computed`/`feature-fact-invalidated`) compatibility commitment — the prerequisite ADR-037's own Consequences step (1) named but left unresolved. Not approved. ADR-037/`feature.md`/`contracts.py` untouched.
+
+**Fresh boundary verification:** HEAD confirmed exactly `94b2e847f84878c9b1b003e46c1908de8efb28b3`, identical to `origin/main`; ADR-037 lifecycle blob confirmed exactly `3378aa06e33e79cf91c79d7a82c995ebd4217aec`; `docs/adr/ADR-038.md` verified absent before this transaction — no drift.
+
+### Governance gate — not a gap→ADR inference
+
+```text
+Chapter 10 §10.3.1 defines the valid compatibility-commitment choice
+  space (backward-only/forward-only/bidirectional/explicit no-
+  commitment) but does not select one for any specific contract -- a
+  genuine semantic decision. No existing alignment/grant/configuration
+  resolves it for Feature's own events (confirmed absent: feature.md,
+  contracts.py, no Event Contract registry). module-registry.yaml
+  confirms a real, current dependency edge: context-aggregator.depends_
+  on includes feature-engine; context.md §7.3/§8 confirms context-
+  aggregator directly consumes both FeatureComputed and
+  FeatureFactInvalidated. Chapter 0 §4b's >1-module trigger is
+  independently sufficient (disjunctive precedent already established
+  by ADR-034/035/037). Result: ADR_REQUIRED.
+```
+
+### Four-option analysis and selected commitment
+
+```text
+1. Backward-only (CHOSEN) -- protects the real, already-registered
+   context-aggregator dependency against exactly the class of change
+   this repository has already used three consecutive times for these
+   events (ADR-034/035/037, each a required-no-fallback field
+   addition), achievable via a permissive/tolerant consumer reader
+   discipline.
+2. Forward-only -- REJECTED, structurally undischargeable: a required,
+   no-fallback field genuinely absent from older data cannot be
+   validated by a newer-required schema regardless of reader policy
+   (ADR-037's own already-established finding).
+3. Bidirectional -- REJECTED, inherits forward-only's structural
+   impossibility (forward leg undischargeable) plus a larger surface.
+4. Explicit no-commitment -- not constitutionally invalid, but
+   REJECTED here: a real, registered consumer exists with no other
+   governed protection; declaring no commitment would supply it
+   nothing to rely on and ignore the platform's actual dependency
+   topology.
+ADR-022 cited as precedent/process evidence only (an analogous
+  real-consumer-plus-evolving-contract situation resolved the same
+  way for a structurally different contract) -- NOT treated as
+  authority for this decision; reasoning here is derived independently
+  from Feature's own consumer topology and evolutionary history.
+```
+
+### Three Chapter-10 concepts distinguished
+
+```text
+1. Compatibility commitment (§10.3.1) -- decided by this ADR only.
+2. Compatibility classification of a concrete schema delta -- NOT
+   decided here; ADR-037's own field addition is not classified by
+   this ADR, and ADR-037 is not amended.
+3. Compatibility Result (§10.4) -- NOT decided here, out of scope
+   entirely; no evaluator/grant/policy-registry mechanism created.
+```
+
+### `depends_on`
+
+```text
+depends_on: [ADR-037] -- ADR-038 resolves a named, required prerequisite
+  ADR-037's own Consequences step (1) explicitly flagged but did not
+  itself define. ADR-037 remains Approved, byte-for-byte unmodified,
+  not superseded, not reopened.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-038.md (new); docs/MANIFEST.md;
+  docs/CHANGELOG.md only. ADR-037, feature.md, contracts.py, and all
+  production/test/tooling artifacts verified byte-unchanged (`git diff
+  --quiet` / absence of any staged change). No implementation. No
+  Compatibility Result/evaluator/grant/policy-registry mechanism
+  created. No Event Contract/schema version minted.
+```
+
+### State summary (preserved)
+
+```text
+EVID-03: CLOSED/PASS (unaffected). EVID-05(a): SATISFIED (unaffected).
+  EVID-05(b): OPEN -- ADR-038 addresses one named ADR-037 prerequisite
+  but is itself only a Draft, not approved; implementation/domain-
+  contract-amendment/version-minting work remains entirely
+  unperformed. EVID-05 overall: OPEN / blocking (unaffected). EVID-04/
+  06/07/08: OPEN / blocking (unaffected). Overall Feature Chapter 13
+  QG: FAIL — evidence (unaffected). Feature module: NOT APPROVED.
+  Phase 3 gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of `ADR-038` Draft.
+
+**Files changed:** `docs/adr/ADR-038.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.340"` → `"10.341"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: `ADR-037` v0.1 — Product Owner APPROVED (Review A/B recorded, `P3-ADR037-A-MAJ-01` CLOSED; ADR now immutable byte-for-byte)
 
 **Mechanical approval/lifecycle recording transaction — vai trò: `Feature Engine ADR-037 Approval Recording Executor`.** Records Review A's bounded re-review closure of `P3-ADR037-A-MAJ-01`, Independent Review B's own review, and the Product Owner's `APPROVE` decision — transitioning `ADR-037` from `Draft`/unreviewed to `Approved`. No semantic redesign; no production/schema/test change.
