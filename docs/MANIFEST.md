@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.341"
+manifest_version: "10.342"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -24154,6 +24154,87 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** Review A of `ADR-038` Draft.
 
 **Files changed:** `docs/adr/ADR-038.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; ADR-037/feature.md/contracts.py verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.340"` → `"10.341"`.
+
+## ADR-038 — bounded Review A correction (`P3-ADR038-A-MAJ-01`; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Feature Engine ADR-038 Bounded Correction Executor`.** Remediates `P3-ADR038-A-MAJ-01`: `ADR-038`'s rationale treated an ungoverned tolerant-reader behavior as established fact and overstated the absence of existing consumer protection. Chapter 10 §10.3.1 reserves format-specific reader/schema rules to Domain Contract/Phase 1 authority not yet authored; §10.5 already establishes that an immutable consumer binding is unaffected by a provider publishing a newer contract version. Correction only — `backward-only` preserved, reframed as an explicit policy commitment.
+
+**Fresh boundary verification:** HEAD confirmed exactly `5ba88556b4f08bf24cf4b482d30e021a7e92894d`, identical to `origin/main`; ADR-038 blob confirmed exactly `fdd9d25ba5a5207f0da682681a5409f708422f1d` — no drift.
+
+### Corrected rationale
+
+```text
+backward-only reframed as an explicit POLICY COMMITMENT the platform
+  adopts, not a conclusion derived from assumed reader behavior.
+```
+
+### Reader-policy treatment (corrected)
+
+```text
+§10.3.1: format-specific compatibility rules belong to Domain
+  Contract/Phase 1 -- none currently exists for the Feature Output
+  Event Contracts. Whether a concrete schema delta preserves backward
+  compatibility cannot be evaluated until that policy exists --
+  unknown-field tolerance never assumed while absent. Recorded as a
+  downstream Domain Contract alignment prerequisite (Consequences,
+  new step (0)).
+```
+
+### Immutable-binding treatment (corrected)
+
+```text
+§10.5: a consumer that never advances its pinned reference is already
+  unaffected by later contract publication, with or without this ADR.
+  Backward-only protects the different, real scenario it is actually
+  for: a consumer that intentionally binds/upgrades to a later,
+  claimed-compatible version. Alternative 4 rejected on that cross-
+  version-guarantee ground, not a false "zero protection" claim.
+```
+
+### Alternatives 2/3 narrowed
+
+```text
+Forward-only/bidirectional rejection scoped to ADR-037's current
+  as-defined delta specifically -- not a categorical impossibility
+  claim for every future Feature schema-evolution architecture.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-038.md (corrected in place, blob
+  fdd9d25ba5a5207f0da682681a5409f708422f1d ->
+  c29ff8a08438c5e3934ba3ebf9cdc56ac703d036 -- `git diff` confirms only
+  the Decision, four Alternatives, and Consequences' step-(1) intro,
+  plus a new correction banner, changed); docs/MANIFEST.md;
+  docs/CHANGELOG.md. Frontmatter unchanged (version: "0.1", status:
+  Draft, depends_on: [ADR-037]). No implementation, no Product Owner
+  approval, no redesign of the backward-only decision, ADR_REQUIRED
+  classification, or commitment/classification/Compatibility-Result
+  distinction.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR038-A-MAJ-01:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-038 still only a Draft,
+                                not approved.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-038.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.341"` → `"10.342"`.
 
 ## Decision Log
 

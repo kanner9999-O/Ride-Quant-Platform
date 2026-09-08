@@ -2,6 +2,95 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: `ADR-038` bounded Review A correction (`P3-ADR038-A-MAJ-01` — assumed reader tolerance / overstated protection-absence corrected; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Feature Engine ADR-038 Bounded Correction Executor`.** Remediates `P3-ADR038-A-MAJ-01`: `ADR-038`'s rationale treated an ungoverned tolerant-reader behavior as established fact and overstated the absence of existing consumer protection. Chapter 10 §10.3.1 reserves format-specific reader/schema rules to Domain Contract/Phase 1 authority not yet authored; §10.5 already establishes that an immutable consumer binding is unaffected by a provider publishing a newer contract version. Correction only — the `backward-only` decision is preserved, reframed as an explicit policy commitment. No implementation, no Product Owner approval.
+
+**Fresh boundary verification:** HEAD confirmed exactly `5ba88556b4f08bf24cf4b482d30e021a7e92894d`, identical to `origin/main`; ADR-038 blob confirmed exactly `fdd9d25ba5a5207f0da682681a5409f708422f1d` — no drift.
+
+### Corrected rationale
+
+```text
+backward-only is now framed as an explicit POLICY COMMITMENT the
+  platform adopts, not a conclusion derived from assumed reader
+  behavior -- it obligates future evolution, it does not assert any
+  concrete delta already satisfies it and does not assert or require
+  any particular unknown-field-tolerance behavior.
+```
+
+### Reader-policy treatment (corrected)
+
+```text
+§10.3.1: format-specific compatibility rules (JSON Schema/Avro/
+  Protobuf/equivalent) belong to Domain Contract/Phase 1 -- none
+  currently exists for the Feature Output Event Contracts. Whether a
+  concrete schema delta actually preserves backward compatibility
+  under this commitment cannot be, and is not, evaluated until that
+  policy exists -- unknown-field tolerance is never assumed while
+  absent. Recorded explicitly as a downstream Domain Contract
+  alignment prerequisite (Consequences, new step (0)).
+```
+
+### Immutable-binding treatment (corrected)
+
+```text
+§10.5: "Nếu consumer vẫn pin một immutable reference cũ thì binding
+  của nó không đổi, và sự tồn tại của version mới không làm activation
+  cũ trở nên stale." A consumer that never advances its pinned
+  reference is already unaffected by later Feature Output Event
+  Contract evolution, with or without this ADR. Backward-only
+  therefore protects the DIFFERENT, real scenario it is actually for:
+  a consumer that intentionally binds/upgrades to a later, claimed-
+  compatible version. Alternative 4 (no-commitment) now rejected on
+  that cross-version-guarantee ground, not a false "zero protection"
+  claim.
+```
+
+### Alternatives 2/3 narrowed
+
+```text
+Forward-only/bidirectional rejection now scoped to ADR-037's current,
+  as-defined required/no-fallback delta specifically (cannot satisfy
+  forward compatibility without an authorized migration/fallback
+  mechanism this repository has not adopted) -- not asserted as
+  impossible for every possible future Feature schema-evolution
+  architecture.
+```
+
+### Preserved (verified unchanged — `git diff` confirms only the Decision, four Alternatives, and Consequences' step-(1) intro, plus a new correction banner, changed)
+
+```text
+backward-only decision; ADR_REQUIRED scope classification and the real
+  >1-module impact finding; ADR-037 unchanged/Approved; depends_on:
+  [ADR-037]; the commitment/classification/Compatibility-Result
+  distinction; no evaluator/grant/result created; Scale check; review
+  table (still blank, unreviewed); all EVID/QG/gate/LIVE states.
+  version: "0.1", status: Draft unchanged (no version bump).
+```
+
+### Evidence artifact
+
+```text
+docs/adr/ADR-038.md corrected in place (blob
+  fdd9d25ba5a5207f0da682681a5409f708422f1d ->
+  c29ff8a08438c5e3934ba3ebf9cdc56ac703d036).
+```
+
+### State summary (preserved)
+
+```text
+EVID-03: CLOSED/PASS (unaffected). EVID-05(a): SATISFIED (unaffected).
+  EVID-05(b): OPEN -- ADR-038 still only a Draft, not approved.
+  EVID-05 overall: OPEN / blocking (unaffected). EVID-04/06/07/08:
+  OPEN / blocking (unaffected). Overall Feature Chapter 13 QG:
+  FAIL — evidence (unaffected). Feature module: NOT APPROVED. Phase 3
+  gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-038.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.341"` → `"10.342"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: `ADR-038` v0.1 authored (`Draft`) — Feature Output Event Contract Compatibility Commitment (backward-only, resolving ADR-037's named prerequisite)
 
 **Governed semantic architecture-authoring transaction — vai trò: `Feature Engine ADR-038 Authoring Executor`.** Authors `docs/adr/ADR-038.md` v0.1 (`Draft`), deciding the Feature Output Event Contracts' (`feature-computed`/`feature-fact-invalidated`) compatibility commitment — the prerequisite ADR-037's own Consequences step (1) named but left unresolved. Not approved. ADR-037/`feature.md`/`contracts.py` untouched.
