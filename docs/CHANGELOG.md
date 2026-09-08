@@ -2,6 +2,105 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: EVID-05(b) design candidate 001 bounded correction (`P3-FEATURE-QG-EVID05B-A-MAJ-01`; adds Option 4, corrects recommendation, `ADR_REQUIRED` → `ADR_OPTIONAL`; DESIGN ONLY)
+
+**Bounded correction transaction — vai trò: `Feature Engine EVID-05(b) Content-Identity Design Correction Executor`.** Remediates `P3-FEATURE-QG-EVID05B-A-MAJ-01` against the prior EVID-05(b) design candidate: the candidate omitted a genuine fourth alternative (durable run/replay-manifest content-identity binding) even though Chapter 8 §8.1.1/§8.3.1 explicitly permit content identity to live off-event. Design-only correction: no ADR authored, no production/schema/test implementation, `EVID-05` still not closed.
+
+**Fresh boundary verification:** `main` freshly pinned; local HEAD confirmed exactly `ef63daf5a302ad8b174fe95d44249e5defc613ac`, identical to `origin/main`; candidate blob confirmed exactly `33a1ea6ddb95b6b744d33b490ce35a76c13405ae` — no drift.
+
+### Repository precedent inspected (Raw Regime Engine + platform-wide search)
+
+```text
+raw_regime_engine.regime.RegimeDefinition.content_identity() computes a
+  deterministic SHA-256 fingerprint, docstring-documented as "suitable as
+  external run-manifest evidence" -- but the SAME docstring explicitly
+  disclaims inventing any registry/storage/lifecycle authority. This is a
+  hash-producing CAPABILITY, not an implemented manifest artifact.
+Repository-wide search for run_manifest/replay_manifest found zero
+  authoritative schema anywhere -- no platform "Run Manifest"/"Replay
+  Manifest" artifact type is defined by any Constitution chapter, Domain
+  Contract, or ADR. No platform run-manifest schema is claimed to exist.
+docs/MANIFEST.md itself is the closest EXISTING, already-governed
+  mechanism performing this general function (Chapter 0 §5b/§7, I-12) --
+  but does NOT currently track docs/architecture/stream-registry.yaml or
+  the Feature-scoped Input Contract YAMLs. Using it is a genuine scope
+  extension of an existing ledger, not invention of a new artifact class.
+```
+
+### Option 4 added — durable run/replay-manifest content-identity binding
+
+```text
+computation_cursor.input_contract_ref/stream_registry_version (unchanged)
+  used as the lookup key into docs/MANIFEST.md's ledger, scope-extended
+  with rows for stream-registry.yaml/Input Contract YAMLs, binding each
+  exact version to its content identity recorded at authoring/approval
+  time. Required flow: cursor reference -> ledger lookup -> materialize
+  artifact -> recompute checksum -> compare -> fail closed on mismatch/
+  missing -> only then Replay execution starts.
+vs Option 2: no Event Schema change (0 vs 1 new required field), no new
+  authoritative-artifact class, ~one ledger entry per distinct artifact
+  VERSION vs one duplicated checksum per FACT (orders of magnitude
+  smaller volume), identical fail-closed semantics, identical I-5
+  compliance (directly implements §8.1.1 rule 5's own sanctioned
+  off-event pattern) -- honest trade-off: depends on a maintained
+  ledger-update discipline rather than an automatic code path.
+No option superior to Option 4 identified.
+```
+
+### Correction — content hashes are NOT necessarily copied onto every fact
+
+```text
+The prior candidate's Option 2 recommendation implied per-event
+  persistence was the only compliant path. Corrected: Chapter 8 §8.1.1
+  rule 5 requires verifiability, not a specific field; identity may live
+  off-event. Option 2 remains one valid realization (preserved as
+  fallback, §3.1), not the only one.
+```
+
+### Corrected recommendation + fresh Chapter 0 §4b ADR-scope rerun
+
+```text
+Recommended architecture changes from Option 2 to Option 4 (based on
+  authority, not on the prior recommendation).
+Rerun independently for Option 4: Event Schema change NO, Platform
+  Invariant change NO, Module Taxonomy change NO, Governance/Approval
+  process change NO (MANIFEST.md row additions are its own ordinary,
+  routine editorial mechanism), ADR-035/Locked-ADR modification NO,
+  >1-module/platform-wide effect NO (confirmed: Structure/Raw-Regime
+  Engines do not consume these artifacts via a content-hash-bearing
+  authority object today), hard-to-reverse NO.
+Result: ADR_OPTIONAL -- no hard trigger fires, but judged worth a
+  governed optional decision given its role as I-5 compliance-
+  verification evidence. Option 2's own assessment, if chosen instead,
+  remains unchanged: ADR_REQUIRED (Event Schema trigger).
+```
+
+### Evidence artifact
+
+```text
+docs/governance/quality-gate/feature-engine-evid05b-content-identity-
+  design-candidate-001.md corrected in place (candidate blob
+  33a1ea6ddb95b6b744d33b490ce35a76c13405ae ->
+  9b1aab7ce0d89d3615e89bd206a881ffce49e2af). ADR-035, Chapter 8,
+  feature.md, contracts.py all verified byte-unchanged.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID05B-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A
+  RE-REVIEW (not self-closed). EVID-03: CLOSED/PASS (unaffected).
+  EVID-05(a): SATISFIED (unaffected). EVID-05 overall: OPEN / blocking
+  (unaffected -- still design-only, not implemented/approved). EVID-04/
+  06/07/08: OPEN / blocking (unaffected). Overall Feature Chapter 13 QG:
+  FAIL — evidence (unaffected). Feature module: NOT APPROVED. Phase 3
+  gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-evid05b-content-identity-design-candidate-001.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.334"` → `"10.335"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: `P3-FEATURE-QG-EVID-05(b)` content-identity design candidate 001 (`ADR_REQUIRED` — stopped at design/scope, design/docs only)
 
 **Design-only transaction — vai trò: `Feature Engine EVID-05(b) Content-Identity Design Executor`.** Authors one governed design candidate for `P3-FEATURE-QG-EVID-05(b)` (I-5 persisted content-identity evidence for the Input Contract/Stream Registry artifacts a Feature computation used). No production/test/schema implementation. ADR-035 not edited, not superseded, not reopened. EVID-05 not closed.
