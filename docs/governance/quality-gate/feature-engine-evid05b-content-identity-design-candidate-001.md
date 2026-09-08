@@ -1,11 +1,12 @@
 # Feature Engine — `P3-FEATURE-QG-EVID-05(b)` Persisted Content-Identity Design Candidate 001
 
-> **Bounded correction — `P3-FEATURE-QG-EVID05B-A-MAJ-01`**, addressed/remediated pending Review A re-review (not self-closed by this correction transaction): the original candidate omitted a genuine fourth alternative — a durable run/replay-manifest content-identity binding — even though Chapter 8 §8.1.1/§8.3.1 explicitly permit content identity to live off-event. **Corrected:** Option 4 added and independently assessed (§2); the prior recommendation's implicit claim that content hashes must be copied onto every Feature fact is corrected (§2.1); the recommended architecture changes from Option 2 to Option 4 (§3); Chapter 0 §4b is rerun against the corrected recommendation, independently of the discarded Option 2 (§4), yielding `ADR_OPTIONAL` rather than the prior `ADR_REQUIRED`. **No change to:** the finding this candidate addresses (`P3-FEATURE-QG-EVID-05(b)`), `EVID-05(a)`'s `SATISFIED` disposition, ADR-035 (still not edited/superseded/reopened), or the `DESIGN ONLY` transaction kind — no ADR authored, no production/schema/test implementation, `EVID-05` still not closed.
+> **Bounded correction 002 — `P3-FEATURE-QG-EVID05B-A-MAJ-02`**, addressed/remediated pending Review A re-review (not self-closed by this correction transaction). Records **`P3-FEATURE-QG-EVID05B-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW`** (correction 001's Option-4 addition and per-fact-duplication correction were validated). **New finding this transaction remediates:** correction 001 wrongly assumed Chapter 8's permitted "run manifest" pattern automatically means governance `docs/MANIFEST.md`, and wrongly classified assigning `MANIFEST.md` a new runtime content-identity-mapping responsibility as an ordinary row extension / "no new mechanism." **Corrected:** Option 4 is split into **4A** (a genuinely new dedicated run/replay content-identity manifest — no such mechanism is claimed to exist) and **4B** (extending governance `MANIFEST.md`'s authority, now honestly assessed as assigning it a NEW authoritative responsibility, not bookkeeping) — both fully re-assessed against Chapter 0/I-12 and the direct **ADR-022** precedent (§1, §2); the recommendation reverts from Option 4 back to **Option 2**, based on current repository authority rather than hypothetical future infrastructure (§3); Chapter 0 §4b is rerun against Option 2 independently, yielding **`ADR_REQUIRED`** (Event Schema) again — not inherited from correction 001's `ADR_OPTIONAL` (§4). **No change to:** the finding this candidate addresses (`P3-FEATURE-QG-EVID-05(b)`), `EVID-05(a)`'s `SATISFIED` disposition, ADR-035 (still not edited/superseded/reopened), or the `DESIGN ONLY` transaction kind — no ADR authored, no production/schema/test implementation, `EVID-05` still not closed.
 >
-> `P3-FEATURE-QG-EVID05B-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID05B-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID05B-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
 
 ```yaml
-status: CANDIDATE / NOT EFFECTIVE — ADR_OPTIONAL (corrected), PENDING BOUNDED REVIEW A RE-REVIEW
+status: CANDIDATE / NOT EFFECTIVE — ADR_REQUIRED (reverted to Option 2), PENDING BOUNDED REVIEW A RE-REVIEW
 artifact_id: feature-engine-evid05b-content-identity-design-candidate-001
 created_for: >
   Designing (not implementing, not authoring the ADR) one governed
@@ -26,6 +27,12 @@ bounded_correction_001:
   corrected_candidate_blob_before_correction: 33a1ea6ddb95b6b744d33b490ce35a76c13405ae
   reviewer_findings_addressed:
     - id: P3-FEATURE-QG-EVID05B-A-MAJ-01
+      status: "CLOSED — BOUNDED REVIEW A RE-REVIEW"
+bounded_correction_002:
+  applied_at_repository_head: eb9d6eab37f7c21f309fea7ada6691e5ad22d90a
+  corrected_candidate_blob_before_correction: 9b1aab7ce0d89d3615e89bd206a881ffce49e2af
+  reviewer_findings_addressed:
+    - id: P3-FEATURE-QG-EVID05B-A-MAJ-02
       status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
 ```
 
@@ -54,7 +61,10 @@ LIVE: NOT_AUTHORIZED.
 - **Current `feature.md`** (domain contract, §3/§4): zero mention of `content_id`/`checksum`/"content identity" anywhere — confirms the domain contract itself has not yet anticipated this evidence at all; any closure requires a domain-contract amendment regardless of which architecture is chosen.
 - **Current `VerifiedInputContractAuthority`** (`contracts.py`): frozen dataclass, no public constructor (Review-A round-5), fields include `input_contract_content_id: str` and `stream_registry_content_id: str` — both SHA-256 hex digests of the real artifact bytes, computed exactly once in `authority_resolver.resolve_input_contract_authority_from_repository`, at Replay-preparation/construction time, never recomputed by any runtime handler (confirmed independently in the EVID-05(a) transaction).
 - **Current `ComputationCursor`** (`contracts.py`): exactly the five §8.5.1 fields, nothing more — confirmed byte-for-byte matching ADR-035's schema, no Feature-local additions exist today.
-- **Repository precedent for run-manifest/off-event content-identity evidence (bounded correction — `P3-FEATURE-QG-EVID05B-A-MAJ-01`):** independently inspected. `raw_regime_engine.regime.RegimeDefinition.content_identity()` computes a deterministic SHA-256 fingerprint over the definition's full canonical content, and its own docstring states it is *"suitable as external run-manifest evidence"* — but the SAME docstring explicitly disclaims inventing any registry/storage/lifecycle authority: *"This module invents no definition registry/storage/lifecycle authority — that remains deferred by regime.md §19/§20."* This is a hash-producing **capability**, not an implemented manifest artifact. A repository-wide search for `run_manifest`/`replay_manifest` found zero authoritative schema anywhere (no Constitution chapter, Domain Contract, or ADR defines a "Run Manifest"/"Replay Manifest" artifact type, its versioning, or its resolution mechanism) — **no platform run-manifest schema is claimed to exist**, consistent with the instruction not to assume one. The closest EXISTING, already-authoritative, already-governed mechanism performing this general class of function (durably binding an artifact's identifier to a verifiable content identity, git-tracked, versioned via its own `manifest_version`, updated in lockstep with every tracked document's edit per its own stated rule: *"Mỗi khi một file trong `/docs` đổi version/status, Manifest phải cập nhật cùng lúc, nếu không bị coi là stale"*) is `docs/MANIFEST.md` itself (Chapter 0 §5b/§7, I-12) — but it does **not** currently track `docs/architecture/stream-registry.yaml` or the Feature-scoped Input Contract YAMLs at all (confirmed: no dedicated ledger row exists for either today). Using it for this purpose is a genuine **scope extension** of an existing governed ledger, not the invention of a brand-new authoritative-artifact class — this distinction is load-bearing for the ADR-scope rerun in §4.
+- **Repository precedent for run-manifest/off-event content-identity evidence (correction 001):** independently inspected. `raw_regime_engine.regime.RegimeDefinition.content_identity()` computes a deterministic SHA-256 fingerprint over the definition's full canonical content, and its own docstring states it is *"suitable as external run-manifest evidence"* — but the SAME docstring explicitly disclaims inventing any registry/storage/lifecycle authority: *"This module invents no definition registry/storage/lifecycle authority — that remains deferred by regime.md §19/§20."* This is a hash-producing **capability**, not an implemented manifest artifact. A repository-wide search for `run_manifest`/`replay_manifest` found zero authoritative schema anywhere (no Constitution chapter, Domain Contract, or ADR defines a "Run Manifest"/"Replay Manifest" artifact type, its versioning, or its resolution mechanism) — **no platform run-manifest schema is claimed to exist**, consistent with the instruction not to assume one.
+- **What `docs/MANIFEST.md` is currently authoritative for (corrected, `P3-FEATURE-QG-EVID05B-A-MAJ-02`):** Chapter 0 §5b/§7 and I-12 define `MANIFEST.md`'s current scope precisely: the Decision Log; current document version/status (the "Documentation Manifest (Lockfile)"); ADR lifecycle state and reverse `superseded_by` supersession mapping; current OQ status. **Nowhere does Chapter 0 define `MANIFEST.md` as an authoritative RUNTIME mapping** from an Input Contract/Stream Registry logical version to an immutable content identity, consumed by a running process (Replay preparation) to make a fail-closed verification decision. Correction 001's characterization of this as "an existing, already-governed mechanism... reuses existing infrastructure" **conflated** MANIFEST's actual documentation-governance scope with a materially different, new kind of authority (a runtime dependency-verification source) — the correction here does not restate that conflation as settled.
+- **ADR-022** (Approved v0.3, `Package 1.4 Published-Contract Compatibility Commitment and Policy Root`) — **direct, on-point precedent**, independently inspected. ADR-022 itself decided to designate `docs/MANIFEST.md` as canonical authority for a NEW role (Package 1.4 policy-root identity/version AND applicability/activation, Chapter 10 §10.4.3 mục 3/4) — and this designation was made through a **full governed ADR** (Product Owner `APPROVE`), not an ordinary editorial/bookkeeping transaction; ADR-022's own scope classification recorded `ADR REQUIRED` for exactly this kind of MANIFEST-authority assignment. Critically, ADR-022 §5.2 **explicitly limits its own designation to "Phase 1 architecture-only scope (KHÔNG runtime activation event nào tồn tại)"** and states in so many words: *"ADR này KHÔNG tự động carry-forward MANIFEST LÀM runtime activation authority vượt quá Phase 1 architecture-only scope"* (this ADR does not carry forward MANIFEST as a runtime activation authority beyond Phase-1-architecture-only scope) — reserving any RUNTIME extension of MANIFEST's authority for "một ADR successor... riêng" (a separate successor ADR). This is direct, existing repository precedent **against** treating a MANIFEST-as-runtime-authority extension (Option 4B, below) as small or already-settled; it confirms both that such an assignment requires an ADR, and that this specific repository has already, deliberately, declined to make the runtime-scoped version of it so far.
+- **Git history as audit evidence, not authoritative mapping (`P3-FEATURE-QG-EVID05B-A-MAJ-02`):** git commit history is durable and inspectable, but I-12/Chapter 0 do not anywhere designate "the git history of `docs/architecture/*.yaml`" as itself an authoritative content-identity mapping a runtime process may rely on for a fail-closed decision — it is audit evidence a human or tool *could* inspect after the fact, not a resolvable, pinned, versioned authority a computation can query the way it queries `VerifiedInputContractAuthority`.
 
 ## 2. Options evaluated
 
@@ -84,7 +94,7 @@ LIVE: NOT_AUTHORIZED.
 | Backward compatibility | Same posture ADR-035 itself already established: Feature Engine has zero production events today (Phase 3, pre-production) — a new required field is a forward schema-versioning decision (Chapter 10), not a live migration |
 | Competing-cursor risk | None — structurally and namespace-separate from `computation_cursor`; records "which artifacts were used", not "what ordering position was reached" |
 | Checksum source | Verbatim reuse of `VerifiedInputContractAuthority.input_contract_content_id`/`.stream_registry_content_id` — no new hashing mechanism invented |
-| Verdict | **Valid, but superseded as the primary recommendation by Option 4 (§2.1, §3)** — genuinely authority-compliant and still the preserved fallback (§3.1), but not minimum-scope once Option 4's off-event binding is considered: it duplicates the same checksum onto every fact and independently triggers `ADR_REQUIRED` (Event Schema), neither of which Option 4 requires |
+| Verdict | **Recommended (reaffirmed, §3)** — its checksum-copying cost and `ADR_REQUIRED` (Event Schema) are real, but bounded and well-precedented (ADR-034/035 both already went through this exact class of change cleanly); §2's re-assessment of Options 4A/4B (below) shows neither is demonstrably smaller once their own governance costs are honestly accounted for, per the recompare in §3 |
 
 ### Option 3 — Extend/redefine the Input Contract / Stream Registry reference mechanism so content identity is carried by the referenced artifact's own identity
 
@@ -100,103 +110,115 @@ LIVE: NOT_AUTHORIZED.
 | Checksum source | Same underlying bytes, but now via a mechanism Feature does not own |
 | Verdict | **Rejected** — larger blast radius than Option 1 in ownership terms (touches artifacts Feature doesn't own) while not even closing the actual gap (no historical comparison point without also doing Option 2's work) |
 
-### Option 4 — durable run/replay-manifest content-identity binding (added — `P3-FEATURE-QG-EVID05B-A-MAJ-01` remediation)
+### Option 4A — a genuinely new, dedicated run/replay content-identity manifest (reworked — `P3-FEATURE-QG-EVID05B-A-MAJ-02` remediation)
 
-`computation_cursor.input_contract_ref`/`stream_registry_version` (unchanged, already required by ADR-035) are used as the lookup **key** into a durable, versioned, git-tracked ledger — `docs/MANIFEST.md`, its scope extended with rows for `docs/architecture/stream-registry.yaml` and each Feature-scoped Input Contract YAML — that binds each exact `{contract_id, contract_version}`/`registry_version` to the `input_contract_content_id`/`stream_registry_content_id` recorded **at the time that version was authored/approved** (same discipline MANIFEST.md's own governing rule already requires of every other tracked document today). No field is added to any Feature event or to `ComputationCursor`.
-
-**Required flow:** event/cursor reference (`computation_cursor.input_contract_ref`/`stream_registry_version`, already present) → look up that exact key's binding in the manifest ledger → materialize the current Input Contract/Stream Registry artifact (same `authority_resolver.py` mechanism) → recompute its SHA-256 → compare against the manifest-bound value → mismatch or missing ledger entry/artifact fails closed → **only then** does Replay execution start.
+A brand-new authoritative artifact class, purpose-built for this exact function: a durable, structured (not prose) evidence artifact binding each exact `{contract_id, contract_version}`/`registry_version` to its content identity, satisfying Chapter 8 §8.1.1's five conditions on its own terms — **no such mechanism currently exists anywhere in this repository; none is claimed to exist.**
 
 | Criterion | Assessment |
 |---|---|
-| I-5 compliance | Directly implements §8.1.1 rule 5's own sanctioned pattern verbatim — "identity có thể nằm ở run manifest thay vì lặp trên mọi event" — this is that exact mechanism, not an analogy to it |
-| Historical comparison-point integrity | Requires a **process discipline**, not an automatic code path: whoever authors/approves a new Input Contract/Stream Registry version must record its content identity in the ledger as part of that same transaction (identical in kind to MANIFEST.md's own existing rule for every other tracked document — not a new class of trust, an extension of an existing one) |
-| How event references reach the checksum | Via the fact's own **unchanged** `computation_cursor.input_contract_ref`/`stream_registry_version` — no new field needed, since those keys already uniquely determine the ledger entry |
-| Audit/replay reproducibility | Full — the ledger entry, like every other MANIFEST.md row, is git-tracked and reconstructable at any historical commit |
-| Duplicate evidence volume | **One entry per distinct artifact *version*** (bounded by how many Input Contract/Stream Registry versions are ever authored — small), not one per fact — orders of magnitude smaller than Option 2's one-per-fact duplication, because §8.1.1 rule 2 makes the artifact immutable once referenced, so one verified binding per version is valid for every fact that ever cites it |
-| Event-schema impact | **None** — `FeatureComputed`/`FeatureFactInvalidated`/`ComputationCursor` are untouched |
-| New authoritative-artifact/mechanism impact | **None new** — extends `MANIFEST.md`'s existing, already-governed scope (Chapter 0 §5b/§7, I-12) to two more file paths it doesn't track today; does not invent a new artifact class (unlike the rejected "new provenance artifact" idea below) |
-| Ownership / I-12 | `MANIFEST.md` is already the single authoritative source for "version/status hiện tại của tài liệu" (I-12, §5b) — Input Contract/Stream Registry YAMLs already live under `docs/architecture/`, structurally the same document class MANIFEST.md already tracks elsewhere |
-| Cross-module blast radius | **None today** — Structure/Raw-Regime Engines do not consume `InputContractAuthorityProvider`/these artifacts at all (independently confirmed: no `InputContract`/`StreamRegistry` runtime reference in either engine's `src/`); only Feature Engine resolves them via content-hash-bearing authority today, so extending the ledger for these two specific artifact paths changes no other module's behavior |
-| Backward compatibility / migration | None needed — adds ledger rows for existing files; no event ever needs to change shape, historically or going forward |
-| Implementation complexity | Trades per-event schema/serialization work for ledger-maintenance discipline; benefits from (future, not this transaction) a lightweight verification check that MANIFEST.md's recorded content identity for each tracked Input Contract/Stream Registry version still matches that file's actual bytes |
-| Failure semantics | Identical fail-closed posture to Option 2 — mismatch/missing ledger entry/artifact is a Replay-preparation failure, Replay execution never starts |
-| Verdict | **Recommended** (see §3) — smaller footprint than Option 2 on every impact dimension (no Event Schema change, no new artifact class, smallest duplicate-evidence volume), fully authority-compliant, with the honest trade-off that its historical-integrity guarantee depends on a maintained ledger-update discipline rather than an automatic code path |
+| I-5 compliance | Achievable in principle — this is the "purpose-built manifest" §8.1.1 rule 5 gestures at, if actually built |
+| Immutable/versioned identity | Would have to be designed from scratch: its own artifact-versioning scheme, its own immutable-once-referenced rule, its own non-reused-identifier rule — none of this exists today |
+| Exact mapping cursor-ref → content hash | Designable, but is new design work, not reuse of anything existing |
+| Persistently resolvable through replay/audit horizon | Requires its own retention/archive policy to be authored (§8.1.1 rule 4) — no such policy exists for any hypothetical artifact of this kind today |
+| Manifest identity itself pinned/unambiguous for the run | Requires solving a **self-reference problem**: the manifest artifact is itself a Referenced Authoritative Artifact under §8.1.1, so it needs its own version identity that a fact/run can pin — a design question with no existing answer |
+| Fail-closed missing/mismatch | Achievable, structurally identical to Option 2/4B's own check |
+| Retention/lifecycle authority | Undetermined — no module or chapter currently owns "replay-manifest lifecycle"; this is a genuine new ownership question, not an extension of an existing owner |
+| No process-local/unpinned-commit reliance | Achievable *if* designed correctly, but is not automatic — a naive implementation could easily degrade into "read whatever the current file looks like", the same trap Option 3 (rejected) fell into |
+| New authoritative-artifact/mechanism impact | **New class, in full** — an entirely new kind of artifact, ownership, versioning, and resolution mechanism, with no existing repository precedent to reuse |
+| Chapter-8/ADR-035 compatibility | No conflict with ADR-035/§8.5, but only because it is a wholly separate concept — this is not evidence of small scope, only of non-overlap |
+| Cross-module blast radius | Nominally scopeable to Feature Engine alone today, but designing a brand-new artifact CLASS is inherently the kind of decision Chapter 0 §4b treats as architecturally significant regardless of current consumer count |
+| Verdict | **Rejected as minimum-scope** — genuinely I-5-compliant if built correctly, but requires inventing an entire new authoritative-artifact class, ownership model, versioning scheme, and self-reference resolution from nothing; larger design footprint than Option 2, not smaller |
 
-**No option superior to Option 4 was identified.** A fifth "invent a brand-new authoritative artifact/event type carrying content-identity provenance" (distinct from extending the existing `MANIFEST.md` ledger) mirrors ADR-035's own Alternative 3 (a separate referenced provenance artifact), rejected there for the same reason it would fail here: it adds an entire new authoritative-artifact class, causation hop, and stream/registry surface for information an already-existing, already-governed ledger can carry (Chapter 8 §8.4 made the identical choice for `decision_context_cursor` — embed/reuse, don't create a referenced side-channel; §8.1.1 rule 5 makes the identical choice here — reuse an off-event manifest, don't invent a new one).
+### Option 4B — extend governance `docs/MANIFEST.md`'s authority (reworked, honestly — `P3-FEATURE-QG-EVID05B-A-MAJ-02` remediation)
 
-### 2.1 Correction — content hashes are NOT necessarily copied onto every Feature fact
+Treated here, correctly, as assigning `MANIFEST.md` a **new authoritative responsibility** — a runtime dependency-verification source Replay preparation depends on — not as an ordinary row/bookkeeping extension.
 
-The original candidate's recommendation (Option 2) stated its checksum fields as if per-event persistence were the only compliant path. That overstated the requirement. Chapter 8 §8.1.1 rule 5 is explicit: *"Bắt buộc là verifiability, không phải một field cụ thể"* — verifiability is required, not any specific field, and identity "có thể nằm ở run manifest thay vì lặp trên mọi event" (may live in a run manifest instead of repeating on every event). Option 2 remains one valid, authority-compliant realization of that verifiability requirement (per-event, self-contained, automatic) — but it is not the only one, and Option 4 satisfies the identical invariant list (§3) while keeping the checksum off the event entirely. Any prior wording implying necessity of per-fact duplication is corrected here.
+| Criterion | Assessment |
+|---|---|
+| Chapter-0/I-12 authority impact | **Real and non-trivial.** MANIFEST's current Chapter 0 §5b/§7 scope is Decision Log + document version/status + ADR lifecycle/supersession + OQ state — a documentation lockfile. Making a RUNNING PROCESS depend on it for a fail-closed verification decision is a materially new authority role, not a natural reading of its current scope |
+| Must MANIFEST entries become immutable per artifact-version key | **Yes, and this conflicts with MANIFEST's own current editorial discipline.** Every other MANIFEST.md row is routinely edited/replaced in place as a document's version bumps (demonstrated repeatedly across this very repository's transaction history — "Blob X → Blob Y" is the normal pattern). A row that must instead become permanently immutable once referenced (§8.1.1 rule 2) — while every surrounding row in the same file keeps its current mutable-in-place discipline — is an inconsistent, currently-undefined split within one document, not something already true of MANIFEST.md today |
+| How old bindings remain authoritative after later MANIFEST edits | **Undefined today.** MANIFEST.md tracks CURRENT state per document (its own banner: "tổ hợp version+status chính xác... tại một thời điểm"), not a durable, append-only ledger of every historical version's own content identity kept forever. A fact computed under Input Contract v3 must be able to look up v3's binding forever, even after MANIFEST's own row for that artifact has moved on to v5 — MANIFEST's current structure does not obviously support this without a redesign of how that row behaves, which is design work, not "add two rows" |
+| Whether a fact/run needs to pin a MANIFEST identity | **Yes, and this is a new requirement.** Since MANIFEST.md itself changes over time, a replay-verification lookup needs to know as-of-which-MANIFEST-commit it is querying to be unambiguous — MANIFEST.md has no existing per-entry frozen identity the way an Approved ADR file does |
+| Runtime → governance-artifact dependency | **A new, awkward coupling.** Feature Engine's runtime replay-verification code would need to parse a large, prose-heavy, human-authored governance document (this very file's own neighbor) to extract a machine-checkable binding — architecturally weaker than reading the already-structured YAML artifacts Option 2 already reads today |
+| Precedent — ADR-022 | **Direct and unfavorable to "ordinary extension."** ADR-022 assigned `MANIFEST.md` canonical authority for a comparable NEW role (Package 1.4 policy-root identity/version + activation) only through a full governed ADR (`ADR REQUIRED`, Product Owner `APPROVE`) — and explicitly scoped that designation to "Phase 1 architecture-only," refusing to extend MANIFEST into runtime-activation authority, reserving that for a future, separate ADR (§1 above). Option 4B is precisely the runtime extension ADR-022 itself declined to make |
+| New authoritative-artifact/mechanism impact | **New authoritative ROLE, even without a new artifact class** — per ADR-022's own precedent, this is not "no new mechanism"; it is a new authority assignment of the same kind ADR-022 needed a full ADR for |
+| Cross-module blast radius | None today in terms of other modules' code, but the AUTHORITY-BOUNDARY change itself (documentation ledger becoming a trusted runtime input) is the kind of decision Chapter 0 treats as significant independent of current consumer count (see ADR-022 precedent) |
+| Verdict | **Rejected as minimum-scope** — not ordinary bookkeeping; carries its own real governance cost (an ADR, by direct precedent) plus unresolved structural gaps (row immutability, historical-binding retention, MANIFEST-identity pinning) Option 2 does not have at all |
 
-## 3. Recommended minimum-scope architecture (corrected — Option 4)
+**Recompare, §2.1 correction preserved:** Chapter 8 §8.1.1 rule 5 genuinely does not require content identity to live on every event — that correction from bounded correction 001 stands. What correction 001 got wrong was assuming an off-event realization was automatically *cheaper* under CURRENT repository authority. Once 4A's from-scratch-mechanism cost and 4B's ADR-022-precedented authority cost are honestly priced in, neither is smaller than Option 2's single, well-precedented Event Schema change (§3).
 
-**This corrects the prior recommendation (Option 2).** Based on authority — specifically Chapter 8 §8.1.1 rule 5's explicit sanction of an off-event binding — Option 4 is the smaller-footprint, equally I-5-compliant architecture: no Event Schema change, no new authoritative-artifact class, no `ComputationCursor`/`FeatureComputed`/`FeatureFactInvalidated` change of any kind.
+### 2.1 Correction — content hashes are NOT necessarily copied onto every Feature fact (correction 001, preserved)
 
-**Mechanism:** extend `docs/MANIFEST.md`'s existing, already-governed document ledger (Chapter 0 §5b/§7, I-12) with rows for `docs/architecture/stream-registry.yaml` and each Feature-scoped Input Contract YAML, each row recording that artifact version's content identity (SHA-256 of its real bytes) at the point that version is authored/approved — mechanically identical to how MANIFEST.md already records a content-identity blob for every other tracked document on every edit (already demonstrated dozens of times in this repository's own history, including every transaction in this candidate's own lineage).
+Chapter 8 §8.1.1 rule 5 is explicit: *"Bắt buộc là verifiability, không phải một field cụ thể"* — verifiability is required, not any specific field, and identity "có thể nằm ở run manifest thay vì lặp trên mọi event" (may live in a run manifest instead of repeating on every event). This remains true and is not retracted by correction 002. What correction 002 corrects is the separate, further claim that an off-event realization is therefore the smaller-scope choice under this repository's CURRENT authority — see the recompare above and §3.
 
-```text
-Replay preparation:
-  1. read fact.computation_cursor.input_contract_ref / .stream_registry_version
-     (unchanged, already required by ADR-035)
-  2. look up MANIFEST.md's ledger entry for that exact {contract_id,
-     contract_version} / registry_version key
-  3. materialize the current Input Contract / Stream Registry artifact
-     (authority_resolver.py, unchanged mechanism)
-  4. recompute its SHA-256 over the real current bytes
-  5. compare against the ledger-bound value
-  6. mismatch OR missing ledger entry OR missing artifact -> FAIL CLOSED,
-     Replay execution never starts
-Replay execution:
-  reads only the already-verified, already-materialized
-  VerifiedInputContractAuthority -- unaffected by, and strictly after,
-  step 6 above; the EVID-05(a)-proven network/filesystem cut is untouched
+## 3. Recommended minimum-scope architecture (reverted — Option 2)
+
+**This reverts correction 001's recommendation (Option 4) back to Option 2**, per `P3-FEATURE-QG-EVID05B-A-MAJ-02`: under CURRENT repository authority (not hypothetical future infrastructure), neither 4A nor 4B is demonstrably smaller-scope than Option 2 once their own governance costs are honestly priced in (§2) — 4A requires inventing an entire new authoritative-artifact class from nothing; 4B requires an ADR by direct ADR-022 precedent, plus carries unresolved structural gaps (row immutability, historical-binding retention, MANIFEST-identity pinning) that ADR-022 itself never had to solve because it stayed Phase-1-architecture-only and explicitly declined the runtime extension. Option 2's cost, by contrast, is a single, already-precedented, already-bounded Event Schema change (ADR-034/035 both went through it cleanly).
+
+A new, **required**, sibling payload field on `FeatureComputed`/`FeatureFactInvalidated` — never inside `ComputationCursor`, never replacing or duplicating any of its five canonical fields:
+
+```yaml
+# sibling to computation_cursor, NOT part of it — a distinct concept
+# (artifact content-identity evidence, not ordering/visibility)
+computation_dependency_content_evidence:
+  input_contract_content_id:    # verbatim = VerifiedInputContractAuthority.input_contract_content_id
+                                 #   SHA-256 of the exact Input Contract artifact bytes
+                                 #   resolved for computation_cursor.input_contract_ref
+  stream_registry_content_id:   # verbatim = VerifiedInputContractAuthority.stream_registry_content_id
+                                 #   SHA-256 of the exact Stream Registry artifact bytes
+                                 #   resolved for computation_cursor.stream_registry_version
 ```
 
 **Invariants satisfied:**
 
-- **Content identity from exact immutable bytes** — the same SHA-256-of-real-artifact-bytes `authority_resolver.py` already computes today; no new hashing mechanism, no invented algorithm.
-- **Binds the exact artifacts used** — the ledger key (`{contract_id, contract_version}`/`registry_version`) is exactly what `computation_cursor` already carries on every fact; per §8.1.1 rule 2 (immutable once referenced), one verified binding per version is valid for every fact that ever cites that version — no ambiguity about which artifact a given fact used.
-- **Version/name equality alone is insufficient** — the ledger entry adds the missing content proof beyond the version string alone, so a version silently repointed at different bytes (a rule-2 violation) becomes detectable instead of structurally unverifiable.
-- **Replay preparation resolves + verifies; mismatch/missing artifact fails closed before execution** — see flow above.
-- **Replay execution performs no external resolution** — unaffected; the ledger lookup and artifact re-resolution both happen during Replay preparation, never during execution.
-- **Original and replacement facts each preserve their own computation-time dependency evidence** — unaffected: both already carry their own independently-captured `computation_cursor.input_contract_ref`/`stream_registry_version` (ADR-035, unchanged); that is precisely what already identifies which artifacts governed each fact's own computation — no new field is needed to preserve this, since the artifact's own immutability (rule 2) makes the content identity a property of the *version*, not of the individual fact.
-- **No process-local pointer qualifies** — the ledger is a durable, git-tracked, versioned file (`MANIFEST.md`), not an in-memory/process-local map; explicitly the class of durable evidence the invariant requires.
+- **Content identity from exact immutable bytes** — both values are the same SHA-256-of-real-artifact-bytes `authority_resolver.py` already computes today; no new hashing mechanism, no invented algorithm.
+- **Binds the exact artifacts used** — persisted verbatim from the same `VerifiedInputContractAuthority` instance the computation engine resolved and cached for *this exact* fact's evaluation; not a global/shared value, not recomputed after the fact.
+- **Version/name equality alone is insufficient** — `computation_cursor.input_contract_ref`/`stream_registry_version` already carry version/name; this field adds the missing content proof, so a version string silently repointed at different bytes (a §8.1.1 rule-2 violation) becomes detectable instead of structurally unverifiable.
+- **Replay preparation resolves + verifies** — re-resolves `{contract_id, contract_version}`/`stream_registry_version` named by the fact's own `computation_cursor`, recomputes both content IDs from the current real bytes, and compares against `computation_dependency_content_evidence`; identical mechanism to what `authority_resolver.py` already does, plus one new comparison step.
+- **Mismatch/missing artifact fails closed before execution** — a comparison failure (or unresolvable artifact) is a Replay-preparation failure; Replay execution never starts, consistent with I-5's Verification text and unaffected by the EVID-05(a) transaction's existing self-contained-execution proof.
+- **Replay execution performs no external resolution** — unaffected; the new evidence is read from the already-persisted fact / already-materialized authority, exactly like `computation_cursor` itself is read today.
+- **Original and replacement facts each preserve their own evidence** — required on both `FeatureComputed` and `FeatureFactInvalidated`, captured independently at each fact's own evaluation, mirroring `computation_cursor`'s own existing "never inherited/copied from the fact it supersedes" discipline.
+- **No process-local pointer qualifies** — both values are content hashes of durable, versioned artifact bytes carried on the durable event log itself (Chapter 8 §8.1, I-12's own authoritative source for runtime facts) — not object identity/memory references, and not dependent on any new, as-yet-unauthorized authority (unlike 4A/4B).
 
-**Honest trade-off (surfaced, not hidden):** Option 2's per-event field is bound automatically, by the same code path that already resolves the authority object — it cannot be forgotten. Option 4's ledger binding depends on a maintained process discipline (an Input Contract/Stream Registry version-authoring transaction must also record its content identity in the ledger) — the same discipline MANIFEST.md already requires platform-wide for every other tracked document, not a new class of risk, but a real one worth naming for Review A.
+**Cross-module impact:** none. Chapter 8's canonical `replay_cursor` (§8.5), ADR-035's decision content, Structure/Raw-Regime/other Compute Engines, `docs/MANIFEST.md`'s current authority, and any future Decision/Strategy/Risk/Execution module are all unaffected and unreferenced by this candidate.
 
-**Cross-module impact:** none today — confirmed no other module resolves these artifacts via a content-hash-bearing authority object (§1).
+**Event/schema impact:** one new required field on `FeatureComputed`/`FeatureFactInvalidated` (`feature.md` §3/§4) — the same class and scale of change ADR-035 itself made for `computation_cursor`, and ADR-034 made for `invalidation_cause`.
 
-**Event/schema impact:** none — `FeatureComputed`, `FeatureFactInvalidated`, and `ComputationCursor` are all unchanged.
+**Note on §2.1's correction (preserved, not retracted):** Chapter 8 §8.1.1 rule 5 genuinely does not *require* this per-event duplication — an off-event manifest binding would also be compliant *if* one existed under settled, adequate authority. Option 2 is recommended here not because it is the only compliant shape, but because it is the only one of the three assessed options that requires no new authority, no new artifact class, and no ADR precedent-defying assumption to actually build today.
 
-### 3.1 Preserved fallback — Option 2's architecture (not recommended, retained for completeness)
+### 3.1 Not recommended, retained for completeness — Options 4A/4B
 
-Should Review A find extending `MANIFEST.md`'s scope to Chapter-8-owned Referenced Authoritative Artifacts unsuitable, Option 2 remains a fully valid, authority-compliant fallback: a new required sibling payload field, `computation_dependency_content_evidence: {input_contract_content_id, stream_registry_content_id}`, on `FeatureComputed`/`FeatureFactInvalidated` (never inside `ComputationCursor`), sourced verbatim from `VerifiedInputContractAuthority`'s existing fields, required on both original and replacement facts independently — full assessment in §2's Option 2 table. Its own ADR-scope result is unchanged from the original candidate: `ADR_REQUIRED` (Event Schema trigger) — see §4.
+Should a future transaction find that a dedicated replay-manifest mechanism (4A) or a governed MANIFEST-authority extension (4B, likely via its own ADR, following the ADR-022 pattern directly) becomes independently worth building — e.g. because a second consumer of Input Contract/Stream Registry content identity emerges, changing the "one ledger entry per version, reused platform-wide" economics — either remains available as a superseding design. Neither is adopted here: see §2's 4A/4B tables for the full, corrected assessment.
 
-## 4. Fresh Chapter 0 §4b ADR-scope run (rerun against the corrected recommendation, Option 4 — independent, not inherited from Option 2)
+## 4. Fresh Chapter 0 §4b ADR-scope run (rerun against the reverted recommendation, Option 2 — independent, not inherited from correction 001's Option 4)
 
 | Trigger checked | Result |
 |---|---|
-| Event Schema change | **NO** — Option 4 adds no field anywhere on `FeatureComputed`, `FeatureFactInvalidated`, or `ComputationCursor`; the ledger key is `computation_cursor.input_contract_ref`/`stream_registry_version`, already required, unchanged |
-| Platform Invariant addition/change | **NO** — I-5's own text is unchanged; this designs one compliant *verification mechanism* for it, it does not add or amend an invariant |
-| Module Taxonomy / dependency-graph change | **NO** — no new module, no new dependency edge; `MANIFEST.md` is documentation governance, not a runtime module |
-| Governance/Approval process change | **NO** — adding tracked-document rows to `MANIFEST.md` is the ordinary, routine editorial mechanism that document already uses for every other artifact it tracks (demonstrated repeatedly in this repository's own history); it does not alter Chapter 0's approval-gate process itself |
-| Modification/supersession of a Locked/Approved ADR | **NO** — ADR-035 is untouched; no ADR is edited, superseded, or reopened |
-| >1 module / platform-wide effect | **NO** — independently confirmed (§1, §2 Option 4 row) that no module besides Feature Engine currently resolves Input Contract/Stream Registry artifacts via a content-hash-bearing authority object; extending the ledger for these two specific artifact paths changes no other module's behavior today |
-| Hard-to-reverse decision | **NO** — ledger rows are additive and can be extended/corrected the same way every other MANIFEST.md entry already is, without touching any event, code, or ADR |
+| Event Schema change | **YES** — a new required payload field on `FeatureComputed`/`FeatureFactInvalidated` (`feature.md` §3/§4) is precisely "thay đổi Event Schema", the identical trigger ADR-034 (`invalidation_cause`) and ADR-035 (`computation_cursor`) both cited for themselves |
+| Modification/extension of Approved ADR-035 semantics | **NO** — `computation_cursor`'s shape, meaning, and the canonical §8.5 reuse are untouched; the new field is a sibling on the *event*, not a change to the *cursor* |
+| Canonical Chapter-8 Replay Cursor ownership | **NO conflict** — Option 2 does not touch §8.5's closed five-field table or any other `replay_cursor` consumer |
+| Governance/Approval-process or MANIFEST-authority change | **NO** — Option 2 does not touch `docs/MANIFEST.md`'s scope or authority at all, so the ADR-022 precedent's own trigger (assigning MANIFEST a new role) simply does not apply here |
+| >1 module / platform-wide effect | **NO** — confirmed no cross-module blast radius (§3); this is a Feature-only Event Schema addition |
+| New authoritative-artifact/mechanism | **NO** — no new artifact class, no new manifest, no new ownership question (unlike both 4A and 4B) |
 
-**Result: `ADR_OPTIONAL`.** No hard Chapter 0 §4b trigger fires — this is deliberately why Option 4 was preferred over Option 2 (whose own, still-valid, unchanged assessment remains `ADR_REQUIRED` on the Event Schema trigger alone, per §3.1/§4's prior run). `ADR_OPTIONAL` (not `ADR_NOT_REQUIRED`) is judged appropriate rather than automatic, because this decision establishes a new fail-closed verification mechanism specifically relied upon as I-5 compliance evidence — "ảnh hưởng đáng kể" in Chapter 0 §4b's own middle-row sense, even though it alters no contract, schema, or Locked artifact. A governed reviewer (Review A / Product Owner) may reasonably choose to formalize this via a lightweight ADR for the benefit of future consumers of the same artifact classes, but it is not mandatory before implementation, unlike Option 2.
+**Result: `ADR_REQUIRED`** — solely on the independently-sufficient Event Schema trigger (disjunctive reading, same precedent ADR-034/035 already established). This is **not inherited** from correction 001's now-superseded `ADR_OPTIONAL` conclusion for Option 4 — it is freshly rerun against Option 2 on its own terms, arriving back at the same result the original candidate (before correction 001) first found: adding required payload structure to an authoritative Feature event has no non-ADR path, per the same reasoning ADR-035's own "Scope classification" already recorded for itself. (For completeness, had 4A or 4B instead been recommended, each independently reaches `ADR_REQUIRED` too — 4A via a new-authoritative-artifact-class decision, 4B via the direct ADR-022 precedent for assigning MANIFEST a new authoritative role — so no path among the three options assessed avoids an ADR under current authority; §3's choice of Option 2 is about which `ADR_REQUIRED` path costs least, not about avoiding the ADR trigger altogether.)
 
-**Per instruction: STOPPING at this design/scope candidate regardless of the corrected `ADR_OPTIONAL` result.** No ADR is authored in this transaction. No `MANIFEST.md` scope-extension, `feature.md` amendment, `contracts.py`/schema implementation, or test is performed. `EVID-05` remains OPEN; `EVID-05(b)` remains unresolved pending a governed decision on whether to proceed directly to implementation (permitted under `ADR_OPTIONAL`, but not performed here) or to author an optional ADR first.
+**Per instruction: STOPPING at this design/scope candidate.** No ADR is authored in this transaction. No `feature.md` amendment, no `contracts.py`/schema implementation, no test authored, no `MANIFEST.md` change of any kind. `EVID-05` remains OPEN; `EVID-05(b)` remains unresolved pending a future, separate ADR-authoring transaction that would formally decide Option 2 (or a superior option, should one later be demonstrated).
 
 ## 5. Not performed by this candidate (explicit)
 
 ```text
 No ADR authored. No feature.md amendment. No contracts.py/event-schema
-change. No MANIFEST.md scope-extension (no rows added for stream-
-registry.yaml/Input Contract YAMLs). No test authored or modified. No
-mutation run. No formal Chapter-13 evaluation. ADR-035 not edited, not
-superseded, not reopened. EVID-05 not closed; EVID-05(a)'s SATISFIED
-disposition is unaffected and unrevisited. P3-FEATURE-QG-EVID05B-A-MAJ-01
-recorded REMEDIATED here but NOT self-closed — closure is a Review A
-re-review determination.
+change. No MANIFEST.md scope-extension or edit of any kind (no rows
+added for stream-registry.yaml/Input Contract YAMLs — this correction
+does not perform even the Option-4B mechanism it evaluated and
+rejected). No test authored or modified. No mutation run. No formal
+Chapter-13 evaluation. ADR-035 not edited, not superseded, not
+reopened. ADR-022 not edited, not superseded, not reopened (read-only
+precedent citation). EVID-05 not closed; EVID-05(a)'s SATISFIED
+disposition is unaffected and unrevisited.
+P3-FEATURE-QG-EVID05B-A-MAJ-01: recorded CLOSED — BOUNDED REVIEW A
+  RE-REVIEW.
+P3-FEATURE-QG-EVID05B-A-MAJ-02: recorded REMEDIATED here but NOT
+  self-closed — closure is a Review A re-review determination.
 ```

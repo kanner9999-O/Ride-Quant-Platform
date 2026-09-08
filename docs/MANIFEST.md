@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.335"
+manifest_version: "10.336"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23590,6 +23590,113 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** bounded Review A re-review of this correction.
 
 **Files changed:** `docs/governance/quality-gate/feature-engine-evid05b-content-identity-design-candidate-001.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; ADR-035/Chapter 8/feature.md/contracts.py verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.334"` → `"10.335"`.
+
+## [Unreleased] — 2026-09-08 — feature-engine: EVID-05(b) design candidate 001 bounded correction 002 (`P3-FEATURE-QG-EVID05B-A-MAJ-01` CLOSED; `-MAJ-02` remediated: Option 4 split 4A/4B, recommendation reverted to Option 2, `ADR_OPTIONAL` → `ADR_REQUIRED`; DESIGN ONLY)
+
+**Bounded correction transaction — vai trò: `Feature Engine EVID-05(b) Content-Identity Design Correction Executor`.** Records `P3-FEATURE-QG-EVID05B-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW` and remediates `P3-FEATURE-QG-EVID05B-A-MAJ-02`: correction 001 wrongly assumed Chapter 8's permitted "run manifest" pattern automatically means governance `docs/MANIFEST.md`, and wrongly classified assigning MANIFEST.md a new runtime content-identity-mapping responsibility as an ordinary row extension / "no new mechanism." Design-only: no ADR authored, no production/schema/test/MANIFEST.md implementation, `EVID-05` still not closed.
+
+**Fresh boundary verification:** `main` freshly pinned (one transient network fetch failure retried successfully); local HEAD confirmed exactly `eb9d6eab37f7c21f309fea7ada6691e5ad22d90a`, identical to `origin/main`; candidate blob confirmed exactly `9b1aab7ce0d89d3615e89bd206a881ffce49e2af` — no drift.
+
+### MAJ-01 closure recorded
+
+```text
+P3-FEATURE-QG-EVID05B-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW
+  (mechanical transcription of Review A's own completed determination).
+```
+
+### MAJ-02 correction — Option 4 split into 4A/4B, honestly re-priced
+
+```text
+4A (new dedicated run/replay content-identity manifest): requires
+  inventing an entire new authoritative-artifact class from scratch --
+  own immutable/versioned identity, retention/lifecycle authority, and
+  a self-reference resolution problem (the manifest is itself a
+  Referenced Authoritative Artifact needing its own pinnable identity).
+  No such mechanism claimed to exist. REJECTED as minimum-scope.
+4B (extend governance MANIFEST.md's authority): re-assessed as
+  assigning MANIFEST.md a NEW authoritative runtime responsibility, not
+  ordinary bookkeeping. Chapter 0 §5b/§7/I-12 currently scope
+  MANIFEST.md to Decision Log + doc version/status + ADR lifecycle/
+  supersession + OQ state only. Concrete gaps: MANIFEST rows are
+  routinely edited in place (needs a new per-row immutability carve-
+  out); MANIFEST tracks CURRENT state only, not a durable per-
+  historical-version ledger; a fact/run would need to pin an
+  as-of-MANIFEST-commit identity MANIFEST has no mechanism for; runtime
+  code would need to parse a prose governance document instead of the
+  already-structured YAML Option 2 already reads. Direct ADR-022
+  precedent inspected: ADR-022 assigned MANIFEST.md canonical authority
+  for a comparable new role only via a FULL GOVERNED ADR, and
+  explicitly limited that designation to "Phase 1 architecture-only",
+  stating it does NOT carry MANIFEST forward as a runtime activation
+  authority -- reserving that for a future, separate ADR. Option 4B is
+  precisely the runtime extension ADR-022 itself declined to make.
+  REJECTED as minimum-scope.
+Git history: confirmed audit evidence only, never authoritative
+  mapping under I-12/Chapter 0.
+```
+
+### Recommendation reverted to Option 2
+
+```text
+Neither 4A nor 4B is demonstrably smaller-scope than Option 2 under
+  CURRENT repository authority once their own governance costs are
+  honestly priced in. Option 2 (sibling computation_dependency_content_
+  evidence field on FeatureComputed/FeatureFactInvalidated, verbatim
+  from VerifiedInputContractAuthority) reaffirmed: single, already-
+  precedented, already-bounded Event Schema change -- no new authority,
+  no new artifact class, no ADR-precedent-defying assumption.
+  Correction 001's §8.1.1-rule-5 finding (verifiability doesn't require
+  a per-event field) is preserved, not retracted -- but does not, by
+  itself, make an off-event realization cheaper under today's authority.
+```
+
+### Fresh Chapter 0 §4b ADR-scope rerun (against Option 2, independent of correction 001)
+
+```text
+Event Schema change: YES. ADR-035 modification: NO. Chapter-8 cursor
+  ownership conflict: NO. MANIFEST-authority change: NO (Option 2
+  doesn't touch MANIFEST.md, so ADR-022's own trigger doesn't apply).
+  >1-module effect: NO. New authoritative-artifact/mechanism: NO.
+Result: ADR_REQUIRED -- not inherited from correction 001's
+  ADR_OPTIONAL; freshly rerun on Option 2's own terms. For
+  completeness: 4A and 4B each independently reach ADR_REQUIRED too --
+  no path among the three assessed options avoids an ADR under current
+  authority.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/governance/quality-gate/feature-engine-evid05b-
+  content-identity-design-candidate-001.md (corrected in place, blob
+  9b1aab7ce0d89d3615e89bd206a881ffce49e2af ->
+  594914f97aad73321211ad2dc7e0a84580f43613); docs/MANIFEST.md;
+  docs/CHANGELOG.md. ADR-022, ADR-035, Chapter 0, Chapter 8, feature.md,
+  contracts.py all verified byte-unchanged (`git diff --quiet`). No ADR
+  authored. No implementation. No MANIFEST.md scope-extension performed
+  (design only -- 4B is evaluated and rejected, not enacted).
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID05B-A-MAJ-01: CLOSED — BOUNDED REVIEW A RE-REVIEW.
+P3-FEATURE-QG-EVID05B-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-evid05b-content-identity-design-candidate-001.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; ADR-022/ADR-035/Chapter 0/Chapter 8/feature.md/contracts.py verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.335"` → `"10.336"`.
 
 ## Decision Log
 
