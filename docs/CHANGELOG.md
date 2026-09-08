@@ -2,6 +2,122 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-08 — feature-engine: Review A bounded closure of Condition-3 correction (MAJ-01/MAJ-02/MIN-01 CLOSED, Condition 3 SATISFIED) + fresh formal Step-9 evidence-002 (`P3-FEATURE-QG-EVID-03`: PASS — pending Review A validation)
+
+**Bookkeeping + formal Step-9 evidence transaction — vai trò: `Feature Engine Fresh Formal Step-9 Mutation Evidence Executor`.** Records Review A's already-completed bounded re-review closure of the Condition-3 implementation correction, then performs ONE fresh, independent, from-scratch formal Step-9/`P3-FEATURE-QG-EVID-03` mutation-effectiveness measurement against the current frozen boundary. No `src/**`/tests/tooling/pyproject/lockfile/testing-convention/threshold/reclassification/Condition-3-evidence change. No Phase-3 approval decision. No self-closure of the finding.
+
+**Fresh boundary verification:** HEAD before confirmed exactly `ccd072054a678a4d955bc0388dcb6b343e4bd4db`; frozen Feature trees confirmed exactly matching expected — src `256421344a48a6c9d4ef72f81eb82b27dbedfc50`, tests `57ae1d244a4e8b6957cc71d8f2559301752e2fcd`, tooling `c9aec7409a70a1c978814f1148ec6a6b3259b34b`; Evidence-002 blob confirmed exactly `287fa25d21ea494196230bc60b27a11177345e6c`.
+
+### Review A bounded closure recorded (deterministic bookkeeping only)
+
+```text
+P3-PY-MUT-COND3-IMPL-A-MAJ-01: CLOSED (Review A). P3-PY-MUT-COND3-IMPL-A-
+  MAJ-02: CLOSED (Review A). P3-PY-MUT-COND3-IMPL-A-MIN-01: CLOSED
+  (Review A). Condition 3: SATISFIED by validated Evidence-002 (Review A's
+  own determination, accepted as governing input to this transaction --
+  not re-decided or re-litigated here).
+```
+
+### Fresh formal mutation measurement (disposable `.step9venv`, removed after capture)
+
+```text
+Ordinary suite before mutation: 233 passed, 0 failed (tests/); 5 passed
+  (tooling/tests/, outside governed mutation suite). mutants/ absent
+  before run (genuine full run, not incremental). Command: `python -m
+  tooling run` from python/feature-engine. Run completed to natural end,
+  exit 0, "1531/1531" reached, 32.46 mutations/second.
+Ten raw statuses: killed=1342, survived=189, no_tests=0, not_checked=0,
+  skipped=0, suspicious=0, timeout=0, caught_by_type_check=0, segfault=0,
+  check_was_interrupted_by_user=0. Sum=1531=total. confirmed_timeout=0
+  (separate governed field within the ten-status schema, not an 11th
+  status; no raw timeout occurred so nothing required confirmation).
+165 transient BadTestExecutionCommandsException tracebacks observed
+  during the run -- identical count to baseline-001/post-remediation-
+  diagnostic-001/full-checkpoint-002's own already-diagnosed, non-biasing
+  mechanism; mutmut's own run still reconciled cleanly to natural end.
+Full 1531-mutant ID set confirmed byte-for-byte identical to baseline-
+  001's own set (0 missing either direction); per-source-file totals
+  (authority_resolver 134, candle_window 28, contracts 217, current_view
+  104, identity 8, regime_passthrough 286, swing_distance 754) also
+  identical to baseline-001. No identity discontinuity; no fail-closed
+  stop required.
+```
+
+### Condition 1 — raw mutation effectiveness
+
+```text
+(killed + confirmed_timeout) / (total - skipped) * 100 = (1342 + 0) /
+  (1531 - 0) * 100 = 87.65512736773351%. Required >= 87.001959503592%.
+  Result: PASS. Numerically identical to full-checkpoint-002's own
+  measurement (src/feature_engine byte-identical since that checkpoint;
+  tests/tooling changes since then added zero net kill/survive delta to
+  the raw population).
+```
+
+### Condition 2 — 170 material IDs
+
+```text
+All 170 pinned material-gap identities (feature-engine-mutation-
+  baseline-001-analysis.md SS1.6) present in this fresh measurement (0
+  identity discontinuities). The 160 non-reclassified identities: all
+  160/160 confirmed killed in this fresh measurement (0 not-qualifying).
+  The 10 identities already governedly resolved by Material Mutant
+  Reclassification Candidate 001 (Condition 2 only): confirmed still
+  raw-survived exactly as expected -- raw status neither rewritten nor
+  removed from the raw denominator. Result: PASS (170/170).
+```
+
+### Condition 3 — mutation-surface completeness
+
+```text
+Validated docs/governance/mutation-baseline-evidence/feature-engine-
+  mutation-surface-completeness-evidence-002.json (blob
+  287fa25d21ea494196230bc60b27a11177345e6c): subject src/tests/tooling
+  trees independently re-verified to exactly match this transaction's
+  own frozen identities. Evidence-002's own recorded verdict_summary/
+  per_method_rollup independently re-read: 5/5 high-materiality methods
+  supported, 10/10 approved faults DETECTED, 0 SURVIVED/CONTROL_FAILED/
+  INJECTION_FAILED/TEST_INFRA_ERROR. No identity/evidence conflict found
+  -- Evidence-002 was NOT rerun or edited. Combined with Review A's
+  recorded MAJ-01/MAJ-02/MIN-01 closure and SATISFIED disposition
+  (accepted as input). Result: PASS.
+```
+
+### Formal outcome
+
+```text
+P3-FEATURE-QG-EVID-03: PASS — PENDING REVIEW A VALIDATION. All three
+  approved-gate components independently satisfy their required
+  criteria in this fresh, reproducible, from-scratch measurement. This
+  transaction does NOT self-close the finding -- Review A must validate
+  this formal evidence transaction itself. NOT a Phase-3 approval
+  decision.
+```
+
+### Evidence artifact
+
+```text
+docs/governance/mutation-baseline-evidence/feature-engine-mutation-
+  step9-formal-evidence-002.json (new, additive; path confirmed absent
+  before writing). Does not modify or supersede step9-formal-evidence-
+  001.json, baseline-001.json, full-checkpoint-002.json, or either
+  Condition-3 evidence artifact.
+```
+
+### State summary (preserved)
+
+```text
+EVID-01/EVID-02/COV-01: PASS/closed (unaffected). EVID-04..08: OPEN /
+  blocking (unaffected). Overall Feature Chapter 13 QG: FAIL — evidence
+  (unaffected -- EVID-04..08 still block regardless of EVID-03's own
+  disposition). Feature module: NOT APPROVED. Phase 3 gate: NOT opened.
+  LIVE: NOT_AUTHORIZED. ADR_OPTIONAL — ADR NOT AUTHORED (unchanged).
+```
+
+**Next governed step:** Review A validation of this formal Step-9 evidence transaction.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-002.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.331"` → `"10.332"`.
+
 ## [Unreleased] — 2026-09-08 — feature-engine: Condition-3 implementation bounded correction — MAJ-01/MAJ-02/MIN-01 remediated, evidence-002 (10/10 DETECTED — Condition 3 remains UNRESOLVED, pending bounded Review A re-review)
 
 **Bounded correction transaction — vai trò: `Feature Engine Condition-3 Implementation Bounded Correction Executor`.** Corrects three Review A findings against the prior implementation/evidence transaction's own harness and tests (`P3-PY-MUT-COND3-IMPL-A-MAJ-01`, `-MAJ-02`, `-MIN-01`). No `src/**` change. No approved design semantics changed. Evidence-001 preserved byte-for-byte, not overwritten. No mutmut run. No formal Step-9/QG evaluation.

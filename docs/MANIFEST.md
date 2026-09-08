@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.331"
+manifest_version: "10.332"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23152,6 +23152,104 @@ Checkpoint-002 confirmed_timeout fidelity note remains forward-looking
 **Next governed step:** Bounded Review A re-review of this correction (MAJ-01/MAJ-02/MIN-01 remediations, the frozen correction boundary, and the 10/10 DETECTED evidence-002 rerun).
 
 **Files changed:** `python/feature-engine/tests/test_definition.py`, `python/feature-engine/tooling/fault_injection/faults.py`, `python/feature-engine/tooling/fault_injection/harness.py`, `python/feature-engine/tooling/fault_injection/tests/test_harness.py`, `python/feature-engine/tooling/fault_injection/tests/test_faults.py` (new), `docs/governance/mutation-baseline-evidence/feature-engine-mutation-surface-completeness-evidence-002.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.330"` → `"10.331"`.
+
+## [Unreleased] — 2026-09-08 — feature-engine: Review A bounded closure of Condition-3 correction (MAJ-01/MAJ-02/MIN-01 CLOSED, Condition 3 SATISFIED) + fresh formal Step-9 evidence-002 (`P3-FEATURE-QG-EVID-03`: PASS — pending Review A validation)
+
+**Bookkeeping + formal Step-9 evidence transaction — vai trò: `Feature Engine Fresh Formal Step-9 Mutation Evidence Executor`.** Records Review A's already-completed bounded re-review closure of the Condition-3 implementation correction (P3-PY-MUT-COND3-IMPL-A-MAJ-01/-MAJ-02/-MIN-01, all CLOSED, Condition 3 SATISFIED by validated Evidence-002 — accepted as governing input, not re-decided here), then performs ONE fresh, independent, from-scratch formal Step-9/`P3-FEATURE-QG-EVID-03` mutation-effectiveness measurement against the current frozen boundary. No `src/**`/tests/tooling/pyproject/lockfile/testing-convention/threshold/reclassification-decision/Condition-3-evidence change. No Phase-3 approval decision. Finding is NOT self-closed.
+
+**Fresh boundary verification:** HEAD before confirmed exactly `ccd072054a678a4d955bc0388dcb6b343e4bd4db`; frozen Feature trees confirmed exactly matching expected — src `256421344a48a6c9d4ef72f81eb82b27dbedfc50`, tests `57ae1d244a4e8b6957cc71d8f2559301752e2fcd`, tooling `c9aec7409a70a1c978814f1148ec6a6b3259b34b`; Condition-3 Evidence-002 blob confirmed exactly `287fa25d21ea494196230bc60b27a11177345e6c` — all matched expected.
+
+### Fresh measurement (disposable `.step9venv` built from `requirements-dev.lock.txt`, removed after capture)
+
+```text
+mutants/ confirmed absent before run (genuine full run, not
+  incremental). Ordinary suite before mutation: 233 passed, 0 failed
+  (tests/); 5 passed (tooling/tests/). Command: `python -m tooling run`
+  from python/feature-engine. Completed to natural end: exit 0,
+  1531/1531, 32.46 mutations/second.
+Ten raw statuses: killed=1342, survived=189, no_tests=0, not_checked=0,
+  skipped=0, suspicious=0, timeout=0, caught_by_type_check=0,
+  segfault=0, check_was_interrupted_by_user=0. Sum=1531=total.
+  confirmed_timeout=0 (governed field within the ten-status schema, not
+  an 11th status; no raw timeout occurred).
+165 transient BadTestExecutionCommandsException tracebacks -- identical
+  count to baseline-001/post-remediation-diagnostic-001/full-
+  checkpoint-002's own already-diagnosed, non-biasing mechanism.
+Full 1531-mutant ID set confirmed byte-for-byte identical to baseline-
+  001 (0 missing either direction); per-source-file totals (134/28/217/
+  104/8/286/754) also identical. No identity discontinuity.
+```
+
+### Condition evaluations
+
+```text
+Condition 1 (raw score): (1342 + 0) / (1531 - 0) * 100 =
+  87.65512736773351% >= required 87.001959503592%. PASS. Numerically
+  identical to full-checkpoint-002 (src unchanged since then).
+Condition 2 (170 material IDs): all 170 present, 0 identity
+  discontinuities. 160/160 non-reclassified identities confirmed
+  killed. 10/10 reclassified identities (Material Mutant Reclassification
+  Candidate 001, Condition 2 only) confirmed still raw-survived exactly
+  as expected -- not rewritten, not removed from the raw denominator.
+  PASS (170/170).
+Condition 3 (mutation-surface completeness): validated feature-engine-
+  mutation-surface-completeness-evidence-002.json (blob
+  287fa25d21ea494196230bc60b27a11177345e6c) -- subject trees re-
+  verified to match this transaction's own frozen identities exactly;
+  5/5 methods supported, 10/10 faults DETECTED, 0 in any other verdict
+  category. No conflict found; Evidence-002 NOT rerun or edited.
+  Combined with Review A's MAJ-01/MAJ-02/MIN-01 closure and SATISFIED
+  disposition (accepted as input). PASS.
+```
+
+### Formal outcome
+
+```text
+P3-FEATURE-QG-EVID-03: PASS — PENDING REVIEW A VALIDATION. All three
+  approved-gate components independently satisfy their required
+  criteria in this fresh, reproducible, from-scratch measurement. This
+  transaction does NOT self-close the finding -- Review A must validate
+  this formal evidence transaction itself before P3-FEATURE-QG-EVID-03
+  can be considered closed. NOT a Phase-3 approval decision.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/governance/mutation-baseline-evidence/feature-
+  engine-mutation-step9-formal-evidence-002.json (new, additive --
+  does not modify or supersede step9-formal-evidence-001.json,
+  baseline-001.json, full-checkpoint-002.json, or either Condition-3
+  evidence artifact); docs/MANIFEST.md; docs/CHANGELOG.md.
+  python/feature-engine/src/**, tests/**, tooling/**, pyproject.toml,
+  requirements-dev.lock.txt, docs/engineering/testing.md,
+  the mutation-effectiveness threshold proposal, the material mutant
+  reclassification decision, and both Condition-3 evidence artifacts
+  all verified byte-unchanged (`git diff --quiet` / blob-hash
+  comparison) before and after this transaction. Disposable
+  `.step9venv` and `mutants/` working directory removed after evidence
+  capture, zero tracked-repo footprint.
+```
+
+### State summary (preserved)
+
+```text
+EVID-01/EVID-02/COV-01:         PASS/closed (unaffected).
+P3-FEATURE-QG-EVID-03:          PASS — PENDING REVIEW A VALIDATION
+                                (this transaction; not self-closed).
+P3-FEATURE-QG-EVID-04..-08:     OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected -- EVID-
+                                04..08 still block regardless of
+                                EVID-03's own disposition).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR_OPTIONAL — ADR NOT AUTHORED (unchanged).
+```
+
+**Next governed step:** Review A validation of this formal Step-9 evidence transaction.
+
+**Files changed:** `docs/governance/mutation-baseline-evidence/feature-engine-mutation-step9-formal-evidence-002.json` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`/`tests/**`/`tooling/**` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.331"` → `"10.332"`.
 
 ## Decision Log
 
