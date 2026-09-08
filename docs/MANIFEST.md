@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.333"
+manifest_version: "10.334"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23370,6 +23370,118 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** Review A of this EVID-05(a) test transaction (and, separately, of the P3-FEATURE-QG-EVID-03 closure bookkeeping recorded here).
 
 **Files changed:** `python/feature-engine/tests/test_replay_isolation.py` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/**`/tooling/**/pyproject.toml/requirements-dev.lock.txt verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.332"` → `"10.333"`.
+
+## [Unreleased] — 2026-09-08 — feature-engine: `P3-FEATURE-QG-EVID-05(b)` content-identity design candidate 001 (`ADR_REQUIRED` — stopped at design/scope, design/docs only)
+
+**Design-only transaction — vai trò: `Feature Engine EVID-05(b) Content-Identity Design Executor`.** Authors one governed design candidate for `P3-FEATURE-QG-EVID-05(b)` (I-5 persisted content-identity evidence for the Input Contract/Stream Registry artifacts a Feature computation used). No production/test/schema implementation. ADR-035 not edited, not superseded, not reopened. `EVID-05` not closed.
+
+**Fresh boundary verification:** `main` freshly pinned; local HEAD confirmed exactly `c220b62a097aa036413865ff0222c5c136f6f05f`, identical to `origin/main` — no drift.
+
+### Authority resolved
+
+```text
+Constitution I-5: content-addressed reference + materialization alone is
+  explicitly insufficient without an actual checksum check. Chapter 8
+  §8.1.1 rule 5: verifiability required, NOT a specific field -- identity
+  MAY live off-event (a "run manifest or equivalent"), and §8.3.1 repeats
+  the identical allowance for the Stream Registry specifically. Chapter 8
+  §8.5/§8.5.1: replay_cursor is a CLOSED five-field table (recorded_time,
+  input_contract_ref, stream_registry_version, lifecycle_frontier,
+  stream_positions) -- content identity is not one of the five. ADR-035
+  (Approved v0.2): computation_cursor reuses that five-field cursor
+  verbatim, "not a second, Feature-local, near-equivalent schema"; its own
+  "Fail-closed consequence" paragraph already named today's exact gap and
+  explicitly deferred closing it. VerifiedInputContractAuthority already
+  computes input_contract_content_id/stream_registry_content_id (SHA-256
+  of real artifact bytes) at construction time; ComputationCursor carries
+  only the canonical five fields, confirmed unmodified. feature.md has
+  zero existing content_id/checksum language.
+```
+
+### Options evaluated
+
+```text
+1. Extend canonical Chapter-8 replay_cursor itself with content
+   identities -- REJECTED: correct mechanism, wrong owner/scope
+   (platform-wide, >1-module, reopens Locked Chapter 8 §8.5).
+2. Keep computation_cursor unchanged; persist a new required sibling
+   payload field (computation_dependency_content_evidence:
+   {input_contract_content_id, stream_registry_content_id}) directly on
+   FeatureComputed/FeatureFactInvalidated -- RECOMMENDED. Feature-scoped
+   only, reuses already-computed VerifiedInputContractAuthority values
+   verbatim, structurally separate from computation_cursor (no
+   competing-cursor risk), satisfies every required invariant.
+3. Extend/redefine the Input Contract/Stream Registry reference
+   mechanism itself -- REJECTED: doesn't actually create the missing
+   historical comparison point (artifact-level hashing is already
+   possible today), while carrying LARGER cross-module blast radius
+   than Option 1 (redefines artifact classes Feature doesn't own).
+No fourth, better option identified -- a "new provenance artifact/event
+  type" mirrors ADR-035's own already-rejected Alternative 3.
+```
+
+### Recommended architecture (Option 2) — replay verification flow
+
+```text
+Replay preparation: re-resolves the exact {contract_id, contract_version}/
+  stream_registry_version named by the fact's own computation_cursor,
+  recomputes both content IDs from current real artifact bytes (same
+  mechanism authority_resolver.py already implements), compares against
+  the fact's persisted computation_dependency_content_evidence. Mismatch
+  or missing artifact -> fail closed BEFORE Replay execution starts.
+Replay execution: reads only the already-verified, already-materialized
+  state -- unaffected by, and strictly after, the new check; the
+  EVID-05(a)-proven network/filesystem cut is untouched.
+Original/replacement facts: each captures its own evidence independently,
+  mirroring computation_cursor's existing never-inherited discipline.
+```
+
+### Fresh Chapter 0 §4b ADR-scope run
+
+```text
+Event Schema trigger: YES -- new required payload field on FeatureComputed/
+  FeatureFactInvalidated, the identical trigger ADR-034/ADR-035 each cited
+  for themselves.
+ADR-035 semantics modified: NO -- computation_cursor's shape/meaning
+  untouched; sibling field only.
+Chapter-8 Replay Cursor ownership conflict: NO -- §8.5's five-field table
+  and every other replay_cursor consumer unaffected (why Options 1/3 were
+  rejected).
+>1-module/platform-wide effect: NO -- Feature-only Event Schema addition.
+Result: ADR_REQUIRED (independently sufficient on the Event Schema
+  trigger alone). STOPPED at design/scope per instruction -- no ADR
+  authored, no implementation.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/governance/quality-gate/feature-engine-evid05b-
+  content-identity-design-candidate-001.md (new, additive; path
+  confirmed absent before writing); docs/MANIFEST.md; docs/CHANGELOG.md.
+  ADR-035, Chapter 8, feature.md, contracts.py, and every test/tooling
+  file verified byte-unchanged (`git diff --quiet` / `git status
+  --porcelain=v1`). No ADR authored. No implementation.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (part (b) designed, not
+                                implemented or approved — unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** a governed decision on whether to proceed to ADR authoring for the recommended Option 2 architecture (Review A/Product Owner), or select an alternative.
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-evid05b-content-identity-design-candidate-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; ADR-035/Chapter 8/feature.md/contracts.py verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.333"` → `"10.334"`.
 
 ## Decision Log
 
