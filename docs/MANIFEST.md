@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.348"
+manifest_version: "10.349"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -24843,6 +24843,143 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** the follow-on work already named in `ADR-039`'s own Consequences — (0) establishing the platform-wide retention/archive policy §8.1.1 rule 4 requires; (1) authoring/publishing first `Published` version-artifacts per `contract_id`; (2) Feature's own `feature-computed`/`feature-fact-invalidated` first version snapshots; (3) implementation work populating `event_contract_ref` — none of which is performed by this approval-recording transaction.
 
 **Files changed:** `docs/adr/ADR-039.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.347"` → `"10.348"`.
+
+## ADR-040 v0.1 — Platform-wide Retention/Archive Policy Semantics for Referenced Authoritative Artifacts (`Draft`, candidate authoring — platform-wide, not Feature-specific)
+
+**Governed semantic architecture-authoring transaction — vai trò: `Platform Retention/Archive Policy Authoring Executor`.** Authors `docs/adr/ADR-040.md` v0.1 (`Draft`), fixing architecture-level retention/archive semantics for every Referenced Authoritative Artifact (Chapter 8 §8.1.1 rule 4; Chapter 10 §10.4.4/§10.9) — the platform-wide prerequisite `ADR-039` named in its own Consequences item (0). Not approved. `ADR-039` unmodified, immutable, unaffected.
+
+**Fresh boundary verification:** HEAD confirmed exactly `bd7a4f41c2d7386a0ea38f59aa22c3b30c469823`, identical to `origin/main`; `docs/adr/ADR-040.md` verified absent before this transaction; `ADR-039` re-verified `Approved`, blob exactly `717904b8fd75104a681805c0c94ab7c9b19e878f`, byte-unchanged — no drift.
+
+### ADR inflation/scope check (`G-ADR-004`) result
+
+```text
+1. Existing authority/alignment/grant/configuration resolves the gap?
+   NO -- repo-wide search confirms no artifact, at any level, currently
+   supplies retention/archive semantics or mechanism for any Referenced
+   Authoritative Artifact class (every "retention" mention either
+   restates the requirement or explicitly defers the mechanism: ADR-009/
+   ADR-016/ADR-027/ADR-030, Chapter 10 §10.9).
+2. Genuine architecture decision, not cheaply reversible? YES -- §8.1.1
+   rule 4/§10.4.4 already Lock the requirement; missing piece is which
+   storage classes get which resolvability/archival guarantee and what
+   fail-closed resolution failure means.
+3. Chapter 0 §4b ADR-Required trigger fires independently? YES, both
+   disjunctive grounds: >1-module (platform-wide, every current/future
+   Referenced Authoritative Artifact type -- broader footprint than any
+   prior ADR in this series) AND hard-to-reverse (archival/pruning
+   decisions cannot be cheaply re-derived once acted on).
+4. Authored merely to "complete" ADR-039 (G-ADR-003)? NO -- derived
+   independently from Chapter 8 §8.1.1/Chapter 10 §10.4.4/§10.9 directly,
+   both Locked before ADR-039 existed; ADR-039 is the most recent
+   exposing use-case, not the source of this decision's own authority.
+Result: ADR REQUIRED confirmed independently. Authored.
+```
+
+### Selected mechanism (full definition)
+
+```text
+Two storage classes, determined by where canonical authoritative
+  content actually lives (not per-artifact-type):
+Class G (git-repository-resident): ADRs, Constitution chapters, Domain
+  Contracts, Event Contract version-artifacts (ADR-039), Input
+  Contracts -- every Referenced Authoritative Artifact type that
+  concretely exists today. Committed horizon = full lifetime of this
+  git repository's own commit history; "archival" = what git already
+  does (superseded/removed from HEAD, still resolvable via history);
+  REMOVAL (destroying resolvability of any referenced commit/blob) is
+  PROHIBITED -- no history-rewriting over any commit range containing
+  a referenced Class G artifact version. Concretely, fully satisfies
+  §8.1.1 rule 4 for Class G today, using only existing infrastructure.
+Class R (runtime-resident): today, only Stream Registry (no running
+  implementation yet). Architecture-level floor only, mechanism
+  deferred (same split Chapter 10 §10.9 already draws for Compatibility
+  Result/Policy, now made explicit as applying uniformly to every
+  Class R artifact): fail-closed floor (committed horizon never
+  shorter than the longest currently-active dependent binding);
+  archival-not-removal by default (true removal needs its own future
+  governed decision; this ADR defaults to never absent one).
+Common to both: resolvability equivalence while active vs. archived
+  (same identity resolves identically, archival changes locality/
+  latency only, never content/identity/success); immutable
+  content-identity preservation (archival never alters hash/content);
+  fail-closed on any unresolvable exact reference (hard failure, no
+  nearest-version substitution, no skip, no degraded semantics) --
+  same no-aliasing principle ADR-039 already established one level
+  down for contract_id/contract_version path resolution.
+No storage vendor, deployment tooling, or concrete Class R numeric
+  horizon invented -- deliberately deferred, per §10.9.
+```
+
+### Alternatives evaluated
+
+```text
+A. Two storage classes, Class G resolved concretely via existing git
+   infrastructure, Class R floor-only mechanism deferred -- CHOSEN.
+   Minimum architecture fully satisfying §8.1.1 rule 4 for every
+   artifact type that concretely exists today; no new infrastructure
+   invented; preserves (does not override) §10.9's requirement/
+   mechanism split.
+B. Fully concrete retention/archive protocol authored now (numeric
+   horizons, storage vendor, archival tooling, every class) --
+   REJECTED: contradicts §10.9's explicit deferral; premature
+   commitment for Class R (a system that does not exist yet), likely
+   requiring rework once real deployment constraints are known.
+C. No dedicated ADR -- ad hoc per-artifact-owning-document retention
+   rule -- REJECTED: §8.1.1 frames retention as auto-applying general
+   rule, not per-item rediscovery; ad hoc decisions would fragment
+   semantics and independently qualify as ADR-required per instance
+   anyway, multiplying transactions instead of resolving once.
+D. Governance MANIFEST.md as retention/archive policy owner --
+   REJECTED on the same grounds already established in ADR-038's/
+   ADR-039's own corrected reasoning (ADR-022 precedent explicitly
+   declined this exact runtime/architecture-authority extension).
+```
+
+### `depends_on`
+
+```text
+depends_on: [] -- derived independently from Chapter 8 §8.1.1 and
+  Chapter 10 §10.4.4/§10.9 directly, both Locked before ADR-039
+  existed. ADR-039 treated strictly as the most recent exposing
+  use-case, matching the identical precedent ADR-039 itself set for
+  ADR-037/ADR-038. ADR-039 remains Approved, unmodified.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-040.md (new); docs/MANIFEST.md;
+  docs/CHANGELOG.md only. ADR-039 (Approved, immutable), every Locked
+  Constitution chapter, module-registry.yaml, context-map.yaml, and
+  production/test/tooling all verified byte-unchanged (`git diff
+  --quiet`). No Event Contract version-artifact authored/published.
+  No event_contract_ref implementation. P3-ADR039-B-MIN-01 preserved
+  accepted/non-blocking, unaffected.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-040 designs the missing
+                                retention/archive semantics but is
+                                itself only a Draft, not approved; no
+                                Event Contract version-artifact exists
+                                yet regardless.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039:                       Approved, immutable, unaffected.
+```
+
+**Next governed step:** Review A of `ADR-040` Draft.
+
+**Files changed:** `docs/adr/ADR-040.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `ADR-039`/every Locked Constitution chapter/`module-registry.yaml`/`context-map.yaml` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.348"` → `"10.349"`.
 
 ## Decision Log
 
