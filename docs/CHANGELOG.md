@@ -2,6 +2,62 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-09 — platform: `ADR-040` v0.1 `Approved` — Platform-wide Retention/Archive Policy Semantics for Referenced Authoritative Artifacts now effective
+
+**Mechanical approval/lifecycle recording transaction — vai trò: `Platform Retention/Archive Policy Approval Recording Executor`.** Records Review A's bounded re-review across both correction rounds (confirming `P3-ADR040-A-MAJ-01`/`-MAJ-02`/`-MAJ-03` all fully remediated), Independent Review B's own review, and the Product Owner's `APPROVE` decision — transitioning `ADR-040` from `Draft`/round-2-corrected to `Approved`. No semantic redesign; Decision/Alternatives/Consequences/Scale check/corrected classification model/archival-resolution semantics all unchanged.
+
+**Fresh boundary verification:** HEAD confirmed exactly `ea67e9185325cdf15d1e40388145b054ac563a26`, identical to `origin/main`; ADR-040 reviewed Draft blob confirmed exactly `4110765d64213dd35bb898a618d61ff03bcee432` — no drift.
+
+**Product Owner decision (verbatim):** `APPROVE ADR-040 v0.1 at reviewed semantic boundary ea67e9185325cdf15d1e40388145b054ac563a26, ADR blob 4110765d64213dd35bb898a618d61ff03bcee432.` — recorded `2026-09-09T13:49+07:00`.
+
+### ADR lifecycle transition applied
+
+```text
+status: Draft -> Approved. reviewers: [] -> [ChatGPT, Claude].
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-09T13:49+07:00. last_review: null -> 2026-09-09. version
+remains exactly "0.1". depends_on: [] unchanged. Per Chapter 11
+§11.3, ADR-040.md is now immutable byte-for-byte from this approval
+boundary.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-040.md (lifecycle transition in place,
+  blob 4110765d64213dd35bb898a618d61ff03bcee432 ->
+  7a535af431228a43d12b3e32ff5715dace7dc16f); docs/MANIFEST.md;
+  docs/CHANGELOG.md. `git diff` confirms only frontmatter status/
+  reviewers/approved_by/approved_at/last_review, the review table,
+  the Independence/PO-decision/reviewed-boundary paragraphs, and
+  Accepted risks changed. No Event Contract version artifact
+  authored, no event_contract_ref implementation. ADR-039
+  byte-unchanged.
+```
+
+### State summary — prohibited transitions explicitly NOT granted
+
+```text
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-040 now Approved, but no
+                                Event Contract version-artifact
+                                exists, no event_contract_ref
+                                implementation exists, and no
+                                Compatibility Result/Policy storage
+                                designation exists. Nothing here
+                                grants Feature QG, Feature module
+                                approval, Phase 3 Approval Gate, or
+                                LIVE authorization.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039:                       Approved, immutable, unaffected.
+```
+
+**Next governed step:** the follow-on work already named in `ADR-040`'s own Consequences (Class G past-horizon archival mechanism; full Class R mechanism whenever a member is designated; Compatibility Result/Policy's own storage designation) — none performed by this approval-recording transaction.
+
+**Files changed:** `docs/adr/ADR-040.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.351"` → `"10.352"`.
+
 ## [Unreleased] — 2026-09-09 — platform: `ADR-040` bounded Review A correction, round 2 (`P3-ADR040-A-MAJ-01`/`-MAJ-02` → `CLOSED`; `P3-ADR040-A-MAJ-03` new → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `Draft` unchanged, no version bump)
 
 **Bounded correction transaction — vai trò: `Platform Retention/Archive Policy Bounded Correction Executor`.** Remediates one new Review A finding against `ADR-040` v0.1 (`Draft`) at its round-1-corrected boundary; records round 1's two findings `CLOSED` per Review A re-review. `P3-ADR040-A-MAJ-03`: round 1's model conflated retention-policy applicability with concrete storage-class designation — asserting artifacts are "classified into exactly two storage classes" while leaving Compatibility Result/Policy "unclassified" made an artifact Chapter 10 §10.4.4 explicitly places under §8.1.1-equivalent requirements structurally impossible to represent. Correction only — separates universal retention-policy scope (binds every artifact subject to §8.1.1 or an equivalent requirement, e.g. §10.4.4 for Compatibility Result/Policy) from storage-realization classification (G/R, applying only once storage is actually designated); an in-scope, storage-unclassified state is now an explicit, valid model state. No third storage mechanism invented. Round 1's Stream Registry → Class G reclassification and canonical-path-stays-live correction preserved exactly.

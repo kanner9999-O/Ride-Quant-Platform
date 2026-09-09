@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.351"
+manifest_version: "10.352"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -25152,6 +25152,119 @@ ADR-039:                       Approved, immutable, unaffected.
 **Next governed step:** bounded Review A re-review of this correction.
 
 **Files changed:** `docs/adr/ADR-040.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `ADR-039`/every Locked Constitution chapter/`module-registry.yaml`/`context-map.yaml` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.350"` → `"10.351"`.
+
+## ADR-040 v0.1 — Product Owner Approval (`Approved` — Platform-wide Retention/Archive Policy Semantics for Referenced Authoritative Artifacts now effective)
+
+**Mechanical approval/lifecycle recording transaction — vai trò: `Platform Retention/Archive Policy Approval Recording Executor`.** Records Review A's bounded re-review across both correction rounds (confirming `P3-ADR040-A-MAJ-01`/`-MAJ-02`/`-MAJ-03` all fully remediated), Independent Review B's own review, and the Product Owner's `APPROVE` decision — transitioning `ADR-040` from `Draft`/round-2-corrected to `Approved`. No semantic redesign.
+
+**Fresh boundary verification:** HEAD confirmed exactly `ea67e9185325cdf15d1e40388145b054ac563a26`, identical to `origin/main`; ADR-040 reviewed Draft blob confirmed exactly `4110765d64213dd35bb898a618d61ff03bcee432` — no drift.
+
+### Review A recorded
+
+```text
+Principal: ChatGPT, AI Technical Architect / Review A. Same reviewed
+  boundary/blob as above. Bounded re-review across both correction
+  rounds confirmed P3-ADR040-A-MAJ-01 (Stream Registry -> Class G,
+  citing stream-registry.yaml/Chapter 8 §8.3.1, Approved; ADRs/
+  Constitution/Domain Contracts correctly excluded), P3-ADR040-A-MAJ-02
+  (Class G within-horizon resolvability fixed via each artifact's own
+  canonical path; git history recast as evidence only, no conflict
+  with ADR-039's own resolver), and P3-ADR040-A-MAJ-03 (retention-
+  policy scope separated from storage-realization classification;
+  Compatibility Result/Policy correctly in-scope/storage-unclassified)
+  all fully remediated. Blocker 0 / Major 0 / Minor 0.
+  CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+```
+
+### Independent Review B recorded
+
+```text
+Principal: Claude, AI Technical Architect / Independent Review B.
+  DISTINCT_PRINCIPAL (Mode A). Execution ID N/A (not fabricated). Same
+  reviewed boundary/blob. Independently verified the corrected
+  classification (Class G: Stream Registry/Event Contract version-
+  artifacts/Input Contracts; Class R: zero realized members;
+  Compatibility Result/Policy: in-scope, storage-unclassified, no
+  canonical storage/path/schema invented), the corrected archival/
+  resolution semantics (canonical path stays live at HEAD, git history
+  as evidence only), the scope-vs-storage-realization separation,
+  Option A's selection, ADR_REQUIRED classification, ADR-039
+  unaffected/immutable, and lifecycle-metadata integrity (depends_on:
+  [], version: "0.1" retained). Blocker 0 / Major 0 / Minor 0.
+  CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE ADR-040 v0.1 at reviewed semantic boundary
+  ea67e9185325cdf15d1e40388145b054ac563a26, ADR blob
+  4110765d64213dd35bb898a618d61ff03bcee432.
+Recorded: 2026-09-09T13:49+07:00.
+```
+
+### ADR lifecycle transition applied
+
+```text
+status: Draft -> Approved. reviewers: [] -> [ChatGPT, Claude].
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-09T13:49+07:00. last_review: null -> 2026-09-09. version
+remains exactly "0.1". depends_on: [] unchanged. addresses/resolves/
+supersedes unchanged (none invented). Reviewed semantic boundary/blob
+recorded separately from, never confused with, the resulting
+lifecycle-record blob (see Files changed below). Per Chapter 11
+§11.3, ADR-040.md is now immutable byte-for-byte from this approval
+boundary.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-040.md (lifecycle transition in place,
+  blob 4110765d64213dd35bb898a618d61ff03bcee432 ->
+  7a535af431228a43d12b3e32ff5715dace7dc16f); docs/MANIFEST.md;
+  docs/CHANGELOG.md. No semantic content changed -- `git diff`
+  confirms only frontmatter status/reviewers/approved_by/approved_at/
+  last_review, the review table, the Independence/PO-decision/
+  reviewed-boundary paragraphs, and Accepted risks changed.
+  Decision/Alternatives/Consequences/Scale check/corrected
+  classification model/archival-resolution semantics all
+  byte-unchanged. No Event Contract version artifact authored, no
+  event_contract_ref implementation. ADR-039 byte-unchanged.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR040-A-MAJ-01/-MAJ-02/-MAJ-03: all resolved at this approval
+                                boundary (both correction rounds
+                                confirmed CLEAN by Review A/Review B).
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-040 now Approved, but no
+                                Event Contract version-artifact has
+                                been authored/published, no
+                                event_contract_ref implementation
+                                exists, and no Compatibility Result/
+                                Policy storage designation exists —
+                                nothing here grants Feature QG,
+                                Feature module approval, Phase 3
+                                Approval Gate, or LIVE authorization,
+                                all of which remain explicitly NOT
+                                granted / NOT authorized.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039:                       Approved, immutable, unaffected.
+```
+
+**Next governed step:** the follow-on work already named in `ADR-040`'s own Consequences — Class G's past-horizon archival mechanism for its three member types, the full Class R mechanism whenever a first member is designated, and any future decision designating Compatibility Result/Policy's own canonical storage — none of which is performed by this approval-recording transaction; separately, `ADR-039`'s own remaining follow-on work (first `Published` version-artifacts, `event_contract_ref` implementation) remains entirely untouched.
+
+**Files changed:** `docs/adr/ADR-040.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `ADR-039`/every Locked Constitution chapter/`module-registry.yaml`/`context-map.yaml` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.351"` → `"10.352"`.
 
 ## Decision Log
 
