@@ -2,6 +2,77 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-09 — feature-engine: Feature Output Event Contract version-artifacts bounded Review A correction (`P3-FEATURE-EC-A-MAJ-01`/`-MAJ-02` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `Draft`/`v1.0` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Feature Event Contract Version-Artifact Bounded Correction Executor`.** Remediates two Review A findings against `feature-computed/v1.0.yaml` and `feature-fact-invalidated/v1.0.yaml` (both `Draft`). `P3-FEATURE-EC-A-MAJ-01`: both Drafts referenced `feature.md` §8a/§8b/§9a/§12 for semantics needed to validate their own payloads instead of inlining them — an incomplete-self-containment gap under `ADR-039`. `P3-FEATURE-EC-A-MAJ-02`: both Drafts asserted mutable repository-state claims about Feature-scoped Input Contract non-existence, stale now that `docs/architecture/input-contracts/*` and production `authority_resolver.py` already exist/resolve them. Correction only — inlines the missing self-contained semantics and replaces stale existence claims with timeless fail-closed resolution language; `contract_id`/`contract_version: v1.0`/`status: Draft`/`event_class: derived_fact`/`allowed_streams: [feature-engine-feature]`/`merge_constraints`/`compatibility_commitment: backward_only`/ADR-034/035/037/038 semantics all preserved unchanged.
+
+**Fresh boundary verification:** HEAD confirmed exactly `c1e7823c219a972058e4d24de76700f0a479a3b8`, identical to `origin/main`; `feature-computed/v1.0.yaml` blob confirmed exactly `fd1218d4e46b3a2848a916179bc0d54a4d717b49`; `feature-fact-invalidated/v1.0.yaml` blob confirmed exactly `85f3a70af8dd839a9cecc2887b55cef2b651afeb` — no drift.
+
+### Self-containment fix (MAJ-01)
+
+```text
+feature-computed/v1.0.yaml: inlined input_fact_refs_normalization (full 6-criteria
+  canonical order + algorithm + duplicate-detection rule) and
+  computation_identity_and_dedup (identity tuple + exclusions + dedup rule) --
+  replaces citations to feature.md §8a/§8b.
+feature-fact-invalidated/v1.0.yaml: inlined cursor_visibility_predicate (full
+  three-branch rule) and eligible_swing_selection (cutoff decision, full 5-step
+  filter pipeline, full 8-criterion total order) -- replaces citations to
+  feature.md §12/§9a in the eligible_swing_selection_superseded validity
+  invariant. Chapter 8-owned reusable primitives (replay_cursor/event_record_ref)
+  still cite Chapter 8, not duplicated/redefined.
+```
+
+### Stale-assertion fix (MAJ-02)
+
+```text
+Removed mutable repository-state claims about Feature-scoped Input Contract
+  non-existence (both artifacts), stale now that docs/architecture/input-
+  contracts/* + authority_resolver.py already exist/resolve. Replaced with
+  timeless semantics: required references must resolve, per Chapter 8 §8.1.1, to
+  their own current governing authoritative artifact; required content-identity/
+  relational-binding validation must pass; any missing/unresolvable/mismatched
+  reference fails closed. No new time-sensitive readiness claim introduced.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/architecture/event-contracts/feature-computed/v1.0.yaml
+  (corrected in place, blob fd1218d4e46b3a2848a916179bc0d54a4d717b49 ->
+  972a4bf40eb2256457aeb987cab84b7b2e1aaf17); docs/architecture/event-contracts/
+  feature-fact-invalidated/v1.0.yaml (corrected in place, blob
+  85f3a70af8dd839a9cecc2887b55cef2b651afeb ->
+  11eaa4a9f81c318afd3baa09e9bb73d941c1f265); docs/MANIFEST.md; docs/CHANGELOG.md.
+  contract_id/contract_version/status/event_class/allowed_streams/
+  merge_constraints/compatibility_commitment verified unchanged in both files.
+  ADR-039/ADR-040 (Approved, immutable), every Locked Constitution chapter,
+  feature.md, context-map.yaml, stream-registry.yaml, module-registry.yaml, and
+  production/test/tooling all verified byte-unchanged. Both artifacts remain
+  Draft -- NOT Published. No event_contract_ref implementation performed.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-EC-A-MAJ-01:         REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-EC-A-MAJ-02:         REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-QG-EVID-05(b):       OPEN — both artifacts still only Draft, not
+                                Published; no event_contract_ref implementation
+                                exists.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039/ADR-040:               Approved, immutable, unaffected.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/architecture/event-contracts/feature-computed/v1.0.yaml` (corrected in place), `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.353"` → `"10.354"`.
+
 ## [Unreleased] — 2026-09-09 — feature-engine: Feature Output Event Contract version-artifacts v1.0 authored (`Draft`, first version) — `feature-computed`/`feature-fact-invalidated`
 
 **Governed semantic architecture-authoring transaction — vai trò: `Feature Event Contract Version-Artifact Authoring Executor`.** Authors `docs/architecture/event-contracts/feature-computed/v1.0.yaml` and `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml`, both `Draft`, `contract_version: v1.0` — the first Published-track version for each `contract_id` per Approved `ADR-039`'s "First authoritative version" rule (no prior Published snapshot exists for either). Not Published. `event_class`/`allowed_streams`/`merge_constraints` are governed-authored against current higher authority, not mechanically transcribed from `feature.md` (which declares none of the three).

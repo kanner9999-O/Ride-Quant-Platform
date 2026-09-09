@@ -32,6 +32,34 @@
 # feature.md itself uses).
 #
 # Governed authoring transaction boundary: HEAD ce4335e37fee6aaf1827a38a23cbff78d790a920.
+#
+# Bounded Review A correction, addressed/remediated pending re-review (not self-closed by the
+# correction executor — closure is a Review A re-review determination, never asserted here):
+# `P3-FEATURE-EC-A-MAJ-01` — this Draft referenced feature.md §12 (full cursor visibility
+# predicate) and §9a (5-step Eligible-Swing filter pipeline + 8-criterion total order) for
+# semantics `eligible_swing_selection_superseded`'s own validity invariant requires, instead of
+# inlining them, an incomplete-self-containment gap under ADR-039. Corrected:
+# `payload_semantics_and_invariants` now inlines `cursor_visibility_predicate` (full three-branch
+# rule) and `eligible_swing_selection` (full cutoff decision, 5-step filter pipeline, 8-criterion
+# total order) below — the relevant invariant now cites these inlined sections instead of
+# feature.md §9a/§12; no normative pointer to feature.md remains for content this artifact itself
+# needs to validate its payload. `P3-FEATURE-EC-A-MAJ-02` — the
+# `eligible_swing_selection_superseded` fail-closed invariant asserted a mutable repository-state
+# claim ("Feature-scoped Input Contract instance chưa tồn tại... Stream Registry NAY resolvable...
+# nhưng Feature-scoped Input Contract vẫn KHÔNG"), stale now that Feature-scoped Input Contract
+# artifacts exist (`docs/architecture/input-contracts/*`) and production authority-resolution code
+# already resolves them. Corrected: the invariant now states timeless resolution semantics (every
+# required reference must resolve, per Chapter 8 §8.1.1, to its own governing authoritative
+# artifact and pass required content-identity/relational-binding validation; any
+# missing/unresolvable/mismatched reference fails closed) instead of any claim about which
+# artifacts currently exist. **No change to:** `contract_id`, `contract_version: v1.0`,
+# `status: Draft`, `event_class: derived_fact`, `allowed_streams: [feature-engine-feature]`,
+# `merge_constraints`, `compatibility_commitment: backward_only`, or any ADR-034/035/037/038
+# semantic. `ADR-039`/`ADR-040`/Locked Constitution unchanged. No runtime implementation, QG,
+# module, gate, or LIVE transition.
+#
+# `P3-FEATURE-EC-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+# `P3-FEATURE-EC-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
 
 contract_id: feature-fact-invalidated
 contract_version: v1.0
@@ -91,7 +119,12 @@ payload_shape:
       Shape owned by Chapter 8 §8.5.1: recorded_time (required), input_contract_ref (required,
       {contract_id, contract_version}), stream_registry_version (required), lifecycle_frontier
       (required, {stream_id, position: {kind, sequence}}), stream_positions (required, map
-      stream_id -> sequence).
+      stream_id -> sequence). This reference, and stream_registry_version/lifecycle_frontier,
+      MUST each resolve, per Chapter 8 §8.1.1, to their own current governing authoritative
+      artifact — an unresolvable reference, or one that resolves to content failing its own
+      required content-identity/relational-binding validation, is a fail-closed condition (see
+      computation_dependency_content_evidence below, and cursor_visibility_predicate's own
+      resolution_fail_closed rule below).
   computation_dependency_content_evidence:
     input_contract_content_id: {type: string, required: true, description: "SHA-256 content identity of the exact Input Contract artifact bytes that this fact's own computation_cursor (R_later) resolved to (ADR-037, Approved)."}
     stream_registry_content_id: {type: string, required: true, description: "SHA-256 content identity of the exact Stream Registry artifact bytes that this fact's own computation_cursor (R_later) resolved to (ADR-037, Approved)."}
@@ -109,6 +142,115 @@ payload_semantics_and_invariants:
     distance_to_last_confirmed_swing). Là event MỚI, append-only — không mutate record gốc.
     Envelope binding bắt buộc: subject_ref và effective_time của chính event này KHÔNG được khai
     báo độc lập — PHẢI kế thừa nguyên vẹn từ invalidated_fact_ref (fact F đang bị invalidate).
+  cursor_visibility_predicate:
+    # Inlined (fixes P3-FEATURE-EC-A-MAJ-01) — self-contained, no reference to feature.md §12
+    # required to validate eligible_swing_selection_superseded below.
+    purpose: >
+      Defines when an upstream event E is "visible" at a computation_cursor R — referenced
+      throughout eligible_swing_selection below and this artifact's own invariants. This is the
+      FULL predicate; a scalar recorded_time-only test is NOT sufficient and must never be
+      substituted for it.
+    branches:
+      - branch: 1
+        name: stream_universe_membership
+        rule: >
+          E.stream_id must belong to R's valid stream universe — E.stream_id is a member of
+          R.input_contract_ref's included_streams, AND that stream is valid at
+          R.lifecycle_frontier (a retired stream remains in-universe up to its own terminal
+          position — never silently excluded).
+      - branch: 2
+        name: in_stream_sequence_position
+        rule: >
+          E.sequence <= R.stream_positions[E.stream_id] — compared ONLY within the same stream
+          identity; sequence is never compared across two different streams (Chapter 8 §8.3.3).
+      - branch: 3
+        name: recorded_time_boundary
+        rule: "E.recorded_time <= R.recorded_time."
+    all_three_required: >
+      If any one branch fails, E is NOT visible at R. All three branches must hold. This
+      predicate alone does not establish effective-time eligibility — see
+      eligible_swing_selection's cutoff_decision below, an independent condition.
+    authority: >
+      computation_cursor's own shape/mechanics are Chapter 8 §8.5's Replay Cursor, applied not
+      redefined here. This three-branch visibility rule is Feature's own domain-specific
+      application of that cursor shape, governed-authored/transcribed here.
+    resolution_fail_closed: >
+      R.input_contract_ref, R.stream_registry_version, and R.lifecycle_frontier must each
+      resolve, per Chapter 8 §8.1.1, to their own current governing authoritative artifact. If
+      any required reference cannot be resolved, or resolves to content that fails its own
+      required content-identity/relational-binding validation, this predicate must NOT be
+      treated as satisfied by default or degraded means — any operation depending on it (in
+      particular eligible_swing_selection_superseded's fail-closed condition below) fails
+      closed. This artifact makes no claim about which referenced artifacts currently exist —
+      only that resolution and validation must both succeed for this predicate to hold.
+  eligible_swing_selection:
+    # Inlined (fixes P3-FEATURE-EC-A-MAJ-01) — self-contained, no reference to feature.md §9a
+    # required to validate eligible_swing_selection_superseded below.
+    scope: "Applies only when feature_type = distance_to_last_confirmed_swing."
+    cutoff_decision:
+      reference_cutoff: "reference Candle C's effective_time.window_end (C = the Candle used for reference_price_field)"
+      policy: REFERENCE_CANDLE_WINDOW_END_EXCLUSIVE
+      rule: "S.pivot_effective_time.window_start < reference_cutoff — strict '<', half-open, NOT '<='."
+      prohibited_cutoff_sources: [batch_completion_time, current_wall_clock, most_recently_recorded_swing_regardless_of_effective_time, implementation_chosen_cutoff, FeatureCurrentView_time]
+    filter_pipeline:
+      description: >
+        For a computation at reference Candle C, computation cursor R, a SwingConfirmed S is
+        an eligible candidate ONLY WHEN all 5 conditions below hold, evaluated in this exact
+        order. A candidate failing any step is rejected immediately — later steps are not
+        evaluated, and it is never entered into total_order below.
+      steps:
+        - step: 1
+          name: identity_scope_match
+          rule: >
+            S.instrument_id == Feature subject instrument_id; S.venue_id == Feature subject
+            venue_id; S.timeframe == Feature subject timeframe; S.swing_definition_version ==
+            required_swing_definition_version; S.swing_direction == the pinned swing_direction.
+        - step: 2
+          name: full_cursor_visibility
+          rule: "S visible at R per cursor_visibility_predicate above (all three branches) — never a scalar S.recorded_time <= R test alone."
+        - step: 3
+          name: effective_time_cutoff
+          rule: "S.pivot_effective_time.window_start < C.effective_time.window_end, per cutoff_decision above."
+        - step: 4
+          name: latest_valid_revision
+          rule: >
+            S is the latest valid revision of that swing_id, among revisions full-cursor-visible
+            at R per cursor_visibility_predicate above (revision lineage/matching semantics are
+            owned by the Swing Domain Contract, not redefined here — only which visibility rule
+            applies is fixed here: cursor_visibility_predicate, never a recorded-time-only rule).
+        - step: 5
+          name: not_invalidated
+          rule: >
+            No SwingInvalidated is full-cursor-visible at R (per cursor_visibility_predicate
+            above) for the exact (swing_id, swing_revision) pair of S (invalidation semantics
+            owned by the Swing Domain Contract, not redefined here — only which visibility rule
+            applies is fixed here).
+      not_excluded: >
+        A Swing already consumed elsewhere (e.g. as a break level by Structure) is NOT excluded
+        here — Feature only measures distance, it does not "consume" a Swing the way Structure
+        does; the same Swing may be eligible for Feature regardless of Structure's own usage.
+    total_order:
+      description: >
+        When multiple candidates pass all 5 filter_pipeline steps, break ties using these 8
+        criteria, strict lexicographic comparison, in exact order. The first criterion with a
+        differing value decides; later criteria are not evaluated. `sequence` is compared only
+        within the stream identity already fixed by criteria 3+4 — never across streams. This
+        total order NEVER runs on a candidate that did not pass filter_pipeline above, no matter
+        how that candidate would rank on criterion 1 alone.
+      criteria:
+        - {order: 1, field: "pivot_effective_time.window_start", direction: DESC}
+        - {order: 2, field: "SwingConfirmed.recorded_time", direction: ASC}
+        - {order: 3, field: "stream_ref.stream_id", direction: ASC, comparison: lexical}
+        - {order: 4, field: "stream_ref.registry_version", direction: ASC, comparison: lexical}
+        - {order: 5, field: "sequence", direction: ASC, comparison: "numeric — ONLY within the stream identity fixed by criteria 3+4"}
+        - {order: 6, field: swing_revision, direction: DESC}
+        - {order: 7, field: swing_id, direction: ASC, comparison: lexical}
+        - {order: 8, field: "SwingConfirmed.event_id", direction: ASC, comparison: lexical}
+    no_eligible_swing: >
+      If no Swing passes all 5 filter_pipeline steps (including the case where a Swing is
+      full-cursor-visible per step 2 but effective-time ineligible at step 3),
+      distance_to_last_confirmed_swing is NOT computed — a valid absence, no FeatureComputed is
+      emitted for that computation point.
   invariants:
     - "envelope.subject_ref PHẢI BẰNG HỆT subject_ref của invalidated_fact_ref (F) — cùng context_id, subject_kind, subject_type, subject_id, VÀ toàn bộ scope. KHÔNG được khai báo subject_ref độc lập/khác biệt. Cấm target một fact thuộc subject KHÁC — kể cả khi mọi field khác đúng nhưng feature_definition_version sai hoặc feature_type sai."
     - "envelope.effective_time PHẢI BẰNG HỆT effective_window của invalidated_fact_ref (F) — [window_start, window_end) giống hệt, không sai lệch dù chỉ một trong hai biên. Cấm target một fact đúng subject nhưng SAI window."
@@ -120,13 +262,13 @@ payload_semantics_and_invariants:
     - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_fact_ref VÀ muộn hơn recorded_time của event gây ra nó."
     - "Replay tại cursor trước recorded_time của invalidation KHÔNG được thấy invalidation này (chống look-ahead)."
     - "invalidation_cause = eligible_swing_selection_superseded CHỈ hợp lệ khi feature_type = distance_to_last_confirmed_swing — cấm dùng cho volatility_metric/directional_persistence_metric, vốn không có khái niệm Eligible-Swing selection."
-    - "invalidation_cause = eligible_swing_selection_superseded CHỈ hợp lệ khi CẢ BỐN điều kiện sau đều đúng — ĐÚNG BỐN, không phải một điều kiện đơn lẻ nào đủ. R_original := payload.computation_cursor của CHÍNH FeatureComputed đang bị invalidate; R_later := payload.computation_cursor của CHÍNH FeatureFactInvalidated này. Visibility của một event tại một cursor R được xác định bởi full cursor visibility predicate (feature.md §12) — KHÔNG BAO GIỜ một scalar recorded_time-only test: (a) winning SwingConfirmed KHÔNG visible tại R_original theo predicate đó; (b) winning SwingConfirmed CÓ visible tại R_later theo predicate đó; (c) winning SwingConfirmed thỏa đầy đủ §9a's 5-bước filter pipeline VÀ thắng §9a's 8-tiêu-chí total order, cả hai đánh giá tại R_later; (d) Swing mà FeatureComputed đang bị invalidate thực sự đã dùng VẪN valid, KHÔNG nhận SwingInvalidated, tại R_later. Một SwingConfirmed ĐÃ visible tại R_original nhưng KHÔNG được computation gốc chọn — kể cả khi nó lẽ ra đã thắng total order tại R_original — KHÔNG BAO GIỜ đủ điều kiện cho cause này: đó là một computation/integrity defect của chính FeatureComputed gốc, KHÔNG BAO GIỜ được biểu diễn, che giấu, hay 'rửa' qua invalidation_cause này."
+    - "invalidation_cause = eligible_swing_selection_superseded CHỈ hợp lệ khi CẢ BỐN điều kiện sau đều đúng — ĐÚNG BỐN, không phải một điều kiện đơn lẻ nào đủ. R_original := payload.computation_cursor của CHÍNH FeatureComputed đang bị invalidate; R_later := payload.computation_cursor của CHÍNH FeatureFactInvalidated này. Visibility của một event tại một cursor R được xác định bởi cursor_visibility_predicate ở trên — KHÔNG BAO GIỜ một scalar recorded_time-only test: (a) winning SwingConfirmed KHÔNG visible tại R_original theo predicate đó; (b) winning SwingConfirmed CÓ visible tại R_later theo predicate đó; (c) winning SwingConfirmed thỏa đầy đủ eligible_swing_selection.filter_pipeline ở trên VÀ thắng eligible_swing_selection.total_order ở trên, cả hai đánh giá tại R_later; (d) Swing mà FeatureComputed đang bị invalidate thực sự đã dùng VẪN valid, KHÔNG nhận SwingInvalidated, tại R_later. Một SwingConfirmed ĐÃ visible tại R_original nhưng KHÔNG được computation gốc chọn — kể cả khi nó lẽ ra đã thắng total order tại R_original — KHÔNG BAO GIỜ đủ điều kiện cho cause này: đó là một computation/integrity defect của chính FeatureComputed gốc, KHÔNG BAO GIỜ được biểu diễn, che giấu, hay 'rửa' qua invalidation_cause này."
     - "invalidation_cause = eligible_swing_selection_superseded VÀ swing_invalidated LOẠI TRỪ LẪN NHAU cho cùng một invalidation của cùng một FeatureComputed: swing_invalidated áp dụng khi Swing ĐANG DÙNG tự nó nhận một SwingInvalidated; eligible_swing_selection_superseded áp dụng khi Swing ĐANG DÙNG vẫn valid/non-invalidated nhưng bị vượt qua bởi một SwingConfirmed khác thắng total order. Một implementation KHÔNG BAO GIỜ được phát cả hai cause cho cùng một invalidation."
     - "Khi invalidation_cause = eligible_swing_selection_superseded, causation_refs PHẢI trỏ: invalidated_fact_ref VÀ event_record_ref của winning SwingConfirmed — KHÔNG BAO GIỜ trỏ một SwingInvalidated giả định cho cause này, vì Swing đang dùng không hề bị invalidate."
-    - "invalidation_cause = eligible_swing_selection_superseded được ĐỊNH NGHĨA SEMANTIC bởi feature.md VÀ mang payload field durable để chứng cứ (computation_cursor) — nhưng VẪN operationally KHÔNG EMITTABLE cho tới khi computation_cursor's input_contract_ref/stream_registry_version/lifecycle_frontier resolve tới các artifact THẬT SỰ persistently resolvable (Chapter 8 §8.1.1): Feature-scoped Input Contract instance chưa tồn tại trong repository này (Phase 1, chưa author) — Stream Registry NAY resolvable (docs/architecture/stream-registry.yaml, Approved), nhưng Feature-scoped Input Contract vẫn KHÔNG. Cho tới khi artifact đó tồn tại, một computation_cursor value CÓ THỂ populate được về mặt schema NHƯNG KHÔNG PHẢI proof — implementation PHẢI fail-closed cho MỌI trường hợp, không có ngoại lệ. Process-local/ephemeral memory một mình VẪN KHÔNG đủ bằng chứng dù computation_cursor field đã tồn tại."
+    - "invalidation_cause = eligible_swing_selection_superseded được ĐỊNH NGHĨA SEMANTIC đầy đủ, tự chứa, ngay tại artifact này (cursor_visibility_predicate + eligible_swing_selection ở trên) VÀ mang payload field durable để chứng cứ (computation_cursor). Emission ĐÒI HỎI computation_cursor.input_contract_ref/stream_registry_version/lifecycle_frontier phải thực sự resolve, đúng Chapter 8 §8.1.1, tới artifact authoritative đang quản trị chính nó tại thời điểm đó, VÀ cursor_visibility_predicate phải chứng minh được (không chỉ populate được về schema) đối với nội dung đã resolve đó. Nếu bất kỳ reference bắt buộc nào KHÔNG resolve được, hoặc resolve tới nội dung KHÔNG thỏa content-identity/relational-binding validation của chính artifact đó, cause này KHÔNG ĐƯỢC PHÉP emit — implementation PHẢI fail-closed cho MỌI trường hợp như vậy, không có ngoại lệ. Process-local/ephemeral memory một mình VẪN KHÔNG đủ bằng chứng dù computation_cursor field đã tồn tại — bằng chứng đòi hỏi artifact được tham chiếu THỰC SỰ resolve và validate được, tái tạo độc lập bởi mọi execution mode (Live/Backtest/Paper Trading/Replay) từ CÙNG authoritative evidence (event log + artifact resolvable), không được suy diễn từ private in-memory state của một process cụ thể. Artifact này KHÔNG khẳng định artifact nào hiện đang tồn tại hay không — chỉ khẳng định resolution/validation phải thành công."
     - "payload.computation_cursor PHẢI có mặt trên MỌI FeatureFactInvalidated, KHÔNG NGOẠI LỆ — cùng canonical Replay Cursor shape (Chapter 8 §8.5). computation_cursor.recorded_time PHẢI <= envelope.recorded_time của CHÍNH FeatureFactInvalidated này (Cursor → Fact, Chapter 8 §8.5.2), đối xứng invariant tương ứng ở feature-computed."
     - "payload.computation_dependency_content_evidence PHẢI có mặt trên MỌI FeatureFactInvalidated, KHÔNG NGOẠI LỆ (ADR-037, Approved) — chứa input_contract_content_id/stream_registry_content_id sao chép nguyên văn từ CÙNG VerifiedInputContractAuthority instance mà evaluation dẫn tới invalidation này đã dùng, tương ứng quan hệ CHÍNH XÁC với computation_cursor (R_later) của CHÍNH FeatureFactInvalidated này — KHÔNG kế thừa/sao chép evidence của FeatureComputed đang bị invalidate, ĐỘC LẬP hoàn toàn, đối xứng invariant tương ứng ở feature-computed."
-    - "computation_cursor KHÔNG PHẢI một phần computation identity/dedup (feature.md §8b) — cùng discipline feature-computed."
+    - "computation_cursor là evidence/audit metadata — KHÔNG tham gia vào bất kỳ phép tính identity hay dedup nào của event này (FeatureFactInvalidated không có khái niệm computation identity riêng — đó là khái niệm thuộc FeatureComputed's own input_fact_refs tuple)."
     - "computation_dependency_content_evidence tương tự KHÔNG PHẢI một phần computation identity/dedup — cùng discipline computation_cursor."
 
 compatibility_commitment: backward_only
@@ -144,7 +286,9 @@ provenance:
   note: >
     Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
     interpret this artifact's own meaning once Published; payload_shape and
-    payload_semantics_and_invariants above are fully self-contained. event_class, allowed_streams,
-    and merge_constraints were governed-authored directly against Chapter 8 §8.3.1/§8.3.4,
-    Approved ADR-036, and this repository's own established terminology — NOT mechanically
-    transcribed from feature.md, which does not declare any of the three fields anywhere.
+    payload_semantics_and_invariants above (including cursor_visibility_predicate and
+    eligible_swing_selection, inlined per P3-FEATURE-EC-A-MAJ-01) are fully self-contained.
+    event_class, allowed_streams, and merge_constraints were governed-authored directly against
+    Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, and this repository's own established terminology —
+    NOT mechanically transcribed from feature.md, which does not declare any of the three fields
+    anywhere.

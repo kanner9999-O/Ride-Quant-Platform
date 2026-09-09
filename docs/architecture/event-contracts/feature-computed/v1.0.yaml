@@ -30,6 +30,30 @@
 # own authority split ("Chapter 8 sở hữu envelope; Event Contract sở hữu payload schema/semantic").
 #
 # Governed authoring transaction boundary: HEAD ce4335e37fee6aaf1827a38a23cbff78d790a920.
+#
+# Bounded Review A correction, addressed/remediated pending re-review (not self-closed by the
+# correction executor — closure is a Review A re-review determination, never asserted here):
+# `P3-FEATURE-EC-A-MAJ-01` — this Draft referenced feature.md §8a/§8b for input_fact_refs
+# normalization/computation-identity/dedup semantics needed to validate this artifact's own
+# payload, instead of inlining them, an incomplete-self-containment gap under ADR-039. Corrected:
+# `payload_semantics_and_invariants` now inlines `input_fact_refs_normalization` (full canonical
+# 6-criteria order + algorithm + duplicate-detection rule) and `computation_identity_and_dedup`
+# (full computation identity tuple + dedup rule + identity exclusions) below — no normative
+# pointer to feature.md remains for content this artifact itself needs to validate its payload.
+# `P3-FEATURE-EC-A-MAJ-02` — the `computation_cursor` field description asserted a mutable
+# repository-state claim ("instance content still deferred (Phase 1, not yet authored)"), stale
+# now that Feature-scoped Input Contract artifacts exist (`docs/architecture/input-contracts/*`)
+# and production authority-resolution code already resolves them. Corrected: the field description
+# now states timeless resolution semantics (the reference must resolve, per Chapter 8 §8.1.1, to
+# its own governing authoritative artifact; unresolvable/mismatched reference fails closed) instead
+# of any claim about which artifacts currently exist. **No change to:** `contract_id`,
+# `contract_version: v1.0`, `status: Draft`, `event_class: derived_fact`,
+# `allowed_streams: [feature-engine-feature]`, `merge_constraints`, `compatibility_commitment:
+# backward_only`, or any ADR-034/035/037/038 semantic. `ADR-039`/`ADR-040`/Locked Constitution
+# unchanged. No runtime implementation, QG, module, gate, or LIVE transition.
+#
+# `P3-FEATURE-EC-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+# `P3-FEATURE-EC-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
 
 contract_id: feature-computed
 contract_version: v1.0
@@ -96,7 +120,7 @@ payload_shape:
   feature_subject_id: {type: string, required: true}
   feature_type: {type: enum, values: [volatility_metric, directional_persistence_metric, distance_to_last_confirmed_swing], required: true}
   feature_definition_version: {type: string, required: true}
-  value: {type: decimal, required: true, description: "kết quả — KHÔNG phải một phần computation identity, xem §8b (dedup)"}
+  value: {type: decimal, required: true, description: "kết quả — KHÔNG phải một phần computation identity, xem payload_semantics_and_invariants.computation_identity_and_dedup dưới đây"}
   unit: {type: string, required: true, description: "đơn vị số học — pin ở Feature Definition"}
   effective_window:
     kind: interval
@@ -113,7 +137,13 @@ payload_shape:
       {contract_id, contract_version}), stream_registry_version (required), lifecycle_frontier
       (required, {stream_id, position: {kind, sequence}}), stream_positions (required, map
       stream_id -> sequence). input_contract_ref pins a Feature-scoped Input Contract instance
-      (Chapter 8 §8.3.4) — instance content still deferred (Phase 1, not yet authored).
+      (Chapter 8 §8.3.4). This reference, and stream_registry_version/lifecycle_frontier, MUST
+      each resolve, per Chapter 8 §8.1.1, to their own current governing authoritative artifact —
+      an unresolvable reference, or one that resolves to content failing its own required
+      content-identity/relational-binding validation, is a fail-closed condition (see
+      computation_dependency_content_evidence below); this artifact does not assert whether any
+      particular referenced artifact currently exists, only that resolution/validation must
+      succeed for the cursor to be usable as evidence.
   computation_dependency_content_evidence:
     input_contract_content_id: {type: string, required: true, description: "SHA-256 content identity of the exact Input Contract artifact bytes that this fact's own computation_cursor.input_contract_ref resolved to (ADR-037, Approved)."}
     stream_registry_content_id: {type: string, required: true, description: "SHA-256 content identity of the exact Stream Registry artifact bytes that this fact's own computation_cursor.stream_registry_version resolved to (ADR-037, Approved)."}
@@ -124,13 +154,65 @@ payload_semantics_and_invariants:
     hợp: (a) original computation; (b) correction replacement. Phát sinh cho MỌI computation point
     mà Feature Definition yêu cầu, KỂ CẢ khi value không đổi so với point liền trước — một
     computation point khác KHÔNG BAO GIỜ là duplicate chỉ vì value trùng.
+  input_fact_refs_normalization:
+    # Inlined (fixes P3-FEATURE-EC-A-MAJ-01) — self-contained, no reference to feature.md §8a
+    # required to validate this artifact's own payload.
+    purpose: >
+      input_fact_refs must be normalized into one canonical, deterministic order before
+      computation identity construction, hashing, equality comparison, dedup, or event
+      serialization — required for computation identity below to be well-defined.
+    canonical_order_criteria:
+      - {order: 1, criterion: "ref's effective_time.window_start (or instant, if not an interval)", direction: ASC}
+      - {order: 2, criterion: "ref's effective_time.window_end (or equals window_start, if instant)", direction: ASC}
+      - {order: 3, criterion: "stream_ref.stream_id", direction: ASC, comparison: lexical}
+      - {order: 4, criterion: "stream_ref.registry_version", direction: ASC, comparison: lexical}
+      - {order: 5, criterion: "sequence", direction: ASC, comparison: "numeric — ONLY evaluated when criteria 3 AND 4 are already equal"}
+      - {order: 6, criterion: "event_id", direction: ASC, comparison: lexical}
+    algorithm: >
+      Compare criteria 1 through 6 in exact order. The first criterion with a differing value
+      between two references decides their relative order. Subsequent criteria are NOT
+      evaluated. `sequence` (criterion 5) is evaluated ONLY when both stream_ref.stream_id AND
+      stream_ref.registry_version already compare equal — comparing raw sequence values across
+      two different stream identities is strictly prohibited (Chapter 8 §8.3.3).
+    duplicate_detection: >
+      If all six criteria values match exactly between two references, they are duplicate
+      representations of the same authoritative fact — retain exactly one canonical reference.
+    determinism_guarantee: >
+      Same input facts arriving in different incoming order produce the same normalized
+      input_fact_refs, and therefore the same computation identity below.
+  computation_identity_and_dedup:
+    # Inlined (fixes P3-FEATURE-EC-A-MAJ-01) — self-contained, no reference to feature.md §8b
+    # required to validate this artifact's own payload.
+    computation_identity_tuple:
+      - feature_subject_id
+      - effective_window.window_start
+      - effective_window.window_end
+      - feature_definition_version
+      - "input_fact_refs, normalized per input_fact_refs_normalization above"
+    identity_exclusions: >
+      `value` is the computation RESULT, not part of identity — two computations sharing the
+      same input tuple must produce the same result (determinism), but identity is established
+      by the normalized input tuple, never by the output. `computation_cursor` is likewise NOT
+      part of computation identity — two computations with the same normalized input tuple are
+      the same computation identity regardless of differing computation_cursor (e.g. different
+      evaluation timing resolving to the same input set). `computation_dependency_content_evidence`
+      is also NOT part of computation identity, same discipline as computation_cursor.
+    dedup_rule: >
+      Same feature_subject_id, same effective window, same feature_definition_version, same
+      normalized input_fact_refs → duplicate delivery → do NOT append a second authoritative
+      event for it.
+    distinct_computation_points_not_duplicates: >
+      A different computation point is never a duplicate merely because its value equals a
+      prior point's value — a different effective_window (and therefore different
+      input_fact_refs) is sufficient on its own to constitute a separate fact, regardless of
+      value equality.
   invariants:
     - "causation_refs KHÔNG BAO GIỜ rỗng: (a) original computation — PHẢI chứa toàn bộ input_fact_refs; (b) correction replacement — PHẢI chứa input_fact_refs đã cập nhật VÀ chính FeatureFactInvalidated đang được supersede."
     - "envelope.effective_time = effective_window (interval) của CHÍNH fact này."
     - "envelope.recorded_time PHẢI muộn hơn recorded_time của input fact mới nhất trong input_fact_refs — KHÔNG được compute trước khi đủ evidence tồn tại (chống look-ahead)."
     - "payload.feature_subject_id, payload.feature_type, payload.feature_definition_version PHẢI khớp đúng subject_ref.subject_id VÀ toàn bộ subject_ref.scope — trường lặp lại có chủ đích cho query tiện dụng, không phải trục identity thứ hai."
     - "input_fact_refs PHẢI thỏa mãn ĐÚNG role cardinality mà Feature Definition pin cho feature_type này — không thiếu, không thừa, không trùng lặp; mọi ref PHẢI là authoritative fact (candle-closed/candle-corrected/swing-confirmed/regime-classified tùy feature_type) — KHÔNG dùng CandleObserved, SwingCandidateDetected, hay bất kỳ *-current-view nào."
-    - "input_fact_refs PHẢI được serialize theo đúng canonical normalized order (feature.md §8a) — KHÔNG phải thứ tự phát sinh tùy ý của computation. Hai tập input fact giống hệt nhau nhưng đến theo thứ tự khác nhau PHẢI cho ra cùng một input_fact_refs đã serialize, cùng một computation identity."
+    - "input_fact_refs PHẢI được serialize theo đúng canonical normalized order (input_fact_refs_normalization ở trên) — KHÔNG phải thứ tự phát sinh tùy ý của computation. Hai tập input fact giống hệt nhau nhưng đến theo thứ tự khác nhau PHẢI cho ra cùng một input_fact_refs đã serialize, cùng một computation identity."
     - "value PHẢI dùng kiểu decimal — CẤM binary float — khi cần exact deterministic parity, đúng mọi feature_type."
     - "supersedes_fact_ref VẮNG MẶT khi và chỉ khi đây là original computation cho (feature_subject_id, effective_window) đó — CHƯA từng có FeatureComputed nào khác cho đúng cặp subject+window này."
     - "supersedes_fact_ref BẮT BUỘC có mặt khi (feature_subject_id, effective_window) đó đã có một FeatureComputed trước đó — đây là correction replacement."
@@ -145,7 +227,7 @@ payload_semantics_and_invariants:
     - "payload.computation_dependency_content_evidence PHẢI có mặt trên MỌI FeatureComputed — computation gốc lẫn replacement, KHÔNG NGOẠI LỆ — chứa đúng hai giá trị bắt buộc input_contract_content_id/stream_registry_content_id, sao chép NGUYÊN VĂN (verbatim) từ CÙNG một VerifiedInputContractAuthority instance mà computation engine đã resolve/cache cho CHÍNH computation này (ADR-037, Approved) — KHÔNG được tính lại, phát minh, hay lấy từ một instance khác. Đây là artifact-content evidence, KHÔNG PHẢI một replay-cursor/ordering field."
     - "computation_dependency_content_evidence.input_contract_content_id/stream_registry_content_id PHẢI tương ứng quan hệ CHÍNH XÁC với computation_cursor.input_contract_ref/computation_cursor.stream_registry_version của ĐÚNG CÙNG fact đó — evidence mang content identity cho một input_contract_ref/stream_registry_version KHÁC với cursor của chính fact đó là malformed, PHẢI bị từ chối bất cứ đâu được validate."
     - "computation_dependency_content_evidence của một FeatureComputed replacement ĐỘC LẬP với evidence của fact nó supersede — mỗi computation, gốc hay replacement, pin đúng evidence CHÍNH XÁC nó dùng để evaluate, KHÔNG kế thừa/sao chép evidence của fact trước đó, cùng discipline computation_cursor."
-    - "computation_cursor KHÔNG PHẢI một phần computation identity/dedup (feature.md §8b) — hai computation với cùng input tuple đã normalize PHẢI được coi là cùng một computation identity bất kể computation_cursor khác nhau."
+    - "computation_cursor KHÔNG PHẢI một phần computation identity/dedup (computation_identity_and_dedup ở trên) — hai computation với cùng input tuple đã normalize PHẢI được coi là cùng một computation identity bất kể computation_cursor khác nhau."
     - "computation_dependency_content_evidence tương tự KHÔNG PHẢI một phần computation identity/dedup — cùng discipline computation_cursor."
 
 compatibility_commitment: backward_only
@@ -163,7 +245,9 @@ provenance:
   note: >
     Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
     interpret this artifact's own meaning once Published; payload_shape and
-    payload_semantics_and_invariants above are fully self-contained. event_class, allowed_streams,
-    and merge_constraints were governed-authored directly against Chapter 8 §8.3.1/§8.3.4,
-    Approved ADR-036, and this repository's own established terminology — NOT mechanically
-    transcribed from feature.md, which does not declare any of the three fields anywhere.
+    payload_semantics_and_invariants above (including input_fact_refs_normalization and
+    computation_identity_and_dedup, inlined per P3-FEATURE-EC-A-MAJ-01) are fully self-contained.
+    event_class, allowed_streams, and merge_constraints were governed-authored directly against
+    Chapter 8 §8.3.1/§8.3.4, Approved ADR-036, and this repository's own established terminology —
+    NOT mechanically transcribed from feature.md, which does not declare any of the three fields
+    anywhere.
