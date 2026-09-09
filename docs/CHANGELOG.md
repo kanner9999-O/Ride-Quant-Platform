@@ -2,6 +2,86 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-09 — platform: `ADR-039` bounded Review A correction, round 2 (`P3-ADR039-A-MAJ-01` reopened, `P3-ADR039-A-MAJ-03` new → both `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `P3-ADR039-A-MAJ-02`/`P3-ADR039-A-MIN-01` preserved `CLOSED`; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Platform Event Contract Version-Artifact Authority Bounded Correction Executor`.** Remediates two Review A findings against `ADR-039` v0.1 (`Draft`) at its round-1-corrected boundary. `P3-ADR039-A-MAJ-01` (reopened): round 1 inlined `event_class`/`allowed_streams`/`merge_constraints` but left payload shape/semantics/invariants as a `payload_shape_reference` pointer back to the owning Domain Contract — not genuinely self-contained. `P3-ADR039-A-MAJ-03` (new): the `v<integer>` grammar round 1 fixed for `P3-ADR039-A-MIN-01` cannot express Chapter 10 §10.3's major-vs-non-breaking distinction. `P3-ADR039-A-MAJ-02` and `P3-ADR039-A-MIN-01` preserved `CLOSED` — not reopened. Correction only — Option A's selection, `version: "0.1"`/`status: Draft`, `ADR_REQUIRED` classification, `ADR-037`/`ADR-038`, and every Feature EVID/QG/gate/LIVE state preserved unchanged. No ADR-040 authored.
+
+**Fresh boundary verification:** HEAD confirmed exactly `3266707deb89ae768ceffa0d24a88e136af7075b`, identical to `origin/main`; ADR-039 blob confirmed exactly `ed95e4b6c2124bfe4856203516938c0962a00184` — no drift.
+
+### Self-contained payload fix (MAJ-01, round 2)
+
+```text
+Version-artifact now inlines payload_shape AND
+  payload_semantics_and_invariants in full, replacing the
+  payload_shape_reference pointer. Domain Contract citation demoted
+  to an optional `provenance` field: drafting-history traceability
+  ONLY, never required to interpret the Published snapshot's own
+  meaning. A reader never needs to consult the Domain Contract for
+  payload shape/invariants or anything else -- genuinely
+  self-contained, not merely for envelope fields as round 1 left it.
+```
+
+### Major.minor contract-version grammar (MAJ-03)
+
+```text
+contract_version grammar replaced: v<integer> -> v<major>.<minor>,
+  the minimum canonical form able to carry Chapter 10 §10.3's
+  breaking/non-breaking distinction. First published version of any
+  contract_id = v1.0. Breaking change (already-Locked Chapter 10
+  §10.3/§10.3.1 classification) -> major +1, minor resets to 0.
+  Non-breaking contract-surface evolution -> minor +1, major
+  unchanged. No aliases/normalization/leading zeros/path ambiguity --
+  same fail-closed properties P3-ADR039-A-MIN-01 already established,
+  carried forward onto the new two-component token unchanged.
+  contract_version stays categorically distinct from schema_version
+  and from the artifact's own git blob content identity.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-039.md (corrected in place, blob
+  ed95e4b6c2124bfe4856203516938c0962a00184 ->
+  0567d4e108fdd61e81ee9f667c308d889d0499ef -- `git diff` confirms only
+  a new round-2 correction banner, the illustrative YAML block,
+  Canonical authority/source, Canonical path/version grammar, First
+  authoritative version's contract_version clause, and Later
+  breaking/non-breaking evolution's mechanical major/minor
+  consequence changed; frontmatter, Context, Ground truth, Scope
+  classification, Decision's opening sentence, Resolution,
+  Immutability/non-reuse, Verifiable content identity, Replay/audit
+  retention, Ownership-boundary-vs-schema_version, Alternatives
+  A/B/C/D, the alternatives-summary line, the review table, Scale
+  check, and Consequences all byte-unchanged); docs/MANIFEST.md;
+  docs/CHANGELOG.md. Frontmatter unchanged (version: "0.1", status:
+  Draft, depends_on: []). No implementation, no Product Owner
+  decision, no redesign of Option A's selection, no reopening of
+  MAJ-02/MIN-01.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR039-A-MAJ-01:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (round 2, not self-closed).
+P3-ADR039-A-MAJ-02:             CLOSED — BOUNDED REVIEW A RE-REVIEW
+                                (preserved, unaffected this round).
+P3-ADR039-A-MAJ-03:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (new, not self-closed).
+P3-ADR039-A-MIN-01:             CLOSED — BOUNDED REVIEW A RE-REVIEW
+                                (preserved, unaffected this round).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-039 still only a Draft, not
+                                approved.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-039.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.346"` → `"10.347"`.
+
 ## [Unreleased] — 2026-09-08 — platform: `ADR-039` bounded Review A correction (`P3-ADR039-A-MAJ-01`/`-MAJ-02`/`-MIN-01` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `Draft` unchanged, no version bump)
 
 **Bounded correction transaction — vai trò: `Platform Event Contract Version-Artifact Authority Bounded Correction Executor`.** Remediates three Review A findings against `ADR-039` v0.1 (`Draft`). `P3-ADR039-A-MAJ-01`: the Decision text made the version-artifact canonical while simultaneously naming the owning Domain Contract "sole semantic authority" and the artifact a "thin transcription," contradicting Chapter 8 §8.2/§8.3.1's own authority table, and the illustrative YAML falsely implied `event_class`/`allowed_streams`/`merge_constraints` are already mechanically transcribable from current Domain Contracts (confirmed absent from `candle.md`/`swing.md`/`structure.md`/`regime.md`/`feature.md` by direct grep). `P3-ADR039-A-MAJ-02`: the Decision/Consequences text claimed §8.1.1 rule 4 (retention through the committed replay/audit horizon) was already satisfied by an "existing general repository-retention commitment" that does not exist — Chapter 10 §10.9 explicitly defers retention/archive protocol to Phase 1. `P3-ADR039-A-MIN-01`: direct path resolution was asserted without a canonical, path-safe, alias-free `contract_id`/`contract_version` grammar. Correction only — Option A's selection, `version: "0.1"`/`status: Draft`, `ADR_REQUIRED` classification, and the dedicated per-contract/per-version artifact concept all preserved unchanged. No ADR-040 authored.
