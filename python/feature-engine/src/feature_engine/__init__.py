@@ -53,6 +53,7 @@ from .contracts import (
     SWING_INVALIDATED_CONTRACT_ID,
     WARM_UP_POLICY,
     ComputationCursor,
+    ComputationDependencyContentEvidence,
     DecimalPrecisionPolicy,
     EvaluationFrontier,
     FeatureComputationProfile,
@@ -66,12 +67,13 @@ from .contracts import (
     LifecycleFrontier,
     LifecycleFrontierProof,
     LifecyclePosition,
+    OutputEventContractAuthorityProvider,
     RecordedTimeSource,
     StreamPositionProof,
     is_visible_at_cursor,
     normalize_input_facts,
     resolve_computation_cursor,
-    resolve_output_contract_refs,
+    resolve_computation_dependency_content_evidence,
 )
 from .current_view import EffectiveWindow, FeatureCurrentView, FeatureViewResult
 from .envelope import EventContractRef, EventRecordRef, ProducerRef, StreamRef
@@ -91,10 +93,17 @@ from .errors import (
     NonMonotonicRecordedTimeError,
     OutOfOrderCandleError,
     OutOfOrderCorrectionError,
+    OutputEventContractIdentityMismatchError,
+    OutputEventContractNotPublishedError,
+    OutputEventContractUnresolvableError,
     ProhibitedInputError,
     RecordedTimeSourceViolationError,
     RegimeDimensionMismatchError,
     RegistryContractMismatchError,
+    ReplayPreparationArtifactUnresolvableError,
+    ReplayPreparationContentIdentityMismatchError,
+    ReplayPreparationCursorReferenceMismatchError,
+    ReplayPreparationEvidenceMalformedError,
     StreamPositionsUniverseMismatchError,
     UnauthorizedUpstreamContractError,
     UnresolvedComputationCursorAuthorityError,
@@ -102,9 +111,15 @@ from .errors import (
     UnsupportedDistanceRepresentationError,
     UnsupportedFeatureFormulaError,
 )
+from .output_contract_resolver import (
+    FilesystemOutputEventContractAuthorityResolver,
+    StaticOutputEventContractAuthorityProvider,
+    resolve_output_event_contract_authority_from_repository,
+)
 from .publish import SequenceAllocator
 from .regime_input import RegimeClassifiedFact, RegimeFactInvalidatedFact
 from .regime_passthrough import RegimePassthroughFeatureEngine
+from .replay_preparation import prepare_replay_evidence
 from .swing_distance import SwingDistanceFeatureEngine
 from .swing_input import SwingConfirmedFact, SwingInvalidatedFact
 
@@ -131,6 +146,7 @@ __all__ = [
     "CandleScope",
     "CandleWindowFeatureEngine",
     "ComputationCursor",
+    "ComputationDependencyContentEvidence",
     "CursorRelationalInvariantViolationError",
     "DecimalPrecisionPolicy",
     "DefinitionVersionMismatchError",
@@ -153,6 +169,7 @@ __all__ = [
     "FeatureScope",
     "FeatureViewResult",
     "FilesystemInputContractAuthorityResolver",
+    "FilesystemOutputEventContractAuthorityResolver",
     "ForeignScopeError",
     "InputContractAuthorityProvider",
     "InputContractIdentityMismatchError",
@@ -165,6 +182,10 @@ __all__ = [
     "NonMonotonicRecordedTimeError",
     "OutOfOrderCandleError",
     "OutOfOrderCorrectionError",
+    "OutputEventContractAuthorityProvider",
+    "OutputEventContractIdentityMismatchError",
+    "OutputEventContractNotPublishedError",
+    "OutputEventContractUnresolvableError",
     "ProducerRef",
     "ProhibitedInputError",
     "RecordedTimeSource",
@@ -174,8 +195,13 @@ __all__ = [
     "RegimeFactInvalidatedFact",
     "RegimePassthroughFeatureEngine",
     "RegistryContractMismatchError",
+    "ReplayPreparationArtifactUnresolvableError",
+    "ReplayPreparationContentIdentityMismatchError",
+    "ReplayPreparationCursorReferenceMismatchError",
+    "ReplayPreparationEvidenceMalformedError",
     "SequenceAllocator",
     "StaticInputContractAuthorityProvider",
+    "StaticOutputEventContractAuthorityProvider",
     "StreamPositionProof",
     "StreamPositionsUniverseMismatchError",
     "StreamRef",
@@ -189,7 +215,9 @@ __all__ = [
     "UnsupportedFeatureFormulaError",
     "is_visible_at_cursor",
     "normalize_input_facts",
+    "prepare_replay_evidence",
     "resolve_computation_cursor",
+    "resolve_computation_dependency_content_evidence",
     "resolve_input_contract_authority_from_repository",
-    "resolve_output_contract_refs",
+    "resolve_output_event_contract_authority_from_repository",
 ]

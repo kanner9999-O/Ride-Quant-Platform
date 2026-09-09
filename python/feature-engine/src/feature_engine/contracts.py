@@ -28,7 +28,6 @@ from .errors import (
     RegistryContractMismatchError,
     StreamPositionsUniverseMismatchError,
     UnresolvedComputationCursorAuthorityError,
-    UnresolvedOutputContractAuthorityError,
 )
 from .identity import deterministic_id
 
@@ -53,17 +52,19 @@ _CANDLE_CONTRACT_IDS = frozenset({CANDLE_CLOSED_CONTRACT_ID, CANDLE_CORRECTED_CO
 _REGIME_CONTRACT_IDS = frozenset({REGIME_CLASSIFIED_CONTRACT_ID, REGIME_FACT_INVALIDATED_CONTRACT_ID})
 _SWING_CONTRACT_IDS = frozenset({SWING_CONFIRMED_CONTRACT_ID, SWING_INVALIDATED_CONTRACT_ID})
 
-# P3-FEATURE-A-MAJ-02 remediation: no fabricated stand-in value (e.g. the
-# former `FEATURE_EVENT_CONTRACT_VERSION = "v0"`) is invented for Feature's
-# own outbound `event_contract_ref.contract_version` anymore. `stream-
-# registry.yaml`/a real Event Contract version authority does not exist yet
-# in this repository (Phase 1, not yet authored) — each computation engine
-# now requires the caller to inject the genuine, non-empty contract version
-# it authorizes at construction time (mirroring how `SequenceAllocator`'s
-# `module_id`/`implementation_version`/`run_id` are already caller-supplied,
-# never invented) and fails closed
-# (`UnresolvedOutputContractAuthorityError`) if none is supplied — see
-# `candle_window.py`/`swing_distance.py`/`regime_passthrough.py`.
+# ADR-039/ADR-040 remediation (supersedes the earlier P3-FEATURE-A-MAJ-02
+# caller-injected-arbitrary-string mechanism): Feature's own outbound
+# `event_contract_ref`s are no longer a caller-supplied opaque string this
+# module trusted merely for being non-empty. `docs/architecture/event-
+# contracts/feature-computed/v1.0.yaml` and `.../feature-fact-invalidated/
+# v1.0.yaml` are now genuine, Approved-ADR-039-governed, `Published`
+# Referenced Authoritative Artifacts — each computation engine resolves its
+# own bound `VerifiedOutputEventContractAuthority` through an injected
+# `OutputEventContractAuthorityProvider` (below), exactly the same
+# dependency-injection discipline already used for
+# `InputContractAuthorityProvider`/`VerifiedInputContractAuthority`. See
+# `output_contract_resolver.py` for the default, filesystem-backed
+# implementation this repository's own tests use.
 
 # feature.md §6 "Giá trị canonical mặc định" — the exact canonical policy
 # identifier strings pinned by the Domain Contract itself. Validated
@@ -96,23 +97,136 @@ _REGISTRY_VERSION = "v0"  # bounded stand-in for stream-registry.yaml (Phase 1, 
 _OHLC_FIELDS = frozenset({"open", "high", "low", "close"})
 
 
-def resolve_output_contract_refs(feature_event_contract_version: str) -> tuple[EventContractRef, EventContractRef]:
-    """P3-FEATURE-A-MAJ-02 remediation — the single place every computation
-    engine resolves its own outbound `(FeatureComputed, FeatureFactInvalidated)`
-    `event_contract_ref`s. `feature_event_contract_version` is the exact,
-    genuine, immutable contract-version identity the CALLER authorizes for
-    this engine's own output (never invented here) — fails closed
-    (`UnresolvedOutputContractAuthorityError`) if empty, rather than
-    defaulting to a fabricated stand-in.
+@dataclass(frozen=True, slots=True)
+class VerifiedOutputEventContractAuthority:
+    """The ONLY type a computation engine actually trusts as its own bound
+    outbound Event Contract authority (ADR-039/ADR-040) — the genuine,
+    resolved `{contract_id, contract_version}` identity for BOTH
+    `feature-computed` and `feature-fact-invalidated`, resolved together
+    since a single engine always emits both from one `Published` boundary.
+
+    Same no-public-constructor discipline as `VerifiedInputContractAuthority`
+    (see that type's own docstring for the full rationale — field-shape
+    plausibility is never provenance): calling
+    `VerifiedOutputEventContractAuthority(...)` directly always raises
+    `TypeError`. The only place an instance is ever actually built is
+    `_construct_verified_output_authority` (module-private, below), called
+    exclusively by `_seal_verified_output_authority` (also module-private),
+    itself called exclusively by `output_contract_resolver.py`'s
+    filesystem-backed resolver AFTER it has genuinely read and validated
+    the real, `Published` Event Contract version-artifacts at their own
+    canonical paths (ADR-039). Never exported through
+    `feature_engine.__init__` — not part of this package's public surface.
     """
-    if not feature_event_contract_version:
-        raise UnresolvedOutputContractAuthorityError(
-            "feature_event_contract_version must be a genuine, non-empty contract-version identity — "
-            "no stand-in value is invented for Feature's own outbound event_contract_ref (P3-FEATURE-A-MAJ-02)"
+
+    computed_contract_ref: EventContractRef
+    invalidated_contract_ref: EventContractRef
+
+    def __init__(self, *_args: object, **_kwargs: object) -> None:
+        raise TypeError(
+            "VerifiedOutputEventContractAuthority has no public constructor — genuine verified authority is only "
+            "ever produced internally by output_contract_resolver.py, after actual Published Event Contract "
+            "version-artifact resolution at its own canonical path (ADR-039). Obtain authority through an "
+            "OutputEventContractAuthorityProvider, e.g. FilesystemOutputEventContractAuthorityResolver().resolve(), "
+            "instead of constructing this type directly."
         )
-    return (
-        EventContractRef(FEATURE_COMPUTED_CONTRACT_ID, feature_event_contract_version),
-        EventContractRef(FEATURE_FACT_INVALIDATED_CONTRACT_ID, feature_event_contract_version),
+
+
+def _construct_verified_output_authority(
+    *, computed_contract_ref: EventContractRef, invalidated_contract_ref: EventContractRef
+) -> VerifiedOutputEventContractAuthority:
+    """The ONLY place a `VerifiedOutputEventContractAuthority` instance is
+    ever actually built — bypasses the type's own disabled public
+    `__init__` the same way `_construct_verified_authority` does for
+    `VerifiedInputContractAuthority`, immediately above. Module-private;
+    called exclusively by `_seal_verified_output_authority` below.
+    """
+    instance = object.__new__(VerifiedOutputEventContractAuthority)
+    object.__setattr__(instance, "computed_contract_ref", computed_contract_ref)
+    object.__setattr__(instance, "invalidated_contract_ref", invalidated_contract_ref)
+    return instance
+
+
+def _seal_verified_output_authority(
+    *, computed_contract_ref: EventContractRef, invalidated_contract_ref: EventContractRef
+) -> VerifiedOutputEventContractAuthority:
+    """The ONLY factory that produces a genuine
+    `VerifiedOutputEventContractAuthority` — used exclusively by
+    `output_contract_resolver.py`'s filesystem-backed resolver, immediately
+    after it has resolved both Published Event Contract version-artifacts
+    at their own canonical paths and confirmed each one's own
+    `contract_id`/`contract_version`/`status: Published` (ADR-039).
+    Deliberately private (not exported via `__init__.py`).
+    """
+    if computed_contract_ref.contract_id != FEATURE_COMPUTED_CONTRACT_ID:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"computed_contract_ref.contract_id={computed_contract_ref.contract_id!r} is not "
+            f"{FEATURE_COMPUTED_CONTRACT_ID!r}"
+        )
+    if invalidated_contract_ref.contract_id != FEATURE_FACT_INVALIDATED_CONTRACT_ID:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"invalidated_contract_ref.contract_id={invalidated_contract_ref.contract_id!r} is not "
+            f"{FEATURE_FACT_INVALIDATED_CONTRACT_ID!r}"
+        )
+    if not computed_contract_ref.contract_version or not invalidated_contract_ref.contract_version:
+        raise UnresolvedComputationCursorAuthorityError(
+            "computed_contract_ref/invalidated_contract_ref must both carry a genuine, non-empty contract_version"
+        )
+    return _construct_verified_output_authority(
+        computed_contract_ref=computed_contract_ref, invalidated_contract_ref=invalidated_contract_ref
+    )
+
+
+class OutputEventContractAuthorityProvider(Protocol):
+    """Every computation engine requests its own bound outbound Event
+    Contract authority through this Protocol at construction time — the
+    same dependency-injection discipline as `InputContractAuthorityProvider`
+    (above): a provider's `.resolve()` is trusted to have ACTUALLY resolved
+    both Event Contract version-artifacts at their own canonical paths and
+    confirmed `status: Published` (ADR-039/ADR-040). The default,
+    filesystem-backed implementation (`FilesystemOutputEventContractAuthorityResolver`)
+    lives in `output_contract_resolver.py`, explicitly outside this
+    analytical core.
+    """
+
+    def resolve(self) -> VerifiedOutputEventContractAuthority: ...
+
+
+@dataclass(frozen=True, slots=True)
+class ComputationDependencyContentEvidence:
+    """feature.md §3/§4 `computation_dependency_content_evidence` (ADR-037,
+    Approved) — SHA-256 content-identity proof, copied VERBATIM from the
+    same cached `VerifiedInputContractAuthority` a computation/evaluation
+    actually used, for exactly the Input Contract/Stream Registry artifact
+    bytes `computation_cursor.input_contract_ref`/`stream_registry_version`
+    of that SAME fact resolved to. Never recomputed, invented, or taken
+    from a different authority instance (feature.md §3/§4's own binding
+    invariant) — see `resolve_computation_dependency_content_evidence`,
+    the single place this is assembled.
+    """
+
+    input_contract_content_id: str
+    stream_registry_content_id: str
+
+
+def resolve_computation_dependency_content_evidence(
+    resolved_input_contract: VerifiedInputContractAuthority,
+) -> ComputationDependencyContentEvidence:
+    """The single place every computation engine assembles its own outbound
+    `computation_dependency_content_evidence` (ADR-037, Approved) — always
+    from this engine's own bound `VerifiedInputContractAuthority`
+    (`resolved_input_contract`), the SAME cached instance
+    `resolve_computation_cursor` already draws `input_contract_ref`/
+    `stream_registry_version` from for this exact fact — never a
+    separately-resolved or caller-supplied value, so the relational
+    correspondence feature.md §3/§4 requires between
+    `computation_dependency_content_evidence` and `computation_cursor.
+    input_contract_ref`/`stream_registry_version` holds by construction,
+    not by a downstream cross-check.
+    """
+    return ComputationDependencyContentEvidence(
+        input_contract_content_id=resolved_input_contract.input_contract_content_id,
+        stream_registry_content_id=resolved_input_contract.stream_registry_content_id,
     )
 
 
@@ -552,7 +666,7 @@ def resolve_computation_cursor(
         raise StreamPositionsUniverseMismatchError(
             f"frontier.stream_positions keys {sorted(frontier.stream_positions.keys())!r} do not exactly equal "
             f"the bound Input Contract's own included_streams {sorted(resolved_input_contract.included_streams)!r} "
-            "(ADR-035's cardinality clause: no missing stream, no extra stream, never an \"all streams seen\" "
+            '(ADR-035\'s cardinality clause: no missing stream, no extra stream, never an "all streams seen" '
             "fallback)"
         )
     for stream_id, proof in frontier.stream_positions.items():
@@ -826,6 +940,12 @@ class FeatureComputed:
     `computation_cursor` (P3-FEATURE-A-MAJ-06, ADR-035 Approved) is REQUIRED
     on every instance, gốc lẫn replacement — captured independently at this
     exact computation, never inherited/copied from the fact it supersedes.
+
+    `computation_dependency_content_evidence` (ADR-037, Approved) is
+    likewise REQUIRED on every instance — captured independently at this
+    exact computation from this engine's own bound
+    `VerifiedInputContractAuthority`, never inherited/copied from the fact
+    it supersedes (feature.md §3).
     """
 
     scope: FeatureScope
@@ -840,6 +960,7 @@ class FeatureComputed:
     ref: EventRecordRef
     event_contract_ref: EventContractRef
     computation_cursor: ComputationCursor
+    computation_dependency_content_evidence: ComputationDependencyContentEvidence
 
 
 InvalidationCause = Literal[
@@ -859,6 +980,11 @@ class FeatureFactInvalidated:
     `R_later` for `eligible_swing_selection_superseded` (ADR-034) — captured
     independently at this invalidation's own evaluation, never copied from
     the fact being invalidated.
+
+    `computation_dependency_content_evidence` (ADR-037, Approved) is
+    likewise captured independently at this invalidation's own evaluation
+    — never inherited/copied from the fact being invalidated (feature.md
+    §4).
     """
 
     scope: FeatureScope
@@ -871,6 +997,7 @@ class FeatureFactInvalidated:
     ref: EventRecordRef
     event_contract_ref: EventContractRef
     computation_cursor: ComputationCursor
+    computation_dependency_content_evidence: ComputationDependencyContentEvidence
 
 
 FeatureEvent = FeatureComputed | FeatureFactInvalidated

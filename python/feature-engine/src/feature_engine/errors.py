@@ -143,14 +143,93 @@ class UnauthorizedUpstreamContractError(FeatureEngineError):
 
 
 class UnresolvedOutputContractAuthorityError(FeatureEngineError):
-    """The caller did not supply a genuine, non-empty
-    `event_contract_ref.contract_version` for this engine's own outbound
-    `FeatureComputed`/`FeatureFactInvalidated` events. `stream-registry.yaml`/
-    a real Event Contract version authority does not exist yet in this
-    repository (Phase 1, not yet authored) — this engine never invents a
-    stand-in value (e.g. `"v0"`) for its own authoritative emission; if no
-    genuine version is injected, it fails closed here instead
-    (P3-FEATURE-A-MAJ-02).
+    """An `OutputEventContractAuthorityProvider.resolve()` call did not
+    return a genuine `VerifiedOutputEventContractAuthority` — either the
+    wrong type entirely, or (for the injected provider itself) a
+    profile/identity that does not match what this engine requires. This
+    engine never invents a stand-in outbound `event_contract_ref` (e.g. the
+    former `"v0"`/caller-injected-arbitrary-string patterns,
+    P3-FEATURE-A-MAJ-02): its own outbound `feature-computed`/
+    `feature-fact-invalidated` refs are only ever the genuine, resolved,
+    `Published` Event Contract version-artifact identity (ADR-039); if a
+    provider does not hand back that exact, genuine authority, this engine
+    fails closed here instead.
+    """
+
+
+class OutputEventContractUnresolvableError(FeatureEngineError):
+    """A Published Event Contract version-artifact could not be resolved at
+    its own canonical, deterministic path (ADR-039:
+    `docs/architecture/event-contracts/<contract_id>/<contract_version>.yaml`)
+    — the file is missing, or its content does not resolve a complete
+    `{contract_id, contract_version, status}` identity. Never falls back to
+    git-history search, an alias, a registry, or any other lookup mechanism
+    (ADR-039/ADR-040) — a canonical-path miss is always a genuine
+    resolution failure.
+    """
+
+
+class OutputEventContractIdentityMismatchError(FeatureEngineError):
+    """The Event Contract version-artifact resolved at a canonical path
+    declares a `contract_id`/`contract_version` inside its own content that
+    does not exactly match the `{contract_id, contract_version}` the path
+    itself was constructed from — an artifact must self-identify
+    consistently with its own canonical location; a mismatch is a
+    resolution failure, never silently accepted or corrected.
+    """
+
+
+class OutputEventContractNotPublishedError(FeatureEngineError):
+    """A resolved Event Contract version-artifact's own `status` is not
+    exactly `"Published"` (ADR-039 §"Immutability and identifier
+    non-reuse") — a `Draft` (or any other non-Published) artifact is never
+    a usable `event_contract_ref` target for a real, persisted authoritative
+    event (ADR-039/ADR-040's own retention/fail-closed posture); resolution
+    fails closed here instead of treating a Draft as if it were final.
+    """
+
+
+class ReplayPreparationArtifactUnresolvableError(FeatureEngineError):
+    """Replay preparation (ADR-037; `P3-FEATURE-QG-EVID-05(b)`) could not
+    resolve the exact Input Contract/Stream Registry artifact a fact's own
+    `computation_cursor` names, at all — the underlying authority-resolution
+    failure (missing artifact, incomplete identity, Registry/Contract
+    cross-validation failure) is ADR-037 failure class 1. Replay execution
+    must never begin for this fact while this condition holds.
+    """
+
+
+class ReplayPreparationEvidenceMalformedError(FeatureEngineError):
+    """A fact's own `computation_dependency_content_evidence` is missing or
+    does not carry two well-formed (64 lowercase hex character) SHA-256
+    content-identity digests — ADR-037 failure class 2. A schema-populated
+    but non-well-formed value is never treated as usable evidence; Replay
+    execution must never begin for this fact while this condition holds.
+    """
+
+
+class ReplayPreparationCursorReferenceMismatchError(FeatureEngineError):
+    """The Input Contract/Stream Registry artifact actually resolved at
+    Replay-preparation time does not exactly match the `input_contract_ref`/
+    `stream_registry_version` pinned on the fact's own `computation_cursor`
+    — ADR-037 failure class 3 (cursor/reference relational mismatch, e.g.
+    the artifact has since evolved to a different `contract_version`/
+    `registry_version` than the one this fact was originally computed
+    against). Never silently rebased onto the currently-resolved identity;
+    Replay execution must never begin for this fact while this condition
+    holds.
+    """
+
+
+class ReplayPreparationContentIdentityMismatchError(FeatureEngineError):
+    """The content-identity digest recomputed from the actual, current
+    Input Contract/Stream Registry artifact bytes does not match the
+    corresponding value persisted in the fact's own
+    `computation_dependency_content_evidence` — ADR-037 failure class 4
+    (content-ID mismatch: the artifact's own bytes changed since this fact
+    was computed, even though its `{contract_id, contract_version}`/
+    `registry_version` identity did not). Replay execution must never begin
+    for this fact while this condition holds.
     """
 
 

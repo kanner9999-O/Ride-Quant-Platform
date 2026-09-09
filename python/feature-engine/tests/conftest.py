@@ -26,6 +26,7 @@ from feature_engine import (
     WARM_UP_POLICY,
     CandleFact,
     CandleScope,
+    ComputationDependencyContentEvidence,
     DecimalPrecisionPolicy,
     EvaluationFrontier,
     EventContractRef,
@@ -43,6 +44,7 @@ from feature_engine import (
     SwingConfirmedFact,
     SwingInvalidatedFact,
     resolve_input_contract_authority_from_repository,
+    resolve_output_event_contract_authority_from_repository,
 )
 from feature_engine.contracts import FeatureComputed, FeatureFactInvalidated, VerifiedInputContractAuthority
 
@@ -56,11 +58,22 @@ BASE = datetime(2026, 1, 1, tzinfo=UTC)
 # test caller, never invented by feature_engine itself.
 CONTRACT_VERSION = "v1"
 
-# Test-fixture-pinned OUTPUT contract_version — the exact, genuine identity a
-# caller authorizes for THIS engine's own outbound FeatureComputed/
-# FeatureFactInvalidated event_contract_ref (P3-FEATURE-A-MAJ-02 remediation:
-# feature_engine never invents this itself, e.g. the former "v0" stand-in).
-FEATURE_OUTPUT_CONTRACT_VERSION = "fv1"
+# Real, currently-Published outbound Event Contract version (ADR-039/ADR-040
+# remediation, supersedes the earlier "fv1" caller-injected-string stand-in,
+# P3-FEATURE-A-MAJ-02) — feature-computed/v1.0.yaml and
+# feature-fact-invalidated/v1.0.yaml are genuine, Approved-ADR-039-governed,
+# status: Published Referenced Authoritative Artifacts.
+FEATURE_OUTPUT_CONTRACT_VERSION = "v1.0"
+
+# Real, currently-Published outbound Event Contract authority — resolved via
+# the ACTUAL filesystem-backed resolver
+# (`output_contract_resolver.resolve_output_event_contract_authority_from_repository`)
+# reading the real, current `docs/architecture/event-contracts/feature-
+# computed/v1.0.yaml` / `feature-fact-invalidated/v1.0.yaml` off disk —
+# never a hardcoded duplicate literal.
+OUTPUT_EVENT_CONTRACT_AUTHORITY = resolve_output_event_contract_authority_from_repository(
+    FEATURE_OUTPUT_CONTRACT_VERSION
+)
 
 # Real, currently-approved logical stream identities (Review-A residual 3) —
 # mechanical transcription of `docs/architecture/stream-registry.yaml`
@@ -81,10 +94,18 @@ REGIME_STREAM_ID = "raw-regime-engine-regime"
 # duplicate literal table. Each carries genuine, verifiable content-identity
 # proof (`input_contract_content_id`/`stream_registry_content_id`, SHA-256 of
 # the real file bytes) for both source artifacts.
-SWING_DISTANCE_INPUT_CONTRACT = resolve_input_contract_authority_from_repository(
-    "distance_to_last_confirmed_swing"
-)
+SWING_DISTANCE_INPUT_CONTRACT = resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing")
 REGIME_INPUT_CONTRACT = resolve_input_contract_authority_from_repository("regime")
+
+# TEST-ONLY `computation_dependency_content_evidence` fixture (ADR-037) for
+# call sites that construct `FeatureComputed`/`FeatureFactInvalidated`
+# directly (bypassing an engine's own `_resolve_evidence`) — genuine content
+# identity from the real, resolved `SWING_DISTANCE_INPUT_CONTRACT`, never a
+# fabricated digest.
+SWING_DISTANCE_EVIDENCE = ComputationDependencyContentEvidence(
+    input_contract_content_id=SWING_DISTANCE_INPUT_CONTRACT.input_contract_content_id,
+    stream_registry_content_id=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id,
+)
 
 # An "effectively unbounded" per-stream sequence ceiling — most tests only
 # care about recorded_time-driven visibility, not the stream-position edge

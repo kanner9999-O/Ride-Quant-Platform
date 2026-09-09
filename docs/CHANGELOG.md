@@ -2,6 +2,92 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-09 — feature-engine: runtime conformance to Published v1.0 Event Contracts + ADR-037 evidence/Replay preparation (`P3-FEATURE-QG-EVID-05(b)` — implementation only, NOT self-closed)
+
+**Bounded implementation transaction — vai trò: `Feature Engine Runtime Conformance Executor`.** Makes `feature-engine` runtime emissions/replay conform to the two `Published` v1.0 Event Contract version-artifacts and Approved `ADR-037`. Replaces the obsolete caller-injected-arbitrary-string outbound `event_contract_ref` mechanism with deterministic resolution against ADR-039's canonical paths (requires `status: Published`, fail-closed otherwise, no alias/history-search/registry fallback); implements `computation_dependency_content_evidence` on every `FeatureComputed`/`FeatureFactInvalidated`, copied verbatim from the same cached `VerifiedInputContractAuthority` used for that fact's own computation; adds a Replay-preparation module enforcing ADR-037's four fail-closed failure classes before Replay execution begins.
+
+**Fresh boundary verification:** HEAD confirmed exactly `2a7df9412f4b749f8d785c30c554b440cfdad276`, identical to `origin/main`; both Published Event Contract artifacts re-verified `status: Published`, byte-unchanged. `ADR-039`/`ADR-040` re-verified `Approved`, immutable, byte-unchanged.
+
+### Outbound Event Contract authority (ADR-039 canonical-path resolution)
+
+```text
+New output_contract_resolver.py (mirrors authority_resolver.py's own
+  filesystem-backed, dependency-injection pattern). Resolves BOTH
+  feature-computed/feature-fact-invalidated at
+  docs/architecture/event-contracts/<contract_id>/<contract_version>.yaml
+  (pure literal path substitution, ADR-039); reads contract_id/
+  contract_version/status back and fails closed on missing artifact,
+  self-identity mismatch, or status != Published. Engines now require an
+  injected output_event_contract_authority_provider, resolved to a sealed
+  VerifiedOutputEventContractAuthority (no public constructor). Emitted
+  refs: FeatureComputed -> {feature-computed, v1.0};
+  FeatureFactInvalidated -> {feature-fact-invalidated, v1.0}.
+```
+
+### ADR-037 computation_dependency_content_evidence + Replay preparation
+
+```text
+New ComputationDependencyContentEvidence dataclass + required field on
+  both event types, assembled from the SAME cached
+  VerifiedInputContractAuthority computation_cursor already draws from --
+  relational correspondence holds by construction. Populated at all 8
+  construction sites across both engines (original/replacement/
+  invalidation each independently). New replay_preparation.py:
+  prepare_replay_evidence(fact) fails closed BEFORE Replay execution for
+  ADR-037's four failure classes -- (1) missing/unresolvable artifact,
+  (2) malformed/missing evidence, (3) cursor/reference relational
+  mismatch, (4) content-ID mismatch. EVID-05(a) preserved: Replay
+  execution still never touches the filesystem.
+```
+
+### Tests / verification
+
+```text
+python -m pytest: 262 passed (was 235 before this transaction). ruff
+  check: all checks passed. mypy (strict): no issues found in 30 source
+  files. Covers: correct v1.0 output refs; arbitrary/non-Published
+  output contract versions fail closed; evidence copied from genuine
+  cached authority; evidence persisted independently on original/
+  replacement/invalidation; all four ADR-037 Replay-preparation failure
+  modes; existing Replay isolation test still passes after
+  external-access cut; full Feature suite passes.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: python/feature-engine/src/feature_engine/{__init__.py,
+  contracts.py, errors.py, regime_passthrough.py, swing_distance.py}
+  (modified); {output_contract_resolver.py, replay_preparation.py} (new);
+  python/feature-engine/tests/{conftest.py, test_contracts.py,
+  test_current_view.py, test_evidence.py, test_regime_passthrough.py,
+  test_replay_isolation.py, test_swing_distance.py} (modified);
+  {test_output_contract_resolver.py, test_replay_preparation.py} (new);
+  docs/MANIFEST.md; docs/CHANGELOG.md only. Both Published Event Contract
+  artifacts, ADR-039/ADR-040, every Locked Constitution chapter,
+  feature.md, stream-registry.yaml, module-registry.yaml, and Feature
+  Input Contracts all verified byte-unchanged. No new architecture
+  decision. No Domain Contract semantic redesign.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID-05(b):       OPEN — runtime now conforms, but this
+                                transaction does NOT self-close the
+                                finding; closure is a bounded Review A
+                                determination.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039/ADR-040:               Approved, immutable, unaffected.
+```
+
+**Next governed step:** bounded Review A review of this implementation transaction against `P3-FEATURE-QG-EVID-05(b)`.
+
+**Files changed:** see "No scope expansion" above; `docs/MANIFEST.md`, `docs/CHANGELOG.md` only among governance artifacts. `manifest_version` `"10.355"` → `"10.356"`.
+
 ## [Unreleased] — 2026-09-09 — feature-engine: Feature Event Contract v1.0 `Published` — `feature-computed`/`feature-fact-invalidated` now effective Referenced Authoritative Artifacts (`P3-FEATURE-EC-A-MAJ-01`/`-MAJ-02` → `CLOSED`)
 
 **Mechanical publication/lifecycle recording transaction — vai trò: `Feature Event Contract v1.0 Publication Recording Executor`.** Records Review A's bounded re-review confirming `P3-FEATURE-EC-A-MAJ-01`/`P3-FEATURE-EC-A-MAJ-02` both fully remediated (`CLOSED`), Independent Review B's own review, and the Product Owner's publication approval — transitioning BOTH `feature-computed/v1.0.yaml` and `feature-fact-invalidated/v1.0.yaml` from `Draft` to `Published`. No semantic redesign; contract semantics byte-unchanged in both files.

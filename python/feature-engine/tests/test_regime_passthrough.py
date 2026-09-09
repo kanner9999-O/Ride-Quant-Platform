@@ -10,6 +10,7 @@ import pytest
 from conftest import (
     BASE,
     FEATURE_OUTPUT_CONTRACT_VERSION,
+    OUTPUT_EVENT_CONTRACT_AUTHORITY,
     REGIME_INPUT_CONTRACT,
     SWING_DISTANCE_INPUT_CONTRACT,
     FixedDeltaTimeSource,
@@ -34,6 +35,7 @@ from feature_engine import (
     RegimePassthroughFeatureEngine,
     SequenceAllocator,
     StaticInputContractAuthorityProvider,
+    StaticOutputEventContractAuthorityProvider,
 )
 from feature_engine.contracts import ResolvedInputContract, VerifiedInputContractAuthority, _seal_verified_authority
 from feature_engine.errors import (
@@ -67,6 +69,21 @@ class _FixedAuthorityProvider:
         return self.authority
 
 
+@dataclasses.dataclass(frozen=True)
+class _FixedOutputAuthorityProvider:
+    """TEST-ONLY `OutputEventContractAuthorityProvider` that returns
+    WHATEVER object it was constructed with, verbatim, regardless of type —
+    used to prove that a genuine computation engine independently rejects a
+    provider that hands back unresolved/plain data instead of a real
+    `VerifiedOutputEventContractAuthority`.
+    """
+
+    authority: object
+
+    def resolve(self) -> Any:
+        return self.authority
+
+
 def _engine(
     allocator: SequenceAllocator, time_source: RecordedTimeSource, feature_type: str = "volatility_metric"
 ) -> RegimePassthroughFeatureEngine:
@@ -77,7 +94,9 @@ def _engine(
         definition,
         allocator,
         time_source,
-        feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+        output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+            OUTPUT_EVENT_CONTRACT_AUTHORITY
+        ),
         input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
     )
 
@@ -98,12 +117,18 @@ def _invalid_frontier(recorded_time: datetime) -> EvaluationFrontier:
     return dataclasses.replace(_frontier_at(recorded_time), stream_registry_version="not-the-real-registry-version")
 
 
-# --- P3-FEATURE-A-MAJ-02 remediation: output contract-version authority ------
+# --- ADR-039/ADR-040 remediation: output Event Contract authority -----------
 
 
-def test_output_contract_version_must_be_genuine_non_empty(
+def test_output_contract_authority_provider_wrong_type_fails_closed(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
+    """A provider that hands back plain/unresolved data instead of a real
+    `VerifiedOutputEventContractAuthority` must be rejected — an engine
+    never trusts a provider merely because it returns an object with
+    plausible-looking fields (same discipline already proven for
+    `InputContractAuthorityProvider`, `_FixedAuthorityProvider` below).
+    """
     definition = make_regime_definition(regime_dimension_version="rgd-1")
     scope = feature_scope("volatility_metric", version=definition.feature_definition_version)
     with pytest.raises(UnresolvedOutputContractAuthorityError):
@@ -112,7 +137,7 @@ def test_output_contract_version_must_be_genuine_non_empty(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version="",
+            output_event_contract_authority_provider=_FixedOutputAuthorityProvider(authority=object()),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
         )
 
@@ -127,11 +152,7 @@ def test_regime_volatility_correct_dimension_and_version_accepted(
     fact = regime_classified_at(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
-    computed = only_computed(
-        engine.on_regime_classified(
-            fact, cursor=_frontier_at(fact.recorded_time)
-        )[0]
-    )
+    computed = only_computed(engine.on_regime_classified(fact, cursor=_frontier_at(fact.recorded_time))[0])
     assert computed.value == Decimal("1.50")
     assert computed.input_fact_refs == (fact.ref,)
 
@@ -207,11 +228,7 @@ def test_directional_persistence_continuous_value_no_reinterpretation(
         regime_dimension="directional_persistence",
         regime_definition_version="rgd-1",
     )
-    computed = only_computed(
-        engine.on_regime_classified(
-            fact, cursor=_frontier_at(fact.recorded_time)
-        )[0]
-    )
+    computed = only_computed(engine.on_regime_classified(fact, cursor=_frontier_at(fact.recorded_time))[0])
     assert computed.value == Decimal("0.42")
     field_names = {f.name for f in dataclasses.fields(computed)}
     assert not field_names & {"direction", "label", "orientation", "class_label"}
@@ -241,16 +258,8 @@ def test_same_value_different_windows_emits_separately(
     fact1 = regime_classified_at(
         allocator, 1, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
-    computed0 = only_computed(
-        engine.on_regime_classified(
-            fact0, cursor=_frontier_at(fact0.recorded_time)
-        )[0]
-    )
-    computed1 = only_computed(
-        engine.on_regime_classified(
-            fact1, cursor=_frontier_at(fact1.recorded_time)
-        )[0]
-    )
+    computed0 = only_computed(engine.on_regime_classified(fact0, cursor=_frontier_at(fact0.recorded_time))[0])
+    computed1 = only_computed(engine.on_regime_classified(fact1, cursor=_frontier_at(fact1.recorded_time))[0])
     assert computed0.ref != computed1.ref
     assert computed0.window_start != computed1.window_start
 
@@ -274,9 +283,7 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
     original = only_computed(
-        engine.on_regime_classified(
-            original_input, cursor=_frontier_at(original_input.recorded_time)
-        )[0]
+        engine.on_regime_classified(original_input, cursor=_frontier_at(original_input.recorded_time))[0]
     )
     assert original.scope == engine.scope
     assert original.unit == engine.definition.unit
@@ -292,9 +299,7 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
         allocator, invalidated_fact_ref=original_input.ref, recorded_time=original.recorded_time + timedelta(minutes=5)
     )
     invalidation = only_invalidated(
-        engine.on_regime_invalidated(
-            invalidation_input, cursor=_frontier_at(invalidation_input.recorded_time)
-        )[0]
+        engine.on_regime_invalidated(invalidation_input, cursor=_frontier_at(invalidation_input.recorded_time))[0]
     )
     assert invalidation.invalidated_fact_ref == original.ref
     assert invalidation.scope == engine.scope
@@ -316,9 +321,7 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
         recorded_offset_seconds=600,
     )
     replacement = only_computed(
-        engine.on_regime_classified(
-            replacement_input, cursor=_frontier_at(replacement_input.recorded_time)
-        )[0]
+        engine.on_regime_classified(replacement_input, cursor=_frontier_at(replacement_input.recorded_time))[0]
     )
     assert replacement.value == original.value == Decimal("1.50")
     assert replacement.supersedes_fact_ref == original.ref
@@ -344,17 +347,13 @@ def test_causal_chain_original_lt_invalidation_lt_replacement(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
     original = only_computed(
-        engine.on_regime_classified(
-            original_input, cursor=_frontier_at(original_input.recorded_time)
-        )[0]
+        engine.on_regime_classified(original_input, cursor=_frontier_at(original_input.recorded_time))[0]
     )
     invalidation_input = regime_invalidated_at(
         allocator, invalidated_fact_ref=original_input.ref, recorded_time=original.recorded_time + timedelta(minutes=5)
     )
     invalidation = only_invalidated(
-        engine.on_regime_invalidated(
-            invalidation_input, cursor=_frontier_at(invalidation_input.recorded_time)
-        )[0]
+        engine.on_regime_invalidated(invalidation_input, cursor=_frontier_at(invalidation_input.recorded_time))[0]
     )
     replacement_input = regime_classified_at(
         allocator,
@@ -365,9 +364,7 @@ def test_causal_chain_original_lt_invalidation_lt_replacement(
         recorded_offset_seconds=600,
     )
     replacement = only_computed(
-        engine.on_regime_classified(
-            replacement_input, cursor=_frontier_at(replacement_input.recorded_time)
-        )[0]
+        engine.on_regime_classified(replacement_input, cursor=_frontier_at(replacement_input.recorded_time))[0]
     )
     assert original.recorded_time < invalidation.recorded_time < replacement.recorded_time
 
@@ -398,9 +395,7 @@ def test_lineage_no_fork_double_invalidation_rejected(
         allocator, 0, computed_metric="1.5", regime_dimension="volatility", regime_definition_version="rgd-1"
     )
     original = only_computed(
-        engine.on_regime_classified(
-            original_input, cursor=_frontier_at(original_input.recorded_time)
-        )[0]
+        engine.on_regime_classified(original_input, cursor=_frontier_at(original_input.recorded_time))[0]
     )
     invalidation_input = regime_invalidated_at(
         allocator, invalidated_fact_ref=original_input.ref, recorded_time=original.recorded_time + timedelta(minutes=5)
@@ -457,9 +452,7 @@ def test_feature_computed_and_invalidated_carry_full_computation_cursor(
         allocator, invalidated_fact_ref=fact.ref, recorded_time=computed.recorded_time + timedelta(minutes=5)
     )
     r_later = invalidation_input.recorded_time + timedelta(hours=1)
-    invalidation = only_invalidated(
-        engine.on_regime_invalidated(invalidation_input, cursor=_frontier_at(r_later))[0]
-    )
+    invalidation = only_invalidated(engine.on_regime_invalidated(invalidation_input, cursor=_frontier_at(r_later))[0])
     assert invalidation.computation_cursor.recorded_time == r_later
     assert invalidation.computation_cursor != computed.computation_cursor
 
@@ -525,7 +518,9 @@ def test_unverified_plain_authority_cannot_be_supplied_to_regime_engine_as_if_ve
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             input_contract_authority_provider=_FixedAuthorityProvider(unverified),
         )
 
@@ -553,7 +548,9 @@ def test_valid_looking_fake_sha_digests_cannot_be_supplied_to_regime_engine_as_i
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             input_contract_authority_provider=_FixedAuthorityProvider(fake_but_well_formed),
         )
 
@@ -627,7 +624,9 @@ def test_static_provider_cannot_launder_fabricated_regime_authority(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             input_contract_authority_provider=laundering_provider,
         )
 
@@ -688,7 +687,9 @@ def test_wrong_feature_type_for_regime_engine_rejected(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
         )
 
@@ -711,7 +712,9 @@ def test_wrong_upstream_source_for_regime_engine_rejected(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
         )
 
@@ -727,7 +730,9 @@ def test_scope_definition_mismatch_for_regime_engine_rejected(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
         )
 
@@ -753,7 +758,9 @@ def test_engine_own_profile_check_rejects_mismatched_authority(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             input_contract_authority_provider=_FixedAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
         )
 

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.355"
+manifest_version: "10.356"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -25581,6 +25581,134 @@ ADR-039/ADR-040:               Approved, immutable, unaffected.
 **Next governed step:** the follow-on work already named in `ADR-039`'s/`ADR-040`'s own Consequences — Feature's own `event_contract_ref` implementation work, and Class G's past-horizon archival mechanism — none of which is performed by this publication-recording transaction.
 
 **Files changed:** `docs/architecture/event-contracts/feature-computed/v1.0.yaml` (lifecycle transition, in place), `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.354"` → `"10.355"`.
+
+## feature-engine — runtime conformance to Published v1.0 Event Contracts + ADR-037 evidence/Replay preparation
+
+**Bounded implementation transaction — vai trò: `Feature Engine Runtime Conformance Executor`.** Makes `feature-engine` runtime emissions/replay conform to the two `Published` v1.0 Event Contract version-artifacts and Approved `ADR-037`. Two changes: (1) replaces the obsolete caller-injected-arbitrary-string outbound `event_contract_ref` mechanism (`resolve_output_contract_refs`) with deterministic resolution against ADR-039's canonical paths, requiring `status: Published`, fail-closed otherwise, no alias/history-search/registry fallback; (2) implements `computation_dependency_content_evidence` (`input_contract_content_id`/`stream_registry_content_id`) on every `FeatureComputed`/`FeatureFactInvalidated`, copied verbatim from the same cached `VerifiedInputContractAuthority` used for that fact's own computation, plus a new Replay-preparation module enforcing ADR-037's four fail-closed failure classes before Replay execution begins.
+
+**Fresh boundary verification:** HEAD confirmed exactly `2a7df9412f4b749f8d785c30c554b440cfdad276`, identical to `origin/main`; `feature-computed/v1.0.yaml`/`feature-fact-invalidated/v1.0.yaml` re-verified `status: Published`, byte-unchanged. `ADR-039`/`ADR-040` re-verified `Approved`, immutable, byte-unchanged.
+
+### Outbound Event Contract authority (ADR-039 canonical-path resolution)
+
+```text
+New module output_contract_resolver.py -- mirrors authority_resolver.py's
+  own filesystem-backed, dependency-injection pattern.
+  resolve_output_event_contract_authority_from_repository(contract_version)
+  resolves BOTH feature-computed/feature-fact-invalidated at
+  docs/architecture/event-contracts/<contract_id>/<contract_version>.yaml
+  (pure literal path substitution, ADR-039) -- reads the resolved file's
+  own contract_id/contract_version/status back and fails closed
+  (OutputEventContractUnresolvableError /
+  OutputEventContractIdentityMismatchError /
+  OutputEventContractNotPublishedError) on missing artifact, self-identity
+  mismatch, or status != Published. No alias/history-search/registry/
+  service fallback exists.
+Computation engines (regime_passthrough.py/swing_distance.py) no longer
+  accept feature_event_contract_version: str -- now require an injected
+  output_event_contract_authority_provider: OutputEventContractAuthorityProvider,
+  resolved to a sealed VerifiedOutputEventContractAuthority (no public
+  constructor, same discipline as VerifiedInputContractAuthority).
+  FeatureComputed.event_contract_ref = {feature-computed, v1.0};
+  FeatureFactInvalidated.event_contract_ref = {feature-fact-invalidated,
+  v1.0} -- both resolved from the real, Published artifacts, verified by
+  test_evidence.py::test_regime_engine_emits_exact_published_v1_0_output_refs.
+```
+
+### ADR-037 computation_dependency_content_evidence
+
+```text
+New ComputationDependencyContentEvidence dataclass + required field on
+  FeatureComputed/FeatureFactInvalidated. resolve_computation_dependency_
+  content_evidence(resolved_input_contract) assembles it from the SAME
+  cached VerifiedInputContractAuthority resolve_computation_cursor already
+  draws input_contract_ref/stream_registry_version from for that exact
+  fact -- relational correspondence holds by construction. Both engines'
+  own _resolve_evidence() helper called at all 8 FeatureComputed/
+  FeatureFactInvalidated construction sites (3 in regime_passthrough.py,
+  5 in swing_distance.py) -- original, replacement, and invalidation each
+  independently populated, proven in test_evidence.py.
+```
+
+### Replay preparation (ADR-037, four fail-closed failure classes)
+
+```text
+New replay_preparation.py module (explicitly outside the analytical core,
+  same role as authority_resolver.py/output_contract_resolver.py).
+  prepare_replay_evidence(fact, repo_root=None) resolves the exact Input
+  Contract/Stream Registry named by fact.computation_cursor, recomputes
+  content identities from actual bytes, compares against fact.
+  computation_dependency_content_evidence, fails closed BEFORE Replay
+  execution for: (1) missing/unresolvable artifact
+  (ReplayPreparationArtifactUnresolvableError); (2) malformed/missing
+  evidence (ReplayPreparationEvidenceMalformedError); (3) cursor/reference
+  relational mismatch (ReplayPreparationCursorReferenceMismatchError);
+  (4) content-ID mismatch (ReplayPreparationContentIdentityMismatchError).
+  EVID-05(a) preserved: prepare_replay_evidence itself performs filesystem
+  I/O (it IS the Replay-preparation phase) -- test_replay_isolation.py
+  proves Replay EXECUTION still never calls it or any other
+  filesystem-touching function, after the external-access cut.
+```
+
+### Tests / verification
+
+```text
+python -m pytest: 262 passed (was 235 before this transaction; net +27 --
+  new test_output_contract_resolver.py [17], new test_replay_preparation.py
+  [9], new/updated test_evidence.py assertions, 3 obsolete
+  resolve_output_contract_refs tests removed, 2 empty-string fail-closed
+  tests converted to provider-wrong-type fail-closed tests). ruff check:
+  all checks passed. mypy (strict): no issues found in 30 source files.
+Covers: correct v1.0 output refs; arbitrary/non-Published output contract
+  versions fail closed (resolver-level: missing/wrong-version/Draft-status
+  artifacts; engine-level: wrong-type provider); evidence copied from
+  genuine cached authority; evidence persisted independently on
+  original/replacement/invalidation; all four ADR-037 Replay-preparation
+  failure modes; existing Replay isolation test still passes after
+  external-access cut; full Feature suite passes.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: python/feature-engine/src/feature_engine/{__init__.py,
+  contracts.py, errors.py, regime_passthrough.py, swing_distance.py}
+  (modified); python/feature-engine/src/feature_engine/
+  {output_contract_resolver.py, replay_preparation.py} (new);
+  python/feature-engine/tests/{conftest.py, test_contracts.py,
+  test_current_view.py, test_evidence.py, test_regime_passthrough.py,
+  test_replay_isolation.py, test_swing_distance.py} (modified);
+  python/feature-engine/tests/{test_output_contract_resolver.py,
+  test_replay_preparation.py} (new); docs/MANIFEST.md; docs/CHANGELOG.md
+  only. Both Published Event Contract artifacts, ADR-039/ADR-040 (both
+  Approved, immutable), every Locked Constitution chapter, feature.md,
+  stream-registry.yaml, module-registry.yaml, and Feature Input Contracts
+  all verified byte-unchanged (`git diff --quiet`). No new architecture
+  decision. No Domain Contract semantic redesign.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID-05(b):       OPEN — runtime now conforms to Published
+                                v1.0 Event Contracts and implements ADR-037
+                                evidence/Replay-preparation fail-closed
+                                checks, but this transaction does NOT
+                                self-close the finding — closure is a
+                                bounded Review A determination, not
+                                asserted here.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039/ADR-040:               Approved, immutable, unaffected.
+Published Event Contracts:     feature-computed/v1.0,
+                                feature-fact-invalidated/v1.0 — both
+                                unchanged, immutable.
+```
+
+**Next governed step:** bounded Review A review of this implementation transaction against `P3-FEATURE-QG-EVID-05(b)`.
+
+**Files changed:** see "No scope expansion" above; `docs/MANIFEST.md`, `docs/CHANGELOG.md` only among governance artifacts. `manifest_version` `"10.355"` → `"10.356"`.
 
 ## Decision Log
 

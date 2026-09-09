@@ -7,6 +7,7 @@ import pytest
 from conftest import (
     BASE,
     CONTRACT_VERSION,
+    SWING_DISTANCE_EVIDENCE,
     SWING_DISTANCE_INPUT_CONTRACT,
     feature_scope,
 )
@@ -72,6 +73,7 @@ def _computed(
         ref=allocator.next_ref("feature"),
         event_contract_ref=_COMPUTED_CONTRACT_REF,
         computation_cursor=_CURSOR,
+        computation_dependency_content_evidence=SWING_DISTANCE_EVIDENCE,
     )
 
 
@@ -93,6 +95,7 @@ def _invalidated(
         ref=allocator.next_ref("feature"),
         event_contract_ref=_INVALIDATED_CONTRACT_REF,
         computation_cursor=_CURSOR,
+        computation_dependency_content_evidence=SWING_DISTANCE_EVIDENCE,
     )
 
 
@@ -119,6 +122,7 @@ def _computed_with_window(
         ref=allocator.next_ref("feature"),
         event_contract_ref=_COMPUTED_CONTRACT_REF,
         computation_cursor=_CURSOR,
+        computation_dependency_content_evidence=SWING_DISTANCE_EVIDENCE,
     )
 
 

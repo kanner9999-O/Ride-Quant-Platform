@@ -12,6 +12,7 @@ from conftest import (
     CANDLE_STREAM_ID,
     CONTRACT_VERSION,
     FEATURE_OUTPUT_CONTRACT_VERSION,
+    OUTPUT_EVENT_CONTRACT_AUTHORITY,
     SWING_DISTANCE_INPUT_CONTRACT,
     SWING_STREAM_ID,
     FixedDeltaTimeSource,
@@ -44,6 +45,7 @@ from feature_engine import (
     RecordedTimeSource,
     SequenceAllocator,
     StaticInputContractAuthorityProvider,
+    StaticOutputEventContractAuthorityProvider,
     StreamPositionProof,
     SwingDistanceFeatureEngine,
 )
@@ -65,6 +67,7 @@ from feature_engine.errors import (
     StreamPositionsUniverseMismatchError,
     UnauthorizedUpstreamContractError,
     UnresolvedComputationCursorAuthorityError,
+    UnresolvedOutputContractAuthorityError,
     UnsupportedDistanceRepresentationError,
 )
 
@@ -81,6 +84,21 @@ class _FixedAuthorityProvider:
     authority: object
 
     def resolve(self, profile: object) -> Any:
+        return self.authority
+
+
+@dataclasses.dataclass(frozen=True)
+class _FixedOutputAuthorityProvider:
+    """TEST-ONLY `OutputEventContractAuthorityProvider` that returns
+    WHATEVER object it was constructed with, verbatim, regardless of type —
+    used to prove that a genuine computation engine independently rejects a
+    provider that hands back unresolved/plain data instead of a real
+    `VerifiedOutputEventContractAuthority`.
+    """
+
+    authority: object
+
+    def resolve(self) -> Any:
         return self.authority
 
 
@@ -103,7 +121,9 @@ def _engine(
         definition,
         allocator,
         time_source,
-        feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+        output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+            OUTPUT_EVENT_CONTRACT_AUTHORITY
+        ),
         authorized_candle_contract_refs=authorized_candle_contract_refs(),
         authorized_swing_contract_refs=authorized_swing_contract_refs(),
         input_contract_authority_provider=provider,
@@ -529,11 +549,15 @@ def test_unauthorized_swing_contract_version_fails_closed_even_when_id_matches(
         engine.on_swing_confirmed(bad, cursor=frontier_at(bad.recorded_time))
 
 
-def test_output_contract_version_must_be_genuine_non_empty(
+def test_output_contract_authority_provider_wrong_type_fails_closed(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
-    from feature_engine.errors import UnresolvedOutputContractAuthorityError
-
+    """A provider that hands back plain/unresolved data instead of a real
+    `VerifiedOutputEventContractAuthority` must be rejected — an engine
+    never trusts a provider merely because it returns an object with
+    plausible-looking fields (same discipline already proven for
+    `InputContractAuthorityProvider`, `_FixedAuthorityProvider` above).
+    """
     definition = make_distance_definition()
     scope = feature_scope("distance_to_last_confirmed_swing", version=definition.feature_definition_version)
     with pytest.raises(UnresolvedOutputContractAuthorityError):
@@ -542,7 +566,7 @@ def test_output_contract_version_must_be_genuine_non_empty(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version="",
+            output_event_contract_authority_provider=_FixedOutputAuthorityProvider(authority=object()),
             authorized_candle_contract_refs=authorized_candle_contract_refs(),
             authorized_swing_contract_refs=authorized_swing_contract_refs(),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
@@ -569,7 +593,9 @@ def test_wrong_feature_type_for_swing_engine_rejected(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             authorized_candle_contract_refs=authorized_candle_contract_refs(),
             authorized_swing_contract_refs=authorized_swing_contract_refs(),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
@@ -587,7 +613,9 @@ def test_scope_definition_mismatch_for_swing_engine_rejected(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             authorized_candle_contract_refs=authorized_candle_contract_refs(),
             authorized_swing_contract_refs=authorized_swing_contract_refs(),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
@@ -605,7 +633,9 @@ def test_empty_authorized_candle_contract_refs_rejected(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             authorized_candle_contract_refs=frozenset(),
             authorized_swing_contract_refs=authorized_swing_contract_refs(),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
@@ -623,7 +653,9 @@ def test_unsupported_candle_contract_id_in_authorized_set_rejected(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             authorized_candle_contract_refs=frozenset({EventContractRef("candle-observed", CONTRACT_VERSION)}),
             authorized_swing_contract_refs=authorized_swing_contract_refs(),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
@@ -641,7 +673,9 @@ def test_empty_authorized_swing_contract_refs_rejected(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             authorized_candle_contract_refs=authorized_candle_contract_refs(),
             authorized_swing_contract_refs=frozenset(),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
@@ -659,7 +693,9 @@ def test_unsupported_swing_contract_id_in_authorized_set_rejected(
             definition,
             allocator,
             time_source,
-            feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+            output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+                OUTPUT_EVENT_CONTRACT_AUTHORITY
+            ),
             authorized_candle_contract_refs=authorized_candle_contract_refs(),
             authorized_swing_contract_refs=frozenset({EventContractRef("swing-candidate-detected", CONTRACT_VERSION)}),
             input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
@@ -1305,9 +1341,9 @@ def test_lifecycle_frontier_captured_verbatim_in_computation_cursor(
         event_recorded_time=reference.recorded_time,  # <= cursor.recorded_time, satisfies Lifecycle -> Cursor
     )
     computed = only_computed(
-        engine.on_candle(
-            reference, cursor=frontier_at(reference.recorded_time, lifecycle_frontier=distinctive_proof)
-        )[0]
+        engine.on_candle(reference, cursor=frontier_at(reference.recorded_time, lifecycle_frontier=distinctive_proof))[
+            0
+        ]
     )
     assert computed.computation_cursor.lifecycle_frontier == LifecycleFrontier(
         stream_id="platform-lifecycle", position=distinctive_position
@@ -1596,9 +1632,7 @@ def test_valid_looking_fake_sha_digests_cannot_be_supplied_to_swing_engine_as_if
         stream_registry_content_id="b" * 64,
     )
     with pytest.raises(UnresolvedComputationCursorAuthorityError):
-        _engine(
-            allocator, time_source, input_contract_authority_provider=_FixedAuthorityProvider(fake_but_well_formed)
-        )
+        _engine(allocator, time_source, input_contract_authority_provider=_FixedAuthorityProvider(fake_but_well_formed))
 
 
 def test_mutated_verified_authority_rejected_structurally() -> None:
@@ -1924,9 +1958,7 @@ def test_mutating_caller_stream_positions_after_emission_does_not_mutate_cursor(
         SWING_STREAM_ID: StreamPositionProof(sequence=10**9, event_recorded_time=reference.recorded_time),
     }
     computed = only_computed(
-        engine.on_candle(
-            reference, cursor=frontier_at(reference.recorded_time, stream_positions=mutable_positions)
-        )[0]
+        engine.on_candle(reference, cursor=frontier_at(reference.recorded_time, stream_positions=mutable_positions))[0]
     )
     before = dict(computed.computation_cursor.stream_positions)
 
@@ -1961,9 +1993,7 @@ def test_superseding_swing_already_visible_at_original_raises_computation_defect
     # B has a HIGHER-priority pivot (later pivot_effective_time.window_start) than A, and its own
     # recorded_time is already <= r_original — i.e. it was already visible when the ORIGINAL
     # computation ran, yet the engine (a stand-in for the original computation) never saw it.
-    swing_b = swing_confirmed_at(
-        allocator, pivot_index=8, swing_id="B", pivot_price="80", recorded_offset_minutes=0
-    )
+    swing_b = swing_confirmed_at(allocator, pivot_index=8, swing_id="B", pivot_price="80", recorded_offset_minutes=0)
     assert swing_b.recorded_time <= r_original
     with pytest.raises(EligibleSwingComputationDefectError):
         engine.on_swing_confirmed(swing_b, cursor=frontier_at(r_original + timedelta(minutes=1)))
@@ -2018,9 +2048,7 @@ def test_candidate_that_does_not_win_total_order_causes_no_invalidation(
 
     # C has a LOWER-priority pivot (earlier pivot_effective_time.window_start) than A — remains
     # eligible but never wins the total order, so the settled A-based window must not repaint.
-    swing_c = swing_confirmed_at(
-        allocator, pivot_index=2, swing_id="C", pivot_price="80", recorded_offset_minutes=10
-    )
+    swing_c = swing_confirmed_at(allocator, pivot_index=2, swing_id="C", pivot_price="80", recorded_offset_minutes=10)
     events = engine.on_swing_confirmed(swing_c, cursor=frontier_at(swing_c.recorded_time + timedelta(minutes=1)))
     assert events == []
     assert original.value == Decimal("5.00")
@@ -2338,9 +2366,7 @@ def test_candle_correction_while_window_pending_correction_resolves_it(
     # `_reevaluate_all_windows` call does not yet resolve the pending window
     # (the window is left genuinely PENDING_CORRECTION until the later candle
     # correction below, which supplies a cursor s2 IS visible at).
-    swing2 = swing_confirmed_at(
-        allocator, pivot_index=2, swing_id="s2", pivot_price="103", recorded_offset_minutes=25
-    )
+    swing2 = swing_confirmed_at(allocator, pivot_index=2, swing_id="s2", pivot_price="103", recorded_offset_minutes=25)
     engine.on_swing_confirmed(swing2, cursor=frontier_at(inv.recorded_time))
     assert swing2.recorded_time > inv.recorded_time
 
@@ -2425,9 +2451,7 @@ def test_candle_recorded_time_exactly_equal_to_last_seen_is_not_out_of_order(
     engine.on_candle(first, cursor=frontier_at(first.recorded_time))
     # A distinct window (different subject_id) whose own recorded_time is
     # EXACTLY EQUAL to the first candle's -- must be accepted, not rejected.
-    same_recorded_time = candle_at(
-        allocator, 11, high="120", low="100", close="115", recorded_offset_seconds=-60
-    )
+    same_recorded_time = candle_at(allocator, 11, high="120", low="100", close="115", recorded_offset_seconds=-60)
     assert same_recorded_time.recorded_time == first.recorded_time
     engine.on_candle(same_recorded_time, cursor=frontier_at(same_recorded_time.recorded_time))  # must not raise
 
@@ -2481,12 +2505,8 @@ def test_invalidate_swing_used_by_a_replacement_only_window_reattempts_it(
     reference = candle_at(allocator, 10, high="110", low="90", close="105")
     original = only_computed(engine.on_candle(reference, cursor=frontier_at(reference.recorded_time))[0])
 
-    inv_a = swing_invalidated_at(
-        allocator, swing_id="A", swing_revision=1, recorded_time=BASE + timedelta(minutes=20)
-    )
-    swing_b = swing_confirmed_at(
-        allocator, pivot_index=2, swing_id="B", pivot_price="103", recorded_offset_minutes=15
-    )
+    inv_a = swing_invalidated_at(allocator, swing_id="A", swing_revision=1, recorded_time=BASE + timedelta(minutes=20))
+    swing_b = swing_confirmed_at(allocator, pivot_index=2, swing_id="B", pivot_price="103", recorded_offset_minutes=15)
     engine.on_swing_confirmed(swing_b, cursor=frontier_at(swing_b.recorded_time))
     reattempt_events = engine.on_swing_invalidated(inv_a, cursor=frontier_at(inv_a.recorded_time))
     assert len(reattempt_events) == 2  # invalidation of A-based fact + B-based replacement-only fact
@@ -2851,9 +2871,7 @@ def test_reevaluate_all_windows_resolves_every_pending_window_not_just_the_first
     invalidation1 = only_invalidated(invalidation_events[0])
     invalidation2 = only_invalidated(invalidation_events[1])
 
-    swing_y = swing_confirmed_at(
-        allocator, pivot_index=1, swing_id="Y", pivot_price="103", recorded_offset_minutes=20
-    )
+    swing_y = swing_confirmed_at(allocator, pivot_index=1, swing_id="Y", pivot_price="103", recorded_offset_minutes=20)
     resolve_events = engine.on_swing_confirmed(swing_y, cursor=frontier_at(swing_y.recorded_time))
     assert len(resolve_events) == 2  # BOTH windows resolved, not just window1
     replacement1 = only_computed(resolve_events[0])
@@ -2887,9 +2905,7 @@ def test_reevaluate_all_windows_does_not_abandon_later_windows_when_first_still_
 
     # pivot_index=15 -> pivot_start=15min: NOT < window1's cutoff (6min, ineligible)
     # but IS < window2's cutoff (21min, eligible).
-    swing_y = swing_confirmed_at(
-        allocator, pivot_index=15, swing_id="Y", pivot_price="103", recorded_offset_minutes=15
-    )
+    swing_y = swing_confirmed_at(allocator, pivot_index=15, swing_id="Y", pivot_price="103", recorded_offset_minutes=15)
     resolve_events = engine.on_swing_confirmed(swing_y, cursor=frontier_at(swing_y.recorded_time))
     assert len(resolve_events) == 1  # window1 stays pending; window2 alone resolves
     replacement = only_computed(resolve_events[0])
@@ -2919,9 +2935,7 @@ def test_reevaluate_all_windows_preempt_continues_past_a_non_preemptable_window(
     # (6min <= 12min) -- window1 keeps using swing_b (nothing better). Its own
     # recorded_time is kept AFTER window2's own original computation cursor
     # (16min) so it was not already visible then (ADR-034 defect guard).
-    swing_a = swing_confirmed_at(
-        allocator, pivot_index=12, swing_id="A", pivot_price="103", recorded_offset_minutes=5
-    )
+    swing_a = swing_confirmed_at(allocator, pivot_index=12, swing_id="A", pivot_price="103", recorded_offset_minutes=5)
     preempt_events = engine.on_swing_confirmed(swing_a, cursor=frontier_at(swing_a.recorded_time))
     assert len(preempt_events) == 2  # window2 preempted (invalidation + replacement); window1 untouched
     invalidation = only_invalidated(preempt_events[0])
@@ -2948,9 +2962,7 @@ def test_on_swing_invalidated_reattempts_every_matching_window_not_just_the_firs
 
     # pivot_index=8 -> pivot_end=9min > swing_other's pivot_end (2min) -- wins
     # the total order for window2, where both are eligible candidates.
-    swing_x = swing_confirmed_at(
-        allocator, pivot_index=8, swing_id="X", pivot_price="100", recorded_offset_minutes=1
-    )
+    swing_x = swing_confirmed_at(allocator, pivot_index=8, swing_id="X", pivot_price="100", recorded_offset_minutes=1)
     engine.on_swing_confirmed(swing_x, cursor=frontier_at(swing_x.recorded_time))
     candle2 = candle_at(allocator, 10, high="120", low="95", close="115")
     original2 = only_computed(engine.on_candle(candle2, cursor=frontier_at(candle2.recorded_time))[0])
@@ -3086,9 +3098,7 @@ def test_candle_by_window_after_correction_is_read_back_by_later_reattempt(
     )
     events = engine.on_swing_invalidated(inv, cursor=frontier_at(inv.recorded_time))
     assert len(events) == 1  # no other eligible Swing -- genuinely PENDING_CORRECTION
-    swing2 = swing_confirmed_at(
-        allocator, pivot_index=2, swing_id="s2", pivot_price="103", recorded_offset_minutes=20
-    )
+    swing2 = swing_confirmed_at(allocator, pivot_index=2, swing_id="s2", pivot_price="103", recorded_offset_minutes=20)
     resolve_events = engine.on_swing_confirmed(swing2, cursor=frontier_at(swing2.recorded_time))
     replacement = only_computed(resolve_events[0])
     assert replacement.value == Decimal("22.00")  # |125 - 103| -- the CORRECTED close, not the original 105

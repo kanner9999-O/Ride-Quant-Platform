@@ -37,7 +37,7 @@ from typing import Any
 
 import pytest
 from conftest import (
-    FEATURE_OUTPUT_CONTRACT_VERSION,
+    OUTPUT_EVENT_CONTRACT_AUTHORITY,
     REGIME_INPUT_CONTRACT,
     SWING_DISTANCE_INPUT_CONTRACT,
     FixedDeltaTimeSource,
@@ -61,6 +61,7 @@ from feature_engine import (
     RegimePassthroughFeatureEngine,
     SequenceAllocator,
     StaticInputContractAuthorityProvider,
+    StaticOutputEventContractAuthorityProvider,
     SwingDistanceFeatureEngine,
     resolve_input_contract_authority_from_repository,
 )
@@ -161,7 +162,9 @@ def test_replay_execution_is_self_contained_after_construction(
         swing_definition,
         allocator,
         time_source,
-        feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+        output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+            OUTPUT_EVENT_CONTRACT_AUTHORITY
+        ),
         authorized_candle_contract_refs=authorized_candle_contract_refs(),
         authorized_swing_contract_refs=authorized_swing_contract_refs(),
         input_contract_authority_provider=StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT),
@@ -174,7 +177,9 @@ def test_replay_execution_is_self_contained_after_construction(
         regime_definition,
         allocator,
         time_source,
-        feature_event_contract_version=FEATURE_OUTPUT_CONTRACT_VERSION,
+        output_event_contract_authority_provider=StaticOutputEventContractAuthorityProvider(
+            OUTPUT_EVENT_CONTRACT_AUTHORITY
+        ),
         input_contract_authority_provider=StaticInputContractAuthorityProvider(REGIME_INPUT_CONTRACT),
     )
 

@@ -44,6 +44,7 @@ from datetime import datetime
 
 from .contracts import (
     ComputationCursor,
+    ComputationDependencyContentEvidence,
     EvaluationFrontier,
     FeatureComputationProfile,
     FeatureComputed,
@@ -52,11 +53,13 @@ from .contracts import (
     FeatureFactInvalidated,
     FeatureScope,
     InputContractAuthorityProvider,
+    OutputEventContractAuthorityProvider,
     RecordedTimeSource,
     VerifiedInputContractAuthority,
+    VerifiedOutputEventContractAuthority,
     normalize_input_facts,
     resolve_computation_cursor,
-    resolve_output_contract_refs,
+    resolve_computation_dependency_content_evidence,
 )
 from .envelope import EventContractRef, EventRecordRef
 from .errors import (
@@ -70,6 +73,7 @@ from .errors import (
     RegimeDimensionMismatchError,
     UnauthorizedUpstreamContractError,
     UnresolvedComputationCursorAuthorityError,
+    UnresolvedOutputContractAuthorityError,
 )
 from .publish import SequenceAllocator
 from .regime_input import RegimeClassifiedFact, RegimeFactInvalidatedFact
@@ -104,7 +108,7 @@ class RegimePassthroughFeatureEngine:
         allocator: SequenceAllocator,
         time_source: RecordedTimeSource,
         *,
-        feature_event_contract_version: str,
+        output_event_contract_authority_provider: OutputEventContractAuthorityProvider,
         input_contract_authority_provider: InputContractAuthorityProvider,
         stream_id: str = "feature",
     ) -> None:
@@ -116,9 +120,15 @@ class RegimePassthroughFeatureEngine:
             definition.feature_definition_version
         ):
             raise ValueError("scope does not match definition")
-        self._output_contract_ref, self._invalidation_contract_ref = resolve_output_contract_refs(
-            feature_event_contract_version
-        )
+        output_authority = output_event_contract_authority_provider.resolve()
+        if not isinstance(output_authority, VerifiedOutputEventContractAuthority):
+            raise UnresolvedOutputContractAuthorityError(
+                "output_event_contract_authority_provider.resolve() returned "
+                f"{type(output_authority).__name__!r}, not a genuine VerifiedOutputEventContractAuthority — a "
+                "provider is never trusted merely because it returned an object with plausible-looking fields"
+            )
+        self._output_contract_ref = output_authority.computed_contract_ref
+        self._invalidation_contract_ref = output_authority.invalidated_contract_ref
         self._resolved_input_contract = input_contract_authority_provider.resolve(_REQUIRED_INPUT_CONTRACT_PROFILE)
         if not isinstance(self._resolved_input_contract, VerifiedInputContractAuthority):
             raise UnresolvedComputationCursorAuthorityError(
@@ -182,9 +192,16 @@ class RegimePassthroughFeatureEngine:
         """
         return resolve_computation_cursor(frontier, resolved_input_contract=self._resolved_input_contract)
 
-    def on_regime_classified(
-        self, fact: RegimeClassifiedFact, *, cursor: EvaluationFrontier
-    ) -> list[FeatureEvent]:
+    def _resolve_evidence(self) -> ComputationDependencyContentEvidence:
+        """ADR-037: the single place this engine assembles its own outbound
+        `computation_dependency_content_evidence` — always from this
+        engine's own bound `VerifiedInputContractAuthority`, the SAME
+        cached instance `_resolve_cursor` draws `input_contract_ref`/
+        `stream_registry_version` from for this exact fact.
+        """
+        return resolve_computation_dependency_content_evidence(self._resolved_input_contract)
+
+    def on_regime_classified(self, fact: RegimeClassifiedFact, *, cursor: EvaluationFrontier) -> list[FeatureEvent]:
         """`cursor` is the explicit, caller-certified `EvaluationFrontier`
         (P3-FEATURE-A-MAJ-06) captured verbatim into this fact's own
         `computation_cursor` — never implicitly derived from
@@ -276,6 +293,7 @@ class RegimePassthroughFeatureEngine:
             ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._output_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
+            computation_dependency_content_evidence=self._resolve_evidence(),
         )
         self._lineage[key] = _WindowLineage(
             head_fact=feature_fact, invalidated=False, last_evidence_ref=fact.ref, last_evidence_fact=fact
@@ -303,6 +321,7 @@ class RegimePassthroughFeatureEngine:
             ref=ref,
             event_contract_ref=self._invalidation_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
+            computation_dependency_content_evidence=self._resolve_evidence(),
         )
         state.invalidated = True
         state.pending_invalidation_ref = ref
@@ -337,6 +356,7 @@ class RegimePassthroughFeatureEngine:
             ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._output_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
+            computation_dependency_content_evidence=self._resolve_evidence(),
         )
         self._lineage[key] = _WindowLineage(
             head_fact=replacement, invalidated=False, last_evidence_ref=fact.ref, last_evidence_fact=fact

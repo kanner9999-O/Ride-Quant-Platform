@@ -115,6 +115,7 @@ from .contracts import (
     SWING_CONFIRMED_CONTRACT_ID,
     SWING_INVALIDATED_CONTRACT_ID,
     ComputationCursor,
+    ComputationDependencyContentEvidence,
     EvaluationFrontier,
     FeatureComputationProfile,
     FeatureComputed,
@@ -123,11 +124,13 @@ from .contracts import (
     FeatureFactInvalidated,
     FeatureScope,
     InputContractAuthorityProvider,
+    OutputEventContractAuthorityProvider,
     RecordedTimeSource,
     VerifiedInputContractAuthority,
+    VerifiedOutputEventContractAuthority,
     is_visible_at_cursor,
     resolve_computation_cursor,
-    resolve_output_contract_refs,
+    resolve_computation_dependency_content_evidence,
 )
 from .envelope import EventContractRef, EventRecordRef
 from .errors import (
@@ -145,6 +148,7 @@ from .errors import (
     RecordedTimeSourceViolationError,
     UnauthorizedUpstreamContractError,
     UnresolvedComputationCursorAuthorityError,
+    UnresolvedOutputContractAuthorityError,
     UnsupportedDistanceRepresentationError,
 )
 from .publish import SequenceAllocator
@@ -249,7 +253,7 @@ class SwingDistanceFeatureEngine:
         allocator: SequenceAllocator,
         time_source: RecordedTimeSource,
         *,
-        feature_event_contract_version: str,
+        output_event_contract_authority_provider: OutputEventContractAuthorityProvider,
         authorized_candle_contract_refs: frozenset[EventContractRef],
         authorized_swing_contract_refs: frozenset[EventContractRef],
         input_contract_authority_provider: InputContractAuthorityProvider,
@@ -283,9 +287,15 @@ class SwingDistanceFeatureEngine:
                     f"authorized_swing_contract_refs contains unsupported contract_id "
                     f"{swing_ref.contract_id!r} (must be one of {sorted(_ALLOWED_SWING_CONTRACT_IDS)!r})"
                 )
-        self._output_contract_ref, self._invalidation_contract_ref = resolve_output_contract_refs(
-            feature_event_contract_version
-        )
+        output_authority = output_event_contract_authority_provider.resolve()
+        if not isinstance(output_authority, VerifiedOutputEventContractAuthority):
+            raise UnresolvedOutputContractAuthorityError(
+                "output_event_contract_authority_provider.resolve() returned "
+                f"{type(output_authority).__name__!r}, not a genuine VerifiedOutputEventContractAuthority — a "
+                "provider is never trusted merely because it returned an object with plausible-looking fields"
+            )
+        self._output_contract_ref = output_authority.computed_contract_ref
+        self._invalidation_contract_ref = output_authority.invalidated_contract_ref
         self._resolved_input_contract = input_contract_authority_provider.resolve(_REQUIRED_INPUT_CONTRACT_PROFILE)
         if not isinstance(self._resolved_input_contract, VerifiedInputContractAuthority):
             raise UnresolvedComputationCursorAuthorityError(
@@ -381,6 +391,15 @@ class SwingDistanceFeatureEngine:
         hold against this engine's own bound Input Contract authority.
         """
         return resolve_computation_cursor(frontier, resolved_input_contract=self._resolved_input_contract)
+
+    def _resolve_evidence(self) -> ComputationDependencyContentEvidence:
+        """ADR-037: the single place this engine assembles its own outbound
+        `computation_dependency_content_evidence` — always from this
+        engine's own bound `VerifiedInputContractAuthority`, the SAME
+        cached instance `_resolve_cursor` draws `input_contract_ref`/
+        `stream_registry_version` from for this exact fact.
+        """
+        return resolve_computation_dependency_content_evidence(self._resolved_input_contract)
 
     # -- Swing ingestion (append-only historical evidence) ------------------
 
@@ -536,10 +555,14 @@ class SwingDistanceFeatureEngine:
         """
         self._resolve_cursor(cursor)
         existing = self._latest_confirmation(invalidation.swing_id)
-        already_invalidated = existing is not None and (
-            invalidation.swing_id,
-            existing.revision,
-        ) in self._swing_invalidations
+        already_invalidated = (
+            existing is not None
+            and (
+                invalidation.swing_id,
+                existing.revision,
+            )
+            in self._swing_invalidations
+        )
         if existing is None or existing.revision != invalidation.swing_revision or already_invalidated:
             raise InvalidSwingEligibilityInputError(
                 f"SwingInvalidated targets ({invalidation.swing_id!r}, {invalidation.swing_revision!r}), which is "
@@ -759,6 +782,7 @@ class SwingDistanceFeatureEngine:
             ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._output_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
+            computation_dependency_content_evidence=self._resolve_evidence(),
         )
         self._lineage[key] = _WindowLineage(
             head_fact=fact, invalidated=False, used_swing_id=swing_id, used_swing_ref=state.ref
@@ -790,6 +814,7 @@ class SwingDistanceFeatureEngine:
             ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._invalidation_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
+            computation_dependency_content_evidence=self._resolve_evidence(),
         )
         events: list[FeatureEvent] = [invalidation]
         events.extend(
@@ -832,6 +857,7 @@ class SwingDistanceFeatureEngine:
             ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._output_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
+            computation_dependency_content_evidence=self._resolve_evidence(),
         )
         self._lineage[key] = _WindowLineage(
             head_fact=replacement, invalidated=False, used_swing_id=swing_id, used_swing_ref=state.ref
@@ -859,6 +885,7 @@ class SwingDistanceFeatureEngine:
             ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._invalidation_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
+            computation_dependency_content_evidence=self._resolve_evidence(),
         )
         lineage.invalidated = True
         lineage.pending_invalidation_ref = invalidation.ref
@@ -982,6 +1009,7 @@ class SwingDistanceFeatureEngine:
             ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._invalidation_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
+            computation_dependency_content_evidence=self._resolve_evidence(),
         )
         events: list[FeatureEvent] = [invalidation]
         events.extend(
