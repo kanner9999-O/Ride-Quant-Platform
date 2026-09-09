@@ -6,10 +6,10 @@
 # HEAD for the committed retention horizon; git history is content-identity/audit evidence only,
 # never a fallback resolver) per Approved ADR-040 v0.1 (docs/adr/ADR-040.md).
 #
-# STATUS: Draft — NOT Published. Per ADR-039's immutability discipline, this file may still be
-# edited in place while Draft; once transitioned to Published it becomes frozen/immutable
-# byte-for-byte, no in-place edits, no reassigning this contract_version identifier to different
-# content ever again.
+# STATUS: Published — frozen, immutable byte-for-byte from this publication boundary forward
+# (ADR-039 §"Immutability and identifier non-reuse"; Chapter 11 §11.3 discipline applied). No
+# in-place edits, no reassigning contract_version: v1.0 to different content, ever again. This is
+# now a Referenced Authoritative Artifact fully in force per Chapter 8 §8.1.1.
 #
 # This is the FIRST version for contract_id: feature-computed — no prior Published Event Contract
 # snapshot exists (feature.md v0.6 declares event_contract_ref as a required envelope field but pins
@@ -52,12 +52,37 @@
 # backward_only`, or any ADR-034/035/037/038 semantic. `ADR-039`/`ADR-040`/Locked Constitution
 # unchanged. No runtime implementation, QG, module, gate, or LIVE transition.
 #
-# `P3-FEATURE-EC-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
-# `P3-FEATURE-EC-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+# `P3-FEATURE-EC-A-MAJ-01: CLOSED`
+# `P3-FEATURE-EC-A-MAJ-02: CLOSED`
+#
+# PUBLISHED (2026-09-09T15:38+07:00, vai trò: `Feature Event Contract v1.0 Publication Recording
+# Executor`) — Product Owner decision verbatim: "approve nhé" — approving the immediately
+# preceding publication proposal for BOTH `feature-computed/v1.0.yaml` and
+# `feature-fact-invalidated/v1.0.yaml` at their exact reviewed semantic identities (decision scope
+# explicit, not a general/unscoped approval). Reviewed semantic candidate identity (G-ID-001):
+# commit `f4cec9dd631936fdfdd0d9a3fe9e150f4d1b0bd2`, content identity
+# `972a4bf40eb2256457aeb987cab84b7b2e1aaf17` — distinct from this transaction's own resulting
+# lifecycle-record identity (mechanical status/reviewer-field edit only; event_class/
+# allowed_streams/merge_constraints/payload_shape/payload_semantics_and_invariants/
+# compatibility_commitment/provenance content unchanged). Review A (ChatGPT, AI Technical
+# Architect) — bounded re-review confirmed `P3-FEATURE-EC-A-MAJ-01`/`P3-FEATURE-EC-A-MAJ-02` both
+# fully remediated; 0 Blocker/0 Major/0 Minor, CLEAN, READY_FOR_INDEPENDENT_REVIEW_B. Independent
+# Review B (Claude, alias "Independent Review B", AI Technical Architect, Mode A
+# `DISTINCT_PRINCIPAL` relative to ChatGPT per ADR-031 §5, same reviewed boundary/blob above,
+# execution/session reference not available — none fabricated) — 0 Blocker/0 Major/0 Minor,
+# CLEAN, READY_FOR_PRODUCT_OWNER_DECISION. Minimum-two-review requirement (Chapter 11 §11.5):
+# SATISFIED. This is a mechanical lifecycle-only edit — contract_id/contract_version/event_type/
+# event_class/allowed_streams/merge_constraints/payload_shape/payload_semantics_and_invariants/
+# compatibility_commitment/provenance values are unchanged, byte-for-byte semantically identical
+# to the reviewed candidate.
 
 contract_id: feature-computed
 contract_version: v1.0
-status: Draft
+status: Published
+reviewers: [ChatGPT, Claude]
+approved_by: Product Owner
+approved_at: "2026-09-09T15:38+07:00"
+last_review: "2026-09-09"
 
 event_type: FEATURE_COMPUTED
 # feature.md v0.6 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not

@@ -2,6 +2,63 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-09 — feature-engine: Feature Event Contract v1.0 `Published` — `feature-computed`/`feature-fact-invalidated` now effective Referenced Authoritative Artifacts (`P3-FEATURE-EC-A-MAJ-01`/`-MAJ-02` → `CLOSED`)
+
+**Mechanical publication/lifecycle recording transaction — vai trò: `Feature Event Contract v1.0 Publication Recording Executor`.** Records Review A's bounded re-review confirming `P3-FEATURE-EC-A-MAJ-01`/`P3-FEATURE-EC-A-MAJ-02` both fully remediated (`CLOSED`), Independent Review B's own review, and the Product Owner's publication approval — transitioning BOTH `feature-computed/v1.0.yaml` and `feature-fact-invalidated/v1.0.yaml` from `Draft` to `Published`. No semantic redesign; contract semantics byte-unchanged in both files.
+
+**Fresh boundary verification:** HEAD confirmed exactly `d8f8a07ec6b33e708258692eb16f1839cccda7d5`, identical to `origin/main`; `feature-computed/v1.0.yaml` reviewed Draft blob confirmed exactly `972a4bf40eb2256457aeb987cab84b7b2e1aaf17`; `feature-fact-invalidated/v1.0.yaml` reviewed Draft blob confirmed exactly `11eaa4a9f81c318afd3baa09e9bb73d941c1f265` — no drift affecting either artifact. Intervening drift (`f4cec9d...` → `d8f8a07...`) confirmed to add only the non-authoritative Workflow research document.
+
+**Product Owner decision (verbatim):** `"approve nhé"` — scope: publication of BOTH `feature-computed/v1.0.yaml` (reviewed blob `972a4bf40eb2256457aeb987cab84b7b2e1aaf17`) and `feature-fact-invalidated/v1.0.yaml` (reviewed blob `11eaa4a9f81c318afd3baa09e9bb73d941c1f265`) at reviewed semantic boundary `f4cec9dd631936fdfdd0d9a3fe9e150f4d1b0bd2` — approving the immediately preceding publication proposal, not a general/unscoped approval. Recorded `2026-09-09T15:38+07:00`.
+
+### Lifecycle transition applied (both artifacts)
+
+```text
+status: Draft -> Published. reviewers: [] -> [ChatGPT, Claude]. approved_by:
+  (absent) -> Product Owner. approved_at -> 2026-09-09T15:38+07:00.
+  last_review -> 2026-09-09. contract_version remains exactly v1.0. Per
+  ADR-039/Chapter 11 §11.3, both files are now immutable byte-for-byte from
+  this publication boundary forward.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/architecture/event-contracts/feature-computed/v1.0.yaml
+  (lifecycle transition, blob 972a4bf40eb2256457aeb987cab84b7b2e1aaf17 ->
+  9e1da0ac1e72403a780ff16e0d06ed68354da623);
+  docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml
+  (lifecycle transition, blob 11eaa4a9f81c318afd3baa09e9bb73d941c1f265 ->
+  7015fa4c09b0fa6993c1324858719ebca76d260d); docs/MANIFEST.md;
+  docs/CHANGELOG.md. `git diff` confirms only header comments, status, and
+  reviewers/approved_by/approved_at/last_review changed in both files --
+  event_class/allowed_streams/merge_constraints/payload_shape/
+  payload_semantics_and_invariants/compatibility_commitment/provenance all
+  byte-unchanged. ADR-039/ADR-040/Locked Constitution/Workflow research
+  document/production/test/tooling all verified byte-unchanged. No
+  event_contract_ref implementation performed.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-EC-A-MAJ-01:         CLOSED (folded into this publication
+                                transaction).
+P3-FEATURE-EC-A-MAJ-02:         CLOSED (folded into this publication
+                                transaction).
+P3-FEATURE-QG-EVID-05(b):       OPEN — both artifacts now Published, but no
+                                event_contract_ref implementation exists.
+                                NOT closed by this transaction.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039/ADR-040:               Approved, immutable, unaffected.
+```
+
+**Next governed step:** the follow-on work already named in `ADR-039`'s/`ADR-040`'s own Consequences — Feature's own `event_contract_ref` implementation, and Class G's past-horizon archival mechanism — none performed by this transaction.
+
+**Files changed:** `docs/architecture/event-contracts/feature-computed/v1.0.yaml` (lifecycle transition, in place), `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.354"` → `"10.355"`.
+
 ## [Unreleased] — 2026-09-09 — feature-engine: Feature Output Event Contract version-artifacts bounded Review A correction (`P3-FEATURE-EC-A-MAJ-01`/`-MAJ-02` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `Draft`/`v1.0` unchanged, no version bump)
 
 **Bounded correction transaction — vai trò: `Feature Event Contract Version-Artifact Bounded Correction Executor`.** Remediates two Review A findings against `feature-computed/v1.0.yaml` and `feature-fact-invalidated/v1.0.yaml` (both `Draft`). `P3-FEATURE-EC-A-MAJ-01`: both Drafts referenced `feature.md` §8a/§8b/§9a/§12 for semantics needed to validate their own payloads instead of inlining them — an incomplete-self-containment gap under `ADR-039`. `P3-FEATURE-EC-A-MAJ-02`: both Drafts asserted mutable repository-state claims about Feature-scoped Input Contract non-existence, stale now that `docs/architecture/input-contracts/*` and production `authority_resolver.py` already exist/resolve them. Correction only — inlines the missing self-contained semantics and replaces stale existence claims with timeless fail-closed resolution language; `contract_id`/`contract_version: v1.0`/`status: Draft`/`event_class: derived_fact`/`allowed_streams: [feature-engine-feature]`/`merge_constraints`/`compatibility_commitment: backward_only`/ADR-034/035/037/038 semantics all preserved unchanged.

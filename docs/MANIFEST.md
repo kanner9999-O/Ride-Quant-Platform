@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.354"
+manifest_version: "10.355"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -25463,6 +25463,124 @@ ADR-039/ADR-040:               Approved, immutable, unaffected.
 **Next governed step:** bounded Review A re-review of this correction.
 
 **Files changed:** `docs/architecture/event-contracts/feature-computed/v1.0.yaml` (corrected in place), `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.353"` → `"10.354"`.
+
+## Feature Event Contract v1.0 — Product Owner Publication (`Published` — `feature-computed`/`feature-fact-invalidated` now effective Referenced Authoritative Artifacts)
+
+**Mechanical publication/lifecycle recording transaction — vai trò: `Feature Event Contract v1.0 Publication Recording Executor`.** Records Review A's bounded re-review confirming `P3-FEATURE-EC-A-MAJ-01`/`P3-FEATURE-EC-A-MAJ-02` both fully remediated (`CLOSED`), Independent Review B's own review, and the Product Owner's publication approval — transitioning BOTH `feature-computed/v1.0.yaml` and `feature-fact-invalidated/v1.0.yaml` from `Draft` to `Published`. No semantic redesign; `contract_id`/`contract_version: v1.0`/`event_type`/`event_class`/`allowed_streams`/`merge_constraints`/`payload_shape`/`payload_semantics_and_invariants`/`compatibility_commitment`/`provenance` all byte-unchanged in both files.
+
+**Fresh boundary verification:** HEAD confirmed exactly `d8f8a07ec6b33e708258692eb16f1839cccda7d5`, identical to `origin/main`; `feature-computed/v1.0.yaml` reviewed Draft blob confirmed exactly `972a4bf40eb2256457aeb987cab84b7b2e1aaf17`; `feature-fact-invalidated/v1.0.yaml` reviewed Draft blob confirmed exactly `11eaa4a9f81c318afd3baa09e9bb73d941c1f265` — no drift affecting either artifact. Diff between the reviewed semantic boundary (`f4cec9dd631936fdfdd0d9a3fe9e150f4d1b0bd2`) and current HEAD confirmed to add only the non-authoritative `docs/architecture/workflow-domain-model-research-synthesis.md` — governance-classified as non-semantic drift, does not affect either reviewed artifact.
+
+### Review A recorded (both artifacts)
+
+```text
+Principal: ChatGPT, AI Technical Architect / Review A. Same reviewed boundary/
+  blobs as above. Bounded re-review confirmed P3-FEATURE-EC-A-MAJ-01
+  (input_fact_refs_normalization/computation_identity_and_dedup inlined in
+  feature-computed; cursor_visibility_predicate/eligible_swing_selection
+  inlined in feature-fact-invalidated) and P3-FEATURE-EC-A-MAJ-02 (stale
+  Input-Contract-non-existence claims replaced with timeless fail-closed
+  resolution semantics, both artifacts) both fully remediated. Blocker 0 /
+  Major 0 / Minor 0. CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+```
+
+### Independent Review B recorded (both artifacts)
+
+```text
+Principal: Claude, AI Technical Architect / Independent Review B.
+  DISTINCT_PRINCIPAL (Mode A). Execution ID N/A (not fabricated). Same
+  reviewed boundary/blobs. Independently verified the inlined self-contained
+  semantics (input_fact_refs_normalization/computation_identity_and_dedup;
+  cursor_visibility_predicate/eligible_swing_selection), the timeless
+  fail-closed resolution wording replacing the stale existence claims,
+  contract_id/contract_version: v1.0/event_class: derived_fact/
+  allowed_streams: [feature-engine-feature]/merge_constraints/
+  compatibility_commitment: backward_only all unchanged, and ADR-034/035/
+  037/038 semantics preserved in both artifacts. Blocker 0 / Major 0 /
+  Minor 0. CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+"approve nhé"
+Scope: publication of BOTH feature-computed/v1.0.yaml (reviewed blob
+  972a4bf40eb2256457aeb987cab84b7b2e1aaf17) and
+  feature-fact-invalidated/v1.0.yaml (reviewed blob
+  11eaa4a9f81c318afd3baa09e9bb73d941c1f265) at reviewed semantic boundary
+  f4cec9dd631936fdfdd0d9a3fe9e150f4d1b0bd2 -- approving the immediately
+  preceding publication proposal, not a general/unscoped approval.
+Recorded: 2026-09-09T15:38+07:00.
+```
+
+### Lifecycle transition applied (both artifacts)
+
+```text
+status: Draft -> Published. reviewers: [] -> [ChatGPT, Claude]. approved_by:
+  (absent) -> Product Owner. approved_at: (absent) ->
+  2026-09-09T15:38+07:00. last_review: (absent) -> 2026-09-09.
+  contract_version remains exactly v1.0. contract_id unchanged. Reviewed
+  semantic boundary/blob recorded separately from, never confused with, the
+  resulting lifecycle-record blob (see Files changed below). Per ADR-039
+  §"Immutability and identifier non-reuse" / Chapter 11 §11.3, both files
+  are now immutable byte-for-byte from this publication boundary forward --
+  Referenced Authoritative Artifacts fully in force per Chapter 8 §8.1.1.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/architecture/event-contracts/feature-computed/v1.0.yaml
+  (lifecycle transition in place, blob
+  972a4bf40eb2256457aeb987cab84b7b2e1aaf17 ->
+  9e1da0ac1e72403a780ff16e0d06ed68354da623);
+  docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml
+  (lifecycle transition in place, blob
+  11eaa4a9f81c318afd3baa09e9bb73d941c1f265 ->
+  7015fa4c09b0fa6993c1324858719ebca76d260d); docs/MANIFEST.md;
+  docs/CHANGELOG.md. No semantic content changed in either artifact --
+  `git diff` confirms only header comments, status, and the four added
+  reviewers/approved_by/approved_at/last_review fields changed;
+  event_class/allowed_streams/merge_constraints/payload_shape/
+  payload_semantics_and_invariants/compatibility_commitment/provenance all
+  byte-unchanged. ADR-039/ADR-040 (Approved, immutable), Locked
+  Constitution, feature.md, context-map.yaml, stream-registry.yaml,
+  module-registry.yaml, the Workflow research document, and production/
+  test/tooling all verified byte-unchanged (`git diff --quiet`). No
+  event_contract_ref implementation performed.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-EC-A-MAJ-01:         CLOSED (folded into this publication
+                                transaction, not a standalone closure
+                                commit).
+P3-FEATURE-EC-A-MAJ-02:         CLOSED (folded into this publication
+                                transaction, not a standalone closure
+                                commit).
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN — both Event Contract version-
+                                artifacts are now Published, but no
+                                event_contract_ref implementation
+                                exists, no Class G past-horizon
+                                archival mechanism exists (ADR-040's
+                                own deferred item), and no retention
+                                policy concrete mechanism exists.
+                                NOT closed by this transaction.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039/ADR-040:               Approved, immutable, unaffected.
+```
+
+**Next governed step:** the follow-on work already named in `ADR-039`'s/`ADR-040`'s own Consequences — Feature's own `event_contract_ref` implementation work, and Class G's past-horizon archival mechanism — none of which is performed by this publication-recording transaction.
+
+**Files changed:** `docs/architecture/event-contracts/feature-computed/v1.0.yaml` (lifecycle transition, in place), `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.354"` → `"10.355"`.
 
 ## Decision Log
 
