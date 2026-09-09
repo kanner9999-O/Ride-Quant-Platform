@@ -1,0 +1,169 @@
+# Event Contract version-artifact — feature-computed v1.0
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1). Canonical authority/self-containment model,
+# path/version grammar, and immutability discipline per Approved ADR-039 v0.1
+# (docs/adr/ADR-039.md). Retention/archive semantics (Class G: canonical path must remain live at
+# HEAD for the committed retention horizon; git history is content-identity/audit evidence only,
+# never a fallback resolver) per Approved ADR-040 v0.1 (docs/adr/ADR-040.md).
+#
+# STATUS: Draft — NOT Published. Per ADR-039's immutability discipline, this file may still be
+# edited in place while Draft; once transitioned to Published it becomes frozen/immutable
+# byte-for-byte, no in-place edits, no reassigning this contract_version identifier to different
+# content ever again.
+#
+# This is the FIRST version for contract_id: feature-computed — no prior Published Event Contract
+# snapshot exists (feature.md v0.6 declares event_contract_ref as a required envelope field but pins
+# no contract_version anywhere; context-map.yaml pins contract_id only). Per ADR-039's "First
+# authoritative version" rule, contract_version is fixed at v1.0 — no other value is valid for a
+# first publication.
+#
+# event_class / allowed_streams / merge_constraints below are GOVERNED-AUTHORED against current
+# higher authority (Chapter 8, ADR-036, ADR-037, ADR-038) — NOT mechanically transcribed from
+# feature.md, which does not declare any of the three fields anywhere. Authority basis is cited
+# inline at each field. payload_shape / payload_semantics_and_invariants are transcribed from
+# feature.md v0.6 §2 (envelope, payload-relevant portions only)/§3 (FeatureComputed) and are fully
+# self-contained here — a reader does not need to separately consult feature.md to interpret this
+# artifact's own meaning (ADR-039). feature.md's own envelope fields (event_id, recorded_time,
+# subject_ref, stream_ref, sequence, producer_ref, correlation_id, causation_refs,
+# related_event_refs, effective_time) remain Chapter 8 §8.2's own owned concept, applied not
+# redefined here — this artifact declares the PAYLOAD portion only, consistent with Chapter 8 §8.2's
+# own authority split ("Chapter 8 sở hữu envelope; Event Contract sở hữu payload schema/semantic").
+#
+# Governed authoring transaction boundary: HEAD ce4335e37fee6aaf1827a38a23cbff78d790a920.
+
+contract_id: feature-computed
+contract_version: v1.0
+status: Draft
+
+event_type: FEATURE_COMPUTED
+# feature.md v0.6 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: derived_fact
+# Governed-authored. NOT `decision`: FeatureComputed carries no decision_time/decision_context_cursor
+# and is not subject to Chapter 8 §8.2.1/§8.4's Decision-specific cardinality rule (Chapter 9
+# §"Event Decision phải khai báo event_class: decision") — feature.md's own envelope (§2) never
+# declares those fields, consistent with treating this as a non-Decision event.
+#
+# "derived_fact" reuses this repository's own already-established, repeatedly-used vocabulary for
+# exactly this event category — identical phrasing ("derived/computed fact, không phải quan sát
+# trực tiếp venue") is already used for this same purpose in regime.md §2, structure.md §2,
+# swing.md §2, and feature.md §2 itself (envelope's own market_time cardinality note: "Feature là
+# derived/computed fact, không phải quan sát trực tiếp venue"). Not reused verbatim as "observation"
+# (Chapter 8 §8.3.1's own illustrative alternative, MARKET_DATA_OBSERVED): FeatureComputed is
+# definitionally NOT a raw venue observation — feature.md's opening section states Feature is
+# "tính từ authoritative upstream fact (Candle, Swing, Raw Regime) theo một Feature Definition đã
+# pin", i.e. computed/derived, not observed — so "observation" would misdescribe it.
+#
+# No new architecture decision required for this choice: Chapter 8 §8.3.1's worked example
+# ("event_class: decision | observation | ...") is explicitly open-ended — the Constitution locks
+# only the decision/non-decision distinction and its cardinality consequence (§8.2.1/§8.4/Chapter 9),
+# not a closed non-decision vocabulary. Selecting an accurate, already-precedented descriptive label
+# for a non-decision event is Event-Contract-level governed authoring under ADR-039, not a >1-module
+# or hard-to-reverse decision Chapter 0 §4b would require an ADR for.
+
+allowed_streams:
+  - stream_id: feature-engine-feature
+# Governed-authored from docs/architecture/stream-registry.yaml (Approved, status: Approved,
+# reviewed 2026-08-26) + Chapter 8 §8.3.1 ("Event Contract chỉ được tham chiếu stream, KHÔNG định
+# nghĩa stream; eligibility khai báo MỘT CHIỀU tại Event Contract, KHÔNG ở Stream Registry").
+# `feature-engine-feature` is feature-engine's sole registered stream in the Genesis Registry
+# (writer_authority.module_id: feature-engine, status: active, genesis_position: 0). Approved
+# ADR-036 v0.3 fixes the platform topology as "one logical stream per authoritative fact family a
+# writer module owns" — feature-engine owns exactly one authoritative fact family (Feature), so
+# both of its event types (FeatureComputed here, and FeatureFactInvalidated) target this one
+# stream — the same one-stream-per-fact-family pattern already realized for
+# market-data-ingestion/raw-regime-engine (one stream each) and structure-engine (two streams, for
+# its two distinct fact families, Swing and Structure).
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Governed-authored per Chapter 8 §8.3.4's own authority split ("Input Contract sở hữu duy nhất
+# final merge policy — Event Contract KHÔNG định nghĩa merge order; nếu một họ event có yêu cầu
+# riêng, Event Contract chỉ khai báo constraint") and worked example (identical
+# `prerequisite_policy: causation_must_resolve_before_apply` value shown for
+# ARBITRAGE_DECISION_CREATED). feature.md v0.6 §2 envelope fixes `causation_refs` as
+# "KHÔNG BAO GIỜ rỗng cho bất kỳ Feature event nào" — every FeatureComputed, original or
+# correction-replacement, always carries non-empty causation_refs that must resolve before this
+# event may be applied, per Chapter 8 §8.3.4's own P_causation/P_global DAG requirement
+# (cause ≺ effect). No additional Feature-specific merge constraint beyond this baseline was
+# identified: every other Feature-specific ordering requirement (correction-lineage recorded_time
+# ordering, supersedes_fact_ref chain integrity) is already fully captured as payload/envelope
+# invariants below, not as a cross-stream merge constraint Input Contract would need beyond
+# standard causal-topological ordering.
+
+payload_shape:
+  feature_subject_id: {type: string, required: true}
+  feature_type: {type: enum, values: [volatility_metric, directional_persistence_metric, distance_to_last_confirmed_swing], required: true}
+  feature_definition_version: {type: string, required: true}
+  value: {type: decimal, required: true, description: "kết quả — KHÔNG phải một phần computation identity, xem §8b (dedup)"}
+  unit: {type: string, required: true, description: "đơn vị số học — pin ở Feature Definition"}
+  effective_window:
+    kind: interval
+    window_start: {type: timestamp, required: true}
+    window_end: {type: timestamp, required: true}
+  input_fact_refs: {type: array, items: event_record_ref, required: true}
+  supersedes_fact_ref: {type: event_record_ref, required: false, description: "VẮNG MẶT cho original computation; BẮT BUỘC cho correction replacement — xem invariants."}
+  computation_cursor:
+    type: replay_cursor
+    required: true
+    description: >
+      Canonical Chapter 8 §8.5 Replay Cursor, applied here, NOT redefined (ADR-035, Approved).
+      Shape owned by Chapter 8 §8.5.1: recorded_time (required), input_contract_ref (required,
+      {contract_id, contract_version}), stream_registry_version (required), lifecycle_frontier
+      (required, {stream_id, position: {kind, sequence}}), stream_positions (required, map
+      stream_id -> sequence). input_contract_ref pins a Feature-scoped Input Contract instance
+      (Chapter 8 §8.3.4) — instance content still deferred (Phase 1, not yet authored).
+  computation_dependency_content_evidence:
+    input_contract_content_id: {type: string, required: true, description: "SHA-256 content identity of the exact Input Contract artifact bytes that this fact's own computation_cursor.input_contract_ref resolved to (ADR-037, Approved)."}
+    stream_registry_content_id: {type: string, required: true, description: "SHA-256 content identity of the exact Stream Registry artifact bytes that this fact's own computation_cursor.stream_registry_version resolved to (ADR-037, Approved)."}
+
+payload_semantics_and_invariants:
+  description: >
+    Fact AUTHORITATIVE cho MỘT completed valid computation point/window — dùng cho CẢ HAI trường
+    hợp: (a) original computation; (b) correction replacement. Phát sinh cho MỌI computation point
+    mà Feature Definition yêu cầu, KỂ CẢ khi value không đổi so với point liền trước — một
+    computation point khác KHÔNG BAO GIỜ là duplicate chỉ vì value trùng.
+  invariants:
+    - "causation_refs KHÔNG BAO GIỜ rỗng: (a) original computation — PHẢI chứa toàn bộ input_fact_refs; (b) correction replacement — PHẢI chứa input_fact_refs đã cập nhật VÀ chính FeatureFactInvalidated đang được supersede."
+    - "envelope.effective_time = effective_window (interval) của CHÍNH fact này."
+    - "envelope.recorded_time PHẢI muộn hơn recorded_time của input fact mới nhất trong input_fact_refs — KHÔNG được compute trước khi đủ evidence tồn tại (chống look-ahead)."
+    - "payload.feature_subject_id, payload.feature_type, payload.feature_definition_version PHẢI khớp đúng subject_ref.subject_id VÀ toàn bộ subject_ref.scope — trường lặp lại có chủ đích cho query tiện dụng, không phải trục identity thứ hai."
+    - "input_fact_refs PHẢI thỏa mãn ĐÚNG role cardinality mà Feature Definition pin cho feature_type này — không thiếu, không thừa, không trùng lặp; mọi ref PHẢI là authoritative fact (candle-closed/candle-corrected/swing-confirmed/regime-classified tùy feature_type) — KHÔNG dùng CandleObserved, SwingCandidateDetected, hay bất kỳ *-current-view nào."
+    - "input_fact_refs PHẢI được serialize theo đúng canonical normalized order (feature.md §8a) — KHÔNG phải thứ tự phát sinh tùy ý của computation. Hai tập input fact giống hệt nhau nhưng đến theo thứ tự khác nhau PHẢI cho ra cùng một input_fact_refs đã serialize, cùng một computation identity."
+    - "value PHẢI dùng kiểu decimal — CẤM binary float — khi cần exact deterministic parity, đúng mọi feature_type."
+    - "supersedes_fact_ref VẮNG MẶT khi và chỉ khi đây là original computation cho (feature_subject_id, effective_window) đó — CHƯA từng có FeatureComputed nào khác cho đúng cặp subject+window này."
+    - "supersedes_fact_ref BẮT BUỘC có mặt khi (feature_subject_id, effective_window) đó đã có một FeatureComputed trước đó — đây là correction replacement."
+    - "supersedes_fact_ref, khi có mặt, PHẢI trỏ đúng lineage head HIỆN TẠI của (feature_subject_id, effective_window) đó — fact CHƯA từng là supersedes_fact_ref của bất kỳ FeatureComputed nào khác (cấm fork), VÀ đã nhận đúng một FeatureFactInvalidated visible — không được trỏ tới một fact đã bị supersede trước đó (cấm nhảy cóc qua lineage)."
+    - "Khi supersedes_fact_ref có mặt, envelope.recorded_time của fact này PHẢI muộn hơn recorded_time của FeatureFactInvalidated tương ứng — replacement không được 'visible' trước invalidation của chính fact nó thay thế."
+    - "Replacement fact PHẢI dùng ĐÚNG CÙNG (feature_subject_id, effective_window) với fact bị supersede — không được đổi window khi correction."
+    - "input_fact_refs của replacement PHẢI phản ánh ancestry ĐÃ SỬA — không được giữ nguyên ref cũ đã không còn authoritative."
+    - "KHÔNG có shortcut khi value không đổi: nếu một upstream correction ảnh hưởng input_fact_refs, cặp FeatureFactInvalidated + replacement PHẢI phát sinh — kể cả khi value cuối cùng giữ nguyên sau khi tính lại."
+    - "payload.computation_cursor PHẢI có mặt trên MỌI FeatureComputed — computation gốc lẫn replacement, KHÔNG NGOẠI LỆ."
+    - "computation_cursor.recorded_time PHẢI <= envelope.recorded_time của CHÍNH FeatureComputed này (Cursor → Fact, Chapter 8 §8.5.2) — một fact khẳng định đã evaluate as-of một cursor SAU thời điểm chính nó được ghi là invalid."
+    - "computation_cursor của một FeatureComputed replacement ĐỘC LẬP với computation_cursor của fact nó supersede — mỗi computation, gốc hay replacement, pin đúng cursor CHÍNH XÁC nó dùng để evaluate, KHÔNG kế thừa/sao chép cursor của fact trước đó."
+    - "payload.computation_dependency_content_evidence PHẢI có mặt trên MỌI FeatureComputed — computation gốc lẫn replacement, KHÔNG NGOẠI LỆ — chứa đúng hai giá trị bắt buộc input_contract_content_id/stream_registry_content_id, sao chép NGUYÊN VĂN (verbatim) từ CÙNG một VerifiedInputContractAuthority instance mà computation engine đã resolve/cache cho CHÍNH computation này (ADR-037, Approved) — KHÔNG được tính lại, phát minh, hay lấy từ một instance khác. Đây là artifact-content evidence, KHÔNG PHẢI một replay-cursor/ordering field."
+    - "computation_dependency_content_evidence.input_contract_content_id/stream_registry_content_id PHẢI tương ứng quan hệ CHÍNH XÁC với computation_cursor.input_contract_ref/computation_cursor.stream_registry_version của ĐÚNG CÙNG fact đó — evidence mang content identity cho một input_contract_ref/stream_registry_version KHÁC với cursor của chính fact đó là malformed, PHẢI bị từ chối bất cứ đâu được validate."
+    - "computation_dependency_content_evidence của một FeatureComputed replacement ĐỘC LẬP với evidence của fact nó supersede — mỗi computation, gốc hay replacement, pin đúng evidence CHÍNH XÁC nó dùng để evaluate, KHÔNG kế thừa/sao chép evidence của fact trước đó, cùng discipline computation_cursor."
+    - "computation_cursor KHÔNG PHẢI một phần computation identity/dedup (feature.md §8b) — hai computation với cùng input tuple đã normalize PHẢI được coi là cùng một computation identity bất kể computation_cursor khác nhau."
+    - "computation_dependency_content_evidence tương tự KHÔNG PHẢI một phần computation identity/dedup — cùng discipline computation_cursor."
+
+compatibility_commitment: backward_only
+# ADR-038 (Approved), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts for this
+# contract_id: a consumer pinned to an older feature-computed Event Contract version must still
+# correctly read/validate data under a newer version; forward compatibility is NOT committed.
+# Preserved unchanged from feature.md v0.6 §3 — this artifact does not redecide it.
+
+provenance:
+  source: docs/domain/feature.md
+  source_version: "0.6"
+  source_status: Draft
+  source_sections: ["§2 Canonical event envelope (payload-relevant portions)", "§3 FeatureComputed"]
+  drafted_at_commit: ce4335e37fee6aaf1827a38a23cbff78d790a920
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning once Published; payload_shape and
+    payload_semantics_and_invariants above are fully self-contained. event_class, allowed_streams,
+    and merge_constraints were governed-authored directly against Chapter 8 §8.3.1/§8.3.4,
+    Approved ADR-036, and this repository's own established terminology — NOT mechanically
+    transcribed from feature.md, which does not declare any of the three fields anywhere.

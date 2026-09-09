@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.352"
+manifest_version: "10.353"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -25265,6 +25265,123 @@ ADR-039:                       Approved, immutable, unaffected.
 **Next governed step:** the follow-on work already named in `ADR-040`'s own Consequences — Class G's past-horizon archival mechanism for its three member types, the full Class R mechanism whenever a first member is designated, and any future decision designating Compatibility Result/Policy's own canonical storage — none of which is performed by this approval-recording transaction; separately, `ADR-039`'s own remaining follow-on work (first `Published` version-artifacts, `event_contract_ref` implementation) remains entirely untouched.
 
 **Files changed:** `docs/adr/ADR-040.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `ADR-039`/every Locked Constitution chapter/`module-registry.yaml`/`context-map.yaml` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.351"` → `"10.352"`.
+
+## Feature Output Event Contract version-artifacts v1.0 (`Draft`, first version — `feature-computed`/`feature-fact-invalidated`)
+
+**Governed semantic architecture-authoring transaction — vai trò: `Feature Event Contract Version-Artifact Authoring Executor`.** Authors `docs/architecture/event-contracts/feature-computed/v1.0.yaml` and `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml`, both `Draft`, `contract_version: v1.0` — the first Published-track version for each `contract_id` per Approved `ADR-039`'s "First authoritative version" rule (no prior Published snapshot exists for either). Not Published. `event_class`/`allowed_streams`/`merge_constraints` are governed-authored against current higher authority, not mechanically transcribed from `feature.md` (which declares none of the three).
+
+**Fresh boundary verification:** HEAD confirmed exactly `ce4335e37fee6aaf1827a38a23cbff78d790a920`, identical to `origin/main`; `docs/architecture/event-contracts/` verified absent before this transaction. `ADR-039`/`ADR-040` re-verified `Approved`, immutable, byte-unchanged. `feature.md` re-verified exactly `version: "0.6"`, `status: Draft`. `docs/architecture/stream-registry.yaml` re-verified `status: Approved`, `feature-engine-feature` stream present, `writer_authority.module_id: feature-engine`.
+
+### Authority basis per governed-authored field
+
+```text
+event_class: derived_fact (both contracts, identical basis) -- NOT decision (Chapter
+  8 §8.2.1/§8.4/Chapter 9's event_class: decision cardinality rule does not apply;
+  feature.md §2 envelope never declares decision_time/decision_context_cursor).
+  "derived_fact" reuses this repository's own already-established, repeated
+  vocabulary ("derived/computed fact, không phải quan sát trực tiếp venue" --
+  regime.md/structure.md/swing.md/feature.md §2 itself) rather than Chapter 8
+  §8.3.1's illustrative "observation" alternative (Feature is definitionally
+  computed/derived, not a raw venue observation, per feature.md's own opening
+  section). Chapter 8 §8.3.1's worked example ("decision | observation | ...") is
+  explicitly open-ended beyond the decision/non-decision distinction -- this is
+  Event-Contract-level governed authoring under ADR-039, not a new ADR-required
+  architecture decision (no >1-module or hard-to-reverse consequence attaches to
+  the label choice itself; only event_class: decision carries any normative
+  behavioral consequence anywhere in Chapter 8/9/10).
+
+allowed_streams: [feature-engine-feature] (both contracts, identical basis) --
+  docs/architecture/stream-registry.yaml (Approved) registers feature-engine-feature
+  as feature-engine's sole stream (writer_authority: feature-engine, active).
+  Approved ADR-036 v0.3 fixes platform topology as "one logical stream per
+  authoritative fact family a writer module owns" -- feature-engine owns exactly
+  one fact family (Feature), so both FeatureComputed and FeatureFactInvalidated
+  target this one stream, the same one-stream-per-fact-family pattern already
+  realized for market-data-ingestion/raw-regime-engine (one stream each) and
+  structure-engine (two streams, two fact families).
+
+merge_constraints: {prerequisite_policy: causation_must_resolve_before_apply} (both
+  contracts, identical basis) -- Chapter 8 §8.3.4's own authority split (Event
+  Contract declares constraint only, Input Contract owns final merge policy) and
+  worked example (identical value for ARBITRAGE_DECISION_CREATED). feature.md §2
+  fixes causation_refs as never-empty for every Feature event -- the baseline
+  P_causation/P_global DAG requirement (cause resolves before effect) applies
+  uniformly; no additional Feature-specific merge constraint identified beyond it
+  (correction-lineage ordering is already captured as payload/envelope invariants,
+  not a cross-stream merge constraint).
+
+No architecture gap requiring a new ADR was found for any of the three fields --
+  all three resolved through governed authoring grounded directly in Chapter 8
+  §8.3.1/§8.3.4, Approved ADR-036, and this repository's own established
+  cross-Domain-Contract terminology.
+```
+
+### Preserved current Feature v0.6 semantics (unchanged, transcribed self-contained)
+
+```text
+compatibility_commitment: backward_only (ADR-038, Approved) -- declared unchanged in
+  both artifacts. computation_cursor (ADR-035, Approved) and
+  computation_dependency_content_evidence (ADR-037, Approved) -- both required
+  payload fields, full shape/binding invariants transcribed self-contained into
+  payload_shape/payload_semantics_and_invariants in both artifacts, matching
+  feature.md §3/§4 exactly. All current invalidation-cause/cursor/content-identity
+  invariants (including eligible_swing_selection_superseded's fail-closed,
+  operationally-not-emittable posture pending Feature-scoped Input Contract
+  resolvability) transcribed unchanged into feature-fact-invalidated/v1.0.yaml.
+```
+
+### Provenance
+
+```text
+Both artifacts: source docs/domain/feature.md v0.6 (Draft), §2 (envelope,
+  payload-relevant portions)/§3 or §4, drafted at HEAD
+  ce4335e37fee6aaf1827a38a23cbff78d790a920 -- drafting-history citation ONLY
+  (ADR-039), never required to interpret either artifact's own meaning once
+  Published; payload_shape/payload_semantics_and_invariants are fully
+  self-contained in both files.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/architecture/event-contracts/feature-computed/v1.0.yaml (new,
+  blob fd1218d4e46b3a2848a916179bc0d54a4d717b49);
+  docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml (new, blob
+  85f3a70af8dd839a9cecc2887b55cef2b651afeb); docs/MANIFEST.md; docs/CHANGELOG.md
+  only. ADR-039/ADR-040 (both Approved, immutable), every Locked Constitution
+  chapter, feature.md, context-map.yaml, stream-registry.yaml,
+  module-registry.yaml, and production/test/tooling all verified byte-unchanged
+  (`git diff --quiet`). Both new artifacts status: Draft -- NOT Published. No
+  event_contract_ref implementation performed.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN — two Draft Event Contract
+                                version-artifacts now exist for
+                                feature-computed/feature-fact-
+                                invalidated, but neither is Published,
+                                no event_contract_ref implementation
+                                exists, and no retention/archive
+                                concrete mechanism exists (ADR-040's
+                                own deferred item). NOT closed by this
+                                transaction.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039/ADR-040:               Approved, immutable, unaffected.
+```
+
+**Next governed step:** Review A of both `feature-computed/v1.0.yaml` and `feature-fact-invalidated/v1.0.yaml` Draft candidates.
+
+**Files changed:** `docs/architecture/event-contracts/feature-computed/v1.0.yaml` (new), `docs/architecture/event-contracts/feature-fact-invalidated/v1.0.yaml` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `ADR-039`/`ADR-040`/every Locked Constitution chapter/`feature.md`/`context-map.yaml`/`stream-registry.yaml`/`module-registry.yaml` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.352"` → `"10.353"`.
 
 ## Decision Log
 

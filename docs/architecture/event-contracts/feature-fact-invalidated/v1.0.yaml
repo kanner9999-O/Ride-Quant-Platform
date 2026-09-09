@@ -1,0 +1,150 @@
+# Event Contract version-artifact — feature-fact-invalidated v1.0
+#
+# Referenced Authoritative Artifact (Chapter 8 §8.1.1). Canonical authority/self-containment model,
+# path/version grammar, and immutability discipline per Approved ADR-039 v0.1
+# (docs/adr/ADR-039.md). Retention/archive semantics (Class G: canonical path must remain live at
+# HEAD for the committed retention horizon; git history is content-identity/audit evidence only,
+# never a fallback resolver) per Approved ADR-040 v0.1 (docs/adr/ADR-040.md).
+#
+# STATUS: Draft — NOT Published. Per ADR-039's immutability discipline, this file may still be
+# edited in place while Draft; once transitioned to Published it becomes frozen/immutable
+# byte-for-byte, no in-place edits, no reassigning this contract_version identifier to different
+# content ever again.
+#
+# This is the FIRST version for contract_id: feature-fact-invalidated — no prior Published Event
+# Contract snapshot exists (feature.md v0.6 declares event_contract_ref as a required envelope
+# field but pins no contract_version anywhere; context-map.yaml pins contract_id only). Per
+# ADR-039's "First authoritative version" rule, contract_version is fixed at v1.0 — no other value
+# is valid for a first publication.
+#
+# event_class / allowed_streams / merge_constraints below are GOVERNED-AUTHORED against current
+# higher authority (Chapter 8, ADR-036, ADR-037, ADR-038) — NOT mechanically transcribed from
+# feature.md, which does not declare any of the three fields anywhere. Authority basis is cited
+# inline at each field (same basis as feature-computed/v1.0.yaml — both events belong to the same
+# fact family and share identical event_class/allowed_streams/merge_constraints reasoning).
+# payload_shape / payload_semantics_and_invariants are transcribed from feature.md v0.6 §2
+# (envelope, payload-relevant portions only)/§4 (FeatureFactInvalidated) and are fully
+# self-contained here — a reader does not need to separately consult feature.md to interpret this
+# artifact's own meaning (ADR-039). feature.md's own envelope fields remain Chapter 8 §8.2's own
+# owned concept, applied not redefined here — this artifact declares the PAYLOAD portion only, plus
+# the envelope-binding rules feature.md itself imposes as domain semantic on subject_ref/
+# effective_time for this specific event type (transcribed into invariants below, same placement
+# feature.md itself uses).
+#
+# Governed authoring transaction boundary: HEAD ce4335e37fee6aaf1827a38a23cbff78d790a920.
+
+contract_id: feature-fact-invalidated
+contract_version: v1.0
+status: Draft
+
+event_type: FEATURE_FACT_INVALIDATED
+# feature.md v0.6 §2 event_types table (PAST_TENSE_UPPER_SNAKE per Chapter 3 §3.2, referenced not
+# redefined here).
+
+event_class: derived_fact
+# Governed-authored, identical basis to feature-computed/v1.0.yaml: NOT `decision` (no
+# decision_time/decision_context_cursor, not subject to Chapter 8 §8.2.1/§8.4's Decision-specific
+# cardinality rule). "derived_fact" reuses this repository's own already-established vocabulary
+# ("derived/computed fact, không phải quan sát trực tiếp venue" — regime.md/structure.md/swing.md/
+# feature.md §2) rather than Chapter 8 §8.3.1's illustrative "observation" alternative, since
+# FeatureFactInvalidated — like FeatureComputed — is a derived analytical fact (an invalidation of
+# a prior computed fact), never a raw venue observation. Chapter 8 §8.3.1's own worked example is
+# explicitly open-ended beyond the decision/non-decision distinction; this is Event-Contract-level
+# governed authoring under ADR-039, not a new architecture decision.
+
+allowed_streams:
+  - stream_id: feature-engine-feature
+# Governed-authored, identical basis to feature-computed/v1.0.yaml: `feature-engine-feature` is
+# feature-engine's sole registered stream (docs/architecture/stream-registry.yaml, Approved).
+# Approved ADR-036 v0.3's "one logical stream per authoritative fact family a writer module owns"
+# topology means BOTH of feature-engine's event types — FeatureComputed and
+# FeatureFactInvalidated — target this same one stream; an invalidation fact is not a separate fact
+# family from the fact it invalidates, the same one-stream-per-fact-family pattern already realized
+# for every other module's positive/negative event pairs (e.g. CandleClosed/CandleCorrected,
+# SwingConfirmed/SwingInvalidated all share their own module's single stream).
+
+merge_constraints:
+  prerequisite_policy: causation_must_resolve_before_apply
+# Governed-authored, identical basis to feature-computed/v1.0.yaml: feature.md v0.6 §2 envelope
+# fixes causation_refs as "KHÔNG BAO GIỜ rỗng" for every Feature event including
+# FeatureFactInvalidated, which additionally always carries at minimum invalidated_fact_ref (the
+# FeatureComputed being invalidated) plus the authoritative causing event — both must resolve
+# before this event may be applied, per Chapter 8 §8.3.4's P_causation/P_global DAG requirement.
+# No additional Feature-specific merge constraint beyond this baseline was identified; the
+# envelope-inheritance binding rules (subject_ref/effective_time copied from invalidated_fact_ref)
+# and recorded_time-ordering rules below are payload/envelope invariants, not a separate
+# cross-stream merge constraint.
+
+payload_shape:
+  invalidated_fact_ref: {type: event_record_ref, required: true}
+  invalidation_cause:
+    type: enum
+    values: [candle_corrected, regime_fact_invalidated, swing_invalidated, eligible_swing_selection_superseded]
+    required: true
+  invalidation_reason: {type: string, required: false}
+  computation_cursor:
+    type: replay_cursor
+    required: true
+    description: >
+      Canonical Chapter 8 §8.5 Replay Cursor, applied here, NOT redefined (ADR-035, Approved) —
+      pins R_later, the computation cursor that re-evaluation leading to this invalidation used.
+      Shape owned by Chapter 8 §8.5.1: recorded_time (required), input_contract_ref (required,
+      {contract_id, contract_version}), stream_registry_version (required), lifecycle_frontier
+      (required, {stream_id, position: {kind, sequence}}), stream_positions (required, map
+      stream_id -> sequence).
+  computation_dependency_content_evidence:
+    input_contract_content_id: {type: string, required: true, description: "SHA-256 content identity of the exact Input Contract artifact bytes that this fact's own computation_cursor (R_later) resolved to (ADR-037, Approved)."}
+    stream_registry_content_id: {type: string, required: true, description: "SHA-256 content identity of the exact Stream Registry artifact bytes that this fact's own computation_cursor (R_later) resolved to (ADR-037, Approved)."}
+
+payload_semantics_and_invariants:
+  description: >
+    Phủ định MỘT FeatureComputed lịch sử cụ thể — thuần túy ghi nhận "fact này không còn hợp lệ",
+    KHÔNG tự nó tuyên bố giá trị mới. Nguyên nhân PHỤ THUỘC feature_type: (a) candle_corrected —
+    CandleCorrected ảnh hưởng một Candle ref trong input_fact_refs; (b) regime_fact_invalidated —
+    RegimeFactInvalidated (hoặc replacement RegimeClassified) ảnh hưởng RegimeClassified ref trong
+    input_fact_refs; (c) swing_invalidated — SwingInvalidated ảnh hưởng SwingConfirmed ref trong
+    input_fact_refs (CHỈ distance_to_last_confirmed_swing, khi Swing đã chọn bị invalidate);
+    (d) eligible_swing_selection_superseded — một SwingConfirmed MỚI thắng total order tại cursor
+    R_later, TRONG KHI Swing đang dùng vẫn valid/non-invalidated (CHỈ
+    distance_to_last_confirmed_swing). Là event MỚI, append-only — không mutate record gốc.
+    Envelope binding bắt buộc: subject_ref và effective_time của chính event này KHÔNG được khai
+    báo độc lập — PHẢI kế thừa nguyên vẹn từ invalidated_fact_ref (fact F đang bị invalidate).
+  invariants:
+    - "envelope.subject_ref PHẢI BẰNG HỆT subject_ref của invalidated_fact_ref (F) — cùng context_id, subject_kind, subject_type, subject_id, VÀ toàn bộ scope. KHÔNG được khai báo subject_ref độc lập/khác biệt. Cấm target một fact thuộc subject KHÁC — kể cả khi mọi field khác đúng nhưng feature_definition_version sai hoặc feature_type sai."
+    - "envelope.effective_time PHẢI BẰNG HỆT effective_window của invalidated_fact_ref (F) — [window_start, window_end) giống hệt, không sai lệch dù chỉ một trong hai biên. Cấm target một fact đúng subject nhưng SAI window."
+    - "payload.invalidated_fact_ref PHẢI resolve đúng CHÍNH XÁC bản ghi event F — dùng event_record_ref (Chapter 8 §8.2.3: canonical locator + event_id verification field)."
+    - "invalidation_cause PHẢI khớp đúng loại upstream contract mà Feature Definition của feature_type này thực sự khai báo — cấm dùng regime_fact_invalidated cho một feature_type chỉ dùng upstream_source: candle, và tương tự cho các cause khác."
+    - "causation_refs PHẢI trỏ: invalidated_fact_ref (FeatureComputed đang bị invalidate — bắt buộc, đúng một, PHẢI trùng chính xác payload.invalidated_fact_ref); VÀ event authoritative là nguyên nhân trực tiếp (CandleCorrected/RegimeFactInvalidated/SwingInvalidated/winning SwingConfirmed tùy invalidation_cause)."
+    - "invalidated_fact_ref PHẢI trỏ một FeatureComputed CHƯA từng nhận FeatureFactInvalidated khác — một fact chỉ bị invalidate đúng một lần."
+    - "Đúng một FeatureComputed có thể trỏ supersedes_fact_ref về invalidated_fact_ref này (cấm fork)."
+    - "envelope.recorded_time PHẢI muộn hơn recorded_time của invalidated_fact_ref VÀ muộn hơn recorded_time của event gây ra nó."
+    - "Replay tại cursor trước recorded_time của invalidation KHÔNG được thấy invalidation này (chống look-ahead)."
+    - "invalidation_cause = eligible_swing_selection_superseded CHỈ hợp lệ khi feature_type = distance_to_last_confirmed_swing — cấm dùng cho volatility_metric/directional_persistence_metric, vốn không có khái niệm Eligible-Swing selection."
+    - "invalidation_cause = eligible_swing_selection_superseded CHỈ hợp lệ khi CẢ BỐN điều kiện sau đều đúng — ĐÚNG BỐN, không phải một điều kiện đơn lẻ nào đủ. R_original := payload.computation_cursor của CHÍNH FeatureComputed đang bị invalidate; R_later := payload.computation_cursor của CHÍNH FeatureFactInvalidated này. Visibility của một event tại một cursor R được xác định bởi full cursor visibility predicate (feature.md §12) — KHÔNG BAO GIỜ một scalar recorded_time-only test: (a) winning SwingConfirmed KHÔNG visible tại R_original theo predicate đó; (b) winning SwingConfirmed CÓ visible tại R_later theo predicate đó; (c) winning SwingConfirmed thỏa đầy đủ §9a's 5-bước filter pipeline VÀ thắng §9a's 8-tiêu-chí total order, cả hai đánh giá tại R_later; (d) Swing mà FeatureComputed đang bị invalidate thực sự đã dùng VẪN valid, KHÔNG nhận SwingInvalidated, tại R_later. Một SwingConfirmed ĐÃ visible tại R_original nhưng KHÔNG được computation gốc chọn — kể cả khi nó lẽ ra đã thắng total order tại R_original — KHÔNG BAO GIỜ đủ điều kiện cho cause này: đó là một computation/integrity defect của chính FeatureComputed gốc, KHÔNG BAO GIỜ được biểu diễn, che giấu, hay 'rửa' qua invalidation_cause này."
+    - "invalidation_cause = eligible_swing_selection_superseded VÀ swing_invalidated LOẠI TRỪ LẪN NHAU cho cùng một invalidation của cùng một FeatureComputed: swing_invalidated áp dụng khi Swing ĐANG DÙNG tự nó nhận một SwingInvalidated; eligible_swing_selection_superseded áp dụng khi Swing ĐANG DÙNG vẫn valid/non-invalidated nhưng bị vượt qua bởi một SwingConfirmed khác thắng total order. Một implementation KHÔNG BAO GIỜ được phát cả hai cause cho cùng một invalidation."
+    - "Khi invalidation_cause = eligible_swing_selection_superseded, causation_refs PHẢI trỏ: invalidated_fact_ref VÀ event_record_ref của winning SwingConfirmed — KHÔNG BAO GIỜ trỏ một SwingInvalidated giả định cho cause này, vì Swing đang dùng không hề bị invalidate."
+    - "invalidation_cause = eligible_swing_selection_superseded được ĐỊNH NGHĨA SEMANTIC bởi feature.md VÀ mang payload field durable để chứng cứ (computation_cursor) — nhưng VẪN operationally KHÔNG EMITTABLE cho tới khi computation_cursor's input_contract_ref/stream_registry_version/lifecycle_frontier resolve tới các artifact THẬT SỰ persistently resolvable (Chapter 8 §8.1.1): Feature-scoped Input Contract instance chưa tồn tại trong repository này (Phase 1, chưa author) — Stream Registry NAY resolvable (docs/architecture/stream-registry.yaml, Approved), nhưng Feature-scoped Input Contract vẫn KHÔNG. Cho tới khi artifact đó tồn tại, một computation_cursor value CÓ THỂ populate được về mặt schema NHƯNG KHÔNG PHẢI proof — implementation PHẢI fail-closed cho MỌI trường hợp, không có ngoại lệ. Process-local/ephemeral memory một mình VẪN KHÔNG đủ bằng chứng dù computation_cursor field đã tồn tại."
+    - "payload.computation_cursor PHẢI có mặt trên MỌI FeatureFactInvalidated, KHÔNG NGOẠI LỆ — cùng canonical Replay Cursor shape (Chapter 8 §8.5). computation_cursor.recorded_time PHẢI <= envelope.recorded_time của CHÍNH FeatureFactInvalidated này (Cursor → Fact, Chapter 8 §8.5.2), đối xứng invariant tương ứng ở feature-computed."
+    - "payload.computation_dependency_content_evidence PHẢI có mặt trên MỌI FeatureFactInvalidated, KHÔNG NGOẠI LỆ (ADR-037, Approved) — chứa input_contract_content_id/stream_registry_content_id sao chép nguyên văn từ CÙNG VerifiedInputContractAuthority instance mà evaluation dẫn tới invalidation này đã dùng, tương ứng quan hệ CHÍNH XÁC với computation_cursor (R_later) của CHÍNH FeatureFactInvalidated này — KHÔNG kế thừa/sao chép evidence của FeatureComputed đang bị invalidate, ĐỘC LẬP hoàn toàn, đối xứng invariant tương ứng ở feature-computed."
+    - "computation_cursor KHÔNG PHẢI một phần computation identity/dedup (feature.md §8b) — cùng discipline feature-computed."
+    - "computation_dependency_content_evidence tương tự KHÔNG PHẢI một phần computation identity/dedup — cùng discipline computation_cursor."
+
+compatibility_commitment: backward_only
+# ADR-038 (Approved), Chapter 10 §10.3.1 — explicit policy commitment the platform adopts for this
+# contract_id: a consumer pinned to an older feature-fact-invalidated Event Contract version must
+# still correctly read/validate data under a newer version; forward compatibility is NOT committed.
+# Preserved unchanged from feature.md v0.6 §4 — this artifact does not redecide it.
+
+provenance:
+  source: docs/domain/feature.md
+  source_version: "0.6"
+  source_status: Draft
+  source_sections: ["§2 Canonical event envelope (payload-relevant portions)", "§4 FeatureFactInvalidated"]
+  drafted_at_commit: ce4335e37fee6aaf1827a38a23cbff78d790a920
+  note: >
+    Drafting-history citation ONLY (ADR-039 §"Canonical authority/source") — never required to
+    interpret this artifact's own meaning once Published; payload_shape and
+    payload_semantics_and_invariants above are fully self-contained. event_class, allowed_streams,
+    and merge_constraints were governed-authored directly against Chapter 8 §8.3.1/§8.3.4,
+    Approved ADR-036, and this repository's own established terminology — NOT mechanically
+    transcribed from feature.md, which does not declare any of the three fields anywhere.
