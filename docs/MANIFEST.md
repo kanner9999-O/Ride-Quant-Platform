@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.356"
+manifest_version: "10.357"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -25709,6 +25709,139 @@ Published Event Contracts:     feature-computed/v1.0,
 **Next governed step:** bounded Review A review of this implementation transaction against `P3-FEATURE-QG-EVID-05(b)`.
 
 **Files changed:** see "No scope expansion" above; `docs/MANIFEST.md`, `docs/CHANGELOG.md` only among governance artifacts. `manifest_version` `"10.355"` → `"10.356"`.
+
+## ADR-041 v0.1 — Canonical Exact-Version Resolution for Input Contracts and Stream Registry (`Draft`, candidate authoring — platform-wide artifact-family decision, not Feature-specific)
+
+**Governed semantic architecture-authoring transaction — vai trò: `Platform Input-Contract/Stream-Registry Exact-Version Resolution Authoring Executor`.** Authors `docs/adr/ADR-041.md` v0.1 (`Draft`), fixing the canonical exact-version resolution architecture for Input Contracts and Stream Registry — the platform-level authority gap Review A's `P3-FEATURE-EVID05B-IMPL-A-MAJ-02` finding identified against `feature-engine`'s `prepare_replay_evidence()` implementation, confirmed to require higher authority before that implementation could be corrected. Not approved. No implementation, migration, or ADR-037/038/039/040 modification performed.
+
+**Fresh boundary verification:** HEAD confirmed exactly `7754c440dc9b08b18680c6112fb9696d34b6d994`, identical to `origin/main`; `docs/adr/ADR-041.md` verified absent before this transaction. `ADR-037`/`ADR-038`/`ADR-039`/`ADR-040` re-verified `Approved`, immutable, byte-unchanged; both Published Event Contract artifacts re-verified byte-unchanged.
+
+### Ground truth confirming the gap (empirical)
+
+```text
+git log -- docs/architecture/input-contracts/feature-swing-distance-input.yaml:
+  4 commits, document version: "0.1" -> "0.4" (real frontier_policy content
+  changes each round), while input_contract_ref.contract_version: v1 stayed
+  the SAME literal value throughout -- the artifact's own governed identity
+  was never bumped despite genuine content change (§8.1.1 rules 1/2
+  violation already latent). stream-registry.yaml: 2 commits (Draft +
+  mechanically-identical Approval edit), no drift yet, but no mechanism
+  governs a future registry_version transition's own file-level resolution
+  either. authority_resolver.py resolves whichever content currently
+  exists, never the exact historical bytes a past computation_cursor may
+  have pinned. No current authority supplies the missing deterministic
+  mapping.
+```
+
+### Selected model (Option 2: current/active path preserved + immutable per-version snapshots)
+
+```text
+Current/active files (docs/architecture/input-contracts/*.yaml,
+  docs/architecture/stream-registry.yaml) stay exactly as Chapter 8
+  §8.3.1/ADR-040 already characterize them -- unchanged, still resolved by
+  authority_resolver.py for fresh/non-replay consumption. NEW: an
+  immutable per-version snapshot captured at Publish time --
+  docs/architecture/input-contract-versions/<contract_id>/<contract_version>.yaml
+  and docs/architecture/stream-registry-versions/<registry_version>.yaml --
+  resolved via ADR-039's own canonical grammar/fail-closed discipline,
+  reused by citation (v<major>.<minor>, no leading zeros except literal 0,
+  no alias/normalization/path-traversal, no git-history-search fallback).
+  Historical/replay resolution always uses the version-snapshot path,
+  never the current/active file. Immutable-after-reference, identifier
+  non-reuse, human-version-vs-content-identity split -- all reused by
+  citation from ADR-039, not redefined. New Class G members under
+  ADR-040's already-Approved retention model (additive, ADR-040 not
+  modified).
+```
+
+### Alternatives evaluated
+
+```text
+1. Immutable per-version artifacts only, no current/active file (ADR-039
+   applied unchanged) -- REJECTED: would contradict Chapter 8 §8.3.1's own
+   Locked fixed-path text for Stream Registry; applying it to Input
+   Contracts only would fragment one artifact-family problem into two
+   mechanisms.
+2. Current/active + immutable historical snapshots -- CHOSEN. Zero
+   conflict with Locked/Approved authority; reuses ADR-039's grammar.
+3. Version/content-index based resolution -- REJECTED: a new index
+   artifact needs its own versioning/immutability guarantees, more
+   mechanism for an equivalent guarantee Option 2 already provides.
+4. Git-history lookup -- REJECTED: directly contradicts ADR-040's own
+   already-Approved "git history is evidence only, never a resolver"
+   principle.
+```
+
+### Authority compatibility classification
+
+```text
+REQUIRES_FOLLOW_ON_SUPERSESSION/AMENDMENT (narrow scope, not Constitution-
+  level). ADR-040's own text characterizes Input Contracts'/Stream
+  Registry's single current-path resolver as already satisfying §8.1.1's
+  retention/resolvability requirement in full; this ADR's Ground-truth
+  finding shows that conflates current-active with exact-historical
+  resolution, now distinct. ADR-040's file is NOT modified here (Chapter
+  11 §11.3 forbids editing an Approved ADR) -- a future, separate governed
+  transaction must record a narrow cross-reference/scope-narrowing from
+  ADR-041 (once Approved) onto ADR-040's own characterization, precedented
+  by ADR-016's "Mechanism A" narrow amendment of ADR-015. No conflict
+  identified with Locked Chapter 8 -- Stream Registry's own current-path
+  text stays untouched and unreinterpreted.
+```
+
+### Bootstrap consequence
+
+```text
+Existing bare "v1" identities do NOT carry over -- the artifact's own
+  contract_version already denoted at least four distinct byte-states
+  over time (empirically confirmed above), never a single stable
+  resolvable historical identity, and no real persisted authoritative
+  fact has ever referenced any of those byte-states (feature-engine has
+  never run outside tests). A separate, future, governed bootstrap
+  transaction must capture each artifact's then-current content as a
+  fresh FIRST version snapshot under this ADR's grammar (v1.0, mirroring
+  ADR-039's own first-version rule) -- this ADR decides that such a
+  transaction is required and what it must produce; it does not itself
+  perform the capture (no migration in this transaction).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-041.md (new); docs/MANIFEST.md;
+  docs/CHANGELOG.md only. ADR-037/038/039/040 (all Approved, immutable),
+  both Published Event Contract artifacts, every Locked Constitution
+  chapter, current Input Contract artifacts, stream-registry.yaml, and
+  production/test/tooling (output_contract_resolver.py/
+  prepare_replay_evidence() included) all verified byte-unchanged (`git
+  diff --quiet`). No migration performed. Neither
+  P3-FEATURE-EVID05B-IMPL-A-MAJ-01 nor -MAJ-02 closed.
+  P3-FEATURE-QG-EVID-05(b) not closed. No self-review, no self-approval
+  -- reviewers: [] / approved_by: null preserved.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01: OPEN — not fixed, not closed (kept
+                                atomic pending this ADR per prior STOP).
+P3-FEATURE-EVID05B-IMPL-A-MAJ-02: OPEN — the authority gap this ADR
+                                addresses; not closed by authoring a
+                                Draft.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-037/038/039/040:           Approved, immutable, unaffected.
+Published Event Contracts:     feature-computed/v1.0,
+                                feature-fact-invalidated/v1.0 — both
+                                unchanged, immutable.
+```
+
+**Next governed step:** Review A of `ADR-041` Draft.
+
+**Files changed:** `docs/adr/ADR-041.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `ADR-037`/`038`/`039`/`040`/every Locked Constitution chapter/Input Contract artifacts/`stream-registry.yaml`/`python/feature-engine/` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.356"` → `"10.357"`.
 
 ## Decision Log
 

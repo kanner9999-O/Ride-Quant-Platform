@@ -2,6 +2,97 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-09 — platform: `ADR-041` v0.1 authored (`Draft`) — Canonical Exact-Version Resolution for Input Contracts and Stream Registry (resolves `P3-FEATURE-EVID05B-IMPL-A-MAJ-02`'s own authority-gap STOP, platform-wide, not Feature-specific)
+
+**Governed semantic architecture-authoring transaction — vai trò: `Platform Input-Contract/Stream-Registry Exact-Version Resolution Authoring Executor`.** Authors `docs/adr/ADR-041.md` v0.1 (`Draft`), fixing the canonical exact-version resolution architecture for Input Contracts and Stream Registry — the platform-level authority gap Review A's `P3-FEATURE-EVID05B-IMPL-A-MAJ-02` finding identified against `feature-engine`'s `prepare_replay_evidence()`, confirmed to require higher authority before that implementation could be corrected. Not approved. No implementation, migration, or ADR-037/038/039/040 modification performed.
+
+**Fresh boundary verification:** HEAD confirmed exactly `7754c440dc9b08b18680c6112fb9696d34b6d994`, identical to `origin/main`; `docs/adr/ADR-041.md` verified absent before this transaction. `ADR-037`/`038`/`039`/`040` re-verified `Approved`, immutable, byte-unchanged.
+
+### Selected model (Option 2)
+
+```text
+Current/active files (docs/architecture/input-contracts/*.yaml,
+  docs/architecture/stream-registry.yaml) unchanged, still resolved by
+  authority_resolver.py for fresh/non-replay consumption. NEW: immutable
+  per-version snapshot captured at Publish time --
+  docs/architecture/input-contract-versions/<contract_id>/<contract_version>.yaml
+  and docs/architecture/stream-registry-versions/<registry_version>.yaml --
+  resolved via ADR-039's own canonical grammar/fail-closed discipline,
+  reused by citation. Historical/replay resolution always uses the
+  version-snapshot path. New Class G members under ADR-040's already-
+  Approved retention model (additive, ADR-040 not modified).
+```
+
+### Alternatives rejected
+
+```text
+1. Per-version artifacts only, no current/active file -- would contradict
+   Chapter 8 §8.3.1's Locked fixed-path text for Stream Registry.
+3. Version/content-index resolution -- new index needs its own
+   versioning/immutability guarantees, more mechanism for no extra
+   guarantee.
+4. Git-history lookup -- contradicts ADR-040's own "evidence only, never
+   a resolver" principle.
+```
+
+### Authority compatibility: `REQUIRES_FOLLOW_ON_SUPERSESSION/AMENDMENT`
+
+```text
+Narrow scope, not Constitution-level. ADR-040's own text characterizes
+  Input Contracts'/Stream Registry's current-path resolver as already
+  satisfying §8.1.1's retention requirement in full; this ADR's own
+  Ground-truth finding shows that conflates current-active with exact-
+  historical resolution. ADR-040's file is NOT modified here -- a future,
+  separate governed transaction must record a narrow cross-reference/
+  scope-narrowing from ADR-041 (once Approved) onto ADR-040's own
+  characterization (precedent: ADR-016's "Mechanism A" narrow amendment
+  of ADR-015). No conflict identified with Locked Chapter 8.
+```
+
+### Bootstrap consequence
+
+```text
+Existing bare "v1" identities do NOT carry over -- empirically confirmed
+  (git log) that contract_version: v1 already denoted at least four
+  distinct byte-states over time on feature-swing-distance-input.yaml,
+  never a single stable resolvable historical identity; no real
+  persisted authoritative fact ever referenced any of those byte-states.
+  A separate, future, governed bootstrap transaction must capture each
+  artifact's then-current content as a fresh FIRST version snapshot
+  under this ADR's grammar (v1.0) -- not performed in this transaction.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-041.md (new); docs/MANIFEST.md;
+  docs/CHANGELOG.md only. ADR-037/038/039/040, both Published Event
+  Contract artifacts, every Locked Constitution chapter, current Input
+  Contract artifacts, stream-registry.yaml, and production/test/tooling
+  (output_contract_resolver.py/prepare_replay_evidence() included) all
+  verified byte-unchanged. No migration performed. Neither
+  P3-FEATURE-EVID05B-IMPL-A-MAJ-01 nor -MAJ-02 closed.
+  P3-FEATURE-QG-EVID-05(b) not closed. No self-review, no self-approval.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01: OPEN — kept atomic pending this ADR.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-02: OPEN — the authority gap this ADR
+                                addresses; not closed by authoring a Draft.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-037/038/039/040:           Approved, immutable, unaffected.
+```
+
+**Next governed step:** Review A of `ADR-041` Draft.
+
+**Files changed:** `docs/adr/ADR-041.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.356"` → `"10.357"`.
+
 ## [Unreleased] — 2026-09-09 — feature-engine: runtime conformance to Published v1.0 Event Contracts + ADR-037 evidence/Replay preparation (`P3-FEATURE-QG-EVID-05(b)` — implementation only, NOT self-closed)
 
 **Bounded implementation transaction — vai trò: `Feature Engine Runtime Conformance Executor`.** Makes `feature-engine` runtime emissions/replay conform to the two `Published` v1.0 Event Contract version-artifacts and Approved `ADR-037`. Replaces the obsolete caller-injected-arbitrary-string outbound `event_contract_ref` mechanism with deterministic resolution against ADR-039's canonical paths (requires `status: Published`, fail-closed otherwise, no alias/history-search/registry fallback); implements `computation_dependency_content_evidence` on every `FeatureComputed`/`FeatureFactInvalidated`, copied verbatim from the same cached `VerifiedInputContractAuthority` used for that fact's own computation; adds a Replay-preparation module enforcing ADR-037's four fail-closed failure classes before Replay execution begins.
