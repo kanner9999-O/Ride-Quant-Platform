@@ -2,6 +2,74 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-09 — platform: `ADR-041` bounded Review A correction (`P3-ADR041-A-MAJ-01`/`-MAJ-02` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Platform Input-Contract/Stream-Registry Exact-Version Resolution Bounded Correction Executor`.** Remediates two Review A findings against `ADR-041` v0.1 (`Draft`). `P3-ADR041-A-MAJ-01`: the Draft concluded its own Decision requires a narrow amendment/supersession of Approved `ADR-040` but deferred that effect to a later, separate governed transaction while declaring `supersedes: []` — leaving two conflicting Approved authorities if `ADR-041` were approved as written. `P3-ADR041-A-MAJ-02`: Option 2 permitted the current/active file to remain freely editable without stating that in-place edits sever its usability as authoritative evidence for an already-referenced version. Correction only — `depends_on: [ADR-040]`/`supersedes: [ADR-040]` now declared in frontmatter with a self-contained §"`ADR-040` amendment scope" section (precedent: `ADR-016`'s Mechanism-A amendment of `ADR-015`); a new "Authoritative-use gate" invariant added to the Decision. `ADR-040.md` not modified, not now, not ever by this ADR.
+
+**Fresh boundary verification:** HEAD confirmed exactly `684af68c082d1b2df729a2fccf4e4d63f33027b3`, identical to `origin/main`; ADR-041 blob confirmed exactly `de79db7837c41345e6a12421d683264041708094` — no drift.
+
+### Governance-effect fix (MAJ-01)
+
+```text
+Frontmatter: depends_on/supersedes: [] -> [ADR-040] (ADR-016/ADR-015
+  pattern). New §"ADR-040 amendment scope" section states, self-contained,
+  exactly what narrows at ADR-041's own future approval boundary:
+  ADR-040's Class G characterization of these two artifacts' current-path
+  resolver as already satisfying §8.1.1 rule 4 in full is narrowed to
+  "current/fresh resolution only -- exact-historical-version resolution
+  additionally requires ADR-041's own version-snapshot mechanism."
+  Everything else in ADR-040 remains fully controlling. ADR-040.md itself
+  never edited. No separate follow-on ADR/transaction needed.
+```
+
+### Authoritative-use gate (MAJ-02)
+
+```text
+New Decision bullet: version snapshot must exist before authoritative
+  reference; current content used must match snapshot content identity;
+  semantic modification makes current file non-referenceable under that
+  version; modified content needs a NEW Published snapshot (no in-place
+  patch); historical/replay resolution always uses the exact snapshot,
+  never current/active content; Stream Registry activation/version
+  transitions remain governed entirely by Chapter 8 §8.3.5.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-041.md (corrected in place, blob
+  de79db7837c41345e6a12421d683264041708094 ->
+  614f6ee76493eba6bfdd38f581249bbbe648f217); docs/MANIFEST.md;
+  docs/CHANGELOG.md. Frontmatter version: "0.1"/status: Draft unchanged.
+  ADR-037/038/039/040 (all Approved, immutable, ADR-040.md byte-
+  unchanged), every Locked Constitution chapter, Input Contract
+  artifacts, stream-registry.yaml, and python/feature-engine/ all
+  verified byte-unchanged. No migration, no implementation, no Review B,
+  no Product Owner approval. Neither
+  P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02 nor P3-FEATURE-QG-EVID-05(b)
+  closed.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR041-A-MAJ-01:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-ADR041-A-MAJ-02:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02: OPEN — unaffected.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-037/038/039/040:           Approved, immutable, unaffected.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-041.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.357"` → `"10.358"`.
+
 ## [Unreleased] — 2026-09-09 — platform: `ADR-041` v0.1 authored (`Draft`) — Canonical Exact-Version Resolution for Input Contracts and Stream Registry (resolves `P3-FEATURE-EVID05B-IMPL-A-MAJ-02`'s own authority-gap STOP, platform-wide, not Feature-specific)
 
 **Governed semantic architecture-authoring transaction — vai trò: `Platform Input-Contract/Stream-Registry Exact-Version Resolution Authoring Executor`.** Authors `docs/adr/ADR-041.md` v0.1 (`Draft`), fixing the canonical exact-version resolution architecture for Input Contracts and Stream Registry — the platform-level authority gap Review A's `P3-FEATURE-EVID05B-IMPL-A-MAJ-02` finding identified against `feature-engine`'s `prepare_replay_evidence()`, confirmed to require higher authority before that implementation could be corrected. Not approved. No implementation, migration, or ADR-037/038/039/040 modification performed.

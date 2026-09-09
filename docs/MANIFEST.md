@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.357"
+manifest_version: "10.358"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -25842,6 +25842,97 @@ Published Event Contracts:     feature-computed/v1.0,
 **Next governed step:** Review A of `ADR-041` Draft.
 
 **Files changed:** `docs/adr/ADR-041.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `ADR-037`/`038`/`039`/`040`/every Locked Constitution chapter/Input Contract artifacts/`stream-registry.yaml`/`python/feature-engine/` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.356"` → `"10.357"`.
+
+## ADR-041 — bounded Review A correction (`P3-ADR041-A-MAJ-01`/`-MAJ-02`; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Platform Input-Contract/Stream-Registry Exact-Version Resolution Bounded Correction Executor`.** Remediates two Review A findings against `ADR-041` v0.1 (`Draft`). `P3-ADR041-A-MAJ-01`: the Draft concluded its own Decision requires a narrow amendment/supersession of Approved `ADR-040` but deferred that effect to a later, separate governed transaction while declaring `supersedes: []` — leaving two conflicting Approved authorities if `ADR-041` were approved as written. `P3-ADR041-A-MAJ-02`: Option 2 permitted the current/active file to remain freely editable without ever stating that in-place edits sever its usability as authoritative evidence for an already-referenced version. Correction only — `depends_on: [ADR-040]`/`supersedes: [ADR-040]` now declared in frontmatter with a self-contained §"`ADR-040` amendment scope" section (precedent: `ADR-016`'s Mechanism-A amendment of `ADR-015`); a new "Authoritative-use gate" invariant added to the Decision. `ADR-040.md` not modified, not now, not ever by this ADR — governance relationship only. Option 2's own selection, the two canonical version-snapshot paths, the reused `ADR-039` grammar, and the Bootstrap conclusion all preserved unchanged.
+
+**Fresh boundary verification:** HEAD confirmed exactly `684af68c082d1b2df729a2fccf4e4d63f33027b3`, identical to `origin/main`; ADR-041 blob confirmed exactly `de79db7837c41345e6a12421d683264041708094` — no drift. `ADR-040` re-verified `Approved`, immutable, byte-unchanged.
+
+### Governance-effect fix (MAJ-01)
+
+```text
+Frontmatter: depends_on: [] -> [ADR-040]; supersedes: [] -> [ADR-040] --
+  same pattern as ADR-016's depends_on/supersedes: [ADR-015]. New
+  §"ADR-040 amendment scope" section states, self-contained in THIS ADR,
+  exactly what narrows at ADR-041's own future approval boundary: ADR-040's
+  Class G characterization of Input Contracts'/Stream Registry's current-
+  path resolver as already satisfying §8.1.1 rule 4 in full is narrowed to
+  "satisfies §8.1.1 for current/fresh resolution only -- exact-historical-
+  version resolution additionally requires ADR-041's own version-snapshot
+  mechanism." Everything else in ADR-040 (two-tier model, Class G/R
+  definitions, Event Contract treatment, Compatibility Result/Policy
+  scope, past-horizon archival deferral) remains fully controlling,
+  unchanged. ADR-040.md itself never edited -- byte-identical/immutable,
+  exactly as ADR-015.md stayed under ADR-016. The separate post-approval
+  "narrow cross-reference transaction" Consequences item removed --
+  no follow-on ADR/transaction is needed to carry this effect.
+  Authority compatibility classification unchanged:
+  REQUIRES_FOLLOW_ON_SUPERSESSION/AMENDMENT, now explicitly self-
+  contained rather than deferred.
+```
+
+### Authoritative-use gate (MAJ-02)
+
+```text
+New Decision bullet fixes the minimum invariant, both artifact families
+  uniformly: (1) before any version may be named by an authoritative
+  event's/cursor's own reference, its immutable version snapshot MUST
+  already exist; (2) current/active content used to author that reference
+  MUST match the snapshot's own content identity exactly; (3) any semantic
+  modification to the current/active file after a version's snapshot has
+  been captured makes it non-referenceable under that version identifier;
+  (4) modified content may only become authoritatively usable again once a
+  NEW version snapshot is Published (identifier non-reuse, no in-place
+  patch path); (5) historical/replay resolution always uses the exact
+  immutable snapshot, never a fallback to current/active content; (6)
+  Stream Registry activation/version transitions remain governed entirely
+  by Chapter 8 §8.3.5's own lifecycle-boundary model, unredefined/
+  unbypassed by this ADR's resolution layer.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-041.md (corrected in place, blob
+  de79db7837c41345e6a12421d683264041708094 ->
+  614f6ee76493eba6bfdd38f581249bbbe648f217 -- `git diff` confirms only a
+  new correction banner, frontmatter depends_on/supersedes, the Scope-
+  classification depends_on sentence, a new Authoritative-use-gate
+  Decision bullet, the Authority-compatibility paragraph, a new "ADR-040
+  amendment scope" section, and Consequences' follow-on numbering
+  changed; Context, Ground truth, ADR inflation/scope-check block, the
+  rest of the Decision bullets, Alternatives, the review table, and
+  Scale check all byte-unchanged); docs/MANIFEST.md; docs/CHANGELOG.md.
+  Frontmatter version: "0.1"/status: Draft unchanged. ADR-037/038/039/040
+  (all Approved, immutable, ADR-040.md byte-unchanged), every Locked
+  Constitution chapter, Input Contract artifacts, stream-registry.yaml,
+  and python/feature-engine/ all verified byte-unchanged (`git diff
+  --quiet`). No migration, no implementation, no Review B, no Product
+  Owner approval. Neither P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02 nor
+  P3-FEATURE-QG-EVID-05(b) closed.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR041-A-MAJ-01:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-ADR041-A-MAJ-02:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01: OPEN — unaffected.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-02: OPEN — unaffected.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-037/038/039/040:           Approved, immutable, unaffected.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-041.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.357"` → `"10.358"`.
 
 ## Decision Log
 
