@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.347"
+manifest_version: "10.348"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -24731,6 +24731,118 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** bounded Review A re-review of this correction.
 
 **Files changed:** `docs/adr/ADR-039.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.346"` → `"10.347"`.
+
+## ADR-039 v0.1 — Product Owner Approval (`Approved` — Canonical Event Contract Version-Artifact Authority and Resolution Mechanism now effective)
+
+**Mechanical approval/lifecycle recording transaction — vai trò: `Platform Event Contract Version-Artifact Authority Approval Recording Executor`.** Records Review A's bounded re-review of the round-2 correction, Independent Review B's own review (raising one accepted residual, `P3-ADR039-B-MIN-01`), and the Product Owner's `APPROVE` decision — transitioning `ADR-039` from `Draft`/round-2-corrected to `Approved`. No semantic redesign.
+
+**Fresh boundary verification:** HEAD confirmed exactly `78e20d686adaecdd5acdfe01434d485e6609acc8`, identical to `origin/main`; ADR-039 reviewed Draft blob confirmed exactly `0567d4e108fdd61e81ee9f667c308d889d0499ef` — no drift.
+
+### Review A recorded
+
+```text
+Principal: ChatGPT, AI Technical Architect / Review A. Same reviewed
+  boundary/blob as above. Bounded re-review of the round-2 correction
+  confirmed P3-ADR039-A-MAJ-01 (round 2) and P3-ADR039-A-MAJ-03 both
+  fully remediated; confirmed P3-ADR039-A-MAJ-02/P3-ADR039-A-MIN-01
+  remain CLOSED, correctly not reopened. Blocker 0 / Major 0 /
+  Minor 0. CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+```
+
+### Independent Review B recorded
+
+```text
+Principal: Claude, AI Technical Architect / Independent Review B.
+  DISTINCT_PRINCIPAL (Mode A). Execution ID N/A (not fabricated). Same
+  reviewed boundary/blob. Independently verified the corrected
+  authority model (version-artifact genuinely self-contained -- full
+  payload_shape/payload_semantics_and_invariants inlined, Domain
+  Contract role narrowed to provenance-only), the retention
+  fail-closed treatment, the major.minor contract_version grammar's
+  breaking/non-breaking mapping, Option A's selection, ADR_REQUIRED
+  scope classification, ADR-037/ADR-038 unaffected, and
+  lifecycle-metadata integrity (depends_on: [], version: "0.1"
+  retained). Raised one residual, P3-ADR039-B-MIN-01 -- a
+  documentation-only clarity/completeness gap not affecting any
+  decided semantic content. Blocker 0 / Major 0 / Minor 1.
+  CLEAN (Minor residual only) — READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE ADR-039 v0.1 at reviewed semantic boundary
+  78e20d686adaecdd5acdfe01434d485e6609acc8, ADR blob
+  0567d4e108fdd61e81ee9f667c308d889d0499ef. Accept
+  P3-ADR039-B-MIN-01 as a non-blocking documentation-only residual
+  under semantic sufficiency. Do not require a standalone correction.
+Recorded: 2026-09-09T10:58+07:00.
+```
+
+### ADR lifecycle transition applied
+
+```text
+status: Draft -> Approved. reviewers: [] -> [ChatGPT, Claude].
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-09T10:58+07:00. last_review: null -> 2026-09-09. version
+remains exactly "0.1". depends_on: [] unchanged. addresses/resolves/
+supersedes unchanged (none invented). Reviewed semantic boundary/blob
+recorded separately from, never confused with, the resulting
+lifecycle-record blob (see Files changed below). Per Chapter 11
+§11.3, ADR-039.md is now immutable byte-for-byte from this approval
+boundary.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-039.md (lifecycle transition in place,
+  blob 0567d4e108fdd61e81ee9f667c308d889d0499ef ->
+  717904b8fd75104a681805c0c94ab7c9b19e878f); docs/MANIFEST.md;
+  docs/CHANGELOG.md. No semantic content changed -- `git diff`
+  confirms only frontmatter status/reviewers/approved_by/approved_at/
+  last_review, the review table, the Independence/PO-decision/
+  reviewed-boundary paragraphs, and Accepted risks changed.
+  Decision/Alternatives/Consequences/Scale check/corrected authority
+  model/retention treatment/version grammar all byte-unchanged. No
+  ADR-040 authored.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR039-A-MAJ-01/-MAJ-02/-MAJ-03/-MIN-01: all resolved at this
+                                approval boundary (round 2 corrections
+                                confirmed; MIN-01 residual
+                                P3-ADR039-B-MIN-01 accepted
+                                non-blocking).
+P3-FEATURE-QG-EVID-03:          CLOSED — PASS — REVIEW A VALIDATED
+                                (unaffected).
+P3-FEATURE-QG-EVID-05(a):       SATISFIED (unaffected).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-039 now Approved, but no
+                                Event Contract version-artifact has
+                                been authored/published, no
+                                event_class/allowed_streams/
+                                merge_constraints content exists for
+                                any module, and no retention/archive
+                                policy exists yet (this ADR's own
+                                stated prerequisite) — nothing here
+                                grants Feature QG, Feature module
+                                approval, Phase 3 Approval Gate, or
+                                LIVE authorization, all of which
+                                remain explicitly NOT granted / NOT
+                                authorized.
+P3-FEATURE-QG-EVID-05 overall:  OPEN / blocking (unaffected).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** the follow-on work already named in `ADR-039`'s own Consequences — (0) establishing the platform-wide retention/archive policy §8.1.1 rule 4 requires; (1) authoring/publishing first `Published` version-artifacts per `contract_id`; (2) Feature's own `feature-computed`/`feature-fact-invalidated` first version snapshots; (3) implementation work populating `event_contract_ref` — none of which is performed by this approval-recording transaction.
+
+**Files changed:** `docs/adr/ADR-039.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.347"` → `"10.348"`.
 
 ## Decision Log
 
