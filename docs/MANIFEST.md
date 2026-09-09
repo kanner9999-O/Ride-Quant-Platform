@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.350"
+manifest_version: "10.351"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -25065,6 +25065,93 @@ ADR-039:                       Approved, immutable, unaffected.
 **Next governed step:** bounded Review A re-review of this correction.
 
 **Files changed:** `docs/adr/ADR-040.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `ADR-039`/every Locked Constitution chapter/`module-registry.yaml`/`context-map.yaml` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.349"` → `"10.350"`.
+
+## ADR-040 — bounded Review A correction, round 2 (`P3-ADR040-A-MAJ-01`/`-MAJ-02` → `CLOSED`; `P3-ADR040-A-MAJ-03` new; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Platform Retention/Archive Policy Bounded Correction Executor`.** Remediates one new Review A finding against `ADR-040` v0.1 (`Draft`) at its round-1-corrected boundary; records round 1's two findings as `CLOSED` per Review A re-review. `P3-ADR040-A-MAJ-03`: round 1's model conflated *retention-policy applicability* with *concrete storage-class designation* — asserting artifacts are "classified into exactly two storage classes" while separately leaving Compatibility Result/Policy "unclassified" made an artifact Chapter 10 §10.4.4 explicitly places under §8.1.1-equivalent retention/resolvability requirements structurally impossible to represent (in-scope, yet outside the model's only two buckets). Correction only — separates universal retention-policy scope (binds every artifact Locked/Approved higher authority makes subject to §8.1.1 or an equivalent requirement, e.g. §10.4.4 for Compatibility Result/Policy) from storage-realization classification (G/R, applying only once an artifact's canonical storage is actually designated); an in-scope, storage-unclassified/pending state is now an explicit, valid model state, not a gap. No third storage mechanism invented. Round 1's Stream Registry → Class G reclassification and canonical-path-stays-live/git-history-is-evidence-not-a-resolver correction preserved exactly in substance.
+
+**Fresh boundary verification:** HEAD confirmed exactly `17042ab5b6a802a84dae47ef894eb51960275932`, identical to `origin/main`; ADR-040 blob confirmed exactly `2e0338671f48c7172e4c1e74a317e233f9e32db1` — no drift.
+
+### Corrected model — scope vs. storage-realization (MAJ-03)
+
+```text
+Two distinct concepts separated: (1) retention-policy applicability --
+  common semantics (resolvability-while-active-vs-archived equivalence,
+  immutable content-identity preservation, fail-closed-on-unresolvable,
+  archival-not-removal default) bind every artifact Locked/Approved
+  higher authority makes subject to §8.1.1's Referenced-Authoritative-
+  Artifact retention requirement or an equivalent explicit requirement
+  (§8.1.1 itself for Stream Registry/Event Contract/Input Contract;
+  Chapter 10 §10.4.4 for Compatibility Result/Policy, which explicitly
+  imports §8.1.1's own resolvability/retention distinction by cross-
+  reference) -- regardless of storage designation. (2) storage-
+  realization classification (G/R) -- narrower, secondary, applies
+  ONLY once an artifact's canonical storage authority is actually
+  designated by its own separate governing decision. Compatibility
+  Result/Policy: explicitly IN retention-policy scope, explicitly
+  storage-UNCLASSIFIED/pending designation (§10.9 still defers its
+  storage/format/schema) -- a valid, expected model state, not a gap.
+  No speculative third storage class/mechanism invented.
+```
+
+### Preserved in substance (MAJ-01/MAJ-02, round 1)
+
+```text
+Stream Registry remains Class G (docs/architecture/stream-registry.yaml,
+  Chapter 8 §8.3.1, Approved) -- storage-realized today, unchanged.
+  Class G still has exactly three current members (Stream Registry,
+  Event Contract version-artifacts, Input Contracts); Class R still has
+  zero realized members. Canonical-path-stays-live-at-HEAD commitment
+  and git-history-as-evidence-not-a-resolver correction for Class G's
+  three member types unchanged. ADRs/Constitution chapters/Domain
+  Contracts remain excluded from this ADR's scope, unchanged.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-040.md (corrected in place, blob
+  2e0338671f48c7172e4c1e74a317e233f9e32db1 ->
+  4110765d64213dd35bb898a618d61ff03bcee432 -- `git diff` confirms only
+  a new round-2 correction banner (plus round-1 finding-status lines
+  updated to CLOSED), the Decision/classification-bullets block,
+  Class R retention/archive-policy paragraph's Compatibility-Result
+  wording, the Resolvability/Immutable-content-identity paragraphs'
+  scope wording, Canonical policy scope/authority, and the
+  Relationship paragraph changed; frontmatter, ADR inflation/scope-
+  check block, Class G retention/archive-policy paragraph's substance,
+  Fail-closed paragraph, Alternatives A-D, the closing alternatives
+  sentence, the review table, Scale check, Consequences, and Accepted
+  risks all byte-unchanged); docs/MANIFEST.md; docs/CHANGELOG.md.
+  Frontmatter unchanged (version: "0.1", status: Draft, depends_on:
+  []). ADR-039 (Approved, immutable), every Locked Constitution
+  chapter, module-registry.yaml, context-map.yaml, and production/
+  test/tooling all verified byte-unchanged. No Event Contract artifact
+  authored, no event_contract_ref implementation. No canonical
+  storage/path/schema designated for Compatibility Result/Policy.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR040-A-MAJ-01:             CLOSED — BOUNDED REVIEW A RE-REVIEW
+                                (preserved from round 1, unaffected).
+P3-ADR040-A-MAJ-02:             CLOSED — BOUNDED REVIEW A RE-REVIEW
+                                (preserved from round 1, unaffected).
+P3-ADR040-A-MAJ-03:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-040 still only a Draft, not
+                                approved.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039:                       Approved, immutable, unaffected.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-040.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `ADR-039`/every Locked Constitution chapter/`module-registry.yaml`/`context-map.yaml` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.350"` → `"10.351"`.
 
 ## Decision Log
 

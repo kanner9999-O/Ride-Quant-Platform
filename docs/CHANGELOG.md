@@ -2,6 +2,77 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-09 — platform: `ADR-040` bounded Review A correction, round 2 (`P3-ADR040-A-MAJ-01`/`-MAJ-02` → `CLOSED`; `P3-ADR040-A-MAJ-03` new → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Platform Retention/Archive Policy Bounded Correction Executor`.** Remediates one new Review A finding against `ADR-040` v0.1 (`Draft`) at its round-1-corrected boundary; records round 1's two findings `CLOSED` per Review A re-review. `P3-ADR040-A-MAJ-03`: round 1's model conflated retention-policy applicability with concrete storage-class designation — asserting artifacts are "classified into exactly two storage classes" while leaving Compatibility Result/Policy "unclassified" made an artifact Chapter 10 §10.4.4 explicitly places under §8.1.1-equivalent requirements structurally impossible to represent. Correction only — separates universal retention-policy scope (binds every artifact subject to §8.1.1 or an equivalent requirement, e.g. §10.4.4 for Compatibility Result/Policy) from storage-realization classification (G/R, applying only once storage is actually designated); an in-scope, storage-unclassified state is now an explicit, valid model state. No third storage mechanism invented. Round 1's Stream Registry → Class G reclassification and canonical-path-stays-live correction preserved exactly.
+
+**Fresh boundary verification:** HEAD confirmed exactly `17042ab5b6a802a84dae47ef894eb51960275932`, identical to `origin/main`; ADR-040 blob confirmed exactly `2e0338671f48c7172e4c1e74a317e233f9e32db1` — no drift.
+
+### Corrected model — scope vs. storage-realization (MAJ-03)
+
+```text
+Two concepts separated: (1) retention-policy applicability -- common
+  semantics bind every artifact Locked/Approved higher authority makes
+  subject to §8.1.1 or an equivalent explicit requirement (§8.1.1
+  itself for Stream Registry/Event Contract/Input Contract; Chapter 10
+  §10.4.4 for Compatibility Result/Policy, which explicitly imports
+  §8.1.1's own resolvability/retention distinction) -- regardless of
+  storage designation. (2) storage-realization classification (G/R) --
+  narrower, applies ONLY once canonical storage is actually designated.
+  Compatibility Result/Policy: IN retention-policy scope, storage-
+  UNCLASSIFIED/pending (§10.9 still defers storage/format/schema) -- a
+  valid model state, not a gap. No speculative third storage class
+  invented.
+```
+
+### Preserved in substance (MAJ-01/MAJ-02, round 1)
+
+```text
+Stream Registry remains Class G (docs/architecture/stream-registry.yaml,
+  Chapter 8 §8.3.1, Approved). Class G still has exactly three current
+  members; Class R still has zero realized members. Canonical-path-
+  stays-live-at-HEAD commitment and git-history-as-evidence-not-a-
+  resolver correction unchanged. ADRs/Constitution/Domain Contracts
+  remain excluded from this ADR's scope.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-040.md (corrected in place, blob
+  2e0338671f48c7172e4c1e74a317e233f9e32db1 ->
+  4110765d64213dd35bb898a618d61ff03bcee432); docs/MANIFEST.md;
+  docs/CHANGELOG.md. Frontmatter unchanged (version: "0.1", status:
+  Draft, depends_on: []). ADR-039 (Approved, immutable), every Locked
+  Constitution chapter, module-registry.yaml, context-map.yaml, and
+  production/test/tooling all verified byte-unchanged. No Event
+  Contract artifact authored, no event_contract_ref implementation.
+  No canonical storage/path/schema designated for Compatibility
+  Result/Policy.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR040-A-MAJ-01:             CLOSED — BOUNDED REVIEW A RE-REVIEW
+                                (preserved from round 1, unaffected).
+P3-ADR040-A-MAJ-02:             CLOSED — BOUNDED REVIEW A RE-REVIEW
+                                (preserved from round 1, unaffected).
+P3-ADR040-A-MAJ-03:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-040 still only a Draft, not
+                                approved.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039:                       Approved, immutable, unaffected.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-040.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.350"` → `"10.351"`.
+
 ## [Unreleased] — 2026-09-09 — platform: `ADR-040` bounded Review A correction (`P3-ADR040-A-MAJ-01`/`-MAJ-02` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `Draft` unchanged, no version bump)
 
 **Bounded correction transaction — vai trò: `Platform Retention/Archive Policy Bounded Correction Executor`.** Remediates two Review A findings against `ADR-040` v0.1 (`Draft`). `P3-ADR040-A-MAJ-01`: the Draft incorrectly classified Stream Registry as Class R (runtime-resident)/"unimplemented," when Locked Chapter 8 §8.3.1 establishes `docs/architecture/stream-registry.yaml` as the unique canonical Stream Registry authority and that file currently exists with `status: Approved`; the Draft also over-swept ADRs/Constitution chapters/Domain Contracts into Class G without current higher authority designating them as event/cursor-referenced, and implied Compatibility Result/Policy belongs to Class R before its own canonical storage designation exists. `P3-ADR040-A-MAJ-02`: the Draft's Class G archival treatment conflicted with Approved `ADR-039`'s own pure-literal-path-substitution resolver, which never authorizes git-history search as a fallback. Correction only — Stream Registry reclassified to Class G; Class G narrowed to its three actually-designated member types; ADRs/Constitution/Domain Contracts excluded; Compatibility Result/Policy left unclassified; Class R retained empty; Class G within-horizon resolvability now fixed as "canonical file stays live at its own canonical path," git history recast as content-identity/audit evidence only, never a fallback resolver. `ADR_REQUIRED` classification, overall retention-policy objective, fail-closed/immutable-content-identity principles, `ADR-039`, and Locked Constitution all preserved unchanged.
