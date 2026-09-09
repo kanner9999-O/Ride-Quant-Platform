@@ -2,6 +2,78 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-09 — platform: `ADR-041` v0.1 `Approved` — Canonical Exact-Version Resolution for Input Contracts and Stream Registry now effective; `ADR-040` scoped `Superseded`
+
+**Mechanical approval/lifecycle recording transaction — vai trò: `Platform Exact-Version Resolution Approval Recording Executor`.** Records Review A's bounded re-review (confirming `P3-ADR041-A-MAJ-01`/`-MAJ-02` both fully remediated → `CLOSED`), Independent Review B's own review (raising one accepted residual, `P3-ADR041-B-MIN-01`, same wording gap as Review A's `P3-ADR041-A-MIN-01`), and the Product Owner's `APPROVE` decision — transitioning `ADR-041` from `Draft`/corrected to `Approved`, and, per `ADR-041`'s own self-contained `depends_on`/`supersedes: [ADR-040]` mechanism (Mechanism A, `ADR-016`→`ADR-015`/`ADR-014`→`ADR-003` precedent), recording `ADR-040`'s own current authoritative lifecycle state as `Superseded (scoped by ADR-041)`, reverse relation `ADR-040 superseded_by ADR-041`, effective at this same approval boundary. No semantic redesign; `ADR-040.md` not edited.
+
+**Fresh boundary verification:** HEAD confirmed exactly `a5867c40d9abf1e9364a1b20353433f4bd0f7e61`, identical to `origin/main`; `ADR-041` reviewed Draft blob confirmed exactly `614f6ee76493eba6bfdd38f581249bbbe648f217` — no drift. `ADR-040` re-verified `Approved`, byte-unchanged.
+
+**Product Owner decision (verbatim):** `APPROVE ADR-041 v0.1 at reviewed semantic boundary a5867c40d9abf1e9364a1b20353433f4bd0f7e61, ADR blob 614f6ee76493eba6bfdd38f581249bbbe648f217. Accept P3-ADR041-A-MIN-01 and P3-ADR041-B-MIN-01 as the same non-blocking documentation-only wording residual under semantic sufficiency; no standalone correction required.` — recorded `2026-09-09T21:19+07:00`.
+
+### ADR lifecycle transition applied
+
+```text
+status: Draft -> Approved. reviewers: [] -> [ChatGPT, Claude].
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-09T21:19+07:00. last_review: null -> 2026-09-09. version
+remains exactly "0.1". depends_on: [ADR-040]/supersedes: [ADR-040]
+unchanged. Per Chapter 11 §11.3, ADR-041.md is now immutable
+byte-for-byte from this approval boundary. Accepted Minor wording
+residual left unedited.
+```
+
+### `ADR-040` lifecycle transition — Superseded (scoped by `ADR-041`)
+
+```text
+Current authoritative lifecycle state: ADR-040 Superseded (scoped by
+  ADR-041) -- embedded document status: Approved inside ADR-040.md
+  itself unchanged, byte-identical, immutable.
+Reverse relation: ADR-040 superseded_by ADR-041.
+Scope: ONLY ADR-040's claim that the single current-path resolver
+  satisfies §8.1.1 rule 4 in full is narrowed -- sufficient for
+  current/fresh resolution only, exact-historical-version resolution
+  now requires ADR-041's version-snapshot mechanism. All other
+  ADR-040 retention/archive semantics remain fully controlling,
+  unchanged. ADR-040.md itself NOT edited, not now, not ever by this
+  transaction.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-041.md (lifecycle transition in place,
+  blob 614f6ee76493eba6bfdd38f581249bbbe648f217 ->
+  90d30960e658c84842ee48c7f3aa09e640807e67); docs/MANIFEST.md;
+  docs/CHANGELOG.md. `git diff` confirms only frontmatter status/
+  reviewers/approved_by/approved_at/last_review, the two correction-
+  banner finding-status lines (-> CLOSED), the review table, the
+  Independence/PO-decision/reviewed-boundary paragraphs, and Accepted
+  risks changed. docs/adr/ADR-040.md byte-unchanged. No version-
+  snapshot artifact created, no bootstrap/migration, no Chapter 8/
+  ADR-037/038/039 edit, no python/feature-engine/ edit.
+```
+
+### State summary — prohibited transitions explicitly NOT granted
+
+```text
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02: OPEN — unaffected, not
+                                closed by this transaction.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected, not closed by this
+                                transaction. Nothing here grants
+                                Feature QG, Feature module approval,
+                                Phase 3 Approval Gate, or LIVE
+                                authorization.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-037/038/039:                Approved, immutable, unaffected.
+```
+
+**Next governed step:** the follow-on work already named in `ADR-041`'s own Consequences — (1) a separate governed bootstrap transaction capturing each artifact's current content as its first `v1.0` version snapshot; (2) only then, `feature-engine`'s own `prepare_replay_evidence()` correction (`P3-FEATURE-EVID05B-IMPL-A-MAJ-02`) alongside `P3-FEATURE-EVID05B-IMPL-A-MAJ-01`'s independent-per-`contract_id` fix; (3) a bounded Review-A re-review closing both findings and, if warranted, `P3-FEATURE-QG-EVID-05(b)` — none performed by this approval-recording transaction.
+
+**Files changed:** `docs/adr/ADR-041.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.358"` → `"10.359"`.
+
 ## [Unreleased] — 2026-09-09 — platform: `ADR-041` bounded Review A correction (`P3-ADR041-A-MAJ-01`/`-MAJ-02` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `Draft` unchanged, no version bump)
 
 **Bounded correction transaction — vai trò: `Platform Input-Contract/Stream-Registry Exact-Version Resolution Bounded Correction Executor`.** Remediates two Review A findings against `ADR-041` v0.1 (`Draft`). `P3-ADR041-A-MAJ-01`: the Draft concluded its own Decision requires a narrow amendment/supersession of Approved `ADR-040` but deferred that effect to a later, separate governed transaction while declaring `supersedes: []` — leaving two conflicting Approved authorities if `ADR-041` were approved as written. `P3-ADR041-A-MAJ-02`: Option 2 permitted the current/active file to remain freely editable without stating that in-place edits sever its usability as authoritative evidence for an already-referenced version. Correction only — `depends_on: [ADR-040]`/`supersedes: [ADR-040]` now declared in frontmatter with a self-contained §"`ADR-040` amendment scope" section (precedent: `ADR-016`'s Mechanism-A amendment of `ADR-015`); a new "Authoritative-use gate" invariant added to the Decision. `ADR-040.md` not modified, not now, not ever by this ADR.

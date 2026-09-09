@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.358"
+manifest_version: "10.359"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -25933,6 +25933,154 @@ ADR-037/038/039/040:           Approved, immutable, unaffected.
 **Next governed step:** bounded Review A re-review of this correction.
 
 **Files changed:** `docs/adr/ADR-041.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.357"` → `"10.358"`.
+
+## ADR-041 v0.1 — Product Owner Approval (`Approved` — Canonical Exact-Version Resolution for Input Contracts and Stream Registry now effective; `ADR-040` scoped Superseded)
+
+**Mechanical approval/lifecycle recording transaction — vai trò: `Platform Exact-Version Resolution Approval Recording Executor`.** Records Review A's bounded re-review (confirming `P3-ADR041-A-MAJ-01`/`-MAJ-02` both fully remediated), Independent Review B's own review (raising one accepted residual, `P3-ADR041-B-MIN-01`), and the Product Owner's `APPROVE` decision — transitioning `ADR-041` from `Draft`/corrected to `Approved`, and, per `ADR-041`'s own self-contained `depends_on: [ADR-040]`/`supersedes: [ADR-040]` mechanism (Mechanism A, `ADR-016`→`ADR-015`/`ADR-014`→`ADR-003` precedent), recording `ADR-040`'s own current authoritative lifecycle state as `Superseded (scoped by ADR-041)`, reverse relation `ADR-040 superseded_by ADR-041`, effective at this same approval boundary. No semantic redesign. `ADR-040.md` is not edited.
+
+**Fresh boundary verification:** HEAD confirmed exactly `a5867c40d9abf1e9364a1b20353433f4bd0f7e61`, identical to `origin/main`; `ADR-041` reviewed Draft blob confirmed exactly `614f6ee76493eba6bfdd38f581249bbbe648f217` — no drift. `ADR-040` re-verified `Approved`, byte-unchanged.
+
+### Review A recorded
+
+```text
+Principal: ChatGPT, AI Technical Architect / Review A. Same reviewed
+  boundary/blob as above. Confirmed P3-ADR041-A-MAJ-01 (self-contained
+  scoped ADR-040 amendment via depends_on/supersedes + dedicated scope
+  section, no deferred follow-on transaction) and P3-ADR041-A-MAJ-02
+  (Authoritative-use gate six-point minimum invariant) both CLOSED.
+  Residual P3-ADR041-A-MIN-01: REQUIRES_FOLLOW_ON_SUPERSESSION/
+  AMENDMENT wording in the Authority compatibility paragraph is now
+  internally stale since supersession is self-contained -- Minor,
+  non-blocking, documentation-only. Blocker 0 / Major 0 / Minor 1.
+  CLEAN — READY_FOR_INDEPENDENT_REVIEW_B.
+```
+
+### Independent Review B recorded
+
+```text
+Principal: Claude, AI Technical Architect / Independent Review B.
+  DISTINCT_PRINCIPAL (Mode A). Execution ID N/A (not fabricated). Same
+  reviewed boundary/blob. Independently verified ADR_REQUIRED,
+  Option 2 (current/active path preserved plus immutable per-version
+  snapshot artifacts) as one coherent lineage rather than two
+  competing authorities, the canonical snapshot paths/reused ADR-039
+  grammar, the Authoritative-use gate fully closing same-version/
+  different-bytes drift, Stream Registry historical-snapshot
+  compatibility with Locked Chapter 8, the depends_on/supersedes
+  ADR-040 scoped pattern against the ADR-016->ADR-015 precedent, the
+  bootstrap-fresh-v1.0 conclusion, and the follow-on implementation/
+  migration boundaries. Independently identified the same wording
+  residual as Review A (P3-ADR041-B-MIN-01) -- non-blocking,
+  documentation-only. Blocker 0 / Major 0 / Minor 1.
+  CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE ADR-041 v0.1 at reviewed semantic boundary
+  a5867c40d9abf1e9364a1b20353433f4bd0f7e61, ADR blob
+  614f6ee76493eba6bfdd38f581249bbbe648f217. Accept
+  P3-ADR041-A-MIN-01 and P3-ADR041-B-MIN-01 as the same non-blocking
+  documentation-only wording residual under semantic sufficiency; no
+  standalone correction required.
+Recorded: 2026-09-09T21:19+07:00.
+```
+
+### ADR lifecycle transition applied
+
+```text
+status: Draft -> Approved. reviewers: [] -> [ChatGPT, Claude].
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-09T21:19+07:00. last_review: null -> 2026-09-09. version
+remains exactly "0.1". depends_on: [ADR-040]/supersedes: [ADR-040]
+unchanged (already declared at the prior bounded-correction boundary).
+Reviewed semantic boundary/blob recorded separately from, never
+confused with, the resulting lifecycle-record blob (see Files changed
+below). Per Chapter 11 §11.3, ADR-041.md is now immutable
+byte-for-byte from this approval boundary. The accepted
+REQUIRES_FOLLOW_ON_SUPERSESSION/AMENDMENT wording residual
+(P3-ADR041-A-MIN-01/P3-ADR041-B-MIN-01) is left unedited, as decided.
+```
+
+### `ADR-040` lifecycle transition — Superseded (scoped by `ADR-041`)
+
+```text
+Per Chapter 11 §11.6/§11.8 and ADR-041's own self-contained
+  depends_on: [ADR-040]/supersedes: [ADR-040] mechanism (Mechanism A,
+  same governance-relationship pattern as ADR-016->ADR-015 and
+  ADR-014->ADR-003 recorded above/below in this file), effective AT
+  THIS SAME approval boundary:
+Current authoritative lifecycle state: ADR-040 Superseded (scoped by
+  ADR-041) -- embedded document `status: Approved` inside ADR-040.md
+  itself unchanged, byte-identical, immutable (Chapter 11 §11.3).
+Reverse relation: ADR-040 superseded_by ADR-041.
+Scope (narrow, not total -- mirrors ADR-041's own "ADR-040 amendment
+  scope" section): ONLY ADR-040's Class G characterization that Input
+  Contracts'/Stream Registry's single current-path resolver already
+  satisfies §8.1.1 rule 4 in full is narrowed -- current-path
+  resolution now recognized as sufficient for CURRENT/fresh
+  (non-replay) resolution only; EXACT-HISTORICAL-VERSION resolution
+  additionally requires ADR-041's own version-snapshot mechanism.
+  NOT narrowed / ADR-040 remains fully controlling, unchanged: its
+  two-tier model (retention-policy scope vs. storage-realization
+  classes), Class G/Class R definitions, Event Contract
+  version-artifact treatment (already exact-version-resolvable per
+  ADR-039, untouched), Compatibility Result/Policy unclassified-scope
+  treatment, past-horizon archival deferral, and every other
+  retention/archive semantic ADR-040 fixes.
+ADR-040.md itself: NOT edited by this or any transaction -- byte-
+  identical, still Approved/immutable, exactly as ADR-015.md stayed
+  under ADR-016's own Mechanism-A precedent.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-041.md (lifecycle transition in place,
+  blob 614f6ee76493eba6bfdd38f581249bbbe648f217 ->
+  90d30960e658c84842ee48c7f3aa09e640807e67); docs/MANIFEST.md;
+  docs/CHANGELOG.md. No semantic content changed -- `git diff`
+  confirms only frontmatter status/reviewers/approved_by/approved_at/
+  last_review, the two correction-banner finding-status lines (->
+  CLOSED), the review table, the Independence/PO-decision/
+  reviewed-boundary paragraphs, and Accepted risks changed. Decision/
+  Alternatives/Consequences/Scale check/"ADR-040 amendment scope"
+  section/Authority compatibility paragraph (including the accepted
+  Minor wording residual, left unedited) all byte-unchanged.
+  docs/adr/ADR-040.md byte-unchanged (verified `git diff --quiet`).
+  No version-snapshot artifact created, no bootstrap/migration
+  performed, no Chapter 8 edit, no ADR-037/038/039 edit, no
+  python/feature-engine/ edit.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR041-A-MAJ-01/-MAJ-02:     CLOSED at this approval boundary.
+P3-ADR041-A-MIN-01/
+P3-ADR041-B-MIN-01:             Accepted, non-blocking, documentation-
+                                only wording residual; not corrected.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01: OPEN — unaffected, not closed by
+                                this transaction.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-02: OPEN — unaffected, not closed by
+                                this transaction.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected, not closed by this
+                                transaction.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-037/038/039:                Approved, immutable, unaffected.
+ADR-040:                        Superseded (scoped by ADR-041, this
+                                transaction) — embedded document
+                                status: Approved unchanged, byte-
+                                identical, immutable.
+```
+
+**Next governed step:** the follow-on work already named in `ADR-041`'s own Consequences — (1) a separate governed bootstrap transaction capturing each artifact's current content as its first `v1.0` version snapshot; (2) only then, `feature-engine`'s own `prepare_replay_evidence()` correction resolving `P3-FEATURE-EVID05B-IMPL-A-MAJ-02` against this newly-available authority, alongside `P3-FEATURE-EVID05B-IMPL-A-MAJ-01`'s independent-per-`contract_id` fix; (3) a bounded Review-A re-review closing both findings and, if warranted, `P3-FEATURE-QG-EVID-05(b)` — none performed by this approval-recording transaction.
+
+**Files changed:** `docs/adr/ADR-041.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/adr/ADR-040.md`/every Locked Constitution chapter/`ADR-037`/`ADR-038`/`ADR-039`/`python/feature-engine/` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.358"` → `"10.359"`.
 
 ## Decision Log
 
