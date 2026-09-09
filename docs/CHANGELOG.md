@@ -2,6 +2,71 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-09 — platform: `ADR-040` bounded Review A correction (`P3-ADR040-A-MAJ-01`/`-MAJ-02` → `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`; `Draft` unchanged, no version bump)
+
+**Bounded correction transaction — vai trò: `Platform Retention/Archive Policy Bounded Correction Executor`.** Remediates two Review A findings against `ADR-040` v0.1 (`Draft`). `P3-ADR040-A-MAJ-01`: the Draft incorrectly classified Stream Registry as Class R (runtime-resident)/"unimplemented," when Locked Chapter 8 §8.3.1 establishes `docs/architecture/stream-registry.yaml` as the unique canonical Stream Registry authority and that file currently exists with `status: Approved`; the Draft also over-swept ADRs/Constitution chapters/Domain Contracts into Class G without current higher authority designating them as event/cursor-referenced, and implied Compatibility Result/Policy belongs to Class R before its own canonical storage designation exists. `P3-ADR040-A-MAJ-02`: the Draft's Class G archival treatment conflicted with Approved `ADR-039`'s own pure-literal-path-substitution resolver, which never authorizes git-history search as a fallback. Correction only — Stream Registry reclassified to Class G; Class G narrowed to its three actually-designated member types; ADRs/Constitution/Domain Contracts excluded; Compatibility Result/Policy left unclassified; Class R retained empty; Class G within-horizon resolvability now fixed as "canonical file stays live at its own canonical path," git history recast as content-identity/audit evidence only, never a fallback resolver. `ADR_REQUIRED` classification, overall retention-policy objective, fail-closed/immutable-content-identity principles, `ADR-039`, and Locked Constitution all preserved unchanged.
+
+**Fresh boundary verification:** HEAD confirmed exactly `1315392f334bfdd68ca8acab09b21d78800ab1d9`, identical to `origin/main`; ADR-040 blob confirmed exactly `d818541c7f0ff1faa406dd452ae9e7b51675959c` — no drift. `stream-registry.yaml` re-confirmed to exist with `status: Approved` at this boundary.
+
+### Corrected classification (MAJ-01)
+
+```text
+Stream Registry: Class R -> Class G (docs/architecture/stream-registry.yaml,
+  Chapter 8 §8.3.1, Approved -- not unimplemented). Class G narrowed to
+  exactly three current member types, each per its own already-Approved/
+  Locked designation: Stream Registry, Event Contract version-artifacts
+  (ADR-039), Input Contracts. ADRs/Constitution chapters/Domain Contracts
+  explicitly EXCLUDED. Compatibility Result/Policy left UNCLASSIFIED --
+  §10.9 still defers its own storage/format/schema designation. Class R
+  now has zero realized members, retained as an empty policy class.
+```
+
+### Corrected archival/resolution semantics (MAJ-02)
+
+```text
+Class G within-horizon commitment: canonical file must remain present
+  and resolvable AT ITS OWN CANONICAL PATH at current HEAD for the full
+  committed retention horizon. Git commit/blob history recast as
+  content-identity/audit evidence ONLY -- explicitly NOT a fallback
+  resolver; no git-history-search, checkout-of-old-commit, aliasing, or
+  new registry introduced -- avoids contradicting ADR-039's own already-
+  Approved no-aliasing resolver. Removal remains prohibited. Past-horizon
+  archival mechanism for these three types deliberately deferred.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-040.md (corrected in place, blob
+  d818541c7f0ff1faa406dd452ae9e7b51675959c ->
+  2e0338671f48c7172e4c1e74a317e233f9e32db1); docs/MANIFEST.md;
+  docs/CHANGELOG.md. Frontmatter unchanged (version: "0.1", status:
+  Draft, depends_on: []). ADR-039 (Approved, immutable), every Locked
+  Constitution chapter, module-registry.yaml, context-map.yaml, and
+  production/test/tooling all verified byte-unchanged. No Event
+  Contract artifact authored, no event_contract_ref implementation.
+```
+
+### State summary (preserved)
+
+```text
+P3-ADR040-A-MAJ-01:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-ADR040-A-MAJ-02:             REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-QG-EVID-05(b):       OPEN — ADR-040 still only a Draft, not
+                                approved.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-039:                       Approved, immutable, unaffected.
+```
+
+**Next governed step:** bounded Review A re-review of this correction.
+
+**Files changed:** `docs/adr/ADR-040.md` (corrected in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.349"` → `"10.350"`.
+
 ## [Unreleased] — 2026-09-09 — platform: `ADR-040` v0.1 authored (`Draft`) — Platform-wide Retention/Archive Policy Semantics for Referenced Authoritative Artifacts (resolves `ADR-039`'s own Consequences item (0) prerequisite, platform-wide, not Feature-specific)
 
 **Governed semantic architecture-authoring transaction — vai trò: `Platform Retention/Archive Policy Authoring Executor`.** Authors `docs/adr/ADR-040.md` v0.1 (`Draft`), fixing architecture-level retention/archive semantics for every Referenced Authoritative Artifact (Chapter 8 §8.1.1 rule 4; Chapter 10 §10.4.4/§10.9) — the platform-wide prerequisite `ADR-039` named in its own Consequences item (0). Not approved. `ADR-039` unmodified, immutable, unaffected; `P3-ADR039-B-MIN-01` preserved accepted/non-blocking.
