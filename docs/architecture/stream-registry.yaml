@@ -45,62 +45,20 @@
 # lifecycle-only edit -- schema_version/registry_id/registry_version/all seven stream_id/
 # status/protected/writer_authority/sequence_policy/genesis_position values are unchanged,
 # byte-for-byte semantically identical to the reviewed candidate.
-#
-# v0.2 CANDIDATE — ADR-041 bootstrap canonicalization (AUTHORED, NOT YET reviewed or
-# approved):
-#
-# Governed alignment transaction — vai trò: `Stream Registry ADR-041 Alignment Candidate
-# Authoring Executor`. Authors this v0.2 revision candidate per Chapter 0 §5.1/§7.1/§8: an
-# Approved living document cannot be edited in place at the same version; to change, a new
-# version must be authored and pass a fresh approval gate. This candidate realigns
-# `registry_version` from the legacy pre-canonical bare identifier `v1` to Approved
-# `ADR-041`'s (docs/adr/ADR-041.md, lifecycle blob
-# 90d30960e658c84842ee48c7f3aa09e640807e67) canonical `v<major>.<minor>` grammar --
-# `ADR-041` itself decided that legacy bare `v1` identities do not carry over and that the
-# first canonical snapshot identity is exactly `v1.0`.
-#
-# Semantic classification: this is the SAME Genesis Registry, not a new or post-Genesis
-# version. Registry lineage, all seven streams, and every stream's status/protected flag/
-# writer_authority/sequence_policy/genesis_position are UNCHANGED byte-for-byte in
-# substance (verified identical, see `streams:` below -- untouched by this transaction). No
-# `effective_from`, no `activation_boundary`, no Lifecycle Stream event is introduced --
-# Chapter 8 §8.3.5's Genesis root-exception (no activation event required before it) is
-# preserved exactly; this candidate does not become, and is not treated as, a post-Genesis
-# transition.
-#
-# Lifecycle-metadata treatment (Chapter 0 §5.1/§7.1/§8/§9, mirrors the only existing
-# repository precedent for a Locked/Approved living document reopened for a new revision --
-# Chapter 12 v1.5 Locked -> v1.6 `status: Draft` candidate, ADR-031 governance migration):
-# `version: "0.1" -> "0.2"`; `status: Approved -> Draft` (returns to the repository's normal
-# pre-approval candidate state, same as Chapter 12's own v1.6 candidate authoring);
-# `reviewers: [ChatGPT, Claude]` retained (role assignment, not an assertion this candidate
-# has already been reviewed -- same as the Chapter 12 precedent); `approved_by`/
-# `approved_at`/`last_review` reset to `null` (no review or Product Owner approval has
-# occurred on this candidate -- none fabricated); `next_review` remains `null`.
-# `generated_at` updated to this authoring boundary.
-#
-# This transaction AUTHORS the v0.2 candidate only. It does NOT review, approve, or
-# activate it -- `docs/architecture/stream-registry-versions/v1.0.yaml` is not created, the
-# three Feature Input Contracts are not touched, and no Feature runtime/QG/module/Phase 3
-# Gate/LIVE state is affected. Fresh boundary verification (before this transaction): HEAD
-# confirmed exactly d65fd27b5c38dbe02077df3dfd6b4d5db920deae, identical to origin/main;
-# this file's own prior blob confirmed exactly 995ea25d2f59018edb023619a15985f9924fc760 --
-# no drift. Do not self-review or self-approve -- Product Owner review/decision is required
-# separately, per Chapter 0 §3/Chapter 11 §11.5, before this candidate may become Approved.
 
 schema_version: 1
 registry_id: genesis-stream-registry
-version: "0.2"
-status: Draft
+version: "0.1"
+status: Approved
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
-last_review: null
+approved_by: Product Owner
+approved_at: "2026-08-26T15:55+07:00"
+last_review: "2026-08-26"
 next_review: null
-generated_at: "2026-09-10"
+generated_at: "2026-08-26"
 
-registry_version: v1.0
+registry_version: v1
 
 streams:
   - stream_id: market-data-ingestion-candle

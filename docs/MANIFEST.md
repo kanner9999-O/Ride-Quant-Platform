@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.360"
+manifest_version: "10.361"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26146,6 +26146,81 @@ ADR-037/038/039/040/041:        Approved, immutable, unaffected.
 **Next governed step:** Review A / Independent Review B / Product Owner decision on this v0.2 candidate; only if Approved does `registry_version: v1.0` become the current authoritative Stream Registry identity. Separately and only after that: authoring `docs/architecture/stream-registry-versions/v1.0.yaml` and the three Input Contract `v1.0` snapshots/realignment, none of which is performed by this transaction.
 
 **Files changed:** `docs/architecture/stream-registry.yaml` (v0.2 candidate authored), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.359"` → `"10.360"`.
+
+## Genesis Stream Registry v0.2 candidate isolated from canonical path (forward correction — Review A `REVISION_REQUIRED`; candidate moved to review branch, `main` restored to v0.1 Approved)
+
+**Bounded lifecycle/staging correction — vai trò: `Stream Registry Candidate Isolation Executor`.** Corrects an invalid staging boundary: commit `7d920cf303081de6dc45578229fc36641be6ab42` placed the unreviewed `v0.2` `Draft` candidate directly at the machine-consumed canonical path `docs/architecture/stream-registry.yaml`, changing current resolution behavior (`registry_version`/`status`/`version` read from that path) **before** any Review A/Independent Review B/Product Owner approval occurred on the candidate. This is a bounded lifecycle/staging correction, NOT a new architecture decision, and does not itself review or approve the candidate.
+
+**Isolation performed:**
+
+```text
+Candidate preserved on branch: review/stream-registry-v0.2-adr041
+  Candidate commit (authoring):  7d920cf303081de6dc45578229fc36641be6ab42's
+                                  docs/architecture/stream-registry.yaml content,
+                                  re-committed on the review branch as base, then
+                                  bounded-corrected in place on that branch.
+  Candidate commit (corrected):  0f4c618a278dd717d419b7f6b04df214077e917c
+  Candidate blob (corrected):    37a81f7cb9e53b9717711ba094ab13420df9bea5
+  Candidate identity is pinned by this exact branch commit + exact blob -- NEVER by the
+    mutable branch name alone (the branch tip may move; this commit/blob will not).
+  Candidate remains: version "0.2", status Draft, registry_version v1.0, all seven
+    streams entries structurally identical to v0.1 (verified, see below).
+
+main restored:
+  docs/architecture/stream-registry.yaml reverted, via ONE forward commit (no history
+    rewrite/reset of published main), to the exact pre-candidate Approved v0.1 blob
+    995ea25d2f59018edb023619a15985f9924fc760 -- document version "0.1", status Approved,
+    registry_version v1.
+  Current authoritative Stream Registry: v0.1 Approved (unchanged from before the v0.2
+    candidate was ever authored). v0.2 is an unapproved review candidate only, living
+    solely on review/stream-registry-v0.2-adr041 at the pinned commit/blob above.
+```
+
+### Remediation mapping (Review A `REVISION_REQUIRED`)
+
+```text
+P3-STREAMREG-V02-A-MAJ-01: REMEDIATED — PENDING REVIEW A (remediated on the candidate
+  branch, commit 0f4c618a278dd717d419b7f6b04df214077e917c -- stale registry_version: v1
+  "immutable identifier" paragraph corrected to describe v1.0 as current, ADR-041
+  attributed correctly, v1 preserved as historical v0.1 record). NOT remediated on main
+  -- main no longer carries the candidate at all, having been restored to v0.1 Approved.
+P3-STREAMREG-V02-A-MIN-01: REMEDIATED — PENDING REVIEW A (same candidate-branch commit --
+  ADR-036 vs ADR-041 attribution disambiguated).
+Staging-boundary defect (7d920cf...): remediated by this isolation transaction -- the
+  Draft candidate no longer occupies the canonical current-resolution path.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed on main: docs/architecture/stream-registry.yaml (restored to v0.1 blob
+  995ea25d2f59018edb023619a15985f9924fc760); docs/MANIFEST.md; docs/CHANGELOG.md. Files
+  changed on review/stream-registry-v0.2-adr041: docs/architecture/stream-registry.yaml
+  only (candidate correction commit 0f4c618a278dd717d419b7f6b04df214077e917c). No
+  snapshot artifact created on either ref. Three Feature Input Contracts unchanged. ADR-
+  041/ADR-040 byte-unchanged. Every Locked Constitution chapter byte-unchanged. No
+  python/feature-engine/ or go/ file touched on either ref (git diff --quiet).
+```
+
+### State summary (preserved)
+
+```text
+Genesis Stream Registry current authoritative state: v0.1 Approved (restored) --
+  registry_version: v1, status: Approved. v0.2 Draft candidate (registry_version: v1.0)
+  exists only on review/stream-registry-v0.2-adr041 at commit
+  0f4c618a278dd717d419b7f6b04df214077e917c, NOT approved, NOT active, NOT on main.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02: OPEN — unaffected.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-037/038/039/040/041:        Approved, immutable, unaffected.
+```
+
+**Next governed step:** Review A re-review of the candidate at its pinned commit `0f4c618a278dd717d419b7f6b04df214077e917c` on `review/stream-registry-v0.2-adr041`; only after Review A/Independent Review B/Product Owner approval on that exact candidate does any merge/fast-forward of `v1.0` onto the canonical path occur — not performed by this transaction.
+
+**Files changed:** `docs/architecture/stream-registry.yaml` (restored on `main`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.360"` → `"10.361"`.
 
 ## Decision Log
 

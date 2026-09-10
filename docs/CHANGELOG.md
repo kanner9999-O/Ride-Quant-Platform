@@ -2,6 +2,66 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-10 — platform: Genesis Stream Registry v0.2 candidate isolated from canonical path (`main` restored to v0.1 Approved; candidate preserved on `review/stream-registry-v0.2-adr041`)
+
+**Bounded lifecycle/staging correction — vai trò: `Stream Registry Candidate Isolation Executor`.** Corrects an invalid staging boundary: commit `7d920cf303081de6dc45578229fc36641be6ab42` placed the unreviewed `v0.2` `Draft` candidate directly at the machine-consumed canonical path, changing current resolution behavior before any Review A/Independent Review B/Product Owner approval occurred. NOT a new architecture decision; does not itself review or approve the candidate.
+
+### Isolation performed
+
+```text
+Candidate preserved on branch review/stream-registry-v0.2-adr041, commit
+  0f4c618a278dd717d419b7f6b04df214077e917c, blob
+  37a81f7cb9e53b9717711ba094ab13420df9bea5. Pinned by exact commit + blob, never by
+  the mutable branch name alone. Candidate remains version "0.2", status Draft,
+  registry_version v1.0, all seven streams structurally identical to v0.1.
+main restored via ONE forward commit (no history rewrite/reset) to the exact
+  pre-candidate Approved v0.1 blob 995ea25d2f59018edb023619a15985f9924fc760 --
+  version "0.1", status Approved, registry_version v1. Current authoritative Stream
+  Registry is v0.1 Approved; v0.2 is an unapproved review candidate only.
+```
+
+### Remediation mapping (Review A `REVISION_REQUIRED`)
+
+```text
+P3-STREAMREG-V02-A-MAJ-01: REMEDIATED — PENDING REVIEW A (on candidate branch commit
+  0f4c618a278dd717d419b7f6b04df214077e917c -- stale registry_version: v1 "immutable
+  identifier" paragraph corrected to describe v1.0, ADR-041 attributed correctly, v1
+  preserved as historical v0.1 record).
+P3-STREAMREG-V02-A-MIN-01: REMEDIATED — PENDING REVIEW A (same commit -- ADR-036 vs
+  ADR-041 attribution disambiguated).
+Staging-boundary defect (7d920cf...): remediated -- the Draft candidate no longer
+  occupies the canonical current-resolution path.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed on main: docs/architecture/stream-registry.yaml (restored),
+  docs/MANIFEST.md, docs/CHANGELOG.md. Files changed on review/stream-registry-
+  v0.2-adr041: docs/architecture/stream-registry.yaml only. No snapshot artifact on
+  either ref. Three Feature Input Contracts unchanged. ADR-041/ADR-040 and every
+  Locked Constitution chapter byte-unchanged. No python/feature-engine/ or go/ file
+  touched on either ref.
+```
+
+### State summary — prohibited transitions explicitly NOT granted
+
+```text
+Genesis Stream Registry current authoritative state: v0.1 Approved (restored). v0.2
+  Draft candidate exists only on review/stream-registry-v0.2-adr041, NOT approved,
+  NOT active, NOT on main.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02: OPEN — unaffected.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A re-review of the candidate at its pinned commit on `review/stream-registry-v0.2-adr041`; only after Review A/Independent Review B/Product Owner approval does any merge/fast-forward of `v1.0` onto the canonical path occur — not performed here.
+
+**Files changed:** `docs/architecture/stream-registry.yaml` (restored on `main`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.360"` → `"10.361"`.
+
 ## [Unreleased] — 2026-09-10 — platform: Genesis Stream Registry v0.2 `Draft` candidate authored — ADR-041 bootstrap canonicalization (`registry_version: v1 → v1.0`; NOT reviewed, NOT approved)
 
 **Bounded living-document alignment transaction — vai trò: `Stream Registry ADR-041 Alignment Candidate Authoring Executor`.** Authors `docs/architecture/stream-registry.yaml` v0.2 as a `Draft` revision candidate per Chapter 0 §5.1/§7.1/§8 — an Approved living document cannot be edited in place at the same version; a new version must be authored and pass a fresh approval gate. Realigns `registry_version` from legacy bare `v1` to Approved `ADR-041`'s canonical `v1.0` grammar. Same Genesis Registry, same lineage, same seven streams/statuses/protected flags/writer authorities/sequence policies/genesis positions — no topology change, no `effective_from`/`activation_boundary`/Lifecycle Stream event added, Genesis root-exception preserved exactly.
