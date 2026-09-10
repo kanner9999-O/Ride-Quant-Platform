@@ -11,8 +11,10 @@
 # Derivation, not invention: feature.md §14's own authoritative upstream enumeration lists
 # exactly candle-closed/candle-corrected + swing-confirmed/swing-invalidated for this type
 # — this contract's included_streams is the direct, mechanical transcription of that
-# enumeration onto Approved ADR-036's stream topology (docs/architecture/stream-registry.yaml
-# v0.1, registry_version v1). No new architecture decision is made by this file. This
+# enumeration onto Approved ADR-036's stream topology (docs/architecture/stream-registry.yaml,
+# registry_version v1.0 in this coherent ADR-041 bootstrap review candidate -- topology/
+# writer-authority unchanged from the original v0.1 Approved derivation, only the
+# identifier literal realigned). No new architecture decision is made by this file. This
 # profile does NOT touch Regime, and does NOT touch Structure's BOS/CHoCH event family
 # (structure-engine-structure) — feature.md §14 confirms Feature never consumes any
 # Structure event; distance_to_last_confirmed_swing consumes only structure-engine's own
@@ -57,18 +59,40 @@
 # rationale: feature-context-architecture.md §4.6 v0.6. included_streams/merge_policy/
 # causal_closure_policy/contract_id/contract_version/late_arrival_behavior/
 # buffer_limit_policy: unchanged.
+#
+# v0.5 REVIEW CANDIDATE (2026-09-10, review/adr041-bootstrap-v1.0 branch only -- NOT on
+# main, NOT approved) — remediates Review B's approval-coupling finding
+# `P3-STREAMREG-V02-B-MAJ-01` against the companion Stream Registry v0.2 candidate
+# (commit 0f4c618a278dd717d419b7f6b04df214077e917c): standalone publication of Registry
+# `v1.0` while Input Contracts remained bare `v1` would leave the two artifact families
+# internally inconsistent. This candidate realigns `input_contract_ref.contract_version`
+# and `stream_registry_version` to Approved `ADR-041`'s (docs/adr/ADR-041.md) canonical
+# `v<major>.<minor>` grammar -- `v1.0` -- coherently with the companion Registry
+# candidate, so all four artifact families agree on `v1.0` within this one review
+# workspace. vai trò: `ADR-041 Bootstrap Cross-Artifact Alignment Candidate Executor`.
+#
+# Preserved exactly: contract_id, included_streams, merge_policy, frontier_policy,
+# causal_closure_policy -- no substantive semantic change, only the governed-identity
+# fields and directly dependent explanatory wording (stream-registry.yaml derivation
+# reference above updated to `registry_version v1.0` for the same reason).
+#
+# This is a REVIEW CANDIDATE only -- lives solely on `review/adr041-bootstrap-v1.0`, not
+# merged to `main`, not reviewed, not approved. No `*/v1.0.yaml` snapshot created. Do not
+# self-review or self-approve.
+#
+# `P3-STREAMREG-V02-B-MAJ-01: REMEDIATED — PENDING BOUNDED RE-REVIEW`
 
 schema_version: 1
-version: "0.4"
+version: "0.5"
 status: Draft
 owner: Product Owner
-generated_at: "2026-08-26"
+generated_at: "2026-09-10"
 
 input_contract_ref:
   contract_id: feature-swing-distance-input
-  contract_version: v1
+  contract_version: v1.0
 
-stream_registry_version: v1
+stream_registry_version: v1.0
 
 included_streams:
   - market-data-ingestion-candle
