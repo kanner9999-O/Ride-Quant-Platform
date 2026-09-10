@@ -1,14 +1,14 @@
 ---
 id: 11-adr-process
 title: ADR Process
-version: "2.2"
+version: "2.3"
 status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
 approved_by: Product Owner
-approved_at: "2026-08-18T17:25:00+07:00"
+approved_at: "2026-09-10T15:51+07:00"
 created_at: "2026-07-16"
-last_review: "2026-08-18"
+last_review: "2026-09-10"
 next_review: null
 depends_on: ["00-governance", "02-platform-invariants"]
 ---
@@ -17,7 +17,9 @@ depends_on: ["00-governance", "02-platform-invariants"]
 
 Chapter 11 khóa quy trình và metadata contract của ADR. Document Lifecycle, Freeze Policy và ADR Scope Rule thuộc [Chapter 0](./00-governance.md); authority mapping thuộc [I-12](./02-platform-invariants.md).
 
-> **Governance migration (v2.2, ACTIVE):** §11.5/§11.9 dưới đây kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved) — cùng nội dung Mode A/Mode B với [Chapter 0 §3 v1.2](./00-governance.md) (Locked, cùng activation boundary). Atomic Activation Boundary (ADR-031 §11) hoàn tất TẠI ĐÚNG activation commit này, đồng bộ CÙNG Chapter 0 §3 và Chapter 12 (v1.6, Locked) — Product Owner decision nguyên văn "ACTIVATE ADR-031 GOVERNANCE MIGRATION," 2026-08-18T17:25:00+07:00.
+> **Governance migration (v2.2, historical — controlling from 2026-08-18T17:25:00+07:00 until the v2.3 boundary below):** §11.5/§11.9 dưới đây kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved) — cùng nội dung Mode A/Mode B với [Chapter 0 §3 v1.2](./00-governance.md) (Locked, cùng activation boundary). Atomic Activation Boundary (ADR-031 §11) hoàn tất TẠI ĐÚNG activation commit này, đồng bộ CÙNG Chapter 0 §3 và Chapter 12 (v1.6, Locked) — Product Owner decision nguyên văn "ACTIVATE ADR-031 GOVERNANCE MIGRATION," 2026-08-18T17:25:00+07:00. Đoạn này giữ nguyên như bằng chứng lịch sử chính xác của migration đó; KHÔNG còn mô tả mô hình đang controlling kể từ boundary v2.3 dưới đây trở đi — current lifecycle/model state authoritative tại MANIFEST theo I-12.
+>
+> **Governance migration (v2.3, ACTIVE):** §11.5/§11.9 dưới đây kích hoạt mô hình đã được Product Owner approve tại [ADR-042](../adr/ADR-042.md) (Approved) — cùng nội dung với [Chapter 0 §3 v1.3](./00-governance.md) (Locked, cùng activation boundary). Atomic Activation Boundary hoàn tất TẠI ĐÚNG activation commit này, đồng bộ CÙNG Chapter 0 §3, [Chapter 12](./12-approval-gates.md) (v1.7, Locked), ADR template, Global Execution Rules (v0.6, EFFECTIVE), Phase-3 rules (v0.3, EFFECTIVE), và MANIFEST — retire `ADR-031` Mode A/Mode B như mandatory approval-eligibility mechanism, thay bằng Review A mandatory + Risk Classification (R0/R1/R2) + optional advisory cross-check tại R2 (Product Owner chọn). `ADR-031` KHÔNG bị sửa (bất biến, Chapter 11 §11.3); định nghĩa của nó vẫn còn giá trị lịch sử; current lifecycle state của nó nay `Superseded` (bởi `ADR-042`), ghi tại MANIFEST theo I-12. Product Owner decision nguyên văn: "APPROVE ADR-042 v0.5 AND ITS ATOMIC GOVERNANCE ACTIVATION at reviewed semantic boundary 64fc05becc6ca4245229db79b3fb6c5d9187e622, based on current main e975d44f813b1ee91d2dbf3793376ca1827dc0f1," `2026-09-10T15:51+07:00`.
 
 ## 11.1 Template và phạm vi
 
@@ -65,14 +67,14 @@ Current lifecycle state và reverse supersession relation thuộc MANIFEST.
 
 Trước Product Owner decision:
 
-- tối thiểu hai independent reviews;
-- reviewer giữ role `AI Technical Architect` tại review boundary — role eligibility thuộc về principal (đúng Chapter 0 §3), execution/session kế thừa eligibility từ principal, KHÔNG có role riêng;
-- independence được thỏa bởi Mode A (`DISTINCT_PRINCIPAL` — hai principal khác nhau) HOẶC Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION` — cùng principal, hai execution cô lập, CHỈ khi execution-isolation evidence contract [ADR-031](../adr/ADR-031.md) §5 thỏa đầy đủ);
-- reviewer identity (principal identity, execution identity nếu Mode B, review boundary, independence mode) được pin;
+- Review A bắt buộc — reviewer giữ role `AI Technical Architect` tại review boundary; role eligibility thuộc về principal (đúng Chapter 0 §3), execution/session kế thừa eligibility từ principal, KHÔNG có role riêng; Review A phải độc lập kiểm tra trực tiếp candidate/repository authority, không kế thừa kết luận Executor làm ground truth;
+- Risk Classification bắt buộc, ngay sau Review A — đúng một trong R0/R1/R2 (định nghĩa đầy đủ tại [ADR-042](../adr/ADR-042.md)); R0/R1 mặc định `NO CROSS-CHECK`; R2: Review A recommend optional cross-check, KHÔNG BAO GIỜ tự động yêu cầu, Product Owner chọn `CROSS-CHECK` hoặc `PROCEED WITHOUT CROSS-CHECK`;
+- optional cross-check (chỉ R2, chỉ khi Product Owner chọn): advisory only, không veto, KHÔNG approval prerequisite, KHÔNG cần persisted transcript/evidence/execution-ID, KHÔNG cần Mode A/Mode B bookkeeping; vắng mặt KHÔNG BAO GIỜ làm mất điều kiện approval;
+- reviewer identity (principal identity, role, review boundary) của Review A được pin;
 - reviewer ngang hàng, không veto;
 - Product Owner là authority duy nhất approve/reject.
 
-Validator kiểm tra eligibility và consistency, không phải approval authority.
+Validator kiểm tra eligibility và consistency (Review A resolved, Risk Classification resolved đúng một R0/R1/R2), không phải approval authority — không kiểm tra cross-check existence/choice/evidence (§11.9 dưới).
 
 ## 11.6 Approval transition phải atomic
 
@@ -125,18 +127,25 @@ Validator là blocking consistency gate, không phải approval authority.
 Tối thiểu kiểm tra:
 
 - ADR number unique, không reuse;
-- minimum-two eligible independent review EXECUTIONS (KHÔNG chỉ "reviewer," đúng principal-vs-execution distinction, [ADR-031](../adr/ADR-031.md));
-- mỗi execution resolve được: principal identity, role (`AI Technical Architect`), review boundary, independence mode;
-- Mode A: hai principal identity khác nhau;
-- Mode B: hai execution cô lập của CÙNG principal ĐÚNG execution-isolation evidence contract (ADR-031 §5) — bao gồm distinct execution identifier VÀ explicit isolation attestation; một nhãn tự do một mình KHÔNG đủ;
+- đúng một Review A execution resolve được: principal identity, role (`AI Technical Architect`), review boundary;
+- Risk Classification present và resolve đúng một trong R0/R1/R2 (định nghĩa [ADR-042](../adr/ADR-042.md));
 - `depends_on` tồn tại, Approved, acyclic;
 - `resolves` khớp MANIFEST OQ transition;
 - `supersedes` khớp MANIFEST current state/reverse relation;
 - Approved ADR file không bị mutate;
 - MANIFEST không stale;
-- fail-closed: nếu independence mode (Mode A HOẶC Mode B) KHÔNG resolve đầy đủ tại review boundary, validator BÁO eligibility incomplete — KHÔNG tự suy diễn pass.
+- fail-closed CHỈ khi: Review A execution KHÔNG resolve được, HOẶC Risk Classification KHÔNG resolve đúng một R0/R1/R2 — validator BÁO eligibility incomplete, KHÔNG tự suy diễn pass.
+- **KHÔNG kiểm tra** (đã retire kể từ activation này): cross-check existence, absence, invocation choice, reviewer identity, transcript, evidence, execution/session ID, hoặc result của một optional cross-check — đây KHÔNG BAO GIỜ là approval-eligibility input; validator KHÔNG BAO GIỜ fail vì một optional cross-check hoặc cross-check-choice record vắng mặt. Mode A/Mode B ([ADR-031](../adr/ADR-031.md), Approved, bất biến) không còn là validator-checked eligibility mechanism — định nghĩa của nó vẫn còn giá trị lịch sử/tham khảo nếu một cross-check muốn tự mô tả provenance, nhưng validator KHÔNG BAO GIỜ yêu cầu nó.
 
 Tooling/operator cụ thể defer Phase 1.
+
+**Non-retroactivity / bootstrap boundary (`ACT-A-MAJ-03` remediation — bắt buộc tường minh, tránh self-bootstrap contradiction tại chính activation boundary này):**
+
+- Validator criteria mới ở trên (Review A execution + Risk Classification) áp dụng **prospectively** — CHỈ cho decision được govern bởi model này TỪ SAU activation boundary trở đi (đồng bộ atomic cùng [ADR-042](../adr/ADR-042.md), MANIFEST, và toàn bộ amendment bundle, đúng [ADR-042](../adr/ADR-042.md)'s Migration).
+- ADR/approval-gate decision đã hoàn tất TRƯỚC activation boundary VẪN valid dưới đúng review rule effective tại original approval boundary của nó (Mode A/Mode B, minimum-two-review) — KHÔNG bị đòi hỏi hồi tố R0/R1/R2 Risk Classification, KHÔNG bị re-open, KHÔNG bị re-review.
+- Historical two-review evidence (existing "Independent reviews" table trong ADR cũ, MANIFEST review-evidence record) giữ nguyên valid, KHÔNG bị rewrite hay re-verify bởi validator criteria mới.
+- Chính [ADR-042](../adr/ADR-042.md)'s own approval/activation transaction được govern bởi mandatory-two-review model **effective TRƯỚC activation boundary này** (Chapter 0 §3/Chapter 11 §11.5/§11.9 pre-activation text, [ADR-031](../adr/ADR-031.md) Mode A/Mode B) — KHÔNG BAO GIỜ bởi chính validator criteria mới nó tạo ra ([ADR-042](../adr/ADR-042.md) tự nói rõ: "this ADR is not used to bootstrap its own rules"). Validator criteria mới CHỈ bắt đầu áp dụng cho decision SAU đúng activation boundary đó — never for ADR-042's own approval decision itself.
+- KHÔNG validator nào được invalidate một approval lịch sử CHỈ VÌ nó thiếu Risk Classification hoặc dùng legacy two-review evidence — thiếu hai điều đó KHÔNG PHẢI một fail-closed condition cho decision đã hoàn tất trước activation boundary.
 
 ## 11.10 Quy tắc bắt buộc
 

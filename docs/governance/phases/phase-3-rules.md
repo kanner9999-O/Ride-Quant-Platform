@@ -1,11 +1,11 @@
 ---
 id: phase-3-rules
 title: "Phase 3 — Core Backend: Execution Rules"
-version: "0.2"
+version: "0.3"
 operational_state: EFFECTIVE
 owner: Product Owner
 accepted_by: Product Owner
-accepted_at: "2026-08-19T11:10:00+07:00"
+accepted_at: "2026-09-10T15:51+07:00"
 created_at: "2026-08-18"
 phase: 3
 phase_name: "Core Backend"
@@ -13,14 +13,18 @@ phase_name: "Core Backend"
 
 # Phase 3 — Core Backend: Execution Rules
 
-**Vai trò của tài liệu này:** per-phase operational execution rule cho Phase 3 — Core Backend (Chapter 14 §14.3: "build ĐÚNG theo dependency graph ở `07-module-taxonomy.md`"), đúng khung `docs/governance/phases/phase-rules-template.md`. Document này được author TRƯỚC KHI Phase 3 substantive work bắt đầu, đúng template's mandatory rule (fail-closed "criteria defined before used"). **`operational_state: EFFECTIVE`** (kể từ Product Owner acceptance, 2026-08-19T11:10:00+07:00, §3 dưới) — ruleset này nay binding cho mọi transaction Phase 3. Phase 3 substantive governed implementation nay `PERMITTED_TO_BEGIN` — đây KHÔNG PHẢI Phase 3 DoD, KHÔNG PHẢI approval cho bất kỳ module/package nào, KHÔNG PHẢI LIVE authorization. Rule tại đây CÓ THỂ siết chặt (tighten) Global Execution Rules (`../execution-rules.md` v0.4) cho phạm vi Phase 3, NHƯNG KHÔNG BAO GIỜ override Global Rules hay bất kỳ authority cao hơn.
+**Vai trò của tài liệu này:** per-phase operational execution rule cho Phase 3 — Core Backend (Chapter 14 §14.3: "build ĐÚNG theo dependency graph ở `07-module-taxonomy.md`"), đúng khung `docs/governance/phases/phase-rules-template.md`. Document này được author TRƯỚC KHI Phase 3 substantive work bắt đầu, đúng template's mandatory rule (fail-closed "criteria defined before used"). Rule tại đây CÓ THỂ siết chặt (tighten) Global Execution Rules (`../execution-rules.md`) cho phạm vi Phase 3, NHƯNG KHÔNG BAO GIỜ override Global Rules hay bất kỳ authority cao hơn.
+
+> **v0.3 EFFECTIVE (accepted 2026-09-10T15:51+07:00, atomic with [ADR-042](../../adr/ADR-042.md)'s own approval/activation):** ADR-042 alignment (`ACT-A-MAJ-02`) — `P3-REVIEW-001`/`P3-IDENTITY-001`/§11 Gate-path's review-gate wording updated to route through the new Review A + Risk Classification (R0/R1/R2) model instead of the retired mandatory-two-review gate, per ADR-042's own Migration item 8. Every other v0.2 rule — Phase 3 identity (§1), the seven other P3 controls, and specifically Phase 3 substantive governed implementation's already-accepted `PERMITTED_TO_BEGIN` status (established 2026-08-19T11:10:00+07:00, §3 below, under v0.2) — is preserved byte-equivalent, not reopened, reversed, or cast into doubt.
 
 ```text
 phase:              3
 phase_name:         Core Backend
 operational_state:  EFFECTIVE
 accepted_by:        Product Owner
-accepted_at:        "2026-08-19T11:10:00+07:00"
+accepted_at:        "2026-09-10T15:51+07:00"
+v0.2's own already-accepted PERMITTED_TO_BEGIN status (2026-08-19T11:10:00
+  +07:00) carries forward unchanged, not reopened.
 ```
 
 ## 1. Phase identity
@@ -263,29 +267,49 @@ P3-TXN-001  Mỗi primary transaction CHỈ MỘT semantic decision (đúng
 
 ```text
 P3-REVIEW-001  Review depth tỷ lệ với LOẠI thay đổi (đúng Global
-               G-REV-001), giữ nguyên table Phase 2:
+               G-REV-001), routing qua Risk Classification R0/R1/R2
+               (ADR-042, thay table Phase 2 cũ -- table cũ preserved
+               dưới đây CHỈ như historical record, KHÔNG còn controlling):
 
                  new architecture / authority / contract semantics
-                   -> full governed review (Review A/B)
+                   -> R2: Review A + mandatory Risk Classification;
+                      Review A recommend optional advisory cross-check,
+                      Product Owner chọn dùng hoặc không (KHÔNG tự động
+                      "Review A/B" pairing)
 
                  bounded semantic correction
-                   -> bounded semantic re-review, CHỈ phạm vi đã chạm
+                   -> thường R1: Review A đủ theo default (bounded
+                      re-review, CHỈ phạm vi đã chạm); escalate lên R2
+                      nếu Review A/Product Owner đánh giá rủi ro thật sự
+                      cao hơn nominal category
 
                  mechanical factual correction
-                   -> deterministic verification khi reproducible, KHÔNG
-                      tự động full A+B
+                   -> R0: deterministic verification khi reproducible,
+                      KHÔNG tự động cross-check
 
                  evidence/bookkeeping recording
-                   -> validation only theo default
+                   -> R0: validation only theo default
+
+               [Historical table Phase 2, superseded bởi R0/R1/R2 ở trên
+               kể từ ADR-042 activation -- giữ nguyên KHÔNG sửa như bằng
+               chứng lịch sử: "new architecture/authority/contract
+               semantics -> full governed review (Review A/B)"; "bounded
+               semantic correction -> bounded semantic re-review, CHỈ
+               phạm vi đã chạm"; "mechanical factual correction ->
+               deterministic verification khi reproducible, KHÔNG tự
+               động full A+B"; "evidence/bookkeeping recording ->
+               validation only theo default".]
 
                THÊM (đóng Gate-3 failure, retrospective §8 mục 3): NẾU
                một recording/verification transaction phát hiện evidence
                được cite MÂU THUẪN với assertion đang được ghi — DỪNG
                NGAY việc recording đó. KHÔNG "sửa" evidence bên trong
                transaction recorder. Route sang governed semantic/
-               evidence-remediation path riêng (Review A/B đầy đủ nếu
-               semantic, hoặc bounded correction nếu factual — KHÔNG tự
-               quyết định tại chính recorder).
+               evidence-remediation path riêng (Review A + Risk
+               Classification đầy đủ nếu semantic -- R2 nếu rủi ro cao,
+               optional cross-check theo Product Owner -- hoặc bounded
+               correction nếu factual -- KHÔNG tự quyết định tại chính
+               recorder).
                KHÔNG review-round amplification khi KHÔNG có Major/
                Blocker mới (đúng Global G-REV-004).
 ```
@@ -293,30 +317,34 @@ P3-REVIEW-001  Review depth tỷ lệ với LOẠI thay đổi (đúng Global
 ### P3-IDENTITY-001 (reviewer/evaluator identity mechanical pre-check — nguồn: retrospective §8 mục 1)
 
 ```text
-P3-IDENTITY-001  TRƯỚC KHI một review/evaluation result được tính vào
-                 một governance prerequisite (Chapter 12 §12.2 mục 8 hoặc
+P3-IDENTITY-001  TRƯỚC KHI Review A's result được tính vào một
+                 governance prerequisite (Chapter 12 §12.2 mục 8 hoặc
                  tương đương), mechanically resolve VÀ pin: actor
                  identity, role, registered alias (nếu áp dụng), VÀ exact
-                 review/evaluation boundary — đối chiếu trực tiếp
-                 `docs/team/team.yaml` (SSOT). KHÔNG cho phép một
-                 execution/session label (vd một chuỗi "execution
-                 identity" tùy ý) tự động trở thành actor identity TRỪ
-                 KHI governance tường minh established cơ chế đó
-                 (team.yaml's registered alias, giống "Independent Review
-                 B" ↔ Claude).
+                 review boundary — đối chiếu trực tiếp `docs/team/
+                 team.yaml` (SSOT). KHÔNG cho phép một execution/session
+                 label (vd một chuỗi "execution identity" tùy ý) tự động
+                 trở thành actor identity TRỪ KHI governance tường minh
+                 established cơ chế đó (team.yaml's registered alias).
                  Nguồn: Gate-3's actor-identity mismatch (draft ban đầu
                  gán CẢ Review A LẪN Review B cho "ChatGPT," phân biệt chỉ
                  bởi một execution-identity string KHÔNG đăng ký) — catch
                  tại thời điểm đó CHỈ xảy ra vì diligence thủ công, KHÔNG
-                 một mechanical gate (retrospective §8 mục 1).
+                 một mechanical gate (retrospective §8 mục 1); vẫn giá
+                 trị nguyên vẹn cho Review A's identity dù mandatory-two-
+                 review gate đã retire.
                  Đây LÀ một Phase-3 operational pre-check — KHÔNG redefine
                  Chapter 0 §3/Chapter 11 §11.5's reviewer-independence
-                 authority (Mode A `DISTINCT_PRINCIPAL` / Mode B
-                 `SAME_PRINCIPAL_DISTINCT_EXECUTION`, ACTIVE kể từ
-                 ADR-031), CHỈ thêm một bước verify mechanical TRƯỚC KHI
-                 đếm — với Mode B, bước này bao gồm verify execution-
-                 isolation evidence contract (ADR-031 §5) đã thỏa, KHÔNG
-                 CHỈ registered alias.
+                 authority (Review A mandatory + Risk Classification
+                 R0/R1/R2 + optional advisory cross-check tại R2, kể từ
+                 ADR-042 activation — thay mô hình Mode A/Mode B cũ, xem
+                 [ADR-031](../../adr/ADR-031.md), Approved, bất biến, còn
+                 giá trị lịch sử), CHỈ thêm một bước verify mechanical
+                 TRƯỚC KHI tính Review A vào prerequisite. Nếu Product
+                 Owner chọn dùng một optional R2 cross-check, bước này
+                 KHÔNG áp dụng cho cross-check đó — cross-check KHÔNG
+                 phải một governance prerequisite, KHÔNG cần identity
+                 resolution mechanical tại decision boundary (ADR-042).
 ```
 
 ## 9. Prompt/efficiency controls
@@ -355,8 +383,10 @@ P3-MODULE-BATCH-001  Module-level change batching: Phase 3 (implementation-
                   theo default LÀ một coherent module/milestone delta,
                   KHÔNG theo từng source file/function riêng lẻ. Internal
                   commit/iteration CÓ THỂ xảy ra BÊN TRONG một coherent
-                  work unit KHÔNG cần A/B governance cycle riêng cho mỗi
-                  file.
+                  work unit KHÔNG cần review-gate cycle riêng (Review A +
+                  Risk Classification, [ADR-042](../../adr/ADR-042.md);
+                  historical "A/B governance cycle" cùng nội dung trước
+                  activation) cho mỗi file.
                   Ngoại lệ (đòi hỏi governance riêng, KHÔNG gộp vào batch
                   default):
                     - new architecture/authority/contract decision;
@@ -427,7 +457,10 @@ Trình tự dự kiến tới Phase 3's Approval Gate (Chapter 12 §12.2), SAU K
   Approval Gate nào được mở cho tới khi Chapter 12/14 prerequisite (DoD
   accepted+incorporated, deliverable complete, dependency state phù hợp,
   ADR closure, Quality Gate PASS, BCC No conflict, validator/freshness
-  pass, ≥2 independent review) ĐỀU thỏa.
+  pass, Chapter 12 §12.2 mục 8 review-gate prerequisite -- Review A
+  eligible complete VÀ Risk Classification resolve đúng một R0/R1/R2,
+  đúng mô hình đang controlling tại Chapter 0 §3/Chapter 11 §11.5, KHÔNG
+  hard-code một con số reviewer cụ thể tại đây) ĐỀU thỏa.
 ```
 
 ## 12. Retrospective requirement
@@ -570,4 +603,51 @@ v0.2  2026-08-19  Product Owner acceptance — mechanical lifecycle
       implementation hoàn tất, KHÔNG PHẢI Phase 3 DoD, KHÔNG PHẢI
       approval module/package nào, KHÔNG PHẢI LIVE authorization.
       `LIVE` VẪN `NOT_AUTHORIZED`.
+v0.3  2026-09-10  CANDIDATE (review/adr042-activation branch ONLY, NOT
+      accepted) — vai trò: `Phase-3 Rules ADR-042 Alignment Candidate
+      Executor`. Remediates `ACT-A-MAJ-02`: v0.2's review-gate semantics
+      changed (P3-REVIEW-001/P3-IDENTITY-001/§11 Gate-path routed through
+      the new Review A + Risk Classification R0/R1/R2 model, ADR-042
+      Migration item 8) while frontmatter still claimed `version: "0.2"`,
+      `operational_state: EFFECTIVE`, `accepted_by: Product Owner`,
+      `accepted_at: "2026-08-19T11:10:00+07:00"` — invalid provenance for
+      new semantics not yet reviewed/accepted under this content. Fixed:
+      `version: "0.2" -> "0.3"`, `operational_state: EFFECTIVE ->
+      CANDIDATE`, `accepted_by: Product Owner -> null`, `accepted_at:
+      "2026-08-19T11:10:00+07:00" -> null` — same pattern as this file's
+      own v0.1 candidate state before v0.2's acceptance. Every other P3
+      control (P3-CORRECTION-CHAIN-001/P3-TXN-001/P3-VERIFY-001/
+      P3-BUDGET-001/P3-MODULE-BATCH-001, minus its own separate
+      `ACT-A-MIN-01` wording fix) and Phase 3's own already-accepted
+      `PERMITTED_TO_BEGIN` status (under v0.2, unaffected, not reopened)
+      byte-equivalent, KHÔNG chạm further. `docs/adr/ADR-031.md` byte-
+      unchanged. Only if Product Owner accepts this v0.3 candidate
+      atomically with ADR-042's own approval/activation (ADR-042
+      Migration) does `operational_state` mechanically transition to
+      `EFFECTIVE` on this exact reviewed semantic version — no further
+      semantic version bump required for that acceptance, same precedent
+      as v0.2's own mechanical acceptance entry above. `main` unaffected
+      — this entry exists only on `review/adr042-activation`.
+v0.3  2026-09-10  Product Owner acceptance — mechanical lifecycle
+      recording, vai trò: `Phase-3 Rules ADR-042 Activation Mechanical
+      Acceptance Recorder`. Decision nguyên văn: "APPROVE ADR-042 v0.5
+      AND ITS ATOMIC GOVERNANCE ACTIVATION at reviewed semantic boundary
+      64fc05becc6ca4245229db79b3fb6c5d9187e622, based on current main
+      e975d44f813b1ee91d2dbf3793376ca1827dc0f1... Accept Review A CLEAN
+      and Independent Review B CLEAN... Authorize the single atomic
+      activation defined by ADR-042, including... Phase-3 Rules v0.3
+      acceptance..." Reviewed semantic candidate v0.3 (Review A CLEAN;
+      Independent Review B CLEAN, one non-blocking Minor
+      `P3-ADR042-B2-MIN-01` unrelated to this file, accepted), boundary
+      `64fc05becc6ca4245229db79b3fb6c5d9187e622`. `operational_state:
+      CANDIDATE -> EFFECTIVE`, `accepted_by: null -> Product Owner`,
+      `accepted_at: null -> "2026-09-10T15:51+07:00"`. `version: "0.3"`
+      KHÔNG đổi (pure mechanical acceptance, cùng pattern v0.2's own
+      acceptance entry). Bảy P3 control VÀ mọi nội dung khác byte-
+      equivalent, KHÔNG chạm. Phase 3 substantive governed implementation:
+      `PERMITTED_TO_BEGIN` (established under v0.2, 2026-08-19T11:10:00
+      +07:00) UNCHANGED, KHÔNG reopened bởi acceptance này. Effective
+      atomically với `ADR-042`'s own `Approved` transition và `ADR-031`'s
+      MANIFEST `Superseded` record, cùng activation commit. `LIVE` VẪN
+      `NOT_AUTHORIZED`.
 ```

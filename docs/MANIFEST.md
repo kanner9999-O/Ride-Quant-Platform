@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.361"
+manifest_version: "10.362"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26221,6 +26221,191 @@ ADR-037/038/039/040/041:        Approved, immutable, unaffected.
 **Next governed step:** Review A re-review of the candidate at its pinned commit `0f4c618a278dd717d419b7f6b04df214077e917c` on `review/stream-registry-v0.2-adr041`; only after Review A/Independent Review B/Product Owner approval on that exact candidate does any merge/fast-forward of `v1.0` onto the canonical path occur — not performed by this transaction.
 
 **Files changed:** `docs/architecture/stream-registry.yaml` (restored on `main`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.360"` → `"10.361"`.
+
+## ADR-042 v0.5 — Product Owner Approval + Atomic Governance Activation (`Approved` — Review Gate Simplification now effective; `ADR-031` scoped Superseded)
+
+**Atomic mechanical approval + governance-activation transaction — vai trò: `ADR-042 Atomic Governance Activation Executor`.** Executes the single coherent atomic governance action `ADR-042`'s own Migration section required: `ADR-042` `Draft` → `Approved`; `ADR-031`'s current lifecycle state → `Superseded` (reverse relation recorded below); Chapter 0/Chapter 11/Chapter 12 candidate revisions → final `Locked` authoritative state; `docs/templates/adr-template.md` activated; Global Execution Rules v0.6 and Phase-3 Rules v0.3 → `EFFECTIVE`/accepted — all in this one governed action, per Chapter 11 §11.6/§11.8 and §11.10's "Không partial activation" rule.
+
+**Fresh boundary verification (independently re-checked before mutation):** HEAD confirmed exactly `e975d44f813b1ee91d2dbf3793376ca1827dc0f1`, identical to `origin/main` — no drift. Reviewed semantic candidate confirmed exactly `review/adr042-activation` @ `64fc05becc6ca4245229db79b3fb6c5d9187e622`, ADR-042 blob `18e90f134a7a8aa0dc5c9ed3642ef2716b6397da`, `version: "0.5"`, `status: Draft` at review time. `docs/adr/ADR-031.md` re-verified byte-identical on `main` and on the candidate — blob `b45e15179be69e76176e3f3ba0516a4781375a2c` both sides. `docs/team/team.yaml` re-verified: `ChatGPT` and `Claude` both hold `AI Technical Architect`, distinct principals (Mode A eligible). `P3-ADR042-B2-MIN-01` independently re-verified present exactly as reported (MANIFEST candidate-preview's own `version "0.4"` reference, stale against the actual `v0.5` reviewed candidate) before this same correction folded it in below.
+
+### Review A recorded
+
+```text
+Principal: ChatGPT, AI Technical Architect / Review A. Scope: the v0.4->v0.5
+  correction delta plus cross-file coherence of the complete activation
+  candidate. Boundary 64fc05becc6ca4245229db79b3fb6c5d9187e622.
+  ACT-A-MAJ-01/-MAJ-02/-MAJ-03/-MAJ-04/ACT-A-MIN-01/-MIN-02 all CLOSED.
+  Blocker 0 / Major 0 / Minor 0 (new). CLEAN — READY_FOR_BOUNDED_REVIEW_B.
+```
+
+### Independent Review B recorded
+
+```text
+Principal: Claude, AI Technical Architect / Independent Review B.
+  DISTINCT_PRINCIPAL (Mode A) relative to ChatGPT per ADR-031 -- structurally
+  satisfied via distinct principal identity (team.yaml), this file's own
+  pre-activation gate. Execution ID N/A (Mode A -- not required, none
+  fabricated). Same boundary. Independently confirmed P3-ADR042-B-MAJ-01/
+  -MAJ-02 CLOSED and all Review A closures above. Raised one new residual,
+  P3-ADR042-B2-MIN-01 -- MANIFEST candidate-preview's own stale
+  version "0.4" reference against the actual reviewed v0.5 candidate --
+  documentation-only, non-blocking. Blocker 0 / Major 0 / Minor 1.
+  CLEAN — READY_FOR_PRODUCT_OWNER_DECISION.
+```
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE ADR-042 v0.5 AND ITS ATOMIC GOVERNANCE ACTIVATION at reviewed
+  semantic boundary 64fc05becc6ca4245229db79b3fb6c5d9187e622, based on
+  current main e975d44f813b1ee91d2dbf3793376ca1827dc0f1.
+Accept Review A CLEAN and Independent Review B CLEAN.
+Accept P3-ADR042-B2-MIN-01 as non-blocking and fold its deterministic
+  MANIFEST preview correction (v0.4 -> v0.5) into the same atomic
+  activation transaction.
+Authorize the single atomic activation defined by ADR-042, including
+  ADR-042 approval, ADR-031 supersession in MANIFEST, Constitution
+  amendments, ADR template, Global Execution Rules v0.6 acceptance,
+  Phase-3 Rules v0.3 acceptance, MANIFEST, and CHANGELOG.
+No unrelated ADR-041, Feature, QG, Phase-3 approval-gate, or LIVE state
+  is authorized by this decision.
+Recorded: 2026-09-10T15:51+07:00.
+```
+
+### ADR-042 lifecycle transition applied
+
+```text
+status: Draft -> Approved. reviewers: [] -> [ChatGPT, Claude].
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-10T15:51+07:00. last_review: null -> 2026-09-10. version remains
+exactly "0.5". depends_on: [ADR-031]/supersedes: [ADR-031] unchanged
+(already declared). Reviewed semantic boundary/blob recorded separately
+from, never confused with, the resulting lifecycle-record blob (see Files
+changed below). Per Chapter 11 §11.3, ADR-042.md is now immutable
+byte-for-byte from this approval boundary.
+```
+
+### `ADR-031` lifecycle transition — Superseded (by `ADR-042`)
+
+```text
+Per Chapter 11 §11.6/§11.8 and ADR-042's own self-contained
+  depends_on: [ADR-031]/supersedes: [ADR-031] mechanism, effective AT THIS
+  SAME approval/activation boundary (same governance-relationship pattern
+  as ADR-016->ADR-015, ADR-014->ADR-003, ADR-041->ADR-040 recorded
+  elsewhere in this file):
+Current authoritative lifecycle state: ADR-031 Superseded (by ADR-042) --
+  embedded document status: Approved inside ADR-031.md itself unchanged,
+  byte-identical, immutable (Chapter 11 §11.3; re-verified this
+  transaction, blob b45e15179be69e76176e3f3ba0516a4781375a2c unchanged).
+Reverse relation: ADR-031 superseded_by ADR-042.
+Scope: ADR-031's entire operative machinery (Principal vs Execution
+  Identity distinction, Mode A/Mode B independence modes, the mandatory
+  execution-isolation evidence contract) is retired as the MANDATORY
+  approval-eligibility mechanism -- its own definitions (SS1-2) remain
+  valid historical record and MAY still be referenced informationally for
+  an optional cross-check's own provenance, never required. ADR-031.md
+  itself NOT edited, not now, not ever by this transaction.
+```
+
+### Constitution chapters activated (`Locked`)
+
+```text
+Chapter 0 (00-governance.md): version "1.2" -> "1.3", status Locked ->
+  Locked (Draft candidate -> Locked at this boundary). approved_by ->
+  Product Owner, approved_at -> 2026-09-10T15:51+07:00, last_review ->
+  2026-09-10. Top governance-migration banner reframed to ACTIVE v1.3;
+  v1.2 banner preserved as historical record. §3 Decision Workflow diagram
+  and Review gate section activated (Review A + Risk Classification
+  R0/R1/R2 + optional advisory cross-check at R2).
+Chapter 11 (11-adr-process.md): version "2.2" -> "2.3", same treatment.
+  Top banner reframed ACTIVE v2.3. §11.5 Review and acceptance gate
+  activated. §11.9 Validator contract activated, including its explicit
+  non-retroactivity/bootstrap boundary semantics (ACT-A-MAJ-03).
+Chapter 12 (12-approval-gates.md): version "1.6" -> "1.7", same
+  treatment. v1.6 banner preserved as historical record ("Đoạn này giữ
+  nguyên như bằng chứng lịch sử"). v1.7 banner reframed ACTIVE. Intro
+  prose delegation blockquote and §12.2 item 8 activated. §12.3
+  re-verified unchanged (references only, does not redefine).
+docs/templates/adr-template.md: activated as reviewed -- mandatory Review
+  A row + Risk Classification block (class/reason only, no cross_check
+  field, ACT-A-MAJ-04) + optional non-mandatory cross-check guidance note.
+docs/governance/execution-rules.md: v0.6, operational_state CANDIDATE ->
+  EFFECTIVE, accepted_by -> Product Owner, accepted_at -> "2026-09-10".
+  G-REV-002/G-REV-003/Semantic-Sufficiency point 7/G-ID-001 activated;
+  historical Change-history entries (v0.1-v0.5) NOT rewritten; new v0.6
+  mechanical-acceptance Change-history entry appended.
+docs/governance/phases/phase-3-rules.md: v0.3, operational_state
+  CANDIDATE -> EFFECTIVE, accepted_by -> Product Owner, accepted_at ->
+  "2026-09-10T15:51+07:00". P3-REVIEW-001/P3-IDENTITY-001/§11 Gate-path/
+  P3-MODULE-BATCH-001 activated; superseded Phase-2 review-depth table
+  preserved inline as explicit historical record; Phase 3's own
+  already-accepted PERMITTED_TO_BEGIN status (2026-08-19T11:10:00+07:00,
+  under v0.2) UNCHANGED, not reopened; new v0.3 mechanical-acceptance
+  Change-history entry appended.
+```
+
+### Resulting blobs (post-activation, this commit)
+
+```text
+docs/adr/ADR-042.md:                          885ba268a68b161d52694962dcea29ff9c88ddd7
+docs/constitution/00-governance.md:           35df26bad210db747fb6e58c76e1aca40111585b
+docs/constitution/11-adr-process.md:          b815e8e091f4b3346d3979fc09dc2276c6c42ef7
+docs/constitution/12-approval-gates.md:       cfedae59843e4082f800f9f30655aeb5463f4a3b
+docs/templates/adr-template.md:               cac3b7a98cf55abeb9859e54cba9d7a74002f228
+docs/governance/execution-rules.md:           34e400e8738b55693a896fccb1b6bcba18f6c096
+docs/governance/phases/phase-3-rules.md:      2cb78e41dc2823b498a9be48f96f5369bab12294
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-042.md (lifecycle transition, in place, blob
+  18e90f134a7a8aa0dc5c9ed3642ef2716b6397da -> 885ba268a68b161d52694962dcea29ff9c88ddd7);
+  docs/constitution/00-governance.md; docs/constitution/11-adr-process.md;
+  docs/constitution/12-approval-gates.md; docs/templates/adr-template.md;
+  docs/governance/execution-rules.md; docs/governance/phases/
+  phase-3-rules.md; docs/MANIFEST.md; docs/CHANGELOG.md only -- verified
+  via git status --porcelain=v1. docs/adr/ADR-031.md byte-unchanged
+  (verified git diff --quiet). No historical review evidence, prior ADR
+  review table, completed Phase-1/Phase-2 evidence, or unrelated
+  architecture/runtime file touched. ADR-041 bootstrap work, Feature
+  runtime, Quality Gates, module/Phase 3 Approval Gate, and LIVE
+  authorization all untouched -- no phase transition, no module approval,
+  no LIVE authorization performed or implied by this transaction.
+```
+
+### State summary (post-activation)
+
+```text
+Review gate model, effective from this commit forward: Executor ->
+  Review A -> Risk Classification (R0/R1/R2) -> Product Owner Decision ->
+  Execution. Review A remains the single mandatory formal technical
+  review. R0/R1 default NO CROSS-CHECK. R2: Review A recommends, never
+  requires, an optional advisory cross-check; Product Owner chooses
+  CROSS-CHECK or PROCEED WITHOUT CROSS-CHECK. Optional cross-check is
+  advisory only, no veto, not an approval-eligibility input, requires no
+  persisted transcript/report/execution-ID/Mode A/Mode B bookkeeping, and
+  its absence never blocks approval.
+Historical decisions/ADRs approved before this boundary remain valid
+  under the review rules effective at their own original boundary --
+  NOT retroactively required to carry Risk Classification, NOT reopened,
+  NOT re-reviewed. Historical two-review/Mode A/Mode B evidence in prior
+  ADRs/MANIFEST rows remains valid, unchanged.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02: OPEN — unaffected.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-037/038/039/040/041:        Approved, immutable, unaffected.
+ADR-031:                        Superseded (by ADR-042, this transaction)
+                                — embedded document status: Approved
+                                unchanged, byte-identical, immutable.
+```
+
+**Next governed step:** future decisions proceed under the new Executor → Review A → Risk Classification → Product Owner Decision workflow; no further action required to make this model controlling — it is effective as of this commit.
+
+**Files changed:** `docs/adr/ADR-042.md`, `docs/constitution/00-governance.md`, `docs/constitution/11-adr-process.md`, `docs/constitution/12-approval-gates.md`, `docs/templates/adr-template.md`, `docs/governance/execution-rules.md`, `docs/governance/phases/phase-3-rules.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts (including `docs/adr/ADR-031.md`) verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.361"` → `"10.362"`.
 
 ## Decision Log
 

@@ -24,16 +24,22 @@ supersedes: []
 
 **Alternatives considered:** Đã cân nhắc phương án nào khác, vì sao loại bỏ?
 
-**Independent reviews / Concerns / Risks noted:**
+**Review A / Risk Classification / Concerns / Risks noted:**
 
-| Reviewer principal | Role at review boundary | Execution ID | Review boundary | Independence mode | Isolation attestation | Concern | Risk | Recommendation |
-|---|---|---|---|---|---|---|---|---|
-| | AI Technical Architect | | | | | | | |
-| | AI Technical Architect | | | | | | | |
+| Reviewer principal | Role at review boundary | Review boundary | Concern | Risk | Recommendation |
+|---|---|---|---|---|---|
+| | AI Technical Architect | | | | |
 
-> Trước approval phải có tối thiểu hai independent review execution đủ điều kiện, đúng Chapter 0 §3 / Chapter 11 §11.5: hai principal identity khác nhau (Mode A — `DISTINCT_PRINCIPAL`), HOẶC cùng một principal qua hai execution/session cô lập thỏa execution-isolation evidence contract (Mode B — `SAME_PRINCIPAL_DISTINCT_EXECUTION`, [ADR-031](../adr/ADR-031.md) §5). Reviewer evidence là historical attribution, không phải permanent governance rule.
->
-> Cột hướng dẫn (KHÔNG lặp lại toàn bộ evidence contract — xem [Chapter 0 §3](../constitution/00-governance.md) / [Chapter 11 §11.5](../constitution/11-adr-process.md) / [ADR-031](../adr/ADR-031.md) §5 cho định nghĩa đầy đủ): **Independence mode** ghi `DISTINCT_PRINCIPAL` (Mode A) hoặc `SAME_PRINCIPAL_DISTINCT_EXECUTION` (Mode B). **Execution ID** / **Isolation attestation**: với Mode A, ghi `N/A` (không bắt buộc — principal đã khác nhau); với Mode B, CẢ HAI bắt buộc — Execution ID phải là provider-native session ID nếu có, hoặc một deterministic workflow-generated ID; Isolation attestation phải xác nhận tường minh review đó chạy trong context/session tách biệt, KHÔNG bên trong review kia. Một nhãn tự do một mình KHÔNG PHẢI bằng chứng isolation.
+> Trước approval phải có đúng một Review A eligible, đúng Chapter 0 §3 / Chapter 11 §11.5 — reviewer giữ role `AI Technical Architect` tại review boundary, độc lập kiểm tra trực tiếp candidate/repository authority. Reviewer evidence là historical attribution, không phải permanent governance rule.
+
+**Risk Classification (bắt buộc, ngay sau Review A):**
+
+```text
+class: R0 | R1 | R2       # đúng một, định nghĩa đầy đủ tại ADR-042
+reason: ""                 # vì sao thuộc lớp này
+```
+
+> R0/R1 mặc định `NO CROSS-CHECK` — Review A đủ. R2: Review A phải nói ngắn gọn cho Product Owner vì sao là R2 và cross-check có thể giảm rủi ro/uncertainty gì — đây LÀ một operational/advisory interaction giữa Review A và Product Owner, KHÔNG PHẢI một ADR field. Product Owner chọn dùng hoặc bỏ qua optional cross-check tại R2; **lựa chọn đó KHÔNG PHẢI một mandatory ADR field và KHÔNG PHẢI validator evidence** (`ACT-A-MAJ-04` remediation — trước đây field `cross_check` đặt lựa chọn này vào block bắt buộc, mâu thuẫn với chính Decision's optional cross-check semantics). Optional cross-check — khi Product Owner chọn dùng — là advisory only, không veto, KHÔNG là approval prerequisite, KHÔNG cần persisted transcript/report/execution-ID/Mode A/Mode B bookkeeping trong file này. Product Owner CÓ THỂ tự nguyện ghi lại một substantive concern/risk phát hiện được (từ bất kỳ nguồn nào, kể cả một cross-check) tại Concern/Risk/Recommendation phía trên như bất kỳ input nào khác — không tạo thêm bảng/field riêng cho cross-check's own record. Sự vắng mặt của cross-check KHÔNG BAO GIỜ làm ADR mất điều kiện approval.
 
 **Scale check:**
 

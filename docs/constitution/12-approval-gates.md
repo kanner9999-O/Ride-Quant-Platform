@@ -1,14 +1,14 @@
 ---
 id: 12-approval-gates
 title: Approval Gates
-version: "1.6"
+version: "1.7"
 status: Locked
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
 approved_by: Product Owner
-approved_at: "2026-08-18T17:25:00+07:00"
+approved_at: "2026-09-10T15:51+07:00"
 created_at: "2026-07-16"
-last_review: "2026-08-18"
+last_review: "2026-09-10"
 next_review: null
 depends_on: ["00-governance", "11-adr-process"]
 ---
@@ -19,11 +19,15 @@ Mọi Phase kết thúc bằng một cổng phê duyệt trước khi Phase kế
 
 **Approval Authority:** Product Owner là người approve duy nhất; không AI nào có quyền override (xem [Chapter 0 §2–§3](./00-governance.md) — luật "3/3" của ADR-004 đã được lược bỏ, xem lịch sử ở [ADR-005](../adr/ADR-005.md), và governance migration sang mô hình role-based ở [ADR-011](../adr/ADR-011.md)).
 
-**(v1.6, ACTIVE — wording sync, [ADR-031](../adr/ADR-031.md) Approved, Atomic Activation Boundary hoàn tất TẠI ĐÚNG activation commit này, đồng bộ CÙNG Chapter 0 §3/Chapter 11 §11.5/§11.9; xem banner tương ứng tại hai chương đó):**
+**(v1.6, historical — controlling from the ADR-031 activation boundary until the v1.7 boundary below, [ADR-031](../adr/ADR-031.md) Approved; xem banner tương ứng tại Chapter 0/Chapter 11):**
 
-Trước mỗi Approval phải có **tối thiểu hai independent review từ các actor đang giữ role `AI Technical Architect`** tại review boundary, đủ điều kiện độc lập đúng mô hình đã khóa tại [Chapter 0 §3](./00-governance.md) / [Chapter 11 §11.5](./11-adr-process.md), và được pin trong review evidence. Đây là **eligibility precondition bắt buộc**: nếu không resolve được independence eligibility đầy đủ thì decision **chưa đủ điều kiện** đi tới approval gate. Các reviewer **ngang hàng, không reviewer nào có veto** — sự **tồn tại** của review là điều kiện bắt buộc, còn **kết luận** của review không ràng buộc quyết định cuối cùng của Product Owner.
+Trước mỗi Approval phải có **tối thiểu hai independent review từ các actor đang giữ role `AI Technical Architect`** tại review boundary, đủ điều kiện độc lập đúng mô hình đã khóa tại [Chapter 0 §3](./00-governance.md) / [Chapter 11 §11.5](./11-adr-process.md), và được pin trong review evidence. Đây là **eligibility precondition bắt buộc**: nếu không resolve được independence eligibility đầy đủ thì decision **chưa đủ điều kiện** đi tới approval gate. Các reviewer **ngang hàng, không reviewer nào có veto** — sự **tồn tại** của review là điều kiện bắt buộc, còn **kết luận** của review không ràng buộc quyết định cuối cùng của Product Owner. Đoạn này giữ nguyên như bằng chứng lịch sử; KHÔNG còn mô tả mô hình đang controlling kể từ boundary v1.7 dưới đây.
 
-> Định nghĩa authority của review gate (số lượng, eligibility, independence mode, no-veto) thuộc [Chapter 0 §3](./00-governance.md) và [Chapter 11 §11.5](./11-adr-process.md). Chương này **tham chiếu, không định nghĩa lại** — tránh tạo authority cạnh tranh; Chapter 12 KHÔNG tự đặt số lượng actor identity nào, chỉ delegate. Constitution chỉ khóa **role**, **minimum cardinality**, và **independence mode hợp lệ** (Mode A/Mode B tại Chapter 0 §3); danh tính reviewer cụ thể chỉ là historical evidence, gán Người/AI ↔ Role sống ở [`/team/team.yaml`](../team/team.yaml).
+**(v1.7, ACTIVE — [ADR-042](../adr/ADR-042.md) Approved, Atomic Activation Boundary hoàn tất TẠI ĐÚNG activation commit này, đồng bộ CÙNG Chapter 0 §3/Chapter 11 §11.5/§11.9; xem banner tương ứng tại hai chương đó):**
+
+Trước mỗi Approval phải có đúng một **Review A từ actor đang giữ role `AI Technical Architect`** tại review boundary, độc lập kiểm tra trực tiếp candidate/repository authority, VÀ một **Risk Classification** resolve đúng một trong R0/R1/R2 (định nghĩa [ADR-042](../adr/ADR-042.md)), đúng mô hình [Chapter 0 §3](./00-governance.md) / [Chapter 11 §11.5](./11-adr-process.md). Đây là **eligibility precondition bắt buộc**: nếu Review A execution KHÔNG resolve được, HOẶC Risk Classification KHÔNG resolve đúng một R0/R1/R2, thì decision **chưa đủ điều kiện** đi tới approval gate. Tại R2, Review A recommend một optional advisory cross-check — Product Owner chọn dùng hoặc không; sự vắng mặt của cross-check **KHÔNG BAO GIỜ** làm decision mất điều kiện approval, và không cross-check-related record nào (existence/choice/evidence/execution-ID) là một eligibility precondition. Các reviewer ngang hàng, không veto — kết luận của review không ràng buộc quyết định cuối cùng của Product Owner.
+
+> Định nghĩa authority của review gate (Review A mandatory, Risk Classification, optional cross-check semantics, no-veto) thuộc [Chapter 0 §3](./00-governance.md) và [Chapter 11 §11.5](./11-adr-process.md). Chương này **tham chiếu, không định nghĩa lại** — tránh tạo authority cạnh tranh; Chapter 12 KHÔNG tự redefine review-gate mechanism nào, chỉ delegate (`ACT-A-MAJ-01` remediation — trước đây prose này vẫn cite "minimum cardinality"/"Mode A/Mode B" stale sau ADR-042 activation). Constitution chỉ khóa **role** (`AI Technical Architect`), **Review A mandatory**, **Risk Classification mandatory** (R0/R1/R2), và **optional cross-check semantics** (advisory, không approval prerequisite, tại R2, Product Owner chọn — [ADR-042](../adr/ADR-042.md)); danh tính reviewer cụ thể chỉ là historical evidence, gán Người/AI ↔ Role sống ở [`/team/team.yaml`](../team/team.yaml). [ADR-031](../adr/ADR-031.md)'s Mode A/Mode B (Approved, bất biến) không còn là mandatory eligibility mechanism kể từ activation này — vẫn còn giá trị lịch sử/tham khảo.
 
 ## 12.1 Definition of Done (DoD)
 
@@ -56,7 +60,7 @@ Trước Product Owner phase decision, **gate eligibility** phải xác nhận:
 5. applicable quality gates — được yêu cầu bởi một **Approved/Locked authoritative quality contract hoặc phase plan** — đã pass;
 6. Backward Consistency Check = `No conflict` (§12.4);
 7. applicable validator/MANIFEST freshness checks pass ([Chapter 11 §11.9](./11-adr-process.md), [I-12](./02-platform-invariants.md));
-8. minimum-two eligible independent reviews complete và evidence được pin ([Chapter 0 §3](./00-governance.md), [Chapter 11 §11.5](./11-adr-process.md)).
+8. Review A eligible complete VÀ Risk Classification resolve đúng một trong R0/R1/R2, evidence được pin ([Chapter 0 §3](./00-governance.md), [Chapter 11 §11.5](./11-adr-process.md), [ADR-042](../adr/ADR-042.md)) — optional cross-check existence/choice KHÔNG phải một prerequisite item riêng.
 
 Sau khi eligibility đầy đủ, **Product Owner là authority duy nhất** quyết định: `Approve` · `Reject` · `Revision Requested`.
 
