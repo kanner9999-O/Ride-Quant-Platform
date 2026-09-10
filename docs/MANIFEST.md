@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.359"
+manifest_version: "10.360"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26081,6 +26081,71 @@ ADR-040:                        Superseded (scoped by ADR-041, this
 **Next governed step:** the follow-on work already named in `ADR-041`'s own Consequences — (1) a separate governed bootstrap transaction capturing each artifact's current content as its first `v1.0` version snapshot; (2) only then, `feature-engine`'s own `prepare_replay_evidence()` correction resolving `P3-FEATURE-EVID05B-IMPL-A-MAJ-02` against this newly-available authority, alongside `P3-FEATURE-EVID05B-IMPL-A-MAJ-01`'s independent-per-`contract_id` fix; (3) a bounded Review-A re-review closing both findings and, if warranted, `P3-FEATURE-QG-EVID-05(b)` — none performed by this approval-recording transaction.
 
 **Files changed:** `docs/adr/ADR-041.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/adr/ADR-040.md`/every Locked Constitution chapter/`ADR-037`/`ADR-038`/`ADR-039`/`python/feature-engine/` verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.358"` → `"10.359"`.
+
+## Genesis Stream Registry v0.2 — ADR-041 alignment candidate authored (`Draft`, bounded, NOT reviewed, NOT approved)
+
+**Bounded living-document alignment transaction — vai trò: `Stream Registry ADR-041 Alignment Candidate Authoring Executor`.** Authors `docs/architecture/stream-registry.yaml` v0.2 as a `Draft` revision candidate, per Chapter 0 §5.1/§7.1/§8 (an Approved living document cannot be edited in place at the same version; a new version must be authored and pass a fresh approval gate to change). Realigns `registry_version` from the legacy pre-canonical bare identifier `v1` to Approved `ADR-041`'s canonical `v<major>.<minor>` grammar — `v1.0` — per `ADR-041`'s own Bootstrap decision that legacy bare `v1` identities do not carry over and the first canonical snapshot identity is exactly `v1.0`. This is a lifecycle/identifier alignment only, not a new architecture decision — no ADR authored, no ADR modified.
+
+**Fresh boundary verification:** HEAD confirmed exactly `d65fd27b5c38dbe02077df3dfd6b4d5db920deae`, identical to `origin/main`; `docs/architecture/stream-registry.yaml` prior blob confirmed exactly `995ea25d2f59018edb023619a15985f9924fc760`, `version: "0.1"`, `status: Approved`, `registry_version: v1` — no drift. `ADR-041` re-verified `Approved`, lifecycle blob exactly `90d30960e658c84842ee48c7f3aa09e640807e67`, byte-unchanged.
+
+```text
+Prior blob (reviewed/Approved v0.1): 995ea25d2f59018edb023619a15985f9924fc760
+New blob (authored v0.2 candidate):  8085517534ffff50a67d1994f579c93cc24b6e4c
+document version:  "0.1" -> "0.2"
+status:             Approved -> Draft
+registry_version:   v1 -> v1.0
+reviewers:           [ChatGPT, Claude] -> [ChatGPT, Claude] (unchanged -- role
+                     assignment retained, not an assertion of review already performed)
+approved_by/approved_at/last_review: reset to null (no review or Product Owner
+                     approval has occurred on this candidate -- none fabricated)
+generated_at:        "2026-08-26" -> "2026-09-10"
+```
+
+### Preserved seven-stream semantic verification (script-checked)
+
+```text
+schema_version, registry_id, and all seven `streams` entries (stream_id, status,
+  protected, writer_authority.module_id, sequence_policy, genesis_position) verified
+  byte-for-byte/structurally equal between the prior Approved v0.1 content and this v0.2
+  candidate (parsed both via yaml.safe_load and compared the `streams` list directly --
+  equal, 7 == 7). Only `version`/`status`/`registry_version`/`approved_by`/`approved_at`/
+  `last_review`/`generated_at` plus a new candidate-authoring banner comment changed. No
+  `effective_from`, no `activation_boundary`, no Lifecycle Stream event added -- this
+  candidate remains the Genesis root artifact; Chapter 8 §8.3.5's Genesis root-exception
+  (no activation event required before it) is preserved exactly, not reinterpreted.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/architecture/stream-registry.yaml (v0.2 candidate authored, blob
+  995ea25d2f59018edb023619a15985f9924fc760 -> 8085517534ffff50a67d1994f579c93cc24b6e4c);
+  docs/MANIFEST.md; docs/CHANGELOG.md. docs/architecture/stream-registry-versions/
+  v1.0.yaml NOT created. The three Feature Input Contracts (feature-candle-input/
+  feature-regime-input/feature-swing-distance-input) untouched, byte-unchanged. ADR-041/
+  ADR-040 byte-unchanged. Every Locked Constitution chapter byte-unchanged. No
+  python/feature-engine/ or go/ file touched (verified git diff --quiet).
+```
+
+### State summary (preserved)
+
+```text
+Genesis Stream Registry current authoritative state: v0.2 Draft CANDIDATE, NOT approved,
+  NOT active -- v0.1 Approved content remains the authoritative reference until this
+  candidate is itself reviewed and Product Owner-approved. No Review A, no Independent
+  Review B, no Product Owner decision has occurred on this candidate.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02: OPEN — unaffected.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-037/038/039/040/041:        Approved, immutable, unaffected.
+```
+
+**Next governed step:** Review A / Independent Review B / Product Owner decision on this v0.2 candidate; only if Approved does `registry_version: v1.0` become the current authoritative Stream Registry identity. Separately and only after that: authoring `docs/architecture/stream-registry-versions/v1.0.yaml` and the three Input Contract `v1.0` snapshots/realignment, none of which is performed by this transaction.
+
+**Files changed:** `docs/architecture/stream-registry.yaml` (v0.2 candidate authored), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.359"` → `"10.360"`.
 
 ## Decision Log
 

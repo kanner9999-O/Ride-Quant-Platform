@@ -2,6 +2,61 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-10 — platform: Genesis Stream Registry v0.2 `Draft` candidate authored — ADR-041 bootstrap canonicalization (`registry_version: v1 → v1.0`; NOT reviewed, NOT approved)
+
+**Bounded living-document alignment transaction — vai trò: `Stream Registry ADR-041 Alignment Candidate Authoring Executor`.** Authors `docs/architecture/stream-registry.yaml` v0.2 as a `Draft` revision candidate per Chapter 0 §5.1/§7.1/§8 — an Approved living document cannot be edited in place at the same version; a new version must be authored and pass a fresh approval gate. Realigns `registry_version` from legacy bare `v1` to Approved `ADR-041`'s canonical `v1.0` grammar. Same Genesis Registry, same lineage, same seven streams/statuses/protected flags/writer authorities/sequence policies/genesis positions — no topology change, no `effective_from`/`activation_boundary`/Lifecycle Stream event added, Genesis root-exception preserved exactly.
+
+**Fresh boundary verification:** HEAD confirmed exactly `d65fd27b5c38dbe02077df3dfd6b4d5db920deae`, identical to `origin/main`; prior blob confirmed exactly `995ea25d2f59018edb023619a15985f9924fc760` (`version: "0.1"`, `status: Approved`, `registry_version: v1`) — no drift. `ADR-041` re-verified `Approved`, byte-unchanged.
+
+### Lifecycle transition authored (candidate, not yet reviewed/approved)
+
+```text
+Prior blob (Approved v0.1): 995ea25d2f59018edb023619a15985f9924fc760
+New blob (Draft v0.2):      8085517534ffff50a67d1994f579c93cc24b6e4c
+version: "0.1" -> "0.2". status: Approved -> Draft. registry_version: v1 -> v1.0.
+reviewers: [ChatGPT, Claude] unchanged (role assignment, not review evidence).
+approved_by/approved_at/last_review reset to null -- none fabricated.
+generated_at: "2026-08-26" -> "2026-09-10".
+```
+
+### Preserved seven-stream semantic verification (script-checked)
+
+```text
+schema_version, registry_id, and all seven streams entries (stream_id, status,
+  protected, writer_authority.module_id, sequence_policy, genesis_position) verified
+  structurally equal (yaml.safe_load diff) between prior v0.1 and this v0.2 candidate --
+  equal, 7 == 7. Only version/status/registry_version/approved_by/approved_at/
+  last_review/generated_at plus a new candidate-authoring banner comment changed.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/architecture/stream-registry.yaml (v0.2 candidate authored);
+  docs/MANIFEST.md; docs/CHANGELOG.md. docs/architecture/stream-registry-versions/
+  v1.0.yaml NOT created. Three Feature Input Contracts untouched. ADR-041/ADR-040 and
+  every Locked Constitution chapter byte-unchanged. No python/feature-engine/ or go/
+  file touched.
+```
+
+### State summary — prohibited transitions explicitly NOT granted
+
+```text
+Genesis Stream Registry current authoritative state remains v0.1 Approved until this
+  v0.2 candidate is reviewed and Product Owner-approved separately. No Review A, no
+  Independent Review B, no Product Owner decision performed here.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02: OPEN — unaffected.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A / Independent Review B / Product Owner decision on this v0.2 candidate; only if Approved does `registry_version: v1.0` become authoritative. Only after that: `stream-registry-versions/v1.0.yaml` and the three Input Contract v1.0 snapshots/realignment — none performed here.
+
+**Files changed:** `docs/architecture/stream-registry.yaml`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.359"` → `"10.360"`.
+
 ## [Unreleased] — 2026-09-09 — platform: `ADR-041` v0.1 `Approved` — Canonical Exact-Version Resolution for Input Contracts and Stream Registry now effective; `ADR-040` scoped `Superseded`
 
 **Mechanical approval/lifecycle recording transaction — vai trò: `Platform Exact-Version Resolution Approval Recording Executor`.** Records Review A's bounded re-review (confirming `P3-ADR041-A-MAJ-01`/`-MAJ-02` both fully remediated → `CLOSED`), Independent Review B's own review (raising one accepted residual, `P3-ADR041-B-MIN-01`, same wording gap as Review A's `P3-ADR041-A-MIN-01`), and the Product Owner's `APPROVE` decision — transitioning `ADR-041` from `Draft`/corrected to `Approved`, and, per `ADR-041`'s own self-contained `depends_on`/`supersedes: [ADR-040]` mechanism (Mechanism A, `ADR-016`→`ADR-015`/`ADR-014`→`ADR-003` precedent), recording `ADR-040`'s own current authoritative lifecycle state as `Superseded (scoped by ADR-041)`, reverse relation `ADR-040 superseded_by ADR-041`, effective at this same approval boundary. No semantic redesign; `ADR-040.md` not edited.
