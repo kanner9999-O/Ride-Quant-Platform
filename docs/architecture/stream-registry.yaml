@@ -24,11 +24,18 @@
 # `writer_authority.module_id` resolves against docs/architecture/module-registry.yaml
 # (Chapter 7 §7.5) -- every value below is verified to exist there at authoring time.
 #
-# `registry_version: v1` is this Genesis Registry's own immutable identifier -- ADR-036
-# left the exact literal value to this authoring transaction (ADR-036 §"item 5"), chosen
-# for direct consistency with Chapter 8 §8.3.1's own "v3"-style worked example. Genesis
-# registries do not carry `effective_from` (Chapter 8 §8.3.1: "BẮT BUỘC với mọi version
-# SAU Genesis" -- Genesis itself is exempt by definition, §8.3.5's exception).
+# `registry_version: v1.0` is this Genesis Registry's own current candidate identifier
+# (this v0.2 revision) -- ADR-036 v0.3 (docs/adr/ADR-036.md) decided the Genesis topology/
+# writer-authority content only, leaving the exact version-identifier literal to this
+# authoring transaction (ADR-036 §"item 5"); it chose the bare `v1` value at v0.1
+# (2026-08-26, Approved), for direct consistency with Chapter 8 §8.3.1's own "v3"-style
+# worked example, BEFORE Approved `ADR-041` (docs/adr/ADR-041.md) later fixed the
+# canonical `v<major>.<minor>` grammar and decided legacy bare `v1` identities do not carry
+# over. This v0.2 candidate realigns the literal to `v1.0` under that grammar (see the v0.2
+# CANDIDATE banner below) -- `v1` remains the historical v0.1 Approved identifier of
+# record, preserved unchanged in that banner's own text, never edited. Genesis registries
+# do not carry `effective_from` (Chapter 8 §8.3.1: "BẮT BUỘC với mọi version SAU Genesis"
+# -- Genesis itself is exempt by definition, §8.3.5's exception).
 #
 # APPROVED (2026-08-26T15:55+07:00, vai trò: `Genesis Stream Registry v0.1 Mechanical
 # Approval Recorder`) -- Product Owner decision verbatim: "APPROVE GENESIS STREAM REGISTRY
@@ -48,6 +55,26 @@
 #
 # v0.2 CANDIDATE — ADR-041 bootstrap canonicalization (AUTHORED, NOT YET reviewed or
 # approved):
+#
+# Bounded candidate correction (Review A: REVISION_REQUIRED) -- vai trò: `Stream Registry
+# v0.2 Candidate Bounded Correction Executor`. Remediates two Review A findings against
+# this v0.2 candidate. `P3-STREAMREG-V02-A-MAJ-01`: the pre-existing `registry_version`
+# explanatory paragraph above (authored at v0.1) still asserted bare `v1` as "this Genesis
+# Registry's own immutable identifier," directly contradicting this candidate's own
+# `registry_version: v1.0` field -- a self-contradictory candidate. Corrected: that
+# paragraph now describes `v1.0` as the current candidate identifier, attributes the
+# grammar correctly to Approved `ADR-041` (not `ADR-036`, which only left the literal
+# value open), and explicitly preserves `v1` as the historical v0.1 Approved identifier of
+# record. `P3-STREAMREG-V02-A-MIN-01`: the same paragraph attributed the version-identifier
+# grammar/canonicalization authority ambiguously to `ADR-036` alone. Corrected: `ADR-036`'s
+# role (topology/writer-authority decision, literal-value latitude only) is now
+# distinguished explicitly from `ADR-041`'s later, separate role (canonical
+# `v<major>.<minor>` grammar, bootstrap decision). No other semantic change -- `version:
+# "0.2"`, `status: Draft`, `registry_version: v1.0`, and all seven `streams` entries
+# unchanged. Not self-reviewed, not self-approved.
+#
+# `P3-STREAMREG-V02-A-MAJ-01: REMEDIATED — PENDING REVIEW A RE-REVIEW`
+# `P3-STREAMREG-V02-A-MIN-01: REMEDIATED — PENDING REVIEW A RE-REVIEW`
 #
 # Governed alignment transaction — vai trò: `Stream Registry ADR-041 Alignment Candidate
 # Authoring Executor`. Authors this v0.2 revision candidate per Chapter 0 §5.1/§7.1/§8: an
