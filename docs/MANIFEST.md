@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.362"
+manifest_version: "10.363"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26224,7 +26224,7 @@ ADR-037/038/039/040/041:        Approved, immutable, unaffected.
 
 ## ADR-042 Governance Activation — REVIEW CANDIDATE (branch `review/adr042-activation` ONLY — NOT on `main`, NOT approved, NOT active)
 
-**This section is a candidate preview only.** It exists solely on `review/adr042-activation`, prepared for Review A (and, if the Product Owner chooses at R2, an optional advisory cross-check) to inspect the exact, complete semantic bundle the single atomic ADR-042 approval + governance activation transaction would produce — per ADR-042's own Migration section (items 1–10). **`main` at this same boundary does NOT contain this section** — confirmed by this branch's own base commit `e975d44f813b1ee91d2dbf3793376ca1827dc0f1`. `ADR-042` is NOT Approved. `ADR-031` is NOT Superseded on `main`. The current mandatory-two-independent-review gate (Chapter 0 §3 v1.2, Chapter 11 §11.5/§11.9 v2.2, Chapter 12 v1.6, `ADR-031` Mode A/Mode B) remains the only controlling model on `main` and governs whatever review this very candidate itself receives.
+**This section is a candidate preview only.** It exists solely on `review/adr042-activation`, prepared for review to inspect the exact, complete semantic bundle the single atomic ADR-042 approval + governance activation transaction would produce — per ADR-042's own Migration section (items 1–10). **`main` at this same boundary does NOT contain this section** — confirmed by this branch's own base commit `e975d44f813b1ee91d2dbf3793376ca1827dc0f1`. `ADR-042` is NOT Approved. `ADR-031` is NOT Superseded on `main`. The current mandatory-two-independent-review gate (Chapter 0 §3 v1.2, Chapter 11 §11.5/§11.9 v2.2, Chapter 12 v1.6, `ADR-031` Mode A/Mode B) remains the only controlling model on `main` and governs review of **this very candidate itself** (`ACT-A-MIN-02` remediation — corrected below; a prior draft of this section inconsistently implied this candidate would be reviewed under the NEW optional-R2-cross-check model it proposes, contradicting the correct statement in this same sentence): Review A, followed by a **mandatory bounded Independent Review B re-review** (pre-activation gate, no optional-cross-check substitute), before Product Owner can approve this activation. Only decisions made AFTER ADR-042's own successful activation use the new R0/R1/R2 + optional-cross-check model — never this activation decision itself.
 
 ```text
 IF Product Owner approves ADR-042 and this bundle together, atomically, THEN MANIFEST
@@ -26257,14 +26257,15 @@ IF Product Owner approves ADR-042 and this bundle together, atomically, THEN MAN
     historical record, not deleted.
 
 Candidate blobs at this branch's own HEAD (informational only -- NOT the blobs that will
-  necessarily be approved; re-verify fresh at the real activation boundary):
-  docs/adr/ADR-042.md:                          466f53f61682fc32259835215fb58a13cc277d8c
-  docs/constitution/00-governance.md:           23224f83b52ff3dce26643b43ef41e38ff32d7e7
-  docs/constitution/11-adr-process.md:          ed79745ea9c368da14d468fadadec2572ca8e728
-  docs/constitution/12-approval-gates.md:       14634744c1bc68404c3d6be7edce1c7f2897e0f9
-  docs/templates/adr-template.md:               872acc569b3e1834051236ac8442ba26d963115c
-  docs/governance/execution-rules.md:           44bd1de4d8db513fb3ef8774224feb1da0a2e367
-  docs/governance/phases/phase-3-rules.md:      9054b97abbb40288e6819f563c736770e82eaf2f
+  necessarily be approved; re-verify fresh at the real activation boundary; updated after
+  the ACT-A-MAJ-01..04/ACT-A-MIN-01/02 bounded correction, 2026-09-10):
+  docs/adr/ADR-042.md:                          18e90f134a7a8aa0dc5c9ed3642ef2716b6397da
+  docs/constitution/00-governance.md:           564cfdfb23a873348b44ef91d5c402e5866c4283
+  docs/constitution/11-adr-process.md:          0fe189b1d51fdaa3921c096e76e8ae7bdce2f70e
+  docs/constitution/12-approval-gates.md:       e0fc3f7b75f0fb29ec70f05647871e47aa109708
+  docs/templates/adr-template.md:               cac3b7a98cf55abeb9859e54cba9d7a74002f228
+  docs/governance/execution-rules.md:           a39d5f148f639bb2050452fe95dffb26831bc4ea
+  docs/governance/phases/phase-3-rules.md:      573840feb1bfb9dd2ed2ac04e2300aa470484910
 ```
 
 ### No scope expansion — explicit verification
@@ -26283,9 +26284,9 @@ Files changed on review/adr042-activation (vs. main at e975d44f813b1ee91d2dbf379
 
 **State summary:** `main` remains exactly `e975d44f813b1ee91d2dbf3793376ca1827dc0f1` (unaffected by this branch). Current mandatory-two-independent-review governance (Chapter 0 §3 v1.2 / Chapter 11 §11.5/§11.9 v2.2 / Chapter 12 v1.6 / `ADR-031` Mode A/Mode B) remains fully controlling on `main` and for this candidate's own eventual review. `P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02`, `P3-FEATURE-QG-EVID-05(b)`, Feature module approval, Phase 3 Approval Gate, and `LIVE` all unaffected.
 
-**Next governed step:** Review A on this candidate branch/commit; at R2, Product Owner's `CROSS-CHECK`/`PROCEED WITHOUT CROSS-CHECK` choice (advisory, not persisted as approval evidence per `P3-ADR042-A-MAJ-03`); then, only if Approved, the single atomic action merging this bundle to `main` together with ADR-042's own lifecycle transition and ADR-031's MANIFEST supersession record — not performed by this branch.
+**Next governed step:** Review A on this candidate branch/commit, followed by a mandatory bounded Independent Review B re-review — this activation candidate is itself governed by the pre-activation mandatory-two-review gate, not by the R0/R1/R2 + optional-cross-check model it proposes (`ACT-A-MIN-02`; no Review B transcript/report to be persisted into repository files per this correction's own instruction); then, only if Product Owner approves, the single atomic action merging this bundle to `main` together with ADR-042's own lifecycle transition and ADR-031's MANIFEST supersession record — not performed by this branch.
 
-**Files changed:** none on `main` — this entire section exists only on `review/adr042-activation`; `main`'s own `docs/MANIFEST.md` does not contain it.
+**Files changed:** none on `main` — this entire section exists only on `review/adr042-activation`; `main`'s own `docs/MANIFEST.md` does not contain it. `manifest_version` on this branch `"10.361"` → `"10.362"` (candidate authored) → `"10.363"` (this `ACT-A-MAJ-01..04`/`ACT-A-MIN-01/02` bounded correction) — neither bump reflected on `main`.
 
 ## Decision Log
 

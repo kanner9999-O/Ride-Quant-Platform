@@ -51,13 +51,15 @@ Nếu Product Owner và Chief Architect là 2 người khác nhau và bất đ�
 
 ```text
 Requirement
-→ Independent AI Technical Architect Reviews
-→ Architecture Review
+→ Review A
+→ Risk Classification (R0/R1/R2)
 → Product Owner Decision
 → ADR Accepted
 → ADR Locked
 → Sang Phase tiếp theo
 ```
+
+*(Sơ đồ v1.3 candidate — `ACT-A-MAJ-01` remediation, đóng contradiction với "Review gate" dưới đây: KHÔNG còn plural "Reviews" hay một "Architecture Review" stage riêng biệt/mandatory — đúng một Review A, theo sau bởi Risk Classification bắt buộc R0/R1/R2; tại R2, Product Owner CÓ THỂ chọn một optional advisory cross-check, KHÔNG một mandatory stage riêng trong sơ đồ này.)*
 
 *(Accepted = quyết định đã được Product Owner chốt; Locked = current lifecycle state được MANIFEST ghim sau khi decision artifact đã ổn định. Với ADR, file đã bất biến ngay tại approval boundary.)*
 

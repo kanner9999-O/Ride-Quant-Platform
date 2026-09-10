@@ -1,11 +1,11 @@
 ---
 id: phase-3-rules
 title: "Phase 3 — Core Backend: Execution Rules"
-version: "0.2"
-operational_state: EFFECTIVE
+version: "0.3"
+operational_state: CANDIDATE
 owner: Product Owner
-accepted_by: Product Owner
-accepted_at: "2026-08-19T11:10:00+07:00"
+accepted_by: null
+accepted_at: null
 created_at: "2026-08-18"
 phase: 3
 phase_name: "Core Backend"
@@ -13,14 +13,20 @@ phase_name: "Core Backend"
 
 # Phase 3 — Core Backend: Execution Rules
 
-**Vai trò của tài liệu này:** per-phase operational execution rule cho Phase 3 — Core Backend (Chapter 14 §14.3: "build ĐÚNG theo dependency graph ở `07-module-taxonomy.md`"), đúng khung `docs/governance/phases/phase-rules-template.md`. Document này được author TRƯỚC KHI Phase 3 substantive work bắt đầu, đúng template's mandatory rule (fail-closed "criteria defined before used"). **`operational_state: EFFECTIVE`** (kể từ Product Owner acceptance, 2026-08-19T11:10:00+07:00, §3 dưới) — ruleset này nay binding cho mọi transaction Phase 3. Phase 3 substantive governed implementation nay `PERMITTED_TO_BEGIN` — đây KHÔNG PHẢI Phase 3 DoD, KHÔNG PHẢI approval cho bất kỳ module/package nào, KHÔNG PHẢI LIVE authorization. Rule tại đây CÓ THỂ siết chặt (tighten) Global Execution Rules (`../execution-rules.md` v0.4) cho phạm vi Phase 3, NHƯNG KHÔNG BAO GIỜ override Global Rules hay bất kỳ authority cao hơn.
+**Vai trò của tài liệu này:** per-phase operational execution rule cho Phase 3 — Core Backend (Chapter 14 §14.3: "build ĐÚNG theo dependency graph ở `07-module-taxonomy.md`"), đúng khung `docs/governance/phases/phase-rules-template.md`. Document này được author TRƯỚC KHI Phase 3 substantive work bắt đầu, đúng template's mandatory rule (fail-closed "criteria defined before used"). Rule tại đây CÓ THỂ siết chặt (tighten) Global Execution Rules (`../execution-rules.md`) cho phạm vi Phase 3, NHƯNG KHÔNG BAO GIỜ override Global Rules hay bất kỳ authority cao hơn.
+
+> **v0.3 CANDIDATE (review/adr042-activation branch ONLY — NOT accepted, NOT EFFECTIVE, NOT on `main`):** ADR-042 alignment (`ACT-A-MAJ-02`) — `P3-REVIEW-001`/`P3-IDENTITY-001`/§11 Gate-path's review-gate wording updated to route through the new Review A + Risk Classification (R0/R1/R2) model instead of the retired mandatory-two-review gate, per ADR-042's own Migration item 8. This is a version-identity/provenance correction ONLY: every other v0.2 rule — Phase 3 identity (§1), the seven other P3 controls, and specifically Phase 3 substantive governed implementation's already-accepted `PERMITTED_TO_BEGIN` status (established 2026-08-19T11:10:00+07:00, §3 below, under v0.2) — is preserved byte-equivalent and is **NOT reopened, reversed, or cast into doubt** by this candidate's own not-yet-accepted state. Until Product Owner acceptance of v0.3 (atomically with ADR-042's own activation, per ADR-042 Migration item 8), v0.2's own already-accepted content — including its own review-gate wording — remains the operative text in practice; this file's `operational_state`/`accepted_by`/`accepted_at` fields reflect the provenance of the CHANGED review-gate wording only, following this file's own v0.1→v0.2 acceptance precedent (§3 below, Change history).
 
 ```text
 phase:              3
 phase_name:         Core Backend
-operational_state:  EFFECTIVE
-accepted_by:        Product Owner
-accepted_at:        "2026-08-19T11:10:00+07:00"
+operational_state:  CANDIDATE (v0.3, review/adr042-activation branch only)
+accepted_by:        null
+accepted_at:        null
+v0.2 (still separately true, unaffected): operational_state EFFECTIVE,
+  accepted_by Product Owner, accepted_at "2026-08-19T11:10:00+07:00" —
+  PERMITTED_TO_BEGIN remains this file's own already-accepted, currently
+  controlling operative content until v0.3 is itself accepted.
 ```
 
 ## 1. Phase identity
@@ -379,8 +385,10 @@ P3-MODULE-BATCH-001  Module-level change batching: Phase 3 (implementation-
                   theo default LÀ một coherent module/milestone delta,
                   KHÔNG theo từng source file/function riêng lẻ. Internal
                   commit/iteration CÓ THỂ xảy ra BÊN TRONG một coherent
-                  work unit KHÔNG cần A/B governance cycle riêng cho mỗi
-                  file.
+                  work unit KHÔNG cần review-gate cycle riêng (Review A +
+                  Risk Classification, [ADR-042](../../adr/ADR-042.md);
+                  historical "A/B governance cycle" cùng nội dung trước
+                  activation) cho mỗi file.
                   Ngoại lệ (đòi hỏi governance riêng, KHÔNG gộp vào batch
                   default):
                     - new architecture/authority/contract decision;
@@ -597,4 +605,29 @@ v0.2  2026-08-19  Product Owner acceptance — mechanical lifecycle
       implementation hoàn tất, KHÔNG PHẢI Phase 3 DoD, KHÔNG PHẢI
       approval module/package nào, KHÔNG PHẢI LIVE authorization.
       `LIVE` VẪN `NOT_AUTHORIZED`.
+v0.3  2026-09-10  CANDIDATE (review/adr042-activation branch ONLY, NOT
+      accepted) — vai trò: `Phase-3 Rules ADR-042 Alignment Candidate
+      Executor`. Remediates `ACT-A-MAJ-02`: v0.2's review-gate semantics
+      changed (P3-REVIEW-001/P3-IDENTITY-001/§11 Gate-path routed through
+      the new Review A + Risk Classification R0/R1/R2 model, ADR-042
+      Migration item 8) while frontmatter still claimed `version: "0.2"`,
+      `operational_state: EFFECTIVE`, `accepted_by: Product Owner`,
+      `accepted_at: "2026-08-19T11:10:00+07:00"` — invalid provenance for
+      new semantics not yet reviewed/accepted under this content. Fixed:
+      `version: "0.2" -> "0.3"`, `operational_state: EFFECTIVE ->
+      CANDIDATE`, `accepted_by: Product Owner -> null`, `accepted_at:
+      "2026-08-19T11:10:00+07:00" -> null` — same pattern as this file's
+      own v0.1 candidate state before v0.2's acceptance. Every other P3
+      control (P3-CORRECTION-CHAIN-001/P3-TXN-001/P3-VERIFY-001/
+      P3-BUDGET-001/P3-MODULE-BATCH-001, minus its own separate
+      `ACT-A-MIN-01` wording fix) and Phase 3's own already-accepted
+      `PERMITTED_TO_BEGIN` status (under v0.2, unaffected, not reopened)
+      byte-equivalent, KHÔNG chạm further. `docs/adr/ADR-031.md` byte-
+      unchanged. Only if Product Owner accepts this v0.3 candidate
+      atomically with ADR-042's own approval/activation (ADR-042
+      Migration) does `operational_state` mechanically transition to
+      `EFFECTIVE` on this exact reviewed semantic version — no further
+      semantic version bump required for that acceptance, same precedent
+      as v0.2's own mechanical acceptance entry above. `main` unaffected
+      — this entry exists only on `review/adr042-activation`.
 ```

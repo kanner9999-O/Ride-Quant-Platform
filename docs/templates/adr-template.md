@@ -37,11 +37,9 @@ supersedes: []
 ```text
 class: R0 | R1 | R2       # đúng một, định nghĩa đầy đủ tại ADR-042
 reason: ""                 # vì sao thuộc lớp này
-cross_check: N/A | PROCEED WITHOUT CROSS-CHECK | CROSS-CHECK   # CHỈ áp dụng khi class: R2;
-                                                                 # N/A cho R0/R1 (không phải một gap)
 ```
 
-> R0/R1 mặc định `NO CROSS-CHECK` — Review A đủ. R2: Review A phải nói ngắn gọn cho Product Owner vì sao là R2 và cross-check có thể giảm rủi ro/uncertainty gì; Product Owner chọn `CROSS-CHECK` hoặc `PROCEED WITHOUT CROSS-CHECK`. Optional cross-check — khi Product Owner chọn dùng — là advisory only, không veto, KHÔNG là approval prerequisite, KHÔNG cần persisted transcript/report/execution-ID/Mode A/Mode B bookkeeping trong file này; nếu Product Owner tường thuật lại kết luận của nó, ghi ngắn gọn tại Concern/Risk/Recommendation phía trên như bất kỳ input nào khác — không tạo thêm bảng/field riêng. Sự vắng mặt của cross-check KHÔNG BAO GIỜ làm ADR mất điều kiện approval.
+> R0/R1 mặc định `NO CROSS-CHECK` — Review A đủ. R2: Review A phải nói ngắn gọn cho Product Owner vì sao là R2 và cross-check có thể giảm rủi ro/uncertainty gì — đây LÀ một operational/advisory interaction giữa Review A và Product Owner, KHÔNG PHẢI một ADR field. Product Owner chọn dùng hoặc bỏ qua optional cross-check tại R2; **lựa chọn đó KHÔNG PHẢI một mandatory ADR field và KHÔNG PHẢI validator evidence** (`ACT-A-MAJ-04` remediation — trước đây field `cross_check` đặt lựa chọn này vào block bắt buộc, mâu thuẫn với chính Decision's optional cross-check semantics). Optional cross-check — khi Product Owner chọn dùng — là advisory only, không veto, KHÔNG là approval prerequisite, KHÔNG cần persisted transcript/report/execution-ID/Mode A/Mode B bookkeeping trong file này. Product Owner CÓ THỂ tự nguyện ghi lại một substantive concern/risk phát hiện được (từ bất kỳ nguồn nào, kể cả một cross-check) tại Concern/Risk/Recommendation phía trên như bất kỳ input nào khác — không tạo thêm bảng/field riêng cho cross-check's own record. Sự vắng mặt của cross-check KHÔNG BAO GIỜ làm ADR mất điều kiện approval.
 
 **Scale check:**
 

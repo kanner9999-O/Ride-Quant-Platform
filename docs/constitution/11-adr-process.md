@@ -139,6 +139,14 @@ Tối thiểu kiểm tra:
 
 Tooling/operator cụ thể defer Phase 1.
 
+**Non-retroactivity / bootstrap boundary (`ACT-A-MAJ-03` remediation — bắt buộc tường minh, tránh self-bootstrap contradiction tại chính activation boundary này):**
+
+- Validator criteria mới ở trên (Review A execution + Risk Classification) áp dụng **prospectively** — CHỈ cho decision được govern bởi model này TỪ SAU activation boundary trở đi (đồng bộ atomic cùng [ADR-042](../adr/ADR-042.md), MANIFEST, và toàn bộ amendment bundle, đúng [ADR-042](../adr/ADR-042.md)'s Migration).
+- ADR/approval-gate decision đã hoàn tất TRƯỚC activation boundary VẪN valid dưới đúng review rule effective tại original approval boundary của nó (Mode A/Mode B, minimum-two-review) — KHÔNG bị đòi hỏi hồi tố R0/R1/R2 Risk Classification, KHÔNG bị re-open, KHÔNG bị re-review.
+- Historical two-review evidence (existing "Independent reviews" table trong ADR cũ, MANIFEST review-evidence record) giữ nguyên valid, KHÔNG bị rewrite hay re-verify bởi validator criteria mới.
+- Chính [ADR-042](../adr/ADR-042.md)'s own approval/activation transaction được govern bởi mandatory-two-review model **effective TRƯỚC activation boundary này** (Chapter 0 §3/Chapter 11 §11.5/§11.9 pre-activation text, [ADR-031](../adr/ADR-031.md) Mode A/Mode B) — KHÔNG BAO GIỜ bởi chính validator criteria mới nó tạo ra ([ADR-042](../adr/ADR-042.md) tự nói rõ: "this ADR is not used to bootstrap its own rules"). Validator criteria mới CHỈ bắt đầu áp dụng cho decision SAU đúng activation boundary đó — never for ADR-042's own approval decision itself.
+- KHÔNG validator nào được invalidate một approval lịch sử CHỈ VÌ nó thiếu Risk Classification hoặc dùng legacy two-review evidence — thiếu hai điều đó KHÔNG PHẢI một fail-closed condition cho decision đã hoàn tất trước activation boundary.
+
 ## 11.10 Quy tắc bắt buộc
 
 - Quyết định kiến trúc mới hoặc thay đổi quyết định phase trước phải có ADR theo Chapter 0 §4b.

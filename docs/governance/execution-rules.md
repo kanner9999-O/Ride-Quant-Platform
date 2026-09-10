@@ -1,11 +1,11 @@
 ---
 id: execution-rules
 title: "Ride Quant Platform — Global Execution Rules"
-version: "0.5"
-operational_state: EFFECTIVE
+version: "0.6"
+operational_state: CANDIDATE
 owner: Product Owner
-accepted_by: Product Owner
-accepted_at: "2026-08-26"
+accepted_by: null
+accepted_at: null
 created_at: "2026-08-09"
 ---
 
@@ -14,6 +14,8 @@ created_at: "2026-08-09"
 **Vai trò của tài liệu này:** đây LÀ **operational governance** — quy tắc THỰC THI giao dịch (transaction), KHÔNG PHẢI Constitution chapter, KHÔNG PHẢI ADR, KHÔNG tạo architecture authority nào. `operational_state: EFFECTIVE` LÀ một lifecycle field RIÊNG của loại tài liệu này — KHÔNG PHẢI Constitution's `Draft/Approved/Locked` (Chapter 0 §7.1), KHÔNG PHẢI ADR's `Draft/Approved` (Chapter 11 §11.3). Rule này áp dụng CHO MỌI phase; per-phase rule (`docs/governance/phases/phase-<n>-rules.md`) CÓ THỂ siết chặt (tighten) nhưng KHÔNG BAO GIỜ được override rule này hay bất kỳ authority cao hơn nào.
 
 **Product Owner instruction being formalized (nguyên văn ý, transaction 2026-08-09):** "Every project phase must have explicit phase-specific execution rules used to improve working efficiency and incorporate lessons learned." Global rules áp dụng xuyên suốt mọi phase; per-phase rules CHỈ áp dụng cho đúng phase của nó.
+
+> **v0.6 CANDIDATE (review/adr042-activation branch ONLY — NOT accepted, NOT EFFECTIVE, NOT on `main`):** ADR-042 alignment (`ACT-A-MAJ-02`) — `G-REV-002`/`G-REV-003`/Semantic Sufficiency interpretation point 7 updated to reflect Review A as the single mandatory review and an optional Product-Owner-chosen R2 cross-check, replacing the retired mandatory-Independent-Review-B premise, per ADR-042 Migration item 7. Version-identity/provenance correction ONLY — v0.5's every other Global rule (Authority hierarchy, `G-AUTH`/`G-ORCH`/`G-TXN`/`G-VERIFY`/`G-BUDGET`/`G-ID`, and v0.5's own already-accepted Semantic-Sufficiency clarification history) is preserved byte-equivalent, not reopened. Until Product Owner acceptance atomic with ADR-042's own activation (ADR-042 Migration item 7), v0.5's own already-accepted content — including its own `G-REV-002`/`G-REV-003`/point-7 wording — remains the operative text in practice, same as this document's `Authority hierarchy` #1 (Constitution) already outranks it regardless.
 
 ## Authority hierarchy (bắt buộc, KHÔNG redefine higher authority nào)
 
@@ -166,9 +168,12 @@ G-BUDGET-001  Tránh lặp lại cùng một invariant/nguyên tắc nhiều l�
 
 ```text
 G-ID-001    Phân biệt tường minh "reviewed semantic candidate identity" (blob đã
-            qua Review A/B) khỏi "resulting lifecycle-record identity" (blob SAU
-            khi một mechanical lifecycle transaction — vd approval/consolidation —
-            edit prose/status field) — HAI blob CÓ THỂ khác nhau dù semantic
+            qua review gate đang áp dụng tại boundary đó — Review A, hoặc Review
+            A cộng optional cross-check nếu Product Owner chọn dùng tại R2,
+            KHÔNG bắt buộc cross-check evidence cho định nghĩa này) khỏi
+            "resulting lifecycle-record identity" (blob SAU khi một mechanical
+            lifecycle transaction — vd approval/consolidation — edit prose/
+            status field) — HAI blob CÓ THỂ khác nhau dù semantic
             content giống hệt.
 G-ID-002    KHÔNG dùng mutable reference (`"latest"`/`"current"`/`">="`/một range)
             ở bất kỳ chỗ nào đòi hỏi exact identity — LUÔN pin đúng version/blob cụ
@@ -361,4 +366,31 @@ v0.5  2026-08-26  Semantic-Sufficiency Clarification — vai trò: `Global
       review eligibility, and lifecycle gates are all unchanged, byte-
       identical. No ADR authored. accepted_by: Product Owner, accepted_at:
       2026-08-26.
+v0.6  2026-09-10  CANDIDATE (review/adr042-activation branch ONLY, NOT
+      accepted) — vai trò: `Global Execution Rules ADR-042 Alignment
+      Candidate Executor`. Remediates `ACT-A-MAJ-02`: v0.5's `G-REV-002`
+      (referenced "full Review A/B"), `G-REV-003` (presupposed mandatory
+      Independent Review B), and Semantic Sufficiency point 7 (referenced
+      "Independent Review B" by name) changed semantics while frontmatter
+      still claimed `version: "0.5"`, `operational_state: EFFECTIVE`,
+      `accepted_by: Product Owner`, `accepted_at: "2026-08-26"` — invalid
+      provenance, since this exact content was never reviewed/accepted
+      under that acceptance. Fixed: `version: "0.5" -> "0.6"`,
+      `operational_state: EFFECTIVE -> CANDIDATE`, `accepted_by: Product
+      Owner -> null`, `accepted_at: "2026-08-26" -> null` — no fabricated
+      Product Owner acceptance decision/timestamp. `G-REV-002` now
+      references bounded re-review without the retired "A/B" pairing name
+      (and, when Product Owner chooses an optional R2 cross-check, that it
+      is not automatically re-triggered either); `G-REV-003` now governs
+      Review A's own independence from the Executor and, separately, an
+      optional cross-check's independence from Review A when Product
+      Owner chooses one (ADR-042); point 7 references the amended model.
+      Historical Change-history entries above (v0.1-v0.5, including the
+      v0.5 Semantic-Sufficiency Clarification's own quoted Product Owner
+      decision) NOT rewritten. `docs/adr/ADR-031.md` byte-unchanged. Only
+      if Product Owner accepts this v0.6 candidate atomically with
+      ADR-042's own approval/activation (ADR-042 Migration item 7) does
+      `operational_state` mechanically transition to `EFFECTIVE` on this
+      exact reviewed semantic version. `main` unaffected — this entry
+      exists only on `review/adr042-activation`.
 ```
