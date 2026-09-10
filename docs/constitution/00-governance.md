@@ -1,14 +1,14 @@
 ---
 id: 00-governance
 title: Governance
-version: "1.2"
-status: Locked
+version: "1.3"
+status: Draft
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: Product Owner
-approved_at: "2026-08-18T17:25:00+07:00"
+approved_by: null
+approved_at: null
 created_at: "2026-07-16"
-last_review: "2026-08-18"
+last_review: null
 next_review: null
 depends_on: []
 ---
@@ -21,7 +21,9 @@ Chapter 0 — đứng trước cả Vision, vì nó quy định CÁCH mọi quy�
 >
 > **Governance migration:** phiên bản 1.1 kích hoạt mô hình đã được Product Owner chấp thuận tại [ADR-011](../adr/ADR-011.md): ADR file bất biến sau approval, review gate dựa trên role với tối thiểu hai independent reviewers, và MANIFEST là authority cho current ADR/OQ state.
 >
-> **Governance migration (v1.2, ACTIVE):** phiên bản 1.2 kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved) — mở rộng independent-review eligibility từ principal-only sang Mode A (`DISTINCT_PRINCIPAL`, giữ nguyên preferred khi practical) HOẶC Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION`, có execution-isolation evidence contract, ADR-031 §5). Atomic Activation Boundary (ADR-031 §11) hoàn tất TẠI ĐÚNG activation commit này, cùng lúc với Chapter 11 §11.5/§11.9 (v2.2, Locked) và Chapter 12 (v1.6, Locked) wording sync, cùng ADR template evidence-table update — Product Owner decision nguyên văn "ACTIVATE ADR-031 GOVERNANCE MIGRATION," 2026-08-18T17:25:00+07:00.
+> **Governance migration (v1.2, historical — controlling from 2026-08-18T17:25:00+07:00 until the v1.3 boundary below):** phiên bản 1.2 kích hoạt mô hình đã được Product Owner approve tại [ADR-031](../adr/ADR-031.md) (Approved) — mở rộng independent-review eligibility từ principal-only sang Mode A (`DISTINCT_PRINCIPAL`, giữ nguyên preferred khi practical) HOẶC Mode B (`SAME_PRINCIPAL_DISTINCT_EXECUTION`, có execution-isolation evidence contract, ADR-031 §5). Atomic Activation Boundary (ADR-031 §11) hoàn tất TẠI ĐÚNG activation commit này, cùng lúc với Chapter 11 §11.5/§11.9 (v2.2, Locked) và Chapter 12 (v1.6, Locked) wording sync, cùng ADR template evidence-table update — Product Owner decision nguyên văn "ACTIVATE ADR-031 GOVERNANCE MIGRATION," 2026-08-18T17:25:00+07:00. This paragraph is preserved as accurate history of that migration; it no longer describes the currently controlling model from the v1.3 boundary below forward — current lifecycle/model state is authoritative at MANIFEST per I-12.
+>
+> **Governance migration (v1.3, CANDIDATE — NOT YET ACTIVE, pending Product Owner decision on [ADR-042](../adr/ADR-042.md)):** this revision candidate, if Approved and activated atomically together with [ADR-042](../adr/ADR-042.md)'s own approval, [Chapter 11](./11-adr-process.md) §11.5/§11.9 (candidate), [Chapter 12](./12-approval-gates.md) (candidate), the ADR template, Global Execution Rules, Phase-3 rules, and MANIFEST (ADR-042's own "single coherent atomic governance action," per its Migration section), retires the ADR-031 Mode A/Mode B mandatory-two-independent-review gate below and replaces it with: Review A remains the single mandatory formal technical review; a mandatory Risk Classification step (R0/R1/R2) follows Review A; R2 recommends, but never requires, an optional advisory cross-check chosen by the Product Owner. `ADR-031` itself is not modified (immutable, Chapter 11 §11.3) and its own definitions remain valid historical record — only its role as the *mandatory* approval-eligibility mechanism is retired. Until Product Owner approval and atomic activation actually occur, this v1.3 candidate is NOT controlling and the v1.2 model above (Mode A/Mode B, minimum two reviews) remains fully in force without exception, including for `ADR-042`'s own approval.
 
 ## 1. Purpose
 
@@ -59,18 +61,15 @@ Requirement
 
 *(Accepted = quyết định đã được Product Owner chốt; Locked = current lifecycle state được MANIFEST ghim sau khi decision artifact đã ổn định. Với ADR, file đã bất biến ngay tại approval boundary.)*
 
-**Review gate bắt buộc (v1.2, ACTIVE — xem banner "Governance migration" phía trên):**
+**Review gate (v1.3 candidate — xem banner "Governance migration" phía trên; NOT ACTIVE cho tới atomic activation cùng [ADR-042](../adr/ADR-042.md)):**
 
-- Trước khi Product Owner quyết một ADR hoặc tài liệu thuộc approval gate, phải có tối thiểu **hai independent reviews**.
-- Mỗi reviewer phải đang giữ role `AI Technical Architect` tại review boundary — role eligibility LUÔN thuộc về **principal** (person/AI đã đăng ký giữ role tại `/team/team.yaml`), KHÔNG BAO GIỜ thuộc về một execution/session cụ thể; một execution kế thừa eligibility từ principal đã đăng ký của nó, TỰ NÓ KHÔNG có role riêng.
-- Independent-review eligibility được thỏa bởi MỘT trong hai independence mode (ADR-031):
-  - **Mode A — `DISTINCT_PRINCIPAL`:** hai review do hai principal identity khác nhau thực hiện — vẫn LÀ diversity path preferred khi practical.
-  - **Mode B — `SAME_PRINCIPAL_DISTINCT_EXECUTION`:** hai review do CÙNG một principal thực hiện qua hai execution/session cô lập, CHỈ eligible KHI execution-isolation evidence contract (ADR-031 §5) được thỏa đầy đủ — một nhãn tự do (free-form execution label) một mình KHÔNG BAO GIỜ LÀ bằng chứng độc lập.
-- Reviewer set cụ thể (principal identity, execution identity nếu Mode B, review boundary, independence mode) phải được pin trong review evidence hoặc metadata của decision boundary.
+- **Review A bắt buộc.** Trước khi Product Owner quyết một ADR hoặc tài liệu thuộc approval gate, phải có đúng một Review A — reviewer phải đang giữ role `AI Technical Architect` tại review boundary. Role eligibility LUÔN thuộc về **principal** (person/AI đã đăng ký giữ role tại `/team/team.yaml`), KHÔNG BAO GIỜ thuộc về một execution/session cụ thể. Review A phải độc lập kiểm tra trực tiếp candidate/repository authority — không kế thừa kết luận của Executor làm ground truth.
+- **Risk Classification bắt buộc, ngay sau Review A.** Mỗi decision được phân đúng một trong ba lớp — R0 (mechanical/không rủi ro semantic), R1 (bounded semantic/rủi ro implementation bình thường), R2 (rủi ro semantic/architecture cao) — theo định nghĩa đầy đủ tại [ADR-042](../adr/ADR-042.md). R0/R1 mặc định `NO CROSS-CHECK`. R2: Review A `RECOMMEND OPTIONAL INDEPENDENT CROSS-CHECK` — KHÔNG BAO GIỜ tự động yêu cầu; Product Owner chọn `CROSS-CHECK` hoặc `PROCEED WITHOUT CROSS-CHECK`.
+- **Optional cross-check** (chỉ khi Product Owner chọn, chỉ tại R2): advisory only, không veto, KHÔNG là approval prerequisite, KHÔNG cần persisted transcript/report, KHÔNG cần Mode A/Mode B bookkeeping, KHÔNG bắt buộc xuất hiện trong ADR/MANIFEST/CHANGELOG. Sự vắng mặt của cross-check KHÔNG BAO GIỜ làm decision mất điều kiện approval.
 - Các reviewer ngang hàng; không reviewer nào có veto.
 - Product Owner là authority duy nhất approve/reject.
-- Nếu KHÔNG resolve được đầy đủ Mode A HOẶC Mode B tại review boundary — bao gồm KHÔNG đủ execution-isolation evidence cho Mode B — decision CHƯA đủ điều kiện đi tới Product Owner approval gate (fail-closed, đúng nguyên tắc "eligibility incomplete," KHÔNG phải reviewer veto).
-- Constitution khóa role, minimum cardinality, VÀ hai independence mode hợp lệ (Mode A/Mode B); actor ↔ role assignment sống trong `/team/team.yaml`; execution-isolation evidence contract chi tiết sống trong [ADR-031](../adr/ADR-031.md) (Approved) — Constitution KHÔNG lặp lại nguyên văn evidence contract, chỉ tham chiếu.
+- Nếu Review A execution KHÔNG resolve được, HOẶC Risk Classification KHÔNG resolve đúng một trong R0/R1/R2, tại review boundary — decision CHƯA đủ điều kiện đi tới Product Owner approval gate (fail-closed). Sự vắng mặt của một optional cross-check KHÔNG BAO GIỜ là lý do fail-closed.
+- Constitution khóa role (`AI Technical Architect`), Review A mandatory, Risk Classification mandatory, và optional-cross-check semantics; actor ↔ role assignment sống trong `/team/team.yaml`. [ADR-031](../adr/ADR-031.md)'s Mode A/Mode B execution-identity model (Approved, immutable) không còn là mandatory approval-eligibility mechanism kể từ activation này — định nghĩa của nó vẫn còn giá trị tham khảo lịch sử, có thể dùng để mô tả provenance của một optional cross-check nếu muốn, nhưng KHÔNG BAO GIỜ là bookkeeping bắt buộc.
 
 Mỗi review output tối thiểu:
 

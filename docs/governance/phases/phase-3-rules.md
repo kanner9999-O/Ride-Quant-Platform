@@ -263,29 +263,49 @@ P3-TXN-001  Mỗi primary transaction CHỈ MỘT semantic decision (đúng
 
 ```text
 P3-REVIEW-001  Review depth tỷ lệ với LOẠI thay đổi (đúng Global
-               G-REV-001), giữ nguyên table Phase 2:
+               G-REV-001), routing qua Risk Classification R0/R1/R2
+               (ADR-042, thay table Phase 2 cũ -- table cũ preserved
+               dưới đây CHỈ như historical record, KHÔNG còn controlling):
 
                  new architecture / authority / contract semantics
-                   -> full governed review (Review A/B)
+                   -> R2: Review A + mandatory Risk Classification;
+                      Review A recommend optional advisory cross-check,
+                      Product Owner chọn dùng hoặc không (KHÔNG tự động
+                      "Review A/B" pairing)
 
                  bounded semantic correction
-                   -> bounded semantic re-review, CHỈ phạm vi đã chạm
+                   -> thường R1: Review A đủ theo default (bounded
+                      re-review, CHỈ phạm vi đã chạm); escalate lên R2
+                      nếu Review A/Product Owner đánh giá rủi ro thật sự
+                      cao hơn nominal category
 
                  mechanical factual correction
-                   -> deterministic verification khi reproducible, KHÔNG
-                      tự động full A+B
+                   -> R0: deterministic verification khi reproducible,
+                      KHÔNG tự động cross-check
 
                  evidence/bookkeeping recording
-                   -> validation only theo default
+                   -> R0: validation only theo default
+
+               [Historical table Phase 2, superseded bởi R0/R1/R2 ở trên
+               kể từ ADR-042 activation -- giữ nguyên KHÔNG sửa như bằng
+               chứng lịch sử: "new architecture/authority/contract
+               semantics -> full governed review (Review A/B)"; "bounded
+               semantic correction -> bounded semantic re-review, CHỈ
+               phạm vi đã chạm"; "mechanical factual correction ->
+               deterministic verification khi reproducible, KHÔNG tự
+               động full A+B"; "evidence/bookkeeping recording ->
+               validation only theo default".]
 
                THÊM (đóng Gate-3 failure, retrospective §8 mục 3): NẾU
                một recording/verification transaction phát hiện evidence
                được cite MÂU THUẪN với assertion đang được ghi — DỪNG
                NGAY việc recording đó. KHÔNG "sửa" evidence bên trong
                transaction recorder. Route sang governed semantic/
-               evidence-remediation path riêng (Review A/B đầy đủ nếu
-               semantic, hoặc bounded correction nếu factual — KHÔNG tự
-               quyết định tại chính recorder).
+               evidence-remediation path riêng (Review A + Risk
+               Classification đầy đủ nếu semantic -- R2 nếu rủi ro cao,
+               optional cross-check theo Product Owner -- hoặc bounded
+               correction nếu factual -- KHÔNG tự quyết định tại chính
+               recorder).
                KHÔNG review-round amplification khi KHÔNG có Major/
                Blocker mới (đúng Global G-REV-004).
 ```
@@ -293,30 +313,34 @@ P3-REVIEW-001  Review depth tỷ lệ với LOẠI thay đổi (đúng Global
 ### P3-IDENTITY-001 (reviewer/evaluator identity mechanical pre-check — nguồn: retrospective §8 mục 1)
 
 ```text
-P3-IDENTITY-001  TRƯỚC KHI một review/evaluation result được tính vào
-                 một governance prerequisite (Chapter 12 §12.2 mục 8 hoặc
+P3-IDENTITY-001  TRƯỚC KHI Review A's result được tính vào một
+                 governance prerequisite (Chapter 12 §12.2 mục 8 hoặc
                  tương đương), mechanically resolve VÀ pin: actor
                  identity, role, registered alias (nếu áp dụng), VÀ exact
-                 review/evaluation boundary — đối chiếu trực tiếp
-                 `docs/team/team.yaml` (SSOT). KHÔNG cho phép một
-                 execution/session label (vd một chuỗi "execution
-                 identity" tùy ý) tự động trở thành actor identity TRỪ
-                 KHI governance tường minh established cơ chế đó
-                 (team.yaml's registered alias, giống "Independent Review
-                 B" ↔ Claude).
+                 review boundary — đối chiếu trực tiếp `docs/team/
+                 team.yaml` (SSOT). KHÔNG cho phép một execution/session
+                 label (vd một chuỗi "execution identity" tùy ý) tự động
+                 trở thành actor identity TRỪ KHI governance tường minh
+                 established cơ chế đó (team.yaml's registered alias).
                  Nguồn: Gate-3's actor-identity mismatch (draft ban đầu
                  gán CẢ Review A LẪN Review B cho "ChatGPT," phân biệt chỉ
                  bởi một execution-identity string KHÔNG đăng ký) — catch
                  tại thời điểm đó CHỈ xảy ra vì diligence thủ công, KHÔNG
-                 một mechanical gate (retrospective §8 mục 1).
+                 một mechanical gate (retrospective §8 mục 1); vẫn giá
+                 trị nguyên vẹn cho Review A's identity dù mandatory-two-
+                 review gate đã retire.
                  Đây LÀ một Phase-3 operational pre-check — KHÔNG redefine
                  Chapter 0 §3/Chapter 11 §11.5's reviewer-independence
-                 authority (Mode A `DISTINCT_PRINCIPAL` / Mode B
-                 `SAME_PRINCIPAL_DISTINCT_EXECUTION`, ACTIVE kể từ
-                 ADR-031), CHỈ thêm một bước verify mechanical TRƯỚC KHI
-                 đếm — với Mode B, bước này bao gồm verify execution-
-                 isolation evidence contract (ADR-031 §5) đã thỏa, KHÔNG
-                 CHỈ registered alias.
+                 authority (Review A mandatory + Risk Classification
+                 R0/R1/R2 + optional advisory cross-check tại R2, kể từ
+                 ADR-042 activation — thay mô hình Mode A/Mode B cũ, xem
+                 [ADR-031](../../adr/ADR-031.md), Approved, bất biến, còn
+                 giá trị lịch sử), CHỈ thêm một bước verify mechanical
+                 TRƯỚC KHI tính Review A vào prerequisite. Nếu Product
+                 Owner chọn dùng một optional R2 cross-check, bước này
+                 KHÔNG áp dụng cho cross-check đó — cross-check KHÔNG
+                 phải một governance prerequisite, KHÔNG cần identity
+                 resolution mechanical tại decision boundary (ADR-042).
 ```
 
 ## 9. Prompt/efficiency controls
@@ -427,7 +451,10 @@ Trình tự dự kiến tới Phase 3's Approval Gate (Chapter 12 §12.2), SAU K
   Approval Gate nào được mở cho tới khi Chapter 12/14 prerequisite (DoD
   accepted+incorporated, deliverable complete, dependency state phù hợp,
   ADR closure, Quality Gate PASS, BCC No conflict, validator/freshness
-  pass, ≥2 independent review) ĐỀU thỏa.
+  pass, Chapter 12 §12.2 mục 8 review-gate prerequisite -- Review A
+  eligible complete VÀ Risk Classification resolve đúng một R0/R1/R2,
+  đúng mô hình đang controlling tại Chapter 0 §3/Chapter 11 §11.5, KHÔNG
+  hard-code một con số reviewer cụ thể tại đây) ĐỀU thỏa.
 ```
 
 ## 12. Retrospective requirement

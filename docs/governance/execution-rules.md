@@ -104,11 +104,14 @@ G-REV-001   Ưu tiên đánh giá semantic risk THẬT SỰ hơn lặp lại boo
             — review effort tỷ lệ với rủi ro semantic, KHÔNG với số lượng
             transaction.
 G-REV-002   Bounded correction nhận bounded re-review (CHỈ phạm vi đã sửa), KHÔNG
-            tự động kích hoạt full Review A/B lại toàn bộ artifact trừ khi
-            semantic KHÔNG liên quan bị chạm.
-G-REV-003   Independent Review B PHẢI giữ độc lập THẬT SỰ — KHÔNG dựa trên
-            evidence của Review A mà không tự verify lại trực tiếp trên registry/
-            artifact.
+            tự động kích hoạt full Review A lại toàn bộ artifact (hoặc, khi Product
+            Owner chọn dùng một optional R2 cross-check, KHÔNG tự động kích hoạt
+            lại cross-check đó) trừ khi semantic KHÔNG liên quan bị chạm.
+G-REV-003   Review A PHẢI giữ độc lập THẬT SỰ — KHÔNG dựa trên kết luận của
+            Executor mà không tự verify lại trực tiếp trên registry/artifact. Khi
+            Product Owner chọn dùng một optional R2 cross-check (ADR-042), cross-
+            check đó cũng PHẢI độc lập thật sự — KHÔNG kế thừa kết luận của Review
+            A làm ground truth mà không tự verify lại.
 G-REV-004   Dừng correction churn khi KHÔNG có Major/Blocker mới phát sinh — một
             chuỗi bounded-correction-trên-bounded-correction vô hạn LÀ một process
             defect, cần dừng lại VÀ đánh giá lại root cause thay vì tiếp tục vá.
@@ -140,9 +143,11 @@ G-REV-004   Dừng correction churn khi KHÔNG có Major/Blocker mới phát sin
 6. Zero Minor KHÔNG phải một ADR/package/review exit criterion bổ sung TRỪ
    KHI một rule higher-authority tường minh yêu cầu vậy — không suy diễn
    ngầm một ngưỡng mới.
-7. Diễn giải này KHÔNG làm yếu `G-REV-002`, Independent Review B, hay bất kỳ
-   yêu cầu remediate Blocker/Major nào — chỉ áp dụng cho phạm vi
-   documentation-only, non-blocking Minor đã mô tả ở điểm 3.
+7. Diễn giải này KHÔNG làm yếu `G-REV-002`, Review A's mandatory/independent
+   status, một optional cross-check's own independence khi Product Owner
+   chọn dùng nó (ADR-042), hay bất kỳ yêu cầu remediate Blocker/Major nào —
+   chỉ áp dụng cho phạm vi documentation-only, non-blocking Minor đã mô tả
+   ở điểm 3.
 ```
 
 ## G-BUDGET — Prompt budgets

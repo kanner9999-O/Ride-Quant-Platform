@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.361"
+manifest_version: "10.362"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26221,6 +26221,71 @@ ADR-037/038/039/040/041:        Approved, immutable, unaffected.
 **Next governed step:** Review A re-review of the candidate at its pinned commit `0f4c618a278dd717d419b7f6b04df214077e917c` on `review/stream-registry-v0.2-adr041`; only after Review A/Independent Review B/Product Owner approval on that exact candidate does any merge/fast-forward of `v1.0` onto the canonical path occur — not performed by this transaction.
 
 **Files changed:** `docs/architecture/stream-registry.yaml` (restored on `main`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.360"` → `"10.361"`.
+
+## ADR-042 Governance Activation — REVIEW CANDIDATE (branch `review/adr042-activation` ONLY — NOT on `main`, NOT approved, NOT active)
+
+**This section is a candidate preview only.** It exists solely on `review/adr042-activation`, prepared for Review A (and, if the Product Owner chooses at R2, an optional advisory cross-check) to inspect the exact, complete semantic bundle the single atomic ADR-042 approval + governance activation transaction would produce — per ADR-042's own Migration section (items 1–10). **`main` at this same boundary does NOT contain this section** — confirmed by this branch's own base commit `e975d44f813b1ee91d2dbf3793376ca1827dc0f1`. `ADR-042` is NOT Approved. `ADR-031` is NOT Superseded on `main`. The current mandatory-two-independent-review gate (Chapter 0 §3 v1.2, Chapter 11 §11.5/§11.9 v2.2, Chapter 12 v1.6, `ADR-031` Mode A/Mode B) remains the only controlling model on `main` and governs whatever review this very candidate itself receives.
+
+```text
+IF Product Owner approves ADR-042 and this bundle together, atomically, THEN MANIFEST
+  would additionally record, in that same governed action (not before, not separately):
+
+  ADR-042: current state Approved. version "0.4" (this candidate) -> whatever version is
+    actually reviewed/approved (re-verify exact blob at the real activation boundary,
+    never assume this candidate's own blob is automatically the one approved).
+  ADR-031: current authoritative lifecycle state -> Superseded (by ADR-042). Reverse
+    relation: ADR-031 superseded_by ADR-042. ADR-031.md itself byte-identical, immutable,
+    embedded status: Approved unchanged -- same pattern as every prior supersession
+    recorded in this file (ADR-003, ADR-015, ADR-040).
+  Chapter 0 (00-governance.md): version "1.2" -> "1.3", status Locked -> ... (final
+    lifecycle status at the real activation boundary is a Product Owner decision, not
+    fabricated here); top banner and §3 amended per this candidate branch's content.
+  Chapter 11 (11-adr-process.md): version "2.2" -> "2.3", same treatment; top banner,
+    §11.5, §11.9 amended per this candidate branch's content.
+  Chapter 12 (12-approval-gates.md): version "1.6" -> "1.7", same treatment; intro prose,
+    §12.2 item 8 amended per this candidate branch's content; §12.3 re-verified
+    unchanged (references only, does not redefine).
+  docs/templates/adr-template.md: Independent-reviews table replaced with Review A +
+    Risk Classification (R0/R1/R2) + non-mandatory optional-cross-check note, per this
+    candidate branch's content.
+  docs/governance/execution-rules.md: G-REV-002/G-REV-003/Semantic-Sufficiency point 7
+    amended per this candidate branch's content; historical Change-history entries (e.g.
+    the v0.5 Semantic-Sufficiency Clarification record) NOT rewritten.
+  docs/governance/phases/phase-3-rules.md: P3-REVIEW-001, P3-IDENTITY-001, and §11
+    Gate-path's `≥2 independent review` prerequisite amended per this candidate branch's
+    content; the superseded Phase-2 review-depth table preserved inline as explicit
+    historical record, not deleted.
+
+Candidate blobs at this branch's own HEAD (informational only -- NOT the blobs that will
+  necessarily be approved; re-verify fresh at the real activation boundary):
+  docs/adr/ADR-042.md:                          466f53f61682fc32259835215fb58a13cc277d8c
+  docs/constitution/00-governance.md:           23224f83b52ff3dce26643b43ef41e38ff32d7e7
+  docs/constitution/11-adr-process.md:          ed79745ea9c368da14d468fadadec2572ca8e728
+  docs/constitution/12-approval-gates.md:       14634744c1bc68404c3d6be7edce1c7f2897e0f9
+  docs/templates/adr-template.md:               872acc569b3e1834051236ac8442ba26d963115c
+  docs/governance/execution-rules.md:           44bd1de4d8db513fb3ef8774224feb1da0a2e367
+  docs/governance/phases/phase-3-rules.md:      9054b97abbb40288e6819f563c736770e82eaf2f
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed on review/adr042-activation (vs. main at e975d44f813b1ee91d2dbf3793376ca1827dc0f1):
+  docs/adr/ADR-042.md; docs/constitution/00-governance.md; docs/constitution/
+  11-adr-process.md; docs/constitution/12-approval-gates.md; docs/templates/
+  adr-template.md; docs/governance/execution-rules.md; docs/governance/phases/
+  phase-3-rules.md; docs/MANIFEST.md (this section) only. docs/adr/ADR-031.md
+  byte-unchanged (verified git diff --quiet). No historical review evidence, prior ADR
+  review table, completed Phase-1/Phase-2 evidence, or unrelated architecture/runtime
+  file touched. ADR-041 bootstrap work, Feature runtime, Quality Gates, module/Phase 3
+  Approval Gate, and LIVE authorization all untouched.
+```
+
+**State summary:** `main` remains exactly `e975d44f813b1ee91d2dbf3793376ca1827dc0f1` (unaffected by this branch). Current mandatory-two-independent-review governance (Chapter 0 §3 v1.2 / Chapter 11 §11.5/§11.9 v2.2 / Chapter 12 v1.6 / `ADR-031` Mode A/Mode B) remains fully controlling on `main` and for this candidate's own eventual review. `P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02`, `P3-FEATURE-QG-EVID-05(b)`, Feature module approval, Phase 3 Approval Gate, and `LIVE` all unaffected.
+
+**Next governed step:** Review A on this candidate branch/commit; at R2, Product Owner's `CROSS-CHECK`/`PROCEED WITHOUT CROSS-CHECK` choice (advisory, not persisted as approval evidence per `P3-ADR042-A-MAJ-03`); then, only if Approved, the single atomic action merging this bundle to `main` together with ADR-042's own lifecycle transition and ADR-031's MANIFEST supersession record — not performed by this branch.
+
+**Files changed:** none on `main` — this entire section exists only on `review/adr042-activation`; `main`'s own `docs/MANIFEST.md` does not contain it.
 
 ## Decision Log
 
