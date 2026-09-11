@@ -2,13 +2,13 @@
 id: 00-governance
 title: Governance
 version: "1.4"
-status: Draft
+status: Locked
 owner: Product Owner
-reviewers: [ChatGPT, Claude]
-approved_by: null
-approved_at: null
+reviewers: [ChatGPT]
+approved_by: Product Owner
+approved_at: "2026-09-11T09:30+07:00"
 created_at: "2026-07-16"
-last_review: null
+last_review: "2026-09-11"
 next_review: null
 depends_on: []
 ---

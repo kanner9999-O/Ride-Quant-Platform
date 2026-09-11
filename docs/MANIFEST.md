@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.363"
+manifest_version: "10.364"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -17,13 +17,13 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 **Constitution Version:** 1.1.0 — độc lập với Project Version (Project có thể lên v0.8 trong khi Constitution vẫn 1.1.0, hoặc ngược lại)
 **Schema Version của Manifest:** 1 — đổi format Manifest sau này phải bump field này để tooling không vỡ ngầm.
 
-**Chapter 0 — Governance: `Locked`** (2026-07-25, v1.1, ADR-011 activation). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). **Chapter 10 — Compatibility & Capability Contract: `Locked`** (2026-07-24, v2.7, approved by Kanner). **Chapter 11 — ADR Process: `Locked`** (2026-07-25, v2.1, ADR-011 activation). **Chapter 12 — Approval Gates: `Locked`** (2026-08-03, v1.5, approved by Product Owner — F-02 factual correction: removed stale "Chapter 13/14 In Review" claim, closes `F-02`). **Chapter 13 — Quality Gates: `Locked`** (2026-07-28, v1.7, approved by Kanner). **Chapter 14 — Roadmap: `Locked`** (2026-08-03, v1.6, approved by Product Owner — F-02 factual correction: opening banner now reflects actual `Locked` status, closes `F-02`).
+**Chapter 0 — Governance: `Locked`** (v1.4, activated 2026-09-11T09:30+07:00 — `POST-ADR042-A-MAJ-01` mechanical approval on top of the ADR-042 v1.3 activation, 2026-09-10T15:51+07:00; originally Locked 2026-07-25, v1.1, ADR-011 activation). **Chapter 1 — Vision: `Locked`** (2026-07-17). **Chapter 2 — Platform Invariants: `Locked`** (2026-07-18, 13 invariant). **Chapter 3 — Engineering Principles: `Locked`** (2026-07-18). **Chapter 4 — Domain Principles: `Locked`** (2026-07-18). **Chapter 5 — Time Model: `Locked`** (2026-07-18). **Chapter 6 — Identity Model: `Locked`** (2026-07-18). **Chapter 7 — Module Taxonomy: `Locked`** (2026-07-18). **Chapter 8 — Event Model: `Locked`** (2026-07-18). **Chapter 9 — Plugin Model: `Locked`** (2026-07-24, v2.9, approved by Kanner). **Chapter 10 — Compatibility & Capability Contract: `Locked`** (2026-07-24, v2.7, approved by Kanner). **Chapter 11 — ADR Process: `Locked`** (v2.3, activated 2026-09-10T15:51+07:00, ADR-042; originally Locked 2026-07-25, v2.1, ADR-011 activation). **Chapter 12 — Approval Gates: `Locked`** (v1.7, activated 2026-09-10T15:51+07:00, ADR-042; originally Locked 2026-08-03, v1.5, approved by Product Owner — F-02 factual correction: removed stale "Chapter 13/14 In Review" claim, closes `F-02`). **Chapter 13 — Quality Gates: `Locked`** (2026-07-28, v1.7, approved by Kanner). **Chapter 14 — Roadmap: `Locked`** (2026-08-03, v1.6, approved by Product Owner — F-02 factual correction: opening banner now reflects actual `Locked` status, closes `F-02`). Governance review-gate model, current authoritative kể từ 2026-09-10T15:51+07:00 ([ADR-042](adr/ADR-042.md), Approved): Executor → Review A → Risk Classification (R0/R1/R2) → Product Owner Decision → Execution — Review A mandatory formal review; R0/R1 default no cross-check; R2 recommends, never requires, an optional advisory cross-check chosen by Product Owner. [ADR-031](adr/ADR-031.md)'s Mode A/Mode B mandatory-two-review model is `Superseded` (by ADR-042), historical/immutable, no longer the mandatory eligibility mechanism.
 
 ## Constitution
 
 | File | Version | Status | Owner | Depends On |
 |---|---|---|---|---|
-| constitution/00-governance.md | 1.3 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; v1.4 candidate authored on top, `POST-ADR042-A-MAJ-01` factual/lifecycle-wording correction, NOT Approved/Locked — v1.3 remains current authoritative until v1.4 is itself accepted) | Product Owner | — |
+| constitution/00-governance.md | 1.4 | **Locked** (activated 2026-09-11T09:30+07:00 — `POST-ADR042-A-MAJ-01` mechanical approval; Review A CLEAN (ChatGPT), Risk Classification R0, NO CROSS-CHECK, per the now-ACTIVE ADR-042 review-gate model; factual/lifecycle-wording correction only, no semantic change from v1.3) | Product Owner | — |
 | constitution/01-vision.md | 2.3 | **Locked** | Product Owner | 00-governance |
 | constitution/02-platform-invariants.md | 3.1 | **Locked** | Product Owner | 00-governance, 01-vision |
 | constitution/03-engineering-principles.md | 1.4 | **Locked** | Product Owner | 02-platform-invariants |
@@ -34,8 +34,8 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 | constitution/08-event-model.md | 4.8 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 05-time-model, 06-identity-model, 07-module-taxonomy |
 | constitution/09-plugin-model.md | 2.9 | **Locked** | Product Owner | 02-platform-invariants, 07-module-taxonomy, 08-event-model |
 | constitution/10-compatibility-capability-contract.md | 2.7 | **Locked** | Product Owner | 02-platform-invariants, 03-engineering-principles, 04-domain-principles, 07-module-taxonomy, 08-event-model, 09-plugin-model |
-| constitution/11-adr-process.md | 2.2 | **Locked** (activated 2026-08-18T17:25:00+07:00, ADR-031) | Product Owner | 00-governance, 02-platform-invariants |
-| constitution/12-approval-gates.md | 1.6 | **Locked** (activated 2026-08-18T17:25:00+07:00, ADR-031, wording sync) | Product Owner | 00-governance, 11-adr-process |
+| constitution/11-adr-process.md | 2.3 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; supersedes the prior 2.2/ADR-031 activation recorded here — MANIFEST bookkeeping reconciliation only, `docs/constitution/11-adr-process.md` itself not further edited by this transaction) | Product Owner | 00-governance, 02-platform-invariants |
+| constitution/12-approval-gates.md | 1.7 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; supersedes the prior 1.6/ADR-031 activation recorded here — MANIFEST bookkeeping reconciliation only, `docs/constitution/12-approval-gates.md` itself not further edited by this transaction) | Product Owner | 00-governance, 11-adr-process |
 | constitution/13-quality-gates.md | 1.7 | Locked | Product Owner | 02-platform-invariants, 07-module-taxonomy |
 | constitution/14-roadmap.md | 1.6 | Locked | Product Owner | ALL |
 
@@ -26451,6 +26451,111 @@ Files changed: docs/constitution/00-governance.md (v1.4 candidate authored,
 **Next governed step:** Review A on this candidate under the now-ACTIVE ADR-042 model, followed by mandatory Risk Classification (R0/R1/R2) — not performed by this transaction.
 
 **Files changed:** `docs/constitution/00-governance.md` (v1.4 candidate authored), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.362"` → `"10.363"`.
+
+## Chapter 0 v1.4 — Product Owner Approval (`Locked` — `POST-ADR042-A-MAJ-01` mechanical approval; first decision under the ACTIVE ADR-042 review-gate model)
+
+**Mechanical approval/current-state recording transaction — vai trò: `Chapter 0 v1.4 Mechanical Approval Recorder`.** Records Review A's CLEAN verdict and the Product Owner's `APPROVE` decision — transitioning `docs/constitution/00-governance.md` from `Draft` v1.4 to `Locked` — and folds the already-authorized MANIFEST reconciliation of Chapter 0/11/12 current-state tracking to reflect what already became true at the `ADR-042` activation boundary. No semantic redesign; §3 review-gate content unchanged from the reviewed candidate.
+
+**Fresh boundary verification:** HEAD confirmed exactly `1943d9f65bc868867378b90782363e89c4960d92`, identical to `origin/main`; `docs/constitution/00-governance.md` reviewed Draft blob confirmed exactly `06efd069924ea36cbcbfff5f8776401d37d8a7c7`, `version: "1.4"`, `status: Draft` — no drift.
+
+### Review A recorded
+
+```text
+Principal: ChatGPT, AI Technical Architect / Review A. Same reviewed
+  boundary/blob. Finding: POST-ADR042-A-MAJ-01 CLOSED (the stale
+  "candidate ... NOT ACTIVE" Sec3 heading corrected to reflect the
+  already-ACTIVE ADR-042 model). Blocker 0 / Major 0 / Minor 0.
+  Risk Classification: R0 -- factual/lifecycle-state correction only, no
+  governance-semantic/authority/architecture/contract/runtime change.
+  R0 default: NO CROSS-CHECK. Verdict: CLEAN.
+```
+
+This is the first decision recorded under the now-ACTIVE `ADR-042` review-gate model (Executor → Review A → Risk Classification → Product Owner Decision) — no Review B performed or required; no cross-check invoked, consistent with R0's own default.
+
+### Product Owner decision (verbatim)
+
+```text
+APPROVE Chapter 0 Governance v1.4 at reviewed boundary
+  1943d9f65bc868867378b90782363e89c4960d92.
+Accept Review A CLEAN; Risk Classification R0; NO CROSS-CHECK; mechanical
+  MANIFEST reconciliation of Chapter 0/11/12 current-state tracking.
+Recorded: 2026-09-11T09:30+07:00.
+```
+
+### Chapter 0 lifecycle transition applied
+
+```text
+status: Draft -> Locked. reviewers: [ChatGPT, Claude] -> [ChatGPT] (the
+  actual, sole performed Review A principal for this decision -- no
+  second review fabricated; ADR-042's new model requires only Review A).
+approved_by: null -> Product Owner. approved_at: null ->
+2026-09-11T09:30+07:00. last_review: null -> 2026-09-11. version remains
+exactly "1.4". Reviewed semantic boundary/blob recorded separately from
+the resulting lifecycle-record blob (see Files changed below). Per
+Chapter 0 Sec5.1, docs/constitution/00-governance.md is now Locked at
+this exact version -- a future change requires a further version bump.
+```
+
+### MANIFEST reconciliation (Chapter 11/Chapter 12 tracking rows + summary)
+
+```text
+Chapter 11 (11-adr-process.md) tracking row: 2.2 -> 2.3, Locked (activated
+  2026-09-10T15:51+07:00, ADR-042) -- MANIFEST bookkeeping only;
+  docs/constitution/11-adr-process.md itself NOT edited, byte-unchanged
+  (verified git diff --quiet).
+Chapter 12 (12-approval-gates.md) tracking row: 1.6 -> 1.7, Locked
+  (activated 2026-09-10T15:51+07:00, ADR-042) -- same, file itself NOT
+  edited, byte-unchanged (verified git diff --quiet).
+"Trang thai tong quat" summary paragraph: Chapter 0/11/12 mentions
+  updated to their current v1.4/v2.3/v1.7 Locked states with correct
+  activation timestamps; new sentence added recording the current
+  authoritative review-gate model (Executor -> Review A -> Risk
+  Classification -> Product Owner Decision) and ADR-031's Superseded
+  state -- reconciles state that already became true at the ADR-042
+  activation boundary (8788895e8de8e8940e165abe3e4230ff15cf57bf) but was
+  not yet propagated to these specific tracking locations.
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/constitution/00-governance.md (lifecycle transition in
+  place, blob 06efd069924ea36cbcbfff5f8776401d37d8a7c7 ->
+  fbfab39974cb433fdc65b974b59e4b1733256173 -- only frontmatter status/
+  reviewers/approved_by/approved_at/last_review changed, git diff
+  confirms Sec3 and every other section byte-unchanged); docs/MANIFEST.md;
+  docs/CHANGELOG.md only. docs/constitution/11-adr-process.md and
+  docs/constitution/12-approval-gates.md verified byte-unchanged (git
+  diff --quiet) -- their MANIFEST tracking rows updated, their own files
+  not touched. docs/adr/ADR-042.md, docs/adr/ADR-031.md, Global Execution
+  Rules, Phase-3 Rules, ADR-041 bootstrap, Feature runtime/tests, and
+  go/ all verified byte-unchanged. No new ADR authored. No Review B
+  evidence file created; no cross-check bookkeeping introduced (R0
+  default, none applicable).
+```
+
+### State summary
+
+```text
+Chapter 0 current authoritative state: v1.4, Locked, Approved.
+Chapter 11 current authoritative state (MANIFEST only): v2.3, Locked.
+Chapter 12 current authoritative state (MANIFEST only): v1.7, Locked.
+ADR-042:                        Approved, immutable, unaffected.
+ADR-031:                        Superseded (by ADR-042), immutable,
+                                unaffected.
+Global Execution Rules:         v0.6, EFFECTIVE, unaffected.
+Phase-3 Rules:                  v0.3, EFFECTIVE, unaffected;
+                                PERMITTED_TO_BEGIN unchanged.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02: OPEN — unaffected.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** none required — Chapter 0 v1.4 is now the current, Locked, fully controlling authority; the review-gate model it documents has been active since the `ADR-042` activation boundary.
+
+**Files changed:** `docs/constitution/00-governance.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.363"` → `"10.364"`.
 
 ## Decision Log
 

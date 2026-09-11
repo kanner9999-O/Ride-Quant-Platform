@@ -2,6 +2,20 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-11 — platform: Chapter 0 v1.4 `Approved`/`Locked` — `POST-ADR042-A-MAJ-01` mechanical approval (first decision under the ACTIVE `ADR-042` review-gate model); MANIFEST Chapter 11/12 tracking reconciled
+
+**Mechanical approval/current-state recording transaction — vai trò: `Chapter 0 v1.4 Mechanical Approval Recorder`.** Records Review A's CLEAN verdict and the Product Owner's `APPROVE` decision — `docs/constitution/00-governance.md` `Draft v1.4 → Locked`. No semantic redesign; §3 review-gate content byte-unchanged from the reviewed candidate.
+
+**Review A** (ChatGPT): `POST-ADR042-A-MAJ-01` CLOSED; Blocker 0/Major 0/Minor 0; Risk Classification **R0** (factual/lifecycle-state correction only); default **NO CROSS-CHECK**; verdict **CLEAN**. This is the first decision recorded under the now-ACTIVE `ADR-042` model (`Executor → Review A → Risk Classification → Product Owner Decision`) — no Review B performed or required.
+
+**Product Owner decision (verbatim):** "APPROVE Chapter 0 Governance v1.4 at reviewed boundary 1943d9f65bc868867378b90782363e89c4960d92. Accept Review A CLEAN; Risk Classification R0; NO CROSS-CHECK; mechanical MANIFEST reconciliation of Chapter 0/11/12 current-state tracking." — recorded `2026-09-11T09:30+07:00`.
+
+**Lifecycle transition:** `status: Draft → Locked`, `reviewers: [ChatGPT, Claude] → [ChatGPT]` (the actual, sole Review A principal — no second review fabricated), `approved_by: null → Product Owner`, `approved_at → "2026-09-11T09:30+07:00"`, `last_review → "2026-09-11"`. `version` remains `"1.4"`. Blob `06efd069924ea36cbcbfff5f8776401d37d8a7c7` → `fbfab39974cb433fdc65b974b59e4b1733256173`.
+
+**MANIFEST reconciliation folded into this same transaction:** Chapter 11 tracking row `2.2 → 2.3 Locked` and Chapter 12 tracking row `1.6 → 1.7 Locked` (both activated at the `ADR-042` boundary, `2026-09-10T15:51+07:00`) — MANIFEST bookkeeping only; `docs/constitution/11-adr-process.md` and `docs/constitution/12-approval-gates.md` themselves **not edited**, verified byte-unchanged. The "Trạng thái tổng quát" summary paragraph updated to reflect current Chapter 0/11/12 versions and the now-active `Executor → Review A → Risk Classification → Product Owner Decision` governance model; `ADR-031` noted `Superseded`.
+
+**Files changed:** `docs/constitution/00-governance.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `docs/adr/ADR-042.md`, `docs/adr/ADR-031.md`, Chapter 11/12 files, Global Execution Rules, Phase-3 Rules, ADR-041 bootstrap, Feature, QG, and LIVE all untouched. No new ADR authored, no Review B evidence file created. `manifest_version` `"10.363"` → `"10.364"`.
+
 ## [Unreleased] — 2026-09-11 — platform: Chapter 0 v1.4 `Draft` candidate authored — bounded post-ADR-042 lifecycle-wording correction (`POST-ADR042-A-MAJ-01`; NOT reviewed, NOT approved)
 
 **Bounded factual/lifecycle-state correction — vai trò: `Chapter 0 Post-ADR042 Lifecycle Correction Executor`.** Authors `docs/constitution/00-governance.md` v1.4 as a `Draft` revision candidate per Chapter 0 §5.1. Corrects `POST-ADR042-A-MAJ-01`: §3's "Review gate" heading still read "(v1.3 candidate — ... NOT ACTIVE cho tới atomic activation cùng ADR-042)", factually false since `ADR-042` v0.5 activated at commit `8788895e8de8e8940e165abe3e4230ff15cf57bf`, and contradicting the same file's own "Governance migration (v1.3, ACTIVE)" banner. Corrected to state the gate has been ACTIVE since that boundary. No change to Review A mandatory status, Risk Classification (R0/R1/R2) definitions, or optional cross-check semantics — factual/lifecycle-wording correction only.
