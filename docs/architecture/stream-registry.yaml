@@ -24,11 +24,18 @@
 # `writer_authority.module_id` resolves against docs/architecture/module-registry.yaml
 # (Chapter 7 §7.5) -- every value below is verified to exist there at authoring time.
 #
-# `registry_version: v1` is this Genesis Registry's own immutable identifier -- ADR-036
-# left the exact literal value to this authoring transaction (ADR-036 §"item 5"), chosen
-# for direct consistency with Chapter 8 §8.3.1's own "v3"-style worked example. Genesis
-# registries do not carry `effective_from` (Chapter 8 §8.3.1: "BẮT BUỘC với mọi version
-# SAU Genesis" -- Genesis itself is exempt by definition, §8.3.5's exception).
+# `registry_version: v1.0` is this Genesis Registry's own current candidate identifier
+# (this v0.2 revision) -- ADR-036 v0.3 (docs/adr/ADR-036.md) decided the Genesis topology/
+# writer-authority content only, leaving the exact version-identifier literal to this
+# authoring transaction (ADR-036 §"item 5"); it chose the bare `v1` value at v0.1
+# (2026-08-26, Approved), for direct consistency with Chapter 8 §8.3.1's own "v3"-style
+# worked example, BEFORE Approved `ADR-041` (docs/adr/ADR-041.md) later fixed the
+# canonical `v<major>.<minor>` grammar and decided legacy bare `v1` identities do not carry
+# over. This v0.2 candidate realigns the literal to `v1.0` under that grammar (see the v0.2
+# CANDIDATE banner below) -- `v1` remains the historical v0.1 Approved identifier of
+# record, preserved unchanged in that banner's own text, never edited. Genesis registries
+# do not carry `effective_from` (Chapter 8 §8.3.1: "BẮT BUỘC với mọi version SAU Genesis"
+# -- Genesis itself is exempt by definition, §8.3.5's exception).
 #
 # APPROVED (2026-08-26T15:55+07:00, vai trò: `Genesis Stream Registry v0.1 Mechanical
 # Approval Recorder`) -- Product Owner decision verbatim: "APPROVE GENESIS STREAM REGISTRY
@@ -45,20 +52,82 @@
 # lifecycle-only edit -- schema_version/registry_id/registry_version/all seven stream_id/
 # status/protected/writer_authority/sequence_policy/genesis_position values are unchanged,
 # byte-for-byte semantically identical to the reviewed candidate.
+#
+# v0.2 CANDIDATE — ADR-041 bootstrap canonicalization (AUTHORED, NOT YET reviewed or
+# approved):
+#
+# Bounded candidate correction (Review A: REVISION_REQUIRED) -- vai trò: `Stream Registry
+# v0.2 Candidate Bounded Correction Executor`. Remediates two Review A findings against
+# this v0.2 candidate. `P3-STREAMREG-V02-A-MAJ-01`: the pre-existing `registry_version`
+# explanatory paragraph above (authored at v0.1) still asserted bare `v1` as "this Genesis
+# Registry's own immutable identifier," directly contradicting this candidate's own
+# `registry_version: v1.0` field -- a self-contradictory candidate. Corrected: that
+# paragraph now describes `v1.0` as the current candidate identifier, attributes the
+# grammar correctly to Approved `ADR-041` (not `ADR-036`, which only left the literal
+# value open), and explicitly preserves `v1` as the historical v0.1 Approved identifier of
+# record. `P3-STREAMREG-V02-A-MIN-01`: the same paragraph attributed the version-identifier
+# grammar/canonicalization authority ambiguously to `ADR-036` alone. Corrected: `ADR-036`'s
+# role (topology/writer-authority decision, literal-value latitude only) is now
+# distinguished explicitly from `ADR-041`'s later, separate role (canonical
+# `v<major>.<minor>` grammar, bootstrap decision). No other semantic change -- `version:
+# "0.2"`, `status: Draft`, `registry_version: v1.0`, and all seven `streams` entries
+# unchanged. Not self-reviewed, not self-approved.
+#
+# `P3-STREAMREG-V02-A-MAJ-01: REMEDIATED — PENDING REVIEW A RE-REVIEW`
+# `P3-STREAMREG-V02-A-MIN-01: REMEDIATED — PENDING REVIEW A RE-REVIEW`
+#
+# Governed alignment transaction — vai trò: `Stream Registry ADR-041 Alignment Candidate
+# Authoring Executor`. Authors this v0.2 revision candidate per Chapter 0 §5.1/§7.1/§8: an
+# Approved living document cannot be edited in place at the same version; to change, a new
+# version must be authored and pass a fresh approval gate. This candidate realigns
+# `registry_version` from the legacy pre-canonical bare identifier `v1` to Approved
+# `ADR-041`'s (docs/adr/ADR-041.md, lifecycle blob
+# 90d30960e658c84842ee48c7f3aa09e640807e67) canonical `v<major>.<minor>` grammar --
+# `ADR-041` itself decided that legacy bare `v1` identities do not carry over and that the
+# first canonical snapshot identity is exactly `v1.0`.
+#
+# Semantic classification: this is the SAME Genesis Registry, not a new or post-Genesis
+# version. Registry lineage, all seven streams, and every stream's status/protected flag/
+# writer_authority/sequence_policy/genesis_position are UNCHANGED byte-for-byte in
+# substance (verified identical, see `streams:` below -- untouched by this transaction). No
+# `effective_from`, no `activation_boundary`, no Lifecycle Stream event is introduced --
+# Chapter 8 §8.3.5's Genesis root-exception (no activation event required before it) is
+# preserved exactly; this candidate does not become, and is not treated as, a post-Genesis
+# transition.
+#
+# Lifecycle-metadata treatment (Chapter 0 §5.1/§7.1/§8/§9, mirrors the only existing
+# repository precedent for a Locked/Approved living document reopened for a new revision --
+# Chapter 12 v1.5 Locked -> v1.6 `status: Draft` candidate, ADR-031 governance migration):
+# `version: "0.1" -> "0.2"`; `status: Approved -> Draft` (returns to the repository's normal
+# pre-approval candidate state, same as Chapter 12's own v1.6 candidate authoring);
+# `reviewers: [ChatGPT, Claude]` retained (role assignment, not an assertion this candidate
+# has already been reviewed -- same as the Chapter 12 precedent); `approved_by`/
+# `approved_at`/`last_review` reset to `null` (no review or Product Owner approval has
+# occurred on this candidate -- none fabricated); `next_review` remains `null`.
+# `generated_at` updated to this authoring boundary.
+#
+# This transaction AUTHORS the v0.2 candidate only. It does NOT review, approve, or
+# activate it -- `docs/architecture/stream-registry-versions/v1.0.yaml` is not created, the
+# three Feature Input Contracts are not touched, and no Feature runtime/QG/module/Phase 3
+# Gate/LIVE state is affected. Fresh boundary verification (before this transaction): HEAD
+# confirmed exactly d65fd27b5c38dbe02077df3dfd6b4d5db920deae, identical to origin/main;
+# this file's own prior blob confirmed exactly 995ea25d2f59018edb023619a15985f9924fc760 --
+# no drift. Do not self-review or self-approve -- Product Owner review/decision is required
+# separately, per Chapter 0 §3/Chapter 11 §11.5, before this candidate may become Approved.
 
 schema_version: 1
 registry_id: genesis-stream-registry
-version: "0.1"
-status: Approved
+version: "0.2"
+status: Draft
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: Product Owner
-approved_at: "2026-08-26T15:55+07:00"
-last_review: "2026-08-26"
+approved_by: null
+approved_at: null
+last_review: null
 next_review: null
-generated_at: "2026-08-26"
+generated_at: "2026-09-10"
 
-registry_version: v1
+registry_version: v1.0
 
 streams:
   - stream_id: market-data-ingestion-candle

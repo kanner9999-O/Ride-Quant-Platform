@@ -94,8 +94,8 @@ streams:
 def test_real_swing_distance_authority_resolves_successfully() -> None:
     resolved = resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing")
     assert isinstance(resolved, VerifiedInputContractAuthority)
-    assert resolved.input_contract_ref == InputContractRef("feature-swing-distance-input", "v1")
-    assert resolved.stream_registry_version == "v1"
+    assert resolved.input_contract_ref == InputContractRef("feature-swing-distance-input", "v1.0")
+    assert resolved.stream_registry_version == "v1.0"
     assert resolved.included_streams == frozenset({"market-data-ingestion-candle", "structure-engine-swing"})
     assert len(resolved.input_contract_content_id) == 64
     assert len(resolved.stream_registry_content_id) == 64
@@ -108,8 +108,8 @@ def test_real_swing_distance_authority_resolves_successfully() -> None:
 def test_real_regime_authority_resolves_successfully() -> None:
     resolved = resolve_input_contract_authority_from_repository("regime")
     assert isinstance(resolved, VerifiedInputContractAuthority)
-    assert resolved.input_contract_ref == InputContractRef("feature-regime-input", "v1")
-    assert resolved.stream_registry_version == "v1"
+    assert resolved.input_contract_ref == InputContractRef("feature-regime-input", "v1.0")
+    assert resolved.stream_registry_version == "v1.0"
     assert resolved.included_streams == frozenset({"raw-regime-engine-regime"})
     assert len(resolved.input_contract_content_id) == 64
     assert len(resolved.stream_registry_content_id) == 64
