@@ -16,6 +16,7 @@ import pytest
 from conftest import (
     OUTPUT_EVENT_CONTRACT_AUTHORITY,
     REGIME_INPUT_CONTRACT,
+    SWING_DISTANCE_INPUT_CONTRACT,
     feature_scope,
     frontier_at,
     make_regime_definition,
@@ -171,6 +172,52 @@ def test_replay_preparation_unaffected_by_removed_current_file(tmp_path: Path) -
     assert not (repo / "docs/architecture/input-contracts").exists()
     assert not (repo / "docs/architecture/stream-registry.yaml").exists()
     prepare_replay_evidence(computed, repo_root=repo)
+
+
+# --- P3-FEATURE-EVID05B-IMPL-A-MAJ-03: lost profile <-> contract-lineage ----
+# --- invariant must still fail closed during Replay preparation -------------
+
+
+def test_regime_fact_forged_onto_swing_snapshot_fails_closed() -> None:
+    """A genuine `"regime"` fact whose cursor has been changed to point at
+    the REAL, genuinely-valid `feature-swing-distance-input` v1.0 snapshot
+    — with the persisted `input_contract_content_id` ALSO changed to that
+    snapshot's own genuine digest, so a bare content-ID comparison would
+    otherwise succeed, and the pinned `stream_registry_version` left at the
+    real, compatible `v1.0` Registry snapshot both lineages share — must
+    still fail closed. Proves the failure is specifically the lost
+    profile <-> contract-lineage invariant (MAJ-03), not a missing snapshot
+    (the Swing snapshot genuinely exists and resolves) and not a bare
+    content-ID mismatch (the digest genuinely matches the snapshot named).
+    """
+    computed = _real_regime_fact()
+    assert computed.scope.feature_type in ("volatility_metric", "directional_persistence_metric")
+
+    forged_cursor = dataclasses.replace(
+        computed.computation_cursor,
+        input_contract_ref=InputContractRef(
+            contract_id="feature-swing-distance-input",
+            contract_version="v1.0",
+        ),
+        # stream_registry_version left unchanged: v1.0, genuinely shared by
+        # both the Regime and Swing Input Contract lineages today.
+    )
+    forged = dataclasses.replace(
+        computed,
+        computation_cursor=forged_cursor,
+        computation_dependency_content_evidence=ComputationDependencyContentEvidence(
+            input_contract_content_id=SWING_DISTANCE_INPUT_CONTRACT.input_contract_content_id,
+            stream_registry_content_id=computed.computation_dependency_content_evidence.stream_registry_content_id,
+        ),
+    )
+    # Sanity: this is a genuinely different, real, well-formed digest -- not
+    # a malformed/missing-evidence case (failure class 2) in disguise.
+    assert (
+        forged.computation_dependency_content_evidence.input_contract_content_id
+        != computed.computation_dependency_content_evidence.input_contract_content_id
+    )
+    with pytest.raises(ReplayPreparationArtifactUnresolvableError, match="not the Input Contract lineage authorized"):
+        prepare_replay_evidence(forged)
 
 
 # --- Failure class 2: malformed/missing evidence ----------------------------

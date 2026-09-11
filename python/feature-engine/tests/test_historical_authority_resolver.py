@@ -309,6 +309,66 @@ def test_missing_contract_id_field_in_snapshot_fails_closed(tmp_path: Path) -> N
         )
 
 
+# --- P3-FEATURE-EVID05B-IMPL-A-MAJ-03: profile <-> contract-lineage -------
+# --- binding must be preserved by historical resolution too ---------------
+
+
+def test_regime_profile_rejects_swing_distance_contract_lineage() -> None:
+    """A `"regime"` profile pinned (via a corrupted/forged cursor) to the
+    REAL, genuinely-Published `feature-swing-distance-input` v1.0 snapshot
+    must fail closed — even though that snapshot and its paired Registry
+    snapshot both genuinely resolve on their own, "regime" is never
+    authorized to bind that lineage.
+    """
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="not the Input Contract lineage authorized"):
+        resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile="regime",
+            input_contract_ref=InputContractRef("feature-swing-distance-input", "v1.0"),
+            stream_registry_version="v1.0",
+        )
+
+
+def test_distance_profile_rejects_regime_contract_lineage() -> None:
+    """Converse of the above, for symmetry: `"distance_to_last_confirmed_
+    swing"` may not bind the `feature-regime-input` lineage either.
+    """
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="not the Input Contract lineage authorized"):
+        resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile="distance_to_last_confirmed_swing",
+            input_contract_ref=InputContractRef("feature-regime-input", "v1.0"),
+            stream_registry_version="v1.0",
+        )
+
+
+def test_unknown_profile_fails_closed_even_with_a_genuinely_valid_snapshot() -> None:
+    """An arbitrary/unsupported `feature_computation_profile` string must
+    never be accepted merely because the paired `input_contract_ref`/
+    `stream_registry_version` happen to name a real, valid snapshot.
+    """
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="not a known Feature computation profile"):
+        resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile="not-a-real-profile",  # type: ignore[arg-type]
+            input_contract_ref=InputContractRef("feature-regime-input", "v1.0"),
+            stream_registry_version="v1.0",
+        )
+
+
+def test_profile_binding_checked_before_any_filesystem_access(tmp_path: Path) -> None:
+    """The profile <-> contract-lineage mismatch is rejected even against a
+    `repo_root` containing NO snapshots at all — proving the check happens
+    before path construction/filesystem access, not as a side effect of a
+    failed snapshot lookup.
+    """
+    (tmp_path / "docs").mkdir()
+    with pytest.raises(UnresolvedComputationCursorAuthorityError, match="not the Input Contract lineage authorized"):
+        resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile="regime",
+            input_contract_ref=InputContractRef("feature-swing-distance-input", "v1.0"),
+            stream_registry_version="v1.0",
+            repo_root=tmp_path,
+        )
+
+
 def test_missing_registry_version_field_in_snapshot_fails_closed(tmp_path: Path) -> None:
     repo = _write_fake_snapshot_repo(tmp_path)
     path = repo / "docs/architecture/stream-registry-versions/v1.0.yaml"

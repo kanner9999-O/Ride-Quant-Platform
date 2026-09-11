@@ -74,6 +74,23 @@ _INPUT_CONTRACT_RELPATHS: dict[FeatureComputationProfile, str] = {
 }
 _STREAM_REGISTRY_RELPATH = "docs/architecture/stream-registry.yaml"
 
+# `P3-FEATURE-EVID05B-IMPL-A-MAJ-03` remediation — the Input Contract
+# lineage authorized for each Feature computation profile is governed by
+# exactly one relationship in this module: `_INPUT_CONTRACT_RELPATHS`
+# above (each current-path filename's own stem IS that lineage's
+# `contract_id`, by this repository's own convention — every real Input
+# Contract artifact's `contract_id:` field equals its filename without the
+# `.yaml` suffix). Rather than hand-maintaining a second, independently-
+# drifting `profile -> contract_id` mapping, this is DERIVED from
+# `_INPUT_CONTRACT_RELPATHS` so the two can never disagree. Used by
+# `resolve_historical_input_contract_authority_from_repository` below to
+# prove a cursor-pinned `input_contract_ref.contract_id` is genuinely the
+# lineage authorized for its `feature_computation_profile`, without ever
+# reading the mutable current Input Contract file to do so.
+_AUTHORIZED_INPUT_CONTRACT_ID_BY_PROFILE: dict[FeatureComputationProfile, str] = {
+    profile: Path(relpath).stem for profile, relpath in _INPUT_CONTRACT_RELPATHS.items()
+}
+
 # `P3-FEATURE-EVID05B-IMPL-A-MAJ-02` remediation — ADR-041's canonical
 # immutable version-snapshot paths, used ONLY by
 # `resolve_historical_input_contract_authority_from_repository` below, NEVER
@@ -265,6 +282,17 @@ def resolve_historical_input_contract_authority_from_repository(
     sometimes historical" semantics (ADR-041).
 
     Fails closed (`UnresolvedComputationCursorAuthorityError`) on:
+    - an unknown/unsupported `feature_computation_profile` (not one of the
+      profiles this module itself knows how to bind an Input Contract
+      lineage for — an arbitrary runtime string is never accepted merely
+      because an otherwise-valid snapshot happens to exist);
+    - `input_contract_ref.contract_id` naming an Input Contract lineage
+      OTHER than the one `_AUTHORIZED_INPUT_CONTRACT_ID_BY_PROFILE` binds to
+      `feature_computation_profile` (`P3-FEATURE-EVID05B-IMPL-A-MAJ-03`) —
+      e.g. a `"regime"` profile pinned to a `feature-swing-distance-input`
+      snapshot — checked structurally, against that same binding the
+      current-path resolver above already uses, never against the mutable
+      current Input Contract file;
     - a malformed `contract_id`, `contract_version`, or
       `stream_registry_version` token (not exactly ADR-039/041's own
       `v<major>.<minor>` grammar for the two versions; not a safe path
@@ -285,10 +313,33 @@ def resolve_historical_input_contract_authority_from_repository(
     Never falls back to the nearest version, an alias, a git-history
     search, or the current/active file.
     """
-    root = repo_root if repo_root is not None else _find_repo_root(Path(__file__).resolve())
-
     contract_id = input_contract_ref.contract_id
     contract_version = input_contract_ref.contract_version
+
+    # `P3-FEATURE-EVID05B-IMPL-A-MAJ-03`: prove the cursor-pinned
+    # contract_id is genuinely the Input Contract lineage authorized for
+    # this feature_computation_profile, BEFORE constructing any path or
+    # touching the filesystem — an unknown profile, or a well-formed but
+    # wrongly-bound contract_id (e.g. "regime" paired with
+    # feature-swing-distance-input), must never reach snapshot resolution
+    # merely because an otherwise-valid, otherwise-matching snapshot exists.
+    authorized_contract_id = _AUTHORIZED_INPUT_CONTRACT_ID_BY_PROFILE.get(feature_computation_profile)
+    if authorized_contract_id is None:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"feature_computation_profile={feature_computation_profile!r} is not a known Feature computation "
+            "profile — historical snapshot resolution refuses to bind an Input Contract lineage for an "
+            "unsupported/unknown profile"
+        )
+    if contract_id != authorized_contract_id:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"input_contract_ref.contract_id={contract_id!r} is not the Input Contract lineage authorized for "
+            f"feature_computation_profile={feature_computation_profile!r} (authorized lineage: "
+            f"{authorized_contract_id!r}) — a cursor may not pin a Feature computation profile to a foreign "
+            "Input Contract lineage, even if a snapshot genuinely exists there and its content evidence would "
+            "otherwise match"
+        )
+
+    root = repo_root if repo_root is not None else _find_repo_root(Path(__file__).resolve())
 
     if not contract_id or not _SAFE_CONTRACT_ID.fullmatch(contract_id):
         raise UnresolvedComputationCursorAuthorityError(
