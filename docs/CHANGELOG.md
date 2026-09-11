@@ -2,6 +2,18 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-11 — platform: Chapter 0 v1.4 `Draft` candidate authored — bounded post-ADR-042 lifecycle-wording correction (`POST-ADR042-A-MAJ-01`; NOT reviewed, NOT approved)
+
+**Bounded factual/lifecycle-state correction — vai trò: `Chapter 0 Post-ADR042 Lifecycle Correction Executor`.** Authors `docs/constitution/00-governance.md` v1.4 as a `Draft` revision candidate per Chapter 0 §5.1. Corrects `POST-ADR042-A-MAJ-01`: §3's "Review gate" heading still read "(v1.3 candidate — ... NOT ACTIVE cho tới atomic activation cùng ADR-042)", factually false since `ADR-042` v0.5 activated at commit `8788895e8de8e8940e165abe3e4230ff15cf57bf`, and contradicting the same file's own "Governance migration (v1.3, ACTIVE)" banner. Corrected to state the gate has been ACTIVE since that boundary. No change to Review A mandatory status, Risk Classification (R0/R1/R2) definitions, or optional cross-check semantics — factual/lifecycle-wording correction only.
+
+**Fresh boundary verification:** HEAD confirmed exactly `8788895e8de8e8940e165abe3e4230ff15cf57bf`, identical to `origin/main`; prior blob confirmed exactly `35df26bad210db747fb6e58c76e1aca40111585b`, `version: "1.3"`, `status: Locked` — no drift.
+
+**Lifecycle transition:** `version: "1.3" → "1.4"`, `status: Locked → Draft`, `approved_by: Product Owner → null`, `approved_at → null`, `last_review → null`, `reviewers` unchanged. Blob `35df26bad210db747fb6e58c76e1aca40111585b` → `06efd069924ea36cbcbfff5f8776401d37d8a7c7`.
+
+**Residual flagged, not fixed here:** MANIFEST's architecture-tracking rows for Chapter 11/Chapter 12 (still showing pre-`ADR-042` `2.2`/`1.6` values) and the "Trạng thái tổng quát" summary paragraph remain stale from the prior `ADR-042` activation transaction — explicitly out of scope for this bounded correction.
+
+**Files changed:** `docs/constitution/00-governance.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `docs/adr/ADR-042.md`, `docs/adr/ADR-031.md`, Chapter 11, Chapter 12, Global Execution Rules, Phase-3 Rules, ADR-041 bootstrap, Feature, QG, and LIVE all untouched. `manifest_version` `"10.362"` → `"10.363"`.
+
 ## [Unreleased] — 2026-09-10 — platform: `ADR-042` v0.5 `Approved` — Review Gate Simplification now ACTIVE (Executor → Review A → Risk Classification → Product Owner Decision); `ADR-031` Superseded
 
 **Atomic mechanical approval + governance-activation transaction — vai trò: `ADR-042 Atomic Governance Activation Executor`.** Single commit, parent exactly `e975d44f813b1ee91d2dbf3793376ca1827dc0f1`, reviewed semantic source `review/adr042-activation` @ `64fc05becc6ca4245229db79b3fb6c5d9187e622` (ADR-042 blob `18e90f134a7a8aa0dc5c9ed3642ef2716b6397da`) with only authorized deterministic lifecycle/bookkeeping edits folded on top (G-ID-001: reviewed semantic candidate identity vs. resulting lifecycle-record identity).

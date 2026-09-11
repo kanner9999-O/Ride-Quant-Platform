@@ -1,14 +1,14 @@
 ---
 id: 00-governance
 title: Governance
-version: "1.3"
-status: Locked
+version: "1.4"
+status: Draft
 owner: Product Owner
 reviewers: [ChatGPT, Claude]
-approved_by: Product Owner
-approved_at: "2026-09-10T15:51+07:00"
+approved_by: null
+approved_at: null
 created_at: "2026-07-16"
-last_review: "2026-09-10"
+last_review: null
 next_review: null
 depends_on: []
 ---
@@ -63,7 +63,7 @@ Requirement
 
 *(Accepted = quyết định đã được Product Owner chốt; Locked = current lifecycle state được MANIFEST ghim sau khi decision artifact đã ổn định. Với ADR, file đã bất biến ngay tại approval boundary.)*
 
-**Review gate (v1.3 candidate — xem banner "Governance migration" phía trên; NOT ACTIVE cho tới atomic activation cùng [ADR-042](../adr/ADR-042.md)):**
+**Review gate (v1.4 candidate — `POST-ADR042-A-MAJ-01` remediation: v1.3's own heading here still read "candidate... NOT ACTIVE cho tới atomic activation," stale/false the moment ADR-042 v0.5 activated at commit `8788895e8de8e8940e165abe3e4230ff15cf57bf` — factual/lifecycle-wording correction only, no semantic change. ACTIVE since that boundary; xem banner "Governance migration (v1.3, ACTIVE)" phía trên):**
 
 - **Review A bắt buộc.** Trước khi Product Owner quyết một ADR hoặc tài liệu thuộc approval gate, phải có đúng một Review A — reviewer phải đang giữ role `AI Technical Architect` tại review boundary. Role eligibility LUÔN thuộc về **principal** (person/AI đã đăng ký giữ role tại `/team/team.yaml`), KHÔNG BAO GIỜ thuộc về một execution/session cụ thể. Review A phải độc lập kiểm tra trực tiếp candidate/repository authority — không kế thừa kết luận của Executor làm ground truth.
 - **Risk Classification bắt buộc, ngay sau Review A.** Mỗi decision được phân đúng một trong ba lớp — R0 (mechanical/không rủi ro semantic), R1 (bounded semantic/rủi ro implementation bình thường), R2 (rủi ro semantic/architecture cao) — theo định nghĩa đầy đủ tại [ADR-042](../adr/ADR-042.md). R0/R1 mặc định `NO CROSS-CHECK`. R2: Review A `RECOMMEND OPTIONAL INDEPENDENT CROSS-CHECK` — KHÔNG BAO GIỜ tự động yêu cầu; Product Owner chọn `CROSS-CHECK` hoặc `PROCEED WITHOUT CROSS-CHECK`.

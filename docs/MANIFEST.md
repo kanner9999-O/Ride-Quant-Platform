@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.362"
+manifest_version: "10.363"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -23,7 +23,7 @@ Nguồn sự thật về tổ hợp version+status chính xác của toàn bộ 
 
 | File | Version | Status | Owner | Depends On |
 |---|---|---|---|---|
-| constitution/00-governance.md | 1.2 | **Locked** (activated 2026-08-18T17:25:00+07:00, ADR-031) | Product Owner | — |
+| constitution/00-governance.md | 1.3 | **Locked** (activated 2026-09-10T15:51+07:00, ADR-042; v1.4 candidate authored on top, `POST-ADR042-A-MAJ-01` factual/lifecycle-wording correction, NOT Approved/Locked — v1.3 remains current authoritative until v1.4 is itself accepted) | Product Owner | — |
 | constitution/01-vision.md | 2.3 | **Locked** | Product Owner | 00-governance |
 | constitution/02-platform-invariants.md | 3.1 | **Locked** | Product Owner | 00-governance, 01-vision |
 | constitution/03-engineering-principles.md | 1.4 | **Locked** | Product Owner | 02-platform-invariants |
@@ -26406,6 +26406,51 @@ ADR-031:                        Superseded (by ADR-042, this transaction)
 **Next governed step:** future decisions proceed under the new Executor → Review A → Risk Classification → Product Owner Decision workflow; no further action required to make this model controlling — it is effective as of this commit.
 
 **Files changed:** `docs/adr/ADR-042.md`, `docs/constitution/00-governance.md`, `docs/constitution/11-adr-process.md`, `docs/constitution/12-approval-gates.md`, `docs/templates/adr-template.md`, `docs/governance/execution-rules.md`, `docs/governance/phases/phase-3-rules.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts (including `docs/adr/ADR-031.md`) verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.361"` → `"10.362"`.
+
+## Chapter 0 v1.4 candidate authored (`Draft`, bounded post-activation lifecycle correction — `POST-ADR042-A-MAJ-01`, NOT reviewed, NOT approved)
+
+**Bounded factual/lifecycle-state correction — vai trò: `Chapter 0 Post-ADR042 Lifecycle Correction Executor`.** Authors `docs/constitution/00-governance.md` v1.4 as a `Draft` revision candidate per Chapter 0 §5.1 (a Locked living document cannot be edited in place at the same version). Corrects `POST-ADR042-A-MAJ-01`: v1.3's own §3 "Review gate" heading still read "(v1.3 candidate — ... NOT ACTIVE cho tới atomic activation cùng ADR-042)" — factually false from the moment `ADR-042` v0.5 activated at commit `8788895e8de8e8940e165abe3e4230ff15cf57bf`, and directly contradicting the same file's own top-of-file "Governance migration (v1.3, ACTIVE)" banner. Corrected: the heading now states the gate has been ACTIVE since that boundary, cross-referencing the correct banner. **No change to:** Review A mandatory status, Risk Classification (R0/R1/R2) definitions, optional cross-check semantics, or any other §3 content — this is a factual/lifecycle-wording correction only, not a semantic redesign.
+
+**Fresh boundary verification:** HEAD confirmed exactly `8788895e8de8e8940e165abe3e4230ff15cf57bf`, identical to `origin/main`; `docs/constitution/00-governance.md` prior blob confirmed exactly `35df26bad210db747fb6e58c76e1aca40111585b`, `version: "1.3"`, `status: Locked` — no drift.
+
+```text
+Prior blob (Locked v1.3):  35df26bad210db747fb6e58c76e1aca40111585b
+New blob (Draft v1.4):     06efd069924ea36cbcbfff5f8776401d37d8a7c7
+version:      "1.3" -> "1.4"
+status:       Locked -> Draft
+approved_by:  Product Owner -> null
+approved_at:  "2026-09-10T15:51+07:00" -> null
+last_review:  "2026-09-10" -> null
+reviewers:    [ChatGPT, Claude] unchanged (role assignment retained, not
+              an assertion this candidate has already been reviewed)
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/constitution/00-governance.md (v1.4 candidate authored,
+  blob 35df26bad210db747fb6e58c76e1aca40111585b ->
+  06efd069924ea36cbcbfff5f8776401d37d8a7c7 -- only frontmatter version/
+  status/approved_by/approved_at/last_review and the single §3 "Review
+  gate" heading changed; §3 Decision Workflow diagram, Risk Classification
+  bullets, optional cross-check semantics, and every other section
+  byte-unchanged); docs/MANIFEST.md; docs/CHANGELOG.md only.
+  docs/adr/ADR-042.md, docs/adr/ADR-031.md, docs/constitution/
+  11-adr-process.md, docs/constitution/12-approval-gates.md,
+  docs/governance/execution-rules.md, docs/governance/phases/
+  phase-3-rules.md all verified byte-unchanged (git diff --quiet). No new
+  ADR authored. No Review B requested (this candidate is governed by the
+  NEW ADR-042 model -- Review A + Risk Classification -- effective since
+  this same v1.3 activation).
+```
+
+**Residual (flagged, not fixed in this bounded transaction):** this file's own architecture-tracking table row above is the only one corrected here; `docs/constitution/11-adr-process.md` and `docs/constitution/12-approval-gates.md`'s equivalent rows (still showing pre-ADR-042 `2.2`/`1.6` values) and the "Trạng thái tổng quát" narrative summary paragraph remain stale from the prior ADR-042 activation transaction — explicitly out of scope here per this transaction's own boundary ("Do NOT touch... Chapter 11... Chapter 12"), left for a separate correction if the Product Owner wants it addressed.
+
+**State summary:** `main` current authoritative Chapter 0 remains `v1.3`, `Locked`, `Approved` (unchanged, still controlling) until this `v1.4` candidate is itself reviewed and accepted. `ADR-042`/`ADR-031`/Chapter 11/Chapter 12/Global Execution Rules/Phase-3 Rules/ADR-041 bootstrap/Feature/QG/LIVE all unaffected.
+
+**Next governed step:** Review A on this candidate under the now-ACTIVE ADR-042 model, followed by mandatory Risk Classification (R0/R1/R2) — not performed by this transaction.
+
+**Files changed:** `docs/constitution/00-governance.md` (v1.4 candidate authored), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.362"` → `"10.363"`.
 
 ## Decision Log
 
