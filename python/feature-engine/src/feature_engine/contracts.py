@@ -476,10 +476,12 @@ class VerifiedInputContractAuthority:
     actually built is `_construct_verified_authority` (module-private,
     below), called exclusively by `_seal_verified_authority` (also
     module-private), which is itself called exclusively by
-    `authority_resolver.py`'s filesystem-backed resolver AFTER it has
-    genuinely read and cross-validated the real Input Contract/Stream
-    Registry artifacts and computed real content-identity digests from
-    their actual bytes.
+    `authority_resolver.py`'s two resolvers — the current/active-path
+    resolver and, for Replay preparation only
+    (`P3-FEATURE-EVID05B-IMPL-A-MAJ-02`), the separate historical
+    version-snapshot resolver — AFTER either has genuinely read and
+    cross-validated the real Input Contract/Stream Registry artifacts and
+    computed real content-identity digests from their actual bytes.
 
     Every computation engine requests its own bound authority through an
     injected `InputContractAuthorityProvider` (below), never by accepting an
@@ -580,9 +582,11 @@ def _seal_verified_authority(
 ) -> VerifiedInputContractAuthority:
     """The ONLY factory that produces a genuine `VerifiedInputContractAuthority`
     (Review-A round-5) — used exclusively by `authority_resolver.py`'s
-    filesystem-backed resolver, immediately after it has read the real
-    artifacts, cross-validated Registry <-> Contract semantics, and computed
-    genuine content-identity digests from the actual bytes. Deliberately
+    filesystem-backed resolvers (both the current-path resolver and the
+    historical version-snapshot resolver, `P3-FEATURE-EVID05B-IMPL-A-MAJ-02`),
+    immediately after either has read the real artifacts, cross-validated
+    Registry <-> Contract semantics, and computed genuine content-identity
+    digests from the actual bytes. Deliberately
     private (not exported via `__init__.py`) — no other module constructs
     verified authority.
     """

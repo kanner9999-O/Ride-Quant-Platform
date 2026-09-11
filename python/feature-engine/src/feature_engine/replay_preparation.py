@@ -13,18 +13,39 @@ fact, never during. It never mutates, recomputes, or "repairs" a fact; a
 failure here means Replay must abort for that fact, not proceed with
 degraded/assumed evidence.
 
+`P3-FEATURE-EVID05B-IMPL-A-MAJ-02` remediation: this module resolves the
+EXACT historical Input Contract + Stream Registry identity a fact's own
+`computation_cursor` pins — via
+`authority_resolver.resolve_historical_input_contract_authority_from_repository`,
+which reads ONLY the immutable ADR-041 canonical version-snapshot artifacts
+(`docs/architecture/input-contract-versions/<contract_id>/<contract_version>.yaml`,
+`docs/architecture/stream-registry-versions/<registry_version>.yaml`) —
+NEVER `resolve_input_contract_authority_from_repository`, which reads the
+current/active mutable files and is reserved for fresh (non-replay)
+computation resolution. There is no fallback from one to the other.
+
 Fails closed for each of ADR-037's four failure classes:
 
-1. missing/unresolvable Input Contract or Stream Registry artifact —
+1. missing/unresolvable Input Contract or Stream Registry version-snapshot,
+   a malformed cursor version token, or a Registry <-> Contract
+   relational/self-identity inconsistency WITHIN the pinned snapshot pair
+   (all detected during resolution itself, since resolution now happens BY
+   the cursor's own exact identity rather than by re-deriving and comparing
+   against a separately-resolved current artifact) —
    `ReplayPreparationArtifactUnresolvableError`;
 2. malformed/missing `computation_dependency_content_evidence` —
    `ReplayPreparationEvidenceMalformedError`;
-3. the currently-resolved artifact's own identity does not match the
-   fact's own `computation_cursor.input_contract_ref`/`stream_registry_version`
-   (cursor/reference relational mismatch) —
-   `ReplayPreparationCursorReferenceMismatchError`;
-4. the currently-resolved artifact's own recomputed content-identity digest
-   does not match the fact's own persisted evidence (content-ID mismatch) —
+3. (historical note) under the prior, superseded current-path design, this
+   class was "the currently-resolved artifact's own identity does not match
+   the fact's own cursor" — `ReplayPreparationCursorReferenceMismatchError`.
+   That comparison is structurally obsolete now that resolution is BY the
+   cursor's own identity (a successful resolution's own identity always
+   equals the cursor's, by construction); the underlying risk it guarded
+   against is now covered by class 1's own relational/self-identity checks
+   inside the historical resolver. This class is retained in `errors.py`
+   for historical continuity but is no longer raised by this function;
+4. the pinned snapshot's own recomputed content-identity digest does not
+   match the fact's own persisted evidence (content-ID mismatch) —
    `ReplayPreparationContentIdentityMismatchError`.
 """
 
@@ -33,12 +54,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from .authority_resolver import resolve_input_contract_authority_from_repository
+from .authority_resolver import resolve_historical_input_contract_authority_from_repository
 from .contracts import FeatureComputationProfile, FeatureComputed, FeatureFactInvalidated
 from .errors import (
     ReplayPreparationArtifactUnresolvableError,
     ReplayPreparationContentIdentityMismatchError,
-    ReplayPreparationCursorReferenceMismatchError,
     ReplayPreparationEvidenceMalformedError,
     UnresolvedComputationCursorAuthorityError,
 )
@@ -68,9 +88,10 @@ def _is_well_formed_content_id(value: str) -> bool:
 
 
 def prepare_replay_evidence(fact: FeatureReplayFact, *, repo_root: Path | None = None) -> None:
-    """Resolves the exact Input Contract + Stream Registry named by
-    `fact.computation_cursor`, recomputes content identities from the
-    actual, current artifact bytes, and compares against
+    """Resolves the EXACT historical Input Contract + Stream Registry
+    version-snapshot named by `fact.computation_cursor` — never the
+    current/active mutable files — recomputes content identities from the
+    actual, immutable snapshot bytes, and compares against
     `fact.computation_dependency_content_evidence` — fails closed BEFORE
     Replay execution begins for each of ADR-037's four failure classes (see
     module docstring). Returns `None` on success; raises otherwise. Never
@@ -84,13 +105,23 @@ def prepare_replay_evidence(fact: FeatureReplayFact, *, repo_root: Path | None =
             "Input Contract/Stream Registry artifact this fact's computation_cursor names"
         )
 
-    # Failure class 1: missing/unresolvable artifact.
+    # Failure class 1: missing/unresolvable snapshot, malformed cursor version
+    # token, or Registry <-> Contract relational/self-identity mismatch WITHIN
+    # the pinned snapshot pair -- all detected during resolution itself, since
+    # resolution happens BY the cursor's own exact identity (P3-FEATURE-
+    # EVID05B-IMPL-A-MAJ-02).
+    cursor = fact.computation_cursor
     try:
-        resolved = resolve_input_contract_authority_from_repository(profile, repo_root=repo_root)
+        resolved = resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile=profile,
+            input_contract_ref=cursor.input_contract_ref,
+            stream_registry_version=cursor.stream_registry_version,
+            repo_root=repo_root,
+        )
     except UnresolvedComputationCursorAuthorityError as exc:
         raise ReplayPreparationArtifactUnresolvableError(
-            f"could not resolve the Input Contract/Stream Registry artifact for profile {profile!r} named by "
-            f"this fact's computation_cursor: {exc}"
+            f"could not resolve the exact historical Input Contract/Stream Registry version-snapshot for profile "
+            f"{profile!r} named by this fact's computation_cursor: {exc}"
         ) from exc
 
     # Failure class 2: malformed/missing evidence.
@@ -110,21 +141,6 @@ def prepare_replay_evidence(fact: FeatureReplayFact, *, repo_root: Path | None =
             f"fact.computation_dependency_content_evidence.stream_registry_content_id="
             f"{evidence.stream_registry_content_id!r} is not a well-formed content-identity digest "
             "(64 lowercase hex characters)"
-        )
-
-    # Failure class 3: cursor/reference relational mismatch.
-    cursor = fact.computation_cursor
-    if resolved.input_contract_ref != cursor.input_contract_ref:
-        raise ReplayPreparationCursorReferenceMismatchError(
-            f"the currently-resolved Input Contract identity {resolved.input_contract_ref!r} does not match this "
-            f"fact's own computation_cursor.input_contract_ref {cursor.input_contract_ref!r} — the artifact has "
-            "evolved (or this fact's cursor is otherwise stale/incorrect) since this fact was computed"
-        )
-    if resolved.stream_registry_version != cursor.stream_registry_version:
-        raise ReplayPreparationCursorReferenceMismatchError(
-            f"the currently-resolved Stream Registry version {resolved.stream_registry_version!r} does not match "
-            f"this fact's own computation_cursor.stream_registry_version {cursor.stream_registry_version!r} — the "
-            "artifact has evolved (or this fact's cursor is otherwise stale/incorrect) since this fact was computed"
         )
 
     # Failure class 4: content-ID mismatch.

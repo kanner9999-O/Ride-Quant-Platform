@@ -9,6 +9,7 @@ filesystem-touching function.
 from __future__ import annotations
 
 import dataclasses
+import shutil
 from pathlib import Path
 
 import pytest
@@ -33,9 +34,11 @@ from feature_engine.contracts import ComputationDependencyContentEvidence, Featu
 from feature_engine.errors import (
     ReplayPreparationArtifactUnresolvableError,
     ReplayPreparationContentIdentityMismatchError,
-    ReplayPreparationCursorReferenceMismatchError,
     ReplayPreparationEvidenceMalformedError,
 )
+
+# tests/ -> feature-engine -> python -> repository root.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _real_regime_fact() -> FeatureComputed:
@@ -71,6 +74,31 @@ def test_prepare_replay_evidence_succeeds_for_genuine_fact() -> None:
     prepare_replay_evidence(computed)  # succeeds silently (no exception) — no return value to assert on
 
 
+def _write(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content)
+
+
+def _copy_real_snapshot_only_repo(tmp_path: Path) -> Path:
+    """A temp repo containing ONLY the real, already-Published ADR-041
+    canonical `v1.0` snapshots for the "regime" profile — copied byte-for-
+    byte from this actual repository — and deliberately no current/active
+    mutable Input Contract/Stream Registry file at all, proving Replay
+    preparation resolves the pinned snapshot alone and never needs (or
+    consults) the current/active path.
+    """
+    _write(tmp_path / "docs" / "MARKER.md", "marker")
+    src_contract = _REPO_ROOT / "docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml"
+    src_registry = _REPO_ROOT / "docs/architecture/stream-registry-versions/v1.0.yaml"
+    dst_contract = tmp_path / "docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml"
+    dst_registry = tmp_path / "docs/architecture/stream-registry-versions/v1.0.yaml"
+    dst_contract.parent.mkdir(parents=True, exist_ok=True)
+    dst_registry.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src_contract, dst_contract)
+    shutil.copyfile(src_registry, dst_registry)
+    return tmp_path
+
+
 # --- Failure class 1: missing/unresolvable artifact -------------------------
 
 
@@ -83,6 +111,66 @@ def test_missing_artifact_fails_closed(tmp_path: Path) -> None:
     (tmp_path / "docs").mkdir()
     with pytest.raises(ReplayPreparationArtifactUnresolvableError):
         prepare_replay_evidence(computed, repo_root=tmp_path)
+
+
+def test_malformed_snapshot_fails_closed(tmp_path: Path) -> None:
+    """The exact snapshot file exists at its own canonical cursor-pinned
+    path but its content no longer resolves a complete identity — fails
+    closed, never silently accepted.
+    """
+    computed = _real_regime_fact()
+    repo = _copy_real_snapshot_only_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml"
+    contract_path.write_text(contract_path.read_text().replace("contract_id: feature-regime-input", ""))
+    with pytest.raises(ReplayPreparationArtifactUnresolvableError):
+        prepare_replay_evidence(computed, repo_root=repo)
+
+
+# --- MAJ-02 required regression proof: snapshot-pinned, not current-path ----
+
+
+def test_replay_preparation_uses_snapshot_when_no_current_file_exists(tmp_path: Path) -> None:
+    """Proves Replay preparation resolves the cursor-pinned historical
+    snapshot and succeeds even when NO current/active mutable Input
+    Contract/Stream Registry file exists anywhere in the given `repo_root`
+    — current/active resolution is never consulted, let alone required.
+    """
+    computed = _real_regime_fact()
+    repo = _copy_real_snapshot_only_repo(tmp_path)
+    prepare_replay_evidence(computed, repo_root=repo)
+
+
+def test_replay_preparation_ignores_changed_current_file(tmp_path: Path) -> None:
+    """Even when a DIFFERENT/corrupted current/active file is ALSO present
+    at its normal mutable path alongside a valid pinned snapshot, Replay
+    preparation is completely unaffected by it — proving no fallback to,
+    or cross-check against, the current/active path occurs.
+    """
+    computed = _real_regime_fact()
+    repo = _copy_real_snapshot_only_repo(tmp_path)
+    _write(
+        repo / "docs/architecture/input-contracts/feature-regime-input.yaml",
+        "this file must never be read by Replay preparation\nstatus: Approved\ncontract_version: v99.0\n",
+    )
+    _write(
+        repo / "docs/architecture/stream-registry.yaml",
+        "this file must never be read by Replay preparation\nregistry_version: v99.0\n",
+    )
+    prepare_replay_evidence(computed, repo_root=repo)
+
+
+def test_replay_preparation_unaffected_by_removed_current_file(tmp_path: Path) -> None:
+    """A cursor-pinned snapshot that was valid when the fact was computed
+    remains resolvable by Replay preparation even after the current/active
+    mutable file it once mirrored has since been deleted entirely.
+    """
+    computed = _real_regime_fact()
+    repo = _copy_real_snapshot_only_repo(tmp_path)
+    # `_copy_real_snapshot_only_repo` never creates a current/active file in
+    # the first place -- this test's own name asserts that absence is fine.
+    assert not (repo / "docs/architecture/input-contracts").exists()
+    assert not (repo / "docs/architecture/stream-registry.yaml").exists()
+    prepare_replay_evidence(computed, repo_root=repo)
 
 
 # --- Failure class 2: malformed/missing evidence ----------------------------
@@ -108,35 +196,38 @@ def test_missing_evidence_fails_closed() -> None:
         prepare_replay_evidence(corrupted)
 
 
-# --- Failure class 3: cursor/reference relational mismatch ------------------
+# --- Failure class 1 (folded in): cursor pins a version with no snapshot ----
+# --- (historical note: under the prior, superseded current-path design this
+# --- was "Failure class 3" and raised `ReplayPreparationCursorReferenceMis-
+# --- matchError`; under cursor-driven snapshot resolution, a nonexistent
+# --- pinned version is simply unresolvable — `errors.py` retains that
+# --- exception class for historical continuity, but it is no longer raised
+# --- by `prepare_replay_evidence`, see module docstring.)
 
 
-def test_cursor_input_contract_ref_mismatch_fails_closed() -> None:
-    """The fact's own `computation_cursor.input_contract_ref` no longer
-    matches what is currently resolvable at the real repository — e.g. the
-    artifact evolved to a different `contract_version` since this fact was
-    computed.
+def test_cursor_input_contract_ref_naming_nonexistent_version_fails_closed() -> None:
+    """The fact's own `computation_cursor.input_contract_ref` names a
+    `contract_version` for which no version-snapshot artifact exists —
+    fails closed as unresolvable, never falls back to any other version.
     """
     computed = _real_regime_fact()
     corrupted_cursor = dataclasses.replace(
         computed.computation_cursor,
         input_contract_ref=InputContractRef(
             contract_id=computed.computation_cursor.input_contract_ref.contract_id,
-            contract_version="not-the-real-version",
+            contract_version="v99.0",
         ),
     )
     corrupted = dataclasses.replace(computed, computation_cursor=corrupted_cursor)
-    with pytest.raises(ReplayPreparationCursorReferenceMismatchError):
+    with pytest.raises(ReplayPreparationArtifactUnresolvableError):
         prepare_replay_evidence(corrupted)
 
 
-def test_cursor_stream_registry_version_mismatch_fails_closed() -> None:
+def test_cursor_stream_registry_version_naming_nonexistent_version_fails_closed() -> None:
     computed = _real_regime_fact()
-    corrupted_cursor = dataclasses.replace(
-        computed.computation_cursor, stream_registry_version="not-the-real-registry-version"
-    )
+    corrupted_cursor = dataclasses.replace(computed.computation_cursor, stream_registry_version="v99.0")
     corrupted = dataclasses.replace(computed, computation_cursor=corrupted_cursor)
-    with pytest.raises(ReplayPreparationCursorReferenceMismatchError):
+    with pytest.raises(ReplayPreparationArtifactUnresolvableError):
         prepare_replay_evidence(corrupted)
 
 

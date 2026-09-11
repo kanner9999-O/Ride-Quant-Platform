@@ -54,6 +54,7 @@ assert, upgrade, or rely on any particular artifact-level status.
 from __future__ import annotations
 
 import hashlib
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -72,6 +73,27 @@ _INPUT_CONTRACT_RELPATHS: dict[FeatureComputationProfile, str] = {
     "regime": "docs/architecture/input-contracts/feature-regime-input.yaml",
 }
 _STREAM_REGISTRY_RELPATH = "docs/architecture/stream-registry.yaml"
+
+# `P3-FEATURE-EVID05B-IMPL-A-MAJ-02` remediation — ADR-041's canonical
+# immutable version-snapshot paths, used ONLY by
+# `resolve_historical_input_contract_authority_from_repository` below, NEVER
+# by the current-path resolver above. Deliberately a separate constant/
+# function pair, not a shared "sometimes current, sometimes historical"
+# resolver.
+_INPUT_CONTRACT_VERSIONS_RELDIR = "docs/architecture/input-contract-versions"
+_STREAM_REGISTRY_VERSIONS_RELDIR = "docs/architecture/stream-registry-versions"
+
+# ADR-039's canonical version-identifier grammar (reused by ADR-041 for
+# Input Contract/Stream Registry snapshots): exactly `v<major>.<minor>`, no
+# leading zeros except the literal digit `0`, no path separators/traversal
+# characters of any kind — a value failing this pattern is malformed and
+# must never be used to construct a filesystem path.
+_CANONICAL_VERSION_GRAMMAR = re.compile(r"^v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$")
+# `contract_id` is a path segment too (`<contract_id>/<contract_version>.yaml`)
+# — constrained to the same safe token shape every real contract_id in this
+# repository already uses, so a malformed/hostile value can never be used to
+# construct a path either.
+_SAFE_CONTRACT_ID = re.compile(r"^[a-z][a-z0-9-]*$")
 
 
 def _find_repo_root(start: Path) -> Path:
@@ -212,6 +234,157 @@ def resolve_input_contract_authority_from_repository(
         feature_computation_profile=profile,
         input_contract_ref=InputContractRef(contract_id=contract_id, contract_version=contract_version),
         stream_registry_version=stream_registry_version,
+        included_streams=included_streams,
+        input_contract_content_id=hashlib.sha256(contract_bytes).hexdigest(),
+        stream_registry_content_id=hashlib.sha256(registry_bytes).hexdigest(),
+    )
+
+
+def resolve_historical_input_contract_authority_from_repository(
+    *,
+    feature_computation_profile: FeatureComputationProfile,
+    input_contract_ref: InputContractRef,
+    stream_registry_version: str,
+    repo_root: Path | None = None,
+) -> VerifiedInputContractAuthority:
+    """`P3-FEATURE-EVID05B-IMPL-A-MAJ-02` remediation — resolves the EXACT
+    historical Input Contract + Stream Registry identity a fact's own
+    `computation_cursor` pins, from their immutable ADR-041 canonical
+    version-snapshot paths:
+
+    - Input Contract: `docs/architecture/input-contract-versions/
+      <contract_id>/<contract_version>.yaml`
+    - Stream Registry: `docs/architecture/stream-registry-versions/
+      <registry_version>.yaml`
+
+    This is the resolver Replay preparation (`replay_preparation.py`) uses —
+    NEVER `resolve_input_contract_authority_from_repository` above, which
+    reads the current/active mutable files and is for fresh (non-replay)
+    computation resolution only. The two are deliberately kept as separate
+    functions rather than one resolver with ambiguous "sometimes current,
+    sometimes historical" semantics (ADR-041).
+
+    Fails closed (`UnresolvedComputationCursorAuthorityError`) on:
+    - a malformed `contract_id`, `contract_version`, or
+      `stream_registry_version` token (not exactly ADR-039/041's own
+      `v<major>.<minor>` grammar for the two versions; not a safe path
+      segment for `contract_id`) — a path is never constructed from an
+      unvalidated token;
+    - either snapshot missing at its own canonical path;
+    - either snapshot not resolving a complete identity, or self-identifying
+      (its own embedded `contract_id`/`contract_version`/`registry_version`)
+      inconsistently with the exact identity its canonical path was
+      constructed from;
+    - the Input Contract snapshot's own `stream_registry_version` not
+      exactly equal to the resolved Stream Registry snapshot's own
+      `registry_version` (relational mismatch — never resolved by silently
+      pairing it with a different registry snapshot);
+    - any of the Input Contract snapshot's `included_streams` not declared
+      by the resolved Stream Registry snapshot.
+
+    Never falls back to the nearest version, an alias, a git-history
+    search, or the current/active file.
+    """
+    root = repo_root if repo_root is not None else _find_repo_root(Path(__file__).resolve())
+
+    contract_id = input_contract_ref.contract_id
+    contract_version = input_contract_ref.contract_version
+
+    if not contract_id or not _SAFE_CONTRACT_ID.fullmatch(contract_id):
+        raise UnresolvedComputationCursorAuthorityError(
+            f"contract_id={contract_id!r} is not a well-formed identifier — historical snapshot resolution "
+            "refuses to construct a filesystem path from an unvalidated token"
+        )
+    if not contract_version or not _CANONICAL_VERSION_GRAMMAR.fullmatch(contract_version):
+        raise UnresolvedComputationCursorAuthorityError(
+            f"contract_version={contract_version!r} is not a well-formed v<major>.<minor> canonical version token "
+            "(ADR-039/ADR-041) — historical snapshot resolution refuses to construct a filesystem path from an "
+            "unvalidated token"
+        )
+    if not stream_registry_version or not _CANONICAL_VERSION_GRAMMAR.fullmatch(stream_registry_version):
+        raise UnresolvedComputationCursorAuthorityError(
+            f"stream_registry_version={stream_registry_version!r} is not a well-formed v<major>.<minor> canonical "
+            "version token (ADR-039/ADR-041) — historical snapshot resolution refuses to construct a filesystem "
+            "path from an unvalidated token"
+        )
+
+    contract_path = root / _INPUT_CONTRACT_VERSIONS_RELDIR / contract_id / f"{contract_version}.yaml"
+    registry_path = root / _STREAM_REGISTRY_VERSIONS_RELDIR / f"{stream_registry_version}.yaml"
+
+    if not contract_path.is_file():
+        raise UnresolvedComputationCursorAuthorityError(
+            f"Input Contract version-snapshot not found at its own canonical path {contract_path!r} "
+            f"(contract_id={contract_id!r}, contract_version={contract_version!r}) — no alias/history-search/"
+            "current-file fallback exists (ADR-041)"
+        )
+    if not registry_path.is_file():
+        raise UnresolvedComputationCursorAuthorityError(
+            f"Stream Registry version-snapshot not found at its own canonical path {registry_path!r} "
+            f"(registry_version={stream_registry_version!r}) — no alias/history-search/current-file fallback "
+            "exists (ADR-041)"
+        )
+
+    contract_bytes = contract_path.read_bytes()
+    registry_bytes = registry_path.read_bytes()
+    contract_lines = contract_bytes.decode("utf-8").splitlines()
+    registry_lines = registry_bytes.decode("utf-8").splitlines()
+
+    resolved_contract_id = _extract_scalar(contract_lines, "contract_id")
+    resolved_contract_version = _extract_scalar(contract_lines, "contract_version")
+    resolved_contract_registry_ref = _extract_scalar(contract_lines, "stream_registry_version")
+    included_streams = _extract_included_streams(contract_lines)
+    if not resolved_contract_id or not resolved_contract_version or not resolved_contract_registry_ref or not included_streams:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"Input Contract version-snapshot at {contract_path!r} did not resolve a complete "
+            "{contract_id, contract_version, stream_registry_version, included_streams} identity"
+        )
+    if resolved_contract_id != contract_id or resolved_contract_version != contract_version:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"Input Contract version-snapshot at {contract_path!r} declares "
+            f"contract_id={resolved_contract_id!r}/contract_version={resolved_contract_version!r}, which does not "
+            f"exactly match its own canonical path identity {contract_id!r}/{contract_version!r} — a snapshot "
+            "must self-identify consistently with its own canonical location"
+        )
+
+    resolved_registry_version = _extract_scalar(registry_lines, "registry_version")
+    registry_stream_ids = _extract_registry_stream_ids(registry_lines)
+    if not resolved_registry_version or not registry_stream_ids:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"Stream Registry version-snapshot at {registry_path!r} did not resolve a complete "
+            "{registry_version, stream_id set} identity"
+        )
+    if resolved_registry_version != stream_registry_version:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"Stream Registry version-snapshot at {registry_path!r} declares registry_version="
+            f"{resolved_registry_version!r}, which does not exactly match its own canonical path identity "
+            f"{stream_registry_version!r} — a snapshot must self-identify consistently with its own canonical "
+            "location"
+        )
+
+    # Input Contract <-> Stream Registry relational cross-validation — same
+    # discipline as resolve_input_contract_authority_from_repository above,
+    # applied to the two pinned SNAPSHOTS instead of the two current files.
+    if resolved_contract_registry_ref != resolved_registry_version:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"Input Contract version-snapshot at {contract_path!r} declares stream_registry_version="
+            f"{resolved_contract_registry_ref!r}, but the resolved Stream Registry version-snapshot at "
+            f"{registry_path!r} declares registry_version={resolved_registry_version!r} — these must match "
+            "exactly (Chapter 8 §8.5 Registry -> Contract exact-pin rule); never resolved by pairing with a "
+            "different registry version-snapshot"
+        )
+    unresolvable_streams = included_streams - registry_stream_ids
+    if unresolvable_streams:
+        raise UnresolvedComputationCursorAuthorityError(
+            f"Input Contract version-snapshot at {contract_path!r} declares included_streams containing "
+            f"{sorted(unresolvable_streams)!r}, which the resolved Stream Registry version-snapshot at "
+            f"{registry_path!r} (registry_version={resolved_registry_version!r}) does not declare — an Input "
+            "Contract snapshot may only reference streams that genuinely exist in its own pinned registry snapshot"
+        )
+
+    return _seal_verified_authority(
+        feature_computation_profile=feature_computation_profile,
+        input_contract_ref=InputContractRef(contract_id=resolved_contract_id, contract_version=resolved_contract_version),
+        stream_registry_version=resolved_registry_version,
         included_streams=included_streams,
         input_contract_content_id=hashlib.sha256(contract_bytes).hexdigest(),
         stream_registry_content_id=hashlib.sha256(registry_bytes).hexdigest(),

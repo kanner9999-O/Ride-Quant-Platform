@@ -30,6 +30,7 @@ public constructor at all (see its own docstring in `contracts.py`).
 from .authority_resolver import (
     FilesystemInputContractAuthorityResolver,
     StaticInputContractAuthorityProvider,
+    resolve_historical_input_contract_authority_from_repository,
     resolve_input_contract_authority_from_repository,
 )
 from .candle import OHLCV, CandleFact, CandleScope
@@ -218,6 +219,7 @@ __all__ = [
     "prepare_replay_evidence",
     "resolve_computation_cursor",
     "resolve_computation_dependency_content_evidence",
+    "resolve_historical_input_contract_authority_from_repository",
     "resolve_input_contract_authority_from_repository",
     "resolve_output_event_contract_authority_from_repository",
 ]

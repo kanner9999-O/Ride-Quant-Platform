@@ -70,9 +70,12 @@ FEATURE_OUTPUT_CONTRACT_VERSION = "v1.0"
 # (`output_contract_resolver.resolve_output_event_contract_authority_from_repository`)
 # reading the real, current `docs/architecture/event-contracts/feature-
 # computed/v1.0.yaml` / `feature-fact-invalidated/v1.0.yaml` off disk —
-# never a hardcoded duplicate literal.
+# never a hardcoded duplicate literal. Both lineages are independently
+# pinned (P3-FEATURE-EVID05B-IMPL-A-MAJ-01) — they currently share the same
+# real value only because both artifacts genuinely are Published at v1.0
+# today, never because the resolver itself assumes/requires equality.
 OUTPUT_EVENT_CONTRACT_AUTHORITY = resolve_output_event_contract_authority_from_repository(
-    FEATURE_OUTPUT_CONTRACT_VERSION
+    FEATURE_OUTPUT_CONTRACT_VERSION, FEATURE_OUTPUT_CONTRACT_VERSION
 )
 
 # Real, currently-approved logical stream identities (Review-A residual 3) —

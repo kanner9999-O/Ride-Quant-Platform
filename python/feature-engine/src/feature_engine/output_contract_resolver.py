@@ -27,6 +27,13 @@ authoritative event — resolution fails closed instead.
 
 Deliberately dependency-free (no PyYAML), same minimal line-scanner
 discipline as `authority_resolver.py`.
+
+`P3-FEATURE-EVID05B-IMPL-A-MAJ-01` remediation: `feature-computed` and
+`feature-fact-invalidated` are independently versioned Event Contract
+lineages (ADR-039's own authority is exactly `{contract_id, contract_version}`
+per artifact) — this resolver no longer accepts one shared `contract_version`
+applied to both; each lineage's exact version is a separate, independently
+pinned input.
 """
 
 from __future__ import annotations
@@ -111,26 +118,33 @@ def _resolve_one(contract_id: str, contract_version: str, *, root: Path) -> Even
 
 
 def resolve_output_event_contract_authority_from_repository(
-    contract_version: str, *, repo_root: Path | None = None
+    computed_contract_version: str, invalidated_contract_version: str, *, repo_root: Path | None = None
 ) -> VerifiedOutputEventContractAuthority:
-    """Resolves BOTH `feature-computed` and `feature-fact-invalidated`
-    Published Event Contract version-artifacts, at the given
-    `contract_version`, from their own canonical paths — the "verified
-    factory"/"repository adapter" the Feature analytical core itself never
-    performs; callers/orchestrators (and this repository's own test
-    fixtures) use this — or an equivalent resolver — to obtain the object
-    they inject into a computation engine.
+    """Resolves `feature-computed` at `computed_contract_version` and
+    `feature-fact-invalidated` at `invalidated_contract_version` —
+    INDEPENDENTLY pinned exact `{contract_id, contract_version}` identities
+    (ADR-039) — from their own canonical paths. The two lineages are never
+    assumed to share a version: ADR-039's own authority is exactly
+    `{contract_id, contract_version}` per artifact, and
+    `VerifiedOutputEventContractAuthority` already carries
+    `computed_contract_ref`/`invalidated_contract_ref` as two separate
+    fields. This is the "verified factory"/"repository adapter" the Feature
+    analytical core itself never performs; callers/orchestrators (and this
+    repository's own test fixtures) use this — or an equivalent resolver —
+    to obtain the object they inject into a computation engine.
 
     Fails closed (`OutputEventContractUnresolvableError`/
     `OutputEventContractIdentityMismatchError`/
-    `OutputEventContractNotPublishedError`) if either artifact is missing,
-    malformed, self-identifies inconsistently with its own canonical path,
-    or is not `status: Published`. Never falls back to an invented value,
-    an older version, or any other artifact.
+    `OutputEventContractNotPublishedError`) if EITHER artifact,
+    independently, is missing, malformed, self-identifies inconsistently
+    with its own canonical path, or is not `status: Published` — a failure
+    on one lineage never substitutes, defers to, or is silently masked by
+    the other lineage's own resolution. Never falls back to an invented
+    value, an older version, an alias, or any other artifact.
     """
     root = repo_root if repo_root is not None else _find_repo_root(Path(__file__).resolve())
-    computed_ref = _resolve_one(FEATURE_COMPUTED_CONTRACT_ID, contract_version, root=root)
-    invalidated_ref = _resolve_one(FEATURE_FACT_INVALIDATED_CONTRACT_ID, contract_version, root=root)
+    computed_ref = _resolve_one(FEATURE_COMPUTED_CONTRACT_ID, computed_contract_version, root=root)
+    invalidated_ref = _resolve_one(FEATURE_FACT_INVALIDATED_CONTRACT_ID, invalidated_contract_version, root=root)
     return _seal_verified_output_authority(computed_contract_ref=computed_ref, invalidated_contract_ref=invalidated_ref)
 
 
@@ -139,16 +153,20 @@ class FilesystemOutputEventContractAuthorityResolver:
     """The default `OutputEventContractAuthorityProvider` (`contracts.py`)
     — every `.resolve()` call reads the real, `Published` Event Contract
     version-artifacts off disk and resolves fresh, genuinely-verified
-    authority for the pinned `contract_version`. Optionally pinned to a
-    fixed `repo_root` (used by this repository's own tests to point at a
+    authority for the INDEPENDENTLY pinned `computed_contract_version`/
+    `invalidated_contract_version`. Optionally pinned to a fixed
+    `repo_root` (used by this repository's own tests to point at a
     temporary fixture tree).
     """
 
-    contract_version: str
+    computed_contract_version: str
+    invalidated_contract_version: str
     repo_root: Path | None = None
 
     def resolve(self) -> VerifiedOutputEventContractAuthority:
-        return resolve_output_event_contract_authority_from_repository(self.contract_version, repo_root=self.repo_root)
+        return resolve_output_event_contract_authority_from_repository(
+            self.computed_contract_version, self.invalidated_contract_version, repo_root=self.repo_root
+        )
 
 
 @dataclass(frozen=True, slots=True)
