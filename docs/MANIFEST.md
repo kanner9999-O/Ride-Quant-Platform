@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.365"
+manifest_version: "10.366"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26697,6 +26697,42 @@ ADR-041/ADR-040:                Approved, immutable, byte-unchanged.
 **Next governed step:** the follow-on work already named in `ADR-041`'s own Consequences — `feature-engine`'s own `prepare_replay_evidence()` correction resolving `P3-FEATURE-EVID05B-IMPL-A-MAJ-02` against this newly-available canonical-snapshot authority, alongside `P3-FEATURE-EVID05B-IMPL-A-MAJ-01`'s independent-per-`contract_id` fix, followed by a bounded Review-A re-review closing both findings and, if warranted, `P3-FEATURE-QG-EVID-05(b)` — none performed by this transaction.
 
 **Files changed:** `docs/architecture/stream-registry.yaml`, `docs/architecture/input-contracts/feature-candle-input.yaml`, `docs/architecture/input-contracts/feature-regime-input.yaml`, `docs/architecture/input-contracts/feature-swing-distance-input.yaml`, `docs/architecture/stream-registry-versions/v1.0.yaml` (new), `docs/architecture/input-contract-versions/feature-candle-input/v1.0.yaml` (new), `docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml` (new), `docs/architecture/input-contract-versions/feature-swing-distance-input/v1.0.yaml` (new), `python/feature-engine/tests/test_authority_resolver.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.364"` → `"10.365"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-05(b)` formal Chapter 13 §13.9 Quality-Gate evidence transaction (`CLOSED — PASS`; `P3-FEATURE-EVID05B-IMPL-A-MAJ-01`/`-MAJ-02`/`-MAJ-03` `CLOSED — REVIEW A VALIDATED`)
+
+**Bounded formal Quality-Gate evidence transaction — vai trò: `Feature Engine EVID-05(b) Quality-Gate Evidence Recording Executor`.** Records Review A's completed validation of the two implementation commits `2b25b8e9deda954b6a4a4e2684c12a466bf60f47` ("EVID-05(b) implementation correction (MAJ-01 + MAJ-02)") and `8a89f31a44731ec2f56a26f49bcdbc7c6ebb69c4` ("EVID-05(b) MAJ-03 correction — restore profile <-> contract-lineage binding in historical resolver"), neither of which had a MANIFEST/CHANGELOG entry recorded yet (both were self-declared "design/implementation candidate only," deferring closure to Review A per their own commit messages). Full transaction detail, exact subject/criteria/evaluator/boundary pins, and the fresh test evidence substantiating this closure are recorded in `docs/governance/quality-gate/feature-engine-evid05b-formal-evidence-001.md` — this MANIFEST entry summarizes only the resulting state change, per Chapter 13 §13.9's historical-immutability discipline (the evidence artifact is the authoritative pin; this entry does not duplicate its field-level content).
+
+**Subject boundary:** `8a89f31a44731ec2f56a26f49bcdbc7c6ebb69c4` (working tree clean against HEAD for `python/`/`docs/`, verified `git status --porcelain=v1`).
+
+**Review A** (ChatGPT): `P3-FEATURE-EVID05B-IMPL-A-MAJ-01`/`-MAJ-02`/`-MAJ-03` all CLOSED; Blocker 0/Major 0/Minor 0; verdict **CLEAN**; Risk Classification **R1** (bounded semantic/normal implementation risk — internal `authority_resolver.py`/`output_contract_resolver.py`/`contracts.py` corrections, no event-schema/payload-shape change); default **NO CROSS-CHECK**; recommendation: record `P3-FEATURE-QG-EVID-05(b): CLOSED — PASS`.
+
+**Fresh independent reproduction (this transaction, local `pytest`, NOT GitHub CI — no CI is attached to this repository at this boundary):** `tests/test_evidence.py` 10/10 passed · `tests/test_historical_authority_resolver.py` 34/34 passed (including the four MAJ-03-specific profile-binding tests) · `tests/test_replay_preparation.py` 14/14 passed · `tests/test_replay_isolation.py` 2/2 passed (EVID-05(a) regression-clean). Full `feature-engine` suite: **305 passed, 0 failed**. Both Review A's recorded disposition and this fresh reproduction agree — per §13.8 fail-closed discipline, disagreement would have stopped this transaction short of recording PASS.
+
+**Result:**
+
+```text
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02/-MAJ-03: CLOSED — REVIEW A VALIDATED.
+P3-FEATURE-QG-EVID-05(b):      CLOSED — PASS.
+P3-FEATURE-QG-EVID-05(a):      SATISFIED (unaffected, unrevisited).
+P3-FEATURE-QG-EVID-05 overall: CLOSED — both parts now SATISFIED/CLOSED — PASS.
+P3-FEATURE-QG-EVID-01/-02/-03: unaffected (EVID-03 remains CLOSED — PASS —
+  REVIEW A VALIDATED, 2026-09-08).
+P3-FEATURE-QG-EVID-04/-06/-07/-08: OPEN / blocking — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected — closing EVID-05
+  overall does not close the overall gate; EVID-04/-06/-07/-08 remain open).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+No Product Owner Approval Gate decision performed or implied by this
+  transaction (Chapter 13 §13.1 — Quality Gate evidence ≠ Approval Gate
+  consumption; same precedent as P3-FEATURE-QG-EVID-03's own closure).
+```
+
+**No scope expansion:** `src/feature_engine/**`, `tests/**`, `tooling/**`, `pyproject.toml`, `requirements-dev.lock.txt`, every ADR, `docs/domain/feature.md`, and all four canonical `v1.0` snapshot artifacts verified byte-unchanged (`git diff --quiet`) before and after this transaction — this transaction is evidence-recording only.
+
+**Next governed step:** a future Chapter 12 §12.2(5) Approval-Gate transaction may consume EVID-01/-02/-03/-05 together once EVID-04/-06/-07/-08 are also resolved — none of those four is addressed here; EVID-04/-08 remain externally blocked on the not-yet-built Decision Engine/Risk Gateway/Execution Engine (`feature-engine-chapter13-remediation-plan-001.md` §1/§6).
+
+**Files changed:** `docs/governance/quality-gate/feature-engine-evid05b-formal-evidence-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/`, `python/feature-engine/tests/`, every ADR, `docs/domain/feature.md`, and the four canonical `v1.0` snapshots all verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.365"` → `"10.366"`.
 
 ## Decision Log
 
