@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.364"
+manifest_version: "10.365"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26556,6 +26556,147 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** none required — Chapter 0 v1.4 is now the current, Locked, fully controlling authority; the review-gate model it documents has been active since the `ADR-042` activation boundary.
 
 **Files changed:** `docs/constitution/00-governance.md` (lifecycle transition, in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.363"` → `"10.364"`.
+
+## ADR-041 canonical v1.0 bootstrap — atomic publication (`Approved`/Published — Genesis Stream Registry v0.2 Approved, three Feature Input Contracts v0.5 realigned, four canonical `v1.0` snapshots Published)
+
+**Atomic bootstrap-publication transaction — vai trò: `ADR-041 Bootstrap Cross-Artifact Atomic Publication Executor`.** Single commit, parent exactly `b72c4f32c704ef3b3935c43739d2be9e1d432a7f`, reviewed semantic source `review/adr041-bootstrap-v1.0-current` @ `5d6039d20ae186e03a5b96bc968b591431d7f15f`, with only authorized deterministic lifecycle/provenance edits folded on top before capturing the four canonical `v1.0` version-snapshot artifacts. Establishes, in this one boundary, the complete coherent `v1.0` authority for the Genesis Stream Registry and all three Feature Input Contracts together — never an intermediate state where only some of the four artifact families carry `v1.0`.
+
+**Fresh boundary verification:** HEAD confirmed exactly `b72c4f32c704ef3b3935c43739d2be9e1d432a7f`, identical to `origin/main`; reviewed candidate confirmed exactly `review/adr041-bootstrap-v1.0-current` @ `5d6039d20ae186e03a5b96bc968b591431d7f15f`, parent exactly current `main` — no drift.
+
+### Governance evidence recorded
+
+```text
+Review A: ChatGPT, AI Technical Architect -- CLEAN.
+Risk Classification: R2 (identity/lifecycle/versioning semantics, cross-module
+  artifact-family coordination, immutable-snapshot publication -- high semantic/
+  architectural risk per ADR-042's own R2 criteria).
+Optional advisory cross-check: CLEAN -- ADVISORY CROSS-CHECK SUPPORTS PRODUCT OWNER
+  DECISION. Advisory only -- NOT Review B, NOT an approval prerequisite, no persisted
+  transcript/execution-ID/Mode A/Mode B bookkeeping (per ADR-042's own optional
+  cross-check semantics).
+Product Owner decision (verbatim): "APPROVE ADR-041 canonical v1.0 bootstrap
+  publication." Recorded 2026-09-11T10:48:31+07:00.
+Accepted non-blocking Minor: stale branch/review provenance wording in the Registry/
+  Input Contract header comments (old `review/adr041-bootstrap-v1.0` branch
+  references, "NOT reviewed"/"PENDING BOUNDED RE-REVIEW" wording, Registry wording
+  claiming Input Contracts untouched) -- corrected mechanically in this same
+  transaction (see Files changed below); not a standalone correction.
+```
+
+### Genesis Stream Registry — final current state
+
+```text
+docs/architecture/stream-registry.yaml: version "0.2", status Draft -> Approved,
+  registry_version v1.0 (unchanged from reviewed candidate). reviewers:
+  [ChatGPT, Claude] -> [ChatGPT] (the actual, sole Review A principal for this
+  decision under the ADR-042 model -- no second review fabricated; the optional
+  advisory cross-check is NOT lifecycle-eligibility bookkeeping, per ADR-042).
+  approved_by: null -> Product Owner. approved_at: null -> 2026-09-11T10:48:31+07:00.
+  last_review: null -> 2026-09-11. All seven streams/topology/writer_authority/
+  sequence_policy/genesis_position byte-for-byte unchanged (verified, yaml.safe_load
+  diff against reviewed candidate). No effective_from, no activation_boundary --
+  remains the Genesis root exception, not a post-Genesis transition.
+Blob: 37a81f7cb9e53b9717711ba094ab13420df9bea5 (reviewed) ->
+  4d67a8c3008231406f2038394fba6a7e98075bf4 (final current, this commit).
+```
+
+### Three Feature Input Contracts — final current state (unchanged lifecycle by design)
+
+```text
+All three remain: version "0.5", status Draft (current/active artifacts stay mutable
+  by ADR-041's own design -- no invented Approved/Published lifecycle for these
+  files; only their version-snapshot captures below are Published/immutable).
+  contract_version: v1.0. stream_registry_version: v1.0. contract_id/
+  included_streams/merge_policy/frontier_policy/causal_closure_policy byte-for-byte
+  unchanged from the reviewed candidate (verified, yaml.safe_load diff).
+feature-candle-input.yaml:          blob 1f8dfbf6b448355469cde2f4430f4364a9db733b
+  (reviewed) -> 8325dde1262530cfce0e110674d1b9444545c019 (final, this commit).
+feature-regime-input.yaml:          blob 4655af94126967916c6c262933b56dedaba5fbdb
+  (reviewed) -> fcb3e033e0aa9fb7756b152d17000f5a585b6d55 (final, this commit).
+feature-swing-distance-input.yaml:  blob 36cf7531ece6709d83adcaf8ef4f337153eca83c
+  (reviewed) -> e3764d4f19a3f1d5e52b763d8383effa96ae986a (final, this commit).
+```
+
+### Four canonical `v1.0` version snapshots — Published, immutable Referenced Authoritative Artifacts (ADR-041)
+
+```text
+docs/architecture/stream-registry-versions/v1.0.yaml:
+  blob 4d67a8c3008231406f2038394fba6a7e98075bf4 -- byte-identical to
+  docs/architecture/stream-registry.yaml at this exact commit (verified,
+  git hash-object equality). No snapshot-only fields/comments/status flags added --
+  literal byte-for-byte capture per ADR-041's exact-byte rule.
+docs/architecture/input-contract-versions/feature-candle-input/v1.0.yaml:
+  blob 8325dde1262530cfce0e110674d1b9444545c019 -- byte-identical to
+  docs/architecture/input-contracts/feature-candle-input.yaml at this exact commit.
+docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml:
+  blob fcb3e033e0aa9fb7756b152d17000f5a585b6d55 -- byte-identical to
+  docs/architecture/input-contracts/feature-regime-input.yaml at this exact commit.
+docs/architecture/input-contract-versions/feature-swing-distance-input/v1.0.yaml:
+  blob e3764d4f19a3f1d5e52b763d8383effa96ae986a -- byte-identical to
+  docs/architecture/input-contracts/feature-swing-distance-input.yaml at this exact
+  commit.
+Publication/immutability authority: canonical snapshot path + ADR-041 + this
+  MANIFEST record + Chapter 11 §11.3-style immutable-after-publication discipline
+  (reused by citation, ADR-041's own Decision) -- these four files are frozen
+  byte-for-byte from this commit forward. No `*/v1.0.yaml` snapshot existed anywhere
+  in the repository before this transaction (verified via `find` before mutation).
+```
+
+### Test file
+
+```text
+python/feature-engine/tests/test_authority_resolver.py: blob
+  386ae3c17e69738bb3a28a25663aebe0a635a83b (reviewed candidate and final, unchanged
+  by this transaction's lifecycle edits). Only the two real-repository positive
+  resolution assertions (test_real_swing_distance_authority_resolves_successfully,
+  test_real_regime_authority_resolves_successfully) expect "v1.0"; tmp_path fixture
+  defaults, negative-test literals, and the unrelated Event Contract fixture
+  untouched. Full feature-engine suite: 262 passed, 0 failed (fresh run, this
+  transaction).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed/created: docs/architecture/stream-registry.yaml (lifecycle transition +
+  provenance cleanup, in place); docs/architecture/input-contracts/
+  feature-candle-input.yaml, feature-regime-input.yaml,
+  feature-swing-distance-input.yaml (provenance cleanup only, no semantic/lifecycle
+  field change beyond what the reviewed candidate already carried);
+  python/feature-engine/tests/test_authority_resolver.py (unchanged from reviewed
+  candidate); docs/architecture/stream-registry-versions/v1.0.yaml (new);
+  docs/architecture/input-contract-versions/feature-candle-input/v1.0.yaml (new);
+  docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml (new);
+  docs/architecture/input-contract-versions/feature-swing-distance-input/v1.0.yaml
+  (new); docs/MANIFEST.md; docs/CHANGELOG.md only. docs/adr/ADR-041.md,
+  docs/adr/ADR-040.md, every Locked Constitution chapter, Global Execution Rules,
+  Phase-3 Rules, and python/feature-engine/src/ all verified byte-unchanged
+  (git diff --quiet). No phase transition, no module approval, no LIVE
+  authorization.
+```
+
+### State summary
+
+```text
+Genesis Stream Registry current authoritative state: v0.2, Approved, registry_version
+  v1.0.
+Three Feature Input Contracts current authoritative state: v0.5, Draft (unchanged
+  lifecycle by design), contract_version v1.0, stream_registry_version v1.0.
+Four v1.0 version-snapshot artifacts: Published, immutable, byte-identical to their
+  current counterparts at this commit.
+P3-FEATURE-EVID05B-IMPL-A-MAJ-01/-MAJ-02: OPEN — unaffected, not closed by this
+  transaction.
+P3-FEATURE-QG-EVID-05(b):       OPEN — unaffected.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+ADR-041/ADR-040:                Approved, immutable, byte-unchanged.
+```
+
+**Next governed step:** the follow-on work already named in `ADR-041`'s own Consequences — `feature-engine`'s own `prepare_replay_evidence()` correction resolving `P3-FEATURE-EVID05B-IMPL-A-MAJ-02` against this newly-available canonical-snapshot authority, alongside `P3-FEATURE-EVID05B-IMPL-A-MAJ-01`'s independent-per-`contract_id` fix, followed by a bounded Review-A re-review closing both findings and, if warranted, `P3-FEATURE-QG-EVID-05(b)` — none performed by this transaction.
+
+**Files changed:** `docs/architecture/stream-registry.yaml`, `docs/architecture/input-contracts/feature-candle-input.yaml`, `docs/architecture/input-contracts/feature-regime-input.yaml`, `docs/architecture/input-contracts/feature-swing-distance-input.yaml`, `docs/architecture/stream-registry-versions/v1.0.yaml` (new), `docs/architecture/input-contract-versions/feature-candle-input/v1.0.yaml` (new), `docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml` (new), `docs/architecture/input-contract-versions/feature-swing-distance-input/v1.0.yaml` (new), `python/feature-engine/tests/test_authority_resolver.py`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; all other repository artifacts verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.364"` → `"10.365"`.
 
 ## Decision Log
 

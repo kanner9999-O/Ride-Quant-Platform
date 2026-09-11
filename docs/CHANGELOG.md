@@ -2,6 +2,22 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-11 — feature-engine: ADR-041 canonical `v1.0` bootstrap — atomic publication (Genesis Stream Registry v0.2 `Approved`; three Feature Input Contracts realigned to `v1.0`; four canonical `v1.0` snapshots Published)
+
+**Atomic bootstrap-publication transaction — vai trò: `ADR-041 Bootstrap Cross-Artifact Atomic Publication Executor`.** Single commit, parent exactly `b72c4f32c704ef3b3935c43739d2be9e1d432a7f`, reviewed semantic source `review/adr041-bootstrap-v1.0-current` @ `5d6039d20ae186e03a5b96bc968b591431d7f15f`. Establishes the complete coherent `v1.0` authority for the Genesis Stream Registry and all three Feature Input Contracts together, in one boundary — never an intermediate state where only some of the four artifact families carry `v1.0`.
+
+**Review A** (ChatGPT): CLEAN. **Risk Classification:** R2 (identity/lifecycle/versioning semantics, cross-module coordination, immutable-snapshot publication). **Optional advisory cross-check:** CLEAN — advisory only, not Review B, not an approval prerequisite, no persisted transcript/execution-ID/Mode A/Mode B bookkeeping. **Product Owner decision (verbatim):** "APPROVE ADR-041 canonical v1.0 bootstrap publication." — recorded `2026-09-11T10:48:31+07:00`. Accepted non-blocking Minor (stale branch/review provenance wording in the Registry/Input Contract header comments) corrected mechanically in this same transaction.
+
+**Genesis Stream Registry:** `version "0.2"`, `status: Draft → Approved`, `registry_version: v1.0` (unchanged). `reviewers: [ChatGPT, Claude] → [ChatGPT]` (the actual, sole Review A principal — no second review fabricated). `approved_by → Product Owner`, `approved_at → 2026-09-11T10:48:31+07:00`, `last_review → 2026-09-11`. All seven streams/topology/writer authority/sequence policy/genesis position byte-for-byte unchanged. No `effective_from`/`activation_boundary` — remains the Genesis root exception.
+
+**Three Feature Input Contracts:** `version "0.5"`, `status: Draft` (unchanged by design — ADR-041 keeps current/active artifacts mutable; only their snapshots are Published). `contract_version: v1.0`, `stream_registry_version: v1.0`. `contract_id`/`included_streams`/`merge_policy`/`frontier_policy`/`causal_closure_policy` byte-for-byte unchanged.
+
+**Four canonical `v1.0` version snapshots created — Published, immutable Referenced Authoritative Artifacts (ADR-041), each byte-identical to its current counterpart at this commit (verified via `git hash-object` equality):** `docs/architecture/stream-registry-versions/v1.0.yaml`; `docs/architecture/input-contract-versions/feature-candle-input/v1.0.yaml`; `docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml`; `docs/architecture/input-contract-versions/feature-swing-distance-input/v1.0.yaml`. No snapshot-only fields/comments/status flags added. No snapshot existed anywhere in the repository before this transaction.
+
+**Tests:** `python/feature-engine/tests/test_authority_resolver.py` unchanged from reviewed candidate — only the two real-repository positive resolution assertions expect `v1.0`; fixtures/negative-test literals/Event Contract fixture untouched. Full `feature-engine` suite: **262 passed, 0 failed**.
+
+**Files changed:** `docs/architecture/stream-registry.yaml`, the three `docs/architecture/input-contracts/*.yaml` files, `python/feature-engine/tests/test_authority_resolver.py`, four new `*/v1.0.yaml` snapshot files, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `docs/adr/ADR-041.md`, `docs/adr/ADR-040.md`, Constitution/governance, `python/feature-engine/src/`, Feature QG/module approval, Phase 3 Approval Gate, and LIVE all untouched — no phase transition, no LIVE authorization. `manifest_version` `"10.364"` → `"10.365"`.
+
 ## [Unreleased] — 2026-09-11 — platform: Chapter 0 v1.4 `Approved`/`Locked` — `POST-ADR042-A-MAJ-01` mechanical approval (first decision under the ACTIVE `ADR-042` review-gate model); MANIFEST Chapter 11/12 tracking reconciled
 
 **Mechanical approval/current-state recording transaction — vai trò: `Chapter 0 v1.4 Mechanical Approval Recorder`.** Records Review A's CLEAN verdict and the Product Owner's `APPROVE` decision — `docs/constitution/00-governance.md` `Draft v1.4 → Locked`. No semantic redesign; §3 review-gate content byte-unchanged from the reviewed candidate.
