@@ -15,8 +15,8 @@ import pytest
 from conftest import REGIME_INPUT_CONTRACT
 
 from feature_engine import InputContractRef, resolve_historical_input_contract_authority_from_repository
-from feature_engine.contracts import VerifiedInputContractAuthority
-from feature_engine.errors import UnresolvedComputationCursorAuthorityError
+from feature_engine.contracts import InputMergePolicy, VerifiedInputContractAuthority
+from feature_engine.errors import UnresolvedComputationCursorAuthorityError, UnsupportedMergePolicyError
 
 _DEFAULT_INCLUDED_STREAMS = ("raw-regime-engine-regime",)
 _DEFAULT_REGISTRY_STREAM_IDS = (
@@ -66,6 +66,10 @@ stream_registry_version: {contract_registry_ref}
 
 included_streams:
 {included_block}
+
+merge_policy:
+  algorithm: deterministic-causal-topological-order
+  concurrent_tie_break: [stream_id, sequence]
 """,
         )
     if write_registry:
@@ -374,6 +378,77 @@ def test_missing_registry_version_field_in_snapshot_fails_closed(tmp_path: Path)
     path = repo / "docs/architecture/stream-registry-versions/v1.0.yaml"
     path.write_text(path.read_text().replace("registry_version: v1.0\n", ""))
     with pytest.raises(UnresolvedComputationCursorAuthorityError, match="did not resolve a complete"):
+        resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile="regime",
+            input_contract_ref=InputContractRef("feature-regime-input", "v1.0"),
+            stream_registry_version="v1.0",
+            repo_root=repo,
+        )
+
+
+# --- ADR043-IMPLDESIGN-A-MAJ-04: pinned-snapshot merge_policy resolution ---
+
+
+def test_real_regime_v1_0_snapshot_carries_supported_merge_policy() -> None:
+    """The real, immutable ADR-041 `feature-regime-input/v1.0.yaml` snapshot
+    already declares `merge_policy` — the historical resolver must carry it
+    through as a genuine `InputMergePolicy`.
+    """
+    resolved = resolve_historical_input_contract_authority_from_repository(
+        feature_computation_profile="regime",
+        input_contract_ref=InputContractRef("feature-regime-input", "v1.0"),
+        stream_registry_version="v1.0",
+    )
+    assert resolved.merge_policy == InputMergePolicy(
+        algorithm="deterministic-causal-topological-order", concurrent_tie_break=("stream_id", "sequence")
+    )
+
+
+def test_historical_resolver_never_substitutes_current_merge_policy(tmp_path: Path) -> None:
+    """The pinned snapshot's own `merge_policy` is what the historical
+    resolver returns — proven here by pointing `repo_root` at a fabricated
+    tree that has ONLY the pinned snapshot files and no current/mutable
+    `docs/architecture/input-contracts/*.yaml` at all; resolution still
+    succeeds using only the snapshot's own bytes, with no "fall back to
+    current" path that could even be reached.
+    """
+    repo = _write_fake_snapshot_repo(tmp_path)
+    resolved = resolve_historical_input_contract_authority_from_repository(
+        feature_computation_profile="regime",
+        input_contract_ref=InputContractRef("feature-regime-input", "v1.0"),
+        stream_registry_version="v1.0",
+        repo_root=repo,
+    )
+    assert resolved.merge_policy == InputMergePolicy(
+        algorithm="deterministic-causal-topological-order", concurrent_tie_break=("stream_id", "sequence")
+    )
+    assert not (repo / "docs/architecture/input-contracts").exists()
+
+
+def test_missing_merge_policy_in_snapshot_fails_closed(tmp_path: Path) -> None:
+    repo = _write_fake_snapshot_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml"
+    text = contract_path.read_text()
+    merge_policy_start = text.index("merge_policy:")
+    contract_path.write_text(text[:merge_policy_start])
+    with pytest.raises(UnsupportedMergePolicyError, match="does not declare a complete"):
+        resolve_historical_input_contract_authority_from_repository(
+            feature_computation_profile="regime",
+            input_contract_ref=InputContractRef("feature-regime-input", "v1.0"),
+            stream_registry_version="v1.0",
+            repo_root=repo,
+        )
+
+
+def test_unsupported_merge_policy_in_snapshot_fails_closed(tmp_path: Path) -> None:
+    repo = _write_fake_snapshot_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contract-versions/feature-regime-input/v1.0.yaml"
+    contract_path.write_text(
+        contract_path.read_text().replace(
+            "algorithm: deterministic-causal-topological-order", "algorithm: some-other-algorithm"
+        )
+    )
+    with pytest.raises(UnsupportedMergePolicyError, match="does not support"):
         resolve_historical_input_contract_authority_from_repository(
             feature_computation_profile="regime",
             input_contract_ref=InputContractRef("feature-regime-input", "v1.0"),

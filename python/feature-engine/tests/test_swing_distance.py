@@ -1412,6 +1412,7 @@ def test_invented_resolved_input_contract_without_content_identity_fails_closed(
             included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
             input_contract_content_id="",
             stream_registry_content_id="",
+            merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
         )
 
 
@@ -1424,6 +1425,7 @@ def test_empty_input_contract_content_id_fails_closed() -> None:
             included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
             input_contract_content_id="",
             stream_registry_content_id=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id,
+            merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
         )
 
 
@@ -1436,6 +1438,7 @@ def test_empty_stream_registry_content_id_fails_closed() -> None:
             included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
             input_contract_content_id=SWING_DISTANCE_INPUT_CONTRACT.input_contract_content_id,
             stream_registry_content_id="",
+            merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
         )
 
 
@@ -1452,6 +1455,7 @@ def test_fabricated_input_contract_content_id_fails_closed() -> None:
             included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
             input_contract_content_id="fabricated",
             stream_registry_content_id=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id,
+            merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
         )
 
 
@@ -1468,6 +1472,7 @@ def test_wrong_length_hex_content_id_fails_closed() -> None:
             included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
             input_contract_content_id="a" * 63,
             stream_registry_content_id=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id,
+            merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
         )
 
 
@@ -1487,6 +1492,7 @@ def test_input_contract_ref_missing_version_fails_closed() -> None:
             included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
             input_contract_content_id=SWING_DISTANCE_INPUT_CONTRACT.input_contract_content_id,
             stream_registry_content_id=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id,
+            merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
         )
 
 
@@ -1499,6 +1505,7 @@ def test_empty_stream_registry_version_fails_closed() -> None:
             included_streams=SWING_DISTANCE_INPUT_CONTRACT.included_streams,
             input_contract_content_id=SWING_DISTANCE_INPUT_CONTRACT.input_contract_content_id,
             stream_registry_content_id=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id,
+            merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
         )
 
 
@@ -1511,6 +1518,7 @@ def test_empty_included_streams_fails_closed() -> None:
             included_streams=frozenset(),
             input_contract_content_id=SWING_DISTANCE_INPUT_CONTRACT.input_contract_content_id,
             stream_registry_content_id=SWING_DISTANCE_INPUT_CONTRACT.stream_registry_content_id,
+            merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
         )
 
 

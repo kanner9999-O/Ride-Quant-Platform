@@ -12,8 +12,12 @@ from feature_engine.authority_resolver import (
     _find_repo_root,
     resolve_input_contract_authority_from_repository,
 )
-from feature_engine.contracts import VerifiedInputContractAuthority
-from feature_engine.errors import InputContractIdentityMismatchError, UnresolvedComputationCursorAuthorityError
+from feature_engine.contracts import InputMergePolicy, VerifiedInputContractAuthority
+from feature_engine.errors import (
+    InputContractIdentityMismatchError,
+    UnresolvedComputationCursorAuthorityError,
+    UnsupportedMergePolicyError,
+)
 
 _DEFAULT_SWING_INCLUDED_STREAMS = ("market-data-ingestion-candle", "structure-engine-swing")
 _DEFAULT_REGISTRY_STREAM_IDS = (
@@ -66,6 +70,7 @@ included_streams:
 
 merge_policy:
   algorithm: deterministic-causal-topological-order
+  concurrent_tie_break: [stream_id, sequence]
 """
     _write(tmp_path / "docs/architecture/input-contracts/feature-swing-distance-input.yaml", contract_yaml)
 
@@ -363,3 +368,88 @@ def test_static_provider_resolve_raises_for_mismatched_profile() -> None:
     provider = StaticInputContractAuthorityProvider(SWING_DISTANCE_INPUT_CONTRACT)
     with pytest.raises(InputContractIdentityMismatchError):
         provider.resolve(REGIME_INPUT_CONTRACT.feature_computation_profile)
+
+
+# --- ADR043-IMPLDESIGN-A-MAJ-04: merge_policy resolution --------------------
+
+
+def test_real_swing_distance_authority_carries_supported_merge_policy() -> None:
+    """The real, current `feature-swing-distance-input.yaml` artifact
+    already declares `merge_policy` — the resolver must carry it through as
+    a genuine `InputMergePolicy`, exactly the supported combination this
+    Feature implementation validates.
+    """
+    resolved = resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing")
+    assert resolved.merge_policy == InputMergePolicy(
+        algorithm="deterministic-causal-topological-order", concurrent_tie_break=("stream_id", "sequence")
+    )
+
+
+def test_missing_merge_policy_block_fails_closed(tmp_path: Path) -> None:
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    text = contract_path.read_text()
+    merge_policy_start = text.index("merge_policy:")
+    contract_path.write_text(text[:merge_policy_start])
+    with pytest.raises(UnsupportedMergePolicyError, match="does not declare a complete"):
+        resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+
+
+def test_merge_policy_missing_tie_break_fails_closed(tmp_path: Path) -> None:
+    """`_write_fake_repo`'s own fixture declares `algorithm:` but omits
+    `concurrent_tie_break:` entirely (a genuinely incomplete block) — the
+    default fixture itself already exercises this malformed shape.
+    """
+    repo = tmp_path
+    _write(repo / "docs" / "MARKER.md", "marker file, only used to anchor repo-root discovery")
+    included_block = "\n".join(f"  - {s}" for s in _DEFAULT_SWING_INCLUDED_STREAMS)
+    _write(
+        repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml",
+        f"""# TEST FIXTURE ONLY -- not a real Input Contract artifact.
+input_contract_ref:
+  contract_id: feature-swing-distance-input
+  contract_version: v1
+
+stream_registry_version: v1
+
+included_streams:
+{included_block}
+
+merge_policy:
+  algorithm: deterministic-causal-topological-order
+""",
+    )
+    streams_block = "\n".join(f"  - stream_id: {s}\n    status: active" for s in _DEFAULT_REGISTRY_STREAM_IDS)
+    _write(
+        repo / "docs/architecture/stream-registry.yaml",
+        f"""registry_version: v1
+
+streams:
+{streams_block}
+""",
+    )
+    with pytest.raises(UnsupportedMergePolicyError, match="does not declare a complete"):
+        resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+
+
+def test_unsupported_merge_algorithm_fails_closed(tmp_path: Path) -> None:
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    contract_path.write_text(
+        contract_path.read_text().replace(
+            "algorithm: deterministic-causal-topological-order", "algorithm: some-other-unimplemented-algorithm"
+        )
+        + "  concurrent_tie_break: [stream_id, sequence]\n"
+    )
+    with pytest.raises(UnsupportedMergePolicyError, match="does not support"):
+        resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)
+
+
+def test_unsupported_merge_tie_break_fails_closed(tmp_path: Path) -> None:
+    repo = _write_fake_repo(tmp_path)
+    contract_path = repo / "docs/architecture/input-contracts/feature-swing-distance-input.yaml"
+    contract_path.write_text(
+        contract_path.read_text() + "  concurrent_tie_break: [recorded_time, event_id]\n"
+    )
+    with pytest.raises(UnsupportedMergePolicyError, match="does not support"):
+        resolve_input_contract_authority_from_repository("distance_to_last_confirmed_swing", repo_root=repo)

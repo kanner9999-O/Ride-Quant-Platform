@@ -657,6 +657,7 @@ def test_empty_regime_content_id_fails_closed_via_resolver_factory() -> None:
             included_streams=REGIME_INPUT_CONTRACT.included_streams,
             input_contract_content_id="",
             stream_registry_content_id=REGIME_INPUT_CONTRACT.stream_registry_content_id,
+            merge_policy=REGIME_INPUT_CONTRACT.merge_policy,
         )
 
 

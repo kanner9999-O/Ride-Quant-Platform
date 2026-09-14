@@ -10,7 +10,8 @@ from feature_engine import (
     EventRecordRef,
     InvalidFeatureDefinitionError,
 )
-from feature_engine.contracts import is_visible_at_cursor
+from feature_engine.contracts import InputMergePolicy, is_visible_at_cursor
+from feature_engine.errors import UnsupportedMergePolicyError
 
 # Direct unit tests of `resolve_output_event_contract_authority_from_repository`
 # (ADR-039/ADR-040 remediation, supersedes the earlier `resolve_output_contract_refs`
@@ -88,3 +89,24 @@ def test_decimal_precision_policy_digits_zero_is_valid_boundary() -> None:
 def test_decimal_precision_policy_invalid_rounding_mode_rejected() -> None:
     with pytest.raises(InvalidFeatureDefinitionError):
         DecimalPrecisionPolicy(digits=2, rounding="NOT_A_REAL_MODE")
+
+
+# --- ADR043-IMPLDESIGN-A-MAJ-04: InputMergePolicy structural validation -----
+
+
+def test_input_merge_policy_rejects_empty_algorithm() -> None:
+    with pytest.raises(UnsupportedMergePolicyError):
+        InputMergePolicy(algorithm="", concurrent_tie_break=("stream_id", "sequence"))
+
+
+def test_input_merge_policy_rejects_empty_concurrent_tie_break() -> None:
+    with pytest.raises(UnsupportedMergePolicyError):
+        InputMergePolicy(algorithm="deterministic-causal-topological-order", concurrent_tie_break=())
+
+
+def test_input_merge_policy_accepts_well_formed_value() -> None:
+    policy = InputMergePolicy(
+        algorithm="deterministic-causal-topological-order", concurrent_tie_break=("stream_id", "sequence")
+    )
+    assert policy.algorithm == "deterministic-causal-topological-order"
+    assert policy.concurrent_tie_break == ("stream_id", "sequence")

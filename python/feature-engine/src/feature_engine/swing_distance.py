@@ -125,6 +125,9 @@ from .contracts import (
     FeatureScope,
     InputContractAuthorityProvider,
     OutputEventContractAuthorityProvider,
+    PreparedFeatureComputed,
+    PreparedFeatureFactInvalidated,
+    PreparedTransition,
     RecordedTimeSource,
     VerifiedInputContractAuthority,
     VerifiedOutputEventContractAuthority,
@@ -151,6 +154,7 @@ from .errors import (
     UnresolvedOutputContractAuthorityError,
     UnsupportedDistanceRepresentationError,
 )
+from .ownership import UpstreamEnvelope
 from .publish import SequenceAllocator
 from .swing_input import SwingConfirmedFact, SwingInvalidatedFact
 
@@ -458,6 +462,14 @@ class SwingDistanceFeatureEngine:
         every window once this fact becomes visible — never implicitly
         derived from `fact.recorded_time`.
 
+        Direct, non-authoritative call: prepares AND immediately live-
+        commits each resulting window batch with self-allocated refs
+        (ADR-043 §G) — the same behavior/output this method has always
+        had. The authoritative (owned) path instead calls
+        `prepare_swing_confirmed` directly and drives commit/reconcile
+        through `ownership.py`'s `AuthoritativeSubjectOwner`/
+        `FencedFeatureCommitter`.
+
         Review-A round-2 residual 2: `cursor` is fully certified against this
         engine's own bound authority BEFORE any state mutation below — a
         rejected frontier leaves `_swing_confirmations`/`_swing_invalidations`/
@@ -465,6 +477,46 @@ class SwingDistanceFeatureEngine:
         event retried later with a valid frontier is processed exactly as if
         the rejected attempt had never happened (no sequence/ref allocation,
         no dedup/lineage state, is committed by a rejected transaction).
+        """
+        prepared_list = self.prepare_swing_confirmed(fact, cursor=cursor)
+        events: list[FeatureEvent] = []
+        for prepared in prepared_list:
+            events.extend(self._commit_live(prepared))
+        return events
+
+    def on_swing_invalidated(
+        self, invalidation: SwingInvalidatedFact, *, cursor: EvaluationFrontier
+    ) -> list[FeatureEvent]:
+        """`cursor` is the explicit, caller-certified `EvaluationFrontier`
+        (P3-FEATURE-A-MAJ-06) used to immediately reattempt the
+        just-invalidated window — never implicitly derived from
+        `invalidation.recorded_time`.
+
+        Direct, non-authoritative call: prepares AND immediately live-
+        commits each resulting window batch with self-allocated refs
+        (ADR-043 §G) — see `on_swing_confirmed`'s own docstring.
+
+        Review-A round-2 residual 2: `cursor` is fully certified against this
+        engine's own bound authority BEFORE `_swing_invalidations` is
+        mutated — a rejected frontier leaves the targeted revision's
+        non-invalidated state untouched, so a valid retry of the exact same
+        invalidation is processed normally.
+        """
+        prepared_list = self.prepare_swing_invalidated(invalidation, cursor=cursor)
+        events: list[FeatureEvent] = []
+        for prepared in prepared_list:
+            events.extend(self._commit_live(prepared))
+        return events
+
+    def prepare_swing_confirmed(
+        self, fact: SwingConfirmedFact, *, cursor: EvaluationFrontier
+    ) -> list[PreparedTransition]:
+        """ADR-043 prepare seam: identical validation/candidate-computation
+        logic as `on_swing_confirmed` used to perform inline, but stops
+        BEFORE allocating any Feature `ref` or mutating `_lineage` — returns
+        zero, one, or several independent per-window `PreparedTransition`
+        batches (one Swing confirmation may resolve/preempt several
+        windows at once).
         """
         self._resolve_cursor(cursor)
         if (
@@ -537,21 +589,13 @@ class SwingDistanceFeatureEngine:
         # at the time it was invalidated, AND may preempt a window that already
         # settled on a lower-priority alternate Swing — re-evaluate every window
         # with a lineage entry now that this revision is visible.
-        return self._reevaluate_all_windows(cursor)
+        return self._prepare_reevaluate_all_windows(cursor)
 
-    def on_swing_invalidated(
+    def prepare_swing_invalidated(
         self, invalidation: SwingInvalidatedFact, *, cursor: EvaluationFrontier
-    ) -> list[FeatureEvent]:
-        """`cursor` is the explicit, caller-certified `EvaluationFrontier`
-        (P3-FEATURE-A-MAJ-06) used to immediately reattempt the
-        just-invalidated window — never implicitly derived from
-        `invalidation.recorded_time`.
-
-        Review-A round-2 residual 2: `cursor` is fully certified against this
-        engine's own bound authority BEFORE `_swing_invalidations` is
-        mutated — a rejected frontier leaves the targeted revision's
-        non-invalidated state untouched, so a valid retry of the exact same
-        invalidation is processed normally.
+    ) -> list[PreparedTransition]:
+        """ADR-043 prepare seam — see `prepare_swing_confirmed`'s own
+        docstring.
         """
         self._resolve_cursor(cursor)
         existing = self._latest_confirmation(invalidation.swing_id)
@@ -575,14 +619,54 @@ class SwingDistanceFeatureEngine:
             revision=invalidation.swing_revision, recorded_time=invalidation.recorded_time, ref=invalidation.ref
         )
 
-        events: list[FeatureEvent] = []
+        prepared_list: list[PreparedTransition] = []
         for key, lineage in list(self._lineage.items()):
             if lineage.invalidated or lineage.used_swing_ref != invalidated_ref:
                 continue
-            events.extend(
-                self._invalidate_and_reattempt(key, lineage, invalidation.ref, invalidation.recorded_time, cursor)
+            prepared_list.append(
+                self._prepare_invalidate_and_reattempt(
+                    key, lineage, invalidation.ref, invalidation.recorded_time, cursor
+                )
             )
-        return events
+        return prepared_list
+
+    def prepare_upstream_event(
+        self, envelope: UpstreamEnvelope, *, cursor: EvaluationFrontier
+    ) -> list[PreparedTransition]:
+        """ADR-043 §D/§9: the one dispatch seam `ownership.py`'s
+        `AuthoritativeSubjectOwner` uses to prepare a certified upstream
+        event through this engine, keyed by `envelope.kind` — never
+        allocating a Feature ref or mutating `_lineage` itself.
+        """
+        if envelope.kind == "candle":
+            if not isinstance(envelope.fact, CandleFact):
+                raise TypeError(f"envelope.kind='candle' but fact is {type(envelope.fact).__name__!r}")
+            prepared = self.prepare_candle(envelope.fact, cursor=cursor)
+            return [prepared] if prepared is not None else []
+        if envelope.kind == "swing_confirmed":
+            if not isinstance(envelope.fact, SwingConfirmedFact):
+                raise TypeError(f"envelope.kind='swing_confirmed' but fact is {type(envelope.fact).__name__!r}")
+            return self.prepare_swing_confirmed(envelope.fact, cursor=cursor)
+        if envelope.kind == "swing_invalidated":
+            if not isinstance(envelope.fact, SwingInvalidatedFact):
+                raise TypeError(f"envelope.kind='swing_invalidated' but fact is {type(envelope.fact).__name__!r}")
+            return self.prepare_swing_invalidated(envelope.fact, cursor=cursor)
+        raise ValueError(
+            f"SwingDistanceFeatureEngine.prepare_upstream_event: unsupported envelope.kind {envelope.kind!r}"
+        )
+
+    def _commit_live(self, prepared: PreparedTransition) -> list[FeatureEvent]:
+        """The direct, non-authoritative `on_*` path's own commit: allocate
+        real refs immediately (self._allocator, unchanged from before this
+        seam existed) and apply the resulting lineage mutation right away —
+        never used by the authoritative owner path, which drives
+        `FencedFeatureCommitter` instead (ADR-043 §B/"Atomicity and
+        emission").
+        """
+        refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)
+        finalized = prepared.finalize_live(refs)
+        prepared.apply_to_lineage(finalized)
+        return list(finalized)
 
     # -- Candle ingestion ---------------------------------------------------
 
@@ -594,6 +678,10 @@ class SwingDistanceFeatureEngine:
         choose to set `cursor.recorded_time = fact.recorded_time` explicitly,
         but that is a caller decision, never an engine default.
 
+        Direct, non-authoritative call: prepares AND immediately live-
+        commits with a self-allocated ref (ADR-043 §G) — see
+        `on_swing_confirmed`'s own docstring.
+
         Review-A round-2 residual 2: `cursor` is fully certified against this
         engine's own bound authority BEFORE `_candles`/`_candle_index`/
         `_candle_by_window`/`_last_candle_recorded_time` are mutated — a
@@ -603,6 +691,15 @@ class SwingDistanceFeatureEngine:
         this specific call will end up producing no Feature output at all
         (e.g. no eligible Swing) — the frontier is the certified computation
         frontier for THIS operation regardless of what it ultimately yields.
+        """
+        prepared = self.prepare_candle(fact, cursor=cursor)
+        if prepared is None:
+            return []
+        return self._commit_live(prepared)
+
+    def prepare_candle(self, fact: CandleFact, *, cursor: EvaluationFrontier) -> PreparedTransition | None:
+        """ADR-043 prepare seam — see `prepare_swing_confirmed`'s own
+        docstring.
         """
         self._resolve_cursor(cursor)
         self._check_candle_scope(fact)
@@ -620,7 +717,7 @@ class SwingDistanceFeatureEngine:
                     raise EvidenceReferenceConflictError(
                         f"candle ref {fact.ref!r} resolves to conflicting content ({existing!r} vs {fact!r})"
                     )
-                return []  # duplicate delivery of the identical authoritative event
+                return None  # duplicate delivery of the identical authoritative event
             if not fact.is_correction:
                 raise DuplicateCandleConflictError(
                     f"candle {subject_id!r} resubmitted with a different ref but is_correction=False"
@@ -631,7 +728,7 @@ class SwingDistanceFeatureEngine:
             self._check_candle_recorded_time(fact.recorded_time)
             self._candles[existing_index] = fact
             self._candle_by_window[(fact.scope.window_start, fact.scope.window_end)] = fact
-            return self._recompute(
+            return self._prepare_recompute(
                 fact, correction_ref=fact.ref, correction_recorded_time=fact.recorded_time, cursor=cursor
             )
 
@@ -646,7 +743,7 @@ class SwingDistanceFeatureEngine:
         self._candles.append(fact)
         self._candle_index[subject_id] = len(self._candles) - 1
         self._candle_by_window[(fact.scope.window_start, fact.scope.window_end)] = fact
-        return self._recompute(fact, correction_ref=None, correction_recorded_time=None, cursor=cursor)
+        return self._prepare_recompute(fact, correction_ref=None, correction_recorded_time=None, cursor=cursor)
 
     # -- eligible-swing selection (feature.md §9a) --------------------------
 
@@ -705,31 +802,31 @@ class SwingDistanceFeatureEngine:
 
     # -- computation orchestration -------------------------------------------
 
-    def _recompute(
+    def _prepare_recompute(
         self,
         candle: CandleFact,
         *,
         correction_ref: EventRecordRef | None,
         correction_recorded_time: datetime | None,
         cursor: EvaluationFrontier,
-    ) -> list[FeatureEvent]:
+    ) -> PreparedTransition | None:
         key = (candle.scope.window_start, candle.scope.window_end)
         winner = self._select_eligible_swing(candle.scope.window_end, cursor)
         existing = self._lineage.get(key)
 
         if winner is None:
-            return []  # valid absence — no eligible Swing
+            return None  # valid absence — no eligible Swing
 
         swing_id, state = winner
 
         if existing is None:
-            return self._emit_original(key, candle, swing_id, state, cursor)
+            return self._prepare_original(key, candle, swing_id, state, cursor)
 
         if not existing.invalidated:
             # Reaching here means an unchanged lineage already exists for this exact window and this
             # call is a genuine candle correction (feature.md §3: no shortcut, even if value is unchanged).
             assert correction_ref is not None and correction_recorded_time is not None
-            return self._invalidate_and_replace(
+            return self._prepare_invalidate_and_replace(
                 key,
                 candle,
                 swing_id,
@@ -744,24 +841,24 @@ class SwingDistanceFeatureEngine:
         # because the reference Candle itself is also being corrected right now.
         assert existing.pending_invalidation_ref is not None
         assert existing.pending_invalidation_recorded_time is not None
-        return self._emit_replacement_only(
+        return self._prepare_replacement_only(
             key,
             candle,
             swing_id,
             state,
-            existing.pending_invalidation_ref,
-            existing.pending_invalidation_recorded_time,
-            cursor,
+            invalidation_recorded_time=existing.pending_invalidation_recorded_time,
+            invalidation_ref=existing.pending_invalidation_ref,
+            cursor=cursor,
         )
 
-    def _emit_original(
+    def _prepare_original(
         self,
         key: tuple[datetime, datetime],
         candle: CandleFact,
         swing_id: str,
         state: _SwingState,
         cursor: EvaluationFrontier,
-    ) -> list[FeatureEvent]:
+    ) -> PreparedTransition:
         normalized_refs = self._normalize_evidence(candle, state.ref, state.pivot_effective_time)
         # Chapter 8 §8.5.2 Cursor -> Fact: the emitted recorded_time floor includes
         # cursor.recorded_time, structurally guaranteeing computation_cursor.recorded_time
@@ -769,7 +866,7 @@ class SwingDistanceFeatureEngine:
         floor = max(candle.recorded_time, state.recorded_time, cursor.recorded_time)
         recorded_time = self._next_recorded_time(floor)
         value = self._compute_distance(candle, state)
-        fact = FeatureComputed(
+        prepared = PreparedFeatureComputed(
             scope=self.scope,
             value=value,
             unit=self.definition.unit,
@@ -778,62 +875,41 @@ class SwingDistanceFeatureEngine:
             input_fact_refs=normalized_refs,
             supersedes_fact_ref=None,
             causation_refs=normalized_refs,
+            preceding_batch_invalidation_causation=False,
             recorded_time=recorded_time,
-            ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._output_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
         )
-        self._lineage[key] = _WindowLineage(
-            head_fact=fact, invalidated=False, used_swing_id=swing_id, used_swing_ref=state.ref
-        )
-        return [fact]
 
-    def _invalidate_and_replace(
-        self,
-        key: tuple[datetime, datetime],
-        candle: CandleFact,
-        swing_id: str,
-        state: _SwingState,
-        existing: _WindowLineage,
-        *,
-        correction_ref: EventRecordRef,
-        correction_recorded_time: datetime,
-        cursor: EvaluationFrontier,
-    ) -> list[FeatureEvent]:
-        invalidation_floor = max(existing.head_fact.recorded_time, correction_recorded_time, cursor.recorded_time)
-        invalidation_recorded_time = self._next_recorded_time(invalidation_floor)
-        invalidation = FeatureFactInvalidated(
-            scope=existing.head_fact.scope,
-            invalidated_fact_ref=existing.head_fact.ref,
-            invalidation_cause="candle_corrected",
-            window_start=existing.head_fact.window_start,
-            window_end=existing.head_fact.window_end,
-            causation_refs=(existing.head_fact.ref, correction_ref),
-            recorded_time=invalidation_recorded_time,
-            ref=self._allocator.next_ref(self._stream_id),
-            event_contract_ref=self._invalidation_contract_ref,
-            computation_cursor=self._resolve_cursor(cursor),
-            computation_dependency_content_evidence=self._resolve_evidence(),
-        )
-        events: list[FeatureEvent] = [invalidation]
-        events.extend(
-            self._emit_replacement_only(
-                key, candle, swing_id, state, invalidation.ref, invalidation_recorded_time, cursor
+        def _apply(events: tuple[FeatureEvent, ...]) -> None:
+            (fact_event,) = events
+            assert isinstance(fact_event, FeatureComputed)
+            self._lineage[key] = _WindowLineage(
+                head_fact=fact_event, invalidated=False, used_swing_id=swing_id, used_swing_ref=state.ref
             )
-        )
-        return events
 
-    def _emit_replacement_only(
+        return PreparedTransition(prepared_events=(prepared,), apply_lineage=_apply)
+
+    def _prepare_replacement_only(
         self,
         key: tuple[datetime, datetime],
         candle: CandleFact,
         swing_id: str,
         state: _SwingState,
-        invalidation_ref: EventRecordRef,
+        *,
         invalidation_recorded_time: datetime,
+        invalidation_ref: EventRecordRef | None,
         cursor: EvaluationFrontier,
-    ) -> list[FeatureEvent]:
+    ) -> PreparedTransition:
+        """`invalidation_ref=None` means the preceding invalidation is being
+        prepared IN THE SAME ATOMIC BATCH as this replacement (its own real
+        ref does not exist yet — `PreparedFeatureComputed.finalize` injects
+        it once the batch's refs are allocated together); a genuine,
+        already-known ref means the invalidation was already committed in
+        an earlier, separate transition (e.g. `_prepare_reevaluate_all_
+        windows`'s `lineage.pending_invalidation_ref`).
+        """
         existing = self._lineage[key]
         normalized_refs = self._normalize_evidence(candle, state.ref, state.pivot_effective_time)
         # Floor on ALL of: the invalidation this replaces, both pieces of its own
@@ -844,7 +920,13 @@ class SwingDistanceFeatureEngine:
         floor = max(invalidation_recorded_time, candle.recorded_time, state.recorded_time, cursor.recorded_time)
         recorded_time = self._next_recorded_time(floor)
         value = self._compute_distance(candle, state)
-        replacement = FeatureComputed(
+        if invalidation_ref is not None:
+            causation_refs = (*normalized_refs, invalidation_ref)
+            preceding_batch_invalidation_causation = False
+        else:
+            causation_refs = normalized_refs
+            preceding_batch_invalidation_causation = True
+        prepared = PreparedFeatureComputed(
             scope=self.scope,
             value=value,
             unit=self.definition.unit,
@@ -852,29 +934,78 @@ class SwingDistanceFeatureEngine:
             window_end=key[1],
             input_fact_refs=normalized_refs,
             supersedes_fact_ref=existing.head_fact.ref,
-            causation_refs=(*normalized_refs, invalidation_ref),
+            causation_refs=causation_refs,
+            preceding_batch_invalidation_causation=preceding_batch_invalidation_causation,
             recorded_time=recorded_time,
-            ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._output_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
         )
-        self._lineage[key] = _WindowLineage(
-            head_fact=replacement, invalidated=False, used_swing_id=swing_id, used_swing_ref=state.ref
-        )
-        return [replacement]
 
-    def _invalidate_and_reattempt(
+        def _apply(events: tuple[FeatureEvent, ...]) -> None:
+            (replacement,) = events
+            assert isinstance(replacement, FeatureComputed)
+            self._lineage[key] = _WindowLineage(
+                head_fact=replacement, invalidated=False, used_swing_id=swing_id, used_swing_ref=state.ref
+            )
+
+        return PreparedTransition(prepared_events=(prepared,), apply_lineage=_apply)
+
+    def _prepare_invalidate_and_replace(
+        self,
+        key: tuple[datetime, datetime],
+        candle: CandleFact,
+        swing_id: str,
+        state: _SwingState,
+        existing: _WindowLineage,
+        *,
+        correction_ref: EventRecordRef,
+        correction_recorded_time: datetime,
+        cursor: EvaluationFrontier,
+    ) -> PreparedTransition:
+        invalidation_floor = max(existing.head_fact.recorded_time, correction_recorded_time, cursor.recorded_time)
+        invalidation_recorded_time = self._next_recorded_time(invalidation_floor)
+        prepared_invalidation = PreparedFeatureFactInvalidated(
+            scope=existing.head_fact.scope,
+            invalidated_fact_ref=existing.head_fact.ref,
+            invalidation_cause="candle_corrected",
+            window_start=existing.head_fact.window_start,
+            window_end=existing.head_fact.window_end,
+            causation_refs=(existing.head_fact.ref, correction_ref),
+            recorded_time=invalidation_recorded_time,
+            event_contract_ref=self._invalidation_contract_ref,
+            computation_cursor=self._resolve_cursor(cursor),
+            computation_dependency_content_evidence=self._resolve_evidence(),
+        )
+        replacement_transition = self._prepare_replacement_only(
+            key,
+            candle,
+            swing_id,
+            state,
+            invalidation_recorded_time=invalidation_recorded_time,
+            invalidation_ref=None,
+            cursor=cursor,
+        )
+        (prepared_replacement,) = replacement_transition.prepared_events
+        apply_replacement = replacement_transition.apply_lineage
+
+        def _apply(events: tuple[FeatureEvent, ...]) -> None:
+            _invalidation_event, replacement_event = events
+            apply_replacement((replacement_event,))
+
+        return PreparedTransition(prepared_events=(prepared_invalidation, prepared_replacement), apply_lineage=_apply)
+
+    def _prepare_invalidate_and_reattempt(
         self,
         key: tuple[datetime, datetime],
         lineage: _WindowLineage,
         correction_ref: EventRecordRef,
         correction_recorded_time: datetime,
         cursor: EvaluationFrontier,
-    ) -> list[FeatureEvent]:
+    ) -> PreparedTransition:
         invalidation_floor = max(lineage.head_fact.recorded_time, correction_recorded_time, cursor.recorded_time)
         invalidation_recorded_time = self._next_recorded_time(invalidation_floor)
-        invalidation = FeatureFactInvalidated(
+        prepared_invalidation = PreparedFeatureFactInvalidated(
             scope=lineage.head_fact.scope,
             invalidated_fact_ref=lineage.head_fact.ref,
             invalidation_cause="swing_invalidated",
@@ -882,28 +1013,43 @@ class SwingDistanceFeatureEngine:
             window_end=lineage.head_fact.window_end,
             causation_refs=(lineage.head_fact.ref, correction_ref),
             recorded_time=invalidation_recorded_time,
-            ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._invalidation_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
         )
-        lineage.invalidated = True
-        lineage.pending_invalidation_ref = invalidation.ref
-        lineage.pending_invalidation_recorded_time = invalidation_recorded_time
-        events: list[FeatureEvent] = [invalidation]
+
+        def _apply_invalidation_only(events: tuple[FeatureEvent, ...]) -> None:
+            (inv_event,) = events
+            assert isinstance(inv_event, FeatureFactInvalidated)
+            lineage.invalidated = True
+            lineage.pending_invalidation_ref = inv_event.ref
+            lineage.pending_invalidation_recorded_time = inv_event.recorded_time
 
         candle = self._candle_by_window[key]
         winner = self._select_eligible_swing(candle.scope.window_end, cursor)
-        if winner is not None:
-            swing_id, state = winner
-            events.extend(
-                self._emit_replacement_only(
-                    key, candle, swing_id, state, invalidation.ref, invalidation_recorded_time, cursor
-                )
-            )
-        return events
+        if winner is None:
+            return PreparedTransition(prepared_events=(prepared_invalidation,), apply_lineage=_apply_invalidation_only)
 
-    def _reevaluate_all_windows(self, cursor: EvaluationFrontier) -> list[FeatureEvent]:
+        swing_id, state = winner
+        replacement_transition = self._prepare_replacement_only(
+            key,
+            candle,
+            swing_id,
+            state,
+            invalidation_recorded_time=invalidation_recorded_time,
+            invalidation_ref=None,
+            cursor=cursor,
+        )
+        (prepared_replacement,) = replacement_transition.prepared_events
+        apply_replacement = replacement_transition.apply_lineage
+
+        def _apply(events: tuple[FeatureEvent, ...]) -> None:
+            _invalidation_event, replacement_event = events
+            apply_replacement((replacement_event,))
+
+        return PreparedTransition(prepared_events=(prepared_invalidation, prepared_replacement), apply_lineage=_apply)
+
+    def _prepare_reevaluate_all_windows(self, cursor: EvaluationFrontier) -> list[PreparedTransition]:
         """P3-FEATURE-A-MAJ-04: re-evaluate EVERY window with a lineage
         entry — both `PENDING_CORRECTION` windows AND windows that already
         settled `VALID` on an alternate (lower-priority) eligible Swing —
@@ -912,7 +1058,7 @@ class SwingDistanceFeatureEngine:
         computation); never a retroactive scan of Candle windows that never
         had any lineage at all.
         """
-        events: list[FeatureEvent] = []
+        prepared_list: list[PreparedTransition] = []
         for key, lineage in list(self._lineage.items()):
             candle = self._candle_by_window.get(key)
             if candle is None:
@@ -925,15 +1071,15 @@ class SwingDistanceFeatureEngine:
                 assert lineage.pending_invalidation_ref is not None
                 assert lineage.pending_invalidation_recorded_time is not None
                 swing_id, state = winner
-                events.extend(
-                    self._emit_replacement_only(
+                prepared_list.append(
+                    self._prepare_replacement_only(
                         key,
                         candle,
                         swing_id,
                         state,
-                        lineage.pending_invalidation_ref,
-                        lineage.pending_invalidation_recorded_time,
-                        cursor,
+                        invalidation_recorded_time=lineage.pending_invalidation_recorded_time,
+                        invalidation_ref=lineage.pending_invalidation_ref,
+                        cursor=cursor,
                     )
                 )
                 continue
@@ -941,10 +1087,10 @@ class SwingDistanceFeatureEngine:
             if winner is None or winner[1].ref == lineage.used_swing_ref:
                 continue  # still the best available (or nothing better) — no repaint
             swing_id, state = winner
-            events.extend(self._preempt_settled_window(key, candle, swing_id, state, lineage, cursor))
-        return events
+            prepared_list.append(self._prepare_preempt_settled_window(key, candle, swing_id, state, lineage, cursor))
+        return prepared_list
 
-    def _preempt_settled_window(
+    def _prepare_preempt_settled_window(
         self,
         key: tuple[datetime, datetime],
         candle: CandleFact,
@@ -952,7 +1098,7 @@ class SwingDistanceFeatureEngine:
         state: _SwingState,
         existing: _WindowLineage,
         cursor: EvaluationFrontier,
-    ) -> list[FeatureEvent]:
+    ) -> PreparedTransition:
         """A window already `VALID` using a lower-priority alternate Swing
         (the classic A -> invalidate -> B(temporary) sequence) is preempted
         once a corrected/higher-priority Swing revision (`state`) now wins
@@ -961,11 +1107,11 @@ class SwingDistanceFeatureEngine:
 
         Reaching this function at all already proves ADR-034 condition (d)
         (the Swing fact `existing` actually used remains valid and non-
-        invalidated at `R_later`): `_reevaluate_all_windows` only calls this
-        function when `lineage.invalidated is False`, and that flag is set
-        exactly once, precisely when the used Swing IS invalidated (routing
-        instead through `_invalidate_and_reattempt`) — the two paths are
-        mutually exclusive by construction.
+        invalidated at `R_later`): `_prepare_reevaluate_all_windows` only
+        calls this function when `lineage.invalidated is False`, and that
+        flag is set exactly once, precisely when the used Swing IS
+        invalidated (routing instead through `_prepare_invalidate_and_
+        reattempt`) — the two paths are mutually exclusive by construction.
 
         P3-FEATURE-A-MAJ-04/ADR-034 (Approved): the winning Swing was never
         itself invalidated (`swing_invalidated` would misrepresent this), so
@@ -998,7 +1144,7 @@ class SwingDistanceFeatureEngine:
             )
         invalidation_floor = max(existing.head_fact.recorded_time, state.recorded_time, cursor.recorded_time)
         invalidation_recorded_time = self._next_recorded_time(invalidation_floor)
-        invalidation = FeatureFactInvalidated(
+        prepared_invalidation = PreparedFeatureFactInvalidated(
             scope=existing.head_fact.scope,
             invalidated_fact_ref=existing.head_fact.ref,
             invalidation_cause="eligible_swing_selection_superseded",
@@ -1006,15 +1152,24 @@ class SwingDistanceFeatureEngine:
             window_end=existing.head_fact.window_end,
             causation_refs=(existing.head_fact.ref, state.ref),
             recorded_time=invalidation_recorded_time,
-            ref=self._allocator.next_ref(self._stream_id),
             event_contract_ref=self._invalidation_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
         )
-        events: list[FeatureEvent] = [invalidation]
-        events.extend(
-            self._emit_replacement_only(
-                key, candle, swing_id, state, invalidation.ref, invalidation_recorded_time, cursor
-            )
+        replacement_transition = self._prepare_replacement_only(
+            key,
+            candle,
+            swing_id,
+            state,
+            invalidation_recorded_time=invalidation_recorded_time,
+            invalidation_ref=None,
+            cursor=cursor,
         )
-        return events
+        (prepared_replacement,) = replacement_transition.prepared_events
+        apply_replacement = replacement_transition.apply_lineage
+
+        def _apply(events: tuple[FeatureEvent, ...]) -> None:
+            _invalidation_event, replacement_event = events
+            apply_replacement((replacement_event,))
+
+        return PreparedTransition(prepared_events=(prepared_invalidation, prepared_replacement), apply_lineage=_apply)

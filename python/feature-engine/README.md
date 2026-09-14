@@ -385,9 +385,9 @@ Round 1 remediation's actual code (MAJ-01 confirmed closed, untouched here):
 All five recorded `REMEDIATED_PENDING_BOUNDED_REREVIEW` — none self-closed.
 `P3-FEATURE-A-MAJ-01` remains `CLOSED`, untouched.
 
-## ADR-043 — Per-subject authoritative ownership implementation design (DESIGN ONLY)
+## ADR-043 — Per-subject authoritative ownership implementation (IMPLEMENTATION CANDIDATE — pending Review A implementation review / formal EVID-07 evidence)
 
-**Status:** design record only, per Approved [`ADR-043`](../../docs/adr/ADR-043.md) (`v0.2`, `Approved`, immutable) — `ADR-043` is the sole architecture authority for everything in this section; this README only maps that already-decided authority onto concrete Feature Engine implementation structure. **No ownership runtime exists in this repository yet** — nothing in this section is implemented. `P3-FEATURE-QG-EVID07-A-MAJ-05` remains **OPEN**. `P3-FEATURE-QG-EVID-07` remains **OPEN / `FAIL — evidence`**. This design changes no production code, no test, no dependency, and no Event Schema.
+**Status:** implementation candidate, per Approved [`ADR-043`](../../docs/adr/ADR-043.md) (`v0.2`, `Approved`, immutable) — `ADR-043` remains the sole architecture authority for everything in this section; this README maps that already-decided authority onto concrete Feature Engine implementation structure, now backed by real, tested source code. **The module runtime/coordinator semantics, authority/commit/history Protocol boundaries, and fail-closed behavior described below are implemented** in `src/feature_engine/ownership.py` (new), extensions to `contracts.py`/`authority_resolver.py`/`errors.py`, and a behavior-preserving `regime_passthrough.py`/`swing_distance.py` prepare/commit/historical-reconcile refactor — verified by deterministic tests (`tests/test_ownership.py`, plus extensions to `test_contracts.py`/`test_authority_resolver.py`/`test_historical_authority_resolver.py`) using in-memory test doubles, never claimed production-authoritative. **No production-durable event log, distributed fencing store, broker, RPC, or deployment topology exists or is implemented** — `SubjectOwnershipAuthority`/`FencedFeatureCommitter`/`AuthoritativeLineageHistoryProvider` remain Protocol-only boundaries with no production adapter, exactly as designed (§B/§C). `P3-FEATURE-QG-EVID07-A-MAJ-05` remains **OPEN**. `P3-FEATURE-QG-EVID-07` remains **OPEN / `FAIL — evidence`** — no Hypothesis/property-based evidence has been produced. The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**. This transaction changes no Input Contract artifact, no Chapter 8 semantic, and no Event Schema; it adds no runtime dependency (`pyproject.toml` remains zero runtime dependencies).
 
 **Bounded correction 001 (preserved as history).** Review A found the first revision `REVISION_REQUIRED` (0 Blocker / 2 Major / 0 Minor): `ADR043-IMPLDESIGN-A-MAJ-01` (in-process registry alone insufficient across crash/failover) and `ADR043-IMPLDESIGN-A-MAJ-02` (arrival-order monotonicity checking insufficient to prove ordering). Correction 001 introduced `SubjectOwnershipAuthority` and a first certified-frontier mechanism.
 
@@ -448,8 +448,27 @@ Corrected below (new §D2) — not self-closed:
 ADR043-IMPLDESIGN-A-MAJ-01: CLOSED — REVIEW A VALIDATED
 ADR043-IMPLDESIGN-A-MAJ-02: CLOSED — REVIEW A VALIDATED
 ADR043-IMPLDESIGN-A-MAJ-03: CLOSED — REVIEW A VALIDATED
-ADR043-IMPLDESIGN-A-MAJ-04: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+ADR043-IMPLDESIGN-A-MAJ-04: CLOSED — REVIEW A VALIDATED
 ```
+
+**Implementation (this revision).** Bounded Review A of the final implementation design was CLEAN (0 Blocker / 0 Major / 0 Minor across all four findings). Risk Classification `R1`; no Product Owner re-approval required; this transaction implements the reviewed design — it is not architecture authoring, ADR authoring, Product Owner approval, or EVID-07 evidence closure.
+
+```text
+ADR043-IMPLDESIGN-A-MAJ-01: CLOSED — REVIEW A VALIDATED
+ADR043-IMPLDESIGN-A-MAJ-02: CLOSED — REVIEW A VALIDATED
+ADR043-IMPLDESIGN-A-MAJ-03: CLOSED — REVIEW A VALIDATED
+ADR043-IMPLDESIGN-A-MAJ-04: CLOSED — REVIEW A VALIDATED
+```
+
+Implemented, source-level:
+
+- `contracts.py` — `InputMergePolicy`; `VerifiedInputContractAuthority.merge_policy`, sealed only through the existing `_seal_verified_authority`/`_construct_verified_authority` factory; `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated`/`PreparedTransition` — the shared prepare/live-commit/historical-reconcile machinery both engines use.
+- `authority_resolver.py` — both the current-path and historical (exact pinned ADR-041 snapshot, no fallback) resolvers parse and fail-closed-validate `merge_policy` (`UnsupportedMergePolicyError` on missing/malformed/unsupported).
+- `errors.py` — `UnsupportedMergePolicyError`, `StaleOwnershipGenerationError`, `DualOwnershipError`, `OwnershipAuthorityUnavailableError`, `UnprovenCatchUpError`, `CanonicalHistoryMismatchError`, `NonMonotonicApplicationOrderError`, `IncompleteCertifiedFrontierError`.
+- `ownership.py` (new) — `SubjectOwnershipState`, `OwnerHandle`, `SubjectOwnershipAuthority`/`FencedFeatureCommitter`/`AuthoritativeLineageHistoryProvider` Protocols (no production implementation), `SubjectOwnershipRegistry`, `UpstreamEnvelope`/`UpstreamHistoryResult`/`CanonicalOutputHistoryResult`, `p_run_sort` (deterministic `P_stream ∪ P_causation` topological sort, resolved `merge_policy.concurrent_tie_break` tie-break, run-local, fails closed on a cycle via `NonMonotonicApplicationOrderError`), `AuthoritativeSubjectOwner` (acquire/catch-up/activate, `process_certified_frontier`, fenced commit, §9 fail-closed-and-fence-on-uncertain-outcome recovery model).
+- `regime_passthrough.py`/`swing_distance.py` — existing `_emit_*` logic split into `prepare_*` (candidate only, no ref/no `_lineage` mutation), the existing `on_*` methods now prepare-then-immediately-live-commit (byte-identical behavior/output, all pre-existing tests pass unchanged), and `prepare_upstream_event` (the one dispatch seam `AuthoritativeSubjectOwner` uses). Analytical rules (eligibility, total order, lineage/no-fork, evidence normalization, cursor validation, correction semantics) are unchanged.
+
+New/extended tests: `tests/test_ownership.py` (fencing, atomic batch commit/rollback, `p_run_sort` ordering including "does not wait for a hypothetical future event," catch-up reconstruction — including non-selected Swing state and zero-new-refs-allocated — canonical mismatch/incomplete-history fail-closed, positive-empty-proof activation, absent-provider fail-closed, crash/local-cache-recovery fencing), plus merge-policy coverage added to `test_contracts.py`/`test_authority_resolver.py`/`test_historical_authority_resolver.py`. All pre-existing tests remain green (339 passed; `ruff check`/`mypy --strict` clean on all changed files — 2 pre-existing, unrelated `authority_resolver.py` line-length findings predate this transaction).
 
 **No prior README wording required correction beyond the above** — this module's README was previously *silent* on per-subject concurrency/ownership before the first design revision, so there was nothing false to retract there. The one true statement that remains true and unchanged: no real event log, broker, RPC/HTTP, or deployment/process topology exists for this module (see "What this module owns"/top-of-file, unchanged) — that external-adapter gap is exactly what §**B**/§**C** below document honestly, not something this design pretends to close.
 
@@ -677,9 +696,9 @@ This changes no Input Contract artifact, no Chapter 8 semantic, no Event Schema,
 
 **Direct source analysis, unchanged finding:** `SwingDistanceFeatureEngine._emit_original`/`_emit_replacement_only`/`_invalidate_and_replace` (and `RegimePassthroughFeatureEngine`'s equivalent `_emit_*` methods) today call `self._allocator.next_ref(...)` **and** mutate `self._lineage[key] = ...` together, in one synchronous method, with no seam. The corrected boundary (§B) replaces the prior revision's separate "revalidate, then allocate+mutate" two-step with the single indivisible `FencedFeatureCommitter` operation (§B) — closing the TOCTOU window a separate validate call could not.
 
-**Required engine-internal refactor (documented, not implemented):** `regime_passthrough.py`'s and `swing_distance.py`'s `_emit_*` methods are split into: a **prepare** phase (candidate value + candidate lineage delta, no `next_ref`, no `_lineage` mutation) driven for both live processing (§D) and historical reconciliation (§C); a **live commit** phase, invoked only through `FencedFeatureCommitter`'s indivisible verify+allocate+append operation (§B), which then applies the resulting `_lineage` mutation; and a **historical commit** phase (§C), which applies a `_lineage` mutation using a canonical historical event's own identity, never calling `next_ref()` or `FencedFeatureCommitter` at all. The engines' own analytical decisions (which transition is legal, what value to compute, which head is superseded) are identical across all three seams — only *where the resulting identity comes from* (freshly allocated live vs. canonical historical) and *whether/how it durably commits* differ.
+**Engine-internal refactor (implemented):** `regime_passthrough.py`'s and `swing_distance.py`'s `_emit_*` methods are split into: a **prepare** phase (candidate value + candidate lineage delta, no `next_ref`, no `_lineage` mutation) driven for both live processing (§D) and historical reconciliation (§C); a **live commit** phase, invoked only through `FencedFeatureCommitter`'s indivisible verify+allocate+append operation (§B), which then applies the resulting `_lineage` mutation; and a **historical commit** phase (§C), which applies a `_lineage` mutation using a canonical historical event's own identity, never calling `next_ref()` or `FencedFeatureCommitter` at all. The engines' own analytical decisions (which transition is legal, what value to compute, which head is superseded) are identical across all three seams — only *where the resulting identity comes from* (freshly allocated live vs. canonical historical) and *whether/how it durably commits* differ.
 
-**Proposed new/changed source files (identified only, not implemented by this transaction):**
+**New/changed source files (implemented this transaction):**
 
 ```
 src/feature_engine/contracts.py   (extended, not replaced) new InputMergePolicy
@@ -783,8 +802,12 @@ This corrected design still introduces no new module, no dependency-graph edge, 
 - Feature Engine: implemented (engine semantics only) — no production
   `FeatureDefinition`/`FeatureFormula` instance exists or is claimed; those
   remain externally unresolved configuration.
-- Per-subject authoritative ownership (`ADR-043`, Approved): **design only**
-  (see section above) — no ownership runtime exists yet. `P3-FEATURE-QG-
+- Per-subject authoritative ownership (`ADR-043`, Approved): **implementation
+  candidate** (see section above) — `ownership.py`'s coordinator/Protocol
+  boundaries and the engines' prepare/commit/historical-reconcile seam are
+  implemented and covered by deterministic tests using in-memory test
+  doubles; no production-durable authority/commit/history adapter exists.
+  Pending independent Review A implementation review. `P3-FEATURE-QG-
   EVID07-A-MAJ-05` remains **OPEN**. `P3-FEATURE-QG-EVID-07` remains
   **OPEN / `FAIL — evidence`**.
 - Feature Engine Quality Tier: **UNRESOLVED** — not assigned in this

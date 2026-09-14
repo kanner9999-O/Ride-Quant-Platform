@@ -297,3 +297,81 @@ class CursorRelationalInvariantViolationError(FeatureEngineError):
     engine fails closed rather than emitting a `computation_cursor` whose
     own fields are not mutually consistent.
     """
+
+
+class UnsupportedMergePolicyError(FeatureEngineError):
+    """An Input Contract's own `merge_policy` (ADR043-IMPLDESIGN-A-MAJ-04)
+    is missing, malformed, structurally incomplete, or not one of the
+    `algorithm`/`concurrent_tie_break` combinations this Feature
+    implementation actually supports — for either the current-path or the
+    exact pinned historical-snapshot resolver. Never silently normalized
+    into the one supported combination; authority resolution fails closed
+    here instead.
+    """
+
+
+class StaleOwnershipGenerationError(FeatureEngineError):
+    """A `FencedFeatureCommitter` (ADR-043) rejected a commit attempt
+    because the calling owner's `ownership_generation` is no longer the
+    current, authoritative generation for its `feature_subject_id` — raised
+    as part of the SAME indivisible verify+allocate+append operation, never
+    by a separate prior check that could itself go stale before the write
+    (ADR043-IMPLDESIGN-A-MAJ-01). The whole attempted batch has zero effect:
+    no sequence consumed, no event appended, no local `_lineage` mutated.
+    """
+
+
+class DualOwnershipError(FeatureEngineError):
+    """A `SubjectOwnershipAuthority` (ADR-043) was asked to activate a
+    subject that already has another live, non-fenced owner generation —
+    structurally prevented by genuine atomic-acquisition semantics; raised
+    here only if that invariant is ever violated regardless. Never resolved
+    by picking a runtime "winner" between the two.
+    """
+
+
+class OwnershipAuthorityUnavailableError(FeatureEngineError):
+    """`SubjectOwnershipAuthority`/`FencedFeatureCommitter` (ADR-043) could
+    not be reached, or an `AuthoritativeSubjectOwner` was asked to perform
+    authoritative work while not genuinely `ACTIVE` (never acquired, still
+    `CATCHING_UP`, `REVOKED`, or fenced unusable after a prior uncertain
+    commit outcome). Never silently falls back to local-registry-only
+    fencing or proceeds without a currently-recognized owner generation.
+    """
+
+
+class UnprovenCatchUpError(FeatureEngineError):
+    """An `AuthoritativeLineageHistoryProvider` (ADR-043 §C) could not
+    positively prove either a complete catch-up reconstruction or a
+    genuinely empty subject — an absent, unreachable, or incomplete
+    provider result is never treated as evidence of emptiness. A
+    `CATCHING_UP -> ACTIVE` transition fails closed here instead.
+    """
+
+
+class CanonicalHistoryMismatchError(FeatureEngineError):
+    """A recomputed historical candidate transition (ADR-043 §C reconciliation,
+    `PreparedTransition.reconcile`) does not match the corresponding
+    canonical, already-committed Feature output history supplied by an
+    `AuthoritativeLineageHistoryProvider` — including a batch-length
+    mismatch. Catch-up fails closed rather than silently preferring either
+    the freshly recomputed candidate or the canonical record.
+    """
+
+
+class NonMonotonicApplicationOrderError(FeatureEngineError):
+    """A certified apply set (ADR-043 §D `P_run`) could not be
+    deterministically topologically sorted under `P_stream ∪ P_causation`
+    plus the resolved Input Contract `merge_policy.concurrent_tie_break` —
+    a genuine cycle/contradictory ordering, or an event whose relative
+    order cannot be derived at all. The batch is rejected, never guessed.
+    """
+
+
+class IncompleteCertifiedFrontierError(FeatureEngineError):
+    """An `AuthoritativeLineageHistoryProvider` (ADR-043 §D) returned an
+    ambiguous, incomplete not-yet-applied apply-set result for a certified
+    `EvaluationFrontier` — neither a genuine event list nor a positive
+    proof of "nothing new to apply." Processing fails closed rather than
+    guessing the apply set is empty.
+    """

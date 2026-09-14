@@ -61,10 +61,15 @@ from pathlib import Path
 from .contracts import (
     FeatureComputationProfile,
     InputContractRef,
+    InputMergePolicy,
     VerifiedInputContractAuthority,
     _seal_verified_authority,
 )
-from .errors import InputContractIdentityMismatchError, UnresolvedComputationCursorAuthorityError
+from .errors import (
+    InputContractIdentityMismatchError,
+    UnresolvedComputationCursorAuthorityError,
+    UnsupportedMergePolicyError,
+)
 
 _REPO_ROOT_MARKER = "docs"
 
@@ -162,6 +167,71 @@ def _extract_registry_stream_ids(lines: list[str]) -> frozenset[str]:
     return frozenset(stream_ids)
 
 
+def _extract_merge_policy(lines: list[str]) -> InputMergePolicy | None:
+    """Parses the Input Contract artifact's own `merge_policy: {algorithm,
+    concurrent_tie_break}` block (Chapter 8 §8.3.4, ADR043-IMPLDESIGN-A-
+    MAJ-04) — a bounded block scanner, the same dependency-free discipline
+    as `_extract_included_streams` above (no PyYAML). Returns `None` when
+    no complete `merge_policy:` block is found at all (missing/malformed);
+    callers turn that into a fail-closed `UnsupportedMergePolicyError` —
+    this function itself never raises.
+    """
+    algorithm: str | None = None
+    concurrent_tie_break: tuple[str, ...] | None = None
+    in_block = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped == "merge_policy:":
+            in_block = True
+            continue
+        if in_block:
+            if stripped.startswith("algorithm:"):
+                algorithm = stripped[len("algorithm:") :].strip().strip('"') or None
+                continue
+            if stripped.startswith("concurrent_tie_break:"):
+                raw = stripped[len("concurrent_tie_break:") :].strip()
+                if raw.startswith("[") and raw.endswith("]"):
+                    concurrent_tie_break = tuple(
+                        item.strip().strip('"') for item in raw[1:-1].split(",") if item.strip()
+                    ) or None
+                continue
+            break  # first line inside the block that is neither key ends the block
+    if algorithm is None or not concurrent_tie_break:
+        return None
+    return InputMergePolicy(algorithm=algorithm, concurrent_tie_break=concurrent_tie_break)
+
+
+# ADR043-IMPLDESIGN-A-MAJ-04: the ONLY merge_policy algorithm/concurrent_tie_break
+# combination this Feature implementation's P_run construction
+# (`ownership.py`) actually implements today — a validation-only capability
+# constant, checked here at resolution time. `ownership.py` NEVER consults
+# these constants directly as ordering authority; the authority it consumes
+# is always the resolved `VerifiedInputContractAuthority.merge_policy`
+# instance itself.
+_SUPPORTED_MERGE_ALGORITHM = "deterministic-causal-topological-order"
+_SUPPORTED_CONCURRENT_TIE_BREAK: tuple[str, ...] = ("stream_id", "sequence")
+
+
+def _validate_supported_merge_policy(merge_policy: InputMergePolicy, *, source: Path) -> None:
+    """Fails closed (`UnsupportedMergePolicyError`) if the resolved
+    `merge_policy` is not exactly the one algorithm/tie-break combination
+    this Feature implementation's ordering logic actually implements —
+    never silently normalized/coerced into the supported combination.
+    """
+    if merge_policy.algorithm != _SUPPORTED_MERGE_ALGORITHM:
+        raise UnsupportedMergePolicyError(
+            f"{source!r} declares merge_policy.algorithm={merge_policy.algorithm!r}, which this Feature "
+            f"implementation does not support (only {_SUPPORTED_MERGE_ALGORITHM!r} is implemented) — never "
+            "silently normalized into the supported algorithm"
+        )
+    if merge_policy.concurrent_tie_break != _SUPPORTED_CONCURRENT_TIE_BREAK:
+        raise UnsupportedMergePolicyError(
+            f"{source!r} declares merge_policy.concurrent_tie_break={merge_policy.concurrent_tie_break!r}, which "
+            f"this Feature implementation does not support (only {_SUPPORTED_CONCURRENT_TIE_BREAK!r} is "
+            "implemented) — never silently normalized into the supported tie-break"
+        )
+
+
 def resolve_input_contract_authority_from_repository(
     profile: FeatureComputationProfile, *, repo_root: Path | None = None
 ) -> VerifiedInputContractAuthority:
@@ -217,6 +287,13 @@ def resolve_input_contract_authority_from_repository(
             f"Input Contract artifact at {contract_path!r} did not resolve a complete "
             "{contract_id, contract_version, stream_registry_version, included_streams} identity"
         )
+    merge_policy = _extract_merge_policy(contract_lines)
+    if merge_policy is None:
+        raise UnsupportedMergePolicyError(
+            f"Input Contract artifact at {contract_path!r} does not declare a complete "
+            "merge_policy: {algorithm, concurrent_tie_break} block (ADR043-IMPLDESIGN-A-MAJ-04)"
+        )
+    _validate_supported_merge_policy(merge_policy, source=contract_path)
 
     registry_version = _extract_scalar(registry_lines, "registry_version")
     registry_stream_ids = _extract_registry_stream_ids(registry_lines)
@@ -254,6 +331,7 @@ def resolve_input_contract_authority_from_repository(
         included_streams=included_streams,
         input_contract_content_id=hashlib.sha256(contract_bytes).hexdigest(),
         stream_registry_content_id=hashlib.sha256(registry_bytes).hexdigest(),
+        merge_policy=merge_policy,
     )
 
 
@@ -389,6 +467,19 @@ def resolve_historical_input_contract_authority_from_repository(
             f"Input Contract version-snapshot at {contract_path!r} did not resolve a complete "
             "{contract_id, contract_version, stream_registry_version, included_streams} identity"
         )
+    # ADR043-IMPLDESIGN-A-MAJ-04: parsed from THIS exact pinned snapshot's own bytes —
+    # never the current/mutable Input Contract file, never a nearest-version fallback.
+    # A fact whose computation_cursor pins an older contract version is reconciled/
+    # replayed (§C) using THAT exact pinned version's own merge_policy, even if the
+    # current artifact's merge_policy has since changed.
+    merge_policy = _extract_merge_policy(contract_lines)
+    if merge_policy is None:
+        raise UnsupportedMergePolicyError(
+            f"Input Contract version-snapshot at {contract_path!r} does not declare a complete "
+            "merge_policy: {algorithm, concurrent_tie_break} block (ADR043-IMPLDESIGN-A-MAJ-04) — no fallback to "
+            "the current artifact's merge_policy exists"
+        )
+    _validate_supported_merge_policy(merge_policy, source=contract_path)
     if resolved_contract_id != contract_id or resolved_contract_version != contract_version:
         raise UnresolvedComputationCursorAuthorityError(
             f"Input Contract version-snapshot at {contract_path!r} declares "
@@ -439,6 +530,7 @@ def resolve_historical_input_contract_authority_from_repository(
         included_streams=included_streams,
         input_contract_content_id=hashlib.sha256(contract_bytes).hexdigest(),
         stream_registry_content_id=hashlib.sha256(registry_bytes).hexdigest(),
+        merge_policy=merge_policy,
     )
 
 

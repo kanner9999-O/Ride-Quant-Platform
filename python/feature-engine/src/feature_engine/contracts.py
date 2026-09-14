@@ -21,6 +21,7 @@ from typing import Literal, Protocol
 
 from .envelope import EventContractRef, EventRecordRef
 from .errors import (
+    CanonicalHistoryMismatchError,
     CursorRelationalInvariantViolationError,
     EvidenceCardinalityError,
     EvidenceReferenceConflictError,
@@ -28,6 +29,7 @@ from .errors import (
     RegistryContractMismatchError,
     StreamPositionsUniverseMismatchError,
     UnresolvedComputationCursorAuthorityError,
+    UnsupportedMergePolicyError,
 )
 from .identity import deterministic_id
 
@@ -448,6 +450,30 @@ def _is_well_formed_content_id(value: str) -> bool:
 
 
 @dataclass(frozen=True, slots=True)
+class InputMergePolicy:
+    """The Input Contract's own `merge_policy: {algorithm, concurrent_tie_
+    break}` (Chapter 8 §8.3.4) — the P_run tie-break authority for events
+    ordered by neither `P_stream` nor `P_causation` (ADR043-IMPLDESIGN-A-
+    MAJ-04). Carried as a resolver-verified field of
+    `VerifiedInputContractAuthority`, exactly like every other Input
+    Contract field on that type — never a value any coordinator hard-codes
+    or re-derives itself. This type only enforces basic structural
+    well-formedness (non-empty); `authority_resolver.py` is the one place
+    that validates which specific `algorithm`/`concurrent_tie_break`
+    combination this Feature implementation actually supports.
+    """
+
+    algorithm: str
+    concurrent_tie_break: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if not self.algorithm:
+            raise UnsupportedMergePolicyError("merge_policy.algorithm must be a genuine, non-empty string")
+        if not self.concurrent_tie_break:
+            raise UnsupportedMergePolicyError("merge_policy.concurrent_tie_break must be a genuine, non-empty tuple")
+
+
+@dataclass(frozen=True, slots=True)
 class VerifiedInputContractAuthority:
     """The ONLY type a computation engine actually trusts as its own bound
     Input Contract authority.
@@ -504,6 +530,7 @@ class VerifiedInputContractAuthority:
     included_streams: frozenset[str]
     input_contract_content_id: str
     stream_registry_content_id: str
+    merge_policy: InputMergePolicy
 
     def __init__(self, *_args: object, **_kwargs: object) -> None:
         raise TypeError(
@@ -524,6 +551,7 @@ def _construct_verified_authority(
     included_streams: frozenset[str],
     input_contract_content_id: str,
     stream_registry_content_id: str,
+    merge_policy: InputMergePolicy,
 ) -> VerifiedInputContractAuthority:
     """The ONLY place a `VerifiedInputContractAuthority` instance is ever
     actually built (Review-A round-5). Bypasses the type's own disabled
@@ -541,6 +569,7 @@ def _construct_verified_authority(
     object.__setattr__(instance, "included_streams", included_streams)
     object.__setattr__(instance, "input_contract_content_id", input_contract_content_id)
     object.__setattr__(instance, "stream_registry_content_id", stream_registry_content_id)
+    object.__setattr__(instance, "merge_policy", merge_policy)
     return instance
 
 
@@ -579,6 +608,7 @@ def _seal_verified_authority(
     included_streams: frozenset[str],
     input_contract_content_id: str,
     stream_registry_content_id: str,
+    merge_policy: InputMergePolicy,
 ) -> VerifiedInputContractAuthority:
     """The ONLY factory that produces a genuine `VerifiedInputContractAuthority`
     (Review-A round-5) — used exclusively by `authority_resolver.py`'s
@@ -589,6 +619,14 @@ def _seal_verified_authority(
     digests from the actual bytes. Deliberately
     private (not exported via `__init__.py`) — no other module constructs
     verified authority.
+
+    `merge_policy` (ADR043-IMPLDESIGN-A-MAJ-04) must itself already be a
+    genuine `InputMergePolicy` instance — its own `__post_init__` enforces
+    basic well-formedness, and `authority_resolver.py` is the place that
+    additionally validates it against the specific algorithm/tie-break this
+    Feature implementation actually supports, BEFORE ever calling this
+    factory; this factory does not re-derive/second-guess merge_policy
+    content, only that a genuine instance of the right type was supplied.
     """
     if not feature_computation_profile:
         raise UnresolvedComputationCursorAuthorityError("feature_computation_profile must be genuine and non-empty")
@@ -614,6 +652,10 @@ def _seal_verified_authority(
             "digest (64 lowercase hex characters) — a non-empty but fabricated/arbitrary string is never "
             "sufficient content-identity proof"
         )
+    if not isinstance(merge_policy, InputMergePolicy):
+        raise UnsupportedMergePolicyError(
+            f"merge_policy must be a genuine InputMergePolicy instance, got {type(merge_policy).__name__!r}"
+        )
     return _construct_verified_authority(
         feature_computation_profile=feature_computation_profile,
         input_contract_ref=input_contract_ref,
@@ -621,6 +663,7 @@ def _seal_verified_authority(
         included_streams=included_streams,
         input_contract_content_id=input_contract_content_id,
         stream_registry_content_id=stream_registry_content_id,
+        merge_policy=merge_policy,
     )
 
 
@@ -1066,3 +1109,235 @@ def normalize_input_facts[T](
             f"normalized evidence has {len(ordered)} unique ref(s), expected exactly {expected_count}"
         )
     return tuple(ref_of(fact) for fact in ordered)
+
+
+# --- ADR-043 prepare / live-commit / historical-reconcile seam -------------
+#
+# `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated`/
+# `PreparedTransition` are the shared, engine-internal machinery both
+# `regime_passthrough.py` and `swing_distance.py` use to split their
+# previously-fused "compute value + allocate ref + mutate _lineage" `_emit_*`
+# methods into three independently-invokable seams (ADR-043; Approved
+# ADR-043 is the architecture authority, `ownership.py`'s
+# `AuthoritativeSubjectOwner`/`FencedFeatureCommitter` drive these seams for
+# the authoritative live/catch-up paths). Deliberately shared here rather
+# than duplicated per engine — same rationale as `normalize_input_facts`/
+# `resolve_computation_cursor` above: exactly one definition, never
+# redefined per engine. Never exported via `feature_engine.__init__` — pure
+# engine-internal plumbing, not part of this package's public surface.
+
+
+@dataclass(frozen=True, slots=True)
+class PreparedFeatureComputed:
+    """A candidate `FeatureComputed` with every field resolved EXCEPT its
+    own authoritative `ref` (ADR043-IMPLDESIGN-A-MAJ-01). An engine's
+    `prepare_*` methods build this WITHOUT calling `SequenceAllocator.
+    next_ref()` and WITHOUT mutating engine `_lineage` state — only
+    `finalize` (live commit, a freshly and atomically allocated real ref)
+    or `PreparedTransition.reconcile` (catch-up, a canonical historical
+    event's own real ref) ever produces a genuine `FeatureComputed` from
+    this candidate.
+
+    `preceding_batch_invalidation_causation`: True when this candidate's
+    own final `causation_refs` must additionally cite the `ref` of an
+    invalidation prepared immediately before it IN THE SAME ATOMIC BATCH
+    (e.g. invalidate-then-replace) — that ref does not exist yet at prepare
+    time (a batch's refs are allocated together, atomically, at commit
+    time), so `finalize` injects it once known.
+    """
+
+    scope: FeatureScope
+    value: Decimal
+    unit: str
+    window_start: datetime
+    window_end: datetime
+    input_fact_refs: tuple[EventRecordRef, ...]
+    supersedes_fact_ref: EventRecordRef | None
+    causation_refs: tuple[EventRecordRef, ...]
+    preceding_batch_invalidation_causation: bool
+    recorded_time: datetime
+    event_contract_ref: EventContractRef
+    computation_cursor: ComputationCursor
+    computation_dependency_content_evidence: ComputationDependencyContentEvidence
+
+    def finalize(self, ref: EventRecordRef, *, invalidation_ref: EventRecordRef | None = None) -> FeatureComputed:
+        causation_refs = self.causation_refs
+        if self.preceding_batch_invalidation_causation:
+            if invalidation_ref is None:
+                raise ValueError(
+                    "PreparedFeatureComputed.finalize: preceding_batch_invalidation_causation=True requires "
+                    "invalidation_ref"
+                )
+            causation_refs = (*causation_refs, invalidation_ref)
+        return FeatureComputed(
+            scope=self.scope,
+            value=self.value,
+            unit=self.unit,
+            window_start=self.window_start,
+            window_end=self.window_end,
+            input_fact_refs=self.input_fact_refs,
+            supersedes_fact_ref=self.supersedes_fact_ref,
+            causation_refs=causation_refs,
+            recorded_time=self.recorded_time,
+            ref=ref,
+            event_contract_ref=self.event_contract_ref,
+            computation_cursor=self.computation_cursor,
+            computation_dependency_content_evidence=self.computation_dependency_content_evidence,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class PreparedFeatureFactInvalidated:
+    """A candidate `FeatureFactInvalidated` with every field resolved
+    except `ref` — see `PreparedFeatureComputed`'s docstring for the shared
+    prepare/commit/historical-reconcile rationale. An invalidation never
+    depends on a not-yet-allocated same-batch ref (it only ever cites
+    already-known upstream/prior-Feature-event refs), so `finalize` takes
+    no extra argument.
+    """
+
+    scope: FeatureScope
+    invalidated_fact_ref: EventRecordRef
+    invalidation_cause: InvalidationCause
+    window_start: datetime
+    window_end: datetime
+    causation_refs: tuple[EventRecordRef, ...]
+    recorded_time: datetime
+    event_contract_ref: EventContractRef
+    computation_cursor: ComputationCursor
+    computation_dependency_content_evidence: ComputationDependencyContentEvidence
+
+    def finalize(self, ref: EventRecordRef) -> FeatureFactInvalidated:
+        return FeatureFactInvalidated(
+            scope=self.scope,
+            invalidated_fact_ref=self.invalidated_fact_ref,
+            invalidation_cause=self.invalidation_cause,
+            window_start=self.window_start,
+            window_end=self.window_end,
+            causation_refs=self.causation_refs,
+            recorded_time=self.recorded_time,
+            ref=ref,
+            event_contract_ref=self.event_contract_ref,
+            computation_cursor=self.computation_cursor,
+            computation_dependency_content_evidence=self.computation_dependency_content_evidence,
+        )
+
+
+PreparedFeatureEvent = PreparedFeatureComputed | PreparedFeatureFactInvalidated
+
+
+def _finalize_prepared_batch(
+    prepared_events: Sequence[PreparedFeatureEvent], refs: Sequence[EventRecordRef]
+) -> tuple[FeatureEvent, ...]:
+    """Finalizes one atomic batch of prepared candidates with freshly,
+    atomically allocated real refs (ADR-043 live-commit path only) —
+    invalidation-then-dependent-replacement is the only intra-batch causal
+    shape any existing engine transition produces, so an invalidation's own
+    just-allocated ref is threaded into any later same-batch candidate whose
+    `preceding_batch_invalidation_causation` is True.
+    """
+    if len(prepared_events) != len(refs):
+        raise ValueError(
+            f"_finalize_prepared_batch: {len(prepared_events)} prepared event(s) but {len(refs)} ref(s) supplied"
+        )
+    invalidation_ref: EventRecordRef | None = None
+    finalized: list[FeatureEvent] = []
+    for prepared, ref in zip(prepared_events, refs, strict=True):
+        event: FeatureEvent
+        if isinstance(prepared, PreparedFeatureFactInvalidated):
+            event = prepared.finalize(ref)
+            invalidation_ref = ref
+        else:
+            event = prepared.finalize(ref, invalidation_ref=invalidation_ref)
+        finalized.append(event)
+    return tuple(finalized)
+
+
+def _prepared_matches_canonical(prepared: PreparedFeatureEvent, canonical: FeatureEvent) -> bool:
+    """ADR043-IMPLDESIGN-A-MAJ-03/README §C: the exact, bounded match this
+    Feature implementation validates a recomputed historical candidate
+    against canonical, already-committed Feature output history before
+    accepting that canonical event's own real ref/recorded_time/causation
+    content as reconstructed lineage identity — same window, same computed
+    value (or same invalidated target/cause), deliberately never a
+    byte-for-byte replica check on fields (ref/recorded_time/causation_refs)
+    that legitimately differ between a freshly re-derived candidate and its
+    real historical identity.
+    """
+    if isinstance(prepared, PreparedFeatureComputed):
+        return (
+            isinstance(canonical, FeatureComputed)
+            and canonical.scope == prepared.scope
+            and canonical.window_start == prepared.window_start
+            and canonical.window_end == prepared.window_end
+            and canonical.value == prepared.value
+            and canonical.unit == prepared.unit
+            and canonical.supersedes_fact_ref == prepared.supersedes_fact_ref
+            and canonical.input_fact_refs == prepared.input_fact_refs
+        )
+    return (
+        isinstance(canonical, FeatureFactInvalidated)
+        and canonical.scope == prepared.scope
+        and canonical.window_start == prepared.window_start
+        and canonical.window_end == prepared.window_end
+        and canonical.invalidated_fact_ref == prepared.invalidated_fact_ref
+        and canonical.invalidation_cause == prepared.invalidation_cause
+    )
+
+
+@dataclass(slots=True)
+class PreparedTransition:
+    """One atomic candidate authoritative Feature transition — ADR-043's
+    prepare / live-commit / historical-reconcile seam
+    (ADR043-IMPLDESIGN-A-MAJ-01/-03). `prepared_events` holds 1 (most
+    transitions) or 2 (invalidate-then-replace) `PreparedFeatureEvent`
+    entries that must commit or reconcile together as a whole — no partial
+    effect (ADR-043 semantic 2/batch commit requirement).
+
+    `apply_lineage` is a bound callback — supplied only by the preparing
+    engine instance/method, never by an external caller — that performs
+    the exact `_lineage` mutation this transition represents, given the
+    transition's own FINAL events (either freshly live-committed or
+    canonical-historical). This is intentionally the ONLY place `_lineage`
+    is ever mutated for this transition, and `finalize_live` never calls it
+    itself: ADR-043's own step 3 (allocate + durably append) is a distinct,
+    earlier step from step 4 (local cache update), and a caller must invoke
+    `apply_to_lineage` explicitly, only once step 3 has genuinely
+    succeeded.
+    """
+
+    prepared_events: tuple[PreparedFeatureEvent, ...]
+    apply_lineage: Callable[[tuple[FeatureEvent, ...]], None]
+
+    def finalize_live(self, refs: Sequence[EventRecordRef]) -> tuple[FeatureEvent, ...]:
+        """Live-commit path only (ADR-043 §B/"Atomicity and emission") —
+        called with freshly, atomically allocated refs. Does NOT mutate
+        `_lineage`; call `apply_to_lineage` separately, and only once the
+        caller's own durable append has genuinely succeeded.
+        """
+        return _finalize_prepared_batch(self.prepared_events, refs)
+
+    def apply_to_lineage(self, finalized_events: tuple[FeatureEvent, ...]) -> None:
+        self.apply_lineage(finalized_events)
+
+    def reconcile(self, canonical_events: Sequence[FeatureEvent]) -> None:
+        """Historical catch-up path only (ADR-043 §C) — validates a
+        recomputed candidate against canonical, already-committed Feature
+        output history and, on a match, hydrates `_lineage` using the
+        CANONICAL events' own real identity (never a freshly allocated
+        one). Fails closed (`CanonicalHistoryMismatchError`) on any
+        mismatch, including a batch-length mismatch.
+        """
+        canonical_tuple = tuple(canonical_events)
+        if len(canonical_tuple) != len(self.prepared_events):
+            raise CanonicalHistoryMismatchError(
+                f"prepared batch has {len(self.prepared_events)} event(s) but {len(canonical_tuple)} canonical "
+                "event(s) were supplied for reconciliation"
+            )
+        for prepared, canonical in zip(self.prepared_events, canonical_tuple, strict=True):
+            if not _prepared_matches_canonical(prepared, canonical):
+                raise CanonicalHistoryMismatchError(
+                    f"recomputed historical candidate {prepared!r} does not match canonical Feature output "
+                    f"{canonical!r} — catch-up fails closed rather than preferring either source"
+                )
+        self.apply_lineage(canonical_tuple)
