@@ -1,15 +1,37 @@
 ---
 id: feature-engine-evid07-property-based-mechanism-candidate-001
 title: "Feature Engine — `P3-FEATURE-QG-EVID-07` Python Property-Based Testing Mechanism — CANDIDATE"
-candidate_version: "0.1"
-status: CANDIDATE — NOT EFFECTIVE — PENDING REVIEW A
+candidate_version: "0.2"
+status: "CANDIDATE — NOT EFFECTIVE — BOUNDED CORRECTION 001 (P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03/-04/-05 REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW)"
 performed_at: "2026-09-11"
 repository_head_at_authoring: "310a83e22c868611028e5804c524fb5a4e9f57da"
+bounded_correction_001:
+  applied_at_repository_head: "cd9d2684b0a315cde1bd429f3d4b0b07f8fe96d5"
+  corrected_candidate_blob_before_correction: "f3bdb9ff82e3e88456792c4e06da48688a5bd6b4"
+  reviewer_findings_addressed:
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-01
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-02
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-03
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-04
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-05
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
 ---
 
 # Feature Engine — `P3-FEATURE-QG-EVID-07` Python Property-Based Testing Mechanism — CANDIDATE 001
 
-> **Status banner:** `CANDIDATE / NOT EFFECTIVE — PENDING REVIEW A`. This is a **design / mechanism-selection transaction only** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Author`. It selects and proposes a mechanism; it does **not** install any dependency, does **not** edit `pyproject.toml`/`requirements-dev.lock.txt`, does **not** modify any Feature Engine production or test file, does **not** measure anything, and does **not** close `P3-FEATURE-QG-EVID-07`. Executor does not self-approve — closure/approval belongs to Review A (ADR-042: `Executor → Review A → Risk Classification → Product Owner Decision`), never asserted here.
+> **Bounded correction 001 (this transaction)** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Bounded Correction Executor`. Remediates five Review A findings against candidate v0.1 (reviewed blob `f3bdb9ff82e3e88456792c4e06da48688a5bd6b4`, boundary `cd9d2684b0a315cde1bd429f3d4b0b07f8fe96d5`): `-MAJ-01` (ADR Scope misclassification — corrected `ADR_NOT_REQUIRED` → `ADR_OPTIONAL — ADR NOT AUTHORED`, and removed the "carve-out" mischaracterization of Chapter 3 §3.2/Chapter 13 §13.14); `-MAJ-02` (approval-authority misstatement — removed every claim that Review A approves or closes this candidate; corrected to `Executor → Review A + Risk Classification → Product Owner Decision → Execution`, Product Owner sole approval authority); `-MAJ-03` (competing tooling SSOT — this file is now QG-scoped rationale only; the actual mechanism/tool decision is canonicalized into `docs/engineering/testing.md` v0.17 candidate section, added in this same bounded transaction as one coherent semantic decision, not a second unrelated one); `-MAJ-04` (Hypothesis reproducibility contract — corrected after re-reading hypothesis 6.168.0's actual source this transaction: removed the false claim that every ordinary falsifying example prints a reusable seed; distinguished deterministic CI generation (`derandomize`) from failure-artifact persistence (`print_blob`/`@reproduce_failure`, version-locked, temporary) from durable regression capture (`@example`)); `-MAJ-05` (I-13 concurrent-transition applicability — replaced grep-only reasoning with the authoritative basis: Chapter 8 §8.3's Locked single-writer-authority + atomic-sequence-assignment contract, which structurally prevents competing transitions from independently reaching any stream's append point, Feature Engine's included). None of the five findings is self-closed here — closure is Review A's own determination on re-review, per Chapter 0 §3.
+>
+> `P3-FEATURE-QG-EVID07-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID07-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID07-A-MAJ-03: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID07-A-MAJ-04: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID07-A-MAJ-05: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+
+> **Status banner:** `CANDIDATE / NOT EFFECTIVE — BOUNDED CORRECTION 001 PENDING REVIEW A RE-REVIEW`. This remains a **QG-scoped analysis/rationale transaction only** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Author`. It does **not** install any dependency, does **not** edit `pyproject.toml`/`requirements-dev.lock.txt`, does **not** modify any Feature Engine production or test file, does **not** measure anything, and does **not** close `P3-FEATURE-QG-EVID-07`. Per `-MAJ-03`'s remediation (below), this file does **not** itself canonicalize the mechanism/tool decision — that decision is canonicalized in `docs/engineering/testing.md`'s own "Python property-based testing mechanism — CANDIDATE" subsection (v0.17, added this same transaction), through its own governed candidate lifecycle. Per `-MAJ-02`'s remediation, the governance path is `Executor → Review A + Risk Classification → Product Owner Decision → Execution` (Chapter 0 §3, ADR-042): Review A determines technical disposition/eligibility and may close Review A findings on re-review, but Review A does **not** approve — Product Owner is the sole approval authority, and no Product Owner decision is recorded or implied anywhere in this file.
 
 ## 0. Baseline / boundary verification (fresh, this transaction — not assumed)
 
@@ -156,7 +178,9 @@ Not a separate surface (scoped out, avoiding an invented third graph):
   additional legal-transition case under Surface 1, not a third surface.
 ```
 
-## 3. Candidate alternatives (compared against current Ride authority, not popularity)
+## 3. Candidate alternatives (QG-scoped rationale — `-MAJ-03`: analysis feeding the Testing Convention decision, not itself a competing tooling SSOT)
+
+> **`-MAJ-03` framing note:** the comparison below is this file's own QG-scoped contribution — it explains WHY a property-based mechanism is needed and what I-13/Surfaces 1–2 (§2 above) require of one. It does **not** itself constitute the canonical tool-selection decision. That decision is canonicalized in `docs/engineering/testing.md`'s own "Python property-based testing mechanism — CANDIDATE" subsection (v0.17, added in this same bounded-correction transaction), through Testing Convention's own governed candidate lifecycle (Review A + Risk Classification → Product Owner decision), exactly as `docs/constitution/03-engineering-principles.md` §3.2 establishes Testing Convention as the authority responsible for testing style/tooling decisions.
 
 ```text
 Alternative A — Hand-rolled stdlib generators (Go precedent, mirrored)
@@ -185,11 +209,21 @@ Alternative A — Hand-rolled stdlib generators (Go precedent, mirrored)
     library already provides and already tests itself. This is a real,
     ongoing maintenance/correctness liability the Go module did not incur,
     because Go's toolchain absorbed it for free — Python's did not.
-  Verdict: rejected as the sole mechanism — the zero-dependency property
-    that made this the right choice for Go does not hold for Python
-    without materially higher build/maintenance cost; see §4 for why
-    "minimum mechanism" does not mean "minimum dependency count" once the
-    stdlib capability gap is this large.
+  Verdict: rejected as the RECOMMENDED mechanism — but NOT rejected as
+    constitutionally non-compliant. Stated explicitly, per the task's own
+    required framing: I-13 requires property-based evidence against the
+    authoritative transition graph; I-13 does NOT require shrinking, does
+    NOT require Hypothesis by name, and does NOT require any third-party
+    framework. A deterministic, stdlib-seeded `random`-based generator
+    (Alternative A) is technically CAPABLE of satisfying Chapter 13
+    §13.6's property-based category, exactly as it already did for
+    market-reference-service's own I-13 evidence — IF its generated
+    coverage of Surfaces 1-2 (§2) is genuinely sufficient. The rejection
+    here is an ENGINEERING-COST judgment (§4), not a compliance judgment
+    — the zero-dependency property that made Alternative A the right
+    choice for Go does not, by itself, make it the cheaper or better
+    choice for Python once the real cost of hand-building shrinking/
+    generation/reproduction machinery is honestly priced in; see §4.
 
 Alternative B — `hypothesis` (PyPI, HypothesisWorks)
   Purpose-built Python property-based/fuzz testing library, pytest-
@@ -262,10 +296,12 @@ Alternative C — `schemathesis` / `crosshair` / other niche PBT-adjacent
     not adopted, not added merely because they exist.
 ```
 
-## 4. Selected recommendation
+## 4. Recommendation feeding the Testing Convention decision (`-MAJ-03`: not a self-standing selection)
+
+> This section states what this QG-scoped analysis RECOMMENDS for canonicalization — it is input to, not a substitute for, the Testing Convention candidate at `docs/engineering/testing.md`'s own "Python property-based testing mechanism — CANDIDATE" subsection (v0.17), which is where the actual mechanism decision lives, is reviewed, and is approved or not.
 
 ```text
-Selected mechanism: `hypothesis` (Alternative B), used specifically via
+Recommended for canonicalization: `hypothesis` (Alternative B), used specifically via
   `hypothesis.stateful.RuleBasedStateMachine` for the transition-graph/
   sequence-constraint/illegal-transition evidence (§6), and plain `@given`
   strategies for the narrower correction/invalidation/replay-
@@ -288,29 +324,104 @@ Why this is the MINIMUM mechanism, not merely the popular one: the
   third-party PyPI dependency with a non-trivial transitive footprint) as
   the Python test-effectiveness mechanism rather than hand-rolling mutant
   generation — see docs/engineering/testing.md's own "Python test-
-  effectiveness mechanism — APPROVED" section and §8 below.
+  effectiveness mechanism — APPROVED" section, and this file's own §8
+  below for the ADR-scope treatment of a materially significant
+  testing-tool decision.
 ```
 
-## 5. Deterministic / reproducibility contract (proposed — not yet enforced by any committed config)
+## 5. Deterministic / reproducibility contract (`-MAJ-04` corrected — re-verified against hypothesis 6.168.0's actual installed source this transaction, not from memory; proposed, not yet enforced by any committed config)
 
 ```text
-Seed / reproduction: hypothesis generates from an internal PRNG seeded
-  per-test-per-run by default; on a failing example it prints the
-  "Falsifying example" AND an explicit reproduction instruction
-  ("You can reproduce this example by temporarily adding @seed(<N>) to
-  this test"). Proposal: every CI/local failure report MUST be captured
-  verbatim (the printed seed + minimal example), matching this
-  repository's own Chapter 13 §13.10 flaky-test discipline (no silent
-  retry-until-green) — the failing seed becomes part of the defect
-  record, exactly like a fixed example-based test's failing input would.
+`-MAJ-04` correction notice: v0.1 of this candidate asserted that "on a
+  failing example [hypothesis] prints... an explicit reproduction
+  instruction (@seed(<N>))" as if this happened for every ordinary
+  falsifying example. This is FALSE and is retracted. Verified directly
+  against the installed 6.168.0 wheel's own source
+  (hypothesis/core.py's `seed()` docstring, extracted this transaction):
+  "Hypothesis will only print the seed which would reproduce a failure
+  IF A TEST FAILS IN AN UNEXPECTED WAY, for instance inside Hypothesis
+  internals" — i.e. seed-printing is reserved for internal-error-class
+  failures, NOT ordinary property falsification. The corrected contract
+  below distinguishes the five separate mechanisms the task named, each
+  independently re-verified against hypothesis 6.168.0's real source
+  this transaction (files under a scratch `pip download --no-deps`
+  extraction, outside the repository, per §9's own non-installation
+  discipline):
 
-Shrinking: built into hypothesis, deterministic given the same seed —
-  every failing generated example is automatically reduced to a
-  locally-minimal reproducible counterexample before being reported. No
-  additional configuration required; proposal records this as REQUIRED
-  behavior (not merely default), i.e. a future install/pin transaction
-  MUST NOT disable shrinking (`phases` setting) for the required EVID-07
-  properties.
+Deterministic CI generation — `settings.derandomize` (verified,
+  hypothesis/_settings.py): "If True, seed Hypothesis' random number
+  generator using a HASH OF THE TEST FUNCTION, so that every run will
+  test the same set of test cases until you update Hypothesis, Python,
+  or the test function." Default `False`; default `True` when Hypothesis
+  detects it is running on CI. This is a GENERATION policy only — it
+  controls WHICH cases get generated on a given run, deterministically
+  across repeated runs of the identical code — it is NOT itself a
+  failure-artifact persistence or cross-environment reproduction
+  mechanism (a `derandomize=True` run that fails still needs one of the
+  three mechanisms below to hand a specific failing case to a developer
+  on a different machine/environment).
+
+Shrinking / minimized falsifying example: built into hypothesis,
+  deterministic within a single run/replay — every failing generated
+  example is automatically reduced to a locally-minimal reproducible
+  counterexample before being reported, unconditionally (no additional
+  configuration required to enable it). Proposal records shrinking as
+  REQUIRED behavior for the EVID-07 properties, i.e. a future install/
+  pin transaction MUST NOT disable it via the `phases` setting.
+
+Example database — `settings.database` (verified, hypothesis/_settings.py):
+  an `ExampleDatabase` instance; if unset, defaults to a
+  `DirectoryBasedExampleDatabase` under `.hypothesis/examples` in the
+  current working directory (falls back to an in-memory database if that
+  location is unusable); stores failing cases and replays them FIRST on
+  subsequent runs before generating new random ones. `None` disables
+  storage entirely. This is a LOCAL, machine-scoped convenience cache,
+  not a portable/authoritative reproduction artifact — see the
+  non-committal rationale below (unchanged from v0.1).
+
+Explicit regression examples — `@example(...)` (verified,
+  hypothesis/core.py `class example`): "Add an explicit input to a
+  Hypothesis test, which Hypothesis will always try before generating
+  random inputs... can also be used to easily reproduce a failure. For
+  instance, if Hypothesis reports that `f(n=[0, math.nan])` fails, you
+  can add `@example(n=[0, math.nan])` to your test to quickly reproduce
+  that failure." Explicit examples run in `Phase.explicit`, do NOT
+  shrink, and do not count toward `max_examples`. Proposal: once a
+  generated failure is diagnosed as a genuine defect (not a test-quality
+  issue), the specific failing input SHOULD be promoted to a permanent
+  `@example(...)` on the relevant test — this is the durable,
+  portable, version-independent regression-test mechanism, and is the
+  form EVID-07's own regression corpus should converge toward over time,
+  rather than depending indefinitely on an opaque temporary blob.
+
+Version-specific cross-environment failure reproduction — `print_blob`/
+  `@reproduce_failure` (verified, hypothesis/_settings.py +
+  hypothesis/core.py): `settings.print_blob` — "If set to True,
+  Hypothesis will print code for failing test cases that can be used
+  with `@reproduce_failure` to reproduce the failing test case." Default
+  `False`; default `True` when running on CI. `reproduce_failure(version:
+  str, blob: bytes)` — "Run the test case corresponding to the binary
+  `blob` in order to reproduce a failure... A test decorated with
+  `@reproduce_failure` always runs exactly one test case... Hypothesis
+  will print an `@reproduce_failure` decorator if `settings.print_blob`
+  is True." CRITICALLY, verified directly from the docstring: "no
+  compatibility guarantees are made across Hypothesis versions, and
+  `@reproduce_failure` will error if used on a different Hypothesis
+  version than it was created for" — a printed blob is tied to the
+  EXACT hypothesis version that produced it, and the docstring itself
+  states it "is not intended to be a permanent addition to your test
+  suite," only a temporary tool for reproducing one specific failure
+  before either fixing the defect or promoting the case to `@example`.
+  Proposal (the explicit mechanism the task requires): CI runs with
+  `print_blob` at its CI-default `True` (or explicitly forced `True` in
+  the "ci" settings profile, §below, regardless of environment
+  auto-detection) so that any CI failure's terminal output already
+  contains a ready-to-paste `@reproduce_failure(version, blob)` snippet;
+  that snippet is captured VERBATIM into the defect record (matching
+  Chapter 13 §13.10's flaky-test discipline of not silently retrying)
+  and is the mechanism used to reproduce the exact failing case locally
+  — NOT a printed `@seed(...)` line, which (per the correction above)
+  ordinary property failures do not produce.
 
 Generated-input bounds: proposal — two named `hypothesis.settings`
   profiles (registered via `settings.register_profile`, standard
@@ -321,21 +432,27 @@ Generated-input bounds: proposal — two named `hypothesis.settings`
       database enabled (developer convenience, faster iteration on
       previously-failing examples), `max_examples` at hypothesis's own
       library default.
-    "ci" profile — `derandomize=True` (forces a fully deterministic,
-      bytecode-derived seed so the SAME examples are generated on every
-      run, not merely reproducible via a logged seed after the fact),
-      `database=None` (no local-machine-dependent state persisted/read —
-      avoids non-hermetic behavior differences between machines/CI
-      workers), explicit `max_examples` bound (proposal: 200 per property,
-      the same order of magnitude as the Go precedent's 150-300
-      trials/machine — exact number to be finalized at the install/pin
-      transaction against real measured runtime, not fixed here as a
-      Constitution-adjacent numeric commitment).
+    "ci" profile — `derandomize=True` (deterministic case GENERATION
+      across repeated runs, per the correction above — a generation
+      policy, not a failure-persistence mechanism on its own),
+      `print_blob=True` (explicit, not merely relying on CI
+      auto-detection — the cross-environment failure-reproduction
+      mechanism, per the correction above), `database=None` (no
+      local-machine-dependent state persisted/read — avoids non-hermetic
+      behavior differences between machines/CI workers; reproduction
+      instead flows through the printed `@reproduce_failure` blob),
+      explicit `max_examples` bound (proposal: 200 per property, the same
+      order of magnitude as the Go precedent's 150-300 trials/machine —
+      exact number to be finalized at the install/pin transaction against
+      real measured runtime, not fixed here as a Constitution-adjacent
+      numeric commitment).
   Rationale for NOT committing the `.hypothesis` example database to the
   repository: it is a local cache of previously-failing inputs, not a
   reproducibility mechanism this repository's own I-12/SSOT discipline
-  would want to treat as authoritative — the PRINTED seed on failure is
-  the authoritative, portable reproduction artifact, consistent with how
+  would want to treat as authoritative — the PRINTED `@reproduce_failure`
+  blob (`-MAJ-04`, above) is the authoritative, portable, per-failure
+  reproduction artifact, and a promoted `@example(...)` is the
+  authoritative, durable, version-independent one; consistent with how
   this repository's own mutmut/coverage evidence transactions already
   favor explicit, re-runnable commands over opaque local caches.
 
@@ -435,27 +552,72 @@ Replay reconstruction consistency: for a generated lineage sequence,
   generated sequences rather than the fixed scenarios EVID-05(a)'s
   existing tests already cover.
 
-Concurrent/interleaved transitions — applicability determined, not
-  assumed: a fresh grep across src/feature_engine/*.py for `concurren`,
-  `expected_version`, `optimistic`, `threading`, `asyncio`, `Lock(` this
-  transaction returned ZERO hits. Feature Engine's real handlers
-  (on_candle/on_swing_confirmed/on_swing_invalidated/on_regime_classified/
-  on_regime_invalidated) are synchronous, single-threaded consumers of an
-  already-ordered event stream at a single computation cursor — there is
-  no concurrent-writer/version-conflict contract exposed at this module's
-  boundary today. I-13's "concurrent transition attempt... resolve
-  deterministic bằng version/concurrency contract" clause is therefore
-  genuinely NOT APPLICABLE at the Feature Engine module boundary as
-  currently implemented (this is an ownership/architecture fact, not a
-  gap this candidate is deferring) — true multi-writer concurrency, if it
-  ever exists for Feature facts, is owned by Chapter 8's stream/sequence
-  model and Event Bus/log write-path, outside src/feature_engine/**.
-  This is NOT the same as "interleaved," which genuinely IS applicable
-  and is covered above (sequence/order constraints) — interleaved
-  ARRIVAL ORDER of already-serialized facts at one cursor is real and
-  testable; concurrent WRITERS are not present in this module. Per §13.8
-  fail-closed discipline, this is an explicit, verified "not applicable"
-  determination (backed by the grep command above), not a silent skip.
+Concurrent transitions — `-MAJ-05` corrected disposition: **A. NOT_APPLICABLE**
+  at the Feature Engine module boundary, on AUTHORITATIVE-CONTRACT
+  grounds (not on the absence-of-implementation-primitives reasoning v0.1
+  wrongly relied on as its sole basis).
+
+  I-13's own clause is semantic, not implementation-detail: "concurrent/
+  competing transition attempts on the same entity must resolve
+  deterministically under the authoritative version/concurrency
+  contract" — the question is whether such competing attempts can reach
+  Feature Engine's own state-machine boundary AT ALL, not whether
+  Feature Engine's own source file happens to import a lock primitive.
+
+  Authoritative basis, freshly resolved this transaction against Chapter
+  8 (docs/constitution/08-event-model.md v4.8, Locked) §8.3 (verified
+  directly, this transaction, not from memory):
+    "Một stream là một ordered log partition có đúng MỘT writer
+    authority cấp phát sequence" (line 222) — EVERY stream, including
+    whatever stream(s) carry FeatureComputed/FeatureFactInvalidated, has
+    EXACTLY one writer authority resolvable at any point in time.
+    "Mỗi stream chỉ có 1 writer authority (điều kiện để sequence
+    contiguous)" (line 299) — restated as a structural precondition,
+    not a recommendation.
+    Writer-authority handoff invariant (lines 348-356): "Không có
+    khoảng thời gian nào hai writer cùng authoritative" (rule 5 — never
+    a window where two writers are simultaneously authoritative), sequence
+    assigned ATOMICALLY at append time (line 363 — "reserve-then-crash sẽ
+    tạo lỗ hổng vĩnh viễn" is explicitly rejected), and handoff failure
+    must itself be fail-safe (I-6).
+  Consequence for Feature Engine specifically: because every stream
+  (Chapter 8-owned, platform-wide, Locked) structurally cannot have two
+  independently-authoritative writers appending conflicting events at
+  the same time, two competing/conflicting FeatureComputed/
+  FeatureFactInvalidated transitions for the SAME (feature_subject_id,
+  effective_window) lineage head CANNOT be independently, concurrently
+  appended to the authoritative event log in the first place — the
+  "version/concurrency contract" I-13 requires is Chapter 8's own
+  single-writer-authority + atomic-sequence-assignment contract,
+  ALREADY resolved and Locked, and it operates one level up the stack,
+  at the event-log append boundary, BEFORE any event ever reaches
+  Feature Engine's own `on_feature_computed`/`on_feature_invalidated`
+  handlers. Feature Engine's handlers only ever apply an already-
+  serialized, single-writer-produced sequence — there is no "competing
+  transition attempt" for them to resolve, because Chapter 8 has already
+  made that outcome structurally impossible upstream. This is an
+  architecture/ownership fact about where the guarantee lives (Chapter
+  8, universally, for every stream), not a gap this candidate is
+  deferring or a claim invented from an absence of code.
+  Corroborating (not sole) evidence: a fresh grep across
+  src/feature_engine/*.py for `concurren`, `expected_version`,
+  `optimistic`, `threading`, `asyncio`, `Lock(` this transaction returned
+  ZERO hits — CONSISTENT with (not proof of) the architectural
+  determination above: Feature Engine's own implementation correctly
+  contains no concurrency-conflict-resolution code of its own, because it
+  correctly does not own that responsibility.
+
+  Explicitly NOT the same question as "interleaved," which remains
+  genuinely APPLICABLE and is covered above (sequence/order constraints,
+  §6 "Sequence/order constraints") — interleaved ARRIVAL ORDER of
+  already-serialized, single-writer-produced facts at one computation
+  cursor is real and testable (e.g. candle vs. swing-confirmation
+  delivery order); that is a property about ORDER of an already-
+  guaranteed-serial stream, not about resolving a genuine WRITE conflict,
+  which Chapter 8 has already ruled out. Per §13.8 fail-closed
+  discipline, this is an explicit, contract-backed "not applicable"
+  determination (Chapter 8 §8.3, cited above), not a silent skip and not
+  a grep-only claim.
 ```
 
 ## 7. Installation-time verification contract (REQUIRED for any future install/pin transaction — mirrors testing.md's own coverage.py/mutmut contracts; fail-closed if any item does not resolve)
@@ -499,9 +661,30 @@ Concurrent/interleaved transitions — applicability determined, not
   (Chapter 13 §13.8).
 ```
 
-## 8. ADR Scope Rule — fresh run (Chapter 0 §4b, independent of the old remediation plan's language)
+## 8. ADR Scope Rule — `-MAJ-01` corrected, fresh run (Chapter 0 §4b, this transaction's own boundary, not copied from v0.1 or from the task's own hint)
 
 ```text
+`-MAJ-01` correction notice: v0.1 of this candidate framed
+  Chapter 3 §3.2 and Chapter 13 §13.3/§13.14 as a "carve-out" exempting
+  tool/vendor selection from Chapter 0 §4b entirely, and concluded
+  `ADR_NOT_REQUIRED` on that basis. This framing is WRONG and is
+  retracted. Directly on point, verified fresh this transaction against
+  docs/engineering/testing.md's own "Python Mutation Compatibility
+  Candidate" v0.15 correction (`P3-PY-MUT-COMPAT-A-MAJ-02`): that exact
+  correction already established, for this same repository, that
+  "Chapter 3 §3.2 establishes Testing Convention as the AUTHORITY for
+  testing style/tooling decisions -- it does NOT exempt those decisions
+  from Chapter 0 §4b's own ADR Scope Rule" -- Testing Convention decides
+  WITHIN §4b's framework, never outside it. That same correction also
+  explicitly preserved the ORIGINAL coverage.py/gobco/mutmut mechanism-
+  SELECTION decisions as "settled, unchallenged, and out of scope" at
+  their own `ADR_NOT_REQUIRED` disposition -- it did not blanket-
+  reclassify every testing-tool decision to `ADR_OPTIONAL`. The task's
+  own hinted disposition (`ADR_OPTIONAL — ADR NOT AUTHORED`) is
+  therefore NOT copied blindly here -- it is independently re-derived
+  below, on hypothesis's own actual characteristics, against the SAME
+  corrected criteria testing.md's own v0.15 correction used.
+
 Trigger checked                              | Result
 -----------------------------------------------|-------
 Platform Invariant addition/edit               | NO — I-13's text is
@@ -524,52 +707,89 @@ Module Taxonomy / dependency-graph change      | NO — no new module, no
                                                   `dependencies = []`.
 Governance/Approval-process change             | NO — does not touch
                                                   Chapter 0/11/12/ADR-042.
->1 module or hard-to-reverse effect            | NO — scoped to
-                                                  python/feature-engine
-                                                  only (this repository's
-                                                  own established
-                                                  "FEATURE-ENGINE-ONLY"
-                                                  scoping pattern, e.g. the
-                                                  mutmut threshold); a
-                                                  dev/test dependency is
-                                                  trivially reversible
-                                                  (remove from
-                                                  pyproject.toml/lock,
-                                                  delete the tests that use
-                                                  it) — same reversibility
-                                                  class as ruff/mypy/
-                                                  pytest/coverage/mutmut,
-                                                  none of which required an
-                                                  ADR.
+Production/event/API/domain contract change    | NONE — no event schema,
+                                                  no domain concept, no
+                                                  published contract
+                                                  touched.
+Dependency graph/invariant/governance-process  | NONE beyond the single
+  change                                         new dev-only PyPI leaf
+                                                  dependency itself (§7).
+Cross-module authority                         | NONE — explicitly,
+                                                  contractually FEATURE-
+                                                  ENGINE-ONLY, same
+                                                  scoping discipline as
+                                                  the mutmut compatibility
+                                                  candidate's own
+                                                  corrected classification.
+Reversible                                     | YES — single-step
+                                                  removal (delete the
+                                                  pyproject.toml/lock
+                                                  entries and the tests
+                                                  that use it).
 Edit/supersede a Locked ADR                    | NO — no ADR file touched.
+Materially significant internal testing-tool   | YES, independently
+  decision (the criterion that actually decides    assessed on
+  ADR Optional vs. Not Required, per testing.md's   hypothesis's OWN
+  own v0.15 correction, not inherited)             characteristics
+                                                  (reasoning below) — this
+                                                  is the one dimension
+                                                  where hypothesis differs
+                                                  materially from
+                                                  coverage.py/mutmut/
+                                                  gobco's own original
+                                                  selections.
 
-Carve-out authority directly on point (Chapter 3 §3.2 line 44 + Chapter
-  13 §13.3/§13.14, both Locked, verified fresh): Testing Convention
-  ("chỉ quy định style/tooling... coverage/tier requirement đã có đầy đủ
-  ở Chapter 13, không định nghĩa lại") and Chapter 13 §13.3/§13.14
-  ("không khóa tool/vendor cụ thể... defer Engineering Foundation") both
-  ALREADY pre-authorize tool/vendor selection within Testing Convention's
-  own governed candidate -> Review A/B (now Review A + Risk
-  Classification) -> Product Owner approval workflow — this is exactly
-  the SAME "pattern (b)" already used, independently, for THREE prior
-  Testing Convention tool selections in this repository: `coverage.py`
-  (Python line+branch coverage, APPROVED via Testing Convention v0.7,
-  ADR_NOT_REQUIRED), `mutmut` (Python test-effectiveness, APPROVED via
-  Testing Convention v0.12, same disposition), and `gobco` (Go branch
-  coverage, CANDIDATE, same disposition) — none of the three required an
-  ADR, all three used this exact carve-out reasoning, verified directly
-  against docs/engineering/testing.md this transaction, not assumed.
+Why "materially significant," specifically (not by label-copying the
+  mutmut compat-shim outcome, but by the SAME underlying criterion
+  testing.md's own v0.15 correction used — does the decision change how
+  test EXECUTION itself behaves, versus merely instrumenting/observing
+  the existing deterministic suite):
+  coverage.py instruments already-existing, already-deterministic
+    example-based tests to measure which lines/branches executed -- it
+    does not change what a test DOES or generate new test cases.
+  mutmut's own original selection runs the EXISTING test suite,
+    unmodified, against synthetically mutated production code -- again,
+    it does not change how Feature Engine's own tests generate or
+    execute cases; the mutmut COMPATIBILITY SHIM (correctly ADR_OPTIONAL)
+    was significant specifically because it changed HOW an already-
+    approved mechanism's own sanity-check phase behaves internally.
+  hypothesis is categorically different in kind: adopting it introduces
+    RANDOMIZED-BUT-SEEDED, GENERATED test-case execution into Feature
+    Engine's own test suite for the first time -- test cases that did
+    not exist as fixed examples before, a new `RuleBasedStateMachine`/
+    `@given` execution model, a new Flaky-detection failure category
+    (§5) that does not exist for any current example-based test, and a
+    dev/CI settings-profile split (§5) governing how MANY and WHICH
+    cases actually run. This changes what "running Feature Engine's test
+    suite" DOES, not merely what it measures or what it runs against --
+    the same class of "substantive change to tooling behavior" testing.md's
+    own v0.15 correction identified as crossing from Not-Required into
+    Optional-but-significant territory, independently re-derived here
+    for hypothesis's own actual properties rather than copied from that
+    prior finding's conclusion.
 
-Result: `ADR_NOT_REQUIRED`.
-  This is NOT inherited from feature-engine-chapter13-remediation-plan-
-  001.md (which only described a workflow SEQUENCE mirroring mutmut's own
-  precedent, without itself asserting a scope-rule classification) — it
-  is freshly re-derived here, directly against Chapter 0 §4b's table and
-  the two Locked carve-out clauses, and cross-checked against three
-  independent same-repository precedents reaching the identical
-  disposition for the identical class of decision (dev/test tooling
-  selection, single-module scope, pre-authorized by Chapter 13 §13.14).
-  This candidate authors NO ADR file.
+Result: `ADR_OPTIONAL — ADR NOT AUTHORED`.
+  Materially significant (reasoning above) + one module only + no
+  contract change + reversible + no cross-module authority maps DIRECTLY
+  to Chapter 0 §4b's "ADR Optional: thay đổi nội bộ một module không đổi
+  contract nhưng ảnh hưởng đáng kể" category -- not to "ADR Not
+  Required" (typo/formatting/no-behavior-change refactor) and not to
+  "ADR Required" (no Platform Invariant/Event Schema/Module Taxonomy/
+  Governance-process/>1-module/Locked-ADR trigger fires, per the table
+  above). This candidate deliberately chooses ADR NOT AUTHORED, available
+  specifically BECAUSE the classification is Optional (not because
+  Optional exempts consideration) -- exactly the same deliberate-choice
+  structure testing.md's own v0.15 correction recorded for the mutmut
+  compatibility candidate. This is NOT inherited from v0.1's
+  `ADR_NOT_REQUIRED`, NOT copied blindly from the task's own hinted
+  disposition, and NOT a blanket reclassification of coverage.py/gobco/
+  mutmut's own original, already-settled `ADR_NOT_REQUIRED` selections
+  (unchallenged, out of scope for this correction, same non-
+  retroactivity discipline testing.md's own v0.15 correction applied to
+  itself). A future installation/pinning transaction, or any proposal to
+  extend this mechanism beyond feature-engine, MUST independently re-run
+  Chapter 0 §4b at its own boundary and MAY reach a different conclusion.
+  This candidate authors NO ADR file at this transaction.
 ```
 
 ## 9. Not performed at this transaction (explicit)
@@ -599,69 +819,101 @@ Overall Feature Engine Chapter 13 Quality Gate: UNCHANGED, `FAIL —
   not touch EVID-04/-06/-08 at all).
 Feature module approval: NOT APPROVED (unaffected). Phase 3 Approval
   Gate: NOT opened (unaffected). LIVE: NOT_AUTHORIZED (unaffected).
-No Product Owner Approval Gate decision performed or implied — per
-  Chapter 13 §13.1 (Quality Gate evidence ≠ Approval Gate consumption)
-  AND because this transaction does not even reach the Quality Gate
-  evidence stage yet (mechanism not yet selected/approved).
+No Product Owner Approval Gate decision performed or implied, and NONE
+  invented for this bounded correction either — per Chapter 13 §13.1
+  (Quality Gate evidence ≠ Approval Gate consumption) AND because,
+  per `-MAJ-02`, only Product Owner may approve, and no Product Owner
+  decision has occurred on this candidate or on the testing.md v0.17
+  "Python property-based testing mechanism — CANDIDATE" subsection it
+  now references (added this same transaction).
 No mutmut/coverage.py/gobco candidate or approval history touched —
-  verified byte-unchanged.
+  verified byte-unchanged (this correction only ADDS one new subsection
+  to docs/engineering/testing.md (v0.17) — it does not edit any
+  existing section's content).
+No self-closure of `P3-FEATURE-QG-EVID07-A-MAJ-01` through `-MAJ-05` —
+  all five recorded `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+  (frontmatter, banner), never `CLOSED`, per `-MAJ-02`'s own corrected
+  governance path (Review A determines disposition on re-review; this
+  Executor transaction does not).
 ```
 
 ## 10. Self-consistency check (performed before commit)
 
 ```text
-- §2's cited source identifiers (FeatureLineageError, FeatureCurrentView.
-  on_feature_computed/on_feature_invalidated, RegimePassthroughFeature
-  Engine._emit_original/_emit_invalidation/_emit_replacement,
-  SwingDistanceFeatureEngine._recompute/_invalidate_and_replace/
-  _emit_replacement_only/_invalidate_and_reattempt/_reevaluate_all_
-  windows/_preempt_settled_window) were verified via direct `grep -n`
-  against current src/feature_engine/*.py this transaction, not recalled
-  from memory — line numbers cited match the grep output captured this
-  transaction.
+- §2's cited source identifiers (unchanged by this correction, re-
+  confirmed still present in current source, this transaction) were
+  originally verified via direct `grep -n` against src/feature_engine/*.py
+  and remain accurate — not touched by this correction.
 - §3/§5/§7's hypothesis/sortedcontainers version, license, Requires-
-  Python, and Requires-Dist claims were verified via `pip index versions`
-  and `pip download --no-deps` into a scratch directory outside the
-  repository this transaction, not from training-data memory.
-- §6's "concurrent transition" not-applicable determination is backed by
-  an explicit, reproducible grep command (zero hits) rather than an
-  unverified assertion.
-- §8's ADR-scope conclusion was cross-checked against three independent,
-  same-repository precedents (coverage.py, mutmut, gobco) reaching the
-  identical disposition for the identical decision class, not asserted on
-  Chapter 0 §4b's table alone.
+  Python/Dist claims (unchanged, still 6.168.0/2.4.0 — the candidate
+  landscape did not need re-checking for this bounded correction, since
+  no install/pin is proposed to execute at this boundary) remain as
+  originally verified via `pip index versions`/`pip download --no-deps`.
+- `-MAJ-04`'s corrected §5 API claims (print_blob, reproduce_failure,
+  derandomize, database, @example, Flaky) were verified this transaction
+  directly against hypothesis 6.168.0's own extracted wheel source
+  (hypothesis/core.py, hypothesis/_settings.py, hypothesis/errors.py) —
+  not from memory, and not merely restated from the task's own prompt
+  text.
+- `-MAJ-05`'s corrected §6 concurrent-transition disposition is backed by
+  a direct reading of Chapter 8 §8.3 (docs/constitution/08-event-model.md,
+  Locked, single-writer-authority + atomic-sequence-assignment
+  invariants, lines 222/299/348-363, this transaction) — grep is now
+  cited only as corroborating, not as the architectural proof.
+- `-MAJ-01`'s corrected §8 ADR-scope conclusion was cross-checked
+  directly against docs/engineering/testing.md's own v0.15 correction
+  text (`P3-PY-MUT-COMPAT-A-MAJ-02`) this transaction, applying its
+  corrected CRITERION (does the decision change test-execution behavior,
+  not merely instrument/observe it) to hypothesis's own characteristics
+  — not copied from that finding's own label, and not copied from the
+  task's own hinted disposition without independent re-derivation.
+- `-MAJ-03`'s SSOT correction is internally consistent: §3/§4 of this
+  file now explicitly frame themselves as QG-scoped input to, not a
+  substitute for, the testing.md v0.17 candidate subsection (added this
+  same transaction) — verified by re-reading both files together before
+  commit.
 - No numeric Chapter 13 threshold is duplicated into this candidate (no
   such threshold exists for the Property-based category — §13.6 states
-  the category is required "khi áp dụng," not a percentage — so the
-  EF-TEST-A-MIN-01/P3-PY-COV-A-MIN-01 SSOT-duplication defect class does
-  not apply here; confirmed by direct reading of §13.6, not assumed).
+  the category is required "khi áp dụng," not a percentage).
 - Internally coherent: no section of this candidate asserts EVID-07 is
-  closed, asserts a dependency was installed, or asserts a Product Owner
-  decision occurred — cross-checked against §9's own explicit negative
-  list.
+  closed, asserts a dependency was installed, asserts a Product Owner
+  decision occurred, or asserts Review A itself approves anything —
+  cross-checked against §9's own explicit negative list and against
+  `-MAJ-02`'s corrected banner.
 ```
 
-## 11. Next governed step (not performed by this transaction)
+## 11. Next governed step (not performed by this transaction) — `-MAJ-02`/`-MAJ-03` corrected governance path
 
 ```text
-1. Review A (ChatGPT, per docs/team/team.yaml) reviews this candidate:
-   mechanism selection soundness, Surface 1/2 completeness, §6 evidence-
-   category sufficiency, §8's ADR-scope conclusion, and Risk
-   Classification (R0/R1/R2, per ADR-042) for the CANDIDATE itself.
-2. If Review A finds defects: a bounded correction transaction remediates
-   them (same pattern as every prior Testing Convention candidate in this
-   repository) — not self-closed by the correction author.
-3. Once Review A is CLEAN: Product Owner decision on the candidate
-   (mechanism selection only — still no installation).
-4. A SEPARATE, later, install/pinning transaction executes §7's full
-   installation-time verification contract, actually adds `hypothesis`/
-   `sortedcontainers` to pyproject.toml and requirements-dev.lock.txt, and
-   installs into python/feature-engine's environment.
-5. A SEPARATE, later, test-authoring transaction writes the actual
+1. Bounded Review A re-review of this correction (this transaction):
+   determines whether `-MAJ-01` through `-MAJ-05` are genuinely
+   remediated (CLOSED) or require further correction. Review A
+   determines technical disposition/eligibility only — it does not
+   approve this candidate or the testing.md v0.17 candidate subsection,
+   per Chapter 0 §3.
+2. If Review A finds the corrections insufficient: a further bounded
+   correction transaction remediates the residual — not self-closed by
+   the correction author, same discipline as this transaction.
+3. Once Review A closes all five findings CLEAN: Risk Classification
+   (R0/R1/R2, per ADR-042) is recorded for the testing.md candidate
+   decision specifically (the actual mechanism/tool decision, per
+   `-MAJ-03` — not for this QG-scoped file, which makes no decision of
+   its own to classify).
+4. Product Owner decision on the testing.md candidate (mechanism
+   selection only — still no installation) — the SOLE approval authority,
+   per `-MAJ-02`; not Review A, not this Executor.
+5. ONLY AFTER the mechanism becomes effective in testing.md (Approved):
+   a SEPARATE, later, install/pinning transaction executes testing.md's
+   own installation-time verification contract (§7 of this file feeds
+   that contract's content but does not itself authorize installation),
+   actually adds `hypothesis`/`sortedcontainers` to pyproject.toml and
+   requirements-dev.lock.txt, and installs into python/feature-engine's
+   environment.
+6. A SEPARATE, later, test-authoring transaction writes the actual
    property-based tests against Surfaces 1–2 (§2/§6).
-6. A SEPARATE, later, formal Chapter 13 §13.9 evidence transaction (same
+7. A SEPARATE, later, formal Chapter 13 §13.9 evidence transaction (same
    pattern as feature-engine-evid05b-formal-evidence-001.md) records
    fresh measurement and, only if it genuinely passes, closes
    `P3-FEATURE-QG-EVID-07`.
-   None of steps 1-6 is performed by this transaction.
+   None of steps 1-7 is performed by this transaction.
 ```

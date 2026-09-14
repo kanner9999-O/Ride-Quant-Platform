@@ -1,12 +1,12 @@
 ---
 id: engineering-testing
 title: "Engineering Foundation — Testing Convention"
-version: "0.16"
-status: Approved
+version: "0.17"
+status: Draft
 owner: Product Owner
 reviewers: []
-approved_by: Product Owner
-approved_at: "2026-09-03"
+approved_by: null
+approved_at: null
 created_at: "2026-08-12"
 last_review: null
 next_review: null
@@ -14,6 +14,8 @@ depends_on: ["../constitution/03-engineering-principles", "../constitution/13-qu
 ---
 
 # Engineering Foundation — Testing Convention
+
+**v0.17 CANDIDATE amendment (2026-09-14), KHÔNG self-approved — status: `Approved → Draft`.** `version: "0.16" → "0.17"`, `approved_by`/`approved_at` (v0.16's own values) reset to `null`/`null` for the document's CURRENT lifecycle state — v0.16's own approval record is PRESERVED UNEDITED immediately below as historical evidence of what WAS approved, exactly the same discipline already used for the v0.2→v0.3 Go branch-coverage candidate addition. Vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Bounded Correction Executor` — added ONE new subsection, "Python property-based testing mechanism — CANDIDATE," under "## Framework/tool selection" (below), remediating `P3-FEATURE-QG-EVID07-A-MAJ-03` (a standalone `P3-FEATURE-QG-EVID-07` Quality-Gate candidate document risked becoming a competing tooling SSOT; the actual mechanism/tool decision is now canonicalized HERE, under this document's own Chapter 3 §3.2 authority). **No other section's content changed** — §1-§16, Framework/tool-selection's three existing subsections (Go branch-coverage, Python coverage.py, Python mutmut), Non-goals, prior ADR-scope disposition, and Change History below are all byte-equivalent to v0.16 except for this one new addition and this banner/frontmatter. **This v0.17 addition does NOT install/pin `hypothesis`, does NOT modify Feature Engine production/test code, does NOT close `P3-FEATURE-QG-EVID-07`, and is NOT itself approved** — pending Review A + Risk Classification, then a separate Product Owner decision, per Chapter 0 §3/ADR-042.
 
 **v0.16 APPROVAL — mechanical (2026-09-03), vai trò: `Testing Convention v0.16 Mechanical Approval Recorder`.** Product Owner decision (verbatim): **"APPROVE Python Mutation Compatibility Candidate / Testing Convention v0.16 at boundary 773bd9851fe6aa5023740d07db55b5337c9362d4."** Decision date: `2026-09-03`.
 
@@ -2619,6 +2621,145 @@ CANDIDATE ≠ APPROVED/ACCEPTED ≠ INSTALLED ≠ PINNED ≠ QUALIFYING QG EVIDE
   xuất tại đây KHÔNG được dùng LÀM Feature QG evidence cho tới khi toàn bộ governance chain
   (Product Owner decision trên chính candidate này, installation-time verification contract
   ở trên, VÀ một formal QG re-evaluation riêng biệt) hoàn tất.
+```
+
+### Python property-based testing mechanism — CANDIDATE (v0.17, pending Product Owner decision — canonicalizes the `P3-FEATURE-QG-EVID-07` mechanism decision, `P3-FEATURE-QG-EVID07-A-MAJ-03` remediation)
+
+```text
+[v0.17 added — vai trò: `Feature Engine EVID-07 Property-Based Mechanism
+  Candidate Bounded Correction Executor`, same transaction as the bounded
+  correction of feature-engine-evid07-property-based-mechanism-candidate-
+  001.md. This section exists SPECIFICALLY to remediate
+  `P3-FEATURE-QG-EVID07-A-MAJ-03`: that candidate's v0.1 risked becoming a
+  competing tooling SSOT by stating a mechanism selection inside a
+  standalone Quality-Gate evidence document instead of within THIS
+  document, which docs/constitution/03-engineering-principles.md §3.2
+  (Locked) establishes as the authority for testing style/tooling
+  decisions. This section IS the canonical location for the actual
+  mechanism/tool decision; the QG candidate file provides only QG-scoped
+  rationale (which I-13 evidence categories the mechanism must satisfy)
+  and cross-references this section rather than restating it.]
+
+Problem: Chapter 13 §13.6 requires a "Property-based" test category for
+  numerical/state-machine boundaries (I-9, I-13) when applicable — no
+  Python property-based testing framework is installed, pinned, or
+  approved anywhere in this repository today (verify directly:
+  python/feature-engine/pyproject.toml's `[project.optional-
+  dependencies].dev` and requirements-dev.lock.txt, both re-read this
+  transaction — zero such entry). Full QG-scoped gap analysis, Surface
+  identification (the two authoritative Feature Engine transition graphs
+  this mechanism must exercise), and valid-evidence-category definitions
+  live in `docs/governance/quality-gate/feature-engine-evid07-property-
+  based-mechanism-candidate-001.md` §1-2/§6 (not duplicated here, per
+  this document's own SSOT discipline, `EF-TEST-A-MIN-01`) — this section
+  covers ONLY the mechanism/tool decision itself.
+
+CANDIDATE mechanism proposed: **hypothesis** (PyPI package `hypothesis`,
+  github.com/HypothesisWorks/hypothesis). Verified directly this
+  transaction (`pip index versions hypothesis`, `pip download --no-deps`
+  into a scratch directory strictly outside the repository — NOT
+  installed into python/feature-engine, NOT from memory):
+  - latest version: 6.168.0; Development Status :: 5 - Production/Stable.
+  - License-Expression: MPL-2.0 (OSI-approved, file-level weak copyleft).
+  - Requires-Python: >=3.10 (compatible with this project's own
+    `requires-python = ">=3.13"`, installed 3.13.6).
+  - Mandatory runtime dependency footprint on this project's Python
+    floor: exactly ONE — `sortedcontainers>=2.1.0,<3.0.0` (itself
+    verified: version 2.4.0, License: Apache 2.0, zero further
+    Requires-Dist — a pure-Python leaf package). `exceptiongroup` is
+    conditional on `python_full_version < '3.11'` and does not apply.
+  - Provides `hypothesis.stateful.RuleBasedStateMachine` — purpose-built
+    for rule/state-machine/transition-sequence verification, the closest
+    match of any candidate assessed to I-13's own "transition graph
+    authoritative" wording — plus `@given`/`@example`/`@seed`/
+    `settings`/`reproduce_failure` for narrower properties (full API
+    surface re-verified against the actual 6.168.0 source this
+    transaction, not from memory — see the EVID-07 QG candidate's own
+    §5 for the exact, corrected reproducibility-contract detail).
+
+Alternative considered and NOT selected: hand-rolled stdlib `random`-
+  seeded generators (the mechanism actually used for market-reference-
+  service's own Go I-13 evidence, docs/MANIFEST.md, zero third-party
+  dependency). Full comparison lives in the EVID-07 QG candidate's own
+  §3 (not duplicated here) — summary: technically CAPABLE of satisfying
+  Chapter 13 §13.6 (I-13 does not require Hypothesis, shrinking, or any
+  third-party framework by name), but rejected as the RECOMMENDED
+  mechanism on engineering-cost grounds, not compliance grounds — Go's
+  own toolchain natively provides deterministic generation and a built-in
+  fuzzer (`testing.F`) that CPython's stdlib has no equivalent of, so the
+  same "zero-dependency" argument that correctly favored the stdlib
+  approach for Go does not transfer to a lower real cost for Python once
+  hand-built shrinking/generation/reproduction machinery is honestly
+  priced in.
+
+Other candidates surveyed and rejected: `schemathesis` (wrong problem
+  shape — API-schema fuzzing, Feature Engine exposes no such surface);
+  `crosshair` (symbolic execution/SMT-based, a materially heavier,
+  proof-oriented mechanism solving a different problem — also verified
+  to appear only as hypothesis's own OPTIONAL `crosshair` extra, not a
+  competing baseline); `pytest-quickcheck` (verified via `pip index
+  versions`: sparsely maintained, materially smaller feature set, no
+  stateful-machine API, strictly dominated by hypothesis for this exact
+  use case). None adopted merely because it exists.
+
+ADR Scope Rule (Chapter 0 §4b, run fresh this transaction, against
+  hypothesis's own actual characteristics — NOT inherited from this
+  document's own prior coverage.py/mutmut/gobco selections, and NOT
+  copied from the EVID-07 QG candidate's own v0.1 `ADR_NOT_REQUIRED`,
+  which that candidate's own bounded correction (`P3-FEATURE-QG-EVID07-
+  A-MAJ-01`) has separately retracted): No Platform Invariant/Event
+  Schema/Module Taxonomy/Governance-process/Locked-ADR trigger fires;
+  scope is FEATURE-ENGINE-ONLY (reversible, single-step removal). The
+  decisive criterion — per this document's own `P3-PY-MUT-COMPAT-A-MAJ-
+  02` correction (above, v0.15) — is whether the decision is "materially
+  significant" in the sense of changing test-EXECUTION behavior, not
+  merely instrumenting/observing it. Unlike coverage.py (instruments
+  existing deterministic tests) and mutmut's own original selection (runs
+  the existing suite against mutated code) — both correctly
+  `ADR_NOT_REQUIRED` — hypothesis introduces randomized-but-seeded,
+  GENERATED test-case execution, a new `RuleBasedStateMachine`/`@given`
+  execution model, a new `Flaky`-detection failure category, and a
+  dev/CI settings-profile split governing how many/which cases run: a
+  substantive change to what "running the test suite" does, the same
+  class of significance this document's own v0.15 correction identified
+  for the mutmut compatibility shim. Result: **`ADR_OPTIONAL — ADR NOT
+  AUTHORED`** — materially significant + one module + no contract change
+  + reversible maps directly to Chapter 0 §4b's "ADR Optional" category;
+  ADR NOT AUTHORED is chosen deliberately, available because the
+  classification is Optional, not because Optional exempts
+  consideration. This does NOT retroactively reclassify coverage.py/
+  gobco/mutmut's own original, already-settled `ADR_NOT_REQUIRED`
+  selections (unchanged, out of scope for this decision).
+
+KHÔNG tại transaction này (candidate-only, tường minh):
+  - KHÔNG cài đặt `hypothesis`/`sortedcontainers` vào python/feature-
+    engine hay bất kỳ module nào (mọi verification chạy trong scratch
+    dir NGOÀI repository, KHÔNG commit, KHÔNG ảnh hưởng pyproject.toml/
+    requirements-dev.lock.txt).
+  - KHÔNG thêm dependency nào vào pyproject.toml/requirements-dev.lock.txt.
+  - KHÔNG viết property-based test nào cho feature-engine.
+  - KHÔNG close/remediate `P3-FEATURE-QG-EVID-07` — VẪN `FAIL —
+    evidence`/`NEEDS_GOVERNED_DESIGN_OR_MECHANISM`.
+  - KHÔNG rerun/reinterpret feature-engine's own Chapter 13 Quality Gate.
+  - KHÔNG chạm coverage.py/mutmut mechanism sections above — byte-
+    equivalent, KHÔNG re-opened.
+  - KHÔNG approve module/Phase nào. KHÔNG authorize LIVE.
+  - KHÔNG Product Owner decision recorded here — this section is
+    `Draft`/CANDIDATE, subject to Review A + Risk Classification, THEN
+    Product Owner decision, per Chapter 0 §3/ADR-042 — none of which has
+    occurred at this transaction.
+  Chọn/pin/cài đặt chính thức mechanism này LÀ một transaction riêng biệt
+  tương lai — PHẢI tự verify trực tiếp lại toàn bộ candidate landscape
+  (version/license/dependency footprint CÓ THỂ đổi giữa candidate-
+  authoring và install time) VÀ tự rerun ADR Scope Rule nếu bất kỳ fact
+  nền tảng nào ở trên đổi.
+
+CANDIDATE ≠ APPROVED/ACCEPTED ≠ INSTALLED ≠ PINNED ≠ QUALIFYING QG
+  EVIDENCE. Mechanism đề xuất tại đây KHÔNG được dùng LÀM Feature QG
+  evidence cho tới khi toàn bộ governance chain (Review A + Risk
+  Classification trên chính candidate này, Product Owner decision,
+  installation-time verification contract, VÀ một formal QG
+  re-evaluation riêng biệt) hoàn tất.
 ```
 
 ## Non-goals (KHÔNG chọn/redefine tại v0.1 này)
