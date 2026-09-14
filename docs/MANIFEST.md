@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.368"
+manifest_version: "10.369"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26879,6 +26879,96 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** Review A of `ADR-043` Draft (independent read-only assessment against Chapter 0/Chapter 8/I-13/`feature.md` §9 authority), followed by fresh Risk Classification and a Product Owner decision on this exact candidate.
 
 **Files changed:** `docs/adr/ADR-043.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `feature.md`/Feature Event Contracts/`module-registry.yaml`/`stream-registry.yaml`/Chapter 8/every other ADR/`python/feature-engine/**`/`docs/engineering/testing.md`/the EVID-07 QG candidate all verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.367"` → `"10.368"`.
+
+## ADR-043 — bounded Review A correction (`ADR043-A-MAJ-01`/`ADR043-A-MIN-01`; `Draft`, `v0.1 → v0.2`)
+
+**Bounded correction transaction — vai trò: `ADR-043 Bounded Correction Executor`.** Remediates two Review A findings against `ADR-043` v0.1 (reviewed blob `a34ed4f52647513ea918b8b52dc6bb25f028154d`, boundary `e6d6d14c53371220eda14605d7f1facd1bb968ea`, reviewer ChatGPT/`AI Technical Architect`, verdict `REVISION_REQUIRED`): `ADR043-A-MAJ-01` — semantics 1–7 prevented two authoritative successors from the same lineage head, but did not guarantee competing attempts are arbitrated in the SAME deterministic order across runs; a runtime mutex/queue winner determined by thread scheduling, worker/process identity, network arrival timing, or wall clock is not sufficient authority for I-13. `ADR043-A-MIN-01` — the review-evidence table heading `"Independent reviews / Concerns / Risks noted"` was stale pre-ADR-042 terminology. Neither finding self-closed here — closure is Review A's own re-review determination, per Chapter 0 §3.
+
+**Fresh boundary verification:** HEAD confirmed exactly `e6d6d14c53371220eda14605d7f1facd1bb968ea`, identical to `origin/main`; ADR-043 blob confirmed exactly `a34ed4f52647513ea918b8b52dc6bb25f028154d` — no drift.
+
+### Deterministic-arbitration correction (`ADR043-A-MAJ-01`)
+
+```text
+Semantic 2 extended: when two or more attempts compete for the same
+  subject, the owner MUST arbitrate using an order deterministically
+  derivable from already-authoritative inputs -- per-stream sequence
+  precedence and causation precedence (Chapter 8 §8.3.4's own hard
+  constraints, P_stream union P_causation, unchanged), and, for events
+  not ordered by either, the subject's own applicable Input Contract
+  merge_policy/concurrent_tie_break (§8.3.4, unchanged, un-redefined).
+  Runtime arrival order, wall-clock time, thread/process scheduling,
+  replica identity, and lock-acquisition timing MUST NOT determine the
+  winner. Once the deterministically-first attempt advances the head,
+  any competing attempt still targeting the prior head deterministically
+  fails current-head validation. No new platform-wide total order
+  created; no Input Contract merge-policy authority moved into this ADR
+  -- Feature Engine only preserves/applies ordering its own
+  already-authoritative inputs already carry.
+Semantic 5 extended: fails closed when a deterministic precedence
+  between two competing attempts (semantic 2) cannot be derived, in
+  addition to the existing ownership/state-uncertainty triggers.
+Semantic 6 extended: because arbitration order is a pure function of
+  already-replay-stable Chapter 8 ordering, replaying identical
+  authoritative inputs MUST reproduce the identical accepted transition
+  and the identical stale/conflicting-attempt rejection outcome.
+```
+
+### Heading correction (`ADR043-A-MIN-01`)
+
+```text
+"Independent reviews / Concerns / Risks noted" -> "Review A / Risk
+  Classification / Concerns / Risks noted" -- matches the current ADR
+  template/ADR-042 governance. No mandatory-Review-B language
+  reintroduced.
+```
+
+### Review A evidence and Risk Classification recorded (mechanically, not this executor's own authority)
+
+```text
+Review A row populated: ChatGPT / AI Technical Architect / boundary
+  e6d6d14c53371220eda14605d7f1facd1bb968ea / REVISION_REQUIRED --
+  records the review that occurred against v0.1; does NOT certify this
+  v0.2 correction, which has not itself been re-reviewed.
+Risk Classification recorded: class R2, reason "ADR-043 establishes
+  runtime architecture/authority semantics used to enforce Locked I-13
+  State Transition Integrity under concurrency/failover" -- the
+  classification Review A returned at the boundary above; explicitly
+  NOT asserted as this v0.2 correction's own fresh re-review
+  classification, which the next Review A must independently determine.
+```
+
+### Preserved unchanged (per governing task)
+
+```text
+Per-subject exclusive ownership (semantic 1); fenced ownership handoff
+  (semantic 3); authoritative-state catch-up (semantic 4); non-
+  authoritative execution isolation (semantic 7); horizontal scaling
+  across independent subjects; the three Alternatives considered;
+  ADR_OPTIONAL scope classification (Review-A-validated, unchanged).
+  feature.md, Feature Event Contracts, module-registry.yaml,
+  stream-registry.yaml, Chapter 8, every other ADR, python/
+  feature-engine/**, docs/engineering/testing.md, and the EVID-07 QG
+  candidate all verified byte-unchanged (`git diff --quiet`). Not EVID-07
+  correction round 3 -- the EVID-07 candidate remains at correction 002.
+```
+
+### State summary (preserved)
+
+```text
+ADR043-A-MAJ-01/-MIN-01:        REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-QG-EVID07-A-MAJ-05:  OPEN — ADR-043 v0.2 Draft, corrected,
+                                NOT approved, NOT closed.
+P3-FEATURE-QG-EVID-07:          OPEN / FAIL — evidence (unaffected).
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A re-review of `ADR043-A-MAJ-01`/`ADR043-A-MIN-01` only, against this exact correction delta — fresh eligibility determination for Product Owner decision.
+
+**Files changed:** `docs/adr/ADR-043.md` (corrected in place, blob `a34ed4f52647513ea918b8b52dc6bb25f028154d` → `9feef448d23c654d315c71428e1c5ae81343df81`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`. `manifest_version` `"10.368"` → `"10.369"`.
 
 ## Decision Log
 
