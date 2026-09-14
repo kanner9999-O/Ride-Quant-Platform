@@ -2,6 +2,112 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-14 — feature-engine: `ADR-043` v0.1 authored (`Draft`) — Feature Engine Per-Subject Single-Owner Serialization for I-13 (`P3-FEATURE-QG-EVID07-A-MAJ-05` architecture, not approved)
+
+**Governed semantic architecture-authoring transaction — vai trò: `ADR Candidate Authoring Executor`.** Authors `docs/adr/ADR-043.md` v0.1 (`Draft`) per Product Owner's approved design direction — Option C, fenced per-`feature_subject_id` single-owner serialization, deterministic fail-safe handoff, authoritative-state catch-up mandatory — for the runtime-authority gap underlying `P3-FEATURE-QG-EVID07-A-MAJ-05`. Product Owner elected to author despite `ADR_OPTIONAL`; election to author is not approval — ADR-043 still requires its own Review A, fresh Risk Classification, and Product Owner decision. ADR authoring only: no implementation, no `feature.md`/Feature Event Contract/`module-registry.yaml`/`stream-registry.yaml`/Chapter 8 change, `P3-FEATURE-QG-EVID07-A-MAJ-05`/`P3-FEATURE-QG-EVID-07` not closed, not EVID-07 correction round 3 (candidate remains at correction 002).
+
+**Fresh boundary verification:** HEAD confirmed exactly `70dc6c3d8e134d90c1bcdcea84d1cf4a3fe2e828`, identical to `origin/main`; `docs/adr/ADR-043.md` verified absent before this transaction (ADR-042 confirmed the highest existing ADR) — no drift.
+
+### Decision encoded
+
+```text
+Feature stream writer authority remains feature-engine (stream-
+  registry.yaml, unchanged). Within that boundary, every authoritative
+  Feature transition for one feature_subject_id is processed through
+  exactly ONE active authoritative subject owner at a time -- an
+  internal execution/ownership discipline, no second authoritative
+  source, technical realization of feature.md §9's existing no-fork/
+  current-head rule (not a redefinition).
+```
+
+### Mandatory semantics (1-7)
+
+```text
+1. Per-subject exclusive ownership -- different subjects may have
+   different owners concurrently (horizontal scale by affinity, not a
+   mandated single global process).
+2. Serialization against current authoritative lineage state before
+   emitting.
+3. Fenced ownership handoff -- old owner loses authority before new
+   owner gains it on any transfer (scale/repartition/restart/crash/
+   failover/redeploy); no vendor/tool mandated.
+4. Authoritative-state catch-up before activation -- process-local
+   memory alone never sufficient after a transfer.
+5. Fail closed on uncertain ownership/state -- no best-effort winner,
+   no wall-clock election, no emit-both-and-reject-later.
+6. Replay determinism -- owner identity is execution-control metadata,
+   never a Feature domain input; no owner ID/epoch/lease/fencing token
+   added to Feature Event Schema.
+7. Non-authoritative execution isolation -- Replay/backtest/shadow/
+   simulation never participates in authoritative subject ownership.
+```
+
+### Scope classification
+
+```text
+ADR_OPTIONAL (elected, not required). No Platform Invariant/Event
+  Schema/Module Taxonomy/dependency-graph/Governance-process trigger;
+  not a Chapter 9 §9.10 Decision Pipeline topology change (that trigger
+  is Strategy-Plugin/Decision-Pipeline-scoped, verified fresh against
+  its own text, not inherited from phase-1-plan.md's broader non-
+  binding anticipation-map citation); single-module, reversible
+  (execution-topology choice, same class ADR-032/ADR-033 treat as
+  build-time). Materially significant -- realizes a Locked Platform
+  Invariant (I-13) for a Tier-1 module's production runtime.
+```
+
+### Alternatives preserved
+
+```text
+1. Sticky routing/affinity without fencing -- rejected, split-brain
+   risk on failover/repartitioning. 2. Global single Feature Engine
+   owner -- semantically sufficient, rejected as unnecessarily
+   restrictive. 3. Atomic expected-current-head CAS at authoritative
+   append -- a valid PERMITTED internal technique, not prohibited, but
+   not itself chosen as this ADR's architecture (a platform-wide
+   append-time CAS contract is Chapter-8-adjacent/cross-module,
+   broader than feature-engine's own scope) -- this ADR fixes the
+   semantic architecture, leaves the enforcement technique to a future
+   feature-engine-scoped implementation.
+```
+
+### `depends_on`/`addresses`/`resolves`
+
+```text
+depends_on: [] -- specializes execution within Chapter 8 (Constitution)
+  and feature.md §9 (Domain Contract), neither an ADR-level extension.
+addresses: []/resolves: [] -- this repository's convention restricts
+  these fields to OQ-XXX (ADR-009/010 precedent); P3-*-MAJ-* finding
+  IDs are referenced in body prose instead, matching ADR-037's own
+  precedent for P3-FEATURE-QG-EVID-05(b).
+```
+
+### Evidence artifact
+
+```text
+docs/adr/ADR-043.md (new; content identity
+  a34ed4f52647513ea918b8b52dc6bb25f028154d). feature.md, Feature Event
+  Contracts, module-registry.yaml, stream-registry.yaml, Chapter 8,
+  every other ADR, python/feature-engine/**, testing.md, and the
+  EVID-07 QG candidate all verified byte-unchanged.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03/-04: CLOSED (unaffected,
+  unrevisited). P3-FEATURE-QG-EVID07-A-MAJ-05: OPEN -- ADR-043 v0.1
+  Draft authored as candidate resolution architecture, NOT approved,
+  NOT closed. P3-FEATURE-QG-EVID-07: OPEN / FAIL — evidence
+  (unaffected). EVID-05(a)/(b): unaffected, unrevisited. Overall
+  Feature Chapter 13 QG: FAIL — evidence (unaffected). Feature module:
+  NOT APPROVED. Phase 3 gate: NOT opened. LIVE: NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of `ADR-043` Draft, followed by fresh Risk Classification and a Product Owner decision on this exact candidate.
+
+**Files changed:** `docs/adr/ADR-043.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.367"` → `"10.368"`.
+
 ## [Unreleased] — 2026-09-14 — feature-engine: EVID-07 candidate bounded correction 002 (`P3-FEATURE-QG-EVID07-A-MAJ-04`/`-MAJ-05` remediated; `-MAJ-01`/`-MAJ-02`/`-MAJ-03` recorded CLOSED — REVIEW A VALIDATED)
 
 **Bounded semantic correction transaction — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Bounded Correction Executor`.** `candidate_version: "0.2" → "0.3"` on `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md`, status still `CANDIDATE — NOT EFFECTIVE`. Records the incoming Review A re-review disposition — `P3-FEATURE-QG-EVID07-A-MAJ-01`/`-MAJ-02`/`-MAJ-03` **CLOSED — REVIEW A VALIDATED** (mechanically recorded, not re-litigated; not reopened, no fresh direct contradiction found on re-read) — and remediates the two findings left open:

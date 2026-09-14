@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.367"
+manifest_version: "10.368"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26733,6 +26733,152 @@ No Product Owner Approval Gate decision performed or implied by this
 **Next governed step:** a future Chapter 12 §12.2(5) Approval-Gate transaction may consume EVID-01/-02/-03/-05 together once EVID-04/-06/-07/-08 are also resolved — none of those four is addressed here; EVID-04/-08 remain externally blocked on the not-yet-built Decision Engine/Risk Gateway/Execution Engine (`feature-engine-chapter13-remediation-plan-001.md` §1/§6).
 
 **Files changed:** `docs/governance/quality-gate/feature-engine-evid05b-formal-evidence-001.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `python/feature-engine/src/`, `python/feature-engine/tests/`, every ADR, `docs/domain/feature.md`, and the four canonical `v1.0` snapshots all verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.365"` → `"10.366"`.
+
+## ADR-043 v0.1 — Feature Engine Per-Subject Single-Owner Serialization for I-13 (`Draft`, candidate authoring — `P3-FEATURE-QG-EVID07-A-MAJ-05` architecture)
+
+**Governed semantic architecture-authoring transaction — vai trò: `ADR Candidate Authoring Executor`.** Authors `docs/adr/ADR-043.md` v0.1 (`Draft`) per Product Owner's approved design direction (Option C, fenced per-`feature_subject_id` single-owner serialization, deterministic fail-safe handoff, authoritative-state catch-up mandatory) for the runtime-authority gap underlying `P3-FEATURE-QG-EVID07-A-MAJ-05`. Product Owner elected to author this ADR despite an `ADR_OPTIONAL` classification — that election does not make the resulting Draft candidate itself Approved; ADR-043 still requires its own Review A + fresh Risk Classification + Product Owner decision before it becomes effective authority. Does not implement owner routing/fencing/failover/catch-up. Does not modify `feature.md`, Feature Event Contracts, `module-registry.yaml`, `stream-registry.yaml`, or Chapter 8. Does not touch `feature-engine` implementation/tests. Does not perform Review A or Independent Review B. Does not close `P3-FEATURE-QG-EVID07-A-MAJ-05` or `P3-FEATURE-QG-EVID-07`. Is not EVID-07 candidate correction round 3 — the EVID-07 candidate itself remains at correction 002, untouched by this transaction.
+
+**Fresh boundary verification:** HEAD confirmed exactly `70dc6c3d8e134d90c1bcdcea84d1cf4a3fe2e828`, identical to `origin/main` — no drift. `docs/adr/ADR-043.md` verified absent before this transaction (`ls docs/adr/` confirmed no `043` identity; ADR-042 confirmed the highest existing ADR). `docs/adr/ADR-043.md` content identity (this transaction's own authored blob): `a34ed4f52647513ea918b8b52dc6bb25f028154d`.
+
+### Decision encoded
+
+```text
+The authoritative Feature stream writer remains the existing
+  feature-engine module (stream-registry.yaml, unchanged). Within that
+  already-existing writer-authority boundary, every authoritative
+  Feature transition for one feature_subject_id must be processed
+  through exactly ONE active authoritative subject owner at a time --
+  an internal Feature-Engine execution/ownership discipline, creating
+  no second authoritative source, technical realization of feature.md
+  §9's existing no-fork/current-head rule (not a redefinition of it).
+```
+
+### Mandatory semantics recorded (1-7, per governing task)
+
+```text
+1. Per-subject exclusive ownership -- at most one owner per
+   feature_subject_id at any instant; different subjects may have
+   different owners concurrently (horizontal scale by partitioning/
+   affinity, NOT a mandated single global process).
+2. Serialization against current authoritative lineage state -- every
+   attempt for one subject serialized through its current owner,
+   validated against the authoritative current head feature.md §9
+   already requires.
+3. Fenced ownership handoff -- routing affinity alone insufficient;
+   any transfer (scaling/repartitioning/restart/crash-recovery/
+   failover/deployment-replacement) requires an explicit fencing/
+   ownership-generation mechanism (or equivalent): old owner loses
+   authoritative emission authority BEFORE new owner gains it, never a
+   dual-authoritative window. No specific broker/database/actor-
+   framework/lease/orchestration/RPC mechanism mandated -- semantic
+   requirement only.
+4. Authoritative-state catch-up before activation -- a new owner must
+   reconstruct/catch up from authoritative event history/committed
+   lineage before becoming eligible to emit; process-local memory
+   alone never sufficient after a transfer.
+5. Fail closed on uncertain ownership/state -- cannot prove exclusive
+   ownership AND state catch-up/current-head correctness -> subject
+   scope fails closed; no best-effort winner, no wall-clock election,
+   no emit-both-and-let-projection-reject-later.
+6. Replay determinism -- owner identity is execution-control metadata,
+   never a Feature domain input; Replay depends only on authoritative
+   event history/domain semantics. No owner ID/epoch/lease/fencing
+   token added to Feature Event Schema by this ADR.
+7. Non-authoritative execution isolation -- Replay/backtest/shadow/
+   simulation execution not authorized to append never participates in
+   authoritative subject ownership.
+```
+
+### Scope classification
+
+```text
+ADR_OPTIONAL (Product Owner elected to author, not required to). No
+  Platform Invariant/Event Schema/Module Taxonomy/dependency-graph/
+  Governance-process trigger fires; not a Chapter 9 §9.10 Decision
+  Pipeline topology change (that trigger is Strategy-Plugin/Decision-
+  Pipeline-scoped -- verified fresh against §9.10's own text, not
+  inherited from phase-1-plan.md's broader, non-binding anticipation-
+  map citation of that same section); single-module (feature-engine
+  only); reversible (execution-topology choice, same class ADR-032/
+  ADR-033 both treat as build-time). Materially significant because it
+  is the actual mechanism realizing a Locked Platform Invariant (I-13)
+  for a Tier-1 Core Logic module's production runtime -- the deciding
+  criterion this repository's own testing.md v0.15 correction
+  (P3-PY-MUT-COMPAT-A-MAJ-02) and the EVID-07 candidate's own MAJ-01
+  correction both already established for this same class of decision.
+```
+
+### Alternatives preserved (per governing task, no re-analysis)
+
+```text
+1. Sticky routing/affinity without fencing -- rejected, failover/
+   repartitioning can produce two owners believing they own the same
+   subject (split-brain); affinity alone does not satisfy I-13.
+2. Global single Feature Engine owner -- semantically sufficient but
+   rejected as unnecessarily restrictive, forecloses horizontal scale
+   across independent subjects for no correctness benefit.
+3. Atomic expected-current-head CAS at authoritative append -- a valid
+   internal technique, explicitly PERMITTED beneath this ADR (not
+   prohibited), but NOT itself the chosen architecture -- a general
+   platform-wide append-time CAS contract belongs to the event-append
+   mechanism (Chapter-8-adjacent, cross-module), which would broaden
+   this decision past feature-engine's own single-module scope. This
+   ADR fixes the semantic architecture (exclusive fenced per-subject
+   owner + authoritative catch-up + serialization); specific
+   enforcement technique (CAS or otherwise) is left to a future
+   feature-engine-scoped implementation.
+```
+
+### `depends_on`/`addresses`/`resolves`
+
+```text
+depends_on: [] -- ADR-043 specializes execution WITHIN Chapter 8's
+  already-Locked writer-authority model (a Constitution chapter, not
+  an ADR) and feature.md §9's existing rule (a Domain Contract, not an
+  ADR) -- no ADR-level extension relationship exists.
+addresses: [] / resolves: [] -- this repository's own established
+  convention restricts these fields to OQ-XXX Open Questions
+  (ADR-009/resolves:[OQ-005], ADR-010/resolves:[OQ-006]); no other ADR
+  uses them for a P3-*-MAJ-* Review A finding ID. P3-FEATURE-QG-
+  EVID07-A-MAJ-05/P3-FEATURE-QG-EVID-07 are referenced in the ADR's own
+  Context/Consequences prose instead, matching ADR-037's own precedent
+  for P3-FEATURE-QG-EVID-05(b).
+```
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-043.md (new); docs/MANIFEST.md;
+  docs/CHANGELOG.md only. feature.md, Feature Event Contracts,
+  module-registry.yaml, stream-registry.yaml, Chapter 8, every other
+  ADR, python/feature-engine/{src,tests}, pyproject.toml,
+  requirements-dev.lock.txt, docs/engineering/testing.md, and the
+  EVID-07 QG candidate all verified byte-unchanged (`git diff --quiet`).
+  No implementation performed. No test authored. No Hypothesis
+  installed. No EVID-07 correction round 3 performed.
+```
+
+### State summary (preserved)
+
+```text
+P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03: CLOSED — REVIEW A VALIDATED
+                                (unaffected, unrevisited).
+P3-FEATURE-QG-EVID07-A-MAJ-04:  CLOSED (unaffected, unrevisited).
+P3-FEATURE-QG-EVID07-A-MAJ-05:  OPEN — ADR-043 v0.1 Draft authored as
+                                the candidate resolution architecture,
+                                NOT approved, NOT closed by this
+                                transaction.
+P3-FEATURE-QG-EVID-07:          OPEN / FAIL — evidence (unaffected).
+P3-FEATURE-QG-EVID-05(a)/(b):   unaffected, unrevisited.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** Review A of `ADR-043` Draft (independent read-only assessment against Chapter 0/Chapter 8/I-13/`feature.md` §9 authority), followed by fresh Risk Classification and a Product Owner decision on this exact candidate.
+
+**Files changed:** `docs/adr/ADR-043.md` (new), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `feature.md`/Feature Event Contracts/`module-registry.yaml`/`stream-registry.yaml`/Chapter 8/every other ADR/`python/feature-engine/**`/`docs/engineering/testing.md`/the EVID-07 QG candidate all verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.367"` → `"10.368"`.
 
 ## Decision Log
 
