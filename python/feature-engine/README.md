@@ -389,195 +389,275 @@ All five recorded `REMEDIATED_PENDING_BOUNDED_REREVIEW` — none self-closed.
 
 **Status:** design record only, per Approved [`ADR-043`](../../docs/adr/ADR-043.md) (`v0.2`, `Approved`, immutable) — `ADR-043` is the sole architecture authority for everything in this section; this README only maps that already-decided authority onto concrete Feature Engine implementation structure. **No ownership runtime exists in this repository yet** — nothing in this section is implemented. `P3-FEATURE-QG-EVID07-A-MAJ-05` remains **OPEN**. `P3-FEATURE-QG-EVID-07` remains **OPEN / `FAIL — evidence`**. This design changes no production code, no test, no dependency, and no Event Schema.
 
-**Bounded correction (this revision).** Review A found the prior revision `REVISION_REQUIRED` (0 Blocker / 2 Major / 0 Minor): `ADR043-IMPLDESIGN-A-MAJ-01` — an in-process `SubjectOwnershipRegistry` alone cannot establish `ADR-043` exclusivity across crash/failover/restart/deployment replacement; `ADR043-IMPLDESIGN-A-MAJ-02` — one-event-at-a-time monotonicity rejection detects some violations but does not itself prove deterministic application order (Live arrival order could still select a winner before an earlier, tie-breaking event becomes visible). Both corrected below (§B/§"Atomicity and emission" for MAJ-01, §D for MAJ-02) — neither self-closed:
+**Bounded correction 001 (preserved as history).** Review A found the first revision `REVISION_REQUIRED` (0 Blocker / 2 Major / 0 Minor): `ADR043-IMPLDESIGN-A-MAJ-01` (in-process registry alone insufficient across crash/failover) and `ADR043-IMPLDESIGN-A-MAJ-02` (arrival-order monotonicity checking insufficient to prove ordering). Correction 001 introduced `SubjectOwnershipAuthority` and a first certified-frontier mechanism.
+
+**Bounded correction 002 (this revision).** A further bounded Review A re-review found correction 001 itself `REVISION_REQUIRED` (0 Blocker / 3 Major / 0 Minor):
+
+```text
+ADR043-IMPLDESIGN-A-MAJ-01 (residual) — commit-time fencing still had a
+  validate-then-commit TOCTOU gap: a successful SubjectOwnershipAuthority
+  validation immediately before commit does not, by itself, prevent a
+  revocation landing in the gap between that validation and the actual
+  write.
+ADR043-IMPLDESIGN-A-MAJ-02 (residual) — the §D example incorrectly implied
+  a certified frontier including B's position necessarily also reflects a
+  causally/sequence-unrelated A's position -- P_run is run-local (the
+  bounded apply set of one Input Contract's own certified cut), not a
+  cross-stream global order (Chapter 8 §8.3.3).
+ADR043-IMPLDESIGN-A-MAJ-03 (new) — catch-up (§C) claimed replaying only
+  upstream input through a FRESH engine instance is sufficient. It is not:
+  a fresh instance allocates NEW refs via SequenceAllocator.next_ref(),
+  which are not necessarily the CANONICAL refs actually committed
+  historically (_WindowLineage.head_fact.ref, pending_invalidation_ref,
+  supersedes_fact_ref chains) that future transitions must reference.
+```
+
+All three corrected below (§B/§"Atomicity and emission" for MAJ-01, §D for MAJ-02, §C for MAJ-03) — none self-closed:
 
 ```text
 ADR043-IMPLDESIGN-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
 ADR043-IMPLDESIGN-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+ADR043-IMPLDESIGN-A-MAJ-03: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
 ```
 
 **No prior README wording required correction beyond the above** — this module's README was previously *silent* on per-subject concurrency/ownership before the first design revision, so there was nothing false to retract there. The one true statement that remains true and unchanged: no real event log, broker, RPC/HTTP, or deployment/process topology exists for this module (see "What this module owns"/top-of-file, unchanged) — that external-adapter gap is exactly what §**B**/§**C** below document honestly, not something this design pretends to close.
 
 ### Chosen shape
 
-A single new **module-internal per-`feature_subject_id` ownership/coordinator boundary wraps the existing analytical engines** — `RegimePassthroughFeatureEngine`, `SwingDistanceFeatureEngine`, and (structurally, though currently moot) `CandleWindowFeatureEngine` — rather than duplicating ownership/fencing logic independently inside each. The three engines' own deterministic analytical logic (lineage validation, total-order selection, `FeatureLineageError`/`InvalidSwingEligibilityInputError` rejection of illegal transitions) is **kept exactly as-is** — no analytical RULE changes; only an internal method-shape refactor is required (§"Atomicity and emission" below) to give the coordinator a genuine prepare/commit seam. The coordinator adds ownership/fencing/catch-up/arbitration **around** the engines' unchanged logic, and is the only thing authorized to drive an engine's `on_*` methods on the authoritative (live-append) path. This remains the smallest shape that satisfies `ADR-043` semantics 1–7 without inventing a second architecture layer.
+A single new **module-internal per-`feature_subject_id` ownership/coordinator boundary wraps the existing analytical engines** — `RegimePassthroughFeatureEngine`, `SwingDistanceFeatureEngine`, and (structurally, though currently moot) `CandleWindowFeatureEngine` — rather than duplicating ownership/fencing logic independently inside each. The three engines' own deterministic analytical logic (lineage validation, total-order selection, `FeatureLineageError`/`InvalidSwingEligibilityInputError` rejection of illegal transitions) is **kept exactly as-is** — no analytical RULE changes; only an internal method-shape refactor is required (§"Atomicity and emission" below) exposing three seams: prepare a candidate transition, commit it live under a fenced authoritative commit, or reconcile it against canonical historical output during catch-up (§C). The coordinator adds ownership/fencing/catch-up/arbitration **around** the engines' unchanged logic, and is the only thing authorized to drive an engine's `on_*` methods on the authoritative (live-append) path. This remains the smallest shape that satisfies `ADR-043` semantics 1–7 without inventing a second architecture layer.
 
 ### A — Subject ownership boundary
 
-Key: `feature_subject_id` (the existing deterministic opaque subject-id `identity.py` already derives — unchanged). Ownership authority moves **out of** each engine instance. Two distinct components are now named (§B corrects the prior revision's conflation of them):
+Key: `feature_subject_id` (the existing deterministic opaque subject-id `identity.py` already derives — unchanged). Ownership authority moves **out of** each engine instance. Two distinct components are named:
 
-- `SubjectOwnershipRegistry` — process-local coordinator/cache/state-machine view (§H's `INACTIVE`/`CATCHING_UP`/`ACTIVE`/`REVOKED`), unchanged from the prior revision as a *local* concept.
-- `SubjectOwnershipAuthority` — the external, durable, exclusivity-proving boundary (§B, new this revision).
+- `SubjectOwnershipRegistry` — process-local coordinator/cache/state-machine view (§H's `INACTIVE`/`CATCHING_UP`/`ACTIVE`/`REVOKED`) — never sufficient authority by itself (§B).
+- `SubjectOwnershipAuthority` — the external, durable, exclusivity-proving boundary (§B).
 
-Different subjects have fully independent ownership state and may be owned/processed concurrently with no shared state between them. Each engine's own `_lineage` dict remains its internal cache — it is **no longer implicitly sufficient ownership authority**; it is trustworthy only while the wrapping owner is `ACTIVE` at a generation the `SubjectOwnershipAuthority` (not merely the local registry) currently recognizes as current (§B).
+Different subjects have fully independent ownership state and may be owned/processed concurrently with no shared state between them. Each engine's own `_lineage` dict remains its internal cache/reconstruction material — it is **never itself the commit authority** (§B/§"Atomicity and emission"); it is trustworthy only while the wrapping owner is `ACTIVE` at a generation the `SubjectOwnershipAuthority` currently recognizes as current.
 
-### B — Fencing / authoritative fencing boundary (`ADR043-IMPLDESIGN-A-MAJ-01` corrected)
+### B — Authoritative fencing boundary (`ADR043-IMPLDESIGN-A-MAJ-01` corrected — residual TOCTOU closed)
 
-**Correction, stated directly:** the prior revision described `SubjectOwnershipRegistry` — process-local, in-memory — as if it alone were sufficient fencing authority. It is not: it does not survive process crash/restart, and two independently-running processes each running their own local registry could both believe they hold generation N for the same subject. This revision introduces a distinct, named boundary:
+**`SubjectOwnershipAuthority`** (interface/semantics only — exact name/implementation-technology intentionally unselected; no database/broker/orchestration product is chosen). Per `feature_subject_id`, it must provide atomic generation acquisition, validation that a generation is still current, revocation-before-successor, fail-closed behavior whenever exclusivity cannot be proven, survival across process crash/restart/deployment replacement, no wall-clock election, no dual-active generations — unchanged from correction 001.
 
-**`SubjectOwnershipAuthority`** (interface/semantics only — exact name/implementation-technology intentionally unselected here; no database/broker/orchestration product is chosen by this design). Per `feature_subject_id`, it must provide:
+**`SubjectOwnershipRegistry`** remains demoted: process-local coordinator/cache reflecting what the coordinator *believes* the Authority most recently granted, plus the local state machine (§H) driving *when* the coordinator asks the Authority to acquire/validate/revoke — never authoritative by itself.
 
-- **atomic acquisition** of a strictly-increasing `ownership_generation` — the Authority, not the local process, mints the generation, and two concurrent acquisition attempts for the same subject can never both succeed for the same or an overlapping generation;
-- **validation** that `(feature_subject_id, ownership_generation)` is still the unique current authoritative generation, callable at any time by whichever process currently believes it holds ownership;
-- **revocation/fencing** of the old generation as a precondition — the old generation is provably no longer current *before* a successor generation may be minted for the same subject;
-- **fail-closed behavior** whenever exclusivity cannot be proven (Authority unreachable, ambiguous, or absent) — never a default-to-local-registry fallback;
-- **survival across process crash/restart/deployment replacement** — this is precisely the property an in-process registry structurally cannot provide, which is why it cannot be the sole source of exclusivity;
-- **no wall-clock election, no dual-active generations** — the same invariant `ADR-043` semantic 3 already requires, now pinned to an external authority rather than local memory.
+**Test/local adapter:** a bounded in-memory implementation of `SubjectOwnershipAuthority` may exist for deterministic unit/integration testing or single-process, non-production use, **explicitly labeled `NOT sufficient for production-authoritative cross-process ownership`**. Authoritative-production mode without a genuine, durable `SubjectOwnershipAuthority` configured **fails closed**.
 
-**`SubjectOwnershipRegistry`** is retained, explicitly demoted: a process-local coordinator/cache reflecting what the coordinator *believes* the `SubjectOwnershipAuthority` most recently granted, plus the local `INACTIVE`/`CATCHING_UP`/`ACTIVE`/`REVOKED` state machine (§H, unchanged) driving *when* the coordinator asks the Authority to acquire/validate/revoke. It is never treated as authoritative by itself.
+**Correction, stated directly (residual `ADR043-IMPLDESIGN-A-MAJ-01`):** the prior revision's "revalidate immediately before commit" was still a **separate check followed by a separate write** — a validate-then-commit TOCTOU gap. Counterexample: owner N's revalidation call returns "current"; before N's own subsequent write actually lands, another process revokes N and mints N+1; N's write still lands, now under a fenced-but-unenforced generation. A validation call that merely *precedes* the write, however closely, is not itself sufficient.
 
-**Test/local adapter:** a bounded in-memory implementation of `SubjectOwnershipAuthority` may be designed for deterministic unit/integration testing or single-process, non-production use. It **must be explicitly labeled `NOT sufficient for production-authoritative cross-process ownership`** — the same honesty discipline this README already applies to `SequenceAllocator`. Running in an "authoritative production mode" without a genuine, durable `SubjectOwnershipAuthority` configured **fails closed** — the coordinator never silently falls back to local-registry-only fencing.
-
-**Last-safe-point validation (corrected — was construction-time-only in the prior revision):** ownership validity is validated against the `SubjectOwnershipAuthority` (not merely local registry state) at two points: (1) **before beginning** an authoritative transition attempt for a subject, and (2) again, as the true last safe point, **immediately before commit** (§"Atomicity and emission" below) — i.e. immediately before the real sequence is allocated and the engine's `_lineage`/applied-frontier state is durably updated. A generation that was current at point (1) but has been fenced by the time point (2) is checked aborts the attempt with zero effect (§"Atomicity and emission").
-
-### C — Authoritative catch-up (corrected — upstream replay, not output-only reconstruction)
-
-**Correction, stated directly:** the prior revision implied Feature's own `FeatureComputed`/`FeatureFactInvalidated` output history alone would be sufficient to reconstruct an engine's full internal state. Direct source analysis shows this is **not proven** and, for at least two concrete fields, is false:
-
-- `RegimePassthroughFeatureEngine._lineage[key].last_evidence_fact` holds the **full content** of the upstream `RegimeClassifiedFact` (used by `EvidenceReferenceConflictError`'s duplicate-delivery-with-conflicting-content check) — Feature's own output `input_fact_refs` carries the upstream fact's *ref*, not necessarily a byte-for-byte copy of its full content.
-- `SwingDistanceFeatureEngine`'s per-`swing_id` confirmation/invalidation tracking (`_SwingConfirmationRecord`/`_SwingInvalidationRecord`) records **every** upstream Swing confirmation/invalidation the engine has seen, including ones that were **never selected** as the eligible Swing for any `FeatureComputed` — such a Swing leaves no trace in Feature's own output history at all, yet the engine needs it to correctly evaluate *future* candles under `feature.md` §9a's 5-step filter/8-criterion order.
-
-**Corrected design:** catch-up is **not** a bespoke state-reconstruction algorithm inverting output facts. Instead, a new owner reconstructs state the same way this module's own `EVID-05(a)`-validated self-contained-replay discipline (`tests/test_replay_isolation.py`, unaffected, unrevisited) already proves the engines behave: construct a **fresh instance** of the relevant engine and **replay the certified, ordered upstream input history** (the same `CandleFact`/`SwingConfirmedFact`/`SwingInvalidatedFact`/`RegimeClassifiedFact`/`RegimeFactInvalidatedFact` sequence, under the subject's own Input Contract) through that engine's **existing, unmodified** `on_*` methods, in `P_run` order (§D), up to the certified catch-up frontier. This requires no new engine-internal reconstruction logic — it reuses the engines' own already-proven determinism.
-
-This is expressed as a bounded `AuthoritativeLineageHistoryProvider` protocol/interface boundary (mirroring the exact discipline already governing this codebase's `input_contract_authority_provider`/`output_event_contract_authority_provider` — required, verified, fail-closed-if-wrong-type constructor dependencies, `authority_resolver.py`/`output_contract_resolver.py`, unchanged) with **two** roles, unified under one interface family rather than two separate abstractions: (1) one-time catch-up — supply the certified, ordered upstream input history for a subject up to a frontier, for fresh-instance replay as above; (2) ongoing operation — supply the certified, not-yet-applied apply-set for a subject at a freshly-certified frontier (§D). **Stated honestly, per instruction:** `publish.py`'s `SequenceAllocator` is explicitly **not**, and is not proposed to become, this provider — its own docstring already states it is "NOT a real event log or broker." No real, durable, cross-process Feature event log exists anywhere in this repository today. **No production-authoritative implementation of this provider exists or is proposed by this design** — genuinely separate, future infrastructure work. A `CATCHING_UP → ACTIVE` transition **fails closed** (stays `CATCHING_UP`, never advances) whenever no such provider is configured or the configured provider cannot prove successful, complete replay — including truthfully for a genuinely brand-new subject with no prior history, which still requires the provider to affirmatively prove "no history exists" rather than being silently assumed from an absent/misconfigured provider.
-
-### D — Deterministic arbitration over a certified complete frontier (`ADR043-IMPLDESIGN-A-MAJ-02` corrected)
-
-**Correction, stated directly:** the prior revision's "reject a fact that violates monotonicity relative to what's already applied" check can *detect* some out-of-order deliveries, but cannot *prove* correct ordering — it is retained below only as a **defensive invariant check**, never the primary correctness mechanism. Processing "whichever event the caller happened to hand the Python method first" is never sufficient, even with that check present.
-
-**Corrected primary mechanism — reuse only already-existing, already-approved machinery, no new ordering authority invented:**
-
-- [`contracts.py`](./src/feature_engine/contracts.py)'s existing `EvaluationFrontier` — already documented as "caller-certified, PROOF-CARRYING" (`recorded_time`, `stream_registry_version`, `lifecycle_frontier`, `stream_positions`, each with proof) — the engine "NEVER constructs `stream_positions`/`lifecycle_frontier` itself." This is, unchanged, exactly the "certified complete input cut/frontier" this correction requires; it is not invented here.
-- [`feature-context-architecture.md`](../../docs/architecture/engine/feature-context-architecture.md) §4.6 (v0.6, already Approved-authority-instantiating) already specifies, in full, the certification protocol that *produces* a valid `EvaluationFrontier`: the lifecycle bracket (`L_before`/`L_after` direct synchronous reads of the canonical Lifecycle Stream), the registry-contract equality gate, per-stream direct log reads (never transport/notification-derived), the causal-closure fixed point, and the deterministic discard-and-retry-from-step-1 behavior on a detected lifecycle race. This design invents none of it — the coordinator is simply a *consumer* of a frontier some external caller/orchestrator has already certified this way, exactly as the engines already are today.
-- Chapter 8 §8.3.4's `P_stream ∪ P_causation` hard constraints and the subject's own Feature Input Contract `merge_policy.concurrent_tie_break` (unchanged, un-redefined) — already cited, unchanged from the prior revision.
-
-**Corrected per-step algorithm, for each authoritative processing step on a subject:**
-
-1. Obtain/receive an `EvaluationFrontier` already certified by the existing §4.6 protocol (the coordinator does not certify it itself — same non-authority the engines already have today).
-2. Query the provider (§C) for the set of authoritative upstream/output events for this subject that are visible within that certified frontier and **not yet applied** (tracked via the coordinator's own `last_committed_frontier` marker — coordinator-owned bookkeeping, not a new authoritative Feature concept, never added to Event Schema).
-3. Construct `P_run` over exactly that bounded apply set (§8.3.4, unchanged): per-stream sequence precedence and causation precedence as hard constraints; `merge_policy.concurrent_tie_break` only for events ordered by neither.
-4. Deterministic-topologically sort the apply set under that `P_run`.
-5. Apply in that derived order, driving the wrapped engine's own unmodified `on_*` methods (the defensive monotonicity check from the prior revision still runs here as a belt-and-suspenders invariant, now checking an already-`P_run`-sorted sequence rather than arrival order).
-6. Advance `last_committed_frontier` for this subject **only after** the whole ordered batch is successfully committed (§"Atomicity and emission").
-
-When the received frontier is incomplete for this subject's own Input Contract: defer/buffer according to that Input Contract's own already-authoritative `frontier_policy` (`mechanism`/`completeness_rule`/`late_arrival_behavior`/`buffer_limit_policy`/`incomplete_frontier_behavior`, Chapter 8 §8.3.4, unchanged, values not restated here per this README's own existing SSOT discipline) — or fail closed where that policy requires it. An event is never applied merely because it is the one the Python method received first.
-
-**Required example (explicit, per instruction):**
+**Corrected boundary — `FencedFeatureCommitter` (naming implementation-local):** the authoritative commit is redefined as **one indivisible operation**, not a validate-step followed by a write-step:
 
 ```text
-The applicable Input Contract's own P_run says A precedes B.
-The coordinator's on_* method is called with B before A arrives.
-B MUST NOT become authoritative merely because it arrived first.
-The coordinator does not act on B in isolation: it (re-)certifies the
-frontier, computes the current complete not-yet-applied apply set for
-the subject, P_run-sorts it -- which places A before B whenever B is
-genuinely visible at a valid certified frontier, because a frontier
-that includes B's own stream position necessarily reflects A's
-already-committed position too (A precedes B in the authoritative log
-itself; Chapter 8 §8.3.4 already rejects an append that would violate
-this at the authoritative log's own append boundary, upstream of
-Feature Engine) -- and applies A, then B, in that derived order.
+verify ownership generation is still current
+  + allocate authoritative Feature stream sequence(s)
+  + append/commit authoritative Feature event(s)
+= ONE indivisible authoritative operation, enforced by the commit
+  authority itself -- not by the caller performing "check" then "write"
+  as two separate calls with a gap between them.
 ```
 
-**No global order:** ordering stays local to the applicable Feature Input Contract's own apply set (`P_run`) for one subject's certified frontier — this design does not create, and does not need, a platform-wide total order (unchanged conclusion from the prior revision, now on a corrected mechanism). The competing-successor case (two candidates targeting the same lineage head) remains caught by the engines' own existing, unmodified `FeatureLineageError`/`InvalidSwingEligibilityInputError`, now reached in genuine `P_run` order rather than arrival order.
+A stale generation is rejected **by the commit authority as part of this one operation**, not by a caller-side check that could itself be stale by the time the write actually happens. This is the same class of guarantee a conditional/compare-and-write primitive provides in a real durable store — this design does not select which one; it fixes the semantic contract the eventual implementation must satisfy.
 
-### E — Existing engine integration (updated — a bounded internal refactor is now required)
+**Fencing token is operational commit metadata only.** The `ownership_generation` used by `FencedFeatureCommitter`/`SubjectOwnershipAuthority` **MUST NOT** be added to `FeatureComputed`, `FeatureFactInvalidated`, Feature Event Schema, or any Feature domain semantic — unchanged principle from `ADR-043` semantic 6, restated here explicitly at the commit boundary where it would be easiest to accidentally leak in.
 
-- `RegimePassthroughFeatureEngine` / `SwingDistanceFeatureEngine`: **analytical rules unchanged** (lineage validation, eligibility filtering, total-order selection, illegal-transition rejection all stay byte-identical in behavior). **A bounded internal method-shape refactor is required** — see "Atomicity and emission" below; this corrects the prior revision's unqualified "no change" claim, which direct source analysis (below) disproves for the atomicity requirement specifically.
-- `CandleWindowFeatureEngine`: structurally covered by the same wrapper (any of the three engine types is wrappable identically), but moot in practice — construction always fails closed today (`UnsupportedFeatureFormulaError`, unrelated, untouched, not reopened).
-- `FeatureCurrentView`: explicitly **outside** the ownership boundary, unchanged from the prior revision. Already non-authoritative, fed by an external caller, never wired automatically into any engine — no ownership concept applies to a read-side projection regardless of how many consumers read it.
-- `SequenceAllocator`/`publish.py`: **not modified**, but its `next_ref(...)` call site moves — see "Atomicity and emission" below for exactly where.
+**Batch commit for multi-event transitions.** Direct source analysis confirms at least one existing transition already produces two events together: `SwingDistanceFeatureEngine._invalidate_and_replace` returns `[invalidation, replacement]` from one logical engine transition. The fenced commit operation above must therefore support an **atomic batch**: verify-generation + allocate-sequence(s) + append-event(s) for the **whole** batch as one indivisible operation — no partial authoritative transition (e.g. invalidation committed but replacement not), no consumed-but-uncommitted sequence gap, contiguous sequence preserved across the batch, and every event in the batch committed under the same still-current generation.
 
-### Atomicity and emission (new — resolves `ADR043-IMPLDESIGN-A-MAJ-01`'s atomicity concern)
-
-**Direct source analysis, this transaction:** today, `SwingDistanceFeatureEngine._emit_original`/`_emit_replacement_only`/`_invalidate_and_replace` (and `RegimePassthroughFeatureEngine`'s equivalent `_emit_*` methods) call `self._allocator.next_ref(...)` **and** mutate `self._lineage[key] = ...` **together, in one synchronous method**, with no seam between them. If fencing were discovered stale only *after* such a call returns, a real sequence would already be consumed and `_lineage` already mutated under a stale generation — an illegitimate partial commit, and (per Chapter 8 §8.3.2) a **sequence gap** the moment that consumed-but-invalid ref is discarded. This is exactly the failure mode `ADR043-IMPLDESIGN-A-MAJ-01` identified; the prior revision's "no engine change needed" claim did not hold against it.
-
-**Corrected boundary — a bounded prepare/commit split, design-level only, not implemented by this transaction:**
+**Corrected local ordering:**
 
 ```text
-1. validate current fenced generation           (§B, "before beginning")
-2. derive the certified P_run-ordered apply set  (§D)
-3. compute PROPOSED transition(s)                (engine logic UNCHANGED;
-                                                   candidate FeatureComputed/
-                                                   FeatureFactInvalidated value
-                                                   + candidate lineage delta
-                                                   computed WITHOUT calling
-                                                   next_ref() and WITHOUT
-                                                   mutating self._lineage yet)
-4. revalidate fencing/current generation         (§B, the true last safe point,
-                                                   against SubjectOwnershipAuthority)
-5. allocate sequence + finalize event ref         (next_ref(...) now, only
-                                                   if step 4 passed)
-6. commit local owner state: apply the lineage
-   delta to self._lineage, advance
-   last_committed_frontier                       (only after step 5)
+1. derive certified ordered work                 (§D)
+2. prepare candidate transition(s)                (engine logic UNCHANGED;
+                                                    no authoritative refs
+                                                    allocated yet, no
+                                                    self._lineage mutation
+                                                    yet)
+3. fenced authoritative commit                    (FencedFeatureCommitter,
+                                                    ONE indivisible op:
+                                                    verify generation +
+                                                    allocate sequence(s) +
+                                                    append event(s), as a
+                                                    batch when >1 event)
+4. only after step 3 succeeds: update process-
+   local engine lineage/cache; advance the local
+   committed-frontier cache
 ```
 
-If step 4 fails: the attempt is discarded in full — **no** `next_ref()` call occurs, **no** `_lineage` mutation is applied, **no** frontier advance occurs. No sequence gap is created, because no sequence was ever allocated for the discarded attempt — Chapter 8's contiguous-sequence requirement is preserved by construction, not by cleanup. Steps 3–6 execute within one synchronous, single-threaded coordinator call (this codebase has no threading/asyncio anywhere — confirmed, unchanged), so within *this* process the sequence above is effectively atomic; the genuine cross-process atomicity requirement this exposes — durably and atomically persisting steps 5–6 together once a real distributed store backs `SequenceAllocator`'s eventual replacement — is production infrastructure this design does not select or implement, exactly as §C already discloses for catch-up.
+If the process crashes after step 3 succeeds but before step 4 completes: the authoritative history is already correct (step 3 is the durable commit); restart/catch-up (§C) recovers local `_lineage`/cache state from that already-committed authoritative history — `_lineage` was always cache/reconstruction material, never the commit authority, so this crash window loses no authoritative data, only local cache that catch-up rebuilds.
 
-**Required engine-internal refactor (documented, not implemented):** `regime_passthrough.py`'s and `swing_distance.py`'s `_emit_*` methods must be split into a candidate-computation phase (step 3, no `next_ref`/`_lineage` mutation) and a separate commit phase (steps 5–6) the coordinator drives only after step 4 passes. The engines' own analytical decisions (which transition is legal, what value to compute, which head is superseded) are computed identically either way — only the *point* at which a sequence ref is allocated and `_lineage` is mutated moves, from "inside one fused call" to "after the coordinator's last-safe-point fencing recheck."
+### C — Authoritative catch-up (`ADR043-IMPLDESIGN-A-MAJ-03` corrected — canonical identity reconciliation, not fresh replay)
+
+**Correction, stated directly:** the prior revision's "construct a fresh engine instance and replay upstream input through unmodified `on_*` methods" is **not sufficient**. A fresh instance's own `SequenceAllocator.next_ref()` calls mint **new** refs from wherever that instance's own counter starts — these are not necessarily the **canonical** refs that were actually, historically committed. Downstream state depends on exact canonical identity: `_WindowLineage.head_fact.ref`, `pending_invalidation_ref`/`pending_invalidation_recorded_time`, and every `supersedes_fact_ref`/`invalidated_fact_ref` chain a *future* live transition must reference correctly. A replay that silently invents its own new refs for historical facts would desynchronize the reconstructed lineage from the real, already-committed chain.
+
+Catch-up therefore needs **both** authoritative history sources, not one:
+
+1. **certified upstream input history** — to rebuild hidden analytical state, including non-selected Swing observations `_SwingConfirmationRecord`/`_SwingInvalidationRecord` track that leave no trace in Feature's own output (unchanged finding from correction 001, still valid);
+2. **canonical authoritative Feature output history** (`FeatureComputed`/`FeatureFactInvalidated`, as actually committed) — to restore/validate the *exact* committed refs, `recorded_time` values, invalidation refs, and supersession chain.
+
+**Corrected reconstruction model, per upstream input event replayed in `P_run` order (§D) up to the catch-up frontier:**
+
+```text
+certified upstream input event
+        v
+engine computes a PREPARED historical candidate transition
+  (same deterministic logic as live "prepare", §"Atomicity and emission" --
+  NO next_ref() call, NO self._lineage mutation yet)
+        v
+match/validate the candidate against the corresponding CANONICAL
+committed FeatureComputed / FeatureFactInvalidated event supplied by
+canonical Feature output history (same window, same computed value,
+same superseded/invalidated target)
+        v
+if they match: commit the INTERNAL reconstructed _lineage entry using
+  the CANONICAL historical event's own ref / recorded_time / causation
+  content -- never a freshly allocated one
+if they do NOT match: FAIL CLOSED (never silently prefer upstream-
+  replay semantics over canonical output history, or vice versa)
+        v
+continue to the next certified input event
+```
+
+**During catch-up, explicitly:** the live `FencedFeatureCommitter` path (§B) is **never** called; no new authoritative Feature sequence/ref is ever allocated; no replacement/invalidation event is ever appended; no `recorded_time` is ever invented — every value used to populate reconstructed `_lineage` comes from the canonical historical record the provider supplies.
+
+**Exact state that must be reconstructed before `CATCHING_UP → ACTIVE`:**
+
+- the exact current canonical Feature lineage head per window (`_WindowLineage.head_fact`, with its real, historical `ref`);
+- exact invalidated/pending-correction state (`pending_invalidation_ref`/`pending_invalidation_recorded_time` where applicable);
+- the exact historical Feature refs needed for any future `supersedes_fact_ref`/`invalidated_fact_ref` a live transition will need to reference;
+- hidden upstream analytical state the engine needs (non-selected Swing confirmations/invalidations; last-evidence full content for `RegimePassthroughFeatureEngine`'s conflict check) — from certified upstream input history, unchanged from correction 001's finding;
+- `last_committed_frontier` (or equivalent checkpoint) — the certified boundary up to which reconstruction is proven complete, so live processing (§D) resumes exactly there, never reapplying already-committed input.
+
+**A genuinely brand-new subject must be positively proven, not assumed.** The provider must affirmatively answer "no prior authoritative Feature history exists for this subject" **and** "no prior applicable upstream history exists at the starting frontier" — both as positive proof from a real, configured, reachable provider. Absence of a configured provider, or an unreachable one, is **never** treated as evidence of an empty subject; both fail closed identically (§F).
+
+This is expressed as a bounded `AuthoritativeLineageHistoryProvider` protocol/interface boundary (mirroring the exact discipline already governing this codebase's `input_contract_authority_provider`/`output_event_contract_authority_provider` — required, verified, fail-closed-if-wrong-type constructor dependencies, `authority_resolver.py`/`output_contract_resolver.py`, unchanged), now explicitly supplying **both** certified upstream input history and canonical Feature output history for catch-up, plus (unchanged from correction 001) the certified not-yet-applied apply-set for ongoing operation (§D). **Stated honestly, per instruction:** `publish.py`'s `SequenceAllocator` is explicitly **not**, and is not proposed to become, this provider — its own docstring already states it is "NOT a real event log or broker." No real, durable, cross-process Feature event log exists anywhere in this repository today. **No production-authoritative implementation of this provider exists or is proposed by this design** — genuinely separate, future infrastructure work. A `CATCHING_UP → ACTIVE` transition **fails closed** whenever no such provider is configured, the provider is unreachable, or reconciliation (above) does not prove complete and matched.
+
+**Corrected `EVID-05(a)` citation:** `tests/test_replay_isolation.py` (unaffected, unrevisited) proves that Replay **execution** is externally self-contained after authority materialization — it does **not** prove that exact historical Feature-ref/lineage identity can be reconstructed from a fresh instance. That is a different property; the prior revision's citation overstated what it shows, and this correction relies on it only for the narrower, correct claim.
+
+### D — Deterministic arbitration over a certified complete frontier (`ADR043-IMPLDESIGN-A-MAJ-02` corrected — P_run is run-local, not a cross-stream global order)
+
+**Correction, stated directly:** correction 001's own worked example incorrectly implied that a certified frontier including B's stream position necessarily also reflects a causally/sequence-*unrelated* A's committed position — treating the Input Contract's `concurrent_tie_break` as if it created an ordering *obligation* between independent streams. It does not: Chapter 8 §8.3.3 is explicit that the platform "does not claim a global total order between independent streams," and `P_run` (§8.3.4) is the **induced order over one Input Contract's own bounded apply set** for one certified cut — not a claim about append timing between events with no `P_stream`/`P_causation` relationship at all. That incorrect implication is retracted.
+
+**Corrected primary mechanism — unchanged tools, corrected reasoning:** [`contracts.py`](./src/feature_engine/contracts.py)'s existing, caller-certified, proof-carrying `EvaluationFrontier`; [`feature-context-architecture.md`](../../docs/architecture/engine/feature-context-architecture.md) §4.6 (v0.6, already Approved)'s frontier-certification protocol (lifecycle bracket, registry-contract equality gate, causal-closure fixed point, deterministic discard-and-retry on a detected race) — the coordinator is a *consumer* of an already-certified frontier, same as the engines already are; Chapter 8 §8.3.4's `P_stream ∪ P_causation` hard constraints and the subject's own Input Contract `merge_policy.concurrent_tie_break` for events ordered by neither — all unchanged from correction 001.
+
+**Corrected per-step algorithm** (steps 1–6 unchanged in shape from correction 001: obtain a certified `EvaluationFrontier`; query the provider (§C) for the not-yet-applied apply-set visible within it; construct `P_run` over that bounded set; topologically sort; apply in that order via the engine's unmodified `on_*` methods, with the defensive monotonicity check now running only as a belt-and-suspenders invariant over the already-`P_run`-sorted sequence; advance `last_committed_frontier` only after the batch commits per §B).
+
+When the received frontier is incomplete for this subject's own Input Contract: defer/buffer according to that Input Contract's own already-authoritative `frontier_policy` (values not restated here per this README's own SSOT discipline) — or fail closed where that policy requires it.
+
+**Two corrected, explicit cases (replacing the prior single, incorrectly-reasoned example):**
+
+```text
+Case 1 -- both A and B are already authoritative committed records,
+  both visible within the SAME certified cut:
+  Transport/notification delivers B's arrival to this process before A's.
+  The certified direct-log frontier (§4.6) includes BOTH A and B.
+  P_run (derived from Chapter 8 hard constraints + Input Contract
+    tie-break) orders A before B.
+  The coordinator applies A, then B -- transport/notification arrival
+    order is irrelevant. This is exactly the delivery-lag hazard the
+    frontier-certification mechanism exists to solve (§4.6's own stated
+    purpose).
+
+Case 2 -- B is committed and visible at this certified frontier; A does
+  NOT yet exist at this frontier (not yet committed, or on an
+  independent stream with no P_stream/P_causation relationship to B):
+  A is not a vertex of THIS apply set's P_run at all.
+  The coordinator MUST NOT wait for a hypothetical future A merely
+    because some future apply set's tie-break key might sort an A
+    before a B -- there is no such obligation for events that are not
+    both members of the same certified apply set.
+  B is processed now, under the CURRENT, valid P_run.
+  A LATER A, once it is itself certified/committed, belongs to a LATER
+    P_run/apply set, and its own resulting Feature transition is then
+    governed by the current authoritative lineage/head at THAT time,
+    feature.md's correction/no-fork semantics, and ADR-043's own
+    serialization -- never by retroactively reinterpreting the earlier,
+    already-valid P_run that already processed B.
+```
+
+**No global order:** ordering stays local to the applicable Feature Input Contract's own apply set (`P_run`) for one subject's certified frontier — unchanged conclusion, now on a corrected, run-local (not cross-stream) reasoning. The competing-successor case (two candidates targeting the same lineage head) remains caught by the engines' own existing, unmodified `FeatureLineageError`/`InvalidSwingEligibilityInputError`, reached in genuine `P_run` order rather than arrival order.
+
+### E — Existing engine integration (updated — three seams, not two)
+
+- `RegimePassthroughFeatureEngine` / `SwingDistanceFeatureEngine`: **analytical rules unchanged**. A bounded internal method-shape refactor is required exposing three seams — see "Atomicity and emission" below: (1) prepare a candidate transition (no refs, no mutation); (2) commit it live via `FencedFeatureCommitter` (§B); (3) reconcile a prepared historical candidate against canonical output during catch-up (§C). This corrects the "no engine change needed" claim from the very first revision, further specified (not merely "prepare/commit," but the three-way split catch-up also requires) this correction.
+- `CandleWindowFeatureEngine`: structurally covered by the same wrapper, but moot in practice — construction always fails closed today (`UnsupportedFeatureFormulaError`, unrelated, untouched, not reopened).
+- `FeatureCurrentView`: explicitly **outside** the ownership boundary, unchanged. Already non-authoritative, fed by an external caller, never wired automatically into any engine — no ownership concept applies to a read-side projection.
+- `SequenceAllocator`/`publish.py`: **not modified**, but its `next_ref(...)` call site moves inside `FencedFeatureCommitter`'s own indivisible commit operation (§B) — never called during prepare (§B/§C), never called during catch-up reconciliation (§C).
+
+### Atomicity and emission (resolves `ADR043-IMPLDESIGN-A-MAJ-01`'s residual TOCTOU gap)
+
+**Direct source analysis, unchanged finding:** `SwingDistanceFeatureEngine._emit_original`/`_emit_replacement_only`/`_invalidate_and_replace` (and `RegimePassthroughFeatureEngine`'s equivalent `_emit_*` methods) today call `self._allocator.next_ref(...)` **and** mutate `self._lineage[key] = ...` together, in one synchronous method, with no seam. The corrected boundary (§B) replaces the prior revision's separate "revalidate, then allocate+mutate" two-step with the single indivisible `FencedFeatureCommitter` operation (§B) — closing the TOCTOU window a separate validate call could not.
+
+**Required engine-internal refactor (documented, not implemented):** `regime_passthrough.py`'s and `swing_distance.py`'s `_emit_*` methods are split into: a **prepare** phase (candidate value + candidate lineage delta, no `next_ref`, no `_lineage` mutation) driven for both live processing (§D) and historical reconciliation (§C); a **live commit** phase, invoked only through `FencedFeatureCommitter`'s indivisible verify+allocate+append operation (§B), which then applies the resulting `_lineage` mutation; and a **historical commit** phase (§C), which applies a `_lineage` mutation using a canonical historical event's own identity, never calling `next_ref()` or `FencedFeatureCommitter` at all. The engines' own analytical decisions (which transition is legal, what value to compute, which head is superseded) are identical across all three seams — only *where the resulting identity comes from* (freshly allocated live vs. canonical historical) and *whether/how it durably commits* differ.
 
 **Proposed new/changed source files (identified only, not implemented by this transaction):**
 
 ```
 src/feature_engine/ownership.py   SubjectOwnershipState (INACTIVE/CATCHING_UP/
-                                   ACTIVE/REVOKED), OwnerHandle (subject_id,
-                                   generation, state), SubjectOwnershipRegistry
+                                   ACTIVE/REVOKED), OwnerHandle, SubjectOwnershipRegistry
                                    (process-local, NOT sufficient authority alone),
                                    SubjectOwnershipAuthority (Protocol -- external,
                                    durable, exclusivity-proving; no technology
-                                   selected), AuthoritativeSubjectOwner (coordinator:
-                                   drives the §D certified-frontier algorithm;
-                                   drives the prepare/commit split above; re-validates
-                                   fencing at both last-safe points per §B)
+                                   selected), AuthoritativeLineageHistoryProvider
+                                   (Protocol -- supplies certified upstream input
+                                   history + canonical Feature output history for
+                                   catch-up, and the certified apply-set for
+                                   ongoing operation), FencedFeatureCommitter
+                                   (Protocol -- the one indivisible verify+
+                                   allocate+append authoritative commit boundary,
+                                   batch-capable), AuthoritativeSubjectOwner
+                                   (coordinator: drives the §D certified-frontier
+                                   algorithm; drives prepare/live-commit/historical-
+                                   reconcile per §"Atomicity and emission"; re-
+                                   validates fencing before beginning AND via the
+                                   indivisible commit operation, never a separate
+                                   pre-commit check alone)
 src/feature_engine/regime_passthrough.py,
 src/feature_engine/swing_distance.py
                                    (bounded, behavior-preserving refactor) split
-                                   existing _emit_* methods into candidate-compute
-                                   (no next_ref/_lineage mutation) vs. commit
-                                   (next_ref + _lineage mutation) phases, per
-                                   "Atomicity and emission" above -- analytical
-                                   rules unchanged
+                                   existing _emit_* methods into the three seams
+                                   above -- analytical rules unchanged
 src/feature_engine/errors.py      (extended, not replaced) new named fail-closed
                                    exceptions: e.g. StaleOwnershipGenerationError,
                                    DualOwnershipError, OwnershipAuthorityUnavailableError,
-                                   UnprovenCatchUpError, NonMonotonicApplicationOrderError,
+                                   UnprovenCatchUpError, CanonicalHistoryMismatchError,
+                                   NonMonotonicApplicationOrderError,
                                    IncompleteCertifiedFrontierError
 ```
 
-`application_order.py` is deliberately **not** introduced as a separate file — the §D algorithm is small enough to live inside `ownership.py`'s `AuthoritativeSubjectOwner`; splitting it out now would be aesthetic, not necessary, per instruction. No change proposed to `candle_window.py`, `current_view.py`, `publish.py`, `contracts.py`, `authority_resolver.py`, `output_contract_resolver.py`, `replay_preparation.py`, `identity.py`, or `envelope.py`.
+`application_order.py` is deliberately **not** introduced as a separate file — the §D algorithm remains small enough to live inside `ownership.py`'s `AuthoritativeSubjectOwner`. No change proposed to `candle_window.py`, `current_view.py`, `publish.py`, `contracts.py`, `authority_resolver.py`, `output_contract_resolver.py`, `replay_preparation.py`, `identity.py`, or `envelope.py`.
 
 ### F — Failure semantics (fail closed, no speculative authoritative output)
 
 - Unknown owner (no registry entry / never acquired) → rejected.
-- Stale fencing generation, detected at either last-safe point (§B) → rejected; if detected at the post-computation safe point (step 4 above), the computed candidate is discarded with zero effect (no sequence consumed, no mutation, no frontier advance).
-- Dual-owner ambiguity for one subject → structurally prevented by `SubjectOwnershipAuthority`'s own atomic-acquisition guarantee (§B); if ever detected regardless (e.g. an internal invariant check), that subject scope fails closed, never a runtime-selected "winner."
-- `SubjectOwnershipAuthority` unreachable/unconfigured in an authoritative-production context → fails closed; never silently falls back to local-registry-only fencing (§B).
-- Failed/incomplete catch-up, including an upstream-history provider that cannot prove complete replay (§C) → stays `CATCHING_UP`, never reaches `ACTIVE`; no emission possible.
+- Stale fencing generation → rejected **as part of** `FencedFeatureCommitter`'s own indivisible operation (§B) — there is no separate window between a passing check and the write where staleness could slip through; a discarded attempt consumes no sequence, mutates no `_lineage`, advances no frontier.
+- Dual-owner ambiguity for one subject → structurally prevented by `SubjectOwnershipAuthority`'s own atomic-acquisition guarantee; if ever detected regardless, that subject scope fails closed, never a runtime-selected "winner."
+- `SubjectOwnershipAuthority` (or `FencedFeatureCommitter`) unreachable/unconfigured in an authoritative-production context → fails closed; never silently falls back to local-registry-only fencing.
+- Partial multi-event batch commit → structurally prevented by the batch-capable indivisible commit (§B) — a batch either fully commits or has no effect at all.
+- Failed/incomplete catch-up, including a provider that cannot prove complete, matched reconciliation (§C) → stays `CATCHING_UP`, never reaches `ACTIVE`; no emission possible.
+- A recomputed historical candidate that does not match canonical Feature output history during catch-up (§C) → fail closed; never silently prefer one source over the other.
 - Certified frontier incomplete for this subject's Input Contract → defer/buffer per that contract's own `frontier_policy`, or fail closed where the policy requires (§D).
-- Inability to derive deterministic precedence within a certified apply set (no `P_stream`/`P_causation` relation and no Input Contract tie-break resolves two events) → the batch is rejected, not guessed.
-- Handoff interrupted between revoke and activation (e.g. process crash mid-handoff) → the subject is left with **no** `ACTIVE` owner; fails closed for all further attempts until a fresh acquisition completes catch-up from scratch. Blast radius is scoped to the one affected `feature_subject_id` — consistent with [I-6](../../docs/constitution/02-platform-invariants.md) Fail-Safe by Scope, never a platform-wide halt.
+- Inability to derive deterministic precedence within a certified apply set → the batch is rejected, not guessed.
+- Handoff interrupted between revoke and activation (e.g. process crash mid-handoff) → the subject is left with **no** `ACTIVE` owner; fails closed until a fresh acquisition completes catch-up from scratch. Blast radius scoped to the one affected `feature_subject_id` — consistent with [I-6](../../docs/constitution/02-platform-invariants.md) Fail-Safe by Scope.
 
 ### G — Replay / non-authoritative modes
 
-Replay/backtest/shadow/simulation execution **never** calls into `SubjectOwnershipRegistry`/`SubjectOwnershipAuthority`/`AuthoritativeSubjectOwner` — it constructs and drives the analytical engines directly, exactly as `EVID-05(a)`'s already-validated self-contained-replay tests (`tests/test_replay_isolation.py`) already do today, unaffected and unrevisited by this design. Owner identity/generation is pure execution-control metadata; it is never serialized into `FeatureComputed`/`FeatureFactInvalidated` and never added to Feature Event Schema (`ADR-043` semantic 6, unchanged). Because catch-up (§C) and ongoing processing (§D) both strictly apply events in `P_run` order derived from already-certified, already-authoritative structure, and owner identity never enters event content, replaying identical authoritative history through the same, unmodified analytical engines reproduces the identical result regardless of which owner/generation originally produced it — an unchanged property of the existing pure, deterministic engines.
+Replay/backtest/shadow/simulation execution **never** calls into `SubjectOwnershipRegistry`/`SubjectOwnershipAuthority`/`FencedFeatureCommitter`/`AuthoritativeSubjectOwner` — it constructs and drives the analytical engines directly, exactly as `EVID-05(a)`'s already-validated self-contained-replay tests (`tests/test_replay_isolation.py`) already do today, unaffected and unrevisited by this design. This mode never needs canonical-ref reconciliation (§C) — it is not resuming live authoritative emission, only reproducing/verifying already-recorded values. Owner identity/generation is pure execution-control metadata; it is never serialized into `FeatureComputed`/`FeatureFactInvalidated` and never added to Feature Event Schema (`ADR-043` semantic 6, unchanged).
 
 ### H — Handoff lifecycle
 
-Smallest sufficient state machine, one instance per `(feature_subject_id, ownership_generation)` — unchanged from the prior revision; correction found no need for another state:
+Smallest sufficient state machine, one instance per `(feature_subject_id, ownership_generation)` — unchanged shape from prior revisions; correction found no need for another state:
 
 ```
 INACTIVE → CATCHING_UP → ACTIVE → REVOKED
 ```
 
-- `INACTIVE → CATCHING_UP`: on an acquire request, only when `SubjectOwnershipAuthority` (§B) grants a new generation for that subject (no other `ACTIVE`/`CATCHING_UP` generation currently recognized).
-- `CATCHING_UP → ACTIVE`: only after the corrected §C replay-based catch-up proves complete; otherwise stays `CATCHING_UP` (fail closed, §F).
-- `ACTIVE → REVOKED`: an explicit, single-step revoke against `SubjectOwnershipAuthority`, always performed before a new acquisition for the same subject may begin its own `CATCHING_UP` (§B).
-- `REVOKED` is terminal for that generation; any call against a revoked handle fails closed. No separate "draining" state — this codebase's engine calls are synchronous and single-threaded (no in-flight concurrent work exists to drain), and `ADR-043` does not itself require one.
+- `INACTIVE → CATCHING_UP`: on an acquire request, only when `SubjectOwnershipAuthority` (§B) grants a new generation for that subject.
+- `CATCHING_UP → ACTIVE`: only after the corrected §C canonical-history reconciliation proves complete and matched, including positive proof of emptiness for a genuinely new subject; otherwise stays `CATCHING_UP` (fail closed, §F).
+- `ACTIVE → REVOKED`: an explicit, single-step revoke against `SubjectOwnershipAuthority`, always performed before a new acquisition for the same subject may begin its own `CATCHING_UP`.
+- `REVOKED` is terminal for that generation; any call against a revoked handle fails closed. No separate "draining" state — this codebase's engine calls are synchronous and single-threaded, and `ADR-043` does not itself require one.
 
 ### ADR Scope conflict check (explicit, per instruction)
 
-This corrected design still introduces no new module, no dependency-graph edge, no Event Schema change, no Chapter 8 change, and no cross-module authority change — confirmed directly against the corrected shape above, including the engine-internal `_emit_*` refactor (a behavior-preserving method-shape change inside the already-registered `feature-engine` module, not a new module or contract). `AuthoritativeLineageHistoryProvider` and `SubjectOwnershipAuthority` are **not** new authoritative sources: the former is a bounded read-side/replay boundary onto the *already*-authoritative Feature event stream `feature-engine` already holds sole writer authority over (`stream-registry.yaml`, unchanged); the latter is a bounded exclusivity-proving boundary realizing `ADR-043`'s own already-decided per-subject-ownership semantic, not a competing domain-truth source. No production implementation of either exists or is proposed here (§B/§C). No STOP condition is triggered.
+This corrected design still introduces no new module, no dependency-graph edge, no Event Schema change, no Chapter 8 change, and no cross-module authority change — confirmed directly against the corrected shape above, including the engine-internal `_emit_*` refactor (a behavior-preserving method-shape change inside the already-registered `feature-engine` module). `AuthoritativeLineageHistoryProvider`, `SubjectOwnershipAuthority`, and `FencedFeatureCommitter` are **not** new authoritative sources: the first is a bounded read-side/reconciliation boundary onto the *already*-authoritative Feature event stream `feature-engine` already holds sole writer authority over (`stream-registry.yaml`, unchanged); the second and third are bounded exclusivity/commit boundaries realizing `ADR-043`'s own already-decided per-subject-ownership semantic, not competing domain-truth sources. No production implementation of any of them exists or is proposed here (§B/§C). No STOP condition is triggered.
 
 ## Current state (as of this build)
 
