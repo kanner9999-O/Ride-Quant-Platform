@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.370"
+manifest_version: "10.371"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27024,6 +27024,36 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** Ride Governance Gate verifies this atomic ADR-043 approval transaction, then decides the next bounded implementation-design transaction required by Approved ADR-043 (owner routing/affinity, fencing mechanism, catch-up procedure — semantics 1–7) before returning to `EVID-07` correction round 3.
 
 **Files changed:** `docs/adr/ADR-043.md` (lifecycle edit in place, blob `9feef448d23c654d315c71428e1c5ae81343df81` → `e7ebc2093768b164b91b496d932d2f9feb6c659a`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `feature.md`/Feature Event Contracts/`module-registry.yaml`/`stream-registry.yaml`/Chapter 8/every other ADR/`python/feature-engine/**`/`docs/engineering/testing.md`/the EVID-07 QG candidate all verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.369"` → `"10.370"`.
+
+## ADR-043 — post-approval factual erratum (R0, bookkeeping only — optional R2 advisory cross-check history)
+
+**Bounded R0 mechanical factual reconciliation — vai trò: `ADR-043 Post-Approval Factual Reconciliation Executor`.** `ADR-043` remains **v0.2, `Approved`, unchanged and frozen** — `docs/adr/ADR-043.md` is not touched by this transaction, verified byte-identical at blob `e7ebc2093768b164b91b496d932d2f9feb6c659a` before and after. This transaction corrects one factual bookkeeping statement in the approval record above (this same file, "## ADR-043 v0.2 — Product Owner Approval" section) — a blanket assertion that the optional R2 cross-check "was not required or performed" — which does not match actual governance history. Per Chapter 11 §11.3 the approved ADR file itself is immutable and is never edited to fix a bookkeeping defect discovered after approval; this erratum is recorded here, in mutable MANIFEST bookkeeping, instead.
+
+**Corrected factual history:** an optional advisory R2 cross-check was in fact performed, before `ADR-043` authoring/approval, on the design direction underlying it (Option C, fenced per-subject serialization) — Product Owner explicitly selected the cross-check and subsequently recorded, in the same decision authorizing ADR authoring: "Optional R2 cross-check considered and supports the decision." The cross-check supported Option C and the `ADR_OPTIONAL` classification, subject to fenced-handoff/authoritative-state-catch-up conditions — conditions which `ADR-043`'s own mandatory semantics 3/4 already establish.
+
+**Provenance qualification (explicit, not overstated):** this advisory cross-check was performed by the same `ChatGPT` principal/session family that also performed Review A — it was **not** a distinct-principal Independent-Review-B-style review (no `Claude`/`Independent Review B` principal was involved), and it was never an approval prerequisite. Per ADR-042's own optional-cross-check semantics, this advisory input required no persisted transcript, execution ID, or Mode A/Mode B bookkeeping, and its presence or absence never makes an approval ineligible.
+
+**Effect on ADR-043's approved state — none.** This erratum does not reopen, reclassify, or invalidate anything already recorded: `ADR-043` remains `v0.2`, `Approved`, `approved_by: Product Owner`, `approved_at: "2026-09-14"`, reviewed semantic boundary `3f515ddf5a2e08b5bb2df7ff4b9960f67db2eb46`, reviewed blob `9feef448d23c654d315c71428e1c5ae81343df81`, lifecycle blob `e7ebc2093768b164b91b496d932d2f9feb6c659a`. Review A remains `CLEAN` (Blocker 0 / Major 0 / Minor 0). Risk Classification remains `R2`, unchanged. ADR Scope remains `ADR_OPTIONAL`, unchanged. `ADR043-A-MAJ-01`/`-MIN-01` remain `CLOSED — REVIEW A VALIDATED`. No fresh ADR authored. No fresh Product Owner decision performed or implied — the verbatim decision already recorded is not rewritten. No Review A re-run or amplified. No mandatory cross-check field created; cross-check evidence is not made an approval-eligibility prerequisite by this or any future transaction.
+
+**Reader guidance for the frozen ADR text:** `ADR-043.md`'s own recorded sentence describing the optional cross-check as "not required or performed" is a **historical factual-recording defect only** — it inaccurately generalized "not required" (true) into "not performed" (false). It does not alter the ADR's decision content, Review A eligibility, Risk Classification, approval validity, or current lifecycle state, all of which resolve from this MANIFEST record per I-12. The frozen file itself is not, and will not be, edited to fix this — per Chapter 11 §11.3, that would require a new ADR revision cycle for a pure bookkeeping correction, which this R0 classification does not warrant.
+
+**No scope expansion:** `docs/adr/ADR-043.md`, every other ADR, Constitution, `feature.md`, Feature Event Contracts, `module-registry.yaml`, `stream-registry.yaml`, `python/feature-engine/**`, `docs/engineering/testing.md`, and the EVID-07 QG candidate all verified byte-unchanged (`git diff --quiet`). No implementation performed. Not `EVID-07` correction round 3.
+
+**State summary (preserved):**
+
+```text
+ADR-043:                        v0.2, Approved, unchanged, frozen at
+                                blob e7ebc2093768b164b91b496d932d2f9feb6c659a.
+P3-FEATURE-QG-EVID07-A-MAJ-05:  OPEN (unaffected).
+P3-FEATURE-QG-EVID-07:          OPEN / FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** author the bounded Feature Engine subject-ownership runtime implementation-design candidate required by Approved `ADR-043`, then Review A/Risk Classification as applicable, then implementation, then evidence — only then `EVID-07` correction round 3.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/adr/ADR-043.md` and every other in-scope artifact verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.370"` → `"10.371"`.
 
 ## Decision Log
 

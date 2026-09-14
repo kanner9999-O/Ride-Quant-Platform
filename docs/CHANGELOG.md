@@ -2,6 +2,22 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-14 — feature-engine: `ADR-043` post-approval factual erratum (R0, bookkeeping only — optional R2 advisory cross-check history)
+
+**Bounded R0 mechanical factual reconciliation — vai trò: `ADR-043 Post-Approval Factual Reconciliation Executor`.** `ADR-043` remains v0.2, `Approved`, unchanged and frozen — `docs/adr/ADR-043.md` not touched, verified byte-identical at blob `e7ebc2093768b164b91b496d932d2f9feb6c659a`. Corrects one factual bookkeeping statement in the approval record: the approval's blanket assertion that the optional R2 cross-check "was not required or performed" did not match actual history.
+
+**Corrected factual history:** an optional advisory R2 cross-check was in fact performed, before `ADR-043` authoring/approval, on the underlying design direction (Option C) — Product Owner explicitly selected it and recorded "Optional R2 cross-check considered and supports the decision." It supported Option C and `ADR_OPTIONAL`, subject to fenced-handoff/authoritative-state-catch-up conditions (already established by `ADR-043`'s own semantics 3/4).
+
+**Provenance qualification:** performed by the same `ChatGPT` principal/session family as Review A — not a distinct-principal Independent-Review-B-style review, and never an approval prerequisite (ADR-042: no persisted transcript/execution-ID/Mode A/Mode B bookkeeping required; absence or presence never affects approval eligibility).
+
+**Effect on ADR-043's approved state — none.** Version, status, `approved_by`/`approved_at`, reviewed boundary/blob, lifecycle blob, Review A `CLEAN` (0/0/0), Risk Classification `R2`, `ADR_OPTIONAL`, and `ADR043-A-MAJ-01`/`-MIN-01` `CLOSED — REVIEW A VALIDATED` are all unchanged. No fresh ADR, no fresh Product Owner decision, no Review A re-run, no mandatory cross-check field created, no cross-check evidence made an approval prerequisite.
+
+**Reader guidance:** the frozen ADR's own "not required or performed" sentence is a historical factual-recording defect only (conflated "not required" with "not performed") — it does not alter decision content, eligibility, classification, or lifecycle state, all of which resolve from `docs/MANIFEST.md` per I-12. The frozen file is not edited to fix it.
+
+**Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — `docs/adr/ADR-043.md` and every other in-scope artifact verified byte-unchanged. `manifest_version` `"10.370"` → `"10.371"`. No implementation. Not `EVID-07` correction round 3. `P3-FEATURE-QG-EVID07-A-MAJ-05` remains OPEN. `P3-FEATURE-QG-EVID-07` remains OPEN / `FAIL — evidence`. Feature module remains NOT APPROVED. LIVE remains NOT_AUTHORIZED.
+
+**Next governed step:** author the bounded Feature Engine subject-ownership runtime implementation-design candidate required by Approved `ADR-043`, then Review A/Risk Classification as applicable, then implementation, then evidence — only then `EVID-07` correction round 3.
+
 ## [Unreleased] — 2026-09-14 — feature-engine: `ADR-043` v0.2 `Approved` — Feature Engine Per-Subject Single-Owner Serialization for I-13 now effective
 
 **Atomic ADR approval/lifecycle-recording transaction — vai trò: `ADR-043 Approval / Lifecycle Recording Executor`.** Records Review A's final bounded re-review of exact `ADR-043` v0.2 (reviewed blob `9feef448d23c654d315c71428e1c5ae81343df81`, boundary `3f515ddf5a2e08b5bb2df7ff4b9960f67db2eb46`) and the Product Owner's `APPROVE` decision. No new architecture decision — the seven mandatory semantics, deterministic-arbitration rule, fenced handoff, authoritative-state catch-up, fail-closed behavior, Replay determinism, non-authoritative execution isolation, Alternatives, and `ADR_OPTIONAL` classification are byte-unchanged from the reviewed v0.2 candidate; only lifecycle/review-evidence fields/text changed.
