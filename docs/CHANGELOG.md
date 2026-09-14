@@ -2,6 +2,24 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-14 — feature-engine: `ADR-043` v0.2 `Approved` — Feature Engine Per-Subject Single-Owner Serialization for I-13 now effective
+
+**Atomic ADR approval/lifecycle-recording transaction — vai trò: `ADR-043 Approval / Lifecycle Recording Executor`.** Records Review A's final bounded re-review of exact `ADR-043` v0.2 (reviewed blob `9feef448d23c654d315c71428e1c5ae81343df81`, boundary `3f515ddf5a2e08b5bb2df7ff4b9960f67db2eb46`) and the Product Owner's `APPROVE` decision. No new architecture decision — the seven mandatory semantics, deterministic-arbitration rule, fenced handoff, authoritative-state catch-up, fail-closed behavior, Replay determinism, non-authoritative execution isolation, Alternatives, and `ADR_OPTIONAL` classification are byte-unchanged from the reviewed v0.2 candidate; only lifecycle/review-evidence fields/text changed.
+
+**Review A** (ChatGPT, final bounded re-review): `ADR043-A-MAJ-01`/`ADR043-A-MIN-01` CLOSED — REVIEW A VALIDATED; Blocker 0 / Major 0 / Minor 0; verdict `CLEAN`. **Risk Classification:** `R2` ("ADR-043 establishes runtime architecture/authority semantics used to enforce Locked I-13 State Transition Integrity under concurrency/failover"). **ADR Scope:** `ADR_OPTIONAL`, unchanged, Review-A-validated. Optional R2 cross-check not required, not performed, no record needed.
+
+**Product Owner decision (verbatim):** "APPROVE ADR-043 v0.2 — Feature Engine Per-Subject Single-Owner Serialization for I-13 — at reviewed semantic boundary 3f515ddf5a2e08b5bb2df7ff4b9960f67db2eb46. Accept Review A CLEAN: ADR043-A-MAJ-01: CLOSED — REVIEW A VALIDATED; ADR043-A-MIN-01: CLOSED — REVIEW A VALIDATED; Blocker 0 / Major 0 / Minor 0. Accept fresh Risk Classification: R2. ADR Scope remains ADR_OPTIONAL; Product Owner elected to author and now approves the exact reviewed ADR candidate. Authorize the bounded ADR-043 approval/lifecycle-recording transaction only." — recorded `2026-09-14`.
+
+**Lifecycle transition:** `status: Draft → Approved`, `approved_by: null → Product Owner`, `approved_at: null → "2026-09-14"`. `version` remains `"0.2"` — no bump, pure lifecycle transition (same precedent as ADR-037/ADR-039/ADR-040/ADR-041). Reviewed Draft blob `9feef448d23c654d315c71428e1c5ae81343df81` → resulting lifecycle-record blob `e7ebc2093768b164b91b496d932d2f9feb6c659a` (G-ID-001: distinguished, not conflated). Per Chapter 11 §11.3, `docs/adr/ADR-043.md` is now immutable byte-for-byte; current lifecycle state resolves from `docs/MANIFEST.md` going forward.
+
+**No implementation performed:** no owner routing/affinity/fencing/failover/catch-up/deterministic-arbitration/CAS code; no Hypothesis installed; no property-based test authored; `feature.md`, Feature Event Contracts, `module-registry.yaml`, `stream-registry.yaml`, Chapter 8, every other ADR, `python/feature-engine/**`, `docs/engineering/testing.md`, and the EVID-07 QG candidate all verified byte-unchanged. Not EVID-07 correction round 3 — the candidate remains at correction 002, untouched.
+
+**Result:** `ADR-043`: v0.2, `Approved`. `ADR043-A-MAJ-01`/`-MIN-01`: `CLOSED — REVIEW A VALIDATED`. `P3-FEATURE-QG-EVID07-A-MAJ-05`: still OPEN — approved authority now exists but is not yet implemented/evidenced. `P3-FEATURE-QG-EVID-07`: still OPEN / `FAIL — evidence`. Feature module: still NOT APPROVED. Phase 3 Approval Gate: still NOT opened. LIVE: still NOT_AUTHORIZED.
+
+**Files changed:** `docs/adr/ADR-043.md` (lifecycle edit in place), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.369"` → `"10.370"`.
+
+**Next governed step:** Ride Governance Gate verifies this atomic approval transaction, then decides the next bounded implementation-design transaction required by Approved `ADR-043` before returning to `EVID-07` correction round 3.
+
 ## [Unreleased] — 2026-09-14 — feature-engine: `ADR-043` bounded Review A correction (`ADR043-A-MAJ-01`/`ADR043-A-MIN-01`; `v0.1 → v0.2`, `Draft` unchanged)
 
 **Bounded correction transaction — vai trò: `ADR-043 Bounded Correction Executor`.** Remediates two Review A findings against `ADR-043` v0.1 (reviewed blob `a34ed4f52647513ea918b8b52dc6bb25f028154d`, boundary `e6d6d14c53371220eda14605d7f1facd1bb968ea`, reviewer ChatGPT/`AI Technical Architect`, verdict `REVISION_REQUIRED`). `ADR043-A-MAJ-01`: the ADR's semantics prevented two authoritative successors from the same lineage head but did not guarantee competing attempts are arbitrated in the same deterministic order across runs — a runtime-timing-determined winner (mutex/queue/arrival order/wall clock/scheduler) is not sufficient authority for I-13. `ADR043-A-MIN-01`: the review-evidence heading was stale pre-ADR-042 terminology. Neither finding self-closed — closure is Review A's own re-review determination.

@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.369"
+manifest_version: "10.370"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -26969,6 +26969,61 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** bounded Review A re-review of `ADR043-A-MAJ-01`/`ADR043-A-MIN-01` only, against this exact correction delta — fresh eligibility determination for Product Owner decision.
 
 **Files changed:** `docs/adr/ADR-043.md` (corrected in place, blob `a34ed4f52647513ea918b8b52dc6bb25f028154d` → `9feef448d23c654d315c71428e1c5ae81343df81`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`. `manifest_version` `"10.368"` → `"10.369"`.
+
+## ADR-043 v0.2 — Product Owner Approval (`Approved` — Feature Engine Per-Subject Single-Owner Serialization for I-13 now effective)
+
+**Atomic ADR approval/lifecycle-recording transaction under Chapter 11 §11.6 — vai trò: `ADR-043 Approval / Lifecycle Recording Executor`.** Records Review A's final bounded re-review of exact `ADR-043` v0.2 and the Product Owner's `APPROVE` decision. No new architecture decision; semantic content of the reviewed v0.2 candidate (seven mandatory semantics, deterministic-arbitration rule, fenced handoff, authoritative-state catch-up, fail-closed behavior, Replay determinism, non-authoritative execution isolation, Alternatives, `ADR_OPTIONAL` classification, Consequences ordering) is byte-unchanged — only mechanical lifecycle/review-evidence fields/text (frontmatter `status`/`approved_by`/`approved_at`; the final Review A table row and Risk Classification reason text; one new banner block appending the approval record after the preserved v0.1 correction banner) changed.
+
+**Fresh boundary verification:** HEAD confirmed exactly `3f515ddf5a2e08b5bb2df7ff4b9960f67db2eb46`, identical to `origin/main` — no drift. `docs/adr/ADR-043.md` confirmed `version: "0.2"`, `status: Draft`, blob `9feef448d23c654d315c71428e1c5ae81343df81` before this transaction — matches the exact reviewed candidate.
+
+**Review A** (ChatGPT, final bounded re-review, boundary `3f515ddf5a2e08b5bb2df7ff4b9960f67db2eb46`, reviewed blob `9feef448d23c654d315c71428e1c5ae81343df81`): `ADR043-A-MAJ-01`/`ADR043-A-MIN-01` CLOSED — REVIEW A VALIDATED; Blocker 0 / Major 0 / Minor 0; verdict `CLEAN`. **Risk Classification:** `R2` ("ADR-043 establishes runtime architecture/authority semantics used to enforce Locked I-13 State Transition Integrity under concurrency/failover") — the fresh classification for this exact v0.2 decision. **ADR Scope:** `ADR_OPTIONAL` — unchanged since v0.1, Review-A-validated. **Optional R2 cross-check:** not required, not performed, no record needed (ADR-042 — absence of a cross-check never makes a decision approval-ineligible).
+
+**Product Owner decision (verbatim):** "APPROVE ADR-043 v0.2 — Feature Engine Per-Subject Single-Owner Serialization for I-13 — at reviewed semantic boundary 3f515ddf5a2e08b5bb2df7ff4b9960f67db2eb46. Accept Review A CLEAN: ADR043-A-MAJ-01: CLOSED — REVIEW A VALIDATED; ADR043-A-MIN-01: CLOSED — REVIEW A VALIDATED; Blocker 0 / Major 0 / Minor 0. Accept fresh Risk Classification: R2. ADR Scope remains ADR_OPTIONAL; Product Owner elected to author and now approves the exact reviewed ADR candidate. Authorize the bounded ADR-043 approval/lifecycle-recording transaction only." — recorded `2026-09-14`.
+
+**Lifecycle transition:** `status: Draft → Approved`, `approved_by: null → Product Owner`, `approved_at: null → "2026-09-14"`. `version` remains `"0.2"` (no bump — pure lifecycle transition, same precedent as ADR-037/ADR-039/ADR-040/ADR-041's own approval recordings). `reviewers: [ChatGPT]`, `last_review: "2026-09-14"` unchanged.
+
+**Reviewed Draft boundary/blob (frozen at approval, G-ID-001):** commit `3f515ddf5a2e08b5bb2df7ff4b9960f67db2eb46`, `docs/adr/ADR-043.md` content identity `9feef448d23c654d315c71428e1c5ae81343df81` (`version: "0.2"`, `status: Draft` at review time) — distinct from this transaction's own resulting *lifecycle-record* blob `e7ebc2093768b164b91b496d932d2f9feb6c659a` (mechanical status/reviewers-table/Risk-Classification-text/banner edit only; the semantic content reviewed above is carried unchanged into approval). Per Chapter 11 §11.3, from this approval boundary forward `docs/adr/ADR-043.md` is immutable byte-for-byte — no subsequent bookkeeping transaction may edit this file; current lifecycle state going forward resolves from this MANIFEST record, per I-12.
+
+### No scope expansion — explicit verification
+
+```text
+Files changed: docs/adr/ADR-043.md (lifecycle edit only, blob
+  9feef448d23c654d315c71428e1c5ae81343df81 ->
+  e7ebc2093768b164b91b496d932d2f9feb6c659a); docs/MANIFEST.md;
+  docs/CHANGELOG.md only. feature.md, Feature Event Contracts,
+  module-registry.yaml, stream-registry.yaml, Chapter 8, every other
+  ADR, python/feature-engine/**, requirements-dev.lock.txt,
+  docs/engineering/testing.md, and the EVID-07 QG candidate all
+  verified byte-unchanged (`git diff --quiet`). No implementation
+  performed -- no owner routing/affinity/fencing/failover/catch-up/
+  deterministic-arbitration/CAS code, no Hypothesis installed, no
+  property-based test authored. Not EVID-07 correction round 3 -- the
+  EVID-07 candidate remains at correction 002, untouched.
+```
+
+### State summary
+
+```text
+ADR-043:                        v0.2, Approved, approved_by Product
+                                Owner, approved_at 2026-09-14. Frozen
+                                byte-for-byte from this boundary forward.
+ADR043-A-MAJ-01/-MIN-01:        CLOSED — REVIEW A VALIDATED.
+P3-FEATURE-QG-EVID07-A-MAJ-05:  OPEN — approved ADR authority now
+                                exists, but NOT yet implemented/
+                                evidenced; this transaction performs no
+                                implementation and does not close the
+                                finding.
+P3-FEATURE-QG-EVID-07:          OPEN / FAIL — evidence (unaffected).
+P3-FEATURE-QG-EVID-05(a)/(b):   unaffected, unrevisited.
+Overall Feature Chapter 13 QG: FAIL — evidence (unaffected).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** Ride Governance Gate verifies this atomic ADR-043 approval transaction, then decides the next bounded implementation-design transaction required by Approved ADR-043 (owner routing/affinity, fencing mechanism, catch-up procedure — semantics 1–7) before returning to `EVID-07` correction round 3.
+
+**Files changed:** `docs/adr/ADR-043.md` (lifecycle edit in place, blob `9feef448d23c654d315c71428e1c5ae81343df81` → `e7ebc2093768b164b91b496d932d2f9feb6c659a`), `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `feature.md`/Feature Event Contracts/`module-registry.yaml`/`stream-registry.yaml`/Chapter 8/every other ADR/`python/feature-engine/**`/`docs/engineering/testing.md`/the EVID-07 QG candidate all verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.369"` → `"10.370"`.
 
 ## Decision Log
 
