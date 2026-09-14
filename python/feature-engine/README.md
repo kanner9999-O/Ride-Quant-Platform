@@ -412,12 +412,43 @@ ADR043-IMPLDESIGN-A-MAJ-03 (new) — catch-up (§C) claimed replaying only
   supersedes_fact_ref chains) that future transitions must reference.
 ```
 
-All three corrected below (§B/§"Atomicity and emission" for MAJ-01, §D for MAJ-02, §C for MAJ-03) — none self-closed:
+Correction 002 corrected below (§B/§"Atomicity and emission" for MAJ-01, §D for MAJ-02, §C for MAJ-03) — none self-closed:
 
 ```text
-ADR043-IMPLDESIGN-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
-ADR043-IMPLDESIGN-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
-ADR043-IMPLDESIGN-A-MAJ-03: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+ADR043-IMPLDESIGN-A-MAJ-01: CLOSED — REVIEW A VALIDATED
+ADR043-IMPLDESIGN-A-MAJ-02: CLOSED — REVIEW A VALIDATED
+ADR043-IMPLDESIGN-A-MAJ-03: CLOSED — REVIEW A VALIDATED
+```
+
+**Bounded correction 003 (this revision).** A further bounded Review A re-review of correction 002 found one residual Major:
+
+```text
+ADR043-IMPLDESIGN-A-MAJ-04 (new) — the design correctly requires
+  AuthoritativeSubjectOwner to construct P_run from the applicable Input
+  Contract's authoritative merge_policy.algorithm/merge_policy.
+  concurrent_tie_break, but the implementation authority path does not
+  actually expose those fields: VerifiedInputContractAuthority
+  (contracts.py) carries only feature_computation_profile/
+  input_contract_ref/stream_registry_version/included_streams/
+  input_contract_content_id/stream_registry_content_id, and
+  authority_resolver.py's field extraction resolves only that same
+  subset. Direct artifact inspection confirms both
+  docs/architecture/input-contracts/feature-swing-distance-input.yaml
+  and feature-regime-input.yaml (and their ADR-041 v1.0 historical
+  snapshots) already declare a merge_policy: {algorithm, concurrent_tie_
+  break} block the resolver simply does not read yet. Without this,
+  implementation could only obtain merge_policy by hard-coding today's
+  values inside ownership.py (a prohibited duplicate/ungoverned
+  authority) or inventing a second, ungoverned source.
+```
+
+Corrected below (new §D2) — not self-closed:
+
+```text
+ADR043-IMPLDESIGN-A-MAJ-01: CLOSED — REVIEW A VALIDATED
+ADR043-IMPLDESIGN-A-MAJ-02: CLOSED — REVIEW A VALIDATED
+ADR043-IMPLDESIGN-A-MAJ-03: CLOSED — REVIEW A VALIDATED
+ADR043-IMPLDESIGN-A-MAJ-04: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
 ```
 
 **No prior README wording required correction beyond the above** — this module's README was previously *silent* on per-subject concurrency/ownership before the first design revision, so there was nothing false to retract there. The one true statement that remains true and unchanged: no real event log, broker, RPC/HTTP, or deployment/process topology exists for this module (see "What this module owns"/top-of-file, unchanged) — that external-adapter gap is exactly what §**B**/§**C** below document honestly, not something this design pretends to close.
@@ -536,7 +567,7 @@ This is expressed as a bounded `AuthoritativeLineageHistoryProvider` protocol/in
 
 **Correction, stated directly:** correction 001's own worked example incorrectly implied that a certified frontier including B's stream position necessarily also reflects a causally/sequence-*unrelated* A's committed position — treating the Input Contract's `concurrent_tie_break` as if it created an ordering *obligation* between independent streams. It does not: Chapter 8 §8.3.3 is explicit that the platform "does not claim a global total order between independent streams," and `P_run` (§8.3.4) is the **induced order over one Input Contract's own bounded apply set** for one certified cut — not a claim about append timing between events with no `P_stream`/`P_causation` relationship at all. That incorrect implication is retracted.
 
-**Corrected primary mechanism — unchanged tools, corrected reasoning:** [`contracts.py`](./src/feature_engine/contracts.py)'s existing, caller-certified, proof-carrying `EvaluationFrontier`; [`feature-context-architecture.md`](../../docs/architecture/engine/feature-context-architecture.md) §4.6 (v0.6, already Approved)'s frontier-certification protocol (lifecycle bracket, registry-contract equality gate, causal-closure fixed point, deterministic discard-and-retry on a detected race) — the coordinator is a *consumer* of an already-certified frontier, same as the engines already are; Chapter 8 §8.3.4's `P_stream ∪ P_causation` hard constraints and the subject's own Input Contract `merge_policy.concurrent_tie_break` for events ordered by neither — all unchanged from correction 001.
+**Corrected primary mechanism — unchanged tools, corrected reasoning:** [`contracts.py`](./src/feature_engine/contracts.py)'s existing, caller-certified, proof-carrying `EvaluationFrontier`; [`feature-context-architecture.md`](../../docs/architecture/engine/feature-context-architecture.md) §4.6 (v0.6, already Approved)'s frontier-certification protocol (lifecycle bracket, registry-contract equality gate, causal-closure fixed point, deterministic discard-and-retry on a detected race) — the coordinator is a *consumer* of an already-certified frontier, same as the engines already are; Chapter 8 §8.3.4's `P_stream ∪ P_causation` hard constraints and the subject's own Input Contract `merge_policy.algorithm`/`merge_policy.concurrent_tie_break` for events ordered by neither. **Corrected this revision (§D2 below):** that `merge_policy` value is obtained exclusively from the coordinator's own resolved `VerifiedInputContractAuthority.merge_policy` — never a README constant, never a value `ownership.py` hard-codes, and never a fresh YAML read `ownership.py` performs itself.
 
 **Corrected per-step algorithm** (steps 1–6 unchanged in shape from correction 001: obtain a certified `EvaluationFrontier`; query the provider (§C) for the not-yet-applied apply-set visible within it; construct `P_run` over that bounded set; topologically sort; apply in that order via the engine's unmodified `on_*` methods, with the defensive monotonicity check now running only as a belt-and-suspenders invariant over the already-`P_run`-sorted sequence; advance `last_committed_frontier` only after the batch commits per §B).
 
@@ -575,6 +606,66 @@ Case 2 -- B is committed and visible at this certified frontier; A does
 
 **No global order:** ordering stays local to the applicable Feature Input Contract's own apply set (`P_run`) for one subject's certified frontier — unchanged conclusion, now on a corrected, run-local (not cross-stream) reasoning. The competing-successor case (two candidates targeting the same lineage head) remains caught by the engines' own existing, unmodified `FeatureLineageError`/`InvalidSwingEligibilityInputError`, reached in genuine `P_run` order rather than arrival order.
 
+### D2 — Merge-policy authority (`ADR043-IMPLDESIGN-A-MAJ-04` corrected — extend the existing resolver boundary, invent nothing new)
+
+**Correction, stated directly:** §D's `P_run` construction correctly names the subject's own Input Contract `merge_policy.algorithm`/`merge_policy.concurrent_tie_break` as (together with Chapter 8's hard constraints) the authority for tie-breaking. But direct source inspection confirms the implementation authority path does not yet carry that value anywhere a coordinator could legitimately obtain it:
+
+- `VerifiedInputContractAuthority` (`contracts.py`) — the *only* type any engine/coordinator is structurally permitted to trust as bound Input Contract authority — carries exactly `feature_computation_profile`, `input_contract_ref`, `stream_registry_version`, `included_streams`, `input_contract_content_id`, `stream_registry_content_id`. No `merge_policy` field exists.
+- `authority_resolver.py`'s `_extract_scalar`/`_extract_included_streams` line-scanner extracts exactly that same subset from the real YAML text. It does not read the `merge_policy:` block at all, even though direct inspection confirms both real current artifacts (`docs/architecture/input-contracts/feature-swing-distance-input.yaml:109-111`, `feature-regime-input.yaml:105-107`) — and their ADR-041 `v1.0` immutable historical snapshots under `docs/architecture/input-contract-versions/*/v1.0.yaml` — already declare:
+  ```yaml
+  merge_policy:
+    algorithm: deterministic-causal-topological-order
+    concurrent_tie_break: [stream_id, sequence]
+  ```
+
+Without a corrected resolver boundary, `AuthoritativeSubjectOwner` (`ownership.py`) could only obtain this value by hard-coding today's `deterministic-causal-topological-order`/`[stream_id, sequence]` directly inside `ownership.py` (a prohibited second, ungoverned copy of Input Contract authority — the exact duplicate-authority defect this repository's whole `VerifiedInputContractAuthority`/`InputContractAuthorityProvider` discipline exists to prevent) or by having `ownership.py` read the Input Contract YAML itself (an ungoverned second resolution path, bypassing `authority_resolver.py`'s cross-validation entirely). Neither is acceptable; both are ruled out below.
+
+**Corrected design — extend the existing authority-resolution boundary, do not create a second one:**
+
+```text
+InputMergePolicy                    (contracts.py, new; naming implementation-
+  algorithm: str                    local)
+  concurrent_tie_break: tuple[str, ...]
+
+VerifiedInputContractAuthority      (contracts.py, extended — same no-public-
+  ...                                constructor / resolver-only-provenance
+  merge_policy: InputMergePolicy    discipline as every other field on this
+                                     type, unchanged: only _seal_verified_
+                                     authority may populate it)
+```
+
+`InputMergePolicy` is sealed as part of the *same* `_seal_verified_authority`/`_construct_verified_authority` factory pair that already exclusively constructs `VerifiedInputContractAuthority` — no new construction path, no new trust boundary, no relaxation of the existing "no public constructor, resolver-provenance-only" rule that field already documents for every other field on this type.
+
+**Current path — `resolve_input_contract_authority_from_repository`:** extended to additionally parse the current artifact's own `merge_policy:` block (a bounded block-scanner analogous to the existing `_extract_included_streams`, reading `algorithm:` and the `concurrent_tie_break:` flow-sequence directly beneath it — no PyYAML dependency introduced, consistent with this resolver's existing dependency-free discipline) and to validate it (fail-closed rules below) before sealing it onto the returned `VerifiedInputContractAuthority`. This is the *same* artifact bytes already hashed into `input_contract_content_id` — no second read, no second artifact, no second trust boundary.
+
+**Historical path — `resolve_historical_input_contract_authority_from_repository`:** extended identically, but reading `merge_policy:` from the exact immutable ADR-041 version-snapshot the historical `input_contract_ref`/`contract_version` names (`docs/architecture/input-contract-versions/<contract_id>/<contract_version>.yaml`) — never from the current/mutable Input Contract file, never a "same as current" shortcut, never a nearest-version search. A fact whose `computation_cursor` pins an older contract version is reconciled/replayed (§C) using **that exact pinned version's own** `merge_policy`, even if today's current artifact's `merge_policy` has since changed — mirroring the exact discipline this resolver already applies to `included_streams`/`stream_registry_version` for historical facts.
+
+**Fail-closed validation (both paths, same rule set):** authority resolution raises (a new, named error — e.g. `UnsupportedMergePolicyError`, extending `errors.py`) whenever the parsed `merge_policy` is:
+
+- missing (no `merge_policy:` block found in the artifact at all);
+- malformed (`algorithm`/`concurrent_tie_break` absent, empty, or not parseable as this resolver's own bounded block grammar expects);
+- **unsupported by the current Feature implementation** — for this correction, the *only* algorithm/tie-break combination this design's coordinator logic actually implements is exactly `algorithm: deterministic-causal-topological-order` with `concurrent_tie_break: [stream_id, sequence]` (§D's own P_run algorithm is built around precisely this combination); any other resolved value, however well-formed, is rejected — **never silently normalized/coerced into the supported combination**, and never silently ignored in favor of a coordinator default.
+
+This is the same "validate exactly what the implementation actually supports, fail closed on anything else" discipline `FeatureDefinition.__post_init__` (`contracts.py`) already applies to `correction_policy`/`input_normalization_policy`/etc. — extended here to `merge_policy`, not a new validation philosophy.
+
+**Coordinator consumption — `ownership.py` never resolves, never hard-codes:** `AuthoritativeSubjectOwner` receives its `VerifiedInputContractAuthority` the same way every existing computation engine already does — injected via an `InputContractAuthorityProvider` at construction (or, more precisely, the *same already-resolved instance* the wrapped engine itself holds, so the coordinator and the engine it wraps are provably looking at one identical, single resolution — never two independent resolutions that could disagree). `ownership.py`'s own source performs **no filesystem/repository access of any kind** — that discipline, already true for every existing engine (`contracts.py`/`swing_distance.py`/`regime_passthrough.py` never import `authority_resolver.py`), is extended unchanged to the new coordinator. The corrected dependency direction:
+
+```text
+authority_resolver.py  (filesystem I/O; parses + validates merge_policy,
+    |                    current AND historical paths)
+    v
+VerifiedInputContractAuthority.merge_policy
+    |
+    v
+AuthoritativeSubjectOwner (ownership.py)  -- consumes resolved merge_policy
+    |                                        to construct P_run (§D);
+    v                                        NEVER invents/hard-codes it
+analytical engine (regime_passthrough.py /
+                    swing_distance.py)
+```
+
+This changes no Input Contract artifact, no Chapter 8 semantic, no Event Schema, and creates no new authoritative concept — it only carries a value the Input Contract artifact *already, today* authoritatively declares through the one resolution boundary (`authority_resolver.py`) that already carries every other field of that same artifact's authority.
+
 ### E — Existing engine integration (updated — three seams, not two)
 
 - `RegimePassthroughFeatureEngine` / `SwingDistanceFeatureEngine`: **analytical rules unchanged**. A bounded internal method-shape refactor is required exposing three seams — see "Atomicity and emission" below: (1) prepare a candidate transition (no refs, no mutation); (2) commit it live via `FencedFeatureCommitter` (§B); (3) reconcile a prepared historical candidate against canonical output during catch-up (§C). This corrects the "no engine change needed" claim from the very first revision, further specified (not merely "prepare/commit," but the three-way split catch-up also requires) this correction.
@@ -591,6 +682,25 @@ Case 2 -- B is committed and visible at this certified frontier; A does
 **Proposed new/changed source files (identified only, not implemented by this transaction):**
 
 ```
+src/feature_engine/contracts.py   (extended, not replaced) new InputMergePolicy
+                                   value type (algorithm, concurrent_tie_break);
+                                   VerifiedInputContractAuthority gains a
+                                   merge_policy: InputMergePolicy field, sealed
+                                   only by the existing _seal_verified_authority/
+                                   _construct_verified_authority factory pair --
+                                   no new construction path
+src/feature_engine/authority_resolver.py
+                                   (extended, not replaced) both
+                                   resolve_input_contract_authority_from_
+                                   repository (current path) and
+                                   resolve_historical_input_contract_authority_
+                                   from_repository (historical/pinned-snapshot
+                                   path) parse + fail-closed-validate the
+                                   artifact's own merge_policy block and seal it
+                                   onto the returned VerifiedInputContractAuthority
+                                   -- no PyYAML dependency introduced, same
+                                   dependency-free block-scanner discipline
+                                   already used for included_streams
 src/feature_engine/ownership.py   SubjectOwnershipState (INACTIVE/CATCHING_UP/
                                    ACTIVE/REVOKED), OwnerHandle, SubjectOwnershipRegistry
                                    (process-local, NOT sufficient authority alone),
@@ -609,7 +719,12 @@ src/feature_engine/ownership.py   SubjectOwnershipState (INACTIVE/CATCHING_UP/
                                    reconcile per §"Atomicity and emission"; re-
                                    validates fencing before beginning AND via the
                                    indivisible commit operation, never a separate
-                                   pre-commit check alone)
+                                   pre-commit check alone; consumes the wrapped
+                                   engine's own already-resolved
+                                   VerifiedInputContractAuthority.merge_policy to
+                                   construct P_run (§D/§D2) -- never resolves
+                                   authority itself, never hard-codes a policy
+                                   value)
 src/feature_engine/regime_passthrough.py,
 src/feature_engine/swing_distance.py
                                    (bounded, behavior-preserving refactor) split
@@ -620,10 +735,11 @@ src/feature_engine/errors.py      (extended, not replaced) new named fail-closed
                                    DualOwnershipError, OwnershipAuthorityUnavailableError,
                                    UnprovenCatchUpError, CanonicalHistoryMismatchError,
                                    NonMonotonicApplicationOrderError,
-                                   IncompleteCertifiedFrontierError
+                                   IncompleteCertifiedFrontierError,
+                                   UnsupportedMergePolicyError
 ```
 
-`application_order.py` is deliberately **not** introduced as a separate file — the §D algorithm remains small enough to live inside `ownership.py`'s `AuthoritativeSubjectOwner`. No change proposed to `candle_window.py`, `current_view.py`, `publish.py`, `contracts.py`, `authority_resolver.py`, `output_contract_resolver.py`, `replay_preparation.py`, `identity.py`, or `envelope.py`.
+`application_order.py` is deliberately **not** introduced as a separate file — the §D algorithm remains small enough to live inside `ownership.py`'s `AuthoritativeSubjectOwner`. No change proposed to `candle_window.py`, `current_view.py`, `publish.py`, `output_contract_resolver.py`, `replay_preparation.py`, `identity.py`, or `envelope.py`. `contracts.py`/`authority_resolver.py` changes (§D2) are the one addition to correction 002's "no change" list — both bounded, additive extensions of their own existing types/functions, not new modules.
 
 ### F — Failure semantics (fail closed, no speculative authoritative output)
 
@@ -636,6 +752,7 @@ src/feature_engine/errors.py      (extended, not replaced) new named fail-closed
 - A recomputed historical candidate that does not match canonical Feature output history during catch-up (§C) → fail closed; never silently prefer one source over the other.
 - Certified frontier incomplete for this subject's Input Contract → defer/buffer per that contract's own `frontier_policy`, or fail closed where the policy requires (§D).
 - Inability to derive deterministic precedence within a certified apply set → the batch is rejected, not guessed.
+- Resolved Input Contract `merge_policy` (current or historical/pinned) missing, malformed, or not one of the combinations this Feature implementation actually supports (§D2) → authority resolution itself fails closed; never silently normalized into the supported combination, never a coordinator-local default.
 - Handoff interrupted between revoke and activation (e.g. process crash mid-handoff) → the subject is left with **no** `ACTIVE` owner; fails closed until a fresh acquisition completes catch-up from scratch. Blast radius scoped to the one affected `feature_subject_id` — consistent with [I-6](../../docs/constitution/02-platform-invariants.md) Fail-Safe by Scope.
 
 ### G — Replay / non-authoritative modes
@@ -657,7 +774,9 @@ INACTIVE → CATCHING_UP → ACTIVE → REVOKED
 
 ### ADR Scope conflict check (explicit, per instruction)
 
-This corrected design still introduces no new module, no dependency-graph edge, no Event Schema change, no Chapter 8 change, and no cross-module authority change — confirmed directly against the corrected shape above, including the engine-internal `_emit_*` refactor (a behavior-preserving method-shape change inside the already-registered `feature-engine` module). `AuthoritativeLineageHistoryProvider`, `SubjectOwnershipAuthority`, and `FencedFeatureCommitter` are **not** new authoritative sources: the first is a bounded read-side/reconciliation boundary onto the *already*-authoritative Feature event stream `feature-engine` already holds sole writer authority over (`stream-registry.yaml`, unchanged); the second and third are bounded exclusivity/commit boundaries realizing `ADR-043`'s own already-decided per-subject-ownership semantic, not competing domain-truth sources. No production implementation of any of them exists or is proposed here (§B/§C). No STOP condition is triggered.
+This corrected design still introduces no new module, no dependency-graph edge, no Event Schema change, no Chapter 8 change, and no cross-module authority change — confirmed directly against the corrected shape above, including the engine-internal `_emit_*` refactor (a behavior-preserving method-shape change inside the already-registered `feature-engine` module). `AuthoritativeLineageHistoryProvider`, `SubjectOwnershipAuthority`, and `FencedFeatureCommitter` are **not** new authoritative sources: the first is a bounded read-side/reconciliation boundary onto the *already*-authoritative Feature event stream `feature-engine` already holds sole writer authority over (`stream-registry.yaml`, unchanged); the second and third are bounded exclusivity/commit boundaries realizing `ADR-043`'s own already-decided per-subject-ownership semantic, not competing domain-truth sources. No production implementation of any of them exists or is proposed here (§B/§C).
+
+**§D2 addition, confirmed:** extending `VerifiedInputContractAuthority`/`authority_resolver.py` to also carry `merge_policy` changes no Input Contract artifact (both real artifacts already declare this block today, unmodified), no Chapter 8 semantic, no Event Schema, and no cross-module authority boundary — it carries an already-authoritative field of an artifact this resolver already reads and hashes, through the one resolution boundary that already carries every other field of that same artifact's authority. It does not create a second Input Contract authority path, and `ownership.py` remains, unchanged, forbidden from performing its own repository/filesystem authority resolution. No STOP condition is triggered.
 
 ## Current state (as of this build)
 
