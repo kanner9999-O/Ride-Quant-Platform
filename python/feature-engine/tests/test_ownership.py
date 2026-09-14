@@ -10,7 +10,9 @@ labeled TEST-ONLY, single-process, non-durable.
 from __future__ import annotations
 
 import dataclasses
+import inspect
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 
 import pytest
 from conftest import (
@@ -49,10 +51,16 @@ from feature_engine import (
 from feature_engine.contracts import InputMergePolicy, PreparedTransition
 from feature_engine.errors import (
     CanonicalHistoryMismatchError,
+    ConflictingUpstreamEnvelopeError,
     DualOwnershipError,
+    EngineNotPristineForCatchUpError,
+    FeatureLineageError,
     NonMonotonicApplicationOrderError,
     OwnershipAuthorityUnavailableError,
+    ProviderFrontierMismatchError,
+    RegistryContractMismatchError,
     StaleOwnershipGenerationError,
+    StreamPositionsUniverseMismatchError,
     UnprovenCatchUpError,
     UnsupportedMergePolicyError,
 )
@@ -114,6 +122,7 @@ class InMemoryFencedFeatureCommitter:
 
     authority: InMemorySubjectOwnershipAuthority
     allocator: SequenceAllocator
+    time_source: RecordedTimeSource
     log: dict[str, list[FeatureEvent]] = field(default_factory=dict)
     fail_next: bool = False
 
@@ -133,9 +142,23 @@ class InMemoryFencedFeatureCommitter:
             self.fail_next = False
             raise RuntimeError("TEST-ONLY forced commit failure — simulates an uncertain/aborted authoritative append")
         refs = tuple(self.allocator.next_ref(stream_id) for _ in prepared.prepared_events)
-        finalized = prepared.finalize_live(refs)
+        finalized = prepared.finalize_live(refs, time_source=self.time_source)
         self.log.setdefault(feature_subject_id, []).extend(finalized)
         return finalized
+
+
+@dataclass(frozen=True)
+class RaisingRecordedTimeSource:
+    """TEST-ONLY `RecordedTimeSource` that always raises — used to prove
+    historical catch-up/reconcile (ADR043-IMPL-A-MAJ-06) never calls
+    `RecordedTimeSource.next_after` at all.
+    """
+
+    def next_after(self, strict_floor: datetime) -> datetime:
+        raise AssertionError(
+            "RecordedTimeSource.next_after must never be called during historical catch-up/reconcile "
+            "(ADR043-IMPL-A-MAJ-06)"
+        )
 
 
 @dataclass
@@ -311,14 +334,22 @@ def test_p_run_sort_tie_breaks_incomparable_events_by_stream_id_then_sequence() 
     assert [e.ref for e in ordered] == [ref_a, ref_b]
 
 
-def test_p_run_sort_does_not_wait_for_a_hypothetical_future_event_outside_the_apply_set() -> None:
-    """ADR043-IMPLDESIGN-A-MAJ-02 Case 2: a causation_ref pointing OUTSIDE
-    this bounded apply set is treated as already-satisfied/committed — the
-    event is processed now, never blocked waiting for a hypothetical future
-    member of a different apply set.
+def test_p_run_sort_case_2_processes_event_whose_out_of_set_cause_is_already_resolved() -> None:
+    """ADR043-IMPLDESIGN-A-MAJ-02 Case 2, corrected framing
+    (ADR043-IMPL-A-MAJ-07): B is in the current certified apply set; some
+    OTHER event A is NOT a member of this apply set and has no `P_stream`/
+    `P_causation` relationship to B within it. B's own `causation_refs` may
+    legitimately cite a ref outside this bounded set — but ONLY as an
+    already-resolved/already-applied cause supplied by the certified
+    history boundary (i.e. some upstream/prior event that is already
+    authoritative and visible), NEVER as a claim about a hypothetical
+    FUTURE independent event. `p_run_sort` treats any such out-of-set
+    `causation_ref` as trivially already-satisfied and processes B now —
+    it never waits for anything outside its own bounded apply set.
     """
     ref_b = _mk_ref("stream-b", 1)
-    envelope_b = _mk_envelope(ref_b, causation_refs=(_mk_ref("stream-a", 1),))
+    already_resolved_cause_ref = _mk_ref("stream-a", 1)
+    envelope_b = _mk_envelope(ref_b, causation_refs=(already_resolved_cause_ref,))
     ordered = p_run_sort([envelope_b], merge_policy=_SUPPORTED_MERGE_POLICY)
     assert [e.ref for e in ordered] == [ref_b]
 
@@ -344,6 +375,109 @@ def test_p_run_sort_rejects_unsupported_tie_break() -> None:
     )
     with pytest.raises(UnsupportedMergePolicyError):
         p_run_sort([_mk_envelope(_mk_ref("stream-a", 1))], merge_policy=bad_policy)
+
+
+# --- ADR043-IMPL-A-MAJ-07: duplicate EventRecordRef must not be last-writer-wins ---
+
+
+def test_p_run_sort_deduplicates_byte_for_byte_identical_redelivery() -> None:
+    ref_a = _mk_ref("stream-a", 1)
+    first = _mk_envelope(ref_a, recorded_time=BASE)
+    identical_redelivery = _mk_envelope(ref_a, recorded_time=BASE)
+    ordered = p_run_sort([first, identical_redelivery], merge_policy=_SUPPORTED_MERGE_POLICY)
+    assert [e.ref for e in ordered] == [ref_a]
+
+
+def test_p_run_sort_rejects_conflicting_duplicate_ref_arrival_order_one() -> None:
+    ref_a = _mk_ref("stream-a", 1)
+    original = _mk_envelope(ref_a, recorded_time=BASE)
+    conflicting = _mk_envelope(ref_a, recorded_time=BASE + timedelta(minutes=1))
+    with pytest.raises(ConflictingUpstreamEnvelopeError):
+        p_run_sort([original, conflicting], merge_policy=_SUPPORTED_MERGE_POLICY)
+
+
+def test_p_run_sort_rejects_conflicting_duplicate_ref_arrival_order_two() -> None:
+    """Same conflicting pair as above, supplied in the OPPOSITE input order
+    — input order must never decide which envelope survives.
+    """
+    ref_a = _mk_ref("stream-a", 1)
+    original = _mk_envelope(ref_a, recorded_time=BASE)
+    conflicting = _mk_envelope(ref_a, recorded_time=BASE + timedelta(minutes=1))
+    with pytest.raises(ConflictingUpstreamEnvelopeError):
+        p_run_sort([conflicting, original], merge_policy=_SUPPORTED_MERGE_POLICY)
+
+
+# --- ADR043-IMPL-A-MAJ-01/-02/-03: authority/subject/stream derived from engine ---
+
+
+def test_authoritative_subject_owner_constructor_accepts_no_merge_policy_override() -> None:
+    """ADR043-IMPL-A-MAJ-01: an arbitrary caller-constructed `InputMergePolicy`
+    can no longer be injected into an owner at all — the constructor
+    signature itself carries no such parameter.
+    """
+    signature = inspect.signature(AuthoritativeSubjectOwner.__init__)
+    assert "merge_policy" not in signature.parameters
+
+
+def test_authoritative_subject_owner_constructor_accepts_no_subject_id_override() -> None:
+    """ADR043-IMPL-A-MAJ-02: the constructor signature carries no
+    `feature_subject_id` parameter either — subject identity is derived
+    exclusively from `engine.scope.feature_subject_id`.
+    """
+    signature = inspect.signature(AuthoritativeSubjectOwner.__init__)
+    assert "feature_subject_id" not in signature.parameters
+
+
+def test_authoritative_subject_owner_constructor_accepts_no_stream_id_override() -> None:
+    """ADR043-IMPL-A-MAJ-03: the constructor signature carries no
+    `stream_id` parameter either — the commit stream is derived exclusively
+    from `engine.resolved_output_event_contract_authority.
+    authoritative_stream_id`.
+    """
+    signature = inspect.signature(AuthoritativeSubjectOwner.__init__)
+    assert "stream_id" not in signature.parameters
+
+
+def test_owner_derives_subject_id_merge_policy_and_stream_from_engine(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _regime_engine(allocator, time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    owner = AuthoritativeSubjectOwner(
+        engine=engine, authority=authority, committer=committer, history_provider=provider
+    )
+    assert owner.feature_subject_id == engine.scope.feature_subject_id
+    assert owner._merge_policy == engine.resolved_input_contract_authority.merge_policy  # noqa: SLF001
+    assert owner._stream_id == engine.resolved_output_event_contract_authority.authoritative_stream_id  # noqa: SLF001
+    assert owner._stream_id == "feature-engine-feature"  # noqa: SLF001
+
+
+def test_regime_engine_exposes_resolved_authorities_and_pristine_check(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _regime_engine(allocator, time_source)
+    assert engine.resolved_input_contract_authority is REGIME_INPUT_CONTRACT
+    assert engine.resolved_output_event_contract_authority.authoritative_stream_id == "feature-engine-feature"
+    assert engine.is_pristine_for_authoritative_catchup() is True
+    fact = regime_classified_at(allocator, 0, computed_metric="1.5")
+    engine.on_regime_classified(
+        fact, cursor=frontier_at(fact.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    )
+    assert engine.is_pristine_for_authoritative_catchup() is False
+
+
+def test_swing_engine_exposes_resolved_authorities_and_pristine_check(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _swing_engine(allocator, time_source)
+    assert engine.resolved_input_contract_authority is SWING_DISTANCE_INPUT_CONTRACT
+    assert engine.resolved_output_event_contract_authority.authoritative_stream_id == "feature-engine-feature"
+    assert engine.is_pristine_for_authoritative_catchup() is True
+    swing = swing_confirmed_at(allocator, pivot_index=0, swing_id="swing-a")
+    engine.on_swing_confirmed(swing, cursor=frontier_at(swing.recorded_time))
+    assert engine.is_pristine_for_authoritative_catchup() is False
 
 
 # --- Fencing (§B) ------------------------------------------------------------
@@ -373,7 +507,7 @@ def test_committer_rejects_stale_generation_with_zero_effect(
     engine = _regime_engine(allocator, time_source)
     subject_id = engine.scope.feature_subject_id
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
     stale_generation = authority.acquire(subject_id)
     authority.acquire(subject_id)  # mints a successor, fencing stale_generation
 
@@ -396,16 +530,14 @@ def test_acquire_and_activate_rejects_dual_ownership_while_already_active(
     engine = _regime_engine(allocator, time_source)
     subject_id = engine.scope.feature_subject_id
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
     provider = InMemoryLineageHistoryProvider()
     provider.register_known_empty(subject_id)
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=REGIME_INPUT_CONTRACT.merge_policy,
     )
     empty_frontier = frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT)
     owner.acquire_and_activate(catch_up_frontier=empty_frontier)
@@ -413,48 +545,80 @@ def test_acquire_and_activate_rejects_dual_ownership_while_already_active(
         owner.acquire_and_activate(catch_up_frontier=empty_frontier)
 
 
+def test_acquire_and_activate_rejects_a_non_pristine_engine(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """ADR043-IMPL-A-MAJ-05: an engine that already processed a direct call
+    (even one producing no Feature output) may never be wrapped by a fresh
+    owner and used for catch-up.
+    """
+    engine = _regime_engine(allocator, time_source)
+    fact = regime_classified_at(allocator, 0, computed_metric="1.5")
+    engine.on_regime_classified(
+        fact, cursor=frontier_at(fact.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    )
+    assert engine.is_pristine_for_authoritative_catchup() is False
+
+    subject_id = engine.scope.feature_subject_id
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_known_empty(subject_id)
+    owner = AuthoritativeSubjectOwner(
+        engine=engine, authority=authority, committer=committer, history_provider=provider
+    )
+
+    with pytest.raises(EngineNotPristineForCatchUpError):
+        owner.acquire_and_activate(catch_up_frontier=frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT))
+    assert owner.state is not SubjectOwnershipState.ACTIVE
+    assert authority.is_current(subject_id, 1) is False  # no generation was ever minted
+
+
 def test_process_certified_frontier_fails_closed_when_never_activated(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
     engine = _regime_engine(allocator, time_source)
-    subject_id = engine.scope.feature_subject_id
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
     provider = InMemoryLineageHistoryProvider()
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=REGIME_INPUT_CONTRACT.merge_policy,
     )
     frontier = frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT)
     with pytest.raises(OwnershipAuthorityUnavailableError):
         owner.process_certified_frontier(frontier)
 
 
-def test_owner_fences_unusable_after_stale_generation_detected_and_requires_reacquire(
+def test_owner_becomes_terminal_after_stale_generation_and_same_owner_cannot_reacquire(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
+    """ADR043-IMPL-A-MAJ-05: a failed authoritative commit permanently
+    retires this owner instance — `acquire_and_activate` must never be
+    callable again on it, even against an otherwise-valid empty-history
+    frontier. Recovery requires a fresh engine + fresh owner (see
+    `test_fresh_owner_and_fresh_engine_recover_canonical_state_after_prior_
+    owner_goes_terminal`, below).
+    """
     engine = _regime_engine(allocator, time_source)
     subject_id = engine.scope.feature_subject_id
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
     provider = InMemoryLineageHistoryProvider()
     provider.register_known_empty(subject_id)
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=REGIME_INPUT_CONTRACT.merge_policy,
     )
     empty_frontier = frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT)
     owner.acquire_and_activate(catch_up_frontier=empty_frontier)
     state_after_activate: SubjectOwnershipState = owner.state
     assert state_after_activate is SubjectOwnershipState.ACTIVE
+    assert owner.is_terminal is False
 
     authority.acquire(subject_id)  # external successor acquisition fences this owner's generation
 
@@ -466,13 +630,15 @@ def test_owner_fences_unusable_after_stale_generation_detected_and_requires_reac
         owner.process_certified_frontier(frontier)
     state_after_stale_commit: SubjectOwnershipState = owner.state
     assert state_after_stale_commit is SubjectOwnershipState.REVOKED
+    assert owner.is_terminal is True
 
     with pytest.raises(OwnershipAuthorityUnavailableError):
         owner.process_certified_frontier(frontier)
 
-    owner.acquire_and_activate(catch_up_frontier=empty_frontier)
-    state_after_reactivate: SubjectOwnershipState = owner.state
-    assert state_after_reactivate is SubjectOwnershipState.ACTIVE
+    # The SAME owner instance may never reacquire again, even against a
+    # trivially-empty, otherwise-valid frontier.
+    with pytest.raises(OwnershipAuthorityUnavailableError):
+        owner.acquire_and_activate(catch_up_frontier=empty_frontier)
 
 
 def test_owner_fences_unusable_when_local_lineage_apply_fails_after_successful_commit(
@@ -485,16 +651,14 @@ def test_owner_fences_unusable_when_local_lineage_apply_fails_after_successful_c
     engine = _regime_engine(allocator, time_source)
     subject_id = engine.scope.feature_subject_id
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
     provider = InMemoryLineageHistoryProvider()
     provider.register_known_empty(subject_id)
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=REGIME_INPUT_CONTRACT.merge_policy,
     )
     empty_frontier = frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT)
     owner.acquire_and_activate(catch_up_frontier=empty_frontier)
@@ -518,6 +682,116 @@ def test_owner_fences_unusable_when_local_lineage_apply_fails_after_successful_c
         owner.process_certified_frontier(frontier)
 
 
+# --- Frontier validation (§D2, ADR043-IMPL-A-MAJ-04) ------------------------
+
+
+def test_acquire_and_activate_fails_closed_on_invalid_frontier_even_with_proven_empty_history(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _regime_engine(allocator, time_source)
+    subject_id = engine.scope.feature_subject_id
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_known_empty(subject_id)
+    owner = AuthoritativeSubjectOwner(
+        engine=engine, authority=authority, committer=committer, history_provider=provider
+    )
+    valid_frontier = frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    invalid_frontier = dataclasses.replace(valid_frontier, stream_registry_version="not-the-real-version")
+
+    with pytest.raises(RegistryContractMismatchError):
+        owner.acquire_and_activate(catch_up_frontier=invalid_frontier)
+    state_after_failure: SubjectOwnershipState = owner.state
+    assert state_after_failure is not SubjectOwnershipState.ACTIVE
+    assert owner._committed_frontier is None  # noqa: SLF001
+    assert owner.is_terminal is False  # pure input validation, before any generation was ever acquired
+
+    # A corrected, valid frontier still activates this same (never-acquired) owner.
+    owner.acquire_and_activate(catch_up_frontier=valid_frontier)
+    state_after_recovery: SubjectOwnershipState = owner.state
+    assert state_after_recovery is SubjectOwnershipState.ACTIVE
+
+
+def test_process_certified_frontier_fails_closed_on_invalid_registry_version_even_with_proven_empty_apply_set(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _regime_engine(allocator, time_source)
+    subject_id = engine.scope.feature_subject_id
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_known_empty(subject_id)
+    owner = AuthoritativeSubjectOwner(
+        engine=engine, authority=authority, committer=committer, history_provider=provider
+    )
+    owner.acquire_and_activate(catch_up_frontier=frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT))
+    original_committed = owner._committed_frontier  # noqa: SLF001
+
+    valid_frontier = frontier_at(BASE + timedelta(minutes=1), resolved_input_contract=REGIME_INPUT_CONTRACT)
+    invalid_frontier = dataclasses.replace(valid_frontier, stream_registry_version="not-the-real-version")
+    # provider.register_known_empty already makes the apply-set query PROVEN EMPTY --
+    # frontier validation must still fail closed regardless.
+    with pytest.raises(RegistryContractMismatchError):
+        owner.process_certified_frontier(invalid_frontier)
+    assert owner._committed_frontier == original_committed  # noqa: SLF001 -- no checkpoint advance
+
+
+def test_process_certified_frontier_fails_closed_on_wrong_stream_universe_even_with_proven_empty_apply_set(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    engine = _regime_engine(allocator, time_source)
+    subject_id = engine.scope.feature_subject_id
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_known_empty(subject_id)
+    owner = AuthoritativeSubjectOwner(
+        engine=engine, authority=authority, committer=committer, history_provider=provider
+    )
+    owner.acquire_and_activate(catch_up_frontier=frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT))
+    original_committed = owner._committed_frontier  # noqa: SLF001
+
+    wrong_universe_frontier = frontier_at(
+        BASE + timedelta(minutes=1), resolved_input_contract=REGIME_INPUT_CONTRACT, stream_positions={}
+    )
+    with pytest.raises(StreamPositionsUniverseMismatchError):
+        owner.process_certified_frontier(wrong_universe_frontier)
+    assert owner._committed_frontier == original_committed  # noqa: SLF001 -- no checkpoint advance
+
+
+def test_process_certified_frontier_fails_closed_when_provider_envelope_frontier_mismatches_requested(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """A provider handing back an `UpstreamEnvelope` certified against a
+    DIFFERENT cursor than the requested live frontier must never let the
+    owner silently advance its checkpoint to the requested frontier anyway.
+    """
+    engine = _regime_engine(allocator, time_source)
+    subject_id = engine.scope.feature_subject_id
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_known_empty(subject_id)
+    owner = AuthoritativeSubjectOwner(
+        engine=engine, authority=authority, committer=committer, history_provider=provider
+    )
+    owner.acquire_and_activate(catch_up_frontier=frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT))
+    original_committed = owner._committed_frontier  # noqa: SLF001
+
+    requested_frontier = frontier_at(BASE + timedelta(minutes=1), resolved_input_contract=REGIME_INPUT_CONTRACT)
+    mismatched_frontier = frontier_at(BASE + timedelta(minutes=2), resolved_input_contract=REGIME_INPUT_CONTRACT)
+    fact = regime_classified_at(allocator, 0, computed_metric="1.5")
+    provider.enqueue_pending(
+        subject_id, [_regime_envelope(fact, kind="regime_classified", frontier=mismatched_frontier)]
+    )
+
+    with pytest.raises(ProviderFrontierMismatchError):
+        owner.process_certified_frontier(requested_frontier)
+    assert owner._committed_frontier == original_committed  # noqa: SLF001 -- no checkpoint advance
+    assert owner.is_terminal is True
+
+
 # --- Atomic batch commit (§B "Atomicity and emission") ----------------------
 
 
@@ -527,16 +801,14 @@ def test_batch_commit_invalidate_and_replace_commits_atomically(
     engine = _swing_engine(allocator, time_source)
     subject_id = engine.scope.feature_subject_id
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
     provider = InMemoryLineageHistoryProvider()
     provider.register_known_empty(subject_id)
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
     )
     owner.acquire_and_activate(catch_up_frontier=frontier_at(BASE))
 
@@ -570,16 +842,14 @@ def test_batch_commit_failure_has_zero_effect_and_fences_owner(
     engine = _swing_engine(allocator, time_source)
     subject_id = engine.scope.feature_subject_id
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
     provider = InMemoryLineageHistoryProvider()
     provider.register_known_empty(subject_id)
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
     )
     owner.acquire_and_activate(catch_up_frontier=frontier_at(BASE))
 
@@ -618,16 +888,14 @@ def test_positive_empty_history_proof_allows_activation_for_new_subject(
     engine = _regime_engine(allocator, time_source)
     subject_id = engine.scope.feature_subject_id
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
     provider = InMemoryLineageHistoryProvider()
     provider.register_known_empty(subject_id)
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=REGIME_INPUT_CONTRACT.merge_policy,
     )
     empty_frontier = frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT)
     reconciled = owner.acquire_and_activate(catch_up_frontier=empty_frontier)
@@ -639,17 +907,14 @@ def test_absent_provider_history_cannot_activate(
     allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
 ) -> None:
     engine = _regime_engine(allocator, time_source)
-    subject_id = engine.scope.feature_subject_id
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
     provider = InMemoryLineageHistoryProvider()  # subject never registered at all
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=REGIME_INPUT_CONTRACT.merge_policy,
     )
     with pytest.raises(UnprovenCatchUpError):
         owner.acquire_and_activate(catch_up_frontier=frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT))
@@ -693,14 +958,12 @@ def test_catch_up_reconstructs_regime_lineage_using_canonical_refs_and_allocates
     fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
     fresh_engine = _regime_engine(fresh_allocator, time_source)
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=fresh_engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=REGIME_INPUT_CONTRACT.merge_policy,
     )
     reconciled = owner.acquire_and_activate(catch_up_frontier=frontier_3)
 
@@ -733,18 +996,24 @@ def test_catch_up_mismatch_fails_closed(time_source: FixedDeltaTimeSource) -> No
     fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
     fresh_engine = _regime_engine(fresh_allocator, time_source)
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=fresh_engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=REGIME_INPUT_CONTRACT.merge_policy,
     )
     with pytest.raises(CanonicalHistoryMismatchError):
         owner.acquire_and_activate(catch_up_frontier=frontier_1)
     assert owner.state is not SubjectOwnershipState.ACTIVE
+    assert owner.is_terminal is True  # ADR043-IMPL-A-MAJ-05
+
+    # The SAME owner (wrapping the SAME, now possibly-dirty engine instance) can
+    # never reacquire again -- even resupplying the correct canonical value would
+    # not help, since it is the OWNER instance itself that is permanently retired.
+    provider._canonical[subject_id] = [computed_1]  # noqa: SLF001 -- correct the canonical record for illustration
+    with pytest.raises(OwnershipAuthorityUnavailableError):
+        owner.acquire_and_activate(catch_up_frontier=frontier_1)
 
 
 def test_catch_up_incomplete_canonical_history_fails_closed(time_source: FixedDeltaTimeSource) -> None:
@@ -765,14 +1034,12 @@ def test_catch_up_incomplete_canonical_history_fails_closed(time_source: FixedDe
     fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
     fresh_engine = _regime_engine(fresh_allocator, time_source)
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=fresh_engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=REGIME_INPUT_CONTRACT.merge_policy,
     )
     with pytest.raises(CanonicalHistoryMismatchError):
         owner.acquire_and_activate(catch_up_frontier=frontier_1)
@@ -843,14 +1110,12 @@ def test_catch_up_reconstructs_non_selected_swing_state_matching_reference_after
     fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
     fresh_engine = _swing_engine(fresh_allocator, time_source)
     authority = InMemorySubjectOwnershipAuthority()
-    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
     owner = AuthoritativeSubjectOwner(
-        feature_subject_id=subject_id,
         engine=fresh_engine,
         authority=authority,
         committer=committer,
         history_provider=provider,
-        merge_policy=SWING_DISTANCE_INPUT_CONTRACT.merge_policy,
     )
     reconciled = owner.acquire_and_activate(catch_up_frontier=frontier_c)
     assert reconciled == (computed,)
@@ -866,3 +1131,149 @@ def test_catch_up_reconstructs_non_selected_swing_state_matching_reference_after
     assert live_invalidated.invalidated_fact_ref == computed.ref
     assert live_replacement.value == reference_replacement.value
     assert fresh_engine._lineage[key].used_swing_id == "swing-a"
+
+
+def test_catch_up_never_calls_recorded_time_source_and_restores_canonical_timestamps() -> None:
+    """ADR043-IMPL-A-MAJ-06: a `RecordedTimeSource` that raises on every
+    call is wired into BOTH the wrapped engine's own direct-path time
+    source AND the committer's live-materialization time source — catch-up
+    must still succeed, proving `RecordedTimeSource.next_after` is never
+    called anywhere on this path, and the reconciled event carries the
+    EXACT canonical historical `recorded_time`, never an invented one.
+    """
+    reference_allocator = SequenceAllocator(
+        module_id="feature-engine", implementation_version="0.1.0", run_id="reference-run"
+    )
+    reference_engine = _regime_engine(reference_allocator, FixedDeltaTimeSource())
+    subject_id = reference_engine.scope.feature_subject_id
+
+    fact_1 = regime_classified_at(reference_allocator, 0, computed_metric="1.50")
+    frontier_1 = frontier_at(fact_1.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    computed_1 = only_computed(reference_engine.on_regime_classified(fact_1, cursor=frontier_1)[0])
+
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_upstream(subject_id, [_regime_envelope(fact_1, kind="regime_classified", frontier=frontier_1)])
+    provider.register_canonical(subject_id, [computed_1])
+
+    fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
+    raising_time_source = RaisingRecordedTimeSource()
+    fresh_engine = _regime_engine(fresh_allocator, raising_time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(
+        authority=authority, allocator=fresh_allocator, time_source=raising_time_source
+    )
+    owner = AuthoritativeSubjectOwner(
+        engine=fresh_engine, authority=authority, committer=committer, history_provider=provider
+    )
+
+    reconciled = owner.acquire_and_activate(catch_up_frontier=frontier_1)
+    assert reconciled == (computed_1,)
+    assert only_computed(reconciled[0]).recorded_time == computed_1.recorded_time
+    assert owner.state is SubjectOwnershipState.ACTIVE
+    key = (fact_1.window_start, fact_1.window_end)
+    assert fresh_engine._lineage[key].head_fact.recorded_time == computed_1.recorded_time
+
+
+def test_partial_frontier_progress_then_later_prepare_failure_marks_owner_terminal(
+    allocator: SequenceAllocator, time_source: FixedDeltaTimeSource
+) -> None:
+    """ADR043-IMPL-A-MAJ-05: within ONE `process_certified_frontier` call,
+    an earlier envelope in the certified apply set may already commit
+    successfully (mutating the engine's local `_lineage`) before a LATER
+    envelope in the SAME batch fails during `prepare_upstream_event` —
+    never left `ACTIVE` with local state partially advanced and
+    `_committed_frontier` still stale; this owner must become terminal.
+    """
+    engine = _regime_engine(allocator, time_source)
+    subject_id = engine.scope.feature_subject_id
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_known_empty(subject_id)
+    owner = AuthoritativeSubjectOwner(
+        engine=engine, authority=authority, committer=committer, history_provider=provider
+    )
+    empty_frontier = frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    owner.acquire_and_activate(catch_up_frontier=empty_frontier)
+    original_committed = owner._committed_frontier  # noqa: SLF001
+
+    good_fact = regime_classified_at(allocator, 0, computed_metric="1.5")
+    # References a window this engine has never seen -- prepare_regime_invalidated
+    # raises FeatureLineageError for it.
+    bad_invalidation = regime_invalidated_at(
+        allocator,
+        invalidated_fact_ref=EventRecordRef(stream_id="raw-regime-engine-regime", sequence=999, event_id="bogus"),
+        recorded_time=good_fact.recorded_time + timedelta(seconds=1),
+    )
+    frontier = frontier_at(bad_invalidation.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    provider.enqueue_pending(
+        subject_id,
+        [
+            _regime_envelope(good_fact, kind="regime_classified", frontier=frontier),
+            _regime_envelope(bad_invalidation, kind="regime_invalidated", frontier=frontier),
+        ],
+    )
+
+    with pytest.raises(FeatureLineageError):
+        owner.process_certified_frontier(frontier)
+
+    # The first envelope's transition DID commit and DID mutate local _lineage...
+    key = (good_fact.window_start, good_fact.window_end)
+    assert key in engine._lineage
+    # ...yet the checkpoint never advanced, and the owner is now permanently terminal.
+    assert owner._committed_frontier == original_committed  # noqa: SLF001
+    assert owner.is_terminal is True
+    with pytest.raises(OwnershipAuthorityUnavailableError):
+        owner.acquire_and_activate(catch_up_frontier=empty_frontier)
+
+
+def test_fresh_owner_and_fresh_engine_recover_canonical_state_after_prior_owner_goes_terminal(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    """ADR043-IMPL-A-MAJ-05's own prescribed recovery path: after an owner
+    goes terminal (here, via explicit `revoke()`), a genuinely fresh
+    analytical engine instance plus a genuinely fresh
+    `AuthoritativeSubjectOwner` — never the retired owner/engine pair —
+    performs canonical catch-up and reaches the exact same committed state.
+    """
+    allocator_1 = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="owner-1-run")
+    engine_1 = _regime_engine(allocator_1, time_source)
+    subject_id = engine_1.scope.feature_subject_id
+    authority = InMemorySubjectOwnershipAuthority()
+    committer_1 = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator_1, time_source=time_source)
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_known_empty(subject_id)
+    owner_1 = AuthoritativeSubjectOwner(
+        engine=engine_1, authority=authority, committer=committer_1, history_provider=provider
+    )
+    empty_frontier = frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    owner_1.acquire_and_activate(catch_up_frontier=empty_frontier)
+
+    fact_1 = regime_classified_at(allocator_1, 0, computed_metric="1.50")
+    frontier_1 = frontier_at(fact_1.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    provider.enqueue_pending(subject_id, [_regime_envelope(fact_1, kind="regime_classified", frontier=frontier_1)])
+    committed_events = owner_1.process_certified_frontier(frontier_1)
+    committed_computed = only_computed(committed_events[0])
+
+    # A real provider would now be able to read this back as canonical output
+    # history; this fake is fed explicitly from the committer's own log.
+    provider.register_upstream(subject_id, [_regime_envelope(fact_1, kind="regime_classified", frontier=frontier_1)])
+    provider.register_canonical(subject_id, list(committer_1.log[subject_id]))
+
+    owner_1.revoke()
+    assert owner_1.is_terminal is True
+    with pytest.raises(OwnershipAuthorityUnavailableError):
+        owner_1.acquire_and_activate(catch_up_frontier=empty_frontier)
+
+    allocator_2 = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="owner-2-run")
+    engine_2 = _regime_engine(allocator_2, time_source)
+    committer_2 = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator_2, time_source=time_source)
+    owner_2 = AuthoritativeSubjectOwner(
+        engine=engine_2, authority=authority, committer=committer_2, history_provider=provider
+    )
+    reconciled = owner_2.acquire_and_activate(catch_up_frontier=frontier_1)
+
+    assert reconciled == (committed_computed,)
+    assert owner_2.state is SubjectOwnershipState.ACTIVE
+    key = (fact_1.window_start, fact_1.window_end)
+    assert engine_2._lineage[key].head_fact.ref == committed_computed.ref

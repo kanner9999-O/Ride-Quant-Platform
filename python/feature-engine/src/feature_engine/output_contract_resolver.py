@@ -52,6 +52,7 @@ from .errors import (
     OutputEventContractIdentityMismatchError,
     OutputEventContractNotPublishedError,
     OutputEventContractUnresolvableError,
+    OutputStreamEligibilityError,
 )
 
 _REPO_ROOT_MARKER = "docs"
@@ -78,12 +79,40 @@ def _extract_scalar(lines: list[str], key: str) -> str | None:
     return None
 
 
-def _resolve_one(contract_id: str, contract_version: str, *, root: Path) -> EventContractRef:
+def _extract_allowed_streams(lines: list[str]) -> tuple[str, ...]:
+    """Parses the Event Contract artifact's own `allowed_streams: [{-
+    stream_id: ...}]` block (Chapter 8 §8.3.1: "eligibility khai báo MỘT
+    CHIỀU tại Event Contract") — a bounded block scanner, same dependency-
+    free discipline as `authority_resolver.py`'s `_extract_included_streams`
+    (no PyYAML). Terminates the block on the first line that is not a
+    matching `- stream_id: ...` entry (e.g. a following comment or the next
+    top-level key) — mirrors that same scanner's own termination rule.
+    """
+    prefix = "- stream_id:"
+    streams: list[str] = []
+    in_block = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped == "allowed_streams:":
+            in_block = True
+            continue
+        if in_block:
+            if stripped.startswith(prefix):
+                streams.append(stripped[len(prefix) :].strip())
+                continue
+            break
+    return tuple(streams)
+
+
+def _resolve_one(contract_id: str, contract_version: str, *, root: Path) -> tuple[EventContractRef, tuple[str, ...]]:
     """ADR-039's own deterministic path function — pure literal
     substitution, no alias/normalization/case-folding, no history search.
     Reads the resolved artifact's own `contract_id`/`contract_version`/
     `status` back and fails closed on any missing field, identity mismatch,
-    or non-`Published` status.
+    or non-`Published` status. Also returns the artifact's own resolver-
+    parsed `allowed_streams` (ADR043-IMPL-A-MAJ-03) — unvalidated here; the
+    caller cross-validates against the paired contract's own resolved
+    `allowed_streams`.
     """
     path = root / _EVENT_CONTRACTS_RELDIR / contract_id / f"{contract_version}.yaml"
     if not path.is_file():
@@ -114,7 +143,52 @@ def _resolve_one(contract_id: str, contract_version: str, *, root: Path) -> Even
             f"{_PUBLISHED_STATUS!r} — a non-Published artifact is never a usable event_contract_ref target "
             "(ADR-039/ADR-040)"
         )
-    return EventContractRef(contract_id=resolved_contract_id, contract_version=resolved_contract_version)
+    allowed_streams = _extract_allowed_streams(lines)
+    ref = EventContractRef(contract_id=resolved_contract_id, contract_version=resolved_contract_version)
+    return ref, allowed_streams
+
+
+def _resolve_authoritative_stream(
+    computed_ref: EventContractRef,
+    computed_streams: tuple[str, ...],
+    invalidated_ref: EventContractRef,
+    invalidated_streams: tuple[str, ...],
+) -> str:
+    """ADR043-IMPL-A-MAJ-03: the one, resolver-proven, mutually-agreeing
+    authoritative Feature output stream identity — never hard-coded, never
+    caller-chosen. Fails closed (`OutputStreamEligibilityError`) if either
+    contract's own `allowed_streams` is missing/empty, names more than one
+    stream (this implementation has no deterministic selection rule for
+    that case), or the two contracts disagree.
+    """
+    if not computed_streams:
+        raise OutputStreamEligibilityError(
+            f"{computed_ref!r} does not declare a non-empty allowed_streams block — cannot resolve an "
+            "authoritative Feature output stream"
+        )
+    if not invalidated_streams:
+        raise OutputStreamEligibilityError(
+            f"{invalidated_ref!r} does not declare a non-empty allowed_streams block — cannot resolve an "
+            "authoritative Feature output stream"
+        )
+    if len(computed_streams) > 1:
+        raise OutputStreamEligibilityError(
+            f"{computed_ref!r} declares {len(computed_streams)} allowed_streams entries {computed_streams!r} — "
+            "this implementation cannot deterministically select an authoritative stream among more than one"
+        )
+    if len(invalidated_streams) > 1:
+        raise OutputStreamEligibilityError(
+            f"{invalidated_ref!r} declares {len(invalidated_streams)} allowed_streams entries "
+            f"{invalidated_streams!r} — this implementation cannot deterministically select an authoritative "
+            "stream among more than one"
+        )
+    if computed_streams[0] != invalidated_streams[0]:
+        raise OutputStreamEligibilityError(
+            f"{computed_ref!r} allowed_streams={computed_streams!r} disagrees with {invalidated_ref!r} "
+            f"allowed_streams={invalidated_streams!r} — both Feature output Event Contracts must resolve the "
+            "SAME authoritative stream"
+        )
+    return computed_streams[0]
 
 
 def resolve_output_event_contract_authority_from_repository(
@@ -143,9 +217,18 @@ def resolve_output_event_contract_authority_from_repository(
     value, an older version, an alias, or any other artifact.
     """
     root = repo_root if repo_root is not None else _find_repo_root(Path(__file__).resolve())
-    computed_ref = _resolve_one(FEATURE_COMPUTED_CONTRACT_ID, computed_contract_version, root=root)
-    invalidated_ref = _resolve_one(FEATURE_FACT_INVALIDATED_CONTRACT_ID, invalidated_contract_version, root=root)
-    return _seal_verified_output_authority(computed_contract_ref=computed_ref, invalidated_contract_ref=invalidated_ref)
+    computed_ref, computed_streams = _resolve_one(FEATURE_COMPUTED_CONTRACT_ID, computed_contract_version, root=root)
+    invalidated_ref, invalidated_streams = _resolve_one(
+        FEATURE_FACT_INVALIDATED_CONTRACT_ID, invalidated_contract_version, root=root
+    )
+    authoritative_stream_id = _resolve_authoritative_stream(
+        computed_ref, computed_streams, invalidated_ref, invalidated_streams
+    )
+    return _seal_verified_output_authority(
+        computed_contract_ref=computed_ref,
+        invalidated_contract_ref=invalidated_ref,
+        authoritative_stream_id=authoritative_stream_id,
+    )
 
 
 @dataclass(frozen=True, slots=True)

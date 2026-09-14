@@ -451,7 +451,7 @@ ADR043-IMPLDESIGN-A-MAJ-03: CLOSED — REVIEW A VALIDATED
 ADR043-IMPLDESIGN-A-MAJ-04: CLOSED — REVIEW A VALIDATED
 ```
 
-**Implementation (this revision).** Bounded Review A of the final implementation design was CLEAN (0 Blocker / 0 Major / 0 Minor across all four findings). Risk Classification `R1`; no Product Owner re-approval required; this transaction implements the reviewed design — it is not architecture authoring, ADR authoring, Product Owner approval, or EVID-07 evidence closure.
+**Implementation (design-review revision).** Bounded Review A of the final implementation design was CLEAN (0 Blocker / 0 Major / 0 Minor across all four findings). Risk Classification `R1`; no Product Owner re-approval required; this transaction implements the reviewed design — it is not architecture authoring, ADR authoring, Product Owner approval, or EVID-07 evidence closure.
 
 ```text
 ADR043-IMPLDESIGN-A-MAJ-01: CLOSED — REVIEW A VALIDATED
@@ -459,6 +459,66 @@ ADR043-IMPLDESIGN-A-MAJ-02: CLOSED — REVIEW A VALIDATED
 ADR043-IMPLDESIGN-A-MAJ-03: CLOSED — REVIEW A VALIDATED
 ADR043-IMPLDESIGN-A-MAJ-04: CLOSED — REVIEW A VALIDATED
 ```
+
+**Implementation bounded correction (this revision).** Review A of the implementation candidate itself (distinct namespace: `ADR043-IMPL-A-MAJ-*`, not the design-level `ADR043-IMPLDESIGN-A-MAJ-*` findings above, all of which remain closed and are not reopened) found `REVISION_REQUIRED` (0 Blocker / 7 Major / 0 Minor, Risk Classification `R1`):
+
+```text
+ADR043-IMPL-A-MAJ-01 — merge-policy provenance bypass: AuthoritativeSubjectOwner
+  accepted a plain caller-constructible merge_policy: InputMergePolicy
+  constructor argument -- an arbitrary, unresolved value could be injected
+  directly, bypassing the genuine VerifiedInputContractAuthority the wrapped
+  engine itself resolved.
+ADR043-IMPL-A-MAJ-02 — owner/engine feature_subject_id not structurally
+  bound: the owner accepted a caller-supplied feature_subject_id with no
+  requirement that it match the wrapped engine's own scope -- an owner
+  could fence one subject while preparing/emitting another's Feature facts.
+ADR043-IMPL-A-MAJ-03 — authoritative output stream identity caller-
+  controlled/wrong default: AuthoritativeSubjectOwner accepted
+  stream_id: str = "feature", an arbitrary, hard-coded default with no
+  connection to the real, resolved Feature output topology
+  (feature-engine-feature).
+ADR043-IMPL-A-MAJ-04 — empty-frontier path could advance a checkpoint (or
+  activate) without validating the certified frontier itself, whenever the
+  provider happened to report a positively-proven-empty apply
+  set/catch-up history -- an invalid frontier was never actually rejected
+  in that case.
+ADR043-IMPL-A-MAJ-05 — failed/partial authoritative processing could leave
+  an owner ACTIVE with local engine state partially advanced and
+  _committed_frontier stale, and permitted the SAME owner/engine pair to
+  reacquire and continue as if fresh -- unsafe, since Swing prepare methods
+  legitimately ingest authoritative upstream state before a Feature
+  transition commits.
+ADR043-IMPL-A-MAJ-06 — historical catch-up still invoked live
+  RecordedTimeSource.next_after(...) via the shared prepare/finalize seam,
+  even though reconcile() never uses the materialized value -- a needless,
+  incorrect live-clock dependency during historical reconstruction.
+ADR043-IMPL-A-MAJ-07 — p_run_sort's by_ref = {envelope.ref: envelope for
+  envelope in envelopes} dict comprehension silently resolved a duplicate
+  EventRecordRef via last-writer-wins (input order), never detecting or
+  rejecting conflicting duplicate envelope content.
+```
+
+Corrected below (§B/§D2/§9 for MAJ-01/-02/-03, §D2 for MAJ-04, §H/§9 for MAJ-05, §C/"Atomicity and emission" for MAJ-06, §D for MAJ-07) — none self-closed:
+
+```text
+ADR043-IMPL-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+ADR043-IMPL-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+ADR043-IMPL-A-MAJ-03: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+ADR043-IMPL-A-MAJ-04: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+ADR043-IMPL-A-MAJ-05: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+ADR043-IMPL-A-MAJ-06: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+ADR043-IMPL-A-MAJ-07: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+```
+
+**Summary of this correction's implementation changes:**
+
+- **MAJ-01/-02/-03 (authority derivation):** `AuthoritativeSubjectOwner`'s constructor no longer accepts `merge_policy`, `feature_subject_id`, or `stream_id` at all — it derives `feature_subject_id` from `engine.scope.feature_subject_id`, `merge_policy` from `engine.resolved_input_contract_authority.merge_policy`, and its commit `stream_id` from `engine.resolved_output_event_contract_authority.authoritative_stream_id`. Both `RegimePassthroughFeatureEngine` and `SwingDistanceFeatureEngine` expose `resolved_input_contract_authority`/`resolved_output_event_contract_authority` (returning their own cached, genuinely-resolved instances) and no longer accept a caller-supplied `stream_id` constructor override — their own `_stream_id` is likewise derived from the resolved output authority. `output_contract_resolver.py` now parses each Published Feature Event Contract's own `allowed_streams` (both `feature-computed`/`feature-fact-invalidated` currently resolve exactly one, agreeing stream: `feature-engine-feature`), fails closed (`OutputStreamEligibilityError`) on missing/empty/ambiguous(>1)/disagreeing declarations, and `VerifiedOutputEventContractAuthority` now carries the resolved `authoritative_stream_id`.
+- **MAJ-04 (frontier validation):** `AuthoritativeSubjectOwner._validate_frontier` (`resolve_computation_cursor` against the engine-derived Input Contract authority, result discarded) is called before `acquire_and_activate`'s catch-up and before `process_certified_frontier`'s apply-set query — even a positively-proven-empty result can never activate/advance a checkpoint from an invalid frontier. Every `UpstreamEnvelope.frontier` returned for ongoing processing must equal the exact requested frontier (`ProviderFrontierMismatchError` otherwise, fails closed, no checkpoint advance).
+- **MAJ-05 (terminal owner):** both engines expose `is_pristine_for_authoritative_catchup()` (Regime: `_lineage`/`_last_input_recorded_time`; Swing: all eight mutable analytical-state containers); `acquire_and_activate` requires it before ANY catch-up. `AuthoritativeSubjectOwner` gained a permanent `_terminal` flag — set on catch-up failure, any commit/local-apply failure, any mid-batch `process_certified_frontier` failure, or explicit `revoke()` — after which `acquire_and_activate` always fails closed (`OwnershipAuthorityUnavailableError`), on this owner instance, forever. Recovery is always a fresh engine + fresh owner + fresh generation + canonical catch-up.
+- **MAJ-06 (no live clock during catch-up):** `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated` now carry a `recorded_time_floor` (plus, for the former, `depends_on_preceding_invalidation_timing` for same-batch dependency) instead of a pre-materialized `recorded_time`; `RecordedTimeSource.next_after` is called exactly once, only from `_finalize_prepared_batch` (the live-commit path `PreparedTransition.finalize_live` reaches), never from `prepare_*`/`reconcile`.
+- **MAJ-07 (duplicate refs):** `p_run_sort` explicitly deduplicates by ref, raising the new `ConflictingUpstreamEnvelopeError` on any non-identical duplicate, in either input order; identical redelivery still deduplicates to one. The `ADR043-IMPLDESIGN-A-MAJ-02` Case 2 example/test no longer models a hypothetical future independent event as a `causation_ref` — an out-of-set `causation_ref` is now described (and tested) only as an already-resolved/already-applied cause.
+
+New error types (`errors.py`): `OutputStreamEligibilityError`, `EngineNotPristineForCatchUpError`, `ProviderFrontierMismatchError`, `ConflictingUpstreamEnvelopeError`.
 
 Implemented, source-level:
 

@@ -26,6 +26,8 @@ from .errors import (
     EvidenceCardinalityError,
     EvidenceReferenceConflictError,
     InvalidFeatureDefinitionError,
+    OutputStreamEligibilityError,
+    RecordedTimeSourceViolationError,
     RegistryContractMismatchError,
     StreamPositionsUniverseMismatchError,
     UnresolvedComputationCursorAuthorityError,
@@ -106,6 +108,10 @@ class VerifiedOutputEventContractAuthority:
     resolved `{contract_id, contract_version}` identity for BOTH
     `feature-computed` and `feature-fact-invalidated`, resolved together
     since a single engine always emits both from one `Published` boundary.
+    `authoritative_stream_id` (ADR043-IMPL-A-MAJ-03) is the ONE stream both
+    contracts' own resolver-parsed `allowed_streams` agree names the
+    authoritative Feature output stream — resolved from the artifacts
+    themselves, never hard-coded by any coordinator/caller.
 
     Same no-public-constructor discipline as `VerifiedInputContractAuthority`
     (see that type's own docstring for the full rationale — field-shape
@@ -123,6 +129,7 @@ class VerifiedOutputEventContractAuthority:
 
     computed_contract_ref: EventContractRef
     invalidated_contract_ref: EventContractRef
+    authoritative_stream_id: str
 
     def __init__(self, *_args: object, **_kwargs: object) -> None:
         raise TypeError(
@@ -135,7 +142,7 @@ class VerifiedOutputEventContractAuthority:
 
 
 def _construct_verified_output_authority(
-    *, computed_contract_ref: EventContractRef, invalidated_contract_ref: EventContractRef
+    *, computed_contract_ref: EventContractRef, invalidated_contract_ref: EventContractRef, authoritative_stream_id: str
 ) -> VerifiedOutputEventContractAuthority:
     """The ONLY place a `VerifiedOutputEventContractAuthority` instance is
     ever actually built — bypasses the type's own disabled public
@@ -146,19 +153,27 @@ def _construct_verified_output_authority(
     instance = object.__new__(VerifiedOutputEventContractAuthority)
     object.__setattr__(instance, "computed_contract_ref", computed_contract_ref)
     object.__setattr__(instance, "invalidated_contract_ref", invalidated_contract_ref)
+    object.__setattr__(instance, "authoritative_stream_id", authoritative_stream_id)
     return instance
 
 
 def _seal_verified_output_authority(
-    *, computed_contract_ref: EventContractRef, invalidated_contract_ref: EventContractRef
+    *,
+    computed_contract_ref: EventContractRef,
+    invalidated_contract_ref: EventContractRef,
+    authoritative_stream_id: str,
 ) -> VerifiedOutputEventContractAuthority:
     """The ONLY factory that produces a genuine
     `VerifiedOutputEventContractAuthority` — used exclusively by
     `output_contract_resolver.py`'s filesystem-backed resolver, immediately
     after it has resolved both Published Event Contract version-artifacts
-    at their own canonical paths and confirmed each one's own
-    `contract_id`/`contract_version`/`status: Published` (ADR-039).
-    Deliberately private (not exported via `__init__.py`).
+    at their own canonical paths, confirmed each one's own `contract_id`/
+    `contract_version`/`status: Published` (ADR-039), AND resolved the one,
+    mutually-agreeing `allowed_streams` stream identity both contracts name
+    (ADR043-IMPL-A-MAJ-03) — this factory never re-derives or second-guesses
+    that resolved stream identity itself, only that a genuine, non-empty
+    value was supplied. Deliberately private (not exported via
+    `__init__.py`).
     """
     if computed_contract_ref.contract_id != FEATURE_COMPUTED_CONTRACT_ID:
         raise UnresolvedComputationCursorAuthorityError(
@@ -174,8 +189,14 @@ def _seal_verified_output_authority(
         raise UnresolvedComputationCursorAuthorityError(
             "computed_contract_ref/invalidated_contract_ref must both carry a genuine, non-empty contract_version"
         )
+    if not authoritative_stream_id:
+        raise OutputStreamEligibilityError(
+            "authoritative_stream_id must be a genuine, non-empty resolved stream identity — never invented"
+        )
     return _construct_verified_output_authority(
-        computed_contract_ref=computed_contract_ref, invalidated_contract_ref=invalidated_contract_ref
+        computed_contract_ref=computed_contract_ref,
+        invalidated_contract_ref=invalidated_contract_ref,
+        authoritative_stream_id=authoritative_stream_id,
     )
 
 
@@ -1127,23 +1148,51 @@ def normalize_input_facts[T](
 # engine-internal plumbing, not part of this package's public surface.
 
 
+def _materialize_recorded_time(time_source: RecordedTimeSource, strict_floor: datetime) -> datetime:
+    """The ONLY place `RecordedTimeSource.next_after` is ever called for
+    genuine authoritative emission (ADR043-IMPL-A-MAJ-06) — exclusively
+    reached from the LIVE finalize path (`_finalize_prepared_batch`, below).
+    Historical catch-up/reconcile (`PreparedTransition.reconcile`) never
+    calls this function; it uses canonical historical events' own already-
+    committed `recorded_time` instead, never inventing one.
+    """
+    candidate = time_source.next_after(strict_floor)
+    if not candidate > strict_floor:
+        raise RecordedTimeSourceViolationError(
+            f"RecordedTimeSource.next_after({strict_floor!r}) returned {candidate!r}, not strictly later"
+        )
+    return candidate
+
+
 @dataclass(frozen=True, slots=True)
 class PreparedFeatureComputed:
     """A candidate `FeatureComputed` with every field resolved EXCEPT its
-    own authoritative `ref` (ADR043-IMPLDESIGN-A-MAJ-01). An engine's
+    own authoritative `ref` AND its own authoritative `recorded_time`
+    (ADR043-IMPLDESIGN-A-MAJ-01; ADR043-IMPL-A-MAJ-06). An engine's
     `prepare_*` methods build this WITHOUT calling `SequenceAllocator.
-    next_ref()` and WITHOUT mutating engine `_lineage` state — only
-    `finalize` (live commit, a freshly and atomically allocated real ref)
-    or `PreparedTransition.reconcile` (catch-up, a canonical historical
-    event's own real ref) ever produces a genuine `FeatureComputed` from
-    this candidate.
+    next_ref()` and WITHOUT calling `RecordedTimeSource.next_after()` and
+    WITHOUT mutating engine `_lineage` state — only `finalize` (live commit,
+    a freshly/atomically allocated real ref + a freshly materialized real
+    `recorded_time`) or `PreparedTransition.reconcile` (catch-up, a
+    canonical historical event's own real ref AND real `recorded_time`)
+    ever produces a genuine `FeatureComputed` from this candidate.
+
+    `recorded_time_floor` is the STRICT floor this candidate's eventual
+    `recorded_time` must exceed — computed entirely from already-known
+    values at prepare time (never itself a materialized/invented
+    timestamp). `depends_on_preceding_invalidation_timing`: True when the
+    TRUE effective floor must additionally include the MATERIALIZED
+    `recorded_time` of an invalidation prepared immediately before it IN
+    THE SAME ATOMIC BATCH (e.g. invalidate-then-replace) — that value does
+    not exist yet at prepare time, so `_finalize_prepared_batch` folds it in
+    once the invalidation's own `recorded_time` has itself been
+    materialized.
 
     `preceding_batch_invalidation_causation`: True when this candidate's
-    own final `causation_refs` must additionally cite the `ref` of an
-    invalidation prepared immediately before it IN THE SAME ATOMIC BATCH
-    (e.g. invalidate-then-replace) — that ref does not exist yet at prepare
-    time (a batch's refs are allocated together, atomically, at commit
-    time), so `finalize` injects it once known.
+    own final `causation_refs` must additionally cite the `ref` of that
+    same preceding same-batch invalidation — that ref likewise does not
+    exist yet at prepare time (a batch's refs are allocated together,
+    atomically, at commit time), so `finalize` injects it once known.
     """
 
     scope: FeatureScope
@@ -1155,12 +1204,15 @@ class PreparedFeatureComputed:
     supersedes_fact_ref: EventRecordRef | None
     causation_refs: tuple[EventRecordRef, ...]
     preceding_batch_invalidation_causation: bool
-    recorded_time: datetime
+    recorded_time_floor: datetime
+    depends_on_preceding_invalidation_timing: bool
     event_contract_ref: EventContractRef
     computation_cursor: ComputationCursor
     computation_dependency_content_evidence: ComputationDependencyContentEvidence
 
-    def finalize(self, ref: EventRecordRef, *, invalidation_ref: EventRecordRef | None = None) -> FeatureComputed:
+    def finalize(
+        self, ref: EventRecordRef, recorded_time: datetime, *, invalidation_ref: EventRecordRef | None = None
+    ) -> FeatureComputed:
         causation_refs = self.causation_refs
         if self.preceding_batch_invalidation_causation:
             if invalidation_ref is None:
@@ -1178,7 +1230,7 @@ class PreparedFeatureComputed:
             input_fact_refs=self.input_fact_refs,
             supersedes_fact_ref=self.supersedes_fact_ref,
             causation_refs=causation_refs,
-            recorded_time=self.recorded_time,
+            recorded_time=recorded_time,
             ref=ref,
             event_contract_ref=self.event_contract_ref,
             computation_cursor=self.computation_cursor,
@@ -1189,11 +1241,14 @@ class PreparedFeatureComputed:
 @dataclass(frozen=True, slots=True)
 class PreparedFeatureFactInvalidated:
     """A candidate `FeatureFactInvalidated` with every field resolved
-    except `ref` — see `PreparedFeatureComputed`'s docstring for the shared
-    prepare/commit/historical-reconcile rationale. An invalidation never
-    depends on a not-yet-allocated same-batch ref (it only ever cites
-    already-known upstream/prior-Feature-event refs), so `finalize` takes
-    no extra argument.
+    except `ref` and `recorded_time` — see `PreparedFeatureComputed`'s
+    docstring for the shared prepare/commit/historical-reconcile rationale.
+    An invalidation never depends on a not-yet-allocated same-batch ref, or
+    a not-yet-materialized same-batch `recorded_time` (it is always first
+    in any batch this implementation produces; it only ever cites already-
+    known upstream/prior-Feature-event refs and already-known recorded_time
+    values for its own floor), so `finalize` takes only the materialized
+    `recorded_time` — never an `invalidation_ref`/dependency flag.
     """
 
     scope: FeatureScope
@@ -1202,12 +1257,12 @@ class PreparedFeatureFactInvalidated:
     window_start: datetime
     window_end: datetime
     causation_refs: tuple[EventRecordRef, ...]
-    recorded_time: datetime
+    recorded_time_floor: datetime
     event_contract_ref: EventContractRef
     computation_cursor: ComputationCursor
     computation_dependency_content_evidence: ComputationDependencyContentEvidence
 
-    def finalize(self, ref: EventRecordRef) -> FeatureFactInvalidated:
+    def finalize(self, ref: EventRecordRef, recorded_time: datetime) -> FeatureFactInvalidated:
         return FeatureFactInvalidated(
             scope=self.scope,
             invalidated_fact_ref=self.invalidated_fact_ref,
@@ -1215,7 +1270,7 @@ class PreparedFeatureFactInvalidated:
             window_start=self.window_start,
             window_end=self.window_end,
             causation_refs=self.causation_refs,
-            recorded_time=self.recorded_time,
+            recorded_time=recorded_time,
             ref=ref,
             event_contract_ref=self.event_contract_ref,
             computation_cursor=self.computation_cursor,
@@ -1227,28 +1282,45 @@ PreparedFeatureEvent = PreparedFeatureComputed | PreparedFeatureFactInvalidated
 
 
 def _finalize_prepared_batch(
-    prepared_events: Sequence[PreparedFeatureEvent], refs: Sequence[EventRecordRef]
+    prepared_events: Sequence[PreparedFeatureEvent], refs: Sequence[EventRecordRef], *, time_source: RecordedTimeSource
 ) -> tuple[FeatureEvent, ...]:
     """Finalizes one atomic batch of prepared candidates with freshly,
-    atomically allocated real refs (ADR-043 live-commit path only) —
-    invalidation-then-dependent-replacement is the only intra-batch causal
-    shape any existing engine transition produces, so an invalidation's own
-    just-allocated ref is threaded into any later same-batch candidate whose
-    `preceding_batch_invalidation_causation` is True.
+    atomically allocated real refs AND freshly materialized real
+    `recorded_time` values (ADR-043 live-commit path only;
+    ADR043-IMPL-A-MAJ-06: this is the ONLY caller of `_materialize_
+    recorded_time`, i.e. the only path that ever calls `RecordedTimeSource.
+    next_after`) — invalidation-then-dependent-replacement is the only
+    intra-batch causal/timing shape any existing engine transition
+    produces, so an invalidation's own just-allocated ref AND just-
+    materialized `recorded_time` are threaded into any later same-batch
+    candidate whose `preceding_batch_invalidation_causation`/`depends_on_
+    preceding_invalidation_timing` is True.
     """
     if len(prepared_events) != len(refs):
         raise ValueError(
             f"_finalize_prepared_batch: {len(prepared_events)} prepared event(s) but {len(refs)} ref(s) supplied"
         )
     invalidation_ref: EventRecordRef | None = None
+    invalidation_recorded_time: datetime | None = None
     finalized: list[FeatureEvent] = []
     for prepared, ref in zip(prepared_events, refs, strict=True):
         event: FeatureEvent
         if isinstance(prepared, PreparedFeatureFactInvalidated):
-            event = prepared.finalize(ref)
+            recorded_time = _materialize_recorded_time(time_source, prepared.recorded_time_floor)
+            event = prepared.finalize(ref, recorded_time)
             invalidation_ref = ref
+            invalidation_recorded_time = recorded_time
         else:
-            event = prepared.finalize(ref, invalidation_ref=invalidation_ref)
+            floor = prepared.recorded_time_floor
+            if prepared.depends_on_preceding_invalidation_timing:
+                if invalidation_recorded_time is None:
+                    raise ValueError(
+                        "PreparedFeatureComputed: depends_on_preceding_invalidation_timing=True but no preceding "
+                        "invalidation was finalized earlier in this same batch"
+                    )
+                floor = max(floor, invalidation_recorded_time)
+            recorded_time = _materialize_recorded_time(time_source, floor)
+            event = prepared.finalize(ref, recorded_time, invalidation_ref=invalidation_ref)
         finalized.append(event)
     return tuple(finalized)
 
@@ -1309,13 +1381,18 @@ class PreparedTransition:
     prepared_events: tuple[PreparedFeatureEvent, ...]
     apply_lineage: Callable[[tuple[FeatureEvent, ...]], None]
 
-    def finalize_live(self, refs: Sequence[EventRecordRef]) -> tuple[FeatureEvent, ...]:
-        """Live-commit path only (ADR-043 §B/"Atomicity and emission") —
-        called with freshly, atomically allocated refs. Does NOT mutate
-        `_lineage`; call `apply_to_lineage` separately, and only once the
-        caller's own durable append has genuinely succeeded.
+    def finalize_live(
+        self, refs: Sequence[EventRecordRef], *, time_source: RecordedTimeSource
+    ) -> tuple[FeatureEvent, ...]:
+        """Live-commit path only (ADR-043 §B/"Atomicity and emission";
+        ADR043-IMPL-A-MAJ-06) — called with freshly, atomically allocated
+        refs; materializes real `recorded_time` value(s) from `time_source`
+        (the ONLY path that ever calls `RecordedTimeSource.next_after` —
+        never reached during historical catch-up/reconcile). Does NOT
+        mutate `_lineage`; call `apply_to_lineage` separately, and only once
+        the caller's own durable append has genuinely succeeded.
         """
-        return _finalize_prepared_batch(self.prepared_events, refs)
+        return _finalize_prepared_batch(self.prepared_events, refs, time_source=time_source)
 
     def apply_to_lineage(self, finalized_events: tuple[FeatureEvent, ...]) -> None:
         self.apply_lineage(finalized_events)

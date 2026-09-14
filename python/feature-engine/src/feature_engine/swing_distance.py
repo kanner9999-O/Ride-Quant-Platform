@@ -148,7 +148,6 @@ from .errors import (
     NonMonotonicRecordedTimeError,
     OutOfOrderCandleError,
     OutOfOrderCorrectionError,
-    RecordedTimeSourceViolationError,
     UnauthorizedUpstreamContractError,
     UnresolvedComputationCursorAuthorityError,
     UnresolvedOutputContractAuthorityError,
@@ -261,7 +260,6 @@ class SwingDistanceFeatureEngine:
         authorized_candle_contract_refs: frozenset[EventContractRef],
         authorized_swing_contract_refs: frozenset[EventContractRef],
         input_contract_authority_provider: InputContractAuthorityProvider,
-        stream_id: str = "feature",
     ) -> None:
         if definition.feature_type != "distance_to_last_confirmed_swing":
             raise ValueError(f"unsupported feature_type: {definition.feature_type!r}")
@@ -298,6 +296,7 @@ class SwingDistanceFeatureEngine:
                 f"{type(output_authority).__name__!r}, not a genuine VerifiedOutputEventContractAuthority — a "
                 "provider is never trusted merely because it returned an object with plausible-looking fields"
             )
+        self._output_authority = output_authority
         self._output_contract_ref = output_authority.computed_contract_ref
         self._invalidation_contract_ref = output_authority.invalidated_contract_ref
         self._resolved_input_contract = input_contract_authority_provider.resolve(_REQUIRED_INPUT_CONTRACT_PROFILE)
@@ -321,7 +320,7 @@ class SwingDistanceFeatureEngine:
         self.definition = definition
         self._allocator = allocator
         self._time_source = time_source
-        self._stream_id = stream_id
+        self._stream_id = output_authority.authoritative_stream_id
         self._candles: list[CandleFact] = []
         self._candle_index: dict[str, int] = {}
         self._candle_by_window: dict[tuple[datetime, datetime], CandleFact] = {}
@@ -339,6 +338,43 @@ class SwingDistanceFeatureEngine:
         self._swing_confirmations: dict[str, list[_SwingConfirmationRecord]] = {}
         self._swing_invalidations: dict[tuple[str, int], _SwingInvalidationRecord] = {}
         self._lineage: dict[tuple[datetime, datetime], _WindowLineage] = {}
+
+    @property
+    def resolved_input_contract_authority(self) -> VerifiedInputContractAuthority:
+        """ADR043-IMPL-A-MAJ-01: the exact, cached `VerifiedInputContractAuthority`
+        this engine itself resolved and trusts — the ONLY Input Contract
+        authority any external coordinator (`ownership.py`) may consume for
+        this engine; never independently re-resolved.
+        """
+        return self._resolved_input_contract
+
+    @property
+    def resolved_output_event_contract_authority(self) -> VerifiedOutputEventContractAuthority:
+        """ADR043-IMPL-A-MAJ-03: the exact, cached `VerifiedOutputEventContractAuthority`
+        this engine itself resolved and trusts — carries the resolver-proven
+        `authoritative_stream_id` an external coordinator must use as its
+        commit stream, never a caller-chosen/hard-coded value.
+        """
+        return self._output_authority
+
+    def is_pristine_for_authoritative_catchup(self) -> bool:
+        """ADR043-IMPL-A-MAJ-05: True only when this engine instance has
+        never processed ANY input (direct or authoritative) — every piece
+        of this engine's mutable analytical state must still be at its
+        just-constructed value. An engine that has already mutated ANY of
+        this state (even from a single direct call, or from an abandoned
+        prior authoritative attempt) is never reused for catch-up.
+        """
+        return (
+            not self._candles
+            and not self._candle_index
+            and not self._candle_by_window
+            and self._last_candle_recorded_time is None
+            and self._last_swing_recorded_time is None
+            and not self._swing_confirmations
+            and not self._swing_invalidations
+            and not self._lineage
+        )
 
     # -- shared ordering / recorded-time causality -----------------------
 
@@ -379,14 +415,6 @@ class SwingDistanceFeatureEngine:
                 f"swing recorded_time {recorded_time!r} precedes last-seen {self._last_swing_recorded_time!r}"
             )
         self._last_swing_recorded_time = recorded_time
-
-    def _next_recorded_time(self, strict_floor: datetime) -> datetime:
-        candidate = self._time_source.next_after(strict_floor)
-        if not candidate > strict_floor:
-            raise RecordedTimeSourceViolationError(
-                f"RecordedTimeSource.next_after({strict_floor!r}) returned {candidate!r}, not strictly later"
-            )
-        return candidate
 
     def _resolve_cursor(self, frontier: EvaluationFrontier) -> ComputationCursor:
         """P3-FEATURE-A-MAJ-06: the single place this engine assembles its own
@@ -664,7 +692,7 @@ class SwingDistanceFeatureEngine:
         emission").
         """
         refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)
-        finalized = prepared.finalize_live(refs)
+        finalized = prepared.finalize_live(refs, time_source=self._time_source)
         prepared.apply_to_lineage(finalized)
         return list(finalized)
 
@@ -862,9 +890,9 @@ class SwingDistanceFeatureEngine:
         normalized_refs = self._normalize_evidence(candle, state.ref, state.pivot_effective_time)
         # Chapter 8 §8.5.2 Cursor -> Fact: the emitted recorded_time floor includes
         # cursor.recorded_time, structurally guaranteeing computation_cursor.recorded_time
-        # <= FeatureComputed.recorded_time (Review-A residual 4) — never merely evidence-derived.
+        # <= FeatureComputed.recorded_time (Review-A residual 4) — never merely evidence-
+        # derived. ADR043-IMPL-A-MAJ-06: strict FLOOR only, never a materialized timestamp.
         floor = max(candle.recorded_time, state.recorded_time, cursor.recorded_time)
-        recorded_time = self._next_recorded_time(floor)
         value = self._compute_distance(candle, state)
         prepared = PreparedFeatureComputed(
             scope=self.scope,
@@ -876,7 +904,8 @@ class SwingDistanceFeatureEngine:
             supersedes_fact_ref=None,
             causation_refs=normalized_refs,
             preceding_batch_invalidation_causation=False,
-            recorded_time=recorded_time,
+            recorded_time_floor=floor,
+            depends_on_preceding_invalidation_timing=False,
             event_contract_ref=self._output_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
@@ -898,27 +927,40 @@ class SwingDistanceFeatureEngine:
         swing_id: str,
         state: _SwingState,
         *,
-        invalidation_recorded_time: datetime,
+        invalidation_recorded_time: datetime | None,
         invalidation_ref: EventRecordRef | None,
         cursor: EvaluationFrontier,
     ) -> PreparedTransition:
-        """`invalidation_ref=None` means the preceding invalidation is being
-        prepared IN THE SAME ATOMIC BATCH as this replacement (its own real
-        ref does not exist yet — `PreparedFeatureComputed.finalize` injects
-        it once the batch's refs are allocated together); a genuine,
-        already-known ref means the invalidation was already committed in
+        """`invalidation_ref=None` (paired with `invalidation_recorded_time=
+        None`) means the preceding invalidation is being prepared IN THE
+        SAME ATOMIC BATCH as this replacement — its own real ref AND real
+        materialized `recorded_time` do not exist yet (a batch's refs are
+        allocated together, atomically, at commit time, ADR-043 §B; its
+        recorded_time(s) are likewise materialized together, in order,
+        ADR043-IMPL-A-MAJ-06) — `PreparedFeatureComputed.finalize`/
+        `_finalize_prepared_batch` inject both once known. A genuine,
+        already-known pair means the invalidation was already committed in
         an earlier, separate transition (e.g. `_prepare_reevaluate_all_
-        windows`'s `lineage.pending_invalidation_ref`).
+        windows`'s `lineage.pending_invalidation_ref`/`lineage.pending_
+        invalidation_recorded_time`).
         """
         existing = self._lineage[key]
         normalized_refs = self._normalize_evidence(candle, state.ref, state.pivot_effective_time)
-        # Floor on ALL of: the invalidation this replaces, both pieces of its own
-        # evidence's recorded_time, AND cursor.recorded_time (Chapter 8 §8.5.2
-        # Cursor -> Fact, Review-A residual 4) — a replacement triggered by a
-        # newly-visible Swing revision (§9a reattempt) must not be recorded_time-
-        # earlier than that Swing's own recorded_time or this cursor's own boundary.
-        floor = max(invalidation_recorded_time, candle.recorded_time, state.recorded_time, cursor.recorded_time)
-        recorded_time = self._next_recorded_time(floor)
+        # Floor on both pieces of this replacement's own evidence recorded_time AND
+        # cursor.recorded_time (Chapter 8 §8.5.2 Cursor -> Fact, Review-A residual 4) --
+        # a replacement triggered by a newly-visible Swing revision (§9a reattempt) must
+        # not be recorded_time-earlier than that Swing's own recorded_time or this
+        # cursor's own boundary. When the preceding invalidation's own recorded_time is
+        # already known (not batch-relative), it is folded into the floor here too;
+        # when it is NOT yet known (batch-relative), depends_on_preceding_invalidation_
+        # timing defers that term to _finalize_prepared_batch, once materialized.
+        base_floor = max(candle.recorded_time, state.recorded_time, cursor.recorded_time)
+        if invalidation_recorded_time is not None:
+            floor = max(invalidation_recorded_time, base_floor)
+            depends_on_preceding_invalidation_timing = False
+        else:
+            floor = base_floor
+            depends_on_preceding_invalidation_timing = True
         value = self._compute_distance(candle, state)
         if invalidation_ref is not None:
             causation_refs = (*normalized_refs, invalidation_ref)
@@ -936,7 +978,8 @@ class SwingDistanceFeatureEngine:
             supersedes_fact_ref=existing.head_fact.ref,
             causation_refs=causation_refs,
             preceding_batch_invalidation_causation=preceding_batch_invalidation_causation,
-            recorded_time=recorded_time,
+            recorded_time_floor=floor,
+            depends_on_preceding_invalidation_timing=depends_on_preceding_invalidation_timing,
             event_contract_ref=self._output_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
@@ -964,7 +1007,6 @@ class SwingDistanceFeatureEngine:
         cursor: EvaluationFrontier,
     ) -> PreparedTransition:
         invalidation_floor = max(existing.head_fact.recorded_time, correction_recorded_time, cursor.recorded_time)
-        invalidation_recorded_time = self._next_recorded_time(invalidation_floor)
         prepared_invalidation = PreparedFeatureFactInvalidated(
             scope=existing.head_fact.scope,
             invalidated_fact_ref=existing.head_fact.ref,
@@ -972,7 +1014,7 @@ class SwingDistanceFeatureEngine:
             window_start=existing.head_fact.window_start,
             window_end=existing.head_fact.window_end,
             causation_refs=(existing.head_fact.ref, correction_ref),
-            recorded_time=invalidation_recorded_time,
+            recorded_time_floor=invalidation_floor,
             event_contract_ref=self._invalidation_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
@@ -982,7 +1024,7 @@ class SwingDistanceFeatureEngine:
             candle,
             swing_id,
             state,
-            invalidation_recorded_time=invalidation_recorded_time,
+            invalidation_recorded_time=None,
             invalidation_ref=None,
             cursor=cursor,
         )
@@ -1004,7 +1046,6 @@ class SwingDistanceFeatureEngine:
         cursor: EvaluationFrontier,
     ) -> PreparedTransition:
         invalidation_floor = max(lineage.head_fact.recorded_time, correction_recorded_time, cursor.recorded_time)
-        invalidation_recorded_time = self._next_recorded_time(invalidation_floor)
         prepared_invalidation = PreparedFeatureFactInvalidated(
             scope=lineage.head_fact.scope,
             invalidated_fact_ref=lineage.head_fact.ref,
@@ -1012,7 +1053,7 @@ class SwingDistanceFeatureEngine:
             window_start=lineage.head_fact.window_start,
             window_end=lineage.head_fact.window_end,
             causation_refs=(lineage.head_fact.ref, correction_ref),
-            recorded_time=invalidation_recorded_time,
+            recorded_time_floor=invalidation_floor,
             event_contract_ref=self._invalidation_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
@@ -1036,7 +1077,7 @@ class SwingDistanceFeatureEngine:
             candle,
             swing_id,
             state,
-            invalidation_recorded_time=invalidation_recorded_time,
+            invalidation_recorded_time=None,
             invalidation_ref=None,
             cursor=cursor,
         )
@@ -1143,7 +1184,6 @@ class SwingDistanceFeatureEngine:
                 "eligible_swing_selection_superseded"
             )
         invalidation_floor = max(existing.head_fact.recorded_time, state.recorded_time, cursor.recorded_time)
-        invalidation_recorded_time = self._next_recorded_time(invalidation_floor)
         prepared_invalidation = PreparedFeatureFactInvalidated(
             scope=existing.head_fact.scope,
             invalidated_fact_ref=existing.head_fact.ref,
@@ -1151,7 +1191,7 @@ class SwingDistanceFeatureEngine:
             window_start=existing.head_fact.window_start,
             window_end=existing.head_fact.window_end,
             causation_refs=(existing.head_fact.ref, state.ref),
-            recorded_time=invalidation_recorded_time,
+            recorded_time_floor=invalidation_floor,
             event_contract_ref=self._invalidation_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
@@ -1161,7 +1201,7 @@ class SwingDistanceFeatureEngine:
             candle,
             swing_id,
             state,
-            invalidation_recorded_time=invalidation_recorded_time,
+            invalidation_recorded_time=None,
             invalidation_ref=None,
             cursor=cursor,
         )

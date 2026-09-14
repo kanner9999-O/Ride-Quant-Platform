@@ -11,6 +11,7 @@ from feature_engine.errors import (
     OutputEventContractIdentityMismatchError,
     OutputEventContractNotPublishedError,
     OutputEventContractUnresolvableError,
+    OutputStreamEligibilityError,
 )
 from feature_engine.output_contract_resolver import (
     FilesystemOutputEventContractAuthorityResolver,
@@ -28,7 +29,18 @@ def _write(path: Path, content: str) -> None:
     path.write_text(content)
 
 
-def _artifact_yaml(*, contract_id: str, contract_version: str, status: str) -> str:
+def _artifact_yaml(
+    *,
+    contract_id: str,
+    contract_version: str,
+    status: str,
+    allowed_streams: tuple[str, ...] | None = ("feature-engine-feature",),
+) -> str:
+    if allowed_streams is None:
+        allowed_streams_block = ""
+    else:
+        entries = "\n".join(f"  - stream_id: {stream_id}" for stream_id in allowed_streams)
+        allowed_streams_block = f"allowed_streams:\n{entries}\n"
     return f"""# TEST FIXTURE ONLY -- not a real Event Contract version-artifact.
 contract_id: {contract_id}
 contract_version: {contract_version}
@@ -36,9 +48,7 @@ status: {status}
 
 event_type: {contract_id.upper().replace("-", "_")}
 event_class: derived_fact
-allowed_streams:
-  - stream_id: feature-engine-feature
-merge_constraints:
+{allowed_streams_block}merge_constraints:
   prerequisite_policy: causation_must_resolve_before_apply
 """
 
@@ -52,6 +62,8 @@ def _write_fake_repo(
     computed_contract_version: str = "v1.0",
     invalidated_contract_id: str = "feature-fact-invalidated",
     invalidated_contract_version: str = "v1.0",
+    computed_allowed_streams: tuple[str, ...] | None = ("feature-engine-feature",),
+    invalidated_allowed_streams: tuple[str, ...] | None = ("feature-engine-feature",),
 ) -> Path:
     """A minimal, TEMPORARY, fabricated repository tree mirroring just
     enough of the real Event Contract version-artifact YAML shape for the
@@ -62,7 +74,10 @@ def _write_fake_repo(
     _write(
         tmp_path / _COMPUTED_RELPATH,
         _artifact_yaml(
-            contract_id=computed_contract_id, contract_version=computed_contract_version, status=computed_status
+            contract_id=computed_contract_id,
+            contract_version=computed_contract_version,
+            status=computed_status,
+            allowed_streams=computed_allowed_streams,
         ),
     )
     _write(
@@ -71,6 +86,7 @@ def _write_fake_repo(
             contract_id=invalidated_contract_id,
             contract_version=invalidated_contract_version,
             status=invalidated_status,
+            allowed_streams=invalidated_allowed_streams,
         ),
     )
     return tmp_path
@@ -84,6 +100,9 @@ def test_real_output_authority_resolves_successfully() -> None:
     assert isinstance(resolved, VerifiedOutputEventContractAuthority)
     assert resolved.computed_contract_ref == EventContractRef("feature-computed", "v1.0")
     assert resolved.invalidated_contract_ref == EventContractRef("feature-fact-invalidated", "v1.0")
+    # ADR043-IMPL-A-MAJ-03: resolved from the real artifacts' own allowed_streams,
+    # never hard-coded -- the real, current Feature topology's one stream.
+    assert resolved.authoritative_stream_id == "feature-engine-feature"
 
 
 def test_conftest_authority_matches_direct_resolution() -> None:
@@ -219,6 +238,63 @@ def test_matching_published_artifacts_resolve_successfully(tmp_path: Path) -> No
     resolved = resolve_output_event_contract_authority_from_repository("v1.0", "v1.0", repo_root=repo)
     assert resolved.computed_contract_ref == EventContractRef("feature-computed", "v1.0")
     assert resolved.invalidated_contract_ref == EventContractRef("feature-fact-invalidated", "v1.0")
+    assert resolved.authoritative_stream_id == "feature-engine-feature"
+
+
+# --- ADR043-IMPL-A-MAJ-03: authoritative output stream resolution ----------
+
+
+def test_missing_allowed_streams_on_computed_fails_closed(tmp_path: Path) -> None:
+    repo = _write_fake_repo(tmp_path, computed_allowed_streams=None)
+    with pytest.raises(OutputStreamEligibilityError, match="does not declare a non-empty allowed_streams"):
+        resolve_output_event_contract_authority_from_repository("v1.0", "v1.0", repo_root=repo)
+
+
+def test_missing_allowed_streams_on_invalidated_fails_closed(tmp_path: Path) -> None:
+    repo = _write_fake_repo(tmp_path, invalidated_allowed_streams=None)
+    with pytest.raises(OutputStreamEligibilityError, match="does not declare a non-empty allowed_streams"):
+        resolve_output_event_contract_authority_from_repository("v1.0", "v1.0", repo_root=repo)
+
+
+def test_empty_allowed_streams_block_fails_closed(tmp_path: Path) -> None:
+    repo = _write_fake_repo(tmp_path, computed_allowed_streams=())
+    with pytest.raises(OutputStreamEligibilityError, match="does not declare a non-empty allowed_streams"):
+        resolve_output_event_contract_authority_from_repository("v1.0", "v1.0", repo_root=repo)
+
+
+def test_more_than_one_allowed_stream_on_computed_fails_closed(tmp_path: Path) -> None:
+    """This implementation has no deterministic rule for selecting among
+    more than one declared stream — fails closed rather than guessing.
+    """
+    repo = _write_fake_repo(tmp_path, computed_allowed_streams=("feature-engine-feature", "some-other-stream"))
+    with pytest.raises(OutputStreamEligibilityError, match="cannot deterministically select"):
+        resolve_output_event_contract_authority_from_repository("v1.0", "v1.0", repo_root=repo)
+
+
+def test_more_than_one_allowed_stream_on_invalidated_fails_closed(tmp_path: Path) -> None:
+    repo = _write_fake_repo(tmp_path, invalidated_allowed_streams=("feature-engine-feature", "some-other-stream"))
+    with pytest.raises(OutputStreamEligibilityError, match="cannot deterministically select"):
+        resolve_output_event_contract_authority_from_repository("v1.0", "v1.0", repo_root=repo)
+
+
+def test_computed_and_invalidated_allowed_streams_disagreement_fails_closed(tmp_path: Path) -> None:
+    repo = _write_fake_repo(
+        tmp_path,
+        computed_allowed_streams=("feature-engine-feature",),
+        invalidated_allowed_streams=("a-different-stream",),
+    )
+    with pytest.raises(OutputStreamEligibilityError, match="disagrees with"):
+        resolve_output_event_contract_authority_from_repository("v1.0", "v1.0", repo_root=repo)
+
+
+def test_agreeing_single_allowed_stream_resolves_to_that_stream(tmp_path: Path) -> None:
+    repo = _write_fake_repo(
+        tmp_path,
+        computed_allowed_streams=("a-custom-agreed-stream",),
+        invalidated_allowed_streams=("a-custom-agreed-stream",),
+    )
+    resolved = resolve_output_event_contract_authority_from_repository("v1.0", "v1.0", repo_root=repo)
+    assert resolved.authoritative_stream_id == "a-custom-agreed-stream"
 
 
 # --- Self-identity consistency (artifact content vs. its own canonical path)

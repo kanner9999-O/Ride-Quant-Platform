@@ -72,7 +72,6 @@ from .errors import (
     ForeignScopeError,
     InputContractIdentityMismatchError,
     NonMonotonicRecordedTimeError,
-    RecordedTimeSourceViolationError,
     RegimeDimensionMismatchError,
     UnauthorizedUpstreamContractError,
     UnresolvedComputationCursorAuthorityError,
@@ -114,7 +113,6 @@ class RegimePassthroughFeatureEngine:
         *,
         output_event_contract_authority_provider: OutputEventContractAuthorityProvider,
         input_contract_authority_provider: InputContractAuthorityProvider,
-        stream_id: str = "feature",
     ) -> None:
         if definition.feature_type not in _DIMENSION_BY_FEATURE_TYPE:
             raise ValueError(f"unsupported feature_type for regime pass-through: {definition.feature_type!r}")
@@ -131,6 +129,7 @@ class RegimePassthroughFeatureEngine:
                 f"{type(output_authority).__name__!r}, not a genuine VerifiedOutputEventContractAuthority — a "
                 "provider is never trusted merely because it returned an object with plausible-looking fields"
             )
+        self._output_authority = output_authority
         self._output_contract_ref = output_authority.computed_contract_ref
         self._invalidation_contract_ref = output_authority.invalidated_contract_ref
         self._resolved_input_contract = input_contract_authority_provider.resolve(_REQUIRED_INPUT_CONTRACT_PROFILE)
@@ -153,9 +152,38 @@ class RegimePassthroughFeatureEngine:
         self._expected_dimension = _DIMENSION_BY_FEATURE_TYPE[definition.feature_type]
         self._allocator = allocator
         self._time_source = time_source
-        self._stream_id = stream_id
+        self._stream_id = output_authority.authoritative_stream_id
         self._last_input_recorded_time: datetime | None = None
         self._lineage: dict[tuple[datetime, datetime], _WindowLineage] = {}
+
+    @property
+    def resolved_input_contract_authority(self) -> VerifiedInputContractAuthority:
+        """ADR043-IMPL-A-MAJ-01: the exact, cached `VerifiedInputContractAuthority`
+        this engine itself resolved and trusts — the ONLY Input Contract
+        authority any external coordinator (`ownership.py`) may consume for
+        this engine; never independently re-resolved.
+        """
+        return self._resolved_input_contract
+
+    @property
+    def resolved_output_event_contract_authority(self) -> VerifiedOutputEventContractAuthority:
+        """ADR043-IMPL-A-MAJ-03: the exact, cached `VerifiedOutputEventContractAuthority`
+        this engine itself resolved and trusts — carries the resolver-proven
+        `authoritative_stream_id` an external coordinator must use as its
+        commit stream, never a caller-chosen/hard-coded value.
+        """
+        return self._output_authority
+
+    def is_pristine_for_authoritative_catchup(self) -> bool:
+        """ADR043-IMPL-A-MAJ-05: True only when this engine instance has
+        never processed ANY input (direct or authoritative) — the only
+        state a freshly acquired `AuthoritativeSubjectOwner` may perform
+        catch-up reconstruction into. An engine that has already mutated
+        `_lineage`/`_last_input_recorded_time` (even from a single direct
+        call, or from an abandoned prior authoritative attempt) is never
+        reused for catch-up.
+        """
+        return not self._lineage and self._last_input_recorded_time is None
 
     def _check_scope(self, fact_instrument: str, fact_venue: str, fact_timeframe: str) -> None:
         if (
@@ -179,14 +207,6 @@ class RegimePassthroughFeatureEngine:
                 f"recorded_time {recorded_time!r} precedes last-seen {self._last_input_recorded_time!r}"
             )
         self._last_input_recorded_time = recorded_time
-
-    def _next_recorded_time(self, strict_floor: datetime) -> datetime:
-        candidate = self._time_source.next_after(strict_floor)
-        if not candidate > strict_floor:
-            raise RecordedTimeSourceViolationError(
-                f"RecordedTimeSource.next_after({strict_floor!r}) returned {candidate!r}, not strictly later"
-            )
-        return candidate
 
     def _resolve_cursor(self, frontier: EvaluationFrontier) -> ComputationCursor:
         """P3-FEATURE-A-MAJ-06: the single place this engine assembles its own
@@ -253,7 +273,7 @@ class RegimePassthroughFeatureEngine:
         emission").
         """
         refs = tuple(self._allocator.next_ref(self._stream_id) for _ in prepared.prepared_events)
-        finalized = prepared.finalize_live(refs)
+        finalized = prepared.finalize_live(refs, time_source=self._time_source)
         prepared.apply_to_lineage(finalized)
         return list(finalized)
 
@@ -347,9 +367,9 @@ class RegimePassthroughFeatureEngine:
         )
         # Chapter 8 §8.5.2 Cursor -> Fact (Review-A residual 4): the floor includes
         # cursor.recorded_time, structurally guaranteeing computation_cursor.recorded_time
-        # <= FeatureComputed.recorded_time.
+        # <= FeatureComputed.recorded_time. ADR043-IMPL-A-MAJ-06: this is only the STRICT
+        # FLOOR, never a materialized timestamp -- RecordedTimeSource is never called here.
         floor = max(fact.recorded_time, cursor.recorded_time)
-        recorded_time = self._next_recorded_time(floor)
         value = self.definition.decimal_precision_policy.apply(fact.computed_metric)
         prepared_computed = PreparedFeatureComputed(
             scope=self.scope,
@@ -361,7 +381,8 @@ class RegimePassthroughFeatureEngine:
             supersedes_fact_ref=None,
             causation_refs=normalized_refs,
             preceding_batch_invalidation_causation=False,
-            recorded_time=recorded_time,
+            recorded_time_floor=floor,
+            depends_on_preceding_invalidation_timing=False,
             event_contract_ref=self._output_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
@@ -384,7 +405,6 @@ class RegimePassthroughFeatureEngine:
     ) -> PreparedTransition:
         state = self._lineage[key]
         floor = max(state.head_fact.recorded_time, invalidation.recorded_time, cursor.recorded_time)
-        recorded_time = self._next_recorded_time(floor)
         prepared_invalidation = PreparedFeatureFactInvalidated(
             scope=state.head_fact.scope,
             invalidated_fact_ref=state.head_fact.ref,
@@ -392,7 +412,7 @@ class RegimePassthroughFeatureEngine:
             window_start=state.head_fact.window_start,
             window_end=state.head_fact.window_end,
             causation_refs=(state.head_fact.ref, invalidation.ref),
-            recorded_time=recorded_time,
+            recorded_time_floor=floor,
             event_contract_ref=self._invalidation_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),
@@ -420,7 +440,6 @@ class RegimePassthroughFeatureEngine:
         assert existing.pending_invalidation_recorded_time is not None
         assert existing.pending_invalidation_ref is not None
         floor = max(existing.pending_invalidation_recorded_time, cursor.recorded_time)
-        recorded_time = self._next_recorded_time(floor)
         value = self.definition.decimal_precision_policy.apply(fact.computed_metric)
         prepared_replacement = PreparedFeatureComputed(
             scope=self.scope,
@@ -432,7 +451,8 @@ class RegimePassthroughFeatureEngine:
             supersedes_fact_ref=existing.head_fact.ref,
             causation_refs=(*normalized_refs, existing.pending_invalidation_ref),
             preceding_batch_invalidation_causation=False,
-            recorded_time=recorded_time,
+            recorded_time_floor=floor,
+            depends_on_preceding_invalidation_timing=False,
             event_contract_ref=self._output_contract_ref,
             computation_cursor=self._resolve_cursor(cursor),
             computation_dependency_content_evidence=self._resolve_evidence(),

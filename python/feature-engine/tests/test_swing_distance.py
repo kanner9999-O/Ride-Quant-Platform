@@ -346,7 +346,7 @@ def test_absolute_distance_computed_with_evidence_refs(
     assert computed.scope == absolute_engine.scope
     assert computed.unit == absolute_engine.definition.unit
     assert computed.causation_refs == computed.input_fact_refs
-    assert computed.ref.stream_id == "feature"
+    assert computed.ref.stream_id == "feature-engine-feature"
     assert computed.event_contract_ref == EventContractRef(
         FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )
@@ -484,7 +484,7 @@ def test_settled_valid_window_preempted_by_higher_priority_corrected_revision(
     assert invalidation.window_start == temporary.window_start
     assert invalidation.window_end == temporary.window_end
     assert invalidation.recorded_time >= swing_a2.recorded_time
-    assert invalidation.ref.stream_id == "feature"
+    assert invalidation.ref.stream_id == "feature-engine-feature"
     assert invalidation.event_contract_ref == EventContractRef(
         FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )
@@ -959,7 +959,7 @@ def test_candle_distinct_correction_ref_enters_lineage_even_when_value_unchanged
     assert invalidation.window_end == original.window_end
     assert invalidation.causation_refs == (original.ref, correction.ref)
     assert invalidation.recorded_time >= correction.recorded_time
-    assert invalidation.ref.stream_id == "feature"
+    assert invalidation.ref.stream_id == "feature-engine-feature"
     assert invalidation.event_contract_ref == EventContractRef(
         FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )
@@ -972,7 +972,7 @@ def test_candle_distinct_correction_ref_enters_lineage_even_when_value_unchanged
     assert replacement.unit == original.unit
     assert set(replacement.input_fact_refs) == {correction.ref, swing.ref}
     assert replacement.causation_refs == (*replacement.input_fact_refs, invalidation.ref)
-    assert replacement.ref.stream_id == "feature"
+    assert replacement.ref.stream_id == "feature-engine-feature"
     assert replacement.event_contract_ref == EventContractRef(
         FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )
@@ -2092,7 +2092,7 @@ def test_used_swing_itself_invalidated_uses_swing_invalidated_cause(
     assert invalidation.window_end == original.window_end
     assert invalidation.causation_refs == (original.ref, inv.ref)
     assert invalidation.recorded_time >= inv.recorded_time
-    assert invalidation.ref.stream_id == "feature"
+    assert invalidation.ref.stream_id == "feature-engine-feature"
     assert invalidation.event_contract_ref == EventContractRef(
         FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )

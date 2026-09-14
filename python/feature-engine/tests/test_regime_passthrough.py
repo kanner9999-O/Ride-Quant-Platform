@@ -290,7 +290,7 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
     assert original.window_start == original_input.window_start
     assert original.window_end == original_input.recorded_time
     assert original.causation_refs == original.input_fact_refs
-    assert original.ref.stream_id == "feature"
+    assert original.ref.stream_id == "feature-engine-feature"
     assert original.event_contract_ref == EventContractRef(
         FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )
@@ -307,7 +307,7 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
     assert invalidation.window_start == original.window_start
     assert invalidation.window_end == original.window_end
     assert invalidation.causation_refs == (original.ref, invalidation_input.ref)
-    assert invalidation.ref.stream_id == "feature"
+    assert invalidation.ref.stream_id == "feature-engine-feature"
     assert invalidation.event_contract_ref == EventContractRef(
         FEATURE_FACT_INVALIDATED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )
@@ -332,7 +332,7 @@ def test_correction_invalidate_and_replace_even_when_value_unchanged(
     assert replacement.window_end == original.window_end
     assert replacement.input_fact_refs == (replacement_input.ref,)
     assert replacement.causation_refs == (*replacement.input_fact_refs, invalidation.ref)
-    assert replacement.ref.stream_id == "feature"
+    assert replacement.ref.stream_id == "feature-engine-feature"
     assert replacement.event_contract_ref == EventContractRef(
         FEATURE_COMPUTED_CONTRACT_ID, FEATURE_OUTPUT_CONTRACT_VERSION
     )

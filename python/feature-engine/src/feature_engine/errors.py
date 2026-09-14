@@ -335,8 +335,13 @@ class OwnershipAuthorityUnavailableError(FeatureEngineError):
     not be reached, or an `AuthoritativeSubjectOwner` was asked to perform
     authoritative work while not genuinely `ACTIVE` (never acquired, still
     `CATCHING_UP`, `REVOKED`, or fenced unusable after a prior uncertain
-    commit outcome). Never silently falls back to local-registry-only
-    fencing or proceeds without a currently-recognized owner generation.
+    commit outcome), or `acquire_and_activate` was called again on an owner
+    instance that has already gone TERMINAL after any prior failure
+    (ADR043-IMPL-A-MAJ-05) — recovery always requires a fresh analytical
+    engine instance, a fresh `AuthoritativeSubjectOwner`, a fresh ownership
+    generation, and canonical catch-up, never reactivating the same owner.
+    Never silently falls back to local-registry-only fencing or proceeds
+    without a currently-recognized owner generation.
     """
 
 
@@ -374,4 +379,46 @@ class IncompleteCertifiedFrontierError(FeatureEngineError):
     `EvaluationFrontier` — neither a genuine event list nor a positive
     proof of "nothing new to apply." Processing fails closed rather than
     guessing the apply set is empty.
+    """
+
+
+class OutputStreamEligibilityError(FeatureEngineError):
+    """A Published Feature outbound Event Contract's own `allowed_streams`
+    (ADR043-IMPL-A-MAJ-03) is missing, malformed, empty, names more than one
+    stream this implementation cannot deterministically select among, or —
+    between `feature-computed` and `feature-fact-invalidated` — the two
+    contracts' own resolved `allowed_streams` disagree on which stream is
+    authoritative. The genuine authoritative Feature output stream identity
+    is never hard-coded; resolution fails closed here instead.
+    """
+
+
+class EngineNotPristineForCatchUpError(FeatureEngineError):
+    """`AuthoritativeSubjectOwner.acquire_and_activate` (ADR043-IMPL-A-MAJ-05)
+    was called against an analytical engine instance that already carries
+    non-empty mutable analytical state — a newly acquired owner may only
+    perform catch-up reconstruction into a genuinely pristine engine
+    instance; an engine that has already processed ANY direct call (or a
+    prior, now-abandoned authoritative attempt) is never reused for catch-up.
+    """
+
+
+class ProviderFrontierMismatchError(FeatureEngineError):
+    """An `AuthoritativeLineageHistoryProvider` (ADR043-IMPL-A-MAJ-04)
+    returned an ongoing-processing `UpstreamEnvelope` whose own `frontier`
+    does not exactly equal the certified `EvaluationFrontier` the caller
+    passed to `process_certified_frontier` — a provider may never evaluate
+    events against one cursor while the owner advances its own committed
+    checkpoint to a different, caller-supplied frontier. Processing fails
+    closed before any such envelope is prepared or committed.
+    """
+
+
+class ConflictingUpstreamEnvelopeError(FeatureEngineError):
+    """A certified apply set supplied to `p_run_sort` (ADR043-IMPL-A-MAJ-07)
+    contains the same `EventRecordRef` more than once with materially
+    different `UpstreamEnvelope` content — never resolved by input order
+    (last-writer-wins); only a byte-for-byte identical redelivery of the
+    same ref deterministically deduplicates to one. Fails closed instead of
+    silently picking either candidate.
     """
