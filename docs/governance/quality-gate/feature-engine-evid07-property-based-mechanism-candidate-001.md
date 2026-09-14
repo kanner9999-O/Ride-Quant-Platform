@@ -1,8 +1,8 @@
 ---
 id: feature-engine-evid07-property-based-mechanism-candidate-001
 title: "Feature Engine — `P3-FEATURE-QG-EVID-07` Python Property-Based Testing Mechanism — CANDIDATE"
-candidate_version: "0.2"
-status: "CANDIDATE — NOT EFFECTIVE — BOUNDED CORRECTION 001 (P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03/-04/-05 REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW)"
+candidate_version: "0.3"
+status: "CANDIDATE — NOT EFFECTIVE — BOUNDED CORRECTION 002 (P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03 CLOSED — REVIEW A VALIDATED; -MAJ-04/-05 REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW)"
 performed_at: "2026-09-11"
 repository_head_at_authoring: "310a83e22c868611028e5804c524fb5a4e9f57da"
 bounded_correction_001:
@@ -10,11 +10,19 @@ bounded_correction_001:
   corrected_candidate_blob_before_correction: "f3bdb9ff82e3e88456792c4e06da48688a5bd6b4"
   reviewer_findings_addressed:
     - id: P3-FEATURE-QG-EVID07-A-MAJ-01
-      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+      status: "CLOSED — REVIEW A VALIDATED"
     - id: P3-FEATURE-QG-EVID07-A-MAJ-02
-      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+      status: "CLOSED — REVIEW A VALIDATED"
     - id: P3-FEATURE-QG-EVID07-A-MAJ-03
-      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-04
+      status: "REOPENED — CORRECTION REQUIRED (residual contradiction found on re-review)"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-05
+      status: "REOPENED — CORRECTION REQUIRED (prior remediation insufficient)"
+bounded_correction_002:
+  applied_at_repository_head: "c8e5d2e9ab5e9bf5e8000004c58d1005f7ccc287"
+  corrected_candidate_blob_before_correction: "f83911161783fc85d596ffd80ec143f3e446888a"
+  reviewer_findings_addressed:
     - id: P3-FEATURE-QG-EVID07-A-MAJ-04
       status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
     - id: P3-FEATURE-QG-EVID07-A-MAJ-05
@@ -23,7 +31,15 @@ bounded_correction_001:
 
 # Feature Engine — `P3-FEATURE-QG-EVID-07` Python Property-Based Testing Mechanism — CANDIDATE 001
 
-> **Bounded correction 001 (this transaction)** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Bounded Correction Executor`. Remediates five Review A findings against candidate v0.1 (reviewed blob `f3bdb9ff82e3e88456792c4e06da48688a5bd6b4`, boundary `cd9d2684b0a315cde1bd429f3d4b0b07f8fe96d5`): `-MAJ-01` (ADR Scope misclassification — corrected `ADR_NOT_REQUIRED` → `ADR_OPTIONAL — ADR NOT AUTHORED`, and removed the "carve-out" mischaracterization of Chapter 3 §3.2/Chapter 13 §13.14); `-MAJ-02` (approval-authority misstatement — removed every claim that Review A approves or closes this candidate; corrected to `Executor → Review A + Risk Classification → Product Owner Decision → Execution`, Product Owner sole approval authority); `-MAJ-03` (competing tooling SSOT — this file is now QG-scoped rationale only; the actual mechanism/tool decision is canonicalized into `docs/engineering/testing.md` v0.17 candidate section, added in this same bounded transaction as one coherent semantic decision, not a second unrelated one); `-MAJ-04` (Hypothesis reproducibility contract — corrected after re-reading hypothesis 6.168.0's actual source this transaction: removed the false claim that every ordinary falsifying example prints a reusable seed; distinguished deterministic CI generation (`derandomize`) from failure-artifact persistence (`print_blob`/`@reproduce_failure`, version-locked, temporary) from durable regression capture (`@example`)); `-MAJ-05` (I-13 concurrent-transition applicability — replaced grep-only reasoning with the authoritative basis: Chapter 8 §8.3's Locked single-writer-authority + atomic-sequence-assignment contract, which structurally prevents competing transitions from independently reaching any stream's append point, Feature Engine's included). None of the five findings is self-closed here — closure is Review A's own determination on re-review, per Chapter 0 §3.
+> **Bounded correction 002 (this transaction)** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Bounded Correction Executor`. Records Review A's re-review disposition on bounded correction 001 (reviewed blob `f83911161783fc85d596ffd80ec143f3e446888a`, boundary `c8e5d2e9ab5e9bf5e8000004c58d1005f7ccc287` — mechanically recorded per the established convention throughout this repository's Review A dispositions, no separate transcript file, consistent with the incoming task input): `-MAJ-01`/`-MAJ-02`/`-MAJ-03` **CLOSED — REVIEW A VALIDATED** (not re-litigated in this transaction; not reopened absent a fresh direct contradiction, and none was found on fresh re-read). `-MAJ-04`/`-MAJ-05` remained **OPEN — CORRECTION REQUIRED**, remediated here: `-MAJ-04` (a surviving contradictory sentence in §3 Alternative B — "a printed, directly-reusable reproduction seed" — was missed by correction 001's own fix to §5; found via a full-file search for every `seed`/`reproduce_failure`/`print_blob`/`derandomize` occurrence, per instruction, not just the one sentence Review A cited; corrected to match §5's own accurate contract). `-MAJ-05` (the prior `NOT_APPLICABLE` disposition inferred "single writer authority → competing transitions structurally impossible," which conflates Chapter 8 §8.3's STREAM-level writer-authority/append-ordering guarantee with a DOMAIN-level version/concurrency contract I-13 actually requires; re-derived from `feature.md` §9 rule 6 (no fork — an existing Domain Contract semantic, not invented) plus the actual Feature Engine implementation's own verified, pre-emission fail-closed rejection of conflicting transitions — disposition corrected to **APPLICABLE**, satisfied by the SAME evidence category already scoped for Surface 1's illegal-transition/fork case, explicitly distinguished from interleaving). Neither finding is self-closed here — closure is Review A's own determination on re-review, per Chapter 0 §3.
+>
+> `P3-FEATURE-QG-EVID07-A-MAJ-01: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-02: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-03: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-04: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+> `P3-FEATURE-QG-EVID07-A-MAJ-05: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+
+> **Bounded correction 001** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Bounded Correction Executor`. Remediates five Review A findings against candidate v0.1 (reviewed blob `f3bdb9ff82e3e88456792c4e06da48688a5bd6b4`, boundary `cd9d2684b0a315cde1bd429f3d4b0b07f8fe96d5`): `-MAJ-01` (ADR Scope misclassification — corrected `ADR_NOT_REQUIRED` → `ADR_OPTIONAL — ADR NOT AUTHORED`, and removed the "carve-out" mischaracterization of Chapter 3 §3.2/Chapter 13 §13.14); `-MAJ-02` (approval-authority misstatement — removed every claim that Review A approves or closes this candidate; corrected to `Executor → Review A + Risk Classification → Product Owner Decision → Execution`, Product Owner sole approval authority); `-MAJ-03` (competing tooling SSOT — this file is now QG-scoped rationale only; the actual mechanism/tool decision is canonicalized into `docs/engineering/testing.md` v0.17 candidate section, added in this same bounded transaction as one coherent semantic decision, not a second unrelated one); `-MAJ-04` (Hypothesis reproducibility contract — corrected after re-reading hypothesis 6.168.0's actual source this transaction: removed the false claim that every ordinary falsifying example prints a reusable seed; distinguished deterministic CI generation (`derandomize`) from failure-artifact persistence (`print_blob`/`@reproduce_failure`, version-locked, temporary) from durable regression capture (`@example`)); `-MAJ-05` (I-13 concurrent-transition applicability — replaced grep-only reasoning with the authoritative basis: Chapter 8 §8.3's Locked single-writer-authority + atomic-sequence-assignment contract, which structurally prevents competing transitions from independently reaching any stream's append point, Feature Engine's included). None of the five findings is self-closed here — closure is Review A's own determination on re-review, per Chapter 0 §3.
 >
 > `P3-FEATURE-QG-EVID07-A-MAJ-01: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
 > `P3-FEATURE-QG-EVID07-A-MAJ-02: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
@@ -31,7 +47,7 @@ bounded_correction_001:
 > `P3-FEATURE-QG-EVID07-A-MAJ-04: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
 > `P3-FEATURE-QG-EVID07-A-MAJ-05: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
 
-> **Status banner:** `CANDIDATE / NOT EFFECTIVE — BOUNDED CORRECTION 001 PENDING REVIEW A RE-REVIEW`. This remains a **QG-scoped analysis/rationale transaction only** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Author`. It does **not** install any dependency, does **not** edit `pyproject.toml`/`requirements-dev.lock.txt`, does **not** modify any Feature Engine production or test file, does **not** measure anything, and does **not** close `P3-FEATURE-QG-EVID-07`. Per `-MAJ-03`'s remediation (below), this file does **not** itself canonicalize the mechanism/tool decision — that decision is canonicalized in `docs/engineering/testing.md`'s own "Python property-based testing mechanism — CANDIDATE" subsection (v0.17, added this same transaction), through its own governed candidate lifecycle. Per `-MAJ-02`'s remediation, the governance path is `Executor → Review A + Risk Classification → Product Owner Decision → Execution` (Chapter 0 §3, ADR-042): Review A determines technical disposition/eligibility and may close Review A findings on re-review, but Review A does **not** approve — Product Owner is the sole approval authority, and no Product Owner decision is recorded or implied anywhere in this file.
+> **Status banner:** `CANDIDATE / NOT EFFECTIVE — BOUNDED CORRECTION 002 PENDING REVIEW A RE-REVIEW (MAJ-04/-05 ONLY)`. This remains a **QG-scoped analysis/rationale transaction only** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Author`. It does **not** install any dependency, does **not** edit `pyproject.toml`/`requirements-dev.lock.txt`, does **not** modify any Feature Engine production or test file, does **not** measure anything, and does **not** close `P3-FEATURE-QG-EVID-07`. Per `-MAJ-03`'s remediation (below), this file does **not** itself canonicalize the mechanism/tool decision — that decision is canonicalized in `docs/engineering/testing.md`'s own "Python property-based testing mechanism — CANDIDATE" subsection (v0.17, added this same transaction), through its own governed candidate lifecycle. Per `-MAJ-02`'s remediation, the governance path is `Executor → Review A + Risk Classification → Product Owner Decision → Execution` (Chapter 0 §3, ADR-042): Review A determines technical disposition/eligibility and may close Review A findings on re-review, but Review A does **not** approve — Product Owner is the sole approval authority, and no Product Owner decision is recorded or implied anywhere in this file.
 
 ## 0. Baseline / boundary verification (fresh, this transaction — not assumed)
 
@@ -259,8 +275,18 @@ Alternative B — `hypothesis` (PyPI, HypothesisWorks)
       exactly the evidence categories §6 below requires: generated legal
       transition sequences, illegal-transition rejection (via `assume`/
       explicit negative rules or plain `@given` + `pytest.raises`),
-      deterministic shrinking to a minimal failing example, and a printed,
-      directly-reusable reproduction seed.
+      deterministic shrinking to a minimal failing example within a run,
+      and — `-MAJ-04` correction, this transaction: NOT an automatically-
+      printed reproduction seed for ordinary falsifying examples (that
+      claim was false and is retracted here as well as in §5) — an
+      explicit, version-locked cross-environment reproduction blob
+      (`settings.print_blob` + `@reproduce_failure(version, blob)`, both
+      re-verified against hypothesis 6.168.0's own installed source in
+      §5, correction 001) for reproducing a specific failing case, plus
+      `@example(...)` for promoting a diagnosed failure to a durable,
+      version-independent regression check. See §5 for the full,
+      corrected reproducibility contract — this sentence is intentionally
+      kept consistent with it, not a separate restatement.
   Against: one new dependency (see above — small, but non-zero); a
     learning-curve cost for anyone unfamiliar with the library (mitigated
     by `RuleBasedStateMachine` being a close conceptual match to this
@@ -552,72 +578,142 @@ Replay reconstruction consistency: for a generated lineage sequence,
   generated sequences rather than the fixed scenarios EVID-05(a)'s
   existing tests already cover.
 
-Concurrent transitions — `-MAJ-05` corrected disposition: **A. NOT_APPLICABLE**
-  at the Feature Engine module boundary, on AUTHORITATIVE-CONTRACT
-  grounds (not on the absence-of-implementation-primitives reasoning v0.1
-  wrongly relied on as its sole basis).
+Concurrent/competing transitions — `-MAJ-05` corrected disposition:
+  **B. APPLICABLE**, satisfied by the SAME evidence category already
+  scoped above as "Illegal-transition rejection" (specifically its
+  `fork` case) — NOT a separate concurrency-testing mechanism, and NOT
+  literal threaded/concurrent execution. This replaces v0.1/correction
+  001's `NOT_APPLICABLE` disposition, which is retracted: that disposition
+  inferred "single writer authority → competing transitions structurally
+  impossible" from Chapter 8 §8.3 alone. On fresh re-read, §8.3
+  establishes STREAM-level guarantees only — exactly one writer authority
+  per stream, atomic sequence assignment, no dual-authoritative window
+  (docs/constitution/08-event-model.md v4.8, Locked, lines 222/299/
+  348-363, re-verified this transaction). That guarantees ORDERING and
+  APPEND-MECHANICS integrity (no gaps, no duplicate sequence numbers, no
+  two writers). It says nothing about, and does not by itself validate,
+  a payload's DOMAIN-LEVEL cross-reference (`supersedes_fact_ref`
+  targeting the true current lineage head) — Event Contract governs
+  event-to-stream eligibility and payload schema (§8.3.1), not cross-fact
+  referential integrity across a lineage, and neither authority checks
+  whether a given `FeatureComputed.supersedes_fact_ref` is genuinely the
+  CURRENT head at append time. Chapter 8 alone therefore does not prove
+  I-13's requirement; the prior inference conflated "the log can't be
+  corrupted by two writers" with "two conflicting successor candidates
+  can never be independently constructed for the same head," which is a
+  distinct, domain-level claim Chapter 8 does not make.
 
-  I-13's own clause is semantic, not implementation-detail: "concurrent/
-  competing transition attempts on the same entity must resolve
-  deterministically under the authoritative version/concurrency
-  contract" — the question is whether such competing attempts can reach
-  Feature Engine's own state-machine boundary AT ALL, not whether
-  Feature Engine's own source file happens to import a lock primitive.
+  Re-derived, this transaction, from EXISTING Feature-specific authority
+  (no new contract invented):
 
-  Authoritative basis, freshly resolved this transaction against Chapter
-  8 (docs/constitution/08-event-model.md v4.8, Locked) §8.3 (verified
-  directly, this transaction, not from memory):
-    "Một stream là một ordered log partition có đúng MỘT writer
-    authority cấp phát sequence" (line 222) — EVERY stream, including
-    whatever stream(s) carry FeatureComputed/FeatureFactInvalidated, has
-    EXACTLY one writer authority resolvable at any point in time.
-    "Mỗi stream chỉ có 1 writer authority (điều kiện để sequence
-    contiguous)" (line 299) — restated as a structural precondition,
-    not a recommendation.
-    Writer-authority handoff invariant (lines 348-356): "Không có
-    khoảng thời gian nào hai writer cùng authoritative" (rule 5 — never
-    a window where two writers are simultaneously authoritative), sequence
-    assigned ATOMICALLY at append time (line 363 — "reserve-then-crash sẽ
-    tạo lỗ hổng vĩnh viễn" is explicitly rejected), and handoff failure
-    must itself be fail-safe (I-6).
-  Consequence for Feature Engine specifically: because every stream
-  (Chapter 8-owned, platform-wide, Locked) structurally cannot have two
-  independently-authoritative writers appending conflicting events at
-  the same time, two competing/conflicting FeatureComputed/
-  FeatureFactInvalidated transitions for the SAME (feature_subject_id,
-  effective_window) lineage head CANNOT be independently, concurrently
-  appended to the authoritative event log in the first place — the
-  "version/concurrency contract" I-13 requires is Chapter 8's own
-  single-writer-authority + atomic-sequence-assignment contract,
-  ALREADY resolved and Locked, and it operates one level up the stack,
-  at the event-log append boundary, BEFORE any event ever reaches
-  Feature Engine's own `on_feature_computed`/`on_feature_invalidated`
-  handlers. Feature Engine's handlers only ever apply an already-
-  serialized, single-writer-produced sequence — there is no "competing
-  transition attempt" for them to resolve, because Chapter 8 has already
-  made that outcome structurally impossible upstream. This is an
-  architecture/ownership fact about where the guarantee lives (Chapter
-  8, universally, for every stream), not a gap this candidate is
-  deferring or a claim invented from an absence of code.
-  Corroborating (not sole) evidence: a fresh grep across
-  src/feature_engine/*.py for `concurren`, `expected_version`,
-  `optimistic`, `threading`, `asyncio`, `Lock(` this transaction returned
-  ZERO hits — CONSISTENT with (not proof of) the architectural
-  determination above: Feature Engine's own implementation correctly
-  contains no concurrency-conflict-resolution code of its own, because it
-  correctly does not own that responsibility.
+  1. `feature.md` §9 rule 6 (already cited in §2 above, Surface 1) is
+     ITSELF the Domain-Contract-owned version/concurrency semantic I-13's
+     guarantee #1 requires ("Mỗi entity type phải có state machine
+     authoritative... được sở hữu bởi Domain Contract"): "fact CHƯA từng
+     là supersedes_fact_ref của bất kỳ FeatureComputed nào khác" — a
+     replacement may target a given head EXACTLY ONCE; a second attempt
+     to supersede the SAME head is, by this rule's own text, a fork and
+     is prohibited. This is precisely I-13's own required guarantee #4
+     restated in domain terms: "không được tạo ra hai transition xung
+     đột từ cùng một authoritative state/version."
+  2. The rule is not merely declaratory — it is actively ENFORCED, before
+     emission, by the real implementation (verified via direct source
+     read, this transaction, not from memory):
+       `src/feature_engine/regime_passthrough.py` — both class-level
+       docstrings state, verbatim: **"One instance per Feature
+       subject."** `RegimePassthroughFeatureEngine.on_regime_classified`
+       validates an incoming upstream fact against this engine's own
+       authoritative in-memory `self._lineage[key]` state and raises the
+       real `FeatureLineageError` — "received a new RegimeClassified for
+       window ... whose current lineage head is not pending correction —
+       a replacement must be preceded by RegimeFactInvalidated" — BEFORE
+       any `FeatureComputed`/`FeatureFactInvalidated` is constructed or
+       returned (i.e. before append), not after the fact.
+       `src/feature_engine/swing_distance.py` — identical docstring
+       guarantee ("One instance per Feature subject"). Its
+       `on_swing_invalidated` validates an incoming upstream fact against
+       `self._latest_confirmation(...)`/`self._swing_invalidations` and
+       raises `InvalidSwingEligibilityInputError` — "which is not the
+       current non-invalidated revision tracked by this engine" — again
+       BEFORE any state mutation or emission (the method's own docstring:
+       "a rejected frontier leaves the targeted revision's non-invalidated
+       state untouched"). Its own `_emit_replacement_only`/
+       `_invalidate_and_replace` construct `supersedes_fact_ref=existing.
+       head_fact.ref` directly from this SAME authoritative internal
+       state — never from an externally-asserted value — so a forked
+       successor cannot be constructed by this engine even in principle.
+  3. Combined, these establish the actual Feature-specific "version/
+     concurrency contract": exactly ONE authoritative computation
+     instance exists per Feature subject (an architectural guarantee
+     currently pinned in the implementation's own class docstrings, not
+     yet restated in `feature.md` itself — noted honestly, not hidden;
+     see the scope note below), and that instance validates every
+     externally-asserted transition against its own authoritative,
+     sequentially-updated internal lineage state, failing closed BEFORE
+     emission whenever the asserted predecessor is not genuinely the
+     current head. This is exactly the shape of "resolve deterministically
+     by comparing against the authoritative current head/version, reject
+     the loser" that I-13 and the task's own example both describe — it
+     is a real, enforced, pre-append mechanism, not a downstream
+     projection catching an already-appended defect (§6's own "Do not
+     assume a projection rejecting an already-appended invalid event is
+     sufficient" instruction is honored: `FeatureCurrentView`'s
+     `FeatureLineageError` raises, cited under Surface 1 above, are a
+     SEPARATE, additional check on the read side; the ENGINE-level checks
+     identified here are the primary, pre-append enforcement point).
 
-  Explicitly NOT the same question as "interleaved," which remains
-  genuinely APPLICABLE and is covered above (sequence/order constraints,
-  §6 "Sequence/order constraints") — interleaved ARRIVAL ORDER of
-  already-serialized, single-writer-produced facts at one computation
-  cursor is real and testable (e.g. candle vs. swing-confirmation
-  delivery order); that is a property about ORDER of an already-
-  guaranteed-serial stream, not about resolving a genuine WRITE conflict,
-  which Chapter 8 has already ruled out. Per §13.8 fail-closed
-  discipline, this is an explicit, contract-backed "not applicable"
-  determination (Chapter 8 §8.3, cited above), not a silent skip and not
-  a grep-only claim.
+  Required evidence (this is the concrete competing-transition property,
+  conceptually per the task's own formulation): generate two candidate
+  successor facts that both target the SAME current lineage head (i.e.
+  both would set `supersedes_fact_ref` to the identical `head_fact.ref`)
+  — for `RegimePassthroughFeatureEngine`, this means delivering a second
+  `RegimeClassifiedFact` for a window whose lineage head is not (or is no
+  longer) pending correction; apply the first legally, then attempt the
+  second against the SAME pre-attempt head. Assert DETERMINISTICALLY:
+  the first attempt is accepted and becomes the new authoritative current
+  head; the second attempt — now stale relative to the (already-advanced)
+  head — is rejected via the real `FeatureLineageError` (fail-closed), and
+  the lineage never contains two facts both claiming the same
+  `supersedes_fact_ref`. This is a DETERMINISTIC, SEQUENTIALLY-GENERATED
+  scenario (apply attempt 1, then attempt 2, against a shared starting
+  head) — not literal multi-threaded execution, consistent with the task's
+  own guidance ("Do NOT invent threaded testing merely because the word
+  'concurrent' appears... If the contract resolves concurrency by
+  serialization/current-head comparison, generated conflicting/
+  interleaved histories may be the correct verification mechanism").
+
+  Explicitly distinguished from interleaving (a DIFFERENT test category,
+  per the task's own instruction — they are not the same): "Sequence/order
+  constraints" above covers ARRIVAL ORDER of facts that do NOT conflict
+  with each other (e.g. candle vs. swing-confirmation delivery order,
+  regime facts across independent windows) — shuffling their arrival order
+  must not change the final legal result. The competing-transition property
+  here covers two candidates that DO conflict (both claim the same
+  predecessor) — the correct, required outcome is NOT "both apply in some
+  order" but "exactly one is ever accepted, the other fails closed." A
+  property/test conflating these two categories would be incorrect.
+
+  Honest scope note (not a contract invention, a disclosure): "One
+  instance per Feature subject" is currently established only in the
+  implementation's own class docstrings (`regime_passthrough.py`,
+  `swing_distance.py`), not restated as an explicit guarantee in
+  `feature.md` itself. This is sufficient authority for THIS candidate's
+  own purpose — I-13 requires evidence against "state machine
+  authoritative... sở hữu bởi Domain Contract," and `feature.md` §9 rule 6
+  IS that Domain-Contract-owned semantic (point 1, above); the
+  single-instance architecture is the (currently implementation-level,
+  not yet Domain-Contract-pinned) MECHANISM that makes rule 6 actually
+  enforceable, exactly as I-13's own "Constitution không tự áp đặt...
+  đó là quyết định của từng Domain Contract" principle allows enforcement
+  detail to live in implementation. This is NOT the FAIL-CLOSED/STOP
+  condition the task describes (that would apply if NO existing authority
+  defined the semantic rule at all) — the semantic rule already exists
+  and is already enforced; only its ARCHITECTURAL PRECONDITION
+  (single-instance-per-subject) is presently undocumented at the Domain
+  Contract level. No edit to `feature.md` is made or proposed by this
+  QG-scoped correction — documenting that precondition in `feature.md`,
+  if ever warranted, is a separate, future Domain Contract decision, out
+  of scope here.
 ```
 
 ## 7. Installation-time verification contract (REQUIRED for any future install/pin transaction — mirrors testing.md's own coverage.py/mutmut contracts; fail-closed if any item does not resolve)
@@ -830,75 +926,90 @@ No mutmut/coverage.py/gobco candidate or approval history touched —
   verified byte-unchanged (this correction only ADDS one new subsection
   to docs/engineering/testing.md (v0.17) — it does not edit any
   existing section's content).
-No self-closure of `P3-FEATURE-QG-EVID07-A-MAJ-01` through `-MAJ-05` —
-  all five recorded `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
-  (frontmatter, banner), never `CLOSED`, per `-MAJ-02`'s own corrected
-  governance path (Review A determines disposition on re-review; this
-  Executor transaction does not).
+No self-closure of `P3-FEATURE-QG-EVID07-A-MAJ-04`/`-MAJ-05` — both
+  recorded `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW` (frontmatter,
+  banner), never `CLOSED`, per `-MAJ-02`'s own corrected governance path
+  (Review A determines disposition on re-review; this Executor
+  transaction does not). `-MAJ-01`/`-MAJ-02`/`-MAJ-03` are recorded
+  `CLOSED — REVIEW A VALIDATED` per the incoming, mechanically-recorded
+  Review A re-review disposition (frontmatter `bounded_correction_002`,
+  banner) — not re-derived or re-litigated by this transaction, and not
+  reopened absent a fresh direct contradiction (none found).
+No edit to `docs/engineering/testing.md` — verified byte-unchanged, blob
+  `708744f0464720cb14ceafbe75bb422200a57820` (`git diff --quiet --
+  docs/engineering/testing.md`), same as before this transaction. The
+  `-MAJ-05` correction is grounded in `feature.md` §9 rule 6 (already
+  cited, unedited) and the existing Feature Engine implementation
+  (unedited) — no new contract text was required or added anywhere.
 ```
 
 ## 10. Self-consistency check (performed before commit)
 
 ```text
-- §2's cited source identifiers (unchanged by this correction, re-
-  confirmed still present in current source, this transaction) were
-  originally verified via direct `grep -n` against src/feature_engine/*.py
-  and remain accurate — not touched by this correction.
-- §3/§5/§7's hypothesis/sortedcontainers version, license, Requires-
-  Python/Dist claims (unchanged, still 6.168.0/2.4.0 — the candidate
-  landscape did not need re-checking for this bounded correction, since
-  no install/pin is proposed to execute at this boundary) remain as
-  originally verified via `pip index versions`/`pip download --no-deps`.
-- `-MAJ-04`'s corrected §5 API claims (print_blob, reproduce_failure,
-  derandomize, database, @example, Flaky) were verified this transaction
-  directly against hypothesis 6.168.0's own extracted wheel source
-  (hypothesis/core.py, hypothesis/_settings.py, hypothesis/errors.py) —
-  not from memory, and not merely restated from the task's own prompt
-  text.
-- `-MAJ-05`'s corrected §6 concurrent-transition disposition is backed by
-  a direct reading of Chapter 8 §8.3 (docs/constitution/08-event-model.md,
-  Locked, single-writer-authority + atomic-sequence-assignment
-  invariants, lines 222/299/348-363, this transaction) — grep is now
-  cited only as corroborating, not as the architectural proof.
-- `-MAJ-01`'s corrected §8 ADR-scope conclusion was cross-checked
-  directly against docs/engineering/testing.md's own v0.15 correction
-  text (`P3-PY-MUT-COMPAT-A-MAJ-02`) this transaction, applying its
-  corrected CRITERION (does the decision change test-execution behavior,
-  not merely instrument/observe it) to hypothesis's own characteristics
-  — not copied from that finding's own label, and not copied from the
-  task's own hinted disposition without independent re-derivation.
-- `-MAJ-03`'s SSOT correction is internally consistent: §3/§4 of this
-  file now explicitly frame themselves as QG-scoped input to, not a
-  substitute for, the testing.md v0.17 candidate subsection (added this
-  same transaction) — verified by re-reading both files together before
-  commit.
-- No numeric Chapter 13 threshold is duplicated into this candidate (no
-  such threshold exists for the Property-based category — §13.6 states
-  the category is required "khi áp dụng," not a percentage).
+- §2's cited source identifiers, and the additional identifiers this
+  correction newly cites (`RegimePassthroughFeatureEngine`/
+  `SwingDistanceFeatureEngine`'s "One instance per Feature subject"
+  docstrings; `InvalidSwingEligibilityInputError`; the `on_swing_
+  invalidated`/`on_regime_classified` pre-emission validation logic) were
+  verified via direct source read against current
+  src/feature_engine/{regime_passthrough,swing_distance}.py this
+  transaction, not recalled from memory.
+- `-MAJ-04`: the entire QG candidate file was searched for every
+  occurrence of `seed`, `@seed`, `reproduction seed`, `reusable seed`,
+  `reproduce_failure`, `print_blob`, `derandomize` (this transaction) —
+  the one surviving contradictory sentence (§3 Alternative B) was found
+  and corrected to match §5's own accurate contract; every other
+  occurrence was re-read and confirmed already consistent (Alternative
+  A's stdlib-seeding discussion is unrelated to hypothesis's own API and
+  was left unchanged; §5/§7's content, corrected in bounded correction
+  001, is unchanged and remains accurate).
+- `-MAJ-05`: the corrected disposition does not repeat "single writer
+  authority → competing transitions structurally impossible." It is
+  grounded in `feature.md` §9 rule 6 (Domain-Contract-owned semantic,
+  already cited in §2, unedited by this correction) plus direct,
+  this-transaction verification that the real implementation enforces it
+  BEFORE emission (`FeatureLineageError` in `regime_passthrough.py`,
+  `InvalidSwingEligibilityInputError` in `swing_distance.py`, both
+  checked prior to any state mutation per their own docstrings/code) —
+  not a downstream-projection-only claim, and not a grep-only claim.
+  Interleaving and competing-transition semantics are kept explicitly
+  distinct (§6, two separate paragraphs with an explicit "explicitly
+  distinguished" cross-reference).
+- No contract was invented: `feature.md` was read, not edited; the
+  "one instance per Feature subject" precondition is disclosed as
+  implementation-level, not claimed as a Domain-Contract-level guarantee
+  — an honest scope note, not a fabricated authority.
+- `docs/engineering/testing.md` verified byte-unchanged this transaction
+  (`git diff --quiet`), blob `708744f0464720cb14ceafbe75bb422200a57820` —
+  no scope-expansion into the canonical tool decision was needed to
+  remediate `-MAJ-04`/`-MAJ-05`.
+- No numeric Chapter 13 threshold is duplicated into this candidate.
 - Internally coherent: no section of this candidate asserts EVID-07 is
   closed, asserts a dependency was installed, asserts a Product Owner
-  decision occurred, or asserts Review A itself approves anything —
-  cross-checked against §9's own explicit negative list and against
-  `-MAJ-02`'s corrected banner.
+  decision occurred, or asserts Review A itself approves anything.
 ```
 
 ## 11. Next governed step (not performed by this transaction) — `-MAJ-02`/`-MAJ-03` corrected governance path
 
 ```text
-1. Bounded Review A re-review of this correction (this transaction):
-   determines whether `-MAJ-01` through `-MAJ-05` are genuinely
-   remediated (CLOSED) or require further correction. Review A
-   determines technical disposition/eligibility only — it does not
-   approve this candidate or the testing.md v0.17 candidate subsection,
-   per Chapter 0 §3.
+1. Bounded Review A re-review of THIS correction (correction 002),
+   scoped to `-MAJ-04`/`-MAJ-05` ONLY (`-MAJ-01`/`-MAJ-02`/`-MAJ-03`
+   already CLOSED — REVIEW A VALIDATED, not reopened, not re-reviewed):
+   determines whether the two are genuinely remediated (CLOSED) or
+   require further correction. Review A determines technical
+   disposition/eligibility only — it does not approve this candidate or
+   the testing.md v0.17 candidate subsection, per Chapter 0 §3. Per the
+   task's own instruction, R2 (the incoming classification) does not
+   automatically require a second review/cross-check — only the Product
+   Owner may choose one, and none is requested or performed here.
 2. If Review A finds the corrections insufficient: a further bounded
    correction transaction remediates the residual — not self-closed by
    the correction author, same discipline as this transaction.
-3. Once Review A closes all five findings CLEAN: Risk Classification
-   (R0/R1/R2, per ADR-042) is recorded for the testing.md candidate
-   decision specifically (the actual mechanism/tool decision, per
-   `-MAJ-03` — not for this QG-scoped file, which makes no decision of
-   its own to classify).
+3. Once Review A closes both remaining findings CLEAN: Risk
+   Classification (R0/R1/R2, per ADR-042) is recorded for the testing.md
+   candidate decision specifically (the actual mechanism/tool decision,
+   per `-MAJ-03` — not for this QG-scoped file, which makes no decision
+   of its own to classify).
 4. Product Owner decision on the testing.md candidate (mechanism
    selection only — still no installation) — the SOLE approval authority,
    per `-MAJ-02`; not Review A, not this Executor.
@@ -910,7 +1021,9 @@ No self-closure of `P3-FEATURE-QG-EVID07-A-MAJ-01` through `-MAJ-05` —
    requirements-dev.lock.txt, and installs into python/feature-engine's
    environment.
 6. A SEPARATE, later, test-authoring transaction writes the actual
-   property-based tests against Surfaces 1–2 (§2/§6).
+   property-based tests against Surfaces 1–2 (§2/§6), including the
+   competing-transition property now defined under `-MAJ-05`'s
+   corrected disposition.
 7. A SEPARATE, later, formal Chapter 13 §13.9 evidence transaction (same
    pattern as feature-engine-evid05b-formal-evidence-001.md) records
    fresh measurement and, only if it genuinely passes, closes
