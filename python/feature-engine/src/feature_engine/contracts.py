@@ -1357,6 +1357,52 @@ def _prepared_matches_canonical(prepared: PreparedFeatureEvent, canonical: Featu
     )
 
 
+def _validate_canonical_recorded_time(
+    prepared_events: Sequence[PreparedFeatureEvent], canonical_events: Sequence[FeatureEvent]
+) -> None:
+    """ADR043-IMPL-A-MAJ-06 residual: validates each canonical historical
+    event's own `recorded_time` against the exact causal timing floor its
+    corresponding prepared candidate already computed — never invents,
+    materializes, or normalizes a timestamp; `RecordedTimeSource` is never
+    consulted here (historical catch-up/reconcile remains entirely
+    clock-free). Strictly greater than the floor is required for every
+    event — equality or an earlier canonical timestamp both fail closed
+    (`CanonicalHistoryMismatchError`), since the prepared floor already
+    encodes every required prior-head/causing-input/cursor constraint
+    (§B/§C). For a same-batch invalidation-then-replacement pair (`prepared.
+    depends_on_preceding_invalidation_timing`), the replacement's own
+    canonical `recorded_time` must ALSO be strictly later than the
+    preceding canonical invalidation's own `recorded_time` — mirroring
+    `_finalize_prepared_batch`'s live-path floor-threading exactly, just
+    validating instead of materializing.
+    """
+    invalidation_recorded_time: datetime | None = None
+    for prepared, canonical in zip(prepared_events, canonical_events, strict=True):
+        if isinstance(prepared, PreparedFeatureFactInvalidated):
+            if not canonical.recorded_time > prepared.recorded_time_floor:
+                raise CanonicalHistoryMismatchError(
+                    f"canonical FeatureFactInvalidated recorded_time={canonical.recorded_time!r} is not strictly "
+                    f"later than its required floor={prepared.recorded_time_floor!r} — catch-up fails closed "
+                    "rather than accepting an impossible historical timestamp"
+                )
+            invalidation_recorded_time = canonical.recorded_time
+        else:
+            floor = prepared.recorded_time_floor
+            if prepared.depends_on_preceding_invalidation_timing:
+                if invalidation_recorded_time is None:
+                    raise CanonicalHistoryMismatchError(
+                        "prepared replacement depends on a preceding same-batch invalidation's recorded_time, but "
+                        "no canonical FeatureFactInvalidated was reconciled earlier in this same batch"
+                    )
+                floor = max(floor, invalidation_recorded_time)
+            if not canonical.recorded_time > floor:
+                raise CanonicalHistoryMismatchError(
+                    f"canonical FeatureComputed recorded_time={canonical.recorded_time!r} is not strictly later "
+                    f"than its required floor={floor!r} — catch-up fails closed rather than accepting an "
+                    "impossible historical timestamp"
+                )
+
+
 @dataclass(slots=True)
 class PreparedTransition:
     """One atomic candidate authoritative Feature transition — ADR-043's
@@ -1403,7 +1449,12 @@ class PreparedTransition:
         output history and, on a match, hydrates `_lineage` using the
         CANONICAL events' own real identity (never a freshly allocated
         one). Fails closed (`CanonicalHistoryMismatchError`) on any
-        mismatch, including a batch-length mismatch.
+        content mismatch (including a batch-length mismatch) OR on any
+        canonical `recorded_time` that does not strictly exceed the exact
+        causal timing floor the corresponding prepared candidate already
+        computed (`_validate_canonical_recorded_time`,
+        ADR043-IMPL-A-MAJ-06 residual) — never `RecordedTimeSource.
+        next_after`, which this path never calls.
         """
         canonical_tuple = tuple(canonical_events)
         if len(canonical_tuple) != len(self.prepared_events):
@@ -1417,4 +1468,5 @@ class PreparedTransition:
                     f"recomputed historical candidate {prepared!r} does not match canonical Feature output "
                     f"{canonical!r} — catch-up fails closed rather than preferring either source"
                 )
+        _validate_canonical_recorded_time(self.prepared_events, canonical_tuple)
         self.apply_lineage(canonical_tuple)

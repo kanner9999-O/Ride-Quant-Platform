@@ -1045,6 +1045,224 @@ def test_catch_up_incomplete_canonical_history_fails_closed(time_source: FixedDe
         owner.acquire_and_activate(catch_up_frontier=frontier_1)
 
 
+# --- ADR043-IMPL-A-MAJ-06 residual: canonical historical recorded_time validation ---
+
+
+def test_catch_up_rejects_standalone_computed_recorded_time_equal_to_floor(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    reference_allocator = SequenceAllocator(
+        module_id="feature-engine", implementation_version="0.1.0", run_id="reference-run"
+    )
+    reference_engine = _regime_engine(reference_allocator, time_source)
+    subject_id = reference_engine.scope.feature_subject_id
+
+    fact_1 = regime_classified_at(reference_allocator, 0, computed_metric="1.50")
+    frontier_1 = frontier_at(fact_1.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    computed_1 = only_computed(reference_engine.on_regime_classified(fact_1, cursor=frontier_1)[0])
+
+    floor = max(fact_1.recorded_time, frontier_1.recorded_time)
+    tampered = dataclasses.replace(computed_1, recorded_time=floor)  # equal to the floor -- invalid (strict >)
+
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_upstream(subject_id, [_regime_envelope(fact_1, kind="regime_classified", frontier=frontier_1)])
+    provider.register_canonical(subject_id, [tampered])
+
+    fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
+    fresh_engine = _regime_engine(fresh_allocator, time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
+    owner = AuthoritativeSubjectOwner(
+        engine=fresh_engine, authority=authority, committer=committer, history_provider=provider
+    )
+    with pytest.raises(CanonicalHistoryMismatchError):
+        owner.acquire_and_activate(catch_up_frontier=frontier_1)
+
+
+def test_catch_up_rejects_standalone_computed_recorded_time_earlier_than_floor(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    reference_allocator = SequenceAllocator(
+        module_id="feature-engine", implementation_version="0.1.0", run_id="reference-run"
+    )
+    reference_engine = _regime_engine(reference_allocator, time_source)
+    subject_id = reference_engine.scope.feature_subject_id
+
+    fact_1 = regime_classified_at(reference_allocator, 0, computed_metric="1.50")
+    frontier_1 = frontier_at(fact_1.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    computed_1 = only_computed(reference_engine.on_regime_classified(fact_1, cursor=frontier_1)[0])
+
+    floor = max(fact_1.recorded_time, frontier_1.recorded_time)
+    tampered = dataclasses.replace(computed_1, recorded_time=floor - timedelta(microseconds=1))  # earlier -- invalid
+
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_upstream(subject_id, [_regime_envelope(fact_1, kind="regime_classified", frontier=frontier_1)])
+    provider.register_canonical(subject_id, [tampered])
+
+    fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
+    fresh_engine = _regime_engine(fresh_allocator, time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
+    owner = AuthoritativeSubjectOwner(
+        engine=fresh_engine, authority=authority, committer=committer, history_provider=provider
+    )
+    with pytest.raises(CanonicalHistoryMismatchError):
+        owner.acquire_and_activate(catch_up_frontier=frontier_1)
+
+
+def test_catch_up_rejects_invalidation_recorded_time_not_strictly_later_than_floor(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    reference_allocator = SequenceAllocator(
+        module_id="feature-engine", implementation_version="0.1.0", run_id="reference-run"
+    )
+    reference_engine = _regime_engine(reference_allocator, time_source)
+    subject_id = reference_engine.scope.feature_subject_id
+
+    fact_1 = regime_classified_at(reference_allocator, 0, computed_metric="1.50")
+    frontier_1 = frontier_at(fact_1.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    computed_1 = only_computed(reference_engine.on_regime_classified(fact_1, cursor=frontier_1)[0])
+
+    invalidation_fact = regime_invalidated_at(
+        reference_allocator, invalidated_fact_ref=fact_1.ref, recorded_time=computed_1.recorded_time
+    )
+    frontier_2 = frontier_at(computed_1.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
+    invalidated_1 = only_invalidated(reference_engine.on_regime_invalidated(invalidation_fact, cursor=frontier_2)[0])
+
+    invalidation_floor = max(computed_1.recorded_time, invalidation_fact.recorded_time, frontier_2.recorded_time)
+    tampered_invalidation = dataclasses.replace(invalidated_1, recorded_time=invalidation_floor)  # equal -- invalid
+
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_upstream(
+        subject_id,
+        [
+            _regime_envelope(fact_1, kind="regime_classified", frontier=frontier_1),
+            _regime_envelope(invalidation_fact, kind="regime_invalidated", frontier=frontier_2),
+        ],
+    )
+    provider.register_canonical(subject_id, [computed_1, tampered_invalidation])
+
+    fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
+    fresh_engine = _regime_engine(fresh_allocator, time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
+    owner = AuthoritativeSubjectOwner(
+        engine=fresh_engine, authority=authority, committer=committer, history_provider=provider
+    )
+    with pytest.raises(CanonicalHistoryMismatchError):
+        owner.acquire_and_activate(catch_up_frontier=frontier_2)
+
+
+def test_catch_up_rejects_same_batch_replacement_recorded_time_not_after_invalidation(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    reference_allocator = SequenceAllocator(
+        module_id="feature-engine", implementation_version="0.1.0", run_id="reference-run"
+    )
+    reference_engine = _swing_engine(reference_allocator, time_source)
+    subject_id = reference_engine.scope.feature_subject_id
+
+    swing = swing_confirmed_at(reference_allocator, pivot_index=0, swing_id="swing-a")
+    frontier_swing = frontier_at(swing.recorded_time)
+    assert reference_engine.on_swing_confirmed(swing, cursor=frontier_swing) == []
+
+    candle = candle_at(reference_allocator, 10, high="110", low="90")
+    frontier_candle = frontier_at(candle.recorded_time)
+    original = only_computed(reference_engine.on_candle(candle, cursor=frontier_candle)[0])
+
+    correction = candle_at(
+        reference_allocator, 10, high="120", low="90", is_correction=True, recorded_offset_seconds=5
+    )
+    frontier_correction = frontier_at(correction.recorded_time)
+    batch_events = reference_engine.on_candle(correction, cursor=frontier_correction)
+    invalidation = only_invalidated(batch_events[0])
+    replacement = only_computed(batch_events[1])
+
+    # Tamper: replacement's canonical recorded_time no longer strictly AFTER the
+    # invalidation's own canonical recorded_time within the SAME batch.
+    tampered_replacement = dataclasses.replace(replacement, recorded_time=invalidation.recorded_time)
+
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_upstream(
+        subject_id,
+        [
+            _swing_envelope(swing, kind="swing_confirmed", frontier=frontier_swing),
+            _swing_envelope(candle, kind="candle", frontier=frontier_candle, causation_refs=(swing.ref,)),
+            _swing_envelope(
+                correction, kind="candle", frontier=frontier_correction, causation_refs=(swing.ref,)
+            ),
+        ],
+    )
+    provider.register_canonical(subject_id, [original, invalidation, tampered_replacement])
+
+    fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
+    fresh_engine = _swing_engine(fresh_allocator, time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
+    owner = AuthoritativeSubjectOwner(
+        engine=fresh_engine, authority=authority, committer=committer, history_provider=provider
+    )
+    with pytest.raises(CanonicalHistoryMismatchError):
+        owner.acquire_and_activate(catch_up_frontier=frontier_correction)
+
+
+def test_catch_up_reconciles_valid_same_batch_invalidate_and_replace_successfully(
+    time_source: FixedDeltaTimeSource,
+) -> None:
+    """Positive control for the rejection test above: the SAME reference
+    scenario, with no deliberate timing defect, reconciles successfully —
+    proving the rejection fails for the SPECIFIC timing reason under test,
+    not fixture malformation.
+    """
+    reference_allocator = SequenceAllocator(
+        module_id="feature-engine", implementation_version="0.1.0", run_id="reference-run"
+    )
+    reference_engine = _swing_engine(reference_allocator, time_source)
+    subject_id = reference_engine.scope.feature_subject_id
+
+    swing = swing_confirmed_at(reference_allocator, pivot_index=0, swing_id="swing-a")
+    frontier_swing = frontier_at(swing.recorded_time)
+    reference_engine.on_swing_confirmed(swing, cursor=frontier_swing)
+
+    candle = candle_at(reference_allocator, 10, high="110", low="90")
+    frontier_candle = frontier_at(candle.recorded_time)
+    original = only_computed(reference_engine.on_candle(candle, cursor=frontier_candle)[0])
+
+    correction = candle_at(
+        reference_allocator, 10, high="120", low="90", is_correction=True, recorded_offset_seconds=5
+    )
+    frontier_correction = frontier_at(correction.recorded_time)
+    batch_events = reference_engine.on_candle(correction, cursor=frontier_correction)
+    invalidation = only_invalidated(batch_events[0])
+    replacement = only_computed(batch_events[1])
+
+    provider = InMemoryLineageHistoryProvider()
+    provider.register_upstream(
+        subject_id,
+        [
+            _swing_envelope(swing, kind="swing_confirmed", frontier=frontier_swing),
+            _swing_envelope(candle, kind="candle", frontier=frontier_candle, causation_refs=(swing.ref,)),
+            _swing_envelope(
+                correction, kind="candle", frontier=frontier_correction, causation_refs=(swing.ref,)
+            ),
+        ],
+    )
+    provider.register_canonical(subject_id, [original, invalidation, replacement])
+
+    fresh_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="fresh-run")
+    fresh_engine = _swing_engine(fresh_allocator, time_source)
+    authority = InMemorySubjectOwnershipAuthority()
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=fresh_allocator, time_source=time_source)
+    owner = AuthoritativeSubjectOwner(
+        engine=fresh_engine, authority=authority, committer=committer, history_provider=provider
+    )
+    reconciled = owner.acquire_and_activate(catch_up_frontier=frontier_correction)
+    assert reconciled == (original, invalidation, replacement)
+    assert owner.state is SubjectOwnershipState.ACTIVE
+    key = (candle.scope.window_start, candle.scope.window_end)
+    assert fresh_engine._lineage[key].head_fact.ref == replacement.ref
+
+
 def test_catch_up_reconstructs_non_selected_swing_state_matching_reference_after_live_invalidation(
     time_source: FixedDeltaTimeSource,
 ) -> None:

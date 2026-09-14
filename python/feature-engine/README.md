@@ -520,6 +520,36 @@ ADR043-IMPL-A-MAJ-07: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
 
 New error types (`errors.py`): `OutputStreamEligibilityError`, `EngineNotPristineForCatchUpError`, `ProviderFrontierMismatchError`, `ConflictingUpstreamEnvelopeError`.
 
+**Implementation bounded correction 002 (this revision).** Bounded Review A re-review of correction 001 found `ADR043-IMPL-A-MAJ-01/-02/-03/-04/-05/-07` `CLOSED — REVIEW A VALIDATED` and one residual Major:
+
+```text
+ADR043-IMPL-A-MAJ-06 (residual) — correction 001 successfully removed all
+  live-clock usage from historical catch-up (that part stayed CLOSED), but
+  PreparedTransition.reconcile() accepted canonical historical Feature
+  events without validating their canonical recorded_time against the
+  exact causal timing floors the prepared candidates had already computed
+  (PreparedFeatureComputed.recorded_time_floor/depends_on_preceding_
+  invalidation_timing; PreparedFeatureFactInvalidated.recorded_time_floor)
+  -- an impossible canonical timestamp (equal to or earlier than its
+  required floor, or a same-batch replacement not strictly later than its
+  own preceding invalidation) could currently hydrate authoritative
+  reconstructed lineage unchecked.
+```
+
+Corrected below (`contracts.py`'s `_validate_canonical_recorded_time`, called from `PreparedTransition.reconcile` after the existing content-match check, before `apply_lineage`) — not self-closed:
+
+```text
+ADR043-IMPL-A-MAJ-01: CLOSED — REVIEW A VALIDATED
+ADR043-IMPL-A-MAJ-02: CLOSED — REVIEW A VALIDATED
+ADR043-IMPL-A-MAJ-03: CLOSED — REVIEW A VALIDATED
+ADR043-IMPL-A-MAJ-04: CLOSED — REVIEW A VALIDATED
+ADR043-IMPL-A-MAJ-05: CLOSED — REVIEW A VALIDATED
+ADR043-IMPL-A-MAJ-06: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW
+ADR043-IMPL-A-MAJ-07: CLOSED — REVIEW A VALIDATED
+```
+
+**Correction detail:** historical reconstruction remains entirely clock-free — `_validate_canonical_recorded_time` never calls `RecordedTimeSource.next_after` (confirmed by keeping the existing `RaisingRecordedTimeSource` catch-up test green). It instead requires, for every reconciled event, `canonical.recorded_time` STRICTLY greater than the corresponding prepared candidate's own `recorded_time_floor` (equality or earlier both fail closed, `CanonicalHistoryMismatchError`) — a standalone `FeatureComputed`/an invalidation's own floor already encodes every required prior-head/causing-input/cursor constraint (§B/§C), so this check alone is sufficient for those cases. For a same-batch invalidation-then-replacement pair (`depends_on_preceding_invalidation_timing=True`), the replacement's canonical `recorded_time` must ALSO exceed the preceding canonical invalidation's own `recorded_time` within that same reconciled batch — mirroring `_finalize_prepared_batch`'s live-path floor-threading exactly, just validating a supplied timestamp instead of materializing a fresh one via the clock.
+
 Implemented, source-level:
 
 - `contracts.py` — `InputMergePolicy`; `VerifiedInputContractAuthority.merge_policy`, sealed only through the existing `_seal_verified_authority`/`_construct_verified_authority` factory; `PreparedFeatureComputed`/`PreparedFeatureFactInvalidated`/`PreparedTransition` — the shared prepare/live-commit/historical-reconcile machinery both engines use.
