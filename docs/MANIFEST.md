@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.374"
+manifest_version: "10.375"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27142,6 +27142,35 @@ LIVE:                           NOT_AUTHORIZED (unaffected).
 This single evidence finding closing does NOT imply overall Feature Engine Chapter 13 Quality Gate PASS, module approval, Phase 3 approval, or LIVE authorization — other evidence blockers (`EVID-04`/`EVID-06`/`EVID-08`) remain governed independently, unaffected by this transaction.
 
 **Files changed:** `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no production/test/dependency file touched. `manifest_version` `"10.373"` → `"10.374"`.
+
+## `feature-engine` — `P3-FEATURE-QG-EVID-06` OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY (final Review A CLEAN on §9 interpretation; Feature-local fault-injection evidence produced)
+
+**Consolidated transaction — vai trò: `Feature Engine EVID-06 Local Fault-Injection Evidence Executor`.** Two exact commits on `main`: Commit A (executable, `2cee6e2cfd9538955c9591663a527b96c80e347d`, parent `a8a2794abcfba4786ff53b358187ffdb960e11ff`) — `python/feature-engine/tests/test_i6_fail_safe_scope.py` (new). This entry (Commit B, docs-only).
+
+**Final Review A of §9 interpretation (bounded correction 001):** `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`. `P3-FEATURE-QG-EVID06-A-MAJ-01` through `-04`: **CLOSED — REVIEW A VALIDATED**.
+
+**Feature-local I-6 fault-injection evidence** produced against exact Commit A: six tests (`test_i6_fail_safe_scope.py`), each proving BOTH the affected scope fails safely AND an unrelated control scope remains operational — stale ownership generation; terminal-owner isolation/recovery; unproven catch-up isolation/recovery; canonical-history-mismatch isolation/recovery; runtime frontier/cursor mismatch fail-closed/recovery (not a provider outage); construction-time shared Input Contract resolver blast radius. Full record (exact commands, per-row scope proofs): `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md` §9.9. `pytest -q`: 394 passed (388 + 6 new). `ruff check src tests`: 2 pre-existing unrelated findings, unchanged. `mypy src tests`: success, 35 source files. No production source change; no dependency change.
+
+**This does NOT assert the platform-level risk-not-increased half of I-6** — that remains `BLOCKED_BY_EXTERNAL_DEPENDENCY` (no Risk Gateway/Decision Pipeline exists in this repository).
+
+```text
+P3-FEATURE-QG-EVID06-A-MAJ-01..04: CLOSED — REVIEW A VALIDATED.
+P3-FEATURE-QG-EVID-06:
+  OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY.
+Feature-local fail-safe evidence:
+  EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION.
+platform risk-not-increased evidence:
+  BLOCKED_BY_EXTERNAL_DEPENDENCY.
+Feature module approval:       NOT APPROVED (unaffected).
+Phase 3 Approval Gate:         NOT opened (unaffected).
+LIVE:                           NOT_AUTHORIZED (unaffected).
+```
+
+`P3-FEATURE-QG-EVID-06` is NOT `CLOSED — PASS` — this transaction does not self-validate its own fault-injection evidence as Review-A-sufficient. `EVID-04`/`EVID-08` unaffected, not opened.
+
+**Next governed step:** bounded Review A of the Feature-local EVID-06 fault-injection evidence at exact Commit `2cee6e2cfd9538955c9591663a527b96c80e347d`.
+
+**Files changed:** Commit A (already pushed) — `python/feature-engine/tests/test_i6_fail_safe_scope.py`. This entry (Commit B) — `docs/governance/quality-gate/feature-engine-chapter13-remediation-plan-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no other file touched. `manifest_version` `"10.374"` → `"10.375"`.
 
 ## Decision Log
 

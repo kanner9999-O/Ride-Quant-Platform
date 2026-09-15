@@ -43,7 +43,7 @@ LIVE: NOT_AUTHORIZED.
 | `EVID-03` (12-method blind spot) | Test-effectiveness — mutation-surface completeness | **NEEDS_GOVERNED_DESIGN_OR_MECHANISM** | 5 high-materiality methods structurally outside mutmut 3.7.0's mutation surface; no qualifying supplemental mechanism/fault-injection/risk-acceptance evidence exists | A governed decision on which of three paths to pursue (Testing Convention v0.16 §5c) | One of: (a) an accepted supplemental mutation-testing mechanism reaching decorated classes now exists; (b) governed deterministic fault-injection evidence is authored and pinned per method; (c) Product Owner explicitly records risk-acceptance naming the 5 residuals |
 | `EVID-04` | I-2 Decision Parity / Tier-1 Parity Test | **BLOCKED_BY_EXTERNAL_DEPENDENCY** | I-2's own Verification (golden event-log test, canonical semantic-decision hash comparison across all 4 execution modes at the **Decision** layer) cannot be performed — no Decision Engine/Strategy Plugin Host exists anywhere in the repository (confirmed: `python/`, `go/` contain only feature-engine, raw-regime-engine, structure-engine, market-data-ingestion, market-reference-service) | Decision Engine + a parity harness (Chapter 14 §14.2 sequence) | Decision Engine exists and a parity harness reproduces the same canonical Decision hash across Replay/Backtest/Paper/Live for a real scenario touching Feature Engine's own output |
 | `EVID-05` | I-5 Decision-Time Observable Dependency | **NEEDS_GOVERNED_DESIGN_OR_MECHANISM** (split — see §2) | (a) no self-contained-replay test proves `on_candle`/`on_swing_confirmed`/etc. never re-touch the filesystem after construction-time authority resolution; (b) `ComputationCursor` carries `input_contract_ref`/`stream_registry_version` (identity/version strings) but no content-identity **checksum** referenced from the event, so I-5's "checksum của mọi artifact phải khớp" clause is structurally unverifiable today | (a) none — test-only, exercises already-existing cached-authority design; (b) a schema/design decision — plausibly an Event-Schema-adjacent change requiring a **fresh Chapter 0 §4b run** | (a) a self-contained replay test passes with network/filesystem cut after materialization; (b) either `ComputationCursor` (or an equivalent persisted-evidence mechanism) carries a verifiable content-identity checksum, checked against the resolved authority at replay time |
-| `EVID-06` | I-6 Fail-Safe by Scope | **NEEDS_GOVERNED_DESIGN_OR_MECHANISM** (interpretation sub-step RE-DERIVED on corrected authority, §9, bounded correction 001 — **pending Review A re-review of `P3-FEATURE-QG-EVID06-A-MAJ-01`..`-04`**; fault-injection tests/formal evidence still not authored; even once local evidence passes, final disposition is `OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY`, never `CLOSED — PASS`, §9.4b) | I-6's actual Verification is fault injection per scope + blast-radius confirmation + a risk-not-increased assertion "theo risk metric/policy authoritative" — Feature Engine (a pure Compute Engine, no risk/exposure semantics of its own) has no resolved interpretation of how "risk-not-increased" applies to it at all | ~~A design/interpretation decision (likely affecting every Compute-Engine-class module identically — structure-engine, raw-regime-engine, feature-engine — so plausibly `ADR_REQUIRED` under Chapter 0 §4b's ">1 module" trigger)~~ **CORRECTED (§9, this transaction; re-grounded, bounded correction 001):** the interpretation is fully derivable, Feature-Engine-only, from already-EFFECTIVE authority — I-6 itself (Locked) + I-9's own Scope boundary line (Locked) + Approved ADR-043's own ownership/fail-closed semantics (Draft `feature.md` cited only as supporting current-model context, never as the binding source, §9.1) — **`ADR_NOT_REQUIRED`**, not `ADR_REQUIRED`; the old ">1 module" assumption was never verified against source and does not hold once actually derived. Genuine fault-injection tests (not merely exception-raising unit tests) still need authoring — see §9's evidence-matrix design. | The interpretation decision is recorded (§9, this transaction), pending Review A re-review, then genuine fault-injection tests (not merely exception-raising unit tests) are authored per applicable scope with blast-radius and risk-not-increased assertions — **not performed by this transaction** |
+| `EVID-06` | I-6 Fail-Safe by Scope | **OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY** (§9.9: interpretation Review A CLEAN 0/0/0, all four Major findings CLOSED — REVIEW A VALIDATED; Feature-local fault-injection evidence PRODUCED — PENDING REVIEW A VALIDATION at exact Commit `2cee6e2cfd9538955c9591663a527b96c80e347d`; platform risk-not-increased assertion remains `BLOCKED_BY_EXTERNAL_DEPENDENCY`, never `CLOSED — PASS`) | I-6's actual Verification is fault injection per scope + blast-radius confirmation + a risk-not-increased assertion "theo risk metric/policy authoritative" — Feature Engine (a pure Compute Engine, no risk/exposure semantics of its own) has no resolved interpretation of how "risk-not-increased" applies to it at all | The interpretation is fully derivable, Feature-Engine-only, from already-EFFECTIVE authority — I-6 itself (Locked) + I-9's own Scope boundary line (Locked) + Approved ADR-043's own ownership/fail-closed semantics (Draft `feature.md` cited only as supporting current-model context, never as the binding source, §9.1) — **`ADR_NOT_REQUIRED`**, not `ADR_REQUIRED`. Feature-local fault-injection evidence is now produced (§9.9) — pending final Review A validation of that evidence itself. | Feature-local evidence produced (§9.9), pending Review A validation of the evidence — the platform risk-not-increased assertion remains a SEPARATE, externally-blocked dependency (no Risk Gateway exists); `EVID-06` may close only once that dependency resolves |
 | `EVID-07` | I-13 State Transition Integrity / property-based evidence | **NEEDS_GOVERNED_DESIGN_OR_MECHANISM** | No Python property-based testing framework is approved or installed anywhere in the repository (confirmed: zero "hypothesis" references in `testing.md` or any `pyproject.toml`) — I-13's Verification explicitly requires "Property-based test trên transition graph authoritative" | A full governed mechanism-selection sequence, mirroring Testing Convention v0.16's own already-completed mutmut precedent (candidate authoring → Review A/B → Product Owner decision → install/pin → measurement) | A property-based framework is Approved, installed, pinned, and produces transition-graph/illegal-transition/concurrent-transition/replay-reconstruction evidence for Feature Engine's own state-machine entities (e.g. `_WindowLineage`'s VALID/PENDING_CORRECTION lifecycle, `FeatureCurrentView`'s row lifecycle) |
 | `EVID-08` | I-1 Explainability / Decision-Pipeline trace completeness | **BLOCKED_BY_EXTERNAL_DEPENDENCY** | I-1's Verification requires 100% trace-completeness across "Toàn bộ Decision Pipeline (Structure/Regime/Feature → Strategy → Decision → Risk Gateway → Execution)" — Strategy/Decision/Risk Gateway/Execution Engine are all unbuilt | Full Decision/Risk/Execution evidence path (superset of EVID-04's own dependency) | The complete pipeline exists and produces production Decision/Risk Action evidence; Feature-local causation evidence (`causation_refs`, `input_fact_refs`, `computation_cursor`) already exists and is preserved as supporting-only evidence, never sufficient alone |
 
@@ -194,7 +194,9 @@ scope.
 
 ## 9. `EVID-06` applicability / fail-safe design interpretation
 
-> **Bounded correction 001 (this transaction) — vai trò: `Feature Engine EVID-06 Applicability / Fail-Safe Design Bounded Correction Executor`.** Review A of §9 (as originally authored) returned `REVISION_REQUIRED — 0 Blocker / 4 Major / 0 Minor`, Risk `R1`: `P3-FEATURE-QG-EVID06-A-MAJ-01` (§9.1 cited Draft `feature.md` as if it were Locked/binding authority), `-MAJ-02` (§9.2/§9.3 claimed a WINDOW fail-safe tier and a blanket "every fail-closed check runs before mutation" that current engine code does not actually support — `_check_recorded_time` mutates subject-wide `_last_input_recorded_time` BEFORE the later lineage check that raises `FeatureLineageError`), `-MAJ-03` (§9.3/§9.6's shared-authority matrix row conflated construction-time provider-resolution failure with runtime frontier/cursor validation against an already-cached authority — two distinct fault classes with two distinct injection points and blast radii), `-MAJ-04` (§9.4 did not yet state the exact required EVID-06 closure disposition — local Feature Engine evidence passing must never be written as `P3-FEATURE-QG-EVID-06 = CLOSED — PASS` while the mandatory risk-not-increased assertion remains externally blocked). All four remediated below, in place, re-grounded against fresh direct source reads (`regime_passthrough.py` `prepare_regime_classified`/`_check_recorded_time`, `contracts.py` `resolve_computation_cursor`, `docs/domain/feature.md` frontmatter, `docs/adr/ADR-043.md` semantics 1/5, `docs/architecture/module-registry.yaml` frontmatter) — none self-closed here; closure is Review A's own re-review determination, per Chapter 0 §3. No ADR authored, no Review B, no Product Owner decision, no production/test code touched by this correction.
+> **Current status (this transaction, `Feature Engine EVID-06 Local Fault-Injection Evidence Executor`):** final bounded Review A re-review of correction 001 (below) returned **CLEAN — 0 Blocker / 0 Major / 0 Minor**, Risk `R1`, `ADR_NOT_REQUIRED`. `P3-FEATURE-QG-EVID06-A-MAJ-01` through `-04` are all **CLOSED — REVIEW A VALIDATED**. This transaction additionally produces the Feature-local half of I-6's own formal evidence — fault injection, blast-radius correctness, no invalid authoritative commit, committed-history preservation, bounded recovery — against exact executable boundary `2cee6e2cfd9538955c9591663a527b96c80e347d` (full record: §9.9). `P3-FEATURE-QG-EVID-06` is recorded **`OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY`** — NEVER `CLOSED — PASS` — because the platform-level risk-not-increased assertion remains externally blocked (no Risk Gateway/Decision Pipeline exists). This transaction does not self-validate its own evidence as Review-A-sufficient; that determination is Review A's own, per Chapter 0 §3.
+
+> **Bounded correction 001 (historical, left unedited for the record) — vai trò: `Feature Engine EVID-06 Applicability / Fail-Safe Design Bounded Correction Executor`.** Review A of §9 (as originally authored) returned `REVISION_REQUIRED — 0 Blocker / 4 Major / 0 Minor`, Risk `R1`: `P3-FEATURE-QG-EVID06-A-MAJ-01` (§9.1 cited Draft `feature.md` as if it were Locked/binding authority), `-MAJ-02` (§9.2/§9.3 claimed a WINDOW fail-safe tier and a blanket "every fail-closed check runs before mutation" that current engine code does not actually support — `_check_recorded_time` mutates subject-wide `_last_input_recorded_time` BEFORE the later lineage check that raises `FeatureLineageError`), `-MAJ-03` (§9.3/§9.6's shared-authority matrix row conflated construction-time provider-resolution failure with runtime frontier/cursor validation against an already-cached authority — two distinct fault classes with two distinct injection points and blast radii), `-MAJ-04` (§9.4 did not yet state the exact required EVID-06 closure disposition — local Feature Engine evidence passing must never be written as `P3-FEATURE-QG-EVID-06 = CLOSED — PASS` while the mandatory risk-not-increased assertion remains externally blocked). All four remediated below, in place, re-grounded against fresh direct source reads (`regime_passthrough.py` `prepare_regime_classified`/`_check_recorded_time`, `contracts.py` `resolve_computation_cursor`, `docs/domain/feature.md` frontmatter, `docs/adr/ADR-043.md` semantics 1/5, `docs/architecture/module-registry.yaml` frontmatter) — none self-closed here; closure is Review A's own re-review determination, per Chapter 0 §3. No ADR authored, no Review B, no Product Owner decision, no production/test code touched by this correction.
 >
 > `P3-FEATURE-QG-EVID06-A-MAJ-01: REMEDIATED — PENDING REVIEW A RE-REVIEW`
 > `P3-FEATURE-QG-EVID06-A-MAJ-02: REMEDIATED — PENDING REVIEW A RE-REVIEW`
@@ -773,7 +775,7 @@ Result: ADR_NOT_REQUIRED.
 
 Per instruction: the design only describes evidence for already-authoritative semantics — I-6/I-9 (Locked), ADR-043 (Approved), and the specific `module-registry.yaml` fields Chapter 13 already treats as authoritative once the registry is active (§9.1's `-MAJ-01` correction: Draft `feature.md` is never cited as the binding source here, only as supporting current-model context) — no ADR is authored by this transaction, none is required.
 
-### 9.8 Not performed by this transaction (explicit)
+### 9.8 Not performed by bounded correction 001 (historical — superseded by §9.9 below)
 
 ```text
 No fault-injection test authored. No production source file touched
@@ -800,3 +802,92 @@ No fault-injection test authored. No production source file touched
 ```
 
 **Next governed step (not performed by this transaction):** bounded Review A re-review of `P3-FEATURE-QG-EVID06-A-MAJ-01`..`-04`. If CLEAN, a separate Feature-local fault-injection implementation/evidence transaction may proceed to author the §9.6 matrix (and any additional rows Review A requests) against real Feature Engine source, then a formal Chapter 13 §13.9-style evidence transaction records measurement — but it must NOT claim full `P3-FEATURE-QG-EVID-06` closure while the mandatory platform risk-not-increased assertion remains externally blocked; the correct resulting disposition is §9.4b's `OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY`, not `CLOSED — PASS`.
+
+### 9.9 Final Review A + Feature-local formal evidence record (this transaction)
+
+**Final bounded Review A re-review of correction 001:** `CLEAN — 0 Blocker / 0 Major / 0 Minor`, Risk `R1`, ADR Scope `ADR_NOT_REQUIRED`.
+
+```text
+P3-FEATURE-QG-EVID06-A-MAJ-01: CLOSED — REVIEW A VALIDATED
+P3-FEATURE-QG-EVID06-A-MAJ-02: CLOSED — REVIEW A VALIDATED
+P3-FEATURE-QG-EVID06-A-MAJ-03: CLOSED — REVIEW A VALIDATED
+P3-FEATURE-QG-EVID06-A-MAJ-04: CLOSED — REVIEW A VALIDATED
+```
+
+None self-closed by the correction executor — this is the recorded Review A determination itself, per Chapter 0 §3.
+
+**Feature-local I-6 formal evidence — tested executable boundary:** `2cee6e2cfd9538955c9591663a527b96c80e347d` (Commit A, parent `a8a2794abcfba4786ff53b358187ffdb960e11ff` — the §9 bounded correction 001 docs-only boundary). Verified `main == origin/main == 2cee6e2c...` before AND after the qualifying run.
+
+```text
+Feature-local I-6 evidence: EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION
+
+Covered (python/feature-engine/tests/test_i6_fail_safe_scope.py, 6 tests,
+  all pass BOTH "affected scope fails safely" AND "unrelated control
+  scope remains operational"):
+  - subject stale/fencing isolation (Row 1:
+    test_row1_stale_ownership_generation_isolates_to_subject_a)
+  - terminal-owner isolation/recovery (Row 2:
+    test_row2_terminal_owner_never_reacquires_and_recovery_via_fresh_
+    owner_does_not_affect_subject_b)
+  - unproven catch-up isolation/recovery (Row 3:
+    test_row3_unproven_catch_up_terminalizes_owner_and_recovery_via_
+    fresh_owner_does_not_affect_subject_b)
+  - canonical-history mismatch isolation/recovery (Row 4:
+    test_row4_canonical_history_mismatch_terminalizes_owner_and_recovery_
+    via_fresh_owner_does_not_affect_subject_b)
+  - runtime frontier/cursor mismatch fail-closed/recovery, explicitly NOT
+    a provider outage (Row 5:
+    test_row5_runtime_frontier_mismatch_fails_closed_then_correct_
+    frontier_succeeds_without_affecting_subject_b)
+  - shared Input Contract resolver construction-time blast radius (Row 6:
+    test_row6_construction_time_input_contract_resolver_failure_isolates_
+    to_new_constructions)
+```
+
+**Exact commands/results, against exact Commit A `2cee6e2c...`:**
+
+```text
+$ pytest -q tests/test_i6_fail_safe_scope.py
+6 passed in 0.14s
+
+$ pytest -q
+394 passed in 1.41s
+  (388 pre-existing + 6 new I-6 Feature-local fault-injection tests --
+  zero regressions in any pre-existing test)
+
+$ ruff check src tests
+2 findings, BOTH pre-existing and unrelated (E501 line-too-long,
+  src/feature_engine/authority_resolver.py:465 and :528 -- unchanged
+  from every prior transaction in this chain; NOT introduced, NOT fixed,
+  by this transaction). Ruff is therefore NOT claimed "clean" -- it is
+  claimed "2 pre-existing, unrelated findings, unchanged."
+
+$ mypy src tests
+Success: no issues found in 35 source files.
+```
+
+No property test/fault-injection test discovered a production defect. No production source file was modified (verified `git diff --quiet -- python/feature-engine/src`, this transaction). No dependency version change.
+
+**EVID-06 disposition (final, this transaction — §9.4b's own rule applied):**
+
+```text
+P3-FEATURE-QG-EVID-06:
+  OPEN — PARTIALLY SATISFIED / BLOCKED_BY_EXTERNAL_DEPENDENCY
+
+Feature-local fail-safe evidence:
+  EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION
+
+platform risk-not-increased assertion:
+  BLOCKED_BY_EXTERNAL_DEPENDENCY (no Risk Gateway/Decision Pipeline
+  exists anywhere in this repository)
+
+Feature Engine module approval: NOT APPROVED (unaffected).
+Phase 3 Approval Gate: NOT opened (unaffected).
+LIVE: NOT_AUTHORIZED (unaffected).
+```
+
+`P3-FEATURE-QG-EVID-06` is explicitly NOT `CLOSED — PASS` — this transaction does not self-validate its own fault-injection evidence as Review-A-sufficient; that determination, and the resulting closure decision, remain Review A's own, per Chapter 0 §3. `EVID-04`/`EVID-08` are unaffected and not opened by this transaction.
+
+**Not performed by this transaction:** no new ADR; no Review B; no Product Owner decision; no Risk Classification transaction; no production source change (verified); no dependency change; no CI workflow; no module approval; no LIVE authorization; no claim of overall Feature Engine Chapter 13 Quality Gate PASS.
+
+**Next governed step (not performed by this transaction):** bounded Review A of the Feature-local EVID-06 fault-injection evidence at exact Commit `2cee6e2cfd9538955c9591663a527b96c80e347d`. If CLEAN, Review A may mark the Feature-local portion `SATISFIED`, while full `P3-FEATURE-QG-EVID-06` remains `OPEN / BLOCKED_BY_EXTERNAL_DEPENDENCY` until the platform risk-not-increased assertion becomes locally verifiable (i.e. until a Risk Gateway/Decision Pipeline exists).
