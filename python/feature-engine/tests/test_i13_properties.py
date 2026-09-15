@@ -1,5 +1,5 @@
 """Formal I-13 (State Transition Integrity) property-based evidence —
-Testing Convention v0.17 (Approved 2026-09-14), mechanism: Hypothesis.
+Testing Convention v0.17 (Approved 2026-09-15), mechanism: Hypothesis.
 
 This module is the EVID-07 qualifying formal evidence suite
 (`docs/governance/quality-gate/feature-engine-evid07-property-based-
@@ -108,8 +108,19 @@ settings.register_profile(
     max_examples=200,
     suppress_health_check=[HealthCheck.too_slow],
 )
-settings.register_profile("dev", max_examples=25)
+settings.register_profile("dev")
 settings.load_profile(os.environ.get("HYPOTHESIS_PROFILE", "dev"))
+
+
+def test_dev_profile_uses_hypothesis_library_default_max_examples() -> None:
+    """Testing Convention v0.17 Part 4: the `dev` profile must use
+    Hypothesis's own unmodified library-default `max_examples` (not a
+    locally-tuned value) -- verified programmatically here, not merely
+    by omitting an override above.
+    """
+    dev_profile = settings.get_profile("dev")
+    library_default_profile = settings.get_profile("default")
+    assert dev_profile.max_examples == library_default_profile.max_examples
 
 # Bounded metric strategy shared across properties -- a genuine, non-trivial
 # numeric domain (never a single fixed example) without pathological
@@ -538,21 +549,87 @@ def test_p_run_sort_cycle_fails_closed(cycle_length: int) -> None:
         p_run_sort(envelopes, merge_policy=_SUPPORTED_MERGE_POLICY)
 
 
-@given(_apply_sets())
-def test_p_run_sort_never_waits_for_a_cause_outside_the_apply_set(envelopes: list[UpstreamEnvelope]) -> None:
-    """Run-local rule: appending an out-of-set causation_ref (never itself a
-    member of this bounded apply set) to every envelope must never change
-    the resolved order OR raise — an event is never blocked waiting for a
-    hypothetical event outside its own certified apply set.
+@given(_apply_sets(), st.integers(min_value=1000, max_value=9999))
+def test_p_run_sort_never_waits_for_a_future_unrelated_event(
+    envelopes: list[UpstreamEnvelope], future_seq: int
+) -> None:
+    """Formal Case 2 (`-MAJ-07` corrected model): `B` (every envelope in the
+    generated apply set) is in the CURRENT certified apply set; a `future`
+    event `A` does NOT exist in that set at all, and `A`/`B` have NO
+    `P_stream`/`P_causation` relationship whatsoever — `A`'s identity is
+    used ONLY as a conceptual comparison value below, never placed into any
+    envelope's `causation_refs`. This is deliberately distinct from
+    `test_p_run_sort_never_waits_for_an_already_applied_out_of_set_cause`
+    below (a genuinely different contract: a cause that DOES exist,
+    already resolved, and IS legitimately named in `causation_refs`) — the
+    two must never be conflated (`-MAJ-07`'s own root cause was exactly
+    that conflation).
+
+    `p_run_sort` must resolve the WHOLE apply set now, never waiting for —
+    or even being aware of — this absent, unrelated future event.
     """
-    out_of_set_ref = _mk_ref("outside-the-set", 999)
-    augmented = [
-        _mk_envelope(e.ref, causation_refs=(*e.causation_refs, out_of_set_ref), recorded_time=e.recorded_time)
-        for e in envelopes
+    future_unrelated_ref = _mk_ref("future-unrelated-stream", future_seq)
+    for envelope in envelopes:
+        assert future_unrelated_ref not in envelope.causation_refs
+        assert envelope.ref != future_unrelated_ref
+
+    result = p_run_sort(envelopes, merge_policy=_SUPPORTED_MERGE_POLICY)
+
+    # B is resolved now: every member of the apply set appears, nothing is
+    # deferred/missing waiting on the (never-referenced) future event.
+    assert {e.ref for e in result} == {e.ref for e in envelopes}
+    assert future_unrelated_ref not in {e.ref for e in result}
+    # Deterministic, not merely "didn't raise": identical resolution on repeat.
+    assert [e.ref for e in result] == [
+        e.ref for e in p_run_sort(envelopes, merge_policy=_SUPPORTED_MERGE_POLICY)
     ]
-    baseline = p_run_sort(envelopes, merge_policy=_SUPPORTED_MERGE_POLICY)
-    result = p_run_sort(augmented, merge_policy=_SUPPORTED_MERGE_POLICY)
-    assert [e.ref for e in baseline] == [e.ref for e in result]
+
+
+def test_p_run_sort_never_waits_for_an_already_applied_out_of_set_cause() -> None:
+    """Formal Case 2's distinct counterpart (`-MAJ-07` corrected model): here
+    the out-of-set cause `C` genuinely EXISTS and has ALREADY been applied
+    — demonstrated via a REAL `AuthoritativeSubjectOwner` commit through a
+    real history provider/applied frontier, not merely asserted in a
+    comment — and is therefore correctly excluded from the CURRENT,
+    not-yet-applied apply set. `B.causation_refs` legitimately names `C` (a
+    genuine `P_causation` edge), but because `C` already resolved outside
+    this apply set, `p_run_sort` must still resolve `B` now, never waiting
+    for `C` to (re)appear inside the bounded set being sorted.
+    """
+    authority = InMemorySubjectOwnershipAuthority()
+    provider = InMemoryLineageHistoryProvider()
+    time_source = FixedDeltaTimeSource()
+    allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="prop-d-applied")
+    engine = _regime_engine(allocator, time_source)
+    subject_id = engine.scope.feature_subject_id
+    provider.register_known_empty(subject_id)
+    committer = InMemoryFencedFeatureCommitter(authority=authority, allocator=allocator, time_source=time_source)
+    owner = AuthoritativeSubjectOwner(
+        engine=engine,
+        authority=authority,
+        committer=committer,
+        history_provider=provider,
+    )
+    owner.acquire_and_activate(catch_up_frontier=frontier_at(BASE, resolved_input_contract=REGIME_INPUT_CONTRACT))
+
+    already_applied_fact = regime_classified_at(allocator, 0, computed_metric="1.00")
+    already_applied_frontier = frontier_at(
+        already_applied_fact.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT
+    )
+    provider.enqueue_pending(
+        subject_id,
+        [_regime_envelope(already_applied_fact, kind="regime_classified", frontier=already_applied_frontier)],
+    )
+    committed = owner.process_certified_frontier(already_applied_frontier)
+    # `already_applied_ref` is now genuinely authoritative/applied -- proven by
+    # the real commit above, not assumed.
+    already_applied_ref = only_computed(committed[0]).ref
+
+    b_ref = _mk_ref("already-applied-dependent-stream", 1)
+    b_envelope = _mk_envelope(b_ref, causation_refs=(already_applied_ref,), recorded_time=BASE)
+
+    result = p_run_sort([b_envelope], merge_policy=_SUPPORTED_MERGE_POLICY)
+    assert [e.ref for e in result] == [b_ref]
 
 
 # =============================================================================
@@ -759,11 +836,24 @@ def test_adr043_different_subjects_remain_fully_independent(metric_x: Decimal, m
     ends_pending=st.booleans(),
 )
 def test_regime_catch_up_reconstruction_matches_reference_history(metrics: list[Decimal], ends_pending: bool) -> None:
+    """`-MAJ-06` corrected oracle: the reference side is a REAL `live`
+    `FeatureCurrentView` maintained CONTEMPORANEOUSLY with reference
+    generation (updated immediately after each engine emission, exactly
+    as a real live consumer would) — never folded from the persisted
+    event list after the fact. The replay side is a SEPARATE
+    `FeatureCurrentView`, rebuilt AFTERWARD purely from the persisted
+    `canonical_events` obtained via catch-up. The two sides are therefore
+    structurally independent: `reference_live_view` never sees
+    `canonical_events` at all, and `replay_view` never sees live engine
+    emissions directly — only the fresh engine's own catch-up-reconciled
+    persisted history.
+    """
     reference_allocator = SequenceAllocator(module_id="feature-engine", implementation_version="0.1.0", run_id="ref-f")
     reference_time_source = FixedDeltaTimeSource()
     reference_engine = _regime_engine(reference_allocator, reference_time_source)
     subject_id = reference_engine.scope.feature_subject_id
     scope = reference_engine.scope
+    reference_live_view = FeatureCurrentView(scope)
 
     upstream_envelopes: list[UpstreamEnvelope] = []
     canonical_events: list[FeatureComputed | FeatureFactInvalidated] = []
@@ -771,6 +861,7 @@ def test_regime_catch_up_reconstruction_matches_reference_history(metrics: list[
     fact = regime_classified_at(reference_allocator, 0, computed_metric=str(metrics[0]))
     frontier = frontier_at(fact.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
     computed = only_computed(reference_engine.on_regime_classified(fact, cursor=frontier)[0])
+    reference_live_view.on_feature_computed(computed)  # applied immediately, live-side
     upstream_envelopes.append(_regime_envelope(fact, kind="regime_classified", frontier=frontier))
     canonical_events.append(computed)
     last_ref, last_computed, last_frontier = fact.ref, computed, frontier
@@ -781,6 +872,7 @@ def test_regime_catch_up_reconstruction_matches_reference_history(metrics: list[
         )
         inv_frontier = frontier_at(inv_fact.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
         invalidated = only_invalidated(reference_engine.on_regime_invalidated(inv_fact, cursor=inv_frontier)[0])
+        reference_live_view.on_feature_invalidated(invalidated)  # applied immediately, live-side
         upstream_envelopes.append(_regime_envelope(inv_fact, kind="regime_invalidated", frontier=inv_frontier))
         canonical_events.append(invalidated)
         last_frontier = inv_frontier
@@ -790,6 +882,7 @@ def test_regime_catch_up_reconstruction_matches_reference_history(metrics: list[
         )
         frontier = frontier_at(fact.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
         computed = only_computed(reference_engine.on_regime_classified(fact, cursor=frontier)[0])
+        reference_live_view.on_feature_computed(computed)  # applied immediately, live-side
         upstream_envelopes.append(_regime_envelope(fact, kind="regime_classified", frontier=frontier))
         canonical_events.append(computed)
         last_ref, last_computed, last_frontier = fact.ref, computed, frontier
@@ -800,17 +893,14 @@ def test_regime_catch_up_reconstruction_matches_reference_history(metrics: list[
         )
         inv_frontier = frontier_at(inv_fact.recorded_time, resolved_input_contract=REGIME_INPUT_CONTRACT)
         invalidated = only_invalidated(reference_engine.on_regime_invalidated(inv_fact, cursor=inv_frontier)[0])
+        reference_live_view.on_feature_invalidated(invalidated)  # applied immediately, live-side
         upstream_envelopes.append(_regime_envelope(inv_fact, kind="regime_invalidated", frontier=inv_frontier))
         canonical_events.append(invalidated)
         last_frontier = inv_frontier
 
-    reference_view = FeatureCurrentView(scope)
-    for event in canonical_events:
-        if isinstance(event, FeatureComputed):
-            reference_view.on_feature_computed(event)
-        else:
-            reference_view.on_feature_invalidated(event)
-    reference_result = reference_view.current()
+    # Captured ONLY after live generation is fully complete -- the live
+    # reference side is now frozen and will not be touched again.
+    reference_live_result = reference_live_view.current()
 
     provider = InMemoryLineageHistoryProvider()
     provider.register_upstream(subject_id, upstream_envelopes)
@@ -849,13 +939,17 @@ def test_regime_catch_up_reconstruction_matches_reference_history(metrics: list[
         assert lineage.head_fact.ref == last_computed.ref
         assert lineage.head_fact.recorded_time == last_computed.recorded_time
 
-    fresh_view = FeatureCurrentView(scope)
+    # Replay side: rebuilt AFTERWARD, purely from the persisted
+    # `canonical_events` list -- structurally independent of the live
+    # reference side above, which was updated during/immediately after
+    # generation and never touches `canonical_events` at all.
+    replay_view = FeatureCurrentView(scope)
     for event in canonical_events:
         if isinstance(event, FeatureComputed):
-            fresh_view.on_feature_computed(event)
+            replay_view.on_feature_computed(event)
         else:
-            fresh_view.on_feature_invalidated(event)
-    assert fresh_view.current() == reference_result
+            replay_view.on_feature_invalidated(event)
+    assert replay_view.current() == reference_live_result
 
 
 @given(
