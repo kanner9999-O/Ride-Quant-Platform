@@ -385,7 +385,7 @@ Round 1 remediation's actual code (MAJ-01 confirmed closed, untouched here):
 All five recorded `REMEDIATED_PENDING_BOUNDED_REREVIEW` — none self-closed.
 `P3-FEATURE-A-MAJ-01` remains `CLOSED`, untouched.
 
-## ADR-043 — Per-subject authoritative ownership implementation (Implementation Review A CLEAN — EVID-07 property evidence suite installed / pending formal evidence recording + Review A)
+## ADR-043 — Per-subject authoritative ownership implementation (Implementation Review A CLEAN — `P3-FEATURE-QG-EVID-07` CLOSED — PASS)
 
 **Status:** implementation candidate, per Approved [`ADR-043`](../../docs/adr/ADR-043.md) (`v0.2`, `Approved`, immutable) — `ADR-043` remains the sole architecture authority for everything in this section; this README maps that already-decided authority onto concrete Feature Engine implementation structure, now backed by real, tested source code. **The module runtime/coordinator semantics, authority/commit/history Protocol boundaries, and fail-closed behavior described below are implemented** in `src/feature_engine/ownership.py` (new), extensions to `contracts.py`/`authority_resolver.py`/`errors.py`, and a behavior-preserving `regime_passthrough.py`/`swing_distance.py` prepare/commit/historical-reconcile refactor — verified by deterministic tests (`tests/test_ownership.py`, plus extensions to `test_contracts.py`/`test_authority_resolver.py`/`test_historical_authority_resolver.py`) using in-memory test doubles, never claimed production-authoritative. **No production-durable event log, distributed fencing store, broker, RPC, or deployment topology exists or is implemented** — `SubjectOwnershipAuthority`/`FencedFeatureCommitter`/`AuthoritativeLineageHistoryProvider` remain Protocol-only boundaries with no production adapter, exactly as designed (§B/§C). `P3-FEATURE-QG-EVID07-A-MAJ-05` remains **OPEN**. `P3-FEATURE-QG-EVID-07` remains **OPEN / `FAIL — evidence`** — no Hypothesis/property-based evidence has been produced. The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**. This transaction changes no Input Contract artifact, no Chapter 8 semantic, and no Event Schema; it adds no runtime dependency (`pyproject.toml` remains zero runtime dependencies).
 
@@ -569,7 +569,7 @@ No Product Owner decision, new ADR, or standalone Risk Classification transactio
 
 **Testing Convention v0.17 — Approved (2026-09-15, R0-corrected decision date; see EVID-07 stabilization 001 RC-5).** Product Owner decision (verbatim): **"APPROVE Testing Convention v0.17 — Python property-based testing mechanism: Hypothesis — ADR_OPTIONAL, ADR NOT AUTHORED."** Reviewed boundary `81605fd1ca099eae48b937ced3c775e271dee2e2`; reviewed `docs/engineering/testing.md` blob `708744f0464720cb14ceafbe75bb422200a57820`; Review A CLEAN 0 Blocker/0 Major/0 Minor, Risk Classification `R1`. Full approval record lives in `testing.md` itself (its own v0.17 approval banner) — not duplicated here. `hypothesis==6.168.0`/`sortedcontainers==2.4.0` are pinned in `pyproject.toml`/`requirements-dev.lock.txt` (dev-only; `[project].dependencies` remains `[]`) and the formal I-13 property-based evidence suite is implemented in `tests/test_i13_properties.py` (Hypothesis `ci`/`dev` execution profiles, `ci`: `derandomize=True`, `print_blob=True`, `database=None`, `max_examples=200`) — exercising the REAL `RegimePassthroughFeatureEngine`/`SwingDistanceFeatureEngine`/`FeatureCurrentView`/`AuthoritativeSubjectOwner`/`p_run_sort`/`PreparedTransition` reconciliation across all five required I-13 evidence categories (legal transition graph, illegal-transition rejection, correction/terminal lifecycle, competing/concurrent ownership, Replay/catch-up reconstruction). Full formal evidence record (exact commands, package/artifact hashes, per-category test-name mapping, tested commit boundary) lives in `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md` (bounded correction 003) — not duplicated here.
 
-**EVID-07 property evidence suite installed / pending formal evidence recording + Review A.** `P3-FEATURE-QG-EVID07-A-MAJ-05` remains **OPEN** (this executor does not self-close it — see the EVID-07 candidate document for the pending-Review-A-re-review disposition). `P3-FEATURE-QG-EVID-07` remains **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`** — NOT `CLOSED`, NOT `FINAL PASS`. The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**. No production-durable `SubjectOwnershipAuthority`/`FencedFeatureCommitter`/`AuthoritativeLineageHistoryProvider` adapter is implemented or claimed — the property evidence exercises the Feature Engine implementation boundary plus the required external authority Protocol contract only.
+**`P3-FEATURE-QG-EVID-07` CLOSED — PASS** (final bounded Review A of the EVID-07 correction/stabilization chain, CLEAN — 0 Blocker / 0 Major / 0 Minor; full record: `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md`, not duplicated here). `P3-FEATURE-QG-EVID07-A-MAJ-01` through `-08` and `-MIN-01` are all **CLOSED — REVIEW A VALIDATED**. The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**; this single evidence finding closing does not imply overall Chapter 13 Quality Gate PASS or module approval. No production-durable `SubjectOwnershipAuthority`/`FencedFeatureCommitter`/`AuthoritativeLineageHistoryProvider` adapter is implemented or claimed — the property evidence exercises the Feature Engine implementation boundary plus the required external authority Protocol contract only.
 
 Implemented, source-level:
 
@@ -920,11 +920,12 @@ This corrected design still introduces no new module, no dependency-graph edge, 
   tests using in-memory test doubles; no production-durable authority/
   commit/history adapter exists). Formal I-13 property-based evidence
   (Testing Convention v0.17, Hypothesis, `tests/test_i13_properties.py`)
-  has been produced against this implementation but is **not yet
-  independently Review-A-validated as evidence**. `P3-FEATURE-QG-
-  EVID07-A-MAJ-05` remains **OPEN**. `P3-FEATURE-QG-EVID-07` remains
-  **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`** — not `CLOSED`,
-  not `FINAL PASS`.
+  has been produced against this implementation and is
+  **independently Review-A-validated as evidence** (final Review A
+  CLEAN — 0/0/0). `P3-FEATURE-QG-EVID07-A-MAJ-05` is **CLOSED — REVIEW
+  A VALIDATED**. `P3-FEATURE-QG-EVID-07` is **`CLOSED — PASS`** — this
+  single evidence finding closing does not itself imply overall
+  Chapter 13 Quality Gate PASS or module approval.
 - Feature Engine Quality Tier: **UNRESOLVED** — not assigned in this
   transaction (registry has no `quality_tier` field for `feature-engine`).
 - Structure Engine / Raw Regime Engine: unchanged by this transaction.

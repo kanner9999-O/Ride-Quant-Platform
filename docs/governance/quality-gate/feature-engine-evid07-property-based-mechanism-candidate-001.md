@@ -2,9 +2,33 @@
 id: feature-engine-evid07-property-based-mechanism-candidate-001
 title: "Feature Engine — `P3-FEATURE-QG-EVID-07` Python Property-Based Testing Mechanism — CANDIDATE"
 candidate_version: "0.5"
-status: "EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — CORRECTION-CHAIN ROOT-CAUSE CONSOLIDATION + STABILIZATION 001 (P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03/-04/-05 CLOSED — REVIEW A VALIDATED; -MAJ-06/-07/-08/-MIN-01 REMEDIATED — PENDING REVIEW A RE-REVIEW; formal I-13 property evidence produced against commit e901f1857b1049ebc0bb4bdfd7a047e40e1174ed)"
+status: "CLOSED — PASS (final Review A CLEAN — 0 Blocker / 0 Major / 0 Minor; all P3-FEATURE-QG-EVID07-A findings CLOSED — REVIEW A VALIDATED; executable boundary e901f1857b1049ebc0bb4bdfd7a047e40e1174ed; evidence-record boundary 472cfbcc94cc3dbcd69d599a3b1edd076d5f7e58)"
 performed_at: "2026-09-11"
 repository_head_at_authoring: "310a83e22c868611028e5804c524fb5a4e9f57da"
+final_review_a:
+  executable_boundary: "e901f1857b1049ebc0bb4bdfd7a047e40e1174ed"
+  evidence_record_boundary: "472cfbcc94cc3dbcd69d599a3b1edd076d5f7e58"
+  disposition: "CLEAN — 0 Blocker / 0 Major / 0 Minor"
+  findings:
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-01
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-02
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-03
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-04
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-05
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-06
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-07
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-08
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MIN-01
+      status: "CLOSED — REVIEW A VALIDATED"
+  result: "P3-FEATURE-QG-EVID-07 = CLOSED — PASS"
 stabilization_001:
   role: "Feature Engine EVID-07 Root-Cause Consolidation + Stabilization Executor"
   applied_at_repository_head_a2: "e901f1857b1049ebc0bb4bdfd7a047e40e1174ed"
@@ -124,7 +148,9 @@ bounded_correction_002:
 >
 > **Status banner (superseded by stabilization 001 — historical, left unedited for the record):** `EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — CANDIDATE v0.4`. This transaction is no longer QG-scoped-rationale-only: the Testing Convention v0.17 mechanism (Hypothesis) received its Product Owner decision on `2026-09-14` (recorded in `testing.md`), was installed/pinned into `python/feature-engine/pyproject.toml` and `requirements-dev.lock.txt`, and formal I-13 property-based evidence was authored (`tests/test_i13_properties.py`) and run against the exact committed boundary `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9` — full record in §12. `P3-FEATURE-QG-EVID-07` is recorded **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`**, explicitly not `CLOSED` and not `FINAL PASS` — closure remains Review A's own determination, per Chapter 0 §3 and this file's own `-MAJ-02` governance path (unchanged). The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
 >
-> **Current status banner (stabilization 001, this transaction):** `EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — CANDIDATE v0.5`. The `27bd472e...` evidence above is **superseded** — Review A found it `REVISION_REQUIRED` (`-MAJ-06`/`-07`/`-08`/`-MIN-01`). Root causes recorded in §13; defects corrected against Commit A2 `e901f1857b1049ebc0bb4bdfd7a047e40e1174ed`; formal evidence rerun and recorded fresh in §12 (wholesale replacement, not an appendix to the stale result). Testing Convention v0.17's Product Owner decision date is now correctly recorded as `2026-09-15` (R0 correction, §13 RC-5; decision text unchanged). `P3-FEATURE-QG-EVID-07` remains **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`** — not `CLOSED`, not `FINAL PASS`. The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
+> **Current status banner — EVID-07 CLOSED (this transaction, `Feature Engine EVID-07 Minimal Closure Bookkeeping Executor`):** Final bounded Review A of stabilization 001 — executable boundary `e901f1857b1049ebc0bb4bdfd7a047e40e1174ed`, evidence-record boundary `472cfbcc94cc3dbcd69d599a3b1edd076d5f7e58` — returned **CLEAN — 0 Blocker / 0 Major / 0 Minor**. `P3-FEATURE-QG-EVID07-A-MAJ-01` through `-08` and `P3-FEATURE-QG-EVID07-A-MIN-01` are all **CLOSED — REVIEW A VALIDATED**. `P3-FEATURE-QG-EVID-07: CLOSED — PASS`. This bookkeeping transaction records that result only — it performed no new review (full reasoning already lives in this file's own correction/stabilization history above and is not repeated here). The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**; overall Feature Engine Chapter 13 Quality Gate PASS/module approval/Phase 3 approval are NOT inferred from this single evidence finding closing — other evidence blockers remain governed independently.
+
+> **Status banner (superseded by EVID-07 closure above — historical, left unedited for the record):** `EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — CANDIDATE v0.5`. The `27bd472e...` evidence above is **superseded** — Review A found it `REVISION_REQUIRED` (`-MAJ-06`/`-07`/`-08`/`-MIN-01`). Root causes recorded in §13; defects corrected against Commit A2 `e901f1857b1049ebc0bb4bdfd7a047e40e1174ed`; formal evidence rerun and recorded fresh in §12 (wholesale replacement, not an appendix to the stale result). Testing Convention v0.17's Product Owner decision date is now correctly recorded as `2026-09-15` (R0 correction, §13 RC-5; decision text unchanged). `P3-FEATURE-QG-EVID-07` remains **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`** — not `CLOSED`, not `FINAL PASS`. The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
 
 ## 0. Baseline / boundary verification (fresh, this transaction — not assumed)
 
@@ -1140,6 +1166,8 @@ No edit to `docs/engineering/testing.md` — verified byte-unchanged, blob
 
 ## 11. Next governed step (not performed by this transaction) — `-MAJ-02`/`-MAJ-03` corrected governance path
 
+> **EVID-07 closure notice (this transaction):** the "next governed step" described below and in the correction-003 notice immediately following is superseded — final bounded Review A of stabilization 001 has since occurred (`CLEAN — 0/0/0`) and `P3-FEATURE-QG-EVID-07` is `CLOSED — PASS` (frontmatter `final_review_a`, banner at the top of this file). There is no further governed step pending for this specific evidence finding. Both notices below are left unedited as historical record of the governance path as understood at their own respective boundaries.
+
 > **Bounded correction 003 notice:** steps 1–6 below (the list was
 > authored at correction 002's boundary) have since occurred, largely as
 > already-completed governance input to this integrated transaction (not
@@ -1499,7 +1527,7 @@ Overall qualifying-run result: SUCCESS. No STOP condition (HEAD drift,
   triggered at any point in this transaction.
 ```
 
-`P3-FEATURE-QG-EVID-07: EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION` (final disposition recorded by this transaction — not `CLOSED`, not `FINAL PASS`; closure remains Review A's own determination on review of stabilization 001, per Chapter 0 §3).
+`P3-FEATURE-QG-EVID-07: EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION` (disposition as recorded BY stabilization 001 itself — historical, left unedited; superseded by the final Review A result at the top of this file: `P3-FEATURE-QG-EVID-07: CLOSED — PASS`).
 
 ## 13. Root-cause consolidation (stabilization 001, this transaction)
 

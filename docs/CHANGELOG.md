@@ -2,6 +2,10 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-15 — feature-engine: `P3-FEATURE-QG-EVID-07` CLOSED — PASS (final Review A CLEAN 0/0/0)
+
+Feature Engine EVID-07 closed PASS after final bounded Review A of stabilization 001 returned CLEAN — 0 Blocker / 0 Major / 0 Minor (executable boundary `e901f1857b1049ebc0bb4bdfd7a047e40e1174ed`, evidence-record boundary `472cfbcc94cc3dbcd69d599a3b1edd076d5f7e58`). `P3-FEATURE-QG-EVID07-A-MAJ-01` through `-08` and `-MIN-01` all `CLOSED — REVIEW A VALIDATED`. No new review performed by this transaction — minimal bookkeeping only; full reasoning lives in the EVID-07 candidate document. Feature Engine module remains NOT APPROVED; LIVE remains NOT_AUTHORIZED; other evidence blockers unaffected. `manifest_version` `"10.373"` → `"10.374"`.
+
 ## [Unreleased] — 2026-09-15 — feature-engine: EVID-07 Root-Cause Consolidation + Stabilization 001 — Review A `REVISION_REQUIRED` on correction 003 remediated (`-MAJ-06`/`-07`/`-08`/`-MIN-01`), formal evidence rerun against Commit A2, PO approval-date factual correction
 
 **Consolidated stabilization transaction — vai trò: `Feature Engine EVID-07 Root-Cause Consolidation + Stabilization Executor`.** Bounded Review A of correction 003 returned `REVISION_REQUIRED — 0 Blocker / 3 Major / 1 Minor` (R1): `-MAJ-01`..`-05` CLOSED — REVIEW A VALIDATED (unchanged); three NEW findings on the formal evidence itself (`-MAJ-06` replay oracle was replay-vs-replay not live-vs-replay; `-MAJ-07` Case-2 out-of-set causation mis-modeled; `-MAJ-08` package artifact identity internally contradictory) plus `-MIN-01` (dev Hypothesis profile diverged from approved mechanism). Per instruction, not a normal correction round — one consolidated transaction: root causes (RC-1..RC-5), exact defects corrected, formal evidence rerun against a fresh exact boundary (Commit A2), corrected evidence recorded in this same docs-only commit (Commit B2).
