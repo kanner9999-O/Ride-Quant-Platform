@@ -1,10 +1,24 @@
 ---
 id: feature-engine-evid07-property-based-mechanism-candidate-001
 title: "Feature Engine — `P3-FEATURE-QG-EVID-07` Python Property-Based Testing Mechanism — CANDIDATE"
-candidate_version: "0.3"
-status: "CANDIDATE — NOT EFFECTIVE — BOUNDED CORRECTION 002 (P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03 CLOSED — REVIEW A VALIDATED; -MAJ-04/-05 REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW)"
+candidate_version: "0.4"
+status: "EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — BOUNDED CORRECTION 003 (P3-FEATURE-QG-EVID07-A-MAJ-01/-02/-03/-04 CLOSED — REVIEW A VALIDATED; -MAJ-05 REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW; formal I-13 property evidence produced against commit 27bd472efeab9a9538bde62ccfeca5c0a1ce48c9)"
 performed_at: "2026-09-11"
 repository_head_at_authoring: "310a83e22c868611028e5804c524fb5a4e9f57da"
+bounded_correction_003:
+  applied_at_repository_head: "27bd472efeab9a9538bde62ccfeca5c0a1ce48c9"
+  corrected_candidate_blob_before_correction: "bf347512d649ee9d6284851a7e10a95fd3e3df51"
+  reviewer_findings_addressed:
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-01
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-02
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-03
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-04
+      status: "CLOSED — REVIEW A VALIDATED"
+    - id: P3-FEATURE-QG-EVID07-A-MAJ-05
+      status: "REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW"
 bounded_correction_001:
   applied_at_repository_head: "cd9d2684b0a315cde1bd429f3d4b0b07f8fe96d5"
   corrected_candidate_blob_before_correction: "f3bdb9ff82e3e88456792c4e06da48688a5bd6b4"
@@ -31,6 +45,18 @@ bounded_correction_002:
 
 # Feature Engine — `P3-FEATURE-QG-EVID-07` Python Property-Based Testing Mechanism — CANDIDATE 001
 
+> **Bounded correction 003 (this transaction) + formal evidence record** — vai trò: `Feature Engine EVID-07 Integrated Execution Executor`. Records, as already-completed governance input to this integrated transaction (not re-run, not re-litigated here): (1) Product Owner decision (verbatim) — **"APPROVE Testing Convention v0.17 — Python property-based testing mechanism: Hypothesis — ADR_OPTIONAL, ADR NOT AUTHORED."** — decision date `2026-09-14`, recorded in full in `docs/engineering/testing.md`'s own v0.17 approval banner (reviewed boundary `81605fd1ca099eae48b937ced3c775e271dee2e2`, reviewed blob `708744f0464720cb14ceafbe75bb422200a57820`, Review A CLEAN 0 Blocker / 0 Major / 0 Minor, Risk Classification R1, no Independent Review B required at R1); (2) ADR-043 implementation Review A's own CLEAN 0/0/0 final disposition (reviewed boundary `81605fd1ca099eae48b937ced3c775e271dee2e2`), recorded in full in `python/feature-engine/README.md`; (3) Review A's re-review disposition on bounded correction 002 (mechanically recorded per the established convention this file already uses for correction 002 itself — no separate transcript file, consistent with the incoming task input): `-MAJ-01`/`-MAJ-02`/`-MAJ-03` remain **CLOSED — REVIEW A VALIDATED** (not re-litigated, not reopened absent a fresh direct contradiction, none found); `-MAJ-04` (Hypothesis reproducibility contract, §5) is now **CLOSED — REVIEW A VALIDATED**; `-MAJ-05` (concurrent/competing-transition applicability, §6) was found on re-review to still rest on a rationale that has since become stale now that ADR-043's actual per-subject ownership runtime is implemented and Review-A-validated — remediated again in this transaction (below), **not** closed by this transaction.
+>
+> Same integrated transaction (Commit `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9`, this file's own boundary): `hypothesis==6.168.0` / `sortedcontainers==2.4.0` installed and pinned (`python/feature-engine/pyproject.toml` `[project.optional-dependencies].dev`; `requirements-dev.lock.txt`), formal I-13 property-based evidence authored (`python/feature-engine/tests/test_i13_properties.py`, 18 tests across all 6 property categories §6 requires), and formal evidence recorded against the exact pushed boundary — full record in §12 below. This corrects/supersedes §9's now-stale "Not performed" claims about installation/authoring/testing.md-editing (those were true when §9 was written, prior to this transaction; §9 itself is left textually unedited, as historical record, with a pointer notice added) and supersedes §6's `-MAJ-05` "one instance per Feature subject" rationale with the current, Review-A-validated ADR-043 authority stack (§6 correction notice, below).
+>
+> `P3-FEATURE-QG-EVID07-A-MAJ-01: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-02: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-03: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-04: CLOSED — REVIEW A VALIDATED`
+> `P3-FEATURE-QG-EVID07-A-MAJ-05: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
+>
+> `P3-FEATURE-QG-EVID-07: EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION` (not `CLOSED`, not `FINAL PASS` — this transaction does not self-close its own evidence finding; that determination is Review A's own, per Chapter 0 §3, same governance path `-MAJ-02` already established for this file).
+
 > **Bounded correction 002 (this transaction)** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Bounded Correction Executor`. Records Review A's re-review disposition on bounded correction 001 (reviewed blob `f83911161783fc85d596ffd80ec143f3e446888a`, boundary `c8e5d2e9ab5e9bf5e8000004c58d1005f7ccc287` — mechanically recorded per the established convention throughout this repository's Review A dispositions, no separate transcript file, consistent with the incoming task input): `-MAJ-01`/`-MAJ-02`/`-MAJ-03` **CLOSED — REVIEW A VALIDATED** (not re-litigated in this transaction; not reopened absent a fresh direct contradiction, and none was found on fresh re-read). `-MAJ-04`/`-MAJ-05` remained **OPEN — CORRECTION REQUIRED**, remediated here: `-MAJ-04` (a surviving contradictory sentence in §3 Alternative B — "a printed, directly-reusable reproduction seed" — was missed by correction 001's own fix to §5; found via a full-file search for every `seed`/`reproduce_failure`/`print_blob`/`derandomize` occurrence, per instruction, not just the one sentence Review A cited; corrected to match §5's own accurate contract). `-MAJ-05` (the prior `NOT_APPLICABLE` disposition inferred "single writer authority → competing transitions structurally impossible," which conflates Chapter 8 §8.3's STREAM-level writer-authority/append-ordering guarantee with a DOMAIN-level version/concurrency contract I-13 actually requires; re-derived from `feature.md` §9 rule 6 (no fork — an existing Domain Contract semantic, not invented) plus the actual Feature Engine implementation's own verified, pre-emission fail-closed rejection of conflicting transitions — disposition corrected to **APPLICABLE**, satisfied by the SAME evidence category already scoped for Surface 1's illegal-transition/fork case, explicitly distinguished from interleaving). Neither finding is self-closed here — closure is Review A's own determination on re-review, per Chapter 0 §3.
 >
 > `P3-FEATURE-QG-EVID07-A-MAJ-01: CLOSED — REVIEW A VALIDATED`
@@ -47,7 +73,9 @@ bounded_correction_002:
 > `P3-FEATURE-QG-EVID07-A-MAJ-04: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
 > `P3-FEATURE-QG-EVID07-A-MAJ-05: REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW`
 
-> **Status banner:** `CANDIDATE / NOT EFFECTIVE — BOUNDED CORRECTION 002 PENDING REVIEW A RE-REVIEW (MAJ-04/-05 ONLY)`. This remains a **QG-scoped analysis/rationale transaction only** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Author`. It does **not** install any dependency, does **not** edit `pyproject.toml`/`requirements-dev.lock.txt`, does **not** modify any Feature Engine production or test file, does **not** measure anything, and does **not** close `P3-FEATURE-QG-EVID-07`. Per `-MAJ-03`'s remediation (below), this file does **not** itself canonicalize the mechanism/tool decision — that decision is canonicalized in `docs/engineering/testing.md`'s own "Python property-based testing mechanism — CANDIDATE" subsection (v0.17, added this same transaction), through its own governed candidate lifecycle. Per `-MAJ-02`'s remediation, the governance path is `Executor → Review A + Risk Classification → Product Owner Decision → Execution` (Chapter 0 §3, ADR-042): Review A determines technical disposition/eligibility and may close Review A findings on re-review, but Review A does **not** approve — Product Owner is the sole approval authority, and no Product Owner decision is recorded or implied anywhere in this file.
+> **Status banner (superseded by bounded correction 003 — historical, left unedited for the record):** `CANDIDATE / NOT EFFECTIVE — BOUNDED CORRECTION 002 PENDING REVIEW A RE-REVIEW (MAJ-04/-05 ONLY)`. This remains a **QG-scoped analysis/rationale transaction only** — vai trò: `Feature Engine EVID-07 Property-Based Mechanism Candidate Author`. It does **not** install any dependency, does **not** edit `pyproject.toml`/`requirements-dev.lock.txt`, does **not** modify any Feature Engine production or test file, does **not** measure anything, and does **not** close `P3-FEATURE-QG-EVID-07`. Per `-MAJ-03`'s remediation (below), this file does **not** itself canonicalize the mechanism/tool decision — that decision is canonicalized in `docs/engineering/testing.md`'s own "Python property-based testing mechanism — CANDIDATE" subsection (v0.17, added this same transaction), through its own governed candidate lifecycle. Per `-MAJ-02`'s remediation, the governance path is `Executor → Review A + Risk Classification → Product Owner Decision → Execution` (Chapter 0 §3, ADR-042): Review A determines technical disposition/eligibility and may close Review A findings on re-review, but Review A does **not** approve — Product Owner is the sole approval authority, and no Product Owner decision is recorded or implied anywhere in this file.
+>
+> **Current status banner (bounded correction 003, this transaction):** `EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION — CANDIDATE v0.4`. This transaction is no longer QG-scoped-rationale-only: the Testing Convention v0.17 mechanism (Hypothesis) received its Product Owner decision on `2026-09-14` (recorded in `testing.md`), was installed/pinned into `python/feature-engine/pyproject.toml` and `requirements-dev.lock.txt`, and formal I-13 property-based evidence was authored (`tests/test_i13_properties.py`) and run against the exact committed boundary `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9` — full record in §12. `P3-FEATURE-QG-EVID-07` is recorded **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`**, explicitly not `CLOSED` and not `FINAL PASS` — closure remains Review A's own determination, per Chapter 0 §3 and this file's own `-MAJ-02` governance path (unchanged). The Feature Engine module remains **NOT APPROVED**; LIVE remains **NOT_AUTHORIZED**.
 
 ## 0. Baseline / boundary verification (fresh, this transaction — not assumed)
 
@@ -578,7 +606,58 @@ Replay reconstruction consistency: for a generated lineage sequence,
   generated sequences rather than the fixed scenarios EVID-05(a)'s
   existing tests already cover.
 
-Concurrent/competing transitions — `-MAJ-05` corrected disposition:
+`-MAJ-05` bounded correction 003 notice: correction 002's disposition
+  below (retained unedited, as historical record) grounded APPLICABLE
+  in an "architectural precondition" that was, at that time, HONESTLY
+  DISCLOSED as implementation-level only — pinned solely in
+  `regime_passthrough.py`/`swing_distance.py`'s own class docstrings
+  ("One instance per Feature subject"), not yet a Domain-Contract- or
+  Constitution-level guarantee, and not yet backed by any dedicated
+  runtime authority. That precondition has since been SUPERSEDED, not by
+  a documentation change, but by an actual, Review-A-validated
+  implementation: **ADR-043** (Approved) — the per-`feature_subject_id`
+  authoritative ownership architecture — is now implemented
+  (`src/feature_engine/ownership.py`: `AuthoritativeSubjectOwner`,
+  `SubjectOwnershipAuthority`, `FencedFeatureCommitter`,
+  `AuthoritativeLineageHistoryProvider`, `p_run_sort`), and its
+  implementation Review A closed CLEAN — 0 Blocker / 0 Major / 0 Minor
+  (`ADR043-IMPL-A-MAJ-01..07` all `CLOSED — REVIEW A VALIDATED`,
+  boundary `81605fd1ca099eae48b937ced3c775e271dee2e2`; full record in
+  `python/feature-engine/README.md`). The current, authoritative basis
+  for `-MAJ-05`'s APPLICABLE disposition and its satisfying evidence is
+  therefore the STACK, not the docstring alone: (1) Chapter 8 §8.3
+  single-writer/atomic-sequence stream-level ordering (unchanged,
+  necessary but not sufficient, as correction 002 already correctly
+  established); (2) `feature.md` §9 rule 6 (no fork) as the
+  Domain-Contract-owned domain-level semantic (unchanged, still the
+  actual authority for the rule itself); (3) **ADR-043's runtime**
+  as the concrete, Review-A-validated MECHANISM that makes rule 6
+  enforceable per-subject across ownership handoffs — not merely within
+  one long-lived in-process engine instance — via
+  `SubjectOwnershipAuthority.acquire`/`revoke` fencing,
+  `FencedFeatureCommitter` generation-checked commits
+  (`StaleOwnershipGenerationError` on a stale/fenced attempt), and
+  canonical-history catch-up (`AuthoritativeLineageHistoryProvider`) that
+  reconstructs a fresh owner's lineage before it may act; (4) the
+  formal I-13 property evidence itself (§12 below,
+  `tests/test_i13_properties.py`), which exercises the actual
+  implementation boundary directly — not a re-statement of the rule,
+  direct generated evidence that it holds. `SubjectOwnershipAuthority`,
+  `FencedFeatureCommitter`, and `AuthoritativeLineageHistoryProvider`
+  remain test-doubled in this evidence (in-memory; §12 documents this
+  explicitly) — no concrete production-durable distributed-storage
+  fencing/history adapter is implemented or claimed by this correction;
+  that remains explicitly out of scope, same discipline as every prior
+  transaction in this chain. The Chapter 8 §8.3 stream-level guarantee
+  remains relevant but, as correction 002 already established, is not
+  by itself sufficient — it is the ADR-043 runtime, now implemented and
+  validated, that supplies the missing per-subject coordination/fencing
+  contract; `feature.md`'s no-fork rule remains the domain semantic
+  authority throughout, unedited, uninvented.
+
+Concurrent/competing transitions — `-MAJ-05` corrected disposition
+  (correction 002, retained unedited as historical record — superseded
+  by the notice above, not by editing the text below):
   **B. APPLICABLE**, satisfied by the SAME evidence category already
   scoped above as "Illegal-transition rejection" (specifically its
   `fork` case) — NOT a separate concurrency-testing mechanism, and NOT
@@ -890,6 +969,27 @@ Result: `ADR_OPTIONAL — ADR NOT AUTHORED`.
 
 ## 9. Not performed at this transaction (explicit)
 
+> **Bounded correction 003 notice:** the "Not performed" list below is
+> historical — it was true of the transaction that authored §9
+> (candidate v0.1/boundary `310a83e22c868611028e5804c524fb5a4e9f57da`)
+> and is left textually unedited as the record of what THAT transaction
+> did and did not do. It is now **superseded** for the repository's
+> CURRENT state: as of this bounded correction 003 (Commit
+> `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9`), `hypothesis==6.168.0`/
+> `sortedcontainers==2.4.0` ARE installed and pinned
+> (`pyproject.toml`/`requirements-dev.lock.txt`), `docs/engineering/
+> testing.md` HAS been edited (mechanical v0.17 approval-lifecycle
+> recording only — see `testing.md`'s own approval banner),
+> `python/feature-engine/tests/test_i13_properties.py` HAS been
+> authored, and `P3-FEATURE-QG-EVID-07` now carries the disposition
+> `EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION` (still not `CLOSED`,
+> still not `FINAL PASS`) — full record in §12 below. The
+> `P3-FEATURE-QG-EVID-05(a)`/`-05(b)` and mutmut/coverage.py/gobco
+> non-interference claims below remain accurate and unchanged by this
+> correction (verified fresh this transaction: `git diff --quiet --
+> docs/governance/quality-gate/feature-engine-evid05*` and equivalent
+> for mutmut/coverage candidate files — none touched).
+
 ```text
 No `pip install hypothesis` (or any package) into python/feature-engine's
   committed environment — all verification in §3/§5/§7 used a SCRATCH
@@ -991,6 +1091,30 @@ No edit to `docs/engineering/testing.md` — verified byte-unchanged, blob
 
 ## 11. Next governed step (not performed by this transaction) — `-MAJ-02`/`-MAJ-03` corrected governance path
 
+> **Bounded correction 003 notice:** steps 1–6 below (the list was
+> authored at correction 002's boundary) have since occurred, largely as
+> already-completed governance input to this integrated transaction (not
+> re-run here — recorded verbatim in the banner at the top of this
+> file) plus this transaction's own execution work: step 1 (Review A
+> re-review of correction 002) occurred — `-MAJ-04` closed, `-MAJ-05`
+> found to need further remediation (this correction). Step 3
+> (Risk Classification, R1) and step 4 (Product Owner decision,
+> `2026-09-14`, verbatim in the banner above) occurred on the
+> testing.md v0.17 candidate. Step 5 (install/pin) and step 6
+> (test-authoring) were executed in this SAME transaction (Commit
+> `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9`), per the task's own
+> integrated-transaction shape. Step 7 (formal evidence) is THIS
+> correction 003 itself — §12 below — and, per its own instruction,
+> does **not** self-close `P3-FEATURE-QG-EVID-07`. The list below is
+> left textually unedited as the historical record of correction 002's
+> own view of the remaining path; the ACTUAL next governed step, as of
+> this transaction, is: **bounded Review A of EVID-07 correction 003 +
+> formal evidence at Commit `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9`**
+> — scoped to (a) the corrected `-MAJ-05` rationale (§6 notice), (b) the
+> formal evidence record's own validity and completeness (§12), and (c)
+> whether `P3-FEATURE-QG-EVID-07` should close. Not performed by this
+> transaction.
+
 ```text
 1. Bounded Review A re-review of THIS correction (correction 002),
    scoped to `-MAJ-04`/`-MAJ-05` ONLY (`-MAJ-01`/`-MAJ-02`/`-MAJ-03`
@@ -1030,3 +1154,238 @@ No edit to `docs/engineering/testing.md` — verified byte-unchanged, blob
    `P3-FEATURE-QG-EVID-07`.
    None of steps 1-7 is performed by this transaction.
 ```
+
+## 12. Formal evidence record (bounded correction 003, this transaction)
+
+```text
+Tested boundary (exact, pushed, verified `main == origin/main` before AND
+  after this run): 27bd472efeab9a9538bde62ccfeca5c0a1ce48c9
+  (parent: 81605fd1ca099eae48b937ced3c775e271dee2e2 — the ADR-043
+  implementation Review A CLEAN boundary).
+Commit A contents (exactly): docs/engineering/testing.md,
+  python/feature-engine/README.md, python/feature-engine/pyproject.toml,
+  python/feature-engine/requirements-dev.lock.txt,
+  python/feature-engine/tests/test_i13_properties.py (new file). No
+  production `src/feature_engine/**` file touched (verified
+  `git diff --stat 81605fd1c.. 27bd472e -- python/feature-engine/src`
+  empty).
+
+Package identity and provenance (re-verified live this transaction,
+  §7's own install-time contract — not copied from §3/§5):
+  hypothesis: PyPI, version 6.168.0 (latest at verification time, `pip
+    index versions hypothesis`). Development Status :: 5 -
+    Production/Stable. License-Expression: MPL-2.0. Requires-Python:
+    >=3.10 (compatible with this project's `>=3.13`). Requires-Dist
+    (unconditional at Python >=3.11): sortedcontainers>=2.1.0,<3.0.0.
+    Wheel: hypothesis-6.168.0-py3-none-any.whl — content verified via
+    `pip download --no-deps --no-cache-dir` into a scratch directory
+    OUTSIDE the repository; cross-checked against PyPI's own JSON API
+    (`https://pypi.org/pypi/hypothesis/6.168.0/json`).
+    hypothesis-6.168.0-cp313-cp313-macosx_11_0_arm64.whl SHA-256:
+    92cff497b92e2285ff6a94193fdee04aba483a4115d501c1f9a570bd103fcd20
+    (matches PyPI's own declared digest for this exact platform wheel,
+    byte-identical).
+  sortedcontainers: PyPI, version 2.4.0. License: Apache 2.0. No further
+    Requires-Dist (pure-Python leaf). Wheel:
+    sortedcontainers-2.4.0-py2.py3-none-any.whl SHA-256:
+    a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0
+    (matches PyPI's own declared digest).
+  Required API surface confirmed importable at 6.168.0: `hypothesis.given`,
+    `hypothesis.example`, `hypothesis.settings`,
+    `hypothesis.reproduce_failure`,
+    `hypothesis.stateful.RuleBasedStateMachine`, `hypothesis.stateful.rule`,
+    `hypothesis.stateful.invariant`, `hypothesis.stateful.precondition`.
+  No fact contradicted the approved v0.17 candidate (§3/§5 of this file,
+    testing.md's own v0.17 subsection) — no silent substitution occurred,
+    no STOP condition triggered.
+
+Interpreter / tool identities (this transaction, exact venv used for the
+  qualifying run — python/feature-engine/.venv, matching the committed
+  lock discipline):
+  Python 3.13.6
+  pytest 9.1.1
+  hypothesis 6.168.0
+  sortedcontainers 2.4.0
+  Clean-environment re-verification (SEPARATE, fresh venv strictly
+    outside the repository, built from `pip install -r
+    requirements-dev.lock.txt` + `pip install -e .` reading the
+    COMMITTED lock file, not from memory/cache reuse): `pip check` ->
+    "No broken requirements found." Same import surface confirmed. Both
+    formal property-only runs (below) additionally re-executed
+    successfully in this clean environment as a cross-check.
+  Production dependency surface confirmed unchanged: `[project]
+    dependencies = []` in pyproject.toml (hypothesis/sortedcontainers
+    are `[project.optional-dependencies].dev`-only, never a runtime
+    dependency).
+
+Hypothesis execution profiles (tests/test_i13_properties.py, module
+  level):
+  "ci": derandomize=True, print_blob=True, database=None,
+    max_examples=200, suppress_health_check=[HealthCheck.too_slow].
+  "dev": max_examples=25 (interactive default, not used for this formal
+    evidence run).
+  Loaded via `settings.load_profile(os.environ.get("HYPOTHESIS_PROFILE",
+    "dev"))` — formal evidence commands below explicitly set
+    `HYPOTHESIS_PROFILE=ci`, never relying on environment
+    auto-detection.
+  `TestRegimeLegalTransitionMachine.settings` overrides
+    `stateful_step_count=12` (bounded multi-step lineage generation) on
+    top of the loaded "ci" profile's other values (max_examples=200,
+    derandomize=True, print_blob=True, database=None).
+
+Formal property evidence command (executed TWICE against this exact
+  commit, per instruction — no retry-until-green, both runs required to
+  pass independently):
+  `HYPOTHESIS_PROFILE=ci pytest -q tests/test_i13_properties.py
+  --hypothesis-show-statistics`
+  Run 1 result: 18 passed in 2.11s.
+  Run 2 result: 18 passed in 1.94s.
+  Both runs produced statistically identical Hypothesis statistics per
+    test (identical pass/generate counts per test; the only textual
+    difference between the two runs' raw output was non-semantic
+    Python object memory-address/hash noise in printed debug repr
+    strings — confirmed via `diff` after filtering those lines; no
+    difference in any pass/fail/invalid count). No `Flaky` result
+    occurred on either run. Representative per-test statistics (both
+    runs identical):
+    TestRegimeLegalTransitionMachine: 200 passing, 0 failing state
+      sequences, stopped at max_examples=200.
+    test_p_run_sort_permutation_invariant_preserves_hard_constraints:
+      200 passing, 0 failing, 0 invalid.
+    test_adr043_successor_generation_fences_stale_predecessor_and_sees_
+      canonical_state: 200 passing, 0 failing, 0 invalid.
+    test_adr043_two_racing_successor_acquisitions_only_the_later_one_wins:
+      1 passing (single fixed `st.just(None)` case, by construction), 0
+      failing.
+    test_adr043_different_subjects_remain_fully_independent: 200
+      passing, 0 failing, 0 invalid.
+    test_regime_catch_up_reconstruction_matches_reference_history: 200
+      passing, 0 failing, 28 invalid (`assume()`-filtered draws — a
+      normal, expected outcome of Hypothesis's own filtering machinery,
+      not a failure; both runs identical at exactly 28).
+    test_swing_catch_up_reconstructs_non_selected_swing_evidence: 16
+      passing (bounded by the `assume(swing_a_pivot != swing_b_pivot)`
+      filter over a small integer domain), 0 failing.
+  No property test discovered a production defect. No production
+    source file was modified in this transaction (verified above).
+  No weakening of any assertion was performed to make a property pass.
+  `.hypothesis/` was never committed (auto-`.gitignore`d by Hypothesis
+    itself; confirmed via `git status --porcelain=v1
+    --ignored=matching -- .hypothesis` showing `!!` markers both before
+    and after this run).
+
+Full regression command and result (same exact commit, "ci" profile):
+  `HYPOTHESIS_PROFILE=ci pytest -q` -> 386 passed in 2.55s (368 tests
+  from the pre-existing suite, unchanged, + 18 new I-13 property tests
+  — zero regressions in any pre-existing test).
+
+Static analysis commands and results (same exact commit):
+  `ruff check src tests` -> 2 findings, BOTH pre-existing and unrelated
+    (E501 line-too-long, `src/feature_engine/authority_resolver.py:465`
+    and `:528` — confirmed via prior `git stash`-based comparison, in
+    an earlier transaction in this same chain, that these findings
+    predate this entire work chain; NOT introduced, NOT fixed, by this
+    transaction, per instruction not to touch pre-existing unrelated
+    findings). Ruff is therefore NOT claimed "clean" — it is claimed
+    "2 pre-existing, unrelated findings, unchanged."
+  `mypy src tests` -> "Success: no issues found in 34 source files."
+
+Evidence-category mapping — the 5 required I-13 evidence categories
+  (Constitution 02-platform-invariants.md I-13 Verification clause),
+  mapped to exact committed test identifiers in
+  `python/feature-engine/tests/test_i13_properties.py` at commit
+  27bd472efeab9a9538bde62ccfeca5c0a1ce48c9 (sufficient for an
+  independent reviewer to re-run each by name, e.g.
+  `HYPOTHESIS_PROFILE=ci pytest -q tests/test_i13_properties.py::<name>
+  --hypothesis-show-statistics`):
+
+  1. Property-based test on the authoritative transition graph:
+     - `TestRegimeLegalTransitionMachine` (built on
+       `RegimeLegalTransitionMachine(RuleBasedStateMachine)`, rules
+       `submit_original`/`invalidate_current`/`submit_replacement`,
+       `stateful_step_count=12`) — generates sequences of legal
+       Surface-1/Surface-2 transitions against the REAL
+       `RegimePassthroughFeatureEngine` and `FeatureCurrentView`,
+       asserting lineage-head correctness, `view.current()`
+       VALID/PENDING_CORRECTION correctness, `supersedes_fact_ref`
+       chain integrity, and strictly increasing `recorded_time` after
+       every step.
+     - `test_p_run_sort_permutation_invariant_preserves_hard_constraints`,
+       `test_p_run_sort_tie_break_matches_stream_id_then_sequence_for_
+       unrelated_events`, `test_p_run_sort_identical_duplicate_ref_
+       dedups_deterministically`,
+       `test_p_run_sort_conflicting_duplicate_ref_fails_closed_both_
+       orders`, `test_p_run_sort_cycle_fails_closed`,
+       `test_p_run_sort_never_waits_for_a_cause_outside_the_apply_set`
+       — generated-order-independence evidence for the real
+       `p_run_sort` (Chapter 8 §8.3.4 P_stream ∪ P_causation)
+       underlying the same transition graph's application order.
+
+  2. Illegal-transition rejection:
+     `test_second_original_against_non_invalidated_lineage_fails_closed`,
+     `test_double_invalidation_fails_closed`,
+     `test_stale_nonexistent_lineage_successor_invalidation_fails_closed`,
+     `test_fork_attempt_second_successor_of_same_prior_head_fails_closed`,
+     `test_swing_revision_skip_fails_closed`,
+     `test_foreign_scope_fails_closed` — each asserts the SPECIFIC real
+     exception type (`FeatureLineageError`,
+     `InvalidSwingEligibilityInputError`, `ForeignScopeError`) is raised
+     and that engine/lineage state is unchanged after rejection.
+
+  3. Correction / strictly-governed lifecycle:
+     `TestRegimeLegalTransitionMachine` (same class as category 1,
+     different assertion angle) — bounded, generated
+     ORIGINAL -> N x (INVALIDATE -> REPLACEMENT) lifecycles
+     (`generation_count < 6` precondition), asserting every lineage
+     member's own `computation_cursor`/
+     `computation_dependency_content_evidence` is independently pinned
+     (never inherited from a prior member) across the full generated
+     history, not merely a single fixed correction as the pre-existing
+     example-based tests cover.
+
+  4. Competing / concurrent transition behavior:
+     `test_adr043_successor_generation_fences_stale_predecessor_and_
+     sees_canonical_state`, `test_adr043_two_racing_successor_
+     acquisitions_only_the_later_one_wins`,
+     `test_adr043_different_subjects_remain_fully_independent` —
+     exercise the REAL `AuthoritativeSubjectOwner`/`p_run_sort` against
+     test-doubled `SubjectOwnershipAuthority`/`FencedFeatureCommitter`/
+     `AuthoritativeLineageHistoryProvider` (external boundaries, no
+     production-durable adapter implemented or claimed), asserting a
+     stale/fenced generation is rejected via the real
+     `StaleOwnershipGenerationError`, exactly one of two racing
+     acquisitions wins, and different `feature_subject_id` subjects
+     remain fully independent.
+
+  5. Replay / catch-up reconstruction:
+     `test_regime_catch_up_reconstruction_matches_reference_history`,
+     `test_swing_catch_up_reconstructs_non_selected_swing_evidence` —
+     for generated reference lineages (bounded original/invalidation/
+     replacement chains, including mid-invalidation-pending endings),
+     a FRESH engine + fresh owner catching up via
+     `AuthoritativeLineageHistoryProvider` and a `RaisingRecordedTimeSource`
+     (proving no live clock is consulted) reconstructs an IDENTICAL
+     lineage/head/`FeatureCurrentView` state to the reference, with zero
+     new ref allocation (`fresh_allocator._sequences == {}`).
+
+Real-vs-test-double boundary discipline (unchanged from §6/README):
+  `RegimePassthroughFeatureEngine`, `SwingDistanceFeatureEngine`,
+  `FeatureCurrentView`, `AuthoritativeSubjectOwner`, `p_run_sort`, and
+  real `PreparedTransition` reconciliation are exercised as REAL
+  production code throughout. `SubjectOwnershipAuthority`,
+  `FencedFeatureCommitter`, and `AuthoritativeLineageHistoryProvider`
+  are test-doubled (in-memory) ONLY — external-boundary interfaces with
+  no production-durable distributed adapter implemented in this
+  repository. This evidence does NOT claim, and must not be read as
+  claiming, that a concrete production distributed fencing/history
+  storage adapter exists — it does not, and none is added by this
+  transaction.
+
+Overall qualifying-run result: SUCCESS. No STOP condition (HEAD drift,
+  package-fact contradiction, install failure, `pip check` failure,
+  production defect discovery, `Flaky` result, qualifying-evidence
+  failure, necessary-production-change, unpinnable provenance) was
+  triggered at any point in this transaction.
+```
+
+`P3-FEATURE-QG-EVID-07: EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION` (final disposition recorded by this transaction — not `CLOSED`, not `FINAL PASS`; closure remains Review A's own determination on bounded review of this correction 003, per Chapter 0 §3).

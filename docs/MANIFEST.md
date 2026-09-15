@@ -1,5 +1,5 @@
 ---
-manifest_version: "10.371"
+manifest_version: "10.372"
 schema_version: "1"
 project: "Ride Quant Platform"
 project_version: "v0.1"
@@ -27054,6 +27054,41 @@ LIVE:                           NOT_AUTHORIZED.
 **Next governed step:** author the bounded Feature Engine subject-ownership runtime implementation-design candidate required by Approved `ADR-043`, then Review A/Risk Classification as applicable, then implementation, then evidence — only then `EVID-07` correction round 3.
 
 **Files changed:** `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; `docs/adr/ADR-043.md` and every other in-scope artifact verified byte-unchanged (`git diff --quiet`). `manifest_version` `"10.370"` → `"10.371"`.
+
+## `feature-engine` — EVID-07 Integrated Execution: Testing Convention v0.17 `Approved` (Hypothesis) · ADR-043 implementation Review A `CLEAN` · formal I-13 property evidence produced (2026-09-14/15)
+
+**Integrated execution transaction — vai trò: `Feature Engine EVID-07 Integrated Execution Executor`.** Reconciles MANIFEST to current repository state across two exact commits on `main`: Commit A `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9` (parent `81605fd1ca099eae48b937ced3c775e271dee2e2`, the ADR-043 implementation boundary) — `docs/engineering/testing.md`, `python/feature-engine/{pyproject.toml,requirements-dev.lock.txt,README.md,tests/test_i13_properties.py}`; this entry's own Commit B — `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md`.
+
+**(1) ADR-043 implementation Review A — CLEAN, final.** `src/feature_engine/ownership.py` (per-`feature_subject_id` authoritative ownership runtime: `AuthoritativeSubjectOwner`, `SubjectOwnershipAuthority`, `FencedFeatureCommitter`, `AuthoritativeLineageHistoryProvider`, `p_run_sort`) reviewed at boundary `81605fd1ca099eae48b937ced3c775e271dee2e2`: `ADR043-IMPL-A-MAJ-01` through `-07` all **CLOSED — REVIEW A VALIDATED**. Implementation Review A: **CLEAN — 0 Blocker / 0 Major / 0 Minor**. Full record: `python/feature-engine/README.md`.
+
+**(2) Testing Convention v0.17 — `Approved`.** Product Owner decision (verbatim): **"APPROVE Testing Convention v0.17 — Python property-based testing mechanism: Hypothesis — ADR_OPTIONAL, ADR NOT AUTHORED."** Decision date `2026-09-14`. Reviewed boundary `81605fd1ca099eae48b937ced3c775e271dee2e2`, reviewed blob `708744f0464720cb14ceafbe75bb422200a57820`, Review A **CLEAN — 0/0/0**, Risk Classification **R1** (no Independent Review B required at R1, per ADR-042's own risk-scaled discipline). `docs/engineering/testing.md`: `status: Draft → Approved`, `approved_by: Product Owner`, `approved_at: "2026-09-14"`, `reviewers: [ChatGPT]`, `last_review: "2026-09-14"`, `version` unbumped (`"0.17"`, pure mechanical approval). ADR disposition **`ADR_OPTIONAL — ADR NOT AUTHORED`** (unchanged from the candidate's own ADR Scope Rule run). Full approval banner: `docs/engineering/testing.md` itself.
+
+**(3) Hypothesis installed and pinned.** `hypothesis==6.168.0` (PyPI, Production/Stable, MPL-2.0, mandatory dep `sortedcontainers>=2.1.0,<3.0.0`) + `sortedcontainers==2.4.0` (Apache 2.0) — re-verified live at install time (not from memory), wheel SHA-256 cross-checked against PyPI's own JSON API: hypothesis `92cff497b92e2285ff6a94193fdee04aba483a4115d501c1f9a570bd103fcd20`, sortedcontainers `a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0`. Pinned into `python/feature-engine/pyproject.toml` `[project.optional-dependencies].dev` and `requirements-dev.lock.txt`. Production `[project].dependencies` remains `[]` — **no runtime dependency added**. `pip check` clean in a fresh clean-room venv built from the committed lock file.
+
+**(4) Formal I-13 property-based evidence produced.** `python/feature-engine/tests/test_i13_properties.py` (18 tests, `HYPOTHESIS_PROFILE=ci` — `derandomize=True, print_blob=True, database=None, max_examples=200`) — all 5 required I-13 evidence categories exercised against REAL production code (`RegimePassthroughFeatureEngine`, `SwingDistanceFeatureEngine`, `FeatureCurrentView`, `AuthoritativeSubjectOwner`, `p_run_sort`); `SubjectOwnershipAuthority`/`FencedFeatureCommitter`/`AuthoritativeLineageHistoryProvider` test-doubled (external boundaries, no production-durable adapter claimed). Run against the exact pushed boundary `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9`, formal command executed TWICE (18 passed both times, statistically identical, no `Flaky`). Full regression `HYPOTHESIS_PROFILE=ci pytest -q`: **386 passed** (368 pre-existing + 18 new, zero regressions). `ruff check src tests`: 2 findings, both pre-existing/unrelated (`authority_resolver.py`), unchanged. `mypy src tests`: **Success, no issues in 34 source files**. No production defect found; no production source modified. Full exact-command/hash/statistics record: `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md` §12 (bounded correction 003, `candidate_version` `"0.3" → "0.4"`).
+
+**(5) EVID-07 candidate disposition.** `P3-FEATURE-QG-EVID07-A-MAJ-01`/`-02`/`-03`/`-04`: **CLOSED — REVIEW A VALIDATED**. `P3-FEATURE-QG-EVID07-A-MAJ-05`: **REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW** (its "one instance per Feature subject" docstring-only rationale superseded by the now-implemented, Review-A-validated ADR-043 authority stack — not self-closed). `P3-FEATURE-QG-EVID-07`: **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`** — explicitly not `CLOSED`, not `FINAL PASS`; this transaction does not self-close its own evidence finding (Chapter 0 §3, Review A's own determination).
+
+**Not performed, not claimed:** no new ADR authored; no Review B run; no additional Product Owner decision requested; no standalone Risk Classification transaction; `ADR-043` not modified (remains v0.2, `Approved`, frozen, blob `e7ebc2093768b164b91b496d932d2f9feb6c659a`); Constitution/`feature.md`/Input Contracts/Event Contracts/Stream Registry/`module-registry.yaml` not touched; no production `src/feature_engine/**` change; no CI workflow added; `.hypothesis/` never committed (auto-`.gitignore`d).
+
+```text
+Testing Convention:            v0.17, Approved, 2026-09-14, mechanism: Hypothesis.
+ADR-043:                        v0.2, Approved, unchanged, frozen at
+                                blob e7ebc2093768b164b91b496d932d2f9feb6c659a.
+ADR-043 implementation:        Review A CLEAN — 0/0/0 (all MAJ-01..07 CLOSED).
+hypothesis / sortedcontainers: 6.168.0 / 2.4.0, installed, pinned (dev-only).
+P3-FEATURE-QG-EVID07-A-MAJ-05: REMEDIATED — PENDING BOUNDED REVIEW A
+                                RE-REVIEW (not self-closed).
+P3-FEATURE-QG-EVID-07:          EVIDENCE PRODUCED — PENDING REVIEW A
+                                VALIDATION (not CLOSED, not FINAL PASS).
+Feature module approval:       NOT APPROVED.
+Phase 3 Approval Gate:         NOT opened.
+LIVE:                           NOT_AUTHORIZED.
+```
+
+**Next governed step:** bounded Review A of EVID-07 correction 003 + formal evidence at Commit `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9` — determines whether `-MAJ-05` and `P3-FEATURE-QG-EVID-07` close.
+
+**Files changed:** Commit A (already pushed) — `docs/engineering/testing.md`, `python/feature-engine/{pyproject.toml,requirements-dev.lock.txt,README.md,tests/test_i13_properties.py}`. This entry (Commit B) — `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only — verified via `git status --porcelain=v1`; no other file touched. `manifest_version` `"10.371"` → `"10.372"`.
 
 ## Decision Log
 

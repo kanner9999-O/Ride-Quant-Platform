@@ -2,6 +2,26 @@
 
 Format dựa theo [Keep a Changelog](https://keepachangelog.com/), áp dụng cho toàn bộ `/docs`.
 
+## [Unreleased] — 2026-09-15 — feature-engine: EVID-07 Integrated Execution — Testing Convention v0.17 `Approved` (Hypothesis), ADR-043 implementation Review A `CLEAN`, formal I-13 property evidence produced (candidate bounded correction 003, `EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`)
+
+**Integrated execution transaction — vai trò: `Feature Engine EVID-07 Integrated Execution Executor`.** Two exact commits on `main`: Commit A `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9` (executable boundary, parent `81605fd1ca099eae48b937ced3c775e271dee2e2`) and this entry's own Commit B (docs/bookkeeping only).
+
+**ADR-043 implementation Review A — CLEAN.** `src/feature_engine/ownership.py`, boundary `81605fd1ca099eae48b937ced3c775e271dee2e2`: `ADR043-IMPL-A-MAJ-01` through `-07` all `CLOSED — REVIEW A VALIDATED`. **0 Blocker / 0 Major / 0 Minor.**
+
+**Testing Convention v0.17 — `Approved`.** Product Owner decision (verbatim): **"APPROVE Testing Convention v0.17 — Python property-based testing mechanism: Hypothesis — ADR_OPTIONAL, ADR NOT AUTHORED."** `2026-09-14`. Reviewed boundary `81605fd1ca099eae48b937ced3c775e271dee2e2`, reviewed blob `708744f0464720cb14ceafbe75bb422200a57820`, Review A CLEAN 0/0/0, Risk **R1** (no Review B required). `testing.md`: `status: Draft → Approved`, `approved_by: Product Owner`, `approved_at: "2026-09-14"`, `version` unbumped (`"0.17"`).
+
+**Hypothesis installed/pinned.** `hypothesis==6.168.0` + `sortedcontainers==2.4.0`, re-verified live at install time against PyPI (wheel SHA-256 hypothesis `92cff497b92e2285ff6a94193fdee04aba483a4115d501c1f9a570bd103fcd20`, sortedcontainers `a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0`). `pyproject.toml` `[project.optional-dependencies].dev` + `requirements-dev.lock.txt` only — production `dependencies = []` unchanged, no runtime dependency added.
+
+**Formal I-13 property evidence.** `python/feature-engine/tests/test_i13_properties.py` — 18 tests, `HYPOTHESIS_PROFILE=ci` (`derandomize=True, print_blob=True, database=None, max_examples=200`), all 5 required I-13 evidence categories, against real production code (test-doubles limited to `SubjectOwnershipAuthority`/`FencedFeatureCommitter`/`AuthoritativeLineageHistoryProvider`, no production-durable adapter claimed). Run twice against exact commit `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9`: 18 passed both times, no `Flaky`. Full regression: **386 passed** (368 pre-existing + 18 new). `ruff check src tests`: 2 pre-existing unrelated findings, unchanged (not "clean", not fixed). `mypy src tests`: success, 34 source files. No production defect found; no production source changed. Exact evidence record: `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md` §12 (`candidate_version` `"0.3" → "0.4"`, bounded correction 003).
+
+**EVID-07 disposition.** `P3-FEATURE-QG-EVID07-A-MAJ-01`/`-02`/`-03`/`-04`: `CLOSED — REVIEW A VALIDATED`. `P3-FEATURE-QG-EVID07-A-MAJ-05`: `REMEDIATED — PENDING BOUNDED REVIEW A RE-REVIEW` (its implementation-docstring-only rationale superseded by the now-implemented, Review-A-validated ADR-043 authority stack; not self-closed). `P3-FEATURE-QG-EVID-07`: **`EVIDENCE PRODUCED — PENDING REVIEW A VALIDATION`** — not `CLOSED`, not `FINAL PASS`.
+
+**Not performed:** no new ADR; no Review B; no additional Product Owner decision; no standalone Risk Classification transaction; `ADR-043` not modified (v0.2, `Approved`, frozen); Constitution/`feature.md`/Input Contracts/Event Contracts/Stream Registry/`module-registry.yaml` untouched; no production `src/feature_engine/**` change; no CI workflow added; `.hypothesis/` never committed.
+
+**Files changed:** Commit A — `docs/engineering/testing.md`, `python/feature-engine/{pyproject.toml,requirements-dev.lock.txt,README.md,tests/test_i13_properties.py}`. Commit B (this entry) — `docs/governance/quality-gate/feature-engine-evid07-property-based-mechanism-candidate-001.md`, `docs/MANIFEST.md`, `docs/CHANGELOG.md` only. `manifest_version` `"10.371"` → `"10.372"`. Feature module remains NOT APPROVED. LIVE remains NOT_AUTHORIZED.
+
+**Next governed step:** bounded Review A of EVID-07 correction 003 + formal evidence at Commit `27bd472efeab9a9538bde62ccfeca5c0a1ce48c9`.
+
 ## [Unreleased] — 2026-09-14 — feature-engine: `ADR-043` post-approval factual erratum (R0, bookkeeping only — optional R2 advisory cross-check history)
 
 **Bounded R0 mechanical factual reconciliation — vai trò: `ADR-043 Post-Approval Factual Reconciliation Executor`.** `ADR-043` remains v0.2, `Approved`, unchanged and frozen — `docs/adr/ADR-043.md` not touched, verified byte-identical at blob `e7ebc2093768b164b91b496d932d2f9feb6c659a`. Corrects one factual bookkeeping statement in the approval record: the approval's blanket assertion that the optional R2 cross-check "was not required or performed" did not match actual history.
